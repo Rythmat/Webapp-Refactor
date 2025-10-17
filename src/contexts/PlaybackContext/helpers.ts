@@ -1,10 +1,7 @@
 import { Midi } from '@tonejs/midi';
 import { v4 as uuidv4 } from 'uuid';
-import { PhraseMap, NoteSequence } from '@/hooks/data';
+import { PhraseMap } from '@/hooks/data';
 
-export const isNoteSequence = (input: unknown): input is NoteSequence => {
-  return typeof input === 'object' && input !== null && 'Notes' in input;
-};
 
 export const isPhraseMap = (input: unknown): input is PhraseMap => {
   return typeof input === 'object' && input !== null && 'PhraseBars' in input;
@@ -17,7 +14,6 @@ export const isMidiTrack = (
 };
 
 export type InputType =
-  | NoteSequence
   | PhraseMap
   | Midi['tracks'][number]
   | null
@@ -90,25 +86,6 @@ export const ticksToSeconds = (
   return ticks * secondsPerTick; // Step 4: Convert to total seconds
 };
 
-export const parseNoteSequence = (input: NoteSequence): PlaybackEvent[] => {
-  return input.Notes.map((note) => ({
-    id: note.id,
-    type: 'note',
-    midi: note.noteNumber,
-    time: ticksToSeconds(
-      note.startTimeInTicks,
-      input.tempo,
-      input.ticksPerBeat,
-    ),
-    duration: ticksToSeconds(
-      note.durationInTicks,
-      input.tempo,
-      input.ticksPerBeat,
-    ),
-    velocity: note.velocity / 127,
-    color: note.color,
-  }));
-};
 
 const RHYTHM_MAP_NOTE_DURATIONS = {
   whole: 4,

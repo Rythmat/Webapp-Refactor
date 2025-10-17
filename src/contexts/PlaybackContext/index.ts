@@ -3,10 +3,8 @@ export { usePlayback } from './usePlayback';
 
 export {
   isMidiTrack,
-  isNoteSequence,
   isPhraseMap,
   ticksToSeconds,
-  parseNoteSequence,
   parseMidi,
   parsePhraseMap,
   type InputType as PlaybackInputType,

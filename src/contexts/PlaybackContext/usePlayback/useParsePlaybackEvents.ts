@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
 import {
   InputType,
-  isNoteSequence,
-  parseNoteSequence,
   isPhraseMap,
   parsePhraseMap,
   isMidiTrack,
@@ -16,10 +14,6 @@ export const useParsePlaybackEvents = (input: InputType): PlaybackEvent[] => {
       return [];
     }
 
-    if (isNoteSequence(input)) {
-      // Input is a NoteSequence
-      return parseNoteSequence(input);
-    }
 
     if (isPhraseMap(input)) {
       // Input is a PhraseMap
@@ -53,13 +47,6 @@ export const useParseBPM = (
       };
     }
 
-    if (isNoteSequence(input)) {
-      return {
-        bpm: input.tempo,
-        beatsPerBar: 4,
-        beatUnit: 4,
-      };
-    }
 
     if (isPhraseMap(input)) {
       return {

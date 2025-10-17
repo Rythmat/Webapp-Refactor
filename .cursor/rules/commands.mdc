@@ -1,0 +1,26 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Common Commands
+
+## Package Management (`bun`)
+- **Install Dependencies:** `bun install --exact` (Uses `[bun.lockb](mdc:bun.lockb)`)
+- **Add Dependency:** `bun add --exact <package-name>`
+- **Run Script:** `bun run <script-name>`
+
+## Environment Variables (`Doppler`)
+- This project uses Doppler to manage environment variables, as indicated in `[package.json](mdc:package.json)` scripts.
+- Prefix commands that require secrets (e.g., accessing APIs/databases during development or generation tasks) with `doppler run --`.
+
+## Common Scripts (from `[package.json](mdc:package.json)`)
+- **`bun run dev`**: Start the development server (`vite`). Requires Doppler: `doppler run -- bun run dev`
+- **`bun run build`**: Build the application for production (`tsc -b && vite build`).
+- **`bun run lint`**: Run ESLint, Prettier checks, and TypeScript type checking.
+- **`bun run format`**: Format code using Prettier.
+- **`bun run generate:api`**: Generate the API client library from a Swagger/OpenAPI spec. Requires Doppler: `doppler run -- bun run generate:api`
+- **`bun run test:unit`**: Run unit tests using `vitest`.
+- **`bun run predev`**: Checks/installs dependencies and generates the API client before starting the dev server.
+
+*Remember to prefix commands with `doppler run --` when they need access to environment variables.*

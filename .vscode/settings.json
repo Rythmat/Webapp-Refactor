@@ -1,0 +1,12 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.rulers": [100, 120, 140],
+  "cSpell.words": ["Cyclomatic", "musicatlas", "niddle", "upsert"],
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "typescript.preferences.autoImportFileExcludePatterns": ["@radix-ui/**"]
+}

@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Haskoy:wght@400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 13% 95%;
+    --foreground: 33 25% 6%;
+    --card: 40 13% 95%;
+    --card-foreground: 33 25% 6%;
+    --popover: 40 13% 95%;
+    --popover-foreground: 33 25% 6%;
+    --primary: 45 100% 60%;
+    --primary-foreground: 33 25% 6%;
+    --secondary: 40 6% 82%;
+    --secondary-foreground: 33 25% 6%;
+    --muted: 40 6% 82%;
+    --muted-foreground: 37 5% 49%;
+    --accent: 50 100% 73%;
+    --accent-foreground: 33 25% 6%;
+    --destructive: 5 87% 64%;
+    --destructive-foreground: 40 13% 95%;
+    --border: 40 6% 82%;
+    --input: 40 6% 82%;
+    --ring: 45 100% 60%;
+    --cream: 33 25% 94%;
+    --cream-dark: 33 25% 88%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 40 33% 99%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 40 33% 99%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --background: 33 25% 6%;
+    --foreground: 40 13% 95%;
+    --card: 33 25% 6%;
+    --card-foreground: 40 13% 95%;
+    --popover: 33 25% 6%;
+    --popover-foreground: 40 13% 95%;
+    --primary: 45 100% 60%;
+    --primary-foreground: 33 25% 6%;
+    --secondary: 35 6% 23%;
+    --secondary-foreground: 40 13% 95%;
+    --muted: 35 6% 23%;
+    --muted-foreground: 38 5% 63%;
+    --accent: 40 100% 55%;
+    --accent-foreground: 40 13% 95%;
+    --destructive: 6 63% 50%;
+    --destructive-foreground: 40 13% 95%;
+    --border: 35 6% 23%;
+    --input: 35 6% 23%;
+    --ring: 45 100% 60%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 0 0% 12%;
+    --sidebar-foreground: 40 33% 99%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 40 33% 99%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 40 33% 99%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-weight: 400;
+    font-family: 'Haskoy', sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Fraunces', serif;
+  }
+
+  :-webkit-autofill {
+    /* Expose a hook for JavaScript when auto fill is shown.
+    JavaScript can capture 'animationstart' events */
+    animation-name: onAutoFillStart;
+
+    /* Make the backgound color become yellow _really slowly_ */
+    transition: background-color 50000s ease-in-out 0s;
+  }
+
+  :not(:-webkit-autofill) {
+    /* Expose a hook for JS onAutoFillCancel
+    JavaScript can capture 'animationstart' events */
+    animation-name: onAutoFillCancel;
+  }
+
+  .inset-shadow {
+    box-shadow: inset 0 10px 10px -10px rgba(0, 0, 0, 0.8);
+  }
+}

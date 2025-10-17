@@ -1,0 +1,30 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Overview
+
+## Core Technologies
+- **Frontend:** React, TypeScript
+- **Build Tool:** Vite
+- **Styling:** TailwindCSS, Shadcn UI ([components.json](mdc:components.json))
+- **Routing:** `react-router-dom`
+- **State Management/Data Fetching:** `@tanstack/react-query`, React Context API
+
+## Setup & Execution
+- **Package Manager:** `bun` ([bun.lockb](mdc:bun.lockb))
+- **Entry Points:** Rendering starts in `[src/main.tsx](mdc:src/main.tsx)`, which renders the main `[src/App.tsx](mdc:src/App.tsx)` component.
+- **Environment Variables:** Managed by Doppler (see `commands.mdc`).
+
+## API Interaction
+- Communicates with a backend specified by the `VITE_MUSIC_ATLAS_API_URL` environment variable.
+- API client setup is in `[src/contexts/MusicAtlasContext/api.ts](mdc:src/contexts/MusicAtlasContext/api.ts)`.
+- Uses `@tanstack/react-query` for data fetching, often via custom hooks in `[src/hooks/data/](mdc:src/hooks/data)`.
+
+## Authentication & Authorization
+- **Mechanism:** JWT (JSON Web Tokens).
+- **Implementation:** Handled in `[src/contexts/AuthContext/AuthContext.tsx](mdc:src/contexts/AuthContext/AuthContext.tsx)`.
+- **Token Storage:** Stored in Local Storage under the key `'token'`.
+- **State Access:** Auth state (user ID, token, expiration, role) available via `useAuthContext` hook from `[src/contexts/AuthContext/hooks/useAuthContext.ts](mdc:src/contexts/AuthContext/hooks/useAuthContext.ts)`.
+- **Roles:** Supports `'student'` and `'teacher'` roles, determined from the JWT payload. Role-based access is likely managed through routing defined in `[src/App.tsx](mdc:src/App.tsx)` and feature modules (`[src/features/](mdc:src/features)`).

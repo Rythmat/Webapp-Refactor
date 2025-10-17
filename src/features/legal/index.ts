@@ -1,0 +1,1 @@
+export { legalPages } from './LegalPages';

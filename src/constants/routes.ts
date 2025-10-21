@@ -248,7 +248,7 @@ export const ProfileRoutes = {
 
   root : createRouteDefinition(homePrefix),
 
-  profile: createRouteDefinition('/me', { prefix: homePrefix }),
+  profile: createRouteDefinition(homePrefix),
 
   settings: createRouteDefinition('/settings', { prefix: homePrefix }),
 
@@ -256,3 +256,34 @@ export const ProfileRoutes = {
 
 }
 
+const learnPrefix= '/learn';
+
+export const LearnRoutes = {
+
+  root: createRouteDefinition(learnPrefix),
+
+  lessons: createRouteDefinition('/lessons', { prefix: learnPrefix }),
+
+  flow: createRouteDefinition<{
+      flowType: string,
+      nameOf: string,
+    }>('/lessons/flow/:flowType/:nameOf', { prefix: learnPrefix }),
+
+  specific: createRouteDefinition<{
+      key:string,
+    }>('/lesson/:key', { prefix: learnPrefix }),
+
+  group: createRouteDefinition<{
+      key:string,
+      group: string,
+    }>('/lesson/:key/:group', { prefix: learnPrefix }),
+}
+
+
+// lessons: createRouteDefinition<{
+//     classroomId: string;
+//     collectionId: string;
+//     lessonId: string;
+//   }>('/lessons/:collectionId/lessons/:lessonId', {
+//     prefix: learnPrefix,
+//   }),

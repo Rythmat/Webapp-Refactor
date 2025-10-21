@@ -74,6 +74,8 @@ export const CollectionsPage = () => {
     refetch,
   } = useCollections({ includeEmpty: true });
 
+  
+
   const createCollection = useCreateCollection();
   const deleteCollection = useDeleteCollection();
 
@@ -163,6 +165,7 @@ export const CollectionsPage = () => {
       );
     }
 
+
     return collections.map((collection) => (
               <div
                 key={collection.id}
@@ -217,9 +220,9 @@ export const CollectionsPage = () => {
         </Button>
       </div>
 
-            <div className="space-y-4">
-              {renderCollectionCards()}
-            </div>
+      <div className="space-y-4">
+        {renderCollectionCards()}
+      </div>
       
 
       {/* Create Collection Dialog */}

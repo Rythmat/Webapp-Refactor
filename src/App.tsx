@@ -7,7 +7,7 @@ import { classroomPages } from './features/classroom/ClassroomPages';
 import { legalPages } from './features/legal';
 import { teacherPages } from './features/teacher/TeacherPages';
 import { studioPages } from './features/studio/StudioPages';
-import { gamesPages } from './features/games/GamePages';
+// import { gamesPages } from './features/games/GamePages';
 import { studentPages } from './features/student/StudentPages';
 
 const routesArray = createBrowserRouter([
@@ -17,7 +17,7 @@ const routesArray = createBrowserRouter([
   teacherPages(),
   legalPages(),
   studioPages(),
-  gamesPages(),
+  // gamesPages(),
   studentPages(),
   {
     path: '*',

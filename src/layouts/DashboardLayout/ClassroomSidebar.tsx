@@ -1,14 +1,10 @@
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
-// import {  type ReactNode } from 'react';
 import { Logo } from '@/components/Logo';
-// import { usePage, useChapter, useCollection } from '@/hooks/data';
 import { BetaHelp } from '@/components/ui/beta-help';
 import { ChaptersIcon } from '@/components/ui/icons/chapters-icon';
 import { PlayAlongIcon } from '@/components/ui/icons/play-along-icon';
 import { cn } from '@/components/utilities';
 import {  ClassroomRoutes, GameRoutes, ProfileRoutes, StudioRoutes } from '@/constants/routes';
-// import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-// import { ClassroomSwitcher } from '@/features/teacher/components/ClassroomSwitcher';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
 import { UserWidget } from './UserWidget';
@@ -36,78 +32,6 @@ export const ClassroomSidebar = ({
   view,
   ids
 }: SidebarProps) => {
-  // const { role } = useAuthContext();
-
-  // const { data: collection } = useCollection(ids?.collectionId);
-  // const { data: page } = usePage(ids?.lessonId);
-  // const chapterId = page?.chapterId;
-  // const { data: chapter } = useChapter(chapterId);
-
-  // let sidebar: ReactNode = null;
-
-  // switch (view) {
-  //   case 'home':
-  //     sidebar =  (
-  //       <ul className="flex flex-1 flex-col gap-y-1 pt-4">
-  //         <SidebarMainNavItem
-  //           icon={<TeacherIcon />}
-  //           isCollapsed={isCollapsed}
-  //           label="Classrooms"
-  //           to={ClassroomRoutes.root()}
-  //         />
-  //       </ul>
-  //       )
-  //       break;
-
-  //   case 'collection':
-  //     sidebar =  (
-  //       <ul className="flex flex-1 flex-col gap-y-1 pt-4">
-  //         <SidebarMainNavItem
-  //           icon={<CollectionsIcon />}
-  //           isCollapsed={isCollapsed}
-  //           label="Collection"
-  //           to={ClassroomRoutes.home({ classroomId: ids?.classroomId! })}
-  //         />
-  //       </ul> 
-  //     )
-  //     break;
-
-  //   case 'lesson':
-
-  //     sidebar =  (
-  //       <ul className="flex flex-1 flex-col gap-y-1 pt-4">
-  //         <SidebarMainNavItem
-  //         icon={<CollectionsIcon />}
-  //         isCollapsed={isCollapsed}
-  //         label="Collection"
-  //         to={ClassroomRoutes.home({ classroomId: ids?.classroomId! })}
-  //         />
-  //         <SidebarMainNavItem
-  //           icon={<ChaptersIcon />}
-  //           isCollapsed={isCollapsed}
-  //           label={collection?.name!}
-  //           to={ClassroomRoutes.collection({classroomId: ids?.classroomId!, collectionId: ids?.collectionId! })}
-  //         />
-  //         {!isCollapsed && (
-  //         <>
-  //           <h2 className="text-zinc-500 font-bold text-lg">{chapter?.name ?? 'Current Chapter'}</h2>
-  //           {chapter?.pages.map(p => (
-  //             <SidebarSecondaryNavItem
-  //               label={p.name!}
-  //               to={ClassroomRoutes.lesson({classroomId: ids?.classroomId!, collectionId: ids?.collectionId!, lessonId: p.id })}
-  //             />
-  //           ))}
-  //         </>
-  //       )}
-          
-  //       </ul>
-  //     )
-  //     break;
-
-  //   default:
-  //     sidebar = null;
-  //     break;
-  // }
 
   switch(view){
     default:
@@ -126,11 +50,6 @@ export const ClassroomSidebar = ({
         <div className="relative">
           <div className="flex items-center">
             <Logo className={cn('relative transition-all')} />
-            {/* {!isCollapsed && (
-              <span className="text-xl font-semibold text-white transition-all">
-                Music Atlas
-              </span>
-            )} */}
           </div>
 
           <div className="group pointer-events-none absolute -top-8 right-[-4.5rem] p-8">
@@ -143,15 +62,6 @@ export const ClassroomSidebar = ({
             </button>
           </div>
         </div>
-
-        {/* Classroom switcher for teachers
-        {role === 'teacher' && !isCollapsed && (
-          <div className="mb-4">
-            <ClassroomSwitcher />
-          </div>
-        )} */}
-
-
         
         <ul className="flex flex-1 flex-col gap-y-1 pt-4">
           <SidebarMainNavItem

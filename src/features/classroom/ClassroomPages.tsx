@@ -1,10 +1,12 @@
 import { lazy} from 'react';
 import { Navigate} from 'react-router-dom';
-import { ClassroomRoutes} from '@/constants/routes';
+import { ClassroomRoutes, GameRoutes} from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
+import { GamePlayer } from '@/components/Games/GamePlayer';
+
 const ClassroomCollectionPage = lazy(() =>
   import('./ClassroomCollectionPage').then(({ ClassroomCollectionPage }) => ({
     default: ClassroomCollectionPage,
@@ -64,6 +66,30 @@ export const classroomPages = () => {
         path: '*',
         element: <Navigate to={ClassroomRoutes.picker()} />,
       },
+    ],
+  };
+};
+
+
+export const gamesPages = () => {
+  return {
+    path: GameRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage>
+          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [
+      {
+        path: GameRoutes.root.definition,
+        element: <Navigate to={GameRoutes.root()} />,
+      },
+      {
+        element: <GamePlayer/>,
+        index: true,
+      }
     ],
   };
 };

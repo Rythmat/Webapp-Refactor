@@ -7,6 +7,7 @@ export * from './notes';
 export * from './pages';
 export * from './phraseMaps';
 export * from './practiceEvents';
+export * from './prism';
 export * from './students';
 export * from './teachers';
 export * from './playAlongs';

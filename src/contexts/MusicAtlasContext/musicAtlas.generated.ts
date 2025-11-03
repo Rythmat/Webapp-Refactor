@@ -22,11 +22,6 @@ export interface DeleteCollectionsByIdData {
   success: boolean;
 }
 
-export interface DeleteNoteSequencesByIdData {
-  deletedNoteSequenceId: string;
-  success: boolean;
-}
-
 export interface DeletePagesByIdData {
   deleted: boolean;
   id: string;
@@ -80,18 +75,6 @@ export interface DeleteTeachersByIdData {
 export interface DeleteTeachersInvitationsByIdData {
   id: string;
   revoked: boolean;
-}
-
-export interface DeleteTunesByIdData {
-  beatUnit: number;
-  beatsPerMeasure: number;
-  color: string | null;
-  createdAt: Date;
-  id: string;
-  key: string | null;
-  tempo: number;
-  title: string | null;
-  updatedAt: Date;
 }
 
 export interface GetAuthMeData {
@@ -218,69 +201,6 @@ export interface GetCollectionsParams {
   includeEmpty?: boolean;
 }
 
-export interface GetNoteSequencesByIdData {
-  Notes: {
-    color: string | null;
-    durationInTicks: number;
-    id: string;
-    noteNumber: number;
-    noteOffVelocity: number | null;
-    noteSequenceId: string;
-    startTimeInTicks: number;
-    velocity: number;
-  }[];
-  createdAt: Date;
-  id: string;
-  name: string;
-  tempo: number;
-  ticksPerBeat: number;
-  timeSignature: string;
-  updatedAt: Date;
-}
-
-export interface GetNoteSequencesData {
-  data: {
-    Notes: {
-      color: string | null;
-      durationInTicks: number;
-      id: string;
-      noteNumber: number;
-      noteOffVelocity: number | null;
-      noteSequenceId: string;
-      startTimeInTicks: number;
-      velocity: number;
-    }[];
-    createdAt: Date;
-    id: string;
-    name: string;
-    tempo: number;
-    ticksPerBeat: number;
-    timeSignature: string;
-    updatedAt: Date;
-  }[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
-export interface GetNoteSequencesParams {
-  name?: string;
-  /**
-   * @min 1
-   * @default 1
-   */
-  page?: number;
-  /**
-   * @min 1
-   * @max 100
-   * @default 20
-   */
-  pageSize?: number;
-}
-
 export type GetNotesData = {
   key: string;
   midi: number;
@@ -327,7 +247,18 @@ export interface GetPhraseMapsByIdData {
       color: string | null;
       id: string;
       label: string | null;
-      noteDuration: 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth';
+      noteDuration:
+        | 'whole'
+        | 'half'
+        | 'quarter'
+        | 'eighth'
+        | 'sixteenth'
+        | 'thirtysecond'
+        | 'dotted_whole'
+        | 'dotted_half'
+        | 'dotted_quarter'
+        | 'dotted_eighth'
+        | 'dotted_sixteenth';
       noteNumbers: number[];
       noteType: 'note' | 'rest';
       order: number;
@@ -441,6 +372,38 @@ export interface GetPracticeEventsParams {
   studentId?: string;
 }
 
+export interface GetPrismChordsByNameData {
+  chord: number[];
+}
+
+export interface GetPrismChordsData {
+  chords: string[];
+}
+
+export interface GetPrismChordsProgressionsData {
+  keys: string[];
+}
+
+export interface GetPrismModesByModeChordsData {
+  chords: object;
+}
+
+export interface GetPrismModesByModeData {
+  steps: number[];
+}
+
+export interface GetPrismModesData {
+  modes: object;
+}
+
+export interface GetPrismModesFamilyByFamilyData {
+  modes: object;
+}
+
+export interface GetPrismModesFamilyData {
+  families: ('diatonic' | 'harmonic minor' | 'melodic minor' | 'harmonic major' | 'double harmonic')[];
+}
+
 export interface GetStudentsByIdData {
   birthDate: (Date) | null;
   classroomCount: number;
@@ -518,71 +481,6 @@ export interface GetTeachersParams {
   status?: 'all' | 'active' | 'removed';
 }
 
-export interface GetTunesByIdData {
-  Measures: {
-    Notes: {
-      color: string | null;
-      createdAt: Date;
-      id: string;
-      label: string | null;
-      measureId: string;
-      pitch: string;
-      /**
-       * @min 0
-       * @max 1
-       */
-      startOffsetInBeats: number;
-      type:
-        | 'whole'
-        | 'half'
-        | 'quarter'
-        | 'eighth'
-        | 'sixteenth'
-        | 'thirtysecond'
-        | 'dotted_whole'
-        | 'dotted_half'
-        | 'dotted_quarter'
-        | 'dotted_eighth'
-        | 'dotted_sixteenth';
-      updatedAt: Date;
-      velocity: number | null;
-    }[];
-    color: string | null;
-    createdAt: Date;
-    id: string;
-    label: string | null;
-    number: number;
-    repeatEnd: boolean;
-    repeatStart: boolean;
-    repeatTimes: number | null;
-    tuneId: string;
-    updatedAt: Date;
-  }[];
-  beatUnit: number;
-  beatsPerMeasure: number;
-  color: string | null;
-  createdAt: Date;
-  id: string;
-  key: string | null;
-  tempo: number;
-  title: string | null;
-  updatedAt: Date;
-}
-
-export type GetTunesData = {
-  beatUnit: number;
-  beatsPerMeasure: number;
-  color: string | null;
-  createdAt: Date;
-  id: string;
-  key: string | null;
-  measures: number;
-  notes: number;
-  tempo: number;
-  title: string | null;
-  updatedAt: Date;
-}[];
-
 export type PatchChaptersByIdData = any;
 
 export interface PatchChaptersByIdPayload {
@@ -641,60 +539,7 @@ export interface PatchCollectionsByIdPayload {
   name?: string;
 }
 
-export interface PatchNoteSequencesByIdData {
-  Notes: {
-    durationInTicks: number;
-    id: string;
-    noteNumber: number;
-    noteOffVelocity: number | null;
-    noteSequenceId: string;
-    startTimeInTicks: number;
-    velocity: number;
-  }[];
-  createdAt: Date;
-  id: string;
-  name: string;
-  tempo: number;
-  ticksPerBeat: number;
-  timeSignature: string;
-  updatedAt: Date;
-}
-
-export interface PatchNoteSequencesByIdPayload {
-  id: string;
-  name?: string;
-  notes?: {
-    color?: string | null;
-    durationInTicks: number;
-    noteNumber: number;
-    noteOffVelocity?: number;
-    startTimeInTicks: number;
-    velocity: number;
-  }[];
-  tempo?: number;
-  ticksPerBeat?: number;
-  timeSignature?: string;
-}
-
 export interface PatchPagesByIdData {
-  PageNoteSequences: {
-    NoteSequence: {
-      createdAt: Date;
-      id: string;
-      name: string;
-      root: string | null;
-      tempo: number;
-      ticksPerBeat: number;
-      timeSignature: string;
-      type: string | null;
-      updatedAt: Date;
-    };
-    createdAt: Date;
-    id: string;
-    noteSequenceId: string;
-    pageId: string;
-    updatedAt: Date;
-  }[];
   PagePhraseMaps: {
     createdAt: Date;
     id: string;
@@ -727,7 +572,6 @@ export interface PatchPagesByIdPayload {
   description?: string | null;
   name?: string;
   noteKey?: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-  noteSequenceIds?: string[];
   order?: number;
   phraseMapIds?: string[];
   playAlongIds?: string[];
@@ -738,7 +582,18 @@ export interface PatchPhraseMapsByIdBarsByBarIdData {
     color: string | null;
     id: string;
     label: string | null;
-    noteDuration: 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth';
+    noteDuration:
+      | 'whole'
+      | 'half'
+      | 'quarter'
+      | 'eighth'
+      | 'sixteenth'
+      | 'thirtysecond'
+      | 'dotted_whole'
+      | 'dotted_half'
+      | 'dotted_quarter'
+      | 'dotted_eighth'
+      | 'dotted_sixteenth';
     noteNumbers: number[];
     noteType: 'note' | 'rest';
     order: number;
@@ -760,7 +615,18 @@ export interface PatchPhraseMapsByIdBarsByBarIdPayload {
   notes: {
     color?: string | null;
     label?: string | null;
-    noteDuration: 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth';
+    noteDuration:
+      | 'whole'
+      | 'half'
+      | 'quarter'
+      | 'eighth'
+      | 'sixteenth'
+      | 'thirtysecond'
+      | 'dotted_whole'
+      | 'dotted_half'
+      | 'dotted_quarter'
+      | 'dotted_eighth'
+      | 'dotted_sixteenth';
     noteNumbers: number[];
     noteType: 'note' | 'rest';
     order?: number;
@@ -829,99 +695,6 @@ export interface PatchStudentsByIdRestoreData {
 export interface PatchTeachersByIdRestoreData {
   id: string;
   restored: boolean;
-}
-
-export interface PatchTunesByIdData {
-  Measures: {
-    Notes: {
-      color: string | null;
-      createdAt: Date;
-      id: string;
-      label: string | null;
-      measureId: string;
-      pitch: string;
-      /**
-       * @min 0
-       * @max 1
-       */
-      startOffsetInBeats: number;
-      type:
-        | 'whole'
-        | 'half'
-        | 'quarter'
-        | 'eighth'
-        | 'sixteenth'
-        | 'thirtysecond'
-        | 'dotted_whole'
-        | 'dotted_half'
-        | 'dotted_quarter'
-        | 'dotted_eighth'
-        | 'dotted_sixteenth';
-      updatedAt: Date;
-      velocity: number | null;
-    }[];
-    color: string | null;
-    createdAt: Date;
-    id: string;
-    label: string | null;
-    number: number;
-    repeatEnd: boolean;
-    repeatStart: boolean;
-    repeatTimes: number | null;
-    tuneId: string;
-    updatedAt: Date;
-  }[];
-  beatUnit: number;
-  beatsPerMeasure: number;
-  color: string | null;
-  createdAt: Date;
-  id: string;
-  key: string | null;
-  tempo: number;
-  title: string | null;
-  updatedAt: Date;
-}
-
-export interface PatchTunesByIdPayload {
-  beatUnit?: number;
-  beatsPerMeasure?: number;
-  color?: string | null;
-  key?: string | null;
-  measures?: {
-    color?: string | null;
-    label?: string | null;
-    notes: {
-      color?: string | null;
-      label?: string | null;
-      pitch: string;
-      /**
-       * @min 0
-       * @max 1
-       */
-      startOffsetInBeats: number;
-      type:
-        | 'whole'
-        | 'half'
-        | 'quarter'
-        | 'eighth'
-        | 'sixteenth'
-        | 'thirtysecond'
-        | 'dotted_whole'
-        | 'dotted_half'
-        | 'dotted_quarter'
-        | 'dotted_eighth'
-        | 'dotted_sixteenth';
-      velocity?: number | null;
-    }[];
-    number: number;
-    /** @default false */
-    repeatEnd?: boolean;
-    /** @default false */
-    repeatStart?: boolean;
-    repeatTimes?: number | null;
-  }[];
-  tempo?: number;
-  title?: string | null;
 }
 
 export interface PostAuthLoginData {
@@ -1111,41 +884,6 @@ export interface PostMediaPayload {
   name: string;
 }
 
-export interface PostNoteSequencesData {
-  Notes: {
-    color: string | null;
-    durationInTicks: number;
-    id: string;
-    noteNumber: number;
-    noteOffVelocity: number | null;
-    noteSequenceId: string;
-    startTimeInTicks: number;
-    velocity: number;
-  }[];
-  createdAt: Date;
-  id: string;
-  name: string;
-  tempo: number;
-  ticksPerBeat: number;
-  timeSignature: string;
-  updatedAt: Date;
-}
-
-export interface PostNoteSequencesPayload {
-  name: string;
-  notes?: {
-    color?: string | null;
-    durationInTicks: number;
-    noteNumber: number;
-    noteOffVelocity?: number;
-    startTimeInTicks: number;
-    velocity: number;
-  }[];
-  tempo: number;
-  ticksPerBeat: number;
-  timeSignature: string;
-}
-
 export interface PostPagesData {
   chapterId: string;
   color: string | null;
@@ -1186,7 +924,18 @@ export interface PostPhraseMapsByIdBarsData {
     color: string | null;
     id: string;
     label: string | null;
-    noteDuration: 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth';
+    noteDuration:
+      | 'whole'
+      | 'half'
+      | 'quarter'
+      | 'eighth'
+      | 'sixteenth'
+      | 'thirtysecond'
+      | 'dotted_whole'
+      | 'dotted_half'
+      | 'dotted_quarter'
+      | 'dotted_eighth'
+      | 'dotted_sixteenth';
     noteNumbers: number[];
     noteType: 'note' | 'rest';
     order: number;
@@ -1210,7 +959,18 @@ export interface PostPhraseMapsByIdBarsPayload {
     color?: string;
     id?: string;
     label?: string;
-    noteDuration: 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth';
+    noteDuration:
+      | 'whole'
+      | 'half'
+      | 'quarter'
+      | 'eighth'
+      | 'sixteenth'
+      | 'thirtysecond'
+      | 'dotted_whole'
+      | 'dotted_half'
+      | 'dotted_quarter'
+      | 'dotted_eighth'
+      | 'dotted_sixteenth';
     noteNumbers: number[];
     noteType: 'note' | 'rest';
     order: number;
@@ -1317,99 +1077,6 @@ export interface PostTeachersInvitationsData {
 
 export interface PostTeachersInvitationsPayload {
   email: string;
-}
-
-export interface PostTunesData {
-  Measures: {
-    Notes: {
-      color: string | null;
-      createdAt: Date;
-      id: string;
-      label: string | null;
-      measureId: string;
-      pitch: string;
-      /**
-       * @min 0
-       * @max 1
-       */
-      startOffsetInBeats: number;
-      type:
-        | 'whole'
-        | 'half'
-        | 'quarter'
-        | 'eighth'
-        | 'sixteenth'
-        | 'thirtysecond'
-        | 'dotted_whole'
-        | 'dotted_half'
-        | 'dotted_quarter'
-        | 'dotted_eighth'
-        | 'dotted_sixteenth';
-      updatedAt: Date;
-      velocity: number | null;
-    }[];
-    color: string | null;
-    createdAt: Date;
-    id: string;
-    label: string | null;
-    number: number;
-    repeatEnd: boolean;
-    repeatStart: boolean;
-    repeatTimes: number | null;
-    tuneId: string;
-    updatedAt: Date;
-  }[];
-  beatUnit: number;
-  beatsPerMeasure: number;
-  color: string | null;
-  createdAt: Date;
-  id: string;
-  key: string | null;
-  tempo: number;
-  title: string | null;
-  updatedAt: Date;
-}
-
-export interface PostTunesPayload {
-  beatUnit: number;
-  beatsPerMeasure: number;
-  color?: string | null;
-  key?: string;
-  measures?: {
-    color?: string | null;
-    label?: string | null;
-    notes: {
-      color?: string | null;
-      label?: string | null;
-      pitch: string;
-      /**
-       * @min 0
-       * @max 1
-       */
-      startOffsetInBeats: number;
-      type:
-        | 'whole'
-        | 'half'
-        | 'quarter'
-        | 'eighth'
-        | 'sixteenth'
-        | 'thirtysecond'
-        | 'dotted_whole'
-        | 'dotted_half'
-        | 'dotted_quarter'
-        | 'dotted_eighth'
-        | 'dotted_sixteenth';
-      velocity?: number | null;
-    }[];
-    number: number;
-    /** @default false */
-    repeatEnd?: boolean;
-    /** @default false */
-    repeatStart?: boolean;
-    repeatTimes?: number | null;
-  }[];
-  tempo: number;
-  title?: string;
 }
 
 export namespace Auth {
@@ -1577,7 +1244,6 @@ export namespace Chapters {
    * No description
    * @tags Chapters
    * @name PostChaptersReorder
-   * @summary Globally reorder chapters (applies to all collections)
    * @request POST:/chapters/reorder
    * @response `200` `PostChaptersReorderData`
    */
@@ -1964,102 +1630,6 @@ export namespace Notes {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = GetNotesData;
-  }
-}
-
-export namespace NoteSequences {
-  /**
-   * No description
-   * @tags Note Sequences
-   * @name DeleteNoteSequencesById
-   * @request DELETE:/note-sequences/{id}
-   * @response `200` `DeleteNoteSequencesByIdData`
-   */
-  export namespace DeleteNoteSequencesById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = DeleteNoteSequencesByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Note Sequences
-   * @name GetNoteSequences
-   * @request GET:/note-sequences
-   * @response `200` `GetNoteSequencesData`
-   */
-  export namespace GetNoteSequences {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      name?: string;
-      /**
-       * @min 1
-       * @default 1
-       */
-      page?: number;
-      /**
-       * @min 1
-       * @max 100
-       * @default 20
-       */
-      pageSize?: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetNoteSequencesData;
-  }
-
-  /**
-   * No description
-   * @tags Note Sequences
-   * @name GetNoteSequencesById
-   * @request GET:/note-sequences/{id}
-   * @response `200` `GetNoteSequencesByIdData`
-   */
-  export namespace GetNoteSequencesById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetNoteSequencesByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Note Sequences
-   * @name PatchNoteSequencesById
-   * @request PATCH:/note-sequences/{id}
-   * @response `200` `PatchNoteSequencesByIdData`
-   */
-  export namespace PatchNoteSequencesById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PatchNoteSequencesByIdPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PatchNoteSequencesByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Note Sequences
-   * @name PostNoteSequences
-   * @request POST:/note-sequences
-   * @response `200` `PostNoteSequencesData`
-   */
-  export namespace PostNoteSequences {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostNoteSequencesPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostNoteSequencesData;
   }
 }
 
@@ -2584,89 +2154,6 @@ export namespace Students {
   }
 }
 
-export namespace Tunes {
-  /**
-   * No description
-   * @tags Tunes
-   * @name DeleteTunesById
-   * @request DELETE:/tunes/{id}
-   * @response `200` `DeleteTunesByIdData`
-   */
-  export namespace DeleteTunesById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = DeleteTunesByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Tunes
-   * @name GetTunes
-   * @request GET:/tunes
-   * @response `200` `GetTunesData`
-   */
-  export namespace GetTunes {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetTunesData;
-  }
-
-  /**
-   * No description
-   * @tags Tunes
-   * @name GetTunesById
-   * @request GET:/tunes/{id}
-   * @response `200` `GetTunesByIdData`
-   */
-  export namespace GetTunesById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetTunesByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Tunes
-   * @name PatchTunesById
-   * @request PATCH:/tunes/{id}
-   * @response `200` `PatchTunesByIdData`
-   */
-  export namespace PatchTunesById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PatchTunesByIdPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PatchTunesByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Tunes
-   * @name PostTunes
-   * @request POST:/tunes
-   * @response `200` `PostTunesData`
-   */
-  export namespace PostTunes {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostTunesPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostTunesData;
-  }
-}
-
 export namespace Media {
   /**
    * No description
@@ -2699,6 +2186,284 @@ export namespace Media {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = PostMediaGetUploadUrlData;
+  }
+}
+
+export namespace Music {
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismChords
+   * @request GET:/prism/chords
+   * @response `200` `GetPrismChordsData`
+   */
+  export namespace GetPrismChords {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismChordsData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismChordsByName
+   * @request GET:/prism/chords/{name}
+   * @response `200` `GetPrismChordsByNameData`
+   */
+  export namespace GetPrismChordsByName {
+    export type RequestParams = {
+      name:
+        | 'major'
+        | 'major (♭5)'
+        | 'minor'
+        | 'minor (♭5)'
+        | 'augmented'
+        | 'diminished'
+        | 'suspended 2'
+        | 'quartal'
+        | 'suspended 4'
+        | 'major 4'
+        | 'minor 4'
+        | 'suspended (#4)'
+        | 'suspended (♭2)'
+        | 'suspended (♭2♭5)'
+        | 'suspended 2(♭5)'
+        | 'suspended 2(♭5) add 6'
+        | 'suspended 2(♭5) add 6(♭9)'
+        | 'major 6'
+        | 'minor 6'
+        | 'minor 6 add ♭9'
+        | 'diminished 7'
+        | 'diminished 7(♭9)'
+        | 'minor 7(♭5)'
+        | 'diminished major 7'
+        | 'diminished major 9'
+        | 'dominant 7'
+        | 'dominant 9'
+        | 'major 7'
+        | 'major 7(#5)'
+        | 'major 7(♭5)'
+        | 'major 7(♭9)'
+        | 'major 7(#9)'
+        | 'major 7(#5#9)'
+        | 'minor 7'
+        | 'minor 7(#5)'
+        | 'minor 7(♭9)'
+        | 'minor 7(♭5♭9)'
+        | 'minor major 7'
+        | 'dominant 7 suspended 2'
+        | 'dominant 7 suspended 4'
+        | 'major 7 suspended 2'
+        | 'major 7 suspended 4'
+        | 'dominant 7(♭5)'
+        | 'dominant 7(#5)'
+        | 'dominant 7(#9)'
+        | 'dominant 7(#5#9)'
+        | 'major (add 2)'
+        | 'major (add 4)'
+        | 'dominant 7(#11)'
+        | 'major/5'
+        | 'major/4'
+        | 'major/3'
+        | 'dominant 7(♭9)'
+        | 'dominant 7(#5♭9)'
+        | 'dominant 7(♭5♭9)'
+        | 'major/6'
+        | 'major 7(#11)'
+        | 'major/1'
+        | 'minor 6/5'
+        | 'minor 6/♭3'
+        | 'minor 7(♭5)/4'
+        | 'major 7/5'
+        | 'major/#5'
+        | 'major/7'
+        | 'minor 7(♭5)/5'
+        | 'minor 6/♭6'
+        | 'major 9'
+        | 'major 9(#5)'
+        | 'minor 9'
+        | 'minor 9(♭5)'
+        | 'major 6/9'
+        | 'minor 6/9'
+        | 'diminished 7(add 9)'
+        | 'dominant 9 suspended 4'
+        | 'dominant (♭9) suspended 4'
+        | 'minor major 9'
+        | 'diminished 6/9'
+        | 'dominant 9(#5)';
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismChordsByNameData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismChordsProgressions
+   * @request GET:/prism/chords/progressions
+   * @response `200` `GetPrismChordsProgressionsData`
+   */
+  export namespace GetPrismChordsProgressions {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismChordsProgressionsData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismModes
+   * @request GET:/prism/modes
+   * @response `200` `GetPrismModesData`
+   */
+  export namespace GetPrismModes {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismModesData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismModesByMode
+   * @request GET:/prism/modes/{mode}
+   * @response `200` `GetPrismModesByModeData`
+   */
+  export namespace GetPrismModesByMode {
+    export type RequestParams = {
+      mode:
+        | 'ionian'
+        | 'dorian'
+        | 'phrygian'
+        | 'lydian'
+        | 'mixolydian'
+        | 'aeolian'
+        | 'locrian'
+        | 'harmonicminor'
+        | 'locriannat6'
+        | 'ionian#5'
+        | 'dorian#4'
+        | 'phrygiandominant'
+        | 'lydian#2'
+        | 'altereddiminished'
+        | 'melodicminor'
+        | 'dorian♭2'
+        | 'lydianaugmented'
+        | 'lydiandominant'
+        | 'mixolydiannat6'
+        | 'locriannat2'
+        | 'altereddominant'
+        | 'harmonicmajor'
+        | 'dorian♭5'
+        | 'altereddominantnat5'
+        | 'melodicminor#4'
+        | 'mixolydian♭2'
+        | 'lydianaugmented#2'
+        | 'locrian𝄫7'
+        | 'doubleharmonicmajor'
+        | 'lydian#2#6'
+        | 'ultraphrygian'
+        | 'doubleharmonicminor'
+        | 'oriental'
+        | 'ionian#2#5'
+        | 'locrian𝄫3𝄫7';
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismModesByModeData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismModesByModeChords
+   * @request GET:/prism/modes/{mode}/chords
+   * @response `200` `GetPrismModesByModeChordsData`
+   */
+  export namespace GetPrismModesByModeChords {
+    export type RequestParams = {
+      mode:
+        | 'ionian'
+        | 'dorian'
+        | 'phrygian'
+        | 'lydian'
+        | 'mixolydian'
+        | 'aeolian'
+        | 'locrian'
+        | 'harmonicminor'
+        | 'locriannat6'
+        | 'ionian#5'
+        | 'dorian#4'
+        | 'phrygiandominant'
+        | 'lydian#2'
+        | 'altereddiminished'
+        | 'melodicminor'
+        | 'dorian♭2'
+        | 'lydianaugmented'
+        | 'lydiandominant'
+        | 'mixolydiannat6'
+        | 'locriannat2'
+        | 'altereddominant'
+        | 'harmonicmajor'
+        | 'dorian♭5'
+        | 'altereddominantnat5'
+        | 'melodicminor#4'
+        | 'mixolydian♭2'
+        | 'lydianaugmented#2'
+        | 'locrian𝄫7'
+        | 'doubleharmonicmajor'
+        | 'lydian#2#6'
+        | 'ultraphrygian'
+        | 'doubleharmonicminor'
+        | 'oriental'
+        | 'ionian#2#5'
+        | 'locrian𝄫3𝄫7';
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismModesByModeChordsData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismModesFamily
+   * @request GET:/prism/modes/family
+   * @response `200` `GetPrismModesFamilyData`
+   */
+  export namespace GetPrismModesFamily {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismModesFamilyData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismModesFamilyByFamily
+   * @request GET:/prism/modes/family/{family}
+   * @response `200` `GetPrismModesFamilyByFamilyData`
+   */
+  export namespace GetPrismModesFamilyByFamily {
+    export type RequestParams = {
+      family: 'diatonic' | 'harmonic minor' | 'melodic minor' | 'harmonic major' | 'double harmonic';
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismModesFamilyByFamilyData;
   }
 }
 
@@ -3029,7 +2794,6 @@ export class Api<SecurityDataType extends unknown> {
      *
      * @tags Chapters
      * @name PostChaptersReorder
-     * @summary Globally reorder chapters (applies to all collections)
      * @request POST:/chapters/reorder
      * @response `200` `PostChaptersReorderData`
      */
@@ -3413,92 +3177,6 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<GetNotesData, any>({
         path: `/notes`,
         method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-  };
-  noteSequences = {
-    /**
-     * No description
-     *
-     * @tags Note Sequences
-     * @name DeleteNoteSequencesById
-     * @request DELETE:/note-sequences/{id}
-     * @response `200` `DeleteNoteSequencesByIdData`
-     */
-    deleteNoteSequencesById: (id: string, params: RequestParams = {}) =>
-      this.http.request<DeleteNoteSequencesByIdData, any>({
-        path: `/note-sequences/${id}`,
-        method: 'DELETE',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Note Sequences
-     * @name GetNoteSequences
-     * @request GET:/note-sequences
-     * @response `200` `GetNoteSequencesData`
-     */
-    getNoteSequences: (query: GetNoteSequencesParams, params: RequestParams = {}) =>
-      this.http.request<GetNoteSequencesData, any>({
-        path: `/note-sequences`,
-        method: 'GET',
-        query: query,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Note Sequences
-     * @name GetNoteSequencesById
-     * @request GET:/note-sequences/{id}
-     * @response `200` `GetNoteSequencesByIdData`
-     */
-    getNoteSequencesById: (id: string, params: RequestParams = {}) =>
-      this.http.request<GetNoteSequencesByIdData, any>({
-        path: `/note-sequences/${id}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Note Sequences
-     * @name PatchNoteSequencesById
-     * @request PATCH:/note-sequences/{id}
-     * @response `200` `PatchNoteSequencesByIdData`
-     */
-    patchNoteSequencesById: (id: string, data: PatchNoteSequencesByIdPayload, params: RequestParams = {}) =>
-      this.http.request<PatchNoteSequencesByIdData, any>({
-        path: `/note-sequences/${id}`,
-        method: 'PATCH',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Note Sequences
-     * @name PostNoteSequences
-     * @request POST:/note-sequences
-     * @response `200` `PostNoteSequencesData`
-     */
-    postNoteSequences: (data: PostNoteSequencesPayload, params: RequestParams = {}) =>
-      this.http.request<PostNoteSequencesData, any>({
-        path: `/note-sequences`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
         format: 'json',
         ...params,
       }),
@@ -4006,91 +3684,6 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
-  tunes = {
-    /**
-     * No description
-     *
-     * @tags Tunes
-     * @name DeleteTunesById
-     * @request DELETE:/tunes/{id}
-     * @response `200` `DeleteTunesByIdData`
-     */
-    deleteTunesById: (id: string, params: RequestParams = {}) =>
-      this.http.request<DeleteTunesByIdData, any>({
-        path: `/tunes/${id}`,
-        method: 'DELETE',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Tunes
-     * @name GetTunes
-     * @request GET:/tunes
-     * @response `200` `GetTunesData`
-     */
-    getTunes: (params: RequestParams = {}) =>
-      this.http.request<GetTunesData, any>({
-        path: `/tunes`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Tunes
-     * @name GetTunesById
-     * @request GET:/tunes/{id}
-     * @response `200` `GetTunesByIdData`
-     */
-    getTunesById: (id: string, params: RequestParams = {}) =>
-      this.http.request<GetTunesByIdData, any>({
-        path: `/tunes/${id}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Tunes
-     * @name PatchTunesById
-     * @request PATCH:/tunes/{id}
-     * @response `200` `PatchTunesByIdData`
-     */
-    patchTunesById: (id: string, data: PatchTunesByIdPayload, params: RequestParams = {}) =>
-      this.http.request<PatchTunesByIdData, any>({
-        path: `/tunes/${id}`,
-        method: 'PATCH',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Tunes
-     * @name PostTunes
-     * @request POST:/tunes
-     * @response `200` `PostTunesData`
-     */
-    postTunes: (data: PostTunesPayload, params: RequestParams = {}) =>
-      this.http.request<PostTunesData, any>({
-        path: `/tunes`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-  };
   media = {
     /**
      * No description
@@ -4123,6 +3716,295 @@ export class Api<SecurityDataType extends unknown> {
         path: `/media/get-upload-url`,
         method: 'POST',
         query: query,
+        format: 'json',
+        ...params,
+      }),
+  };
+  music = {
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismChords
+     * @request GET:/prism/chords
+     * @response `200` `GetPrismChordsData`
+     */
+    getPrismChords: (params: RequestParams = {}) =>
+      this.http.request<GetPrismChordsData, any>({
+        path: `/prism/chords`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismChordsByName
+     * @request GET:/prism/chords/{name}
+     * @response `200` `GetPrismChordsByNameData`
+     */
+    getPrismChordsByName: (
+      name:
+        | 'major'
+        | 'major (♭5)'
+        | 'minor'
+        | 'minor (♭5)'
+        | 'augmented'
+        | 'diminished'
+        | 'suspended 2'
+        | 'quartal'
+        | 'suspended 4'
+        | 'major 4'
+        | 'minor 4'
+        | 'suspended (#4)'
+        | 'suspended (♭2)'
+        | 'suspended (♭2♭5)'
+        | 'suspended 2(♭5)'
+        | 'suspended 2(♭5) add 6'
+        | 'suspended 2(♭5) add 6(♭9)'
+        | 'major 6'
+        | 'minor 6'
+        | 'minor 6 add ♭9'
+        | 'diminished 7'
+        | 'diminished 7(♭9)'
+        | 'minor 7(♭5)'
+        | 'diminished major 7'
+        | 'diminished major 9'
+        | 'dominant 7'
+        | 'dominant 9'
+        | 'major 7'
+        | 'major 7(#5)'
+        | 'major 7(♭5)'
+        | 'major 7(♭9)'
+        | 'major 7(#9)'
+        | 'major 7(#5#9)'
+        | 'minor 7'
+        | 'minor 7(#5)'
+        | 'minor 7(♭9)'
+        | 'minor 7(♭5♭9)'
+        | 'minor major 7'
+        | 'dominant 7 suspended 2'
+        | 'dominant 7 suspended 4'
+        | 'major 7 suspended 2'
+        | 'major 7 suspended 4'
+        | 'dominant 7(♭5)'
+        | 'dominant 7(#5)'
+        | 'dominant 7(#9)'
+        | 'dominant 7(#5#9)'
+        | 'major (add 2)'
+        | 'major (add 4)'
+        | 'dominant 7(#11)'
+        | 'major/5'
+        | 'major/4'
+        | 'major/3'
+        | 'dominant 7(♭9)'
+        | 'dominant 7(#5♭9)'
+        | 'dominant 7(♭5♭9)'
+        | 'major/6'
+        | 'major 7(#11)'
+        | 'major/1'
+        | 'minor 6/5'
+        | 'minor 6/♭3'
+        | 'minor 7(♭5)/4'
+        | 'major 7/5'
+        | 'major/#5'
+        | 'major/7'
+        | 'minor 7(♭5)/5'
+        | 'minor 6/♭6'
+        | 'major 9'
+        | 'major 9(#5)'
+        | 'minor 9'
+        | 'minor 9(♭5)'
+        | 'major 6/9'
+        | 'minor 6/9'
+        | 'diminished 7(add 9)'
+        | 'dominant 9 suspended 4'
+        | 'dominant (♭9) suspended 4'
+        | 'minor major 9'
+        | 'diminished 6/9'
+        | 'dominant 9(#5)',
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetPrismChordsByNameData, any>({
+        path: `/prism/chords/${name}`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismChordsProgressions
+     * @request GET:/prism/chords/progressions
+     * @response `200` `GetPrismChordsProgressionsData`
+     */
+    getPrismChordsProgressions: (params: RequestParams = {}) =>
+      this.http.request<GetPrismChordsProgressionsData, any>({
+        path: `/prism/chords/progressions`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismModes
+     * @request GET:/prism/modes
+     * @response `200` `GetPrismModesData`
+     */
+    getPrismModes: (params: RequestParams = {}) =>
+      this.http.request<GetPrismModesData, any>({
+        path: `/prism/modes`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismModesByMode
+     * @request GET:/prism/modes/{mode}
+     * @response `200` `GetPrismModesByModeData`
+     */
+    getPrismModesByMode: (
+      mode:
+        | 'ionian'
+        | 'dorian'
+        | 'phrygian'
+        | 'lydian'
+        | 'mixolydian'
+        | 'aeolian'
+        | 'locrian'
+        | 'harmonicminor'
+        | 'locriannat6'
+        | 'ionian#5'
+        | 'dorian#4'
+        | 'phrygiandominant'
+        | 'lydian#2'
+        | 'altereddiminished'
+        | 'melodicminor'
+        | 'dorian♭2'
+        | 'lydianaugmented'
+        | 'lydiandominant'
+        | 'mixolydiannat6'
+        | 'locriannat2'
+        | 'altereddominant'
+        | 'harmonicmajor'
+        | 'dorian♭5'
+        | 'altereddominantnat5'
+        | 'melodicminor#4'
+        | 'mixolydian♭2'
+        | 'lydianaugmented#2'
+        | 'locrian𝄫7'
+        | 'doubleharmonicmajor'
+        | 'lydian#2#6'
+        | 'ultraphrygian'
+        | 'doubleharmonicminor'
+        | 'oriental'
+        | 'ionian#2#5'
+        | 'locrian𝄫3𝄫7',
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetPrismModesByModeData, any>({
+        path: `/prism/modes/${mode}`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismModesByModeChords
+     * @request GET:/prism/modes/{mode}/chords
+     * @response `200` `GetPrismModesByModeChordsData`
+     */
+    getPrismModesByModeChords: (
+      mode:
+        | 'ionian'
+        | 'dorian'
+        | 'phrygian'
+        | 'lydian'
+        | 'mixolydian'
+        | 'aeolian'
+        | 'locrian'
+        | 'harmonicminor'
+        | 'locriannat6'
+        | 'ionian#5'
+        | 'dorian#4'
+        | 'phrygiandominant'
+        | 'lydian#2'
+        | 'altereddiminished'
+        | 'melodicminor'
+        | 'dorian♭2'
+        | 'lydianaugmented'
+        | 'lydiandominant'
+        | 'mixolydiannat6'
+        | 'locriannat2'
+        | 'altereddominant'
+        | 'harmonicmajor'
+        | 'dorian♭5'
+        | 'altereddominantnat5'
+        | 'melodicminor#4'
+        | 'mixolydian♭2'
+        | 'lydianaugmented#2'
+        | 'locrian𝄫7'
+        | 'doubleharmonicmajor'
+        | 'lydian#2#6'
+        | 'ultraphrygian'
+        | 'doubleharmonicminor'
+        | 'oriental'
+        | 'ionian#2#5'
+        | 'locrian𝄫3𝄫7',
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetPrismModesByModeChordsData, any>({
+        path: `/prism/modes/${mode}/chords`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismModesFamily
+     * @request GET:/prism/modes/family
+     * @response `200` `GetPrismModesFamilyData`
+     */
+    getPrismModesFamily: (params: RequestParams = {}) =>
+      this.http.request<GetPrismModesFamilyData, any>({
+        path: `/prism/modes/family`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismModesFamilyByFamily
+     * @request GET:/prism/modes/family/{family}
+     * @response `200` `GetPrismModesFamilyByFamilyData`
+     */
+    getPrismModesFamilyByFamily: (
+      family: 'diatonic' | 'harmonic minor' | 'melodic minor' | 'harmonic major' | 'double harmonic',
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetPrismModesFamilyByFamilyData, any>({
+        path: `/prism/modes/family/${family}`,
+        method: 'GET',
         format: 'json',
         ...params,
       }),

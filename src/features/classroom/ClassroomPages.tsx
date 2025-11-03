@@ -1,11 +1,10 @@
 import { lazy} from 'react';
 import { Navigate} from 'react-router-dom';
-import { ClassroomRoutes, GameRoutes} from '@/constants/routes';
+import { ClassroomRoutes, GameRoutes, StudioRoutes, ProfileRoutes, LearnRoutes} from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
-import { GamePlayer } from '@/components/Games/GamePlayer';
 
 const ClassroomCollectionPage = lazy(() =>
   import('./ClassroomCollectionPage').then(({ ClassroomCollectionPage }) => ({
@@ -28,6 +27,36 @@ const ClassroomPickerPage = lazy(() =>
 const ClassroomHomePage = lazy(() =>
   import('./ClassroomHomePage').then(({ ClassroomHomePage }) => ({
     default: ClassroomHomePage,
+  })),
+);
+
+const GamePlayer = lazy(() =>
+  import('@/components/Games/GamePlayer').then(({ GamePlayer }) => ({
+    default: GamePlayer,
+  })),
+);
+
+const Index = lazy(() =>
+  import('@/components/studio/Index').then(({ Index }) => ({
+    default: Index,
+  })),
+);
+
+const StudentProfilePage = lazy(() =>
+  import('../student/StudentProfilePage').then(({ StudentProfilePage }) => ({
+    default: StudentProfilePage,
+  })),
+);
+
+const HomeInlet = lazy(() =>
+  import('@/components/ClassroomLayout/HomeInlet').then(({ HomeInlet }) => ({
+    default: HomeInlet,
+  })),
+);
+
+const LearnHomePage = lazy(() =>
+  import('./LearnHomePage').then(({ LearnHomePage }) => ({
+    default: LearnHomePage,
   })),
 );
 
@@ -90,6 +119,74 @@ export const gamesPages = () => {
         element: <GamePlayer/>,
         index: true,
       }
+    ],
+  };
+};
+
+
+
+export const studioPages = () => {
+  return {
+    path: StudioRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage>
+          <ClassroomDashboard fallback={<DashboardContentSkeleton />}/>
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [
+      {
+        path: StudioRoutes.root.definition,
+        element: <Navigate to={StudioRoutes.root()} />,
+      },
+      {
+        element: <Index />,
+        index: true,
+      },
+    ],
+  };
+};
+
+export const studentPages = () => {
+  return {
+    path: ProfileRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage>
+            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [
+      { index: true, element: <HomeInlet /> },
+      { path: ProfileRoutes.profile.definition, element: <StudentProfilePage /> },
+      // { path: 'settings', element: <SettingsPage /> }, 
+      // { path: 'plan', element: <PlanPage /> },
+    ],
+  };
+};
+
+export const learnPages = () => {
+  return {
+    path: LearnRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage>
+            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [
+      { 
+        index: true,
+        element: <LearnHomePage /> 
+      },
+      {
+        path:LearnRoutes.flow,
+        element:<div>///Expected flow here///</div>
+      },
+
     ],
   };
 };

@@ -60,7 +60,7 @@ const createInstrument = (instrumentType: InstrumentType) => {
 
 const dbToGain = (db: number) => Math.pow(10, db / 20);
 
-const Index = () => {
+export const Index = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [tracks, setTracks] = useState<Track[]>([]);

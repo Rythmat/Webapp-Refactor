@@ -262,7 +262,6 @@ export const LearnRoutes = {
 
   root: createRouteDefinition(learnPrefix),
 
-  lessons: createRouteDefinition('/lessons', { prefix: learnPrefix }),
 
   flow: createRouteDefinition<{
       flowType: string,
@@ -271,19 +270,10 @@ export const LearnRoutes = {
 
   specific: createRouteDefinition<{
       key:string,
-    }>('/lesson/:key', { prefix: learnPrefix }),
+    }>('/lessons/:key', { prefix: learnPrefix }),
 
   group: createRouteDefinition<{
       key:string,
       group: string,
-    }>('/lesson/:key/:group', { prefix: learnPrefix }),
+    }>('/lessons/:key/:group', { prefix: learnPrefix }),
 }
-
-
-// lessons: createRouteDefinition<{
-//     classroomId: string;
-//     collectionId: string;
-//     lessonId: string;
-//   }>('/lessons/:collectionId/lessons/:lessonId', {
-//     prefix: learnPrefix,
-//   }),

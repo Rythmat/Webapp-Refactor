@@ -89,10 +89,16 @@ export const ticksToSeconds = (
 
 const RHYTHM_MAP_NOTE_DURATIONS = {
   whole: 4,
+  dotted_whole: 6,
   half: 2,
+  dotted_half: 3,
   quarter: 1,
+  dotted_quarter: 1.5,
   eighth: 0.5,
+  dotted_eighth: 0.75,
   sixteenth: 0.25,
+  dotted_sixteenth:0.375,
+  thirtysecond:0.125
 };
 
 export const parsePhraseMap = (input: PhraseMap): PlaybackEvent[] => {

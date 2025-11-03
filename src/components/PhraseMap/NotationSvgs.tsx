@@ -159,6 +159,72 @@ export const SixteenthNote = ({ size = 16 }: { size?: number }) => (
   </svg>
 );
 
+export const ThirtySecondNote = ({ size = 16 }: { size?: number }) => (
+  <svg
+    fill="none"
+    height={size}
+    viewBox="0 0 26 48"
+    width={size}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <ellipse
+      cx="9.5"
+      cy="36.5"
+      fill="black"
+      rx="6.5"
+      ry="4.5"
+      transform="rotate(-20 9.5 36.5)"
+    />
+    <rect fill="black" height="32" width="2.5" x="14.5" y="6" />
+    <path
+      d="M17 6C22 7.2 25 10.2 24.5 13.5C24.1 16 22.2 18.2 18.5 19.5L17 19.5Z"
+      fill="black"
+    />
+    <path
+      d="M17 14C22 15.2 25 18.2 24.5 21.5C24.1 24 22.2 26.2 18.5 27.5L17 27.5Z"
+      fill="black"
+    />
+    <path
+      d="M17 22C22 23.2 25 26.2 24.5 29.5C24.1 32 22.2 34.2 18.5 35.5L17 35.5Z"
+      fill="black"
+    />
+  </svg>
+);
+
+type SymbolComponent = ({ size }: { size?: number }) => JSX.Element;
+
+const Dot = ({ size }: { size: number }) => (
+  <svg
+    height={size}
+    viewBox="0 0 10 10"
+    width={size}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="5" cy="5" fill="black" r="4" />
+  </svg>
+);
+
+const createDottedSymbol = (BaseSymbol: SymbolComponent): SymbolComponent => {
+  return ({ size = 16 }) => (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: size * 0.2,
+      }}
+    >
+      <BaseSymbol size={size} />
+      <Dot size={Math.max(size * 0.3, 4)} />
+    </span>
+  );
+};
+
+export const DottedWholeNote = createDottedSymbol(WholeNote);
+export const DottedHalfNote = createDottedSymbol(HalfNote);
+export const DottedQuarterNote = createDottedSymbol(QuarterNote);
+export const DottedEighthNote = createDottedSymbol(EighthNote);
+export const DottedSixteenthNote = createDottedSymbol(SixteenthNote);
+
 // Rest Components
 export const WholeRest = ({ size = 16 }: { size?: number }) => (
   <svg
@@ -197,6 +263,7 @@ export const HalfRest = ({ size = 16 }: { size?: number }) => (
     />
   </svg>
 );
+
 
 export const QuarterRest = ({ size = 16 }: { size?: number }) => (
   <svg
@@ -247,6 +314,12 @@ export const SixteenthRest = ({ size = 16 }: { size?: number }) => (
     />
   </svg>
 );
+
+export const DottedWholeRest = createDottedSymbol(WholeRest);
+export const DottedHalfRest= createDottedSymbol(HalfRest);
+export const DottedQuarterRest = createDottedSymbol(QuarterRest);
+export const DottedEighthRest = createDottedSymbol(EighthRest);
+export const DottedSixteenthRest = createDottedSymbol(SixteenthRest);
 
 export const BarStart = ({ size = 16 }: { size?: number }) => (
   <svg
@@ -414,7 +487,18 @@ export const NotationSymbol = ({
   size = 16,
 }: {
   type: 'note' | 'rest';
-  duration: 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth';
+  duration:
+    | 'whole'
+    | 'half'
+    | 'quarter'
+    | 'eighth'
+    | 'sixteenth'
+    | 'thirtysecond'
+    | 'dotted_whole'
+    | 'dotted_half'
+    | 'dotted_quarter'
+    | 'dotted_eighth'
+    | 'dotted_sixteenth';
   size?: number;
 }) => {
   const components = {
@@ -424,6 +508,12 @@ export const NotationSymbol = ({
       quarter: QuarterNote,
       eighth: EighthNote,
       sixteenth: SixteenthNote,
+      thirtysecond: ThirtySecondNote,
+      dotted_whole: DottedWholeNote,
+      dotted_half: DottedHalfNote,
+      dotted_quarter: DottedQuarterNote,
+      dotted_eighth: DottedEighthNote,
+      dotted_sixteenth: DottedSixteenthNote,
     },
     rest: {
       whole: WholeRest,
@@ -431,9 +521,23 @@ export const NotationSymbol = ({
       quarter: QuarterRest,
       eighth: EighthRest,
       sixteenth: SixteenthRest,
+      dotted_whole: DottedWholeRest,
+      dotted_half: DottedHalfRest,
+      dotted_quarter: DottedQuarterRest,
+      dotted_eighth: DottedEighthRest,
+      dotted_sixteenth: DottedSixteenthRest,
     },
   };
 
-  const Symbol = components[type][duration];
+
+  const lookup = components[
+    type
+  ] as Record<string, SymbolComponent | undefined>;
+  const Symbol = lookup[duration];
+
+  if (!Symbol) {
+    return null;
+  }
+
   return <Symbol size={size} />;
 };

@@ -1,5 +1,5 @@
 
 
 export const LessonFlow = (props: { flowType: string; nameOf: string;}) => {
-  return <div></div>
+  return <p>{props.flowType}{props.nameOf}</p>
 }

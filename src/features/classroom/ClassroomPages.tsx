@@ -184,7 +184,7 @@ export const learnPages = () => {
         element: <LearnHomePage /> 
       },
       {
-        path:LearnRoutes.flow,
+        path:LearnRoutes.flow.definition,
         element:<LessonFlow flowType='grouping' nameOf=''/>
       },
 

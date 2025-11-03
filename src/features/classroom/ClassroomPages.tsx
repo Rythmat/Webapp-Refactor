@@ -5,6 +5,7 @@ import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
+import { LessonFlow } from '@/components/learn/LessonFlow';
 
 const ClassroomCollectionPage = lazy(() =>
   import('./ClassroomCollectionPage').then(({ ClassroomCollectionPage }) => ({
@@ -184,7 +185,7 @@ export const learnPages = () => {
       },
       {
         path:LearnRoutes.flow,
-        element:<div>///Expected flow here///</div>
+        element:<LessonFlow flowType='grouping' nameOf=''/>
       },
 
     ],

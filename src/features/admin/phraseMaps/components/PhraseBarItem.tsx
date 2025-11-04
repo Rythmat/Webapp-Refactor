@@ -287,7 +287,13 @@ export const PhraseBarItem = ({
                         | 'half'
                         | 'quarter'
                         | 'eighth'
-                        | 'sixteenth',
+                        | 'sixteenth'
+                        | 'thirtysecond'
+                        | 'dotted_whole'
+                        | 'dotted_half'
+                        | 'dotted_quarter'
+                        | 'dotted_eighth'
+                        | 'dotted_sixteenth',
                     ) => {
                       const updatedNotes = bar.PhraseBarNotes.map((n, i) =>
                         i === noteIndex ? { ...n, noteDuration: value } : n,

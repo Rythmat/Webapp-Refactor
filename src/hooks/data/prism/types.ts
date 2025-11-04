@@ -1,6 +1,7 @@
-// import { Api } from '@/contexts/MusicAtlasContext';
+import type { Api } from '@/contexts/MusicAtlasContext';
 
-// export type PrismChordName = Parameters<Api['music']['getPrismChordsByName']>[0];
-// export type PrismModeSlug = Parameters<Api['music']['getPrismModesByMode']>[0];
-// export type PrismModeFamily =
-//   Parameters<Api['music']['getPrismModesFamilyByFamily']>[0];
+type MusicRoutes = Api<unknown>['music'];
+
+export type PrismChordName = Parameters<MusicRoutes['getPrismChordsByName']>[0];
+export type PrismModeSlug = Parameters<MusicRoutes['getPrismModesByMode']>[0];
+export type PrismModeFamily = Parameters<MusicRoutes['getPrismModesFamilyByFamily']>[0];

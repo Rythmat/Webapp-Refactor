@@ -26,4 +26,4 @@ export {
   usePrismModeFamily,
   type PrismModeFamilyDetail,
 } from './usePrismModeFamily';
-// export type { PrismChordName, PrismModeSlug, PrismModeFamily } from './types';
+export type { PrismChordName, PrismModeSlug, PrismModeFamily } from './types';

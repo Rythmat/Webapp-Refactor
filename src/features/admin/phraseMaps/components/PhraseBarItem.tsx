@@ -313,6 +313,12 @@ export const PhraseBarItem = ({
                       <SelectItem value="quarter">Quarter</SelectItem>
                       <SelectItem value="eighth">Eighth</SelectItem>
                       <SelectItem value="sixteenth">Sixteenth</SelectItem>
+                      <SelectItem value="thirtysecond">Thirty-Second</SelectItem>
+                      {/* <SelectItem value="dotted_whole">Dotted Whole</SelectItem> */}
+                      <SelectItem value="dotted_half">Dotted Half</SelectItem>
+                      <SelectItem value="dotted_quarter">Dotted Quarter</SelectItem>
+                      <SelectItem value="dotted_eighth">Dotted Eighth</SelectItem>
+                      <SelectItem value="dotted_sixteenth">Dotted Sixteenth</SelectItem>
                     </SelectContent>
                   </Select>
 

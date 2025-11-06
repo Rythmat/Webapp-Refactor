@@ -30,7 +30,6 @@ export interface PianoRollProps {
   bars: number;                 // number of musical bars to show (not including count-in)
   beatsPerBar?: number;         // default 4
   subdivision?: number;         // grid lines per beat (default 1 => quarter). Use 2 for 8ths, 4 for 16ths
-  pxPerBeat?: number;           // horizontal zoom; default 120
   rowHeight?: number;           // vertical size per lane; default 36
 
   /** Optional header overlays */
@@ -73,8 +72,35 @@ function buildLaneList(events: NoteEvent[], lanes?: string[]): string[] {
   return names.sort((a,b) => laneSortKey(b) - laneSortKey(a));
 }
 
-function beatToPx(beat: number, pxPerBeat: number, countInBeats: number): number {
-  return (beat + countInBeats) * pxPerBeat;
+const clampBeatPrecision = (value: number) => Number(value.toFixed(6));
+
+function beatToPercent(beat: number, countInBeats: number, totalBeats: number) {
+  const denominator = totalBeats === 0 ? 1 : totalBeats;
+  return ((beat + countInBeats) / denominator) * 100;
+}
+
+function generateBeatPositions(
+  startBeat: number,
+  endBeat: number,
+  step: number,
+): number[] {
+  if (step <= 0) return [];
+  const beats: number[] = [];
+  const totalRange = endBeat - startBeat;
+  const stepCount = Math.ceil(totalRange / step);
+
+  for (let i = 0; i <= stepCount; i++) {
+    const beatValue = startBeat + i * step;
+    if (beatValue > endBeat + step / 1000) break;
+    beats.push(clampBeatPrecision(beatValue));
+  }
+
+  // Ensure the final beat exists for exact divisions
+  if (!beats.includes(endBeat)) {
+    beats.push(clampBeatPrecision(endBeat));
+  }
+
+  return beats;
 }
 
 function barBeatLabels(bars: number, beatsPerBar: number, showCountIn: boolean, countInBars: number) {
@@ -97,7 +123,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   bars,
   beatsPerBar = 4,
   subdivision = 1,
-  pxPerBeat = 120,
   rowHeight = 36,
   showChordsTop = true,
   chords = [],
@@ -109,25 +134,21 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const laneList = buildLaneList(events, lanes);
   const countInBeats = showCountIn ? countInBars * beatsPerBar : 0;
   const totalBeats = bars * beatsPerBar + countInBeats;
-  const timelineWidth = Math.ceil(totalBeats * pxPerBeat);
   const laneLabelWidth = 72;
-  const totalWidth = laneLabelWidth + timelineWidth;
-  // const headerHeight = 40 + (showChordsTop ? 26 : 0);
+  const timelineStartBeat = -countInBeats;
+  const timelineEndBeat = bars * beatsPerBar;
+  const safeSubdivision = subdivision <= 0 ? 1 : subdivision;
+  const beatPercent = (beat: number) => beatToPercent(beat, countInBeats, totalBeats);
 
   // Preindex lanes
   const laneIndex: Record<string, number> = {};
   laneList.forEach((name, i) => { laneIndex[name] = i; });
 
   // Sub grid (thin lines) and beat lines (stronger)
-  const subEvery = 1 / subdivision; // beats per sub-line
-  const subLines: number[] = [];
-  for (let b = 0; b <= totalBeats; b += subEvery) subLines.push(b);
-
-  const beatLines: number[] = [];
-  for (let b = 0; b <= totalBeats; b += 1) beatLines.push(b);
-
-  const barLines: number[] = [];
-  for (let b = 0; b <= totalBeats; b += beatsPerBar) barLines.push(b);
+  const subEvery = 1 / safeSubdivision; // beats per sub-line
+  const subLines = generateBeatPositions(timelineStartBeat, timelineEndBeat, subEvery);
+  const beatLines = generateBeatPositions(timelineStartBeat, timelineEndBeat, 1);
+  const barLines = generateBeatPositions(timelineStartBeat, timelineEndBeat, beatsPerBar);
 
   const labels = barBeatLabels(bars, beatsPerBar, showCountIn, countInBars);
 
@@ -144,13 +165,15 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             className="shrink-0 border-r border-neutral-800/50"
             style={{ width: laneLabelWidth }}
           />
-          <div className="relative flex-1">
+          <div className="relative flex-1" style={{ minWidth: 0 }}>
             {/* beat labels */}
             {labels.map(({ beat, label }) => (
               <div
                 key={`lbl-${beat}`}
                 className="absolute top-1 select-none text-xs text-neutral-300"
-                style={{ left: beatToPx(beat, pxPerBeat, countInBeats) + 4 }}
+                style={{
+                  left: `calc(${beatPercent(beat)}% + 4px)`,
+                }}
               >
                 {label}
               </div>
@@ -161,7 +184,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 key={`beat-${b}`}
                 className="absolute top-0 h-full"
                 style={{
-                  left: beatToPx(b, pxPerBeat, countInBeats),
+                  left: `${beatPercent(b)}%`,
                   width: 1,
                   background: "rgba(160,160,160,0.25)",
                 }}
@@ -173,7 +196,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 key={`bar-${b}`}
                 className="absolute top-0 h-full"
                 style={{
-                  left: beatToPx(b, pxPerBeat, countInBeats),
+                  left: `${beatPercent(b)}%`,
                   width: 2,
                   background:
                     i === 0
@@ -190,13 +213,13 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               className="shrink-0 border-r border-neutral-800/40"
               style={{ width: laneLabelWidth }}
             />
-            <div className="relative flex-1">
+            <div className="relative flex-1" style={{ minWidth: 0 }}>
               {chords.map((c, idx) => (
                 <div
                   key={`ch-${idx}`}
                   className="absolute -translate-x-1/2 text-xs text-neutral-200"
                   style={{
-                    left: beatToPx(c.startBeat, pxPerBeat, countInBeats),
+                    left: `${beatPercent(c.startBeat)}%`,
                   }}
                 >
                   <div className="rounded-md bg-neutral-800 px-2 py-0.5 shadow">
@@ -215,7 +238,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       </div>
 
       {/* Body */}
-      <div className="relative" style={{ width: totalWidth }}>
+      <div className="relative flex w-full">
         {/* Lane labels column */}
         <div className="sticky left-0 z-20" style={{ width: laneLabelWidth }}>
           {laneList.map((name, idx) => (
@@ -226,107 +249,109 @@ const PianoRoll: React.FC<PianoRollProps> = ({
         </div>
 
         {/* Grid underlay */}
-        <div
-          className="absolute top-0 bottom-0 z-0"
-          style={{ left: laneLabelWidth, width: timelineWidth }}
-        >
-          {/* row backgrounds */}
-          {laneList.map((_, idx) => (
-            <div key={`row-${idx}`} className="absolute left-0 right-0" style={{ top: idx*rowHeight, height: rowHeight, background: idx%2? "rgba(255,255,255,0.02)":"rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(120,120,120,0.15)" }} />
-          ))}
-          {/* sub grid lines */}
-          {subLines.map((b) => (
-            <div
-              key={`sub-${b}`}
-              className="absolute top-0 bottom-0"
-              style={{
-                left: beatToPx(b, pxPerBeat, countInBeats),
-                width: 1,
-                background: "rgba(200,200,200,0.08)",
-              }}
-            />
-          ))}
-          {/* beat lines (stronger) */}
-          {beatLines.map((b) => (
-            <div
-              key={`B-${b}`}
-              className="absolute top-0 bottom-0"
-              style={{
-                left: beatToPx(b, pxPerBeat, countInBeats),
-                width: 1,
-                background: "rgba(200,200,200,0.16)",
-              }}
-            />
-          ))}
-          {/* bar lines */}
-          {barLines.map((b) => (
-            <div
-              key={`BAR-${b}`}
-              className="absolute top-0 bottom-0"
-              style={{
-                left: beatToPx(b, pxPerBeat, countInBeats),
-                width: 2,
-                background: "rgba(255,255,255,0.22)",
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Notes layer */}
-        <div
-          className="absolute top-0 bottom-0 z-10"
-          style={{ left: laneLabelWidth, width: timelineWidth }}
-        >
-          {events.map((e) => {
-            const row = laneIndex[e.pitchName];
-            if (row == null) return null;
-            const left = beatToPx(e.startBeats, pxPerBeat, countInBeats);
-            const width = Math.max(6, e.durationBeats * pxPerBeat);
-            const top = row * rowHeight + 4;
-            const height = rowHeight - 8;
-            const color = e.color ?? "#b64f4f"; // base red hue similar to screenshot
-            return (
-              <button
-                key={e.id}
-                title={`${e.pitchName} @ ${e.startBeats.toFixed(2)} beats`}
-                onClick={() => onNoteClick?.(e)}
-                className="absolute group"
-                style={{ left, top, width, height }}
-              >
-                <div
-                  className="h-full w-full rounded-2xl shadow-inner"
-                  style={{
-                    background: `linear-gradient(180deg, ${color}cc, ${color}aa)`,
-                    border: `1px solid rgba(255,255,255,0.18)`,
-                  }}
-                />
-                {/* pill label at head */}
-                <div className="absolute -left-3 -top-3 select-none">
-                  <div className="rounded-full bg-neutral-900/90 px-2 py-0.5 text-[10px] font-semibold text-neutral-200 ring-1 ring-neutral-700 shadow">
-                    {e.pitchName}
-                  </div>
-                </div>
-                {/* rounded head cap */}
-                <div className="absolute left-0 top-0 h-full w-4 rounded-l-2xl" style={{ background: "rgba(0,0,0,0.2)" }} />
-                {/* tail gloss */}
-                <div className="absolute right-1 top-1 h-[calc(100%-8px)] w-2 rounded-r-xl opacity-60" style={{ background: "rgba(255,255,255,0.15)" }} />
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Playhead */}
-        {typeof playheadBeat === "number" && (
-          <div
-            className="absolute top-0 bottom-0 z-20"
-            style={{
-              left: laneLabelWidth + beatToPx(playheadBeat, pxPerBeat, countInBeats),
-            }}
-          >
-            <div className="absolute -translate-x-1/2 top-10 h-3 w-3 rounded-full bg-cyan-400 shadow" />
-            <div className="absolute left-0 top-0 h-full w-[2px] bg-cyan-400/70" />
+        <div className="relative flex-1" style={{ minWidth: 0 }}>
+          <div className="absolute inset-0 z-0">
+            {/* row backgrounds */}
+            {laneList.map((_, idx) => (
+              <div key={`row-${idx}`} className="absolute left-0 right-0" style={{ top: idx*rowHeight, height: rowHeight, background: idx%2? "rgba(255,255,255,0.02)":"rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(120,120,120,0.15)" }} />
+            ))}
+            {/* sub grid lines */}
+            {subLines.map((b) => (
+              <div
+                key={`sub-${b}`}
+                className="absolute top-0 bottom-0"
+                style={{
+                  left: `${beatPercent(b)}%`,
+                  width: 1,
+                  background: "rgba(200,200,200,0.08)",
+                }}
+              />
+            ))}
+            {/* beat lines (stronger) */}
+            {beatLines.map((b) => (
+              <div
+                key={`B-${b}`}
+                className="absolute top-0 bottom-0"
+                style={{
+                  left: `${beatPercent(b)}%`,
+                  width: 1,
+                  background: "rgba(200,200,200,0.16)",
+                }}
+              />
+            ))}
+            {/* bar lines */}
+            {barLines.map((b) => (
+              <div
+                key={`BAR-${b}`}
+                className="absolute top-0 bottom-0"
+                style={{
+                  left: `${beatPercent(b)}%`,
+                  width: 2,
+                  background: "rgba(255,255,255,0.22)",
+                }}
+              />
+            ))}
           </div>
-        )}
+
+          {/* Notes layer */}
+          <div className="absolute inset-0 z-10">
+            {events.map((e) => {
+              const row = laneIndex[e.pitchName];
+              if (row == null) return null;
+              const leftPercent = beatPercent(e.startBeats);
+              const widthPercent = (e.durationBeats / (totalBeats || 1)) * 100;
+              const top = row * rowHeight + 4;
+              const height = rowHeight - 8;
+              const color = e.color ?? "#b64f4f"; // base red hue similar to screenshot
+              return (
+                <button
+                  key={e.id}
+                  title={`${e.pitchName} @ ${e.startBeats.toFixed(2)} beats`}
+                  onClick={() => onNoteClick?.(e)}
+                  className="absolute group"
+                  style={{
+                    left: `${leftPercent}%`,
+                    width: `${widthPercent}%`,
+                    minWidth: 6,
+                    top,
+                    height,
+                  }}
+                >
+                  <div
+                    className="h-full w-full rounded-2xl shadow-inner"
+                    style={{
+                      background: `linear-gradient(180deg, ${color}cc, ${color}aa)`,
+                      border: `1px solid rgba(255,255,255,0.18)`,
+                    }}
+                  />
+                  {/* pill label at head */}
+                  <div className="absolute -left-3 -top-3 select-none">
+                    <div className="rounded-full bg-neutral-900/90 px-2 py-0.5 text-[10px] font-semibold text-neutral-200 ring-1 ring-neutral-700 shadow">
+                      {e.pitchName}
+                    </div>
+                  </div>
+                  {/* rounded head cap */}
+                  <div className="absolute left-0 top-0 h-full w-4 rounded-l-2xl" style={{ background: "rgba(0,0,0,0.2)" }} />
+                  {/* tail gloss */}
+                  <div className="absolute right-1 top-1 h-[calc(100%-8px)] w-2 rounded-r-xl opacity-60" style={{ background: "rgba(255,255,255,0.15)" }} />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Playhead */}
+          {typeof playheadBeat === "number" && (
+            <div
+              className="absolute top-0 bottom-0 z-20"
+              style={{
+                left: `${beatPercent(playheadBeat)}%`,
+              }}
+            >
+              <div className="absolute -translate-x-1/2 top-10 h-3 w-3 rounded-full bg-cyan-400 shadow" />
+              <div className="absolute left-0 top-0 h-full w-[2px] bg-cyan-400/70" />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

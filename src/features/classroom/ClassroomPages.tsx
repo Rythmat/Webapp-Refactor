@@ -32,11 +32,11 @@ const ClassroomHomePage = lazy(() =>
   })),
 );
 
-const GamePlayer = lazy(() =>
-  import('@/components/Games/GamePlayer').then(({ GamePlayer }) => ({
-    default: GamePlayer,
-  })),
-);
+// const GamePlayer = lazy(() =>
+//   import('@/components/Games/GamePlayer').then(({ GamePlayer }) => ({
+//     default: GamePlayer,
+//   })),
+// );
 
 const Index = lazy(() =>
   import('@/components/studio/Index').then(({ Index }) => ({

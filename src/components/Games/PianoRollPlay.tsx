@@ -1,16 +1,15 @@
 import React from "react";
 
-// ===== Types =====
 export type Midi = number; // 0..127
 
 export interface NoteEvent {
   id: string;
-  pitchName: string; // e.g., "A3", "C4" (shown at left and on pill)
-  midi?: Midi;       // optional MIDI number if you have it
-  startBeats: number; // start position in beats (bar 1 beat 1 == 0)
-  durationBeats: number; // length in beats
-  velocity?: number;  // 1..127 (not used for drawing but available)
-  color?: string;     // optional CSS color override
+  pitchName: string;
+  midi?: Midi; 
+  startBeats: number;
+  durationBeats: number;
+  velocity?: number;
+  color?: string;
 }
 
 export interface ChordMarker {
@@ -110,7 +109,9 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const laneList = buildLaneList(events, lanes);
   const countInBeats = showCountIn ? countInBars * beatsPerBar : 0;
   const totalBeats = bars * beatsPerBar + countInBeats;
-  const totalWidth = Math.ceil(totalBeats * pxPerBeat);
+  const timelineWidth = Math.ceil(totalBeats * pxPerBeat);
+  const laneLabelWidth = 72;
+  const totalWidth = laneLabelWidth + timelineWidth;
   // const headerHeight = 40 + (showChordsTop ? 26 : 0);
 
   // Preindex lanes
@@ -133,41 +134,82 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   return (
     <div className="w-full overflow-auto rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-200">
       {/* Header: beat markers & optional chord strip */}
-      <div className="sticky top-0 z-30 bg-neutral-950/95 backdrop-blur px-2" style={{borderBottom: "1px solid rgba(120,120,120,0.25)"}}>
+      <div
+        className="sticky top-0 z-30 bg-neutral-950/95 px-2 backdrop-blur"
+        style={{ borderBottom: "1px solid rgba(120,120,120,0.25)" }}
+      >
         {/* Top ruler */}
-        <div className="relative w-full" style={{height: 40}}>
-          {/* beat labels */}
-          {labels.map(({beat, label}) => (
-            <div
-              key={`lbl-${beat}`}
-              className="absolute top-1 text-xs text-neutral-300 select-none"
-              style={{ left: beatToPx(beat, pxPerBeat, countInBeats) + 4 }}
-            >
-              {label}
-            </div>
-          ))}
-          {/* vertical beat lines (stronger) */}
-          {beatLines.map((b) => (
-            <div key={`beat-${b}`} className="absolute top-0 h-full" style={{ left: beatToPx(b, pxPerBeat, 0), width: 1, background: "rgba(160,160,160,0.25)" }} />
-          ))}
-          {/* bar separators */}
-          {barLines.map((b, i) => (
-            <div key={`bar-${b}`} className="absolute top-0 h-full" style={{ left: beatToPx(b, pxPerBeat, 0), width: 2, background: i === 0 ? "rgba(200,200,255,0.45)" : "rgba(200,200,200,0.35)" }} />
-          ))}
-        </div>
-        {showChordsTop && (
-          <div className="relative h-6">
-            {chords.map((c, idx) => (
-              <div key={`ch-${idx}`} className="absolute -translate-x-1/2 text-xs text-neutral-200">
-                <div
-                  className="rounded-md bg-neutral-800 px-2 py-0.5 shadow"
-                  style={{ left: beatToPx(c.startBeat, pxPerBeat, countInBeats) }}
-                >
-                  <span className="font-medium">{c.label}</span>
-                  {c.subLabel && <span className="ml-1 opacity-70 italic">{c.subLabel}</span>}
-                </div>
+        <div className="relative flex" style={{ height: 40 }}>
+          <div
+            className="shrink-0 border-r border-neutral-800/50"
+            style={{ width: laneLabelWidth }}
+          />
+          <div className="relative flex-1">
+            {/* beat labels */}
+            {labels.map(({ beat, label }) => (
+              <div
+                key={`lbl-${beat}`}
+                className="absolute top-1 select-none text-xs text-neutral-300"
+                style={{ left: beatToPx(beat, pxPerBeat, countInBeats) + 4 }}
+              >
+                {label}
               </div>
             ))}
+            {/* vertical beat lines (stronger) */}
+            {beatLines.map((b) => (
+              <div
+                key={`beat-${b}`}
+                className="absolute top-0 h-full"
+                style={{
+                  left: beatToPx(b, pxPerBeat, countInBeats),
+                  width: 1,
+                  background: "rgba(160,160,160,0.25)",
+                }}
+              />
+            ))}
+            {/* bar separators */}
+            {barLines.map((b, i) => (
+              <div
+                key={`bar-${b}`}
+                className="absolute top-0 h-full"
+                style={{
+                  left: beatToPx(b, pxPerBeat, countInBeats),
+                  width: 2,
+                  background:
+                    i === 0
+                      ? "rgba(200,200,255,0.45)"
+                      : "rgba(200,200,200,0.35)",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+        {showChordsTop && (
+          <div className="relative flex h-6">
+            <div
+              className="shrink-0 border-r border-neutral-800/40"
+              style={{ width: laneLabelWidth }}
+            />
+            <div className="relative flex-1">
+              {chords.map((c, idx) => (
+                <div
+                  key={`ch-${idx}`}
+                  className="absolute -translate-x-1/2 text-xs text-neutral-200"
+                  style={{
+                    left: beatToPx(c.startBeat, pxPerBeat, countInBeats),
+                  }}
+                >
+                  <div className="rounded-md bg-neutral-800 px-2 py-0.5 shadow">
+                    <span className="font-medium">{c.label}</span>
+                    {c.subLabel && (
+                      <span className="ml-1 italic opacity-70">
+                        {c.subLabel}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -175,7 +217,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       {/* Body */}
       <div className="relative" style={{ width: totalWidth }}>
         {/* Lane labels column */}
-        <div className="sticky left-0 z-20" style={{ width: 72 }}>
+        <div className="sticky left-0 z-20" style={{ width: laneLabelWidth }}>
           {laneList.map((name, idx) => (
             <div key={name} className="flex items-center justify-end pr-2 text-sm text-neutral-300 select-none" style={{ height: rowHeight, borderBottom: "1px solid rgba(120,120,120,0.15)", background: idx%2? "rgba(255,255,255,0.01)":"rgba(255,255,255,0.03)" }}>
               {name}
@@ -184,27 +226,57 @@ const PianoRoll: React.FC<PianoRollProps> = ({
         </div>
 
         {/* Grid underlay */}
-        <div className="absolute inset-0 z-0" style={{ left: 72 }}>
+        <div
+          className="absolute top-0 bottom-0 z-0"
+          style={{ left: laneLabelWidth, width: timelineWidth }}
+        >
           {/* row backgrounds */}
           {laneList.map((_, idx) => (
             <div key={`row-${idx}`} className="absolute left-0 right-0" style={{ top: idx*rowHeight, height: rowHeight, background: idx%2? "rgba(255,255,255,0.02)":"rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(120,120,120,0.15)" }} />
           ))}
           {/* sub grid lines */}
           {subLines.map((b) => (
-            <div key={`sub-${b}`} className="absolute top-0 bottom-0" style={{ left: 72 + beatToPx(b, pxPerBeat, 0), width: 1, background: "rgba(200,200,200,0.08)" }} />
+            <div
+              key={`sub-${b}`}
+              className="absolute top-0 bottom-0"
+              style={{
+                left: beatToPx(b, pxPerBeat, countInBeats),
+                width: 1,
+                background: "rgba(200,200,200,0.08)",
+              }}
+            />
           ))}
           {/* beat lines (stronger) */}
           {beatLines.map((b) => (
-            <div key={`B-${b}`} className="absolute top-0 bottom-0" style={{ left: 72 + beatToPx(b, pxPerBeat, 0), width: 1, background: "rgba(200,200,200,0.16)" }} />
+            <div
+              key={`B-${b}`}
+              className="absolute top-0 bottom-0"
+              style={{
+                left: beatToPx(b, pxPerBeat, countInBeats),
+                width: 1,
+                background: "rgba(200,200,200,0.16)",
+              }}
+            />
           ))}
           {/* bar lines */}
           {barLines.map((b) => (
-            <div key={`BAR-${b}`} className="absolute top-0 bottom-0" style={{ left: 72 + beatToPx(b, pxPerBeat, 0), width: 2, background: "rgba(255,255,255,0.22)" }} />
+            <div
+              key={`BAR-${b}`}
+              className="absolute top-0 bottom-0"
+              style={{
+                left: beatToPx(b, pxPerBeat, countInBeats),
+                width: 2,
+                background: "rgba(255,255,255,0.22)",
+              }}
+            />
           ))}
         </div>
 
         {/* Notes layer */}
-        <div className="absolute inset-0 z-10" style={{ left: 72 }}>
+        <div
+          className="absolute top-0 bottom-0 z-10"
+          style={{ left: laneLabelWidth, width: timelineWidth }}
+        >
           {events.map((e) => {
             const row = laneIndex[e.pitchName];
             if (row == null) return null;
@@ -245,7 +317,12 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
         {/* Playhead */}
         {typeof playheadBeat === "number" && (
-          <div className="absolute top-0 bottom-0 z-20" style={{ left: 72 + beatToPx(playheadBeat, pxPerBeat, countInBeats) }}>
+          <div
+            className="absolute top-0 bottom-0 z-20"
+            style={{
+              left: laneLabelWidth + beatToPx(playheadBeat, pxPerBeat, countInBeats),
+            }}
+          >
             <div className="absolute -translate-x-1/2 top-10 h-3 w-3 rounded-full bg-cyan-400 shadow" />
             <div className="absolute left-0 top-0 h-full w-[2px] bg-cyan-400/70" />
           </div>

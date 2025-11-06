@@ -128,7 +128,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   chords = [],
   showCountIn = true,
   countInBars = 1,
-  playheadBeat,
+  // playheadBeat,
   onNoteClick,
 }) => {
   const laneList = buildLaneList(events, lanes);

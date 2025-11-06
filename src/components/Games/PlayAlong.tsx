@@ -18,18 +18,12 @@ export const PlayAlong = () => {
           { id: "e8", pitchName: "C3", startBeats: 4, durationBeats: 4 },
         ]}
         lanes={["D4","C4","B3","Bb3","A3","Ab3","G3","Gb3","F3","E3","Eb3","D3","Db3","C3","B2","Bb2","A2","Ab2"]}
-        bars={4}
+        bars={2}
         beatsPerBar={4}
         subdivision={1}
         pxPerBeat={120}
         rowHeight={36}
         showChordsTop
-        chords={[
-          { startBeat: 0, label: "A minor 7" },
-          { startBeat: 4, label: "C major 7" },
-          { startBeat: 8, label: "F major 7", subLabel: "(2nd inversion)" },
-          { startBeat: 12, label: "D minor 7" },
-        ]}
         showCountIn
         countInBars={1}
         playheadBeat={9.5}

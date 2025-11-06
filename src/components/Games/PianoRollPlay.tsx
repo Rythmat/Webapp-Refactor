@@ -340,7 +340,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
           </div>
 
           {/* Playhead */}
-          {typeof playheadBeat === "number" && (
+          {/* {typeof playheadBeat === "number" && (
             <div
               className="absolute top-0 bottom-0 z-20"
               style={{
@@ -350,7 +350,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               <div className="absolute -translate-x-1/2 top-10 h-3 w-3 rounded-full bg-cyan-400 shadow" />
               <div className="absolute left-0 top-0 h-full w-[2px] bg-cyan-400/70" />
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

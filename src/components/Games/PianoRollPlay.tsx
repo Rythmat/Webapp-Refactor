@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Pause, Play } from "lucide-react";
 import { PlayNote } from "./PlayNote";
 
 export type Midi = number; // 0..127
@@ -40,6 +41,8 @@ export interface PianoRollProps {
   /** Playback control */
   inTime?: boolean;
   playheadSpeedBps?: number; // beats per second traversal speed
+  isPlaying?: boolean;
+  onPlayingChange?: (playing: boolean) => void;
 
   /** Callbacks */
   onNoteClick?: (note: NoteEvent) => void;
@@ -127,6 +130,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   chords = [],
   inTime = false,
   playheadSpeedBps = 1,
+  isPlaying,
+  onPlayingChange,
   onNoteClick,
 }) => {
   const laneList = buildLaneList(events, lanes);
@@ -141,18 +146,28 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const playheadSpeed = Math.max(playheadSpeedBps, 0);
 
   const [playheadBeat, setPlayheadBeat] = useState(-countInBeats);
-  const [isPlaying, setIsPlaying] = useState(inTime);
+  const [internalPlaying, setInternalPlaying] = useState(false);
+  const isControlled = typeof isPlaying === "boolean";
+  const playing = isControlled ? Boolean(isPlaying) : internalPlaying;
+  const setPlaying = (next: boolean) => {
+    if (!isControlled) {
+      setInternalPlaying(next);
+    }
+    onPlayingChange?.(next);
+  };
 
   useEffect(() => {
     setPlayheadBeat(-countInBeats);
   }, [countInBeats]);
 
   useEffect(() => {
-    setIsPlaying(inTime);
-  }, [inTime]);
+    if (!inTime && playing) {
+      setPlaying(false);
+    }
+  }, [inTime, playing]);
 
   useEffect(() => {
-    if (!inTime || playheadSpeed <= 0 || !isPlaying) {
+    if (!inTime || playheadSpeed <= 0 || !playing) {
       return;
     }
 
@@ -187,7 +202,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     return () => {
       cancelAnimationFrame(rafId);
     };
-  }, [inTime, playheadSpeed, countInBeats, bars, beatsPerBar, isPlaying]);
+  }, [inTime, playheadSpeed, countInBeats, bars, beatsPerBar, playing]);
 
   // Preindex lanes
   const laneIndex: Record<string, number> = {};
@@ -215,10 +230,12 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       >
         {inTime && (
           <button
-            className="absolute right-2 top-2 rounded-md border border-neutral-700 px-3 py-1 text-xs font-semibold text-neutral-200 transition hover:bg-neutral-800"
-            onClick={() => setIsPlaying((prev) => !prev)}
+            aria-label={playing ? "Pause playback" : "Play sequence"}
+            className="absolute left-2 top-2 flex items-center gap-1 rounded-md border border-neutral-700 px-3 py-1 text-xs font-semibold text-neutral-200 transition hover:bg-neutral-800"
+            onClick={() => setPlaying(!playing)}
           >
-            {isPlaying ? "Pause" : "Play"}
+            {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+            <span>{playing ? "Pause" : "Play"}</span>
           </button>
         )}
         {/* Top ruler */}

@@ -1,0 +1,78 @@
+import React from 'react';
+import type { NoteEvent } from './PianoRollPlay';
+
+type PlayNoteProps = {
+  note: NoteEvent;
+  startPercent: number;
+  widthPercent: number;
+  row: number;
+  rowHeight: number;
+  color: string;
+  onClick?: (note: NoteEvent) => void;
+};
+
+export const PlayNote: React.FC<PlayNoteProps> = ({
+  note,
+  startPercent,
+  widthPercent,
+  row,
+  rowHeight,
+  color,
+  onClick,
+}) => {
+  const top = row * rowHeight + 4;
+  const height = rowHeight - 8;
+
+  const circleSize = Math.min(height * 1.2, rowHeight);
+  const circleRadius = circleSize / 2;
+  const circleLeft = `max(0px, min(calc(${startPercent}% - ${circleRadius}px), calc(100% - ${circleSize}px)))`;
+  const circleTopPx = row * rowHeight + rowHeight / 2 - circleRadius;
+
+  return (
+    <>
+      <button
+        title={`${note.pitchName} @ ${note.startBeats.toFixed(2)} beats`}
+        onClick={() => onClick?.(note)}
+        className="absolute group"
+        style={{
+          left: `${startPercent}%`,
+          width: `${widthPercent}%`,
+          top,
+          height,
+        }}
+      >
+        <div
+          className="h-full w-full rounded-2xl shadow-inner"
+          style={{
+            background: `linear-gradient(180deg, ${color}cc, ${color}aa)`,
+            border: `1px solid rgba(255,255,255,0.18)`,
+          }}
+        />
+        <div
+          className="absolute left-0 top-0 h-full w-4 rounded-l-2xl"
+          style={{ background: 'rgba(0,0,0,0.2)' }}
+        />
+        <div
+          className="absolute right-1 top-1 h-[calc(100%-8px)] w-2 rounded-r-xl opacity-60"
+          style={{ background: 'rgba(255,255,255,0.15)' }}
+        />
+      </button>
+      <div
+        className="pointer-events-none absolute flex items-center justify-center text-[10px] font-semibold uppercase tracking-tight"
+        style={{
+          left: circleLeft,
+          top: `${circleTopPx}px`,
+          width: `${circleSize}px`,
+          height: `${circleSize}px`,
+          borderRadius: '9999px',
+          background: color,
+          color: 'rgba(255,255,255,0.95)',
+          border: '1px solid rgba(255,255,255,0.25)',
+          boxShadow: '0 2px 4px rgba(15,15,15,0.35)',
+        }}
+      >
+        {note.pitchName}
+      </div>
+    </>
+  );
+};

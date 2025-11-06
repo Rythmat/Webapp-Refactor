@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { PlayNote } from "./PlayNote";
 
 export type Midi = number; // 0..127
 
@@ -36,12 +37,9 @@ export interface PianoRollProps {
   showChordsTop?: boolean;      // draw chord labels band
   chords?: ChordMarker[];       // when showChordsTop
 
-  /** Count-in (negative bar area before bar 1) */
-  showCountIn?: boolean;
-  countInBars?: number;         // default 1 (i.e., bar "-1")
-
-  /** Cursor / playhead */
-  playheadBeat?: number;        // position in beats (absolute, relative to bar 1 beat 1 == 0)
+  /** Playback control */
+  inTime?: boolean;
+  playheadSpeedBps?: number; // beats per second traversal speed
 
   /** Callbacks */
   onNoteClick?: (note: NoteEvent) => void;
@@ -127,19 +125,64 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   rowHeight = 36,
   showChordsTop = true,
   chords = [],
-  showCountIn = true,
-  countInBars = 0,
-  // playheadBeat,
+  inTime = false,
+  playheadSpeedBps = 1,
   onNoteClick,
 }) => {
   const laneList = buildLaneList(events, lanes);
-  const countInBeats = showCountIn ? countInBars * beatsPerBar : 0;
+  const activeCountInBars = inTime ? 1 : 0;
+  const countInBeats = activeCountInBars * beatsPerBar;
   const totalBeats = bars * beatsPerBar + countInBeats;
   const laneLabelWidth = 72;
   const timelineStartBeat = -countInBeats;
   const timelineEndBeat = bars * beatsPerBar;
   const safeSubdivision = subdivision <= 0 ? 1 : subdivision;
   const beatPercent = (beat: number) => beatToPercent(beat, countInBeats, totalBeats);
+  const playheadSpeed = Math.max(playheadSpeedBps, 0);
+
+  const [playheadBeat, setPlayheadBeat] = useState(-countInBeats);
+
+  useEffect(() => {
+    setPlayheadBeat(-countInBeats);
+  }, [countInBeats]);
+
+  useEffect(() => {
+    if (!inTime || playheadSpeed <= 0) {
+      return;
+    }
+
+    let rafId: number;
+    let lastTime: number | null = null;
+    const minBeat = -countInBeats;
+    const maxBeat = bars * beatsPerBar;
+
+    const animate = (timestamp: number) => {
+      if (lastTime === null) {
+        lastTime = timestamp;
+        rafId = requestAnimationFrame(animate);
+        return;
+      }
+
+      const deltaSeconds = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+
+      setPlayheadBeat((prev) => {
+        let next = prev + deltaSeconds * playheadSpeed;
+        if (next > maxBeat) {
+          next = minBeat;
+        }
+        return next;
+      });
+
+      rafId = requestAnimationFrame(animate);
+    };
+
+    rafId = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+    };
+  }, [inTime, playheadSpeed, countInBeats, bars, beatsPerBar]);
 
   // Preindex lanes
   const laneIndex: Record<string, number> = {};
@@ -151,7 +194,12 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const beatLines = generateBeatPositions(timelineStartBeat, timelineEndBeat, 1);
   const barLines = generateBeatPositions(timelineStartBeat, timelineEndBeat, beatsPerBar);
 
-  const labels = barBeatLabels(bars, beatsPerBar, showCountIn, countInBars);
+  const labels = barBeatLabels(
+    bars,
+    beatsPerBar,
+    inTime,
+    activeCountInBars,
+  );
 
   return (
     <div className="w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-200">
@@ -330,63 +378,25 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 return null;
               }
 
-              const top = row * rowHeight + 4;
-              const height = rowHeight - 8;
               const color = e.color ?? "#b64f4f"; // base red hue similar to screenshot
 
-              const circleSize = Math.min(height * 1.2, rowHeight);
-              const circleRadius = circleSize / 2;
-              const circleLeft = `max(0px, min(calc(${startPercent}% - ${circleRadius}px), calc(100% - ${circleSize}px)))`;
-              const circleTopPx = row * rowHeight + rowHeight / 2 - circleRadius;
-
               return (
-                <React.Fragment key={e.id}>
-                  <button
-                    title={`${e.pitchName} @ ${e.startBeats.toFixed(2)} beats`}
-                    onClick={() => onNoteClick?.(e)}
-                    className="absolute group"
-                    style={{
-                      left: `${startPercent}%`,
-                      width: `${widthPercent}%`,
-                      top,
-                      height,
-                    }}
-                  >
-                    <div
-                      className="h-full w-full rounded-2xl shadow-inner"
-                      style={{
-                        background: `linear-gradient(180deg, ${color}cc, ${color}aa)`,
-                        border: `1px solid rgba(255,255,255,0.18)`,
-                      }}
-                    />
-                    {/* rounded head cap */}
-                    <div className="absolute left-0 top-0 h-full w-4 rounded-l-2xl" style={{ background: "rgba(0,0,0,0.2)" }} />
-                    {/* tail gloss */}
-                    <div className="absolute right-1 top-1 h-[calc(100%-8px)] w-2 rounded-r-xl opacity-60" style={{ background: "rgba(255,255,255,0.15)" }} />
-                  </button>
-                  <div
-                    className="pointer-events-none absolute flex items-center justify-center text-[10px] font-semibold uppercase tracking-tight"
-                    style={{
-                      left: circleLeft,
-                      top: `${circleTopPx}px`,
-                      width: `${circleSize}px`,
-                      height: `${circleSize}px`,
-                      borderRadius: "9999px",
-                      background: color,
-                      color: "rgba(255,255,255,0.95)",
-                      border: "1px solid rgba(255,255,255,0.25)",
-                      boxShadow: "0 2px 4px rgba(15,15,15,0.35)",
-                    }}
-                  >
-                    {e.pitchName}
-                  </div>
-                </React.Fragment>
+                <PlayNote
+                  key={e.id}
+                  note={e}
+                  startPercent={startPercent}
+                  widthPercent={widthPercent}
+                  row={row}
+                  rowHeight={rowHeight}
+                  color={color}
+                  onClick={onNoteClick}
+                />
               );
             })}
           </div>
 
           {/* Playhead */}
-          {/* {typeof playheadBeat === "number" && (
+          {inTime && (
             <div
               className="absolute top-0 bottom-0 z-20"
               style={{
@@ -396,7 +406,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               <div className="absolute -translate-x-1/2 top-10 h-3 w-3 rounded-full bg-cyan-400 shadow" />
               <div className="absolute left-0 top-0 h-full w-[2px] bg-cyan-400/70" />
             </div>
-          )} */}
+          )}
         </div>
       </div>
     </div>

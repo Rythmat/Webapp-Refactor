@@ -334,12 +334,9 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               const height = rowHeight - 8;
               const color = e.color ?? "#b64f4f"; // base red hue similar to screenshot
 
-              const circleSize = Math.min(height, 24);
+              const circleSize = Math.min(height * 1.2, rowHeight);
               const circleRadius = circleSize / 2;
-              const nextBeatPercent = clampPercent(
-                beatPercent(e.startBeats + e.durationBeats),
-              );
-              const circleLeft = `max(0px, min(calc(${nextBeatPercent}% - ${circleRadius}px), calc(100% - ${circleSize}px)))`;
+              const circleLeft = `max(0px, min(calc(${startPercent}% - ${circleRadius}px), calc(100% - ${circleSize}px)))`;
               const circleTopPx = row * rowHeight + rowHeight / 2 - circleRadius;
 
               return (

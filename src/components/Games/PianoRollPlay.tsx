@@ -141,13 +141,18 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const playheadSpeed = Math.max(playheadSpeedBps, 0);
 
   const [playheadBeat, setPlayheadBeat] = useState(-countInBeats);
+  const [isPlaying, setIsPlaying] = useState(inTime);
 
   useEffect(() => {
     setPlayheadBeat(-countInBeats);
   }, [countInBeats]);
 
   useEffect(() => {
-    if (!inTime || playheadSpeed <= 0) {
+    setIsPlaying(inTime);
+  }, [inTime]);
+
+  useEffect(() => {
+    if (!inTime || playheadSpeed <= 0 || !isPlaying) {
       return;
     }
 
@@ -182,7 +187,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     return () => {
       cancelAnimationFrame(rafId);
     };
-  }, [inTime, playheadSpeed, countInBeats, bars, beatsPerBar]);
+  }, [inTime, playheadSpeed, countInBeats, bars, beatsPerBar, isPlaying]);
 
   // Preindex lanes
   const laneIndex: Record<string, number> = {};
@@ -206,8 +211,16 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       {/* Header: beat markers & optional chord strip */}
       <div
         className="sticky top-0 z-30 bg-neutral-950/95 px-2 backdrop-blur"
-        style={{ borderBottom: "1px solid rgba(120,120,120,0.25)" }}
+        style={{ borderBottom: "1px solid rgba(120,120,120,0.25)", position: "relative" }}
       >
+        {inTime && (
+          <button
+            className="absolute right-2 top-2 rounded-md border border-neutral-700 px-3 py-1 text-xs font-semibold text-neutral-200 transition hover:bg-neutral-800"
+            onClick={() => setIsPlaying((prev) => !prev)}
+          >
+            {isPlaying ? "Pause" : "Play"}
+          </button>
+        )}
         {/* Top ruler */}
         <div className="relative flex" style={{ height: 40 }}>
           <div
@@ -403,8 +416,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 left: `${beatPercent(playheadBeat)}%`,
               }}
             >
-              <div className="absolute -translate-x-1/2 top-10 h-3 w-3 rounded-full bg-cyan-400 shadow" />
-              <div className="absolute left-0 top-0 h-full w-[2px] bg-cyan-400/70" />
+              <div className="absolute left-0 top-0 h-full w-[2px] bg-neutral-500/80" />
             </div>
           )}
         </div>

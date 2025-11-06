@@ -73,6 +73,7 @@ function buildLaneList(events: NoteEvent[], lanes?: string[]): string[] {
 }
 
 const clampBeatPrecision = (value: number) => Number(value.toFixed(6));
+const clampPercent = (value: number) => Math.min(100, Math.max(0, value));
 
 function beatToPercent(beat: number, countInBeats: number, totalBeats: number) {
   const denominator = totalBeats === 0 ? 1 : totalBeats;
@@ -153,7 +154,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const labels = barBeatLabels(bars, beatsPerBar, showCountIn, countInBars);
 
   return (
-    <div className="w-full overflow-auto rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-200">
+    <div className="w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-200">
       {/* Header: beat markers & optional chord strip */}
       <div
         className="sticky top-0 z-30 bg-neutral-950/95 px-2 backdrop-blur"
@@ -167,17 +168,24 @@ const PianoRoll: React.FC<PianoRollProps> = ({
           />
           <div className="relative flex-1" style={{ minWidth: 0 }}>
             {/* beat labels */}
-            {labels.map(({ beat, label }) => (
-              <div
-                key={`lbl-${beat}`}
-                className="absolute top-1 select-none text-xs text-neutral-300"
-                style={{
-                  left: `calc(${beatPercent(beat)}% + 4px)`,
-                }}
-              >
-                {label}
-              </div>
-            ))}
+            {labels.map(({ beat, label }) => {
+              const isFinalBeat =
+                Math.abs(beat - timelineEndBeat) < 0.0001;
+              return (
+                <div
+                  key={`lbl-${beat}`}
+                  className="absolute top-1 select-none text-xs text-neutral-300"
+                  style={{
+                    left: `${beatPercent(beat)}%`,
+                    transform: isFinalBeat
+                      ? "translateX(-100%)"
+                      : "translateX(6px)",
+                  }}
+                >
+                  {label}
+                </div>
+              );
+            })}
             {/* vertical beat lines (stronger) */}
             {beatLines.map((b) => (
               <div
@@ -298,43 +306,84 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             {events.map((e) => {
               const row = laneIndex[e.pitchName];
               if (row == null) return null;
-              const leftPercent = beatPercent(e.startBeats);
-              const widthPercent = (e.durationBeats / (totalBeats || 1)) * 100;
+
+              const startPercent = clampPercent(beatPercent(e.startBeats));
+              const rawEndPercent = beatPercent(e.startBeats + e.durationBeats);
+              const endPercent = clampPercent(rawEndPercent);
+
+              if (endPercent <= 0 || startPercent >= 100) {
+                return null;
+              }
+
+              let widthPercent = Math.max(endPercent - startPercent, 0);
+              const minPercentWidth = 0.5;
+
+              if (widthPercent < minPercentWidth) {
+                widthPercent = minPercentWidth;
+              }
+
+              if (startPercent + widthPercent > 100) {
+                widthPercent = Math.max(0, 100 - startPercent);
+              }
+
+              if (widthPercent <= 0) {
+                return null;
+              }
+
               const top = row * rowHeight + 4;
               const height = rowHeight - 8;
               const color = e.color ?? "#b64f4f"; // base red hue similar to screenshot
+
+              const circleSize = Math.min(height, 24);
+              const circleRadius = circleSize / 2;
+              const nextBeatPercent = clampPercent(
+                beatPercent(e.startBeats + e.durationBeats),
+              );
+              const circleLeft = `max(0px, min(calc(${nextBeatPercent}% - ${circleRadius}px), calc(100% - ${circleSize}px)))`;
+              const circleTopPx = row * rowHeight + rowHeight / 2 - circleRadius;
+
               return (
-                <button
-                  key={e.id}
-                  title={`${e.pitchName} @ ${e.startBeats.toFixed(2)} beats`}
-                  onClick={() => onNoteClick?.(e)}
-                  className="absolute group"
-                  style={{
-                    left: `${leftPercent}%`,
-                    width: `${widthPercent}%`,
-                    minWidth: 6,
-                    top,
-                    height,
-                  }}
-                >
-                  <div
-                    className="h-full w-full rounded-2xl shadow-inner"
+                <React.Fragment key={e.id}>
+                  <button
+                    title={`${e.pitchName} @ ${e.startBeats.toFixed(2)} beats`}
+                    onClick={() => onNoteClick?.(e)}
+                    className="absolute group"
                     style={{
-                      background: `linear-gradient(180deg, ${color}cc, ${color}aa)`,
-                      border: `1px solid rgba(255,255,255,0.18)`,
+                      left: `${startPercent}%`,
+                      width: `${widthPercent}%`,
+                      top,
+                      height,
                     }}
-                  />
-                  {/* pill label at head */}
-                  <div className="absolute -left-3 -top-3 select-none">
-                    <div className="rounded-full bg-neutral-900/90 px-2 py-0.5 text-[10px] font-semibold text-neutral-200 ring-1 ring-neutral-700 shadow">
-                      {e.pitchName}
-                    </div>
+                  >
+                    <div
+                      className="h-full w-full rounded-2xl shadow-inner"
+                      style={{
+                        background: `linear-gradient(180deg, ${color}cc, ${color}aa)`,
+                        border: `1px solid rgba(255,255,255,0.18)`,
+                      }}
+                    />
+                    {/* rounded head cap */}
+                    <div className="absolute left-0 top-0 h-full w-4 rounded-l-2xl" style={{ background: "rgba(0,0,0,0.2)" }} />
+                    {/* tail gloss */}
+                    <div className="absolute right-1 top-1 h-[calc(100%-8px)] w-2 rounded-r-xl opacity-60" style={{ background: "rgba(255,255,255,0.15)" }} />
+                  </button>
+                  <div
+                    className="pointer-events-none absolute flex items-center justify-center text-[10px] font-semibold uppercase tracking-tight"
+                    style={{
+                      left: circleLeft,
+                      top: `${circleTopPx}px`,
+                      width: `${circleSize}px`,
+                      height: `${circleSize}px`,
+                      borderRadius: "9999px",
+                      background: color,
+                      color: "rgba(255,255,255,0.95)",
+                      border: "1px solid rgba(255,255,255,0.25)",
+                      boxShadow: "0 2px 4px rgba(15,15,15,0.35)",
+                    }}
+                  >
+                    {e.pitchName}
                   </div>
-                  {/* rounded head cap */}
-                  <div className="absolute left-0 top-0 h-full w-4 rounded-l-2xl" style={{ background: "rgba(0,0,0,0.2)" }} />
-                  {/* tail gloss */}
-                  <div className="absolute right-1 top-1 h-[calc(100%-8px)] w-2 rounded-r-xl opacity-60" style={{ background: "rgba(255,255,255,0.15)" }} />
-                </button>
+                </React.Fragment>
               );
             })}
           </div>

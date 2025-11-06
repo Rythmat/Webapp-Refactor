@@ -1,8 +1,9 @@
+import { useState } from "react";
 import PianoRoll from "./PianoRollPlay";
 
 
 export const PlayAlong = () => {
-
+  const [isPlaying, setIsPlaying] = useState(false);
 
   return (
       <PianoRoll
@@ -32,6 +33,8 @@ export const PlayAlong = () => {
         showChordsTop
         inTime
         playheadSpeedBps={2}
+        isPlaying={isPlaying}
+        onPlayingChange={setIsPlaying}
       />
 
   )

@@ -23,7 +23,7 @@ export const PlayAlong = () => {
         rowHeight={36}
         showChordsTop
         // showCountIn
-        countInBars={1}
+        // countInBars={1}
         playheadBeat={9.5}
       />
 

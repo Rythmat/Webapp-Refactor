@@ -127,7 +127,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   showChordsTop = true,
   chords = [],
   showCountIn = true,
-  countInBars = 1,
+  countInBars = 0,
   // playheadBeat,
   onNoteClick,
 }) => {

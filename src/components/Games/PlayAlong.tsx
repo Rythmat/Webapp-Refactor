@@ -129,8 +129,8 @@ export const PlayAlong = ({
       <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
         <PianoKeyboard
           className="mx-auto"
-          startC={3}
-          endC={5}
+          startC={1}
+          endC={7}
           activeWhiteKeyColor="#60a5fa"
           activeBlackKeyColor="#3b82f6"
           onKeyClick={triggerHighlight}

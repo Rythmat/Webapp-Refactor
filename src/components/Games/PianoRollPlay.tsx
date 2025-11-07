@@ -45,7 +45,6 @@ export interface PianoRollProps {
 }
 
 // ===== Helpers =====
-function unique<T>(arr: T[]): T[] { return Array.from(new Set(arr)); }
 
 const TICKS_PER_QUARTER = 480;
 
@@ -130,12 +129,6 @@ const midiToNoteName = (midi: number): string => {
   return `${MIDI_NOTE_NAMES[semitone]}${octave}`;
 };
 
-// Sort lane names in musical order (C8..C0). If format not recognized, keep as is.
-function laneSortKey(name: string): number {
-  const info = parsePitchName(name);
-  if (!info) return 0;
-  return info.octave * 100 + info.semitone;
-}
 
 function buildLaneList(events: NoteEvent[]): string[] {
   const midiValues = events

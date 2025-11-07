@@ -194,27 +194,12 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const activeCountInBars = inTime ? 1 : 0;
   const ticksPerBar = beatsPerBar * TICKS_PER_QUARTER;
   const countInTicks = activeCountInBars * ticksPerBar;
-  const overlapOffsetTicks =
-    inTime && countInTicks > 0
-      ? Math.max(countInTicks - ticksPerBar / 4, 0)
-      : 0;
   const totalTicks = bars * ticksPerBar + countInTicks;
-  const defaultLaneLabelWidth = 72;
+  const laneLabelWidth = 72;
   const timelineStartTick = -countInTicks;
   const timelineEndTick = bars * ticksPerBar;
   const safeSubdivision = subdivision <= 0 ? 1 : subdivision;
   const tickPercent = (tick: number) => ticksToPercent(tick, countInTicks, totalTicks);
-  const countInStartPercent =
-    inTime && countInTicks > 0 ? tickPercent(-countInTicks) : 0;
-  const countInQuarterWidthPercent =
-    inTime && countInTicks > 0
-      ? Math.max(
-          tickPercent(-countInTicks + ticksPerBar / 4) - countInStartPercent,
-          0,
-        )
-      : 0;
-  const showCountInOverlay =
-    inTime && countInTicks > 0 && countInQuarterWidthPercent > 0.0001;
   const beatsPerSecond = Math.max(playSpeed, 0) / 60;
   const playheadTicksPerSecond = beatsPerSecond * TICKS_PER_QUARTER;
 
@@ -326,12 +311,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({
         )}
         {/* Top ruler */}
         <div className="relative flex" style={{ height: 40 }}>
-          {!inTime && (
-            <div
-              className="shrink-0 border-r border-neutral-800/50"
-              style={{ width: defaultLaneLabelWidth }}
-            />
-          )}
+          <div
+            className="shrink-0 border-r border-neutral-800/50"
+            style={{ width: laneLabelWidth }}
+          />
           <div className="relative flex-1" style={{ minWidth: 0 }}>
             {/* beat labels */}
             {labels.map(({ tick, label }) => {
@@ -383,12 +366,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({
         </div>
         {showChordsTop && (
           <div className="relative flex h-6">
-            {!inTime && (
-              <div
-                className="shrink-0 border-r border-neutral-800/40"
-                style={{ width: defaultLaneLabelWidth }}
-              />
-            )}
+            <div
+              className="shrink-0 border-r border-neutral-800/40"
+              style={{ width: laneLabelWidth }}
+            />
             <div className="relative flex-1" style={{ minWidth: 0 }}>
               {chords.map((c, idx) => (
                 <div
@@ -415,41 +396,37 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
       {/* Body */}
       <div className="relative flex w-full">
-        {!inTime && (
-          <div
-            className="sticky left-0 z-20"
-            style={{ width: defaultLaneLabelWidth }}
-          >
-            {laneList.map((name, idx) => {
-              const laneMidi = pitchNameToMidi(name);
-              const highlightColor =
-                laneMidi != null && highlightedColorMap
-                  ? highlightedColorMap.get(laneMidi)
-                  : undefined;
-              const baseBackground =
-                idx % 2
-                  ? "rgba(255,255,255,0.01)"
-                  : "rgba(255,255,255,0.03)";
-              return (
-                <div
-                  key={name}
-                  className="flex items-center justify-end pr-2 text-sm select-none transition-colors text-neutral-300"
-                  style={{
-                    height: rowHeight,
-                    borderBottom: "1px solid rgba(120,120,120,0.15)",
-                    background: highlightColor ?? baseBackground,
-                    color: highlightColor ? "white" : undefined,
-                    boxShadow: highlightColor
-                      ? `inset 0 0 0 1px rgba(255,255,255,0.15), 0 0 12px ${highlightColor}`
-                      : undefined,
-                  }}
-                >
-                  {name}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {/* Lane labels column */}
+        <div className="sticky left-0 z-20" style={{ width: laneLabelWidth }}>
+          {laneList.map((name, idx) => {
+            const laneMidi = pitchNameToMidi(name);
+            const highlightColor =
+              laneMidi != null && highlightedColorMap
+                ? highlightedColorMap.get(laneMidi)
+                : undefined;
+            const baseBackground =
+              idx % 2
+                ? "rgba(255,255,255,0.01)"
+                : "rgba(255,255,255,0.03)";
+            return (
+              <div
+                key={name}
+                className="flex items-center justify-end pr-2 text-sm select-none transition-colors text-neutral-300"
+                style={{
+                  height: rowHeight,
+                  borderBottom: "1px solid rgba(120,120,120,0.15)",
+                  background: highlightColor ?? baseBackground,
+                  color: highlightColor ? "white" : undefined,
+                  boxShadow: highlightColor
+                    ? `inset 0 0 0 1px rgba(255,255,255,0.15), 0 0 12px ${highlightColor}`
+                    : undefined,
+                }}
+              >
+                {name}
+              </div>
+            );
+          })}
+        </div>
 
         {/* Grid underlay */}
         <div className="relative flex-1" style={{ minWidth: 0 }}>
@@ -496,68 +473,14 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             ))}
           </div>
 
-          {showCountInOverlay && (
-            <div
-              className="pointer-events-none absolute z-5 flex flex-col"
-              style={{
-                top: 0,
-                bottom: 0,
-                left: `${countInStartPercent}%`,
-                width: `${countInQuarterWidthPercent}%`,
-                background:
-                  "linear-gradient(90deg, rgba(5,5,5,0.75), rgba(5,5,5,0.2))",
-                borderRight: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
-              {laneList.map((name) => {
-                const laneMidi = pitchNameToMidi(name);
-                const highlightColor =
-                  laneMidi != null && highlightedColorMap
-                    ? highlightedColorMap.get(laneMidi)
-                    : undefined;
-                return (
-                  <div
-                    key={`overlay-${name}`}
-                    className="flex items-center justify-end pr-2 text-xs font-semibold tracking-tight"
-                    style={{
-                      height: rowHeight,
-                      borderBottom: "1px solid rgba(255,255,255,0.08)",
-                      color: highlightColor ? "white" : "rgba(229,229,229,0.85)",
-                      textShadow: highlightColor
-                        ? "0 0 6px rgba(0,0,0,0.8)"
-                        : "0 0 4px rgba(0,0,0,0.5)",
-                    }}
-                  >
-                    <span
-                      style={{
-                        background: highlightColor
-                          ? `${highlightColor}cc`
-                          : "rgba(0,0,0,0.35)",
-                        borderRadius: 999,
-                        padding: "2px 8px",
-                      }}
-                    >
-                      {name}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
           {/* Notes layer */}
           <div className="absolute inset-0 z-10">
             {events.map((e) => {
               const row = laneIndex[e.pitchName];
               if (row == null) return null;
 
-              const adjustedStartTick = e.startTicks - overlapOffsetTicks;
-              const adjustedEndTick =
-                e.startTicks + e.durationTicks - overlapOffsetTicks;
-              const startPercent = clampPercent(
-                tickPercent(adjustedStartTick),
-              );
-              const rawEndPercent = tickPercent(adjustedEndTick);
+              const startPercent = clampPercent(tickPercent(e.startTicks));
+              const rawEndPercent = tickPercent(e.startTicks + e.durationTicks);
               const endPercent = clampPercent(rawEndPercent);
 
               if (endPercent <= 0 || startPercent >= 100) {

@@ -1,6 +1,8 @@
 import React from 'react';
 import type { NoteEvent } from './PianoRollPlay';
 
+const TICKS_PER_QUARTER = 480;
+
 type PlayNoteProps = {
   note: NoteEvent;
   startPercent: number;
@@ -31,7 +33,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   return (
     <>
       <button
-        title={`${note.pitchName} @ ${note.startBeats.toFixed(2)} beats`}
+        title={`${note.pitchName} @ ${(note.startTicks / TICKS_PER_QUARTER).toFixed(2)} beats`}
         onClick={() => onClick?.(note)}
         className="absolute group"
         style={{

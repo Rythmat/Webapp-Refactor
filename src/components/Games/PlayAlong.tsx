@@ -91,46 +91,48 @@ export const PlayAlong = ({
   );
 
   return (
-    <div className="flex flex-col gap-4">
-      <PianoRoll
-        events={resolvedEvents}
-        lanes={[
-          "D4",
-          "C4",
-          "B3",
-          "Bb3",
-          "A3",
-          "Ab3",
-          "G3",
-          "Gb3",
-          "F3",
-          "E3",
-          "Eb3",
-          "D3",
-          "Db3",
-          "C3",
-          "B2",
-          "Bb2",
-          "A2",
-          "Ab2",
-        ]}
-        bars={4}
-        beatsPerBar={4}
-        subdivision={1}
-        rowHeight={36}
-        showChordsTop
-        inTime={inTime}
-        playSpeed={120}
-        isPlaying={isPlaying}
-        onPlayingChange={setIsPlaying}
-        highlightedNotes={highlightedNotes}
-      />
+    <div className="flex flex-col gap-0">
+      <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
+        <PianoRoll
+          events={resolvedEvents}
+          lanes={[
+            "D4",
+            "C4",
+            "B3",
+            "Bb3",
+            "A3",
+            "Ab3",
+            "G3",
+            "Gb3",
+            "F3",
+            "E3",
+            "Eb3",
+            "D3",
+            "Db3",
+            "C3",
+            "B2",
+            "Bb2",
+            "A2",
+            "Ab2",
+          ]}
+          bars={4}
+          beatsPerBar={4}
+          subdivision={1}
+          rowHeight={36}
+          showChordsTop
+          inTime={inTime}
+          playSpeed={120}
+          isPlaying={isPlaying}
+          onPlayingChange={setIsPlaying}
+          highlightedNotes={highlightedNotes}
+        />
+      </div>
 
       <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
         <PianoKeyboard
           className="mx-auto"
-          startC={1}
-          endC={7}
+          startC={2}
+          endC={6}
           activeWhiteKeyColor="#60a5fa"
           activeBlackKeyColor="#3b82f6"
           onKeyClick={triggerHighlight}

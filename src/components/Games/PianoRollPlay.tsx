@@ -22,21 +22,16 @@ export interface ChordMarker {
 
 export interface PianoRollProps {
   events: NoteEvent[];
-  /**
-   * Ordered list of visible lanes (rows). If omitted, this will be derived
-   * from the events, sorted by typical piano order (high to low).
-   */
-  lanes?: string[];
 
   /** Grid/time setup */
-  bars: number;                 // number of musical bars to show (not including count-in)
-  beatsPerBar?: number;         // default 4
-  subdivision?: number;         // grid lines per beat (default 1 => quarter). Use 2 for 8ths, 4 for 16ths
-  rowHeight?: number;           // vertical size per lane; default 36
+  bars: number; // number of musical bars to show (not including count-in)
+  beatsPerBar?: number; // default 4
+  subdivision?: number; // grid lines per beat (default 1 => quarter). Use 2 for 8ths, 4 for 16ths
+  rowHeight?: number; // base lane height unit; lanes scale to fit a static box
 
   /** Optional header overlays */
-  showChordsTop?: boolean;      // draw chord labels band
-  chords?: ChordMarker[];       // when showChordsTop
+  showChordsTop?: boolean; // draw chord labels band
+  chords?: ChordMarker[]; // when showChordsTop
 
   /** Playback control */
   inTime?: boolean;
@@ -114,6 +109,27 @@ export const pitchNameToMidi = (name: string): number | null => {
   return info ? info.midi : null;
 };
 
+const MIDI_NOTE_NAMES = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
+
+const midiToNoteName = (midi: number): string => {
+  const octave = Math.floor(midi / 12) - 1;
+  const semitone = ((midi % 12) + 12) % 12;
+  return `${MIDI_NOTE_NAMES[semitone]}${octave}`;
+};
+
 // Sort lane names in musical order (C8..C0). If format not recognized, keep as is.
 function laneSortKey(name: string): number {
   const info = parsePitchName(name);
@@ -121,11 +137,32 @@ function laneSortKey(name: string): number {
   return info.octave * 100 + info.semitone;
 }
 
-function buildLaneList(events: NoteEvent[], lanes?: string[]): string[] {
-  if (lanes && lanes.length) return lanes;
-  const names = unique(events.map(e => e.pitchName));
-  // musical top-to-bottom: sort DESC by pitch value
-  return names.sort((a,b) => laneSortKey(b) - laneSortKey(a));
+function buildLaneList(events: NoteEvent[]): string[] {
+  const midiValues = events
+    .map((event) => {
+      if (typeof event.midi === "number") {
+        return event.midi;
+      }
+      const midi = pitchNameToMidi(event.pitchName);
+      return midi ?? null;
+    })
+    .filter((value): value is number => typeof value === "number");
+
+  if (midiValues.length === 0) {
+    return ["C4"];
+  }
+
+  const minMidi = Math.min(...midiValues);
+  const maxMidi = Math.max(...midiValues);
+  const minLaneMidi = Math.max(minMidi - 1, 0);
+  const maxLaneMidi = Math.min(maxMidi + 1, 127);
+
+  const laneNames: string[] = [];
+  for (let midi = maxLaneMidi; midi >= minLaneMidi; midi--) {
+    laneNames.push(midiToNoteName(midi));
+  }
+
+  return laneNames;
 }
 
 const clampTickPrecision = (value: number) => Number(value.toFixed(6));
@@ -176,7 +213,6 @@ function barBeatLabels(bars: number, beatsPerBar: number, showCountIn: boolean, 
 // ===== Component =====
 const PianoRoll: React.FC<PianoRollProps> = ({
   events,
-  lanes,
   bars,
   beatsPerBar = 4,
   subdivision = 1,
@@ -190,8 +226,14 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   highlightedNotes = [],
   onNoteClick,
 }) => {
-  const laneList = buildLaneList(events, lanes);
-  const activeCountInBars = inTime ? 1 : 0;
+  const laneList = buildLaneList(events);
+  const baseLaneCountForHeight = 24;
+  const totalLanePixelHeight = rowHeight * baseLaneCountForHeight;
+  const effectiveRowHeight =
+    laneList.length > 0
+      ? totalLanePixelHeight / laneList.length
+      : totalLanePixelHeight;
+ const activeCountInBars = inTime ? 1 : 0;
   const ticksPerBar = beatsPerBar * TICKS_PER_QUARTER;
   const countInTicks = activeCountInBars * ticksPerBar;
   const totalTicks = bars * ticksPerBar + countInTicks;
@@ -413,7 +455,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 key={name}
                 className="flex items-center justify-end pr-2 text-sm select-none transition-colors text-neutral-300"
                 style={{
-                  height: rowHeight,
+                  height: effectiveRowHeight,
                   borderBottom: "1px solid rgba(120,120,120,0.15)",
                   background: highlightColor ?? baseBackground,
                   color: highlightColor ? "white" : undefined,
@@ -433,7 +475,19 @@ const PianoRoll: React.FC<PianoRollProps> = ({
           <div className="absolute inset-0 z-0">
             {/* row backgrounds */}
             {laneList.map((_, idx) => (
-              <div key={`row-${idx}`} className="absolute left-0 right-0" style={{ top: idx*rowHeight, height: rowHeight, background: idx%2? "rgba(255,255,255,0.02)":"rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(120,120,120,0.15)" }} />
+              <div
+                key={`row-${idx}`}
+                className="absolute left-0 right-0"
+                style={{
+                  top: idx * effectiveRowHeight,
+                  height: effectiveRowHeight,
+                  background:
+                    idx % 2
+                      ? "rgba(255,255,255,0.02)"
+                      : "rgba(255,255,255,0.05)",
+                  borderBottom: "1px solid rgba(120,120,120,0.15)",
+                }}
+              />
             ))}
             {/* sub grid lines */}
             {subLines.map((b) => (
@@ -511,7 +565,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                   startPercent={startPercent}
                   widthPercent={widthPercent}
                   row={row}
-                  rowHeight={rowHeight}
+                  rowHeight={effectiveRowHeight}
                   color={color}
                   onClick={onNoteClick}
                 />

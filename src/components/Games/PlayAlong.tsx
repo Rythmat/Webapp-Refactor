@@ -95,26 +95,6 @@ export const PlayAlong = ({
       <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
         <PianoRoll
           events={resolvedEvents}
-          lanes={[
-            "D4",
-            "C4",
-            "B3",
-            "Bb3",
-            "A3",
-            "Ab3",
-            "G3",
-            "Gb3",
-            "F3",
-            "E3",
-            "Eb3",
-            "D3",
-            "Db3",
-            "C3",
-            "B2",
-            "Bb2",
-            "A2",
-            "Ab2",
-          ]}
           bars={4}
           beatsPerBar={4}
           subdivision={1}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Pause, Play } from "lucide-react";
 import { PlayNote } from "./PlayNote";
 
@@ -59,10 +59,8 @@ const ACCIDENTAL_MAP: Record<string, string> = {
   "": "",
   "#": "#",
   "b": "b",
-  "?": "#",
-  "?": "b",
-  "?T_": "#",
-  "?T-": "b",
+  "♯": "#",
+  "♭": "b",
 };
 
 const NOTE_OFFSETS: Record<string, number> = {
@@ -96,14 +94,14 @@ type PitchInfo = {
 };
 
 const parsePitchName = (name: string): PitchInfo | null => {
-  const m = name.match(/^([A-Ga-g])([#b???T_?T-]?)(-?\d+)$/);
+  const m = name.match(/^([A-Ga-g])([#b♯♭]?)(-?\d+)$/);
   if (!m) return null;
   const [, rawLetter, rawAccidental, octStr] = m;
   const letter = rawLetter.toUpperCase();
   const accidental =
     ACCIDENTAL_MAP[rawAccidental as keyof typeof ACCIDENTAL_MAP] ??
     rawAccidental;
-  const noteKey = ${letter};
+  const noteKey = `${letter}${accidental}`;
   const semitone = NOTE_OFFSETS[noteKey];
   if (semitone === undefined) return null;
   const octave = parseInt(octStr, 10);
@@ -539,4 +537,3 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 };
 
 export default PianoRoll;
-

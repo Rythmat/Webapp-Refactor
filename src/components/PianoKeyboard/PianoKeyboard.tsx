@@ -196,7 +196,7 @@ export function PianoKeyboard({
         }}
         onClick={() => handleKeyClick(note)}
       >
-        {showOctaveStart && note % 12 === 0 && (
+        {showOctaveStart && !gaming && note % 12 === 0 && (
           <div className={octaveLabelClass}>C{Math.floor(note / 12)}</div>
         )}
       </div>
@@ -261,12 +261,10 @@ export function PianoKeyboard({
     );
   };
 
-  const octaves = Array.from(
-    // { length: expandedEndC - expandedStartC + 1 },
-    // (_, i) => expandedStartC + i,
-    { length: endC - startC + 1 },
-    (_, i) => startC + i,
-  );
+  const octaveCount = Math.max(1, endC - startC + 1);
+  const limitedOctaveCount = gaming ? Math.min(octaveCount, 2) : octaveCount;
+  const octaveStart = gaming ? startC : startC;
+  const octaves = Array.from({ length: limitedOctaveCount }, (_, i) => octaveStart + i);
 
   return (
     <div ref={setRef}>
@@ -275,16 +273,23 @@ export function PianoKeyboard({
           'relative p-px mx-auto bg-black',
           className,
           vertical ? 'flex flex-col' : 'flex min-h-20 justify-center max-w-fit',
+          !vertical && gaming ? 'gap-0' : '',
         )}
         style={{
           minWidth: vertical
             ? undefined
-            : `${(gaming? OCTAVE_WIDTH*2:OCTAVE_WIDTH) * (endC - startC + 1)}px`,
+            : `${
+                (gaming ? OCTAVE_WIDTH * 2 : OCTAVE_WIDTH) *
+                (gaming ? limitedOctaveCount : endC - startC + 1)
+              }px`,
           minHeight: vertical
-            ? `${(gaming? OCTAVE_HEIGHT*2:OCTAVE_HEIGHT) * (endC - startC + 1)}px`
+            ? `${
+                (gaming ? OCTAVE_HEIGHT * 2 : OCTAVE_HEIGHT) *
+                (gaming ? limitedOctaveCount : endC - startC + 1)
+              }px`
             : `${gaming ? OCTAVE_HEIGHT * 2 : OCTAVE_HEIGHT}px`,
-        }}
-      >
+       }}
+     >
         {octaves.map((octave) => (
           <div key={octave}>{renderOctave(octave)}</div>
         ))}

@@ -43,6 +43,7 @@ export interface PianoRollProps {
   playSpeed?: number; // beats per minute traversal speed
   isPlaying?: boolean;
   onPlayingChange?: (playing: boolean) => void;
+  highlightedNotes?: Array<{ midi: number; color?: string }>;
 
   /** Callbacks */
   onNoteClick?: (note: NoteEvent) => void;
@@ -54,18 +55,72 @@ function unique<T>(arr: T[]): T[] { return Array.from(new Set(arr)); }
 const TICKS_PER_QUARTER = 480;
 
 // Sort lane names in musical order (C8..C0). If format not recognized, keep as is.
-const NOTE_ORDER = ["C","C#","Db","D","D#","Eb","E","F","F#","Gb","G","G#","Ab","A","A#","Bb","B"]; // allow enharmonics
-function laneSortKey(name: string): number {
-  // Expect like "A3", "Bb2"
-  const m = name.match(/^([A-Ga-g]{1})([#b♭♯]?)(-?\d+)$/);
-  if (!m) return 0;
-  const [ , L, acc, octStr ] = m;
-  const letter = L.toUpperCase();
-  const accidental = (acc === "♭") ? "b" : (acc === "♯" ? "#" : acc);
-  const base = NOTE_ORDER.indexOf(letter + accidental);
+const ACCIDENTAL_MAP: Record<string, string> = {
+  "": "",
+  "#": "#",
+  "b": "b",
+  "?": "#",
+  "?": "b",
+  "?T_": "#",
+  "?T-": "b",
+};
+
+const NOTE_OFFSETS: Record<string, number> = {
+  C: 0,
+  "C#": 1,
+  Db: 1,
+  D: 2,
+  "D#": 3,
+  Eb: 3,
+  E: 4,
+  Fb: 4,
+  "E#": 5,
+  F: 5,
+  "F#": 6,
+  Gb: 6,
+  G: 7,
+  "G#": 8,
+  Ab: 8,
+  A: 9,
+  "A#": 10,
+  Bb: 10,
+  B: 11,
+  Cb: 11,
+  "B#": 0,
+};
+
+type PitchInfo = {
+  octave: number;
+  semitone: number;
+  midi: number;
+};
+
+const parsePitchName = (name: string): PitchInfo | null => {
+  const m = name.match(/^([A-Ga-g])([#b???T_?T-]?)(-?\d+)$/);
+  if (!m) return null;
+  const [, rawLetter, rawAccidental, octStr] = m;
+  const letter = rawLetter.toUpperCase();
+  const accidental =
+    ACCIDENTAL_MAP[rawAccidental as keyof typeof ACCIDENTAL_MAP] ??
+    rawAccidental;
+  const noteKey = ${letter};
+  const semitone = NOTE_OFFSETS[noteKey];
+  if (semitone === undefined) return null;
   const octave = parseInt(octStr, 10);
-  // Higher notes should sort nearer the top => larger key first, so we invert later
-  return octave * 100 + (base >= 0 ? base : 0);
+  const midi = (octave + 1) * 12 + semitone;
+  return { octave, semitone, midi };
+};
+
+export const pitchNameToMidi = (name: string): number | null => {
+  const info = parsePitchName(name);
+  return info ? info.midi : null;
+};
+
+// Sort lane names in musical order (C8..C0). If format not recognized, keep as is.
+function laneSortKey(name: string): number {
+  const info = parsePitchName(name);
+  if (!info) return 0;
+  return info.octave * 100 + info.semitone;
 }
 
 function buildLaneList(events: NoteEvent[], lanes?: string[]): string[] {
@@ -134,6 +189,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   playSpeed = 60,
   isPlaying,
   onPlayingChange,
+  highlightedNotes = [],
   onNoteClick,
 }) => {
   const laneList = buildLaneList(events, lanes);
@@ -159,6 +215,19 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     }
     onPlayingChange?.(next);
   };
+
+  const highlightedColorMap = useMemo(() => {
+    if (!highlightedNotes || highlightedNotes.length === 0) {
+      return null;
+    }
+    const map = new Map<number, string>();
+    highlightedNotes.forEach((entry) => {
+      if (typeof entry?.midi === "number") {
+        map.set(entry.midi, entry.color ?? "#b64f4f");
+      }
+    });
+    return map;
+  }, [highlightedNotes]);
 
   useEffect(() => {
     setPlayheadTick(-countInTicks);
@@ -331,11 +400,34 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       <div className="relative flex w-full">
         {/* Lane labels column */}
         <div className="sticky left-0 z-20" style={{ width: laneLabelWidth }}>
-          {laneList.map((name, idx) => (
-            <div key={name} className="flex items-center justify-end pr-2 text-sm text-neutral-300 select-none" style={{ height: rowHeight, borderBottom: "1px solid rgba(120,120,120,0.15)", background: idx%2? "rgba(255,255,255,0.01)":"rgba(255,255,255,0.03)" }}>
-              {name}
-            </div>
-          ))}
+          {laneList.map((name, idx) => {
+            const laneMidi = pitchNameToMidi(name);
+            const highlightColor =
+              laneMidi != null && highlightedColorMap
+                ? highlightedColorMap.get(laneMidi)
+                : undefined;
+            const baseBackground =
+              idx % 2
+                ? "rgba(255,255,255,0.01)"
+                : "rgba(255,255,255,0.03)";
+            return (
+              <div
+                key={name}
+                className="flex items-center justify-end pr-2 text-sm select-none transition-colors text-neutral-300"
+                style={{
+                  height: rowHeight,
+                  borderBottom: "1px solid rgba(120,120,120,0.15)",
+                  background: highlightColor ?? baseBackground,
+                  color: highlightColor ? "white" : undefined,
+                  boxShadow: highlightColor
+                    ? `inset 0 0 0 1px rgba(255,255,255,0.15), 0 0 12px ${highlightColor}`
+                    : undefined,
+                }}
+              >
+                {name}
+              </div>
+            );
+          })}
         </div>
 
         {/* Grid underlay */}
@@ -447,3 +539,4 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 };
 
 export default PianoRoll;
+

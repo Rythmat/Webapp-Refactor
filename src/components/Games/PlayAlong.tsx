@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PianoKeyboard } from "@/components/PianoKeyboard";
-import PianoRoll, { NoteEvent } from "./PianoRollPlay";
+import type { MidiNoteEvent } from "@/hooks/music/useMidiInput";
+import PianoRoll, { NoteEvent, pitchNameToMidi } from "./PianoRollPlay";
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e1", pitchName: "A2", startTicks: 0, durationTicks: 1920 },
@@ -32,6 +33,62 @@ export const PlayAlong = ({
 }: PlayAlongProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
+  const [highlightedNotes, setHighlightedNotes] = useState<
+    Array<{ midi: number; color: string }>
+  >([]);
+  const highlightTimers = useRef<Record<number, number>>({});
+
+  useEffect(
+    () => () => {
+      Object.values(highlightTimers.current).forEach((timerId) =>
+        clearTimeout(timerId),
+      );
+    },
+    [],
+  );
+
+  const noteColorByMidi = useMemo(() => {
+    const map = new Map<number, string>();
+    resolvedEvents.forEach((event) => {
+      const midi =
+        typeof event.midi === "number"
+          ? event.midi
+          : pitchNameToMidi(event.pitchName);
+      if (typeof midi === "number" && !map.has(midi)) {
+        map.set(midi, event.color ?? "#b64f4f");
+      }
+    });
+    return map;
+  }, [resolvedEvents]);
+
+  const triggerHighlight = useCallback(
+    (midiNumber: number) => {
+      const color = noteColorByMidi.get(midiNumber) ?? "#b64f4f";
+      setHighlightedNotes((prev) => {
+        const filtered = prev.filter((entry) => entry.midi !== midiNumber);
+        return [...filtered, { midi: midiNumber, color }];
+      });
+
+      if (highlightTimers.current[midiNumber]) {
+        clearTimeout(highlightTimers.current[midiNumber]);
+      }
+
+      highlightTimers.current[midiNumber] = window.setTimeout(() => {
+        setHighlightedNotes((prev) =>
+          prev.filter((entry) => entry.midi !== midiNumber),
+        );
+        delete highlightTimers.current[midiNumber];
+      }, 500);
+    },
+    [noteColorByMidi],
+  );
+
+  const handleMidiInput = useCallback(
+    (event: MidiNoteEvent) => {
+      triggerHighlight(event.number);
+    },
+    [triggerHighlight],
+  );
 
   return (
     <div className="space-y-6">
@@ -66,6 +123,7 @@ export const PlayAlong = ({
         playSpeed={120}
         isPlaying={isPlaying}
         onPlayingChange={setIsPlaying}
+        highlightedNotes={highlightedNotes}
       />
 
       <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
@@ -74,9 +132,10 @@ export const PlayAlong = ({
           startC={3}
           endC={5}
           gaming
-          showOctaveStart
           activeWhiteKeyColor="#60a5fa"
           activeBlackKeyColor="#3b82f6"
+          onKeyClick={triggerHighlight}
+          onMidiInput={handleMidiInput}
         />
       </div>
     </div>

@@ -91,7 +91,7 @@ export const PlayAlong = ({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-4">
       <PianoRoll
         events={resolvedEvents}
         lanes={[
@@ -131,7 +131,6 @@ export const PlayAlong = ({
           className="mx-auto"
           startC={3}
           endC={5}
-          gaming
           activeWhiteKeyColor="#60a5fa"
           activeBlackKeyColor="#3b82f6"
           onKeyClick={triggerHighlight}

@@ -194,6 +194,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const activeCountInBars = inTime ? 1 : 0;
   const ticksPerBar = beatsPerBar * TICKS_PER_QUARTER;
   const countInTicks = activeCountInBars * ticksPerBar;
+  const overlapOffsetTicks =
+    inTime && countInTicks > 0
+      ? Math.max(countInTicks - ticksPerBar / 4, 0)
+      : 0;
   const totalTicks = bars * ticksPerBar + countInTicks;
   const laneLabelWidth = 72;
   const timelineStartTick = -countInTicks;
@@ -479,8 +483,12 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               const row = laneIndex[e.pitchName];
               if (row == null) return null;
 
-              const startPercent = clampPercent(tickPercent(e.startTicks));
-              const rawEndPercent = tickPercent(e.startTicks + e.durationTicks);
+              const adjustedStartTick = e.startTicks - overlapOffsetTicks;
+              const adjustedEndTick =
+                e.startTicks + e.durationTicks - overlapOffsetTicks;
+
+              const startPercent = clampPercent(tickPercent(adjustedStartTick));
+              const rawEndPercent = tickPercent(adjustedEndTick);
               const endPercent = clampPercent(rawEndPercent);
 
               if (endPercent <= 0 || startPercent >= 100) {

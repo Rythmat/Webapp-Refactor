@@ -328,7 +328,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   );
 
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-200">
+    <div
+      className="w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-200 text-sm"
+      style={{ fontSize: '0.9rem' }}
+    >
       {/* Header: beat markers & optional chord strip */}
       <div
         className="sticky top-0 z-30 bg-neutral-950/95 px-2 backdrop-blur"
@@ -341,7 +344,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             onClick={() => setPlaying(!playing)}
           >
             {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-            <span>{playing ? "Pause" : "Play"}</span>
           </button>
         )}
         {/* Top ruler */}
@@ -395,7 +397,17 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                       ? "rgba(200,200,255,0.45)"
                       : "rgba(200,200,200,0.35)",
                 }}
-              />
+              >
+                <div
+                  className="absolute left-0 top-0 h-[40px] w-full bg-current"
+                  style={{
+                    background:
+                      i === 0
+                        ? "rgba(200,200,255,0.45)"
+                        : "rgba(200,200,200,0.35)",
+                  }}
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -507,16 +519,29 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               />
             ))}
             {/* bar lines */}
-            {barLines.map((b) => (
+            {barLines.map((b, i) => (
               <div
                 key={`BAR-${b}`}
                 className="absolute top-0 bottom-0"
                 style={{
                   left: `${tickPercent(b)}%`,
                   width: 2,
-                  background: "rgba(255,255,255,0.22)",
+                  background:
+                    i === 0
+                      ? "rgba(200,200,255,0.45)"
+                      : "rgba(255,255,255,0.22)",
                 }}
-              />
+              >
+                <div
+                  className="absolute left-0 top-[-40px] h-[40px] w-full bg-current"
+                  style={{
+                    background:
+                      i === 0
+                        ? "rgba(200,200,255,0.45)"
+                        : "rgba(255,255,255,0.22)",
+                  }}
+                />
+              </div>
             ))}
           </div>
 

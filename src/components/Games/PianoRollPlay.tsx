@@ -509,7 +509,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 borderRight: "1px solid rgba(255,255,255,0.08)",
               }}
             >
-              {laneList.map((name, idx) => {
+              {laneList.map((name) => {
                 const laneMidi = pitchNameToMidi(name);
                 const highlightColor =
                   laneMidi != null && highlightedColorMap

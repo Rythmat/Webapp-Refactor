@@ -23,6 +23,16 @@ const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e16", pitchName: "C3", startTicks: 5760, durationTicks: 1920 },
 ];
 
+const CHORD_SEQUENCE: Array<{ name: string; notes: number[] }> = [
+  { name: "Am7", notes: [45, 48, 52, 55] }, // A2 C3 E3 G3
+  { name: "Cmaj7", notes: [48, 52, 55, 59] }, // C3 E3 G3 B3
+  { name: "Dm7", notes: [50, 53, 57, 60] }, // D3 F3 A3 C4
+  { name: "G7", notes: [55, 59, 62, 65] }, // G3 B3 D4 F4
+];
+
+const CHORD_HOLD_DURATION_MS = 2000;
+const COMPLETED_COLOR = "#22c55e";
+
 type PlayAlongProps = {
   events?: NoteEvent[];
   inTime?: boolean;
@@ -46,7 +56,19 @@ export const PlayAlong = ({
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<
     PlaybackEvent[]
   >([]);
-  const keyboardNoteMapRef = useRef<Record<number, string>>({});
+  const keyboardNoteMapRef = useRef<
+    Record<number, { activeId?: string; completedId?: string }>
+  >({});
+
+  const [currentChordIndex, setCurrentChordIndex] = useState(0);
+  const [completedChords, setCompletedChords] = useState<boolean[]>(
+    () => Array(CHORD_SEQUENCE.length).fill(false),
+  );
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [chordHoldProgress, setChordHoldProgress] = useState(0);
+
+  const chordHoldStartRef = useRef<number | null>(null);
+  const activeMidiKeysRef = useRef<Set<number>>(new Set());
 
   useEffect(
     () => () => {
@@ -127,60 +149,180 @@ export const PlayAlong = ({
     [syncHighlightedNotes],
   );
 
-  const registerKeyboardVisual = useCallback((midiNumber: number, color: string) => {
-    const existingId = keyboardNoteMapRef.current[midiNumber];
-    if (existingId) {
-      setKeyboardPlayingNotes((prev) =>
-        prev.filter((event) => event.id !== existingId),
-      );
-    }
+  const addKeyboardNote = useCallback(
+    (midiNumber: number, color: string, role: "active" | "completed") => {
+      const entry =
+        keyboardNoteMapRef.current[midiNumber] ??
+        (keyboardNoteMapRef.current[midiNumber] = {});
 
-    const id = `keyboard-${midiNumber}-${Date.now()}`;
-    keyboardNoteMapRef.current[midiNumber] = id;
-    const playbackEvent: PlaybackEvent = {
-      id,
-      type: "note",
-      midi: midiNumber,
-      time: Date.now(),
-      duration: Number.POSITIVE_INFINITY,
-      velocity: 1,
-      color,
-    };
-    setKeyboardPlayingNotes((prev) => [...prev, playbackEvent]);
-  }, []);
+      if (role === "active" && entry.activeId) {
+        setKeyboardPlayingNotes((prev) =>
+          prev.filter((event) => event.id !== entry.activeId),
+        );
+      }
 
-  const removeKeyboardVisual = useCallback((midiNumber: number) => {
-    const existingId = keyboardNoteMapRef.current[midiNumber];
-    if (!existingId) return;
+      if (role === "completed" && entry.completedId) {
+        return;
+      }
+
+      const id = `${role}-${midiNumber}-${Date.now()}`;
+      if (role === "active") {
+        entry.activeId = id;
+      } else {
+        entry.completedId = id;
+      }
+
+      const playbackEvent: PlaybackEvent = {
+        id,
+        type: "note",
+        midi: midiNumber,
+        time: Date.now(),
+        duration: Number.POSITIVE_INFINITY,
+        velocity: 1,
+        color,
+      };
+      setKeyboardPlayingNotes((prev) => [...prev, playbackEvent]);
+    },
+    [],
+  );
+
+  const removeActiveKeyboardNote = useCallback((midiNumber: number) => {
+    const entry = keyboardNoteMapRef.current[midiNumber];
+    if (!entry?.activeId) return;
+    const id = entry.activeId;
     setKeyboardPlayingNotes((prev) =>
-      prev.filter((event) => event.id !== existingId),
+      prev.filter((event) => event.id !== id),
     );
-    delete keyboardNoteMapRef.current[midiNumber];
+    delete entry.activeId;
   }, []);
+
+  const flashKeyboard = useCallback(
+    (midiNumber: number, color: string, durationMs = 250) => {
+      const id = `flash-${midiNumber}-${Date.now()}`;
+      const playbackEvent: PlaybackEvent = {
+        id,
+        type: "note",
+        midi: midiNumber,
+        time: Date.now(),
+        duration: Number.POSITIVE_INFINITY,
+        velocity: 1,
+        color,
+      };
+      setKeyboardPlayingNotes((prev) => [...prev, playbackEvent]);
+      window.setTimeout(() => {
+        setKeyboardPlayingNotes((prev) =>
+          prev.filter((event) => event.id !== id),
+        );
+      }, durationMs);
+    },
+    [],
+  );
 
   const triggerHighlight = useCallback(
     (midiNumber: number) => {
       const color = noteColorByMidi.get(midiNumber) ?? "#b64f4f";
       activateHighlight(midiNumber, color, false, 500);
+      flashKeyboard(midiNumber, color);
     },
-    [noteColorByMidi, activateHighlight],
+    [noteColorByMidi, activateHighlight, flashKeyboard],
   );
+
+  const activeChord = CHORD_SEQUENCE[currentChordIndex];
+
+  const evaluateChordHold = useCallback(() => {
+    if (!activeChord || showCompletion) {
+      chordHoldStartRef.current = null;
+      setChordHoldProgress(0);
+      return;
+    }
+
+    const activeKeys = activeMidiKeysRef.current;
+    const chordNotes = activeChord.notes;
+    const matches =
+      activeKeys.size === chordNotes.length &&
+      chordNotes.every((note) => activeKeys.has(note));
+
+    if (matches) {
+      if (chordHoldStartRef.current === null) {
+        chordHoldStartRef.current = performance.now();
+      }
+    } else {
+      chordHoldStartRef.current = null;
+      setChordHoldProgress(0);
+    }
+  }, [activeChord, showCompletion]);
+
+  const completeChord = useCallback(() => {
+    if (!activeChord) return;
+    setCompletedChords((prev) =>
+      prev.map((done, idx) => (idx === currentChordIndex ? true : done)),
+    );
+
+    activeChord.notes.forEach((note) => {
+      deactivateHighlight(note);
+      activateHighlight(note, COMPLETED_COLOR, true);
+      addKeyboardNote(note, COMPLETED_COLOR, "completed");
+      removeActiveKeyboardNote(note);
+      activeMidiKeysRef.current.delete(note);
+    });
+
+    chordHoldStartRef.current = null;
+    setChordHoldProgress(0);
+
+    if (currentChordIndex + 1 < CHORD_SEQUENCE.length) {
+      setCurrentChordIndex((idx) => idx + 1);
+    } else {
+      setCurrentChordIndex(CHORD_SEQUENCE.length);
+      setShowCompletion(true);
+    }
+  }, [
+    activeChord,
+    currentChordIndex,
+    deactivateHighlight,
+    activateHighlight,
+    addKeyboardNote,
+    removeActiveKeyboardNote,
+  ]);
+
+  useEffect(() => {
+    let raf: number;
+    const tick = () => {
+      if (chordHoldStartRef.current !== null && activeChord && !showCompletion) {
+        const elapsed = performance.now() - chordHoldStartRef.current;
+        setChordHoldProgress(
+          Math.min(elapsed / CHORD_HOLD_DURATION_MS, 1),
+        );
+        if (elapsed >= CHORD_HOLD_DURATION_MS) {
+          completeChord();
+        }
+      } else {
+        setChordHoldProgress(0);
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [completeChord, activeChord, showCompletion]);
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
       const color = noteColorByMidi.get(event.number) ?? "#b64f4f";
-      registerKeyboardVisual(event.number, color);
+      addKeyboardNote(event.number, color, "active");
       activateHighlight(event.number, color, true);
+      activeMidiKeysRef.current.add(event.number);
+      evaluateChordHold();
     },
-    [noteColorByMidi, registerKeyboardVisual, activateHighlight],
+    [noteColorByMidi, addKeyboardNote, activateHighlight, evaluateChordHold],
   );
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
-      removeKeyboardVisual(event.number);
+      removeActiveKeyboardNote(event.number);
       deactivateHighlight(event.number);
+      activeMidiKeysRef.current.delete(event.number);
+      evaluateChordHold();
     },
-    [removeKeyboardVisual, deactivateHighlight],
+    [removeActiveKeyboardNote, deactivateHighlight, evaluateChordHold],
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
@@ -196,9 +338,67 @@ export const PlayAlong = ({
     };
   }, [startListening, stopListening, handleMidiNoteOn, handleMidiNoteOff]);
 
+  const resetGame = useCallback(() => {
+    highlightStateRef.current = {};
+    Object.values(highlightTimersRef.current).forEach((timerId) =>
+      clearTimeout(timerId),
+    );
+    highlightTimersRef.current = {};
+    setHighlightedNotes([]);
+
+    keyboardNoteMapRef.current = {};
+    setKeyboardPlayingNotes([]);
+
+    activeMidiKeysRef.current.clear();
+    chordHoldStartRef.current = null;
+    setChordHoldProgress(0);
+    setCompletedChords(Array(CHORD_SEQUENCE.length).fill(false));
+    setCurrentChordIndex(0);
+    setShowCompletion(false);
+  }, []);
+
   return (
-    <div className="flex flex-col gap-0">
+    <div className="relative flex flex-col gap-0">
       <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
+        <div className="mb-4 space-y-2">
+          <h2 className="text-lg font-semibold text-neutral-100">
+            Hold each chord for 2 seconds
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {CHORD_SEQUENCE.map((chord, idx) => {
+              const status = completedChords[idx]
+                ? "completed"
+                : idx === currentChordIndex
+                ? "current"
+                : "pending";
+              const baseClasses =
+                status === "completed"
+                  ? "border-green-500 bg-green-600/20 text-green-100"
+                  : status === "current"
+                  ? "border-sky-500 bg-sky-600/20 text-sky-100"
+                  : "border-neutral-700 bg-neutral-900 text-neutral-300";
+              const progress =
+                status === "current" ? Math.round(chordHoldProgress * 100) : 0;
+              return (
+                <div
+                  key={chord.name + idx}
+                  className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${baseClasses}`}
+                >
+                  <div>{chord.name}</div>
+                  {status === "current" && (
+                    <div className="mt-1 h-1 w-full rounded bg-white/10">
+                      <div
+                        className="h-full rounded bg-white/70 transition-all"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         <PianoRoll
           events={resolvedEvents}
           bars={4}
@@ -226,6 +426,23 @@ export const PlayAlong = ({
           showOctaveStart
         />
       </div>
+
+      {showCompletion && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+          <div className="rounded-2xl bg-neutral-900 px-8 py-6 text-center text-neutral-100 shadow-2xl">
+            <h3 className="text-2xl font-semibold">All chords complete!</h3>
+            <p className="mt-2 text-neutral-300">
+              Nice work holding every chord cleanly.
+            </p>
+            <button
+              className="mt-4 rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-white hover:bg-green-400"
+              onClick={resetGame}
+            >
+              Play Again
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -8,7 +8,15 @@ export interface MidiNoteEvent {
 
 type Callback = (event: MidiNoteEvent) => void;
 
-export function useMidiInput(callback?: Callback, _testTarget?: EventTarget) {
+type MidiInputOptions = {
+  onNoteOn?: Callback;
+};
+
+export function useMidiInput(
+  callback?: Callback,
+  options?: MidiInputOptions,
+  _testTarget?: EventTarget,
+) {
   const [isListening, setIsListening] = useState(false);
   const stopListeningRef = useRef<() => void>();
 
@@ -19,8 +27,7 @@ export function useMidiInput(callback?: Callback, _testTarget?: EventTarget) {
     let midiAccess: MIDIAccess;
 
     const onMIDIMessage = (message: MIDIMessageEvent) => {
-      if (!message.data || !callback) return;
-
+      if (!message.data) return;
       const status = message.data[0];
       const noteNumber = message.data[1];
       const velocity = message.data[2];
@@ -30,9 +37,14 @@ export function useMidiInput(callback?: Callback, _testTarget?: EventTarget) {
       const now = performance.now() / 1000; // convert to seconds
 
       if (command === 0x90 && velocity > 0) {
+        options?.onNoteOn?.({
+          number: noteNumber,
+          duration: 0,
+          velocity,
+        });
         // Note ON
         noteStartTimes.current.set(noteNumber, { time: now, velocity });
-      } else if (command === 0x80 || (command === 0x90 && velocity === 0)) {
+      } else if ((command === 0x80 || (command === 0x90 && velocity === 0)) && callback) {
         // Note OFF
         const start = noteStartTimes.current.get(noteNumber);
         if (start) {

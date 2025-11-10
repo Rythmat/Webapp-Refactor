@@ -123,7 +123,16 @@ export const PlayAlong = ({
     [triggerHighlight],
   );
 
-  const { startListening, stopListening } = useMidiInput(handleMidiInput);
+  const handleMidiNoteOn = useCallback(
+    (event: MidiNoteEvent) => {
+      triggerHighlight(event.number);
+    },
+    [triggerHighlight],
+  );
+
+  const { startListening, stopListening } = useMidiInput(undefined, {
+    onNoteOn: handleMidiNoteOn,
+  });
 
   useEffect(() => {
     const stop = startListening();
@@ -131,7 +140,7 @@ export const PlayAlong = ({
       stop?.();
       stopListening();
     };
-  }, [startListening, stopListening, handleMidiInput]);
+  }, [startListening, stopListening, handleMidiNoteOn]);
 
   return (
     <div className="flex flex-col gap-0">
@@ -140,8 +149,8 @@ export const PlayAlong = ({
           events={resolvedEvents}
           bars={4}
           beatsPerBar={4}
-        subdivision={1}
-        rowHeight={28}
+          subdivision={1}
+          rowHeight={28}
           showChordsTop
           inTime={inTime}
           playSpeed={120}

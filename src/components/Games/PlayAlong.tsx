@@ -34,19 +34,30 @@ export const PlayAlong = ({
 }: PlayAlongProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
+
   const [highlightedNotes, setHighlightedNotes] = useState<
     Array<{ midi: number; color: string }>
   >([]);
-  const highlightTimers = useRef<Record<number, number>>({});
-  const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
-  const activeKeyboardNoteIds = useRef<Record<number, string>>({});
+  const highlightStateRef = useRef<
+    Record<number, { color: string; persistent: boolean }>
+  >({});
+  const highlightTimersRef = useRef<Record<number, number>>({});
+
+  const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<
+    PlaybackEvent[]
+  >([]);
+  const keyboardNoteMapRef = useRef<Record<number, string>>({});
 
   useEffect(
     () => () => {
-      Object.values(highlightTimers.current).forEach((timerId) =>
+      Object.values(highlightTimersRef.current).forEach((timerId) =>
         clearTimeout(timerId),
       );
-      activeKeyboardNoteIds.current = {};
+      highlightStateRef.current = {};
+      setHighlightedNotes([]);
+
+      keyboardNoteMapRef.current = {};
+      setKeyboardPlayingNotes([]);
     },
     [],
   );
@@ -65,77 +76,111 @@ export const PlayAlong = ({
     return map;
   }, [resolvedEvents]);
 
-  const registerKeyboardVisual = useCallback(
-    (midiNumber: number, color: string) => {
-      const existingId = activeKeyboardNoteIds.current[midiNumber];
-      if (existingId) {
-        setKeyboardPlayingNotes((prev) =>
-          prev.filter((event) => event.id !== existingId),
-        );
-      }
+  const syncHighlightedNotes = useCallback(() => {
+    const entries = Object.entries(highlightStateRef.current).map(
+      ([midi, entry]) => ({
+        midi: Number(midi),
+        color: entry.color,
+      }),
+    );
+    setHighlightedNotes(entries);
+  }, []);
 
-      const id = `playalong-key-${midiNumber}-${Date.now()}`;
-      activeKeyboardNoteIds.current[midiNumber] = id;
-      const playbackEvent: PlaybackEvent = {
-        id,
-        type: "note",
-        midi: midiNumber,
-        time: Date.now(),
-        duration: Number.POSITIVE_INFINITY,
-        velocity: 1,
-        color,
-      };
-      setKeyboardPlayingNotes((prev) => [...prev, playbackEvent]);
+  const activateHighlight = useCallback(
+    (
+      midiNumber: number,
+      color: string,
+      persistent: boolean,
+      transientDurationMs = 500,
+    ) => {
+      highlightStateRef.current[midiNumber] = { color, persistent };
+      syncHighlightedNotes();
+
+      if (!persistent) {
+        if (highlightTimersRef.current[midiNumber]) {
+          clearTimeout(highlightTimersRef.current[midiNumber]);
+        }
+        highlightTimersRef.current[midiNumber] = window.setTimeout(() => {
+          const entry = highlightStateRef.current[midiNumber];
+          if (entry && !entry.persistent) {
+            delete highlightStateRef.current[midiNumber];
+            syncHighlightedNotes();
+          }
+          delete highlightTimersRef.current[midiNumber];
+        }, transientDurationMs);
+      }
     },
-    [],
+    [syncHighlightedNotes],
   );
 
+  const deactivateHighlight = useCallback(
+    (midiNumber: number) => {
+      const entry = highlightStateRef.current[midiNumber];
+      if (!entry) return;
+      if (highlightTimersRef.current[midiNumber]) {
+        clearTimeout(highlightTimersRef.current[midiNumber]);
+        delete highlightTimersRef.current[midiNumber];
+      }
+      delete highlightStateRef.current[midiNumber];
+      syncHighlightedNotes();
+    },
+    [syncHighlightedNotes],
+  );
+
+  const registerKeyboardVisual = useCallback((midiNumber: number, color: string) => {
+    const existingId = keyboardNoteMapRef.current[midiNumber];
+    if (existingId) {
+      setKeyboardPlayingNotes((prev) =>
+        prev.filter((event) => event.id !== existingId),
+      );
+    }
+
+    const id = `keyboard-${midiNumber}-${Date.now()}`;
+    keyboardNoteMapRef.current[midiNumber] = id;
+    const playbackEvent: PlaybackEvent = {
+      id,
+      type: "note",
+      midi: midiNumber,
+      time: Date.now(),
+      duration: Number.POSITIVE_INFINITY,
+      velocity: 1,
+      color,
+    };
+    setKeyboardPlayingNotes((prev) => [...prev, playbackEvent]);
+  }, []);
+
   const removeKeyboardVisual = useCallback((midiNumber: number) => {
-    const activeId = activeKeyboardNoteIds.current[midiNumber];
-    if (!activeId) return;
+    const existingId = keyboardNoteMapRef.current[midiNumber];
+    if (!existingId) return;
     setKeyboardPlayingNotes((prev) =>
-      prev.filter((event) => event.id !== activeId),
+      prev.filter((event) => event.id !== existingId),
     );
-    delete activeKeyboardNoteIds.current[midiNumber];
+    delete keyboardNoteMapRef.current[midiNumber];
   }, []);
 
   const triggerHighlight = useCallback(
     (midiNumber: number) => {
       const color = noteColorByMidi.get(midiNumber) ?? "#b64f4f";
-      setHighlightedNotes((prev) => {
-        const filtered = prev.filter((entry) => entry.midi !== midiNumber);
-        return [...filtered, { midi: midiNumber, color }];
-      });
-
-      if (highlightTimers.current[midiNumber]) {
-        clearTimeout(highlightTimers.current[midiNumber]);
-      }
-
-      highlightTimers.current[midiNumber] = window.setTimeout(() => {
-        setHighlightedNotes((prev) =>
-          prev.filter((entry) => entry.midi !== midiNumber),
-        );
-        delete highlightTimers.current[midiNumber];
-      }, 500);
-
+      activateHighlight(midiNumber, color, false, 500);
     },
-    [noteColorByMidi],
+    [noteColorByMidi, activateHighlight],
   );
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
       const color = noteColorByMidi.get(event.number) ?? "#b64f4f";
       registerKeyboardVisual(event.number, color);
-      triggerHighlight(event.number);
+      activateHighlight(event.number, color, true);
     },
-    [noteColorByMidi, registerKeyboardVisual, triggerHighlight],
+    [noteColorByMidi, registerKeyboardVisual, activateHighlight],
   );
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
       removeKeyboardVisual(event.number);
+      deactivateHighlight(event.number);
     },
-    [removeKeyboardVisual],
+    [removeKeyboardVisual, deactivateHighlight],
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
@@ -149,7 +194,7 @@ export const PlayAlong = ({
       stop?.();
       stopListening();
     };
-  }, [startListening, stopListening, handleMidiNoteOn]);
+  }, [startListening, stopListening, handleMidiNoteOn, handleMidiNoteOff]);
 
   return (
     <div className="flex flex-col gap-0">

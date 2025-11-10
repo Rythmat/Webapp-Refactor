@@ -107,6 +107,7 @@ export const PlayAlong = ({
   );
   const [showCompletion, setShowCompletion] = useState(false);
   const [chordHoldProgress, setChordHoldProgress] = useState(0);
+  const [pianoRollRefreshKey, setPianoRollRefreshKey] = useState(0);
 
   const chordHoldStartRef = useRef<number | null>(null);
   const activeMidiKeysRef = useRef<Set<number>>(new Set());
@@ -315,6 +316,7 @@ export const PlayAlong = ({
       setCurrentChordIndex(chords.length);
       setShowCompletion(true);
     }
+    setPianoRollRefreshKey((prev) => prev + 1);
   }, [
     activeChord,
     chords.length,
@@ -407,57 +409,15 @@ export const PlayAlong = ({
     resetGame();
   }, [resetGame]);
 
-  const chordList = chords.length > 0 ? chords : [];
-
   return (
     <div className="relative flex flex-col gap-0">
       <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
-        <div className="mb-4 space-y-2">
-          <h2 className="text-lg font-semibold text-neutral-100">
-            Hold each chord for 2 seconds
-          </h2>
-          {chordList.length === 0 ? (
-            <p className="text-sm text-neutral-400">
-              No chords detected for this play-along.
-            </p>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {chordList.map((chord, idx) => {
-                const status = completedChords[idx]
-                  ? "completed"
-                  : idx === currentChordIndex
-                  ? "current"
-                  : "pending";
-                const baseClasses =
-                  status === "completed"
-                    ? "border-green-500 bg-green-600/20 text-green-100"
-                    : status === "current"
-                    ? "border-sky-500 bg-sky-600/20 text-sky-100"
-                    : "border-neutral-700 bg-neutral-900 text-neutral-300";
-                const progress =
-                  status === "current" ? Math.round(chordHoldProgress * 100) : 0;
-                return (
-                  <div
-                    key={`${chord.startTicks}-${idx}`}
-                    className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${baseClasses}`}
-                  >
-                    <div>{chord.name}</div>
-                    {status === "current" && (
-                      <div className="mt-1 h-1 w-full rounded bg-white/10">
-                        <div
-                          className="h-full rounded bg-white/70 transition-all"
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+        <h2 className="mb-4 text-lg font-semibold text-neutral-100">
+          Hold each chord for 2 seconds
+        </h2>
 
         <PianoRoll
+          key={pianoRollRefreshKey}
           events={resolvedEvents}
           bars={4}
           beatsPerBar={4}

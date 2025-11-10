@@ -70,14 +70,14 @@ export const PlayAlong = ({
   }, [resolvedEvents]);
 
   const registerKeyboardVisual = useCallback(
-    (midiNumber: number, color: string) => {
+    (midiNumber: number, color: string, duration = 0.5) => {
       const id = `playalong-key-${midiNumber}-${Date.now()}`;
       const playbackEvent: PlaybackEvent = {
         id,
         type: "note",
         midi: midiNumber,
         time: Date.now(),
-        duration: 0.5,
+        duration,
         velocity: 1,
         color,
       };
@@ -87,7 +87,7 @@ export const PlayAlong = ({
           prev.filter((event) => event.id !== id),
         );
         delete keyboardNoteTimers.current[id];
-      }, 500);
+      }, duration * 1000);
     },
     [],
   );
@@ -116,18 +116,50 @@ export const PlayAlong = ({
     [noteColorByMidi, registerKeyboardVisual],
   );
 
-  const handleMidiInput = useCallback(
-    (event: MidiNoteEvent) => {
-      triggerHighlight(event.number);
-    },
-    [triggerHighlight],
-  );
+  const pendingNoteOns = useRef<Record<number, { start: number; color: string }>>({});
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      const color = noteColorByMidi.get(event.number) ?? "#b64f4f";
+      pendingNoteOns.current[event.number] = {
+        start: Date.now(),
+        color,
+      };
+      registerKeyboardVisual(event.number, color, 5);
       triggerHighlight(event.number);
     },
-    [triggerHighlight],
+    [noteColorByMidi, registerKeyboardVisual, triggerHighlight],
+  );
+
+  const handleMidiNoteOff = useCallback(
+    (event: MidiNoteEvent) => {
+      const pending = pendingNoteOns.current[event.number];
+      if (!pending) {
+        return;
+      }
+      delete pendingNoteOns.current[event.number];
+
+      setKeyboardPlayingNotes((prev) =>
+        prev.filter((playbackEvent) => playbackEvent.midi !== event.number),
+      );
+      Object.entries(keyboardNoteTimers.current).forEach(([id, timerId]) => {
+        const matchId = id.startsWith(`playalong-key-${event.number}-`);
+        if (matchId) {
+          clearTimeout(timerId);
+          delete keyboardNoteTimers.current[id];
+        }
+      });
+    },
+    [],
+  );
+
+  const handleMidiInput = useCallback(
+    (event: MidiNoteEvent) => {
+      if (pendingNoteOns.current[event.number]) {
+        handleMidiNoteOff(event);
+      }
+    },
+    [handleMidiNoteOff],
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {

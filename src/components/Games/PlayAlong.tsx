@@ -23,12 +23,26 @@ const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e16", pitchName: "C3", startTicks: 5760, durationTicks: 1920 },
 ];
 
-const CHORD_SEQUENCE: Array<{ name: string; notes: number[] }> = [
-  { name: "Am7", notes: [45, 48, 52, 55] }, // A2 C3 E3 G3
-  { name: "Cmaj7", notes: [48, 52, 55, 59] }, // C3 E3 G3 B3
-  { name: "Dm7", notes: [50, 53, 57, 60] }, // D3 F3 A3 C4
-  { name: "G7", notes: [55, 59, 62, 65] }, // G3 B3 D4 F4
+const MIDI_NOTE_NAMES = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
 ];
+
+const midiToNoteName = (midi: number) => {
+  const semitone = ((midi % 12) + 12) % 12;
+  const octave = Math.floor(midi / 12) - 1;
+  return `${MIDI_NOTE_NAMES[semitone]}${octave}`;
+};
 
 const CHORD_HOLD_DURATION_MS = 2000;
 const COMPLETED_COLOR = "#22c55e";
@@ -44,6 +58,33 @@ export const PlayAlong = ({
 }: PlayAlongProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
+
+  const chords = useMemo(() => {
+    const grouped = new Map<number, Set<number>>();
+    resolvedEvents.forEach((event) => {
+      const midi =
+        typeof event.midi === "number"
+          ? event.midi
+          : pitchNameToMidi(event.pitchName);
+      if (typeof midi !== "number") return;
+      if (!grouped.has(event.startTicks)) {
+        grouped.set(event.startTicks, new Set());
+      }
+      grouped.get(event.startTicks)!.add(midi);
+    });
+
+    return Array.from(grouped.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([startTicks, noteSet], index) => {
+        const notes = Array.from(noteSet).sort((a, b) => a - b);
+        const name =
+          notes.length > 0
+            ? notes.map(midiToNoteName).join(" ")
+            : `Chord ${index + 1}`;
+        return { startTicks, notes, name };
+      })
+      .filter((chord) => chord.notes.length > 0);
+  }, [resolvedEvents]);
 
   const [highlightedNotes, setHighlightedNotes] = useState<
     Array<{ midi: number; color: string }>
@@ -61,8 +102,8 @@ export const PlayAlong = ({
   >({});
 
   const [currentChordIndex, setCurrentChordIndex] = useState(0);
-  const [completedChords, setCompletedChords] = useState<boolean[]>(
-    () => Array(CHORD_SEQUENCE.length).fill(false),
+  const [completedChords, setCompletedChords] = useState<boolean[]>(() =>
+    Array(chords.length).fill(false),
   );
   const [showCompletion, setShowCompletion] = useState(false);
   const [chordHoldProgress, setChordHoldProgress] = useState(0);
@@ -189,45 +230,41 @@ export const PlayAlong = ({
   const removeActiveKeyboardNote = useCallback((midiNumber: number) => {
     const entry = keyboardNoteMapRef.current[midiNumber];
     if (!entry?.activeId) return;
-    const id = entry.activeId;
     setKeyboardPlayingNotes((prev) =>
-      prev.filter((event) => event.id !== id),
+      prev.filter((event) => event.id !== entry.activeId),
     );
     delete entry.activeId;
   }, []);
 
-  const flashKeyboard = useCallback(
-    (midiNumber: number, color: string, durationMs = 250) => {
-      const id = `flash-${midiNumber}-${Date.now()}`;
-      const playbackEvent: PlaybackEvent = {
-        id,
-        type: "note",
-        midi: midiNumber,
-        time: Date.now(),
-        duration: Number.POSITIVE_INFINITY,
-        velocity: 1,
-        color,
-      };
-      setKeyboardPlayingNotes((prev) => [...prev, playbackEvent]);
-      window.setTimeout(() => {
-        setKeyboardPlayingNotes((prev) =>
-          prev.filter((event) => event.id !== id),
-        );
-      }, durationMs);
-    },
-    [],
-  );
+  const flashKeyboard = useCallback((midiNumber: number, color: string) => {
+    const id = `flash-${midiNumber}-${Date.now()}`;
+    const playbackEvent: PlaybackEvent = {
+      id,
+      type: "note",
+      midi: midiNumber,
+      time: Date.now(),
+      duration: Number.POSITIVE_INFINITY,
+      velocity: 1,
+      color,
+    };
+    setKeyboardPlayingNotes((prev) => [...prev, playbackEvent]);
+    window.setTimeout(() => {
+      setKeyboardPlayingNotes((prev) =>
+        prev.filter((event) => event.id !== id),
+      );
+    }, 250);
+  }, []);
 
   const triggerHighlight = useCallback(
     (midiNumber: number) => {
-      const color = noteColorByMidi.get(midiNumber) ?? "#b64f4f";
+      const color = noteColorByMidi.get(midiNumber) ?? "#60a5fa";
       activateHighlight(midiNumber, color, false, 500);
       flashKeyboard(midiNumber, color);
     },
     [noteColorByMidi, activateHighlight, flashKeyboard],
   );
 
-  const activeChord = CHORD_SEQUENCE[currentChordIndex];
+  const activeChord = chords[currentChordIndex] ?? null;
 
   const evaluateChordHold = useCallback(() => {
     if (!activeChord || showCompletion) {
@@ -237,10 +274,9 @@ export const PlayAlong = ({
     }
 
     const activeKeys = activeMidiKeysRef.current;
-    const chordNotes = activeChord.notes;
     const matches =
-      activeKeys.size === chordNotes.length &&
-      chordNotes.every((note) => activeKeys.has(note));
+      activeKeys.size === activeChord.notes.length &&
+      activeChord.notes.every((note) => activeKeys.has(note));
 
     if (matches) {
       if (chordHoldStartRef.current === null) {
@@ -254,9 +290,13 @@ export const PlayAlong = ({
 
   const completeChord = useCallback(() => {
     if (!activeChord) return;
-    setCompletedChords((prev) =>
-      prev.map((done, idx) => (idx === currentChordIndex ? true : done)),
-    );
+    setCompletedChords((prev) => {
+      const next = [...prev];
+      if (currentChordIndex < next.length) {
+        next[currentChordIndex] = true;
+      }
+      return next;
+    });
 
     activeChord.notes.forEach((note) => {
       deactivateHighlight(note);
@@ -269,14 +309,15 @@ export const PlayAlong = ({
     chordHoldStartRef.current = null;
     setChordHoldProgress(0);
 
-    if (currentChordIndex + 1 < CHORD_SEQUENCE.length) {
+    if (currentChordIndex + 1 < chords.length) {
       setCurrentChordIndex((idx) => idx + 1);
     } else {
-      setCurrentChordIndex(CHORD_SEQUENCE.length);
+      setCurrentChordIndex(chords.length);
       setShowCompletion(true);
     }
   }, [
     activeChord,
+    chords.length,
     currentChordIndex,
     deactivateHighlight,
     activateHighlight,
@@ -306,13 +347,18 @@ export const PlayAlong = ({
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
-      const color = noteColorByMidi.get(event.number) ?? "#b64f4f";
+      const color = noteColorByMidi.get(event.number) ?? "#60a5fa";
       addKeyboardNote(event.number, color, "active");
       activateHighlight(event.number, color, true);
       activeMidiKeysRef.current.add(event.number);
       evaluateChordHold();
     },
-    [noteColorByMidi, addKeyboardNote, activateHighlight, evaluateChordHold],
+    [
+      noteColorByMidi,
+      addKeyboardNote,
+      activateHighlight,
+      evaluateChordHold,
+    ],
   );
 
   const handleMidiNoteOff = useCallback(
@@ -352,10 +398,16 @@ export const PlayAlong = ({
     activeMidiKeysRef.current.clear();
     chordHoldStartRef.current = null;
     setChordHoldProgress(0);
-    setCompletedChords(Array(CHORD_SEQUENCE.length).fill(false));
+    setCompletedChords(Array(chords.length).fill(false));
     setCurrentChordIndex(0);
     setShowCompletion(false);
-  }, []);
+  }, [chords.length]);
+
+  useEffect(() => {
+    resetGame();
+  }, [resetGame]);
+
+  const chordList = chords.length > 0 ? chords : [];
 
   return (
     <div className="relative flex flex-col gap-0">
@@ -364,39 +416,45 @@ export const PlayAlong = ({
           <h2 className="text-lg font-semibold text-neutral-100">
             Hold each chord for 2 seconds
           </h2>
-          <div className="flex flex-wrap gap-2">
-            {CHORD_SEQUENCE.map((chord, idx) => {
-              const status = completedChords[idx]
-                ? "completed"
-                : idx === currentChordIndex
-                ? "current"
-                : "pending";
-              const baseClasses =
-                status === "completed"
-                  ? "border-green-500 bg-green-600/20 text-green-100"
-                  : status === "current"
-                  ? "border-sky-500 bg-sky-600/20 text-sky-100"
-                  : "border-neutral-700 bg-neutral-900 text-neutral-300";
-              const progress =
-                status === "current" ? Math.round(chordHoldProgress * 100) : 0;
-              return (
-                <div
-                  key={chord.name + idx}
-                  className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${baseClasses}`}
-                >
-                  <div>{chord.name}</div>
-                  {status === "current" && (
-                    <div className="mt-1 h-1 w-full rounded bg-white/10">
-                      <div
-                        className="h-full rounded bg-white/70 transition-all"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          {chordList.length === 0 ? (
+            <p className="text-sm text-neutral-400">
+              No chords detected for this play-along.
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {chordList.map((chord, idx) => {
+                const status = completedChords[idx]
+                  ? "completed"
+                  : idx === currentChordIndex
+                  ? "current"
+                  : "pending";
+                const baseClasses =
+                  status === "completed"
+                    ? "border-green-500 bg-green-600/20 text-green-100"
+                    : status === "current"
+                    ? "border-sky-500 bg-sky-600/20 text-sky-100"
+                    : "border-neutral-700 bg-neutral-900 text-neutral-300";
+                const progress =
+                  status === "current" ? Math.round(chordHoldProgress * 100) : 0;
+                return (
+                  <div
+                    key={`${chord.startTicks}-${idx}`}
+                    className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${baseClasses}`}
+                  >
+                    <div>{chord.name}</div>
+                    {status === "current" && (
+                      <div className="mt-1 h-1 w-full rounded bg-white/10">
+                        <div
+                          className="h-full rounded bg-white/70 transition-all"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <PianoRoll

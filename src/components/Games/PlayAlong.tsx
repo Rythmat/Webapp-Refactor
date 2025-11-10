@@ -102,9 +102,7 @@ export const PlayAlong = ({
   >({});
 
   const [currentChordIndex, setCurrentChordIndex] = useState(0);
-  const [completedChords, setCompletedChords] = useState<boolean[]>(() =>
-    Array(chords.length).fill(false),
-  );
+  const [completedChords, setCompletedChords] = useState<boolean[]>([]);
   const [showCompletion, setShowCompletion] = useState(false);
   const [chordHoldProgress, setChordHoldProgress] = useState(0);
   const [pianoRollRefreshKey, setPianoRollRefreshKey] = useState(0);
@@ -122,6 +120,7 @@ export const PlayAlong = ({
 
       keyboardNoteMapRef.current = {};
       setKeyboardPlayingNotes([]);
+      completedChords;
     },
     [],
   );
@@ -409,6 +408,8 @@ export const PlayAlong = ({
     resetGame();
   }, [resetGame]);
 
+  const progressPercent = Math.round(chordHoldProgress * 100);
+
   return (
     <div className="relative flex flex-col gap-0">
       <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
@@ -430,6 +431,18 @@ export const PlayAlong = ({
           onPlayingChange={setIsPlaying}
           highlightedNotes={highlightedNotes}
         />
+      </div>
+
+      <div className="px-4 py-3">
+        <div className="mb-2 text-sm font-medium text-neutral-300">
+          Chord hold progress: {progressPercent}%
+        </div>
+        <div className="h-2 rounded bg-neutral-800">
+          <div
+            className="h-full rounded bg-sky-400 transition-all"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
       </div>
 
       <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">

@@ -10,6 +10,7 @@ type Callback = (event: MidiNoteEvent) => void;
 
 type MidiInputOptions = {
   onNoteOn?: Callback;
+  onNoteOff?: Callback;
 };
 
 export function useMidiInput(
@@ -19,6 +20,8 @@ export function useMidiInput(
 ) {
   const [isListening, setIsListening] = useState(false);
   const stopListeningRef = useRef<() => void>();
+  const onNoteOn = options?.onNoteOn;
+  const onNoteOff = options?.onNoteOff;
 
   const noteStartTimes = useRef<
     Map<number, { time: number; velocity: number }>
@@ -37,23 +40,25 @@ export function useMidiInput(
       const now = performance.now() / 1000; // convert to seconds
 
       if (command === 0x90 && velocity > 0) {
-        options?.onNoteOn?.({
+        onNoteOn?.({
           number: noteNumber,
           duration: 0,
           velocity,
         });
         // Note ON
         noteStartTimes.current.set(noteNumber, { time: now, velocity });
-      } else if ((command === 0x80 || (command === 0x90 && velocity === 0)) && callback) {
+      } else if (command === 0x80 || (command === 0x90 && velocity === 0)) {
         // Note OFF
         const start = noteStartTimes.current.get(noteNumber);
         if (start) {
           const duration = now - start.time;
-          callback({
+          const event = {
             number: noteNumber,
             duration,
             velocity: start.velocity,
-          });
+          };
+          callback?.(event);
+          onNoteOff?.(event);
           noteStartTimes.current.delete(noteNumber);
         }
       }
@@ -95,7 +100,7 @@ export function useMidiInput(
     stopListeningRef.current = stop;
 
     return stop;
-  }, [callback, _testTarget]);
+  }, [callback, onNoteOn, onNoteOff, _testTarget]);
 
   const stopListening = useCallback(() => {
     setIsListening(false);

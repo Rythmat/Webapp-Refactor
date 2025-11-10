@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PianoKeyboard } from "@/components/PianoKeyboard";
-import type { MidiNoteEvent } from "@/hooks/music/useMidiInput";
+import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
+import { useMidiInput, type MidiNoteEvent } from "@/hooks/music/useMidiInput";
 import PianoRoll, { NoteEvent, pitchNameToMidi } from "./PianoRollPlay";
 
 const DEFAULT_EVENTS: NoteEvent[] = [
@@ -37,10 +38,17 @@ export const PlayAlong = ({
     Array<{ midi: number; color: string }>
   >([]);
   const highlightTimers = useRef<Record<number, number>>({});
+  const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<
+    PlaybackEvent[]
+  >([]);
+  const keyboardNoteTimers = useRef<Record<string, number>>({});
 
   useEffect(
     () => () => {
       Object.values(highlightTimers.current).forEach((timerId) =>
+        clearTimeout(timerId),
+      );
+      Object.values(keyboardNoteTimers.current).forEach((timerId) =>
         clearTimeout(timerId),
       );
     },
@@ -61,6 +69,29 @@ export const PlayAlong = ({
     return map;
   }, [resolvedEvents]);
 
+  const registerKeyboardVisual = useCallback(
+    (midiNumber: number, color: string) => {
+      const id = `playalong-key-${midiNumber}-${Date.now()}`;
+      const playbackEvent: PlaybackEvent = {
+        id,
+        type: "note",
+        midi: midiNumber,
+        time: Date.now(),
+        duration: 0.5,
+        velocity: 1,
+        color,
+      };
+      setKeyboardPlayingNotes((prev) => [...prev, playbackEvent]);
+      keyboardNoteTimers.current[id] = window.setTimeout(() => {
+        setKeyboardPlayingNotes((prev) =>
+          prev.filter((event) => event.id !== id),
+        );
+        delete keyboardNoteTimers.current[id];
+      }, 500);
+    },
+    [],
+  );
+
   const triggerHighlight = useCallback(
     (midiNumber: number) => {
       const color = noteColorByMidi.get(midiNumber) ?? "#b64f4f";
@@ -79,8 +110,10 @@ export const PlayAlong = ({
         );
         delete highlightTimers.current[midiNumber];
       }, 500);
+
+      registerKeyboardVisual(midiNumber, color);
     },
-    [noteColorByMidi],
+    [noteColorByMidi, registerKeyboardVisual],
   );
 
   const handleMidiInput = useCallback(
@@ -90,6 +123,16 @@ export const PlayAlong = ({
     [triggerHighlight],
   );
 
+  const { startListening, stopListening } = useMidiInput(handleMidiInput);
+
+  useEffect(() => {
+    const stop = startListening();
+    return () => {
+      stop?.();
+      stopListening();
+    };
+  }, [startListening, stopListening, handleMidiInput]);
+
   return (
     <div className="flex flex-col gap-0">
       <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
@@ -97,8 +140,8 @@ export const PlayAlong = ({
           events={resolvedEvents}
           bars={4}
           beatsPerBar={4}
-          subdivision={1}
-          rowHeight={36}
+        subdivision={1}
+        rowHeight={28}
           showChordsTop
           inTime={inTime}
           playSpeed={120}
@@ -113,10 +156,12 @@ export const PlayAlong = ({
           className="mx-auto"
           startC={2}
           endC={6}
+          playingNotes={keyboardPlayingNotes}
           activeWhiteKeyColor="#60a5fa"
           activeBlackKeyColor="#3b82f6"
           onKeyClick={triggerHighlight}
           onMidiInput={handleMidiInput}
+          showOctaveStart
         />
       </div>
     </div>

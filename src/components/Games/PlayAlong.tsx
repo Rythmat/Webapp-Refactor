@@ -120,6 +120,7 @@ export const PlayAlong = ({
 
       keyboardNoteMapRef.current = {};
       setKeyboardPlayingNotes([]);
+      completedChords;
     },
     [],
   );

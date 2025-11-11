@@ -120,7 +120,6 @@ export const PlayAlong = ({
 
       keyboardNoteMapRef.current = {};
       setKeyboardPlayingNotes([]);
-      completedChords;
     },
     [],
   );
@@ -301,7 +300,6 @@ export const PlayAlong = ({
     activeChord.notes.forEach((note) => {
       deactivateHighlight(note);
       activateHighlight(note, COMPLETED_COLOR, true);
-      addKeyboardNote(note, COMPLETED_COLOR, "completed");
       removeActiveKeyboardNote(note);
       activeMidiKeysRef.current.delete(note);
     });
@@ -409,10 +407,15 @@ export const PlayAlong = ({
   }, [resetGame]);
 
   const progressPercent = Math.round(chordHoldProgress * 100);
+  const blurClass = showCompletion
+    ? "pointer-events-none opacity-30 blur-sm transition"
+    : "";
 
   return (
     <div className="relative flex flex-col gap-0">
-      <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
+      <div
+        className={`rounded-xl border border-neutral-800 bg-neutral-950/80 p-4 ${blurClass}`}
+      >
         <h2 className="mb-4 text-lg font-semibold text-neutral-100">
           Hold each chord for 2 seconds
         </h2>
@@ -433,7 +436,7 @@ export const PlayAlong = ({
         />
       </div>
 
-      <div className="px-4 py-3">
+      <div className={`px-4 py-3 ${blurClass}`}>
         <div className="mb-2 text-sm font-medium text-neutral-300">
           Chord hold progress: {progressPercent}%
         </div>
@@ -445,7 +448,9 @@ export const PlayAlong = ({
         </div>
       </div>
 
-      <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
+      <div
+        className={`rounded-xl border border-neutral-800 bg-neutral-950/80 p-4 ${blurClass}`}
+      >
         <PianoKeyboard
           className="mx-auto"
           startC={2}
@@ -459,8 +464,8 @@ export const PlayAlong = ({
       </div>
 
       {showCompletion && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/70">
-          <div className="rounded-2xl bg-neutral-900 px-8 py-6 text-center text-neutral-100 shadow-2xl">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-100 shadow-2xl">
             <h3 className="text-2xl font-semibold">All chords complete!</h3>
             <p className="mt-2 text-neutral-300">
               Nice work holding every chord cleanly.

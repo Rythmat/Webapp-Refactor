@@ -162,18 +162,15 @@ export const PlayAlong = ({
     if (isCurrentChordHeld) {
       if (chordHoldStartMs === null) {
         setChordHoldStartMs(Date.now());
-      } else {
-        const elapsed = Date.now() - chordHoldStartMs;
-        if (elapsed >= CHORD_HOLD_REQUIRED_MS) {
-          setCompletedChords((prev) => {
-            const next = new Set(prev);
-            next.add(currentChordIndex);
-            return next;
-          });
-          setChordHoldStartMs(null);
-          setChordHoldProgress(0);
-          setCurrentChordIndex((prev) => Math.min(prev + 1, chords.length));
-        }
+      } else if (chordHoldProgress >= 1) {
+        setCompletedChords((prev) => {
+          const next = new Set(prev);
+          next.add(currentChordIndex);
+          return next;
+        });
+        setChordHoldStartMs(null);
+        setChordHoldProgress(0);
+        setCurrentChordIndex((prev) => Math.min(prev + 1, chords.length));
       }
     } else if (chordHoldStartMs !== null) {
       setChordHoldStartMs(null);
@@ -185,6 +182,7 @@ export const PlayAlong = ({
     currentChordMidis,
     isCurrentChordHeld,
     chordHoldStartMs,
+    chordHoldProgress,
     currentChordIndex,
     chords.length,
   ]);

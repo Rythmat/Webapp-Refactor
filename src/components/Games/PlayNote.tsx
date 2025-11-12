@@ -3,6 +3,12 @@ import type { NoteEvent } from './PianoRollPlay';
 
 const TICKS_PER_QUARTER = 480;
 
+type NoteSegment = {
+  from: number;
+  to: number;
+  kind: 'played' | 'inactive';
+};
+
 type PlayNoteProps = {
   note: NoteEvent;
   startPercent: number;
@@ -10,6 +16,7 @@ type PlayNoteProps = {
   row: number;
   rowHeight: number;
   color: string;
+  segments?: NoteSegment[];
   onClick?: (note: NoteEvent) => void;
 };
 
@@ -20,6 +27,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   row,
   rowHeight,
   color,
+  segments,
   onClick,
 }) => {
   const top = row * rowHeight + 4;
@@ -43,13 +51,39 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
           height,
         }}
       >
-        <div
-          className="h-full w-full rounded-2xl shadow-inner"
-          style={{
-            background: `linear-gradient(180deg, ${color}cc, ${color}aa)`,
-            border: `1px solid rgba(255,255,255,0.18)`,
-          }}
-        />
+        <div className="h-full w-full overflow-hidden rounded-2xl shadow-inner border border-white/20 relative">
+          {segments && segments.length > 0 ? (
+            segments.map((segment, index) => {
+              if (segment.to <= segment.from) {
+                return null;
+              }
+              const left = segment.from * 100;
+              const width = (segment.to - segment.from) * 100;
+              const backgroundColor =
+                segment.kind === 'played'
+                  ? color
+                  : 'rgba(255,255,255,0.08)';
+              return (
+                <div
+                  key={index}
+                  className="absolute top-0 bottom-0"
+                  style={{
+                    left: `${left}%`,
+                    width: `${width}%`,
+                    background: backgroundColor,
+                  }}
+                />
+              );
+            })
+          ) : (
+            <div
+              className="h-full w-full"
+              style={{
+                background: `linear-gradient(180deg, ${color}cc, ${color}aa)`,
+              }}
+            />
+          )}
+        </div>
         <div
           className="absolute left-0 top-0 h-full w-4 rounded-l-2xl"
           style={{ background: 'rgba(0,0,0,0.2)' }}

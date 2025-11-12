@@ -20,6 +20,12 @@ export interface ChordMarker {
   subLabel?: string; // e.g., "(2nd inversion)"
 }
 
+export interface NoteHoldMeta {
+  isCompleted: boolean;
+  isCurrentChord: boolean;
+  holdProgress: number;
+}
+
 export interface PianoRollProps {
   events: NoteEvent[];
 
@@ -39,6 +45,7 @@ export interface PianoRollProps {
   isPlaying?: boolean;
   onPlayingChange?: (playing: boolean) => void;
   highlightedNotes?: Array<{ midi: number; color?: string }>;
+  noteHoldMeta?: Record<string, NoteHoldMeta>;
 
   /** Callbacks */
   onNoteClick?: (note: NoteEvent) => void;
@@ -576,6 +583,24 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
               const color = e.color ?? "#b64f4f"; // base red hue similar to screenshot
 
+              let segments: { from: number; to: number; kind: "played" | "inactive" }[] | undefined;
+              if (!inTime && noteHoldMeta) {
+                const meta = noteHoldMeta[e.id];
+                if (meta) {
+                  if (meta.isCompleted) {
+                    segments = [{ from: 0, to: 1, kind: "played" }];
+                  } else if (meta.isCurrentChord) {
+                    const progress = Math.max(0, Math.min(1, meta.holdProgress));
+                    segments = [
+                      { from: 0, to: progress, kind: "played" },
+                      { from: progress, to: 1, kind: "inactive" },
+                    ];
+                  } else {
+                    segments = [{ from: 0, to: 1, kind: "inactive" }];
+                  }
+                }
+              }
+
               return (
                 <PlayNote
                   key={e.id}
@@ -585,6 +610,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                   row={row}
                   rowHeight={effectiveRowHeight}
                   color={color}
+                  segments={segments}
                   onClick={onNoteClick}
                 />
               );

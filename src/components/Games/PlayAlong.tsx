@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { PianoKeyboard } from "@/components/PianoKeyboard";
 import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
 import { useMidiInput, type MidiNoteEvent } from "@/hooks/music/useMidiInput";
-import PianoRoll, { NoteEvent, pitchNameToMidi } from "./PianoRollPlay";
+import PianoRoll, { NoteEvent, NoteHoldMeta, pitchNameToMidi } from "./PianoRollPlay";
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e1", pitchName: "A2", startTicks: 0, durationTicks: 1920 },
@@ -23,6 +23,8 @@ const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e16", pitchName: "C3", startTicks: 5760, durationTicks: 1920 },
 ];
 
+const CHORD_HOLD_REQUIRED_MS = 2000;
+
 type PlayAlongProps = {
   events?: NoteEvent[];
   inTime?: boolean;
@@ -35,6 +37,34 @@ export const PlayAlong = ({
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
+  const [currentChordIndex, setCurrentChordIndex] = useState(0);
+  const [completedChords, setCompletedChords] = useState<Set<number>>(
+    () => new Set(),
+  );
+  const [chordHoldStartMs, setChordHoldStartMs] = useState<number | null>(null);
+  const [chordHoldProgress, setChordHoldProgress] = useState(0);
+
+  const chords = useMemo(() => {
+    const grouped = new Map<number, NoteEvent[]>();
+    resolvedEvents.forEach((event) => {
+      const collection = grouped.get(event.startTicks);
+      if (collection) {
+        collection.push(event);
+      } else {
+        grouped.set(event.startTicks, [event]);
+      }
+    });
+    return Array.from(grouped.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([_, noteEvents]) => noteEvents);
+  }, [resolvedEvents]);
+
+  useEffect(() => {
+    setCurrentChordIndex(0);
+    setCompletedChords(new Set());
+    setChordHoldStartMs(null);
+    setChordHoldProgress(0);
+  }, [chords, inTime]);
 
   const noteColorByMidi = useMemo(() => {
     const map = new Map<number, string>();
@@ -59,55 +89,114 @@ export const PlayAlong = ({
     [activeMidis, noteColorByMidi],
   );
 
-  const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<
-    PlaybackEvent[]
-  >([]);
-
-  const handleKeyboardNoteOn = useCallback(
-    (midi: number) => {
-      const color = noteColorByMidi.get(midi) ?? "#60a5fa";
-      const id = `keyboard-${midi}`;
-      setKeyboardPlayingNotes((prev) => [
-        ...prev.filter((event) => event.midi !== midi),
-        {
-          id,
-          type: "note",
-          midi,
-          time: Date.now(),
-          duration: Number.POSITIVE_INFINITY,
-          velocity: 1,
-          color,
-        },
-      ]);
-    },
-    [noteColorByMidi],
+  const keyboardPlayingNotes = useMemo<PlaybackEvent[]>(
+    () =>
+      activeMidis.map((midi) => ({
+        id: `kb-${midi}`,
+        type: "note",
+        midi,
+        time: Date.now(),
+        duration: Number.POSITIVE_INFINITY,
+        velocity: 1,
+        color: noteColorByMidi.get(midi) ?? "#60a5fa",
+      })),
+    [activeMidis, noteColorByMidi],
   );
 
-  const handleKeyboardNoteOff = useCallback((midi: number) => {
-    setKeyboardPlayingNotes((prev) =>
-      prev.filter((event) => event.midi !== midi),
-    );
-  }, []);
+  const currentChord = chords[currentChordIndex] ?? null;
+  const currentChordMidis = useMemo(() => {
+    if (!currentChord) return [];
+    return currentChord
+      .map((note) =>
+        typeof note.midi === "number" ? note.midi : pitchNameToMidi(note.pitchName),
+      )
+      .filter((midi): midi is number => typeof midi === "number");
+  }, [currentChord]);
+
+  const isCurrentChordHeld = useMemo(() => {
+    if (inTime || !currentChord || currentChordMidis.length === 0) {
+      return false;
+    }
+    return currentChordMidis.every((midi) => activeMidis.includes(midi));
+  }, [inTime, currentChord, currentChordMidis, activeMidis]);
+
+  useEffect(() => {
+    if (inTime || !currentChord || currentChordMidis.length === 0) {
+      setChordHoldStartMs(null);
+      setChordHoldProgress(0);
+      return;
+    }
+
+    if (isCurrentChordHeld) {
+      if (chordHoldStartMs === null) {
+        setChordHoldStartMs(Date.now());
+      } else {
+        const elapsed = Date.now() - chordHoldStartMs;
+        if (elapsed >= CHORD_HOLD_REQUIRED_MS) {
+          setCompletedChords((prev) => {
+            const next = new Set(prev);
+            next.add(currentChordIndex);
+            return next;
+          });
+          setChordHoldStartMs(null);
+          setChordHoldProgress(0);
+          setCurrentChordIndex((prev) => Math.min(prev + 1, chords.length));
+        }
+      }
+    } else if (chordHoldStartMs !== null) {
+      setChordHoldStartMs(null);
+      setChordHoldProgress(0);
+    }
+  }, [
+    inTime,
+    currentChord,
+    currentChordMidis,
+    isCurrentChordHeld,
+    chordHoldStartMs,
+    currentChordIndex,
+    chords.length,
+  ]);
+
+  useEffect(() => {
+    if (inTime) {
+      setChordHoldProgress(0);
+      return;
+    }
+    let raf: number;
+    const tick = () => {
+      if (chordHoldStartMs !== null) {
+        const elapsed = Date.now() - chordHoldStartMs;
+        setChordHoldProgress(
+          Math.max(0, Math.min(1, elapsed / CHORD_HOLD_REQUIRED_MS)),
+        );
+      } else {
+        setChordHoldProgress(0);
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(raf);
+  }, [inTime, chordHoldStartMs]);
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      if (!inTime && currentChordMidis.length > 0) {
+        if (!currentChordMidis.includes(event.number)) {
+          return;
+        }
+      }
       setActiveMidis((prev) =>
         prev.includes(event.number) ? prev : [...prev, event.number],
       );
-      handleKeyboardNoteOn(event.number);
     },
-    [handleKeyboardNoteOn],
+    [inTime, currentChordMidis],
   );
 
-  const handleMidiNoteOff = useCallback(
-    (event: MidiNoteEvent) => {
-      setActiveMidis((prev) =>
-        prev.filter((midi) => midi !== event.number),
-      );
-      handleKeyboardNoteOff(event.number);
-    },
-    [handleKeyboardNoteOff],
-  );
+  const handleMidiNoteOff = useCallback((event: MidiNoteEvent) => {
+    setActiveMidis((prev) =>
+      prev.filter((midi) => midi !== event.number),
+    );
+  }, []);
 
   const { startListening, stopListening } = useMidiInput(undefined, {
     onNoteOn: handleMidiNoteOn,
@@ -121,6 +210,32 @@ export const PlayAlong = ({
       stopListening();
     };
   }, [startListening, stopListening, handleMidiNoteOn, handleMidiNoteOff]);
+
+  const noteHoldMeta = useMemo(() => {
+    if (inTime) return undefined;
+    const meta: Record<string, NoteHoldMeta> = {};
+    chords.forEach((chord, idx) => {
+      chord.forEach((note) => {
+        const midi =
+          typeof note.midi === "number"
+            ? note.midi
+            : pitchNameToMidi(note.pitchName);
+        if (typeof midi !== "number") {
+          return;
+        }
+        const isCompleted = completedChords.has(idx);
+        const isCurrent = idx === currentChordIndex;
+        const holdProgress =
+          isCompleted ? 1 : isCurrent ? chordHoldProgress : 0;
+        meta[note.id] = {
+          isCompleted,
+          isCurrentChord: isCurrent,
+          holdProgress,
+        };
+      });
+    });
+    return meta;
+  }, [inTime, chords, completedChords, currentChordIndex, chordHoldProgress]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -140,6 +255,7 @@ export const PlayAlong = ({
           isPlaying={isPlaying}
           onPlayingChange={setIsPlaying}
           highlightedNotes={highlightedNotes}
+          noteHoldMeta={noteHoldMeta}
         />
       </div>
 

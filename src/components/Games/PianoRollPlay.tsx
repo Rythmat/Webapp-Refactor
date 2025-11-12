@@ -225,6 +225,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   onPlayingChange,
   highlightedNotes = [],
   onNoteClick,
+  noteHoldMeta,
 }) => {
   const laneList = buildLaneList(events);
   const baseLaneCountForHeight = 24;

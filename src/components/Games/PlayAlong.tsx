@@ -32,7 +32,7 @@ type PlayAlongProps = {
 
 export const PlayAlong = ({
   events,
-  inTime = true,
+  inTime = false,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const [isPlaying, setIsPlaying] = useState(false);

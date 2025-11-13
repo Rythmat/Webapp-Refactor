@@ -253,13 +253,16 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
   const [playheadTick, setPlayheadTick] = useState(-countInTicks);
   const [internalPlaying, setInternalPlaying] = useState(false);
-  const isControlled = typeof isPlaying === "boolean";
+  const isControlled =
+    typeof isPlaying === "boolean" && typeof onPlayingChange === "function";
   const playing = isControlled ? Boolean(isPlaying) : internalPlaying;
   const setPlaying = (next: boolean) => {
     if (!isControlled) {
       setInternalPlaying(next);
     }
-    onPlayingChange?.(next);
+    if (onPlayingChange) {
+      onPlayingChange(next);
+    }
   };
 
   const highlightedColorMap = useMemo(() => {

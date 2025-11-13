@@ -257,15 +257,24 @@ export const PlayAlong = ({
         const isCurrent = idx === currentChordIndex;
         const holdProgress =
           isCompleted ? 1 : isCurrent ? chordHoldProgress : 0;
+        const isHeld = activeMidis.includes(midi);
         meta[note.id] = {
           isCompleted,
           isCurrentChord: isCurrent,
           holdProgress,
+          isHeld,
         };
       });
     });
     return meta;
-  }, [inTime, chords, completedChords, currentChordIndex, chordHoldProgress]);
+  }, [
+    inTime,
+    chords,
+    completedChords,
+    currentChordIndex,
+    chordHoldProgress,
+    activeMidis,
+  ]);
 
   return (
     <div className="flex flex-col gap-4">

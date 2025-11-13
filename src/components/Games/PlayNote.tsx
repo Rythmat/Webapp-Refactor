@@ -18,6 +18,8 @@ type PlayNoteProps = {
   color: string;
   segments?: NoteSegment[];
   onClick?: (note: NoteEvent) => void;
+  isHeld?: boolean;
+  inTime?: boolean;
 };
 
 export const PlayNote: React.FC<PlayNoteProps> = ({
@@ -29,6 +31,8 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   color,
   segments,
   onClick,
+  isHeld = false,
+  inTime = true,
 }) => {
   const top = row * rowHeight + 4;
   const height = rowHeight - 8;
@@ -37,6 +41,22 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   const circleRadius = circleSize / 2;
   const circleLeft = `max(0px, min(calc(${startPercent}% - ${circleRadius}px), calc(100% - ${circleSize}px)))`;
   const circleTopPx = row * rowHeight + rowHeight / 2 - circleRadius;
+
+  const circleBackground = inTime
+    ? color
+    : isHeld
+      ? "#22c55e"
+      : "rgba(0,0,0,0.6)";
+  const circleTextColor =
+    inTime || isHeld ? "rgba(255,255,255,0.95)" : "rgba(220,220,220,0.9)";
+  const circleBorder =
+    inTime || isHeld
+      ? "1px solid rgba(255,255,255,0.35)"
+      : "1px solid rgba(255,255,255,0.18)";
+  const circleShadow =
+    inTime || isHeld
+      ? "0 2px 6px rgba(34,197,94,0.55)"
+      : "0 2px 4px rgba(15,15,15,0.35)";
 
   return (
     <>
@@ -94,21 +114,21 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
         />
       </button>
       <div
-        className="pointer-events-none absolute flex items-center justify-center text-[10px] font-semibold uppercase tracking-tight"
-        style={{
-          left: circleLeft,
-          top: `${circleTopPx}px`,
-          width: `${circleSize}px`,
-          height: `${circleSize}px`,
-          borderRadius: '9999px',
-          background: color,
-          color: 'rgba(255,255,255,0.95)',
-          border: '1px solid rgba(255,255,255,0.25)',
-          boxShadow: '0 2px 4px rgba(15,15,15,0.35)',
-        }}
-      >
-        {note.pitchName}
-      </div>
+      className="pointer-events-none absolute flex items-center justify-center text-[10px] font-semibold uppercase tracking-tight"
+      style={{
+        left: circleLeft,
+        top: `${circleTopPx}px`,
+        width: `${circleSize}px`,
+        height: `${circleSize}px`,
+        borderRadius: '9999px',
+        background: circleBackground,
+        color: circleTextColor,
+        border: circleBorder,
+        boxShadow: circleShadow,
+      }}
+    >
+      {note.pitchName}
+    </div>
     </>
   );
 };

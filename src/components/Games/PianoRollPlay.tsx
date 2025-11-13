@@ -24,6 +24,7 @@ export interface NoteHoldMeta {
   isCompleted: boolean;
   isCurrentChord: boolean;
   holdProgress: number;
+  isHeld?: boolean;
 }
 
 export interface PianoRollProps {
@@ -582,23 +583,28 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 return null;
               }
 
-              const color = e.color ?? "#b64f4f"; // base red hue similar to screenshot
+              const baseColor = e.color ?? "#b64f4f"; // base red hue similar to screenshot
+              const meta = noteHoldMeta?.[e.id];
+              let color = baseColor;
 
-              let segments: { from: number; to: number; kind: "played" | "inactive" }[] | undefined;
-              if (!inTime && noteHoldMeta) {
-                const meta = noteHoldMeta[e.id];
-                if (meta) {
-                  if (meta.isCompleted) {
-                    segments = [{ from: 0, to: 1, kind: "played" }];
-                  } else if (meta.isCurrentChord) {
-                    const progress = Math.max(0, Math.min(1, meta.holdProgress));
-                    segments = [
-                      { from: 0, to: progress, kind: "played" },
-                      { from: progress, to: 1, kind: "inactive" },
-                    ];
-                  } else {
-                    segments = [{ from: 0, to: 1, kind: "inactive" }];
-                  }
+              if (!inTime && meta && (meta.isCurrentChord || meta.isCompleted)) {
+                color = "#22c55e";
+              }
+
+              let segments:
+                | { from: number; to: number; kind: "played" | "inactive" }[]
+                | undefined;
+              if (!inTime && meta) {
+                if (meta.isCompleted) {
+                  segments = [{ from: 0, to: 1, kind: "played" }];
+                } else if (meta.isCurrentChord) {
+                  const progress = Math.max(0, Math.min(1, meta.holdProgress));
+                  segments = [
+                    { from: 0, to: progress, kind: "played" },
+                    { from: progress, to: 1, kind: "inactive" },
+                  ];
+                } else {
+                  segments = [{ from: 0, to: 1, kind: "inactive" }];
                 }
               }
 
@@ -613,6 +619,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                   color={color}
                   segments={segments}
                   onClick={onNoteClick}
+                  isHeld={meta?.isHeld}
+                  inTime={inTime}
                 />
               );
             })}

@@ -47,6 +47,15 @@ export const PlayAlong = ({
   const [chordHoldStartMs, setChordHoldStartMs] = useState<number | null>(null);
   const [chordHoldProgress, setChordHoldProgress] = useState(0);
 
+  const resetProgress = useCallback(() => {
+    setCurrentChordIndex(0);
+    setCompletedChords(new Set());
+    setChordHoldStartMs(null);
+    setChordHoldProgress(0);
+    setActiveMidis([]);
+    setKeyboardPlayingNotes([]);
+  }, []);
+
   const chords = useMemo(() => {
     const grouped = new Map<number, NoteEvent[]>();
     resolvedEvents.forEach((event) => {
@@ -63,11 +72,8 @@ export const PlayAlong = ({
   }, [resolvedEvents]);
 
   useEffect(() => {
-    setCurrentChordIndex(0);
-    setCompletedChords(new Set());
-    setChordHoldStartMs(null);
-    setChordHoldProgress(0);
-  }, [chords, inTime]);
+    resetProgress();
+  }, [chords, inTime, resetProgress]);
 
   const noteColorByMidi = useMemo(() => {
     const map = new Map<number, string>();
@@ -277,26 +283,52 @@ export const PlayAlong = ({
     activeMidis,
   ]);
 
+  const showCompletionOverlay =
+    !inTime && chords.length > 0 && completedChords.size >= chords.length;
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
-        <h2 className="mb-4 text-lg font-semibold text-neutral-100">
-          Hold each chord for 2 seconds
-        </h2>
-        <PianoRoll
-          events={resolvedEvents}
-          bars={4}
-          beatsPerBar={4}
-          subdivision={1}
-          rowHeight={28}
-          showChordsTop
-          inTime={inTime}
-          playSpeed={120}
-          isPlaying={isPlaying}
-          onPlayingChange={setIsPlaying}
-          highlightedNotes={highlightedNotes}
-          noteHoldMeta={noteHoldMeta}
-        />
+      <div className="relative">
+        <div
+          className={`rounded-xl border border-neutral-800 bg-neutral-950/80 p-4 transition duration-300 ${
+            showCompletionOverlay ? "pointer-events-none opacity-30 blur-sm" : ""
+          }`}
+        >
+          <h2 className="mb-4 text-lg font-semibold text-neutral-100">
+            Hold each chord for 2 seconds
+          </h2>
+          <PianoRoll
+            events={resolvedEvents}
+            bars={4}
+            beatsPerBar={4}
+            subdivision={1}
+            rowHeight={28}
+            showChordsTop
+            inTime={inTime}
+            playSpeed={120}
+            isPlaying={isPlaying}
+            onPlayingChange={setIsPlaying}
+            highlightedNotes={highlightedNotes}
+            noteHoldMeta={noteHoldMeta}
+          />
+        </div>
+        {showCompletionOverlay && (
+          <div className="absolute inset-0 flex items-center justify-center px-4">
+            <div className="rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
+              <h3 className="text-2xl font-semibold">Great job!</h3>
+              <p className="mt-2 text-sm text-neutral-300">
+                You completed every chord. Press restart to practice again.
+              </p>
+              <button
+                type="button"
+                onClick={resetProgress}
+                className="mt-4 rounded-full bg-neutral-100 px-5 py-2 text-sm font-semibold text-neutral-900 transition hover:bg-white"
+              >
+                Restart
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">

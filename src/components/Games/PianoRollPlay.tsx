@@ -362,11 +362,14 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     activeCountInBars,
   );
 
+  const showStartOverlay = inTime && !playing;
+
   return (
-    <div
-      className="w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-200 text-sm"
-      style={{ fontSize: '0.9rem' }}
-    >
+    <div className="relative">
+      <div
+        className="w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-200 text-sm"
+        style={{ fontSize: "0.9rem" }}
+      >
       {/* Header: beat markers & optional chord strip */}
       <div
         className="sticky top-0 z-30 bg-neutral-950/95 px-2 backdrop-blur"
@@ -684,6 +687,26 @@ const PianoRoll: React.FC<PianoRollProps> = ({
           )}
         </div>
       </div>
+      </div>
+      {showStartOverlay && (
+        <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center bg-neutral-950/80 px-4 backdrop-blur">
+          <div className="w-full max-w-lg rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
+            <h3 className="text-2xl font-semibold">Ready to start?</h3>
+            <p className="mt-2 text-sm text-neutral-300">
+              Press start to begin the in-time play-along and follow the moving playhead.
+            </p>
+            <div className="mt-6 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setPlaying(true)}
+                className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+              >
+                Start
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

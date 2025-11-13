@@ -61,6 +61,7 @@ export const PlayAlong = ({
     [resolvedEvents],
   );
   const [isPlaying, setIsPlaying] = useState(false);
+  const wasPlayingRef = useRef(false);
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
   const [currentChordIndex, setCurrentChordIndex] = useState(0);
@@ -499,6 +500,14 @@ export const PlayAlong = ({
       resetProgress();
     }
   }, [onContinue, resetProgress]);
+
+  useEffect(() => {
+    const wasPlaying = wasPlayingRef.current;
+    if (!wasPlaying && isPlaying && inTime) {
+      resetProgress();
+    }
+    wasPlayingRef.current = isPlaying;
+  }, [isPlaying, inTime, resetProgress]);
 
   useEffect(() => {
     if (isPlaying) {

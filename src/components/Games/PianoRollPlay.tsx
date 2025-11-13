@@ -257,6 +257,13 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     typeof isPlaying === "boolean" && typeof onPlayingChange === "function";
   const playing = isControlled ? Boolean(isPlaying) : internalPlaying;
   const setPlaying = (next: boolean) => {
+    const wasPlaying = playing;
+
+    if (inTime && next && !wasPlaying) {
+      setPlayheadTick(-countInTicks);
+      onTickChange?.(-countInTicks);
+    }
+
     if (!isControlled) {
       setInternalPlaying(next);
     }
@@ -607,15 +614,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                   visEndTick =
                     typeof perf.endTick === "number" ? perf.endTick : playheadTick;
                 } else {
-                  if (playheadTick < scheduledStart) {
-                    return null;
-                  }
-                  if (playheadTick >= scheduledEnd) {
-                    visStartTick = scheduledStart;
-                    visEndTick = scheduledEnd;
-                  } else {
-                    return null;
-                  }
+                  visStartTick = scheduledStart;
+                  visEndTick = scheduledEnd;
                 }
               } else if (perf && typeof perf.startTick === "number") {
                 visStartTick = perf.startTick;

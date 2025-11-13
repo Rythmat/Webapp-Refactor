@@ -304,7 +304,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
     let rafId: number;
     let lastTime: number | null = null;
-    const minTick = -countInTicks;
     const maxTick = bars * ticksPerBar;
 
     const animate = (timestamp: number) => {
@@ -317,16 +316,23 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       const deltaSeconds = (timestamp - lastTime) / 1000;
       lastTime = timestamp;
 
+      let reachedEnd = false;
       setPlayheadTick((prev) => {
         let next = prev + deltaSeconds * playheadTicksPerSecond;
-        if (next > maxTick) {
-          next = minTick;
+        if (next >= maxTick) {
+          next = maxTick;
+          reachedEnd = true;
+          onTickChange?.(next);
+          setPlaying(false);
+          return next;
         }
         onTickChange?.(next);
         return next;
       });
 
-      rafId = requestAnimationFrame(animate);
+      if (!reachedEnd && playing) {
+        rafId = requestAnimationFrame(animate);
+      }
     };
 
     rafId = requestAnimationFrame(animate);
@@ -591,16 +597,14 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
               let visStartTick = e.startTicks;
               let visEndTick = e.startTicks + e.durationTicks;
+              const perf = performanceMeta?.[e.id];
 
-              if (inTime && performanceMeta) {
-                const perf = performanceMeta[e.id];
-                if (perf && typeof perf.startTick === "number") {
-                  visStartTick = perf.startTick;
-                  if (typeof perf.endTick === "number") {
-                    visEndTick = perf.endTick;
-                  } else {
-                    visEndTick = playheadTick;
-                  }
+              if (inTime && perf && typeof perf.startTick === "number") {
+                visStartTick = perf.startTick;
+                if (typeof perf.endTick === "number") {
+                  visEndTick = perf.endTick;
+                } else {
+                  visEndTick = playheadTick;
                 }
               }
 
@@ -633,10 +637,16 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
               const baseColor = e.color ?? "#b64f4f"; // base red hue similar to screenshot
               const meta = noteHoldMeta?.[e.id];
+              const wasPlayed = !!perf;
+              const isMissed =
+                inTime && !playing && !!performanceMeta && !wasPlayed;
               let color = baseColor;
 
               if (!inTime && meta && (meta.isCurrentChord || meta.isCompleted)) {
                 color = "#22c55e";
+              }
+              if (isMissed) {
+                color = "rgba(150,150,150,0.8)";
               }
 
               let segments:

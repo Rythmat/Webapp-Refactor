@@ -485,6 +485,16 @@ export const PlayAlong = ({
     }
   }, [onContinue, resetProgress]);
 
+  useEffect(() => {
+    if (isPlaying) {
+      return;
+    }
+    const synth = getSynth();
+    synth?.releaseAll();
+    setActiveMidis([]);
+    setKeyboardPlayingNotes([]);
+  }, [isPlaying, getSynth]);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="relative">

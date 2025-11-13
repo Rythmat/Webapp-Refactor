@@ -50,6 +50,16 @@ export const PlayAlong = ({
   onContinue,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
+  const maxEventEndTick = useMemo(
+    () =>
+      resolvedEvents.length > 0
+        ? resolvedEvents.reduce(
+            (max, ev) => Math.max(max, ev.startTicks + ev.durationTicks),
+            0,
+          )
+        : 0,
+    [resolvedEvents],
+  );
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
@@ -474,8 +484,13 @@ export const PlayAlong = ({
     return meta;
   }, [inTime, notePerformance]);
 
-  const showCompletionOverlay =
+  const showChordHoldCompletion =
     !inTime && chords.length > 0 && completedChords.size >= chords.length;
+
+  const showInTimeCompletion =
+    inTime && !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
+
+  const showCompletionOverlay = showChordHoldCompletion || showInTimeCompletion;
 
   const handleContinue = useCallback(() => {
     if (onContinue) {
@@ -504,7 +519,7 @@ export const PlayAlong = ({
           }`}
         >
           <h2 className="mb-4 text-lg font-semibold text-neutral-100">
-            Hold each chord for 2 seconds
+            {inTime ? "Play along with the moving notes" : "Hold each chord for 2 seconds"}
           </h2>
           <PianoRoll
             events={resolvedEvents}
@@ -526,10 +541,13 @@ export const PlayAlong = ({
         {showCompletionOverlay && (
           <div className="absolute inset-0 flex items-center justify-center px-4">
             <div className="rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
-              <h3 className="text-2xl font-semibold">Great job!</h3>
+              <h3 className="text-2xl font-semibold">
+                {showInTimeCompletion ? "Nice work!" : "Great job!"}
+              </h3>
               <p className="mt-2 text-sm text-neutral-300">
-                You completed every chord. Continue when you are ready, or restart to
-                practice again.
+                {showInTimeCompletion
+                  ? "You finished the play-along. Continue when you are ready, or restart to practice again."
+                  : "You completed every chord. Continue when you are ready, or restart to practice again."}
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <button

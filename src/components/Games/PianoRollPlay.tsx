@@ -595,17 +595,32 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               const row = laneIndex[e.pitchName];
               if (row == null) return null;
 
-              let visStartTick = e.startTicks;
-              let visEndTick = e.startTicks + e.durationTicks;
+              const scheduledStart = e.startTicks;
+              const scheduledEnd = e.startTicks + e.durationTicks;
+              let visStartTick = scheduledStart;
+              let visEndTick = scheduledEnd;
               const perf = performanceMeta?.[e.id];
 
-              if (inTime && perf && typeof perf.startTick === "number") {
-                visStartTick = perf.startTick;
-                if (typeof perf.endTick === "number") {
-                  visEndTick = perf.endTick;
+              if (inTime) {
+                if (perf && typeof perf.startTick === "number") {
+                  visStartTick = perf.startTick;
+                  visEndTick =
+                    typeof perf.endTick === "number" ? perf.endTick : playheadTick;
                 } else {
-                  visEndTick = playheadTick;
+                  if (playheadTick < scheduledStart) {
+                    return null;
+                  }
+                  if (playheadTick >= scheduledEnd) {
+                    visStartTick = scheduledStart;
+                    visEndTick = scheduledEnd;
+                  } else {
+                    return null;
+                  }
                 }
+              } else if (perf && typeof perf.startTick === "number") {
+                visStartTick = perf.startTick;
+                visEndTick =
+                  typeof perf.endTick === "number" ? perf.endTick : playheadTick;
               }
 
               if (visEndTick < visStartTick) {
@@ -639,7 +654,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               const meta = noteHoldMeta?.[e.id];
               const wasPlayed = !!perf;
               const isMissed =
-                inTime && !playing && !!performanceMeta && !wasPlayed;
+                inTime && !wasPlayed && playheadTick >= scheduledEnd;
               let color = baseColor;
 
               if (!inTime && meta && (meta.isCurrentChord || meta.isCompleted)) {

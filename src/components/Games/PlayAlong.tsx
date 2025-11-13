@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import * as Tone from "tone";
 import { PianoKeyboard } from "@/components/PianoKeyboard";
 import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
 import { useMidiInput, type MidiNoteEvent } from "@/hooks/music/useMidiInput";
+import { useSynth } from "@/hooks/useSynth";
 import PianoRoll, { NoteEvent, NoteHoldMeta, pitchNameToMidi } from "./PianoRollPlay";
 
 const DEFAULT_EVENTS: NoteEvent[] = [
@@ -48,6 +50,7 @@ export const PlayAlong = ({
   );
   const [chordHoldStartMs, setChordHoldStartMs] = useState<number | null>(null);
   const [chordHoldProgress, setChordHoldProgress] = useState(0);
+  const getSynth = useSynth();
 
   const resetProgress = useCallback(() => {
     setCurrentChordIndex(0);
@@ -56,7 +59,40 @@ export const PlayAlong = ({
     setChordHoldProgress(0);
     setActiveMidis([]);
     setKeyboardPlayingNotes([]);
-  }, []);
+    const synth = getSynth();
+    synth?.releaseAll();
+  }, [getSynth]);
+
+  const triggerSynthAttack = useCallback(
+    (midi: number, velocity?: number) => {
+      const synth = getSynth();
+      if (!synth) {
+        return;
+      }
+      if (Tone.getContext().state !== "running") {
+        Tone.start().catch(() => undefined);
+      }
+      const normalizedVelocity =
+        typeof velocity === "number"
+          ? Math.max(0, Math.min(1, velocity / 127))
+          : 0.8;
+      const frequency = Tone.Frequency(midi, "midi").toFrequency();
+      synth.triggerAttack(frequency, Tone.now(), normalizedVelocity || 0.8);
+    },
+    [getSynth],
+  );
+
+  const triggerSynthRelease = useCallback(
+    (midi: number) => {
+      const synth = getSynth();
+      if (!synth) {
+        return;
+      }
+      const frequency = Tone.Frequency(midi, "midi").toFrequency();
+      synth.triggerRelease(frequency, Tone.now());
+    },
+    [getSynth],
+  );
 
   const chords = useMemo(() => {
     const grouped = new Map<number, NoteEvent[]>();
@@ -222,8 +258,9 @@ export const PlayAlong = ({
         prev.includes(event.number) ? prev : [...prev, event.number],
       );
       handleKeyboardNoteOn(event.number);
+      triggerSynthAttack(event.number, event.velocity);
     },
-    [handleKeyboardNoteOn],
+    [handleKeyboardNoteOn, triggerSynthAttack],
   );
 
   const handleMidiNoteOff = useCallback(
@@ -232,8 +269,9 @@ export const PlayAlong = ({
         prev.filter((midi) => midi !== event.number),
       );
       handleKeyboardNoteOff(event.number);
+      triggerSynthRelease(event.number);
     },
-    [handleKeyboardNoteOff],
+    [handleKeyboardNoteOff, triggerSynthRelease],
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {

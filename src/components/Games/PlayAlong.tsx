@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as Tone from "tone";
 import { PianoKeyboard } from "@/components/PianoKeyboard";
 import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
@@ -28,11 +28,20 @@ const DEFAULT_EVENTS: NoteEvent[] = [
 const CHORD_HOLD_REQUIRED_MS = 2000;
 const CHORD_NOTE_COLOR = "#22c55e";
 const WRONG_NOTE_COLOR = "#ef4444";
+const TICKS_PER_QUARTER = 480;
+const BEATS_PER_BAR = 4;
+const COUNT_IN_BARS = 1;
+const COUNT_IN_TICKS = BEATS_PER_BAR * COUNT_IN_BARS * TICKS_PER_QUARTER;
 
 type PlayAlongProps = {
   events?: NoteEvent[];
   inTime?: boolean;
   onContinue?: () => void;
+};
+
+type NotePerformance = {
+  startTick: number | null;
+  endTick: number | null;
 };
 
 export const PlayAlong = ({
@@ -50,6 +59,9 @@ export const PlayAlong = ({
   );
   const [chordHoldStartMs, setChordHoldStartMs] = useState<number | null>(null);
   const [chordHoldProgress, setChordHoldProgress] = useState(0);
+  const [currentTick, setCurrentTick] = useState(-COUNT_IN_TICKS);
+  const [notePerformance, setNotePerformance] = useState<Record<string, NotePerformance>>({});
+  const lastCountInBeatRef = useRef<number | null>(null);
   const getSynth = useSynth();
 
   const resetProgress = useCallback(() => {
@@ -59,6 +71,9 @@ export const PlayAlong = ({
     setChordHoldProgress(0);
     setActiveMidis([]);
     setKeyboardPlayingNotes([]);
+    setNotePerformance({});
+    setCurrentTick(-COUNT_IN_TICKS);
+    lastCountInBeatRef.current = null;
     const synth = getSynth();
     synth?.releaseAll();
   }, [getSynth]);
@@ -94,6 +109,16 @@ export const PlayAlong = ({
     [getSynth],
   );
 
+  const playCountInClick = useCallback(() => {
+    const synth = getSynth();
+    if (!synth) return;
+    if (Tone.getContext().state !== "running") {
+      Tone.start().catch(() => undefined);
+    }
+    const frequency = Tone.Frequency(84, "midi").toFrequency();
+    synth.triggerAttackRelease(frequency, "16n", Tone.now(), 0.7);
+  }, [getSynth]);
+
   const chords = useMemo(() => {
     const grouped = new Map<number, NoteEvent[]>();
     resolvedEvents.forEach((event) => {
@@ -112,6 +137,23 @@ export const PlayAlong = ({
   useEffect(() => {
     resetProgress();
   }, [chords, inTime, resetProgress]);
+
+  useEffect(() => {
+    if (!inTime || !isPlaying) {
+      lastCountInBeatRef.current = null;
+      return;
+    }
+    if (currentTick >= 0 || currentTick < -COUNT_IN_TICKS) {
+      lastCountInBeatRef.current = null;
+      return;
+    }
+    const ticksIntoCountIn = currentTick + COUNT_IN_TICKS;
+    const beatIndex = Math.floor(ticksIntoCountIn / TICKS_PER_QUARTER);
+    if (lastCountInBeatRef.current !== beatIndex) {
+      lastCountInBeatRef.current = beatIndex;
+      playCountInClick();
+    }
+  }, [inTime, isPlaying, currentTick, playCountInClick]);
 
   const noteColorByMidi = useMemo(() => {
     const map = new Map<number, string>();
@@ -165,6 +207,39 @@ export const PlayAlong = ({
     );
     return noExtraNotes;
   }, [inTime, currentChord, currentChordMidis, activeMidis]);
+
+  const noteById = useMemo(() => {
+    const map = new Map<string, NoteEvent>();
+    resolvedEvents.forEach((note) => map.set(note.id, note));
+    return map;
+  }, [resolvedEvents]);
+
+  const chordStartTicks = useMemo(
+    () => chords.map((chord) => chord[0]?.startTicks ?? 0),
+    [chords],
+  );
+
+  const currentChordIndexInTime = useMemo(() => {
+    if (!inTime || chords.length === 0) {
+      return null;
+    }
+    const songTick = currentTick;
+    if (songTick < 0) {
+      return null;
+    }
+    for (let i = 0; i < chordStartTicks.length - 1; i++) {
+      const start = chordStartTicks[i];
+      const nextStart = chordStartTicks[i + 1];
+      if (songTick >= start && songTick < nextStart) {
+        return i;
+      }
+    }
+    const lastIndex = chordStartTicks.length - 1;
+    if (songTick >= (chordStartTicks[lastIndex] ?? 0)) {
+      return lastIndex;
+    }
+    return null;
+  }, [inTime, chords.length, chordStartTicks, currentTick]);
 
   const handleKeyboardNoteOn = useCallback(
     (midi: number) => {
@@ -254,24 +329,87 @@ export const PlayAlong = ({
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      const midi = event.number;
+      if (inTime && currentChordIndexInTime !== null) {
+        const chord = chords[currentChordIndexInTime] ?? [];
+        const songTick = currentTick;
+        setNotePerformance((prev) => {
+          let updated = prev;
+          for (const note of chord) {
+            const noteMidi =
+              typeof note.midi === "number"
+                ? note.midi
+                : pitchNameToMidi(note.pitchName);
+            if (noteMidi !== midi) {
+              continue;
+            }
+            const existing = prev[note.id];
+            if (existing?.startTick != null) {
+              continue;
+            }
+            if (updated === prev) {
+              updated = { ...prev };
+            }
+            updated[note.id] = { startTick: songTick, endTick: null };
+            break;
+          }
+          return updated;
+        });
+      }
+
       setActiveMidis((prev) =>
-        prev.includes(event.number) ? prev : [...prev, event.number],
+        prev.includes(midi) ? prev : [...prev, midi],
       );
-      handleKeyboardNoteOn(event.number);
-      triggerSynthAttack(event.number, event.velocity);
+      handleKeyboardNoteOn(midi);
+      triggerSynthAttack(midi, event.velocity);
     },
-    [handleKeyboardNoteOn, triggerSynthAttack],
+    [
+      inTime,
+      currentChordIndexInTime,
+      chords,
+      currentTick,
+      handleKeyboardNoteOn,
+      triggerSynthAttack,
+    ],
   );
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
+      const midi = event.number;
+      const songTick = currentTick;
+      if (inTime) {
+        setNotePerformance((prev) => {
+          let updated = prev;
+          for (const [id, perf] of Object.entries(prev)) {
+            if (perf.startTick == null || perf.endTick != null) {
+              continue;
+            }
+            const note = noteById.get(id);
+            if (!note) continue;
+            const noteMidi =
+              typeof note.midi === "number"
+                ? note.midi
+                : pitchNameToMidi(note.pitchName);
+            if (noteMidi !== midi) {
+              continue;
+            }
+            if (updated === prev) {
+              updated = { ...prev };
+            }
+            updated[id] = { ...perf, endTick: songTick };
+            break;
+          }
+          return updated;
+        });
+      }
+
       setActiveMidis((prev) =>
-        prev.filter((midi) => midi !== event.number),
+        prev.filter((m) => m !== midi),
       );
-      handleKeyboardNoteOff(event.number);
-      triggerSynthRelease(event.number);
+      handleKeyboardNoteOff(midi);
+      triggerSynthRelease(midi);
     },
-    [handleKeyboardNoteOff, triggerSynthRelease],
+    [inTime, currentTick, noteById, handleKeyboardNoteOff, triggerSynthRelease],
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
@@ -323,6 +461,19 @@ export const PlayAlong = ({
     activeMidis,
   ]);
 
+  const performanceMeta = useMemo(() => {
+    if (!inTime) return undefined;
+    const meta: Record<string, { startTick: number; endTick?: number }> = {};
+    Object.entries(notePerformance).forEach(([id, perf]) => {
+      if (perf.startTick == null) return;
+      meta[id] = {
+        startTick: perf.startTick,
+        ...(perf.endTick != null ? { endTick: perf.endTick } : {}),
+      };
+    });
+    return meta;
+  }, [inTime, notePerformance]);
+
   const showCompletionOverlay =
     !inTime && chords.length > 0 && completedChords.size >= chords.length;
 
@@ -358,6 +509,8 @@ export const PlayAlong = ({
             onPlayingChange={setIsPlaying}
             highlightedNotes={highlightedNotes}
             noteHoldMeta={noteHoldMeta}
+            performanceMeta={performanceMeta}
+            onTickChange={inTime ? setCurrentTick : undefined}
           />
         </div>
         {showCompletionOverlay && (

@@ -47,9 +47,11 @@ export interface PianoRollProps {
   onPlayingChange?: (playing: boolean) => void;
   highlightedNotes?: Array<{ midi: number; color?: string }>;
   noteHoldMeta?: Record<string, NoteHoldMeta>;
+  performanceMeta?: Record<string, { startTick: number; endTick?: number }>;
 
   /** Callbacks */
   onNoteClick?: (note: NoteEvent) => void;
+  onTickChange?: (tick: number) => void;
 }
 
 // ===== Helpers =====
@@ -227,6 +229,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   highlightedNotes = [],
   onNoteClick,
   noteHoldMeta,
+  performanceMeta,
+  onTickChange,
 }) => {
   const laneList = buildLaneList(events);
   const baseLaneCountForHeight = 24;
@@ -273,7 +277,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
   useEffect(() => {
     setPlayheadTick(-countInTicks);
-  }, [countInTicks]);
+    onTickChange?.(-countInTicks);
+  }, [countInTicks, onTickChange]);
 
   useEffect(() => {
     if (!inTime && playing) {
@@ -306,6 +311,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
         if (next > maxTick) {
           next = minTick;
         }
+        onTickChange?.(next);
         return next;
       });
 
@@ -317,7 +323,16 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     return () => {
       cancelAnimationFrame(rafId);
     };
-  }, [inTime, playheadTicksPerSecond, countInTicks, bars, beatsPerBar, playing]);
+  }, [
+    inTime,
+    playheadTicksPerSecond,
+    countInTicks,
+    bars,
+    beatsPerBar,
+    playing,
+    onTickChange,
+    ticksPerBar,
+  ]);
 
   // Preindex lanes
   const laneIndex: Record<string, number> = {};
@@ -560,8 +575,27 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               const row = laneIndex[e.pitchName];
               if (row == null) return null;
 
-              const startPercent = clampPercent(tickPercent(e.startTicks));
-              const rawEndPercent = tickPercent(e.startTicks + e.durationTicks);
+              let visStartTick = e.startTicks;
+              let visEndTick = e.startTicks + e.durationTicks;
+
+              if (inTime && performanceMeta) {
+                const perf = performanceMeta[e.id];
+                if (perf && typeof perf.startTick === "number") {
+                  visStartTick = perf.startTick;
+                  if (typeof perf.endTick === "number") {
+                    visEndTick = perf.endTick;
+                  } else {
+                    visEndTick = playheadTick;
+                  }
+                }
+              }
+
+              if (visEndTick < visStartTick) {
+                visEndTick = visStartTick;
+              }
+
+              const startPercent = clampPercent(tickPercent(visStartTick));
+              const rawEndPercent = tickPercent(visEndTick);
               const endPercent = clampPercent(rawEndPercent);
 
               if (endPercent <= 0 || startPercent >= 100) {

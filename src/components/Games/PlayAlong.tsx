@@ -30,11 +30,13 @@ const WRONG_NOTE_COLOR = "#ef4444";
 type PlayAlongProps = {
   events?: NoteEvent[];
   inTime?: boolean;
+  onContinue?: () => void;
 };
 
 export const PlayAlong = ({
   events,
   inTime = false,
+  onContinue,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -286,6 +288,14 @@ export const PlayAlong = ({
   const showCompletionOverlay =
     !inTime && chords.length > 0 && completedChords.size >= chords.length;
 
+  const handleContinue = useCallback(() => {
+    if (onContinue) {
+      onContinue();
+    } else {
+      resetProgress();
+    }
+  }, [onContinue, resetProgress]);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="relative">
@@ -317,15 +327,25 @@ export const PlayAlong = ({
             <div className="rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
               <h3 className="text-2xl font-semibold">Great job!</h3>
               <p className="mt-2 text-sm text-neutral-300">
-                You completed every chord. Press restart to practice again.
+                You completed every chord. Continue when you are ready, or restart to
+                practice again.
               </p>
-              <button
-                type="button"
-                onClick={resetProgress}
-                className="mt-4 rounded-full bg-neutral-100 px-5 py-2 text-sm font-semibold text-neutral-900 transition hover:bg-white"
-              >
-                Restart
-              </button>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <button
+                  type="button"
+                  onClick={handleContinue}
+                  className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                >
+                  Continue
+                </button>
+                <button
+                  type="button"
+                  onClick={resetProgress}
+                  className="rounded-full border border-neutral-500 px-6 py-2 text-sm font-semibold text-neutral-200 transition hover:border-neutral-300 hover:text-white"
+                >
+                  Restart
+                </button>
+              </div>
             </div>
           </div>
         )}

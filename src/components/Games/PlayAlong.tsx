@@ -46,7 +46,7 @@ type NotePerformance = {
 
 export const PlayAlong = ({
   events,
-  inTime = false,
+  inTime = true,
   onContinue,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);

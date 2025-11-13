@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
 import { PlayNote } from "./PlayNote";
 
@@ -288,6 +288,14 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       setPlaying(false);
     }
   }, [inTime, playing]);
+
+  const wasPlayingRef = useRef(false);
+  useEffect(() => {
+    if (inTime && playing && !wasPlayingRef.current) {
+      onTickChange?.(playheadTick);
+    }
+    wasPlayingRef.current = playing;
+  }, [inTime, playing, playheadTick, onTickChange]);
 
   useEffect(() => {
     if (!inTime || playheadTicksPerSecond <= 0 || !playing) {

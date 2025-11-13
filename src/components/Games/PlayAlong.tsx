@@ -510,7 +510,7 @@ export const PlayAlong = ({
             highlightedNotes={highlightedNotes}
             noteHoldMeta={noteHoldMeta}
             performanceMeta={performanceMeta}
-            onTickChange={inTime ? setCurrentTick : undefined}
+            onTickChange={setCurrentTick}
           />
         </div>
         {showCompletionOverlay && (

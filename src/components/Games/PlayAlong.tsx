@@ -7,31 +7,29 @@ import { useSynth } from "@/hooks/useSynth";
 import PianoRoll, { NoteEvent, NoteHoldMeta, pitchNameToMidi } from "./PianoRollPlay";
 
 const DEFAULT_EVENTS: NoteEvent[] = [
-  { id: "e1", pitchName: "A2", startTicks: 0, durationTicks: 1920 },
-  { id: "e2", pitchName: "C3", startTicks: 0, durationTicks: 1920 },
-  { id: "e3", pitchName: "E3", startTicks: 0, durationTicks: 1920 },
-  { id: "e4", pitchName: "G3", startTicks: 0, durationTicks: 1920 },
-  { id: "e5", pitchName: "B3", startTicks: 1920, durationTicks: 1920 },
+  { id: "e1", pitchName: "C3", startTicks: 0, durationTicks: 1920 },
+  { id: "e2", pitchName: "E3", startTicks: 0, durationTicks: 1920 },
+  { id: "e3", pitchName: "G3", startTicks: 0, durationTicks: 1920 },
+  { id: "e4", pitchName: "B4", startTicks: 0, durationTicks: 1920 },
+  { id: "e5", pitchName: "C3", startTicks: 1920, durationTicks: 1920 },
   { id: "e6", pitchName: "E3", startTicks: 1920, durationTicks: 1920 },
   { id: "e7", pitchName: "G3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e8", pitchName: "C3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e9", pitchName: "A2", startTicks: 3840, durationTicks: 1920 },
-  { id: "e10", pitchName: "C3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e11", pitchName: "E3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e12", pitchName: "G3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e13", pitchName: "B3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e14", pitchName: "E3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e15", pitchName: "G3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e16", pitchName: "C3", startTicks: 5760, durationTicks: 1920 },
+  { id: "e8", pitchName: "Bb3", startTicks: 1920, durationTicks: 1920 },
+  { id: "e9", pitchName: "C#3", startTicks: 3840, durationTicks: 1920 },
+  { id: "e10", pitchName: "E#3", startTicks: 3840, durationTicks: 1920 },
+  { id: "e11", pitchName: "G#3", startTicks: 3840, durationTicks: 1920 },
+  { id: "e12", pitchName: "B#4", startTicks: 3840, durationTicks: 1920 },
+  { id: "e13", pitchName: "C#3", startTicks: 5760, durationTicks: 1920 },
+  { id: "e14", pitchName: "E#3", startTicks: 5760, durationTicks: 1920 },
+  { id: "e15", pitchName: "G#3", startTicks: 5760, durationTicks: 1920 },
+  { id: "e16", pitchName: "B4", startTicks: 5760, durationTicks: 1920 },
 ];
 
 const CHORD_HOLD_REQUIRED_MS = 2000;
 const CHORD_NOTE_COLOR = "#22c55e";
 const WRONG_NOTE_COLOR = "#ef4444";
 const TICKS_PER_QUARTER = 480;
-const BEATS_PER_BAR = 4;
-const COUNT_IN_BARS = 1;
-const COUNT_IN_TICKS = BEATS_PER_BAR * COUNT_IN_BARS * TICKS_PER_QUARTER;
+const COUNT_IN_TICKS = 4 * TICKS_PER_QUARTER;
 
 type PlayAlongProps = {
   events?: NoteEvent[];
@@ -190,19 +188,19 @@ export const PlayAlong = ({
       .filter((midi): midi is number => typeof midi === "number");
   }, [currentChord]);
 
-  const highlightedNotes = useMemo(() => {
-    if (inTime) {
-      return [] as Array<{ midi: number; color?: string }>;
-    }
-    return activeMidis.map((midi) => {
-      let color = noteColorByMidi.get(midi) ?? "#60a5fa";
-      if (currentChordMidis.length > 0) {
-        const isChordNote = currentChordMidis.includes(midi);
-        color = isChordNote ? CHORD_NOTE_COLOR : WRONG_NOTE_COLOR;
-      }
-      return { midi, color };
-    });
-  }, [activeMidis, noteColorByMidi, inTime, currentChordMidis]);
+  // const highlightedNotes = useMemo(() => {
+  //   if (inTime) {
+  //     return [] as Array<{ midi: number; color?: string }>;
+  //   }
+  //   return activeMidis.map((midi) => {
+  //     let color = noteColorByMidi.get(midi) ?? "#60a5fa";
+  //     if (currentChordMidis.length > 0) {
+  //       const isChordNote = currentChordMidis.includes(midi);
+  //       color = isChordNote ? CHORD_NOTE_COLOR : WRONG_NOTE_COLOR;
+  //     }
+  //     return { midi, color };
+  //   });
+  // }, [activeMidis, noteColorByMidi, inTime, currentChordMidis]);
 
   const isCurrentChordHeld = useMemo(() => {
     if (inTime || !currentChord || currentChordMidis.length === 0) {
@@ -541,13 +539,12 @@ export const PlayAlong = ({
             bars={4}
             beatsPerBar={4}
             subdivision={1}
-            rowHeight={28}
-            showChordsTop
+            rowHeight={28 * 24}
             inTime={inTime}
             playSpeed={120}
             isPlaying={isPlaying}
             onPlayingChange={setIsPlaying}
-            highlightedNotes={highlightedNotes}
+            // highlightedNotes={highlightedNotes}
             noteHoldMeta={noteHoldMeta}
             performanceMeta={performanceMeta}
             onTickChange={setCurrentTick}

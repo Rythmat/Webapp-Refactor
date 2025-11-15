@@ -17,7 +17,6 @@ type PlayNoteProps = {
   rowHeight: number;
   color: string;
   segments?: NoteSegment[];
-  onClick?: (note: NoteEvent) => void;
   isHeld?: boolean;
   inTime?: boolean;
 };
@@ -30,7 +29,6 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   rowHeight,
   color,
   segments,
-  onClick,
   isHeld = false,
   inTime = true,
 }) => {
@@ -60,9 +58,8 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
 
   return (
     <>
-      <button
+      <div
         title={`${note.pitchName} @ ${(note.startTicks / TICKS_PER_QUARTER).toFixed(2)} beats`}
-        onClick={() => onClick?.(note)}
         className="absolute group"
         style={{
           left: `${startPercent}%`,
@@ -112,7 +109,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
           className="absolute right-1 top-1 h-[calc(100%-8px)] w-2 rounded-r-xl opacity-60"
           style={{ background: 'rgba(255,255,255,0.15)' }}
         />
-      </button>
+      </div>
       <div
       className="pointer-events-none absolute flex items-center justify-center text-[10px] font-semibold uppercase tracking-tight"
       style={{

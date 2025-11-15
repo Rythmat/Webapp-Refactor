@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pause, Play } from "lucide-react";
 import { PlayNote } from "./PlayNote";
 
@@ -14,12 +14,6 @@ export interface NoteEvent {
   color?: string;
 }
 
-export interface ChordMarker {
-  startTick: number; // absolute tick index where the chord starts
-  label: string;     // e.g., "A minor 7", "C major 7"
-  subLabel?: string; // e.g., "(2nd inversion)"
-}
-
 export interface NoteHoldMeta {
   isCompleted: boolean;
   isCurrentChord: boolean;
@@ -30,33 +24,27 @@ export interface NoteHoldMeta {
 export interface PianoRollProps {
   events: NoteEvent[];
 
-  /** Grid/time setup */
-  bars: number; // number of musical bars to show (not including count-in)
-  beatsPerBar?: number; // default 4
+  bars: number; 
+  beatsPerBar?: number; 
   subdivision?: number; // grid lines per beat (default 1 => quarter). Use 2 for 8ths, 4 for 16ths
   rowHeight?: number; // base lane height unit; lanes scale to fit a static box
 
-  /** Optional header overlays */
-  showChordsTop?: boolean; // draw chord labels band
-  chords?: ChordMarker[]; // when showChordsTop
 
   /** Playback control */
   inTime?: boolean;
   playSpeed?: number; // beats per minute traversal speed
   isPlaying?: boolean;
   onPlayingChange?: (playing: boolean) => void;
-  highlightedNotes?: Array<{ midi: number; color?: string }>;
   noteHoldMeta?: Record<string, NoteHoldMeta>;
   performanceMeta?: Record<string, { startTick: number; endTick?: number }>;
 
   /** Callbacks */
-  onNoteClick?: (note: NoteEvent) => void;
   onTickChange?: (tick: number) => void;
 }
 
 // ===== Helpers =====
 
-const TICKS_PER_QUARTER = 480;
+const beatTicks = 480;
 
 // Sort lane names in musical order (C8..C0). If format not recognized, keep as is.
 const ACCIDENTAL_MAP: Record<string, string> = {
@@ -66,30 +54,43 @@ const ACCIDENTAL_MAP: Record<string, string> = {
   "♯": "#",
   "♭": "b",
 };
-
 const NOTE_OFFSETS: Record<string, number> = {
-  C: 0,
-  "C#": 1,
-  Db: 1,
-  D: 2,
-  "D#": 3,
-  Eb: 3,
-  E: 4,
-  Fb: 4,
-  "E#": 5,
-  F: 5,
-  "F#": 6,
-  Gb: 6,
-  G: 7,
-  "G#": 8,
-  Ab: 8,
-  A: 9,
-  "A#": 10,
-  Bb: 10,
-  B: 11,
-  Cb: 11,
+  "C": 0,
   "B#": 0,
+  "C#": 1,
+  "Db": 1,
+  "D": 2,
+  "D#": 3,
+  "Eb": 3,
+  "E": 4,
+  "Fb": 4,
+  "E#": 5,
+  "F": 5,
+  "F#": 6,
+  "Gb": 6,
+  "G": 7,
+  "G#": 8,
+  "Ab": 8,
+  "A": 9,
+  "A#": 10,
+  "Bb": 10,
+  "B": 11,
+  "Cb": 11,
 };
+const MIDI_NOTE_NAMES = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
 
 type PitchInfo = {
   octave: number;
@@ -97,6 +98,7 @@ type PitchInfo = {
   midi: number;
 };
 
+// Given a string of a note (i.e. A#4, B3, C4 etc), returns a PitchInfo object containing the octave number, the semitone(scale degree) number, and the midi number
 const parsePitchName = (name: string): PitchInfo | null => {
   const m = name.match(/^([A-Ga-g])([#b♯♭]?)(-?\d+)$/);
   if (!m) return null;
@@ -113,33 +115,20 @@ const parsePitchName = (name: string): PitchInfo | null => {
   return { octave, semitone, midi };
 };
 
+// Extracts simply the midi value from parsePitchName
 export const pitchNameToMidi = (name: string): number | null => {
   const info = parsePitchName(name);
   return info ? info.midi : null;
 };
 
-const MIDI_NOTE_NAMES = [
-  "C",
-  "C#",
-  "D",
-  "D#",
-  "E",
-  "F",
-  "F#",
-  "G",
-  "G#",
-  "A",
-  "A#",
-  "B",
-];
-
+//Given a midi number, returns the string of the note name with the appropriate acciental and octave number
 const midiToNoteName = (midi: number): string => {
   const octave = Math.floor(midi / 12) - 1;
   const semitone = ((midi % 12) + 12) % 12;
   return `${MIDI_NOTE_NAMES[semitone]}${octave}`;
 };
 
-
+//Produces the list of lanes that span the entirety of the notes given in the event sequence
 function buildLaneList(events: NoteEvent[]): string[] {
   const midiValues = events
     .map((event) => {
@@ -168,46 +157,45 @@ function buildLaneList(events: NoteEvent[]): string[] {
   return laneNames;
 }
 
-const clampTickPrecision = (value: number) => Number(value.toFixed(6));
+//Ensure the percent is over 0 and less than 0, returning the bounary if not.
 const clampPercent = (value: number) => Math.min(100, Math.max(0, value));
 
+//
 function ticksToPercent(ticks: number, countInTicks: number, totalTicks: number) {
   const denominator = totalTicks === 0 ? 1 : totalTicks;
   return ((ticks + countInTicks) / denominator) * 100;
 }
 
-function generateTickPositions(
-  startTick: number,
-  endTick: number,
-  step: number,
-): number[] {
-  if (step <= 0) return [];
+// Given starting and ending tick values with a step size, returns the list of step positions within that range
+function generateTickPositions(startTick: number,endTick: number,stepSize: number): number[] {
+  if (stepSize <= 0) {
+    return []
+  };
   const ticks: number[] = [];
   const totalRange = endTick - startTick;
-  const stepCount = Math.ceil(totalRange / step);
+  const stepCount = Math.ceil(totalRange / stepSize);
 
   for (let i = 0; i <= stepCount; i++) {
-    const tickValue = startTick + i * step;
-    if (tickValue > endTick + step / 1000) break;
-    ticks.push(clampTickPrecision(tickValue));
+    const tickValue = startTick + i * stepSize;
+    if (tickValue > endTick + stepSize / 1000) {
+      break
+    };
+    ticks.push(tickValue);
   }
-
   // Ensure the final beat exists for exact divisions
   if (!ticks.includes(endTick)) {
-    ticks.push(clampTickPrecision(endTick));
+    ticks.push(endTick);
   }
-
   return ticks;
 }
 
-function barBeatLabels(bars: number, beatsPerBar: number, showCountIn: boolean, countInBars: number) {
+function barBeatLabels(bars: number, beatsPerBar: number, showCountIn: boolean) {
   const labels: { tick: number; label: string }[] = [];
-  // const totalBars = (showCountIn ? countInBars : 0) + bars;
-  for (let barIndex = - (showCountIn ? countInBars : 0); barIndex < bars; barIndex++) {
+  for (let barIndex = - (showCountIn ? 1 : 0); barIndex < bars; barIndex++) {
     for (let beat = 1; beat <= beatsPerBar; beat++) {
-      const absoluteBeat = (barIndex >= 0 ? barIndex : barIndex) * beatsPerBar + (beat - 1);
+      const absoluteBeat = barIndex * beatsPerBar + (beat - 1);
       const prefix = barIndex < 0 ? `${barIndex}.` : `${barIndex+1}.`;
-      labels.push({ tick: absoluteBeat * TICKS_PER_QUARTER, label: `${prefix}${beat}` });
+      labels.push({ tick: absoluteBeat * beatTicks, label: `${prefix}${beat}` });
     }
   }
   return labels;
@@ -219,29 +207,22 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   bars,
   beatsPerBar = 4,
   subdivision = 1,
-  rowHeight = 36,
-  showChordsTop = true,
-  chords = [],
+  rowHeight = 36 * 24,
   inTime = false,
   playSpeed = 60,
   isPlaying,
   onPlayingChange,
-  highlightedNotes = [],
-  onNoteClick,
   noteHoldMeta,
   performanceMeta,
   onTickChange,
 }) => {
   const laneList = buildLaneList(events);
-  const baseLaneCountForHeight = 24;
-  const totalLanePixelHeight = rowHeight * baseLaneCountForHeight;
   const effectiveRowHeight =
     laneList.length > 0
-      ? totalLanePixelHeight / laneList.length
-      : totalLanePixelHeight;
- const activeCountInBars = inTime ? 1 : 0;
-  const ticksPerBar = beatsPerBar * TICKS_PER_QUARTER;
-  const countInTicks = activeCountInBars * ticksPerBar;
+      ? rowHeight / laneList.length
+      : rowHeight;
+  const ticksPerBar = beatsPerBar * beatTicks;
+  const countInTicks = inTime ? ticksPerBar : 0;
   const totalTicks = bars * ticksPerBar + countInTicks;
   const laneLabelWidth = 72;
   const timelineStartTick = -countInTicks;
@@ -249,13 +230,14 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const safeSubdivision = subdivision <= 0 ? 1 : subdivision;
   const tickPercent = (tick: number) => ticksToPercent(tick, countInTicks, totalTicks);
   const beatsPerSecond = Math.max(playSpeed, 0) / 60;
-  const playheadTicksPerSecond = beatsPerSecond * TICKS_PER_QUARTER;
+  const playheadTicksPerSecond = beatsPerSecond * beatTicks;
 
   const [playheadTick, setPlayheadTick] = useState(-countInTicks);
-  const [internalPlaying, setInternalPlaying] = useState(false);
   const isControlled =
     typeof isPlaying === "boolean" && typeof onPlayingChange === "function";
-  const playing = isControlled ? Boolean(isPlaying) : internalPlaying;
+  const playing = isControlled ? isPlaying : false;
+
+  // Change the playing state
   const setPlaying = (next: boolean) => {
     const wasPlaying = playing;
 
@@ -264,46 +246,12 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       onTickChange?.(-countInTicks);
     }
 
-    if (!isControlled) {
-      setInternalPlaying(next);
-    }
     if (onPlayingChange) {
       onPlayingChange(next);
     }
   };
 
-  const highlightedColorMap = useMemo(() => {
-    if (!highlightedNotes || highlightedNotes.length === 0) {
-      return null;
-    }
-    const map = new Map<number, string>();
-    highlightedNotes.forEach((entry) => {
-      if (typeof entry?.midi === "number") {
-        map.set(entry.midi, entry.color ?? "#b64f4f");
-      }
-    });
-    return map;
-  }, [highlightedNotes]);
-
-  useEffect(() => {
-    setPlayheadTick(-countInTicks);
-    onTickChange?.(-countInTicks);
-  }, [countInTicks, onTickChange]);
-
-  useEffect(() => {
-    if (!inTime && playing) {
-      setPlaying(false);
-    }
-  }, [inTime, playing]);
-
-  const wasPlayingRef = useRef(false);
-  useEffect(() => {
-    if (inTime && playing && !wasPlayingRef.current) {
-      onTickChange?.(playheadTick);
-    }
-    wasPlayingRef.current = playing;
-  }, [inTime, playing, playheadTick, onTickChange]);
-
+  // Animation of the playhead, rerenders with playhead progression
   useEffect(() => {
     if (!inTime || playheadTicksPerSecond <= 0 || !playing) {
       return;
@@ -358,21 +306,21 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     ticksPerBar,
   ]);
 
+
   // Preindex lanes
   const laneIndex: Record<string, number> = {};
   laneList.forEach((name, i) => { laneIndex[name] = i; });
 
   // Sub grid (thin lines) and beat lines (stronger)
-  const subStepTicks = TICKS_PER_QUARTER / safeSubdivision;
+  const subStepTicks = beatTicks / safeSubdivision;
   const subLines = generateTickPositions(timelineStartTick, timelineEndTick, subStepTicks);
-  const beatLines = generateTickPositions(timelineStartTick, timelineEndTick, TICKS_PER_QUARTER);
+  const beatLines = generateTickPositions(timelineStartTick, timelineEndTick, beatTicks);
   const barLines = generateTickPositions(timelineStartTick, timelineEndTick, ticksPerBar);
 
   const labels = barBeatLabels(
     bars,
     beatsPerBar,
     inTime,
-    activeCountInBars,
   );
 
   const showStartOverlay = inTime && !playing;
@@ -388,15 +336,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
         className="sticky top-0 z-30 bg-neutral-950/95 px-2 backdrop-blur"
         style={{ borderBottom: "1px solid rgba(120,120,120,0.25)", position: "relative" }}
       >
-        {inTime && (
-          <button
-            aria-label={playing ? "Pause playback" : "Play sequence"}
-            className="absolute left-2 top-2 flex items-center gap-1 rounded-md border border-neutral-700 px-3 py-1 text-xs font-semibold text-neutral-200 transition hover:bg-neutral-800"
-            onClick={() => setPlaying(!playing)}
-          >
-            {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-          </button>
-        )}
         {/* Top ruler */}
         <div className="relative flex" style={{ height: 40 }}>
           <div
@@ -462,34 +401,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             ))}
           </div>
         </div>
-        {showChordsTop && (
-          <div className="relative flex h-6">
-            <div
-              className="shrink-0 border-r border-neutral-800/40"
-              style={{ width: laneLabelWidth }}
-            />
-            <div className="relative flex-1" style={{ minWidth: 0 }}>
-              {chords.map((c, idx) => (
-                <div
-                  key={`ch-${idx}`}
-                  className="absolute -translate-x-1/2 text-xs text-neutral-200"
-                  style={{
-                    left: `${tickPercent(c.startTick)}%`,
-                  }}
-                >
-                  <div className="rounded-md bg-neutral-800 px-2 py-0.5 shadow">
-                    <span className="font-medium">{c.label}</span>
-                    {c.subLabel && (
-                      <span className="ml-1 italic opacity-70">
-                        {c.subLabel}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Body */}
@@ -497,11 +408,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
         {/* Lane labels column */}
         <div className="sticky left-0 z-20" style={{ width: laneLabelWidth }}>
           {laneList.map((name, idx) => {
-            const laneMidi = pitchNameToMidi(name);
-            const highlightColor =
-              laneMidi != null && highlightedColorMap
-                ? highlightedColorMap.get(laneMidi)
-                : undefined;
             const baseBackground =
               idx % 2
                 ? "rgba(255,255,255,0.01)"
@@ -513,11 +419,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 style={{
                   height: effectiveRowHeight,
                   borderBottom: "1px solid rgba(120,120,120,0.15)",
-                  background: highlightColor ?? baseBackground,
-                  color: highlightColor ? "white" : undefined,
-                  boxShadow: highlightColor
-                    ? `inset 0 0 0 1px rgba(255,255,255,0.15), 0 0 12px ${highlightColor}`
-                    : undefined,
+                  background: baseBackground,
                 }}
               >
                 {name}
@@ -650,7 +552,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 return null;
               }
 
-              const baseColor = e.color ?? "#b64f4f"; // base red hue similar to screenshot
+              const baseColor = e.color ?? "#b64f4f";
               const meta = noteHoldMeta?.[e.id];
               const wasPlayed = !!perf;
               const isMissed =
@@ -691,7 +593,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                   rowHeight={effectiveRowHeight}
                   color={color}
                   segments={segments}
-                  onClick={onNoteClick}
                   isHeld={meta?.isHeld}
                   inTime={inTime}
                 />

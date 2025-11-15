@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import * as Tone from "tone";
 import { PlayNote } from "./PlayNote";
 
 export type Midi = number; // 0..127
@@ -623,7 +624,12 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             <div className="mt-6 flex justify-center">
               <button
                 type="button"
-                onClick={() => setPlaying(true)}
+                onClick={async () => {
+                if (Tone.getContext().state !== "running") {
+                  await Tone.start();
+                }
+                setPlaying(true);
+              }}
                 className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
               >
                 Start

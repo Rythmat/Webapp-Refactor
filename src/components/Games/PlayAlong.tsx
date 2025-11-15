@@ -337,6 +337,9 @@ export const PlayAlong = ({
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
+      if (showCompletionOverlay) {
+        return;
+      }
       const midi = event.number;
       const songTick = currentTick;
       if (inTime) {
@@ -382,11 +385,21 @@ export const PlayAlong = ({
         console.log("[MIDI] active after off", nextActive);
       }
     },
-    [inTime, currentTick, noteById, handleKeyboardNoteOff, triggerSynthRelease],
+    [
+      showCompletionOverlay,
+      inTime,
+      currentTick,
+      noteById,
+      handleKeyboardNoteOff,
+      triggerSynthRelease,
+    ],
   );
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      if (showCompletionOverlay) {
+        return;
+      }
       const midi = event.number;
       if (event.velocity === 0) {
         handleMidiNoteOff(event);
@@ -437,6 +450,7 @@ export const PlayAlong = ({
       }
     },
     [
+      showCompletionOverlay,
       inTime,
       currentChordIndexInTime,
       chords,

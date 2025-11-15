@@ -10,19 +10,19 @@ const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e1", pitchName: "C3", startTicks: 0, durationTicks: 1920 },
   { id: "e2", pitchName: "E3", startTicks: 0, durationTicks: 1920 },
   { id: "e3", pitchName: "G3", startTicks: 0, durationTicks: 1920 },
-  { id: "e4", pitchName: "B4", startTicks: 0, durationTicks: 1920 },
+  { id: "e4", pitchName: "B3", startTicks: 0, durationTicks: 1920 },
   { id: "e5", pitchName: "C3", startTicks: 1920, durationTicks: 1920 },
   { id: "e6", pitchName: "E3", startTicks: 1920, durationTicks: 1920 },
   { id: "e7", pitchName: "G3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e8", pitchName: "Bb3", startTicks: 1920, durationTicks: 1920 },
+  { id: "e8", pitchName: "A#3", startTicks: 1920, durationTicks: 1920 },
   { id: "e9", pitchName: "C#3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e10", pitchName: "E#3", startTicks: 3840, durationTicks: 1920 },
+  { id: "e10", pitchName: "F3", startTicks: 3840, durationTicks: 1920 },
   { id: "e11", pitchName: "G#3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e12", pitchName: "B#4", startTicks: 3840, durationTicks: 1920 },
+  { id: "e12", pitchName: "C4", startTicks: 3840, durationTicks: 1920 },
   { id: "e13", pitchName: "C#3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e14", pitchName: "E#3", startTicks: 5760, durationTicks: 1920 },
+  { id: "e14", pitchName: "F3", startTicks: 5760, durationTicks: 1920 },
   { id: "e15", pitchName: "G#3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e16", pitchName: "B4", startTicks: 5760, durationTicks: 1920 },
+  { id: "e16", pitchName: "B3", startTicks: 5760, durationTicks: 1920 },
 ];
 
 const CHORD_HOLD_REQUIRED_MS = 2000;
@@ -541,7 +541,7 @@ export const PlayAlong = ({
             subdivision={1}
             rowHeight={28 * 24}
             inTime={inTime}
-            playSpeed={120}
+            playSpeed={80}
             isPlaying={isPlaying}
             onPlayingChange={setIsPlaying}
             // highlightedNotes={highlightedNotes}

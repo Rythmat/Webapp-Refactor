@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Pause, Play } from "lucide-react";
 import { PlayNote } from "./PlayNote";
 
 export type Midi = number; // 0..127

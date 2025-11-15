@@ -100,8 +100,7 @@ export const PlayAlong = ({
         typeof velocity === "number"
           ? Math.max(0, Math.min(1, velocity / 127))
           : 0.8;
-      const frequency = Tone.Frequency(midi, "midi").toFrequency();
-      synth.triggerAttack(frequency, Tone.now(), normalizedVelocity || 0.8);
+      synth.triggerAttack(midi, Tone.now(), normalizedVelocity || 0.8);
     },
     [getSynth],
   );
@@ -112,8 +111,7 @@ export const PlayAlong = ({
       if (!synth) {
         return;
       }
-      const frequency = Tone.Frequency(midi, "midi").toFrequency();
-      synth.triggerRelease(frequency, Tone.now());
+      synth.triggerRelease(midi, Tone.now());
     },
     [getSynth],
   );
@@ -367,11 +365,22 @@ export const PlayAlong = ({
         });
       }
 
-      setActiveMidis((prev) =>
-        prev.filter((m) => m !== midi),
-      );
-      handleKeyboardNoteOff(midi);
-      triggerSynthRelease(midi);
+      let removed = false;
+      let nextActive: number[] | null = null;
+      setActiveMidis((prev) => {
+        if (!prev.includes(midi)) {
+          return prev;
+        }
+        removed = true;
+        nextActive = prev.filter((m) => m !== midi);
+        return nextActive;
+      });
+      console.log("[MIDI] note_off", midi);
+      if (removed) {
+        handleKeyboardNoteOff(midi);
+        triggerSynthRelease(midi);
+        console.log("[MIDI] active after off", nextActive);
+      }
     },
     [inTime, currentTick, noteById, handleKeyboardNoteOff, triggerSynthRelease],
   );
@@ -410,11 +419,22 @@ export const PlayAlong = ({
         });
       }
 
-      setActiveMidis((prev) =>
-        prev.includes(midi) ? prev : [...prev, midi],
-      );
-      handleKeyboardNoteOn(midi);
-      triggerSynthAttack(midi, event.velocity);
+      let added = false;
+      let nextActive: number[] | null = null;
+      setActiveMidis((prev) => {
+        if (prev.includes(midi)) {
+          return prev;
+        }
+        added = true;
+        nextActive = [...prev, midi];
+        return nextActive;
+      });
+      console.log("[MIDI] note_on", midi, "velocity", event.velocity);
+      if (added) {
+        handleKeyboardNoteOn(midi);
+        triggerSynthAttack(midi, event.velocity);
+        console.log("[MIDI] active after on", nextActive);
+      }
     },
     [
       inTime,

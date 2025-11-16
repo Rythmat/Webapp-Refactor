@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
 import { PlayNote } from "./PlayNote";
 

@@ -335,6 +335,14 @@ export const PlayAlong = ({
     return () => cancelAnimationFrame(raf);
   }, [inTime, chordHoldStartMs]);
 
+  const showChordHoldCompletion =
+    !inTime && chords.length > 0 && completedChords.size >= chords.length;
+
+  const showInTimeCompletion =
+    inTime && !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
+
+  const showCompletionOverlay = showChordHoldCompletion || showInTimeCompletion;
+
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
       if (showCompletionOverlay) {
@@ -523,13 +531,6 @@ export const PlayAlong = ({
     return meta;
   }, [inTime, notePerformance]);
 
-  const showChordHoldCompletion =
-    !inTime && chords.length > 0 && completedChords.size >= chords.length;
-
-  const showInTimeCompletion =
-    inTime && !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
-
-  const showCompletionOverlay = showChordHoldCompletion || showInTimeCompletion;
 
   const handleContinue = useCallback(() => {
     if (onContinue) {

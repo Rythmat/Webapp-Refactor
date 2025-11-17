@@ -100,8 +100,7 @@ export const PlayAlong = ({
         typeof velocity === "number"
           ? Math.max(0, Math.min(1, velocity / 127))
           : 0.8;
-      const note = Tone.Frequency(midi, "midi").toFrequency();
-      synth.triggerAttack(note, Tone.now(), normalizedVelocity || 0.8);
+      synth.triggerAttack(midi, Tone.now(), normalizedVelocity || 0.8);
     },
     [getSynth],
   );
@@ -112,8 +111,7 @@ export const PlayAlong = ({
       if (!synth) {
         return;
       }
-      const note = Tone.Frequency(midi, "midi").toFrequency();
-      synth.triggerRelease(note, Tone.now());
+      synth.triggerRelease(midi, Tone.now());
     },
     [getSynth],
   );
@@ -333,7 +331,7 @@ export const PlayAlong = ({
     return () => cancelAnimationFrame(raf);
   }, [inTime, chordHoldStartMs]);
 
-  const showChordHoldCompletion =
+const showChordHoldCompletion =
     !inTime && chords.length > 0 && completedChords.size >= chords.length;
 
   const showInTimeCompletion =
@@ -343,9 +341,12 @@ export const PlayAlong = ({
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
+      if (showCompletionOverlay) {
+        return;
+      }
       const midi = event.number;
       const songTick = currentTick;
-      if (inTime && !showCompletionOverlay) {
+      if (inTime) {
         setNotePerformance((prev) => {
           let updated = prev;
           for (const [id, perf] of Object.entries(prev)) {
@@ -389,8 +390,8 @@ export const PlayAlong = ({
       }
     },
     [
-      inTime,
       showCompletionOverlay,
+      inTime,
       currentTick,
       noteById,
       handleKeyboardNoteOff,

@@ -70,6 +70,7 @@ export const PlayAlong = ({
   const [chordHoldProgress, setChordHoldProgress] = useState(0);
   const [currentTick, setCurrentTick] = useState(-COUNT_IN_TICKS);
   const [notePerformance, setNotePerformance] = useState<Record<string, NotePerformance>>({});
+  const activeMidiCountsRef = useRef<Map<number, number>>(new Map());
   const lastCountInBeatRef = useRef<number | null>(null);
   const getSynth = useSynth();
 
@@ -83,6 +84,7 @@ export const PlayAlong = ({
     setNotePerformance({});
     setCurrentTick(-COUNT_IN_TICKS);
     lastCountInBeatRef.current = null;
+    activeMidiCountsRef.current.clear();
     const synth = getSynth();
     synth?.releaseAll();
   }, [getSynth]);
@@ -546,6 +548,7 @@ const showChordHoldCompletion =
     synth?.releaseAll();
     setActiveMidis([]);
     setKeyboardPlayingNotes([]);
+    activeMidiCountsRef.current.clear();
   }, [isPlaying, getSynth]);
 
   return (

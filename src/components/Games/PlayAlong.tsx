@@ -379,13 +379,11 @@ export const PlayAlong = ({
         });
       }
 
-      let removed = false;
       let nextActive: number[] | null = null;
       setActiveMidis((prev) => {
         if (!prev.includes(midi)) {
           return prev;
         }
-        removed = true;
         nextActive = prev.filter((m) => m !== midi);
         return nextActive;
       });
@@ -440,13 +438,11 @@ export const PlayAlong = ({
         });
       }
 
-      let added = false;
       let nextActive: number[] | null = null;
       setActiveMidis((prev) => {
         if (prev.includes(midi)) {
           return prev;
         }
-        added = true;
         nextActive = [...prev, midi];
         return nextActive;
       });

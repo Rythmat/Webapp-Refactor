@@ -349,6 +349,9 @@ export const PlayAlong = ({
         return;
       }
       const midi = event.number;
+      handleKeyboardNoteOff(midi);
+      triggerSynthRelease(midi);
+      console.log("[MIDI] note_off", midi);
       const songTick = currentTick;
       if (inTime) {
         setNotePerformance((prev) => {
@@ -386,12 +389,6 @@ export const PlayAlong = ({
         nextActive = prev.filter((m) => m !== midi);
         return nextActive;
       });
-      console.log("[MIDI] note_off", midi);
-      if (removed) {
-        handleKeyboardNoteOff(midi);
-        triggerSynthRelease(midi);
-        console.log("[MIDI] active after off", nextActive);
-      }
     },
     [
       showCompletionOverlay,
@@ -409,6 +406,9 @@ export const PlayAlong = ({
         return;
       }
       const midi = event.number;
+      handleKeyboardNoteOn(midi);
+      triggerSynthAttack(midi, event.velocity);
+      console.log("[MIDI] note_on", midi, "velocity", event.velocity);
       if (event.velocity === 0) {
         handleMidiNoteOff(event);
         return;
@@ -450,12 +450,6 @@ export const PlayAlong = ({
         nextActive = [...prev, midi];
         return nextActive;
       });
-      console.log("[MIDI] note_on", midi, "velocity", event.velocity);
-      if (added) {
-        handleKeyboardNoteOn(midi);
-        triggerSynthAttack(midi, event.velocity);
-        console.log("[MIDI] active after on", nextActive);
-      }
     },
     [
       showCompletionOverlay,

@@ -142,10 +142,6 @@ export const PlayAlong = ({
   }, [resolvedEvents]);
 
   useEffect(() => {
-    resetProgress();
-  }, [chords, inTime, resetProgress]);
-
-  useEffect(() => {
     if (!inTime || !isPlaying) {
       lastCountInBeatRef.current = null;
       return;
@@ -335,7 +331,7 @@ export const PlayAlong = ({
     return () => cancelAnimationFrame(raf);
   }, [inTime, chordHoldStartMs]);
 
-  const showChordHoldCompletion =
+const showChordHoldCompletion =
     !inTime && chords.length > 0 && completedChords.size >= chords.length;
 
   const showInTimeCompletion =
@@ -349,9 +345,6 @@ export const PlayAlong = ({
         return;
       }
       const midi = event.number;
-      handleKeyboardNoteOff(midi);
-      triggerSynthRelease(midi);
-      console.log("[MIDI] note_off", midi);
       const songTick = currentTick;
       if (inTime) {
         setNotePerformance((prev) => {
@@ -379,14 +372,22 @@ export const PlayAlong = ({
         });
       }
 
+      let removed = false;
       let nextActive: number[] | null = null;
       setActiveMidis((prev) => {
         if (!prev.includes(midi)) {
           return prev;
         }
+        removed = true;
         nextActive = prev.filter((m) => m !== midi);
         return nextActive;
       });
+      console.log("[MIDI] note_off", midi);
+      if (removed) {
+        handleKeyboardNoteOff(midi);
+        triggerSynthRelease(midi);
+        console.log("[MIDI] active after off", nextActive);
+      }
     },
     [
       showCompletionOverlay,
@@ -404,9 +405,6 @@ export const PlayAlong = ({
         return;
       }
       const midi = event.number;
-      handleKeyboardNoteOn(midi);
-      triggerSynthAttack(midi, event.velocity);
-      console.log("[MIDI] note_on", midi, "velocity", event.velocity);
       if (event.velocity === 0) {
         handleMidiNoteOff(event);
         return;
@@ -438,14 +436,22 @@ export const PlayAlong = ({
         });
       }
 
+      let added = false;
       let nextActive: number[] | null = null;
       setActiveMidis((prev) => {
         if (prev.includes(midi)) {
           return prev;
         }
+        added = true;
         nextActive = [...prev, midi];
         return nextActive;
       });
+      console.log("[MIDI] note_on", midi, "velocity", event.velocity);
+      if (added) {
+        handleKeyboardNoteOn(midi);
+        triggerSynthAttack(midi, event.velocity);
+        console.log("[MIDI] active after on", nextActive);
+      }
     },
     [
       showCompletionOverlay,
@@ -565,7 +571,7 @@ export const PlayAlong = ({
             beatsPerBar={4}
             subdivision={1}
             rowHeight={28 * 24}
-            // inTime={inTime}
+            inTime={inTime}
             playSpeed={80}
             isPlaying={isPlaying}
             onPlayingChange={setIsPlaying}

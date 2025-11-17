@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import * as Tone from "tone";
 import { PlayNote } from "./PlayNote";
 
@@ -35,6 +35,7 @@ export interface PianoRollProps {
   playSpeed?: number; // beats per minute traversal speed
   isPlaying?: boolean;
   onPlayingChange?: (playing: boolean) => void;
+  activeMidis?: number[];
   noteHoldMeta?: Record<string, NoteHoldMeta>;
   performanceMeta?: Record<string, { startTick: number; endTick?: number }>;
 
@@ -212,6 +213,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   playSpeed = 60,
   isPlaying,
   onPlayingChange,
+  activeMidis = [],
   noteHoldMeta,
   performanceMeta,
   onTickChange,
@@ -306,6 +308,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     ticksPerBar,
   ]);
 
+
+  const activeMidiSet = useMemo(() => new Set(activeMidis), [activeMidis]);
 
   // Preindex lanes
   const laneIndex: Record<string, number> = {};
@@ -412,14 +416,23 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               idx % 2
                 ? "rgba(255,255,255,0.01)"
                 : "rgba(255,255,255,0.03)";
+            const laneMidi = pitchNameToMidi(name);
+            const isActiveLane =
+              typeof laneMidi === "number" && activeMidiSet.has(laneMidi);
+            const background = isActiveLane
+              ? "linear-gradient(90deg, rgba(59,130,246,0.65), rgba(37,99,235,0.35))"
+              : baseBackground;
+            const color = isActiveLane ? "#f8fafc" : "#d4d4d8";
             return (
               <div
                 key={name}
-                className="flex items-center justify-end pr-2 text-sm select-none transition-colors text-neutral-300"
+                className="flex items-center justify-end pr-2 text-sm select-none transition-colors"
                 style={{
                   height: effectiveRowHeight,
                   borderBottom: "1px solid rgba(120,120,120,0.15)",
-                  background: baseBackground,
+                  background,
+                  color,
+                  fontWeight: isActiveLane ? 600 : 400,
                 }}
               >
                 {name}

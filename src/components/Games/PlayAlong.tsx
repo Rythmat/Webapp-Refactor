@@ -569,6 +569,7 @@ const showChordHoldCompletion =
             playSpeed={80}
             isPlaying={isPlaying}
             onPlayingChange={setIsPlaying}
+            activeMidis={activeMidis}
             // highlightedNotes={highlightedNotes}
             noteHoldMeta={noteHoldMeta}
             performanceMeta={performanceMeta}

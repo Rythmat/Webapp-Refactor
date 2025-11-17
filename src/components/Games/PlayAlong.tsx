@@ -373,20 +373,17 @@ const showChordHoldCompletion =
       }
 
       let removed = false;
-      let nextActive: number[] | null = null;
       setActiveMidis((prev) => {
         if (!prev.includes(midi)) {
           return prev;
         }
         removed = true;
-        nextActive = prev.filter((m) => m !== midi);
-        return nextActive;
+        return prev.filter((m) => m !== midi);
       });
       console.log("[MIDI] note_off", midi);
+      triggerSynthRelease(midi);
       if (removed) {
         handleKeyboardNoteOff(midi);
-        triggerSynthRelease(midi);
-        console.log("[MIDI] active after off", nextActive);
       }
     },
     [
@@ -437,20 +434,17 @@ const showChordHoldCompletion =
       }
 
       let added = false;
-      let nextActive: number[] | null = null;
       setActiveMidis((prev) => {
         if (prev.includes(midi)) {
           return prev;
         }
         added = true;
-        nextActive = [...prev, midi];
-        return nextActive;
+        return [...prev, midi];
       });
       console.log("[MIDI] note_on", midi, "velocity", event.velocity);
+      triggerSynthAttack(midi, event.velocity);
       if (added) {
         handleKeyboardNoteOn(midi);
-        triggerSynthAttack(midi, event.velocity);
-        console.log("[MIDI] active after on", nextActive);
       }
     },
     [

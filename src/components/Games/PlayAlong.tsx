@@ -162,7 +162,7 @@ export const PlayAlong = ({
     const beatIndex = Math.floor(ticksIntoCountIn / TICKS_PER_QUARTER);
     if (lastCountInBeatRef.current !== beatIndex) {
       lastCountInBeatRef.current = beatIndex;
-      playCountInClick();
+      // playCountInClick();
     }
   }, [inTime, isPlaying, currentTick, playCountInClick]);
 
@@ -189,20 +189,6 @@ export const PlayAlong = ({
       )
       .filter((midi): midi is number => typeof midi === "number");
   }, [currentChord]);
-
-  // const highlightedNotes = useMemo(() => {
-  //   if (inTime) {
-  //     return [] as Array<{ midi: number; color?: string }>;
-  //   }
-  //   return activeMidis.map((midi) => {
-  //     let color = noteColorByMidi.get(midi) ?? "#60a5fa";
-  //     if (currentChordMidis.length > 0) {
-  //       const isChordNote = currentChordMidis.includes(midi);
-  //       color = isChordNote ? CHORD_NOTE_COLOR : WRONG_NOTE_COLOR;
-  //     }
-  //     return { midi, color };
-  //   });
-  // }, [activeMidis, noteColorByMidi, inTime, currentChordMidis]);
 
   const isCurrentChordHeld = useMemo(() => {
     if (inTime || !currentChord || currentChordMidis.length === 0) {
@@ -579,7 +565,6 @@ const showChordHoldCompletion =
             isPlaying={isPlaying}
             onPlayingChange={setIsPlaying}
             activeMidis={activeMidis}
-            // highlightedNotes={highlightedNotes}
             noteHoldMeta={noteHoldMeta}
             performanceMeta={performanceMeta}
             onTickChange={setCurrentTick}

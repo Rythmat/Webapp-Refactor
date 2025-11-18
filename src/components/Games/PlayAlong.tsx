@@ -89,6 +89,12 @@ export const PlayAlong = ({
     synth?.releaseAll();
   }, [getSynth]);
 
+  const resetInTimeRun = useCallback(() => {
+    setNotePerformance({});
+    setCurrentTick(-COUNT_IN_TICKS);
+    lastCountInBeatRef.current = null;
+  }, []);
+
   const triggerSynthAttack = useCallback(
     (midi: number, velocity?: number) => {
       const synth = getSynth();
@@ -535,10 +541,10 @@ const showChordHoldCompletion =
   useEffect(() => {
     const wasPlaying = wasPlayingRef.current;
     if (!wasPlaying && isPlaying && inTime) {
-      resetProgress();
+      resetInTimeRun();
     }
     wasPlayingRef.current = isPlaying;
-  }, [isPlaying, inTime, resetProgress]);
+  }, [isPlaying, inTime, resetInTimeRun]);
 
   useEffect(() => {
     if (isPlaying) {

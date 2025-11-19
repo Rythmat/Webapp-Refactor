@@ -399,7 +399,11 @@ const showChordHoldCompletion =
     (event: MidiNoteEvent) => {
       const songTick = currentTick;
       const noteName = Tone.Frequency(event.number, 'midi').toNote();
-      triggerSynthAttack(noteName, event.velocity);
+      if(event.velocity == 0){
+        triggerSynthRelease(noteName);
+      }else{
+        triggerSynthAttack(noteName, event.velocity);
+      }
       handleKeyboardNoteOn(event.number);
       setActiveMidis((prev) => {
         return [...prev, event.number];

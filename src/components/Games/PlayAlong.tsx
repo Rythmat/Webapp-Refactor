@@ -162,7 +162,7 @@ export const PlayAlong = ({
     const beatIndex = Math.floor(ticksIntoCountIn / TICKS_PER_QUARTER);
     if (lastCountInBeatRef.current !== beatIndex) {
       lastCountInBeatRef.current = beatIndex;
-      // playCountInClick();
+      playCountInClick();
     }
   }, [inTime, isPlaying, currentTick, playCountInClick]);
 
@@ -335,123 +335,137 @@ const showChordHoldCompletion =
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
-      if (showCompletionOverlay) {
-        return;
-      }
       const midi = event.number;
-      const songTick = currentTick;
-      if (inTime) {
-        setNotePerformance((prev) => {
-          let updated = prev;
-          for (const [id, perf] of Object.entries(prev)) {
-            if (perf.startTick == null || perf.endTick != null) {
-              continue;
-            }
-            const note = noteById.get(id);
-            if (!note) continue;
-            const noteMidi =
-              typeof note.midi === "number"
-                ? note.midi
-                : pitchNameToMidi(note.pitchName);
-            if (noteMidi !== midi) {
-              continue;
-            }
-            if (updated === prev) {
-              updated = { ...prev };
-            }
-            updated[id] = { ...perf, endTick: songTick };
-            break;
-          }
-          return updated;
-        });
-      }
-
-      let removed = false;
-      setActiveMidis((prev) => {
-        if (!prev.includes(midi)) {
-          return prev;
-        }
-        removed = true;
-        return prev.filter((m) => m !== midi);
-      });
-      console.log("[MIDI] note_off", midi);
       triggerSynthRelease(midi);
-      if (removed) {
-        handleKeyboardNoteOff(midi);
-      }
     },
-    [
-      showCompletionOverlay,
-      inTime,
-      currentTick,
-      noteById,
-      handleKeyboardNoteOff,
-      triggerSynthRelease,
-    ],
+    [triggerSynthRelease]
   );
+  // const handleMidiNoteOff = useCallback(
+  //   (event: MidiNoteEvent) => {
+  //     if (showCompletionOverlay) {
+  //       return;
+  //     }
+  //     const midi = event.number;
+  //     const songTick = currentTick;
+  //     if (inTime) {
+  //       setNotePerformance((prev) => {
+  //         let updated = prev;
+  //         for (const [id, perf] of Object.entries(prev)) {
+  //           if (perf.startTick == null || perf.endTick != null) {
+  //             continue;
+  //           }
+  //           const note = noteById.get(id);
+  //           if (!note) continue;
+  //           const noteMidi =
+  //             typeof note.midi === "number"
+  //               ? note.midi
+  //               : pitchNameToMidi(note.pitchName);
+  //           if (noteMidi !== midi) {
+  //             continue;
+  //           }
+  //           if (updated === prev) {
+  //             updated = { ...prev };
+  //           }
+  //           updated[id] = { ...perf, endTick: songTick };
+  //           break;
+  //         }
+  //         return updated;
+  //       });
+  //     }
+
+  //     let removed = false;
+  //     setActiveMidis((prev) => {
+  //       if (!prev.includes(midi)) {
+  //         return prev;
+  //       }
+  //       removed = true;
+  //       return prev.filter((m) => m !== midi);
+  //     });
+  //     console.log("[MIDI] note_off", midi);
+  //     triggerSynthRelease(midi);
+  //     if (removed) {
+  //       handleKeyboardNoteOff(midi);
+  //     }
+  //   },
+  //   [
+  //     showCompletionOverlay,
+  //     inTime,
+  //     currentTick,
+  //     noteById,
+  //     handleKeyboardNoteOff,
+  //     triggerSynthRelease,
+  //   ],
+  // );
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
-      if (showCompletionOverlay) {
-        return;
-      }
-      const midi = event.number;
-      if (event.velocity === 0) {
-        handleMidiNoteOff(event);
-        return;
-      }
-      if (inTime && currentChordIndexInTime !== null) {
-        const chord = chords[currentChordIndexInTime] ?? [];
-        const songTick = currentTick;
-        setNotePerformance((prev) => {
-          let updated = prev;
-          for (const note of chord) {
-            const noteMidi =
-              typeof note.midi === "number"
-                ? note.midi
-                : pitchNameToMidi(note.pitchName);
-            if (noteMidi !== midi) {
-              continue;
-            }
-            const existing = prev[note.id];
-            if (existing?.startTick != null) {
-              continue;
-            }
-            if (updated === prev) {
-              updated = { ...prev };
-            }
-            updated[note.id] = { startTick: songTick, endTick: null };
-            break;
-          }
-          return updated;
-        });
-      }
-
-      let added = false;
-      setActiveMidis((prev) => {
-        if (prev.includes(midi)) {
-          return prev;
-        }
-        added = true;
-        return [...prev, midi];
-      });
-      console.log("[MIDI] note_on", midi, "velocity", event.velocity);
-      triggerSynthAttack(midi, event.velocity);
-      if (added) {
-        handleKeyboardNoteOn(midi);
-      }
+      triggerSynthAttack(event.number, event.velocity);
     },
-    [
-      showCompletionOverlay,
-      inTime,
-      currentChordIndexInTime,
-      chords,
-      currentTick,
-      handleKeyboardNoteOn,
-      triggerSynthAttack,
-      handleMidiNoteOff,
-    ],
+    [triggerSynthAttack]
   );
+
+  // const handleMidiNoteOn = useCallback(
+  //   (event: MidiNoteEvent) => {
+  //     if (showCompletionOverlay) {
+  //       return;
+  //     }
+  //     const midi = event.number;
+  //     if (event.velocity === 0) {
+  //       handleMidiNoteOff(event);
+  //       return;
+  //     }
+  //     if (inTime && currentChordIndexInTime !== null) {
+  //       const chord = chords[currentChordIndexInTime] ?? [];
+  //       const songTick = currentTick;
+  //       setNotePerformance((prev) => {
+  //         let updated = prev;
+  //         for (const note of chord) {
+  //           const noteMidi =
+  //             typeof note.midi === "number"
+  //               ? note.midi
+  //               : pitchNameToMidi(note.pitchName);
+  //           if (noteMidi !== midi) {
+  //             continue;
+  //           }
+  //           const existing = prev[note.id];
+  //           if (existing?.startTick != null) {
+  //             continue;
+  //           }
+  //           if (updated === prev) {
+  //             updated = { ...prev };
+  //           }
+  //           updated[note.id] = { startTick: songTick, endTick: null };
+  //           break;
+  //         }
+  //         return updated;
+  //       });
+  //     }
+
+  //     let added = false;
+  //     setActiveMidis((prev) => {
+  //       if (prev.includes(midi)) {
+  //         return prev;
+  //       }
+  //       added = true;
+  //       return [...prev, midi];
+  //     });
+  //     console.log("[MIDI] note_on", midi, "velocity", event.velocity);
+  //     triggerSynthAttack(midi, event.velocity);
+  //     if (added) {
+  //       handleKeyboardNoteOn(midi);
+  //     }
+  //   },
+  //   [
+  //     showCompletionOverlay,
+  //     inTime,
+  //     currentChordIndexInTime,
+  //     chords,
+  //     currentTick,
+  //     handleKeyboardNoteOn,
+  //     triggerSynthAttack,
+  //     handleMidiNoteOff,
+  //   ],
+  // );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
     onNoteOn: handleMidiNoteOn,

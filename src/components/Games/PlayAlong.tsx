@@ -375,7 +375,7 @@ const showChordHoldCompletion =
       }
 
     },
-    []
+    [resolvedEvents, notePerformance]
   );
 
   const handleMidiNoteOff = useCallback(
@@ -391,7 +391,7 @@ const showChordHoldCompletion =
         parsePerformance(event.number,songTick,false);
       }
     },
-    [triggerSynthRelease,handleKeyboardNoteOff]
+    [triggerSynthRelease,handleKeyboardNoteOff, parsePerformance, currentTick, inTime]
   );
 
 
@@ -408,7 +408,7 @@ const showChordHoldCompletion =
         parsePerformance(event.number, songTick,true);
       }
     },
-    [triggerSynthAttack,handleKeyboardNoteOn]
+    [triggerSynthAttack,handleKeyboardNoteOn, parsePerformance, currentTick, inTime]
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {

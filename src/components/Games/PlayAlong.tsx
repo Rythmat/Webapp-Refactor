@@ -95,6 +95,7 @@ export const PlayAlong = ({
     lastCountInBeatRef.current = null;
   }, []);
 
+  // Triggers the on state of the syntheizer with a specified note and a given velocity
   const triggerSynthAttack = useCallback(
     (name: string, velocity?: number) => {
       const synth = getSynth();
@@ -113,6 +114,7 @@ export const PlayAlong = ({
     [getSynth],
   );
 
+  // Triggers the off state of the synthesizer for the specified note
   const triggerSynthRelease = useCallback(
     (name: string) => {
       const synth = getSynth();
@@ -333,135 +335,81 @@ const showChordHoldCompletion =
 
   const showCompletionOverlay = showChordHoldCompletion || showInTimeCompletion;
 
+  // Updates the note performance record for the appropriate event, given the incoming midi signal, the current time tick, and a boolean for if the signal is on or off
+  const parsePerformance = useCallback(
+    (midi: number, tick: number ,onSignal: boolean) => {
+      const note = resolvedEvents.find(
+        (note) =>
+          pitchNameToMidi(note.pitchName) === midi &&
+          note.startTicks <= tick &&
+          note.startTicks + note.durationTicks >= tick
+      );
+      if (!note) return;
+      const noteId = note.id;
+      if(onSignal){
+        if(noteId in notePerformance){
+          return;
+        }else{
+          setNotePerformance((prev) => ({
+            ...prev,
+            [noteId]: {
+              ...prev[noteId],
+              startTickTick: tick,
+            },
+          }));
+        }
+      }else{
+        if(noteId in notePerformance){
+          if(notePerformance[noteId].startTick == null || notePerformance[noteId].endTick != null){
+            return;
+          }else{
+            setNotePerformance((prev) => ({
+              ...prev,
+              [noteId]: {
+                ...prev[noteId],
+                endTick: tick,
+              },
+            }));
+          }
+        }
+      }
+
+    },
+    []
+  );
+
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
+      const songTick = currentTick;
       const noteName = Tone.Frequency(event.number, 'midi').toNote();
       triggerSynthRelease(noteName);
       handleKeyboardNoteOff(event.number);
       setActiveMidis((prev) => {
         return prev.filter((m) => m !== event.number);
       });
+      if(inTime){
+        parsePerformance(event.number,songTick,false);
+      }
     },
     [triggerSynthRelease,handleKeyboardNoteOff]
   );
-  // const handleMidiNoteOff = useCallback(
-  //   (event: MidiNoteEvent) => {
-  //     if (showCompletionOverlay) {
-  //       return;
-  //     }
-  //     const midi = event.number;
-  //     const songTick = currentTick;
-  //     if (inTime) {
-  //       setNotePerformance((prev) => {
-  //         let updated = prev;
-  //         for (const [id, perf] of Object.entries(prev)) {
-  //           if (perf.startTick == null || perf.endTick != null) {
-  //             continue;
-  //           }
-  //           const note = noteById.get(id);
-  //           if (!note) continue;
-  //           const noteMidi =
-  //             typeof note.midi === "number"
-  //               ? note.midi
-  //               : pitchNameToMidi(note.pitchName);
-  //           if (noteMidi !== midi) {
-  //             continue;
-  //           }
-  //           if (updated === prev) {
-  //             updated = { ...prev };
-  //           }
-  //           updated[id] = { ...perf, endTick: songTick };
-  //           break;
-  //         }
-  //         return updated;
-  //       });
-  //     }
 
-  //     let removed = false;
-  //     setActiveMidis((prev) => {
-  //       if (!prev.includes(midi)) {
-  //         return prev;
-  //       }
-  //       removed = true;
-  //       return prev.filter((m) => m !== midi);
-  //     });
-  //   },
-  // );
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      const songTick = currentTick;
       const noteName = Tone.Frequency(event.number, 'midi').toNote();
       triggerSynthAttack(noteName, event.velocity);
       handleKeyboardNoteOn(event.number);
       setActiveMidis((prev) => {
         return [...prev, event.number];
       });
+      if(inTime){
+        parsePerformance(event.number, songTick,true);
+      }
     },
     [triggerSynthAttack,handleKeyboardNoteOn]
   );
-
-  // const handleMidiNoteOn = useCallback(
-  //   (event: MidiNoteEvent) => {
-  //     if (showCompletionOverlay) {
-  //       return;
-  //     }
-  //     const midi = event.number;
-  //     if (event.velocity === 0) {
-  //       handleMidiNoteOff(event);
-  //       return;
-  //     }
-  //     if (inTime && currentChordIndexInTime !== null) {
-  //       const chord = chords[currentChordIndexInTime] ?? [];
-  //       const songTick = currentTick;
-  //       setNotePerformance((prev) => {
-  //         let updated = prev;
-  //         for (const note of chord) {
-  //           const noteMidi =
-  //             typeof note.midi === "number"
-  //               ? note.midi
-  //               : pitchNameToMidi(note.pitchName);
-  //           if (noteMidi !== midi) {
-  //             continue;
-  //           }
-  //           const existing = prev[note.id];
-  //           if (existing?.startTick != null) {
-  //             continue;
-  //           }
-  //           if (updated === prev) {
-  //             updated = { ...prev };
-  //           }
-  //           updated[note.id] = { startTick: songTick, endTick: null };
-  //           break;
-  //         }
-  //         return updated;
-  //       });
-  //     }
-
-  //     let added = false;
-  //     setActiveMidis((prev) => {
-  //       if (prev.includes(midi)) {
-  //         return prev;
-  //       }
-  //       added = true;
-  //       return [...prev, midi];
-  //     });
-  //     console.log("[MIDI] note_on", midi, "velocity", event.velocity);
-  //     triggerSynthAttack(midi, event.velocity);
-  //     if (added) {
-  //       handleKeyboardNoteOn(midi);
-  //     }
-  //   },
-  //   [
-  //     showCompletionOverlay,
-  //     inTime,
-  //     currentChordIndexInTime,
-  //     chords,
-  //     currentTick,
-  //     handleKeyboardNoteOn,
-  //     triggerSynthAttack,
-  //     handleMidiNoteOff,
-  //   ],
-  // );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
     onNoteOn: handleMidiNoteOn,

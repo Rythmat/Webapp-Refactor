@@ -5,6 +5,7 @@ import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
 import { useMidiInput, type MidiNoteEvent } from "@/hooks/music/useMidiInput";
 import { useSynth } from "@/hooks/useSynth";
 import PianoRoll, { NoteEvent, NoteHoldMeta, pitchNameToMidi } from "./PianoRollPlay";
+import { VenetianMask } from "lucide-react";
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e1", pitchName: "C3", startTicks: 0, durationTicks: 1920 },
@@ -26,8 +27,8 @@ const DEFAULT_EVENTS: NoteEvent[] = [
 ];
 
 const CHORD_HOLD_REQUIRED_MS = 2000;
-// const CHORD_NOTE_COLOR = "#22c55e";
-// const WRONG_NOTE_COLOR = "#ef4444";
+const CHORD_NOTE_COLOR = "#22c55e";
+const WRONG_NOTE_COLOR = "#ef4444";
 const TICKS_PER_QUARTER = 480;
 const COUNT_IN_TICKS = 4 * TICKS_PER_QUARTER;
 
@@ -166,19 +167,19 @@ export const PlayAlong = ({
     }
   }, [inTime, isPlaying, currentTick, playCountInClick]);
 
-  // const noteColorByMidi = useMemo(() => {
-  //   const map = new Map<number, string>();
-  //   resolvedEvents.forEach((event) => {
-  //     const midi =
-  //       typeof event.midi === "number"
-  //         ? event.midi
-  //         : pitchNameToMidi(event.pitchName);
-  //     if (typeof midi === "number" && !map.has(midi)) {
-  //       map.set(midi, event.color ?? "#60a5fa");
-  //     }
-  //   });
-  //   return map;
-  // }, [resolvedEvents]);
+  const noteColorByMidi = useMemo(() => {
+    const map = new Map<number, string>();
+    resolvedEvents.forEach((event) => {
+      const midi =
+        typeof event.midi === "number"
+          ? event.midi
+          : pitchNameToMidi(event.pitchName);
+      if (typeof midi === "number" && !map.has(midi)) {
+        map.set(midi, event.color ?? "#60a5fa");
+      }
+    });
+    return map;
+  }, [resolvedEvents]);
 
   const currentChord = chords[currentChordIndex] ?? null;
   const currentChordMidis = useMemo(() => {
@@ -239,35 +240,35 @@ export const PlayAlong = ({
   //   return null;
   // }, [inTime, chords.length, chordStartTicks, currentTick]);
 
-  // const handleKeyboardNoteOn = useCallback(
-  //   (midi: number) => {
-  //     let color = noteColorByMidi.get(midi) ?? "#60a5fa";
-  //     if (!inTime && currentChordMidis.length > 0) {
-  //       const isChordNote = currentChordMidis.includes(midi);
-  //       color = isChordNote ? CHORD_NOTE_COLOR : WRONG_NOTE_COLOR;
-  //     }
-  //     const id = `keyboard-${midi}`;
-  //     setKeyboardPlayingNotes((prev) => [
-  //       ...prev.filter((event) => event.midi !== midi),
-  //       {
-  //         id,
-  //         type: "note",
-  //         midi,
-  //         time: Date.now(),
-  //         duration: Number.POSITIVE_INFINITY,
-  //         velocity: 1,
-  //         color,
-  //       },
-  //     ]);
-  //   },
-  //   [noteColorByMidi, inTime, currentChordMidis],
-  // );
+  const handleKeyboardNoteOn = useCallback(
+    (midi: number) => {
+      let color = noteColorByMidi.get(midi) ?? "#60a5fa";
+      if (!inTime && currentChordMidis.length > 0) {
+        const isChordNote = currentChordMidis.includes(midi);
+        color = isChordNote ? CHORD_NOTE_COLOR : WRONG_NOTE_COLOR;
+      }
+      const id = `keyboard-${midi}`;
+      setKeyboardPlayingNotes((prev) => [
+        ...prev.filter((event) => event.midi !== midi),
+        {
+          id,
+          type: "note",
+          midi,
+          time: Date.now(),
+          duration: Number.POSITIVE_INFINITY,
+          velocity: 1,
+          color,
+        },
+      ]);
+    },
+    [noteColorByMidi, inTime, currentChordMidis],
+  );
 
-  // const handleKeyboardNoteOff = useCallback((midi: number) => {
-  //   setKeyboardPlayingNotes((prev) =>
-  //     prev.filter((event) => event.midi !== midi),
-  //   );
-  // }, []);
+  const handleKeyboardNoteOff = useCallback((midi: number) => {
+    setKeyboardPlayingNotes((prev) =>
+      prev.filter((event) => event.midi !== midi),
+    );
+  }, []);
 
   useEffect(() => {
     if (inTime || !currentChord || currentChordMidis.length === 0) {
@@ -337,8 +338,12 @@ const showChordHoldCompletion =
     (event: MidiNoteEvent) => {
       const noteName = Tone.Frequency(event.number, 'midi').toNote();
       triggerSynthRelease(noteName);
+      handleKeyboardNoteOff(event.number);
+      setActiveMidis((prev) => {
+        return prev.filter((m) => m !== event.number);
+      });
     },
-    [triggerSynthRelease]
+    [triggerSynthRelease,handleKeyboardNoteOff]
   );
   // const handleMidiNoteOff = useCallback(
   //   (event: MidiNoteEvent) => {
@@ -381,28 +386,19 @@ const showChordHoldCompletion =
   //       removed = true;
   //       return prev.filter((m) => m !== midi);
   //     });
-  //     console.log("[MIDI] note_off", midi);
-  //     triggerSynthRelease(midi);
-  //     if (removed) {
-  //       handleKeyboardNoteOff(midi);
-  //     }
   //   },
-  //   [
-  //     showCompletionOverlay,
-  //     inTime,
-  //     currentTick,
-  //     noteById,
-  //     handleKeyboardNoteOff,
-  //     triggerSynthRelease,
-  //   ],
   // );
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
       const noteName = Tone.Frequency(event.number, 'midi').toNote();
       triggerSynthAttack(noteName, event.velocity);
+      handleKeyboardNoteOn(event.number);
+      setActiveMidis((prev) => {
+        return [...prev, event.number];
+      });
     },
-    [triggerSynthAttack]
+    [triggerSynthAttack,handleKeyboardNoteOn]
   );
 
   // const handleMidiNoteOn = useCallback(

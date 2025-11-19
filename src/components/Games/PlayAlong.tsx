@@ -96,7 +96,7 @@ export const PlayAlong = ({
   }, []);
 
   const triggerSynthAttack = useCallback(
-    (midi: number, velocity?: number) => {
+    (name: string, velocity?: number) => {
       const synth = getSynth();
       if (!synth) {
         return;
@@ -108,18 +108,18 @@ export const PlayAlong = ({
         typeof velocity === "number"
           ? Math.max(0, Math.min(1, velocity / 127))
           : 0.8;
-      synth.triggerAttack(midi, Tone.now(), normalizedVelocity || 0.8);
+      synth.triggerAttack(name, Tone.now(), normalizedVelocity || 0.8);
     },
     [getSynth],
   );
 
   const triggerSynthRelease = useCallback(
-    (midi: number) => {
+    (name: string) => {
       const synth = getSynth();
       if (!synth) {
         return;
       }
-      synth.triggerRelease(midi, Tone.now());
+      synth.triggerRelease(name, Tone.now());
     },
     [getSynth],
   );
@@ -335,8 +335,8 @@ const showChordHoldCompletion =
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
-      const midi = event.number;
-      triggerSynthRelease(midi);
+      const noteName = Tone.Frequency(event.number, 'midi').toNote();
+      triggerSynthRelease(noteName);
     },
     [triggerSynthRelease]
   );
@@ -399,7 +399,8 @@ const showChordHoldCompletion =
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
-      triggerSynthAttack(event.number, event.velocity);
+      const noteName = Tone.Frequency(event.number, 'midi').toNote();
+      triggerSynthAttack(noteName, event.velocity);
     },
     [triggerSynthAttack]
   );

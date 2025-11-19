@@ -354,7 +354,7 @@ const showChordHoldCompletion =
             ...prev,
             [noteId]: {
               ...prev[noteId],
-              startTickTick: tick,
+              startTick: tick,
             },
           }));
         }

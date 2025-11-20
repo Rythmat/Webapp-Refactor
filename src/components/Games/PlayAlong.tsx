@@ -397,13 +397,13 @@ const showChordHoldCompletion =
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      if(event.velocity == 0){
+        handleMidiNoteOff(event);
+        return;
+      }
       const songTick = currentTick;
       const noteName = Tone.Frequency(event.number, 'midi').toNote();
-      if(event.velocity == 0){
-        triggerSynthRelease(noteName);
-      }else{
-        triggerSynthAttack(noteName, event.velocity);
-      }
+      triggerSynthAttack(noteName, event.velocity);
       handleKeyboardNoteOn(event.number);
       setActiveMidis((prev) => {
         return [...prev, event.number];
@@ -416,8 +416,14 @@ const showChordHoldCompletion =
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
-    onNoteOn: handleMidiNoteOn,
-    onNoteOff: handleMidiNoteOff,
+    onNoteOn: (e) => {
+      console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity)
+      handleMidiNoteOn(e);
+    },
+    onNoteOff: (e) => {
+      console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity)
+      handleMidiNoteOff(e);
+    } 
   });
 
   useEffect(() => {

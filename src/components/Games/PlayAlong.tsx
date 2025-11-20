@@ -402,11 +402,15 @@ const showChordHoldCompletion =
         return;
       }
       const songTick = currentTick;
-      const noteName = Tone.Frequency(event.number, 'midi').toNote();
-      triggerSynthAttack(noteName, event.velocity);
       handleKeyboardNoteOn(event.number);
-      setActiveMidis((prev) => {
-        return [...prev, event.number];
+      const midi = event.number
+       setActiveMidis((prev) => {
+        if (prev.includes(midi)) {
+          return prev;
+        }
+        triggerSynthAttack(Tone.Frequency(event.number, 'midi').toNote(), event.velocity);
+        handleKeyboardNoteOn(midi);
+        return [...prev, midi];
       });
       if(inTime){
         parsePerformance(event.number, songTick,true);

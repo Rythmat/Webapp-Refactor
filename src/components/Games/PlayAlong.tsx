@@ -61,6 +61,7 @@ export const PlayAlong = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const wasPlayingRef = useRef(false);
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
+  const activeMidiSetRef = useRef(new Set<number>());
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
   const [currentChordIndex, setCurrentChordIndex] = useState(0);
   const [completedChords, setCompletedChords] = useState<Set<number>>(
@@ -382,15 +383,18 @@ const showChordHoldCompletion =
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
-      const songTick = currentTick;
-      const noteName = Tone.Frequency(event.number, 'midi').toNote();
-      triggerSynthRelease(noteName);
-      handleKeyboardNoteOff(event.number);
-      setActiveMidis((prev) => {
-        return prev.filter((m) => m !== event.number);
-      });
+      const midi = event.number;
+      if (activeMidiSetRef.current.has(midi)) {
+        activeMidiSetRef.current.delete(midi);
+
+        const noteName = Tone.Frequency(midi, "midi").toNote();
+        triggerSynthRelease(noteName);
+      }
+
+      setActiveMidis(Array.from(activeMidiSetRef.current));
+      handleKeyboardNoteOff(midi);
       if(inTime){
-        parsePerformance(event.number,songTick,false);
+        parsePerformance(event.number,currentTick,false);
       }
     },
     [triggerSynthRelease,handleKeyboardNoteOff, parsePerformance, currentTick, inTime]
@@ -399,22 +403,21 @@ const showChordHoldCompletion =
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      const midi = event.number;
       if(event.velocity == 0){
         handleMidiNoteOff(event);
         return;
       }
-      const songTick = currentTick;
-      handleKeyboardNoteOn(event.number);
-      const midi = event.number
-       setActiveMidis((prev) => {
-        if (prev.includes(midi)) {
-          return prev;
-        }
-        triggerSynthAttack(Tone.Frequency(event.number, 'midi').toNote(), event.velocity);
-        return [...prev, midi];
-      });
+      if (!activeMidiSetRef.current.has(midi)) {
+        activeMidiSetRef.current.add(midi);
+
+        const noteName = Tone.Frequency(midi, "midi").toNote();
+        triggerSynthAttack(noteName, event.velocity);
+      }
+      setActiveMidis(Array.from(activeMidiSetRef.current));
+      handleKeyboardNoteOn(midi);
       if(inTime){
-        parsePerformance(event.number, songTick,true);
+        parsePerformance(event.number, currentTick,true);
       }
     },
     [triggerSynthAttack,handleKeyboardNoteOn, parsePerformance, currentTick, inTime]

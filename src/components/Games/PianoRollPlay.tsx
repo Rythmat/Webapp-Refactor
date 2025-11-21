@@ -641,6 +641,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 if (Tone.getContext().state !== "running") {
                   await Tone.start();
                 }
+                Tone.getContext().lookAhead = 0;
+                Tone.getContext().latencyHint = "interactive";
                 setPlaying(true);
               }}
                 className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"

@@ -74,6 +74,7 @@ export const PlayAlong = ({
   const lastCountInBeatRef = useRef<number | null>(null);
   const getSynth = useSynth();
 
+
   const resetProgress = useCallback(() => {
     setCurrentChordIndex(0);
     setCompletedChords(new Set());
@@ -338,7 +339,8 @@ const showChordHoldCompletion =
   // Updates the note performance record for the appropriate event, given the incoming midi signal, the current time tick, and a boolean for if the signal is on or off
   const parsePerformance = useCallback(
     (midi: number, tick: number ,onSignal: boolean) => {
-      const note = resolvedEvents.find(
+      if(onSignal){
+        const note = resolvedEvents.find(
         (note) =>
           pitchNameToMidi(note.pitchName) === midi &&
           note.startTicks <= tick &&
@@ -346,7 +348,6 @@ const showChordHoldCompletion =
       );
       if (!note) return;
       const noteId = note.id;
-      if(onSignal){
         if(noteId in notePerformance){
           return;
         }else{
@@ -359,14 +360,15 @@ const showChordHoldCompletion =
           }));
         }
       }else{
-        if(noteId in notePerformance){
-          if(notePerformance[noteId].startTick == null || notePerformance[noteId].endTick != null){
+        for(const note of resolvedEvents){
+          if(pitchNameToMidi(note.pitchName)!==midi){
             return;
-          }else{
+          }
+          if(notePerformance[note.id].startTick != null && notePerformance[note.id].endTick == null){
             setNotePerformance((prev) => ({
               ...prev,
-              [noteId]: {
-                ...prev[noteId],
+              [note.id]: {
+                ...prev[note.id],
                 endTick: tick,
               },
             }));
@@ -402,14 +404,13 @@ const showChordHoldCompletion =
         return;
       }
       const songTick = currentTick;
+      triggerSynthAttack(Tone.Frequency(event.number, 'midi').toNote(), event.velocity);
       handleKeyboardNoteOn(event.number);
       const midi = event.number
        setActiveMidis((prev) => {
         if (prev.includes(midi)) {
           return prev;
         }
-        triggerSynthAttack(Tone.Frequency(event.number, 'midi').toNote(), event.velocity);
-        handleKeyboardNoteOn(midi);
         return [...prev, midi];
       });
       if(inTime){

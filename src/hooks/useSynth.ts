@@ -10,6 +10,10 @@ export const useSynth = () => {
       return synth.current;
     }
 
+    const ctx = Tone.getContext();
+    (ctx as any).latencyHint = "interactive";
+    (ctx as any).lookAhead = 0.01; 
+
     // Create a polyphonic synth for playing multiple notes simultaneously
     synth.current = new Tone.PolySynth(Tone.Synth).toDestination();
 

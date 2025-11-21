@@ -404,13 +404,13 @@ const showChordHoldCompletion =
         return;
       }
       const songTick = currentTick;
-      triggerSynthAttack(Tone.Frequency(event.number, 'midi').toNote(), event.velocity);
       handleKeyboardNoteOn(event.number);
       const midi = event.number
        setActiveMidis((prev) => {
         if (prev.includes(midi)) {
           return prev;
         }
+        triggerSynthAttack(Tone.Frequency(event.number, 'midi').toNote(), event.velocity);
         return [...prev, midi];
       });
       if(inTime){

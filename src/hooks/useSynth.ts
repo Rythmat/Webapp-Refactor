@@ -10,9 +10,12 @@ export const useSynth = () => {
       return synth.current;
     }
 
-    const ctx = Tone.getContext();
-    (ctx as any).latencyHint = "interactive";
-    (ctx as any).lookAhead = 0.01; 
+    const ctx = new Tone.Context({
+      latencyHint: "interactive",
+      lookAhead: 0.01,
+      updateInterval: 0.01,
+    });
+    Tone.setContext(ctx);
 
     // Create a polyphonic synth for playing multiple notes simultaneously
     synth.current = new Tone.PolySynth(Tone.Synth).toDestination();

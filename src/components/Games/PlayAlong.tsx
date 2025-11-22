@@ -60,8 +60,8 @@ export const PlayAlong = ({
   );
   const [isPlaying, setIsPlaying] = useState(false);
   const wasPlayingRef = useRef(false);
-  const [activeMidis, setActiveMidis] = useState<number[]>([]);
   const activeMidiSetRef = useRef(new Set<number>());
+  const activeMidis = useMemo(() => {return [...activeMidiSetRef.current]},[activeMidiSetRef]);
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
   const [currentChordIndex, setCurrentChordIndex] = useState(0);
   const [completedChords, setCompletedChords] = useState<Set<number>>(
@@ -74,6 +74,23 @@ export const PlayAlong = ({
   const activeMidiCountsRef = useRef<Map<number, number>>(new Map());
   const lastCountInBeatRef = useRef<number | null>(null);
   const getSynth = useSynth();
+  const hasStartedAudioContextRef = useRef(false);
+
+  const startToneContext = useCallback(async () => {
+    if (hasStartedAudioContextRef.current) {
+      return;
+    }
+    if (Tone.getContext().state === "running") {
+      hasStartedAudioContextRef.current = true;
+      return;
+    }
+    try {
+      await Tone.start();
+      hasStartedAudioContextRef.current = true;
+    } catch (error) {
+      console.warn("Failed to start Tone.js audio context", error);
+    }
+  }, []);
 
 
   const resetProgress = useCallback(() => {
@@ -81,7 +98,7 @@ export const PlayAlong = ({
     setCompletedChords(new Set());
     setChordHoldStartMs(null);
     setChordHoldProgress(0);
-    setActiveMidis([]);
+    activeMidiSetRef.current = new Set<number>();
     setKeyboardPlayingNotes([]);
     setNotePerformance({});
     setCurrentTick(-COUNT_IN_TICKS);
@@ -101,11 +118,8 @@ export const PlayAlong = ({
   const triggerSynthAttack = useCallback(
     (name: string, velocity?: number) => {
       const synth = getSynth();
-      if (!synth) {
+      if (!synth || Tone.getContext().state !== "running") {
         return;
-      }
-      if (Tone.getContext().state !== "running") {
-        Tone.start().catch(() => undefined);
       }
       const normalizedVelocity =
         typeof velocity === "number"
@@ -130,10 +144,7 @@ export const PlayAlong = ({
 
   const playCountInClick = useCallback(() => {
     const synth = getSynth();
-    if (!synth) return;
-    if (Tone.getContext().state !== "running") {
-      Tone.start().catch(() => undefined);
-    }
+    if (!synth || Tone.getContext().state !== "running") return;
     const frequency = Tone.Frequency(84, "midi").toFrequency();
     synth.triggerAttackRelease(frequency, "16n", Tone.now(), 0.7);
   }, [getSynth]);
@@ -363,7 +374,7 @@ const showChordHoldCompletion =
       }else{
         for(const note of resolvedEvents){
           if(pitchNameToMidi(note.pitchName)!==midi){
-            return;
+            continue;
           }
           if(notePerformance[note.id].startTick != null && notePerformance[note.id].endTick == null){
             setNotePerformance((prev) => ({
@@ -391,7 +402,6 @@ const showChordHoldCompletion =
         triggerSynthRelease(noteName);
       }
 
-      setActiveMidis(Array.from(activeMidiSetRef.current));
       handleKeyboardNoteOff(midi);
       if(inTime){
         parsePerformance(event.number,currentTick,false);
@@ -414,7 +424,6 @@ const showChordHoldCompletion =
         const noteName = Tone.Frequency(midi, "midi").toNote();
         triggerSynthAttack(noteName, event.velocity);
       }
-      setActiveMidis(Array.from(activeMidiSetRef.current));
       handleKeyboardNoteOn(midi);
       if(inTime){
         parsePerformance(event.number, currentTick,true);
@@ -514,7 +523,7 @@ const showChordHoldCompletion =
     }
     const synth = getSynth();
     synth?.releaseAll();
-    setActiveMidis([]);
+    activeMidiSetRef.current = new Set<number>();
     setKeyboardPlayingNotes([]);
     activeMidiCountsRef.current.clear();
   }, [isPlaying, getSynth]);
@@ -540,6 +549,7 @@ const showChordHoldCompletion =
             playSpeed={80}
             isPlaying={isPlaying}
             onPlayingChange={setIsPlaying}
+            onStart={startToneContext}
             activeMidis={activeMidis}
             noteHoldMeta={noteHoldMeta}
             performanceMeta={performanceMeta}

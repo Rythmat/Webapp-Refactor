@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import * as Tone from "tone";
 import { PlayNote } from "./PlayNote";
 
 export type Midi = number; // 0..127
@@ -35,6 +34,7 @@ export interface PianoRollProps {
   playSpeed?: number; // beats per minute traversal speed
   isPlaying?: boolean;
   onPlayingChange?: (playing: boolean) => void;
+  onStart?: () => Promise<void> | void;
   activeMidis?: number[];
   noteHoldMeta?: Record<string, NoteHoldMeta>;
   performanceMeta?: Record<string, { startTick: number; endTick?: number }>;
@@ -213,6 +213,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   playSpeed = 60,
   isPlaying,
   onPlayingChange,
+  onStart,
   activeMidis = [],
   noteHoldMeta,
   performanceMeta,
@@ -638,11 +639,9 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               <button
                 type="button"
                 onClick={async () => {
-                if (Tone.getContext().state !== "running") {
-                  await Tone.start();
-                }                
-                setPlaying(true);
-              }}
+                  await onStart?.();
+                  setPlaying(true);
+                }}
                 className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
               >
                 Start

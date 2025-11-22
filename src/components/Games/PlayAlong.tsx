@@ -373,10 +373,11 @@ const showChordHoldCompletion =
         }
       }else{
         for(const note of resolvedEvents){
-          if(pitchNameToMidi(note.pitchName)!==midi){
+          const perf = notePerformance[note.id];
+          if(pitchNameToMidi(note.pitchName)!==midi || !perf){
             continue;
           }
-          if(notePerformance[note.id].startTick != null && notePerformance[note.id].endTick == null){
+          if(perf.startTick != null && perf.endTick == null){
             setNotePerformance((prev) => ({
               ...prev,
               [note.id]: {

@@ -102,7 +102,7 @@ export const SynthTest = () => {
         stopListening();
         console.log("Listening stopped!");
       };
-    }, [startListening, stopListening]);
+    }, []);
 
     useMemo(async () => {
       if(!hasStartedAudioContextRef.current){

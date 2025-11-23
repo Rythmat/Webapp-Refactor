@@ -53,28 +53,30 @@ export const SynthTest = () => {
     }, []);
 
 
-      const handleMidiNoteOff = useCallback(
-        (event: MidiNoteEvent) => {
-          const midi = event.number;
-          const synth = getSynth();
-          const name = Tone.Frequency(midi, "midi").toNote();
-          synth.triggerAttack(name, Tone.now());
-          handleKeyboardNoteOff(midi);
-        },
-        [handleKeyboardNoteOff]
-      );
-    
-    
-      const handleMidiNoteOn = useCallback(
-        (event: MidiNoteEvent) => {
-          const midi = event.number;
-          const synth = getSynth();
-          const name = Tone.Frequency(midi, "midi").toNote();
-          synth.triggerRelease(name, Tone.now());
-          handleKeyboardNoteOn(midi);
-        },
-        [handleKeyboardNoteOn]
-      );
+    const handleMidiNoteOff = useCallback(
+      (event: MidiNoteEvent) => {
+        const midi = event.number;
+        const synth = getSynth();
+        const name = Tone.Frequency(midi, "midi").toNote();
+        synth.triggerRelease(name, Tone.now());
+        console.log("Note Off call on ", midi)
+        handleKeyboardNoteOff(midi);
+      },
+      [handleKeyboardNoteOff]
+    );
+  
+  
+    const handleMidiNoteOn = useCallback(
+      (event: MidiNoteEvent) => {
+        const midi = event.number;
+        const synth = getSynth();
+        const name = Tone.Frequency(midi, "midi").toNote();
+        synth.triggerAttack(name, Tone.now());
+        console.log("Note On call on ", midi)
+        handleKeyboardNoteOn(midi);
+      },
+      [handleKeyboardNoteOn]
+    );
 
 
 

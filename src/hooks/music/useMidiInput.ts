@@ -97,7 +97,6 @@ export function useMidiInput(
           input.removeEventListener('midimessage', onMIDIMessage);
         }
       }
-      stopListeningRef.current = undefined;
       setIsListening(false);
     };
 

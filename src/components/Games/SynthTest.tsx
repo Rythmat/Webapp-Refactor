@@ -99,6 +99,7 @@ export const SynthTest = () => {
       const stop = startListening();
       return () => {
         stop?.();
+        console.log("Listening stopped!");
       };
     }, [startListening, isListening]);
 

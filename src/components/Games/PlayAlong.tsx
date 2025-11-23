@@ -351,6 +351,7 @@ const showChordHoldCompletion =
   // Updates the note performance record for the appropriate event, given the incoming midi signal, the current time tick, and a boolean for if the signal is on or off
   const parsePerformance = useCallback(
     (midi: number, tick: number ,onSignal: boolean) => {
+      console.log('Parsing...')
       if(onSignal){
         const note = resolvedEvents.find(
         (note) =>

@@ -30,7 +30,6 @@ export function useMidiInput(
   const startListening = useCallback(() => {
     //prevent listener stacking
     if (stopListeningRef.current) {
-      console.log("Listener creation stopped!");
       return stopListeningRef.current;
     }
     let midiAccess: MIDIAccess;
@@ -89,7 +88,6 @@ export function useMidiInput(
     };
 
     setup();
-    console.log("Listener Set!")
     // Return cleanup function
     const stop = () => {
       if (midiAccess) {

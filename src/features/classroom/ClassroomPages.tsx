@@ -7,6 +7,7 @@ import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LessonFlow } from '@/components/learn/LessonFlow';
 import { PlayAlong } from '@/components/Games/PlayAlong';
+import { SynthTest } from '@/components/Games/SynthTest';
 
 const ClassroomCollectionPage = lazy(() =>
   import('./ClassroomCollectionPage').then(({ ClassroomCollectionPage }) => ({
@@ -118,7 +119,8 @@ export const gamesPages = () => {
         element: <Navigate to={GameRoutes.root()} />,
       },
       {
-        element: <PlayAlong inTime={true} />,
+        // element: <PlayAlong inTime={true} />,
+        element: <SynthTest />,
         index: true,
       }
     ],

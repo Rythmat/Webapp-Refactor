@@ -30,6 +30,7 @@ export function useMidiInput(
   const startListening = useCallback(() => {
     //prevent listener stacking
     if (stopListeningRef.current) {
+      console.log("Listening stopped!");
       return stopListeningRef.current;
     }
     let midiAccess: MIDIAccess;
@@ -39,9 +40,7 @@ export function useMidiInput(
       const status = message.data[0];
       const noteNumber = message.data[1];
       const velocity = message.data[2];
-
       const command = status & 0xf0;
-
       const now = performance.now() / 1000; // convert to seconds
 
       if (command === 0x90 && velocity > 0) {
@@ -78,7 +77,6 @@ export function useMidiInput(
         setIsListening(true);
         return;
       }
-
       try {
         midiAccess = await navigator.requestMIDIAccess();
         for (const input of midiAccess.inputs.values()) {
@@ -91,7 +89,7 @@ export function useMidiInput(
     };
 
     setup();
-
+    console.log("Listener Set!")
     // Return cleanup function
     const stop = () => {
       if (midiAccess) {

@@ -95,7 +95,7 @@ export const SynthTest = () => {
       if(isListening){
         return;
       }
-      console.log("Beginning to Listen....")
+      console.log("Beginning to Listen....");
       const stop = startListening();
       return () => {
         stop?.();

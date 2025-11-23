@@ -450,7 +450,7 @@ const showChordHoldCompletion =
       stop?.();
       stopListening();
     };
-  }, [startListening, stopListening, handleMidiNoteOn, handleMidiNoteOff]);
+  }, []);
 
   const noteHoldMeta = useMemo(() => {
     if (inTime) return undefined;

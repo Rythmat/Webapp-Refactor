@@ -26,7 +26,12 @@ export function useMidiInput(
   const noteStartTimes = useRef<
     Map<number, { time: number; velocity: number }>
   >(new Map());
+
   const startListening = useCallback(() => {
+    //prevent listener stacking
+    if (stopListeningRef.current) {
+      return stopListeningRef.current;
+    }
     let midiAccess: MIDIAccess;
 
     const onMIDIMessage = (message: MIDIMessageEvent) => {

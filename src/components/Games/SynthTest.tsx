@@ -80,7 +80,7 @@ export const SynthTest = () => {
 
 
 
-    const { startListening, stopListening } = useMidiInput(undefined, {
+    const { startListening, isListening } = useMidiInput(undefined, {
       onNoteOn: (e) => {
         console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity)
         handleMidiNoteOn(e);
@@ -92,12 +92,14 @@ export const SynthTest = () => {
     });
 
     useEffect(() => {
+      if(isListening){
+        return;
+      }
       const stop = startListening();
       return () => {
         stop?.();
-        stopListening();
       };
-    }, [startListening, stopListening, handleMidiNoteOn, handleMidiNoteOff]);
+    }, [startListening, isListening]);
 
     useMemo(async () => {
       if(!hasStartedAudioContextRef.current){

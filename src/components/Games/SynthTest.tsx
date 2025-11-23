@@ -82,11 +82,11 @@ export const SynthTest = () => {
 
     const { startListening, isListening } = useMidiInput(undefined, {
       onNoteOn: (e) => {
-        console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity)
+        console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity);
         handleMidiNoteOn(e);
       },
       onNoteOff: (e) => {
-        console.log("[MIDI] NOTE OFF", e.number, "vel", e.velocity)
+        console.log("[MIDI] NOTE OFF", e.number, "vel", e.velocity);
         handleMidiNoteOff(e);
       } 
     });
@@ -95,6 +95,7 @@ export const SynthTest = () => {
       if(isListening){
         return;
       }
+      console.log("Beginning to Listen....")
       const stop = startListening();
       return () => {
         stop?.();

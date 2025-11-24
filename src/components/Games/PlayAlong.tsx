@@ -360,10 +360,12 @@ const showChordHoldCompletion =
           note.startTicks + note.durationTicks >= tick
       );
       if (!note) return;
+      console.log('On note to parse is in the chord!');
       const noteId = note.id;
         if(noteId in notePerformance){
           return;
         }else{
+          console.log('Adding to performance reference!');
           setNotePerformance((prev) => ({
             ...prev,
             [noteId]: {
@@ -378,7 +380,9 @@ const showChordHoldCompletion =
           if(pitchNameToMidi(note.pitchName)!==midi || !perf){
             continue;
           }
+          console.log('Off note to parse is in the chord!');
           if(perf.startTick != null && perf.endTick == null){
+            console.log('Adding to performance reference!');
             setNotePerformance((prev) => ({
               ...prev,
               [note.id]: {

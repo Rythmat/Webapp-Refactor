@@ -373,6 +373,7 @@ const showChordHoldCompletion =
         if(noteId in notePerformance){
           return;
         }else{
+          console.log('setting up a note performance entry with id', noteId);
           setNotePerformance((prev) => ({
             ...prev,
             [noteId]: {
@@ -385,8 +386,12 @@ const showChordHoldCompletion =
         console.log('Parsing note off...')
         for(const note of resolvedEvents){
           const perf = notePerformance[note.id];
-          if(pitchNameToMidi(note.pitchName)!==midi || !perf){
-            console.log('Skipping',note,'note for',midi,'off signal');
+          if(pitchNameToMidi(note.pitchName)!==midi){
+            console.log('Skipping',pitchNameToMidi(note.pitchName),'note for',midi,'off signal because of midi values');
+            continue;
+          }
+          if(!perf){
+            console.log('Skipping',pitchNameToMidi(note.pitchName),'note for',midi,'off signal because of the performance log');
             continue;
           }
           console.log('Off note to parse is in the chord!');

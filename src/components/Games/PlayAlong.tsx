@@ -361,7 +361,6 @@ const showChordHoldCompletion =
   // Updates the note performance record for the appropriate event, given the incoming midi signal, the current time tick, and a boolean for if the signal is on or off
   const parsePerformance = useCallback(
     (midi: number, tick: number ,onSignal: boolean) => {
-      console.log('Parsing...')
       if(onSignal){
         const note = resolvedEvents.find(
         (note) =>
@@ -370,12 +369,10 @@ const showChordHoldCompletion =
           note.startTicks + note.durationTicks >= tick
         );
         if (note == null) return;
-        console.log('On note to parse is in the chord!');
         const noteId = note.id;
         if(noteId in notePerformance){
           return;
         }else{
-          console.log('Adding to performance reference!');
           setNotePerformance((prev) => ({
             ...prev,
             [noteId]: {
@@ -385,9 +382,11 @@ const showChordHoldCompletion =
           }));
         }
       }else{
+        console.log('Parsing note off...')
         for(const note of resolvedEvents){
           const perf = notePerformance[note.id];
           if(pitchNameToMidi(note.pitchName)!==midi || !perf){
+            console.log('Skipping',note,'note for',midi,'off signal');
             continue;
           }
           console.log('Off note to parse is in the chord!');

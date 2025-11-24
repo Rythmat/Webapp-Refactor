@@ -256,6 +256,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     }
   };
 
+  useEffect(() => {
+    console.log("playing prop changed:", playing);
+  }, [playing]);
+
   // Animation of the playhead, rerenders with playhead progression
   useEffect(() => {
     if (!inTime || playheadTicksPerSecond <= 0 || !playing) {

@@ -76,6 +76,10 @@ export const PlayAlong = ({
   const getSynth = useSynth();
   const hasStartedAudioContextRef = useRef(false);
 
+  useEffect(() => {
+    console.log("isPlaying changed:", isPlaying);
+  }, [isPlaying]);
+
   const startToneContext = useCallback(async () => {
     if (hasStartedAudioContextRef.current) {
       return;

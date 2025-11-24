@@ -370,9 +370,9 @@ const showChordHoldCompletion =
         );
         if (note == null) return;
         const noteId = note.id;
-        for(const note in notePerformance){
-          console.log('performance iterator:', note)
-        }
+        Object.entries(notePerformance).forEach(([key,value]) => {
+          console.log('performance iterator key:', key, ", and value:",value);
+        })
         if(noteId in notePerformance){
           return;
         }else{

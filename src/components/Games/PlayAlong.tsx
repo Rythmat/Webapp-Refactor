@@ -382,36 +382,30 @@ const showChordHoldCompletion =
             },
           }));
         }
-      }else{
-        console.log('Parsing note off...');
-        Object.entries(notePerformance).forEach(([key,value]) => {
-          console.log('performance iterator key:', key, ", and value:",value);
+      }else {
+        setNotePerformance(prev => {
+          for (const note of resolvedEvents) {
+            if (pitchNameToMidi(note.pitchName) !== midi) continue;
+
+            const perf = prev[note.id];
+            if (!perf) continue;
+
+            if (perf.startTick != null && perf.endTick == null) {
+              return {
+                ...prev,
+                [note.id]: {
+                  ...perf,
+                  endTick: tick,
+                },
+              };
+            }
+          }
+          return prev;
         });
-        for(const note of resolvedEvents){
-          const perf = notePerformance[note.id];
-          console.log('the performance at',note.id,"is", perf);
-          if(pitchNameToMidi(note.pitchName)!==midi){
-            continue;
-          }
-          if(!perf){
-            continue;
-          }
-          console.log('Off note to parse is in the chord!');
-          if(perf.startTick != null && perf.endTick == null){
-            console.log('Adding to performance reference!');
-            setNotePerformance((prev) => ({
-              ...prev,
-              [note.id]: {
-                ...prev[note.id],
-                endTick: tick,
-              },
-            }));
-          }
-        }
       }
 
     },
-    [resolvedEvents, currentTick ]
+    [resolvedEvents]
   );
 
   const handleMidiNoteOff = useCallback(
@@ -429,7 +423,7 @@ const showChordHoldCompletion =
         parsePerformance(event.number,currentTickRef.current,false);
       }
     },
-    [triggerSynthRelease,handleKeyboardNoteOff, parsePerformance,  inTime]
+    [triggerSynthRelease,handleKeyboardNoteOff, parsePerformance]
   );
 
 
@@ -451,12 +445,12 @@ const showChordHoldCompletion =
         parsePerformance(event.number, currentTickRef.current,true);
       }
     },
-    [triggerSynthAttack,handleKeyboardNoteOn, parsePerformance, inTime]
+    [triggerSynthAttack,handleKeyboardNoteOn, parsePerformance]
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
     onNoteOn: (e) => {
-      console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity, "at", currentTick, "ticks");
+      console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity, "at", currentTickRef.current, "ticks");
       console.log("timestamp:", Date.now(), ', isPlaying is', isPlaying);
       handleMidiNoteOn(e);
     },

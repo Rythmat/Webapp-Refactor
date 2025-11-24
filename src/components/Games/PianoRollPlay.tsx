@@ -574,9 +574,13 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               const isMissed =
                 inTime && !wasPlayed && playheadTick >= scheduledEnd;
               let color = baseColor;
+              let holdProgress: number | undefined;
 
               if (!inTime && meta && (meta.isCurrentChord || meta.isCompleted)) {
                 color = "#22c55e";
+                holdProgress = meta.isCompleted
+                  ? 1
+                  : Math.max(0, Math.min(1, meta.holdProgress));
               }
               if (isMissed) {
                 color = "rgba(150,150,150,0.8)";
@@ -611,6 +615,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                   segments={segments}
                   isHeld={meta?.isHeld}
                   inTime={inTime}
+                  holdProgress={holdProgress}
                 />
               );
             })}

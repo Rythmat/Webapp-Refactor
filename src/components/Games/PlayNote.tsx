@@ -19,6 +19,7 @@ type PlayNoteProps = {
   segments?: NoteSegment[];
   isHeld?: boolean;
   inTime?: boolean;
+  holdProgress?: number;
 };
 
 export const PlayNote: React.FC<PlayNoteProps> = ({
@@ -31,6 +32,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   segments,
   isHeld = false,
   inTime = true,
+  holdProgress,
 }) => {
   const top = row * rowHeight + 4;
   const height = rowHeight - 8;
@@ -100,6 +102,15 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
               }}
             />
           )}
+          {!inTime && typeof holdProgress === "number" ? (
+            <div
+              className="absolute left-0 top-0 h-[4px] rounded-t-2xl transition-[width]"
+              style={{
+                width: `${Math.max(0, Math.min(1, holdProgress)) * 100}%`,
+                background: '#22c55e',
+              }}
+            />
+          ) : null}
         </div>
         <div
           className="absolute left-0 top-0 h-full w-4 rounded-l-2xl"

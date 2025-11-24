@@ -251,7 +251,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     }
 
     if (onPlayingChange) {
-      console.log('setting isPlaying');
+      console.log('setting isPlaying to', next);
       onPlayingChange(next);
     }
   };

@@ -76,9 +76,9 @@ export const PlayAlong = ({
   const getSynth = useSynth();
   const hasStartedAudioContextRef = useRef(false);
 
-  useEffect(() => {
-    console.log("currentTick changed:", currentTick);
-  }, [currentTick]);
+  // useEffect(() => {
+  //   console.log("currentTick changed:", currentTick);
+  // }, [currentTick]);
 
   const startToneContext = useCallback(async () => {
     if (hasStartedAudioContextRef.current) {
@@ -417,7 +417,7 @@ const showChordHoldCompletion =
         parsePerformance(event.number,currentTick,false);
       }
     },
-    [triggerSynthRelease,handleKeyboardNoteOff, parsePerformance, currentTick, inTime]
+    [triggerSynthRelease,handleKeyboardNoteOff, parsePerformance,  inTime]
   );
 
 
@@ -439,7 +439,7 @@ const showChordHoldCompletion =
         parsePerformance(event.number, currentTick,true);
       }
     },
-    [triggerSynthAttack,handleKeyboardNoteOn, parsePerformance, currentTick, inTime]
+    [triggerSynthAttack,handleKeyboardNoteOn, parsePerformance, inTime]
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {

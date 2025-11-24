@@ -279,7 +279,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       let reachedEnd = false;
       setPlayheadTick((prev) => {
         let next = prev + deltaSeconds * playheadTicksPerSecond;
-        console.log('tick is setting to', next);
         if (next >= maxTick) {
           next = maxTick;
           reachedEnd = true;

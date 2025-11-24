@@ -76,6 +76,12 @@ export const PlayAlong = ({
   const getSynth = useSynth();
   const hasStartedAudioContextRef = useRef(false);
 
+  //Current tick reference
+  const currentTickRef = useRef(currentTick);
+  useEffect(() => {
+    currentTickRef.current = currentTick;
+  }, [currentTick]);
+
   // useEffect(() => {
   //   console.log("currentTick changed:", currentTick);
   // }, [currentTick]);
@@ -414,7 +420,7 @@ const showChordHoldCompletion =
 
       handleKeyboardNoteOff(midi);
       if(inTime){
-        parsePerformance(event.number,currentTick,false);
+        parsePerformance(event.number,currentTickRef.current,false);
       }
     },
     [triggerSynthRelease,handleKeyboardNoteOff, parsePerformance,  inTime]
@@ -436,7 +442,7 @@ const showChordHoldCompletion =
       }
       handleKeyboardNoteOn(midi);
       if(inTime){
-        parsePerformance(event.number, currentTick,true);
+        parsePerformance(event.number, currentTickRef.current,true);
       }
     },
     [triggerSynthAttack,handleKeyboardNoteOn, parsePerformance, inTime]
@@ -459,7 +465,7 @@ const showChordHoldCompletion =
       stop?.();
       stopListening();
     };
-  }, []);
+  }, [startListening, stopListening]);
 
   const noteHoldMeta = useMemo(() => {
     if (inTime) return undefined;

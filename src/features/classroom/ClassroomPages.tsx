@@ -119,7 +119,7 @@ export const gamesPages = () => {
         element: <Navigate to={GameRoutes.root()} />,
       },
       {
-        element: <PlayAlong inTime={false} />,
+        element: <PlayAlong inTime={true} />,
         // element: <SynthTest />,
         index: true,
       }

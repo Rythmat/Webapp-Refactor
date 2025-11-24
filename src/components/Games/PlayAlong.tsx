@@ -358,10 +358,13 @@ const showChordHoldCompletion =
           pitchNameToMidi(note.pitchName) === midi &&
           note.startTicks <= tick &&
           note.startTicks + note.durationTicks >= tick
-      );
-      if (!note) return;
-      console.log('On note to parse is in the chord!');
-      const noteId = note.id;
+        );
+        resolvedEvents.forEach((n) => {
+          console.log('Checking note',n.pitchName, 'with midi value of', pitchNameToMidi(n.pitchName), 'against midi value of', midi, 'at', tick, 'ticks' );
+        })
+        if (note == null) return;
+        console.log('On note to parse is in the chord!');
+        const noteId = note.id;
         if(noteId in notePerformance){
           return;
         }else{

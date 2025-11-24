@@ -369,19 +369,20 @@ const showChordHoldCompletion =
           note.startTicks + note.durationTicks >= tick
         );
         if (note == null) return;
-        const noteId = note.id;
-        if(noteId in notePerformance){
-          return;
-        }else{
-          console.log('setting up a note performance entry with id', noteId);
-          setNotePerformance((prev) => ({
+        setNotePerformance(prev => {
+          const existing = prev[note.id];
+          if (existing && existing.startTick != null) {
+            return prev;
+          }
+          return {
             ...prev,
-            [noteId]: {
-              ...prev[noteId],
+            [note.id]: {
+              ...(existing ?? {}),
               startTick: tick,
+              endTick: null,
             },
-          }));
-        }
+          };
+        });
       }else {
         setNotePerformance(prev => {
           for (const note of resolvedEvents) {

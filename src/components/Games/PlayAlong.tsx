@@ -391,11 +391,9 @@ const showChordHoldCompletion =
           const perf = notePerformance[note.id];
           console.log('the performance is ', perf);
           if(pitchNameToMidi(note.pitchName)!==midi){
-            console.log('Skipping',pitchNameToMidi(note.pitchName),'note for',midi,'off signal because of midi values');
             continue;
           }
           if(!perf){
-            console.log('Skipping',pitchNameToMidi(note.pitchName),'note for',midi,'off signal because of the performance log');
             continue;
           }
           console.log('Off note to parse is in the chord!');

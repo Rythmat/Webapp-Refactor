@@ -465,7 +465,7 @@ const showChordHoldCompletion =
       stop?.();
       stopListening();
     };
-  }, [startListening, stopListening]);
+  }, []);
 
   const noteHoldMeta = useMemo(() => {
     if (inTime) return undefined;

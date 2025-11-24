@@ -82,10 +82,6 @@ export const PlayAlong = ({
     currentTickRef.current = currentTick;
   }, [currentTick]);
 
-  // useEffect(() => {
-  //   console.log("currentTick changed:", currentTick);
-  // }, [currentTick]);
-
   const startToneContext = useCallback(async () => {
     if (hasStartedAudioContextRef.current) {
       return;
@@ -230,39 +226,6 @@ export const PlayAlong = ({
     );
     return noExtraNotes;
   }, [inTime, currentChord, currentChordMidis, activeMidis]);
-
-  // const noteById = useMemo(() => {
-  //   const map = new Map<string, NoteEvent>();
-  //   resolvedEvents.forEach((note) => map.set(note.id, note));
-  //   return map;
-  // }, [resolvedEvents]);
-
-  // const chordStartTicks = useMemo(
-  //   () => chords.map((chord) => chord[0]?.startTicks ?? 0),
-  //   [chords],
-  // );
-
-  // const currentChordIndexInTime = useMemo(() => {
-  //   if (!inTime || chords.length === 0) {
-  //     return null;
-  //   }
-  //   const songTick = currentTick;
-  //   if (songTick < 0) {
-  //     return null;
-  //   }
-  //   for (let i = 0; i < chordStartTicks.length - 1; i++) {
-  //     const start = chordStartTicks[i];
-  //     const nextStart = chordStartTicks[i + 1];
-  //     if (songTick >= start && songTick < nextStart) {
-  //       return i;
-  //     }
-  //   }
-  //   const lastIndex = chordStartTicks.length - 1;
-  //   if (songTick >= (chordStartTicks[lastIndex] ?? 0)) {
-  //     return lastIndex;
-  //   }
-  //   return null;
-  // }, [inTime, chords.length, chordStartTicks, currentTick]);
 
   const handleKeyboardNoteOn = useCallback(
     (midi: number) => {

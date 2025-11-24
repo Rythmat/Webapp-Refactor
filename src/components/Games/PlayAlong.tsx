@@ -389,7 +389,7 @@ const showChordHoldCompletion =
         });
         for(const note of resolvedEvents){
           const perf = notePerformance[note.id];
-          console.log('the performance is at',note.id,"is", perf);
+          console.log('the performance at',note.id,"is", perf);
           if(pitchNameToMidi(note.pitchName)!==midi){
             continue;
           }
@@ -411,7 +411,7 @@ const showChordHoldCompletion =
       }
 
     },
-    [resolvedEvents, notePerformance, currentTick, ]
+    [resolvedEvents, currentTick ]
   );
 
   const handleMidiNoteOff = useCallback(

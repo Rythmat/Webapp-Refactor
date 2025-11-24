@@ -242,6 +242,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
   // Change the playing state
   const setPlaying = (next: boolean) => {
+    console.log('setting playing to', next);
     const wasPlaying = playing;
 
     if (inTime && next && !wasPlaying) {
@@ -639,8 +640,11 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               <button
                 type="button"
                 onClick={async () => {
+                  console.log("start clicked");
                   await onStart?.();
+                  console.log("onStart done");
                   setPlaying(true);
+                  console.log("setPlaying done");
                 }}
                 className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
               >

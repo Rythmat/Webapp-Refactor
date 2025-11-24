@@ -445,7 +445,6 @@ const showChordHoldCompletion =
       handleMidiNoteOn(e);
     },
     onNoteOff: (e) => {
-      console.log("[MIDI] NOTE OFF", e.number, "vel", e.velocity, "at", currentTick, "ticks");
       handleMidiNoteOff(e);
     } 
   });

@@ -395,7 +395,7 @@ const showChordHoldCompletion =
       }
 
     },
-    [resolvedEvents, notePerformance]
+    [resolvedEvents, notePerformance, currentTick, ]
   );
 
   const handleMidiNoteOff = useCallback(

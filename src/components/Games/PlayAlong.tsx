@@ -359,9 +359,6 @@ const showChordHoldCompletion =
           note.startTicks <= tick &&
           note.startTicks + note.durationTicks >= tick
         );
-        resolvedEvents.forEach((n) => {
-          console.log('Checking note',n.pitchName, 'with midi value of', pitchNameToMidi(n.pitchName), 'against midi value of', midi, 'at', tick, 'ticks' );
-        })
         if (note == null) return;
         console.log('On note to parse is in the chord!');
         const noteId = note.id;
@@ -443,11 +440,11 @@ const showChordHoldCompletion =
 
   const { startListening, stopListening } = useMidiInput(undefined, {
     onNoteOn: (e) => {
-      console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity)
+      console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity, "at", currentTick, "ticks");
       handleMidiNoteOn(e);
     },
     onNoteOff: (e) => {
-      console.log("[MIDI] NOTE OFF", e.number, "vel", e.velocity)
+      console.log("[MIDI] NOTE OFF", e.number, "vel", e.velocity, "at", currentTick, "ticks");
       handleMidiNoteOff(e);
     } 
   });

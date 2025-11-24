@@ -370,9 +370,6 @@ const showChordHoldCompletion =
         );
         if (note == null) return;
         const noteId = note.id;
-        Object.entries(notePerformance).forEach(([key,value]) => {
-          console.log('performance iterator key:', key, ", and value:",value);
-        })
         if(noteId in notePerformance){
           return;
         }else{
@@ -386,10 +383,13 @@ const showChordHoldCompletion =
           }));
         }
       }else{
-        console.log('Parsing note off...')
+        console.log('Parsing note off...');
+        Object.entries(notePerformance).forEach(([key,value]) => {
+          console.log('performance iterator key:', key, ", and value:",value);
+        });
         for(const note of resolvedEvents){
           const perf = notePerformance[note.id];
-          console.log('the performance is ', perf);
+          console.log('the performance is at',note.id,"is", perf);
           if(pitchNameToMidi(note.pitchName)!==midi){
             continue;
           }

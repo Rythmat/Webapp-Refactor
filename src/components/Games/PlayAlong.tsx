@@ -370,6 +370,9 @@ const showChordHoldCompletion =
         );
         if (note == null) return;
         const noteId = note.id;
+        for(const note in notePerformance){
+          console.log('performance iterator:', note)
+        }
         if(noteId in notePerformance){
           return;
         }else{
@@ -386,6 +389,7 @@ const showChordHoldCompletion =
         console.log('Parsing note off...')
         for(const note of resolvedEvents){
           const perf = notePerformance[note.id];
+          console.log('the performance is ', perf);
           if(pitchNameToMidi(note.pitchName)!==midi){
             console.log('Skipping',pitchNameToMidi(note.pitchName),'note for',midi,'off signal because of midi values');
             continue;

@@ -441,10 +441,12 @@ const showChordHoldCompletion =
   const { startListening, stopListening } = useMidiInput(undefined, {
     onNoteOn: (e) => {
       console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity, "at", currentTick, "ticks");
+      console.log("timestamp:", Date.now());
       handleMidiNoteOn(e);
     },
     onNoteOff: (e) => {
       console.log("[MIDI] NOTE OFF", e.number, "vel", e.velocity, "at", currentTick, "ticks");
+      console.log("timestamp:", Date.now());
       handleMidiNoteOff(e);
     } 
   });

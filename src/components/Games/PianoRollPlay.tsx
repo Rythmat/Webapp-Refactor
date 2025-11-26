@@ -526,6 +526,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               let visStartTick = scheduledStart;
               let visEndTick = scheduledEnd;
               const perf = performanceMeta?.[e.id];
+              const noteMidi =
+                typeof e.midi === "number"
+                  ? e.midi
+                  : pitchNameToMidi(e.pitchName);
 
               if (inTime) {
                 if (perf && typeof perf.startTick === "number") {
@@ -576,7 +580,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 inTime && !wasPlayed && playheadTick >= scheduledEnd;
               let color = baseColor;
               let holdProgress: number | undefined;
-              const dimmed = inTime && !hasActiveNotes && !wasPlayed;
+              const dimmed =
+                inTime &&
+                !wasPlayed &&
+                !(typeof noteMidi === "number" && activeMidiSet.has(noteMidi));
 
               if (!inTime && meta && (meta.isCurrentChord || meta.isCompleted)) {
                 color = "#22c55e";

@@ -40,7 +40,7 @@ export const NoteHold = ({
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const activeMidiSetRef = useRef(new Set<number>());
-  const activeMidis = useMemo(() => {return [...activeMidiSetRef.current]},[activeMidiSetRef]);
+  const [activeMidis, setActiveMidis] = useState<number[]>([]);
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
   const [currentChordIndex, setCurrentChordIndex] = useState(0);
   const [completedChords, setCompletedChords] = useState<Set<number>>(
@@ -48,8 +48,6 @@ export const NoteHold = ({
   );
   const [chordHoldStartMs, setChordHoldStartMs] = useState<number | null>(null);
   const [chordHoldProgress, setChordHoldProgress] = useState(0);
-  const activeMidiCountsRef = useRef<Map<number, number>>(new Map());
-  const lastCountInBeatRef = useRef<number | null>(null);
   const getSynth = useSynth();
   const hasStartedAudioContextRef = useRef(false);
 
@@ -76,9 +74,8 @@ export const NoteHold = ({
     setChordHoldStartMs(null);
     setChordHoldProgress(0);
     activeMidiSetRef.current = new Set<number>();
+    setActiveMidis([]);
     setKeyboardPlayingNotes([]);
-    lastCountInBeatRef.current = null;
-    activeMidiCountsRef.current.clear();
     const synth = getSynth();
     synth?.releaseAll();
   }, [getSynth]);
@@ -255,6 +252,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
       const midi = event.number;
       if (activeMidiSetRef.current.has(midi)) {
         activeMidiSetRef.current.delete(midi);
+        setActiveMidis([...activeMidiSetRef.current]);
 
         const noteName = Tone.Frequency(midi, "midi").toNote();
         triggerSynthRelease(noteName);
@@ -275,6 +273,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
       }
       if (!activeMidiSetRef.current.has(midi)) {
         activeMidiSetRef.current.add(midi);
+        setActiveMidis([...activeMidiSetRef.current]);
 
         const noteName = Tone.Frequency(midi, "midi").toNote();
         triggerSynthAttack(noteName, event.velocity);

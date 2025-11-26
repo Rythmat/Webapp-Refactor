@@ -56,11 +56,11 @@ export const PlayAlong = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const wasPlayingRef = useRef(false);
   const activeMidiSetRef = useRef(new Set<number>());
-  const activeMidis = useMemo(() => {return [...activeMidiSetRef.current]},[activeMidiSetRef]);
+  const [activeMidis, setActiveMidis] = useState<number[]>([]);
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
   const [currentTick, setCurrentTick] = useState(-COUNT_IN_TICKS);
   const [notePerformance, setNotePerformance] = useState<Record<string, NotePerformance>>({});
-  const activeMidiCountsRef = useRef<Map<number, number>>(new Map());
+  const [playSessionId, setPlaySessionId] = useState(0);
   const lastCountInBeatRef = useRef<number | null>(null);
   const getSynth = useSynth();
   const hasStartedAudioContextRef = useRef(false);
@@ -90,11 +90,11 @@ export const PlayAlong = ({
 
   const resetProgress = useCallback(() => {
     activeMidiSetRef.current = new Set<number>();
+    setActiveMidis([]);
     setKeyboardPlayingNotes([]);
     setNotePerformance({});
     setCurrentTick(-COUNT_IN_TICKS);
     lastCountInBeatRef.current = null;
-    activeMidiCountsRef.current.clear();
     const synth = getSynth();
     synth?.releaseAll();
   }, [getSynth]);
@@ -260,6 +260,7 @@ export const PlayAlong = ({
       const midi = event.number;
       if (activeMidiSetRef.current.has(midi)) {
         activeMidiSetRef.current.delete(midi);
+        setActiveMidis([...activeMidiSetRef.current]);
 
         const noteName = Tone.Frequency(midi, "midi").toNote();
         triggerSynthRelease(noteName);
@@ -281,6 +282,7 @@ export const PlayAlong = ({
       }
       if (!activeMidiSetRef.current.has(midi)) {
         activeMidiSetRef.current.add(midi);
+        setActiveMidis([...activeMidiSetRef.current]);
 
         const noteName = Tone.Frequency(midi, "midi").toNote();
         triggerSynthAttack(noteName, event.velocity);
@@ -337,6 +339,10 @@ export const PlayAlong = ({
     const wasPlaying = wasPlayingRef.current;
     if (!wasPlaying && isPlaying) {
       resetInTimeRun();
+      setPlaySessionId((id) => id + 1);
+      activeMidiSetRef.current = new Set<number>();
+      setActiveMidis([]);
+      setKeyboardPlayingNotes([]);
     }
     wasPlayingRef.current = isPlaying;
   }, [isPlaying, resetInTimeRun]);
@@ -348,8 +354,8 @@ export const PlayAlong = ({
     const synth = getSynth();
     synth?.releaseAll();
     activeMidiSetRef.current = new Set<number>();
+    setActiveMidis([]);
     setKeyboardPlayingNotes([]);
-    activeMidiCountsRef.current.clear();
   }, [isPlaying, getSynth]);
 
   return (
@@ -364,6 +370,7 @@ export const PlayAlong = ({
             {"Play along with the moving notes" }
           </h2>
           <PianoRoll
+            key={playSessionId}
             events={resolvedEvents}
             bars={4}
             beatsPerBar={4}

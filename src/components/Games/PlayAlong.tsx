@@ -4,7 +4,7 @@ import { PianoKeyboard } from "@/components/PianoKeyboard";
 import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
 import { useMidiInput, type MidiNoteEvent } from "@/hooks/music/useMidiInput";
 import { useSynth } from "@/hooks/useSynth";
-import PianoRoll, { NoteEvent, pitchNameToMidi } from "./PianoRollPlay";
+import PianoRoll, { NoteEvent, NoteHoldMeta, pitchNameToMidi } from "./PianoRollPlay";
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e1", pitchName: "C3", startTicks: 0, durationTicks: 1920 },
@@ -25,11 +25,14 @@ const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e16", pitchName: "B3", startTicks: 5760, durationTicks: 1920 },
 ];
 
+const CHORD_NOTE_COLOR = "#22c55e";
+const WRONG_NOTE_COLOR = "#ef4444";
 const TICKS_PER_QUARTER = 480;
 const COUNT_IN_TICKS = 4 * TICKS_PER_QUARTER;
 
 type PlayAlongProps = {
   events?: NoteEvent[];
+  inTime?: boolean;
   onContinue?: () => void;
 };
 
@@ -38,7 +41,10 @@ type NotePerformance = {
   endTick: number | null;
 };
 
-export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
+export const PlayAlong = ({
+  events,
+  onContinue,
+}: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const maxEventEndTick = useMemo(
     () =>
@@ -53,10 +59,11 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const wasPlayingRef = useRef(false);
   const activeMidiSetRef = useRef(new Set<number>());
-  const [activeMidis, setActiveMidis] = useState<number[]>([]);
+  const activeMidis = useMemo(() => {return [...activeMidiSetRef.current]},[activeMidiSetRef]);
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
   const [currentTick, setCurrentTick] = useState(-COUNT_IN_TICKS);
   const [notePerformance, setNotePerformance] = useState<Record<string, NotePerformance>>({});
+  const activeMidiCountsRef = useRef<Map<number, number>>(new Map());
   const lastCountInBeatRef = useRef<number | null>(null);
   const getSynth = useSynth();
   const hasStartedAudioContextRef = useRef(false);
@@ -86,11 +93,11 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
 
   const resetProgress = useCallback(() => {
     activeMidiSetRef.current = new Set<number>();
-    setActiveMidis([]);
     setKeyboardPlayingNotes([]);
     setNotePerformance({});
     setCurrentTick(-COUNT_IN_TICKS);
     lastCountInBeatRef.current = null;
+    activeMidiCountsRef.current.clear();
     const synth = getSynth();
     synth?.releaseAll();
   }, [getSynth]);
@@ -105,9 +112,6 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
   const triggerSynthAttack = useCallback(
     (name: string, velocity?: number) => {
       const synth = getSynth();
-      if (!synth || Tone.getContext().state !== "running") {
-        return;
-      }
       const normalizedVelocity =
         typeof velocity === "number"
           ? Math.max(0, Math.min(1, velocity / 127))
@@ -135,6 +139,21 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
     const frequency = Tone.Frequency(84, "midi").toFrequency();
     synth.triggerAttackRelease(frequency, "16n", Tone.now(), 0.7);
   }, [getSynth]);
+
+  const chords = useMemo(() => {
+    const grouped = new Map<number, NoteEvent[]>();
+    resolvedEvents.forEach((event) => {
+      const collection = grouped.get(event.startTicks);
+      if (collection) {
+        collection.push(event);
+      } else {
+        grouped.set(event.startTicks, [event]);
+      }
+    });
+    return Array.from(grouped.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([_, noteEvents]) => noteEvents);
+  }, [resolvedEvents]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -167,9 +186,10 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
     return map;
   }, [resolvedEvents]);
 
+
   const handleKeyboardNoteOn = useCallback(
     (midi: number) => {
-      const color = noteColorByMidi.get(midi) ?? "#60a5fa";
+      let color = noteColorByMidi.get(midi) ?? "#60a5fa";
       const id = `keyboard-${midi}`;
       setKeyboardPlayingNotes((prev) => [
         ...prev.filter((event) => event.midi !== midi),
@@ -184,7 +204,7 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
         },
       ]);
     },
-    [noteColorByMidi],
+    [noteColorByMidi,],
   );
 
   const handleKeyboardNoteOff = useCallback((midi: number) => {
@@ -193,8 +213,13 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
     );
   }, []);
 
-  const showInTimeCompletion =
-    !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
+
+
+
+
+
+  const showInTimeCompletion = !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
+
   const showCompletionOverlay = showInTimeCompletion;
 
   // Updates the note performance record for the appropriate event, given the incoming midi signal, the current time tick, and a boolean for if the signal is on or off
@@ -253,16 +278,15 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
       const midi = event.number;
       if (activeMidiSetRef.current.has(midi)) {
         activeMidiSetRef.current.delete(midi);
-        setActiveMidis([...activeMidiSetRef.current]);
 
         const noteName = Tone.Frequency(midi, "midi").toNote();
         triggerSynthRelease(noteName);
       }
 
       handleKeyboardNoteOff(midi);
-      parsePerformance(event.number, currentTickRef.current, false);
+      parsePerformance(event.number,currentTickRef.current,false);
     },
-    [triggerSynthRelease, handleKeyboardNoteOff, parsePerformance]
+    [triggerSynthRelease,handleKeyboardNoteOff, parsePerformance]
   );
 
 
@@ -275,15 +299,14 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
       }
       if (!activeMidiSetRef.current.has(midi)) {
         activeMidiSetRef.current.add(midi);
-        setActiveMidis([...activeMidiSetRef.current]);
 
         const noteName = Tone.Frequency(midi, "midi").toNote();
         triggerSynthAttack(noteName, event.velocity);
       }
       handleKeyboardNoteOn(midi);
-      parsePerformance(event.number, currentTickRef.current, true);
+      parsePerformance(event.number, currentTickRef.current,true);
     },
-    [triggerSynthAttack, handleKeyboardNoteOn, parsePerformance, handleMidiNoteOff]
+    [triggerSynthAttack,handleKeyboardNoteOn, parsePerformance]
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
@@ -303,7 +326,9 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
       stop?.();
       stopListening();
     };
-  }, [startListening, stopListening]);
+  }, []);
+
+ 
 
   const performanceMeta = useMemo(() => {
     const meta: Record<string, { startTick: number; endTick?: number }> = {};
@@ -341,8 +366,8 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
     const synth = getSynth();
     synth?.releaseAll();
     activeMidiSetRef.current = new Set<number>();
-    setActiveMidis([]);
     setKeyboardPlayingNotes([]);
+    activeMidiCountsRef.current.clear();
   }, [isPlaying, getSynth]);
 
   return (
@@ -354,7 +379,7 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
           }`}
         >
           <h2 className="mb-4 text-lg font-semibold text-neutral-100">
-            Play along with the moving notes
+            {"Play along with the moving notes" }
           </h2>
           <PianoRoll
             events={resolvedEvents}
@@ -375,9 +400,13 @@ export const PlayAlong = ({ events, onContinue }: PlayAlongProps) => {
         {showCompletionOverlay && (
           <div className="absolute inset-0 flex items-center justify-center px-4">
             <div className="rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
-              <h3 className="text-2xl font-semibold">Nice work!</h3>
+              <h3 className="text-2xl font-semibold">
+                {showInTimeCompletion ? "Nice work!" : "Great job!"}
+              </h3>
               <p className="mt-2 text-sm text-neutral-300">
-                You finished the play-along. Continue when you are ready, or restart to practice again.
+                {showInTimeCompletion
+                  ? "You finished the play-along. Continue when you are ready, or restart to practice again."
+                  : "You completed every chord. Continue when you are ready, or restart to practice again."}
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <button

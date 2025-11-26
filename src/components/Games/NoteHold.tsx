@@ -31,13 +31,17 @@ const WRONG_NOTE_COLOR = "#ef4444";
 
 type NoteHoldProps = {
   events?: NoteEvent[];
+  inTime?: boolean;
   onContinue?: () => void;
 };
 
-export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
+export const NoteHold = ({
+  events,
+  onContinue,
+}: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
-  const [activeMidis, setActiveMidis] = useState<number[]>([]);
   const activeMidiSetRef = useRef(new Set<number>());
+  const activeMidis = useMemo(() => {return [...activeMidiSetRef.current]},[activeMidiSetRef]);
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
   const [currentChordIndex, setCurrentChordIndex] = useState(0);
   const [completedChords, setCompletedChords] = useState<Set<number>>(
@@ -45,11 +49,15 @@ export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
   );
   const [chordHoldStartMs, setChordHoldStartMs] = useState<number | null>(null);
   const [chordHoldProgress, setChordHoldProgress] = useState(0);
+  const activeMidiCountsRef = useRef<Map<number, number>>(new Map());
+  const lastCountInBeatRef = useRef<number | null>(null);
   const getSynth = useSynth();
   const hasStartedAudioContextRef = useRef(false);
 
   const startToneContext = useCallback(async () => {
-    if (hasStartedAudioContextRef.current) return;
+    if (hasStartedAudioContextRef.current) {
+      return;
+    }
     if (Tone.getContext().state === "running") {
       hasStartedAudioContextRef.current = true;
       return;
@@ -62,24 +70,28 @@ export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
     }
   }, []);
 
+
   const resetProgress = useCallback(() => {
     setCurrentChordIndex(0);
     setCompletedChords(new Set());
     setChordHoldStartMs(null);
     setChordHoldProgress(0);
     activeMidiSetRef.current = new Set<number>();
-    setActiveMidis([]);
     setKeyboardPlayingNotes([]);
+    lastCountInBeatRef.current = null;
+    activeMidiCountsRef.current.clear();
     const synth = getSynth();
     synth?.releaseAll();
   }, [getSynth]);
 
+
+  // Triggers the on state of the syntheizer with a specified note and a given velocity
   const triggerSynthAttack = useCallback(
     (name: string, velocity?: number) => {
       const synth = getSynth();
-      if (!synth || Tone.getContext().state !== "running") {
-        return;
-      }
+      // if (!synth || Tone.getContext().state !== "running") {
+      //   return;
+      // }
       const normalizedVelocity =
         typeof velocity === "number"
           ? Math.max(0, Math.min(1, velocity / 127))
@@ -89,6 +101,7 @@ export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
     [getSynth],
   );
 
+  // Triggers the off state of the synthesizer for the specified note
   const triggerSynthRelease = useCallback(
     (name: string) => {
       const synth = getSynth();
@@ -153,7 +166,7 @@ export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
       currentChordMidis.includes(midi),
     );
     return noExtraNotes;
-  }, [currentChord, currentChordMidis, activeMidis]);
+  }, [ currentChord, currentChordMidis, activeMidis]);
 
   const handleKeyboardNoteOn = useCallback(
     (midi: number) => {
@@ -176,7 +189,7 @@ export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
         },
       ]);
     },
-    [noteColorByMidi, currentChordMidis],
+    [noteColorByMidi,currentChordMidis],
   );
 
   const handleKeyboardNoteOff = useCallback((midi: number) => {
@@ -209,15 +222,7 @@ export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
       setChordHoldStartMs(null);
       setChordHoldProgress(0);
     }
-  }, [
-    currentChord,
-    currentChordMidis,
-    isCurrentChordHeld,
-    chordHoldStartMs,
-    chordHoldProgress,
-    currentChordIndex,
-    chords.length,
-  ]);
+  }, [ currentChord, currentChordMidis, isCurrentChordHeld, chordHoldStartMs, chordHoldProgress, currentChordIndex,chords.length ]);
 
   useEffect(() => {
     let raf: number;
@@ -234,18 +239,62 @@ export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
     };
     tick();
     return () => cancelAnimationFrame(raf);
-  }, [chordHoldStartMs]);
+  }, [ chordHoldStartMs]);
 
-  const showChordHoldCompletion =
-    chords.length > 0 && completedChords.size >= chords.length;
+const showChordHoldCompletion = chords.length > 0 && completedChords.size >= chords.length;
 
-  const handleContinue = useCallback(() => {
-    if (onContinue) {
-      onContinue();
-    } else {
-      resetProgress();
-    }
-  }, [onContinue, resetProgress]);
+  const showCompletionOverlay = showChordHoldCompletion;
+
+  const handleMidiNoteOff = useCallback(
+    (event: MidiNoteEvent) => {
+      const midi = event.number;
+      if (activeMidiSetRef.current.has(midi)) {
+        activeMidiSetRef.current.delete(midi);
+
+        const noteName = Tone.Frequency(midi, "midi").toNote();
+        triggerSynthRelease(noteName);
+      }
+
+      handleKeyboardNoteOff(midi);
+    },
+    [triggerSynthRelease,handleKeyboardNoteOff]
+  );
+
+
+  const handleMidiNoteOn = useCallback(
+    (event: MidiNoteEvent) => {
+      const midi = event.number;
+      if(event.velocity == 0){
+        handleMidiNoteOff(event);
+        return;
+      }
+      if (!activeMidiSetRef.current.has(midi)) {
+        activeMidiSetRef.current.add(midi);
+
+        const noteName = Tone.Frequency(midi, "midi").toNote();
+        triggerSynthAttack(noteName, event.velocity);
+      }
+      handleKeyboardNoteOn(midi);
+    },
+    [triggerSynthAttack,handleKeyboardNoteOn]
+  );
+
+  const { startListening, stopListening } = useMidiInput(undefined, {
+    onNoteOn: (e) => {
+      handleMidiNoteOn(e);
+    },
+    onNoteOff: (e) => {
+      handleMidiNoteOff(e);
+    } 
+  });
+
+  useEffect(() => {
+    const stop = startListening();
+    return () => {
+      stop?.();
+      stopListening();
+    };
+  }, []);
 
   const noteHoldMeta = useMemo(() => {
     const meta: Record<string, NoteHoldMeta> = {};
@@ -262,8 +311,7 @@ export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
         const isCurrent = idx === currentChordIndex;
         const holdProgress =
           isCompleted ? 1 : isCurrent ? chordHoldProgress : 0;
-        const isHeld =
-          isCompleted || (isCurrent && activeMidis.includes(midi));
+        const isHeld = (isCompleted || (isCurrent && activeMidis.includes(midi)));
         meta[note.id] = {
           isCompleted,
           isCurrentChord: isCurrent,
@@ -281,86 +329,27 @@ export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
     activeMidis,
   ]);
 
-  const handleMidiNoteOff = useCallback(
-    (event: MidiNoteEvent) => {
-      const midi = event.number;
-      if (activeMidiSetRef.current.has(midi)) {
-        activeMidiSetRef.current.delete(midi);
-        setActiveMidis([...activeMidiSetRef.current]);
 
-        const noteName = Tone.Frequency(midi, "midi").toNote();
-        triggerSynthRelease(noteName);
-      }
+  const handleContinue = useCallback(() => {
+    if (onContinue) {
+      onContinue();
+    } else {
+      resetProgress();
+    }
+  }, [onContinue, resetProgress]);
 
-      handleKeyboardNoteOff(midi);
-    },
-    [triggerSynthRelease, handleKeyboardNoteOff],
-  );
-
-  const handleMidiNoteOn = useCallback(
-    (event: MidiNoteEvent) => {
-      const midi = event.number;
-      if (event.velocity === 0) {
-        handleMidiNoteOff(event);
-        return;
-      }
-      if (!activeMidiSetRef.current.has(midi)) {
-        activeMidiSetRef.current.add(midi);
-        setActiveMidis([...activeMidiSetRef.current]);
-
-        const noteName = Tone.Frequency(midi, "midi").toNote();
-        triggerSynthAttack(noteName, event.velocity);
-      }
-      handleKeyboardNoteOn(midi);
-    },
-    [triggerSynthAttack, handleKeyboardNoteOn, handleMidiNoteOff],
-  );
-
-  const { startListening, stopListening } = useMidiInput(undefined, {
-    onNoteOn: (e) => {
-      handleMidiNoteOn(e);
-    },
-    onNoteOff: (e) => {
-      handleMidiNoteOff(e);
-    },
-  });
-
-  useEffect(() => {
-    const stop = startListening();
-    return () => {
-      stop?.();
-      stopListening();
-    };
-  }, [startListening, stopListening]);
-
-  useEffect(() => {
-    const synth = getSynth();
-    synth?.releaseAll();
-    activeMidiSetRef.current = new Set<number>();
-    setActiveMidis([]);
-    setKeyboardPlayingNotes([]);
-  }, [getSynth]);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="relative">
         <div
           className={`rounded-xl border border-neutral-800 bg-neutral-950/80 p-4 transition duration-300 ${
-            showChordHoldCompletion ? "pointer-events-none opacity-30 blur-sm" : ""
+            showCompletionOverlay ? "pointer-events-none opacity-30 blur-sm" : ""
           }`}
         >
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-neutral-100">
-              Hold each chord for 2 seconds
-            </h2>
-            <button
-              type="button"
-              onClick={startToneContext}
-              className="rounded-full border border-neutral-600 px-3 py-1 text-xs font-semibold text-neutral-200 transition hover:border-neutral-300 hover:text-white"
-            >
-              Enable sound
-            </button>
-          </div>
+          <h2 className="mb-4 text-lg font-semibold text-neutral-100">
+            {"Hold each chord for 2 seconds"}
+          </h2>
           <PianoRoll
             events={resolvedEvents}
             bars={4}
@@ -369,17 +358,19 @@ export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
             rowHeight={28 * 24}
             inTime={false}
             playSpeed={80}
+            onStart={startToneContext}
             activeMidis={activeMidis}
             noteHoldMeta={noteHoldMeta}
-            performanceMeta={undefined}
           />
         </div>
-        {showChordHoldCompletion && (
+        {showCompletionOverlay && (
           <div className="absolute inset-0 flex items-center justify-center px-4">
             <div className="rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
-              <h3 className="text-2xl font-semibold">Great job!</h3>
+              <h3 className="text-2xl font-semibold">
+                {"Great job!"}
+              </h3>
               <p className="mt-2 text-sm text-neutral-300">
-                You completed every chord. Continue when you are ready, or restart to practice again.
+                { "You completed every chord. Continue when you are ready, or restart to practice again."}
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <button
@@ -416,5 +407,3 @@ export const NoteHold = ({ events, onContinue }: NoteHoldProps) => {
     </div>
   );
 };
-
-export default NoteHold;

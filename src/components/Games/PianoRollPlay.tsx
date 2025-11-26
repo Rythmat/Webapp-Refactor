@@ -313,7 +313,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
 
   const activeMidiSet = useMemo(() => new Set(activeMidis), [activeMidis]);
-  const hasActiveNotes = activeMidis.length > 0;
+  // const hasActiveNotes = activeMidis.length > 0;
 
   // Preindex lanes
   const laneIndex: Record<string, number> = {};

@@ -576,7 +576,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 inTime && !wasPlayed && playheadTick >= scheduledEnd;
               let color = baseColor;
               let holdProgress: number | undefined;
-              const dimmed = inTime && !hasActiveNotes;
+              const dimmed = inTime && !hasActiveNotes && !wasPlayed;
 
               if (!inTime && meta && (meta.isCurrentChord || meta.isCompleted)) {
                 color = "#22c55e";

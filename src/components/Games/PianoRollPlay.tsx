@@ -526,10 +526,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               let visStartTick = scheduledStart;
               let visEndTick = scheduledEnd;
               const perf = performanceMeta?.[e.id];
-              const noteMidi =
-                typeof e.midi === "number"
-                  ? e.midi
-                  : pitchNameToMidi(e.pitchName);
+              // const noteMidi =
+              //   typeof e.midi === "number"
+              //     ? e.midi
+              //     : pitchNameToMidi(e.pitchName);
 
               if (inTime) {
                 if (perf && typeof perf.startTick === "number") {

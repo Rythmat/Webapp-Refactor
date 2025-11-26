@@ -30,7 +30,6 @@ const COUNT_IN_TICKS = 4 * TICKS_PER_QUARTER;
 
 type PlayAlongProps = {
   events?: NoteEvent[];
-  inTime?: boolean;
   onContinue?: () => void;
 };
 

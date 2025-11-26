@@ -31,7 +31,6 @@ const WRONG_NOTE_COLOR = "#ef4444";
 
 type NoteHoldProps = {
   events?: NoteEvent[];
-  inTime?: boolean;
   onContinue?: () => void;
 };
 

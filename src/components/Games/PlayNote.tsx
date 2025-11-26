@@ -20,6 +20,7 @@ type PlayNoteProps = {
   isHeld?: boolean;
   inTime?: boolean;
   holdProgress?: number;
+  dimmed?: boolean;
 };
 
 export const PlayNote: React.FC<PlayNoteProps> = ({
@@ -33,9 +34,11 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   isHeld = false,
   inTime = true,
   holdProgress,
+  dimmed = false,
 }) => {
   const top = row * rowHeight + 4;
   const height = rowHeight - 8;
+  const effectiveColor = dimmed ? "rgba(160,160,160,0.45)" : color;
 
   const circleSize = Math.min(height * 1.2, rowHeight);
   const circleRadius = circleSize / 2;
@@ -43,7 +46,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   const circleTopPx = row * rowHeight + rowHeight / 2 - circleRadius;
 
   const circleBackground = inTime
-    ? color
+    ? effectiveColor
     : isHeld
       ? "#22c55e"
       : "rgba(0,0,0,0.6)";
@@ -77,11 +80,12 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
                 return null;
               }
               const left = segment.from * 100;
-              const width = (segment.to - segment.from) * 100;
-              const backgroundColor =
+                const width = (segment.to - segment.from) * 100;
+              const baseSegmentColor =
                 segment.kind === 'played'
-                  ? color
+                  ? effectiveColor
                   : 'rgba(255,255,255,0.08)';
+              const backgroundColor = dimmed ? "rgba(160,160,160,0.3)" : baseSegmentColor;
               return (
                 <div
                   key={index}
@@ -98,7 +102,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
             <div
               className="h-full w-full"
               style={{
-                background: `linear-gradient(180deg, ${color}cc, ${color}aa)`,
+                background: `linear-gradient(180deg, ${effectiveColor}cc, ${effectiveColor}aa)`,
               }}
             />
           )}

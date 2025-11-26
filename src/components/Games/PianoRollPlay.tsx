@@ -313,6 +313,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
 
   const activeMidiSet = useMemo(() => new Set(activeMidis), [activeMidis]);
+  const hasActiveNotes = activeMidis.length > 0;
 
   // Preindex lanes
   const laneIndex: Record<string, number> = {};
@@ -575,6 +576,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 inTime && !wasPlayed && playheadTick >= scheduledEnd;
               let color = baseColor;
               let holdProgress: number | undefined;
+              const dimmed = inTime && !hasActiveNotes;
 
               if (!inTime && meta && (meta.isCurrentChord || meta.isCompleted)) {
                 color = "#22c55e";
@@ -616,6 +618,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                   isHeld={meta?.isHeld}
                   inTime={inTime}
                   holdProgress={holdProgress}
+                  dimmed={dimmed}
                 />
               );
             })}

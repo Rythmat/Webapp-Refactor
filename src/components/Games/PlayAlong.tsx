@@ -4,7 +4,7 @@ import { PianoKeyboard } from "@/components/PianoKeyboard";
 import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
 import { useMidiInput, type MidiNoteEvent } from "@/hooks/music/useMidiInput";
 import { useSynth } from "@/hooks/useSynth";
-import PianoRoll, { NoteEvent, NoteHoldMeta, pitchNameToMidi } from "./PianoRollPlay";
+import PianoRoll, { NoteEvent, pitchNameToMidi } from "./PianoRollPlay";
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e1", pitchName: "C3", startTicks: 0, durationTicks: 1920 },
@@ -25,8 +25,6 @@ const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e16", pitchName: "B3", startTicks: 5760, durationTicks: 1920 },
 ];
 
-const CHORD_NOTE_COLOR = "#22c55e";
-const WRONG_NOTE_COLOR = "#ef4444";
 const TICKS_PER_QUARTER = 480;
 const COUNT_IN_TICKS = 4 * TICKS_PER_QUARTER;
 
@@ -139,21 +137,6 @@ export const PlayAlong = ({
     const frequency = Tone.Frequency(84, "midi").toFrequency();
     synth.triggerAttackRelease(frequency, "16n", Tone.now(), 0.7);
   }, [getSynth]);
-
-  const chords = useMemo(() => {
-    const grouped = new Map<number, NoteEvent[]>();
-    resolvedEvents.forEach((event) => {
-      const collection = grouped.get(event.startTicks);
-      if (collection) {
-        collection.push(event);
-      } else {
-        grouped.set(event.startTicks, [event]);
-      }
-    });
-    return Array.from(grouped.entries())
-      .sort((a, b) => a[0] - b[0])
-      .map(([_, noteEvents]) => noteEvents);
-  }, [resolvedEvents]);
 
   useEffect(() => {
     if (!isPlaying) {

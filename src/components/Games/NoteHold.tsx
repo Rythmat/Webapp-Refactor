@@ -240,6 +240,12 @@ export const NoteHold = ({
     return () => cancelAnimationFrame(raf);
   }, [ chordHoldStartMs]);
 
+  useEffect(() => {
+    // Reset the visible progress when moving to the next chord
+    setChordHoldProgress(0);
+    setChordHoldStartMs(null);
+  }, [currentChordIndex]);
+
 const showChordHoldCompletion = chords.length > 0 && completedChords.size >= chords.length;
 
   const showCompletionOverlay = showChordHoldCompletion;

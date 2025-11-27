@@ -51,6 +51,7 @@ const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
 export const FlowSelect = () => {
   const [selectedKey, setSelectedKey] = useState<KeyOption>(KEY_OPTIONS[0]);
   const { data: modesData } = usePrismModes();
+  const [started, setStarted] = useState(false);
 
   const modeOptions = useMemo(() => {
     const raw = modesData?.modes;
@@ -87,51 +88,88 @@ export const FlowSelect = () => {
     [selectedKey, scaleSteps],
   );
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 rounded-xl border border-neutral-800 bg-neutral-950/80 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-xs uppercase tracking-wide text-neutral-400">
-              Key Center
-            </label>
-            <select
-              className="rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-100"
-              value={selectedKey.label}
-              onChange={(e) => {
-                const key = KEY_OPTIONS.find((k) => k.label === e.target.value);
-                if (key) setSelectedKey(key);
-              }}
-            >
-              {KEY_OPTIONS.map((key) => (
-                <option key={key.label} value={key.label}>
-                  {key.label}
-                </option>
-              ))}
-            </select>
+  if (!started) {
+    return (
+      <div className="min-h-screen w-full bg-neutral-950 text-neutral-50 flex items-center justify-center p-6">
+        <div className="w-full max-w-3xl rounded-2xl border border-neutral-800 bg-neutral-900/70 p-6 shadow-2xl">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl font-semibold">Choose your flow</h1>
+            <p className="text-sm text-neutral-400">
+              Pick a key center and scale, then start your practice sequence.
+            </p>
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs uppercase tracking-wide text-neutral-400">
-              Scale / Mode
-            </label>
-            <select
-              className="rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-100"
-              value={selectedMode}
-              onChange={(e) => setSelectedMode(e.target.value)}
-            >
-              {modeOptions.map((mode) => (
-                <option key={mode} value={mode}>
-                  {mode}
-                </option>
-              ))}
-            </select>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs uppercase tracking-wide text-neutral-400">
+                Key Center
+              </label>
+              <select
+                className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
+                value={selectedKey.label}
+                onChange={(e) => {
+                  const key = KEY_OPTIONS.find((k) => k.label === e.target.value);
+                  if (key) setSelectedKey(key);
+                }}
+              >
+                {KEY_OPTIONS.map((key) => (
+                  <option key={key.label} value={key.label}>
+                    {key.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs uppercase tracking-wide text-neutral-400">
+                Scale / Mode
+              </label>
+              <select
+                className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
+                value={selectedMode}
+                onChange={(e) => setSelectedMode(e.target.value)}
+              >
+                {modeOptions.map((mode) => (
+                  <option key={mode} value={mode}>
+                    {mode}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
-        <div className="text-xs text-neutral-400">
-          Building flow for {selectedKey.label} {selectedMode}
+          <div className="mt-6 flex items-center justify-between text-sm text-neutral-400">
+            <span>
+              Ready for {selectedKey.label} {selectedMode}
+            </span>
+            <button
+              type="button"
+              onClick={() => setStarted(true)}
+              className="rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+            >
+              Start
+            </button>
+          </div>
         </div>
       </div>
-      <ActivityFlow scaleMidis={scaleMidis} />
+    );
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-neutral-950 text-neutral-50">
+      <div className="border-b border-neutral-800 bg-neutral-900/60 px-6 py-4 flex items-center justify-between">
+        <div className="text-sm text-neutral-300">
+          Playing flow for <span className="font-semibold text-neutral-100">{selectedKey.label}</span>{" "}
+          <span className="font-semibold text-neutral-100">{selectedMode}</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setStarted(false)}
+          className="rounded-full border border-neutral-700 px-4 py-2 text-xs font-semibold text-neutral-100 hover:border-neutral-500 hover:text-white"
+        >
+          Change selection
+        </button>
+      </div>
+      <div className="p-4 sm:p-6">
+        <ActivityFlow scaleMidis={scaleMidis} />
+      </div>
     </div>
   );
 };

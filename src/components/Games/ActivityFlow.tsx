@@ -101,12 +101,14 @@ export const ActivityFlow = ({ scaleMidis }: ActivityFlowProps) => {
 
   const randomContours = useMemo(() => {
     if (availableContours.length === 0) return [];
+    console.log('available contours', availableContours);
     const shuffled = [...availableContours].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 2);
   }, [availableContours]);
 
   const flowDefinitions = useMemo(() => {
     const scale = scaleMidis && scaleMidis.length > 0 ? scaleMidis : DEFAULT_SCALE;
+    console.log('random contours:', randomContours);
     return buildFlowDefinitions(scale, randomContours);
   }, [scaleMidis, randomContours]);
 

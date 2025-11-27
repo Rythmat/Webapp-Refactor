@@ -168,7 +168,10 @@ export const FlowSelect = () => {
         </button>
       </div>
       <div className="p-4 sm:p-6">
-        <ActivityFlow scaleMidis={scaleMidis} />
+        <ActivityFlow
+          scaleMidis={scaleMidis}
+          onComplete={() => setStarted(false)}
+        />
       </div>
     </div>
   );

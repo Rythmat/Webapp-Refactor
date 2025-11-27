@@ -12,6 +12,7 @@ type FlowActivityProps = {
 
 type ActivityFlowProps = {
   scaleMidis?: number[];
+  onComplete?: () => void;
 };
 
 const DEFAULT_SCALE: number[] = [60, 62, 64, 65, 67, 69, 71, 72];
@@ -188,7 +189,7 @@ const buildFlowDefinitions = (
   }));
 };
 
-export const ActivityFlow = ({ scaleMidis }: ActivityFlowProps) => {
+export const ActivityFlow = ({ scaleMidis, onComplete }: ActivityFlowProps) => {
   const { data: contourData } = usePrismStartContours();
   const availableContours = useMemo(() => {
     const raw = contourData?.contours;
@@ -212,9 +213,13 @@ export const ActivityFlow = ({ scaleMidis }: ActivityFlowProps) => {
   const currentActivity = flowDefinitions[currentIndex];
 
   const handleContinue = () => {
-    setCurrentIndex((idx) =>
-      idx < flowDefinitions.length - 1 ? idx + 1 : idx,
-    );
+    setCurrentIndex((idx) => {
+      if (idx < flowDefinitions.length - 1) {
+        return idx + 1;
+      }
+      onComplete?.();
+      return idx;
+    });
   };
 
   if (!currentActivity) {

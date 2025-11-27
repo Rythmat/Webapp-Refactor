@@ -24,16 +24,32 @@ type ActivityDefinition = {
   events: NoteEvent[];
 };
 
-const midiSequenceToEvents = (
-  sequence: number[],
-  prefix: string,
-): NoteEvent[] =>
+const midiSequenceToEvents = (sequence: number[],prefix: string): NoteEvent[] =>
   sequence.map((midi, idx) => ({
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
     startTicks: idx * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS,
   }));
+ 
+  const chordArpegiateEvents = (sequence: number[],prefix: string): NoteEvent[] => {  
+    const events: NoteEvent[] = []; 
+    sequence.forEach((note, idx) => {
+      events.push({
+        id: `${prefix}-${idx}-${note}`,
+        pitchName: Tone.Frequency(note, "midi").toNote(),
+        startTicks: idx * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS,
+      },
+      {
+        id: `${prefix}Join-${idx}-${note}`,
+        pitchName: Tone.Frequency(note, "midi").toNote(),
+        startTicks: sequence.length * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS,
+      });
+    });
+    return events;
+  };
 
 const isNumberArray = (value: unknown): value is number[] =>
   Array.isArray(value) && value.every((n) => typeof n === "number" && Number.isFinite(n));
@@ -85,13 +101,14 @@ const buildFlowDefinitions = (
   const ascendDescend = [...ascending, ...descending];
 
   const sequences = [
-    { key: "asc-nh", label: "Ascend • Hold", Component: NoteHold, seq: ascending },
-    { key: "asc-pa", label: "Ascend • Play Along", Component: PlayAlong, seq: ascending },
-    { key: "desc-nh", label: "Descend • Hold", Component: NoteHold, seq: descending },
-    { key: "desc-pa", label: "Descend • Play Along", Component: PlayAlong, seq: descending },
-    { key: "ascdesc-nh", label: "Ascend + Descend • Hold", Component: NoteHold, seq: ascendDescend },
-    { key: "ascdesc-pa", label: "Ascend + Descend • Play Along", Component: PlayAlong, seq: ascendDescend },
+    { key: "asc-nh", label: "Ascend • Hold", Component: NoteHold, seq: midiSequenceToEvents(ascending, "asc-nh") },
+    { key: "asc-pa", label: "Ascend • Play Along", Component: PlayAlong, seq: midiSequenceToEvents(ascending, "asc-pa") },
+    { key: "desc-nh", label: "Descend • Hold", Component: NoteHold, seq: midiSequenceToEvents(descending, "desc-nh") },
+    { key: "desc-pa", label: "Descend • Play Along", Component: PlayAlong, seq: midiSequenceToEvents(descending, "desc-pa") },
+    { key: "ascdesc-nh", label: "Ascend + Descend • Hold", Component: NoteHold, seq: midiSequenceToEvents(ascendDescend, "ascdesc-nh") },
+    { key: "ascdesc-pa", label: "Ascend + Descend • Play Along", Component: PlayAlong, seq: midiSequenceToEvents(ascendDescend, "ascdesc-pa") },
   ];
+  const contourSeqs: number[][] = [];
   contours?.forEach((contour, idx) => {
     const mapContourValue = (value: number): number | undefined => {
       if (value > 0) {
@@ -106,32 +123,50 @@ const buildFlowDefinitions = (
       return undefined;
     };
 
-    const contourSeq = contour
+    contourSeqs.push(contour
       .map((scaleIdx) => mapContourValue(scaleIdx))
-      .filter((midi): midi is number => typeof midi === "number");
+      .filter((midi): midi is number => typeof midi === "number"));
 
-    if (contourSeq.length === 0) return;
-    sequences.push(
-      {
-        key: `contour-${idx + 1}-pa`,
-        label: `Contour ${idx + 1} • Play Along`,
-        Component: PlayAlong,
-        seq: contourSeq,
-      },
-      {
-        key: `contour-${idx + 1}-nh`,
-        label: `Contour ${idx + 1} • Hold`,
-        Component: NoteHold,
-        seq: contourSeq,
-      },
-    );
+    if (contourSeqs[idx].length === 0) return;
   });
-
+  sequences.push(
+    {
+      key: `contour-1-nh`,
+      label: `Single Contour • Hold`,
+      Component: NoteHold,
+      seq: midiSequenceToEvents(contourSeqs[0], `contour-1-nh`) ,
+    },
+    {
+      key: `contour-1-pa`,
+      label: `Single Contour • Play Along`,
+      Component: PlayAlong,
+      seq: midiSequenceToEvents(contourSeqs[0], `contour-1-pa`),
+    },
+    {
+      key: `contour-2-nh`,
+      label: `Two Contour • Hold`,
+      Component: NoteHold,
+      seq: midiSequenceToEvents([...contourSeqs[0],...contourSeqs[1]], `contour-2-nh`),
+    },
+    {
+      key: `contour-2-pa`,
+      label: `Two Contour • Play Along`,
+      Component: PlayAlong,
+      seq: midiSequenceToEvents([...contourSeqs[0],...contourSeqs[1]], `contour-2-pa`),
+    },
+    {
+      key: `arpeggiate-1-nh`,
+      label: `Chord Arpeggio • Hold`,
+      Component: NoteHold,
+      seq: chordArpegiateEvents([scale[0],scale[2],scale[4]], `contour-2-pa`),
+    },
+    
+  );
   return sequences.map(({ key, label, Component, seq }) => ({
     key,
     label,
     Component,
-    events: midiSequenceToEvents(seq, key),
+    events: seq,
   }));
 };
 

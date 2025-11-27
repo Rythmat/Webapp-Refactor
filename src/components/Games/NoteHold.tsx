@@ -25,9 +25,11 @@ const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e16", pitchName: "B3", startTicks: 5760, durationTicks: 1920 },
 ];
 
-const CHORD_HOLD_REQUIRED_MS = 2000;
+const CHORD_HOLD_REQUIRED_MS = 1000;
 const CHORD_NOTE_COLOR = "#22c55e";
 const WRONG_NOTE_COLOR = "#ef4444";
+const TICKS_PER_QUARTER = 480;
+const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
 
 type NoteHoldProps = {
   events?: NoteEvent[];
@@ -136,6 +138,15 @@ export const NoteHold = ({
       }
     });
     return map;
+  }, [resolvedEvents]);
+
+  const requiredBars = useMemo(() => {
+    const maxEnd = resolvedEvents.reduce(
+      (max, ev) => Math.max(max, ev.startTicks + ev.durationTicks),
+      0,
+    );
+    if (maxEnd <= 0) return 1;
+    return Math.max(1, Math.ceil(maxEnd / TICKS_PER_BAR));
   }, [resolvedEvents]);
 
   const currentChord = chords[currentChordIndex] ?? null;
@@ -356,7 +367,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
           </h2>
           <PianoRoll
             events={resolvedEvents}
-            bars={4}
+            bars={requiredBars}
             beatsPerBar={4}
             subdivision={1}
             rowHeight={28 * 24}

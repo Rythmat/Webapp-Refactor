@@ -27,6 +27,7 @@ const DEFAULT_EVENTS: NoteEvent[] = [
 
 const TICKS_PER_QUARTER = 480;
 const COUNT_IN_TICKS = 4 * TICKS_PER_QUARTER;
+const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
 
 type PlayAlongProps = {
   events?: NoteEvent[];
@@ -167,6 +168,11 @@ export const PlayAlong = ({
     });
     return map;
   }, [resolvedEvents]);
+
+  const requiredBars = useMemo(() => {
+    if (maxEventEndTick <= 0) return 1;
+    return Math.max(1, Math.ceil(maxEventEndTick / TICKS_PER_BAR));
+  }, [maxEventEndTick]);
 
 
   const handleKeyboardNoteOn = useCallback(
@@ -372,7 +378,7 @@ export const PlayAlong = ({
           <PianoRoll
             key={playSessionId}
             events={resolvedEvents}
-            bars={4}
+            bars={requiredBars}
             beatsPerBar={4}
             subdivision={1}
             rowHeight={28 * 24}

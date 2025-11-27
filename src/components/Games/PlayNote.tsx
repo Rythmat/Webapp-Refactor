@@ -21,6 +21,7 @@ type PlayNoteProps = {
   inTime?: boolean;
   holdProgress?: number;
   dimmed?: boolean;
+  highlighted?: boolean;
 };
 
 export const PlayNote: React.FC<PlayNoteProps> = ({
@@ -35,6 +36,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   inTime = true,
   holdProgress,
   dimmed = false,
+  highlighted = false,
 }) => {
   const top = row * rowHeight + 4;
   const height = rowHeight - 8;
@@ -73,7 +75,15 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
           height,
         }}
       >
-        <div className="h-full w-full overflow-hidden rounded-2xl shadow-inner border border-white/20 relative">
+        <div
+          className="h-full w-full overflow-hidden rounded-2xl shadow-inner border relative"
+          style={{
+            borderColor: highlighted ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)",
+            boxShadow: highlighted
+              ? "0 0 0 1px rgba(255,255,255,0.18), 0 6px 16px rgba(255,255,255,0.12)"
+              : undefined,
+          }}
+        >
           {segments && segments.length > 0 ? (
             segments.map((segment, index) => {
               if (segment.to <= segment.from) {

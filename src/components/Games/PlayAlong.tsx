@@ -8,21 +8,21 @@ import PianoRoll, { NoteEvent, pitchNameToMidi } from "./PianoRollPlay";
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e1", pitchName: "C3", startTicks: 0, durationTicks: 1920 },
-  { id: "e2", pitchName: "E3", startTicks: 0, durationTicks: 1920 },
-  { id: "e3", pitchName: "G3", startTicks: 0, durationTicks: 1920 },
-  { id: "e4", pitchName: "B3", startTicks: 0, durationTicks: 1920 },
+  // { id: "e2", pitchName: "E3", startTicks: 0, durationTicks: 1920 },
+  // { id: "e3", pitchName: "G3", startTicks: 0, durationTicks: 1920 },
+  // { id: "e4", pitchName: "B3", startTicks: 0, durationTicks: 1920 },
   { id: "e5", pitchName: "C3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e6", pitchName: "E3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e7", pitchName: "G3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e8", pitchName: "A#3", startTicks: 1920, durationTicks: 1920 },
+  // { id: "e6", pitchName: "E3", startTicks: 1920, durationTicks: 1920 },
+  // { id: "e7", pitchName: "G3", startTicks: 1920, durationTicks: 1920 },
+  // { id: "e8", pitchName: "A#3", startTicks: 1920, durationTicks: 1920 },
   { id: "e9", pitchName: "C#3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e10", pitchName: "F3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e11", pitchName: "G#3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e12", pitchName: "C4", startTicks: 3840, durationTicks: 1920 },
+  // { id: "e10", pitchName: "F3", startTicks: 3840, durationTicks: 1920 },
+  // { id: "e11", pitchName: "G#3", startTicks: 3840, durationTicks: 1920 },
+  // { id: "e12", pitchName: "C4", startTicks: 3840, durationTicks: 1920 },
   { id: "e13", pitchName: "C#3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e14", pitchName: "F3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e15", pitchName: "G#3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e16", pitchName: "B3", startTicks: 5760, durationTicks: 1920 },
+  // { id: "e14", pitchName: "F3", startTicks: 5760, durationTicks: 1920 },
+  // { id: "e15", pitchName: "G#3", startTicks: 5760, durationTicks: 1920 },
+  // { id: "e16", pitchName: "B3", startTicks: 5760, durationTicks: 1920 },
 ];
 
 const TICKS_PER_QUARTER = 480;

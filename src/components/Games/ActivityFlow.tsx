@@ -93,8 +93,21 @@ const buildFlowDefinitions = (
     { key: "ascdesc-pa", label: "Ascend + Descend • Play Along", Component: PlayAlong, seq: ascendDescend },
   ];
   contours?.forEach((contour, idx) => {
+    const mapContourValue = (value: number): number | undefined => {
+      if (value > 0) {
+        const noteIdx = value - 1;
+        return scale[noteIdx];
+      }
+      if (value < 0) {
+        const idxFromBack = scale.length + value;
+        if (idxFromBack < 0 || idxFromBack >= scale.length) return undefined;
+        return scale[idxFromBack] - 12;
+      }
+      return undefined;
+    };
+
     const contourSeq = contour
-      .map((scaleIdx) => scale[scaleIdx-1])
+      .map((scaleIdx) => mapContourValue(scaleIdx))
       .filter((midi): midi is number => typeof midi === "number");
 
     if (contourSeq.length === 0) return;
@@ -131,17 +144,14 @@ export const ActivityFlow = ({ scaleMidis }: ActivityFlowProps) => {
 
   const randomContours = useMemo(() => {
     if (availableContours.length === 0){
-      console.log('availableContours.length === 0');
       return [];
     } 
-    console.log('available contours', availableContours);
     const shuffled = [...availableContours].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 2);
   }, [availableContours]);
 
   const flowDefinitions = useMemo(() => {
     const scale = scaleMidis && scaleMidis.length > 0 ? scaleMidis : DEFAULT_SCALE;
-    console.log('random contours:', randomContours);
     return buildFlowDefinitions(scale, randomContours);
   }, [scaleMidis, randomContours]);
 

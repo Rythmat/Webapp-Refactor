@@ -38,6 +38,44 @@ const midiSequenceToEvents = (
 const isNumberArray = (value: unknown): value is number[] =>
   Array.isArray(value) && value.every((n) => typeof n === "number" && Number.isFinite(n));
 
+const extractContours = (value: unknown): number[][] => {
+  if (!value) return [];
+  const results: number[][] = [];
+
+  const pushIfNumbers = (maybe: unknown) => {
+    if (isNumberArray(maybe)) {
+      results.push(maybe);
+      return true;
+    }
+    return false;
+  };
+
+  const inspectCollection = (collection: unknown) => {
+    if (!Array.isArray(collection)) return;
+    collection.forEach((item) => {
+      if (pushIfNumbers(item)) return;
+      if (Array.isArray(item)) {
+        item.forEach((inner) => pushIfNumbers(inner));
+      }
+    });
+  };
+
+  if (pushIfNumbers(value)) {
+    return results;
+  }
+
+  if (Array.isArray(value)) {
+    inspectCollection(value);
+    return results;
+  }
+
+  if (typeof value === "object") {
+    inspectCollection(Object.values(value));
+  }
+
+  return results;
+};
+
 const buildFlowDefinitions = (
   scale: number[],
   contours?: number[][],
@@ -88,14 +126,7 @@ export const ActivityFlow = ({ scaleMidis }: ActivityFlowProps) => {
   const { data: contourData } = usePrismStartContours();
   const availableContours = useMemo(() => {
     const raw = contourData?.contours;
-    if (!raw) return [];
-    if (Array.isArray(raw)) {
-      return raw.filter(isNumberArray);
-    }
-    if (typeof raw === "object") {
-      return Object.values(raw).filter(isNumberArray);
-    }
-    return [];
+    return extractContours(raw);
   }, [contourData]);
 
   const randomContours = useMemo(() => {

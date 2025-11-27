@@ -5,7 +5,7 @@ import path from 'node:path';
 import { generateApi } from 'swagger-typescript-api';
 
 const API_NAME = 'MusicAtlas';
-const API_URL = process.env.VITE_MUSIC_ATLAS_API_URL;
+const API_URL = "https://api-refactor.vercel.app/";
 const OUTPUT_DIR = path.resolve(
   process.cwd(),
   './src/contexts/MusicAtlasContext',

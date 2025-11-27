@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import * as Tone from "tone";
+import { usePrismStartContours } from "@/hooks/data/prism/usePrismStartContours";
 import { NoteHold } from "./NoteHold";
 import { PlayAlong } from "./PlayAlong";
 import type { NoteEvent } from "./PianoRollPlay";
@@ -34,7 +35,13 @@ const midiSequenceToEvents = (
     durationTicks: NOTE_DURATION_TICKS,
   }));
 
-const buildFlowDefinitions = (scale: number[]): ActivityDefinition[] => {
+const isNumberArray = (value: unknown): value is number[] =>
+  Array.isArray(value) && value.every((n) => typeof n === "number" && Number.isFinite(n));
+
+const buildFlowDefinitions = (
+  scale: number[],
+  contours?: number[][],
+): ActivityDefinition[] => {
   const ascending = scale;
   const descending = [...scale].reverse();
   const ascendDescend = [...ascending, ...descending];
@@ -48,6 +55,28 @@ const buildFlowDefinitions = (scale: number[]): ActivityDefinition[] => {
     { key: "ascdesc-pa", label: "Ascend + Descend • Play Along", Component: PlayAlong, seq: ascendDescend },
   ];
 
+  contours?.forEach((contour, idx) => {
+    const contourSeq = contour
+      .map((scaleIdx) => scale[scaleIdx-1])
+      .filter((midi): midi is number => typeof midi === "number");
+
+    if (contourSeq.length === 0) return;
+    sequences.push(
+      {
+        key: `contour-${idx + 1}-pa`,
+        label: `Contour ${idx + 1} • Play Along`,
+        Component: PlayAlong,
+        seq: contourSeq,
+      },
+      {
+        key: `contour-${idx + 1}-nh`,
+        label: `Contour ${idx + 1} • Hold`,
+        Component: NoteHold,
+        seq: contourSeq,
+      },
+    );
+  });
+
   return sequences.map(({ key, label, Component, seq }) => ({
     key,
     label,
@@ -57,10 +86,30 @@ const buildFlowDefinitions = (scale: number[]): ActivityDefinition[] => {
 };
 
 export const ActivityFlow = ({ scaleMidis }: ActivityFlowProps) => {
+  const { data: contourData } = usePrismStartContours();
+
+  const availableContours = useMemo(() => {
+    const raw = contourData?.contours;
+    if (!raw) return [];
+    if (Array.isArray(raw)) {
+      return raw.filter(isNumberArray);
+    }
+    if (typeof raw === "object") {
+      return Object.values(raw).filter(isNumberArray);
+    }
+    return [];
+  }, [contourData]);
+
+  const randomContours = useMemo(() => {
+    if (availableContours.length === 0) return [];
+    const shuffled = [...availableContours].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 2);
+  }, [availableContours]);
+
   const flowDefinitions = useMemo(() => {
     const scale = scaleMidis && scaleMidis.length > 0 ? scaleMidis : DEFAULT_SCALE;
-    return buildFlowDefinitions(scale);
-  }, [scaleMidis]);
+    return buildFlowDefinitions(scale, randomContours);
+  }, [scaleMidis, randomContours]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentActivity = flowDefinitions[currentIndex];

@@ -78,9 +78,10 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
         <div
           className="h-full w-full overflow-hidden rounded-2xl shadow-inner border relative"
           style={{
-            borderColor: highlighted ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)",
+            borderColor: highlighted ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.2)",
+            borderWidth: highlighted ? "2px" : undefined,
             boxShadow: highlighted
-              ? "0 0 0 1px rgba(255,255,255,0.18), 0 6px 16px rgba(255,255,255,0.12)"
+              ? "0 0 0 1px rgba(255,255,255,0.2), 0 8px 18px rgba(255,255,255,0.16)"
               : undefined,
           }}
         >

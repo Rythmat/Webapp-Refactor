@@ -363,7 +363,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
           }`}
         >
           <h2 className="mb-4 text-lg font-semibold text-neutral-100">
-            {"Hold each chord for 2 seconds"}
+            {"Hold the notes for 1 secon each"}
           </h2>
           <PianoRoll
             events={resolvedEvents}
@@ -385,7 +385,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
                 {"Great job!"}
               </h3>
               <p className="mt-2 text-sm text-neutral-300">
-                { "You completed every chord. Continue when you are ready, or restart to practice again."}
+                { "You completed the sequence. Continue when you are ready, or restart to practice again."}
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <button

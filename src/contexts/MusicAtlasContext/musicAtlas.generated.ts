@@ -384,6 +384,10 @@ export interface GetPrismChordsProgressionsData {
   keys: string[];
 }
 
+export interface GetPrismContoursStartData {
+  contours: object;
+}
+
 export interface GetPrismModesByModeChordsData {
   chords: object;
 }
@@ -2318,6 +2322,21 @@ export namespace Music {
   /**
    * No description
    * @tags Music
+   * @name GetPrismContoursStart
+   * @request GET:/prism/contours/start
+   * @response `200` `GetPrismContoursStartData`
+   */
+  export namespace GetPrismContoursStart {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismContoursStartData;
+  }
+
+  /**
+   * No description
+   * @tags Music
    * @name GetPrismModes
    * @request GET:/prism/modes
    * @response `200` `GetPrismModesData`
@@ -3845,6 +3864,22 @@ export class Api<SecurityDataType extends unknown> {
     getPrismChordsProgressions: (params: RequestParams = {}) =>
       this.http.request<GetPrismChordsProgressionsData, any>({
         path: `/prism/chords/progressions`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismContoursStart
+     * @request GET:/prism/contours/start
+     * @response `200` `GetPrismContoursStartData`
+     */
+    getPrismContoursStart: (params: RequestParams = {}) =>
+      this.http.request<GetPrismContoursStartData, any>({
+        path: `/prism/contours/start`,
         method: 'GET',
         format: 'json',
         ...params,

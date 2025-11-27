@@ -173,7 +173,12 @@ const buildFlowDefinitions = (
     key: `arpeggiate-1-nh`,
     label: `Chord Arpeggio • Hold`,
     Component: NoteHold,
-    seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `contour-2-pa`),
+    seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-1-nh`),
+  },{
+    key: `arpeggiate-1-nh`,
+    label: `Chord Arpeggio • Play Along`,
+    Component: PlayAlong,
+    seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-1-pa`),
   });
   return sequences.map(({ key, label, Component, seq }) => ({
     key,

@@ -6,7 +6,7 @@ import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LessonFlow } from '@/components/learn/LessonFlow';
-import { ActivityFlow } from '@/components/Games/ActivityFlow';
+import { FlowSelect } from '@/components/Games/FlowSelect';
 // import { NoteHold } from '@/components/Games/NoteHold';
 // import { SynthTest } from '@/components/Games/SynthTest';
 
@@ -120,7 +120,7 @@ export const gamesPages = () => {
         element: <Navigate to={GameRoutes.root()} />,
       },
       {
-        element: <ActivityFlow />,
+        element: <FlowSelect />,
         // element: <NoteHold />,
         // element: <SynthTest />,
         index: true,

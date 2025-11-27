@@ -110,6 +110,10 @@ const buildFlowDefinitions = (
   ];
   const contourSeqs: number[][] = [];
   contours?.forEach((contour, idx) => {
+    if (!Array.isArray(contour)) {
+      return;
+    }
+
     const mapContourValue = (value: number): number | undefined => {
       if (value > 0) {
         const noteIdx = value - 1;
@@ -123,45 +127,54 @@ const buildFlowDefinitions = (
       return undefined;
     };
 
-    contourSeqs.push(contour
+    const seq = contour
       .map((scaleIdx) => mapContourValue(scaleIdx))
-      .filter((midi): midi is number => typeof midi === "number"));
+      .filter((midi): midi is number => typeof midi === "number");
 
-    if (contourSeqs[idx].length === 0) return;
+    if (seq.length === 0) return;
+    contourSeqs.push(seq);
   });
-  sequences.push(
-    {
-      key: `contour-1-nh`,
-      label: `Single Contour • Hold`,
-      Component: NoteHold,
-      seq: midiSequenceToEvents(contourSeqs[0], `contour-1-nh`) ,
-    },
-    {
-      key: `contour-1-pa`,
-      label: `Single Contour • Play Along`,
-      Component: PlayAlong,
-      seq: midiSequenceToEvents(contourSeqs[0], `contour-1-pa`),
-    },
-    {
-      key: `contour-2-nh`,
-      label: `Two Contour • Hold`,
-      Component: NoteHold,
-      seq: midiSequenceToEvents([...contourSeqs[0],...contourSeqs[1]], `contour-2-nh`),
-    },
-    {
-      key: `contour-2-pa`,
-      label: `Two Contour • Play Along`,
-      Component: PlayAlong,
-      seq: midiSequenceToEvents([...contourSeqs[0],...contourSeqs[1]], `contour-2-pa`),
-    },
-    {
-      key: `arpeggiate-1-nh`,
-      label: `Chord Arpeggio • Hold`,
-      Component: NoteHold,
-      seq: chordArpegiateEvents([scale[0],scale[2],scale[4]], `contour-2-pa`),
-    },
-    
-  );
+  if (contourSeqs[0]) {
+    sequences.push(
+      {
+        key: `contour-1-nh`,
+        label: `Single Contour • Hold`,
+        Component: NoteHold,
+        seq: midiSequenceToEvents(contourSeqs[0], `contour-1-nh`),
+      },
+      {
+        key: `contour-1-pa`,
+        label: `Single Contour • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToEvents(contourSeqs[0], `contour-1-pa`),
+      },
+    );
+  }
+
+  if (contourSeqs[0] && contourSeqs[1]) {
+    const combined = [...contourSeqs[0], ...contourSeqs[1]];
+    sequences.push(
+      {
+        key: `contour-2-nh`,
+        label: `Two Contour • Hold`,
+        Component: NoteHold,
+        seq: midiSequenceToEvents(combined, `contour-2-nh`),
+      },
+      {
+        key: `contour-2-pa`,
+        label: `Two Contour • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToEvents(combined, `contour-2-pa`),
+      },
+    );
+  }
+
+  sequences.push({
+    key: `arpeggiate-1-nh`,
+    label: `Chord Arpeggio • Hold`,
+    Component: NoteHold,
+    seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `contour-2-pa`),
+  });
   return sequences.map(({ key, label, Component, seq }) => ({
     key,
     label,

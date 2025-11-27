@@ -109,7 +109,7 @@ const buildFlowDefinitions = (
     { key: "ascdesc-pa", label: "Ascend + Descend • Play Along", Component: PlayAlong, seq: midiSequenceToEvents(ascendDescend, "ascdesc-pa") },
   ];
   const contourSeqs: number[][] = [];
-  contours?.forEach((contour, idx) => {
+  contours?.forEach((contour) => {
     if (!Array.isArray(contour)) {
       return;
     }

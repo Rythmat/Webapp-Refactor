@@ -86,7 +86,6 @@ const buildFlowDefinitions = (
 
 export const ActivityFlow = ({ scaleMidis }: ActivityFlowProps) => {
   const { data: contourData } = usePrismStartContours();
-  console.log(contourData);
   const availableContours = useMemo(() => {
     const raw = contourData?.contours;
     if (!raw) return [];
@@ -100,7 +99,10 @@ export const ActivityFlow = ({ scaleMidis }: ActivityFlowProps) => {
   }, [contourData]);
 
   const randomContours = useMemo(() => {
-    if (availableContours.length === 0) return [];
+    if (availableContours.length === 0){
+      console.log('availableContours.length === 0');
+      return [];
+    } 
     console.log('available contours', availableContours);
     const shuffled = [...availableContours].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 2);

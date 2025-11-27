@@ -177,11 +177,16 @@ export const NoteHold = ({
 
   const handleKeyboardNoteOn = useCallback(
     (midi: number) => {
-      let color = noteColorByMidi.get(midi) ?? "#60a5fa";
-      if (currentChordMidis.length > 0) {
-        const isChordNote = currentChordMidis.includes(midi);
-        color = isChordNote ? CHORD_NOTE_COLOR : WRONG_NOTE_COLOR;
-      }
+      const activeChord =
+        chords[Math.min(currentChordIndex, Math.max(0, chords.length - 1))] ?? currentChord;
+      const activeMidis =
+        activeChord?.map((note) =>
+          typeof note.midi === "number" ? note.midi : pitchNameToMidi(note.pitchName),
+        ) ?? currentChordMidis;
+
+      const isChordNote = activeMidis?.includes(midi);
+      const color = isChordNote ? CHORD_NOTE_COLOR : noteColorByMidi.get(midi) ?? WRONG_NOTE_COLOR;
+
       const id = `keyboard-${midi}`;
       setKeyboardPlayingNotes((prev) => [
         ...prev.filter((event) => event.midi !== midi),
@@ -196,7 +201,7 @@ export const NoteHold = ({
         },
       ]);
     },
-    [noteColorByMidi,currentChordMidis],
+    [chords, currentChord, currentChordIndex, currentChordMidis, noteColorByMidi],
   );
 
   const handleKeyboardNoteOff = useCallback((midi: number) => {
@@ -223,7 +228,9 @@ export const NoteHold = ({
         });
         setChordHoldStartMs(null);
         setChordHoldProgress(0);
-        setCurrentChordIndex((prev) => Math.min(prev + 1, chords.length));
+        setCurrentChordIndex((prev) =>
+          Math.min(prev + 1, Math.max(0, chords.length - 1)),
+        );
       }
     } else if (chordHoldStartMs !== null) {
       setChordHoldStartMs(null);

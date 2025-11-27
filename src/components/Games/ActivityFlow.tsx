@@ -54,7 +54,7 @@ const buildFlowDefinitions = (
     { key: "ascdesc-nh", label: "Ascend + Descend • Hold", Component: NoteHold, seq: ascendDescend },
     { key: "ascdesc-pa", label: "Ascend + Descend • Play Along", Component: PlayAlong, seq: ascendDescend },
   ];
-
+  console.log(contours);
   contours?.forEach((contour, idx) => {
     const contourSeq = contour
       .map((scaleIdx) => scale[scaleIdx-1])

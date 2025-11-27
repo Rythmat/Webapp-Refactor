@@ -363,7 +363,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
           }`}
         >
           <h2 className="mb-4 text-lg font-semibold text-neutral-100">
-            {"Hold the notes for 1 secon each"}
+            {"Hold the notes for 1 second each"}
           </h2>
           <PianoRoll
             events={resolvedEvents}

@@ -121,8 +121,6 @@ export const gamesPages = () => {
       },
       {
         element: <FlowSelect />,
-        // element: <NoteHold />,
-        // element: <SynthTest />,
         index: true,
       }
     ],

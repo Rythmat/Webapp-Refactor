@@ -49,9 +49,9 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
 
         <main
           ref={mainRef}
-          className="flex w-size flex-1 p-4 pl-0"
+          className="flex w-size flex-1 pl-0"
         >
-          <div className="relative flex-1 rounded-xl bg-surface-box p-8">
+          <div className="relative flex-1 rounded-xl bg-surface-box p-2">
             <Suspense fallback={props.fallback}>
               <Outlet />
             </Suspense>

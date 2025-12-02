@@ -237,7 +237,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange }: ActivityFl
   const { Component, events } = currentActivity;
   
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <Component
         key={currentActivity.key}
         events={events}

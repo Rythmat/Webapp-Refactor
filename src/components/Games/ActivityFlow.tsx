@@ -215,7 +215,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange }: ActivityFl
   const currentActivity = flowDefinitions[currentIndex];
   useEffect(() => {
     if(labelChange){
-      const activityLabel = 'Activity ${currentIndex + 1} of ${flowDefinitions.length}';
+      const activityLabel = `Activity ${currentIndex + 1} of ${flowDefinitions.length}`;
       labelChange([currentActivity.label,activityLabel]);
     }
   }, [currentActivity]);
@@ -234,16 +234,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange }: ActivityFl
     return null;
   }
 
-  const { Component, events, label } = currentActivity;
+  const { Component, events } = currentActivity;
   
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between text-sm text-neutral-300">
-        <span>
-          Activity {currentIndex + 1} of {flowDefinitions.length}
-        </span>
-        <span className="text-neutral-400">{label}</span>
-      </div>
       <Component
         key={currentActivity.key}
         events={events}

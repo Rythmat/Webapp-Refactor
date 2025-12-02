@@ -46,7 +46,7 @@ const midiSequenceToEvents = (sequence: number[],prefix: string): NoteEvent[] =>
         id: `${prefix}Join-${idx}-${note}`,
         pitchName: Tone.Frequency(note, "midi").toNote(),
         startTicks: (sequence.length+1) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS*2,
       });
     });
     return events;

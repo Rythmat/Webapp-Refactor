@@ -46,6 +46,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   const circleRadius = circleSize / 2;
   const circleLeft = `max(0px, min(calc(${startPercent}% - ${circleRadius}px), calc(100% - ${circleSize}px)))`;
   const circleTopPx = row * rowHeight + rowHeight / 2 - circleRadius;
+  const circleFontSize = Math.max(10, Math.min(26, circleSize * 0.22));
 
   const circleBackground = inTime
     ? effectiveColor
@@ -137,21 +138,22 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
         />
       </div>
       <div
-      className="pointer-events-none absolute flex items-center justify-center text-[10px] font-semibold uppercase tracking-tight"
-      style={{
-        left: circleLeft,
-        top: `${circleTopPx}px`,
-        width: `${circleSize}px`,
-        height: `${circleSize}px`,
-        borderRadius: '9999px',
-        background: circleBackground,
-        color: circleTextColor,
-        border: circleBorder,
-        boxShadow: circleShadow,
-      }}
-    >
-      {note.pitchName}
-    </div>
+        className="pointer-events-none absolute flex items-center justify-center font-semibold uppercase tracking-tight"
+        style={{
+          left: circleLeft,
+          top: `${circleTopPx}px`,
+          width: `${circleSize}px`,
+          height: `${circleSize}px`,
+          borderRadius: '9999px',
+          background: circleBackground,
+          color: circleTextColor,
+          border: circleBorder,
+          boxShadow: circleShadow,
+          fontSize: `${circleFontSize}px`,
+        }}
+      >
+        {note.pitchName}
+      </div>
     </>
   );
 };

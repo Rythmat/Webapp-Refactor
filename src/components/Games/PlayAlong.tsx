@@ -217,8 +217,8 @@ export const PlayAlong = ({
         const note = resolvedEvents.find(
         (note) =>
           pitchNameToMidi(note.pitchName) === midi &&
-          note.startTicks <= tick &&
-          note.startTicks + note.durationTicks >= tick
+          note.startTicks <= tick+120 &&
+          note.startTicks + note.durationTicks >= tick-120
         );
         if (note == null) return;
         setNotePerformance(prev => {
@@ -381,7 +381,7 @@ export const PlayAlong = ({
             bars={requiredBars}
             beatsPerBar={4}
             subdivision={1}
-            rowHeight={28 * 24}
+            rowHeight={28 * 18}
             inTime
             playSpeed={80}
             isPlaying={isPlaying}

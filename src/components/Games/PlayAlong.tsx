@@ -218,7 +218,7 @@ export const PlayAlong = ({
         (note) =>
           pitchNameToMidi(note.pitchName) === midi &&
           note.startTicks <= tick+120 &&
-          note.startTicks + note.durationTicks >= tick-120
+          note.startTicks + note.durationTicks >= tick+120
         );
         if (note == null) return;
         setNotePerformance(prev => {
@@ -372,9 +372,6 @@ export const PlayAlong = ({
             showCompletionOverlay ? "pointer-events-none opacity-30 blur-sm" : ""
           }`}
         >
-          <h2 className="mb-4 text-lg font-semibold text-neutral-100">
-            {"Play along with the moving notes" }
-          </h2>
           <PianoRoll
             key={playSessionId}
             events={resolvedEvents}
@@ -390,6 +387,15 @@ export const PlayAlong = ({
             activeMidis={activeMidis}
             performanceMeta={performanceMeta}
             onTickChange={setCurrentTick}
+          />
+          <PianoKeyboard
+          className="mx-auto"
+          startC={2}
+          endC={6}
+          playingNotes={keyboardPlayingNotes}
+          activeWhiteKeyColor="#60a5fa"
+          activeBlackKeyColor="#3b82f6"
+          showOctaveStart
           />
         </div>
         {showCompletionOverlay && (
@@ -424,17 +430,6 @@ export const PlayAlong = ({
         )}
       </div>
 
-      <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
-        <PianoKeyboard
-          className="mx-auto"
-          startC={2}
-          endC={6}
-          playingNotes={keyboardPlayingNotes}
-          activeWhiteKeyColor="#60a5fa"
-          activeBlackKeyColor="#3b82f6"
-          showOctaveStart
-        />
-      </div>
     </div>
   );
 };

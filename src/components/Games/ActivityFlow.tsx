@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as Tone from "tone";
 import { usePrismStartContours } from "@/hooks/data/prism/usePrismStartContours";
 import { NoteHold } from "./NoteHold";
@@ -13,6 +13,7 @@ type FlowActivityProps = {
 type ActivityFlowProps = {
   scaleMidis?: number[];
   onComplete?: () => void;
+  labelChange?: (newLabel: string[]) => void;
 };
 
 const DEFAULT_SCALE: number[] = [60, 62, 64, 65, 67, 69, 71, 72];
@@ -189,7 +190,7 @@ const buildFlowDefinitions = (
   }));
 };
 
-export const ActivityFlow = ({ scaleMidis, onComplete }: ActivityFlowProps) => {
+export const ActivityFlow = ({ scaleMidis, onComplete, labelChange }: ActivityFlowProps) => {
   const { data: contourData } = usePrismStartContours();
   const availableContours = useMemo(() => {
     const raw = contourData?.contours;
@@ -209,8 +210,15 @@ export const ActivityFlow = ({ scaleMidis, onComplete }: ActivityFlowProps) => {
     return buildFlowDefinitions(scale, randomContours);
   }, [scaleMidis, randomContours]);
 
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentActivity = flowDefinitions[currentIndex];
+  useEffect(() => {
+    if(labelChange){
+      const activityLabel = 'Activity ${currentIndex + 1} of ${flowDefinitions.length}';
+      labelChange([currentActivity.label,activityLabel]);
+    }
+  }, [currentActivity]);
 
   const handleContinue = () => {
     setCurrentIndex((idx) => {
@@ -227,7 +235,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete }: ActivityFlowProps) => {
   }
 
   const { Component, events, label } = currentActivity;
-
+  
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between text-sm text-neutral-300">

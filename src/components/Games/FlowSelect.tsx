@@ -52,6 +52,7 @@ export const FlowSelect = () => {
   const [selectedKey, setSelectedKey] = useState<KeyOption>(KEY_OPTIONS[0]);
   const { data: modesData } = usePrismModes();
   const [started, setStarted] = useState(false);
+  const [label, setLabel] = useState(['', '']);
 
   const modeOptions = useMemo(() => {
     const raw = modesData?.modes;
@@ -156,6 +157,12 @@ export const FlowSelect = () => {
     <div className="min-h-screen w-full bg-neutral-950 text-neutral-50">
       <div className="border-b border-neutral-800 bg-neutral-900/60 px-6 py-4 flex items-center justify-between">
         <div className="text-sm text-neutral-300">
+          {label[0]}
+        </div>
+        <div className="text-sm text-neutral-300">
+          {label[1]}
+        </div>
+        <div className="text-sm text-neutral-300">
           Playing flow for <span className="font-semibold text-neutral-100">{selectedKey.label}</span>{" "}
           <span className="font-semibold text-neutral-100">{selectedMode}</span>
         </div>
@@ -171,6 +178,7 @@ export const FlowSelect = () => {
         <ActivityFlow
           scaleMidis={scaleMidis}
           onComplete={() => setStarted(false)}
+          labelChange={(newLabel) => setLabel(newLabel)}
         />
       </div>
     </div>

@@ -165,14 +165,15 @@ export const FlowSelect = () => {
         <div className="text-sm text-neutral-300">
           Playing flow for <span className="font-semibold text-neutral-100">{selectedKey.label}</span>{" "}
           <span className="font-semibold text-neutral-100">{selectedMode}</span>
+        
+          <button
+            type="button"
+            onClick={() => setStarted(false)}
+            className="rounded-full border border-neutral-700 px-4 py-2 text-xs font-semibold text-neutral-100 hover:border-neutral-500 hover:text-white"
+          >
+            Change selection
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => setStarted(false)}
-          className="rounded-full border border-neutral-700 px-4 py-2 text-xs font-semibold text-neutral-100 hover:border-neutral-500 hover:text-white"
-        >
-          Change selection
-        </button>
       </div>
       <div className="p-3 sm:p-4">
         <ActivityFlow

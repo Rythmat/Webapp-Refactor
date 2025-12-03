@@ -374,13 +374,22 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
             bars={requiredBars}
             beatsPerBar={4}
             subdivision={1}
-            rowHeight={28 * 24}
+            rowHeight={28 * 18}
             inTime={false}
             playSpeed={80}
             onStart={startToneContext}
             activeMidis={activeMidis}
             noteHoldMeta={noteHoldMeta}
           />
+          <PianoKeyboard
+          className="mx-auto"
+          startC={2}
+          endC={6}
+          playingNotes={keyboardPlayingNotes}
+          activeWhiteKeyColor="#60a5fa"
+          activeBlackKeyColor="#3b82f6"
+          showOctaveStart
+        />
         </div>
         {showCompletionOverlay && (
           <div className="absolute inset-0 flex items-center justify-center px-4">
@@ -410,18 +419,6 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
             </div>
           </div>
         )}
-      </div>
-
-      <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4">
-        <PianoKeyboard
-          className="mx-auto"
-          startC={2}
-          endC={6}
-          playingNotes={keyboardPlayingNotes}
-          activeWhiteKeyColor="#60a5fa"
-          activeBlackKeyColor="#3b82f6"
-          showOctaveStart
-        />
       </div>
     </div>
   );

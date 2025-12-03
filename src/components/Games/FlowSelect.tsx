@@ -154,33 +154,37 @@ export const FlowSelect = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-neutral-950 text-neutral-50">
-      <div className="border-b border-neutral-800 bg-neutral-900/60 px-4 py-3 flex items-center justify-between">
-        <div className="text-sm text-neutral-300">
-          {label[0]}
+    <div className="min-h-screen w-full bg-neutral-950 text-neutral-50 flex justify-center">
+      <div className="w-full max-w-5xl">
+        <div className="border-b border-neutral-800 bg-neutral-900/60 px-4 py-3 flex items-center justify-between">
+          <div className="text-sm text-neutral-300">
+            {label[1]}
+          </div>
+          <div className="text-sm text-neutral-300">
+            {label[0]}
+          </div>
+          <div className="text-sm text-neutral-300">
+            Playing flow for <span className="font-semibold text-neutral-100">{selectedKey.label}</span>{" "}
+            <span className="font-semibold text-neutral-100">{selectedMode}</span>{":   "}
+
+            <button
+              type="button"
+              onClick={() => setStarted(false)}
+              className="rounded-full border border-neutral-700 px-4 py-2 text-xs font-semibold text-neutral-100 hover:border-neutral-500 hover:text-white"
+            >
+              Change selection
+            </button>
+          </div>
         </div>
-        <div className="text-sm text-neutral-300">
-          {label[1]}
+        <div className="p-3 sm:p-4 flex justify-center">
+          <div className="w-full max-w-4xl">
+            <ActivityFlow
+              scaleMidis={scaleMidis}
+              onComplete={() => setStarted(false)}
+              labelChange={(newLabel) => setLabel(newLabel)}
+            />
+          </div>
         </div>
-        <div className="text-sm text-neutral-300">
-          Playing flow for <span className="font-semibold text-neutral-100">{selectedKey.label}</span>{" "}
-          <span className="font-semibold text-neutral-100">{selectedMode}</span>
-        
-          <button
-            type="button"
-            onClick={() => setStarted(false)}
-            className="rounded-full border border-neutral-700 px-4 py-2 text-xs font-semibold text-neutral-100 hover:border-neutral-500 hover:text-white"
-          >
-            Change selection
-          </button>
-        </div>
-      </div>
-      <div className="p-3 sm:p-4">
-        <ActivityFlow
-          scaleMidis={scaleMidis}
-          onComplete={() => setStarted(false)}
-          labelChange={(newLabel) => setLabel(newLabel)}
-        />
       </div>
     </div>
   );

@@ -177,14 +177,7 @@ export const NoteHold = ({
 
   const handleKeyboardNoteOn = useCallback(
     (midi: number) => {
-      const activeChord =
-        chords[Math.min(currentChordIndex, Math.max(0, chords.length - 1))] ?? currentChord;
-      const activeMidis =
-        activeChord?.map((note) =>
-          typeof note.midi === "number" ? note.midi : pitchNameToMidi(note.pitchName),
-        ) ?? currentChordMidis;
-
-      const isChordNote = activeMidis?.includes(midi);
+      const isChordNote = currentChordMidis.includes(midi);
       const color = isChordNote ? CHORD_NOTE_COLOR : noteColorByMidi.get(midi) ?? WRONG_NOTE_COLOR;
 
       const id = `keyboard-${midi}`;
@@ -201,7 +194,7 @@ export const NoteHold = ({
         },
       ]);
     },
-    [chords, currentChord, currentChordIndex, currentChordMidis, noteColorByMidi],
+    [currentChordMidis, noteColorByMidi],
   );
 
   const handleKeyboardNoteOff = useCallback((midi: number) => {

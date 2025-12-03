@@ -197,7 +197,7 @@ export function PianoKeyboard({
         onClick={() => handleKeyClick(note)}
       >
         {showOctaveStart && !gaming && note % 12 === 0 && (
-          <div className={octaveLabelClass}>C{Math.floor(note / 12)}</div>
+          <div className={octaveLabelClass}>C{Math.floor(note / 12)-1}</div>
         )}
       </div>
     );

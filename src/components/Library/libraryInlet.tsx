@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
   Activity,
-  Check,
   CheckCircle2,
   ChevronRight,
   FileAudio,

@@ -153,10 +153,10 @@ interface ConnectUser {
 }
 
 const CONNECT_USERS_DATA: ConnectUser[] = [
-  { name: "Sarah J.", role: "Vocalist", common: "Pop, R&B" },
-  { name: "Mike T.", role: "Producer", common: "Electronic" },
-  { name: "Davide R.", role: "Guitarist", common: "Jazz" },
-  { name: "Elena V.", role: "Songwriter", common: "Folk" },
+  { name: "Ryan M.", role: "Lyricist", common: "Hip Hop" },
+  { name: "Aaron M.", role: "Guitarist", common: "R&B" },
+  { name: "Peter S.", role: "Pianist", common: "Jazz" },
+  { name: "Scooter V.", role: "Percussionist", common: "World" },
 ];
 
 export const ConnectInlet: React.FC = () => {

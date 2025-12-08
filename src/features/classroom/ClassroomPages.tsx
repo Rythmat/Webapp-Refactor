@@ -8,6 +8,7 @@ import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard
 import { LessonFlow } from '@/components/learn/LessonFlow';
 import { FlowSelect } from '@/components/Games/FlowSelect';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
+import { LearnInlet } from '@/components/learn/LearnInlet';
 
 
 const ClassroomCollectionPage = lazy(() =>
@@ -58,11 +59,6 @@ const HomeInlet = lazy(() =>
   })),
 );
 
-const LearnHomePage = lazy(() =>
-  import('./LearnHomePage').then(({ LearnHomePage }) => ({
-    default: LearnHomePage,
-  })),
-);
 
 const ConnectInlet = lazy(() =>
   import('@/components/Profile/connectInlet').then(({ ConnectInlet }) => ({
@@ -189,7 +185,7 @@ export const learnPages = () => {
     children: [
       { 
         index: true,
-        element: <LearnHomePage /> 
+        element: <LearnInlet /> 
       },
       {
         path:LearnRoutes.flow.definition,
@@ -220,7 +216,7 @@ export const connectPages = () => {
   };
 };
 
-export const LibraryPages = () => {
+export const libraryPages = () => {
   return {
     path: LibraryRoutes.root.definition,
     element: (

@@ -1,14 +1,12 @@
 import * as React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/components/utilities';
+import type { LucideIcon } from 'lucide-react';
 
-interface IconProps {
-  active?: boolean;
-}
 
 export type NavItemProps = {
   to: string;
-  icon: React.ReactElement<IconProps>;
+  icon: LucideIcon;
   label: string;
   comingSoon?: boolean;
   isCollapsed?: boolean;
@@ -20,9 +18,10 @@ export function SidebarMainNavItem(props: NavItemProps) {
   const [isHovered, setIsHovered] = React.useState(false);
 
   // Clone the icon element and add the active prop
-  const iconWithActiveState = React.cloneElement(props.icon, {
-    active: isActive || isHovered,
-  });
+  // const iconWithActiveState = React.cloneElement(props.icon, {
+  //   active: isActive || isHovered,
+  // });
+  const Icon = props.icon;
 
   return (
     <li
@@ -51,7 +50,12 @@ export function SidebarMainNavItem(props: NavItemProps) {
             props.isCollapsed ? 'w-6 h-6 flex items-center justify-center' : '',
           )}
         >
-          {iconWithActiveState}
+          <Icon
+            className={cn(
+              'h-5 w-5 transition-colors',
+              isActive || isHovered ? 'text-white' : 'text-foreground/60',
+            )}
+          />
         </span>
         {!props.isCollapsed && <span>{props.label}</span>}
         {!props.isCollapsed && props.comingSoon && (

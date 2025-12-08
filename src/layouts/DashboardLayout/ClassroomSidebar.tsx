@@ -1,17 +1,12 @@
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { Logo } from '@/components/Logo';
 import { BetaHelp } from '@/components/ui/beta-help';
-import { ChaptersIcon } from '@/components/ui/icons/chapters-icon';
-import { PlayAlongIcon } from '@/components/ui/icons/play-along-icon';
 import { cn } from '@/components/utilities';
 import {   ConnectRoutes, GameRoutes, LearnRoutes, LibraryRoutes, ProfileRoutes, StudioRoutes } from '@/constants/routes';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
 import { UserWidget } from './UserWidget';
-import { NoteIcon } from '@/components/ui/icons/note-icon';
-import { RhythmIcon } from '@/components/ui/icons/rhythm-icon';
-import { StudentIcon } from '@/components/ui/icons/student-icon';
-import { HomeIcon } from '@/components/ui/icons/home-icon';
+import { BookOpen, Gamepad2, Home, Library, Music, Users } from 'lucide-react';
 interface SidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
@@ -64,37 +59,37 @@ export const ClassroomSidebar = ({
         
         <ul className="flex flex-1 flex-col gap-y-1 pt-4">
           <SidebarMainNavItem
-                      icon={<HomeIcon/>}
+                      icon={Home}
                       isCollapsed={isCollapsed}
                       label="Home"
                       to={ProfileRoutes.root()}
                     />
           <SidebarMainNavItem
-                      icon={<NoteIcon />}
+                      icon={BookOpen}
                       isCollapsed={isCollapsed}
                       label="Learn"
                       to={LearnRoutes.root()}
                     />
           <SidebarMainNavItem
-                      icon={<ChaptersIcon />}
+                      icon={Music}
                       isCollapsed={isCollapsed}
                       label="Studio"
                       to={StudioRoutes.root()}
                     />
           <SidebarMainNavItem
-                      icon={<RhythmIcon />}
+                      icon={Library}
                       isCollapsed={isCollapsed}
                       label="Library"
                       to={LibraryRoutes.root()}
                     />
           <SidebarMainNavItem
-                      icon={<PlayAlongIcon />}
+                      icon={Gamepad2}
                       isCollapsed={isCollapsed}
                       label="Arcade"
                       to={GameRoutes.root()}
                     />
           <SidebarMainNavItem
-                      icon={<StudentIcon />}
+                      icon={Users}
                       isCollapsed={isCollapsed}
                       label="Connect"
                       to={ConnectRoutes.root()}

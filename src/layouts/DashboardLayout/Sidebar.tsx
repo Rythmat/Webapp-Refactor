@@ -1,4 +1,4 @@
-import { HiHome, HiChevronLeft, HiChevronRight } from 'react-icons/hi';
+import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { Logo } from '@/components/Logo';
 import { BetaHelp } from '@/components/ui/beta-help';
 import { cn } from '@/components/utilities';

@@ -1,31 +1,403 @@
-import { PlayerMetrics } from "../Games/PlayerMetrics"
-import { ProfileBanner } from "../Profile/ProfileBanner";
-import { Card, CardTitle } from "../ui/card";
+import React, { useMemo, useState } from "react";
+import {
+  Activity,
+  ChevronLeft,
+  ChevronRight,
+  Hexagon,
+  Bookmark,
+  Heart,
+  Mic2,
+  MoreVertical,
+  Music,
+  Play,
+  PlusCircle,
+  RefreshCw,
+} from "lucide-react";
 
+import { PlayerMetrics } from "../Games/PlayerMetrics";
+import { ProfileBanner } from "../Profile/ProfileBanner";
+
+interface ThemeColors {
+  [key: string]: string;
+}
+
+const THEMES: ThemeColors = {
+  red: "#D65A65",
+  darkGrey: "#5C6B73",
+  beige: "#C2C5AA",
+  darkRed: "#9D5C63",
+  yellow: "#E9C46A",
+  teal: "#2A9D8F",
+  purple: "#9D4EDD",
+  orange: "#E76F51",
+  blue: "#457B9D",
+  indigo: "#264653",
+};
+
+interface HexagonPatternProps {
+  className?: string;
+  colorsOverride?: string[];
+  variant?: "default" | "diagonal" | "cluster" | "split" | "dense";
+  fixedPattern?: string;
+}
+
+const HexagonPattern: React.FC<HexagonPatternProps> = ({
+  className,
+  colorsOverride,
+  variant = "default",
+  fixedPattern,
+}) => {
+  const hexs = useMemo(() => {
+    const generatedHexs: React.JSX.Element[] = [];
+    const colors =
+      colorsOverride || [
+        THEMES.red,
+        THEMES.red,
+        THEMES.darkGrey,
+        THEMES.beige,
+        THEMES.beige,
+        THEMES.darkRed,
+      ];
+
+    if (fixedPattern) {
+      const patterns: { [key: string]: { r: number; c: number }[] } = {
+        flower: [
+          { r: 2, c: 2 },
+          { r: 2, c: 3 },
+          { r: 3, c: 2 },
+          { r: 3, c: 3 },
+          { r: 1, c: 2 },
+          { r: 1, c: 3 },
+          { r: 2, c: 1 },
+        ],
+        vShape: [
+          { r: 1, c: 1 },
+          { r: 2, c: 2 },
+          { r: 3, c: 3 },
+          { r: 2, c: 4 },
+          { r: 1, c: 5 },
+          { r: 1, c: 2 },
+          { r: 2, c: 3 },
+          { r: 1, c: 4 },
+        ],
+        cluster: [
+          { r: 1, c: 4 },
+          { r: 2, c: 3 },
+          { r: 2, c: 4 },
+          { r: 2, c: 5 },
+          { r: 3, c: 3 },
+          { r: 3, c: 4 },
+          { r: 3, c: 5 },
+        ],
+        pyramid: [
+          { r: 1, c: 3 },
+          { r: 2, c: 2 },
+          { r: 2, c: 3 },
+          { r: 2, c: 4 },
+          { r: 3, c: 1 },
+          { r: 3, c: 2 },
+          { r: 3, c: 3 },
+          { r: 3, c: 4 },
+          { r: 3, c: 5 },
+        ],
+      };
+
+      const coords = patterns[fixedPattern] || [];
+
+      coords.forEach((pos, i) => {
+        const x = pos.c * 26 + (pos.r % 2) * 13;
+        const y = pos.r * 22;
+        const color = colors[i % colors.length];
+        generatedHexs.push(
+          <path
+            key={`fixed-${i}`}
+            d="M13 0 L26 7.5 L26 22.5 L13 30 L0 22.5 L0 7.5 Z"
+            fill={color}
+            transform={`translate(${x}, ${y}) scale(0.95)`}
+            className="opacity-90"
+          />,
+        );
+      });
+    } else {
+      const rows = 12;
+      const cols = 16;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          let shouldRender = false;
+          if (variant === "diagonal") {
+            shouldRender = r + c > 8 && r + c < 18 && Math.random() > 0.3;
+          } else if (variant === "cluster") {
+            shouldRender = Math.sqrt(r * r + c * c) < 10 && Math.random() > 0.4;
+          } else if (variant === "split") {
+            shouldRender = (c < 6 || c > 10) && Math.random() > 0.3;
+          } else if (variant === "dense") {
+            shouldRender = Math.random() > 0.2;
+          } else {
+            shouldRender = Math.random() > 0.4;
+          }
+
+          if (shouldRender) {
+            const x = c * 26 + (r % 2) * 13;
+            const y = r * 22;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            generatedHexs.push(
+              <path
+                key={`${r}-${c}`}
+                d="M13 0 L26 7.5 L26 22.5 L13 30 L0 22.5 L0 7.5 Z"
+                fill={color}
+                transform={`translate(${x}, ${y}) scale(0.95)`}
+                className="opacity-90"
+              />,
+            );
+          }
+        }
+      }
+    }
+    return generatedHexs;
+  }, [colorsOverride, variant, fixedPattern]);
+
+  return (
+    <svg className={className} viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
+      <g transform="translate(20, 20)">{hexs}</g>
+    </svg>
+  );
+};
+
+interface TagProps {
+  label: string;
+  icon?: React.ElementType;
+  active?: boolean;
+}
+
+const Tag: React.FC<TagProps> = ({ label, icon: Icon, active }) => (
+  <button
+    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs transition-all ${active ? "bg-white text-black border-white" : "bg-white/5 border-white/5 text-gray-300 hover:bg-white/10 hover:border-white/20"}`}
+  >
+    {Icon && <Icon size={10} />}
+    {label}
+  </button>
+);
+
+interface ProjectCardProps {
+  title: string;
+  genre: string;
+  author: string;
+  active?: boolean;
+}
+
+const ProjectCard: React.FC<ProjectCardProps> = ({ title, genre, author, active }) => (
+  <div
+    className={`group relative p-4 rounded-2xl border transition-all duration-300 ${active ? "bg-white/5 border-white/10" : "bg-transparent border-white/5 hover:bg-white/5"}`}
+  >
+    <div className="flex justify-between items-start mb-2">
+      <div>
+        <h3 className="text-lg font-serif text-gray-100 mb-1">{title}</h3>
+        <div className="flex items-center gap-2 text-xs text-gray-400">
+          <Activity size={12} />
+          <span>{genre}</span>
+        </div>
+      </div>
+      <Bookmark size={18} className="text-gray-500 hover:text-white cursor-pointer" />
+    </div>
+    <div className="flex justify-between items-end mt-4">
+      <div className="flex items-center gap-2">
+        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-[10px] font-bold">
+          {author[0]}
+        </div>
+        <span className="text-xs text-gray-400">{author}</span>
+      </div>
+      <Heart size={16} className="text-gray-500 hover:text-white cursor-pointer transition-colors" />
+    </div>
+  </div>
+);
 
 export const HomeInlet = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [prompt, setPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const bannerSlides = [
+    { title: "Start", color: [THEMES.red, THEMES.darkRed, THEMES.beige] },
+    { title: "Create", color: [THEMES.teal, THEMES.indigo, THEMES.yellow] },
+    { title: "Explore", color: [THEMES.orange, THEMES.darkGrey, THEMES.red] },
+    { title: "Learn", color: [THEMES.purple, THEMES.beige, THEMES.blue] },
+  ];
+
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
+  const prevSlide = () =>
+    setCurrentSlide((prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length);
+  const handleGenerate = () => {
+    setIsGenerating(true);
+    setTimeout(() => setIsGenerating(false), 2000);
+  };
+
   return (
-    <div className="space-y-6">
-      <PlayerMetrics/>
-      <ProfileBanner/>
-      <div className="mx-auto grid max-w-5xl gap-4 px-4 md:grid-cols-2 md:gap-12">
-        <div className="space-y-3">
-          <Card>
-            <CardTitle>Lessons</CardTitle>
-          </Card>
-        </div>
-        <div className="space-y-3">
-          <Card>
-            <CardTitle>Projects</CardTitle>
-          </Card>
-        </div>
-        <div className="space-y-3">
-          <Card>
-            <CardTitle>Generate</CardTitle>
-          </Card>
+    <div className="space-y-8">
+      <PlayerMetrics />
+      <ProfileBanner />
+      <div className="h-full overflow-y-auto custom-scrollbar pb-12 px-8 space-y-12">
+        <section className="relative w-full h-80 rounded-[2rem] overflow-hidden mb-12 group">
+          <div className="absolute inset-0 bg-[#2A3036] transition-colors duration-500">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#2A3036] via-transparent to-[#E3D5CA] opacity-20" />
+            <HexagonPattern
+              className="w-full h-full object-cover opacity-80 transition-opacity duration-500"
+              colorsOverride={bannerSlides[currentSlide].color}
+              variant="dense"
+            />
+          </div>
+
+          <div className="absolute inset-0 p-8 flex flex-col justify-between">
+            <div className="flex justify-between items-center w-full z-10">
+              <button
+                onClick={prevSlide}
+                className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center hover:bg-black/40 transition-colors text-white border border-white/10"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center hover:bg-black/40 transition-colors text-white border border-white/10"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+
+            <div className="flex items-end justify-between z-10">
+              <div className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-full p-1.5 pr-2 flex items-center gap-4 pl-6 group/start cursor-pointer transition-all hover:bg-black/40">
+                <span className="font-serif text-2xl italic pr-4">
+                  {bannerSlides[currentSlide].title}
+                </span>
+                <div className="h-10 w-24 bg-white/10 rounded-full flex items-center justify-end px-1 group-hover/start:bg-white/20 transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-lg transform group-hover/start:scale-105 transition-transform">
+                    <ChevronRight size={18} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                {bannerSlides.map((_, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => setCurrentSlide(idx)}
+                    className={`w-3 h-3 rounded-full cursor-pointer transition-all ${currentSlide === idx ? "bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] scale-110" : "bg-white/20 hover:bg-white/40"}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-3 flex flex-col gap-4">
+            <div className="flex items-center gap-2 text-xl font-serif text-gray-200">
+              <h2>Continue</h2>
+              <ChevronRight size={18} className="text-gray-600" />
+            </div>
+            <div className="flex-1 bg-gradient-to-br from-teal-800/20 to-emerald-900/20 border border-white/5 rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-emerald-500/30 transition-all">
+              <div className="absolute inset-0 opacity-30">
+                <HexagonPattern
+                  className="w-[150%] h-[150%] -translate-x-1/4 -translate-y-1/4 text-emerald-500/20 fill-emerald-500/20"
+                  fixedPattern="cluster"
+                  colorsOverride={[THEMES.teal]}
+                />
+              </div>
+              <div className="relative z-10 h-full flex flex-col justify-end">
+                <div className="mb-4">
+                  <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1 block">
+                    Lesson 4
+                  </span>
+                  <h3 className="text-2xl font-serif leading-tight mb-2">
+                    Advanced
+                    <br />
+                    Polyrhythms
+                  </h3>
+                  <div className="w-full bg-white/10 h-1.5 rounded-full mt-3 overflow-hidden">
+                    <div className="w-3/4 h-full bg-emerald-500 rounded-full" />
+                  </div>
+                </div>
+                <button className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                  <Play size={18} fill="currentColor" />
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="lg:col-span-4 flex flex-col gap-4">
+            <div className="flex items-center gap-2 text-xl font-serif text-gray-200">
+              <h2>Projects</h2>
+              <ChevronRight size={18} className="text-gray-600" />
+            </div>
+            <div className="flex flex-col gap-3">
+              <ProjectCard title="Neon City Drive" genre="Synthwave, 120BPM" author="Alex M., AI" active />
+              <ProjectCard title="Acoustic Morning" genre="Folk, Guitar" author="Alex M." />
+              <div className="p-4 rounded-2xl border border-dashed border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/30 cursor-pointer transition-all h-20">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <PlusCircle size={16} /> Create New Project
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="lg:col-span-5 flex flex-col gap-4">
+            <div className="flex items-center gap-2 text-xl font-serif text-gray-200">
+              <h2>Generate</h2>
+              <ChevronRight size={18} className="text-gray-600" />
+            </div>
+            <div className="bg-[#151515] border border-white/5 rounded-3xl p-6 h-full flex flex-col relative overflow-hidden">
+              <div className="absolute top-6 right-6 w-12 h-12 rounded-full border border-white/10 flex items-center justify-center">
+                <div className="flex items-center gap-0.5 h-4">
+                  <div className="w-0.5 h-full bg-gradient-to-t from-orange-500 to-red-500 animate-pulse" />
+                  <div className="w-0.5 h-2 bg-gray-600" />
+                  <div className="w-0.5 h-3 bg-gray-600" />
+                  <div className="w-0.5 h-1 bg-gray-600" />
+                </div>
+              </div>
+              <div className="flex-1 min-h-[160px]">
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Describe the song you want to create... (e.g., 'An upbeat lo-fi track with jazzy piano chords and a relaxed drum beat')"
+                  className="w-full h-full bg-transparent border-none resize-none text-gray-300 placeholder:text-gray-600 focus:outline-none text-lg leading-relaxed custom-scrollbar"
+                />
+              </div>
+              <div className="space-y-4 pt-4 border-t border-white/5">
+                <div className="flex flex-wrap gap-2">
+                  <Tag label="Key" icon={Music} />
+                  <Tag label="Tempo" icon={Activity} />
+                  <div className="w-px h-6 bg-white/10 mx-1" />
+                  <Tag label="Pop" />
+                  <Tag label="R&B" />
+                  <Tag label="Jazz" />
+                  <Tag label="Lo-Fi" />
+                  <button className="w-7 h-7 rounded-full border border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/30">
+                    <MoreVertical size={14} />
+                  </button>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <Mic2 size={12} />
+                    <span>
+                      Voice Mode: <span className="text-gray-300">Instrumental</span>
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleGenerate}
+                    className="bg-white text-black px-6 py-2.5 rounded-full font-medium text-sm hover:bg-gray-200 transition-colors flex items-center gap-2 shadow-lg shadow-white/5"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <RefreshCw size={14} className="animate-spin" /> Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Hexagon size={16} fill="black" /> Generate
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    
   );
 };

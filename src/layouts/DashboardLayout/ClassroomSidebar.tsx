@@ -9,7 +9,6 @@ import { SidebarMainNavItem } from './SidebarMainNavItem';
 import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
 import { UserWidget } from './UserWidget';
 import { NoteIcon } from '@/components/ui/icons/note-icon';
-import { MarketIcon }  from '@/components/ui/icons/market-icon';
 import { RhythmIcon } from '@/components/ui/icons/rhythm-icon';
 import { StudentIcon } from '@/components/ui/icons/student-icon';
 import { HomeIcon } from '@/components/ui/icons/home-icon';
@@ -83,27 +82,21 @@ export const ClassroomSidebar = ({
                       to={StudioRoutes.root()}
                     />
           <SidebarMainNavItem
-                      icon={<PlayAlongIcon />}
-                      isCollapsed={isCollapsed}
-                      label="Games"
-                      to={GameRoutes.root()}
-                    />
-          <SidebarMainNavItem
                       icon={<RhythmIcon />}
                       isCollapsed={isCollapsed}
                       label="Library"
                       to={GameRoutes.root()}
                     />
           <SidebarMainNavItem
-                      icon={<MarketIcon />}
+                      icon={<PlayAlongIcon />}
                       isCollapsed={isCollapsed}
-                      label="Market"
-                      to={ClassroomRoutes.root()}
+                      label="Arcade"
+                      to={GameRoutes.root()}
                     />
           <SidebarMainNavItem
                       icon={<StudentIcon />}
                       isCollapsed={isCollapsed}
-                      label="Creatives"
+                      label="Connect"
                       to={ClassroomRoutes.root()}
                     />
         </ul>

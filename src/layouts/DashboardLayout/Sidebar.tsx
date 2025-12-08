@@ -1,13 +1,6 @@
 import { HiHome, HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { Logo } from '@/components/Logo';
 import { BetaHelp } from '@/components/ui/beta-help';
-import { ChaptersIcon } from '@/components/ui/icons/chapters-icon';
-import { CollectionsIcon } from '@/components/ui/icons/collections-icon';
-// import { NoteIcon } from '@/components/ui/icons/note-icon';
-import { PlayAlongIcon } from '@/components/ui/icons/play-along-icon';
-import { StudentIcon } from '@/components/ui/icons/student-icon';
-import { TeacherIcon } from '@/components/ui/icons/teacher-icon';
-import { RhythmIcon } from '@/components/ui/icons/rhythm-icon';
 import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
@@ -15,6 +8,7 @@ import { ClassroomSwitcher } from '@/features/teacher/components/ClassroomSwitch
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
 import { UserWidget } from './UserWidget';
+import { GalleryHorizontalEnd, Library, Music, Play, Ratio, User, Users } from 'lucide-react';
 interface SidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
@@ -34,37 +28,37 @@ export const Sidebar = ({
       return (
         <ul className="flex flex-1 flex-col gap-y-1 pt-4">
           <SidebarMainNavItem
-            icon={<TeacherIcon />}
+            icon={User}
             isCollapsed={isCollapsed}
             label="Teachers"
             to={AdminRoutes.teachers()}
           />
           <SidebarMainNavItem
-            icon={<StudentIcon />}
+            icon={Users}
             isCollapsed={isCollapsed}
             label="Students"
             to={AdminRoutes.students()}
           />
           <SidebarMainNavItem
-            icon={<CollectionsIcon />}
+            icon={Library}
             isCollapsed={isCollapsed}
             label="Books"
             to={AdminRoutes.collections()}
           />
           <SidebarMainNavItem
-            icon={<ChaptersIcon />}
+            icon={GalleryHorizontalEnd}
             isCollapsed={isCollapsed}
             label="Chapters"
             to={AdminRoutes.chapters()}
           />
           <SidebarMainNavItem
-            icon={<RhythmIcon />}
+            icon={Music}
             isCollapsed={isCollapsed}
             label="Rhythm Maps"
             to={AdminRoutes.phraseMaps()}
           />
           <SidebarMainNavItem
-            icon={<PlayAlongIcon />}
+            icon={Play}
             isCollapsed={isCollapsed}
             label="Play Along"
             to={AdminRoutes.playAlongs()}
@@ -75,9 +69,10 @@ export const Sidebar = ({
 
     // Default navigation or teacher without classroom
     return (
+
       <ul className="flex flex-1 flex-col space-y-1">
         <SidebarMainNavItem
-          icon={<HiHome />}
+          icon={Ratio}
           isCollapsed={isCollapsed}
           label="Overview"
           to={AdminRoutes.root()}

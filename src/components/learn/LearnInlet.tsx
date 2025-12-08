@@ -13,6 +13,7 @@ import {
   Volume2,
   X,
 } from "lucide-react";
+import { HeaderBar } from "../ClassroomLayout/HeaderBar";
 
 interface ThemeColors {
   [key: string]: string;
@@ -307,11 +308,13 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar pb-12 px-8 relative">
-      <div className="flex flex-col gap-4 mb-8">
-        <div className="flex items-center gap-1 bg-[#151515] w-fit p-1 rounded-lg border border-white/5">
-          {["Courses", "Theory", "Explore"].map((tab) => (
-            <button
+    <div className="flex flex-col h-full">
+      <HeaderBar title="Learn" context="learn" />
+      <div className="flex-1 overflow-hidden flex flex-col pb-12 px-8 relative custom-scrollbar">
+        <div className="flex flex-col gap-4 mb-8">
+          <div className="flex items-center gap-1 bg-[#151515] w-fit p-1 rounded-lg border border-white/5">
+            {["Courses", "Theory", "Explore"].map((tab) => (
+              <button
               key={tab}
               onClick={() => setSubTab(tab)}
               className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${subTab === tab ? "bg-white text-black shadow-lg" : "text-gray-400 hover:text-white"}`}
@@ -350,53 +353,54 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
             </div>
           </div>
         </div>
-      </div>
-
-      {showFilter && (
-        <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 absolute top-[150px] left-8 right-8 z-20 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex justify-between items-start mb-4 pb-2 border-b border-white/5">
-            <h3 className="text-sm font-medium text-gray-200">Filter</h3>
-            <X size={16} className="text-gray-500 cursor-pointer hover:text-white" onClick={() => setShowFilter(false)} />
-          </div>
-          <div className="grid grid-cols-4 gap-4 h-64 overflow-y-auto custom-scrollbar">
-            <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
-              <FilterCheckbox label="Diatonic Modes" checked />
-              <FilterCheckbox label="Relative Modes" />
-            </div>
-            <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
-              <FilterCheckbox label="Lydian" />
-              <FilterCheckbox label="Dorian" checked />
-            </div>
-            <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
-              {["C", "G", "D", "A"].map((key) => (
-                <FilterCheckbox key={key} label={key} checked={key === "A"} />
-              ))}
-            </div>
-            <div className="flex flex-col gap-1">
-              <FilterCheckbox label="7th Chords" checked />
-            </div>
-          </div>
         </div>
-      )}
 
-      <div className="flex-1">
-        {subTab === "Explore" || subTab === "Theory" ? (
-          <>
-            <CollapsibleSection title="Diatonic Modes" defaultOpen className="mt-4">
+        {showFilter && (
+          <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 absolute top-[150px] left-8 right-8 z-20 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex justify-between items-start mb-4 pb-2 border-b border-white/5">
+              <h3 className="text-sm font-medium text-gray-200">Filter</h3>
+              <X size={16} className="text-gray-500 cursor-pointer hover:text-white" onClick={() => setShowFilter(false)} />
+            </div>
+            <div className="grid grid-cols-4 gap-4 h-64 overflow-y-auto custom-scrollbar">
+              <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
+                <FilterCheckbox label="Diatonic Modes" checked />
+                <FilterCheckbox label="Relative Modes" />
+              </div>
+              <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
+                <FilterCheckbox label="Lydian" />
+                <FilterCheckbox label="Dorian" checked />
+              </div>
+              <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
+                {["C", "G", "D", "A"].map((key) => (
+                  <FilterCheckbox key={key} label={key} checked={key === "A"} />
+                ))}
+              </div>
+              <div className="flex flex-col gap-1">
+                <FilterCheckbox label="7th Chords" checked />
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {subTab === "Explore" || subTab === "Theory" ? (
+            <>
+              <CollapsibleSection title="Diatonic Modes" defaultOpen className="mt-4">
+                {renderContent(activeData)}
+              </CollapsibleSection>
+              <CollapsibleSection title="Relative Modes" className="mt-8 border-t border-white/5 pt-4">
+                {renderContent(EXPLORE_DATA.slice(0, 3))}
+              </CollapsibleSection>
+              <CollapsibleSection title="Parallel Modes" className="mt-4 border-t border-white/5 pt-4">
+                {renderContent(EXPLORE_DATA.slice(3, 6))}
+              </CollapsibleSection>
+            </>
+          ) : (
+            <CollapsibleSection title="Continue" defaultOpen className="mt-4">
               {renderContent(activeData)}
             </CollapsibleSection>
-            <CollapsibleSection title="Relative Modes" className="mt-8 border-t border-white/5 pt-4">
-              {renderContent(EXPLORE_DATA.slice(0, 3))}
-            </CollapsibleSection>
-            <CollapsibleSection title="Parallel Modes" className="mt-4 border-t border-white/5 pt-4">
-              {renderContent(EXPLORE_DATA.slice(3, 6))}
-            </CollapsibleSection>
-          </>
-        ) : (
-          <CollapsibleSection title="Continue" defaultOpen className="mt-4">
-            {renderContent(activeData)}
-          </CollapsibleSection>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

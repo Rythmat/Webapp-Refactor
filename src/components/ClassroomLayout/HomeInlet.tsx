@@ -14,6 +14,10 @@ import {
   RefreshCw,
 } from "lucide-react";
 
+import { PlayerMetrics } from "../Games/PlayerMetrics";
+import { ProfileBanner } from "../Profile/ProfileBanner";
+import { HeaderBar } from "./HeaderBar";
+
 
 interface ThemeColors {
   [key: string]: string;
@@ -230,8 +234,12 @@ export const HomeInlet = () => {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="h-full overflow-y-auto custom-scrollbar pb-12 px-8 space-y-12">
+    <div className="flex flex-col h-full">
+      <HeaderBar title="Welcome" context="home" />
+      <div className="flex-1 overflow-hidden flex flex-col space-y-8">
+        <PlayerMetrics />
+        <ProfileBanner />
+        <div className="h-full overflow-y-auto custom-scrollbar pb-12 px-8 space-y-12">
         <section className="relative w-full h-80 rounded-[2rem] overflow-hidden mb-12 group">
           <div className="absolute inset-0 bg-[#2A3036] transition-colors duration-500">
             <div className="absolute inset-0 bg-gradient-to-r from-[#2A3036] via-transparent to-[#E3D5CA] opacity-20" />
@@ -395,5 +403,6 @@ export const HomeInlet = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };

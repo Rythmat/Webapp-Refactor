@@ -21,6 +21,7 @@ import { Track, Clip, InstrumentType, Note, MidiClipType,  AudioClipType} from "
 import { useMidiKeyboard } from "@/hooks/useMidiKeyboard";
 import { useMidiInput } from "@/hooks/useMidiInput";
 import { getBlobDuration, transcodeToMp3 } from "@/components/utils/audio";
+import { HeaderBar } from "../ClassroomLayout/HeaderBar";
 
 function aiTracksToAppTracks(aiTracks: { name: string; instrument: InstrumentType; notes: Omit<Note, 'id'>[] }[]): Track[] {
   return aiTracks.map((aiTrack) => ({
@@ -715,6 +716,7 @@ export const Index = () => {
 
   return (
     <div className="flex flex-col h-full bg-background">
+      <HeaderBar title="Studio" context="studio" showProfile={false} className="bg-background" />
       <header className="flex items-center justify-between border-b px-4 py-2 flex-shrink-0">
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" onClick={() => setIsNewTrackDialogOpen(true)}><PlusCircle className="h-4 w-4 mr-1" /> New Track</Button>

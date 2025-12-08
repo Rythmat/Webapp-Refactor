@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { HeaderBar } from "../ClassroomLayout/HeaderBar";
 
 interface ThemeColors {
   [key: string]: string;
@@ -163,8 +164,10 @@ export const ConnectInlet: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Network");
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar px-8 pb-12">
-      <div className="flex flex-col gap-2 mb-8">
+    <div className="flex flex-col h-full">
+      <HeaderBar title="Connect" context="connect" subtitle="User Name" />
+      <div className="flex-1 overflow-y-auto custom-scrollbar px-8 pb-12">
+        <div className="flex flex-col gap-2 mb-8">
         <div className="flex items-center gap-4 text-sm text-gray-400 border-b border-white/10 pb-4">
           {["Network", "Messages", "Collaborations"].map((tab) => (
             <button
@@ -177,7 +180,7 @@ export const ConnectInlet: React.FC = () => {
           ))}
         </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 flex flex-col gap-6">
           <h2 className="text-xl font-serif text-white">Recommended for You</h2>
           {CONNECT_USERS_DATA.map((person, i) => (
@@ -204,8 +207,8 @@ export const ConnectInlet: React.FC = () => {
         </div>
         <div className="flex flex-col gap-6">
           <div className="bg-[#151515] border border-white/5 rounded-3xl p-6">
-            <h3 className="text-lg font-serif text-white mb-4">Online Now</h3>
-            <div className="flex flex-col gap-4">
+             <h3 className="text-lg font-serif text-white mb-4">Online Now</h3>
+             <div className="flex flex-col gap-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-gray-700 relative">
@@ -219,6 +222,7 @@ export const ConnectInlet: React.FC = () => {
               ))}
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

@@ -12,6 +12,7 @@ import {
   Share2,
   Sliders,
 } from "lucide-react";
+import { HeaderBar } from "../ClassroomLayout/HeaderBar";
 
 interface ThemeColors {
   [key: string]: string;
@@ -164,11 +165,13 @@ const LibraryItem: React.FC<LibraryItemProps> = ({ title, subtitle, tags, index,
 
 export const LibraryInlet: React.FC = () => {
   return (
-    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar pb-12 px-8">
-      <div className="mb-10">
-        <div className="flex items-center gap-2 text-lg font-serif text-gray-200 mb-6 group cursor-pointer w-fit">
-          <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
-            <LayoutGrid size={16} />
+    <div className="flex flex-col h-full">
+      <HeaderBar title="Library" context="library" subtitle="User Name" />
+      <div className="flex-1 overflow-y-auto custom-scrollbar pb-12 px-8">
+        <div className="mb-10">
+          <div className="flex items-center gap-2 text-lg font-serif text-gray-200 mb-6 group cursor-pointer w-fit">
+            <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+              <LayoutGrid size={16} />
           </div>
           <h2>Generated Lessons</h2>
           <ChevronRight size={18} className="text-gray-600 group-hover:translate-x-1 transition-transform" />
@@ -204,5 +207,6 @@ export const LibraryInlet: React.FC = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };

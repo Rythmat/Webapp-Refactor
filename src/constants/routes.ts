@@ -277,3 +277,20 @@ export const LearnRoutes = {
       group: string,
     }>('/lessons/:key/:group', { prefix: learnPrefix }),
 }
+
+
+const connectPrefix = '/connect';
+
+export const ConnectRoutes = {
+
+  root: createRouteDefinition(connectPrefix),
+
+}
+
+const libraryPrefix = '/library';
+
+export const LibraryRoutes = {
+
+  root: createRouteDefinition(libraryPrefix),
+  
+}

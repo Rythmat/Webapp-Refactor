@@ -4,7 +4,7 @@ import { BetaHelp } from '@/components/ui/beta-help';
 import { ChaptersIcon } from '@/components/ui/icons/chapters-icon';
 import { PlayAlongIcon } from '@/components/ui/icons/play-along-icon';
 import { cn } from '@/components/utilities';
-import {  ClassroomRoutes, GameRoutes, ProfileRoutes, StudioRoutes } from '@/constants/routes';
+import {  ClassroomRoutes, ConnectRoutes, GameRoutes, ProfileRoutes, StudioRoutes } from '@/constants/routes';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
 import { UserWidget } from './UserWidget';
@@ -97,7 +97,7 @@ export const ClassroomSidebar = ({
                       icon={<StudentIcon />}
                       isCollapsed={isCollapsed}
                       label="Connect"
-                      to={ClassroomRoutes.root()}
+                      to={ConnectRoutes.root()}
                     />
         </ul>
         

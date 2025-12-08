@@ -1,14 +1,14 @@
 import { lazy} from 'react';
 import { Navigate} from 'react-router-dom';
-import { ClassroomRoutes, GameRoutes, StudioRoutes, ProfileRoutes, LearnRoutes} from '@/constants/routes';
+import { ClassroomRoutes, GameRoutes, StudioRoutes, ProfileRoutes, LearnRoutes, ConnectRoutes, LibraryRoutes} from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LessonFlow } from '@/components/learn/LessonFlow';
 import { FlowSelect } from '@/components/Games/FlowSelect';
-// import { NoteHold } from '@/components/Games/NoteHold';
-// import { SynthTest } from '@/components/Games/SynthTest';
+import { LibraryInlet } from '@/components/Library/libraryInlet';
+
 
 const ClassroomCollectionPage = lazy(() =>
   import('./ClassroomCollectionPage').then(({ ClassroomCollectionPage }) => ({
@@ -61,6 +61,12 @@ const HomeInlet = lazy(() =>
 const LearnHomePage = lazy(() =>
   import('./LearnHomePage').then(({ LearnHomePage }) => ({
     default: LearnHomePage,
+  })),
+);
+
+const ConnectInlet = lazy(() =>
+  import('@/components/Profile/connectInlet').then(({ ConnectInlet }) => ({
+    default: ConnectInlet,
   })),
 );
 
@@ -165,8 +171,7 @@ export const studentPages = () => {
     children: [
       { index: true, element: <HomeInlet /> },
       { path: ProfileRoutes.profile.definition, element: <StudentProfilePage /> },
-      // { path: 'settings', element: <SettingsPage /> }, 
-      // { path: 'plan', element: <PlanPage /> },
+
     ],
   };
 };
@@ -189,6 +194,46 @@ export const learnPages = () => {
       {
         path:LearnRoutes.flow.definition,
         element:<LessonFlow flowType='grouping' nameOf=''/>
+      },
+
+    ],
+  };
+};
+
+export const connectPages = () => {
+  return {
+    path: ConnectRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage>
+            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [
+      { 
+        index: true,
+        element: <ConnectInlet /> 
+      },
+
+    ],
+  };
+};
+
+export const LibraryPages = () => {
+  return {
+    path: LibraryRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage>
+            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [
+      { 
+        index: true,
+        element: <LibraryInlet /> 
       },
 
     ],

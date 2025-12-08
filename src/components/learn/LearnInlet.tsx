@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  Activity,
   ArrowUpDown,
   Check,
   CheckCircle2,
@@ -10,7 +9,6 @@ import {
   LayoutGrid,
   List as ListIcon,
   MoreVertical,
-  Music,
   Play,
   Volume2,
   X,

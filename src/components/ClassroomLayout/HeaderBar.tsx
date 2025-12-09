@@ -1,5 +1,7 @@
 import React from "react";
 import { Edit2, Hexagon, Send } from "lucide-react";
+import { useNavigate } from "react-router";
+import { ProfileRoutes } from "@/constants/routes";
 
 type HeaderContext =
   | "default"
@@ -21,7 +23,6 @@ interface HeaderBarProps {
   context?: HeaderContext;
   userName?: string;
   onAwardsClick?: () => void;
-  onProfileClick?: () => void;
   showProfile?: boolean;
   className?: string;
 }
@@ -35,13 +36,13 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   context = "default",
   userName = "User",
   onAwardsClick,
-  onProfileClick,
   showProfile = true,
   className = "",
 }) => {
   const isLibrary = context === "library" || context === "market";
   const isProfile = context === "profile" || context === "awards";
   const highlightAwards = context === "awards";
+  const navigate = useNavigate();
 
   return (
     <header
@@ -96,7 +97,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         {showProfile && (
           <button
             type="button"
-            onClick={onProfileClick}
+            onClick={() => navigate(ProfileRoutes.profile())}
             className="flex items-center gap-3 pl-4 border-l border-white/10 cursor-pointer group"
           >
             <div className="text-right hidden md:block">

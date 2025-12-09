@@ -9,6 +9,7 @@ import { LessonFlow } from '@/components/learn/LessonFlow';
 import { FlowSelect } from '@/components/Games/FlowSelect';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnInlet } from '@/components/learn/LearnInlet';
+import { ProfilePage } from '@/components/Profile/ProfilePage';
 
 
 const ClassroomCollectionPage = lazy(() =>
@@ -44,12 +45,6 @@ const ClassroomHomePage = lazy(() =>
 const Index = lazy(() =>
   import('@/components/studio/Index').then(({ Index }) => ({
     default: Index,
-  })),
-);
-
-const StudentProfilePage = lazy(() =>
-  import('../student/StudentProfilePage').then(({ StudentProfilePage }) => ({
-    default: StudentProfilePage,
   })),
 );
 
@@ -166,7 +161,7 @@ export const studentPages = () => {
     ),
     children: [
       { index: true, element: <HomeInlet /> },
-      { path: ProfileRoutes.profile.definition, element: <StudentProfilePage /> },
+      { path: ProfileRoutes.profile.definition, element: <ProfilePage/> },
 
     ],
   };

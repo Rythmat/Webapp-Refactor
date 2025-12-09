@@ -248,7 +248,7 @@ export const ProfileRoutes = {
 
   root : createRouteDefinition(homePrefix),
 
-  profile: createRouteDefinition(homePrefix),
+  profile: createRouteDefinition('/user', { prefix: homePrefix }),
 
   settings: createRouteDefinition('/settings', { prefix: homePrefix }),
 
@@ -292,5 +292,5 @@ const libraryPrefix = '/library';
 export const LibraryRoutes = {
 
   root: createRouteDefinition(libraryPrefix),
-  
+
 }

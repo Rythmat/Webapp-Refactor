@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import React from "react";
 import { HexagonPattern, DEFAULT_THEMES as THEMES } from "../ui/HexagonPattern";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";

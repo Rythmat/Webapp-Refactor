@@ -139,7 +139,7 @@ interface FilterCheckboxProps {
 }
 
 const FilterCheckbox: React.FC<FilterCheckboxProps> = ({ label, checked }) => (
-  <div className="flex items-center gap-3 p-1 cursor-pointer hover:bg-white/5 rounded transition-colors group">
+  <div className="flex items-center gap-3 p-1 cursor-pointer hover:bg-white/5 rounded transition-colors group" onClick={()=>{checked=!checked}}>
     <div
       className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${checked ? "bg-white border-white" : "border-gray-600 group-hover:border-gray-400"}`}
     >
@@ -366,20 +366,20 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
             </div>
             <div className="grid grid-cols-4 gap-4 h-64 overflow-y-auto custom-scrollbar">
               <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
-                <FilterCheckbox label="Diatonic Modes" checked />
+                <FilterCheckbox label="Diatonic Modes" />
                 <FilterCheckbox label="Relative Modes" />
               </div>
               <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
                 <FilterCheckbox label="Lydian" />
-                <FilterCheckbox label="Dorian" checked />
+                <FilterCheckbox label="Dorian" />
               </div>
               <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
                 {["C", "G", "D", "A"].map((key) => (
-                  <FilterCheckbox key={key} label={key} checked={key === "A"} />
+                  <FilterCheckbox key={key} label={key}  />
                 ))}
               </div>
               <div className="flex flex-col gap-1">
-                <FilterCheckbox label="7th Chords" checked />
+                <FilterCheckbox label="7th Chords"  />
               </div>
             </div>
           </div>

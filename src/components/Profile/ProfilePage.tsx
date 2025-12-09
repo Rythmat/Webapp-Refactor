@@ -95,7 +95,7 @@ const CONNECT_USERS_DATA: ConnectUser[] = [
 export const ProfilePage: React.FC = () => {
   return (
     <div className="flex flex-col gap-8 pb-12 overflow-y-auto custom-scrollbar h-full px-8">
-      <HeaderBar title="Flow Select" context="learn" showProfile = {false} className="bg-neutral-900/60" />
+      <HeaderBar title="Flow Select" context="profile" showProfile = {false} className="bg-neutral-900/60" />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div className="lg:col-span-4 flex flex-col items-center">
           <div className="w-64 h-64 rounded-full overflow-hidden relative border-4 border-[#2A8BA8] shadow-2xl shadow-blue-900/20 mb-6">

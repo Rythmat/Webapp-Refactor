@@ -155,7 +155,7 @@ export const FlowSelect = () => {
   if (!started) {
     return (
       <div className="min-h-screen w-full bg-neutral-950 text-neutral-50 flex flex-col">
-        <HeaderBar title="Arcade" context="learn"  className="bg-neutral-900/60" />
+        <HeaderBar title="Arcade" className="bg-neutral-900/60" />
         <SelectionShell />
       </div>
     );
@@ -163,7 +163,7 @@ export const FlowSelect = () => {
 
   return (
     <div className="min-h-screen w-full bg-neutral-950 text-neutral-50 flex flex-col">
-      <HeaderBar title="Flow Select" context="learn" className="bg-neutral-900/60" />
+      <HeaderBar title="Flow Select" className="bg-neutral-900/60" />
       <div className="border-b border-neutral-800 bg-neutral-900/60 px-4 py-3 flex items-center justify-between">
         <div className="text-sm text-neutral-300">
           {label[1]}

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
 import {
   Activity,
   ChevronLeft,
@@ -14,9 +13,9 @@ import {
   PlusCircle,
   RefreshCw,
 } from "lucide-react";
-
+import { useNavigate } from "react-router";
+import { LibraryRoutes, StudioRoutes, LearnRoutes, GameRoutes} from "@/constants/routes";
 import { HeaderBar } from "./HeaderBar";
-// import { ProfileRoutes } from "@/constants/routes";
 import { HexagonPattern, DEFAULT_THEMES as THEMES } from "../ui/HexagonPattern";
 
 interface TagProps {
@@ -71,12 +70,13 @@ export const HomeInlet = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+   const navigate = useNavigate();
 
   const bannerSlides = [
-    { title: "Start", color: [THEMES.red, THEMES.darkRed, THEMES.beige] },
-    { title: "Create", color: [THEMES.teal, THEMES.indigo, THEMES.yellow] },
-    { title: "Explore", color: [THEMES.orange, THEMES.darkGrey, THEMES.red] },
-    { title: "Learn", color: [THEMES.purple, THEMES.beige, THEMES.blue] },
+    { title: "Study", color: [THEMES.red, THEMES.darkRed, THEMES.beige], route: LearnRoutes.root.definition },
+    { title: "Create", color: [THEMES.teal, THEMES.indigo, THEMES.yellow], route: StudioRoutes.root.definition },
+    { title: "Explore", color: [THEMES.orange, THEMES.darkGrey, THEMES.red], route: LibraryRoutes.root.definition },
+    { title: "Play", color: [THEMES.purple, THEMES.beige, THEMES.blue], route: GameRoutes.root.definition },
   ];
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
@@ -89,10 +89,7 @@ export const HomeInlet = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <HeaderBar
-        title="Welcome"
-        context="home"
-      />
+      <HeaderBar title="Welcome" />
       <div className="flex-1 overflow-hidden flex flex-col space-y-8">
         <div className="h-full overflow-y-auto custom-scrollbar pb-12 px-8 space-y-12">
         <section className="relative w-full h-80 rounded-[2rem] overflow-hidden mb-12 group">
@@ -127,7 +124,7 @@ export const HomeInlet = () => {
                   {bannerSlides[currentSlide].title}
                 </span>
                 <div className="h-10 w-24 bg-white/10 rounded-full flex items-center justify-end px-1 group-hover/start:bg-white/20 transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-lg transform group-hover/start:scale-105 transition-transform">
+                  <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-lg transform group-hover/start:scale-105 transition-transform" onClick={() => {navigate(bannerSlides[currentSlide].route)}}>
                     <ChevronRight size={18} />
                   </div>
                 </div>

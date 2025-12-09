@@ -99,10 +99,7 @@ const LibraryItem: React.FC<LibraryItemProps> = ({ title, subtitle, tags, index,
 export const LibraryInlet: React.FC = () => {
   return (
     <div className="flex flex-col h-full">
-      <HeaderBar
-        title="Library"
-        context="library"
-      />
+      <HeaderBar title="Library" />
       <div className="flex-1 overflow-y-auto custom-scrollbar pb-12 px-8">
         <div className="mb-10">
           <div className="flex items-center gap-2 text-lg font-serif text-gray-200 mb-6 group cursor-pointer w-fit">

@@ -242,10 +242,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <HeaderBar
-        title="Learn"
-        context="learn"
-      />
+      <HeaderBar title="Learn "/>
       <div className="flex-1 overflow-hidden flex flex-col pb-12 px-8 relative custom-scrollbar">
         <div className="flex flex-col gap-4 mb-8">
           <div className="flex items-center gap-1 bg-[#151515] w-fit p-1 rounded-lg border border-white/5">

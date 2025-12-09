@@ -716,7 +716,7 @@ export const Index = () => {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      <HeaderBar title="Studio" context="studio" className="bg-background" />
+      <HeaderBar title="Studio" className="bg-background" />
       <header className="flex items-center justify-between border-b px-4 py-2 flex-shrink-0">
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" onClick={() => setIsNewTrackDialogOpen(true)}><PlusCircle className="h-4 w-4 mr-1" /> New Track</Button>

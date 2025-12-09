@@ -1,6 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import React from "react";
 import { HexagonPattern, DEFAULT_THEMES as THEMES } from "../ui/HexagonPattern";
+import { HeaderBar } from "../ClassroomLayout/HeaderBar";
 
 const AWARDS_DATA = [
   { title: "Popstar", level: 1, description: "Double XP: 25 minutes", pattern: "flower", colors: ["#EDB3B3", THEMES.red, "#9D5C63", "#A6A2C2"] },
@@ -41,6 +42,7 @@ const AwardCard: React.FC<AwardCardProps> = ({ title, level, description, patter
 export const AwardsInlet: React.FC = () => {
   return (
     <div className="flex flex-col h-full overflow-y-auto custom-scrollbar pb-12 px-8">
+      <HeaderBar title="Awards" className="bg-neutral-900/60" />
       <div className="flex items-center gap-2 text-lg font-serif text-gray-200 mb-6">
         <h2>Awards</h2>
         <span aria-hidden className="text-gray-600">

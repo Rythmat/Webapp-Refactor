@@ -231,7 +231,7 @@ export const StudioRoutes = {
 
 };
 
-const gamesPrefix = '/games';
+const gamesPrefix = '/arcade';
 
 export const GameRoutes = {
 

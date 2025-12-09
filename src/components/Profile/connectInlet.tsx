@@ -14,10 +14,7 @@ export const ConnectInlet: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <HeaderBar
-        title="Connect"
-        context="connect"
-      />
+      <HeaderBar title="Connect" />
       <div className="flex-1 overflow-y-auto custom-scrollbar px-8 pb-12">
         <div className="flex flex-col gap-2 mb-8">
           <div className="flex items-center gap-4 text-sm text-gray-400 border-b border-white/10 pb-4">

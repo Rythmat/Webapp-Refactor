@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChordConnectionGame } from './ChordConnectionGame';
-import { PlayerMetrics } from './PlayerMetrics';
 import { ChordPressGame } from './ChordPressGame';
 import { BoardChoiceGame } from './BoardChoiceGame';
 
@@ -120,7 +119,6 @@ export const GamePlayer = () => {
 
     roundContent = (
       <div key={id} className="space-y-6">
-        <PlayerMetrics />
         <Card>
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-between gap-4">
@@ -143,7 +141,6 @@ export const GamePlayer = () => {
     <div className="space-y-6">
       {sessionComplete ? (
         <div className="space-y-4">
-          <PlayerMetrics />
           <Card>
             <CardHeader className="space-y-1">
               <div className="flex items-center justify-between gap-4">

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Activity, ChevronRight, Hexagon, Mic2, Music, Share2, User, Users } from "lucide-react";
+import { Activity, ChevronRight, Mic2, Music, Share2, User, Users } from "lucide-react";
 
 interface ThemeColors {
   [key: string]: string;

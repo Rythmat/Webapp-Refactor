@@ -14,7 +14,6 @@ import {
   X,
 } from "lucide-react";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
-import { ProfileRoutes } from "@/constants/routes";
 
 interface ThemeColors {
   [key: string]: string;

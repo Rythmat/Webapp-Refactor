@@ -1,71 +1,9 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { Activity, ChevronRight, Mic2, Music, Share2, User, Users } from "lucide-react";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
+import { HexagonPattern, DEFAULT_THEMES } from "../ui/HexagonPattern";
 
-interface ThemeColors {
-  [key: string]: string;
-}
-
-const THEMES: ThemeColors = {
-  red: "#D65A65",
-  darkGrey: "#5C6B73",
-  beige: "#C2C5AA",
-  darkRed: "#9D5C63",
-  yellow: "#E9C46A",
-  teal: "#2A9D8F",
-  purple: "#9D4EDD",
-  orange: "#E76F51",
-  blue: "#457B9D",
-  indigo: "#264653",
-};
-
-interface HexagonPatternProps {
-  className?: string;
-  colorsOverride?: string[];
-}
-
-const HexagonPattern: React.FC<HexagonPatternProps> = ({ className, colorsOverride }) => {
-  const hexs = useMemo(() => {
-    const generatedHexs: React.JSX.Element[] = [];
-    const colors =
-      colorsOverride || [
-        THEMES.red,
-        THEMES.red,
-        THEMES.darkGrey,
-        THEMES.beige,
-        THEMES.beige,
-        THEMES.darkRed,
-      ];
-
-    const rows = 12;
-    const cols = 16;
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        if (Math.random() > 0.4) {
-          const x = c * 26 + (r % 2) * 13;
-          const y = r * 22;
-          const color = colors[Math.floor(Math.random() * colors.length)];
-          generatedHexs.push(
-            <path
-              key={`${r}-${c}`}
-              d="M13 0 L26 7.5 L26 22.5 L13 30 L0 22.5 L0 7.5 Z"
-              fill={color}
-              transform={`translate(${x}, ${y}) scale(0.95)`}
-              className="opacity-90"
-            />,
-          );
-        }
-      }
-    }
-    return generatedHexs;
-  }, [colorsOverride]);
-
-  return (
-    <svg className={className} viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
-      <g transform="translate(20, 20)">{hexs}</g>
-    </svg>
-  );
-};
+const THEMES = DEFAULT_THEMES;
 
 interface TagProps {
   label: string;

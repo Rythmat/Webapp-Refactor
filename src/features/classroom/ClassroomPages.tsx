@@ -10,6 +10,7 @@ import { FlowSelect } from '@/components/Games/FlowSelect';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnInlet } from '@/components/learn/LearnInlet';
 import { ProfilePage } from '@/components/Profile/ProfilePage';
+import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 
 
 const ClassroomCollectionPage = lazy(() =>
@@ -162,6 +163,7 @@ export const studentPages = () => {
     children: [
       { index: true, element: <HomeInlet /> },
       { path: ProfileRoutes.profile.definition, element: <ProfilePage/> },
+      { path: ProfileRoutes.awards.definition, element: <AwardsInlet/>},
 
     ],
   };

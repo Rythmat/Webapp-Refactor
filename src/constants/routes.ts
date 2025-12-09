@@ -250,9 +250,11 @@ export const ProfileRoutes = {
 
   profile: createRouteDefinition('/user', { prefix: homePrefix }),
 
-  settings: createRouteDefinition('/settings', { prefix: homePrefix }),
+  awards: createRouteDefinition('/user/awards', { prefix: homePrefix }),
 
-  plan: createRouteDefinition('/plan', { prefix: homePrefix}),
+  settings: createRouteDefinition('/user/settings', { prefix: homePrefix }),
+
+  plan: createRouteDefinition('/user/plan', { prefix: homePrefix}),
 
 }
 

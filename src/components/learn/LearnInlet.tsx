@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
 import {
   ArrowUpDown,
   Check,
@@ -14,12 +15,10 @@ import {
   X,
 } from "lucide-react";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
+// import { ProfileRoutes } from "@/constants/routes";
+import { HexagonPattern } from "../ui/HexagonPattern";
 
-interface ThemeColors {
-  [key: string]: string;
-}
-
-const THEMES: ThemeColors = {
+const THEMES = {
   red: "#D65A65",
   darkGrey: "#5C6B73",
   beige: "#C2C5AA",
@@ -30,72 +29,6 @@ const THEMES: ThemeColors = {
   orange: "#E76F51",
   blue: "#457B9D",
   indigo: "#264653",
-};
-
-interface HexagonPatternProps {
-  className?: string;
-  colorsOverride?: string[];
-  variant?: "default" | "diagonal" | "cluster" | "split" | "dense";
-}
-
-const HexagonPattern: React.FC<HexagonPatternProps> = ({
-  className,
-  colorsOverride,
-  variant = "default",
-}) => {
-  const hexs = useMemo(() => {
-    const generatedHexs: React.JSX.Element[] = [];
-    const colors =
-      colorsOverride || [
-        THEMES.red,
-        THEMES.red,
-        THEMES.darkGrey,
-        THEMES.beige,
-        THEMES.beige,
-        THEMES.darkRed,
-      ];
-
-    const rows = 12;
-    const cols = 16;
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        let shouldRender = false;
-        if (variant === "diagonal") {
-          shouldRender = r + c > 8 && r + c < 18 && Math.random() > 0.3;
-        } else if (variant === "cluster") {
-          shouldRender = Math.sqrt(r * r + c * c) < 10 && Math.random() > 0.4;
-        } else if (variant === "split") {
-          shouldRender = (c < 6 || c > 10) && Math.random() > 0.3;
-        } else if (variant === "dense") {
-          shouldRender = Math.random() > 0.2;
-        } else {
-          shouldRender = Math.random() > 0.4;
-        }
-
-        if (shouldRender) {
-          const x = c * 26 + (r % 2) * 13;
-          const y = r * 22;
-          const color = colors[Math.floor(Math.random() * colors.length)];
-          generatedHexs.push(
-            <path
-              key={`${r}-${c}`}
-              d="M13 0 L26 7.5 L26 22.5 L13 30 L0 22.5 L0 7.5 Z"
-              fill={color}
-              transform={`translate(${x}, ${y}) scale(0.95)`}
-              className="opacity-90"
-            />,
-          );
-        }
-      }
-    }
-    return generatedHexs;
-  }, [colorsOverride, variant]);
-
-  return (
-    <svg className={className} viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
-      <g transform="translate(20, 20)">{hexs}</g>
-    </svg>
-  );
 };
 
 interface ContentItem {
@@ -399,7 +332,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               </CollapsibleSection>
             </>
           ) : (
-            <CollapsibleSection title="Continue" defaultOpen className="mt-4">
+            <CollapsibleSection title="Genres" defaultOpen className="mt-4">
               {renderContent(activeData)}
             </CollapsibleSection>
           )}

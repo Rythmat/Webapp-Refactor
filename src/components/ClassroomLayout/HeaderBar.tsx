@@ -22,7 +22,6 @@ interface HeaderBarProps {
   credits?: number;
   context?: HeaderContext;
   userName?: string;
-  onAwardsClick?: () => void;
   showProfile?: boolean;
   className?: string;
 }
@@ -35,7 +34,6 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   credits = 60,
   context = "default",
   userName = "User",
-  onAwardsClick,
   showProfile = true,
   className = "",
 }) => {
@@ -60,7 +58,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         </div>
         <button
           type="button"
-          onClick={onAwardsClick}
+          onClick={() => navigate(ProfileRoutes.awards())}
           className={`flex items-center gap-2 cursor-pointer transition-colors ${highlightAwards ? "text-white" : "text-gray-400 hover:text-white"}`}
         >
           <Hexagon

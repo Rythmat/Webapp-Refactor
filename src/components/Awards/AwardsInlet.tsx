@@ -44,10 +44,6 @@ export const AwardsInlet: React.FC = () => {
     <div className="flex flex-col h-full overflow-y-auto custom-scrollbar pb-12 px-8">
       <HeaderBar title="Awards" className="bg-neutral-900/60" />
       <div className="flex items-center gap-2 text-lg font-serif text-gray-200 mb-6">
-        <h2>Awards</h2>
-        <span aria-hidden className="text-gray-600">
-          <ChevronRight size={18} />
-        </span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {AWARDS_DATA.map((award, i) => (

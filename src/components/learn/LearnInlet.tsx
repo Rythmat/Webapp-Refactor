@@ -71,16 +71,23 @@ interface FilterCheckboxProps {
   checked?: boolean;
 }
 
-const FilterCheckbox: React.FC<FilterCheckboxProps> = ({ label, checked }) => (
-  <div className="flex items-center gap-3 p-1 cursor-pointer hover:bg-white/5 rounded transition-colors group" onClick={()=>{checked=!checked}}>
+const FilterCheckbox: React.FC<FilterCheckboxProps> = ({ label, checked }) => {
+  const [isChecked, setIsChecked] = useState(!!checked);
+
+  return (
     <div
-      className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${checked ? "bg-white border-white" : "border-gray-600 group-hover:border-gray-400"}`}
+      className="flex items-center gap-3 p-1 cursor-pointer hover:bg-white/5 rounded transition-colors group"
+      onClick={() => setIsChecked((prev) => !prev)}
     >
-      {checked && <Check size={10} className="text-black" />}
+      <div
+        className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isChecked ? "bg-white border-white" : "border-gray-600 group-hover:border-gray-400"}`}
+      >
+        {isChecked && <Check size={10} className="text-black" />}
+      </div>
+      <span className={`text-sm ${isChecked ? "text-white" : "text-gray-400 group-hover:text-gray-200"}`}>{label}</span>
     </div>
-    <span className={`text-sm ${checked ? "text-white" : "text-gray-400 group-hover:text-gray-200"}`}>{label}</span>
-  </div>
-);
+  );
+};
 
 interface CollapsibleSectionProps {
   title: string;

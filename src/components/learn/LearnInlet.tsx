@@ -120,7 +120,7 @@ interface CardItemProps {
 const CardItem: React.FC<CardItemProps> = ({ title, colors, variant, onSelect }) => (
   <div className="group flex flex-col gap-3 cursor-pointer">
     <div className="aspect-square rounded-2xl overflow-hidden relative border border-white/5 group-hover:border-white/20 transition-all duration-300">
-      <div className="absolute inset-0 bg-[#1A1A1A]" onClick={() => onSelect}/>
+      <div className="absolute inset-0 bg-[#1A1A1A]" onClick={onSelect}/>
       <HexagonPattern
         className="w-[120%] h-[120%] absolute top-0 left-0 transition-transform duration-500 group-hover:scale-105"
         colorsOverride={colors}
@@ -133,7 +133,7 @@ const CardItem: React.FC<CardItemProps> = ({ title, colors, variant, onSelect })
       <div className="flex items-center gap-3 text-gray-500">
         <Volume2 size={18} className="hover:text-white transition-colors" />
         <div className="flex items-center gap-3 pl-3 border-l border-white/10">
-          <Play size={18} className="hover:text-white transition-colors fill-current opacity-0 group-hover:opacity-100" onClick={() => onSelect}/>
+          <Play size={18} className="hover:text-white transition-colors fill-current opacity-0 group-hover:opacity-100" onClick={onSelect}/>
           <Heart size={18} className="hover:text-red-500 transition-colors" />
         </div>
       </div>
@@ -149,7 +149,7 @@ interface ListItemProps {
 }
 
 const ListItem: React.FC<ListItemProps> = ({ title, colors, variant, onSelect }) => (
-  <div className="group flex items-center justify-between p-2 rounded-xl border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onSelect}>
+  <div className="group flex items-center justify-between p-2 rounded-xl border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer" onClick={onSelect}>
     <div className="flex items-center gap-4">
       <div className="w-12 h-12 rounded-lg overflow-hidden relative bg-[#1A1A1A] border border-white/10 flex-shrink-0">
         <HexagonPattern className="w-[150%] h-[150%] absolute -top-1 -left-1" colorsOverride={colors} variant={variant} />
@@ -161,7 +161,7 @@ const ListItem: React.FC<ListItemProps> = ({ title, colors, variant, onSelect })
     </div>
     <div className="flex items-center gap-6 text-gray-500">
       <Volume2 size={16} className="hover:text-white transition-colors" />
-      <Play size={16} className="hover:text-white transition-colors fill-current" onClick={() => onSelect} />
+      <Play size={16} className="hover:text-white transition-colors fill-current" onClick={onSelect} />
       <Heart size={16} className="hover:text-red-500 transition-colors" />
       <CheckCircle2 size={16} className="hover:text-green-500 transition-colors" />
       <MoreVertical size={16} className="hover:text-white transition-colors" />
@@ -177,7 +177,7 @@ interface ExploreItemProps {
 }
 
 const ExploreItem: React.FC<ExploreItemProps> = ({ title, colors, variant, onSelect }) => (
-  <div className="group flex items-center justify-between p-3 rounded-xl border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onSelect}>
+  <div className="group flex items-center justify-between p-3 rounded-xl border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer" onClick={onSelect}>
     <div className="flex items-center gap-4">
       <div className="w-10 h-10 rounded-lg overflow-hidden relative bg-[#1A1A1A] border border-white/10 flex-shrink-0">
         <HexagonPattern className="w-[150%] h-[150%] absolute -top-1 -left-1" colorsOverride={colors} variant={variant} />
@@ -189,7 +189,7 @@ const ExploreItem: React.FC<ExploreItemProps> = ({ title, colors, variant, onSel
     </div>
     <div className="flex items-center gap-6 text-gray-500">
       <Volume2 size={16} className="hover:text-white transition-colors" />
-      <Play size={16} className="hover:text-white transition-colors fill-current" onClick={() => onSelect} />
+      <Play size={16} className="hover:text-white transition-colors fill-current" onClick={onSelect} />
       <Heart size={16} className="hover:text-red-500 transition-colors" />
       <CheckCircle2 size={16} className="hover:text-green-500 transition-colors" />
       <MoreVertical size={16} className="hover:text-white transition-colors" />

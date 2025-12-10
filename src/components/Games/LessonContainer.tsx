@@ -49,32 +49,13 @@ export const LessonContainer = ({ modeSlug }: LessonContainerProps) => {
             Practice the <span className="font-semibold text-neutral-100">{modeSlug}</span> mode in the key of C.
           </p>
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs uppercase tracking-wide text-neutral-400">Key Center</label>
-            <div className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100">
-              {KEY_C.label}
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-xs uppercase tracking-wide text-neutral-400">Scale / Mode</label>
-            <div className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 capitalize">
-              {modeSlug}
-            </div>
-          </div>
-        </div>
-        <div className="mt-4 flex items-center justify-between text-sm text-neutral-400">
-          <span>
-            Ready for C {modeSlug}
-          </span>
-          <button
+        <button
             type="button"
             onClick={() => setStarted(true)}
             className="rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
           >
             Start
           </button>
-        </div>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import { ProfilePage } from '@/components/Profile/ProfilePage';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { useParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
+import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
 
 
 const ClassroomCollectionPage = lazy(() =>
@@ -119,7 +120,7 @@ export const gamesPages = () => {
         element: <Navigate to={GameRoutes.root()} />,
       },
       {
-        element: <FlowSelect />,
+        element: <ArcadeInlet />,
         index: true,
       }
     ],

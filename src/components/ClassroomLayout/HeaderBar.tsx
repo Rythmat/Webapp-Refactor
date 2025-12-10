@@ -18,7 +18,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   title,
   subtitle,
   xp = 432,
-  awards = 12,
+  awards = 14,
   credits = 60,
   userName = "User",
   showProfile = true,

@@ -43,19 +43,21 @@ export const LessonContainer = ({ modeSlug }: LessonContainerProps) => {
   const SelectionShell = () => (
     <div className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-3xl rounded-2xl border border-neutral-800 bg-neutral-900/70 p-4 shadow-xl">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 items-center text-center">
           <h1 className="text-2xl font-semibold">Ready to start?</h1>
           <p className="text-sm text-neutral-400">
             Practice the <span className="font-semibold text-neutral-100">{modeSlug}</span> mode in the key of C.
           </p>
         </div>
-        <button
+        <div className="mt-4 flex items-center justify-center">
+          <button
             type="button"
             onClick={() => setStarted(true)}
             className="rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
           >
             Start
           </button>
+        </div>
       </div>
     </div>
   );
@@ -80,13 +82,6 @@ export const LessonContainer = ({ modeSlug }: LessonContainerProps) => {
         <div className="text-sm text-neutral-300">
           Playing flow for <span className="font-semibold text-neutral-100">{KEY_C.label}</span>{" "}
           <span className="font-semibold text-neutral-100">{modeSlug}</span>{" "}
-          <button
-            type="button"
-            onClick={() => setStarted(false)}
-            className="rounded-full border border-neutral-700 px-4 py-2 text-xs font-semibold text-neutral-100 hover:border-neutral-500 hover:text-white"
-          >
-            Change selection
-          </button>
         </div>
       </div>
       <div className="p-3 sm:p-4 flex-1">

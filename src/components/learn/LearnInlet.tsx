@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowUpDown,
   Check,
@@ -15,26 +15,15 @@ import {
   X,
 } from "lucide-react";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
-// import { ProfileRoutes } from "@/constants/routes";
-import { HexagonPattern } from "../ui/HexagonPattern";
-
-const THEMES = {
-  red: "#D65A65",
-  darkGrey: "#5C6B73",
-  beige: "#C2C5AA",
-  darkRed: "#9D5C63",
-  yellow: "#E9C46A",
-  teal: "#2A9D8F",
-  purple: "#9D4EDD",
-  orange: "#E76F51",
-  blue: "#457B9D",
-  indigo: "#264653",
-};
+import { HexagonPattern, DEFAULT_THEMES as THEMES  } from "../ui/HexagonPattern";
+import { LearnRoutes } from "@/constants/routes";
 
 interface ContentItem {
   title: string;
   variant: "diagonal" | "cluster" | "dense" | "split" | "default";
   colors: string[];
+  mode?: string;
+  route?: string;
 }
 
 const COURSES_DATA: ContentItem[] = [
@@ -49,21 +38,21 @@ const COURSES_DATA: ContentItem[] = [
 ];
 
 const THEORY_DATA: ContentItem[] = [
-  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"] },
-  { title: "Ionian (Major)", variant: "cluster", colors: [THEMES.red, "#9D5C63"] },
-  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey] },
-  { title: "Dorian", variant: "split", colors: [THEMES.orange, THEMES.teal] },
-  { title: "Aeolian (Minor)", variant: "diagonal", colors: [THEMES.blue, "#A8DADC"] },
-  { title: "Locrian", variant: "cluster", colors: [THEMES.purple, "#E0AAFF"] },
+  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"], route: LearnRoutes.lesson({mode:'lydian'}) },
+  { title: "Ionian (Major)", variant: "cluster", colors: [THEMES.red, "#9D5C63"], route: LearnRoutes.lesson({mode:'ionian'}) },
+  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey], route: LearnRoutes.lesson({mode:'mixolydian'}) },
+  { title: "Dorian", variant: "split", colors: [THEMES.orange, THEMES.teal], route: LearnRoutes.lesson({mode:'dorian'}) },
+  { title: "Aeolian (Minor)", variant: "diagonal", colors: [THEMES.blue, "#A8DADC"], route: LearnRoutes.lesson({mode:'aeolian'}) },
+  { title: "Locrian", variant: "cluster", colors: [THEMES.purple, "#E0AAFF"], route: LearnRoutes.lesson({mode:'locrian'}) },
 ];
 
 const EXPLORE_DATA: ContentItem[] = [
-  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"] },
-  { title: "Ionian (Major)", variant: "cluster", colors: [THEMES.red, "#9D5C63"] },
-  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey] },
-  { title: "Dorian", variant: "split", colors: [THEMES.orange, THEMES.teal] },
-  { title: "Aeolian (Minor)", variant: "diagonal", colors: [THEMES.blue, "#A8DADC"] },
-  { title: "Locrian", variant: "cluster", colors: [THEMES.purple, "#E0AAFF"] },
+  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"], route: LearnRoutes.lesson({mode:'lydian'}) },
+  { title: "Ionian (Major)", variant: "cluster", colors: [THEMES.red, "#9D5C63"], route: LearnRoutes.lesson({mode:'ionian'}) },
+  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey], route: LearnRoutes.lesson({mode:'mixolydian'}) },
+  { title: "Dorian", variant: "split", colors: [THEMES.orange, THEMES.teal], route: LearnRoutes.lesson({mode:'dorian'}) },
+  { title: "Aeolian (Minor)", variant: "diagonal", colors: [THEMES.blue, "#A8DADC"], route: LearnRoutes.lesson({mode:'aeolian'})  },
+  { title: "Locrian", variant: "cluster", colors: [THEMES.purple, "#E0AAFF"], route: LearnRoutes.lesson({mode:'locrian'}) },
 ];
 
 interface FilterCheckboxProps {
@@ -125,12 +114,13 @@ interface CardItemProps {
   title: string;
   colors: string[];
   variant?: "diagonal" | "cluster" | "dense" | "split" | "default";
+  onSelect?: () => void;
 }
 
-const CardItem: React.FC<CardItemProps> = ({ title, colors, variant }) => (
+const CardItem: React.FC<CardItemProps> = ({ title, colors, variant, onSelect }) => (
   <div className="group flex flex-col gap-3 cursor-pointer">
     <div className="aspect-square rounded-2xl overflow-hidden relative border border-white/5 group-hover:border-white/20 transition-all duration-300">
-      <div className="absolute inset-0 bg-[#1A1A1A]" />
+      <div className="absolute inset-0 bg-[#1A1A1A]" onClick={() => onSelect}/>
       <HexagonPattern
         className="w-[120%] h-[120%] absolute top-0 left-0 transition-transform duration-500 group-hover:scale-105"
         colorsOverride={colors}
@@ -143,7 +133,7 @@ const CardItem: React.FC<CardItemProps> = ({ title, colors, variant }) => (
       <div className="flex items-center gap-3 text-gray-500">
         <Volume2 size={18} className="hover:text-white transition-colors" />
         <div className="flex items-center gap-3 pl-3 border-l border-white/10">
-          <Play size={18} className="hover:text-white transition-colors fill-current opacity-0 group-hover:opacity-100" />
+          <Play size={18} className="hover:text-white transition-colors fill-current opacity-0 group-hover:opacity-100" onClick={() => onSelect}/>
           <Heart size={18} className="hover:text-red-500 transition-colors" />
         </div>
       </div>
@@ -155,10 +145,11 @@ interface ListItemProps {
   title: string;
   colors: string[];
   variant?: "diagonal" | "cluster" | "dense" | "split" | "default";
+  onSelect?: () => void;
 }
 
-const ListItem: React.FC<ListItemProps> = ({ title, colors, variant }) => (
-  <div className="group flex items-center justify-between p-2 rounded-xl border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+const ListItem: React.FC<ListItemProps> = ({ title, colors, variant, onSelect }) => (
+  <div className="group flex items-center justify-between p-2 rounded-xl border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onSelect}>
     <div className="flex items-center gap-4">
       <div className="w-12 h-12 rounded-lg overflow-hidden relative bg-[#1A1A1A] border border-white/10 flex-shrink-0">
         <HexagonPattern className="w-[150%] h-[150%] absolute -top-1 -left-1" colorsOverride={colors} variant={variant} />
@@ -170,7 +161,7 @@ const ListItem: React.FC<ListItemProps> = ({ title, colors, variant }) => (
     </div>
     <div className="flex items-center gap-6 text-gray-500">
       <Volume2 size={16} className="hover:text-white transition-colors" />
-      <Play size={16} className="hover:text-white transition-colors fill-current" />
+      <Play size={16} className="hover:text-white transition-colors fill-current" onClick={() => onSelect} />
       <Heart size={16} className="hover:text-red-500 transition-colors" />
       <CheckCircle2 size={16} className="hover:text-green-500 transition-colors" />
       <MoreVertical size={16} className="hover:text-white transition-colors" />
@@ -182,10 +173,11 @@ interface ExploreItemProps {
   title: string;
   colors: string[];
   variant?: "diagonal" | "cluster" | "dense" | "split" | "default";
+  onSelect?: () => void;
 }
 
-const ExploreItem: React.FC<ExploreItemProps> = ({ title, colors, variant }) => (
-  <div className="group flex items-center justify-between p-3 rounded-xl border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+const ExploreItem: React.FC<ExploreItemProps> = ({ title, colors, variant, onSelect }) => (
+  <div className="group flex items-center justify-between p-3 rounded-xl border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => onSelect}>
     <div className="flex items-center gap-4">
       <div className="w-10 h-10 rounded-lg overflow-hidden relative bg-[#1A1A1A] border border-white/10 flex-shrink-0">
         <HexagonPattern className="w-[150%] h-[150%] absolute -top-1 -left-1" colorsOverride={colors} variant={variant} />
@@ -197,7 +189,7 @@ const ExploreItem: React.FC<ExploreItemProps> = ({ title, colors, variant }) => 
     </div>
     <div className="flex items-center gap-6 text-gray-500">
       <Volume2 size={16} className="hover:text-white transition-colors" />
-      <Play size={16} className="hover:text-white transition-colors fill-current" />
+      <Play size={16} className="hover:text-white transition-colors fill-current" onClick={() => onSelect} />
       <Heart size={16} className="hover:text-red-500 transition-colors" />
       <CheckCircle2 size={16} className="hover:text-green-500 transition-colors" />
       <MoreVertical size={16} className="hover:text-white transition-colors" />
@@ -217,6 +209,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const [subTab, setSubTab] = useState(initialTab);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilter, setShowFilter] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (parentSetSubTab) parentSetSubTab(subTab);
@@ -227,9 +220,9 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const renderContent = (data: ContentItem[]) => {
     if (viewMode === "grid") {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" >
           {data.map((item, i) => (
-            <CardItem key={i} {...item} />
+            <CardItem key={i} {...item} onSelect={()=> {if(item.route){navigate(item.route)}}} />
           ))}
         </div>
       );
@@ -238,9 +231,9 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       <div className="flex flex-col">
         {data.map((item, i) =>
           subTab === "Explore" || subTab === "Theory" ? (
-            <ExploreItem key={i} {...item} />
+            <ExploreItem key={i} {...item} onSelect={()=> {if(item.route){navigate(item.route)}}} />
           ) : (
-            <ListItem key={i} {...item} />
+            <ListItem key={i} {...item} onSelect={()=> {if(item.route){navigate(item.route)}}} />
           ),
         )}
       </div>

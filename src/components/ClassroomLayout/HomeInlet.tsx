@@ -70,7 +70,7 @@ export const HomeInlet = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const bannerSlides = [
     { title: "Study", color: [THEMES.red, THEMES.darkRed, THEMES.beige], route: LearnRoutes.root.definition },

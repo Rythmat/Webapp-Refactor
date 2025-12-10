@@ -65,7 +65,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           >
             <div className="text-right hidden md:block">
               <div className={`text-white leading-none`}>{userName}</div>
-              <div className="text-xs text-gray-500 mt-1">Pro Member</div>
+              {/* <div className="text-xs text-gray-500 mt-1">Pro Member</div> */}
             </div>
             <div
               className={`w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 border-2 shadow-lg shadow-purple-500/20 transition-all border-white/10 group-hover:border-white/50`}

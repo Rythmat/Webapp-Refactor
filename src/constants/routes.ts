@@ -264,6 +264,10 @@ export const LearnRoutes = {
 
   root: createRouteDefinition(learnPrefix),
 
+  lesson: createRouteDefinition<{
+      mode: string,
+    }>('/lesson/:mode', { prefix: learnPrefix }),
+
 
   flow: createRouteDefinition<{
       flowType: string,

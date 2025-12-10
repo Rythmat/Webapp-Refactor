@@ -5,12 +5,13 @@ import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
-import { LessonFlow } from '@/components/learn/LessonFlow';
 import { FlowSelect } from '@/components/Games/FlowSelect';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnInlet } from '@/components/learn/LearnInlet';
 import { ProfilePage } from '@/components/Profile/ProfilePage';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
+import { useParams } from 'react-router-dom';
+import { LessonContainer } from '@/components/Games/LessonContainer';
 
 
 const ClassroomCollectionPage = lazy(() =>
@@ -169,7 +170,19 @@ export const studentPages = () => {
   };
 };
 
+
+const LessonRoute = () => {
+  const { mode } = useParams<{
+    mode: string;
+  }>();
+
+  return (
+    <LessonContainer modeSlug={mode ?? 'ionian'}/>
+  );
+};
+
 export const learnPages = () => {
+
   return {
     path: LearnRoutes.root.definition,
     element: (
@@ -185,8 +198,8 @@ export const learnPages = () => {
         element: <LearnInlet /> 
       },
       {
-        path:LearnRoutes.flow.definition,
-        element:<LessonFlow flowType='grouping' nameOf=''/>
+        path:LearnRoutes.lesson.definition,
+        element:<LessonRoute/>
       },
 
     ],

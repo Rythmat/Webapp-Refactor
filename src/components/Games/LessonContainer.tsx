@@ -46,7 +46,7 @@ export const LessonContainer = ({ modeSlug }: LessonContainerProps) => {
         <div className="flex flex-col gap-2 items-center text-center">
           <h1 className="text-2xl font-semibold">Ready to start?</h1>
           <p className="text-sm text-neutral-400">
-            Practice the <span className="font-semibold text-neutral-100">{modeSlug}</span> mode in the key of C.
+            Practicing the <span className="font-semibold text-neutral-100">{modeSlug}</span> mode in the key of C.
           </p>
         </div>
         <div className="mt-4 flex items-center justify-center">

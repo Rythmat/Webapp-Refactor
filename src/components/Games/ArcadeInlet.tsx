@@ -1,6 +1,7 @@
 import React from "react";
 import { Play, Trophy, Users } from "lucide-react";
 import { HexagonPattern, DEFAULT_THEMES as THEMES } from "../ui/HexagonPattern";
+import { HeaderBar } from "../ClassroomLayout/HeaderBar";
 
 interface ArcadeGame {
   title: string;
@@ -85,6 +86,7 @@ const ArcadeGameCard: React.FC<ArcadeGameCardProps> = ({ title, players, categor
 export const ArcadeInlet: React.FC = () => {
   return (
     <div className="flex flex-col h-full overflow-y-auto custom-scrollbar px-8 pb-12">
+      <HeaderBar title="Arcade" />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[200px]">
         {ARCADE_GAMES_DATA.map((game, i) => (
           <ArcadeGameCard key={i} {...game} />

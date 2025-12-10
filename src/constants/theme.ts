@@ -50,7 +50,7 @@ const COLOR_SHADES = {
 };
 
 const COLOR_SURFACES = {
-  'surface-box': '#3D3A35',
+  'surface-box': '#0D0B08',
 };
 
 export const KEY_OF_COLORS = {

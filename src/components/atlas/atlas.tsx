@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Shuffle, Clock, Globe, Music, Users, Info, X, MapPin, Menu, Heart, History, TrendingUp, Settings, LucideIcon, ChevronRight } from 'lucide-react';
+import { Search, Shuffle, Clock, Globe, Music, Users, X, MapPin, Menu, Heart, History, TrendingUp, Settings, ChevronRight } from 'lucide-react';
 
 // --- Types ---
 declare global { interface Window { L: any; } }

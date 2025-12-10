@@ -10,7 +10,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         ref={ref}
         className={cn(
-          'flex h-12 w-full rounded-lg bg-shade-5 p-4 text-foreground text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
+          'flex h-12 w-full rounded-lg bg-shade-5 p-4 text-foreground text-sm shadow-sm transition-colors border border-ring/50 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50',
           className,
         )}
         type={type}
@@ -36,7 +36,7 @@ const InputAutosize = React.forwardRef<HTMLInputElement, InputAutosizeProps>(
       <input
         ref={ref}
         className={cn(
-          'flex h-12 rounded-lg bg-shade-5 p-4 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
+          'flex h-12 rounded-lg bg-shade-5 p-4 text-sm shadow-sm transition-colors border border-ring/50 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50',
           className,
         )}
         style={{

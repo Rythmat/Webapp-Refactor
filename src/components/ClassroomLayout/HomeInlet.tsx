@@ -66,18 +66,20 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ title, genre, author, active 
   </div>
 );
 
+const bannerSlides = [
+    { title: "Study", color: [THEMES.red, THEMES.darkRed, THEMES.beige], route: LearnRoutes.root.definition },
+    { title: "Create", color: [THEMES.teal, THEMES.indigo, THEMES.yellow], route: StudioRoutes.root.definition },
+    { title: "Explore", color: [THEMES.orange, THEMES.darkGrey, THEMES.red], route: LibraryRoutes.root.definition },
+    { title: "Play", color: [THEMES.purple, THEMES.beige, THEMES.blue], route: GameRoutes.root.definition },
+  ];
+
 export const HomeInlet = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const navigate = useNavigate();
 
-  const bannerSlides = [
-    { title: "Study", color: [THEMES.red, THEMES.darkRed, THEMES.beige], route: LearnRoutes.root.definition },
-    { title: "Create", color: [THEMES.teal, THEMES.indigo, THEMES.yellow], route: StudioRoutes.root.definition },
-    { title: "Explore", color: [THEMES.orange, THEMES.darkGrey, THEMES.red], route: LibraryRoutes.root.definition },
-    { title: "Play", color: [THEMES.purple, THEMES.beige, THEMES.blue], route: GameRoutes.root.definition },
-  ];
+  
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
   const prevSlide = () =>
@@ -198,14 +200,6 @@ export const HomeInlet = () => {
               <ChevronRight size={18} className="text-gray-600" />
             </div>
             <div className="bg-[#151515] border border-white/5 rounded-3xl p-6 h-full flex flex-col relative overflow-hidden">
-              <div className="absolute top-6 right-6 w-12 h-12 rounded-full border border-white/10 flex items-center justify-center">
-                <div className="flex items-center gap-0.5 h-4">
-                  <div className="w-0.5 h-full bg-gradient-to-t from-orange-500 to-red-500 animate-pulse" />
-                  <div className="w-0.5 h-2 bg-gray-600" />
-                  <div className="w-0.5 h-3 bg-gray-600" />
-                  <div className="w-0.5 h-1 bg-gray-600" />
-                </div>
-              </div>
               <div className="flex-1 min-h-[160px]">
                 <textarea
                   value={prompt}

@@ -119,8 +119,8 @@ interface CardItemProps {
 
 const CardItem: React.FC<CardItemProps> = ({ title, colors, variant, onSelect }) => (
   <div className="group flex flex-col gap-3 cursor-pointer">
-    <div className="aspect-square rounded-2xl overflow-hidden relative border border-white/5 group-hover:border-white/20 transition-all duration-300">
-      <div className="absolute inset-0 bg-[#1A1A1A]" onClick={onSelect}/>
+    <div className="aspect-square rounded-2xl overflow-hidden relative border border-white/5 group-hover:border-white/20 transition-all duration-300" onClick={onSelect}>
+      <div className="absolute inset-0 bg-[#1A1A1A]" />
       <HexagonPattern
         className="w-[120%] h-[120%] absolute top-0 left-0 transition-transform duration-500 group-hover:scale-105"
         colorsOverride={colors}

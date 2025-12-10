@@ -1,6 +1,6 @@
 import { lazy} from 'react';
 import { Navigate} from 'react-router-dom';
-import { ClassroomRoutes, GameRoutes, StudioRoutes, ProfileRoutes, LearnRoutes, ConnectRoutes, LibraryRoutes} from '@/constants/routes';
+import { ClassroomRoutes, GameRoutes, StudioRoutes, ProfileRoutes, LearnRoutes, ConnectRoutes, LibraryRoutes, AtlasRoutes} from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
@@ -12,6 +12,7 @@ import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { useParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
+import Atlas from '@/components/atlas/atlas';
 
 
 const ClassroomCollectionPage = lazy(() =>
@@ -240,6 +241,26 @@ export const libraryPages = () => {
       { 
         index: true,
         element: <LibraryInlet /> 
+      },
+
+    ],
+  };
+};
+
+export const atlasPages = () => {
+  return {
+    path: AtlasRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage>
+            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [
+      { 
+        index: true,
+        element: <Atlas /> 
       },
 
     ],

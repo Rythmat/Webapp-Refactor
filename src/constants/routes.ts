@@ -300,3 +300,11 @@ export const LibraryRoutes = {
   root: createRouteDefinition(libraryPrefix),
 
 }
+
+const atlasPrefix = '/atlas';
+
+export const AtlasRoutes = {
+
+  root: createRouteDefinition(atlasPrefix),
+
+}

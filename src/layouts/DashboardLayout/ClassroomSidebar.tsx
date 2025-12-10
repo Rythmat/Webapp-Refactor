@@ -2,11 +2,11 @@ import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { Logo } from '@/components/Logo';
 import { BetaHelp } from '@/components/ui/beta-help';
 import { cn } from '@/components/utilities';
-import {   ConnectRoutes, GameRoutes, LearnRoutes, LibraryRoutes, ProfileRoutes, StudioRoutes } from '@/constants/routes';
+import {   AtlasRoutes, ConnectRoutes, GameRoutes, LearnRoutes, LibraryRoutes, ProfileRoutes, StudioRoutes } from '@/constants/routes';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
 import { UserWidget } from './UserWidget';
-import { BookOpen, Gamepad2, Home, Library, Music, Users } from 'lucide-react';
+import { BookOpen, Earth, Gamepad2, Home, Library, Music, Users } from 'lucide-react';
 interface SidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
@@ -42,7 +42,7 @@ export const ClassroomSidebar = ({
       <div className="relative z-10 flex flex-1 flex-col space-y-4 p-6 text-gray-800">
         {/* Header */}
         <div className="relative">
-          <div className="flex items-center">
+          <div className="flex items-center justify-center">
             <Logo className={cn('relative transition-all')} />
           </div>
 
@@ -75,6 +75,12 @@ export const ClassroomSidebar = ({
                       isCollapsed={isCollapsed}
                       label="Studio"
                       to={StudioRoutes.root()}
+                    />
+          <SidebarMainNavItem
+                      icon={Earth}
+                      isCollapsed={isCollapsed}
+                      label="Atlas"
+                      to={AtlasRoutes.root()}
                     />
           <SidebarMainNavItem
                       icon={Library}

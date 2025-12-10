@@ -162,12 +162,12 @@ export const HomeInlet = () => {
               <div className="relative z-10 h-full flex flex-col justify-end">
                 <div className="mb-4">
                   <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1 block">
-                    Lesson 4
+                    Lesson 5
                   </span>
                   <h3 className="text-2xl font-serif leading-tight mb-2">
-                    Advanced
+                    E Major 
                     <br />
-                    Polyrhythms
+                    7th Chords
                   </h3>
                   <div className="w-full bg-white/10 h-1.5 rounded-full mt-3 overflow-hidden">
                     <div className="w-3/4 h-full bg-emerald-500 rounded-full" />

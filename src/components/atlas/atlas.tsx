@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import {
  Search, Shuffle, Clock, Globe, Music, Users, X, MapPin,
- Menu, Heart, History, TrendingUp, Settings, LucideIcon, ChevronRight
+ Menu, Heart, History, TrendingUp, Settings, ChevronRight
 } from 'lucide-react';
 
 

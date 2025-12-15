@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { ActivityFlow } from "./ActivityFlow";
 import { usePrismMode } from "@/hooks/data/prism/usePrismMode";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
+import { PrismModeSlug } from "@/hooks/data";
 
 type LessonContainerProps = {
-  modeSlug: string;
+  modeSlug: PrismModeSlug;
 };
 
 type KeyOption = { label: string; midi: number };
@@ -89,6 +90,8 @@ export const LessonContainer = ({ modeSlug }: LessonContainerProps) => {
           scaleMidis={scaleMidis}
           onComplete={() => setStarted(false)}
           labelChange={(newLabel) => setLabel(newLabel)}
+          key={`${KEY_C.label}`}
+          mode= {modeSlug}
         />
       </div>
     </div>

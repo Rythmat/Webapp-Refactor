@@ -189,6 +189,7 @@ export const FlowSelect = () => {
           scaleMidis={scaleMidis}
           onComplete={() => setStarted(false)}
           labelChange={(newLabel) => setLabel(newLabel)}
+          keyMode={`${selectedKey.label} ${selectedMode}`}
         />
       </div>
     </div>

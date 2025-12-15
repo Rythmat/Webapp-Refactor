@@ -13,6 +13,7 @@ import { useParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
 import Atlas from '@/components/atlas/atlas';
+import { PrismModeSlug } from "@/hooks/data";
 
 
 const ClassroomCollectionPage = lazy(() =>
@@ -174,7 +175,7 @@ export const studentPages = () => {
 
 const LessonRoute = () => {
   const { mode } = useParams<{
-    mode: string;
+    mode: PrismModeSlug;
   }>();
 
   return (

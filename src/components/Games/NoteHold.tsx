@@ -34,11 +34,13 @@ const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
 type NoteHoldProps = {
   events?: NoteEvent[];
   onContinue?: () => void;
+  startMessage?: string;
 };
 
 export const NoteHold = ({
   events,
   onContinue,
+  startMessage,
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const activeMidiSetRef = useRef(new Set<number>());
@@ -362,19 +364,20 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
             showCompletionOverlay ? "pointer-events-none opacity-30 blur-sm" : ""
           }`}
         >
-          <PianoRoll
-            events={resolvedEvents}
-            bars={requiredBars}
-            beatsPerBar={4}
-            subdivision={1}
-            rowHeight={28 * 18}
-            inTime={false}
-            playSpeed={80}
-            onStart={startToneContext}
-            activeMidis={activeMidis}
-            noteHoldMeta={noteHoldMeta}
-          />
-          <PianoKeyboard
+        <PianoRoll
+          events={resolvedEvents}
+          bars={requiredBars}
+          beatsPerBar={4}
+          subdivision={1}
+          rowHeight={28 * 18}
+          inTime={false}
+          playSpeed={80}
+          onStart={startToneContext}
+          activeMidis={activeMidis}
+          noteHoldMeta={noteHoldMeta}
+          startMessage={startMessage}
+        />
+        <PianoKeyboard
           className="mx-auto"
           startC={2}
           endC={6}

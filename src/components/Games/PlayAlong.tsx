@@ -32,6 +32,7 @@ const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
 type PlayAlongProps = {
   events?: NoteEvent[];
   onContinue?: () => void;
+  startMessage?:string;
 };
 
 type NotePerformance = {
@@ -42,6 +43,7 @@ type NotePerformance = {
 export const PlayAlong = ({
   events,
   onContinue,
+  startMessage,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const maxEventEndTick = useMemo(
@@ -387,6 +389,7 @@ export const PlayAlong = ({
             activeMidis={activeMidis}
             performanceMeta={performanceMeta}
             onTickChange={setCurrentTick}
+            startMessage={startMessage}
           />
           <PianoKeyboard
           className="mx-auto"

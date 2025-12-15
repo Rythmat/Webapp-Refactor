@@ -4,16 +4,21 @@ import { usePrismStartContours } from "@/hooks/data/prism/usePrismStartContours"
 import { NoteHold } from "./NoteHold";
 import { PlayAlong } from "./PlayAlong";
 import type { NoteEvent } from "./PianoRollPlay";
+import { usePrismModeChords } from "@/hooks/data";
+import { PrismModeSlug } from "@/hooks/data";
 
 type FlowActivityProps = {
   events: NoteEvent[];
   onContinue?: () => void;
+  startMessage?: string;
 };
 
 type ActivityFlowProps = {
   scaleMidis?: number[];
   onComplete?: () => void;
   labelChange?: (newLabel: string[]) => void;
+  key?: string;
+  mode?: PrismModeSlug;
 };
 
 const DEFAULT_SCALE: number[] = [60, 62, 64, 65, 67, 69, 71, 72];
@@ -24,6 +29,7 @@ type ActivityDefinition = {
   label: string;
   Component: (props: FlowActivityProps) => JSX.Element;
   events: NoteEvent[];
+  direction: string;
 };
 
 const midiSequenceToEvents = (sequence: number[],prefix: string): NoteEvent[] =>
@@ -94,7 +100,35 @@ const extractContours = (value: unknown): number[][] => {
   return results;
 };
 
-const buildFlowDefinitions = (
+
+export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, key, mode }: ActivityFlowProps) => {
+
+  const { data: contourData } = usePrismStartContours();
+  const availableContours = useMemo(() => {
+    const raw = contourData?.contours;
+    return extractContours(raw);
+  }, [contourData]);
+
+  const [fourChords, setFourChords] = useState('');
+  useEffect(() => {
+    const fetchData = async () => {
+      const {data} = await usePrismModeChords(mode);
+      // const {
+      //   chords: {
+      //     triads,
+      //     tetrads,
+      //     pentads,
+      //     triadVariants,
+      //     tetradVariants,
+      //     pentadVariants,
+      //   },
+      // } = data;
+      setFourChords(typeof data);
+    }
+    fetchData();
+  },[key, mode])
+
+  const buildFlowDefinitions = (
   scale: number[],
   contours?: number[][],
 ): ActivityDefinition[] => {
@@ -103,12 +137,19 @@ const buildFlowDefinitions = (
   const ascendDescend = [...ascending, ...descending];
 
   const sequences = [
-    { key: "asc-nh", label: "Ascend • Hold", Component: NoteHold, seq: midiSequenceToEvents(ascending, "asc-nh") },
-    { key: "asc-pa", label: "Ascend • Play Along", Component: PlayAlong, seq: midiSequenceToEvents(ascending, "asc-pa") },
-    { key: "desc-nh", label: "Descend • Hold", Component: NoteHold, seq: midiSequenceToEvents(descending, "desc-nh") },
-    { key: "desc-pa", label: "Descend • Play Along", Component: PlayAlong, seq: midiSequenceToEvents(descending, "desc-pa") },
-    { key: "ascdesc-nh", label: "Ascend + Descend • Hold", Component: NoteHold, seq: midiSequenceToEvents(ascendDescend, "ascdesc-nh") },
-    { key: "ascdesc-pa", label: "Ascend + Descend • Play Along", Component: PlayAlong, seq: midiSequenceToEvents(ascendDescend, "ascdesc-pa") },
+    { key: "asc-nh", label: `${key} ${mode} Ascend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascending, "asc-nh"),
+       direction: "Play the notes of the scale going up (to the right)."  },
+    { key: "asc-pa", label: `${key} ${mode} Ascend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascending, "asc-pa"),
+      direction: "In a steady tempo, play the notes of the scale going up"
+     },
+    { key: "desc-nh", label: `${key} ${mode} Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(descending, "desc-nh"),
+       direction: "Play the notes of the scale going down (to the left)."  },
+    { key: "desc-pa", label: `${key} ${mode} Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(descending, "desc-pa"),
+      direction: "In a steady tempo, play the notes of the scale going down" },
+    { key: "ascdesc-nh", label: `${key} ${mode} Ascend + Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascendDescend, "ascdesc-nh"),
+       direction: "Play the notes of the scale going up and down." },
+    { key: "ascdesc-pa", label: `${key} ${mode} Ascend + Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascendDescend, "ascdesc-pa"),
+       direction: "In a steady tempo, play the notes of the scale going up and down." },
   ];
   const contourSeqs: number[][] = [];
   contours?.forEach((contour) => {
@@ -140,15 +181,17 @@ const buildFlowDefinitions = (
     sequences.push(
       {
         key: `contour-1-nh`,
-        label: `Single Contour • Hold`,
+        label: `$${key} ${mode} Musical Contour • Hold`,
         Component: NoteHold,
         seq: midiSequenceToEvents(contourSeqs[0], `contour-1-nh`),
+        direction: `Play this short melodic phrase in ${key} ${mode}`
       },
       {
         key: `contour-1-pa`,
-        label: `Single Contour • Play Along`,
+        label: `${key} ${mode} Musical Contour • Play Along`,
         Component: PlayAlong,
         seq: midiSequenceToEvents(contourSeqs[0], `contour-1-pa`),
+        direction: `In a steady tempo, play this short melodic phrase in ${key} ${mode}`
       },
     );
   }
@@ -158,44 +201,50 @@ const buildFlowDefinitions = (
     sequences.push(
       {
         key: `contour-2-nh`,
-        label: `Two Contour • Hold`,
+        label: `${key} ${mode} Melodic Phrase • Hold`,
         Component: NoteHold,
         seq: midiSequenceToEvents(combined, `contour-2-nh`),
+        direction: `Play this longer melodic phrase in ${key} ${mode}`,
       },
       {
         key: `contour-2-pa`,
-        label: `Two Contour • Play Along`,
+        label: `${key} ${mode} Melodic Phrase • Play Along`,
         Component: PlayAlong,
         seq: midiSequenceToEvents(combined, `contour-2-pa`),
+        direction: `In a steady tempo, play this longer melodic phrase in ${key} ${mode}`,
       },
     );
   }
-
-  sequences.push({
-    key: `arpeggiate-1-nh`,
-    label: `Chord Arpeggio • Hold`,
-    Component: NoteHold,
-    seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-1-nh`),
-  },{
-    key: `arpeggiate-1-nh`,
-    label: `Chord Arpeggio • Play Along`,
-    Component: PlayAlong,
-    seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-1-pa`),
-  });
-  return sequences.map(({ key, label, Component, seq }) => ({
+  // LOOP OVER CHORDS AND REPEAT FOR FIRST 4
+  for (let i = 0; i < 4; i++){
+    if(fourChords){
+      // const mode = modeChords.chords;
+      // const chords = mode[]
+      console.log('the data is of type:' + fourChords);
+      sequences.push({
+        key: `arpeggiate-${i+1}-nh`,
+        label: `${key} ${mode} ${i+1} Chord Arpeggio • Hold`,
+        Component: NoteHold,
+        seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-1-nh`),
+        direction: `Play the notes of ${fourChords} one at a time going up (to the right).`,
+      },{
+        key: `arpeggiate-${i+1}-pa`,
+        label: `${key} ${mode} ${i+1} Chord Arpeggio • Play Along`,
+        Component: PlayAlong,
+        seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-1-pa`),
+        direction: "In a steady tempo, play an arpeggio of [chord symbol] going up and down."
+      });
+    } 
+  }
+  
+  return sequences.map(({ key, label, Component, seq, direction }) => ({
     key,
     label,
     Component,
     events: seq,
+    direction
   }));
 };
-
-export const ActivityFlow = ({ scaleMidis, onComplete, labelChange }: ActivityFlowProps) => {
-  const { data: contourData } = usePrismStartContours();
-  const availableContours = useMemo(() => {
-    const raw = contourData?.contours;
-    return extractContours(raw);
-  }, [contourData]);
 
   const randomContours = useMemo(() => {
     if (availableContours.length === 0){
@@ -234,7 +283,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange }: ActivityFl
     return null;
   }
 
-  const { Component, events } = currentActivity;
+  const { Component, events, direction} = currentActivity;
   
   return (
     <div className="flex flex-col gap-4">
@@ -242,6 +291,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange }: ActivityFl
         key={currentActivity.key}
         events={events}
         onContinue={handleContinue}
+        startMessage={direction}
       />
     </div>
   );

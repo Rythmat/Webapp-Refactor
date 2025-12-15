@@ -4,7 +4,7 @@ import { usePrismStartContours } from "@/hooks/data/prism/usePrismStartContours"
 import { NoteHold } from "./NoteHold";
 import { PlayAlong } from "./PlayAlong";
 import type { NoteEvent } from "./PianoRollPlay";
-import { usePrismModeChords } from "@/hooks/data";
+import { usePrismModeChords, PrismModeChordMap } from "@/hooks/data";
 import { PrismModeSlug } from "@/hooks/data";
 
 type FlowActivityProps = {
@@ -109,24 +109,16 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
     return extractContours(raw);
   }, [contourData]);
 
-  const [fourChords, setFourChords] = useState('');
+  const { data: chordResponse } = usePrismModeChords(mode);
+  const [modeChords, setModeChords] = useState<PrismModeChordMap | null>(null);
+
   useEffect(() => {
-    const fetchData = async () => {
-      const {data} = await usePrismModeChords(mode);
-      // const {
-      //   chords: {
-      //     triads,
-      //     tetrads,
-      //     pentads,
-      //     triadVariants,
-      //     tetradVariants,
-      //     pentadVariants,
-      //   },
-      // } = data;
-      setFourChords(typeof data);
+    if (chordResponse?.chords) {
+      setModeChords(chordResponse.chords);
+    } else {
+      setModeChords(null);
     }
-    fetchData();
-  },[rootKey, mode])
+  }, [chordResponse]);
 
   const buildFlowDefinitions = (
   scale: number[],
@@ -135,20 +127,20 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
   const ascending = scale;
   const descending = [...scale].reverse();
   const ascendDescend = [...ascending, ...descending];
-
+  const modeTitle = (mode as string).charAt(0).toUpperCase() + (mode as string).slice(1);
   const sequences = [
-    { key: "asc-nh", label: `${rootKey} ${mode} Ascend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascending, "asc-nh"),
+    { key: "asc-nh", label: `${rootKey} ${modeTitle} Ascend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascending, "asc-nh"),
        direction: "Play the notes of the scale going up (to the right)."  },
-    { key: "asc-pa", label: `${rootKey} ${mode} Ascend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascending, "asc-pa"),
+    { key: "asc-pa", label: `${rootKey} ${modeTitle} Ascend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascending, "asc-pa"),
       direction: "In a steady tempo, play the notes of the scale going up"
      },
-    { key: "desc-nh", label: `${rootKey} ${mode} Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(descending, "desc-nh"),
+    { key: "desc-nh", label: `${rootKey} ${modeTitle} Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(descending, "desc-nh"),
        direction: "Play the notes of the scale going down (to the left)."  },
-    { key: "desc-pa", label: `${rootKey} ${mode} Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(descending, "desc-pa"),
+    { key: "desc-pa", label: `${rootKey} ${modeTitle} Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(descending, "desc-pa"),
       direction: "In a steady tempo, play the notes of the scale going down" },
-    { key: "ascdesc-nh", label: `${rootKey} ${mode} Ascend + Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascendDescend, "ascdesc-nh"),
+    { key: "ascdesc-nh", label: `${rootKey} ${modeTitle} Ascend + Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascendDescend, "ascdesc-nh"),
        direction: "Play the notes of the scale going up and down." },
-    { key: "ascdesc-pa", label: `${rootKey} ${mode} Ascend + Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascendDescend, "ascdesc-pa"),
+    { key: "ascdesc-pa", label: `${rootKey} ${modeTitle} Ascend + Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascendDescend, "ascdesc-pa"),
        direction: "In a steady tempo, play the notes of the scale going up and down." },
   ];
   const contourSeqs: number[][] = [];
@@ -181,17 +173,17 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
     sequences.push(
       {
         key: `contour-1-nh`,
-        label: `$${rootKey} ${mode} Musical Contour • Hold`,
+        label: `$${rootKey} ${modeTitle} Musical Contour • Hold`,
         Component: NoteHold,
         seq: midiSequenceToEvents(contourSeqs[0], `contour-1-nh`),
-        direction: `Play this short melodic phrase in ${rootKey} ${mode}`
+        direction: `Play this short melodic phrase in ${rootKey} ${modeTitle}`
       },
       {
         key: `contour-1-pa`,
-        label: `${rootKey} ${mode} Musical Contour • Play Along`,
+        label: `${rootKey} ${modeTitle} Musical Contour • Play Along`,
         Component: PlayAlong,
         seq: midiSequenceToEvents(contourSeqs[0], `contour-1-pa`),
-        direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${mode}`
+        direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle}`
       },
     );
   }
@@ -201,40 +193,45 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
     sequences.push(
       {
         key: `contour-2-nh`,
-        label: `${rootKey} ${mode} Melodic Phrase • Hold`,
+        label: `${rootKey} ${modeTitle} Melodic Phrase • Hold`,
         Component: NoteHold,
         seq: midiSequenceToEvents(combined, `contour-2-nh`),
-        direction: `Play this longer melodic phrase in ${rootKey} ${mode}`,
+        direction: `Play this longer melodic phrase in ${rootKey} ${modeTitle}`,
       },
       {
         key: `contour-2-pa`,
-        label: `${rootKey} ${mode} Melodic Phrase • Play Along`,
+        label: `${rootKey} ${modeTitle} Melodic Phrase • Play Along`,
         Component: PlayAlong,
         seq: midiSequenceToEvents(combined, `contour-2-pa`),
-        direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${mode}`,
+        direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle}`,
       },
     );
   }
   // LOOP OVER CHORDS AND REPEAT FOR FIRST 4
-  for (let i = 0; i < 4; i++){
-    if(fourChords){
-      // const mode = modeChords.chords;
-      // const chords = mode[]
-      console.log('the data is of type:' + fourChords);
-      sequences.push({
-        key: `arpeggiate-${i+1}-nh`,
-        label: `${rootKey} ${mode} ${i+1} Chord Arpeggio • Hold`,
-        Component: NoteHold,
-        seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-1-nh`),
-        direction: `Play the notes of ${fourChords} one at a time going up (to the right).`,
-      },{
-        key: `arpeggiate-${i+1}-pa`,
-        label: `${rootKey} ${mode} ${i+1} Chord Arpeggio • Play Along`,
-        Component: PlayAlong,
-        seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-1-pa`),
-        direction: "In a steady tempo, play an arpeggio of [chord symbol] going up and down."
-      });
-    } 
+  const chordNames = modeChords
+    ? Object.values(modeChords).flatMap((v) => (Array.isArray(v) ? v : []))
+    : [];
+
+  for (let i = 0; i < 4; i++) {
+    const chordLabel = chordNames[i];
+    if (chordLabel) {
+      sequences.push(
+        {
+          key: `arpeggiate-${i + 1}-nh`,
+          label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Hold`,
+          Component: NoteHold,
+          seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-${i + 1}-nh`),
+          direction: `Play the notes of ${chordLabel} one at a time going up (to the right).`,
+        },
+        {
+          key: `arpeggiate-${i + 1}-pa`,
+          label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Play Along`,
+          Component: PlayAlong,
+          seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-${i + 1}-pa`),
+          direction: "In a steady tempo, play an arpeggio of the chord going up and down.",
+        },
+      );
+    }
   }
   
   return sequences.map(({ key, label, Component, seq, direction }) => ({

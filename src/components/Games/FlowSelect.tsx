@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ActivityFlow } from "./ActivityFlow";
 import { usePrismModes } from "@/hooks/data/prism/usePrismModes";
 import { usePrismMode } from "@/hooks/data/prism/usePrismMode";
+import { PrismModeSlug } from "@/hooks/data";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
 
 type KeyOption = { label: string; midi: number };
@@ -22,8 +23,7 @@ const KEY_OPTIONS: KeyOption[] = [
 ];
 
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
-const DEFAULT_MODE_SLUG = "ionian";
-const FALLBACK_MODES = [
+const prismModes : PrismModeSlug[] = [
   "ionian",
   "dorian",
   "phrygian",
@@ -31,6 +31,34 @@ const FALLBACK_MODES = [
   "mixolydian",
   "aeolian",
   "locrian",
+  "harmonicminor",
+  "locriannat6" ,
+  "ionian#5" ,
+  "dorian#4" ,
+  "phrygiandominant" ,
+  "lydian#2" ,
+  "altereddiminished" ,
+  "melodicminor" ,
+  "dorian♭2" ,
+  "lydianaugmented" ,
+  "lydiandominant" ,
+  "mixolydiannat6" ,
+  "locriannat2" ,
+  "altereddominant" ,
+  "harmonicmajor" ,
+  "dorian♭5" ,
+  "altereddominantnat5" ,
+  "melodicminor#4" ,
+  "mixolydian♭2" ,
+  "lydianaugmented#2" ,
+  "locrian𝄫7" ,
+  "doubleharmonicmajor" ,
+  "lydian#2#6" ,
+  "ultraphrygian" ,
+  "doubleharmonicminor" ,
+  "oriental" ,
+  "ionian#2#5" ,
+  "locrian𝄫3𝄫7"
 ];
 
 const normalizeSteps = (steps?: number[]) => {
@@ -55,22 +83,11 @@ export const FlowSelect = () => {
   const [started, setStarted] = useState(false);
   const [label, setLabel] = useState(['', '']);
 
-  const modeOptions = useMemo(() => {
-    const raw = modesData?.modes;
-    if (raw && typeof raw === "object") {
-      return Object.keys(raw);
-    }
-    return FALLBACK_MODES;
+  const modeOptions : PrismModeSlug[] = useMemo(() => {
+    return prismModes;
   }, [modesData]);
 
-  const [selectedMode, setSelectedMode] = useState<string>(DEFAULT_MODE_SLUG);
-
-  useEffect(() => {
-    if (modeOptions.length === 0) return;
-    if (!modeOptions.includes(selectedMode)) {
-      setSelectedMode(modeOptions[0]);
-    }
-  }, [modeOptions, selectedMode]);
+  const [selectedMode, setSelectedMode] = useState<PrismModeSlug>("ionian");
 
   const { data: modeDetail } = usePrismMode(selectedMode as any);
 
@@ -126,7 +143,7 @@ export const FlowSelect = () => {
             <select
               className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
               value={selectedMode}
-              onChange={(e) => setSelectedMode(e.target.value)}
+              onChange={(e) => setSelectedMode(e.target.value as PrismModeSlug)}
             >
               {modeOptions.map((mode) => (
                 <option key={mode} value={mode}>
@@ -189,7 +206,8 @@ export const FlowSelect = () => {
           scaleMidis={scaleMidis}
           onComplete={() => setStarted(false)}
           labelChange={(newLabel) => setLabel(newLabel)}
-          keyMode={`${selectedKey.label} ${selectedMode}`}
+          key={`${selectedKey.label}`}
+          mode={`${selectedMode}`}
         />
       </div>
     </div>

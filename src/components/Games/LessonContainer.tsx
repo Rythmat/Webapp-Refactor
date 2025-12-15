@@ -90,7 +90,7 @@ export const LessonContainer = ({ modeSlug }: LessonContainerProps) => {
           scaleMidis={scaleMidis}
           onComplete={() => setStarted(false)}
           labelChange={(newLabel) => setLabel(newLabel)}
-          key={`${KEY_C.label}`}
+          key={KEY_C.label}
           mode= {modeSlug}
         />
       </div>

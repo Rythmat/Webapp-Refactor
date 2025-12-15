@@ -236,7 +236,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const [playheadTick, setPlayheadTick] = useState(-countInTicks);
   const isControlled =
     typeof isPlaying === "boolean" && typeof onPlayingChange === "function";
-  const playing = isControlled ? isPlaying : false;
+  const [internalPlaying, setInternalPlaying] = useState(false);
+  const playing = isControlled ? isPlaying : internalPlaying;
 
   // Change the playing state
   const setPlaying = (next: boolean) => {
@@ -251,6 +252,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     if (onPlayingChange) {
       console.log('setting isPlaying to', next);
       onPlayingChange(next);
+    } else {
+      setInternalPlaying(next);
     }
   };
 
@@ -640,29 +643,28 @@ const PianoRoll: React.FC<PianoRollProps> = ({
         </div>
       </div>
       </div>
-      <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center bg-neutral-950/80 px-4 backdrop-blur">
-        <div className="w-full max-w-lg rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
-          <h3 className="text-2xl font-semibold">Ready to start?</h3>
-          <p className="mt-2 text-sm text-neutral-300">
-            {startMessage}
-          </p>
-          <div className="mt-6 flex justify-center">
-            <button
-              type="button"
-              onClick={async () => {
-                console.log("start clicked");
-                await onStart?.();
-                console.log("onStart done");
-                setPlaying(true);
-                console.log("setPlaying done, playing is", playing);
-              }}
-              className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
-            >
-              Start
-            </button>
+      {!playing && (
+        <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center bg-neutral-950/80 px-4 backdrop-blur">
+          <div className="w-full max-w-lg rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
+            <h3 className="text-2xl font-semibold">Ready to start?</h3>
+            <p className="mt-2 text-sm text-neutral-300">
+              {startMessage}
+            </p>
+            <div className="mt-6 flex justify-center">
+              <button
+                type="button"
+                onClick={async () => {
+                  await onStart?.();
+                  setPlaying(true);
+                }}
+                className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+              >
+                Start
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

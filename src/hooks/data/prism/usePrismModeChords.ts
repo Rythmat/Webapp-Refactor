@@ -1,23 +1,30 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  GetPrismModesByModeChordsData,
-  useMusicAtlas,
-} from '@/contexts/MusicAtlasContext';
+import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
 import { PrismModeSlug } from './types';
 
-export type PrismModeChordMap = GetPrismModesByModeChordsData['chords'];
+export type PrismModeChordMap = {
+  triads?: string[];
+  tetrads?: string[];
+  pentads?: string[];
+  triadVariants?: string[];
+  tetradVariants?: string[];
+  pentadVariants?: string[];
+  [key: string]: string[] | undefined;
+};
 
 export const usePrismModeChords = (mode?: PrismModeSlug) => {
   const musicAtlas = useMusicAtlas();
 
   return useQuery({
     queryKey: ['prism', 'modes', mode, 'chords'],
-    queryFn: async () => {
+    queryFn: async (): Promise<{ chords: PrismModeChordMap }> => {
       if (!mode) {
         throw new Error('Mode is required');
       }
 
-      return musicAtlas.music.getPrismModesByModeChords(mode);
+      return musicAtlas.music.getPrismModesByModeChords(mode) as unknown as {
+        chords: PrismModeChordMap;
+      };
     },
     enabled: !!mode,
   });

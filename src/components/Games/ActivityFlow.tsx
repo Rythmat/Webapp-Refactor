@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+// import { useQueries } from "@tanstack/react-query";
 import * as Tone from "tone";
+// import { useMusicAtlas } from "@/contexts/MusicAtlasContext";
 import { usePrismStartContours } from "@/hooks/data/prism/usePrismStartContours";
 import { NoteHold } from "./NoteHold";
 import { PlayAlong } from "./PlayAlong";
 import type { NoteEvent } from "./PianoRollPlay";
-import { usePrismModeChords, PrismModeChordMap } from "@/hooks/data";
-import { PrismModeSlug } from "@/hooks/data";
+import {  PrismModeChordDataMap,  PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
 
 type FlowActivityProps = {
   events: NoteEvent[];
@@ -103,22 +104,34 @@ const extractContours = (value: unknown): number[][] => {
 
 export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mode }: ActivityFlowProps) => {
 
+  // const musicAtlas = useMusicAtlas();
   const { data: contourData } = usePrismStartContours();
   const availableContours = useMemo(() => {
     const raw = contourData?.contours;
     return extractContours(raw);
   }, [contourData]);
 
-  const { data: chordResponse } = usePrismModeChords(mode);
-  const [modeChords, setModeChords] = useState<PrismModeChordMap | null>(null);
-
-  useEffect(() => {
-    if (chordResponse?.chords) {
-      setModeChords(chordResponse.chords);
-    } else {
-      setModeChords(null);
-    }
-  }, [chordResponse]);
+  const { data: chordResponse } = usePrismModeChordsData(mode);
+  const modeChords: PrismModeChordDataMap | undefined = chordResponse?.chords;
+  const triads = modeChords && Array.isArray(modeChords.triads)
+    ? modeChords.triads
+    : [];
+  const firstFourTriads = triads.slice(0, 4);
+  // const triadChordQueries = useQueries({
+  //   queries: firstFourTriads.map((chordName) => ({
+  //     queryKey: ["prism", "chords", chordName],
+  //     queryFn: () =>
+  //       musicAtlas.music.getPrismChordsByName(chordName as PrismChordName),
+  //     enabled: !!chordName,
+  //   })),
+  // });
+  // const triadChords = useMemo(
+  //   () =>
+  //     triadChordQueries.map(({ data }) =>
+  //       Array.isArray(data?.chord) ? data.chord : undefined
+  //     ),
+  //   [triadChordQueries]
+  // );
 
   const buildFlowDefinitions = (
   scale: number[],
@@ -208,30 +221,32 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
     );
   }
   // LOOP OVER CHORDS AND REPEAT FOR FIRST 4
-  const chordNames = modeChords
-    ? Object.values(modeChords).flatMap((v) => (Array.isArray(v) ? v : []))
-    : [];
 
   for (let i = 0; i < 4; i++) {
-    const chordLabel = chordNames[i];
-    if (chordLabel) {
-      sequences.push(
-        {
-          key: `arpeggiate-${i + 1}-nh`,
-          label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Hold`,
-          Component: NoteHold,
-          seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-${i + 1}-nh`),
-          direction: `Play the notes of ${chordLabel} one at a time going up (to the right).`,
-        },
-        {
-          key: `arpeggiate-${i + 1}-pa`,
-          label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Play Along`,
-          Component: PlayAlong,
-          seq: chordArpegiateEvents([scale[0], scale[2], scale[4]], `arpeggiate-${i + 1}-pa`),
-          direction: "In a steady tempo, play an arpeggio of the chord going up and down.",
-        },
-      );
-    }
+    // const chordLabel = chordNames[i];
+    const chordNotes = firstFourTriads[i];
+    sequences.push(
+      {
+        key: `arpeggiate-${i + 1}-nh`,
+        label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Hold`,
+        Component: NoteHold,
+        seq: chordArpegiateEvents(
+          chordNotes ?? [scale[0], scale[2], scale[4]],
+          `arpeggiate-${i + 1}-nh`
+        ),
+        direction: `Play the notes of the ${i+1} chord one at a time going up (to the right).`,
+      },
+      {
+        key: `arpeggiate-${i + 1}-pa`,
+        label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Play Along`,
+        Component: PlayAlong,
+        seq: chordArpegiateEvents(
+          chordNotes ?? [scale[0], scale[2], scale[4]],
+          `arpeggiate-${i + 1}-pa`
+        ),
+        direction: "In a steady tempo, play an arpeggio of the chord going up and down.",
+      },
+    );
   }
   
   return sequences.map(({ key, label, Component, seq, direction }) => ({

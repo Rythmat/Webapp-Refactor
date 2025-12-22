@@ -18,6 +18,10 @@ export {
   type PrismModeChordMap,
 } from './usePrismModeChords';
 export {
+  usePrismModeChordsData,
+  type PrismModeChordDataMap,
+} from './usePrismModeChordsData';
+export {
   usePrismModeFamilies,
   type PrismModeFamilyList,
   type PrismModeFamilyOption,

@@ -111,7 +111,17 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
     return extractContours(raw);
   }, [contourData]);
 
-  const { data: chordResponse } = usePrismModeChordsData(mode);
+  // const { data: chordResponse } = usePrismModeChordsData(mode);
+  const chordsQuery = usePrismModeChordsData(mode);
+  console.log({
+    mode,
+    status: chordsQuery.status,
+    isPending: chordsQuery.isPending,
+    isError: chordsQuery.isError,
+    error: chordsQuery.error,
+    data: chordsQuery.data,
+  });
+  const chordResponse = chordsQuery.data;
   console.log("response:", chordResponse);
   const modeChords: PrismModeChordDataMap | undefined = chordResponse?.chords;
   console.log("modeChords:", modeChords);
@@ -248,7 +258,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
           chordNotes ?? [scale[0], scale[2], scale[4]],
           `arpeggiate-${i + 1}-pa`
         ),
-        direction: "In a steady tempo, play an arpeggio of the chord going up and down.",
+        direction: "In a steady tempo, play an arpeggio of the chord going up and then play the chord.",
       },
     );
     }

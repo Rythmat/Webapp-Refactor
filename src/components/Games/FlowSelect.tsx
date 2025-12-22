@@ -206,7 +206,8 @@ export const FlowSelect = () => {
           scaleMidis={scaleMidis}
           onComplete={() => setStarted(false)}
           labelChange={(newLabel) => setLabel(newLabel)}
-          key={`${selectedKey.label}`}
+          rootKey={`${selectedKey.label}`}
+          rootMidi={selectedKey.midi}
           mode={`${selectedMode}`}
         />
       </div>

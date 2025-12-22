@@ -25,7 +25,7 @@ const DEFAULT_EVENTS: NoteEvent[] = [
   { id: "e16", pitchName: "B3", startTicks: 5760, durationTicks: 1920 },
 ];
 
-const CHORD_HOLD_REQUIRED_MS = 1000;
+const CHORD_HOLD_REQUIRED_MS = 500;
 const CHORD_NOTE_COLOR = "#22c55e";
 const WRONG_NOTE_COLOR = "#ef4444";
 const TICKS_PER_QUARTER = 480;

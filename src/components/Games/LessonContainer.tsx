@@ -91,6 +91,7 @@ export const LessonContainer = ({ modeSlug }: LessonContainerProps) => {
           onComplete={() => setStarted(false)}
           labelChange={(newLabel) => setLabel(newLabel)}
           rootKey={KEY_C.label}
+          rootMidi={KEY_C.midi}
           mode= {modeSlug}
         />
       </div>

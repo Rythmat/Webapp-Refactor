@@ -18,7 +18,8 @@ type ActivityFlowProps = {
   scaleMidis?: number[];
   onComplete?: () => void;
   labelChange?: (newLabel: string[]) => void;
-  rootKey?: string;
+  rootKey: string;
+  rootMidi: number;
   mode?: PrismModeSlug;
 };
 
@@ -112,7 +113,7 @@ const extractContours = (value: unknown): number[][] => {
 };
 
 
-export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mode }: ActivityFlowProps) => {
+export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, rootMidi, mode }: ActivityFlowProps) => {
 
   // const musicAtlas = useMusicAtlas();
   const { data: contourData } = usePrismStartContours();
@@ -235,7 +236,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
   }
   // LOOP OVER CHORDS AND REPEAT FOR FIRST 4
   for (let i = 0; i < 4; i++) {
-    const chordNotes = chordTriads[i];
+    const chordNotes = chordTriads[i].map((x)=>x+rootMidi);
     if (isNumberArray(chordNotes)) {
       sequences.push(
         {

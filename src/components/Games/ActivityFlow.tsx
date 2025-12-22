@@ -112,6 +112,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
   }, [contourData]);
 
   const { data: chordResponse } = usePrismModeChordsData(mode);
+  console.log("response:", chordResponse);
   const modeChords: PrismModeChordDataMap | undefined = chordResponse?.chords;
   console.log("modeChords:", modeChords);
   const triads = modeChords && Array.isArray(modeChords.triads)

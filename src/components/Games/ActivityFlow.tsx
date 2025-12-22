@@ -236,7 +236,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   }
   // LOOP OVER CHORDS AND REPEAT FOR FIRST 4
   for (let i = 0; i < 4; i++) {
-    const chordNotes = chordTriads[i].map((x)=>x+rootMidi);
+    const chordNotes = chordTriads[i] ?? chordTriads[i].map((x)=>x+rootMidi) ;
     if (isNumberArray(chordNotes)) {
       sequences.push(
         {

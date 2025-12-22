@@ -173,10 +173,8 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const descending = [...scale].reverse();
   const ascendDescend = [...ascending, ...descending];
   const modeTitle = (mode as string).charAt(0).toUpperCase() + (mode as string).slice(1);
-  const baseChord = chordTriads[0];
-  const chordNotes = baseChord ? baseChord.map((x) => x + rootMidi) : [scale[0], scale[2], scale[4]];
   const chordLabel = `${rootKey} ${modeTitle} Chord`;
-  const chordHoldEvents = chordHoldToEvents(chordNotes, "chord-hold");
+  const chordHoldEvents = chordHoldToEvents(ascending, "chord-hold");
   const contourSeqs: number[][] = [];
   contours?.forEach((contour) => {
     if (!Array.isArray(contour)) {
@@ -206,11 +204,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const randomIntro = shuffleArray([
     {
       key: "intro-chord-press",
-      label: `${chordLabel} • Press`,
+      label: `${rootKey} ${modeTitle} • Press`,
       Component: ({ onContinue }: FlowActivityProps) => (
         <ChordPressGame
-          targetNotes={chordNotes}
-          targetLabel={chordLabel}
+          targetNotes={ascending}
+          targetLabel={`${rootKey} ${modeTitle}`}
           onComplete={onContinue}
         />
       ),
@@ -219,11 +217,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     },
     {
       key: "intro-board-choice",
-      label: `${chordLabel} • Choose`,
+      label: `${rootKey} ${modeTitle} • Choose`,
       Component: ({ onContinue }: FlowActivityProps) => (
         <BoardChoiceGame
-          targetNotes={chordNotes}
-          targetLabel={chordLabel}
+          targetNotes={ascending}
+          targetLabel={`${rootKey} ${modeTitle}`}
           onComplete={onContinue}
         />
       ),
@@ -232,10 +230,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     },
     {
       key: "intro-chord-hold",
-      label: `${chordLabel} • Hold`,
+      label: `${rootKey} ${modeTitle} • Hold`,
       Component: NoteHold,
       seq: chordHoldEvents,
-      direction: `Hold the notes of the ${chordLabel} together.`,
+      direction: `Hold the notes of the ${rootKey} ${modeTitle} scale.`,
     },
   ]);
 

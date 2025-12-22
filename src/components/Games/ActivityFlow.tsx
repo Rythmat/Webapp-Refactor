@@ -9,7 +9,7 @@ import type { NoteEvent } from "./PianoRollPlay";
 import {  PrismModeChordDataMap,  PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
 
 type FlowActivityProps = {
-  events: NoteEvent[];
+  events?: NoteEvent[];
   onContinue?: () => void;
   startMessage?: string;
 };
@@ -32,6 +32,16 @@ type ActivityDefinition = {
   events: NoteEvent[];
   direction: string;
 };
+
+const ChordLoadingStep: (props: FlowActivityProps) => JSX.Element = ({
+  startMessage,
+}) => (
+  <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-6 text-center">
+    <div className="text-sm text-neutral-300">
+      {startMessage ?? "Loading chord exercises..."}
+    </div>
+  </div>
+);
 
 const midiSequenceToEvents = (sequence: number[],prefix: string): NoteEvent[] =>
   sequence.map((midi, idx) => ({
@@ -129,7 +139,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
     ? modeChords.triads
     : [];
   console.log("triads:", triads);
-  const firstFourTriads = triads.slice(0, 4);
+  const firstFourTriads = useMemo(
+    () => triads.filter(isNumberArray).slice(0, 4),
+    [triads],
+  );
   // const triadChordQueries = useQueries({
   //   queries: firstFourTriads.map((chordName) => ({
   //     queryKey: ["prism", "chords", chordName],
@@ -149,6 +162,8 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
   const buildFlowDefinitions = (
   scale: number[],
   contours?: number[][],
+  chordTriads: number[][] = [],
+  includeChordPlaceholder = false,
 ): ActivityDefinition[] => {
   const ascending = scale;
   const descending = [...scale].reverse();
@@ -234,34 +249,43 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
     );
   }
   // LOOP OVER CHORDS AND REPEAT FOR FIRST 4
-
   for (let i = 0; i < 4; i++) {
-    // const chordLabel = chordNames[i];
-    const chordNotes = firstFourTriads[i];
-    if(chordNotes){
+    const chordNotes = chordTriads[i];
+    if (isNumberArray(chordNotes)) {
       sequences.push(
-      {
-        key: `arpeggiate-${i + 1}-nh`,
-        label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Hold`,
-        Component: NoteHold,
-        seq: chordArpegiateEvents(
-          chordNotes ?? [scale[0], scale[2], scale[4]],
-          `arpeggiate-${i + 1}-nh`
-        ),
-        direction: `Play the notes of the ${i+1} chord one at a time going up (to the right) and then play the chord.`,
-      },
-      {
-        key: `arpeggiate-${i + 1}-pa`,
-        label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Play Along`,
-        Component: PlayAlong,
-        seq: chordArpegiateEvents(
-          chordNotes ?? [scale[0], scale[2], scale[4]],
-          `arpeggiate-${i + 1}-pa`
-        ),
-        direction: "In a steady tempo, play an arpeggio of the chord going up and then play the chord.",
-      },
-    );
+        {
+          key: `arpeggiate-${i + 1}-nh`,
+          label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Hold`,
+          Component: NoteHold,
+          seq: chordArpegiateEvents(
+            chordNotes ?? [scale[0], scale[2], scale[4]],
+            `arpeggiate-${i + 1}-nh`
+          ),
+          direction: `Play the notes of the ${i + 1} chord one at a time going up (to the right) and then play the chord.`,
+        },
+        {
+          key: `arpeggiate-${i + 1}-pa`,
+          label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Play Along`,
+          Component: PlayAlong,
+          seq: chordArpegiateEvents(
+            chordNotes ?? [scale[0], scale[2], scale[4]],
+            `arpeggiate-${i + 1}-pa`
+          ),
+          direction:
+            "In a steady tempo, play an arpeggio of the chord going up and then play the chord.",
+        },
+      );
     }
+  }
+
+  if (includeChordPlaceholder && chordTriads.length === 0) {
+    sequences.push({
+      key: "chords-loading",
+      label: `${rootKey} ${modeTitle} Chords • Loading`,
+      Component: ChordLoadingStep,
+      seq: [] as NoteEvent[],
+      direction: "Loading chord exercises...",
+    });
   }
   
   return sequences.map(({ key, label, Component, seq, direction }) => ({
@@ -283,25 +307,41 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
 
   const flowDefinitions = useMemo(() => {
     const scale = scaleMidis && scaleMidis.length > 0 ? scaleMidis : DEFAULT_SCALE;
-    return buildFlowDefinitions(scale, randomContours);
-  }, [scaleMidis, randomContours]);
+    return buildFlowDefinitions(
+      scale,
+      randomContours,
+      firstFourTriads,
+      chordsQuery.isPending && firstFourTriads.length === 0,
+    );
+  }, [scaleMidis, randomContours, firstFourTriads, chordsQuery.isPending]);
 
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentActivity = flowDefinitions[currentIndex];
   useEffect(() => {
+    if (flowDefinitions.length === 0) return;
+    if (currentIndex < flowDefinitions.length) return;
+    if (!chordsQuery.isPending) {
+      onComplete?.();
+    }
+    setCurrentIndex(Math.max(flowDefinitions.length - 1, 0));
+  }, [currentIndex, flowDefinitions.length, chordsQuery.isPending, onComplete]);
+  useEffect(() => {
     if(labelChange){
-      const activityLabel = `Activity ${currentIndex + 1} of 18`;
+      if (!currentActivity) return;
+      const activityLabel = `Activity ${currentIndex + 1} of ${flowDefinitions.length}`;
       labelChange([currentActivity.label,activityLabel]);
     }
-  }, [currentActivity]);
+  }, [currentActivity, currentIndex, labelChange, flowDefinitions.length]);
 
   const handleContinue = () => {
     setCurrentIndex((idx) => {
       if (idx < flowDefinitions.length - 1) {
         return idx + 1;
       }
-      onComplete?.();
+      if (!chordsQuery.isPending) {
+        onComplete?.();
+      }
       return idx;
     });
   };

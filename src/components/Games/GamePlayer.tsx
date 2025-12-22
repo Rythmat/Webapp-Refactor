@@ -67,9 +67,7 @@ export const GamePlayer = () => {
 
   const currentRound = !sessionComplete ? rounds[currentRoundIndex] : null;
 
-  const handleRoundComplete = useCallback(({ success }: { success: boolean }) => {
-    setFailures((prev) => (success ? prev : prev + 1));
-
+  const advanceRound = useCallback(() => {
     setCurrentRoundIndex((previous) => {
       const nextIndex = previous + 1;
       if (nextIndex >= rounds.length) {
@@ -79,6 +77,15 @@ export const GamePlayer = () => {
       return nextIndex;
     });
   }, [rounds.length]);
+
+  const handleRoundComplete = useCallback(() => {
+    advanceRound();
+  }, [advanceRound]);
+
+  const handleRoundCompleteWithResult = useCallback(({ success }: { success: boolean }) => {
+    setFailures((prev) => (success ? prev : prev + 1));
+    advanceRound();
+  }, [advanceRound]);
 
   const restartSession = useCallback(() => {
     setRounds(generateSession());
@@ -98,20 +105,19 @@ export const GamePlayer = () => {
     const { id, game, chord } = currentRound;
     const sharedProps = {
       initialChord: chord,
-      onComplete: handleRoundComplete,
       className: 'mx-auto max-w-5xl',
     };
 
     let gameComponent: ReactNode = null;
     switch (game) {
       case 'board':
-        gameComponent = <BoardChoiceGame {...sharedProps} />;
+        gameComponent = <BoardChoiceGame {...sharedProps} onComplete={handleRoundComplete} />;
         break;
       case 'press':
-        gameComponent = <ChordPressGame {...sharedProps} />;
+        gameComponent = <ChordPressGame {...sharedProps} onComplete={handleRoundComplete} />;
         break;
       case 'connect':
-        gameComponent = <ChordConnectionGame {...sharedProps} />;
+        gameComponent = <ChordConnectionGame {...sharedProps} onComplete={handleRoundCompleteWithResult} />;
         break;
       default:
         gameComponent = null;

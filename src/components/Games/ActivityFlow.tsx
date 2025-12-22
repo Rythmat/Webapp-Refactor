@@ -291,7 +291,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
   const currentActivity = flowDefinitions[currentIndex];
   useEffect(() => {
     if(labelChange){
-      const activityLabel = `Activity ${currentIndex + 1} of ${flowDefinitions.length}`;
+      const activityLabel = `Activity ${currentIndex + 1} of 18`;
       labelChange([currentActivity.label,activityLabel]);
     }
   }, [currentActivity]);

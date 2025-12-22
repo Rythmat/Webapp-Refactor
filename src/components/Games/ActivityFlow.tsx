@@ -143,21 +143,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
     () => triads.filter(isNumberArray).slice(0, 4),
     [triads],
   );
-  // const triadChordQueries = useQueries({
-  //   queries: firstFourTriads.map((chordName) => ({
-  //     queryKey: ["prism", "chords", chordName],
-  //     queryFn: () =>
-  //       musicAtlas.music.getPrismChordsByName(chordName as PrismChordName),
-  //     enabled: !!chordName,
-  //   })),
-  // });
-  // const triadChords = useMemo(
-  //   () =>
-  //     triadChordQueries.map(({ data }) =>
-  //       Array.isArray(data?.chord) ? data.chord : undefined
-  //     ),
-  //   [triadChordQueries]
-  // );
 
   const buildFlowDefinitions = (
   scale: number[],

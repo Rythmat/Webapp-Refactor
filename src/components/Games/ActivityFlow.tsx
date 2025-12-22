@@ -225,7 +225,8 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
   for (let i = 0; i < 4; i++) {
     // const chordLabel = chordNames[i];
     const chordNotes = firstFourTriads[i];
-    sequences.push(
+    if(chordNotes){
+      sequences.push(
       {
         key: `arpeggiate-${i + 1}-nh`,
         label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Hold`,
@@ -234,7 +235,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
           chordNotes ?? [scale[0], scale[2], scale[4]],
           `arpeggiate-${i + 1}-nh`
         ),
-        direction: `Play the notes of the ${i+1} chord one at a time going up (to the right).`,
+        direction: `Play the notes of the ${i+1} chord one at a time going up (to the right) and then play the chord.`,
       },
       {
         key: `arpeggiate-${i + 1}-pa`,
@@ -247,6 +248,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
         direction: "In a steady tempo, play an arpeggio of the chord going up and down.",
       },
     );
+    }
   }
   
   return sequences.map(({ key, label, Component, seq, direction }) => ({

@@ -64,9 +64,17 @@ export const PlayAlong = ({
   const [currentTick, setCurrentTick] = useState(-COUNT_IN_TICKS);
   const [notePerformance, setNotePerformance] = useState<Record<string, NotePerformance>>({});
   const [playSessionId, setPlaySessionId] = useState(0);
-  const lastCountInBeatRef = useRef<number | null>(null);
+  const lastMetronomeBeatRef = useRef<number | null>(null);
   const getSynth = useSynth();
   const hasStartedAudioContextRef = useRef(false);
+  const firstMetronomePlayer = useMemo(
+    () => new Tone.Player("/sound/firstMetronomeClick.mp3").toDestination(),
+    [],
+  );
+  const metronomePlayer = useMemo(
+    () => new Tone.Player("/sound/metronomeClick.mp3").toDestination(),
+    [],
+  );
 
   //Current tick reference
   const currentTickRef = useRef(currentTick);
@@ -90,6 +98,12 @@ export const PlayAlong = ({
     }
   }, []);
 
+  useEffect(() => {
+    return () => {
+      firstMetronomePlayer.dispose();
+      metronomePlayer.dispose();
+    };
+  }, [firstMetronomePlayer, metronomePlayer]);
 
   const resetProgress = useCallback(() => {
     activeMidiSetRef.current = new Set<number>();
@@ -97,7 +111,7 @@ export const PlayAlong = ({
     setKeyboardPlayingNotes([]);
     setNotePerformance({});
     setCurrentTick(-COUNT_IN_TICKS);
-    lastCountInBeatRef.current = null;
+    lastMetronomeBeatRef.current = null;
     const synth = getSynth();
     synth?.releaseAll();
   }, [getSynth]);
@@ -105,7 +119,7 @@ export const PlayAlong = ({
   const resetInTimeRun = useCallback(() => {
     setNotePerformance({});
     setCurrentTick(-COUNT_IN_TICKS);
-    lastCountInBeatRef.current = null;
+    lastMetronomeBeatRef.current = null;
   }, []);
 
   // Triggers the on state of the syntheizer with a specified note and a given velocity
@@ -133,29 +147,32 @@ export const PlayAlong = ({
     [getSynth],
   );
 
-  const playCountInClick = useCallback(() => {
-    const synth = getSynth();
-    if (!synth || Tone.getContext().state !== "running") return;
-    const frequency = Tone.Frequency(84, "midi").toFrequency();
-    synth.triggerAttackRelease(frequency, "16n", Tone.now(), 0.7);
-  }, [getSynth]);
+  const playMetronome = useCallback(
+    (isDownbeat: boolean) => {
+      if (Tone.getContext().state !== "running") return;
+      const player = isDownbeat ? firstMetronomePlayer : metronomePlayer;
+      player.start(Tone.now());
+    },
+    [firstMetronomePlayer, metronomePlayer],
+  );
 
   useEffect(() => {
     if (!isPlaying) {
-      lastCountInBeatRef.current = null;
+      lastMetronomeBeatRef.current = null;
       return;
     }
-    if (currentTick >= 0 || currentTick < -COUNT_IN_TICKS) {
-      lastCountInBeatRef.current = null;
+    if (currentTick < -COUNT_IN_TICKS || currentTick > maxEventEndTick) {
+      lastMetronomeBeatRef.current = null;
       return;
     }
-    const ticksIntoCountIn = currentTick + COUNT_IN_TICKS;
-    const beatIndex = Math.floor(ticksIntoCountIn / TICKS_PER_QUARTER);
-    if (lastCountInBeatRef.current !== beatIndex) {
-      lastCountInBeatRef.current = beatIndex;
-      playCountInClick();
+    const ticksIntoSession = currentTick + COUNT_IN_TICKS;
+    const beatIndex = Math.floor(ticksIntoSession / TICKS_PER_QUARTER);
+    if (lastMetronomeBeatRef.current !== beatIndex) {
+      lastMetronomeBeatRef.current = beatIndex;
+      const beatInBar = beatIndex % 4;
+      playMetronome(beatInBar === 0);
     }
-  }, [isPlaying, currentTick, playCountInClick]);
+  }, [isPlaying, currentTick, maxEventEndTick, playMetronome]);
 
   const noteColorByMidi = useMemo(() => {
     const map = new Map<number, string>();

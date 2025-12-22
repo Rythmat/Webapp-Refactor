@@ -113,9 +113,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, mod
 
   const { data: chordResponse } = usePrismModeChordsData(mode);
   const modeChords: PrismModeChordDataMap | undefined = chordResponse?.chords;
+  console.log("modeChords:", modeChords);
   const triads = modeChords && Array.isArray(modeChords.triads)
     ? modeChords.triads
     : [];
+  console.log("triads:", triads);
   const firstFourTriads = triads.slice(0, 4);
   // const triadChordQueries = useQueries({
   //   queries: firstFourTriads.map((chordName) => ({

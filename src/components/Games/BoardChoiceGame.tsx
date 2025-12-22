@@ -15,9 +15,9 @@ type ChordSpec = {
 
 type ChordOption = {
   id: string;
-  spec: ChordSpec;
   midi: number[];
   isCorrect: boolean;
+  spec?: ChordSpec;
 };
 
 const CHORD_INTERVALS: Record<ChordType, number[]> = {
@@ -41,7 +41,8 @@ type CreateRoundArgs = {
 };
 
 type RoundState = {
-  target: ChordSpec;
+  targetLabel: string;
+  targetNotes: number[];
   options: ChordOption[];
 };
 
@@ -108,6 +109,62 @@ function midiToNoteName(midi: number) {
   return `${PITCH_CLASS_NAMES[pitchClass] ?? 'Unknown'}${octave}`;
 }
 
+function intervalsSignature(root: number, notes: number[]) {
+  return notes.map((note) => note - root).join(',');
+}
+
+function normalizeNotes(notes: number[]) {
+  return [...notes].sort((a, b) => a - b);
+}
+
+function createCustomOptions(targetNotes: number[]): { options: ChordOption[]; targetNotes: number[] } {
+  const normalizedTarget = normalizeNotes(targetNotes);
+  const root = normalizedTarget[0];
+  const length = normalizedTarget.length;
+  const targetSignature = intervalsSignature(root, normalizedTarget);
+  const used = new Set<string>([targetSignature]);
+  const options: ChordOption[] = [
+    {
+      id: uuidv4(),
+      midi: normalizedTarget,
+      isCorrect: true,
+    },
+  ];
+
+  const maxInterval = Math.max(12, ...normalizedTarget.map((note) => note - root));
+  let attempts = 0;
+  while (options.length < 4 && attempts < 200) {
+    attempts += 1;
+    const intervals = new Set<number>();
+    while (intervals.size < Math.max(0, length - 1) && intervals.size < maxInterval) {
+      const interval = 1 + Math.floor(Math.random() * maxInterval);
+      intervals.add(interval);
+    }
+    const candidateNotes = [root, ...Array.from(intervals)].map((interval) => root + interval);
+    const normalizedCandidate = normalizeNotes(candidateNotes);
+    const signature = intervalsSignature(root, normalizedCandidate);
+    if (used.has(signature)) {
+      continue;
+    }
+    used.add(signature);
+    options.push({
+      id: uuidv4(),
+      midi: normalizedCandidate,
+      isCorrect: false,
+    });
+  }
+
+  while (options.length < 4) {
+    options.push({
+      id: uuidv4(),
+      midi: normalizedTarget,
+      isCorrect: false,
+    });
+  }
+
+  return { options: shuffle(options), targetNotes: normalizedTarget };
+}
+
 function createRound({ chordPool, baseOctaveRoot, preferredChord }: CreateRoundArgs): RoundState {
   if (chordPool.length === 0) {
     throw new Error('Chord pool must contain at least one chord type.');
@@ -145,8 +202,10 @@ function createRound({ chordPool, baseOctaveRoot, preferredChord }: CreateRoundA
     throw new Error('Unable to generate a full set of chord options.');
   }
 
+  const targetNotes = buildChord(baseOctaveRoot + target.rootPc, target.type);
   return {
-    target,
+    targetLabel: chordName(target.rootPc, target.type) ?? 'Unknown chord',
+    targetNotes,
     options: shuffle(options),
   };
 }
@@ -158,8 +217,10 @@ export type BoardChoiceGameProps = {
   showChordName?: boolean;
   keyboardBaseOctave?: number;
   initialChord?: ChordSpec;
+  targetNotes?: number[];
+  targetLabel?: string;
   className?: string;
-  onComplete?: (result: { success: boolean }) => void;
+  onComplete?: () => void;
 };
 
 export function BoardChoiceGame({
@@ -169,45 +230,60 @@ export function BoardChoiceGame({
   showChordName = true,
   keyboardBaseOctave = 4,
   initialChord,
+  targetNotes,
+  targetLabel,
   className,
   onComplete,
 }: BoardChoiceGameProps) {
   const baseOctaveRoot = keyboardBaseOctave * 12;
   const initialChordKey = initialChord ? chordSignature(initialChord) : 'none';
+  const customNotesKey = targetNotes ? targetNotes.join(',') : 'none';
 
   const [selectedOption, setSelectedOption] = useState<ChordOption | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  const [round, setRound] = useState<RoundState>(() =>
-    createRound({ chordPool, baseOctaveRoot, preferredChord: initialChord }),
-  );
+  const [round, setRound] = useState<RoundState>(() => {
+    if (targetNotes && targetNotes.length > 0) {
+      const { options, targetNotes: normalizedTarget } = createCustomOptions(targetNotes);
+      return {
+        targetLabel: targetLabel ?? 'Unknown chord',
+        targetNotes: normalizedTarget,
+        options,
+      };
+    }
+    return createRound({ chordPool, baseOctaveRoot, preferredChord: initialChord });
+  });
 
   const startNewRound = useCallback(
     (preferred?: ChordSpec) => {
+      if (targetNotes && targetNotes.length > 0) {
+        const { options, targetNotes: normalizedTarget } = createCustomOptions(targetNotes);
+        setRound({
+          targetLabel: targetLabel ?? 'Unknown chord',
+          targetNotes: normalizedTarget,
+          options,
+        });
+        setSelectedOption(null);
+        setSubmitted(false);
+        return;
+      }
       setRound(createRound({ chordPool, baseOctaveRoot, preferredChord: preferred }));
       setSelectedOption(null);
       setSubmitted(false);
     },
-    [baseOctaveRoot, chordPool],
+    [baseOctaveRoot, chordPool, targetLabel, targetNotes],
   );
 
   useEffect(() => {
     startNewRound(initialChord);
-  }, [initialChordKey, initialChord, startNewRound]);
+  }, [initialChordKey, initialChord, startNewRound, customNotesKey]);
 
   const selectedOptionId = selectedOption?.id ?? null;
-  const target = round.target;
-  const targetLabel = useMemo(
-    () => chordName(target.rootPc, target.type) ?? 'Unknown chord',
-    [target.rootPc, target.type],
-  );
-  const targetNotes = useMemo(
-    () => buildChord(baseOctaveRoot + target.rootPc, target.type),
-    [baseOctaveRoot, target.rootPc, target.type],
-  );
+  const resolvedTargetLabel = round.targetLabel;
+  const resolvedTargetNotes = round.targetNotes;
   const targetNoteNames = useMemo(
-    () => targetNotes.map(midiToNoteName),
-    [targetNotes],
+    () => resolvedTargetNotes.map(midiToNoteName),
+    [resolvedTargetNotes],
   );
 
 
@@ -226,9 +302,13 @@ export function BoardChoiceGame({
 
   const handleContinue = useCallback(() => {
     if (!selectedOption || submitted) return;
-    setSubmitted(true);
-    onComplete?.({ success: selectedOption.isCorrect });
-  }, [onComplete, selectedOption, submitted]);
+    if (onComplete) {
+      setSubmitted(true);
+      onComplete();
+      return;
+    }
+    startNewRound(initialChord);
+  }, [initialChord, onComplete, selectedOption, startNewRound, submitted]);
   const feedback = useMemo(() => {
     if (!selectedOption) return null;
 
@@ -242,7 +322,7 @@ export function BoardChoiceGame({
       <div className="space-y-1 text-sm">
         <div className="font-medium text-red-600">Not quite.</div>
         <div>
-          The correct keyboard shows {targetLabel}
+          The correct keyboard shows {resolvedTargetLabel}
           {targetNoteNames.length > 0 && (
             <span className="text-foreground/90"> ({targetNoteNames.join(', ')})</span>
           )}
@@ -250,7 +330,7 @@ export function BoardChoiceGame({
         </div>
       </div>
     );
-  }, [selectedOption, targetLabel, targetNoteNames]);
+  }, [selectedOption, resolvedTargetLabel, targetNoteNames]);
 
   return (
     <Card className={cn('w-full', className)}>
@@ -258,7 +338,7 @@ export function BoardChoiceGame({
         <CardTitle className="text-2xl font-semibold">Chord Board Challenge</CardTitle>
         {showChordName && (
           <p className="text-sm text-muted-foreground">
-            Which keyboard highlights the notes of <span className="font-semibold">{targetLabel}</span>?
+            Which keyboard highlights the notes of <span className="font-semibold">{resolvedTargetLabel}</span>?
           </p>
         )}
       </CardHeader>

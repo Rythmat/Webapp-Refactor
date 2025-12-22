@@ -5,6 +5,8 @@ import * as Tone from "tone";
 import { usePrismStartContours } from "@/hooks/data/prism/usePrismStartContours";
 import { NoteHold } from "./NoteHold";
 import { PlayAlong } from "./PlayAlong";
+import { BoardChoiceGame } from "./BoardChoiceGame";
+import { ChordPressGame } from "./ChordPressGame";
 import type { NoteEvent } from "./PianoRollPlay";
 import {  PrismModeChordDataMap,  PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
 
@@ -50,6 +52,14 @@ const midiSequenceToEvents = (sequence: number[],prefix: string): NoteEvent[] =>
     pitchName: Tone.Frequency(midi, "midi").toNote(),
     startTicks: idx * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS,
+  }));
+
+const chordHoldToEvents = (notes: number[], prefix: string): NoteEvent[] =>
+  notes.map((midi, idx) => ({
+    id: `${prefix}-${idx}-${midi}`,
+    pitchName: Tone.Frequency(midi, "midi").toNote(),
+    startTicks: 0,
+    durationTicks: NOTE_DURATION_TICKS * 4,
   }));
  
   const chordArpegiateEvents = (sequence: number[],prefix: string): NoteEvent[] => {  
@@ -112,6 +122,14 @@ const extractContours = (value: unknown): number[][] => {
   return results;
 };
 
+const shuffleArray = <T,>(items: T[]) => {
+  const arr = [...items];
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
 
 export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, rootMidi, mode }: ActivityFlowProps) => {
 
@@ -155,21 +173,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const descending = [...scale].reverse();
   const ascendDescend = [...ascending, ...descending];
   const modeTitle = (mode as string).charAt(0).toUpperCase() + (mode as string).slice(1);
-  const sequences = [
-    { key: "asc-nh", label: `${rootKey} ${modeTitle} Ascend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascending, "asc-nh"),
-       direction: "Play the notes of the scale going up (to the right)."  },
-    { key: "asc-pa", label: `${rootKey} ${modeTitle} Ascend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascending, "asc-pa"),
-      direction: "In a steady tempo, play the notes of the scale going up"
-     },
-    { key: "desc-nh", label: `${rootKey} ${modeTitle} Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(descending, "desc-nh"),
-       direction: "Play the notes of the scale going down (to the left)."  },
-    { key: "desc-pa", label: `${rootKey} ${modeTitle} Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(descending, "desc-pa"),
-      direction: "In a steady tempo, play the notes of the scale going down" },
-    { key: "ascdesc-nh", label: `${rootKey} ${modeTitle} Ascend + Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascendDescend, "ascdesc-nh"),
-       direction: "Play the notes of the scale going up and down." },
-    { key: "ascdesc-pa", label: `${rootKey} ${modeTitle} Ascend + Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascendDescend, "ascdesc-pa"),
-       direction: "In a steady tempo, play the notes of the scale going up and down." },
-  ];
+  const baseChord = chordTriads[0];
+  const chordNotes = baseChord ? baseChord.map((x) => x + rootMidi) : [scale[0], scale[2], scale[4]];
+  const chordLabel = `${rootKey} ${modeTitle} Chord`;
+  const chordHoldEvents = chordHoldToEvents(chordNotes, "chord-hold");
   const contourSeqs: number[][] = [];
   contours?.forEach((contour) => {
     if (!Array.isArray(contour)) {
@@ -196,6 +203,58 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     if (seq.length === 0) return;
     contourSeqs.push(seq);
   });
+  const randomIntro = shuffleArray([
+    {
+      key: "intro-chord-press",
+      label: `${chordLabel} • Press`,
+      Component: ({ onContinue }: FlowActivityProps) => (
+        <ChordPressGame
+          targetNotes={chordNotes}
+          targetLabel={chordLabel}
+          onComplete={onContinue}
+        />
+      ),
+      seq: [] as NoteEvent[],
+      direction: `Play the ${chordLabel}.`,
+    },
+    {
+      key: "intro-board-choice",
+      label: `${chordLabel} • Choose`,
+      Component: ({ onContinue }: FlowActivityProps) => (
+        <BoardChoiceGame
+          targetNotes={chordNotes}
+          targetLabel={chordLabel}
+          onComplete={onContinue}
+        />
+      ),
+      seq: [] as NoteEvent[],
+      direction: `Pick the keyboard that shows the ${chordLabel}.`,
+    },
+    {
+      key: "intro-chord-hold",
+      label: `${chordLabel} • Hold`,
+      Component: NoteHold,
+      seq: chordHoldEvents,
+      direction: `Hold the notes of the ${chordLabel} together.`,
+    },
+  ]);
+
+  const sequences = [
+    ...randomIntro,
+    { key: "asc-nh", label: `${rootKey} ${modeTitle} Ascend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascending, "asc-nh"),
+       direction: "Play the notes of the scale going up (to the right)."  },
+    { key: "asc-pa", label: `${rootKey} ${modeTitle} Ascend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascending, "asc-pa"),
+      direction: "In a steady tempo, play the notes of the scale going up"
+     },
+    { key: "desc-nh", label: `${rootKey} ${modeTitle} Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(descending, "desc-nh"),
+       direction: "Play the notes of the scale going down (to the left)."  },
+    { key: "desc-pa", label: `${rootKey} ${modeTitle} Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(descending, "desc-pa"),
+      direction: "In a steady tempo, play the notes of the scale going down" },
+    { key: "ascdesc-nh", label: `${rootKey} ${modeTitle} Ascend + Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascendDescend, "ascdesc-nh"),
+       direction: "Play the notes of the scale going up and down." },
+    { key: "ascdesc-pa", label: `${rootKey} ${modeTitle} Ascend + Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascendDescend, "ascdesc-pa"),
+       direction: "In a steady tempo, play the notes of the scale going up and down." },
+  ];
   if (contourSeqs[0]) {
     sequences.push(
       {

@@ -107,8 +107,10 @@ export type ChordPressGameProps = {
   enableComputerKeyboard?: boolean;
   keyboardBaseOctave?: number;
   initialChord?: { rootPc: number; type: ChordType };
+  targetNotes?: number[];
+  targetLabel?: string;
   className?: string;
-  onComplete?: (result: { success: boolean }) => void;
+  onComplete?: () => void;
 };
 
 export function ChordPressGame({
@@ -120,6 +122,8 @@ export function ChordPressGame({
   enableComputerKeyboard = true,
   keyboardBaseOctave = 4,
   initialChord,
+  targetNotes,
+  targetLabel,
   className,
   onComplete,
 }: ChordPressGameProps) {
@@ -141,6 +145,7 @@ export function ChordPressGame({
   );
 
   const initialChordKey = initialChord ? `${initialChord.rootPc}:${initialChord.type}` : 'none';
+  const targetNotesKey = targetNotes ? targetNotes.join(',') : 'none';
   const rangeStart = startC * 12;
   const rangeEnd = (endC + 1) * 12 - 1;
   const keyboardBaseMidi = keyboardBaseOctave * 12;
@@ -163,9 +168,12 @@ export function ChordPressGame({
   // }, [keyboardMap]);
 
   const targetMidi = useMemo(() => {
+    if (targetNotes && targetNotes.length > 0) {
+      return targetNotes;
+    }
     const rootMidi = baseOctaveRoot + current.rootPc;
     return buildChord(rootMidi, current.type);
-  }, [current]);
+  }, [current, targetNotes]);
 
   const isCorrect = useMemo(() => equalPitchClassSets(selected, targetMidi), [
     selected,
@@ -186,7 +194,21 @@ export function ChordPressGame({
     pressedKeysRef.current.clear();
     setSubmitted(false);
   }, []);
+
+  const selectNextRandomChord = useCallback(() => {
+    const pool = chordPool.length > 0 ? chordPool : DEFAULT_CHORD_POOL;
+    const nextType = pool[Math.floor(Math.random() * pool.length)]!;
+    setCurrent({
+      rootPc: Math.floor(Math.random() * 12),
+      type: nextType,
+    });
+  }, [chordPool]);
+
   useEffect(() => {
+    if (targetNotes && targetNotes.length > 0) {
+      resetSelection();
+      return;
+    }
     if (initialChord) {
       setCurrent(initialChord);
       resetSelection();
@@ -199,7 +221,7 @@ export function ChordPressGame({
       type: nextType,
     });
     resetSelection();
-  }, [initialChordKey, initialChord, chordPool, resetSelection]);
+  }, [initialChordKey, initialChord, chordPool, resetSelection, targetNotes, targetNotesKey]);
 
 
     
@@ -256,13 +278,26 @@ export function ChordPressGame({
   }, [selected, checked, isCorrect]);
 
   const keyboardId = useMemo(() => `kbd-${seed}`, [seed]);
-  const title = chordName(current.rootPc, current.type);
+  const title = targetLabel ?? chordName(current.rootPc, current.type);
 
   const handleContinue = useCallback(() => {
     if (!checked || submitted) return;
-    setSubmitted(true);
-    onComplete?.({ success: isCorrect });
-  }, [checked, isCorrect, onComplete, submitted]);
+    if (onComplete) {
+      setSubmitted(true);
+      onComplete();
+      return;
+    }
+    if (targetNotes && targetNotes.length > 0) {
+      resetSelection();
+      return;
+    }
+    if (initialChord) {
+      resetSelection();
+      return;
+    }
+    selectNextRandomChord();
+    resetSelection();
+  }, [checked, initialChord, onComplete, resetSelection, selectNextRandomChord, submitted, targetNotes]);
   const feedback = useMemo(() => {
     if (!checked) return null;
     if (isCorrect)

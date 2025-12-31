@@ -54,6 +54,22 @@ const midiSequenceToEvents = (sequence: number[],prefix: string): NoteEvent[] =>
     durationTicks: NOTE_DURATION_TICKS,
   }));
 
+const midiSequenceToStoccatoEvents = (sequence: number[],prefix: string): NoteEvent[] =>
+  sequence.map((midi, idx) => ({
+    id: `${prefix}-${idx}-${midi}`,
+    pitchName: Tone.Frequency(midi, "midi").toNote(),
+    startTicks: idx * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*0.5,
+}));
+
+const midiSequenceToMixedArticulation = (sequence: number[],prefix: string): NoteEvent[] =>
+  sequence.map((midi, idx) => ({
+    id: `${prefix}-${idx}-${midi}`,
+    pitchName: Tone.Frequency(midi, "midi").toNote(),
+    startTicks: idx * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*Math.floor((Math.random()*2)+1)/2,
+}));
+
 // const chordHoldToEvents = (notes: number[], prefix: string): NoteEvent[] =>
 //   notes.map((midi, idx) => ({
 //     id: `${prefix}-${idx}-${midi}`,
@@ -131,6 +147,7 @@ const shuffleArray = <T,>(items: T[]) => {
   return arr;
 };
 
+
 export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, rootMidi, mode }: ActivityFlowProps) => {
 
   // const musicAtlas = useMusicAtlas();
@@ -158,12 +175,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     ? modeChords.triads
     : [];
   console.log("triads:", triads);
-  const firstFourTriads = useMemo(
-    () => triads.filter(isNumberArray).slice(0, 4),
-    [triads],
-  );
 
-  const buildFlowDefinitions = (
+const generateStepTriad = (step: number) => {
+  const baseChord = triads[step-1];
+  return baseChord ? baseChord.map((x) => x + rootMidi) : undefined;
+}
+
+const buildFlowDefinitions = (
   scale: number[],
   contours?: number[][],
   chordTriads: number[][] = [],
@@ -239,8 +257,8 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const sequences = [
     ...randomIntro,
-    { key: "asc-nh", label: `${rootKey} ${modeTitle} Ascend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascending, "asc-nh"),
-       direction: "Play the notes of the scale going up (to the right)."  },
+    // { key: "asc-nh", label: `${rootKey} ${modeTitle} Ascend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascending, "asc-nh"),
+    //    direction: "Play the notes of the scale going up (to the right)."  },
     { key: "asc-pa", label: `${rootKey} ${modeTitle} Ascend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascending, "asc-pa"),
       direction: "In a steady tempo, play the notes of the scale going up"
      },
@@ -253,7 +271,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     { key: "ascdesc-pa", label: `${rootKey} ${modeTitle} Ascend + Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascendDescend, "ascdesc-pa"),
        direction: "In a steady tempo, play the notes of the scale going up and down." },
   ];
-  if (contourSeqs[0]) {
+  //ACTIVITIES 2-3
+  if (contourSeqs[0] && contourSeqs[1]) {
+    const combined = [...contourSeqs[0], ...contourSeqs[1]];
     sequences.push(
       {
         key: `contour-1-nh`,
@@ -269,12 +289,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         seq: midiSequenceToEvents(contourSeqs[0], `contour-1-pa`),
         direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle}`
       },
-    );
-  }
-
-  if (contourSeqs[0] && contourSeqs[1]) {
-    const combined = [...contourSeqs[0], ...contourSeqs[1]];
-    sequences.push(
       {
         key: `contour-2-nh`,
         label: `${rootKey} ${modeTitle} Melodic Phrase • Hold`,
@@ -289,12 +303,39 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         seq: midiSequenceToEvents(combined, `contour-2-pa`),
         direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle}`,
       },
+      {
+        key: `contour-1-stac-pa`,
+        label: `$${rootKey} ${modeTitle} Musical Contour (Staccato) • Play Along`,
+        Component: NoteHold,
+        seq: midiSequenceToStoccatoEvents(contourSeqs[0], `contour-1-stac-pa`),
+        direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with short articulations (“staccato”).`
+      },
+      {
+        key: `contour-1-lega-pa`,
+        label: `$${rootKey} ${modeTitle} Musical Contour (Legato) • Play Along`,
+        Component: NoteHold,
+        seq: midiSequenceToEvents(contourSeqs[0], `contour-1-lega-pa`),
+        direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with long articulations (“legato”).`
+      },
+      {
+        key: `contour-1-mix-pa`,
+        label: `$${rootKey} ${modeTitle} Musical Contour (Mixed Articulation) • Play Along`,
+        Component: NoteHold,
+        seq: midiSequenceToMixedArticulation(contourSeqs[0], `contour-1-mix-pa`),
+        direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”). `
+      },
+      {
+        key: `contour-2-mix-pa`,
+        label: `${rootKey} ${modeTitle} Melodic Phrase (Mixed Articulation) • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToMixedArticulation(combined, `contour-2-mix-pa`),
+        direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”).`,
+      },
     );
   }
   // LOOP OVER CHORDS AND REPEAT FOR FIRST 4
   for (let i = 0; i < 4; i++) {
-    const baseChord = chordTriads[i];
-    const chordNotes = baseChord ? baseChord.map((x) => x + rootMidi) : undefined;
+    const chordNotes = generateStepTriad(i+1);
     if (isNumberArray(chordNotes)) {
       sequences.push(
         {
@@ -346,7 +387,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       return [];
     } 
     const shuffled = [...availableContours].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 2);
+    return shuffled.slice(0, 3);
   }, [availableContours]);
 
   const flowDefinitions = useMemo(() => {
@@ -354,10 +395,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     return buildFlowDefinitions(
       scale,
       randomContours,
-      firstFourTriads,
-      chordsQuery.isPending && firstFourTriads.length === 0,
+      triads,
+      chordsQuery.isPending && triads.length === 0,
     );
-  }, [scaleMidis, randomContours, firstFourTriads, chordsQuery.isPending]);
+  }, [scaleMidis, randomContours, triads, chordsQuery.isPending]);
 
 
   const [currentIndex, setCurrentIndex] = useState(0);

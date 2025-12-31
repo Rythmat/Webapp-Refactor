@@ -54,13 +54,13 @@ const midiSequenceToEvents = (sequence: number[],prefix: string): NoteEvent[] =>
     durationTicks: NOTE_DURATION_TICKS,
   }));
 
-const chordHoldToEvents = (notes: number[], prefix: string): NoteEvent[] =>
-  notes.map((midi, idx) => ({
-    id: `${prefix}-${idx}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: 0,
-    durationTicks: NOTE_DURATION_TICKS * 4,
-  }));
+// const chordHoldToEvents = (notes: number[], prefix: string): NoteEvent[] =>
+//   notes.map((midi, idx) => ({
+//     id: `${prefix}-${idx}-${midi}`,
+//     pitchName: Tone.Frequency(midi, "midi").toNote(),
+//     startTicks: 0,
+//     durationTicks: NOTE_DURATION_TICKS * 4,
+//   }));
  
   const chordArpegiateEvents = (sequence: number[],prefix: string): NoteEvent[] => {  
     const events: NoteEvent[] = []; 
@@ -174,7 +174,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const ascendDescend = [...ascending, ...descending];
   const modeTitle = (mode as string).charAt(0).toUpperCase() + (mode as string).slice(1);
   const chordLabel = `${rootKey} ${modeTitle} Chord`;
-  const chordHoldEvents = chordHoldToEvents(ascending, "chord-hold");
+  const chordHoldEvents = midiSequenceToEvents(ascending, "chord-hold");
   const contourSeqs: number[][] = [];
   contours?.forEach((contour) => {
     if (!Array.isArray(contour)) {

@@ -182,13 +182,19 @@ export function PianoKeyboard({
 
   const renderWhiteKey = (note: number) => {
     const activeNote = getActiveNote(note);
+    const isLastWhiteInOctave = note % 12 === 11;
 
     return (
       <div
         key={activeNote?.id}
-        className={cn(whiteKeyClass, {
-          'bg-primary animate-piano-key-press': !!activeNote,
-        })}
+        className={cn(
+          whiteKeyClass,
+          {
+            'bg-primary animate-piano-key-press': !!activeNote,
+          },
+          gaming && !vertical && isLastWhiteInOctave && 'mr-0',
+          gaming && vertical && isLastWhiteInOctave && 'mb-0',
+        )}
         style={{
           backgroundColor: activeNote
             ? activeNote?.color || activeWhiteKeyColor || undefined

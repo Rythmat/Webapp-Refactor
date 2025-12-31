@@ -33,6 +33,7 @@ export function useMidiInput(
       return stopListeningRef.current;
     }
     let midiAccess: MIDIAccess;
+    let isActive = true;
 
     const onMIDIMessage = (message: MIDIMessageEvent) => {
       if (!message.data) return;
@@ -78,6 +79,9 @@ export function useMidiInput(
       }
       try {
         midiAccess = await navigator.requestMIDIAccess();
+        if (!isActive) {
+          return;
+        }
         for (const input of midiAccess.inputs.values()) {
           input.addEventListener('midimessage', onMIDIMessage);
         }
@@ -90,12 +94,23 @@ export function useMidiInput(
     setup();
     // Return cleanup function
     const stop = () => {
+      if (!isActive) {
+        return;
+      }
+      isActive = false;
+      if (_testTarget) {
+        _testTarget.removeEventListener(
+          'midimessage',
+          onMIDIMessage as EventListener,
+        );
+      }
       if (midiAccess) {
         for (const input of midiAccess.inputs.values()) {
           input.removeEventListener('midimessage', onMIDIMessage);
         }
       }
       setIsListening(false);
+      stopListeningRef.current = undefined;
     };
 
     stopListeningRef.current = stop;

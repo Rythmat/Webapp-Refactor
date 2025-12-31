@@ -89,9 +89,6 @@ export const NoteHold = ({
   const triggerSynthAttack = useCallback(
     (name: string, velocity?: number) => {
       const synth = getSynth();
-      // if (!synth || Tone.getContext().state !== "running") {
-      //   return;
-      // }
       const normalizedVelocity =
         typeof velocity === "number"
           ? Math.max(0, Math.min(1, velocity / 127))

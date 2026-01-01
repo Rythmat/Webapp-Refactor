@@ -252,8 +252,8 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const melodyRhythms: RhythmRecord = rhythmsQuery.data?.melodies ?? {};
   const chordRhythms: RhythmRecord = rhythmsQuery.data?.chords ?? {};
-  // console.log(rhythmsQuery);
   console.log(melodyRhythms ? melodyRhythms : 'no rhythms');
+  
   const getRhythm = (melOrChord: "melody" | "chord", name?: string, lengthOf?: number  ): RhythmHit[] | undefined => {
     const rhythms = melOrChord === "chord" ? chordRhythms : melodyRhythms;
 
@@ -277,7 +277,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   }
 
   const rhythmicMidiSequenceEvents = (sequence: number[],prefix: string, rhythmName?: string): NoteEvent[] => {
-    const rhythm = getRhythm("melody",rhythmName,sequence.length);
+    const rhythm = getRhythm("chord",rhythmName,sequence.length);
     if (rhythm == undefined){
       return [];
     } 
@@ -386,7 +386,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       sequences.push(
         {
           key: `contour-1-nh`,
-          label: `$${rootKey} ${modeTitle} Musical Contour • Hold`,
+          label: `${rootKey} ${modeTitle} Musical Contour • Hold`,
           Component: NoteHold,
           seq: midiSequenceToEvents(contourSeqs[0], `contour-1-nh`),
           direction: `Play this short melodic phrase in ${rootKey} ${modeTitle}`
@@ -429,7 +429,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         {
           key: `contour-1-mix-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour (Mixed Articulation) • Play Along`,
-          Component: NoteHold,
+          Component: PlayAlong,
           seq: midiSequenceToMixedArticulation(contourSeqs[0], `contour-1-mix-pa`),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”). `
         },

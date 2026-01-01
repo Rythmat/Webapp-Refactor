@@ -252,7 +252,8 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const melodyRhythms: RhythmRecord = rhythmsQuery.data?.melodies ?? {};
   const chordRhythms: RhythmRecord = rhythmsQuery.data?.chords ?? {};
-  console.log(rhythmsQuery);
+  // console.log(rhythmsQuery);
+  console.log(melodyRhythms ? melodyRhythms : 'no rhythms');
   const getRhythm = (melOrChord: "melody" | "chord", name?: string, lengthOf?: number  ): RhythmHit[] | undefined => {
     const rhythms = melOrChord === "chord" ? chordRhythms : melodyRhythms;
 

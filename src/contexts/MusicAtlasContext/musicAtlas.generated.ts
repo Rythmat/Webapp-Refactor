@@ -392,6 +392,10 @@ export interface GetPrismModesByModeChordsData {
   chords: object;
 }
 
+export interface GetPrismModesByModeChordsDataData {
+  chords: object;
+}
+
 export interface GetPrismModesByModeData {
   steps: number[];
 }
@@ -2456,6 +2460,58 @@ export namespace Music {
   /**
    * No description
    * @tags Music
+   * @name GetPrismModesByModeChordsData
+   * @request GET:/prism/modes/{mode}/chords/data
+   * @response `200` `GetPrismModesByModeChordsDataData`
+   */
+  export namespace GetPrismModesByModeChordsData {
+    export type RequestParams = {
+      mode:
+        | 'ionian'
+        | 'dorian'
+        | 'phrygian'
+        | 'lydian'
+        | 'mixolydian'
+        | 'aeolian'
+        | 'locrian'
+        | 'harmonicminor'
+        | 'locriannat6'
+        | 'ionian#5'
+        | 'dorian#4'
+        | 'phrygiandominant'
+        | 'lydian#2'
+        | 'altereddiminished'
+        | 'melodicminor'
+        | 'dorian♭2'
+        | 'lydianaugmented'
+        | 'lydiandominant'
+        | 'mixolydiannat6'
+        | 'locriannat2'
+        | 'altereddominant'
+        | 'harmonicmajor'
+        | 'dorian♭5'
+        | 'altereddominantnat5'
+        | 'melodicminor#4'
+        | 'mixolydian♭2'
+        | 'lydianaugmented#2'
+        | 'locrian𝄫7'
+        | 'doubleharmonicmajor'
+        | 'lydian#2#6'
+        | 'ultraphrygian'
+        | 'doubleharmonicminor'
+        | 'oriental'
+        | 'ionian#2#5'
+        | 'locrian𝄫3𝄫7';
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismModesByModeChordsDataData;
+  }
+
+  /**
+   * No description
+   * @tags Music
    * @name GetPrismModesFamily
    * @request GET:/prism/modes/family
    * @response `200` `GetPrismModesFamilyData`
@@ -2483,6 +2539,22 @@ export namespace Music {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = GetPrismModesFamilyByFamilyData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismRhythms
+   * @request GET:/prism/rhythms
+   * @response `melodies` `object`
+   * @response `chords` `object`
+   */
+  export namespace GetPrismRhythms {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = any;
   }
 }
 
@@ -4013,6 +4085,60 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Music
+     * @name GetPrismModesByModeChordsData
+     * @request GET:/prism/modes/{mode}/chords/data
+     * @response `200` `GetPrismModesByModeChordsDataData`
+     */
+    getPrismModesByModeChordsData: (
+      mode:
+        | 'ionian'
+        | 'dorian'
+        | 'phrygian'
+        | 'lydian'
+        | 'mixolydian'
+        | 'aeolian'
+        | 'locrian'
+        | 'harmonicminor'
+        | 'locriannat6'
+        | 'ionian#5'
+        | 'dorian#4'
+        | 'phrygiandominant'
+        | 'lydian#2'
+        | 'altereddiminished'
+        | 'melodicminor'
+        | 'dorian♭2'
+        | 'lydianaugmented'
+        | 'lydiandominant'
+        | 'mixolydiannat6'
+        | 'locriannat2'
+        | 'altereddominant'
+        | 'harmonicmajor'
+        | 'dorian♭5'
+        | 'altereddominantnat5'
+        | 'melodicminor#4'
+        | 'mixolydian♭2'
+        | 'lydianaugmented#2'
+        | 'locrian𝄫7'
+        | 'doubleharmonicmajor'
+        | 'lydian#2#6'
+        | 'ultraphrygian'
+        | 'doubleharmonicminor'
+        | 'oriental'
+        | 'ionian#2#5'
+        | 'locrian𝄫3𝄫7',
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetPrismModesByModeChordsDataData, any>({
+        path: `/prism/modes/${mode}/chords/data`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
      * @name GetPrismModesFamily
      * @request GET:/prism/modes/family
      * @response `200` `GetPrismModesFamilyData`
@@ -4041,6 +4167,22 @@ export class Api<SecurityDataType extends unknown> {
         path: `/prism/modes/family/${family}`,
         method: 'GET',
         format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismRhythms
+     * @request GET:/prism/rhythms
+     * @response `melodies` `object`
+     * @response `chords` `object`
+     */
+    getPrismRhythms: (params: RequestParams = {}) =>
+      this.http.request<any, object>({
+        path: `/prism/rhythms`,
+        method: 'GET',
         ...params,
       }),
   };

@@ -248,25 +248,28 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   type RhythmHit = [number, number];
   type RhythmRecord = Record<string, RhythmHit[]>
-  const { data } = usePrismRhythms(); 
-  const melodyRhythms = data?.melodies ?? {};
-  const chordRhythms = data?.chords ?? {}; 
+  const rhythmsQuery = usePrismRhythms();
 
-  const getRhythm = (melOrChord: "melody" | "chord", name?: string, lengthOf?: number  ) => {
-    const rhythms: RhythmRecord = melOrChord === "chord" ? chordRhythms : melodyRhythms;
+  const melodyRhythms: RhythmRecord = rhythmsQuery.data?.melodies ?? {};
+  const chordRhythms: RhythmRecord = rhythmsQuery.data?.chords ?? {};
+
+  const getRhythm = (melOrChord: "melody" | "chord", name?: string, lengthOf?: number  ): RhythmHit[] | undefined => {
+    const rhythms = melOrChord === "chord" ? chordRhythms : melodyRhythms;
 
     if (name) return rhythms[name];
 
     const keys = lengthOf
       ? Object.entries(rhythms)
-          .filter(([, value]: [string, RhythmHit[]]) => value.length === lengthOf)
+          .filter(([, hits]) => hits.length === lengthOf)
           .map(([k]) => k)
       : Object.keys(rhythms);
 
-    const shuffled = [...keys].sort(() => Math.random() - 0.5);
-    return rhythms[shuffled[0]];
+    if (keys.length === 0) return undefined;
+
+    const pick = keys[Math.floor(Math.random() * keys.length)];
+    return rhythms[pick];
   }
-  
+
   const generateStepTriad = (step: number) => {
     const baseChord = triads[step-1];
     return baseChord ? baseChord.map((x) => x + rootMidi) : undefined;
@@ -274,6 +277,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const rhythmicMidiSequenceEvents = (sequence: number[],prefix: string, rhythmName?: string): NoteEvent[] => {
     const rhythm = getRhythm("melody",rhythmName,sequence.length);
+     if (!rhythm || rhythm.length < sequence.length) {
+      return rhythmicMidiSequenceEvents(sequence, prefix, rhythmName);
+    }
     return sequence.map((midi, idx) => ({
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),

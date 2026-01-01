@@ -484,96 +484,98 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         );
       }
     }
-    ////////////////ACTIVITES FOR 6
-    const oneToFourChords = [...triads[0],...triads[1],...triads[2],...triads[3]];
-    sequences.push({
-      key: `chords-1-nh`,
-      label: `$${rootKey} ${modeTitle} Chords • Hold`,
-      Component: NoteHold,
-      seq: midiSequenceToEvents(oneToFourChords, `chords-1-nh`),
-      direction: `Play the notes of the 1 through the four chord for ${rootKey} ${modeTitle}, holding down the notes of each chord as you go.`
-    },{
-      key: `chords-1-pa`,
-      label: `${rootKey} ${modeTitle} Chords (Whole) • Play Along`,
-      Component: PlayAlong,
-      seq: midiSequenceToEvents(oneToFourChords, `chords-1-pa`),
-      direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in whole notes.`,
-    },{
-      key: `chords-2-pa`,
-      label: `${rootKey} ${modeTitle} Chords (Half) • Play Along`,
-      Component: PlayAlong,
-      seq: midiSequenceToHalfNotes(oneToFourChords, `chords-2-pa`),
-      direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in half notes.`,
-    },{
-      key: `chords-3-pa`,
-      label: `${rootKey} ${modeTitle} Chords (Quarter) • Play Along`,
-      Component: PlayAlong,
-      seq: midiSequenceToQuarterNotes(oneToFourChords, `chords-3-pa`),
-      direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in quarter notes.`,
-    },
-    );
+    if(triads.length >4){
+      ////////////////ACTIVITES FOR 6
+      const oneToFourChords = [...triads[0],...triads[1],...triads[2],...triads[3]];
+      sequences.push({
+        key: `chords-1-nh`,
+        label: `$${rootKey} ${modeTitle} Chords • Hold`,
+        Component: NoteHold,
+        seq: midiSequenceToEvents(oneToFourChords, `chords-1-nh`),
+        direction: `Play the notes of the 1 through the four chord for ${rootKey} ${modeTitle}, holding down the notes of each chord as you go.`
+      },{
+        key: `chords-1-pa`,
+        label: `${rootKey} ${modeTitle} Chords (Whole) • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToEvents(oneToFourChords, `chords-1-pa`),
+        direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in whole notes.`,
+      },{
+        key: `chords-2-pa`,
+        label: `${rootKey} ${modeTitle} Chords (Half) • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToHalfNotes(oneToFourChords, `chords-2-pa`),
+        direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in half notes.`,
+      },{
+        key: `chords-3-pa`,
+        label: `${rootKey} ${modeTitle} Chords (Quarter) • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToQuarterNotes(oneToFourChords, `chords-3-pa`),
+        direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in quarter notes.`,
+      });
+    
+    
 
-    //////////ACTIVITES FOR 7
-    const indices = [0,1,2,3];
-    let shuffled = indices.sort(() => Math.random() - 0.5);
-    sequences.push({
-      key: `chords-4-pa`,
-      label: `$${rootKey} ${modeTitle} Two Chords (Staccato) • Play Along`,
-      Component: PlayAlong,
-      seq: midiSequenceToStoccatoEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-4-pa`),
-      direction: `Play chord ${shuffled[0]+1} and ${shuffled[1]+1} in a steady tempo, with short articulations (“staccato”).`
-    })
-    shuffled = shuffled.sort(() => Math.random() - 0.5);
-    sequences.push({
-      key: `chords-5-pa`,
-      label: `$${rootKey} ${modeTitle} Two Chords (Legato) • Play Along`,
-      Component: PlayAlong,
-      seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-5-pa`),
-      direction: `Play chord ${shuffled[0]+1} and ${shuffled[1]+1} in a steady tempo, with long articulations (“legato”).`
-    })
-    shuffled = shuffled.sort(() => Math.random() - 0.5);
-    sequences.push({
-      key: `chords-6-pa`,
-      label: `$${rootKey} ${modeTitle} Four Chords (Mixed Articulation) • Play Along`,
-      Component: PlayAlong,
-      seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-6-pa`),
-      direction: `Play the four chords in a steady tempo, with mixed articulations.`
-    })
+      //////////ACTIVITES FOR 7
+      const indices = [0,1,2,3];
+      let shuffled = indices.sort(() => Math.random() - 0.5);
+      sequences.push({
+        key: `chords-4-pa`,
+        label: `$${rootKey} ${modeTitle} Two Chords (Staccato) • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToStoccatoEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-4-pa`),
+        direction: `Play chord ${shuffled[0]+1} and ${shuffled[1]+1} in a steady tempo, with short articulations (“staccato”).`
+      })
+      shuffled = shuffled.sort(() => Math.random() - 0.5);
+      sequences.push({
+        key: `chords-5-pa`,
+        label: `$${rootKey} ${modeTitle} Two Chords (Legato) • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-5-pa`),
+        direction: `Play chord ${shuffled[0]+1} and ${shuffled[1]+1} in a steady tempo, with long articulations (“legato”).`
+      })
+      shuffled = shuffled.sort(() => Math.random() - 0.5);
+      sequences.push({
+        key: `chords-6-pa`,
+        label: `$${rootKey} ${modeTitle} Four Chords (Mixed Articulation) • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-6-pa`),
+        direction: `Play the four chords in a steady tempo, with mixed articulations.`
+      })
 
-    /////////ACTIVITES FOR 8
-    shuffled = shuffled.sort(() => Math.random() - 0.5);
-    sequences.push({
-      key: `chords-2-nh`,
-      label: `$${rootKey} ${modeTitle} First Four Chords • Hold`,
-      Component: NoteHold,
-      seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-2-nh`),
-      direction: `Play the first four chords in a mixed order, holding down each chord one by one.`
-    })
-    shuffled = shuffled.sort(() => Math.random() - 0.5);
-    sequences.push({
-      key: `chords-7-pa`,
-      label: `$${rootKey} ${modeTitle} First Four Chords • Play Along`,
-      Component: PlayAlong,
-      seq: midiSequenceToHalfNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-7-pa`),
-      direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a half note.`
-    })
-    shuffled = shuffled.sort(() => Math.random() - 0.5);
-    sequences.push({
-      key: `chords-8-pa`,
-      label: `$${rootKey} ${modeTitle} First Four Chords • Play Along`,
-      Component: PlayAlong,
-      seq: midiSequenceToQuarterNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-8-pa`),
-      direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a quarter note.`
-    })
-    shuffled = shuffled.sort(() => Math.random() - 0.5);
-    sequences.push({
-      key: `chords-9-pa`,
-      label: `$${rootKey} ${modeTitle} First Four Chords • Play Along`,
-      Component: PlayAlong,
-      seq: midiSequenceToEighthNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-9-pa`),
-      direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a eighth note.`
-    })
-
+      /////////ACTIVITES FOR 8
+      shuffled = shuffled.sort(() => Math.random() - 0.5);
+      sequences.push({
+        key: `chords-2-nh`,
+        label: `$${rootKey} ${modeTitle} First Four Chords • Hold`,
+        Component: NoteHold,
+        seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-2-nh`),
+        direction: `Play the first four chords in a mixed order, holding down each chord one by one.`
+      })
+      shuffled = shuffled.sort(() => Math.random() - 0.5);
+      sequences.push({
+        key: `chords-7-pa`,
+        label: `$${rootKey} ${modeTitle} First Four Chords • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToHalfNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-7-pa`),
+        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a half note.`
+      })
+      shuffled = shuffled.sort(() => Math.random() - 0.5);
+      sequences.push({
+        key: `chords-8-pa`,
+        label: `$${rootKey} ${modeTitle} First Four Chords • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToQuarterNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-8-pa`),
+        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a quarter note.`
+      })
+      shuffled = shuffled.sort(() => Math.random() - 0.5);
+      sequences.push({
+        key: `chords-9-pa`,
+        label: `$${rootKey} ${modeTitle} First Four Chords • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToEighthNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-9-pa`),
+        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a eighth note.`
+      })
+    }
     if (includeChordPlaceholder && chordTriads.length === 0) {
       sequences.push({
         key: "chords-loading",

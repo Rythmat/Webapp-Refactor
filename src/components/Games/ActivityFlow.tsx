@@ -248,7 +248,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   type RhythmHit = [number, number];
   type RhythmRecord = Record<string, RhythmHit[]>
-  const { data: {melodies: melodyRhythms, chords: chordRhythms } } = usePrismRhythms(); 
+  const { data } = usePrismRhythms(); 
+  const melodyRhythms = data?.melodies ?? {};
+  const chordRhythms = data?.chords ?? {}; 
 
   const getRhythm = (melOrChord: "melody" | "chord", name?: string, lengthOf?: number  ) => {
     const rhythms: RhythmRecord = melOrChord === "chord" ? chordRhythms : melodyRhythms;
@@ -264,6 +266,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     const shuffled = [...keys].sort(() => Math.random() - 0.5);
     return rhythms[shuffled[0]];
   }
+  
   const generateStepTriad = (step: number) => {
     const baseChord = triads[step-1];
     return baseChord ? baseChord.map((x) => x + rootMidi) : undefined;

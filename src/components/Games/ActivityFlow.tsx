@@ -252,7 +252,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const melodyRhythms: RhythmRecord = rhythmsQuery.data?.melodies ?? {};
   const chordRhythms: RhythmRecord = rhythmsQuery.data?.chords ?? {};
-
+  console.log(rhythmsQuery);
   const getRhythm = (melOrChord: "melody" | "chord", name?: string, lengthOf?: number  ): RhythmHit[] | undefined => {
     const rhythms = melOrChord === "chord" ? chordRhythms : melodyRhythms;
 
@@ -413,21 +413,21 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         },
         {
           key: `contour-1-stac-pa`,
-          label: `$${rootKey} ${modeTitle} Musical Contour (Staccato) • Play Along`,
-          Component: NoteHold,
+          label: `${rootKey} ${modeTitle} Musical Contour (Staccato) • Play Along`,
+          Component: PlayAlong,
           seq: midiSequenceToStoccatoEvents(contourSeqs[0], `contour-1-stac-pa`),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with short articulations (“staccato”).`
         },
         {
           key: `contour-1-lega-pa`,
-          label: `$${rootKey} ${modeTitle} Musical Contour (Legato) • Play Along`,
-          Component: NoteHold,
+          label: `${rootKey} ${modeTitle} Musical Contour (Legato) • Play Along`,
+          Component: PlayAlong,
           seq: midiSequenceToEvents(contourSeqs[0], `contour-1-lega-pa`),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with long articulations (“legato”).`
         },
         {
           key: `contour-1-mix-pa`,
-          label: `$${rootKey} ${modeTitle} Musical Contour (Mixed Articulation) • Play Along`,
+          label: `${rootKey} ${modeTitle} Musical Contour (Mixed Articulation) • Play Along`,
           Component: NoteHold,
           seq: midiSequenceToMixedArticulation(contourSeqs[0], `contour-1-mix-pa`),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”). `
@@ -441,7 +441,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         },
         {
           key: `contour-1-rhythm-pa`,
-          label: `$${rootKey} ${modeTitle} Musical Contour (Styled) • Play Along`,
+          label: `${rootKey} ${modeTitle} Musical Contour (Styled) • Play Along`,
           Component: NoteHold,
           seq: rhythmicMidiSequenceEvents(contourSeqs[0], `contour-1-rhythm-pa`),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} in a rhythmic style. `
@@ -489,7 +489,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       const oneToFourChords = [...triads[0],...triads[1],...triads[2],...triads[3]];
       sequences.push({
         key: `chords-1-nh`,
-        label: `$${rootKey} ${modeTitle} Chords • Hold`,
+        label: `${rootKey} ${modeTitle} Chords • Hold`,
         Component: NoteHold,
         seq: midiSequenceToEvents(oneToFourChords, `chords-1-nh`),
         direction: `Play the notes of the 1 through the four chord for ${rootKey} ${modeTitle}, holding down the notes of each chord as you go.`
@@ -520,7 +520,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       let shuffled = indices.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-4-pa`,
-        label: `$${rootKey} ${modeTitle} Two Chords (Staccato) • Play Along`,
+        label: `${rootKey} ${modeTitle} Two Chords (Staccato) • Play Along`,
         Component: PlayAlong,
         seq: midiSequenceToStoccatoEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-4-pa`),
         direction: `Play chord ${shuffled[0]+1} and ${shuffled[1]+1} in a steady tempo, with short articulations (“staccato”).`
@@ -528,7 +528,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-5-pa`,
-        label: `$${rootKey} ${modeTitle} Two Chords (Legato) • Play Along`,
+        label: `${rootKey} ${modeTitle} Two Chords (Legato) • Play Along`,
         Component: PlayAlong,
         seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-5-pa`),
         direction: `Play chord ${shuffled[0]+1} and ${shuffled[1]+1} in a steady tempo, with long articulations (“legato”).`
@@ -536,7 +536,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-6-pa`,
-        label: `$${rootKey} ${modeTitle} Four Chords (Mixed Articulation) • Play Along`,
+        label: `${rootKey} ${modeTitle} Four Chords (Mixed Articulation) • Play Along`,
         Component: PlayAlong,
         seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-6-pa`),
         direction: `Play the four chords in a steady tempo, with mixed articulations.`
@@ -546,7 +546,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-2-nh`,
-        label: `$${rootKey} ${modeTitle} First Four Chords • Hold`,
+        label: `${rootKey} ${modeTitle} First Four Chords • Hold`,
         Component: NoteHold,
         seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-2-nh`),
         direction: `Play the first four chords in a mixed order, holding down each chord one by one.`
@@ -554,7 +554,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-7-pa`,
-        label: `$${rootKey} ${modeTitle} First Four Chords • Play Along`,
+        label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
         Component: PlayAlong,
         seq: midiSequenceToHalfNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-7-pa`),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a half note.`
@@ -562,7 +562,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-8-pa`,
-        label: `$${rootKey} ${modeTitle} First Four Chords • Play Along`,
+        label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
         Component: PlayAlong,
         seq: midiSequenceToQuarterNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-8-pa`),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a quarter note.`
@@ -570,7 +570,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-9-pa`,
-        label: `$${rootKey} ${modeTitle} First Four Chords • Play Along`,
+        label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
         Component: PlayAlong,
         seq: midiSequenceToEighthNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-9-pa`),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a eighth note.`

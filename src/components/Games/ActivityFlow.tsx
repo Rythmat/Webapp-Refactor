@@ -253,7 +253,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const melodyRhythms: RhythmRecord = rhythmsQuery.data?.melodies ?? {};
   const chordRhythms: RhythmRecord = rhythmsQuery.data?.chords ?? {};
 
-  const getRhythm = (melOrChord: "melody" | "chord", name?: string, lengthOf?: number  ): RhythmHit[]=> {
+  const getRhythm = (melOrChord: "melody" | "chord", name?: string, lengthOf?: number  ): RhythmHit[] | undefined => {
     const rhythms = melOrChord === "chord" ? chordRhythms : melodyRhythms;
 
     if (name) return rhythms[name];
@@ -264,7 +264,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           .map(([k]) => k)
       : Object.keys(rhythms);
 
-    // if (keys.length === 0) return undefined;
+    if (keys.length === 0) return undefined;
 
     const pick = keys[Math.floor(Math.random() * keys.length)];
     return rhythms[pick];
@@ -277,6 +277,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const rhythmicMidiSequenceEvents = (sequence: number[],prefix: string, rhythmName?: string): NoteEvent[] => {
     const rhythm = getRhythm("melody",rhythmName,sequence.length);
+    if (rhythm == undefined){
+      return [];
+    } 
     return sequence.map((midi, idx) => ({
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),

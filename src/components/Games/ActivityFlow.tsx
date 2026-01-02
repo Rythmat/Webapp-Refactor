@@ -56,17 +56,26 @@ const midiSequenceToEvents = (sequence: number[],prefix: string): NoteEvent[] =>
   }));
 }
 
+const midiSequenceToWholeNotes = (sequence: number[],prefix: string): NoteEvent[] =>{
+  return sequence.map((midi, idx) => ({
+    id: `${prefix}-${idx}-${midi}`,
+    pitchName: Tone.Frequency(midi, "midi").toNote(),
+    startTicks: idx * 4 * NOTE_DURATION_TICKS,
+    durationTicks: 4 * NOTE_DURATION_TICKS,
+  }));
+}
+
 const midiSequenceToHalfNotes = (sequence: number[],prefix: string): NoteEvent[] =>{
   return sequence.flatMap((midi, idx) => ([{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: idx * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.5,
+    startTicks: 2 * idx * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*2,
   },{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (idx+0.5) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.5,
+    startTicks: (2*idx+1)* NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*2,
   }
   ]));
 }
@@ -76,23 +85,23 @@ const midiSequenceToQuarterNotes
   return sequence.flatMap((midi, idx) => ([{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: idx * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.25,
+    startTicks: (4*idx) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS,
   },{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (idx+0.25) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.25,
+    startTicks: (4*idx+1) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS,
   },{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (idx+0.5) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.25,
+    startTicks: (4*idx+2) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS,
   },{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (idx+0.75) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.25,
+    startTicks: (4*idx+3) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS,
   }
   ]));
 }
@@ -102,43 +111,43 @@ const midiSequenceToEighthNotes
   return sequence.flatMap((midi, idx) => ([{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: idx * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.125,
+    startTicks: (8*idx) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (idx+0.125) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.125,
+    startTicks: (8*idx+1) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (idx+0.25) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.125,
+    startTicks: (8*idx+2) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (idx+0.375) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.125,
+    startTicks: (8*idx+3) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (idx+0.5) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.125,
+    startTicks: (8*idx+4) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (idx+0.625) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.125,
+    startTicks: (8*idx+5) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (idx+0.75) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.125,
+    startTicks: (8*idx+6) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (idx+0.875) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.125,
+    startTicks: (8*idx+7) * NOTE_DURATION_TICKS,
+    durationTicks: NOTE_DURATION_TICKS*0.5,
   }
   ]));
 }
@@ -521,7 +530,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         key: `chords-1-pa`,
         label: `${rootKey} ${modeTitle} Chords (Whole) • Play Along`,
         Component: PlayAlong,
-        seq: midiSequenceToEvents(oneToFourChords, `chords-1-pa`),
+        seq: midiSequenceToWholeNotes(oneToFourChords, `chords-1-pa`),
         direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in whole notes.`,
       },{
         key: `chords-2-pa`,

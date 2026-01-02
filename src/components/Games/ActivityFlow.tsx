@@ -245,6 +245,15 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const triads = modeChords && Array.isArray(modeChords.triads)
     ? modeChords.triads.map((arr)=>arr.map((i)=>i+rootMidi))
     : [];
+  const introOrder = useMemo(
+    () =>
+      shuffleArray([
+        "intro-chord-press",
+        "intro-board-choice",
+        "intro-chord-hold",
+      ]),
+    [],
+  );
 
   type RhythmHit = [number, number];
   type RhythmRecord = Record<string, RhythmHit[]>
@@ -329,7 +338,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       if (seq.length === 0) return;
       contourSeqs.push(seq);
     });
-    const randomIntro = shuffleArray([
+    const introItems = [
       {
         key: "intro-chord-press",
         label: `${rootKey} ${modeTitle} • Press`,
@@ -363,7 +372,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         seq: chordHoldEvents,
         direction: `Hold the notes of the ${rootKey} ${modeTitle} scale.`,
       },
-    ]);
+    ];
+    const randomIntro = introOrder
+      .map((key) => introItems.find((item) => item.key === key))
+      .filter((item): item is (typeof introItems)[number] => !!item);
 
     const sequences = [
       ...randomIntro,

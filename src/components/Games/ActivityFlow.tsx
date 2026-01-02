@@ -8,7 +8,7 @@ import { PlayAlong } from "./PlayAlong";
 import { BoardChoiceGame } from "./BoardChoiceGame";
 import { ChordPressGame } from "./ChordPressGame";
 import type { NoteEvent } from "./PianoRollPlay";
-import {  PrismModeChordDataMap,  PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
+import {    PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
 import { usePrismRhythms } from "@/hooks/data/prism/usePrismRhythms";
 
 type FlowActivityProps = {
@@ -241,10 +241,12 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const chordsQuery = usePrismModeChordsData(mode);
   const chordResponse = chordsQuery.data;
-  const modeChords: PrismModeChordDataMap | undefined = chordResponse?.chords;
-  const triads = modeChords && Array.isArray(modeChords.triads)
-    ? modeChords.triads.map((arr)=>arr.map((i)=>i+rootMidi))
-    : [];
+  // const modeChords: PrismModeChordDataMap | undefined = chordResponse?.chords;
+  const triads = useMemo(() => {
+    const raw = chordResponse?.chords?.triads;
+    if (!raw || !Array.isArray(raw)) return [];
+    return raw.map(arr => arr.map(i => i + rootMidi));
+  }, [chordResponse, rootMidi]);
   const introOrder = useMemo(
     () =>
       shuffleArray([

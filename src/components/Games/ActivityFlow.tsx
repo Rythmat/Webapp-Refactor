@@ -243,7 +243,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const chordResponse = chordsQuery.data;
   const modeChords: PrismModeChordDataMap | undefined = chordResponse?.chords;
   const triads = modeChords && Array.isArray(modeChords.triads)
-    ? modeChords.triads
+    ? modeChords.triads.map((arr)=>arr.map((i)=>i+rootMidi))
     : [];
 
   type RhythmHit = [number, number];
@@ -253,7 +253,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const melodyRhythms: RhythmRecord = rhythmsQuery.data?.melodies ?? {};
   const chordRhythms: RhythmRecord = rhythmsQuery.data?.chords ?? {};
   console.log(melodyRhythms ? melodyRhythms : 'no rhythms');
-  
+
   const getRhythm = (melOrChord: "melody" | "chord", name?: string, lengthOf?: number  ): RhythmHit[] | undefined => {
     const rhythms = melOrChord === "chord" ? chordRhythms : melodyRhythms;
 
@@ -273,7 +273,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const generateStepTriad = (step: number) => {
     const baseChord = triads[step-1];
-    return baseChord ? baseChord.map((x) => x + rootMidi) : undefined;
+    return baseChord ? baseChord: undefined;
   }
 
   const rhythmicMidiSequenceEvents = (sequence: number[],prefix: string, rhythmName?: string): NoteEvent[] => {
@@ -443,7 +443,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         {
           key: `contour-1-rhythm-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour (Styled) • Play Along`,
-          Component: NoteHold,
+          Component: PlayAlong,
           seq: rhythmicMidiSequenceEvents(contourSeqs[0], `contour-1-rhythm-pa`),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} in a rhythmic style. `
         },
@@ -487,6 +487,15 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     }
     if(triads.length >4){
       ////////////////ACTIVITES FOR 6
+      // NoteEvent {
+      //   id: string;
+      //   pitchName: string;
+      //   midi?: Midi; 
+      //   startTicks: number;
+      //   durationTicks: number;
+      //   velocity?: number;
+      //   color?: string;
+      // }
       const oneToFourChords = [...triads[0],...triads[1],...triads[2],...triads[3]];
       sequences.push({
         key: `chords-1-nh`,

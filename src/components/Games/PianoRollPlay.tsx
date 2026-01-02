@@ -531,14 +531,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               //     : pitchNameToMidi(e.pitchName);
 
               if (inTime) {
-                if (perf && typeof perf.startTick === "number") {
-                  visStartTick = perf.startTick;
-                  visEndTick =
-                    typeof perf.endTick === "number" ? perf.endTick : playheadTick;
-                } else {
-                  visStartTick = scheduledStart;
-                  visEndTick = scheduledEnd;
-                }
+                visStartTick = scheduledStart;
+                visEndTick = scheduledEnd;
               } else if (perf && typeof perf.startTick === "number") {
                 visStartTick = perf.startTick;
                 visEndTick =

@@ -236,8 +236,8 @@ export const PlayAlong = ({
         const note = resolvedEvents.find(
         (note) =>
           pitchNameToMidi(note.pitchName) === midi &&
-          note.startTicks <= tick+120 &&
-          note.startTicks + note.durationTicks >= tick+120
+          note.startTicks <= tick &&
+          note.startTicks + note.durationTicks >= tick
         );
         if (note == null) return;
         setNotePerformance(prev => {

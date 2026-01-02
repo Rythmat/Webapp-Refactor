@@ -10,6 +10,11 @@ import { ChordPressGame } from "./ChordPressGame";
 import type { NoteEvent } from "./PianoRollPlay";
 import {    PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
 import { usePrismRhythms } from "@/hooks/data/prism/usePrismRhythms";
+type RhythmHit = [number, number];
+const chordRhythmFallbacks: Record<string, RhythmHit[]> = {
+  "Jazz 1a": [[0, 480], [720, 240], [1440, 480]],
+  "Jazz 5": [[0, 240], [480, 120], [600, 120], [720, 120], [840, 120], [1320, 120]],
+};
 
 type FlowActivityProps = {
   events?: NoteEvent[];
@@ -271,13 +276,40 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const rhythmsQuery = usePrismRhythms();
 
   const melodyRhythms: RhythmRecord = rhythmsQuery.data?.melodies ?? {};
-  const chordRhythms: RhythmRecord = rhythmsQuery.data?.chords ?? {};
+  const chordRhythms: RhythmRecord = useMemo(
+    () => ({
+      ...chordRhythmFallbacks,
+      ...(rhythmsQuery.data?.chords ?? {}),
+    }),
+    [rhythmsQuery.data?.chords],
+  );
   console.log(melodyRhythms ? melodyRhythms : 'no rhythms');
+
+  const pickFallbackChordRhythm = (lengthOf?: number): RhythmHit[] | undefined => {
+    const entries = Object.entries(chordRhythmFallbacks);
+    if (entries.length === 0) return undefined;
+    if (lengthOf) {
+      const matching = entries.filter(([, hits]) => hits.length === lengthOf);
+      if (matching.length > 0) {
+        const pick = matching[Math.floor(Math.random() * matching.length)];
+        return pick[1];
+      }
+    }
+    return (
+      chordRhythmFallbacks["Jazz 5"] ??
+      chordRhythmFallbacks["Jazz 1a"] ??
+      entries[0][1]
+    );
+  };
 
   const getRhythm = (melOrChord: "melody" | "chord", name?: string, lengthOf?: number  ): RhythmHit[] | undefined => {
     const rhythms = melOrChord === "chord" ? chordRhythms : melodyRhythms;
 
-    if (name) return rhythms[name];
+    if (name) {
+      const named = rhythms[name];
+      if (named && named.length > 0) return named;
+      return melOrChord === "chord" ? pickFallbackChordRhythm(lengthOf) : undefined;
+    }
 
     const keys = lengthOf
       ? Object.entries(rhythms)
@@ -285,7 +317,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           .map(([k]) => k)
       : Object.keys(rhythms);
 
-    if (keys.length === 0) return undefined;
+    if (keys.length === 0) {
+      return melOrChord === "chord" ? pickFallbackChordRhythm(lengthOf) : undefined;
+    }
 
     const pick = keys[Math.floor(Math.random() * keys.length)];
     return rhythms[pick];
@@ -298,14 +332,19 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const rhythmicMidiSequenceEvents = (sequence: number[],prefix: string, rhythmName?: string): NoteEvent[] => {
     const rhythm = getRhythm("chord",rhythmName,sequence.length);
-    if (rhythm == undefined){
+    const resolvedRhythm = rhythm ?? pickFallbackChordRhythm(sequence.length);
+    if (resolvedRhythm == undefined){
       return [];
     } 
+    const hits =
+      resolvedRhythm.length >= sequence.length
+        ? resolvedRhythm
+        : sequence.map((_, idx) => resolvedRhythm[idx % resolvedRhythm.length]);
     return sequence.map((midi, idx) => ({
     id: `${prefix}-${idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: rhythm[idx][0],
-    durationTicks: rhythm[idx][1],
+    startTicks: hits[idx][0],
+    durationTicks: hits[idx][1],
     }));
   }
     

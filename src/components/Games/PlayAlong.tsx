@@ -100,8 +100,17 @@ export const PlayAlong = ({
 
   useEffect(() => {
     return () => {
-      firstMetronomePlayer.dispose();
-      metronomePlayer.dispose();
+      for (const p of [firstMetronomePlayer, metronomePlayer]) {
+        try {
+          // Tone.Source has `state` in many versions ("started"/"stopped")
+          if ((p as any).state === "started") {
+            p.stop();
+          }
+        } catch {}
+        try {
+          p.dispose();
+        } catch {}
+      }
     };
   }, [firstMetronomePlayer, metronomePlayer]);
 

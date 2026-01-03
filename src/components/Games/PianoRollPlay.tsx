@@ -229,7 +229,20 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const timelineStartTick = -countInTicks;
   const timelineEndTick = bars * ticksPerBar;
   const safeSubdivision = subdivision <= 0 ? 1 : subdivision;
-  const tickPercent = (tick: number) => ticksToPercent(tick, countInTicks, totalTicks);
+  const visibleBars = 2;
+  const displayStartTick = inTime
+    ? playheadTick - ticksPerBar * visibleBars
+    : timelineStartTick;
+  const displayEndTick = inTime
+    ? playheadTick + ticksPerBar * visibleBars
+    : timelineEndTick;
+  const tickPercent = (tick: number) => {
+    if (!inTime) {
+      return ticksToPercent(tick, countInTicks, totalTicks);
+    }
+    const denominator = displayEndTick - displayStartTick || 1;
+    return ((tick - displayStartTick) / denominator) * 100;
+  };
   const beatsPerSecond = Math.max(playSpeed, 0) / 60;
   const playheadTicksPerSecond = beatsPerSecond * beatTicks;
 
@@ -321,15 +334,20 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
   // Sub grid (thin lines) and beat lines (stronger)
   const subStepTicks = beatTicks / safeSubdivision;
-  const subLines = generateTickPositions(timelineStartTick, timelineEndTick, subStepTicks);
-  const beatLines = generateTickPositions(timelineStartTick, timelineEndTick, beatTicks);
-  const barLines = generateTickPositions(timelineStartTick, timelineEndTick, ticksPerBar);
+  const subLines = generateTickPositions(displayStartTick, displayEndTick, subStepTicks);
+  const beatLines = generateTickPositions(displayStartTick, displayEndTick, beatTicks);
+  const barLines = generateTickPositions(displayStartTick, displayEndTick, ticksPerBar);
 
   const labels = barBeatLabels(
     bars,
     beatsPerBar,
     inTime,
   );
+  const visibleLabels = inTime
+    ? labels.filter(
+        ({ tick }) => tick >= displayStartTick && tick <= displayEndTick,
+      )
+    : labels;
 
 
   return (
@@ -351,7 +369,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
           />
           <div className="relative flex-1" style={{ minWidth: 0 }}>
             {/* beat labels */}
-            {labels.map(({ tick, label }) => {
+            {visibleLabels.map(({ tick, label }) => {
               const isFinalTick =
                 Math.abs(tick - timelineEndTick) < 0.0001;
               return (

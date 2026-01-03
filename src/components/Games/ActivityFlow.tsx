@@ -72,12 +72,12 @@ const midiSequenceToWholeNotes = (sequence: number[],prefix: string): NoteEvent[
 
 const midiSequenceToHalfNotes = (sequence: number[],prefix: string): NoteEvent[] =>{
   return sequence.flatMap((midi, idx) => ([{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${4 * idx}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
     startTicks: 4 * idx * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS*2,
   },{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx+2)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
     startTicks: (4*idx+2)* NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS*2,
@@ -88,22 +88,22 @@ const midiSequenceToHalfNotes = (sequence: number[],prefix: string): NoteEvent[]
 const midiSequenceToQuarterNotes
  = (sequence: number[],prefix: string): NoteEvent[] =>{
   return sequence.flatMap((midi, idx) => ([{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
     startTicks: (4*idx) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS,
   },{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx+1)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
     startTicks: (4*idx+1) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS,
   },{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx+2)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
     startTicks: (4*idx+2) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS,
   },{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx+3)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
     startTicks: (4*idx+3) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS,
@@ -114,44 +114,44 @@ const midiSequenceToQuarterNotes
 const midiSequenceToEighthNotes
  = (sequence: number[],prefix: string): NoteEvent[] =>{
   return sequence.flatMap((midi, idx) => ([{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx) * NOTE_DURATION_TICKS,
+    startTicks: (8*idx) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx+0.5)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+0.5) * NOTE_DURATION_TICKS,
+    startTicks: (8*idx+1) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx+1)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+1) * NOTE_DURATION_TICKS,
+    startTicks: (8*idx+2) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx+1.5)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+1.5) * NOTE_DURATION_TICKS,
+    startTicks: (8*idx+3) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx+2)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+2) * NOTE_DURATION_TICKS,
+    startTicks: (8*idx+4) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx+2.5)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+2.5) * NOTE_DURATION_TICKS,
+    startTicks: (8*idx+5) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx+3)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+3) * NOTE_DURATION_TICKS,
+    startTicks: (8*idx+6) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS*0.5,
   },{
-    id: `${prefix}-${idx}-${midi}`,
+    id: `${prefix}-${(4*idx+3.5)}-${midi}`,
     pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+3.5) * NOTE_DURATION_TICKS,
+    startTicks: (8*idx+7) * NOTE_DURATION_TICKS,
     durationTicks: NOTE_DURATION_TICKS*0.5,
   }
   ]));
@@ -185,7 +185,7 @@ const chordArpegiateEvents = (sequence: number[],prefix: string): NoteEvent[] =>
       durationTicks: NOTE_DURATION_TICKS,
     },
     {
-      id: `${prefix}Join-${idx}-${note}`,
+      id: `${prefix}Joined-${idx}-${note}`,
       pitchName: Tone.Frequency(note, "midi").toNote(),
       startTicks: (sequence.length+1) * NOTE_DURATION_TICKS,
       durationTicks: NOTE_DURATION_TICKS*2,

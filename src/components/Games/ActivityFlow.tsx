@@ -605,14 +605,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-5-pa`),
         direction: `Play chord ${shuffled[0]+1} and ${shuffled[1]+1} in a steady tempo, with long articulations (“legato”).`
       })
-      shuffled = shuffled.sort(() => Math.random() - 0.5);
-      sequences.push({
-        key: `chords-6-pa`,
-        label: `${rootKey} ${modeTitle} Four Chords (Mixed Articulation) • Play Along`,
-        Component: PlayAlong,
-        seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-6-pa`),
-        direction: `Play the four chords in a steady tempo, with mixed articulations.`
-      })
 
       /////////ACTIVITES FOR 8
       shuffled = shuffled.sort(() => Math.random() - 0.5);
@@ -623,7 +615,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-2-nh`),
         direction: `Play the first four chords in a mixed order, holding down each chord one by one.`
       })
-      shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-7-pa`,
         label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
@@ -631,7 +622,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         seq: midiSequenceToHalfNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-7-pa`),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a half note.`
       })
-      shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-8-pa`,
         label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
@@ -639,13 +629,20 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         seq: midiSequenceToQuarterNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-8-pa`),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a quarter note.`
       })
-      shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-9-pa`,
         label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
         Component: PlayAlong,
         seq: midiSequenceToEighthNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-9-pa`),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a eighth note.`
+      })
+      shuffled = shuffled.sort(() => Math.random() - 0.5);
+      sequences.push({
+        key: `chords-6-pa`,
+        label: `${rootKey} ${modeTitle} Four Chords (Mixed Articulation) • Play Along`,
+        Component: PlayAlong,
+        seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-6-pa`),
+        direction: `Play the four chords in a steady tempo, with mixed articulations.`
       })
     }
     if (includeChordPlaceholder && chordTriads.length === 0) {

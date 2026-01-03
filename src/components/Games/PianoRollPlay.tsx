@@ -531,8 +531,22 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               //     : pitchNameToMidi(e.pitchName);
 
               if (inTime) {
-                visStartTick = scheduledStart;
-                visEndTick = scheduledEnd;
+                const perfStart =
+                  perf && typeof perf.startTick === "number" ? perf.startTick : null;
+                const perfEnd =
+                  perf && typeof perf.endTick === "number" ? perf.endTick : null;
+                if (perfStart != null) {
+                  const clampedStart = Math.max(scheduledStart, perfStart);
+                  const clampedEnd = Math.min(
+                    scheduledEnd,
+                    perfEnd != null ? perfEnd : playheadTick,
+                  );
+                  visStartTick = clampedStart;
+                  visEndTick = Math.max(clampedStart, clampedEnd);
+                } else {
+                  visStartTick = scheduledStart;
+                  visEndTick = scheduledEnd;
+                }
               } else if (perf && typeof perf.startTick === "number") {
                 visStartTick = perf.startTick;
                 visEndTick =
@@ -568,7 +582,11 @@ const PianoRoll: React.FC<PianoRollProps> = ({
 
               const baseColor = e.color ?? "#b64f4f";
               const meta = noteHoldMeta?.[e.id];
-              const wasPlayed = !!perf;
+              const wasPlayed =
+                !!perf &&
+                typeof perf.startTick === "number" &&
+                perf.startTick >= scheduledStart &&
+                perf.startTick <= scheduledEnd;
               const isMissed =
                 inTime && !wasPlayed && playheadTick >= scheduledEnd;
               let color = baseColor;

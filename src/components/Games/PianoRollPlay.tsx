@@ -229,6 +229,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const timelineStartTick = -countInTicks;
   const timelineEndTick = bars * ticksPerBar;
   const safeSubdivision = subdivision <= 0 ? 1 : subdivision;
+  const beatsPerSecond = Math.max(playSpeed, 0) / 60;
+  const playheadTicksPerSecond = beatsPerSecond * beatTicks;
+
+  const [playheadTick, setPlayheadTick] = useState(-countInTicks);
   const visibleBars = 2;
   const displayStartTick = inTime
     ? playheadTick - ticksPerBar * visibleBars
@@ -243,10 +247,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     const denominator = displayEndTick - displayStartTick || 1;
     return ((tick - displayStartTick) / denominator) * 100;
   };
-  const beatsPerSecond = Math.max(playSpeed, 0) / 60;
-  const playheadTicksPerSecond = beatsPerSecond * beatTicks;
-
-  const [playheadTick, setPlayheadTick] = useState(-countInTicks);
   const isControlled =
     typeof isPlaying === "boolean" && typeof onPlayingChange === "function";
   const [internalPlaying, setInternalPlaying] = useState(false);

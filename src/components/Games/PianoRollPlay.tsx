@@ -233,7 +233,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const playheadTicksPerSecond = beatsPerSecond * beatTicks;
 
   const [playheadTick, setPlayheadTick] = useState(-countInTicks);
-  const visibleBars = 2;
+  const visibleBars = 1;
   const displayStartTick = inTime
     ? playheadTick - ticksPerBar * visibleBars
     : timelineStartTick;
@@ -672,7 +672,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 left: `${tickPercent(playheadTick)}%`,
               }}
             >
-              <div className="absolute left-0 top-0 h-full w-[2px] bg-neutral-500/80" />
+              <div className="absolute left-0 top-0 h-full w-[4px] bg-neutral-400/90" />
             </div>
           )}
         </div>

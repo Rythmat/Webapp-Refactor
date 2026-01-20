@@ -3,7 +3,12 @@ import * as Tone from "tone";
 import { PianoKeyboard } from "@/components/PianoKeyboard";
 import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
 import { useMidiInput, type MidiNoteEvent } from "@/hooks/music/useMidiInput";
-import { useSynth } from "@/hooks/useSynth";
+import {
+  releaseAllPianoNotes,
+  startPianoSampler,
+  triggerPianoAttack,
+  triggerPianoRelease,
+} from "@/audio/pianoSampler";
 import PianoRoll, { NoteEvent, pitchNameToMidi } from "./PianoRollPlay";
 
 const DEFAULT_EVENTS: NoteEvent[] = [
@@ -65,7 +70,6 @@ export const PlayAlong = ({
   const [notePerformance, setNotePerformance] = useState<Record<string, NotePerformance>>({});
   const [playSessionId, setPlaySessionId] = useState(0);
   const lastMetronomeBeatRef = useRef<number | null>(null);
-  const getSynth = useSynth();
   const hasStartedAudioContextRef = useRef(false);
   const firstMetronomePlayer = useMemo(
     () => new Tone.Player("/sound/firstMetronomeClick.mp3").toDestination(),
@@ -86,12 +90,8 @@ export const PlayAlong = ({
     if (hasStartedAudioContextRef.current) {
       return;
     }
-    if (Tone.getContext().state === "running") {
-      hasStartedAudioContextRef.current = true;
-      return;
-    }
     try {
-      await Tone.start();
+      await startPianoSampler();
       hasStartedAudioContextRef.current = true;
     } catch (error) {
       console.warn("Failed to start Tone.js audio context", error);
@@ -121,9 +121,15 @@ export const PlayAlong = ({
     setNotePerformance({});
     setCurrentTick(-COUNT_IN_TICKS);
     lastMetronomeBeatRef.current = null;
-    const synth = getSynth();
-    synth?.releaseAll();
-  }, [getSynth]);
+    void releaseAllPianoNotes();
+  }, []);
+
+  const releaseActiveNotes = useCallback(() => {
+    void releaseAllPianoNotes();
+    activeMidiSetRef.current = new Set<number>();
+    setActiveMidis([]);
+    setKeyboardPlayingNotes([]);
+  }, []);
 
   const resetInTimeRun = useCallback(() => {
     setNotePerformance({});
@@ -132,29 +138,14 @@ export const PlayAlong = ({
   }, []);
 
   // Triggers the on state of the syntheizer with a specified note and a given velocity
-  const triggerSynthAttack = useCallback(
-    (name: string, velocity?: number) => {
-      const synth = getSynth();
-      const normalizedVelocity =
-        typeof velocity === "number"
-          ? Math.max(0, Math.min(1, velocity / 127))
-          : 0.8;
-      synth.triggerAttack(name, Tone.now(), normalizedVelocity || 0.8);
-    },
-    [getSynth],
-  );
+  const triggerSynthAttack = useCallback((name: string, velocity?: number) => {
+    void triggerPianoAttack(name, velocity, Tone.now());
+  }, []);
 
   // Triggers the off state of the synthesizer for the specified note
-  const triggerSynthRelease = useCallback(
-    (name: string) => {
-      const synth = getSynth();
-      if (!synth) {
-        return;
-      }
-      synth.triggerRelease(name, Tone.now());
-    },
-    [getSynth],
-  );
+  const triggerSynthRelease = useCallback((name: string) => {
+    void triggerPianoRelease(name, Tone.now());
+  }, []);
 
   const playMetronome = useCallback(
     (isDownbeat: boolean) => {
@@ -309,6 +300,7 @@ export const PlayAlong = ({
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      void startPianoSampler();
       const midi = event.number;
       if(event.velocity == 0){
         handleMidiNoteOff(event);
@@ -362,12 +354,13 @@ export const PlayAlong = ({
 
 
   const handleContinue = useCallback(() => {
+    releaseActiveNotes();
     if (onContinue) {
       onContinue();
     } else {
       resetProgress();
     }
-  }, [onContinue, resetProgress]);
+  }, [onContinue, releaseActiveNotes, resetProgress]);
 
   useEffect(() => {
     const wasPlaying = wasPlayingRef.current;
@@ -385,12 +378,17 @@ export const PlayAlong = ({
     if (isPlaying) {
       return;
     }
-    const synth = getSynth();
-    synth?.releaseAll();
+    void releaseAllPianoNotes();
     activeMidiSetRef.current = new Set<number>();
     setActiveMidis([]);
     setKeyboardPlayingNotes([]);
-  }, [isPlaying, getSynth]);
+  }, [isPlaying]);
+
+  useEffect(() => {
+    return () => {
+      releaseActiveNotes();
+    };
+  }, [releaseActiveNotes]);
 
   return (
     <div className="flex flex-col gap-4">

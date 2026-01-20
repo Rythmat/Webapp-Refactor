@@ -3,7 +3,12 @@ import * as Tone from "tone";
 import { PianoKeyboard } from "@/components/PianoKeyboard";
 import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
 import { useMidiInput, type MidiNoteEvent } from "@/hooks/music/useMidiInput";
-import { useSynth } from "@/hooks/useSynth";
+import {
+  releaseAllPianoNotes,
+  startPianoSampler,
+  triggerPianoAttack,
+  triggerPianoRelease,
+} from "@/audio/pianoSampler";
 import PianoRoll, { NoteEvent, NoteHoldMeta, pitchNameToMidi } from "./PianoRollPlay";
 
 const DEFAULT_EVENTS: NoteEvent[] = [
@@ -52,19 +57,14 @@ export const NoteHold = ({
   );
   const [chordHoldStartMs, setChordHoldStartMs] = useState<number | null>(null);
   const [chordHoldProgress, setChordHoldProgress] = useState(0);
-  const getSynth = useSynth();
   const hasStartedAudioContextRef = useRef(false);
 
   const startToneContext = useCallback(async () => {
     if (hasStartedAudioContextRef.current) {
       return;
     }
-    if (Tone.getContext().state === "running") {
-      hasStartedAudioContextRef.current = true;
-      return;
-    }
     try {
-      await Tone.start();
+      await startPianoSampler();
       hasStartedAudioContextRef.current = true;
     } catch (error) {
       console.warn("Failed to start Tone.js audio context", error);
@@ -80,35 +80,26 @@ export const NoteHold = ({
     activeMidiSetRef.current = new Set<number>();
     setActiveMidis([]);
     setKeyboardPlayingNotes([]);
-    const synth = getSynth();
-    synth?.releaseAll();
-  }, [getSynth]);
+    void releaseAllPianoNotes();
+  }, []);
+
+  const releaseActiveNotes = useCallback(() => {
+    void releaseAllPianoNotes();
+    activeMidiSetRef.current = new Set<number>();
+    setActiveMidis([]);
+    setKeyboardPlayingNotes([]);
+  }, []);
 
 
   // Triggers the on state of the syntheizer with a specified note and a given velocity
-  const triggerSynthAttack = useCallback(
-    (name: string, velocity?: number) => {
-      const synth = getSynth();
-      const normalizedVelocity =
-        typeof velocity === "number"
-          ? Math.max(0, Math.min(1, velocity / 127))
-          : 0.8;
-      synth.triggerAttack(name, Tone.now(), normalizedVelocity || 0.8);
-    },
-    [getSynth],
-  );
+  const triggerSynthAttack = useCallback((name: string, velocity?: number) => {
+    void triggerPianoAttack(name, velocity, Tone.now());
+  }, []);
 
   // Triggers the off state of the synthesizer for the specified note
-  const triggerSynthRelease = useCallback(
-    (name: string) => {
-      const synth = getSynth();
-      if (!synth) {
-        return;
-      }
-      synth.triggerRelease(name, Tone.now());
-    },
-    [getSynth],
-  );
+  const triggerSynthRelease = useCallback((name: string) => {
+    void triggerPianoRelease(name, Tone.now());
+  }, []);
 
   const chords = useMemo(() => {
     const grouped = new Map<number, NoteEvent[]>();
@@ -276,6 +267,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      void startPianoSampler();
       const midi = event.number;
       if(event.velocity == 0){
         handleMidiNoteOff(event);
@@ -345,12 +337,19 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
 
   const handleContinue = useCallback(() => {
+    releaseActiveNotes();
     if (onContinue) {
       onContinue();
     } else {
       resetProgress();
     }
-  }, [onContinue, resetProgress]);
+  }, [onContinue, releaseActiveNotes, resetProgress]);
+
+  useEffect(() => {
+    return () => {
+      releaseActiveNotes();
+    };
+  }, [releaseActiveNotes]);
 
 
   return (

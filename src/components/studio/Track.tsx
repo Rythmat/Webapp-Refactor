@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { X, Circle } from "lucide-react";
 import MidiClip from "./MidiClip";
 import AudioClip from "./AudioClip";
+import { triggerPianoAttackRelease } from "@/audio/pianoSampler";
 
 type TrackProps = {
   trackData: TrackType;
@@ -292,11 +293,17 @@ const Track = ({
           const part = new Tone.Part((time, value) => {
             if (trackData.instrument === "drums" && instrument.kick) {
               const note = value.note.note;
-              if (note.startsWith("C")) instrument.kick.triggerAttackRelease("C1", value.note.duration, time);
-              else if (note.startsWith("D")) instrument.snare.triggerAttackRelease(value.note.duration, time);
-              else if (note.startsWith("F#")) instrument.hihat.triggerAttackRelease(value.note.duration, time);
-            } else if (typeof instrument.triggerAttackRelease === "function") {
-              instrument.triggerAttackRelease(value.note.note, value.note.duration, time);
+              const durationSeconds = Tone.Time(value.note.duration).toSeconds();
+              if (note.startsWith("C")) {
+                void triggerPianoAttackRelease("C1", durationSeconds, undefined, time);
+              } else if (note.startsWith("D")) {
+                void triggerPianoAttackRelease("D1", durationSeconds, undefined, time);
+              } else if (note.startsWith("F#")) {
+                void triggerPianoAttackRelease("F#1", durationSeconds, undefined, time);
+              }
+            } else {
+              const durationSeconds = Tone.Time(value.note.duration).toSeconds();
+              void triggerPianoAttackRelease(value.note.note, durationSeconds, undefined, time);
             }
           },
           (clip as MidiClipType).notes.map((note) => ({

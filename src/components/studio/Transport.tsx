@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Rewind, Play, Pause, FastForward, Repeat, Timer, Circle } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { startPianoSampler } from "@/audio/pianoSampler";
 
 type TransportProps = {
   isAudioReady: boolean;
@@ -92,7 +93,7 @@ const Transport = ({
 
   const handlePlayPause = async () => {
     try {
-      await Tone.start();
+      await startPianoSampler();
       if (Tone.Transport.state === "started") {
         Tone.Transport.pause();
       } else {

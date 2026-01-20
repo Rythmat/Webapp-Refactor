@@ -10,6 +10,11 @@ import {
 import * as Tone from 'tone';
 import { PlaybackEvent } from './helpers';
 import { getTotalDuration } from './useTotalDuration';
+import {
+  setPianoSamplerVolume,
+  startPianoSampler,
+  triggerPianoAttackRelease,
+} from '@/audio/pianoSampler';
 
 type PlaybackContextType = {
   playingInstanceId: string | null;
@@ -59,30 +64,8 @@ export const PlaybackProvider = ({
   );
 
   // Refs for Tone.js objects
-  const synth = useRef<Tone.PolySynth | null>(null);
   const part = useRef<Tone.Part | null>(null);
   const animationFrameRef = useRef<number | null>(null);
-
-  // Initialize or get the synth
-  const getSynth = useCallback(() => {
-    if (synth.current) {
-      return synth.current;
-    }
-
-    // Initialize Tone.js synth
-    synth.current = new Tone.PolySynth(Tone.Synth).toDestination();
-    return synth.current;
-  }, []);
-
-  // Dispose of synth when the component unmounts
-  useEffect(() => {
-    return () => {
-      if (synth.current) {
-        synth.current.dispose();
-        synth.current = null;
-      }
-    };
-  }, []);
 
   // Centralized function to cancel animation frames
   const cancelAnimationFrame = useCallback(() => {
@@ -222,19 +205,14 @@ export const PlaybackProvider = ({
       const transport = Tone.getTransport();
 
       try {
-        // Start audio context if it's not started yet
-        if (transport.context.state !== 'running') {
-          await Tone.start();
-        }
+        await startPianoSampler();
 
         // Set the BPM
         transport.bpm.value = newBpm;
 
-        // Set the volume on the synth
-        const synth = getSynth();
         // Convert volume from 0-1 range to Tone.js volume in decibels
         // 0 (silent) maps to -Infinity dB, 1 (full) maps to 0 dB
-        synth.volume.value = volume === 0 ? -Infinity : 20 * Math.log10(volume);
+        setPianoSamplerVolume(volume === 0 ? -Infinity : 20 * Math.log10(volume));
 
         // Store playback rate in state but don't try to set it on transport
         // as it's not directly supported in Tone.js Transport
@@ -254,18 +232,16 @@ export const PlaybackProvider = ({
         }
 
         part.current = new Tone.Part((time, event) => {
-          const synth = getSynth();
-
           // Add the event to active events
           setActiveEvents((prev) => [...prev, event]);
 
           // Only trigger sound for note events, not for rests
           if (event.type === 'note') {
-            synth.triggerAttackRelease(
+            void triggerPianoAttackRelease(
               Tone.Frequency(event.midi, 'midi').toNote(),
               event.duration,
-              time,
               event.velocity,
+              time,
             );
           }
 
@@ -305,7 +281,6 @@ export const PlaybackProvider = ({
       pausedEvents,
       currentTimePercent,
       stop,
-      getSynth,
       clearTransport,
     ],
   );

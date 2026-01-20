@@ -22,6 +22,11 @@ import { useMidiKeyboard } from "@/hooks/useMidiKeyboard";
 import { useMidiInput } from "@/hooks/useMidiInput";
 import { getBlobDuration, transcodeToMp3 } from "@/components/utils/audio";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
+import {
+  startPianoSampler,
+  triggerPianoAttack,
+  triggerPianoRelease,
+} from "@/audio/pianoSampler";
 
 function aiTracksToAppTracks(aiTracks: { name: string; instrument: InstrumentType; notes: Omit<Note, 'id'>[] }[]): Track[] {
   return aiTracks.map((aiTrack) => ({
@@ -207,9 +212,7 @@ export const Index = () => {
 
   const handleStartAudio = async () => {
     try {
-      if (Tone.context.state !== 'running') {
-        await Tone.start();
-      }
+      await startPianoSampler();
       Tone.Transport.bpm.value = bpm;
       Tone.Transport.loop = true;
       Tone.Transport.loopStart = `${loopStart}m`;
@@ -666,11 +669,15 @@ export const Index = () => {
     const instrument = instrumentsRef.current.get(armedTrackId);
     if (instrument) {
       if (instrument.kick) {
-        if (note.startsWith('C')) instrument.kick.triggerAttack('C1', Tone.now());
-        else if (note.startsWith('D')) instrument.snare.triggerAttack(Tone.now());
-        else instrument.hihat.triggerAttack(Tone.now());
+        if (note.startsWith('C')) {
+          void triggerPianoAttack('C1', 0.8, Tone.now());
+        } else if (note.startsWith('D')) {
+          void triggerPianoAttack('D1', 0.8, Tone.now());
+        } else {
+          void triggerPianoAttack('F#1', 0.8, Tone.now());
+        }
       } else {
-        instrument.triggerAttack(note, Tone.now());
+        void triggerPianoAttack(note, 0.8, Tone.now());
       }
     }
     const session = recordingSessionRef.current;
@@ -688,11 +695,15 @@ export const Index = () => {
     const instrument = instrumentsRef.current.get(armedTrackId);
     if (instrument) {
       if (instrument.kick) {
-        if (note.startsWith('C')) instrument.kick.triggerRelease(Tone.now());
-        else if (note.startsWith('D')) instrument.snare.triggerRelease(Tone.now());
-        else instrument.hihat.triggerRelease(Tone.now());
-      } else if (typeof instrument.triggerRelease === 'function') {
-        instrument.triggerRelease(note, Tone.now());
+        if (note.startsWith('C')) {
+          void triggerPianoRelease('C1', Tone.now());
+        } else if (note.startsWith('D')) {
+          void triggerPianoRelease('D1', Tone.now());
+        } else {
+          void triggerPianoRelease('F#1', Tone.now());
+        }
+      } else {
+        void triggerPianoRelease(note, Tone.now());
       }
     }
   }, [armedTrackId]);

@@ -224,8 +224,8 @@ export type BoardChoiceGameProps = {
 };
 
 export function BoardChoiceGame({
-  startC = 3,
-  endC = 5,
+  startC = 4,
+  endC = 6,
   chordPool = DEFAULT_CHORD_POOL,
   showChordName = true,
   keyboardBaseOctave = 4,

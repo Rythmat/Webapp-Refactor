@@ -268,8 +268,8 @@ export function PianoKeyboard({
   };
 
   const octaveCount = Math.max(1, endC - startC + 1);
-  const limitedOctaveCount = gaming ? Math.min(octaveCount, 2) : octaveCount;
-  const octaveStart = gaming ? startC : startC;
+  const limitedOctaveCount =  octaveCount;
+  const octaveStart = startC;
   const octaves = Array.from({ length: limitedOctaveCount }, (_, i) => octaveStart + i);
 
   return (

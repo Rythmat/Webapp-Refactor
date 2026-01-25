@@ -17,6 +17,7 @@ interface MusicalInputProps {
 }
 
 let lastAutofillJingleAt = 0;
+let lastAutofillAt = 0;
 
 
 export const useMusicalForm = (config: MusicalFormConfig = {}) => {
@@ -130,6 +131,7 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
   }, [playProgression, failureProgression]);
 
   const playTypingNote = useCallback(() => {
+    if (nowMs() - lastAutofillAt < 1500) return;
     if (autofillActive.current) {
       autofillActive.current = false;
       return;
@@ -152,6 +154,7 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
         currentValue.length - prevValue.length > 1
       ) {
         const now = nowMs();
+        lastAutofillAt = now;
         if (now - lastAutofillJingleAt > 750) {
           playAcceptedAudio();
           lastAutofillJingleAt = now;

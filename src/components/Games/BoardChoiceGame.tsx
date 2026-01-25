@@ -123,8 +123,13 @@ function normalizeNotes(notes: number[]) {
 
 function createCustomOptions(targetNotes: number[]): { options: ChordOption[]; targetNotes: number[] } {
   const normalizedTarget = normalizeNotes(targetNotes);
+  if (normalizedTarget.length === 0) {
+  return { options: [], targetNotes: [] };
+  }
   const root = normalizedTarget[0];
-  // const length = normalizedTarget.length;
+  if (!Number.isFinite(root)) {
+    return { options: [], targetNotes: [] };
+  }
   const targetSignature = intervalsSignature(root, normalizedTarget);
   const used = new Set<string>([signatureToString(targetSignature)]);
   const options: ChordOption[] = [
@@ -137,7 +142,7 @@ function createCustomOptions(targetNotes: number[]): { options: ChordOption[]; t
 
   const octave = Math.floor(root / 12);
   let possibleRoots = Array.from({length:12}, (_,index) => index ).map((i)=>i+(12*octave)).filter((i)=>i!==root);
-  while (options.length < 4) {
+  while (options.length < 4 && possibleRoots.length > 0) {
     const candiRoot = shuffle(possibleRoots)[0];
     possibleRoots = possibleRoots.filter((i)=>i!==candiRoot);
     const candidateNotes = [...targetSignature].map((interval) => candiRoot + interval);

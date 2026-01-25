@@ -16,6 +16,8 @@ interface MusicalInputProps {
   onKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void;
 }
 
+let lastAutofillJingleAt = 0;
+
 
 export const useMusicalForm = (config: MusicalFormConfig = {}) => {
   const {
@@ -44,6 +46,16 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
   const previousValue = useRef<string>('');
   const playNote = usePlayNote();
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const suppressTypingUntil = useRef<number>(0);
+
+  const nowMs = () => Date.now();
+  const shouldSuppressTyping = () => nowMs() < suppressTypingUntil.current;
+  const setTypingSuppression = (durationMs: number) => {
+    suppressTypingUntil.current = Math.max(
+      suppressTypingUntil.current,
+      nowMs() + durationMs,
+    );
+  };
 
   const playAudioFile = useCallback((filePath: string) => {
     if (!filePath || typeof window === 'undefined') {
@@ -117,6 +129,7 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
   }, [playProgression, failureProgression]);
 
   const playTypingNote = useCallback(() => {
+    if (shouldSuppressTyping()) return;
     if (typingMelody.length === 0) return;
 
     const currentIndex = noteIndex.current ?? -1;
@@ -133,7 +146,12 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
         currentValue.length > prevValue.length &&
         currentValue.length - prevValue.length > 1
       ) {
-        playAcceptedAudio();
+        const now = nowMs();
+        if (now - lastAutofillJingleAt > 750) {
+          playAcceptedAudio();
+          lastAutofillJingleAt = now;
+        }
+        setTypingSuppression(1000);
       }
     },
     [playAcceptedAudio],

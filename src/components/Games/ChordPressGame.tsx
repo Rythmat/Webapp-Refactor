@@ -346,7 +346,7 @@ export function ChordPressGame({
             key={keyboardId}
             startC={3}
             endC={6}
-            // gaming={true}
+            gaming={true}
             onKeyClick={toggleNote}
             onMidiInput={enableMIDI ? onMidiInput : undefined}
             enableMidiInterface={enableMIDI}

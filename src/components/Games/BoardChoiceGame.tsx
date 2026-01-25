@@ -110,7 +110,11 @@ function midiToNoteName(midi: number) {
 }
 
 function intervalsSignature(root: number, notes: number[]) {
-  return notes.map((note) => note - root).join(',');
+  return notes.map((note) => note - root);
+}
+
+function signatureToString(signature: number[]){
+  return signature.join(',');
 }
 
 function normalizeNotes(notes: number[]) {
@@ -120,9 +124,9 @@ function normalizeNotes(notes: number[]) {
 function createCustomOptions(targetNotes: number[]): { options: ChordOption[]; targetNotes: number[] } {
   const normalizedTarget = normalizeNotes(targetNotes);
   const root = normalizedTarget[0];
-  const length = normalizedTarget.length;
+  // const length = normalizedTarget.length;
   const targetSignature = intervalsSignature(root, normalizedTarget);
-  const used = new Set<string>([targetSignature]);
+  const used = new Set<string>([signatureToString(targetSignature)]);
   const options: ChordOption[] = [
     {
       id: uuidv4(),
@@ -131,22 +135,18 @@ function createCustomOptions(targetNotes: number[]): { options: ChordOption[]; t
     },
   ];
 
-  const maxInterval = Math.max(12, ...normalizedTarget.map((note) => note - root));
-  let attempts = 0;
-  while (options.length < 4 && attempts < 200) {
-    attempts += 1;
-    const intervals = new Set<number>();
-    while (intervals.size < Math.max(0, length - 1) && intervals.size < maxInterval) {
-      const interval = 1 + Math.floor(Math.random() * maxInterval);
-      intervals.add(interval);
-    }
-    const candidateNotes = [root, ...Array.from(intervals)].map((interval) => root + interval);
+  const octave = Math.floor(root / 12);
+  let possibleRoots = Array.from({length:12}, (_,index) => index ).map((i)=>i+(12*octave)).filter((i)=>{i!=root});
+  while (options.length < 4) {
+    const candiRoot = shuffle(possibleRoots)[0];
+    possibleRoots = possibleRoots.filter((i)=>{i!=candiRoot});
+    const candidateNotes = [...targetSignature].map((interval) => candiRoot + interval);
     const normalizedCandidate = normalizeNotes(candidateNotes);
-    const signature = intervalsSignature(root, normalizedCandidate);
-    if (used.has(signature)) {
+    const signature = intervalsSignature(candiRoot, normalizedCandidate);
+    if (used.has(signatureToString(signature))) {
       continue;
     }
-    used.add(signature);
+    used.add(signatureToString(signature));
     options.push({
       id: uuidv4(),
       midi: normalizedCandidate,
@@ -165,7 +165,7 @@ function createCustomOptions(targetNotes: number[]): { options: ChordOption[]; t
   return { options: shuffle(options), targetNotes: normalizedTarget };
 }
 
-function createRound({ chordPool, baseOctaveRoot, preferredChord }: CreateRoundArgs): RoundState {
+function createRound({ chordPool, baseOctaveRoot,  preferredChord }: CreateRoundArgs): RoundState {
   if (chordPool.length === 0) {
     throw new Error('Chord pool must contain at least one chord type.');
   }

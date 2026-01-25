@@ -1,5 +1,5 @@
 import React from "react";
-import { Activity, ChevronRight, Mic2, Music, Share2, User, Users } from "lucide-react";
+import { Activity, ChevronRight, Mic2, Music, User, Users } from "lucide-react";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
 import { HexagonPattern, DEFAULT_THEMES } from "../ui/HexagonPattern";
 
@@ -17,18 +17,18 @@ const Tag: React.FC<TagProps> = ({ label, icon: Icon }) => (
   </div>
 );
 
-interface ConnectUser {
-  name: string;
-  role: string;
-  common: string;
-}
+// interface ConnectUser {
+//   name: string;
+//   role: string;
+//   common: string;
+// }
 
-const CONNECT_USERS_DATA: ConnectUser[] = [
-  { name: "Sarah J.", role: "Vocalist", common: "Pop, R&B" },
-  { name: "Mike T.", role: "Producer", common: "Electronic" },
-  { name: "Davide R.", role: "Guitarist", common: "Jazz" },
-  { name: "Elena V.", role: "Songwriter", common: "Folk" },
-];
+// const CONNECT_USERS_DATA: ConnectUser[] = [
+//   { name: "Sarah J.", role: "Vocalist", common: "Pop, R&B" },
+//   { name: "Mike T.", role: "Producer", common: "Electronic" },
+//   { name: "David R.", role: "Guitarist", common: "Jazz" },
+//   { name: "Elena V.", role: "Songwriter", common: "Folk" },
+// ];
 
 export const ProfilePage: React.FC = () => {
   return (
@@ -81,7 +81,7 @@ export const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-4 mt-8 text-sm text-gray-400">
+            {/* <div className="flex items-center justify-end gap-4 mt-8 text-sm text-gray-400">
               <div className="flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
                 <div className="w-4 h-4 rounded-full bg-white border border-white" />
                 <span>Public</span>
@@ -90,7 +90,7 @@ export const ProfilePage: React.FC = () => {
                 <div className="w-4 h-4 rounded-full border border-gray-500" />
                 <span>Private</span>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -115,7 +115,7 @@ export const ProfilePage: React.FC = () => {
           </div>
           <div className="bg-[#151515] border border-white/5 rounded-3xl p-4">
             <div className="space-y-1">
-              {CONNECT_USERS_DATA.slice(0, 3).map((person, i) => (
+              {/* {CONNECT_USERS_DATA.slice(0, 3).map((person, i) => (
                 <div
                   key={i}
                   className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 cursor-pointer group"
@@ -133,7 +133,12 @@ export const ProfilePage: React.FC = () => {
                   </div>
                   <Share2 size={16} className="text-gray-600 group-hover:text-white transition-colors" />
                 </div>
-              ))}
+              ))} */}
+              <div className="flex items-center gap-1">
+                <div>
+                  <div className="text-sm font-medium text-gray-200">Coming Soon...</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

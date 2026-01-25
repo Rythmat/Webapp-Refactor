@@ -46,6 +46,7 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
   const previousValue = useRef<string>('');
   const playNote = usePlayNote();
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const autofillActive = useRef(false);
   const suppressTypingUntil = useRef<number>(0);
 
   const nowMs = () => Date.now();
@@ -129,6 +130,10 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
   }, [playProgression, failureProgression]);
 
   const playTypingNote = useCallback(() => {
+    if (autofillActive.current) {
+      autofillActive.current = false;
+      return;
+    }
     if (shouldSuppressTyping()) return;
     if (typingMelody.length === 0) return;
 
@@ -151,6 +156,7 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
           playAcceptedAudio();
           lastAutofillJingleAt = now;
         }
+        autofillActive.current = true;
         setTypingSuppression(1000);
       }
     },

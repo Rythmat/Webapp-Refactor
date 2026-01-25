@@ -2,11 +2,13 @@ import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { Logo } from '@/components/Logo';
 import { BetaHelp } from '@/components/ui/beta-help';
 import { cn } from '@/components/utilities';
-import {   AtlasRoutes, ConnectRoutes, GameRoutes, LearnRoutes, LibraryRoutes, ProfileRoutes, StudioRoutes } from '@/constants/routes';
+import { GameRoutes, LearnRoutes, ProfileRoutes, StudioRoutes } from '@/constants/routes';
+// import {   AtlasRoutes, ConnectRoutes, LibraryRoutes } from '@/constants/routes';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
 import { UserWidget } from './UserWidget';
-import { BookOpen, Earth, Gamepad2, Home, Library, Music, Users } from 'lucide-react';
+import { BookOpen,  Gamepad2, Home, Music} from 'lucide-react';
+// import { Earth, Library, Users } from 'lucide-react';
 interface SidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
@@ -76,30 +78,30 @@ export const ClassroomSidebar = ({
                       label="Studio"
                       to={StudioRoutes.root()}
                     />
-          <SidebarMainNavItem
+          {/* <SidebarMainNavItem
                       icon={Earth}
                       isCollapsed={isCollapsed}
                       label="Atlas"
                       to={AtlasRoutes.root()}
-                    />
-          <SidebarMainNavItem
+                    /> */}
+          {/* <SidebarMainNavItem
                       icon={Library}
                       isCollapsed={isCollapsed}
                       label="Library"
                       to={LibraryRoutes.root()}
-                    />
+                    /> */}
           <SidebarMainNavItem
                       icon={Gamepad2}
                       isCollapsed={isCollapsed}
                       label="Arcade"
                       to={GameRoutes.root()}
                     />
-          <SidebarMainNavItem
+          {/* <SidebarMainNavItem
                       icon={Users}
                       isCollapsed={isCollapsed}
                       label="Connect"
                       to={ConnectRoutes.root()}
-                    />
+                    /> */}
         </ul>
         
 

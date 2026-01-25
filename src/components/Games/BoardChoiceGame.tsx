@@ -114,7 +114,7 @@ function intervalsSignature(root: number, notes: number[]) {
 }
 
 function signatureToString(signature: number[]){
-  return signature.join(',');
+  return [signature].join(',');
 }
 
 function normalizeNotes(notes: number[]) {
@@ -131,7 +131,7 @@ function createCustomOptions(targetNotes: number[]): { options: ChordOption[]; t
     return { options: [], targetNotes: [] };
   }
   const targetSignature = intervalsSignature(root, normalizedTarget);
-  const used = new Set<string>([signatureToString(targetSignature)]);
+  const used = new Set<string>([signatureToString(normalizedTarget)]);
   const options: ChordOption[] = [
     {
       id: uuidv4(),
@@ -147,11 +147,10 @@ function createCustomOptions(targetNotes: number[]): { options: ChordOption[]; t
     possibleRoots = possibleRoots.filter((i)=>i!==candiRoot);
     const candidateNotes = [...targetSignature].map((interval) => candiRoot + interval);
     const normalizedCandidate = normalizeNotes(candidateNotes);
-    const signature = intervalsSignature(candiRoot, normalizedCandidate);
-    if (used.has(signatureToString(signature))) {
+    if (used.has(signatureToString(normalizedCandidate))) {
       continue;
     }
-    used.add(signatureToString(signature));
+    used.add(signatureToString(normalizedCandidate));
     options.push({
       id: uuidv4(),
       midi: normalizedCandidate,

@@ -175,7 +175,7 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
         checkAutofill(e.target.value, previousValue.current);
         previousValue.current = e.target.value;
       },
-      onKeyDown: playTypingNote,
+      onKeyDown: ()=>{},
     }),
     [checkAutofill, playTypingNote],
   );

@@ -136,10 +136,10 @@ function createCustomOptions(targetNotes: number[]): { options: ChordOption[]; t
   ];
 
   const octave = Math.floor(root / 12);
-  let possibleRoots = Array.from({length:12}, (_,index) => index ).map((i)=>i+(12*octave)).filter((i)=>{i!=root});
+  let possibleRoots = Array.from({length:12}, (_,index) => index ).map((i)=>i+(12*octave)).filter((i)=>{i!==root});
   while (options.length < 4) {
     const candiRoot = shuffle(possibleRoots)[0];
-    possibleRoots = possibleRoots.filter((i)=>{i!=candiRoot});
+    possibleRoots = possibleRoots.filter((i)=>{i!==candiRoot});
     const candidateNotes = [...targetSignature].map((interval) => candiRoot + interval);
     const normalizedCandidate = normalizeNotes(candidateNotes);
     const signature = intervalsSignature(candiRoot, normalizedCandidate);

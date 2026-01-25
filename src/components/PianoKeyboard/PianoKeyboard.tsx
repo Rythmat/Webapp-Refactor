@@ -296,8 +296,19 @@ export function PianoKeyboard({
             : `${gaming ? OCTAVE_HEIGHT * 2 : OCTAVE_HEIGHT}px`,
        }}
      >
-        {octaves.map((octave) => (
-          <div key={octave}>{renderOctave(octave)}</div>
+        {octaves.map((octave, index) => (
+          <div
+            key={octave}
+            className={cn(
+              gaming && index < octaves.length - 1
+                ? vertical
+                  ? 'mb-px'
+                  : 'mr-px'
+                : '',
+            )}
+          >
+            {renderOctave(octave)}
+          </div>
         ))}
         <div className="inset-shadow pointer-events-none absolute inset-0" />
       </div>

@@ -1,14 +1,14 @@
 import React from "react";
-import {  Hexagon } from "lucide-react";
+// import {  Hexagon } from "lucide-react";
 import { useNavigate } from "react-router";
 import { ProfileRoutes } from "@/constants/routes";
 
 interface HeaderBarProps {
   title: string;
   subtitle?: string;
-  xp?: number;
-  awards?: number;
-  credits?: number;
+  // xp?: number;
+  // awards?: number;
+  // credits?: number;
   userName?: string;
   showProfile?: boolean;
   className?: string;
@@ -17,9 +17,9 @@ interface HeaderBarProps {
 export const HeaderBar: React.FC<HeaderBarProps> = ({
   title,
   subtitle,
-  xp = 432,
-  awards = 14,
-  credits = 60,
+  // xp = 432,
+  // awards = 14,
+  // credits = 60,
   userName = "User",
   showProfile = true,
   className = "",
@@ -37,10 +37,10 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         {subtitle && <div className="text-gray-500 text-lg mt-2 font-light">{subtitle}</div>}
       </div>
       <div className="flex items-center gap-6 text-sm font-medium">
-        <div className="flex items-center gap-2 text-gray-400">
+        {/* <div className="flex items-center gap-2 text-gray-400">
           <span className="text-white font-bold text-base">{xp}</span> XP
-        </div>
-        <button
+        </div> */}
+        {/* <button
           type="button"
           onClick={() => navigate(ProfileRoutes.awards())}
           className={`flex items-center gap-2 cursor-pointer transition-colors text-gray-400 hover:text-white`}
@@ -50,13 +50,13 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
             className={`text-yellow-500 fill-yellow-500/20`}
           />
           <span className="text-white font-bold text-base">{awards}</span> Awards
-        </button>
-        {(
+        </button> */}
+        {/* {(
           <div className="flex items-center gap-2 text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             <span className="text-white font-bold">{credits}</span> Credits
           </div>
-        )}
+        )} */}
         {showProfile && (
           <button
             type="button"

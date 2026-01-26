@@ -187,7 +187,8 @@ export const HomeInlet = () => {
             <div className="flex flex-col gap-3">
               <ProjectCard title="Neon City Drive" genre="Synthwave, 120BPM" author="Alex M., AI" active />
               <ProjectCard title="Acoustic Morning" genre="Folk, Guitar" author="Alex M." />
-              <div className="p-4 rounded-2xl border border-dashed border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/30 cursor-pointer transition-all h-20">
+              <div className="p-4 rounded-2xl border border-dashed border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/30 cursor-pointer transition-all h-20"
+                onClick={()=>navigate(StudioRoutes.root.definition)}>
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <PlusCircle size={16} /> Create New Project
                 </div>

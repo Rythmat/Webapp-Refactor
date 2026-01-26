@@ -14,7 +14,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "react-router";
-import { LibraryRoutes, StudioRoutes, LearnRoutes, GameRoutes} from "@/constants/routes";
+import { StudioRoutes, LearnRoutes, GameRoutes} from "@/constants/routes";
 import { HeaderBar } from "./HeaderBar";
 import { HexagonPattern, DEFAULT_THEMES as THEMES } from "../ui/HexagonPattern";
 
@@ -69,7 +69,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ title, genre, author, active 
 const bannerSlides = [
     { title: "Study", color: [THEMES.red, THEMES.darkRed, THEMES.beige], route: LearnRoutes.root.definition },
     { title: "Create", color: [THEMES.teal, THEMES.indigo, THEMES.yellow], route: StudioRoutes.root.definition },
-    { title: "Explore", color: [THEMES.orange, THEMES.darkGrey, THEMES.red], route: LibraryRoutes.root.definition },
+    // { title: "Explore", color: [THEMES.orange, THEMES.darkGrey, THEMES.red], route: LibraryRoutes.root.definition },
     { title: "Play", color: [THEMES.purple, THEMES.beige, THEMES.blue], route: GameRoutes.root.definition },
   ];
 

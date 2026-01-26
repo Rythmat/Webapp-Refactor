@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowUpDown,
+  // ArrowUpDown,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -38,20 +38,22 @@ const COURSES_DATA: ContentItem[] = [
 ];
 
 const THEORY_DATA: ContentItem[] = [
-  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"], route: LearnRoutes.lesson({mode:'lydian'}) },
   { title: "Ionian (Major)", variant: "cluster", colors: [THEMES.red, "#9D5C63"], route: LearnRoutes.lesson({mode:'ionian'}) },
-  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey], route: LearnRoutes.lesson({mode:'mixolydian'}) },
   { title: "Dorian", variant: "split", colors: [THEMES.orange, THEMES.teal], route: LearnRoutes.lesson({mode:'dorian'}) },
+  { title: "Phrygian", variant: "split", colors: [THEMES.red, THEMES.yellow], route: LearnRoutes.lesson({mode:'phrygian'}) },
+  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"], route: LearnRoutes.lesson({mode:'lydian'}) },
+  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey], route: LearnRoutes.lesson({mode:'mixolydian'}) },
   { title: "Aeolian (Minor)", variant: "diagonal", colors: [THEMES.blue, "#A8DADC"], route: LearnRoutes.lesson({mode:'aeolian'}) },
   { title: "Locrian", variant: "cluster", colors: [THEMES.purple, "#E0AAFF"], route: LearnRoutes.lesson({mode:'locrian'}) },
 ];
 
 const EXPLORE_DATA: ContentItem[] = [
-  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"], route: LearnRoutes.lesson({mode:'lydian'}) },
   { title: "Ionian (Major)", variant: "cluster", colors: [THEMES.red, "#9D5C63"], route: LearnRoutes.lesson({mode:'ionian'}) },
-  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey], route: LearnRoutes.lesson({mode:'mixolydian'}) },
   { title: "Dorian", variant: "split", colors: [THEMES.orange, THEMES.teal], route: LearnRoutes.lesson({mode:'dorian'}) },
-  { title: "Aeolian (Minor)", variant: "diagonal", colors: [THEMES.blue, "#A8DADC"], route: LearnRoutes.lesson({mode:'aeolian'})  },
+  { title: "Phrygian", variant: "split", colors: [THEMES.red, THEMES.yellow], route: LearnRoutes.lesson({mode:'phrygian'}) },
+  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"], route: LearnRoutes.lesson({mode:'lydian'}) },
+  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey], route: LearnRoutes.lesson({mode:'mixolydian'}) },
+  { title: "Aeolian (Minor)", variant: "diagonal", colors: [THEMES.blue, "#A8DADC"], route: LearnRoutes.lesson({mode:'aeolian'}) },
   { title: "Locrian", variant: "cluster", colors: [THEMES.purple, "#E0AAFF"], route: LearnRoutes.lesson({mode:'locrian'}) },
 ];
 
@@ -257,7 +259,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           ))}
         </div>
         <div className="flex items-center justify-between border-b border-white/5 pb-4 relative">
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <button
               onClick={() => setShowFilter(!showFilter)}
               className={`flex items-center gap-2 px-4 py-2 border rounded-lg text-sm transition-all w-32 justify-between ${showFilter ? "bg-white text-black border-white" : "bg-[#151515] border-white/10 text-gray-300 hover:text-white hover:border-white/20"}`}
@@ -270,7 +272,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
             <button className="flex items-center gap-2 px-4 py-2 bg-[#151515] border border-white/10 rounded-lg text-sm text-gray-300 hover:text-white hover:border-white/20 transition-all w-32 justify-between">
               Sort <ArrowUpDown size={14} />
             </button>
-          </div>
+          </div> */}
           <div className="flex items-center gap-4 text-gray-500">
             <div className="flex items-center gap-2">
               <LayoutGrid
@@ -322,10 +324,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                 {renderContent(activeData)}
               </CollapsibleSection>
               <CollapsibleSection title="Relative Modes" className="mt-8 border-t border-white/5 pt-4">
-                {renderContent(EXPLORE_DATA.slice(0, 3))}
+                {renderContent(activeData)}
               </CollapsibleSection>
               <CollapsibleSection title="Parallel Modes" className="mt-4 border-t border-white/5 pt-4">
-                {renderContent(EXPLORE_DATA.slice(3, 6))}
+                {renderContent(activeData)}
               </CollapsibleSection>
             </>
           ) : (

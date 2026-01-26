@@ -2,17 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   // ArrowUpDown,
-  Check,
-  CheckCircle2,
+  // Check,
+  // CheckCircle2,
   ChevronDown,
   ChevronRight,
   Heart,
   LayoutGrid,
   List as ListIcon,
-  MoreVertical,
+  // MoreVertical,
   Play,
   Volume2,
-  X,
+  // X,
 } from "lucide-react";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
 import { HexagonPattern, DEFAULT_THEMES as THEMES  } from "../ui/HexagonPattern";
@@ -57,28 +57,28 @@ const EXPLORE_DATA: ContentItem[] = [
   { title: "Locrian", variant: "cluster", colors: [THEMES.purple, "#E0AAFF"], route: LearnRoutes.lesson({mode:'locrian'}) },
 ];
 
-interface FilterCheckboxProps {
-  label: string;
-  checked?: boolean;
-}
+// interface FilterCheckboxProps {
+//   label: string;
+//   checked?: boolean;
+// }
 
-const FilterCheckbox: React.FC<FilterCheckboxProps> = ({ label, checked }) => {
-  const [isChecked, setIsChecked] = useState(!!checked);
+// const FilterCheckbox: React.FC<FilterCheckboxProps> = ({ label, checked }) => {
+//   const [isChecked, setIsChecked] = useState(!!checked);
 
-  return (
-    <div
-      className="flex items-center gap-3 p-1 cursor-pointer hover:bg-white/5 rounded transition-colors group"
-      onClick={() => setIsChecked((prev) => !prev)}
-    >
-      <div
-        className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isChecked ? "bg-white border-white" : "border-gray-600 group-hover:border-gray-400"}`}
-      >
-        {isChecked && <Check size={10} className="text-black" />}
-      </div>
-      <span className={`text-sm ${isChecked ? "text-white" : "text-gray-400 group-hover:text-gray-200"}`}>{label}</span>
-    </div>
-  );
-};
+//   return (
+//     <div
+//       className="flex items-center gap-3 p-1 cursor-pointer hover:bg-white/5 rounded transition-colors group"
+//       onClick={() => setIsChecked((prev) => !prev)}
+//     >
+//       <div
+//         className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isChecked ? "bg-white border-white" : "border-gray-600 group-hover:border-gray-400"}`}
+//       >
+//         {isChecked && <Check size={10} className="text-black" />}
+//       </div>
+//       <span className={`text-sm ${isChecked ? "text-white" : "text-gray-400 group-hover:text-gray-200"}`}>{label}</span>
+//     </div>
+//   );
+// };
 
 interface CollapsibleSectionProps {
   title: string;
@@ -161,13 +161,13 @@ const ListItem: React.FC<ListItemProps> = ({ title, colors, variant, onSelect })
         <h3 className="text-base font-medium text-gray-200">{title}</h3>
       </div>
     </div>
-    <div className="flex items-center gap-6 text-gray-500">
+    {/* <div className="flex items-center gap-6 text-gray-500">
       <Volume2 size={16} className="hover:text-white transition-colors" />
       <Play size={16} className="hover:text-white transition-colors fill-current" onClick={onSelect} />
       <Heart size={16} className="hover:text-red-500 transition-colors" />
       <CheckCircle2 size={16} className="hover:text-green-500 transition-colors" />
       <MoreVertical size={16} className="hover:text-white transition-colors" />
-    </div>
+    </div> */}
   </div>
 );
 
@@ -189,13 +189,13 @@ const ExploreItem: React.FC<ExploreItemProps> = ({ title, colors, variant, onSel
         <h3 className="text-base font-medium text-gray-200">{title}</h3>
       </div>
     </div>
-    <div className="flex items-center gap-6 text-gray-500">
+    {/* <div className="flex items-center gap-6 text-gray-500">
       <Volume2 size={16} className="hover:text-white transition-colors" />
       <Play size={16} className="hover:text-white transition-colors fill-current" onClick={onSelect} />
       <Heart size={16} className="hover:text-red-500 transition-colors" />
       <CheckCircle2 size={16} className="hover:text-green-500 transition-colors" />
       <MoreVertical size={16} className="hover:text-white transition-colors" />
-    </div>
+    </div> */}
   </div>
 );
 
@@ -210,7 +210,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
 }) => {
   const [subTab, setSubTab] = useState(initialTab);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [showFilter, setShowFilter] = useState(false);
+  // const [showFilter, setShowFilter] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -290,7 +290,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         </div>
         </div>
 
-        {showFilter && (
+        {/* {showFilter && (
           <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 absolute top-[150px] left-8 right-8 z-20 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex justify-between items-start mb-4 pb-2 border-b border-white/5">
               <h3 className="text-sm font-medium text-gray-200">Filter</h3>
@@ -315,7 +315,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {subTab === "Explore" || subTab === "Theory" ? (

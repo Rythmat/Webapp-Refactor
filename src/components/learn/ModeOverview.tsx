@@ -27,7 +27,7 @@ const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'Eb', semitone: 3 },
   { label: 'E', semitone: 4 },
   { label: 'F', semitone: 5 },
-  { label: 'Gb', semitone: 6 },
+  { label: 'F#', semitone: 6 },
   { label: 'G', semitone: 7 },
   { label: 'Ab', semitone: 8 },
   { label: 'A', semitone: 9 },
@@ -93,21 +93,22 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
 
   const activeNotes = useMemo(() => {
     const now = Date.now();
-    const midi = scaleMidis[noteIndex % scaleMidis.length];
-    return [
-      {
-        id: `${mode}-${activeKey.label}-${midi}-${noteIndex}`,
-        type: 'note',
-        midi,
-        time: now,
-        duration: 0.6,
-        velocity: 1,
-      },
-    ] satisfies PlaybackEvent[];
+    const cappedIndex = Math.min(noteIndex, scaleMidis.length - 1);
+    return scaleMidis.slice(0, cappedIndex + 1).map<PlaybackEvent>((midi, index) => ({
+      id: `${mode}-${activeKey.label}-${midi}-${index}`,
+      type: 'note',
+      midi,
+      time: now,
+      duration: 0.6,
+      velocity: 1,
+    }));
   }, [activeKey.label, mode, noteIndex, scaleMidis]);
 
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
+      <h2 className="text-xl font-semibold underline text-center">
+        {`${mode.charAt(0).toUpperCase() + mode.slice(1)}: Overview`}
+      </h2>
       <div className="w-1/2 mx-auto">
         <YouTubePlayer videoId={''} />
       </div>

@@ -77,6 +77,7 @@ export const HomeInlet = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [projects, setProjects] = useState<ProjectCardProps[]>([]);
   const navigate = useNavigate();
 
   
@@ -88,6 +89,8 @@ export const HomeInlet = () => {
     setIsGenerating(true);
     setTimeout(() => setIsGenerating(false), 2000);
   };
+  const visibleProjects = projects.slice(0, 2);
+  setProjects([]);
 
   return (
     <div className="flex flex-col h-full">
@@ -185,8 +188,15 @@ export const HomeInlet = () => {
               <ChevronRight size={18} className="text-gray-600" />
             </div>
             <div className="flex flex-col gap-3">
-              <ProjectCard title="Neon City Drive" genre="Synthwave, 120BPM" author="Alex M., AI" active />
-              <ProjectCard title="Acoustic Morning" genre="Folk, Guitar" author="Alex M." />
+              {visibleProjects.map((project) => (
+                <ProjectCard
+                  key={`${project.title}-${project.author}`}
+                  title={project.title}
+                  genre={project.genre}
+                  author={project.author}
+                  active={project.active}
+                />
+              ))}
               <div className="p-4 rounded-2xl border border-dashed border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/30 cursor-pointer transition-all h-20"
                 onClick={()=>navigate(StudioRoutes.root.definition)}>
                 <div className="flex items-center gap-2 text-sm font-medium">

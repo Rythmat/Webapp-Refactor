@@ -22,28 +22,22 @@ const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
 
 const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'C', semitone: 0 },
-  { label: 'C#', semitone: 1 },
+  { label: 'Db', semitone: 1 },
   { label: 'D', semitone: 2 },
-  { label: 'D#', semitone: 3 },
+  { label: 'Eb', semitone: 3 },
   { label: 'E', semitone: 4 },
   { label: 'F', semitone: 5 },
-  { label: 'F#', semitone: 6 },
+  { label: 'Gb', semitone: 6 },
   { label: 'G', semitone: 7 },
-  { label: 'G#', semitone: 8 },
+  { label: 'Ab', semitone: 8 },
   { label: 'A', semitone: 9 },
-  { label: 'A#', semitone: 10 },
+  { label: 'Bb', semitone: 10 },
   { label: 'B', semitone: 11 },
 ];
 
-const KEY_COLOR_ALIASES: Record<string, keyof typeof KEY_OF_COLORS> = {
-  'C#': 'Db',
-  'D#': 'Eb',
-  'G#': 'Ab',
-  'A#': 'Bb',
-};
 
 const getKeyColor = (label: string) => {
-  const mapped = KEY_COLOR_ALIASES[label] ?? (label as keyof typeof KEY_OF_COLORS);
+  const mapped =(label as keyof typeof KEY_OF_COLORS);
   return KEY_OF_COLORS[mapped];
 };
 
@@ -114,7 +108,9 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
 
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
-      <YouTubePlayer videoId={''} />
+      <div className="w-1/2 mx-auto">
+        <YouTubePlayer videoId={''} />
+      </div>
       <PianoKeyboard
         playingNotes={activeNotes}
         activeWhiteKeyColor={activeKeyColor}
@@ -134,7 +130,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                 `}
                 style={{ color: getKeyColor(tile.label) }}
               >
-                {tile.label + " " + mode}
+                {tile.label + " " + mode.charAt(0).toUpperCase() + mode.slice(1)}
               </button>
             );
           })}

@@ -70,6 +70,7 @@ export const PlayAlong = ({
   const [notePerformance, setNotePerformance] = useState<Record<string, NotePerformance>>({});
   const [playSessionId, setPlaySessionId] = useState(0);
   const lastMetronomeBeatRef = useRef<number | null>(null);
+  const lastMetronomeClickAtRef = useRef<number>(-1);
   const hasStartedAudioContextRef = useRef(false);
   const firstMetronomePlayer = useMemo(
     () => new Tone.Player("/sound/firstMetronomeClick.mp3").toDestination(),
@@ -151,7 +152,18 @@ export const PlayAlong = ({
     (isDownbeat: boolean) => {
       if (Tone.getContext().state !== "running") return;
       const player = isDownbeat ? firstMetronomePlayer : metronomePlayer;
-      player.start(Tone.now());
+      const now = Tone.now();
+      // Guard against duplicate same-tick starts (can happen around rerenders/activity transitions).
+      if (lastMetronomeClickAtRef.current >= 0 && now - lastMetronomeClickAtRef.current < 0.01) {
+        return;
+      }
+      lastMetronomeClickAtRef.current = now;
+      if ((player as any).state === "started") {
+        try {
+          player.stop(now);
+        } catch {}
+      }
+      player.start(now);
     },
     [firstMetronomePlayer, metronomePlayer],
   );
@@ -159,10 +171,12 @@ export const PlayAlong = ({
   useEffect(() => {
     if (!isPlaying) {
       lastMetronomeBeatRef.current = null;
+      lastMetronomeClickAtRef.current = -1;
       return;
     }
     if (currentTick < -COUNT_IN_TICKS || currentTick > maxEventEndTick) {
       lastMetronomeBeatRef.current = null;
+      lastMetronomeClickAtRef.current = -1;
       return;
     }
     const ticksIntoSession = currentTick + COUNT_IN_TICKS;

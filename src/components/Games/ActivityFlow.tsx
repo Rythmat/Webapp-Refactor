@@ -52,8 +52,14 @@ const ChordLoadingStep: (props: FlowActivityProps) => JSX.Element = ({
   </div>
 );
 
-const normalizeMidiSequence = (sequence: number[] | number[][]): number[][] =>
-  Array.isArray(sequence[0]) ? (sequence as number[][]) : (sequence as number[]).map((midi) => [midi]);
+const normalizeMidiSequence = (sequence: number[] | number[][]): number[][] => {
+  const grouped = Array.isArray(sequence[0])
+    ? (sequence as number[][])
+    : (sequence as number[]).map((midi) => [midi]);
+
+  // Group simultaneous notes into one slot and drop duplicate pitches in the same slot.
+  return grouped.map((slot) => Array.from(new Set(slot)));
+};
 
 const midiSequenceToEvents = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
   return normalizeMidiSequence(sequence).flatMap((group, idx) =>

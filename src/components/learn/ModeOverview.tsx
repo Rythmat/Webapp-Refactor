@@ -107,7 +107,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
 
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
-      <h2 className="text-2xl md:text-3xl font-semibold underline text-left">
+      <h2 className="text-3xl md:text-4xl font-semibold underline text-left ml-[10%]">
         {`${mode.charAt(0).toUpperCase() + mode.slice(1)}: Overview`}
       </h2>
       {videoId && (
@@ -116,14 +116,14 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
         </div>
       )}
       <PianoKeyboard
-        endC={5}
-        startC={3}
+        endC={6}
+        startC={4}
         playingNotes={activeNotes}
         activeWhiteKeyColor={activeKeyColor}
         activeBlackKeyColor={activeKeyColor}
       />
       <section className="mb-6 flex flex-col items-center">
-        <p className="text-sm font-semibold mb-3">
+        <p className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]">
           Interval: {scaleSteps.map((i)=>{return i+1}).join(',')}
         </p>
 

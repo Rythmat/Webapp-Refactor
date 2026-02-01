@@ -5,6 +5,7 @@ import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { LearnRoutes } from "@/constants/routes";
 import { useNavigate } from 'react-router';
+import { KEY_OF_COLORS } from '@/constants/theme';
 
 type ModeOverviewProps = {
   mode: PrismModeSlug;
@@ -19,20 +20,32 @@ type KeyStep = {
 const BASE_C4 = 60;
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
 
-const CIRCLE_OF_FIFTHS: KeyStep[] = [
+const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'C', semitone: 0 },
-  { label: 'G', semitone: 7 },
-  { label: 'D', semitone: 2 },
-  { label: 'A', semitone: 9 },
-  { label: 'E', semitone: 4 },
-  { label: 'B', semitone: 11 },
-  { label: 'F#', semitone: 6 },
   { label: 'C#', semitone: 1 },
-  { label: 'G#', semitone: 8 },
+  { label: 'D', semitone: 2 },
   { label: 'D#', semitone: 3 },
-  { label: 'A#', semitone: 10 },
+  { label: 'E', semitone: 4 },
   { label: 'F', semitone: 5 },
+  { label: 'F#', semitone: 6 },
+  { label: 'G', semitone: 7 },
+  { label: 'G#', semitone: 8 },
+  { label: 'A', semitone: 9 },
+  { label: 'A#', semitone: 10 },
+  { label: 'B', semitone: 11 },
 ];
+
+const KEY_COLOR_ALIASES: Record<string, keyof typeof KEY_OF_COLORS> = {
+  'C#': 'Db',
+  'D#': 'Eb',
+  'G#': 'Ab',
+  'A#': 'Bb',
+};
+
+const getKeyColor = (label: string) => {
+  const mapped = KEY_COLOR_ALIASES[label] ?? (label as keyof typeof KEY_OF_COLORS);
+  return KEY_OF_COLORS[mapped];
+};
 
 const normalizeSteps = (steps?: number[]) => {
   if (!steps || steps.length === 0) return DEFAULT_INTERVALS;
@@ -55,46 +68,63 @@ const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
 
 export function ModeOverview({ mode}: ModeOverviewProps) {
   const [keyIndex, setKeyIndex] = useState(0);
+  const [noteIndex, setNoteIndex] = useState(0);
   const { data: modeDetail } = usePrismMode(mode);
   const navigate = useNavigate();
 
   useEffect(() => {
     setKeyIndex(0);
+    setNoteIndex(0);
   }, [mode]);
+
+  const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;
+  const activeKey = CHROMATIC_KEYS[keyIndex];
+  const activeKeyColor = getKeyColor(activeKey.label);
+  const rootMidi = BASE_C4 + activeKey.semitone;
+  const scaleMidis = useMemo(() => buildScaleMidis(rootMidi, scaleSteps), [rootMidi, scaleSteps]);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
-      setKeyIndex((prev) => (prev + 1) % CIRCLE_OF_FIFTHS.length);
-    }, 2000);
+      setNoteIndex((prev) => {
+        const next = prev + 1;
+        if (next >= scaleMidis.length) {
+          setKeyIndex((prevKey) => (prevKey + 1) % CHROMATIC_KEYS.length);
+          return 0;
+        }
+        return next;
+      });
+    }, 600);
     return () => window.clearInterval(intervalId);
-  }, []);
+  }, [scaleMidis.length]);
 
-  const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;
-  const activeKey = CIRCLE_OF_FIFTHS[keyIndex];
-  const rootMidi = BASE_C4 + activeKey.semitone;
   const activeNotes = useMemo(() => {
     const now = Date.now();
-    return buildScaleMidis(rootMidi, scaleSteps).map<PlaybackEvent>(
-      (midi, index) => ({
-        id: `${mode}-${activeKey.label}-${midi}`,
+    const midi = scaleMidis[noteIndex % scaleMidis.length];
+    return [
+      {
+        id: `${mode}-${activeKey.label}-${midi}-${noteIndex}`,
         type: 'note',
         midi,
-        time: now + index,
-        duration: 0.8,
+        time: now,
+        duration: 0.6,
         velocity: 1,
-      }),
-    );
-  }, [activeKey.label, mode, rootMidi, scaleSteps]);
+      },
+    ] satisfies PlaybackEvent[];
+  }, [activeKey.label, mode, noteIndex, scaleMidis]);
 
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
       <YouTubePlayer videoId={''} />
-      <PianoKeyboard playingNotes={activeNotes} />
-      <section className="mb-6">
+      <PianoKeyboard
+        playingNotes={activeNotes}
+        activeWhiteKeyColor={activeKeyColor}
+        activeBlackKeyColor={activeKeyColor}
+      />
+      <section className="mb-6 flex flex-col items-center">
         <h2 className="text-lg font-semibold mb-3">Modes</h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {CIRCLE_OF_FIFTHS.map((tile) => {
+        <div className="grid grid-cols-1 gap-3 w-full max-w-3xl">
+          {CHROMATIC_KEYS.map((tile) => {
 
             return (
               <button
@@ -102,8 +132,9 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                 className={`
                   p-3 rounded-lg border text-sm font-medium transition
                 `}
+                style={{ color: getKeyColor(tile.label) }}
               >
-                {tile.label + mode}
+                {tile.label + " " + mode}
               </button>
             );
           })}

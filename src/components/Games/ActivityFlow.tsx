@@ -52,128 +52,159 @@ const ChordLoadingStep: (props: FlowActivityProps) => JSX.Element = ({
   </div>
 );
 
-const midiSequenceToEvents = (sequence: number[],prefix: string): NoteEvent[] =>{
-  return sequence.map((midi, idx) => ({
-    id: `${prefix}-${idx}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: idx * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS,
-  }));
-}
+const normalizeMidiSequence = (sequence: number[] | number[][]): number[][] =>
+  Array.isArray(sequence[0]) ? (sequence as number[][]) : (sequence as number[]).map((midi) => [midi]);
 
-const midiSequenceToWholeNotes = (sequence: number[],prefix: string): NoteEvent[] =>{
-  return sequence.map((midi, idx) => ({
-    id: `${prefix}-${idx}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: idx * 4 * NOTE_DURATION_TICKS,
-    durationTicks: 4 * NOTE_DURATION_TICKS,
-  }));
-}
+const midiSequenceToEvents = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
+    group.map((midi, groupIndex) => ({
+      id: `${prefix}-${idx}-${groupIndex}-${midi}`,
+      pitchName: Tone.Frequency(midi, "midi").toNote(),
+      startTicks: idx * NOTE_DURATION_TICKS,
+      durationTicks: NOTE_DURATION_TICKS,
+    })),
+  );
+};
 
-const midiSequenceToHalfNotes = (sequence: number[],prefix: string): NoteEvent[] =>{
-  return sequence.flatMap((midi, idx) => ([{
-    id: `${prefix}-${4 * idx}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: 4 * idx * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*2,
-  },{
-    id: `${prefix}-${(4*idx+2)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+2)* NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*2,
-  }
-  ]));
-}
+const midiSequenceToWholeNotes = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
+    group.map((midi, groupIndex) => ({
+      id: `${prefix}-${idx}-${groupIndex}-${midi}`,
+      pitchName: Tone.Frequency(midi, "midi").toNote(),
+      startTicks: idx * 4 * NOTE_DURATION_TICKS,
+      durationTicks: 4 * NOTE_DURATION_TICKS,
+    })),
+  );
+};
 
-const midiSequenceToQuarterNotes
- = (sequence: number[],prefix: string): NoteEvent[] =>{
-  return sequence.flatMap((midi, idx) => ([{
-    id: `${prefix}-${(4*idx)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS,
-  },{
-    id: `${prefix}-${(4*idx+1)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+1) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS,
-  },{
-    id: `${prefix}-${(4*idx+2)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+2) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS,
-  },{
-    id: `${prefix}-${(4*idx+3)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+3) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS,
-  }
-  ]));
-}
+const midiSequenceToHalfNotes = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+  return normalizeMidiSequence(sequence).flatMap((group, idx) => {
+    const startTick = 4 * idx * NOTE_DURATION_TICKS;
+    const nextStartTick = (4 * idx + 2) * NOTE_DURATION_TICKS;
+    return group.flatMap((midi, groupIndex) => [
+      {
+        id: `${prefix}-${4 * idx}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: startTick,
+        durationTicks: NOTE_DURATION_TICKS * 2,
+      },
+      {
+        id: `${prefix}-${4 * idx + 2}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: nextStartTick,
+        durationTicks: NOTE_DURATION_TICKS * 2,
+      },
+    ]);
+  });
+};
 
-const midiSequenceToEighthNotes
- = (sequence: number[],prefix: string): NoteEvent[] =>{
-  return sequence.flatMap((midi, idx) => ([{
-    id: `${prefix}-${(8*idx)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.5,
-  },{
-    id: `${prefix}-${(8*idx+1)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+0.5) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.5,
-  },{
-    id: `${prefix}-${(8*idx+2)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+1) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.5,
-  },{
-    id: `${prefix}-${(8*idx+3)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+1.5) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.5,
-  },{
-    id: `${prefix}-${(8*idx+4)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+2) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.5,
-  },{
-    id: `${prefix}-${(8*idx+5)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+2.5) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.5,
-  },{
-    id: `${prefix}-${(8*idx+6)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+3) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.5,
-  },{
-    id: `${prefix}-${(8*idx+7)}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: (4*idx+3.5) * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.5,
-  }
-  ]));
-}
+const midiSequenceToQuarterNotes = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
+    group.flatMap((midi, groupIndex) => [
+      {
+        id: `${prefix}-${4 * idx}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: 4 * idx * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS,
+      },
+      {
+        id: `${prefix}-${4 * idx + 1}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: (4 * idx + 1) * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS,
+      },
+      {
+        id: `${prefix}-${4 * idx + 2}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: (4 * idx + 2) * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS,
+      },
+      {
+        id: `${prefix}-${4 * idx + 3}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: (4 * idx + 3) * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS,
+      },
+    ]),
+  );
+};
 
-const midiSequenceToStoccatoEvents = (sequence: number[],prefix: string): NoteEvent[] =>{
-  return sequence.map((midi, idx) => ({
-    id: `${prefix}-${idx}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: idx * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*0.5,
-  }));
-}
+const midiSequenceToEighthNotes = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
+    group.flatMap((midi, groupIndex) => [
+      {
+        id: `${prefix}-${8 * idx}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: 4 * idx * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS * 0.5,
+      },
+      {
+        id: `${prefix}-${8 * idx + 1}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: (4 * idx + 0.5) * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS * 0.5,
+      },
+      {
+        id: `${prefix}-${8 * idx + 2}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: (4 * idx + 1) * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS * 0.5,
+      },
+      {
+        id: `${prefix}-${8 * idx + 3}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: (4 * idx + 1.5) * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS * 0.5,
+      },
+      {
+        id: `${prefix}-${8 * idx + 4}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: (4 * idx + 2) * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS * 0.5,
+      },
+      {
+        id: `${prefix}-${8 * idx + 5}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: (4 * idx + 2.5) * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS * 0.5,
+      },
+      {
+        id: `${prefix}-${8 * idx + 6}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: (4 * idx + 3) * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS * 0.5,
+      },
+      {
+        id: `${prefix}-${8 * idx + 7}-${groupIndex}-${midi}`,
+        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        startTicks: (4 * idx + 3.5) * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS * 0.5,
+      },
+    ]),
+  );
+};
 
-const midiSequenceToMixedArticulation = (sequence: number[],prefix: string): NoteEvent[] =>{
-  return sequence.map((midi, idx) => ({
-    id: `${prefix}-${idx}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: idx * NOTE_DURATION_TICKS,
-    durationTicks: NOTE_DURATION_TICKS*Math.floor((Math.random()*2)+1)/2,
-  }));
-}
+const midiSequenceToStoccatoEvents = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
+    group.map((midi, groupIndex) => ({
+      id: `${prefix}-${idx}-${groupIndex}-${midi}`,
+      pitchName: Tone.Frequency(midi, "midi").toNote(),
+      startTicks: idx * NOTE_DURATION_TICKS,
+      durationTicks: NOTE_DURATION_TICKS * 0.5,
+    })),
+  );
+};
+
+const midiSequenceToMixedArticulation = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
+    group.map((midi, groupIndex) => ({
+      id: `${prefix}-${idx}-${groupIndex}-${midi}`,
+      pitchName: Tone.Frequency(midi, "midi").toNote(),
+      startTicks: idx * NOTE_DURATION_TICKS,
+      durationTicks: (NOTE_DURATION_TICKS * Math.floor(Math.random() * 2 + 1)) / 2,
+    })),
+  );
+};
  
 const chordArpegiateEvents = (sequence: number[],prefix: string): NoteEvent[] => {  
   const events: NoteEvent[] = []; 
@@ -558,7 +589,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       //   velocity?: number;
       //   color?: string;
       // }
-      const oneToFourChords = [...triads[0],...triads[1],...triads[2],...triads[3]];
+      const oneToFourChords = [triads[0],triads[1],triads[2],triads[3]];
       sequences.push({
         key: `chords-1-nh`,
         label: `${rootKey} ${modeTitle} Chords • Hold`,

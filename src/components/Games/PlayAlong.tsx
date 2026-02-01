@@ -33,6 +33,7 @@ const DEFAULT_EVENTS: NoteEvent[] = [
 const TICKS_PER_QUARTER = 480;
 const COUNT_IN_TICKS = 4 * TICKS_PER_QUARTER;
 const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
+const ACTIVATION_WINDOW_SHIFT_RATIO = 1 / 8;
 
 type PlayAlongProps = {
   events?: NoteEvent[];
@@ -243,6 +244,14 @@ export const PlayAlong = ({
 
   const showCompletionOverlay = showInTimeCompletion;
 
+  const getActivationWindow = useCallback((note: NoteEvent) => {
+    const shift = note.durationTicks * ACTIVATION_WINDOW_SHIFT_RATIO;
+    return {
+      start: note.startTicks - shift,
+      end: note.startTicks + note.durationTicks - shift,
+    };
+  }, []);
+
   // Updates the note performance record for the appropriate event, given the incoming midi signal, the current time tick, and a boolean for if the signal is on or off
   const parsePerformance = useCallback(
     (midi: number, tick: number ,onSignal: boolean) => {
@@ -250,10 +259,11 @@ export const PlayAlong = ({
         const note = resolvedEvents.find(
         (note) =>
           pitchNameToMidi(note.pitchName) === midi &&
-          note.startTicks <= tick &&
-          note.startTicks + note.durationTicks >= tick
+          tick >= getActivationWindow(note).start &&
+          tick < getActivationWindow(note).end
         );
         if (note == null) return;
+        const normalizedStartTick = Math.max(tick, note.startTicks);
         setNotePerformance(prev => {
           const existing = prev[note.id];
           if (existing && existing.startTick != null) {
@@ -263,7 +273,7 @@ export const PlayAlong = ({
             ...prev,
             [note.id]: {
               ...(existing ?? {}),
-              startTick: tick,
+              startTick: normalizedStartTick,
               endTick: null,
             },
           };
@@ -291,7 +301,7 @@ export const PlayAlong = ({
       }
 
     },
-    [resolvedEvents]
+    [resolvedEvents, getActivationWindow]
   );
 
   const handleMidiNoteOff = useCallback(

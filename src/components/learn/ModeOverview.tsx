@@ -6,6 +6,7 @@ import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { LearnRoutes } from "@/constants/routes";
 import { useNavigate } from 'react-router';
 import { KEY_OF_COLORS } from '@/constants/theme';
+import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 
 type ModeOverviewProps = {
   mode: PrismModeSlug;
@@ -132,7 +133,14 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
 
             return (
               <button
-                onClick={() => navigate(LearnRoutes.lesson({mode:mode, key:tile.label})) }
+                onClick={() =>
+                  navigate(
+                    LearnRoutes.lesson({
+                      mode,
+                      key: keyLabelToUrlParam(tile.label),
+                    }),
+                  )
+                }
                 className={`
                   p-3 rounded-lg border text-sm font-bold text-left transition bg-grey-darker
                 `}

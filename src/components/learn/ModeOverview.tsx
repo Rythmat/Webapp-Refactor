@@ -65,6 +65,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
   const [noteIndex, setNoteIndex] = useState(0);
   const { data: modeDetail } = usePrismMode(mode);
   const navigate = useNavigate();
+  const videoId = '';
 
   useEffect(() => {
     setKeyIndex(0);
@@ -106,19 +107,25 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
 
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
-      <h2 className="text-xl font-semibold underline text-center">
+      <h2 className="text-2xl md:text-3xl font-semibold underline text-left">
         {`${mode.charAt(0).toUpperCase() + mode.slice(1)}: Overview`}
       </h2>
-      <div className="w-1/2 mx-auto">
-        <YouTubePlayer videoId={''} />
-      </div>
+      {videoId && (
+        <div className="w-1/2 mx-auto">
+          <YouTubePlayer videoId={videoId} />
+        </div>
+      )}
       <PianoKeyboard
+        endC={5}
+        startC={3}
         playingNotes={activeNotes}
         activeWhiteKeyColor={activeKeyColor}
         activeBlackKeyColor={activeKeyColor}
       />
       <section className="mb-6 flex flex-col items-center">
-        <h2 className="text-lg font-semibold mb-3">Modes</h2>
+        <p className="text-sm font-semibold mb-3">
+          Interval: {scaleSteps.map((i)=>{return i+1}).join(',')}
+        </p>
 
         <div className="grid grid-cols-1 gap-3 w-full max-w-3xl">
           {CHROMATIC_KEYS.map((tile) => {
@@ -127,7 +134,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
               <button
                 onClick={() => navigate(LearnRoutes.lesson({mode:mode, key:tile.label})) }
                 className={`
-                  p-3 rounded-lg border text-sm font-medium transition
+                  p-3 rounded-lg border text-sm font-bold text-left transition bg-grey-darker
                 `}
                 style={{ color: getKeyColor(tile.label) }}
               >

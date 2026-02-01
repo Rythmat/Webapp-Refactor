@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Activity,
   ChevronLeft,
@@ -80,6 +80,9 @@ export const HomeInlet = () => {
   const [projects, setProjects] = useState<ProjectCardProps[]>([]);
   const navigate = useNavigate();
 
+  useEffect(()=>{
+     setProjects([]);
+  },[])
   
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
@@ -90,7 +93,6 @@ export const HomeInlet = () => {
     setTimeout(() => setIsGenerating(false), 2000);
   };
   const visibleProjects = projects.slice(0, 2);
-  setProjects([]);
 
   return (
     <div className="flex flex-col h-full">

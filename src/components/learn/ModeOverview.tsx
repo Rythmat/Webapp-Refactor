@@ -108,7 +108,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
       <h2 className="text-3xl md:text-4xl font-semibold underline text-left ml-[10%]">
-        {`${mode.charAt(0).toUpperCase() + mode.slice(1)}: Overview`}
+        {`${mode.charAt(0).toUpperCase() + mode.slice(1)}`}
       </h2>
       {videoId && (
         <div className="w-1/2 mx-auto">

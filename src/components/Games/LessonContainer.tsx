@@ -6,12 +6,54 @@ import { PrismModeSlug } from "@/hooks/data";
 
 type LessonContainerProps = {
   modeSlug: PrismModeSlug;
+  rootKey?: string;
 };
 
 type KeyOption = { label: string; midi: number };
 
-const KEY_C: KeyOption = { label: "C", midi: 60 };
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
+const BASE_C4 = 60;
+const KEY_SEMITONES: Record<string, number> = {
+  C: 0,
+  "C#": 1,
+  DB: 1,
+  D: 2,
+  "D#": 3,
+  EB: 3,
+  E: 4,
+  FB: 4,
+  "E#": 5,
+  F: 5,
+  "F#": 6,
+  GB: 6,
+  G: 7,
+  "G#": 8,
+  AB: 8,
+  A: 9,
+  "A#": 10,
+  BB: 10,
+  B: 11,
+  CB: 11,
+  "B#": 0,
+};
+
+const normalizeKeyLabel = (input?: string) => {
+  const raw = input?.trim();
+  if (!raw) return "C";
+  const letter = raw[0]?.toUpperCase() ?? "C";
+  const accidental = raw.slice(1).replace("♭", "b").replace("♯", "#");
+  return `${letter}${accidental}`;
+};
+
+const resolveKeyOption = (input?: string): KeyOption => {
+  const normalized = normalizeKeyLabel(input);
+  const lookupKey = normalized.replace("b", "B");
+  const semitone = KEY_SEMITONES[lookupKey] ?? 0;
+  return {
+    label: normalized,
+    midi: BASE_C4 + semitone,
+  };
+};
 
 const normalizeSteps = (steps?: number[]) => {
   if (!steps || steps.length === 0) return DEFAULT_INTERVALS;
@@ -29,17 +71,21 @@ const normalizeSteps = (steps?: number[]) => {
 const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
   normalizeSteps(steps).map((interval) => rootMidi + interval);
 
-export const LessonContainer = ({ modeSlug }: LessonContainerProps) => {
+export const LessonContainer = ({ modeSlug, rootKey }: LessonContainerProps) => {
   const [started, setStarted] = useState(false);
   const [label, setLabel] = useState(["", ""]);
+  const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
 
   const { data: modeDetail } = usePrismMode(modeSlug as any);
   const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;
-  const scaleMidis = useMemo(() => buildScaleMidis(KEY_C.midi, scaleSteps), [scaleSteps]);
+  const scaleMidis = useMemo(
+    () => buildScaleMidis(keyOption.midi, scaleSteps),
+    [keyOption.midi, scaleSteps],
+  );
 
   useEffect(() => {
     setStarted(false);
-  }, [modeSlug]);
+  }, [modeSlug, rootKey]);
 
   const SelectionShell = () => (
     <div className="flex-1 flex items-center justify-center p-4">
@@ -47,7 +93,7 @@ export const LessonContainer = ({ modeSlug }: LessonContainerProps) => {
         <div className="flex flex-col gap-2 items-center text-center">
           <h1 className="text-2xl font-semibold">Ready to start?</h1>
           <p className="text-sm text-neutral-400">
-            Practicing the <span className="font-semibold text-neutral-100">{modeSlug}</span> mode in the key of C.
+            Practicing the <span className="font-semibold text-neutral-100">{modeSlug}</span> mode in the key of {keyOption.label}.
           </p>
         </div>
         <div className="mt-4 flex items-center justify-center">
@@ -81,7 +127,7 @@ export const LessonContainer = ({ modeSlug }: LessonContainerProps) => {
         <div className="text-sm text-neutral-300">{label[1]}</div>
         <div className="text-sm text-neutral-300">{label[0]}</div>
         <div className="text-sm text-neutral-300">
-          Playing flow for <span className="font-semibold text-neutral-100">{KEY_C.label}</span>{" "}
+          Playing flow for <span className="font-semibold text-neutral-100">{keyOption.label}</span>{" "}
           <span className="font-semibold text-neutral-100">{modeSlug}</span>{" "}
         </div>
       </div>
@@ -90,8 +136,8 @@ export const LessonContainer = ({ modeSlug }: LessonContainerProps) => {
           scaleMidis={scaleMidis}
           onComplete={() => setStarted(false)}
           labelChange={(newLabel) => setLabel(newLabel)}
-          rootKey={KEY_C.label}
-          rootMidi={KEY_C.midi}
+          rootKey={keyOption.label}
+          rootMidi={keyOption.midi}
           mode= {modeSlug}
         />
       </div>

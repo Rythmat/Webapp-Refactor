@@ -14,6 +14,7 @@ import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
 import Atlas from '@/components/atlas/atlas';
 import { PrismModeSlug } from "@/hooks/data";
+import { ModeOverview } from '@/components/learn/ModeOverview';
 
 
 const ClassroomCollectionPage = lazy(() =>
@@ -174,12 +175,24 @@ export const studentPages = () => {
 
 
 const LessonRoute = () => {
-  const { mode } = useParams<{
+  const { mode, key: keyParam } = useParams<{
     mode: PrismModeSlug;
+    key: string; 
   }>();
 
   return (
-    <LessonContainer modeSlug={mode ?? 'ionian'}/>
+    <LessonContainer modeSlug={mode ?? 'ionian'} rootKey={keyParam} />
+  );
+};
+
+const OverviewRoute = () => {
+  const { mode } = useParams<{
+    mode: PrismModeSlug;
+
+  }>();
+
+  return (
+    <ModeOverview mode={mode ?? 'ionian'}/>
   );
 };
 
@@ -200,10 +213,13 @@ export const learnPages = () => {
         element: <LearnInlet /> 
       },
       {
-        path:LearnRoutes.lesson.definition,
-        element:<LessonRoute/>
+        path:LearnRoutes.overview.definition,
+        element:<OverviewRoute />
       },
-
+      {
+        path:LearnRoutes.lesson.definition,
+        element:<LessonRoute />
+      },
     ],
   };
 };

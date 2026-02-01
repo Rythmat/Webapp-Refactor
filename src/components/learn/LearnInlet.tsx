@@ -38,23 +38,23 @@ const COURSES_DATA: ContentItem[] = [
 ];
 
 const THEORY_DATA: ContentItem[] = [
-  { title: "Ionian (Major)", variant: "cluster", colors: [THEMES.red, "#9D5C63"], route: LearnRoutes.lesson({mode:'ionian'}) },
-  { title: "Dorian", variant: "split", colors: [THEMES.orange, THEMES.teal], route: LearnRoutes.lesson({mode:'dorian'}) },
-  { title: "Phrygian", variant: "split", colors: [THEMES.red, THEMES.yellow], route: LearnRoutes.lesson({mode:'phrygian'}) },
-  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"], route: LearnRoutes.lesson({mode:'lydian'}) },
-  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey], route: LearnRoutes.lesson({mode:'mixolydian'}) },
-  { title: "Aeolian (Minor)", variant: "diagonal", colors: [THEMES.blue, "#A8DADC"], route: LearnRoutes.lesson({mode:'aeolian'}) },
-  { title: "Locrian", variant: "cluster", colors: [THEMES.purple, "#E0AAFF"], route: LearnRoutes.lesson({mode:'locrian'}) },
+  { title: "Ionian (Major)", variant: "cluster", colors: [THEMES.red, "#9D5C63"], route: LearnRoutes.overview({mode:'ionian'}) },
+  { title: "Dorian", variant: "split", colors: [THEMES.orange, THEMES.teal], route: LearnRoutes.overview({mode:'dorian'}) },
+  { title: "Phrygian", variant: "split", colors: [THEMES.red, THEMES.yellow], route: LearnRoutes.overview({mode:'phrygian'}) },
+  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"], route: LearnRoutes.overview({mode:'lydian'}) },
+  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey], route: LearnRoutes.overview({mode:'mixolydian'}) },
+  { title: "Aeolian (Minor)", variant: "diagonal", colors: [THEMES.blue, "#A8DADC"], route: LearnRoutes.overview({mode:'aeolian'}) },
+  { title: "Locrian", variant: "cluster", colors: [THEMES.purple, "#E0AAFF"], route: LearnRoutes.overview({mode:'locrian'}) },
 ];
 
 const EXPLORE_DATA: ContentItem[] = [
-  { title: "Ionian (Major)", variant: "cluster", colors: [THEMES.red, "#9D5C63"], route: LearnRoutes.lesson({mode:'ionian'}) },
-  { title: "Dorian", variant: "split", colors: [THEMES.orange, THEMES.teal], route: LearnRoutes.lesson({mode:'dorian'}) },
-  { title: "Phrygian", variant: "split", colors: [THEMES.red, THEMES.yellow], route: LearnRoutes.lesson({mode:'phrygian'}) },
-  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"], route: LearnRoutes.lesson({mode:'lydian'}) },
-  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey], route: LearnRoutes.lesson({mode:'mixolydian'}) },
-  { title: "Aeolian (Minor)", variant: "diagonal", colors: [THEMES.blue, "#A8DADC"], route: LearnRoutes.lesson({mode:'aeolian'}) },
-  { title: "Locrian", variant: "cluster", colors: [THEMES.purple, "#E0AAFF"], route: LearnRoutes.lesson({mode:'locrian'}) },
+  { title: "Ionian (Major)", variant: "cluster", colors: [THEMES.red, "#9D5C63"], route: LearnRoutes.overview({mode:'ionian'}) },
+  { title: "Dorian", variant: "split", colors: [THEMES.orange, THEMES.teal], route: LearnRoutes.overview({mode:'dorian'}) },
+  { title: "Phrygian", variant: "split", colors: [THEMES.red, THEMES.yellow], route: LearnRoutes.overview({mode:'phrygian'}) },
+  { title: "Lydian", variant: "diagonal", colors: [THEMES.yellow, "#F4A261"], route: LearnRoutes.overview({mode:'lydian'}) },
+  { title: "Mixolydian", variant: "dense", colors: [THEMES.beige, THEMES.darkGrey], route: LearnRoutes.overview({mode:'mixolydian'}) },
+  { title: "Aeolian (Minor)", variant: "diagonal", colors: [THEMES.blue, "#A8DADC"], route: LearnRoutes.overview({mode:'aeolian'}) },
+  { title: "Locrian", variant: "cluster", colors: [THEMES.purple, "#E0AAFF"], route: LearnRoutes.overview({mode:'locrian'}) },
 ];
 
 // interface FilterCheckboxProps {

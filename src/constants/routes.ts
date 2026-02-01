@@ -264,24 +264,16 @@ export const LearnRoutes = {
 
   root: createRouteDefinition(learnPrefix),
 
+  overview: createRouteDefinition<{
+      mode: string,
+    }>('/:mode', { prefix: learnPrefix }),
+
+
   lesson: createRouteDefinition<{
       mode: string,
-    }>('/lesson/:mode', { prefix: learnPrefix }),
+      key: string,
+    }>('/:mode/:key', { prefix: learnPrefix }),
 
-
-  flow: createRouteDefinition<{
-      flowType: string,
-      nameOf: string,
-    }>('/lessons/flow/:flowType/:nameOf', { prefix: learnPrefix }),
-
-  specific: createRouteDefinition<{
-      key:string,
-    }>('/lessons/:key', { prefix: learnPrefix }),
-
-  group: createRouteDefinition<{
-      key:string,
-      group: string,
-    }>('/lessons/:key/:group', { prefix: learnPrefix }),
 }
 
 

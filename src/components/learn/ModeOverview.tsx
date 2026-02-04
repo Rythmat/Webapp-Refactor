@@ -18,6 +18,28 @@ type KeyStep = {
   semitone: number;
 };
 
+const chromaticFlatInterval = ["1","b2","2","b3","3","4","b5","5","b6","6","b7","7",,"b9",,"9",,,"11",,,"b13","13"];
+
+// const chromaticSharpInterval = {
+//   0: "1",
+//   1: "#1",
+//   2: "2",
+//   3: "#2",
+//   4: "3",
+//   5: "4",
+//   6: "#4",
+//   7: "5",
+//   8: "#5",
+//   9: "6",
+//   10: "#6",
+//   11: "7",
+//   13: "#8",
+//   14: "9",
+//   17: "11",
+//   18: "#11",
+//   21: "13"
+// }
+
 const BASE_C4 = 60;
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
 
@@ -125,7 +147,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
       />
       <section className="mb-6 flex flex-col items-center">
         <p className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]">
-          Interval: {scaleSteps.map((i)=>{return i+1}).join(',')}
+          Interval: {scaleSteps.map((i)=>{return chromaticFlatInterval[i]}).join(',')}
         </p>
 
         <div className="grid grid-cols-1 gap-3 w-full max-w-3xl">

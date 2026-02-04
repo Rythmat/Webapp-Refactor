@@ -23,17 +23,17 @@ const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
 
 const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'C', semitone: 0 },
-  { label: 'Db', semitone: 1 },
-  { label: 'D', semitone: 2 },
-  { label: 'Eb', semitone: 3 },
-  { label: 'E', semitone: 4 },
-  { label: 'F', semitone: 5 },
-  { label: 'F#', semitone: 6 },
   { label: 'G', semitone: 7 },
-  { label: 'Ab', semitone: 8 },
+  { label: 'D', semitone: 2 },
   { label: 'A', semitone: 9 },
-  { label: 'Bb', semitone: 10 },
+  { label: 'E', semitone: 4 },
   { label: 'B', semitone: 11 },
+  { label: 'F#', semitone: 6 },
+  { label: 'Db', semitone: 1 },
+  { label: 'Ab', semitone: 8 },
+  { label: 'Eb', semitone: 3 },
+  { label: 'Bb', semitone: 10 },
+  { label: 'F', semitone: 5 },
 ];
 
 

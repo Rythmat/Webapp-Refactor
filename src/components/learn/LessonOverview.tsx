@@ -3,24 +3,19 @@ import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { YouTubePlayer } from '@/features/admin/chapters/components/YouTubePlayer';
 import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
-import { LearnRoutes } from "@/constants/routes";
-import { useNavigate } from 'react-router';
+// import { LearnRoutes } from "@/constants/routes";
+// import { useNavigate } from 'react-router';
 import { KEY_OF_COLORS } from '@/constants/theme';
-import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 
-type ModeOverviewProps = {
+type LessonOverviewProps = {
   mode: PrismModeSlug;
-  // type: string;
+  key: number;
 };
 
 type KeyStep = {
   label: string;
   semitone: number;
 };
-
-const chromaticFlatInterval = ["1","b2","2","b3","3","4","b5","5","b6","6","b7","7",,"b9",,"9",,,"11",,,"b13","13"];
-
-const chromaticSharpInterval = ["1","#1","2","#2","3", "4","#4","5","#5","6","#6","7",,"#8","9",,,"11","#11",,,"13"];
 
 
 const BASE_C4 = 60;
@@ -66,11 +61,11 @@ const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
 
 
 
-export function ModeOverview({ mode}: ModeOverviewProps) {
+export function LessonOverview({ mode}: LessonOverviewProps) {
   const [keyIndex, setKeyIndex] = useState(0);
   const [noteIndex, setNoteIndex] = useState(0);
   const { data: modeDetail } = usePrismMode(mode);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const videoId = '';
 
   useEffect(() => {
@@ -130,32 +125,9 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
       />
       <section className="mb-6 flex flex-col items-center">
         <p className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]">
-          Interval: {scaleSteps.map((i)=>{return mode=="lydian"? chromaticSharpInterval[i] : chromaticFlatInterval[i]}).join(', ')}
+          {/* Interval: {scaleSteps.map((i)=>{return mode=="lydian"? chromaticSharpInterval[i] : chromaticFlatInterval[i]}).join(', ')} */}
         </p>
 
-        <div className="grid grid-cols-1 gap-3 w-full max-w-3xl">
-          {CHROMATIC_KEYS.map((tile) => {
-
-            return (
-              <button
-                onClick={() =>
-                  navigate(
-                    LearnRoutes.lesson({
-                      mode,
-                      key: keyLabelToUrlParam(tile.label),
-                    }),
-                  )
-                }
-                className={`
-                  p-3 rounded-lg border text-sm font-bold text-left transition bg-grey-darker
-                `}
-                style={{ color: getKeyColor(tile.label) }}
-              >
-                {tile.label + " " + mode.charAt(0).toUpperCase() + mode.slice(1)}
-              </button>
-            );
-          })}
-        </div>
       </section>
 
     </div>

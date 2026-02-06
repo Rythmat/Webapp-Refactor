@@ -1,46 +1,31 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { YouTubePlayer } from '@/features/admin/chapters/components/YouTubePlayer';
 import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
+import { useNoteByMidiMap } from '@/hooks/data/notes/useNotes';
 // import { LearnRoutes } from "@/constants/routes";
 // import { useNavigate } from 'react-router';
 import { KEY_OF_COLORS } from '@/constants/theme';
 
 type LessonOverviewProps = {
   mode: PrismModeSlug;
-  key: number;
+  rootMidi: number;
 };
 
-type KeyStep = {
-  label: string;
-  semitone: number;
-};
-
-
-const BASE_C4 = 60;
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
+const DEFAULT_ROOT_MIDI = 60;
 
-const CHROMATIC_KEYS: KeyStep[] = [
-  { label: 'C', semitone: 0 },
-  { label: 'G', semitone: 7 },
-  { label: 'D', semitone: 2 },
-  { label: 'A', semitone: 9 },
-  { label: 'E', semitone: 4 },
-  { label: 'B', semitone: 11 },
-  { label: 'F#', semitone: 6 },
-  { label: 'Db', semitone: 1 },
-  { label: 'Ab', semitone: 8 },
-  { label: 'Eb', semitone: 3 },
-  { label: 'Bb', semitone: 10 },
-  { label: 'F', semitone: 5 },
-];
+const PITCH_CLASS_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const;
+const KEY_LABEL_BY_PITCH_CLASS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'] as const;
 
 
 const getKeyColor = (label: string) => {
   const mapped =(label as keyof typeof KEY_OF_COLORS);
   return KEY_OF_COLORS[mapped];
 };
+
+const normalizePitchClass = (midi: number) => ((midi % 12) + 12) % 12;
 
 const normalizeSteps = (steps?: number[]) => {
   if (!steps || steps.length === 0) return DEFAULT_INTERVALS;
@@ -61,50 +46,42 @@ const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
 
 
 
-export function LessonOverview({ mode}: LessonOverviewProps) {
-  const [keyIndex, setKeyIndex] = useState(0);
-  const [noteIndex, setNoteIndex] = useState(0);
+export function LessonOverview({ mode, rootMidi }: LessonOverviewProps) {
   const { data: modeDetail } = usePrismMode(mode);
+  const { data: noteByMidiMap } = useNoteByMidiMap();
   // const navigate = useNavigate();
   const videoId = '';
 
-  useEffect(() => {
-    setKeyIndex(0);
-    setNoteIndex(0);
-  }, [mode]);
-
   const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;
-  const activeKey = CHROMATIC_KEYS[keyIndex];
-  const activeKeyColor = getKeyColor(activeKey.label);
-  const rootMidi = BASE_C4 + activeKey.semitone;
-  const scaleMidis = useMemo(() => buildScaleMidis(rootMidi, scaleSteps), [rootMidi, scaleSteps]);
+  const resolvedRootMidi = Number.isFinite(rootMidi) ? rootMidi : DEFAULT_ROOT_MIDI;
+  const scaleMidis = useMemo(
+    () => buildScaleMidis(resolvedRootMidi, scaleSteps),
+    [resolvedRootMidi, scaleSteps],
+  );
+  const rootPitchClass = normalizePitchClass(resolvedRootMidi);
+  const activeKeyLabel = KEY_LABEL_BY_PITCH_CLASS[rootPitchClass];
+  const activeKeyColor = getKeyColor(activeKeyLabel);
 
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setNoteIndex((prev) => {
-        const next = prev + 1;
-        if (next >= scaleMidis.length) {
-          setKeyIndex((prevKey) => (prevKey + 1) % CHROMATIC_KEYS.length);
-          return 0;
-        }
-        return next;
-      });
-    }, 600);
-    return () => window.clearInterval(intervalId);
-  }, [scaleMidis.length]);
+  const scaleNoteLabels = useMemo(
+    () =>
+      scaleMidis.map((midi) => {
+        const note = noteByMidiMap?.get(midi);
+        if (note?.noteName) return note.noteName;
+        return PITCH_CLASS_NAMES[normalizePitchClass(midi)];
+      }),
+    [noteByMidiMap, scaleMidis],
+  );
 
   const activeNotes = useMemo(() => {
-    const now = Date.now();
-    const cappedIndex = Math.min(noteIndex, scaleMidis.length - 1);
-    return scaleMidis.slice(0, cappedIndex + 1).map<PlaybackEvent>((midi, index) => ({
-      id: `${mode}-${activeKey.label}-${midi}-${index}`,
+    return scaleMidis.map<PlaybackEvent>((midi, index) => ({
+      id: `${mode}-${activeKeyLabel}-${midi}-${index}`,
       type: 'note',
       midi,
-      time: now,
-      duration: 0.6,
+      time: Date.now(),
+      duration: 0,
       velocity: 1,
     }));
-  }, [activeKey.label, mode, noteIndex, scaleMidis]);
+  }, [activeKeyLabel, mode, scaleMidis]);
 
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
@@ -125,7 +102,7 @@ export function LessonOverview({ mode}: LessonOverviewProps) {
       />
       <section className="mb-6 flex flex-col items-center">
         <p className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]">
-          {/* Interval: {scaleSteps.map((i)=>{return mode=="lydian"? chromaticSharpInterval[i] : chromaticFlatInterval[i]}).join(', ')} */}
+          Notes: {scaleNoteLabels.join(', ')}
         </p>
 
       </section>

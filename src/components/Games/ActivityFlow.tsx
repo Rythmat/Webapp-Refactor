@@ -7,6 +7,8 @@ import { NoteHold } from "./NoteHold";
 import { PlayAlong } from "./PlayAlong";
 import { BoardChoiceGame } from "./BoardChoiceGame";
 import { ChordPressGame } from "./ChordPressGame";
+import { LessonOverview } from "@/components/learn/LessonOverview";
+import { Button } from "@/components/ui/button";
 import type { NoteEvent } from "./PianoRollPlay";
 import {    PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
 import { usePrismRhythms } from "@/hooks/data/prism/usePrismRhythms";
@@ -399,6 +401,20 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     const modeTitle = (mode as string).charAt(0).toUpperCase() + (mode as string).slice(1);
     const chordLabel = `${rootKey} ${modeTitle} Chord`;
     const chordHoldEvents = midiSequenceToEvents(ascending, "chord-hold");
+    const overviewItem = {
+      key: "lesson-overview",
+      label: `${rootKey} ${modeTitle} Overview`,
+      Component: ({ onContinue }: FlowActivityProps) => (
+        <div className="flex flex-col gap-6">
+          <LessonOverview mode={mode as PrismModeSlug} rootMidi={rootMidi} />
+          <div className="flex justify-center">
+            <Button onClick={onContinue}>Start Lesson</Button>
+          </div>
+        </div>
+      ),
+      seq: [] as NoteEvent[],
+      direction: `Overview of ${rootKey} ${modeTitle}.`,
+    };
     const contourSeqs: number[][] = [];
     contours?.forEach((contour) => {
       if (!Array.isArray(contour)) {
@@ -465,6 +481,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       .filter((item): item is (typeof introItems)[number] => !!item);
 
     const sequences = [
+      overviewItem,
       ...randomIntro,
       { key: "asc-pa", label: `${rootKey} ${modeTitle} Ascend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascending, "asc-pa"),
         direction: "In a steady tempo, play the notes of the scale going up"

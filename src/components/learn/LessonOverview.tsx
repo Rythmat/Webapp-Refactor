@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { YouTubePlayer } from '@/features/admin/chapters/components/YouTubePlayer';
 import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { useNoteByMidiMap } from '@/hooks/data/notes/useNotes';
+import { ChordPressKeyboard } from '@/components/Games/ChordPressKeyboard';
 // import { LearnRoutes } from "@/constants/routes";
 // import { useNavigate } from 'react-router';
 import { KEY_OF_COLORS } from '@/constants/theme';
@@ -11,6 +12,7 @@ import { KEY_OF_COLORS } from '@/constants/theme';
 type LessonOverviewProps = {
   mode: PrismModeSlug;
   rootMidi: number;
+  onChordPressCompleteChange?: (complete: boolean) => void;
 };
 
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
@@ -46,11 +48,12 @@ const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
 
 
 
-export function LessonOverview({ mode, rootMidi }: LessonOverviewProps) {
+export function LessonOverview({ mode, rootMidi, onChordPressCompleteChange }: LessonOverviewProps) {
   const { data: modeDetail } = usePrismMode(mode);
   const { data: noteByMidiMap } = useNoteByMidiMap();
   // const navigate = useNavigate();
   const videoId = '';
+  const [chordPressComplete, setChordPressComplete] = useState(false);
 
   const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;
   const resolvedRootMidi = Number.isFinite(rootMidi) ? rootMidi : DEFAULT_ROOT_MIDI;
@@ -83,6 +86,14 @@ export function LessonOverview({ mode, rootMidi }: LessonOverviewProps) {
     }));
   }, [activeKeyLabel, mode, scaleMidis]);
 
+  useEffect(() => {
+    setChordPressComplete(false);
+  }, [scaleMidis]);
+
+  useEffect(() => {
+    onChordPressCompleteChange?.(chordPressComplete);
+  }, [chordPressComplete, onChordPressCompleteChange]);
+
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
       <h2 className="text-3xl md:text-4xl font-semibold underline text-left ml-[10%]">
@@ -105,6 +116,10 @@ export function LessonOverview({ mode, rootMidi }: LessonOverviewProps) {
           Notes: {scaleNoteLabels.join(', ')}
         </p>
 
+        <ChordPressKeyboard
+          targetNotes={scaleMidis}
+          onComplete={() => setChordPressComplete(true)}
+        />
       </section>
 
     </div>

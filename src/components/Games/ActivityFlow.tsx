@@ -8,7 +8,6 @@ import { PlayAlong } from "./PlayAlong";
 import { BoardChoiceGame } from "./BoardChoiceGame";
 import { ChordPressGame } from "./ChordPressGame";
 import { LessonOverview } from "@/components/learn/LessonOverview";
-import { Button } from "@/components/ui/button";
 import type { NoteEvent } from "./PianoRollPlay";
 import {    PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
 import { usePrismRhythms } from "@/hooks/data/prism/usePrismRhythms";
@@ -274,18 +273,11 @@ const extractContours = (value: unknown): number[][] => {
   return results;
 };
 
-const shuffleArray = <T,>(items: T[]) => {
-  const arr = [...items];
-  for (let i = arr.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-};
 
 
 export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, rootMidi, mode }: ActivityFlowProps) => {
 
+  // const [overviewReady, setOverviewReady] = useState(false);
   const { data: contourData } = usePrismStartContours();
   const availableContours = useMemo(() => {
     const raw = contourData?.contours;
@@ -300,15 +292,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     if (!raw || !Array.isArray(raw)) return [];
     return raw.map(arr => arr.map(i => i + rootMidi));
   }, [chordResponse, rootMidi]);
-  const introOrder = useMemo(
-    () =>
-      shuffleArray([
-        "intro-chord-press",
-        "intro-board-choice",
-        "intro-chord-hold",
-      ]),
-    [],
-  );
 
   type RhythmHit = [number, number];
   type RhythmRecord = Record<string, RhythmHit[]>
@@ -405,12 +388,16 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       key: "lesson-overview",
       label: `${rootKey} ${modeTitle} Overview`,
       Component: ({ onContinue }: FlowActivityProps) => (
-        <div className="flex flex-col gap-6">
-          <LessonOverview mode={mode as PrismModeSlug} rootMidi={rootMidi} />
-          <div className="flex justify-center">
-            <Button onClick={onContinue}>Start Lesson</Button>
-          </div>
-        </div>
+        <LessonOverview
+          mode={mode as PrismModeSlug}
+          rootMidi={rootMidi}
+          onChordPressCompleteChange={(complete) => {
+            // setOverviewReady(complete);
+            if (complete) {
+              onContinue?.();
+            }
+          }}
+        />
       ),
       seq: [] as NoteEvent[],
       direction: `Overview of ${rootKey} ${modeTitle}.`,
@@ -476,9 +463,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         direction: `Hold the notes of the ${rootKey} ${modeTitle} scale.`,
       },
     ];
-    const randomIntro = introOrder
-      .map((key) => introItems.find((item) => item.key === key))
-      .filter((item): item is (typeof introItems)[number] => !!item);
+    const randomIntro = introItems.filter((item) => item.key === "intro-chord-hold");
 
     const sequences = [
       overviewItem,

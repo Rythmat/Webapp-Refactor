@@ -13,6 +13,7 @@ type LessonOverviewProps = {
   mode: PrismModeSlug;
   rootMidi: number;
   onChordPressCompleteChange?: (complete: boolean) => void;
+  onStartLesson?: () => void;
 };
 
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
@@ -48,7 +49,12 @@ const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
 
 
 
-export function LessonOverview({ mode, rootMidi, onChordPressCompleteChange }: LessonOverviewProps) {
+export function LessonOverview({
+  mode,
+  rootMidi,
+  onChordPressCompleteChange,
+  onStartLesson,
+}: LessonOverviewProps) {
   const { data: modeDetail } = usePrismMode(mode);
   const { data: noteByMidiMap } = useNoteByMidiMap();
   // const navigate = useNavigate();
@@ -123,6 +129,17 @@ export function LessonOverview({ mode, rootMidi, onChordPressCompleteChange }: L
           onComplete={() => setChordPressComplete(true)}
         />
       </section>
+
+      <div className="flex justify-center">
+        <button
+          type="button"
+          onClick={onStartLesson}
+          disabled={!chordPressComplete}
+          className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Start Lesson
+        </button>
+      </div>
 
     </div>
   );

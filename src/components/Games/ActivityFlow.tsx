@@ -391,12 +391,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         <LessonOverview
           mode={mode as PrismModeSlug}
           rootMidi={rootMidi}
-          onChordPressCompleteChange={(complete) => {
-            // setOverviewReady(complete);
-            if (complete) {
-              onContinue?.();
-            }
-          }}
+          onStartLesson={onContinue}
         />
       ),
       seq: [] as NoteEvent[],

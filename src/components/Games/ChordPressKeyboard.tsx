@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import { usePlayNote } from '@/contexts/PianoContext';
-import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
+// import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 
 type KeyboardBinding = {
   key: string;
@@ -68,7 +68,7 @@ export type ChordPressKeyboardProps = {
 export function ChordPressKeyboard({
   startC = 3,
   endC = 6,
-  enableMIDI = true,
+  // enableMIDI = true,
   enableComputerKeyboard = true,
   keyboardBaseOctave = 4,
   targetNotes,
@@ -103,12 +103,12 @@ export function ChordPressKeyboard({
     );
   }, [completed]);
 
-  const onMidiInput = useCallback(
-    (event: MidiNoteEvent) => {
-      toggleNote(event.number);
-    },
-    [toggleNote],
-  );
+  // const onMidiInput = useCallback(
+  //   (event: MidiNoteEvent) => {
+  //     toggleNote(event.number);
+  //   },
+  //   [toggleNote],
+  // );
 
   useEffect(() => {
     if (!enableComputerKeyboard) return;
@@ -169,10 +169,9 @@ export function ChordPressKeyboard({
       className={className}
       startC={startC}
       endC={endC}
-      gaming
       onKeyClick={toggleNote}
-      onMidiInput={enableMIDI ? onMidiInput : undefined}
-      enableMidiInterface={enableMIDI}
+      // onMidiInput={enableMIDI ? onMidiInput : undefined}
+      // enableMidiInterface={enableMIDI}
       playingNotes={selectedEvents}
       activeWhiteKeyColor={undefined}
       activeBlackKeyColor={undefined}

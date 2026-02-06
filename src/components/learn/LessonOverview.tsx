@@ -124,6 +124,17 @@ export function LessonOverview({
           Notes: {scaleNoteLabels.join(', ')}
         </p>
 
+        <div className="w-full max-w-4xl my-6">
+          <div className="flex items-center gap-4">
+            <div className="h-px flex-1 bg-neutral-800" />
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-neutral-300">
+              Identify
+            </h3>
+            <div className="h-px flex-1 bg-neutral-800" />
+            <p> Select the notes of ${PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]} ${mode.charAt(0).toUpperCase() + mode.slice(1)}</p>
+          </div>
+        </div>
+
         <ChordPressKeyboard
           targetNotes={scaleMidis}
           onComplete={() => setChordPressComplete(true)}

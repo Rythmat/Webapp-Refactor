@@ -22,6 +22,8 @@ type PianoKeyboardProps = {
   className?: string;
   vertical?: boolean;
   gaming?: boolean;
+  enableClick?: boolean;
+  useContextNotes?: boolean;
   playingNotes?: PlaybackEvent[];
   whiteKeyClassName?: string;
   blackKeyClassName?: string;
@@ -40,6 +42,8 @@ export function PianoKeyboard({
   className = '',
   vertical = false,
   gaming = false,
+  enableClick = true,
+  useContextNotes = true,
   playingNotes,
   whiteKeyClassName = '',
   blackKeyClassName = '',
@@ -67,6 +71,7 @@ export function PianoKeyboard({
 
   const handleKeyClick = useCallback(
     (note: number) => {
+      if (!enableClick) return;
       playNote(note);
 
       const id = uuidv4();
@@ -91,7 +96,7 @@ export function PianoKeyboard({
         setLocalActiveNotes((prev) => prev.filter((n) => n.id !== id));
       }, duration * 1000);
     },
-    [playNote, onKeyClick],
+    [enableClick, playNote, onKeyClick],
   );
 
   const handleMidiInput = useCallback(
@@ -166,7 +171,11 @@ export function PianoKeyboard({
 
   const getActiveNote = (note: number) => {
     const activeNotes = sortBy(
-      [...(playingNotes || []), ...contextPlayingNotes, ...localActiveNotes],
+      [
+        ...(playingNotes || []),
+        ...(useContextNotes ? contextPlayingNotes : []),
+        ...localActiveNotes,
+      ],
       'time',
       'desc',
     );

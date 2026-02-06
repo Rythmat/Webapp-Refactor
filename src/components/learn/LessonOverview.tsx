@@ -110,6 +110,8 @@ export function LessonOverview({ mode, rootMidi, onChordPressCompleteChange }: L
         playingNotes={activeNotes}
         activeWhiteKeyColor={activeKeyColor}
         activeBlackKeyColor={activeKeyColor}
+        enableClick={false}
+        useContextNotes={false}
       />
       <section className="mb-6 flex flex-col items-center">
         <p className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]">

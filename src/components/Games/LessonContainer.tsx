@@ -13,7 +13,7 @@ type LessonContainerProps = {
 };
 
 type KeyOption = { label: string; midi: number };
-type LessonStage = "selection" | "lesson" | "complete";
+type LessonStage = "lesson" | "complete";
 
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
 const BASE_C4 = 60;
@@ -73,7 +73,7 @@ const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
   normalizeSteps(steps).map((interval) => rootMidi + interval);
 
 export const LessonContainer = ({ modeSlug, rootKey }: LessonContainerProps) => {
-  const [stage, setStage] = useState<LessonStage>("selection");
+  const [stage, setStage] = useState<LessonStage>("lesson");
   const [label, setLabel] = useState(["", ""]);
   const navigate = useNavigate();
   const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
@@ -95,31 +95,9 @@ export const LessonContainer = ({ modeSlug, rootKey }: LessonContainerProps) => 
   );
 
   useEffect(() => {
-    setStage("selection");
+    setStage("lesson");
     setNextKeyChoice(nextCurriculumKey);
   }, [modeSlug, rootKey]);
-
-  const SelectionShell = () => (
-    <div className="flex-1 flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl rounded-2xl border border-neutral-800 bg-neutral-900/70 p-4 shadow-xl">
-        <div className="flex flex-col gap-2 items-center text-center">
-          <h1 className="text-2xl font-semibold">Ready to start?</h1>
-          <p className="text-sm text-neutral-400">
-            Practicing the <span className="font-semibold text-neutral-100">{modeSlug}</span> mode in the key of {keyOption.label}.
-          </p>
-        </div>
-        <div className="mt-4 flex items-center justify-center">
-          <button
-            type="button"
-            onClick={() => setStage("lesson")}
-            className="rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
-          >
-            Start
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 
   const CompletionShell = () => (
     <div className="flex-1 flex items-center justify-center p-4">
@@ -188,16 +166,6 @@ export const LessonContainer = ({ modeSlug, rootKey }: LessonContainerProps) => 
       </div>
     </div>
   );
-
-  if (stage === "selection") {
-    return (
-      <div className="min-h-screen w-full bg-neutral-950 text-neutral-50 flex flex-col">
-        <HeaderBar title="Lesson" className="bg-neutral-900/60"
-        />
-        <SelectionShell />
-      </div>
-    );
-  }
 
   if (stage === "complete") {
     return (

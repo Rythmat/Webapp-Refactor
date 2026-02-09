@@ -48,6 +48,7 @@ export const NoteHold = ({
   startMessage,
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
+  const [isPlaying, setIsPlaying] = useState(false);
   const activeMidiSetRef = useRef(new Set<number>());
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
@@ -295,12 +296,13 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
   });
 
   useEffect(() => {
+    if (!isPlaying) return;
     const stop = startListening();
     return () => {
       stop?.();
       stopListening();
     };
-  }, []);
+  }, [isPlaying, startListening, stopListening]);
 
   const noteHoldMeta = useMemo(() => {
     const meta: Record<string, NoteHoldMeta> = {};
@@ -369,6 +371,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
           inTime={false}
           playSpeed={80}
           onStart={startToneContext}
+          onPlayingChange={setIsPlaying}
           activeMidis={activeMidis}
           noteHoldMeta={noteHoldMeta}
           startMessage={startMessage}

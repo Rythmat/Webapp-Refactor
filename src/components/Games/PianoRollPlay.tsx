@@ -1,5 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PlayNote } from "./PlayNote";
+import { useMidiInput, type MidiNoteEvent } from "@/hooks/music/useMidiInput";
+import { PianoKeyboard } from "@/components/PianoKeyboard";
+import type { PlaybackEvent } from "@/contexts/PlaybackContext";
 
 export type Midi = number; // 0..127
 
@@ -36,6 +39,7 @@ export interface PianoRollProps {
   noteHoldMeta?: Record<string, NoteHoldMeta>;
   performanceMeta?: Record<string, { startTick: number; endTick?: number }>;
   startMessage? : string;
+  showStartSequence?: boolean;
   /** Callbacks */
   onTickChange?: (tick: number) => void;
 }
@@ -216,6 +220,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   performanceMeta,
   onTickChange,
   startMessage = "Press start to begin the in-time play-along and follow the moving playhead.",
+  showStartSequence = false,
 }) => {
   const laneList = buildLaneList(events);
   const effectiveRowHeight =
@@ -251,6 +256,11 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     typeof isPlaying === "boolean" && typeof onPlayingChange === "function";
   const [internalPlaying, setInternalPlaying] = useState(false);
   const playing = isControlled ? isPlaying : internalPlaying;
+  const [overlayReady, setOverlayReady] = useState(false);
+  const [startSignal, setStartSignal] = useState(false);
+  const startTimeoutRef = useRef<number | null>(null);
+  const startTriggeredRef = useRef(false);
+  const [startSequenceIndex, setStartSequenceIndex] = useState(0);
 
   // Change the playing state
   const setPlaying = (next: boolean) => {
@@ -269,6 +279,94 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       setInternalPlaying(next);
     }
   };
+
+  const handleStartSignal = useCallback(() => {
+    if (playing || startTriggeredRef.current) return;
+    startTriggeredRef.current = true;
+    setStartSignal(true);
+    if (startTimeoutRef.current != null) {
+      window.clearTimeout(startTimeoutRef.current);
+    }
+    startTimeoutRef.current = window.setTimeout(async () => {
+      await onStart?.();
+      setPlaying(true);
+    }, 100);
+  }, [onStart, playing]);
+
+  const { startListening, stopListening } = useMidiInput(undefined, {
+    onNoteOn: (event: MidiNoteEvent) => {
+      if (event.velocity === 0) return;
+      handleStartSignal();
+    },
+  });
+
+  useEffect(() => {
+    if (playing) {
+      setOverlayReady(false);
+      setStartSignal(false);
+      startTriggeredRef.current = false;
+      if (startTimeoutRef.current != null) {
+        window.clearTimeout(startTimeoutRef.current);
+        startTimeoutRef.current = null;
+      }
+      return;
+    }
+    const rafId = requestAnimationFrame(() => setOverlayReady(true));
+    return () => cancelAnimationFrame(rafId);
+  }, [playing]);
+
+  const startSequenceSteps = useMemo(() => {
+    if (!showStartSequence) return [];
+    const grouped = new Map<number, number[]>();
+    events.forEach((event) => {
+      const midi =
+        typeof event.midi === "number" ? event.midi : pitchNameToMidi(event.pitchName);
+      if (typeof midi !== "number") return;
+      const bucket = grouped.get(event.startTicks) ?? [];
+      bucket.push(midi);
+      grouped.set(event.startTicks, bucket);
+    });
+    return Array.from(grouped.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([, midis]) => Array.from(new Set(midis)));
+  }, [events, showStartSequence]);
+
+  useEffect(() => {
+    if (!overlayReady || !showStartSequence || startSequenceSteps.length === 0) {
+      return;
+    }
+    setStartSequenceIndex(0);
+    const intervalId = window.setInterval(() => {
+      setStartSequenceIndex((prev) => (prev + 1) % startSequenceSteps.length);
+    }, 600);
+    return () => window.clearInterval(intervalId);
+  }, [overlayReady, showStartSequence, startSequenceSteps.length]);
+
+  const startSequenceNotes = useMemo(() => {
+    if (!showStartSequence || startSequenceSteps.length === 0) return [];
+    const now = Date.now();
+    const cappedIndex = Math.min(startSequenceIndex, startSequenceSteps.length - 1);
+    const activeMidis = startSequenceSteps
+      .slice(0, cappedIndex + 1)
+      .flatMap((midis) => midis);
+    return activeMidis.map<PlaybackEvent>((midi, index) => ({
+      id: `start-seq-${midi}-${index}`,
+      type: "note",
+      midi,
+      time: now,
+      duration: 0.6,
+      velocity: 1,
+    }));
+  }, [showStartSequence, startSequenceIndex, startSequenceSteps]);
+
+  useEffect(() => {
+    if (!overlayReady) return;
+    const stop = startListening();
+    return () => {
+      stop?.();
+      stopListening();
+    };
+  }, [overlayReady, startListening, stopListening]);
 
   // Animation of the playhead, rerenders with playhead progression
   useEffect(() => {
@@ -685,17 +783,31 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             <p className="mt-2 text-sm text-neutral-300">
               {startMessage}
             </p>
+            {showStartSequence && startSequenceNotes.length > 0 && (
+              <div className="mt-4">
+                <PianoKeyboard
+                  className="mx-auto"
+                  startC={2}
+                  endC={6}
+                  playingNotes={startSequenceNotes}
+                  activeWhiteKeyColor="#22c55e"
+                  activeBlackKeyColor="#22c55e"
+                  enableClick={false}
+                  useContextNotes={false}
+                  showOctaveStart
+                />
+              </div>
+            )}
             <div className="mt-6 flex justify-center">
-              <button
-                type="button"
-                onClick={async () => {
-                  await onStart?.();
-                  setPlaying(true);
-                }}
-                className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+              <div
+                className={`rounded-full border px-6 py-2 text-sm font-semibold transition ${
+                  startSignal
+                    ? "border-emerald-400 bg-emerald-500/10 text-emerald-300"
+                    : "border-neutral-600 text-neutral-200"
+                }`}
               >
-                Start
-              </button>
+                Press any key on your keyboard to start
+              </div>
             </div>
           </div>
         </div>

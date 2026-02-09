@@ -355,12 +355,13 @@ export const PlayAlong = ({
   });
 
   useEffect(() => {
+    if (!isPlaying) return;
     const stop = startListening();
     return () => {
       stop?.();
       stopListening();
     };
-  }, []);
+  }, [isPlaying, startListening, stopListening]);
 
  
 
@@ -438,6 +439,7 @@ export const PlayAlong = ({
             performanceMeta={performanceMeta}
             onTickChange={setCurrentTick}
             startMessage={startMessage}
+            showStartSequence
           />
           <PianoKeyboard
           className="mx-auto"

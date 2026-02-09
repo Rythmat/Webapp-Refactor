@@ -261,6 +261,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const startTimeoutRef = useRef<number | null>(null);
   const startTriggeredRef = useRef(false);
   const [startSequenceIndex, setStartSequenceIndex] = useState(0);
+  const overlayRenderedRef = useRef(false);
 
   // Change the playing state
   const setPlaying = (next: boolean) => {
@@ -296,6 +297,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const { startListening, stopListening } = useMidiInput(undefined, {
     onNoteOn: (event: MidiNoteEvent) => {
       if (event.velocity === 0) return;
+      if (!overlayRenderedRef.current) return;
       handleStartSignal();
     },
   });
@@ -304,6 +306,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     if (playing) {
       setOverlayReady(false);
       setStartSignal(false);
+      overlayRenderedRef.current = false;
       startTriggeredRef.current = false;
       if (startTimeoutRef.current != null) {
         window.clearTimeout(startTimeoutRef.current);
@@ -311,9 +314,20 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       }
       return;
     }
-    const rafId = requestAnimationFrame(() => setOverlayReady(true));
-    return () => cancelAnimationFrame(rafId);
-  }, [playing]);
+
+    const stop = startListening();
+    const rafId = requestAnimationFrame(() => {
+      overlayRenderedRef.current = true;
+      setOverlayReady(true);
+    });
+
+    return () => {
+      overlayRenderedRef.current = false;
+      cancelAnimationFrame(rafId);
+      stop?.();
+      stopListening();
+    };
+  }, [playing, startListening, stopListening]);
 
   const startSequenceSteps = useMemo(() => {
     if (!showStartSequence) return [];
@@ -358,15 +372,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       velocity: 1,
     }));
   }, [showStartSequence, startSequenceIndex, startSequenceSteps]);
-
-  useEffect(() => {
-    if (!overlayReady) return;
-    const stop = startListening();
-    return () => {
-      stop?.();
-      stopListening();
-    };
-  }, [overlayReady, startListening, stopListening]);
 
   // Animation of the playhead, rerenders with playhead progression
   useEffect(() => {

@@ -261,6 +261,9 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   const startTimeoutRef = useRef<number | null>(null);
   const startTriggeredRef = useRef(false);
   const [startSequenceIndex, setStartSequenceIndex] = useState(0);
+  const overlayReadyRef = useRef(false);
+  const playingRef = useRef(playing);
+  const handleStartSignalRef = useRef(() => {});
 
   // Change the playing state
   const setPlaying = (next: boolean) => {
@@ -299,12 +302,26 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     }, 100);
   }, [onStart, playing, setPlaying]);
 
+  useEffect(() => {
+    overlayReadyRef.current = overlayReady;
+  }, [overlayReady]);
+
+  useEffect(() => {
+    playingRef.current = playing;
+  }, [playing]);
+
+  useEffect(() => {
+    handleStartSignalRef.current = handleStartSignal;
+  }, [handleStartSignal]);
+
+  const handleOverlayMidiNoteOn = useCallback((event: MidiNoteEvent) => {
+    if (event.velocity === 0) return;
+    if (playingRef.current || !overlayReadyRef.current) return;
+    handleStartSignalRef.current();
+  }, []);
+
   const { startListening, stopListening } = useMidiInput(undefined, {
-    onNoteOn: (event: MidiNoteEvent) => {
-      if (event.velocity === 0) return;
-      if (playing || !overlayReady) return;
-      handleStartSignal();
-    },
+    onNoteOn: handleOverlayMidiNoteOn,
   });
 
   useEffect(() => {
@@ -331,7 +348,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       stop?.();
       stopListening();
     };
-  }, [playing]);
+  }, [playing, startListening, stopListening]);
 
   const startSequenceSteps = useMemo(() => {
     if (!showStartSequence) return [];

@@ -235,6 +235,15 @@ export const PlayAlong = ({
     );
   }, []);
 
+  const handleContinue = useCallback(() => {
+    releaseActiveNotes();
+    if (onContinue) {
+      onContinue();
+    } else {
+      resetProgress();
+    }
+  }, [onContinue, releaseActiveNotes, resetProgress]);
+
 
 
 
@@ -306,6 +315,10 @@ export const PlayAlong = ({
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
+      if (showCompletionOverlay) {
+        handleContinue();
+        return;
+      }
       if (!isPlaying) {
         void startToneContext();
         setIsPlaying(true);
@@ -322,12 +335,24 @@ export const PlayAlong = ({
       handleKeyboardNoteOff(midi);
       parsePerformance(event.number,currentTickRef.current,false);
     },
-    [isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff, parsePerformance]
+    [
+      showCompletionOverlay,
+      handleContinue,
+      isPlaying,
+      startToneContext,
+      triggerSynthRelease,
+      handleKeyboardNoteOff,
+      parsePerformance,
+    ]
   );
 
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      if (showCompletionOverlay) {
+        handleContinue();
+        return;
+      }
       void startPianoSampler();
       const midi = event.number;
       if(event.velocity == 0){
@@ -344,7 +369,7 @@ export const PlayAlong = ({
       handleKeyboardNoteOn(midi);
       parsePerformance(event.number, currentTickRef.current,true);
     },
-    [triggerSynthAttack,handleKeyboardNoteOn, parsePerformance]
+    [showCompletionOverlay, handleContinue, triggerSynthAttack, handleKeyboardNoteOn, parsePerformance, handleMidiNoteOff]
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
@@ -380,15 +405,6 @@ export const PlayAlong = ({
     return meta;
   }, [notePerformance]);
 
-
-  const handleContinue = useCallback(() => {
-    releaseActiveNotes();
-    if (onContinue) {
-      onContinue();
-    } else {
-      resetProgress();
-    }
-  }, [onContinue, releaseActiveNotes, resetProgress]);
 
   useEffect(() => {
     const wasPlaying = wasPlayingRef.current;

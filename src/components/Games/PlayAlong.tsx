@@ -306,6 +306,10 @@ export const PlayAlong = ({
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
+      if (!isPlaying) {
+        void startToneContext();
+        setIsPlaying(true);
+      }
       const midi = event.number;
       if (activeMidiSetRef.current.has(midi)) {
         activeMidiSetRef.current.delete(midi);
@@ -318,7 +322,7 @@ export const PlayAlong = ({
       handleKeyboardNoteOff(midi);
       parsePerformance(event.number,currentTickRef.current,false);
     },
-    [triggerSynthRelease,handleKeyboardNoteOff, parsePerformance]
+    [isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff, parsePerformance]
   );
 
 

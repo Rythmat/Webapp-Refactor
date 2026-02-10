@@ -51,6 +51,7 @@ export const NoteHold = ({
   const activeMidiSetRef = useRef(new Set<number>());
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
   const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [currentChordIndex, setCurrentChordIndex] = useState(0);
   const [completedChords, setCompletedChords] = useState<Set<number>>(
     () => new Set(),
@@ -73,6 +74,7 @@ export const NoteHold = ({
 
 
   const resetProgress = useCallback(() => {
+    setIsPlaying(false);
     setCurrentChordIndex(0);
     setCompletedChords(new Set());
     setChordHoldStartMs(null);
@@ -250,6 +252,10 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
+      if (!isPlaying) {
+        void startToneContext();
+        setIsPlaying(true);
+      }
       const midi = event.number;
       if (activeMidiSetRef.current.has(midi)) {
         activeMidiSetRef.current.delete(midi);
@@ -261,7 +267,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
       handleKeyboardNoteOff(midi);
     },
-    [triggerSynthRelease,handleKeyboardNoteOff]
+    [isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff]
   );
 
 
@@ -368,6 +374,8 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
           rowHeight={28 * 18}
           inTime={false}
           playSpeed={80}
+          isPlaying={isPlaying}
+          onPlayingChange={setIsPlaying}
           onStart={startToneContext}
           activeMidis={activeMidis}
           noteHoldMeta={noteHoldMeta}

@@ -131,7 +131,7 @@ export function LessonOverview({
               Identify
             </h3>
             <div className="h-px flex-1 bg-neutral-800" />
-            <p> Select the notes of {PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]} {mode.charAt(0).toUpperCase() + mode.slice(1)}</p>
+            <p> Select the notes of ${PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]} ${mode.charAt(0).toUpperCase() + mode.slice(1)}</p>
           </div>
         </div>
 

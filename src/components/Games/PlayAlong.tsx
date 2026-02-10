@@ -235,13 +235,6 @@ export const PlayAlong = ({
     );
   }, []);
 
-  const handleContinue = useCallback(() => {
-    releaseActiveNotes();
-    if (onContinue) {
-      onContinue();
-    }
-  }, [onContinue, releaseActiveNotes]);
-
   const showInTimeCompletion = !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
 
   const showCompletionOverlay = showInTimeCompletion;
@@ -308,9 +301,6 @@ export const PlayAlong = ({
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
-      if (showCompletionOverlay) {
-        return;
-      }
       if (!isPlaying) {
         void startToneContext();
         setIsPlaying(true);
@@ -327,25 +317,12 @@ export const PlayAlong = ({
       handleKeyboardNoteOff(midi);
       parsePerformance(event.number,currentTickRef.current,false);
     },
-    [
-      showCompletionOverlay,
-      isPlaying,
-      startToneContext,
-      triggerSynthRelease,
-      handleKeyboardNoteOff,
-      parsePerformance,
-    ]
+    [isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff, parsePerformance]
   );
 
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
-      if (showCompletionOverlay) {
-        if (event.velocity > 0) {
-          handleContinue();
-        }
-        return;
-      }
       void startPianoSampler();
       const midi = event.number;
       if(event.velocity == 0){
@@ -362,14 +339,7 @@ export const PlayAlong = ({
       handleKeyboardNoteOn(midi);
       parsePerformance(event.number, currentTickRef.current,true);
     },
-    [
-      showCompletionOverlay,
-      handleContinue,
-      triggerSynthAttack,
-      handleKeyboardNoteOn,
-      parsePerformance,
-      handleMidiNoteOff,
-    ]
+    [triggerSynthAttack, handleKeyboardNoteOn, parsePerformance, handleMidiNoteOff]
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
@@ -404,6 +374,17 @@ export const PlayAlong = ({
     });
     return meta;
     }, [notePerformance]);
+
+  const handleContinue = useCallback(() => {
+    releaseActiveNotes();
+    if (onContinue) {
+      onContinue();
+    } else {
+      resetProgress();
+    }
+  }, [onContinue, releaseActiveNotes, resetProgress]);
+
+
 
   useEffect(() => {
     const wasPlaying = wasPlayingRef.current;
@@ -478,9 +459,6 @@ export const PlayAlong = ({
                 {showInTimeCompletion
                   ? "You finished the play-along. Continue when you are ready, or restart to practice again."
                   : "You completed every chord. Continue when you are ready, or restart to practice again."}
-              </p>
-              <p className="mt-2 text-xs text-neutral-400">
-                Press any key on the keyboard to continue.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <button

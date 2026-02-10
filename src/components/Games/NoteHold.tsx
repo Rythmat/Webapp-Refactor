@@ -297,6 +297,10 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
         handleContinue();
         return;
       }
+      if (!isPlaying) {
+        void startToneContext();
+        setIsPlaying(true);
+      }
       void startPianoSampler();
       const midi = event.number;
       if(event.velocity == 0){
@@ -315,6 +319,8 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
     [
       showCompletionOverlay,
       handleContinue,
+      isPlaying,
+      startToneContext,
       triggerSynthAttack,
       handleKeyboardNoteOn,
       handleMidiNoteOff,

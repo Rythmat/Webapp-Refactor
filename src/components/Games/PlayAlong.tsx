@@ -348,6 +348,10 @@ export const PlayAlong = ({
         handleContinue();
         return;
       }
+      if (!isPlaying) {
+        void startToneContext();
+        setIsPlaying(true);
+      }
       void startPianoSampler();
       const midi = event.number;
       if(event.velocity == 0){
@@ -367,6 +371,8 @@ export const PlayAlong = ({
     [
       showCompletionOverlay,
       handleContinue,
+      isPlaying,
+      startToneContext,
       triggerSynthAttack,
       handleKeyboardNoteOn,
       parsePerformance,

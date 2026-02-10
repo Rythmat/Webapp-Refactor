@@ -370,7 +370,6 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
           rowHeight={28 * 18}
           inTime={false}
           playSpeed={80}
-          isPlaying={isPlaying}
           onStart={startToneContext}
           onPlayingChange={setIsPlaying}
           activeMidis={activeMidis}

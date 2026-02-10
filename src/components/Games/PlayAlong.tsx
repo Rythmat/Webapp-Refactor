@@ -235,20 +235,6 @@ export const PlayAlong = ({
     );
   }, []);
 
-  const handleContinue = useCallback(() => {
-    releaseActiveNotes();
-    if (onContinue) {
-      onContinue();
-    } else {
-      resetProgress();
-    }
-  }, [onContinue, releaseActiveNotes, resetProgress]);
-
-
-
-
-
-
   const showInTimeCompletion = !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
 
   const showCompletionOverlay = showInTimeCompletion;
@@ -315,10 +301,6 @@ export const PlayAlong = ({
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
-      if (showCompletionOverlay) {
-        handleContinue();
-        return;
-      }
       if (!isPlaying) {
         void startToneContext();
         setIsPlaying(true);
@@ -335,24 +317,12 @@ export const PlayAlong = ({
       handleKeyboardNoteOff(midi);
       parsePerformance(event.number,currentTickRef.current,false);
     },
-    [
-      showCompletionOverlay,
-      handleContinue,
-      isPlaying,
-      startToneContext,
-      triggerSynthRelease,
-      handleKeyboardNoteOff,
-      parsePerformance,
-    ]
+    [isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff, parsePerformance]
   );
 
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
-      if (showCompletionOverlay) {
-        handleContinue();
-        return;
-      }
       void startPianoSampler();
       const midi = event.number;
       if(event.velocity == 0){
@@ -369,7 +339,7 @@ export const PlayAlong = ({
       handleKeyboardNoteOn(midi);
       parsePerformance(event.number, currentTickRef.current,true);
     },
-    [showCompletionOverlay, handleContinue, triggerSynthAttack, handleKeyboardNoteOn, parsePerformance, handleMidiNoteOff]
+    [triggerSynthAttack, handleKeyboardNoteOn, parsePerformance, handleMidiNoteOff]
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
@@ -403,7 +373,17 @@ export const PlayAlong = ({
       };
     });
     return meta;
-  }, [notePerformance]);
+    }, [notePerformance]);
+
+  const handleContinue = useCallback(() => {
+    releaseActiveNotes();
+    if (onContinue) {
+      onContinue();
+    } else {
+      resetProgress();
+    }
+  }, [onContinue, releaseActiveNotes, resetProgress]);
+
 
 
   useEffect(() => {

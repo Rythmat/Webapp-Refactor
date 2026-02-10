@@ -261,6 +261,10 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
+      if (showCompletionOverlay) {
+        handleContinue();
+        return;
+      }
       if (!isPlaying) {
         void startToneContext();
         setIsPlaying(true);
@@ -276,12 +280,23 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
       handleKeyboardNoteOff(midi);
     },
-    [isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff]
+    [
+      showCompletionOverlay,
+      handleContinue,
+      isPlaying,
+      startToneContext,
+      triggerSynthRelease,
+      handleKeyboardNoteOff,
+    ]
   );
 
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      if (showCompletionOverlay) {
+        handleContinue();
+        return;
+      }
       void startPianoSampler();
       const midi = event.number;
       if(event.velocity == 0){
@@ -297,7 +312,13 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
       }
       handleKeyboardNoteOn(midi);
     },
-    [triggerSynthAttack, handleKeyboardNoteOn, handleMidiNoteOff]
+    [
+      showCompletionOverlay,
+      handleContinue,
+      triggerSynthAttack,
+      handleKeyboardNoteOn,
+      handleMidiNoteOff,
+    ]
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
@@ -399,6 +420,9 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
               </h3>
               <p className="mt-2 text-sm text-neutral-300">
                 { "You completed the sequence. Continue when you are ready, or restart to practice again."}
+              </p>
+              <p className="mt-2 text-xs text-neutral-400">
+                Press any key on the keyboard to continue.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <button

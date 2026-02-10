@@ -685,6 +685,9 @@ const PianoRoll: React.FC<PianoRollProps> = ({
             <p className="mt-2 text-sm text-neutral-300">
               {startMessage}
             </p>
+            <p className="mt-2 text-xs text-neutral-400">
+              Press any key on the keyboard to continue.
+            </p>
             <div className="mt-6 flex justify-center">
               <button
                 type="button"

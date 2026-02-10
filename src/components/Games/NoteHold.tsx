@@ -195,6 +195,15 @@ export const NoteHold = ({
     );
   }, []);
 
+  const handleContinue = useCallback(() => {
+    releaseActiveNotes();
+    if (onContinue) {
+      onContinue();
+    } else {
+      resetProgress();
+    }
+  }, [onContinue, releaseActiveNotes, resetProgress]);
+
   useEffect(() => {
     if (!currentChord || currentChordMidis.length === 0) {
       setChordHoldStartMs(null);
@@ -250,15 +259,12 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
   const showCompletionOverlay = showChordHoldCompletion;
 
-  const handleContinue = useCallback(() => {
-    releaseActiveNotes();
-    if (onContinue) {
-      onContinue();
-    }
-  }, [onContinue, releaseActiveNotes]);
-
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
+      if (showCompletionOverlay) {
+        handleContinue();
+        return;
+      }
       if (!isPlaying) {
         void startToneContext();
         setIsPlaying(true);
@@ -274,12 +280,23 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
       handleKeyboardNoteOff(midi);
     },
-    [isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff]
+    [
+      showCompletionOverlay,
+      handleContinue,
+      isPlaying,
+      startToneContext,
+      triggerSynthRelease,
+      handleKeyboardNoteOff,
+    ]
   );
 
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      if (showCompletionOverlay) {
+        handleContinue();
+        return;
+      }
       void startPianoSampler();
       const midi = event.number;
       if(event.velocity == 0){
@@ -295,7 +312,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
       }
       handleKeyboardNoteOn(midi);
     },
-    [triggerSynthAttack, handleKeyboardNoteOn, handleMidiNoteOff]
+    [showCompletionOverlay, handleContinue, triggerSynthAttack, handleKeyboardNoteOn, handleMidiNoteOff]
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {

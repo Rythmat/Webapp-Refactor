@@ -239,10 +239,8 @@ export const PlayAlong = ({
     releaseActiveNotes();
     if (onContinue) {
       onContinue();
-    } else {
-      resetProgress();
     }
-  }, [onContinue, releaseActiveNotes, resetProgress]);
+  }, [onContinue, releaseActiveNotes]);
 
   const showInTimeCompletion = !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
 
@@ -311,7 +309,6 @@ export const PlayAlong = ({
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
       if (showCompletionOverlay) {
-        handleContinue();
         return;
       }
       if (!isPlaying) {
@@ -332,7 +329,6 @@ export const PlayAlong = ({
     },
     [
       showCompletionOverlay,
-      handleContinue,
       isPlaying,
       startToneContext,
       triggerSynthRelease,
@@ -345,7 +341,9 @@ export const PlayAlong = ({
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
       if (showCompletionOverlay) {
-        handleContinue();
+        if (event.velocity > 0) {
+          handleContinue();
+        }
         return;
       }
       if (!isPlaying) {

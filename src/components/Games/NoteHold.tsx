@@ -254,15 +254,12 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
     releaseActiveNotes();
     if (onContinue) {
       onContinue();
-    } else {
-      resetProgress();
     }
-  }, [onContinue, releaseActiveNotes, resetProgress]);
+  }, [onContinue, releaseActiveNotes]);
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
       if (showCompletionOverlay) {
-        handleContinue();
         return;
       }
       if (!isPlaying) {
@@ -282,7 +279,6 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
     },
     [
       showCompletionOverlay,
-      handleContinue,
       isPlaying,
       startToneContext,
       triggerSynthRelease,
@@ -294,7 +290,9 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
       if (showCompletionOverlay) {
-        handleContinue();
+        if (event.velocity > 0) {
+          handleContinue();
+        }
         return;
       }
       if (!isPlaying) {

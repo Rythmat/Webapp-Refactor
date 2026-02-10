@@ -807,7 +807,7 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 />
               </div>
             )}
-            <div className="mt-6 flex justify-center">
+            <div className="mt-6 flex flex-col items-center gap-3">
               <div
                 className={`rounded-full border px-6 py-2 text-sm font-semibold transition ${
                   startSignal
@@ -817,6 +817,13 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               >
                 Press any key on your keyboard to start
               </div>
+              <button
+                type="button"
+                onClick={handleStartSignal}
+                className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+              >
+                Start
+              </button>
             </div>
           </div>
         </div>

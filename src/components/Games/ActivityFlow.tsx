@@ -15,6 +15,9 @@ import { useNavigate } from "react-router";
 import { LearnRoutes, StudioRoutes } from "@/constants/routes";
 import { keyLabelToUrlParam } from "@/lib/musicKeyUrl";
 import { useMidiInput } from "@/hooks/music/useMidiInput";
+import { PianoKeyboard } from "@/components/PianoKeyboard";
+import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
+import { pitchNameToMidi } from "./PianoRollPlay";
 type RhythmHit = [number, number];
 const chordRhythmFallbacks: Record<string, RhythmHit[]> = {
   "Jazz 1a": [[0, 480], [720, 240], [1440, 480]],
@@ -25,6 +28,7 @@ type FlowActivityProps = {
   events?: NoteEvent[];
   onContinue?: () => void;
   onActivityCompleteChange?: (isComplete: boolean) => void;
+  startSignal?: number;
   startMessage?: string;
 };
 
@@ -40,6 +44,7 @@ type ActivityFlowProps = {
 const DEFAULT_SCALE: number[] = [60, 62, 64, 65, 67, 69, 71, 72];
 const NOTE_DURATION_TICKS = 480;
 const CHROMATIC_KEYS = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"] as const;
+const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;
 
 type ActivityDefinition = {
   key: string;
@@ -729,6 +734,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activityInstanceId, setActivityInstanceId] = useState(0);
   const [currentActivityComplete, setCurrentActivityComplete] = useState(false);
+  const [activityStarted, setActivityStarted] = useState(true);
+  const [startSignal, setStartSignal] = useState(0);
+  const [startOverlayStep, setStartOverlayStep] = useState(0);
   const [lessonComplete, setLessonComplete] = useState(false);
   const currentActivity = flowDefinitions[currentIndex];
   const currentChromaticIndex = useMemo(
@@ -789,6 +797,16 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   useEffect(() => {
     setCurrentActivityComplete(false);
+    if (!currentActivity) {
+      setActivityStarted(true);
+      setStartSignal(0);
+      return;
+    }
+    const requiresStartOverlay =
+      currentActivity.Component === PlayAlong || currentActivity.Component === NoteHold;
+    setActivityStarted(!requiresStartOverlay);
+    setStartOverlayStep(0);
+    setStartSignal(0);
   }, [currentActivity?.key]);
 
   useEffect(() => {
@@ -824,6 +842,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const handleRestartActivity = () => {
     setCurrentActivityComplete(false);
+    setStartSignal(0);
+    if (usesActivityStartOverlay) {
+      setActivityStarted(false);
+    }
     setActivityInstanceId((id) => id + 1);
   };
 
@@ -834,8 +856,88 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const { Component, events, direction} = currentActivity;
   const usesActivityCompletionOverlay =
     Component === PlayAlong || Component === NoteHold;
+  const usesActivityStartOverlay =
+    Component === PlayAlong || Component === NoteHold;
   const showActivityCompletionOverlay =
     usesActivityCompletionOverlay && currentActivityComplete;
+  const showStartOverlay = usesActivityStartOverlay && !activityStarted;
+
+  const startOverlaySequence = useMemo(
+    () =>
+      [...events]
+        .sort((a, b) => {
+          if (a.startTicks !== b.startTicks) {
+            return a.startTicks - b.startTicks;
+          }
+          const aMidi =
+            typeof a.midi === "number" ? a.midi : pitchNameToMidi(a.pitchName);
+          const bMidi =
+            typeof b.midi === "number" ? b.midi : pitchNameToMidi(b.pitchName);
+          if (aMidi == null || bMidi == null) {
+            return 0;
+          }
+          return aMidi - bMidi;
+        })
+        .map((event) => ({
+          event,
+          midi:
+            typeof event.midi === "number"
+              ? event.midi
+              : pitchNameToMidi(event.pitchName),
+        }))
+        .filter(
+          (item): item is { event: NoteEvent; midi: number } =>
+            typeof item.midi === "number",
+        ),
+    [events],
+  );
+
+  useEffect(() => {
+    if (!showStartOverlay || startOverlaySequence.length === 0) {
+      setStartOverlayStep(0);
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setStartOverlayStep((prev) => {
+        const next = prev + 1;
+        if (next >= startOverlaySequence.length) {
+          return 0;
+        }
+        return next;
+      });
+    }, 600);
+
+    return () => window.clearInterval(intervalId);
+  }, [showStartOverlay, startOverlaySequence]);
+
+  const startOverlayNotes = useMemo(() => {
+    if (startOverlaySequence.length === 0) {
+      return [];
+    }
+
+    const now = Date.now();
+    const cappedIndex = Math.min(
+      startOverlayStep,
+      startOverlaySequence.length - 1,
+    );
+    return startOverlaySequence
+      .slice(0, cappedIndex + 1)
+      .map<PlaybackEvent>(({ event, midi }, index) => ({
+        id: `start-${event.id}-${index}`,
+        type: "note",
+        midi,
+        time: now,
+        duration: START_OVERLAY_NOTE_DURATION_SECONDS,
+        velocity: 1,
+        color: event.color,
+      }));
+  }, [startOverlaySequence, startOverlayStep]);
+
+  const handleStartActivity = () => {
+    setActivityStarted(true);
+    setStartSignal((value) => value + 1);
+  };
 
   if (lessonComplete) {
     return (
@@ -905,7 +1007,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       <div className="relative">
         <div
           className={
-            showActivityCompletionOverlay
+            showActivityCompletionOverlay || showStartOverlay
               ? "pointer-events-none opacity-30 blur-sm transition duration-300"
               : "transition duration-300"
           }
@@ -915,9 +1017,44 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
             events={events}
             onContinue={handleContinue}
             onActivityCompleteChange={setCurrentActivityComplete}
+            startSignal={startSignal}
             startMessage={direction}
           />
         </div>
+        {showStartOverlay && (
+          <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center bg-neutral-950/80 px-4 backdrop-blur">
+            <div className="w-full max-w-lg rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
+              <h3 className="text-2xl font-semibold">Ready to start?</h3>
+              <p className="mt-2 text-sm text-neutral-300">{direction}</p>
+              {startOverlayNotes.length > 0 && (
+                <div className="mt-4">
+                  <p className="mb-2 text-xs uppercase tracking-wide text-neutral-400">
+                    Note sequence
+                  </p>
+                  <PianoKeyboard
+                    className="mx-auto"
+                    startC={2}
+                    endC={6}
+                    playingNotes={startOverlayNotes}
+                    activeWhiteKeyColor="#60a5fa"
+                    activeBlackKeyColor="#60a5fa"
+                    enableClick={false}
+                    useContextNotes={false}
+                  />
+                </div>
+              )}
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  onClick={handleStartActivity}
+                  className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                >
+                  Start
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {showActivityCompletionOverlay && (
           <div className="absolute inset-0 flex items-center justify-center px-4">
             <div className="rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">

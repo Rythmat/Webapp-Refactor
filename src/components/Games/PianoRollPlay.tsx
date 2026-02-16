@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { PlayNote } from "./PlayNote";
-import { PianoKeyboard } from "@/components/PianoKeyboard";
-import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
 
 export type Midi = number; // 0..127
 
@@ -33,11 +31,9 @@ export interface PianoRollProps {
   playSpeed?: number; // beats per minute traversal speed
   isPlaying?: boolean;
   onPlayingChange?: (playing: boolean) => void;
-  onStart?: () => Promise<void> | void;
   activeMidis?: number[];
   noteHoldMeta?: Record<string, NoteHoldMeta>;
   performanceMeta?: Record<string, { startTick: number; endTick?: number }>;
-  startMessage? : string;
   /** Callbacks */
   onTickChange?: (tick: number) => void;
 }
@@ -91,8 +87,6 @@ const MIDI_NOTE_NAMES = [
   "A#",
   "B",
 ];
-
-const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;
 
 type PitchInfo = {
   octave: number;
@@ -203,13 +197,6 @@ function barBeatLabels(bars: number, beatsPerBar: number, showCountIn: boolean) 
   return labels;
 }
 
-function eventToMidi(event: NoteEvent): number | null {
-  if (typeof event.midi === "number") {
-    return event.midi;
-  }
-  return pitchNameToMidi(event.pitchName);
-}
-
 // ===== Component =====
 const PianoRoll: React.FC<PianoRollProps> = ({
   events,
@@ -221,12 +208,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   playSpeed = 60,
   isPlaying,
   onPlayingChange,
-  onStart,
   activeMidis = [],
   noteHoldMeta,
   performanceMeta,
   onTickChange,
-  startMessage = "Press start to begin the in-time play-along and follow the moving playhead.",
 }) => {
   const laneList = buildLaneList(events);
   const effectiveRowHeight =
@@ -262,62 +247,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
     typeof isPlaying === "boolean" && typeof onPlayingChange === "function";
   const [internalPlaying, setInternalPlaying] = useState(false);
   const playing = isControlled ? isPlaying : internalPlaying;
-  const startOverlaySequence = useMemo(
-    () =>
-      [...events]
-        .sort((a, b) => {
-          if (a.startTicks !== b.startTicks) {
-            return a.startTicks - b.startTicks;
-          }
-          const aMidi = eventToMidi(a);
-          const bMidi = eventToMidi(b);
-          if (aMidi == null || bMidi == null) {
-            return 0;
-          }
-          return aMidi - bMidi;
-        })
-        .map((event) => ({ event, midi: eventToMidi(event) }))
-        .filter((item): item is { event: NoteEvent; midi: number } => typeof item.midi === "number"),
-    [events],
-  );
-  const [startOverlayStep, setStartOverlayStep] = useState(0);
-
-  useEffect(() => {
-    if (playing || startOverlaySequence.length === 0) {
-      setStartOverlayStep(0);
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setStartOverlayStep((prev) => {
-        const next = prev + 1;
-        if (next >= startOverlaySequence.length) {
-          return 0;
-        }
-        return next;
-      });
-    }, 600);
-
-    return () => window.clearInterval(intervalId);
-  }, [playing, startOverlaySequence]);
-
-  const startOverlayNotes = useMemo(() => {
-    if (startOverlaySequence.length === 0) {
-      return [];
-    }
-
-    const now = Date.now();
-    const cappedIndex = Math.min(startOverlayStep, startOverlaySequence.length - 1);
-    return startOverlaySequence.slice(0, cappedIndex + 1).map<PlaybackEvent>(({ event, midi }, index) => ({
-      id: `start-${event.id}-${index}`,
-      type: "note",
-      midi,
-      time: now,
-      duration: START_OVERLAY_NOTE_DURATION_SECONDS,
-      velocity: 1,
-      color: event.color,
-    }));
-  }, [startOverlaySequence, startOverlayStep]);
 
   // Change the playing state
   const setPlaying = (next: boolean) => {
@@ -745,45 +674,6 @@ const PianoRoll: React.FC<PianoRollProps> = ({
         </div>
       </div>
       </div>
-      {!playing && (
-        <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center bg-neutral-950/80 px-4 backdrop-blur">
-          <div className="w-full max-w-lg rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
-            <h3 className="text-2xl font-semibold">Ready to start?</h3>
-            <p className="mt-2 text-sm text-neutral-300">
-              {startMessage}
-            </p>
-            {startOverlayNotes.length > 0 && (
-              <div className="mt-4">
-                <p className="mb-2 text-xs uppercase tracking-wide text-neutral-400">
-                  Note sequence
-                </p>
-                <PianoKeyboard
-                  className="mx-auto"
-                  startC={2}
-                  endC={6}
-                  playingNotes={startOverlayNotes}
-                  activeWhiteKeyColor="#60a5fa"
-                  activeBlackKeyColor="#60a5fa"
-                  enableClick={false}
-                  useContextNotes={false}
-                />
-              </div>
-            )}
-            <div className="mt-6 flex justify-center">
-              <button
-                type="button"
-                onClick={async () => {
-                  await onStart?.();
-                  setPlaying(true);
-                }}
-                className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
-              >
-                Start
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

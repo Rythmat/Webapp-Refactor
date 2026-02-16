@@ -39,13 +39,13 @@ const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
 type NoteHoldProps = {
   events?: NoteEvent[];
   onActivityCompleteChange?: (isComplete: boolean) => void;
-  startMessage?: string;
+  startSignal?: number;
 };
 
 export const NoteHold = ({
   events,
   onActivityCompleteChange,
-  startMessage,
+  startSignal = 0,
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const activeMidiSetRef = useRef(new Set<number>());
@@ -333,6 +333,12 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
   }, [onActivityCompleteChange, showChordHoldCompletion]);
 
   useEffect(() => {
+    if (startSignal <= 0) return;
+    void startToneContext();
+    setIsPlaying(true);
+  }, [startSignal, startToneContext]);
+
+  useEffect(() => {
     return () => {
       releaseActiveNotes();
     };
@@ -353,10 +359,8 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
           playSpeed={80}
           isPlaying={isPlaying}
           onPlayingChange={setIsPlaying}
-          onStart={startToneContext}
           activeMidis={activeMidis}
           noteHoldMeta={noteHoldMeta}
-          startMessage={startMessage}
         />
         <PianoKeyboard
           className="mx-auto"

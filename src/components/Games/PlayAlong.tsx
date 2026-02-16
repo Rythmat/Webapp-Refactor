@@ -38,6 +38,7 @@ const ACTIVATION_WINDOW_SHIFT_RATIO = 1 / 8;
 type PlayAlongProps = {
   events?: NoteEvent[];
   onActivityCompleteChange?: (isComplete: boolean) => void;
+  startSignal?: number;
   startMessage?:string;
 };
 
@@ -49,7 +50,7 @@ type NotePerformance = {
 export const PlayAlong = ({
   events,
   onActivityCompleteChange,
-  startMessage,
+  startSignal = 0,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const maxEventEndTick = useMemo(
@@ -375,6 +376,12 @@ export const PlayAlong = ({
   }, [onActivityCompleteChange, showInTimeCompletion]);
 
   useEffect(() => {
+    if (startSignal <= 0) return;
+    void startToneContext();
+    setIsPlaying(true);
+  }, [startSignal, startToneContext]);
+
+  useEffect(() => {
     const wasPlaying = wasPlayingRef.current;
     if (!wasPlaying && isPlaying) {
       resetInTimeRun();
@@ -417,11 +424,9 @@ export const PlayAlong = ({
             playSpeed={80}
             isPlaying={isPlaying}
             onPlayingChange={setIsPlaying}
-            onStart={startToneContext}
             activeMidis={activeMidis}
             performanceMeta={performanceMeta}
             onTickChange={setCurrentTick}
-            startMessage={startMessage}
           />
           <PianoKeyboard
           className="mx-auto"

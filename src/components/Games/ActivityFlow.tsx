@@ -943,18 +943,32 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       startOverlayStep,
       startOverlaySequence.length - 1,
     );
-    return startOverlaySequence
-      .slice(0, cappedIndex + 1)
-      .map<PlaybackEvent>(({ event, midi }, index) => ({
-        id: `start-${event.id}-${index}`,
+    const item = startOverlaySequence[cappedIndex];
+    return [
+      {
+        id: `start-${item.event.id}-${cappedIndex}`,
         type: "note",
-        midi,
+        midi: item.midi,
         time: now,
         duration: START_OVERLAY_NOTE_DURATION_SECONDS,
         velocity: 1,
-        color: event.color,
-      }));
+        color: item.event.color,
+      } satisfies PlaybackEvent,
+    ];
   }, [startOverlaySequence, startOverlayStep]);
+
+  const { startC: startOverlayStartC, endC: startOverlayEndC } = useMemo(() => {
+    if (startOverlaySequence.length === 0) {
+      return { startC: 3, endC: 4 };
+    }
+    const midiValues = startOverlaySequence.map((item) => item.midi);
+    const minMidi = Math.min(...midiValues);
+    const maxMidi = Math.max(...midiValues);
+    const minOctave = Math.floor(minMidi / 12) - 1;
+    const maxOctave = Math.floor(maxMidi / 12) - 1;
+    const endC = Math.max(maxOctave, minOctave + 1);
+    return { startC: minOctave, endC };
+  }, [startOverlaySequence]);
 
   const handleStartActivity = () => {
     setActivityState("active");
@@ -1056,8 +1070,8 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
                   </p>
                   <PianoKeyboard
                     className="mx-auto"
-                    startC={2}
-                    endC={6}
+                    startC={startOverlayStartC}
+                    endC={startOverlayEndC}
                     playingNotes={startOverlayNotes}
                     activeWhiteKeyColor="#60a5fa"
                     activeBlackKeyColor="#60a5fa"

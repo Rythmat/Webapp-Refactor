@@ -39,12 +39,14 @@ const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
 type NoteHoldProps = {
   events?: NoteEvent[];
   onActivityCompleteChange?: (isComplete: boolean) => void;
+  isActive?: boolean;
   startSignal?: number;
 };
 
 export const NoteHold = ({
   events,
   onActivityCompleteChange,
+  isActive = true,
   startSignal = 0,
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
@@ -238,6 +240,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
+      if (!isActive) return;
       if (!isPlaying) {
         void startToneContext();
         setIsPlaying(true);
@@ -253,12 +256,13 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
       handleKeyboardNoteOff(midi);
     },
-    [isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff]
+    [isActive, isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff]
   );
 
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      if (!isActive) return;
       void startPianoSampler();
       const midi = event.number;
       if(event.velocity == 0){
@@ -274,14 +278,16 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
       }
       handleKeyboardNoteOn(midi);
     },
-    [triggerSynthAttack,handleKeyboardNoteOn]
+    [handleMidiNoteOff, isActive, triggerSynthAttack,handleKeyboardNoteOn]
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
     onNoteOn: (e) => {
+      if (!isActive) return;
       handleMidiNoteOn(e);
     },
     onNoteOff: (e) => {
+      if (!isActive) return;
       handleMidiNoteOff(e);
     } 
   });
@@ -334,9 +340,16 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
   useEffect(() => {
     if (startSignal <= 0) return;
+    if (!isActive) return;
     void startToneContext();
     setIsPlaying(true);
-  }, [startSignal, startToneContext]);
+  }, [isActive, startSignal, startToneContext]);
+
+  useEffect(() => {
+    if (isActive) return;
+    setIsPlaying(false);
+    releaseActiveNotes();
+  }, [isActive, releaseActiveNotes]);
 
   useEffect(() => {
     return () => {

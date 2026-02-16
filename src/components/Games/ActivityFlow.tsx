@@ -28,6 +28,7 @@ type FlowActivityProps = {
   events?: NoteEvent[];
   onContinue?: () => void;
   onActivityCompleteChange?: (isComplete: boolean) => void;
+  isActive?: boolean;
   startSignal?: number;
   startMessage?: string;
 };
@@ -1036,6 +1037,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           <Component
             key={`${currentActivity.key}-${activityInstanceId}`}
             events={events}
+            isActive={activityState === "active"}
             onContinue={handleContinue}
             onActivityCompleteChange={handleActivityCompleteChange}
             startSignal={startSignal}

@@ -38,6 +38,7 @@ const ACTIVATION_WINDOW_SHIFT_RATIO = 1 / 8;
 type PlayAlongProps = {
   events?: NoteEvent[];
   onActivityCompleteChange?: (isComplete: boolean) => void;
+  isActive?: boolean;
   startSignal?: number;
   startMessage?:string;
 };
@@ -50,6 +51,7 @@ type NotePerformance = {
 export const PlayAlong = ({
   events,
   onActivityCompleteChange,
+  isActive = true,
   startSignal = 0,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
@@ -301,6 +303,7 @@ export const PlayAlong = ({
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
+      if (!isActive) return;
       if (!isPlaying) {
         void startToneContext();
         setIsPlaying(true);
@@ -317,12 +320,13 @@ export const PlayAlong = ({
       handleKeyboardNoteOff(midi);
       parsePerformance(event.number,currentTickRef.current,false);
     },
-    [isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff, parsePerformance]
+    [isActive, isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff, parsePerformance]
   );
 
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
+      if (!isActive) return;
       void startPianoSampler();
       const midi = event.number;
       if(event.velocity == 0){
@@ -339,16 +343,18 @@ export const PlayAlong = ({
       handleKeyboardNoteOn(midi);
       parsePerformance(event.number, currentTickRef.current,true);
     },
-    [triggerSynthAttack,handleKeyboardNoteOn, parsePerformance]
+    [handleMidiNoteOff, isActive, triggerSynthAttack,handleKeyboardNoteOn, parsePerformance]
   );
 
   const { startListening, stopListening } = useMidiInput(undefined, {
     onNoteOn: (e) => {
+      if (!isActive) return;
       console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity, "at", currentTickRef.current, "ticks");
       console.log("timestamp:", Date.now(), ', isPlaying is', isPlaying);
       handleMidiNoteOn(e);
     },
     onNoteOff: (e) => {
+      if (!isActive) return;
       handleMidiNoteOff(e);
     } 
   });
@@ -382,9 +388,16 @@ export const PlayAlong = ({
 
   useEffect(() => {
     if (startSignal <= 0) return;
+    if (!isActive) return;
     void startToneContext();
     setIsPlaying(true);
-  }, [startSignal, startToneContext]);
+  }, [isActive, startSignal, startToneContext]);
+
+  useEffect(() => {
+    if (isActive) return;
+    setIsPlaying(false);
+    releaseActiveNotes();
+  }, [isActive, releaseActiveNotes]);
 
   useEffect(() => {
     const wasPlaying = wasPlayingRef.current;

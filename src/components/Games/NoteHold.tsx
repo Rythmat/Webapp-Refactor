@@ -298,7 +298,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
       stop?.();
       stopListening();
     };
-  }, []);
+  }, [startListening, stopListening]);
 
   const noteHoldMeta = useMemo(() => {
     const meta: Record<string, NoteHoldMeta> = {};

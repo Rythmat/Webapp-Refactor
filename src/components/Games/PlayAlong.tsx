@@ -365,7 +365,7 @@ export const PlayAlong = ({
       stop?.();
       stopListening();
     };
-  }, []);
+  }, [startListening, stopListening]);
 
  
 

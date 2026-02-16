@@ -40,6 +40,7 @@ type ActivityFlowProps = {
   rootMidi: number;
   mode?: PrismModeSlug;
 };
+type ActivityState = "pending" | "active" | "completed";
 
 const DEFAULT_SCALE: number[] = [60, 62, 64, 65, 67, 69, 71, 72];
 const NOTE_DURATION_TICKS = 480;
@@ -733,8 +734,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activityInstanceId, setActivityInstanceId] = useState(0);
-  const [currentActivityComplete, setCurrentActivityComplete] = useState(false);
-  const [activityStarted, setActivityStarted] = useState(true);
+  const [activityState, setActivityState] = useState<ActivityState>("active");
   const [startSignal, setStartSignal] = useState(0);
   const [startOverlayStep, setStartOverlayStep] = useState(0);
   const [lessonComplete, setLessonComplete] = useState(false);
@@ -760,54 +760,32 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     );
   }, [modeLabel, navigate, nextCurriculumKey]);
 
-  const handleMidiActivity = useCallback(() => {
-    if (!lessonComplete || midiTriggeredRef.current) return;
-    midiTriggeredRef.current = true;
-    continueCurriculum();
-  }, [continueCurriculum, lessonComplete]);
-
-  const { startListening, stopListening } = useMidiInput(undefined, {
-    onNoteOn: handleMidiActivity,
-    onNoteOff: handleMidiActivity,
-  });
-
-  useEffect(() => {
-    if (!lessonComplete) {
-      midiTriggeredRef.current = false;
-      stopListening();
-      return;
-    }
-    const stop = startListening();
-    return () => {
-      if (typeof stop === "function") {
-        stop();
-        return;
-      }
-      stopListening();
-    };
-  }, [lessonComplete, startListening, stopListening]);
-
   useEffect(() => {
     setCurrentIndex(0);
     setActivityInstanceId(0);
-    setCurrentActivityComplete(false);
+    setActivityState("active");
     setLessonComplete(false);
     setNextKeyChoice(nextCurriculumKey);
   }, [mode, rootKey, nextCurriculumKey]);
 
   useEffect(() => {
-    setCurrentActivityComplete(false);
+    setActivityState("active");
     if (!currentActivity) {
-      setActivityStarted(true);
       setStartSignal(0);
       return;
     }
     const requiresStartOverlay =
       currentActivity.Component === PlayAlong || currentActivity.Component === NoteHold;
-    setActivityStarted(!requiresStartOverlay);
+    setActivityState(requiresStartOverlay ? "pending" : "active");
     setStartOverlayStep(0);
     setStartSignal(0);
   }, [currentActivity?.key]);
+
+  useEffect(() => {
+    if (!lessonComplete) {
+      midiTriggeredRef.current = false;
+    }
+  }, [lessonComplete]);
 
   useEffect(() => {
     if (flowDefinitions.length === 0) return;
@@ -826,10 +804,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     }
   }, [currentActivity, currentIndex, labelChange, flowDefinitions.length]);
 
-  const handleContinue = () => {
+  const handleContinue = useCallback(() => {
     setCurrentIndex((idx) => {
       if (idx < flowDefinitions.length - 1) {
-        setCurrentActivityComplete(false);
         return idx + 1;
       }
       if (!chordsQuery.isPending) {
@@ -838,20 +815,41 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       }
       return idx;
     });
-  };
+  }, [chordsQuery.isPending, flowDefinitions.length, onComplete]);
 
-  const handleRestartActivity = () => {
-    setCurrentActivityComplete(false);
-    setStartSignal(0);
-    if (usesActivityStartOverlay) {
-      setActivityStarted(false);
+  const handleMidiActivity = useCallback(() => {
+    if (lessonComplete) {
+      if (midiTriggeredRef.current) return;
+      midiTriggeredRef.current = true;
+      continueCurriculum();
+      return;
     }
-    setActivityInstanceId((id) => id + 1);
-  };
 
-  if (!currentActivity) {
-    return null;
-  }
+    if (activityState === "pending") {
+      setActivityState("active");
+      setStartSignal((value) => value + 1);
+      return;
+    }
+
+    if (activityState === "completed") {
+      handleContinue();
+    }
+  }, [activityState, continueCurriculum, handleContinue, lessonComplete]);
+
+  const { startListening, stopListening } = useMidiInput(undefined, {
+    onNoteOn: handleMidiActivity,
+  });
+
+  useEffect(() => {
+    const stop = startListening();
+    return () => {
+      if (typeof stop === "function") {
+        stop();
+        return;
+      }
+      stopListening();
+    };
+  }, [startListening, stopListening]);
 
   const { Component, events, direction} = currentActivity;
   const usesActivityCompletionOverlay =
@@ -859,8 +857,31 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const usesActivityStartOverlay =
     Component === PlayAlong || Component === NoteHold;
   const showActivityCompletionOverlay =
-    usesActivityCompletionOverlay && currentActivityComplete;
-  const showStartOverlay = usesActivityStartOverlay && !activityStarted;
+    usesActivityCompletionOverlay && activityState === "completed";
+  const showStartOverlay =
+    usesActivityStartOverlay && activityState === "pending";
+
+  const handleActivityCompleteChange = useCallback(
+    (isComplete: boolean) => {
+      if (!isComplete || !usesActivityCompletionOverlay) return;
+      setActivityState("completed");
+    },
+    [usesActivityCompletionOverlay],
+  );
+
+  const handleRestartActivity = () => {
+    setStartSignal(0);
+    if (usesActivityStartOverlay) {
+      setActivityState("pending");
+    } else {
+      setActivityState("active");
+    }
+    setActivityInstanceId((id) => id + 1);
+  };
+
+  if (!currentActivity) {
+    return null;
+  }
 
   const startOverlaySequence = useMemo(
     () =>
@@ -935,7 +956,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   }, [startOverlaySequence, startOverlayStep]);
 
   const handleStartActivity = () => {
-    setActivityStarted(true);
+    setActivityState("active");
     setStartSignal((value) => value + 1);
   };
 
@@ -1016,7 +1037,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
             key={`${currentActivity.key}-${activityInstanceId}`}
             events={events}
             onContinue={handleContinue}
-            onActivityCompleteChange={setCurrentActivityComplete}
+            onActivityCompleteChange={handleActivityCompleteChange}
             startSignal={startSignal}
             startMessage={direction}
           />

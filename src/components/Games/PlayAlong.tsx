@@ -360,12 +360,16 @@ export const PlayAlong = ({
   });
 
   useEffect(() => {
+    if (!isActive) {
+      stopListening();
+      return;
+    }
     const stop = startListening();
     return () => {
       stop?.();
       stopListening();
     };
-  }, [startListening, stopListening]);
+  }, [isActive, startListening, stopListening]);
 
  
 

@@ -293,12 +293,16 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
   });
 
   useEffect(() => {
+    if (!isActive) {
+      stopListening();
+      return;
+    }
     const stop = startListening();
     return () => {
       stop?.();
       stopListening();
     };
-  }, [startListening, stopListening]);
+  }, [isActive, startListening, stopListening]);
 
   const noteHoldMeta = useMemo(() => {
     const meta: Record<string, NoteHoldMeta> = {};

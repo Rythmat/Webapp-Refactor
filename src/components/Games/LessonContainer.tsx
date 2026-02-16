@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityFlow } from "./ActivityFlow";
 import { usePrismMode } from "@/hooks/data/prism/usePrismMode";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
@@ -6,6 +6,7 @@ import { PrismModeSlug } from "@/hooks/data";
 import { keyLabelToUrlParam, urlParamToKeyLabel } from "@/lib/musicKeyUrl";
 import { LearnRoutes, StudioRoutes } from "@/constants/routes";
 import { useNavigate } from "react-router";
+import { useMidiInput } from "@/hooks/music/useMidiInput";
 
 type LessonContainerProps = {
   modeSlug: PrismModeSlug;
@@ -76,6 +77,7 @@ export const LessonContainer = ({ modeSlug, rootKey }: LessonContainerProps) => 
   const [stage, setStage] = useState<LessonStage>("lesson");
   const [label, setLabel] = useState(["", ""]);
   const navigate = useNavigate();
+  const midiTriggeredRef = useRef(false);
   const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
   const currentChromaticIndex = useMemo(
     () => CHROMATIC_KEYS.findIndex((key) => key === keyOption.label),
@@ -98,6 +100,43 @@ export const LessonContainer = ({ modeSlug, rootKey }: LessonContainerProps) => 
     setStage("lesson");
     setNextKeyChoice(nextCurriculumKey);
   }, [modeSlug, rootKey]);
+
+  const continueCurriculum = useCallback(() => {
+    navigate(
+      LearnRoutes.lesson({
+        mode: modeSlug,
+        key: keyLabelToUrlParam(nextCurriculumKey),
+      }),
+    );
+  }, [modeSlug, navigate, nextCurriculumKey]);
+
+  const handleMidiActivity = useCallback(() => {
+    if (stage !== "complete" || midiTriggeredRef.current) return;
+    midiTriggeredRef.current = true;
+    continueCurriculum();
+  }, [continueCurriculum, stage]);
+
+  const { startListening, stopListening } = useMidiInput(undefined, {
+    onNoteOn: handleMidiActivity,
+    onNoteOff: handleMidiActivity,
+  });
+
+  useEffect(() => {
+    if (stage !== "complete") {
+      midiTriggeredRef.current = false;
+      stopListening();
+      return;
+    }
+
+    const stop = startListening();
+    return () => {
+      if (typeof stop === "function") {
+        stop();
+        return;
+      }
+      stopListening();
+    };
+  }, [stage, startListening, stopListening]);
 
   const CompletionShell = () => (
     <div className="flex-1 flex items-center justify-center p-4">
@@ -150,14 +189,7 @@ export const LessonContainer = ({ modeSlug, rootKey }: LessonContainerProps) => 
 
           <button
             type="button"
-            onClick={() =>
-              navigate(
-                LearnRoutes.lesson({
-                  mode: modeSlug,
-                  key: keyLabelToUrlParam(nextCurriculumKey),
-                }),
-              )
-            }
+            onClick={continueCurriculum}
             className="rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-left text-sm font-semibold text-neutral-100 transition hover:border-neutral-500 hover:bg-neutral-700"
           >
             Continue curriculum ({nextCurriculumKey} {modeSlug})

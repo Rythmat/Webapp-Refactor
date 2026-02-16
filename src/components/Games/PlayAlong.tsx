@@ -144,6 +144,7 @@ export const PlayAlong = ({
     (isDownbeat: boolean) => {
       if (Tone.getContext().state !== "running") return;
       const player = isDownbeat ? firstMetronomePlayer : metronomePlayer;
+      if (!player.loaded) return;
       const now = Tone.now();
       // Guard against duplicate same-tick starts (can happen around rerenders/activity transitions).
       if (lastMetronomeClickAtRef.current >= 0 && now - lastMetronomeClickAtRef.current < 0.01) {
@@ -155,7 +156,11 @@ export const PlayAlong = ({
           player.stop(now);
         } catch {}
       }
-      player.start(now);
+      try {
+        player.start(now);
+      } catch {
+        // Can happen transiently if the player buffer has not loaded yet.
+      }
     },
     [firstMetronomePlayer, metronomePlayer],
   );

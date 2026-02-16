@@ -346,17 +346,25 @@ export const PlayAlong = ({
     [handleMidiNoteOff, isActive, triggerSynthAttack,handleKeyboardNoteOn, parsePerformance]
   );
 
-  const { startListening, stopListening } = useMidiInput(undefined, {
-    onNoteOn: (e) => {
+  const onMidiNoteOn = useCallback(
+    (e: MidiNoteEvent) => {
       if (!isActive) return;
-      console.log("[MIDI] NOTE ON", e.number, "vel", e.velocity, "at", currentTickRef.current, "ticks");
-      console.log("timestamp:", Date.now(), ', isPlaying is', isPlaying);
       handleMidiNoteOn(e);
     },
-    onNoteOff: (e) => {
+    [handleMidiNoteOn, isActive],
+  );
+
+  const onMidiNoteOff = useCallback(
+    (e: MidiNoteEvent) => {
       if (!isActive) return;
       handleMidiNoteOff(e);
-    } 
+    },
+    [handleMidiNoteOff, isActive],
+  );
+
+  const { startListening, stopListening } = useMidiInput(undefined, {
+    onNoteOn: onMidiNoteOn,
+    onNoteOff: onMidiNoteOff,
   });
 
   useEffect(() => {

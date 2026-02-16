@@ -281,15 +281,25 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
     [handleMidiNoteOff, isActive, triggerSynthAttack,handleKeyboardNoteOn]
   );
 
-  const { startListening, stopListening } = useMidiInput(undefined, {
-    onNoteOn: (e) => {
+  const onMidiNoteOn = useCallback(
+    (e: MidiNoteEvent) => {
       if (!isActive) return;
       handleMidiNoteOn(e);
     },
-    onNoteOff: (e) => {
+    [handleMidiNoteOn, isActive],
+  );
+
+  const onMidiNoteOff = useCallback(
+    (e: MidiNoteEvent) => {
       if (!isActive) return;
       handleMidiNoteOff(e);
-    } 
+    },
+    [handleMidiNoteOff, isActive],
+  );
+
+  const { startListening, stopListening } = useMidiInput(undefined, {
+    onNoteOn: onMidiNoteOn,
+    onNoteOff: onMidiNoteOff,
   });
 
   useEffect(() => {

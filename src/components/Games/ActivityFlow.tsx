@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // import { useQueries } from "@tanstack/react-query";
 import * as Tone from "tone";
 // import { useMusicAtlas } from "@/contexts/MusicAtlasContext";
@@ -11,6 +11,10 @@ import { LessonOverview } from "@/components/learn/LessonOverview";
 import type { NoteEvent } from "./PianoRollPlay";
 import {    PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
 import { usePrismRhythms } from "@/hooks/data/prism/usePrismRhythms";
+import { useNavigate } from "react-router";
+import { LearnRoutes, StudioRoutes } from "@/constants/routes";
+import { keyLabelToUrlParam } from "@/lib/musicKeyUrl";
+import { useMidiInput } from "@/hooks/music/useMidiInput";
 type RhythmHit = [number, number];
 const chordRhythmFallbacks: Record<string, RhythmHit[]> = {
   "Jazz 1a": [[0, 480], [720, 240], [1440, 480]],
@@ -20,6 +24,7 @@ const chordRhythmFallbacks: Record<string, RhythmHit[]> = {
 type FlowActivityProps = {
   events?: NoteEvent[];
   onContinue?: () => void;
+  onActivityCompleteChange?: (isComplete: boolean) => void;
   startMessage?: string;
 };
 
@@ -34,6 +39,7 @@ type ActivityFlowProps = {
 
 const DEFAULT_SCALE: number[] = [60, 62, 64, 65, 67, 69, 71, 72];
 const NOTE_DURATION_TICKS = 480;
+const CHROMATIC_KEYS = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"] as const;
 
 type ActivityDefinition = {
   key: string;
@@ -276,6 +282,8 @@ const extractContours = (value: unknown): number[][] => {
 
 
 export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, rootMidi, mode }: ActivityFlowProps) => {
+  const navigate = useNavigate();
+  const modeLabel = mode ?? "mode";
 
   // const [overviewReady, setOverviewReady] = useState(false);
   const { data: contourData } = usePrismStartContours();
@@ -719,11 +727,75 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [activityInstanceId, setActivityInstanceId] = useState(0);
+  const [currentActivityComplete, setCurrentActivityComplete] = useState(false);
+  const [lessonComplete, setLessonComplete] = useState(false);
   const currentActivity = flowDefinitions[currentIndex];
+  const currentChromaticIndex = useMemo(
+    () => CHROMATIC_KEYS.findIndex((key) => key === rootKey),
+    [rootKey],
+  );
+  const nextCurriculumKey = useMemo(() => {
+    const safeIndex = currentChromaticIndex >= 0 ? currentChromaticIndex : 0;
+    const nextIndex = (safeIndex + 1 + CHROMATIC_KEYS.length) % CHROMATIC_KEYS.length;
+    return CHROMATIC_KEYS[nextIndex];
+  }, [currentChromaticIndex]);
+  const [nextKeyChoice, setNextKeyChoice] = useState<string>(nextCurriculumKey);
+  const midiTriggeredRef = useRef(false);
+
+  const continueCurriculum = useCallback(() => {
+    navigate(
+      LearnRoutes.lesson({
+        mode: modeLabel,
+        key: keyLabelToUrlParam(nextCurriculumKey),
+      }),
+    );
+  }, [modeLabel, navigate, nextCurriculumKey]);
+
+  const handleMidiActivity = useCallback(() => {
+    if (!lessonComplete || midiTriggeredRef.current) return;
+    midiTriggeredRef.current = true;
+    continueCurriculum();
+  }, [continueCurriculum, lessonComplete]);
+
+  const { startListening, stopListening } = useMidiInput(undefined, {
+    onNoteOn: handleMidiActivity,
+    onNoteOff: handleMidiActivity,
+  });
+
+  useEffect(() => {
+    if (!lessonComplete) {
+      midiTriggeredRef.current = false;
+      stopListening();
+      return;
+    }
+    const stop = startListening();
+    return () => {
+      if (typeof stop === "function") {
+        stop();
+        return;
+      }
+      stopListening();
+    };
+  }, [lessonComplete, startListening, stopListening]);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+    setActivityInstanceId(0);
+    setCurrentActivityComplete(false);
+    setLessonComplete(false);
+    setNextKeyChoice(nextCurriculumKey);
+  }, [mode, rootKey, nextCurriculumKey]);
+
+  useEffect(() => {
+    setCurrentActivityComplete(false);
+  }, [currentActivity?.key]);
+
   useEffect(() => {
     if (flowDefinitions.length === 0) return;
     if (currentIndex < flowDefinitions.length) return;
     if (!chordsQuery.isPending) {
+      setLessonComplete(true);
       onComplete?.();
     }
     setCurrentIndex(Math.max(flowDefinitions.length - 1, 0));
@@ -739,13 +811,20 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const handleContinue = () => {
     setCurrentIndex((idx) => {
       if (idx < flowDefinitions.length - 1) {
+        setCurrentActivityComplete(false);
         return idx + 1;
       }
       if (!chordsQuery.isPending) {
+        setLessonComplete(true);
         onComplete?.();
       }
       return idx;
     });
+  };
+
+  const handleRestartActivity = () => {
+    setCurrentActivityComplete(false);
+    setActivityInstanceId((id) => id + 1);
   };
 
   if (!currentActivity) {
@@ -753,15 +832,123 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   }
 
   const { Component, events, direction} = currentActivity;
+  const usesActivityCompletionOverlay =
+    Component === PlayAlong || Component === NoteHold;
+  const showActivityCompletionOverlay =
+    usesActivityCompletionOverlay && currentActivityComplete;
+
+  if (lessonComplete) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center p-4">
+        <div className="w-full max-w-3xl rounded-2xl border border-neutral-800 bg-neutral-900/70 p-6 shadow-xl">
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h1 className="text-2xl font-semibold">Great work!</h1>
+            <p className="text-sm text-neutral-300">
+              You completed the {modeLabel} lesson in {rootKey}. How would you like to continue?
+            </p>
+          </div>
+          <div className="mt-6 grid gap-4">
+            <button
+              type="button"
+              onClick={() => navigate(StudioRoutes.root.definition)}
+              className="rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-left text-sm font-semibold text-neutral-100 transition hover:border-neutral-500 hover:bg-neutral-700"
+            >
+              Go to Studio
+            </button>
+
+            <div className="rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3">
+              <div className="mb-2 text-sm font-semibold text-neutral-100">Pick next key center</div>
+              <div className="flex flex-wrap gap-2">
+                <select
+                  value={nextKeyChoice}
+                  onChange={(e) => setNextKeyChoice(e.target.value)}
+                  className="rounded-md border border-neutral-600 bg-neutral-900 px-3 py-2 text-sm text-neutral-100"
+                >
+                  {CHROMATIC_KEYS.map((key) => (
+                    <option key={key} value={key}>
+                      {key}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(
+                      LearnRoutes.lesson({
+                        mode: modeLabel,
+                        key: keyLabelToUrlParam(nextKeyChoice),
+                      }),
+                    )
+                  }
+                  className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                >
+                  Start selected key
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={continueCurriculum}
+              className="rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-left text-sm font-semibold text-neutral-100 transition hover:border-neutral-500 hover:bg-neutral-700"
+            >
+              Continue curriculum ({nextCurriculumKey} {modeLabel})
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="flex flex-col gap-4">
-      <Component
-        key={currentActivity.key}
-        events={events}
-        onContinue={handleContinue}
-        startMessage={direction}
-      />
+      <div className="relative">
+        <div
+          className={
+            showActivityCompletionOverlay
+              ? "pointer-events-none opacity-30 blur-sm transition duration-300"
+              : "transition duration-300"
+          }
+        >
+          <Component
+            key={`${currentActivity.key}-${activityInstanceId}`}
+            events={events}
+            onContinue={handleContinue}
+            onActivityCompleteChange={setCurrentActivityComplete}
+            startMessage={direction}
+          />
+        </div>
+        {showActivityCompletionOverlay && (
+          <div className="absolute inset-0 flex items-center justify-center px-4">
+            <div className="rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
+              <h3 className="text-2xl font-semibold">
+                {Component === PlayAlong ? "Nice work!" : "Great job!"}
+              </h3>
+              <p className="mt-2 text-sm text-neutral-300">
+                {Component === PlayAlong
+                  ? "You finished the play-along. Continue when you are ready, or restart to practice again."
+                  : "You completed the sequence. Continue when you are ready, or restart to practice again."}
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <button
+                  type="button"
+                  onClick={handleContinue}
+                  className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                >
+                  Continue
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRestartActivity}
+                  className="rounded-full border border-neutral-500 px-6 py-2 text-sm font-semibold text-neutral-200 transition hover:border-neutral-300 hover:text-white"
+                >
+                  Restart
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

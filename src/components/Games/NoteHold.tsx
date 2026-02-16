@@ -38,13 +38,13 @@ const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
 
 type NoteHoldProps = {
   events?: NoteEvent[];
-  onContinue?: () => void;
+  onActivityCompleteChange?: (isComplete: boolean) => void;
   startMessage?: string;
 };
 
 export const NoteHold = ({
   events,
-  onContinue,
+  onActivityCompleteChange,
   startMessage,
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
@@ -72,18 +72,6 @@ export const NoteHold = ({
     }
   }, []);
 
-
-  const resetProgress = useCallback(() => {
-    setIsPlaying(false);
-    setCurrentChordIndex(0);
-    setCompletedChords(new Set());
-    setChordHoldStartMs(null);
-    setChordHoldProgress(0);
-    activeMidiSetRef.current = new Set<number>();
-    setActiveMidis([]);
-    setKeyboardPlayingNotes([]);
-    void releaseAllPianoNotes();
-  }, []);
 
   const releaseActiveNotes = useCallback(() => {
     void releaseAllPianoNotes();
@@ -248,8 +236,6 @@ export const NoteHold = ({
 
 const showChordHoldCompletion = chords.length > 0 && completedChords.size >= chords.length;
 
-  const showCompletionOverlay = showChordHoldCompletion;
-
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
       if (!isPlaying) {
@@ -342,14 +328,9 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
   ]);
 
 
-  const handleContinue = useCallback(() => {
-    releaseActiveNotes();
-    if (onContinue) {
-      onContinue();
-    } else {
-      resetProgress();
-    }
-  }, [onContinue, releaseActiveNotes, resetProgress]);
+  useEffect(() => {
+    onActivityCompleteChange?.(showChordHoldCompletion);
+  }, [onActivityCompleteChange, showChordHoldCompletion]);
 
   useEffect(() => {
     return () => {
@@ -361,11 +342,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
   return (
     <div className="flex flex-col gap-4">
       <div className="relative">
-        <div
-          className={`rounded-xl border border-neutral-800 bg-neutral-950/80 p-4 transition duration-300 ${
-            showCompletionOverlay ? "pointer-events-none opacity-30 blur-sm" : ""
-          }`}
-        >
+        <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4 transition duration-300">
         <PianoRoll
           events={resolvedEvents}
           bars={requiredBars}
@@ -391,34 +368,6 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
           showOctaveStart
         />
         </div>
-        {showCompletionOverlay && (
-          <div className="absolute inset-0 flex items-center justify-center px-4">
-            <div className="rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
-              <h3 className="text-2xl font-semibold">
-                {"Great job!"}
-              </h3>
-              <p className="mt-2 text-sm text-neutral-300">
-                { "You completed the sequence. Continue when you are ready, or restart to practice again."}
-              </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-                <button
-                  type="button"
-                  onClick={handleContinue}
-                  className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
-                >
-                  Continue
-                </button>
-                <button
-                  type="button"
-                  onClick={resetProgress}
-                  className="rounded-full border border-neutral-500 px-6 py-2 text-sm font-semibold text-neutral-200 transition hover:border-neutral-300 hover:text-white"
-                >
-                  Restart
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

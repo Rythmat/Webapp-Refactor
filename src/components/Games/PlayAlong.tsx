@@ -37,7 +37,7 @@ const ACTIVATION_WINDOW_SHIFT_RATIO = 1 / 8;
 
 type PlayAlongProps = {
   events?: NoteEvent[];
-  onContinue?: () => void;
+  onActivityCompleteChange?: (isComplete: boolean) => void;
   startMessage?:string;
 };
 
@@ -48,7 +48,7 @@ type NotePerformance = {
 
 export const PlayAlong = ({
   events,
-  onContinue,
+  onActivityCompleteChange,
   startMessage,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
@@ -115,16 +115,6 @@ export const PlayAlong = ({
       }
     };
   }, [firstMetronomePlayer, metronomePlayer]);
-
-  const resetProgress = useCallback(() => {
-    activeMidiSetRef.current = new Set<number>();
-    setActiveMidis([]);
-    setKeyboardPlayingNotes([]);
-    setNotePerformance({});
-    setCurrentTick(-COUNT_IN_TICKS);
-    lastMetronomeBeatRef.current = null;
-    void releaseAllPianoNotes();
-  }, []);
 
   const releaseActiveNotes = useCallback(() => {
     void releaseAllPianoNotes();
@@ -242,8 +232,6 @@ export const PlayAlong = ({
 
 
   const showInTimeCompletion = !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
-
-  const showCompletionOverlay = showInTimeCompletion;
 
   const getActivationWindow = useCallback((note: NoteEvent) => {
     const shift = note.durationTicks * ACTIVATION_WINDOW_SHIFT_RATIO;
@@ -382,14 +370,9 @@ export const PlayAlong = ({
   }, [notePerformance]);
 
 
-  const handleContinue = useCallback(() => {
-    releaseActiveNotes();
-    if (onContinue) {
-      onContinue();
-    } else {
-      resetProgress();
-    }
-  }, [onContinue, releaseActiveNotes, resetProgress]);
+  useEffect(() => {
+    onActivityCompleteChange?.(showInTimeCompletion);
+  }, [onActivityCompleteChange, showInTimeCompletion]);
 
   useEffect(() => {
     const wasPlaying = wasPlayingRef.current;
@@ -422,11 +405,7 @@ export const PlayAlong = ({
   return (
     <div className="flex flex-col gap-4">
       <div className="relative">
-        <div
-          className={`rounded-xl border border-neutral-800 bg-neutral-950/80 p-4 transition duration-300 ${
-            showCompletionOverlay ? "pointer-events-none opacity-30 blur-sm" : ""
-          }`}
-        >
+        <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4 transition duration-300">
           <PianoRoll
             key={playSessionId}
             events={resolvedEvents}
@@ -454,36 +433,6 @@ export const PlayAlong = ({
           showOctaveStart
           />
         </div>
-        {showCompletionOverlay && (
-          <div className="absolute inset-0 flex items-center justify-center px-4">
-            <div className="rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
-              <h3 className="text-2xl font-semibold">
-                {showInTimeCompletion ? "Nice work!" : "Great job!"}
-              </h3>
-              <p className="mt-2 text-sm text-neutral-300">
-                {showInTimeCompletion
-                  ? "You finished the play-along. Continue when you are ready, or restart to practice again."
-                  : "You completed every chord. Continue when you are ready, or restart to practice again."}
-              </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-                <button
-                  type="button"
-                  onClick={handleContinue}
-                  className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
-                >
-                  Continue
-                </button>
-                <button
-                  type="button"
-                  onClick={resetProgress}
-                  className="rounded-full border border-neutral-500 px-6 py-2 text-sm font-semibold text-neutral-200 transition hover:border-neutral-300 hover:text-white"
-                >
-                  Restart
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
     </div>

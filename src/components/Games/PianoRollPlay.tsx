@@ -606,8 +606,8 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 playheadTick >= scheduledStart &&
                 playheadTick <= scheduledEnd;
               const isPlayedInWindow = wasPlayed && isInWindow;
-              const isMissed =
-                inTime && !wasPlayed && playheadTick >= scheduledEnd;
+              // const isMissed =
+              //   inTime && !wasPlayed && playheadTick >= scheduledEnd;
               let color = baseColor;
               let holdProgress: number | undefined;
               const dimmed = inTime && !isPlayedInWindow;

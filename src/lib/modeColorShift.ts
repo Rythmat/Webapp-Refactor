@@ -1,4 +1,5 @@
 import type { PrismModeSlug } from "@/hooks/data";
+import { KEY_OF_COLORS } from "@/constants/theme";
 
 type ModeColorShiftMap = Partial<Record<PrismModeSlug | "lorcian", number>>;
 
@@ -57,7 +58,6 @@ export const colorForKeyMode = (rootKey: string, mode?: PrismModeSlug): string =
   const baseIndex = keyIndex >= 0 ? keyIndex : 0;
   const shift = resolveModeColorShift(mode);
   const circleIndex = (baseIndex + shift + 12) % 12;
-  const hue = circleIndex * 30;
-  return `hsl(${hue} 80% 62%)`;
+  const shiftedKeyLabel = CIRCLE_OF_FIFTHS[circleIndex];
+  return KEY_OF_COLORS[shiftedKeyLabel] ?? KEY_OF_COLORS.C;
 };
-

@@ -35,12 +35,13 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   // isHeld = false,
   inTime = true,
   holdProgress,
-  // dimmed = false,
+  dimmed = false,
   highlighted = false,
 }) => {
   const top = row * rowHeight + 4;
   const height = rowHeight - 8;
   const effectiveColor = color;
+  const playedFillOpacity = inTime && dimmed ? 0.2 : 1;
 
   const circleSize = Math.min(height * 1.2, rowHeight);
   const circleRadius = circleSize / 2;
@@ -92,7 +93,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
                     left: `${left}%`,
                     width: `${width}%`,
                     background: backgroundColor,
-                    opacity: segmentOpacity,
+                    opacity: segmentOpacity * playedFillOpacity,
                   }}
                 />
               );
@@ -102,6 +103,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
               className="h-full w-full"
               style={{
                 background: `linear-gradient(180deg, ${effectiveColor}cc, ${effectiveColor}aa)`,
+                opacity: playedFillOpacity,
               }}
             />
           )}
@@ -111,6 +113,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
               style={{
                 width: `${Math.max(0, Math.min(1, holdProgress)) * 100}%`,
                 background: effectiveColor,
+                opacity: playedFillOpacity,
               }}
             />
           ) : null}
@@ -129,6 +132,7 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
           border: circleBorder,
           boxShadow: circleShadow,
           fontSize: `${circleFontSize}px`,
+          opacity: playedFillOpacity,
         }}
       >
         {note.pitchName}

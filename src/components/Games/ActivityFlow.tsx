@@ -971,8 +971,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     const midiValues = startOverlaySequence.map((item) => item.midi);
     const minMidi = Math.min(...midiValues);
     const maxMidi = Math.max(...midiValues);
-    const minOctave = Math.floor(minMidi / 12) - 1;
-    const maxOctave = Math.floor(maxMidi / 12) - 1;
+    // PianoKeyboard maps octave N to MIDI [N*12 .. N*12+11].
+    const minOctave = Math.floor(minMidi / 12);
+    const maxOctave = Math.floor(maxMidi / 12);
     const endC = Math.max(maxOctave, minOctave + 1);
     return { startC: minOctave, endC };
   }, [startOverlaySequence]);

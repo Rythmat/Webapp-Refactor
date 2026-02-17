@@ -7,7 +7,7 @@ import { useNoteByMidiMap } from '@/hooks/data/notes/useNotes';
 import { ChordPressKeyboard } from '@/components/Games/ChordPressKeyboard';
 // import { LearnRoutes } from "@/constants/routes";
 // import { useNavigate } from 'react-router';
-import { KEY_OF_COLORS } from '@/constants/theme';
+import { colorForKeyMode } from '@/lib/modeColorShift';
 
 type LessonOverviewProps = {
   mode: PrismModeSlug;
@@ -21,13 +21,6 @@ const DEFAULT_ROOT_MIDI = 60;
 
 const PITCH_CLASS_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const;
 const KEY_LABEL_BY_PITCH_CLASS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'] as const;
-
-
-const getKeyColor = (label: string) => {
-  const mapped =(label as keyof typeof KEY_OF_COLORS);
-  return KEY_OF_COLORS[mapped];
-};
-
 const normalizePitchClass = (midi: number) => ((midi % 12) + 12) % 12;
 
 const normalizeSteps = (steps?: number[]) => {
@@ -69,7 +62,7 @@ export function LessonOverview({
   );
   const rootPitchClass = normalizePitchClass(resolvedRootMidi);
   const activeKeyLabel = KEY_LABEL_BY_PITCH_CLASS[rootPitchClass];
-  const activeKeyColor = getKeyColor(activeKeyLabel);
+  const activeKeyColor = colorForKeyMode(activeKeyLabel, mode);
 
   const scaleNoteLabels = useMemo(
     () =>
@@ -136,6 +129,7 @@ export function LessonOverview({
         </div>
 
         <ChordPressKeyboard
+          activeKeyColor={activeKeyColor}
           targetNotes={scaleMidis}
           onComplete={() => setChordPressComplete(true)}
         />

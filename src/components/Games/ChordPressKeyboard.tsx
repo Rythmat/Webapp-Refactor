@@ -61,6 +61,7 @@ export type ChordPressKeyboardProps = {
   enableComputerKeyboard?: boolean;
   keyboardBaseOctave?: number;
   targetNotes: number[];
+  activeKeyColor?: string;
   className?: string;
   onComplete?: () => void;
 };
@@ -72,6 +73,7 @@ export function ChordPressKeyboard({
   enableComputerKeyboard = true,
   keyboardBaseOctave = 4,
   targetNotes,
+  activeKeyColor = '#60a5fa',
   className,
   onComplete,
 }: ChordPressKeyboardProps) {
@@ -157,9 +159,8 @@ export function ChordPressKeyboard({
   }, [completed, onComplete, selected, targetNotes]);
 
   const selectedEvents: PlaybackEvent[] = useMemo(() => {
-    const color = completed ? '#22c55e' : '#60a5fa';
-    return toEvents(selected, color);
-  }, [completed, selected]);
+    return toEvents(selected, activeKeyColor);
+  }, [activeKeyColor, selected]);
 
   const keyboardId = useMemo(() => `kbd-${seed}`, [seed]);
 
@@ -173,8 +174,8 @@ export function ChordPressKeyboard({
       // onMidiInput={enableMIDI ? onMidiInput : undefined}
       // enableMidiInterface={enableMIDI}
       playingNotes={selectedEvents}
-      activeWhiteKeyColor={undefined}
-      activeBlackKeyColor={undefined}
+      activeWhiteKeyColor={activeKeyColor}
+      activeBlackKeyColor={activeKeyColor}
       showOctaveStart
     />
   );

@@ -614,13 +614,10 @@ const PianoRoll: React.FC<PianoRollProps> = ({
               const isCompleted = meta?.isCompleted ?? false;
 
               if (!inTime && meta && (meta.isCurrentChord || meta.isCompleted)) {
-                color = "#22c55e";
+                color = baseColor;
                 holdProgress = meta.isCompleted
                   ? 1
                   : Math.max(0, Math.min(1, meta.holdProgress));
-              }
-              if (isMissed) {
-                color = "rgba(150,150,150,0.8)";
               }
 
               let segments:

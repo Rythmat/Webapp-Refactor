@@ -28,6 +28,7 @@ type FlowActivityProps = {
   events?: NoteEvent[];
   onContinue?: () => void;
   onActivityCompleteChange?: (isComplete: boolean) => void;
+  activityColor?: string;
   isActive?: boolean;
   startSignal?: number;
   startMessage?: string;
@@ -42,11 +43,23 @@ type ActivityFlowProps = {
   mode?: PrismModeSlug;
 };
 type ActivityState = "pending" | "active" | "completed";
+type ModeColorShiftMap = Partial<Record<PrismModeSlug | "lorcian", number>>;
 
 const DEFAULT_SCALE: number[] = [60, 62, 64, 65, 67, 69, 71, 72];
 const NOTE_DURATION_TICKS = 480;
 const CHROMATIC_KEYS = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"] as const;
 const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;
+const CIRCLE_OF_FIFTHS = ["C", "G", "D", "A", "E", "B", "F#", "Db", "Ab", "Eb", "Bb", "F"] as const;
+const MODE_COLOR_SHIFT: ModeColorShiftMap = {
+  ionian: 0,
+  lydian: 1,
+  mixolydian: 11,
+  dorian: 10,
+  aeolian: 9,
+  phrygian: 8,
+  locrian: 7,
+  lorcian: 7,
+};
 
 type ActivityDefinition = {
   key: string;
@@ -286,11 +299,45 @@ const extractContours = (value: unknown): number[][] => {
   return results;
 };
 
+const ENHARMONIC_TO_CIRCLE_KEY: Record<string, string> = {
+  "C#": "Db",
+  "D#": "Eb",
+  "G#": "Ab",
+  "A#": "Bb",
+};
+
+const normalizeKeyForCircle = (input: string): string => {
+  const trimmed = input.trim();
+  if (!trimmed) return "C";
+  const normalized = trimmed.replace("♯", "#").replace("♭", "b");
+  const letter = normalized[0].toUpperCase();
+  const accidental = normalized.slice(1);
+  const canonical = `${letter}${accidental}`;
+  return ENHARMONIC_TO_CIRCLE_KEY[canonical] ?? canonical;
+};
+
+const resolveModeColorShift = (mode?: PrismModeSlug): number => {
+  if (!mode) return 0;
+  const normalized = mode.toLowerCase();
+  return MODE_COLOR_SHIFT[normalized as PrismModeSlug] ?? 0;
+};
+
+const colorForKeyMode = (rootKey: string, mode?: PrismModeSlug): string => {
+  const normalizedKey = normalizeKeyForCircle(rootKey);
+  const keyIndex = CIRCLE_OF_FIFTHS.findIndex((key) => key === normalizedKey);
+  const baseIndex = keyIndex >= 0 ? keyIndex : 0;
+  const shift = resolveModeColorShift(mode);
+  const circleIndex = (baseIndex + shift + 12) % 12;
+  const hue = circleIndex * 30;
+  return `hsl(${hue} 80% 62%)`;
+};
+
 
 
 export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, rootMidi, mode }: ActivityFlowProps) => {
   const navigate = useNavigate();
   const modeLabel = mode ?? "mode";
+  const activityColor = useMemo(() => colorForKeyMode(rootKey, mode), [rootKey, mode]);
 
   // const [overviewReady, setOverviewReady] = useState(false);
   const { data: contourData } = usePrismStartContours();
@@ -393,6 +440,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     chordTriads: number[][] = [],
     includeChordPlaceholder = false,
   ): ActivityDefinition[] => {
+    const applyActivityColor = (seq: NoteEvent[]) =>
+      seq.map((event) => ({
+        ...event,
+        color: event.color ?? activityColor,
+      }));
     const ascending = scale;
     const descending = [...scale].reverse();
     const ascendDescend = [...ascending, ...descending];
@@ -469,7 +521,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         key: "intro-chord-hold",
         label: `${rootKey} ${modeTitle} • Hold`,
         Component: NoteHold,
-        seq: chordHoldEvents,
+        seq: applyActivityColor(chordHoldEvents),
         direction: `Hold the notes of the ${rootKey} ${modeTitle} scale.`,
       },
     ];
@@ -478,16 +530,16 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     const sequences = [
       overviewItem,
       ...randomIntro,
-      { key: "asc-pa", label: `${rootKey} ${modeTitle} Ascend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascending, "asc-pa"),
+      { key: "asc-pa", label: `${rootKey} ${modeTitle} Ascend • Play Along`, Component: PlayAlong, seq: applyActivityColor(midiSequenceToEvents(ascending, "asc-pa")),
         direction: "In a steady tempo, play the notes of the scale going up"
       },
-      { key: "desc-nh", label: `${rootKey} ${modeTitle} Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(descending, "desc-nh"),
+      { key: "desc-nh", label: `${rootKey} ${modeTitle} Descend • Hold`, Component: NoteHold, seq: applyActivityColor(midiSequenceToEvents(descending, "desc-nh")),
         direction: "Play the notes of the scale going down (to the left)."  },
-      { key: "desc-pa", label: `${rootKey} ${modeTitle} Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(descending, "desc-pa"),
+      { key: "desc-pa", label: `${rootKey} ${modeTitle} Descend • Play Along`, Component: PlayAlong, seq: applyActivityColor(midiSequenceToEvents(descending, "desc-pa")),
         direction: "In a steady tempo, play the notes of the scale going down" },
-      { key: "ascdesc-nh", label: `${rootKey} ${modeTitle} Ascend + Descend • Hold`, Component: NoteHold, seq: midiSequenceToEvents(ascendDescend, "ascdesc-nh"),
+      { key: "ascdesc-nh", label: `${rootKey} ${modeTitle} Ascend + Descend • Hold`, Component: NoteHold, seq: applyActivityColor(midiSequenceToEvents(ascendDescend, "ascdesc-nh")),
         direction: "Play the notes of the scale going up and down." },
-      { key: "ascdesc-pa", label: `${rootKey} ${modeTitle} Ascend + Descend • Play Along`, Component: PlayAlong, seq: midiSequenceToEvents(ascendDescend, "ascdesc-pa"),
+      { key: "ascdesc-pa", label: `${rootKey} ${modeTitle} Ascend + Descend • Play Along`, Component: PlayAlong, seq: applyActivityColor(midiSequenceToEvents(ascendDescend, "ascdesc-pa")),
         direction: "In a steady tempo, play the notes of the scale going up and down." },
     ];
 
@@ -499,70 +551,70 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           key: `contour-1-nh`,
           label: `${rootKey} ${modeTitle} Musical Contour • Hold`,
           Component: NoteHold,
-          seq: midiSequenceToEvents(contourSeqs[0], `contour-1-nh`),
+          seq: applyActivityColor(midiSequenceToEvents(contourSeqs[0], `contour-1-nh`)),
           direction: `Play this short melodic phrase in ${rootKey} ${modeTitle}`
         },
         {
           key: `contour-1-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour • Play Along`,
           Component: PlayAlong,
-          seq: midiSequenceToEvents(contourSeqs[0], `contour-1-pa`),
+          seq: applyActivityColor(midiSequenceToEvents(contourSeqs[0], `contour-1-pa`)),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle}`
         },
         {
           key: `contour-2-nh`,
           label: `${rootKey} ${modeTitle} Melodic Phrase • Hold`,
           Component: NoteHold,
-          seq: midiSequenceToEvents(combined, `contour-2-nh`),
+          seq: applyActivityColor(midiSequenceToEvents(combined, `contour-2-nh`)),
           direction: `Play this longer melodic phrase in ${rootKey} ${modeTitle}`,
         },
         {
           key: `contour-2-pa`,
           label: `${rootKey} ${modeTitle} Melodic Phrase • Play Along`,
           Component: PlayAlong,
-          seq: midiSequenceToEvents(combined, `contour-2-pa`),
+          seq: applyActivityColor(midiSequenceToEvents(combined, `contour-2-pa`)),
           direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle}`,
         },
         {
           key: `contour-1-stac-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour (Staccato) • Play Along`,
           Component: PlayAlong,
-          seq: midiSequenceToStoccatoEvents(contourSeqs[0], `contour-1-stac-pa`),
+          seq: applyActivityColor(midiSequenceToStoccatoEvents(contourSeqs[0], `contour-1-stac-pa`)),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with short articulations (“staccato”).`
         },
         {
           key: `contour-1-lega-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour (Legato) • Play Along`,
           Component: PlayAlong,
-          seq: midiSequenceToEvents(contourSeqs[0], `contour-1-lega-pa`),
+          seq: applyActivityColor(midiSequenceToEvents(contourSeqs[0], `contour-1-lega-pa`)),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with long articulations (“legato”).`
         },
         {
           key: `contour-1-mix-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour (Mixed Articulation) • Play Along`,
           Component: PlayAlong,
-          seq: midiSequenceToMixedArticulation(contourSeqs[0], `contour-1-mix-pa`),
+          seq: applyActivityColor(midiSequenceToMixedArticulation(contourSeqs[0], `contour-1-mix-pa`)),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”). `
         },
         {
           key: `contour-2-mix-pa`,
           label: `${rootKey} ${modeTitle} Melodic Phrase (Mixed Articulation) • Play Along`,
           Component: PlayAlong,
-          seq: midiSequenceToMixedArticulation(combined, `contour-2-mix-pa`),
+          seq: applyActivityColor(midiSequenceToMixedArticulation(combined, `contour-2-mix-pa`)),
           direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”).`,
         },
         {
           key: `contour-1-rhythm-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour (Styled) • Play Along`,
           Component: PlayAlong,
-          seq: rhythmicMidiSequenceEvents(contourSeqs[0], `contour-1-rhythm-pa`),
+          seq: applyActivityColor(rhythmicMidiSequenceEvents(contourSeqs[0], `contour-1-rhythm-pa`)),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} in a rhythmic style. `
         },
         {
           key: `contour-2-rhythm-pa`,
           label: `${rootKey} ${modeTitle} Melodic Phrase (Styled) • Play Along`,
           Component: PlayAlong,
-          seq: rhythmicMidiSequenceEvents(combined, `contour-2-rhythm-pa`),
+          seq: applyActivityColor(rhythmicMidiSequenceEvents(combined, `contour-2-rhythm-pa`)),
           direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle} in a rhythmic style.`,
         },
       );
@@ -576,20 +628,20 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
             key: `arpeggiate-${i + 1}-nh`,
             label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Hold`,
             Component: NoteHold,
-            seq: chordArpegiateEvents(
+            seq: applyActivityColor(chordArpegiateEvents(
               chordNotes ?? [scale[0], scale[2], scale[4]],
               `arpeggiate-${i + 1}-nh`
-            ),
+            )),
             direction: `Play the notes of the ${i + 1} chord one at a time going up (to the right) and then play the chord.`,
           },
           {
             key: `arpeggiate-${i + 1}-pa`,
             label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Play Along`,
             Component: PlayAlong,
-            seq: chordArpegiateEvents(
+            seq: applyActivityColor(chordArpegiateEvents(
               chordNotes ?? [scale[0], scale[2], scale[4]],
               `arpeggiate-${i + 1}-pa`
-            ),
+            )),
             direction:
               "In a steady tempo, play an arpeggio of the chord going up and then play the chord.",
           },
@@ -612,25 +664,25 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         key: `chords-1-nh`,
         label: `${rootKey} ${modeTitle} Chords • Hold`,
         Component: NoteHold,
-        seq: midiSequenceToEvents(oneToFourChords, `chords-1-nh`),
+        seq: applyActivityColor(midiSequenceToEvents(oneToFourChords, `chords-1-nh`)),
         direction: `Play the notes of the 1 through the four chord for ${rootKey} ${modeTitle}, holding down the notes of each chord as you go.`
       },{
         key: `chords-1-pa`,
         label: `${rootKey} ${modeTitle} Chords (Whole) • Play Along`,
         Component: PlayAlong,
-        seq: midiSequenceToWholeNotes(oneToFourChords, `chords-1-pa`),
+        seq: applyActivityColor(midiSequenceToWholeNotes(oneToFourChords, `chords-1-pa`)),
         direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in whole notes.`,
       },{
         key: `chords-2-pa`,
         label: `${rootKey} ${modeTitle} Chords (Half) • Play Along`,
         Component: PlayAlong,
-        seq: midiSequenceToHalfNotes(oneToFourChords, `chords-2-pa`),
+        seq: applyActivityColor(midiSequenceToHalfNotes(oneToFourChords, `chords-2-pa`)),
         direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in half notes.`,
       },{
         key: `chords-3-pa`,
         label: `${rootKey} ${modeTitle} Chords (Quarter) • Play Along`,
         Component: PlayAlong,
-        seq: midiSequenceToQuarterNotes(oneToFourChords, `chords-3-pa`),
+        seq: applyActivityColor(midiSequenceToQuarterNotes(oneToFourChords, `chords-3-pa`)),
         direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in quarter notes.`,
       });
     
@@ -643,7 +695,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         key: `chords-4-pa`,
         label: `${rootKey} ${modeTitle} Two Chords (Staccato) • Play Along`,
         Component: PlayAlong,
-        seq: midiSequenceToStoccatoEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-4-pa`),
+        seq: applyActivityColor(midiSequenceToStoccatoEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-4-pa`)),
         direction: `Play chord ${shuffled[0]+1} and ${shuffled[1]+1} in a steady tempo, with short articulations (“staccato”).`
       })
       shuffled = shuffled.sort(() => Math.random() - 0.5);
@@ -651,7 +703,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         key: `chords-5-pa`,
         label: `${rootKey} ${modeTitle} Two Chords (Legato) • Play Along`,
         Component: PlayAlong,
-        seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-5-pa`),
+        seq: applyActivityColor(midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-5-pa`)),
         direction: `Play chord ${shuffled[0]+1} and ${shuffled[1]+1} in a steady tempo, with long articulations (“legato”).`
       })
 
@@ -661,28 +713,28 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         key: `chords-2-nh`,
         label: `${rootKey} ${modeTitle} First Four Chords • Hold`,
         Component: NoteHold,
-        seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-2-nh`),
+        seq: applyActivityColor(midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-2-nh`)),
         direction: `Play the first four chords in a mixed order, holding down each chord one by one.`
       })
       sequences.push({
         key: `chords-7-pa`,
         label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
         Component: PlayAlong,
-        seq: midiSequenceToHalfNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-7-pa`),
+        seq: applyActivityColor(midiSequenceToHalfNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-7-pa`)),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a half note.`
       })
       sequences.push({
         key: `chords-8-pa`,
         label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
         Component: PlayAlong,
-        seq: midiSequenceToQuarterNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-8-pa`),
+        seq: applyActivityColor(midiSequenceToQuarterNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-8-pa`)),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a quarter note.`
       })
       sequences.push({
         key: `chords-9-pa`,
         label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
         Component: PlayAlong,
-        seq: midiSequenceToEighthNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-9-pa`),
+        seq: applyActivityColor(midiSequenceToEighthNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-9-pa`)),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a eighth note.`
       })
       shuffled = shuffled.sort(() => Math.random() - 0.5);
@@ -690,7 +742,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         key: `chords-6-pa`,
         label: `${rootKey} ${modeTitle} Four Chords (Mixed Articulation) • Play Along`,
         Component: PlayAlong,
-        seq: midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-6-pa`),
+        seq: applyActivityColor(midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-6-pa`)),
         direction: `Play the four chords in a steady tempo, with mixed articulations.`
       })
     }
@@ -730,7 +782,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       triads,
       chordsQuery.isPending && triads.length === 0,
     );
-  }, [scaleMidis, randomContours, triads, chordsQuery.isPending]);
+  }, [scaleMidis, randomContours, triads, chordsQuery.isPending, activityColor]);
 
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -1050,6 +1102,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         >
           <Component
             key={`${currentActivity.key}-${activityInstanceId}`}
+            activityColor={activityColor}
             events={events}
             isActive={activityState === "active"}
             onContinue={handleContinue}
@@ -1073,8 +1126,8 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
                     startC={startOverlayStartC}
                     endC={startOverlayEndC}
                     playingNotes={startOverlayNotes}
-                    activeWhiteKeyColor="#60a5fa"
-                    activeBlackKeyColor="#60a5fa"
+                    activeWhiteKeyColor={activityColor}
+                    activeBlackKeyColor={activityColor}
                     enableClick={false}
                     useContextNotes={false}
                   />

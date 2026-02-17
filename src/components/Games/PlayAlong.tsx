@@ -38,6 +38,7 @@ const ACTIVATION_WINDOW_SHIFT_RATIO = 1 / 8;
 type PlayAlongProps = {
   events?: NoteEvent[];
   onActivityCompleteChange?: (isComplete: boolean) => void;
+  activityColor?: string;
   isActive?: boolean;
   startSignal?: number;
   startMessage?:string;
@@ -51,6 +52,7 @@ type NotePerformance = {
 export const PlayAlong = ({
   events,
   onActivityCompleteChange,
+  activityColor = "#60a5fa",
   isActive = true,
   startSignal = 0,
 }: PlayAlongProps) => {
@@ -195,11 +197,11 @@ export const PlayAlong = ({
           ? event.midi
           : pitchNameToMidi(event.pitchName);
       if (typeof midi === "number" && !map.has(midi)) {
-        map.set(midi, event.color ?? "#60a5fa");
+        map.set(midi, event.color ?? activityColor);
       }
     });
     return map;
-  }, [resolvedEvents]);
+  }, [activityColor, resolvedEvents]);
 
   const requiredBars = useMemo(() => {
     if (maxEventEndTick <= 0) return 1;
@@ -463,8 +465,8 @@ export const PlayAlong = ({
           startC={2}
           endC={6}
           playingNotes={keyboardPlayingNotes}
-          activeWhiteKeyColor="#60a5fa"
-          activeBlackKeyColor="#3b82f6"
+          activeWhiteKeyColor={activityColor}
+          activeBlackKeyColor={activityColor}
           showOctaveStart
           />
         </div>

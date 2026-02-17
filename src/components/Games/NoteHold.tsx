@@ -31,14 +31,13 @@ const DEFAULT_EVENTS: NoteEvent[] = [
 ];
 
 const CHORD_HOLD_REQUIRED_MS = 500;
-const CHORD_NOTE_COLOR = "#22c55e";
-const WRONG_NOTE_COLOR = "#ef4444";
 const TICKS_PER_QUARTER = 480;
 const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
 
 type NoteHoldProps = {
   events?: NoteEvent[];
   onActivityCompleteChange?: (isComplete: boolean) => void;
+  activityColor?: string;
   isActive?: boolean;
   startSignal?: number;
 };
@@ -46,6 +45,7 @@ type NoteHoldProps = {
 export const NoteHold = ({
   events,
   onActivityCompleteChange,
+  activityColor = "#60a5fa",
   isActive = true,
   startSignal = 0,
 }: NoteHoldProps) => {
@@ -116,11 +116,11 @@ export const NoteHold = ({
           ? event.midi
           : pitchNameToMidi(event.pitchName);
       if (typeof midi === "number" && !map.has(midi)) {
-        map.set(midi, event.color ?? "#60a5fa");
+        map.set(midi, event.color ?? activityColor);
       }
     });
     return map;
-  }, [resolvedEvents]);
+  }, [activityColor, resolvedEvents]);
 
   const requiredBars = useMemo(() => {
     const maxEnd = resolvedEvents.reduce(
@@ -159,8 +159,7 @@ export const NoteHold = ({
 
   const handleKeyboardNoteOn = useCallback(
     (midi: number) => {
-      const isChordNote = currentChordMidis.includes(midi);
-      const color = isChordNote ? CHORD_NOTE_COLOR : noteColorByMidi.get(midi) ?? WRONG_NOTE_COLOR;
+      const color = noteColorByMidi.get(midi) ?? activityColor;
 
       const id = `keyboard-${midi}`;
       setKeyboardPlayingNotes((prev) => [
@@ -176,7 +175,7 @@ export const NoteHold = ({
         },
       ]);
     },
-    [currentChordMidis, noteColorByMidi],
+    [activityColor, noteColorByMidi],
   );
 
   const handleKeyboardNoteOff = useCallback((midi: number) => {
@@ -394,8 +393,8 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
           startC={2}
           endC={6}
           playingNotes={keyboardPlayingNotes}
-          activeWhiteKeyColor="#60a5fa"
-          activeBlackKeyColor="#3b82f6"
+          activeWhiteKeyColor={activityColor}
+          activeBlackKeyColor={activityColor}
           showOctaveStart
         />
         </div>

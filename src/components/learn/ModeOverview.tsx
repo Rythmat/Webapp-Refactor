@@ -5,8 +5,8 @@ import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { LearnRoutes } from "@/constants/routes";
 import { useNavigate } from 'react-router';
-import { KEY_OF_COLORS } from '@/constants/theme';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
+import { colorForKeyMode } from '@/lib/modeColorShift';
 
 type ModeOverviewProps = {
   mode: PrismModeSlug;
@@ -40,13 +40,6 @@ const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'Bb', semitone: 10 },
   { label: 'F', semitone: 5 },
 ];
-
-
-const getKeyColor = (label: string) => {
-  const mapped =(label as keyof typeof KEY_OF_COLORS);
-  return KEY_OF_COLORS[mapped];
-};
-
 const normalizeSteps = (steps?: number[]) => {
   if (!steps || steps.length === 0) return DEFAULT_INTERVALS;
   const unique = new Set<number>();
@@ -80,7 +73,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
 
   const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;
   const activeKey = CHROMATIC_KEYS[keyIndex];
-  const activeKeyColor = getKeyColor(activeKey.label);
+  const activeKeyColor = colorForKeyMode(activeKey.label, mode);
   const rootMidi = BASE_C4 + activeKey.semitone;
   const scaleMidis = useMemo(() => buildScaleMidis(rootMidi, scaleSteps), [rootMidi, scaleSteps]);
 
@@ -149,7 +142,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                 className={`
                   p-3 rounded-lg border text-sm font-bold text-left transition bg-grey-darker
                 `}
-                style={{ color: getKeyColor(tile.label) }}
+                style={{ color: colorForKeyMode(tile.label, mode) }}
               >
                 {tile.label + " " + mode.charAt(0).toUpperCase() + mode.slice(1)}
               </button>

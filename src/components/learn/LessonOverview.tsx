@@ -96,7 +96,7 @@ export function LessonOverview({
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
       <h2 className="text-3xl md:text-4xl font-semibold underline text-left ml-[10%]">
-        {`${mode.charAt(0).toUpperCase() + mode.slice(1)}`}
+        {`${PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]} ${mode.charAt(0).toUpperCase() + mode.slice(1)}`}
       </h2>
       {videoId && (
         <div className="w-1/2 mx-auto">
@@ -124,7 +124,7 @@ export function LessonOverview({
               Identify
             </h3>
             <div className="h-px flex-1 bg-neutral-800" />
-            <p> Select the notes of ${PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]} ${mode.charAt(0).toUpperCase() + mode.slice(1)}</p>
+            <p> Select the notes of {PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]} {mode.charAt(0).toUpperCase() + mode.slice(1)}</p>
           </div>
         </div>
 

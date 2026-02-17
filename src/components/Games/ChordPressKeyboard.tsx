@@ -159,8 +159,15 @@ export function ChordPressKeyboard({
   }, [completed, onComplete, selected, targetNotes]);
 
   const selectedEvents: PlaybackEvent[] = useMemo(() => {
+    if (completed) {
+      const allVisibleKeys: number[] = [];
+      for (let midi = rangeStart; midi <= rangeEnd; midi++) {
+        allVisibleKeys.push(midi);
+      }
+      return toEvents(allVisibleKeys, activeKeyColor);
+    }
     return toEvents(selected, activeKeyColor);
-  }, [activeKeyColor, selected]);
+  }, [activeKeyColor, completed, rangeEnd, rangeStart, selected]);
 
   const keyboardId = useMemo(() => `kbd-${seed}`, [seed]);
 
@@ -170,6 +177,7 @@ export function ChordPressKeyboard({
       className={className}
       startC={startC}
       endC={endC}
+      enableClick={!completed}
       onKeyClick={toggleNote}
       // onMidiInput={enableMIDI ? onMidiInput : undefined}
       // enableMidiInterface={enableMIDI}

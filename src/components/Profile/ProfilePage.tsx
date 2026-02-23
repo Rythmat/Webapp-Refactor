@@ -2,6 +2,8 @@ import React from "react";
 import { Activity, ChevronRight, Mic2, Music, User, Users } from "lucide-react";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
 import { HexagonPattern, DEFAULT_THEMES } from "../ui/HexagonPattern";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useMe } from "@/hooks/data";
 
 const THEMES = DEFAULT_THEMES;
 
@@ -17,31 +19,29 @@ const Tag: React.FC<TagProps> = ({ label, icon: Icon }) => (
   </div>
 );
 
-// interface ConnectUser {
-//   name: string;
-//   role: string;
-//   common: string;
-// }
-
-// const CONNECT_USERS_DATA: ConnectUser[] = [
-//   { name: "Sarah J.", role: "Vocalist", common: "Pop, R&B" },
-//   { name: "Mike T.", role: "Producer", common: "Electronic" },
-//   { name: "David R.", role: "Guitarist", common: "Jazz" },
-//   { name: "Elena V.", role: "Songwriter", common: "Folk" },
-// ];
-
 export const ProfilePage: React.FC = () => {
+  const { data: user } = useMe();
+  const displayName = user?.nickname || user?.username || "USER";
+
   return (
     <div className="flex flex-col gap-8 pb-12 overflow-y-auto custom-scrollbar h-full px-8">
       <HeaderBar title="Profile" showProfile = {false} className="bg-neutral-900/60" />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div className="lg:col-span-4 flex flex-col items-center">
           <div className="w-64 h-64 rounded-full overflow-hidden relative border-4 border-[#2A8BA8] shadow-2xl shadow-blue-900/20 mb-6">
-            <div className="absolute inset-0 bg-[#E8DAB2]">
-              <HexagonPattern
-                className="w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4"
-                colorsOverride={[THEMES.red, "#2A3036", THEMES.orange, "#3D405B", "#F4F1DE"]}
-              />
+            <Avatar className="w-full h-full rounded-full">
+              <AvatarImage alt="Profile" src="/avatars/01.png" />
+              <AvatarFallback className="relative overflow-hidden bg-[#E8DAB2] p-0">
+                <HexagonPattern
+                  className="w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4"
+                  colorsOverride={[THEMES.red, "#2A3036", THEMES.orange, "#3D405B", "#F4F1DE"]}
+                />
+              </AvatarFallback>
+            </Avatar>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="px-4 py-2 rounded-full bg-black/35 backdrop-blur-sm border border-white/10 text-white text-lg font-serif text-center">
+                {displayName}
+              </div>
             </div>
           </div>
         </div>

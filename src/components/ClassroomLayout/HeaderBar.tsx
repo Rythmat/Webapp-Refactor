@@ -1,7 +1,6 @@
 import React from "react";
 // import {  Hexagon } from "lucide-react";
-import { useNavigate } from "react-router";
-import { ProfileRoutes } from "@/constants/routes";
+import { UserWidget } from "@/layouts/DashboardLayout/UserWidget";
 
 interface HeaderBarProps {
   title: string;
@@ -24,8 +23,6 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   showProfile = true,
   className = "",
 }) => {
-  const navigate = useNavigate();
-
   return (
     <header
       className={`h-20 flex items-center justify-between px-8 py-6 bg-gradient-to-b from-[#0A0A0A] to-transparent z-10 flex-shrink-0 ${className}`}
@@ -58,19 +55,9 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           </div>
         )} */}
         {showProfile && (
-          <button
-            type="button"
-            onClick={() => navigate(ProfileRoutes.profile())}
-            className="flex items-center gap-3 pl-4 border-l border-white/10 cursor-pointer group"
-          >
-            <div className="text-right hidden md:block">
-              <div className={`text-white leading-none`}>{userName}</div>
-              {/* <div className="text-xs text-gray-500 mt-1">Pro Member</div> */}
-            </div>
-            <div
-              className={`w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 border-2 shadow-lg shadow-purple-500/20 transition-all border-white/10 group-hover:border-white/50`}
-            />
-          </button>
+          <div className="pl-4 border-l border-white/10">
+            <UserWidget variant="header" nameOverride={userName} />
+          </div>
         )}
       </div>
     </header>

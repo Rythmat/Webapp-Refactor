@@ -81,7 +81,7 @@ export const ClassroomSidebar = ({
           <SidebarMainNavItem
                       icon={Earth}
                       isCollapsed={isCollapsed}
-                      label="Atlas"
+                      label="Globe"
                       to={AtlasRoutes.root()}
                     />
           {/* <SidebarMainNavItem

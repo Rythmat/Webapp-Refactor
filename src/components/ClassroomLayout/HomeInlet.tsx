@@ -209,14 +209,14 @@ export const HomeInlet = () => {
               <div className="relative z-10 h-full flex flex-col justify-end">
                 <div className="mb-4">
                   <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1 block">
-                    {latestContinue ? "Resume lesson" : "Continue learning"}
+                    {latestContinue ? "Resume lesson" : "Start"}
                   </span>
                   <h3 className="text-2xl font-serif leading-tight mb-2">
                     {latestContinue ? `${latestContinue.root} ${latestContinue.modeTitle}` : "Pick up where"}
                     <br />
                     {latestContinue
                       ? latestContinue.activityDefId.replace(/-/g, " ")
-                      : "you left off"}
+                      : "Start a music lesson"}
                   </h3>
                   <div className="w-full bg-white/10 h-1.5 rounded-full mt-3 overflow-hidden">
                     <div

@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { X, ChevronDown, Calendar, MapPin, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { useAppState, useAppDispatch } from '@/components/atlas/context/AppContext'
-import { CITIES, MUSIC_HISTORY, getConnectionsForEvent, getUpstreamChain, getDownstreamChain, getEventCountryColor } from '@/components/atlas/data'
+import { CITIES, MUSIC_HISTORY, getUpstreamChain, getDownstreamChain, getEventCountryColor } from '@/components/atlas/data'
 import type { HistoricalEvent } from '@/components/atlas/types'
 import type { UpstreamChainNode } from '@/components/atlas/data/eventConnections'
 

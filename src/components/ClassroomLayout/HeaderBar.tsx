@@ -5,10 +5,6 @@ import { UserWidget } from "@/layouts/DashboardLayout/UserWidget";
 interface HeaderBarProps {
   title: string;
   subtitle?: string;
-  // xp?: number;
-  // awards?: number;
-  // credits?: number;
-  userName?: string;
   showProfile?: boolean;
   className?: string;
 }
@@ -16,10 +12,6 @@ interface HeaderBarProps {
 export const HeaderBar: React.FC<HeaderBarProps> = ({
   title,
   subtitle,
-  // xp = 432,
-  // awards = 14,
-  // credits = 60,
-  userName = "User",
   showProfile = true,
   className = "",
 }) => {
@@ -56,7 +48,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         )} */}
         {showProfile && (
           <div className="pl-4 border-l border-white/10">
-            <UserWidget variant="header" nameOverride={userName} />
+            <UserWidget variant="header"/>
           </div>
         )}
       </div>

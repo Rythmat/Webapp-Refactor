@@ -4,7 +4,7 @@ import { ProfileRoutes } from '@/constants/routes';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DEFAULT_THEMES, HexagonPattern } from '@/components/ui/HexagonPattern';
+import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
 import { useAuthActions } from '@/contexts/AuthContext';
 import { useMe } from '@/hooks/data';
 
@@ -24,13 +24,6 @@ export function UserWidget({
   const navigate = useNavigate();
 
   const name = nameOverride || user?.nickname || user?.username || 'USER';
-  const patternColors = [
-    DEFAULT_THEMES.red,
-    '#2A3036',
-    DEFAULT_THEMES.orange,
-    '#3D405B',
-    '#F4F1DE',
-  ];
 
   if (variant === 'header') {
     return (
@@ -53,9 +46,9 @@ export function UserWidget({
         <Avatar className="size-10 select-none border-2 border-white/10 shadow-lg shadow-purple-500/20 transition-all group-hover:border-white/50">
           <AvatarImage alt={name} src="/avatars/01.png" />
           <AvatarFallback className="relative overflow-hidden bg-[#E8DAB2] p-0">
-            <HexagonPattern
+            <UserAvatarPattern
+              userName={name}
               className="h-[220%] w-[220%] -translate-x-[28%] -translate-y-[28%]"
-              colorsOverride={patternColors}
             />
           </AvatarFallback>
         </Avatar>
@@ -89,9 +82,9 @@ export function UserWidget({
         <Avatar className="size-8 select-none">
           <AvatarImage alt={name} src="/avatars/01.png" />
           <AvatarFallback className="relative overflow-hidden bg-[#E8DAB2] p-0">
-            <HexagonPattern
+            <UserAvatarPattern
+              userName={name}
               className="h-[220%] w-[220%] -translate-x-[28%] -translate-y-[28%]"
-              colorsOverride={patternColors}
             />
           </AvatarFallback>
         </Avatar>

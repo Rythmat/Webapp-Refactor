@@ -2,13 +2,13 @@ import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { Logo } from '@/components/Logo';
 import { BetaHelp } from '@/components/ui/beta-help';
 import { cn } from '@/components/utilities';
-import { GameRoutes, LearnRoutes, ProfileRoutes, StudioRoutes } from '@/constants/routes';
-// import {   AtlasRoutes, ConnectRoutes, LibraryRoutes } from '@/constants/routes';
+import { AtlasRoutes, GameRoutes, LearnRoutes, ProfileRoutes, StudioRoutes } from '@/constants/routes';
+// import { ConnectRoutes, LibraryRoutes } from '@/constants/routes';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
 import { UserWidget } from './UserWidget';
-import { BookOpen,  Gamepad2, Home, Music} from 'lucide-react';
-// import { Earth, Library, Users } from 'lucide-react';
+import { BookOpen, Earth, Gamepad2, Home, Music } from 'lucide-react';
+// import { Library, Users } from 'lucide-react';
 interface SidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
@@ -78,12 +78,12 @@ export const ClassroomSidebar = ({
                       label="Studio"
                       to={StudioRoutes.root()}
                     />
-          {/* <SidebarMainNavItem
+          <SidebarMainNavItem
                       icon={Earth}
                       isCollapsed={isCollapsed}
                       label="Atlas"
                       to={AtlasRoutes.root()}
-                    /> */}
+                    />
           {/* <SidebarMainNavItem
                       icon={Library}
                       isCollapsed={isCollapsed}

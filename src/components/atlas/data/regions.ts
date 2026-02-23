@@ -1,0 +1,22 @@
+import type { Region } from '@/components/atlas/types'
+
+export const REGIONS: Region[] = [
+  { id: 'north-america',   label: 'North America',   center: [45, -100],  zoom: 4, altitude: 1.8 },
+  { id: 'central-america', label: 'Central America', center: [15, -87],   zoom: 5, altitude: 1.2 },
+  { id: 'south-america',   label: 'South America',   center: [-15, -60],  zoom: 4, altitude: 1.5 },
+  { id: 'north-europe',    label: 'North Europe',    center: [62, 15],    zoom: 4, altitude: 1.5 },
+  { id: 'west-europe',     label: 'West Europe',     center: [48, 3],     zoom: 5, altitude: 1.2 },
+  { id: 'east-europe',     label: 'East Europe',     center: [50, 30],    zoom: 4, altitude: 1.5 },
+  { id: 'north-asia',      label: 'North Asia',      center: [60, 90],    zoom: 3, altitude: 1.8 },
+  { id: 'central-asia',    label: 'Central Asia',    center: [42, 65],    zoom: 4, altitude: 1.5 },
+  { id: 'west-asia',       label: 'West Asia',       center: [30, 45],    zoom: 4, altitude: 1.5 },
+  { id: 'east-asia',       label: 'East Asia',       center: [35, 115],   zoom: 4, altitude: 1.5 },
+  { id: 'south-asia',      label: 'South Asia',      center: [22, 78],    zoom: 4, altitude: 1.5 },
+  { id: 'southeast-asia',  label: 'Southeast Asia',  center: [10, 107],   zoom: 4, altitude: 1.5 },
+  { id: 'north-africa',    label: 'North Africa',    center: [28, 10],    zoom: 4, altitude: 1.5 },
+  { id: 'central-africa',  label: 'Central Africa',  center: [0, 22],     zoom: 4, altitude: 1.5 },
+  { id: 'west-africa',     label: 'West Africa',     center: [10, -5],    zoom: 4, altitude: 1.5 },
+  { id: 'east-africa',     label: 'East Africa',     center: [-2, 37],    zoom: 4, altitude: 1.5 },
+  { id: 'south-africa',    label: 'South Africa',    center: [-28, 25],   zoom: 4, altitude: 1.5 },
+  { id: 'oceania',         label: 'Oceania',         center: [-25, 145],  zoom: 4, altitude: 1.5 },
+]

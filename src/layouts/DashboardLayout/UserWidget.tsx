@@ -48,7 +48,7 @@ export function UserWidget({
           <AvatarFallback className="relative overflow-hidden bg-[#E8DAB2] p-0">
             <UserAvatarPattern
               userName={name}
-              className="h-[220%] w-[220%] -translate-x-[28%] -translate-y-[28%]"
+              className="h-full w-full"
             />
           </AvatarFallback>
         </Avatar>
@@ -84,7 +84,7 @@ export function UserWidget({
           <AvatarFallback className="relative overflow-hidden bg-[#E8DAB2] p-0">
             <UserAvatarPattern
               userName={name}
-              className="h-[220%] w-[220%] -translate-x-[28%] -translate-y-[28%]"
+              className="h-full w-full"
             />
           </AvatarFallback>
         </Avatar>

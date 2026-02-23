@@ -49,30 +49,22 @@ function generateColors(userName: string): string[] {
 
 function generatePattern(userName: string): PatternCoord[] {
   const rng = createSeededRng(hashStringToUint32(userName || 'USER'));
-  const rows = 12;
-  const cols = 16;
+  // Safe grid dimensions that fit fully inside HexagonPattern's 400x300 viewBox
+  // (with its built-in translate(20,20)), so no hexes are clipped.
+  const rows = 10;
+  const cols = 13;
   const coords: PatternCoord[] = [];
 
   for (let r = 0; r < rows; r += 1) {
     for (let c = 0; c < cols; c += 1) {
-      const dx = (c - 7.5) / 7.5;
-      const dy = (r - 5.5) / 5.5;
+      // Build a complete, deterministic grid with slight seeded gaps so it still
+      // resembles the generated pattern style without edge clipping.
+      const dx = (c - (cols - 1) / 2) / ((cols - 1) / 2);
+      const dy = (r - (rows - 1) / 2) / ((rows - 1) / 2);
       const distance = Math.sqrt(dx * dx + dy * dy);
-      const centerBias = Math.max(0, 1 - distance);
-      const threshold = 0.78 - centerBias * 0.28;
+      const keepChance = distance < 0.92 ? 0.94 : 0.72;
 
-      if (rng() > threshold) {
-        coords.push({ r, c });
-      }
-    }
-  }
-
-  // Ensure we always have visible pattern density
-  if (coords.length < 20) {
-    for (let i = 0; i < 24; i += 1) {
-      const r = Math.floor(rng() * rows);
-      const c = Math.floor(rng() * cols);
-      if (!coords.some((p) => p.r === r && p.c === c)) {
+      if (rng() < keepChance) {
         coords.push({ r, c });
       }
     }
@@ -96,4 +88,3 @@ export const UserAvatarPattern: React.FC<UserAvatarPatternProps> = ({
     />
   );
 };
-

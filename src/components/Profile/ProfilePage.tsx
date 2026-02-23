@@ -36,7 +36,7 @@ export const ProfilePage: React.FC = () => {
               <AvatarFallback className="relative overflow-hidden bg-[#E8DAB2] p-0">
                 <UserAvatarPattern
                   userName={displayName}
-                  className="w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4"
+                  className="w-full h-full"
                 />
               </AvatarFallback>
             </Avatar>

@@ -77,6 +77,35 @@ export interface DeleteTeachersInvitationsByIdData {
   revoked: boolean;
 }
 
+export type GetApiProgressLessonData = any;
+
+export interface GetApiProgressLessonParams {
+  lessonId: string;
+  lessonVersion: string | number;
+}
+
+export type GetApiProgressSummaryData = any;
+
+export type GetAtlasCitiesData = any;
+
+export type GetAtlasErasData = any;
+
+export type GetAtlasEventsData = any;
+
+export interface GetAtlasEventsParams {
+  limit?: string | number;
+}
+
+export type GetAtlasModulesData = any;
+
+export type GetAtlasRegionsData = any;
+
+export type GetAtlasSearchData = any;
+
+export interface GetAtlasSearchParams {
+  q: string;
+}
+
 export interface GetAuthMeData {
   birthDate: (Date) | null;
   createdAt: Date;
@@ -489,6 +518,29 @@ export interface GetTeachersParams {
   status?: 'all' | 'active' | 'removed';
 }
 
+export type PatchApiProgressActivityData = any;
+
+export interface PatchApiProgressActivityPayload {
+  activityDefId: string;
+  activityInstanceId: string;
+  attemptsDelta?: number;
+  lessonId: string;
+  lessonVersion: number;
+  mode: string;
+  resumePayloadJson?: any;
+  root: string;
+  score?: number | null;
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+}
+
+export type PatchApiProgressLessonStateData = any;
+
+export interface PatchApiProgressLessonStatePayload {
+  currentActivityInstanceId: string | null;
+  lessonId: string;
+  lessonVersion: number;
+}
+
 export type PatchChaptersByIdData = any;
 
 export interface PatchChaptersByIdPayload {
@@ -703,6 +755,26 @@ export interface PatchStudentsByIdRestoreData {
 export interface PatchTeachersByIdRestoreData {
   id: string;
   restored: boolean;
+}
+
+export type PostAtlasAiAnalyzeData = any;
+
+export interface PostAtlasAiAnalyzePayload {
+  city?: string;
+  genres?: string[];
+  localResults?: {
+    genre: string[];
+    title: string;
+    year: number;
+  }[];
+  query: string;
+  year?: number;
+}
+
+export type PostAtlasParseQueryData = any;
+
+export interface PostAtlasParseQueryPayload {
+  query: string;
 }
 
 export interface PostAuthLoginData {
@@ -1161,6 +1233,132 @@ export namespace Auth {
     export type RequestBody = PostAuthResetPasswordPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostAuthResetPasswordData;
+  }
+}
+
+export namespace Atlas {
+  /**
+   * No description
+   * @tags Atlas
+   * @name GetAtlasCities
+   * @request GET:/atlas/cities
+   * @response `200` `GetAtlasCitiesData`
+   */
+  export namespace GetAtlasCities {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetAtlasCitiesData;
+  }
+
+  /**
+   * No description
+   * @tags Atlas
+   * @name GetAtlasEras
+   * @request GET:/atlas/eras
+   * @response `200` `GetAtlasErasData`
+   */
+  export namespace GetAtlasEras {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetAtlasErasData;
+  }
+
+  /**
+   * No description
+   * @tags Atlas
+   * @name GetAtlasEvents
+   * @request GET:/atlas/events
+   * @response `200` `GetAtlasEventsData`
+   */
+  export namespace GetAtlasEvents {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      limit?: string | number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetAtlasEventsData;
+  }
+
+  /**
+   * No description
+   * @tags Atlas
+   * @name GetAtlasModules
+   * @request GET:/atlas/modules
+   * @response `200` `GetAtlasModulesData`
+   */
+  export namespace GetAtlasModules {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetAtlasModulesData;
+  }
+
+  /**
+   * No description
+   * @tags Atlas
+   * @name GetAtlasRegions
+   * @request GET:/atlas/regions
+   * @response `200` `GetAtlasRegionsData`
+   */
+  export namespace GetAtlasRegions {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetAtlasRegionsData;
+  }
+
+  /**
+   * No description
+   * @tags Atlas
+   * @name GetAtlasSearch
+   * @request GET:/atlas/search
+   * @response `200` `GetAtlasSearchData`
+   */
+  export namespace GetAtlasSearch {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      q: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetAtlasSearchData;
+  }
+
+  /**
+   * No description
+   * @tags Atlas
+   * @name PostAtlasAiAnalyze
+   * @request POST:/atlas/ai/analyze
+   * @response `200` `PostAtlasAiAnalyzeData`
+   */
+  export namespace PostAtlasAiAnalyze {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostAtlasAiAnalyzePayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostAtlasAiAnalyzeData;
+  }
+
+  /**
+   * No description
+   * @tags Atlas
+   * @name PostAtlasParseQuery
+   * @request POST:/atlas/parse-query
+   * @response `200` `PostAtlasParseQueryData`
+   */
+  export namespace PostAtlasParseQuery {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostAtlasParseQueryPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostAtlasParseQueryData;
   }
 }
 
@@ -2037,6 +2235,71 @@ export namespace PlayAlong {
   }
 }
 
+export namespace Progress {
+  /**
+   * No description
+   * @tags Progress
+   * @name GetApiProgressLesson
+   * @request GET:/api/progress/lesson
+   * @response `200` `GetApiProgressLessonData`
+   */
+  export namespace GetApiProgressLesson {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      lessonId: string;
+      lessonVersion: string | number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiProgressLessonData;
+  }
+
+  /**
+   * No description
+   * @tags Progress
+   * @name GetApiProgressSummary
+   * @request GET:/api/progress/summary
+   * @response `200` `GetApiProgressSummaryData`
+   */
+  export namespace GetApiProgressSummary {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiProgressSummaryData;
+  }
+
+  /**
+   * No description
+   * @tags Progress
+   * @name PatchApiProgressActivity
+   * @request PATCH:/api/progress/activity
+   * @response `200` `PatchApiProgressActivityData`
+   */
+  export namespace PatchApiProgressActivity {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PatchApiProgressActivityPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PatchApiProgressActivityData;
+  }
+
+  /**
+   * No description
+   * @tags Progress
+   * @name PatchApiProgressLessonState
+   * @request PATCH:/api/progress/lessonState
+   * @response `200` `PatchApiProgressLessonStateData`
+   */
+  export namespace PatchApiProgressLessonState {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PatchApiProgressLessonStatePayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PatchApiProgressLessonStateData;
+  }
+}
+
 export namespace PracticeEvents {
   /**
    * No description
@@ -2793,6 +3056,133 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         type: ContentType.Json,
         format: 'json',
+        ...params,
+      }),
+  };
+  atlas = {
+    /**
+     * No description
+     *
+     * @tags Atlas
+     * @name GetAtlasCities
+     * @request GET:/atlas/cities
+     * @response `200` `GetAtlasCitiesData`
+     */
+    getAtlasCities: (params: RequestParams = {}) =>
+      this.http.request<GetAtlasCitiesData, any>({
+        path: `/atlas/cities`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Atlas
+     * @name GetAtlasEras
+     * @request GET:/atlas/eras
+     * @response `200` `GetAtlasErasData`
+     */
+    getAtlasEras: (params: RequestParams = {}) =>
+      this.http.request<GetAtlasErasData, any>({
+        path: `/atlas/eras`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Atlas
+     * @name GetAtlasEvents
+     * @request GET:/atlas/events
+     * @response `200` `GetAtlasEventsData`
+     */
+    getAtlasEvents: (query: GetAtlasEventsParams, params: RequestParams = {}) =>
+      this.http.request<GetAtlasEventsData, any>({
+        path: `/atlas/events`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Atlas
+     * @name GetAtlasModules
+     * @request GET:/atlas/modules
+     * @response `200` `GetAtlasModulesData`
+     */
+    getAtlasModules: (params: RequestParams = {}) =>
+      this.http.request<GetAtlasModulesData, any>({
+        path: `/atlas/modules`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Atlas
+     * @name GetAtlasRegions
+     * @request GET:/atlas/regions
+     * @response `200` `GetAtlasRegionsData`
+     */
+    getAtlasRegions: (params: RequestParams = {}) =>
+      this.http.request<GetAtlasRegionsData, any>({
+        path: `/atlas/regions`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Atlas
+     * @name GetAtlasSearch
+     * @request GET:/atlas/search
+     * @response `200` `GetAtlasSearchData`
+     */
+    getAtlasSearch: (query: GetAtlasSearchParams, params: RequestParams = {}) =>
+      this.http.request<GetAtlasSearchData, any>({
+        path: `/atlas/search`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Atlas
+     * @name PostAtlasAiAnalyze
+     * @request POST:/atlas/ai/analyze
+     * @response `200` `PostAtlasAiAnalyzeData`
+     */
+    postAtlasAiAnalyze: (data: PostAtlasAiAnalyzePayload, params: RequestParams = {}) =>
+      this.http.request<PostAtlasAiAnalyzeData, any>({
+        path: `/atlas/ai/analyze`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Atlas
+     * @name PostAtlasParseQuery
+     * @request POST:/atlas/parse-query
+     * @response `200` `PostAtlasParseQueryData`
+     */
+    postAtlasParseQuery: (data: PostAtlasParseQueryPayload, params: RequestParams = {}) =>
+      this.http.request<PostAtlasParseQueryData, any>({
+        path: `/atlas/parse-query`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
   };
@@ -3652,6 +4042,72 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         type: ContentType.Json,
         format: 'json',
+        ...params,
+      }),
+  };
+  progress = {
+    /**
+     * No description
+     *
+     * @tags Progress
+     * @name GetApiProgressLesson
+     * @request GET:/api/progress/lesson
+     * @response `200` `GetApiProgressLessonData`
+     */
+    getApiProgressLesson: (query: GetApiProgressLessonParams, params: RequestParams = {}) =>
+      this.http.request<GetApiProgressLessonData, any>({
+        path: `/api/progress/lesson`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Progress
+     * @name GetApiProgressSummary
+     * @request GET:/api/progress/summary
+     * @response `200` `GetApiProgressSummaryData`
+     */
+    getApiProgressSummary: (params: RequestParams = {}) =>
+      this.http.request<GetApiProgressSummaryData, any>({
+        path: `/api/progress/summary`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Progress
+     * @name PatchApiProgressActivity
+     * @request PATCH:/api/progress/activity
+     * @response `200` `PatchApiProgressActivityData`
+     */
+    patchApiProgressActivity: (data: PatchApiProgressActivityPayload, params: RequestParams = {}) =>
+      this.http.request<PatchApiProgressActivityData, any>({
+        path: `/api/progress/activity`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Progress
+     * @name PatchApiProgressLessonState
+     * @request PATCH:/api/progress/lessonState
+     * @response `200` `PatchApiProgressLessonStateData`
+     */
+    patchApiProgressLessonState: (data: PatchApiProgressLessonStatePayload, params: RequestParams = {}) =>
+      this.http.request<PatchApiProgressLessonStateData, any>({
+        path: `/api/progress/lessonState`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
   };

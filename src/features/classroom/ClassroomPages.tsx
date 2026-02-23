@@ -9,7 +9,7 @@ import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnInlet } from '@/components/learn/LearnInlet';
 import { ProfilePage } from '@/components/Profile/ProfilePage';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
 import Atlas from '@/components/atlas/atlas';
@@ -179,9 +179,15 @@ const LessonRoute = () => {
     mode: PrismModeSlug;
     key: string; 
   }>();
+  const [searchParams] = useSearchParams();
+  const startActivity = searchParams.get('activity') ?? undefined;
 
   return (
-    <LessonContainer modeSlug={mode ?? 'ionian'} rootKey={keyParam} />
+    <LessonContainer
+      modeSlug={mode ?? 'ionian'}
+      rootKey={keyParam}
+      startAtActivityKey={startActivity}
+    />
   );
 };
 

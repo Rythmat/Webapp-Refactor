@@ -8,6 +8,7 @@ import { urlParamToKeyLabel } from "@/lib/musicKeyUrl";
 type LessonContainerProps = {
   modeSlug: PrismModeSlug;
   rootKey?: string;
+  startAtActivityKey?: string;
 };
 
 type KeyOption = { label: string; midi: number };
@@ -68,7 +69,7 @@ const normalizeSteps = (steps?: number[]) => {
 const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
   normalizeSteps(steps).map((interval) => rootMidi + interval);
 
-export const LessonContainer = ({ modeSlug, rootKey }: LessonContainerProps) => {
+export const LessonContainer = ({ modeSlug, rootKey, startAtActivityKey }: LessonContainerProps) => {
   const [label, setLabel] = useState(["", ""]);
   const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
 
@@ -98,6 +99,7 @@ export const LessonContainer = ({ modeSlug, rootKey }: LessonContainerProps) => 
           rootKey={keyOption.label}
           rootMidi={keyOption.midi}
           mode= {modeSlug}
+          startAtActivityKey={startAtActivityKey}
         />
       </div>
     </div>

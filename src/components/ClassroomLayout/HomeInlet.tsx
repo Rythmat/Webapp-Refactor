@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { StudioRoutes, LearnRoutes, GameRoutes} from "@/constants/routes";
+import { useProgressSummary } from "@/hooks/data";
+import { keyLabelToUrlParam } from "@/lib/musicKeyUrl";
 import { HeaderBar } from "./HeaderBar";
 import { HexagonPattern, DEFAULT_THEMES as THEMES } from "../ui/HexagonPattern";
 
@@ -79,6 +81,7 @@ export const HomeInlet = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [projects, setProjects] = useState<ProjectCardProps[]>([]);
   const navigate = useNavigate();
+  const { data: progressSummary } = useProgressSummary(true);
 
   useEffect(()=>{
      setProjects([]);
@@ -93,6 +96,40 @@ export const HomeInlet = () => {
     setTimeout(() => setIsGenerating(false), 2000);
   };
   const visibleProjects = projects.slice(0, 2);
+
+  const latestContinue = (() => {
+    const latest = progressSummary?.lessons?.[0];
+    if (!latest?.currentActivityInstanceId) return null;
+    const parts = latest.currentActivityInstanceId.split("::");
+    // [lessonId, v{n}, activityDefId, mode, root]
+    if (parts.length < 5) return null;
+    const activityDefId = parts[2];
+    const mode = parts[3];
+    const root = parts[4];
+    const modeTitle = mode.charAt(0).toUpperCase() + mode.slice(1);
+    const progressPct =
+      latest.totalCount && latest.totalCount > 0
+        ? Math.max(
+            0,
+            Math.min(100, Math.round((latest.completedCount / latest.totalCount) * 100)),
+          )
+        : null;
+
+    return {
+      lessonId: latest.lessonId,
+      mode,
+      root,
+      modeTitle,
+      activityDefId,
+      progressPct,
+      completedCount: latest.completedCount,
+      totalCount: latest.totalCount,
+      route: LearnRoutes.lesson(
+        { mode: mode as any, key: keyLabelToUrlParam(root) },
+        { activity: activityDefId },
+      ),
+    };
+  })();
 
   return (
     <div className="flex flex-col h-full">
@@ -156,7 +193,12 @@ export const HomeInlet = () => {
               <h2>Continue</h2>
               <ChevronRight size={18} className="text-gray-600" />
             </div>
-            <div className="flex-1 bg-gradient-to-br from-teal-800/20 to-emerald-900/20 border border-white/5 rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-emerald-500/30 transition-all">
+            <div
+              className="flex-1 bg-gradient-to-br from-teal-800/20 to-emerald-900/20 border border-white/5 rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-emerald-500/30 transition-all"
+              onClick={() =>
+                navigate(latestContinue?.route ?? LearnRoutes.root.definition)
+              }
+            >
               <div className="absolute inset-0 opacity-30">
                 <HexagonPattern
                   className="w-[150%] h-[150%] -translate-x-1/4 -translate-y-1/4 text-emerald-500/20 fill-emerald-500/20"
@@ -167,16 +209,28 @@ export const HomeInlet = () => {
               <div className="relative z-10 h-full flex flex-col justify-end">
                 <div className="mb-4">
                   <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1 block">
-                    Lesson 5
+                    {latestContinue ? "Resume lesson" : "Continue learning"}
                   </span>
                   <h3 className="text-2xl font-serif leading-tight mb-2">
-                    E Major 
+                    {latestContinue ? `${latestContinue.root} ${latestContinue.modeTitle}` : "Pick up where"}
                     <br />
-                    7th Chords
+                    {latestContinue
+                      ? latestContinue.activityDefId.replace(/-/g, " ")
+                      : "you left off"}
                   </h3>
                   <div className="w-full bg-white/10 h-1.5 rounded-full mt-3 overflow-hidden">
-                    <div className="w-3/4 h-full bg-emerald-500 rounded-full" />
+                    <div
+                      className="h-full bg-emerald-500 rounded-full"
+                      style={{
+                        width: `${latestContinue?.progressPct ?? 0}%`,
+                      }}
+                    />
                   </div>
+                  {latestContinue && latestContinue.totalCount != null && (
+                    <div className="mt-2 text-xs text-emerald-200/80">
+                      {latestContinue.completedCount} / {latestContinue.totalCount} completed
+                    </div>
+                  )}
                 </div>
                 <button className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
                   <Play size={18} fill="currentColor" />

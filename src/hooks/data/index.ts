@@ -11,3 +11,4 @@ export * from './prism';
 export * from './students';
 export * from './teachers';
 export * from './playAlongs';
+export * from './progress';

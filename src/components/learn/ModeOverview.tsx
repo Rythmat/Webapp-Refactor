@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { YouTubePlayer } from '@/features/admin/chapters/components/YouTubePlayer';
+import { useProgressSummary } from '@/hooks/data/progress';
 import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { LearnRoutes } from "@/constants/routes";
@@ -64,6 +65,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
   const [noteIndex, setNoteIndex] = useState(0);
   const { data: modeDetail } = usePrismMode(mode);
   const navigate = useNavigate();
+  const { data: progressSummary } = useProgressSummary(true);
   const videoId = '';
 
   useEffect(() => {
@@ -104,6 +106,31 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
     }));
   }, [activeKey.label, mode, noteIndex, scaleMidis]);
 
+  const resumeByKey = useMemo(() => {
+    const map = new Map<string, { activityDefId: string }>();
+    progressSummary?.lessons.forEach((lesson) => {
+      const activityId = lesson.currentActivityInstanceId;
+      if (!activityId) return;
+      const parts = activityId.split("::");
+      if (parts.length < 5) return;
+      const [lessonId, versionTag, activityDefId, lessonMode, lessonRoot] = parts;
+      if (lessonId !== "mode-lesson-flow") return;
+      if (versionTag !== "v1") return;
+      if (lessonMode !== mode.toLowerCase()) return;
+      map.set(lessonRoot, { activityDefId });
+    });
+    return map;
+  }, [mode, progressSummary?.lessons]);
+
+  const lessonRouteFor = (keyLabel: string, activityDefId?: string) =>
+    LearnRoutes.lesson(
+      {
+        mode,
+        key: keyLabelToUrlParam(keyLabel),
+      },
+      activityDefId ? { activity: activityDefId } : undefined,
+    );
+
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
       <h2 className="text-3xl md:text-4xl font-semibold underline text-left ml-[10%]">
@@ -128,24 +155,60 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
 
         <div className="grid grid-cols-1 gap-3 w-full max-w-3xl">
           {CHROMATIC_KEYS.map((tile) => {
+            const resumeState = resumeByKey.get(tile.label.toLowerCase());
+            const title = tile.label + " " + mode.charAt(0).toUpperCase() + mode.slice(1);
+            const tileColor = colorForKeyMode(tile.label, mode);
+
+            if (!resumeState) {
+              return (
+                <button
+                  key={`${tile.label}-${mode}`}
+                  onClick={() =>
+                    navigate(
+                      lessonRouteFor(tile.label),
+                    )
+                  }
+                  className={`
+                    p-3 rounded-lg border text-sm font-bold text-left transition bg-grey-darker
+                  `}
+                  style={{ color: tileColor }}
+                >
+                  {title}
+                </button>
+              );
+            }
 
             return (
-              <button
-                onClick={() =>
-                  navigate(
-                    LearnRoutes.lesson({
-                      mode,
-                      key: keyLabelToUrlParam(tile.label),
-                    }),
-                  )
-                }
+              <div
+                key={`${tile.label}-${mode}`}
                 className={`
-                  p-3 rounded-lg border text-sm font-bold text-left transition bg-grey-darker
+                  p-3 rounded-lg border text-sm text-left transition bg-grey-darker
                 `}
-                style={{ color: colorForKeyMode(tile.label, mode) }}
+                style={{ color: tileColor }}
               >
-                {tile.label + " " + mode.charAt(0).toUpperCase() + mode.slice(1)}
-              </button>
+                <div className="font-bold">{title}</div>
+                <div className="mt-1 text-xs opacity-80">
+                  Current activity: {resumeState.activityDefId.replace(/-/g, " ")}
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate(lessonRouteFor(tile.label))}
+                    className="rounded-md border border-white/20 px-3 py-1.5 text-xs font-semibold hover:bg-white/10"
+                  >
+                    Start Over
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate(lessonRouteFor(tile.label, resumeState.activityDefId))
+                    }
+                    className="rounded-md bg-white text-black px-3 py-1.5 text-xs font-semibold hover:bg-white/90"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
             );
           })}
         </div>

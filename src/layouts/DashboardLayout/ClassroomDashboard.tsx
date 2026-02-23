@@ -2,10 +2,12 @@ import { Suspense, useRef, useMemo } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import useLocalStorageState from 'use-local-storage-state';
 import { cn } from '@/components/utilities';
+import { useProgressBootstrap } from '@/hooks/data';
 import { ClassroomSidebar } from './ClassroomSidebar';
 
 export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   const mainRef = useRef<HTMLDivElement>(null);
+  useProgressBootstrap();
 
 
   function useIdsFromPath() {

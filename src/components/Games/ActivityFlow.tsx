@@ -15,10 +15,15 @@ import { useNavigate } from "react-router";
 import { LearnRoutes, StudioRoutes } from "@/constants/routes";
 import { keyLabelToUrlParam } from "@/lib/musicKeyUrl";
 import { useMidiInput } from "@/hooks/music/useMidiInput";
+import { useAuthToken } from "@/contexts/AuthContext/hooks/useAuthToken";
 import { PianoKeyboard } from "@/components/PianoKeyboard";
 import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
 import { pitchNameToMidi } from "./PianoRollPlay";
 import { colorForKeyMode } from "@/lib/modeColorShift";
+import { Env } from "@/constants/env";
+import { buildActivityInstanceId } from "@/lib/progress/activityInstanceId";
+import { selectResumeActivityIndex } from "@/lib/progress/resume";
+import { useLessonProgress, useUpdateActivityProgress, useUpdateLessonState } from "@/hooks/data/progress";
 type RhythmHit = [number, number];
 const chordRhythmFallbacks: Record<string, RhythmHit[]> = {
   "Jazz 1a": [[0, 480], [720, 240], [1440, 480]],
@@ -42,6 +47,7 @@ type ActivityFlowProps = {
   rootKey: string;
   rootMidi: number;
   mode?: PrismModeSlug;
+  startAtActivityKey?: string;
 };
 type ActivityState = "pending" | "active" | "completed";
 
@@ -51,12 +57,17 @@ const CHROMATIC_KEYS = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "B
 const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;
 
 type ActivityDefinition = {
+  activityDefId: string;
+  activityInstanceId: string;
   key: string;
   label: string;
   Component: (props: FlowActivityProps) => JSX.Element;
   events: NoteEvent[];
   direction: string;
 };
+
+const ACTIVITY_FLOW_LESSON_ID = "mode-lesson-flow";
+const ACTIVITY_FLOW_LESSON_VERSION = 1;
 
 const ChordLoadingStep: (props: FlowActivityProps) => JSX.Element = ({
   startMessage,
@@ -289,10 +300,17 @@ const extractContours = (value: unknown): number[][] => {
 };
 
 
-export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, rootMidi, mode }: ActivityFlowProps) => {
+export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, rootMidi, mode, startAtActivityKey }: ActivityFlowProps) => {
   const navigate = useNavigate();
+  const authToken = useAuthToken();
   const modeLabel = mode ?? "mode";
   const activityColor = useMemo(() => colorForKeyMode(rootKey, mode), [rootKey, mode]);
+  const lessonKeyScope = useMemo(
+    () => `${keyLabelToUrlParam(rootKey)}:${modeLabel}`,
+    [rootKey, modeLabel],
+  );
+  const lessonId = ACTIVITY_FLOW_LESSON_ID;
+  const lessonVersion = ACTIVITY_FLOW_LESSON_VERSION;
 
   // const [overviewReady, setOverviewReady] = useState(false);
   const { data: contourData } = usePrismStartContours();
@@ -395,9 +413,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     chordTriads: number[][] = [],
     includeChordPlaceholder = false,
   ): ActivityDefinition[] => {
+    const scopeId = (id: string) => `${lessonKeyScope}:${id}`;
     const applyActivityColor = (seq: NoteEvent[]) =>
       seq.map((event) => ({
         ...event,
+        id: event.id.startsWith(`${lessonKeyScope}:`) ? event.id : scopeId(event.id),
         color: event.color ?? activityColor,
       }));
     const ascending = scale;
@@ -712,7 +732,15 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     }
     
     return sequences.map(({ key, label, Component, seq, direction }) => ({
-      key,
+      activityDefId: key,
+      activityInstanceId: buildActivityInstanceId({
+        lessonId,
+        lessonVersion,
+        activityDefId: key,
+        mode: modeLabel,
+        root: rootKey,
+      }),
+      key: scopeId(key),
       label,
       Component,
       events: seq,
@@ -737,7 +765,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       triads,
       chordsQuery.isPending && triads.length === 0,
     );
-  }, [scaleMidis, randomContours, triads, chordsQuery.isPending, activityColor]);
+  }, [scaleMidis, randomContours, triads, chordsQuery.isPending, activityColor, lessonKeyScope, lessonId, lessonVersion, modeLabel, rootKey]);
+
+  const lessonProgressQuery = useLessonProgress(lessonId, lessonVersion, true);
+  const updateActivityProgress = useUpdateActivityProgress();
+  const updateLessonState = useUpdateLessonState();
+  const resumeAppliedScopeRef = useRef<string | null>(null);
+  const completionReportedRef = useRef<Set<string>>(new Set());
 
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -747,6 +781,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const [startOverlayStep, setStartOverlayStep] = useState(0);
   const [lessonComplete, setLessonComplete] = useState(false);
   const currentActivity = flowDefinitions[currentIndex];
+  const lessonProgressScope = `${lessonId}:${lessonVersion}:${lessonKeyScope}`;
+  const progressTrackingReady =
+    resumeAppliedScopeRef.current === lessonProgressScope || lessonProgressQuery.isError;
   const currentChromaticIndex = useMemo(
     () => CHROMATIC_KEYS.findIndex((key) => key === rootKey),
     [rootKey],
@@ -774,7 +811,48 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     setActivityState("active");
     setLessonComplete(false);
     setNextKeyChoice(nextCurriculumKey);
+    resumeAppliedScopeRef.current = null;
+    completionReportedRef.current = new Set();
   }, [mode, rootKey, nextCurriculumKey]);
+
+  useEffect(() => {
+    if (flowDefinitions.length === 0) return;
+    const explicitStartIndex = startAtActivityKey
+      ? flowDefinitions.findIndex(
+          (activity) =>
+            activity.activityDefId === startAtActivityKey ||
+            activity.key === startAtActivityKey,
+        )
+      : -1;
+
+    if (explicitStartIndex >= 0) {
+      resumeAppliedScopeRef.current = lessonProgressScope;
+      setLessonComplete(false);
+      setCurrentIndex(explicitStartIndex);
+      return;
+    }
+
+    if (!lessonProgressQuery.data) return;
+    if (resumeAppliedScopeRef.current === lessonProgressScope) return;
+
+    const resumeIndex = selectResumeActivityIndex({
+      activities: flowDefinitions.map((activity) => ({
+        activityInstanceId: activity.activityInstanceId,
+      })),
+      progress: lessonProgressQuery.data,
+    });
+
+    resumeAppliedScopeRef.current = lessonProgressScope;
+
+    if (resumeIndex < 0) {
+      setLessonComplete(true);
+      setCurrentIndex(Math.max(flowDefinitions.length - 1, 0));
+      return;
+    }
+
+    setLessonComplete(false);
+    setCurrentIndex(resumeIndex);
+  }, [flowDefinitions, lessonProgressQuery.data, lessonProgressScope, startAtActivityKey]);
 
   useEffect(() => {
     setActivityState("active");
@@ -796,6 +874,16 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   }, [lessonComplete]);
 
   useEffect(() => {
+    if (!lessonComplete) return;
+    if (!progressTrackingReady) return;
+    updateLessonState.mutate({
+      lessonId,
+      lessonVersion,
+      currentActivityInstanceId: null,
+    });
+  }, [lessonComplete, progressTrackingReady, lessonId, lessonVersion]);
+
+  useEffect(() => {
     if (flowDefinitions.length === 0) return;
     if (currentIndex < flowDefinitions.length) return;
     if (!chordsQuery.isPending) {
@@ -812,18 +900,108 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     }
   }, [currentActivity, currentIndex, labelChange, flowDefinitions.length]);
 
+  useEffect(() => {
+    if (!currentActivity || lessonComplete) return;
+    if (!progressTrackingReady) return;
+    updateLessonState.mutate({
+      lessonId,
+      lessonVersion,
+      currentActivityInstanceId: currentActivity.activityInstanceId,
+    });
+  }, [currentActivity?.activityInstanceId, lessonComplete, lessonId, lessonVersion, progressTrackingReady]);
+
+  useEffect(() => {
+    if (!currentActivity || lessonComplete) return;
+    if (activityState !== "active") return;
+    if (!progressTrackingReady) return;
+
+    updateActivityProgress.mutate({
+      activityInstanceId: currentActivity.activityInstanceId,
+      lessonId,
+      lessonVersion,
+      activityDefId: currentActivity.activityDefId,
+      mode: modeLabel,
+      root: rootKey,
+      status: "IN_PROGRESS",
+      attemptsDelta: 1,
+      resumePayloadJson: {
+        activityIndex: currentIndex,
+        activityDefId: currentActivity.activityDefId,
+      },
+    });
+  }, [
+    activityState,
+    activityInstanceId,
+    startSignal,
+    currentActivity?.activityInstanceId,
+    currentIndex,
+    lessonComplete,
+    lessonId,
+    lessonVersion,
+    modeLabel,
+    rootKey,
+    progressTrackingReady,
+  ]);
+
+  useEffect(() => {
+    if (!currentActivity || lessonComplete) return;
+    if (activityState !== "active") return;
+    if (!progressTrackingReady) return;
+
+    const intervalId = window.setInterval(() => {
+      updateActivityProgress.mutate({
+        activityInstanceId: currentActivity.activityInstanceId,
+        lessonId,
+        lessonVersion,
+        activityDefId: currentActivity.activityDefId,
+        mode: modeLabel,
+        root: rootKey,
+        status: "IN_PROGRESS",
+        resumePayloadJson: {
+          activityIndex: currentIndex,
+          activityDefId: currentActivity.activityDefId,
+          checkpointAt: Date.now(),
+        },
+      });
+    }, 3000);
+
+    return () => window.clearInterval(intervalId);
+  }, [
+    activityState,
+    currentActivity?.activityInstanceId,
+    currentIndex,
+    lessonComplete,
+    lessonId,
+    lessonVersion,
+    modeLabel,
+    rootKey,
+    progressTrackingReady,
+  ]);
+
   const handleContinue = useCallback(() => {
+    if (currentActivity) {
+      updateLessonState.mutate({
+        lessonId,
+        lessonVersion,
+        currentActivityInstanceId: null,
+      });
+    }
     setCurrentIndex((idx) => {
       if (idx < flowDefinitions.length - 1) {
         return idx + 1;
       }
       if (!chordsQuery.isPending) {
         setLessonComplete(true);
+        updateLessonState.mutate({
+          lessonId,
+          lessonVersion,
+          currentActivityInstanceId: null,
+        });
         onComplete?.();
       }
       return idx;
     });
-  }, [chordsQuery.isPending, flowDefinitions.length, onComplete]);
+  }, [chordsQuery.isPending, flowDefinitions.length, onComplete, currentActivity, lessonId, lessonVersion]);
 
   const handleMidiActivity = useCallback(() => {
     if (lessonComplete) {
@@ -859,22 +1037,36 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     };
   }, [startListening, stopListening]);
 
-  const { Component, events, direction} = currentActivity;
-  const usesActivityCompletionOverlay =
-    Component === PlayAlong || Component === NoteHold;
-  const usesActivityStartOverlay =
-    Component === PlayAlong || Component === NoteHold;
-  const showActivityCompletionOverlay =
-    usesActivityCompletionOverlay && activityState === "completed";
-  const showStartOverlay =
-    usesActivityStartOverlay && activityState === "pending";
-
   const handleActivityCompleteChange = useCallback(
     (isComplete: boolean) => {
-      if (!isComplete || !usesActivityCompletionOverlay) return;
+      const currentComponent = currentActivity?.Component;
+      const isCompletionOverlayActivity =
+        currentComponent === PlayAlong || currentComponent === NoteHold;
+      if (!isComplete || !isCompletionOverlayActivity) return;
       setActivityState("completed");
+      if (!currentActivity) return;
+      if (completionReportedRef.current.has(currentActivity.activityInstanceId)) return;
+      completionReportedRef.current.add(currentActivity.activityInstanceId);
+      updateActivityProgress.mutate({
+        activityInstanceId: currentActivity.activityInstanceId,
+        lessonId,
+        lessonVersion,
+        activityDefId: currentActivity.activityDefId,
+        mode: modeLabel,
+        root: rootKey,
+        status: "COMPLETED",
+        resumePayloadJson: {
+          activityIndex: currentIndex,
+          activityDefId: currentActivity.activityDefId,
+        },
+      });
+      updateLessonState.mutate({
+        lessonId,
+        lessonVersion,
+        currentActivityInstanceId: null,
+      });
     },
-    [usesActivityCompletionOverlay],
+    [currentActivity, currentIndex, lessonId, lessonVersion, modeLabel, rootKey],
   );
 
   const handleRestartActivity = () => {
@@ -887,9 +1079,95 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     setActivityInstanceId((id) => id + 1);
   };
 
+  const flushRecentLessonState = useCallback(() => {
+    if (!authToken) return;
+    if (!currentActivity) return;
+    const apiBase = Env.get("VITE_MUSIC_ATLAS_API_URL", { nullable: true });
+    if (!apiBase) return;
+
+    const currentActivityInstanceId =
+      lessonComplete || activityState === "completed"
+        ? null
+        : currentActivity.activityInstanceId;
+
+    const lessonStateBody = {
+      lessonId,
+      lessonVersion,
+      currentActivityInstanceId,
+    };
+
+    void fetch(`${apiBase}/api/progress/lessonState`, {
+      method: "PATCH",
+      keepalive: true,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(lessonStateBody),
+    }).catch(() => {});
+
+    if (activityState === "active" && currentActivity) {
+      void fetch(`${apiBase}/api/progress/activity`, {
+        method: "PATCH",
+        keepalive: true,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          activityInstanceId: currentActivity.activityInstanceId,
+          lessonId,
+          lessonVersion,
+          activityDefId: currentActivity.activityDefId,
+          mode: modeLabel,
+          root: rootKey,
+          status: "IN_PROGRESS",
+          resumePayloadJson: {
+            activityIndex: currentIndex,
+            activityDefId: currentActivity.activityDefId,
+            flushedAt: Date.now(),
+            reason: "page-exit",
+          },
+        }),
+      }).catch(() => {});
+    }
+  }, [
+    activityState,
+    authToken,
+    currentActivity,
+    currentIndex,
+    lessonComplete,
+    lessonId,
+    lessonVersion,
+    modeLabel,
+    rootKey,
+  ]);
+
+  useEffect(() => {
+    const onPageHide = () => {
+      flushRecentLessonState();
+    };
+
+    window.addEventListener("pagehide", onPageHide);
+    return () => {
+      window.removeEventListener("pagehide", onPageHide);
+      flushRecentLessonState();
+    };
+  }, [flushRecentLessonState]);
+
   if (!currentActivity) {
     return null;
   }
+
+  const { Component, events, direction} = currentActivity;
+  const usesActivityCompletionOverlay =
+    Component === PlayAlong || Component === NoteHold;
+  const usesActivityStartOverlay =
+    Component === PlayAlong || Component === NoteHold;
+  const showActivityCompletionOverlay =
+    usesActivityCompletionOverlay && activityState === "completed";
+  const showStartOverlay =
+    usesActivityStartOverlay && activityState === "pending";
 
   const startOverlaySequence = useMemo(
     () =>

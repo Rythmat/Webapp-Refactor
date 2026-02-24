@@ -75,6 +75,7 @@ export const PlayAlong = ({
   const [currentTick, setCurrentTick] = useState(-COUNT_IN_TICKS);
   const [notePerformance, setNotePerformance] = useState<Record<string, NotePerformance>>({});
   const [playSessionId, setPlaySessionId] = useState(0);
+  const lastCompletionShownRef = useRef(false);
   const lastMetronomeBeatRef = useRef<number | null>(null);
   const lastMetronomeClickAtRef = useRef<number>(-1);
   const hasStartedAudioContextRef = useRef(false);
@@ -397,7 +398,11 @@ export const PlayAlong = ({
 
 
   useEffect(() => {
-    onActivityCompleteChange?.(showInTimeCompletion);
+    const wasShown = lastCompletionShownRef.current;
+    if (!wasShown && showInTimeCompletion) {
+      onActivityCompleteChange?.(true);
+    }
+    lastCompletionShownRef.current = showInTimeCompletion;
   }, [onActivityCompleteChange, showInTimeCompletion]);
 
   useEffect(() => {

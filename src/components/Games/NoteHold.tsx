@@ -58,6 +58,7 @@ export const NoteHold = ({
   const [completedChords, setCompletedChords] = useState<Set<number>>(
     () => new Set(),
   );
+  const lastCompletionShownRef = useRef(false);
   const [chordHoldStartMs, setChordHoldStartMs] = useState<number | null>(null);
   const [chordHoldProgress, setChordHoldProgress] = useState(0);
   const hasStartedAudioContextRef = useRef(false);
@@ -348,7 +349,11 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
 
 
   useEffect(() => {
-    onActivityCompleteChange?.(showChordHoldCompletion);
+    const wasShown = lastCompletionShownRef.current;
+    if (!wasShown && showChordHoldCompletion) {
+      onActivityCompleteChange?.(true);
+    }
+    lastCompletionShownRef.current = showChordHoldCompletion;
   }, [onActivityCompleteChange, showChordHoldCompletion]);
 
   useEffect(() => {

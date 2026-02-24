@@ -819,6 +819,17 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   useEffect(() => {
     if (flowDefinitions.length === 0) return;
+    const lessonOverviewIndex = flowDefinitions.findIndex(
+      (activity) => activity.activityDefId === "lesson-overview",
+    );
+    const introChordHoldActivity = flowDefinitions.find(
+      (activity) => activity.activityDefId === "intro-chord-hold",
+    );
+    const introChordHoldProgress = introChordHoldActivity
+      ? lessonProgressQuery.data?.progressByActivityInstanceId[introChordHoldActivity.activityInstanceId]
+      : undefined;
+    const introChordHoldCompleted = introChordHoldProgress?.status === "COMPLETED";
+
     const explicitStartIndex = startAtActivityKey
       ? flowDefinitions.findIndex(
           (activity) =>
@@ -828,6 +839,12 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       : -1;
 
     if (explicitStartIndex >= 0) {
+      if (!introChordHoldCompleted && lessonOverviewIndex >= 0) {
+        resumeAppliedScopeRef.current = lessonProgressScope;
+        setLessonComplete(false);
+        setCurrentIndex(lessonOverviewIndex);
+        return;
+      }
       resumeAppliedScopeRef.current = lessonProgressScope;
       setLessonComplete(false);
       setCurrentIndex(explicitStartIndex);
@@ -836,6 +853,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
     if (!lessonProgressQuery.data) return;
     if (resumeAppliedScopeRef.current === lessonProgressScope) return;
+
+    if (!introChordHoldCompleted && lessonOverviewIndex >= 0) {
+      resumeAppliedScopeRef.current = lessonProgressScope;
+      setLessonComplete(false);
+      setCurrentIndex(lessonOverviewIndex);
+      return;
+    }
 
     const resumeIndex = selectResumeActivityIndex({
       activities: flowDefinitions.map((activity) => ({

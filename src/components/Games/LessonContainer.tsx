@@ -72,6 +72,7 @@ const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
 export const LessonContainer = ({ modeSlug, rootKey, startAtActivityKey }: LessonContainerProps) => {
   const [label, setLabel] = useState(["", ""]);
   const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
+  const modeTitle = modeSlug.charAt(0).toUpperCase() + modeSlug.slice(1);
 
   const { data: modeDetail } = usePrismMode(modeSlug as any);
   const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;
@@ -89,7 +90,7 @@ export const LessonContainer = ({ modeSlug, rootKey, startAtActivityKey }: Lesso
         <div className="text-sm text-neutral-300">{label[0]}</div>
         <div className="text-sm text-neutral-300">
           Playing flow for <span className="font-semibold text-neutral-100">{keyOption.label}</span>{" "}
-          <span className="font-semibold text-neutral-100">{modeSlug}</span>{" "}
+          <span className="font-semibold text-neutral-100">{modeTitle}</span>{" "}
         </div>
       </div>
       <div className="p-3 sm:p-4 flex-1">

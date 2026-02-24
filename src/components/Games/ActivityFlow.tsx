@@ -786,8 +786,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const [lessonComplete, setLessonComplete] = useState(false);
   const currentActivity = flowDefinitions[currentIndex];
   const lessonProgressScope = `${lessonId}:${lessonVersion}:${lessonKeyScope}`;
-  const progressTrackingReady =
-    resumeAppliedScopeRef.current === lessonProgressScope || lessonProgressQuery.isError;
   const currentChromaticIndex = useMemo(
     () => CHROMATIC_KEYS.findIndex((key) => key === rootKey),
     [rootKey],
@@ -879,13 +877,12 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   useEffect(() => {
     if (!lessonComplete) return;
-    if (!progressTrackingReady) return;
     updateLessonState.mutate({
       lessonId,
       lessonVersion,
       currentActivityInstanceId: null,
     });
-  }, [lessonComplete, progressTrackingReady, lessonId, lessonVersion]);
+  }, [lessonComplete, lessonId, lessonVersion]);
 
   useEffect(() => {
     if (flowDefinitions.length === 0) return;
@@ -906,18 +903,16 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   useEffect(() => {
     if (!currentActivity || lessonComplete) return;
-    if (!progressTrackingReady) return;
     updateLessonState.mutate({
       lessonId,
       lessonVersion,
       currentActivityInstanceId: currentActivity.activityInstanceId,
     });
-  }, [currentActivity?.activityInstanceId, lessonComplete, lessonId, lessonVersion, progressTrackingReady]);
+  }, [currentActivity?.activityInstanceId, lessonComplete, lessonId, lessonVersion]);
 
   useEffect(() => {
     if (!currentActivity || lessonComplete) return;
     if (activityState !== "active") return;
-    if (!progressTrackingReady) return;
 
     updateActivityProgress.mutate({
       activityInstanceId: currentActivity.activityInstanceId,
@@ -944,13 +939,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     lessonVersion,
     modeLabel,
     rootKey,
-    progressTrackingReady,
   ]);
 
   useEffect(() => {
     if (!currentActivity || lessonComplete) return;
     if (activityState !== "active") return;
-    if (!progressTrackingReady) return;
 
     const intervalId = window.setInterval(() => {
       updateActivityProgress.mutate({
@@ -979,11 +972,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     lessonVersion,
     modeLabel,
     rootKey,
-    progressTrackingReady,
   ]);
 
   const handleContinue = useCallback(() => {
-    if (currentActivity && progressTrackingReady) {
+    if (currentActivity) {
       if (!completionReportedRef.current.has(currentActivity.activityInstanceId)) {
         completionReportedRef.current.add(currentActivity.activityInstanceId);
         updateActivityProgress.mutate({
@@ -1033,7 +1025,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     lessonVersion,
     modeLabel,
     onComplete,
-    progressTrackingReady,
     rootKey,
   ]);
 

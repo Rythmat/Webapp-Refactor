@@ -200,6 +200,9 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                 style={{ color: tileColor }}
               >
                 <div className="font-bold">{title}</div>
+                <div className="mt-1 text-xs font-semibold uppercase tracking-wide opacity-90">
+                  Continue lesson
+                </div>
                 <div className="mt-1 text-xs opacity-80">
                   {resumeState.activityDefId
                     ? `Current activity: ${resumeState.activityDefId.replace(/-/g, " ")}`

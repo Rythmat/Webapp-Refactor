@@ -107,17 +107,30 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
   }, [activeKey.label, mode, noteIndex, scaleMidis]);
 
   const resumeByKey = useMemo(() => {
-    const map = new Map<string, { activityDefId: string }>();
+    const map = new Map<string, { activityDefId: string | null; completedCount: number; totalCount: number | null }>();
     progressSummary?.lessons.forEach((lesson) => {
+      if (lesson.lessonId !== "mode-lesson-flow") return;
+      if (lesson.lessonVersion !== 1) return;
+      if ((lesson.mode ?? "").toLowerCase() !== mode.toLowerCase()) return;
+      const lessonRoot = (lesson.root ?? "").toLowerCase();
+      if (!lessonRoot) return;
+
+      let activityDefId: string | null = null;
       const activityId = lesson.currentActivityInstanceId;
-      if (!activityId) return;
-      const parts = activityId.split("::");
-      if (parts.length < 5) return;
-      const [lessonId, versionTag, activityDefId, lessonMode, lessonRoot] = parts;
-      if (lessonId !== "mode-lesson-flow") return;
-      if (versionTag !== "v1") return;
-      if (lessonMode !== mode.toLowerCase()) return;
-      map.set(lessonRoot, { activityDefId });
+      if (activityId) {
+        const parts = activityId.split("::");
+        if (parts.length >= 5) {
+          activityDefId = parts[2];
+        }
+      }
+
+      if (!activityDefId && (lesson.completedCount ?? 0) <= 0) return;
+
+      map.set(lessonRoot, {
+        activityDefId,
+        completedCount: lesson.completedCount ?? 0,
+        totalCount: lesson.totalCount ?? null,
+      });
     });
     return map;
   }, [mode, progressSummary?.lessons]);
@@ -188,8 +201,15 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
               >
                 <div className="font-bold">{title}</div>
                 <div className="mt-1 text-xs opacity-80">
-                  Current activity: {resumeState.activityDefId.replace(/-/g, " ")}
+                  {resumeState.activityDefId
+                    ? `Current activity: ${resumeState.activityDefId.replace(/-/g, " ")}`
+                    : "Progress saved"}
                 </div>
+                {resumeState.totalCount != null && (
+                  <div className="mt-1 text-xs opacity-70">
+                    {resumeState.completedCount} / {resumeState.totalCount} completed
+                  </div>
+                )}
                 <div className="mt-3 flex gap-2">
                   <button
                     type="button"
@@ -201,7 +221,11 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                   <button
                     type="button"
                     onClick={() =>
-                      navigate(lessonRouteFor(tile.label, resumeState.activityDefId))
+                      navigate(
+                        resumeState.activityDefId
+                          ? lessonRouteFor(tile.label, resumeState.activityDefId)
+                          : lessonRouteFor(tile.label),
+                      )
                     }
                     className="rounded-md bg-white text-black px-3 py-1.5 text-xs font-semibold hover:bg-white/90"
                   >

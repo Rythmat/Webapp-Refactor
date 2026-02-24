@@ -98,14 +98,18 @@ export const HomeInlet = () => {
   const visibleProjects = projects.slice(0, 2);
 
   const latestContinue = (() => {
-    const latest = progressSummary?.lessons?.[0];
-    if (!latest?.currentActivityInstanceId) return null;
-    const parts = latest.currentActivityInstanceId.split("::");
-    // [lessonId, v{n}, activityDefId, mode, root]
-    if (parts.length < 5) return null;
-    const activityDefId = parts[2];
-    const mode = parts[3];
-    const root = parts[4];
+    const latest = progressSummary?.lessons?.find(
+      (lesson) =>
+        lesson.lessonId === "mode-lesson-flow" &&
+        !!lesson.mode &&
+        !!lesson.root &&
+        ((lesson.completedCount ?? 0) > 0 || !!lesson.currentActivityInstanceId),
+    );
+    if (!latest?.mode || !latest.root) return null;
+    const parts = latest.currentActivityInstanceId?.split("::") ?? [];
+    const activityDefId = parts.length >= 5 ? parts[2] : null;
+    const mode = latest.mode;
+    const root = latest.root;
     const modeTitle = mode.charAt(0).toUpperCase() + mode.slice(1);
     const progressPct =
       latest.totalCount && latest.totalCount > 0
@@ -126,7 +130,7 @@ export const HomeInlet = () => {
       totalCount: latest.totalCount,
       route: LearnRoutes.lesson(
         { mode: mode as any, key: keyLabelToUrlParam(root) },
-        { activity: activityDefId },
+        activityDefId ? { activity: activityDefId } : undefined,
       ),
     };
   })();
@@ -215,7 +219,9 @@ export const HomeInlet = () => {
                     {latestContinue ? `${latestContinue.root} ${latestContinue.modeTitle}` : ""}
                     <br />
                     {latestContinue
-                      ? latestContinue.activityDefId.replace(/-/g, " ")
+                      ? (latestContinue.activityDefId
+                          ? latestContinue.activityDefId.replace(/-/g, " ")
+                          : "Continue lesson")
                       : "Start a music lesson"}
                   </h3>
                   <div className="w-full bg-white/10 h-1.5 rounded-full mt-3 overflow-hidden">

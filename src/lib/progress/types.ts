@@ -18,6 +18,8 @@ export interface LessonProgressResponse {
 export interface ProgressSummaryLesson {
   lessonId: string;
   lessonVersion: number;
+  mode?: string | null;
+  root?: string | null;
   currentActivityInstanceId: string | null;
   completedCount: number;
   totalCount: number | null;

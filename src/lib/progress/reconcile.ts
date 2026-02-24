@@ -9,11 +9,13 @@ export function reconcileProgressSummary(
   if (!localValue) return serverValue;
 
   const map = new Map<string, (typeof serverValue.lessons)[number]>();
+  const keyOf = (lesson: (typeof serverValue.lessons)[number]) =>
+    `${lesson.lessonId}::${lesson.lessonVersion}::${lesson.mode ?? ''}::${lesson.root ?? ''}`;
   localValue.lessons.forEach((lesson) => {
-    map.set(`${lesson.lessonId}::${lesson.lessonVersion}`, lesson);
+    map.set(keyOf(lesson as (typeof serverValue.lessons)[number]), lesson as (typeof serverValue.lessons)[number]);
   });
   serverValue.lessons.forEach((serverLesson) => {
-    const key = `${serverLesson.lessonId}::${serverLesson.lessonVersion}`;
+    const key = keyOf(serverLesson);
     const localLesson = map.get(key);
     if (!localLesson || ts(serverLesson.updatedAt) >= ts(localLesson.updatedAt)) {
       map.set(key, serverLesson);

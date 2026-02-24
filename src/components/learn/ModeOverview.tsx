@@ -6,7 +6,7 @@ import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { LearnRoutes } from "@/constants/routes";
 import { useNavigate } from 'react-router';
-import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
+import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 
 type ModeOverviewProps = {
@@ -108,11 +108,44 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
 
   const resumeByKey = useMemo(() => {
     const map = new Map<string, { activityDefId: string | null; completedCount: number; totalCount: number | null }>();
+    const parseSummaryLessonIdentity = (lesson: {
+      lessonId: string;
+      lessonVersion: number;
+      mode?: string | null;
+      root?: string | null;
+      currentActivityInstanceId: string | null;
+    }) => {
+      let parsedMode = lesson.mode ?? null;
+      let parsedRoot = lesson.root ?? null;
+
+      if ((!parsedMode || !parsedRoot) && lesson.currentActivityInstanceId) {
+        const parts = lesson.currentActivityInstanceId.split("::");
+        if (parts.length >= 5) {
+          parsedMode = parsedMode ?? parts[3];
+          parsedRoot = parsedRoot ?? parts[4];
+        }
+      }
+
+      if ((!parsedMode || !parsedRoot) && lesson.lessonId.startsWith("mode-lesson-flow__")) {
+        const scoped = lesson.lessonId.split("__");
+        if (scoped.length >= 3) {
+          parsedRoot = parsedRoot ?? urlParamToKeyLabel(scoped[1]);
+          parsedMode = parsedMode ?? scoped[2];
+        }
+      }
+
+      return {
+        mode: parsedMode?.toLowerCase() ?? null,
+        root: parsedRoot?.toLowerCase() ?? null,
+      };
+    };
+
     progressSummary?.lessons.forEach((lesson) => {
       if (!lesson.lessonId.startsWith("mode-lesson-flow")) return;
       if (lesson.lessonVersion !== 1) return;
-      if ((lesson.mode ?? "").toLowerCase() !== mode.toLowerCase()) return;
-      const lessonRoot = (lesson.root ?? "").toLowerCase();
+      const parsedIdentity = parseSummaryLessonIdentity(lesson);
+      if ((parsedIdentity.mode ?? "") !== mode.toLowerCase()) return;
+      const lessonRoot = parsedIdentity.root ?? "";
       if (!lessonRoot) return;
 
       let activityDefId: string | null = null;

@@ -190,7 +190,7 @@ export const HomeInlet = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-3 flex flex-col gap-4">
             <div className="flex items-center gap-2 text-xl font-serif text-gray-200">
-              <h2>Continue</h2>
+              <h2>{latestContinue ? "Continue" : "Start"}</h2>
               <ChevronRight size={18} className="text-gray-600" />
             </div>
             <div
@@ -209,10 +209,10 @@ export const HomeInlet = () => {
               <div className="relative z-10 h-full flex flex-col justify-end">
                 <div className="mb-4">
                   <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1 block">
-                    {latestContinue ? "Resume lesson" : "Start"}
+                    {latestContinue ? "Resume lesson" : "Start Learning"}
                   </span>
                   <h3 className="text-2xl font-serif leading-tight mb-2">
-                    {latestContinue ? `${latestContinue.root} ${latestContinue.modeTitle}` : "Pick up where"}
+                    {latestContinue ? `${latestContinue.root} ${latestContinue.modeTitle}` : ""}
                     <br />
                     {latestContinue
                       ? latestContinue.activityDefId.replace(/-/g, " ")

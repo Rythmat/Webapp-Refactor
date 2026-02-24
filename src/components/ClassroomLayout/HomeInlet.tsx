@@ -16,7 +16,8 @@ import {
 import { useNavigate } from "react-router";
 import { StudioRoutes, LearnRoutes, GameRoutes} from "@/constants/routes";
 import { useProgressSummary } from "@/hooks/data";
-import { keyLabelToUrlParam } from "@/lib/musicKeyUrl";
+import { keyLabelToUrlParam, urlParamToKeyLabel } from "@/lib/musicKeyUrl";
+import { formatActivityTitle } from "@/lib/activityTitle";
 import { HeaderBar } from "./HeaderBar";
 import { HexagonPattern, DEFAULT_THEMES as THEMES } from "../ui/HexagonPattern";
 
@@ -111,6 +112,7 @@ export const HomeInlet = () => {
     const mode = latest.mode;
     const root = latest.root;
     const modeTitle = mode.charAt(0).toUpperCase() + mode.slice(1);
+    const rootTitle = urlParamToKeyLabel(root);
     const progressPct =
       latest.totalCount && latest.totalCount > 0
         ? Math.max(
@@ -123,6 +125,7 @@ export const HomeInlet = () => {
       lessonId: latest.lessonId,
       mode,
       root,
+      rootTitle,
       modeTitle,
       activityDefId,
       progressPct,
@@ -216,12 +219,10 @@ export const HomeInlet = () => {
                     {latestContinue ? "Resume lesson" : "Start Learning"}
                   </span>
                   <h3 className="text-2xl font-serif leading-tight mb-2">
-                    {latestContinue ? `${latestContinue.root} ${latestContinue.modeTitle}` : ""}
+                    {latestContinue ? `${latestContinue.rootTitle} ${latestContinue.modeTitle}` : ""}
                     <br />
                     {latestContinue
-                      ? (latestContinue.activityDefId
-                          ? latestContinue.activityDefId.replace(/-/g, " ")
-                          : "Continue lesson")
+                      ? formatActivityTitle(latestContinue.activityDefId)
                       : "Start a music lesson"}
                   </h3>
                   <div className="w-full bg-white/10 h-1.5 rounded-full mt-3 overflow-hidden">

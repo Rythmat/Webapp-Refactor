@@ -8,6 +8,7 @@ import { LearnRoutes } from "@/constants/routes";
 import { useNavigate } from 'react-router';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { colorForKeyMode } from '@/lib/modeColorShift';
+import { formatActivityTitle } from '@/lib/activityTitle';
 
 type ModeOverviewProps = {
   mode: PrismModeSlug;
@@ -253,7 +254,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                 </div>
                 <div className="mt-1 text-xs opacity-80">
                   {resumeState.activityDefId
-                    ? `Current activity: ${resumeState.activityDefId.replace(/-/g, " ")}`
+                    ? `Current activity: ${formatActivityTitle(resumeState.activityDefId)}`
                     : "Progress saved"}
                 </div>
                 {resumeState.totalCount != null && (

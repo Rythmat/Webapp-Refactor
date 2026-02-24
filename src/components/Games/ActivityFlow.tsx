@@ -796,6 +796,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   }, [currentChromaticIndex]);
   const [nextKeyChoice, setNextKeyChoice] = useState<string>(nextCurriculumKey);
   const midiTriggeredRef = useRef(false);
+  const isTrackableActivity = currentActivity?.activityDefId !== "lesson-overview";
 
   const continueCurriculum = useCallback(() => {
     navigate(
@@ -902,16 +903,18 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   useEffect(() => {
     if (!currentActivity || lessonComplete) return;
+    if (!isTrackableActivity) return;
     updateLessonState.mutate({
       lessonId,
       lessonVersion,
       currentActivityInstanceId: currentActivity.activityInstanceId,
     });
-  }, [currentActivity?.activityInstanceId, lessonComplete, lessonId, lessonVersion]);
+  }, [currentActivity?.activityInstanceId, lessonComplete, lessonId, lessonVersion, isTrackableActivity]);
 
   useEffect(() => {
     if (!currentActivity || lessonComplete) return;
     if (activityState !== "active") return;
+    if (!isTrackableActivity) return;
 
     updateActivityProgress.mutate({
       activityInstanceId: currentActivity.activityInstanceId,
@@ -938,11 +941,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     lessonVersion,
     modeLabel,
     rootKey,
+    isTrackableActivity,
   ]);
 
   useEffect(() => {
     if (!currentActivity || lessonComplete) return;
     if (activityState !== "active") return;
+    if (!isTrackableActivity) return;
 
     const intervalId = window.setInterval(() => {
       updateActivityProgress.mutate({
@@ -971,10 +976,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     lessonVersion,
     modeLabel,
     rootKey,
+    isTrackableActivity,
   ]);
 
   const handleContinue = useCallback(() => {
-    if (currentActivity) {
+    if (currentActivity && isTrackableActivity) {
       if (!completionReportedRef.current.has(currentActivity.activityInstanceId)) {
         completionReportedRef.current.add(currentActivity.activityInstanceId);
         updateActivityProgress.mutate({
@@ -993,7 +999,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         });
       }
     }
-    if (currentActivity) {
+    if (currentActivity && isTrackableActivity) {
       updateLessonState.mutate({
         lessonId,
         lessonVersion,
@@ -1025,6 +1031,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     modeLabel,
     onComplete,
     rootKey,
+    isTrackableActivity,
   ]);
 
   const handleMidiActivity = useCallback(() => {
@@ -1069,6 +1076,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       if (!isComplete || !isCompletionOverlayActivity) return;
       setActivityState("completed");
       if (!currentActivity) return;
+      if (!isTrackableActivity) return;
       if (completionReportedRef.current.has(currentActivity.activityInstanceId)) return;
       completionReportedRef.current.add(currentActivity.activityInstanceId);
       updateActivityProgress.mutate({
@@ -1090,7 +1098,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         currentActivityInstanceId: null,
       });
     },
-    [currentActivity, currentIndex, lessonId, lessonVersion, modeLabel, rootKey],
+    [currentActivity, currentIndex, lessonId, lessonVersion, modeLabel, rootKey, isTrackableActivity],
   );
 
   const handleRestartActivity = () => {
@@ -1106,6 +1114,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const flushRecentLessonState = useCallback(() => {
     if (!authToken) return;
     if (!currentActivity) return;
+    if (!isTrackableActivity) return;
     const apiBase = Env.get("VITE_MUSIC_ATLAS_API_URL", { nullable: true });
     if (!apiBase) return;
     const normalizedBase = apiBase.replace(/\/+$/, "");
@@ -1169,6 +1178,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     lessonVersion,
     modeLabel,
     rootKey,
+    isTrackableActivity,
   ]);
 
   useEffect(() => {

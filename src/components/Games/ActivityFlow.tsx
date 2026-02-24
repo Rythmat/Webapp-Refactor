@@ -5,11 +5,11 @@ import * as Tone from "tone";
 import { usePrismStartContours } from "@/hooks/data/prism/usePrismStartContours";
 import { NoteHold } from "./NoteHold";
 import { PlayAlong } from "./PlayAlong";
-import { BoardChoiceGame } from "./BoardChoiceGame";
-import { ChordPressGame } from "./ChordPressGame";
+// import { BoardChoiceGame } from "./BoardChoiceGame";
+// import { ChordPressGame } from "./ChordPressGame";
 import { LessonOverview } from "@/components/learn/LessonOverview";
 import type { NoteEvent } from "./PianoRollPlay";
-import {    PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
+import { PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
 import { usePrismRhythms } from "@/hooks/data/prism/usePrismRhythms";
 import { useNavigate } from "react-router";
 import { LearnRoutes, StudioRoutes } from "@/constants/routes";
@@ -427,7 +427,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     const descending = [...scale].reverse();
     const ascendDescend = [...ascending, ...descending];
     const modeTitle = (mode as string).charAt(0).toUpperCase() + (mode as string).slice(1);
-    const chordLabel = `${rootKey} ${modeTitle} Chord`;
     const chordHoldEvents = midiSequenceToEvents(ascending, "chord-hold");
     const overviewItem = {
       key: "lesson-overview",
@@ -468,49 +467,14 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       if (seq.length === 0) return;
       contourSeqs.push(seq);
     });
-    const introItems = [
-      {
-        key: "intro-chord-press",
-        label: `${rootKey} ${modeTitle} • Press`,
-        Component: ({ onContinue }: FlowActivityProps) => (
-          <ChordPressGame
-            targetNotes={ascending}
-            targetLabel={`${rootKey} ${modeTitle}`}
-            onComplete={onContinue}
-          />
-        ),
-        seq: [] as NoteEvent[],
-        direction: `Play the ${chordLabel}.`,
-      },
-      {
-        key: "intro-board-choice",
-        label: `${rootKey} ${modeTitle} • Choose`,
-        Component: ({ onContinue }: FlowActivityProps) => (
-          <BoardChoiceGame
-            targetNotes={ascending}
-            targetLabel={`${rootKey} ${modeTitle}`}
-            onComplete={onContinue}
-          />
-        ),
-        seq: [] as NoteEvent[],
-        direction: `Pick the keyboard that shows the ${chordLabel}.`,
-      },
-      {
-        key: "intro-chord-hold",
-        label: `${rootKey} ${modeTitle} • Hold`,
-        Component: NoteHold,
-        seq: applyActivityColor(chordHoldEvents),
-        direction: `Hold the notes of the ${rootKey} ${modeTitle} scale.`,
-      },
-    ];
-    const randomIntro = introItems.filter((item) => item.key === "intro-chord-hold");
 
     const sequences = [
       overviewItem,
-      ...randomIntro,
+      {
+        key: "asc-nh", label: `${rootKey} ${modeTitle} Ascend • Hold`, Component: NoteHold, seq: applyActivityColor(chordHoldEvents),
+        direction: `Hold the notes of the ${rootKey} ${modeTitle} scale.`},
       { key: "asc-pa", label: `${rootKey} ${modeTitle} Ascend • Play Along`, Component: PlayAlong, seq: applyActivityColor(midiSequenceToEvents(ascending, "asc-pa")),
-        direction: "In a steady tempo, play the notes of the scale going up"
-      },
+        direction: "In a steady tempo, play the notes of the scale going up"},
       { key: "desc-nh", label: `${rootKey} ${modeTitle} Descend • Hold`, Component: NoteHold, seq: applyActivityColor(midiSequenceToEvents(descending, "desc-nh")),
         direction: "Play the notes of the scale going down (to the left)."  },
       { key: "desc-pa", label: `${rootKey} ${modeTitle} Descend • Play Along`, Component: PlayAlong, seq: applyActivityColor(midiSequenceToEvents(descending, "desc-pa")),
@@ -774,6 +738,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const updateActivityProgress = useUpdateActivityProgress();
   const updateLessonState = useUpdateLessonState();
   const resumeAppliedScopeRef = useRef<string | null>(null);
+  const explicitStartAppliedRef = useRef<string | null>(null);
   const completionReportedRef = useRef<Set<string>>(new Set());
 
 
@@ -814,6 +779,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     setLessonComplete(false);
     setNextKeyChoice(nextCurriculumKey);
     resumeAppliedScopeRef.current = null;
+    explicitStartAppliedRef.current = null;
     completionReportedRef.current = new Set();
   }, [mode, rootKey, nextCurriculumKey]);
 
@@ -838,13 +804,23 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         )
       : -1;
 
-    if (explicitStartIndex >= 0) {
+    const explicitStartScopeKey = startAtActivityKey
+      ? `${lessonProgressScope}:${startAtActivityKey}`
+      : null;
+
+    if (
+      explicitStartIndex >= 0 &&
+      explicitStartScopeKey &&
+      explicitStartAppliedRef.current !== explicitStartScopeKey
+    ) {
       if (!introChordHoldCompleted && lessonOverviewIndex >= 0) {
+        explicitStartAppliedRef.current = explicitStartScopeKey;
         resumeAppliedScopeRef.current = lessonProgressScope;
         setLessonComplete(false);
         setCurrentIndex(lessonOverviewIndex);
         return;
       }
+      explicitStartAppliedRef.current = explicitStartScopeKey;
       resumeAppliedScopeRef.current = lessonProgressScope;
       setLessonComplete(false);
       setCurrentIndex(explicitStartIndex);

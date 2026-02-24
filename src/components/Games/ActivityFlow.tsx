@@ -344,7 +344,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     }),
     [rhythmsQuery.data?.chords],
   );
-  console.log(melodyRhythms ? melodyRhythms : 'no rhythms');
 
   const pickFallbackChordRhythm = (lengthOf?: number): RhythmHit[] | undefined => {
     const entries = Object.entries(chordRhythmFallbacks);

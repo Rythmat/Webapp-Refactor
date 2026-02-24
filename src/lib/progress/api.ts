@@ -11,8 +11,12 @@ function apiBase() {
   return Env.get('VITE_MUSIC_ATLAS_API_URL');
 }
 
+function normalizedApiBase() {
+  return apiBase().replace(/\/+$/, '');
+}
+
 function progressPath(path: '/summary' | '/lesson' | '/activity' | '/lessonState') {
-  const base = apiBase().replace(/\/+$/, '');
+  const base = normalizedApiBase();
   const prefix = base.endsWith('/api') ? '/progress' : '/api/progress';
   return `${prefix}${path}`;
 }
@@ -22,7 +26,7 @@ async function apiRequest<T>(path: string, params: {
   token: string;
   body?: unknown;
 }): Promise<T> {
-  const response = await fetch(`${apiBase()}${path}`, {
+  const response = await fetch(`${normalizedApiBase()}${path}`, {
     method: params.method ?? 'GET',
     headers: {
       Authorization: `Bearer ${params.token}`,

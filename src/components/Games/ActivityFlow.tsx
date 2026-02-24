@@ -1084,6 +1084,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     if (!currentActivity) return;
     const apiBase = Env.get("VITE_MUSIC_ATLAS_API_URL", { nullable: true });
     if (!apiBase) return;
+    const normalizedBase = apiBase.replace(/\/+$/, "");
+    const progressPrefix = normalizedBase.endsWith("/api")
+      ? "/progress"
+      : "/api/progress";
 
     const currentActivityInstanceId =
       lessonComplete || activityState === "completed"
@@ -1096,7 +1100,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       currentActivityInstanceId,
     };
 
-    void fetch(`${apiBase}/api/progress/lessonState`, {
+    void fetch(`${normalizedBase}${progressPrefix}/lessonState`, {
       method: "PATCH",
       keepalive: true,
       headers: {
@@ -1107,7 +1111,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     }).catch(() => {});
 
     if (activityState === "active" && currentActivity) {
-      void fetch(`${apiBase}/api/progress/activity`, {
+      void fetch(`${normalizedBase}${progressPrefix}/activity`, {
         method: "PATCH",
         keepalive: true,
         headers: {

@@ -53,7 +53,8 @@ export const useUpdateActivityProgress = () => {
       progressLocalCache.setLesson(body.lessonId, body.lessonVersion, next);
       return { key, prev };
     },
-    onError: (_error, _body, ctx) => {
+    onError: (error, body, ctx) => {
+      console.error('Progress activity update failed', { body, error });
       if (!ctx) return;
       queryClient.setQueryData(ctx.key, ctx.prev);
     },

@@ -11,6 +11,12 @@ function apiBase() {
   return Env.get('VITE_MUSIC_ATLAS_API_URL');
 }
 
+function progressPath(path: '/summary' | '/lesson' | '/activity' | '/lessonState') {
+  const base = apiBase().replace(/\/+$/, '');
+  const prefix = base.endsWith('/api') ? '/progress' : '/api/progress';
+  return `${prefix}${path}`;
+}
+
 async function apiRequest<T>(path: string, params: {
   method?: 'GET' | 'PATCH';
   token: string;
@@ -26,10 +32,26 @@ async function apiRequest<T>(path: string, params: {
   });
 
   const text = await response.text();
-  const parsed = text ? (SuperJSON.parse(text) as any) : undefined;
+  let parsed: any = undefined;
+  if (text) {
+    try {
+      parsed = SuperJSON.parse(text);
+    } catch {
+      try {
+        parsed = JSON.parse(text);
+      } catch {
+        parsed = { raw: text };
+      }
+    }
+  }
 
   if (!response.ok) {
-    throw new Error(parsed?.message || parsed?.error || 'Progress request failed');
+    const message =
+      parsed?.message ||
+      parsed?.error ||
+      (typeof parsed?.raw === 'string' ? parsed.raw.slice(0, 200) : undefined) ||
+      'Progress request failed';
+    throw new Error(`${params.method ?? 'GET'} ${path} failed (${response.status}): ${message}`);
   }
 
   return parsed as T;
@@ -37,20 +59,20 @@ async function apiRequest<T>(path: string, params: {
 
 export const progressApi = {
   fetchSummary: (token: string) =>
-    apiRequest<ProgressSummaryResponse>('/api/progress/summary', { token }),
+    apiRequest<ProgressSummaryResponse>(progressPath('/summary'), { token }),
   fetchLesson: (token: string, lessonId: string, lessonVersion: number) =>
     apiRequest<LessonProgressResponse>(
-      `/api/progress/lesson?lessonId=${encodeURIComponent(lessonId)}&lessonVersion=${lessonVersion}`,
+      `${progressPath('/lesson')}?lessonId=${encodeURIComponent(lessonId)}&lessonVersion=${lessonVersion}`,
       { token },
     ),
   patchActivity: (token: string, body: ProgressActivityPatch) =>
-    apiRequest<{ activity: unknown }>('/api/progress/activity', {
+    apiRequest<{ activity: unknown }>(progressPath('/activity'), {
       token,
       method: 'PATCH',
       body,
     }),
   patchLessonState: (token: string, body: LessonStatePatch) =>
-    apiRequest<{ lessonState: unknown }>('/api/progress/lessonState', {
+    apiRequest<{ lessonState: unknown }>(progressPath('/lessonState'), {
       token,
       method: 'PATCH',
       body,

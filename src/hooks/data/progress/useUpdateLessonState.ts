@@ -25,7 +25,8 @@ export const useUpdateLessonState = () => {
       progressLocalCache.setLesson(body.lessonId, body.lessonVersion, next);
       return { key, prev };
     },
-    onError: (_error, _body, ctx) => {
+    onError: (error, body, ctx) => {
+      console.error('Lesson state update failed', { body, error });
       if (!ctx) return;
       queryClient.setQueryData(ctx.key, ctx.prev);
     },

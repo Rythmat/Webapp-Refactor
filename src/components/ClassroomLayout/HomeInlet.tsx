@@ -100,7 +100,7 @@ export const HomeInlet = () => {
   const latestContinue = (() => {
     const latest = progressSummary?.lessons?.find(
       (lesson) =>
-        lesson.lessonId === "mode-lesson-flow" &&
+        lesson.lessonId.startsWith("mode-lesson-flow") &&
         !!lesson.mode &&
         !!lesson.root &&
         ((lesson.completedCount ?? 0) > 0 || !!lesson.currentActivityInstanceId),

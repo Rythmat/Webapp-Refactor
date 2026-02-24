@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { progressApi } from '@/lib/progress/api';
 import { progressLocalCache } from '@/lib/progress/localCache';
-import type { ProgressActivityPatch } from '@/lib/progress/types';
+import type { ProgressActivityPatch, ProgressSummaryResponse } from '@/lib/progress/types';
 
 export const useUpdateActivityProgress = () => {
   const token = useAuthToken();
@@ -17,9 +17,13 @@ export const useUpdateActivityProgress = () => {
       await queryClient.cancelQueries({
         queryKey: ['lessonProgress', body.lessonId, body.lessonVersion],
       });
+      await queryClient.cancelQueries({ queryKey: ['progressSummary'] });
       const key = ['lessonProgress', body.lessonId, body.lessonVersion] as const;
       const prev = queryClient.getQueryData<any>(key);
+      const summaryKey = ['progressSummary'] as const;
+      const prevSummary = queryClient.getQueryData<ProgressSummaryResponse>(summaryKey);
       const now = new Date().toISOString();
+      const previousEntry = prev?.progressByActivityInstanceId?.[body.activityInstanceId];
       const next = {
         currentActivityInstanceId:
           body.status === 'IN_PROGRESS'
@@ -51,12 +55,59 @@ export const useUpdateActivityProgress = () => {
       };
       queryClient.setQueryData(key, next);
       progressLocalCache.setLesson(body.lessonId, body.lessonVersion, next);
-      return { key, prev };
+
+      if (prevSummary) {
+        const summaryRowKey = `${body.lessonId}::${body.lessonVersion}::${body.mode ?? ''}::${body.root ?? ''}`;
+        const byKey = new Map(
+          prevSummary.lessons.map((lesson) => [
+            `${lesson.lessonId}::${lesson.lessonVersion}::${lesson.mode ?? ''}::${lesson.root ?? ''}`,
+            lesson,
+          ]),
+        );
+        const existing = byKey.get(summaryRowKey);
+        const wasCompleted = previousEntry?.status === 'COMPLETED';
+        const nowCompleted = body.status === 'COMPLETED';
+        const completedCountBase = existing?.completedCount ?? 0;
+        const completedCount =
+          nowCompleted && !wasCompleted
+            ? completedCountBase + 1
+            : completedCountBase;
+        const totalCountBase = existing?.totalCount ?? 0;
+        const knownActivities = Object.keys(next.progressByActivityInstanceId ?? {}).length;
+        const totalCount = Math.max(totalCountBase, knownActivities);
+
+        byKey.set(summaryRowKey, {
+          lessonId: body.lessonId,
+          lessonVersion: body.lessonVersion,
+          mode: body.mode,
+          root: body.root,
+          currentActivityInstanceId:
+            body.status === 'IN_PROGRESS'
+              ? body.activityInstanceId
+              : existing?.currentActivityInstanceId ?? null,
+          completedCount,
+          totalCount,
+          updatedAt: now,
+        });
+
+        const nextSummary = {
+          lessons: [...byKey.values()].sort(
+            (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+          ),
+        } satisfies ProgressSummaryResponse;
+        queryClient.setQueryData(summaryKey, nextSummary);
+        progressLocalCache.setSummary(nextSummary);
+      }
+
+      return { key, prev, summaryKey, prevSummary };
     },
     onError: (error, body, ctx) => {
       console.error('Progress activity update failed', { body, error });
       if (!ctx) return;
       queryClient.setQueryData(ctx.key, ctx.prev);
+      if (ctx.summaryKey) {
+        queryClient.setQueryData(ctx.summaryKey, ctx.prevSummary);
+      }
     },
     onSettled: (_data, _error, body) => {
       queryClient.invalidateQueries({

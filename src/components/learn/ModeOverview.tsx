@@ -109,7 +109,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
   const resumeByKey = useMemo(() => {
     const map = new Map<string, { activityDefId: string | null; completedCount: number; totalCount: number | null }>();
     progressSummary?.lessons.forEach((lesson) => {
-      if (lesson.lessonId !== "mode-lesson-flow") return;
+      if (!lesson.lessonId.startsWith("mode-lesson-flow")) return;
       if (lesson.lessonVersion !== 1) return;
       if ((lesson.mode ?? "").toLowerCase() !== mode.toLowerCase()) return;
       const lessonRoot = (lesson.root ?? "").toLowerCase();

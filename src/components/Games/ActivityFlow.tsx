@@ -309,7 +309,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     () => `${keyLabelToUrlParam(rootKey)}:${modeLabel}`,
     [rootKey, modeLabel],
   );
-  const lessonId = ACTIVITY_FLOW_LESSON_ID;
+  const lessonId = useMemo(
+    () =>
+      `${ACTIVITY_FLOW_LESSON_ID}__${keyLabelToUrlParam(rootKey).toLowerCase()}__${modeLabel.toLowerCase()}`,
+    [rootKey, modeLabel],
+  );
   const lessonVersion = ACTIVITY_FLOW_LESSON_VERSION;
 
   // const [overviewReady, setOverviewReady] = useState(false);
@@ -979,6 +983,25 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   ]);
 
   const handleContinue = useCallback(() => {
+    if (currentActivity && progressTrackingReady) {
+      if (!completionReportedRef.current.has(currentActivity.activityInstanceId)) {
+        completionReportedRef.current.add(currentActivity.activityInstanceId);
+        updateActivityProgress.mutate({
+          activityInstanceId: currentActivity.activityInstanceId,
+          lessonId,
+          lessonVersion,
+          activityDefId: currentActivity.activityDefId,
+          mode: modeLabel,
+          root: rootKey,
+          status: "COMPLETED",
+          resumePayloadJson: {
+            activityIndex: currentIndex,
+            activityDefId: currentActivity.activityDefId,
+            completedVia: "continue",
+          },
+        });
+      }
+    }
     if (currentActivity) {
       updateLessonState.mutate({
         lessonId,
@@ -1001,7 +1024,18 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       }
       return idx;
     });
-  }, [chordsQuery.isPending, flowDefinitions.length, onComplete, currentActivity, lessonId, lessonVersion]);
+  }, [
+    chordsQuery.isPending,
+    currentActivity,
+    currentIndex,
+    flowDefinitions.length,
+    lessonId,
+    lessonVersion,
+    modeLabel,
+    onComplete,
+    progressTrackingReady,
+    rootKey,
+  ]);
 
   const handleMidiActivity = useCallback(() => {
     if (lessonComplete) {

@@ -107,7 +107,15 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
   }, [activeKey.label, mode, noteIndex, scaleMidis]);
 
   const resumeByKey = useMemo(() => {
-    const map = new Map<string, { activityDefId: string | null; completedCount: number; totalCount: number | null }>();
+    const map = new Map<
+      string,
+      {
+        activityDefId: string | null;
+        completedCount: number;
+        totalCount: number | null;
+        updatedAtMs: number;
+      }
+    >();
     const parseSummaryLessonIdentity = (lesson: {
       lessonId: string;
       lessonVersion: number;
@@ -159,10 +167,17 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
 
       if (!activityDefId && (lesson.completedCount ?? 0) <= 0) return;
 
+      const nextUpdatedAtMs = new Date(lesson.updatedAt).getTime() || 0;
+      const existing = map.get(lessonRoot);
+      if (existing && existing.updatedAtMs > nextUpdatedAtMs) {
+        return;
+      }
+
       map.set(lessonRoot, {
         activityDefId,
         completedCount: lesson.completedCount ?? 0,
         totalCount: lesson.totalCount ?? null,
+        updatedAtMs: nextUpdatedAtMs,
       });
     });
     return map;

@@ -52,6 +52,23 @@ function equalMidiSets(a: number[], b: number[]) {
   return aa.every((v, i) => v === bb[i]);
 }
 
+function equalRelativeIntervalsFromLowestRoot(selected: number[], targetNotes: number[]) {
+  const uniqueSelected = uniqueMidiNotes(selected);
+  const uniqueTarget = uniqueMidiNotes(targetNotes);
+  if (uniqueSelected.length === 0 || uniqueTarget.length === 0) return false;
+
+  const targetRoot = uniqueTarget[0];
+  const targetRootPc = pc(targetRoot);
+  const selectedRoot = uniqueSelected.find((note) => pc(note) === targetRootPc);
+  if (typeof selectedRoot !== 'number') return false;
+
+  const selectedIntervals = uniqueSelected.map((note) => note - selectedRoot).sort((a, b) => a - b);
+  const targetIntervals = uniqueTarget.map((note) => note - targetRoot).sort((a, b) => a - b);
+
+  if (selectedIntervals.length !== targetIntervals.length) return false;
+  return selectedIntervals.every((interval, index) => interval === targetIntervals[index]);
+}
+
 function toEvents(midi: number[], color?: string): PlaybackEvent[] {
   const now = Date.now();
   return midi.map((value) => ({
@@ -76,6 +93,7 @@ export type ChordPressKeyboardProps = {
   className?: string;
   onComplete?: () => void;
   requireExactNotes?: boolean;
+  requireTargetIntervalsFromRoot?: boolean;
 };
 
 export function ChordPressKeyboard({
@@ -89,6 +107,7 @@ export function ChordPressKeyboard({
   className,
   onComplete,
   requireExactNotes = false,
+  requireTargetIntervalsFromRoot = false,
 }: ChordPressKeyboardProps) {
   const playNote = usePlayNote();
   const pressedKeysRef = useRef<Set<string>>(new Set());
@@ -166,13 +185,22 @@ export function ChordPressKeyboard({
   useEffect(() => {
     if (completed) return;
     if (!targetNotes || targetNotes.length === 0) return;
-    const matches = requireExactNotes
-      ? equalMidiSets(selected, targetNotes)
-      : equalPitchClassSets(selected, targetNotes);
+    const matches = requireTargetIntervalsFromRoot
+      ? equalRelativeIntervalsFromLowestRoot(selected, targetNotes)
+      : requireExactNotes
+        ? equalMidiSets(selected, targetNotes)
+        : equalPitchClassSets(selected, targetNotes);
     if (!matches) return;
     setCompleted(true);
     onComplete?.();
-  }, [completed, onComplete, requireExactNotes, selected, targetNotes]);
+  }, [
+    completed,
+    onComplete,
+    requireExactNotes,
+    requireTargetIntervalsFromRoot,
+    selected,
+    targetNotes,
+  ]);
 
   const selectedEvents: PlaybackEvent[] = useMemo(() => {
     if (completed) {

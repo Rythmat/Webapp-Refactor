@@ -131,7 +131,7 @@ export function LessonOverview({
         <ChordPressKeyboard
           activeKeyColor={activeKeyColor}
           targetNotes={scaleMidis}
-          requireExactNotes
+          requireTargetIntervalsFromRoot
           onComplete={() => setChordPressComplete(true)}
         />
       </section>

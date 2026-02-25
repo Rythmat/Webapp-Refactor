@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-// import { useQueries } from "@tanstack/react-query";
 import * as Tone from "tone";
-// import { useMusicAtlas } from "@/contexts/MusicAtlasContext";
 import { usePrismStartContours } from "@/hooks/data/prism/usePrismStartContours";
 import { NoteHold } from "./NoteHold";
 import { PlayAlong } from "./PlayAlong";

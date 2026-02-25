@@ -41,6 +41,17 @@ function equalPitchClassSets(a: number[], b: number[]) {
   return aa.every((v, i) => v === bb[i]);
 }
 
+function uniqueMidiNotes(notes: number[]): number[] {
+  return [...new Set(notes)].sort((a, b) => a - b);
+}
+
+function equalMidiSets(a: number[], b: number[]) {
+  const aa = uniqueMidiNotes(a);
+  const bb = uniqueMidiNotes(b);
+  if (aa.length !== bb.length) return false;
+  return aa.every((v, i) => v === bb[i]);
+}
+
 function toEvents(midi: number[], color?: string): PlaybackEvent[] {
   const now = Date.now();
   return midi.map((value) => ({
@@ -64,6 +75,7 @@ export type ChordPressKeyboardProps = {
   activeKeyColor?: string;
   className?: string;
   onComplete?: () => void;
+  requireExactNotes?: boolean;
 };
 
 export function ChordPressKeyboard({
@@ -76,6 +88,7 @@ export function ChordPressKeyboard({
   activeKeyColor = '#60a5fa',
   className,
   onComplete,
+  requireExactNotes = false,
 }: ChordPressKeyboardProps) {
   const playNote = usePlayNote();
   const pressedKeysRef = useRef<Set<string>>(new Set());
@@ -153,10 +166,13 @@ export function ChordPressKeyboard({
   useEffect(() => {
     if (completed) return;
     if (!targetNotes || targetNotes.length === 0) return;
-    if (!equalPitchClassSets(selected, targetNotes)) return;
+    const matches = requireExactNotes
+      ? equalMidiSets(selected, targetNotes)
+      : equalPitchClassSets(selected, targetNotes);
+    if (!matches) return;
     setCompleted(true);
     onComplete?.();
-  }, [completed, onComplete, selected, targetNotes]);
+  }, [completed, onComplete, requireExactNotes, selected, targetNotes]);
 
   const selectedEvents: PlaybackEvent[] = useMemo(() => {
     if (completed) {

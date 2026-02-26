@@ -274,7 +274,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                   style={{ backgroundColor: tileColor }}
                 />
                 <div
-                  className="absolute inset-y-0 right-0"
+                  className="absolute inset-y-0 left-0"
                   style={{
                     width: `${progressPct}%`,
                     backgroundColor: tileColor,
@@ -282,11 +282,14 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                   }}
                 />
                 <div className="relative z-10 p-3">
-                  <div className="font-bold">{title}</div>
-                  <div className="mt-1 text-xs opacity-90">
-                    {progressPct}% complete ({displayCount}/{LESSON_SEQUENCE_TOTAL})
-                  </div>
-                  <div className="mt-3 flex gap-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-bold">{title}</div>
+                      <div className="mt-1 text-xs opacity-90">
+                        {progressPct}% complete ({displayCount}/{LESSON_SEQUENCE_TOTAL})
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 gap-2">
                     <button
                       type="button"
                       onClick={() => navigate(lessonRouteFor(tile.label, "lesson-overview"))}
@@ -309,6 +312,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                     >
                       Continue
                     </button>
+                    </div>
                   </div>
                 </div>
               </div>

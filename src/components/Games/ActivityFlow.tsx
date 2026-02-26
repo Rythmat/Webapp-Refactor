@@ -1206,6 +1206,14 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     usesActivityCompletionOverlay && activityState === "completed";
   const showStartOverlay =
     usesActivityStartOverlay && activityState === "pending";
+  const currentActivityProgressEntry =
+    lessonProgressQuery.data?.progressByActivityInstanceId[currentActivity.activityInstanceId];
+  const currentActivityCompletedPersisted =
+    currentActivityProgressEntry?.status === "COMPLETED";
+  const showNextActivityButton =
+    currentActivity.activityDefId !== "lesson-overview" &&
+    !showActivityCompletionOverlay &&
+    (activityState === "completed" || currentActivityCompletedPersisted);
 
   const startOverlaySequence = useMemo(
     () =>
@@ -1468,7 +1476,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
             )}
           </div>
           <div>
-            {activityState === "completed" && !showActivityCompletionOverlay && (
+            {showNextActivityButton && (
               <button
                 type="button"
                 onClick={handleContinue}

@@ -283,7 +283,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                 />
                 <div className="relative z-10 p-3">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
+                    <div className="min-w-0 text-black">
                       <div className="font-bold">{title}</div>
                       <div className="mt-1 text-xs opacity-90">
                         {progressPct}% complete ({displayCount}/{LESSON_SEQUENCE_TOTAL})

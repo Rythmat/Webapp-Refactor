@@ -1466,7 +1466,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
             )}
           </div>
           <div>
-            {activityState === "completed" && (
+            {activityState === "completed" && !showActivityCompletionOverlay && (
               <button
                 type="button"
                 onClick={handleContinue}

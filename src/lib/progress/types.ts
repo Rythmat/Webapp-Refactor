@@ -21,6 +21,7 @@ export interface ProgressSummaryLesson {
   mode?: string | null;
   root?: string | null;
   currentActivityInstanceId: string | null;
+  lastCompletedActivityInstanceId?: string | null;
   completedCount: number;
   totalCount: number | null;
   updatedAt: string;

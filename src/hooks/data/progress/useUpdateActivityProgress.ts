@@ -88,6 +88,10 @@ export const useUpdateActivityProgress = () => {
             shouldStoreCurrentPointerForActivity(body)
               ? body.activityInstanceId
               : existing?.currentActivityInstanceId ?? null,
+          lastCompletedActivityInstanceId:
+            body.status === 'COMPLETED'
+              ? body.activityInstanceId
+              : existing?.lastCompletedActivityInstanceId ?? null,
           completedCount,
           totalCount,
           updatedAt: now,

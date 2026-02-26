@@ -113,6 +113,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
       string,
       {
         activityDefId: string | null;
+        continueActivityDefId: string | null;
         completedCount: number;
         totalCount: number | null;
         updatedAtMs: number;
@@ -167,6 +168,14 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
         }
       }
 
+      let continueActivityDefId = activityDefId;
+      if (!continueActivityDefId && lesson.lastCompletedActivityInstanceId) {
+        const parts = lesson.lastCompletedActivityInstanceId.split("::");
+        if (parts.length >= 5) {
+          continueActivityDefId = parts[2];
+        }
+      }
+
       if ((lesson.completedCount ?? 0) <= 0) return;
 
       const nextUpdatedAtMs = new Date(lesson.updatedAt).getTime() || 0;
@@ -177,6 +186,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
 
       map.set(lessonRoot, {
         activityDefId,
+        continueActivityDefId,
         completedCount: lesson.completedCount ?? 0,
         totalCount: lesson.totalCount ?? null,
         updatedAtMs: nextUpdatedAtMs,
@@ -275,7 +285,9 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                       navigate(
                         resumeState.activityDefId
                           ? lessonRouteFor(tile.label, resumeState.activityDefId)
-                          : lessonRouteFor(tile.label),
+                          : resumeState.continueActivityDefId
+                            ? lessonRouteFor(tile.label, resumeState.continueActivityDefId)
+                            : lessonRouteFor(tile.label),
                       )
                     }
                     className="rounded-md bg-white text-black px-3 py-1.5 text-xs font-semibold hover:bg-white/90"

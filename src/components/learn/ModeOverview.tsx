@@ -166,7 +166,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
         }
       }
 
-      if (!activityDefId && (lesson.completedCount ?? 0) <= 0) return;
+      if ((lesson.completedCount ?? 0) <= 0) return;
 
       const nextUpdatedAtMs = new Date(lesson.updatedAt).getTime() || 0;
       const existing = map.get(lessonRoot);

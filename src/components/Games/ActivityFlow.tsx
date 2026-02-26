@@ -786,13 +786,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     const lessonOverviewIndex = flowDefinitions.findIndex(
       (activity) => activity.activityDefId === "lesson-overview",
     );
-    const introChordHoldActivity = flowDefinitions.find(
-      (activity) => activity.activityDefId === "intro-chord-hold",
+    const firstNoteHoldActivity = flowDefinitions.find(
+      (activity) => activity.Component === NoteHold,
     );
-    const introChordHoldProgress = introChordHoldActivity
-      ? lessonProgressQuery.data?.progressByActivityInstanceId[introChordHoldActivity.activityInstanceId]
+    const firstNoteHoldProgress = firstNoteHoldActivity
+      ? lessonProgressQuery.data?.progressByActivityInstanceId[firstNoteHoldActivity.activityInstanceId]
       : undefined;
-    const introChordHoldCompleted = introChordHoldProgress?.status === "COMPLETED";
+    const firstNoteHoldCompleted = firstNoteHoldProgress?.status === "COMPLETED";
 
     const explicitStartIndex = startAtActivityKey
       ? flowDefinitions.findIndex(
@@ -811,7 +811,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       explicitStartScopeKey &&
       explicitStartAppliedRef.current !== explicitStartScopeKey
     ) {
-      if (!introChordHoldCompleted && lessonOverviewIndex >= 0) {
+      if (!firstNoteHoldCompleted && lessonOverviewIndex >= 0) {
         explicitStartAppliedRef.current = explicitStartScopeKey;
         resumeAppliedScopeRef.current = lessonProgressScope;
         setLessonComplete(false);
@@ -828,7 +828,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     if (!lessonProgressQuery.data) return;
     if (resumeAppliedScopeRef.current === lessonProgressScope) return;
 
-    if (!introChordHoldCompleted && lessonOverviewIndex >= 0) {
+    if (!firstNoteHoldCompleted && lessonOverviewIndex >= 0) {
       resumeAppliedScopeRef.current = lessonProgressScope;
       setLessonComplete(false);
       setCurrentIndex(lessonOverviewIndex);

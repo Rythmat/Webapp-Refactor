@@ -104,7 +104,7 @@ export const HomeInlet = () => {
         lesson.lessonId.startsWith("mode-lesson-flow") &&
         !!lesson.mode &&
         !!lesson.root &&
-        ((lesson.completedCount ?? 0) > 0 || !!lesson.currentActivityInstanceId),
+        (lesson.completedCount ?? 0) > 0,
     );
     if (!latest?.mode || !latest.root) return null;
     const parts = latest.currentActivityInstanceId?.split("::") ?? [];

@@ -601,13 +601,9 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 typeof perf.startTick === "number" &&
                 perf.startTick >= scheduledStart &&
                 perf.startTick <= scheduledEnd;
-              const isInWindow =
-                inTime &&
-                playheadTick >= scheduledStart &&
-                playheadTick <= scheduledEnd;
               let color = baseColor;
               let holdProgress: number | undefined;
-              const dimmed = inTime && !(wasPlayed || isInWindow);
+              const dimmed = inTime && !wasPlayed;
               const isCompleted = meta?.isCompleted ?? false;
 
               if (!inTime && meta && (meta.isCurrentChord || meta.isCompleted)) {

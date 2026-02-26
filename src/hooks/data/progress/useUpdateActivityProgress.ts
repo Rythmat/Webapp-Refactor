@@ -4,6 +4,9 @@ import { progressApi } from '@/lib/progress/api';
 import { progressLocalCache } from '@/lib/progress/localCache';
 import type { ProgressActivityPatch, ProgressSummaryResponse } from '@/lib/progress/types';
 
+const shouldStoreCurrentPointerForActivity = (body: ProgressActivityPatch) =>
+  body.status === 'IN_PROGRESS' && body.activityDefId !== 'lesson-overview';
+
 export const useUpdateActivityProgress = () => {
   const token = useAuthToken();
   const queryClient = useQueryClient();
@@ -26,7 +29,7 @@ export const useUpdateActivityProgress = () => {
       const previousEntry = prev?.progressByActivityInstanceId?.[body.activityInstanceId];
       const next = {
         currentActivityInstanceId:
-          body.status === 'IN_PROGRESS'
+          shouldStoreCurrentPointerForActivity(body)
             ? body.activityInstanceId
             : prev?.currentActivityInstanceId ?? null,
         progressByActivityInstanceId: {
@@ -82,7 +85,7 @@ export const useUpdateActivityProgress = () => {
           mode: body.mode,
           root: body.root,
           currentActivityInstanceId:
-            body.status === 'IN_PROGRESS'
+            shouldStoreCurrentPointerForActivity(body)
               ? body.activityInstanceId
               : existing?.currentActivityInstanceId ?? null,
           completedCount,

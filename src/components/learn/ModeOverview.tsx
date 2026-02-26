@@ -43,6 +43,8 @@ const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'F', semitone: 5 },
 ];
 const LESSON_SEQUENCE_TOTAL = 36;
+const clampLessonProgressCount = (count: number) =>
+  Math.max(0, Math.min(LESSON_SEQUENCE_TOTAL, count));
 const normalizeSteps = (steps?: number[]) => {
   if (!steps || steps.length === 0) return DEFAULT_INTERVALS;
   const unique = new Set<number>();
@@ -114,6 +116,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
       {
         activityDefId: string | null;
         continueActivityDefId: string | null;
+        hasCurrentActivity: boolean;
         completedCount: number;
         totalCount: number | null;
         updatedAtMs: number;
@@ -187,6 +190,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
       map.set(lessonRoot, {
         activityDefId,
         continueActivityDefId,
+        hasCurrentActivity: !!lesson.currentActivityInstanceId,
         completedCount: lesson.completedCount ?? 0,
         totalCount: lesson.totalCount ?? null,
         updatedAtMs: nextUpdatedAtMs,
@@ -269,7 +273,13 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                     : "Progress saved"}
                 </div>
                 <div className="mt-1 text-xs opacity-70">
-                  {Math.round((Math.max(0, Math.min(LESSON_SEQUENCE_TOTAL, resumeState.completedCount)) / LESSON_SEQUENCE_TOTAL) * 100)}% complete ({Math.max(0, Math.min(LESSON_SEQUENCE_TOTAL, resumeState.completedCount))}/{LESSON_SEQUENCE_TOTAL})
+                  {(() => {
+                    const displayCount = clampLessonProgressCount(
+                      resumeState.completedCount + (resumeState.hasCurrentActivity ? 1 : 0),
+                    );
+                    const pct = Math.round((displayCount / LESSON_SEQUENCE_TOTAL) * 100);
+                    return `${pct}% complete (${displayCount}/${LESSON_SEQUENCE_TOTAL})`;
+                  })()}
                 </div>
                 <div className="mt-3 flex gap-2">
                   <button

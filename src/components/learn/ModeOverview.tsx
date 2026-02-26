@@ -8,7 +8,6 @@ import { LearnRoutes } from "@/constants/routes";
 import { useNavigate } from 'react-router';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { colorForKeyMode } from '@/lib/modeColorShift';
-import { formatActivityTitle } from '@/lib/activityTitle';
 
 type ModeOverviewProps = {
   mode: PrismModeSlug;
@@ -235,6 +234,12 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
             const resumeState = resumeByKey.get(tile.label.toLowerCase());
             const title = tile.label + " " + mode.charAt(0).toUpperCase() + mode.slice(1);
             const tileColor = colorForKeyMode(tile.label, mode);
+            const displayCount = resumeState
+              ? clampLessonProgressCount(
+                  resumeState.completedCount + (resumeState.hasCurrentActivity ? 1 : 0),
+                )
+              : 0;
+            const progressPct = Math.round((displayCount / LESSON_SEQUENCE_TOTAL) * 100);
 
             if (!resumeState) {
               return (
@@ -246,7 +251,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                     )
                   }
                   className={`
-                    p-3 rounded-lg border text-sm font-bold text-left transition bg-grey-darker
+                    p-3 rounded-lg border text-sm font-bold text-left transition bg-grey-darker opacity-50
                   `}
                   style={{ color: tileColor }}
                 >
@@ -258,52 +263,53 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
             return (
               <div
                 key={`${tile.label}-${mode}`}
-                className={`
-                  p-3 rounded-lg border text-sm text-left transition bg-grey-darker
-                `}
-                style={{ color: tileColor }}
+                className="relative overflow-hidden rounded-lg border text-sm text-left transition bg-grey-darker"
+                style={{
+                  color: tileColor,
+                  borderColor: resumeState.hasCurrentActivity ? "#ffffff" : undefined,
+                }}
               >
-                <div className="font-bold">{title}</div>
-                <div className="mt-1 text-xs font-semibold uppercase tracking-wide opacity-90">
-                  Continue lesson
-                </div>
-                <div className="mt-1 text-xs opacity-80">
-                  {resumeState.activityDefId
-                    ? `Current activity: ${formatActivityTitle(resumeState.activityDefId)}`
-                    : "Progress saved"}
-                </div>
-                <div className="mt-1 text-xs opacity-70">
-                  {(() => {
-                    const displayCount = clampLessonProgressCount(
-                      resumeState.completedCount + (resumeState.hasCurrentActivity ? 1 : 0),
-                    );
-                    const pct = Math.round((displayCount / LESSON_SEQUENCE_TOTAL) * 100);
-                    return `${pct}% complete (${displayCount}/${LESSON_SEQUENCE_TOTAL})`;
-                  })()}
-                </div>
-                <div className="mt-3 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => navigate(lessonRouteFor(tile.label, "lesson-overview"))}
-                    className="rounded-md border border-white/20 px-3 py-1.5 text-xs font-semibold hover:bg-white/10"
-                  >
-                    Start Over
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigate(
-                        resumeState.activityDefId
-                          ? lessonRouteFor(tile.label, resumeState.activityDefId)
-                          : resumeState.continueActivityDefId
-                            ? lessonRouteFor(tile.label, resumeState.continueActivityDefId)
-                            : lessonRouteFor(tile.label),
-                      )
-                    }
-                    className="rounded-md bg-white text-black px-3 py-1.5 text-xs font-semibold hover:bg-white/90"
-                  >
-                    Continue
-                  </button>
+                <div
+                  className="absolute inset-0 opacity-50"
+                  style={{ backgroundColor: tileColor }}
+                />
+                <div
+                  className="absolute inset-y-0 right-0"
+                  style={{
+                    width: `${progressPct}%`,
+                    backgroundColor: tileColor,
+                    opacity: 1,
+                  }}
+                />
+                <div className="relative z-10 p-3">
+                  <div className="font-bold">{title}</div>
+                  <div className="mt-1 text-xs opacity-90">
+                    {progressPct}% complete ({displayCount}/{LESSON_SEQUENCE_TOTAL})
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => navigate(lessonRouteFor(tile.label, "lesson-overview"))}
+                      className="rounded-md border border-white/30 bg-black/20 px-3 py-1.5 text-xs font-semibold text-white hover:bg-black/30"
+                    >
+                      Start Over
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate(
+                          resumeState.activityDefId
+                            ? lessonRouteFor(tile.label, resumeState.activityDefId)
+                            : resumeState.continueActivityDefId
+                              ? lessonRouteFor(tile.label, resumeState.continueActivityDefId)
+                              : lessonRouteFor(tile.label),
+                        )
+                      }
+                      className="rounded-md bg-white text-black px-3 py-1.5 text-xs font-semibold hover:bg-white/90"
+                    >
+                      Continue
+                    </button>
+                  </div>
                 </div>
               </div>
             );

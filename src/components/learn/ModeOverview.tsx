@@ -42,6 +42,7 @@ const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'Bb', semitone: 10 },
   { label: 'F', semitone: 5 },
 ];
+const LESSON_SEQUENCE_TOTAL = 36;
 const normalizeSteps = (steps?: number[]) => {
   if (!steps || steps.length === 0) return DEFAULT_INTERVALS;
   const unique = new Set<number>();
@@ -257,15 +258,13 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                     ? `Current activity: ${formatActivityTitle(resumeState.activityDefId)}`
                     : "Progress saved"}
                 </div>
-                {resumeState.totalCount != null && (
-                  <div className="mt-1 text-xs opacity-70">
-                    {resumeState.completedCount} / {resumeState.totalCount} completed
-                  </div>
-                )}
+                <div className="mt-1 text-xs opacity-70">
+                  {Math.round((Math.max(0, Math.min(LESSON_SEQUENCE_TOTAL, resumeState.completedCount)) / LESSON_SEQUENCE_TOTAL) * 100)}% complete ({Math.max(0, Math.min(LESSON_SEQUENCE_TOTAL, resumeState.completedCount))}/{LESSON_SEQUENCE_TOTAL})
+                </div>
                 <div className="mt-3 flex gap-2">
                   <button
                     type="button"
-                    onClick={() => navigate(lessonRouteFor(tile.label))}
+                    onClick={() => navigate(lessonRouteFor(tile.label, "lesson-overview"))}
                     className="rounded-md border border-white/20 px-3 py-1.5 text-xs font-semibold hover:bg-white/10"
                   >
                     Start Over

@@ -1297,6 +1297,12 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     setStartSignal((value) => value + 1);
   };
 
+  const handlePreviousActivity = () => {
+    if (currentIndex <= 0) return;
+    setLessonComplete(false);
+    setCurrentIndex((idx) => Math.max(0, idx - 1));
+  };
+
   if (lessonComplete) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-4">
@@ -1446,6 +1452,32 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           </div>
         )}
       </div>
+      {currentActivity.activityDefId !== "lesson-overview" && (
+        <div className="flex items-center justify-between px-1">
+          <div>
+            {currentIndex > 0 && (
+              <button
+                type="button"
+                onClick={handlePreviousActivity}
+                className="rounded-full border border-neutral-600 px-4 py-2 text-sm font-semibold text-neutral-200 transition hover:border-neutral-400 hover:text-white"
+              >
+                Last Lesson
+              </button>
+            )}
+          </div>
+          <div>
+            {activityState === "completed" && (
+              <button
+                type="button"
+                onClick={handleContinue}
+                className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+              >
+                Next Activity
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

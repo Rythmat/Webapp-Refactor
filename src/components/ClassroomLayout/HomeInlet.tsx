@@ -75,6 +75,7 @@ const bannerSlides = [
     // { title: "Explore", color: [THEMES.orange, THEMES.darkGrey, THEMES.red], route: LibraryRoutes.root.definition },
     { title: "Play", color: [THEMES.purple, THEMES.beige, THEMES.blue], route: GameRoutes.root.definition },
   ];
+const LESSON_SEQUENCE_TOTAL = 36;
 
 export const HomeInlet = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -113,13 +114,13 @@ export const HomeInlet = () => {
     const root = latest.root;
     const modeTitle = mode.charAt(0).toUpperCase() + mode.slice(1);
     const rootTitle = urlParamToKeyLabel(root);
-    const progressPct =
-      latest.totalCount && latest.totalCount > 0
-        ? Math.max(
-            0,
-            Math.min(100, Math.round((latest.completedCount / latest.totalCount) * 100)),
-          )
-        : null;
+    const normalizedCompletedCount = Math.max(
+      0,
+      Math.min(LESSON_SEQUENCE_TOTAL, latest.completedCount ?? 0),
+    );
+    const progressPct = Math.round(
+      (normalizedCompletedCount / LESSON_SEQUENCE_TOTAL) * 100,
+    );
 
     return {
       lessonId: latest.lessonId,
@@ -129,8 +130,8 @@ export const HomeInlet = () => {
       modeTitle,
       activityDefId,
       progressPct,
-      completedCount: latest.completedCount,
-      totalCount: latest.totalCount,
+      completedCount: normalizedCompletedCount,
+      totalCount: LESSON_SEQUENCE_TOTAL,
       route: LearnRoutes.lesson(
         { mode: mode as any, key: keyLabelToUrlParam(root) },
         activityDefId ? { activity: activityDefId } : undefined,
@@ -233,9 +234,9 @@ export const HomeInlet = () => {
                       }}
                     />
                   </div>
-                  {latestContinue && latestContinue.totalCount != null && (
+                  {latestContinue && (
                     <div className="mt-2 text-xs text-emerald-200/80">
-                      {latestContinue.completedCount} / {latestContinue.totalCount} completed
+                      {latestContinue.progressPct}% complete ({latestContinue.completedCount}/{LESSON_SEQUENCE_TOTAL})
                     </div>
                   )}
                 </div>

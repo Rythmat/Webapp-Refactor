@@ -81,7 +81,7 @@ export type GetApiProgressLessonData = any;
 
 export interface GetApiProgressLessonParams {
   lessonId: string;
-  lessonVersion: string | number;
+  lessonVersion: string | (string | number);
 }
 
 export type GetApiProgressSummaryData = any;
@@ -755,39 +755,6 @@ export interface PatchStudentsByIdRestoreData {
 export interface PatchTeachersByIdRestoreData {
   id: string;
   restored: boolean;
-}
-
-export type PostApiStudioAnalyzeVideoData = any;
-
-export interface PostApiStudioAnalyzeVideoPayload {
-  keyframes: any[];
-}
-
-export type PostApiStudioCurateSoundsData = any;
-
-export type PostApiStudioCurateSoundsPayload = any;
-
-export type PostApiStudioGenerateScoreData = any;
-
-export type PostApiStudioGenerateScorePayload = any;
-
-export type PostApiStudioGenerateTrackData = any;
-
-export interface PostApiStudioGenerateTrackPayload {
-  context?: any;
-  prompt: string;
-  trackType: 'audio' | 'midi';
-}
-
-export type PostApiStudioReplicateGenerateData = any;
-
-export type PostApiStudioReplicateGeneratePayload = any;
-
-export type PostApiStudioSearchSfxData = any;
-
-export interface PostApiStudioSearchSfxPayload {
-  limit?: number;
-  query: string;
 }
 
 export type PostAtlasAiAnalyzeData = any;
@@ -2280,7 +2247,7 @@ export namespace Progress {
     export type RequestParams = {};
     export type RequestQuery = {
       lessonId: string;
-      lessonVersion: string | number;
+      lessonVersion: string | (string | number);
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
@@ -2851,98 +2818,6 @@ export namespace Music {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = any;
-  }
-}
-
-export namespace Studio {
-  /**
-   * No description
-   * @tags Studio
-   * @name PostApiStudioAnalyzeVideo
-   * @request POST:/api/studio/analyze-video
-   * @response `200` `PostApiStudioAnalyzeVideoData`
-   */
-  export namespace PostApiStudioAnalyzeVideo {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostApiStudioAnalyzeVideoPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiStudioAnalyzeVideoData;
-  }
-
-  /**
-   * No description
-   * @tags Studio
-   * @name PostApiStudioCurateSounds
-   * @request POST:/api/studio/curate-sounds
-   * @response `200` `PostApiStudioCurateSoundsData`
-   */
-  export namespace PostApiStudioCurateSounds {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostApiStudioCurateSoundsPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiStudioCurateSoundsData;
-  }
-
-  /**
-   * No description
-   * @tags Studio
-   * @name PostApiStudioGenerateScore
-   * @request POST:/api/studio/generate-score
-   * @response `200` `PostApiStudioGenerateScoreData`
-   */
-  export namespace PostApiStudioGenerateScore {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostApiStudioGenerateScorePayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiStudioGenerateScoreData;
-  }
-
-  /**
-   * No description
-   * @tags Studio
-   * @name PostApiStudioGenerateTrack
-   * @request POST:/api/studio/generate-track
-   * @response `200` `PostApiStudioGenerateTrackData`
-   */
-  export namespace PostApiStudioGenerateTrack {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostApiStudioGenerateTrackPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiStudioGenerateTrackData;
-  }
-
-  /**
-   * No description
-   * @tags Studio
-   * @name PostApiStudioReplicateGenerate
-   * @request POST:/api/studio/replicate-generate
-   * @response `200` `PostApiStudioReplicateGenerateData`
-   */
-  export namespace PostApiStudioReplicateGenerate {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostApiStudioReplicateGeneratePayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiStudioReplicateGenerateData;
-  }
-
-  /**
-   * No description
-   * @tags Studio
-   * @name PostApiStudioSearchSfx
-   * @request POST:/api/studio/search-sfx
-   * @response `200` `PostApiStudioSearchSfxData`
-   */
-  export namespace PostApiStudioSearchSfx {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostApiStudioSearchSfxPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiStudioSearchSfxData;
   }
 }
 
@@ -4764,109 +4639,6 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<any, object>({
         path: `/prism/rhythms`,
         method: 'GET',
-        ...params,
-      }),
-  };
-  studio = {
-    /**
-     * No description
-     *
-     * @tags Studio
-     * @name PostApiStudioAnalyzeVideo
-     * @request POST:/api/studio/analyze-video
-     * @response `200` `PostApiStudioAnalyzeVideoData`
-     */
-    postApiStudioAnalyzeVideo: (data: PostApiStudioAnalyzeVideoPayload, params: RequestParams = {}) =>
-      this.http.request<PostApiStudioAnalyzeVideoData, any>({
-        path: `/api/studio/analyze-video`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Studio
-     * @name PostApiStudioCurateSounds
-     * @request POST:/api/studio/curate-sounds
-     * @response `200` `PostApiStudioCurateSoundsData`
-     */
-    postApiStudioCurateSounds: (data: PostApiStudioCurateSoundsPayload, params: RequestParams = {}) =>
-      this.http.request<PostApiStudioCurateSoundsData, any>({
-        path: `/api/studio/curate-sounds`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Studio
-     * @name PostApiStudioGenerateScore
-     * @request POST:/api/studio/generate-score
-     * @response `200` `PostApiStudioGenerateScoreData`
-     */
-    postApiStudioGenerateScore: (data: PostApiStudioGenerateScorePayload, params: RequestParams = {}) =>
-      this.http.request<PostApiStudioGenerateScoreData, any>({
-        path: `/api/studio/generate-score`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Studio
-     * @name PostApiStudioGenerateTrack
-     * @request POST:/api/studio/generate-track
-     * @response `200` `PostApiStudioGenerateTrackData`
-     */
-    postApiStudioGenerateTrack: (data: PostApiStudioGenerateTrackPayload, params: RequestParams = {}) =>
-      this.http.request<PostApiStudioGenerateTrackData, any>({
-        path: `/api/studio/generate-track`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Studio
-     * @name PostApiStudioReplicateGenerate
-     * @request POST:/api/studio/replicate-generate
-     * @response `200` `PostApiStudioReplicateGenerateData`
-     */
-    postApiStudioReplicateGenerate: (data: PostApiStudioReplicateGeneratePayload, params: RequestParams = {}) =>
-      this.http.request<PostApiStudioReplicateGenerateData, any>({
-        path: `/api/studio/replicate-generate`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Studio
-     * @name PostApiStudioSearchSfx
-     * @request POST:/api/studio/search-sfx
-     * @response `200` `PostApiStudioSearchSfxData`
-     */
-    postApiStudioSearchSfx: (data: PostApiStudioSearchSfxPayload, params: RequestParams = {}) =>
-      this.http.request<PostApiStudioSearchSfxData, any>({
-        path: `/api/studio/search-sfx`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
         ...params,
       }),
   };

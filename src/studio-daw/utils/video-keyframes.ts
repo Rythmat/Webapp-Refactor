@@ -191,7 +191,7 @@ export function validateVideoFile(
   file: File,
   options: { maxSizeMB?: number; maxDurationSec?: number } = {}
 ): { valid: boolean; error?: string } {
-  const { maxSizeMB = 100 } = options;
+  const { maxSizeMB = 100, maxDurationSec = 300 } = options;
 
   // Check file type
   const validTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'];

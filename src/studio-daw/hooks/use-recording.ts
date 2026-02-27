@@ -311,6 +311,7 @@ export function useRecording(options: UseRecordingOptions): UseRecordingReturn {
     selectedMidiDeviceId: midiInput.selectedMidiDeviceId,
     setSelectedMidiDeviceId: midiInput.setSelectedMidiDeviceId,
     isMidiSupported: midiInput.isMidiSupported,
+    capturedNotes: midiInput.capturedNotes,
 
     armedTrackId,
     recordingStartTime,

@@ -4,9 +4,10 @@
  */
 
 import { useCallback, useRef } from 'react';
-import type { Track } from './use-audio-engine';
+import type { Track, Clip } from './use-audio-engine';
 import {
   renderSynthToAudioBuffer,
+  DEFAULT_SYNTH_PRESET,
   type SynthPreset,
   type SynthClipData,
 } from '@/studio-daw/audio/synth-engine';

@@ -3,7 +3,6 @@ import { useAudioRecording, type AudioDeviceInfo, type AudioPermissionState } fr
 import { useMidiInput, type MidiDeviceInfo } from './use-midi-input';
 import { createMetronome, type MetronomeInstance } from '@/studio-daw/audio/metronome';
 import { renderMidiToAudioBuffer, type MidiClipData } from '@/studio-daw/audio/midi-engine';
-import type { MidiNote } from '@/studio-daw/audio/midi-engine';
 import type { Track, TrackType, TransportState } from './use-audio-engine';
 
 export type RecordingMode = 'audio' | 'midi';
@@ -74,11 +73,6 @@ export interface UseRecordingReturn {
   selectedMidiDeviceId: string | null;
   setSelectedMidiDeviceId: (id: string | null) => void;
   isMidiSupported: boolean;
-  capturedNotes: MidiNote[];
-
-  // Recording timeline context (for UI overlays)
-  armedTrackId: string | null;
-  recordingStartTime: number;
 
   // Unified controls
   armRecording: () => Promise<void>;
@@ -311,6 +305,7 @@ export function useRecording(options: UseRecordingOptions): UseRecordingReturn {
     selectedMidiDeviceId: midiInput.selectedMidiDeviceId,
     setSelectedMidiDeviceId: midiInput.setSelectedMidiDeviceId,
     isMidiSupported: midiInput.isMidiSupported,
+    capturedNotes: midiInput.capturedNotes,
 
     armedTrackId,
     recordingStartTime,

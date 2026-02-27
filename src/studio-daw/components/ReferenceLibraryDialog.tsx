@@ -7,7 +7,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Search, Play, Pause, Trash2, Music, Loader2, Library } from 'lucide-react'
+import { Search, Play, Pause, Trash2, Music, Tag, X, Loader2, Library } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useReferenceLibrary } from '@/studio-daw/hooks/use-reference-library'
 import { getEffectiveBPM, getEffectiveKey, type ReferenceTrack } from '@/studio-daw/types/reference-library'

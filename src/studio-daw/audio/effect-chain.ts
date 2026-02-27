@@ -199,7 +199,7 @@ function createLimiter(ctx: BaseAudioContext, params: EffectParams): { input: Au
   return { input, output, nodes: [input, comp, output] };
 }
 
-function createSidechain(ctx: BaseAudioContext, _params: EffectParams): { input: AudioNode; output: AudioNode; nodes: AudioNode[]; duckGain: GainNode } {
+function createSidechain(ctx: BaseAudioContext, params: EffectParams): { input: AudioNode; output: AudioNode; nodes: AudioNode[]; duckGain: GainNode } {
   const input = ctx.createGain();
   const output = ctx.createGain();
   const duckGain = ctx.createGain();

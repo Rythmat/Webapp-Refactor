@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Loader2, Check, AlertCircle } from "lucide-react";
+import { ArrowRight, Loader2, Check, X, AlertCircle } from "lucide-react";
 import type { Track } from '@/studio-daw/hooks/use-audio-engine';
 
 export interface ExtendableTrack {
@@ -100,7 +100,7 @@ const ExtendAllDialog: React.FC<ExtendAllDialogProps> = ({
     selected.forEach(id => { initial[id] = 'pending'; });
     setTrackStatuses(initial);
 
-    await onExtend(
+    const result = await onExtend(
       {
         trackIds: Array.from(selected),
         targetDuration,

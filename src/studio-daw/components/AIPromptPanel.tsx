@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel as SelectLabelUI } from "@/components/ui/select";
-import { Search, Wand2, Music, Piano, Disc3, FileAudio, Upload, X, Loader2, VolumeX, Volume2, Video, Link, Plus, FolderOpen, ChevronDown, Type } from "lucide-react";
+import { Search, Wand2, Music, Piano, Disc3, FileAudio, Upload, X, Loader2, VolumeX, Volume2, Video, Link, Plus, FolderOpen, ChevronDown, Clock, Type } from "lucide-react";
 import { cn } from '@/lib/utils';
 import InstrumentSelectDialog from './InstrumentSelectDialog';
 import { analyzeContour, type ContourAnalysis } from '@/studio-daw/audio/contour-analysis';

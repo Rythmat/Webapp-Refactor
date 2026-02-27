@@ -2,6 +2,7 @@ import {
   SpessaSynthProcessor,
   SoundBankLoader,
   SpessaSynthLogging,
+  type BasicSoundBank,
 } from 'spessasynth_core';
 
 // Suppress verbose spessasynth logs

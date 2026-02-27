@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Track, TrackEffect, EffectType, EffectParams, ReferenceTrackData } from '@/studio-daw/hooks/use-audio-engine';
+import { Track, TrackEffect, EffectType, EffectParams, ReferenceTrackData, VolumeFollowMode } from '@/studio-daw/hooks/use-audio-engine';
 import { cn } from '@/lib/utils';
-import { Plus, Piano, FileAudio, Volume2, VolumeX, Waves } from 'lucide-react';
+import { Plus, Sliders, Piano, FileAudio, Volume2, VolumeX, Waves } from 'lucide-react';
 import TrackEffectsPanel from './TrackEffectsPanel';
 import AITrackSuggestions from './AITrackSuggestions';
 

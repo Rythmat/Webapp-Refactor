@@ -103,6 +103,7 @@ const DAWHeader: React.FC<DAWHeaderProps> = ({
   onToggleLoop,
   loopStart = 0,
   loopEnd = 0,
+  onSetLoopRegion,
   onExtendAll,
   onShare,
   isSharing,

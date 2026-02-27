@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from "@/studio-daw/integrations/supabase/client";
-import { Track, TrackType, VolumeFollowMode } from './use-audio-engine';
+import { Track, Clip, TrackType, VolumeFollowMode } from './use-audio-engine';
 import { TrackEffect } from '@/studio-daw/audio/effect-chain';
 import { showSuccess, showError } from '@/studio-daw/utils/toast';
 import type { MidiClipData } from '@/studio-daw/audio/midi-engine';
@@ -26,8 +26,6 @@ interface SerializedClip {
   startTime: number;
   duration: number;
   offset: number;
-  fadeInDuration?: number;
-  fadeOutDuration?: number;
   midiData?: MidiClipData;
   synthData?: SynthClipData;
   referenceData?: SerializedReferenceData;
@@ -192,7 +190,7 @@ export const useProjects = () => {
     if (error) {
       console.error("Error fetching projects:", error);
     } else {
-      setSavedProjects(data.map((p: any) => ({
+      setSavedProjects(data.map(p => ({
         id: p.id,
         name: p.name,
         tracks: p.tracks,

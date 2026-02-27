@@ -85,6 +85,7 @@ const ContourVisualization: React.FC<ContourVisualizationProps> = ({
     // Draw waveform if buffer provided
     if (showWaveform && buffer) {
       const channelData = buffer.getChannelData(0);
+      const sampleRate = buffer.sampleRate;
       const samplesPerPixel = Math.max(1, Math.floor(channelData.length / width));
       const amplitude = height * 0.35;
 

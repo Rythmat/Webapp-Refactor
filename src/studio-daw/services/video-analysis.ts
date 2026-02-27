@@ -6,7 +6,7 @@
  */
 
 import { supabase } from '@/studio-daw/integrations/supabase/client';
-import { type VideoKeyframe, extractKeyframes, type KeyframeExtractionOptions, type VideoMetadata } from '@/studio-daw/utils/video-keyframes';
+import { type VideoKeyframe, extractKeyframes } from '@/studio-daw/utils/video-keyframes';
 import { type FrameAnalysis, type VideoContourAnalysis, createVideoContour } from '@/studio-daw/audio/video-contour-analysis';
 
 export { type FrameAnalysis } from '@/studio-daw/audio/video-contour-analysis';

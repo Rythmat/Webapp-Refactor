@@ -3,6 +3,7 @@ import { Env } from '@/constants/env';
 
 type Row = Record<string, any>;
 type Filter = { type: 'eq' | 'contains'; key: string; value: any };
+type QueryResult = { data: any; error: { message: string } | null };
 
 type SessionUser = { id: string; email?: string };
 
@@ -80,7 +81,7 @@ class QueryBuilder {
 
   order(key: string, options?: { ascending?: boolean }) {
     this.orderBy = { key, ascending: options?.ascending ?? true };
-    return this.execute();
+    return this;
   }
 
   eq(key: string, value: any) {
@@ -120,7 +121,7 @@ class QueryBuilder {
     return this.execute().then(resolve, reject);
   }
 
-  private async execute(single = false): Promise<{ data: any; error: any }> {
+  private async execute(single = false): Promise<QueryResult> {
     const user = getUserFromToken();
     let rows = readTable(this.storageKey);
 
@@ -196,7 +197,7 @@ class StorageBucket {
         bytes,
       }),
     );
-    return { data: { path }, error: null };
+    return { data: { path }, error: null as { message: string } | null };
   }
 
   getPublicUrl(path: string) {
@@ -222,7 +223,7 @@ class StorageBucket {
 
   async remove(paths: string[]) {
     paths.forEach((path) => localStorage.removeItem(`studio_daw_storage:${this.bucket}:${path}`));
-    return { data: null, error: null };
+    return { data: null, error: null as { message: string } | null };
   }
 }
 

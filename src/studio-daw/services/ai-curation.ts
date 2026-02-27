@@ -1,6 +1,6 @@
 import { GenerationParams } from "@/studio-daw/components/AIPromptPanel";
 import { supabase } from "@/studio-daw/integrations/supabase/client";
-import { type ContourAnalysis, type ContourSegment } from "@/studio-daw/audio/contour-analysis";
+import { type ContourAnalysis } from "@/studio-daw/audio/contour-analysis";
 import { type GradioFileRef, uploadToGradio } from "@/studio-daw/services/gradio-upload";
 
 /** Audio track result from curation */
@@ -457,7 +457,7 @@ export const generateSession = async (params: GenerationParams): Promise<Curated
 
   // Generate all audio tracks in parallel
   const audioTracks = await Promise.all(
-    audioRoles.map(async (role) => {
+    audioRoles.map(async (role): Promise<AudioTrackResult | null> => {
       const result = await generateAudioViaAceStep(role.label, {
         bpm,
         genre: params.genre,
@@ -468,18 +468,18 @@ export const generateSession = async (params: GenerationParams): Promise<Curated
       })
       if (result) {
         return {
-          type: 'audio' as const,
+          type: 'audio',
           name: result.name || role.label,
           url: result.url,
           role: role.role,
           suggestedVolume: role.volume,
-        } satisfies AudioTrackResult
+        }
       }
       return null
     })
   )
 
-  const successfulAudio = audioTracks.filter((t): t is AudioTrackResult => t !== null)
+  const successfulAudio = audioTracks.filter((t): t is AudioTrackResult => Boolean(t))
 
   if (successfulAudio.length > 0) {
     console.log(`[generateSession] ACE-Step generated ${successfulAudio.length} audio track(s)`)

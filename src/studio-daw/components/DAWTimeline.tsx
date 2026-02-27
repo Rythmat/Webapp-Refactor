@@ -445,7 +445,7 @@ const LiveAudioRecordingPreview: React.FC<{
   );
 };
 
-const DAWTimeline: React.FC<DAWTimelineProps> = ({ tracks, currentTime, bpm = 60, onSplitClip, onDuplicateClip, onDeleteClip, onMoveClip, onDoubleClickClip, onChangeMidiInstrument, onExtendClip, onSeparateStems, onUpdateClipFades, onConvertToMidi, onSeekTo, loopEnabled, loopStart = 0, loopEnd = 0, onSetLoopRegion, recordingTrackId, recordingNotes = [], recordingStartTime = 0, recordingInputLevel = 0, isRecording = false, recordingMode = 'audio' }) => {
+const DAWTimeline: React.FC<DAWTimelineProps> = ({ tracks, currentTime, bpm = 60, onSplitClip, onDuplicateClip, onDeleteClip, onMoveClip, onDoubleClickClip, onChangeMidiInstrument, onExtendClip, onSeparateStems, onUpdateClipFades, onConvertToMidi, onSeekTo, loopEnabled, loopStart = 0, loopEnd = 0, recordingTrackId, recordingNotes = [], recordingStartTime = 0, recordingInputLevel = 0, isRecording = false, recordingMode = 'audio' }) => {
   const playheadPosition = currentTime * PIXELS_PER_SECOND;
 
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
@@ -660,7 +660,6 @@ const DAWTimeline: React.FC<DAWTimelineProps> = ({ tracks, currentTime, bpm = 60
 
   // Seconds per beat and per bar (4/4 time)
   const secPerBeat = 60 / bpm;
-  const secPerBar = secPerBeat * 4;
 
   // Track scroll position for virtualized ruler marks
   const [scrollLeft, setScrollLeft] = useState(0);

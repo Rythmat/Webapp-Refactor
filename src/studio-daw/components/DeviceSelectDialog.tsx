@@ -7,7 +7,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Mic, Piano, ShieldAlert, RefreshCw } from "lucide-react";
+import { Mic, Piano, ShieldAlert } from "lucide-react";
 import { cn } from '@/lib/utils';
 import type { AudioDeviceInfo, AudioPermissionState } from '@/studio-daw/hooks/use-audio-recording';
 import type { MidiDeviceInfo } from '@/studio-daw/hooks/use-midi-input';

@@ -39,10 +39,7 @@ const RecordingControls: React.FC<RecordingControlsProps> = ({
   onStop,
   onCancel,
   onOpenDeviceDialog,
-  audioPermissionState,
   isMidiSupported,
-  hasAudioDevices,
-  hasMidiDevices,
 }) => {
   const isIdle = recordingState === 'idle';
   const isCountingIn = recordingState === 'counting-in';

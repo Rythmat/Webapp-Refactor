@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react';
 import { Track } from '@/studio-daw/hooks/use-audio-engine';
-import { AudioAnalysis } from '@/studio-daw/audio/audio-analysis';
 import { suggestTransformations, TransformSuggestion } from '@/studio-daw/audio/transforms';
-import { cn } from '@/lib/utils';
 import { X, Sparkles, ArrowUpDown, Music, Waves } from 'lucide-react';
 
 interface AITrackSuggestionsProps {

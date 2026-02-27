@@ -84,7 +84,7 @@ const Index = () => {
     tracks, setTracks, transportState, isPlaying, currentTime,
     play, pause, stop, seekForward, seekBackward, seekTo,
     addTrack, addMidiTrack, addReferenceTrack, updateReferenceTrackSettings, linkTracksToReference,
-    addEmptyTrack, addClipToTrack, removeTrack,
+    addEmptyTrack, removeTrack,
     splitClip, duplicateClip, deleteClip, moveClip, updateMidiClip, updateClipFades,
     addEffect, removeEffect, updateEffect, toggleEffect,
     applyTransformToClip,
@@ -1086,7 +1086,9 @@ const Index = () => {
               onRemoveEffect={removeEffect}
               onToggleEffect={toggleEffect}
               onUpdateEffect={updateEffect}
-              onApplyTransform={applyTransformToClip}
+              onApplyTransform={(trackId, clipId, transform, params) => {
+                void applyTransformToClip(trackId, clipId, transform as 'pitch_shift' | 'tempo_match' | 'filter', params);
+              }}
               onEditMidiClip={(trackId, clipId) => setPianoRollState({ trackId, clipId })}
                 onEditSynthPreset={(trackId, clipId) => {
                   setSynthPanelState({ trackId, clipId });
@@ -1209,7 +1211,7 @@ const Index = () => {
       <ReferenceLibraryDialog
         open={refLibraryDialogOpen}
         onOpenChange={setRefLibraryDialogOpen}
-        onSelect={(track: ReferenceTrack) => {
+        onSelect={(_track: ReferenceTrack) => {
           // When selecting from library in the AddTrack context,
           // just close the dialog — the reference is used in AIPromptPanel's flow
           setRefLibraryDialogOpen(false)

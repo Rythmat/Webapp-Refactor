@@ -4,7 +4,7 @@ import { analyzeBuffer, AudioAnalysis } from '@/studio-daw/audio/audio-analysis'
 import { pitchShift, tempoMatch, applyFilter } from '@/studio-daw/audio/transforms';
 import { type MidiClipData, renderMidiToAudioBuffer, isDrumKitProgram, decodeDrumKitProgram } from '@/studio-daw/audio/midi-engine';
 import { type ContourAnalysis, getContourAtTime } from '@/studio-daw/audio/contour-analysis';
-import { type SynthClipData, type SynthPreset, DEFAULT_SYNTH_PRESET } from '@/studio-daw/audio/synth-engine';
+import { type SynthClipData, DEFAULT_SYNTH_PRESET } from '@/studio-daw/audio/synth-engine';
 
 // Re-export types used by other components
 export type { TrackEffect, EffectType, EffectParams } from '@/studio-daw/audio/effect-chain';
@@ -431,7 +431,6 @@ export const useAudioEngine = () => {
   // === Transport controls ===
 
   const play = useCallback(() => {
-    if (transportState === 'recording') return; // recording has priority
     const ctx = initAudio();
     if (ctx.state === 'suspended') ctx.resume();
 

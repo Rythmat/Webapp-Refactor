@@ -1,6 +1,5 @@
 import React from 'react';
 import { Track, EffectType, EffectParams } from '@/studio-daw/hooks/use-audio-engine';
-import { DEFAULT_EFFECT_PARAMS } from '@/studio-daw/audio/effect-chain';
 import { cn } from '@/lib/utils';
 import { Plus, X, Power } from 'lucide-react';
 

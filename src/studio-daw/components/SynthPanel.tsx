@@ -7,7 +7,6 @@ import type {
   EnvelopeConfig, LfoConfig, UnisonConfig, ModSlot, OscWaveform, NoiseType,
   LfoShape, ModSource, ModTarget, FilterSlope,
 } from '@/studio-daw/audio/synth-engine';
-import { DEFAULT_SYNTH_PRESET } from '@/studio-daw/audio/synth-engine';
 import { FACTORY_PRESETS, PRESET_CATEGORIES } from '@/studio-daw/audio/synth-presets';
 
 interface SynthPanelProps {

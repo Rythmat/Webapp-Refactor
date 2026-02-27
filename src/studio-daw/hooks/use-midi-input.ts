@@ -35,7 +35,7 @@ export interface UseMidiInputReturn {
   clearMidiError: () => void;
 }
 
-export function useMidiInput(options: UseMidiInputOptions): UseMidiInputReturn {
+export function useMidiInput(_options: UseMidiInputOptions): UseMidiInputReturn {
   const [isMidiSupported, setIsMidiSupported] = useState(false);
   const [midiDevices, setMidiDevices] = useState<MidiDeviceInfo[]>([]);
   const [selectedMidiDeviceId, setSelectedMidiDeviceId] = useState<string | null>(null);
@@ -195,7 +195,7 @@ export function useMidiInput(options: UseMidiInputOptions): UseMidiInputReturn {
     const relativeNow = now - recordingStartRef.current;
 
     // Force-close any still-held notes
-    activeNotesMapRef.current.forEach((activeNote, key) => {
+    activeNotesMapRef.current.forEach((activeNote, _key) => {
       const duration = Math.max(0.01, relativeNow - activeNote.startTime);
       capturedNotesRef.current.push({
         note: activeNote.note,

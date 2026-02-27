@@ -8,7 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Music2, Piano, Wand2, Search, Loader2, Upload, FileAudio, X, Volume2, VolumeX, Mic, Circle, Waves, Library } from "lucide-react";
+import { Plus, Music2, Piano, Wand2, Loader2, Upload, FileAudio, X, Volume2, VolumeX, Mic, Circle, Waves, Library } from "lucide-react";
 import { GM_INSTRUMENTS } from '@/studio-daw/audio/midi-engine';
 import { PRESET_CATEGORIES } from '@/studio-daw/audio/synth-presets';
 import { MOOD_OPTIONS } from '@/studio-daw/components/AIPromptPanel';
@@ -61,7 +61,6 @@ const AddTrackDialog: React.FC<AddTrackDialogProps> = ({
   onOpenChange,
   onAddTrackWithAudio,
   onAddEmptyTrack,
-  onAddMidiTrack,
   onGenerateTrack,
   onGenerateScore,
   isGenerating = false,

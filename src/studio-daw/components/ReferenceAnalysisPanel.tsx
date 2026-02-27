@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react'
-import { Upload, FileAudio, X, Loader2, Save, Music, ChevronDown, Library, Wand2 } from 'lucide-react'
+import { Upload, FileAudio, X, Loader2, Save, ChevronDown, Library, Wand2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { analyzeBuffer, type AudioAnalysis } from '@/studio-daw/audio/audio-analysis'
 import { suggestGenres, type GenreSuggestion } from '@/studio-daw/audio/genre-heuristics'

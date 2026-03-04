@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { progressApi } from '@/lib/progress/api';
 import { progressLocalCache } from '@/lib/progress/localCache';
+import { normalizeProgressSummaryTotals } from '@/lib/progress/summaryTotals';
 import type { LessonStatePatch, ProgressSummaryResponse } from '@/lib/progress/types';
 
 export const useUpdateLessonState = () => {
@@ -43,8 +44,9 @@ export const useUpdateLessonState = () => {
             })
             .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
         };
-        queryClient.setQueryData(summaryKey, nextSummary);
-        progressLocalCache.setSummary(nextSummary);
+        const normalized = normalizeProgressSummaryTotals(nextSummary)!;
+        queryClient.setQueryData(summaryKey, normalized);
+        progressLocalCache.setSummary(normalized);
       }
 
       return { key, prev, summaryKey, prevSummary };

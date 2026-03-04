@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { progressApi } from '@/lib/progress/api';
 import { progressLocalCache } from '@/lib/progress/localCache';
+import { getCanonicalLessonTotalCount, normalizeProgressSummaryTotals } from '@/lib/progress/summaryTotals';
 import type { ProgressActivityPatch, ProgressSummaryResponse } from '@/lib/progress/types';
 
 export const useUpdateActivityProgress = () => {
@@ -74,7 +75,11 @@ export const useUpdateActivityProgress = () => {
             : completedCountBase;
         const totalCountBase = existing?.totalCount ?? 0;
         const knownActivities = Object.keys(next.progressByActivityInstanceId ?? {}).length;
-        const totalCount = Math.max(totalCountBase, knownActivities);
+        const totalCount = getCanonicalLessonTotalCount({
+          lessonId: body.lessonId,
+          lessonVersion: body.lessonVersion,
+          fallbackTotal: Math.max(totalCountBase, knownActivities),
+        });
 
         byKey.set(summaryRowKey, {
           lessonId: body.lessonId,
@@ -95,8 +100,9 @@ export const useUpdateActivityProgress = () => {
             (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
           ),
         } satisfies ProgressSummaryResponse;
-        queryClient.setQueryData(summaryKey, nextSummary);
-        progressLocalCache.setSummary(nextSummary);
+        const normalized = normalizeProgressSummaryTotals(nextSummary)!;
+        queryClient.setQueryData(summaryKey, normalized);
+        progressLocalCache.setSummary(normalized);
       }
 
       return { key, prev, summaryKey, prevSummary };

@@ -3,10 +3,11 @@ import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { progressApi } from '@/lib/progress/api';
 import { progressLocalCache } from '@/lib/progress/localCache';
 import { reconcileProgressSummary } from '@/lib/progress/reconcile';
+import { normalizeProgressSummaryTotals } from '@/lib/progress/summaryTotals';
 
 export const useProgressSummary = (enabled = true) => {
   const token = useAuthToken();
-  const local = progressLocalCache.getSummary();
+  const local = normalizeProgressSummaryTotals(progressLocalCache.getSummary());
 
   return useQuery({
     queryKey: ['progressSummary'],
@@ -16,8 +17,9 @@ export const useProgressSummary = (enabled = true) => {
     queryFn: async () => {
       const server = await progressApi.fetchSummary(token!);
       const merged = reconcileProgressSummary(local, server);
-      progressLocalCache.setSummary(merged);
-      return merged;
+      const normalized = normalizeProgressSummaryTotals(merged)!;
+      progressLocalCache.setSummary(normalized);
+      return normalized;
     },
   });
 };

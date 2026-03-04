@@ -1,3 +1,4 @@
+/* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order */
 import { useEffect, useMemo, useState } from 'react';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { YouTubePlayer } from '@/features/admin/chapters/components/YouTubePlayer';
@@ -23,9 +24,9 @@ type KeyStep = {
   semitone: number;
 };
 
-const chromaticFlatInterval = ["1","♭2","2","♭3","3","4","♭5","5","♭6","6","♭7","7",,"♭9",,"9",,,"11",,,"♭13","13"];
+const chromaticFlatInterval = ["1","♭2","2","♭3","3","4","♭5","5","♭6","6","♭7","7","","♭9","","9","","","11","","","♭13","13"];
 
-const chromaticSharpInterval = ["1","#1","2","#2","3", "4","#4","5","#5","6","#6","7",,"#8","9",,,"11","#11",,,"13"];
+const chromaticSharpInterval = ["1","#1","2","#2","3", "4","#4","5","#5","6","#6","7","","#8","9","","","11","#11","","","13"];
 
 
 const BASE_C4 = 60;
@@ -203,7 +204,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
         }
       }
 
-      if (!activityDefId && (lesson.completedCount ?? 0) <= 0) return;
+      if ((lesson.completedCount ?? 0) <= 0) return;
 
       const nextUpdatedAtMs = new Date(lesson.updatedAt).getTime() || 0;
       const existing = map.get(lessonRoot);

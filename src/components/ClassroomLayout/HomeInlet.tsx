@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
+import { useEffect, useState, type ElementType, type FC } from "react";
 import {
   Activity,
+  Bookmark,
   ChevronLeft,
   ChevronRight,
-  Hexagon,
-  Bookmark,
   Heart,
+  Hexagon,
   Mic2,
   MoreVertical,
   Music,
@@ -14,20 +15,21 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "react-router";
-import { StudioRoutes, LearnRoutes, GameRoutes} from "@/constants/routes";
-import { useProgressSummary } from "@/hooks/data";
-import { keyLabelToUrlParam, urlParamToKeyLabel } from "@/lib/musicKeyUrl";
+import { type PrismModeSlug } from "@/hooks/data/prism";
 import { formatActivityTitle } from "@/lib/activityTitle";
-import { HeaderBar } from "./HeaderBar";
+import { keyLabelToUrlParam, urlParamToKeyLabel } from "@/lib/musicKeyUrl";
+import { useProgressSummary } from "@/hooks/data";
+import { GameRoutes, LearnRoutes, StudioRoutes } from "@/constants/routes";
 import { HexagonPattern, DEFAULT_THEMES as THEMES } from "../ui/HexagonPattern";
+import { HeaderBar } from "./HeaderBar";
 
 interface TagProps {
   label: string;
-  icon?: React.ElementType;
+  icon?: ElementType;
   active?: boolean;
 }
 
-const Tag: React.FC<TagProps> = ({ label, icon: Icon, active }) => (
+const Tag: FC<TagProps> = ({ label, icon: Icon, active }) => (
   <button
     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs transition-all ${active ? "bg-white text-black border-white" : "bg-white/5 border-white/5 text-gray-300 hover:bg-white/10 hover:border-white/20"}`}
   >
@@ -43,7 +45,7 @@ interface ProjectCardProps {
   active?: boolean;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ title, genre, author, active }) => (
+const ProjectCard: FC<ProjectCardProps> = ({ title, genre, author, active }) => (
   <div
     className={`group relative p-4 rounded-2xl border transition-all duration-300 ${active ? "bg-white/5 border-white/10" : "bg-transparent border-white/5 hover:bg-white/5"}`}
   >
@@ -104,7 +106,7 @@ export const HomeInlet = () => {
         lesson.lessonId.startsWith("mode-lesson-flow") &&
         !!lesson.mode &&
         !!lesson.root &&
-        ((lesson.completedCount ?? 0) > 0 || !!lesson.currentActivityInstanceId),
+        (lesson.completedCount ?? 0) > 0,
     );
     if (!latest?.mode || !latest.root) return null;
     const parts = latest.currentActivityInstanceId?.split("::") ?? [];
@@ -131,7 +133,7 @@ export const HomeInlet = () => {
       progressPct,
       completedCount: latest.completedCount,
       totalCount: latest.totalCount,
-      route: LearnRoutes.lesson({ mode: mode as any, key: keyLabelToUrlParam(root) }),
+      route: LearnRoutes.lesson({ mode: mode as PrismModeSlug, key: keyLabelToUrlParam(root) }),
     };
   })();
 

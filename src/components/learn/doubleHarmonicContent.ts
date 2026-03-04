@@ -9,7 +9,9 @@ import type { ScaleFamilyMode } from './modeHelpers';
 const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const;
 const NATURAL_PITCH = [0, 2, 4, 5, 7, 9, 11]; // pitch class for each letter
 
-const ROOTS: { letter: string; accidental: string; pitchClass: number }[] = [
+type ScaleLetter = (typeof LETTERS)[number];
+
+const ROOTS: { letter: ScaleLetter; accidental: string; pitchClass: number }[] = [
   { letter: 'C', accidental: '',  pitchClass: 0 },
   { letter: 'G', accidental: '',  pitchClass: 7 },
   { letter: 'D', accidental: '',  pitchClass: 2 },

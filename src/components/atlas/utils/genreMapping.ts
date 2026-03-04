@@ -564,7 +564,6 @@ const GENRE_TO_COURSE: Record<string, LearnCourse> = {
   'Thangyat': 'Folk',
   'Sai': 'Folk',
   'Nueva Canción': 'Folk',
-  'Fihiri': 'Folk',
   'Socopé': 'Folk',
 }
 

@@ -8,6 +8,10 @@ export const MODES: Record<ModeName, number[]> = {
   mixolydian: [0, 2, 4, 5, 7, 9, 10],
   aeolian: [0, 2, 3, 5, 7, 8, 10],
   locrian: [0, 1, 3, 5, 6, 8, 10],
+  melodicMinor: [0, 2, 3, 5, 7, 9, 11],
+  harmonicMinor: [0, 2, 3, 5, 7, 8, 11],
+  harmonicMajor: [0, 2, 4, 5, 7, 8, 11],
+  doubleHarmonicMajor: [0, 1, 4, 5, 7, 8, 11],
 };
 
 export const MODE_NAMES: ModeName[] = [
@@ -22,6 +26,10 @@ export const TRIADS: Record<ModeName, string[]> = {
   mixolydian: ['major', 'minor', 'diminished', 'major', 'minor', 'minor', 'major'],
   aeolian: ['minor', 'diminished', 'major', 'minor', 'minor', 'major', 'major'],
   locrian: ['diminished', 'major', 'minor', 'minor', 'major', 'major', 'minor'],
+  melodicMinor: ['minor', 'minor', 'augmented', 'major', 'major', 'diminished', 'diminished'],
+  harmonicMinor: ['minor', 'diminished', 'augmented', 'minor', 'major', 'major', 'diminished'],
+  harmonicMajor: ['major', 'diminished', 'minor', 'minor', 'major', 'augmented', 'diminished'],
+  doubleHarmonicMajor: ['major', 'minor', 'minor', 'diminished', 'major', 'augmented', 'diminished'],
 };
 
 export const TETRADS: Record<ModeName, string[]> = {
@@ -32,6 +40,10 @@ export const TETRADS: Record<ModeName, string[]> = {
   mixolydian: ['dominant7', 'minor7', 'minor7b5', 'major7', 'minor7', 'minor7', 'major7'],
   aeolian: ['minor7', 'minor7b5', 'major7', 'minor7', 'minor7', 'major7', 'dominant7'],
   locrian: ['minor7b5', 'major7', 'minor7', 'minor7', 'major7', 'dominant7', 'minor7'],
+  melodicMinor: ['minormajor7', 'minor7', 'major7#5', 'dominant7', 'dominant7', 'minor7b5', 'minor7b5'],
+  harmonicMinor: ['minormajor7', 'diminished7', 'major7#5', 'minor7', 'dominant7', 'major7', 'diminished7'],
+  harmonicMajor: ['major7', 'diminished7', 'minor7', 'minormajor7', 'dominant7', 'major7#5', 'diminished7'],
+  doubleHarmonicMajor: ['major7', 'dominant7', 'minor6', 'diminished7', 'dominant7b5', 'dominant7#5', 'diminished7'],
 };
 
 export const DEGREES: string[] = ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7', 'b9', '9'];

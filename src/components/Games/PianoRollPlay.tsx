@@ -355,8 +355,11 @@ const PianoRoll: React.FC<PianoRollProps> = ({
       {/* Header: beat markers & optional chord strip */}
       <div
         className="sticky top-0 z-30 px-2 backdrop-blur"
-        style={{ background: 'rgba(25,25,25,0.95)' }}
-        style={{ borderBottom: "1px solid rgba(120,120,120,0.25)", position: "relative" }}
+        style={{
+          background: 'rgba(25,25,25,0.95)',
+          borderBottom: "1px solid rgba(120,120,120,0.25)",
+          position: "relative",
+        }}
       >
         {/* Top ruler */}
         <div className="relative flex" style={{ height: 40 }}>

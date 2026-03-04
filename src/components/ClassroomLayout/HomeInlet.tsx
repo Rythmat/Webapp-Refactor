@@ -131,10 +131,7 @@ export const HomeInlet = () => {
       progressPct,
       completedCount: latest.completedCount,
       totalCount: latest.totalCount,
-      route: LearnRoutes.lesson(
-        { mode: mode as any, key: keyLabelToUrlParam(root) },
-        activityDefId ? { activity: activityDefId } : undefined,
-      ),
+      route: LearnRoutes.lesson({ mode: mode as any, key: keyLabelToUrlParam(root) }),
     };
   })();
 
@@ -233,7 +230,9 @@ export const HomeInlet = () => {
                       }}
                     />
                   </div>
-                  {latestContinue && latestContinue.totalCount != null && (
+                  {latestContinue &&
+                    latestContinue.totalCount != null &&
+                    latestContinue.completedCount > 0 && (
                     <div className="mt-2 text-xs text-emerald-200/80">
                       {latestContinue.completedCount} / {latestContinue.totalCount} completed
                     </div>

@@ -30,6 +30,7 @@ const chromaticSharpInterval = ["1","#1","2","#2","3", "4","#4","5","#5","6","#6
 
 const BASE_C4 = 60;
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
+const START_OVER_ACTIVITY_DEF_ID = "lesson-overview";
 
 const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'C', semitone: 0 },
@@ -326,7 +327,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                     ? `Current activity: ${formatActivityTitle(resumeState.activityDefId)}`
                     : "Progress saved"}
                 </div>
-                {resumeState.totalCount != null && (
+                {resumeState.totalCount != null && resumeState.completedCount > 0 && (
                   <div className="mt-1 text-xs opacity-70">
                     {resumeState.completedCount} / {resumeState.totalCount} completed
                   </div>
@@ -334,7 +335,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                 <div className="mt-3 flex gap-2">
                   <button
                     type="button"
-                    onClick={() => navigate(lessonRouteFor(tile.label))}
+                    onClick={() => navigate(lessonRouteFor(tile.label, START_OVER_ACTIVITY_DEF_ID))}
                     className="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors duration-150"
                     style={{ border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                     onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
@@ -344,13 +345,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                   </button>
                   <button
                     type="button"
-                    onClick={() =>
-                      navigate(
-                        resumeState.activityDefId
-                          ? lessonRouteFor(tile.label, resumeState.activityDefId)
-                          : lessonRouteFor(tile.label),
-                      )
-                    }
+                    onClick={() => navigate(lessonRouteFor(tile.label))}
                     className="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors duration-150"
                     style={{ background: 'var(--color-accent)', color: '#191919' }}
                     onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.9'; }}

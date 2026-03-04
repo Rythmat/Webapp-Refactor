@@ -1,0 +1,149 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { PianoKeyboard } from '@/components/PianoKeyboard';
+import { type PlaybackEvent } from '@/contexts/PlaybackContext';
+import { KEY_OF_COLORS } from '@/constants/theme';
+import { findByUrlParam } from './parallelModeContent';
+import { rootToMidi, buildScaleMidis, MODE_STEPS } from './modeHelpers';
+import './learn.css';
+
+export function ParallelModesOverview() {
+  const { key: keyParam } = useParams<{ key: string }>();
+
+  const entry = useMemo(
+    () => (keyParam ? findByUrlParam(keyParam) : undefined),
+    [keyParam],
+  );
+
+  const [activeModeIndex, setActiveModeIndex] = useState(0);
+  const [noteIndex, setNoteIndex] = useState(0);
+
+  useEffect(() => {
+    setActiveModeIndex(0);
+    setNoteIndex(0);
+  }, [keyParam]);
+
+  const activeMode = entry?.modes[activeModeIndex] ?? null;
+
+  const steps = useMemo(() => {
+    if (!activeMode) return [0, 2, 4, 5, 7, 9, 11];
+    return MODE_STEPS[activeMode.modeSlug] ?? [0, 2, 4, 5, 7, 9, 11];
+  }, [activeMode]);
+
+  const rootMidi = activeMode ? rootToMidi(activeMode.root) : 60;
+  const scaleMidis = useMemo(
+    () => [...buildScaleMidis(rootMidi, steps), rootMidi + 12],
+    [rootMidi, steps],
+  );
+
+  const modeCount = entry?.modes.length ?? 10;
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setNoteIndex((prev) => {
+        const next = prev + 1;
+        if (next >= scaleMidis.length) {
+          setActiveModeIndex((prevMode) => (prevMode + 1) % modeCount);
+          return 0;
+        }
+        return next;
+      });
+    }, 600);
+    return () => window.clearInterval(id);
+  }, [scaleMidis.length, modeCount]);
+
+  const activeNotes = useMemo(() => {
+    const now = Date.now();
+    const capped = Math.min(noteIndex, scaleMidis.length - 1);
+    return scaleMidis.slice(0, capped + 1).map<PlaybackEvent>((midi, i) => ({
+      id: `par-${keyParam}-${activeModeIndex}-${midi}-${i}`,
+      type: 'note',
+      midi,
+      time: now,
+      duration: 0.6,
+      velocity: 1,
+    }));
+  }, [keyParam, activeModeIndex, noteIndex, scaleMidis]);
+
+  if (!entry) {
+    return (
+      <div className="learn-root flex flex-col items-center justify-center h-full" style={{ backgroundColor: 'var(--color-bg)' }}>
+        <p style={{ color: 'var(--color-text-dim)' }}>Key not found.</p>
+      </div>
+    );
+  }
+
+  const keyColor = KEY_OF_COLORS[entry.keyRoot as keyof typeof KEY_OF_COLORS] ?? '#7ecfcf';
+
+  return (
+    <div className="learn-root flex flex-col gap-6" style={{ backgroundColor: 'var(--color-bg)' }}>
+      <h2
+        className="text-2xl md:text-3xl font-semibold text-left ml-[10%]"
+        style={{ color: keyColor }}
+      >
+        {entry.keyRoot} Parallel Modes
+      </h2>
+
+      <PianoKeyboard
+        endC={6}
+        startC={4}
+        playingNotes={activeNotes}
+        activeWhiteKeyColor={keyColor}
+        activeBlackKeyColor={keyColor}
+      />
+
+      {activeMode && (
+        <p
+          className="text-base md:text-lg font-semibold text-left ml-[10%]"
+          style={{ color: 'var(--color-text)' }}
+        >
+          Playing: {activeMode.root} {activeMode.modeName} — {activeMode.intervals}
+        </p>
+      )}
+
+      <section className="mb-6 flex flex-col items-center">
+        <div className="grid grid-cols-1 gap-3 w-full max-w-3xl">
+          {entry.modes.map((mode, modeIdx) => {
+            const isActive = modeIdx === activeModeIndex;
+            return (
+              <button
+                key={modeIdx}
+                onClick={() => {
+                  setActiveModeIndex(modeIdx);
+                  setNoteIndex(0);
+                }}
+                className="p-3 rounded-lg text-sm text-left transition-colors duration-150 glass-panel-sm cursor-pointer"
+                style={{
+                  color: isActive ? keyColor : 'var(--color-text)',
+                  background: isActive ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
+                  border: isActive ? `1px solid ${keyColor}44` : '1px solid var(--color-border)',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                }}
+              >
+                <div className="font-bold">
+                  {mode.root} {mode.modeName}
+                </div>
+                <div className="mt-1 text-xs opacity-70">
+                  Intervals: {mode.intervals}
+                </div>
+                <div className="mt-1 text-xs opacity-70">
+                  Notes: {mode.notes.join(', ')}
+                </div>
+                {mode.parentMode && (
+                  <div className="mt-1 text-xs opacity-50">
+                    Parent: {mode.parentMode}
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  );
+}

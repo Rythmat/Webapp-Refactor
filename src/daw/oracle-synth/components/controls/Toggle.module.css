@@ -1,0 +1,43 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.track {
+  width: 28px;
+  height: 14px;
+  border-radius: 7px;
+  background: #333;
+  position: relative;
+  transition: background 0.15s;
+}
+
+.track.active {
+  background: #3a6666;
+}
+
+.thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #888;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.track.active .thumb {
+  transform: translateX(14px);
+  background: #7ecfcf;
+}
+
+.label {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: #888;
+  text-transform: uppercase;
+}

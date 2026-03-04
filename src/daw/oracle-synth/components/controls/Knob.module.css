@@ -1,0 +1,77 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  user-select: none;
+}
+
+.containerH {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  user-select: none;
+}
+
+.textGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.textGroupRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.label {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.svgContainer {
+  cursor: grab;
+  touch-action: none;
+}
+
+.svgContainer:active {
+  cursor: grabbing;
+}
+
+.svgContainer:focus {
+  outline: 1px solid #7ecfcf55;
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.svgContainer:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.track {
+  fill: none;
+  stroke: #333;
+  stroke-linecap: round;
+}
+
+.arc {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke 0.1s;
+}
+
+.indicator {
+  transition: fill 0.1s;
+}
+
+.value {
+  font-size: 10px;
+  color: #aaa;
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+  text-align: center;
+}

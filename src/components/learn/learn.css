@@ -1,0 +1,123 @@
+/* ── Learn Design Tokens (scoped to .learn-root) ───────────────────────── */
+/* Mirrors the DAW's glass design system for visual consistency.            */
+
+.learn-root {
+  --color-bg: #191919;
+  --color-surface: #1a1a1a;
+  --color-surface-2: #1e1e1e;
+  --color-surface-3: #222222;
+  --color-border: rgba(255, 255, 255, 0.08);
+
+  --color-text: #e8e8f0;
+  --color-text-dim: #6b6b80;
+
+  --color-accent: #7ecfcf;
+
+  --color-record: #ef4444;
+  --color-play: #22c55e;
+
+  --color-brand-pink: #EC4899;
+  --color-brand-purple: #8B5CF6;
+  --color-brand-blue: #3B82F6;
+  --color-brand-teal: #06B6D4;
+  --gradient-brand: linear-gradient(90deg, #EC4899, #8B5CF6, #3B82F6, #06B6D4);
+
+  --glass-blur: blur(20px);
+  --glass-blur-sm: blur(10px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-border-light: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --glass-shadow-deep: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-glow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  --color-scrollbar-thumb: rgba(255, 255, 255, 0.08);
+
+  --grain-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Reset webapp's global * { border-color } inside Learn */
+.learn-root,
+.learn-root *,
+.learn-root *::before,
+.learn-root *::after {
+  border-color: var(--color-border);
+}
+
+/* ── Brand gradient text ─────────────────────────────────────────────── */
+.learn-root .brand-gradient-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glass panels ────────────────────────────────────────────────────── */
+.learn-root .glass-panel {
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+  position: relative;
+}
+
+.learn-root .glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grain-texture);
+  background-size: 128px 128px;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.learn-root .glass-panel-sm {
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-glow);
+  position: relative;
+}
+
+.learn-root .glass-panel-sm::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grain-texture);
+  background-size: 128px 128px;
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+/* ── Scrollbars ──────────────────────────────────────────────────────── */
+.learn-root ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.learn-root ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.learn-root ::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar-thumb);
+  border-radius: 3px;
+}
+.learn-root ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ── Genre highlight (from Globe navigation) ────────────────────────── */
+@keyframes genre-glow {
+  0% { box-shadow: 0 0 0 0 rgba(126, 207, 207, 0.4); }
+  50% { box-shadow: 0 0 16px 4px rgba(126, 207, 207, 0.25); }
+  100% { box-shadow: 0 0 0 0 rgba(126, 207, 207, 0); }
+}
+
+.learn-root .genre-highlight {
+  animation: genre-glow 2.5s ease-out;
+}

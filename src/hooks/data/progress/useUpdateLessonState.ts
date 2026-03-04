@@ -4,15 +4,6 @@ import { progressApi } from '@/lib/progress/api';
 import { progressLocalCache } from '@/lib/progress/localCache';
 import type { LessonStatePatch, ProgressSummaryResponse } from '@/lib/progress/types';
 
-const sanitizeCurrentActivityPointer = (activityInstanceId: string | null) => {
-  if (!activityInstanceId) return null;
-  const parts = activityInstanceId.split('::');
-  if (parts.length >= 5 && parts[2] === 'lesson-overview') {
-    return null;
-  }
-  return activityInstanceId;
-};
-
 export const useUpdateLessonState = () => {
   const token = useAuthToken();
   const queryClient = useQueryClient();
@@ -29,11 +20,8 @@ export const useUpdateLessonState = () => {
       const prev = queryClient.getQueryData<any>(key);
       const summaryKey = ['progressSummary'] as const;
       const prevSummary = queryClient.getQueryData<ProgressSummaryResponse>(summaryKey);
-      const sanitizedCurrentActivityInstanceId = sanitizeCurrentActivityPointer(
-        body.currentActivityInstanceId,
-      );
       const next = {
-        currentActivityInstanceId: sanitizedCurrentActivityInstanceId,
+        currentActivityInstanceId: body.currentActivityInstanceId,
         progressByActivityInstanceId: prev?.progressByActivityInstanceId ?? {},
       };
       queryClient.setQueryData(key, next);
@@ -47,11 +35,11 @@ export const useUpdateLessonState = () => {
               if (lesson.lessonId !== body.lessonId || lesson.lessonVersion !== body.lessonVersion) {
                 return lesson;
               }
-                return {
-                  ...lesson,
-                  currentActivityInstanceId: sanitizedCurrentActivityInstanceId,
-                  updatedAt: now,
-                };
+              return {
+                ...lesson,
+                currentActivityInstanceId: body.currentActivityInstanceId,
+                updatedAt: now,
+              };
             })
             .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
         };

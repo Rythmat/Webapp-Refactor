@@ -1,0 +1,65 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  flex-shrink: 0;
+  border-top: 1px solid #333;
+}
+
+.title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #9d7fce;
+  text-transform: uppercase;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: auto repeat(4, 1fr);
+  gap: 3px;
+  align-items: center;
+}
+
+.cornerCell {
+  /* Empty top-left corner */
+}
+
+.colHeader {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #888;
+  text-align: center;
+}
+
+.rowHeader {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #888;
+  padding-right: 4px;
+  white-space: nowrap;
+}
+
+.cell {
+  width: 100%;
+  height: 18px;
+  border: 1px solid #333;
+  border-radius: 3px;
+  background: #1e1e1e;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cell:hover {
+  border-color: #555;
+  background: #252525;
+}
+
+.cell.active {
+  background: #2a2a3a;
+  border-color: #9d7fce;
+  box-shadow: inset 0 0 4px rgba(157, 127, 206, 0.2);
+}

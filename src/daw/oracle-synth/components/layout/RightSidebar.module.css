@@ -1,0 +1,21 @@
+.sidebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+}
+
+.title {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #888;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.knobGrid {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}

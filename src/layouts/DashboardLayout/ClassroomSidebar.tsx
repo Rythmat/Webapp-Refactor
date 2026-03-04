@@ -1,4 +1,5 @@
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
+import { CreditsBadge } from '@/components/CreditsBadge';
 import { Logo } from '@/components/Logo';
 import { BetaHelp } from '@/components/ui/beta-help';
 import { cn } from '@/components/utilities';
@@ -37,7 +38,7 @@ export const ClassroomSidebar = ({
   return (
     <aside
       className={cn(
-        'relative flex h-full animate-fade-in-bottom flex-col space-y-4',
+        'relative flex h-full animate-fade-in-bottom flex-col space-y-4 bg-black/20 backdrop-blur-2xl border-r border-white/[0.08]',
         className,
       )}
     >
@@ -137,6 +138,8 @@ export const ClassroomSidebar = ({
                   </>
                 )}
 
+
+        <CreditsBadge isCollapsed={isCollapsed} />
 
         <UserWidget className="z-0 mt-2" isCollapsed={isCollapsed} />
 

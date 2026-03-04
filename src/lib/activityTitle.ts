@@ -6,7 +6,6 @@ const ACTIVITY_TYPE_LABELS: Record<string, string> = {
 const TOKEN_LABELS: Record<string, string> = {
   asc: "Ascend",
   desc: "Descend",
-  ascdesc: "Ascend and Descend",
   lesson: "Lesson",
   overview: "Overview",
   contour: "Contour",
@@ -47,3 +46,4 @@ export const formatActivityTitle = (activityDefId?: string | null): string => {
   }
   return baseLabel || "Continue lesson";
 };
+

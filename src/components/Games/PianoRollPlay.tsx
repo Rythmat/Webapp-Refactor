@@ -349,12 +349,13 @@ const PianoRoll: React.FC<PianoRollProps> = ({
   return (
     <div className="relative">
       <div
-        className="w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-200 text-sm"
-        style={{ fontSize: "0.9rem" }}
+        className="w-full overflow-hidden rounded-xl text-sm"
+        style={{ fontSize: "0.9rem", background: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-border)', color: 'var(--color-text-dim)' }}
       >
       {/* Header: beat markers & optional chord strip */}
       <div
-        className="sticky top-0 z-30 bg-neutral-950/95 px-2 backdrop-blur"
+        className="sticky top-0 z-30 px-2 backdrop-blur"
+        style={{ background: 'rgba(25,25,25,0.95)' }}
         style={{ borderBottom: "1px solid rgba(120,120,120,0.25)", position: "relative" }}
       >
         {/* Top ruler */}
@@ -601,9 +602,13 @@ const PianoRoll: React.FC<PianoRollProps> = ({
                 typeof perf.startTick === "number" &&
                 perf.startTick >= scheduledStart &&
                 perf.startTick <= scheduledEnd;
+              const isInWindow =
+                inTime &&
+                playheadTick >= scheduledStart &&
+                playheadTick <= scheduledEnd;
               let color = baseColor;
               let holdProgress: number | undefined;
-              const dimmed = inTime && !wasPlayed;
+              const dimmed = inTime && !(wasPlayed || isInWindow);
               const isCompleted = meta?.isCompleted ?? false;
 
               if (!inTime && meta && (meta.isCurrentChord || meta.isCompleted)) {

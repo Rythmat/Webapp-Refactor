@@ -75,9 +75,6 @@ const bannerSlides = [
     // { title: "Explore", color: [THEMES.orange, THEMES.darkGrey, THEMES.red], route: LibraryRoutes.root.definition },
     { title: "Play", color: [THEMES.purple, THEMES.beige, THEMES.blue], route: GameRoutes.root.definition },
   ];
-const LESSON_SEQUENCE_TOTAL = 36;
-const clampLessonProgressCount = (count: number) =>
-  Math.max(0, Math.min(LESSON_SEQUENCE_TOTAL, count));
 
 export const HomeInlet = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -107,7 +104,7 @@ export const HomeInlet = () => {
         lesson.lessonId.startsWith("mode-lesson-flow") &&
         !!lesson.mode &&
         !!lesson.root &&
-        (lesson.completedCount ?? 0) > 0,
+        ((lesson.completedCount ?? 0) > 0 || !!lesson.currentActivityInstanceId),
     );
     if (!latest?.mode || !latest.root) return null;
     const parts = latest.currentActivityInstanceId?.split("::") ?? [];
@@ -116,14 +113,13 @@ export const HomeInlet = () => {
     const root = latest.root;
     const modeTitle = mode.charAt(0).toUpperCase() + mode.slice(1);
     const rootTitle = urlParamToKeyLabel(root);
-    const completedCount = latest.completedCount ?? 0;
-    const displayProgressCount = clampLessonProgressCount(
-      completedCount + (latest.currentActivityInstanceId ? 1 : 0),
-    );
-    const normalizedCompletedCount = clampLessonProgressCount(completedCount);
-    const progressPct = Math.round(
-      (displayProgressCount / LESSON_SEQUENCE_TOTAL) * 100,
-    );
+    const progressPct =
+      latest.totalCount && latest.totalCount > 0
+        ? Math.max(
+            0,
+            Math.min(100, Math.round((latest.completedCount / latest.totalCount) * 100)),
+          )
+        : null;
 
     return {
       lessonId: latest.lessonId,
@@ -133,9 +129,8 @@ export const HomeInlet = () => {
       modeTitle,
       activityDefId,
       progressPct,
-      displayProgressCount,
-      completedCount: normalizedCompletedCount,
-      totalCount: LESSON_SEQUENCE_TOTAL,
+      completedCount: latest.completedCount,
+      totalCount: latest.totalCount,
       route: LearnRoutes.lesson(
         { mode: mode as any, key: keyLabelToUrlParam(root) },
         activityDefId ? { activity: activityDefId } : undefined,
@@ -238,9 +233,9 @@ export const HomeInlet = () => {
                       }}
                     />
                   </div>
-                  {latestContinue && (
+                  {latestContinue && latestContinue.totalCount != null && (
                     <div className="mt-2 text-xs text-emerald-200/80">
-                      {latestContinue.progressPct}% complete ({latestContinue.displayProgressCount}/{LESSON_SEQUENCE_TOTAL})
+                      {latestContinue.completedCount} / {latestContinue.totalCount} completed
                     </div>
                   )}
                 </div>

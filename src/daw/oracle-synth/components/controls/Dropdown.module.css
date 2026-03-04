@@ -1,0 +1,37 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.select {
+  background: #2a2a2a;
+  color: #ccc;
+  border: 1px solid #444;
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3e%3cpath d='M0 0l4 5 4-5z' fill='%23888'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  padding-right: 20px;
+}
+
+.select:hover {
+  border-color: #555;
+}
+
+.select:focus {
+  border-color: #7ecfcf;
+}

@@ -1,0 +1,403 @@
+/* ── Organ View — CSS Module ────────────────────────────────────────── */
+
+/* ── Root layout: presets left, main (controls + keyboard) right ──── */
+
+.organRoot {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Presets column — full height, always visible ─────────────────── */
+
+.presetsCol {
+  width: 90px;
+  min-width: 90px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  overflow-y: auto;
+  border-right: 1px solid var(--color-border, rgba(255,255,255,0.08));
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar-thumb, rgba(255,255,255,0.08)) transparent;
+}
+
+.presetsTitle {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 0 0 4px 0;
+  color: var(--module-accent, var(--color-text, #e8e8f0));
+}
+
+/* ── Main area — controls row + keyboard ─────────────────────────── */
+
+.mainArea {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── Controls row — single row of modules ────────────────────────── */
+
+.controlsRow {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  align-items: stretch;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar-thumb, rgba(255,255,255,0.08)) transparent;
+}
+
+/* ── Module container (glass) ────────────────────────────────────── */
+
+.module {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: rgba(255,255,255, 0.03);
+  border: 1px solid var(--color-border, rgba(255,255,255,0.08));
+  border-radius: 6px;
+  backdrop-filter: var(--glass-blur-sm, blur(10px));
+  -webkit-backdrop-filter: var(--glass-blur-sm, blur(10px));
+  box-shadow: var(--glass-glow, inset 0 1px 0 rgba(255,255,255,0.04));
+  flex-shrink: 0;
+}
+
+/* Drawbars module expands to fill space */
+.moduleExpand {
+  flex: 1;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.moduleTitle {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 0;
+  color: var(--module-accent, var(--color-text, #e8e8f0));
+}
+
+/* ── Drawbar section ─────────────────────────────────────────────── */
+
+.drawbarRow {
+  display: flex;
+  gap: 18px;
+  align-items: flex-end;
+  justify-content: center;
+  flex: 1;
+}
+
+.drawbarSlot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.drawbarTrack {
+  position: relative;
+  width: 20px;
+  height: 120px;
+  background: rgba(0,0,0, 0.4);
+  border-radius: 5px;
+  cursor: pointer;
+  touch-action: none;
+  border: 1px solid rgba(255,255,255, 0.06);
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0, 0.4),
+    inset 0 -1px 2px rgba(255,255,255, 0.03);
+}
+
+.drawbarCap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 4px 4px 0 0;
+  pointer-events: none;
+}
+
+.drawbarFill {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  pointer-events: none;
+  opacity: 0.25;
+}
+
+.drawbarThumb {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 14px;
+  border-radius: 3px;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 2px 4px rgba(0,0,0, 0.4),
+    inset 0 1px 0 rgba(255,255,255, 0.15);
+}
+
+.drawbarThumb:active {
+  cursor: grabbing;
+}
+
+.drawbarThumbValue {
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255,255,255, 0.95);
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0,0,0, 0.6);
+  line-height: 1;
+}
+
+.drawbarLabel {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: var(--color-text-dim, #6b6b80);
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* ── Toggle switch ───────────────────────────────────────────────── */
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.toggleLabel {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-text-dim, #6b6b80);
+  white-space: nowrap;
+}
+
+.toggleSwitch {
+  width: 28px;
+  height: 14px;
+  border-radius: 7px;
+  background: rgba(255,255,255, 0.08);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.toggleSwitch[data-active="true"] {
+  background: var(--toggle-accent, #e8c840);
+}
+
+.toggleThumbInner {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255, 0.5);
+  transition: transform 0.15s;
+}
+
+.toggleSwitch[data-active="true"] .toggleThumbInner {
+  transform: translateX(14px);
+  background: rgba(255,255,255, 0.9);
+}
+
+/* ── Segmented control ───────────────────────────────────────────── */
+
+.segmented {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.segmentBtn {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 3px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--color-border, rgba(255,255,255,0.08));
+  background: transparent;
+  color: var(--color-text-dim, #6b6b80);
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+}
+
+.segmentBtn:hover {
+  background: rgba(255,255,255, 0.06);
+}
+
+.segmentBtn[data-active="true"] {
+  border-color: var(--seg-accent, #7ecfcf);
+  color: var(--seg-accent, #7ecfcf);
+  background: rgba(126,207,207, 0.12);
+}
+
+/* ── Leslie speed buttons (larger) ──────────────────────────────── */
+
+.leslieSpeed .segmentBtn {
+  font-size: 10px;
+  padding: 4px 8px;
+}
+
+/* ── Leslie indicators ───────────────────────────────────────────── */
+
+.leslieIndicators {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.leslieRotor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.leslieRotorDot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--module-accent, #45B649);
+  position: relative;
+}
+
+.leslieRotorDot[data-stopped="true"] {
+  border-color: rgba(255,255,255, 0.15);
+}
+
+.leslieRotorInner {
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--module-accent, #45B649);
+  box-shadow: 0 0 4px var(--module-accent, #45B649);
+  animation: spin var(--rotor-speed, 2s) linear infinite;
+  transform-origin: 50% 125%;
+}
+
+.leslieRotorDot[data-stopped="true"] .leslieRotorInner {
+  background: rgba(255,255,255, 0.15);
+  box-shadow: none;
+}
+
+@keyframes spin {
+  from { transform: translateX(-50%) rotate(0deg); }
+  to   { transform: translateX(-50%) rotate(360deg); }
+}
+
+.leslieRotorLabel {
+  font-size: 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-dim, #6b6b80);
+}
+
+/* ── Knob (SVG arc knob) ─────────────────────────────────────────── */
+
+.knobContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  user-select: none;
+}
+
+.knobSvg {
+  cursor: grab;
+  touch-action: none;
+}
+
+.knobSvg:active {
+  cursor: grabbing;
+}
+
+.knobSvg:focus {
+  outline: 1px solid rgba(126,207,207, 0.33);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.knobSvg:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.knobTrack {
+  fill: none;
+  stroke: rgba(255,255,255, 0.1);
+  stroke-linecap: round;
+}
+
+.knobArc {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.knobPointer {
+  stroke: rgba(255,255,255, 0.8);
+  stroke-linecap: round;
+}
+
+.knobLabel {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-text-dim, #6b6b80);
+}
+
+.knobValue {
+  font-size: 10px;
+  color: var(--color-text, #e8e8f0);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Mix knob row ────────────────────────────────────────────────── */
+
+.knobRow {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* ── Keyboard wrapper — bottom of main area ──────────────────────── */
+
+.keyboardWrapper {
+  position: relative;
+  flex: 1;
+  min-height: 100px;
+  overflow: hidden;
+  border-top: 1px solid var(--color-border, rgba(255,255,255,0.08));
+}

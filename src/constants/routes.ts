@@ -274,6 +274,14 @@ export const LearnRoutes = {
       key: string,
     }>('/:mode/:key', { prefix: learnPrefix }),
 
+  relativeOverview: createRouteDefinition<{
+      key: string,
+    }>('/relative/:key', { prefix: learnPrefix }),
+
+  parallelOverview: createRouteDefinition<{
+      key: string,
+    }>('/parallel/:key', { prefix: learnPrefix }),
+
 }
 
 

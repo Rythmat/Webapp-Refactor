@@ -9,12 +9,15 @@ import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnInlet } from '@/components/learn/LearnInlet';
 import { ProfilePage } from '@/components/Profile/ProfilePage';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
+import { PlanPage } from '@/features/settings/PlanPage';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
 import Atlas from '@/components/atlas/atlas';
 import { PrismModeSlug } from "@/hooks/data";
 import { ModeOverview } from '@/components/learn/ModeOverview';
+import { RelativeModesOverview } from '@/components/learn/RelativeModesOverview';
+import { ParallelModesOverview } from '@/components/learn/ParallelModesOverview';
 
 
 const ClassroomCollectionPage = lazy(() =>
@@ -47,9 +50,9 @@ const ClassroomHomePage = lazy(() =>
 //   })),
 // );
 
-const Index = lazy(() =>
-  import('@/components/studio/Index').then(({ Index }) => ({
-    default: Index,
+const DawApp = lazy(() =>
+  import('@/daw/DawApp').then(({ DawApp }) => ({
+    default: DawApp,
   })),
 );
 
@@ -143,11 +146,7 @@ export const studioPages = () => {
     ),
     children: [
       {
-        path: StudioRoutes.root.definition,
-        element: <Navigate to={StudioRoutes.root()} />,
-      },
-      {
-        element: <Index />,
+        element: <DawApp />,
         index: true,
       },
     ],
@@ -168,7 +167,7 @@ export const studentPages = () => {
       { index: true, element: <HomeInlet /> },
       { path: ProfileRoutes.profile.definition, element: <ProfilePage/> },
       { path: ProfileRoutes.awards.definition, element: <AwardsInlet/>},
-
+      { path: ProfileRoutes.plan.definition, element: <PlanPage/>},
     ],
   };
 };
@@ -225,6 +224,14 @@ export const learnPages = () => {
       {
         path:LearnRoutes.lesson.definition,
         element:<LessonRoute />
+      },
+      {
+        path: LearnRoutes.relativeOverview.definition,
+        element: <RelativeModesOverview />,
+      },
+      {
+        path: LearnRoutes.parallelOverview.definition,
+        element: <ParallelModesOverview />,
       },
     ],
   };

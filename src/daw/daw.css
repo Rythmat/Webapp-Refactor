@@ -1,0 +1,129 @@
+/* ── DAW Design Tokens (scoped to .daw-root) ──────────────────────────── */
+
+.daw-root {
+  --color-bg: #191919;
+  --color-surface: #1a1a1a;
+  --color-surface-2: #1e1e1e;
+  --color-surface-3: #222222;
+  --color-border: rgba(255, 255, 255, 0.08);
+
+  --color-text: #e8e8f0;
+  --color-text-dim: #6b6b80;
+
+  --color-accent: #7ecfcf;
+
+  --color-record: #ef4444;
+  --color-play: #22c55e;
+
+  --color-brand-pink: #EC4899;
+  --color-brand-purple: #8B5CF6;
+  --color-brand-blue: #3B82F6;
+  --color-brand-teal: #06B6D4;
+  --gradient-brand: linear-gradient(90deg, #EC4899, #8B5CF6, #3B82F6, #06B6D4);
+
+  --color-meter-green: #22c55e;
+  --color-meter-yellow: #eab308;
+  --color-meter-red: #ef4444;
+
+  --glass-blur: blur(20px);
+  --glass-blur-sm: blur(10px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-border-light: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --glass-shadow-deep: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-glow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  --color-grid-line: rgba(255, 255, 255, 0.04);
+  --color-grid-rgb: 255, 255, 255;
+  --color-ruler-text: rgba(255, 255, 255, 0.25);
+  --color-scrollbar-thumb: rgba(255, 255, 255, 0.08);
+
+  --grain-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Reset webapp's global * { border-color } inside DAW */
+.daw-root,
+.daw-root *,
+.daw-root *::before,
+.daw-root *::after {
+  border-color: var(--color-border);
+}
+
+/* ── Brand gradient text ─────────────────────────────────────────────── */
+.daw-root .brand-gradient-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glass panels ────────────────────────────────────────────────────── */
+.daw-root .glass-panel {
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+  position: relative;
+}
+
+.daw-root .glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grain-texture);
+  background-size: 128px 128px;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.daw-root .glass-panel-sm {
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-glow);
+  position: relative;
+}
+
+.daw-root .glass-panel-sm::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grain-texture);
+  background-size: 128px 128px;
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+/* ── Scrollbars ──────────────────────────────────────────────────────── */
+.daw-root ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.daw-root ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.daw-root ::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar-thumb);
+  border-radius: 3px;
+}
+.daw-root ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scrollbar-thumb);
+  opacity: 0.8;
+}
+
+/* ── Number input spinners ───────────────────────────────────────────── */
+.daw-root input[type="number"]::-webkit-inner-spin-button,
+.daw-root input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.daw-root input[type="number"] {
+  -moz-appearance: textfield;
+}

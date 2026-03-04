@@ -1,0 +1,40 @@
+.whiteKey {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  background: linear-gradient(to bottom, #e8e8e8, #fff);
+  border: 1px solid #444;
+  border-radius: 0 0 4px 4px;
+  cursor: pointer;
+  transition: background 0.05s;
+  min-width: 20px;
+}
+
+.whiteKey:hover {
+  background: linear-gradient(to bottom, #d0d0d0, #f0f0f0);
+}
+
+.whiteKey.active {
+  background: linear-gradient(to bottom, #7ecfcf, #a0e8e8);
+}
+
+.blackKey {
+  position: absolute;
+  top: 0;
+  width: 60%;
+  height: 62%;
+  background: linear-gradient(to bottom, #333, #1a1a1a);
+  border: 1px solid #000;
+  border-radius: 0 0 3px 3px;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.05s;
+}
+
+.blackKey:hover {
+  background: linear-gradient(to bottom, #444, #2a2a2a);
+}
+
+.blackKey.active {
+  background: linear-gradient(to bottom, #4a9e9e, #357070);
+}

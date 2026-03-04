@@ -4,6 +4,7 @@ import { usePrismModes } from "@/hooks/data/prism/usePrismModes";
 import { usePrismMode } from "@/hooks/data/prism/usePrismMode";
 import { PrismModeSlug } from "@/hooks/data";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
+import '@/components/learn/learn.css';
 
 type KeyOption = { label: string; midi: number };
 
@@ -109,20 +110,21 @@ export const FlowSelect = () => {
 
   const SelectionShell = () => (
     <div className="flex-1 flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl rounded-2xl border border-neutral-800 bg-neutral-900/70 p-4 shadow-xl">
+      <div className="w-full max-w-3xl rounded-2xl p-4 glass-panel" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', boxShadow: 'var(--glass-shadow)' }}>
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-semibold">Choose your flow</h1>
-          <p className="text-sm text-neutral-400">
+          <h1 className="text-2xl font-semibold" style={{ color: 'var(--color-text)' }}>Choose your flow</h1>
+          <p className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
             Pick a key center and scale, then start your practice sequence.
           </p>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <label className="text-xs uppercase tracking-wide text-neutral-400">
+            <label className="text-xs uppercase" style={{ color: 'var(--color-text-dim)', letterSpacing: '1px' }}>
               Key Center
             </label>
             <select
-              className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
+              className="rounded-lg px-3 py-2 text-sm"
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
               value={selectedKey.label}
               onChange={(e) => {
                 const key = KEY_OPTIONS.find((k) => k.label === e.target.value);
@@ -137,11 +139,12 @@ export const FlowSelect = () => {
             </select>
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-xs uppercase tracking-wide text-neutral-400">
+            <label className="text-xs uppercase" style={{ color: 'var(--color-text-dim)', letterSpacing: '1px' }}>
               Scale / Mode
             </label>
             <select
-              className="rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100"
+              className="rounded-lg px-3 py-2 text-sm"
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
               value={selectedMode}
               onChange={(e) => setSelectedMode(e.target.value as PrismModeSlug)}
             >
@@ -153,14 +156,15 @@ export const FlowSelect = () => {
             </select>
           </div>
         </div>
-        <div className="mt-4 flex items-center justify-between text-sm text-neutral-400">
+        <div className="mt-4 flex items-center justify-between text-sm" style={{ color: 'var(--color-text-dim)' }}>
           <span>
             Ready for {selectedKey.label} {selectedMode}
           </span>
           <button
             type="button"
             onClick={() => setStarted(true)}
-            className="rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+            className="rounded-full px-5 py-2 text-sm font-semibold transition-colors duration-150"
+            style={{ background: 'var(--color-accent)', color: '#191919' }}
           >
             Start
           </button>
@@ -171,31 +175,35 @@ export const FlowSelect = () => {
 
   if (!started) {
     return (
-      <div className="min-h-screen w-full bg-neutral-950 text-neutral-50 flex flex-col">
-        <HeaderBar title="Arcade" className="bg-neutral-900/60" />
+      <div className="learn-root min-h-screen w-full flex flex-col" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
+        <HeaderBar title="Arcade" />
         <SelectionShell />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-neutral-950 text-neutral-50 flex flex-col">
-      <HeaderBar title="Flow Select" className="bg-neutral-900/60" />
-      <div className="border-b border-neutral-800 bg-neutral-900/60 px-4 py-3 flex items-center justify-between">
-        <div className="text-sm text-neutral-300">
+    <div className="learn-root min-h-screen w-full flex flex-col" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
+      <HeaderBar title="Flow Select" />
+      <div
+        className="px-4 py-3 flex items-center justify-between glass-panel-sm"
+        style={{ borderBottom: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.03)' }}
+      >
+        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
           {label[1]}
         </div>
-        <div className="text-sm text-neutral-300">
+        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
           {label[0]}
         </div>
-        <div className="text-sm text-neutral-300">
-          Playing flow for <span className="font-semibold text-neutral-100">{selectedKey.label}</span>{" "}
-          <span className="font-semibold text-neutral-100">{selectedMode}</span>{":   "}
+        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
+          Playing flow for <span className="font-semibold" style={{ color: 'var(--color-text)' }}>{selectedKey.label}</span>{" "}
+          <span className="font-semibold" style={{ color: 'var(--color-text)' }}>{selectedMode}</span>{":   "}
 
           <button
             type="button"
             onClick={() => setStarted(false)}
-            className="rounded-full border border-neutral-700 px-4 py-2 text-xs font-semibold text-neutral-100 hover:border-neutral-500 hover:text-white"
+            className="rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-150"
+            style={{ border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
           >
             Change selection
           </button>

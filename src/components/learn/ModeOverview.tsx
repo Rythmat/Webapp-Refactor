@@ -8,6 +8,10 @@ import { LearnRoutes } from "@/constants/routes";
 import { useNavigate } from 'react-router';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { colorForKeyMode } from '@/lib/modeColorShift';
+import { formatActivityTitle } from '@/lib/activityTitle';
+import { getNoteSpelling } from './noteSpellingLookup';
+import { getChordScales, type ChordScaleEntry } from './chordScaleData';
+import './learn.css';
 
 type ModeOverviewProps = {
   mode: PrismModeSlug;
@@ -19,7 +23,7 @@ type KeyStep = {
   semitone: number;
 };
 
-const chromaticFlatInterval = ["1","b2","2","b3","3","4","b5","5","b6","6","b7","7",,"b9",,"9",,,"11",,,"b13","13"];
+const chromaticFlatInterval = ["1","♭2","2","♭3","3","4","♭5","5","♭6","6","♭7","7",,"♭9",,"9",,,"11",,,"♭13","13"];
 
 const chromaticSharpInterval = ["1","#1","2","#2","3", "4","#4","5","#5","6","#6","7",,"#8","9",,,"11","#11",,,"13"];
 
@@ -41,9 +45,6 @@ const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'Bb', semitone: 10 },
   { label: 'F', semitone: 5 },
 ];
-const LESSON_SEQUENCE_TOTAL = 36;
-const clampLessonProgressCount = (count: number) =>
-  Math.max(0, Math.min(LESSON_SEQUENCE_TOTAL, count));
 const normalizeSteps = (steps?: number[]) => {
   if (!steps || steps.length === 0) return DEFAULT_INTERVALS;
   const unique = new Set<number>();
@@ -63,9 +64,41 @@ const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
 
 
 
+function ChordRow({ label, entries, extra, color }: { label: string; entries: ChordScaleEntry[]; extra?: ChordScaleEntry[]; color: string }) {
+  if (entries.length === 0 && (!extra || extra.length === 0)) return null;
+  return (
+    <div className="mb-3">
+      <div className="text-[10px] uppercase tracking-widest mb-1 opacity-50" style={{ color: 'var(--color-text-dim)' }}>
+        {label}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {entries.map((e, i) => (
+          <span
+            key={`${e.degree}-${e.quality}-${i}`}
+            className="inline-block px-2 py-0.5 rounded text-xs"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-border)', color }}
+          >
+            <span className="opacity-60">{e.degree}</span> {e.quality}
+          </span>
+        ))}
+        {extra?.map((e, i) => (
+          <span
+            key={`extra-${e.degree}-${e.quality}-${i}`}
+            className="inline-block px-2 py-0.5 rounded text-xs opacity-40"
+            style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--color-border)', color }}
+          >
+            <span className="opacity-60">{e.degree}</span> {e.quality}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ModeOverview({ mode}: ModeOverviewProps) {
   const [keyIndex, setKeyIndex] = useState(0);
   const [noteIndex, setNoteIndex] = useState(0);
+  const [chordsOpen, setChordsOpen] = useState(false);
   const { data: modeDetail } = usePrismMode(mode);
   const navigate = useNavigate();
   const { data: progressSummary } = useProgressSummary(true);
@@ -79,6 +112,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
   const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;
   const activeKey = CHROMATIC_KEYS[keyIndex];
   const activeKeyColor = colorForKeyMode(activeKey.label, mode);
+  const displayName = getChordScales(mode)?.modeName ?? (mode.charAt(0).toUpperCase() + mode.slice(1));
   const rootMidi = BASE_C4 + activeKey.semitone;
   const scaleMidis = useMemo(() => buildScaleMidis(rootMidi, scaleSteps), [rootMidi, scaleSteps]);
 
@@ -114,8 +148,6 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
       string,
       {
         activityDefId: string | null;
-        continueActivityDefId: string | null;
-        hasCurrentActivity: boolean;
         completedCount: number;
         totalCount: number | null;
         updatedAtMs: number;
@@ -170,15 +202,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
         }
       }
 
-      let continueActivityDefId = activityDefId;
-      if (!continueActivityDefId && lesson.lastCompletedActivityInstanceId) {
-        const parts = lesson.lastCompletedActivityInstanceId.split("::");
-        if (parts.length >= 5) {
-          continueActivityDefId = parts[2];
-        }
-      }
-
-      if ((lesson.completedCount ?? 0) <= 0) return;
+      if (!activityDefId && (lesson.completedCount ?? 0) <= 0) return;
 
       const nextUpdatedAtMs = new Date(lesson.updatedAt).getTime() || 0;
       const existing = map.get(lessonRoot);
@@ -188,8 +212,6 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
 
       map.set(lessonRoot, {
         activityDefId,
-        continueActivityDefId,
-        hasCurrentActivity: !!lesson.currentActivityInstanceId,
         completedCount: lesson.completedCount ?? 0,
         totalCount: lesson.totalCount ?? null,
         updatedAtMs: nextUpdatedAtMs,
@@ -208,9 +230,9 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
     );
 
   return (
-    <div className="flex flex-col gap-6" data-mode={mode}>
-      <h2 className="text-3xl md:text-4xl font-semibold underline text-left ml-[10%]">
-        {`${mode.charAt(0).toUpperCase() + mode.slice(1)}`}
+    <div className="learn-root flex flex-col gap-6" data-mode={mode} style={{ backgroundColor: 'var(--color-bg)' }}>
+      <h2 className="text-2xl md:text-3xl font-semibold text-left ml-[10%]" style={{ color: 'var(--color-text)' }}>
+        {displayName}
       </h2>
       {videoId && (
         <div className="w-1/2 mx-auto">
@@ -225,21 +247,44 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
         activeBlackKeyColor={activeKeyColor}
       />
       <section className="mb-6 flex flex-col items-center">
-        <p className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]">
+        <p className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]" style={{ color: 'var(--color-text)' }}>
           Interval: {scaleSteps.map((i)=>{return mode=="lydian"? chromaticSharpInterval[i] : chromaticFlatInterval[i]}).join(', ')}
         </p>
+
+        {(() => {
+          const cs = getChordScales(mode);
+          if (!cs) return null;
+          return (
+            <div className="w-full max-w-3xl mb-4">
+              <button
+                type="button"
+                onClick={() => setChordsOpen((o) => !o)}
+                className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide cursor-pointer mb-2"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                <span style={{ display: 'inline-block', transform: chordsOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 150ms' }}>
+                  &#9654;
+                </span>
+                Chord Scales
+              </button>
+              {chordsOpen && (
+                <div className="p-4 rounded-lg glass-panel-sm" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-border)' }}>
+                  <ChordRow label="Triads" entries={cs.triads} extra={cs.extraTriads} color={activeKeyColor} />
+                  <ChordRow label="7th Chords" entries={cs.sevenths} extra={cs.extraSevenths} color={activeKeyColor} />
+                  <ChordRow label="9th Chords" entries={cs.ninths} extra={cs.extraNinths} color={activeKeyColor} />
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         <div className="grid grid-cols-1 gap-3 w-full max-w-3xl">
           {CHROMATIC_KEYS.map((tile) => {
             const resumeState = resumeByKey.get(tile.label.toLowerCase());
-            const title = tile.label + " " + mode.charAt(0).toUpperCase() + mode.slice(1);
+            const title = tile.label + " " + displayName;
             const tileColor = colorForKeyMode(tile.label, mode);
-            const displayCount = resumeState
-              ? clampLessonProgressCount(
-                  resumeState.completedCount + (resumeState.hasCurrentActivity ? 1 : 0),
-                )
-              : 0;
-            const progressPct = Math.round((displayCount / LESSON_SEQUENCE_TOTAL) * 100);
+
+            const noteSpelling = getNoteSpelling(mode, tile.label);
 
             if (!resumeState) {
               return (
@@ -250,12 +295,15 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                       lessonRouteFor(tile.label),
                     )
                   }
-                  className={`
-                    p-3 rounded-lg border text-sm font-bold text-left transition bg-grey-darker opacity-50
-                  `}
-                  style={{ color: tileColor }}
+                  className="p-3 rounded-lg text-sm font-bold text-left transition-colors duration-150 glass-panel-sm cursor-pointer"
+                  style={{ color: tileColor, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
                 >
                   {title}
+                  {noteSpelling && (
+                    <span className="block mt-1 text-xs font-normal opacity-60">{noteSpelling.join(', ')}</span>
+                  )}
                 </button>
               );
             }
@@ -263,57 +311,53 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
             return (
               <div
                 key={`${tile.label}-${mode}`}
-                className="relative overflow-hidden rounded-lg border text-sm text-left transition bg-grey-darker"
-                style={{
-                  color: tileColor,
-                  borderColor: resumeState.hasCurrentActivity ? "#ffffff" : undefined,
-                }}
+                className="p-3 rounded-lg text-sm text-left glass-panel-sm"
+                style={{ color: tileColor, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)' }}
               >
-                <div
-                  className="absolute inset-0 opacity-50"
-                  style={{ backgroundColor: tileColor }}
-                />
-                <div
-                  className="absolute inset-y-0 left-0"
-                  style={{
-                    width: `${progressPct}%`,
-                    backgroundColor: tileColor,
-                    opacity: 1,
-                  }}
-                />
-                <div className="relative z-10 p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0 text-black">
-                      <div className="font-bold">{title}</div>
-                      <div className="mt-1 text-xs opacity-90">
-                        {progressPct}% complete ({displayCount}/{LESSON_SEQUENCE_TOTAL})
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => navigate(lessonRouteFor(tile.label, "lesson-overview"))}
-                      className="rounded-md border border-white/30 bg-black/20 px-3 py-1.5 text-xs font-semibold text-white hover:bg-black/30"
-                    >
-                      Start Over
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        navigate(
-                          resumeState.activityDefId
-                            ? lessonRouteFor(tile.label, resumeState.activityDefId)
-                            : resumeState.continueActivityDefId
-                              ? lessonRouteFor(tile.label, resumeState.continueActivityDefId)
-                              : lessonRouteFor(tile.label),
-                        )
-                      }
-                      className="rounded-md bg-white text-black px-3 py-1.5 text-xs font-semibold hover:bg-white/90"
-                    >
-                      Continue
-                    </button>
-                    </div>
+                <div className="font-bold">{title}</div>
+                {noteSpelling && (
+                  <div className="mt-1 text-xs opacity-60">{noteSpelling.join(', ')}</div>
+                )}
+                <div className="mt-1 text-xs font-semibold uppercase tracking-wide opacity-90">
+                  Continue lesson
+                </div>
+                <div className="mt-1 text-xs opacity-80">
+                  {resumeState.activityDefId
+                    ? `Current activity: ${formatActivityTitle(resumeState.activityDefId)}`
+                    : "Progress saved"}
+                </div>
+                {resumeState.totalCount != null && (
+                  <div className="mt-1 text-xs opacity-70">
+                    {resumeState.completedCount} / {resumeState.totalCount} completed
                   </div>
+                )}
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate(lessonRouteFor(tile.label))}
+                    className="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors duration-150"
+                    style={{ border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    Start Over
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate(
+                        resumeState.activityDefId
+                          ? lessonRouteFor(tile.label, resumeState.activityDefId)
+                          : lessonRouteFor(tile.label),
+                      )
+                    }
+                    className="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors duration-150"
+                    style={{ background: 'var(--color-accent)', color: '#191919' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.9'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+                  >
+                    Continue
+                  </button>
                 </div>
               </div>
             );

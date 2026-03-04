@@ -1,0 +1,102 @@
+.area {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  flex: 1;
+  min-height: 0;
+  gap: 6px;
+}
+
+.title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #7ecfcf;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.lfoTabs {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.lfoTab {
+  background: #242424;
+  border: 1px solid #333;
+  border-radius: 3px;
+  color: #888;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 3px 6px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.lfoTab.active {
+  background: #2a3535;
+  border-color: #7ecfcf;
+  color: #7ecfcf;
+}
+
+.lfoTab:hover:not(.active) {
+  background: #2a2a2a;
+  color: #aaa;
+}
+
+/* All 4 bars side by side */
+.barsRow {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.barColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.barLabel {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #7ecfcf;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.editorWrapper {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* 4 rate knobs per bar (one per quarter note) */
+.quarterRates {
+  display: flex;
+  justify-content: space-between;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 2px 0;
+}
+
+/* Per-bar controls: Smooth knob */
+.barControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}

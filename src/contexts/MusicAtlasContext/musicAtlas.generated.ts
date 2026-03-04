@@ -81,7 +81,7 @@ export type GetApiProgressLessonData = any;
 
 export interface GetApiProgressLessonParams {
   lessonId: string;
-  lessonVersion: string | (string | number);
+  lessonVersion: string | number;
 }
 
 export type GetApiProgressSummaryData = any;
@@ -2247,7 +2247,7 @@ export namespace Progress {
     export type RequestParams = {};
     export type RequestQuery = {
       lessonId: string;
-      lessonVersion: string | (string | number);
+      lessonVersion: string | number;
     };
     export type RequestBody = never;
     export type RequestHeaders = {};

@@ -379,7 +379,7 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
   return (
     <div className="flex flex-col gap-4">
       <div className="relative">
-        <div className="rounded-xl border border-neutral-800 bg-neutral-950/80 p-4 transition duration-300">
+        <div className="rounded-xl p-4 transition duration-300 glass-panel" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)' }}>
         <PianoRoll
           events={resolvedEvents}
           bars={requiredBars}

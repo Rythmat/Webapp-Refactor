@@ -1,0 +1,63 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  user-select: none;
+}
+
+.label {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.wheel {
+  position: relative;
+  width: 24px;
+  height: 72px;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 4px;
+  cursor: grab;
+  touch-action: none;
+  overflow: hidden;
+}
+
+.wheel:active {
+  cursor: grabbing;
+}
+
+.indicator {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  height: 4px;
+  background: #7ecfcf;
+  border-radius: 2px;
+  transition: top 0.05s;
+}
+
+.centerLine {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 50%;
+  height: 1px;
+  background: #444;
+}
+
+/* Ridged texture */
+.ridges {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(255, 255, 255, 0.03) 3px,
+    rgba(255, 255, 255, 0.03) 4px
+  );
+  pointer-events: none;
+}

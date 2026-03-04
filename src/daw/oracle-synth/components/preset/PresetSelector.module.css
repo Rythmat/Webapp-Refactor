@@ -1,0 +1,158 @@
+.container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.presetButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #ccc;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  min-width: 140px;
+  justify-content: space-between;
+}
+
+.presetButton:hover {
+  background: #333;
+  border-color: #555;
+}
+
+.presetName {
+  font-weight: 500;
+}
+
+.arrow {
+  font-size: 9px;
+  color: #666;
+}
+
+.actionButton {
+  padding: 4px 10px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 3px;
+  color: #888;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.actionButton:hover {
+  background: #333;
+  color: #ccc;
+}
+
+.actionButton.primary {
+  background: #345;
+  border-color: #567;
+  color: #7ecfcf;
+}
+
+.actionButton.primary:hover {
+  background: #456;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  min-width: 200px;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 4px 0;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.sectionLabel {
+  display: block;
+  padding: 6px 12px 2px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #666;
+}
+
+.presetItem {
+  display: block;
+  width: 100%;
+  padding: 6px 16px;
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.presetItem:hover {
+  background: #333;
+  color: #fff;
+}
+
+.presetItem.active {
+  color: #7ecfcf;
+}
+
+.divider {
+  height: 1px;
+  background: #333;
+  margin: 4px 8px;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.saveDialog {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  padding: 12px;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 6px;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+}
+
+.saveInput {
+  padding: 6px 10px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #ccc;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  outline: none;
+}
+
+.saveInput:focus {
+  border-color: #7ecfcf;
+}
+
+.saveActions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}

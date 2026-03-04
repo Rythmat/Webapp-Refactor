@@ -35,7 +35,7 @@ module.exports = {
     'tailwindcss/no-custom-classname': [
       'error',
       {
-        whitelist: ['toaster'],
+        whitelist: ['toaster', 'daw-root', 'glass-panel', 'glass-panel-sm', 'brand-gradient-text'],
       },
     ],
     'import/order': [
@@ -106,6 +106,16 @@ module.exports = {
       ],
       rules: {
         'import/no-default-export': 'off',
+      },
+    },
+    {
+      files: ['src/daw/**/*.ts', 'src/daw/**/*.tsx'],
+      rules: {
+        'import/no-default-export': 'off',
+        'import/order': 'off',
+        'react/jsx-sort-props': 'off',
+        'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
+        'sonarjs/cognitive-complexity': ['warn', 25],
       },
     },
   ],

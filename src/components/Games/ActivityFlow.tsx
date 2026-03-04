@@ -70,8 +70,8 @@ const ACTIVITY_FLOW_LESSON_VERSION = 1;
 const ChordLoadingStep: (props: FlowActivityProps) => JSX.Element = ({
   startMessage,
 }) => (
-  <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 p-6 text-center">
-    <div className="text-sm text-neutral-300">
+  <div className="rounded-xl p-6 text-center glass-panel-sm" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)' }}>
+    <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
       {startMessage ?? "Loading chord exercises..."}
     </div>
   </div>
@@ -748,14 +748,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const [lessonComplete, setLessonComplete] = useState(false);
   const currentActivity = flowDefinitions[currentIndex];
   const lessonProgressScope = `${lessonId}:${lessonVersion}:${lessonKeyScope}`;
-  const firstNoteHoldActivity = useMemo(
-    () => flowDefinitions.find((activity) => activity.Component === NoteHold),
-    [flowDefinitions],
-  );
-  const firstNoteHoldCompleted =
-    !!firstNoteHoldActivity &&
-    lessonProgressQuery.data?.progressByActivityInstanceId[firstNoteHoldActivity.activityInstanceId]
-      ?.status === "COMPLETED";
   const currentChromaticIndex = useMemo(
     () => CHROMATIC_KEYS.findIndex((key) => key === rootKey),
     [rootKey],
@@ -768,13 +760,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const [nextKeyChoice, setNextKeyChoice] = useState<string>(nextCurriculumKey);
   const midiTriggeredRef = useRef(false);
   const isTrackableActivity = currentActivity?.activityDefId !== "lesson-overview";
-  const canTrackCurrentPointerAndInProgress = isTrackableActivity && firstNoteHoldCompleted;
-  const canTrackCurrentCompletion =
-    isTrackableActivity &&
-    (firstNoteHoldCompleted ||
-      (!!currentActivity &&
-        !!firstNoteHoldActivity &&
-        currentActivity.activityInstanceId === firstNoteHoldActivity.activityInstanceId));
 
   const continueCurriculum = useCallback(() => {
     navigate(
@@ -798,6 +783,17 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   useEffect(() => {
     if (flowDefinitions.length === 0) return;
+    const lessonOverviewIndex = flowDefinitions.findIndex(
+      (activity) => activity.activityDefId === "lesson-overview",
+    );
+    const introChordHoldActivity = flowDefinitions.find(
+      (activity) => activity.activityDefId === "intro-chord-hold",
+    );
+    const introChordHoldProgress = introChordHoldActivity
+      ? lessonProgressQuery.data?.progressByActivityInstanceId[introChordHoldActivity.activityInstanceId]
+      : undefined;
+    const introChordHoldCompleted = introChordHoldProgress?.status === "COMPLETED";
+
     const explicitStartIndex = startAtActivityKey
       ? flowDefinitions.findIndex(
           (activity) =>
@@ -815,6 +811,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       explicitStartScopeKey &&
       explicitStartAppliedRef.current !== explicitStartScopeKey
     ) {
+      if (!introChordHoldCompleted && lessonOverviewIndex >= 0) {
+        explicitStartAppliedRef.current = explicitStartScopeKey;
+        resumeAppliedScopeRef.current = lessonProgressScope;
+        setLessonComplete(false);
+        setCurrentIndex(lessonOverviewIndex);
+        return;
+      }
       explicitStartAppliedRef.current = explicitStartScopeKey;
       resumeAppliedScopeRef.current = lessonProgressScope;
       setLessonComplete(false);
@@ -824,6 +827,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
     if (!lessonProgressQuery.data) return;
     if (resumeAppliedScopeRef.current === lessonProgressScope) return;
+
+    if (!introChordHoldCompleted && lessonOverviewIndex >= 0) {
+      resumeAppliedScopeRef.current = lessonProgressScope;
+      setLessonComplete(false);
+      setCurrentIndex(lessonOverviewIndex);
+      return;
+    }
 
     const resumeIndex = selectResumeActivityIndex({
       activities: flowDefinitions.map((activity) => ({
@@ -891,18 +901,18 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   useEffect(() => {
     if (!currentActivity || lessonComplete) return;
-    if (!canTrackCurrentPointerAndInProgress) return;
+    if (!isTrackableActivity) return;
     updateLessonState.mutate({
       lessonId,
       lessonVersion,
       currentActivityInstanceId: currentActivity.activityInstanceId,
     });
-  }, [currentActivity?.activityInstanceId, lessonComplete, lessonId, lessonVersion, canTrackCurrentPointerAndInProgress]);
+  }, [currentActivity?.activityInstanceId, lessonComplete, lessonId, lessonVersion, isTrackableActivity]);
 
   useEffect(() => {
     if (!currentActivity || lessonComplete) return;
     if (activityState !== "active") return;
-    if (!canTrackCurrentPointerAndInProgress) return;
+    if (!isTrackableActivity) return;
 
     updateActivityProgress.mutate({
       activityInstanceId: currentActivity.activityInstanceId,
@@ -929,13 +939,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     lessonVersion,
     modeLabel,
     rootKey,
-    canTrackCurrentPointerAndInProgress,
+    isTrackableActivity,
   ]);
 
   useEffect(() => {
     if (!currentActivity || lessonComplete) return;
     if (activityState !== "active") return;
-    if (!canTrackCurrentPointerAndInProgress) return;
+    if (!isTrackableActivity) return;
 
     const intervalId = window.setInterval(() => {
       updateActivityProgress.mutate({
@@ -964,11 +974,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     lessonVersion,
     modeLabel,
     rootKey,
-    canTrackCurrentPointerAndInProgress,
+    isTrackableActivity,
   ]);
 
   const handleContinue = useCallback(() => {
-    if (currentActivity && canTrackCurrentCompletion) {
+    if (currentActivity && isTrackableActivity) {
       if (!completionReportedRef.current.has(currentActivity.activityInstanceId)) {
         completionReportedRef.current.add(currentActivity.activityInstanceId);
         updateActivityProgress.mutate({
@@ -987,7 +997,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         });
       }
     }
-    if (currentActivity && canTrackCurrentPointerAndInProgress) {
+    if (currentActivity && isTrackableActivity) {
       updateLessonState.mutate({
         lessonId,
         lessonVersion,
@@ -1019,8 +1029,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     modeLabel,
     onComplete,
     rootKey,
-    canTrackCurrentCompletion,
-    canTrackCurrentPointerAndInProgress,
+    isTrackableActivity,
   ]);
 
   const handleMidiActivity = useCallback(() => {
@@ -1065,7 +1074,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       if (!isComplete || !isCompletionOverlayActivity) return;
       setActivityState("completed");
       if (!currentActivity) return;
-      if (!canTrackCurrentCompletion) return;
+      if (!isTrackableActivity) return;
       if (completionReportedRef.current.has(currentActivity.activityInstanceId)) return;
       completionReportedRef.current.add(currentActivity.activityInstanceId);
       updateActivityProgress.mutate({
@@ -1081,24 +1090,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           activityDefId: currentActivity.activityDefId,
         },
       });
-      if (canTrackCurrentPointerAndInProgress) {
-        updateLessonState.mutate({
-          lessonId,
-          lessonVersion,
-          currentActivityInstanceId: null,
-        });
-      }
+      updateLessonState.mutate({
+        lessonId,
+        lessonVersion,
+        currentActivityInstanceId: null,
+      });
     },
-    [
-      currentActivity,
-      currentIndex,
-      lessonId,
-      lessonVersion,
-      modeLabel,
-      rootKey,
-      canTrackCurrentCompletion,
-      canTrackCurrentPointerAndInProgress,
-    ],
+    [currentActivity, currentIndex, lessonId, lessonVersion, modeLabel, rootKey, isTrackableActivity],
   );
 
   const handleRestartActivity = () => {
@@ -1114,7 +1112,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const flushRecentLessonState = useCallback(() => {
     if (!authToken) return;
     if (!currentActivity) return;
-    if (!canTrackCurrentPointerAndInProgress) return;
+    if (!isTrackableActivity) return;
     const apiBase = Env.get("VITE_MUSIC_ATLAS_API_URL", { nullable: true });
     if (!apiBase) return;
     const normalizedBase = apiBase.replace(/\/+$/, "");
@@ -1178,7 +1176,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     lessonVersion,
     modeLabel,
     rootKey,
-    canTrackCurrentPointerAndInProgress,
+    isTrackableActivity,
   ]);
 
   useEffect(() => {
@@ -1206,14 +1204,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     usesActivityCompletionOverlay && activityState === "completed";
   const showStartOverlay =
     usesActivityStartOverlay && activityState === "pending";
-  const currentActivityProgressEntry =
-    lessonProgressQuery.data?.progressByActivityInstanceId[currentActivity.activityInstanceId];
-  const currentActivityCompletedPersisted =
-    currentActivityProgressEntry?.status === "COMPLETED";
-  const showNextActivityButton =
-    currentActivity.activityDefId !== "lesson-overview" &&
-    !showActivityCompletionOverlay &&
-    (activityState === "completed" || currentActivityCompletedPersisted);
 
   const startOverlaySequence = useMemo(
     () =>
@@ -1307,19 +1297,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     setStartSignal((value) => value + 1);
   };
 
-  const handlePreviousActivity = () => {
-    if (currentIndex <= 0) return;
-    setLessonComplete(false);
-    setCurrentIndex((idx) => Math.max(0, idx - 1));
-  };
-
   if (lessonComplete) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-4">
-        <div className="w-full max-w-3xl rounded-2xl border border-neutral-800 bg-neutral-900/70 p-6 shadow-xl">
+        <div className="w-full max-w-3xl rounded-2xl p-6 glass-panel" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', boxShadow: 'var(--glass-shadow)' }}>
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-semibold">Great work!</h1>
-            <p className="text-sm text-neutral-300">
+            <h1 className="text-2xl font-semibold" style={{ color: 'var(--color-text)' }}>Great work!</h1>
+            <p className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
               You completed the {modeLabel} lesson in {rootKey}. How would you like to continue?
             </p>
           </div>
@@ -1327,18 +1311,20 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
             <button
               type="button"
               onClick={() => navigate(StudioRoutes.root.definition)}
-              className="rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-left text-sm font-semibold text-neutral-100 transition hover:border-neutral-500 hover:bg-neutral-700"
+              className="rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors duration-150 glass-panel-sm"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
             >
               Go to Studio
             </button>
 
-            <div className="rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3">
-              <div className="mb-2 text-sm font-semibold text-neutral-100">Pick next key center</div>
+            <div className="rounded-xl px-4 py-3 glass-panel-sm" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-border)' }}>
+              <div className="mb-2 text-sm font-semibold" style={{ color: 'var(--color-text)' }}>Pick next key center</div>
               <div className="flex flex-wrap gap-2">
                 <select
                   value={nextKeyChoice}
                   onChange={(e) => setNextKeyChoice(e.target.value)}
-                  className="rounded-md border border-neutral-600 bg-neutral-900 px-3 py-2 text-sm text-neutral-100"
+                  className="rounded-md px-3 py-2 text-sm"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                 >
                   {CHROMATIC_KEYS.map((key) => (
                     <option key={key} value={key}>
@@ -1356,7 +1342,8 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
                       }),
                     )
                   }
-                  className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                  className="rounded-md px-4 py-2 text-sm font-semibold transition-colors duration-150"
+                  style={{ background: 'var(--color-accent)', color: '#191919' }}
                 >
                   Start selected key
                 </button>
@@ -1366,7 +1353,8 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
             <button
               type="button"
               onClick={continueCurriculum}
-              className="rounded-xl border border-neutral-700 bg-neutral-800 px-4 py-3 text-left text-sm font-semibold text-neutral-100 transition hover:border-neutral-500 hover:bg-neutral-700"
+              className="rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors duration-150 glass-panel-sm"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
             >
               Continue curriculum ({nextCurriculumKey} {modeLabel})
             </button>
@@ -1398,13 +1386,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           />
         </div>
         {showStartOverlay && (
-          <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center bg-neutral-950/80 px-4 backdrop-blur">
-            <div className="w-full max-w-lg rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
+          <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center px-4" style={{ background: 'rgba(25,25,25,0.8)', backdropFilter: 'blur(10px)' }}>
+            <div className="w-full max-w-lg rounded-2xl px-8 py-6 text-center glass-panel" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}>
               <h3 className="text-2xl font-semibold">Ready to start?</h3>
-              <p className="mt-2 text-sm text-neutral-300">{direction}</p>
+              <p className="mt-2 text-sm" style={{ color: 'var(--color-text-dim)' }}>{direction}</p>
               {startOverlayNotes.length > 0 && (
                 <div className="mt-4">
-                  <p className="mb-2 text-xs uppercase tracking-wide text-neutral-400">
+                  <p className="mb-2 text-xs uppercase tracking-wide" style={{ color: 'var(--color-text-dim)', letterSpacing: '1px' }}>
                     Note sequence
                   </p>
                   <PianoKeyboard
@@ -1423,7 +1411,8 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
                 <button
                   type="button"
                   onClick={handleStartActivity}
-                  className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                  className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
+                  style={{ background: 'var(--color-accent)', color: '#191919' }}
                 >
                   Start
                 </button>
@@ -1433,11 +1422,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         )}
         {showActivityCompletionOverlay && (
           <div className="absolute inset-0 flex items-center justify-center px-4">
-            <div className="rounded-2xl border border-neutral-700 bg-neutral-900 px-8 py-6 text-center text-neutral-50 shadow-2xl">
+            <div className="rounded-2xl px-8 py-6 text-center glass-panel" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}>
               <h3 className="text-2xl font-semibold">
                 {Component === PlayAlong ? "Nice work!" : "Great job!"}
               </h3>
-              <p className="mt-2 text-sm text-neutral-300">
+              <p className="mt-2 text-sm" style={{ color: 'var(--color-text-dim)' }}>
                 {Component === PlayAlong
                   ? "You finished the play-along. Continue when you are ready, or restart to practice again."
                   : "You completed the sequence. Continue when you are ready, or restart to practice again."}
@@ -1446,14 +1435,16 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
                 <button
                   type="button"
                   onClick={handleContinue}
-                  className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                  className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
+                  style={{ background: 'var(--color-accent)', color: '#191919' }}
                 >
                   Continue
                 </button>
                 <button
                   type="button"
                   onClick={handleRestartActivity}
-                  className="rounded-full border border-neutral-500 px-6 py-2 text-sm font-semibold text-neutral-200 transition hover:border-neutral-300 hover:text-white"
+                  className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
+                  style={{ border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                 >
                   Restart
                 </button>
@@ -1462,32 +1453,6 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           </div>
         )}
       </div>
-      {currentActivity.activityDefId !== "lesson-overview" && (
-        <div className="flex items-center justify-between px-1">
-          <div>
-            {currentIndex > 0 && (
-              <button
-                type="button"
-                onClick={handlePreviousActivity}
-                className="rounded-full border border-neutral-600 px-4 py-2 text-sm font-semibold text-neutral-200 transition hover:border-neutral-400 hover:text-white"
-              >
-                Last Lesson
-              </button>
-            )}
-          </div>
-          <div>
-            {showNextActivityButton && (
-              <button
-                type="button"
-                onClick={handleContinue}
-                className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400"
-              >
-                Next Activity
-              </button>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { usePrismMode } from "@/hooks/data/prism/usePrismMode";
 import { HeaderBar } from "../ClassroomLayout/HeaderBar";
 import { PrismModeSlug } from "@/hooks/data";
 import { urlParamToKeyLabel } from "@/lib/musicKeyUrl";
+import '@/components/learn/learn.css';
 
 type LessonContainerProps = {
   modeSlug: PrismModeSlug;
@@ -82,15 +83,17 @@ export const LessonContainer = ({ modeSlug, rootKey, startAtActivityKey }: Lesso
   );
 
   return (
-    <div className="min-h-screen w-full bg-neutral-950 text-neutral-50 flex flex-col">
-      <HeaderBar
-        title="Lesson" className="bg-neutral-900/60"/>
-      <div className="border-b border-neutral-800 bg-neutral-900/60 px-4 py-3 flex items-center justify-between">
-        <div className="text-sm text-neutral-300">{label[1]}</div>
-        <div className="text-sm text-neutral-300">{label[0]}</div>
-        <div className="text-sm text-neutral-300">
-          Playing flow for <span className="font-semibold text-neutral-100">{keyOption.label}</span>{" "}
-          <span className="font-semibold text-neutral-100">{modeTitle}</span>{" "}
+    <div className="learn-root min-h-screen w-full flex flex-col" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
+      <HeaderBar title="Lesson" />
+      <div
+        className="px-4 py-3 flex items-center justify-between glass-panel-sm"
+        style={{ borderBottom: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.03)' }}
+      >
+        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>{label[1]}</div>
+        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>{label[0]}</div>
+        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
+          Playing flow for <span className="font-semibold" style={{ color: 'var(--color-text)' }}>{keyOption.label}</span>{" "}
+          <span className="font-semibold" style={{ color: 'var(--color-text)' }}>{modeTitle}</span>{" "}
         </div>
       </div>
       <div className="p-3 sm:p-4 flex-1">

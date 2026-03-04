@@ -1,0 +1,121 @@
+.scaleWrapper {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #111;
+}
+
+.layout {
+  display: grid;
+  width: 1440px;
+  height: 900px;
+  grid-template-columns: 1fr;
+  grid-template-rows: 48px auto 1fr 140px;
+  grid-template-areas:
+    "header"
+    "sources"
+    "middle"
+    "footer";
+  background: #1a1a1a;
+  color: #ccc;
+  font-family: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
+  overflow: hidden;
+  transform-origin: 0 0;
+}
+
+.header {
+  grid-area: header;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 16px;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: 8px;
+  color: #fff;
+}
+
+.presetName {
+  font-size: 13px;
+  color: #888;
+  letter-spacing: 1px;
+  flex: 1;
+  text-align: center;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.sources {
+  grid-area: sources;
+  overflow-x: auto;
+  border-bottom: 1px solid #333;
+}
+
+.middle {
+  grid-area: middle;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.middleLeft {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid #333;
+}
+
+.middleCenter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.middleRight {
+  width: 252px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-left: 1px solid #333;
+}
+
+.footer {
+  grid-area: footer;
+  display: flex;
+  gap: 12px;
+  padding: 4px 8px;
+  background: #151515;
+  border-top: 1px solid #333;
+  align-items: stretch;
+}
+
+.wheels {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+}
+
+.pitchGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.keyboardWrapper {
+  flex: 1;
+  min-width: 0;
+}

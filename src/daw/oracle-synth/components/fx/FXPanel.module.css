@@ -1,0 +1,55 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #7885cb;
+  text-transform: uppercase;
+}
+
+.addBtn {
+  background: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 3px;
+  color: #7885cb;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.addBtn:hover {
+  background: #333;
+}
+
+.routes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.empty {
+  color: #444;
+  font-size: 10px;
+  text-align: center;
+  padding: 20px 8px;
+  letter-spacing: 0.5px;
+}

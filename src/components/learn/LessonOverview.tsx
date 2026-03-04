@@ -95,7 +95,7 @@ export function LessonOverview({
 
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
-      <h2 className="text-3xl md:text-4xl font-semibold underline text-left ml-[10%]">
+      <h2 className="text-2xl md:text-3xl font-semibold text-left ml-[10%]" style={{ color: 'var(--color-text)' }}>
         {`${PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]} ${mode.charAt(0).toUpperCase() + mode.slice(1)}`}
       </h2>
       {videoId && (
@@ -113,18 +113,18 @@ export function LessonOverview({
         useContextNotes={false}
       />
       <section className="mb-6 flex flex-col items-center">
-        <p className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]">
+        <p className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]" style={{ color: 'var(--color-text)' }}>
           Notes: {scaleNoteLabels.join(', ')}
         </p>
 
         <div className="w-full max-w-4xl my-6">
           <div className="flex items-center gap-4">
-            <div className="h-px flex-1 bg-neutral-800" />
-            <h3 className="text-sm font-semibold uppercase tracking-widest text-neutral-300">
+            <div className="h-px flex-1" style={{ background: 'var(--color-border)' }} />
+            <h3 className="text-xs font-semibold uppercase" style={{ color: 'var(--color-text-dim)', letterSpacing: '1px' }}>
               Identify
             </h3>
-            <div className="h-px flex-1 bg-neutral-800" />
-            <p> Select the notes of {PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]} {mode.charAt(0).toUpperCase() + mode.slice(1)}</p>
+            <div className="h-px flex-1" style={{ background: 'var(--color-border)' }} />
+            <p style={{ color: 'var(--color-text-dim)' }}> Select the notes of {PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]} {mode.charAt(0).toUpperCase() + mode.slice(1)}</p>
           </div>
         </div>
 
@@ -141,7 +141,8 @@ export function LessonOverview({
           type="button"
           onClick={onStartLesson}
           disabled={!chordPressComplete}
-          className="rounded-full bg-emerald-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-60"
+          style={{ background: 'var(--color-accent)', color: '#191919' }}
         >
           Start Lesson
         </button>

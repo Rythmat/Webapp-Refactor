@@ -1,0 +1,25 @@
+.keyboard {
+  display: flex;
+  position: relative;
+  height: 100%;
+  user-select: none;
+  touch-action: none;
+}
+
+.keyWrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.blackKeyContainer {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.blackKeyContainer > * {
+  pointer-events: auto;
+}

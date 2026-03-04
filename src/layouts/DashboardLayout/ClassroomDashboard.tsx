@@ -1,4 +1,4 @@
-import { Suspense, useRef, useMemo } from 'react';
+import { Suspense, useEffect, useRef, useMemo, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import useLocalStorageState from 'use-local-storage-state';
 import { cn } from '@/components/utilities';
@@ -7,11 +7,10 @@ import { ClassroomSidebar } from './ClassroomSidebar';
 
 export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   const mainRef = useRef<HTMLDivElement>(null);
+  const { pathname } = useLocation();
   useProgressBootstrap();
 
-
   function useIdsFromPath() {
-  const { pathname } = useLocation();
     return useMemo(() => {
       const seg = pathname.split('/').filter(Boolean);
       // Expect: /classrooms/:classroomId[/collections/:collectionId[/lessons/:lessonId]]
@@ -34,26 +33,45 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
     'state:sidebar_collapsed',
     { defaultValue: false },
   );
+  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+
+  const isStudio = pathname.startsWith('/studio');
+
+  useEffect(() => {
+    if (isStudio) {
+      setIsSidebarCollapsed(true);
+    }
+  }, [isStudio, setIsSidebarCollapsed]);
 
   return (
-    <div className="flex min-h-screen w-screen flex-col">
+    <div className="flex h-screen w-screen flex-col">
       <div className="flex w-full flex-1">
-        <ClassroomSidebar
-          isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          view={view}
-          ids={ids}
+        <div
           className={cn(
-            'transition-all duration-300',
-            isSidebarCollapsed ? 'w-16' : 'w-64',
+            'relative shrink-0 transition-all duration-300',
+            isSidebarCollapsed ? 'w-20' : 'w-64',
           )}
-        />
+          onMouseEnter={() => { if (isSidebarCollapsed) setIsSidebarHovered(true); }}
+          onMouseLeave={() => setIsSidebarHovered(false)}
+        >
+          <ClassroomSidebar
+            isCollapsed={isSidebarCollapsed && !isSidebarHovered}
+            onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            view={view}
+            ids={ids}
+            className={cn(
+              'transition-all duration-300',
+              isSidebarCollapsed && !isSidebarHovered ? 'w-20' : 'w-64',
+              isSidebarCollapsed && isSidebarHovered && 'absolute inset-y-0 left-0 z-50 shadow-2xl',
+            )}
+          />
+        </div>
 
         <main
           ref={mainRef}
           className="flex w-size flex-1 pl-0"
         >
-          <div className="relative flex-1 rounded-xl bg-surface-box p-2">
+          <div className="relative flex-1 overflow-auto rounded-xl bg-surface-box p-2">
             <Suspense fallback={props.fallback}>
               <Outlet />
             </Suspense>

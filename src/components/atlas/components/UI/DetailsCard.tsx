@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { X, ChevronDown, Calendar, MapPin, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { useAppState, useAppDispatch } from '@/components/atlas/context/AppContext'
 import { CITIES, MUSIC_HISTORY, getUpstreamChain, getDownstreamChain, getEventCountryColor } from '@/components/atlas/data'
+import { mapGenreToCourse } from '@/components/atlas/utils/genreMapping'
 import type { HistoricalEvent } from '@/components/atlas/types'
 import type { UpstreamChainNode } from '@/components/atlas/data/eventConnections'
 
@@ -77,6 +79,33 @@ function CollapsibleInfluence({ label, count, children }: {
   )
 }
 
+function GenreBadge({ genre }: { genre: string }) {
+  const navigate = useNavigate()
+  const course = mapGenreToCourse(genre)
+
+  if (course) {
+    return (
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          navigate(`/learn?genre=${encodeURIComponent(course)}`)
+        }}
+        className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-teal-600/30 text-teal-300 text-xs rounded-full hover:bg-teal-500/40 hover:text-teal-200 transition-colors cursor-pointer"
+        title={`Explore ${course} in Learn`}
+      >
+        {genre}
+        <ArrowUpRight className="w-2.5 h-2.5 opacity-60" />
+      </button>
+    )
+  }
+
+  return (
+    <span className="px-2 py-0.5 bg-teal-600/30 text-teal-300 text-xs rounded-full">
+      {genre}
+    </span>
+  )
+}
+
 function EventList({
   events,
   expandedEvents,
@@ -105,10 +134,13 @@ function EventList({
         {events.map((event) => {
           const isExpanded = expandedEvents.has(event.id)
           return (
-            <button
+            <div
               key={event.id}
+              role="button"
+              tabIndex={0}
               onClick={() => onToggle(event.id)}
-              className={`w-full text-left p-2.5 rounded-lg transition-colors ${
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(event.id) } }}
+              className={`w-full text-left p-2.5 rounded-lg transition-colors cursor-pointer ${
                 isExpanded
                   ? 'bg-teal-600/15 border border-teal-500/30'
                   : 'bg-zinc-800/40 hover:bg-zinc-800/70 border border-transparent'
@@ -134,9 +166,7 @@ function EventList({
                   <>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {event.genre.map((g) => (
-                        <span key={g} className="px-2 py-0.5 bg-teal-600/30 text-teal-300 text-xs rounded-full">
-                          {g}
-                        </span>
+                        <GenreBadge key={g} genre={g} />
                       ))}
                     </div>
                     <p className="text-sm text-zinc-300 mt-2 leading-relaxed">{event.description}</p>
@@ -157,7 +187,7 @@ function EventList({
                   </>
                 )
               })()}
-            </button>
+            </div>
           )
         })}
       </div>
@@ -284,12 +314,7 @@ export function DetailsCard() {
               <p className="text-sm text-zinc-300 mt-3 leading-relaxed">{city.description}</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {city.genres.map((genre) => (
-                  <span
-                    key={genre}
-                    className="px-2.5 py-0.5 bg-teal-600/30 text-teal-300 text-sm rounded-full"
-                  >
-                    {genre}
-                  </span>
+                  <GenreBadge key={genre} genre={genre} />
                 ))}
               </div>
               <div className="mt-3 text-sm text-zinc-500">

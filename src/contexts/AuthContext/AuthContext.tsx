@@ -1,4 +1,4 @@
-import { createContext, useCallback, useMemo, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import useLocalStorageState from 'use-local-storage-state';
@@ -73,6 +73,17 @@ export const AuthContextProvider = ({
       identifierForm.playWelcomeAudio();
     }
   }, [continuePath, navigate]);
+
+  // Handle OAuth callback: read JWT from URL hash (#token=...)
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.startsWith('#token=')) {
+      const oauthToken = hash.slice(7);
+      setToken(oauthToken);
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      onAuthenticated();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const now = useNow({ live: true });
 

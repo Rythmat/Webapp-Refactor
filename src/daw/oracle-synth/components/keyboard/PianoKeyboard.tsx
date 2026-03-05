@@ -13,7 +13,18 @@ interface PianoKeyboardProps {
 
 // Semitone pattern: which notes in an octave are black keys
 const BLACK_KEY_PATTERN = [
-  false, true, false, true, false, false, true, false, true, false, true, false,
+  false,
+  true,
+  false,
+  true,
+  false,
+  false,
+  true,
+  false,
+  true,
+  false,
+  true,
+  false,
 ];
 
 // Black key offset positions (how far right from the white key, as fraction of white key width)
@@ -41,14 +52,14 @@ export const PianoKeyboard: React.FC<PianoKeyboardProps> = ({
     (note: number) => {
       onNoteOn(note, 0.8);
     },
-    [onNoteOn]
+    [onNoteOn],
   );
 
   const handleNoteOff = useCallback(
     (note: number) => {
       onNoteOff(note);
     },
-    [onNoteOff]
+    [onNoteOff],
   );
 
   // Collect white and black keys

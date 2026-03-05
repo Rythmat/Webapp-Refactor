@@ -30,10 +30,25 @@ interface StateSnapshot {
 }
 
 const SNAPSHOT_KEYS: (keyof StateSnapshot)[] = [
-  'oscillators', 'subOscillator', 'noise', 'filters', 'envelopes',
-  'lfos', 'modRoutes', 'voiceMode', 'voiceCount', 'glide', 'spread',
-  'masterVolume', 'fx', 'fxRoutes', 'routing', 'arp', 'presetName',
-  'pitchBendRange', 'bpm',
+  'oscillators',
+  'subOscillator',
+  'noise',
+  'filters',
+  'envelopes',
+  'lfos',
+  'modRoutes',
+  'voiceMode',
+  'voiceCount',
+  'glide',
+  'spread',
+  'masterVolume',
+  'fx',
+  'fxRoutes',
+  'routing',
+  'arp',
+  'presetName',
+  'pitchBendRange',
+  'bpm',
 ];
 
 const stateCache = new Map<string, StateSnapshot>();
@@ -43,13 +58,16 @@ function takeSnapshot(): StateSnapshot {
   const snap = {} as StateSnapshot;
   for (const key of SNAPSHOT_KEYS) {
     const val = (s as unknown as Record<string, unknown>)[key];
-    snap[key] = typeof val === 'object' && val !== null ? structuredClone(val) : val;
+    snap[key] =
+      typeof val === 'object' && val !== null ? structuredClone(val) : val;
   }
   return snap;
 }
 
 function restoreSnapshot(snap: StateSnapshot): void {
-  useSynthStore.setState(snap as unknown as Partial<ReturnType<typeof useSynthStore.getState>>);
+  useSynthStore.setState(
+    snap as unknown as Partial<ReturnType<typeof useSynthStore.getState>>,
+  );
 }
 
 // ── Hook ─────────────────────────────────────────────────────────────────
@@ -59,7 +77,10 @@ function restoreSnapshot(snap: StateSnapshot): void {
  * SynthEngine. When the track changes, the current store state is cached and
  * the new track's state is restored (or defaults are used for first visit).
  */
-export function useStoreBridge(engine: SynthEngine | null, trackId: string | null) {
+export function useStoreBridge(
+  engine: SynthEngine | null,
+  trackId: string | null,
+) {
   const prevTrackIdRef = useRef<string | null>(null);
 
   // Handle track switching: save outgoing state, restore incoming state

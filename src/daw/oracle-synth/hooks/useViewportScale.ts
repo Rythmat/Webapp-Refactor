@@ -13,7 +13,7 @@ export function useViewportScale(): ViewportTransform {
   const compute = useCallback((): ViewportTransform => {
     const scale = Math.min(
       window.innerWidth / DESIGN_WIDTH,
-      window.innerHeight / DESIGN_HEIGHT
+      window.innerHeight / DESIGN_HEIGHT,
     );
     const offsetX = (window.innerWidth - DESIGN_WIDTH * scale) / 2;
     const offsetY = (window.innerHeight - DESIGN_HEIGHT * scale) / 2;

@@ -37,7 +37,7 @@ export function DelayTaps({
   // Total time span for x-axis
   const totalTime = Math.max(time * 2, time * (taps.length + 0.5));
   const tToX = (t: number) => PADDING.left + (t / totalTime) * plotW;
-  const barWidth = Math.max(3, Math.min(12, plotW / (taps.length + 1) * 0.6));
+  const barWidth = Math.max(3, Math.min(12, (plotW / (taps.length + 1)) * 0.6));
 
   return (
     <svg
@@ -85,7 +85,9 @@ export function DelayTaps({
             width={barWidth}
             height={barH}
             rx={1.5}
-            fill={index === 0 ? 'rgba(255, 255, 255, 0.3)' : 'var(--color-accent)'}
+            fill={
+              index === 0 ? 'rgba(255, 255, 255, 0.3)' : 'var(--color-accent)'
+            }
             opacity={opacity}
           />
         );
@@ -110,7 +112,13 @@ export function DelayTaps({
       )}
 
       {/* Time labels */}
-      <text x={PADDING.left + 2} y={height - 2} fill="rgba(255,255,255,0.25)" fontSize={7} fontFamily="system-ui">
+      <text
+        x={PADDING.left + 2}
+        y={height - 2}
+        fill="rgba(255,255,255,0.25)"
+        fontSize={7}
+        fontFamily="system-ui"
+      >
         dry
       </text>
       {taps.length > 1 && (

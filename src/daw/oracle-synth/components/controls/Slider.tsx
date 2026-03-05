@@ -29,7 +29,7 @@ export const Slider: React.FC<SliderProps> = React.memo(
         updateFromPointer(e.clientY);
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [min, max, onChange]
+      [min, max, onChange],
     );
 
     const handlePointerMove = useCallback(
@@ -38,7 +38,7 @@ export const Slider: React.FC<SliderProps> = React.memo(
         updateFromPointer(e.clientY);
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [min, max, onChange]
+      [min, max, onChange],
     );
 
     const updateFromPointer = (clientY: number) => {
@@ -63,12 +63,9 @@ export const Slider: React.FC<SliderProps> = React.memo(
             className={styles.fill}
             style={{ height: `${fillHeight}%`, background: accent }}
           />
-          <div
-            className={styles.thumb}
-            style={{ bottom: `${fillHeight}%` }}
-          />
+          <div className={styles.thumb} style={{ bottom: `${fillHeight}%` }} />
         </div>
       </div>
     );
-  }
+  },
 );

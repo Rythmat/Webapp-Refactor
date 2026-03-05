@@ -29,6 +29,9 @@ export const progressLocalCache = {
   setSummary: (value: ProgressSummaryResponse) => writeJson(SUMMARY_KEY, value),
   getLesson: (lessonId: string, lessonVersion: number) =>
     readJson<LessonProgressResponse>(lessonKey(lessonId, lessonVersion)),
-  setLesson: (lessonId: string, lessonVersion: number, value: LessonProgressResponse) =>
-    writeJson(lessonKey(lessonId, lessonVersion), value),
+  setLesson: (
+    lessonId: string,
+    lessonVersion: number,
+    value: LessonProgressResponse,
+  ) => writeJson(lessonKey(lessonId, lessonVersion), value),
 };

@@ -8,13 +8,53 @@ const STAGES = 4;
 
 /** Note divisions in beats for BPM-synced rate mode */
 export const RATE_DIVISIONS = [
-  8, 6, 4, 3, 2, 1.5, 1, 3/4, 1/2, 3/8, 1/3, 5/16,
-  1/4, 3/16, 1/6, 1/8, 1/12, 1/16, 1/24, 1/32, 1/48, 1/64,
+  8,
+  6,
+  4,
+  3,
+  2,
+  1.5,
+  1,
+  3 / 4,
+  1 / 2,
+  3 / 8,
+  1 / 3,
+  5 / 16,
+  1 / 4,
+  3 / 16,
+  1 / 6,
+  1 / 8,
+  1 / 12,
+  1 / 16,
+  1 / 24,
+  1 / 32,
+  1 / 48,
+  1 / 64,
 ];
 
 export const RATE_LABELS = [
-  '8', '6', '4', '3', '2', '1.5', '1', '3/4', '1/2', '3/8', '1/3', '5/16',
-  '1/4', '3/16', '1/6', '1/8', '1/12', '1/16', '1/24', '1/32', '1/48', '1/64',
+  '8',
+  '6',
+  '4',
+  '3',
+  '2',
+  '1.5',
+  '1',
+  '3/4',
+  '1/2',
+  '3/8',
+  '1/3',
+  '5/16',
+  '1/4',
+  '3/16',
+  '1/6',
+  '1/8',
+  '1/12',
+  '1/16',
+  '1/24',
+  '1/32',
+  '1/48',
+  '1/64',
 ];
 
 export class PhaserPedal implements PedalProcessor {
@@ -29,9 +69,9 @@ export class PhaserPedal implements PedalProcessor {
   private dryGain: GainNode;
   private wetGain: GainNode;
   private enabled = true;
-  private rateMode = 0;   // 0 = Hz, 1 = Rate (BPM-synced)
+  private rateMode = 0; // 0 = Hz, 1 = Rate (BPM-synced)
   private bpm = 120;
-  private rateIdx = 10;   // default to 1/3
+  private rateIdx = 10; // default to 1/3
 
   constructor(ctx: AudioContext) {
     this.inputNode = ctx.createGain();
@@ -77,8 +117,12 @@ export class PhaserPedal implements PedalProcessor {
     this.wireEnabled();
   }
 
-  getInputNode(): AudioNode { return this.inputNode; }
-  getOutputNode(): AudioNode { return this.outputNode; }
+  getInputNode(): AudioNode {
+    return this.inputNode;
+  }
+  getOutputNode(): AudioNode {
+    return this.outputNode;
+  }
 
   setEnabled(enabled: boolean): void {
     if (enabled === this.enabled) return;
@@ -119,7 +163,11 @@ export class PhaserPedal implements PedalProcessor {
   }
 
   dispose(): void {
-    try { this.lfo.stop(); } catch { /* already stopped */ }
+    try {
+      this.lfo.stop();
+    } catch {
+      /* already stopped */
+    }
     this.inputNode.disconnect();
     this.outputNode.disconnect();
     this.bypassNode.disconnect();

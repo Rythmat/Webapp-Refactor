@@ -27,7 +27,7 @@ export async function transcodeToMp3(blob: Blob, kbps = 128): Promise<Blob> {
   const left = audioBuffer.getChannelData(0);
   const right = numChannels > 1 ? audioBuffer.getChannelData(1) : null;
 
-  const { Mp3Encoder } = await import("lamejs");
+  const { Mp3Encoder } = await import('lamejs');
   const encoder = new Mp3Encoder(numChannels, sampleRate, kbps);
 
   const blockSize = 1152;
@@ -45,12 +45,12 @@ export async function transcodeToMp3(blob: Blob, kbps = 128): Promise<Blob> {
     }
 
     if (mp3buf.length > 0) {
-        mp3Parts.push(
-          (mp3buf.buffer as ArrayBuffer).slice(
-            mp3buf.byteOffset,
-            mp3buf.byteOffset + mp3buf.byteLength
-          )
-        );
+      mp3Parts.push(
+        (mp3buf.buffer as ArrayBuffer).slice(
+          mp3buf.byteOffset,
+          mp3buf.byteOffset + mp3buf.byteLength,
+        ),
+      );
     }
   }
 
@@ -59,11 +59,11 @@ export async function transcodeToMp3(blob: Blob, kbps = 128): Promise<Blob> {
     mp3Parts.push(
       (end.buffer as ArrayBuffer).slice(
         end.byteOffset,
-        end.byteOffset + end.byteLength
-      )
+        end.byteOffset + end.byteLength,
+      ),
     );
   }
 
   ctx.close?.();
-  return new Blob(mp3Parts, { type: "audio/mpeg" });
+  return new Blob(mp3Parts, { type: 'audio/mpeg' });
 }

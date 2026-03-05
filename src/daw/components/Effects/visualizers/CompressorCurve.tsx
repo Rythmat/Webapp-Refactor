@@ -14,7 +14,12 @@ const DB_MIN = -60;
 const DB_MAX = 0;
 const PADDING = { top: 6, right: 6, bottom: 14, left: 20 };
 
-function computeOutputDb(inputDb: number, threshold: number, ratio: number, knee: number): number {
+function computeOutputDb(
+  inputDb: number,
+  threshold: number,
+  ratio: number,
+  knee: number,
+): number {
   const halfKnee = knee / 2;
   if (inputDb <= threshold - halfKnee) {
     // Below knee — 1:1 pass-through
@@ -39,8 +44,10 @@ export function CompressorCurve({
   const plotW = width - PADDING.left - PADDING.right;
   const plotH = height - PADDING.top - PADDING.bottom;
 
-  const dbToX = (db: number) => PADDING.left + ((db - DB_MIN) / (DB_MAX - DB_MIN)) * plotW;
-  const dbToY = (db: number) => PADDING.top + (1 - (db - DB_MIN) / (DB_MAX - DB_MIN)) * plotH;
+  const dbToX = (db: number) =>
+    PADDING.left + ((db - DB_MIN) / (DB_MAX - DB_MIN)) * plotW;
+  const dbToY = (db: number) =>
+    PADDING.top + (1 - (db - DB_MIN) / (DB_MAX - DB_MIN)) * plotH;
 
   // Build the transfer curve path
   const steps = 80;
@@ -50,7 +57,9 @@ export function CompressorCurve({
     const outputDb = computeOutputDb(inputDb, threshold, ratio, knee);
     const clampedOutput = Math.max(DB_MIN, Math.min(DB_MAX, outputDb));
     const cmd = i === 0 ? 'M' : 'L';
-    points.push(`${cmd}${dbToX(inputDb).toFixed(1)} ${dbToY(clampedOutput).toFixed(1)}`);
+    points.push(
+      `${cmd}${dbToX(inputDb).toFixed(1)} ${dbToY(clampedOutput).toFixed(1)}`,
+    );
   }
   const curvePath = points.join(' ');
 
@@ -130,7 +139,13 @@ export function CompressorCurve({
       />
 
       {/* Axis labels */}
-      <text x={PADDING.left} y={height - 2} fill="rgba(255,255,255,0.25)" fontSize={7} fontFamily="system-ui">
+      <text
+        x={PADDING.left}
+        y={height - 2}
+        fill="rgba(255,255,255,0.25)"
+        fontSize={7}
+        fontFamily="system-ui"
+      >
         {DB_MIN}
       </text>
       <text

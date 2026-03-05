@@ -40,7 +40,7 @@ const KEY_MAP: Record<string, number> = {
 export function useKeyboardShortcuts(
   engine: React.RefObject<SynthEngine | null>,
   onNoteOn?: (note: number) => void,
-  onNoteOff?: (note: number) => void
+  onNoteOff?: (note: number) => void,
 ) {
   const activeKeys = useRef<Set<string>>(new Set());
 

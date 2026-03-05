@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef } from 'react';
 import {
   getPianoSamplerVolume,
   releaseAllPianoNotes,
@@ -6,7 +6,7 @@ import {
   triggerPianoAttack,
   triggerPianoAttackRelease,
   triggerPianoRelease,
-} from "@/audio/pianoSampler";
+} from '@/audio/pianoSampler';
 
 type SynthProxy = {
   triggerAttack: (note: string, time?: number, velocity?: number) => void;

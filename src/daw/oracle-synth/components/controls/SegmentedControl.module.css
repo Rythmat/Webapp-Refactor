@@ -29,7 +29,9 @@
   font-size: 10px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  transition: background 0.1s, color 0.1s;
+  transition:
+    background 0.1s,
+    color 0.1s;
 }
 
 .segment:last-child {

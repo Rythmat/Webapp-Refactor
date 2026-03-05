@@ -5,7 +5,7 @@ export interface SubOscillatorSlice {
   subOscillator: SubOscillatorParams;
   setSubParam: <K extends keyof SubOscillatorParams>(
     param: K,
-    value: SubOscillatorParams[K]
+    value: SubOscillatorParams[K],
   ) => void;
 }
 

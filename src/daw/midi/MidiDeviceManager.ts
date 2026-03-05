@@ -8,6 +8,11 @@ export interface MidiDeviceInfo {
   type: 'input' | 'output';
 }
 
+interface MidiControlChangeEvent {
+  controller: { number: number };
+  rawValue?: number;
+}
+
 // ── Manager ────────────────────────────────────────────────────────────
 
 /**
@@ -30,16 +35,11 @@ export class MidiDeviceManager {
       try {
         await WebMidi.enable({ sysex: false });
         this.initialized = true;
-        console.log(`[MIDI] Enabled — ${WebMidi.inputs.length} input(s), ${WebMidi.outputs.length} output(s)`);
-        for (const input of WebMidi.inputs) {
-          console.log(`[MIDI]   Input: "${input.name}" (${input.id})`);
-        }
 
         WebMidi.addListener('connected', () => this.notifyChange());
         WebMidi.addListener('disconnected', () => this.notifyChange());
         return true;
-      } catch (err) {
-        console.warn('[MIDI] Not available:', err);
+      } catch {
         return false;
       } finally {
         this.initPromise = null;
@@ -74,7 +74,9 @@ export class MidiDeviceManager {
   onDeviceChange(callback: () => void): () => void {
     this.onChangeCallbacks.push(callback);
     return () => {
-      this.onChangeCallbacks = this.onChangeCallbacks.filter((c) => c !== callback);
+      this.onChangeCallbacks = this.onChangeCallbacks.filter(
+        (c) => c !== callback,
+      );
     };
   }
 
@@ -94,23 +96,16 @@ export class MidiDeviceManager {
   ): () => void {
     const input = WebMidi.getInputById(inputId);
     if (!input) {
-      console.warn('[MIDI] Input not found:', inputId);
       return () => {};
     }
-
-    console.log(`[MIDI] Subscribed to: "${input.name}"`);
-
-    let rawCount = 0;
     const handleNoteOn = (e: { note: { number: number; attack: number } }) => {
-      if (rawCount++ < 3) console.log(`[MIDI] Raw noteOn: note=${e.note.number} attack=${e.note.attack}`);
       onNoteOn(e.note.number, Math.round(e.note.attack * 127));
     };
     const handleNoteOff = (e: { note: { number: number } }) => {
       onNoteOff(e.note.number);
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleCC = onCC
-      ? (e: any) => {
+      ? (e: MidiControlChangeEvent) => {
           onCC(e.controller.number, e.rawValue ?? 0);
         }
       : null;

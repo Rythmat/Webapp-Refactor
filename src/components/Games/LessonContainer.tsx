@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
-import { ActivityFlow } from "./ActivityFlow";
-import { usePrismMode } from "@/hooks/data/prism/usePrismMode";
-import { HeaderBar } from "../ClassroomLayout/HeaderBar";
-import { PrismModeSlug } from "@/hooks/data";
-import { urlParamToKeyLabel } from "@/lib/musicKeyUrl";
+import { useMemo, useState } from 'react';
+import { PrismModeSlug } from '@/hooks/data';
+import { usePrismMode } from '@/hooks/data/prism/usePrismMode';
+import { urlParamToKeyLabel } from '@/lib/musicKeyUrl';
+import { HeaderBar } from '../ClassroomLayout/HeaderBar';
+import { ActivityFlow } from './ActivityFlow';
 import '@/components/learn/learn.css';
 
 type LessonContainerProps = {
@@ -18,26 +18,26 @@ const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
 const BASE_C4 = 60;
 const KEY_SEMITONES: Record<string, number> = {
   C: 0,
-  "C#": 1,
+  'C#': 1,
   DB: 1,
   D: 2,
-  "D#": 3,
+  'D#': 3,
   EB: 3,
   E: 4,
   FB: 4,
-  "E#": 5,
+  'E#': 5,
   F: 5,
-  "F#": 6,
+  'F#': 6,
   GB: 6,
   G: 7,
-  "G#": 8,
+  'G#': 8,
   AB: 8,
   A: 9,
-  "A#": 10,
+  'A#': 10,
   BB: 10,
   B: 11,
   CB: 11,
-  "B#": 0,
+  'B#': 0,
 };
 
 const normalizeKeyLabel = (input?: string) => {
@@ -46,7 +46,7 @@ const normalizeKeyLabel = (input?: string) => {
 
 const resolveKeyOption = (input?: string): KeyOption => {
   const normalized = normalizeKeyLabel(input);
-  const lookupKey = normalized.replace("b", "B");
+  const lookupKey = normalized.replace('b', 'B');
   const semitone = KEY_SEMITONES[lookupKey] ?? 0;
   return {
     label: normalized,
@@ -58,7 +58,7 @@ const normalizeSteps = (steps?: number[]) => {
   if (!steps || steps.length === 0) return DEFAULT_INTERVALS;
   const unique = new Set<number>();
   steps.forEach((s) => {
-    if (typeof s === "number" && Number.isFinite(s)) {
+    if (typeof s === 'number' && Number.isFinite(s)) {
       unique.add(Math.round(s));
     }
   });
@@ -70,8 +70,12 @@ const normalizeSteps = (steps?: number[]) => {
 const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
   normalizeSteps(steps).map((interval) => rootMidi + interval);
 
-export const LessonContainer = ({ modeSlug, rootKey, startAtActivityKey }: LessonContainerProps) => {
-  const [label, setLabel] = useState(["", ""]);
+export const LessonContainer = ({
+  modeSlug,
+  rootKey,
+  startAtActivityKey,
+}: LessonContainerProps) => {
+  const [label, setLabel] = useState(['', '']);
   const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
   const modeTitle = modeSlug.charAt(0).toUpperCase() + modeSlug.slice(1);
 
@@ -83,26 +87,47 @@ export const LessonContainer = ({ modeSlug, rootKey, startAtActivityKey }: Lesso
   );
 
   return (
-    <div className="learn-root min-h-screen w-full flex flex-col" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
+    <div
+      className="learn-root flex min-h-screen w-full flex-col"
+      style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}
+    >
       <HeaderBar title="Lesson" />
       <div
-        className="px-4 py-3 flex items-center justify-between glass-panel-sm"
-        style={{ borderBottom: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.03)' }}
+        className="glass-panel-sm flex items-center justify-between px-4 py-3"
+        style={{
+          borderBottom: '1px solid var(--color-border)',
+          background: 'rgba(255,255,255,0.03)',
+        }}
       >
-        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>{label[1]}</div>
-        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>{label[0]}</div>
         <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
-          Playing flow for <span className="font-semibold" style={{ color: 'var(--color-text)' }}>{keyOption.label}</span>{" "}
-          <span className="font-semibold" style={{ color: 'var(--color-text)' }}>{modeTitle}</span>{" "}
+          {label[1]}
+        </div>
+        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
+          {label[0]}
+        </div>
+        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
+          Playing flow for{' '}
+          <span
+            className="font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
+            {keyOption.label}
+          </span>{' '}
+          <span
+            className="font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
+            {modeTitle}
+          </span>{' '}
         </div>
       </div>
-      <div className="p-3 sm:p-4 flex-1">
+      <div className="flex-1 p-3 sm:p-4">
         <ActivityFlow
-          scaleMidis={scaleMidis}
           labelChange={(newLabel) => setLabel(newLabel)}
+          mode={modeSlug}
           rootKey={keyOption.label}
           rootMidi={keyOption.midi}
-          mode= {modeSlug}
+          scaleMidis={scaleMidis}
           startAtActivityKey={startAtActivityKey}
         />
       </div>

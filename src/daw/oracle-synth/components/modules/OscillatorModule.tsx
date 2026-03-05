@@ -99,7 +99,11 @@ export const OscillatorModule: React.FC<OscillatorModuleProps> = React.memo(
             defaultValue={0}
             accent={accent}
             formatValue={(v) =>
-              v === 0 ? 'C' : v < 0 ? `L${Math.round(-v * 100)}` : `R${Math.round(v * 100)}`
+              v === 0
+                ? 'C'
+                : v < 0
+                  ? `L${Math.round(-v * 100)}`
+                  : `R${Math.round(v * 100)}`
             }
             onChange={(v) => setParam(index, 'pan', v)}
           />
@@ -153,5 +157,5 @@ export const OscillatorModule: React.FC<OscillatorModuleProps> = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );

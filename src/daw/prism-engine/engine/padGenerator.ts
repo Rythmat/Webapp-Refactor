@@ -1,5 +1,8 @@
-import type { MidiNoteEvent, MidiSequence } from '../types';
-import { InstrumentChannel } from '../types';
+import {
+  InstrumentChannel,
+  type MidiNoteEvent,
+  type MidiSequence,
+} from '../types';
 import { PAD_PATTERNS } from '../data/padPatterns';
 import { swingRhythm } from './rhythmUtils';
 

@@ -1,33 +1,33 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import * as Tone from "tone";
-import { PianoKeyboard } from "@/components/PianoKeyboard";
-import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
-import { useMidiInput, type MidiNoteEvent } from "@/hooks/music/useMidiInput";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import * as Tone from 'tone';
 import {
   releaseAllPianoNotes,
   startPianoSampler,
   triggerPianoAttack,
   triggerPianoRelease,
-} from "@/audio/pianoSampler";
-import PianoRoll, { NoteEvent, pitchNameToMidi } from "./PianoRollPlay";
+} from '@/audio/pianoSampler';
+import { PianoKeyboard } from '@/components/PianoKeyboard';
+import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import { useMidiInput, type MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import PianoRoll, { NoteEvent, pitchNameToMidi } from './PianoRollPlay';
 
 const DEFAULT_EVENTS: NoteEvent[] = [
-  { id: "e1", pitchName: "C3", startTicks: 0, durationTicks: 1920 },
-  { id: "e2", pitchName: "E3", startTicks: 0, durationTicks: 1920 },
-  { id: "e3", pitchName: "G3", startTicks: 0, durationTicks: 1920 },
-  { id: "e4", pitchName: "B3", startTicks: 0, durationTicks: 1920 },
-  { id: "e5", pitchName: "C3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e6", pitchName: "E3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e7", pitchName: "G3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e8", pitchName: "A#3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e9", pitchName: "C#3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e10", pitchName: "F3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e11", pitchName: "G#3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e12", pitchName: "C4", startTicks: 3840, durationTicks: 1920 },
-  { id: "e13", pitchName: "C#3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e14", pitchName: "F3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e15", pitchName: "G#3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e16", pitchName: "B3", startTicks: 5760, durationTicks: 1920 },
+  { id: 'e1', pitchName: 'C3', startTicks: 0, durationTicks: 1920 },
+  { id: 'e2', pitchName: 'E3', startTicks: 0, durationTicks: 1920 },
+  { id: 'e3', pitchName: 'G3', startTicks: 0, durationTicks: 1920 },
+  { id: 'e4', pitchName: 'B3', startTicks: 0, durationTicks: 1920 },
+  { id: 'e5', pitchName: 'C3', startTicks: 1920, durationTicks: 1920 },
+  { id: 'e6', pitchName: 'E3', startTicks: 1920, durationTicks: 1920 },
+  { id: 'e7', pitchName: 'G3', startTicks: 1920, durationTicks: 1920 },
+  { id: 'e8', pitchName: 'A#3', startTicks: 1920, durationTicks: 1920 },
+  { id: 'e9', pitchName: 'C#3', startTicks: 3840, durationTicks: 1920 },
+  { id: 'e10', pitchName: 'F3', startTicks: 3840, durationTicks: 1920 },
+  { id: 'e11', pitchName: 'G#3', startTicks: 3840, durationTicks: 1920 },
+  { id: 'e12', pitchName: 'C4', startTicks: 3840, durationTicks: 1920 },
+  { id: 'e13', pitchName: 'C#3', startTicks: 5760, durationTicks: 1920 },
+  { id: 'e14', pitchName: 'F3', startTicks: 5760, durationTicks: 1920 },
+  { id: 'e15', pitchName: 'G#3', startTicks: 5760, durationTicks: 1920 },
+  { id: 'e16', pitchName: 'B3', startTicks: 5760, durationTicks: 1920 },
 ];
 
 const TICKS_PER_QUARTER = 480;
@@ -41,7 +41,7 @@ type PlayAlongProps = {
   activityColor?: string;
   isActive?: boolean;
   startSignal?: number;
-  startMessage?:string;
+  startMessage?: string;
 };
 
 type NotePerformance = {
@@ -52,7 +52,7 @@ type NotePerformance = {
 export const PlayAlong = ({
   events,
   onActivityCompleteChange,
-  activityColor = "#60a5fa",
+  activityColor = '#60a5fa',
   isActive = true,
   startSignal = 0,
 }: PlayAlongProps) => {
@@ -71,20 +71,24 @@ export const PlayAlong = ({
   const wasPlayingRef = useRef(false);
   const activeMidiSetRef = useRef(new Set<number>());
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
-  const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
+  const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<
+    PlaybackEvent[]
+  >([]);
   const [currentTick, setCurrentTick] = useState(-COUNT_IN_TICKS);
-  const [notePerformance, setNotePerformance] = useState<Record<string, NotePerformance>>({});
+  const [notePerformance, setNotePerformance] = useState<
+    Record<string, NotePerformance>
+  >({});
   const [playSessionId, setPlaySessionId] = useState(0);
   const lastCompletionShownRef = useRef(false);
   const lastMetronomeBeatRef = useRef<number | null>(null);
   const lastMetronomeClickAtRef = useRef<number>(-1);
   const hasStartedAudioContextRef = useRef(false);
   const firstMetronomePlayer = useMemo(
-    () => new Tone.Player("/sound/firstMetronomeClick.mp3").toDestination(),
+    () => new Tone.Player('/sound/firstMetronomeClick.mp3').toDestination(),
     [],
   );
   const metronomePlayer = useMemo(
-    () => new Tone.Player("/sound/metronomeClick.mp3").toDestination(),
+    () => new Tone.Player('/sound/metronomeClick.mp3').toDestination(),
     [],
   );
 
@@ -102,7 +106,7 @@ export const PlayAlong = ({
       await startPianoSampler();
       hasStartedAudioContextRef.current = true;
     } catch (error) {
-      console.warn("Failed to start Tone.js audio context", error);
+      console.warn('Failed to start Tone.js audio context', error);
     }
   }, []);
 
@@ -111,7 +115,7 @@ export const PlayAlong = ({
       for (const p of [firstMetronomePlayer, metronomePlayer]) {
         try {
           // Tone.Source has `state` in many versions ("started"/"stopped")
-          if ((p as any).state === "started") {
+          if ((p as any).state === 'started') {
             p.stop();
           }
         } catch {}
@@ -147,16 +151,19 @@ export const PlayAlong = ({
 
   const playMetronome = useCallback(
     (isDownbeat: boolean) => {
-      if (Tone.getContext().state !== "running") return;
+      if (Tone.getContext().state !== 'running') return;
       const player = isDownbeat ? firstMetronomePlayer : metronomePlayer;
       if (!player.loaded) return;
       const now = Tone.now();
       // Guard against duplicate same-tick starts (can happen around rerenders/activity transitions).
-      if (lastMetronomeClickAtRef.current >= 0 && now - lastMetronomeClickAtRef.current < 0.01) {
+      if (
+        lastMetronomeClickAtRef.current >= 0 &&
+        now - lastMetronomeClickAtRef.current < 0.01
+      ) {
         return;
       }
       lastMetronomeClickAtRef.current = now;
-      if ((player as any).state === "started") {
+      if ((player as any).state === 'started') {
         try {
           player.stop(now);
         } catch {}
@@ -194,10 +201,10 @@ export const PlayAlong = ({
     const map = new Map<number, string>();
     resolvedEvents.forEach((event) => {
       const midi =
-        typeof event.midi === "number"
+        typeof event.midi === 'number'
           ? event.midi
           : pitchNameToMidi(event.pitchName);
-      if (typeof midi === "number" && !map.has(midi)) {
+      if (typeof midi === 'number' && !map.has(midi)) {
         map.set(midi, event.color ?? activityColor);
       }
     });
@@ -209,16 +216,15 @@ export const PlayAlong = ({
     return Math.max(1, Math.ceil(maxEventEndTick / TICKS_PER_BAR));
   }, [maxEventEndTick]);
 
-
   const handleKeyboardNoteOn = useCallback(
     (midi: number) => {
-      let color = noteColorByMidi.get(midi) ?? "#60a5fa";
+      const color = noteColorByMidi.get(midi) ?? '#60a5fa';
       const id = `keyboard-${midi}`;
       setKeyboardPlayingNotes((prev) => [
         ...prev.filter((event) => event.midi !== midi),
         {
           id,
-          type: "note",
+          type: 'note',
           midi,
           time: Date.now(),
           duration: Number.POSITIVE_INFINITY,
@@ -227,7 +233,7 @@ export const PlayAlong = ({
         },
       ]);
     },
-    [noteColorByMidi,],
+    [noteColorByMidi],
   );
 
   const handleKeyboardNoteOff = useCallback((midi: number) => {
@@ -236,13 +242,8 @@ export const PlayAlong = ({
     );
   }, []);
 
-
-
-
-
-
-
-  const showInTimeCompletion = !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
+  const showInTimeCompletion =
+    !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
 
   const getActivationWindow = useCallback((note: NoteEvent) => {
     const shift = note.durationTicks * ACTIVATION_WINDOW_SHIFT_RATIO;
@@ -254,17 +255,17 @@ export const PlayAlong = ({
 
   // Updates the note performance record for the appropriate event, given the incoming midi signal, the current time tick, and a boolean for if the signal is on or off
   const parsePerformance = useCallback(
-    (midi: number, tick: number ,onSignal: boolean) => {
-      if(onSignal){
+    (midi: number, tick: number, onSignal: boolean) => {
+      if (onSignal) {
         const note = resolvedEvents.find(
-        (note) =>
-          pitchNameToMidi(note.pitchName) === midi &&
-          tick >= getActivationWindow(note).start &&
-          tick < getActivationWindow(note).end
+          (note) =>
+            pitchNameToMidi(note.pitchName) === midi &&
+            tick >= getActivationWindow(note).start &&
+            tick < getActivationWindow(note).end,
         );
         if (note == null) return;
         const normalizedStartTick = Math.max(tick, note.startTicks);
-        setNotePerformance(prev => {
+        setNotePerformance((prev) => {
           const existing = prev[note.id];
           if (existing && existing.startTick != null) {
             return prev;
@@ -278,8 +279,8 @@ export const PlayAlong = ({
             },
           };
         });
-      }else {
-        setNotePerformance(prev => {
+      } else {
+        setNotePerformance((prev) => {
           for (const note of resolvedEvents) {
             if (pitchNameToMidi(note.pitchName) !== midi) continue;
 
@@ -299,9 +300,8 @@ export const PlayAlong = ({
           return prev;
         });
       }
-
     },
-    [resolvedEvents, getActivationWindow]
+    [resolvedEvents, getActivationWindow],
   );
 
   const handleMidiNoteOff = useCallback(
@@ -316,23 +316,29 @@ export const PlayAlong = ({
         activeMidiSetRef.current.delete(midi);
         setActiveMidis([...activeMidiSetRef.current]);
 
-        const noteName = Tone.Frequency(midi, "midi").toNote();
+        const noteName = Tone.Frequency(midi, 'midi').toNote();
         triggerSynthRelease(noteName);
       }
 
       handleKeyboardNoteOff(midi);
-      parsePerformance(event.number,currentTickRef.current,false);
+      parsePerformance(event.number, currentTickRef.current, false);
     },
-    [isActive, isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff, parsePerformance]
+    [
+      isActive,
+      isPlaying,
+      startToneContext,
+      triggerSynthRelease,
+      handleKeyboardNoteOff,
+      parsePerformance,
+    ],
   );
-
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
       if (!isActive) return;
       void startPianoSampler();
       const midi = event.number;
-      if(event.velocity == 0){
+      if (event.velocity == 0) {
         handleMidiNoteOff(event);
         return;
       }
@@ -340,13 +346,19 @@ export const PlayAlong = ({
         activeMidiSetRef.current.add(midi);
         setActiveMidis([...activeMidiSetRef.current]);
 
-        const noteName = Tone.Frequency(midi, "midi").toNote();
+        const noteName = Tone.Frequency(midi, 'midi').toNote();
         triggerSynthAttack(noteName, event.velocity);
       }
       handleKeyboardNoteOn(midi);
-      parsePerformance(event.number, currentTickRef.current,true);
+      parsePerformance(event.number, currentTickRef.current, true);
     },
-    [handleMidiNoteOff, isActive, triggerSynthAttack,handleKeyboardNoteOn, parsePerformance]
+    [
+      handleMidiNoteOff,
+      isActive,
+      triggerSynthAttack,
+      handleKeyboardNoteOn,
+      parsePerformance,
+    ],
   );
 
   const onMidiNoteOn = useCallback(
@@ -382,8 +394,6 @@ export const PlayAlong = ({
     };
   }, [isActive, startListening, stopListening]);
 
- 
-
   const performanceMeta = useMemo(() => {
     const meta: Record<string, { startTick: number; endTick?: number }> = {};
     Object.entries(notePerformance).forEach(([id, perf]) => {
@@ -395,7 +405,6 @@ export const PlayAlong = ({
     });
     return meta;
   }, [notePerformance]);
-
 
   useEffect(() => {
     const wasShown = lastCompletionShownRef.current;
@@ -449,34 +458,39 @@ export const PlayAlong = ({
   return (
     <div className="flex flex-col gap-4">
       <div className="relative">
-        <div className="rounded-xl p-4 transition duration-300 glass-panel" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)' }}>
+        <div
+          className="glass-panel rounded-xl p-4 transition duration-300"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid var(--color-border)',
+          }}
+        >
           <PianoRoll
             key={playSessionId}
-            events={resolvedEvents}
+            inTime
+            activeMidis={activeMidis}
             bars={requiredBars}
             beatsPerBar={4}
-            subdivision={1}
-            rowHeight={28 * 18}
-            inTime
-            playSpeed={80}
+            events={resolvedEvents}
             isPlaying={isPlaying}
-            onPlayingChange={setIsPlaying}
-            activeMidis={activeMidis}
             performanceMeta={performanceMeta}
+            playSpeed={80}
+            rowHeight={28 * 18}
+            subdivision={1}
+            onPlayingChange={setIsPlaying}
             onTickChange={setCurrentTick}
           />
           <PianoKeyboard
-          className="mx-auto"
-          startC={2}
-          endC={6}
-          playingNotes={keyboardPlayingNotes}
-          activeWhiteKeyColor={activityColor}
-          activeBlackKeyColor={activityColor}
-          showOctaveStart
+            showOctaveStart
+            activeBlackKeyColor={activityColor}
+            activeWhiteKeyColor={activityColor}
+            className="mx-auto"
+            endC={6}
+            playingNotes={keyboardPlayingNotes}
+            startC={2}
           />
         </div>
       </div>
-
     </div>
   );
 };

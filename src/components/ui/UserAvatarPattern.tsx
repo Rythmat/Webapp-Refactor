@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { HexagonPattern } from './HexagonPattern';
-import type { PatternCoord } from './HexagonPattern';
+import { HexagonPattern, type PatternCoord } from './HexagonPattern';
 
 interface UserAvatarPatternProps {
   userName: string;
@@ -38,8 +37,8 @@ function generateColors(userName: string): string[] {
     // Use simple hex arithmetic off the username hash, then clamp brightness up
     const raw = (seed + step * (i + 1)) & 0xffffff;
     const boosted =
-      (((raw >> 16) & 0xff) | 0x40) << 16 |
-      (((raw >> 8) & 0xff) | 0x30) << 8 |
+      ((((raw >> 16) & 0xff) | 0x40) << 16) |
+      ((((raw >> 8) & 0xff) | 0x30) << 8) |
       ((raw & 0xff) | 0x30);
     colors.push(toHexColor(boosted));
   }

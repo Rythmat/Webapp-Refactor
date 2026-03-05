@@ -9,7 +9,9 @@ interface ContainerTransform {
   offsetY: number;
 }
 
-export function useContainerScale(ref: RefObject<HTMLDivElement | null>): ContainerTransform {
+export function useContainerScale(
+  ref: RefObject<HTMLDivElement | null>,
+): ContainerTransform {
   const [transform, setTransform] = useState<ContainerTransform>({
     scale: 0.5,
     offsetX: 0,

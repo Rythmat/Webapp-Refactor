@@ -18,18 +18,24 @@ function fft(re: Float64Array, im: Float64Array, invert: boolean): void {
     for (; j & bit; bit >>= 1) j ^= bit;
     j ^= bit;
     if (i < j) {
-      let tmp = re[i]; re[i] = re[j]; re[j] = tmp;
-      tmp = im[i]; im[i] = im[j]; im[j] = tmp;
+      let tmp = re[i];
+      re[i] = re[j];
+      re[j] = tmp;
+      tmp = im[i];
+      im[i] = im[j];
+      im[j] = tmp;
     }
   }
   for (let len = 2; len <= n; len <<= 1) {
-    const ang = (2 * Math.PI / len) * (invert ? -1 : 1);
+    const ang = ((2 * Math.PI) / len) * (invert ? -1 : 1);
     const wRe = Math.cos(ang);
     const wIm = Math.sin(ang);
     for (let i = 0; i < n; i += len) {
-      let curRe = 1, curIm = 0;
+      let curRe = 1,
+        curIm = 0;
       for (let j = 0; j < len / 2; j++) {
-        const uRe = re[i + j], uIm = im[i + j];
+        const uRe = re[i + j],
+          uIm = im[i + j];
         const vRe = re[i + j + len / 2] * curRe - im[i + j + len / 2] * curIm;
         const vIm = re[i + j + len / 2] * curIm + im[i + j + len / 2] * curRe;
         re[i + j] = uRe + vRe;
@@ -43,7 +49,10 @@ function fft(re: Float64Array, im: Float64Array, invert: boolean): void {
     }
   }
   if (invert) {
-    for (let i = 0; i < n; i++) { re[i] /= n; im[i] /= n; }
+    for (let i = 0; i < n; i++) {
+      re[i] /= n;
+      im[i] /= n;
+    }
   }
 }
 
@@ -96,7 +105,10 @@ function smbPitchShift(
 
   for (let i = 0; i < input.length; i++) {
     inFifo[rover] = input[i];
-    output[i] = outFifo[rover - (fftSize - stepSize) >= 0 ? rover - (fftSize - stepSize) : 0];
+    output[i] =
+      outFifo[
+        rover - (fftSize - stepSize) >= 0 ? rover - (fftSize - stepSize) : 0
+      ];
     rover++;
 
     if (rover >= fftSize) {
@@ -167,7 +179,8 @@ function smbPitchShift(
 
       // Window + overlap-add
       for (let k = 0; k < fftSize; k++) {
-        outputAccum[k] += (2 * window[k] * fftRe[k] * fftSize) / (halfPlus1 * oversampling);
+        outputAccum[k] +=
+          (2 * window[k] * fftRe[k] * fftSize) / (halfPlus1 * oversampling);
       }
       for (let k = 0; k < stepSize; k++) {
         outFifo[k] = outputAccum[k];
@@ -263,8 +276,14 @@ export function renderPitchEdits(
     const pitchRatio = midiToHz(targetNote) / midiToHz(seg.midiNote);
     if (Math.abs(pitchRatio - 1.0) < 0.001) continue; // negligible shift
 
-    const startSample = Math.max(0, Math.floor((seg.startTimeMs / 1000) * sampleRate));
-    const endSample = Math.min(totalSamples, Math.ceil((seg.endTimeMs / 1000) * sampleRate));
+    const startSample = Math.max(
+      0,
+      Math.floor((seg.startTimeMs / 1000) * sampleRate),
+    );
+    const endSample = Math.min(
+      totalSamples,
+      Math.ceil((seg.endTimeMs / 1000) * sampleRate),
+    );
     const segLength = endSample - startSample;
     if (segLength < FFT_SIZE) continue; // too short for FFT processing
 

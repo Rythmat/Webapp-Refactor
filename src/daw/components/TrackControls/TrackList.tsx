@@ -13,7 +13,7 @@ export function TrackList() {
 
   return (
     <div
-      className="w-64 shrink-0 flex flex-col overflow-y-auto"
+      className="flex w-64 shrink-0 flex-col overflow-y-auto"
       style={{ backgroundColor: 'var(--color-surface)' }}
     >
       {/* ── Track Headers ─────────────────────────────────────── */}
@@ -24,7 +24,7 @@ export function TrackList() {
       {/* ── Add Track Button ──────────────────────────────────── */}
       <button
         onClick={openModal}
-        className="flex items-center justify-center gap-2 h-12 m-2 rounded-lg border border-dashed transition-colors cursor-pointer"
+        className="m-2 flex h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed transition-colors"
         style={{
           borderColor: 'var(--color-border)',
           color: 'var(--color-text-dim)',

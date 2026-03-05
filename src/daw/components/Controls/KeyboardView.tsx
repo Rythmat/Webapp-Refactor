@@ -11,11 +11,26 @@ import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
 
 // QWERTY → MIDI note mapping (C3 = 48)
 const QWERTY_WHITE: Record<string, number> = {
-  a: 48, s: 50, d: 52, f: 53, g: 55, h: 57, j: 59,
-  k: 60, l: 62, ';': 64, "'": 65,
+  a: 48,
+  s: 50,
+  d: 52,
+  f: 53,
+  g: 55,
+  h: 57,
+  j: 59,
+  k: 60,
+  l: 62,
+  ';': 64,
+  "'": 65,
 };
 const QWERTY_BLACK: Record<string, number> = {
-  w: 49, e: 51, t: 54, y: 56, u: 58, o: 61, p: 63,
+  w: 49,
+  e: 51,
+  t: 54,
+  y: 56,
+  u: 58,
+  o: 61,
+  p: 63,
 };
 const QWERTY_MAP: Record<string, number> = { ...QWERTY_WHITE, ...QWERTY_BLACK };
 
@@ -26,7 +41,10 @@ type ViewMode = 'keyboard' | 'pianoroll';
 export function KeyboardView({ trackId }: { trackId: string }) {
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
-  const mergedNotes = useMemo(() => new Set([...activeNotes, ...hwActiveNotes]), [activeNotes, hwActiveNotes]);
+  const mergedNotes = useMemo(
+    () => new Set([...activeNotes, ...hwActiveNotes]),
+    [activeNotes, hwActiveNotes],
+  );
   const activeColor = useLiveChordColor(mergedNotes);
   const [presetName, setPresetName] = useState('Studio Grand');
   const [browserOpen, setBrowserOpen] = useState(false);
@@ -102,28 +120,51 @@ export function KeyboardView({ trackId }: { trackId: string }) {
   }, [handleNoteOn, handleNoteOff]);
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden">
+    <div className="flex flex-1 flex-col overflow-hidden">
       {/* Top bar */}
       <div
-        className="flex items-center px-4 py-2 shrink-0 gap-4 border-b"
+        className="flex shrink-0 items-center gap-4 border-b px-4 py-2"
         style={{ borderColor: 'var(--color-border)' }}
       >
-        <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="text-[10px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           Instrument
         </span>
 
         {/* Preset selector */}
         <div
           className="flex items-center gap-1 rounded-lg px-3 py-1"
-          style={{ backgroundColor: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}
+          style={{
+            backgroundColor: 'var(--color-surface-2)',
+            border: '1px solid var(--color-border)',
+          }}
         >
-          <button className="p-0.5 cursor-pointer" style={{ color: 'var(--color-text-dim)', background: 'none', border: 'none' }}>
+          <button
+            className="cursor-pointer p-0.5"
+            style={{
+              color: 'var(--color-text-dim)',
+              background: 'none',
+              border: 'none',
+            }}
+          >
             <ChevronLeft size={14} />
           </button>
-          <span className="text-xs font-medium min-w-[100px] text-center" style={{ color: 'var(--color-text)' }}>
+          <span
+            className="min-w-[100px] text-center text-xs font-medium"
+            style={{ color: 'var(--color-text)' }}
+          >
             {presetName}
           </span>
-          <button className="p-0.5 cursor-pointer" style={{ color: 'var(--color-text-dim)', background: 'none', border: 'none' }}>
+          <button
+            className="cursor-pointer p-0.5"
+            style={{
+              color: 'var(--color-text-dim)',
+              background: 'none',
+              border: 'none',
+            }}
+          >
             <ChevronRight size={14} />
           </button>
         </div>
@@ -131,9 +172,11 @@ export function KeyboardView({ trackId }: { trackId: string }) {
         {/* Browse button */}
         <button
           onClick={() => setBrowserOpen((o) => !o)}
-          className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-[10px] font-medium cursor-pointer transition-colors"
+          className="flex cursor-pointer items-center gap-1 rounded-lg px-3 py-1.5 text-[10px] font-medium transition-colors"
           style={{
-            backgroundColor: browserOpen ? 'var(--color-accent)' : 'var(--color-surface-2)',
+            backgroundColor: browserOpen
+              ? 'var(--color-accent)'
+              : 'var(--color-surface-2)',
             color: browserOpen ? '#fff' : 'var(--color-text-dim)',
             border: '1px solid var(--color-border)',
           }}
@@ -145,15 +188,24 @@ export function KeyboardView({ trackId }: { trackId: string }) {
         <div className="flex-1" />
 
         {/* Mode toggle */}
-        <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="text-[10px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           Mode
         </span>
-        <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+        <div
+          className="flex overflow-hidden rounded-lg"
+          style={{ border: '1px solid var(--color-border)' }}
+        >
           <button
             onClick={() => setMode('keyboard')}
-            className="px-3 py-1 text-[10px] font-medium cursor-pointer"
+            className="cursor-pointer px-3 py-1 text-[10px] font-medium"
             style={{
-              backgroundColor: mode === 'keyboard' ? 'var(--color-accent)' : 'var(--color-surface-2)',
+              backgroundColor:
+                mode === 'keyboard'
+                  ? 'var(--color-accent)'
+                  : 'var(--color-surface-2)',
               color: mode === 'keyboard' ? '#fff' : 'var(--color-text-dim)',
               border: 'none',
             }}
@@ -162,9 +214,12 @@ export function KeyboardView({ trackId }: { trackId: string }) {
           </button>
           <button
             onClick={() => setMode('pianoroll')}
-            className="px-3 py-1 text-[10px] font-medium cursor-pointer"
+            className="cursor-pointer px-3 py-1 text-[10px] font-medium"
             style={{
-              backgroundColor: mode === 'pianoroll' ? 'var(--color-accent)' : 'var(--color-surface-2)',
+              backgroundColor:
+                mode === 'pianoroll'
+                  ? 'var(--color-accent)'
+                  : 'var(--color-surface-2)',
               color: mode === 'pianoroll' ? '#fff' : 'var(--color-text-dim)',
               border: 'none',
             }}
@@ -197,7 +252,9 @@ export function KeyboardView({ trackId }: { trackId: string }) {
                   if (preset.instrumentType) {
                     updateTrack(trackId, {
                       instrument: preset.instrumentType,
-                      ...(preset.gmProgram !== undefined && { gmProgram: preset.gmProgram }),
+                      ...(preset.gmProgram !== undefined && {
+                        gmProgram: preset.gmProgram,
+                      }),
                     });
                   }
                   // If already a SoundFont track, live-switch the program
@@ -225,7 +282,7 @@ export function KeyboardView({ trackId }: { trackId: string }) {
             />
           ) : (
             <div
-              className="flex items-center justify-center h-full text-xs"
+              className="flex h-full items-center justify-center text-xs"
               style={{ color: 'var(--color-text-dim)' }}
             >
               No MIDI clips on this track

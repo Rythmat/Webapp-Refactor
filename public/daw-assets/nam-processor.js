@@ -53,13 +53,13 @@ class LstmEngine {
 
       this.layers.push({
         inSize,
-        W,        // (4*hs) × (inSize+hs), row-major
-        b,        // 4*hs
+        W, // (4*hs) × (inSize+hs), row-major
+        b, // 4*hs
         wCols,
-        h,        // hidden state (mutable)
-        c,        // cell state (mutable)
+        h, // hidden state (mutable)
+        c, // cell state (mutable)
         // Pre-allocated scratch buffers
-        xh: new Float32Array(wCols),     // concatenated [input, h]
+        xh: new Float32Array(wCols), // concatenated [input, h]
         gates: new Float32Array(4 * hs), // i, f, g, o
       });
     }
@@ -110,10 +110,10 @@ class LstmEngine {
       // Gate ordering: [input(0..hs), forget(hs..2hs), cell(2hs..3hs), output(3hs..4hs)]
       const c = layer.c;
       for (let i = 0; i < hs; i++) {
-        const ig = sigmoid(gates[i]);            // input gate
-        const fg = sigmoid(gates[hs + i]);       // forget gate
+        const ig = sigmoid(gates[i]); // input gate
+        const fg = sigmoid(gates[hs + i]); // forget gate
         const gg = Math.tanh(gates[2 * hs + i]); // cell gate
-        const og = sigmoid(gates[3 * hs + i]);   // output gate
+        const og = sigmoid(gates[3 * hs + i]); // output gate
 
         c[i] = fg * c[i] + ig * gg;
         h[i] = og * Math.tanh(c[i]);
@@ -235,11 +235,11 @@ class WaveNetEngine {
           dilation: d,
           kernelSize: k,
           channels: ch,
-          convW,    // [outCh × inCh × k], row-major
-          convB,    // [ch]
-          mixinW,   // [ch × cond], row-major
-          l1x1W,    // [ch × ch], row-major
-          l1x1B,    // [ch]
+          convW, // [outCh × inCh × k], row-major
+          convB, // [ch]
+          mixinW, // [ch × cond], row-major
+          l1x1W, // [ch × ch], row-major
+          l1x1B, // [ch]
           ringBuf,
           ringSize,
           ringIdx,
@@ -255,11 +255,11 @@ class WaveNetEngine {
       }
 
       // Scratch buffers (pre-allocated, zero GC)
-      const zBuf = new Float32Array(ch);         // dilated conv + mixin output
-      const headAccum = new Float32Array(ch);     // accumulated head across layers
-      const xBuf = new Float32Array(ch);          // current residual state
-      const l1x1Out = new Float32Array(ch);       // layer1x1 output
-      const headOut = new Float32Array(hs);        // rechanneled head output
+      const zBuf = new Float32Array(ch); // dilated conv + mixin output
+      const headAccum = new Float32Array(ch); // accumulated head across layers
+      const xBuf = new Float32Array(ch); // current residual state
+      const l1x1Out = new Float32Array(ch); // layer1x1 output
+      const headOut = new Float32Array(hs); // rechanneled head output
 
       this.arrays.push({
         cfg,
@@ -379,7 +379,8 @@ class WaveNetEngine {
           for (let kk = 0; kk < k; kk++) {
             // Lookback: kernel position kk maps to offset (kk - (k-1)) * d
             const lookback = (kk - (k - 1)) * d;
-            const idx = ((ringPos + lookback) % ringSize + ringSize) % ringSize;
+            const idx =
+              (((ringPos + lookback) % ringSize) + ringSize) % ringSize;
             const bufOff = idx * ch;
             const wOff = wRowOff + kk;
             for (let i = 0; i < ch; i++) {
@@ -532,7 +533,8 @@ class NamProcessor extends AudioWorkletProcessor {
 
     for (let i = 0; i < input.length; i++) {
       const sample = input[i] * inLvl;
-      output[i] = this.engine.processSample(sample) * outLvl * this.outputCompensation;
+      output[i] =
+        this.engine.processSample(sample) * outLvl * this.outputCompensation;
     }
 
     return true;

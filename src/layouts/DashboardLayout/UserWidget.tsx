@@ -1,10 +1,11 @@
+/* eslint-disable tailwindcss/classnames-order */
 import { LogOut, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { ProfileRoutes } from '@/constants/routes';
+import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
+import { ProfileRoutes } from '@/constants/routes';
 import { useAuthActions } from '@/contexts/AuthContext';
 import { useMe } from '@/hooks/data';
 
@@ -28,9 +29,9 @@ export function UserWidget({
   if (variant === 'header') {
     return (
       <button
+        className={`flex items-center gap-3 cursor-pointer group ${className || ''}`}
         type="button"
         onClick={() => navigate(ProfileRoutes.profile())}
-        className={`flex items-center gap-3 cursor-pointer group ${className || ''}`}
       >
         <div className="text-right hidden md:block text-xs">
           {isLoading ? (
@@ -39,17 +40,14 @@ export function UserWidget({
               <Skeleton className="ml-auto h-2 w-20" />
             </>
           ) : (
-            <div className="text-sm text-white leading-none">{name}</div>
+            <div className="text-sm leading-none text-white">{name}</div>
           )}
         </div>
 
         <Avatar className="size-10 select-none border-2 border-white/10 shadow-lg shadow-purple-500/20 transition-all group-hover:border-white/50">
           <AvatarImage alt={name} src="/avatars/01.png" />
           <AvatarFallback className="relative overflow-hidden bg-[#E8DAB2] p-0">
-            <UserAvatarPattern
-              userName={name}
-              className="h-full w-full"
-            />
+            <UserAvatarPattern className="size-full" userName={name} />
           </AvatarFallback>
         </Avatar>
       </button>
@@ -82,10 +80,7 @@ export function UserWidget({
         <Avatar className="size-8 select-none">
           <AvatarImage alt={name} src="/avatars/01.png" />
           <AvatarFallback className="relative overflow-hidden bg-[#E8DAB2] p-0">
-            <UserAvatarPattern
-              userName={name}
-              className="h-full w-full"
-            />
+            <UserAvatarPattern className="size-full" userName={name} />
           </AvatarFallback>
         </Avatar>
 

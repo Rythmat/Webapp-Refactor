@@ -14,9 +14,7 @@ function App() {
     );
   }
 
-  return (
-    <SynthLayout engine={engineRef.current!} engineRef={engineRef} />
-  );
+  return <SynthLayout engine={engineRef.current!} engineRef={engineRef} />;
 }
 
 export default App;

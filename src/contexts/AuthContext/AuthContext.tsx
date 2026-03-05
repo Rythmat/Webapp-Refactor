@@ -1,9 +1,16 @@
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import useLocalStorageState from 'use-local-storage-state';
 import { WildcardRoute } from '@/constants/routes';
 import { useLogin, useRegister } from '@/hooks/data';
+import { useMusicalForm } from '@/hooks/useMusicalForm';
 import { useNow } from '@/hooks/useNow';
 import { decodeToken } from './decodeToken';
 import {
@@ -12,8 +19,6 @@ import {
   CreateStudentParams,
   CreateTeacherParams,
 } from './types';
-import { useMusicalForm } from '@/hooks/useMusicalForm';
-
 
 export const AuthContext = createContext<AuthContextValue>({
   userId: null,
@@ -80,7 +85,11 @@ export const AuthContextProvider = ({
     if (hash.startsWith('#token=')) {
       const oauthToken = hash.slice(7);
       setToken(oauthToken);
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      window.history.replaceState(
+        null,
+        '',
+        window.location.pathname + window.location.search,
+      );
       onAuthenticated();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

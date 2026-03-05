@@ -38,7 +38,7 @@ export const WheelControl: React.FC<WheelControlProps> = React.memo(
         const newValue = clamp(min + clamp(norm, 0, 1) * (max - min), min, max);
         onChange(newValue);
       },
-      [min, max, onChange]
+      [min, max, onChange],
     );
 
     const handlePointerDown = useCallback(
@@ -47,7 +47,7 @@ export const WheelControl: React.FC<WheelControlProps> = React.memo(
         (e.target as HTMLElement).setPointerCapture(e.pointerId);
         updateFromPointer(e.clientY);
       },
-      [updateFromPointer]
+      [updateFromPointer],
     );
 
     const handlePointerMove = useCallback(
@@ -55,7 +55,7 @@ export const WheelControl: React.FC<WheelControlProps> = React.memo(
         if (e.buttons === 0) return;
         updateFromPointer(e.clientY);
       },
-      [updateFromPointer]
+      [updateFromPointer],
     );
 
     const handlePointerUp = useCallback(() => {
@@ -87,5 +87,5 @@ export const WheelControl: React.FC<WheelControlProps> = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );

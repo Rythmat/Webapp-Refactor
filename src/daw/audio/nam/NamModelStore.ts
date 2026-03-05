@@ -10,8 +10,8 @@ export interface NamModelEntry {
   architecture: string;
   source: 'bundled' | 'user';
   forInstrument: 'guitar' | 'bass';
-  url?: string;           // bundled: relative to public/
-  file?: NamModelFile;    // user: already parsed
+  url?: string; // bundled: relative to public/
+  file?: NamModelFile; // user: already parsed
 }
 
 export const BUNDLED_MODELS: NamModelEntry[] = [
@@ -102,7 +102,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
   // Hi Gain
   {
     id: 'nam-high-gain',
-    name: 'Tiger\'s Eye',
+    name: "Tiger's Eye",
     toneType: 'hi_gain',
     architecture: 'WaveNet',
     source: 'bundled',
@@ -235,7 +235,9 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
 export async function fetchBundledModel(url: string): Promise<NamModelFile> {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to fetch model: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch model: ${response.status} ${response.statusText}`,
+    );
   }
   const json = await response.text();
   const model = parseNamFile(json);

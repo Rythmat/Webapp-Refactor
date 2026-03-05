@@ -17,7 +17,7 @@ export function getNoteDuration(note: PhraseBarNote, beatsPerBar: number) {
     case 'eighth':
       return 0.125 * beatsPerBar;
     case 'dotted_eighth':
-      return 0.1875
+      return 0.1875;
     case 'sixteenth':
       return 0.0625 * beatsPerBar;
     case 'dotted_sixteenth':

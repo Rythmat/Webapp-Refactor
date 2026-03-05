@@ -11,30 +11,35 @@ const NATURAL_PITCH = [0, 2, 4, 5, 7, 9, 11]; // pitch class for each letter
 
 type ScaleLetter = (typeof LETTERS)[number];
 
-const ROOTS: { letter: ScaleLetter; accidental: string; pitchClass: number }[] = [
-  { letter: 'C', accidental: '',  pitchClass: 0 },
-  { letter: 'G', accidental: '',  pitchClass: 7 },
-  { letter: 'D', accidental: '',  pitchClass: 2 },
-  { letter: 'A', accidental: '',  pitchClass: 9 },
-  { letter: 'E', accidental: '',  pitchClass: 4 },
-  { letter: 'B', accidental: '',  pitchClass: 11 },
-  { letter: 'F', accidental: '#', pitchClass: 6 },
-  { letter: 'D', accidental: '♭', pitchClass: 1 },
-  { letter: 'A', accidental: '♭', pitchClass: 8 },
-  { letter: 'E', accidental: '♭', pitchClass: 3 },
-  { letter: 'B', accidental: '♭', pitchClass: 10 },
-  { letter: 'F', accidental: '',  pitchClass: 5 },
-];
+const ROOTS: { letter: ScaleLetter; accidental: string; pitchClass: number }[] =
+  [
+    { letter: 'C', accidental: '', pitchClass: 0 },
+    { letter: 'G', accidental: '', pitchClass: 7 },
+    { letter: 'D', accidental: '', pitchClass: 2 },
+    { letter: 'A', accidental: '', pitchClass: 9 },
+    { letter: 'E', accidental: '', pitchClass: 4 },
+    { letter: 'B', accidental: '', pitchClass: 11 },
+    { letter: 'F', accidental: '#', pitchClass: 6 },
+    { letter: 'D', accidental: '♭', pitchClass: 1 },
+    { letter: 'A', accidental: '♭', pitchClass: 8 },
+    { letter: 'E', accidental: '♭', pitchClass: 3 },
+    { letter: 'B', accidental: '♭', pitchClass: 10 },
+    { letter: 'F', accidental: '', pitchClass: 5 },
+  ];
 
 const ACCIDENTAL_MAP: Record<number, string> = {
-  0:  '',   // natural
-  1:  '#',  // sharp
-  2:  'X',  // double sharp
-  11: '♭',  // flat
-  10: '𝄫',  // double flat
+  0: '', // natural
+  1: '#', // sharp
+  2: 'X', // double sharp
+  11: '♭', // flat
+  10: '𝄫', // double flat
 };
 
-function spellScale(rootPitchClass: number, rootLetterIdx: number, steps: number[]): string[] {
+function spellScale(
+  rootPitchClass: number,
+  rootLetterIdx: number,
+  steps: number[],
+): string[] {
   return steps.map((step, degree) => {
     const letterIdx = (rootLetterIdx + degree) % 7;
     const letter = LETTERS[letterIdx];
@@ -63,12 +68,12 @@ function buildKeys(steps: number[]) {
 
 const DH_STEPS = {
   doubleHarmonicMajor: [0, 1, 4, 5, 7, 8, 11],
-  lydianS2S6:          [0, 3, 4, 6, 7, 10, 11],
-  ultraphrygian:       [0, 1, 3, 4, 7, 8, 9],
+  lydianS2S6: [0, 3, 4, 6, 7, 10, 11],
+  ultraphrygian: [0, 1, 3, 4, 7, 8, 9],
   doubleHarmonicMinor: [0, 2, 3, 6, 7, 8, 11],
-  oriental:            [0, 1, 4, 5, 6, 9, 10],
-  ionianS2S5:          [0, 3, 4, 5, 8, 9, 11],
-  locrianBB3BB7:       [0, 1, 2, 5, 6, 8, 9],
+  oriental: [0, 1, 4, 5, 6, 9, 10],
+  ionianS2S5: [0, 3, 4, 5, 8, 9, 11],
+  locrianBB3BB7: [0, 1, 2, 5, 6, 8, 9],
 } as const;
 
 // ── Exported data ───────────────────────────────────────────────────────

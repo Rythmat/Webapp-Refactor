@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useStore } from '@/daw/store';
-import { THEMES } from '@/daw/constants/themes';
-import type { ThemeId } from '@/daw/constants/themes';
+import { THEMES, type ThemeId } from '@/daw/constants/themes';
 
 const STORAGE_KEY = 'prism-daw-theme';
 

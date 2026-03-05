@@ -10,7 +10,10 @@ import { TimelineWithHeaders } from '@/daw/components/Timeline/TimelineWithHeade
 import { SettingsModal } from '@/daw/components/Transport/SettingsModal';
 import { TransportBar } from '@/daw/components/Transport/TransportBar';
 import { useAudioEngine } from '@/daw/hooks/useAudioEngine';
-import { useKeyboardShortcuts, loadSessionOnStartup } from '@/daw/hooks/useKeyboardShortcuts';
+import {
+  useKeyboardShortcuts,
+  loadSessionOnStartup,
+} from '@/daw/hooks/useKeyboardShortcuts';
 import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
 import { usePlaybackEngine } from '@/daw/hooks/usePlaybackEngine';
 import { useTheme } from '@/daw/hooks/useTheme';
@@ -34,7 +37,9 @@ export function DawApp() {
 
   useEffect(() => {
     if (isReady) return;
-    const handler = () => { initEngine(); };
+    const handler = () => {
+      initEngine();
+    };
     document.addEventListener('click', handler, { once: true });
     document.addEventListener('keydown', handler, { once: true });
     return () => {
@@ -44,14 +49,16 @@ export function DawApp() {
   }, [isReady, initEngine]);
 
   return (
-    <div className="daw-root absolute inset-0 flex flex-col overflow-hidden"
-         style={{ backgroundColor: 'var(--color-bg)' }}>
+    <div
+      className="daw-root absolute inset-0 flex flex-col overflow-hidden"
+      style={{ backgroundColor: 'var(--color-bg)' }}
+    >
       <MeshGradientBg />
       <TransportBar onInit={initEngine} isReady={isReady} />
       {currentView === 'arrange' ? (
         <>
           <div className="flex flex-1 overflow-hidden">
-            <div className="flex flex-col flex-1 overflow-hidden">
+            <div className="flex flex-1 flex-col overflow-hidden">
               <TimelineWithHeaders />
             </div>
             <LibraryPanel />

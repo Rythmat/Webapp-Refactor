@@ -25,18 +25,20 @@ export const RoutingPanel: React.FC = React.memo(() => {
   const isActive = useCallback(
     (type: 'filter' | 'env', index: 0 | 1, source: SourceId): boolean => {
       if (type === 'filter') {
-        const sources = index === 0
-          ? routing.filterRouting.filter1Sources
-          : routing.filterRouting.filter2Sources;
+        const sources =
+          index === 0
+            ? routing.filterRouting.filter1Sources
+            : routing.filterRouting.filter2Sources;
         return sources.includes(source);
       } else {
-        const sources = index === 0
-          ? routing.envelopeRouting.env1Sources
-          : routing.envelopeRouting.env2Sources;
+        const sources =
+          index === 0
+            ? routing.envelopeRouting.env1Sources
+            : routing.envelopeRouting.env2Sources;
         return sources.includes(source);
       }
     },
-    [routing]
+    [routing],
   );
 
   const handleToggle = useCallback(
@@ -47,7 +49,7 @@ export const RoutingPanel: React.FC = React.memo(() => {
         toggleEnvSource(index, source);
       }
     },
-    [toggleFilterSource, toggleEnvSource]
+    [toggleFilterSource, toggleEnvSource],
   );
 
   return (

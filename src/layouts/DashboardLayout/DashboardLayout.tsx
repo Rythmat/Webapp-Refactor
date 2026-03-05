@@ -27,14 +27,18 @@ export const DashboardLayout = (props: { fallback?: React.ReactNode }) => {
             'relative shrink-0 transition-all duration-300',
             isSidebarCollapsed ? 'w-20' : 'w-64',
           )}
-          onMouseEnter={() => { if (isSidebarCollapsed) setIsSidebarHovered(true); }}
+          onMouseEnter={() => {
+            if (isSidebarCollapsed) setIsSidebarHovered(true);
+          }}
           onMouseLeave={() => setIsSidebarHovered(false)}
         >
           <Sidebar
             className={cn(
               'transition-all duration-300',
               isSidebarCollapsed && !isSidebarHovered ? 'w-20' : 'w-64',
-              isSidebarCollapsed && isSidebarHovered && 'absolute inset-y-0 left-0 z-50 shadow-2xl',
+              isSidebarCollapsed &&
+                isSidebarHovered &&
+                'absolute inset-y-0 left-0 z-50 shadow-2xl',
             )}
             isCollapsed={isSidebarCollapsed && !isSidebarHovered}
             onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}

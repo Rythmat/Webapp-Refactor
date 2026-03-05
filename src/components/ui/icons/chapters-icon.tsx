@@ -27,4 +27,3 @@ export function ChaptersIcon({ active = false, ...props }: ChaptersIconProps) {
     </svg>
   );
 }
-

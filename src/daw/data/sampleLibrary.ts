@@ -32,7 +32,9 @@ export const SAMPLE_LIBRARY: SampleItem[] = [
 
 export function getSubcategories(section: SampleSection): string[] {
   const subs = new Set(
-    SAMPLE_LIBRARY.filter((s) => s.section === section).map((s) => s.subcategory),
+    SAMPLE_LIBRARY.filter((s) => s.section === section).map(
+      (s) => s.subcategory,
+    ),
   );
   return Array.from(subs);
 }

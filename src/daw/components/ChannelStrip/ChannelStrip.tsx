@@ -1,6 +1,14 @@
+/* eslint-disable tailwindcss/classnames-order, tailwindcss/enforces-shorthand */
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Sparkles, ChevronDown, ChevronUp, Piano, Disc3 } from 'lucide-react';
+import {
+  Zap,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  Piano,
+  Disc3,
+} from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { TrackControlsPanel } from '@/daw/components/Controls/TrackControlsPanel';
 import { EffectsPanel } from '@/daw/components/Effects/EffectsPanel';
@@ -13,7 +21,15 @@ import type { MidiNoteEvent } from '@prism/engine';
 
 function PrismLogo({ size = 14 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    >
       <path d="M12 4L5 18h14L12 4z" />
     </svg>
   );
@@ -30,28 +46,51 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { id: 'controls', label: 'Controls', icon: <Zap size={14} strokeWidth={1.5} /> },
+  {
+    id: 'controls',
+    label: 'Controls',
+    icon: <Zap size={14} strokeWidth={1.5} />,
+  },
   { id: 'fx', label: 'FX', icon: <Sparkles size={14} strokeWidth={1.5} /> },
-  { id: 'grooves', label: 'Grooves', icon: <Disc3 size={14} strokeWidth={1.5} /> },
+  {
+    id: 'grooves',
+    label: 'Grooves',
+    icon: <Disc3 size={14} strokeWidth={1.5} />,
+  },
   { id: 'prism', label: 'Prism', icon: <PrismLogo size={14} /> },
-  { id: 'piano-roll', label: 'Piano Roll', icon: <Piano size={14} strokeWidth={1.5} /> },
+  {
+    id: 'piano-roll',
+    label: 'Piano Roll',
+    icon: <Piano size={14} strokeWidth={1.5} />,
+  },
 ];
 
 const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
 
 function instrumentLabel(instrument: string): string {
   switch (instrument) {
-    case 'oracle-synth': return 'Synth';
-    case 'piano-sampler': return 'Keys';
-    case 'electric-piano': return 'E.Piano';
-    case 'cello': return 'Cello';
-    case 'organ': return 'Organ';
-    case 'soundfont': return 'SF';
-    case 'drum-machine': return 'Drums';
-    case 'guitar-fx': return 'Guitar';
-    case 'bass-fx': return 'Bass';
-    case 'vocal-fx': return 'Vocal';
-    default: return 'Audio';
+    case 'oracle-synth':
+      return 'Synth';
+    case 'piano-sampler':
+      return 'Keys';
+    case 'electric-piano':
+      return 'E.Piano';
+    case 'cello':
+      return 'Cello';
+    case 'organ':
+      return 'Organ';
+    case 'soundfont':
+      return 'SF';
+    case 'drum-machine':
+      return 'Drums';
+    case 'guitar-fx':
+      return 'Guitar';
+    case 'bass-fx':
+      return 'Bass';
+    case 'vocal-fx':
+      return 'Vocal';
+    default:
+      return 'Audio';
   }
 }
 
@@ -71,7 +110,10 @@ export function ChannelStrip() {
 
   // Auto-open when a track is added
   useEffect(() => {
-    if (tracks.length > prevTrackCount.current && prevTrackCount.current === 0) {
+    if (
+      tracks.length > prevTrackCount.current &&
+      prevTrackCount.current === 0
+    ) {
       setActiveTab('controls');
     }
     prevTrackCount.current = tracks.length;
@@ -80,13 +122,17 @@ export function ChannelStrip() {
 
   // Piano roll: find selected clip
   const selectedClipTrack = tracks.find((t) => t.id === selectedClipTrackId);
-  const selectedClip = selectedClipTrack?.midiClips.find((c) => c.id === selectedClipId);
+  const selectedClip = selectedClipTrack?.midiClips.find(
+    (c) => c.id === selectedClipId,
+  );
 
-  const isGuitarBass = track?.instrument === 'guitar-fx' || track?.instrument === 'bass-fx';
+  const isGuitarBass =
+    track?.instrument === 'guitar-fx' || track?.instrument === 'bass-fx';
   const isVocal = track?.instrument === 'vocal-fx';
   const isAudioInput = isGuitarBass || isVocal;
   const isDrumMachine = track?.instrument === 'drum-machine';
-  const isMidiInstrument = !!track && !isAudioInput && track.instrument !== 'none';
+  const isMidiInstrument =
+    !!track && !isAudioInput && track.instrument !== 'none';
 
   const handlePianoRollChange = useCallback(
     (newEvents: MidiNoteEvent[]) => {
@@ -104,8 +150,15 @@ export function ChannelStrip() {
         setSelectedClip(clipId, track.id);
       }
     },
-    [selectedClipTrackId, selectedClipId, track, isMidiInstrument,
-     updateMidiClipEvents, addMidiClip, setSelectedClip],
+    [
+      selectedClipTrackId,
+      selectedClipId,
+      track,
+      isMidiInstrument,
+      updateMidiClipEvents,
+      addMidiClip,
+      setSelectedClip,
+    ],
   );
 
   const handleTabClick = useCallback((id: TabId) => {
@@ -113,10 +166,11 @@ export function ChannelStrip() {
   }, []);
 
   const visibleTabs = TABS.filter((tab) => {
-    if (tab.id === 'grooves' && !isDrumMachine) return false;
-    if (tab.id === 'prism' && (isAudioInput || isDrumMachine)) return false;
-    if (tab.id === 'piano-roll' && (!isMidiInstrument || isDrumMachine)) return false;
-    return true;
+    return !(
+      (tab.id === 'grooves' && !isDrumMachine) ||
+      (tab.id === 'prism' && (isAudioInput || isDrumMachine)) ||
+      (tab.id === 'piano-roll' && (!isMidiInstrument || isDrumMachine))
+    );
   });
 
   // Reset to controls if active tab is hidden for this track type
@@ -141,10 +195,7 @@ export function ChannelStrip() {
       }}
     >
       {/* Tab bar (always visible) */}
-      <div
-        className="flex items-center px-3 shrink-0"
-        style={{ height: 32 }}
-      >
+      <div className="flex items-center px-3 shrink-0" style={{ height: 32 }}>
         {/* Tabs */}
         <div className="flex items-center gap-0.5">
           {visibleTabs.map((tab) => {
@@ -155,12 +206,20 @@ export function ChannelStrip() {
                 onClick={() => handleTabClick(tab.id)}
                 className="flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider cursor-pointer"
                 style={{
-                  backgroundColor: active ? 'var(--color-surface-3)' : 'transparent',
+                  backgroundColor: active
+                    ? 'var(--color-surface-3)'
+                    : 'transparent',
                   color: active ? 'var(--color-text)' : 'var(--color-text-dim)',
                   border: 'none',
                 }}
               >
-                <span style={{ color: active ? 'var(--color-accent)' : 'var(--color-text-dim)' }}>
+                <span
+                  style={{
+                    color: active
+                      ? 'var(--color-accent)'
+                      : 'var(--color-text-dim)',
+                  }}
+                >
                   {tab.icon}
                 </span>
                 {tab.label}
@@ -172,13 +231,22 @@ export function ChannelStrip() {
         {/* Track info */}
         {track && (
           <div className="flex items-center gap-1.5 ml-3">
-            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: track.color }} />
-            <span className="text-[10px]" style={{ color: 'var(--color-text-dim)' }}>
+            <div
+              className="w-2 h-2 rounded-full shrink-0"
+              style={{ backgroundColor: track.color }}
+            />
+            <span
+              className="text-[10px]"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
               {track.name}
             </span>
             <span
               className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded"
-              style={{ backgroundColor: 'var(--color-surface-2)', color: 'var(--color-text-dim)' }}
+              style={{
+                backgroundColor: 'var(--color-surface-2)',
+                color: 'var(--color-text-dim)',
+              }}
             >
               {instrumentLabel(track.instrument)}
             </span>
@@ -190,7 +258,9 @@ export function ChannelStrip() {
 
         {/* Collapse toggle */}
         <button
-          onClick={() => setActiveTab((prev) => (prev === null ? 'controls' : null))}
+          onClick={() =>
+            setActiveTab((prev) => (prev === null ? 'controls' : null))
+          }
           className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
           style={{
             color: 'var(--color-text-dim)',
@@ -215,19 +285,27 @@ export function ChannelStrip() {
             style={{ borderTop: '1px solid var(--color-border)' }}
           >
             <div
-              className={activeTab === 'piano-roll' ? 'overflow-hidden' : 'overflow-y-auto'}
+              className={
+                activeTab === 'piano-roll'
+                  ? 'overflow-hidden'
+                  : 'overflow-y-auto'
+              }
               style={{ height: '33vh' }}
             >
               {activeTab === 'controls' && <TrackControlsPanel />}
               {activeTab === 'fx' && <EffectsPanel />}
-              {activeTab === 'grooves' && track && <GroovesBrowser trackId={track.id} />}
+              {activeTab === 'grooves' && track && (
+                <GroovesBrowser trackId={track.id} />
+              )}
               {activeTab === 'prism' && <PrismPanel />}
-              {activeTab === 'piano-roll' && (
-                (selectedClip && selectedClipTrack) || isMidiInstrument ? (
+              {activeTab === 'piano-roll' &&
+                ((selectedClip && selectedClipTrack) || isMidiInstrument ? (
                   <PianoRoll
                     events={selectedClip?.events ?? []}
                     clipStartTick={selectedClip?.startTick ?? 0}
-                    clipColor={selectedClipTrack?.color ?? track?.color ?? '#888'}
+                    clipColor={
+                      selectedClipTrack?.color ?? track?.color ?? '#888'
+                    }
                     onChange={handlePianoRollChange}
                   />
                 ) : (
@@ -237,8 +315,7 @@ export function ChannelStrip() {
                   >
                     Select a clip on the timeline to edit
                   </div>
-                )
-              )}
+                ))}
             </div>
           </motion.div>
         )}

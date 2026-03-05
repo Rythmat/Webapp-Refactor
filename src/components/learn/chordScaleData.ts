@@ -1,6 +1,6 @@
 export interface ChordScaleEntry {
-  degree: string;     // "1", "♭2", "#4", etc.
-  quality: string;    // "maj", "min7", "dom7(#5)", etc.
+  degree: string; // "1", "♭2", "#4", etc.
+  quality: string; // "maj", "min7", "dom7(#5)", etc.
 }
 
 export interface ModeChordScales {
@@ -267,9 +267,7 @@ const harmonicMinor: ModeChordScales = {
     { degree: '♭6', quality: 'maj' },
     { degree: '7', quality: 'dim' },
   ],
-  extraTriads: [
-    { degree: '5', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '5', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'min(maj7)' },
     { degree: '2', quality: 'min7(♭5)' },
@@ -279,9 +277,7 @@ const harmonicMinor: ModeChordScales = {
     { degree: '♭6', quality: 'maj7' },
     { degree: '7', quality: 'dim7' },
   ],
-  extraSevenths: [
-    { degree: '5', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '5', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'min(maj9)' },
     { degree: '2', quality: 'min7(♭5♭9)' },
@@ -312,9 +308,7 @@ const locrianNat6: ModeChordScales = {
     { degree: '6', quality: 'dim' },
     { degree: '♭7', quality: 'min' },
   ],
-  extraTriads: [
-    { degree: '4', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '4', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'min7(♭5)' },
     { degree: '♭2', quality: 'maj7(#5)' },
@@ -324,9 +318,7 @@ const locrianNat6: ModeChordScales = {
     { degree: '6', quality: 'dim7' },
     { degree: '♭7', quality: 'min(maj7)' },
   ],
-  extraSevenths: [
-    { degree: '4', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '4', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'min7(♭5♭9)' },
     { degree: '♭2', quality: 'maj9(#5)' },
@@ -336,9 +328,7 @@ const locrianNat6: ModeChordScales = {
     { degree: '6', quality: 'dim7(♭9)' },
     { degree: '♭7', quality: 'min(maj9)' },
   ],
-  extraNinths: [
-    { degree: '4', quality: 'dom7(#5♭9)' },
-  ],
+  extraNinths: [{ degree: '4', quality: 'dom7(#5♭9)' }],
 };
 
 const ionianSharp5: ModeChordScales = {
@@ -354,9 +344,7 @@ const ionianSharp5: ModeChordScales = {
     { degree: '6', quality: 'min' },
     { degree: '7', quality: 'dim' },
   ],
-  extraTriads: [
-    { degree: '3', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '3', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'maj7(#5)' },
     { degree: '2', quality: 'min7' },
@@ -366,9 +354,7 @@ const ionianSharp5: ModeChordScales = {
     { degree: '6', quality: 'min(maj7)' },
     { degree: '7', quality: 'min7(♭5)' },
   ],
-  extraSevenths: [
-    { degree: '3', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '3', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'maj9(#5)' },
     { degree: '2', quality: 'min9' },
@@ -378,9 +364,7 @@ const ionianSharp5: ModeChordScales = {
     { degree: '6', quality: 'min(maj9)' },
     { degree: '7', quality: 'min7(♭5♭9)' },
   ],
-  extraNinths: [
-    { degree: '3', quality: 'dom7(#5♭9)' },
-  ],
+  extraNinths: [{ degree: '3', quality: 'dom7(#5♭9)' }],
 };
 
 const dorianSharp4: ModeChordScales = {
@@ -396,9 +380,7 @@ const dorianSharp4: ModeChordScales = {
     { degree: '6', quality: 'dim' },
     { degree: '♭7', quality: 'aug' },
   ],
-  extraTriads: [
-    { degree: '2', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '2', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'min7' },
     { degree: '2', quality: 'dom7' },
@@ -408,9 +390,7 @@ const dorianSharp4: ModeChordScales = {
     { degree: '6', quality: 'min7(♭5)' },
     { degree: '♭7', quality: 'maj7(#5)' },
   ],
-  extraSevenths: [
-    { degree: '2', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '2', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'min9' },
     { degree: '2', quality: 'dom7(♭9)' },
@@ -420,9 +400,7 @@ const dorianSharp4: ModeChordScales = {
     { degree: '6', quality: 'min7(♭5♭9)' },
     { degree: '♭7', quality: 'maj9(#5)' },
   ],
-  extraNinths: [
-    { degree: '2', quality: 'dom7(#5♭9)' },
-  ],
+  extraNinths: [{ degree: '2', quality: 'dom7(#5♭9)' }],
 };
 
 const phrygianDominant: ModeChordScales = {
@@ -438,9 +416,7 @@ const phrygianDominant: ModeChordScales = {
     { degree: '♭6', quality: 'aug' },
     { degree: '♭7', quality: 'min' },
   ],
-  extraTriads: [
-    { degree: '1', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '1', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'dom7' },
     { degree: '♭2', quality: 'maj7' },
@@ -450,9 +426,7 @@ const phrygianDominant: ModeChordScales = {
     { degree: '♭6', quality: 'maj7(#5)' },
     { degree: '♭7', quality: 'min7' },
   ],
-  extraSevenths: [
-    { degree: '1', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '1', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'dom7(♭9)' },
     { degree: '♭2', quality: 'maj7(#9)' },
@@ -462,9 +436,7 @@ const phrygianDominant: ModeChordScales = {
     { degree: '♭6', quality: 'maj9(#5)' },
     { degree: '♭7', quality: 'min9' },
   ],
-  extraNinths: [
-    { degree: '1', quality: 'dom7(#5♭9)' },
-  ],
+  extraNinths: [{ degree: '1', quality: 'dom7(#5♭9)' }],
 };
 
 const lydianSharp2: ModeChordScales = {
@@ -480,9 +452,7 @@ const lydianSharp2: ModeChordScales = {
     { degree: '6', quality: 'min' },
     { degree: '7', quality: 'maj' },
   ],
-  extraTriads: [
-    { degree: '7', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '7', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'maj7' },
     { degree: '#2', quality: 'dim7' },
@@ -492,9 +462,7 @@ const lydianSharp2: ModeChordScales = {
     { degree: '6', quality: 'min7' },
     { degree: '7', quality: 'dom7' },
   ],
-  extraSevenths: [
-    { degree: '7', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '7', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'maj7(#9)' },
     { degree: '#2', quality: 'dim7(♭9)' },
@@ -504,9 +472,7 @@ const lydianSharp2: ModeChordScales = {
     { degree: '6', quality: 'min9' },
     { degree: '7', quality: 'dom7(♭9)' },
   ],
-  extraNinths: [
-    { degree: '7', quality: 'dom7(#5♭9)' },
-  ],
+  extraNinths: [{ degree: '7', quality: 'dom7(#5♭9)' }],
 };
 
 const alteredDiminished: ModeChordScales = {
@@ -522,9 +488,7 @@ const alteredDiminished: ModeChordScales = {
     { degree: '♭6', quality: 'maj' },
     { degree: '𝄫7', quality: 'maj' },
   ],
-  extraTriads: [
-    { degree: '♭6', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '♭6', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'dim7' },
     { degree: '♭2', quality: 'min(maj7)' },
@@ -534,9 +498,7 @@ const alteredDiminished: ModeChordScales = {
     { degree: '♭6', quality: 'dom7' },
     { degree: '𝄫7', quality: 'maj7' },
   ],
-  extraSevenths: [
-    { degree: '♭6', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '♭6', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'dim7(♭9)' },
     { degree: '♭2', quality: 'min(maj9)' },
@@ -546,9 +508,7 @@ const alteredDiminished: ModeChordScales = {
     { degree: '♭6', quality: 'dom7(♭9)' },
     { degree: '𝄫7', quality: 'maj7(#9)' },
   ],
-  extraNinths: [
-    { degree: '♭6', quality: 'dom7(#5♭9)' },
-  ],
+  extraNinths: [{ degree: '♭6', quality: 'dom7(#5♭9)' }],
 };
 
 // ─────────────────────────────────────────────
@@ -568,9 +528,7 @@ const melodicMinor: ModeChordScales = {
     { degree: '6', quality: 'dim' },
     { degree: '7', quality: 'dim' },
   ],
-  extraTriads: [
-    { degree: '5', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '5', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'min(maj7)' },
     { degree: '2', quality: 'min7' },
@@ -580,9 +538,7 @@ const melodicMinor: ModeChordScales = {
     { degree: '6', quality: 'min7(♭5)' },
     { degree: '7', quality: 'min7(♭5)' },
   ],
-  extraSevenths: [
-    { degree: '5', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '5', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'min(maj9)' },
     { degree: '2', quality: 'min7(♭9)' },
@@ -592,9 +548,7 @@ const melodicMinor: ModeChordScales = {
     { degree: '6', quality: 'min9(♭5)' },
     { degree: '7', quality: 'min7(♭5♭9)' },
   ],
-  extraNinths: [
-    { degree: '5', quality: 'dom9(#5)' },
-  ],
+  extraNinths: [{ degree: '5', quality: 'dom9(#5)' }],
 };
 
 const dorianFlat2: ModeChordScales = {
@@ -610,9 +564,7 @@ const dorianFlat2: ModeChordScales = {
     { degree: '6', quality: 'dim' },
     { degree: '♭7', quality: 'min' },
   ],
-  extraTriads: [
-    { degree: '4', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '4', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'min7' },
     { degree: '♭2', quality: 'maj7(#5)' },
@@ -622,9 +574,7 @@ const dorianFlat2: ModeChordScales = {
     { degree: '6', quality: 'min7(♭5)' },
     { degree: '♭7', quality: 'min(maj7)' },
   ],
-  extraSevenths: [
-    { degree: '4', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '4', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'min7(♭9)' },
     { degree: '♭2', quality: 'maj9(#5)' },
@@ -634,9 +584,7 @@ const dorianFlat2: ModeChordScales = {
     { degree: '6', quality: 'min7(♭5♭9)' },
     { degree: '♭7', quality: 'min(maj9)' },
   ],
-  extraNinths: [
-    { degree: '4', quality: 'dom9(#5)' },
-  ],
+  extraNinths: [{ degree: '4', quality: 'dom9(#5)' }],
 };
 
 const lydianAugmented: ModeChordScales = {
@@ -652,9 +600,7 @@ const lydianAugmented: ModeChordScales = {
     { degree: '6', quality: 'min' },
     { degree: '7', quality: 'min' },
   ],
-  extraTriads: [
-    { degree: '3', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '3', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'maj7(#5)' },
     { degree: '2', quality: 'dom7' },
@@ -664,9 +610,7 @@ const lydianAugmented: ModeChordScales = {
     { degree: '6', quality: 'min(maj7)' },
     { degree: '7', quality: 'min7' },
   ],
-  extraSevenths: [
-    { degree: '3', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '3', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'maj9(#5)' },
     { degree: '2', quality: 'dom9' },
@@ -676,9 +620,7 @@ const lydianAugmented: ModeChordScales = {
     { degree: '6', quality: 'min(maj9)' },
     { degree: '7', quality: 'min7(♭9)' },
   ],
-  extraNinths: [
-    { degree: '3', quality: 'dom9(#5)' },
-  ],
+  extraNinths: [{ degree: '3', quality: 'dom9(#5)' }],
 };
 
 const lydianDominant: ModeChordScales = {
@@ -694,9 +636,7 @@ const lydianDominant: ModeChordScales = {
     { degree: '6', quality: 'min' },
     { degree: '♭7', quality: 'aug' },
   ],
-  extraTriads: [
-    { degree: '2', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '2', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'dom7' },
     { degree: '2', quality: 'dom7' },
@@ -706,9 +646,7 @@ const lydianDominant: ModeChordScales = {
     { degree: '6', quality: 'min7' },
     { degree: '♭7', quality: 'maj7(#5)' },
   ],
-  extraSevenths: [
-    { degree: '2', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '2', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'dom9' },
     { degree: '2', quality: 'dom9' },
@@ -718,9 +656,7 @@ const lydianDominant: ModeChordScales = {
     { degree: '6', quality: 'min7(♭9)' },
     { degree: '♭7', quality: 'maj9(#5)' },
   ],
-  extraNinths: [
-    { degree: '2', quality: 'dom9(#5)' },
-  ],
+  extraNinths: [{ degree: '2', quality: 'dom9(#5)' }],
 };
 
 const mixolydianFlat6: ModeChordScales = {
@@ -736,9 +672,7 @@ const mixolydianFlat6: ModeChordScales = {
     { degree: '♭6', quality: 'aug' },
     { degree: '♭7', quality: 'maj' },
   ],
-  extraTriads: [
-    { degree: '1', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '1', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'dom7' },
     { degree: '2', quality: 'min7(♭5)' },
@@ -748,9 +682,7 @@ const mixolydianFlat6: ModeChordScales = {
     { degree: '♭6', quality: 'maj7(#5)' },
     { degree: '♭7', quality: 'dom7' },
   ],
-  extraSevenths: [
-    { degree: '1', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '1', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'dom9' },
     { degree: '2', quality: 'min9(♭5)' },
@@ -760,9 +692,7 @@ const mixolydianFlat6: ModeChordScales = {
     { degree: '♭6', quality: 'maj9(#5)' },
     { degree: '♭7', quality: 'dom9' },
   ],
-  extraNinths: [
-    { degree: '1', quality: 'dom9(#5)' },
-  ],
+  extraNinths: [{ degree: '1', quality: 'dom9(#5)' }],
 };
 
 const locrianNat2: ModeChordScales = {
@@ -778,9 +708,7 @@ const locrianNat2: ModeChordScales = {
     { degree: '♭6', quality: 'maj' },
     { degree: '♭7', quality: 'maj' },
   ],
-  extraTriads: [
-    { degree: '♭7', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '♭7', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'min7(♭5)' },
     { degree: '2', quality: 'min7(♭5)' },
@@ -790,9 +718,7 @@ const locrianNat2: ModeChordScales = {
     { degree: '♭6', quality: 'dom7' },
     { degree: '♭7', quality: 'dom7' },
   ],
-  extraSevenths: [
-    { degree: '♭7', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '♭7', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'min9(♭5)' },
     { degree: '2', quality: 'min7(♭5♭9)' },
@@ -802,9 +728,7 @@ const locrianNat2: ModeChordScales = {
     { degree: '♭6', quality: 'dom9' },
     { degree: '♭7', quality: 'dom9' },
   ],
-  extraNinths: [
-    { degree: '♭7', quality: 'dom9(#5)' },
-  ],
+  extraNinths: [{ degree: '♭7', quality: 'dom9(#5)' }],
 };
 
 const alteredDominant: ModeChordScales = {
@@ -820,9 +744,7 @@ const alteredDominant: ModeChordScales = {
     { degree: '♭6', quality: 'maj' },
     { degree: '♭7', quality: 'dim' },
   ],
-  extraTriads: [
-    { degree: '♭6', quality: 'aug' },
-  ],
+  extraTriads: [{ degree: '♭6', quality: 'aug' }],
   sevenths: [
     { degree: '1', quality: 'min7(♭5)' },
     { degree: '♭2', quality: 'min(maj7)' },
@@ -832,9 +754,7 @@ const alteredDominant: ModeChordScales = {
     { degree: '♭6', quality: 'dom7' },
     { degree: '♭7', quality: 'min7(♭5)' },
   ],
-  extraSevenths: [
-    { degree: '♭6', quality: 'dom7(#5)' },
-  ],
+  extraSevenths: [{ degree: '♭6', quality: 'dom7(#5)' }],
   ninths: [
     { degree: '1', quality: 'min7(♭5♭9)' },
     { degree: '♭2', quality: 'min(maj9)' },
@@ -844,9 +764,7 @@ const alteredDominant: ModeChordScales = {
     { degree: '♭6', quality: 'dom9' },
     { degree: '♭7', quality: 'min9(♭5)' },
   ],
-  extraNinths: [
-    { degree: '♭6', quality: 'dom9(#5)' },
-  ],
+  extraNinths: [{ degree: '♭6', quality: 'dom9(#5)' }],
 };
 
 // ─────────────────────────────────────────────

@@ -2,8 +2,7 @@
 // TypeScript wrapper around the nam-processor AudioWorklet.
 // Handles registration, model loading (with zero-copy transfer), and messaging.
 
-import type { NamModelFile } from './NamModelParser';
-import { getModelDisplayName } from './NamModelParser';
+import { getModelDisplayName, type NamModelFile } from './NamModelParser';
 
 export class NamWorkletNode {
   private ctx: AudioContext;
@@ -40,7 +39,6 @@ export class NamWorkletNode {
     this.node.port.onmessage = (e) => {
       const data = e.data;
       if (data.type === 'model-loaded') {
-        console.log(`[NAM] Model loaded (${data.architecture})`);
         this._loaded = true;
         this._loadResolve?.();
         this._loadResolve = null;
@@ -55,7 +53,8 @@ export class NamWorkletNode {
   }
 
   async loadModel(model: NamModelFile): Promise<void> {
-    if (!this.node) throw new Error('NamWorkletNode not initialized — call init() first');
+    if (!this.node)
+      throw new Error('NamWorkletNode not initialized — call init() first');
 
     // Convert to Float32Array for efficient transfer
     const weights = new Float32Array(model.weights);

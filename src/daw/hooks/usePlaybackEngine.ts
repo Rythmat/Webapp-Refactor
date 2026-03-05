@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
-import { useStore } from '@/daw/store';
-import type { InstrumentType } from '@/daw/store';
+import { useStore, type InstrumentType } from '@/daw/store';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { TrackEngine } from '@/daw/audio/TrackEngine';
 import { MidiScheduler } from '@/daw/audio/MidiScheduler';
@@ -9,12 +8,19 @@ import { AudioClipScheduler } from '@/daw/audio/AudioClipScheduler';
 import { MetronomeEngine } from '@/daw/audio/MetronomeEngine';
 import { AudioRecorder } from '@/daw/audio/AudioRecorder';
 import { setAudioBuffer, getAudioBuffer } from '@/daw/audio/AudioBufferStore';
-import { renderPitchEdits, pitchEditCacheKey } from '@/daw/audio/pitch-analysis/PitchRenderer';
+import {
+  renderPitchEdits,
+  pitchEditCacheKey,
+} from '@/daw/audio/pitch-analysis/PitchRenderer';
 import { seekTo } from '@/daw/hooks/useTransport';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
 import { PianoSampler } from '@/daw/instruments/PianoSampler';
 import { SamplerInstrument } from '@/daw/instruments/SamplerInstrument';
-import { ELECTRIC_PIANO_CONFIG, CELLO_CONFIG, ORGAN_CONFIG } from '@/daw/instruments/sampleConfigs';
+import {
+  ELECTRIC_PIANO_CONFIG,
+  CELLO_CONFIG,
+  ORGAN_CONFIG,
+} from '@/daw/instruments/sampleConfigs';
 import { DrumMachineEngine } from '@/daw/instruments/DrumMachineEngine';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
@@ -36,7 +42,9 @@ export interface TrackAudioState {
 
 export const trackEngineRegistry = new Map<string, TrackAudioState>();
 
-export function getTrackAudioState(trackId: string): TrackAudioState | undefined {
+export function getTrackAudioState(
+  trackId: string,
+): TrackAudioState | undefined {
   return trackEngineRegistry.get(trackId);
 }
 
@@ -52,12 +60,17 @@ export function getEngineReadyVersion(): number {
 
 export function subscribeEngineReady(cb: () => void): () => void {
   engineReadyListeners.add(cb);
-  return () => { engineReadyListeners.delete(cb); };
+  return () => {
+    engineReadyListeners.delete(cb);
+  };
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
-function createInstrument(type: InstrumentType, gmProgram?: number): InstrumentAdapter | null {
+function createInstrument(
+  type: InstrumentType,
+  gmProgram?: number,
+): InstrumentAdapter | null {
   switch (type) {
     case 'oracle-synth':
       return new OracleSynthAdapter();
@@ -88,14 +101,34 @@ function createInstrument(type: InstrumentType, gmProgram?: number): InstrumentA
 // ── Pitch-edited buffer cache ──────────────────────────────────────────────
 // Caches rendered pitch-edited AudioBuffers keyed by `clipId:editHash`.
 // Invalidated when edits change (different hash).
-const pitchBufferCache = new Map<string, { key: string; buffer: AudioBuffer }>();
+const pitchBufferCache = new Map<
+  string,
+  { key: string; buffer: AudioBuffer }
+>();
 
 /** Resolve playback buffer: if the clip has pitch edits, return a pre-rendered
  *  buffer with edits baked in. Otherwise return the original. */
 function resolvePitchBuffer(
   clipId: string,
   originalBuffer: AudioBuffer,
-  storeState: { pitchData: Record<string, { segments: { id: string; startTimeMs: number; endTimeMs: number; medianFreqHz: number; midiNote: number; centsOffset: number; pitchContour: number[] }[]; edits: { segmentId: string; targetMidiNote: number }[]; analyzed: boolean }> },
+  storeState: {
+    pitchData: Record<
+      string,
+      {
+        segments: {
+          id: string;
+          startTimeMs: number;
+          endTimeMs: number;
+          medianFreqHz: number;
+          midiNote: number;
+          centsOffset: number;
+          pitchContour: number[];
+        }[];
+        edits: { segmentId: string; targetMidiNote: number }[];
+        analyzed: boolean;
+      }
+    >;
+  },
 ): AudioBuffer {
   const pd = storeState.pitchData[clipId];
   if (!pd || !pd.analyzed || pd.edits.length === 0) return originalBuffer;
@@ -186,8 +219,11 @@ export function usePlaybackEngine(isReady: boolean) {
 
       if (instrument) {
         // Initialize instrument async — fires and connects when ready
-        console.log(`[Audio] Initializing ${track.instrument} for track "${track.name}"...`);
-        instrument.init(ctx, trackEngine.getInputNode())
+        console.log(
+          `[Audio] Initializing ${track.instrument} for track "${track.name}"...`,
+        );
+        instrument
+          .init(ctx, trackEngine.getInputNode())
           .then(() => {
             trackEngine.setInstrument(instrument);
             console.log(`[Audio] Instrument ready for track "${track.name}"`);
@@ -195,11 +231,18 @@ export function usePlaybackEngine(isReady: boolean) {
             engineReadyListeners.forEach((cb) => cb());
           })
           .catch((err) => {
-            console.error(`[Audio] Instrument init FAILED for track "${track.name}":`, err);
+            console.error(
+              `[Audio] Instrument init FAILED for track "${track.name}":`,
+              err,
+            );
           });
       }
 
-      audioMap.set(track.id, { trackEngine, instrument, instrumentType: track.instrument });
+      audioMap.set(track.id, {
+        trackEngine,
+        instrument,
+        instrumentType: track.instrument,
+      });
     }
   }, [isReady, tracks]);
 
@@ -249,15 +292,24 @@ export function usePlaybackEngine(isReady: boolean) {
 
         // Schedule audio clips — route through pedal chain for Guitar/Bass/Vocal tracks
         // so amp/pedal changes are heard in real time during playback
-        const pedalInput = state.instrument instanceof GuitarFxAdapter
-          ? (state.instrument as GuitarFxAdapter).getNativePedalInputNode() ?? undefined
-          : state.instrument instanceof VocalFxAdapter
-            ? (state.instrument as VocalFxAdapter).getNativePedalInputNode() ?? undefined
-            : undefined;
+        const pedalInput =
+          state.instrument instanceof GuitarFxAdapter
+            ? ((
+                state.instrument as GuitarFxAdapter
+              ).getNativePedalInputNode() ?? undefined)
+            : state.instrument instanceof VocalFxAdapter
+              ? ((
+                  state.instrument as VocalFxAdapter
+                ).getNativePedalInputNode() ?? undefined)
+              : undefined;
         for (const clip of track.audioClips) {
           const audioBuffer = getAudioBuffer(clip.id);
           if (!audioBuffer) continue;
-          const playBuffer = resolvePitchBuffer(clip.id, audioBuffer, storeState);
+          const playBuffer = resolvePitchBuffer(
+            clip.id,
+            audioBuffer,
+            storeState,
+          );
           audioClipScheduler.scheduleClip(
             playBuffer,
             clip.startTick,
@@ -327,9 +379,12 @@ export function usePlaybackEngine(isReady: boolean) {
     }
 
     // After count-in completes, start transport + recording
-    const timer = setTimeout(() => {
-      useStore.getState()._startRecordingAfterCountIn();
-    }, totalBeats * beatDuration * 1000);
+    const timer = setTimeout(
+      () => {
+        useStore.getState()._startRecordingAfterCountIn();
+      },
+      totalBeats * beatDuration * 1000,
+    );
     countInTimerRef.current = timer;
 
     return () => {
@@ -372,15 +427,24 @@ export function usePlaybackEngine(isReady: boolean) {
         if (track.mute) continue;
         const state = audioMap.get(track.id);
         if (!state) continue;
-        const pedalInput = state.instrument instanceof GuitarFxAdapter
-          ? (state.instrument as GuitarFxAdapter).getNativePedalInputNode() ?? undefined
-          : state.instrument instanceof VocalFxAdapter
-            ? (state.instrument as VocalFxAdapter).getNativePedalInputNode() ?? undefined
-            : undefined;
+        const pedalInput =
+          state.instrument instanceof GuitarFxAdapter
+            ? ((
+                state.instrument as GuitarFxAdapter
+              ).getNativePedalInputNode() ?? undefined)
+            : state.instrument instanceof VocalFxAdapter
+              ? ((
+                  state.instrument as VocalFxAdapter
+                ).getNativePedalInputNode() ?? undefined)
+              : undefined;
         for (const clip of track.audioClips) {
           const audioBuffer = getAudioBuffer(clip.id);
           if (!audioBuffer) continue;
-          const playBuffer = resolvePitchBuffer(clip.id, audioBuffer, storeSnap);
+          const playBuffer = resolvePitchBuffer(
+            clip.id,
+            audioBuffer,
+            storeSnap,
+          );
           const clipEnd = clip.startTick + clip.duration;
           // Only schedule clips that overlap the loop region
           if (clipEnd > loopStart && clip.startTick < loopEnd) {
@@ -400,10 +464,10 @@ export function usePlaybackEngine(isReady: boolean) {
       }
     };
 
-    transport.on("loop", handleLoop);
+    transport.on('loop', handleLoop);
 
     return () => {
-      transport.off("loop", handleLoop);
+      transport.off('loop', handleLoop);
     };
   }, [isReady, isPlaying, loopEnabled]);
 
@@ -430,11 +494,12 @@ export function usePlaybackEngine(isReady: boolean) {
       // (DRY, before pedal chain) so playback re-applies effects in real time.
       // For other audio tracks, fall back to raw mic input via getUserMedia.
       const audioState = trackAudioRef.current.get(recordArmedAudioTrack.id);
-      const adapter = audioState?.instrument instanceof GuitarFxAdapter
-        ? audioState.instrument
-        : audioState?.instrument instanceof VocalFxAdapter
+      const adapter =
+        audioState?.instrument instanceof GuitarFxAdapter
           ? audioState.instrument
-          : null;
+          : audioState?.instrument instanceof VocalFxAdapter
+            ? audioState.instrument
+            : null;
 
       if (adapter) {
         // Tap the pedal chain output (after amp model, before muteGain)
@@ -462,17 +527,22 @@ export function usePlaybackEngine(isReady: boolean) {
       isActivelyRecordingRef.current = false;
 
       const recorder = audioRecorderRef.current;
-      const armedTrack = tracks.find((t) => t.type === 'audio' && t.recordArmed);
+      const armedTrack = tracks.find(
+        (t) => t.type === 'audio' && t.recordArmed,
+      );
       const trackId = armedTrack?.id;
       const startTick = recordStartTickRef.current;
 
       // Clean up recording stream tap on Guitar/Bass/Vocal tracks
-      const audioState = armedTrack ? trackAudioRef.current.get(armedTrack.id) : undefined;
-      const stoppingAdapter = audioState?.instrument instanceof GuitarFxAdapter
-        ? audioState.instrument
-        : audioState?.instrument instanceof VocalFxAdapter
+      const audioState = armedTrack
+        ? trackAudioRef.current.get(armedTrack.id)
+        : undefined;
+      const stoppingAdapter =
+        audioState?.instrument instanceof GuitarFxAdapter
           ? audioState.instrument
-          : null;
+          : audioState?.instrument instanceof VocalFxAdapter
+            ? audioState.instrument
+            : null;
       stoppingAdapter?.stopRecordingStream();
 
       const ctx = audioEngine.getContext();
@@ -485,9 +555,7 @@ export function usePlaybackEngine(isReady: boolean) {
           // Convert duration in seconds to ticks
           const bpm = useStore.getState().bpm;
           const durationSeconds = audioBuffer.duration;
-          const durationTicks = Math.round(
-            (durationSeconds / 60) * bpm * 480,
-          );
+          const durationTicks = Math.round((durationSeconds / 60) * bpm * 480);
 
           if (trackId) {
             useStore.getState().addAudioClip(trackId, {

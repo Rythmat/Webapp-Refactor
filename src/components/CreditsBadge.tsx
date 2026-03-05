@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 import { ProfileRoutes } from '@/constants/routes';
 import { useCreditsBalance } from '@/hooks/data/credits';
@@ -13,10 +13,12 @@ export const CreditsBadge = ({ isCollapsed = false }: CreditsBadgeProps) => {
 
   if (isLoading) {
     return (
-      <div className={cn(
-        'flex items-center gap-2 rounded-lg px-3 py-2',
-        isCollapsed && 'justify-center px-0',
-      )}>
+      <div
+        className={cn(
+          'flex items-center gap-2 rounded-lg px-3 py-2',
+          isCollapsed && 'justify-center px-0',
+        )}
+      >
         <Sparkles className="size-4 text-muted-foreground" />
         {!isCollapsed && (
           <div className="h-4 w-16 animate-pulse rounded bg-muted" />
@@ -37,9 +39,7 @@ export const CreditsBadge = ({ isCollapsed = false }: CreditsBadgeProps) => {
     >
       <Sparkles className="size-4 text-amber-500" />
       {!isCollapsed && (
-        <span className="text-muted-foreground">
-          {data.balance} credits
-        </span>
+        <span className="text-muted-foreground">{data.balance} credits</span>
       )}
     </Link>
   );

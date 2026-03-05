@@ -1,8 +1,12 @@
+/* eslint-disable tailwindcss/classnames-order */
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
-import { DrumMachineEngine, DRUM_KITS } from '@/daw/instruments/DrumMachineEngine';
-import type { DrumKitId } from '@/daw/instruments/DrumMachineEngine';
+import {
+  DrumMachineEngine,
+  DRUM_KITS,
+  type DrumKitId,
+} from '@/daw/instruments/DrumMachineEngine';
 
 interface DrumKitSelectorProps {
   trackId: string;
@@ -40,7 +44,8 @@ export function DrumKitSelector({ trackId }: DrumKitSelectorProps) {
     [trackId],
   );
 
-  const currentLabel = DRUM_KITS.find((k) => k.id === currentKit)?.label ?? currentKit;
+  const currentLabel =
+    DRUM_KITS.find((k) => k.id === currentKit)?.label ?? currentKit;
 
   return (
     <div className="flex flex-col h-full">
@@ -68,7 +73,11 @@ export function DrumKitSelector({ trackId }: DrumKitSelectorProps) {
             }}
           >
             {loading ? (
-              <Loader2 size={12} className="animate-spin" style={{ color: 'var(--color-text-dim)' }} />
+              <Loader2
+                size={12}
+                className="animate-spin"
+                style={{ color: 'var(--color-text-dim)' }}
+              />
             ) : null}
             {currentLabel}
             <ChevronDown size={12} style={{ color: 'var(--color-text-dim)' }} />
@@ -90,16 +99,25 @@ export function DrumKitSelector({ trackId }: DrumKitSelectorProps) {
                   onClick={() => handleKitChange(kit.id)}
                   className="block w-full text-left px-4 py-2 text-xs cursor-pointer transition-colors"
                   style={{
-                    backgroundColor: kit.id === currentKit ? 'var(--color-surface-2)' : 'transparent',
-                    color: kit.id === currentKit ? 'var(--color-text)' : 'var(--color-text-dim)',
+                    backgroundColor:
+                      kit.id === currentKit
+                        ? 'var(--color-surface-2)'
+                        : 'transparent',
+                    color:
+                      kit.id === currentKit
+                        ? 'var(--color-text)'
+                        : 'var(--color-text-dim)',
                     fontWeight: kit.id === currentKit ? 600 : 400,
                     border: 'none',
                   }}
                   onMouseEnter={(e) => {
-                    if (kit.id !== currentKit) e.currentTarget.style.backgroundColor = 'var(--color-surface-2)';
+                    if (kit.id !== currentKit)
+                      e.currentTarget.style.backgroundColor =
+                        'var(--color-surface-2)';
                   }}
                   onMouseLeave={(e) => {
-                    if (kit.id !== currentKit) e.currentTarget.style.backgroundColor = 'transparent';
+                    if (kit.id !== currentKit)
+                      e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                 >
                   {kit.label}

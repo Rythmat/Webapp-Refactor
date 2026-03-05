@@ -54,7 +54,10 @@ export class SynthEngine {
   private static readonly VIBRATO_RATE = 5.5; // Hz
   private static readonly VIBRATO_MAX_DEPTH = 50; // cents (half semitone)
 
-  async init(externalCtx?: AudioContext, options?: { disableMidi?: boolean }): Promise<void> {
+  async init(
+    externalCtx?: AudioContext,
+    options?: { disableMidi?: boolean },
+  ): Promise<void> {
     if (this.isInitialized) return;
 
     this.ctx = externalCtx ?? new AudioContext();
@@ -86,7 +89,7 @@ export class SynthEngine {
       this.ctx,
       this.wavetableBank,
       this.masterGain,
-      DEFAULT_VOICE_COUNT
+      DEFAULT_VOICE_COUNT,
     );
 
     // Vibrato: sine LFO → depth gain → all voice oscillator detune params
@@ -130,7 +133,7 @@ export class SynthEngine {
     // Arpeggiator (routes through rawNoteOn/rawNoteOff)
     this.arpeggiator = new Arpeggiator(
       (note, vel) => this.rawNoteOn(note, vel),
-      (note) => this.rawNoteOff(note)
+      (note) => this.rawNoteOff(note),
     );
 
     // MIDI handler — skip when embedded in a host DAW that handles MIDI routing
@@ -138,7 +141,7 @@ export class SynthEngine {
       this.midiHandler = new MidiHandler(
         (note, velocity) => this.noteOn(note, velocity),
         (note) => this.noteOff(note),
-        (cc, value) => this.handleMidiCC(cc, value)
+        (cc, value) => this.handleMidiCC(cc, value),
       );
       this.midiHandler.init(); // fire-and-forget, works if MIDI available
     }
@@ -155,7 +158,11 @@ export class SynthEngine {
     }
     this.modMatrix?.disconnectAll();
     if (this.vibratoOsc) {
-      try { this.vibratoOsc.stop(); } catch { /* already stopped */ }
+      try {
+        this.vibratoOsc.stop();
+      } catch {
+        /* already stopped */
+      }
       this.vibratoOsc.disconnect();
       this.vibratoOsc = null;
     }
@@ -353,7 +360,7 @@ export class SynthEngine {
       smoothParam(
         this.vibratoDepth.gain,
         value * SynthEngine.VIBRATO_MAX_DEPTH,
-        this.ctx
+        this.ctx,
       );
     }
   }

@@ -5,16 +5,13 @@ export interface NoiseSlice {
   noise: NoiseParams;
   setNoiseParam: <K extends keyof NoiseParams>(
     param: K,
-    value: NoiseParams[K]
+    value: NoiseParams[K],
   ) => void;
 }
 
-export const createNoiseSlice: StateCreator<
-  NoiseSlice,
-  [],
-  [],
-  NoiseSlice
-> = (set) => ({
+export const createNoiseSlice: StateCreator<NoiseSlice, [], [], NoiseSlice> = (
+  set,
+) => ({
   noise: {
     type: 'pink',
     level: 0.3,

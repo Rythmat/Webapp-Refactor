@@ -1,4 +1,4 @@
-import type { HistoricalModule } from '@/components/atlas/types'
+import type { HistoricalModule } from '@/components/atlas/types';
 
 export const HISTORICAL_MODULES: HistoricalModule[] = [
   // ── 1. Blues to Rock ──────────────────────────────────────────────────
@@ -104,8 +104,7 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
   {
     id: 'griot-to-afrobeats',
     title: 'Griot to Afrobeats',
-    description:
-      'West African musical traditions evolving into global pop',
+    description: 'West African musical traditions evolving into global pop',
     emoji: '🥁',
     eventIds: [
       'evt-griot-timbuktu-1500',
@@ -123,8 +122,7 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
   {
     id: 'jazz-chain',
     title: 'The Jazz Chain',
-    description:
-      'New Orleans origins through swing and bebop to Ethio-jazz',
+    description: 'New Orleans origins through swing and bebop to Ethio-jazz',
     emoji: '🎷',
     eventIds: [
       'evt-jazz-origins-nola-1890',
@@ -161,8 +159,7 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
   {
     id: 'brazilian-thread',
     title: 'Brazilian Thread',
-    description:
-      'Candomble rhythms through samba to baile funk',
+    description: 'Candomble rhythms through samba to baile funk',
     emoji: '🇧🇷',
     eventIds: [
       'evt-diaspora-salvador-candomble-1830',
@@ -178,8 +175,7 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
   {
     id: 'punk-shockwave',
     title: 'Punk Shockwave',
-    description:
-      'Reggae-fueled London punk radiating worldwide',
+    description: 'Reggae-fueled London punk radiating worldwide',
     emoji: '🤘',
     eventIds: [
       'evt-reggae-kingston-1977',
@@ -197,8 +193,7 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
   {
     id: 'maqam-mahraganat',
     title: 'Maqam to Mahraganat',
-    description:
-      "Cairo's classical maqam tradition to street electronic",
+    description: "Cairo's classical maqam tradition to street electronic",
     emoji: '🏛️',
     eventIds: [
       'evt-maqam-cairo-1870',
@@ -214,8 +209,7 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
   {
     id: 'congolese-rumba',
     title: 'Congolese Rumba Circle',
-    description:
-      'Cuban son crosses the Atlantic and returns as soukous',
+    description: 'Cuban son crosses the Atlantic and returns as soukous',
     emoji: '💃',
     eventIds: [
       'evt-son-havana-1930',
@@ -231,8 +225,7 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
   {
     id: 'uk-underground',
     title: 'UK Underground',
-    description:
-      'Windrush generation sounds to drill',
+    description: 'Windrush generation sounds to drill',
     emoji: '🇬🇧',
     eventIds: [
       'evt-windrush-london-1948',
@@ -259,4 +252,4 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
       'evt-kpop-global-2020',
     ],
   },
-]
+];

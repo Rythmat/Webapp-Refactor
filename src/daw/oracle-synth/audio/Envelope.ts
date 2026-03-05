@@ -24,7 +24,12 @@ export class Envelope {
     return { ...this.params };
   }
 
-  trigger(target: AudioParam, velocity: number, ctx: AudioContext, time?: number): void {
+  trigger(
+    target: AudioParam,
+    velocity: number,
+    ctx: AudioContext,
+    time?: number,
+  ): void {
     const now = time ?? ctx.currentTime;
     const { attack, decay, sustain } = this.params;
     const peak = velocity;

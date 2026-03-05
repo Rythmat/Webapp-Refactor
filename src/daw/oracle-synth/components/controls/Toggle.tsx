@@ -17,16 +17,20 @@ function darkenColor(hex: string): string {
 
 export const Toggle: React.FC<ToggleProps> = React.memo(
   ({ value, label, accent, onChange }) => {
-    const trackStyle = value && accent ? { background: darkenColor(accent) } : undefined;
+    const trackStyle =
+      value && accent ? { background: darkenColor(accent) } : undefined;
     const thumbStyle = value && accent ? { background: accent } : undefined;
 
     return (
       <div className={styles.container} onClick={() => onChange(!value)}>
-        <div className={`${styles.track} ${value ? styles.active : ''}`} style={trackStyle}>
+        <div
+          className={`${styles.track} ${value ? styles.active : ''}`}
+          style={trackStyle}
+        >
           <div className={styles.thumb} style={thumbStyle} />
         </div>
         {label && <span className={styles.label}>{label}</span>}
       </div>
     );
-  }
+  },
 );

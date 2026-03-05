@@ -1,14 +1,20 @@
+import { BookOpen, Earth, Gamepad2, Home, Music } from 'lucide-react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { CreditsBadge } from '@/components/CreditsBadge';
 import { Logo } from '@/components/Logo';
 import { BetaHelp } from '@/components/ui/beta-help';
 import { cn } from '@/components/utilities';
-import { AtlasRoutes, GameRoutes, LearnRoutes, ProfileRoutes, StudioRoutes } from '@/constants/routes';
+import {
+  AtlasRoutes,
+  GameRoutes,
+  LearnRoutes,
+  ProfileRoutes,
+  StudioRoutes,
+} from '@/constants/routes';
 // import { ConnectRoutes, LibraryRoutes } from '@/constants/routes';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
 import { UserWidget } from './UserWidget';
-import { BookOpen, Earth, Gamepad2, Home, Music } from 'lucide-react';
 // import { Library, Users } from 'lucide-react';
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -27,12 +33,10 @@ export const ClassroomSidebar = ({
   isCollapsed = false,
   onToggleCollapse,
   view,
-  ids
+  ids,
 }: SidebarProps) => {
-
-  switch(view){
-    default:
-      ids;
+  if (view === 'collection' || view === 'lesson') {
+    ids;
   }
 
   return (
@@ -59,32 +63,32 @@ export const ClassroomSidebar = ({
             </button>
           </div>
         </div>
-        
+
         <ul className="flex flex-1 flex-col gap-y-1 pt-4">
           <SidebarMainNavItem
-                      icon={Home}
-                      isCollapsed={isCollapsed}
-                      label="Home"
-                      to={ProfileRoutes.root()}
-                    />
+            icon={Home}
+            isCollapsed={isCollapsed}
+            label="Home"
+            to={ProfileRoutes.root()}
+          />
           <SidebarMainNavItem
-                      icon={BookOpen}
-                      isCollapsed={isCollapsed}
-                      label="Learn"
-                      to={LearnRoutes.root()}
-                    />
+            icon={BookOpen}
+            isCollapsed={isCollapsed}
+            label="Learn"
+            to={LearnRoutes.root()}
+          />
           <SidebarMainNavItem
-                      icon={Music}
-                      isCollapsed={isCollapsed}
-                      label="Studio"
-                      to={StudioRoutes.root()}
-                    />
+            icon={Music}
+            isCollapsed={isCollapsed}
+            label="Studio"
+            to={StudioRoutes.root()}
+          />
           <SidebarMainNavItem
-                      icon={Earth}
-                      isCollapsed={isCollapsed}
-                      label="Globe"
-                      to={AtlasRoutes.root()}
-                    />
+            icon={Earth}
+            isCollapsed={isCollapsed}
+            label="Globe"
+            to={AtlasRoutes.root()}
+          />
           {/* <SidebarMainNavItem
                       icon={Library}
                       isCollapsed={isCollapsed}
@@ -92,11 +96,11 @@ export const ClassroomSidebar = ({
                       to={LibraryRoutes.root()}
                     /> */}
           <SidebarMainNavItem
-                      icon={Gamepad2}
-                      isCollapsed={isCollapsed}
-                      label="Arcade"
-                      to={GameRoutes.root()}
-                    />
+            icon={Gamepad2}
+            isCollapsed={isCollapsed}
+            label="Arcade"
+            to={GameRoutes.root()}
+          />
           {/* <SidebarMainNavItem
                       icon={Users}
                       isCollapsed={isCollapsed}
@@ -104,40 +108,38 @@ export const ClassroomSidebar = ({
                       to={ConnectRoutes.root()}
                     /> */}
         </ul>
-        
 
         {!isCollapsed && (
-                  <>
-                    <ul className="flex flex-col space-y-1 text-sm">
-                      <SidebarSecondaryNavItem
-                        external
-                        label="Changelog"
-                        to="https://www.musicatlas.io/policies/change-log"
-                      />
-                      <SidebarSecondaryNavItem
-                        external
-                        label="Support"
-                        to="mailto:aaron@musicatlas.io"
-                      />
-                      <SidebarSecondaryNavItem
-                        external
-                        label="Licensing"
-                        to="https://www.musicatlas.io/policies/licensing"
-                      />
-                      <SidebarSecondaryNavItem
-                        external
-                        label="Privacy Policy"
-                        to="https://www.musicatlas.io/policies/privacy"
-                      />
-                      <SidebarSecondaryNavItem
-                        external
-                        label="Terms of Use"
-                        to="https://www.musicatlas.io/policies/terms"
-                      />
-                    </ul>
-                  </>
-                )}
-
+          <>
+            <ul className="flex flex-col space-y-1 text-sm">
+              <SidebarSecondaryNavItem
+                external
+                label="Changelog"
+                to="https://www.musicatlas.io/policies/change-log"
+              />
+              <SidebarSecondaryNavItem
+                external
+                label="Support"
+                to="mailto:aaron@musicatlas.io"
+              />
+              <SidebarSecondaryNavItem
+                external
+                label="Licensing"
+                to="https://www.musicatlas.io/policies/licensing"
+              />
+              <SidebarSecondaryNavItem
+                external
+                label="Privacy Policy"
+                to="https://www.musicatlas.io/policies/privacy"
+              />
+              <SidebarSecondaryNavItem
+                external
+                label="Terms of Use"
+                to="https://www.musicatlas.io/policies/terms"
+              />
+            </ul>
+          </>
+        )}
 
         <CreditsBadge isCollapsed={isCollapsed} />
 

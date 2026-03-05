@@ -60,11 +60,11 @@ export const KEY_OF_COLORS = {
   A: '#FFCB30',
   E: '#AED580',
   B: '#7FC783',
-  "F#": '#28A69A',
-  "Db": '#62B4F7',
-  "Ab": '#7885CB',
-  "Eb": '#9D7FCE',
-  "Bb": '#C783D3',
+  'F#': '#28A69A',
+  Db: '#62B4F7',
+  Ab: '#7885CB',
+  Eb: '#9D7FCE',
+  Bb: '#C783D3',
   F: '#F8C8C5',
 };
 

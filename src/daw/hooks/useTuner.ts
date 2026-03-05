@@ -3,10 +3,23 @@ import { getAudioStream } from '@/daw/midi/AudioInputEnumerator';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const NOTE_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
 const A4_FREQ = 440;
-const MIN_FREQ = 60;   // ~B1 — lowest guitar/bass note we care about
-const MAX_FREQ = 1200;  // Well above high E4 guitar string
+const MIN_FREQ = 60; // ~B1 — lowest guitar/bass note we care about
+const MAX_FREQ = 1200; // Well above high E4 guitar string
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -32,10 +45,14 @@ function autoCorrelate(buf: Float32Array, sampleRate: number): number {
   let r2 = buf.length - 1;
   const threshold = 0.2;
   for (let i = 0; i < buf.length / 2; i++) {
-    if (Math.abs(buf[i]) < threshold) { r1 = i; } else break;
+    if (Math.abs(buf[i]) < threshold) {
+      r1 = i;
+    } else break;
   }
   for (let i = 1; i < buf.length / 2; i++) {
-    if (Math.abs(buf[buf.length - i]) < threshold) { r2 = buf.length - i; } else break;
+    if (Math.abs(buf[buf.length - i]) < threshold) {
+      r2 = buf.length - i;
+    } else break;
   }
 
   const trimmed = buf.slice(r1, r2);
@@ -80,7 +97,11 @@ function autoCorrelate(buf: Float32Array, sampleRate: number): number {
 
 // ── Frequency → Note conversion ──────────────────────────────────────────
 
-function freqToNote(freq: number): { note: string; octave: number; cents: number } {
+function freqToNote(freq: number): {
+  note: string;
+  octave: number;
+  cents: number;
+} {
   const semitones = 12 * Math.log2(freq / A4_FREQ);
   const rounded = Math.round(semitones);
   const cents = Math.round((semitones - rounded) * 100);

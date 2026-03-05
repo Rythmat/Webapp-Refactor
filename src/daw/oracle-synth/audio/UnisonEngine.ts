@@ -45,7 +45,11 @@ export class UnisonEngine {
     this.currentFreq = freq;
     for (const osc of this.oscillators) {
       if (glideTime && glideTime > 0) {
-        osc.frequency.setTargetAtTime(freq, this.ctx.currentTime, glideTime / 3);
+        osc.frequency.setTargetAtTime(
+          freq,
+          this.ctx.currentTime,
+          glideTime / 3,
+        );
       } else {
         osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
       }
@@ -113,7 +117,11 @@ export class UnisonEngine {
   disconnectVibratoSource(): void {
     if (this.vibratoSource) {
       for (const osc of this.oscillators) {
-        try { this.vibratoSource.disconnect(osc.detune); } catch { /* already disconnected */ }
+        try {
+          this.vibratoSource.disconnect(osc.detune);
+        } catch {
+          /* already disconnected */
+        }
       }
       this.vibratoSource = null;
     }

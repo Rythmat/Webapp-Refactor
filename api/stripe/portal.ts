@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { cors } from '../lib/cors';
+import { getSubscription } from '../lib/db';
 import { getUserFromRequest } from '../lib/jwt';
 import { stripe } from '../lib/stripe';
-import { getSubscription } from '../lib/db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (cors(req, res)) return;

@@ -1,7 +1,8 @@
+/* eslint-disable import/no-default-export */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { cors } from '../lib/cors';
-import { getUserFromRequest } from '../lib/jwt';
 import { consumeCredit } from '../lib/db';
+import { getUserFromRequest } from '../lib/jwt';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (cors(req, res)) return;
@@ -16,14 +17,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { action } = req.body as { action?: string };
     const result = await consumeCredit(user.user_id);
 
     if (!result.success) {
-      return res.status(402).json({ error: 'insufficient_credits', remaining: 0 });
+      return res
+        .status(402)
+        .json({ error: 'insufficient_credits', remaining: 0 });
     }
-
-    console.log(`Credit consumed: user=${user.user_id} action=${action || 'unknown'} remaining=${result.remaining}`);
 
     return res.status(200).json({
       success: true,

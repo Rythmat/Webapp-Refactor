@@ -1,3 +1,5 @@
+/* eslint-disable import/order */
+/* eslint-disable react/jsx-sort-props */
 import './PageEditorPane.css';
 import { Plus, Youtube, Image as ImageIcon } from 'lucide-react';
 import { useRef, useEffect, useState, forwardRef } from 'react';
@@ -101,7 +103,6 @@ export const PageEditorPane = forwardRef<HTMLDivElement, PageEditorPaneProps>(
       };
     }, []);
 
-
     const handleOpenPhraseMapModal = () => {
       setShowPhraseMapModal(true);
     };
@@ -126,7 +127,6 @@ export const PageEditorPane = forwardRef<HTMLDivElement, PageEditorPaneProps>(
       setShowActionButton(false);
     };
 
-
     const handleInsertPhraseMap = (phraseMapId: string) => {
       if (!textareaRef.current) return;
 
@@ -144,7 +144,10 @@ export const PageEditorPane = forwardRef<HTMLDivElement, PageEditorPaneProps>(
       setShowPhraseMapModal(false);
     };
 
-    const handleInsertGame = (selection: { gameId: string; chords: string[] }) => {
+    const handleInsertGame = (selection: {
+      gameId: string;
+      chords: string[];
+    }) => {
       if (!textareaRef.current) return;
 
       const textarea = textareaRef.current;
@@ -153,12 +156,12 @@ export const PageEditorPane = forwardRef<HTMLDivElement, PageEditorPaneProps>(
       // Insert the game syntax at the cursor position
       const newContent =
         content.substring(0, selectionStart) +
-        `_component:${selection.gameId}(${selection.chords.reduce((a,b)=>{return (a.length>3)?a+"|"+b:b},"")})_` +
+        `_component:${selection.gameId}(${selection.chords.reduce((a, b) => {
+          return a.length > 3 ? a + '|' + b : b;
+        }, '')})_` +
         content.substring(selectionStart);
 
       setContent(newContent);
-
-
     };
 
     const handleInsertPlayAlong = (playAlongSyntax: string) => {
@@ -207,8 +210,6 @@ export const PageEditorPane = forwardRef<HTMLDivElement, PageEditorPaneProps>(
 
       setContent(newContent);
     };
-
-    
 
     return (
       <div
@@ -293,14 +294,13 @@ export const PageEditorPane = forwardRef<HTMLDivElement, PageEditorPaneProps>(
                   className="cursor-pointer"
                   onClick={handleOpenGamesModal}
                 >
-                  <PlayIcon className="mr-2 size-4"/>
+                  <PlayIcon className="mr-2 size-4" />
                   Game
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
-
 
         {/* Phrase Map Modal */}
         <SelectPhraseMapModal
@@ -338,7 +338,6 @@ export const PageEditorPane = forwardRef<HTMLDivElement, PageEditorPaneProps>(
           onSelect={handleInsertGame}
           onOpenChange={setShowGameModal}
         />
-
       </div>
     );
   },

@@ -15,9 +15,9 @@ export type VoiceMode = 'poly' | 'legato' | 'mono';
 export type VoiceState = 'free' | 'active' | 'releasing';
 
 export interface LFONode {
-  time: number;    // 0..1 normalized position within one bar
-  value: number;   // 0..1 unipolar
-  curve?: number;  // -1..1, default 0 (linear). Controls shape to next node.
+  time: number; // 0..1 normalized position within one bar
+  value: number; // 0..1 unipolar
+  curve?: number; // -1..1, default 0 (linear). Controls shape to next node.
 }
 
 export interface ModTarget {
@@ -99,22 +99,22 @@ export interface EnvelopeParams {
 }
 
 export type RateDiv =
-  | '4'     // 4 bars
-  | '2'     // 2 bars
-  | '1'     // 1 bar
-  | '1/2d'  // dotted half
-  | '1/2'   // half note
-  | '1/2t'  // half triplet
-  | '1/4d'  // dotted quarter
-  | '1/4'   // quarter note
-  | '1/4t'  // quarter triplet
-  | '1/8d'  // dotted eighth
-  | '1/8'   // eighth note
-  | '1/8t'  // eighth triplet
+  | '4' // 4 bars
+  | '2' // 2 bars
+  | '1' // 1 bar
+  | '1/2d' // dotted half
+  | '1/2' // half note
+  | '1/2t' // half triplet
+  | '1/4d' // dotted quarter
+  | '1/4' // quarter note
+  | '1/4t' // quarter triplet
+  | '1/8d' // dotted eighth
+  | '1/8' // eighth note
+  | '1/8t' // eighth triplet
   | '1/16d' // dotted sixteenth
-  | '1/16'  // sixteenth note
+  | '1/16' // sixteenth note
   | '1/16t' // sixteenth triplet
-  | '1/32'  // thirty-second note
+  | '1/32' // thirty-second note
   | '1/32t' // thirty-second triplet
   | '1/64'; // sixty-fourth note
 
@@ -133,37 +133,37 @@ export interface LFOParams {
 
 export interface ChorusParams {
   enabled: boolean;
-  rate: number;   // 0.1..10 Hz
-  depth: number;  // 0..1
-  mix: number;    // 0..1
+  rate: number; // 0.1..10 Hz
+  depth: number; // 0..1
+  mix: number; // 0..1
 }
 
 export interface DelayParams {
   enabled: boolean;
-  time: number;     // 0.01..2 seconds
+  time: number; // 0.01..2 seconds
   feedback: number; // 0..0.95
-  mix: number;      // 0..1
+  mix: number; // 0..1
 }
 
 export interface PhaserParams {
   enabled: boolean;
-  rate: number;   // 0.1..10 Hz
-  depth: number;  // 0..1
-  mix: number;    // 0..1
+  rate: number; // 0.1..10 Hz
+  depth: number; // 0..1
+  mix: number; // 0..1
 }
 
 export interface CompressorParams {
   enabled: boolean;
   threshold: number; // -60..0 dB
-  ratio: number;     // 1..20
-  attack: number;    // 0..1 seconds
-  release: number;   // 0..1 seconds
+  ratio: number; // 1..20
+  attack: number; // 0..1 seconds
+  release: number; // 0..1 seconds
 }
 
 export interface DriveParams {
   enabled: boolean;
   amount: number; // 0..1
-  mix: number;    // 0..1
+  mix: number; // 0..1
 }
 
 export interface FXParams {
@@ -205,6 +205,6 @@ export interface ArpParams {
   enabled: boolean;
   rate: RateDiv;
   style: ArpStyle;
-  distance: number;    // semitones: 12, 24, -12, -24
-  step: number;        // semitone interval: 1, 2, 3
+  distance: number; // semitones: 12, 24, -12, -24
+  step: number; // semitone interval: 1, 2, 3
 }

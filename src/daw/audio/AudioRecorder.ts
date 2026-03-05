@@ -27,7 +27,9 @@ export class AudioRecorder {
 
       this.mediaRecorder.onstop = async () => {
         this.recording = false;
-        const blob = new Blob(this.chunks, { type: this.mediaRecorder!.mimeType });
+        const blob = new Blob(this.chunks, {
+          type: this.mediaRecorder!.mimeType,
+        });
         const arrayBuffer = await blob.arrayBuffer();
         const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
         resolve(audioBuffer);

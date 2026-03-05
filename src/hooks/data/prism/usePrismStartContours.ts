@@ -1,8 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  useMusicAtlas,
-} from '@/contexts/MusicAtlasContext';
-
+import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
 
 export const usePrismStartContours = () => {
   const musicAtlas = useMusicAtlas();
@@ -10,7 +7,6 @@ export const usePrismStartContours = () => {
   return useQuery({
     queryKey: ['prism', 'contours'],
     queryFn: async () => {
-
       return musicAtlas.music.getPrismContoursStart();
     },
   });

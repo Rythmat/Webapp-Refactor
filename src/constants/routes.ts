@@ -77,7 +77,6 @@ export const AdminRoutes = {
    */
   students: createRouteDefinition('/students', { prefix: adminPrefix }),
 
-
   /**
    * The route to the chapters page.
    */
@@ -219,34 +218,26 @@ export const ExternalLinks = {
   Help: createLinkDefinition('https://help.music-atlas.io'),
 };
 
-
-
 const studioPrefix = '/studio';
 
 export const StudioRoutes = {
-
   root: createRouteDefinition(studioPrefix),
 
   picker: createRouteDefinition('/', { prefix: studioPrefix }),
-
 };
 
 const gamesPrefix = '/arcade';
 
 export const GameRoutes = {
+  root: createRouteDefinition(gamesPrefix),
 
-  root : createRouteDefinition(gamesPrefix),
-
-  picker: createRouteDefinition('/', {prefix: gamesPrefix}),
-
-}
-
+  picker: createRouteDefinition('/', { prefix: gamesPrefix }),
+};
 
 const homePrefix = '/home';
 
 export const ProfileRoutes = {
-
-  root : createRouteDefinition(homePrefix),
+  root: createRouteDefinition(homePrefix),
 
   profile: createRouteDefinition('/user', { prefix: homePrefix }),
 
@@ -254,57 +245,46 @@ export const ProfileRoutes = {
 
   settings: createRouteDefinition('/user/settings', { prefix: homePrefix }),
 
-  plan: createRouteDefinition('/user/plan', { prefix: homePrefix}),
+  plan: createRouteDefinition('/user/plan', { prefix: homePrefix }),
+};
 
-}
-
-const learnPrefix= '/learn';
+const learnPrefix = '/learn';
 
 export const LearnRoutes = {
-
   root: createRouteDefinition(learnPrefix),
 
   overview: createRouteDefinition<{
-      mode: string,
-    }>('/:mode', { prefix: learnPrefix }),
-
+    mode: string;
+  }>('/:mode', { prefix: learnPrefix }),
 
   lesson: createRouteDefinition<{
-      mode: string,
-      key: string,
-    }>('/:mode/:key', { prefix: learnPrefix }),
+    mode: string;
+    key: string;
+  }>('/:mode/:key', { prefix: learnPrefix }),
 
   relativeOverview: createRouteDefinition<{
-      key: string,
-    }>('/relative/:key', { prefix: learnPrefix }),
+    key: string;
+  }>('/relative/:key', { prefix: learnPrefix }),
 
   parallelOverview: createRouteDefinition<{
-      key: string,
-    }>('/parallel/:key', { prefix: learnPrefix }),
-
-}
-
+    key: string;
+  }>('/parallel/:key', { prefix: learnPrefix }),
+};
 
 const connectPrefix = '/connect';
 
 export const ConnectRoutes = {
-
   root: createRouteDefinition(connectPrefix),
-
-}
+};
 
 const libraryPrefix = '/library';
 
 export const LibraryRoutes = {
-
   root: createRouteDefinition(libraryPrefix),
-
-}
+};
 
 const atlasPrefix = '/atlas';
 
 export const AtlasRoutes = {
-
   root: createRouteDefinition(atlasPrefix),
-
-}
+};

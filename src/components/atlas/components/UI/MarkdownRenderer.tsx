@@ -1,7 +1,7 @@
-import ReactMarkdown from 'react-markdown'
+import ReactMarkdown from 'react-markdown';
 
 interface Props {
-  content: string
+  content: string;
 }
 
 export function MarkdownRenderer({ content }: Props) {
@@ -9,39 +9,41 @@ export function MarkdownRenderer({ content }: Props) {
     <ReactMarkdown
       components={{
         h2: ({ children }) => (
-          <h2 className="text-lg font-semibold text-teal-400 mt-6 mb-2 first:mt-0">
+          <h2 className="mb-2 mt-6 text-lg font-semibold text-teal-400 first:mt-0">
             {children}
           </h2>
         ),
         h3: ({ children }) => (
-          <h3 className="text-base font-medium text-zinc-200 mt-4 mb-1.5">
+          <h3 className="mb-1.5 mt-4 text-base font-medium text-zinc-200">
             {children}
           </h3>
         ),
         p: ({ children }) => (
-          <p className="text-sm text-zinc-300 leading-relaxed mb-3">{children}</p>
+          <p className="mb-3 text-sm leading-relaxed text-zinc-300">
+            {children}
+          </p>
         ),
         strong: ({ children }) => (
-          <strong className="text-white font-semibold">{children}</strong>
+          <strong className="font-semibold text-white">{children}</strong>
         ),
         em: ({ children }) => (
-          <em className="text-zinc-200 italic">{children}</em>
+          <em className="italic text-zinc-200">{children}</em>
         ),
         ul: ({ children }) => (
-          <ul className="list-disc list-inside space-y-1 mb-3 text-sm text-zinc-300">
+          <ul className="mb-3 list-inside list-disc space-y-1 text-sm text-zinc-300">
             {children}
           </ul>
         ),
         ol: ({ children }) => (
-          <ol className="list-decimal list-inside space-y-1 mb-3 text-sm text-zinc-300">
+          <ol className="mb-3 list-inside list-decimal space-y-1 text-sm text-zinc-300">
             {children}
           </ol>
         ),
         li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-        hr: () => <hr className="border-zinc-700/50 my-4" />,
+        hr: () => <hr className="my-4 border-zinc-700/50" />,
       }}
     >
       {content}
     </ReactMarkdown>
-  )
+  );
 }

@@ -1,1 +1,1 @@
-export { BaseGlobe } from './BaseGlobe'
+export { BaseGlobe } from './BaseGlobe';

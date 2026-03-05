@@ -1,9 +1,53 @@
 import { useMemo } from 'react';
 import { useStore } from '@/daw/store';
-import { detectChordWithInversion, MODES, getChordColor, CHORD_COLORS } from '@prism/engine';
+import {
+  detectChordWithInversion,
+  MODES,
+  getChordColor,
+  CHORD_COLORS,
+} from '@prism/engine';
 
 const toHex = (r: number, g: number, b: number) =>
-  '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+  '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
+
+function resolveDegreeAndModifier(diff: number, quality: string) {
+  const ionian = MODES.ionian;
+  const directIndex = ionian.indexOf(diff);
+  if (directIndex >= 0) {
+    return { degree: directIndex + 1, modifier: 0 as const };
+  }
+
+  const flatDegree = ionian.indexOf(diff + 1);
+  const sharpDegree = ionian.indexOf(diff - 1);
+  const candidates = [
+    flatDegree >= 0
+      ? {
+          degree: flatDegree + 1,
+          modifier: -1 as const,
+          chordKey: `b${flatDegree + 1} ${quality}`,
+        }
+      : null,
+    sharpDegree >= 0
+      ? {
+          degree: sharpDegree + 1,
+          modifier: 1 as const,
+          chordKey: `#${sharpDegree + 1} ${quality}`,
+        }
+      : null,
+  ].filter(
+    (
+      candidate,
+    ): candidate is { degree: number; modifier: -1 | 1; chordKey: string } =>
+      candidate !== null,
+  );
+
+  if (candidates.length === 0) return null;
+  return (
+    candidates.find(
+      (candidate) => CHORD_COLORS[candidate.chordKey] !== undefined,
+    ) ?? candidates[0]
+  );
+}
 
 /**
  * Given a set of active MIDI notes, detects the chord being played
@@ -26,35 +70,15 @@ export function useLiveChordColor(activeNotes: Set<number>): string | null {
 
     // Degree detection using chord root pitch class
     const diff = (rootPc - rootNote + 12) % 12;
-    const ionian = MODES.ionian;
-    let degree = -1;
-    let modifier = 0;
+    const resolved = resolveDegreeAndModifier(diff, quality);
+    if (!resolved) return null;
 
-    for (let i = 0; i < ionian.length; i++) {
-      if (ionian[i] === diff) { degree = i + 1; break; }
-    }
-    if (degree < 0) {
-      let flatDeg = -1, sharpDeg = -1;
-      for (let i = 0; i < ionian.length; i++) {
-        if (ionian[i] === diff + 1 && flatDeg < 0) flatDeg = i + 1;
-        if (ionian[i] === diff - 1 && sharpDeg < 0) sharpDeg = i + 1;
-      }
-      const flatKey = flatDeg > 0 ? `b${flatDeg} ${quality}` : '';
-      const sharpKey = sharpDeg > 0 ? `#${sharpDeg} ${quality}` : '';
-      if (flatKey && CHORD_COLORS[flatKey] !== undefined) {
-        degree = flatDeg; modifier = -1;
-      } else if (sharpKey && CHORD_COLORS[sharpKey] !== undefined) {
-        degree = sharpDeg; modifier = 1;
-      } else if (flatDeg > 0) {
-        degree = flatDeg; modifier = -1;
-      } else if (sharpDeg > 0) {
-        degree = sharpDeg; modifier = 1;
-      }
-    }
-    if (degree < 0) return null;
-
-    const pre = modifier === -1 ? 'b' : modifier === 1 ? '#' : '';
-    const [r, g, b] = getChordColor(`${pre}${degree} ${quality}`, rootNote + 48);
+    const pre =
+      resolved.modifier === -1 ? 'b' : resolved.modifier === 1 ? '#' : '';
+    const [r, g, b] = getChordColor(
+      `${pre}${resolved.degree} ${quality}`,
+      rootNote + 48,
+    );
 
     // White = unrecognized in CHORD_COLORS → fall back to rootTrackColor
     if (r === 255 && g === 255 && b === 255) return null;

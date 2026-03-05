@@ -28,7 +28,7 @@ export function MixerPanel({ isReady }: { isReady: boolean }) {
 
   return (
     <div
-      className="flex flex-col flex-shrink-0 overflow-hidden rounded-2xl mx-auto glass-panel"
+      className="glass-panel mx-auto flex shrink-0 flex-col overflow-hidden rounded-2xl"
       style={{
         width: totalWidth,
         maxWidth: '100vw',
@@ -48,13 +48,16 @@ export function MixerPanel({ isReady }: { isReady: boolean }) {
 
         {/* Master strip */}
         <div
-          className="flex flex-shrink-0 flex-col items-center gap-1 py-3 px-2"
+          className="flex shrink-0 flex-col items-center gap-1 px-2 py-3"
           style={{
             width: MASTER_WIDTH,
             borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
           }}
         >
-          <span className="text-[10px] font-bold" style={{ color: 'var(--color-text)' }}>
+          <span
+            className="text-[10px] font-bold"
+            style={{ color: 'var(--color-text)' }}
+          >
             Master
           </span>
 
@@ -64,14 +67,17 @@ export function MixerPanel({ isReady }: { isReady: boolean }) {
             <MeterSegments level={masterLevelR} />
           </div>
 
-          <span className="text-[9px]" style={{ color: 'var(--color-text-dim)' }}>
+          <span
+            className="text-[9px]"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
             0 dB
           </span>
 
           {/* Master M/S */}
           <div className="flex gap-1">
             <div
-              className="h-5 w-5 rounded flex items-center justify-center text-[10px] font-bold"
+              className="flex size-5 items-center justify-center rounded text-[10px] font-bold"
               style={{
                 backgroundColor: 'rgba(255, 255, 255, 0.06)',
                 color: 'var(--color-text-dim)',
@@ -80,7 +86,7 @@ export function MixerPanel({ isReady }: { isReady: boolean }) {
               M
             </div>
             <div
-              className="h-5 w-5 rounded flex items-center justify-center text-[10px] font-bold"
+              className="flex size-5 items-center justify-center rounded text-[10px] font-bold"
               style={{
                 backgroundColor: 'rgba(255, 255, 255, 0.06)',
                 color: 'var(--color-text-dim)',

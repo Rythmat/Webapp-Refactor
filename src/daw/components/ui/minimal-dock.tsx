@@ -1,11 +1,5 @@
 import { useRef, useState } from 'react';
-import {
-  Zap,
-  Plus,
-  Info,
-  SlidersHorizontal,
-  Sparkles,
-} from 'lucide-react';
+import { Zap, Plus, Info, SlidersHorizontal, Sparkles } from 'lucide-react';
 import {
   motion,
   useMotionValue,
@@ -14,12 +8,19 @@ import {
   type MotionValue,
 } from 'framer-motion';
 
-
 // ── PrismLogo (gradient triangle) ────────────────────────────────────────
 
 function PrismLogo({ size = 18 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    >
       <path d="M12 4L5 18h14L12 4z" />
     </svg>
   );
@@ -69,7 +70,11 @@ function DockIcon({
   });
 
   const sizeTransform = useTransform(distance, [-100, 0, 100], [40, 52, 40]);
-  const size = useSpring(sizeTransform, { mass: 0.1, stiffness: 200, damping: 12 });
+  const size = useSpring(sizeTransform, {
+    mass: 0.1,
+    stiffness: 200,
+    damping: 12,
+  });
 
   return (
     <motion.button
@@ -94,7 +99,10 @@ function DockIcon({
       />
 
       {/* Icon */}
-      <div className="relative z-10" style={{ color: item.active ? '#e8e8f0' : '#6b6b80' }}>
+      <div
+        className="relative z-10"
+        style={{ color: item.active ? '#e8e8f0' : '#6b6b80' }}
+      >
         {item.icon}
       </div>
 
@@ -143,7 +151,7 @@ export function DawDock({
       <motion.div
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
-        className="flex items-center gap-1 rounded-2xl px-2 py-1.5 glass-panel"
+        className="glass-panel flex items-center gap-1 rounded-2xl px-2 py-1.5"
         style={{
           backgroundColor: 'rgba(255, 255, 255, 0.04)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -166,7 +174,10 @@ export function DawDock({
           }}
         />
 
-        <div className="mx-1 h-8 w-px shrink-0" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
+        <div
+          className="mx-1 h-8 w-px shrink-0"
+          style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+        />
 
         {/* Controls */}
         <DockIcon
@@ -204,7 +215,10 @@ export function DawDock({
           }}
         />
 
-        <div className="mx-1 h-8 w-px shrink-0" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
+        <div
+          className="mx-1 h-8 w-px shrink-0"
+          style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+        />
 
         {/* Info */}
         <DockIcon
@@ -218,7 +232,10 @@ export function DawDock({
           }}
         />
 
-        <div className="mx-1 h-8 w-px shrink-0" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
+        <div
+          className="mx-1 h-8 w-px shrink-0"
+          style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+        />
 
         {/* Mixer */}
         <DockIcon

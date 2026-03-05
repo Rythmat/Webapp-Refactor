@@ -2,7 +2,20 @@ import { Midi } from '@tonejs/midi';
 import MidiWriter from 'midi-writer-js';
 import type { MidiNoteEvent, MidiSequence } from '@prism/engine';
 
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const NOTE_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
 
 function midiToNoteName(midi: number): string {
   const octave = Math.floor(midi / 12) - 1;
@@ -77,7 +90,9 @@ export function exportMidiFile(
   }
 
   const writer = new MidiWriter.Writer(tracks);
-  return new Blob([writer.buildFile() as unknown as BlobPart], { type: 'audio/midi' });
+  return new Blob([writer.buildFile() as unknown as BlobPart], {
+    type: 'audio/midi',
+  });
 }
 
 /**

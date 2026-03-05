@@ -1,24 +1,23 @@
 import { useCallback } from 'react';
 import { useStore } from '@/daw/store';
-import { KEY_COLORS, KEYS } from '@prism/engine';
-import type { ColorIndex } from '@prism/engine';
+import { KEY_COLORS, KEYS, type ColorIndex } from '@prism/engine';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
 /** Circle-of-fifths indices 1-12 mapping to semitone rootNote values */
 const SEMITONES: Record<number, number> = {
-  1: 0,   // C
-  2: 7,   // G
-  3: 2,   // D
-  4: 9,   // A
-  5: 4,   // E
-  6: 11,  // B
-  7: 6,   // F#
-  8: 1,   // Db
-  9: 8,   // Ab
-  10: 3,  // Eb
+  1: 0, // C
+  2: 7, // G
+  3: 2, // D
+  4: 9, // A
+  5: 4, // E
+  6: 11, // B
+  7: 6, // F#
+  8: 1, // Db
+  9: 8, // Ab
+  10: 3, // Eb
   11: 10, // Bb
-  12: 5,  // F
+  12: 5, // F
 };
 
 /** Reverse: rootNote semitone → KEYS index */
@@ -59,7 +58,9 @@ function arcPath(
 
 // ── Component ────────────────────────────────────────────────────────────
 
-export function CircleOfFifths({ size = DEFAULT_SIZE }: { size?: number } = {}) {
+export function CircleOfFifths({
+  size = DEFAULT_SIZE,
+}: { size?: number } = {}) {
   const rootNote = useStore((s) => s.rootNote);
   const rootLocked = useStore((s) => s.rootLocked);
   const setRootNote = useStore((s) => s.setRootNote);
@@ -71,7 +72,8 @@ export function CircleOfFifths({ size = DEFAULT_SIZE }: { size?: number } = {}) 
   const INNER_R = 46 * scale;
   const LABEL_R = 63 * scale;
 
-  const selectedIndex = rootNote !== null ? (SEMITONE_TO_INDEX[rootNote] ?? null) : null;
+  const selectedIndex =
+    rootNote !== null ? (SEMITONE_TO_INDEX[rootNote] ?? null) : null;
 
   const handleClick = useCallback(
     (semitone: number) => () => {
@@ -112,7 +114,9 @@ export function CircleOfFifths({ size = DEFAULT_SIZE }: { size?: number } = {}) 
             <g
               key={idx}
               onClick={rootLocked ? undefined : handleClick(semitone)}
-              style={{ cursor: rootLocked && !isSelected ? 'not-allowed' : 'pointer' }}
+              style={{
+                cursor: rootLocked && !isSelected ? 'not-allowed' : 'pointer',
+              }}
             >
               <path
                 d={d}
@@ -140,8 +144,12 @@ export function CircleOfFifths({ size = DEFAULT_SIZE }: { size?: number } = {}) 
       {selectedIndex !== null && (
         <button
           onClick={handleClear}
-          className="text-[10px] font-medium px-3 py-1 rounded transition-colors hover:bg-white/10 cursor-pointer"
-          style={{ color: 'var(--color-text-dim)', border: 'none', background: 'none' }}
+          className="cursor-pointer rounded px-3 py-1 text-[10px] font-medium transition-colors hover:bg-white/10"
+          style={{
+            color: 'var(--color-text-dim)',
+            border: 'none',
+            background: 'none',
+          }}
         >
           Clear
         </button>

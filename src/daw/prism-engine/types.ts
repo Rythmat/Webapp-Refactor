@@ -178,8 +178,19 @@ export type BassPattern = BassHit[];
 
 /** Genre name for drum/bass groove lookup */
 export type GenreName =
-  | 'Pop' | 'Rock' | 'Hip Hop' | 'Jam Band' | 'Funk' | 'Neo Soul'
-  | 'Jazz' | 'R&B' | 'Salsa' | 'Merengue' | 'Bossa' | 'Samba' | 'Ballad';
+  | 'Pop'
+  | 'Rock'
+  | 'Hip Hop'
+  | 'Jam Band'
+  | 'Funk'
+  | 'Neo Soul'
+  | 'Jazz'
+  | 'R&B'
+  | 'Salsa'
+  | 'Merengue'
+  | 'Bossa'
+  | 'Samba'
+  | 'Ballad';
 
 /** Configuration for multi-track orchestration */
 export interface OrchestrateConfig {

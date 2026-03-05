@@ -1,3 +1,5 @@
+/* eslint-disable import/order */
+/* eslint-disable tailwindcss/classnames-order */
 // import { Pencil, Trash2, MoreVertical, Eye } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -73,8 +75,6 @@ export const CollectionsPage = () => {
     error,
     refetch,
   } = useCollections({ includeEmpty: true });
-
-  
 
   const createCollection = useCreateCollection();
   const deleteCollection = useDeleteCollection();
@@ -165,45 +165,44 @@ export const CollectionsPage = () => {
       );
     }
 
-
     return collections.map((collection) => (
-              <div
-                key={collection.id}
-                className="flex items-center justify-between rounded-lg bg-shade-4/40 py-8 px-6 shadow-sm"
-                style={{
-                  borderLeftColor: collection.color || undefined,
-                  borderLeftWidth: collection.color ? '4px' : undefined,
-                }}
-              >
-                <div className="mr-2 flex flex-col">
-                  <span className="font-medium">{collection.name}</span>
-                  {collection.description && (
-                    <span className="text-sm text-white/70">
-                      {collection.description}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => navigateToCollection(collection.id)}
-                  >
-                    <EditIcon className="size-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      confirmDelete(collection.id);
-                    }}
-                  >
-                    <DeleteIcon className="size-4" />
-                  </Button>
-                </div>
-              </div>
-            ));
+      <div
+        key={collection.id}
+        className="flex items-center justify-between rounded-lg bg-shade-4/40 py-8 px-6 shadow-sm"
+        style={{
+          borderLeftColor: collection.color || undefined,
+          borderLeftWidth: collection.color ? '4px' : undefined,
+        }}
+      >
+        <div className="mr-2 flex flex-col">
+          <span className="font-medium">{collection.name}</span>
+          {collection.description && (
+            <span className="text-sm text-white/70">
+              {collection.description}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => navigateToCollection(collection.id)}
+          >
+            <EditIcon className="size-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              confirmDelete(collection.id);
+            }}
+          >
+            <DeleteIcon className="size-4" />
+          </Button>
+        </div>
+      </div>
+    ));
   };
 
   return (
@@ -220,10 +219,7 @@ export const CollectionsPage = () => {
         </Button>
       </div>
 
-      <div className="space-y-4">
-        {renderCollectionCards()}
-      </div>
-      
+      <div className="space-y-4">{renderCollectionCards()}</div>
 
       {/* Create Collection Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>

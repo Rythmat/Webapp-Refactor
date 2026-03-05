@@ -1,5 +1,12 @@
 import { PresetData } from './PresetData';
-import { LFONode, QuarterRates, FXParams, FXRoute, RoutingConfig, ArpParams } from '../../audio/types';
+import {
+  LFONode,
+  QuarterRates,
+  FXParams,
+  FXRoute,
+  RoutingConfig,
+  ArpParams,
+} from '../../audio/types';
 import { LFOWaveformBuilder } from '../../audio/LFOWaveformBuilder';
 
 // 4-peak triangle for default 1/4 rate (4 cycles per bar)
@@ -7,8 +14,7 @@ const triangleNodes4 = (): LFONode[] =>
   LFOWaveformBuilder.presetNodes('triangle', 4);
 
 // 8-cycle sine for 1/8 rate (8 cycles per bar)
-const sineNodes8 = (): LFONode[] =>
-  LFOWaveformBuilder.presetNodes('sine', 8);
+const sineNodes8 = (): LFONode[] => LFOWaveformBuilder.presetNodes('sine', 8);
 
 // 2-cycle triangle for 1/2 rate
 const triangleNodes2 = (): LFONode[] =>
@@ -24,18 +30,39 @@ const curvedRamp1 = (): LFONode[] => [
 const qr = (r: string): QuarterRates => [r, r, r, r] as QuarterRates;
 
 const defaultLFO = () => ({
-  rateDivs: [qr('1/4'), qr('1/4'), qr('1/4'), qr('1/4')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-  rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+  rateDivs: [qr('1/4'), qr('1/4'), qr('1/4'), qr('1/4')] as [
+    QuarterRates,
+    QuarterRates,
+    QuarterRates,
+    QuarterRates,
+  ],
+  rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+    'normal',
+    'normal',
+    'normal',
+    'normal',
+  ],
   smooths: [0, 0, 0, 0] as [number, number, number, number],
   sync: false,
-  bars: [triangleNodes4(), triangleNodes4(), triangleNodes4(), triangleNodes4()] as [LFONode[], LFONode[], LFONode[], LFONode[]],
+  bars: [
+    triangleNodes4(),
+    triangleNodes4(),
+    triangleNodes4(),
+    triangleNodes4(),
+  ] as [LFONode[], LFONode[], LFONode[], LFONode[]],
 });
 
 const defaultFX = (): FXParams => ({
   chorus: { enabled: false, rate: 1.5, depth: 0.5, mix: 0.5 },
   delay: { enabled: false, time: 0.3, feedback: 0.3, mix: 0.3 },
   phaser: { enabled: false, rate: 0.5, depth: 0.5, mix: 0.5 },
-  compressor: { enabled: false, threshold: -24, ratio: 4, attack: 0.003, release: 0.25 },
+  compressor: {
+    enabled: false,
+    threshold: -24,
+    ratio: 4,
+    attack: 0.003,
+    release: 0.25,
+  },
   drive: { enabled: false, amount: 0.3, mix: 0.5 },
 });
 
@@ -138,14 +165,35 @@ export const INITIALIZE: PresetData = {
   },
   noise: { type: 'pink', level: 0.3, pan: 0, enabled: false },
   filters: [
-    { type: 'lowpass', cutoff: 20000, resonance: 0, pan: 0, gain: 0, mix: 1, enabled: true },
-    { type: 'lowpass', cutoff: 20000, resonance: 0, pan: 0, gain: 0, mix: 1, enabled: false },
+    {
+      type: 'lowpass',
+      cutoff: 20000,
+      resonance: 0,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
+    {
+      type: 'lowpass',
+      cutoff: 20000,
+      resonance: 0,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: false,
+    },
   ],
   envelopes: [
     { attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.3 },
     { attack: 0.01, decay: 0.5, sustain: 0.5, release: 0.5 },
   ],
-  lfos: [defaultLFO(), defaultLFO(), defaultLFO(), defaultLFO()] as PresetData['lfos'],
+  lfos: [
+    defaultLFO(),
+    defaultLFO(),
+    defaultLFO(),
+    defaultLFO(),
+  ] as PresetData['lfos'],
   modRoutes: [],
   voiceMode: 'poly',
   voiceCount: 8,
@@ -204,8 +252,24 @@ export const PAD: PresetData = {
   },
   noise: { type: 'pink', level: 0.05, pan: 0, enabled: true },
   filters: [
-    { type: 'lowpass', cutoff: 3500, resonance: 2, pan: 0, gain: 0, mix: 1, enabled: true },
-    { type: 'lowpass', cutoff: 20000, resonance: 0, pan: 0, gain: 0, mix: 1, enabled: false },
+    {
+      type: 'lowpass',
+      cutoff: 3500,
+      resonance: 2,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
+    {
+      type: 'lowpass',
+      cutoff: 20000,
+      resonance: 0,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: false,
+    },
   ],
   envelopes: [
     { attack: 0.8, decay: 0.5, sustain: 0.8, release: 1.5 },
@@ -213,18 +277,43 @@ export const PAD: PresetData = {
   ],
   lfos: [
     {
-      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.6, 0.6, 0.6, 0.6] as [number, number, number, number],
       sync: false,
       bars: [curvedRamp1(), curvedRamp1(), curvedRamp1(), curvedRamp1()],
     },
     {
-      rateDivs: [qr('1/2'), qr('1/2'), qr('1/2'), qr('1/2')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1/2'), qr('1/2'), qr('1/2'), qr('1/2')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.4, 0.4, 0.4, 0.4] as [number, number, number, number],
       sync: false,
-      bars: [triangleNodes2(), triangleNodes2(), triangleNodes2(), triangleNodes2()],
+      bars: [
+        triangleNodes2(),
+        triangleNodes2(),
+        triangleNodes2(),
+        triangleNodes2(),
+      ],
     },
     defaultLFO(),
     defaultLFO(),
@@ -256,9 +345,7 @@ export const PAD: PresetData = {
     ...defaultFX(),
     chorus: { enabled: true, rate: 0.8, depth: 0.4, mix: 0.35 },
   },
-  fxRoutes: [
-    { id: 'pad-fx-1', type: 'chorus', target: 'master' },
-  ] as FXRoute[],
+  fxRoutes: [{ id: 'pad-fx-1', type: 'chorus', target: 'master' }] as FXRoute[],
   routing: defaultRouting(),
   arp: defaultArp(),
 };
@@ -309,14 +396,35 @@ export const BASS: PresetData = {
   },
   noise: { type: 'pink', level: 0.3, pan: 0, enabled: false },
   filters: [
-    { type: 'lowpass', cutoff: 800, resonance: 4, pan: 0, gain: 0, mix: 1, enabled: true },
-    { type: 'highpass', cutoff: 30, resonance: 0, pan: 0, gain: 0, mix: 1, enabled: true },
+    {
+      type: 'lowpass',
+      cutoff: 800,
+      resonance: 4,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
+    {
+      type: 'highpass',
+      cutoff: 30,
+      resonance: 0,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
   ],
   envelopes: [
     { attack: 0.005, decay: 0.3, sustain: 0.5, release: 0.15 },
     { attack: 0.005, decay: 0.4, sustain: 0.3, release: 0.1 },
   ],
-  lfos: [defaultLFO(), defaultLFO(), defaultLFO(), defaultLFO()] as PresetData['lfos'],
+  lfos: [
+    defaultLFO(),
+    defaultLFO(),
+    defaultLFO(),
+    defaultLFO(),
+  ] as PresetData['lfos'],
   modRoutes: [],
   voiceMode: 'mono',
   voiceCount: 1,
@@ -326,7 +434,13 @@ export const BASS: PresetData = {
   fx: {
     ...defaultFX(),
     drive: { enabled: true, amount: 0.25, mix: 0.4 },
-    compressor: { enabled: true, threshold: -18, ratio: 6, attack: 0.005, release: 0.15 },
+    compressor: {
+      enabled: true,
+      threshold: -18,
+      ratio: 6,
+      attack: 0.005,
+      release: 0.15,
+    },
   },
   fxRoutes: [
     { id: 'bass-fx-1', type: 'drive', target: 'master' },
@@ -382,8 +496,24 @@ export const LEAD: PresetData = {
   },
   noise: { type: 'pink', level: 0.3, pan: 0, enabled: false },
   filters: [
-    { type: 'lowpass', cutoff: 5000, resonance: 3, pan: 0, gain: 0, mix: 1, enabled: true },
-    { type: 'lowpass', cutoff: 20000, resonance: 0, pan: 0, gain: 0, mix: 1, enabled: false },
+    {
+      type: 'lowpass',
+      cutoff: 5000,
+      resonance: 3,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
+    {
+      type: 'lowpass',
+      cutoff: 20000,
+      resonance: 0,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: false,
+    },
   ],
   envelopes: [
     { attack: 0.01, decay: 0.15, sustain: 0.8, release: 0.2 },
@@ -391,8 +521,18 @@ export const LEAD: PresetData = {
   ],
   lfos: [
     {
-      rateDivs: [qr('1/8'), qr('1/8'), qr('1/8'), qr('1/8')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1/8'), qr('1/8'), qr('1/8'), qr('1/8')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.3, 0.3, 0.3, 0.3] as [number, number, number, number],
       sync: false,
       bars: [sineNodes8(), sineNodes8(), sineNodes8(), sineNodes8()],
@@ -475,14 +615,35 @@ export const PLUCK: PresetData = {
   },
   noise: { type: 'white', level: 0.1, pan: 0, enabled: true },
   filters: [
-    { type: 'lowpass', cutoff: 6000, resonance: 1.5, pan: 0, gain: 0, mix: 1, enabled: true },
-    { type: 'lowpass', cutoff: 20000, resonance: 0, pan: 0, gain: 0, mix: 1, enabled: false },
+    {
+      type: 'lowpass',
+      cutoff: 6000,
+      resonance: 1.5,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
+    {
+      type: 'lowpass',
+      cutoff: 20000,
+      resonance: 0,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: false,
+    },
   ],
   envelopes: [
     { attack: 0.001, decay: 0.25, sustain: 0, release: 0.3 },
     { attack: 0.001, decay: 0.15, sustain: 0, release: 0.2 },
   ],
-  lfos: [defaultLFO(), defaultLFO(), defaultLFO(), defaultLFO()] as PresetData['lfos'],
+  lfos: [
+    defaultLFO(),
+    defaultLFO(),
+    defaultLFO(),
+    defaultLFO(),
+  ] as PresetData['lfos'],
   modRoutes: [],
   voiceMode: 'poly',
   voiceCount: 12,
@@ -492,7 +653,13 @@ export const PLUCK: PresetData = {
   fx: {
     ...defaultFX(),
     delay: { enabled: true, time: 0.25, feedback: 0.4, mix: 0.3 },
-    compressor: { enabled: true, threshold: -20, ratio: 3, attack: 0.001, release: 0.1 },
+    compressor: {
+      enabled: true,
+      threshold: -20,
+      ratio: 3,
+      attack: 0.001,
+      release: 0.1,
+    },
   },
   fxRoutes: [
     { id: 'pluck-fx-1', type: 'delay', target: 'master' },
@@ -548,8 +715,24 @@ export const WOBBLE: PresetData = {
   },
   noise: { type: 'pink', level: 0.3, pan: 0, enabled: false },
   filters: [
-    { type: 'lowpass', cutoff: 600, resonance: 6, pan: 0, gain: 0, mix: 1, enabled: true },
-    { type: 'highpass', cutoff: 30, resonance: 0, pan: 0, gain: 0, mix: 1, enabled: true },
+    {
+      type: 'lowpass',
+      cutoff: 600,
+      resonance: 6,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
+    {
+      type: 'highpass',
+      cutoff: 30,
+      resonance: 0,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
   ],
   envelopes: [
     { attack: 0.005, decay: 0.2, sustain: 0.8, release: 0.1 },
@@ -557,15 +740,35 @@ export const WOBBLE: PresetData = {
   ],
   lfos: [
     {
-      rateDivs: [qr('1/4'), qr('1/4'), qr('1/4'), qr('1/4')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1/4'), qr('1/4'), qr('1/4'), qr('1/4')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.1, 0.1, 0.1, 0.1] as [number, number, number, number],
       sync: false,
       bars: [wobbleNodes4(), wobbleNodes4(), wobbleNodes4(), wobbleNodes4()],
     },
     {
-      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.5, 0.5, 0.5, 0.5] as [number, number, number, number],
       sync: false,
       bars: [curvedRamp1(), curvedRamp1(), curvedRamp1(), curvedRamp1()],
@@ -599,7 +802,13 @@ export const WOBBLE: PresetData = {
   fx: {
     ...defaultFX(),
     drive: { enabled: true, amount: 0.35, mix: 0.5 },
-    compressor: { enabled: true, threshold: -16, ratio: 8, attack: 0.003, release: 0.1 },
+    compressor: {
+      enabled: true,
+      threshold: -16,
+      ratio: 8,
+      attack: 0.003,
+      release: 0.1,
+    },
   },
   fxRoutes: [
     { id: 'wobble-fx-1', type: 'drive', target: 'master' },
@@ -655,8 +864,24 @@ export const DRIFT: PresetData = {
   },
   noise: { type: 'pink', level: 0.08, pan: 0, enabled: true },
   filters: [
-    { type: 'lowpass', cutoff: 2500, resonance: 3, pan: 0, gain: 0, mix: 1, enabled: true },
-    { type: 'highpass', cutoff: 80, resonance: 1, pan: 0, gain: 0, mix: 1, enabled: true },
+    {
+      type: 'lowpass',
+      cutoff: 2500,
+      resonance: 3,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
+    {
+      type: 'highpass',
+      cutoff: 80,
+      resonance: 1,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
   ],
   envelopes: [
     { attack: 1.5, decay: 0.8, sustain: 0.7, release: 3.0 },
@@ -664,22 +889,57 @@ export const DRIFT: PresetData = {
   ],
   lfos: [
     {
-      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.8, 0.8, 0.8, 0.8] as [number, number, number, number],
       sync: false,
       bars: [driftNodes1(), driftNodes1(), driftNodes1(), driftNodes1()],
     },
     {
-      rateDivs: [qr('1/2'), qr('1/2'), qr('1/2'), qr('1/2')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1/2'), qr('1/2'), qr('1/2'), qr('1/2')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.7, 0.7, 0.7, 0.7] as [number, number, number, number],
       sync: false,
-      bars: [triangleNodes2(), triangleNodes2(), triangleNodes2(), triangleNodes2()],
+      bars: [
+        triangleNodes2(),
+        triangleNodes2(),
+        triangleNodes2(),
+        triangleNodes2(),
+      ],
     },
     {
-      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.9, 0.9, 0.9, 0.9] as [number, number, number, number],
       sync: false,
       bars: [curvedRamp1(), curvedRamp1(), curvedRamp1(), curvedRamp1()],
@@ -784,8 +1044,24 @@ export const TRANCE: PresetData = {
   },
   noise: { type: 'pink', level: 0.3, pan: 0, enabled: false },
   filters: [
-    { type: 'lowpass', cutoff: 4000, resonance: 4, pan: 0, gain: 0, mix: 1, enabled: true },
-    { type: 'lowpass', cutoff: 20000, resonance: 0, pan: 0, gain: 0, mix: 1, enabled: false },
+    {
+      type: 'lowpass',
+      cutoff: 4000,
+      resonance: 4,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
+    {
+      type: 'lowpass',
+      cutoff: 20000,
+      resonance: 0,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: false,
+    },
   ],
   envelopes: [
     { attack: 0.01, decay: 0.2, sustain: 0.9, release: 0.4 },
@@ -793,18 +1069,43 @@ export const TRANCE: PresetData = {
   ],
   lfos: [
     {
-      rateDivs: [qr('1/8'), qr('1/8'), qr('1/8'), qr('1/8')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1/8'), qr('1/8'), qr('1/8'), qr('1/8')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.15, 0.15, 0.15, 0.15] as [number, number, number, number],
       sync: false,
       bars: [gateNodes8(), gateNodes8(), gateNodes8(), gateNodes8()],
     },
     {
-      rateDivs: [qr('1/4'), qr('1/4'), qr('1/4'), qr('1/4')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1/4'), qr('1/4'), qr('1/4'), qr('1/4')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.2, 0.2, 0.2, 0.2] as [number, number, number, number],
       sync: false,
-      bars: [triangleNodes4(), triangleNodes4(), triangleNodes4(), triangleNodes4()],
+      bars: [
+        triangleNodes4(),
+        triangleNodes4(),
+        triangleNodes4(),
+        triangleNodes4(),
+      ],
     },
     defaultLFO(),
     defaultLFO(),
@@ -843,7 +1144,13 @@ export const TRANCE: PresetData = {
   fx: {
     ...defaultFX(),
     delay: { enabled: true, time: 0.375, feedback: 0.3, mix: 0.2 },
-    compressor: { enabled: true, threshold: -20, ratio: 4, attack: 0.005, release: 0.15 },
+    compressor: {
+      enabled: true,
+      threshold: -20,
+      ratio: 4,
+      attack: 0.005,
+      release: 0.15,
+    },
   },
   fxRoutes: [
     { id: 'trance-fx-1', type: 'delay', target: 'master' },
@@ -899,8 +1206,24 @@ export const SEQUENCE: PresetData = {
   },
   noise: { type: 'pink', level: 0.3, pan: 0, enabled: false },
   filters: [
-    { type: 'lowpass', cutoff: 3000, resonance: 4, pan: 0, gain: 0, mix: 1, enabled: true },
-    { type: 'lowpass', cutoff: 20000, resonance: 0, pan: 0, gain: 0, mix: 1, enabled: false },
+    {
+      type: 'lowpass',
+      cutoff: 3000,
+      resonance: 4,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
+    {
+      type: 'lowpass',
+      cutoff: 20000,
+      resonance: 0,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: false,
+    },
   ],
   envelopes: [
     { attack: 0.005, decay: 0.15, sustain: 0.4, release: 0.1 },
@@ -908,8 +1231,18 @@ export const SEQUENCE: PresetData = {
   ],
   lfos: [
     {
-      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.4, 0.4, 0.4, 0.4] as [number, number, number, number],
       sync: false,
       bars: [curvedRamp1(), curvedRamp1(), curvedRamp1(), curvedRamp1()],
@@ -936,7 +1269,13 @@ export const SEQUENCE: PresetData = {
   fx: {
     ...defaultFX(),
     delay: { enabled: true, time: 0.188, feedback: 0.35, mix: 0.25 },
-    compressor: { enabled: true, threshold: -18, ratio: 4, attack: 0.003, release: 0.1 },
+    compressor: {
+      enabled: true,
+      threshold: -18,
+      ratio: 4,
+      attack: 0.003,
+      release: 0.1,
+    },
   },
   fxRoutes: [
     { id: 'seq-fx-1', type: 'delay', target: 'master' },
@@ -992,8 +1331,24 @@ export const CHORDS: PresetData = {
   },
   noise: { type: 'pink', level: 0.3, pan: 0, enabled: false },
   filters: [
-    { type: 'lowpass', cutoff: 4500, resonance: 2, pan: 0, gain: 0, mix: 1, enabled: true },
-    { type: 'lowpass', cutoff: 20000, resonance: 0, pan: 0, gain: 0, mix: 1, enabled: false },
+    {
+      type: 'lowpass',
+      cutoff: 4500,
+      resonance: 2,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
+    {
+      type: 'lowpass',
+      cutoff: 20000,
+      resonance: 0,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: false,
+    },
   ],
   envelopes: [
     { attack: 0.01, decay: 0.3, sustain: 0.6, release: 0.5 },
@@ -1001,8 +1356,18 @@ export const CHORDS: PresetData = {
   ],
   lfos: [
     {
-      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates],
-      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as ['normal', 'normal', 'normal', 'normal'],
+      rateDivs: [qr('1'), qr('1'), qr('1'), qr('1')] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ],
+      rateModifiers: ['normal', 'normal', 'normal', 'normal'] as [
+        'normal',
+        'normal',
+        'normal',
+        'normal',
+      ],
       smooths: [0.5, 0.5, 0.5, 0.5] as [number, number, number, number],
       sync: false,
       bars: [driftNodes1(), driftNodes1(), driftNodes1(), driftNodes1()],
@@ -1085,14 +1450,35 @@ export const STAB: PresetData = {
   },
   noise: { type: 'white', level: 0.05, pan: 0, enabled: true },
   filters: [
-    { type: 'lowpass', cutoff: 5500, resonance: 3, pan: 0, gain: 0, mix: 1, enabled: true },
-    { type: 'lowpass', cutoff: 20000, resonance: 0, pan: 0, gain: 0, mix: 1, enabled: false },
+    {
+      type: 'lowpass',
+      cutoff: 5500,
+      resonance: 3,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: true,
+    },
+    {
+      type: 'lowpass',
+      cutoff: 20000,
+      resonance: 0,
+      pan: 0,
+      gain: 0,
+      mix: 1,
+      enabled: false,
+    },
   ],
   envelopes: [
     { attack: 0.001, decay: 0.08, sustain: 0.1, release: 0.05 },
     { attack: 0.001, decay: 0.06, sustain: 0, release: 0.05 },
   ],
-  lfos: [defaultLFO(), defaultLFO(), defaultLFO(), defaultLFO()] as PresetData['lfos'],
+  lfos: [
+    defaultLFO(),
+    defaultLFO(),
+    defaultLFO(),
+    defaultLFO(),
+  ] as PresetData['lfos'],
   modRoutes: [],
   voiceMode: 'poly',
   voiceCount: 8,

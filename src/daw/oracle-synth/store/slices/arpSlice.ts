@@ -14,7 +14,9 @@ export interface ArpSlice {
   setArpParam: <K extends keyof ArpParams>(key: K, value: ArpParams[K]) => void;
 }
 
-export const createArpSlice: StateCreator<ArpSlice, [], [], ArpSlice> = (set) => ({
+export const createArpSlice: StateCreator<ArpSlice, [], [], ArpSlice> = (
+  set,
+) => ({
   arp: structuredClone(DEFAULT_ARP),
 
   setArpParam: (key, value) =>

@@ -22,7 +22,7 @@ export function OracleSynthPanel() {
 
   return (
     <div
-      className="shrink-0 border-t flex flex-col"
+      className="flex shrink-0 flex-col border-t"
       style={{
         height: collapsed ? COLLAPSED_HEIGHT : EXPANDED_HEIGHT,
         borderColor: 'var(--color-border)',
@@ -33,7 +33,7 @@ export function OracleSynthPanel() {
       {/* ── Header ────────────────────────────────────────────────── */}
       <button
         onClick={toggle}
-        className="flex items-center justify-between px-3 h-8 shrink-0 cursor-pointer select-none"
+        className="flex h-8 shrink-0 cursor-pointer select-none items-center justify-between px-3"
         style={{
           backgroundColor: 'var(--color-surface-2)',
           borderBottom: collapsed ? 'none' : '1px solid var(--color-border)',
@@ -49,10 +49,7 @@ export function OracleSynthPanel() {
         <span className="text-xs font-semibold tracking-wide">
           Oracle Synth: {trackName}
         </span>
-        <span
-          className="text-xs"
-          style={{ color: 'var(--color-text-dim)' }}
-        >
+        <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
           {collapsed ? '\u25B2' : '\u25BC'}
         </span>
       </button>
@@ -61,7 +58,7 @@ export function OracleSynthPanel() {
       {!collapsed && (
         <OracleSynthBridge>
           <div
-            className="flex-1 flex items-center justify-center overflow-auto"
+            className="flex flex-1 items-center justify-center overflow-auto"
             style={{ color: 'var(--color-text-dim)' }}
           >
             <span className="text-sm">

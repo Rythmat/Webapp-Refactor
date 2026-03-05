@@ -3,8 +3,10 @@
 // Lazy-initializes the AudioWorklet on first enable, bypasses otherwise.
 
 import type { PedalProcessor } from './PedalProcessor';
-import { PitchCorrectionNode } from '../pitch-correction/PitchCorrectionNode';
-import type { PitchInfo } from '../pitch-correction/PitchCorrectionNode';
+import {
+  PitchCorrectionNode,
+  type PitchInfo,
+} from '../pitch-correction/PitchCorrectionNode';
 
 export class PitchCorrectionPedal implements PedalProcessor {
   readonly type = 'pitch-correction';
@@ -30,8 +32,12 @@ export class PitchCorrectionPedal implements PedalProcessor {
     this.bypassGain.connect(this.outputNode);
   }
 
-  getInputNode(): AudioNode { return this.inputNode; }
-  getOutputNode(): AudioNode { return this.outputNode; }
+  getInputNode(): AudioNode {
+    return this.inputNode;
+  }
+  getOutputNode(): AudioNode {
+    return this.outputNode;
+  }
 
   setEnabled(enabled: boolean): void {
     this._enabled = enabled;
@@ -74,9 +80,21 @@ export class PitchCorrectionPedal implements PedalProcessor {
     this.pitchNode = null;
     this._ready = false;
     this._initPromise = null;
-    try { this.inputNode.disconnect(); } catch { /* ok */ }
-    try { this.outputNode.disconnect(); } catch { /* ok */ }
-    try { this.bypassGain.disconnect(); } catch { /* ok */ }
+    try {
+      this.inputNode.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.outputNode.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.bypassGain.disconnect();
+    } catch {
+      /* ok */
+    }
   }
 
   // ── Private ────────────────────────────────────────────────────────────
@@ -110,7 +128,11 @@ export class PitchCorrectionPedal implements PedalProcessor {
     this.pitchNode.setBypass(false);
 
     // Disconnect bypass
-    try { this.inputNode.disconnect(this.bypassGain); } catch { /* not connected */ }
+    try {
+      this.inputNode.disconnect(this.bypassGain);
+    } catch {
+      /* not connected */
+    }
 
     // Wire through worklet
     this.inputNode.connect(worklet);
@@ -121,12 +143,24 @@ export class PitchCorrectionPedal implements PedalProcessor {
     if (this.pitchNode && this._ready) {
       const worklet = this.pitchNode.getNode();
       this.pitchNode.setBypass(true);
-      try { this.inputNode.disconnect(worklet); } catch { /* not connected */ }
-      try { worklet.disconnect(this.outputNode); } catch { /* not connected */ }
+      try {
+        this.inputNode.disconnect(worklet);
+      } catch {
+        /* not connected */
+      }
+      try {
+        worklet.disconnect(this.outputNode);
+      } catch {
+        /* not connected */
+      }
     }
 
     // Reconnect bypass
-    try { this.inputNode.disconnect(this.bypassGain); } catch { /* ok */ }
+    try {
+      this.inputNode.disconnect(this.bypassGain);
+    } catch {
+      /* ok */
+    }
     this.inputNode.connect(this.bypassGain);
   }
 }

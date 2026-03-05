@@ -20,6 +20,8 @@ interface ActiveConnection {
   offsetGain?: GainNode;
 }
 
+type ParamResolverMap = Partial<Record<ModTarget['param'], () => AudioParam>>;
+
 export class ModulationMatrix {
   private ctx: AudioContext;
   private lfos: LFO[];
@@ -118,21 +120,21 @@ export class ModulationMatrix {
   private getModRange(param: ModTarget['param']): number {
     switch (param) {
       case 'cutoff':
-        return 4800;   // ±4800 cents (4 octaves) via detune
+        return 4800; // ±4800 cents (4 octaves) via detune
       case 'resonance':
-        return 15;     // ±15 Q
+        return 15; // ±15 Q
       case 'level':
-        return 0.5;    // ±0.5 gain
+        return 0.5; // ±0.5 gain
       case 'gain':
-        return 12;     // ±12 dB
+        return 12; // ±12 dB
       case 'pan':
-        return 1;      // ±1 (full L-R)
+        return 1; // ±1 (full L-R)
       case 'detune':
-        return 100;    // ±100 cents
+        return 100; // ±100 cents
       case 'blend':
       case 'mix':
       case 'wtPos':
-        return 0.5;    // ±0.5
+        return 0.5; // ±0.5
       default:
         return 1;
     }
@@ -140,55 +142,34 @@ export class ModulationMatrix {
 
   private resolveTarget(voice: Voice, target: ModTarget): AudioParam | null {
     const { source, param } = target;
+    const osc1 = voice.getOsc1();
+    const osc2 = voice.getOsc2();
+    const flt1 = voice.getFilter1();
+    const flt2 = voice.getFilter2();
 
-    switch (source) {
-      case 'osc1': {
-        const osc = voice.getOsc1();
-        switch (param) {
-          case 'level':
-            return osc.getGainParam();
-          default:
-            return null;
-        }
-      }
-      case 'osc2': {
-        const osc = voice.getOsc2();
-        switch (param) {
-          case 'level':
-            return osc.getGainParam();
-          default:
-            return null;
-        }
-      }
-      case 'flt1': {
-        const filter = voice.getFilter1();
-        switch (param) {
-          case 'cutoff':
-            return filter.getDetuneParam();
-          case 'resonance':
-            return filter.getResonanceParam();
-          case 'level':
-            return filter.getGainParam();
-          default:
-            return null;
-        }
-      }
-      case 'flt2': {
-        const filter = voice.getFilter2();
-        switch (param) {
-          case 'cutoff':
-            return filter.getDetuneParam();
-          case 'resonance':
-            return filter.getResonanceParam();
-          case 'level':
-            return filter.getGainParam();
-          default:
-            return null;
-        }
-      }
-      default:
-        return null;
-    }
+    const sourceResolvers: Record<ModTarget['source'], ParamResolverMap> = {
+      sub: {},
+      noise: {},
+      osc1: {
+        level: () => osc1.getGainParam(),
+      },
+      osc2: {
+        level: () => osc2.getGainParam(),
+      },
+      flt1: {
+        cutoff: () => flt1.getDetuneParam(),
+        resonance: () => flt1.getResonanceParam(),
+        level: () => flt1.getGainParam(),
+      },
+      flt2: {
+        cutoff: () => flt2.getDetuneParam(),
+        resonance: () => flt2.getResonanceParam(),
+        level: () => flt2.getGainParam(),
+      },
+    };
+
+    const resolver = sourceResolvers[source]?.[param];
+    return resolver ? resolver() : null;
   }
 
   disconnectAll(): void {

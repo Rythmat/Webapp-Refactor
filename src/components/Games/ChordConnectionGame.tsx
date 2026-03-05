@@ -1,8 +1,16 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+/* eslint-disable react/jsx-sort-props */
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/components/utilities';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 
@@ -51,7 +59,20 @@ const CHORD_INTERVALS: Record<ChordType, number[]> = {
   min7: [0, 3, 7, 10],
 };
 
-const PITCH_CLASS_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const PITCH_CLASS_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
 
 const DEFAULT_CHORD_POOL: ChordType[] = ['maj', 'min', 'dim', 'aug'];
 
@@ -130,7 +151,11 @@ function shuffle<T>(items: T[]): T[] {
   return arr;
 }
 
-function toPlaybackEvents(notes: number[], color: string, optionId: string): PlaybackEvent[] {
+function toPlaybackEvents(
+  notes: number[],
+  color: string,
+  optionId: string,
+): PlaybackEvent[] {
   return notes.map((note) => ({
     id: `${optionId}-${note}`,
     type: 'note',
@@ -216,10 +241,17 @@ export function ChordConnectionGame({
   onComplete,
 }: ChordConnectionGameProps) {
   const baseOctaveRoot = keyboardBaseOctave * 12;
-  const initialChordKey = initialChord ? `${initialChord.rootPc}:${initialChord.type}` : 'none';
+  const initialChordKey = initialChord
+    ? `${initialChord.rootPc}:${initialChord.type}`
+    : 'none';
 
   const [round, setRound] = useState<RoundState>(() =>
-    createRound({ chordPool, baseOctaveRoot, preferredChord: initialChord, pairs }),
+    createRound({
+      chordPool,
+      baseOctaveRoot,
+      preferredChord: initialChord,
+      pairs,
+    }),
   );
   const [connections, setConnections] = useState<Connection[]>([]);
   const [activeChord, setActiveChord] = useState<string | null>(null);
@@ -231,7 +263,14 @@ export function ChordConnectionGame({
   const chordRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const keyboardRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   useEffect(() => {
-    setRound(createRound({ chordPool, baseOctaveRoot, preferredChord: initialChord, pairs }));
+    setRound(
+      createRound({
+        chordPool,
+        baseOctaveRoot,
+        preferredChord: initialChord,
+        pairs,
+      }),
+    );
     setConnections([]);
     setActiveChord(null);
     setActiveKeyboard(null);
@@ -256,7 +295,9 @@ export function ChordConnectionGame({
     if (connections.length === 0) {
       return null;
     }
-    const correctCount = connections.filter((connection) => connection.correct).length;
+    const correctCount = connections.filter(
+      (connection) => connection.correct,
+    ).length;
     return Math.round((correctCount / connections.length) * 100);
   }, [connections]);
   const allMatchesCorrect = useMemo(
@@ -272,17 +313,20 @@ export function ChordConnectionGame({
     onComplete?.({ success: allMatchesCorrect });
   }, [allMatchesCorrect, attachmentsFilled, onComplete, submitted]);
 
-
-
   const attemptConnection = useCallback(
     (chordId: string, keyboardId: string) => {
       const chord = round.chords.find((item) => item.id === chordId);
       const keyboard = round.keyboards.find((item) => item.id === keyboardId);
       if (!chord || !keyboard) return;
-      if (connections.some((connection) => connection.chordId === chordId)) return;
-      if (connections.some((connection) => connection.keyboardId === keyboardId)) return;
+      if (connections.some((connection) => connection.chordId === chordId))
+        return;
+      if (
+        connections.some((connection) => connection.keyboardId === keyboardId)
+      )
+        return;
 
-      const correct = chordSignature(chord.spec) === chordSignature(keyboard.spec);
+      const correct =
+        chordSignature(chord.spec) === chordSignature(keyboard.spec);
       setConnections((prev) => [...prev, { chordId, keyboardId, correct }]);
       setActiveChord(null);
       setActiveKeyboard(null);
@@ -313,7 +357,9 @@ export function ChordConnectionGame({
 
   const handleKeyboardClick = useCallback(
     (keyboardId: string) => {
-      if (connections.some((connection) => connection.keyboardId === keyboardId)) {
+      if (
+        connections.some((connection) => connection.keyboardId === keyboardId)
+      ) {
         return;
       }
 
@@ -335,10 +381,14 @@ export function ChordConnectionGame({
   const connectionSummary = useMemo(() => {
     if (!attachmentsFilled) return null;
 
-    const correctCount = connections.filter((connection) => connection.correct).length;
+    const correctCount = connections.filter(
+      (connection) => connection.correct,
+    ).length;
     if (correctCount === connections.length) {
       return (
-        <div className="text-sm font-medium text-green-600">Perfect! All matches are correct.</div>
+        <div className="text-sm font-medium text-green-600">
+          Perfect! All matches are correct.
+        </div>
       );
     }
 
@@ -405,19 +455,24 @@ export function ChordConnectionGame({
   return (
     <Card className={cn('w-full', className)}>
       <CardHeader className="space-y-1 text-center">
-        <CardTitle className="text-2xl font-semibold">Chord Connection Challenge</CardTitle>
+        <CardTitle className="text-2xl font-semibold">
+          Chord Connection Challenge
+        </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Draw matches between chord names and the keyboards that highlight their tones.
+          Draw matches between chord names and the keyboards that highlight
+          their tones.
         </p>
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-          <span>Matches made: {connections.length}/{round.chords.length}</span>
+          <span>
+            Matches made: {connections.length}/{round.chords.length}
+          </span>
           <span>Accuracy: {accuracy !== null ? `${accuracy}%` : 'N/A'}</span>
         </div>
 
         <div ref={containerRef} className="relative">
-          <svg className="pointer-events-none absolute inset-0 h-full w-full">
+          <svg className="pointer-events-none absolute inset-0 size-full">
             {lines.map((line) => {
               const color = attachmentsFilled
                 ? line.correct
@@ -448,7 +503,9 @@ export function ChordConnectionGame({
               </h3>
               {round.chords.map((item) => {
                 const isActive = activeChord === item.id;
-                const isComplete = connections.some((connection) => connection.chordId === item.id);
+                const isComplete = connections.some(
+                  (connection) => connection.chordId === item.id,
+                );
 
                 const chordClass = cn(
                   ITEM_BUTTON_BASE_CLASS,
@@ -473,7 +530,9 @@ export function ChordConnectionGame({
                       {showChordNames ? item.label : 'Chord'}
                     </span>
                     {isComplete && (
-                      <span className="text-xs font-semibold uppercase text-green-600">Matched</span>
+                      <span className="text-xs font-semibold uppercase text-green-600">
+                        Matched
+                      </span>
                     )}
                   </button>
                 );
@@ -486,12 +545,18 @@ export function ChordConnectionGame({
               </h3>
               {round.keyboards.map((item) => {
                 const isActive = activeKeyboard === item.id;
-                const isComplete = connections.some((connection) => connection.keyboardId === item.id);
+                const isComplete = connections.some(
+                  (connection) => connection.keyboardId === item.id,
+                );
 
                 const color = attachmentsFilled
                   ? CONNECTION_COLORS.correct
                   : CONNECTION_COLORS.idle;
-                const playingNotes = toPlaybackEvents(item.midi, color, item.id);
+                const playingNotes = toPlaybackEvents(
+                  item.midi,
+                  color,
+                  item.id,
+                );
 
                 const keyboardClass = cn(
                   ITEM_BUTTON_BASE_CLASS,
@@ -517,7 +582,7 @@ export function ChordConnectionGame({
                         startC={3}
                         endC={5}
                         playingNotes={playingNotes}
-                        className="scale-90 origin-top"
+                        className="origin-top scale-90"
                       />
                     </div>
                   </button>
@@ -530,10 +595,17 @@ export function ChordConnectionGame({
         <div className="mt-6 flex flex-col items-center gap-4">
           {connectionSummary}
           <div className="flex flex-wrap justify-center gap-3">
-            <Button variant="outline" onClick={resetConnections} disabled={connections.length === 0}>
+            <Button
+              variant="outline"
+              onClick={resetConnections}
+              disabled={connections.length === 0}
+            >
               Clear Lines
             </Button>
-            <Button onClick={handleContinue} disabled={!attachmentsFilled || submitted}>
+            <Button
+              onClick={handleContinue}
+              disabled={!attachmentsFilled || submitted}
+            >
               Continue
             </Button>
           </div>
@@ -542,13 +614,3 @@ export function ChordConnectionGame({
     </Card>
   );
 }
-
-
-
-
-
-
-
-
-
-

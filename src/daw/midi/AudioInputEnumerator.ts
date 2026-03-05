@@ -27,7 +27,9 @@ export async function getAudioInputs(): Promise<AudioInputDevice[]> {
     let needsPermission = true;
     if (navigator.permissions) {
       try {
-        const status = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        const status = await navigator.permissions.query({
+          name: 'microphone' as PermissionName,
+        });
         needsPermission = status.state !== 'granted';
       } catch {
         // permissions.query not supported for microphone in this browser
@@ -79,7 +81,9 @@ export async function getAudioStream(deviceId: string): Promise<MediaStream> {
  * 3. getSettings().channelCount          (granted count, often 1–2)
  * 4. Fallback to 2.
  */
-export async function probeDeviceChannelCount(deviceId: string): Promise<number> {
+export async function probeDeviceChannelCount(
+  deviceId: string,
+): Promise<number> {
   // Strategy 1 & 3: open a stream and check capabilities / settings
   let capsMax = 0;
   let settingsCount = 0;
@@ -130,7 +134,8 @@ export async function probeDeviceChannelCount(deviceId: string): Promise<number>
         },
       });
       // Success — device supports at least n channels
-      const granted = stream.getAudioTracks()[0]?.getSettings()?.channelCount ?? n;
+      const granted =
+        stream.getAudioTracks()[0]?.getSettings()?.channelCount ?? n;
       stream.getTracks().forEach((t) => t.stop());
       console.info(`[AudioIO] Exact probe: requested ${n}, granted ${granted}`);
       return Math.max(granted, n);

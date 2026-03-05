@@ -13,8 +13,8 @@ export class PhaserEffect extends FXProcessor {
   private feedbackGain: GainNode;
 
   private static readonly NUM_STAGES = 4;
-  private static readonly BASE_FREQ = 1000;  // Hz center
-  private static readonly MAX_SWEEP = 3000;  // Hz sweep range
+  private static readonly BASE_FREQ = 1000; // Hz center
+  private static readonly MAX_SWEEP = 3000; // Hz sweep range
 
   constructor(ctx: AudioContext) {
     super(ctx);
@@ -68,7 +68,11 @@ export class PhaserEffect extends FXProcessor {
       this.input.connect(this.filters[0]);
     } else if (!enabled && wasEnabled) {
       // Disconnect signal path — allpass filters stop processing
-      try { this.input.disconnect(this.filters[0]); } catch { /* ok */ }
+      try {
+        this.input.disconnect(this.filters[0]);
+      } catch {
+        /* ok */
+      }
     }
   }
 
@@ -88,7 +92,11 @@ export class PhaserEffect extends FXProcessor {
   }
 
   dispose(): void {
-    try { this.lfo.stop(); } catch { /* already stopped */ }
+    try {
+      this.lfo.stop();
+    } catch {
+      /* already stopped */
+    }
     this.lfo.disconnect();
     this.lfoGain.disconnect();
     this.feedbackGain.disconnect();

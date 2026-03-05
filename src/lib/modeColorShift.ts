@@ -1,21 +1,21 @@
-import type { PrismModeSlug } from "@/hooks/data";
-import { KEY_OF_COLORS } from "@/constants/theme";
+import { KEY_OF_COLORS } from '@/constants/theme';
+import type { PrismModeSlug } from '@/hooks/data';
 
-type ModeColorShiftMap = Partial<Record<PrismModeSlug | "lorcian", number>>;
+type ModeColorShiftMap = Partial<Record<PrismModeSlug | 'lorcian', number>>;
 
 const CIRCLE_OF_FIFTHS = [
-  "C",
-  "G",
-  "D",
-  "A",
-  "E",
-  "B",
-  "F#",
-  "Db",
-  "Ab",
-  "Eb",
-  "Bb",
-  "F",
+  'C',
+  'G',
+  'D',
+  'A',
+  'E',
+  'B',
+  'F#',
+  'Db',
+  'Ab',
+  'Eb',
+  'Bb',
+  'F',
 ] as const;
 
 const MODE_COLOR_SHIFT: ModeColorShiftMap = {
@@ -30,16 +30,16 @@ const MODE_COLOR_SHIFT: ModeColorShiftMap = {
 };
 
 const ENHARMONIC_TO_CIRCLE_KEY: Record<string, string> = {
-  "C#": "Db",
-  "D#": "Eb",
-  "G#": "Ab",
-  "A#": "Bb",
+  'C#': 'Db',
+  'D#': 'Eb',
+  'G#': 'Ab',
+  'A#': 'Bb',
 };
 
 const normalizeKeyForCircle = (input: string): string => {
   const trimmed = input.trim();
-  if (!trimmed) return "C";
-  const normalized = trimmed.replace("♯", "#").replace("♭", "b");
+  if (!trimmed) return 'C';
+  const normalized = trimmed.replace('♯', '#').replace('♭', 'b');
   const letter = normalized[0].toUpperCase();
   const accidental = normalized.slice(1);
   const canonical = `${letter}${accidental}`;
@@ -52,7 +52,10 @@ const resolveModeColorShift = (mode?: PrismModeSlug): number => {
   return MODE_COLOR_SHIFT[normalized as PrismModeSlug] ?? 0;
 };
 
-export const colorForKeyMode = (rootKey: string, mode?: PrismModeSlug): string => {
+export const colorForKeyMode = (
+  rootKey: string,
+  mode?: PrismModeSlug,
+): string => {
   const normalizedKey = normalizeKeyForCircle(rootKey);
   const keyIndex = CIRCLE_OF_FIFTHS.findIndex((key) => key === normalizedKey);
   const baseIndex = keyIndex >= 0 ? keyIndex : 0;

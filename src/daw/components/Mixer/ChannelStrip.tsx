@@ -1,6 +1,14 @@
-import React from 'react';
+/* eslint-disable tailwindcss/classnames-order */
+/* eslint-disable tailwindcss/enforces-shorthand */
+/* eslint-disable tailwindcss/migration-from-tailwind-2 */
 import * as Slider from '@radix-ui/react-slider';
-import { useRef, useCallback } from 'react';
+import {
+  type CSSProperties,
+  memo,
+  type PointerEvent,
+  useCallback,
+  useRef,
+} from 'react';
 import { useStore, useTrack } from '@/daw/store';
 import { getTrackAudioState } from '@/daw/hooks/usePlaybackEngine';
 import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
@@ -17,7 +25,10 @@ interface ChannelStripProps {
 function MeterSegments({ level }: { level: number }) {
   const segments = 8;
   return (
-    <div className="flex flex-col-reverse gap-0.5 w-1.5" style={{ height: 120 }}>
+    <div
+      className="flex flex-col-reverse gap-0.5 w-1.5"
+      style={{ height: 120 }}
+    >
       {Array.from({ length: segments }, (_, i) => {
         const threshold = ((i + 1) / segments) * 100;
         const lit = level >= threshold - 100 / segments;
@@ -57,12 +68,14 @@ function PanKnob({ value, onChange }: PanKnobProps) {
   const angle = 270 + value * 45;
 
   const rad = (angle * Math.PI) / 180;
-  const cx = 14, cy = 14, r = 8;
+  const cx = 14,
+    cy = 14,
+    r = 8;
   const ix = cx + Math.cos(rad) * r;
   const iy = cy + Math.sin(rad) * r;
 
   const onPointerDown = useCallback(
-    (e: React.PointerEvent) => {
+    (e: PointerEvent<HTMLDivElement>) => {
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
       startY.current = e.clientY;
       startVal.current = value;
@@ -71,7 +84,7 @@ function PanKnob({ value, onChange }: PanKnobProps) {
   );
 
   const onPointerMove = useCallback(
-    (e: React.PointerEvent) => {
+    (e: PointerEvent<HTMLDivElement>) => {
       if (!(e.target as HTMLElement).hasPointerCapture(e.pointerId)) return;
       const dy = startY.current - e.clientY; // up = positive
       const next = Math.max(-1, Math.min(1, startVal.current + dy / 80));
@@ -93,7 +106,9 @@ function PanKnob({ value, onChange }: PanKnobProps) {
       <svg width={28} height={28} viewBox="0 0 28 28">
         {/* Outer ring */}
         <circle
-          cx={cx} cy={cy} r={11}
+          cx={cx}
+          cy={cy}
+          r={11}
           fill="rgba(255,255,255,0.06)"
           stroke="rgba(255,255,255,0.15)"
           strokeWidth={1}
@@ -102,7 +117,10 @@ function PanKnob({ value, onChange }: PanKnobProps) {
         <circle cx={cx} cy={cy} r={2} fill="rgba(255,255,255,0.2)" />
         {/* Indicator line */}
         <line
-          x1={cx} y1={cy} x2={ix} y2={iy}
+          x1={cx}
+          y1={cy}
+          x2={ix}
+          y2={iy}
           stroke="var(--color-text)"
           strokeWidth={2}
           strokeLinecap="round"
@@ -116,14 +134,17 @@ function PanKnob({ value, onChange }: PanKnobProps) {
 // Layout matches DAW edit Dock reference (top→bottom):
 //   Name → Fader+Meter → Pan knob → Volume readout → M/S buttons
 
-export const ChannelStrip = React.memo(function ChannelStrip({ trackId }: ChannelStripProps) {
+export const ChannelStrip = memo(function ChannelStrip({
+  trackId,
+}: ChannelStripProps) {
   const track = useTrack(trackId);
   const toggleMute = useStore((s) => s.toggleMute);
   const toggleSolo = useStore((s) => s.toggleSolo);
   const updateTrack = useStore((s) => s.updateTrack);
 
   // Live audio metering
-  const analyser = getTrackAudioState(trackId)?.trackEngine.getAnalyserNode() ?? null;
+  const analyser =
+    getTrackAudioState(trackId)?.trackEngine.getAnalyserNode() ?? null;
   const liveLevel = useMeterLevel(analyser);
 
   if (!track) return null;
@@ -160,9 +181,7 @@ export const ChannelStrip = React.memo(function ChannelStrip({ trackId }: Channe
           max={100}
           step={1}
           value={[volumePct]}
-          onValueChange={([v]) =>
-            updateTrack(track.id, { volume: v / 100 })
-          }
+          onValueChange={([v]) => updateTrack(track.id, { volume: v / 100 })}
         >
           <Slider.Track
             className="relative h-full w-1 rounded-full"
@@ -175,10 +194,12 @@ export const ChannelStrip = React.memo(function ChannelStrip({ trackId }: Channe
           </Slider.Track>
           <Slider.Thumb
             className="block h-3.5 w-3.5 rounded-full shadow-sm focus:outline-none focus:ring-1"
-            style={{
-              backgroundColor: '#e8e8f0',
-              '--tw-ring-color': 'var(--color-accent)',
-            } as React.CSSProperties}
+            style={
+              {
+                backgroundColor: '#e8e8f0',
+                '--tw-ring-color': 'var(--color-accent)',
+              } as CSSProperties
+            }
             aria-label="Volume"
           />
         </Slider.Root>
@@ -207,7 +228,9 @@ export const ChannelStrip = React.memo(function ChannelStrip({ trackId }: Channe
         <button
           className="h-5 w-5 rounded text-[10px] font-bold transition-colors cursor-pointer"
           style={{
-            backgroundColor: track.mute ? 'var(--color-record)' : 'rgba(255, 255, 255, 0.06)',
+            backgroundColor: track.mute
+              ? 'var(--color-record)'
+              : 'rgba(255, 255, 255, 0.06)',
             color: track.mute ? '#fff' : 'var(--color-text-dim)',
             border: 'none',
           }}
@@ -219,7 +242,9 @@ export const ChannelStrip = React.memo(function ChannelStrip({ trackId }: Channe
         <button
           className="h-5 w-5 rounded text-[10px] font-bold transition-colors cursor-pointer"
           style={{
-            backgroundColor: track.solo ? '#eab308' : 'rgba(255, 255, 255, 0.06)',
+            backgroundColor: track.solo
+              ? '#eab308'
+              : 'rgba(255, 255, 255, 0.06)',
             color: track.solo ? '#000' : 'var(--color-text-dim)',
             border: 'none',
           }}

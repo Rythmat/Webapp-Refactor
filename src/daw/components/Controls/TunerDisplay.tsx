@@ -1,4 +1,7 @@
-import React, { useCallback } from 'react';
+/* eslint-disable tailwindcss/classnames-order */
+/* eslint-disable tailwindcss/enforces-shorthand */
+/* eslint-disable sonarjs/cognitive-complexity */
+import { memo, type ReactNode, useCallback } from 'react';
 import { useTuner } from '@/daw/hooks/useTuner';
 
 // ── Constants ────────────────────────────────────────────────────────────
@@ -10,7 +13,15 @@ const YELLOW = '#eab308';
 // ── LED Bar (SVG) ────────────────────────────────────────────────────────
 // Dense tick marks with varying heights + a movable colored needle.
 
-function LedBar({ cents, hasNote, color }: { cents: number; hasNote: boolean; color: string }) {
+function LedBar({
+  cents,
+  hasNote,
+  color,
+}: {
+  cents: number;
+  hasNote: boolean;
+  color: string;
+}) {
   const w = 196;
   const h = 36;
   const pad = 6;
@@ -22,12 +33,16 @@ function LedBar({ cents, hasNote, color }: { cents: number; hasNote: boolean; co
 
   const TICK_COUNT = 41;
   const midIdx = (TICK_COUNT - 1) / 2;
-  const ticks: React.ReactNode[] = [];
+  const ticks: ReactNode[] = [];
 
   for (let i = 0; i < TICK_COUNT; i++) {
     const x = barLeft + (i / (TICK_COUNT - 1)) * barW;
     const distFromCenter = Math.abs(i - midIdx) / midIdx;
-    const envelope = 0.4 + 0.6 * (Math.pow(distFromCenter, 0.8) * 0.5 + Math.pow(1 - distFromCenter, 2) * 0.5);
+    const envelope =
+      0.4 +
+      0.6 *
+        (Math.pow(distFromCenter, 0.8) * 0.5 +
+          Math.pow(1 - distFromCenter, 2) * 0.5);
     const tickH = 6 + envelope * 14;
     const midY = h / 2;
 
@@ -48,7 +63,12 @@ function LedBar({ cents, hasNote, color }: { cents: number; hasNote: boolean; co
   const needleX = hasNote ? cx + (cents / 50) * halfRange : cx;
 
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="block mx-auto">
+    <svg
+      width={w}
+      height={h}
+      viewBox={`0 0 ${w} ${h}`}
+      className="block mx-auto"
+    >
       {ticks}
       {hasNote && (
         <>
@@ -77,7 +97,9 @@ interface TunerDisplayProps {
   deviceId: string | null;
 }
 
-export const TunerDisplay = React.memo(function TunerDisplay({ deviceId }: TunerDisplayProps) {
+export const TunerDisplay = memo(function TunerDisplay({
+  deviceId,
+}: TunerDisplayProps) {
   const { active, note, cents, frequency, start, stop } = useTuner(deviceId);
 
   const hasNote = active && note !== '';
@@ -116,7 +138,9 @@ export const TunerDisplay = React.memo(function TunerDisplay({ deviceId }: Tuner
           onClick={handleToggle}
           className="w-7 h-3.5 rounded-full flex items-center px-0.5 cursor-pointer shrink-0"
           style={{
-            backgroundColor: active ? 'var(--color-accent)' : 'var(--color-surface-3)',
+            backgroundColor: active
+              ? 'var(--color-accent)'
+              : 'var(--color-surface-3)',
             border: 'none',
           }}
         >
@@ -136,7 +160,9 @@ export const TunerDisplay = React.memo(function TunerDisplay({ deviceId }: Tuner
           className="text-[18px] font-bold leading-none tracking-tight"
           style={{
             color: hasNote ? color : 'var(--color-surface-3)',
-            textShadow: hasNote ? `0 0 12px ${inTune ? GREEN : YELLOW}40` : 'none',
+            textShadow: hasNote
+              ? `0 0 12px ${inTune ? GREEN : YELLOW}40`
+              : 'none',
           }}
         >
           {hasNote ? note : '—'}
@@ -145,7 +171,11 @@ export const TunerDisplay = React.memo(function TunerDisplay({ deviceId }: Tuner
         <span
           className="text-[10px] font-medium"
           style={{
-            color: !active ? 'var(--color-text-dim)' : hasNote ? color : 'var(--color-text-dim)',
+            color: !active
+              ? 'var(--color-text-dim)'
+              : hasNote
+                ? color
+                : 'var(--color-text-dim)',
           }}
         >
           {statusText}
@@ -153,7 +183,11 @@ export const TunerDisplay = React.memo(function TunerDisplay({ deviceId }: Tuner
       </div>
 
       {/* LED bar */}
-      <LedBar cents={cents} hasNote={hasNote} color={hasNote ? (inTune ? GREEN : YELLOW) : 'var(--color-surface-3)'} />
+      <LedBar
+        cents={cents}
+        hasNote={hasNote}
+        color={hasNote ? (inTune ? GREEN : YELLOW) : 'var(--color-surface-3)'}
+      />
 
       {/* Frequency readout */}
       <div className="text-center pb-0.5">

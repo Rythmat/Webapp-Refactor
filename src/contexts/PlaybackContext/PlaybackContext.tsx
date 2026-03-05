@@ -8,13 +8,13 @@ import {
   useMemo,
 } from 'react';
 import * as Tone from 'tone';
-import { PlaybackEvent } from './helpers';
-import { getTotalDuration } from './useTotalDuration';
 import {
   setPianoSamplerVolume,
   startPianoSampler,
   triggerPianoAttackRelease,
 } from '@/audio/pianoSampler';
+import { PlaybackEvent } from './helpers';
+import { getTotalDuration } from './useTotalDuration';
 
 type PlaybackContextType = {
   playingInstanceId: string | null;
@@ -212,7 +212,9 @@ export const PlaybackProvider = ({
 
         // Convert volume from 0-1 range to Tone.js volume in decibels
         // 0 (silent) maps to -Infinity dB, 1 (full) maps to 0 dB
-        setPianoSamplerVolume(volume === 0 ? -Infinity : 20 * Math.log10(volume));
+        setPianoSamplerVolume(
+          volume === 0 ? -Infinity : 20 * Math.log10(volume),
+        );
 
         // Store playback rate in state but don't try to set it on transport
         // as it's not directly supported in Tone.js Transport

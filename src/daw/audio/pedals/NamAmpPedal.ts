@@ -10,7 +10,10 @@ export type AmpSimMode = 'classic' | 'nam';
 
 const curveCache = new Map<string, Float32Array>();
 
-function makeDistortionCurve(amount: number, type: 'soft' | 'hard' | 'tube'): Float32Array {
+function makeDistortionCurve(
+  amount: number,
+  type: 'soft' | 'hard' | 'tube',
+): Float32Array {
   const quantized = Math.round(amount * 100);
   const key = `${type}:${quantized}`;
   let curve = curveCache.get(key);
@@ -22,9 +25,15 @@ function makeDistortionCurve(amount: number, type: 'soft' | 'hard' | 'tube'): Fl
   for (let i = 0; i < samples; i++) {
     const x = (i * 2) / samples - 1;
     switch (type) {
-      case 'soft':  curve[i] = Math.tanh(k * x); break;
-      case 'hard':  curve[i] = Math.max(-1, Math.min(1, k * x)); break;
-      case 'tube':  curve[i] = x >= 0 ? 1 - Math.exp(-k * x) : -(1 - Math.exp(k * x)) * 0.8; break;
+      case 'soft':
+        curve[i] = Math.tanh(k * x);
+        break;
+      case 'hard':
+        curve[i] = Math.max(-1, Math.min(1, k * x));
+        break;
+      case 'tube':
+        curve[i] = x >= 0 ? 1 - Math.exp(-k * x) : -(1 - Math.exp(k * x)) * 0.8;
+        break;
     }
   }
   curveCache.set(key, curve);
@@ -33,9 +42,12 @@ function makeDistortionCurve(amount: number, type: 'soft' | 'hard' | 'tube'): Fl
 
 function ampModelToCurveType(model: AmpModel): 'soft' | 'hard' | 'tube' {
   switch (model) {
-    case 'fire-clean': return 'soft';
-    case 'hard-clip':  return 'hard';
-    case 'tube-warm':  return 'tube';
+    case 'fire-clean':
+      return 'soft';
+    case 'hard-clip':
+      return 'hard';
+    case 'tube-warm':
+      return 'tube';
   }
 }
 
@@ -79,7 +91,10 @@ export class NamAmpPedal implements PedalProcessor {
     this.preGain.gain.value = 1 + this.driveValue * 10;
 
     this.shaper = ctx.createWaveShaper();
-    this.shaper.curve = makeDistortionCurve(this.driveValue, ampModelToCurveType(this.model)) as Float32Array<ArrayBuffer>;
+    this.shaper.curve = makeDistortionCurve(
+      this.driveValue,
+      ampModelToCurveType(this.model),
+    ) as Float32Array<ArrayBuffer>;
     this.shaper.oversample = 'none';
 
     this.bass = ctx.createBiquadFilter();
@@ -110,8 +125,12 @@ export class NamAmpPedal implements PedalProcessor {
     this.wireChain();
   }
 
-  getInputNode(): AudioNode { return this.inputNode; }
-  getOutputNode(): AudioNode { return this.outputNode; }
+  getInputNode(): AudioNode {
+    return this.inputNode;
+  }
+  getOutputNode(): AudioNode {
+    return this.outputNode;
+  }
 
   setEnabled(enabled: boolean): void {
     if (enabled === this.enabled) return;
@@ -123,7 +142,10 @@ export class NamAmpPedal implements PedalProcessor {
     if (params.drive !== undefined) {
       this.driveValue = params.drive;
       this.preGain.gain.value = 1 + params.drive * 10;
-      this.shaper.curve = makeDistortionCurve(params.drive, ampModelToCurveType(this.model)) as Float32Array<ArrayBuffer>;
+      this.shaper.curve = makeDistortionCurve(
+        params.drive,
+        ampModelToCurveType(this.model),
+      ) as Float32Array<ArrayBuffer>;
     }
     if (params.inputLevel !== undefined) {
       this.inputLevelValue = params.inputLevel;
@@ -156,12 +178,15 @@ export class NamAmpPedal implements PedalProcessor {
     if (!this.namNode) {
       if (!this.namInitPromise) {
         const node = new NamWorkletNode(this.ctx);
-        this.namInitPromise = node.init().then(() => {
-          this.namNode = node;
-        }).catch((err) => {
-          this.namInitPromise = null;
-          throw err;
-        });
+        this.namInitPromise = node
+          .init()
+          .then(() => {
+            this.namNode = node;
+          })
+          .catch((err) => {
+            this.namInitPromise = null;
+            throw err;
+          });
       }
       await this.namInitPromise;
     }
@@ -210,7 +235,11 @@ export class NamAmpPedal implements PedalProcessor {
     this.volume.disconnect();
     this.preGain.disconnect();
     this.shaper.disconnect();
-    try { this.namNode?.getNode().disconnect(); } catch { /* not initialized */ }
+    try {
+      this.namNode?.getNode().disconnect();
+    } catch {
+      /* not initialized */
+    }
 
     if (!this.enabled) {
       this.inputNode.connect(this.bypassNode);

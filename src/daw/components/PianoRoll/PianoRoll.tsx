@@ -1,29 +1,38 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MousePointer2, Pencil, Eraser, ChevronDown, ChevronRight } from 'lucide-react';
-import type { MidiNoteEvent } from '@prism/engine';
-import { noteNameInKey } from '@prism/engine';
+import {
+  MousePointer2,
+  Pencil,
+  Eraser,
+  ChevronDown,
+  ChevronRight,
+} from 'lucide-react';
+import { noteNameInKey, type MidiNoteEvent } from '@prism/engine';
 import { useStore } from '@/daw/store';
-import { GRID_VALUES, snapToGrid, quantizeEvents } from '@/daw/utils/quantize';
+import {
+  GRID_VALUES,
+  quantizeEvents,
+  snapToGrid,
+  type GridSize,
+} from '@/daw/utils/quantize';
 import { alternatingBarGroup } from '@/daw/utils/timelineScale';
-import type { GridSize } from '@/daw/utils/quantize';
 
 type Tool = 'select' | 'draw' | 'erase';
 
 // ── Constants ───────────────────────────────────────────────────────────────
-const KEYS_WIDTH = 48;       // px for piano key column
-const RULER_H = 24;          // px for top ruler
-const TOOLBAR_H = 36;        // px for toolbar
-const ROW_H = 12;            // px per pitch row
-const VEL_LANE_H = 60;      // px height for velocity lane
-const VEL_CIRCLE_R = 4;     // px radius of draggable velocity circle
+const KEYS_WIDTH = 48; // px for piano key column
+const RULER_H = 24; // px for top ruler
+const TOOLBAR_H = 36; // px for toolbar
+const ROW_H = 12; // px per pitch row
+const VEL_LANE_H = 60; // px height for velocity lane
+const VEL_CIRCLE_R = 4; // px radius of draggable velocity circle
 const VEL_CIRCLE_HIT_R = 7; // px hit test radius (circle + tolerance)
 const TICKS_PER_BEAT = 480;
 const BEATS_PER_BAR = 4;
 
 // Fixed view range (full keyboard C1–C7)
-const VIEW_MIN = 24;  // C1
-const VIEW_MAX = 96;  // C7
+const VIEW_MIN = 24; // C1
+const VIEW_MAX = 96; // C7
 const VIEW_RANGE = VIEW_MAX - VIEW_MIN + 1; // 73 notes
 
 // ── Theme colors (read CSS variables for canvas drawing) ────────────────────
@@ -31,8 +40,8 @@ function getThemeColors(el: HTMLElement) {
   const s = getComputedStyle(el);
   const get = (v: string, fb: string) => s.getPropertyValue(v).trim() || fb;
   return {
-    bg:      get('--color-bg', '#363636'),
-    border:  get('--color-border', 'rgba(255,255,255,0.08)'),
+    bg: get('--color-bg', '#363636'),
+    border: get('--color-border', 'rgba(255,255,255,0.08)'),
     textDim: get('--color-text-dim', '#6b6b80'),
   };
 }
@@ -67,7 +76,12 @@ interface PianoRollProps {
   onChange: (events: MidiNoteEvent[]) => void;
 }
 
-export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoRollProps) {
+export function PianoRoll({
+  events,
+  clipStartTick,
+  clipColor,
+  onChange,
+}: PianoRollProps) {
   const rootNote = useStore((s) => s.rootNote);
 
   // Refs — container + 3 canvases + 3 scroll containers
@@ -109,7 +123,10 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
 
   // Dynamic MIN_ZOOM: stop zoom-out when content fills the viewport
   const containerW = gridScrollRef.current?.clientWidth ?? 800;
-  const MIN_ZOOM = Math.max(0.15, containerW / ((totalTicks * 40) / TICKS_PER_BEAT));
+  const MIN_ZOOM = Math.max(
+    0.15,
+    containerW / ((totalTicks * 40) / TICKS_PER_BEAT),
+  );
 
   // Pixel scale (zoom-dependent)
   const pixelsPerTick = (40 * zoom) / TICKS_PER_BEAT;
@@ -124,7 +141,9 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const colors = containerRef.current ? getThemeColors(containerRef.current) : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+    const colors = containerRef.current
+      ? getThemeColors(containerRef.current)
+      : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
 
     const dpr = window.devicePixelRatio || 1;
     const w = KEYS_WIDTH;
@@ -185,9 +204,11 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
 
       if (showLabel) {
         const fontSize = Math.max(7, Math.round(8 * vZoom));
-        ctx.fillStyle = isC ? 'rgba(255, 255, 255, 0.6)'
-          : black ? 'rgba(255, 255, 255, 0.3)'
-          : 'rgba(255, 255, 255, 0.4)';
+        ctx.fillStyle = isC
+          ? 'rgba(255, 255, 255, 0.6)'
+          : black
+            ? 'rgba(255, 255, 255, 0.3)'
+            : 'rgba(255, 255, 255, 0.4)';
         ctx.font = `${isC ? 'bold ' : ''}${fontSize}px Inter, monospace`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'right';
@@ -211,11 +232,15 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const colors = containerRef.current ? getThemeColors(containerRef.current) : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+    const colors = containerRef.current
+      ? getThemeColors(containerRef.current)
+      : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
 
     const dpr = window.devicePixelRatio || 1;
     const rulerContainer = rulerScrollRef.current;
-    const w = rulerContainer ? Math.max(rulerContainer.clientWidth, gridW) : gridW;
+    const w = rulerContainer
+      ? Math.max(rulerContainer.clientWidth, gridW)
+      : gridW;
     const h = RULER_H;
 
     if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
@@ -241,7 +266,9 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
       const isBar = beat % BEATS_PER_BAR === 0;
 
       // Tick mark
-      ctx.strokeStyle = isBar ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.06)';
+      ctx.strokeStyle = isBar
+        ? 'rgba(255, 255, 255, 0.15)'
+        : 'rgba(255, 255, 255, 0.06)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(x, isBar ? 0 : h * 0.5);
@@ -275,7 +302,9 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
     const container = gridScrollRef.current;
     if (!container) return;
 
-    const colors = containerRef.current ? getThemeColors(containerRef.current) : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+    const colors = containerRef.current
+      ? getThemeColors(containerRef.current)
+      : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
 
     const dpr = window.devicePixelRatio || 1;
     const w = Math.max(container.clientWidth, gridW);
@@ -304,9 +333,10 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
         ctx.fillRect(0, rowY, w, rowH);
       }
 
-      ctx.strokeStyle = midiNote % 12 === 0
-        ? 'rgba(255, 255, 255, 0.08)'
-        : 'rgba(255, 255, 255, 0.03)';
+      ctx.strokeStyle =
+        midiNote % 12 === 0
+          ? 'rgba(255, 255, 255, 0.08)'
+          : 'rgba(255, 255, 255, 0.03)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, rowY);
@@ -332,7 +362,9 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
       const x = beat * TICKS_PER_BEAT * pixelsPerTick;
       const isBar = beat % BEATS_PER_BAR === 0;
 
-      ctx.strokeStyle = isBar ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.06)';
+      ctx.strokeStyle = isBar
+        ? 'rgba(255, 255, 255, 0.14)'
+        : 'rgba(255, 255, 255, 0.06)';
       ctx.lineWidth = isBar ? 1 : 0.5;
       ctx.beginPath();
       ctx.moveTo(x, 0);
@@ -375,7 +407,9 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
 
       ctx.fillStyle = isSelected
         ? clipColor
-        : `${clipColor}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`;
+        : `${clipColor}${Math.round(alpha * 255)
+            .toString(16)
+            .padStart(2, '0')}`;
       ctx.beginPath();
       ctx.roundRect(x, noteY + 1, noteW, rowH - 2, 2);
       ctx.fill();
@@ -387,9 +421,19 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
         ctx.roundRect(x, noteY + 1, noteW, rowH - 2, 2);
         ctx.stroke();
       }
-
     }
-  }, [events, clipStartTick, clipColor, gridSize, selectedNoteIdx, gridW, gridH, rowH, totalTicks, pixelsPerTick]);
+  }, [
+    events,
+    clipStartTick,
+    clipColor,
+    gridSize,
+    selectedNoteIdx,
+    gridW,
+    gridH,
+    rowH,
+    totalTicks,
+    pixelsPerTick,
+  ]);
 
   // ── Draw Velocity Lane ──────────────────────────────────────────────────
   const drawVelLane = useCallback(() => {
@@ -398,7 +442,9 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const colors = containerRef.current ? getThemeColors(containerRef.current) : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+    const colors = containerRef.current
+      ? getThemeColors(containerRef.current)
+      : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
     const dpr = window.devicePixelRatio || 1;
     const velContainer = velScrollRef.current;
     const w = velContainer ? Math.max(velContainer.clientWidth, gridW) : gridW;
@@ -427,7 +473,8 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
     const maxStemH = h - VEL_CIRCLE_R - 4;
     for (const frac of [0.25, 0.5, 0.75]) {
       const y = h - frac * maxStemH - 2;
-      ctx.strokeStyle = frac === 0.5 ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)';
+      ctx.strokeStyle =
+        frac === 0.5 ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)';
       ctx.lineWidth = 0.5;
       ctx.beginPath();
       ctx.moveTo(0, y);
@@ -448,14 +495,17 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
         if (ev.note < VIEW_MIN || ev.note > VIEW_MAX) continue;
 
         const relTick = ev.startTick - clipStartTick;
-        const x = relTick * pixelsPerTick + (ev.durationTicks * pixelsPerTick) / 2;
+        const x =
+          relTick * pixelsPerTick + (ev.durationTicks * pixelsPerTick) / 2;
         const stemH = (ev.velocity / 127) * maxStemH;
         const circleY = h - stemH - 2;
 
         const alpha = 0.5 + (ev.velocity / 127) * 0.5;
         const stemColor = isSelected
           ? '#ffffff'
-          : `${clipColor}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`;
+          : `${clipColor}${Math.round(alpha * 255)
+              .toString(16)
+              .padStart(2, '0')}`;
 
         // Stem line
         ctx.strokeStyle = stemColor;
@@ -483,84 +533,113 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
         }
       }
     }
-  }, [events, clipStartTick, clipColor, selectedNoteIdx, gridW, pixelsPerTick, velLaneOpen]);
+  }, [
+    events,
+    clipStartTick,
+    clipColor,
+    selectedNoteIdx,
+    gridW,
+    pixelsPerTick,
+    velLaneOpen,
+  ]);
 
   // ── Velocity lane mouse handlers ──────────────────────────────────────
-  const handleVelMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = velCanvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    const h = VEL_LANE_H;
-    const maxStemH = h - VEL_CIRCLE_R - 4;
+  const handleVelMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = velCanvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const h = VEL_LANE_H;
+      const maxStemH = h - VEL_CIRCLE_R - 4;
 
-    const currentEvents = eventsRef.current;
-    let hitIdx: number | null = null;
-    let closestIdx: number | null = null;
-    let closestDist = Infinity;
+      const currentEvents = eventsRef.current;
+      let hitIdx: number | null = null;
+      let closestIdx: number | null = null;
+      let closestDist = Infinity;
 
-    for (let i = 0; i < currentEvents.length; i++) {
-      const ev = currentEvents[i];
-      if (ev.note < VIEW_MIN || ev.note > VIEW_MAX) continue;
+      for (let i = 0; i < currentEvents.length; i++) {
+        const ev = currentEvents[i];
+        if (ev.note < VIEW_MIN || ev.note > VIEW_MAX) continue;
 
-      const relTick = ev.startTick - clipStartTick;
-      const cx = relTick * pixelsPerTick + (ev.durationTicks * pixelsPerTick) / 2;
-      const stemH = (ev.velocity / 127) * maxStemH;
-      const circleY = h - stemH - 2;
+        const relTick = ev.startTick - clipStartTick;
+        const cx =
+          relTick * pixelsPerTick + (ev.durationTicks * pixelsPerTick) / 2;
+        const stemH = (ev.velocity / 127) * maxStemH;
+        const circleY = h - stemH - 2;
 
-      // Circle hit test
-      const dist = Math.sqrt((mx - cx) ** 2 + (my - circleY) ** 2);
-      if (dist <= VEL_CIRCLE_HIT_R) {
-        hitIdx = i;
-        break;
+        // Circle hit test
+        const dist = Math.sqrt((mx - cx) ** 2 + (my - circleY) ** 2);
+        if (dist <= VEL_CIRCLE_HIT_R) {
+          hitIdx = i;
+          break;
+        }
+
+        // Track closest for stem-area click
+        const xDist = Math.abs(mx - cx);
+        if (xDist < 20 && xDist < closestDist) {
+          closestDist = xDist;
+          closestIdx = i;
+        }
       }
 
-      // Track closest for stem-area click
-      const xDist = Math.abs(mx - cx);
-      if (xDist < 20 && xDist < closestDist) {
-        closestDist = xDist;
-        closestIdx = i;
+      const targetIdx = hitIdx ?? closestIdx;
+      if (targetIdx !== null) {
+        setSelectedNoteIdx(targetIdx);
+        velDragRef.current = { noteIndex: targetIdx };
+
+        const newVel = Math.max(
+          1,
+          Math.min(127, Math.round(((h - 2 - my) / maxStemH) * 127)),
+        );
+        const updated = [...currentEvents];
+        updated[targetIdx] = { ...updated[targetIdx], velocity: newVel };
+        onChange(updated);
       }
-    }
+    },
+    [clipStartTick, pixelsPerTick, onChange],
+  );
 
-    const targetIdx = hitIdx ?? closestIdx;
-    if (targetIdx !== null) {
-      setSelectedNoteIdx(targetIdx);
-      velDragRef.current = { noteIndex: targetIdx };
+  const handleVelMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (!velDragRef.current) return;
+      const canvas = velCanvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const my = e.clientY - rect.top;
+      const h = VEL_LANE_H;
+      const maxStemH = h - VEL_CIRCLE_R - 4;
 
-      const newVel = Math.max(1, Math.min(127, Math.round(((h - 2 - my) / maxStemH) * 127)));
-      const updated = [...currentEvents];
-      updated[targetIdx] = { ...updated[targetIdx], velocity: newVel };
-      onChange(updated);
-    }
-  }, [clipStartTick, pixelsPerTick, onChange]);
-
-  const handleVelMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!velDragRef.current) return;
-    const canvas = velCanvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const my = e.clientY - rect.top;
-    const h = VEL_LANE_H;
-    const maxStemH = h - VEL_CIRCLE_R - 4;
-
-    const newVel = Math.max(1, Math.min(127, Math.round(((h - 2 - my) / maxStemH) * 127)));
-    const currentEvents = [...eventsRef.current];
-    const idx = velDragRef.current.noteIndex;
-    currentEvents[idx] = { ...currentEvents[idx], velocity: newVel };
-    onChange(currentEvents);
-  }, [onChange]);
+      const newVel = Math.max(
+        1,
+        Math.min(127, Math.round(((h - 2 - my) / maxStemH) * 127)),
+      );
+      const currentEvents = [...eventsRef.current];
+      const idx = velDragRef.current.noteIndex;
+      currentEvents[idx] = { ...currentEvents[idx], velocity: newVel };
+      onChange(currentEvents);
+    },
+    [onChange],
+  );
 
   const handleVelMouseUp = useCallback(() => {
     velDragRef.current = null;
   }, []);
 
   // ── Draw all canvases ───────────────────────────────────────────────────
-  useEffect(() => { drawPiano(); }, [drawPiano]);
-  useEffect(() => { drawRuler(); }, [drawRuler]);
-  useEffect(() => { drawGrid(); }, [drawGrid]);
-  useEffect(() => { drawVelLane(); }, [drawVelLane]);
+  useEffect(() => {
+    drawPiano();
+  }, [drawPiano]);
+  useEffect(() => {
+    drawRuler();
+  }, [drawRuler]);
+  useEffect(() => {
+    drawGrid();
+  }, [drawGrid]);
+  useEffect(() => {
+    drawVelLane();
+  }, [drawVelLane]);
 
   // ── Auto-scroll to notes on mount ───────────────────────────────────────
   useEffect(() => {
@@ -572,7 +651,8 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
     requestAnimationFrame(() => {
       let centerNote = 60; // default C4
       if (events.length > 0) {
-        let minN = 127, maxN = 0;
+        let minN = 127,
+          maxN = 0;
         for (const ev of events) {
           if (ev.note < minN) minN = ev.note;
           if (ev.note > maxN) maxN = ev.note;
@@ -584,15 +664,17 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
       grid.scrollTop = Math.max(0, targetScroll);
       initialScrollDone.current = true;
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Sync scroll ─────────────────────────────────────────────────────────
   const handleGridScroll = useCallback(() => {
     const grid = gridScrollRef.current;
     if (!grid) return;
-    if (pianoScrollRef.current) pianoScrollRef.current.scrollTop = grid.scrollTop;
-    if (rulerScrollRef.current) rulerScrollRef.current.scrollLeft = grid.scrollLeft;
+    if (pianoScrollRef.current)
+      pianoScrollRef.current.scrollTop = grid.scrollTop;
+    if (rulerScrollRef.current)
+      rulerScrollRef.current.scrollLeft = grid.scrollLeft;
     if (velScrollRef.current) velScrollRef.current.scrollLeft = grid.scrollLeft;
   }, []);
 
@@ -608,183 +690,246 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
   }, []);
 
   // ── Hit test ────────────────────────────────────────────────────────────
-  const hitTestNote = useCallback((canvasX: number, canvasY: number): number | null => {
-    const currentEvents = eventsRef.current;
-    for (let i = currentEvents.length - 1; i >= 0; i--) {
-      const ev = currentEvents[i];
-      const relTick = ev.startTick - clipStartTick;
-      const x = relTick * pixelsPerTick;
-      const w = Math.max(3, ev.durationTicks * pixelsPerTick);
-      const pitchIdx = VIEW_MAX - ev.note;
-      const noteY = pitchIdx * rowH;
+  const hitTestNote = useCallback(
+    (canvasX: number, canvasY: number): number | null => {
+      const currentEvents = eventsRef.current;
+      for (let i = currentEvents.length - 1; i >= 0; i--) {
+        const ev = currentEvents[i];
+        const relTick = ev.startTick - clipStartTick;
+        const x = relTick * pixelsPerTick;
+        const w = Math.max(3, ev.durationTicks * pixelsPerTick);
+        const pitchIdx = VIEW_MAX - ev.note;
+        const noteY = pitchIdx * rowH;
 
-      if (canvasX >= x && canvasX <= x + w && canvasY >= noteY && canvasY <= noteY + rowH) {
-        return i;
+        if (
+          canvasX >= x &&
+          canvasX <= x + w &&
+          canvasY >= noteY &&
+          canvasY <= noteY + rowH
+        ) {
+          return i;
+        }
       }
-    }
-    return null;
-  }, [clipStartTick, pixelsPerTick, rowH]);
+      return null;
+    },
+    [clipStartTick, pixelsPerTick, rowH],
+  );
 
   // ── Mouse down ──────────────────────────────────────────────────────────
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const { x, y } = getCanvasCoords(e);
-    if (x < 0 || y < 0) return;
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const { x, y } = getCanvasCoords(e);
+      if (x < 0 || y < 0) return;
 
-    const noteIdx = hitTestNote(x, y);
-    const currentEvents = eventsRef.current;
-
-    switch (tool) {
-      case 'draw': {
-        if (noteIdx !== null) {
-          // In draw mode, clicking an existing note selects it (for velocity editing)
-          setSelectedNoteIdx(noteIdx);
-          return;
-        }
-        setSelectedNoteIdx(null);
-        const gridTicks = GRID_VALUES[gridSize];
-        const clickTick = x / pixelsPerTick + clipStartTick;
-        const snappedTick = snapToGrid(clickTick, gridSize);
-        const pitch = VIEW_MAX - Math.floor(y / rowH);
-
-        if (pitch >= VIEW_MIN && pitch <= VIEW_MAX) {
-          const newNote: MidiNoteEvent = {
-            note: pitch,
-            velocity,
-            startTick: snappedTick,
-            durationTicks: gridTicks,
-            channel: 0,
-          };
-          const newEvents = [...currentEvents, newNote].sort((a, b) => a.startTick - b.startTick);
-          onChange(newEvents);
-          const addedIdx = newEvents.findIndex(
-            (n) => n.startTick === snappedTick && n.note === pitch && n.durationTicks === gridTicks,
-          );
-          setSelectedNoteIdx(addedIdx >= 0 ? addedIdx : null);
-        }
-        break;
-      }
-
-      case 'select': {
-        if (noteIdx !== null) {
-          setSelectedNoteIdx(noteIdx);
-          const ev = currentEvents[noteIdx];
-          const relTick = ev.startTick - clipStartTick;
-          const noteX = relTick * pixelsPerTick;
-          const noteW = Math.max(3, ev.durationTicks * pixelsPerTick);
-          const nearRightEdge = x >= noteX + noteW - 6;
-
-          dragRef.current = {
-            noteIndex: noteIdx,
-            mode: nearRightEdge ? 'resize' : 'move',
-            offsetTick: Math.round((x - noteX) / pixelsPerTick),
-            offsetPitch: 0,
-            originalNote: { ...ev },
-          };
-        } else {
-          setSelectedNoteIdx(null);
-        }
-        break;
-      }
-
-      case 'erase': {
-        if (noteIdx !== null) {
-          const newEvents = currentEvents.filter((_, i) => i !== noteIdx);
-          onChange(newEvents);
-          setSelectedNoteIdx(null);
-        }
-        break;
-      }
-    }
-  }, [tool, velocity, getCanvasCoords, hitTestNote, clipStartTick, pixelsPerTick, gridSize, onChange]);
-
-  // ── Mouse move ──────────────────────────────────────────────────────────
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const drag = dragRef.current;
-    if (!drag) {
-      const canvas = gridCanvasRef.current;
-      if (!canvas) return;
+      const noteIdx = hitTestNote(x, y);
+      const currentEvents = eventsRef.current;
 
       switch (tool) {
-        case 'draw':
-          canvas.style.cursor = PENCIL_CURSOR;
-          break;
-        case 'erase':
-          canvas.style.cursor = ERASER_CURSOR;
-          break;
-        case 'select': {
-          const { x, y } = getCanvasCoords(e);
-          const noteIdx = hitTestNote(x, y);
+        case 'draw': {
           if (noteIdx !== null) {
-            const ev = eventsRef.current[noteIdx];
+            // In draw mode, clicking an existing note selects it (for velocity editing)
+            setSelectedNoteIdx(noteIdx);
+            return;
+          }
+          setSelectedNoteIdx(null);
+          const gridTicks = GRID_VALUES[gridSize];
+          const clickTick = x / pixelsPerTick + clipStartTick;
+          const snappedTick = snapToGrid(clickTick, gridSize);
+          const pitch = VIEW_MAX - Math.floor(y / rowH);
+
+          if (pitch >= VIEW_MIN && pitch <= VIEW_MAX) {
+            const newNote: MidiNoteEvent = {
+              note: pitch,
+              velocity,
+              startTick: snappedTick,
+              durationTicks: gridTicks,
+              channel: 0,
+            };
+            const newEvents = [...currentEvents, newNote].sort(
+              (a, b) => a.startTick - b.startTick,
+            );
+            onChange(newEvents);
+            const addedIdx = newEvents.findIndex(
+              (n) =>
+                n.startTick === snappedTick &&
+                n.note === pitch &&
+                n.durationTicks === gridTicks,
+            );
+            setSelectedNoteIdx(addedIdx >= 0 ? addedIdx : null);
+          }
+          break;
+        }
+
+        case 'select': {
+          if (noteIdx !== null) {
+            setSelectedNoteIdx(noteIdx);
+            const ev = currentEvents[noteIdx];
             const relTick = ev.startTick - clipStartTick;
             const noteX = relTick * pixelsPerTick;
             const noteW = Math.max(3, ev.durationTicks * pixelsPerTick);
-            canvas.style.cursor = x >= noteX + noteW - 6 ? 'col-resize' : 'grab';
+            const nearRightEdge = x >= noteX + noteW - 6;
+
+            dragRef.current = {
+              noteIndex: noteIdx,
+              mode: nearRightEdge ? 'resize' : 'move',
+              offsetTick: Math.round((x - noteX) / pixelsPerTick),
+              offsetPitch: 0,
+              originalNote: { ...ev },
+            };
           } else {
-            canvas.style.cursor = 'default';
+            setSelectedNoteIdx(null);
+          }
+          break;
+        }
+
+        case 'erase': {
+          if (noteIdx !== null) {
+            const newEvents = currentEvents.filter((_, i) => i !== noteIdx);
+            onChange(newEvents);
+            setSelectedNoteIdx(null);
           }
           break;
         }
       }
-      return;
-    }
+    },
+    [
+      tool,
+      velocity,
+      getCanvasCoords,
+      hitTestNote,
+      clipStartTick,
+      pixelsPerTick,
+      gridSize,
+      onChange,
+    ],
+  );
 
-    const { x, y } = getCanvasCoords(e);
-    const currentEvents = [...eventsRef.current];
+  // ── Mouse move ──────────────────────────────────────────────────────────
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const drag = dragRef.current;
+      if (!drag) {
+        const canvas = gridCanvasRef.current;
+        if (!canvas) return;
 
-    if (drag.mode === 'move') {
-      const rawTick = x / pixelsPerTick + clipStartTick - drag.offsetTick;
-      const snappedTick = snapToGrid(rawTick, gridSize);
-      const pitch = VIEW_MAX - Math.floor(y / rowH);
-      const clampedPitch = Math.max(0, Math.min(127, pitch));
+        switch (tool) {
+          case 'draw':
+            canvas.style.cursor = PENCIL_CURSOR;
+            break;
+          case 'erase':
+            canvas.style.cursor = ERASER_CURSOR;
+            break;
+          case 'select': {
+            const { x, y } = getCanvasCoords(e);
+            const noteIdx = hitTestNote(x, y);
+            if (noteIdx !== null) {
+              const ev = eventsRef.current[noteIdx];
+              const relTick = ev.startTick - clipStartTick;
+              const noteX = relTick * pixelsPerTick;
+              const noteW = Math.max(3, ev.durationTicks * pixelsPerTick);
+              canvas.style.cursor =
+                x >= noteX + noteW - 6 ? 'col-resize' : 'grab';
+            } else {
+              canvas.style.cursor = 'default';
+            }
+            break;
+          }
+        }
+        return;
+      }
 
-      currentEvents[drag.noteIndex] = {
-        ...currentEvents[drag.noteIndex],
-        startTick: Math.max(0, snappedTick),
-        note: clampedPitch,
-      };
-    } else if (drag.mode === 'resize') {
-      const endTick = x / pixelsPerTick + clipStartTick;
-      const snappedEnd = snapToGrid(endTick, gridSize);
-      const ev = currentEvents[drag.noteIndex];
-      const newDuration = Math.max(GRID_VALUES[gridSize], snappedEnd - ev.startTick);
-      currentEvents[drag.noteIndex] = { ...ev, durationTicks: newDuration };
-    }
+      const { x, y } = getCanvasCoords(e);
+      const currentEvents = [...eventsRef.current];
 
-    onChange(currentEvents);
-  }, [tool, getCanvasCoords, hitTestNote, clipStartTick, pixelsPerTick, gridSize, onChange]);
+      if (drag.mode === 'move') {
+        const rawTick = x / pixelsPerTick + clipStartTick - drag.offsetTick;
+        const snappedTick = snapToGrid(rawTick, gridSize);
+        const pitch = VIEW_MAX - Math.floor(y / rowH);
+        const clampedPitch = Math.max(0, Math.min(127, pitch));
+
+        currentEvents[drag.noteIndex] = {
+          ...currentEvents[drag.noteIndex],
+          startTick: Math.max(0, snappedTick),
+          note: clampedPitch,
+        };
+      } else if (drag.mode === 'resize') {
+        const endTick = x / pixelsPerTick + clipStartTick;
+        const snappedEnd = snapToGrid(endTick, gridSize);
+        const ev = currentEvents[drag.noteIndex];
+        const newDuration = Math.max(
+          GRID_VALUES[gridSize],
+          snappedEnd - ev.startTick,
+        );
+        currentEvents[drag.noteIndex] = { ...ev, durationTicks: newDuration };
+      }
+
+      onChange(currentEvents);
+    },
+    [
+      tool,
+      getCanvasCoords,
+      hitTestNote,
+      clipStartTick,
+      pixelsPerTick,
+      gridSize,
+      onChange,
+    ],
+  );
 
   // ── Mouse up ────────────────────────────────────────────────────────────
   const handleMouseUp = useCallback(() => {
     dragRef.current = null;
     if (gridCanvasRef.current) {
       gridCanvasRef.current.style.cursor =
-        tool === 'draw' ? PENCIL_CURSOR : tool === 'erase' ? ERASER_CURSOR : 'default';
+        tool === 'draw'
+          ? PENCIL_CURSOR
+          : tool === 'erase'
+            ? ERASER_CURSOR
+            : 'default';
     }
   }, [tool]);
 
   useEffect(() => {
-    const handler = () => { if (dragRef.current) handleMouseUp(); };
+    const handler = () => {
+      if (dragRef.current) handleMouseUp();
+    };
     window.addEventListener('mouseup', handler);
     return () => window.removeEventListener('mouseup', handler);
   }, [handleMouseUp]);
 
   // ── Keyboard: Tool shortcuts + Delete ───────────────────────────────────
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    // Tool shortcuts
-    if (e.key === 'v' || e.key === 'V') { setTool('select'); return; }
-    if (e.key === 'd' || e.key === 'D') { setTool('draw'); return; }
-    if (e.key === 'e' || e.key === 'E') { setTool('erase'); return; }
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      // Tool shortcuts
+      if (e.key === 'v' || e.key === 'V') {
+        setTool('select');
+        return;
+      }
+      if (e.key === 'd' || e.key === 'D') {
+        setTool('draw');
+        return;
+      }
+      if (e.key === 'e' || e.key === 'E') {
+        setTool('erase');
+        return;
+      }
 
-    // Delete selected note
-    if ((e.code === 'Delete' || e.code === 'Backspace') && selectedNoteIdx !== null) {
-      e.preventDefault();
-      e.stopPropagation();
-      const newEvents = eventsRef.current.filter((_, i) => i !== selectedNoteIdx);
-      onChange(newEvents);
-      setSelectedNoteIdx(null);
-    }
-  }, [selectedNoteIdx, onChange]);
+      // Delete selected note
+      if (
+        (e.code === 'Delete' || e.code === 'Backspace') &&
+        selectedNoteIdx !== null
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        const newEvents = eventsRef.current.filter(
+          (_, i) => i !== selectedNoteIdx,
+        );
+        onChange(newEvents);
+        setSelectedNoteIdx(null);
+      }
+    },
+    [selectedNoteIdx, onChange],
+  );
 
   // ── Quantize handler ────────────────────────────────────────────────────
   const handleQuantize = useCallback(() => {
@@ -805,7 +950,10 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
         const noteAtMouse = mouseY / rowH;
 
         const factor = e.deltaY < 0 ? 1.05 : 1 / 1.05;
-        const newVZoom = Math.min(MAX_V_ZOOM, Math.max(MIN_V_ZOOM, vZoom * factor));
+        const newVZoom = Math.min(
+          MAX_V_ZOOM,
+          Math.max(MIN_V_ZOOM, vZoom * factor),
+        );
 
         const newRowH = ROW_H * newVZoom;
         const newMouseY = noteAtMouse * newRowH;
@@ -814,7 +962,8 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
         setVZoom(newVZoom);
         requestAnimationFrame(() => {
           container.scrollTop = Math.max(0, newScrollTop);
-          if (pianoScrollRef.current) pianoScrollRef.current.scrollTop = Math.max(0, newScrollTop);
+          if (pianoScrollRef.current)
+            pianoScrollRef.current.scrollTop = Math.max(0, newScrollTop);
         });
         return;
       }
@@ -846,27 +995,51 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
-    <div ref={containerRef} className="flex flex-col" style={{ height: '100%' }}>
+    <div
+      ref={containerRef}
+      className="flex flex-col"
+      style={{ height: '100%' }}
+    >
       {/* Toolbar */}
       <div
-        className="flex items-center gap-2 px-3 shrink-0"
-        style={{ height: TOOLBAR_H, borderBottom: '1px solid var(--color-border)' }}
+        className="flex shrink-0 items-center gap-2 px-3"
+        style={{
+          height: TOOLBAR_H,
+          borderBottom: '1px solid var(--color-border)',
+        }}
       >
         {/* Tool mode buttons */}
         <div className="flex gap-0.5">
-          {([
-            { id: 'select' as Tool, icon: <MousePointer2 className="w-3.5 h-3.5" />, label: 'Select', shortcut: 'V' },
-            { id: 'draw' as Tool, icon: <Pencil className="w-3.5 h-3.5" />, label: 'Draw', shortcut: 'D' },
-            { id: 'erase' as Tool, icon: <Eraser className="w-3.5 h-3.5" />, label: 'Erase', shortcut: 'E' },
-          ] as const).map((t) => (
+          {(
+            [
+              {
+                id: 'select' as Tool,
+                icon: <MousePointer2 className="size-3.5" />,
+                label: 'Select',
+                shortcut: 'V',
+              },
+              {
+                id: 'draw' as Tool,
+                icon: <Pencil className="size-3.5" />,
+                label: 'Draw',
+                shortcut: 'D',
+              },
+              {
+                id: 'erase' as Tool,
+                icon: <Eraser className="size-3.5" />,
+                label: 'Erase',
+                shortcut: 'E',
+              },
+            ] as const
+          ).map((t) => (
             <button
               key={t.id}
               onClick={() => setTool(t.id)}
               title={`${t.label} (${t.shortcut})`}
-              className={`flex items-center gap-1 h-6 px-2 rounded text-[10px] font-semibold transition-colors ${
+              className={`flex h-6 items-center gap-1 rounded px-2 text-[10px] font-semibold transition-colors ${
                 tool === t.id
                   ? 'bg-white/10 text-white'
-                  : 'text-white/40 hover:text-white/60 hover:bg-white/5'
+                  : 'text-white/40 hover:bg-white/5 hover:text-white/60'
               }`}
             >
               {t.icon}
@@ -876,37 +1049,46 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
         </div>
 
         {/* Divider */}
-        <div className="w-px h-4 bg-white/10" />
+        <div className="h-4 w-px bg-white/10" />
 
         {/* Grid dropdown */}
-        <label className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--color-text-dim)' }}>
+        <label
+          className="flex items-center gap-1.5 text-xs"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           Grid
           <select
             value={gridSize}
             onChange={(e) => setGridSize(e.target.value as GridSize)}
-            className="bg-white/5 border border-white/10 rounded px-1.5 py-0.5 text-xs outline-none"
+            className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-xs outline-none"
             style={{ color: 'var(--color-text)' }}
           >
             {Object.keys(GRID_VALUES).map((g) => (
-              <option key={g} value={g} style={{ backgroundColor: 'var(--color-bg)' }}>{g}</option>
+              <option
+                key={g}
+                value={g}
+                style={{ backgroundColor: 'var(--color-bg)' }}
+              >
+                {g}
+              </option>
             ))}
           </select>
         </label>
 
         <button
           onClick={handleQuantize}
-          className="px-2 py-0.5 text-xs rounded bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+          className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-xs transition-colors hover:bg-white/10"
           style={{ color: 'var(--color-text)' }}
         >
           Quantize
         </button>
 
         {/* Divider */}
-        <div className="w-px h-4 bg-white/10" />
+        <div className="h-4 w-px bg-white/10" />
 
         {/* Velocity control */}
         <div className="flex items-center gap-1.5">
-          <span className="text-[9px] text-white/30 font-semibold uppercase">
+          <span className="text-[9px] font-semibold uppercase text-white/30">
             {selectedNoteIdx !== null ? 'Sel Vel' : 'Vel'}
           </span>
           <input
@@ -915,7 +1097,7 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
             max={127}
             value={
               selectedNoteIdx !== null
-                ? eventsRef.current[selectedNoteIdx]?.velocity ?? velocity
+                ? (eventsRef.current[selectedNoteIdx]?.velocity ?? velocity)
                 : velocity
             }
             onChange={(e) => {
@@ -931,30 +1113,40 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
                 setVelocity(val);
               }
             }}
-            className="w-16 h-1 accent-white/50"
+            className="h-1 w-16 accent-white/50"
           />
-          <span className="text-[10px] font-mono text-white/40 w-6 text-right">
+          <span className="w-6 text-right font-mono text-[10px] text-white/40">
             {selectedNoteIdx !== null
-              ? eventsRef.current[selectedNoteIdx]?.velocity ?? velocity
+              ? (eventsRef.current[selectedNoteIdx]?.velocity ?? velocity)
               : velocity}
           </span>
         </div>
 
         {/* Note count + zoom */}
-        <span className="text-xs ml-auto" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="ml-auto text-xs"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           {events.length} notes
         </span>
-        <span className="text-[10px] font-mono" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="font-mono text-[10px]"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           H:{Math.round(zoom * 100)}% V:{Math.round(vZoom * 100)}%
         </span>
       </div>
 
       {/* Piano roll body — synced layout + velocity lane */}
-      <div className="flex flex-col flex-1 overflow-hidden" tabIndex={0} onKeyDown={handleKeyDown}>
+      <div
+        className="flex flex-1 flex-col overflow-hidden"
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+      >
         {/* Main grid area */}
         <div className="flex flex-1 overflow-hidden" style={{ minHeight: 0 }}>
           {/* Left column: corner spacer + piano keys */}
-          <div className="shrink-0 flex flex-col" style={{ width: KEYS_WIDTH }}>
+          <div className="flex shrink-0 flex-col" style={{ width: KEYS_WIDTH }}>
             {/* Corner spacer */}
             <div
               style={{
@@ -975,11 +1167,16 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
           </div>
 
           {/* Right column: ruler + grid */}
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex flex-1 flex-col overflow-hidden">
             {/* Ruler — syncs horizontally with grid */}
             <div
               ref={rulerScrollRef}
-              style={{ height: RULER_H, flexShrink: 0, overflowX: 'hidden', overflowY: 'hidden' }}
+              style={{
+                height: RULER_H,
+                flexShrink: 0,
+                overflowX: 'hidden',
+                overflowY: 'hidden',
+              }}
             >
               <canvas ref={rulerCanvasRef} className="block" />
             </div>
@@ -1007,7 +1204,7 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
             {/* Toggle button aligned with piano keys */}
             <button
               onClick={() => setVelLaneOpen((o) => !o)}
-              className="flex items-center justify-center gap-1 shrink-0 cursor-pointer"
+              className="flex shrink-0 cursor-pointer items-center justify-center gap-1"
               style={{
                 width: KEYS_WIDTH,
                 height: 18,
@@ -1018,8 +1215,14 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
                 color: 'var(--color-text-dim)',
               }}
             >
-              {velLaneOpen ? <ChevronDown size={9} /> : <ChevronRight size={9} />}
-              <span className="text-[8px] font-semibold uppercase tracking-wider">Vel</span>
+              {velLaneOpen ? (
+                <ChevronDown size={9} />
+              ) : (
+                <ChevronRight size={9} />
+              )}
+              <span className="text-[8px] font-semibold uppercase tracking-wider">
+                Vel
+              </span>
             </button>
             <div
               className="flex-1"
@@ -1036,7 +1239,7 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
                 animate={{ height: VEL_LANE_H }}
                 exit={{ height: 0 }}
                 transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                className="overflow-hidden flex"
+                className="flex overflow-hidden"
               >
                 {/* Vel label area (aligned with piano keys) */}
                 <div
@@ -1051,7 +1254,11 @@ export function PianoRoll({ events, clipStartTick, clipColor, onChange }: PianoR
                 <div
                   ref={velScrollRef}
                   className="flex-1"
-                  style={{ overflowX: 'hidden', overflowY: 'hidden', height: VEL_LANE_H }}
+                  style={{
+                    overflowX: 'hidden',
+                    overflowY: 'hidden',
+                    height: VEL_LANE_H,
+                  }}
                 >
                   <canvas
                     ref={velCanvasRef}

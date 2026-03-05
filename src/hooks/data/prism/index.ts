@@ -3,10 +3,7 @@ export {
   type PrismChordList,
   type PrismChordListItem,
 } from './usePrismChords';
-export {
-  usePrismChord,
-  type PrismChordIntervals,
-} from './usePrismChord';
+export { usePrismChord, type PrismChordIntervals } from './usePrismChord';
 export {
   usePrismChordsProgressions,
   type PrismChordProgressionKey,

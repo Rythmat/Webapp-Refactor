@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { GetPrismChordsData, useMusicAtlas } from '@/contexts/MusicAtlasContext';
+import {
+  GetPrismChordsData,
+  useMusicAtlas,
+} from '@/contexts/MusicAtlasContext';
 
 export type PrismChordList = GetPrismChordsData['chords'];
 export type PrismChordListItem = GetPrismChordsData['chords'][number];

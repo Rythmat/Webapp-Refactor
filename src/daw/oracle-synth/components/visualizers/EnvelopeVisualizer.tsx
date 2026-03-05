@@ -69,7 +69,7 @@ export const EnvelopeVisualizer: React.FC<EnvelopeVisualizerProps> = React.memo(
         x0 + (xAttack - x0) * 0.4,
         yTop + drawH * 0.1,
         xAttack,
-        yTop
+        yTop,
       );
 
       // Decay (exponential-ish curve to sustain level)
@@ -77,7 +77,7 @@ export const EnvelopeVisualizer: React.FC<EnvelopeVisualizerProps> = React.memo(
         xAttack + (xDecay - xAttack) * 0.3,
         yTop + (ySustain - yTop) * 0.2,
         xDecay,
-        ySustain
+        ySustain,
       );
 
       // Hold (flat at sustain)
@@ -88,7 +88,7 @@ export const EnvelopeVisualizer: React.FC<EnvelopeVisualizerProps> = React.memo(
         xHold + (xRelease - xHold) * 0.3,
         ySustain + (yBottom - ySustain) * 0.2,
         xRelease,
-        yBottom
+        yBottom,
       );
 
       ctx.stroke();
@@ -128,5 +128,5 @@ export const EnvelopeVisualizer: React.FC<EnvelopeVisualizerProps> = React.memo(
         style={{ height }}
       />
     );
-  }
+  },
 );

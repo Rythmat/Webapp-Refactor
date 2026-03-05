@@ -7,7 +7,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useCreditsBalance, useStripeCheckout, useStripePortal } from '@/hooks/data/credits';
+import {
+  useCreditsBalance,
+  useStripeCheckout,
+  useStripePortal,
+} from '@/hooks/data/credits';
 
 interface UpgradeModalProps {
   open: boolean;
@@ -15,9 +19,27 @@ interface UpgradeModalProps {
 }
 
 const TIERS = [
-  { id: 'free' as const, name: 'Free', price: '$0', credits: '50 one-time', description: 'Get started with AI generation' },
-  { id: 'artist' as const, name: 'Artist', price: '$10/mo', credits: '100/month', description: 'For serious music makers' },
-  { id: 'studio' as const, name: 'Studio', price: '$20/mo', credits: '200/month', description: 'Unlimited creative freedom' },
+  {
+    id: 'free' as const,
+    name: 'Free',
+    price: '$0',
+    credits: '50 one-time',
+    description: 'Get started with AI generation',
+  },
+  {
+    id: 'artist' as const,
+    name: 'Artist',
+    price: '$10/mo',
+    credits: '100/month',
+    description: 'For serious music makers',
+  },
+  {
+    id: 'studio' as const,
+    name: 'Studio',
+    price: '$20/mo',
+    credits: '200/month',
+    description: 'Unlimited creative freedom',
+  },
 ];
 
 export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
@@ -49,9 +71,7 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
               <div
                 key={tier.id}
                 className={`flex items-center justify-between rounded-lg border p-4 ${
-                  isCurrent
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border'
+                  isCurrent ? 'border-primary bg-primary/5' : 'border-border'
                 }`}
               >
                 <div>
@@ -63,7 +83,9 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">{tier.credits}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {tier.credits}
+                  </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium">{tier.price}</span>
@@ -71,7 +93,11 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                     <Button
                       disabled={checkout.isPending}
                       size="sm"
-                      onClick={() => checkout.mutate({ tier: tier.id as 'artist' | 'studio' })}
+                      onClick={() =>
+                        checkout.mutate({
+                          tier: tier.id as 'artist' | 'studio',
+                        })
+                      }
                     >
                       Upgrade
                     </Button>

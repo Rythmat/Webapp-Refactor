@@ -47,7 +47,7 @@ export const SynthLayout: React.FC<SynthLayoutProps> = ({
       engine.noteOn(note, velocity);
       setActiveNotes((prev) => new Set(prev).add(note));
     },
-    [engine]
+    [engine],
   );
 
   const handleNoteOff = useCallback(
@@ -59,7 +59,7 @@ export const SynthLayout: React.FC<SynthLayoutProps> = ({
         return next;
       });
     },
-    [engine]
+    [engine],
   );
 
   // QWERTY keyboard shortcuts
@@ -71,107 +71,109 @@ export const SynthLayout: React.FC<SynthLayoutProps> = ({
         const next = new Set(prev);
         next.delete(note);
         return next;
-      })
+      }),
   );
 
   const { scale, offsetX, offsetY } = useViewportScale();
 
   return (
     <div className={styles.scaleWrapper}>
-    <div
-      className={styles.layout}
-      style={{ transform: `translate(${offsetX}px, ${offsetY}px) scale(${scale})` }}
-    >
-      {/* Header */}
-      <div className={styles.header}>
-        <span className={styles.logo}>ORACLE</span>
-        <PresetSelector />
-        <RightSidebar />
-        <div className={styles.headerRight}>
-          <div style={{ width: 120, flexShrink: 0 }}>
-            <WaveformVisualizer
-              analyser={analyser}
-              height={32}
-              color="#ffffff"
-            />
-          </div>
-          <Knob
-            label="MAIN"
-            value={masterVolume}
-            min={0}
-            max={1}
-            defaultValue={0.8}
-            accent="#ffffff"
-            size={36}
-            horizontal
-            formatValue={(v) => `${Math.round(v * 100)}%`}
-            onChange={setMasterVolume}
-          />
-        </div>
-      </div>
-
-      {/* Source modules row */}
-      <div className={styles.sources}>
-        <SourceRow engine={engine} />
-      </div>
-
-      {/* Middle section: Modulation (left) | LFO (center) | FX (right) */}
-      <div className={styles.middle}>
-        <div className={styles.middleLeft}>
-          <ModulationPanel />
-          <RoutingPanel />
-        </div>
-        <div className={styles.middleCenter}>
-          <LFOArea />
-        </div>
-        <div className={styles.middleRight}>
-          <FXPanel />
-          <ArpPanel />
-        </div>
-      </div>
-
-      {/* Footer: wheels + keyboard */}
-      <div className={styles.footer}>
-        <div className={styles.wheels}>
-          <div className={styles.pitchGroup}>
-            <WheelControl
-              label="PITCH"
-              value={pitchBend}
-              min={-1}
+      <div
+        className={styles.layout}
+        style={{
+          transform: `translate(${offsetX}px, ${offsetY}px) scale(${scale})`,
+        }}
+      >
+        {/* Header */}
+        <div className={styles.header}>
+          <span className={styles.logo}>ORACLE</span>
+          <PresetSelector />
+          <RightSidebar />
+          <div className={styles.headerRight}>
+            <div style={{ width: 120, flexShrink: 0 }}>
+              <WaveformVisualizer
+                analyser={analyser}
+                height={32}
+                color="#ffffff"
+              />
+            </div>
+            <Knob
+              label="MAIN"
+              value={masterVolume}
+              min={0}
               max={1}
-              springBack={true}
-              accent="#e8c840"
-              onChange={setPitchBend}
-            />
-            <NumberStepper
-              label="RANGE"
-              value={pitchBendRange}
-              min={1}
-              max={24}
-              onChange={setPitchBendRange}
+              defaultValue={0.8}
+              accent="#ffffff"
+              size={36}
+              horizontal
+              formatValue={(v) => `${Math.round(v * 100)}%`}
+              onChange={setMasterVolume}
             />
           </div>
-          <WheelControl
-            label="MOD"
-            value={modWheel}
-            min={0}
-            max={1}
-            springBack={false}
-            accent="#7ecfcf"
-            onChange={setModWheel}
-          />
         </div>
-        <div className={styles.keyboardWrapper}>
-          <PianoKeyboard
-            startNote={36}
-            endNote={96}
-            activeNotes={activeNotes}
-            onNoteOn={handleNoteOn}
-            onNoteOff={handleNoteOff}
-          />
+
+        {/* Source modules row */}
+        <div className={styles.sources}>
+          <SourceRow engine={engine} />
+        </div>
+
+        {/* Middle section: Modulation (left) | LFO (center) | FX (right) */}
+        <div className={styles.middle}>
+          <div className={styles.middleLeft}>
+            <ModulationPanel />
+            <RoutingPanel />
+          </div>
+          <div className={styles.middleCenter}>
+            <LFOArea />
+          </div>
+          <div className={styles.middleRight}>
+            <FXPanel />
+            <ArpPanel />
+          </div>
+        </div>
+
+        {/* Footer: wheels + keyboard */}
+        <div className={styles.footer}>
+          <div className={styles.wheels}>
+            <div className={styles.pitchGroup}>
+              <WheelControl
+                label="PITCH"
+                value={pitchBend}
+                min={-1}
+                max={1}
+                springBack={true}
+                accent="#e8c840"
+                onChange={setPitchBend}
+              />
+              <NumberStepper
+                label="RANGE"
+                value={pitchBendRange}
+                min={1}
+                max={24}
+                onChange={setPitchBendRange}
+              />
+            </div>
+            <WheelControl
+              label="MOD"
+              value={modWheel}
+              min={0}
+              max={1}
+              springBack={false}
+              accent="#7ecfcf"
+              onChange={setModWheel}
+            />
+          </div>
+          <div className={styles.keyboardWrapper}>
+            <PianoKeyboard
+              startNote={36}
+              endNote={96}
+              activeNotes={activeNotes}
+              onNoteOn={handleNoteOn}
+              onNoteOff={handleNoteOff}
+            />
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };

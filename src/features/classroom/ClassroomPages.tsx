@@ -1,6 +1,17 @@
-import { lazy} from 'react';
-import { Navigate} from 'react-router-dom';
-import { ClassroomRoutes, GameRoutes, StudioRoutes, ProfileRoutes, LearnRoutes, ConnectRoutes, LibraryRoutes, AtlasRoutes} from '@/constants/routes';
+/* eslint-disable import/order */
+/* eslint-disable no-duplicate-imports */
+import { lazy } from 'react';
+import { Navigate } from 'react-router-dom';
+import {
+  ClassroomRoutes,
+  GameRoutes,
+  StudioRoutes,
+  ProfileRoutes,
+  LearnRoutes,
+  ConnectRoutes,
+  LibraryRoutes,
+  AtlasRoutes,
+} from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
@@ -14,11 +25,10 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
 import Atlas from '@/components/atlas/atlas';
-import { PrismModeSlug } from "@/hooks/data";
+import { PrismModeSlug } from '@/hooks/data';
 import { ModeOverview } from '@/components/learn/ModeOverview';
 import { RelativeModesOverview } from '@/components/learn/RelativeModesOverview';
 import { ParallelModesOverview } from '@/components/learn/ParallelModesOverview';
-
 
 const ClassroomCollectionPage = lazy(() =>
   import('./ClassroomCollectionPage').then(({ ClassroomCollectionPage }) => ({
@@ -61,7 +71,6 @@ const HomeInlet = lazy(() =>
     default: HomeInlet,
   })),
 );
-
 
 const ConnectInlet = lazy(() =>
   import('@/components/Profile/connectInlet').then(({ ConnectInlet }) => ({
@@ -108,7 +117,6 @@ export const classroomPages = () => {
   };
 };
 
-
 export const gamesPages = () => {
   return {
     path: GameRoutes.root.definition,
@@ -127,12 +135,10 @@ export const gamesPages = () => {
       {
         element: <ArcadeInlet />,
         index: true,
-      }
+      },
     ],
   };
 };
-
-
 
 export const studioPages = () => {
   return {
@@ -140,7 +146,7 @@ export const studioPages = () => {
     element: (
       <AppContext>
         <ProtectedPage>
-          <ClassroomDashboard fallback={<DashboardContentSkeleton />}/>
+          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
         </ProtectedPage>
       </AppContext>
     ),
@@ -159,24 +165,23 @@ export const studentPages = () => {
     element: (
       <AppContext>
         <ProtectedPage>
-            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
         </ProtectedPage>
       </AppContext>
     ),
     children: [
       { index: true, element: <HomeInlet /> },
-      { path: ProfileRoutes.profile.definition, element: <ProfilePage/> },
-      { path: ProfileRoutes.awards.definition, element: <AwardsInlet/>},
-      { path: ProfileRoutes.plan.definition, element: <PlanPage/>},
+      { path: ProfileRoutes.profile.definition, element: <ProfilePage /> },
+      { path: ProfileRoutes.awards.definition, element: <AwardsInlet /> },
+      { path: ProfileRoutes.plan.definition, element: <PlanPage /> },
     ],
   };
 };
 
-
 const LessonRoute = () => {
   const { mode, key: keyParam } = useParams<{
     mode: PrismModeSlug;
-    key: string; 
+    key: string;
   }>();
   const [searchParams] = useSearchParams();
   const startActivity = searchParams.get('activity') ?? undefined;
@@ -193,37 +198,33 @@ const LessonRoute = () => {
 const OverviewRoute = () => {
   const { mode } = useParams<{
     mode: PrismModeSlug;
-
   }>();
 
-  return (
-    <ModeOverview mode={mode ?? 'ionian'}/>
-  );
+  return <ModeOverview mode={mode ?? 'ionian'} />;
 };
 
 export const learnPages = () => {
-
   return {
     path: LearnRoutes.root.definition,
     element: (
       <AppContext>
         <ProtectedPage>
-            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
         </ProtectedPage>
       </AppContext>
     ),
     children: [
-      { 
+      {
         index: true,
-        element: <LearnInlet /> 
+        element: <LearnInlet />,
       },
       {
-        path:LearnRoutes.overview.definition,
-        element:<OverviewRoute />
+        path: LearnRoutes.overview.definition,
+        element: <OverviewRoute />,
       },
       {
-        path:LearnRoutes.lesson.definition,
-        element:<LessonRoute />
+        path: LearnRoutes.lesson.definition,
+        element: <LessonRoute />,
       },
       {
         path: LearnRoutes.relativeOverview.definition,
@@ -243,16 +244,15 @@ export const connectPages = () => {
     element: (
       <AppContext>
         <ProtectedPage>
-            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
         </ProtectedPage>
       </AppContext>
     ),
     children: [
-      { 
+      {
         index: true,
-        element: <ConnectInlet /> 
+        element: <ConnectInlet />,
       },
-
     ],
   };
 };
@@ -263,16 +263,15 @@ export const libraryPages = () => {
     element: (
       <AppContext>
         <ProtectedPage>
-            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
         </ProtectedPage>
       </AppContext>
     ),
     children: [
-      { 
+      {
         index: true,
-        element: <LibraryInlet /> 
+        element: <LibraryInlet />,
       },
-
     ],
   };
 };
@@ -283,16 +282,15 @@ export const atlasPages = () => {
     element: (
       <AppContext>
         <ProtectedPage>
-            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
         </ProtectedPage>
       </AppContext>
     ),
     children: [
-      { 
+      {
         index: true,
-        element: <Atlas /> 
+        element: <Atlas />,
       },
-
     ],
   };
 };

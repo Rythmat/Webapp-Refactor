@@ -1,3 +1,12 @@
+import {
+  GalleryHorizontalEnd,
+  Library,
+  Music,
+  Play,
+  Ratio,
+  User,
+  Users,
+} from 'lucide-react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { CreditsBadge } from '@/components/CreditsBadge';
 import { Logo } from '@/components/Logo';
@@ -9,7 +18,6 @@ import { ClassroomSwitcher } from '@/features/teacher/components/ClassroomSwitch
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
 import { UserWidget } from './UserWidget';
-import { GalleryHorizontalEnd, Library, Music, Play, Ratio, User, Users } from 'lucide-react';
 interface SidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
@@ -70,7 +78,6 @@ export const Sidebar = ({
 
     // Default navigation or teacher without classroom
     return (
-
       <ul className="flex flex-1 flex-col space-y-1">
         <SidebarMainNavItem
           icon={Ratio}

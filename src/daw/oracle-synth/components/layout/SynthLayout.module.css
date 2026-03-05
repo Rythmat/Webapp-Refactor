@@ -12,13 +12,17 @@
   grid-template-columns: 1fr;
   grid-template-rows: 48px auto 1fr 140px;
   grid-template-areas:
-    "header"
-    "sources"
-    "middle"
-    "footer";
+    'header'
+    'sources'
+    'middle'
+    'footer';
   background: #1a1a1a;
   color: #ccc;
-  font-family: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
+  font-family:
+    'Inter',
+    'SF Pro Display',
+    -apple-system,
+    sans-serif;
   overflow: hidden;
   transform-origin: 0 0;
 }

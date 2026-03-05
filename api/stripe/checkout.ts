@@ -1,8 +1,9 @@
+/* eslint-disable import/no-default-export */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { cors } from '../lib/cors';
+import { getSubscription } from '../lib/db';
 import { getUserFromRequest } from '../lib/jwt';
 import { stripe, TIER_PRICES } from '../lib/stripe';
-import { getSubscription } from '../lib/db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (cors(req, res)) return;
@@ -18,12 +19,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { tier } = req.body as { tier?: string };
   if (!tier || !TIER_PRICES[tier]) {
-    return res.status(400).json({ error: 'Invalid tier. Must be "artist" or "studio".' });
+    return res
+      .status(400)
+      .json({ error: 'Invalid tier. Must be "artist" or "studio".' });
   }
 
   const priceId = TIER_PRICES[tier];
   if (!priceId) {
-    return res.status(500).json({ error: `Stripe Price ID not configured for tier: ${tier}` });
+    return res
+      .status(500)
+      .json({ error: `Stripe Price ID not configured for tier: ${tier}` });
   }
 
   try {
@@ -33,13 +38,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const host = req.headers['x-forwarded-host'] || req.headers.host;
     const baseUrl = `${proto}://${host}`;
 
-    const sessionParams: Parameters<typeof stripe.checkout.sessions.create>[0] = {
-      mode: 'subscription',
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${baseUrl}/home?checkout=success`,
-      cancel_url: `${baseUrl}/home?checkout=cancelled`,
-      metadata: { userId: user.user_id },
-    };
+    const sessionParams: Parameters<typeof stripe.checkout.sessions.create>[0] =
+      {
+        mode: 'subscription',
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: `${baseUrl}/home?checkout=success`,
+        cancel_url: `${baseUrl}/home?checkout=cancelled`,
+        metadata: { userId: user.user_id },
+      };
 
     // Reuse existing Stripe customer if available
     if (subscription.stripeCustomerId) {

@@ -1,5 +1,6 @@
+/* eslint-disable import/no-default-export */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import jwt from 'jsonwebtoken';
+import { decode, sign } from 'jsonwebtoken';
 import { initializeFreeCredits } from '../lib/db';
 
 const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID!;
@@ -22,7 +23,7 @@ function getFrontendUrl(req: VercelRequest): string {
 
 function generateClientSecret(): string {
   const now = Math.floor(Date.now() / 1000);
-  return jwt.sign(
+  return sign(
     {
       iss: APPLE_TEAM_ID,
       iat: now,
@@ -32,6 +33,99 @@ function generateClientSecret(): string {
     },
     APPLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     { algorithm: 'ES256', header: { alg: 'ES256', kid: APPLE_KEY_ID } },
+  );
+}
+
+function redirectWithError(
+  req: VercelRequest,
+  res: VercelResponse,
+  code: string,
+) {
+  return res.redirect(`${getFrontendUrl(req)}/auth/sign-in?error=${code}`);
+}
+
+function parseAppleFullName(user: unknown): string | undefined {
+  if (!user) return undefined;
+  try {
+    const userData =
+      typeof user === 'string' ? (JSON.parse(user) as unknown) : user;
+    const typed = userData as {
+      name?: { firstName?: string; lastName?: string };
+    };
+    const first = typed?.name?.firstName || '';
+    const last = typed?.name?.lastName || '';
+    return [first, last].filter(Boolean).join(' ') || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+async function exchangeAppleCodeForIdToken(params: {
+  code: string;
+  idTokenFromBody?: string;
+  redirectUri: string;
+}): Promise<string | null> {
+  const clientSecret = generateClientSecret();
+  const tokenRes = await fetch('https://appleid.apple.com/auth/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: APPLE_CLIENT_ID,
+      client_secret: clientSecret,
+      code: params.code,
+      grant_type: 'authorization_code',
+      redirect_uri: params.redirectUri,
+    }),
+  });
+  const tokenData = (await tokenRes.json()) as { id_token?: string };
+  return tokenData.id_token || params.idTokenFromBody || null;
+}
+
+function getEmailFromAppleIdToken(idToken: string): string | undefined {
+  const decoded = decode(idToken) as { email?: string } | null;
+  return decoded?.email;
+}
+
+async function handlePost(req: VercelRequest, res: VercelResponse) {
+  const redirectUri = getRedirectUri(req);
+  const { code, id_token, user } = req.body as {
+    code?: string;
+    id_token?: string;
+    user?: unknown;
+  };
+
+  if (!code) return redirectWithError(req, res, 'apple_no_code');
+
+  const appleIdToken = await exchangeAppleCodeForIdToken({
+    code,
+    idTokenFromBody: id_token,
+    redirectUri,
+  });
+  if (!appleIdToken) return redirectWithError(req, res, 'apple_token_failed');
+
+  const email = getEmailFromAppleIdToken(appleIdToken);
+  if (!email) return redirectWithError(req, res, 'no_email');
+
+  const fullName = parseAppleFullName(user);
+  const oauthRes = await fetch(`${MUSIC_ATLAS_API_URL}/auth/oauth`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ provider: 'apple', email, fullName }),
+  });
+  const oauthData = (await oauthRes.json()) as {
+    token?: string;
+    isNewUser?: boolean;
+    userId?: string;
+  };
+
+  if (!oauthData.token) return redirectWithError(req, res, 'auth_failed');
+
+  if (oauthData.isNewUser && oauthData.userId) {
+    await initializeFreeCredits(oauthData.userId);
+  }
+
+  return res.redirect(
+    `${getFrontendUrl(req)}/auth/sign-in#token=${oauthData.token}`,
   );
 }
 
@@ -54,76 +148,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // POST: Apple callback (form_post)
   if (req.method === 'POST') {
     try {
-      const { code, id_token, user } = req.body;
-
-      if (!code) {
-        return res.redirect(`${getFrontendUrl(req)}/auth/sign-in?error=apple_no_code`);
-      }
-
-      // Exchange code for tokens
-      const clientSecret = generateClientSecret();
-      const tokenRes = await fetch('https://appleid.apple.com/auth/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          client_id: APPLE_CLIENT_ID,
-          client_secret: clientSecret,
-          code,
-          grant_type: 'authorization_code',
-          redirect_uri: redirectUri,
-        }),
-      });
-
-      const tokenData = await tokenRes.json();
-      const appleIdToken = tokenData.id_token || id_token;
-
-      if (!appleIdToken) {
-        return res.redirect(`${getFrontendUrl(req)}/auth/sign-in?error=apple_token_failed`);
-      }
-
-      // Decode Apple's id_token to get email
-      const decoded = jwt.decode(appleIdToken) as { email?: string; sub?: string } | null;
-      const email = decoded?.email;
-
-      if (!email) {
-        return res.redirect(`${getFrontendUrl(req)}/auth/sign-in?error=no_email`);
-      }
-
-      // Apple only sends user name on first authorization
-      let fullName: string | undefined;
-      if (user) {
-        try {
-          const userData = typeof user === 'string' ? JSON.parse(user) : user;
-          const first = userData?.name?.firstName || '';
-          const last = userData?.name?.lastName || '';
-          fullName = [first, last].filter(Boolean).join(' ') || undefined;
-        } catch {
-          // Name parsing failed, continue without it
-        }
-      }
-
-      // Upsert user via existing backend
-      const oauthRes = await fetch(`${MUSIC_ATLAS_API_URL}/auth/oauth`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: 'apple', email, fullName }),
-      });
-
-      const oauthData = await oauthRes.json();
-
-      if (!oauthData.token) {
-        return res.redirect(`${getFrontendUrl(req)}/auth/sign-in?error=auth_failed`);
-      }
-
-      // Initialize free credits for new users
-      if (oauthData.isNewUser && oauthData.userId) {
-        await initializeFreeCredits(oauthData.userId);
-      }
-
-      return res.redirect(`${getFrontendUrl(req)}/auth/sign-in#token=${oauthData.token}`);
+      return await handlePost(req, res);
     } catch (error) {
       console.error('Apple OAuth error:', error);
-      return res.redirect(`${getFrontendUrl(req)}/auth/sign-in?error=apple_auth_error`);
+      return redirectWithError(req, res, 'apple_auth_error');
     }
   }
 

@@ -116,7 +116,11 @@ export class Filter {
   } {
     const magnitude = new Float32Array(frequencies.length);
     const phase = new Float32Array(frequencies.length);
-    this.biquad.getFrequencyResponse(frequencies as Float32Array<ArrayBuffer>, magnitude as Float32Array<ArrayBuffer>, phase as Float32Array<ArrayBuffer>);
+    this.biquad.getFrequencyResponse(
+      frequencies as Float32Array<ArrayBuffer>,
+      magnitude as Float32Array<ArrayBuffer>,
+      phase as Float32Array<ArrayBuffer>,
+    );
     return { magnitude, phase };
   }
 }

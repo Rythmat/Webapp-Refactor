@@ -6,7 +6,7 @@ export interface OscillatorSlice {
   setOscParam: <K extends keyof OscillatorParams>(
     index: 0 | 1,
     param: K,
-    value: OscillatorParams[K]
+    value: OscillatorParams[K],
   ) => void;
   setOscWaveform: (index: 0 | 1, waveform: BasicWaveform) => void;
 }
@@ -36,14 +36,20 @@ export const createOscillatorSlice: StateCreator<
 
   setOscParam: (index, param, value) =>
     set((state) => {
-      const newOscs = [...state.oscillators] as [OscillatorParams, OscillatorParams];
+      const newOscs = [...state.oscillators] as [
+        OscillatorParams,
+        OscillatorParams,
+      ];
       newOscs[index] = { ...newOscs[index], [param]: value };
       return { oscillators: newOscs };
     }),
 
   setOscWaveform: (index, waveform) =>
     set((state) => {
-      const newOscs = [...state.oscillators] as [OscillatorParams, OscillatorParams];
+      const newOscs = [...state.oscillators] as [
+        OscillatorParams,
+        OscillatorParams,
+      ];
       newOscs[index] = { ...newOscs[index], waveform };
       return { oscillators: newOscs };
     }),

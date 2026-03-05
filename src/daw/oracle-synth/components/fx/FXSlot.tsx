@@ -38,9 +38,9 @@ export const FXSlot: React.FC<FXSlotProps> = React.memo(
     const typeOptions = useMemo(
       () =>
         FX_TYPE_OPTIONS.filter(
-          (o) => o.value === route.type || !usedTypes.has(o.value)
+          (o) => o.value === route.type || !usedTypes.has(o.value),
         ),
-      [route.type, usedTypes]
+      [route.type, usedTypes],
     );
 
     const enabled = fx[route.type].enabled;
@@ -289,5 +289,5 @@ export const FXSlot: React.FC<FXSlotProps> = React.memo(
         )}
       </div>
     );
-  }
+  },
 );

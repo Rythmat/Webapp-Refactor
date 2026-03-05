@@ -1,6 +1,12 @@
+/* eslint-disable react/jsx-sort-props */
+/* eslint-disable tailwindcss/classnames-order */
 import { Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCreditsBalance, useStripeCheckout, useStripePortal } from '@/hooks/data/credits';
+import {
+  useCreditsBalance,
+  useStripeCheckout,
+  useStripePortal,
+} from '@/hooks/data/credits';
 
 const TIER_ALLOWANCES: Record<string, number> = {
   free: 50,
@@ -23,7 +29,11 @@ const TIERS = [
     price: '$10',
     period: '/month',
     credits: '100 credits/month',
-    features: ['Everything in Free', 'Monthly credit refresh', 'Priority support'],
+    features: [
+      'Everything in Free',
+      'Monthly credit refresh',
+      'Priority support',
+    ],
   },
   {
     id: 'studio' as const,
@@ -31,7 +41,11 @@ const TIERS = [
     price: '$20',
     period: '/month',
     credits: '200 credits/month',
-    features: ['Everything in Artist', 'Double monthly credits', 'Early access to features'],
+    features: [
+      'Everything in Artist',
+      'Double monthly credits',
+      'Early access to features',
+    ],
   },
 ];
 
@@ -52,7 +66,10 @@ export const PlanPage = () => {
         <div className="h-4 w-64 animate-pulse rounded bg-muted" />
         <div className="grid gap-4 sm:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-64 animate-pulse rounded-lg border bg-muted" />
+            <div
+              key={i}
+              className="h-64 animate-pulse rounded-lg border bg-muted"
+            />
           ))}
         </div>
       </div>
@@ -102,13 +119,19 @@ export const PlanPage = () => {
       <div className="grid gap-4 sm:grid-cols-3">
         {TIERS.map((tier) => {
           const isCurrent = currentTier === tier.id;
-          const canUpgrade = tier.id !== 'free' && !isCurrent && TIERS.findIndex(t => t.id === tier.id) > TIERS.findIndex(t => t.id === currentTier);
+          const canUpgrade =
+            tier.id !== 'free' &&
+            !isCurrent &&
+            TIERS.findIndex((t) => t.id === tier.id) >
+              TIERS.findIndex((t) => t.id === currentTier);
 
           return (
             <div
               key={tier.id}
               className={`flex flex-col rounded-lg border p-6 ${
-                isCurrent ? 'border-primary ring-1 ring-primary' : 'border-border'
+                isCurrent
+                  ? 'border-primary ring-1 ring-primary'
+                  : 'border-border'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -121,9 +144,13 @@ export const PlanPage = () => {
               </div>
               <div className="mt-2">
                 <span className="text-3xl font-bold">{tier.price}</span>
-                <span className="text-sm text-muted-foreground">{tier.period}</span>
+                <span className="text-sm text-muted-foreground">
+                  {tier.period}
+                </span>
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">{tier.credits}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {tier.credits}
+              </p>
 
               <ul className="mt-4 flex-1 space-y-2">
                 {tier.features.map((feature) => (
@@ -143,7 +170,9 @@ export const PlanPage = () => {
                   <Button
                     className="w-full"
                     disabled={checkout.isPending}
-                    onClick={() => checkout.mutate({ tier: tier.id as 'artist' | 'studio' })}
+                    onClick={() =>
+                      checkout.mutate({ tier: tier.id as 'artist' | 'studio' })
+                    }
                   >
                     Upgrade to {tier.name}
                   </Button>
@@ -163,7 +192,8 @@ export const PlanPage = () => {
         <div className="rounded-lg border p-6">
           <h3 className="font-medium">Billing</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage your payment method, view invoices, or cancel your subscription.
+            Manage your payment method, view invoices, or cancel your
+            subscription.
           </p>
           <Button
             className="mt-4"

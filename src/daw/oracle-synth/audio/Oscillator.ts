@@ -35,7 +35,7 @@ export class Oscillator {
   constructor(
     ctx: AudioContext,
     wavetableBank: WavetableBank,
-    destination: AudioNode
+    destination: AudioNode,
   ) {
     this.ctx = ctx;
     this.wavetableBank = wavetableBank;
@@ -137,7 +137,10 @@ export class Oscillator {
         }
       }
     }
-    if (params.wavetable !== undefined && params.wavetable !== this.params.wavetable) {
+    if (
+      params.wavetable !== undefined &&
+      params.wavetable !== this.params.wavetable
+    ) {
       this.params.wavetable = params.wavetable;
       needsWavetableUpdate = true;
     }
@@ -194,7 +197,7 @@ export class Oscillator {
   private applyWavetablePosition(): void {
     const pair = this.wavetableBank.getInterpolationPair(
       this.params.wavetable,
-      this.params.wtPosition
+      this.params.wtPosition,
     );
 
     if (!pair) {

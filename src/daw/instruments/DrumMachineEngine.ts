@@ -32,19 +32,22 @@ export const DRUM_KIT_CONFIGS: DrumKitConfig[] = [
       51: 'ride',
     },
     defaultPan: {
-      42: -0.14,  // Hi-Hat Closed  7L
-      44: -0.16,  // Hi-Hat Pedal   8L
-      46: -0.26,  // Hi-Hat Open   13L
-      41: -0.20,  // Floor Tom     10L
-      45:  0.14,  // Rack Tom 2     7R
-      48:  0.04,  // Rack Tom 1     2R
-      49:  0.36,  // Crash         18R
-      51:  0.34,  // Ride          17R
+      42: -0.14, // Hi-Hat Closed  7L
+      44: -0.16, // Hi-Hat Pedal   8L
+      46: -0.26, // Hi-Hat Open   13L
+      41: -0.2, // Floor Tom     10L
+      45: 0.14, // Rack Tom 2     7R
+      48: 0.04, // Rack Tom 1     2R
+      49: 0.36, // Crash         18R
+      51: 0.34, // Ride          17R
     },
   },
 ];
 
-export const DRUM_KITS = DRUM_KIT_CONFIGS.map((c) => ({ id: c.id, label: c.label }));
+export const DRUM_KITS = DRUM_KIT_CONFIGS.map((c) => ({
+  id: c.id,
+  label: c.label,
+}));
 export type DrumKitId = string;
 
 // ── Drum pad definitions ────────────────────────────────────────────────
@@ -57,34 +60,56 @@ export interface DrumPadDef {
 }
 
 export const DRUM_PADS: DrumPadDef[] = [
-  { note: 36, label: 'Kick',            shortLabel: 'KCK' },
-  { note: 38, label: 'Snare',           shortLabel: 'SNR' },
-  { note: 40, label: 'Sidestick',       shortLabel: 'STK' },
-  { note: 42, label: 'Hi-Hat Closed',   shortLabel: 'CHH' },
-  { note: 44, label: 'Hi-Hat Pedal',    shortLabel: 'PHH' },
-  { note: 46, label: 'Hi-Hat Open',     shortLabel: 'OHH' },
-  { note: 41, label: 'Floor Tom',       shortLabel: 'FLT' },
-  { note: 45, label: 'Rack Tom 2',      shortLabel: 'TM2' },
-  { note: 48, label: 'Rack Tom 1',      shortLabel: 'TM1' },
-  { note: 49, label: 'Crash',           shortLabel: 'CRS' },
-  { note: 51, label: 'Ride',            shortLabel: 'RDE' },
+  { note: 36, label: 'Kick', shortLabel: 'KCK' },
+  { note: 38, label: 'Snare', shortLabel: 'SNR' },
+  { note: 40, label: 'Sidestick', shortLabel: 'STK' },
+  { note: 42, label: 'Hi-Hat Closed', shortLabel: 'CHH' },
+  { note: 44, label: 'Hi-Hat Pedal', shortLabel: 'PHH' },
+  { note: 46, label: 'Hi-Hat Open', shortLabel: 'OHH' },
+  { note: 41, label: 'Floor Tom', shortLabel: 'FLT' },
+  { note: 45, label: 'Rack Tom 2', shortLabel: 'TM2' },
+  { note: 48, label: 'Rack Tom 1', shortLabel: 'TM1' },
+  { note: 49, label: 'Crash', shortLabel: 'CRS' },
+  { note: 51, label: 'Ride', shortLabel: 'RDE' },
 ];
 
 // Map any MIDI note to its canonical pad note (for routing through pad chain)
 function canonicalPadNote(note: number): number {
   switch (note) {
-    case 35: case 36: return 36; // Kick
-    case 37: case 38: case 39: return 38; // Snare
-    case 40: return 40; // Sidestick
-    case 42: return 42; // Closed HH
-    case 44: return 44; // Hi-Hat Pedal
-    case 46: return 46; // Open HH
-    case 48: case 50: return 48; // Rack Tom 1 (high)
-    case 45: case 47: return 45; // Rack Tom 2 (mid)
-    case 41: case 43: return 41; // Floor Tom (low)
-    case 49: case 52: case 55: case 57: return 49; // Crash
-    case 51: case 53: return 51; // Ride
-    default: return 36; // Fallback to kick
+    case 35:
+    case 36:
+      return 36; // Kick
+    case 37:
+    case 38:
+    case 39:
+      return 38; // Snare
+    case 40:
+      return 40; // Sidestick
+    case 42:
+      return 42; // Closed HH
+    case 44:
+      return 44; // Hi-Hat Pedal
+    case 46:
+      return 46; // Open HH
+    case 48:
+    case 50:
+      return 48; // Rack Tom 1 (high)
+    case 45:
+    case 47:
+      return 45; // Rack Tom 2 (mid)
+    case 41:
+    case 43:
+      return 41; // Floor Tom (low)
+    case 49:
+    case 52:
+    case 55:
+    case 57:
+      return 49; // Crash
+    case 51:
+    case 53:
+      return 51; // Ride
+    default:
+      return 36; // Fallback to kick
   }
 }
 
@@ -191,17 +216,19 @@ export class DrumMachineEngine implements InstrumentAdapter {
     }
 
     // Load all samples in parallel, route through per-pad chains
-    const loadPromises = Object.entries(config.samples).map(async ([noteStr, filename]) => {
-      const padNote = Number(noteStr);
-      const url = `${config.baseUrl}${filename}${config.ext}`;
-      const player = new Tone.Player(url);
+    const loadPromises = Object.entries(config.samples).map(
+      async ([noteStr, filename]) => {
+        const padNote = Number(noteStr);
+        const url = `${config.baseUrl}${filename}${config.ext}`;
+        const player = new Tone.Player(url);
 
-      const chain = this.padChains.get(padNote);
-      if (chain) player.connect(chain.velGain);
+        const chain = this.padChains.get(padNote);
+        if (chain) player.connect(chain.velGain);
 
-      await Tone.loaded();
-      this.players.set(padNote, player);
-    });
+        await Tone.loaded();
+        this.players.set(padNote, player);
+      },
+    );
 
     await Promise.all(loadPromises);
 

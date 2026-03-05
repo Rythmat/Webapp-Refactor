@@ -13,11 +13,19 @@ export function pixelsPerBeat(zoom: number): number {
   return BASE_PIXELS_PER_BEAT * zoom;
 }
 
-export function tickToPixel(tick: number, zoom: number, scrollLeft: number): number {
+export function tickToPixel(
+  tick: number,
+  zoom: number,
+  scrollLeft: number,
+): number {
   return (tick / TICKS_PER_BEAT) * pixelsPerBeat(zoom) - scrollLeft;
 }
 
-export function pixelToTick(px: number, zoom: number, scrollLeft: number): number {
+export function pixelToTick(
+  px: number,
+  zoom: number,
+  scrollLeft: number,
+): number {
   return ((px + scrollLeft) / pixelsPerBeat(zoom)) * TICKS_PER_BEAT;
 }
 
@@ -58,7 +66,11 @@ export function visibleSubdivisions(zoom: number): SubdivisionLevel[] {
   // Beat lines — visible when ppb >= 10
   if (ppb >= 10) {
     const fade = clamp01((ppb - 10) / 10);
-    result.push({ tickInterval: TICKS_PER_BEAT, alpha: 0.12 * fade, lineWidth: 0.5 });
+    result.push({
+      tickInterval: TICKS_PER_BEAT,
+      alpha: 0.12 * fade,
+      lineWidth: 0.5,
+    });
   }
 
   // 8th notes — visible when ppb >= 30
@@ -169,10 +181,10 @@ export function rulerMarkings(zoom: number, _bpm: number): RulerLevel[] {
 
 export function alternatingBarGroup(zoom: number): number {
   const ppb = pixelsPerBeat(zoom);
-  if (ppb >= 30) return 1;   // every other bar
-  if (ppb >= 10) return 4;   // every 4 bars
-  if (ppb >= 5) return 8;    // every 8 bars
-  return 16;                  // every 16 bars
+  if (ppb >= 30) return 1; // every other bar
+  if (ppb >= 10) return 4; // every 4 bars
+  if (ppb >= 5) return 8; // every 8 bars
+  return 16; // every 16 bars
 }
 
 // ── Time format helper ───────────────────────────────────────────────────
@@ -184,7 +196,11 @@ export function tickToTime(tick: number, bpm: number): string {
   return `${min}:${sec.toString().padStart(2, '0')}`;
 }
 
-export function tickToTimePrecise(tick: number, bpm: number, showTenths: boolean): string {
+export function tickToTimePrecise(
+  tick: number,
+  bpm: number,
+  showTenths: boolean,
+): string {
   const seconds = (tick / TICKS_PER_BEAT) * (60 / bpm);
   const min = Math.floor(seconds / 60);
   const sec = Math.floor(seconds % 60);

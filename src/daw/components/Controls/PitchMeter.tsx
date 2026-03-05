@@ -2,7 +2,20 @@ import type { PitchInfo } from '@/daw/audio/pitch-correction/PitchCorrectionNode
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const NOTE_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
 
 function hzToMidi(freq: number): number {
   return 69 + 12 * Math.log2(freq / 440);
@@ -28,7 +41,9 @@ export function PitchMeter({ pitchInfo, enabled }: PitchMeterProps) {
   const detectedMidi = hasSignal ? hzToMidi(pitchInfo.detected) : 0;
   const noteName = hasSignal ? midiToNoteName(Math.round(correctedMidi)) : '--';
   // Cents deviation of the detected pitch from the nearest corrected note
-  const centsOff = hasSignal ? Math.round((detectedMidi - Math.round(detectedMidi)) * 100) : 0;
+  const centsOff = hasSignal
+    ? Math.round((detectedMidi - Math.round(detectedMidi)) * 100)
+    : 0;
 
   return (
     <div
@@ -39,7 +54,7 @@ export function PitchMeter({ pitchInfo, enabled }: PitchMeterProps) {
       }}
     >
       {/* Note name display */}
-      <div className="text-center shrink-0" style={{ width: 52 }}>
+      <div className="shrink-0 text-center" style={{ width: 52 }}>
         <div
           className="text-lg font-bold leading-tight"
           style={{
@@ -61,20 +76,77 @@ export function PitchMeter({ pitchInfo, enabled }: PitchMeterProps) {
       </div>
 
       {/* Cents deviation meter */}
-      <div className="flex-1 min-w-0">
-        <svg width="100%" height={28} viewBox="0 0 200 28" preserveAspectRatio="xMidYMid meet">
+      <div className="min-w-0 flex-1">
+        <svg
+          width="100%"
+          height={28}
+          viewBox="0 0 200 28"
+          preserveAspectRatio="xMidYMid meet"
+        >
           {/* Background track */}
-          <rect x={10} y={11} width={180} height={6} rx={3} fill="rgba(255,255,255,0.04)" />
+          <rect
+            x={10}
+            y={11}
+            width={180}
+            height={6}
+            rx={3}
+            fill="rgba(255,255,255,0.04)"
+          />
 
           {/* Scale marks */}
-          <line x1={55} y1={8} x2={55} y2={20} stroke="rgba(255,255,255,0.08)" strokeWidth={1} />
-          <line x1={100} y1={6} x2={100} y2={22} stroke="rgba(255,255,255,0.15)" strokeWidth={1} />
-          <line x1={145} y1={8} x2={145} y2={20} stroke="rgba(255,255,255,0.08)" strokeWidth={1} />
+          <line
+            x1={55}
+            y1={8}
+            x2={55}
+            y2={20}
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth={1}
+          />
+          <line
+            x1={100}
+            y1={6}
+            x2={100}
+            y2={22}
+            stroke="rgba(255,255,255,0.15)"
+            strokeWidth={1}
+          />
+          <line
+            x1={145}
+            y1={8}
+            x2={145}
+            y2={20}
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth={1}
+          />
 
           {/* Labels */}
-          <text x={55} y={26} textAnchor="middle" fill="rgba(255,255,255,0.2)" fontSize={7}>-50</text>
-          <text x={100} y={26} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize={7}>0</text>
-          <text x={145} y={26} textAnchor="middle" fill="rgba(255,255,255,0.2)" fontSize={7}>+50</text>
+          <text
+            x={55}
+            y={26}
+            textAnchor="middle"
+            fill="rgba(255,255,255,0.2)"
+            fontSize={7}
+          >
+            -50
+          </text>
+          <text
+            x={100}
+            y={26}
+            textAnchor="middle"
+            fill="rgba(255,255,255,0.3)"
+            fontSize={7}
+          >
+            0
+          </text>
+          <text
+            x={145}
+            y={26}
+            textAnchor="middle"
+            fill="rgba(255,255,255,0.2)"
+            fontSize={7}
+          >
+            +50
+          </text>
 
           {/* Indicator dot */}
           {hasSignal && (
@@ -91,10 +163,14 @@ export function PitchMeter({ pitchInfo, enabled }: PitchMeterProps) {
 
       {/* Cents readout */}
       <div
-        className="text-[10px] font-semibold shrink-0 w-10 text-right"
+        className="w-10 shrink-0 text-right text-[10px] font-semibold"
         style={{
           color: hasSignal
-            ? Math.abs(centsOff) < 5 ? '#22c55e' : Math.abs(centsOff) < 20 ? '#f59e0b' : '#ef4444'
+            ? Math.abs(centsOff) < 5
+              ? '#22c55e'
+              : Math.abs(centsOff) < 20
+                ? '#f59e0b'
+                : '#ef4444'
             : 'var(--color-text-dim)',
           fontVariantNumeric: 'tabular-nums',
         }}

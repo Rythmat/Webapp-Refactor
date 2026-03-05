@@ -83,5 +83,5 @@ export const EnvelopeModule: React.FC<EnvelopeModuleProps> = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );

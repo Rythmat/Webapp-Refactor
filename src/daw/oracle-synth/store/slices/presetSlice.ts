@@ -77,10 +77,14 @@ function applyPresetData(data: PresetData): Partial<SynthStore> {
   const fxRoutes = data.fxRoutes ? structuredClone(data.fxRoutes) : [];
 
   // Migrate routing: old presets may lack the `routing` field
-  const routing = data.routing ? structuredClone(data.routing) : structuredClone(DEFAULT_ROUTING);
+  const routing = data.routing
+    ? structuredClone(data.routing)
+    : structuredClone(DEFAULT_ROUTING);
 
   // Migrate arp: old presets may lack the `arp` field
-  const arp = data.arp ? structuredClone(data.arp) : structuredClone(DEFAULT_ARP);
+  const arp = data.arp
+    ? structuredClone(data.arp)
+    : structuredClone(DEFAULT_ARP);
 
   return {
     presetName: data.name,

@@ -13,11 +13,26 @@ import type {
 export interface FXSlice {
   fx: FXParams;
   fxRoutes: FXRoute[];
-  setChorusParam: <K extends keyof ChorusParams>(key: K, value: ChorusParams[K]) => void;
-  setDelayParam: <K extends keyof DelayParams>(key: K, value: DelayParams[K]) => void;
-  setPhaserParam: <K extends keyof PhaserParams>(key: K, value: PhaserParams[K]) => void;
-  setCompressorParam: <K extends keyof CompressorParams>(key: K, value: CompressorParams[K]) => void;
-  setDriveParam: <K extends keyof DriveParams>(key: K, value: DriveParams[K]) => void;
+  setChorusParam: <K extends keyof ChorusParams>(
+    key: K,
+    value: ChorusParams[K],
+  ) => void;
+  setDelayParam: <K extends keyof DelayParams>(
+    key: K,
+    value: DelayParams[K],
+  ) => void;
+  setPhaserParam: <K extends keyof PhaserParams>(
+    key: K,
+    value: PhaserParams[K],
+  ) => void;
+  setCompressorParam: <K extends keyof CompressorParams>(
+    key: K,
+    value: CompressorParams[K],
+  ) => void;
+  setDriveParam: <K extends keyof DriveParams>(
+    key: K,
+    value: DriveParams[K],
+  ) => void;
   setFXParams: (fx: FXParams) => void;
   addFXRoute: () => void;
   removeFXRoute: (id: string) => void;
@@ -29,7 +44,13 @@ export const DEFAULT_FX: FXParams = {
   chorus: { enabled: false, rate: 1.5, depth: 0.5, mix: 0.5 },
   delay: { enabled: false, time: 0.3, feedback: 0.3, mix: 0.3 },
   phaser: { enabled: false, rate: 0.5, depth: 0.5, mix: 0.5 },
-  compressor: { enabled: false, threshold: -24, ratio: 4, attack: 0.003, release: 0.25 },
+  compressor: {
+    enabled: false,
+    threshold: -24,
+    ratio: 4,
+    attack: 0.003,
+    release: 0.25,
+  },
   drive: { enabled: false, amount: 0.3, mix: 0.5 },
 };
 
@@ -37,7 +58,10 @@ const FX_TYPES: FXType[] = ['drive', 'chorus', 'phaser', 'delay', 'compressor'];
 
 let fxRouteId = 0;
 
-export const createFXSlice: StateCreator<FXSlice, [], [], FXSlice> = (set, get) => ({
+export const createFXSlice: StateCreator<FXSlice, [], [], FXSlice> = (
+  set,
+  get,
+) => ({
   fx: structuredClone(DEFAULT_FX),
   fxRoutes: [],
 
@@ -77,7 +101,10 @@ export const createFXSlice: StateCreator<FXSlice, [], [], FXSlice> = (set, get) 
     const newRoute: FXRoute = { id, type: availableType, target: 'master' };
     set((s) => ({
       fxRoutes: [...s.fxRoutes, newRoute],
-      fx: { ...s.fx, [availableType]: { ...s.fx[availableType], enabled: true } },
+      fx: {
+        ...s.fx,
+        [availableType]: { ...s.fx[availableType], enabled: true },
+      },
     }));
   },
 
@@ -101,7 +128,9 @@ export const createFXSlice: StateCreator<FXSlice, [], [], FXSlice> = (set, get) 
       const oldType = route.type;
       const newType = updates.type;
       set((s) => ({
-        fxRoutes: s.fxRoutes.map((r) => (r.id === id ? { ...r, ...updates } : r)),
+        fxRoutes: s.fxRoutes.map((r) =>
+          r.id === id ? { ...r, ...updates } : r,
+        ),
         fx: {
           ...s.fx,
           [oldType]: { ...s.fx[oldType], enabled: false },
@@ -110,7 +139,9 @@ export const createFXSlice: StateCreator<FXSlice, [], [], FXSlice> = (set, get) 
       }));
     } else {
       set((s) => ({
-        fxRoutes: s.fxRoutes.map((r) => (r.id === id ? { ...r, ...updates } : r)),
+        fxRoutes: s.fxRoutes.map((r) =>
+          r.id === id ? { ...r, ...updates } : r,
+        ),
       }));
     }
   },

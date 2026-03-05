@@ -7,7 +7,10 @@ export function getCanonicalLessonTotalCount(params: {
   lessonVersion: number;
   fallbackTotal: number | null;
 }) {
-  if (params.lessonId.startsWith('mode-lesson-flow') && params.lessonVersion === 1) {
+  if (
+    params.lessonId.startsWith('mode-lesson-flow') &&
+    params.lessonVersion === 1
+  ) {
     return MODE_LESSON_FLOW_ACTIVITY_TOTAL;
   }
   return params.fallbackTotal;

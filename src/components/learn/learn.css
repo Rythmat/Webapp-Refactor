@@ -16,11 +16,11 @@
   --color-record: #ef4444;
   --color-play: #22c55e;
 
-  --color-brand-pink: #EC4899;
-  --color-brand-purple: #8B5CF6;
-  --color-brand-blue: #3B82F6;
-  --color-brand-teal: #06B6D4;
-  --gradient-brand: linear-gradient(90deg, #EC4899, #8B5CF6, #3B82F6, #06B6D4);
+  --color-brand-pink: #ec4899;
+  --color-brand-purple: #8b5cf6;
+  --color-brand-blue: #3b82f6;
+  --color-brand-teal: #06b6d4;
+  --gradient-brand: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6, #06b6d4);
 
   --glass-blur: blur(20px);
   --glass-blur-sm: blur(10px);
@@ -35,7 +35,11 @@
 
   --grain-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
 
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
 }
@@ -113,9 +117,15 @@
 
 /* ── Genre highlight (from Globe navigation) ────────────────────────── */
 @keyframes genre-glow {
-  0% { box-shadow: 0 0 0 0 rgba(126, 207, 207, 0.4); }
-  50% { box-shadow: 0 0 16px 4px rgba(126, 207, 207, 0.25); }
-  100% { box-shadow: 0 0 0 0 rgba(126, 207, 207, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(126, 207, 207, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px rgba(126, 207, 207, 0.25);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(126, 207, 207, 0);
+  }
 }
 
 .learn-root .genre-highlight {

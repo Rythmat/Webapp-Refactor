@@ -4,6 +4,7 @@ import type { MidiClip } from './tracksSlice';
 import {
   StrumMode,
   VelocityTilt,
+  type MidiNoteEvent,
   getFirstChords,
   getOptions,
   graphToken,
@@ -20,7 +21,6 @@ import {
   getChordColor,
   KEY_COLORS,
 } from '@prism/engine';
-import type { MidiNoteEvent } from '@prism/engine';
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -97,7 +97,10 @@ function findFirstRhythmForGenre(genre: string): string | undefined {
   return undefined;
 }
 
-function computeNextChords(stringSeq: string[], filterPercent: number): string[] {
+function computeNextChords(
+  stringSeq: string[],
+  filterPercent: number,
+): string[] {
   if (stringSeq.length === 0) return [];
   const token = graphToken(stringSeq);
   return getOptions(filterPercent, token);
@@ -160,8 +163,12 @@ function deriveChordRegions(
       regions.push({
         startTick: regionStart,
         endTick: hits[i].tick,
-        name: known ? abbreviateSequence(known) : abbreviateSequence(chordName(currentNotes)),
-        color: known ? getChordColor(known, rootMidi) : getChordColorFromNotes(currentNotes, rootMidi),
+        name: known
+          ? abbreviateSequence(known)
+          : abbreviateSequence(chordName(currentNotes)),
+        color: known
+          ? getChordColor(known, rootMidi)
+          : getChordColorFromNotes(currentNotes, rootMidi),
       });
       regionStart = hits[i].tick;
       currentNotes = hits[i].notes;
@@ -174,8 +181,12 @@ function deriveChordRegions(
   regions.push({
     startTick: regionStart,
     endTick: 7680,
-    name: knownFinal ? abbreviateSequence(knownFinal) : abbreviateSequence(chordName(currentNotes)),
-    color: knownFinal ? getChordColor(knownFinal, rootMidi) : getChordColorFromNotes(currentNotes, rootMidi),
+    name: knownFinal
+      ? abbreviateSequence(knownFinal)
+      : abbreviateSequence(chordName(currentNotes)),
+    color: knownFinal
+      ? getChordColor(knownFinal, rootMidi)
+      : getChordColorFromNotes(currentNotes, rootMidi),
   });
 
   return regions;
@@ -227,7 +238,9 @@ export const createPrismSlice: StateCreator<
     const { stringSeq, tracks, updateTrack } = get();
     if (stringSeq.length > 0) {
       const rootMidi = clamped + 48;
-      const newChordSeq = stringSeq.map((name) => degreeNameToChord(name, rootMidi));
+      const newChordSeq = stringSeq.map((name) =>
+        degreeNameToChord(name, rootMidi),
+      );
       set({ chordSeq: normalizeSequence(newChordSeq) });
     }
 
@@ -356,7 +369,9 @@ export const createPrismSlice: StateCreator<
       currentState.addMidiClip(trackId, clip);
 
       // Derive chord regions using known chord names from stringSeq
-      set({ chordRegions: deriveChordRegions(events, rootMidi, state.stringSeq) });
+      set({
+        chordRegions: deriveChordRegions(events, rootMidi, state.stringSeq),
+      });
       currentState.setClipColorMode('prism');
 
       worker.terminate();

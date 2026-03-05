@@ -23,7 +23,8 @@ export function NamModelBrowser({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedLabel =
-    BUNDLED_MODELS.find((m) => m.id === selectedModelId)?.name ?? 'Select Model';
+    BUNDLED_MODELS.find((m) => m.id === selectedModelId)?.name ??
+    'Select Model';
 
   const handleSelectBundled = useCallback(
     async (entry: NamModelEntry) => {
@@ -87,25 +88,31 @@ export function NamModelBrowser({
       {/* Trigger */}
       <div
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center justify-between rounded-lg px-3 py-1.5 cursor-pointer"
+        className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5"
         style={{
           backgroundColor: 'var(--color-surface-2)',
           border: '1px solid var(--color-border)',
         }}
       >
         <span
-          className="text-[10px] truncate"
-          style={{ color: loading ? 'var(--color-text-dim)' : 'var(--color-text)' }}
+          className="truncate text-[10px]"
+          style={{
+            color: loading ? 'var(--color-text-dim)' : 'var(--color-text)',
+          }}
         >
           {loading ? 'Loading...' : selectedLabel}
         </span>
-        <ChevronDown size={12} className="shrink-0 ml-1" style={{ color: 'var(--color-text-dim)' }} />
+        <ChevronDown
+          size={12}
+          className="ml-1 shrink-0"
+          style={{ color: 'var(--color-text-dim)' }}
+        />
       </div>
 
       {/* Error */}
       {error && (
         <div
-          className="text-[9px] px-2 py-1 mt-1 rounded"
+          className="mt-1 rounded px-2 py-1 text-[9px]"
           style={{ color: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)' }}
         >
           {error}
@@ -115,7 +122,7 @@ export function NamModelBrowser({
       {/* Dropdown */}
       {open && (
         <div
-          className="absolute left-0 right-0 rounded-lg overflow-hidden z-50"
+          className="absolute inset-x-0 z-50 overflow-hidden rounded-lg"
           style={{
             top: '100%',
             marginTop: 2,
@@ -136,18 +143,21 @@ export function NamModelBrowser({
             <div
               key={entry.id}
               onClick={() => handleSelectBundled(entry)}
-              className="flex items-center justify-between px-3 py-1.5 cursor-pointer hover:bg-white/10"
+              className="flex cursor-pointer items-center justify-between px-3 py-1.5 hover:bg-white/10"
             >
               <span
-                className="text-[10px] truncate"
+                className="truncate text-[10px]"
                 style={{
-                  color: entry.id === selectedModelId ? 'var(--color-accent)' : 'var(--color-text)',
+                  color:
+                    entry.id === selectedModelId
+                      ? 'var(--color-accent)'
+                      : 'var(--color-text)',
                 }}
               >
                 {entry.name}
               </span>
               <span
-                className="text-[8px] uppercase tracking-wider shrink-0 ml-2"
+                className="ml-2 shrink-0 text-[8px] uppercase tracking-wider"
                 style={{ color: 'var(--color-text-dim)' }}
               >
                 {entry.architecture}
@@ -156,15 +166,21 @@ export function NamModelBrowser({
           ))}
 
           {/* Separator */}
-          <div className="mx-3 my-1" style={{ borderTop: '1px solid var(--color-border)' }} />
+          <div
+            className="mx-3 my-1"
+            style={{ borderTop: '1px solid var(--color-border)' }}
+          />
 
           {/* Load custom */}
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-white/10"
+            className="flex cursor-pointer items-center gap-2 px-3 py-1.5 hover:bg-white/10"
           >
             <Upload size={10} style={{ color: 'var(--color-text-dim)' }} />
-            <span className="text-[10px]" style={{ color: 'var(--color-text)' }}>
+            <span
+              className="text-[10px]"
+              style={{ color: 'var(--color-text)' }}
+            >
               Load Custom .nam
             </span>
           </div>
@@ -189,7 +205,10 @@ export function NamModelBrowser({
               border: '1px dashed rgba(255,255,255,0.15)',
             }}
           >
-            <span className="text-[9px]" style={{ color: 'var(--color-text-dim)' }}>
+            <span
+              className="text-[9px]"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
               Drop .nam file here
             </span>
           </div>

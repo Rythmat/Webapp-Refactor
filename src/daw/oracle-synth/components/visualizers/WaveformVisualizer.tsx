@@ -82,5 +82,5 @@ export const WaveformVisualizer: React.FC<WaveformVisualizerProps> = React.memo(
         style={{ height }}
       />
     );
-  }
+  },
 );

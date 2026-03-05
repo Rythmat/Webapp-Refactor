@@ -86,9 +86,7 @@ export function steppedChord(pitchedChord: number[], root: number): string {
   }
 
   const name = flatChordName(pitchedChord);
-  return flat
-    ? `b${degree + 1} ${name}`
-    : `${degree + 1} ${name}`;
+  return flat ? `b${degree + 1} ${name}` : `${degree + 1} ${name}`;
 }
 
 /**
@@ -175,7 +173,9 @@ export interface ChordMatch {
  * Tries each pitch class as a potential root to recognize inversions.
  * Returns null if no chord is recognized.
  */
-export function detectChordWithInversion(pitchedChord: number[]): ChordMatch | null {
+export function detectChordWithInversion(
+  pitchedChord: number[],
+): ChordMatch | null {
   if (pitchedChord.length < 2) return null;
 
   const sorted = [...pitchedChord].sort((a, b) => a - b);
@@ -187,13 +187,13 @@ export function detectChordWithInversion(pitchedChord: number[]): ChordMatch | n
   if (pcs.length < 2) return null;
 
   // Try bass pitch class first (root position priority)
-  const candidates = [bassPc, ...pcs.filter(pc => pc !== bassPc)];
+  const candidates = [bassPc, ...pcs.filter((pc) => pc !== bassPc)];
 
   let bestMatch: ChordMatch | null = null;
 
   for (const candidate of candidates) {
     const intervals = pcs
-      .map((pc) => ((pc - candidate) + 12) % 12)
+      .map((pc) => (pc - candidate + 12) % 12)
       .sort((a, b) => a - b);
 
     for (const [name, def] of Object.entries(CHORDS)) {
@@ -201,19 +201,29 @@ export function detectChordWithInversion(pitchedChord: number[]): ChordMatch | n
       if (name.includes('/')) continue;
 
       // Normalize definition to mod 12 for pitch-class comparison
-      const normDef = [...new Set(def.map(v => v % 12))].sort((a, b) => a - b);
+      const normDef = [...new Set(def.map((v) => v % 12))].sort(
+        (a, b) => a - b,
+      );
       if (
         normDef.length === intervals.length &&
         normDef.every((v, i) => v === intervals[i])
       ) {
         // Determine inversion from bass note position
-        const bassInterval = ((bassPc - candidate) + 12) % 12;
+        const bassInterval = (bassPc - candidate + 12) % 12;
         let inversion = 0;
         for (let j = 1; j < def.length; j++) {
-          if (def[j] % 12 === bassInterval) { inversion = j; break; }
+          if (def[j] % 12 === bassInterval) {
+            inversion = j;
+            break;
+          }
         }
 
-        const match: ChordMatch = { quality: name, rootPc: candidate, bassNote, inversion };
+        const match: ChordMatch = {
+          quality: name,
+          rootPc: candidate,
+          bassNote,
+          inversion,
+        };
 
         // Root position → return immediately
         if (candidate === bassPc) return match;
@@ -222,7 +232,8 @@ export function detectChordWithInversion(pitchedChord: number[]): ChordMatch | n
         if (!bestMatch) {
           bestMatch = match;
         } else {
-          const bestIs6th = bestMatch.quality === 'major6' || bestMatch.quality === 'minor6';
+          const bestIs6th =
+            bestMatch.quality === 'major6' || bestMatch.quality === 'minor6';
           const currentIs6th = name === 'major6' || name === 'minor6';
           if (bestIs6th && !currentIs6th) {
             bestMatch = match;

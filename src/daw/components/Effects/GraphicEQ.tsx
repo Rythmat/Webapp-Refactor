@@ -1,11 +1,19 @@
+/* eslint-disable tailwindcss/classnames-order */
+/* eslint-disable tailwindcss/enforces-shorthand */
 import { useRef, useState, useCallback, useMemo, useEffect } from 'react';
 import type { EqBand, EqBandType } from '@/daw/audio/EffectChain';
 
 // ── Constants ─────────────────────────────────────────────────────────────
 
 const BAND_COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e',
-  '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899',
+  '#ef4444',
+  '#f97316',
+  '#eab308',
+  '#22c55e',
+  '#06b6d4',
+  '#3b82f6',
+  '#8b5cf6',
+  '#ec4899',
 ];
 
 const SAMPLE_RATE = 44100;
@@ -30,7 +38,9 @@ function freqToX(freq: number, w: number): number {
 }
 
 function xToFreq(x: number, w: number): number {
-  return FREQ_MIN * Math.pow(FREQ_MAX / FREQ_MIN, Math.max(0, Math.min(1, x / w)));
+  return (
+    FREQ_MIN * Math.pow(FREQ_MAX / FREQ_MIN, Math.max(0, Math.min(1, x / w)))
+  );
 }
 
 function dbToY(db: number, h: number): number {
@@ -47,19 +57,28 @@ type BiquadType = 'highpass' | 'lowpass' | 'peaking' | 'lowshelf' | 'highshelf';
 
 function bandTypeToBiquad(type: EqBandType): BiquadType {
   switch (type) {
-    case 'lowcut':    return 'highpass';
-    case 'lowshelf':  return 'lowshelf';
-    case 'peaking':   return 'peaking';
-    case 'highshelf': return 'highshelf';
-    case 'highcut':   return 'lowpass';
+    case 'lowcut':
+      return 'highpass';
+    case 'lowshelf':
+      return 'lowshelf';
+    case 'peaking':
+      return 'peaking';
+    case 'highshelf':
+      return 'highshelf';
+    case 'highcut':
+      return 'lowpass';
   }
 }
 
 // ── Biquad frequency response math (RBJ Audio EQ Cookbook) ────────────────
 
 interface BiquadCoeffs {
-  b0: number; b1: number; b2: number;
-  a0: number; a1: number; a2: number;
+  b0: number;
+  b1: number;
+  b2: number;
+  a0: number;
+  a1: number;
+  a2: number;
 }
 
 function computeBiquadCoeffs(
@@ -108,23 +127,23 @@ function computeBiquadCoeffs(
     case 'lowshelf': {
       const A = Math.pow(10, gain / 40);
       const sqrtA = Math.sqrt(A);
-      b0 = A * ((A + 1) - (A - 1) * cosW0 + 2 * sqrtA * alpha);
-      b1 = 2 * A * ((A - 1) - (A + 1) * cosW0);
-      b2 = A * ((A + 1) - (A - 1) * cosW0 - 2 * sqrtA * alpha);
-      a0 = (A + 1) + (A - 1) * cosW0 + 2 * sqrtA * alpha;
-      a1 = -2 * ((A - 1) + (A + 1) * cosW0);
-      a2 = (A + 1) + (A - 1) * cosW0 - 2 * sqrtA * alpha;
+      b0 = A * (A + 1 - (A - 1) * cosW0 + 2 * sqrtA * alpha);
+      b1 = 2 * A * (A - 1 - (A + 1) * cosW0);
+      b2 = A * (A + 1 - (A - 1) * cosW0 - 2 * sqrtA * alpha);
+      a0 = A + 1 + (A - 1) * cosW0 + 2 * sqrtA * alpha;
+      a1 = -2 * (A - 1 + (A + 1) * cosW0);
+      a2 = A + 1 + (A - 1) * cosW0 - 2 * sqrtA * alpha;
       break;
     }
     case 'highshelf': {
       const A = Math.pow(10, gain / 40);
       const sqrtA = Math.sqrt(A);
-      b0 = A * ((A + 1) + (A - 1) * cosW0 + 2 * sqrtA * alpha);
-      b1 = -2 * A * ((A - 1) + (A + 1) * cosW0);
-      b2 = A * ((A + 1) + (A - 1) * cosW0 - 2 * sqrtA * alpha);
-      a0 = (A + 1) - (A - 1) * cosW0 + 2 * sqrtA * alpha;
-      a1 = 2 * ((A - 1) - (A + 1) * cosW0);
-      a2 = (A + 1) - (A - 1) * cosW0 - 2 * sqrtA * alpha;
+      b0 = A * (A + 1 + (A - 1) * cosW0 + 2 * sqrtA * alpha);
+      b1 = -2 * A * (A - 1 + (A + 1) * cosW0);
+      b2 = A * (A + 1 + (A - 1) * cosW0 - 2 * sqrtA * alpha);
+      a0 = A + 1 - (A - 1) * cosW0 + 2 * sqrtA * alpha;
+      a1 = 2 * (A - 1 - (A + 1) * cosW0);
+      a2 = A + 1 - (A - 1) * cosW0 - 2 * sqrtA * alpha;
       break;
     }
   }
@@ -163,7 +182,10 @@ function computeBandResponse(band: EqBand): number[] {
   return LOG_FREQS.map((f) => {
     let db = magnitudeDb(coeffs, f);
     // 24 dB/oct = two cascaded identical filters → double the dB
-    if ((band.type === 'lowcut' || band.type === 'highcut') && band.slope === 24) {
+    if (
+      (band.type === 'lowcut' || band.type === 'highcut') &&
+      band.slope === 24
+    ) {
       db *= 2;
     }
     return db;
@@ -228,7 +250,8 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
   const bandResponses = useMemo(() => bands.map(computeBandResponse), [bands]);
 
   const compositeDb = useMemo(
-    () => LOG_FREQS.map((_, i) => bandResponses.reduce((sum, r) => sum + r[i], 0)),
+    () =>
+      LOG_FREQS.map((_, i) => bandResponses.reduce((sum, r) => sum + r[i], 0)),
     [bandResponses],
   );
 
@@ -268,7 +291,9 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
       const band = bands[dragIdx];
       const newFreq = Math.max(20, Math.min(20000, xToFreq(gx, GW)));
       const isCut = band.type === 'lowcut' || band.type === 'highcut';
-      const newGain = isCut ? 0 : Math.max(-DB_RANGE, Math.min(DB_RANGE, yToDb(gy, GH)));
+      const newGain = isCut
+        ? 0
+        : Math.max(-DB_RANGE, Math.min(DB_RANGE, yToDb(gy, GH)));
 
       const updated = [...bands];
       updated[dragIdx] = {
@@ -307,7 +332,11 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
     (idx: number) => {
       const band = bands[idx];
       const updated = [...bands];
-      updated[idx] = { ...band, gain: 0, Q: band.type === 'peaking' ? 1.0 : 0.7 };
+      updated[idx] = {
+        ...band,
+        gain: 0,
+        Q: band.type === 'peaking' ? 1.0 : 0.7,
+      };
       onChange(updated);
     },
     [bands, onChange],
@@ -331,7 +360,9 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg) return;
-    const prevent = (e: WheelEvent) => { if (hoverIdx !== null) e.preventDefault(); };
+    const prevent = (e: WheelEvent) => {
+      if (hoverIdx !== null) e.preventDefault();
+    };
     svg.addEventListener('wheel', prevent, { passive: false });
     return () => svg.removeEventListener('wheel', prevent);
   }, [hoverIdx]);
@@ -352,7 +383,10 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
       >
         {/* Background */}
         <rect
-          x={0} y={0} width={SVG_W} height={SVG_H}
+          x={0}
+          y={0}
+          width={SVG_W}
+          height={SVG_H}
           rx={8}
           fill="rgba(0, 0, 0, 0.3)"
         />
@@ -366,12 +400,16 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
             return (
               <g key={`db-${db}`}>
                 <line
-                  x1={0} y1={y} x2={GW} y2={y}
+                  x1={0}
+                  y1={y}
+                  x2={GW}
+                  y2={y}
                   stroke="rgba(255,255,255,0.06)"
                   strokeWidth={db === 0 ? 0.8 : 0.5}
                 />
                 <text
-                  x={-4} y={y + 3}
+                  x={-4}
+                  y={y + 3}
                   textAnchor="end"
                   fill="rgba(255,255,255,0.25)"
                   fontSize={8}
@@ -389,12 +427,16 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
             return (
               <g key={`f-${f}`}>
                 <line
-                  x1={x} y1={0} x2={x} y2={GH}
+                  x1={x}
+                  y1={0}
+                  x2={x}
+                  y2={GH}
                   stroke="rgba(255,255,255,0.06)"
                   strokeWidth={0.5}
                 />
                 <text
-                  x={x} y={GH + 12}
+                  x={x}
+                  y={GH + 12}
                   textAnchor="middle"
                   fill="rgba(255,255,255,0.25)"
                   fontSize={8}
@@ -436,12 +478,6 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
             if (!band.enabled) return null;
             const isCut = band.type === 'lowcut' || band.type === 'highcut';
             const cx = freqToX(band.freq, GW);
-            // For cut filters, show node on the composite curve at that frequency
-            const _bandDb = isCut
-              ? bandResponses[i][
-                  LOG_FREQS.findIndex((f) => f >= band.freq) || 0
-                ] || 0
-              : band.gain;
             const cy = dbToY(isCut ? 0 : band.gain, GH);
             const isActive = dragIdx === i || hoverIdx === i;
             const color = BAND_COLORS[i];
@@ -451,7 +487,9 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
                 {/* Hover ring */}
                 {isActive && (
                   <circle
-                    cx={cx} cy={cy} r={10}
+                    cx={cx}
+                    cy={cy}
+                    r={10}
                     fill="none"
                     stroke={color}
                     strokeWidth={1}
@@ -461,21 +499,26 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
 
                 {/* Node circle */}
                 <circle
-                  cx={cx} cy={cy} r={7}
+                  cx={cx}
+                  cy={cy}
+                  r={7}
                   fill={color}
                   stroke="rgba(0,0,0,0.4)"
                   strokeWidth={1}
                   style={{ cursor: 'grab' }}
                   onPointerDown={(e) => handlePointerDown(i, e)}
                   onPointerEnter={() => setHoverIdx(i)}
-                  onPointerLeave={() => { if (dragIdx !== i) setHoverIdx(null); }}
+                  onPointerLeave={() => {
+                    if (dragIdx !== i) setHoverIdx(null);
+                  }}
                   onWheel={(e) => handleWheel(i, e)}
                   onDoubleClick={() => handleDblClick(i)}
                 />
 
                 {/* Band number */}
                 <text
-                  x={cx} y={cy + 3}
+                  x={cx}
+                  y={cy + 3}
                   textAnchor="middle"
                   fill="rgba(0,0,0,0.7)"
                   fontSize={8}
@@ -489,19 +532,25 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
                 {/* Slope label for cut bands */}
                 {isCut && isActive && (
                   <g
-                    onClick={(e) => { e.stopPropagation(); toggleSlope(i); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSlope(i);
+                    }}
                     style={{ cursor: 'pointer' }}
                   >
                     <rect
-                      x={cx + 10} y={cy - 8}
-                      width={22} height={14}
+                      x={cx + 10}
+                      y={cy - 8}
+                      width={22}
+                      height={14}
                       rx={3}
                       fill="rgba(0,0,0,0.6)"
                       stroke={color}
                       strokeWidth={0.5}
                     />
                     <text
-                      x={cx + 21} y={cy + 1}
+                      x={cx + 21}
+                      y={cy + 1}
                       textAnchor="middle"
                       fill={color}
                       fontSize={8}
@@ -517,19 +566,24 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
                 {isActive && (
                   <g style={{ pointerEvents: 'none' }}>
                     <rect
-                      x={cx - 36} y={cy - 28}
-                      width={72} height={16}
+                      x={cx - 36}
+                      y={cy - 28}
+                      width={72}
+                      height={16}
                       rx={4}
                       fill="rgba(0,0,0,0.7)"
                     />
                     <text
-                      x={cx} y={cy - 17}
+                      x={cx}
+                      y={cy - 17}
                       textAnchor="middle"
                       fill="rgba(255,255,255,0.85)"
                       fontSize={8}
                       fontFamily="system-ui"
                     >
-                      {fmtFreq(band.freq)} Hz  {isCut ? '' : `${fmtDb(band.gain)} dB`}  Q {band.Q.toFixed(1)}
+                      {fmtFreq(band.freq)} Hz{' '}
+                      {isCut ? '' : `${fmtDb(band.gain)} dB`} Q{' '}
+                      {band.Q.toFixed(1)}
                     </text>
                   </g>
                 )}
@@ -549,11 +603,18 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
           >
             <div
               className="w-1.5 h-1.5 rounded-full mb-0.5"
-              style={{ backgroundColor: band.enabled ? BAND_COLORS[i] : 'rgba(255,255,255,0.1)' }}
+              style={{
+                backgroundColor: band.enabled
+                  ? BAND_COLORS[i]
+                  : 'rgba(255,255,255,0.1)',
+              }}
             />
             <span
               className="text-[8px] tabular-nums leading-none"
-              style={{ color: BAND_COLORS[i], opacity: band.enabled ? 0.7 : 0.3 }}
+              style={{
+                color: BAND_COLORS[i],
+                opacity: band.enabled ? 0.7 : 0.3,
+              }}
             >
               {fmtFreq(band.freq)}
             </span>

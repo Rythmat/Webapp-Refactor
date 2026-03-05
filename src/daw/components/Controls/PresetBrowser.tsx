@@ -1,7 +1,13 @@
+/* eslint-disable tailwindcss/classnames-order */
+/* eslint-disable tailwindcss/enforces-shorthand */
 import { useState, useMemo } from 'react';
 import { Search, Play } from 'lucide-react';
-import { PRESET_CATEGORIES, getPresetsByCategory, searchPresets } from '@/daw/data/instrumentPresets';
-import type { Preset } from '@/daw/data/instrumentPresets';
+import {
+  PRESET_CATEGORIES,
+  getPresetsByCategory,
+  searchPresets,
+  type Preset,
+} from '@/daw/data/instrumentPresets';
 
 // ── PresetBrowser ───────────────────────────────────────────────────────
 
@@ -31,7 +37,10 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
         className="flex items-center gap-3 px-4 py-2.5 shrink-0 border-b"
         style={{ borderColor: 'var(--color-border)' }}
       >
-        <span className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+        <span
+          className="text-sm font-semibold"
+          style={{ color: 'var(--color-text)' }}
+        >
           Browse Instruments
         </span>
         <div
@@ -81,9 +90,16 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
               }}
               className="block w-full text-left px-4 py-1.5 text-xs cursor-pointer transition-colors"
               style={{
-                backgroundColor: selectedCategory === cat && !searchQuery ? 'var(--color-surface-2)' : 'transparent',
-                color: selectedCategory === cat && !searchQuery ? 'var(--color-text)' : 'var(--color-text-dim)',
-                fontWeight: selectedCategory === cat && !searchQuery ? 600 : 400,
+                backgroundColor:
+                  selectedCategory === cat && !searchQuery
+                    ? 'var(--color-surface-2)'
+                    : 'transparent',
+                color:
+                  selectedCategory === cat && !searchQuery
+                    ? 'var(--color-text)'
+                    : 'var(--color-text-dim)',
+                fontWeight:
+                  selectedCategory === cat && !searchQuery ? 600 : 400,
                 border: 'none',
               }}
             >
@@ -96,13 +112,19 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
         <div className="flex-1 overflow-y-auto py-2">
           {/* Category heading */}
           <div className="px-4 pb-2">
-            <span className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+            <span
+              className="text-sm font-semibold"
+              style={{ color: 'var(--color-text)' }}
+            >
               {searchQuery ? 'Search Results' : selectedCategory}
             </span>
           </div>
 
           {filteredPresets.length === 0 ? (
-            <div className="px-4 py-8 text-xs text-center" style={{ color: 'var(--color-text-dim)' }}>
+            <div
+              className="px-4 py-8 text-xs text-center"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
               No presets found
             </div>
           ) : (
@@ -114,10 +136,12 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
                   className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors group"
                   style={{ background: 'none', border: 'none' }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--color-surface-2)';
+                    (e.currentTarget as HTMLElement).style.backgroundColor =
+                      'var(--color-surface-2)';
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+                    (e.currentTarget as HTMLElement).style.backgroundColor =
+                      'transparent';
                   }}
                 >
                   {/* Play preview button */}
@@ -128,9 +152,15 @@ export function PresetBrowser({ onSelect, onClose }: PresetBrowserProps) {
                       border: '1px solid var(--color-border)',
                     }}
                   >
-                    <Play size={12} style={{ color: 'var(--color-text-dim)' }} />
+                    <Play
+                      size={12}
+                      style={{ color: 'var(--color-text-dim)' }}
+                    />
                   </div>
-                  <span className="text-sm" style={{ color: 'var(--color-text)' }}>
+                  <span
+                    className="text-sm"
+                    style={{ color: 'var(--color-text)' }}
+                  >
                     {preset.name}
                   </span>
                 </button>

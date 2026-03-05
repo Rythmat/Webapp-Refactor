@@ -1,29 +1,29 @@
-import * as Tone from "tone";
+import * as Tone from 'tone';
 
 const NOTE_SEQUENCE = [
-  "C",
-  "C#",
-  "D",
-  "D#",
-  "E",
-  "F",
-  "F#",
-  "G",
-  "G#",
-  "A",
-  "A#",
-  "B",
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
 ];
 
 const buildPianoSampleUrls = () => {
   const urls: Record<string, string> = {};
   for (let octave = 1; octave <= 7; octave += 1) {
     NOTE_SEQUENCE.forEach((note) => {
-      const fileNote = note.replace("#", "s");
+      const fileNote = note.replace('#', 's');
       urls[`${note}${octave}`] = `${fileNote}${octave}.mp3`;
     });
   }
-  urls.C8 = "C8.mp3";
+  urls.C8 = 'C8.mp3';
   return urls;
 };
 
@@ -33,21 +33,21 @@ let volumeDb = 0;
 const activeNotes = new Set<string>();
 
 const normalizeVelocity = (velocity?: number) => {
-  if (typeof velocity !== "number") return 0.8;
+  if (typeof velocity !== 'number') return 0.8;
   const normalized = velocity > 1 ? velocity / 127 : velocity;
   return Math.max(0, Math.min(1, normalized));
 };
 
 const resumeContextIfNeeded = async () => {
   const context = Tone.getContext();
-  if (context.state !== "running") {
+  if (context.state !== 'running') {
     try {
       await context.resume();
     } catch (error) {
-      console.warn("Failed to resume Tone.js audio context", error);
+      console.warn('Failed to resume Tone.js audio context', error);
     }
   }
-  return context.state === "running";
+  return context.state === 'running';
 };
 
 const ensureSamplerLoaded = async () => {
@@ -59,7 +59,7 @@ const ensureSamplerLoaded = async () => {
 };
 
 export const startPianoSampler = async () => {
-  if (Tone.getContext().state !== "running") {
+  if (Tone.getContext().state !== 'running') {
     await Tone.start();
   }
   await resumeContextIfNeeded();
@@ -74,7 +74,7 @@ export const getPianoSampler = async (): Promise<Tone.Sampler> => {
     samplerPromise = (async () => {
       const sampler = new Tone.Sampler({
         urls: buildPianoSampleUrls(),
-        baseUrl: "/samples/piano/",
+        baseUrl: '/samples/piano/',
       }).toDestination();
       sampler.volume.value = volumeDb;
       samplerInstance = sampler;
@@ -141,9 +141,17 @@ export const triggerPianoAttackRelease = async (
   const isRunning = await resumeContextIfNeeded();
   if (!isRunning) return;
   const sampler = await ensureSamplerLoaded();
-  sampler.triggerAttackRelease(note, duration, time, normalizeVelocity(velocity));
+  sampler.triggerAttackRelease(
+    note,
+    duration,
+    time,
+    normalizeVelocity(velocity),
+  );
   activeNotes.add(note);
-  window.setTimeout(() => {
-    activeNotes.delete(note);
-  }, Math.max(0, duration) * 1000);
+  window.setTimeout(
+    () => {
+      activeNotes.delete(note);
+    },
+    Math.max(0, duration) * 1000,
+  );
 };

@@ -57,8 +57,12 @@ export class OverdrivePedal implements PedalProcessor {
     this.wireEnabled();
   }
 
-  getInputNode(): AudioNode { return this.inputNode; }
-  getOutputNode(): AudioNode { return this.outputNode; }
+  getInputNode(): AudioNode {
+    return this.inputNode;
+  }
+  getOutputNode(): AudioNode {
+    return this.outputNode;
+  }
 
   setEnabled(enabled: boolean): void {
     if (enabled === this.enabled) return;
@@ -72,7 +76,9 @@ export class OverdrivePedal implements PedalProcessor {
   updateParams(params: Record<string, number>): void {
     if (params.drive !== undefined) {
       this.preGain.gain.value = 1 + params.drive * 10;
-      this.shaper.curve = makeSoftClipCurve(params.drive) as Float32Array<ArrayBuffer>;
+      this.shaper.curve = makeSoftClipCurve(
+        params.drive,
+      ) as Float32Array<ArrayBuffer>;
     }
     if (params.tone !== undefined) {
       this.tone.frequency.value = 200 + params.tone * 7800;

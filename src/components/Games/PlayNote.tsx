@@ -50,29 +50,31 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   const circleFontSize = Math.max(10, Math.min(26, circleSize * 0.22));
 
   const circleBackground = effectiveColor;
-  const circleTextColor = "rgba(255,255,255,0.95)";
-  const circleBorder = "1px solid rgba(255,255,255,0.35)";
-  const circleShadow = "0 2px 6px rgba(15,15,15,0.35)";
+  const circleTextColor = 'rgba(255,255,255,0.95)';
+  const circleBorder = '1px solid rgba(255,255,255,0.35)';
+  const circleShadow = '0 2px 6px rgba(15,15,15,0.35)';
 
   return (
     <>
       <div
-        title={`${note.pitchName} @ ${(note.startTicks / TICKS_PER_QUARTER).toFixed(2)} beats`}
-        className="absolute group"
+        className="group absolute"
         style={{
           left: `${startPercent}%`,
           width: `${widthPercent}%`,
           top,
           height,
         }}
+        title={`${note.pitchName} @ ${(note.startTicks / TICKS_PER_QUARTER).toFixed(2)} beats`}
       >
         <div
-          className="h-full w-full overflow-hidden rounded-2xl shadow-inner border relative"
+          className="relative size-full overflow-hidden rounded-2xl border shadow-inner"
           style={{
-            borderColor: highlighted ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.2)",
-            borderWidth: highlighted ? "2px" : undefined,
+            borderColor: highlighted
+              ? 'rgba(255,255,255,0.9)'
+              : 'rgba(255,255,255,0.2)',
+            borderWidth: highlighted ? '2px' : undefined,
             boxShadow: highlighted
-              ? "0 0 0 1px rgba(255,255,255,0.2), 0 8px 18px rgba(255,255,255,0.16)"
+              ? '0 0 0 1px rgba(255,255,255,0.2), 0 8px 18px rgba(255,255,255,0.16)'
               : undefined,
           }}
         >
@@ -82,13 +84,13 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
                 return null;
               }
               const left = segment.from * 100;
-                const width = (segment.to - segment.from) * 100;
+              const width = (segment.to - segment.from) * 100;
               const backgroundColor = effectiveColor;
               const segmentOpacity = segment.kind === 'played' ? 1 : 0.35;
               return (
                 <div
                   key={index}
-                  className="absolute top-0 bottom-0"
+                  className="absolute inset-y-0"
                   style={{
                     left: `${left}%`,
                     width: `${width}%`,
@@ -100,14 +102,14 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
             })
           ) : (
             <div
-              className="h-full w-full"
+              className="size-full"
               style={{
                 background: `linear-gradient(180deg, ${effectiveColor}cc, ${effectiveColor}aa)`,
                 opacity: playedFillOpacity,
               }}
             />
           )}
-          {!inTime && typeof holdProgress === "number" ? (
+          {!inTime && typeof holdProgress === 'number' ? (
             <div
               className="absolute left-0 top-0 h-[4px] rounded-t-2xl transition-[width]"
               style={{

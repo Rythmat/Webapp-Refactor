@@ -1,11 +1,21 @@
 import { useEffect } from 'react';
 import { useStore } from '@/daw/store';
 import type { ToolType } from '@/daw/store/uiSlice';
-import { serializeSession, deserializeSession } from '@/daw/persistence/SessionSerializer';
-import { saveToLocalStorage, loadFromLocalStorage } from '@/daw/persistence/SessionStorage';
+import {
+  serializeSession,
+  deserializeSession,
+} from '@/daw/persistence/SessionSerializer';
+import {
+  saveToLocalStorage,
+  loadFromLocalStorage,
+} from '@/daw/persistence/SessionStorage';
 import { undo, redo } from '@/daw/store/undoMiddleware';
 import { exportMidiFile, downloadMidiBlob } from '@/daw/midi/MidiFileIO';
-import { getAudioBuffer, setAudioBuffer, removeAudioBuffer } from '@/daw/audio/AudioBufferStore';
+import {
+  getAudioBuffer,
+  setAudioBuffer,
+  removeAudioBuffer,
+} from '@/daw/audio/AudioBufferStore';
 import type { MidiSequence } from '@prism/engine';
 
 // ── Tool map (number keys) ──────────────────────────────────────────────
@@ -58,11 +68,15 @@ export function useKeyboardShortcuts() {
         if (selectedClipId && selectedClipTrackId) {
           e.preventDefault();
           const track = state.tracks.find((t) => t.id === selectedClipTrackId);
-          const midiClip = track?.midiClips.find((c) => c.id === selectedClipId);
+          const midiClip = track?.midiClips.find(
+            (c) => c.id === selectedClipId,
+          );
           if (midiClip) {
             state.setClipboard([structuredClone(midiClip)]);
           } else {
-            const audioClip = track?.audioClips.find((c) => c.id === selectedClipId);
+            const audioClip = track?.audioClips.find(
+              (c) => c.id === selectedClipId,
+            );
             if (audioClip) {
               state.setAudioClipboard(structuredClone(audioClip), audioClip.id);
             }
@@ -73,7 +87,12 @@ export function useKeyboardShortcuts() {
 
       // Cmd+V: Paste clipboard clips at playhead (MIDI or audio)
       if (e.code === 'KeyV' && isMod) {
-        const { clipboardClips, clipboardAudioClip, selectedClipTrackId, position } = state;
+        const {
+          clipboardClips,
+          clipboardAudioClip,
+          selectedClipTrackId,
+          position,
+        } = state;
         if (clipboardAudioClip) {
           e.preventDefault();
           const targetTrackId = selectedClipTrackId || state.tracks[0]?.id;
@@ -112,7 +131,9 @@ export function useKeyboardShortcuts() {
         if (selectedClipId && selectedClipTrackId) {
           e.preventDefault();
           const track = state.tracks.find((t) => t.id === selectedClipTrackId);
-          const midiClip = track?.midiClips.find((c) => c.id === selectedClipId);
+          const midiClip = track?.midiClips.find(
+            (c) => c.id === selectedClipId,
+          );
           if (midiClip) {
             const maxTick = midiClip.events.reduce(
               (max, ev) => Math.max(max, ev.startTick + ev.durationTicks),
@@ -127,7 +148,9 @@ export function useKeyboardShortcuts() {
             });
             state.setSelectedClip(newId, selectedClipTrackId);
           } else {
-            const audioClip = track?.audioClips.find((c) => c.id === selectedClipId);
+            const audioClip = track?.audioClips.find(
+              (c) => c.id === selectedClipId,
+            );
             if (audioClip) {
               const srcBuffer = getAudioBuffer(audioClip.id);
               if (srcBuffer) {
@@ -185,9 +208,21 @@ export function useKeyboardShortcuts() {
       // Cmd+N: Add new MIDI track
       if (e.code === 'KeyN' && isMod) {
         e.preventDefault();
-        const colors = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#ec4899'];
+        const colors = [
+          '#8b5cf6',
+          '#06b6d4',
+          '#f59e0b',
+          '#ef4444',
+          '#10b981',
+          '#ec4899',
+        ];
         const idx = state.tracks.length % colors.length;
-        state.addTrack('midi', 'oracle-synth', `Track ${state.tracks.length + 1}`, colors[idx]);
+        state.addTrack(
+          'midi',
+          'oracle-synth',
+          `Track ${state.tracks.length + 1}`,
+          colors[idx],
+        );
         return;
       }
 
@@ -216,7 +251,9 @@ export function useKeyboardShortcuts() {
       if (e.code === 'KeyF' && isMod && e.shiftKey) {
         e.preventDefault();
         // Estimate viewport width (the timeline canvas container)
-        const viewportWidth = document.querySelector('.overflow-y-auto.overflow-x-hidden')?.clientWidth ?? 800;
+        const viewportWidth =
+          document.querySelector('.overflow-y-auto.overflow-x-hidden')
+            ?.clientWidth ?? 800;
         // Compute project length from tracks
         let maxTick = 1920 * 8; // 8 bars minimum
         for (const track of state.tracks) {
@@ -224,8 +261,10 @@ export function useKeyboardShortcuts() {
             const endTick = clip.durationTicks
               ? clip.startTick + clip.durationTicks
               : clip.events.reduce(
-                  (max: number, ev: { startTick: number; durationTicks: number }) =>
-                    Math.max(max, ev.startTick + ev.durationTicks),
+                  (
+                    max: number,
+                    ev: { startTick: number; durationTicks: number },
+                  ) => Math.max(max, ev.startTick + ev.durationTicks),
                   clip.startTick,
                 );
             maxTick = Math.max(maxTick, endTick);
@@ -265,18 +304,28 @@ export function useKeyboardShortcuts() {
         state.selectedClipTrackId
       ) {
         e.preventDefault();
-        const track = state.tracks.find((t) => t.id === state.selectedClipTrackId);
-        const midiClip = track?.midiClips.find((c) => c.id === state.selectedClipId);
+        const track = state.tracks.find(
+          (t) => t.id === state.selectedClipTrackId,
+        );
+        const midiClip = track?.midiClips.find(
+          (c) => c.id === state.selectedClipId,
+        );
         if (midiClip) {
           const delta = e.code === 'ArrowRight' ? NUDGE_TICKS : -NUDGE_TICKS;
           const newStart = Math.max(0, midiClip.startTick + delta);
-          state.updateMidiClip(state.selectedClipTrackId!, midiClip.id, { startTick: newStart });
+          state.updateMidiClip(state.selectedClipTrackId!, midiClip.id, {
+            startTick: newStart,
+          });
         } else {
-          const audioClip = track?.audioClips.find((c) => c.id === state.selectedClipId);
+          const audioClip = track?.audioClips.find(
+            (c) => c.id === state.selectedClipId,
+          );
           if (audioClip) {
             const delta = e.code === 'ArrowRight' ? NUDGE_TICKS : -NUDGE_TICKS;
             const newStart = Math.max(0, audioClip.startTick + delta);
-            state.updateAudioClip(state.selectedClipTrackId!, audioClip.id, { startTick: newStart });
+            state.updateAudioClip(state.selectedClipTrackId!, audioClip.id, {
+              startTick: newStart,
+            });
           }
         }
         return;
@@ -325,8 +374,12 @@ export function useKeyboardShortcuts() {
           const { selectedClipId, selectedClipTrackId } = state;
           if (selectedClipId && selectedClipTrackId) {
             e.preventDefault();
-            const delTrack = state.tracks.find((t) => t.id === selectedClipTrackId);
-            const isMidi = delTrack?.midiClips.some((c) => c.id === selectedClipId);
+            const delTrack = state.tracks.find(
+              (t) => t.id === selectedClipTrackId,
+            );
+            const isMidi = delTrack?.midiClips.some(
+              (c) => c.id === selectedClipId,
+            );
             if (isMidi) {
               state.removeMidiClip(selectedClipTrackId, selectedClipId);
             } else {

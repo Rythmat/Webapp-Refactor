@@ -35,11 +35,16 @@ export function PianoRollModal() {
   );
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) handleClose();
+      }}
+    >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
         <Dialog.Content
-          className="fixed top-[5%] left-[5%] right-[5%] bottom-[10%] rounded-2xl z-50 outline-none flex flex-col overflow-hidden"
+          className="fixed inset-x-[5%] bottom-[10%] top-[5%] z-50 flex flex-col overflow-hidden rounded-2xl outline-none"
           style={{
             backgroundColor: 'var(--color-surface-2)',
             border: '1px solid rgba(255, 255, 255, 0.06)',
@@ -53,13 +58,22 @@ export function PianoRollModal() {
         >
           {/* Header */}
           <div
-            className="flex items-center justify-between px-4 shrink-0"
-            style={{ height: 44, borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+            className="flex shrink-0 items-center justify-between px-4"
+            style={{
+              height: 44,
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+            }}
           >
-            <Dialog.Title className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+            <Dialog.Title
+              className="text-sm font-semibold"
+              style={{ color: 'var(--color-text)' }}
+            >
               {clip?.name || clip?.id || 'Piano Roll'}
               {track && (
-                <span className="ml-2 text-xs font-normal" style={{ color: track.color }}>
+                <span
+                  className="ml-2 text-xs font-normal"
+                  style={{ color: track.color }}
+                >
                   {track.name}
                 </span>
               )}
@@ -69,7 +83,7 @@ export function PianoRollModal() {
             </Dialog.Description>
             <Dialog.Close asChild>
               <button
-                className="w-7 h-7 flex items-center justify-center rounded-full transition-colors hover:bg-white/10"
+                className="flex size-7 items-center justify-center rounded-full transition-colors hover:bg-white/10"
                 style={{ color: 'var(--color-text-dim)' }}
                 aria-label="Close"
               >
@@ -88,7 +102,10 @@ export function PianoRollModal() {
                 onChange={handleChange}
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-sm" style={{ color: 'var(--color-text-dim)' }}>
+              <div
+                className="flex h-full items-center justify-center text-sm"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
                 No clip selected
               </div>
             )}

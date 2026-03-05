@@ -32,7 +32,7 @@ export function PrismDrawer({ open, onClose }: PrismDrawerProps) {
             {/* ── Content ──────────────────────────────────────── */}
             <Dialog.Content asChild>
               <motion.div
-                className="fixed top-0 left-0 z-50 flex h-full w-80 flex-col glass-panel"
+                className="glass-panel fixed left-0 top-0 z-50 flex h-full w-80 flex-col"
                 style={{
                   backgroundColor: 'var(--color-surface)',
                   borderRight: 'var(--glass-border-light)',
@@ -47,7 +47,7 @@ export function PrismDrawer({ open, onClose }: PrismDrawerProps) {
                   className="flex h-14 shrink-0 items-center justify-between px-4"
                   style={{ borderBottom: '1px solid var(--color-border)' }}
                 >
-                  <span className="text-sm font-bold brand-gradient-text">
+                  <span className="brand-gradient-text text-sm font-bold">
                     Prism
                   </span>
 
@@ -55,7 +55,7 @@ export function PrismDrawer({ open, onClose }: PrismDrawerProps) {
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10"
+                      className="flex size-8 items-center justify-center rounded-full hover:bg-white/10"
                       style={{ color: 'var(--color-text-dim)' }}
                       aria-label="Close drawer"
                     >

@@ -91,8 +91,16 @@ export class VocalFxAdapter implements InstrumentAdapter {
     this.muteGain?.disconnect();
     this.analyserNode?.disconnect();
     if (this.activator) {
-      try { this.activator.stop(); } catch { /* may already be stopped */ }
-      try { this.activator.disconnect(); } catch { /* may already be disconnected */ }
+      try {
+        this.activator.stop();
+      } catch {
+        /* may already be stopped */
+      }
+      try {
+        this.activator.disconnect();
+      } catch {
+        /* may already be disconnected */
+      }
       this.activator = null;
     }
     this.pedalChain = null;
@@ -105,7 +113,10 @@ export class VocalFxAdapter implements InstrumentAdapter {
 
   // ── Audio input management ─────────────────────────────────────────
 
-  async setDevice(deviceId: string | null, deviceChannelCount?: number): Promise<void> {
+  async setDevice(
+    deviceId: string | null,
+    deviceChannelCount?: number,
+  ): Promise<void> {
     if (deviceId === this.deviceId) return;
     this.deviceId = deviceId;
 
@@ -132,7 +143,9 @@ export class VocalFxAdapter implements InstrumentAdapter {
       const track = stream.getAudioTracks()[0];
       if (track) {
         track.addEventListener('ended', () => {
-          console.warn('[VocalFxAdapter] Audio input track ended (device disconnected?)');
+          console.warn(
+            '[VocalFxAdapter] Audio input track ended (device disconnected?)',
+          );
           this.stopStream();
         });
       }
@@ -141,7 +154,9 @@ export class VocalFxAdapter implements InstrumentAdapter {
 
       // Use device capability count (sourceNode.channelCount only reflects browser-granted channels)
       this.deviceChCount = deviceChannelCount ?? this.sourceNode.channelCount;
-      this.splitterNode = this.nativeCtx.createChannelSplitter(Math.max(2, this.deviceChCount));
+      this.splitterNode = this.nativeCtx.createChannelSplitter(
+        Math.max(2, this.deviceChCount),
+      );
       this.sourceNode.connect(this.splitterNode);
 
       this.channelGain = this.nativeCtx.createGain();
@@ -157,11 +172,15 @@ export class VocalFxAdapter implements InstrumentAdapter {
 
   setChannelConfig(config: ChannelConfig): void {
     if (
-      (config.mode === 'mono' && this.channelConfig.mode === 'mono' && config.channel === this.channelConfig.channel) ||
-      (config.mode === 'stereo' && this.channelConfig.mode === 'stereo' &&
+      (config.mode === 'mono' &&
+        this.channelConfig.mode === 'mono' &&
+        config.channel === this.channelConfig.channel) ||
+      (config.mode === 'stereo' &&
+        this.channelConfig.mode === 'stereo' &&
         config.left === (this.channelConfig as { left: number }).left &&
         config.right === (this.channelConfig as { right: number }).right)
-    ) return;
+    )
+      return;
 
     this.channelConfig = config;
 
@@ -188,7 +207,9 @@ export class VocalFxAdapter implements InstrumentAdapter {
 
   getInputLevel(): number {
     if (!this.analyserNode || !this.rmsBuffer) return 0;
-    this.analyserNode.getFloatTimeDomainData(this.rmsBuffer as Float32Array<ArrayBuffer>);
+    this.analyserNode.getFloatTimeDomainData(
+      this.rmsBuffer as Float32Array<ArrayBuffer>,
+    );
     let sum = 0;
     for (let i = 0; i < this.rmsBuffer.length; i++) {
       sum += this.rmsBuffer[i] * this.rmsBuffer[i];
@@ -224,7 +245,11 @@ export class VocalFxAdapter implements InstrumentAdapter {
   stopRecordingStream(): void {
     if (this.recordDest) {
       if (this.channelGain) {
-        try { this.channelGain.disconnect(this.recordDest); } catch { /* ok */ }
+        try {
+          this.channelGain.disconnect(this.recordDest);
+        } catch {
+          /* ok */
+        }
       }
       this.recordDest = null;
     }
@@ -251,7 +276,9 @@ export class VocalFxAdapter implements InstrumentAdapter {
     // Access the internal processors array via the chain's syncChain tracking
     // We search by checking the type field
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const processors = (this.pedalChain as any)?.processors as Array<{ type: string }> | undefined;
+    const processors = (this.pedalChain as any)?.processors as
+      | Array<{ type: string }>
+      | undefined;
     if (!processors) return null;
     const found = processors.find((p) => p.type === 'pitch-correction');
     return found ? (found as unknown as PitchCorrectionPedal) : null;
@@ -260,7 +287,13 @@ export class VocalFxAdapter implements InstrumentAdapter {
   // ── Private ────────────────────────────────────────────────────────
 
   private connectChannelRouting(): void {
-    if (!this.nativeCtx || !this.splitterNode || !this.channelGain || !this.sourceNode) return;
+    if (
+      !this.nativeCtx ||
+      !this.splitterNode ||
+      !this.channelGain ||
+      !this.sourceNode
+    )
+      return;
 
     const channelCount = this.deviceChCount;
 
@@ -291,7 +324,11 @@ export class VocalFxAdapter implements InstrumentAdapter {
       this.mergerNode = null;
     }
     if (this.splitterNode && this.channelGain) {
-      try { this.splitterNode.disconnect(this.channelGain); } catch { /* not connected */ }
+      try {
+        this.splitterNode.disconnect(this.channelGain);
+      } catch {
+        /* not connected */
+      }
     }
   }
 

@@ -1,23 +1,63 @@
+/* eslint-disable tailwindcss/classnames-order */
+/* eslint-disable tailwindcss/enforces-shorthand */
 import { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronDown, X, Library, Search, Lightbulb } from 'lucide-react';
 import {
-  Gauge, ShieldCheck, SlidersHorizontal, Waves, Timer,
-  AudioWaveform, Music, Drum, Zap, Layers, TrendingUp,
-  Mic, Cloud, Sparkles, AudioLines, Flame,
+  type LucideIcon,
+  ChevronRight,
+  ChevronDown,
+  X,
+  Gauge,
+  ShieldCheck,
+  SlidersHorizontal,
+  Waves,
+  Timer,
+  AudioWaveform,
+  Music,
+  Drum,
+  Zap,
+  Layers,
+  TrendingUp,
+  Mic,
+  Cloud,
+  Library,
+  Search,
+  Lightbulb,
+  Sparkles,
+  AudioLines,
+  Flame,
 } from 'lucide-react';
 import { useStore } from '@/daw/store';
-import { LIBRARY_ITEMS, LIBRARY_CATEGORIES, DRAG_MIME, searchLibraryItems } from '@/daw/data/libraryItems';
-import type { LibraryItem, LibraryCategory } from '@/daw/data/libraryItems';
-import type { LucideIcon } from 'lucide-react';
+import {
+  LIBRARY_ITEMS,
+  LIBRARY_CATEGORIES,
+  DRAG_MIME,
+  searchLibraryItems,
+  type LibraryItem,
+  type LibraryCategory,
+} from '@/daw/data/libraryItems';
 import { InsightContent } from './InsightContent';
 
 // ── Icon lookup ─────────────────────────────────────────────────────────
 
 const ICON_MAP: Record<string, LucideIcon> = {
-  Gauge, ShieldCheck, SlidersHorizontal, Waves, Timer,
-  AudioWaveform, Music, Drum, Zap, Layers, TrendingUp,
-  Mic, Cloud, Library, Sparkles, AudioLines, Flame,
+  Gauge,
+  ShieldCheck,
+  SlidersHorizontal,
+  Waves,
+  Timer,
+  AudioWaveform,
+  Music,
+  Drum,
+  Zap,
+  Layers,
+  TrendingUp,
+  Mic,
+  Cloud,
+  Library,
+  Sparkles,
+  AudioLines,
+  Flame,
 };
 
 const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
@@ -60,33 +100,67 @@ export function LibraryPanel() {
               onClick={() => setActiveTab('insight')}
               className="flex items-center gap-1 px-3 h-full cursor-pointer"
               style={{
-                color: activeTab === 'insight' ? 'var(--color-text)' : 'var(--color-text-dim)',
+                color:
+                  activeTab === 'insight'
+                    ? 'var(--color-text)'
+                    : 'var(--color-text-dim)',
                 background: 'none',
                 border: 'none',
-                borderBottom: activeTab === 'insight' ? '1px solid var(--color-accent)' : '1px solid transparent',
+                borderBottom:
+                  activeTab === 'insight'
+                    ? '1px solid var(--color-accent)'
+                    : '1px solid transparent',
               }}
             >
-              <Lightbulb size={11} strokeWidth={1.5} style={{ color: activeTab === 'insight' ? 'var(--color-accent)' : undefined }} />
-              <span className="text-[10px] font-semibold uppercase tracking-wider">Insight</span>
+              <Lightbulb
+                size={11}
+                strokeWidth={1.5}
+                style={{
+                  color:
+                    activeTab === 'insight' ? 'var(--color-accent)' : undefined,
+                }}
+              />
+              <span className="text-[10px] font-semibold uppercase tracking-wider">
+                Insight
+              </span>
             </button>
             <button
               onClick={() => setActiveTab('library')}
               className="flex items-center gap-1 px-3 h-full cursor-pointer"
               style={{
-                color: activeTab === 'library' ? 'var(--color-text)' : 'var(--color-text-dim)',
+                color:
+                  activeTab === 'library'
+                    ? 'var(--color-text)'
+                    : 'var(--color-text-dim)',
                 background: 'none',
                 border: 'none',
-                borderBottom: activeTab === 'library' ? '1px solid var(--color-accent)' : '1px solid transparent',
+                borderBottom:
+                  activeTab === 'library'
+                    ? '1px solid var(--color-accent)'
+                    : '1px solid transparent',
               }}
             >
-              <Library size={11} strokeWidth={1.5} style={{ color: activeTab === 'library' ? 'var(--color-accent)' : undefined }} />
-              <span className="text-[10px] font-semibold uppercase tracking-wider">Library</span>
+              <Library
+                size={11}
+                strokeWidth={1.5}
+                style={{
+                  color:
+                    activeTab === 'library' ? 'var(--color-accent)' : undefined,
+                }}
+              />
+              <span className="text-[10px] font-semibold uppercase tracking-wider">
+                Library
+              </span>
             </button>
             <div className="flex-1" />
             <button
               onClick={toggleLibrary}
               className="flex items-center justify-center w-5 h-5 rounded cursor-pointer mr-1.5"
-              style={{ color: 'var(--color-text-dim)', border: 'none', background: 'none' }}
+              style={{
+                color: 'var(--color-text-dim)',
+                border: 'none',
+                background: 'none',
+              }}
             >
               <X size={11} strokeWidth={2} />
             </button>
@@ -95,12 +169,22 @@ export function LibraryPanel() {
           {activeTab === 'library' && (
             <>
               {/* Search */}
-              <div className="px-2 py-1.5 shrink-0 border-b" style={{ borderColor: 'var(--color-border)' }}>
+              <div
+                className="px-2 py-1.5 shrink-0 border-b"
+                style={{ borderColor: 'var(--color-border)' }}
+              >
                 <div
                   className="flex items-center gap-1.5 rounded px-2 py-1"
-                  style={{ backgroundColor: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}
+                  style={{
+                    backgroundColor: 'var(--color-surface-2)',
+                    border: '1px solid var(--color-border)',
+                  }}
                 >
-                  <Search size={11} strokeWidth={1.5} style={{ color: 'var(--color-text-dim)', flexShrink: 0 }} />
+                  <Search
+                    size={11}
+                    strokeWidth={1.5}
+                    style={{ color: 'var(--color-text-dim)', flexShrink: 0 }}
+                  />
                   <input
                     type="text"
                     placeholder="Search..."
@@ -113,7 +197,12 @@ export function LibraryPanel() {
                     <button
                       onClick={() => setSearchQuery('')}
                       className="flex items-center justify-center cursor-pointer"
-                      style={{ color: 'var(--color-text-dim)', border: 'none', background: 'none', flexShrink: 0 }}
+                      style={{
+                        color: 'var(--color-text-dim)',
+                        border: 'none',
+                        background: 'none',
+                        flexShrink: 0,
+                      }}
                     >
                       <X size={9} strokeWidth={2} />
                     </button>
@@ -122,16 +211,26 @@ export function LibraryPanel() {
               </div>
 
               {/* Scrollable body */}
-              <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+              <div
+                className="flex-1 overflow-y-auto"
+                style={{ scrollbarWidth: 'none' }}
+              >
                 {LIBRARY_CATEGORIES.map((cat) => {
-                  const items = filteredLibraryItems.filter((i) => i.category === cat);
+                  const items = filteredLibraryItems.filter(
+                    (i) => i.category === cat,
+                  );
                   if (searchQuery && items.length === 0) return null;
-                  return <CategorySection key={cat} category={cat} items={items} />;
+                  return (
+                    <CategorySection key={cat} category={cat} items={items} />
+                  );
                 })}
 
                 {searchQuery && filteredLibraryItems.length === 0 && (
                   <div className="px-4 py-6 text-center">
-                    <span className="text-[10px]" style={{ color: 'var(--color-text-dim)' }}>
+                    <span
+                      className="text-[10px]"
+                      style={{ color: 'var(--color-text-dim)' }}
+                    >
                       No results for &ldquo;{searchQuery}&rdquo;
                     </span>
                   </div>
@@ -141,7 +240,10 @@ export function LibraryPanel() {
           )}
 
           {activeTab === 'insight' && (
-            <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+            <div
+              className="flex-1 overflow-y-auto"
+              style={{ scrollbarWidth: 'none' }}
+            >
               <InsightContent />
             </div>
           )}
@@ -153,13 +255,26 @@ export function LibraryPanel() {
 
 // ── Category Section ────────────────────────────────────────────────────
 
-function CategorySection({ category, items }: { category: LibraryCategory; items: LibraryItem[] }) {
+function CategorySection({
+  category,
+  items,
+}: {
+  category: LibraryCategory;
+  items: LibraryItem[];
+}) {
   const [open, setOpen] = useState(true);
-  const [confirmTemplateId, setConfirmTemplateId] = useState<string | null>(null);
+  const [confirmTemplateId, setConfirmTemplateId] = useState<string | null>(
+    null,
+  );
   const loadProjectTemplate = useStore((s) => s.loadProjectTemplate);
 
   const confirmLabel = confirmTemplateId
-    ? items.find((i) => i.dragPayload.kind === 'project-template' && (i.dragPayload as { templateId: string }).templateId === confirmTemplateId)?.label ?? ''
+    ? (items.find(
+        (i) =>
+          i.dragPayload.kind === 'project-template' &&
+          (i.dragPayload as { templateId: string }).templateId ===
+            confirmTemplateId,
+      )?.label ?? '')
     : '';
 
   return (
@@ -167,7 +282,11 @@ function CategorySection({ category, items }: { category: LibraryCategory; items
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex items-center w-full px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
-        style={{ color: 'var(--color-text-dim)', background: 'none', border: 'none' }}
+        style={{
+          color: 'var(--color-text-dim)',
+          background: 'none',
+          border: 'none',
+        }}
       >
         {open ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
         <span className="ml-1">{category}</span>
@@ -185,7 +304,9 @@ function CategorySection({ category, items }: { category: LibraryCategory; items
               <LibraryItemRow
                 key={item.id}
                 item={item}
-                onRequestConfirm={(templateId) => setConfirmTemplateId(templateId)}
+                onRequestConfirm={(templateId) =>
+                  setConfirmTemplateId(templateId)
+                }
               />
             ))}
             {confirmTemplateId && (
@@ -271,13 +392,21 @@ function LibraryItemRow({
 
   const handleClick = useCallback(() => {
     if (!isProjectTemplate) return;
-    const templateId = (item.dragPayload as { kind: 'project-template'; templateId: string }).templateId;
+    const templateId = (
+      item.dragPayload as { kind: 'project-template'; templateId: string }
+    ).templateId;
     if (tracks.length > 0 && onRequestConfirm) {
       onRequestConfirm(templateId);
     } else {
       loadProjectTemplate(templateId);
     }
-  }, [isProjectTemplate, item.dragPayload, tracks.length, onRequestConfirm, loadProjectTemplate]);
+  }, [
+    isProjectTemplate,
+    item.dragPayload,
+    tracks.length,
+    onRequestConfirm,
+    loadProjectTemplate,
+  ]);
 
   const handleDragStart = useCallback(
     (e: React.DragEvent) => {
@@ -296,16 +425,23 @@ function LibraryItemRow({
   return (
     <div
       draggable={!item.disabled && !isProjectTemplate}
-      onDragStart={item.disabled || isProjectTemplate ? undefined : handleDragStart}
+      onDragStart={
+        item.disabled || isProjectTemplate ? undefined : handleDragStart
+      }
       onClick={isProjectTemplate ? handleClick : undefined}
       className="flex items-center gap-2 px-4 py-1 text-[11px] transition-colors"
       style={{
         color: item.disabled ? 'var(--color-text-dim)' : 'var(--color-text)',
         opacity: item.disabled ? 0.5 : 1,
-        cursor: item.disabled ? 'default' : isProjectTemplate ? 'pointer' : 'grab',
+        cursor: item.disabled
+          ? 'default'
+          : isProjectTemplate
+            ? 'pointer'
+            : 'grab',
       }}
       onMouseEnter={(e) => {
-        if (!item.disabled) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
+        if (!item.disabled)
+          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.backgroundColor = 'transparent';

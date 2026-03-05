@@ -88,11 +88,19 @@ export class LFO {
     // Each bar = one musical bar duration (4 beats at current BPM)
     const barDuration = 240 / this.bpm;
     const barDurations: [number, number, number, number] = [
-      barDuration, barDuration, barDuration, barDuration,
+      barDuration,
+      barDuration,
+      barDuration,
+      barDuration,
     ];
 
     // Nodes directly define the full waveform shape (no tiling)
-    const buffer = LFOWaveformBuilder.buildBuffer(this.ctx, this.bars, barDurations, this.smooths);
+    const buffer = LFOWaveformBuilder.buildBuffer(
+      this.ctx,
+      this.bars,
+      barDurations,
+      this.smooths,
+    );
 
     this.source = this.ctx.createBufferSource();
     this.source.buffer = buffer;

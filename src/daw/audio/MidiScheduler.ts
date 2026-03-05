@@ -15,7 +15,9 @@ export class MidiScheduler {
     trackEngine: TrackEngine,
     offsetTicks: number = 0,
   ): void {
-    const allEvents: Array<[string, { note: number; velocity: number; type: 'on' | 'off' }]> = [];
+    const allEvents: Array<
+      [string, { note: number; velocity: number; type: 'on' | 'off' }]
+    > = [];
 
     for (const event of sequence.events) {
       const startTicks = event.startTick + offsetTicks;

@@ -47,9 +47,9 @@ export const AuthLayout = () => {
           {/* Horizontal Piano Keyboard */}
           <div className="overflow-hidden rounded-b-xl">
             <PianoKeyboard
-              startC={2}
-              endC={6}
               enableClick={false}
+              endC={6}
+              startC={2}
               useContextNotes={false}
             />
           </div>

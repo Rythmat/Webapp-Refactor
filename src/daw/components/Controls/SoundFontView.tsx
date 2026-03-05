@@ -3,18 +3,37 @@ import { ChevronDown, Loader2 } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
-import { GM_CATEGORIES, GM_PROGRAMS, getGMProgramsByCategory } from '@/daw/instruments/gmPrograms';
-import type { GMCategory } from '@/daw/instruments/gmPrograms';
+import {
+  GM_CATEGORIES,
+  GM_PROGRAMS,
+  getGMProgramsByCategory,
+  type GMCategory,
+} from '@/daw/instruments/gmPrograms';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
 import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
 
 // QWERTY → MIDI note mapping (C3 = 48)
 const QWERTY_WHITE: Record<string, number> = {
-  a: 48, s: 50, d: 52, f: 53, g: 55, h: 57, j: 59,
-  k: 60, l: 62, ';': 64, "'": 65,
+  a: 48,
+  s: 50,
+  d: 52,
+  f: 53,
+  g: 55,
+  h: 57,
+  j: 59,
+  k: 60,
+  l: 62,
+  ';': 64,
+  "'": 65,
 };
 const QWERTY_BLACK: Record<string, number> = {
-  w: 49, e: 51, t: 54, y: 56, u: 58, o: 61, p: 63,
+  w: 49,
+  e: 51,
+  t: 54,
+  y: 56,
+  u: 58,
+  o: 61,
+  p: 63,
 };
 const QWERTY_MAP: Record<string, number> = { ...QWERTY_WHITE, ...QWERTY_BLACK };
 
@@ -30,7 +49,10 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
-  const mergedNotes = useMemo(() => new Set([...activeNotes, ...hwActiveNotes]), [activeNotes, hwActiveNotes]);
+  const mergedNotes = useMemo(
+    () => new Set([...activeNotes, ...hwActiveNotes]),
+    [activeNotes, hwActiveNotes],
+  );
   const chordColor = useLiveChordColor(mergedNotes);
   const [loading, setLoading] = useState(true);
   const heldKeysRef = useRef<Set<string>>(new Set());
@@ -39,9 +61,10 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
   // (trackEngine.getInstrument() is only set after async init resolves)
   useEffect(() => {
     const state = trackEngineRegistry.get(trackId);
-    const adapter = state?.trackEngine.getInstrument() instanceof SoundFontAdapter
-      ? (state.trackEngine.getInstrument() as SoundFontAdapter)
-      : null;
+    const adapter =
+      state?.trackEngine.getInstrument() instanceof SoundFontAdapter
+        ? (state.trackEngine.getInstrument() as SoundFontAdapter)
+        : null;
     if (adapter) {
       const pgm = adapter.getProgram();
       setCurrentProgram(pgm);
@@ -52,9 +75,10 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
       // Instrument might not be ready yet — poll until init completes
       const timer = setInterval(() => {
         const s = trackEngineRegistry.get(trackId);
-        const a = s?.trackEngine.getInstrument() instanceof SoundFontAdapter
-          ? (s.trackEngine.getInstrument() as SoundFontAdapter)
-          : null;
+        const a =
+          s?.trackEngine.getInstrument() instanceof SoundFontAdapter
+            ? (s.trackEngine.getInstrument() as SoundFontAdapter)
+            : null;
         if (a) {
           const pgm = a.getProgram();
           setCurrentProgram(pgm);
@@ -133,26 +157,36 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
     };
   }, [handleNoteOn, handleNoteOff]);
 
-  const currentProgramName = GM_PROGRAMS.find((p) => p.number === currentProgram)?.name ?? 'Unknown';
+  const currentProgramName =
+    GM_PROGRAMS.find((p) => p.number === currentProgram)?.name ?? 'Unknown';
   const categoryPrograms = getGMProgramsByCategory(selectedCategory);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full gap-2">
-        <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-text-dim)' }} />
-        <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>Loading SoundFont...</span>
+      <div className="flex h-full items-center justify-center gap-2">
+        <Loader2
+          size={14}
+          className="animate-spin"
+          style={{ color: 'var(--color-text-dim)' }}
+        />
+        <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
+          Loading SoundFont...
+        </span>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden">
+    <div className="flex flex-1 flex-col overflow-hidden">
       {/* Top bar */}
       <div
-        className="flex items-center px-4 py-2 shrink-0 gap-4 border-b"
+        className="flex shrink-0 items-center gap-4 border-b px-4 py-2"
         style={{ borderColor: 'var(--color-border)' }}
       >
-        <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="text-[10px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           SoundFont
         </span>
 
@@ -160,7 +194,7 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
         <div className="relative">
           <button
             onClick={() => setCategoryOpen((o) => !o)}
-            className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors"
+            className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
             style={{
               backgroundColor: 'var(--color-surface-2)',
               color: 'var(--color-text)',
@@ -173,7 +207,7 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
 
           {categoryOpen && (
             <div
-              className="absolute top-full left-0 mt-1 rounded-lg overflow-hidden z-30 max-h-[240px] overflow-y-auto"
+              className="absolute left-0 top-full z-30 mt-1 max-h-[240px] overflow-hidden overflow-y-auto rounded-lg"
               style={{
                 backgroundColor: 'var(--color-surface)',
                 border: '1px solid var(--color-border)',
@@ -188,18 +222,27 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
                     setSelectedCategory(cat);
                     setCategoryOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-2 text-xs cursor-pointer transition-colors"
+                  className="block w-full cursor-pointer px-4 py-2 text-left text-xs transition-colors"
                   style={{
-                    backgroundColor: cat === selectedCategory ? 'var(--color-surface-2)' : 'transparent',
-                    color: cat === selectedCategory ? 'var(--color-text)' : 'var(--color-text-dim)',
+                    backgroundColor:
+                      cat === selectedCategory
+                        ? 'var(--color-surface-2)'
+                        : 'transparent',
+                    color:
+                      cat === selectedCategory
+                        ? 'var(--color-text)'
+                        : 'var(--color-text-dim)',
                     fontWeight: cat === selectedCategory ? 600 : 400,
                     border: 'none',
                   }}
                   onMouseEnter={(e) => {
-                    if (cat !== selectedCategory) e.currentTarget.style.backgroundColor = 'var(--color-surface-2)';
+                    if (cat !== selectedCategory)
+                      e.currentTarget.style.backgroundColor =
+                        'var(--color-surface-2)';
                   }}
                   onMouseLeave={(e) => {
-                    if (cat !== selectedCategory) e.currentTarget.style.backgroundColor = 'transparent';
+                    if (cat !== selectedCategory)
+                      e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                 >
                   {cat}
@@ -210,7 +253,10 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
         </div>
 
         {/* Current program label */}
-        <span className="text-xs font-medium" style={{ color: 'var(--color-text)' }}>
+        <span
+          className="text-xs font-medium"
+          style={{ color: 'var(--color-text)' }}
+        >
           {currentProgramName}
         </span>
       </div>
@@ -219,7 +265,7 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
       <div className="flex flex-1 overflow-hidden">
         {/* Program list */}
         <div
-          className="overflow-y-auto shrink-0"
+          className="shrink-0 overflow-y-auto"
           style={{
             width: 200,
             borderRight: '1px solid var(--color-border)',
@@ -229,18 +275,27 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
             <button
               key={prog.number}
               onClick={() => handleProgramChange(prog.number)}
-              className="block w-full text-left px-4 py-1.5 text-xs cursor-pointer transition-colors"
+              className="block w-full cursor-pointer px-4 py-1.5 text-left text-xs transition-colors"
               style={{
-                backgroundColor: prog.number === currentProgram ? 'var(--color-surface-2)' : 'transparent',
-                color: prog.number === currentProgram ? 'var(--color-text)' : 'var(--color-text-dim)',
+                backgroundColor:
+                  prog.number === currentProgram
+                    ? 'var(--color-surface-2)'
+                    : 'transparent',
+                color:
+                  prog.number === currentProgram
+                    ? 'var(--color-text)'
+                    : 'var(--color-text-dim)',
                 fontWeight: prog.number === currentProgram ? 600 : 400,
                 border: 'none',
               }}
               onMouseEnter={(e) => {
-                if (prog.number !== currentProgram) e.currentTarget.style.backgroundColor = 'var(--color-surface-2)';
+                if (prog.number !== currentProgram)
+                  e.currentTarget.style.backgroundColor =
+                    'var(--color-surface-2)';
               }}
               onMouseLeave={(e) => {
-                if (prog.number !== currentProgram) e.currentTarget.style.backgroundColor = 'transparent';
+                if (prog.number !== currentProgram)
+                  e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >
               {prog.name}
@@ -249,7 +304,10 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
         </div>
 
         {/* Keyboard */}
-        <div className="flex-1 relative overflow-hidden" style={{ minHeight: 100 }}>
+        <div
+          className="relative flex-1 overflow-hidden"
+          style={{ minHeight: 100 }}
+        >
           <div style={{ position: 'absolute', inset: 0 }}>
             <PianoKeyboard
               startNote={36}

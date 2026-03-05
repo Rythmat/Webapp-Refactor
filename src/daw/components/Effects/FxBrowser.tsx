@@ -1,6 +1,12 @@
-import { useCallback, useMemo } from 'react';
-import { FX_CATALOG, DRAG_MIME } from '@/daw/data/libraryItems';
-import type { LibraryItem, LibraryCategory } from '@/daw/data/libraryItems';
+/* eslint-disable tailwindcss/classnames-order */
+/* eslint-disable tailwindcss/enforces-shorthand */
+import { type DragEvent, useCallback, useMemo } from 'react';
+import {
+  FX_CATALOG,
+  DRAG_MIME,
+  type LibraryCategory,
+  type LibraryItem,
+} from '@/daw/data/libraryItems';
 import type { EffectSlotType } from '@/daw/audio/EffectChain';
 import { FxBlockIcon } from './EffectsPanel';
 
@@ -13,7 +19,12 @@ interface FxBrowserProps {
   hideMidi?: boolean;
 }
 
-export function FxBrowser({ trackId, activeEffects, onAddEffect, hideMidi }: FxBrowserProps) {
+export function FxBrowser({
+  trackId,
+  activeEffects,
+  onAddEffect,
+  hideMidi,
+}: FxBrowserProps) {
   const atMax = activeEffects.length >= MAX_EFFECTS;
 
   const categories = useMemo(() => {
@@ -32,15 +43,26 @@ export function FxBrowser({ trackId, activeEffects, onAddEffect, hideMidi }: FxB
       className="w-[130px] shrink-0 flex flex-col border-r"
       style={{ borderColor: 'var(--color-border)' }}
     >
-      <div className="px-3 py-2 shrink-0 border-b" style={{ borderColor: 'var(--color-border)' }}>
-        <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-dim)' }}>
+      <div
+        className="px-3 py-2 shrink-0 border-b"
+        style={{ borderColor: 'var(--color-border)' }}
+      >
+        <span
+          className="text-[10px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           FX
         </span>
       </div>
       <div className="flex-1 overflow-y-auto">
         {categories.map(([category, items], ci) => (
           <div key={category}>
-            {ci > 0 && <div className="mx-3" style={{ borderTop: '1px solid var(--color-border)' }} />}
+            {ci > 0 && (
+              <div
+                className="mx-3"
+                style={{ borderTop: '1px solid var(--color-border)' }}
+              />
+            )}
             <div
               className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider"
               style={{ color: 'var(--color-text-dim)' }}
@@ -52,7 +74,10 @@ export function FxBrowser({ trackId, activeEffects, onAddEffect, hideMidi }: FxB
                 key={item.id}
                 item={item}
                 trackId={trackId}
-                isActive={item.dragPayload.kind === 'audio-effect' && activeEffects.includes(item.dragPayload.effectType)}
+                isActive={
+                  item.dragPayload.kind === 'audio-effect' &&
+                  activeEffects.includes(item.dragPayload.effectType)
+                }
                 atMax={atMax}
                 onAddEffect={onAddEffect}
               />
@@ -86,11 +111,14 @@ function FxRow({
     }
   }, [disabled, isActive, item.dragPayload, trackId, onAddEffect]);
 
-  const handleDragStart = useCallback((e: React.DragEvent) => {
-    if (disabled || isActive) return;
-    e.dataTransfer.setData(DRAG_MIME, JSON.stringify(item.dragPayload));
-    e.dataTransfer.effectAllowed = 'copy';
-  }, [disabled, isActive, item.dragPayload]);
+  const handleDragStart = useCallback(
+    (e: DragEvent<HTMLButtonElement>) => {
+      if (disabled || isActive) return;
+      e.dataTransfer.setData(DRAG_MIME, JSON.stringify(item.dragPayload));
+      e.dataTransfer.effectAllowed = 'copy';
+    },
+    [disabled, isActive, item.dragPayload],
+  );
 
   return (
     <button
@@ -106,18 +134,30 @@ function FxRow({
       }}
     >
       {item.dragPayload.kind === 'audio-effect' ? (
-        <FxBlockIcon type={item.dragPayload.effectType} size={14} color={isActive ? '#7ecfcf' : item.color} />
+        <FxBlockIcon
+          type={item.dragPayload.effectType}
+          size={14}
+          color={isActive ? '#7ecfcf' : item.color}
+        />
       ) : (
-        <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: isActive ? '#7ecfcf' : item.color }} />
+        <div
+          className="w-2 h-2 rounded-full shrink-0"
+          style={{ backgroundColor: isActive ? '#7ecfcf' : item.color }}
+        />
       )}
       <span
         className="text-[11px]"
-        style={{ color: isActive ? 'var(--color-accent)' : 'var(--color-text)' }}
+        style={{
+          color: isActive ? 'var(--color-accent)' : 'var(--color-text)',
+        }}
       >
         {item.label}
       </span>
       {item.disabled && (
-        <span className="ml-auto text-[8px] uppercase font-medium" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="ml-auto text-[8px] uppercase font-medium"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           Soon
         </span>
       )}

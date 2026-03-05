@@ -21,7 +21,7 @@ export const usePrismModeChordsData = (mode?: PrismModeSlug) => {
 
       const client = musicAtlas.music as unknown as {
         getPrismModesByModeChordsData?: (
-          mode: PrismModeSlug
+          mode: PrismModeSlug,
         ) => Promise<{ chords: PrismModeChordDataMap }>;
       };
 
@@ -30,7 +30,10 @@ export const usePrismModeChordsData = (mode?: PrismModeSlug) => {
       }
 
       // Fallback for when the generated client hasn't been updated yet.
-      return musicAtlas.http.request<{ chords: PrismModeChordDataMap }, any>({
+      return musicAtlas.http.request<
+        { chords: PrismModeChordDataMap },
+        unknown
+      >({
         path: `/prism/modes/${mode}/chords/data`,
         method: 'GET',
         format: 'json',

@@ -1,4 +1,5 @@
 // Note Components
+/* eslint-disable react/display-name */
 export const WholeNote = ({ size = 16 }: { size?: number }) => (
   <svg
     className="relative left-1 top-2"
@@ -281,7 +282,6 @@ export const HalfRest = ({ size = 16 }: { size?: number }) => (
   </svg>
 );
 
-
 export const QuarterRest = ({ size = 16 }: { size?: number }) => (
   <svg
     fill="none"
@@ -333,7 +333,7 @@ export const SixteenthRest = ({ size = 16 }: { size?: number }) => (
 );
 
 export const DottedWholeRest = createDottedSymbol(WholeRest);
-export const DottedHalfRest= createDottedSymbol(HalfRest);
+export const DottedHalfRest = createDottedSymbol(HalfRest);
 export const DottedQuarterRest = createDottedSymbol(QuarterRest);
 export const DottedEighthRest = createDottedSymbol(EighthRest);
 export const DottedSixteenthRest = createDottedSymbol(SixteenthRest);
@@ -546,10 +546,10 @@ export const NotationSymbol = ({
     },
   };
 
-
-  const lookup = components[
-    type
-  ] as Record<string, SymbolComponent | undefined>;
+  const lookup = components[type] as Record<
+    string,
+    SymbolComponent | undefined
+  >;
   const Symbol = lookup[duration];
 
   if (!Symbol) {

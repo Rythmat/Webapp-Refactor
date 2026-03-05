@@ -22,7 +22,12 @@ function toggleInArray(arr: SourceId[], item: SourceId): SourceId[] {
   return arr.includes(item) ? arr.filter((s) => s !== item) : [...arr, item];
 }
 
-export const createRoutingSlice: StateCreator<RoutingSlice, [], [], RoutingSlice> = (set) => ({
+export const createRoutingSlice: StateCreator<
+  RoutingSlice,
+  [],
+  [],
+  RoutingSlice
+> = (set) => ({
   routing: structuredClone(DEFAULT_ROUTING),
 
   toggleFilterSource: (filterIndex, source) =>

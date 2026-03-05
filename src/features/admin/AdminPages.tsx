@@ -65,7 +65,6 @@ const PlayAlongPage = lazy(() =>
   })),
 );
 
-
 export const adminPages = () => {
   return {
     path: AdminRoutes.root.definition,

@@ -50,15 +50,27 @@ export class AudioClipScheduler {
         Math.max(0, audioBuffer.duration - 0.001),
       );
       this.startSourceNow(
-        audioBuffer, safeOffset, trackEngine, pedalInputNode,
-        fadeInSeconds, fadeOutSeconds, offsetSeconds, clipDurationSeconds,
+        audioBuffer,
+        safeOffset,
+        trackEngine,
+        pedalInputNode,
+        fadeInSeconds,
+        fadeOutSeconds,
+        offsetSeconds,
+        clipDurationSeconds,
       );
     } else {
       // Clip is in the future — schedule via Transport
       const id = Tone.getTransport().schedule((time) => {
         this.startSource(
-          audioBuffer, 0, time, trackEngine, pedalInputNode,
-          fadeInSeconds, fadeOutSeconds, clipDurationSeconds,
+          audioBuffer,
+          0,
+          time,
+          trackEngine,
+          pedalInputNode,
+          fadeInSeconds,
+          fadeOutSeconds,
+          clipDurationSeconds,
         );
       }, `${startTick}i`);
       this.scheduledIds.push(id);
@@ -74,8 +86,16 @@ export class AudioClipScheduler {
     this.scheduledIds = [];
 
     for (const source of this.activeSources) {
-      try { source.stop(); } catch { /* already stopped */ }
-      try { source.disconnect(); } catch { /* already disconnected */ }
+      try {
+        source.stop();
+      } catch {
+        /* already stopped */
+      }
+      try {
+        source.disconnect();
+      } catch {
+        /* already disconnected */
+      }
     }
     this.activeSources = [];
   }
@@ -97,7 +117,7 @@ export class AudioClipScheduler {
       // native nodes from getNativeInputNode(). Same pattern as GuitarFxAdapter.
       const rawCtx = Tone.getContext().rawContext;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const ctx = (rawCtx as any)._nativeContext ?? rawCtx as AudioContext;
+      const ctx = (rawCtx as any)._nativeContext ?? (rawCtx as AudioContext);
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
 
@@ -158,7 +178,7 @@ export class AudioClipScheduler {
       // Extract true native AudioContext (same as startSource above)
       const rawCtx = Tone.getContext().rawContext;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const ctx = (rawCtx as any)._nativeContext ?? rawCtx as AudioContext;
+      const ctx = (rawCtx as any)._nativeContext ?? (rawCtx as AudioContext);
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
 
@@ -185,7 +205,10 @@ export class AudioClipScheduler {
         if (fadeInSeconds > 0 && currentOffsetSeconds < fadeInSeconds) {
           const progress = currentOffsetSeconds / fadeInSeconds;
           gainNode.gain.setValueAtTime(progress, now);
-          gainNode.gain.linearRampToValueAtTime(1, now + (fadeInSeconds - currentOffsetSeconds));
+          gainNode.gain.linearRampToValueAtTime(
+            1,
+            now + (fadeInSeconds - currentOffsetSeconds),
+          );
         }
 
         // Fade out
@@ -194,13 +217,18 @@ export class AudioClipScheduler {
           const fadeOutStartOffset = clipDurationSeconds - fadeOutSeconds;
           if (currentOffsetSeconds >= fadeOutStartOffset) {
             // Already in the fade-out region
-            const progress = (clipDurationSeconds - currentOffsetSeconds) / fadeOutSeconds;
+            const progress =
+              (clipDurationSeconds - currentOffsetSeconds) / fadeOutSeconds;
             gainNode.gain.setValueAtTime(progress, now);
             gainNode.gain.linearRampToValueAtTime(0, now + remainingSeconds);
           } else {
-            const fadeOutStart = now + (fadeOutStartOffset - currentOffsetSeconds);
+            const fadeOutStart =
+              now + (fadeOutStartOffset - currentOffsetSeconds);
             gainNode.gain.setValueAtTime(1, fadeOutStart);
-            gainNode.gain.linearRampToValueAtTime(0, fadeOutStart + fadeOutSeconds);
+            gainNode.gain.linearRampToValueAtTime(
+              0,
+              fadeOutStart + fadeOutSeconds,
+            );
           }
         }
       } else {

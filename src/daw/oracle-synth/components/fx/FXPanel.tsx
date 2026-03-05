@@ -19,7 +19,7 @@ export const FXPanel: React.FC = React.memo(() => {
 
   const usedTypes = useMemo(
     () => new Set(fxRoutes.map((r) => r.type)),
-    [fxRoutes]
+    [fxRoutes],
   );
 
   const handleParamChange = useCallback(
@@ -42,7 +42,13 @@ export const FXPanel: React.FC = React.memo(() => {
           break;
       }
     },
-    [setDriveParam, setChorusParam, setPhaserParam, setDelayParam, setCompressorParam]
+    [
+      setDriveParam,
+      setChorusParam,
+      setPhaserParam,
+      setDelayParam,
+      setCompressorParam,
+    ],
   );
 
   return (
@@ -58,7 +64,9 @@ export const FXPanel: React.FC = React.memo(() => {
 
       <div className={styles.routes}>
         {fxRoutes.length === 0 && (
-          <div className={styles.empty}>No effects. Click + ADD to create one.</div>
+          <div className={styles.empty}>
+            No effects. Click + ADD to create one.
+          </div>
         )}
         {fxRoutes.map((route) => (
           <FXSlot

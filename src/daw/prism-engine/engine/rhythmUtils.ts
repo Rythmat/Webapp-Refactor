@@ -11,10 +11,7 @@ import { CHORD_RHYTHMS } from '../data/chordRhythms';
  *   delay by amount, shorten duration by amount
  * - Otherwise pass through unchanged
  */
-export function swingRhythm(
-  hits: RhythmHit[],
-  amount: number,
-): RhythmHit[] {
+export function swingRhythm(hits: RhythmHit[], amount: number): RhythmHit[] {
   const result: RhythmHit[] = [];
   for (const hit of hits) {
     if (Math.floor(hit[0] / 240) % 2 === 1 && hit[1] === 240) {
@@ -23,10 +20,7 @@ export function swingRhythm(
         hit[1] - Math.floor(2 * amount),
       ]);
     } else if (Math.floor(hit[0] / 120) % 2 === 1 && hit[1] === 120) {
-      result.push([
-        hit[0] + Math.floor(amount),
-        hit[1] - Math.floor(amount),
-      ]);
+      result.push([hit[0] + Math.floor(amount), hit[1] - Math.floor(amount)]);
     } else {
       result.push(hit);
     }

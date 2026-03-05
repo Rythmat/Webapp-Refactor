@@ -1,4 +1,11 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type FC,
+  type RefObject,
+} from 'react';
 import { useStore } from '@/daw/store';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useSynthStore } from '@/daw/oracle-synth/store';
@@ -26,16 +33,22 @@ import styles from '@/daw/oracle-synth/components/layout/SynthLayout.module.css'
 
 interface DawSynthLayoutProps {
   engine: SynthEngine;
-  engineRef: React.RefObject<SynthEngine | null>;
+  engineRef: RefObject<SynthEngine | null>;
 }
 
-export const DawSynthLayout: React.FC<DawSynthLayoutProps> = ({ engine, engineRef }) => {
+export const DawSynthLayout: FC<DawSynthLayoutProps> = ({
+  engine,
+  engineRef,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scale, offsetX, offsetY } = useContainerScale(containerRef);
 
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
-  const mergedNotes = useMemo(() => new Set([...activeNotes, ...hwActiveNotes]), [activeNotes, hwActiveNotes]);
+  const mergedNotes = useMemo(
+    () => new Set([...activeNotes, ...hwActiveNotes]),
+    [activeNotes, hwActiveNotes],
+  );
   const chordColor = useLiveChordColor(mergedNotes);
 
   // Store reads
@@ -86,7 +99,12 @@ export const DawSynthLayout: React.FC<DawSynthLayoutProps> = ({ engine, engineRe
   return (
     <div
       ref={containerRef}
-      style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#111' }}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        overflow: 'hidden',
+        background: '#111',
+      }}
     >
       <div
         className={styles.layout}
@@ -101,7 +119,11 @@ export const DawSynthLayout: React.FC<DawSynthLayoutProps> = ({ engine, engineRe
           <RightSidebar />
           <div className={styles.headerRight}>
             <div style={{ width: 120, flexShrink: 0 }}>
-              <WaveformVisualizer analyser={analyser} height={32} color="#ffffff" />
+              <WaveformVisualizer
+                analyser={analyser}
+                height={32}
+                color="#ffffff"
+              />
             </div>
             <Knob
               label="MAIN"

@@ -1,12 +1,13 @@
+/* eslint-disable react/jsx-sort-props */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { v4 as uuidv4 } from 'uuid';
+import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { cn } from '@/components/utilities';
-import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import { usePlayNote } from '@/contexts/PianoContext';
+import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 
 type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
@@ -26,7 +27,20 @@ const CHORD_INTERVALS: Record<ChordType, number[]> = {
   min7: [0, 3, 7, 10],
 };
 
-const PITCH_CLASS_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const PITCH_CLASS_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
 
 const DEFAULT_CHORD_POOL: ChordType[] = ['maj', 'min', 'dim', 'aug'];
 
@@ -144,7 +158,9 @@ export function ChordPressGame({
       },
   );
 
-  const initialChordKey = initialChord ? `${initialChord.rootPc}:${initialChord.type}` : 'none';
+  const initialChordKey = initialChord
+    ? `${initialChord.rootPc}:${initialChord.type}`
+    : 'none';
   const targetNotesKey = targetNotes ? targetNotes.join(',') : 'none';
   const rangeStart = startC * 12;
   const rangeEnd = (endC + 1) * 12 - 1;
@@ -175,10 +191,10 @@ export function ChordPressGame({
     return buildChord(rootMidi, current.type);
   }, [current, targetNotes]);
 
-  const isCorrect = useMemo(() => equalPitchClassSets(selected, targetMidi), [
-    selected,
-    targetMidi,
-  ]);
+  const isCorrect = useMemo(
+    () => equalPitchClassSets(selected, targetMidi),
+    [selected, targetMidi],
+  );
 
   const missingAndExtra = useMemo(() => {
     const sel = uniquePitchClasses(selected);
@@ -221,17 +237,26 @@ export function ChordPressGame({
       type: nextType,
     });
     resetSelection();
-  }, [initialChordKey, initialChord, chordPool, resetSelection, targetNotes, targetNotesKey]);
+  }, [
+    initialChordKey,
+    initialChord,
+    chordPool,
+    resetSelection,
+    targetNotes,
+    targetNotesKey,
+  ]);
 
-
-    
-
-  const toggleNote = useCallback((midi: number) => {
-    if (checked && isCorrect) return;
-    setSelected((prev) =>
-      prev.includes(midi) ? prev.filter((value) => value !== midi) : [...prev, midi],
-    );
-  }, [checked, isCorrect]);
+  const toggleNote = useCallback(
+    (midi: number) => {
+      if (checked && isCorrect) return;
+      setSelected((prev) =>
+        prev.includes(midi)
+          ? prev.filter((value) => value !== midi)
+          : [...prev, midi],
+      );
+    },
+    [checked, isCorrect],
+  );
 
   const onMidiInput = useCallback(
     (event: MidiNoteEvent) => {
@@ -297,15 +322,29 @@ export function ChordPressGame({
     }
     selectNextRandomChord();
     resetSelection();
-  }, [checked, initialChord, onComplete, resetSelection, selectNextRandomChord, submitted, targetNotes]);
+  }, [
+    checked,
+    initialChord,
+    onComplete,
+    resetSelection,
+    selectNextRandomChord,
+    submitted,
+    targetNotes,
+  ]);
   const feedback = useMemo(() => {
     if (!checked) return null;
     if (isCorrect)
       return (
-        <div className="text-sm font-medium text-green-600">Correct! Nice job.</div>
+        <div className="text-sm font-medium text-green-600">
+          Correct! Nice job.
+        </div>
       );
-    const miss = missingAndExtra.missing.map((value) => PITCH_CLASS_NAMES[value]).join(', ');
-    const extra = missingAndExtra.extra.map((value) => PITCH_CLASS_NAMES[value]).join(', ');
+    const miss = missingAndExtra.missing
+      .map((value) => PITCH_CLASS_NAMES[value])
+      .join(', ');
+    const extra = missingAndExtra.extra
+      .map((value) => PITCH_CLASS_NAMES[value])
+      .join(', ');
     return (
       <div className="space-y-1 text-sm">
         <div className="font-medium text-red-600">Not quite.</div>
@@ -323,24 +362,25 @@ export function ChordPressGame({
     );
   }, [checked, isCorrect, missingAndExtra]);
 
-
   return (
     <Card className={cn('w-full', className)}>
       <CardHeader>
         <CardTitle className="text-center text-2xl">
           <span>Chord Press Challenge</span>
         </CardTitle>
-        <p className='text-center'>
-            Trigger the chord tones using your MIDI controller, computer keyboard, or by clicking the keys below.
+        <p className="text-center">
+          Trigger the chord tones using your MIDI controller, computer keyboard,
+          or by clicking the keys below.
         </p>
       </CardHeader>
       <CardContent className="space-y-4 text-center">
         <div className="space-y-2 text-sm text-muted-foreground">
           {showChordName && (
-            <span className="text-base font-bold text-muted-foreground">{title}</span>
+            <span className="text-base font-bold text-muted-foreground">
+              {title}
+            </span>
           )}
         </div>
-
         <div className="rounded-lg border bg-background p-2">
           <PianoKeyboard
             key={keyboardId}
@@ -356,42 +396,38 @@ export function ChordPressGame({
             showOctaveStart
           />
         </div>
-        
         <div className="ml-auto text-sm text-muted-foreground">
-              Target: {targetMidi.map((value) => Tone.Frequency(value, 'midi').toNote()).join(' ')}
+          Target:{' '}
+          {targetMidi
+            .map((value) => Tone.Frequency(value, 'midi').toNote())
+            .join(' ')}
         </div>
         <div className="flex flex-col items-center gap-3">
           <div className="flex flex-wrap justify-center gap-2">
-            <Button onClick={() => setChecked(true)} disabled={selected.length === 0 || (checked && isCorrect)}>
+            <Button
+              onClick={() => setChecked(true)}
+              disabled={selected.length === 0 || (checked && isCorrect)}
+            >
               Check Answer
             </Button>
-            <Button variant="outline" onClick={resetSelection} disabled={selected.length === 0 || (checked && isCorrect)}>
+            <Button
+              variant="outline"
+              onClick={resetSelection}
+              disabled={selected.length === 0 || (checked && isCorrect)}
+            >
               Clear Selection
             </Button>
           </div>
         </div>
-        
-
         {feedback}
-
         {checked && (
           <div className="flex justify-center">
             <Button onClick={handleContinue} disabled={submitted}>
               Continue
             </Button>
           </div>
-        )}      </CardContent>
+        )}{' '}
+      </CardContent>
     </Card>
   );
-};
-
-
-
-
-
-
-
-
-
-
-
+}

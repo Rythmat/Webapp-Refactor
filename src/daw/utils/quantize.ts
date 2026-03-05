@@ -16,11 +16,11 @@ export type GridSize = keyof typeof GRID_VALUES;
 // ── Triplet grid values ──────────────────────────────────────────────────
 
 export const TRIPLET_GRID_VALUES = {
-  '1/2T': 640,   // 960 * 2/3
-  '1/4T': 320,   // 480 * 2/3
-  '1/8T': 160,   // 240 * 2/3
-  '1/16T': 80,   // 120 * 2/3
-  '1/32T': 40,   // 60 * 2/3
+  '1/2T': 640, // 960 * 2/3
+  '1/4T': 320, // 480 * 2/3
+  '1/8T': 160, // 240 * 2/3
+  '1/16T': 80, // 120 * 2/3
+  '1/32T': 40, // 60 * 2/3
 } as const;
 
 export const ALL_GRID_VALUES = {

@@ -12,7 +12,11 @@ interface ConsumeResult {
   remaining: number;
 }
 
-async function fetchWithAuth(url: string, token: string, options?: RequestInit) {
+async function fetchWithAuth(
+  url: string,
+  token: string,
+  options?: RequestInit,
+) {
   const res = await fetch(url, {
     ...options,
     headers: {

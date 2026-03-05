@@ -76,11 +76,17 @@ export class AudioEngine {
   }
 
   supportsOutputSelection(): boolean {
-    return typeof (this.ctx as AudioContext & { setSinkId?: (id: string) => Promise<void> })?.setSinkId === 'function';
+    return (
+      typeof (
+        this.ctx as AudioContext & { setSinkId?: (id: string) => Promise<void> }
+      )?.setSinkId === 'function'
+    );
   }
 
   async setOutputDevice(deviceId: string): Promise<void> {
-    const ctx = this.ctx as AudioContext & { setSinkId?: (id: string) => Promise<void> } | null;
+    const ctx = this.ctx as
+      | (AudioContext & { setSinkId?: (id: string) => Promise<void> })
+      | null;
     if (!ctx || typeof ctx.setSinkId !== 'function') {
       console.warn('[AudioEngine] setSinkId not supported in this browser');
       return;

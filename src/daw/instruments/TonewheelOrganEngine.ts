@@ -8,24 +8,32 @@ const MAX_VOICES = 12;
  * Harmonic ratios for the 9 drawbar footages relative to the played note.
  */
 const HARMONIC_RATIOS: readonly number[] = [
-  0.5,  // 16'  sub-octave
-  1.5,  // 5⅓' fifth above sub
-  1,    // 8'   fundamental
-  2,    // 4'   octave
-  3,    // 2⅔' octave + fifth
-  4,    // 2'   two octaves
-  5,    // 1⅗' two octaves + major third
-  6,    // 1⅓' two octaves + fifth
-  8,    // 1'   three octaves
+  0.5, // 16'  sub-octave
+  1.5, // 5⅓' fifth above sub
+  1, // 8'   fundamental
+  2, // 4'   octave
+  3, // 2⅔' octave + fifth
+  4, // 2'   two octaves
+  5, // 1⅗' two octaves + major third
+  6, // 1⅓' two octaves + fifth
+  8, // 1'   three octaves
 ];
 
 export const DRAWBAR_LABELS: readonly string[] = [
-  "16'", "5⅓'", "8'", "4'", "2⅔'", "2'", "1⅗'", "1⅓'", "1'",
+  "16'",
+  "5⅓'",
+  "8'",
+  "4'",
+  "2⅔'",
+  "2'",
+  "1⅗'",
+  "1⅓'",
+  "1'",
 ];
 
 /** Hammond-style drawbar taper: position 0–8 → amplitude 0.0–1.0. */
 const DRAWBAR_TAPER: readonly number[] = [
-  0, 0.05, 0.10, 0.18, 0.28, 0.40, 0.55, 0.75, 1.0,
+  0, 0.05, 0.1, 0.18, 0.28, 0.4, 0.55, 0.75, 1.0,
 ];
 
 function midiToFreq(note: number): number {
@@ -38,10 +46,10 @@ function midiToFreq(note: number): number {
 const WHEEL_DETUNE: Float32Array = (() => {
   const arr = new Float32Array(128 * 9);
   // Deterministic pseudo-random (no dependency on Math.random seed)
-  let seed = 0xDEADBEEF;
+  let seed = 0xdeadbeef;
   for (let i = 0; i < arr.length; i++) {
     seed = (seed * 1664525 + 1013904223) >>> 0;
-    const cents = ((seed / 0xFFFFFFFF) * 4 - 2); // ±2 cents
+    const cents = (seed / 0xffffffff) * 4 - 2; // ±2 cents
     arr[i] = Math.pow(2, cents / 1200);
   }
   return arr;
@@ -56,23 +64,23 @@ export interface OrganPreset {
 
 export const ORGAN_PRESETS: readonly OrganPreset[] = [
   // ── Popular / Genre ──
-  { name: 'Gospel',      drawbars: [8, 8, 8, 0, 0, 0, 0, 0, 0] },
-  { name: 'Jazz',        drawbars: [8, 8, 8, 0, 0, 0, 0, 0, 0] },
-  { name: 'Blues',       drawbars: [8, 8, 6, 4, 3, 2, 0, 0, 0] },
-  { name: 'Rock',        drawbars: [6, 8, 8, 6, 0, 0, 0, 0, 0] },
-  { name: 'Funk',        drawbars: [8, 8, 8, 6, 5, 3, 0, 0, 0] },
-  { name: 'Reggae',      drawbars: [0, 0, 8, 8, 0, 8, 0, 0, 0] },
-  { name: 'Soul',        drawbars: [8, 5, 8, 3, 2, 4, 5, 4, 4] },
-  { name: 'Ballad',      drawbars: [6, 8, 8, 6, 0, 0, 0, 0, 0] },
+  { name: 'Gospel', drawbars: [8, 8, 8, 0, 0, 0, 0, 0, 0] },
+  { name: 'Jazz', drawbars: [8, 8, 8, 0, 0, 0, 0, 0, 0] },
+  { name: 'Blues', drawbars: [8, 8, 6, 4, 3, 2, 0, 0, 0] },
+  { name: 'Rock', drawbars: [6, 8, 8, 6, 0, 0, 0, 0, 0] },
+  { name: 'Funk', drawbars: [8, 8, 8, 6, 5, 3, 0, 0, 0] },
+  { name: 'Reggae', drawbars: [0, 0, 8, 8, 0, 8, 0, 0, 0] },
+  { name: 'Soul', drawbars: [8, 5, 8, 3, 2, 4, 5, 4, 4] },
+  { name: 'Ballad', drawbars: [6, 8, 8, 6, 0, 0, 0, 0, 0] },
   // ── Classic Organ Tones ──
-  { name: 'Full Organ',  drawbars: [8, 6, 8, 8, 7, 5, 6, 4, 8] },
-  { name: 'Cathedral',   drawbars: [0, 0, 8, 8, 8, 8, 8, 8, 8] },
-  { name: 'Tibia',       drawbars: [0, 0, 8, 2, 4, 0, 0, 0, 0] },
-  { name: 'Trumpet',     drawbars: [0, 0, 6, 8, 6, 7, 5, 3, 1] },
-  { name: 'Clarinet',    drawbars: [0, 0, 8, 3, 8, 2, 7, 0, 0] },
-  { name: 'Oboe',        drawbars: [0, 0, 4, 6, 7, 5, 3, 0, 0] },
-  { name: 'Flutes',      drawbars: [0, 0, 5, 4, 0, 3, 0, 0, 0] },
-  { name: 'Whistle',     drawbars: [0, 0, 0, 0, 0, 8, 7, 8, 8] },
+  { name: 'Full Organ', drawbars: [8, 6, 8, 8, 7, 5, 6, 4, 8] },
+  { name: 'Cathedral', drawbars: [0, 0, 8, 8, 8, 8, 8, 8, 8] },
+  { name: 'Tibia', drawbars: [0, 0, 8, 2, 4, 0, 0, 0, 0] },
+  { name: 'Trumpet', drawbars: [0, 0, 6, 8, 6, 7, 5, 3, 1] },
+  { name: 'Clarinet', drawbars: [0, 0, 8, 3, 8, 2, 7, 0, 0] },
+  { name: 'Oboe', drawbars: [0, 0, 4, 6, 7, 5, 3, 0, 0] },
+  { name: 'Flutes', drawbars: [0, 0, 5, 4, 0, 3, 0, 0, 0] },
+  { name: 'Whistle', drawbars: [0, 0, 0, 0, 0, 8, 7, 8, 8] },
 ];
 
 // ── Types ────────────────────────────────────────────────────────────────
@@ -112,21 +120,25 @@ interface Voice {
 // ── Vibrato depth config ─────────────────────────────────────────────────
 
 const VIBRATO_DEPTH: Record<string, number> = {
-  V1: 0.000068, V2: 0.000136, V3: 0.000204,  // setBfree: ±3/6/9 samples @ 44.1kHz
-  C1: 0.000068, C2: 0.000136, C3: 0.000204,
+  V1: 0.000068,
+  V2: 0.000136,
+  V3: 0.000204, // setBfree: ±3/6/9 samples @ 44.1kHz
+  C1: 0.000068,
+  C2: 0.000136,
+  C3: 0.000204,
 };
 const VIBRATO_RATE = 7.25; // Hz — setBfree scanner speed
 
 // ── Leslie config ────────────────────────────────────────────────────────
 
-const LESLIE_HORN_SLOW = 0.672;   // setBfree: 40.32 RPM
-const LESLIE_HORN_FAST = 7.056;   // setBfree: 423.36 RPM
-const LESLIE_DRUM_SLOW = 0.6;     // setBfree: 36.0 RPM
-const LESLIE_DRUM_FAST = 5.955;   // setBfree: 357.3 RPM
-const LESLIE_HORN_ACCEL = 0.161;  // setBfree: fast spin-up
-const LESLIE_HORN_DECEL = 0.321;  // setBfree: slower spin-down
-const LESLIE_DRUM_ACCEL = 4.127;  // setBfree: heavy drum momentum
-const LESLIE_DRUM_DECEL = 1.371;  // setBfree: moderate spin-down
+const LESLIE_HORN_SLOW = 0.672; // setBfree: 40.32 RPM
+const LESLIE_HORN_FAST = 7.056; // setBfree: 423.36 RPM
+const LESLIE_DRUM_SLOW = 0.6; // setBfree: 36.0 RPM
+const LESLIE_DRUM_FAST = 5.955; // setBfree: 357.3 RPM
+const LESLIE_HORN_ACCEL = 0.161; // setBfree: fast spin-up
+const LESLIE_HORN_DECEL = 0.321; // setBfree: slower spin-down
+const LESLIE_DRUM_ACCEL = 4.127; // setBfree: heavy drum momentum
+const LESLIE_DRUM_DECEL = 1.371; // setBfree: moderate spin-down
 const LESLIE_CROSSOVER = 800; // Hz
 
 // ── TonewheelOrganEngine ─────────────────────────────────────────────────
@@ -137,9 +149,9 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
   private tonewheelWave: PeriodicWave | null = null; // tonewheel harmonic content
 
   // Signal chain nodes (created in init)
-  private voiceBus: GainNode | null = null;       // all voices sum here
-  private clickBus: GainNode | null = null;        // key click output
-  private clickBuffer: AudioBuffer | null = null;  // pre-rendered click noise
+  private voiceBus: GainNode | null = null; // all voices sum here
+  private clickBus: GainNode | null = null; // key click output
+  private clickBuffer: AudioBuffer | null = null; // pre-rendered click noise
   private vibratoDelay: DelayNode | null = null;
   private vibratoLfo: OscillatorNode | null = null;
   private vibratoLfoGain: GainNode | null = null;
@@ -156,12 +168,12 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
   private leslieDry: GainNode | null = null;
   private leslieWet: GainNode | null = null;
   private leslieMerge: GainNode | null = null;
-  private leslieLeakGain: GainNode | null = null;   // 15% direct signal leak
+  private leslieLeakGain: GainNode | null = null; // 15% direct signal leak
   private leslieHpf: BiquadFilterNode | null = null;
   private leslieLpf: BiquadFilterNode | null = null;
   private hornFilterA: BiquadFilterNode | null = null; // LPF 4500Hz
   private hornFilterB: BiquadFilterNode | null = null; // Low-shelf 300Hz
-  private drumFilter: BiquadFilterNode | null = null;  // High-shelf 812Hz
+  private drumFilter: BiquadFilterNode | null = null; // High-shelf 812Hz
   private hornLfo: OscillatorNode | null = null;
   private hornLfoGain: GainNode | null = null;
   private hornDelay: DelayNode | null = null;
@@ -201,7 +213,9 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
     // Real tonewheels have ~3-10% THD from mechanical imperfections
     const real = new Float32Array([0, 1, 0.04, 0.06, 0, 0.02, 0, 0.015]);
     const imag = new Float32Array(real.length);
-    this.tonewheelWave = ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+    this.tonewheelWave = ctx.createPeriodicWave(real, imag, {
+      disableNormalization: false,
+    });
 
     // ── Build signal chain (right-to-left) ──────────────────────────
 
@@ -321,7 +335,8 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
     let percGain: GainNode | null = null;
 
     if (this.percEnabled && wasEmpty) {
-      const percRatio = this.percHarmonic === '2nd' ? HARMONIC_RATIOS[3] : HARMONIC_RATIOS[4];
+      const percRatio =
+        this.percHarmonic === '2nd' ? HARMONIC_RATIOS[3] : HARMONIC_RATIOS[4];
       const percFreq = baseFreq * percRatio;
 
       if (percFreq < this.ctx.sampleRate / 2) {
@@ -330,8 +345,8 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
         percOsc.frequency.setValueAtTime(percFreq, t);
 
         percGain = this.ctx.createGain();
-        const peakAmp = this.percVolume === 'normal' ? 1.0 : 0.5;  // setBfree: 1.0 / 0.5012
-        const decayTime = this.percDecay === 'fast' ? 1.0 : 4.0;   // setBfree: 1.0s / 4.0s to -60dB
+        const peakAmp = this.percVolume === 'normal' ? 1.0 : 0.5; // setBfree: 1.0 / 0.5012
+        const decayTime = this.percDecay === 'fast' ? 1.0 : 4.0; // setBfree: 1.0s / 4.0s to -60dB
         percGain.gain.setValueAtTime(peakAmp, t);
         percGain.gain.exponentialRampToValueAtTime(0.001, t + decayTime);
 
@@ -392,28 +407,75 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
     this.panic();
 
     // Tear down LFOs (must stop oscillators)
-    try { this.hornLfo?.stop(); } catch { /* ok */ }
-    try { this.hornAmLfo?.stop(); } catch { /* ok */ }
-    try { this.drumLfo?.stop(); } catch { /* ok */ }
-    try { this.drumAmLfo?.stop(); } catch { /* ok */ }
-    try { this.vibratoLfo?.stop(); } catch { /* ok */ }
+    try {
+      this.hornLfo?.stop();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.hornAmLfo?.stop();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.drumLfo?.stop();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.drumAmLfo?.stop();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.vibratoLfo?.stop();
+    } catch {
+      /* ok */
+    }
 
     // Disconnect everything
     const nodes: (AudioNode | null)[] = [
-      this.masterGain, this.voiceBus, this.clickBus,
-      this.vibratoDelay, this.vibratoLfo, this.vibratoLfoGain,
-      this.vibratoWet, this.vibratoDry, this.vibratoMerge,
-      this.overdrivePreFilter, this.overdrivePreGain, this.overdriveShaper, this.overdrivePostGain,
-      this.leslieDry, this.leslieWet, this.leslieMerge, this.leslieLeakGain,
-      this.leslieHpf, this.leslieLpf,
-      this.hornFilterA, this.hornFilterB, this.drumFilter,
-      this.hornLfo, this.hornLfoGain, this.hornDelay, this.hornAm,
-      this.hornAmLfo, this.hornAmLfoGain,
-      this.drumLfo, this.drumLfoGain, this.drumDelay, this.drumAm,
-      this.drumAmLfo, this.drumAmLfoGain,
+      this.masterGain,
+      this.voiceBus,
+      this.clickBus,
+      this.vibratoDelay,
+      this.vibratoLfo,
+      this.vibratoLfoGain,
+      this.vibratoWet,
+      this.vibratoDry,
+      this.vibratoMerge,
+      this.overdrivePreFilter,
+      this.overdrivePreGain,
+      this.overdriveShaper,
+      this.overdrivePostGain,
+      this.leslieDry,
+      this.leslieWet,
+      this.leslieMerge,
+      this.leslieLeakGain,
+      this.leslieHpf,
+      this.leslieLpf,
+      this.hornFilterA,
+      this.hornFilterB,
+      this.drumFilter,
+      this.hornLfo,
+      this.hornLfoGain,
+      this.hornDelay,
+      this.hornAm,
+      this.hornAmLfo,
+      this.hornAmLfoGain,
+      this.drumLfo,
+      this.drumLfoGain,
+      this.drumDelay,
+      this.drumAm,
+      this.drumAmLfo,
+      this.drumAmLfoGain,
     ];
     for (const n of nodes) {
-      try { n?.disconnect(); } catch { /* ok */ }
+      try {
+        n?.disconnect();
+      } catch {
+        /* ok */
+      }
     }
 
     this.ctx = null;
@@ -448,7 +510,11 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
   setClickLevel(level: number): void {
     this.clickLevel = Math.max(0, Math.min(1, level));
     if (this.clickBus) {
-      this.clickBus.gain.setTargetAtTime(this.clickLevel, this.ctx?.currentTime ?? 0, 0.01);
+      this.clickBus.gain.setTargetAtTime(
+        this.clickLevel,
+        this.ctx?.currentTime ?? 0,
+        0.01,
+      );
     }
   }
 
@@ -458,17 +524,33 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
 
   // ── Percussion API (Phase 4) ───────────────────────────────────────
 
-  setPercEnabled(enabled: boolean): void { this.percEnabled = enabled; }
-  getPercEnabled(): boolean { return this.percEnabled; }
+  setPercEnabled(enabled: boolean): void {
+    this.percEnabled = enabled;
+  }
+  getPercEnabled(): boolean {
+    return this.percEnabled;
+  }
 
-  setPercHarmonic(h: PercHarmonic): void { this.percHarmonic = h; }
-  getPercHarmonic(): PercHarmonic { return this.percHarmonic; }
+  setPercHarmonic(h: PercHarmonic): void {
+    this.percHarmonic = h;
+  }
+  getPercHarmonic(): PercHarmonic {
+    return this.percHarmonic;
+  }
 
-  setPercVolume(v: PercVolume): void { this.percVolume = v; }
-  getPercVolume(): PercVolume { return this.percVolume; }
+  setPercVolume(v: PercVolume): void {
+    this.percVolume = v;
+  }
+  getPercVolume(): PercVolume {
+    return this.percVolume;
+  }
 
-  setPercDecay(d: PercDecay): void { this.percDecay = d; }
-  getPercDecay(): PercDecay { return this.percDecay; }
+  setPercDecay(d: PercDecay): void {
+    this.percDecay = d;
+  }
+  getPercDecay(): PercDecay {
+    return this.percDecay;
+  }
 
   // ── Vibrato/Chorus API (Phase 5) ───────────────────────────────────
 
@@ -491,7 +573,9 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
     }
   }
 
-  getVibratoMode(): VibratoMode { return this.vibratoMode; }
+  getVibratoMode(): VibratoMode {
+    return this.vibratoMode;
+  }
 
   // ── Overdrive API (Phase 6) ────────────────────────────────────────
 
@@ -508,7 +592,9 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
     }
   }
 
-  getOverdrive(): number { return this.overdriveAmount; }
+  getOverdrive(): number {
+    return this.overdriveAmount;
+  }
 
   // ── Leslie API (Phase 7) ───────────────────────────────────────────
 
@@ -517,7 +603,9 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
     this.applyLeslieSpeed(speed);
   }
 
-  getLeslieSpeed(): LeslieSpeed { return this.currentLeslieSpeed; }
+  getLeslieSpeed(): LeslieSpeed {
+    return this.currentLeslieSpeed;
+  }
 
   setLeslieEnabled(enabled: boolean): void {
     this.leslieEnabled = enabled;
@@ -532,7 +620,9 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
     }
   }
 
-  getLeslieEnabled(): boolean { return this.leslieEnabled; }
+  getLeslieEnabled(): boolean {
+    return this.leslieEnabled;
+  }
 
   // ── Swell API ──────────────────────────────────────────────────────
 
@@ -544,7 +634,9 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
     }
   }
 
-  getSwellLevel(): number { return this.swellLevel; }
+  getSwellLevel(): number {
+    return this.swellLevel;
+  }
 
   // ── Presets ──────────────────────────────────────────────────────────
 
@@ -595,28 +687,90 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
       voice.mixer.gain.setTargetAtTime(0, time, fadeTime);
       const stopTime = time + fadeTime * 5;
       for (const osc of voice.oscillators) osc.stop(stopTime);
-      if (voice.percOsc) try { voice.percOsc.stop(stopTime); } catch { /* ok */ }
+      if (voice.percOsc)
+        try {
+          voice.percOsc.stop(stopTime);
+        } catch {
+          /* ok */
+        }
 
-      setTimeout(() => {
-        for (const osc of voice.oscillators) { try { osc.disconnect(); } catch { /* */ } }
-        for (const g of voice.drawbarGains) { try { g.disconnect(); } catch { /* */ } }
-        if (voice.percOsc) try { voice.percOsc.disconnect(); } catch { /* */ }
-        if (voice.percGain) try { voice.percGain.disconnect(); } catch { /* */ }
-        try { voice.mixer.disconnect(); } catch { /* */ }
-      }, (fadeTime * 5 + 0.05) * 1000);
+      setTimeout(
+        () => {
+          for (const osc of voice.oscillators) {
+            try {
+              osc.disconnect();
+            } catch {
+              /* */
+            }
+          }
+          for (const g of voice.drawbarGains) {
+            try {
+              g.disconnect();
+            } catch {
+              /* */
+            }
+          }
+          if (voice.percOsc)
+            try {
+              voice.percOsc.disconnect();
+            } catch {
+              /* */
+            }
+          if (voice.percGain)
+            try {
+              voice.percGain.disconnect();
+            } catch {
+              /* */
+            }
+          try {
+            voice.mixer.disconnect();
+          } catch {
+            /* */
+          }
+        },
+        (fadeTime * 5 + 0.05) * 1000,
+      );
     } else {
-      for (const osc of voice.oscillators) { try { osc.stop(time); osc.disconnect(); } catch { /* */ } }
-      for (const g of voice.drawbarGains) { try { g.disconnect(); } catch { /* */ } }
-      if (voice.percOsc) try { voice.percOsc.stop(time); voice.percOsc.disconnect(); } catch { /* */ }
-      if (voice.percGain) try { voice.percGain.disconnect(); } catch { /* */ }
-      try { voice.mixer.disconnect(); } catch { /* */ }
+      for (const osc of voice.oscillators) {
+        try {
+          osc.stop(time);
+          osc.disconnect();
+        } catch {
+          /* */
+        }
+      }
+      for (const g of voice.drawbarGains) {
+        try {
+          g.disconnect();
+        } catch {
+          /* */
+        }
+      }
+      if (voice.percOsc)
+        try {
+          voice.percOsc.stop(time);
+          voice.percOsc.disconnect();
+        } catch {
+          /* */
+        }
+      if (voice.percGain)
+        try {
+          voice.percGain.disconnect();
+        } catch {
+          /* */
+        }
+      try {
+        voice.mixer.disconnect();
+      } catch {
+        /* */
+      }
     }
   }
 
   // ── Private: Key Click buffer (Phase 3) ────────────────────────────
 
   private createClickBuffer(ctx: AudioContext): AudioBuffer {
-    const duration = 0.020; // 20ms — enough for full bounce tail
+    const duration = 0.02; // 20ms — enough for full bounce tail
     const len = Math.ceil(ctx.sampleRate * duration);
     const buffer = ctx.createBuffer(1, len, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -845,8 +999,10 @@ export class TonewheelOrganEngine implements InstrumentAdapter {
     // Determine accel vs decel per rotor (setBfree uses different time constants)
     const curHorn = this.hornLfo!.frequency.value;
     const curDrum = this.drumLfo!.frequency.value;
-    const hornTc = (hornRate > curHorn ? LESLIE_HORN_ACCEL : LESLIE_HORN_DECEL) / 3;
-    const drumTc = (drumRate > curDrum ? LESLIE_DRUM_ACCEL : LESLIE_DRUM_DECEL) / 3;
+    const hornTc =
+      (hornRate > curHorn ? LESLIE_HORN_ACCEL : LESLIE_HORN_DECEL) / 3;
+    const drumTc =
+      (drumRate > curDrum ? LESLIE_DRUM_ACCEL : LESLIE_DRUM_DECEL) / 3;
 
     this.hornLfo!.frequency.setTargetAtTime(hornRate, t, hornTc);
     this.hornAmLfo!.frequency.setTargetAtTime(hornRate, t, hornTc);

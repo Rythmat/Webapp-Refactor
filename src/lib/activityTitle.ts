@@ -1,18 +1,18 @@
 const ACTIVITY_TYPE_LABELS: Record<string, string> = {
-  pa: "Play Along",
-  nh: "Note Hold",
+  pa: 'Play Along',
+  nh: 'Note Hold',
 };
 
 const TOKEN_LABELS: Record<string, string> = {
-  asc: "Ascend",
-  desc: "Descend",
-  lesson: "Lesson",
-  overview: "Overview",
-  contour: "Contour",
-  chords: "Chords",
-  chord: "Chord",
-  arpeggiate: "Arpeggiate",
-  loading: "Loading",
+  asc: 'Ascend',
+  desc: 'Descend',
+  lesson: 'Lesson',
+  overview: 'Overview',
+  contour: 'Contour',
+  chords: 'Chords',
+  chord: 'Chord',
+  arpeggiate: 'Arpeggiate',
+  loading: 'Loading',
 };
 
 const toTitleWord = (token: string) => {
@@ -23,20 +23,16 @@ const toTitleWord = (token: string) => {
 };
 
 export const formatActivityTitle = (activityDefId?: string | null): string => {
-  if (!activityDefId) return "Continue lesson";
+  if (!activityDefId) return 'Continue lesson';
 
-  const tokens = activityDefId
-    .trim()
-    .toLowerCase()
-    .split("-")
-    .filter(Boolean);
+  const tokens = activityDefId.trim().toLowerCase().split('-').filter(Boolean);
 
-  if (tokens.length === 0) return "Continue lesson";
+  if (tokens.length === 0) return 'Continue lesson';
 
   const maybeType = tokens[tokens.length - 1];
   const typeLabel = ACTIVITY_TYPE_LABELS[maybeType];
   const baseTokens = typeLabel ? tokens.slice(0, -1) : tokens;
-  const baseLabel = baseTokens.map(toTitleWord).join(" ");
+  const baseLabel = baseTokens.map(toTitleWord).join(' ');
 
   if (typeLabel && baseLabel) {
     return `${baseLabel} • ${typeLabel}`;
@@ -44,6 +40,5 @@ export const formatActivityTitle = (activityDefId?: string | null): string => {
   if (typeLabel) {
     return typeLabel;
   }
-  return baseLabel || "Continue lesson";
+  return baseLabel || 'Continue lesson';
 };
-

@@ -1,14 +1,14 @@
 ﻿import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BoardChoiceGame } from './BoardChoiceGame';
 import { ChordConnectionGame } from './ChordConnectionGame';
 import { ChordPressGame } from './ChordPressGame';
-import { BoardChoiceGame } from './BoardChoiceGame';
 
 const TOTAL_ROUNDS = 4;
 const CHORD_TYPES = ['maj', 'min', 'dim', 'aug', '7', 'maj7', 'min7'] as const;
-type ChordType = typeof CHORD_TYPES[number];
+type ChordType = (typeof CHORD_TYPES)[number];
 
 type ChordSpec = {
   rootPc: number;
@@ -16,14 +16,13 @@ type ChordSpec = {
 };
 
 const GAME_POOL = ['board', 'press', 'connect'] as const;
-type GameId = typeof GAME_POOL[number];
+type GameId = (typeof GAME_POOL)[number];
 
 type RoundConfig = {
   id: string;
   game: GameId;
   chord: ChordSpec;
 };
-
 
 function randomItem<T>(items: readonly T[]): T {
   return items[Math.floor(Math.random() * items.length)]!;
@@ -37,9 +36,10 @@ function generateChord(): ChordSpec {
 }
 
 function randomDifferentItem<T>(items: readonly T[], exclude?: T | null): T {
-  const pool = typeof exclude === 'undefined' || exclude === null
-    ? items
-    : items.filter((item) => item !== exclude);
+  const pool =
+    typeof exclude === 'undefined' || exclude === null
+      ? items
+      : items.filter((item) => item !== exclude);
   const source = pool.length > 0 ? pool : items;
   return source[Math.floor(Math.random() * source.length)]!;
 }
@@ -82,10 +82,13 @@ export const GamePlayer = () => {
     advanceRound();
   }, [advanceRound]);
 
-  const handleRoundCompleteWithResult = useCallback(({ success }: { success: boolean }) => {
-    setFailures((prev) => (success ? prev : prev + 1));
-    advanceRound();
-  }, [advanceRound]);
+  const handleRoundCompleteWithResult = useCallback(
+    ({ success }: { success: boolean }) => {
+      setFailures((prev) => (success ? prev : prev + 1));
+      advanceRound();
+    },
+    [advanceRound],
+  );
 
   const restartSession = useCallback(() => {
     setRounds(generateSession());
@@ -111,13 +114,22 @@ export const GamePlayer = () => {
     let gameComponent: ReactNode = null;
     switch (game) {
       case 'board':
-        gameComponent = <BoardChoiceGame {...sharedProps} onComplete={handleRoundComplete} />;
+        gameComponent = (
+          <BoardChoiceGame {...sharedProps} onComplete={handleRoundComplete} />
+        );
         break;
       case 'press':
-        gameComponent = <ChordPressGame {...sharedProps} onComplete={handleRoundComplete} />;
+        gameComponent = (
+          <ChordPressGame {...sharedProps} onComplete={handleRoundComplete} />
+        );
         break;
       case 'connect':
-        gameComponent = <ChordConnectionGame {...sharedProps} onComplete={handleRoundCompleteWithResult} />;
+        gameComponent = (
+          <ChordConnectionGame
+            {...sharedProps}
+            onComplete={handleRoundCompleteWithResult}
+          />
+        );
         break;
       default:
         gameComponent = null;
@@ -129,7 +141,9 @@ export const GamePlayer = () => {
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <div className="text-sm text-muted-foreground">Session Progress</div>
+                <div className="text-sm text-muted-foreground">
+                  Session Progress
+                </div>
                 <div className="text-lg font-semibold">{progressText}</div>
               </div>
               <Button variant="outline" onClick={restartSession}>
@@ -150,15 +164,22 @@ export const GamePlayer = () => {
           <Card>
             <CardHeader className="space-y-1">
               <div className="flex items-center justify-between gap-4">
-                <CardTitle className="text-xl font-semibold">Great work!</CardTitle>
-                <Button variant="outline" onClick={restartSession}>Restart Session</Button>
+                <CardTitle className="text-xl font-semibold">
+                  Great work!
+                </CardTitle>
+                <Button variant="outline" onClick={restartSession}>
+                  Restart Session
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                You completed all {rounds.length} rounds. Start a new session to keep practicing.
+                You completed all {rounds.length} rounds. Start a new session to
+                keep practicing.
               </p>
-              <p className="text-sm text-muted-foreground">Failed rounds: {failures}</p>
+              <p className="text-sm text-muted-foreground">
+                Failed rounds: {failures}
+              </p>
               <Button onClick={restartSession}>Play Another Session</Button>
             </CardContent>
           </Card>
@@ -169,5 +190,3 @@ export const GamePlayer = () => {
     </div>
   );
 };
-
-

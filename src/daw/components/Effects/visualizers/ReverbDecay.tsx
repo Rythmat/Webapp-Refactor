@@ -5,12 +5,12 @@
 import type { ReverbType } from '@/daw/audio/EffectChain';
 
 interface ReverbDecayProps {
-  decay: number;        // seconds (0.1–10)
-  wet: number;          // 0–1
-  type?: ReverbType;    // reverb algorithm
-  preDelay?: number;    // 0–200 ms
-  highPass?: number;    // 20–2000 Hz
-  lowPass?: number;     // 1000–20000 Hz
+  decay: number; // seconds (0.1–10)
+  wet: number; // 0–1
+  type?: ReverbType; // reverb algorithm
+  preDelay?: number; // 0–200 ms
+  highPass?: number; // 20–2000 Hz
+  lowPass?: number; // 1000–20000 Hz
   width?: number;
   height?: number;
 }
@@ -20,11 +20,16 @@ const PADDING = { top: 14, right: 6, bottom: 14, left: 6 };
 // Decay rate per type — matches IR generation in EffectChain.ts
 function decayRate(type: ReverbType): number {
   switch (type) {
-    case 'hall':    return 2.5;
-    case 'room':    return 4;
-    case 'chamber': return 3;
-    case 'plate':   return 3.5;
-    case 'spring':  return 4.5;
+    case 'hall':
+      return 2.5;
+    case 'room':
+      return 4;
+    case 'chamber':
+      return 3;
+    case 'plate':
+      return 3.5;
+    case 'spring':
+      return 4.5;
   }
 }
 
@@ -77,7 +82,7 @@ export function ReverbDecay({
 
   for (let i = 0; i <= steps; i++) {
     const t = (i / steps) * decay;
-    let amp = wet * Math.exp(-rate * t / decay);
+    let amp = wet * Math.exp((-rate * t) / decay);
 
     // Type-specific modulations (subtle visual hints)
     if (type === 'spring' && i > 0) {
@@ -93,7 +98,7 @@ export function ReverbDecay({
 
     const x = tToX(preDelaySec + t).toFixed(1);
     const y = ampToY(Math.max(0, amp)).toFixed(1);
-    const cmd = (i === 0 && preDelaySec <= 0) ? 'M' : 'L';
+    const cmd = i === 0 && preDelaySec <= 0 ? 'M' : 'L';
     curvePoints.push(`${cmd}${x} ${y}`);
     fillPoints.push(`${cmd}${x} ${y}`);
   }
@@ -127,7 +132,11 @@ export function ReverbDecay({
       <defs>
         <linearGradient id="reverb-fill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="var(--color-accent)" stopOpacity={0.2} />
-          <stop offset="100%" stopColor="var(--color-accent)" stopOpacity={0.02} />
+          <stop
+            offset="100%"
+            stopColor="var(--color-accent)"
+            stopOpacity={0.02}
+          />
         </linearGradient>
       </defs>
 
@@ -245,7 +254,13 @@ export function ReverbDecay({
       )}
 
       {/* Time labels */}
-      <text x={PADDING.left + 2} y={height - 2} fill="rgba(255,255,255,0.25)" fontSize={7} fontFamily="system-ui">
+      <text
+        x={PADDING.left + 2}
+        y={height - 2}
+        fill="rgba(255,255,255,0.25)"
+        fontSize={7}
+        fontFamily="system-ui"
+      >
         0s
       </text>
       <text

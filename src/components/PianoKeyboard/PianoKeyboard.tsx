@@ -61,7 +61,7 @@ export function PianoKeyboard({
   const playNote = usePlayNote();
 
   // const { setRef, expandedEndC, expandedStartC }
-  const { setRef} = useExpandedRange({
+  const { setRef } = useExpandedRange({
     params: {
       mode: vertical ? 'vertical' : 'horizontal',
       startC,
@@ -129,12 +129,12 @@ export function PianoKeyboard({
   );
 
   const baseWhiteKeyClass = gaming
-  ? vertical
-    ? 'h-8 w-full !z-0 rounded-l-[2px] mb-px bg-white transition-colors cursor-pointer'
-    : 'w-8 h-full !z-0 rounded-b-[2px] mr-px bg-white transition-colors cursor-pointer'
-  : vertical
-    ? 'h-4 w-full !z-0 rounded-l-[2px] mb-px bg-white transition-colors cursor-pointer'
-    : 'w-4 h-full !z-0 rounded-b-[2px] mr-px bg-white transition-colors cursor-pointer';
+    ? vertical
+      ? 'h-8 w-full !z-0 rounded-l-[2px] mb-px bg-white transition-colors cursor-pointer'
+      : 'w-8 h-full !z-0 rounded-b-[2px] mr-px bg-white transition-colors cursor-pointer'
+    : vertical
+      ? 'h-4 w-full !z-0 rounded-l-[2px] mb-px bg-white transition-colors cursor-pointer'
+      : 'w-4 h-full !z-0 rounded-b-[2px] mr-px bg-white transition-colors cursor-pointer';
 
   const octaveLabelClass = 'text-[8px] text-black';
 
@@ -146,7 +146,7 @@ export function PianoKeyboard({
     whiteKeyClassName,
   );
 
-  const baseBlackKeyContainerClass = gaming 
+  const baseBlackKeyContainerClass = gaming
     ? vertical
       ? 'relative h-0 !z-10 overflow-visible -top-5'
       : 'relative w-0 !z-10 overflow-visible -left-3'
@@ -160,12 +160,12 @@ export function PianoKeyboard({
   );
 
   const baseBlackKeyClass = gaming
-  ? vertical
-    ? 'ml-auto w-3/5 h-6 !z-10 rounded-l-[3px] border-l-[3px] border-l-zinc-600 bg-zinc-900 shadow-md transition-colors right-0 cursor-pointer'
-    : 'mt-auto h-3/5 w-6 !z-10 rounded-b-[3px] border-b-[3px] border-b-zinc-600 bg-zinc-900 shadow-md transition-colors bottom-0 cursor-pointer'
-  : vertical
-    ? 'ml-auto w-3/5 h-3 !z-10 rounded-l-[3px] border-l-[3px] border-l-zinc-600 bg-zinc-900 shadow-md transition-colors right-0 cursor-pointer'
-    : 'mt-auto h-3/5 w-3 !z-10 rounded-b-[3px] border-b-[3px] border-b-zinc-600 bg-zinc-900 shadow-md transition-colors bottom-0 cursor-pointer';
+    ? vertical
+      ? 'ml-auto w-3/5 h-6 !z-10 rounded-l-[3px] border-l-[3px] border-l-zinc-600 bg-zinc-900 shadow-md transition-colors right-0 cursor-pointer'
+      : 'mt-auto h-3/5 w-6 !z-10 rounded-b-[3px] border-b-[3px] border-b-zinc-600 bg-zinc-900 shadow-md transition-colors bottom-0 cursor-pointer'
+    : vertical
+      ? 'ml-auto w-3/5 h-3 !z-10 rounded-l-[3px] border-l-[3px] border-l-zinc-600 bg-zinc-900 shadow-md transition-colors right-0 cursor-pointer'
+      : 'mt-auto h-3/5 w-3 !z-10 rounded-b-[3px] border-b-[3px] border-b-zinc-600 bg-zinc-900 shadow-md transition-colors bottom-0 cursor-pointer';
 
   const blackKeyClass = cn(baseBlackKeyClass, blackKeyClassName);
 
@@ -212,7 +212,7 @@ export function PianoKeyboard({
         onClick={() => handleKeyClick(note)}
       >
         {showOctaveStart && !gaming && note % 12 === 0 && (
-          <div className={octaveLabelClass}>C{Math.floor(note / 12)-1}</div>
+          <div className={octaveLabelClass}>C{Math.floor(note / 12) - 1}</div>
         )}
       </div>
     );
@@ -277,9 +277,12 @@ export function PianoKeyboard({
   };
 
   const octaveCount = Math.max(1, endC - startC + 1);
-  const limitedOctaveCount =  octaveCount;
+  const limitedOctaveCount = octaveCount;
   const octaveStart = startC;
-  const octaves = Array.from({ length: limitedOctaveCount }, (_, i) => octaveStart + i);
+  const octaves = Array.from(
+    { length: limitedOctaveCount },
+    (_, i) => octaveStart + i,
+  );
 
   return (
     <div ref={setRef}>
@@ -303,8 +306,8 @@ export function PianoKeyboard({
                 (gaming ? limitedOctaveCount : endC - startC + 1)
               }px`
             : `${gaming ? OCTAVE_HEIGHT * 2 : OCTAVE_HEIGHT}px`,
-       }}
-     >
+        }}
+      >
         {octaves.map((octave, index) => (
           <div
             key={octave}

@@ -36,12 +36,7 @@ function shapeFrac(frac: number, curve: number): number {
  * - Double-click a curve handle to reset to linear
  */
 export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
-  ({
-    nodes,
-    onChange,
-    color = '#7ecfcf',
-    gridSnap = true,
-  }) => {
+  ({ nodes, onChange, color = '#7ecfcf', gridSnap = true }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const [size, setSize] = useState({ width: 200, height: 100 });
@@ -74,14 +69,8 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
     const drawW = width - PAD * 2;
     const drawH = height - PAD * 2;
 
-    const toSvgX = useCallback(
-      (t: number) => PAD + t * drawW,
-      [drawW]
-    );
-    const toSvgY = useCallback(
-      (v: number) => PAD + (1 - v) * drawH,
-      [drawH]
-    );
+    const toSvgX = useCallback((t: number) => PAD + t * drawW, [drawW]);
+    const toSvgY = useCallback((v: number) => PAD + (1 - v) * drawH, [drawH]);
 
     const fromSvg = useCallback(
       (clientX: number, clientY: number): { time: number; value: number } => {
@@ -105,7 +94,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
 
         return { time, value };
       },
-      [drawW, drawH, gridSnap]
+      [drawW, drawH, gridSnap],
     );
 
     // Build the waveform path from sorted nodes (with curves)
@@ -143,7 +132,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         setLocalNodes([...displayNodes]);
         setDragIndex(index);
       },
-      [displayNodes]
+      [displayNodes],
     );
 
     const handlePointerMove = useCallback(
@@ -152,16 +141,22 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         if (curveDragIdx !== null && localNodes) {
           const deltaY = e.clientY - curveDragStartY.current;
           const sensitivity = 3 / drawH;
-          const newCurve = Math.max(-1, Math.min(1, curveDragStartValue.current - deltaY * sensitivity));
+          const newCurve = Math.max(
+            -1,
+            Math.min(1, curveDragStartValue.current - deltaY * sensitivity),
+          );
 
           const sortedLocal = [...localNodes].sort((a, b) => a.time - b.time);
           const targetNode = sortedLocal[curveDragIdx];
           const origIdx = localNodes.findIndex(
-            (n) => n.time === targetNode.time && n.value === targetNode.value
+            (n) => n.time === targetNode.time && n.value === targetNode.value,
           );
           if (origIdx >= 0) {
             const updated = [...localNodes];
-            updated[origIdx] = { ...updated[origIdx], curve: Math.round(newCurve * 100) / 100 };
+            updated[origIdx] = {
+              ...updated[origIdx],
+              curve: Math.round(newCurve * 100) / 100,
+            };
             setLocalNodes(updated);
           }
           return;
@@ -179,7 +174,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         const sortedIdx = sortedCopy.findIndex(
           (n) =>
             n.time === updated[dragIndex].time &&
-            n.value === updated[dragIndex].value
+            n.value === updated[dragIndex].value,
         );
 
         updated[dragIndex] = {
@@ -188,18 +183,23 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
           value,
         };
 
-        if (!isFirst && !isLast && sortedIdx > 0 && sortedIdx < sortedCopy.length - 1) {
+        if (
+          !isFirst &&
+          !isLast &&
+          sortedIdx > 0 &&
+          sortedIdx < sortedCopy.length - 1
+        ) {
           const prevTime = sortedCopy[sortedIdx - 1].time;
           const nextTime = sortedCopy[sortedIdx + 1].time;
           updated[dragIndex].time = Math.max(
             prevTime + 0.001,
-            Math.min(nextTime - 0.001, updated[dragIndex].time)
+            Math.min(nextTime - 0.001, updated[dragIndex].time),
           );
         }
 
         setLocalNodes(updated);
       },
-      [dragIndex, curveDragIdx, localNodes, fromSvg, drawH]
+      [dragIndex, curveDragIdx, localNodes, fromSvg, drawH],
     );
 
     const handlePointerUp = useCallback(() => {
@@ -217,11 +217,11 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         if (dragIndex !== null || curveDragIdx !== null) return;
         const { time, value } = fromSvg(e.clientX, e.clientY);
         const updated = [...nodes, { time, value }].sort(
-          (a, b) => a.time - b.time
+          (a, b) => a.time - b.time,
         );
         onChange(updated);
       },
-      [nodes, onChange, fromSvg, dragIndex, curveDragIdx]
+      [nodes, onChange, fromSvg, dragIndex, curveDragIdx],
     );
 
     // Delete a node
@@ -230,7 +230,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         const sortedCopy = [...nodes].sort((a, b) => a.time - b.time);
         const node = nodes[index];
         const sortedIdx = sortedCopy.findIndex(
-          (n) => n.time === node.time && n.value === node.value
+          (n) => n.time === node.time && n.value === node.value,
         );
         if (sortedIdx === 0 || sortedIdx === sortedCopy.length - 1) return;
         if (nodes.length <= 2) return;
@@ -238,7 +238,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         const updated = nodes.filter((_, i) => i !== index);
         onChange(updated);
       },
-      [nodes, onChange]
+      [nodes, onChange],
     );
 
     const handleDoubleClick = useCallback(
@@ -247,7 +247,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         e.stopPropagation();
         deleteNode(index);
       },
-      [deleteNode]
+      [deleteNode],
     );
 
     const handleContextMenu = useCallback(
@@ -256,7 +256,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         e.stopPropagation();
         deleteNode(index);
       },
-      [deleteNode]
+      [deleteNode],
     );
 
     const handleNodeClick = useCallback((e: React.MouseEvent) => {
@@ -276,7 +276,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         const sortedCopy = [...currentNodes].sort((a, b) => a.time - b.time);
         curveDragStartValue.current = sortedCopy[sortedIndex].curve ?? 0;
       },
-      [displayNodes]
+      [displayNodes],
     );
 
     const handleCurveClick = useCallback((e: React.MouseEvent) => {
@@ -290,7 +290,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         const sortedCopy = [...nodes].sort((a, b) => a.time - b.time);
         const targetNode = sortedCopy[sortedIndex];
         const origIdx = nodes.findIndex(
-          (n) => n.time === targetNode.time && n.value === targetNode.value
+          (n) => n.time === targetNode.time && n.value === targetNode.value,
         );
         if (origIdx >= 0) {
           const updated = [...nodes];
@@ -298,7 +298,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
           onChange(updated);
         }
       },
-      [nodes, onChange]
+      [nodes, onChange],
     );
 
     // Grid lines
@@ -314,7 +314,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
           y2={PAD + drawH}
           stroke={i % 4 === 0 ? '#333' : '#252525'}
           strokeWidth={i % 4 === 0 ? 1 : 0.5}
-        />
+        />,
       );
     }
     for (let i = 0; i <= GRID_DIVISIONS_Y; i++) {
@@ -328,7 +328,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
           y2={y}
           stroke={i === GRID_DIVISIONS_Y / 2 ? '#444' : '#252525'}
           strokeWidth={i === GRID_DIVISIONS_Y / 2 ? 1 : 0.5}
-        />
+        />,
       );
     }
 
@@ -362,7 +362,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
           onPointerDown={(e) => handleCurvePointerDown(e, i)}
           onClick={handleCurveClick}
           onDoubleClick={(e) => handleCurveDoubleClick(e, i)}
-        />
+        />,
       );
     }
 
@@ -419,5 +419,5 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         </svg>
       </div>
     );
-  }
+  },
 );

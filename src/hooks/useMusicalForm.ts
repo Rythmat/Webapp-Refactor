@@ -19,16 +19,18 @@ interface MusicalInputProps {
 let lastAutofillJingleAt = 0;
 let lastAutofillAt = 0;
 
-
 export const useMusicalForm = (config: MusicalFormConfig = {}) => {
   const {
-    typingMelody = [60,56,51,56,62,58,53,58,64,60,55,60,62,60,55,60,58,56,51,48,55,53,50,46,48,52,62,55,64,62,67], 
+    typingMelody = [
+      60, 56, 51, 56, 62, 58, 53, 58, 64, 60, 55, 60, 62, 60, 55, 60, 58, 56,
+      51, 48, 55, 53, 50, 46, 48, 52, 62, 55, 64, 62, 67,
+    ],
     successProgression = [
       [55, 50, 48, 44, 41, 36, 29],
       [53],
       [52],
       [50],
-      [52, 48, 43, 23]
+      [52, 48, 43, 23],
     ], // Default C major progression
     failureProgression = [
       [74, 67],
@@ -51,13 +53,6 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
   const suppressTypingUntil = useRef<number>(0);
 
   const nowMs = () => Date.now();
-  const shouldSuppressTyping = () => nowMs() < suppressTypingUntil.current;
-  const setTypingSuppression = (durationMs: number) => {
-    suppressTypingUntil.current = Math.max(
-      suppressTypingUntil.current,
-      nowMs() + durationMs,
-    );
-  };
 
   const playAudioFile = useCallback((filePath: string) => {
     if (!filePath || typeof window === 'undefined') {
@@ -136,7 +131,7 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
       autofillActive.current = false;
       return;
     }
-    if (shouldSuppressTyping()) return;
+    if (nowMs() < suppressTypingUntil.current) return;
     if (typingMelody.length === 0) return;
 
     const currentIndex = noteIndex.current ?? -1;
@@ -160,7 +155,10 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
           lastAutofillJingleAt = now;
         }
         autofillActive.current = true;
-        setTypingSuppression(1000);
+        suppressTypingUntil.current = Math.max(
+          suppressTypingUntil.current,
+          now + 1000,
+        );
       }
     },
     [playAcceptedAudio],

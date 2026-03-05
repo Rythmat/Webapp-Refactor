@@ -15,7 +15,7 @@ export class ChorusEffect extends FXProcessor {
   private merger: ChannelMergerNode;
 
   private static readonly BASE_DELAY = 0.015; // 15ms center delay
-  private static readonly MAX_DEPTH = 0.01;   // ±10ms modulation
+  private static readonly MAX_DEPTH = 0.01; // ±10ms modulation
 
   constructor(ctx: AudioContext) {
     super(ctx);
@@ -67,8 +67,16 @@ export class ChorusEffect extends FXProcessor {
       this.input.connect(this.delayR);
     } else if (!enabled && wasEnabled) {
       // Disconnect signal path — delay lines stop processing
-      try { this.input.disconnect(this.delayL); } catch { /* ok */ }
-      try { this.input.disconnect(this.delayR); } catch { /* ok */ }
+      try {
+        this.input.disconnect(this.delayL);
+      } catch {
+        /* ok */
+      }
+      try {
+        this.input.disconnect(this.delayR);
+      } catch {
+        /* ok */
+      }
     }
   }
 
@@ -90,7 +98,11 @@ export class ChorusEffect extends FXProcessor {
   }
 
   dispose(): void {
-    try { this.lfo.stop(); } catch { /* already stopped */ }
+    try {
+      this.lfo.stop();
+    } catch {
+      /* already stopped */
+    }
     this.lfo.disconnect();
     this.lfoGainL.disconnect();
     this.lfoGainR.disconnect();

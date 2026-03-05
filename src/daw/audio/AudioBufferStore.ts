@@ -29,7 +29,11 @@ export function sliceBuffer(
   endSample: number,
 ): AudioBuffer {
   const length = Math.max(1, endSample - startSample);
-  const newBuffer = ctx.createBuffer(buffer.numberOfChannels, length, buffer.sampleRate);
+  const newBuffer = ctx.createBuffer(
+    buffer.numberOfChannels,
+    length,
+    buffer.sampleRate,
+  );
   for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
     const src = buffer.getChannelData(ch);
     const dst = newBuffer.getChannelData(ch);

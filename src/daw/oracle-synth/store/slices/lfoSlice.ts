@@ -1,10 +1,25 @@
 import { StateCreator } from 'zustand';
-import { LFOParams, LFONode, RateDiv, QuarterRates, RateModifier } from '../../audio/types';
+import {
+  LFOParams,
+  LFONode,
+  RateDiv,
+  QuarterRates,
+  RateModifier,
+} from '../../audio/types';
 
 export interface LFOSlice {
   lfos: [LFOParams, LFOParams, LFOParams, LFOParams];
-  setLFOQuarterRateDiv: (lfoIndex: number, barIndex: number, quarterIndex: number, rateDiv: RateDiv) => void;
-  setLFORateModifier: (lfoIndex: number, barIndex: number, modifier: RateModifier) => void;
+  setLFOQuarterRateDiv: (
+    lfoIndex: number,
+    barIndex: number,
+    quarterIndex: number,
+    rateDiv: RateDiv,
+  ) => void;
+  setLFORateModifier: (
+    lfoIndex: number,
+    barIndex: number,
+    modifier: RateModifier,
+  ) => void;
   setLFOBarSmooth: (lfoIndex: number, barIndex: number, smooth: number) => void;
   setLFOSync: (index: number, sync: boolean) => void;
   setLFONodes: (lfoIndex: number, barIndex: number, nodes: LFONode[]) => void;
@@ -27,7 +42,12 @@ const defaultTriangleNodes = (): LFONode[] => [
 const defaultQuarterRates = (): QuarterRates => ['1/4', '1/4', '1/4', '1/4'];
 
 const defaultLFO = (): LFOParams => ({
-  rateDivs: [defaultQuarterRates(), defaultQuarterRates(), defaultQuarterRates(), defaultQuarterRates()],
+  rateDivs: [
+    defaultQuarterRates(),
+    defaultQuarterRates(),
+    defaultQuarterRates(),
+    defaultQuarterRates(),
+  ],
   rateModifiers: ['normal', 'normal', 'normal', 'normal'],
   smooths: [0, 0, 0, 0],
   sync: false,
@@ -39,18 +59,25 @@ const defaultLFO = (): LFOParams => ({
   ],
 });
 
-export const createLFOSlice: StateCreator<
-  LFOSlice,
-  [],
-  [],
-  LFOSlice
-> = (set) => ({
+export const createLFOSlice: StateCreator<LFOSlice, [], [], LFOSlice> = (
+  set,
+) => ({
   lfos: [defaultLFO(), defaultLFO(), defaultLFO(), defaultLFO()],
 
   setLFOQuarterRateDiv: (lfoIndex, barIndex, quarterIndex, rateDiv) =>
     set((state) => {
-      const newLfos = [...state.lfos] as [LFOParams, LFOParams, LFOParams, LFOParams];
-      const newRateDivs = [...newLfos[lfoIndex].rateDivs] as [QuarterRates, QuarterRates, QuarterRates, QuarterRates];
+      const newLfos = [...state.lfos] as [
+        LFOParams,
+        LFOParams,
+        LFOParams,
+        LFOParams,
+      ];
+      const newRateDivs = [...newLfos[lfoIndex].rateDivs] as [
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+        QuarterRates,
+      ];
       const newQuarter = [...newRateDivs[barIndex]] as QuarterRates;
       newQuarter[quarterIndex] = rateDiv;
       newRateDivs[barIndex] = newQuarter;
@@ -60,8 +87,18 @@ export const createLFOSlice: StateCreator<
 
   setLFORateModifier: (lfoIndex, barIndex, modifier) =>
     set((state) => {
-      const newLfos = [...state.lfos] as [LFOParams, LFOParams, LFOParams, LFOParams];
-      const newMods = [...newLfos[lfoIndex].rateModifiers] as [RateModifier, RateModifier, RateModifier, RateModifier];
+      const newLfos = [...state.lfos] as [
+        LFOParams,
+        LFOParams,
+        LFOParams,
+        LFOParams,
+      ];
+      const newMods = [...newLfos[lfoIndex].rateModifiers] as [
+        RateModifier,
+        RateModifier,
+        RateModifier,
+        RateModifier,
+      ];
       newMods[barIndex] = modifier;
       newLfos[lfoIndex] = { ...newLfos[lfoIndex], rateModifiers: newMods };
       return { lfos: newLfos };
@@ -69,8 +106,18 @@ export const createLFOSlice: StateCreator<
 
   setLFOBarSmooth: (lfoIndex, barIndex, smooth) =>
     set((state) => {
-      const newLfos = [...state.lfos] as [LFOParams, LFOParams, LFOParams, LFOParams];
-      const newSmooths = [...newLfos[lfoIndex].smooths] as [number, number, number, number];
+      const newLfos = [...state.lfos] as [
+        LFOParams,
+        LFOParams,
+        LFOParams,
+        LFOParams,
+      ];
+      const newSmooths = [...newLfos[lfoIndex].smooths] as [
+        number,
+        number,
+        number,
+        number,
+      ];
       newSmooths[barIndex] = smooth;
       newLfos[lfoIndex] = { ...newLfos[lfoIndex], smooths: newSmooths };
       return { lfos: newLfos };
@@ -78,15 +125,30 @@ export const createLFOSlice: StateCreator<
 
   setLFOSync: (index, sync) =>
     set((state) => {
-      const newLfos = [...state.lfos] as [LFOParams, LFOParams, LFOParams, LFOParams];
+      const newLfos = [...state.lfos] as [
+        LFOParams,
+        LFOParams,
+        LFOParams,
+        LFOParams,
+      ];
       newLfos[index] = { ...newLfos[index], sync };
       return { lfos: newLfos };
     }),
 
   setLFONodes: (lfoIndex, barIndex, nodes) =>
     set((state) => {
-      const newLfos = [...state.lfos] as [LFOParams, LFOParams, LFOParams, LFOParams];
-      const newBars = [...newLfos[lfoIndex].bars] as [LFONode[], LFONode[], LFONode[], LFONode[]];
+      const newLfos = [...state.lfos] as [
+        LFOParams,
+        LFOParams,
+        LFOParams,
+        LFOParams,
+      ];
+      const newBars = [...newLfos[lfoIndex].bars] as [
+        LFONode[],
+        LFONode[],
+        LFONode[],
+        LFONode[],
+      ];
       newBars[barIndex] = nodes;
       newLfos[lfoIndex] = { ...newLfos[lfoIndex], bars: newBars };
       return { lfos: newLfos };

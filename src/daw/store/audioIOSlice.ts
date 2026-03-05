@@ -11,7 +11,9 @@ const OVERRIDE_KEY = 'prism-daw-input-ch-override';
 function loadDeviceId(): string | null {
   try {
     return localStorage.getItem(DEVICE_KEY) || null;
-  } catch { /* localStorage unavailable */ }
+  } catch {
+    /* localStorage unavailable */
+  }
   return null;
 }
 
@@ -22,7 +24,9 @@ function saveDeviceId(id: string | null): void {
     } else {
       localStorage.setItem(DEVICE_KEY, id);
     }
-  } catch { /* localStorage unavailable */ }
+  } catch {
+    /* localStorage unavailable */
+  }
 }
 
 function loadOverride(): number | null {
@@ -32,7 +36,9 @@ function loadOverride(): number | null {
       const n = parseInt(v, 10);
       return Number.isFinite(n) && n >= 2 ? n : null;
     }
-  } catch { /* localStorage unavailable */ }
+  } catch {
+    /* localStorage unavailable */
+  }
   return null;
 }
 
@@ -43,7 +49,9 @@ function saveOverride(count: number | null): void {
     } else {
       localStorage.setItem(OVERRIDE_KEY, String(count));
     }
-  } catch { /* localStorage unavailable */ }
+  } catch {
+    /* localStorage unavailable */
+  }
 }
 
 export interface AudioIOSlice {
@@ -136,14 +144,22 @@ export const createAudioIOSlice: StateCreator<
   },
 
   toggleMonoInput: (channel) =>
-    set((s) => ({ enabledMonoInputs: toggleInArray(s.enabledMonoInputs, channel) })),
+    set((s) => ({
+      enabledMonoInputs: toggleInArray(s.enabledMonoInputs, channel),
+    })),
 
   toggleStereoInput: (leftChannel) =>
-    set((s) => ({ enabledStereoInputs: toggleInArray(s.enabledStereoInputs, leftChannel) })),
+    set((s) => ({
+      enabledStereoInputs: toggleInArray(s.enabledStereoInputs, leftChannel),
+    })),
 
   toggleMonoOutput: (channel) =>
-    set((s) => ({ enabledMonoOutputs: toggleInArray(s.enabledMonoOutputs, channel) })),
+    set((s) => ({
+      enabledMonoOutputs: toggleInArray(s.enabledMonoOutputs, channel),
+    })),
 
   toggleStereoOutput: (leftChannel) =>
-    set((s) => ({ enabledStereoOutputs: toggleInArray(s.enabledStereoOutputs, leftChannel) })),
+    set((s) => ({
+      enabledStereoOutputs: toggleInArray(s.enabledStereoOutputs, leftChannel),
+    })),
 });

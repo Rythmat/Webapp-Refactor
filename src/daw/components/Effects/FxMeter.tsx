@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/classnames-order */
 // ── FxMeter ──────────────────────────────────────────────────────────────
 // Vertical level meter bar matching the reference FX rack design.
 // Wider bar with dark track, colored fill from bottom, segmented LED look.
@@ -12,7 +13,12 @@ interface FxMeterProps {
 const SEGMENT_H = 3;
 const SEGMENT_GAP = 1;
 
-export function FxMeter({ level, label, color = 'var(--color-accent)', height = 120 }: FxMeterProps) {
+export function FxMeter({
+  level,
+  label,
+  color = 'var(--color-accent)',
+  height = 120,
+}: FxMeterProps) {
   const barWidth = 10;
   const totalWidth = 22;
   const labelH = 14;
@@ -35,7 +41,14 @@ export function FxMeter({ level, label, color = 'var(--color-accent)', height = 
     <div className="flex flex-col items-center" style={{ width: totalWidth }}>
       <svg width={barWidth} height={barH}>
         {/* Track (dark background) */}
-        <rect x={0} y={0} width={barWidth} height={barH} rx={2} fill="rgba(0, 0, 0, 0.4)" />
+        <rect
+          x={0}
+          y={0}
+          width={barWidth}
+          height={barH}
+          rx={2}
+          fill="rgba(0, 0, 0, 0.4)"
+        />
         {/* Segmented fill */}
         {segments.map((seg, i) => (
           <rect
@@ -52,7 +65,12 @@ export function FxMeter({ level, label, color = 'var(--color-accent)', height = 
       </svg>
       <span
         className="text-center mt-0.5"
-        style={{ fontSize: 7, color: 'rgba(255, 255, 255, 0.4)', fontFamily: 'system-ui', fontWeight: 600 }}
+        style={{
+          fontSize: 7,
+          color: 'rgba(255, 255, 255, 0.4)',
+          fontFamily: 'system-ui',
+          fontWeight: 600,
+        }}
       >
         {label}
       </span>

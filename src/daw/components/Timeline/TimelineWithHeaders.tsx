@@ -5,7 +5,13 @@ import { Plus } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { TrackHeader } from '../TrackControls/TrackHeader';
 import { AddTrackMenu } from '../Mixer/AddTrackMenu';
-import { Timeline, TRACK_HEIGHT, RULER_HEIGHT, CHORD_RULER_HEIGHT, TIME_RULER_HEIGHT } from './Timeline';
+import {
+  Timeline,
+  TRACK_HEIGHT,
+  RULER_HEIGHT,
+  CHORD_RULER_HEIGHT,
+  TIME_RULER_HEIGHT,
+} from './Timeline';
 
 export function TimelineWithHeaders() {
   const tracks = useStore((s) => s.tracks);
@@ -21,7 +27,9 @@ export function TimelineWithHeaders() {
     if (headersRef.current && timelineRef.current) {
       timelineRef.current.scrollTop = headersRef.current.scrollTop;
     }
-    requestAnimationFrame(() => { syncing.current = false; });
+    requestAnimationFrame(() => {
+      syncing.current = false;
+    });
   }, []);
 
   const handleTimelineScroll = useCallback(() => {
@@ -30,7 +38,9 @@ export function TimelineWithHeaders() {
     if (headersRef.current && timelineRef.current) {
       headersRef.current.scrollTop = timelineRef.current.scrollTop;
     }
-    requestAnimationFrame(() => { syncing.current = false; });
+    requestAnimationFrame(() => {
+      syncing.current = false;
+    });
   }, []);
 
   // Reorder handler: Framer Motion gives us the reordered array of track values.
@@ -55,7 +65,7 @@ export function TimelineWithHeaders() {
       <div
         ref={headersRef}
         onScroll={handleHeadersScroll}
-        className="w-[200px] shrink-0 flex flex-col overflow-y-auto border-r glass-panel-sm"
+        className="glass-panel-sm flex w-[200px] shrink-0 flex-col overflow-y-auto border-r"
         style={{
           backgroundColor: 'var(--color-surface)',
           borderColor: 'var(--color-border)',
@@ -99,7 +109,7 @@ export function TimelineWithHeaders() {
         {/* Add Track button */}
         <button
           onClick={() => setMenuOpen((o) => !o)}
-          className="flex items-center gap-1.5 mx-3 mt-2 mb-2 px-2 py-1.5 rounded-md text-[10px] font-medium cursor-pointer"
+          className="mx-3 my-2 flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-[10px] font-medium"
           style={{
             color: 'var(--color-text-dim)',
             backgroundColor: 'transparent',
@@ -132,18 +142,19 @@ export function TimelineWithHeaders() {
           aria-hidden
         />
 
-        {menuOpen && createPortal(
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-            onClick={() => setMenuOpen(false)}
-          >
-            <div onClick={(e) => e.stopPropagation()}>
-              <AddTrackMenu onClose={() => setMenuOpen(false)} />
-            </div>
-          </div>,
-          document.body,
-        )}
+        {menuOpen &&
+          createPortal(
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center"
+              style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+              onClick={() => setMenuOpen(false)}
+            >
+              <div onClick={(e) => e.stopPropagation()}>
+                <AddTrackMenu onClose={() => setMenuOpen(false)} />
+              </div>
+            </div>,
+            document.body,
+          )}
       </div>
 
       {/* Timeline canvas */}

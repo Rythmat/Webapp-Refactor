@@ -38,25 +38,30 @@ export function SettingsModal() {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
         <Dialog.Content
-          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full p-6 rounded-2xl z-50 outline-none"
+          className="fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 outline-none"
           style={{
             maxWidth: view === 'main' ? 448 : 560,
             backgroundColor: 'rgba(255, 255, 255, 0.04)',
             border: '1px solid rgba(255, 255, 255, 0.12)',
             backdropFilter: 'blur(32px)',
             WebkitBackdropFilter: 'blur(32px)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+            boxShadow:
+              '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
           }}
         >
           {view === 'main' && <MainView onNavigate={setView} />}
-          {view === 'inputConfig' && <ChannelConfigView kind="input" onBack={() => setView('main')} />}
-          {view === 'outputConfig' && <ChannelConfigView kind="output" onBack={() => setView('main')} />}
+          {view === 'inputConfig' && (
+            <ChannelConfigView kind="input" onBack={() => setView('main')} />
+          )}
+          {view === 'outputConfig' && (
+            <ChannelConfigView kind="output" onBack={() => setView('main')} />
+          )}
 
           <Dialog.Close asChild>
             <button
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-colors hover:bg-white/10"
+              className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-white/10"
               style={{ color: 'var(--color-text-dim)' }}
               aria-label="Close"
             >
@@ -71,7 +76,11 @@ export function SettingsModal() {
 
 // ── Main View ─────────────────────────────────────────────────────────
 
-function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) {
+function MainView({
+  onNavigate,
+}: {
+  onNavigate: (view: SettingsView) => void;
+}) {
   const [inputs, setInputs] = useState<AudioInputDevice[]>([]);
   const [outputs, setOutputs] = useState<AudioOutputDevice[]>([]);
   const [showInputMenu, setShowInputMenu] = useState(false);
@@ -81,12 +90,18 @@ function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) 
 
   const inputDeviceId = useStore((s) => s.inputDeviceId);
   const outputDeviceId = useStore((s) => s.outputDeviceId);
-  const inputDetectedChannelCount = useStore((s) => s.inputDetectedChannelCount);
-  const inputChannelCountOverride = useStore((s) => s.inputChannelCountOverride);
+  const inputDetectedChannelCount = useStore(
+    (s) => s.inputDetectedChannelCount,
+  );
+  const inputChannelCountOverride = useStore(
+    (s) => s.inputChannelCountOverride,
+  );
   const inputDeviceChannelCount = useStore((s) => s.inputDeviceChannelCount);
   const setInputDevice = useStore((s) => s.setInputDevice);
   const setOutputDevice = useStore((s) => s.setOutputDevice);
-  const setInputChannelCountOverride = useStore((s) => s.setInputChannelCountOverride);
+  const setInputChannelCountOverride = useStore(
+    (s) => s.setInputChannelCountOverride,
+  );
 
   const supportsOutput = audioEngine.supportsOutputSelection();
   const sampleRate = audioEngine.getSampleRate();
@@ -112,43 +127,57 @@ function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) 
     };
     enumerate();
     navigator.mediaDevices.addEventListener('devicechange', enumerate);
-    return () => navigator.mediaDevices.removeEventListener('devicechange', enumerate);
+    return () =>
+      navigator.mediaDevices.removeEventListener('devicechange', enumerate);
   }, [setInputDevice]);
 
-  const handleSelectInput = useCallback(async (id: string) => {
-    setShowInputMenu(false);
-    setProbing(true);
-    try {
-      const detected = await probeDeviceChannelCount(id);
-      setInputDevice(id, detected);
-    } catch {
-      setInputDevice(id, 2);
-    }
-    setProbing(false);
-  }, [setInputDevice]);
+  const handleSelectInput = useCallback(
+    async (id: string) => {
+      setShowInputMenu(false);
+      setProbing(true);
+      try {
+        const detected = await probeDeviceChannelCount(id);
+        setInputDevice(id, detected);
+      } catch {
+        setInputDevice(id, 2);
+      }
+      setProbing(false);
+    },
+    [setInputDevice],
+  );
 
-  const handleSelectOutput = useCallback((id: string) => {
-    setShowOutputMenu(false);
-    // Discover channel count — output devices don't provide channelCount easily, default to 2
-    setOutputDevice(id, 2);
-    audioEngine.setOutputDevice(id).catch((err) => {
-      console.warn('[SettingsModal] Failed to set output device:', err);
-    });
-  }, [setOutputDevice]);
+  const handleSelectOutput = useCallback(
+    (id: string) => {
+      setShowOutputMenu(false);
+      // Discover channel count — output devices don't provide channelCount easily, default to 2
+      setOutputDevice(id, 2);
+      audioEngine.setOutputDevice(id).catch((err) => {
+        console.warn('[SettingsModal] Failed to set output device:', err);
+      });
+    },
+    [setOutputDevice],
+  );
 
-  const handleSelectChannelCount = useCallback((value: number | null) => {
-    setShowChannelCountMenu(false);
-    setInputChannelCountOverride(value);
-  }, [setInputChannelCountOverride]);
+  const handleSelectChannelCount = useCallback(
+    (value: number | null) => {
+      setShowChannelCountMenu(false);
+      setInputChannelCountOverride(value);
+    },
+    [setInputChannelCountOverride],
+  );
 
   // Current channel count label
-  const channelCountLabel = inputChannelCountOverride !== null
-    ? `${inputChannelCountOverride} ch`
-    : `Auto (${inputDetectedChannelCount || '—'})`;
+  const channelCountLabel =
+    inputChannelCountOverride !== null
+      ? `${inputChannelCountOverride} ch`
+      : `Auto (${inputDetectedChannelCount || '—'})`;
 
   return (
     <>
-      <Dialog.Title className="text-lg font-semibold mb-6" style={{ color: 'var(--color-text)' }}>
+      <Dialog.Title
+        className="mb-6 text-lg font-semibold"
+        style={{ color: 'var(--color-text)' }}
+      >
         Settings
       </Dialog.Title>
       <Dialog.Description className="sr-only">
@@ -158,7 +187,10 @@ function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) 
       <div className="flex flex-col gap-5">
         {/* Audio Input Device */}
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-dim)' }}>
+          <span
+            className="text-[10px] font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
             Audio Input Device
           </span>
           <DeviceDropdown
@@ -174,7 +206,10 @@ function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) 
         {/* Input Channel Count */}
         {inputDeviceId && (
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-dim)' }}>
+            <span
+              className="text-[10px] font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
               Input Channels
             </span>
             {probing ? (
@@ -192,20 +227,27 @@ function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) 
               <div style={{ position: 'relative' }}>
                 <div
                   onClick={() => setShowChannelCountMenu((v) => !v)}
-                  className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
+                  className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2"
                   style={{
                     backgroundColor: 'var(--color-surface-2)',
                     border: '1px solid var(--color-border)',
                   }}
                 >
-                  <span className="text-xs" style={{ color: 'var(--color-text)' }}>
+                  <span
+                    className="text-xs"
+                    style={{ color: 'var(--color-text)' }}
+                  >
                     {channelCountLabel}
                   </span>
-                  <ChevronDown size={14} className="shrink-0 ml-2" style={{ color: 'var(--color-text-dim)' }} />
+                  <ChevronDown
+                    size={14}
+                    className="ml-2 shrink-0"
+                    style={{ color: 'var(--color-text-dim)' }}
+                  />
                 </div>
                 {showChannelCountMenu && (
                   <div
-                    className="absolute left-0 right-0 rounded-lg overflow-hidden z-50"
+                    className="absolute inset-x-0 z-50 overflow-hidden rounded-lg"
                     style={{
                       top: '100%',
                       marginTop: 2,
@@ -216,17 +258,21 @@ function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) 
                     }}
                   >
                     {CHANNEL_COUNT_OPTIONS.map((opt) => {
-                      const isSelected = opt.value === inputChannelCountOverride;
-                      const label = opt.value === null
-                        ? `Auto (${inputDetectedChannelCount || '—'})`
-                        : `${opt.value} channels`;
+                      const isSelected =
+                        opt.value === inputChannelCountOverride;
+                      const label =
+                        opt.value === null
+                          ? `Auto (${inputDetectedChannelCount || '—'})`
+                          : `${opt.value} channels`;
                       return (
                         <div
                           key={opt.label}
                           onClick={() => handleSelectChannelCount(opt.value)}
-                          className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10"
+                          className="cursor-pointer px-3 py-1.5 text-xs hover:bg-white/10"
                           style={{
-                            color: isSelected ? 'var(--color-accent)' : 'var(--color-text)',
+                            color: isSelected
+                              ? 'var(--color-accent)'
+                              : 'var(--color-text)',
                           }}
                         >
                           {label}
@@ -242,7 +288,10 @@ function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) 
 
         {/* Audio Output Device */}
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-dim)' }}>
+          <span
+            className="text-[10px] font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
             Audio Output Device
           </span>
           {supportsOutput ? (
@@ -270,7 +319,10 @@ function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) 
 
         {/* Channel Configuration */}
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-dim)' }}>
+          <span
+            className="text-[10px] font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
             Channel Configuration
           </span>
           <div className="flex gap-3">
@@ -281,7 +333,9 @@ function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) 
               style={{
                 backgroundColor: 'var(--color-surface-2)',
                 border: '1px solid var(--color-border)',
-                color: inputDeviceId ? 'var(--color-text)' : 'var(--color-text-dim)',
+                color: inputDeviceId
+                  ? 'var(--color-text)'
+                  : 'var(--color-text-dim)',
                 cursor: inputDeviceId ? 'pointer' : 'default',
                 opacity: inputDeviceId ? 1 : 0.5,
               }}
@@ -295,7 +349,9 @@ function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) 
               style={{
                 backgroundColor: 'var(--color-surface-2)',
                 border: '1px solid var(--color-border)',
-                color: outputDeviceId ? 'var(--color-text)' : 'var(--color-text-dim)',
+                color: outputDeviceId
+                  ? 'var(--color-text)'
+                  : 'var(--color-text-dim)',
                 cursor: outputDeviceId ? 'pointer' : 'default',
                 opacity: outputDeviceId ? 1 : 0.5,
               }}
@@ -307,9 +363,20 @@ function MainView({ onNavigate }: { onNavigate: (view: SettingsView) => void }) 
 
         {/* Info row */}
         <div className="flex gap-6">
-          <InfoPill label="Sample Rate" value={sampleRate > 0 ? `${sampleRate} Hz` : '—'} />
-          <InfoPill label="Latency" value={latencyMs > 0 ? `${latencyMs.toFixed(1)} ms` : '—'} />
-          <InfoPill label="Channels" value={inputDeviceChannelCount > 0 ? `${inputDeviceChannelCount}` : '—'} />
+          <InfoPill
+            label="Sample Rate"
+            value={sampleRate > 0 ? `${sampleRate} Hz` : '—'}
+          />
+          <InfoPill
+            label="Latency"
+            value={latencyMs > 0 ? `${latencyMs.toFixed(1)} ms` : '—'}
+          />
+          <InfoPill
+            label="Channels"
+            value={
+              inputDeviceChannelCount > 0 ? `${inputDeviceChannelCount}` : '—'
+            }
+          />
         </div>
       </div>
     </>
@@ -347,15 +414,18 @@ function ChannelConfigView({
   return (
     <>
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="mb-4 flex items-center gap-3">
         <button
           onClick={onBack}
-          className="w-7 h-7 flex items-center justify-center rounded-md transition-colors hover:bg-white/10"
+          className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/10"
           style={{ color: 'var(--color-text-dim)' }}
         >
           <ArrowLeft size={16} />
         </button>
-        <Dialog.Title className="text-lg font-semibold" style={{ color: 'var(--color-text)' }}>
+        <Dialog.Title
+          className="text-lg font-semibold"
+          style={{ color: 'var(--color-text)' }}
+        >
           {label} Configuration
         </Dialog.Title>
       </div>
@@ -363,9 +433,13 @@ function ChannelConfigView({
         Choose which audio hardware {kind}s to make available to tracks.
       </Dialog.Description>
 
-      <p className="text-xs mb-5 leading-relaxed" style={{ color: 'var(--color-text-dim)' }}>
-        Choose which audio hardware {kind}s to make available to tracks.
-        Every {kind} pair can be used as one stereo {kind === 'input' ? 'in' : 'out'} and/or two mono {kind === 'input' ? 'ins' : 'outs'}.
+      <p
+        className="mb-5 text-xs leading-relaxed"
+        style={{ color: 'var(--color-text-dim)' }}
+      >
+        Choose which audio hardware {kind}s to make available to tracks. Every{' '}
+        {kind} pair can be used as one stereo {kind === 'input' ? 'in' : 'out'}{' '}
+        and/or two mono {kind === 'input' ? 'ins' : 'outs'}.
       </p>
 
       {channelCount === 0 ? (
@@ -373,11 +447,14 @@ function ChannelConfigView({
           No {kind} device selected.
         </p>
       ) : (
-        <div className="flex gap-8" style={{ maxHeight: 320, overflowY: 'auto' }}>
+        <div
+          className="flex gap-8"
+          style={{ maxHeight: 320, overflowY: 'auto' }}
+        >
           {/* Mono column */}
           <div className="flex-1">
             <span
-              className="text-[11px] font-semibold mb-3 block"
+              className="mb-3 block text-[11px] font-semibold"
               style={{ color: 'var(--color-text)' }}
             >
               Mono {label}s
@@ -390,10 +467,11 @@ function ChannelConfigView({
                 return (
                   <div key={pi} className="flex items-center gap-1.5">
                     <span
-                      className="text-[10px] w-10 shrink-0 text-right"
+                      className="w-10 shrink-0 text-right text-[10px]"
                       style={{ color: 'var(--color-text-dim)' }}
                     >
-                      {ch1 + 1}{hasCh2 ? ` & ${ch2 + 1}` : ''}
+                      {ch1 + 1}
+                      {hasCh2 ? ` & ${ch2 + 1}` : ''}
                     </span>
                     <ChannelToggle
                       active={enabledMono.includes(ch1)}
@@ -414,7 +492,7 @@ function ChannelConfigView({
           {/* Stereo column */}
           <div className="flex-1">
             <span
-              className="text-[11px] font-semibold mb-3 block"
+              className="mb-3 block text-[11px] font-semibold"
               style={{ color: 'var(--color-text)' }}
             >
               Stereo {label}s
@@ -454,7 +532,7 @@ function ChannelToggle({
   return (
     <button
       onClick={onClick}
-      className="rounded px-2.5 py-1 text-[11px] font-medium transition-colors cursor-pointer"
+      className="cursor-pointer rounded px-2.5 py-1 text-[11px] font-medium transition-colors"
       style={{
         backgroundColor: active ? '#f59e0b' : 'var(--color-surface-2)',
         color: active ? '#1a1a1a' : 'var(--color-text-dim)',
@@ -484,29 +562,38 @@ function DeviceDropdown({
   onToggle: () => void;
   placeholder: string;
 }) {
-  const selectedLabel = devices.find((d) => d.id === selectedId)?.label ?? placeholder;
+  const selectedLabel =
+    devices.find((d) => d.id === selectedId)?.label ?? placeholder;
 
   return (
     <div style={{ position: 'relative' }}>
       <div
         onClick={onToggle}
-        className="flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer"
+        className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2"
         style={{
           backgroundColor: 'var(--color-surface-2)',
           border: '1px solid var(--color-border)',
         }}
       >
         <span
-          className="text-xs truncate"
-          style={{ color: devices.length ? 'var(--color-text)' : 'var(--color-text-dim)' }}
+          className="truncate text-xs"
+          style={{
+            color: devices.length
+              ? 'var(--color-text)'
+              : 'var(--color-text-dim)',
+          }}
         >
           {selectedLabel}
         </span>
-        <ChevronDown size={14} className="shrink-0 ml-2" style={{ color: 'var(--color-text-dim)' }} />
+        <ChevronDown
+          size={14}
+          className="ml-2 shrink-0"
+          style={{ color: 'var(--color-text-dim)' }}
+        />
       </div>
       {open && devices.length > 0 && (
         <div
-          className="absolute left-0 right-0 rounded-lg overflow-hidden z-50"
+          className="absolute inset-x-0 z-50 overflow-hidden rounded-lg"
           style={{
             top: '100%',
             marginTop: 2,
@@ -520,9 +607,12 @@ function DeviceDropdown({
             <div
               key={d.id}
               onClick={() => onSelect(d.id)}
-              className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10 truncate"
+              className="cursor-pointer truncate px-3 py-1.5 text-xs hover:bg-white/10"
               style={{
-                color: d.id === selectedId ? 'var(--color-accent)' : 'var(--color-text)',
+                color:
+                  d.id === selectedId
+                    ? 'var(--color-accent)'
+                    : 'var(--color-text)',
               }}
             >
               {d.label}
@@ -539,11 +629,14 @@ function DeviceDropdown({
 function InfoPill({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-dim)' }}>
+      <span
+        className="text-[10px] font-semibold uppercase tracking-wider"
+        style={{ color: 'var(--color-text-dim)' }}
+      >
         {label}
       </span>
       <span
-        className="text-xs px-3 py-1.5 rounded-lg"
+        className="rounded-lg px-3 py-1.5 text-xs"
         style={{
           backgroundColor: 'var(--color-surface-2)',
           border: '1px solid var(--color-border)',

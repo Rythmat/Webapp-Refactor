@@ -1,24 +1,24 @@
-import { MUSIC_HISTORY } from './musicHistory'
-import { CITIES } from './cities'
-import { CITY_COUNTRY_TO_ISO } from './flagColors'
-import { getCountryColor } from './continentColors'
-import type { HistoricalEvent } from '@/components/atlas/types'
+import type { HistoricalEvent } from '@/components/atlas/types';
+import { CITIES } from './cities';
+import { getCountryColor } from './continentColors';
+import { CITY_COUNTRY_TO_ISO } from './flagColors';
+import { MUSIC_HISTORY } from './musicHistory';
 
 // Directed pair: `from` influenced `to` (chronological flow)
 interface EventConnection {
-  from: string   // upstream event ID (the influencer)
-  to: string     // downstream event ID (the influenced)
+  from: string; // upstream event ID (the influencer)
+  to: string; // downstream event ID (the influenced)
 }
 
 export interface ArcDatum {
-  startLat: number
-  startLng: number
-  endLat: number
-  endLng: number
-  label: string        // connected event's title
-  eventId: string      // connected event's ID (for click navigation)
-  direction: 'upstream' | 'downstream'
-  color: string        // hex color based on "from" event's region
+  startLat: number;
+  startLng: number;
+  endLat: number;
+  endLng: number;
+  label: string; // connected event's title
+  eventId: string; // connected event's ID (for click navigation)
+  direction: 'upstream' | 'downstream';
+  color: string; // hex color based on "from" event's region
 }
 
 const EVENT_CONNECTIONS: EventConnection[] = [
@@ -58,20 +58,38 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   // ── African Diaspora Seeds ──
   { from: 'evt-diaspora-nola-congo-1819', to: 'evt-jazz-origins-nola-1890' },
   { from: 'evt-diaspora-salvador-candomble-1830', to: 'evt-lundu-rio-1895' },
-  { from: 'evt-diaspora-nola-mardi-gras-indians-1885', to: 'evt-jazz-origins-nola-1890' },
-  { from: 'evt-diaspora-kingston-kumina-1950', to: 'evt-soundsystem-kingston-1956' },
+  {
+    from: 'evt-diaspora-nola-mardi-gras-indians-1885',
+    to: 'evt-jazz-origins-nola-1890',
+  },
+  {
+    from: 'evt-diaspora-kingston-kumina-1950',
+    to: 'evt-soundsystem-kingston-1956',
+  },
   { from: 'evt-diaspora-accra-armstrong-1956', to: 'evt-highlife-accra-1958' },
   { from: 'evt-diaspora-chicago-gospel-1932', to: 'evt-soul-memphis-1962' },
-  { from: 'evt-diaspora-chicago-gospel-1932', to: 'evt-rosettatharpe-littlerock-1950' },
-  { from: 'evt-diaspora-london-lovers-rock-1977', to: 'evt-jungle-london-1993' },
+  {
+    from: 'evt-diaspora-chicago-gospel-1932',
+    to: 'evt-rosettatharpe-littlerock-1950',
+  },
+  {
+    from: 'evt-diaspora-london-lovers-rock-1977',
+    to: 'evt-jungle-london-1993',
+  },
 
   // ── Appalachian / Country ──
-  { from: 'evt-appalachia-bristol-1830', to: 'evt-grand-ole-opry-nashville-1925' },
+  {
+    from: 'evt-appalachia-bristol-1830',
+    to: 'evt-grand-ole-opry-nashville-1925',
+  },
   { from: 'evt-appalachia-bristol-1830', to: 'evt-country-bristol-1927' },
   { from: 'evt-country-bristol-1927', to: 'evt-roots-nashville-1972' },
 
   // ── Spirituals / Gospel / Soul ──
-  { from: 'evt-spiritual-nashville-1867', to: 'evt-diaspora-chicago-gospel-1932' },
+  {
+    from: 'evt-spiritual-nashville-1867',
+    to: 'evt-diaspora-chicago-gospel-1932',
+  },
   { from: 'evt-rosettatharpe-littlerock-1950', to: 'evt-elvis-memphis-1954' },
   { from: 'evt-soul-memphis-1962', to: 'evt-motown-detroit-1963' },
   { from: 'evt-soul-memphis-1962', to: 'evt-southern-soul-memphis-1965' },
@@ -117,12 +135,21 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-lundu-rio-1895', to: 'evt-samba-rio-1928' },
   { from: 'evt-samba-rio-1928', to: 'evt-bossanova-rio-1962' },
   { from: 'evt-bossanova-rio-1962', to: 'evt-tropicalia-sao-paulo-1968' },
-  { from: 'evt-diaspora-salvador-bloco-afro-1979', to: 'evt-baile-funk-saopaulo-2004' },
+  {
+    from: 'evt-diaspora-salvador-bloco-afro-1979',
+    to: 'evt-baile-funk-saopaulo-2004',
+  },
 
   // ── Rock Chain ──
-  { from: 'evt-british-blues-london-1962', to: 'evt-merseybeat-liverpool-1963' },
+  {
+    from: 'evt-british-blues-london-1962',
+    to: 'evt-merseybeat-liverpool-1963',
+  },
   { from: 'evt-british-blues-london-1962', to: 'evt-psychedelia-sf-1967' },
-  { from: 'evt-british-blues-london-1962', to: 'evt-heavy-metal-birmingham-1970' },
+  {
+    from: 'evt-british-blues-london-1962',
+    to: 'evt-heavy-metal-birmingham-1970',
+  },
   { from: 'evt-merseybeat-liverpool-1963', to: 'evt-psychedelia-sf-1967' },
   { from: 'evt-merseybeat-liverpool-1963', to: 'evt-group-sounds-tokyo-1966' },
   { from: 'evt-raga-rock-mumbai-1965', to: 'evt-psychedelia-sf-1967' },
@@ -156,7 +183,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-disco-nyc-1977', to: 'evt-house-chicago-1984' },
   { from: 'evt-disco-nyc-1977', to: 'evt-new-beat-brussels-1988' },
   { from: 'evt-disco-nyc-1977', to: 'evt-french-touch-paris-1996' },
-  { from: 'evt-krautrock-dusseldorf-1974', to: 'evt-electronic-dusseldorf-1979' },
+  {
+    from: 'evt-krautrock-dusseldorf-1974',
+    to: 'evt-electronic-dusseldorf-1979',
+  },
   { from: 'evt-electronic-dusseldorf-1979', to: 'evt-techno-detroit-1985' },
   { from: 'evt-electronic-dusseldorf-1979', to: 'evt-hiphop-nyc-1984' },
   { from: 'evt-electronic-dusseldorf-1979', to: 'evt-citypop-tokyo-1982' },
@@ -180,15 +210,33 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-reggae-kingston-1971', to: 'evt-roots-reggae-kingston-1973' },
   { from: 'evt-roots-reggae-kingston-1973', to: 'evt-dancehall-kingston-1975' },
   { from: 'evt-dancehall-kingston-1975', to: 'evt-dancehall-kingston-1985' },
-  { from: 'evt-dancehall-kingston-1985', to: 'evt-dancehall-digital-kingston-1998' },
+  {
+    from: 'evt-dancehall-kingston-1985',
+    to: 'evt-dancehall-digital-kingston-1998',
+  },
   { from: 'evt-dancehall-kingston-1985', to: 'evt-jungle-london-1993' },
-  { from: 'evt-dancehall-kingston-1985', to: 'evt-reggaeton-underground-sanjuan-1993' },
-  { from: 'evt-dancehall-digital-kingston-1998', to: 'evt-reggaeton-san-juan-2004' },
-  { from: 'evt-dancehall-digital-kingston-1998', to: 'evt-dancehall-kingston-2010' },
+  {
+    from: 'evt-dancehall-kingston-1985',
+    to: 'evt-reggaeton-underground-sanjuan-1993',
+  },
+  {
+    from: 'evt-dancehall-digital-kingston-1998',
+    to: 'evt-reggaeton-san-juan-2004',
+  },
+  {
+    from: 'evt-dancehall-digital-kingston-1998',
+    to: 'evt-dancehall-kingston-2010',
+  },
 
   // ── Reggaeton / Latin Urban ──
-  { from: 'evt-reggae-espanol-panamacity-1985', to: 'evt-reggaeton-underground-sanjuan-1993' },
-  { from: 'evt-reggaeton-underground-sanjuan-1993', to: 'evt-reggaeton-san-juan-2004' },
+  {
+    from: 'evt-reggae-espanol-panamacity-1985',
+    to: 'evt-reggaeton-underground-sanjuan-1993',
+  },
+  {
+    from: 'evt-reggaeton-underground-sanjuan-1993',
+    to: 'evt-reggaeton-san-juan-2004',
+  },
   { from: 'evt-reggaeton-san-juan-2004', to: 'evt-latin-urban-medellin-2017' },
   { from: 'evt-reggaeton-san-juan-2004', to: 'evt-bad-bunny-sanjuan-2020' },
 
@@ -233,7 +281,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // ── East / Southern African ──
   { from: 'evt-benga-nairobi-1967', to: 'evt-bongo-flava-dar-1990' },
-  { from: 'evt-township-jive-johannesburg-1981', to: 'evt-amapiano-joburg-2019' },
+  {
+    from: 'evt-township-jive-johannesburg-1981',
+    to: 'evt-amapiano-joburg-2019',
+  },
 
   // ── Desert Blues / Saharan ──
   { from: 'evt-desert-blues-bamako-1980', to: 'evt-desert-blues-bamako-1994' },
@@ -243,7 +294,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-gnawa-marrakech-2000', to: 'evt-gnawa-marrakech-2005' },
 
   // ── Windrush / UK Caribbean ──
-  { from: 'evt-windrush-london-1948', to: 'evt-diaspora-london-lovers-rock-1977' },
+  {
+    from: 'evt-windrush-london-1948',
+    to: 'evt-diaspora-london-lovers-rock-1977',
+  },
   { from: 'evt-windrush-london-1948', to: 'evt-2tone-coventry-1979' },
 
   // ── UK Underground → Grime → Drill ──
@@ -256,10 +310,16 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-cumbia-barranquilla-1962', to: 'evt-chicha-lima-1970' },
   { from: 'evt-cumbia-barranquilla-1962', to: 'evt-sonidero-mexicocity-1975' },
   { from: 'evt-cumbia-barranquilla-1962', to: 'evt-cumbia-monterrey-1990' },
-  { from: 'evt-cumbia-barranquilla-1962', to: 'evt-cumbia-villera-buenosaires-1990' },
+  {
+    from: 'evt-cumbia-barranquilla-1962',
+    to: 'evt-cumbia-villera-buenosaires-1990',
+  },
 
   // ── Dominican / Merengue / Bachata ──
-  { from: 'evt-merengue-santodomingo-1958', to: 'evt-bachata-santodomingo-1980' },
+  {
+    from: 'evt-merengue-santodomingo-1958',
+    to: 'evt-bachata-santodomingo-1980',
+  },
 
   // ── K-Pop / Korean ──
   { from: 'evt-kpop-seoul-1996', to: 'evt-gangnam-style-seoul-2012' },
@@ -268,7 +328,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-bts-seoul-2013', to: 'evt-kpop-global-2020' },
 
   // ── Turkish / Anatolian ──
-  { from: 'evt-anatolian-rock-istanbul-1972', to: 'evt-arabesque-istanbul-1985' },
+  {
+    from: 'evt-anatolian-rock-istanbul-1972',
+    to: 'evt-arabesque-istanbul-1985',
+  },
 
   // ── Asian Underground / South Asian ──
   { from: 'evt-qawwali-lahore-1985', to: 'evt-asian-underground-london-1998' },
@@ -291,22 +354,55 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-diaspora-haiti-vodou-1804', to: 'evt-kompa-portauprince-1957' },
   { from: 'evt-merengue-santodomingo-1958', to: 'evt-kompa-portauprince-1957' },
   { from: 'evt-son-havana-1930', to: 'evt-bachata-santodomingo-1962' },
-  { from: 'evt-merengue-santodomingo-1958', to: 'evt-bachata-santodomingo-1962' },
-  { from: 'evt-bachata-santodomingo-1962', to: 'evt-bachata-santodomingo-1980' },
-  { from: 'evt-diaspora-portofspain-calypso-1914', to: 'evt-steelpan-portofspain-1951' },
-  { from: 'evt-diaspora-portofspain-calypso-1914', to: 'evt-junkanoo-nassau-1958' },
-  { from: 'evt-diaspora-portofspain-calypso-1914', to: 'evt-benna-stjohns-1960' },
-  { from: 'evt-diaspora-portofspain-calypso-1914', to: 'evt-calypso-sanjose-1970' },
-  { from: 'evt-steelpan-portofspain-1951', to: 'evt-diaspora-portofspain-soca-1973' },
+  {
+    from: 'evt-merengue-santodomingo-1958',
+    to: 'evt-bachata-santodomingo-1962',
+  },
+  {
+    from: 'evt-bachata-santodomingo-1962',
+    to: 'evt-bachata-santodomingo-1980',
+  },
+  {
+    from: 'evt-diaspora-portofspain-calypso-1914',
+    to: 'evt-steelpan-portofspain-1951',
+  },
+  {
+    from: 'evt-diaspora-portofspain-calypso-1914',
+    to: 'evt-junkanoo-nassau-1958',
+  },
+  {
+    from: 'evt-diaspora-portofspain-calypso-1914',
+    to: 'evt-benna-stjohns-1960',
+  },
+  {
+    from: 'evt-diaspora-portofspain-calypso-1914',
+    to: 'evt-calypso-sanjose-1970',
+  },
+  {
+    from: 'evt-steelpan-portofspain-1951',
+    to: 'evt-diaspora-portofspain-soca-1973',
+  },
   { from: 'evt-steelpan-portofspain-1951', to: 'evt-spouge-bridgetown-1969' },
   { from: 'evt-diaspora-portofspain-soca-1973', to: 'evt-bouyon-roseau-1988' },
-  { from: 'evt-diaspora-portofspain-soca-1973', to: 'evt-sugar-mas-basseterre-1971' },
-  { from: 'evt-diaspora-portofspain-soca-1973', to: 'evt-vincy-soca-kingstown-2009' },
+  {
+    from: 'evt-diaspora-portofspain-soca-1973',
+    to: 'evt-sugar-mas-basseterre-1971',
+  },
+  {
+    from: 'evt-diaspora-portofspain-soca-1973',
+    to: 'evt-vincy-soca-kingstown-2009',
+  },
   { from: 'evt-diaspora-portofspain-soca-1973', to: 'evt-jab-stgeorges-2000' },
-  { from: 'evt-diaspora-portofspain-soca-1973', to: 'evt-dennery-castries-2014' },
+  {
+    from: 'evt-diaspora-portofspain-soca-1973',
+    to: 'evt-dennery-castries-2014',
+  },
   { from: 'evt-bouyon-roseau-1988', to: 'evt-dennery-castries-2014' },
   { from: 'evt-vincy-soca-kingstown-2009', to: 'evt-dennery-castries-2014' },
-  { from: 'evt-spouge-bridgetown-1969', to: 'evt-diaspora-portofspain-soca-1973' },
+  {
+    from: 'evt-spouge-bridgetown-1969',
+    to: 'evt-diaspora-portofspain-soca-1973',
+  },
   { from: 'evt-benna-stjohns-1960', to: 'evt-sugar-mas-basseterre-1971' },
   { from: 'evt-jab-stgeorges-2000', to: 'evt-vincy-soca-kingstown-2009' },
   { from: 'evt-soundsystem-kingston-1956', to: 'evt-spouge-bridgetown-1969' },
@@ -330,22 +426,43 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-samba-rio-1928', to: 'evt-candombe-montevideo-1978' },
   { from: 'evt-tango-buenos-aires-1917', to: 'evt-candombe-montevideo-1978' },
   { from: 'evt-funk-augusta-1970', to: 'evt-kaseko-paramaribo-1970' },
-  { from: 'evt-diaspora-portofspain-calypso-1914', to: 'evt-kaseko-paramaribo-1970' },
+  {
+    from: 'evt-diaspora-portofspain-calypso-1914',
+    to: 'evt-kaseko-paramaribo-1970',
+  },
   { from: 'evt-kaseko-paramaribo-1970', to: 'evt-chutney-georgetown-1996' },
-  { from: 'evt-diaspora-portofspain-soca-1973', to: 'evt-chutney-georgetown-1996' },
+  {
+    from: 'evt-diaspora-portofspain-soca-1973',
+    to: 'evt-chutney-georgetown-1996',
+  },
   { from: 'evt-dancehall-kingston-1985', to: 'evt-bouyon-roseau-1988' },
   { from: 'evt-kompa-portauprince-1957', to: 'evt-bachata-santodomingo-1962' },
   { from: 'evt-guarania-asuncion-1944', to: 'evt-andean-lapaz-1965' },
-  { from: 'evt-bad-bunny-sanjuan-2020', to: 'evt-latin-streaming-mexicocity-2023' },
-  { from: 'evt-latin-urban-medellin-2017', to: 'evt-latin-streaming-mexicocity-2023' },
-  { from: 'evt-rosalia-sanjuan-2018', to: 'evt-latin-streaming-mexicocity-2023' },
+  {
+    from: 'evt-bad-bunny-sanjuan-2020',
+    to: 'evt-latin-streaming-mexicocity-2023',
+  },
+  {
+    from: 'evt-latin-urban-medellin-2017',
+    to: 'evt-latin-streaming-mexicocity-2023',
+  },
+  {
+    from: 'evt-rosalia-sanjuan-2018',
+    to: 'evt-latin-streaming-mexicocity-2023',
+  },
   { from: 'evt-dancehall-digital-kingston-1998', to: 'evt-jab-stgeorges-2000' },
   { from: 'evt-marimba-guatemalacity-1955', to: 'evt-sonnica-managua-1975' },
-  { from: 'evt-diaspora-salvador-candomble-1830', to: 'evt-diaspora-havana-rumba-1886' },
+  {
+    from: 'evt-diaspora-salvador-candomble-1830',
+    to: 'evt-diaspora-havana-rumba-1886',
+  },
   { from: 'evt-diaspora-lima-afro-peruvian-1957', to: 'evt-andean-lapaz-1965' },
   { from: 'evt-junkanoo-nassau-1958', to: 'evt-spouge-bridgetown-1969' },
   { from: 'evt-reggaeton-san-juan-2004', to: 'evt-dennery-castries-2014' },
-  { from: 'evt-latin-trap-medellin-2005', to: 'evt-latin-streaming-mexicocity-2023' },
+  {
+    from: 'evt-latin-trap-medellin-2005',
+    to: 'evt-latin-streaming-mexicocity-2023',
+  },
 
   // ── Africa (new) ──
   { from: 'evt-maqam-cairo-1870', to: 'evt-malouf-tunis-1934' },
@@ -357,7 +474,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-griot-timbuktu-1500', to: 'evt-bembeya-conakry-1966' },
   { from: 'evt-rumba-kinshasa-1950', to: 'evt-bembeya-conakry-1966' },
   { from: 'evt-highlife-lagos-1952', to: 'evt-bembeya-conakry-1966' },
-  { from: 'evt-diaspora-freetown-maroon-1800', to: 'evt-palmwine-freetown-1952' },
+  {
+    from: 'evt-diaspora-freetown-maroon-1800',
+    to: 'evt-palmwine-freetown-1952',
+  },
   { from: 'evt-palmwine-freetown-1952', to: 'evt-highlife-lagos-1952' },
   { from: 'evt-palmwine-freetown-1952', to: 'evt-gumbe-bissau-1975' },
   { from: 'evt-highlife-accra-1960', to: 'evt-bella-bellow-lome-1969' },
@@ -398,22 +518,40 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-rumba-kinshasa-1956', to: 'evt-zamrock-lusaka-1974' },
   { from: 'evt-zamrock-lusaka-1974', to: 'evt-chimurenga-harare-1977' },
   { from: 'evt-marrabenta-maputo-1955', to: 'evt-malipenga-blantyre-1960' },
-  { from: 'evt-township-jive-johannesburg-1981', to: 'evt-motswako-gaborone-2005' },
-  { from: 'evt-township-jive-johannesburg-1981', to: 'evt-shambo-windhoek-2000' },
+  {
+    from: 'evt-township-jive-johannesburg-1981',
+    to: 'evt-motswako-gaborone-2005',
+  },
+  {
+    from: 'evt-township-jive-johannesburg-1981',
+    to: 'evt-shambo-windhoek-2000',
+  },
   { from: 'evt-zamrock-lusaka-1974', to: 'evt-shambo-windhoek-2000' },
-  { from: 'evt-umhlanga-mbabane-1940', to: 'evt-township-jive-johannesburg-1981' },
+  {
+    from: 'evt-umhlanga-mbabane-1940',
+    to: 'evt-township-jive-johannesburg-1981',
+  },
   { from: 'evt-umhlanga-mbabane-1940', to: 'evt-famo-maseru-1970' },
   { from: 'evt-famo-maseru-1970', to: 'evt-township-jive-johannesburg-1981' },
-  { from: 'evt-township-jive-johannesburg-1981', to: 'evt-cape-jazz-capetown-1974' },
+  {
+    from: 'evt-township-jive-johannesburg-1981',
+    to: 'evt-cape-jazz-capetown-1974',
+  },
   { from: 'evt-cape-jazz-capetown-1974', to: 'evt-amapiano-joburg-2019' },
   { from: 'evt-soukous-kinshasa-1992', to: 'evt-kuduro-luanda-2000' },
   { from: 'evt-kuduro-luanda-2000', to: 'evt-kuduro-luanda-2005' },
   { from: 'evt-kuduro-luanda-2005', to: 'evt-afrobeats-lagos-2010' },
-  { from: 'evt-desert-blues-bamako-1980', to: 'evt-dimi-mint-abba-nouakchott-1977' },
+  {
+    from: 'evt-desert-blues-bamako-1980',
+    to: 'evt-dimi-mint-abba-nouakchott-1977',
+  },
   { from: 'evt-kora-banjul-1970', to: 'evt-morna-praia-1988' },
   { from: 'evt-makossa-douala-1972', to: 'evt-coupe-decale-abidjan-2002' },
   { from: 'evt-highlife-accra-1960', to: 'evt-gangbe-cotonou-2001' },
-  { from: 'evt-diaspora-dakar-blues-roots-1960', to: 'evt-dimi-mint-abba-nouakchott-1977' },
+  {
+    from: 'evt-diaspora-dakar-blues-roots-1960',
+    to: 'evt-dimi-mint-abba-nouakchott-1977',
+  },
 
   // ── Middle East / Central Asia / South Asia / SE Asia / East Asia / Oceania (new) ──
   { from: 'evt-fairuz-beirut-1957', to: 'evt-persian-pop-tehran-1970' },
@@ -434,7 +572,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-sawt-manama-1940', to: 'evt-liwa-muscat-1980' },
   { from: 'evt-sawt-manama-1940', to: 'evt-fijiri-doha-2010' },
   { from: 'evt-khaliji-pop-kuwait-1975', to: 'evt-arabic-hiphop-dubai-2017' },
-  { from: 'evt-palestinian-hiphop-ramallah-2007', to: 'evt-arabic-hiphop-dubai-2017' },
+  {
+    from: 'evt-palestinian-hiphop-ramallah-2007',
+    to: 'evt-arabic-hiphop-dubai-2017',
+  },
   { from: 'evt-arabic-hiphop-dubai-2017', to: 'evt-mdlbeast-riyadh-2019' },
   { from: 'evt-iraqi-maqam-baghdad-1932', to: 'evt-mugham-jazz-baku-1960' },
   { from: 'evt-mugham-jazz-baku-1960', to: 'evt-duduk-yerevan-2005' },
@@ -492,8 +633,14 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-jebwa-majuro-1979', to: 'evt-chant-palikir-1986' },
   { from: 'evt-steelguitar-honolulu-1927', to: 'evt-choral-apia-1962' },
   { from: 'evt-manas-epic-bishkek-1995', to: 'evt-throat-singing-kyzyl-1993' },
-  { from: 'evt-anatolian-rock-istanbul-1972', to: 'evt-persian-pop-tehran-1970' },
-  { from: 'evt-throat-singing-kyzyl-1993', to: 'evt-throatsinging-ulaanbaatar-1992' },
+  {
+    from: 'evt-anatolian-rock-istanbul-1972',
+    to: 'evt-persian-pop-tehran-1970',
+  },
+  {
+    from: 'evt-throat-singing-kyzyl-1993',
+    to: 'evt-throatsinging-ulaanbaatar-1992',
+  },
 
   // ── Europe (new) ──
   { from: 'evt-classical-vienna-1700', to: 'evt-chopin-warsaw-1927' },
@@ -506,7 +653,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-neapolitan-naples-1898', to: 'evt-ghana-valletta-1962' },
   { from: 'evt-philharmonic-montecarlo-1911', to: 'evt-sistine-vatican-1956' },
   { from: 'evt-philharmonic-montecarlo-1911', to: 'evt-choral-vaduz-1960' },
-  { from: 'evt-song-festival-riga-1873', to: 'evt-singing-revolution-tallinn-1988' },
+  {
+    from: 'evt-song-festival-riga-1873',
+    to: 'evt-singing-revolution-tallinn-1988',
+  },
   { from: 'evt-song-festival-riga-1873', to: 'evt-sutartines-vilnius-2010' },
   { from: 'evt-song-festival-riga-1873', to: 'evt-choral-vaduz-1960' },
   { from: 'evt-rebetiko-athens-1932', to: 'evt-cypriot-music-nicosia-1975' },
@@ -523,7 +673,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-bartok-budapest-1906', to: 'evt-slovak-folk-bratislava-1960' },
   { from: 'evt-krautrock-dusseldorf-1974', to: 'evt-bjork-reykjavik-1993' },
   { from: 'evt-electronic-dusseldorf-1979', to: 'evt-bjork-reykjavik-1993' },
-  { from: 'evt-electronic-dusseldorf-1979', to: 'evt-swedish-pop-stockholm-2012' },
+  {
+    from: 'evt-electronic-dusseldorf-1979',
+    to: 'evt-swedish-pop-stockholm-2012',
+  },
   { from: 'evt-electronic-dusseldorf-1979', to: 'evt-ozone-chisinau-2003' },
   { from: 'evt-punk-london-1976', to: 'evt-u2-dublin-1983' },
   { from: 'evt-punk-london-1976', to: 'evt-plastic-people-prague-1976' },
@@ -532,22 +685,37 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-newwave-london-1981', to: 'evt-bjork-reykjavik-1993' },
   { from: 'evt-black-metal-oslo-1993', to: 'evt-metal-helsinki-2006' },
   { from: 'evt-heavy-metal-birmingham-1970', to: 'evt-metal-helsinki-2006' },
-  { from: 'evt-heavy-metal-birmingham-1970', to: 'evt-bijelo-dugme-sarajevo-1974' },
+  {
+    from: 'evt-heavy-metal-birmingham-1970',
+    to: 'evt-bijelo-dugme-sarajevo-1974',
+  },
   { from: 'evt-bijelo-dugme-sarajevo-1974', to: 'evt-punk-zagreb-1978' },
   { from: 'evt-bijelo-dugme-sarajevo-1974', to: 'evt-turbofolk-belgrade-1990' },
   { from: 'evt-bijelo-dugme-sarajevo-1974', to: 'evt-laibach-ljubljana-1980' },
   { from: 'evt-laibach-ljubljana-1980', to: 'evt-turbofolk-belgrade-1990' },
   { from: 'evt-punk-zagreb-1978', to: 'evt-turbofolk-belgrade-1990' },
-  { from: 'evt-bulgarian-voices-sofia-1975', to: 'evt-iso-polyphony-tirana-2005' },
+  {
+    from: 'evt-bulgarian-voices-sofia-1975',
+    to: 'evt-iso-polyphony-tirana-2005',
+  },
   { from: 'evt-bulgarian-voices-sofia-1975', to: 'evt-roma-brass-skopje-1990' },
   { from: 'evt-bulgarian-voices-sofia-1975', to: 'evt-dakhabrakha-kyiv-2004' },
   { from: 'evt-turbofolk-belgrade-1990', to: 'evt-ozone-chisinau-2003' },
   { from: 'evt-turbofolk-belgrade-1990', to: 'evt-sea-dance-podgorica-2014' },
   { from: 'evt-roma-brass-skopje-1990', to: 'evt-sea-dance-podgorica-2014' },
-  { from: 'evt-plastic-people-prague-1976', to: 'evt-singing-revolution-tallinn-1988' },
+  {
+    from: 'evt-plastic-people-prague-1976',
+    to: 'evt-singing-revolution-tallinn-1988',
+  },
   { from: 'evt-plastic-people-prague-1976', to: 'evt-underground-minsk-2000' },
-  { from: 'evt-singing-revolution-tallinn-1988', to: 'evt-sutartines-vilnius-2010' },
-  { from: 'evt-singing-revolution-tallinn-1988', to: 'evt-underground-minsk-2000' },
+  {
+    from: 'evt-singing-revolution-tallinn-1988',
+    to: 'evt-sutartines-vilnius-2010',
+  },
+  {
+    from: 'evt-singing-revolution-tallinn-1988',
+    to: 'evt-underground-minsk-2000',
+  },
   { from: 'evt-slovak-folk-bratislava-1960', to: 'evt-dakhabrakha-kyiv-2004' },
   { from: 'evt-underground-minsk-2000', to: 'evt-dakhabrakha-kyiv-2004' },
   { from: 'evt-techno-berlin-1991', to: 'evt-sea-dance-podgorica-2014' },
@@ -584,7 +752,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-chopped-houston-1995', to: 'evt-hiphop-atlanta-2003' },
   { from: 'evt-subpop-seattle-1988', to: 'evt-grunge-seattle-1991' },
   { from: 'evt-punk-london-1976', to: 'evt-hardcore-hartford-1984' },
-  { from: 'evt-minorthreat-washingtondc-1981', to: 'evt-hardcore-hartford-1984' },
+  {
+    from: 'evt-minorthreat-washingtondc-1981',
+    to: 'evt-hardcore-hartford-1984',
+  },
   { from: 'evt-hardcore-hartford-1984', to: 'evt-hatebreed-hartford-2000' },
   { from: 'evt-pixies-boston-1988', to: 'evt-grunge-seattle-1991' },
   { from: 'evt-pixies-boston-1988', to: 'evt-indie-brooklyn-2005' },
@@ -599,31 +770,52 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-indie-brooklyn-2005', to: 'evt-streaming-global-2015' },
   { from: 'evt-gogo-dc-1979', to: 'evt-baltimore-club-baltimore-1993' },
   { from: 'evt-house-chicago-1984', to: 'evt-baltimore-club-baltimore-1993' },
-  { from: 'evt-baltimore-club-baltimore-1993', to: 'evt-whamcity-baltimore-2007' },
+  {
+    from: 'evt-baltimore-club-baltimore-1993',
+    to: 'evt-whamcity-baltimore-2007',
+  },
   { from: 'evt-jazz-origins-nola-1890', to: 'evt-meters-neworleans-1969' },
   { from: 'evt-funk-augusta-1970', to: 'evt-meters-neworleans-1969' },
   { from: 'evt-meters-neworleans-1969', to: 'evt-funk-minneapolis-1979' },
   { from: 'evt-soul-memphis-1962', to: 'evt-diaspora-memphis-stax-soul-1967' },
-  { from: 'evt-southern-soul-memphis-1965', to: 'evt-diaspora-memphis-stax-soul-1967' },
+  {
+    from: 'evt-southern-soul-memphis-1965',
+    to: 'evt-diaspora-memphis-stax-soul-1967',
+  },
   { from: 'evt-hiphop-nyc-1979', to: 'evt-diaspora-nyc-hip-hop-africa-1982' },
-  { from: 'evt-conscious-rap-nyc-1982', to: 'evt-diaspora-nyc-hip-hop-africa-1982' },
+  {
+    from: 'evt-conscious-rap-nyc-1982',
+    to: 'evt-diaspora-nyc-hip-hop-africa-1982',
+  },
   { from: 'evt-funk-minneapolis-1979', to: 'evt-rhymesayers-minneapolis-2002' },
   { from: 'evt-hiphop-nyc-1984', to: 'evt-rhymesayers-minneapolis-2002' },
-  { from: 'evt-rhymesayers-minneapolis-2002', to: 'evt-hiphop-pittsburgh-2010' },
+  {
+    from: 'evt-rhymesayers-minneapolis-2002',
+    to: 'evt-hiphop-pittsburgh-2010',
+  },
   { from: 'evt-hiphop-atlanta-2003', to: 'evt-hiphop-pittsburgh-2010' },
   { from: 'evt-soul-memphis-1962', to: 'evt-gospel-jackson-1965' },
   { from: 'evt-diaspora-chicago-gospel-1932', to: 'evt-gospel-jackson-1965' },
   { from: 'evt-blues-clarksdale-1903', to: 'evt-blues-jackson-1930' },
   { from: 'evt-blues-jackson-1930', to: 'evt-blues-mississippi-1936' },
   { from: 'evt-blues-jackson-1930', to: 'evt-gospel-jackson-1965' },
-  { from: 'evt-spiritual-nashville-1867', to: 'evt-freedomsongs-birmingham-1963' },
+  {
+    from: 'evt-spiritual-nashville-1867',
+    to: 'evt-freedomsongs-birmingham-1963',
+  },
   { from: 'evt-sunra-birmingham-1914', to: 'evt-freedomsongs-birmingham-1963' },
   { from: 'evt-sunra-birmingham-1914', to: 'evt-bebop-nyc-1945' },
   { from: 'evt-sunra-birmingham-1914', to: 'evt-jazz-la-1942' },
   { from: 'evt-folkfestival-anchorage-1980', to: 'evt-pamyua-anchorage-2010' },
-  { from: 'evt-ginblossoms-phoenix-1993', to: 'evt-jimmyeatworld-phoenix-2001' },
+  {
+    from: 'evt-ginblossoms-phoenix-1993',
+    to: 'evt-jimmyeatworld-phoenix-2001',
+  },
   { from: 'evt-pixies-boston-1988', to: 'evt-jimmyeatworld-phoenix-2001' },
-  { from: 'evt-rosettatharpe-littlerock-1950', to: 'evt-rockabilly-littlerock-1955' },
+  {
+    from: 'evt-rosettatharpe-littlerock-1950',
+    to: 'evt-rockabilly-littlerock-1955',
+  },
   { from: 'evt-elvis-memphis-1954', to: 'evt-rockabilly-littlerock-1955' },
   { from: 'evt-redrocks-denver-1971', to: 'evt-thefray-denver-2005' },
   { from: 'evt-boston-boston-1976', to: 'evt-pixies-boston-1988' },
@@ -634,16 +826,34 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-steelguitar-honolulu-1927', to: 'evt-iz-honolulu-1993' },
   { from: 'evt-builttospill-boise-1992', to: 'evt-treefort-boise-2015' },
   { from: 'evt-builttospill-boise-1992', to: 'evt-indie-portland-2003' },
-  { from: 'evt-kc-jazz-kansascity-1936', to: 'evt-wesmontgomery-indianapolis-1955' },
-  { from: 'evt-wesmontgomery-indianapolis-1955', to: 'evt-mellencamp-indianapolis-1982' },
-  { from: 'evt-heavy-metal-birmingham-1970', to: 'evt-slipknot-desmoines-1999' },
+  {
+    from: 'evt-kc-jazz-kansascity-1936',
+    to: 'evt-wesmontgomery-indianapolis-1955',
+  },
+  {
+    from: 'evt-wesmontgomery-indianapolis-1955',
+    to: 'evt-mellencamp-indianapolis-1982',
+  },
+  {
+    from: 'evt-heavy-metal-birmingham-1970',
+    to: 'evt-slipknot-desmoines-1999',
+  },
   { from: 'evt-deathmetal-tampa-1990', to: 'evt-slipknot-desmoines-1999' },
   { from: 'evt-slipknot-desmoines-1999', to: 'evt-8035fest-desmoines-2008' },
   { from: 'evt-kc-jazz-kansascity-1936', to: 'evt-jazztouring-wichita-1936' },
-  { from: 'evt-jazztouring-wichita-1936', to: 'evt-embarrassment-wichita-1983' },
+  {
+    from: 'evt-jazztouring-wichita-1936',
+    to: 'evt-embarrassment-wichita-1983',
+  },
   { from: 'evt-slint-louisville-1991', to: 'evt-mmj-louisville-2003' },
-  { from: 'evt-minorthreat-washingtondc-1981', to: 'evt-slint-louisville-1991' },
-  { from: 'evt-folktradition-portland-2000', to: 'evt-portlandmusic-portland-2012' },
+  {
+    from: 'evt-minorthreat-washingtondc-1981',
+    to: 'evt-slint-louisville-1991',
+  },
+  {
+    from: 'evt-folktradition-portland-2000',
+    to: 'evt-portlandmusic-portland-2012',
+  },
   { from: 'evt-folkamericana-missoula-1999', to: 'evt-wilma-missoula-2014' },
   { from: 'evt-roots-nashville-1972', to: 'evt-folkamericana-missoula-1999' },
   { from: 'evt-saddlecreek-omaha-1996', to: 'evt-brighteyes-omaha-2005' },
@@ -652,7 +862,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-ratpack-lasvegas-1960', to: 'evt-killers-lasvegas-2003' },
   { from: 'evt-newwave-london-1981', to: 'evt-killers-lasvegas-2003' },
   { from: 'evt-hardcore-hartford-1984', to: 'evt-hardcore-manchester-1990' },
-  { from: 'evt-hardcore-manchester-1990', to: 'evt-indiescene-manchester-2010' },
+  {
+    from: 'evt-hardcore-manchester-1990',
+    to: 'evt-indiescene-manchester-2010',
+  },
   { from: 'evt-powwow-albuquerque-1970', to: 'evt-shins-albuquerque-2001' },
   { from: 'evt-blues-jackson-1930', to: 'evt-piedmontblues-charlotte-1940' },
   { from: 'evt-piedmontblues-charlotte-1940', to: 'evt-dababy-charlotte-2019' },
@@ -661,39 +874,84 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-roots-nashville-1972', to: 'evt-tulsasound-tulsa-1972' },
   { from: 'evt-rockabilly-littlerock-1955', to: 'evt-tulsasound-tulsa-1972' },
   { from: 'evt-tulsasound-tulsa-1972', to: 'evt-hanson-tulsa-2007' },
-  { from: 'evt-lightningbolt-providence-1995', to: 'evt-artrock-providence-2002' },
+  {
+    from: 'evt-lightningbolt-providence-1995',
+    to: 'evt-artrock-providence-2002',
+  },
   { from: 'evt-punk-london-1976', to: 'evt-lightningbolt-providence-1995' },
   { from: 'evt-charlestondance-charleston-1923', to: 'evt-swing-nyc-1935' },
-  { from: 'evt-charlestondance-charleston-1923', to: 'evt-shovelsrope-charleston-2010' },
+  {
+    from: 'evt-charlestondance-charleston-1923',
+    to: 'evt-shovelsrope-charleston-2010',
+  },
   { from: 'evt-roots-nashville-1972', to: 'evt-shovelsrope-charleston-2010' },
-  { from: 'evt-lakotadrums-siouxfalls-1990', to: 'evt-indierock-siouxfalls-2010' },
+  {
+    from: 'evt-lakotadrums-siouxfalls-1990',
+    to: 'evt-indierock-siouxfalls-2010',
+  },
   { from: 'evt-punk-london-1976', to: 'evt-theused-saltlakecity-2001' },
-  { from: 'evt-jimmyeatworld-phoenix-2001', to: 'evt-theused-saltlakecity-2001' },
-  { from: 'evt-theused-saltlakecity-2001', to: 'evt-neontrees-saltlakecity-2010' },
+  {
+    from: 'evt-jimmyeatworld-phoenix-2001',
+    to: 'evt-theused-saltlakecity-2001',
+  },
+  {
+    from: 'evt-theused-saltlakecity-2001',
+    to: 'evt-neontrees-saltlakecity-2010',
+  },
   { from: 'evt-newwave-london-1981', to: 'evt-neontrees-saltlakecity-2010' },
   { from: 'evt-phish-burlington-1983', to: 'evt-folkfestival-burlington-2005' },
   { from: 'evt-psychedelic-sf-1967', to: 'evt-phish-burlington-1983' },
   { from: 'evt-gwar-richmond-1985', to: 'evt-lambofgod-richmond-2004' },
   { from: 'evt-deathmetal-tampa-1990', to: 'evt-lambofgod-richmond-2004' },
   { from: 'evt-heavy-metal-birmingham-1970', to: 'evt-gwar-richmond-1985' },
-  { from: 'evt-appalachia-bristol-1830', to: 'evt-oldtimefiddle-charleston-1930' },
-  { from: 'evt-oldtimefiddle-charleston-1930', to: 'evt-hazeldickens-charleston-1968' },
+  {
+    from: 'evt-appalachia-bristol-1830',
+    to: 'evt-oldtimefiddle-charleston-1930',
+  },
+  {
+    from: 'evt-oldtimefiddle-charleston-1930',
+    to: 'evt-hazeldickens-charleston-1968',
+  },
   { from: 'evt-roots-nashville-1972', to: 'evt-hazeldickens-charleston-1968' },
-  { from: 'evt-hazeldickens-charleston-1968', to: 'evt-folkamericana-missoula-1999' },
-  { from: 'evt-summerfest-milwaukee-1968', to: 'evt-violentfemmes-milwaukee-1983' },
+  {
+    from: 'evt-hazeldickens-charleston-1968',
+    to: 'evt-folkamericana-missoula-1999',
+  },
+  {
+    from: 'evt-summerfest-milwaukee-1968',
+    to: 'evt-violentfemmes-milwaukee-1983',
+  },
   { from: 'evt-punk-london-1976', to: 'evt-violentfemmes-milwaukee-1983' },
-  { from: 'evt-frontierdays-cheyenne-1940', to: 'evt-chrisledoux-cheyenne-1997' },
-  { from: 'evt-grand-ole-opry-nashville-1925', to: 'evt-frontierdays-cheyenne-1940' },
+  {
+    from: 'evt-frontierdays-cheyenne-1940',
+    to: 'evt-chrisledoux-cheyenne-1997',
+  },
+  {
+    from: 'evt-grand-ole-opry-nashville-1925',
+    to: 'evt-frontierdays-cheyenne-1940',
+  },
   { from: 'evt-soul-memphis-1962', to: 'evt-dallas-soul-dallas-2015' },
-  { from: 'evt-diaspora-memphis-stax-soul-1967', to: 'evt-dallas-soul-dallas-2015' },
-  { from: 'evt-powwow-albuquerque-1970', to: 'evt-folkfestival-anchorage-1980' },
-  { from: 'evt-powwow-albuquerque-1970', to: 'evt-lakotadrums-siouxfalls-1990' },
+  {
+    from: 'evt-diaspora-memphis-stax-soul-1967',
+    to: 'evt-dallas-soul-dallas-2015',
+  },
+  {
+    from: 'evt-powwow-albuquerque-1970',
+    to: 'evt-folkfestival-anchorage-1980',
+  },
+  {
+    from: 'evt-powwow-albuquerque-1970',
+    to: 'evt-lakotadrums-siouxfalls-1990',
+  },
   { from: 'evt-edm-miami-2006', to: 'evt-streaming-global-2015' },
   { from: 'evt-trap-atlanta-2012', to: 'evt-streaming-global-2015' },
   { from: 'evt-slint-louisville-1991', to: 'evt-saddlecreek-omaha-1996' },
   { from: 'evt-artrock-providence-2002', to: 'evt-whamcity-baltimore-2007' },
   { from: 'evt-mmj-louisville-2003', to: 'evt-thefray-denver-2005' },
-  { from: 'evt-folkfestival-anchorage-1980', to: 'evt-scandinavianfolk-fargo-1990' },
+  {
+    from: 'evt-folkfestival-anchorage-1980',
+    to: 'evt-scandinavianfolk-fargo-1990',
+  },
   { from: 'evt-brighteyes-omaha-2005', to: 'evt-austin-sxsw-2007' },
   { from: 'evt-jazzfest-montreal-1980', to: 'evt-arcade-fire-montreal-2004' },
   { from: 'evt-indie-brooklyn-2005', to: 'evt-arcade-fire-montreal-2004' },
@@ -707,38 +965,62 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-merseybeat-liverpool-1963', to: 'evt-guesswho-winnipeg-1965' },
   { from: 'evt-guesswho-winnipeg-1965', to: 'evt-weakerthans-winnipeg-2000' },
   { from: 'evt-punk-london-1976', to: 'evt-weakerthans-winnipeg-2000' },
-  { from: 'evt-jonimitchell-saskatoon-1964', to: 'evt-sask-jazz-saskatoon-1987' },
+  {
+    from: 'evt-jonimitchell-saskatoon-1964',
+    to: 'evt-sask-jazz-saskatoon-1987',
+  },
   { from: 'evt-jonimitchell-saskatoon-1964', to: 'evt-roots-nashville-1972' },
   { from: 'evt-celtic-halifax-1970', to: 'evt-sloan-halifax-1992' },
   { from: 'evt-grunge-seattle-1991', to: 'evt-sloan-halifax-1992' },
   { from: 'evt-sloan-halifax-1992', to: 'evt-eric-trip-moncton-1993' },
   { from: 'evt-celtic-halifax-1970', to: 'evt-acadian-moncton-1994' },
   { from: 'evt-acadian-moncton-1994', to: 'evt-greatbigseea-stjohns-1993' },
-  { from: 'evt-georgestreet-stjohns-1985', to: 'evt-greatbigseea-stjohns-1993' },
+  {
+    from: 'evt-georgestreet-stjohns-1985',
+    to: 'evt-greatbigseea-stjohns-1993',
+  },
   { from: 'evt-celtic-halifax-1970', to: 'evt-georgestreet-stjohns-1985' },
   { from: 'evt-celtic-halifax-1970', to: 'evt-ceilidh-charlottetown-1977' },
-  { from: 'evt-ceilidh-charlottetown-1977', to: 'evt-rootsfest-charlottetown-2010' },
+  {
+    from: 'evt-ceilidh-charlottetown-1977',
+    to: 'evt-rootsfest-charlottetown-2010',
+  },
   { from: 'evt-folkfest-edmonton-1980', to: 'evt-folkfestival-anchorage-1980' },
   { from: 'evt-jazzfest-montreal-1980', to: 'evt-sask-jazz-saskatoon-1987' },
   { from: 'evt-eric-trip-moncton-1993', to: 'evt-indie-brooklyn-2005' },
   { from: 'evt-jazz-nola-1923', to: 'evt-jazztouring-wichita-1936' },
-  { from: 'evt-embarrassment-wichita-1983', to: 'evt-killrockstars-portland-1991' },
+  {
+    from: 'evt-embarrassment-wichita-1983',
+    to: 'evt-killrockstars-portland-1991',
+  },
   { from: 'evt-freedomsongs-birmingham-1963', to: 'evt-gospel-jackson-1965' },
   { from: 'evt-jazz-nola-1923', to: 'evt-jazzfest-montreal-1980' },
   { from: 'evt-indierock-fargo-2008', to: 'evt-indierock-siouxfalls-2010' },
-  { from: 'evt-folktradition-portland-2000', to: 'evt-folkfestival-burlington-2005' },
+  {
+    from: 'evt-folktradition-portland-2000',
+    to: 'evt-folkfestival-burlington-2005',
+  },
   { from: 'evt-reggae-kingston-1971', to: 'evt-bobmarley-wilmington-1965' },
-  { from: 'evt-mellencamp-indianapolis-1982', to: 'evt-slipknot-desmoines-1999' },
+  {
+    from: 'evt-mellencamp-indianapolis-1982',
+    to: 'evt-slipknot-desmoines-1999',
+  },
 
   // ── Final remaining events ──
   { from: 'evt-reggae-kingston-1971', to: 'evt-reggae-kingston-1977' },
   { from: 'evt-reggae-kingston-1977', to: 'evt-roots-reggae-kingston-1973' },
   { from: 'evt-balearic-ibiza-1988', to: 'evt-electronic-ibiza-1988' },
   { from: 'evt-electronic-ibiza-1988', to: 'evt-edm-amsterdam-2005' },
-  { from: 'evt-philly-soul-philadelphia-1972', to: 'evt-philly-soul-philadelphia-1974' },
+  {
+    from: 'evt-philly-soul-philadelphia-1972',
+    to: 'evt-philly-soul-philadelphia-1974',
+  },
   { from: 'evt-philly-soul-philadelphia-1974', to: 'evt-disco-nyc-1977' },
   { from: 'evt-amapiano-joburg-2019', to: 'evt-amapiano-johannesburg-2019' },
-  { from: 'evt-township-jive-johannesburg-1981', to: 'evt-amapiano-johannesburg-2019' },
+  {
+    from: 'evt-township-jive-johannesburg-1981',
+    to: 'evt-amapiano-johannesburg-2019',
+  },
 
   // ── West Asia ──
   { from: 'evt-ottoman-istanbul-1700', to: 'evt-anatolian-rock-istanbul-1972' },
@@ -747,7 +1029,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-ottoman-istanbul-1700', to: 'evt-oud-damascus-1920' },
   { from: 'evt-ottoman-istanbul-1700', to: 'evt-persian-pop-tehran-1970' },
   { from: 'evt-psychedelia-sf-1967', to: 'evt-anatolian-rock-istanbul-1972' },
-  { from: 'evt-merseybeat-liverpool-1963', to: 'evt-anatolian-rock-istanbul-1972' },
+  {
+    from: 'evt-merseybeat-liverpool-1963',
+    to: 'evt-anatolian-rock-istanbul-1972',
+  },
   { from: 'evt-fairuz-beirut-1957', to: 'evt-persian-pop-tehran-1970' },
   { from: 'evt-fairuz-beirut-1957', to: 'evt-mizrahi-telaviv-1980' },
   { from: 'evt-fairuz-beirut-1957', to: 'evt-khaleeji-dubai-2005' },
@@ -775,7 +1060,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-ymo-tokyo-1978', to: 'evt-citypop-tokyo-1982' },
   { from: 'evt-ymo-tokyo-1978', to: 'evt-kpop-seoul-1996' },
   { from: 'evt-peking-opera-beijing-1790', to: 'evt-cantopop-beijing-1980' },
-  { from: 'evt-peking-opera-beijing-1790', to: 'evt-chinese-rock-beijing-1986' },
+  {
+    from: 'evt-peking-opera-beijing-1790',
+    to: 'evt-chinese-rock-beijing-1986',
+  },
   { from: 'evt-cantopop-beijing-1980', to: 'evt-chinese-rock-beijing-1986' },
   { from: 'evt-pansori-seoul-1800', to: 'evt-kpop-seoul-1996' },
   { from: 'evt-pansori-seoul-1800', to: 'evt-k-hiphop-seoul-1996' },
@@ -858,7 +1146,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-wagner-bayreuth-1876', to: 'evt-brahms-vienna-1876' },
   { from: 'evt-wagner-bayreuth-1876', to: 'evt-tchaikovsky-stpetersburg-1877' },
   { from: 'evt-brahms-vienna-1876', to: 'evt-sibelius-helsinki-1899' },
-  { from: 'evt-tchaikovsky-stpetersburg-1877', to: 'evt-sibelius-helsinki-1899' },
+  {
+    from: 'evt-tchaikovsky-stpetersburg-1877',
+    to: 'evt-sibelius-helsinki-1899',
+  },
 
   // ── Modernism (intra-period) ──
   { from: 'evt-debussy-paris-1894', to: 'evt-stravinsky-paris-1913' },
@@ -906,7 +1197,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-wagner-bayreuth-1876', to: 'evt-debussy-paris-1894' },
   { from: 'evt-wagner-bayreuth-1876', to: 'evt-schoenberg-vienna-1921' },
   { from: 'evt-brahms-vienna-1876', to: 'evt-schoenberg-vienna-1921' },
-  { from: 'evt-tchaikovsky-stpetersburg-1877', to: 'evt-stravinsky-paris-1913' },
+  {
+    from: 'evt-tchaikovsky-stpetersburg-1877',
+    to: 'evt-stravinsky-paris-1913',
+  },
   { from: 'evt-sibelius-helsinki-1899', to: 'evt-part-tallinn-1977' },
 
   // Modernism → Contemporary
@@ -939,8 +1233,14 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-stravinsky-paris-1913', to: 'evt-jazz-age-paris-1925' },
 
   // Stockhausen → Krautrock/Kraftwerk
-  { from: 'evt-stockhausen-dusseldorf-1956', to: 'evt-krautrock-dusseldorf-1974' },
-  { from: 'evt-stockhausen-dusseldorf-1956', to: 'evt-electronic-dusseldorf-1979' },
+  {
+    from: 'evt-stockhausen-dusseldorf-1956',
+    to: 'evt-krautrock-dusseldorf-1974',
+  },
+  {
+    from: 'evt-stockhausen-dusseldorf-1956',
+    to: 'evt-electronic-dusseldorf-1979',
+  },
 
   // Dada → Cage
   { from: 'evt-dada-zurich-1916', to: 'evt-cage-nyc-1952' },
@@ -955,10 +1255,16 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-part-tallinn-1977', to: 'evt-singing-revolution-tallinn-1988' },
 
   // Shostakovich → Plastic People of Prague (art under totalitarianism)
-  { from: 'evt-shostakovich-moscow-1937', to: 'evt-plastic-people-prague-1976' },
+  {
+    from: 'evt-shostakovich-moscow-1937',
+    to: 'evt-plastic-people-prague-1976',
+  },
 
   // Tchaikovsky → Bollywood (orchestral scoring tradition)
-  { from: 'evt-tchaikovsky-stpetersburg-1877', to: 'evt-bollywood-mumbai-1935' },
+  {
+    from: 'evt-tchaikovsky-stpetersburg-1877',
+    to: 'evt-bollywood-mumbai-1935',
+  },
 
   // ═══════════════════════════════════════════════════════════════
   // ██  ASIAN & MIDDLE EASTERN TRADITIONAL MUSIC CONNECTIONS  ██
@@ -1006,22 +1312,40 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   // Arabic → Andalusian
   { from: 'evt-arabic-classical-baghdad-800', to: 'evt-andalusi-fez-1492' },
   // Arabic → Persian classical
-  { from: 'evt-arabic-classical-baghdad-800', to: 'evt-persian-classical-isfahan-1501' },
+  {
+    from: 'evt-arabic-classical-baghdad-800',
+    to: 'evt-persian-classical-isfahan-1501',
+  },
   // Arabic → Ottoman
   { from: 'evt-arabic-classical-baghdad-800', to: 'evt-ottoman-istanbul-1700' },
   // Persian → Central Asian Shashmaqam
-  { from: 'evt-persian-classical-isfahan-1501', to: 'evt-shashmaqam-bukhara-1600' },
+  {
+    from: 'evt-persian-classical-isfahan-1501',
+    to: 'evt-shashmaqam-bukhara-1600',
+  },
   // Persian → Ottoman
-  { from: 'evt-persian-classical-isfahan-1501', to: 'evt-ottoman-istanbul-1700' },
+  {
+    from: 'evt-persian-classical-isfahan-1501',
+    to: 'evt-ottoman-istanbul-1700',
+  },
 
   // ── Cross-Regional Influence Bridges ──
 
   // Arabic → European troubadour (the Ziryab bridge)
-  { from: 'evt-arabic-classical-baghdad-800', to: 'evt-troubadour-seville-1200' },
+  {
+    from: 'evt-arabic-classical-baghdad-800',
+    to: 'evt-troubadour-seville-1200',
+  },
   // Persian dastgah → Hindustani raga (the Mughal bridge)
-  { from: 'evt-persian-classical-isfahan-1501', to: 'evt-hindustani-varanasi-1560' },
+  {
+    from: 'evt-persian-classical-isfahan-1501',
+    to: 'evt-hindustani-varanasi-1560',
+  },
   // Islamic music → Malay courts via trade routes
-  { from: 'evt-arabic-classical-baghdad-800', to: 'evt-klasik-kualalumpur-1400' },
+  {
+    from: 'evt-arabic-classical-baghdad-800',
+    to: 'evt-klasik-kualalumpur-1400',
+  },
   // Abbasid maqam theory → Cairo school
   { from: 'evt-arabic-classical-baghdad-800', to: 'evt-maqam-cairo-1870' },
   // Andalusian expulsion → flamenco roots
@@ -1068,115 +1392,126 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   // Vietnamese court → ca tru heritage
   { from: 'evt-nhanhac-hue-1802', to: 'evt-catru-hanoi-2009' },
   // Persian classical → Persian pop
-  { from: 'evt-persian-classical-isfahan-1501', to: 'evt-persian-pop-tehran-1970' },
-]
+  {
+    from: 'evt-persian-classical-isfahan-1501',
+    to: 'evt-persian-pop-tehran-1970',
+  },
+];
 
 // Build event lookup map once at module scope
-const EVENT_MAP = new Map<string, HistoricalEvent>()
+const EVENT_MAP = new Map<string, HistoricalEvent>();
 for (const event of MUSIC_HISTORY) {
-  EVENT_MAP.set(event.id, event)
+  EVENT_MAP.set(event.id, event);
 }
 
 // City name → country color lookup for arc/pill coloring
-const CITY_COUNTRY_COLOR_MAP = new Map<string, string>()
+const CITY_COUNTRY_COLOR_MAP = new Map<string, string>();
 for (const city of CITIES) {
-  const iso = CITY_COUNTRY_TO_ISO[city.country]
+  const iso = CITY_COUNTRY_TO_ISO[city.country];
   if (iso) {
-    CITY_COUNTRY_COLOR_MAP.set(city.name.toLowerCase(), getCountryColor(iso))
+    CITY_COUNTRY_COLOR_MAP.set(city.name.toLowerCase(), getCountryColor(iso));
   }
 }
 
 export function getEventCountryColor(event: HistoricalEvent): string {
-  return CITY_COUNTRY_COLOR_MAP.get(event.location.city.toLowerCase()) ?? '#a1a1aa'
+  return (
+    CITY_COUNTRY_COLOR_MAP.get(event.location.city.toLowerCase()) ?? '#a1a1aa'
+  );
 }
 
 export interface EventConnectionInfo {
-  event: HistoricalEvent
-  direction: 'upstream' | 'downstream'
+  event: HistoricalEvent;
+  direction: 'upstream' | 'downstream';
 }
 
 export function getConnectionsForEvent(eventId: string): EventConnectionInfo[] {
-  const connections: EventConnectionInfo[] = []
+  const connections: EventConnectionInfo[] = [];
   for (const conn of EVENT_CONNECTIONS) {
     if (conn.to === eventId) {
-      const other = EVENT_MAP.get(conn.from)
-      if (other) connections.push({ event: other, direction: 'upstream' })
+      const other = EVENT_MAP.get(conn.from);
+      if (other) connections.push({ event: other, direction: 'upstream' });
     }
     if (conn.from === eventId) {
-      const other = EVENT_MAP.get(conn.to)
-      if (other) connections.push({ event: other, direction: 'downstream' })
+      const other = EVENT_MAP.get(conn.to);
+      if (other) connections.push({ event: other, direction: 'downstream' });
     }
   }
   return connections.sort((a, b) => {
-    if (a.direction !== b.direction) return a.direction === 'upstream' ? -1 : 1
-    return a.event.year - b.event.year
-  })
+    if (a.direction !== b.direction) return a.direction === 'upstream' ? -1 : 1;
+    return a.event.year - b.event.year;
+  });
 }
 
 export interface UpstreamChainNode {
-  event: HistoricalEvent
-  upstream: UpstreamChainNode[]
+  event: HistoricalEvent;
+  upstream: UpstreamChainNode[];
 }
 
-export function getUpstreamChain(eventId: string, maxDepth = 10): UpstreamChainNode[] {
-  const visited = new Set<string>()
+export function getUpstreamChain(
+  eventId: string,
+  maxDepth = 10,
+): UpstreamChainNode[] {
+  const visited = new Set<string>();
 
   function walk(id: string, depth: number): UpstreamChainNode[] {
-    if (depth <= 0) return []
-    const nodes: UpstreamChainNode[] = []
+    if (depth <= 0) return [];
+    const nodes: UpstreamChainNode[] = [];
     for (const conn of EVENT_CONNECTIONS) {
       if (conn.to === id && !visited.has(conn.from)) {
-        const event = EVENT_MAP.get(conn.from)
+        const event = EVENT_MAP.get(conn.from);
         if (event) {
-          visited.add(conn.from)
+          visited.add(conn.from);
           nodes.push({
             event,
             upstream: walk(conn.from, depth - 1),
-          })
+          });
         }
       }
     }
-    return nodes.sort((a, b) => a.event.year - b.event.year)
+    return nodes.sort((a, b) => a.event.year - b.event.year);
   }
 
-  visited.add(eventId)
-  return walk(eventId, maxDepth)
+  visited.add(eventId);
+  return walk(eventId, maxDepth);
 }
 
-export function getDownstreamChain(eventId: string, maxDepth = 10): UpstreamChainNode[] {
-  const visited = new Set<string>()
+export function getDownstreamChain(
+  eventId: string,
+  maxDepth = 10,
+): UpstreamChainNode[] {
+  const visited = new Set<string>();
 
   function walk(id: string, depth: number): UpstreamChainNode[] {
-    if (depth <= 0) return []
-    const nodes: UpstreamChainNode[] = []
+    if (depth <= 0) return [];
+    const nodes: UpstreamChainNode[] = [];
     for (const conn of EVENT_CONNECTIONS) {
       if (conn.from === id && !visited.has(conn.to)) {
-        const event = EVENT_MAP.get(conn.to)
+        const event = EVENT_MAP.get(conn.to);
         if (event) {
-          visited.add(conn.to)
+          visited.add(conn.to);
           nodes.push({
             event,
             upstream: walk(conn.to, depth - 1),
-          })
+          });
         }
       }
     }
-    return nodes.sort((a, b) => a.event.year - b.event.year)
+    return nodes.sort((a, b) => a.event.year - b.event.year);
   }
 
-  visited.add(eventId)
-  return walk(eventId, maxDepth)
+  visited.add(eventId);
+  return walk(eventId, maxDepth);
 }
 
 export function getArcsForEvent(eventId: string): ArcDatum[] {
-  const pinned = EVENT_MAP.get(eventId)
-  if (!pinned) return []
+  const pinned = EVENT_MAP.get(eventId);
+  if (!pinned) return [];
 
-  const arcs: ArcDatum[] = []
+  const arcs: ArcDatum[] = [];
 
   for (const conn of EVENT_CONNECTIONS) {
     if (conn.to === eventId) {
-      const other = EVENT_MAP.get(conn.from)
+      const other = EVENT_MAP.get(conn.from);
       if (other) {
         arcs.push({
           startLat: other.location.lat,
@@ -1187,12 +1522,12 @@ export function getArcsForEvent(eventId: string): ArcDatum[] {
           eventId: other.id,
           direction: 'upstream',
           color: getEventCountryColor(other),
-        })
+        });
       }
     }
 
     if (conn.from === eventId) {
-      const other = EVENT_MAP.get(conn.to)
+      const other = EVENT_MAP.get(conn.to);
       if (other) {
         arcs.push({
           startLat: pinned.location.lat,
@@ -1203,26 +1538,29 @@ export function getArcsForEvent(eventId: string): ArcDatum[] {
           eventId: other.id,
           direction: 'downstream',
           color: getEventCountryColor(pinned),
-        })
+        });
       }
     }
   }
 
-  return arcs
+  return arcs;
 }
 
-export function getRecursiveArcsForEvent(eventId: string, maxDepth = 10): ArcDatum[] {
-  const arcs: ArcDatum[] = []
-  const visited = new Set<string>()
+export function getRecursiveArcsForEvent(
+  eventId: string,
+  maxDepth = 10,
+): ArcDatum[] {
+  const arcs: ArcDatum[] = [];
+  const visited = new Set<string>();
 
   function walkUp(id: string, depth: number) {
-    if (depth <= 0) return
+    if (depth <= 0) return;
     for (const conn of EVENT_CONNECTIONS) {
       if (conn.to === id && !visited.has(`${conn.from}->${conn.to}`)) {
-        const fromEvt = EVENT_MAP.get(conn.from)
-        const toEvt = EVENT_MAP.get(conn.to)
+        const fromEvt = EVENT_MAP.get(conn.from);
+        const toEvt = EVENT_MAP.get(conn.to);
         if (fromEvt && toEvt) {
-          visited.add(`${conn.from}->${conn.to}`)
+          visited.add(`${conn.from}->${conn.to}`);
           arcs.push({
             startLat: fromEvt.location.lat,
             startLng: fromEvt.location.lng,
@@ -1232,21 +1570,21 @@ export function getRecursiveArcsForEvent(eventId: string, maxDepth = 10): ArcDat
             eventId: fromEvt.id,
             direction: 'upstream',
             color: getEventCountryColor(fromEvt),
-          })
-          walkUp(conn.from, depth - 1)
+          });
+          walkUp(conn.from, depth - 1);
         }
       }
     }
   }
 
   function walkDown(id: string, depth: number) {
-    if (depth <= 0) return
+    if (depth <= 0) return;
     for (const conn of EVENT_CONNECTIONS) {
       if (conn.from === id && !visited.has(`${conn.from}->${conn.to}`)) {
-        const fromEvt = EVENT_MAP.get(conn.from)
-        const toEvt = EVENT_MAP.get(conn.to)
+        const fromEvt = EVENT_MAP.get(conn.from);
+        const toEvt = EVENT_MAP.get(conn.to);
         if (fromEvt && toEvt) {
-          visited.add(`${conn.from}->${conn.to}`)
+          visited.add(`${conn.from}->${conn.to}`);
           arcs.push({
             startLat: fromEvt.location.lat,
             startLng: fromEvt.location.lng,
@@ -1256,14 +1594,14 @@ export function getRecursiveArcsForEvent(eventId: string, maxDepth = 10): ArcDat
             eventId: toEvt.id,
             direction: 'downstream',
             color: getEventCountryColor(fromEvt),
-          })
-          walkDown(conn.to, depth - 1)
+          });
+          walkDown(conn.to, depth - 1);
         }
       }
     }
   }
 
-  walkUp(eventId, maxDepth)
-  walkDown(eventId, maxDepth)
-  return arcs
+  walkUp(eventId, maxDepth);
+  walkDown(eventId, maxDepth);
+  return arcs;
 }

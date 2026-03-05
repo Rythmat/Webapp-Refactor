@@ -1,45 +1,50 @@
-import React, { useState } from "react";
-import { HeaderBar } from "../ClassroomLayout/HeaderBar";
-import { HexagonPattern, DEFAULT_THEMES as THEMES } from "../ui/HexagonPattern";
+import React, { useState } from 'react';
+import { HeaderBar } from '../ClassroomLayout/HeaderBar';
+import { HexagonPattern, DEFAULT_THEMES as THEMES } from '../ui/HexagonPattern';
 
 const CONNECT_USERS_DATA = [
-  { name: "Sarah J.", role: "Vocalist", common: "Pop, R&B" },
-  { name: "Mike T.", role: "Producer", common: "Electronic" },
-  { name: "Davide R.", role: "Guitarist", common: "Jazz" },
-  { name: "Elena V.", role: "Songwriter", common: "Folk" },
+  { name: 'Sarah J.', role: 'Vocalist', common: 'Pop, R&B' },
+  { name: 'Mike T.', role: 'Producer', common: 'Electronic' },
+  { name: 'Davide R.', role: 'Guitarist', common: 'Jazz' },
+  { name: 'Elena V.', role: 'Songwriter', common: 'Folk' },
 ];
 
 export const ConnectInlet: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("Network");
+  const [activeTab, setActiveTab] = useState('Network');
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       <HeaderBar title="Connect" />
-      <div className="flex-1 overflow-y-auto custom-scrollbar px-8 pb-12">
-        <div className="flex flex-col gap-2 mb-8">
-          <div className="flex items-center gap-4 text-sm text-gray-400 border-b border-white/10 pb-4">
-            {["Network", "Messages", "Collaborations"].map((tab) => (
+      <div className="custom-scrollbar flex-1 overflow-y-auto px-8 pb-12">
+        <div className="mb-8 flex flex-col gap-2">
+          <div className="flex items-center gap-4 border-b border-white/10 pb-4 text-sm text-gray-400">
+            {['Network', 'Messages', 'Collaborations'].map((tab) => (
               <button
                 key={tab}
+                className={`-mb-4 border-b-2 pb-4 transition-colors ${activeTab === tab ? 'border-white text-white' : 'border-transparent hover:text-gray-200'}`}
                 onClick={() => setActiveTab(tab)}
-                className={`pb-4 -mb-4 border-b-2 transition-colors ${activeTab === tab ? "border-white text-white" : "border-transparent hover:text-gray-200"}`}
               >
                 {tab}
               </button>
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <h2 className="text-xl font-serif text-white">Recommended for You</h2>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="flex flex-col gap-6 lg:col-span-2">
+            <h2 className="font-serif text-xl text-white">
+              Recommended for You
+            </h2>
             {CONNECT_USERS_DATA.map((person, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-4 bg-[#151515] border border-white/5 rounded-xl hover:border-white/20 transition-colors"
+                className="flex items-center justify-between rounded-xl border border-white/5 bg-[#151515] p-4 transition-colors hover:border-white/20"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-[#2A2A2A] rounded-full overflow-hidden relative">
-                    <HexagonPattern className="w-[150%] h-[150%] opacity-50" colorsOverride={[THEMES.red, THEMES.teal, THEMES.orange]} />
+                  <div className="relative size-12 overflow-hidden rounded-full bg-[#2A2A2A]">
+                    <HexagonPattern
+                      className="size-[150%] opacity-50"
+                      colorsOverride={[THEMES.red, THEMES.teal, THEMES.orange]}
+                    />
                   </div>
                   <div>
                     <h3 className="font-medium text-white">{person.name}</h3>
@@ -48,20 +53,20 @@ export const ConnectInlet: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <button className="px-4 py-2 bg-white text-black text-xs font-bold rounded-full hover:bg-gray-200">
+                <button className="rounded-full bg-white px-4 py-2 text-xs font-bold text-black hover:bg-gray-200">
                   Connect
                 </button>
               </div>
             ))}
           </div>
           <div className="flex flex-col gap-6">
-            <div className="bg-[#151515] border border-white/5 rounded-3xl p-6">
-              <h3 className="text-lg font-serif text-white mb-4">Online Now</h3>
+            <div className="rounded-3xl border border-white/5 bg-[#151515] p-6">
+              <h3 className="mb-4 font-serif text-lg text-white">Online Now</h3>
               <div className="flex flex-col gap-4">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-700 relative">
-                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-[#151515] rounded-full" />
+                    <div className="relative size-8 rounded-full bg-gray-700">
+                      <div className="absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-[#151515] bg-green-500" />
                     </div>
                     <div className="flex-1">
                       <div className="text-sm text-gray-200">User {i}</div>

@@ -13,7 +13,7 @@ export class MidiHandler {
   constructor(
     onNoteOn: (note: number, velocity: number) => void,
     onNoteOff: (note: number) => void,
-    onCC: (cc: number, value: number) => void
+    onCC: (cc: number, value: number) => void,
   ) {
     this.onNoteOn = onNoteOn;
     this.onNoteOff = onNoteOff;
@@ -90,7 +90,7 @@ export class MidiHandler {
   getInputNames(): string[] {
     if (!this.midiAccess) return [];
     return Array.from(this.midiAccess.inputs.values()).map(
-      (input) => input.name ?? 'Unknown'
+      (input) => input.name ?? 'Unknown',
     );
   }
 }

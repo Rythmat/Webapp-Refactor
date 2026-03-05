@@ -41,15 +41,21 @@ function SliderControl({
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="text-xs font-medium"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           {label}
         </span>
-        <span className="text-xs tabular-nums" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="text-xs tabular-nums"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           {value}
         </span>
       </div>
       <Slider.Root
-        className="relative flex items-center select-none touch-none h-4"
+        className="relative flex h-4 touch-none select-none items-center"
         value={[value]}
         min={0}
         max={max}
@@ -57,16 +63,16 @@ function SliderControl({
         onValueChange={handleChange}
       >
         <Slider.Track
-          className="relative grow rounded-full h-1.5"
+          className="relative h-1.5 grow rounded-full"
           style={{ backgroundColor: 'var(--color-surface-2)' }}
         >
           <Slider.Range
-            className="absolute rounded-full h-full"
+            className="absolute h-full rounded-full"
             style={{ backgroundColor: 'var(--color-accent)' }}
           />
         </Slider.Track>
         <Slider.Thumb
-          className="block w-3.5 h-3.5 rounded-full shadow focus:outline-none cursor-pointer"
+          className="block size-3.5 cursor-pointer rounded-full shadow focus:outline-none"
           style={{ backgroundColor: 'var(--color-accent)' }}
         />
       </Slider.Root>
@@ -86,18 +92,22 @@ function EnumSelector({
   onChange: (v: number) => void;
 }) {
   const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => onChange(Number(e.target.value)),
+    (e: React.ChangeEvent<HTMLSelectElement>) =>
+      onChange(Number(e.target.value)),
     [onChange],
   );
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium mb-0.5" style={{ color: 'var(--color-text-dim)' }}>
+      <span
+        className="mb-0.5 text-xs font-medium"
+        style={{ color: 'var(--color-text-dim)' }}
+      >
         {label}
       </span>
       <select
         value={value}
         onChange={handleChange}
-        className="h-8 rounded-md px-2 text-sm font-medium cursor-pointer outline-none"
+        className="h-8 cursor-pointer rounded-md px-2 text-sm font-medium outline-none"
         style={{
           backgroundColor: 'var(--color-surface-2)',
           color: 'var(--color-text)',
@@ -105,7 +115,9 @@ function EnumSelector({
         }}
       >
         {Object.entries(options).map(([k, v]) => (
-          <option key={k} value={k}>{v}</option>
+          <option key={k} value={k}>
+            {v}
+          </option>
         ))}
       </select>
     </div>
@@ -123,7 +135,8 @@ export function ChordSelection() {
   const undoChord = useStore((s) => s.undoChord);
   const clearSequence = useStore((s) => s.clearSequence);
 
-  const chordOptions = stringSeq.length === 0 ? availableFirstChords : availableNextChords;
+  const chordOptions =
+    stringSeq.length === 0 ? availableFirstChords : availableNextChords;
 
   const handleAddChord = useCallback(
     (name: string) => () => {
@@ -147,14 +160,14 @@ export function ChordSelection() {
 
       {/* Chord Options Grid */}
       <div
-        className="grid grid-cols-2 gap-1 max-h-48 overflow-y-auto pr-0.5"
+        className="grid max-h-48 grid-cols-2 gap-1 overflow-y-auto pr-0.5"
         style={{ scrollbarWidth: 'thin' }}
       >
         {chordOptions.map((name) => (
           <button
             key={name}
             onClick={handleAddChord(name)}
-            className="h-7 rounded text-xs font-medium truncate px-1.5 transition-colors cursor-pointer hover:brightness-125"
+            className="h-7 cursor-pointer truncate rounded px-1.5 text-xs font-medium transition-colors hover:brightness-125"
             style={{
               backgroundColor: 'var(--color-surface-2)',
               color: 'var(--color-text)',
@@ -166,7 +179,7 @@ export function ChordSelection() {
         ))}
         {chordOptions.length === 0 && stringSeq.length > 0 && (
           <div
-            className="col-span-2 text-center text-xs py-3 italic"
+            className="col-span-2 py-3 text-center text-xs italic"
             style={{ color: 'var(--color-text-dim)' }}
           >
             No more options available
@@ -179,7 +192,7 @@ export function ChordSelection() {
         <button
           onClick={handleUndo}
           disabled={stringSeq.length === 0}
-          className="flex-1 h-7 rounded text-[10px] font-medium transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default"
+          className="h-7 flex-1 cursor-pointer rounded text-[10px] font-medium transition-colors disabled:cursor-default disabled:opacity-40"
           style={{
             backgroundColor: 'var(--color-surface-2)',
             color: 'var(--color-text-dim)',
@@ -191,7 +204,7 @@ export function ChordSelection() {
         <button
           onClick={handleClear}
           disabled={stringSeq.length === 0}
-          className="flex-1 h-7 rounded text-[10px] font-medium transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default"
+          className="h-7 flex-1 cursor-pointer rounded text-[10px] font-medium transition-colors disabled:cursor-default disabled:opacity-40"
           style={{
             backgroundColor: 'var(--color-surface-2)',
             color: 'var(--color-text-dim)',
@@ -231,10 +244,30 @@ export function RhythmExpression() {
 
       <RhythmSelector />
       <SliderControl label="Swing" value={swing} max={60} onChange={setSwing} />
-      <EnumSelector label="Strum Mode" value={strumMode} options={STRUM_OPTIONS} onChange={setStrumMode} />
-      <SliderControl label="Strum Amount" value={strumAmount} max={60} onChange={setStrumAmount} />
-      <EnumSelector label="Velocity Tilt" value={tiltMode} options={TILT_OPTIONS} onChange={setTiltMode} />
-      <SliderControl label="Tilt Amount" value={tiltAmount} max={60} onChange={setTiltAmount} />
+      <EnumSelector
+        label="Strum Mode"
+        value={strumMode}
+        options={STRUM_OPTIONS}
+        onChange={setStrumMode}
+      />
+      <SliderControl
+        label="Strum Amount"
+        value={strumAmount}
+        max={60}
+        onChange={setStrumAmount}
+      />
+      <EnumSelector
+        label="Velocity Tilt"
+        value={tiltMode}
+        options={TILT_OPTIONS}
+        onChange={setTiltMode}
+      />
+      <SliderControl
+        label="Tilt Amount"
+        value={tiltAmount}
+        max={60}
+        onChange={setTiltAmount}
+      />
     </div>
   );
 }

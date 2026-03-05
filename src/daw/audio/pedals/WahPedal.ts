@@ -21,14 +21,14 @@ export class WahPedal implements PedalProcessor {
   private enabled = true;
 
   // Envelope follower state
-  private sensitivity = 5;     // 0.1–10
-  private attackCoeff = 0.3;   // per-frame smoothing coefficient
+  private sensitivity = 5; // 0.1–10
+  private attackCoeff = 0.3; // per-frame smoothing coefficient
   private decayCoeff = 0.05;
-  private baseFreq = 1000;     // Hz
-  private freqEnvAmt = 2000;   // Hz
+  private baseFreq = 1000; // Hz
+  private freqEnvAmt = 2000; // Hz
   private baseQ = 5;
   private resEnvAmt = 0;
-  private envelope = 0;        // current envelope value 0–1
+  private envelope = 0; // current envelope value 0–1
   private rafId = 0;
 
   constructor(ctx: AudioContext) {
@@ -65,8 +65,12 @@ export class WahPedal implements PedalProcessor {
     this.startEnvelopeFollower();
   }
 
-  getInputNode(): AudioNode { return this.inputNode; }
-  getOutputNode(): AudioNode { return this.outputNode; }
+  getInputNode(): AudioNode {
+    return this.inputNode;
+  }
+  getOutputNode(): AudioNode {
+    return this.outputNode;
+  }
 
   setEnabled(enabled: boolean): void {
     if (enabled === this.enabled) return;
@@ -147,7 +151,9 @@ export class WahPedal implements PedalProcessor {
   }
 
   private tick = (): void => {
-    this.analyser.getFloatTimeDomainData(this.analyserData as Float32Array<ArrayBuffer>);
+    this.analyser.getFloatTimeDomainData(
+      this.analyserData as Float32Array<ArrayBuffer>,
+    );
 
     // Compute RMS of input signal
     let sum = 0;
@@ -164,7 +170,8 @@ export class WahPedal implements PedalProcessor {
     this.envelope += (target - this.envelope) * coeff;
 
     // Apply envelope to filter parameters
-    this.filter.frequency.value = this.baseFreq + this.envelope * this.freqEnvAmt;
+    this.filter.frequency.value =
+      this.baseFreq + this.envelope * this.freqEnvAmt;
     this.filter.Q.value = this.baseQ + this.envelope * this.resEnvAmt;
 
     this.rafId = requestAnimationFrame(this.tick);

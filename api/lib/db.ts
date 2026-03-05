@@ -21,12 +21,17 @@ const DEFAULT_SUBSCRIPTION: SubscriptionData = {
   currentPeriodEnd: null,
 };
 
-export async function getSubscription(userId: string): Promise<SubscriptionData> {
+export async function getSubscription(
+  userId: string,
+): Promise<SubscriptionData> {
   const data = await kv.get<SubscriptionData>(`user:${userId}:subscription`);
   return data ?? DEFAULT_SUBSCRIPTION;
 }
 
-export async function setSubscription(userId: string, data: Partial<SubscriptionData>): Promise<void> {
+export async function setSubscription(
+  userId: string,
+  data: Partial<SubscriptionData>,
+): Promise<void> {
   const current = await getSubscription(userId);
   await kv.set(`user:${userId}:subscription`, { ...current, ...data });
 }
@@ -50,12 +55,17 @@ export async function getCredits(userId: string): Promise<CreditData> {
   return data ?? DEFAULT_CREDITS;
 }
 
-export async function setCredits(userId: string, data: Partial<CreditData>): Promise<void> {
+export async function setCredits(
+  userId: string,
+  data: Partial<CreditData>,
+): Promise<void> {
   const current = await getCredits(userId);
   await kv.set(`user:${userId}:credits`, { ...current, ...data });
 }
 
-export async function consumeCredit(userId: string): Promise<{ success: boolean; remaining: number }> {
+export async function consumeCredit(
+  userId: string,
+): Promise<{ success: boolean; remaining: number }> {
   const credits = await getCredits(userId);
 
   if (credits.balance <= 0) {
@@ -82,7 +92,10 @@ export async function initializeFreeCredits(userId: string): Promise<void> {
   });
 }
 
-export async function refreshCredits(userId: string, tierAllowance: number): Promise<void> {
+export async function refreshCredits(
+  userId: string,
+  tierAllowance: number,
+): Promise<void> {
   await setCredits(userId, {
     balance: tierAllowance,
     lastRefresh: Date.now(),
@@ -91,10 +104,15 @@ export async function refreshCredits(userId: string, tierAllowance: number): Pro
 
 // ── Lookup helpers ───────────────────────────────────────
 
-export async function findUserByStripeCustomer(customerId: string): Promise<string | null> {
+export async function findUserByStripeCustomer(
+  customerId: string,
+): Promise<string | null> {
   return kv.get<string>(`stripe:customer:${customerId}`);
 }
 
-export async function linkStripeCustomer(userId: string, customerId: string): Promise<void> {
+export async function linkStripeCustomer(
+  userId: string,
+  customerId: string,
+): Promise<void> {
   await kv.set(`stripe:customer:${customerId}`, userId);
 }

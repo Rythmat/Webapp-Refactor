@@ -15,17 +15,58 @@ function normalizedApiBase() {
   return apiBase().replace(/\/+$/, '');
 }
 
-function progressPath(path: '/summary' | '/lesson' | '/activity' | '/lessonState') {
+function progressPath(
+  path: '/summary' | '/lesson' | '/activity' | '/lessonState',
+) {
   const base = normalizedApiBase();
   const prefix = base.endsWith('/api') ? '/progress' : '/api/progress';
   return `${prefix}${path}`;
 }
 
-async function apiRequest<T>(path: string, params: {
-  method?: 'GET' | 'PATCH';
-  token: string;
-  body?: unknown;
-}): Promise<T> {
+function parseApiResponse(text: string): unknown {
+  if (!text) return undefined;
+  try {
+    return SuperJSON.parse(text);
+  } catch {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { raw: text };
+    }
+  }
+}
+
+function getApiErrorMessage(parsed: unknown): string {
+  const parsedObject =
+    typeof parsed === 'object' && parsed !== null
+      ? (parsed as {
+          message?: unknown;
+          error?: unknown;
+          raw?: unknown;
+        })
+      : undefined;
+  return (
+    (typeof parsedObject?.message === 'string'
+      ? parsedObject.message
+      : undefined) ||
+    (typeof parsedObject?.error === 'string'
+      ? parsedObject.error
+      : undefined) ||
+    (typeof parsedObject?.raw === 'string'
+      ? parsedObject.raw.slice(0, 200)
+      : undefined) ||
+    'Progress request failed'
+  );
+}
+
+async function apiRequest<T>(
+  path: string,
+  params: {
+    method?: 'GET' | 'PATCH';
+    token: string;
+    body?: unknown;
+  },
+): Promise<T> {
   const response = await fetch(`${normalizedApiBase()}${path}`, {
     method: params.method ?? 'GET',
     headers: {
@@ -36,26 +77,13 @@ async function apiRequest<T>(path: string, params: {
   });
 
   const text = await response.text();
-  let parsed: any = undefined;
-  if (text) {
-    try {
-      parsed = SuperJSON.parse(text);
-    } catch {
-      try {
-        parsed = JSON.parse(text);
-      } catch {
-        parsed = { raw: text };
-      }
-    }
-  }
+  const parsed = parseApiResponse(text);
 
   if (!response.ok) {
-    const message =
-      parsed?.message ||
-      parsed?.error ||
-      (typeof parsed?.raw === 'string' ? parsed.raw.slice(0, 200) : undefined) ||
-      'Progress request failed';
-    throw new Error(`${params.method ?? 'GET'} ${path} failed (${response.status}): ${message}`);
+    const message = getApiErrorMessage(parsed);
+    throw new Error(
+      `${params.method ?? 'GET'} ${path} failed (${response.status}): ${message}`,
+    );
   }
 
   return parsed as T;

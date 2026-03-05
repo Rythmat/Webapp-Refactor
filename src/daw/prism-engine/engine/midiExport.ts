@@ -1,11 +1,12 @@
-import type {
-  MidiNoteEvent,
-  MidiSequence,
-  RhythmHit,
-  ChordMidiOptions,
-  MelodyMidiOptions,
+import {
+  StrumMode,
+  VelocityTilt,
+  type ChordMidiOptions,
+  type MelodyMidiOptions,
+  type MidiNoteEvent,
+  type MidiSequence,
+  type RhythmHit,
 } from '../types';
-import { StrumMode, VelocityTilt } from '../types';
 import { normalizeSequence } from './chordUtils';
 import { swingRhythm } from './rhythmUtils';
 import { getChordMelody } from './melodyGenerator';
@@ -152,10 +153,14 @@ export function generateChordMidi(opts: ChordMidiOptions): MidiSequence {
 
       const velocity = Math.max(
         1,
-        Math.min(127, baseVelocity - volumeChange + Math.floor(v * (tiltStep / n))),
+        Math.min(
+          127,
+          baseVelocity - volumeChange + Math.floor(v * (tiltStep / n)),
+        ),
       );
 
-      const startTick = start + 1 + delayStrum + Math.floor(s * (strumStep / n));
+      const startTick =
+        start + 1 + delayStrum + Math.floor(s * (strumStep / n));
 
       events.push({
         note,

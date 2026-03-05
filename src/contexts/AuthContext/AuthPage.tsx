@@ -1,9 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  AdminRoutes,
-  ProfileRoutes,
-} from '@/constants/routes';
+import { AdminRoutes, ProfileRoutes } from '@/constants/routes';
 import { useAuthContext } from './hooks/useAuthContext';
 
 export const AuthPage = ({ children }: { children: React.ReactNode }) => {

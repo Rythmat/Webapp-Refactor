@@ -3,29 +3,53 @@ import { ArpParams, ArpStyle, RateDiv } from './types';
 /** Convert a RateDiv to a number of beats (quarter notes). */
 function rateDivToBeats(div: RateDiv): number {
   switch (div) {
-    case '4':    return 16;
-    case '2':    return 8;
-    case '1':    return 4;
-    case '1/2d': return 3;
-    case '1/2':  return 2;
-    case '1/2t': return 4 / 3;
-    case '1/4d': return 1.5;
-    case '1/4':  return 1;
-    case '1/4t': return 2 / 3;
-    case '1/8d': return 0.75;
-    case '1/8':  return 0.5;
-    case '1/8t': return 1 / 3;
-    case '1/16d': return 0.375;
-    case '1/16':  return 0.25;
-    case '1/16t': return 1 / 6;
-    case '1/32':  return 0.125;
-    case '1/32t': return 1 / 12;
-    case '1/64':  return 0.0625;
-    default:     return 0.5;
+    case '4':
+      return 16;
+    case '2':
+      return 8;
+    case '1':
+      return 4;
+    case '1/2d':
+      return 3;
+    case '1/2':
+      return 2;
+    case '1/2t':
+      return 4 / 3;
+    case '1/4d':
+      return 1.5;
+    case '1/4':
+      return 1;
+    case '1/4t':
+      return 2 / 3;
+    case '1/8d':
+      return 0.75;
+    case '1/8':
+      return 0.5;
+    case '1/8t':
+      return 1 / 3;
+    case '1/16d':
+      return 0.375;
+    case '1/16':
+      return 0.25;
+    case '1/16t':
+      return 1 / 6;
+    case '1/32':
+      return 0.125;
+    case '1/32t':
+      return 1 / 12;
+    case '1/64':
+      return 0.0625;
+    default:
+      return 0.5;
   }
 }
 
-function buildPattern(heldNotes: number[], distance: number, step: number, style: ArpStyle): number[] {
+function buildPattern(
+  heldNotes: number[],
+  distance: number,
+  step: number,
+  style: ArpStyle,
+): number[] {
   // For each step repetition, transpose all held notes by step_index * distance
   const allNotes: number[] = [];
   for (let s = 0; s < step; s++) {
@@ -148,7 +172,12 @@ export class Arpeggiator {
     }
 
     const notes = [...this.heldNotes.keys()].sort((a, b) => a - b);
-    this.pattern = buildPattern(notes, this.params.distance, this.params.step, this.params.style);
+    this.pattern = buildPattern(
+      notes,
+      this.params.distance,
+      this.params.step,
+      this.params.style,
+    );
   }
 
   private getIntervalMs(): number {

@@ -36,10 +36,38 @@ export function MeshGradientBg() {
 
     // Gradient orb definitions
     const orbs = [
-      { cx: 0.2, cy: 0.3, r: 0.35, color: [139, 92, 246], speed: 0.0003, phase: 0 },    // purple
-      { cx: 0.8, cy: 0.6, r: 0.3, color: [6, 182, 212], speed: 0.0004, phase: 2 },       // teal
-      { cx: 0.5, cy: 0.8, r: 0.25, color: [236, 72, 153], speed: 0.00025, phase: 4 },     // pink
-      { cx: 0.7, cy: 0.2, r: 0.2, color: [59, 130, 246], speed: 0.00035, phase: 1 },      // blue
+      {
+        cx: 0.2,
+        cy: 0.3,
+        r: 0.35,
+        color: [139, 92, 246],
+        speed: 0.0003,
+        phase: 0,
+      }, // purple
+      {
+        cx: 0.8,
+        cy: 0.6,
+        r: 0.3,
+        color: [6, 182, 212],
+        speed: 0.0004,
+        phase: 2,
+      }, // teal
+      {
+        cx: 0.5,
+        cy: 0.8,
+        r: 0.25,
+        color: [236, 72, 153],
+        speed: 0.00025,
+        phase: 4,
+      }, // pink
+      {
+        cx: 0.7,
+        cy: 0.2,
+        r: 0.2,
+        color: [59, 130, 246],
+        speed: 0.00035,
+        phase: 1,
+      }, // blue
     ];
 
     function draw(time: number) {
@@ -78,7 +106,7 @@ export function MeshGradientBg() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 pointer-events-none"
+      className="pointer-events-none absolute inset-0"
       style={{ zIndex: -1 }}
     />
   );

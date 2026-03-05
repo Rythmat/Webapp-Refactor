@@ -9,10 +9,10 @@ export const GENRE_MAP: Record<string, GenreName> = {
   // Basic patterns
   'Whole Notes': 'Ballad',
   'Half Notes': 'Ballad',
-  'Quarters': 'Pop',
-  'Eighths': 'Pop',
+  Quarters: 'Pop',
+  Eighths: 'Pop',
   'Staccato Eighths': 'Hip Hop',
-  'Sixteenths': 'Pop',
+  Sixteenths: 'Pop',
 
   // Syncopated
   '3-3-2 Quarters': 'Rock',
@@ -56,8 +56,8 @@ export const GENRE_MAP: Record<string, GenreName> = {
   'Funk 5': 'Funk',
 
   // Latin
-  'Bossa': 'Bossa',
-  'Samba': 'Samba',
+  Bossa: 'Bossa',
+  Samba: 'Samba',
 };
 
 /**
@@ -66,19 +66,19 @@ export const GENRE_MAP: Record<string, GenreName> = {
  * None=0, Little=10, Some=15, Medium=25, Heavy=40
  */
 export const GENRE_SWING: Record<GenreName, number> = {
-  'Pop': 0,
-  'Rock': 0,
+  Pop: 0,
+  Rock: 0,
   'Hip Hop': 0,
   'Jam Band': 15,
-  'Funk': 10,
+  Funk: 10,
   'Neo Soul': 40,
-  'Jazz': 40,
+  Jazz: 40,
   'R&B': 25,
-  'Salsa': 0,
-  'Merengue': 0,
-  'Bossa': 10,
-  'Samba': 10,
-  'Ballad': 0,
+  Salsa: 0,
+  Merengue: 0,
+  Bossa: 10,
+  Samba: 10,
+  Ballad: 0,
 };
 
 /**
@@ -87,22 +87,22 @@ export const GENRE_SWING: Record<GenreName, number> = {
  * amount: strum offset in ticks (0-60)
  */
 export const GENRE_STRUM: Record<string, { mode: number; amount: number }> = {
-  'Pop': { mode: 0, amount: 0 },
-  'Rock': { mode: 1, amount: 20 },
+  Pop: { mode: 0, amount: 0 },
+  Rock: { mode: 1, amount: 20 },
   'Hip Hop': { mode: 0, amount: 0 },
   'Jam Band': { mode: 3, amount: 20 },
-  'Funk': { mode: 1, amount: 15 },
+  Funk: { mode: 1, amount: 15 },
   'Neo Soul': { mode: 3, amount: 25 },
-  'Jazz': { mode: 3, amount: 30 },
+  Jazz: { mode: 3, amount: 30 },
   'R&B': { mode: 3, amount: 20 },
-  'Salsa': { mode: 1, amount: 20 },
-  'Merengue': { mode: 1, amount: 15 },
-  'Bossa': { mode: 3, amount: 20 },
-  'Samba': { mode: 1, amount: 25 },
-  'Ballad': { mode: 0, amount: 0 },
-  'Folk': { mode: 1, amount: 25 },
-  'EDM': { mode: 0, amount: 0 },
-  'Reggae': { mode: 2, amount: 25 },
-  'Latin': { mode: 1, amount: 20 },
-  'Indie': { mode: 3, amount: 15 },
+  Salsa: { mode: 1, amount: 20 },
+  Merengue: { mode: 1, amount: 15 },
+  Bossa: { mode: 3, amount: 20 },
+  Samba: { mode: 1, amount: 25 },
+  Ballad: { mode: 0, amount: 0 },
+  Folk: { mode: 1, amount: 25 },
+  EDM: { mode: 0, amount: 0 },
+  Reggae: { mode: 2, amount: 25 },
+  Latin: { mode: 1, amount: 20 },
+  Indie: { mode: 3, amount: 15 },
 };

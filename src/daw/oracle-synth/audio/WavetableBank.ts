@@ -21,9 +21,7 @@ export class WavetableBank {
     ]);
 
     // Sawtooth: all harmonics, amplitude 1/n
-    this.tables.set('SAWTOOTH', [
-      this.buildFromPartials(this.sawPartials(N)),
-    ]);
+    this.tables.set('SAWTOOTH', [this.buildFromPartials(this.sawPartials(N))]);
 
     // Triangle: odd harmonics, amplitude 1/n^2, alternating sign
     this.tables.set('TRIANGLE', [
@@ -31,9 +29,7 @@ export class WavetableBank {
     ]);
 
     // Square: odd harmonics, amplitude 1/n
-    this.tables.set('SQUARE', [
-      this.buildFromPartials(this.squarePartials(N)),
-    ]);
+    this.tables.set('SQUARE', [this.buildFromPartials(this.squarePartials(N))]);
 
     // PWM table: multiple frames with varying pulse width
     const pwmFrames: PeriodicWave[] = [];
@@ -48,7 +44,7 @@ export class WavetableBank {
     for (let i = 0; i < 8; i++) {
       const rolloff = 0.5 + (i / 7) * 1.5; // harmonic rolloff variation
       supersawFrames.push(
-        this.buildFromPartials(this.sawPartialsRolloff(N, rolloff))
+        this.buildFromPartials(this.sawPartialsRolloff(N, rolloff)),
       );
     }
     this.tables.set('SUPER SAW', supersawFrames);
@@ -58,21 +54,23 @@ export class WavetableBank {
     // Formant center frequencies (as harmonic numbers at ~130 Hz fundamental)
     // Each frame boosts 2-3 formant regions to create vowel-like timbres
     const vowelFormants = [
-      [6, 10, 20],     // A (open)
-      [4, 17, 20],     // A→E
-      [3, 17, 20],     // E
-      [3, 13, 20],     // E→I
-      [2, 17, 24],     // I
-      [2, 10, 24],     // I→O
-      [3, 6, 20],      // O
-      [3, 8, 18],      // O→U
-      [2, 5, 18],      // U
-      [4, 8, 22],      // U→A (back)
-      [5, 10, 22],     // blend
-      [6, 10, 20],     // A (loop point)
+      [6, 10, 20], // A (open)
+      [4, 17, 20], // A→E
+      [3, 17, 20], // E
+      [3, 13, 20], // E→I
+      [2, 17, 24], // I
+      [2, 10, 24], // I→O
+      [3, 6, 20], // O
+      [3, 8, 18], // O→U
+      [2, 5, 18], // U
+      [4, 8, 22], // U→A (back)
+      [5, 10, 22], // blend
+      [6, 10, 20], // A (loop point)
     ];
     for (const formants of vowelFormants) {
-      formantFrames.push(this.buildFromPartials(this.formantPartials(N, formants)));
+      formantFrames.push(
+        this.buildFromPartials(this.formantPartials(N, formants)),
+      );
     }
     this.tables.set('FORMANT', formantFrames);
 
@@ -80,12 +78,17 @@ export class WavetableBank {
     const harmonicFrames: PeriodicWave[] = [];
     for (let i = 0; i < 16; i++) {
       const harmonicCount = 1 + Math.round((i / 15) * (N - 2)); // 1 to N-1 harmonics
-      harmonicFrames.push(this.buildFromPartials(this.harmonicSeriesPartials(N, harmonicCount)));
+      harmonicFrames.push(
+        this.buildFromPartials(this.harmonicSeriesPartials(N, harmonicCount)),
+      );
     }
     this.tables.set('HARMONIC', harmonicFrames);
   }
 
-  private buildFromPartials(partials: { real: number[]; imag: number[] }): PeriodicWave {
+  private buildFromPartials(partials: {
+    real: number[];
+    imag: number[];
+  }): PeriodicWave {
     const real = new Float32Array(partials.real);
     const imag = new Float32Array(partials.imag);
     return this.ctx.createPeriodicWave(real, imag, {
@@ -111,13 +114,12 @@ export class WavetableBank {
 
   private sawPartialsRolloff(
     n: number,
-    rolloff: number
+    rolloff: number,
   ): { real: number[]; imag: number[] } {
     const real = new Array(n).fill(0);
     const imag = new Array(n).fill(0);
     for (let i = 1; i < n; i++) {
-      imag[i] =
-        (2 / Math.PI) * (Math.pow(-1, i + 1) / Math.pow(i, rolloff));
+      imag[i] = (2 / Math.PI) * (Math.pow(-1, i + 1) / Math.pow(i, rolloff));
     }
     return { real, imag };
   }
@@ -143,7 +145,7 @@ export class WavetableBank {
 
   private pwmPartials(
     n: number,
-    dutyCycle: number
+    dutyCycle: number,
   ): { real: number[]; imag: number[] } {
     const real = new Array(n).fill(0);
     const imag = new Array(n).fill(0);
@@ -155,7 +157,7 @@ export class WavetableBank {
 
   private formantPartials(
     n: number,
-    formantHarmonics: number[]
+    formantHarmonics: number[],
   ): { real: number[]; imag: number[] } {
     const real = new Array(n).fill(0);
     const imag = new Array(n).fill(0);
@@ -175,7 +177,7 @@ export class WavetableBank {
 
   private harmonicSeriesPartials(
     n: number,
-    harmonicCount: number
+    harmonicCount: number,
   ): { real: number[]; imag: number[] } {
     const real = new Array(n).fill(0);
     const imag = new Array(n).fill(0);
@@ -199,7 +201,7 @@ export class WavetableBank {
 
   getInterpolationPair(
     tableName: string,
-    position: number
+    position: number,
   ): { waveA: PeriodicWave; waveB: PeriodicWave; mix: number } | null {
     const table = this.tables.get(tableName);
     if (!table || table.length === 0) return null;

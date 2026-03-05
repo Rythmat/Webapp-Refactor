@@ -41,7 +41,7 @@ export const createModulationSlice: StateCreator<
   updateModRoute: (id, updates) =>
     set((state) => ({
       modRoutes: state.modRoutes.map((r) =>
-        r.id === id ? { ...r, ...updates } : r
+        r.id === id ? { ...r, ...updates } : r,
       ),
     })),
 });

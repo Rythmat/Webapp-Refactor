@@ -27,7 +27,9 @@
   height: 10px;
   border-radius: 50%;
   background: #888;
-  transition: transform 0.15s, background 0.15s;
+  transition:
+    transform 0.15s,
+    background 0.15s;
 }
 
 .track.active .thumb {

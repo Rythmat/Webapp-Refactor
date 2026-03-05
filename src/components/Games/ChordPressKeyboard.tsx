@@ -1,8 +1,9 @@
+/* eslint-disable react/jsx-sort-props */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
-import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import { usePlayNote } from '@/contexts/PianoContext';
+import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 // import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 
 type KeyboardBinding = {
@@ -52,7 +53,10 @@ function equalMidiSets(a: number[], b: number[]) {
   return aa.every((v, i) => v === bb[i]);
 }
 
-function equalRelativeIntervalsFromLowestRoot(selected: number[], targetNotes: number[]) {
+function equalRelativeIntervalsFromLowestRoot(
+  selected: number[],
+  targetNotes: number[],
+) {
   const uniqueSelected = uniqueMidiNotes(selected);
   const uniqueTarget = uniqueMidiNotes(targetNotes);
   if (uniqueSelected.length === 0 || uniqueTarget.length === 0) return false;
@@ -62,11 +66,17 @@ function equalRelativeIntervalsFromLowestRoot(selected: number[], targetNotes: n
   const selectedRoot = uniqueSelected.find((note) => pc(note) === targetRootPc);
   if (typeof selectedRoot !== 'number') return false;
 
-  const selectedIntervals = uniqueSelected.map((note) => note - selectedRoot).sort((a, b) => a - b);
-  const targetIntervals = uniqueTarget.map((note) => note - targetRoot).sort((a, b) => a - b);
+  const selectedIntervals = uniqueSelected
+    .map((note) => note - selectedRoot)
+    .sort((a, b) => a - b);
+  const targetIntervals = uniqueTarget
+    .map((note) => note - targetRoot)
+    .sort((a, b) => a - b);
 
   if (selectedIntervals.length !== targetIntervals.length) return false;
-  return selectedIntervals.every((interval, index) => interval === targetIntervals[index]);
+  return selectedIntervals.every(
+    (interval, index) => interval === targetIntervals[index],
+  );
 }
 
 function toEvents(midi: number[], color?: string): PlaybackEvent[] {
@@ -130,12 +140,17 @@ export function ChordPressKeyboard({
     return bindings;
   }, [keyboardBaseMidi, rangeEnd, rangeStart]);
 
-  const toggleNote = useCallback((midi: number) => {
-    if (completed) return;
-    setSelected((prev) =>
-      prev.includes(midi) ? prev.filter((value) => value !== midi) : [...prev, midi],
-    );
-  }, [completed]);
+  const toggleNote = useCallback(
+    (midi: number) => {
+      if (completed) return;
+      setSelected((prev) =>
+        prev.includes(midi)
+          ? prev.filter((value) => value !== midi)
+          : [...prev, midi],
+      );
+    },
+    [completed],
+  );
 
   // const onMidiInput = useCallback(
   //   (event: MidiNoteEvent) => {

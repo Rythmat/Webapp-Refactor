@@ -4,7 +4,11 @@ import { progressApi } from '@/lib/progress/api';
 import { progressLocalCache } from '@/lib/progress/localCache';
 import { reconcileLessonProgress } from '@/lib/progress/reconcile';
 
-export const useLessonProgress = (lessonId: string, lessonVersion: number, enabled = true) => {
+export const useLessonProgress = (
+  lessonId: string,
+  lessonVersion: number,
+  enabled = true,
+) => {
   const token = useAuthToken();
   const local = progressLocalCache.getLesson(lessonId, lessonVersion);
 
@@ -14,7 +18,11 @@ export const useLessonProgress = (lessonId: string, lessonVersion: number, enabl
     staleTime: 1000 * 60 * 5,
     initialData: local,
     queryFn: async () => {
-      const server = await progressApi.fetchLesson(token!, lessonId, lessonVersion);
+      const server = await progressApi.fetchLesson(
+        token!,
+        lessonId,
+        lessonVersion,
+      );
       const merged = reconcileLessonProgress(local, server);
       progressLocalCache.setLesson(lessonId, lessonVersion, merged);
       return merged;

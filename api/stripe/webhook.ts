@@ -1,12 +1,13 @@
+/* eslint-disable import/no-default-export, sonarjs/cognitive-complexity */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
-import { stripe, TIER_CREDITS } from '../lib/stripe';
 import {
   setSubscription,
   refreshCredits,
   linkStripeCustomer,
   findUserByStripeCustomer,
 } from '../lib/db';
+import { stripe, TIER_CREDITS } from '../lib/stripe';
 
 // Disable body parsing — Stripe needs the raw body for signature verification
 export const config = {
@@ -36,7 +37,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!sig || !webhookSecret) {
-    return res.status(400).json({ error: 'Missing signature or webhook secret' });
+    return res
+      .status(400)
+      .json({ error: 'Missing signature or webhook secret' });
   }
 
   let event: Stripe.Event;
@@ -123,7 +126,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Only refresh credits for subscription invoices (not one-time)
         if (invoice.subscription) {
-          const sub = await stripe.subscriptions.retrieve(invoice.subscription as string);
+          const sub = await stripe.subscriptions.retrieve(
+            invoice.subscription as string,
+          );
           const priceId = sub.items.data[0]?.price.id;
           const tier = priceId ? tierFromPriceId(priceId) : null;
 
@@ -136,7 +141,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
-        console.warn(`Payment failed for customer ${invoice.customer}, invoice ${invoice.id}`);
+        console.warn(
+          `Payment failed for customer ${invoice.customer}, invoice ${invoice.id}`,
+        );
         // Stripe handles retries automatically. Could send a notification here.
         break;
       }

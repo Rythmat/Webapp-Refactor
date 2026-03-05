@@ -32,7 +32,10 @@ import { useAuthActions } from '@/contexts/AuthContext';
 import { useMusicalForm } from '@/hooks/useMusicalForm';
 
 const formSchema = z.object({
-  email: z.string().min(1, 'Please enter your email').email('Please enter a valid email address'),
+  email: z
+    .string()
+    .min(1, 'Please enter your email')
+    .email('Please enter a valid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
@@ -125,7 +128,9 @@ export const SignInForm = () => {
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-surface-box px-2 text-muted-foreground">Or</span>
+            <span className="bg-surface-box px-2 text-muted-foreground">
+              Or
+            </span>
           </div>
         </div>
 
@@ -136,10 +141,9 @@ export const SignInForm = () => {
               control={form.control}
               name="email"
               render={({ field }) => {
-                const {
-                  onKeyDown: _ignoreKeyDown,
-                  ...emailInputProps
-                } = emailForm.createInputProps(field.onChange);
+                const emailInputProps = emailForm.createInputProps(
+                  field.onChange,
+                );
 
                 return (
                   <FormItem>
@@ -165,10 +169,9 @@ export const SignInForm = () => {
               control={form.control}
               name="password"
               render={({ field }) => {
-                const {
-                  onKeyDown: _ignoreKeyDown,
-                  ...passwordInputProps
-                } = passwordForm.createInputProps(field.onChange);
+                const passwordInputProps = passwordForm.createInputProps(
+                  field.onChange,
+                );
 
                 return (
                   <FormItem>

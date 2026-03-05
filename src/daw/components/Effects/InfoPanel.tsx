@@ -3,7 +3,10 @@ import { useStore } from '@/daw/store';
 
 // ── Instrument Artwork ────────────────────────────────────────────────────
 
-const INSTRUMENT_ART: Record<string, { src: string; alt: string; label: string; description: string }> = {
+const INSTRUMENT_ART: Record<
+  string,
+  { src: string; alt: string; label: string; description: string }
+> = {
   'oracle-synth': {
     src: '/daw-assets/artwork/hexagons-synth.svg',
     alt: 'Oracle Synth hexagon artwork',
@@ -64,7 +67,7 @@ export function InfoPanel() {
 
   return (
     <div
-      className="w-72 shrink-0 flex flex-col overflow-hidden glass-panel rounded-2xl"
+      className="glass-panel flex w-72 shrink-0 flex-col overflow-hidden rounded-2xl"
       style={{
         backgroundColor: 'var(--color-surface)',
         border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -72,28 +75,31 @@ export function InfoPanel() {
     >
       {/* Header */}
       <div
-        className="flex items-center px-3 shrink-0 border-b"
+        className="flex shrink-0 items-center border-b px-3"
         style={{ borderColor: 'var(--color-border)', height: 40 }}
       >
         <Triangle
           size={14}
           strokeWidth={1.8}
-          className="shrink-0 mr-2"
+          className="mr-2 shrink-0"
           style={{ color: 'var(--color-accent)' }}
         />
-        <span className="text-xs font-medium" style={{ color: 'var(--color-text)' }}>
+        <span
+          className="text-xs font-medium"
+          style={{ color: 'var(--color-text)' }}
+        >
           Info
         </span>
         <div className="flex-1" />
         <div
-          className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
+          className="flex size-6 shrink-0 items-center justify-center rounded-full text-[9px] font-bold"
           style={{ background: 'var(--gradient-brand)', color: '#fff' }}
         >
           P
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto flex flex-col">
+      <div className="flex flex-1 flex-col overflow-y-auto">
         <InstrumentContent track={track} />
       </div>
     </div>
@@ -102,28 +108,40 @@ export function InfoPanel() {
 
 // ── Instrument Content ────────────────────────────────────────────────────
 
-function InstrumentContent({ track }: { track?: { name: string; instrument: string; color: string } }) {
-  const art = track ? (INSTRUMENT_ART[track.instrument] ?? DEFAULT_ART) : DEFAULT_ART;
+function InstrumentContent({
+  track,
+}: {
+  track?: { name: string; instrument: string; color: string };
+}) {
+  const art = track
+    ? (INSTRUMENT_ART[track.instrument] ?? DEFAULT_ART)
+    : DEFAULT_ART;
 
   return (
-    <div className="flex flex-col p-4 gap-4">
+    <div className="flex flex-col gap-4 p-4">
       <div
-        className="w-full aspect-square rounded-xl overflow-hidden"
+        className="aspect-square w-full overflow-hidden rounded-xl"
         style={{ boxShadow: '0 4px 24px rgba(0, 0, 0, 0.25)' }}
       >
         <img
           src={art.src}
           alt={art.alt}
-          className="w-full h-full object-cover"
+          className="size-full object-cover"
           draggable={false}
         />
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold" style={{ color: 'var(--color-text)' }}>
+        <h3
+          className="text-lg font-semibold"
+          style={{ color: 'var(--color-text)' }}
+        >
           {art.label}
         </h3>
-        <p className="text-xs mt-1 leading-relaxed" style={{ color: 'var(--color-text-dim)' }}>
+        <p
+          className="mt-1 text-xs leading-relaxed"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           {art.description}
         </p>
       </div>
@@ -136,17 +154,29 @@ function InstrumentContent({ track }: { track?: { name: string; instrument: stri
             border: '1px solid var(--color-border)',
           }}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: track.color }} />
-            <span className="text-xs font-medium" style={{ color: 'var(--color-text)' }}>
+          <div className="mb-2 flex items-center gap-2">
+            <div
+              className="size-2 rounded-full"
+              style={{ backgroundColor: track.color }}
+            />
+            <span
+              className="text-xs font-medium"
+              style={{ color: 'var(--color-text)' }}
+            >
               {track.name}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-[10px]" style={{ color: 'var(--color-text-dim)' }}>
+            <span
+              className="text-[10px]"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
               {art.label}
             </span>
-            <span className="text-[10px]" style={{ color: 'var(--color-text-dim)' }}>
+            <span
+              className="text-[10px]"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
               Prism Studio
             </span>
           </div>

@@ -9,8 +9,17 @@ import { ChordSelection, RhythmExpression } from './ChordBuilder';
 // ── Constants ────────────────────────────────────────────────────────────
 
 const STUDIO_GENRES = [
-  'Pop', 'Rock', 'Jazz', 'Funk', 'Folk', 'EDM',
-  'Hip Hop', 'R&B', 'Reggae', 'Latin', 'Indie',
+  'Pop',
+  'Rock',
+  'Jazz',
+  'Funk',
+  'Folk',
+  'EDM',
+  'Hip Hop',
+  'R&B',
+  'Reggae',
+  'Latin',
+  'Indie',
 ] as const;
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -65,7 +74,8 @@ export function PrismStudio() {
   const isMidiTrack = selectedTrack?.type === 'midi';
 
   // ── Derived ──
-  const chordOptions = stringSeq.length === 0 ? availableFirstChords : availableNextChords;
+  const chordOptions =
+    stringSeq.length === 0 ? availableFirstChords : availableNextChords;
   const canGenerate = chordSeq.length > 0 && isMidiTrack;
   const rootMidi = (rootNote ?? 0) + 48;
 
@@ -97,9 +107,11 @@ export function PrismStudio() {
             {rootNote !== null && (
               <button
                 onClick={toggleRootLock}
-                className="p-0.5 rounded hover:bg-white/10 transition-colors cursor-pointer"
+                className="cursor-pointer rounded p-0.5 transition-colors hover:bg-white/10"
                 style={{
-                  color: rootLocked ? 'var(--color-accent)' : 'var(--color-text-dim)',
+                  color: rootLocked
+                    ? 'var(--color-accent)'
+                    : 'var(--color-text-dim)',
                   border: 'none',
                   background: 'none',
                 }}
@@ -112,8 +124,12 @@ export function PrismStudio() {
           {stringSeq.length > 0 && (
             <button
               onClick={undoChord}
-              className="p-1 rounded hover:bg-white/10 transition-colors cursor-pointer"
-              style={{ color: 'var(--color-text-dim)', border: 'none', background: 'none' }}
+              className="cursor-pointer rounded p-1 transition-colors hover:bg-white/10"
+              style={{
+                color: 'var(--color-text-dim)',
+                border: 'none',
+                background: 'none',
+              }}
               aria-label="Undo last chord"
             >
               <Scissors size={12} />
@@ -121,23 +137,29 @@ export function PrismStudio() {
           )}
         </div>
 
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex flex-1 items-center justify-center">
           <CircleOfFifths size={130} />
         </div>
       </div>
 
       {/* ── Chord Selection ────────────────────────────────── */}
-      <div style={{ ...moduleCard(220), overflowY: 'auto', scrollbarWidth: 'thin' }}>
+      <div
+        style={{
+          ...moduleCard(220),
+          overflowY: 'auto',
+          scrollbarWidth: 'thin',
+        }}
+      >
         <span style={titleStyle}>Chord Selection</span>
 
         {stringSeq.length > 0 && (
-          <div className="flex gap-1 flex-wrap">
+          <div className="flex flex-wrap gap-1">
             {stringSeq.map((name, i) => {
               const [r, g, b] = getChordColor(name, rootMidi);
               return (
                 <div
                   key={`${name}-${i}`}
-                  className="w-2.5 h-2.5 rounded-full"
+                  className="size-2.5 rounded-full"
                   style={{ backgroundColor: `rgb(${r}, ${g}, ${b})` }}
                   title={name}
                 />
@@ -153,8 +175,12 @@ export function PrismStudio() {
       <div style={moduleCard('flex-1')}>
         <span style={titleStyle}>Harmony</span>
 
-        <div className="flex-1 flex">
-          <ColorSpectrum chordOptions={chordOptions} rootMidi={rootMidi} onSelectChord={addChord} />
+        <div className="flex flex-1">
+          <ColorSpectrum
+            chordOptions={chordOptions}
+            rootMidi={rootMidi}
+            onSelectChord={addChord}
+          />
         </div>
 
         <button
@@ -163,7 +189,9 @@ export function PrismStudio() {
           className="h-8 rounded-lg text-xs font-semibold transition-colors"
           style={{
             width: '100%',
-            backgroundColor: canGenerate ? 'var(--color-accent)' : 'var(--color-surface-2)',
+            backgroundColor: canGenerate
+              ? 'var(--color-accent)'
+              : 'var(--color-surface-2)',
             color: canGenerate ? '#fff' : 'var(--color-text-dim)',
             border: 'none',
             opacity: canGenerate ? 1 : 0.5,
@@ -175,7 +203,13 @@ export function PrismStudio() {
       </div>
 
       {/* ── Rhythm & Expression ────────────────────────────── */}
-      <div style={{ ...moduleCard(200), overflowY: 'auto', scrollbarWidth: 'thin' }}>
+      <div
+        style={{
+          ...moduleCard(200),
+          overflowY: 'auto',
+          scrollbarWidth: 'thin',
+        }}
+      >
         <span style={titleStyle}>Rhythm & Expression</span>
         <RhythmExpression />
       </div>
@@ -191,9 +225,11 @@ export function PrismStudio() {
               <button
                 key={g}
                 onClick={handleGenreClick(g)}
-                className="h-6 px-2 rounded-full text-[10px] font-medium transition-colors cursor-pointer flex items-center gap-0.5"
+                className="flex h-6 cursor-pointer items-center gap-0.5 rounded-full px-2 text-[10px] font-medium transition-colors"
                 style={{
-                  backgroundColor: isActive ? 'var(--color-accent)' : 'rgba(255, 255, 255, 0.06)',
+                  backgroundColor: isActive
+                    ? 'var(--color-accent)'
+                    : 'rgba(255, 255, 255, 0.06)',
                   color: isActive ? '#fff' : 'var(--color-text-dim)',
                   border: 'none',
                 }}

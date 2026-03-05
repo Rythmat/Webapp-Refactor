@@ -6,15 +6,21 @@ import type { EffectChain } from '@/daw/audio/EffectChain';
 // at ~30fps. Returns levels in 0–100 range for direct use with FxMeter.
 
 interface CompressorMeters {
-  gr: number;   // gain reduction (0–100, where 100 = heavy compression)
-  inLevel: number;  // pre-compressor level 0–100
+  gr: number; // gain reduction (0–100, where 100 = heavy compression)
+  inLevel: number; // pre-compressor level 0–100
   outLevel: number; // post-compressor level 0–100
 }
 
 const PEAK_DECAY = 0.9;
 
-export function useCompressorMeters(effectChain: EffectChain | null): CompressorMeters {
-  const [meters, setMeters] = useState<CompressorMeters>({ gr: 0, inLevel: 0, outLevel: 0 });
+export function useCompressorMeters(
+  effectChain: EffectChain | null,
+): CompressorMeters {
+  const [meters, setMeters] = useState<CompressorMeters>({
+    gr: 0,
+    inLevel: 0,
+    outLevel: 0,
+  });
   const peaksRef = useRef({ gr: 0, inLevel: 0, outLevel: 0 });
   const rafRef = useRef<number>(0);
 
@@ -53,8 +59,12 @@ export function useCompressorMeters(effectChain: EffectChain | null): Compressor
 
         const peaks = peaksRef.current;
 
-        peaks.inLevel = inInstant > peaks.inLevel ? inInstant : peaks.inLevel * PEAK_DECAY;
-        peaks.outLevel = outInstant > peaks.outLevel ? outInstant : peaks.outLevel * PEAK_DECAY;
+        peaks.inLevel =
+          inInstant > peaks.inLevel ? inInstant : peaks.inLevel * PEAK_DECAY;
+        peaks.outLevel =
+          outInstant > peaks.outLevel
+            ? outInstant
+            : peaks.outLevel * PEAK_DECAY;
         peaks.gr = grInstant > peaks.gr ? grInstant : peaks.gr * PEAK_DECAY;
 
         setMeters({

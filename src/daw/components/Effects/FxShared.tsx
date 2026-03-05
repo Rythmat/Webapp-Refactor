@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable tailwindcss/classnames-order */
+/* eslint-disable tailwindcss/enforces-shorthand */
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, X, Maximize2, ChevronDown } from 'lucide-react';
 import type { EqBandType } from '@/daw/audio/EffectChain';
@@ -6,8 +7,14 @@ import type { EqBandType } from '@/daw/audio/EffectChain';
 // ── Constants ────────────────────────────────────────────────────────────
 
 export const BAND_COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e',
-  '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899',
+  '#ef4444',
+  '#f97316',
+  '#eab308',
+  '#22c55e',
+  '#06b6d4',
+  '#3b82f6',
+  '#8b5cf6',
+  '#ec4899',
 ];
 
 export const SECTION_STYLE = {
@@ -15,7 +22,11 @@ export const SECTION_STYLE = {
   border: '1px solid rgba(255,255,255,0.04)',
 } as const;
 
-export const VIZ_SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
+export const VIZ_SPRING = {
+  type: 'spring' as const,
+  stiffness: 350,
+  damping: 30,
+};
 
 // ── Section Header ──────────────────────────────────────────────────────
 
@@ -46,7 +57,9 @@ export function SectionHeader({
         onClick={onToggle}
         className="w-2.5 h-2.5 rounded-full shrink-0 cursor-pointer"
         style={{
-          backgroundColor: enabled ? 'var(--color-accent)' : 'var(--color-surface-3)',
+          backgroundColor: enabled
+            ? 'var(--color-accent)'
+            : 'var(--color-surface-3)',
           border: 'none',
         }}
       />
@@ -61,12 +74,19 @@ export function SectionHeader({
         style={{ height: 1, backgroundColor: 'var(--color-border)' }}
       />
       {rightLabel && (
-        <span className="text-[8px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="text-[8px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           {rightLabel}
         </span>
       )}
       {rightIcon === 'gear' && (
-        <Settings size={10} strokeWidth={1.5} style={{ color: 'var(--color-text-dim)' }} />
+        <Settings
+          size={10}
+          strokeWidth={1.5}
+          style={{ color: 'var(--color-text-dim)' }}
+        />
       )}
       {onExpand && (
         <button
@@ -87,7 +107,11 @@ export function SectionHeader({
         <button
           onClick={onPopOut}
           className="w-4 h-4 flex items-center justify-center rounded-sm cursor-pointer"
-          style={{ color: 'var(--color-text-dim)', border: 'none', background: 'none' }}
+          style={{
+            color: 'var(--color-text-dim)',
+            border: 'none',
+            background: 'none',
+          }}
           title="Open in full screen"
         >
           <Maximize2 size={10} strokeWidth={2} />
@@ -97,7 +121,11 @@ export function SectionHeader({
         <button
           onClick={onRemove}
           className="w-4 h-4 flex items-center justify-center rounded-sm cursor-pointer"
-          style={{ color: 'var(--color-text-dim)', border: 'none', background: 'none' }}
+          style={{
+            color: 'var(--color-text-dim)',
+            border: 'none',
+            background: 'none',
+          }}
           title="Remove effect"
         >
           <X size={10} strokeWidth={2} />
@@ -120,7 +148,10 @@ export function StudioCreativeToggle({
     <div className="flex items-center gap-1.5">
       <span
         className="text-[8px] font-semibold uppercase tracking-wider cursor-pointer"
-        style={{ color: mode === 'studio' ? 'var(--color-text)' : 'var(--color-text-dim)' }}
+        style={{
+          color:
+            mode === 'studio' ? 'var(--color-text)' : 'var(--color-text-dim)',
+        }}
         onClick={() => onChange('studio')}
       >
         Studio
@@ -129,7 +160,10 @@ export function StudioCreativeToggle({
         onClick={() => onChange(mode === 'studio' ? 'creative' : 'studio')}
         className="w-7 h-3.5 rounded-full flex items-center px-0.5 cursor-pointer"
         style={{
-          backgroundColor: mode === 'creative' ? 'var(--color-accent)' : 'var(--color-surface-3)',
+          backgroundColor:
+            mode === 'creative'
+              ? 'var(--color-accent)'
+              : 'var(--color-surface-3)',
           border: 'none',
         }}
       >
@@ -142,7 +176,10 @@ export function StudioCreativeToggle({
       </button>
       <span
         className="text-[8px] font-semibold uppercase tracking-wider cursor-pointer"
-        style={{ color: mode === 'creative' ? 'var(--color-text)' : 'var(--color-text-dim)' }}
+        style={{
+          color:
+            mode === 'creative' ? 'var(--color-text)' : 'var(--color-text-dim)',
+        }}
         onClick={() => onChange('creative')}
       >
         Creative
@@ -153,7 +190,13 @@ export function StudioCreativeToggle({
 
 // ── Auto Checkbox ───────────────────────────────────────────────────────
 
-export function AutoCheckbox({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+export function AutoCheckbox({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
   return (
     <button
       onClick={() => onChange(!checked)}
@@ -162,9 +205,16 @@ export function AutoCheckbox({ checked, onChange }: { checked: boolean; onChange
     >
       <div
         className="w-2 h-2 rounded-full"
-        style={{ backgroundColor: checked ? 'var(--color-accent)' : 'var(--color-surface-3)' }}
+        style={{
+          backgroundColor: checked
+            ? 'var(--color-accent)'
+            : 'var(--color-surface-3)',
+        }}
       />
-      <span className="text-[7px] font-semibold uppercase" style={{ color: 'var(--color-text-dim)' }}>
+      <span
+        className="text-[7px] font-semibold uppercase"
+        style={{ color: 'var(--color-text-dim)' }}
+      >
         Auto
       </span>
     </button>
@@ -206,21 +256,33 @@ export function BandTab({
 
 // ── EQ Curve Type Selector ──────────────────────────────────────────────
 
-const EQ_TYPES: EqBandType[] = ['lowcut', 'lowshelf', 'peaking', 'highshelf', 'highcut'];
+const EQ_TYPES: EqBandType[] = [
+  'lowcut',
+  'lowshelf',
+  'peaking',
+  'highshelf',
+  'highcut',
+];
 
 function CurveTypeIcon({ type, color }: { type: EqBandType; color: string }) {
   const w = 16;
   const h = 10;
   const paths: Record<EqBandType, string> = {
-    lowcut:    `M1 ${h - 1} Q4 ${h - 1} 7 4 Q10 1 ${w - 1} 1`,
-    lowshelf:  `M1 ${h - 2} Q5 ${h - 2} 7 ${h / 2} Q9 2 ${w - 1} 2`,
-    peaking:   `M1 ${h / 2} Q5 1 8 1 Q11 1 ${w - 1} ${h / 2}`,
+    lowcut: `M1 ${h - 1} Q4 ${h - 1} 7 4 Q10 1 ${w - 1} 1`,
+    lowshelf: `M1 ${h - 2} Q5 ${h - 2} 7 ${h / 2} Q9 2 ${w - 1} 2`,
+    peaking: `M1 ${h / 2} Q5 1 8 1 Q11 1 ${w - 1} ${h / 2}`,
     highshelf: `M1 2 Q5 2 7 ${h / 2} Q9 ${h - 2} ${w - 1} ${h - 2}`,
-    highcut:   `M1 1 Q6 1 9 4 Q12 ${h - 1} ${w - 1} ${h - 1}`,
+    highcut: `M1 1 Q6 1 9 4 Q12 ${h - 1} ${w - 1} ${h - 1}`,
   };
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <path d={paths[type]} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+      <path
+        d={paths[type]}
+        fill="none"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -273,9 +335,7 @@ export function InlineViz({
           transition={VIZ_SPRING}
           style={{ borderTop: '1px solid var(--color-border)' }}
         >
-          <div className="p-2.5">
-            {children}
-          </div>
+          <div className="p-2.5">{children}</div>
         </motion.div>
       )}
     </AnimatePresence>

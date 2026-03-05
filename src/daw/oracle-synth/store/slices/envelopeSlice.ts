@@ -6,7 +6,7 @@ export interface EnvelopeSlice {
   setEnvParam: (
     index: 0 | 1,
     param: keyof EnvelopeParams,
-    value: number
+    value: number,
   ) => void;
 }
 

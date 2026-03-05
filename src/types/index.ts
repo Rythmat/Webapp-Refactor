@@ -1,4 +1,4 @@
-export type InstrumentType = "synth" | "bass" | "drums" | "keys" | "guitar";
+export type InstrumentType = 'synth' | 'bass' | 'drums' | 'keys' | 'guitar';
 
 export type Note = {
   id: string;
@@ -52,7 +52,7 @@ export type Project = {
 };
 
 export type Message = {
-  sender: "user" | "ai";
+  sender: 'user' | 'ai';
   text: string;
   visualization?: {
     type: 'piano';

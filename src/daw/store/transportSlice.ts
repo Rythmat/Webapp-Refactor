@@ -9,13 +9,13 @@ export interface TransportSlice {
   isPlaying: boolean;
   isRecording: boolean;
   isCountingIn: boolean;
-  countInBars: number;       // 0 = off, 1 = 1 bar, 2 = 2 bars
+  countInBars: number; // 0 = off, 1 = 1 bar, 2 = 2 bars
   bpm: number;
-  position: number;          // current tick position (480 ticks/quarter)
+  position: number; // current tick position (480 ticks/quarter)
   metronomeEnabled: boolean;
   loopEnabled: boolean;
-  loopStart: number;         // tick
-  loopEnd: number;           // tick (default: 4 bars = 7680)
+  loopStart: number; // tick
+  loopEnd: number; // tick (default: 4 bars = 7680)
 
   play: () => void;
   pause: () => void;
@@ -53,7 +53,13 @@ export const createTransportSlice: StateCreator<
 
   pause: () => set({ isPlaying: false, isCountingIn: false }),
 
-  stop: () => set({ isPlaying: false, isRecording: false, isCountingIn: false, position: 0 }),
+  stop: () =>
+    set({
+      isPlaying: false,
+      isRecording: false,
+      isCountingIn: false,
+      position: 0,
+    }),
 
   record: () =>
     set((state) => {
@@ -63,9 +69,11 @@ export const createTransportSlice: StateCreator<
       return { isRecording: true, isPlaying: true };
     }),
 
-  setCountInBars: (bars) => set({ countInBars: Math.max(0, Math.min(2, bars)) }),
+  setCountInBars: (bars) =>
+    set({ countInBars: Math.max(0, Math.min(2, bars)) }),
 
-  _startRecordingAfterCountIn: () => set({ isCountingIn: false, isRecording: true, isPlaying: true }),
+  _startRecordingAfterCountIn: () =>
+    set({ isCountingIn: false, isRecording: true, isPlaying: true }),
 
   setBpm: (bpm) => set({ bpm: Math.max(40, Math.min(300, bpm)) }),
 
@@ -74,8 +82,7 @@ export const createTransportSlice: StateCreator<
   toggleMetronome: () =>
     set((state) => ({ metronomeEnabled: !state.metronomeEnabled })),
 
-  toggleLoop: () =>
-    set((state) => ({ loopEnabled: !state.loopEnabled })),
+  toggleLoop: () => set((state) => ({ loopEnabled: !state.loopEnabled })),
 
   setLoopRange: (start, end) =>
     set({ loopStart: Math.max(0, start), loopEnd: Math.max(0, end) }),

@@ -1,6 +1,7 @@
-import React from "react";
+/* eslint-disable tailwindcss/classnames-order, tailwindcss/migration-from-tailwind-2 */
+import type { FC } from 'react';
 // import {  Hexagon } from "lucide-react";
-import { UserWidget } from "@/layouts/DashboardLayout/UserWidget";
+import { UserWidget } from '@/layouts/DashboardLayout/UserWidget';
 
 interface HeaderBarProps {
   title: string;
@@ -9,11 +10,11 @@ interface HeaderBarProps {
   className?: string;
 }
 
-export const HeaderBar: React.FC<HeaderBarProps> = ({
+export const HeaderBar: FC<HeaderBarProps> = ({
   title,
   subtitle,
   showProfile = true,
-  className = "",
+  className = '',
 }) => {
   return (
     <header
@@ -23,7 +24,11 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         <h1 className="text-4xl font-serif text-gray-100 group-hover:text-white transition-colors">
           {title}
         </h1>
-        {subtitle && <div className="text-gray-500 text-lg mt-2 font-light">{subtitle}</div>}
+        {subtitle && (
+          <div className="text-gray-500 text-lg mt-2 font-light">
+            {subtitle}
+          </div>
+        )}
       </div>
       <div className="flex items-center gap-6 text-sm font-medium">
         {/* <div className="flex items-center gap-2 text-gray-400">
@@ -48,7 +53,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         )} */}
         {showProfile && (
           <div className="pl-4 border-l border-white/10">
-            <UserWidget variant="header"/>
+            <UserWidget variant="header" />
           </div>
         )}
       </div>

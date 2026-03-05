@@ -1,11 +1,11 @@
 import {
+  type MidiNoteEvent,
   StrumMode,
   VelocityTilt,
   InstrumentChannel,
   generateChordMidi,
   CHORD_RHYTHMS,
 } from '@prism/engine';
-import type { MidiNoteEvent } from '@prism/engine';
 
 export interface MidiWorkerRequest {
   chordSeq: number[][];
@@ -23,7 +23,16 @@ export interface MidiWorkerResponse {
 }
 
 self.onmessage = (e: MessageEvent<MidiWorkerRequest>) => {
-  const { chordSeq, stringSeq, rhythmName, swing, strum, strumAmount, tilt, tiltAmount } = e.data;
+  const {
+    chordSeq,
+    stringSeq,
+    rhythmName,
+    swing,
+    strum,
+    strumAmount,
+    tilt,
+    tiltAmount,
+  } = e.data;
 
   const chordPattern = CHORD_RHYTHMS[rhythmName] ?? CHORD_RHYTHMS['Quarters'];
 

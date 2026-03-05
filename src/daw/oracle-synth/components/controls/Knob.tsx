@@ -40,7 +40,7 @@ function describeArc(
   cy: number,
   r: number,
   startAngle: number,
-  endAngle: number
+  endAngle: number,
 ) {
   const start = polarToCartesian(cx, cy, r, endAngle);
   const end = polarToCartesian(cx, cy, r, startAngle);
@@ -76,9 +76,7 @@ export const Knob: React.FC<KnobProps> = React.memo(
 
     const trackPath = describeArc(cx, cy, r, START_ANGLE, END_ANGLE);
     const arcPath =
-      normalized > 0.001
-        ? describeArc(cx, cy, r, START_ANGLE, angle)
-        : '';
+      normalized > 0.001 ? describeArc(cx, cy, r, START_ANGLE, angle) : '';
 
     const indicator = polarToCartesian(cx, cy, r - 6, angle);
 
@@ -89,7 +87,7 @@ export const Knob: React.FC<KnobProps> = React.memo(
         startY.current = e.clientY;
         startValue.current = value;
       },
-      [value]
+      [value],
     );
 
     const handlePointerMove = useCallback(
@@ -105,7 +103,7 @@ export const Knob: React.FC<KnobProps> = React.memo(
         newValue = clamp(newValue, min, max);
         onChange(newValue);
       },
-      [max, min, step, onChange]
+      [max, min, step, onChange],
     );
 
     const handlePointerUp = useCallback(() => {
@@ -146,11 +144,11 @@ export const Knob: React.FC<KnobProps> = React.memo(
         const newValue = clamp(
           Math.round((value + delta) / step) * step,
           min,
-          max
+          max,
         );
         onChange(newValue);
       },
-      [value, min, max, step, onChange]
+      [value, min, max, step, onChange],
     );
 
     const clampedValue = clamp(value, min, max);
@@ -180,11 +178,7 @@ export const Knob: React.FC<KnobProps> = React.memo(
         onKeyDown={handleKeyDown}
       >
         {/* Background track */}
-        <path
-          className={styles.track}
-          d={trackPath}
-          strokeWidth={3}
-        />
+        <path className={styles.track} d={trackPath} strokeWidth={3} />
         {/* Value arc */}
         {arcPath && (
           <path
@@ -219,8 +213,18 @@ export const Knob: React.FC<KnobProps> = React.memo(
 
     return (
       <div className={horizontal ? styles.containerH : styles.container}>
-        {labelLeft && horizontal ? <>{textEls}{svgEl}</> : <>{svgEl}{textEls}</>}
+        {labelLeft && horizontal ? (
+          <>
+            {textEls}
+            {svgEl}
+          </>
+        ) : (
+          <>
+            {svgEl}
+            {textEls}
+          </>
+        )}
       </div>
     );
-  }
+  },
 );

@@ -3,7 +3,20 @@ import { useStore } from '@/daw/store';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
-const NOTE_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'] as const;
+const NOTE_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B',
+] as const;
 
 // ── Component ────────────────────────────────────────────────────────────
 
@@ -21,7 +34,7 @@ export function RootNoteSelector() {
   return (
     <div className="flex flex-col gap-1">
       <span
-        className="text-xs font-medium mb-0.5"
+        className="mb-0.5 text-xs font-medium"
         style={{ color: 'var(--color-text-dim)' }}
       >
         Root Note
@@ -33,9 +46,11 @@ export function RootNoteSelector() {
             <button
               key={name}
               onClick={handleClick(i)}
-              className="h-7 rounded text-xs font-medium transition-colors cursor-pointer"
+              className="h-7 cursor-pointer rounded text-xs font-medium transition-colors"
               style={{
-                backgroundColor: isActive ? 'var(--color-accent)' : 'var(--color-surface-2)',
+                backgroundColor: isActive
+                  ? 'var(--color-accent)'
+                  : 'var(--color-surface-2)',
                 color: isActive ? '#fff' : 'var(--color-text-dim)',
                 border: 'none',
               }}

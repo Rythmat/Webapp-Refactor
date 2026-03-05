@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PianoKeyboard } from '@/components/PianoKeyboard';
-import { YouTubePlayer } from '@/features/admin/chapters/components/YouTubePlayer';
-import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
-import { type PlaybackEvent } from '@/contexts/PlaybackContext';
-import { useNoteByMidiMap } from '@/hooks/data/notes/useNotes';
 import { ChordPressKeyboard } from '@/components/Games/ChordPressKeyboard';
+import { PianoKeyboard } from '@/components/PianoKeyboard';
+import { type PlaybackEvent } from '@/contexts/PlaybackContext';
+import { YouTubePlayer } from '@/features/admin/chapters/components/YouTubePlayer';
+import { useNoteByMidiMap } from '@/hooks/data/notes/useNotes';
+import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 // import { LearnRoutes } from "@/constants/routes";
 // import { useNavigate } from 'react-router';
 import { colorForKeyMode } from '@/lib/modeColorShift';
@@ -19,8 +19,34 @@ type LessonOverviewProps = {
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
 const DEFAULT_ROOT_MIDI = 60;
 
-const PITCH_CLASS_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const;
-const KEY_LABEL_BY_PITCH_CLASS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'] as const;
+const PITCH_CLASS_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+] as const;
+const KEY_LABEL_BY_PITCH_CLASS = [
+  'C',
+  'Db',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B',
+] as const;
 const normalizePitchClass = (midi: number) => ((midi % 12) + 12) % 12;
 
 const normalizeSteps = (steps?: number[]) => {
@@ -39,9 +65,6 @@ const normalizeSteps = (steps?: number[]) => {
 const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
   normalizeSteps(steps).map((interval) => rootMidi + interval);
 
-
-
-
 export function LessonOverview({
   mode,
   rootMidi,
@@ -55,7 +78,9 @@ export function LessonOverview({
   const [chordPressComplete, setChordPressComplete] = useState(false);
 
   const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;
-  const resolvedRootMidi = Number.isFinite(rootMidi) ? rootMidi : DEFAULT_ROOT_MIDI;
+  const resolvedRootMidi = Number.isFinite(rootMidi)
+    ? rootMidi
+    : DEFAULT_ROOT_MIDI;
   const scaleMidis = useMemo(
     () => buildScaleMidis(resolvedRootMidi, scaleSteps),
     [resolvedRootMidi, scaleSteps],
@@ -95,59 +120,78 @@ export function LessonOverview({
 
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
-      <h2 className="text-2xl md:text-3xl font-semibold text-left ml-[10%]" style={{ color: 'var(--color-text)' }}>
+      <h2
+        className="ml-[10%] text-left text-2xl font-semibold md:text-3xl"
+        style={{ color: 'var(--color-text)' }}
+      >
         {`${PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]} ${mode.charAt(0).toUpperCase() + mode.slice(1)}`}
       </h2>
       {videoId && (
-        <div className="w-1/2 mx-auto">
+        <div className="mx-auto w-1/2">
           <YouTubePlayer videoId={videoId} />
         </div>
       )}
       <PianoKeyboard
-        endC={6}
-        startC={4}
-        playingNotes={activeNotes}
-        activeWhiteKeyColor={activeKeyColor}
         activeBlackKeyColor={activeKeyColor}
+        activeWhiteKeyColor={activeKeyColor}
         enableClick={false}
+        endC={6}
+        playingNotes={activeNotes}
+        startC={4}
         useContextNotes={false}
       />
       <section className="mb-6 flex flex-col items-center">
-        <p className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]" style={{ color: 'var(--color-text)' }}>
+        <p
+          className="mb-3 ml-[10%] self-start text-left text-base font-semibold md:text-lg"
+          style={{ color: 'var(--color-text)' }}
+        >
           Notes: {scaleNoteLabels.join(', ')}
         </p>
 
-        <div className="w-full max-w-4xl my-6">
+        <div className="my-6 w-full max-w-4xl">
           <div className="flex items-center gap-4">
-            <div className="h-px flex-1" style={{ background: 'var(--color-border)' }} />
-            <h3 className="text-xs font-semibold uppercase" style={{ color: 'var(--color-text-dim)', letterSpacing: '1px' }}>
+            <div
+              className="h-px flex-1"
+              style={{ background: 'var(--color-border)' }}
+            />
+            <h3
+              className="text-xs font-semibold uppercase"
+              style={{ color: 'var(--color-text-dim)', letterSpacing: '1px' }}
+            >
               Identify
             </h3>
-            <div className="h-px flex-1" style={{ background: 'var(--color-border)' }} />
-            <p style={{ color: 'var(--color-text-dim)' }}> Select the notes of {PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]} {mode.charAt(0).toUpperCase() + mode.slice(1)}</p>
+            <div
+              className="h-px flex-1"
+              style={{ background: 'var(--color-border)' }}
+            />
+            <p style={{ color: 'var(--color-text-dim)' }}>
+              {' '}
+              Select the notes of{' '}
+              {PITCH_CLASS_NAMES[normalizePitchClass(rootMidi)]}{' '}
+              {mode.charAt(0).toUpperCase() + mode.slice(1)}
+            </p>
           </div>
         </div>
 
         <ChordPressKeyboard
+          requireTargetIntervalsFromRoot
           activeKeyColor={activeKeyColor}
           targetNotes={scaleMidis}
-          requireTargetIntervalsFromRoot
           onComplete={() => setChordPressComplete(true)}
         />
       </section>
 
       <div className="flex justify-center">
         <button
+          className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={!chordPressComplete}
+          style={{ background: 'var(--color-accent)', color: '#191919' }}
           type="button"
           onClick={onStartLesson}
-          disabled={!chordPressComplete}
-          className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-60"
-          style={{ background: 'var(--color-accent)', color: '#191919' }}
         >
           Start Lesson
         </button>
       </div>
-
     </div>
   );
 }

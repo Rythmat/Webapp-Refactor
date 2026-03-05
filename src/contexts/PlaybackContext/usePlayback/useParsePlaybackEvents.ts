@@ -14,7 +14,6 @@ export const useParsePlaybackEvents = (input: InputType): PlaybackEvent[] => {
       return [];
     }
 
-
     if (isPhraseMap(input)) {
       // Input is a PhraseMap
       return parsePhraseMap(input);
@@ -46,7 +45,6 @@ export const useParseBPM = (
         beatUnit: 4,
       };
     }
-
 
     if (isPhraseMap(input)) {
       return {

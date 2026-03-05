@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthActions } from '@/contexts/AuthContext';
 import { useMe } from '@/hooks/data';
 
-
 export const StudentProfilePage = () => {
   const { signOut } = useAuthActions();
   const { data: user } = useMe();

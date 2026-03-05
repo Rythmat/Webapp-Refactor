@@ -1,5 +1,10 @@
-import type { MidiNoteEvent, MidiSequence, GenreName } from '../types';
-import { InstrumentChannel, DrumNote } from '../types';
+import {
+  DrumNote,
+  InstrumentChannel,
+  type GenreName,
+  type MidiNoteEvent,
+  type MidiSequence,
+} from '../types';
 import { DRUM_PATTERNS } from '../data/drumPatterns';
 import { GENRE_MAP } from '../data/genreMap';
 import { swingRhythm } from './rhythmUtils';
@@ -55,9 +60,10 @@ export function generateDrumMidi(opts: {
     const vel = VELOCITY[element] ?? 90;
 
     // Apply swing to hihat and ride only
-    const processed = (element === 'hihat' || element === 'ride')
-      ? swingRhythm(hits, opts.swing)
-      : hits;
+    const processed =
+      element === 'hihat' || element === 'ride'
+        ? swingRhythm(hits, opts.swing)
+        : hits;
 
     for (let loop = 0; loop < loops; loop++) {
       const offset = loop * TWO_BAR;

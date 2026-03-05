@@ -25,11 +25,11 @@ Upstash Redis
 
 ## 1. Environments
 
-| Environment | Domain | Stripe mode | Upstash DB |
-|-------------|--------|-------------|------------|
-| **Local** | `http://localhost:5173` | Test | Staging DB |
-| **Staging** | `https://webapp-refactor.vercel.app` | Test | Staging DB |
-| **Production** | `https://app.musicatlas.io` | Live | Production DB |
+| Environment    | Domain                               | Stripe mode | Upstash DB    |
+| -------------- | ------------------------------------ | ----------- | ------------- |
+| **Local**      | `http://localhost:5173`              | Test        | Staging DB    |
+| **Staging**    | `https://webapp-refactor.vercel.app` | Test        | Staging DB    |
+| **Production** | `https://app.musicatlas.io`          | Live        | Production DB |
 
 **Vercel env var scoping:** Each variable can be scoped to Production, Preview, or Development in Project Settings → Environment Variables. Use this to give staging and production different Stripe keys and Redis databases while sharing OAuth credentials.
 
@@ -85,9 +85,9 @@ You now have 4 values total: 2 URLs + 2 tokens (one pair per database).
 
 ### Vercel env var scoping
 
-| Variable | Development | Preview | Production |
-|----------|-------------|---------|------------|
-| `KV_REST_API_URL` | staging URL | staging URL | production URL |
+| Variable            | Development   | Preview       | Production       |
+| ------------------- | ------------- | ------------- | ---------------- |
+| `KV_REST_API_URL`   | staging URL   | staging URL   | production URL   |
 | `KV_REST_API_TOKEN` | staging token | staging token | production token |
 
 ### Verify it's working
@@ -96,11 +96,11 @@ After deploying, you can go back to the Upstash console, click into your databas
 
 ### Redis key schema (automatic — no manual setup)
 
-| Key | Value | Created by |
-|-----|-------|------------|
-| `user:{userId}:credits` | `{ balance, lifetimeUsed, lastRefresh }` | OAuth sign-up (50 free credits) and Stripe webhook (refresh on renewal) |
-| `user:{userId}:subscription` | `{ tier, stripeCustomerId, stripeSubscriptionId, currentPeriodEnd }` | Stripe webhook after checkout |
-| `stripe:customer:{customerId}` | `userId` (string) | Stripe checkout completion |
+| Key                            | Value                                                                | Created by                                                              |
+| ------------------------------ | -------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `user:{userId}:credits`        | `{ balance, lifetimeUsed, lastRefresh }`                             | OAuth sign-up (50 free credits) and Stripe webhook (refresh on renewal) |
+| `user:{userId}:subscription`   | `{ tier, stripeCustomerId, stripeSubscriptionId, currentPeriodEnd }` | Stripe webhook after checkout                                           |
+| `stripe:customer:{customerId}` | `userId` (string)                                                    | Stripe checkout completion                                              |
 
 ---
 
@@ -168,10 +168,10 @@ After deploying, you can go back to the Upstash console, click into your databas
 
 ### Vercel env vars
 
-| Variable | Value | Scope |
-|----------|-------|-------|
-| `GOOGLE_CLIENT_ID` | `123456789-xxxxxxxx.apps.googleusercontent.com` | All (Production + Preview + Development) |
-| `GOOGLE_CLIENT_SECRET` | `GOCSPX-xxxxxxxxxxxx` | All (Production + Preview + Development) |
+| Variable               | Value                                           | Scope                                    |
+| ---------------------- | ----------------------------------------------- | ---------------------------------------- |
+| `GOOGLE_CLIENT_ID`     | `123456789-xxxxxxxx.apps.googleusercontent.com` | All (Production + Preview + Development) |
+| `GOOGLE_CLIENT_SECRET` | `GOCSPX-xxxxxxxxxxxx`                           | All (Production + Preview + Development) |
 
 > Same credentials work for all environments because all three redirect URIs are registered on the same OAuth client.
 
@@ -271,12 +271,12 @@ Alternatively: go to **Membership** in the left sidebar — your Team ID is list
 
 ### Vercel env vars
 
-| Variable | Example value | Scope |
-|----------|--------------|-------|
-| `APPLE_CLIENT_ID` | `io.musicatlas.web` | All (Production + Preview + Development) |
-| `APPLE_TEAM_ID` | `9A8B7C6D5E` | All |
-| `APPLE_KEY_ID` | `ABC1234DEF` | All |
-| `APPLE_PRIVATE_KEY` | `-----BEGIN PRIVATE KEY-----\nMIGTAgE...\n-----END PRIVATE KEY-----` | All |
+| Variable            | Example value                                                        | Scope                                    |
+| ------------------- | -------------------------------------------------------------------- | ---------------------------------------- |
+| `APPLE_CLIENT_ID`   | `io.musicatlas.web`                                                  | All (Production + Preview + Development) |
+| `APPLE_TEAM_ID`     | `9A8B7C6D5E`                                                         | All                                      |
+| `APPLE_KEY_ID`      | `ABC1234DEF`                                                         | All                                      |
+| `APPLE_PRIVATE_KEY` | `-----BEGIN PRIVATE KEY-----\nMIGTAgE...\n-----END PRIVATE KEY-----` | All                                      |
 
 > Same credentials work for all environments because both return URLs are registered on the same Services ID.
 
@@ -379,11 +379,11 @@ The Customer Portal lets users manage their own subscription (cancel, switch pla
 
 ### Vercel env vars
 
-| Variable | Staging (Preview + Dev) | Production |
-|----------|------------------------|------------|
-| `STRIPE_SECRET_KEY` | `sk_test_xxxx` | `sk_live_xxxx` |
-| `STRIPE_PRICE_ARTIST` | `price_xxxx` (from test mode) | `price_xxxx` (from live mode) |
-| `STRIPE_PRICE_STUDIO` | `price_xxxx` (from test mode) | `price_xxxx` (from live mode) |
+| Variable                | Staging (Preview + Dev)         | Production                         |
+| ----------------------- | ------------------------------- | ---------------------------------- |
+| `STRIPE_SECRET_KEY`     | `sk_test_xxxx`                  | `sk_live_xxxx`                     |
+| `STRIPE_PRICE_ARTIST`   | `price_xxxx` (from test mode)   | `price_xxxx` (from live mode)      |
+| `STRIPE_PRICE_STUDIO`   | `price_xxxx` (from test mode)   | `price_xxxx` (from live mode)      |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_xxxx` (staging endpoint) | `whsec_xxxx` (production endpoint) |
 
 ### Local testing with Stripe CLI
@@ -406,6 +406,7 @@ stripe trigger checkout.session.completed
 ```
 
 **Test card numbers:**
+
 - Success: `4242 4242 4242 4242`
 - Decline: `4000 0000 0000 0002`
 - Requires authentication: `4000 0025 0000 3155`
@@ -448,34 +449,35 @@ The backend (`music-atlas-api`) needs the new `/auth/oauth` endpoint so the OAut
    - Click **Save**
 
 **For variables that differ between staging and production** (Redis and Stripe), add the variable **twice**:
+
 - First: enter the staging value → check only **Preview** + **Development** → Save
 - Second: enter the production value → check only **Production** → Save
 
 ### Full variable list
 
-| # | Variable | Value | Environments |
-|---|----------|-------|-------------|
-| 1 | `VITE_MUSIC_ATLAS_API_URL` | `https://api-refactor.vercel.app/` | All |
-| 2 | `MUSIC_ATLAS_API_URL` | `https://api-refactor.vercel.app` | All |
-| 3 | `JWT_SECRET` | (from backend) | All |
-| 4 | `GOOGLE_CLIENT_ID` | (from Google step C.26) | All |
-| 5 | `GOOGLE_CLIENT_SECRET` | (from Google step C.26) | All |
-| 6 | `APPLE_CLIENT_ID` | `io.musicatlas.web` | All |
-| 7 | `APPLE_TEAM_ID` | (from Apple step D.32) | All |
-| 8 | `APPLE_KEY_ID` | (from Apple step C.30) | All |
-| 9 | `APPLE_PRIVATE_KEY` | (from Apple step E.34) | All |
-| 10 | `KV_REST_API_URL` | staging URL | Preview + Development |
-| 11 | `KV_REST_API_URL` | production URL | Production |
-| 12 | `KV_REST_API_TOKEN` | staging token | Preview + Development |
-| 13 | `KV_REST_API_TOKEN` | production token | Production |
-| 14 | `STRIPE_SECRET_KEY` | `sk_test_...` | Preview + Development |
-| 15 | `STRIPE_SECRET_KEY` | `sk_live_...` | Production |
-| 16 | `STRIPE_PRICE_ARTIST` | test price ID | Preview + Development |
-| 17 | `STRIPE_PRICE_ARTIST` | live price ID | Production |
-| 18 | `STRIPE_PRICE_STUDIO` | test price ID | Preview + Development |
-| 19 | `STRIPE_PRICE_STUDIO` | live price ID | Production |
-| 20 | `STRIPE_WEBHOOK_SECRET` | staging `whsec_...` | Preview + Development |
-| 21 | `STRIPE_WEBHOOK_SECRET` | production `whsec_...` | Production |
+| #   | Variable                   | Value                              | Environments          |
+| --- | -------------------------- | ---------------------------------- | --------------------- |
+| 1   | `VITE_MUSIC_ATLAS_API_URL` | `https://api-refactor.vercel.app/` | All                   |
+| 2   | `MUSIC_ATLAS_API_URL`      | `https://api-refactor.vercel.app`  | All                   |
+| 3   | `JWT_SECRET`               | (from backend)                     | All                   |
+| 4   | `GOOGLE_CLIENT_ID`         | (from Google step C.26)            | All                   |
+| 5   | `GOOGLE_CLIENT_SECRET`     | (from Google step C.26)            | All                   |
+| 6   | `APPLE_CLIENT_ID`          | `io.musicatlas.web`                | All                   |
+| 7   | `APPLE_TEAM_ID`            | (from Apple step D.32)             | All                   |
+| 8   | `APPLE_KEY_ID`             | (from Apple step C.30)             | All                   |
+| 9   | `APPLE_PRIVATE_KEY`        | (from Apple step E.34)             | All                   |
+| 10  | `KV_REST_API_URL`          | staging URL                        | Preview + Development |
+| 11  | `KV_REST_API_URL`          | production URL                     | Production            |
+| 12  | `KV_REST_API_TOKEN`        | staging token                      | Preview + Development |
+| 13  | `KV_REST_API_TOKEN`        | production token                   | Production            |
+| 14  | `STRIPE_SECRET_KEY`        | `sk_test_...`                      | Preview + Development |
+| 15  | `STRIPE_SECRET_KEY`        | `sk_live_...`                      | Production            |
+| 16  | `STRIPE_PRICE_ARTIST`      | test price ID                      | Preview + Development |
+| 17  | `STRIPE_PRICE_ARTIST`      | live price ID                      | Production            |
+| 18  | `STRIPE_PRICE_STUDIO`      | test price ID                      | Preview + Development |
+| 19  | `STRIPE_PRICE_STUDIO`      | live price ID                      | Production            |
+| 20  | `STRIPE_WEBHOOK_SECRET`    | staging `whsec_...`                | Preview + Development |
+| 21  | `STRIPE_WEBHOOK_SECRET`    | production `whsec_...`             | Production            |
 
 That's 21 entries total (14 unique variables, 7 of which are entered twice with different scopes).
 
@@ -486,6 +488,7 @@ After adding all variables, **redeploy** for them to take effect: go to the **De
 ## 9. Testing Checklist
 
 ### Local development
+
 - [ ] Copy `.env.example` to `.env` and fill in all values (use staging credentials)
 - [ ] `npm run dev` starts without env errors
 - [ ] Navigate to `http://localhost:5173/api/auth/google` → redirects to Google consent screen
@@ -495,6 +498,7 @@ After adding all variables, **redeploy** for them to take effect: go to the **De
 - [ ] Credits badge shows "50" in the sidebar
 
 ### Stripe (staging, test mode)
+
 - [ ] Click an upgrade button → opens Stripe Checkout page
 - [ ] Use test card `4242 4242 4242 4242` (any expiry, any CVC) → checkout succeeds
 - [ ] Redirected back to app with `?checkout=success`
@@ -505,12 +509,14 @@ After adding all variables, **redeploy** for them to take effect: go to the **De
 - [ ] After cancellation, check webhook receives `customer.subscription.deleted` → tier reverts to "free"
 
 ### Upstash verification
+
 - [ ] Open Upstash console → click your database → **Data Browser** tab
 - [ ] After sign-up: search for `user:` → find `user:{id}:credits` with `balance: 50`
 - [ ] After Stripe checkout: find `user:{id}:subscription` with correct tier
 - [ ] After Stripe checkout: find `stripe:customer:{id}` mapping to the user ID
 
 ### Production go-live
+
 - [ ] All 21 env var entries set in Vercel (see section 8)
 - [ ] Vercel redeployed after adding env vars
 - [ ] Stripe products/prices created in live mode with correct Price IDs
@@ -523,21 +529,21 @@ After adding all variables, **redeploy** for them to take effect: go to the **De
 
 ## API Routes Reference
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/api/auth/google` | No | Initiates Google OAuth flow (redirects to Google) |
-| GET | `/api/auth/apple` | No | Initiates Apple Sign-In flow (redirects to Apple) |
-| POST | `/api/auth/apple` | No | Apple callback (form_post from Apple's servers) |
-| POST | `/api/stripe/checkout` | Bearer JWT | Creates Checkout Session, returns `{ url }` |
-| POST | `/api/stripe/webhook` | Stripe signature | Handles subscription lifecycle events |
-| POST | `/api/stripe/portal` | Bearer JWT | Creates Customer Portal session, returns `{ url }` |
-| GET | `/api/credits/balance` | Bearer JWT | Returns `{ balance, lifetimeUsed, tier }` |
-| POST | `/api/credits/consume` | Bearer JWT | Deducts 1 credit, returns `{ success, remaining }` |
+| Method | Path                   | Auth             | Description                                        |
+| ------ | ---------------------- | ---------------- | -------------------------------------------------- |
+| GET    | `/api/auth/google`     | No               | Initiates Google OAuth flow (redirects to Google)  |
+| GET    | `/api/auth/apple`      | No               | Initiates Apple Sign-In flow (redirects to Apple)  |
+| POST   | `/api/auth/apple`      | No               | Apple callback (form_post from Apple's servers)    |
+| POST   | `/api/stripe/checkout` | Bearer JWT       | Creates Checkout Session, returns `{ url }`        |
+| POST   | `/api/stripe/webhook`  | Stripe signature | Handles subscription lifecycle events              |
+| POST   | `/api/stripe/portal`   | Bearer JWT       | Creates Customer Portal session, returns `{ url }` |
+| GET    | `/api/credits/balance` | Bearer JWT       | Returns `{ balance, lifetimeUsed, tier }`          |
+| POST   | `/api/credits/consume` | Bearer JWT       | Deducts 1 credit, returns `{ success, remaining }` |
 
 ### Tiers and credits
 
-| Tier | Price | Credits |
-|------|-------|---------|
-| Free | $0 (one-time) | 50 lifetime |
-| Artist | $10/month | 100/month (refreshed each billing cycle) |
-| Studio | $20/month | 200/month (refreshed each billing cycle) |
+| Tier   | Price         | Credits                                  |
+| ------ | ------------- | ---------------------------------------- |
+| Free   | $0 (one-time) | 50 lifetime                              |
+| Artist | $10/month     | 100/month (refreshed each billing cycle) |
+| Studio | $20/month     | 200/month (refreshed each billing cycle) |

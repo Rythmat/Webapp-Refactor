@@ -20,7 +20,7 @@ export class VoiceManager {
     ctx: AudioContext,
     wavetableBank: WavetableBank,
     destination: AudioNode,
-    maxVoices?: number
+    maxVoices?: number,
   ) {
     this.ctx = ctx;
     this.wavetableBank = wavetableBank;
@@ -91,7 +91,12 @@ export class VoiceManager {
 
     // 3. Create a new voice if pool isn't full yet (lazy allocation)
     if (this.voices.length < this.maxVoices) {
-      voice = new Voice(this.ctx, this.voices.length, this.wavetableBank, this.destination);
+      voice = new Voice(
+        this.ctx,
+        this.voices.length,
+        this.wavetableBank,
+        this.destination,
+      );
       this.voices.push(voice);
       return voice;
     }

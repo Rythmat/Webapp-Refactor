@@ -37,7 +37,7 @@ export function RhythmSelector() {
   return (
     <div className="flex flex-col gap-1">
       <span
-        className="text-xs font-medium mb-0.5"
+        className="mb-0.5 text-xs font-medium"
         style={{ color: 'var(--color-text-dim)' }}
       >
         Rhythm Pattern
@@ -45,7 +45,7 @@ export function RhythmSelector() {
       <select
         value={rhythmName}
         onChange={handleChange}
-        className="h-8 rounded-md px-2 text-sm font-medium cursor-pointer outline-none"
+        className="h-8 cursor-pointer rounded-md px-2 text-sm font-medium outline-none"
         style={{
           backgroundColor: 'var(--color-surface-2)',
           color: 'var(--color-text)',

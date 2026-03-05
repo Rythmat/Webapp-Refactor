@@ -6,7 +6,7 @@ export interface FilterSlice {
   setFilterParam: <K extends keyof FilterParams>(
     index: 0 | 1,
     param: K,
-    value: FilterParams[K]
+    value: FilterParams[K],
   ) => void;
   setFilterType: (index: 0 | 1, type: FilterType) => void;
 }

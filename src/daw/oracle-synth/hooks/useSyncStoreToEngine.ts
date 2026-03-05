@@ -14,8 +14,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.oscillators[0],
         (osc) => engine.setOscillatorParams(0, osc),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // Oscillator 2
@@ -23,8 +23,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.oscillators[1],
         (osc) => engine.setOscillatorParams(1, osc),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // Sub oscillator
@@ -32,8 +32,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.subOscillator,
         (sub) => engine.setSubOscillatorParams(sub),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // Noise
@@ -41,8 +41,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.noise,
         (noise) => engine.setNoiseParams(noise),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // Filter 1
@@ -50,8 +50,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.filters[0],
         (flt) => engine.setFilterParams(0, flt),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // Filter 2
@@ -59,8 +59,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.filters[1],
         (flt) => engine.setFilterParams(1, flt),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // Envelope 1
@@ -68,8 +68,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.envelopes[0],
         (env) => engine.setEnvelopeParams(0, env),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // Envelope 2
@@ -77,80 +77,80 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.envelopes[1],
         (env) => engine.setEnvelopeParams(1, env),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // Master volume
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.masterVolume,
-        (vol) => engine.setMasterVolume(vol)
-      )
+        (vol) => engine.setMasterVolume(vol),
+      ),
     );
 
     // Voice mode
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.voiceMode,
-        (mode) => engine.setVoiceMode(mode)
-      )
+        (mode) => engine.setVoiceMode(mode),
+      ),
     );
 
     // Voice count
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.voiceCount,
-        (count) => engine.setVoiceCount(count)
-      )
+        (count) => engine.setVoiceCount(count),
+      ),
     );
 
     // Glide
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.glide,
-        (glide) => engine.setGlide(glide)
-      )
+        (glide) => engine.setGlide(glide),
+      ),
     );
 
     // Spread
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.spread,
-        (spread) => engine.setSpread(spread)
-      )
+        (spread) => engine.setSpread(spread),
+      ),
     );
 
     // Pitch bend
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.pitchBend,
-        (val) => engine.setPitchBend(val)
-      )
+        (val) => engine.setPitchBend(val),
+      ),
     );
 
     // Pitch bend range
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.pitchBendRange,
-        (semitones) => engine.setPitchBendRange(semitones)
-      )
+        (semitones) => engine.setPitchBendRange(semitones),
+      ),
     );
 
     // Mod wheel
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.modWheel,
-        (val) => engine.setModWheel(val)
-      )
+        (val) => engine.setModWheel(val),
+      ),
     );
 
     // BPM → LFO bar durations
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.bpm,
-        (bpm) => engine.setBPM(bpm)
-      )
+        (bpm) => engine.setBPM(bpm),
+      ),
     );
 
     // LFO bar nodes + smooth (subscribe to each bar of each LFO)
@@ -161,14 +161,14 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
         unsubs.push(
           useSynthStore.subscribe(
             (state) => state.lfos[li].bars[bi],
-            (nodes) => engine.setLFONodes(li, bi, nodes)
-          )
+            (nodes) => engine.setLFONodes(li, bi, nodes),
+          ),
         );
         unsubs.push(
           useSynthStore.subscribe(
             (state) => state.lfos[li].smooths[bi],
-            (smooth) => engine.setLFOSmooth(li, bi, smooth)
-          )
+            (smooth) => engine.setLFOSmooth(li, bi, smooth),
+          ),
         );
       }
     }
@@ -177,8 +177,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.modRoutes,
-        (routes) => engine.setModRoutes(routes)
-      )
+        (routes) => engine.setModRoutes(routes),
+      ),
     );
 
     // FX: Drive
@@ -186,8 +186,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.fx.drive,
         (drive) => engine.setDriveParams(drive),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // FX: Chorus
@@ -195,8 +195,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.fx.chorus,
         (chorus) => engine.setChorusParams(chorus),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // FX: Phaser
@@ -204,8 +204,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.fx.phaser,
         (phaser) => engine.setPhaserParams(phaser),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // FX: Delay
@@ -213,8 +213,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.fx.delay,
         (delay) => engine.setDelayParams(delay),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // FX: Compressor
@@ -222,8 +222,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.fx.compressor,
         (comp) => engine.setCompressorParams(comp),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // Routing
@@ -231,8 +231,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.routing,
         (routing) => engine.setRouting(routing),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // Arpeggiator
@@ -240,8 +240,8 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       useSynthStore.subscribe(
         (state) => state.arp,
         (arp) => engine.setArpParams(arp),
-        { equalityFn: shallow }
-      )
+        { equalityFn: shallow },
+      ),
     );
 
     // Initial sync — subscriptions only fire on changes, not initial values.

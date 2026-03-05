@@ -26,5 +26,5 @@ export const Dropdown: React.FC<DropdownProps> = React.memo(
         </select>
       </div>
     );
-  }
+  },
 );

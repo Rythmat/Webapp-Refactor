@@ -54,7 +54,11 @@ export interface NamModelFile {
 }
 
 // Supported architectures for JS inference
-const JS_SUPPORTED: Set<NamArchitecture> = new Set(['LSTM', 'Linear', 'WaveNet']);
+const JS_SUPPORTED: Set<NamArchitecture> = new Set([
+  'LSTM',
+  'Linear',
+  'WaveNet',
+]);
 
 // ── Parser ────────────────────────────────────────────────────────────────
 
@@ -81,7 +85,12 @@ export function parseNamFile(json: string): NamModelFile {
   }
 
   const architecture = raw.architecture as NamArchitecture;
-  const validArchs: NamArchitecture[] = ['LSTM', 'WaveNet', 'ConvNet', 'Linear'];
+  const validArchs: NamArchitecture[] = [
+    'LSTM',
+    'WaveNet',
+    'ConvNet',
+    'Linear',
+  ];
   if (!validArchs.includes(architecture)) {
     throw new Error(`Unknown architecture: "${raw.architecture}"`);
   }
@@ -104,10 +113,12 @@ export function parseNamFile(json: string): NamModelFile {
     architecture,
     config: config as NamModelFile['config'],
     weights,
-    sample_rate: typeof raw.sample_rate === 'number' ? raw.sample_rate : undefined,
-    metadata: raw.metadata && typeof raw.metadata === 'object'
-      ? raw.metadata as NamMetadata
-      : undefined,
+    sample_rate:
+      typeof raw.sample_rate === 'number' ? raw.sample_rate : undefined,
+    metadata:
+      raw.metadata && typeof raw.metadata === 'object'
+        ? (raw.metadata as NamMetadata)
+        : undefined,
   };
 }
 
@@ -146,7 +157,7 @@ function validateLstmWeights(config: LstmConfig, count: number): void {
   if (count !== expected) {
     throw new Error(
       `LSTM weight count mismatch: expected ${expected}, got ${count} ` +
-      `(layers=${num_layers}, hidden=${hidden_size}, input=${input_size ?? 1})`,
+        `(layers=${num_layers}, hidden=${hidden_size}, input=${input_size ?? 1})`,
     );
   }
 }
@@ -160,7 +171,7 @@ function validateLinearWeights(config: LinearConfig, count: number): void {
   if (count !== expected) {
     throw new Error(
       `Linear weight count mismatch: expected ${expected}, got ${count} ` +
-      `(receptive_field=${receptive_field}, bias=${bias})`,
+        `(receptive_field=${receptive_field}, bias=${bias})`,
     );
   }
 }
@@ -171,25 +182,34 @@ function validateWaveNetConfig(config: WaveNetConfig): void {
   }
   for (let i = 0; i < config.layers.length; i++) {
     const l = config.layers[i];
-    if (!l.channels || !l.kernel_size || !Array.isArray(l.dilations) || l.dilations.length === 0) {
-      throw new Error(`WaveNet layer[${i}] missing channels, kernel_size, or dilations`);
+    if (
+      !l.channels ||
+      !l.kernel_size ||
+      !Array.isArray(l.dilations) ||
+      l.dilations.length === 0
+    ) {
+      throw new Error(
+        `WaveNet layer[${i}] missing channels, kernel_size, or dilations`,
+      );
     }
     // Only support standard (non-gated, Tanh) for JS inference
     if (l.gated) {
       throw new Error(
         'Gated WaveNet models are not yet supported in JS inference. ' +
-        'Please use a standard (non-gated) model.',
+          'Please use a standard (non-gated) model.',
       );
     }
     if (l.activation !== 'Tanh') {
       throw new Error(
         `WaveNet activation "${l.activation}" is not yet supported. ` +
-        'Please use a model with Tanh activation.',
+          'Please use a model with Tanh activation.',
       );
     }
   }
   if (config.head !== null && config.head !== undefined) {
-    throw new Error('WaveNet models with a head network are not yet supported.');
+    throw new Error(
+      'WaveNet models with a head network are not yet supported.',
+    );
   }
 }
 
@@ -209,7 +229,7 @@ function validateWaveNetWeights(config: WaveNetConfig, count: number): void {
     //   Dilated Conv: ch → ch, k (with bias)
     //   Input Mixin Conv1x1: cond → ch (no bias)
     //   Layer 1x1 Conv: ch → ch (with bias)
-    expected += nDil * ((ch * ch * k + ch) + (ch * cond) + (ch * ch + ch));
+    expected += nDil * (ch * ch * k + ch + ch * cond + (ch * ch + ch));
     // Head Rechannel Conv1x1: ch → hs (± bias)
     expected += hs * ch + (l.head_bias ? hs : 0);
   }

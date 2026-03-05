@@ -13,7 +13,11 @@ export class LFOWaveformBuilder {
    * @param samplesPerBar Number of samples for the full bar
    * @returns Float32Array of sample values (0..1)
    */
-  static buildBar(nodes: LFONode[], samplesPerBar: number, smooth: number = 0): Float32Array {
+  static buildBar(
+    nodes: LFONode[],
+    samplesPerBar: number,
+    smooth: number = 0,
+  ): Float32Array {
     const buffer = new Float32Array(samplesPerBar);
 
     if (nodes.length === 0) {
@@ -80,11 +84,14 @@ export class LFOWaveformBuilder {
     ctx: AudioContext,
     bars: [LFONode[], LFONode[], LFONode[], LFONode[]],
     barDurations: [number, number, number, number],
-    smooths: [number, number, number, number] = [0, 0, 0, 0]
+    smooths: [number, number, number, number] = [0, 0, 0, 0],
   ): AudioBuffer {
     const sampleRate = ctx.sampleRate;
-    const barSamples = barDurations.map((d) => Math.max(1, Math.round(sampleRate * d)));
-    const totalSamples = barSamples[0] + barSamples[1] + barSamples[2] + barSamples[3];
+    const barSamples = barDurations.map((d) =>
+      Math.max(1, Math.round(sampleRate * d)),
+    );
+    const totalSamples =
+      barSamples[0] + barSamples[1] + barSamples[2] + barSamples[3];
 
     const buffer = ctx.createBuffer(1, totalSamples, sampleRate);
     const data = buffer.getChannelData(0);
@@ -108,7 +115,7 @@ export class LFOWaveformBuilder {
    */
   static presetNodes(
     shape: 'triangle' | 'sine' | 'square' | 'sawtooth' | 'ramp',
-    repeats: number = 1
+    repeats: number = 1,
   ): LFONode[] {
     const r = Math.max(1, Math.round(repeats));
 
@@ -153,7 +160,10 @@ export class LFOWaveformBuilder {
             { time: 1, value: 1 },
           ];
         default:
-          return [{ time: 0, value: 0 }, { time: 1, value: 0 }];
+          return [
+            { time: 0, value: 0 },
+            { time: 1, value: 0 },
+          ];
       }
     };
 

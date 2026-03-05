@@ -1,9 +1,17 @@
+/* eslint-disable sonarjs/cognitive-complexity */
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { progressApi } from '@/lib/progress/api';
 import { progressLocalCache } from '@/lib/progress/localCache';
-import { getCanonicalLessonTotalCount, normalizeProgressSummaryTotals } from '@/lib/progress/summaryTotals';
-import type { ProgressActivityPatch, ProgressSummaryResponse } from '@/lib/progress/types';
+import {
+  getCanonicalLessonTotalCount,
+  normalizeProgressSummaryTotals,
+} from '@/lib/progress/summaryTotals';
+import type {
+  LessonProgressResponse,
+  ProgressActivityPatch,
+  ProgressSummaryResponse,
+} from '@/lib/progress/types';
 
 export const useUpdateActivityProgress = () => {
   const token = useAuthToken();
@@ -19,38 +27,54 @@ export const useUpdateActivityProgress = () => {
         queryKey: ['lessonProgress', body.lessonId, body.lessonVersion],
       });
       await queryClient.cancelQueries({ queryKey: ['progressSummary'] });
-      const key = ['lessonProgress', body.lessonId, body.lessonVersion] as const;
-      const prev = queryClient.getQueryData<any>(key);
+      const key = [
+        'lessonProgress',
+        body.lessonId,
+        body.lessonVersion,
+      ] as const;
+      const prev = queryClient.getQueryData<LessonProgressResponse>(key);
       const summaryKey = ['progressSummary'] as const;
-      const prevSummary = queryClient.getQueryData<ProgressSummaryResponse>(summaryKey);
+      const prevSummary =
+        queryClient.getQueryData<ProgressSummaryResponse>(summaryKey);
       const now = new Date().toISOString();
-      const previousEntry = prev?.progressByActivityInstanceId?.[body.activityInstanceId];
-      const next = {
+      const previousEntry =
+        prev?.progressByActivityInstanceId?.[body.activityInstanceId];
+      const next: LessonProgressResponse = {
         currentActivityInstanceId:
           body.status === 'IN_PROGRESS'
             ? body.activityInstanceId
-            : prev?.currentActivityInstanceId ?? null,
+            : (prev?.currentActivityInstanceId ?? null),
         progressByActivityInstanceId: {
           ...(prev?.progressByActivityInstanceId ?? {}),
           [body.activityInstanceId]: {
-            ...(prev?.progressByActivityInstanceId?.[body.activityInstanceId] ?? {}),
+            ...(prev?.progressByActivityInstanceId?.[body.activityInstanceId] ??
+              {}),
             status: body.status,
             attempts:
-              (prev?.progressByActivityInstanceId?.[body.activityInstanceId]?.attempts ?? 0) +
-              (body.attemptsDelta ?? 0),
-            score: body.score ?? prev?.progressByActivityInstanceId?.[body.activityInstanceId]?.score ?? null,
+              (prev?.progressByActivityInstanceId?.[body.activityInstanceId]
+                ?.attempts ?? 0) + (body.attemptsDelta ?? 0),
+            score:
+              body.score ??
+              prev?.progressByActivityInstanceId?.[body.activityInstanceId]
+                ?.score ??
+              null,
             resumePayloadJson:
               body.resumePayloadJson ??
-              prev?.progressByActivityInstanceId?.[body.activityInstanceId]?.resumePayloadJson,
+              prev?.progressByActivityInstanceId?.[body.activityInstanceId]
+                ?.resumePayloadJson,
             updatedAt: now,
             startedAt:
               body.status === 'IN_PROGRESS'
-                ? prev?.progressByActivityInstanceId?.[body.activityInstanceId]?.startedAt ?? now
-                : prev?.progressByActivityInstanceId?.[body.activityInstanceId]?.startedAt ?? null,
+                ? (prev?.progressByActivityInstanceId?.[body.activityInstanceId]
+                    ?.startedAt ?? now)
+                : (prev?.progressByActivityInstanceId?.[body.activityInstanceId]
+                    ?.startedAt ?? null),
             completedAt:
               body.status === 'COMPLETED'
-                ? prev?.progressByActivityInstanceId?.[body.activityInstanceId]?.completedAt ?? now
-                : prev?.progressByActivityInstanceId?.[body.activityInstanceId]?.completedAt ?? null,
+                ? (prev?.progressByActivityInstanceId?.[body.activityInstanceId]
+                    ?.completedAt ?? now)
+                : (prev?.progressByActivityInstanceId?.[body.activityInstanceId]
+                    ?.completedAt ?? null),
           },
         },
       };
@@ -74,7 +98,9 @@ export const useUpdateActivityProgress = () => {
             ? completedCountBase + 1
             : completedCountBase;
         const totalCountBase = existing?.totalCount ?? 0;
-        const knownActivities = Object.keys(next.progressByActivityInstanceId ?? {}).length;
+        const knownActivities = Object.keys(
+          next.progressByActivityInstanceId ?? {},
+        ).length;
         const totalCount = getCanonicalLessonTotalCount({
           lessonId: body.lessonId,
           lessonVersion: body.lessonVersion,
@@ -89,7 +115,7 @@ export const useUpdateActivityProgress = () => {
           currentActivityInstanceId:
             body.status === 'IN_PROGRESS'
               ? body.activityInstanceId
-              : existing?.currentActivityInstanceId ?? null,
+              : (existing?.currentActivityInstanceId ?? null),
           completedCount,
           totalCount,
           updatedAt: now,
@@ -97,7 +123,8 @@ export const useUpdateActivityProgress = () => {
 
         const nextSummary = {
           lessons: [...byKey.values()].sort(
-            (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+            (a, b) =>
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
           ),
         } satisfies ProgressSummaryResponse;
         const normalized = normalizeProgressSummaryTotals(nextSummary)!;

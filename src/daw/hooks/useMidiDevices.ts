@@ -38,7 +38,9 @@ export function useMidiDevices() {
         }
       } else {
         setMidiStatus('unavailable');
-        console.warn('[MIDI] Not available. Check: (1) Chrome/Edge browser required, (2) MIDI device connected, (3) MIDI permission granted');
+        console.warn(
+          '[MIDI] Not available. Check: (1) Chrome/Edge browser required, (2) MIDI device connected, (3) MIDI permission granted',
+        );
       }
     };
 

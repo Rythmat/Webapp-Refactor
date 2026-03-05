@@ -20,7 +20,9 @@ export const ModulationPanel: React.FC = React.memo(() => {
 
       <div className={styles.routes}>
         {modRoutes.length === 0 && (
-          <div className={styles.empty}>No mod routes. Click + ADD to create one.</div>
+          <div className={styles.empty}>
+            No mod routes. Click + ADD to create one.
+          </div>
         )}
         {modRoutes.map((route) => (
           <ModulationSlot

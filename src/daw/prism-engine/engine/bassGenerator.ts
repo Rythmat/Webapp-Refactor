@@ -1,12 +1,12 @@
-import type {
-  MidiNoteEvent,
-  MidiSequence,
-  BassPattern,
-  GenreName,
-  RhythmHit,
-  ModeName,
+import {
+  InstrumentChannel,
+  type BassPattern,
+  type GenreName,
+  type MidiNoteEvent,
+  type MidiSequence,
+  type ModeName,
+  type RhythmHit,
 } from '../types';
-import { InstrumentChannel } from '../types';
 import { BASS_PATTERNS } from '../data/bassPatterns';
 import { GENRE_MAP } from '../data/genreMap';
 import { CHORD_COLORS, COLOR_TO_MODE } from '../data/keyColors';

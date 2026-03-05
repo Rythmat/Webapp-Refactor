@@ -1,8 +1,11 @@
 import type { StateCreator } from 'zustand';
 import type { MidiNoteEvent } from '@prism/engine';
 import type { AllSlices } from './index';
-import type { TrackEffectState, EffectSlotType } from '@/daw/audio/EffectChain';
-import { DEFAULT_EFFECTS } from '@/daw/audio/EffectChain';
+import {
+  DEFAULT_EFFECTS,
+  type EffectSlotType,
+  type TrackEffectState,
+} from '@/daw/audio/EffectChain';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import { getProjectTemplate } from '@/daw/data/projectTemplates';
 import type { PitchSegment } from '@/daw/audio/pitch-analysis/PitchAnalyzer';
@@ -48,9 +51,9 @@ export interface MidiClip {
 export interface AudioClip {
   id: string;
   startTick: number;
-  duration: number;      // ticks (PPQ=480)
-  fadeInTicks: number;   // 0 = no fade
-  fadeOutTicks: number;  // 0 = no fade
+  duration: number; // ticks (PPQ=480)
+  fadeInTicks: number; // 0 = no fade
+  fadeOutTicks: number; // 0 = no fade
 }
 
 export interface Track {
@@ -58,12 +61,12 @@ export interface Track {
   name: string;
   type: TrackType;
   instrument: InstrumentType;
-  gmProgram?: number;           // GM program number for SoundFont tracks (0-127)
+  gmProgram?: number; // GM program number for SoundFont tracks (0-127)
   color: string;
   mute: boolean;
   solo: boolean;
-  volume: number;     // 0 – 1
-  pan: number;        // -1 (L) .. 1 (R)
+  volume: number; // 0 – 1
+  pan: number; // -1 (L) .. 1 (R)
   recordArmed: boolean;
   monitoring: boolean;
   midiInputId: string | null;
@@ -74,7 +77,11 @@ export interface Track {
   midiClips: MidiClip[];
   audioClips: AudioClip[];
   /** Persisted vocal pedal chain config (survives VocalView unmount). */
-  vocalChain?: { type: string; enabled: boolean; params: Record<string, number> }[];
+  vocalChain?: {
+    type: string;
+    enabled: boolean;
+    params: Record<string, number>;
+  }[];
   /** Per-pad volume/pan for drum-machine tracks, keyed by MIDI note. */
   drumPads?: Record<number, { volume: number; pan: number }>;
 }
@@ -100,7 +107,11 @@ export interface TracksSlice {
   pitchData: Record<string, AudioClipPitchData>;
 
   setPitchSegments: (clipId: string, segments: PitchSegment[]) => void;
-  addPitchEdit: (clipId: string, segmentId: string, targetMidiNote: number) => void;
+  addPitchEdit: (
+    clipId: string,
+    segmentId: string,
+    targetMidiNote: number,
+  ) => void;
   removePitchEdit: (clipId: string, segmentId: string) => void;
   clearPitchEdits: (clipId: string) => void;
 
@@ -118,27 +129,58 @@ export interface TracksSlice {
   toggleMonitoring: (id: string) => void;
   addMidiClip: (trackId: string, clip: MidiClip) => void;
   removeMidiClip: (trackId: string, clipId: string) => void;
-  updateMidiClip: (trackId: string, clipId: string, updates: Partial<MidiClip>) => void;
-  updateMidiClipEvents: (trackId: string, clipId: string, events: MidiNoteEvent[]) => void;
-  updateTrackEffects: (trackId: string, effects: Partial<TrackEffectState>) => void;
+  updateMidiClip: (
+    trackId: string,
+    clipId: string,
+    updates: Partial<MidiClip>,
+  ) => void;
+  updateMidiClipEvents: (
+    trackId: string,
+    clipId: string,
+    events: MidiNoteEvent[],
+  ) => void;
+  updateTrackEffects: (
+    trackId: string,
+    effects: Partial<TrackEffectState>,
+  ) => void;
   addAudioClip: (trackId: string, clip: AudioClip) => void;
   removeAudioClip: (trackId: string, clipId: string) => void;
-  updateAudioClip: (trackId: string, clipId: string, updates: Partial<AudioClip>) => void;
+  updateAudioClip: (
+    trackId: string,
+    clipId: string,
+    updates: Partial<AudioClip>,
+  ) => void;
   clearMidiClips: (trackId: string) => void;
   reorderTrack: (id: string, newIndex: number) => void;
   addActiveEffect: (trackId: string, effectType: EffectSlotType) => void;
   removeActiveEffect: (trackId: string, effectType: EffectSlotType) => void;
-  setVocalChain: (trackId: string, chain: { type: string; enabled: boolean; params: Record<string, number> }[]) => void;
-  updateDrumPad: (trackId: string, note: number, params: { volume?: number; pan?: number }) => void;
+  setVocalChain: (
+    trackId: string,
+    chain: { type: string; enabled: boolean; params: Record<string, number> }[],
+  ) => void;
+  updateDrumPad: (
+    trackId: string,
+    note: number,
+    params: { volume?: number; pan?: number },
+  ) => void;
   loadProjectTemplate: (templateId: string) => void;
 }
 
 // ── Demo data ───────────────────────────────────────────────────────────
 // Pre-populated tracks so the UI renders with waveforms matching the reference.
 
-function seededNotes(seed: number, count: number, startTick: number, spanTicks: number, noteRange: [number, number]): MidiNoteEvent[] {
+function seededNotes(
+  seed: number,
+  count: number,
+  startTick: number,
+  spanTicks: number,
+  noteRange: [number, number],
+): MidiNoteEvent[] {
   let s = seed;
-  const next = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 0xffffffff; };
+  const next = () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 0xffffffff;
+  };
   const notes: MidiNoteEvent[] = [];
   const [lo, hi] = noteRange;
   for (let i = 0; i < count; i++) {
@@ -146,12 +188,19 @@ function seededNotes(seed: number, count: number, startTick: number, spanTicks: 
     const dur = Math.floor(next() * 400) + 60;
     const note = Math.floor(next() * (hi - lo)) + lo;
     const vel = Math.floor(next() * 60) + 60;
-    notes.push({ startTick: t, durationTicks: dur, note, velocity: vel, channel: 0 });
+    notes.push({
+      startTick: t,
+      durationTicks: dur,
+      note,
+      velocity: vel,
+      channel: 0,
+    });
   }
   return notes.sort((a, b) => a.startTick - b.startTick);
 }
 
-function _createDemoTracks(): Track[] {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function createDemoTracks(): Track[] {
   return [
     {
       id: 'demo-chords',
@@ -159,17 +208,25 @@ function _createDemoTracks(): Track[] {
       type: 'midi',
       instrument: 'oracle-synth',
       color: '#8b5cf6',
-      mute: false, solo: false, volume: 0.8, pan: 0,
-      recordArmed: true, monitoring: true,
-      midiInputId: null, audioInputId: null, audioInputChannel: null,
+      mute: false,
+      solo: false,
+      volume: 0.8,
+      pan: 0,
+      recordArmed: true,
+      monitoring: true,
+      midiInputId: null,
+      audioInputId: null,
+      audioInputChannel: null,
       effects: structuredClone(DEFAULT_EFFECTS),
       activeEffects: [],
-      midiClips: [{
-        id: 'clip-chords-1',
-        name: 'Ethereal Pad — Chords',
-        startTick: 0,
-        events: seededNotes(42, 80, 0, 7680, [55, 80]),
-      }],
+      midiClips: [
+        {
+          id: 'clip-chords-1',
+          name: 'Ethereal Pad — Chords',
+          startTick: 0,
+          events: seededNotes(42, 80, 0, 7680, [55, 80]),
+        },
+      ],
       audioClips: [],
     },
     {
@@ -178,17 +235,25 @@ function _createDemoTracks(): Track[] {
       type: 'midi',
       instrument: 'oracle-synth',
       color: '#a855f7',
-      mute: false, solo: false, volume: 0.75, pan: 0.1,
-      recordArmed: false, monitoring: false,
-      midiInputId: null, audioInputId: null, audioInputChannel: null,
+      mute: false,
+      solo: false,
+      volume: 0.75,
+      pan: 0.1,
+      recordArmed: false,
+      monitoring: false,
+      midiInputId: null,
+      audioInputId: null,
+      audioInputChannel: null,
       effects: structuredClone(DEFAULT_EFFECTS),
       activeEffects: [],
-      midiClips: [{
-        id: 'clip-melody-1',
-        name: 'Lead Line — Melody',
-        startTick: 0,
-        events: seededNotes(99, 60, 0, 7680, [60, 90]),
-      }],
+      midiClips: [
+        {
+          id: 'clip-melody-1',
+          name: 'Lead Line — Melody',
+          startTick: 0,
+          events: seededNotes(99, 60, 0, 7680, [60, 90]),
+        },
+      ],
       audioClips: [],
     },
     {
@@ -197,9 +262,15 @@ function _createDemoTracks(): Track[] {
       type: 'midi',
       instrument: 'oracle-synth',
       color: '#f59e0b',
-      mute: false, solo: false, volume: 0.85, pan: 0,
-      recordArmed: false, monitoring: false,
-      midiInputId: null, audioInputId: null, audioInputChannel: null,
+      mute: false,
+      solo: false,
+      volume: 0.85,
+      pan: 0,
+      recordArmed: false,
+      monitoring: false,
+      midiInputId: null,
+      audioInputId: null,
+      audioInputChannel: null,
       effects: structuredClone(DEFAULT_EFFECTS),
       activeEffects: [],
       midiClips: [
@@ -224,16 +295,24 @@ function _createDemoTracks(): Track[] {
       type: 'midi',
       instrument: 'drum-machine',
       color: '#f97316',
-      mute: false, solo: false, volume: 0.7, pan: 0,
-      recordArmed: false, monitoring: false,
-      midiInputId: null, audioInputId: null, audioInputChannel: null,
+      mute: false,
+      solo: false,
+      volume: 0.7,
+      pan: 0,
+      recordArmed: false,
+      monitoring: false,
+      midiInputId: null,
+      audioInputId: null,
+      audioInputChannel: null,
       ...drumMachineDefaults(),
-      midiClips: [{
-        id: 'clip-drums-1',
-        name: 'Beat Sequence — Drums',
-        startTick: 0,
-        events: seededNotes(55, 90, 0, 7680, [36, 52]),
-      }],
+      midiClips: [
+        {
+          id: 'clip-drums-1',
+          name: 'Beat Sequence — Drums',
+          startTick: 0,
+          events: seededNotes(55, 90, 0, 7680, [36, 52]),
+        },
+      ],
       audioClips: [],
     },
   ];
@@ -255,7 +334,11 @@ export const createTracksSlice: StateCreator<
     set((state) => ({
       pitchData: {
         ...state.pitchData,
-        [clipId]: { segments, edits: state.pitchData[clipId]?.edits ?? [], analyzed: true },
+        [clipId]: {
+          segments,
+          edits: state.pitchData[clipId]?.edits ?? [],
+          analyzed: true,
+        },
       },
     })),
 
@@ -265,7 +348,9 @@ export const createTracksSlice: StateCreator<
       if (!data) return state;
       const edits = data.edits.filter((e) => e.segmentId !== segmentId);
       edits.push({ segmentId, targetMidiNote });
-      return { pitchData: { ...state.pitchData, [clipId]: { ...data, edits } } };
+      return {
+        pitchData: { ...state.pitchData, [clipId]: { ...data, edits } },
+      };
     }),
 
   removePitchEdit: (clipId, segmentId) =>
@@ -275,7 +360,10 @@ export const createTracksSlice: StateCreator<
       return {
         pitchData: {
           ...state.pitchData,
-          [clipId]: { ...data, edits: data.edits.filter((e) => e.segmentId !== segmentId) },
+          [clipId]: {
+            ...data,
+            edits: data.edits.filter((e) => e.segmentId !== segmentId),
+          },
         },
       };
     }),
@@ -284,7 +372,9 @@ export const createTracksSlice: StateCreator<
     set((state) => {
       const data = state.pitchData[clipId];
       if (!data) return state;
-      return { pitchData: { ...state.pitchData, [clipId]: { ...data, edits: [] } } };
+      return {
+        pitchData: { ...state.pitchData, [clipId]: { ...data, edits: [] } },
+      };
     }),
 
   // ── Actions ──
@@ -292,7 +382,8 @@ export const createTracksSlice: StateCreator<
     const id = crypto.randomUUID();
     let assignedColor = '';
     set((state) => {
-      assignedColor = TRACK_PALETTES[state.nextColorIndex % TRACK_PALETTES.length];
+      assignedColor =
+        TRACK_PALETTES[state.nextColorIndex % TRACK_PALETTES.length];
       return { nextColorIndex: state.nextColorIndex + 1 };
     });
     const rootColor = get().rootTrackColor;
@@ -314,18 +405,27 @@ export const createTracksSlice: StateCreator<
       midiInputId: null,
       audioInputId: null,
       audioInputChannel:
-        instrument === 'guitar-fx' || instrument === 'bass-fx' || instrument === 'vocal-fx'
+        instrument === 'guitar-fx' ||
+        instrument === 'bass-fx' ||
+        instrument === 'vocal-fx'
           ? { mode: 'mono', channel: 0 }
           : null,
       ...(instrument === 'drum-machine'
         ? drumMachineDefaults()
-        : { effects: structuredClone(DEFAULT_EFFECTS), activeEffects: [] as EffectSlotType[] }),
+        : {
+            effects: structuredClone(DEFAULT_EFFECTS),
+            activeEffects: [] as EffectSlotType[],
+          }),
       midiClips: [],
       audioClips: [],
     };
     set((state) => ({
       tracks: [
-        ...state.tracks.map((t) => ({ ...t, recordArmed: false, monitoring: false })),
+        ...state.tracks.map((t) => ({
+          ...t,
+          recordArmed: false,
+          monitoring: false,
+        })),
         track,
       ],
       selectedTrackId: id,
@@ -338,9 +438,7 @@ export const createTracksSlice: StateCreator<
 
   updateTrack: (id, updates) =>
     set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === id ? { ...t, ...updates } : t,
-      ),
+      tracks: state.tracks.map((t) => (t.id === id ? { ...t, ...updates } : t)),
     })),
 
   toggleMute: (id) =>
@@ -418,18 +516,14 @@ export const createTracksSlice: StateCreator<
   updateTrackEffects: (trackId, effects) =>
     set((state) => ({
       tracks: state.tracks.map((t) =>
-        t.id === trackId
-          ? { ...t, effects: { ...t.effects, ...effects } }
-          : t,
+        t.id === trackId ? { ...t, effects: { ...t.effects, ...effects } } : t,
       ),
     })),
 
   addAudioClip: (trackId, clip) =>
     set((state) => ({
       tracks: state.tracks.map((t) =>
-        t.id === trackId
-          ? { ...t, audioClips: [...t.audioClips, clip] }
-          : t,
+        t.id === trackId ? { ...t, audioClips: [...t.audioClips, clip] } : t,
       ),
     })),
 
@@ -480,7 +574,10 @@ export const createTracksSlice: StateCreator<
         return {
           ...t,
           activeEffects: [...t.activeEffects, effectType],
-          effects: { ...t.effects, [effectType]: { ...t.effects[effectType], enabled: true } },
+          effects: {
+            ...t.effects,
+            [effectType]: { ...t.effects[effectType], enabled: true },
+          },
         };
       }),
     })),
@@ -492,7 +589,10 @@ export const createTracksSlice: StateCreator<
         return {
           ...t,
           activeEffects: t.activeEffects.filter((e) => e !== effectType),
-          effects: { ...t.effects, [effectType]: { ...t.effects[effectType], enabled: false } },
+          effects: {
+            ...t.effects,
+            [effectType]: { ...t.effects[effectType], enabled: false },
+          },
         };
       }),
     })),
@@ -548,12 +648,17 @@ export const createTracksSlice: StateCreator<
         midiInputId: null,
         audioInputId: null,
         audioInputChannel:
-          def.instrument === 'guitar-fx' || def.instrument === 'bass-fx' || def.instrument === 'vocal-fx'
+          def.instrument === 'guitar-fx' ||
+          def.instrument === 'bass-fx' ||
+          def.instrument === 'vocal-fx'
             ? { mode: 'mono', channel: 0 }
             : null,
         ...(def.instrument === 'drum-machine'
           ? drumMachineDefaults()
-          : { effects: structuredClone(DEFAULT_EFFECTS), activeEffects: [] as EffectSlotType[] }),
+          : {
+              effects: structuredClone(DEFAULT_EFFECTS),
+              activeEffects: [] as EffectSlotType[],
+            }),
         midiClips: [],
         audioClips: [],
       };
@@ -568,7 +673,9 @@ export const createTracksSlice: StateCreator<
     if (firstMidi) {
       set((state) => ({
         tracks: state.tracks.map((t) =>
-          t.id === firstMidi.id ? { ...t, monitoring: true, recordArmed: true } : t,
+          t.id === firstMidi.id
+            ? { ...t, monitoring: true, recordArmed: true }
+            : t,
         ),
         selectedTrackId: firstMidi.id,
       }));

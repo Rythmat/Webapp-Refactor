@@ -1,11 +1,28 @@
+/* eslint-disable tailwindcss/classnames-order, tailwindcss/enforces-shorthand */
 import { useState, useMemo, useCallback, useRef } from 'react';
 import {
-  Play, Square, SkipBack, SkipForward, Volume2,
-  Heart, Hexagon, Shuffle, MoreVertical, Repeat,
-  Check, ChevronUp, ChevronDown, FileMusic,
+  Play,
+  Square,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  Heart,
+  Hexagon,
+  Shuffle,
+  MoreVertical,
+  Repeat,
+  Check,
+  ChevronUp,
+  ChevronDown,
+  FileMusic,
 } from 'lucide-react';
-import { GROOVES, GROOVE_GENRES, filterGrooves, getUniqueBpms } from '@/daw/data/groovesLibrary';
-import type { GrooveItem } from '@/daw/data/groovesLibrary';
+import {
+  GROOVES,
+  GROOVE_GENRES,
+  filterGrooves,
+  getUniqueBpms,
+  type GrooveItem,
+} from '@/daw/data/groovesLibrary';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import type { MidiNoteEvent } from '@prism/engine';
 import { useStore } from '@/daw/store';
@@ -17,18 +34,18 @@ const OUR_PPQ = 480;
 
 const TAG_COLORS: Record<string, string> = {
   'Hip Hop': '#8b5cf6',
-  'Trap': '#ef4444',
+  Trap: '#ef4444',
   'R&B': '#ec4899',
-  'Pop': '#3b82f6',
-  'Rock': '#f59e0b',
-  'Jazz': '#22c55e',
-  'House': '#06b6d4',
-  'Funk': '#f97316',
-  'Latin': '#eab308',
-  'Afrobeat': '#10b981',
+  Pop: '#3b82f6',
+  Rock: '#f59e0b',
+  Jazz: '#22c55e',
+  House: '#06b6d4',
+  Funk: '#f97316',
+  Latin: '#eab308',
+  Afrobeat: '#10b981',
   'Boom Bap': '#a78bfa',
   '808': '#f87171',
-  'Dark': '#6b7280',
+  Dark: '#6b7280',
 };
 
 function tagColor(tag: string): string {
@@ -143,19 +160,28 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
       setIsPlaying(true);
 
       const entry = trackEngineRegistry.get(trackId);
-      if (!entry) { setIsPlaying(false); return; }
+      if (!entry) {
+        setIsPlaying(false);
+        return;
+      }
 
       try {
         const resp = await fetch(groove.url);
-        if (!resp.ok) { setIsPlaying(false); return; }
+        if (!resp.ok) {
+          setIsPlaying(false);
+          return;
+        }
         const buf = await resp.arrayBuffer();
         const sequences = importMidiFile(buf);
-        if (sequences.length === 0) { setIsPlaying(false); return; }
+        if (sequences.length === 0) {
+          setIsPlaying(false);
+          return;
+        }
 
         const seq = sequences[0];
         const ppq = seq.ticksPerQuarterNote;
         const bpm = groove.bpm;
-        const msPerTick = (60_000 / bpm) / OUR_PPQ;
+        const msPerTick = 60_000 / bpm / OUR_PPQ;
 
         const timeouts: number[] = [];
         for (const evt of seq.events) {
@@ -181,7 +207,9 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           const d = Math.round((evt.durationTicks / ppq) * OUR_PPQ);
           return Math.max(max, (s + d) * msPerTick);
         }, 0);
-        timeouts.push(window.setTimeout(() => setIsPlaying(false), maxMs + 100));
+        timeouts.push(
+          window.setTimeout(() => setIsPlaying(false), maxMs + 100),
+        );
 
         previewTimeouts.current = timeouts;
       } catch {
@@ -240,8 +268,10 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
   // ── Render ─────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col h-full" style={{ backgroundColor: 'var(--color-surface)' }}>
-
+    <div
+      className="flex flex-col h-full"
+      style={{ backgroundColor: 'var(--color-surface)' }}
+    >
       {/* ── Filter bar ────────────────────────────────────────────── */}
       <div
         className="flex items-center gap-2 px-3 py-2 shrink-0 border-b"
@@ -261,7 +291,10 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           onChange={(e) => setBpmFilter(e.target.value)}
           className="text-[10px] rounded-full px-3 py-1 cursor-pointer"
           style={{
-            backgroundColor: bpmFilter !== 'All' ? 'var(--color-surface-3)' : 'var(--color-surface-2)',
+            backgroundColor:
+              bpmFilter !== 'All'
+                ? 'var(--color-surface-3)'
+                : 'var(--color-surface-2)',
             color: 'var(--color-text)',
             border: '1px solid var(--color-border)',
             outline: 'none',
@@ -269,7 +302,9 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
         >
           <option value="All">BPM</option>
           {uniqueBpms.map((b) => (
-            <option key={b} value={b}>{b} BPM</option>
+            <option key={b} value={b}>
+              {b} BPM
+            </option>
           ))}
         </select>
 
@@ -279,14 +314,19 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           onChange={(e) => setGenre(e.target.value)}
           className="text-[10px] rounded-full px-3 py-1 cursor-pointer"
           style={{
-            backgroundColor: genre !== 'All' ? 'var(--color-surface-3)' : 'var(--color-surface-2)',
+            backgroundColor:
+              genre !== 'All'
+                ? 'var(--color-surface-3)'
+                : 'var(--color-surface-2)',
             color: 'var(--color-text)',
             border: '1px solid var(--color-border)',
             outline: 'none',
           }}
         >
           {GROOVE_GENRES.map((g) => (
-            <option key={g} value={g}>{g === 'All' ? 'Genre' : g}</option>
+            <option key={g} value={g}>
+              {g === 'All' ? 'Genre' : g}
+            </option>
           ))}
         </select>
 
@@ -295,7 +335,13 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           label="Saved"
           active={showSavedOnly}
           onClick={() => setShowSavedOnly((v) => !v)}
-          icon={<Heart size={10} strokeWidth={2} fill={showSavedOnly ? 'currentColor' : 'none'} />}
+          icon={
+            <Heart
+              size={10}
+              strokeWidth={2}
+              fill={showSavedOnly ? 'currentColor' : 'none'}
+            />
+          }
         />
       </div>
 
@@ -304,10 +350,16 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
         className="flex items-center px-3 py-1.5 shrink-0 border-b"
         style={{ borderColor: 'var(--color-border)' }}
       >
-        <span className="text-[9px] uppercase tracking-wider w-[52px] shrink-0" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="text-[9px] uppercase tracking-wider w-[52px] shrink-0"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           Selection
         </span>
-        <span className="text-[9px] uppercase tracking-wider flex items-center gap-1 flex-1" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="text-[9px] uppercase tracking-wider flex items-center gap-1 flex-1"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           Name
           <span className="flex flex-col" style={{ lineHeight: 0 }}>
             <ChevronUp size={7} strokeWidth={2} />
@@ -315,7 +367,10 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           </span>
         </span>
 
-        <span className="text-[9px] uppercase tracking-wider w-[48px] shrink-0 text-right" style={{ color: 'var(--color-text-dim)' }}>
+        <span
+          className="text-[9px] uppercase tracking-wider w-[48px] shrink-0 text-right"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
           BPM
         </span>
 
@@ -323,7 +378,10 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           {/* Sort dropdown */}
           <select
             value={sortBy}
-            onChange={(e) => { setSortBy(e.target.value as SortMode); setShuffleSeed(0); }}
+            onChange={(e) => {
+              setSortBy(e.target.value as SortMode);
+              setShuffleSeed(0);
+            }}
             className="text-[10px] rounded-full px-2.5 py-1 cursor-pointer"
             style={{
               backgroundColor: 'var(--color-surface-2)',
@@ -342,7 +400,11 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           <button
             onClick={() => setShuffleSeed((s) => s + 1)}
             className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
-            style={{ color: 'var(--color-text-dim)', background: 'none', border: 'none' }}
+            style={{
+              color: 'var(--color-text-dim)',
+              background: 'none',
+              border: 'none',
+            }}
             title="Shuffle"
           >
             <Shuffle size={13} strokeWidth={1.5} />
@@ -351,7 +413,10 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
       </div>
 
       {/* ── Groove list ───────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{ scrollbarWidth: 'thin' }}
+      >
         {filtered.length === 0 ? (
           <div
             className="flex items-center justify-center h-full text-[10px]"
@@ -394,7 +459,11 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
             <button
               onClick={() => navigatePreview(-1)}
               className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
-              style={{ color: 'var(--color-text-dim)', background: 'none', border: 'none' }}
+              style={{
+                color: 'var(--color-text-dim)',
+                background: 'none',
+                border: 'none',
+              }}
             >
               <SkipBack size={14} strokeWidth={1.5} />
             </button>
@@ -410,12 +479,20 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
                 border: 'none',
               }}
             >
-              {isPlaying ? <Square size={10} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
+              {isPlaying ? (
+                <Square size={10} fill="currentColor" />
+              ) : (
+                <Play size={14} fill="currentColor" />
+              )}
             </button>
             <button
               onClick={() => navigatePreview(1)}
               className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
-              style={{ color: 'var(--color-text-dim)', background: 'none', border: 'none' }}
+              style={{
+                color: 'var(--color-text-dim)',
+                background: 'none',
+                border: 'none',
+              }}
             >
               <SkipForward size={14} strokeWidth={1.5} />
             </button>
@@ -426,12 +503,19 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
             className="w-8 h-8 rounded shrink-0 flex items-center justify-center"
             style={{ backgroundColor: 'var(--color-surface-3)' }}
           >
-            <FileMusic size={14} strokeWidth={1.5} style={{ color: 'var(--color-text-dim)' }} />
+            <FileMusic
+              size={14}
+              strokeWidth={1.5}
+              style={{ color: 'var(--color-text-dim)' }}
+            />
           </div>
 
           {/* Groove info */}
           <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-            <span className="text-[11px] font-medium truncate" style={{ color: 'var(--color-text)' }}>
+            <span
+              className="text-[11px] font-medium truncate"
+              style={{ color: 'var(--color-text)' }}
+            >
               {previewGroove.name}
             </span>
             <div className="flex items-center gap-1">
@@ -461,7 +545,9 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
             onClick={() => setLoopEnabled((v) => !v)}
             className="flex items-center justify-center w-6 h-6 rounded cursor-pointer shrink-0"
             style={{
-              color: loopEnabled ? 'var(--color-accent)' : 'var(--color-text-dim)',
+              color: loopEnabled
+                ? 'var(--color-accent)'
+                : 'var(--color-text-dim)',
               background: 'none',
               border: 'none',
             }}
@@ -509,13 +595,19 @@ function FilterPill({
       onClick={onClick}
       className="flex items-center gap-1.5 text-[10px] rounded-full px-3 py-1 cursor-pointer"
       style={{
-        backgroundColor: active ? 'var(--color-surface-3)' : 'var(--color-surface-2)',
+        backgroundColor: active
+          ? 'var(--color-surface-3)'
+          : 'var(--color-surface-2)',
         color: active ? 'var(--color-text)' : 'var(--color-text-dim)',
         border: '1px solid var(--color-border)',
       }}
     >
       {label}
-      <span style={{ color: active ? 'var(--color-accent)' : 'var(--color-text-dim)' }}>
+      <span
+        style={{
+          color: active ? 'var(--color-accent)' : 'var(--color-text-dim)',
+        }}
+      >
         {icon}
       </span>
     </button>
@@ -553,7 +645,8 @@ function GrooveRow({
         borderColor: 'var(--color-border)',
       }}
       onMouseEnter={(e) => {
-        if (!isActive) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)';
+        if (!isActive)
+          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)';
       }}
       onMouseLeave={(e) => {
         if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
@@ -577,7 +670,11 @@ function GrooveRow({
         className="w-8 h-8 rounded shrink-0 flex items-center justify-center"
         style={{ backgroundColor: 'var(--color-surface-3)' }}
       >
-        <FileMusic size={14} strokeWidth={1.5} style={{ color: 'var(--color-text-dim)' }} />
+        <FileMusic
+          size={14}
+          strokeWidth={1.5}
+          style={{ color: 'var(--color-text-dim)' }}
+        />
       </div>
 
       {/* Play button */}
@@ -590,12 +687,19 @@ function GrooveRow({
           color: isPlaying ? 'var(--color-accent)' : 'var(--color-text-dim)',
         }}
       >
-        {isPlaying ? <Square size={12} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
+        {isPlaying ? (
+          <Square size={12} fill="currentColor" />
+        ) : (
+          <Play size={14} fill="currentColor" />
+        )}
       </button>
 
       {/* Name + tags */}
       <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-        <span className="text-[11px] font-medium truncate" style={{ color: 'var(--color-text)' }}>
+        <span
+          className="text-[11px] font-medium truncate"
+          style={{ color: 'var(--color-text)' }}
+        >
           {groove.name}
         </span>
         <div className="flex items-center gap-1">
@@ -609,7 +713,10 @@ function GrooveRow({
       {/* BPM */}
       <span
         className="text-[10px] w-[48px] shrink-0 text-right"
-        style={{ color: 'var(--color-text-dim)', fontVariantNumeric: 'tabular-nums' }}
+        style={{
+          color: 'var(--color-text-dim)',
+          fontVariantNumeric: 'tabular-nums',
+        }}
       >
         {groove.bpm}
       </span>
@@ -627,7 +734,11 @@ function GrooveRow({
             opacity: isSaved ? 1 : undefined,
           }}
         >
-          <Heart size={14} strokeWidth={1.5} fill={isSaved ? 'currentColor' : 'none'} />
+          <Heart
+            size={14}
+            strokeWidth={1.5}
+            fill={isSaved ? 'currentColor' : 'none'}
+          />
         </button>
 
         {/* Hexagon add */}
@@ -673,7 +784,14 @@ function TagPill({ label }: { label: string }) {
         border: `1px solid ${color}30`,
       }}
     >
-      <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <svg
+        width="8"
+        height="8"
+        viewBox="0 0 10 10"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      >
         <path d="M1 6 L3 3 L5 5 L7 2 L9 4" />
       </svg>
       {label}

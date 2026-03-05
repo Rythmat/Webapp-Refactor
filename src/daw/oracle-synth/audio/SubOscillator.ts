@@ -79,7 +79,7 @@ export class SubOscillator {
       this.osc.frequency.setTargetAtTime(
         freq,
         this.ctx.currentTime,
-        glideTime / 3
+        glideTime / 3,
       );
     } else {
       this.osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
@@ -150,7 +150,11 @@ export class SubOscillator {
 
   disconnectVibratoSource(): void {
     if (this.vibratoSource && this.osc) {
-      try { this.vibratoSource.disconnect(this.osc.detune); } catch { /* already disconnected */ }
+      try {
+        this.vibratoSource.disconnect(this.osc.detune);
+      } catch {
+        /* already disconnected */
+      }
     }
     this.vibratoSource = null;
   }

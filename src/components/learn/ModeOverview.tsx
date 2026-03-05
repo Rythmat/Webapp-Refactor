@@ -5,7 +5,7 @@ import { YouTubePlayer } from '@/features/admin/chapters/components/YouTubePlaye
 import { useProgressSummary } from '@/hooks/data/progress';
 import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
-import { LearnRoutes } from "@/constants/routes";
+import { LearnRoutes } from '@/constants/routes';
 import { useNavigate } from 'react-router';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { colorForKeyMode } from '@/lib/modeColorShift';
@@ -24,14 +24,60 @@ type KeyStep = {
   semitone: number;
 };
 
-const chromaticFlatInterval = ["1","♭2","2","♭3","3","4","♭5","5","♭6","6","♭7","7","","♭9","","9","","","11","","","♭13","13"];
+const chromaticFlatInterval = [
+  '1',
+  '♭2',
+  '2',
+  '♭3',
+  '3',
+  '4',
+  '♭5',
+  '5',
+  '♭6',
+  '6',
+  '♭7',
+  '7',
+  '',
+  '♭9',
+  '',
+  '9',
+  '',
+  '',
+  '11',
+  '',
+  '',
+  '♭13',
+  '13',
+];
 
-const chromaticSharpInterval = ["1","#1","2","#2","3", "4","#4","5","#5","6","#6","7","","#8","9","","","11","#11","","","13"];
-
+const chromaticSharpInterval = [
+  '1',
+  '#1',
+  '2',
+  '#2',
+  '3',
+  '4',
+  '#4',
+  '5',
+  '#5',
+  '6',
+  '#6',
+  '7',
+  '',
+  '#8',
+  '9',
+  '',
+  '',
+  '11',
+  '#11',
+  '',
+  '',
+  '13',
+];
 
 const BASE_C4 = 60;
 const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
-const START_OVER_ACTIVITY_DEF_ID = "lesson-overview";
+const START_OVER_ACTIVITY_DEF_ID = 'lesson-overview';
 
 const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'C', semitone: 0 },
@@ -63,14 +109,24 @@ const normalizeSteps = (steps?: number[]) => {
 const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
   normalizeSteps(steps).map((interval) => rootMidi + interval);
 
-
-
-
-function ChordRow({ label, entries, extra, color }: { label: string; entries: ChordScaleEntry[]; extra?: ChordScaleEntry[]; color: string }) {
+function ChordRow({
+  label,
+  entries,
+  extra,
+  color,
+}: {
+  label: string;
+  entries: ChordScaleEntry[];
+  extra?: ChordScaleEntry[];
+  color: string;
+}) {
   if (entries.length === 0 && (!extra || extra.length === 0)) return null;
   return (
     <div className="mb-3">
-      <div className="text-[10px] uppercase tracking-widest mb-1 opacity-50" style={{ color: 'var(--color-text-dim)' }}>
+      <div
+        className="text-[10px] uppercase tracking-widest mb-1 opacity-50"
+        style={{ color: 'var(--color-text-dim)' }}
+      >
         {label}
       </div>
       <div className="flex flex-wrap gap-1.5">
@@ -78,7 +134,11 @@ function ChordRow({ label, entries, extra, color }: { label: string; entries: Ch
           <span
             key={`${e.degree}-${e.quality}-${i}`}
             className="inline-block px-2 py-0.5 rounded text-xs"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-border)', color }}
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid var(--color-border)',
+              color,
+            }}
           >
             <span className="opacity-60">{e.degree}</span> {e.quality}
           </span>
@@ -87,7 +147,11 @@ function ChordRow({ label, entries, extra, color }: { label: string; entries: Ch
           <span
             key={`extra-${e.degree}-${e.quality}-${i}`}
             className="inline-block px-2 py-0.5 rounded text-xs opacity-40"
-            style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--color-border)', color }}
+            style={{
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px dashed var(--color-border)',
+              color,
+            }}
           >
             <span className="opacity-60">{e.degree}</span> {e.quality}
           </span>
@@ -97,7 +161,7 @@ function ChordRow({ label, entries, extra, color }: { label: string; entries: Ch
   );
 }
 
-export function ModeOverview({ mode}: ModeOverviewProps) {
+export function ModeOverview({ mode }: ModeOverviewProps) {
   const [keyIndex, setKeyIndex] = useState(0);
   const [noteIndex, setNoteIndex] = useState(0);
   const [chordsOpen, setChordsOpen] = useState(false);
@@ -114,9 +178,14 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
   const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;
   const activeKey = CHROMATIC_KEYS[keyIndex];
   const activeKeyColor = colorForKeyMode(activeKey.label, mode);
-  const displayName = getChordScales(mode)?.modeName ?? (mode.charAt(0).toUpperCase() + mode.slice(1));
+  const displayName =
+    getChordScales(mode)?.modeName ??
+    mode.charAt(0).toUpperCase() + mode.slice(1);
   const rootMidi = BASE_C4 + activeKey.semitone;
-  const scaleMidis = useMemo(() => buildScaleMidis(rootMidi, scaleSteps), [rootMidi, scaleSteps]);
+  const scaleMidis = useMemo(
+    () => buildScaleMidis(rootMidi, scaleSteps),
+    [rootMidi, scaleSteps],
+  );
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -135,14 +204,16 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
   const activeNotes = useMemo(() => {
     const now = Date.now();
     const cappedIndex = Math.min(noteIndex, scaleMidis.length - 1);
-    return scaleMidis.slice(0, cappedIndex + 1).map<PlaybackEvent>((midi, index) => ({
-      id: `${mode}-${activeKey.label}-${midi}-${index}`,
-      type: 'note',
-      midi,
-      time: now,
-      duration: 0.6,
-      velocity: 1,
-    }));
+    return scaleMidis
+      .slice(0, cappedIndex + 1)
+      .map<PlaybackEvent>((midi, index) => ({
+        id: `${mode}-${activeKey.label}-${midi}-${index}`,
+        type: 'note',
+        midi,
+        time: now,
+        duration: 0.6,
+        velocity: 1,
+      }));
   }, [activeKey.label, mode, noteIndex, scaleMidis]);
 
   const resumeByKey = useMemo(() => {
@@ -166,15 +237,18 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
       let parsedRoot = lesson.root ?? null;
 
       if ((!parsedMode || !parsedRoot) && lesson.currentActivityInstanceId) {
-        const parts = lesson.currentActivityInstanceId.split("::");
+        const parts = lesson.currentActivityInstanceId.split('::');
         if (parts.length >= 5) {
           parsedMode = parsedMode ?? parts[3];
           parsedRoot = parsedRoot ?? parts[4];
         }
       }
 
-      if ((!parsedMode || !parsedRoot) && lesson.lessonId.startsWith("mode-lesson-flow__")) {
-        const scoped = lesson.lessonId.split("__");
+      if (
+        (!parsedMode || !parsedRoot) &&
+        lesson.lessonId.startsWith('mode-lesson-flow__')
+      ) {
+        const scoped = lesson.lessonId.split('__');
         if (scoped.length >= 3) {
           parsedRoot = parsedRoot ?? urlParamToKeyLabel(scoped[1]);
           parsedMode = parsedMode ?? scoped[2];
@@ -188,17 +262,17 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
     };
 
     progressSummary?.lessons.forEach((lesson) => {
-      if (!lesson.lessonId.startsWith("mode-lesson-flow")) return;
+      if (!lesson.lessonId.startsWith('mode-lesson-flow')) return;
       if (lesson.lessonVersion !== 1) return;
       const parsedIdentity = parseSummaryLessonIdentity(lesson);
-      if ((parsedIdentity.mode ?? "") !== mode.toLowerCase()) return;
-      const lessonRoot = parsedIdentity.root ?? "";
+      if ((parsedIdentity.mode ?? '') !== mode.toLowerCase()) return;
+      const lessonRoot = parsedIdentity.root ?? '';
       if (!lessonRoot) return;
 
       let activityDefId: string | null = null;
       const activityId = lesson.currentActivityInstanceId;
       if (activityId) {
-        const parts = activityId.split("::");
+        const parts = activityId.split('::');
         if (parts.length >= 5) {
           activityDefId = parts[2];
         }
@@ -232,8 +306,15 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
     );
 
   return (
-    <div className="learn-root flex flex-col gap-6" data-mode={mode} style={{ backgroundColor: 'var(--color-bg)' }}>
-      <h2 className="text-2xl md:text-3xl font-semibold text-left ml-[10%]" style={{ color: 'var(--color-text)' }}>
+    <div
+      className="learn-root flex flex-col gap-6"
+      data-mode={mode}
+      style={{ backgroundColor: 'var(--color-bg)' }}
+    >
+      <h2
+        className="text-2xl md:text-3xl font-semibold text-left ml-[10%]"
+        style={{ color: 'var(--color-text)' }}
+      >
         {displayName}
       </h2>
       {videoId && (
@@ -249,8 +330,18 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
         activeBlackKeyColor={activeKeyColor}
       />
       <section className="mb-6 flex flex-col items-center">
-        <p className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]" style={{ color: 'var(--color-text)' }}>
-          Interval: {scaleSteps.map((i)=>{return mode=="lydian"? chromaticSharpInterval[i] : chromaticFlatInterval[i]}).join(', ')}
+        <p
+          className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]"
+          style={{ color: 'var(--color-text)' }}
+        >
+          Interval:{' '}
+          {scaleSteps
+            .map((i) => {
+              return mode == 'lydian'
+                ? chromaticSharpInterval[i]
+                : chromaticFlatInterval[i];
+            })
+            .join(', ')}
         </p>
 
         {(() => {
@@ -264,16 +355,43 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide cursor-pointer mb-2"
                 style={{ color: 'var(--color-text-dim)' }}
               >
-                <span style={{ display: 'inline-block', transform: chordsOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 150ms' }}>
+                <span
+                  style={{
+                    display: 'inline-block',
+                    transform: chordsOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                    transition: 'transform 150ms',
+                  }}
+                >
                   &#9654;
                 </span>
                 Chord Scales
               </button>
               {chordsOpen && (
-                <div className="p-4 rounded-lg glass-panel-sm" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--color-border)' }}>
-                  <ChordRow label="Triads" entries={cs.triads} extra={cs.extraTriads} color={activeKeyColor} />
-                  <ChordRow label="7th Chords" entries={cs.sevenths} extra={cs.extraSevenths} color={activeKeyColor} />
-                  <ChordRow label="9th Chords" entries={cs.ninths} extra={cs.extraNinths} color={activeKeyColor} />
+                <div
+                  className="p-4 rounded-lg glass-panel-sm"
+                  style={{
+                    background: 'rgba(255,255,255,0.02)',
+                    border: '1px solid var(--color-border)',
+                  }}
+                >
+                  <ChordRow
+                    label="Triads"
+                    entries={cs.triads}
+                    extra={cs.extraTriads}
+                    color={activeKeyColor}
+                  />
+                  <ChordRow
+                    label="7th Chords"
+                    entries={cs.sevenths}
+                    extra={cs.extraSevenths}
+                    color={activeKeyColor}
+                  />
+                  <ChordRow
+                    label="9th Chords"
+                    entries={cs.ninths}
+                    extra={cs.extraNinths}
+                    color={activeKeyColor}
+                  />
                 </div>
               )}
             </div>
@@ -283,7 +401,7 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
         <div className="grid grid-cols-1 gap-3 w-full max-w-3xl">
           {CHROMATIC_KEYS.map((tile) => {
             const resumeState = resumeByKey.get(tile.label.toLowerCase());
-            const title = tile.label + " " + displayName;
+            const title = tile.label + ' ' + displayName;
             const tileColor = colorForKeyMode(tile.label, mode);
 
             const noteSpelling = getNoteSpelling(mode, tile.label);
@@ -292,19 +410,25 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
               return (
                 <button
                   key={`${tile.label}-${mode}`}
-                  onClick={() =>
-                    navigate(
-                      lessonRouteFor(tile.label),
-                    )
-                  }
+                  onClick={() => navigate(lessonRouteFor(tile.label))}
                   className="p-3 rounded-lg text-sm font-bold text-left transition-colors duration-150 glass-panel-sm cursor-pointer"
-                  style={{ color: tileColor, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                  style={{
+                    color: tileColor,
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid var(--color-border)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                  }}
                 >
                   {title}
                   {noteSpelling && (
-                    <span className="block mt-1 text-xs font-normal opacity-60">{noteSpelling.join(', ')}</span>
+                    <span className="block mt-1 text-xs font-normal opacity-60">
+                      {noteSpelling.join(', ')}
+                    </span>
                   )}
                 </button>
               );
@@ -314,11 +438,17 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
               <div
                 key={`${tile.label}-${mode}`}
                 className="p-3 rounded-lg text-sm text-left glass-panel-sm"
-                style={{ color: tileColor, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)' }}
+                style={{
+                  color: tileColor,
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid var(--color-border)',
+                }}
               >
                 <div className="font-bold">{title}</div>
                 {noteSpelling && (
-                  <div className="mt-1 text-xs opacity-60">{noteSpelling.join(', ')}</div>
+                  <div className="mt-1 text-xs opacity-60">
+                    {noteSpelling.join(', ')}
+                  </div>
                 )}
                 <div className="mt-1 text-xs font-semibold uppercase tracking-wide opacity-90">
                   Continue lesson
@@ -326,21 +456,35 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                 <div className="mt-1 text-xs opacity-80">
                   {resumeState.activityDefId
                     ? `Current activity: ${formatActivityTitle(resumeState.activityDefId)}`
-                    : "Progress saved"}
+                    : 'Progress saved'}
                 </div>
-                {resumeState.totalCount != null && resumeState.completedCount > 0 && (
-                  <div className="mt-1 text-xs opacity-70">
-                    {resumeState.completedCount} / {resumeState.totalCount} completed
-                  </div>
-                )}
+                {resumeState.totalCount != null &&
+                  resumeState.completedCount > 0 && (
+                    <div className="mt-1 text-xs opacity-70">
+                      {resumeState.completedCount} / {resumeState.totalCount}{' '}
+                      completed
+                    </div>
+                  )}
                 <div className="mt-3 flex gap-2">
                   <button
                     type="button"
-                    onClick={() => navigate(lessonRouteFor(tile.label, START_OVER_ACTIVITY_DEF_ID))}
+                    onClick={() =>
+                      navigate(
+                        lessonRouteFor(tile.label, START_OVER_ACTIVITY_DEF_ID),
+                      )
+                    }
                     className="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors duration-150"
-                    style={{ border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    style={{
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background =
+                        'rgba(255,255,255,0.06)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}
                   >
                     Start Over
                   </button>
@@ -348,9 +492,16 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
                     type="button"
                     onClick={() => navigate(lessonRouteFor(tile.label))}
                     className="rounded-md px-3 py-1.5 text-xs font-semibold transition-colors duration-150"
-                    style={{ background: 'var(--color-accent)', color: '#191919' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.9'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+                    style={{
+                      background: 'var(--color-accent)',
+                      color: '#191919',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.opacity = '0.9';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.opacity = '1';
+                    }}
                   >
                     Continue
                   </button>
@@ -360,7 +511,6 @@ export function ModeOverview({ mode}: ModeOverviewProps) {
           })}
         </div>
       </section>
-
     </div>
   );
 }

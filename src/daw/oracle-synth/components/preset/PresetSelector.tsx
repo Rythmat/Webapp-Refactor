@@ -24,7 +24,7 @@ export const PresetSelector: React.FC = React.memo(() => {
       loadPreset(name);
       setIsOpen(false);
     },
-    [loadPreset]
+    [loadPreset],
   );
 
   const handleSave = useCallback(() => {
@@ -64,7 +64,7 @@ export const PresetSelector: React.FC = React.memo(() => {
       e.target.value = '';
       setIsOpen(false);
     },
-    [importPreset]
+    [importPreset],
   );
 
   return (
@@ -144,10 +144,7 @@ export const PresetSelector: React.FC = React.memo(() => {
 
       {/* Backdrop to close dropdown */}
       {isOpen && (
-        <div
-          className={styles.backdrop}
-          onClick={() => setIsOpen(false)}
-        />
+        <div className={styles.backdrop} onClick={() => setIsOpen(false)} />
       )}
 
       {/* Save dialog */}

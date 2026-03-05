@@ -5,11 +5,21 @@
 import type { PedalProcessor } from './PedalProcessor';
 import type { ReverbType } from '../EffectChain';
 
-const REVERB_TYPES: ReverbType[] = ['hall', 'room', 'chamber', 'plate', 'spring'];
+const REVERB_TYPES: ReverbType[] = [
+  'hall',
+  'room',
+  'chamber',
+  'plate',
+  'spring',
+];
 
 const irCache = new Map<string, AudioBuffer>();
 
-function generateIR(ctx: AudioContext, decay: number, type: ReverbType = 'hall'): AudioBuffer {
+function generateIR(
+  ctx: AudioContext,
+  decay: number,
+  type: ReverbType = 'hall',
+): AudioBuffer {
   const quantized = Math.round(decay * 10) / 10;
   const key = `${ctx.sampleRate}:${type}:${quantized}`;
   const cached = irCache.get(key);
@@ -29,28 +39,29 @@ function generateIR(ctx: AudioContext, decay: number, type: ReverbType = 'hall')
         case 'hall': {
           const onset = Math.min(1, t / 0.03);
           const stereoSpread = ch === 0 ? 1 : 0.85 + Math.random() * 0.15;
-          data[i] = noise * onset * Math.exp(-2.5 * t / quantized) * stereoSpread;
+          data[i] =
+            noise * onset * Math.exp((-2.5 * t) / quantized) * stereoSpread;
           break;
         }
         case 'room': {
           const earlyRef = t < 0.015 ? 0.6 + Math.random() * 0.4 : 1;
-          data[i] = noise * earlyRef * Math.exp(-4 * t / quantized);
+          data[i] = noise * earlyRef * Math.exp((-4 * t) / quantized);
           break;
         }
         case 'chamber': {
           const density = 1 + 0.3 * Math.sin(t * 200);
-          data[i] = noise * density * Math.exp(-3 * t / quantized);
+          data[i] = noise * density * Math.exp((-3 * t) / quantized);
           break;
         }
         case 'plate': {
           const brightness = 1 + 0.15 * Math.sin(t * 800);
-          data[i] = noise * brightness * Math.exp(-3.5 * t / quantized);
+          data[i] = noise * brightness * Math.exp((-3.5 * t) / quantized);
           break;
         }
         case 'spring': {
           const combDelay = Math.round(sampleRate * 0.0037);
           const combSample = i > combDelay ? data[i - combDelay] * 0.4 : 0;
-          data[i] = (noise + combSample) * Math.exp(-4.5 * t / quantized);
+          data[i] = (noise + combSample) * Math.exp((-4.5 * t) / quantized);
           break;
         }
       }
@@ -85,7 +96,11 @@ export class ReverbPedal implements PedalProcessor {
     this.bypassNode = ctx.createGain();
 
     this.convolver = ctx.createConvolver();
-    this.convolver.buffer = generateIR(ctx, this.currentDecay, this.currentType);
+    this.convolver.buffer = generateIR(
+      ctx,
+      this.currentDecay,
+      this.currentType,
+    );
 
     // Pre-delay (max 200ms)
     this.preDelay = ctx.createDelay(0.2);
@@ -112,8 +127,12 @@ export class ReverbPedal implements PedalProcessor {
     this.wireEnabled();
   }
 
-  getInputNode(): AudioNode { return this.inputNode; }
-  getOutputNode(): AudioNode { return this.outputNode; }
+  getInputNode(): AudioNode {
+    return this.inputNode;
+  }
+  getOutputNode(): AudioNode {
+    return this.outputNode;
+  }
 
   setEnabled(enabled: boolean): void {
     if (enabled === this.enabled) return;
@@ -122,10 +141,26 @@ export class ReverbPedal implements PedalProcessor {
     this.bypassNode.disconnect();
     this.dryGain.disconnect();
     this.wetGain.disconnect();
-    try { this.preDelay.disconnect(); } catch { /* ok */ }
-    try { this.highPassFilter.disconnect(); } catch { /* ok */ }
-    try { this.convolver.disconnect(); } catch { /* ok */ }
-    try { this.lowPassFilter.disconnect(); } catch { /* ok */ }
+    try {
+      this.preDelay.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.highPassFilter.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.convolver.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.lowPassFilter.disconnect();
+    } catch {
+      /* ok */
+    }
     this.wireEnabled();
   }
 
@@ -135,7 +170,11 @@ export class ReverbPedal implements PedalProcessor {
       const newType = REVERB_TYPES[Math.round(params.typeIdx)] ?? 'hall';
       if (newType !== this.currentType) {
         this.currentType = newType;
-        this.convolver.buffer = generateIR(this.ctx, this.currentDecay, this.currentType);
+        this.convolver.buffer = generateIR(
+          this.ctx,
+          this.currentDecay,
+          this.currentType,
+        );
       }
     }
 
@@ -172,7 +211,11 @@ export class ReverbPedal implements PedalProcessor {
     }
 
     // Legacy 'size' param — mapped via decay
-    if (params.size !== undefined && typeof params.size === 'number' && params.decay === undefined) {
+    if (
+      params.size !== undefined &&
+      typeof params.size === 'number' &&
+      params.decay === undefined
+    ) {
       const decay = 0.1 + params.size * 4.9;
       const quantizedNew = Math.round(decay * 10);
       const quantizedOld = Math.round(this.currentDecay * 10);

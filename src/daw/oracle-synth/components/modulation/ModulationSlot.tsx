@@ -31,9 +31,7 @@ const FILTER_PARAM_OPTIONS = [
   { value: 'level', label: 'LEVEL' },
 ];
 
-const OSC_PARAM_OPTIONS = [
-  { value: 'level', label: 'LEVEL' },
-];
+const OSC_PARAM_OPTIONS = [{ value: 'level', label: 'LEVEL' }];
 
 function getParamOptions(source: string) {
   switch (source) {
@@ -51,12 +49,12 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
   ({ route, onUpdate, onRemove }) => {
     const paramOptions = useMemo(
       () => getParamOptions(route.target.source),
-      [route.target.source]
+      [route.target.source],
     );
 
     // Reset param to first valid option when source changes
     const currentParamValid = paramOptions.some(
-      (o) => o.value === route.target.param
+      (o) => o.value === route.target.param,
     );
     const effectiveParam = currentParamValid
       ? route.target.param
@@ -83,7 +81,7 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
                 const newSource = v as typeof route.target.source;
                 const newParamOptions = getParamOptions(newSource);
                 const paramStillValid = newParamOptions.some(
-                  (o) => o.value === route.target.param
+                  (o) => o.value === route.target.param,
                 );
                 onUpdate(route.id, {
                   target: {
@@ -100,7 +98,10 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
               options={paramOptions}
               onChange={(v) =>
                 onUpdate(route.id, {
-                  target: { ...route.target, param: v as typeof route.target.param },
+                  target: {
+                    ...route.target,
+                    param: v as typeof route.target.param,
+                  },
                 })
               }
             />
@@ -139,5 +140,5 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );

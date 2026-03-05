@@ -1,33 +1,37 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import * as Tone from "tone";
-import { PianoKeyboard } from "@/components/PianoKeyboard";
-import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
-import { useMidiInput, type MidiNoteEvent } from "@/hooks/music/useMidiInput";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import * as Tone from 'tone';
 import {
   releaseAllPianoNotes,
   startPianoSampler,
   triggerPianoAttack,
   triggerPianoRelease,
-} from "@/audio/pianoSampler";
-import PianoRoll, { NoteEvent, NoteHoldMeta, pitchNameToMidi } from "./PianoRollPlay";
+} from '@/audio/pianoSampler';
+import { PianoKeyboard } from '@/components/PianoKeyboard';
+import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import { useMidiInput, type MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import PianoRoll, {
+  NoteEvent,
+  NoteHoldMeta,
+  pitchNameToMidi,
+} from './PianoRollPlay';
 
 const DEFAULT_EVENTS: NoteEvent[] = [
-  { id: "e1", pitchName: "C3", startTicks: 0, durationTicks: 1920 },
-  { id: "e2", pitchName: "E3", startTicks: 0, durationTicks: 1920 },
-  { id: "e3", pitchName: "G3", startTicks: 0, durationTicks: 1920 },
-  { id: "e4", pitchName: "B3", startTicks: 0, durationTicks: 1920 },
-  { id: "e5", pitchName: "C3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e6", pitchName: "E3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e7", pitchName: "G3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e8", pitchName: "A#3", startTicks: 1920, durationTicks: 1920 },
-  { id: "e9", pitchName: "C#3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e10", pitchName: "F3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e11", pitchName: "G#3", startTicks: 3840, durationTicks: 1920 },
-  { id: "e12", pitchName: "C4", startTicks: 3840, durationTicks: 1920 },
-  { id: "e13", pitchName: "C#3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e14", pitchName: "F3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e15", pitchName: "G#3", startTicks: 5760, durationTicks: 1920 },
-  { id: "e16", pitchName: "B3", startTicks: 5760, durationTicks: 1920 },
+  { id: 'e1', pitchName: 'C3', startTicks: 0, durationTicks: 1920 },
+  { id: 'e2', pitchName: 'E3', startTicks: 0, durationTicks: 1920 },
+  { id: 'e3', pitchName: 'G3', startTicks: 0, durationTicks: 1920 },
+  { id: 'e4', pitchName: 'B3', startTicks: 0, durationTicks: 1920 },
+  { id: 'e5', pitchName: 'C3', startTicks: 1920, durationTicks: 1920 },
+  { id: 'e6', pitchName: 'E3', startTicks: 1920, durationTicks: 1920 },
+  { id: 'e7', pitchName: 'G3', startTicks: 1920, durationTicks: 1920 },
+  { id: 'e8', pitchName: 'A#3', startTicks: 1920, durationTicks: 1920 },
+  { id: 'e9', pitchName: 'C#3', startTicks: 3840, durationTicks: 1920 },
+  { id: 'e10', pitchName: 'F3', startTicks: 3840, durationTicks: 1920 },
+  { id: 'e11', pitchName: 'G#3', startTicks: 3840, durationTicks: 1920 },
+  { id: 'e12', pitchName: 'C4', startTicks: 3840, durationTicks: 1920 },
+  { id: 'e13', pitchName: 'C#3', startTicks: 5760, durationTicks: 1920 },
+  { id: 'e14', pitchName: 'F3', startTicks: 5760, durationTicks: 1920 },
+  { id: 'e15', pitchName: 'G#3', startTicks: 5760, durationTicks: 1920 },
+  { id: 'e16', pitchName: 'B3', startTicks: 5760, durationTicks: 1920 },
 ];
 
 const CHORD_HOLD_REQUIRED_MS = 500;
@@ -45,14 +49,16 @@ type NoteHoldProps = {
 export const NoteHold = ({
   events,
   onActivityCompleteChange,
-  activityColor = "#60a5fa",
+  activityColor = '#60a5fa',
   isActive = true,
   startSignal = 0,
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const activeMidiSetRef = useRef(new Set<number>());
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
-  const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<PlaybackEvent[]>([]);
+  const [keyboardPlayingNotes, setKeyboardPlayingNotes] = useState<
+    PlaybackEvent[]
+  >([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentChordIndex, setCurrentChordIndex] = useState(0);
   const [completedChords, setCompletedChords] = useState<Set<number>>(
@@ -71,10 +77,9 @@ export const NoteHold = ({
       await startPianoSampler();
       hasStartedAudioContextRef.current = true;
     } catch (error) {
-      console.warn("Failed to start Tone.js audio context", error);
+      console.warn('Failed to start Tone.js audio context', error);
     }
   }, []);
-
 
   const releaseActiveNotes = useCallback(() => {
     void releaseAllPianoNotes();
@@ -82,7 +87,6 @@ export const NoteHold = ({
     setActiveMidis([]);
     setKeyboardPlayingNotes([]);
   }, []);
-
 
   // Triggers the on state of the syntheizer with a specified note and a given velocity
   const triggerSynthAttack = useCallback((name: string, velocity?: number) => {
@@ -113,10 +117,10 @@ export const NoteHold = ({
     const map = new Map<number, string>();
     resolvedEvents.forEach((event) => {
       const midi =
-        typeof event.midi === "number"
+        typeof event.midi === 'number'
           ? event.midi
           : pitchNameToMidi(event.pitchName);
-      if (typeof midi === "number" && !map.has(midi)) {
+      if (typeof midi === 'number' && !map.has(midi)) {
         map.set(midi, event.color ?? activityColor);
       }
     });
@@ -137,9 +141,11 @@ export const NoteHold = ({
     if (!currentChord) return [];
     return currentChord
       .map((note) =>
-        typeof note.midi === "number" ? note.midi : pitchNameToMidi(note.pitchName),
+        typeof note.midi === 'number'
+          ? note.midi
+          : pitchNameToMidi(note.pitchName),
       )
-      .filter((midi): midi is number => typeof midi === "number");
+      .filter((midi): midi is number => typeof midi === 'number');
   }, [currentChord]);
 
   const isCurrentChordHeld = useMemo(() => {
@@ -152,11 +158,8 @@ export const NoteHold = ({
     );
     if (!allChordNotesHeld) return false;
 
-    const noExtraNotes = activeMidis.every((midi) =>
-      currentChordMidis.includes(midi),
-    );
-    return noExtraNotes;
-  }, [ currentChord, currentChordMidis, activeMidis]);
+    return activeMidis.every((midi) => currentChordMidis.includes(midi));
+  }, [currentChord, currentChordMidis, activeMidis]);
 
   const handleKeyboardNoteOn = useCallback(
     (midi: number) => {
@@ -167,7 +170,7 @@ export const NoteHold = ({
         ...prev.filter((event) => event.midi !== midi),
         {
           id,
-          type: "note",
+          type: 'note',
           midi,
           time: Date.now(),
           duration: Number.POSITIVE_INFINITY,
@@ -211,7 +214,15 @@ export const NoteHold = ({
       setChordHoldStartMs(null);
       setChordHoldProgress(0);
     }
-  }, [ currentChord, currentChordMidis, isCurrentChordHeld, chordHoldStartMs, chordHoldProgress, currentChordIndex,chords.length ]);
+  }, [
+    currentChord,
+    currentChordMidis,
+    isCurrentChordHeld,
+    chordHoldStartMs,
+    chordHoldProgress,
+    currentChordIndex,
+    chords.length,
+  ]);
 
   useEffect(() => {
     let raf: number;
@@ -228,7 +239,7 @@ export const NoteHold = ({
     };
     tick();
     return () => cancelAnimationFrame(raf);
-  }, [ chordHoldStartMs]);
+  }, [chordHoldStartMs]);
 
   useEffect(() => {
     // Reset the visible progress when moving to the next chord
@@ -236,7 +247,8 @@ export const NoteHold = ({
     setChordHoldStartMs(null);
   }, [currentChordIndex]);
 
-const showChordHoldCompletion = chords.length > 0 && completedChords.size >= chords.length;
+  const showChordHoldCompletion =
+    chords.length > 0 && completedChords.size >= chords.length;
 
   const handleMidiNoteOff = useCallback(
     (event: MidiNoteEvent) => {
@@ -250,22 +262,27 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
         activeMidiSetRef.current.delete(midi);
         setActiveMidis([...activeMidiSetRef.current]);
 
-        const noteName = Tone.Frequency(midi, "midi").toNote();
+        const noteName = Tone.Frequency(midi, 'midi').toNote();
         triggerSynthRelease(noteName);
       }
 
       handleKeyboardNoteOff(midi);
     },
-    [isActive, isPlaying, startToneContext, triggerSynthRelease, handleKeyboardNoteOff]
+    [
+      isActive,
+      isPlaying,
+      startToneContext,
+      triggerSynthRelease,
+      handleKeyboardNoteOff,
+    ],
   );
-
 
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
       if (!isActive) return;
       void startPianoSampler();
       const midi = event.number;
-      if(event.velocity == 0){
+      if (event.velocity == 0) {
         handleMidiNoteOff(event);
         return;
       }
@@ -273,12 +290,12 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
         activeMidiSetRef.current.add(midi);
         setActiveMidis([...activeMidiSetRef.current]);
 
-        const noteName = Tone.Frequency(midi, "midi").toNote();
+        const noteName = Tone.Frequency(midi, 'midi').toNote();
         triggerSynthAttack(noteName, event.velocity);
       }
       handleKeyboardNoteOn(midi);
     },
-    [handleMidiNoteOff, isActive, triggerSynthAttack,handleKeyboardNoteOn]
+    [handleMidiNoteOff, isActive, triggerSynthAttack, handleKeyboardNoteOn],
   );
 
   const onMidiNoteOn = useCallback(
@@ -319,17 +336,20 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
     chords.forEach((chord, idx) => {
       chord.forEach((note) => {
         const midi =
-          typeof note.midi === "number"
+          typeof note.midi === 'number'
             ? note.midi
             : pitchNameToMidi(note.pitchName);
-        if (typeof midi !== "number") {
+        if (typeof midi !== 'number') {
           return;
         }
         const isCompleted = completedChords.has(idx);
         const isCurrent = idx === currentChordIndex;
-        const holdProgress =
-          isCompleted ? 1 : isCurrent ? chordHoldProgress : 0;
-        const isHeld = (isCompleted || (isCurrent && activeMidis.includes(midi)));
+        const holdProgress = isCompleted
+          ? 1
+          : isCurrent
+            ? chordHoldProgress
+            : 0;
+        const isHeld = isCompleted || (isCurrent && activeMidis.includes(midi));
         meta[note.id] = {
           isCompleted,
           isCurrentChord: isCurrent,
@@ -346,7 +366,6 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
     chordHoldProgress,
     activeMidis,
   ]);
-
 
   useEffect(() => {
     const wasShown = lastCompletionShownRef.current;
@@ -375,33 +394,38 @@ const showChordHoldCompletion = chords.length > 0 && completedChords.size >= cho
     };
   }, [releaseActiveNotes]);
 
-
   return (
     <div className="flex flex-col gap-4">
       <div className="relative">
-        <div className="rounded-xl p-4 transition duration-300 glass-panel" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)' }}>
-        <PianoRoll
-          events={resolvedEvents}
-          bars={requiredBars}
-          beatsPerBar={4}
-          subdivision={1}
-          rowHeight={28 * 18}
-          inTime={false}
-          playSpeed={80}
-          isPlaying={isPlaying}
-          onPlayingChange={setIsPlaying}
-          activeMidis={activeMidis}
-          noteHoldMeta={noteHoldMeta}
-        />
-        <PianoKeyboard
-          className="mx-auto"
-          startC={2}
-          endC={6}
-          playingNotes={keyboardPlayingNotes}
-          activeWhiteKeyColor={activityColor}
-          activeBlackKeyColor={activityColor}
-          showOctaveStart
-        />
+        <div
+          className="glass-panel rounded-xl p-4 transition duration-300"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid var(--color-border)',
+          }}
+        >
+          <PianoRoll
+            activeMidis={activeMidis}
+            bars={requiredBars}
+            beatsPerBar={4}
+            events={resolvedEvents}
+            inTime={false}
+            isPlaying={isPlaying}
+            noteHoldMeta={noteHoldMeta}
+            playSpeed={80}
+            rowHeight={28 * 18}
+            subdivision={1}
+            onPlayingChange={setIsPlaying}
+          />
+          <PianoKeyboard
+            showOctaveStart
+            activeBlackKeyColor={activityColor}
+            activeWhiteKeyColor={activityColor}
+            className="mx-auto"
+            endC={6}
+            playingNotes={keyboardPlayingNotes}
+            startC={2}
+          />
         </div>
       </div>
     </div>

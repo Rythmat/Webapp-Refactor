@@ -41,7 +41,7 @@ export function OracleSynthInline() {
 
   if (!isVisible || !engine || !analysers) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex h-full items-center justify-center">
         <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
           Synth engine not available
         </span>
@@ -50,8 +50,18 @@ export function OracleSynthInline() {
   }
 
   // Fixed widths prevent modules with CSS `flex:1` from growing/drifting
-  const slot = (w: number): React.CSSProperties => ({ width: w, minWidth: w, maxWidth: w, flexShrink: 0 });
-  const panelSlot = (w: number): React.CSSProperties => ({ ...slot(w), background: '#242424', border: '1px solid #333', borderRadius: 4 });
+  const slot = (w: number): React.CSSProperties => ({
+    width: w,
+    minWidth: w,
+    maxWidth: w,
+    flexShrink: 0,
+  });
+  const panelSlot = (w: number): React.CSSProperties => ({
+    ...slot(w),
+    background: '#242424',
+    border: '1px solid #333',
+    borderRadius: 4,
+  });
 
   return (
     <div
@@ -63,19 +73,61 @@ export function OracleSynthInline() {
         scrollbarColor: 'rgba(255,255,255,0.15) transparent',
       }}
     >
-      <div className="[&>*]:h-full" style={slot(130)}><SubOscillatorModule /></div>
-      <div className="[&>*]:h-full" style={slot(170)}><OscillatorModule index={0} accent="#e87070" analyser={analysers.osc1} /></div>
-      <div className="[&>*]:h-full" style={slot(170)}><OscillatorModule index={1} accent="#d05050" analyser={analysers.osc2} /></div>
-      <div className="[&>*]:h-full" style={slot(160)}><FilterModule index={0} accent="#e8a040" liveFilter={analysers.filter1} /></div>
-      <div className="[&>*]:h-full" style={slot(160)}><FilterModule index={1} accent="#d08830" liveFilter={analysers.filter2} /></div>
-      <div className="[&>*]:h-full" style={slot(150)}><EnvelopeModule index={0} accent="#e8c840" /></div>
-      <div className="[&>*]:h-full" style={slot(150)}><EnvelopeModule index={1} accent="#d0b030" /></div>
-      <div className="[&>*]:h-full" style={slot(130)}><NoiseModule analyser={analysers.noise} /></div>
-      <div style={panelSlot(640)}><LFOArea /></div>
-      <div style={panelSlot(220)}><ModulationPanel /></div>
-      <div style={panelSlot(220)}><FXPanel /></div>
-      <div style={panelSlot(140)}><ArpPanel /></div>
-      <div style={panelSlot(160)}><RoutingPanel /></div>
+      <div className="[&>*]:h-full" style={slot(130)}>
+        <SubOscillatorModule />
+      </div>
+      <div className="[&>*]:h-full" style={slot(170)}>
+        <OscillatorModule
+          index={0}
+          accent="#e87070"
+          analyser={analysers.osc1}
+        />
+      </div>
+      <div className="[&>*]:h-full" style={slot(170)}>
+        <OscillatorModule
+          index={1}
+          accent="#d05050"
+          analyser={analysers.osc2}
+        />
+      </div>
+      <div className="[&>*]:h-full" style={slot(160)}>
+        <FilterModule
+          index={0}
+          accent="#e8a040"
+          liveFilter={analysers.filter1}
+        />
+      </div>
+      <div className="[&>*]:h-full" style={slot(160)}>
+        <FilterModule
+          index={1}
+          accent="#d08830"
+          liveFilter={analysers.filter2}
+        />
+      </div>
+      <div className="[&>*]:h-full" style={slot(150)}>
+        <EnvelopeModule index={0} accent="#e8c840" />
+      </div>
+      <div className="[&>*]:h-full" style={slot(150)}>
+        <EnvelopeModule index={1} accent="#d0b030" />
+      </div>
+      <div className="[&>*]:h-full" style={slot(130)}>
+        <NoiseModule analyser={analysers.noise} />
+      </div>
+      <div style={panelSlot(640)}>
+        <LFOArea />
+      </div>
+      <div style={panelSlot(220)}>
+        <ModulationPanel />
+      </div>
+      <div style={panelSlot(220)}>
+        <FXPanel />
+      </div>
+      <div style={panelSlot(140)}>
+        <ArpPanel />
+      </div>
+      <div style={panelSlot(160)}>
+        <RoutingPanel />
+      </div>
     </div>
   );
 }

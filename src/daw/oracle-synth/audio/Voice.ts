@@ -92,7 +92,7 @@ export class Voice {
     ctx: AudioContext,
     id: number,
     wavetableBank: WavetableBank,
-    destination: AudioNode
+    destination: AudioNode,
   ) {
     this.ctx = ctx;
     this.id = id;
@@ -154,24 +154,45 @@ export class Voice {
 
   private getEnvGainForSource(sourceId: SourceId): GainNode {
     switch (sourceId) {
-      case 'osc1': return this.osc1EnvGain;
-      case 'osc2': return this.osc2EnvGain;
-      case 'sub': return this.subEnvGain;
-      case 'noise': return this.noiseEnvGain;
+      case 'osc1':
+        return this.osc1EnvGain;
+      case 'osc2':
+        return this.osc2EnvGain;
+      case 'sub':
+        return this.subEnvGain;
+      case 'noise':
+        return this.noiseEnvGain;
     }
   }
 
   private applyFilterRouting(): void {
-    const allEnvGains = [this.osc1EnvGain, this.osc2EnvGain, this.subEnvGain, this.noiseEnvGain];
+    const allEnvGains = [
+      this.osc1EnvGain,
+      this.osc2EnvGain,
+      this.subEnvGain,
+      this.noiseEnvGain,
+    ];
     const allSourceIds: SourceId[] = ['osc1', 'osc2', 'sub', 'noise'];
     const flt1In = this.filter1.getInputNode();
     const flt2In = this.filter2.getInputNode();
 
     // Disconnect all source envGains from filter inputs and bypass
     for (const envGain of allEnvGains) {
-      try { envGain.disconnect(flt1In); } catch { /* not connected */ }
-      try { envGain.disconnect(flt2In); } catch { /* not connected */ }
-      try { envGain.disconnect(this.bypassBus); } catch { /* not connected */ }
+      try {
+        envGain.disconnect(flt1In);
+      } catch {
+        /* not connected */
+      }
+      try {
+        envGain.disconnect(flt2In);
+      } catch {
+        /* not connected */
+      }
+      try {
+        envGain.disconnect(this.bypassBus);
+      } catch {
+        /* not connected */
+      }
     }
 
     // Reconnect based on routing config
@@ -197,7 +218,12 @@ export class Voice {
     return null; // no envelope assigned
   }
 
-  noteOn(note: number, velocity: number, glideTime?: number, time?: number): void {
+  noteOn(
+    note: number,
+    velocity: number,
+    glideTime?: number,
+    time?: number,
+  ): void {
     this.state = 'active';
     this.currentNote = note;
     this.currentVelocity = velocity;
@@ -271,9 +297,12 @@ export class Voice {
       }
     }
 
-    this.releaseTimer = setTimeout(() => {
-      this.freeVoice();
-    }, maxRelease * 1000 + 100);
+    this.releaseTimer = setTimeout(
+      () => {
+        this.freeVoice();
+      },
+      maxRelease * 1000 + 100,
+    );
   }
 
   forceStop(): void {
@@ -287,7 +316,12 @@ export class Voice {
     }
 
     // Force-stop all source envGains
-    const allEnvGains = [this.osc1EnvGain, this.osc2EnvGain, this.subEnvGain, this.noiseEnvGain];
+    const allEnvGains = [
+      this.osc1EnvGain,
+      this.osc2EnvGain,
+      this.subEnvGain,
+      this.noiseEnvGain,
+    ];
     for (const envGain of allEnvGains) {
       const now = this.ctx.currentTime;
       envGain.gain.cancelScheduledValues(now);
@@ -295,12 +329,15 @@ export class Voice {
       envGain.gain.linearRampToValueAtTime(0, now + ANTI_CLICK_TIME);
     }
 
-    this.forceStopTimer = setTimeout(() => {
-      this.forceStopTimer = null;
-      this.stopAllSources();
-      this.state = 'free';
-      this.currentNote = -1;
-    }, ANTI_CLICK_TIME * 1000 + 10);
+    this.forceStopTimer = setTimeout(
+      () => {
+        this.forceStopTimer = null;
+        this.stopAllSources();
+        this.state = 'free';
+        this.currentNote = -1;
+      },
+      ANTI_CLICK_TIME * 1000 + 10,
+    );
   }
 
   private freeVoice(): void {

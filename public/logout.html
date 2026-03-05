@@ -1,101 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Logging out...</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f5f5f5;
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f5f5f5;
+      }
+      .container {
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
-        .container {
-            text-align: center;
-            padding: 2rem;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        100% {
+          transform: rotate(360deg);
         }
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="spinner"></div>
-        <h2>Logging out...</h2>
-        <p>Please wait while we sign you out.</p>
+      <div class="spinner"></div>
+      <h2>Logging out...</h2>
+      <p>Please wait while we sign you out.</p>
     </div>
 
     <script type="module">
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
-        
-        const supabase = createClient(
-            'https://koushkfmarpyxysxjwxi.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvdXNoa2ZtYXJweXh5c3hqd3hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMjg2MjUsImV4cCI6MjA2OTkwNDYyNX0.dd0DtSrJUb90kiWPSyCFnNEb7Kd8uSIEE6DLEbQjNIc'
-        );
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 
-        async function logout() {
-            try {
-                // Sign out from Supabase
-                await supabase.auth.signOut();
-                
-                // Clear all storage
-                localStorage.clear();
-                sessionStorage.clear();
-                
-                // Clear cookies
-                document.cookie.split(";").forEach(function(c) { 
-                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-                });
-                
-                // Show success message
-                document.querySelector('.container').innerHTML = `
+      const supabase = createClient(
+        'https://koushkfmarpyxysxjwxi.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvdXNoa2ZtYXJweXh5c3hqd3hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMjg2MjUsImV4cCI6MjA2OTkwNDYyNX0.dd0DtSrJUb90kiWPSyCFnNEb7Kd8uSIEE6DLEbQjNIc',
+      );
+
+      async function logout() {
+        try {
+          // Sign out from Supabase
+          await supabase.auth.signOut();
+
+          // Clear all storage
+          localStorage.clear();
+          sessionStorage.clear();
+
+          // Clear cookies
+          document.cookie.split(';').forEach(function (c) {
+            document.cookie = c
+              .replace(/^ +/, '')
+              .replace(
+                /=.*/,
+                '=;expires=' + new Date().toUTCString() + ';path=/',
+              );
+          });
+
+          // Show success message
+          document.querySelector('.container').innerHTML = `
                     <h2 style="color: green;">✓ Logged out successfully!</h2>
                     <p>Redirecting to login page...</p>
                 `;
-                
-                // Redirect after a short delay
-                setTimeout(() => {
-                    window.location.href = '/login';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Logout error:', error);
-                
-                // Even if logout fails, clear everything and redirect
-                localStorage.clear();
-                sessionStorage.clear();
-                
-                document.querySelector('.container').innerHTML = `
+
+          // Redirect after a short delay
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1500);
+        } catch (error) {
+          console.error('Logout error:', error);
+
+          // Even if logout fails, clear everything and redirect
+          localStorage.clear();
+          sessionStorage.clear();
+
+          document.querySelector('.container').innerHTML = `
                     <h2 style="color: orange;">⚠ Logout completed</h2>
                     <p>Redirecting to login page...</p>
                 `;
-                
-                setTimeout(() => {
-                    window.location.href = '/login';
-                }, 1500);
-            }
-        }
 
-        // Start logout process immediately
-        logout();
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1500);
+        }
+      }
+
+      // Start logout process immediately
+      logout();
     </script>
-</body>
+  </body>
 </html>

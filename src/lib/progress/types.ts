@@ -1,4 +1,7 @@
-export type ActivityProgressStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+export type ActivityProgressStatus =
+  | 'NOT_STARTED'
+  | 'IN_PROGRESS'
+  | 'COMPLETED';
 
 export interface LessonProgressEntry {
   status: ActivityProgressStatus;

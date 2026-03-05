@@ -4,8 +4,11 @@
 //
 // Signal: inputNode → [pitchNode worklet | bypassGain] → outputNode
 
-import { PitchCorrectionNode } from './pitch-correction/PitchCorrectionNode';
-import type { PitchCorrectionParams, PitchInfo } from './pitch-correction/PitchCorrectionNode';
+import {
+  PitchCorrectionNode,
+  type PitchCorrectionParams,
+  type PitchInfo,
+} from './pitch-correction/PitchCorrectionNode';
 
 export class VocalProcessingChain {
   private _ctx: AudioContext;
@@ -54,7 +57,11 @@ export class VocalProcessingChain {
     }
 
     // Disconnect bypass path
-    try { this.inputNode.disconnect(this.bypassGain); } catch { /* not connected */ }
+    try {
+      this.inputNode.disconnect(this.bypassGain);
+    } catch {
+      /* not connected */
+    }
 
     // Connect through worklet: input → worklet → output
     const worklet = this.pitchNode.getNode();
@@ -73,8 +80,16 @@ export class VocalProcessingChain {
       this.pitchNode.setBypass(true);
 
       // Disconnect worklet path
-      try { this.inputNode.disconnect(worklet); } catch { /* not connected */ }
-      try { worklet.disconnect(this.outputNode); } catch { /* not connected */ }
+      try {
+        this.inputNode.disconnect(worklet);
+      } catch {
+        /* not connected */
+      }
+      try {
+        worklet.disconnect(this.outputNode);
+      } catch {
+        /* not connected */
+      }
     }
 
     // Reconnect bypass path
@@ -99,8 +114,20 @@ export class VocalProcessingChain {
     this.disable();
     this.pitchNode?.dispose();
     this.pitchNode = null;
-    try { this.inputNode.disconnect(); } catch { /* ok */ }
-    try { this.outputNode.disconnect(); } catch { /* ok */ }
-    try { this.bypassGain.disconnect(); } catch { /* ok */ }
+    try {
+      this.inputNode.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.outputNode.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.bypassGain.disconnect();
+    } catch {
+      /* ok */
+    }
   }
 }

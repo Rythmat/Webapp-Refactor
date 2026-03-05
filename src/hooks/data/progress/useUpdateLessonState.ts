@@ -3,7 +3,11 @@ import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { progressApi } from '@/lib/progress/api';
 import { progressLocalCache } from '@/lib/progress/localCache';
 import { normalizeProgressSummaryTotals } from '@/lib/progress/summaryTotals';
-import type { LessonStatePatch, ProgressSummaryResponse } from '@/lib/progress/types';
+import type {
+  LessonProgressResponse,
+  LessonStatePatch,
+  ProgressSummaryResponse,
+} from '@/lib/progress/types';
 
 export const useUpdateLessonState = () => {
   const token = useAuthToken();
@@ -15,13 +19,18 @@ export const useUpdateLessonState = () => {
       return progressApi.patchLessonState(token, body).then(() => body);
     },
     onMutate: async (body) => {
-      const key = ['lessonProgress', body.lessonId, body.lessonVersion] as const;
+      const key = [
+        'lessonProgress',
+        body.lessonId,
+        body.lessonVersion,
+      ] as const;
       await queryClient.cancelQueries({ queryKey: key });
       await queryClient.cancelQueries({ queryKey: ['progressSummary'] });
-      const prev = queryClient.getQueryData<any>(key);
+      const prev = queryClient.getQueryData<LessonProgressResponse>(key);
       const summaryKey = ['progressSummary'] as const;
-      const prevSummary = queryClient.getQueryData<ProgressSummaryResponse>(summaryKey);
-      const next = {
+      const prevSummary =
+        queryClient.getQueryData<ProgressSummaryResponse>(summaryKey);
+      const next: LessonProgressResponse = {
         currentActivityInstanceId: body.currentActivityInstanceId,
         progressByActivityInstanceId: prev?.progressByActivityInstanceId ?? {},
       };
@@ -33,7 +42,10 @@ export const useUpdateLessonState = () => {
         const nextSummary: ProgressSummaryResponse = {
           lessons: prevSummary.lessons
             .map((lesson) => {
-              if (lesson.lessonId !== body.lessonId || lesson.lessonVersion !== body.lessonVersion) {
+              if (
+                lesson.lessonId !== body.lessonId ||
+                lesson.lessonVersion !== body.lessonVersion
+              ) {
                 return lesson;
               }
               return {
@@ -42,7 +54,11 @@ export const useUpdateLessonState = () => {
                 updatedAt: now,
               };
             })
-            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+            .sort(
+              (a, b) =>
+                new Date(b.updatedAt).getTime() -
+                new Date(a.updatedAt).getTime(),
+            ),
         };
         const normalized = normalizeProgressSummaryTotals(nextSummary)!;
         queryClient.setQueryData(summaryKey, normalized);

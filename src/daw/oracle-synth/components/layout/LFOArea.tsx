@@ -11,7 +11,9 @@ const ACCENT = '#7ecfcf';
 
 /** Map numeric knob index → rate division */
 function indexToRateDiv(index: number): RateDiv {
-  const clamped = Math.round(Math.max(0, Math.min(RATE_DIV_OPTIONS.length - 1, index)));
+  const clamped = Math.round(
+    Math.max(0, Math.min(RATE_DIV_OPTIONS.length - 1, index)),
+  );
   return RATE_DIV_OPTIONS[clamped].value;
 }
 
@@ -23,7 +25,7 @@ function rateDivToIndex(div: RateDiv): number {
 
 interface BarSegment {
   startQ: number; // starting quarter index (0-3)
-  span: number;   // number of quarter slots consumed
+  span: number; // number of quarter slots consumed
   rate: RateDiv;
 }
 
@@ -61,7 +63,12 @@ function buildBarFromQuarterRates(rates: QuarterRates): LFONode[] {
 
     for (let i = 0; i < segNodes.length; i++) {
       const t = start + segNodes[i].time * segFraction;
-      if (allNodes.length > 0 && i === 0 && Math.abs(t - allNodes[allNodes.length - 1].time) < 0.001) continue;
+      if (
+        allNodes.length > 0 &&
+        i === 0 &&
+        Math.abs(t - allNodes[allNodes.length - 1].time) < 0.001
+      )
+        continue;
       allNodes.push({ time: Math.min(1, t), value: segNodes[i].value });
     }
   }
@@ -101,14 +108,14 @@ function extractSegmentNodes(barNodes: LFONode[], seg: BarSegment): LFONode[] {
 function mergeSegmentNodes(
   barNodes: LFONode[],
   seg: BarSegment,
-  newSegNodes: LFONode[]
+  newSegNodes: LFONode[],
 ): LFONode[] {
   const start = seg.startQ / 4;
   const segFraction = seg.span / 4;
   const end = start + segFraction;
 
   const outside = barNodes.filter(
-    (n) => n.time < start - 0.001 || n.time > end + 0.001
+    (n) => n.time < start - 0.001 || n.time > end + 0.001,
   );
 
   const remapped = newSegNodes.map((n) => {
@@ -145,7 +152,7 @@ export const LFOArea: React.FC = React.memo(() => {
     (barIndex: number, nodes: LFONode[]) => {
       setLFONodes(activeLFOIndex, barIndex, nodes);
     },
-    [activeLFOIndex, setLFONodes]
+    [activeLFOIndex, setLFONodes],
   );
 
   const handleQuarterRateChange = useCallback(
@@ -156,14 +163,14 @@ export const LFOArea: React.FC = React.memo(() => {
       const nodes = buildBarFromQuarterRates(currentRates);
       setLFONodes(activeLFOIndex, barIndex, nodes);
     },
-    [activeLFOIndex, lfo.rateDivs, setLFOQuarterRateDiv, setLFONodes]
+    [activeLFOIndex, lfo.rateDivs, setLFOQuarterRateDiv, setLFONodes],
   );
 
   const handleSmoothChange = useCallback(
     (barIndex: number, smooth: number) => {
       setLFOBarSmooth(activeLFOIndex, barIndex, smooth);
     },
-    [activeLFOIndex, setLFOBarSmooth]
+    [activeLFOIndex, setLFOBarSmooth],
   );
 
   const handleSegmentNodesChange = useCallback(
@@ -171,7 +178,7 @@ export const LFOArea: React.FC = React.memo(() => {
       const merged = mergeSegmentNodes(lfo.bars[barIndex], seg, segNodes);
       setLFONodes(activeLFOIndex, barIndex, merged);
     },
-    [activeLFOIndex, lfo.bars, setLFONodes]
+    [activeLFOIndex, lfo.bars, setLFONodes],
   );
 
   return (
@@ -196,18 +203,27 @@ export const LFOArea: React.FC = React.memo(() => {
           ? (() => {
               const layout = computeQuarterLayout(lfo.rateDivs[zoomedBar]);
               return layout.map((seg) => (
-                <div key={seg.startQ} className={styles.barColumn} style={{ flex: seg.span }}>
+                <div
+                  key={seg.startQ}
+                  className={styles.barColumn}
+                  style={{ flex: seg.span }}
+                >
                   <span
                     className={styles.barLabel}
                     onDoubleClick={() => handleBarLabelDoubleClick(zoomedBar)}
                     style={{ cursor: 'pointer' }}
                   >
-                    BAR {zoomedBar + 1} : {seg.span > 1 ? `Q${seg.startQ + 1}-${seg.startQ + seg.span}` : `Q${seg.startQ + 1}`}
+                    BAR {zoomedBar + 1} :{' '}
+                    {seg.span > 1
+                      ? `Q${seg.startQ + 1}-${seg.startQ + seg.span}`
+                      : `Q${seg.startQ + 1}`}
                   </span>
                   <div className={styles.editorWrapper}>
                     <LFONodeEditor
                       nodes={extractSegmentNodes(lfo.bars[zoomedBar], seg)}
-                      onChange={(nodes) => handleSegmentNodesChange(zoomedBar, seg, nodes)}
+                      onChange={(nodes) =>
+                        handleSegmentNodesChange(zoomedBar, seg, nodes)
+                      }
                       color={ACCENT}
                     />
                   </div>
@@ -221,8 +237,16 @@ export const LFOArea: React.FC = React.memo(() => {
                       defaultValue={7}
                       accent={ACCENT}
                       size={28}
-                      formatValue={(v) => RATE_DIV_OPTIONS[Math.round(v)]?.label ?? '1/4'}
-                      onChange={(v) => handleQuarterRateChange(zoomedBar, seg.startQ, indexToRateDiv(v))}
+                      formatValue={(v) =>
+                        RATE_DIV_OPTIONS[Math.round(v)]?.label ?? '1/4'
+                      }
+                      onChange={(v) =>
+                        handleQuarterRateChange(
+                          zoomedBar,
+                          seg.startQ,
+                          indexToRateDiv(v),
+                        )
+                      }
                     />
                     <Knob
                       label="SMOOTH"
@@ -261,7 +285,11 @@ export const LFOArea: React.FC = React.memo(() => {
                     {layout.map((seg) => (
                       <Knob
                         key={seg.startQ}
-                        label={seg.span > 1 ? `R${seg.startQ + 1}-${seg.startQ + seg.span}` : `R${seg.startQ + 1}`}
+                        label={
+                          seg.span > 1
+                            ? `R${seg.startQ + 1}-${seg.startQ + seg.span}`
+                            : `R${seg.startQ + 1}`
+                        }
                         value={rateDivToIndex(seg.rate)}
                         min={0}
                         max={RATE_DIV_OPTIONS.length - 1}
@@ -269,8 +297,16 @@ export const LFOArea: React.FC = React.memo(() => {
                         defaultValue={7}
                         accent={ACCENT}
                         size={22}
-                        formatValue={(v) => RATE_DIV_OPTIONS[Math.round(v)]?.label ?? '1/4'}
-                        onChange={(v) => handleQuarterRateChange(barIdx, seg.startQ, indexToRateDiv(v))}
+                        formatValue={(v) =>
+                          RATE_DIV_OPTIONS[Math.round(v)]?.label ?? '1/4'
+                        }
+                        onChange={(v) =>
+                          handleQuarterRateChange(
+                            barIdx,
+                            seg.startQ,
+                            indexToRateDiv(v),
+                          )
+                        }
                       />
                     ))}
                   </div>

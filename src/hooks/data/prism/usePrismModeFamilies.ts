@@ -5,8 +5,7 @@ import {
 } from '@/contexts/MusicAtlasContext';
 
 export type PrismModeFamilyList = GetPrismModesFamilyData['families'];
-export type PrismModeFamilyOption =
-  GetPrismModesFamilyData['families'][number];
+export type PrismModeFamilyOption = GetPrismModesFamilyData['families'][number];
 
 export const usePrismModeFamilies = () => {
   const musicAtlas = useMusicAtlas();

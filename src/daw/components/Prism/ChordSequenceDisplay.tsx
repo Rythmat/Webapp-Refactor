@@ -10,7 +10,7 @@ export function ChordSequenceDisplay() {
   if (stringSeq.length === 0) {
     return (
       <div
-        className="flex items-center justify-center h-10 rounded text-xs italic"
+        className="flex h-10 items-center justify-center rounded text-xs italic"
         style={{
           backgroundColor: 'var(--color-surface-2)',
           color: 'var(--color-text-dim)',
@@ -25,7 +25,7 @@ export function ChordSequenceDisplay() {
 
   return (
     <div
-      className="flex gap-1.5 overflow-x-auto py-1 px-0.5"
+      className="flex gap-1.5 overflow-x-auto px-0.5 py-1"
       style={{ scrollbarWidth: 'thin' }}
     >
       {stringSeq.map((name, i) => {
@@ -35,7 +35,7 @@ export function ChordSequenceDisplay() {
         return (
           <div
             key={`${name}-${i}`}
-            className="shrink-0 flex items-center justify-center h-8 px-2.5 rounded-full text-xs font-medium whitespace-nowrap"
+            className="flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-2.5 text-xs font-medium"
             style={{
               backgroundColor: `rgba(${r}, ${g}, ${b}, 0.2)`,
               color: `rgb(${r}, ${g}, ${b})`,

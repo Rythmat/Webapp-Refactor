@@ -1,7 +1,10 @@
 import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
-import type { EffectSlotType, TrackEffectState } from '@/daw/audio/EffectChain';
-import { DEFAULT_EFFECTS } from '@/daw/audio/EffectChain';
+import {
+  DEFAULT_EFFECTS,
+  type EffectSlotType,
+  type TrackEffectState,
+} from '@/daw/audio/EffectChain';
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -16,7 +19,11 @@ export interface MasteringSlice {
   masteringDeEsser: { amount: number; frequency: number };
   masteringLoudness: number;
   masteringStereoField: StereoFieldMode;
-  masteringDynamics: { compression: number; character: number; saturation: number };
+  masteringDynamics: {
+    compression: number;
+    character: number;
+    saturation: number;
+  };
   masteringAmount: number;
   masteringBypass: boolean;
   masteringFxChain: EffectSlotType[];
@@ -26,10 +33,18 @@ export interface MasteringSlice {
   setMasteringStyle: (style: MasteringStyle) => void;
   setMasteringEq: (band: 'low' | 'mid' | 'high', value: number) => void;
   setMasteringPresence: (value: number) => void;
-  setMasteringDeEsser: (partial: Partial<{ amount: number; frequency: number }>) => void;
+  setMasteringDeEsser: (
+    partial: Partial<{ amount: number; frequency: number }>,
+  ) => void;
   setMasteringLoudness: (value: number) => void;
   setMasteringStereoField: (mode: StereoFieldMode) => void;
-  setMasteringDynamics: (partial: Partial<{ compression: number; character: number; saturation: number }>) => void;
+  setMasteringDynamics: (
+    partial: Partial<{
+      compression: number;
+      character: number;
+      saturation: number;
+    }>,
+  ) => void;
   setMasteringAmount: (value: number) => void;
   toggleMasteringBypass: () => void;
   addMasteringFx: (effectType: EffectSlotType) => void;
@@ -61,7 +76,10 @@ export const createMasteringSlice: StateCreator<
 
   setMasteringEq: (band, value) =>
     set((s) => ({
-      masteringEq: { ...s.masteringEq, [band]: Math.max(-12, Math.min(12, value)) },
+      masteringEq: {
+        ...s.masteringEq,
+        [band]: Math.max(-12, Math.min(12, value)),
+      },
     })),
 
   setMasteringPresence: (value) =>
@@ -70,22 +88,39 @@ export const createMasteringSlice: StateCreator<
   setMasteringDeEsser: (partial) =>
     set((s) => ({
       masteringDeEsser: {
-        amount: Math.max(0, Math.min(100, partial.amount ?? s.masteringDeEsser.amount)),
-        frequency: Math.max(2000, Math.min(16000, partial.frequency ?? s.masteringDeEsser.frequency)),
+        amount: Math.max(
+          0,
+          Math.min(100, partial.amount ?? s.masteringDeEsser.amount),
+        ),
+        frequency: Math.max(
+          2000,
+          Math.min(16000, partial.frequency ?? s.masteringDeEsser.frequency),
+        ),
       },
     })),
 
   setMasteringLoudness: (value) =>
-    set({ masteringLoudness: Math.max(-6, Math.min(6, Math.round(value * 10) / 10)) }),
+    set({
+      masteringLoudness: Math.max(-6, Math.min(6, Math.round(value * 10) / 10)),
+    }),
 
   setMasteringStereoField: (mode) => set({ masteringStereoField: mode }),
 
   setMasteringDynamics: (partial) =>
     set((s) => ({
       masteringDynamics: {
-        compression: Math.max(0, Math.min(100, partial.compression ?? s.masteringDynamics.compression)),
-        character: Math.max(0, Math.min(100, partial.character ?? s.masteringDynamics.character)),
-        saturation: Math.max(0, Math.min(100, partial.saturation ?? s.masteringDynamics.saturation)),
+        compression: Math.max(
+          0,
+          Math.min(100, partial.compression ?? s.masteringDynamics.compression),
+        ),
+        character: Math.max(
+          0,
+          Math.min(100, partial.character ?? s.masteringDynamics.character),
+        ),
+        saturation: Math.max(
+          0,
+          Math.min(100, partial.saturation ?? s.masteringDynamics.saturation),
+        ),
       },
     })),
 
@@ -97,7 +132,11 @@ export const createMasteringSlice: StateCreator<
 
   addMasteringFx: (effectType) =>
     set((s) => {
-      if (s.masteringFxChain.includes(effectType) || s.masteringFxChain.length >= 5) return s;
+      if (
+        s.masteringFxChain.includes(effectType) ||
+        s.masteringFxChain.length >= 5
+      )
+        return s;
       return {
         masteringFxChain: [...s.masteringFxChain, effectType],
         masteringEffects: {

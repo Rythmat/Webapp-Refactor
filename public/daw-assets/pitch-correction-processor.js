@@ -108,7 +108,7 @@ class MedianFilter {
   constructor(size) {
     this.size = size;
     this.ring = new Float64Array(size);
-    this.sorted = [];     // maintained in sorted order via binary insert
+    this.sorted = []; // maintained in sorted order via binary insert
     this.index = 0;
     this.filled = 0;
   }
@@ -134,7 +134,8 @@ class MedianFilter {
   }
 
   _bsearch(val) {
-    let lo = 0, hi = this.sorted.length;
+    let lo = 0,
+      hi = this.sorted.length;
     while (lo < hi) {
       const mid = (lo + hi) >> 1;
       if (this.sorted[mid] < val) lo = mid + 1;
@@ -185,10 +186,10 @@ function snapToScaleBitmask(freq, activeNotes) {
   for (let offset = 1; offset <= 6; offset++) {
     const below = nearestSemitone - offset;
     const above = nearestSemitone + offset;
-    const belowActive = (activeNotes & (1 << (((below % 12) + 12) % 12))) !== 0;
-    const aboveActive = (activeNotes & (1 << (((above % 12) + 12) % 12))) !== 0;
+    const belowActive = (activeNotes & (1 << ((below % 12) + 12) % 12)) !== 0;
+    const aboveActive = (activeNotes & (1 << ((above % 12) + 12) % 12)) !== 0;
     if (belowActive && aboveActive) {
-      return (midi - below < above - midi) ? midiToHz(below) : midiToHz(above);
+      return midi - below < above - midi ? midiToHz(below) : midiToHz(above);
     }
     if (belowActive) return midiToHz(below);
     if (aboveActive) return midiToHz(above);
@@ -216,8 +217,8 @@ class PsolaShifter {
     this.wp = 0;
 
     // Pitch period bounds (in samples)
-    this.maxPeriod = Math.ceil(sampleRate / 50);    // 50 Hz lowest
-    this.minPeriod = Math.floor(sampleRate / 2000);  // 2000 Hz highest
+    this.maxPeriod = Math.ceil(sampleRate / 50); // 50 Hz lowest
+    this.minPeriod = Math.floor(sampleRate / 2000); // 2000 Hz highest
     this.period = 0;
 
     // Analysis marks: fixed-size ring buffer (no array reallocation)
@@ -225,8 +226,8 @@ class PsolaShifter {
     this.marksCap = MARKS_CAP;
     this.marksMask = MARKS_CAP - 1;
     this.marksRing = new Float64Array(MARKS_CAP);
-    this.marksHead = 0;     // oldest entry index
-    this.marksCount = 0;    // number of entries
+    this.marksHead = 0; // oldest entry index
+    this.marksCount = 0; // number of entries
     this.nextPeak = 0;
     this.peaksReady = false;
 
@@ -296,22 +297,27 @@ class PsolaShifter {
     // Passthrough: no pitch detected or near-unity shift
     if (p <= 0 || Math.abs(shift - 1.0) < 0.001) {
       for (let i = 0; i < N; i++) {
-        if (rp + i < 0) { output[i] = 0; }
-        else { output[i] = this.inBuf[(rp + i) & mask]; }
+        if (rp + i < 0) {
+          output[i] = 0;
+        } else {
+          output[i] = this.inBuf[(rp + i) & mask];
+        }
       }
       this.wp += N;
       this._resetState();
       return;
     }
 
-    const ip = Math.round(Math.max(this.minPeriod, Math.min(p, this.maxPeriod)));
+    const ip = Math.round(
+      Math.max(this.minPeriod, Math.min(p, this.maxPeriod)),
+    );
     const halfWin = ip;
     const searchRadius = Math.floor(ip / 4);
 
     // Recompute Hann table only when period changes
     if (ip !== this.hannPeriod) {
       const wl = 2 * ip;
-      const invWl = 2 * Math.PI / wl;
+      const invWl = (2 * Math.PI) / wl;
       for (let k = 0; k < wl; k++) {
         this.hannTable[k] = 0.5 * (1 - Math.cos(invWl * k));
       }
@@ -398,11 +404,11 @@ class PitchCorrectionProcessor extends AudioWorkletProcessor {
 
     // 4x decimation for YIN: 44.1kHz → ~11kHz (16x fewer diff operations)
     this.decimation = 4;
-    this.yinFrameLen = 512;          // 2048 / 4
+    this.yinFrameLen = 512; // 2048 / 4
     this.yinMask = this.yinFrameLen - 1;
-    this.hopLength = 1024;           // in input samples (~23ms hop)
+    this.hopLength = 1024; // in input samples (~23ms hop)
 
-    this.yin = null;      // Lazy init once sampleRate is known
+    this.yin = null; // Lazy init once sampleRate is known
     this.shifter = null;
     this.medianFilter = new MedianFilter(11);
 
@@ -414,17 +420,17 @@ class PitchCorrectionProcessor extends AudioWorkletProcessor {
     this.samplesUntilDetect = this.hopLength;
 
     // Parameters
-    this.correction = 80;      // 0-100: snap strength
-    this.speed = 50;           // 0-100: retune speed (100=instant, 0=400ms)
-    this.rootNote = 0;         // 0-11 (kept for backward compat)
-    this.scaleType = 0;        // 0-8 (kept for backward compat)
-    this.mix = 100;            // 0-100: dry/wet
-    this.activeNotes = 4095;   // 12-bit bitmask (all notes active)
-    this.humanize = 0;         // 0-100: sustained note vibrato preservation
-    this.shift = 0.5;          // 0-1 → -24..+24 semitones
-    this.fine = 0.5;           // 0-1 → -100..+100 cents
-    this.formant = 0;          // 0-100: formant preservation strength
-    this.formantFollow = 0;    // 0-100: reserved
+    this.correction = 80; // 0-100: snap strength
+    this.speed = 50; // 0-100: retune speed (100=instant, 0=400ms)
+    this.rootNote = 0; // 0-11 (kept for backward compat)
+    this.scaleType = 0; // 0-8 (kept for backward compat)
+    this.mix = 100; // 0-100: dry/wet
+    this.activeNotes = 4095; // 12-bit bitmask (all notes active)
+    this.humanize = 0; // 0-100: sustained note vibrato preservation
+    this.shift = 0.5; // 0-1 → -24..+24 semitones
+    this.fine = 0.5; // 0-1 → -100..+100 cents
+    this.formant = 0; // 0-100: formant preservation strength
+    this.formantFollow = 0; // 0-100: reserved
     this.bypassed = false;
 
     // State
@@ -462,7 +468,8 @@ class PitchCorrectionProcessor extends AudioWorkletProcessor {
         if (data.shift !== undefined) this.shift = data.shift;
         if (data.fine !== undefined) this.fine = data.fine;
         if (data.formant !== undefined) this.formant = data.formant;
-        if (data.formantFollow !== undefined) this.formantFollow = data.formantFollow;
+        if (data.formantFollow !== undefined)
+          this.formantFollow = data.formantFollow;
       } else if (data.type === 'bypass') {
         this.bypassed = data.value;
       }
@@ -480,7 +487,10 @@ class PitchCorrectionProcessor extends AudioWorkletProcessor {
 
     // Lazy init
     if (!this.yin) {
-      this.yin = new YinDetector(this.yinFrameLen, sampleRate / this.decimation);
+      this.yin = new YinDetector(
+        this.yinFrameLen,
+        sampleRate / this.decimation,
+      );
       this.shifter = new PsolaShifter(sampleRate);
       this.reportInterval = Math.floor(sampleRate / (blockSize * 24)); // ~24Hz
     }
@@ -524,7 +534,11 @@ class PitchCorrectionProcessor extends AudioWorkletProcessor {
         this.currentPitchShift += (1.0 - this.currentPitchShift) * returnAlpha;
       } else {
         // Run YIN directly on ring buffer (no contiguous copy)
-        let rawHz = this.yin.detect(this.yinRing, this.yinRingPos, this.yinMask);
+        let rawHz = this.yin.detect(
+          this.yinRing,
+          this.yinRingPos,
+          this.yinMask,
+        );
         if (rawHz > 0) {
           rawHz = this.medianFilter.push(rawHz);
         }
@@ -567,17 +581,21 @@ class PitchCorrectionProcessor extends AudioWorkletProcessor {
           const humanizeAmt = this.humanize / 100;
           const sustainedSec = this.sustainedHops * hopTimeSec;
           const sustainFactor = 1 - fastExpNeg(sustainedSec / 0.5);
-          const effectiveRetuneSec = baseRetuneSec + humanizeAmt * sustainFactor * 0.4;
+          const effectiveRetuneSec =
+            baseRetuneSec + humanizeAmt * sustainFactor * 0.4;
 
-          const alpha = effectiveRetuneSec > 0.0001
-            ? 1 - fastExpNeg(hopTimeSec / effectiveRetuneSec)
-            : 1.0;
+          const alpha =
+            effectiveRetuneSec > 0.0001
+              ? 1 - fastExpNeg(hopTimeSec / effectiveRetuneSec)
+              : 1.0;
 
-          this.currentPitchShift += (blendedShift - this.currentPitchShift) * alpha;
+          this.currentPitchShift +=
+            (blendedShift - this.currentPitchShift) * alpha;
         } else {
           this.correctedHz = rawHz;
           const returnAlpha = 1 - fastExpNeg(hopTimeSec / 0.1);
-          this.currentPitchShift += (1.0 - this.currentPitchShift) * returnAlpha;
+          this.currentPitchShift +=
+            (1.0 - this.currentPitchShift) * returnAlpha;
         }
       }
     }
@@ -588,7 +606,10 @@ class PitchCorrectionProcessor extends AudioWorkletProcessor {
       this._cachedFine = this.fine;
       const shiftSemitones = this.shift * 48 - 24;
       const fineCents = this.fine * 200 - 100;
-      this._cachedManualOffset = Math.pow(2, (shiftSemitones + fineCents / 100) / 12);
+      this._cachedManualOffset = Math.pow(
+        2,
+        (shiftSemitones + fineCents / 100) / 12,
+      );
     }
     const finalShift = this.currentPitchShift * this._cachedManualOffset;
 

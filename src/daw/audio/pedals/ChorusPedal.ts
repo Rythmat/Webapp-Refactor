@@ -46,8 +46,12 @@ export class ChorusPedal implements PedalProcessor {
     this.wireEnabled();
   }
 
-  getInputNode(): AudioNode { return this.inputNode; }
-  getOutputNode(): AudioNode { return this.outputNode; }
+  getInputNode(): AudioNode {
+    return this.inputNode;
+  }
+  getOutputNode(): AudioNode {
+    return this.outputNode;
+  }
 
   setEnabled(enabled: boolean): void {
     if (enabled === this.enabled) return;
@@ -75,7 +79,11 @@ export class ChorusPedal implements PedalProcessor {
   }
 
   dispose(): void {
-    try { this.lfo.stop(); } catch { /* already stopped */ }
+    try {
+      this.lfo.stop();
+    } catch {
+      /* already stopped */
+    }
     this.inputNode.disconnect();
     this.outputNode.disconnect();
     this.bypassNode.disconnect();

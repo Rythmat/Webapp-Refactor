@@ -1,144 +1,153 @@
 # Diatonic Modes
 
-**Diatonic Modes: Chord Scales** 
+**Diatonic Modes: Chord Scales**
 
 Lydian
 
-* Computer:   
-  * \[0, 2, 4, 6, 7, 9, 11\]  
-      
-* Intervals:   
-  * 1, 2, 3, \#4, 5, 6, 7  
-      
-* Triads:   
-  * 1 maj, 2 maj, 3 min, \#4 dim, 5 maj, 6 min, 7 min
+- Computer:
 
+  - \[0, 2, 4, 6, 7, 9, 11\]
 
-* 7th Chords:   
-  * 1 maj7, 2 dom7, 3 min7, \#4 min7(♭5), 5 maj7, 6 min7, 7 min7
+- Intervals:
 
+  - 1, 2, 3, \#4, 5, 6, 7
 
-* 9th Chords:   
-  * 1 maj9, 2 dom9, 3 min9, \#4 min7(♭5♭9), 5 maj9, 6 min9, 7 min7(♭9)
+- Triads:
+
+  - 1 maj, 2 maj, 3 min, \#4 dim, 5 maj, 6 min, 7 min
+
+- 7th Chords:
+
+  - 1 maj7, 2 dom7, 3 min7, \#4 min7(♭5), 5 maj7, 6 min7, 7 min7
+
+- 9th Chords:
+  - 1 maj9, 2 dom9, 3 min9, \#4 min7(♭5♭9), 5 maj9, 6 min9, 7 min7(♭9)
 
 Ionian (Major)
 
-* Computer:   
-  * \[0, 2, 4, 5, 7, 9, 11\]
+- Computer:
 
+  - \[0, 2, 4, 5, 7, 9, 11\]
 
-* Intervals:   
-  * 1, 2, 3, 4, 5, 6, 7  
-      
-* Triads:   
-  * 1 maj, 2 min, 3 min, 4 maj, 5 maj, 6 min, 7 dim
+- Intervals:
 
+  - 1, 2, 3, 4, 5, 6, 7
 
-* 7th Chords:   
-  * 1 maj7, 2 min7, 3 min7, 4 maj7, 5 dom7, 6 min7, 7 min7(♭5)
+- Triads:
 
+  - 1 maj, 2 min, 3 min, 4 maj, 5 maj, 6 min, 7 dim
 
-* 9th Chords:   
-  * 1 maj9, 2 min9, 3 min7(♭9), 4 maj9, 5 dom9, 6 min9, 7 min7(♭5♭9)
+- 7th Chords:
+
+  - 1 maj7, 2 min7, 3 min7, 4 maj7, 5 dom7, 6 min7, 7 min7(♭5)
+
+- 9th Chords:
+  - 1 maj9, 2 min9, 3 min7(♭9), 4 maj9, 5 dom9, 6 min9, 7 min7(♭5♭9)
 
 Mixolydian
 
-* Computer:   
-  * \[0, 2, 4, 5, 7, 9, 10\]  
-      
-* Intervals:   
-  * 1, 2, 3, 4, 5, 6, ♭7
+- Computer:
 
+  - \[0, 2, 4, 5, 7, 9, 10\]
 
-* Triads:   
-  * 1 maj, 2 min, 3 dim, 4 maj, 5 min, 6 min, ♭7 maj
+- Intervals:
 
+  - 1, 2, 3, 4, 5, 6, ♭7
 
-* 7th Chords:   
-  * 1 dom7, 2 min7, 3 min7(♭5), 4 maj7, 5 min7, 6 min7, ♭7 maj7
+- Triads:
 
+  - 1 maj, 2 min, 3 dim, 4 maj, 5 min, 6 min, ♭7 maj
 
-* 9th Chords:   
-  * 1 dom9, 2 min9, 3min7(♭5♭9), 4 maj9, 5 min9, 6 min7(♭9), ♭7 maj9
+- 7th Chords:
+
+  - 1 dom7, 2 min7, 3 min7(♭5), 4 maj7, 5 min7, 6 min7, ♭7 maj7
+
+- 9th Chords:
+  - 1 dom9, 2 min9, 3min7(♭5♭9), 4 maj9, 5 min9, 6 min7(♭9), ♭7 maj9
 
 Dorian
 
-* Computer:   
-  * \[0, 2, 3, 5, 7, 9, 10\]  
-      
-* Intervals:   
-  * 1, 2, ♭ 3, 4, 5, 6, ♭7
+- Computer:
 
+  - \[0, 2, 3, 5, 7, 9, 10\]
 
-* Triads:   
-  * 1 min, 2 min, ♭3 maj, 4 maj, 5 min, 6 dim, ♭7 maj
+- Intervals:
 
+  - 1, 2, ♭ 3, 4, 5, 6, ♭7
 
-* 7th Chords:   
-  * 1 min7, 2 min7, ♭3 maj7, 4 dom7 5 min7, 6 min7(♭5), ♭7 maj7
+- Triads:
 
+  - 1 min, 2 min, ♭3 maj, 4 maj, 5 min, 6 dim, ♭7 maj
 
-* 9th Chords:   
-  * 1 min9, 2 min7(♭9), ♭3 maj9, 4 dom9, 5 min9, 6 min7(♭5♭9), ♭7 maj9
+- 7th Chords:
+
+  - 1 min7, 2 min7, ♭3 maj7, 4 dom7 5 min7, 6 min7(♭5), ♭7 maj7
+
+- 9th Chords:
+  - 1 min9, 2 min7(♭9), ♭3 maj9, 4 dom9, 5 min9, 6 min7(♭5♭9), ♭7 maj9
 
 Aeolian (Minor)
 
-* Computer:   
-  * \[0, 2, 3, 5, 7, 8, 10\]  
-      
-* Intervals:   
-  * 1, 2, ♭3, 4, 5, ♭6, ♭7  
-      
-* Triads:  
-  * 1 min, 2 min, ♭3 maj, 4 min, 5 min, ♭6 maj	, ♭7 maj
+- Computer:
 
+  - \[0, 2, 3, 5, 7, 8, 10\]
 
-* 7th Chords:   
-  * 1 min7, 2 min7(♭5), ♭3 maj7, 4 min7, 5 min7, ♭6 maj7, ♭7 dom7
+- Intervals:
 
+  - 1, 2, ♭3, 4, 5, ♭6, ♭7
 
-* 9th Chords:   
-  * 1 min9, 2 min7(♭5♭9), ♭3 maj9, 4 min9, 5 min7(♭9), ♭6 maj9, ♭7 dom9  
-    
+- Triads:
+
+  - 1 min, 2 min, ♭3 maj, 4 min, 5 min, ♭6 maj , ♭7 maj
+
+- 7th Chords:
+
+  - 1 min7, 2 min7(♭5), ♭3 maj7, 4 min7, 5 min7, ♭6 maj7, ♭7 dom7
+
+- 9th Chords:
+  - 1 min9, 2 min7(♭5♭9), ♭3 maj9, 4 min9, 5 min7(♭9), ♭6 maj9, ♭7 dom9
 
 Phrygian
 
-* Computer:   
-  * \[0, 1, 3, 5, 7, 8, 10\]  
-      
-* Intervals:   
-  * 1, ♭2, ♭3, 4, 5, ♭6, ♭7
+- Computer:
 
+  - \[0, 1, 3, 5, 7, 8, 10\]
 
-* Triads:   
-  * 1 min, ♭2 maj, ♭3 maj, 4 min, 5 dim, ♭6 maj, ♭7 min
+- Intervals:
 
+  - 1, ♭2, ♭3, 4, 5, ♭6, ♭7
 
-* 7th Chords:   
-  * 1 min7, ♭2 maj7, ♭3 dom7, 4 min7, 5 min7(♭5), ♭6 maj7, ♭7 min7
+- Triads:
 
+  - 1 min, ♭2 maj, ♭3 maj, 4 min, 5 dim, ♭6 maj, ♭7 min
 
-* 9th Chords:   
-  * 1 min7(♭9), ♭2 maj9, ♭3 dom9, 4 min9, 5 min7(♭5♭9), ♭6 maj9, ♭7 min9
+- 7th Chords:
+
+  - 1 min7, ♭2 maj7, ♭3 dom7, 4 min7, 5 min7(♭5), ♭6 maj7, ♭7 min7
+
+- 9th Chords:
+  - 1 min7(♭9), ♭2 maj9, ♭3 dom9, 4 min9, 5 min7(♭5♭9), ♭6 maj9, ♭7 min9
 
 Locrian
 
-* Computer:   
-  * \[0, 1, 3, 5, 6, 8, 10\]  
-      
-* Locrian Intervals:   
-  * 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
-      
-* Triads:   
-  * 1 dim, ♭2 maj	, ♭3 min, 4 min, ♭5 maj,♭6 maj, ♭7 min
+- Computer:
 
+  - \[0, 1, 3, 5, 6, 8, 10\]
 
-* 7th Chords:   
-  * 1 min7(♭5), ♭2 maj7, ♭3 min7, 4 min7, ♭5 maj7, ♭6 dom7, ♭7 min7
+- Locrian Intervals:
 
+  - 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7
 
-* 9th Chords:   
-  * 1 min7(♭5♭9), ♭2 maj9, ♭3 min9, 4 min7(♭9), ♭5 maj9, ♭6 dom9,♭7 min9
+- Triads:
+
+  - 1 dim, ♭2 maj , ♭3 min, 4 min, ♭5 maj,♭6 maj, ♭7 min
+
+- 7th Chords:
+
+  - 1 min7(♭5), ♭2 maj7, ♭3 min7, 4 min7, ♭5 maj7, ♭6 dom7, ♭7 min7
+
+- 9th Chords:
+  - 1 min7(♭5♭9), ♭2 maj9, ♭3 min9, 4 min7(♭9), ♭5 maj9, ♭6 dom9,♭7 min9
 
 # Lydian
 
@@ -189,7 +198,7 @@ Locrian
 \#\#\#\# Notes of the B Minor: B, D, F\#  
 \_component:sequence(6484fa72-70ee-4268-8657-2fcee7b0965f, piano)\_
 
-**C Lydian: 7th Chords** 
+**C Lydian: 7th Chords**
 
 \#\# 1\. C Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
@@ -202,12 +211,12 @@ Locrian
 \_component:sequence(327e05e1-eb21-475f-9821-b928dfc90888, piano)\_
 
 \#\# 3\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of E Minor 7: E, G, B, D   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# \#4. F\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of F\# Minor 7(♭5): F\#, A, C, E  
 \_component:sequence(43197666-d12d-42b9-bab6-41ad5018d2bb, piano)\_
 
@@ -217,12 +226,12 @@ Locrian
 \_component:sequence(1416d016-4519-4e36-8a12-b85f33b251d0, piano)\_
 
 \#\# 6\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 7\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(6484fa72-70ee-4268-8657-2fcee7b0965f, piano)\_
 
@@ -281,16 +290,16 @@ Locrian
 
 \#\# 2\. A Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of A Dominant 7: A, C\#, E, G   
+\#\#\#\# Notes of A Dominant 7: A, C\#, E, G  
 \_component:sequence(bc5cc750-0727-4cf5-ae1a-fdbd731903ab, piano)\_
 
 \#\# 3\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B Minor 7: B, D, F\#, A   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# \#4. C\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of C\# Minor 7(♭5): C\#, E, G, B  
 \_component:sequence(62a24a50-0093-4b96-839c-894db45fa29a, piano)\_
 
@@ -300,13 +309,13 @@ Locrian
 \_component:sequence(843eb14e-3b93-4364-a77e-52be6fd36186, piano)\_
 
 \#\# 6\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# 7\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 **D Lydian**
@@ -369,12 +378,12 @@ Locrian
 \_component:sequence(482656b0-da08-44d9-bc05-0a37e85bb444, piano)\_
 
 \#\# 3\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# \#4. G\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of G\# Minor 7: G\#, B, D, F\#  
 \_component:sequence(14a74923-9825-412e-b30d-9e10c8f3dcc9, piano)\_
 
@@ -384,12 +393,12 @@ Locrian
 \_component:sequence(a3dffc26-9ac8-4647-a1c7-99b7c256334e, piano)\_
 
 \#\# 6\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# 7\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -416,7 +425,7 @@ Locrian
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# 3\. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
@@ -431,12 +440,12 @@ Locrian
 \_component:sequence(89869ff7-60df-4695-b6dd-b3114feeec71, piano)\_
 
 \#\# 6\. F\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of F\# Minor: F\#, A, C  
 \_component:sequence(b9ec5c11-e4f7-42e7-9ddb-af46350d8487, piano)\_
 
 \#\# 7\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -453,7 +462,7 @@ Locrian
 \_component:sequence(1da9d590-44fd-491b-b342-92a7f135d665, piano)\_
 
 \#\# 3\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -468,13 +477,13 @@ Locrian
 \_component:sequence(41f02962-cf09-41ff-bbe1-56e4d8d921ea, piano)\_
 
 \#\# 6\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 7\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 **E Lydian**
@@ -500,7 +509,7 @@ Locrian
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# 3\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -515,12 +524,12 @@ Locrian
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# 6\. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
 \#\# 7\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -537,8 +546,8 @@ Locrian
 \_component:sequence(2710a188-b5e5-44d4-83d1-15a2ab5530a0, piano)\_
 
 \#\# 3\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# \#4. A\# Minor 7(♭5)  
@@ -552,12 +561,12 @@ Locrian
 \_component:sequence(b01fa057-d30e-4e7e-a30d-7f8d6034de01, piano)\_
 
 \#\# 6\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
 \#\# 7\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor 7: D\#, F, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
@@ -584,7 +593,7 @@ Locrian
 \_component:sequence(cc050a3c-b7f8-4db7-93ad-3ecff5fd41a5, piano)\_
 
 \#\# 3\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -599,12 +608,12 @@ Locrian
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# 6\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
 \#\# 7\. A\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A\# Minor: A\#, C\#, E\#  
 \_component:sequence(ef7a64b0-de7b-4811-9f76-0c6cea209cf4, piano)\_
 
@@ -621,12 +630,12 @@ Locrian
 \_component:sequence(6b811937-9cf7-4c2f-afa9-dd781003f0fb, piano)\_
 
 \#\# 3\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
 \#\# \#4. E\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E\# Minor 7(♭5):E\#, G\#, B, D\#  
 \_component:sequence(92049667-625e-4ba3-9ce3-057768b2a593, piano)\_
 
@@ -636,12 +645,12 @@ Locrian
 \_component:sequence(39f2c17a-9d20-4eac-a440-6db8f7656d86, piano)\_
 
 \#\# 6\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of G\# Minor 7:G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 7\. A\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A\# Minor 7: A\#, C\#, E\#, G\#  
 \_component:sequence(2c24f7b4-3c23-47ef-ae3f-e8a4c08d83b5, piano)\_
 
@@ -659,22 +668,22 @@ Locrian
 
 \#\# 1\. G♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the G♭ Major: G♭, B, D♭   
+\#\#\#\# Notes of the G♭ Major: G♭, B, D♭  
 \_component:sequence(4f09cff8-83a3-4f7a-927c-09b40eda9a4b, piano)\_
 
 \#\# 2\. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# 3\. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# \#4. C Diminished  
 \#\#\#\# Diminished Chord Intervals: 1, ♭3, ♭5  
-\#\#\#\# Notes of the C Diminished: C, E♭, G♭   
+\#\#\#\# Notes of the C Diminished: C, E♭, G♭  
 \_component:sequence(b3d6435e-b7e0-48b1-9595-f37ab7004bbd, piano)\_
 
 \#\# 5\. D♭ Major  
@@ -683,13 +692,13 @@ Locrian
 \_component:sequence(90af7029-bcbd-41a4-a9f8-5662f55ada6c, piano)\_
 
 \#\# 6\. E♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of E♭ Minor: E♭, G♭, B♭   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of E♭ Minor: E♭, G♭, B♭  
 \_component:sequence(696aaa24-f84d-47b2-bf9f-c6c70069283f, piano)\_
 
 \#\# 7\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 **G♭ Lydian: 7th Chords**
@@ -705,28 +714,28 @@ Locrian
 \_component:sequence(d3cc1c84-14e0-44b1-ac06-05e1ec94f185, piano)\_
 
 \#\# 3\. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# \#4. C Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭  
 \_component:sequence(fcfb4ff1-d4e6-4bbb-80c4-1efea2640503, piano)\_
 
 \#\# 5\. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# 6\. E♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E♭, G♭, B♭, D♭  
 \_component:sequence(749146bd-86d4-4382-9066-5ddc6039fcee, piano)\_
 
 \#\# 7\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 **D♭ Lydian**
@@ -752,8 +761,8 @@ Locrian
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# 3\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# \#4. G Diminished  
@@ -763,24 +772,24 @@ Locrian
 
 \#\# 5\. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# 6\. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# 7\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 **D♭ Lydian: 7th Chords**
 
 \#\# 1\. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# 2\. E♭ Dominant 7  
@@ -789,13 +798,13 @@ Locrian
 \_component:sequence(601fde9c-9933-480a-8739-1403411ef80d, piano)\_
 
 \#\# 3\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# \#4. G Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F  
 \_component:sequence(b1f70b64-07a6-4181-975a-fe986c6078e0, piano)\_
 
 \#\# 5\. A♭ Major 7  
@@ -804,13 +813,13 @@ Locrian
 \_component:sequence(93feb1a9-b953-40a5-aef3-28056a2fce47, piano)\_
 
 \#\# 6\. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# 7\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 **A♭ Lydian**
@@ -826,8 +835,8 @@ Locrian
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# 3\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# \#4. D Diminished  
@@ -841,12 +850,12 @@ Locrian
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# 6\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 7\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
@@ -863,13 +872,13 @@ Locrian
 \_component:sequence(3a708481-8bfb-4285-ba4f-5e77636167c1, piano)\_
 
 \#\# 3\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# \#4. D Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of D Minor 7(♭5): D, F, A♭, C   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of D Minor 7(♭5): D, F, A♭, C  
 \_component:sequence(4646ecad-ffd3-4ffb-94f1-01e8fc60c8cb, piano)\_
 
 \#\# 5\. E♭ Major 7  
@@ -878,12 +887,12 @@ Locrian
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# 6\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 7\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of F Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
@@ -910,8 +919,8 @@ Locrian
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# 3\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of G Minor: G, B♭, D   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# \#4. A Diminished  
@@ -925,12 +934,12 @@ Locrian
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# 6\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 7\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
@@ -938,7 +947,7 @@ Locrian
 
 \#\# 1\. E♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D   
+\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D  
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# 2\. F Dominant 7  
@@ -947,13 +956,13 @@ Locrian
 \_component:sequence(105dffe9-7fe4-4a39-b4ca-77cabc09e60e, piano)\_
 
 \#\# 3\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# \#4. A Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G  
 \_component:sequence(d2330e48-7800-4c75-95f2-ecb4184a60d8, piano)\_
 
 \#\# 5\. B♭ Major 7  
@@ -962,12 +971,12 @@ Locrian
 \_component:sequence(29c85495-80ae-4f44-8672-9b793d4d93b9, piano)\_
 
 \#\# 6\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 7\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
@@ -994,8 +1003,8 @@ Locrian
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# 3\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of D Minor: D, A, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of D Minor: D, A, F  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# \#4. E Diminished  
@@ -1009,12 +1018,12 @@ Locrian
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# 6\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# 7\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -1031,12 +1040,12 @@ Locrian
 \_component:sequence(9f77a463-7b5f-438b-be62-0e15f4768881, piano)\_
 
 \#\# 3\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# \#4. E Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E Minor 7(♭5): E♭, G, B♭, D  
 \_component:sequence(300fc6fd-15a4-44b9-a016-b30a6c917604, piano)\_
 
@@ -1046,12 +1055,12 @@ Locrian
 \_component:sequence(31391955-ae39-42b6-b443-a21c72428a86, piano)\_
 
 \#\# 6\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# 7\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
@@ -1078,7 +1087,7 @@ Locrian
 \_component:sequence(c6b2e24d-1781-4aab-b0b6-4dd5213b8a75, piano)\_
 
 \#\# 3\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -1093,12 +1102,12 @@ Locrian
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# 6\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# 7\. E Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of E Minor: E, G, B  
 \_component:sequence(02bf0164-60fe-486a-8aee-a27955b873a8, piano)\_
 
@@ -1111,16 +1120,16 @@ Locrian
 
 \#\# 2\. G Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of G Dominant 7: G, B, D, F   
+\#\#\#\# Notes of G Dominant 7: G, B, D, F  
 \_component:sequence(7ca44d37-4077-4271-b914-ed66dc6f3749, piano)\_
 
 \#\# 3\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of A Minor 7: A, C, E, G   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 4\. B Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of B Minor 7(♭5): B, D, F, A  
 \_component:sequence(87aaacbe-d3f5-48cb-a1e8-d5c4b2e3b0d8, piano)\_
 
@@ -1130,12 +1139,12 @@ Locrian
 \_component:sequence(999576b1-f5ba-4af0-bbfc-db1babaf4f2b, piano)\_
 
 \#\# 6\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 7\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
@@ -1143,15 +1152,15 @@ Locrian
 
 **C Major Scale**
 
-\#\#\# The key of "C Major" has no sharps or flats.   
-\#\#\#\# The notes of the scale are: C, D, E, F, G, A, B   
+\#\#\# The key of "C Major" has no sharps or flats.  
+\#\#\#\# The notes of the scale are: C, D, E, F, G, A, B  
 \#\#\#\# C Major Scale \= C Ionian Mode  
 \_component:sequence(546ad7b7-6610-403b-8c18-5c675fa809f4, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The C major pentatonic scale has 5 notes: C, D, E, G, A  
 \_component:sequence(4b2dac69-ce04-4fc5-b57e-ebcacbe3034c, piano)\_
@@ -1164,12 +1173,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# 2\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# 3\. E Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of E Minor: E, G, B  
 \_component:sequence(02bf0164-60fe-486a-8aee-a27955b873a8, piano)\_
 
@@ -1184,7 +1193,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(c6b2e24d-1781-4aab-b0b6-4dd5213b8a75, piano)\_
 
 \#\# 6\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -1201,12 +1210,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(999576b1-f5ba-4af0-bbfc-db1babaf4f2b, piano)\_
 
 \#\# 2\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 3\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
@@ -1217,29 +1226,29 @@ Many melodies are created from a variation on the major scale called the pentato
 
 \#\# 5\. G Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of G Dominant 7: G, B, D, F   
+\#\#\#\# Notes of G Dominant 7: G, B, D, F  
 \_component:sequence(7ca44d37-4077-4271-b914-ed66dc6f3749, piano)\_
 
 \#\# 6\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of A Minor 7: A, C, E, G   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 7\. B Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of B Minor 7(♭5): B, D, F, A  
 \_component:sequence(87aaacbe-d3f5-48cb-a1e8-d5c4b2e3b0d8, piano)\_  
 **G Major Scale**
 
-\#\#\# The key of "G Major" has one sharp.   
-\#\#\#\# The notes of the scale are: G, A, B, C, D, E, F\#   
+\#\#\# The key of "G Major" has one sharp.  
+\#\#\#\# The notes of the scale are: G, A, B, C, D, E, F\#  
 \#\#\#\# G Major Scale \= G Ionian Mode  
 \_component:sequence(2254a975-3f28-48dd-8474-604501c7de2a, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The G major pentatonic scale has 5 notes: G, A, B, D, E  
 \_component:sequence(f67d6692-5f74-4fe6-a953-7ee02c096a9b, piano)\_
@@ -1289,12 +1298,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(1416d016-4519-4e36-8a12-b85f33b251d0, piano)\_
 
 \#\# 2\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 3\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(6484fa72-70ee-4268-8657-2fcee7b0965f, piano)\_
 
@@ -1309,25 +1318,25 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(327e05e1-eb21-475f-9821-b928dfc90888, piano)\_
 
 \#\# 6\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of E Minor 7: E, G, B, D   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# 7\. F\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of F\# Minor 7(♭5): F\#, A, C, E  
 \_component:sequence(43197666-d12d-42b9-bab6-41ad5018d2bb, piano)\_  
 **D Major**
 
-\#\#\# The key of "D Major" has two sharps.   
-\#\#\#\# The notes of the scale are: D, E, F\#, G, A, B, C\#   
+\#\#\# The key of "D Major" has two sharps.  
+\#\#\#\# The notes of the scale are: D, E, F\#, G, A, B, C\#  
 \#\#\#\# D Major Scale \= D Ionian Mode  
 \_component:sequence(d39ff97d-f061-4682-bf2b-9dcd299caf8d, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The D major pentatonic scale has 5 notes: D, E, F\#, A, B  
 \_component:sequence(a0c1c6a8-456a-46b3-8f2f-317951575225, piano)\_
@@ -1376,13 +1385,13 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(843eb14e-3b93-4364-a77e-52be6fd36186, piano)\_
 
 \#\# 2\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# 3\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 4\. G Major 7  
@@ -1392,29 +1401,29 @@ Many melodies are created from a variation on the major scale called the pentato
 
 \#\# 5\. A Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of A Dominant 7: A, C\#, E, G   
+\#\#\#\# Notes of A Dominant 7: A, C\#, E, G  
 \_component:sequence(bc5cc750-0727-4cf5-ae1a-fdbd731903ab, piano)\_
 
 \#\# 6\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B Minor 7: B, D, F\#, A   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# 7\. C\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of C\# Minor 7(♭5): C\#, E, G, B  
 \_component:sequence(62a24a50-0093-4b96-839c-894db45fa29a, piano)\_  
 **A Major Scale**
 
-\#\#\# The key of "A Major" has three sharps.   
-\#\#\#\# The notes of the scale are: A, B, C\#, D, E, F\#, G\#   
+\#\#\# The key of "A Major" has three sharps.  
+\#\#\#\# The notes of the scale are: A, B, C\#, D, E, F\#, G\#  
 \#\#\#\# A Major Scale \= A Ionian Mode  
 \_component:sequence(043cfb29-d4cc-495e-a22e-73540ee21f73, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The A major pentatonic scale has 5 notes: A, B, C\#, E, F\#  
 \_component:sequence(f4719799-43a0-4fa6-a4b8-6444dcb72a60, piano)\_
@@ -1464,12 +1473,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(a3dffc26-9ac8-4647-a1c7-99b7c256334e, piano)\_
 
 \#\# 2\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# 3\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -1484,25 +1493,25 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(482656b0-da08-44d9-bc05-0a37e85bb444, piano)\_
 
 \#\# 6\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 7\. G\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of G\# Minor 7: G\#, B, D, F\#  
 \_component:sequence(14a74923-9825-412e-b30d-9e10c8f3dcc9, piano)\_  
 E Major Scale
 
-\#\#\# The key of "E Major" has four sharps.   
-\#\#\#\# The notes of the scale are: E, F\#, G\#, A, B, C\#, D\#    
+\#\#\# The key of "E Major" has four sharps.  
+\#\#\#\# The notes of the scale are: E, F\#, G\#, A, B, C\#, D\#  
 \#\#\#\# E Major Scale \= E Ionian Mode  
 \_component:sequence(8bef8099-6933-435a-a2c6-5f94a2d4c81a, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The E major pentatonic scale has 5 notes: E, F\#, G\#, B, C\#  
 \_component:sequence(d3300237-97fb-45ab-a877-cbe6328255db, piano)\_
@@ -1515,12 +1524,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(89869ff7-60df-4695-b6dd-b3114feeec71, piano)\_
 
 \#\# 2\. F\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of F\# Minor: F\#, A, C  
 \_component:sequence(b9ec5c11-e4f7-42e7-9ddb-af46350d8487, piano)\_
 
 \#\# 3\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -1535,7 +1544,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# 6\. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
@@ -1552,13 +1561,13 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(41f02962-cf09-41ff-bbe1-56e4d8d921ea, piano)\_
 
 \#\# 2\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 3\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 4\. A Major 7  
@@ -1572,7 +1581,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(1da9d590-44fd-491b-b342-92a7f135d665, piano)\_
 
 \#\# 6\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -1582,15 +1591,15 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(e6aec336-6c11-43e8-b5ee-62a7d868456e, piano)\_  
 **B Major Scale**
 
-\#\#\# The key of "B Major" has five sharps.   
-\#\#\#\# The notes of the scale are: B, C\#, D\#, E, F\#, G\#, A\#    
+\#\#\# The key of "B Major" has five sharps.  
+\#\#\#\# The notes of the scale are: B, C\#, D\#, E, F\#, G\#, A\#  
 \#\#\#\# B Major Scale \= B Ionian Mode  
 \_component:sequence(a832b696-43a7-4015-99da-7ede3a6da301, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 The B Major Pentatonic Scale has 5 notes: B, C\#, D\#, F\#, G\#  
 \_component:sequence(8310a304-36ce-428f-b843-e2e03392fdc2, piano)\_
@@ -1603,12 +1612,12 @@ The B Major Pentatonic Scale has 5 notes: B, C\#, D\#, F\#, G\#
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# 2\. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
 \#\# 3\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -1623,7 +1632,7 @@ The B Major Pentatonic Scale has 5 notes: B, C\#, D\#, F\#, G\#
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# 6\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -1640,12 +1649,12 @@ The B Major Pentatonic Scale has 5 notes: B, C\#, D\#, F\#, G\#
 \_component:sequence(b01fa057-d30e-4e7e-a30d-7f8d6034de01, piano)\_
 
 \#\# 2\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
 \#\# 3\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor 7: D\#, F, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
@@ -1660,8 +1669,8 @@ The B Major Pentatonic Scale has 5 notes: B, C\#, D\#, F\#, G\#
 \_component:sequence(2710a188-b5e5-44d4-83d1-15a2ab5530a0, piano)\_
 
 \#\# 6\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 7\. A\# Minor 7(♭5)  
@@ -1670,8 +1679,8 @@ The B Major Pentatonic Scale has 5 notes: B, C\#, D\#, F\#, G\#
 \_component:sequence(7aaafcd1-2e0c-4712-adae-9e67c8f394e3, piano)\_  
 **F\# Major Scale**
 
-\#\#\# The key of "F\# Major" has six sharps.   
-\#\#\#\# The notes of the scale are: F\#, G\#, A\#, B, C\#, D\#, E\#   
+\#\#\# The key of "F\# Major" has six sharps.  
+\#\#\#\# The notes of the scale are: F\#, G\#, A\#, B, C\#, D\#, E\#  
 \#\#\#\# F\# Major Scale \= F\# Ionian Mode
 
 \_component:sequence(2a65d825-80a9-40f7-a3d4-1635656bc0db, piano)\_
@@ -1679,7 +1688,7 @@ The B Major Pentatonic Scale has 5 notes: B, C\#, D\#, F\#, G\#
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The F\# Major Pentatonic Scale has 5 notes: F\#, G\#, A\#, C\#, D\#  
 \_component:sequence(5a645557-07bd-43cc-960d-4271b9f38ccc, piano)\_
@@ -1692,12 +1701,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# 2\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
 \#\# 3\. A\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A\# Minor: A\#, C\#, E\#  
 \_component:sequence(ef7a64b0-de7b-4811-9f76-0c6cea209cf4, piano)\_
 
@@ -1712,7 +1721,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(cc050a3c-b7f8-4db7-93ad-3ecff5fd41a5, piano)\_
 
 \#\# 6\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -1729,12 +1738,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(39f2c17a-9d20-4eac-a440-6db8f7656d86, piano)\_
 
 \#\# 2\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of G\# Minor 7:G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 3\. A\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A\# Minor 7: A\#, C\#, E\#, G\#  
 \_component:sequence(2c24f7b4-3c23-47ef-ae3f-e8a4c08d83b5, piano)\_
 
@@ -1749,18 +1758,18 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(6b811937-9cf7-4c2f-afa9-dd781003f0fb, piano)\_
 
 \#\# 6\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
 \#\# 7\. E\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E\# Minor 7(♭5):E\#, G\#, B, D\#  
 \_component:sequence(92049667-625e-4ba3-9ce3-057768b2a593, piano)\_
 
 D♭ Major Scale
 
-\#\#\# The key of "D♭ Major" has five flats.   
+\#\#\# The key of "D♭ Major" has five flats.  
 \#\#\#\# The notes of the scale are: D♭, E♭, F, G♭, A♭, B♭, C  
 \#\#\#\# D♭ Major Scale \= D♭ Ionian Mode
 
@@ -1769,7 +1778,7 @@ D♭ Major Scale
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The D♭ Major Pentatonic Scale has 5 notes: D♭, E♭, F, A♭, B♭  
 \_component:sequence(6b95cc49-06ac-44db-8b11-67f438fd2cf5, piano)\_
@@ -1782,50 +1791,50 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(90af7029-bcbd-41a4-a9f8-5662f55ada6c, piano)\_
 
 \#\# 2\. E♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of E♭ Minor: E♭, G♭, D♭   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of E♭ Minor: E♭, G♭, D♭  
 \_component:sequence(696aaa24-f84d-47b2-bf9f-c6c70069283f, piano)\_
 
 \#\# 3\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 4\. G♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the G♭ Major: G♭, B, D♭   
+\#\#\#\# Notes of the G♭ Major: G♭, B, D♭  
 \_component:sequence(4f09cff8-83a3-4f7a-927c-09b40eda9a4b, piano)\_
 
 \#\# 5\. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# 6\. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# 7\. C Diminished  
 \#\#\#\# Diminished Chord Intervals: 1, ♭3, ♭5  
-\#\#\#\# Notes of the C Diminished: C, E♭, G♭   
+\#\#\#\# Notes of the C Diminished: C, E♭, G♭  
 \_component:sequence(b3d6435e-b7e0-48b1-9595-f37ab7004bbd, piano)\_
 
 **D♭ Major: 7th Chords**
 
 \#\# 1\. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# 2\. E♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E♭, G♭, B♭, D♭  
 \_component:sequence(749146bd-86d4-4382-9066-5ddc6039fcee, piano)\_
 
 \#\# 3\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 4\. G♭ Major 7  
@@ -1839,18 +1848,18 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(d3cc1c84-14e0-44b1-ac06-05e1ec94f185, piano)\_
 
 \#\# 6\. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# 7\. C Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭  
 \_component:sequence(fcfb4ff1-d4e6-4bbb-80c4-1efea2640503, piano)\_
 
 **A♭ Major Scale**
 
-\#\#\# The key of "A♭ Major" has four flats.   
+\#\#\# The key of "A♭ Major" has four flats.  
 \#\#\#\# The notes of the scale are: A♭, B♭, C, D♭, E♭, F, G  
 \#\#\#\# A♭ Major Scale \= A♭ Ionian Mode  
 \_component:sequence(3664600e-7cbf-4361-9e0f-e9e8513838a0, piano)\_
@@ -1858,26 +1867,26 @@ Many melodies are created from a variation on the major scale called the pentato
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The A♭ Major Pentatonic Scale has 5 notes: A♭, B♭, C, E♭, F  
 \_component:sequence(254c3fed-049f-452c-b792-a84ee01424f1, piano)\_
 
- **A♭ Major: Triads**
+**A♭ Major: Triads**
 
 \#\# 1\. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# 2\. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# 3\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 4\. D♭ Major  
@@ -1891,8 +1900,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# 6\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 7\. G Diminished  
@@ -1908,18 +1917,18 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(93feb1a9-b953-40a5-aef3-28056a2fce47, piano)\_
 
 \#\# 2\. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# 3\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 4\. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# 5\. E♭ Dominant 7  
@@ -1928,18 +1937,18 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(601fde9c-9933-480a-8739-1403411ef80d, piano)\_
 
 \#\# 6\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 7\. G Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F  
 \_component:sequence(b1f70b64-07a6-4181-975a-fe986c6078e0, piano)\_
 
 **E♭ Major Scale**
 
-\#\#\# The key of "E♭ Major" has three flats.   
+\#\#\# The key of "E♭ Major" has three flats.  
 \#\#\#\# The notes of the scale are: E♭, F, G, A♭, B♭, C, D  
 \#\#\#\# E♭ Major Scale \= E♭ Ionian Mode  
 \_component:sequence(1477a979-cd7b-4bb8-94cc-34ef26ffb659, piano)\_
@@ -1947,7 +1956,7 @@ Many melodies are created from a variation on the major scale called the pentato
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The E♭ Major Pentatonic Scale has 5 notes: E♭, F, G, B♭, C  
 \_component:sequence(94cc433b-4f9b-40da-978d-61a9d07b7dab, piano)\_
@@ -1960,12 +1969,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# 2\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 3\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
@@ -1980,8 +1989,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# 6\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 7\. D Diminished  
@@ -1997,12 +2006,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# 2\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 3\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
@@ -2017,18 +2026,18 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(3a708481-8bfb-4285-ba4f-5e77636167c1, piano)\_
 
 \#\# 6\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 7\. D Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of D Minor 7(♭5): D, F, A♭, C (flat seventh)  
 \_component:sequence(4646ecad-ffd3-4ffb-94f1-01e8fc60c8cb, piano)\_
 
 **B♭ Major Scale**
 
-\#\#\# The key of "B♭ Major" has two flats.   
+\#\#\# The key of "B♭ Major" has two flats.  
 \#\#\#\# The notes of the scale are: B♭, C, D, E♭, F, G, A  
 \#\#\#\# B♭ Major Scale \= B♭ Ionian Mode  
 \_component:sequence(83531723-1a1c-45fe-b816-41c4be652ad2, piano)\_
@@ -2036,7 +2045,7 @@ Many melodies are created from a variation on the major scale called the pentato
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The B♭ Major Pentatonic Scale has 5 notes: B♭, C, D, F, G  
 \_component:sequence(49c08e74-f997-4c2f-ab60-7e569a635488, piano)\_
@@ -2049,12 +2058,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# 2\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 3\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
@@ -2069,8 +2078,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# 6\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of G Minor: G, B♭, D   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# 7\. A Diminished  
@@ -2086,18 +2095,18 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(29c85495-80ae-4f44-8672-9b793d4d93b9, piano)\_
 
 \#\# 2\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 3\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 4\. E♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D   
+\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D  
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# 5\. F Dominant 7  
@@ -2106,26 +2115,26 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(105dffe9-7fe4-4a39-b4ca-77cabc09e60e, piano)\_
 
 \#\# 6\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# 7\. A Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G  
 \_component:sequence(d2330e48-7800-4c75-95f2-ecb4184a60d8, piano)\_
 
 **F Major Scale**
 
-\#\#\# The key of "F Major" has one flat.   
-\#\#\#\# The notes of the scale are: F, G, A, B♭, C, D, E   
+\#\#\# The key of "F Major" has one flat.  
+\#\#\#\# The notes of the scale are: F, G, A, B♭, C, D, E  
 \#\#\#\# F Major Scale \= F Ionian Mode  
 \_component:sequence(c54b9a70-1cf7-40a8-b9c1-b920b4b9c663, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The F Major Pentatonic Scale has 5 notes: F, G, A, C, D  
 \_component:sequence(95846174-f65d-4a7b-ac2d-5557bd1b5f6b, piano)\_
@@ -2138,12 +2147,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# 2\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# 3\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -2158,8 +2167,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# 6\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of D Minor: D, A, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of D Minor: D, A, F  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# 7\. E Diminished  
@@ -2175,12 +2184,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(31391955-ae39-42b6-b443-a21c72428a86, piano)\_
 
 \#\# 2\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# 3\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
@@ -2195,12 +2204,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(9f77a463-7b5f-438b-be62-0e15f4768881, piano)\_
 
 \#\# 6\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 7\. E Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E Minor 7(♭5): E♭, G, B♭, D  
 \_component:sequence(300fc6fd-15a4-44b9-a016-b30a6c917604, piano)\_
 
@@ -2224,8 +2233,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# 2\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of D Minor: D, A, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of D Minor: D, A, F  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# 3\. E Diminished  
@@ -2239,12 +2248,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# 5\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# 6\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -2261,12 +2270,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(9f77a463-7b5f-438b-be62-0e15f4768881, piano)\_
 
 \#\# 2\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 3\. E Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E Minor 7(♭5): E♭, G, B♭, D  
 \_component:sequence(300fc6fd-15a4-44b9-a016-b30a6c917604, piano)\_
 
@@ -2276,12 +2285,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(31391955-ae39-42b6-b443-a21c72428a86, piano)\_
 
 \#\# 5\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# 6\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
@@ -2295,7 +2304,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \#\# G Mixolydian  
 \#\#\# Mixolydian Intervals: 1, 2, 3, 4, 5, 6, ♭7  
 \#\#\#\#\# Notes of G Mixolydian: G, A, B, C, D, E, F  
-\#\#\#\#\# Parent Mode: C Ionian    
+\#\#\#\#\# Parent Mode: C Ionian  
 \_component:sequence(89ac3d1b-c50c-47a7-bf97-9d79a8158c91, piano)\_
 
 \_component:sequence(03aa23c3-d3f0-4cd5-8527-32bc96eed8da, piano)\_
@@ -2308,7 +2317,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(c6b2e24d-1781-4aab-b0b6-4dd5213b8a75, piano)\_
 
 \#\# 2\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -2323,12 +2332,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# 5\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# 6\. E Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of E Minor: E, G, B  
 \_component:sequence(02bf0164-60fe-486a-8aee-a27955b873a8, piano)\_
 
@@ -2341,16 +2350,16 @@ Many melodies are created from a variation on the major scale called the pentato
 
 \#\# 1\. G Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of G Dominant 7: G, B, D, F   
+\#\#\#\# Notes of G Dominant 7: G, B, D, F  
 \_component:sequence(7ca44d37-4077-4271-b914-ed66dc6f3749, piano)\_
 
 \#\# 2\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of A Minor 7: A, C, E, G   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 3\. B Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of B Minor 7(♭5): B, D, F, A  
 \_component:sequence(87aaacbe-d3f5-48cb-a1e8-d5c4b2e3b0d8, piano)\_
 
@@ -2360,12 +2369,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(999576b1-f5ba-4af0-bbfc-db1babaf4f2b, piano)\_
 
 \#\# 5\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 6\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
@@ -2429,12 +2438,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(327e05e1-eb21-475f-9821-b928dfc90888, piano)\_
 
 \#\# 2\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of E Minor 7: E, G, B, D   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# 3\. F\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of F\# Minor 7(♭5): F\#, A, C, E  
 \_component:sequence(43197666-d12d-42b9-bab6-41ad5018d2bb, piano)\_
 
@@ -2444,12 +2453,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(1416d016-4519-4e36-8a12-b85f33b251d0, piano)\_
 
 \#\# 5\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 6\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(6484fa72-70ee-4268-8657-2fcee7b0965f, piano)\_
 
@@ -2508,16 +2517,16 @@ Many melodies are created from a variation on the major scale called the pentato
 
 \#\# 1\. A Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of A Dominant 7: A, C\#, E, G   
+\#\#\#\# Notes of A Dominant 7: A, C\#, E, G  
 \_component:sequence(bc5cc750-0727-4cf5-ae1a-fdbd731903ab, piano)\_
 
 \#\# 2\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B Minor 7: B, D, F\#, A   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# 3\. C\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of C\# Minor 7(♭5): C\#, E, G, B  
 \_component:sequence(62a24a50-0093-4b96-839c-894db45fa29a, piano)\_
 
@@ -2527,13 +2536,13 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(843eb14e-3b93-4364-a77e-52be6fd36186, piano)\_
 
 \#\# 5\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# 6\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# ♭7. G Major 7  
@@ -2596,12 +2605,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(482656b0-da08-44d9-bc05-0a37e85bb444, piano)\_
 
 \#\# 2\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 3\. G\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of G\# Minor 7: G\#, B, D, F\#  
 \_component:sequence(14a74923-9825-412e-b30d-9e10c8f3dcc9, piano)\_
 
@@ -2611,12 +2620,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(a3dffc26-9ac8-4647-a1c7-99b7c256334e, piano)\_
 
 \#\# 5\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# 6\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -2643,7 +2652,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# 2\. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
@@ -2658,12 +2667,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(89869ff7-60df-4695-b6dd-b3114feeec71, piano)\_
 
 \#\# 5\. F\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of F\# Minor: F\#, A, C  
 \_component:sequence(b9ec5c11-e4f7-42e7-9ddb-af46350d8487, piano)\_
 
 \#\# 6\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -2680,7 +2689,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(1da9d590-44fd-491b-b342-92a7f135d665, piano)\_
 
 \#\# 2\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -2695,13 +2704,13 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(41f02962-cf09-41ff-bbe1-56e4d8d921ea, piano)\_
 
 \#\# 5\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 6\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# ♭7. A Major 7  
@@ -2727,7 +2736,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# 2\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -2742,12 +2751,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# 5\. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
 \#\# 6\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -2764,8 +2773,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(2710a188-b5e5-44d4-83d1-15a2ab5530a0, piano)\_
 
 \#\# 2\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 3\. A\# Minor 7(♭5)  
@@ -2779,12 +2788,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(b01fa057-d30e-4e7e-a30d-7f8d6034de01, piano)\_
 
 \#\# 5\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
 \#\# 6\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor 7: D\#, F, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
@@ -2811,7 +2820,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(cc050a3c-b7f8-4db7-93ad-3ecff5fd41a5, piano)\_
 
 \#\# 2\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -2826,12 +2835,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# 5\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
 \#\# 6\. A\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A\# Minor: A\#, C\#, E\#  
 \_component:sequence(ef7a64b0-de7b-4811-9f76-0c6cea209cf4, piano)\_
 
@@ -2848,12 +2857,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(6b811937-9cf7-4c2f-afa9-dd781003f0fb, piano)\_
 
 \#\# 2\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
 \#\# 3\. E\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E\# Minor 7(♭5):E\#, G\#, B, D\#  
 \_component:sequence(92049667-625e-4ba3-9ce3-057768b2a593, piano)\_
 
@@ -2863,12 +2872,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(39f2c17a-9d20-4eac-a440-6db8f7656d86, piano)\_
 
 \#\# 5\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of G\# Minor 7:G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 6\. A\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A\# Minor 7: A\#, C\#, E\#, G\#  
 \_component:sequence(2c24f7b4-3c23-47ef-ae3f-e8a4c08d83b5, piano)\_
 
@@ -2891,17 +2900,17 @@ Many melodies are created from a variation on the major scale called the pentato
 
 \#\# 1\. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# 2\. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# 3\. C Diminished  
 \#\#\#\# Diminished Chord Intervals: 1, ♭3, ♭5  
-\#\#\#\# Notes of the C Diminished: C, E♭, G♭   
+\#\#\#\# Notes of the C Diminished: C, E♭, G♭  
 \_component:sequence(b3d6435e-b7e0-48b1-9595-f37ab7004bbd, piano)\_
 
 \#\# 4\. D♭ Major  
@@ -2910,18 +2919,18 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(90af7029-bcbd-41a4-a9f8-5662f55ada6c, piano)\_
 
 \#\# 5\. E♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of E♭ Minor: E♭, G♭, B♭   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of E♭ Minor: E♭, G♭, B♭  
 \_component:sequence(696aaa24-f84d-47b2-bf9f-c6c70069283f, piano)\_
 
 \#\# 6\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# ♭7. G♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the G♭ Major: G♭, B, D♭   
+\#\#\#\# Notes of the G♭ Major: G♭, B, D♭  
 \_component:sequence(4f09cff8-83a3-4f7a-927c-09b40eda9a4b, piano)\_
 
 **A♭ Mixolydian: 7th Chords**
@@ -2932,28 +2941,28 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(d3cc1c84-14e0-44b1-ac06-05e1ec94f185, piano)\_
 
 \#\# 2\. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# 3\. C Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭  
 \_component:sequence(fcfb4ff1-d4e6-4bbb-80c4-1efea2640503, piano)\_
 
 \#\# 4\. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# 5\. E♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E♭, G♭, B♭, D♭  
 \_component:sequence(749146bd-86d4-4382-9066-5ddc6039fcee, piano)\_
 
 \#\# 6\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# ♭7. G♭ Major 7  
@@ -2979,8 +2988,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# 2\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 3\. G Diminished  
@@ -2990,17 +2999,17 @@ Many melodies are created from a variation on the major scale called the pentato
 
 \#\# 4\. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# 5\. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# 6\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# ♭7. D♭ Major  
@@ -3016,13 +3025,13 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(601fde9c-9933-480a-8739-1403411ef80d, piano)\_
 
 \#\# 2\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 3\. G Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F  
 \_component:sequence(b1f70b64-07a6-4181-975a-fe986c6078e0, piano)\_
 
 \#\# 4\. A♭ Major 7  
@@ -3031,18 +3040,18 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(93feb1a9-b953-40a5-aef3-28056a2fce47, piano)\_
 
 \#\# 5\. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# 6\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# ♭7. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 **B♭ Mixolydian**
@@ -3063,8 +3072,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# 2\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 3\. D Diminished  
@@ -3078,12 +3087,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# 5\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 6\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
@@ -3100,12 +3109,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(3a708481-8bfb-4285-ba4f-5e77636167c1, piano)\_
 
 \#\# 2\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 3\. D Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of D Minor 7(♭5): D, F, A♭, C (flat seventh)  
 \_component:sequence(4646ecad-ffd3-4ffb-94f1-01e8fc60c8cb, piano)\_
 
@@ -3115,12 +3124,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# 5\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 6\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of F Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
@@ -3147,8 +3156,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# 2\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of G Minor: G, B♭, D   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# 3\. A Diminished  
@@ -3162,12 +3171,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# 5\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 6\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
@@ -3184,13 +3193,13 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(105dffe9-7fe4-4a39-b4ca-77cabc09e60e, piano)\_
 
 \#\# 2\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# 3\. A Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G  
 \_component:sequence(d2330e48-7800-4c75-95f2-ecb4184a60d8, piano)\_
 
 \#\# 4\. B♭ Major 7  
@@ -3199,18 +3208,18 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(29c85495-80ae-4f44-8672-9b793d4d93b9, piano)\_
 
 \#\# 5\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 6\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# ♭7. E♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D   
+\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D  
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 # Dorian
@@ -3226,12 +3235,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **C Dorian: Triads**
 
 \#\# 1\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 2\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
@@ -3246,8 +3255,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# 5\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of G Minor: G, B♭, D   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# 6\. A Diminished  
@@ -3262,18 +3271,18 @@ Many melodies are created from a variation on the major scale called the pentato
 **C Dorian: 7th Chords**
 
 \#\# 1\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 2\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# ♭3. E♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D   
+\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D  
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# 4\. F Dominant 7  
@@ -3282,13 +3291,13 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(105dffe9-7fe4-4a39-b4ca-77cabc09e60e, piano)\_
 
 \#\# 5\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# 6\. A Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G  
 \_component:sequence(d2330e48-7800-4c75-95f2-ecb4184a60d8, piano)\_
 
 \#\# ♭7. B♭ Major 7  
@@ -3307,12 +3316,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **G Dorian: Triads**
 
 \#\# 1\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# 2\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -3327,8 +3336,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# 5\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of D Minor: D, A, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of D Minor: D, A, F  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# 6\. E Diminished  
@@ -3343,12 +3352,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **G Dorian: 7th Chords**
 
 \#\# 1\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# 2\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
@@ -3363,12 +3372,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(9f77a463-7b5f-438b-be62-0e15f4768881, piano)\_
 
 \#\# 5\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 6\. E Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E Minor 7(♭5): E♭, G, B♭, D  
 \_component:sequence(300fc6fd-15a4-44b9-a016-b30a6c917604, piano)\_
 
@@ -3388,12 +3397,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **D Dorian: Triads**
 
 \#\# 1\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# 2\. E Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of E Minor: E, G, B  
 \_component:sequence(02bf0164-60fe-486a-8aee-a27955b873a8, piano)\_
 
@@ -3408,7 +3417,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(c6b2e24d-1781-4aab-b0b6-4dd5213b8a75, piano)\_
 
 \#\# 5\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -3424,12 +3433,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **D Dorian: 7th Chords**
 
 \#\# 1\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 2\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
@@ -3440,16 +3449,16 @@ Many melodies are created from a variation on the major scale called the pentato
 
 \#\# 4\. G Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of G Dominant 7: G, B, D, F   
+\#\#\#\# Notes of G Dominant 7: G, B, D, F  
 \_component:sequence(7ca44d37-4077-4271-b914-ed66dc6f3749, piano)\_
 
 \#\# 5\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of A Minor 7: A, C, E, G   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 6\. B Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of B Minor 7(♭5): B, D, F, A  
 \_component:sequence(87aaacbe-d3f5-48cb-a1e8-d5c4b2e3b0d8, piano)\_
 
@@ -3463,7 +3472,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \#\# A Dorian  
 \#\#\# Dorian Intervals: 1, 2, ♭ 3, 4, 5, 6, ♭7  
 \#\#\#\#\# Notes of A Dorian: A, B, C, D, E, F\#, G  
-\#\#\#\#\# Parent Mode: G Ionian   
+\#\#\#\#\# Parent Mode: G Ionian  
 \_component:sequence(c2e68056-d142-4499-acb2-03aabf587fb1, piano)\_
 
 **A Dorian: Triads**
@@ -3505,12 +3514,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **A Dorian: 7th Chords**
 
 \#\# 1\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 2\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(6484fa72-70ee-4268-8657-2fcee7b0965f, piano)\_
 
@@ -3525,12 +3534,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(327e05e1-eb21-475f-9821-b928dfc90888, piano)\_
 
 \#\# 5\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of E Minor 7: E, G, B, D   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# 6\. F\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of F\# Minor 7(♭5): F\#, A, C, E  
 \_component:sequence(43197666-d12d-42b9-bab6-41ad5018d2bb, piano)\_
 
@@ -3585,13 +3594,13 @@ Many melodies are created from a variation on the major scale called the pentato
 **E Dorian: 7th Chords**
 
 \#\# 1\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# 2\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# ♭3. G Major 7  
@@ -3601,16 +3610,16 @@ Many melodies are created from a variation on the major scale called the pentato
 
 \#\# 4\. A Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of A Dominant 7: A, C\#, E, G   
+\#\#\#\# Notes of A Dominant 7: A, C\#, E, G  
 \_component:sequence(bc5cc750-0727-4cf5-ae1a-fdbd731903ab, piano)\_
 
 \#\# 5\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B Minor 7: B, D, F\#, A   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# 6\. C\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of C\# Minor 7(♭5): C\#, E, G, B  
 \_component:sequence(62a24a50-0093-4b96-839c-894db45fa29a, piano)\_
 
@@ -3666,12 +3675,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **B Dorian: 7th Chords**
 
 \#\# 1\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# 2\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -3686,12 +3695,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(482656b0-da08-44d9-bc05-0a37e85bb444, piano)\_
 
 \#\# 5\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 6\. G\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of G\# Minor 7: G\#, B, D, F\#  
 \_component:sequence(14a74923-9825-412e-b30d-9e10c8f3dcc9, piano)\_
 
@@ -3711,12 +3720,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **F\# Dorian: Triads**
 
 \#\# 1\. F\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of F\# Minor: F\#, A, C  
 \_component:sequence(b9ec5c11-e4f7-42e7-9ddb-af46350d8487, piano)\_
 
 \#\# 2\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -3731,7 +3740,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# 5\. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
@@ -3747,13 +3756,13 @@ Many melodies are created from a variation on the major scale called the pentato
 **F\# Dorian: 7th Chords**
 
 \#\# 1\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 2\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# ♭3. A Major 7  
@@ -3767,7 +3776,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(1da9d590-44fd-491b-b342-92a7f135d665, piano)\_
 
 \#\# 5\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -3792,12 +3801,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **C\# Dorian: Triads**
 
 \#\# 1\. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
 \#\# 2\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -3812,7 +3821,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# 5\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -3828,12 +3837,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **C\# Dorian: 7th Chords**
 
 \#\# 1\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
 \#\# 2\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor 7: D\#, F, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
@@ -3848,8 +3857,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(2710a188-b5e5-44d4-83d1-15a2ab5530a0, piano)\_
 
 \#\# 5\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 6\. A\# Minor 7(♭5)  
@@ -3873,12 +3882,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **G\# Dorian: Triads**
 
 \#\# 1\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
 \#\# 2\. A\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A\# Minor: A\#, C\#, E\#  
 \_component:sequence(ef7a64b0-de7b-4811-9f76-0c6cea209cf4, piano)\_
 
@@ -3893,7 +3902,7 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(cc050a3c-b7f8-4db7-93ad-3ecff5fd41a5, piano)\_
 
 \#\# 5\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -3909,12 +3918,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **G\# Dorian: 7th Chords**
 
 \#\# 1\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of G\# Minor 7:G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 2\. A\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A\# Minor 7: A\#, C\#, E\#, G\#  
 \_component:sequence(2c24f7b4-3c23-47ef-ae3f-e8a4c08d83b5, piano)\_
 
@@ -3929,12 +3938,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(6b811937-9cf7-4c2f-afa9-dd781003f0fb, piano)\_
 
 \#\# 5\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
 \#\# 6\. E\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E\# Minor 7(♭5):E\#, G\#, B, D\#  
 \_component:sequence(92049667-625e-4ba3-9ce3-057768b2a593, piano)\_
 
@@ -3954,33 +3963,33 @@ Many melodies are created from a variation on the major scale called the pentato
 **E♭ Dorian: Triads**
 
 \#\# 1\. E♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of E♭ Minor: E♭, G♭, B♭   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of E♭ Minor: E♭, G♭, B♭  
 \_component:sequence(696aaa24-f84d-47b2-bf9f-c6c70069283f, piano)\_
 
 \#\# 2\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# ♭3. G♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the G♭ Major: G♭, B, D♭   
+\#\#\#\# Notes of the G♭ Major: G♭, B, D♭  
 \_component:sequence(4f09cff8-83a3-4f7a-927c-09b40eda9a4b, piano)\_
 
 \#\# 4\. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# 5\. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# 6\. C Diminished  
 \#\#\#\# Diminished Chord Intervals: 1, ♭3, ♭5  
-\#\#\#\# Notes of the C Diminished: C, E♭, G♭   
+\#\#\#\# Notes of the C Diminished: C, E♭, G♭  
 \_component:sequence(b3d6435e-b7e0-48b1-9595-f37ab7004bbd, piano)\_
 
 \#\# ♭7. D♭ Major  
@@ -3990,13 +3999,13 @@ Many melodies are created from a variation on the major scale called the pentato
 **E♭ Dorian: 7th Chords**
 
 \#\# 1\. E♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E♭, G♭, B♭, D♭  
 \_component:sequence(749146bd-86d4-4382-9066-5ddc6039fcee, piano)\_
 
 \#\# 2\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# ♭3. G♭ Major 7  
@@ -4010,18 +4019,18 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(d3cc1c84-14e0-44b1-ac06-05e1ec94f185, piano)\_
 
 \#\# 5\. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# 6\. C Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭  
 \_component:sequence(fcfb4ff1-d4e6-4bbb-80c4-1efea2640503, piano)\_
 
 \#\# ♭7. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 **B♭ Dorian**
@@ -4035,13 +4044,13 @@ Many melodies are created from a variation on the major scale called the pentato
 **B♭ Dorian: Triads**
 
 \#\# 1\. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# 32\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# ♭3. D♭ Major  
@@ -4055,8 +4064,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# 5\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 6\. G Diminished  
@@ -4066,23 +4075,23 @@ Many melodies are created from a variation on the major scale called the pentato
 
 \#\# ♭7. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_  
 **B♭ Dorian: 7th Chords**
 
 \#\# 1\. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# 2\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# ♭3. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# 4\. E♭ Dominant 7  
@@ -4091,13 +4100,13 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(601fde9c-9933-480a-8739-1403411ef80d, piano)\_
 
 \#\# 5\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 6\. G Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F  
 \_component:sequence(b1f70b64-07a6-4181-975a-fe986c6078e0, piano)\_
 
 \#\# ♭7. A♭ Major 7  
@@ -4116,12 +4125,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **F Dorian: Triads**
 
 \#\# 1\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 2\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
@@ -4136,8 +4145,8 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# 5\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 6\. D Diminished  
@@ -4152,12 +4161,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **F Dorian: 7th Chords**
 
 \#\# 1\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 2\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of F Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
@@ -4172,12 +4181,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(3a708481-8bfb-4285-ba4f-5e77636167c1, piano)\_
 
 \#\# 5\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 6\. D Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of D Minor 7(♭5): D, F, A♭, C (flat seventh)  
 \_component:sequence(4646ecad-ffd3-4ffb-94f1-01e8fc60c8cb, piano)\_
 
@@ -4190,16 +4199,16 @@ Many melodies are created from a variation on the major scale called the pentato
 
 **C Aeolian (Minor)**
 
-\#\#\# The key of "C Minor" has three flats.   
-\#\#\#\# The notes of the scale are: C, D, E♭, F, G, A♭, B♭   
+\#\#\# The key of "C Minor" has three flats.  
+\#\#\#\# The notes of the scale are: C, D, E♭, F, G, A♭, B♭  
 \#\#\#\# C Minor Scale \= C Aeolian Mode  
-\#\#\#\#\# Parent Mode: E♭ Ionian   
+\#\#\#\#\# Parent Mode: E♭ Ionian  
 \_component:sequence(d49714ae-bf4d-4b66-8f14-618ca95ffa3a, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the minor scale called the pentatonic scale. 
+Many melodies are created from a variation on the minor scale called the pentatonic scale.
 
 \#\#\#\# The C Minor Pentatonic Scale has 5 notes: C, E♭, F, G, B♭  
 \_component:sequence(8ace324a-4fa6-48c8-a2cc-22d8be79d147, piano)\_
@@ -4207,8 +4216,8 @@ Many melodies are created from a variation on the minor scale called the pentato
 **C Minor: Triads**
 
 \#\# 1\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 2\. D Diminished  
@@ -4222,12 +4231,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# 4\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 5\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
@@ -4244,12 +4253,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 **C Minor: 7th Chords**
 
 \#\# 1\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 2\. D Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of D Minor 7(♭5): D, F, A♭, C  
 \_component:sequence(4646ecad-ffd3-4ffb-94f1-01e8fc60c8cb, piano)\_
 
@@ -4259,18 +4268,18 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# 4\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 5\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# ♭6. A♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of A♭ Major 7: A♭, C, E♭, G   
+\#\#\#\# Notes of A♭ Major 7: A♭, C, E♭, G  
 \_component:sequence(93feb1a9-b953-40a5-aef3-28056a2fce47, piano)\_
 
 \#\# ♭7. B♭ Dominant 7  
@@ -4280,7 +4289,7 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 **G Aeolian (Minor)**
 
-\#\#\# The key of "G Minor" has two flats.   
+\#\#\# The key of "G Minor" has two flats.  
 \#\#\#\# The notes of the scale are: G, A, B♭, C, D, E♭, F  
 \#\#\#\# G Minor Scale \= G Aeolian Mode  
 \#\#\#\#\# Parent Mode: B♭ Major  
@@ -4289,7 +4298,7 @@ Many melodies are created from a variation on the minor scale called the pentato
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the minor scale called the pentatonic scale. 
+Many melodies are created from a variation on the minor scale called the pentatonic scale.
 
 \#\#\#\# The G Minor Pentatonic Scale has 5 notes: G, B♭, C, D, F  
 \_component:sequence(8acd1cd5-7d8b-475a-ae7b-5d122e9cf971, piano)\_
@@ -4297,8 +4306,8 @@ Many melodies are created from a variation on the minor scale called the pentato
 **G Minor: Triads**
 
 \#\# 1\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of G Minor: G, B♭, D   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# 2\. A Diminished  
@@ -4312,12 +4321,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# 4\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 5\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
@@ -4334,13 +4343,13 @@ Many melodies are created from a variation on the minor scale called the pentato
 **G Minor: 7th Chord**
 
 \#\# 1\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# 2\. A Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G  
 \_component:sequence(d2330e48-7800-4c75-95f2-ecb4184a60d8, piano)\_
 
 \#\# ♭3. B♭ Major 7  
@@ -4349,18 +4358,18 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(29c85495-80ae-4f44-8672-9b793d4d93b9, piano)\_
 
 \#\# 4\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 5\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# ♭6. E♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D   
+\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D  
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# ♭7. F Dominant 7  
@@ -4370,16 +4379,16 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 **D Aeolian (Minor)**
 
-\#\#\# The key of "D Minor" has one flat.   
+\#\#\# The key of "D Minor" has one flat.  
 \#\#\#\# The notes of the scale are: D, E, F, G, A, B♭, C  
 \#\#\#\# D Minor Scale \= D Aeolian Mode  
-\#\#\#\# Parent Mode: F Ionian   
+\#\#\#\# Parent Mode: F Ionian  
 \_component:sequence(e9de4880-aff8-4ecd-a5ab-8660b816965c, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the minor scale called the pentatonic scale. 
+Many melodies are created from a variation on the minor scale called the pentatonic scale.
 
 \#\#\#\# The D Minor Pentatonic Scale has 5 notes: D, F, G, A, C  
 \_component:sequence(848c9a47-7df0-4bcf-926f-d349ceaab6e6, piano)\_
@@ -4387,8 +4396,8 @@ Many melodies are created from a variation on the minor scale called the pentato
 **D Minor: Triads**
 
 \#\# 1\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of D Minor: D, A, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of D Minor: D, A, F  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# 2\. E Diminished  
@@ -4402,12 +4411,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# 4\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# 5\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -4424,12 +4433,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 **D Minor: 7th Chords**
 
 \#\# 1\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 2\. E Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E Minor 7(♭5): E♭, G, B♭, D  
 \_component:sequence(300fc6fd-15a4-44b9-a016-b30a6c917604, piano)\_
 
@@ -4439,12 +4448,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(31391955-ae39-42b6-b443-a21c72428a86, piano)\_
 
 \#\# 4\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# 5\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
@@ -4460,16 +4469,16 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 **A Aeolian (Minor)**
 
-\#\#\# The key of "A Minor" has no sharps or flats.   
-\#\#\#\# The notes of the scale are:  A, B, C, D, E, F, G  
+\#\#\# The key of "A Minor" has no sharps or flats.  
+\#\#\#\# The notes of the scale are: A, B, C, D, E, F, G  
 \#\#\#\# A Minor Scale \= A Aeolian Mode  
-\#\#\#\#\# Parent Mode: C Ionian   
+\#\#\#\#\# Parent Mode: C Ionian  
 \_component:sequence(1671ed60-e11a-4ea9-a343-8f4eaf5cc622, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the minor scale called the pentatonic scale. 
+Many melodies are created from a variation on the minor scale called the pentatonic scale.
 
 \#\#\#\# The A minor pentatonic scale has 5 notes: A, C, D, E, G  
 \_component:sequence(35eed5ff-cb94-4dd0-a094-b5563510b5e3, piano)\_
@@ -4477,7 +4486,7 @@ Many melodies are created from a variation on the minor scale called the pentato
 **A Minor: Triads**
 
 \#\# 1\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -4492,12 +4501,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# 4\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# 5\. E Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of E Minor: E, G, B  
 \_component:sequence(02bf0164-60fe-486a-8aee-a27955b873a8, piano)\_
 
@@ -4514,12 +4523,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 **A Minor: 7th Chords**
 
 \#\# 1\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of A Minor 7: A, C, E, G    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 2\. B Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of B Minor 7(♭5): B, D, F, A  
 \_component:sequence(87aaacbe-d3f5-48cb-a1e8-d5c4b2e3b0d8, piano)\_
 
@@ -4529,12 +4538,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(999576b1-f5ba-4af0-bbfc-db1babaf4f2b, piano)\_
 
 \#\# 4\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 5\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
@@ -4545,13 +4554,13 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 \#\# ♭7. G Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of G Dominant 7: G, B, D, F   
+\#\#\#\# Notes of G Dominant 7: G, B, D, F  
 \_component:sequence(7ca44d37-4077-4271-b914-ed66dc6f3749, piano)\_
 
 **E Aeolian (Minor)**
 
-\#\#\# The key of "E Minor" has one sharp.   
-\#\#\#\# The notes of the scale are: E, F\#, G, A, B, C, D   
+\#\#\# The key of "E Minor" has one sharp.  
+\#\#\#\# The notes of the scale are: E, F\#, G, A, B, C, D  
 \#\#\#\# E Minor Scale \= E Aeolian Mode  
 \#\#\#\# Parent Mode: G Ionian  
 \_component:sequence(0dc3e0c1-ad98-434b-b352-072193e29c9f, piano)\_
@@ -4559,7 +4568,7 @@ Many melodies are created from a variation on the minor scale called the pentato
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the minor scale called the pentatonic scale. 
+Many melodies are created from a variation on the minor scale called the pentatonic scale.
 
 \#\#\#\# The E minor pentatonic scale has 5 notes: E, G, A, B, D  
 \_component:sequence(ca0aacf9-2115-410d-8f39-c0e62775ace8, piano)\_
@@ -4603,13 +4612,13 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 **E Minor: 7th Chords**
 
-\#\# 1\.  E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of E Minor 7: E, G, B, D   
+\#\# 1\. E Minor 7  
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# 2\. F\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of F\# Minor 7(♭5): F\#, A, C, E  
 \_component:sequence(43197666-d12d-42b9-bab6-41ad5018d2bb, piano)\_
 
@@ -4619,12 +4628,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(1416d016-4519-4e36-8a12-b85f33b251d0, piano)\_
 
 \#\# 4\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 5\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
@@ -4640,16 +4649,16 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 **B Aeolian (Minor)**
 
-\#\#\# The key of "B Minor" has two sharps.   
-\#\#\#\# The notes of the scale are: B, C\#, D, E, F\#, G, A   
+\#\#\# The key of "B Minor" has two sharps.  
+\#\#\#\# The notes of the scale are: B, C\#, D, E, F\#, G, A  
 \#\#\#\# B Minor Scale \= B Aeolian Mode  
-\#\#\#\#\# Parent Mode: D Ionian   
+\#\#\#\#\# Parent Mode: D Ionian  
 \_component:sequence(8d89e974-38d2-432f-90bc-c773bf599df4, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the minor scale called the pentatonic scale. 
+Many melodies are created from a variation on the minor scale called the pentatonic scale.
 
 \#\#\#\# The B minor pentatonic scale has 5 notes: B, D, E, F\#, A  
 \_component:sequence(37768042-7e28-47d3-838f-9b2563298a5c, piano)\_
@@ -4694,12 +4703,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 **B Minor: 7th Chords**
 
 \#\# 1\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B Minor 7: B, D, F\#, A   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# 2\. C\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of C\# Minor 7(♭5): C\#, E, G, B  
 \_component:sequence(62a24a50-0093-4b96-839c-894db45fa29a, piano)\_
 
@@ -4709,13 +4718,13 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(843eb14e-3b93-4364-a77e-52be6fd36186, piano)\_
 
 \#\# 4\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# 5\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# ♭6. G Major 7  
@@ -4725,13 +4734,13 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 \#\# ♭7. A Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of A Dominant 7: A, C\#, E, G   
+\#\#\#\# Notes of A Dominant 7: A, C\#, E, G  
 \_component:sequence(bc5cc750-0727-4cf5-ae1a-fdbd731903ab, piano)\_
 
 **F\# Aeolian (Minor)**
 
-\#\#\# The key of "F\# Minor" has two sharps.   
-\#\#\#\# The notes of the scale are: F\#, G\#, A, B, C\#, D, E   
+\#\#\# The key of "F\# Minor" has two sharps.  
+\#\#\#\# The notes of the scale are: F\#, G\#, A, B, C\#, D, E  
 \#\#\#\# F\# Minor Scale \= F\# Aeolian Mode  
 \#\#\#\#\# Parent Mode: A Ionian  
 \_component:sequence(8e596b82-2e40-4052-9820-abf0178be1f9, piano)\_
@@ -4739,7 +4748,7 @@ Many melodies are created from a variation on the minor scale called the pentato
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the minor scale called the pentatonic scale. 
+Many melodies are created from a variation on the minor scale called the pentatonic scale.
 
 \#\#\#\# The F\# minor pentatonic scale has 5 notes: F\#, A, B, C\#, E  
 \_component:sequence(8e7f9418-28c7-4a93-b24b-c02ebbbe7e5a, piano)\_
@@ -4784,12 +4793,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 **F\# Minor: 7th Chords**
 
 \#\# 1\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 2\. G\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of G\# Minor 7: G\#, B, D, F\#  
 \_component:sequence(14a74923-9825-412e-b30d-9e10c8f3dcc9, piano)\_
 
@@ -4799,12 +4808,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(a3dffc26-9ac8-4647-a1c7-99b7c256334e, piano)\_
 
 \#\# 4\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# 5\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -4820,8 +4829,8 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 **C\# Aeolian (Minor)**
 
-\#\#\# The key of "C\# Minor" has two sharps.   
-\#\#\#\# The notes of the scale are: C\#, D\#, E, F\#, G\#, A, B   
+\#\#\# The key of "C\# Minor" has two sharps.  
+\#\#\#\# The notes of the scale are: C\#, D\#, E, F\#, G\#, A, B  
 \#\#\#\# C\# Minor Scale \= C\# Aeolian Mode  
 \#\#\#\#\# Parent Mode: E Ionian  
 \_component:sequence(733e804b-f8c3-4a53-946c-1fb305c3462c, piano)\_
@@ -4829,7 +4838,7 @@ Many melodies are created from a variation on the minor scale called the pentato
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the minor scale called the pentatonic scale. 
+Many melodies are created from a variation on the minor scale called the pentatonic scale.
 
 \#\#\#\# The C\# minor pentatonic scale has 5 notes: C\#, E, F\#, G\#, B  
 \_component:sequence(e68eb6fc-e738-49ee-bfb8-7da530253614, piano)\_
@@ -4837,7 +4846,7 @@ Many melodies are created from a variation on the minor scale called the pentato
 **C\# Minor: Triads**
 
 \#\# 1\. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
@@ -4852,12 +4861,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(89869ff7-60df-4695-b6dd-b3114feeec71, piano)\_
 
 \#\# 4\. F\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of F\# Minor: F\#, A, C  
 \_component:sequence(b9ec5c11-e4f7-42e7-9ddb-af46350d8487, piano)\_
 
 \#\# 5\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -4874,7 +4883,7 @@ Many melodies are created from a variation on the minor scale called the pentato
 **C\# Minor: 7th Chords**
 
 \#\# 1\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -4889,13 +4898,13 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(41f02962-cf09-41ff-bbe1-56e4d8d921ea, piano)\_
 
 \#\# 4\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 5\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# ♭6. A Major 7  
@@ -4910,8 +4919,8 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 **G\# Aeolian (Minor)**
 
-\#\#\# The key of "G\# Minor" has five sharps.   
-\#\#\#\# The notes of the scale are: G\#, A\#, B, C\#, D\#, E, F\#    
+\#\#\# The key of "G\# Minor" has five sharps.  
+\#\#\#\# The notes of the scale are: G\#, A\#, B, C\#, D\#, E, F\#  
 \#\#\#\# G\# Minor Scale \= G\# Aeolian Mode  
 \#\#\#\#\# Parent Mode: B Ionian  
 \_component:sequence(a764137b-45d5-4b03-b24d-c17a43098e98, piano)\_
@@ -4919,7 +4928,7 @@ Many melodies are created from a variation on the minor scale called the pentato
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the major scale called the pentatonic scale. 
+Many melodies are created from a variation on the major scale called the pentatonic scale.
 
 \#\#\#\# The G\# Minor Pentatonic Scale has 5 notes: G\#, B, C\#, D\#, F\#  
 \_component:sequence(cc8e9205-2c31-4868-af3c-01b1fb29e29b, piano)\_
@@ -4927,7 +4936,7 @@ Many melodies are created from a variation on the major scale called the pentato
 **G\# Minor: Triads**
 
 \#\# 1\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -4942,12 +4951,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# 4\. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
 \#\# 5\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -4964,12 +4973,12 @@ Many melodies are created from a variation on the major scale called the pentato
 **G\# Minor: 7th Chords**
 
 \#\# 1\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 2\. A\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of A\# Minor 7(♭5): A\#, C\#, E, G\#  
 \_component:sequence(7aaafcd1-2e0c-4712-adae-9e67c8f394e3, piano)\_
 
@@ -4979,12 +4988,12 @@ Many melodies are created from a variation on the major scale called the pentato
 \_component:sequence(b01fa057-d30e-4e7e-a30d-7f8d6034de01, piano)\_
 
 \#\# 4\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
 \#\# 5\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
@@ -5000,8 +5009,8 @@ Many melodies are created from a variation on the major scale called the pentato
 
 **D\# Aeolian (Minor)**
 
-\#\#\# The key of "D\# Minor" has six sharps.   
-\#\#\#\# The notes of the scale are: D\#, E\#, F\#, G\#, A\#, B, C\#   
+\#\#\# The key of "D\# Minor" has six sharps.  
+\#\#\#\# The notes of the scale are: D\#, E\#, F\#, G\#, A\#, B, C\#  
 \#\#\#\# D\# Minor Scale \= D\# Aeolian Mode  
 \#\#\#\#\# Parent Mode: F\# Ionian  
 \_component:sequence(7297cf12-1ead-4bdf-8552-982fcaff2c34, piano)\_
@@ -5009,7 +5018,7 @@ Many melodies are created from a variation on the major scale called the pentato
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the minor scale called the pentatonic scale. 
+Many melodies are created from a variation on the minor scale called the pentatonic scale.
 
 \#\#\#\# The D\# Minor Pentatonic Scale has 5 notes: D\#, F\#, G\#, A\#, C\#  
 \_component:sequence(41814332-c8ee-450f-940f-300f0ec89d7c, piano)\_
@@ -5017,7 +5026,7 @@ Many melodies are created from a variation on the minor scale called the pentato
 **D\# Minor: Triads**
 
 \#\# 1\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -5028,16 +5037,16 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 \#\# ♭3. F\# Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the F\# Major: F\#, A\#, C\#   
+\#\#\#\# Notes of the F\# Major: F\#, A\#, C\#  
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# 4\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
 \#\# 5\. A\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A\# Minor: A\#, C\#, E\#  
 \_component:sequence(ef7a64b0-de7b-4811-9f76-0c6cea209cf4, piano)\_
 
@@ -5054,12 +5063,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 **D\# Minor: 7th Chord**
 
 \#\# 1\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
 \#\# 2\. E\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E\# Minor 7(♭5):E\#, G\#, B, D\#  
 \_component:sequence(92049667-625e-4ba3-9ce3-057768b2a593, piano)\_
 
@@ -5069,12 +5078,12 @@ Many melodies are created from a variation on the minor scale called the pentato
 \_component:sequence(39f2c17a-9d20-4eac-a440-6db8f7656d86, piano)\_
 
 \#\# 4\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of G\# Minor 7:G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 5\. A\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A\# Minor 7: A\#, C\#, E\#, G\#  
 \_component:sequence(2c24f7b4-3c23-47ef-ae3f-e8a4c08d83b5, piano)\_
 
@@ -5090,16 +5099,16 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 **B♭ Aeolian (Minor)**
 
-\#\#\# The key of "B♭ Minor" has five flats.   
+\#\#\# The key of "B♭ Minor" has five flats.  
 \#\#\#\# The notes of the scale are: B♭, C, D♭, E♭, F, G♭, A♭  
 \#\#\#\# B♭ Minor Scale \= B♭ Aeolian Mode  
-\#\#\#\#\# Parent Mode: D♭ Ionian   
+\#\#\#\#\# Parent Mode: D♭ Ionian  
 \_component:sequence(e74f21de-3844-4188-b7bc-63d2c827ad63, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords.  
 Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the minor scale called the pentatonic scale. 
+Many melodies are created from a variation on the minor scale called the pentatonic scale.
 
 \#\#\#\# The B♭ Minor Pentatonic Scale has 5 notes: B♭, D♭, E♭, F, A♭  
 \_component:sequence(436d6b5b-ae85-45b1-be79-41cb9c48e135, piano)\_
@@ -5107,65 +5116,65 @@ Many melodies are created from a variation on the minor scale called the pentato
 **B♭ Minor: Triads**
 
 \#\# 1\. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# 2\. C Diminished  
 \#\#\#\# Diminished Chord Intervals: 1, ♭3, ♭5  
-\#\#\#\# Notes of the C Diminished: C, E♭, G♭    
+\#\#\#\# Notes of the C Diminished: C, E♭, G♭  
 \_component:sequence(b3d6435e-b7e0-48b1-9595-f37ab7004bbd, piano)\_
 
 \#\# ♭3. D♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the D♭ Major: D♭, F, A♭   
+\#\#\#\# Notes of the D♭ Major: D♭, F, A♭  
 \_component:sequence(90af7029-bcbd-41a4-a9f8-5662f55ada6c, piano)\_
 
 \#\# 4\. E♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of E♭ Minor: E♭, G♭, B♭   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of E♭ Minor: E♭, G♭, B♭  
 \_component:sequence(696aaa24-f84d-47b2-bf9f-c6c70069283f, piano)\_
 
 \#\# 5\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# ♭6. G♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the G♭ Major: G♭, B, D♭   
+\#\#\#\# Notes of the G♭ Major: G♭, B, D♭  
 \_component:sequence(4f09cff8-83a3-4f7a-927c-09b40eda9a4b, piano)\_
 
 \#\# ♭7. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 **B♭ Minor: 7th Chord**
 
 \#\# 1\. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# 2\. C Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭     
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭  
 \_component:sequence(fcfb4ff1-d4e6-4bbb-80c4-1efea2640503, piano)\_
 
 \#\# ♭3. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# 4\. E♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E♭, G♭, B♭, D♭  
 \_component:sequence(749146bd-86d4-4382-9066-5ddc6039fcee, piano)\_
 
 \#\# 5\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# ♭6. G♭ Major 7  
@@ -5180,15 +5189,15 @@ Many melodies are created from a variation on the minor scale called the pentato
 
 **F Aeolian (Minor)**
 
-\#\#\# The key of "F Minor" has four flats.   
+\#\#\# The key of "F Minor" has four flats.  
 \#\#\#\# The notes of the scale are: F, G, A♭, B♭, C, D♭, E♭  
 \#\#\#\# F Minor Scale \= F Aeolian Mode  
-\#\#\#\#\# Parent Mode: A♭ Ionian   
+\#\#\#\#\# Parent Mode: A♭ Ionian  
 \_component:sequence(4a8f85a9-9836-4505-b242-3fc856221e3d, piano)\_
 
 The notes in a scale are used to create melodies, bass lines, and chords. Each scale has a distinct shape, or contour, across the keyboard.
 
-Many melodies are created from a variation on the minor scale called the pentatonic scale. 
+Many melodies are created from a variation on the minor scale called the pentatonic scale.
 
 \#\#\#\# The F Minor Pentatonic Scale has 5 notes: F, A♭, B♭, C, E♭  
 \_component:sequence(a0ff972f-1391-4bd3-83b1-729b65e8c407, piano)\_
@@ -5196,13 +5205,13 @@ Many melodies are created from a variation on the minor scale called the pentato
 F Minor: Triads
 
 \#\# 1\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 2\. G Diminished  
 \#\#\#\# Diminished Chord Intervals: 1, ♭3, ♭5  
-\#\#\#\# Notes of the G Diminished: G, B♭, D♭    
+\#\#\#\# Notes of the G Diminished: G, B♭, D♭  
 \_component:sequence(465c2bdf-6228-453a-ae5d-4563af2d19ab, piano)\_
 
 \#\# ♭3. A♭ Major  
@@ -5211,13 +5220,13 @@ F Minor: Triads
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# 4\. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# 5\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# ♭6. D♭ Major  
@@ -5233,33 +5242,33 @@ F Minor: Triads
 **F Minor: 7th Chord**
 
 \#\# 1\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 2\. G Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F  
 \_component:sequence(b1f70b64-07a6-4181-975a-fe986c6078e0, piano)\_
 
 \#\# ♭3. A♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of A♭ Major 7: A♭, C, E♭, G   
+\#\#\#\# Notes of A♭ Major 7: A♭, C, E♭, G  
 \_component:sequence(93feb1a9-b953-40a5-aef3-28056a2fce47, piano)\_
 
 \#\# 4\. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# 5\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# ♭6. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C    
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# ♭7. E♭ Dominant 7  
@@ -5277,11 +5286,11 @@ F Minor: Triads
 \#\#\#\#\# Parent Mode: A♭ Ionian  
 \_component:sequence(757f3dc5-e48d-495c-9dd5-d423c308f346, piano)\_
 
-**C Phrygian: Triads** 
+**C Phrygian: Triads**
 
 \#\# 1\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# ♭2. D♭ Major  
@@ -5295,8 +5304,8 @@ F Minor: Triads
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# 4\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 5\. G Diminished  
@@ -5306,23 +5315,23 @@ F Minor: Triads
 
 \#\# ♭6. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# ♭7. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_  
 **C Phrygian: 7th Chords**
 
 \#\# 1\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# ♭2. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# ♭3. E♭ Dominant 7  
@@ -5331,13 +5340,13 @@ F Minor: Triads
 \_component:sequence(601fde9c-9933-480a-8739-1403411ef80d, piano)\_
 
 \#\# 4\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 5\. G Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F  
 \_component:sequence(b1f70b64-07a6-4181-975a-fe986c6078e0, piano)\_
 
 \#\# ♭6. A♭ Major 7  
@@ -5346,8 +5355,8 @@ F Minor: Triads
 \_component:sequence(93feb1a9-b953-40a5-aef3-28056a2fce47, piano)\_
 
 \#\# ♭7. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 **G Phrygian**
@@ -5361,7 +5370,7 @@ F Minor: Triads
 **G Phrygian: Triads**
 
 \#\# 1\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
@@ -5376,8 +5385,8 @@ F Minor: Triads
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# 4\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 5\. D Diminished  
@@ -5391,14 +5400,14 @@ F Minor: Triads
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# ♭7. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 **G Phrygian: 7th Chords**
 
 \#\# 1\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
@@ -5413,12 +5422,12 @@ F Minor: Triads
 \_component:sequence(3a708481-8bfb-4285-ba4f-5e77636167c1, piano)\_
 
 \#\# 4\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 5\. D Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of D Minor 7(♭5): D, F, A♭, C (flat seventh)  
 \_component:sequence(4646ecad-ffd3-4ffb-94f1-01e8fc60c8cb, piano)\_
 
@@ -5428,8 +5437,8 @@ F Minor: Triads
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# ♭7. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 **D Phrygian**
@@ -5443,7 +5452,7 @@ F Minor: Triads
 **D Phrygian: Triads**
 
 \#\# 1\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
@@ -5458,8 +5467,8 @@ F Minor: Triads
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# 4\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of G Minor: G, B♭, D   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# 5\. A Diminished  
@@ -5473,20 +5482,20 @@ F Minor: Triads
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# 2\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 **D Phrygian: 7th Chords**
 
 \#\# 1\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# ♭2. E♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D   
+\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D  
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# ♭3. F Dominant 7  
@@ -5495,13 +5504,13 @@ F Minor: Triads
 \_component:sequence(105dffe9-7fe4-4a39-b4ca-77cabc09e60e, piano)\_
 
 \#\# 4\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# 5\. A Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G  
 \_component:sequence(d2330e48-7800-4c75-95f2-ecb4184a60d8, piano)\_
 
 \#\# ♭6. B♭ Major 7  
@@ -5510,8 +5519,8 @@ F Minor: Triads
 \_component:sequence(29c85495-80ae-4f44-8672-9b793d4d93b9, piano)\_
 
 \#\# ♭7. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 **A Phrygian**
@@ -5525,7 +5534,7 @@ F Minor: Triads
 **A Phrygian: Triads**
 
 \#\# 1\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -5540,8 +5549,8 @@ F Minor: Triads
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# 4\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of D Minor: D, A, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of D Minor: D, A, F  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# 5\. E Diminished  
@@ -5555,14 +5564,14 @@ F Minor: Triads
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# ♭7. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 **A Phrygian: 7th Chords**
 
 \#\# 1\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
@@ -5577,12 +5586,12 @@ F Minor: Triads
 \_component:sequence(9f77a463-7b5f-438b-be62-0e15f4768881, piano)\_
 
 \#\# 4\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 5\. E Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E Minor 7(♭5): E♭, G, B♭, D  
 \_component:sequence(300fc6fd-15a4-44b9-a016-b30a6c917604, piano)\_
 
@@ -5592,8 +5601,8 @@ F Minor: Triads
 \_component:sequence(31391955-ae39-42b6-b443-a21c72428a86, piano)\_
 
 \#\# ♭7. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 **E Phrygian**
@@ -5607,7 +5616,7 @@ F Minor: Triads
 **E Phrygian: Triads**
 
 \#\# 1\. E Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of E Minor: E, G, B  
 \_component:sequence(02bf0164-60fe-486a-8aee-a27955b873a8, piano)\_
 
@@ -5622,7 +5631,7 @@ F Minor: Triads
 \_component:sequence(c6b2e24d-1781-4aab-b0b6-4dd5213b8a75, piano)\_
 
 \#\# 4\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -5637,14 +5646,14 @@ F Minor: Triads
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# ♭7. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 **E Phrygian: 7th Chords**
 
 \#\# 1\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
@@ -5655,16 +5664,16 @@ F Minor: Triads
 
 \#\# ♭3. G Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of G Dominant 7: G, B, D, F   
+\#\#\#\# Notes of G Dominant 7: G, B, D, F  
 \_component:sequence(7ca44d37-4077-4271-b914-ed66dc6f3749, piano)\_
 
 \#\# 4\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of A Minor 7: A, C, E, G   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 5\. B Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of B Minor 7(♭5): B, D, F, A  
 \_component:sequence(87aaacbe-d3f5-48cb-a1e8-d5c4b2e3b0d8, piano)\_
 
@@ -5674,7 +5683,7 @@ F Minor: Triads
 \_component:sequence(999576b1-f5ba-4af0-bbfc-db1babaf4f2b, piano)\_
 
 \#\# ♭7. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
@@ -5726,7 +5735,7 @@ F Minor: Triads
 **B Phrygian: 7th Chords**
 
 \#\# 1\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(6484fa72-70ee-4268-8657-2fcee7b0965f, piano)\_
 
@@ -5741,12 +5750,12 @@ F Minor: Triads
 \_component:sequence(327e05e1-eb21-475f-9821-b928dfc90888, piano)\_
 
 \#\# 4\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of E Minor 7: E, G, B, D   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# 5\. F\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of F\# Minor 7(♭5): F\#, A, C, E  
 \_component:sequence(43197666-d12d-42b9-bab6-41ad5018d2bb, piano)\_
 
@@ -5756,7 +5765,7 @@ F Minor: Triads
 \_component:sequence(1416d016-4519-4e36-8a12-b85f33b251d0, piano)\_
 
 \#\# ♭7. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
@@ -5807,8 +5816,8 @@ F Minor: Triads
 **F\# Phrygian: 7th Chords**
 
 \#\# 1\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# ♭2. G Major 7  
@@ -5818,16 +5827,16 @@ F Minor: Triads
 
 \#\# ♭3. A Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of A Dominant 7: A, C\#, E, G   
+\#\#\#\# Notes of A Dominant 7: A, C\#, E, G  
 \_component:sequence(bc5cc750-0727-4cf5-ae1a-fdbd731903ab, piano)\_
 
 \#\# 4\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B Minor 7: B, D, F\#, A   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# 5\. C\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of C\# Minor 7(♭5): C\#, E, G, B  
 \_component:sequence(62a24a50-0093-4b96-839c-894db45fa29a, piano)\_
 
@@ -5837,7 +5846,7 @@ F Minor: Triads
 \_component:sequence(843eb14e-3b93-4364-a77e-52be6fd36186, piano)\_
 
 \#\# ♭7. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
@@ -5889,7 +5898,7 @@ F Minor: Triads
 **C\# Phrygian: 7th Chords**
 
 \#\# 1\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -5904,12 +5913,12 @@ F Minor: Triads
 \_component:sequence(482656b0-da08-44d9-bc05-0a37e85bb444, piano)\_
 
 \#\# 4\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 5\. G\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of G\# Minor 7: G\#, B, D, F\#  
 \_component:sequence(14a74923-9825-412e-b30d-9e10c8f3dcc9, piano)\_
 
@@ -5919,7 +5928,7 @@ F Minor: Triads
 \_component:sequence(a3dffc26-9ac8-4647-a1c7-99b7c256334e, piano)\_
 
 \#\# ♭7. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
@@ -5934,7 +5943,7 @@ F Minor: Triads
 **G\# Phrygian: Triads**
 
 \#\# 1\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -5949,7 +5958,7 @@ F Minor: Triads
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# 4\. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
@@ -5964,15 +5973,15 @@ F Minor: Triads
 \_component:sequence(89869ff7-60df-4695-b6dd-b3114feeec71, piano)\_
 
 \#\# ♭7. F\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of F\# Minor: F\#, A, C  
 \_component:sequence(b9ec5c11-e4f7-42e7-9ddb-af46350d8487, piano)\_
 
 **G\# Phrygian: 7th Chords**
 
 \#\# 1\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# ♭2. A Major 7  
@@ -5986,7 +5995,7 @@ F Minor: Triads
 \_component:sequence(1da9d590-44fd-491b-b342-92a7f135d665, piano)\_
 
 \#\# 4\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -6001,8 +6010,8 @@ F Minor: Triads
 \_component:sequence(41f02962-cf09-41ff-bbe1-56e4d8d921ea, piano)\_
 
 \#\# ♭7. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 **D\# Phrygian**
@@ -6016,7 +6025,7 @@ F Minor: Triads
 **D\# Phrygian: Triads**
 
 \#\# 1\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -6031,7 +6040,7 @@ F Minor: Triads
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# 4\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -6046,14 +6055,14 @@ F Minor: Triads
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# ♭7. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
 **D\# Phrygian: 7th Chords**
 
 \#\# 1\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor 7: D\#, F, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
@@ -6068,8 +6077,8 @@ F Minor: Triads
 \_component:sequence(2710a188-b5e5-44d4-83d1-15a2ab5530a0, piano)\_
 
 \#\# 4\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 5\. A\# Minor 7(♭5)  
@@ -6083,7 +6092,7 @@ F Minor: Triads
 \_component:sequence(b01fa057-d30e-4e7e-a30d-7f8d6034de01, piano)\_
 
 \#\# ♭7. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -6098,7 +6107,7 @@ F Minor: Triads
 **A\# Phrygian: Triads**
 
 \#\# 1\. A\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A\# Minor: A\#, C\#, E\#  
 \_component:sequence(ef7a64b0-de7b-4811-9f76-0c6cea209cf4, piano)\_
 
@@ -6113,7 +6122,7 @@ F Minor: Triads
 \_component:sequence(cc050a3c-b7f8-4db7-93ad-3ecff5fd41a5, piano)\_
 
 \#\# 4\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -6128,14 +6137,14 @@ F Minor: Triads
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# 2\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
 **A\# Phrygian: 7th Chords**
 
 \#\# 1\. A\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A\# Minor 7: A\#, C\#, E\#, G\#  
 \_component:sequence(2c24f7b4-3c23-47ef-ae3f-e8a4c08d83b5, piano)\_
 
@@ -6150,12 +6159,12 @@ F Minor: Triads
 \_component:sequence(6b811937-9cf7-4c2f-afa9-dd781003f0fb, piano)\_
 
 \#\# 4\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
 \#\# 5\. E\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E\# Minor 7(♭5):E\#, G\#, B, D\#  
 \_component:sequence(92049667-625e-4ba3-9ce3-057768b2a593, piano)\_
 
@@ -6165,7 +6174,7 @@ F Minor: Triads
 \_component:sequence(39f2c17a-9d20-4eac-a440-6db8f7656d86, piano)\_
 
 \#\# ♭7. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of G\# Minor 7:G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
@@ -6180,28 +6189,28 @@ F Minor: Triads
 **F Phrygian: Triads**
 
 \#\# 1\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# ♭2. G♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the G♭ Major: G♭, B, D♭   
+\#\#\#\# Notes of the G♭ Major: G♭, B, D♭  
 \_component:sequence(4f09cff8-83a3-4f7a-927c-09b40eda9a4b, piano)\_
 
 \#\# ♭3. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# 4\. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# 5\. C Diminished  
 \#\#\#\# Diminished Chord Intervals: 1, ♭3, ♭5  
-\#\#\#\# Notes of the C Diminished: C, E♭, G♭   
+\#\#\#\# Notes of the C Diminished: C, E♭, G♭  
 \_component:sequence(b3d6435e-b7e0-48b1-9595-f37ab7004bbd, piano)\_
 
 \#\# ♭6. D♭ Major  
@@ -6210,15 +6219,15 @@ F Minor: Triads
 \_component:sequence(90af7029-bcbd-41a4-a9f8-5662f55ada6c, piano)\_
 
 \#\# ♭7. E♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of E♭ Minor: E♭, G♭, D♭   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of E♭ Minor: E♭, G♭, D♭  
 \_component:sequence(696aaa24-f84d-47b2-bf9f-c6c70069283f, piano)\_
 
 **F Phrygian: 7th Chords**
 
 \#\# 1\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# ♭2. G♭ Major 7  
@@ -6232,22 +6241,22 @@ F Minor: Triads
 \_component:sequence(d3cc1c84-14e0-44b1-ac06-05e1ec94f185, piano)\_
 
 \#\# 4\. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# 5\. C Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭  
 \_component:sequence(fcfb4ff1-d4e6-4bbb-80c4-1efea2640503, piano)\_
 
 \#\# ♭6. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# ♭7. E♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E♭, G♭, B♭, D♭  
 \_component:sequence(749146bd-86d4-4382-9066-5ddc6039fcee, piano)\_
 
@@ -6265,7 +6274,7 @@ F Minor: Triads
 
 \#\# 1\. C Diminished  
 \#\#\#\# Diminished Chord Intervals: 1, ♭3, ♭5  
-\#\#\#\# Notes of the C Diminished: C, E♭, G♭   
+\#\#\#\# Notes of the C Diminished: C, E♭, G♭  
 \_component:sequence(b3d6435e-b7e0-48b1-9595-f37ab7004bbd, piano)\_
 
 \#\# ♭2. D♭ Major  
@@ -6274,49 +6283,49 @@ F Minor: Triads
 \_component:sequence(90af7029-bcbd-41a4-a9f8-5662f55ada6c, piano)\_
 
 \#\# ♭3. E♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of E♭ Minor: E♭, G♭, D♭   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of E♭ Minor: E♭, G♭, D♭  
 \_component:sequence(696aaa24-f84d-47b2-bf9f-c6c70069283f, piano)\_
 
 \#\# 4\. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# ♭5. G♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the G♭ Major: G♭, B, D♭   
+\#\#\#\# Notes of the G♭ Major: G♭, B, D♭  
 \_component:sequence(4f09cff8-83a3-4f7a-927c-09b40eda9a4b, piano)\_
 
 \#\# ♭6. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# ♭7. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_  
 **C Locrian: 7th Chords**
 
 \#\# 1\. C Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of C Minor 7(♭5): C, E♭, G♭, B♭  
 \_component:sequence(fcfb4ff1-d4e6-4bbb-80c4-1efea2640503, piano)\_
 
 \#\# ♭2. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# ♭3. E♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E♭, G♭, B♭, D♭  
 \_component:sequence(749146bd-86d4-4382-9066-5ddc6039fcee, piano)\_
 
 \#\# 4\. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# ♭5. G♭ Major 7  
@@ -6330,15 +6339,15 @@ F Minor: Triads
 \_component:sequence(d3cc1c84-14e0-44b1-ac06-05e1ec94f185, piano)\_
 
 \#\# ♭7. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 **G Locrian**
 
 \#\# G Locrian  
 \#\#\# Locrian Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of G Locrian: G, A♭, B♭, C, D♭, E♭, F   
+\#\#\#\#\# Notes of G Locrian: G, A♭, B♭, C, D♭, E♭, F  
 \#\#\#\#\# Parent Mode: A♭ Ionian  
 \_component:sequence(cc6fca88-5883-4cc0-a869-5be85fda7c73, piano)\_
 
@@ -6351,17 +6360,17 @@ F Minor: Triads
 
 \#\# ♭2. A♭ Major  
 \#\#\#\# Major Chord Intervals: 1, 3, 5  
-\#\#\#\# Notes of the A♭ Major: A♭, C, E♭   
+\#\#\#\# Notes of the A♭ Major: A♭, C, E♭  
 \_component:sequence(8e39fab2-02fb-4d5b-beaa-4ced555ac3c3, piano)\_
 
 \#\# ♭3. B♭ Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of B♭ Minor: B♭, D♭, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of B♭ Minor: B♭, D♭, F  
 \_component:sequence(4cff6aa2-9386-4333-8538-8e2e6acd8f6c, piano)\_
 
 \#\# 4\. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# ♭5. D♭ Major  
@@ -6375,15 +6384,15 @@ F Minor: Triads
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# ♭7. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 **G Locrian: 7th Chords**
 
 \#\# 1\. G Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of G Minor 7(♭5): G, B♭, D♭, F  
 \_component:sequence(b1f70b64-07a6-4181-975a-fe986c6078e0, piano)\_
 
 \#\# ♭2. A♭ Major 7  
@@ -6392,18 +6401,18 @@ F Minor: Triads
 \_component:sequence(93feb1a9-b953-40a5-aef3-28056a2fce47, piano)\_
 
 \#\# ♭3. B♭ Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B♭ Minor 7: B♭, D♭, F, A♭  
 \_component:sequence(601cfc45-5dc8-432e-be1f-d8b0502e202c, piano)\_
 
 \#\# 4\. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭    
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# ♭5. D♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C   
+\#\#\#\# Notes of D♭ Major 7: D♭, F, A♭, C  
 \_component:sequence(84b645d0-c4ad-4724-949b-e3b2ef18bec6, piano)\_
 
 \#\# ♭6. E♭ Dominant 7  
@@ -6412,8 +6421,8 @@ F Minor: Triads
 \_component:sequence(601fde9c-9933-480a-8739-1403411ef80d, piano)\_
 
 \#\# ♭7. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 **D Locrian**
@@ -6437,12 +6446,12 @@ F Minor: Triads
 \_component:sequence(e39efb70-6481-4886-a9cf-3f6e285686f2, piano)\_
 
 \#\# ♭3. F Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of F Minor: F, A♭, C   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of F Minor: F, A♭, C  
 \_component:sequence(7a6cdfb6-25d7-4678-8d0c-cec857ea3796, piano)\_
 
 \#\# 4\. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
@@ -6457,14 +6466,14 @@ F Minor: Triads
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# ♭7. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 **D Locrian: 7th Chords**
 
 \#\# 1\. D Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of D Minor 7(♭5): D, F, A♭, C (flat seventh)  
 \_component:sequence(4646ecad-ffd3-4ffb-94f1-01e8fc60c8cb, piano)\_
 
@@ -6474,12 +6483,12 @@ F Minor: Triads
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# ♭3. F Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F Minor 7: F, A♭, C, E♭  
 \_component:sequence(693388ac-560b-44ab-b4a0-4cac38ba31e4, piano)\_
 
 \#\# 4\. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
@@ -6494,8 +6503,8 @@ F Minor: Triads
 \_component:sequence(3a708481-8bfb-4285-ba4f-5e77636167c1, piano)\_
 
 \#\# ♭7. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 **A Locrian**
@@ -6519,12 +6528,12 @@ F Minor: Triads
 \_component:sequence(4a53f97d-d80d-4428-811f-0ea062b9af5e, piano)\_
 
 \#\# ♭3. C Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of C Minor: C, E♭, G   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of C Minor: C, E♭, G  
 \_component:sequence(eff18ab3-e354-471e-bf39-5171bf1b0638, piano)\_
 
 \#\# 4\. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
@@ -6539,15 +6548,15 @@ F Minor: Triads
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# ♭7. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of G Minor: G, B♭, D   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 **A Locrian: 7th Chords**
 
 \#\# 1\. A Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
-\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
+\#\#\#\# Notes of D Minor 7(♭5): A♭, C, E♭, G  
 \_component:sequence(d2330e48-7800-4c75-95f2-ecb4184a60d8, piano)\_
 
 \#\# ♭2. B♭ Major 7  
@@ -6556,18 +6565,18 @@ F Minor: Triads
 \_component:sequence(29c85495-80ae-4f44-8672-9b793d4d93b9, piano)\_
 
 \#\# ♭3. C Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of C Minor 7: C, E♭, G, B♭  
 \_component:sequence(50de2066-e8fa-4780-93d4-8ef106905d85, piano)\_
 
 \#\# 4\. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# ♭5. E♭ Major 7  
 \#\#\#\# Major 7 Chord Intervals: 1, 3, 5, 7  
-\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D   
+\#\#\#\# Notes of E♭ Major 7: E♭, G, B♭, D  
 \_component:sequence(bfe511f9-0693-41fb-a8e1-970edb14ce32, piano)\_
 
 \#\# ♭6. F Dominant 7  
@@ -6576,8 +6585,8 @@ F Minor: Triads
 \_component:sequence(105dffe9-7fe4-4a39-b4ca-77cabc09e60e, piano)\_
 
 \#\# ♭7. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 **E Locrian**
@@ -6601,12 +6610,12 @@ F Minor: Triads
 \_component:sequence(5e196404-67ee-45b6-84c6-23899b92ec50, piano)\_
 
 \#\# ♭3. G Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G Minor: G, B♭, D  
 \_component:sequence(aee4b25c-126d-4156-b191-2c300cbdf8fd, piano)\_
 
 \#\# 4\. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
@@ -6621,14 +6630,14 @@ F Minor: Triads
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# ♭7. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
-\#\#\#\# Notes of D Minor: D, A, F   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
+\#\#\#\# Notes of D Minor: D, A, F  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 **E Locrian: 7th Chords**
 
 \#\# 1\. E Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E Minor 7(♭5): E♭, G, B♭, D  
 \_component:sequence(300fc6fd-15a4-44b9-a016-b30a6c917604, piano)\_
 
@@ -6638,12 +6647,12 @@ F Minor: Triads
 \_component:sequence(31391955-ae39-42b6-b443-a21c72428a86, piano)\_
 
 \#\# ♭3. G Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G Minor 7: G, B♭, D, F   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G Minor 7: G, B♭, D, F  
 \_component:sequence(6177ddb8-eb59-4c88-9797-5e0616ed01ca, piano)\_
 
 \#\# 4\. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
@@ -6658,7 +6667,7 @@ F Minor: Triads
 \_component:sequence(9f77a463-7b5f-438b-be62-0e15f4768881, piano)\_
 
 \#\# ♭7. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
@@ -6683,12 +6692,12 @@ F Minor: Triads
 \_component:sequence(ade359ca-4215-44c2-89d6-d2b5ec41f1da, piano)\_
 
 \#\# ♭3. D Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D Minor: D, F, A  
 \_component:sequence(ae73f177-c915-421f-a590-bb2b52c5f0d2, piano)\_
 
 \#\# 4\. E Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of E Minor: E, G, B  
 \_component:sequence(02bf0164-60fe-486a-8aee-a27955b873a8, piano)\_
 
@@ -6703,14 +6712,14 @@ F Minor: Triads
 \_component:sequence(c6b2e24d-1781-4aab-b0b6-4dd5213b8a75, piano)\_
 
 \#\# ♭7. A Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A Minor: A, C, E  
 \_component:sequence(56ea14ac-fc26-48b3-a22a-bbd8484971b7, piano)\_
 
 **B Locrian: 7th Chords**
 
 \#\# 1\. B Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of B Minor 7(♭5): B, D, F, A  
 \_component:sequence(87aaacbe-d3f5-48cb-a1e8-d5c4b2e3b0d8, piano)\_
 
@@ -6720,12 +6729,12 @@ F Minor: Triads
 \_component:sequence(999576b1-f5ba-4af0-bbfc-db1babaf4f2b, piano)\_
 
 \#\# ♭3. D Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of D Minor 7: D, F, A, C  
 \_component:sequence(2dfb1d2c-c485-4170-9eff-bb958d747889, piano)\_
 
 \#\# 4\. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
@@ -6736,12 +6745,12 @@ F Minor: Triads
 
 \#\# ♭6. G Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of G Dominant 7: G, B, D, F   
+\#\#\#\# Notes of G Dominant 7: G, B, D, F  
 \_component:sequence(7ca44d37-4077-4271-b914-ed66dc6f3749, piano)\_
 
 \#\# ♭7. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of A Minor 7: A, C, E, G   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 F\# Locrian
@@ -6749,7 +6758,7 @@ F\# Locrian
 \#\# F\# Locrian  
 \#\#\# Locrian Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
 \#\#\#\#\# Notes of F\# Locrian: F\#, G, A, B, C, D, E  
-\#\#\#\#\# Parent Mode: G Ionian   
+\#\#\#\#\# Parent Mode: G Ionian  
 \_component:sequence(50cf3821-6db6-40bc-880e-08cd9c5f815f, piano)\_
 
 F\# Locrian: Triads
@@ -6791,7 +6800,7 @@ F\# Locrian: Triads
 F\# Locrian: 7th Chords
 
 \#\# 1\. F\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of F\# Minor 7(♭5): F\#, A, C, E  
 \_component:sequence(43197666-d12d-42b9-bab6-41ad5018d2bb, piano)\_
 
@@ -6801,12 +6810,12 @@ F\# Locrian: 7th Chords
 \_component:sequence(1416d016-4519-4e36-8a12-b85f33b251d0, piano)\_
 
 \#\# ♭3. A Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A Minor 7: A, C, E, G  
 \_component:sequence(f0745616-5bb0-47de-b0b4-ba7a718a2fb0, piano)\_
 
 \#\# 4\. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(6484fa72-70ee-4268-8657-2fcee7b0965f, piano)\_
 
@@ -6821,8 +6830,8 @@ F\# Locrian: 7th Chords
 \_component:sequence(327e05e1-eb21-475f-9821-b928dfc90888, piano)\_
 
 \#\# ♭7. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of E Minor 7: E, G, B, D   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 **C\# Locrian**
@@ -6830,7 +6839,7 @@ F\# Locrian: 7th Chords
 \#\# C\# Locrian  
 \#\#\# Locrian Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
 \#\#\#\#\# Notes of C\# Locrian: C\#, D, E, F\#, G, A, B  
-\#\#\#\#\# Parent Mode: D Ionian   
+\#\#\#\#\# Parent Mode: D Ionian  
 \_component:sequence(65c11694-84c4-4c15-bd4c-9b9546a92586, piano)\_
 
 **C\# Locrian: Triads**
@@ -6872,7 +6881,7 @@ F\# Locrian: 7th Chords
 **C\# Locrian: 7th Chords**
 
 \#\# 1\. C\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of C\# Minor 7(♭5): C\#, E, G, B  
 \_component:sequence(62a24a50-0093-4b96-839c-894db45fa29a, piano)\_
 
@@ -6882,13 +6891,13 @@ F\# Locrian: 7th Chords
 \_component:sequence(843eb14e-3b93-4364-a77e-52be6fd36186, piano)\_
 
 \#\# ♭3. E Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of E Minor 7: E, G, B, D  
 \_component:sequence(1e388bec-65ee-49c7-b3d6-44c1ec35b92e, piano)\_
 
 \#\# 4\. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# ♭5. G Major 7  
@@ -6898,12 +6907,12 @@ F\# Locrian: 7th Chords
 
 \#\# ♭6. A Dominant 7  
 \#\#\#\# Dominant 7 Chord Intervals: 1, 3, 5, ♭7  
-\#\#\#\# Notes of A Dominant 7: A, C\#, E, G   
+\#\#\#\# Notes of A Dominant 7: A, C\#, E, G  
 \_component:sequence(bc5cc750-0727-4cf5-ae1a-fdbd731903ab, piano)\_
 
 \#\# ♭7. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of B Minor 7: B, D, F\#, A   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 **G\# Locrian**
@@ -6954,7 +6963,7 @@ F\# Locrian: 7th Chords
 **G\# Locrian: 7th Chords**
 
 \#\# 1\. G\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of G\# Minor 7: G\#, B, D, F\#  
 \_component:sequence(14a74923-9825-412e-b30d-9e10c8f3dcc9, piano)\_
 
@@ -6964,12 +6973,12 @@ F\# Locrian: 7th Chords
 \_component:sequence(a3dffc26-9ac8-4647-a1c7-99b7c256334e, piano)\_
 
 \#\# ♭3. B Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of B Minor 7: B, D, F\#, A  
 \_component:sequence(5e0416c6-bd4e-4db5-ad09-e972de1ca909, piano)\_
 
 \#\# 4\. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -6984,7 +6993,7 @@ F\# Locrian: 7th Chords
 \_component:sequence(482656b0-da08-44d9-bc05-0a37e85bb444, piano)\_
 
 \#\# ♭7. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
@@ -7009,12 +7018,12 @@ F\# Locrian: 7th Chords
 \_component:sequence(89869ff7-60df-4695-b6dd-b3114feeec71, piano)\_
 
 \#\# ♭3. F\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of F\# Minor: F\#, A, C  
 \_component:sequence(b9ec5c11-e4f7-42e7-9ddb-af46350d8487, piano)\_
 
 \#\# 4\. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -7029,7 +7038,7 @@ F\# Locrian: 7th Chords
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# ♭7. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
@@ -7046,13 +7055,13 @@ F\# Locrian: 7th Chords
 \_component:sequence(41f02962-cf09-41ff-bbe1-56e4d8d921ea, piano)\_
 
 \#\# ♭3. F\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of F\# Minor 7: F\#, A, C\#, E  
 \_component:sequence(80854864-5fa3-465d-888f-804859b5dd86, piano)\_
 
 \#\# 4\. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# ♭5. A Major 7  
@@ -7066,7 +7075,7 @@ F\# Locrian: 7th Chords
 \_component:sequence(1da9d590-44fd-491b-b342-92a7f135d665, piano)\_
 
 \#\# ♭7. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
@@ -7091,12 +7100,12 @@ F\# Locrian: 7th Chords
 \_component:sequence(09461cd2-9782-4738-b948-91b7d1f6d262, piano)\_
 
 \#\# ♭3. C\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor: C\#, E, G\#  
 \_component:sequence(d425bba5-d88f-431f-9027-afce0a07a7eb, piano)\_
 
 \#\# 4\. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
@@ -7111,7 +7120,7 @@ F\# Locrian: 7th Chords
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# ♭7. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
@@ -7128,12 +7137,12 @@ F\# Locrian: 7th Chords
 \_component:sequence(b01fa057-d30e-4e7e-a30d-7f8d6034de01, piano)\_
 
 \#\# ♭3. C\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of C\# Minor 7: C\#, E, G\#, B  
 \_component:sequence(3210f0cd-3a3a-47bd-b22e-3f10b9052de0, piano)\_
 
 \#\# 4\. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor 7: D\#, F, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
@@ -7148,8 +7157,8 @@ F\# Locrian: 7th Chords
 \_component:sequence(2710a188-b5e5-44d4-83d1-15a2ab5530a0, piano)\_
 
 \#\# ♭7. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of G\# Minor 7: G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 **E\# Locrian**
@@ -7171,12 +7180,12 @@ F\# Locrian: 7th Chords
 \_component:sequence(cf0c6cee-2af2-4947-a638-b8864487a5a3, piano)\_
 
 \#\# ♭3. G\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of G\# Minor: G\#, B, D\#  
 \_component:sequence(6afe7675-8fd6-43e9-af5c-de66dcc2c6d1, piano)\_
 
 \#\# 4\. A\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of A\# Minor: A\#, C\#, E\#  
 \_component:sequence(ef7a64b0-de7b-4811-9f76-0c6cea209cf4, piano)\_
 
@@ -7191,14 +7200,14 @@ F\# Locrian: 7th Chords
 \_component:sequence(cc050a3c-b7f8-4db7-93ad-3ecff5fd41a5, piano)\_
 
 \#\# ♭7. D\# Minor  
-\#\#\#\# Minor Chord Intervals: 1, ♭3, 5   
+\#\#\#\# Minor Chord Intervals: 1, ♭3, 5  
 \#\#\#\# Notes of D\# Minor: D\#, F\#, A\#  
 \_component:sequence(c1fc37cd-9908-4aa3-8fc4-817d516c76dc, piano)\_
 
 **E\# Locrian: 7th Chords**
 
 \#\# 1\. E\# Minor 7(♭5)  
-\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7   
+\#\#\#\# Minor 7(♭5) Chord Intervals: 1, ♭3, ♭5, ♭7  
 \#\#\#\# Notes of E\# Minor 7(♭5):E\#, G\#, B, D\#  
 \_component:sequence(92049667-625e-4ba3-9ce3-057768b2a593, piano)\_
 
@@ -7208,12 +7217,12 @@ F\# Locrian: 7th Chords
 \_component:sequence(39f2c17a-9d20-4eac-a440-6db8f7656d86, piano)\_
 
 \#\# ♭3. G\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of G\# Minor 7:G\#, B, D\#, F\#  
 \_component:sequence(e691713c-fbd8-41de-a607-fa0ac915c067, piano)\_
 
 \#\# 4\. A\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
 \#\#\#\# Notes of A\# Minor 7: A\#, C\#, E\#, G\#  
 \_component:sequence(2c24f7b4-3c23-47ef-ae3f-e8a4c08d83b5, piano)\_
 
@@ -7228,41 +7237,41 @@ F\# Locrian: 7th Chords
 \_component:sequence(6b811937-9cf7-4c2f-afa9-dd781003f0fb, piano)\_
 
 \#\# ♭7. D\# Minor 7  
-\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7   
-\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#   
+\#\#\#\# Minor 7 Chord Intervals: 1, ♭3, 5, ♭7  
+\#\#\#\# Notes of D\# Minor 7: D\#, F\#, A\#, C\#  
 \_component:sequence(4edd23ed-f2c8-4ff9-ad81-9749816be32e, piano)\_
 
 # Relative Modes
 
 **Relative Modes:**
 
-* **Red**   
-  * C Ionian, D Dorian, E Phrygian, F Lydian, G Mixolydian, A Aeolian, B Locrian   
-* **Vermillion**  
-  * G Ionian, A Dorian, B Phrygian, C Lydian, D Mixolydian, E Aeolian, F\# Locrian  
-* **Orange**  
-  * D Ionian, E Dorian, F\# Phrygian, G Lydian, A Mixolydian, B Aeolian, C\# Locrian  
-* **Amber**  
-  * A Ionian, B Dorian, C\# Phrygian, D Lydian, E Mixolydian, F\# Aeolian, G\# Locrian  
-* **Green**  
-  * E Ionian, F\# Dorian, G\# Phrygian, A Lydian, B Mixolydian, C\# Aeolian, D\# Locrian  
-* **Sage**  
-  * B Ionian, C\# Dorian, D\# Phrygian, E Lydian, F\# Mixolydian, G\# Aeolian, A\# Locrian  
-* **Teal**  
-  * F\# Ionian, G\# Dorian, A\# Phrygian, B Lydian, C\# Mixolydian, E\# Aeolian, E\# Locrian  
-* **Blue**  
-  * Db Ionian, Eb Dorian, F Phrygian, Gb Lydian, Ab Mixolydian, Bb Aeolian, C Locrian  
-* **Indigo**  
-  * Ab Ionian, Bb Dorian, C Phrygian, Db Lydian, Eb Mixolydian, F Aeolian, G Locrian  
-* **Purple**  
-  * Eb Ionian, F Dorian, G Phrygian, Ab Lydian, Bb Mixolydian, C Aeolian, D Locrian  
-* **Magenta**  
-  * Bb Ionian, C Dorian, D Phrygian, Eb Lydian, F Mixolydian, G Aeolian, A Locrian  
-* **Pink**  
-  * F Ionian, G Dorian, A Phrygian, Bb Lydian, C Mixolydian, D Aeolian, E Locrian
+- **Red**
+  - C Ionian, D Dorian, E Phrygian, F Lydian, G Mixolydian, A Aeolian, B Locrian
+- **Vermillion**
+  - G Ionian, A Dorian, B Phrygian, C Lydian, D Mixolydian, E Aeolian, F\# Locrian
+- **Orange**
+  - D Ionian, E Dorian, F\# Phrygian, G Lydian, A Mixolydian, B Aeolian, C\# Locrian
+- **Amber**
+  - A Ionian, B Dorian, C\# Phrygian, D Lydian, E Mixolydian, F\# Aeolian, G\# Locrian
+- **Green**
+  - E Ionian, F\# Dorian, G\# Phrygian, A Lydian, B Mixolydian, C\# Aeolian, D\# Locrian
+- **Sage**
+  - B Ionian, C\# Dorian, D\# Phrygian, E Lydian, F\# Mixolydian, G\# Aeolian, A\# Locrian
+- **Teal**
+  - F\# Ionian, G\# Dorian, A\# Phrygian, B Lydian, C\# Mixolydian, E\# Aeolian, E\# Locrian
+- **Blue**
+  - Db Ionian, Eb Dorian, F Phrygian, Gb Lydian, Ab Mixolydian, Bb Aeolian, C Locrian
+- **Indigo**
+  - Ab Ionian, Bb Dorian, C Phrygian, Db Lydian, Eb Mixolydian, F Aeolian, G Locrian
+- **Purple**
+  - Eb Ionian, F Dorian, G Phrygian, Ab Lydian, Bb Mixolydian, C Aeolian, D Locrian
+- **Magenta**
+  - Bb Ionian, C Dorian, D Phrygian, Eb Lydian, F Mixolydian, G Aeolian, A Locrian
+- **Pink**
+  - F Ionian, G Dorian, A Phrygian, Bb Lydian, C Mixolydian, D Aeolian, E Locrian
 
 **C Major: Relative Modes (Red)**  
-C Ionian, D Dorian, E Phrygian, F Lydian, G Mixolydian, A Aeolian, B Locrian 
+C Ionian, D Dorian, E Phrygian, F Lydian, G Mixolydian, A Aeolian, B Locrian
 
 \#\# C Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
@@ -7309,7 +7318,7 @@ G Ionian, A Dorian, B Phrygian, C Lydian, D Mixolydian, E Aeolian, F\# Locrian
 
 \#\# A Dorian  
 \#\#\# Dorian Intervals: 1, 2, ♭ 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of A Dorian: A, B, C, D, E, F\#, G   
+\#\#\#\#\# Notes of A Dorian: A, B, C, D, E, F\#, G  
 \_component:sequence(c2e68056-d142-4499-acb2-03aabf587fb1, piano)\_
 
 \#\# B Phrygian  
@@ -7334,7 +7343,7 @@ G Ionian, A Dorian, B Phrygian, C Lydian, D Mixolydian, E Aeolian, F\# Locrian
 
 \#\# F\# Locrian  
 \#\#\# Locrian Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of F\# Locrian: F\#, G, A, B, C, D, E   
+\#\#\#\#\# Notes of F\# Locrian: F\#, G, A, B, C, D, E  
 \_component:sequence(50cf3821-6db6-40bc-880e-08cd9c5f815f, piano)\_
 
 **D Major: Relative Modes (Orange)**  
@@ -7342,12 +7351,12 @@ D Ionian, E Dorian, F\# Phrygian, G Lydian, A Mixolydian, B Aeolian, C\# Locrian
 
 \#\# D Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of D Ionian: D, E, F\#, G, A, B, C\#   
+\#\#\#\#\# Notes of D Ionian: D, E, F\#, G, A, B, C\#  
 \_component:sequence(d39ff97d-f061-4682-bf2b-9dcd299caf8d, piano)\_
 
 \#\# E Dorian  
 \#\#\# Dorian Intervals: 1, 2, ♭ 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of E Dorian: E, F\#, G, A, B, C\#, D   
+\#\#\#\#\# Notes of E Dorian: E, F\#, G, A, B, C\#, D  
 \_component:sequence(1b882a1d-a4a3-4ea5-b625-70944c7241a2, piano)\_
 
 \#\# F\# Phrygian  
@@ -7362,17 +7371,17 @@ D Ionian, E Dorian, F\# Phrygian, G Lydian, A Mixolydian, B Aeolian, C\# Locrian
 
 \#\# A Mixolydian  
 \#\#\# Mixolydian Intervals: 1, 2, 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of A Mixolydian: A, B, C\#, D, E, F\#, G   
+\#\#\#\#\# Notes of A Mixolydian: A, B, C\#, D, E, F\#, G  
 \_component:sequence(fc27649f-0b87-48d4-b0ff-740ce1787a73, piano)\_
 
 \#\# B Aeolian  
 \#\#\# Aeolian Intervals: 1, 2, ♭3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of B Aeolian: B, C\#, D, E, F\#, G, A   
+\#\#\#\#\# Notes of B Aeolian: B, C\#, D, E, F\#, G, A  
 \_component:sequence(8d89e974-38d2-432f-90bc-c773bf599df4, piano)\_
 
 \#\# C\# Locrian  
 \#\#\# Locrian Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of C\# Locrian: C\#, D, E, F\#, G, A, B   
+\#\#\#\#\# Notes of C\# Locrian: C\#, D, E, F\#, G, A, B  
 \_component:sequence(65c11694-84c4-4c15-bd4c-9b9546a92586, piano)\_
 
 **A Major: Relative Modes (Amber)**  
@@ -7380,12 +7389,12 @@ A Ionian, B Dorian, C\# Phrygian, D Lydian, E Mixolydian, F\# Aeolian, G\# Locri
 
 \#\# A Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of A Ionian: A, B, C\#, D, E, F\#, G\#    
+\#\#\#\#\# Notes of A Ionian: A, B, C\#, D, E, F\#, G\#  
 \_component:sequence(043cfb29-d4cc-495e-a22e-73540ee21f73, piano)\_
 
 \#\# B Dorian  
 \#\#\# Dorian Intervals: 1, 2, ♭ 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of B Dorian: B, C\#, D, E, F\#, G\#, A    
+\#\#\#\#\# Notes of B Dorian: B, C\#, D, E, F\#, G\#, A  
 \_component:sequence(f17c167d-c334-45ed-b14f-8d7dfe0adc46, piano)\_
 
 \#\# C\# Phrygian  
@@ -7400,7 +7409,7 @@ A Ionian, B Dorian, C\# Phrygian, D Lydian, E Mixolydian, F\# Aeolian, G\# Locri
 
 \#\# E Mixolydian  
 \#\#\# Mixolydian Intervals: 1, 2, 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of E Mixolydian: E, F\#, G\#, A, B, C\#, D   
+\#\#\#\#\# Notes of E Mixolydian: E, F\#, G\#, A, B, C\#, D  
 \_component:sequence(0e45243b-605c-4423-9333-34ce68089f19, piano)\_
 
 \#\# F\# Aeolian  
@@ -7418,12 +7427,12 @@ E Ionian, F\# Dorian, G\# Phrygian, A Lydian, B Mixolydian, C\# Aeolian, D\# Loc
 
 \#\# E Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of E Ionian: E, F\#, G\#, A, B, C\#, D\#   
+\#\#\#\#\# Notes of E Ionian: E, F\#, G\#, A, B, C\#, D\#  
 \_component:sequence(8bef8099-6933-435a-a2c6-5f94a2d4c81a, piano)\_
 
 \#\# F\# Dorian  
 \#\#\# Dorian Intervals: 1, 2, ♭ 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of F\# Dorian: F\#, G\#, A, B, C\#, D\#, E   
+\#\#\#\#\# Notes of F\# Dorian: F\#, G\#, A, B, C\#, D\#, E  
 \_component:sequence(c20dd105-ffef-42b5-a7b1-3d9bede851ce, piano)\_
 
 \#\# G\# Phrygian  
@@ -7438,7 +7447,7 @@ E Ionian, F\# Dorian, G\# Phrygian, A Lydian, B Mixolydian, C\# Aeolian, D\# Loc
 
 \#\# B Mixolydian  
 \#\#\# Mixolydian Intervals: 1, 2, 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of B Mixolydian: B, C\#, D\#, E, F\#, G\#, A   
+\#\#\#\#\# Notes of B Mixolydian: B, C\#, D\#, E, F\#, G\#, A  
 \_component:sequence(28174bdc-e826-4342-a763-7470a8279b47, piano)\_
 
 \#\# C\# Aeolian  
@@ -7456,12 +7465,12 @@ B Ionian, C\# Dorian, D\# Phrygian, E Lydian, F\# Mixolydian, G\# Aeolian, A\# L
 
 \#\# B Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of B Ionian: B, C\#, D\#, E, F\#, G\#, A\#   
+\#\#\#\#\# Notes of B Ionian: B, C\#, D\#, E, F\#, G\#, A\#  
 \_component:sequence(a832b696-43a7-4015-99da-7ede3a6da301, piano)\_
 
 \#\# C\# Dorian  
 \#\#\# Dorian Intervals: 1, 2, ♭ 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of C\# Dorian: C\#, D\#, E, F\#, G\#, A\#, B   
+\#\#\#\#\# Notes of C\# Dorian: C\#, D\#, E, F\#, G\#, A\#, B  
 \_component:sequence(25017a34-8531-49dc-95a6-6587a25ba52f, piano)\_
 
 \#\# D\# Phrygian  
@@ -7476,7 +7485,7 @@ B Ionian, C\# Dorian, D\# Phrygian, E Lydian, F\# Mixolydian, G\# Aeolian, A\# L
 
 \#\# F\# Mixolydian  
 \#\#\# Mixolydian Intervals: 1, 2, 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of F\# Mixolydian: F\#, G\#, A\#, B, C\#, D\#, E   
+\#\#\#\#\# Notes of F\# Mixolydian: F\#, G\#, A\#, B, C\#, D\#, E  
 \_component:sequence(849d5059-3878-44e2-8335-0c216a5aa58d, piano)\_
 
 \#\# G\# Aeolian  
@@ -7494,12 +7503,12 @@ F\# Ionian, G\# Dorian, A\# Phrygian, B Lydian, C\# Mixolydian, E\# Aeolian, E\#
 
 \#\# F\# Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of F\# Ionian: F\#, G\#, A\#, B, C\#, D\#, E\#    
+\#\#\#\#\# Notes of F\# Ionian: F\#, G\#, A\#, B, C\#, D\#, E\#  
 \_component:sequence(2a65d825-80a9-40f7-a3d4-1635656bc0db, piano)\_
 
 \#\# G\# Dorian  
 \#\#\# Dorian Intervals: 1, 2, ♭ 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of G\# Dorian: G\#, A\#, B, C\#, D\#, E\#, F\#   
+\#\#\#\#\# Notes of G\# Dorian: G\#, A\#, B, C\#, D\#, E\#, F\#  
 \_component:sequence(0b4596d1-ebb3-4092-a014-078a1862d148, piano)\_
 
 \#\# A\# Phrygian  
@@ -7532,17 +7541,17 @@ D**♭** Ionian, E**♭** Dorian, F Phrygian, G**♭**Lydian, A**♭** Mixolydia
 
 \#\# D♭ Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of D♭ Ionian: D♭, E♭, F, G♭, A♭, B♭, C   
+\#\#\#\#\# Notes of D♭ Ionian: D♭, E♭, F, G♭, A♭, B♭, C  
 \_component:sequence(d7c0f89c-5d4b-4306-a5e8-3c22f0de0e70, piano)\_
 
 \#\# E♭ Dorian  
 \#\#\# Dorian Intervals: 1, 2, ♭ 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of E♭ Dorian: E♭, F, G♭, A♭, B♭, C, D♭   
+\#\#\#\#\# Notes of E♭ Dorian: E♭, F, G♭, A♭, B♭, C, D♭  
 \_component:sequence(1386f572-3e3d-4020-813a-abf87d35aeee, piano)\_
 
 \#\# F Phrygian  
 \#\#\# Phrygian Intervals: 1, ♭2, ♭3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of F Phrygian: F, G♭, A♭, B♭, C, D♭, E♭   
+\#\#\#\#\# Notes of F Phrygian: F, G♭, A♭, B♭, C, D♭, E♭  
 \_component:sequence(db56f433-701d-492d-841f-de3d58beb999, piano)\_
 
 \#\# G♭ Lydian  
@@ -7552,17 +7561,17 @@ D**♭** Ionian, E**♭** Dorian, F Phrygian, G**♭**Lydian, A**♭** Mixolydia
 
 \#\# A♭ Mixolydian  
 \#\#\# Mixolydian Intervals: 1, 2, 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of A♭ Mixolydian: A♭, B♭, C, D♭, E♭, F, G♭   
+\#\#\#\#\# Notes of A♭ Mixolydian: A♭, B♭, C, D♭, E♭, F, G♭  
 \_component:sequence(4e34130f-411c-4b50-addb-ea51c029826c, piano)\_
 
 \#\# B♭ Aeolian  
 \#\#\# Aeolian Intervals: 1, 2, ♭3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of B♭ Aeolian: B♭, C, D♭, E♭, F, G♭, A♭   
+\#\#\#\#\# Notes of B♭ Aeolian: B♭, C, D♭, E♭, F, G♭, A♭  
 \_component:sequence(e74f21de-3844-4188-b7bc-63d2c827ad63, piano)\_
 
 \#\# C Locrian  
 \#\#\# Locrian Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of C Locrian: C, D♭, E♭, F, G♭, A♭, B♭   
+\#\#\#\#\# Notes of C Locrian: C, D♭, E♭, F, G♭, A♭, B♭  
 \_component:sequence(c446a355-1980-4bdb-b8de-8cb540e9e863, piano)\_
 
 **A♭ Major: Relative Modes (Indigo)**  
@@ -7570,7 +7579,7 @@ Ab Ionian, Bb Dorian, C Phrygian, Db Lydian, Eb Mixolydian, F Aeolian, G Locrian
 
 \#\# A♭ Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of A♭ Ionian: A♭, B♭, C, D♭, E♭, F, G   
+\#\#\#\#\# Notes of A♭ Ionian: A♭, B♭, C, D♭, E♭, F, G  
 \_component:sequence(3664600e-7cbf-4361-9e0f-e9e8513838a0, piano)\_
 
 \#\# B♭ Dorian  
@@ -7580,7 +7589,7 @@ Ab Ionian, Bb Dorian, C Phrygian, Db Lydian, Eb Mixolydian, F Aeolian, G Locrian
 
 \#\# C Phrygian  
 \#\#\# Phrygian Intervals: 1, ♭2, ♭3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of C Phrygian: C, D♭, E♭, F, G, A♭, B♭    
+\#\#\#\#\# Notes of C Phrygian: C, D♭, E♭, F, G, A♭, B♭  
 \_component:sequence(757f3dc5-e48d-495c-9dd5-d423c308f346, piano)\_
 
 \#\# D♭ Lydian  
@@ -7590,17 +7599,17 @@ Ab Ionian, Bb Dorian, C Phrygian, Db Lydian, Eb Mixolydian, F Aeolian, G Locrian
 
 \#\# E♭ Mixolydian  
 \#\#\# Mixolydian Intervals: 1, 2, 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of E♭ Mixolydian: E♭, F, G, A♭, B♭, C, D♭   
+\#\#\#\#\# Notes of E♭ Mixolydian: E♭, F, G, A♭, B♭, C, D♭  
 \_component:sequence(f6fb496d-a78e-499a-87f3-b89f9f58e05d, piano)\_
 
 \#\# F Aeolian  
 \#\#\# Aeolian Intervals: 1, 2, ♭3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of F Aeolian: F, G, A♭, B♭, C, D♭, E♭   
+\#\#\#\#\# Notes of F Aeolian: F, G, A♭, B♭, C, D♭, E♭  
 \_component:sequence(4a8f85a9-9836-4505-b242-3fc856221e3d, piano)\_
 
 \#\# G Locrian  
 \#\#\# Locrian Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of G Locrian: G, A♭, B♭, C, D♭, E♭,     
+\#\#\#\#\# Notes of G Locrian: G, A♭, B♭, C, D♭, E♭,  
 \_component:sequence(cc6fca88-5883-4cc0-a869-5be85fda7c73, piano)\_
 
 **E♭ Major: Relative Modes (Purple)**  
@@ -7608,7 +7617,7 @@ E♭ Ionian, F Dorian, G Phrygian, A♭ Lydian, Bb Mixolydian, C Aeolian, D Locr
 
 \#\# E♭ Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of E♭ Ionian: E♭, F, G, A♭, B♭, C, D   
+\#\#\#\#\# Notes of E♭ Ionian: E♭, F, G, A♭, B♭, C, D  
 \_component:sequence(1477a979-cd7b-4bb8-94cc-34ef26ffb659, piano)\_
 
 \#\# F Dorian  
@@ -7633,12 +7642,12 @@ E♭ Ionian, F Dorian, G Phrygian, A♭ Lydian, Bb Mixolydian, C Aeolian, D Locr
 
 \#\# C Aeolian  
 \#\#\# Aeolian Intervals: 1, 2, ♭3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of C Aeolian: C, D, E♭, F, G, A♭, B♭   
+\#\#\#\#\# Notes of C Aeolian: C, D, E♭, F, G, A♭, B♭  
 \_component:sequence(d49714ae-bf4d-4b66-8f14-618ca95ffa3a, piano)\_
 
 \#\# D Locrian  
 \#\#\# Locrian Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of D Locrian: D, E♭, F, G, A♭, B♭, C    
+\#\#\#\#\# Notes of D Locrian: D, E♭, F, G, A♭, B♭, C  
 \_component:sequence(8205aecf-c391-4ca4-ad4f-8cb741e23882, piano)\_
 
 **B♭ Major Relative Modes (Magenta)**  
@@ -7719,62 +7728,55 @@ F Ionian, G Dorian, A Phrygian, B♭Lydian, C Mixolydian, D Aeolian, E Locrian
 
 # Parallel Modes
 
-**Collection: Parallel Modes** 
+**Collection: Parallel Modes**
 
 C
 
-* C Lydian, C Ionian, C Mixolydian, C Dorian, C Aeolian, C Phrygian, C Locrian, C Harmonic Major, C Ionian \#5, C Mixolydian ♭6, 
+- C Lydian, C Ionian, C Mixolydian, C Dorian, C Aeolian, C Phrygian, C Locrian, C Harmonic Major, C Ionian \#5, C Mixolydian ♭6,
 
 G
 
-* G Lydian, G Ionian, G Mixolydian, G Dorian, G Aeolian, G Phrygian, G Locrian, G Harmonic Major, G Ionian \#5, G Mixolydian ♭6
+- G Lydian, G Ionian, G Mixolydian, G Dorian, G Aeolian, G Phrygian, G Locrian, G Harmonic Major, G Ionian \#5, G Mixolydian ♭6
 
 D
 
-* D Lydian, D Ionian, D Mixolydian, D Dorian, D Aeolian, D Phrygian, D Locrian, D Harmonic Major, D Ionian \#5, D Mixolydian ♭6
-
+- D Lydian, D Ionian, D Mixolydian, D Dorian, D Aeolian, D Phrygian, D Locrian, D Harmonic Major, D Ionian \#5, D Mixolydian ♭6
 
 A
 
-* A Lydian, A Ionian, A Mixolydian, A Dorian, A Aeolian, A Phrygian, A Locrian, A Harmonic Major, A Ionian \#5, A Mixolydian ♭6
-
+- A Lydian, A Ionian, A Mixolydian, A Dorian, A Aeolian, A Phrygian, A Locrian, A Harmonic Major, A Ionian \#5, A Mixolydian ♭6
 
 E
 
-* E Lydian, E Ionian, E Mixolydian, E Dorian, E Aeolian, E Phrygian, E Locrian, E Harmonic Major, E Ionian \#5, E Mixolydian ♭6
-
+- E Lydian, E Ionian, E Mixolydian, E Dorian, E Aeolian, E Phrygian, E Locrian, E Harmonic Major, E Ionian \#5, E Mixolydian ♭6
 
 B
 
-* B Lydian, B Ionian, B Mixolydian, B Dorian, B Aeolian, B Phrygian, B Locrian, B Harmonic Major, B Ionian \#5, B Mixolydian ♭6
-
+- B Lydian, B Ionian, B Mixolydian, B Dorian, B Aeolian, B Phrygian, B Locrian, B Harmonic Major, B Ionian \#5, B Mixolydian ♭6
 
 F\#
 
-* F\# Lydian, F\# Ionian, F\# Mixolydian, F\# Dorian, F\# Aeolian, F\# Phrygian, F\# Locrian, F\# Harmonic Major, F\# Ionian \#5, F\# Mixolydian ♭6
-
+- F\# Lydian, F\# Ionian, F\# Mixolydian, F\# Dorian, F\# Aeolian, F\# Phrygian, F\# Locrian, F\# Harmonic Major, F\# Ionian \#5, F\# Mixolydian ♭6
 
 D♭
 
-* D♭ Lydian, D♭ Ionian, D♭ Mixolydian, D♭ Dorian, D♭ Aeolian, D♭ Phrygian, D♭ Locrian, D♭ Harmonic Major, D♭ Ionian \#5, C\# Mixolydian ♭6
-
+- D♭ Lydian, D♭ Ionian, D♭ Mixolydian, D♭ Dorian, D♭ Aeolian, D♭ Phrygian, D♭ Locrian, D♭ Harmonic Major, D♭ Ionian \#5, C\# Mixolydian ♭6
 
 A♭
 
-* A♭ Lydian, A♭ Ionian, A♭ Mixolydian, A♭ Dorian, A♭ Aeolian, A♭ Phrygian, A♭ Locrian, A♭ Harmonic Major, A♭ Ionian \#5, A♭ Mixolydian ♭6
+- A♭ Lydian, A♭ Ionian, A♭ Mixolydian, A♭ Dorian, A♭ Aeolian, A♭ Phrygian, A♭ Locrian, A♭ Harmonic Major, A♭ Ionian \#5, A♭ Mixolydian ♭6
 
 E♭
 
-* E♭ Lydian, E♭ Ionian, E♭ Mixolydian, E♭ Dorian, E♭ Aeolian, E♭ Phrygian, E♭ Locrian, E♭ Harmonic Major, E♭ Ionian \#5, E♭ Mixolydian ♭6
+- E♭ Lydian, E♭ Ionian, E♭ Mixolydian, E♭ Dorian, E♭ Aeolian, E♭ Phrygian, E♭ Locrian, E♭ Harmonic Major, E♭ Ionian \#5, E♭ Mixolydian ♭6
 
 B♭
 
-* Bb Lydian, Bb Ionian, Bb Mixolydian, Bb Dorian, Bb Aeolian, Bb Phrygian, Bb Locrian, B♭ Harmonic Major, B♭ Ionian \#5, B♭ Mixolydian ♭6
-
+- Bb Lydian, Bb Ionian, Bb Mixolydian, Bb Dorian, Bb Aeolian, Bb Phrygian, Bb Locrian, B♭ Harmonic Major, B♭ Ionian \#5, B♭ Mixolydian ♭6
 
 F
 
-* F Lydian, F Ionian, F Mixolydian, F Dorian, F Aeolian, F Phrygian, F Locrian, F Harmonic Major, F Ionian \#5, F Mixolydian ♭6
+- F Lydian, F Ionian, F Mixolydian, F Dorian, F Aeolian, F Phrygian, F Locrian, F Harmonic Major, F Ionian \#5, F Mixolydian ♭6
 
 **C Parallel Modes**  
 C Lydian, C Ionian, C Mixolydian, C Dorian, C Aeolian, C Phrygian, C Locrian, C Harmonic Major, C Ionian \#5, C Mixolydian ♭6
@@ -7806,7 +7808,7 @@ C Lydian, C Ionian, C Mixolydian, C Dorian, C Aeolian, C Phrygian, C Locrian, C 
 \#\# C Aeolian  
 \#\#\# Aeolian Intervals: 1, 2, ♭3, 4, 5, ♭6, ♭7  
 \#\#\#\#\# Notes of F Aeolian: C, D, E♭, F, G, A♭, B♭  
-\#\#\#\#\# Parent Mode: E♭ Ionian   
+\#\#\#\#\# Parent Mode: E♭ Ionian  
 \_component:sequence(d49714ae-bf4d-4b66-8f14-618ca95ffa3a, piano)\_
 
 \#\# C Phrygian  
@@ -7823,7 +7825,7 @@ C Lydian, C Ionian, C Mixolydian, C Dorian, C Aeolian, C Phrygian, C Locrian, C 
 
 \#\# C Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of C Harmonic Major: C, D, E, F, G, A♭, B   
+\#\#\#\#\# Notes of C Harmonic Major: C, D, E, F, G, A♭, B  
 \_component:sequence(b471e858-d600-4d3c-824d-9106e508fe35, piano)\_
 
 \#\# C Ionian \#5  
@@ -7854,7 +7856,7 @@ G Lydian, G Ionian, G Mixolydian, G Dorian, G Aeolian, G Phrygian, G Locrian, G 
 \#\# G Mixolydian  
 \#\#\# Mixolydian Intervals: 1, 2, 3, 4, 5, 6, ♭7  
 \#\#\#\#\# Notes of G Mixolydian: G, A, B, C, D, E, F  
-\#\#\#\#\# Parent Mode: C Ionian    
+\#\#\#\#\# Parent Mode: C Ionian  
 \_component:sequence(89ac3d1b-c50c-47a7-bf97-9d79a8158c91, piano)\_
 
 \#\# G Dorian  
@@ -7866,7 +7868,7 @@ G Lydian, G Ionian, G Mixolydian, G Dorian, G Aeolian, G Phrygian, G Locrian, G 
 \#\# G Aeolian  
 \#\#\# Aeolian Intervals: 1, 2, ♭3, 4, 5, ♭6, ♭7  
 \#\#\#\#\# Notes of G Aeolian: G, A, B♭, C, D, E♭, F  
-\#\#\#\#\# Parent Mode: B♭ Ionian   
+\#\#\#\#\# Parent Mode: B♭ Ionian  
 \_component:sequence(5fe3ce38-9375-46c2-8765-d5a4b8f6a3c6, piano)\_
 
 \#\# G Phrygian  
@@ -7877,23 +7879,23 @@ G Lydian, G Ionian, G Mixolydian, G Dorian, G Aeolian, G Phrygian, G Locrian, G 
 
 \#\# G Locrian  
 \#\#\# Locrian Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of G Locrian: G, A♭, B♭, C, D♭, E♭, F   
+\#\#\#\#\# Notes of G Locrian: G, A♭, B♭, C, D♭, E♭, F  
 \#\#\#\#\# Parent Mode: A♭ Ionian  
 \_component:sequence(cc6fca88-5883-4cc0-a869-5be85fda7c73, piano)\_
 
 \#\# G Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of G Harmonic Major: G, A, B, C, D, E♭, F\#   
+\#\#\#\#\# Notes of G Harmonic Major: G, A, B, C, D, E♭, F\#  
 \_component:sequence(2e1adb40-57b6-4449-ad58-9e7823e323a0, piano)\_
 
 \#\# G Ionian \#5  
 \#\#\#\# Ionian \#5 Intervals: 1, 2, 3, 4, \#5, 6, 7  
-\#\#\#\#\# Notes of G Ionian \#5: G, A, B, C, D\#, E, F\#   
+\#\#\#\#\# Notes of G Ionian \#5: G, A, B, C, D\#, E, F\#  
 \_component:sequence(72d2066a-2da9-4e98-9753-3d6548982b78, piano)\_
 
 \#\# G Mixolydian ♭6  
 \#\#\#\# Mixolydian ♭6 Intervals: 1, 2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of G Mixolydian ♭6: G, A, B, C, D, E♭, F    
+\#\#\#\#\# Notes of G Mixolydian ♭6: G, A, B, C, D, E♭, F  
 \_component:sequence(b9dfe16d-bc70-4da6-9c8d-b56217751cb0, piano)\_
 
 **D Parallel Modes**  
@@ -7908,7 +7910,7 @@ D Lydian, D Ionian, D Mixolydian, D Dorian, D Aeolian, D Phrygian, D Locrian, D 
 \#\# D Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
 \#\#\#\#\# Notes of D Ionian: D, E, F\#, G, A, B, C\#  
-\#\#\#\#\# Parent Mode: D Ionian   
+\#\#\#\#\# Parent Mode: D Ionian  
 \_component:sequence(d39ff97d-f061-4682-bf2b-9dcd299caf8d, piano)\_
 
 \#\# D Mixolydian  
@@ -7926,7 +7928,7 @@ D Lydian, D Ionian, D Mixolydian, D Dorian, D Aeolian, D Phrygian, D Locrian, D 
 \#\# D Aeolian  
 \#\#\# Aeolian Intervals: 1, 2, ♭3, 4, 5, ♭6, ♭7  
 \#\#\#\#\# Notes of D Aeolian: D, E, F, G, A, B♭, C  
-\#\#\#\#\# Parent Mode: F Ionian   
+\#\#\#\#\# Parent Mode: F Ionian  
 \_component:sequence(e9de4880-aff8-4ecd-a5ab-8660b816965c, piano)\_
 
 \#\# D Phrygian  
@@ -7943,7 +7945,7 @@ D Lydian, D Ionian, D Mixolydian, D Dorian, D Aeolian, D Phrygian, D Locrian, D 
 
 \#\# D Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of D Harmonic Major: D, E, F\#, G, A, B♭, C\#   
+\#\#\#\#\# Notes of D Harmonic Major: D, E, F\#, G, A, B♭, C\#  
 \_component:sequence(7706442f-195d-4f9a-837b-3ac56ba3ab69, piano)\_
 
 \#\# D Ionian \#5  
@@ -7969,7 +7971,7 @@ A Ionian \#5, A Mixolydian ♭6
 \#\# A Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
 \#\#\#\#\# Notes of A Ionian: A, B, C\#, D, E, F\#, G\#  
-\#\#\#\#\# Parent Mode: A Ionian   
+\#\#\#\#\# Parent Mode: A Ionian  
 \_component:sequence(043cfb29-d4cc-495e-a22e-73540ee21f73, piano)\_
 
 \#\# A Mixolydian  
@@ -7981,7 +7983,7 @@ A Ionian \#5, A Mixolydian ♭6
 \#\# A Dorian  
 \#\#\# Dorian Intervals: 1, 2, ♭ 3, 4, 5, 6, ♭7  
 \#\#\#\#\# Notes of A Dorian: A, B, C, D, E, F\#, G  
-\#\#\#\#\# Parent Mode: G Ionian   
+\#\#\#\#\# Parent Mode: G Ionian  
 \_component:sequence(c2e68056-d142-4499-acb2-03aabf587fb1, piano)\_
 
 \#\# A Aeolian  
@@ -8014,7 +8016,7 @@ A Ionian \#5, A Mixolydian ♭6
 
 \#\# A Mixolydian ♭6  
 \#\#\#\# Mixolydian ♭6 Intervals: 1, 2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of A Mixolydian ♭6: A, B, C\#, D, E, F, G   
+\#\#\#\#\# Notes of A Mixolydian ♭6: A, B, C\#, D, E, F, G  
 \_component:sequence(c3d2789a-fc81-4fef-aa30-aa83bb9a86fa, piano)\_
 
 **E Parallel Modes**  
@@ -8030,7 +8032,7 @@ E Ionian \#5, E Mixolydian ♭6
 \#\# E Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
 \#\#\#\#\# Notes of E Ionian: E, F\#, G\#, A, B, C\#, D\#  
-\#\#\#\#\# Parent Mode: E Ionian   
+\#\#\#\#\# Parent Mode: E Ionian  
 \_component:sequence(8bef8099-6933-435a-a2c6-5f94a2d4c81a, piano)\_
 
 \#\# E Mixolydian  
@@ -8065,7 +8067,7 @@ E Ionian \#5, E Mixolydian ♭6
 
 \#\# E Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of Harmonic Major: E, F\#, G\#, A, B, C, D\#   
+\#\#\#\#\# Notes of Harmonic Major: E, F\#, G\#, A, B, C, D\#  
 \_component:sequence(9658bdd2-b9c9-49f7-a32b-369965391dee, piano)\_
 
 \#\# E Ionian \#5  
@@ -8091,7 +8093,7 @@ B Ionian \#5, B Mixolydian ♭6
 \#\# B Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
 \#\#\#\#\# Notes of B Ionian: B, C\#, D\#, E, F\#, G\#, A\#  
-\#\#\#\#\# Parent Mode: B Ionian   
+\#\#\#\#\# Parent Mode: B Ionian  
 \_component:sequence(a832b696-43a7-4015-99da-7ede3a6da301, piano)\_
 
 \#\# B Mixolydian  
@@ -8109,7 +8111,7 @@ B Ionian \#5, B Mixolydian ♭6
 \#\# B Aeolian  
 \#\#\# Aeolian Intervals: 1, 2, ♭3, 4, 5, ♭6, ♭7  
 \#\#\#\#\# Notes of B Aeolian: B, C\#, D, E, F\#, G, A  
-\#\#\#\#\# Parent Mode: D Ionian   
+\#\#\#\#\# Parent Mode: D Ionian  
 \_component:sequence(8d89e974-38d2-432f-90bc-c773bf599df4, piano)\_
 
 \#\# B Phrygian  
@@ -8126,12 +8128,12 @@ B Ionian \#5, B Mixolydian ♭6
 
 \#\# B Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of B Harmonic Major: B, C\#, D\#, E, F\#, G, A\#   
+\#\#\#\#\# Notes of B Harmonic Major: B, C\#, D\#, E, F\#, G, A\#  
 \_component:sequence(07dd9862-d50b-48b5-9cc6-c60112cf5f9f, piano)\_
 
 \#\# B Ionian \#5  
 \#\#\#\# Ionian \#5 Intervals: 1, 2, 3, 4, \#5, 6, 7  
-\#\#\#\#\# Notes of B Ionian \#5: B, C\#, D\#, E, FX, G\#, A\#   
+\#\#\#\#\# Notes of B Ionian \#5: B, C\#, D\#, E, FX, G\#, A\#  
 \_component:sequence(2f5f546e-930a-4a51-bad4-247a7ff8ddab, piano)\_
 
 \#\# B Mixolydian ♭6  
@@ -8181,22 +8183,22 @@ F\# Lydian, F\# Ionian, F\# Mixolydian, F\# Dorian, F\# Aeolian, F\# Phrygian, F
 \#\# F\# Locrian  
 \#\#\# Locrian Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
 \#\#\#\#\# Notes of F\# Locrian: F\#, G, A, B, C, D, E  
-\#\#\#\#\# Parent Mode: G Ionian   
+\#\#\#\#\# Parent Mode: G Ionian  
 \_component:sequence(50cf3821-6db6-40bc-880e-08cd9c5f815f, piano)\_
 
 \#\# F\# Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of F\# Harmonic Major: F\#, G\#, A\#, B, C\#, D, E\#    
+\#\#\#\#\# Notes of F\# Harmonic Major: F\#, G\#, A\#, B, C\#, D, E\#  
 \_component:sequence(fb8c2b36-2f0f-4639-8c76-bd0d9bec346d, piano)\_
 
 \#\# F\# Ionian \#5  
 \#\#\#\# Ionian \#5 Intervals: 1, 2, 3, 4, \#5, 6, 7  
-\#\#\#\#\# Notes of F\# Ionian \#5: F\#, G\#, A\#, B, CX, D\#, E\#   
+\#\#\#\#\# Notes of F\# Ionian \#5: F\#, G\#, A\#, B, CX, D\#, E\#  
 \_component:sequence(d876c3d3-8ed7-4772-b85a-66090e4cf31c, piano)\_
 
 \#\# F\# Mixolydian ♭6  
 \#\#\#\# Mixolydian ♭6 Intervals: 1, 2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of F\# Mixolydian ♭6: F\#, G\#, A\#, B, C\#, D, E   
+\#\#\#\#\# Notes of F\# Mixolydian ♭6: F\#, G\#, A\#, B, C\#, D, E  
 \_component:sequence(7021f9bd-fd8c-4a74-ab1d-7aa614d44003, piano)\_
 
 **D♭ / C\# Parallel Modes**  
@@ -8211,7 +8213,7 @@ D♭ Lydian, D♭ Ionian, D♭ Mixolydian, D♭ Dorian, D♭ Aeolian, D♭ Phryg
 \#\# D♭ Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
 \#\#\#\#\# Notes of D♭ Ionian: D♭, E♭, F, G♭, A♭, B♭, C  
-\#\#\#\#\# Parent Mode: D♭ Ionian   
+\#\#\#\#\# Parent Mode: D♭ Ionian  
 \_component:sequence(d7c0f89c-5d4b-4306-a5e8-3c22f0de0e70, piano)\_
 
 \#\# C\# Mixolydian  
@@ -8241,7 +8243,7 @@ D♭ Lydian, D♭ Ionian, D♭ Mixolydian, D♭ Dorian, D♭ Aeolian, D♭ Phryg
 \#\# D♭ Locrian  
 \#\#\# Locrian Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7  
 \#\#\#\#\# Notes of C\# Locrian: C\#, D, E, F\#, G, A, B  
-\#\#\#\#\# Parent Mode: D Ionian   
+\#\#\#\#\# Parent Mode: D Ionian  
 \_component:sequence(06c6fc37-d639-4d2a-a922-a67b39d4e418, piano)\_
 
 \#\# D♭ Harmonic Major  
@@ -8271,7 +8273,7 @@ A♭ Lydian, A♭ Ionian, A♭ Mixolydian, A♭ Dorian, A♭ Aeolian, A♭ Phryg
 \#\# A♭ Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
 \#\#\#\#\# Notes of A♭ Ionian: A♭, B♭, C, D♭, E♭, F, G  
-\#\#\#\#\# Parent Mode: A♭ Ionian   
+\#\#\#\#\# Parent Mode: A♭ Ionian  
 \_component:sequence(3664600e-7cbf-4361-9e0f-e9e8513838a0, piano)\_
 
 \#\# A♭ Mixolydian  
@@ -8311,12 +8313,12 @@ A♭ Lydian, A♭ Ionian, A♭ Mixolydian, A♭ Dorian, A♭ Aeolian, A♭ Phryg
 
 \#\# A♭ Ionian \#5  
 \#\#\#\# Ionian \#5 Intervals: 1, 2, 3, 4, \#5, 6, 7  
-\#\#\#\#\# Notes of A♭ Ionian \#5: A♭, B♭, C, D♭, E, F, G   
+\#\#\#\#\# Notes of A♭ Ionian \#5: A♭, B♭, C, D♭, E, F, G  
 \_component:sequence(8666709d-2255-4bcd-a797-03e07a8dc72c, piano)\_
 
 \#\# A♭ Mixolydian ♭6  
 \#\#\#\# Mixolydian ♭6 Intervals: 1, 2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of A♭ Mixolydian ♭6: A♭, B♭, C, D♭, E♭, F♭, G♭   
+\#\#\#\#\# Notes of A♭ Mixolydian ♭6: A♭, B♭, C, D♭, E♭, F♭, G♭  
 \_component:sequence(2e334671-91dc-44d6-8f15-164e21b7c7bf, piano)\_
 
 **E♭ / D\# Parallel Modes**  
@@ -8331,7 +8333,7 @@ E♭ Lydian, E♭ Ionian, E♭ Mixolydian, E♭ Dorian, E♭ Aeolian, E♭ Phryg
 \#\# E♭ Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
 \#\#\#\#\# Notes of E♭ Ionian: E♭, F, G, A♭, B♭, C, D  
-\#\#\#\#\# Parent Mode: E♭ Ionian   
+\#\#\#\#\# Parent Mode: E♭ Ionian  
 \_component:sequence(1477a979-cd7b-4bb8-94cc-34ef26ffb659, piano)\_
 
 \#\# E♭ Mixolydian  
@@ -8391,7 +8393,7 @@ Bb Lydian, Bb Ionian, Bb Mixolydian, Bb Dorian, Bb Aeolian, Bb Phrygian, Bb Locr
 \#\# B♭ Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
 \#\#\#\#\# Notes of B♭ Ionian: B♭, C, D, E♭, F, G, A  
-\#\#\#\#\# Parent Mode: B♭ Ionian    
+\#\#\#\#\# Parent Mode: B♭ Ionian  
 \_component:sequence(04bf6863-9dc0-492d-b6eb-657879c9ff20, piano)\_
 
 \#\# B♭ Mixolydian  
@@ -8409,7 +8411,7 @@ Bb Lydian, Bb Ionian, Bb Mixolydian, Bb Dorian, Bb Aeolian, Bb Phrygian, Bb Locr
 \#\# B♭ Aeolian  
 \#\#\# Aeolian Intervals: 1, 2, ♭3, 4, 5, ♭6, ♭7  
 \#\#\#\#\# Notes of B♭ Aeolian: B♭, C, D♭, E♭, F, G♭, A♭  
-\#\#\#\#\# Parent Mode: D♭ Ionian   
+\#\#\#\#\# Parent Mode: D♭ Ionian  
 \_component:sequence(e74f21de-3844-4188-b7bc-63d2c827ad63, piano)\_
 
 \#\# A\# Phrygian  
@@ -8452,7 +8454,7 @@ F Ionian \#5, F Mixolydian ♭6
 \#\# F Ionian  
 \#\#\# Ionian Intervals: 1, 2, 3, 4, 5, 6, 7  
 \#\#\#\#\# Notes of F Ionian: F, G, A, B♭, C, D, E  
-\#\#\#\#\# Parent Mode: F Ionian    
+\#\#\#\#\# Parent Mode: F Ionian  
 \_component:sequence(c54b9a70-1cf7-40a8-b9c1-b920b4b9c663, piano)\_
 
 \#\# F Mixolydian  
@@ -8470,7 +8472,7 @@ F Ionian \#5, F Mixolydian ♭6
 \#\# F Aeolian  
 \#\#\# Aeolian Intervals: 1, 2, ♭3, 4, 5, ♭6, ♭7  
 \#\#\#\#\# Notes of F Aeolian: F, G, A♭, B♭, C, D♭, E♭  
-\#\#\#\#\# Parent Mode: A♭ Ionian   
+\#\#\#\#\# Parent Mode: A♭ Ionian  
 \_component:sequence(4a8f85a9-9836-4505-b242-3fc856221e3d, piano)\_
 
 \#\# F Phrygian  
@@ -8492,7 +8494,7 @@ F Ionian \#5, F Mixolydian ♭6
 
 \#\# F Ionian \#5  
 \#\#\#\# Ionian \#5 Intervals: 1, 2, 3, 4, \#5, 6, 7  
-\#\#\#\#\# Notes of F Ionian \#5: F, G, A, B♭, C\#, D, E   
+\#\#\#\#\# Notes of F Ionian \#5: F, G, A, B♭, C\#, D, E  
 \_component:sequence(aa656a1c-b14b-49fb-909a-ce3f19c85800, piano)\_
 
 \#\# F Mixolydian ♭6  
@@ -8506,148 +8508,159 @@ F Ionian \#5, F Mixolydian ♭6
 
 Harmonic Minor
 
-* Computer:  
-  * \[0, 2, 3, 5, 7, 8, 11\]  
-      
-* Intervals:  
-  * 1, 2, ♭3, 4, 5, ♭6, 7
+- Computer:
 
-* Triads:   
-  * 1 min, 2 dim, ♭3 aug, 4 min, 5 maj, ♭6 maj, 7 dim  
-  * EXTRA: 5 aug
+  - \[0, 2, 3, 5, 7, 8, 11\]
 
+- Intervals:
 
-* 7th Chords:   
-  * 1 min(maj7), 2 min7(♭5), ♭3 maj7(\#5), 4 min7, 5 dom7, ♭6 maj7, 7 dim7  
-  * EXTRA:  5 dom7(\#5)
+  - 1, 2, ♭3, 4, 5, ♭6, 7
 
+- Triads:
 
-* 9th Chords:   
-  * 1 min(maj9), 2 min7(♭5♭9), ♭3 maj9(\#5), 4 min9, 5 dom7(♭9), ♭6 maj7(\#9), 7 dim7(♭9)  
-  * EXTRA: 2 dim7(♭9), 4 dim7(add9), 4 min69, 5 dom7(\#5♭9)
+  - 1 min, 2 dim, ♭3 aug, 4 min, 5 maj, ♭6 maj, 7 dim
+  - EXTRA: 5 aug
 
-Locrian ♮6 
+- 7th Chords:
 
-* Computer:  
-  * \[0, 1, 3, 5, 6, 9, 10\]  
-      
-* Intervals:  
-  * 1, ♭2, ♭3, 4, ♭5, 6, ♭7  
-      
-* Triads:   
-  * 1 dim, ♭2 aug, ♭3 min, 4 maj, 4 aug, ♭5 maj, 6 dim, ♭7 min
+  - 1 min(maj7), 2 min7(♭5), ♭3 maj7(\#5), 4 min7, 5 dom7, ♭6 maj7, 7 dim7
+  - EXTRA: 5 dom7(\#5)
 
+- 9th Chords:
+  - 1 min(maj9), 2 min7(♭5♭9), ♭3 maj9(\#5), 4 min9, 5 dom7(♭9), ♭6 maj7(\#9), 7 dim7(♭9)
+  - EXTRA: 2 dim7(♭9), 4 dim7(add9), 4 min69, 5 dom7(\#5♭9)
 
-* 7th Chords:   
-  * 1 min7(♭5), ♭2 maj7 (\#5), ♭3 min7, 4 dom7, 4 dom7 (\#5), ♭5 maj7, 6 dim7, ♭7 min (maj7)
+Locrian ♮6
 
+- Computer:
 
-* 9th Chords:  
-  * 1 min7(♭5♭9), ♭2 maj9 (\#5), ♭3 min9, 4 dom7(♭9),♭5 maj7(\#9), 6 dim7(♭9), ♭7 min (maj9)  
-  * EXTRAA:, 4 dom7 (\#5♭9)
+  - \[0, 1, 3, 5, 6, 9, 10\]
+
+- Intervals:
+
+  - 1, ♭2, ♭3, 4, ♭5, 6, ♭7
+
+- Triads:
+
+  - 1 dim, ♭2 aug, ♭3 min, 4 maj, 4 aug, ♭5 maj, 6 dim, ♭7 min
+
+- 7th Chords:
+
+  - 1 min7(♭5), ♭2 maj7 (\#5), ♭3 min7, 4 dom7, 4 dom7 (\#5), ♭5 maj7, 6 dim7, ♭7 min (maj7)
+
+- 9th Chords:
+  - 1 min7(♭5♭9), ♭2 maj9 (\#5), ♭3 min9, 4 dom7(♭9),♭5 maj7(\#9), 6 dim7(♭9), ♭7 min (maj9)
+  - EXTRAA:, 4 dom7 (\#5♭9)
 
 Ionian \#5
 
-* Computer:  
-  * \[0, 2, 4, 5, 8, 9, 11\]  
-      
-* Intervals:  
-  * 1, 2, 3, 4, ♯5, 6, 7  
-      
-* Triads:   
-  * 1 aug, 2 min, 3 maj, 3 aug, 4 maj, \#5 dim, 6 min, 7 dim
+- Computer:
 
+  - \[0, 2, 4, 5, 8, 9, 11\]
 
-* 7th Chords:   
-  * 1 maj7 (\#5), 2 min7, 3 dom7, 3 dom7(\#5), 4 maj7, \#5 dim7, 6 min(maj7), 7 min7(♭5)
+- Intervals:
 
+  - 1, 2, 3, 4, ♯5, 6, 7
 
-* 9th Chords:   
-  * 1 maj9 (\#5), 2 min9, 3 dom7(♭9), 4 maj7(\#9), \#5 dim7(♭9), 6 min (maj9), 7 min7(♭5♭9)  
-  * EXTRA: 3 dom7(\#5♭9)
+- Triads:
+
+  - 1 aug, 2 min, 3 maj, 3 aug, 4 maj, \#5 dim, 6 min, 7 dim
+
+- 7th Chords:
+
+  - 1 maj7 (\#5), 2 min7, 3 dom7, 3 dom7(\#5), 4 maj7, \#5 dim7, 6 min(maj7), 7 min7(♭5)
+
+- 9th Chords:
+  - 1 maj9 (\#5), 2 min9, 3 dom7(♭9), 4 maj7(\#9), \#5 dim7(♭9), 6 min (maj9), 7 min7(♭5♭9)
+  - EXTRA: 3 dom7(\#5♭9)
 
 Dorian \#4
 
-* Computer:  
-  * \[0, 2, 3, 6, 7, 9, 10\]
+- Computer:
 
-* Intervals:  
-  * 1, 2, ♭3, ♯4, 5, 6, ♭7  
-      
-* Triads:   
-  * 1 min, 2 maj, 2 aug, ♭3 maj, \#4 dim, 5 min, 6 dim, ♭7 aug
+  - \[0, 2, 3, 6, 7, 9, 10\]
 
+- Intervals:
 
-* 7th Chords:   
-  * 1 min7, 2 dom7, 2 dom7(\#5), ♭3 maj7, \#4 dim7, 5 min(maj7), 6 min7(♭5), ♭7 maj7 (\#5) 
+  - 1, 2, ♭3, ♯4, 5, 6, ♭7
 
+- Triads:
 
-* 9th Chords:   
-  * 1 min9, 2 dom7(♭9), ♭3 maj7(\#9), \#4 dim7(♭9), 5 min(maj9), 6 min7(♭5♭9), ♭7 maj9(\#5)   
-  * extra:, 2 dom7(\#5♭9)
+  - 1 min, 2 maj, 2 aug, ♭3 maj, \#4 dim, 5 min, 6 dim, ♭7 aug
+
+- 7th Chords:
+
+  - 1 min7, 2 dom7, 2 dom7(\#5), ♭3 maj7, \#4 dim7, 5 min(maj7), 6 min7(♭5), ♭7 maj7 (\#5)
+
+- 9th Chords:
+  - 1 min9, 2 dom7(♭9), ♭3 maj7(\#9), \#4 dim7(♭9), 5 min(maj9), 6 min7(♭5♭9), ♭7 maj9(\#5)
+  - extra:, 2 dom7(\#5♭9)
 
 Phrygian Dominant
 
-* Computer:  
-  * \[0, 1, 4, 5, 7, 8, 10\]
+- Computer:
 
-* Intervals:  
-  * 1, ♭2, 3, 4, 5, ♭6, ♭7
+  - \[0, 1, 4, 5, 7, 8, 10\]
 
+- Intervals:
 
-* Triads:   
-  * 1 maj, 1 aug, ♭2 maj, 3 dim, 4 min, 5 dim, ♭6 aug, ♭7 min 
+  - 1, ♭2, 3, 4, 5, ♭6, ♭7
 
+- Triads:
 
-* 7th Chords:   
-  * 1 dom7, 1 dom7(\#5), ♭2 maj7, 3 dim7, 4 min(maj7), 5 min7(♭5), ♭6 maj7(\#5), ♭7 min7
+  - 1 maj, 1 aug, ♭2 maj, 3 dim, 4 min, 5 dim, ♭6 aug, ♭7 min
 
+- 7th Chords:
 
-* 9th Chords:   
-  * 1 dom7(♭9), , ♭2 maj7(\#9), 3 dim7(♭9), 4 min(maj9), 5 min7(♭5♭9), ♭6 maj9(\#5), ♭7 min9  
-  * Extra: 1 dom7(\#5♭9)
+  - 1 dom7, 1 dom7(\#5), ♭2 maj7, 3 dim7, 4 min(maj7), 5 min7(♭5), ♭6 maj7(\#5), ♭7 min7
+
+- 9th Chords:
+  - 1 dom7(♭9), , ♭2 maj7(\#9), 3 dim7(♭9), 4 min(maj9), 5 min7(♭5♭9), ♭6 maj9(\#5), ♭7 min9
+  - Extra: 1 dom7(\#5♭9)
 
 Lydian \#2
 
-* Computer:  
-  *  \[0, 3, 4, 6, 7, 9, 11\]
+- Computer:
 
-* Intervals:  
-  * 1, ♯2, 3, ♯4, 5, 6, 7
+  - \[0, 3, 4, 6, 7, 9, 11\]
 
+- Intervals:
 
-* Triads:   
-  * 1 maj, \#2 dim, 3 min, \#4 dim, 5 aug, 6 min, 7 maj, 7 aug
+  - 1, ♯2, 3, ♯4, 5, 6, 7
 
+- Triads:
 
-* 7th Chords:   
-  * 1 maj7, \#2 dim7, 3 min(maj7), \#4 min7(♭5), 5 maj7(\#5), 6 min7, 7 dom7, 7 dom7(\#5)
+  - 1 maj, \#2 dim, 3 min, \#4 dim, 5 aug, 6 min, 7 maj, 7 aug
 
+- 7th Chords:
 
-* 9th Chords:   
-  * 1 maj7(\#9), \#2 dim7(♭9), 3 min(maj9), \#4 min7(♭5♭9), 5 maj9(\#5), 6 min9, 7 dom7(♭9)  
-  * Extra: 7 dom7(\#5♭9)
+  - 1 maj7, \#2 dim7, 3 min(maj7), \#4 min7(♭5), 5 maj7(\#5), 6 min7, 7 dom7, 7 dom7(\#5)
+
+- 9th Chords:
+  - 1 maj7(\#9), \#2 dim7(♭9), 3 min(maj9), \#4 min7(♭5♭9), 5 maj9(\#5), 6 min9, 7 dom7(♭9)
+  - Extra: 7 dom7(\#5♭9)
 
 Altered Diminished
 
-* Computer:  
-  * \[0, 1, 3, 4, 6, 8, 9\]
+- Computer:
 
-* Intervals:  
-  * 1, ♭2, ♭3, ♭4, ♭5, ♭6, 𝄫7
+  - \[0, 1, 3, 4, 6, 8, 9\]
 
+- Intervals:
 
-* Triads:   
-  * 1 dim, ♭2 min	, ♭3 dim, ♭4 aug, ♭5 min, ♭6 maj, ♭6 aug, 𝄫7 maj 
+  - 1, ♭2, ♭3, ♭4, ♭5, ♭6, 𝄫7
 
+- Triads:
 
-* 7th Chords:   
-  * 1 dim7, ♭2 min(maj7), ♭3 min7(♭5), 4 maj7(\#5), ♭5 min7, ♭6 dom7, ♭6 dom7(\#5), 𝄫7 maj7
+  - 1 dim, ♭2 min , ♭3 dim, ♭4 aug, ♭5 min, ♭6 maj, ♭6 aug, 𝄫7 maj
 
+- 7th Chords:
 
-* 9th Chords:   
-  * 1 dim7(♭9), ♭2 min(maj9), ♭3 min7(♭5♭9), 4 maj9(\#5), ♭5 min9, ♭6 dom7(♭9), 𝄫7 maj7(\#9)  
-  * Extra:  ♭6 dom7(\#5♭9)
+  - 1 dim7, ♭2 min(maj7), ♭3 min7(♭5), 4 maj7(\#5), ♭5 min7, ♭6 dom7, ♭6 dom7(\#5), 𝄫7 maj7
+
+- 9th Chords:
+  - 1 dim7(♭9), ♭2 min(maj9), ♭3 min7(♭5♭9), 4 maj9(\#5), ♭5 min9, ♭6 dom7(♭9), 𝄫7 maj7(\#9)
+  - Extra: ♭6 dom7(\#5♭9)
 
 # Harmonic Minor
 
@@ -8658,7 +8671,7 @@ Altered Diminished
 
 \#\# G Harmonic Minor  
 \#\#\#\# Harmonic Minor Intervals: 1, 2, ♭3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of G Harmonic Minor: G, A, B♭, C, D, E♭, F\#   
+\#\#\#\#\# Notes of G Harmonic Minor: G, A, B♭, C, D, E♭, F\#  
 \_component:sequence(2c179156-cbfb-45fb-969f-0acbad63f00e, piano)\_
 
 \#\# D Harmonic Minor  
@@ -8678,12 +8691,12 @@ Altered Diminished
 
 \#\# B Harmonic Minor  
 \#\#\#\# Harmonic Minor Intervals: 1, 2, ♭3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of B Harmonic Minor: B, C\#, D, E, F\#, G, A\#   
+\#\#\#\#\# Notes of B Harmonic Minor: B, C\#, D, E, F\#, G, A\#  
 \_component:sequence(57dcb135-6acc-4cd5-9cfc-327e0bc2fba5, piano)\_
 
 \#\# F\# Harmonic Minor  
 \#\#\#\# Harmonic Minor Intervals: 1, 2, ♭3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of F\# Harmonic Minor: F\#, G\#, A, B, C\#, D, E\#   
+\#\#\#\#\# Notes of F\# Harmonic Minor: F\#, G\#, A, B, C\#, D, E\#  
 \_component:sequence(23360c5c-6884-4724-b89e-dc73f445e281, piano)\_
 
 \#\# D♭ Harmonic Minor  
@@ -8693,7 +8706,7 @@ Altered Diminished
 
 \#\# A♭ Harmonic Minor  
 \#\#\#\# Harmonic Minor Intervals: 1, 2, ♭3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of A♭ Harmonic Minor: A♭, B♭, C♭, D♭, E♭, F♭, G   
+\#\#\#\#\# Notes of A♭ Harmonic Minor: A♭, B♭, C♭, D♭, E♭, F♭, G  
 \_component:sequence(0f452bc0-4fac-435e-9813-92f5623d15cb, piano)\_
 
 \#\# E♭ Harmonic Minor  
@@ -8708,7 +8721,7 @@ Altered Diminished
 
 \#\# F Harmonic Minor  
 \#\#\#\# Harmonic Minor Intervals: 1, 2, ♭3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of F Harmonic Minor: F, G, A♭, B♭, C, D♭, E   
+\#\#\#\#\# Notes of F Harmonic Minor: F, G, A♭, B♭, C, D♭, E  
 \_component:sequence(589e9569-b155-4193-ab46-938b487190bf, piano)\_
 
 # Locrian ♮6
@@ -8720,7 +8733,7 @@ Altered Diminished
 
 \#\# G Locrian ♮6  
 \#\#\#\# Locrian ♮6 Intervals: 1, ♭2, ♭3, 4, ♭5, 6, ♭7  
-\#\#\#\#\# Notes of G Locrian ♮6: G, A♭, B♭, C, D♭, E, F   
+\#\#\#\#\# Notes of G Locrian ♮6: G, A♭, B♭, C, D♭, E, F  
 \_component:sequence(0ce19841-84a8-45db-ad50-3eff7abf6ad0, piano)\_
 
 \#\# D Locrian ♮6  
@@ -8740,12 +8753,12 @@ Altered Diminished
 
 \#\# B Locrian ♮6  
 \#\#\#\# Locrian ♮6 Intervals: 1, ♭2, ♭3, 4, ♭5, 6, ♭7  
-\#\#\#\#\# Notes of B Locrian ♮6: B, C, D, E, F, G\#, A   
+\#\#\#\#\# Notes of B Locrian ♮6: B, C, D, E, F, G\#, A  
 \_component:sequence(b2813baf-39cd-479b-a78d-609ccf70508b, piano)\_
 
 \#\# F\# Locrian ♮6  
 \#\#\#\# Locrian ♮6 Intervals: 1, ♭2, ♭3, 4, ♭5, 6, ♭7  
-\#\#\#\#\# Notes of F\# Locrian ♮6: F\#, G, A, B, C, D\#, E   
+\#\#\#\#\# Notes of F\# Locrian ♮6: F\#, G, A, B, C, D\#, E  
 \_component:sequence(d13a77e6-dbf2-4906-be03-a90a6f4cf9aa, piano)\_
 
 \#\# C\# Locrian ♮6  
@@ -8755,7 +8768,7 @@ Altered Diminished
 
 \#\# G\# Locrian ♮6  
 \#\#\#\# Locrian ♮6 Intervals: 1, ♭2, ♭3, 4, ♭5, 6, ♭7  
-\#\#\#\#\# Notes of G\# Locrian ♮6: G\#, A, B, C\#, D, E\#, F\#, G   
+\#\#\#\#\# Notes of G\# Locrian ♮6: G\#, A, B, C\#, D, E\#, F\#, G  
 \_component:sequence(2f8fc342-2cff-408a-a0d3-a2a0b74a9bad, piano)\_
 
 \#\# D\# Locrian ♮6  
@@ -8782,7 +8795,7 @@ Altered Diminished
 
 \#\# G Ionian \#5  
 \#\#\#\# Ionian \#5 Intervals: 1, 2, 3, 4, \#5, 6, 7  
-\#\#\#\#\# Notes of G Ionian \#5: G, A, B, C, D\#, E, F\#   
+\#\#\#\#\# Notes of G Ionian \#5: G, A, B, C, D\#, E, F\#  
 \_component:sequence(72d2066a-2da9-4e98-9753-3d6548982b78, piano)\_
 
 \#\# D Ionian \#5  
@@ -8802,12 +8815,12 @@ Altered Diminished
 
 \#\# B Ionian \#5  
 \#\#\#\# Ionian \#5 Intervals: 1, 2, 3, 4, \#5, 6, 7  
-\#\#\#\#\# Notes of B Ionian \#5: B, C\#, D\#, E, FX, G\#, A\#   
+\#\#\#\#\# Notes of B Ionian \#5: B, C\#, D\#, E, FX, G\#, A\#  
 \_component:sequence(2f5f546e-930a-4a51-bad4-247a7ff8ddab, piano)\_
 
 \#\# F\# Ionian \#5  
 \#\#\#\# Ionian \#5 Intervals: 1, 2, 3, 4, \#5, 6, 7  
-\#\#\#\#\# Notes of F\# Ionian \#5: F\#, G\#, A\#, B, CX, D\#, E\#   
+\#\#\#\#\# Notes of F\# Ionian \#5: F\#, G\#, A\#, B, CX, D\#, E\#  
 \_component:sequence(d876c3d3-8ed7-4772-b85a-66090e4cf31c, piano)\_
 
 \#\# D♭ Ionian \#5  
@@ -8817,7 +8830,7 @@ Altered Diminished
 
 \#\# A♭ Ionian \#5  
 \#\#\#\# Ionian \#5 Intervals: 1, 2, 3, 4, \#5, 6, 7  
-\#\#\#\#\# Notes of A♭ Ionian \#5: A♭, B♭, C, D♭, E, F, G   
+\#\#\#\#\# Notes of A♭ Ionian \#5: A♭, B♭, C, D♭, E, F, G  
 \_component:sequence(8666709d-2255-4bcd-a797-03e07a8dc72c, piano)\_
 
 \#\# E♭ Ionian \#5  
@@ -8832,19 +8845,19 @@ Altered Diminished
 
 \#\# F Ionian \#5  
 \#\#\#\# Ionian \#5 Intervals: 1, 2, 3, 4, \#5, 6, 7  
-\#\#\#\#\# Notes of F Ionian \#5: F, G, A, B♭, C\#, D, E   
+\#\#\#\#\# Notes of F Ionian \#5: F, G, A, B♭, C\#, D, E  
 \_component:sequence(aa656a1c-b14b-49fb-909a-ce3f19c85800, piano)\_
 
 # Dorian \#4
 
 \#\# C Dorian \#4  
 \#\#\#\# Dorian \#4 Intervals: 1, 2, ♭3, ♯4, 5, 6, ♭7  
-\#\#\#\#\# Notes of C Dorian \#4: C, D, E♭, F\#, G, A, B♭   
+\#\#\#\#\# Notes of C Dorian \#4: C, D, E♭, F\#, G, A, B♭  
 \_component:sequence(9de940d3-32b4-4995-a616-9123cb54f4ed, piano)\_
 
 \#\# G Dorian \#4  
 \#\#\#\# Dorian \#4 Intervals: 1, 2, ♭3, ♯4, 5, 6, ♭7  
-\#\#\#\#\# Notes of G Dorian \#4: G, A, B♭, C\#, D, E, F    
+\#\#\#\#\# Notes of G Dorian \#4: G, A, B♭, C\#, D, E, F  
 \_component:sequence(f6dad607-8f29-436d-8567-19e4a7266859, piano)\_
 
 \#\# D Dorian \#4  
@@ -8869,12 +8882,12 @@ Altered Diminished
 
 \#\# F\# Dorian \#4  
 \#\#\#\# Dorian \#4 Intervals: 1, 2, ♭3, ♯4, 5, 6, ♭7  
-\#\#\#\#\# Notes of F\# Dorian \#4: F\#, G\#, A, B\#, C\#, D\#, E   
+\#\#\#\#\# Notes of F\# Dorian \#4: F\#, G\#, A, B\#, C\#, D\#, E  
 \_component:sequence(c7130689-750f-4dd4-a5a8-e7c067b25135, piano)\_
 
 \#\# D♭ Dorian \#4  
 \#\#\#\# Dorian \#4 Intervals: 1, 2, ♭3, ♯4, 5, 6, ♭7  
-\#\#\#\#\# Notes of D♭ Dorian \#4: D♭, E♭, F♭, G, A♭, B♭, C♭   
+\#\#\#\#\# Notes of D♭ Dorian \#4: D♭, E♭, F♭, G, A♭, B♭, C♭  
 \_component:sequence(15bede3f-b031-45d5-b19b-7181123d6be9, piano)\_
 
 \#\# A♭ Dorian \#4  
@@ -8884,7 +8897,7 @@ Altered Diminished
 
 \#\# E♭ Dorian \#4  
 \#\#\#\# Dorian \#4 Intervals: 1, 2, ♭3, ♯4, 5, 6, ♭7  
-\#\#\#\#\# Notes of E♭ Dorian \#4: E♭, F, G♭, A, B♭, C, D♭   
+\#\#\#\#\# Notes of E♭ Dorian \#4: E♭, F, G♭, A, B♭, C, D♭  
 \_component:sequence(ff6fa430-69d6-448e-80e8-4ed53ff02dcf, piano)\_
 
 \#\# B♭ Dorian \#4  
@@ -8906,7 +8919,7 @@ Altered Diminished
 
 \#\# G Phrygian Dominant  
 \#\#\#\# Phrygian Dominant Intervals: 1, ♭2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of G Phrygian Dominant: G, A♭, B, C, D, E♭, F    
+\#\#\#\#\# Notes of G Phrygian Dominant: G, A♭, B, C, D, E♭, F  
 \_component:sequence(be150f17-2f1a-4221-b01c-cb71c4124516, piano)\_
 
 \#\# D Phrygian Dominant  
@@ -8916,22 +8929,22 @@ Altered Diminished
 
 \#\# A Phrygian Dominant  
 \#\#\#\# Phrygian Dominant Intervals: 1, ♭2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of A Phrygian Dominant: A, B♭, C\#, D, E, F, G   
+\#\#\#\#\# Notes of A Phrygian Dominant: A, B♭, C\#, D, E, F, G  
 \_component:sequence(924dfeb5-61d8-4f33-b5ef-a655315b9a82, piano)\_
 
 \#\# E Phrygian Dominant  
 \#\#\#\# Phrygian Dominant Intervals: 1, ♭2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of E Phrygian Dominant: E, F, G\#, A, B, C, D   
+\#\#\#\#\# Notes of E Phrygian Dominant: E, F, G\#, A, B, C, D  
 \_component:sequence(28aefd90-cf0e-4073-8a47-c5dfb1babed3, piano)\_
 
 \#\# B Phrygian Dominant  
 \#\#\#\# Phrygian Dominant Intervals: 1, ♭2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of B Phrygian Dominant: B, C, D\#, E, F\#, G, A   
+\#\#\#\#\# Notes of B Phrygian Dominant: B, C, D\#, E, F\#, G, A  
 \_component:sequence(caba8684-8c60-4c5f-8c9b-38dd644cae7d, piano)\_
 
 \#\# F\# Phrygian Dominant  
 \#\#\#\# Phrygian Dominant Intervals: 1, ♭2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of F\# Phrygian Dominant: F\#, G, A\#, B, C\#, D, E    
+\#\#\#\#\# Notes of F\# Phrygian Dominant: F\#, G, A\#, B, C\#, D, E  
 \_component:sequence(091d2f24-1e6c-4168-995f-4d953bb97b1e, piano)\_
 
 \#\# C\# Phrygian Dominant  
@@ -8962,62 +8975,62 @@ Altered Diminished
 # Lydian \#2
 
 \#\# C Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
-\#\#\#\#\# Notes of C Lydian \#2: C, D\#, E, F\#, G, A, B   
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
+\#\#\#\#\# Notes of C Lydian \#2: C, D\#, E, F\#, G, A, B  
 \_component:sequence(d8fdc116-a32e-47a5-a7aa-8f97ce0d16b4, piano)\_
 
 \#\# G Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
-\#\#\#\#\# Notes of G Lydian \#2: G, A\#, B, C\#, D, E, F\#    
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
+\#\#\#\#\# Notes of G Lydian \#2: G, A\#, B, C\#, D, E, F\#  
 \_component:sequence(52fe273c-bb4f-460e-9492-3662fa04dbfe, piano)\_
 
 \#\# D Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
 \#\#\#\#\# Notes of D Lydian \#2: D, E\#, F\#, G\#, A, B, C\#  
 \_component:sequence(8c1aa3c8-9107-43ae-a5b8-302f01ebd0d4, piano)\_
 
 \#\# A Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
 \#\#\#\#\# Notes of A Lydian \#2: A, B\#, C\#, D\#, E, F\#, G\#  
 \_component:sequence(774bca4f-1c78-4266-a493-0efe8c4593b8, piano)\_
 
 \#\# E Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
-\#\#\#\#\# Notes of E Lydian \#2: E, FX, G\#, A\#, B, C\#, D\#   
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
+\#\#\#\#\# Notes of E Lydian \#2: E, FX, G\#, A\#, B, C\#, D\#  
 \_component:sequence(b67d46ba-f521-4341-87a7-e8442e18fdff, piano)\_
 
 \#\# B Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
 \#\#\#\#\# Notes of B Lydian \#2: B, CX, D\#, E\#, F\#, G\#, A\#  
 \_component:sequence(d0ecff11-29d1-4b75-bc6c-fb10d5411667, piano)\_
 
 \#\# G♭ Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
-\#\#\#\#\# Notes of G♭ Lydian \#2: G♭, A, B♭, C, D♭, E♭, F    
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
+\#\#\#\#\# Notes of G♭ Lydian \#2: G♭, A, B♭, C, D♭, E♭, F  
 \_component:sequence(f815f527-4699-4661-ad62-192e4cacf36f, piano)\_
 
 \#\# D♭ Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
-\#\#\#\#\# Notes of D♭ Lydian \#2: D♭, E, F, G, A♭, B♭, C   
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
+\#\#\#\#\# Notes of D♭ Lydian \#2: D♭, E, F, G, A♭, B♭, C  
 \_component:sequence(d2b6be9e-4f75-4e60-98df-a912e4cb304e, piano)\_
 
 \#\# A♭ Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
 \#\#\#\#\# Notes of A♭ Lydian \#2: A♭, B, C, D, E♭, F, G  
 \_component:sequence(8302cd73-a002-4d95-989f-65af91925ba1, piano)\_
 
 \#\# E♭ Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
 \#\#\#\#\# Notes of E♭ Lydian \#2: E♭, F\#, G, A, B♭, C, D  
 \_component:sequence(ad3503b1-e116-4ffb-8a7e-835acce3eb4a, piano)\_
 
 \#\# B♭ Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
 \#\#\#\#\# Notes of B♭ Lydian \#2: B♭, C\#, D, E, F, G, A  
 \_component:sequence(101c7ff8-3734-4606-9e85-ee1b4f466a5a, piano)\_
 
 \#\# F Lydian \#2  
-\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4,	5, 6, 7  
+\#\#\#\# Lydian \#2 Intervals: 1, ♯2, 3, ♯4, 5, 6, 7  
 \#\#\#\#\# Notes of F Lydian \#2: F, G\#, A, B, C, D, E  
 \_component:sequence(3a461f45-93e0-4907-873d-59ab86217e23, piano)\_
 
@@ -9030,7 +9043,7 @@ Altered Diminished
 
 \#\# G Altered Diminished  
 \#\#\#\# Altered Diminished Intervals: 1, ♭2, ♭3, ♭4, ♭5, ♭6, 𝄫7  
-\#\#\#\#\# Notes of G Altered Diminished: G, A♭, B♭, C♭, D♭, E♭, F♭   
+\#\#\#\#\# Notes of G Altered Diminished: G, A♭, B♭, C♭, D♭, E♭, F♭  
 \_component:sequence(f4e832e1-b321-4fa8-b12e-b85db5faa2a4, piano)\_
 
 \#\# D Altered Diminished  
@@ -9055,7 +9068,7 @@ Altered Diminished
 
 \#\# F\# Altered Diminished  
 \#\#\#\# Altered Diminished Intervals: 1, ♭2, ♭3, ♭4, ♭5, ♭6, 𝄫7  
-\#\#\#\#\# Notes of F\# Altered Diminished: F\#, G, A, B♭, C, D, E♭   
+\#\#\#\#\# Notes of F\# Altered Diminished: F\#, G, A, B♭, C, D, E♭  
 \_component:sequence(784335e4-154e-4ff4-8b26-2f77d9d7d0b1, piano)\_
 
 \#\# C\# Altered Diminished  
@@ -9085,165 +9098,175 @@ Altered Diminished
 
 # Melodic Minor Modes
 
-**Collection: Melodic Minor: Chord Scales** 
+**Collection: Melodic Minor: Chord Scales**
 
 Melodic Minor
 
-* Computer:  
-  * \[0, 2, 3, 5, 7, 9, 11\]
+- Computer:
 
-* Intervals:  
-  * 1, 2, ♭3, 4, 5, 6, 7
+  - \[0, 2, 3, 5, 7, 9, 11\]
 
+- Intervals:
 
-* Triads:   
-  * 1 min, 2 min,♭3 aug, 4 maj, 5 maj, 6 dim, 7 dim  
-  * EXTRA: 5 aug
+  - 1, 2, ♭3, 4, 5, 6, 7
 
+- Triads:
 
-* 7th Chords:  
-  * 1 min(maj7), 2 min7, ♭3 maj7(\#5), 4 dom7, 5 dom7, 6 min7(♭5), 7 min7(♭5)  
-  * EXTRA: 5 dom7(\#5)
+  - 1 min, 2 min,♭3 aug, 4 maj, 5 maj, 6 dim, 7 dim
+  - EXTRA: 5 aug
 
+- 7th Chords:
 
-* 9th Chords:   
-  * 1 min(maj9), 2 min7(♭9), ♭3 maj9(\#5), 4 dom9, 5 dom9, 6 min9(♭5), 7 min7(♭5♭9)  
-  * Extra: 5 dom9(\#5)
+  - 1 min(maj7), 2 min7, ♭3 maj7(\#5), 4 dom7, 5 dom7, 6 min7(♭5), 7 min7(♭5)
+  - EXTRA: 5 dom7(\#5)
+
+- 9th Chords:
+  - 1 min(maj9), 2 min7(♭9), ♭3 maj9(\#5), 4 dom9, 5 dom9, 6 min9(♭5), 7 min7(♭5♭9)
+  - Extra: 5 dom9(\#5)
 
 Dorian ♭2
 
-* Computer:  
-  * \[0, 1, 3, 5, 7, 9, 10\]
+- Computer:
 
-* Intervals:  
-  * 1, ♭2, ♭3, 4, 5, 6, ♭7
+  - \[0, 1, 3, 5, 7, 9, 10\]
 
+- Intervals:
 
-* Triads:   
-  * 1 min, ♭2 aug	, ♭3 maj, 4 maj, 5 dim, 6 dim	, ♭7 min  
-  * extra:4 aug
+  - 1, ♭2, ♭3, 4, 5, 6, ♭7
 
+- Triads:
 
-* 7th Chords:   
-  * 1 min7, ♭2 maj7(\#5), ♭3 dom7, 4 dom7, 5 min7(♭5), 6 min7(♭5), ♭7 min(maj7)  
-  * extra:4 dom7(\#5),
+  - 1 min, ♭2 aug , ♭3 maj, 4 maj, 5 dim, 6 dim , ♭7 min
+  - extra:4 aug
 
+- 7th Chords:
 
-* 9th Chords:   
-  * 1 min7(♭9), ♭2 maj9(\#5), ♭3 dom9, 4 dom9, 5 min9(♭5), 6 min7(♭5♭9), ♭7min(maj9)  
-  * Extra: 4 dom9(\#5),
+  - 1 min7, ♭2 maj7(\#5), ♭3 dom7, 4 dom7, 5 min7(♭5), 6 min7(♭5), ♭7 min(maj7)
+  - extra:4 dom7(\#5),
+
+- 9th Chords:
+  - 1 min7(♭9), ♭2 maj9(\#5), ♭3 dom9, 4 dom9, 5 min9(♭5), 6 min7(♭5♭9), ♭7min(maj9)
+  - Extra: 4 dom9(\#5),
 
 Lydian Augmented
 
-* Computer:  
-  * \[0, 2, 4, 6, 8, 9, 11\]
+- Computer:
 
-* Intervals:  
-  * 1, 2, 3, \#4, \#5, 6, 7
+  - \[0, 2, 4, 6, 8, 9, 11\]
 
+- Intervals:
 
-* Triads:   
-  * 1 aug, 2 maj, 3 maj, \#4 dim, \#5 dim, 6 min, 7 min  
-  * extra:3 aug,
+  - 1, 2, 3, \#4, \#5, 6, 7
 
+- Triads:
 
-* 7th Chords:   
-  * 1 maj7(\#5), 2 dom7, 3 dom7, \#4 min7(♭5), \#5 min7(♭5), 6 min(maj7), 7 min7  
-  * extra:3 dom7(\#5),
+  - 1 aug, 2 maj, 3 maj, \#4 dim, \#5 dim, 6 min, 7 min
+  - extra:3 aug,
 
+- 7th Chords:
 
-* 9th Chords:   
-  * 1 maj9(\#5), 2 dom9, 3 dom9, \#4 min9(♭5), \#5 min7(♭5♭9), 6 min(maj9), 7 min7(♭9)   
-  * Extra: 3 dom9(\#5),
+  - 1 maj7(\#5), 2 dom7, 3 dom7, \#4 min7(♭5), \#5 min7(♭5), 6 min(maj7), 7 min7
+  - extra:3 dom7(\#5),
 
-Lydian Dominant  
+- 9th Chords:
+  - 1 maj9(\#5), 2 dom9, 3 dom9, \#4 min9(♭5), \#5 min7(♭5♭9), 6 min(maj9), 7 min7(♭9)
+  - Extra: 3 dom9(\#5),
 
-* Computer:  
-  * \[0, 2, 4, 6, 7, 9, 10\]
+Lydian Dominant
 
-* Intervals:  
-  * 1, 2, 3, \#4, 5, 6, ♭7
+- Computer:
 
-* Triads:   
-  * 1 maj, 2 maj, 3 dim, \#4 dim, 5 min, 6 min, ♭7 aug  
-  * Extra: 2 aug,
+  - \[0, 2, 4, 6, 7, 9, 10\]
 
+- Intervals:
 
-* 7th Chords:   
-  * 1 dom7, 2 dom7, 3 min7(♭5), \#4 min7(♭5), 5 min(maj7), 6 min7, ♭7 maj7(\#5)  
-  * extra:2 dom7(\#5),
+  - 1, 2, 3, \#4, 5, 6, ♭7
 
+- Triads:
 
-* 9th Chords:   
-  * 1 dom9, 2 dom9, 3 min9(♭5), \#4 min7(♭5♭9), 5 min (maj9), 6 min7(♭9), ♭7 maj9(\#5)  
-  * Extra: 2 dom9(\#5),
+  - 1 maj, 2 maj, 3 dim, \#4 dim, 5 min, 6 min, ♭7 aug
+  - Extra: 2 aug,
+
+- 7th Chords:
+
+  - 1 dom7, 2 dom7, 3 min7(♭5), \#4 min7(♭5), 5 min(maj7), 6 min7, ♭7 maj7(\#5)
+  - extra:2 dom7(\#5),
+
+- 9th Chords:
+  - 1 dom9, 2 dom9, 3 min9(♭5), \#4 min7(♭5♭9), 5 min (maj9), 6 min7(♭9), ♭7 maj9(\#5)
+  - Extra: 2 dom9(\#5),
 
 Mixolydian ♭6
 
-* Computer:  
-  * \[0, 2, 4, 5, 7, 8, 10\]
+- Computer:
 
-* Intervals:  
-  * 1, 2, 3, 4, 5, ♭6, ♭7
+  - \[0, 2, 4, 5, 7, 8, 10\]
 
-* Triads:   
-  * 1 maj, 2 dim, 3 dim, 4 min, 5 min, ♭6 aug, ♭7 maj  
-  * Extra: 1 aug,
+- Intervals:
 
+  - 1, 2, 3, 4, 5, ♭6, ♭7
 
-* 7th Chords:   
-  * 1 dom7, 2 min7(♭5), 3 min7(♭5), 4 min(maj7), 5 min7, ♭6 maj7(\#5), ♭7 dom7  
-  * extra:1 dom7(\#5),
+- Triads:
 
+  - 1 maj, 2 dim, 3 dim, 4 min, 5 min, ♭6 aug, ♭7 maj
+  - Extra: 1 aug,
 
-* 9th Chords:   
-  * 1 dom9, 2 min9(♭5), 3 min7(♭5♭9), 4 min (maj9), 5 min7(♭9), ♭6 maj9(\#5), ♭7 dom9  
-  * Extra: 1 dom9(\#5),
+- 7th Chords:
+
+  - 1 dom7, 2 min7(♭5), 3 min7(♭5), 4 min(maj7), 5 min7, ♭6 maj7(\#5), ♭7 dom7
+  - extra:1 dom7(\#5),
+
+- 9th Chords:
+  - 1 dom9, 2 min9(♭5), 3 min7(♭5♭9), 4 min (maj9), 5 min7(♭9), ♭6 maj9(\#5), ♭7 dom9
+  - Extra: 1 dom9(\#5),
 
 Locrian ♮2
 
-* Computer:  
-  * \[0, 2, 3, 5, 6, 8, 10\]
+- Computer:
 
-* Intervals:  
-  * 1, 2, ♭3, 4, ♭5, ♭6, ♭7
+  - \[0, 2, 3, 5, 6, 8, 10\]
 
-* Triads:   
-  * 1 dim, 2 dim, ♭3 min, 4 min, ♭5 aug, ♭6 maj, ♭7 maj,   
-  * Extra: ♭7 aug
+- Intervals:
 
+  - 1, 2, ♭3, 4, ♭5, ♭6, ♭7
 
-* 7th Chords:   
-  * 1 min7(♭5), 2 min7(♭5), ♭3 min(maj7), 4 min7, ♭5 maj7(\#5), ♭6 dom	♭7 dom7,  
-  * Extra:  ♭7  dom7(\#5)
+- Triads:
 
+  - 1 dim, 2 dim, ♭3 min, 4 min, ♭5 aug, ♭6 maj, ♭7 maj,
+  - Extra: ♭7 aug
 
-* 9th Chords:   
-  * 1 min9(♭5), 2 min7(♭5♭9), ♭3 min (maj9), 4 min7(♭9), ♭5 maj9(\#5), ♭6 dom9, ♭7 dom9,   
-  * Extra: ♭7  dom9(\#5)
+- 7th Chords:
 
-Altered Dominant 
+  - 1 min7(♭5), 2 min7(♭5), ♭3 min(maj7), 4 min7, ♭5 maj7(\#5), ♭6 dom ♭7 dom7,
+  - Extra: ♭7 dom7(\#5)
 
-* Computer:  
-  * \[0, 1, 3, 4, 6, 8, 10\]
+- 9th Chords:
+  - 1 min9(♭5), 2 min7(♭5♭9), ♭3 min (maj9), 4 min7(♭9), ♭5 maj9(\#5), ♭6 dom9, ♭7 dom9,
+  - Extra: ♭7 dom9(\#5)
 
-* Intervals:  
-  * 1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭7
+Altered Dominant
 
+- Computer:
 
-* Triads:   
-  * 1 dim, ♭2 min, ♭3 min, ♭4 aug, ♭5 maj,♭6 maj,♭7 dim  
-  * extra: ♭6 aug,
+  - \[0, 1, 3, 4, 6, 8, 10\]
 
+- Intervals:
 
-* 7th Chords:   
-  * 1 min7(♭5), ♭2 min(maj7), ♭3 min7, 4 maj7(\#5), ♭5 dom7, ♭6 dom7, ♭7 min7(♭5)  
-  * Extra: ♭6 dom7(\#5),
+  - 1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭7
 
+- Triads:
 
-* 9th Chords:   
-  *  1 min7(♭5♭9), ♭2 min (maj9), ♭3 min7(♭9), ♭4 maj9(\#5), ♭5 dom9, ♭6 dom9, ♭7 min9(♭5)  
-  * Extra: ♭6 dom9(\#5)
+  - 1 dim, ♭2 min, ♭3 min, ♭4 aug, ♭5 maj,♭6 maj,♭7 dim
+  - extra: ♭6 aug,
+
+- 7th Chords:
+
+  - 1 min7(♭5), ♭2 min(maj7), ♭3 min7, 4 maj7(\#5), ♭5 dom7, ♭6 dom7, ♭7 min7(♭5)
+  - Extra: ♭6 dom7(\#5),
+
+- 9th Chords:
+  - 1 min7(♭5♭9), ♭2 min (maj9), ♭3 min7(♭9), ♭4 maj9(\#5), ♭5 dom9, ♭6 dom9, ♭7 min9(♭5)
+  - Extra: ♭6 dom9(\#5)
 
 # Melodic Minor
 
@@ -9251,42 +9274,42 @@ Altered Dominant
 
 \#\# C Melodic Minor  
 \#\#\#\# Melodic Minor Intervals: 1, 2, ♭3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of C Melodic Minor: C, D, E♭, F, G, A, B    
+\#\#\#\#\# Notes of C Melodic Minor: C, D, E♭, F, G, A, B  
 \_component:sequence(aba85fc2-48a6-4b6d-ac15-5fc6a73e6cd3, piano)\_
 
 \#\# G Melodic Minor  
 \#\#\#\# Melodic Minor Intervals: 1, 2, ♭3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of G Melodic Minor: G, A, B♭, C, D, E, F\#    
+\#\#\#\#\# Notes of G Melodic Minor: G, A, B♭, C, D, E, F\#  
 \_component:sequence(c30ecb2d-8221-4ec4-8ddc-3d379cf7f577, piano)\_
 
 \#\# D Melodic Minor  
 \#\#\#\# Melodic Minor Intervals: 1, 2, ♭3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of D Melodic Minor: D, E, F, G, A, B, C\#   
+\#\#\#\#\# Notes of D Melodic Minor: D, E, F, G, A, B, C\#  
 \_component:sequence(006ca507-1051-4eed-8808-d38f61f3b785, piano)\_
 
 \#\# A Melodic Minor  
 \#\#\#\# Melodic Minor Intervals: 1, 2, ♭3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of A Melodic Minor: A, B, C, D, E, F\#, G\#   
+\#\#\#\#\# Notes of A Melodic Minor: A, B, C, D, E, F\#, G\#  
 \_component:sequence(fe3fe063-cae7-465f-a82e-a2be740fce93, piano)\_
 
 \#\# E Melodic Minor  
 \#\#\#\# Melodic Minor Intervals: 1, 2, ♭3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of E Melodic Minor: E, F\#, G, A, B, C\#, D\#   
+\#\#\#\#\# Notes of E Melodic Minor: E, F\#, G, A, B, C\#, D\#  
 \_component:sequence(77ed8fcd-0d29-4351-8c58-23be0dab450f, piano)\_
 
 \#\# B Melodic Minor  
 \#\#\#\# Melodic Minor Intervals: 1, 2, ♭3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of B Melodic Minor: B, C\#, D, E, F\#, G\#, A\#   
+\#\#\#\#\# Notes of B Melodic Minor: B, C\#, D, E, F\#, G\#, A\#  
 \_component:sequence(cc5df738-2bff-4722-ab6a-7ac2bca3b4e8, piano)\_
 
 \#\# F\# Melodic Minor  
 \#\#\#\# Melodic Minor Intervals: 1, 2, ♭3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of F\# Melodic Minor: F\#, G\#, A, B, C\#, D\#, E\#    
+\#\#\#\#\# Notes of F\# Melodic Minor: F\#, G\#, A, B, C\#, D\#, E\#  
 \_component:sequence(99dbf619-221d-4bb6-b61e-bd0568de9cb9, piano)\_
 
 \#\# D♭ Melodic Minor  
 \#\#\#\# Melodic Minor Intervals: 1, 2, ♭3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of D♭ Melodic Minor: D♭, E♭, F♭, G♭, A♭, B♭, C   
+\#\#\#\#\# Notes of D♭ Melodic Minor: D♭, E♭, F♭, G♭, A♭, B♭, C  
 \_component:sequence(c288c087-f857-4514-9487-16f4cf9b4be0, piano)\_
 
 \#\# A♭ Melodic Minor  
@@ -9301,7 +9324,7 @@ Altered Dominant
 
 \#\# B♭ Melodic Minor  
 \#\#\#\# Melodic Minor Intervals: 1, 2, ♭3, 4, 5, 6, 7  
-\#\#\#\#\# Notes of B♭ Melodic Minor: B♭, C, D♭, E♭, F, G, A   
+\#\#\#\#\# Notes of B♭ Melodic Minor: B♭, C, D♭, E♭, F, G, A  
 \_component:sequence(18286fd6-a66e-4c32-a91d-202f0d6f4586, piano)\_
 
 \#\# F Melodic Minor  
@@ -9320,7 +9343,7 @@ Altered Dominant
 
 \#\# G Dorian ♭2  
 \#\#\#\# Dorian ♭2 Intervals: 1, ♭2, ♭3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of G Dorian ♭2: G, A♭, B♭, C, D, E, F    
+\#\#\#\#\# Notes of G Dorian ♭2: G, A♭, B♭, C, D, E, F  
 \_component:sequence(358f0328-fe19-4e46-b756-1b690886d2b4, piano)\_
 
 \#\# D Dorian ♭2  
@@ -9340,12 +9363,12 @@ Altered Dominant
 
 \#\# B Dorian ♭2  
 \#\#\#\# Dorian ♭2 Intervals: 1, ♭2, ♭3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of B Dorian ♭2: B, C, D, E, F\#, G\#, A   
+\#\#\#\#\# Notes of B Dorian ♭2: B, C, D, E, F\#, G\#, A  
 \_component:sequence(0e8a1df8-48f2-4c90-afc2-1699a808ed23, piano)\_
 
 \#\# F\# Dorian ♭2  
 \#\#\#\# Dorian ♭2 Intervals: 1, ♭2, ♭3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of F\# Dorian ♭2: F\#, G, A, B, C\#, D\#, E    
+\#\#\#\#\# Notes of F\# Dorian ♭2: F\#, G, A, B, C\#, D\#, E  
 \_component:sequence(833519bd-d4fe-448a-940b-9e53b8331303, piano)\_
 
 \#\# C\# Dorian ♭2  
@@ -9384,12 +9407,12 @@ Altered Dominant
 
 \#\# G Lydian Augmented  
 \#\#\#\# Lydian Augmented Intervals: 1, 2, 3, \#4, \#5, 6, 7  
-\#\#\#\#\# Notes of G Lydian Augmented: G, B, A, C\#, D\#, E, F\#   
+\#\#\#\#\# Notes of G Lydian Augmented: G, B, A, C\#, D\#, E, F\#  
 \_component:sequence(e14cb105-498a-4142-8105-695e08aab05f, piano)\_
 
 \#\# D Lydian Augmented  
 \#\#\#\# Lydian Augmented Intervals: 1, 2, 3, \#4, \#5, 6, 7  
-\#\#\#\#\# Notes of D Lydian Augmented: D, E, F\#, G\#, A\#, B, C\#   
+\#\#\#\#\# Notes of D Lydian Augmented: D, E, F\#, G\#, A\#, B, C\#  
 \_component:sequence(320d475f-77a7-4940-a84c-061ff40a0424, piano)\_
 
 \#\# A Lydian Augmented  
@@ -9424,7 +9447,7 @@ Altered Dominant
 
 \#\# E♭ Lydian Augmented  
 \#\#\#\# Lydian Augmented Intervals: 1, 2, 3, \#4, \#5, 6, 7  
-\#\#\#\#\# Notes of E♭ Lydian Augmented: E♭, F, G, A, B, C, D   
+\#\#\#\#\# Notes of E♭ Lydian Augmented: E♭, F, G, A, B, C, D  
 \_component:sequence(e5a4214d-e8e3-4817-adca-93d952f9f6ed, piano)\_
 
 \#\# B♭ Lydian Augmented  
@@ -9448,12 +9471,12 @@ Altered Dominant
 
 \#\# G Lydian Dominant  
 \#\#\#\# Lydian Dominant Intervals: 1, 2, 3, \#4, 5, 6, ♭7  
-\#\#\#\#\# Notes of G Lydian Dominant: G, B, A, C\#, D, E, F    
+\#\#\#\#\# Notes of G Lydian Dominant: G, B, A, C\#, D, E, F  
 \_component:sequence(95bc451a-e582-4ae4-8426-695094aaf532, piano)\_
 
 \#\# D Lydian Dominant  
 \#\#\#\# Lydian Dominant Intervals: 1, 2, 3, \#4, 5, 6, ♭7  
-\#\#\#\#\# Notes of D Lydian Dominant: D, E, F\#, G\#, A, B, C   
+\#\#\#\#\# Notes of D Lydian Dominant: D, E, F\#, G\#, A, B, C  
 \_component:sequence(fe81c671-c3f7-480e-9739-9d77627cc4f7, piano)\_
 
 \#\# A Lydian Dominant  
@@ -9473,12 +9496,12 @@ Altered Dominant
 
 \#\# G♭ Lydian Dominant  
 \#\#\#\# Lydian Dominant Intervals: 1, 2, 3, \#4, 5, 6, ♭7  
-\#\#\#\#\# Notes of G♭ Lydian Dominant: G♭, A♭, B♭, C, D♭, E♭, F♭    
+\#\#\#\#\# Notes of G♭ Lydian Dominant: G♭, A♭, B♭, C, D♭, E♭, F♭  
 \_component:sequence(d4fc19d5-5e11-40ad-9e81-80012658f2f5, piano)\_
 
 \#\# D♭ Lydian Dominant  
 \#\#\#\# Lydian Dominant Intervals: 1, 2, 3, \#4, 5, 6, ♭7  
-\#\#\#\#\# Notes of D♭ Lydian Dominant: D♭, E♭, F, G, A♭, B♭, C♭   
+\#\#\#\#\# Notes of D♭ Lydian Dominant: D♭, E♭, F, G, A♭, B♭, C♭  
 \_component:sequence(06abf772-0035-442c-a272-7501b069e784, piano)\_
 
 \#\# A♭ Lydian Dominant  
@@ -9512,7 +9535,7 @@ Altered Dominant
 
 \#\# G Mixolydian ♭6  
 \#\#\#\# Mixolydian ♭6 Intervals: 1, 2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of G Mixolydian ♭6: G, A, B, C, D, E♭, F    
+\#\#\#\#\# Notes of G Mixolydian ♭6: G, A, B, C, D, E♭, F  
 \_component:sequence(b9dfe16d-bc70-4da6-9c8d-b56217751cb0, piano)\_
 
 \#\# D Mixolydian ♭6  
@@ -9522,7 +9545,7 @@ Altered Dominant
 
 \#\# A Mixolydian ♭6  
 \#\#\#\# Mixolydian ♭6 Intervals: 1, 2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of A Mixolydian ♭6: A, B, C\#, D, E, F, G   
+\#\#\#\#\# Notes of A Mixolydian ♭6: A, B, C\#, D, E, F, G  
 \_component:sequence(c3d2789a-fc81-4fef-aa30-aa83bb9a86fa, piano)\_
 
 \#\# E Mixolydian ♭6  
@@ -9537,7 +9560,7 @@ Altered Dominant
 
 \#\# F\# Mixolydian ♭6  
 \#\#\#\# Mixolydian ♭6 Intervals: 1, 2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of F\# Mixolydian ♭6: F\#, G\#, A\#, B, C\#, D, E   
+\#\#\#\#\# Notes of F\# Mixolydian ♭6: F\#, G\#, A\#, B, C\#, D, E  
 \_component:sequence(7021f9bd-fd8c-4a74-ab1d-7aa614d44003, piano)\_
 
 \#\# C\# Mixolydian ♭6  
@@ -9547,7 +9570,7 @@ Altered Dominant
 
 \#\# A♭ Mixolydian ♭6  
 \#\#\#\# Mixolydian ♭6 Intervals: 1, 2, 3, 4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of A♭ Mixolydian ♭6: A♭, B♭, C, D♭, E♭, F♭, G♭   
+\#\#\#\#\# Notes of A♭ Mixolydian ♭6: A♭, B♭, C, D♭, E♭, F♭, G♭  
 \_component:sequence(2e334671-91dc-44d6-8f15-164e21b7c7bf, piano)\_
 
 \#\# E♭ Mixolydian ♭6  
@@ -9571,17 +9594,17 @@ Altered Dominant
 
 \#\# C Locrian ♮2  
 \#\#\#\# Locrian ♮2 Intervals: 1, 2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of C Locrian ♮2: C, D, E♭, F, G♭, A♭, B♭   
+\#\#\#\#\# Notes of C Locrian ♮2: C, D, E♭, F, G♭, A♭, B♭  
 \_component:sequence(55dea222-b3d5-411d-9a82-9679563f5362, piano)\_
 
 \#\# G Locrian ♮2  
 \#\#\#\# Locrian ♮2 Intervals: 1, 2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of G Locrian ♮2: G, A, B♭, C, D♭, E♭, F    
+\#\#\#\#\# Notes of G Locrian ♮2: G, A, B♭, C, D♭, E♭, F  
 \_component:sequence(4fe1a270-d7b1-40a4-891d-01aa852e40ef, piano)\_
 
 \#\# D Locrian ♮2  
 \#\#\#\# Locrian ♮2 Intervals: 1, 2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of D Locrian ♮2: D, E, F, G, A♭, B♭, C   
+\#\#\#\#\# Notes of D Locrian ♮2: D, E, F, G, A♭, B♭, C  
 \_component:sequence(1b2d68ba-b8d7-4476-a8a5-ee9d3fb9915c, piano)\_
 
 \#\# A Locrian ♮2  
@@ -9601,7 +9624,7 @@ Altered Dominant
 
 \#\# F\# Locrian ♮2  
 \#\#\#\# Locrian ♮2 Intervals: 1, 2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of F\# Locrian ♮2: F\#, G\#, A, B, C, D, E    
+\#\#\#\#\# Notes of F\# Locrian ♮2: F\#, G\#, A, B, C, D, E  
 \_component:sequence(d711bf57-60c6-4d96-906b-f621f8a084ed, piano)\_
 
 \#\# C\# Locrian ♮2  
@@ -9626,7 +9649,7 @@ Altered Dominant
 
 \#\# F Locrian ♮2  
 \#\#\#\# Locrian ♮2 Intervals: 1, 2, ♭3, 4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of F Locrian ♮2: F, G, A♭, B♭, C♭, D♭, E♭   
+\#\#\#\#\# Notes of F Locrian ♮2: F, G, A♭, B♭, C♭, D♭, E♭  
 \_component:sequence(14de44f8-d75b-4392-96f4-0f8cb7a4ed36, piano)\_
 
 # Altered
@@ -9635,12 +9658,12 @@ Altered Dominant
 
 \#\# C Altered Dominant  
 \#\#\#\# Altered Intervals: 1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of C Altered: C, D♭, E♭, F♭, G♭, A♭, B♭   
+\#\#\#\#\# Notes of C Altered: C, D♭, E♭, F♭, G♭, A♭, B♭  
 \_component:sequence(0f8b46d9-3878-4214-90a6-dac10b7d4101, piano)\_
 
 \#\# G Altered Dominant  
 \#\#\#\# Altered Intervals: 1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of G Altered: G, A♭, B♭, C♭, D♭, E♭, F    
+\#\#\#\#\# Notes of G Altered: G, A♭, B♭, C♭, D♭, E♭, F  
 \_component:sequence(91e5fa35-50ed-44e4-bf80-44d0395b15a0, piano)\_
 
 \#\# D Altered Dominant  
@@ -9650,7 +9673,7 @@ Altered Dominant
 
 \#\# A Altered Dominant  
 \#\#\#\# Altered Intervals: 1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of A Altered: A, B♭, C, D♭, E♭, F, G    
+\#\#\#\#\# Notes of A Altered: A, B♭, C, D♭, E♭, F, G  
 \_component:sequence(54362961-8a61-44fd-96b0-f96c1877b7fc, piano)\_
 
 \#\# E Altered Dominant  
@@ -9665,17 +9688,17 @@ Altered Dominant
 
 \#\# F\# Altered Dominant  
 \#\#\#\# Altered Intervals: 1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of F\# Altered: F\#, G, A, B♭, C, D, E   
+\#\#\#\#\# Notes of F\# Altered: F\#, G, A, B♭, C, D, E  
 \_component:sequence(24bc2164-3c5b-4175-8180-6e44c65932f6, piano)\_
 
 \#\# C\# Altered Dominant  
 \#\#\#\# Altered Intervals: 1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of C\# Altered: C\#, D, E, F, G, A, B   
+\#\#\#\#\# Notes of C\# Altered: C\#, D, E, F, G, A, B  
 \_component:sequence(7206c35f-545e-4f44-9f41-70adc874b605, piano)\_
 
 \#\# G\# Altered Dominant  
 \#\#\#\# Altered Intervals: 1, ♭2, ♭3, ♭4, ♭5, ♭6, ♭7  
-\#\#\#\#\# Notes of G\# Altered: G\#, A, B, C, D, E, F\#   
+\#\#\#\#\# Notes of G\# Altered: G\#, A, B, C, D, E, F\#  
 \_component:sequence(336ca54a-4b1f-44c5-80a1-3bab73b3c0ca, piano)\_
 
 \#\# D\# Altered Dominant  
@@ -9699,165 +9722,180 @@ Altered Dominant
 
 Harmonic Major
 
-* Computer:  
-  * \[0, 2, 4, 5, 7, 8, 11\]
+- Computer:
 
-* Intervals:  
-  * 1, 2, 3, 4, 5, ♭6, 7
+  - \[0, 2, 4, 5, 7, 8, 11\]
 
-* Triads:   
-  * 1 maj, 2 dim, 3 min, 4 min, 5 maj, ♭6 aug, 7 dim  
-  * EXTRA: 1 aug, 3 maj, 4 dim, ♭6 dim
+- Intervals:
 
+  - 1, 2, 3, 4, 5, ♭6, 7
 
-* 7th Chords:   
-  * 1 maj7, 2 min7(♭5), 3 min7, 4 min(maj7), 5 dom7, ♭6 maj7(\#5), 7 dim7  
-  * EXTRA:  1 maj7(\#5), 3 dom7, 3 dom7(\#5), 4 dim(maj7), 4 min6, ♭6 dim(maj7), ♭6 dim7
+- Triads:
 
+  - 1 maj, 2 dim, 3 min, 4 min, 5 maj, ♭6 aug, 7 dim
+  - EXTRA: 1 aug, 3 maj, 4 dim, ♭6 dim
 
-* 9th Chords:   
-  * 1 maj9, 2 min9(♭5), 3 min7(♭9), 4 min(maj9), 5 dom7(♭9),  ♭6 maj7(\#5\#9), 7 dim7(♭9)  
-  * EXTRA:1 maj9(\#5), 2 min6/9, 3 dom7(\#9), 3 dom7(♭9), 3 dom7(\#5♭9), 3 dom7(\#5\#9), 4 dim(maj9), 4 min6/9
+- 7th Chords:
+
+  - 1 maj7, 2 min7(♭5), 3 min7, 4 min(maj7), 5 dom7, ♭6 maj7(\#5), 7 dim7
+  - EXTRA: 1 maj7(\#5), 3 dom7, 3 dom7(\#5), 4 dim(maj7), 4 min6, ♭6 dim(maj7), ♭6 dim7
+
+- 9th Chords:
+  - 1 maj9, 2 min9(♭5), 3 min7(♭9), 4 min(maj9), 5 dom7(♭9), ♭6 maj7(\#5\#9), 7 dim7(♭9)
+  - EXTRA:1 maj9(\#5), 2 min6/9, 3 dom7(\#9), 3 dom7(♭9), 3 dom7(\#5♭9), 3 dom7(\#5\#9), 4 dim(maj9), 4 min6/9
 
 Dorian ♭5
 
-* Computer:  
-  * \[0, 2, 3, 5, 6, 9, 10\]
+- Computer:
 
-* Intervals:  
-  * 1, 2, ♭ 3, 4, ♭5, 6, ♭7
+  - \[0, 2, 3, 5, 6, 9, 10\]
 
-* Triads:   
-  * 1 dim, 2 min, 2 maj, ♭3 min, 4 maj, ♭5 aug, ♭5 dim, 6 dim, ♭7 maj, ♭7 aug
+- Intervals:
 
+  - 1, 2, ♭ 3, 4, ♭5, 6, ♭7
 
-* 7th Chords:   
-  * 1 min7(♭5), 2 min7, 2 dom7(\#5), ♭3 min(maj7), 4 dom7, ♭5 maj7(\#5), ♭5 dim7, ♭5 dim(maj7), 6 dim7, ♭7 maj7, ♭7 maj7(\#5)
+- Triads:
 
+  - 1 dim, 2 min, 2 maj, ♭3 min, 4 maj, ♭5 aug, ♭5 dim, 6 dim, ♭7 maj, ♭7 aug
 
-* 9th Chords:   
-  * 1 min9(♭5), 2 min7(♭9), ♭3 min(maj9), 4 dom7(♭9), ♭5 maj7(\#5\#9), 6 dim7(♭9), ♭7 maj9  
-  * EXTRA: 1 min6/9, 2 dom7(\#9),  2 dom7(♭9),  2 dom7(\#5♭9), 2 dom7(\#5\#9), ♭3 min6/9, ♭3 dim(maj9), ♭7 maj9(\#5)
+- 7th Chords:
+
+  - 1 min7(♭5), 2 min7, 2 dom7(\#5), ♭3 min(maj7), 4 dom7, ♭5 maj7(\#5), ♭5 dim7, ♭5 dim(maj7), 6 dim7, ♭7 maj7, ♭7 maj7(\#5)
+
+- 9th Chords:
+  - 1 min9(♭5), 2 min7(♭9), ♭3 min(maj9), 4 dom7(♭9), ♭5 maj7(\#5\#9), 6 dim7(♭9), ♭7 maj9
+  - EXTRA: 1 min6/9, 2 dom7(\#9), 2 dom7(♭9), 2 dom7(\#5♭9), 2 dom7(\#5\#9), ♭3 min6/9, ♭3 dim(maj9), ♭7 maj9(\#5)
 
 Altered Dominant ♮5
 
-* Computer:  
-  * \[0, 1, 3, 4, 7, 8, 10\]
+- Computer:
 
-* Intervals:  
-  * 1, ♭2, ♭3, ♭4, 5, ♭6, ♭7
+  - \[0, 1, 3, 4, 7, 8, 10\]
 
-* Triads:   
-  * 1 min, 1 maj, ♭2 min	, 3 maj, ♭4 aug, ♭4 dim, 5 dim, ♭6 maj, ♭6 aug, ♭7 dim
+- Intervals:
 
+  - 1, ♭2, ♭3, ♭4, 5, ♭6, ♭7
 
-* 7th Chords:   
-  * 1 min7, 1 dom7(\#5), ♭2 min(maj7), ♭3 dom7, ♭4 maj7(\#5), ♭4 dim7, ♭4 dim(maj7), 5 dim7, ♭6 maj7, ♭6 maj7(\#5), ♭7 min7(♭5)
+- Triads:
 
+  - 1 min, 1 maj, ♭2 min , 3 maj, ♭4 aug, ♭4 dim, 5 dim, ♭6 maj, ♭6 aug, ♭7 dim
 
-* 9th Chords:   
-1. 1 min7(♭9),   
-2. 1 dom7(\#9),   
-3. 1 dom7(♭9),   
-4. 1 dom7(\#5♭9),   
-5. 1 dom7(\#5\#9),   
-6. ♭2 min(maj9),   
-7. ♭3 dom7(♭9),   
-8. ♭4 maj7(\#5\#9),   
-9. 5 dim7(♭9),   
-10. ♭6 maj9,   
-11. ♭6 maj9(\#5)   
+- 7th Chords:
+
+  - 1 min7, 1 dom7(\#5), ♭2 min(maj7), ♭3 dom7, ♭4 maj7(\#5), ♭4 dim7, ♭4 dim(maj7), 5 dim7, ♭6 maj7, ♭6 maj7(\#5), ♭7 min7(♭5)
+
+- 9th Chords:
+
+1. 1 min7(♭9),
+2. 1 dom7(\#9),
+3. 1 dom7(♭9),
+4. 1 dom7(\#5♭9),
+5. 1 dom7(\#5\#9),
+6. ♭2 min(maj9),
+7. ♭3 dom7(♭9),
+8. ♭4 maj7(\#5\#9),
+9. 5 dim7(♭9),
+10. ♭6 maj9,
+11. ♭6 maj9(\#5)
 12. ♭7 min9(♭5)
 
 Melodic Minor \#4
 
-* Computer:  
-  *  \[0, 2, 3, 6, 7, 9, 11\]
+- Computer:
 
-* Intervals:  
-  * 1, 2, ♭3, \#4, 5, 6, 7
+  - \[0, 2, 3, 6, 7, 9, 11\]
 
-* Triads:   
-  * 1 min, 2 maj, ♭3 aug,♭3 dim, \#4 dim, 5 maj, 5 aug, 6 dim, 7 min, 7 maj
+- Intervals:
 
+  - 1, 2, ♭3, \#4, 5, 6, 7
 
-* 7th Chords:   
-  * 1 min(maj7), 2 dom7, ♭3 maj7(\#5), ♭3 dim7, \#4 dim7, 5 maj7, 5 maj7(\#5), 6 min7(♭5), 7 min7, 7 dom7(\#5)
+- Triads:
 
+  - 1 min, 2 maj, ♭3 aug,♭3 dim, \#4 dim, 5 maj, 5 aug, 6 dim, 7 min, 7 maj
 
-* 9th Chords:   
-  * 1 min(maj9), 2 dom7(♭9), ♭3 maj7(\#5\#9), \#4 dim7(♭9), 5 maj9, 5 maj9(\#5), 6 min9(♭5), 7 min7(♭9), 7 dom7(\#5♭9)
+- 7th Chords:
+
+  - 1 min(maj7), 2 dom7, ♭3 maj7(\#5), ♭3 dim7, \#4 dim7, 5 maj7, 5 maj7(\#5), 6 min7(♭5), 7 min7, 7 dom7(\#5)
+
+- 9th Chords:
+  - 1 min(maj9), 2 dom7(♭9), ♭3 maj7(\#5\#9), \#4 dim7(♭9), 5 maj9, 5 maj9(\#5), 6 min9(♭5), 7 min7(♭9), 7 dom7(\#5♭9)
 
 Mixolydian ♭2
 
-* Computer:  
-  * \[0, 1, 4, 5, 7, 9, 10\]
+- Computer:
 
-* Intervals:  
-  * 1, ♭2, 3, 4, 5, 6, ♭7
+  - \[0, 1, 4, 5, 7, 9, 10\]
 
-* Triads:   
-  * 1 maj, ♭2 aug	, ♭2 dim, 3 dim, 4 maj, 4 aug, 5 dim, 6 min, 6 maj, ♭7 min
+- Intervals:
 
+  - 1, ♭2, 3, 4, 5, 6, ♭7
 
-* 7th Chords:   
-  * 1 dom7, ♭2 maj7(\#5), ♭2 dim7, 3 dim7, 4 maj7, 4 maj7(\#5), 5 min7(♭5), 6 min7, 6 dom7(\#5), ♭7 min(maj7)
+- Triads:
 
+  - 1 maj, ♭2 aug , ♭2 dim, 3 dim, 4 maj, 4 aug, 5 dim, 6 min, 6 maj, ♭7 min
 
-* 9th Chords:   
-  * 1 dom7(♭9), ♭2 maj7(\#5\#9), 3 dim7(♭9), 4 maj9, 4 maj9(\#5), 5 min9(♭5), 6 min7(♭9), 6 dom7(\#5♭9), ♭7 min(maj9)
+- 7th Chords:
+
+  - 1 dom7, ♭2 maj7(\#5), ♭2 dim7, 3 dim7, 4 maj7, 4 maj7(\#5), 5 min7(♭5), 6 min7, 6 dom7(\#5), ♭7 min(maj7)
+
+- 9th Chords:
+  - 1 dom7(♭9), ♭2 maj7(\#5\#9), 3 dim7(♭9), 4 maj9, 4 maj9(\#5), 5 min9(♭5), 6 min7(♭9), 6 dom7(\#5♭9), ♭7 min(maj9)
 
 Lydian Augmented \#2
 
-* Computer:  
-  * \[0, 3, 4, 6, 7, 9, 11\]
+- Computer:
 
-* Intervals:  
-  * 1, ♯2, 3, ♯4, ♯5, 6, 7
+  - \[0, 3, 4, 6, 7, 9, 11\]
 
-* Triads:   
-  * 1 aug, 1 dim, \#2 dim, 3 maj, 3 aug,  \#4 dim,	\#5 min, \#5 maj, 6 min, 7 maj
+- Intervals:
 
+  - 1, ♯2, 3, ♯4, ♯5, 6, 7
 
-* 7th Chords:   
-  * 1 maj7(\#5), 1 dim7, \#2 dim7, 3 maj7, 3 maj7(\#5), \#4 min7(♭5), \#5 min7, \#5 dom7(\#5), 6 min(maj7), 7 dom7
+- Triads:
 
+  - 1 aug, 1 dim, \#2 dim, 3 maj, 3 aug, \#4 dim, \#5 min, \#5 maj, 6 min, 7 maj
 
-* 9th Chords:   
-  * 1 maj7(\#5\#9), \#2 dim7(♭9), 3 maj9, 3 maj9(\#5), \#4 min9(♭5), \#5 min7(♭9), \#5 dom7(\#5♭9), 6 min(maj9), 7 dom7(♭9)
+- 7th Chords:
+
+  - 1 maj7(\#5), 1 dim7, \#2 dim7, 3 maj7, 3 maj7(\#5), \#4 min7(♭5), \#5 min7, \#5 dom7(\#5), 6 min(maj7), 7 dom7
+
+- 9th Chords:
+  - 1 maj7(\#5\#9), \#2 dim7(♭9), 3 maj9, 3 maj9(\#5), \#4 min9(♭5), \#5 min7(♭9), \#5 dom7(\#5♭9), 6 min(maj9), 7 dom7(♭9)
 
 Locrian 𝄫7
 
-* Computer:  
-  * \[0, 1, 3, 5, 6, 8, 9\]
+- Computer:
 
-* Intervals:  
-  * 1, ♭2, ♭3, 4, ♭5, ♭6, 𝄫7
+  - \[0, 1, 3, 5, 6, 8, 9\]
 
-* Triads:   
-  * 1 dim,♭2 maj,♭2 aug, ♭3 dim, 4 min, 4 maj, ♭5 min, ♭6 maj, 𝄫7 aug, 𝄫7 dim		  
-* 7th Chords:   
-  * 1 dim7, ♭2 maj7, ♭2 maj7(\#5), ♭3 min7(♭5), 4 min7, 4 dom7(\#5), ♭5 min(maj7),♭6 dom7, 𝄫7 maj7(\#5), 𝄫7 dim7				
+- Intervals:
 
+  - 1, ♭2, ♭3, 4, ♭5, ♭6, 𝄫7
 
-* 9th Chords:   
-  * 1 dim7(♭9), ♭2 maj9, ♭2 maj9(\#5), ♭3 min9(♭5), 4 min7(♭9), 4 dom7(\#5♭9), ♭5 min(maj9), ♭6 dom7(♭9), 𝄫7 maj7(\#5\#9)
+- Triads:
+  - 1 dim,♭2 maj,♭2 aug, ♭3 dim, 4 min, 4 maj, ♭5 min, ♭6 maj, 𝄫7 aug, 𝄫7 dim
+- 7th Chords:
+
+  - 1 dim7, ♭2 maj7, ♭2 maj7(\#5), ♭3 min7(♭5), 4 min7, 4 dom7(\#5), ♭5 min(maj7),♭6 dom7, 𝄫7 maj7(\#5), 𝄫7 dim7
+
+- 9th Chords:
+  - 1 dim7(♭9), ♭2 maj9, ♭2 maj9(\#5), ♭3 min9(♭5), 4 min7(♭9), 4 dom7(\#5♭9), ♭5 min(maj9), ♭6 dom7(♭9), 𝄫7 maj7(\#5\#9)
 
 # Harmonic Major
 
 \#\# C Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of C Harmonic Major: C, D, E, F, G, A♭, B   
+\#\#\#\#\# Notes of C Harmonic Major: C, D, E, F, G, A♭, B  
 \_component:sequence(b471e858-d600-4d3c-824d-9106e508fe35, piano)\_
 
 \#\# G Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of G Harmonic Major: G, A, B, C, D, E♭, F\#   
+\#\#\#\#\# Notes of G Harmonic Major: G, A, B, C, D, E♭, F\#  
 \_component:sequence(2e1adb40-57b6-4449-ad58-9e7823e323a0, piano)\_
 
 \#\# D Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of D Harmonic Major: D, E, F\#, G, A, B♭, C\#   
+\#\#\#\#\# Notes of D Harmonic Major: D, E, F\#, G, A, B♭, C\#  
 \_component:sequence(7706442f-195d-4f9a-837b-3ac56ba3ab69, piano)\_
 
 \#\# A Harmonic Major  
@@ -9867,17 +9905,17 @@ Locrian 𝄫7
 
 \#\# E Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of Harmonic Major: E, F\#, G\#, A, B, C, D\#   
+\#\#\#\#\# Notes of Harmonic Major: E, F\#, G\#, A, B, C, D\#  
 \_component:sequence(9658bdd2-b9c9-49f7-a32b-369965391dee, piano)\_
 
 \#\# B Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of B Harmonic Major: B, C\#, D\#, E, F\#, G, A\#   
+\#\#\#\#\# Notes of B Harmonic Major: B, C\#, D\#, E, F\#, G, A\#  
 \_component:sequence(07dd9862-d50b-48b5-9cc6-c60112cf5f9f, piano)\_
 
 \#\# F\# Harmonic Major  
 \#\#\#\# Harmonic Major Intervals: 1, 2, 3, 4, 5, ♭6, 7  
-\#\#\#\#\# Notes of F\# Harmonic Major: F\#, G\#, A\#, B, C\#, D, E\#    
+\#\#\#\#\# Notes of F\# Harmonic Major: F\#, G\#, A\#, B, C\#, D, E\#  
 \_component:sequence(fb8c2b36-2f0f-4639-8c76-bd0d9bec346d, piano)\_
 
 \#\# D♭ Harmonic Major  
@@ -9914,7 +9952,7 @@ Locrian 𝄫7
 
 \#\# G Dorian ♭5  
 \#\#\#\# Dorian ♭5 Intervals: 1, 2, ♭3, 4, ♭5, 6, ♭7  
-\#\#\#\#\# Notes of G Dorian ♭5: G, A, B♭, C, D♭, E, F   
+\#\#\#\#\# Notes of G Dorian ♭5: G, A, B♭, C, D♭, E, F  
 \_component:sequence(dd95148c-3d9a-4154-a6b2-1d194e2a460b, piano)\_
 
 \#\# D Dorian ♭5  
@@ -9929,27 +9967,27 @@ Locrian 𝄫7
 
 \#\# E Dorian ♭5  
 \#\#\#\# Dorian ♭5 Intervals: 1, 2, ♭3, 4, ♭5, 6, ♭7  
-\#\#\#\#\# Notes of Dorian ♭5: E, F\#, G, A, B♭, C\#, D   
+\#\#\#\#\# Notes of Dorian ♭5: E, F\#, G, A, B♭, C\#, D  
 \_component:sequence(a24513d6-75e2-4f18-b77e-569f20d298e9, piano)\_
 
 \#\# B Dorian ♭5  
 \#\#\#\# Dorian ♭5 Intervals: 1, 2, ♭3, 4, ♭5, 6, ♭7  
-\#\#\#\#\# Notes of B Dorian ♭5: B, C\#, D, E, F, G\#, A   
+\#\#\#\#\# Notes of B Dorian ♭5: B, C\#, D, E, F, G\#, A  
 \_component:sequence(36e85688-5bc4-463d-a9f2-3733f4ecb014, piano)\_
 
 \#\# F\# Dorian ♭5  
 \#\#\#\# Dorian ♭5 Intervals: 1, 2, ♭3, 4, ♭5, 6, ♭7  
-\#\#\#\#\# Notes of F\# Dorian ♭5: F\#, G\#, A, B, C, D\#, E   
+\#\#\#\#\# Notes of F\# Dorian ♭5: F\#, G\#, A, B, C, D\#, E  
 \_component:sequence(3a1d7260-dfad-43ca-9322-56d06b7df425, piano)\_
 
 \#\# C\# Dorian ♭5  
 \#\#\#\# Dorian ♭5 Intervals: 1, 2, ♭3, 4, ♭5, 6, ♭7  
-\#\#\#\#\# Notes of C\# Dorian ♭5: C\#, D\#, E, F\#, G, A\#, B    
+\#\#\#\#\# Notes of C\# Dorian ♭5: C\#, D\#, E, F\#, G, A\#, B  
 \_component:sequence(a403fa3a-8953-4987-8a21-4eac89aced86, piano)\_
 
 \#\# G\# Dorian ♭5  
 \#\#\#\# Dorian ♭5 Intervals: 1, 2, ♭3, 4, ♭5, 6, ♭7  
-\#\#\#\#\# Notes of G\# Dorian ♭5: G\#, A\#, B, C\#, D, E\#, F\#   
+\#\#\#\#\# Notes of G\# Dorian ♭5: G\#, A\#, B, C\#, D, E\#, F\#  
 \_component:sequence(f173d7c9-c272-4d53-99b7-9749cf9f2fa9, piano)\_
 
 \#\# E♭ Dorian ♭5  
@@ -9971,17 +10009,17 @@ Locrian 𝄫7
 
 \#\# C Altered Dominant ♮5  
 \#\#\#\# Altered Dominant ♮5 Intervals: 1, ♭2, ♭3, ♭4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of C Altered Dominant ♮5: C, D♭, E♭, F♭, G, A♭, B♭   
+\#\#\#\#\# Notes of C Altered Dominant ♮5: C, D♭, E♭, F♭, G, A♭, B♭  
 \_component:sequence(85e85473-8fc6-447c-9be6-822d75d2c795, piano)\_
 
 \#\# G Altered Dominant ♮5  
 \#\#\#\# Altered Dominant ♮5 Intervals: 1, ♭2, ♭3, ♭4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of G Altered Dominant ♮5: G, A♭, B♭, C♭, D, E♭, F    
+\#\#\#\#\# Notes of G Altered Dominant ♮5: G, A♭, B♭, C♭, D, E♭, F  
 \_component:sequence(a6a82ea3-7db5-4b24-8126-36e5c6532893, piano)\_
 
 \#\# D Altered Dominant ♮5  
 \#\#\#\# Altered Dominant ♮5 Intervals: 1, ♭2, ♭3, ♭4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of D Altered Dominant ♮5: D, E♭, F, G♭, A, B♭, C    
+\#\#\#\#\# Notes of D Altered Dominant ♮5: D, E♭, F, G♭, A, B♭, C  
 \_component:sequence(240db92e-bead-431d-a425-3fac4218a857, piano)\_
 
 \#\# A Altered Dominant ♮5  
@@ -10001,7 +10039,7 @@ Locrian 𝄫7
 
 \#\# F\# Altered Dominant ♮5  
 \#\#\#\# Altered Dominant ♮5 Intervals: 1, ♭2, ♭3, ♭4, 5, ♭6, ♭7  
-\#\#\#\#\# Notes of F\# Altered Dominant ♮5: F\#, G, A, B♭, C\#, D, E   
+\#\#\#\#\# Notes of F\# Altered Dominant ♮5: F\#, G, A, B♭, C\#, D, E  
 \_component:sequence(f69b0518-76ad-4c15-aa7d-1c01e7a157ae, piano)\_
 
 \#\# C\# Altered Dominant ♮5  
@@ -10038,7 +10076,7 @@ Locrian 𝄫7
 
 \#\# G Melodic Minor \#4  
 \#\#\#\# Melodic Minor \#4 Intervals: 1, 2, ♭3, \#4, 5, 6, 7  
-\#\#\#\#\# Notes of G Melodic Minor \#4: G, A, B♭, C\#, D, E, F\#   
+\#\#\#\#\# Notes of G Melodic Minor \#4: G, A, B♭, C\#, D, E, F\#  
 \_component:sequence(62973898-4371-41a4-a852-68f2fb2f957f, piano)\_
 
 \#\# D Melodic Minor \#4  
@@ -10063,12 +10101,12 @@ Locrian 𝄫7
 
 \#\# F\# Melodic Minor \#4  
 \#\#\#\# Melodic Minor \#4 Intervals: 1, 2, ♭3, \#4, 5, 6, 7  
-\#\#\#\#\# Notes of F\# Melodic Minor \#4: F\#, G\#, A, B\#, C\#, D\#, E\#   
+\#\#\#\#\# Notes of F\# Melodic Minor \#4: F\#, G\#, A, B\#, C\#, D\#, E\#  
 \_component:sequence(84d9df18-dff9-4694-943a-da95e2c546fb, piano)\_
 
 \#\# D♭ Melodic Minor \#4  
 \#\#\#\# Melodic Minor \#4 Intervals: 1, 2, ♭3, \#4, 5, 6, 7  
-\#\#\#\#\# Notes of D♭ Melodic Minor \#4: D♭, E♭, F♭, G, A♭, B♭, C   
+\#\#\#\#\# Notes of D♭ Melodic Minor \#4: D♭, E♭, F♭, G, A♭, B♭, C  
 \_component:sequence(b80f0c52-9226-4e82-a599-573a19cd2d03, piano)\_
 
 \#\# A♭ Melodic Minor \#4  
@@ -10095,12 +10133,12 @@ Locrian 𝄫7
 
 \#\# C Mixolydian ♭2  
 \#\#\#\# Mixolydian ♭2 Intervals: 1, ♭2, 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of C Mixolydian ♭2: C, D♭, E, F, G, A, B♭   
+\#\#\#\#\# Notes of C Mixolydian ♭2: C, D♭, E, F, G, A, B♭  
 \_component:sequence(695191b6-fe46-465c-9e03-4eda49a19f79, piano)\_
 
 \#\# G Mixolydian ♭2  
 \#\#\#\# Mixolydian ♭2 Intervals: 1, ♭2, 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of G Mixolydian ♭2: G, A♭, B, C, D, E, F   
+\#\#\#\#\# Notes of G Mixolydian ♭2: G, A♭, B, C, D, E, F  
 \_component:sequence(d89a4d98-7448-4c6c-b595-d1519fcd6904, piano)\_
 
 \#\# D Mixolydian ♭2  
@@ -10125,7 +10163,7 @@ Locrian 𝄫7
 
 \#\# F\# Mixolydian ♭2  
 \#\#\#\# Mixolydian ♭2 Intervals: 1, ♭2, 3, 4, 5, 6, ♭7  
-\#\#\#\#\# Notes of F\# Mixolydian ♭2: F\#, G, A\#, B, C\#, D\#, E   
+\#\#\#\#\# Notes of F\# Mixolydian ♭2: F\#, G, A\#, B, C\#, D\#, E  
 \_component:sequence(ca53f498-5119-4cdc-9c90-401004fede7e, piano)\_
 
 \#\# C\# Mixolydian ♭2  
@@ -10157,17 +10195,17 @@ Locrian 𝄫7
 
 \#\# C Lydian Augmented ♯2  
 \#\#\#\# Lydian Augmented ♯2 Intervals: 1, ♯2, 3, ♯4, ♯5, 6, 7  
-\#\#\#\#\# Notes of C Lydian Augmented ♯2: C, D\#, E, F\#, G\#, A, B   
+\#\#\#\#\# Notes of C Lydian Augmented ♯2: C, D\#, E, F\#, G\#, A, B  
 \_component:sequence(25fd25d9-94c0-4186-9e02-6ee095ad1734, piano)\_
 
 \#\# G Lydian Augmented ♯2  
 \#\#\#\# Lydian Augmented ♯2 Intervals: 1, ♯2, 3, ♯4, ♯5, 6, 7  
-\#\#\#\#\# Notes of G Lydian Augmented ♯2: G, A\#, B, C\#, D\#, E, F\#    
+\#\#\#\#\# Notes of G Lydian Augmented ♯2: G, A\#, B, C\#, D\#, E, F\#  
 \_component:sequence(0d2e87a7-7752-4222-afe1-5c11ef39a7a0, piano)\_
 
 \#\# D Lydian Augmented ♯2  
 \#\#\#\# Lydian Augmented ♯2 Intervals: 1, ♯2, 3, ♯4, ♯5, 6, 7  
-\#\#\#\#\# Notes of D Lydian Augmented ♯2: D, E\#, F\#, G\#, A\#, B, C\#   
+\#\#\#\#\# Notes of D Lydian Augmented ♯2: D, E\#, F\#, G\#, A\#, B, C\#  
 \_component:sequence(6a81ea7a-78fd-4155-be7c-2f97e4fbfe02, piano)\_
 
 \#\# A Lydian Augmented ♯2  
@@ -10187,12 +10225,12 @@ Locrian 𝄫7
 
 \#\# G♭ Lydian Augmented ♯2  
 \#\#\#\# Lydian Augmented ♯2 Intervals: 1, ♯2, 3, ♯4, ♯5, 6, 7  
-\#\#\#\#\# Notes of G♭ Lydian Augmented ♯2: G♭, A, B♭, C, D, E♭, F   
+\#\#\#\#\# Notes of G♭ Lydian Augmented ♯2: G♭, A, B♭, C, D, E♭, F  
 \_component:sequence(cd41cf58-8890-46e8-8cf5-840707197a7d, piano)\_
 
 \#\# D♭ Lydian Augmented ♯2  
 \#\#\#\# Lydian Augmented ♯2 Intervals: 1, ♯2, 3, ♯4, ♯5, 6, 7  
-\#\#\#\#\# Notes of D♭ Lydian Augmented ♯2: D♭, E, F, G, A, B♭, C   
+\#\#\#\#\# Notes of D♭ Lydian Augmented ♯2: D♭, E, F, G, A, B♭, C  
 \_component:sequence(6dbd4283-5f78-433f-ae20-2eb9c93e4c10, piano)\_
 
 \#\# A♭ Lydian Augmented ♯2  
@@ -10219,17 +10257,17 @@ Locrian 𝄫7
 
 \#\# C Locrian 𝄫7  
 \#\#\#\# Locrian 𝄫7 Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, 𝄫7  
-\#\#\#\#\# Notes of C Locrian 𝄫7: C, D♭, E♭, F, G♭, A♭, B𝄫   
+\#\#\#\#\# Notes of C Locrian 𝄫7: C, D♭, E♭, F, G♭, A♭, B𝄫  
 \_component:sequence(58556118-0460-46c7-b21f-86972f452bb6, piano)\_
 
 \#\# G Locrian 𝄫7  
 \#\#\#\# Locrian 𝄫7 Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, 𝄫7  
-\#\#\#\#\# Notes of G Locrian 𝄫7: G, A♭, B♭, C, D♭, E♭, F♭    
+\#\#\#\#\# Notes of G Locrian 𝄫7: G, A♭, B♭, C, D♭, E♭, F♭  
 \_component:sequence(66da34a7-3b78-43d3-b635-4ad02d2010b4, piano)\_
 
 \#\# D Locrian 𝄫7  
 \#\#\#\# Locrian 𝄫7 Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, 𝄫7  
-\#\#\#\#\# Notes of D Locrian 𝄫7: D, E♭, F, G, A♭, B♭, C♭    
+\#\#\#\#\# Notes of D Locrian 𝄫7: D, E♭, F, G, A♭, B♭, C♭  
 \_component:sequence(3c78b29e-c673-433b-9241-bf379d74d83c, piano)\_
 
 \#\# A Locrian 𝄫7  
@@ -10239,17 +10277,17 @@ Locrian 𝄫7
 
 \#\# E Locrian 𝄫7  
 \#\#\#\# Locrian 𝄫7 Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, 𝄫7  
-\#\#\#\#\# Notes of Locrian 𝄫7: E, F, G, A, B♭, C, D♭   
+\#\#\#\#\# Notes of Locrian 𝄫7: E, F, G, A, B♭, C, D♭  
 \_component:sequence(42ecaaec-a5d1-434d-9028-bebddc641fdf, piano)\_
 
 \#\# B Locrian 𝄫7  
 \#\#\#\# Locrian 𝄫7 Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, 𝄫7  
-\#\#\#\#\# Notes of B Locrian 𝄫7: B, C, D, E, F, G, A♭   
+\#\#\#\#\# Notes of B Locrian 𝄫7: B, C, D, E, F, G, A♭  
 \_component:sequence(28968870-8614-437b-b879-0d514e0ecab6, piano)\_
 
 \#\# F\# Locrian 𝄫7  
 \#\#\#\# Locrian 𝄫7 Intervals: 1, ♭2, ♭3, 4, ♭5, ♭6, 𝄫7  
-\#\#\#\#\# Notes of F\# Locrian 𝄫7: F\#, G, A, B, C, D, E♭    
+\#\#\#\#\# Notes of F\# Locrian 𝄫7: F\#, G, A, B, C, D, E♭  
 \_component:sequence(ca876a38-269b-46d0-ad03-0514b63c2fc9, piano)\_
 
 \#\# C\# Locrian 𝄫7  
@@ -10283,116 +10321,128 @@ Locrian 𝄫7
 
 Double Harmonic Major
 
-* Computer:  
-  * \[0, 1, 4, 5, 7, 8, 11\]
+- Computer:
 
-* Intervals:  
-  * 1, ♭2, 3, 4, 5, ♭6, 7  
-  
+  - \[0, 1, 4, 5, 7, 8, 11\]
 
+- Intervals:
 
-* Triads:   
-  * 1 maj, ♭2 maj, 3 min, 4 min, 5 maj(♭5), ♭6 aug, 7 sus2(♭5)  
-  * EXTRA: 1 aug, 3 maj
+  - 1, ♭2, 3, 4, 5, ♭6, 7
 
+- Triads:
 
-* 7th Chords:   
-  * 1 maj7, ♭2 maj7, 3 min6, 4 min(maj7), 5 dom7(♭5), ♭6 maj7(\#5), 7 sus2(♭5)add6  
-  * EXTRA:  1 maj7(\#5), ♭2 min7(♭5), ♭2 min7, ♭2 dom7, ♭2 dim(maj7), ♭2 minmaj7,  3 maj6
+  - 1 maj, ♭2 maj, 3 min, 4 min, 5 maj(♭5), ♭6 aug, 7 sus2(♭5)
+  - EXTRA: 1 aug, 3 maj
 
+- 7th Chords:
 
-* 9th Chords:   
-  * 1 maj7 ♭9, ♭2 maj7\#9, 3 min6 Add ♭9, 4 min(maj9), 5 dom7(♭5♭9), ♭6 maj9\#5, 7 sus2(♭5)Add6♭9
+  - 1 maj7, ♭2 maj7, 3 min6, 4 min(maj7), 5 dom7(♭5), ♭6 maj7(\#5), 7 sus2(♭5)add6
+  - EXTRA: 1 maj7(\#5), ♭2 min7(♭5), ♭2 min7, ♭2 dom7, ♭2 dim(maj7), ♭2 minmaj7, 3 maj6
+
+- 9th Chords:
+  - 1 maj7 ♭9, ♭2 maj7\#9, 3 min6 Add ♭9, 4 min(maj9), 5 dom7(♭5♭9), ♭6 maj9\#5, 7 sus2(♭5)Add6♭9
 
 Lydian \#2 \#6
 
-* Computer:  
-  * \[0, 3, 6, 7, 10, 11\]
+- Computer:
 
-* Intervals:  
-  * 1, ♯2, 3, ♯4, 5, ♯6, 7
+  - \[0, 3, 6, 7, 10, 11\]
 
-* Triads:   
-  * 1 maj, 2 min, ♭3 min, 4 maj, ♭5 aug, 6 dim, ♭7 maj
+- Intervals:
 
+  - 1, ♯2, 3, ♯4, 5, ♯6, 7
 
-* 7th Chords:   
-  * 1 min7(♭5), 2 min7, ♭3 min(maj7), 4 dom7, ♭5 maj7(\#5), 6 dim7
+- Triads:
+
+  - 1 maj, 2 min, ♭3 min, 4 maj, ♭5 aug, 6 dim, ♭7 maj
+
+- 7th Chords:
+  - 1 min7(♭5), 2 min7, ♭3 min(maj7), 4 dom7, ♭5 maj7(\#5), 6 dim7
 
 Ultraphrygian
 
-* Computer:  
-  * \[0, 1, 3, 4, 5, 8, 9\]
+- Computer:
 
-* Intervals:  
-  * 1, ♭2, ♭3, ♭4, 5, ♭6, 𝄫7
+  - \[0, 1, 3, 4, 5, 8, 9\]
 
-* Triads:   
-  * 1 min,♭2 min, ♭3 maj, ♭4 aug, 5 dim, ♭6 maj, ♭7 dim
+- Intervals:
 
+  - 1, ♭2, ♭3, ♭4, 5, ♭6, 𝄫7
 
-* 7th Chords:   
-  * 1 min7, ♭2 min(maj7), ♭3 dom7, ♭4 maj7(\#5), 5 dim7, ♭6 maj7, ♭7 min7(♭5)
+- Triads:
+
+  - 1 min,♭2 min, ♭3 maj, ♭4 aug, 5 dim, ♭6 maj, ♭7 dim
+
+- 7th Chords:
+  - 1 min7, ♭2 min(maj7), ♭3 dom7, ♭4 maj7(\#5), 5 dim7, ♭6 maj7, ♭7 min7(♭5)
 
 Double Harmonic Minor
 
-* Computer:  
-  * \[0, 2, 3, 6, 7, 8, 11\]
+- Computer:
 
-* Intervals:  
-  * 1, 2, ♭3, \#4, 5, ♭6, 7
+  - \[0, 2, 3, 6, 7, 8, 11\]
 
-* Triads:   
-  * 1 min, 2 maj, ♭3 aug, \#4 dim	, 5 maj, 6 dim, 7 min
+- Intervals:
 
+  - 1, 2, ♭3, \#4, 5, ♭6, 7
 
-* 7th Chords:   
-  * 1 min(maj7), 2 dom7, ♭3 maj7(\#5), \#4 dim7, 5 maj7, 6 min7(♭5), 7 min7
+- Triads:
+
+  - 1 min, 2 maj, ♭3 aug, \#4 dim , 5 maj, 6 dim, 7 min
+
+- 7th Chords:
+  - 1 min(maj7), 2 dom7, ♭3 maj7(\#5), \#4 dim7, 5 maj7, 6 min7(♭5), 7 min7
 
 Oriental
 
-* Computer:  
-  * 1, ♭2, 3, 4, ♭5, 6, ♭7
+- Computer:
 
-* Intervals:  
-  * \[0, 1, 4, 5, 6, 9, 10\]
+  - 1, ♭2, 3, 4, ♭5, 6, ♭7
 
-* Triads:   
-  * 1 maj, ♭2 aug	, 3 dim, 4 maj, 5 dim, 6 min, ♭7 min
+- Intervals:
 
+  - \[0, 1, 4, 5, 6, 9, 10\]
 
-* 7th Chords:   
-  * 1 dom7, ♭2 maj7(\#5), 3 dim7, 4 maj7, 5 min7(♭5), 6 min7	, ♭7 min(maj7)
+- Triads:
+
+  - 1 maj, ♭2 aug , 3 dim, 4 maj, 5 dim, 6 min, ♭7 min
+
+- 7th Chords:
+  - 1 dom7, ♭2 maj7(\#5), 3 dim7, 4 maj7, 5 min7(♭5), 6 min7 , ♭7 min(maj7)
 
 Ionian \#2 \#5
 
-* Computer:  
-  * \[0, 3, 4, 5, 8, 9, 11\]
+- Computer:
 
-* Intervals:  
-  * 1, ♯2, 3, 4, ♯5, 6, 7
+  - \[0, 3, 4, 5, 8, 9, 11\]
 
-* Triads:  
-  *  1 aug, \#2 dim, 3 maj, \#4 dim, \#5 min, 6 min, 7 maj
+- Intervals:
 
+  - 1, ♯2, 3, 4, ♯5, 6, 7
 
-* 7th Chords:   
-  * 1 maj7(\#5), \#2 dim7, 3 maj7, 	\#4 min7(♭5), \#5 min7, 6 min(maj7), 	7 dom7
+- Triads:
+
+  - 1 aug, \#2 dim, 3 maj, \#4 dim, \#5 min, 6 min, 7 maj
+
+- 7th Chords:
+  - 1 maj7(\#5), \#2 dim7, 3 maj7, \#4 min7(♭5), \#5 min7, 6 min(maj7), 7 dom7
 
 Locrian 𝄫3 𝄫7
 
-* Computer:  
-  * \[0, 1, 2, 5, 6, 8, 9\]
+- Computer:
 
-* Intervals:  
-  * 1, ♭2, 𝄫3, 4, ♭5, ♭6, 𝄫7
+  - \[0, 1, 2, 5, 6, 8, 9\]
 
-* Triads:   
-  * 1 dim, ♭2 maj	, ♭3 dim, 4 min, ♭5 min, ♭6 maj, 𝄫7 aug
+- Intervals:
 
+  - 1, ♭2, 𝄫3, 4, ♭5, ♭6, 𝄫7
 
-* 7th Chords:   
-  * 1 dim7, ♭2 maj7, ♭3 min7(♭5), 4 min7, ♭5 min(maj7), ♭6 dom7, 𝄫7 maj7(\#5)
+- Triads:
+
+  - 1 dim, ♭2 maj , ♭3 dim, 4 min, ♭5 min, ♭6 maj, 𝄫7 aug
+
+- 7th Chords:
+  - 1 dim7, ♭2 maj7, ♭3 min7(♭5), 4 min7, ♭5 min(maj7), ♭6 dom7, 𝄫7 maj7(\#5)
 
 # Double Harmonic Major
 
@@ -10407,4 +10457,3 @@ Locrian 𝄫3 𝄫7
 # Ionian \#2 \#5
 
 # Locrian 𝄫3 𝄫7
-

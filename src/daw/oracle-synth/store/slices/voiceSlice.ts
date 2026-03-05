@@ -12,12 +12,9 @@ export interface VoiceSlice {
   setSpread: (value: number) => void;
 }
 
-export const createVoiceSlice: StateCreator<
-  VoiceSlice,
-  [],
-  [],
-  VoiceSlice
-> = (set) => ({
+export const createVoiceSlice: StateCreator<VoiceSlice, [], [], VoiceSlice> = (
+  set,
+) => ({
   voiceMode: 'poly',
   voiceCount: 8,
   glide: 0,

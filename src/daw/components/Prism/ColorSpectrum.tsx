@@ -1,11 +1,18 @@
 import { useMemo, useCallback } from 'react';
-import { KEY_COLORS, KEYS, CHORD_COLORS, noteNameLetter } from '@prism/engine';
-import type { ColorIndex } from '@prism/engine';
+import {
+  CHORD_COLORS,
+  KEY_COLORS,
+  KEYS,
+  noteNameLetter,
+  type ColorIndex,
+} from '@prism/engine';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
 /** Spectrum order: warm → cool matching the circle-of-fifths color wheel */
-const SPECTRUM_ORDER: ColorIndex[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+const SPECTRUM_ORDER: ColorIndex[] = [
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+];
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -20,7 +27,10 @@ function rotatedColorIndex(chordName: string, rootMidi: number): number {
   const letter = noteNameLetter(rootMidi);
   let rootPos = -1;
   for (let i = 1; i < KEYS.length; i++) {
-    if (KEYS[i] === letter) { rootPos = i; break; }
+    if (KEYS[i] === letter) {
+      rootPos = i;
+      break;
+    }
   }
   if (rootPos < 1) return 0;
 
@@ -39,7 +49,11 @@ interface ColorSpectrumProps {
 
 // ── Component ────────────────────────────────────────────────────────────
 
-export function ColorSpectrum({ chordOptions, rootMidi, onSelectChord }: ColorSpectrumProps) {
+export function ColorSpectrum({
+  chordOptions,
+  rootMidi,
+  onSelectChord,
+}: ColorSpectrumProps) {
   // Group available chords by their rotated color index
   const colorGroups = useMemo(() => {
     const groups = new Map<number, string[]>();
@@ -75,7 +89,7 @@ export function ColorSpectrum({ chordOptions, rootMidi, onSelectChord }: ColorSp
 
   return (
     <div
-      className="relative w-full rounded-lg overflow-hidden"
+      className="relative w-full overflow-hidden rounded-lg"
       style={{ background: gradient, height: '100%' }}
     >
       {/* Segment overlays — dim unavailable, clickable available */}
@@ -88,12 +102,15 @@ export function ColorSpectrum({ chordOptions, rootMidi, onSelectChord }: ColorSp
               onClick={available ? handleClick(colorIdx) : undefined}
               className={`flex-1 transition-all duration-200${available ? ' cursor-pointer' : ''}`}
               style={{
-                backgroundColor: available ? 'transparent' : 'rgba(0, 0, 0, 0.7)',
+                backgroundColor: available
+                  ? 'transparent'
+                  : 'rgba(0, 0, 0, 0.7)',
               }}
               onMouseEnter={
                 available
                   ? (e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)';
+                      e.currentTarget.style.backgroundColor =
+                        'rgba(255,255,255,0.15)';
                     }
                   : undefined
               }

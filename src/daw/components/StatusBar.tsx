@@ -6,28 +6,30 @@ export function StatusBar() {
 
   return (
     <div
-      className="flex items-center justify-between h-7 px-3 shrink-0 select-none"
+      className="flex h-7 shrink-0 select-none items-center justify-between px-3"
       style={{
         backgroundColor: 'rgba(9, 9, 11, 0.9)',
         borderTop: 'var(--glass-border)',
       }}
     >
       {/* Left — project name */}
-      <span
-        className="text-[10px]"
-        style={{ color: 'var(--color-text-dim)' }}
-      >
+      <span className="text-[10px]" style={{ color: 'var(--color-text-dim)' }}>
         Galaxy Beats
       </span>
 
       {/* Center — mini transport indicators */}
-      <div className="flex items-center gap-2" style={{ color: 'var(--color-text-dim)' }}>
+      <div
+        className="flex items-center gap-2"
+        style={{ color: 'var(--color-text-dim)' }}
+      >
         <SkipBack size={10} fill="currentColor" strokeWidth={0} />
         <Play
           size={10}
           fill="currentColor"
           strokeWidth={0}
-          style={{ color: isPlaying ? 'var(--color-play)' : 'var(--color-text-dim)' }}
+          style={{
+            color: isPlaying ? 'var(--color-play)' : 'var(--color-text-dim)',
+          }}
         />
         <SkipForward size={10} fill="currentColor" strokeWidth={0} />
       </div>

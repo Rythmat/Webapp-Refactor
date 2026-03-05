@@ -32,7 +32,10 @@ export function useMidiInputRouting() {
       return;
     }
 
-    console.log(`[MIDI Routing] Subscribing to ${inputs.length} input(s):`, inputs.map((i) => `"${i.name}"`).join(', '));
+    console.log(
+      `[MIDI Routing] Subscribing to ${inputs.length} input(s):`,
+      inputs.map((i) => `"${i.name}"`).join(', '),
+    );
 
     let noteCount = 0;
 
@@ -72,7 +75,9 @@ export function useMidiInputRouting() {
             if (!entry) return 'no-engine';
             return entry.trackEngine.getInstrument() ? 'ready' : 'loading';
           });
-          console.log(`[MIDI Routing] noteOn ${note} vel=${velocity} → ${monitored.length} monitored track(s) [${instrumentStatus.join(', ')}]`);
+          console.log(
+            `[MIDI Routing] noteOn ${note} vel=${velocity} → ${monitored.length} monitored track(s) [${instrumentStatus.join(', ')}]`,
+          );
         }
       } else if (selectedTrackId) {
         const entry = trackEngineRegistry.get(selectedTrackId);
@@ -80,13 +85,20 @@ export function useMidiInputRouting() {
         if (noteCount++ < 3) {
           if (entry) {
             const hasInstrument = entry.trackEngine.getInstrument() !== null;
-            console.log(`[MIDI Routing] noteOn ${note} vel=${velocity} → selected track (instrument=${hasInstrument ? 'ready' : 'loading...'})`);
+            console.log(
+              `[MIDI Routing] noteOn ${note} vel=${velocity} → selected track (instrument=${hasInstrument ? 'ready' : 'loading...'})`,
+            );
           } else {
-            console.warn(`[MIDI Routing] noteOn ${note} — no engine for selected track (audio engine not initialized yet?)`);
+            console.warn(
+              `[MIDI Routing] noteOn ${note} — no engine for selected track (audio engine not initialized yet?)`,
+            );
           }
         }
       } else {
-        if (noteCount++ < 3) console.warn('[MIDI Routing] noteOn — no target (no monitored tracks, no selection)');
+        if (noteCount++ < 3)
+          console.warn(
+            '[MIDI Routing] noteOn — no target (no monitored tracks, no selection)',
+          );
       }
 
       // Visual: light up keyboard in control section

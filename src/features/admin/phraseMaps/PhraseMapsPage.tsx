@@ -1,8 +1,8 @@
 import { SearchIcon } from 'lucide-react';
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { RhythmIcon } from '@/components/ui/icons/rhythm-icon';
+import { Input } from '@/components/ui/input';
 import { useNavigationContext } from '@/contexts/NavigationContext';
 import { usePhraseMaps } from '@/hooks/data';
 import { CreatePhraseMapModal } from './components/CreatePhraseMapModal';

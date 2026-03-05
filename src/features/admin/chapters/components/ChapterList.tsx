@@ -62,7 +62,7 @@ export const ChapterList = ({ chapters, isLoading }: ChapterListProps) => {
         {chapters.map((chapter) => (
           <div
             key={chapter.id}
-            className="flex items-center justify-between rounded-lg bg-shade-4/40 py-8 px-6 shadow-sm"
+            className="flex items-center justify-between rounded-lg bg-shade-4/40 px-6 py-8 shadow-sm"
           >
             <div className="mr-2 flex flex-col">
               <span className="font-medium">{chapter.name}</span>

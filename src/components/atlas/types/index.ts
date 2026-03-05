@@ -17,102 +17,108 @@ export type RegionId =
   | 'west-africa'
   | 'east-africa'
   | 'south-africa'
-  | 'oceania'
+  | 'oceania';
 
 // --- Data models ---
 export interface City {
-  id: string
-  name: string
-  country: string
-  subdivision: string
-  region: RegionId
-  coordinates: [number, number]
-  genres: string[]
-  description: string
-  activeDecades: number[]
+  id: string;
+  name: string;
+  country: string;
+  subdivision: string;
+  region: RegionId;
+  coordinates: [number, number];
+  genres: string[];
+  description: string;
+  activeDecades: number[];
 }
 
 export interface Region {
-  id: RegionId
-  label: string
-  center: [number, number]
-  zoom: number
-  altitude: number
+  id: RegionId;
+  label: string;
+  center: [number, number];
+  zoom: number;
+  altitude: number;
 }
 
 export interface HistoricalEvent {
-  id: string
-  year: number
-  location: { lat: number; lng: number; city: string; country: string }
-  genre: string[]
-  title: string
-  description: string
-  tags: string[]
+  id: string;
+  year: number;
+  location: { lat: number; lng: number; city: string; country: string };
+  genre: string[];
+  title: string;
+  description: string;
+  tags: string[];
 }
 
 // --- UI types ---
-export type CategoryTab = 'Region' | 'Decade' | 'City' | 'Genre' | 'Culture' | 'Musicians'
+export type CategoryTab =
+  | 'Region'
+  | 'Decade'
+  | 'City'
+  | 'Genre'
+  | 'Culture'
+  | 'Musicians';
 
 export interface MenuItem {
-  id: string
-  label: string
-  icon: string
+  id: string;
+  label: string;
+  icon: string;
 }
 
 // --- Selection (discriminated union) ---
 export type SelectedLocation =
   | { type: 'country'; name: string; iso: string }
   | { type: 'state'; name: string; country?: string }
-  | { type: 'city'; id: string }
+  | { type: 'city'; id: string };
 
 // --- Search fly target ---
 export interface FlyTarget {
-  lat: number
-  lng: number
-  zoom: number
+  lat: number;
+  lng: number;
+  zoom: number;
 }
 
 // --- Historical Journey Modules ---
 export interface HistoricalModule {
-  id: string
-  title: string
-  description: string
-  emoji: string
-  eventIds: string[]    // ordered event IDs forming the journey
+  id: string;
+  title: string;
+  description: string;
+  emoji: string;
+  eventIds: string[]; // ordered event IDs forming the journey
 }
 
 export interface ModuleProgress {
-  moduleId: string
-  currentStep: number   // 0-indexed
+  moduleId: string;
+  currentStep: number; // 0-indexed
 }
 
 // --- AI Insight ---
 export interface AIInsight {
-  query: string
-  content: string
-  status: 'idle' | 'loading' | 'streaming' | 'done' | 'error'
-  error?: string
+  query: string;
+  content: string;
+  status: 'idle' | 'loading' | 'streaming' | 'done' | 'error';
+  error?: string;
 }
 
 // --- App State ---
 export interface AppState {
-  currentYear: number
-  selectedDecades: number[]
-  selectedRegions: RegionId[]
-  selectedNations: string[]
-  selectedSubdivisions: string[]
-  selectedCities: string[]
-  selectedLocation: SelectedLocation | null
-  globeAltitude: number
-  activeTab: CategoryTab
-  searchQuery: string
-  isSearchOpen: boolean
-  searchResults: HistoricalEvent[]
-  pinnedEvent: HistoricalEvent | null
-  activeModule: ModuleProgress | null
-  selectedEra: string | null
-  searchFlyTarget: FlyTarget | null
-  aiInsight: AIInsight
+  currentYear: number;
+  selectedDecades: number[];
+  selectedRegions: RegionId[];
+  selectedNations: string[];
+  selectedSubdivisions: string[];
+  selectedCities: string[];
+  selectedLocation: SelectedLocation | null;
+  globeAltitude: number;
+  activeTab: CategoryTab;
+  searchQuery: string;
+  isSearchOpen: boolean;
+  searchResults: HistoricalEvent[];
+  pinnedEvent: HistoricalEvent | null;
+  activeModule: ModuleProgress | null;
+  selectedEra: string | null;
+  searchFlyTarget: FlyTarget | null;
+  aiInsight: AIInsight;
 }
 
 export type AppAction =
@@ -129,7 +135,10 @@ export type AppAction =
   | { type: 'SET_SEARCH_OPEN'; payload: boolean }
   | { type: 'SET_SEARCH_RESULTS'; payload: HistoricalEvent[] }
   | { type: 'PIN_EVENT'; payload: HistoricalEvent | null }
-  | { type: 'EXECUTE_SEARCH'; payload: { year?: number; lat?: number; lng?: number; zoom?: number } }
+  | {
+      type: 'EXECUTE_SEARCH';
+      payload: { year?: number; lat?: number; lng?: number; zoom?: number };
+    }
   | { type: 'CLEAR_FLY_TARGET' }
   | { type: 'AI_INSIGHT_START'; payload: string }
   | { type: 'AI_INSIGHT_CHUNK'; payload: string }
@@ -139,4 +148,4 @@ export type AppAction =
   | { type: 'MODULE_STEP'; payload: number }
   | { type: 'EXIT_MODULE' }
   | { type: 'AI_INSIGHT_CLEAR' }
-  | { type: 'SET_ERA'; payload: string | null }
+  | { type: 'SET_ERA'; payload: string | null };

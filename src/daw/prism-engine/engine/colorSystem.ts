@@ -1,5 +1,10 @@
 import type { RGB } from '../types';
-import { KEY_COLORS, KEYS, CHORD_COLORS, QUALITY_FALLBACK } from '../data/keyColors';
+import {
+  KEY_COLORS,
+  KEYS,
+  CHORD_COLORS,
+  QUALITY_FALLBACK,
+} from '../data/keyColors';
 import { noteNameLetter } from '../data/notes';
 import { steppedChord } from './naming';
 
@@ -19,7 +24,8 @@ export function getChordColor(chord: string, root: number): RGB {
     const spaceIdx = chord.indexOf(' ');
     if (spaceIdx > 0) {
       const base = QUALITY_FALLBACK[chord.slice(spaceIdx + 1)];
-      if (base) stepFrom = CHORD_COLORS[chord.slice(0, spaceIdx) + ' ' + base] ?? 0;
+      if (base)
+        stepFrom = CHORD_COLORS[chord.slice(0, spaceIdx) + ' ' + base] ?? 0;
     }
   }
 

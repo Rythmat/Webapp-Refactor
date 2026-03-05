@@ -118,11 +118,9 @@ export const createUiSlice: StateCreator<
   setTimelineZoom: (zoom) =>
     set({ timelineZoom: clamp(zoom, MIN_ZOOM, MAX_ZOOM) }),
 
-  setTimelineScrollLeft: (px) =>
-    set({ timelineScrollLeft: Math.max(0, px) }),
+  setTimelineScrollLeft: (px) => set({ timelineScrollLeft: Math.max(0, px) }),
 
-  setTimelineGridSize: (size) =>
-    set({ timelineGridSize: size }),
+  setTimelineGridSize: (size) => set({ timelineGridSize: size }),
 
   toggleTimelineSnap: () =>
     set((s) => ({ timelineSnapEnabled: !s.timelineSnapEnabled })),
@@ -135,7 +133,8 @@ export const createUiSlice: StateCreator<
       const oldZoom = s.timelineZoom;
       const newZoom = clamp(oldZoom * (1 + delta), MIN_ZOOM, MAX_ZOOM);
       const ratio = newZoom / oldZoom;
-      const newScrollLeft = anchorPx * ratio - anchorPx + s.timelineScrollLeft * ratio;
+      const newScrollLeft =
+        anchorPx * ratio - anchorPx + s.timelineScrollLeft * ratio;
       return {
         timelineZoom: newZoom,
         timelineScrollLeft: Math.max(0, newScrollLeft),

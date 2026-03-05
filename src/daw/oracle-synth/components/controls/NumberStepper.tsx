@@ -32,5 +32,5 @@ export const NumberStepper: React.FC<NumberStepperProps> = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );

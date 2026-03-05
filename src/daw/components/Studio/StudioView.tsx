@@ -7,7 +7,10 @@ import { audioEngine } from '@/daw/audio/AudioEngine';
 import { getTrackAudioState } from '@/daw/hooks/usePlaybackEngine';
 import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
 import { useCompressorMeters } from '@/daw/hooks/useCompressorMeters';
-import { FxChainRow, FxControlsPanel } from '@/daw/components/Effects/EffectsPanel';
+import {
+  FxChainRow,
+  FxControlsPanel,
+} from '@/daw/components/Effects/EffectsPanel';
 import { FxBrowser } from '@/daw/components/Effects/FxBrowser';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -196,13 +199,19 @@ function LufsMeter({ isReady }: { isReady: boolean }) {
   return (
     <div className="flex flex-col items-center gap-1">
       {/* Segmented meter */}
-      <div className="flex flex-col-reverse gap-px" style={{ width: 12, height: 80 }}>
+      <div
+        className="flex flex-col-reverse gap-px"
+        style={{ width: 12, height: 80 }}
+      >
         {Array.from({ length: LUFS_SEGMENTS }, (_, i) => {
           const lit = i < litCount;
           const ratio = i / LUFS_SEGMENTS;
-          const color = ratio > 0.85 ? 'var(--color-meter-red)'
-            : ratio > 0.6 ? 'var(--color-meter-yellow)'
-            : 'var(--color-meter-green)';
+          const color =
+            ratio > 0.85
+              ? 'var(--color-meter-red)'
+              : ratio > 0.6
+                ? 'var(--color-meter-yellow)'
+                : 'var(--color-meter-green)';
           return (
             <div
               key={i}
@@ -216,10 +225,16 @@ function LufsMeter({ isReady }: { isReady: boolean }) {
           );
         })}
       </div>
-      <span className="text-[9px] font-mono font-bold whitespace-nowrap" style={{ color: 'var(--color-text)' }}>
+      <span
+        className="whitespace-nowrap font-mono text-[9px] font-bold"
+        style={{ color: 'var(--color-text)' }}
+      >
         {lufsText}
       </span>
-      <span className="text-[7px] font-semibold uppercase" style={{ color: 'var(--color-text-dim)' }}>
+      <span
+        className="text-[7px] font-semibold uppercase"
+        style={{ color: 'var(--color-text-dim)' }}
+      >
         LUFS
       </span>
     </div>
@@ -237,7 +252,9 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
   const mfx = useStore((s) => s.masteringEffects);
   const updateMfx = useStore((s) => s.updateMasteringEffects);
 
-  const [selectedEffect, setSelectedEffect] = useState<EffectSlotType | null>(null);
+  const [selectedEffect, setSelectedEffect] = useState<EffectSlotType | null>(
+    null,
+  );
   const [popOutOpen, setPopOutOpen] = useState(false);
 
   // Compressor meters from mastering chain
@@ -266,7 +283,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
 
   return (
     <div
-      className="shrink-0 flex flex-col"
+      className="flex shrink-0 flex-col"
       style={{
         borderBottom: '1px solid var(--color-border)',
         padding: '12px 16px',
@@ -274,19 +291,26 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
     >
       {/* ── Header bar ─────────────────────────────────── */}
       <div className="flex items-center" style={{ marginBottom: 12 }}>
-        <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text)' }}>
+        <span
+          className="text-[11px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--color-text)' }}
+        >
           Mastering
         </span>
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="ml-auto flex items-center gap-2">
           <button
-            className="text-[10px] font-medium cursor-pointer transition-colors"
-            style={{ color: 'var(--color-text-dim)', background: 'none', border: 'none' }}
+            className="cursor-pointer text-[10px] font-medium transition-colors"
+            style={{
+              color: 'var(--color-text-dim)',
+              background: 'none',
+              border: 'none',
+            }}
           >
             Gain Match
           </button>
           <button
             onClick={toggleBypass}
-            className="text-[10px] font-medium cursor-pointer transition-colors"
+            className="cursor-pointer text-[10px] font-medium transition-colors"
             style={{
               color: bypass ? '#ef4444' : 'var(--color-text-dim)',
               background: 'none',
@@ -303,7 +327,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
 
       {/* ── Mastering Chain — signal chain layout ──────────── */}
       <div
-        className="flex rounded-lg overflow-hidden"
+        className="flex overflow-hidden rounded-lg"
         style={{
           marginTop: 12,
           backgroundColor: 'rgba(0, 0, 0, 0.2)',
@@ -311,10 +335,15 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
         }}
       >
         {/* Left: FxBrowser */}
-        <FxBrowser trackId="master" activeEffects={fxChain} onAddEffect={wrappedAdd} hideMidi />
+        <FxBrowser
+          trackId="master"
+          activeEffects={fxChain}
+          onAddEffect={wrappedAdd}
+          hideMidi
+        />
 
         {/* Right: chain + controls */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden">
           {/* Signal chain row with LUFS meter pinned right */}
           <div className="flex items-start">
             <div className="flex-1">
@@ -324,12 +353,19 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
                 selectedEffect={selectedEffect}
                 onSelect={setSelectedEffect}
                 onToggle={(slot) => {
-                  const current = mfx[slot as keyof TrackEffectState] as { enabled: boolean };
-                  updateMfx({ [slot]: { ...mfx[slot as keyof TrackEffectState], enabled: !current.enabled } });
+                  const current = mfx[slot as keyof TrackEffectState] as {
+                    enabled: boolean;
+                  };
+                  updateMfx({
+                    [slot]: {
+                      ...mfx[slot as keyof TrackEffectState],
+                      enabled: !current.enabled,
+                    },
+                  });
                 }}
               />
             </div>
-            <div className="shrink-0 flex items-center p-3">
+            <div className="flex shrink-0 items-center p-3">
               <LufsMeter isReady={isReady} />
             </div>
           </div>
@@ -349,8 +385,13 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
               outLevel={outLevel}
             />
           ) : (
-            <div className="flex-1 flex items-center justify-center text-[11px] py-6" style={{ color: 'var(--color-text-dim)' }}>
-              {fxChain.length === 0 ? 'Add effects from the list' : 'Select a block to edit'}
+            <div
+              className="flex flex-1 items-center justify-center py-6 text-[11px]"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              {fxChain.length === 0
+                ? 'Add effects from the list'
+                : 'Select a block to edit'}
             </div>
           )}
         </div>
@@ -380,7 +421,10 @@ function DbReadout({ level }: { level: number }) {
   const db = levelToDb(level);
   const text = db === -Infinity ? '-inf' : `${db.toFixed(1)} dB`;
   return (
-    <span className="text-[11px] font-mono font-bold tabular-nums" style={{ color: dbColor(db) }}>
+    <span
+      className="font-mono text-[11px] font-bold tabular-nums"
+      style={{ color: dbColor(db) }}
+    >
       {text}
     </span>
   );
@@ -409,29 +453,35 @@ function MeterBar({ level }: { level: number }) {
 
   return (
     <div
-      className="w-2.5 rounded-sm overflow-hidden relative"
+      className="relative w-2.5 overflow-hidden rounded-sm"
       style={{ height: '100%', backgroundColor: 'rgba(255, 255, 255, 0.04)' }}
     >
       <div
-        className="absolute bottom-0 left-0 right-0 rounded-sm"
+        className="absolute inset-x-0 bottom-0 rounded-sm"
         style={{
           height: `${pct}%`,
-          background: pct > 85
-            ? 'linear-gradient(to top, var(--color-meter-green), var(--color-meter-yellow) 60%, var(--color-meter-red))'
-            : pct > 50
-              ? 'linear-gradient(to top, var(--color-meter-green), var(--color-meter-yellow))'
-              : 'var(--color-meter-green)',
+          background:
+            pct > 85
+              ? 'linear-gradient(to top, var(--color-meter-green), var(--color-meter-yellow) 60%, var(--color-meter-red))'
+              : pct > 50
+                ? 'linear-gradient(to top, var(--color-meter-green), var(--color-meter-yellow))'
+                : 'var(--color-meter-green)',
           transition: 'height 60ms linear',
         }}
       />
       {/* Peak hold indicator */}
       {peakPct > 2 && (
         <div
-          className="absolute left-0 right-0"
+          className="absolute inset-x-0"
           style={{
             bottom: `${peakPct}%`,
             height: 2,
-            backgroundColor: peakPct > 85 ? 'var(--color-meter-red)' : peakPct > 50 ? 'var(--color-meter-yellow)' : 'var(--color-meter-green)',
+            backgroundColor:
+              peakPct > 85
+                ? 'var(--color-meter-red)'
+                : peakPct > 50
+                  ? 'var(--color-meter-yellow)'
+                  : 'var(--color-meter-green)',
           }}
         />
       )}
@@ -441,13 +491,21 @@ function MeterBar({ level }: { level: number }) {
 
 // ── PanKnob with center detent ──────────────────────────────────────────
 
-function PanKnob({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function PanKnob({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+}) {
   const startY = useRef(0);
   const startVal = useRef(0);
 
   const angle = 270 + value * 45;
   const rad = (angle * Math.PI) / 180;
-  const cx = 16, cy = 16, r = 10;
+  const cx = 16,
+    cy = 16,
+    r = 10;
   const ix = cx + Math.cos(rad) * r;
   const iy = cy + Math.sin(rad) * r;
 
@@ -485,18 +543,41 @@ function PanKnob({ value, onChange }: { value: number; onChange: (v: number) => 
 
   return (
     <div
-      className="cursor-grab active:cursor-grabbing select-none"
+      className="cursor-grab select-none active:cursor-grabbing"
       style={{ width: 32, height: 32 }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onDoubleClick={onDoubleClick}
     >
       <svg width={32} height={32} viewBox="0 0 32 32">
-        <circle cx={cx} cy={cy} r={13} fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.15)" strokeWidth={1} />
+        <circle
+          cx={cx}
+          cy={cy}
+          r={13}
+          fill="rgba(255,255,255,0.06)"
+          stroke="rgba(255,255,255,0.15)"
+          strokeWidth={1}
+        />
         {/* Center detent tick */}
-        <line x1={tx1} y1={ty1} x2={tx2} y2={ty2} stroke="rgba(255,255,255,0.2)" strokeWidth={1} strokeLinecap="round" />
+        <line
+          x1={tx1}
+          y1={ty1}
+          x2={tx2}
+          y2={ty2}
+          stroke="rgba(255,255,255,0.2)"
+          strokeWidth={1}
+          strokeLinecap="round"
+        />
         <circle cx={cx} cy={cy} r={2} fill="rgba(255,255,255,0.2)" />
-        <line x1={cx} y1={cy} x2={ix} y2={iy} stroke="var(--color-text)" strokeWidth={2} strokeLinecap="round" />
+        <line
+          x1={cx}
+          y1={cy}
+          x2={ix}
+          y2={iy}
+          stroke="var(--color-text)"
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
       </svg>
     </div>
   );
@@ -506,13 +587,18 @@ function PanKnob({ value, onChange }: { value: number; onChange: (v: number) => 
 
 const STRIP_WIDTH = 90;
 
-const MixingStrip = React.memo(function MixingStrip({ trackId }: { trackId: string }) {
+const MixingStrip = React.memo(function MixingStrip({
+  trackId,
+}: {
+  trackId: string;
+}) {
   const track = useTrack(trackId);
   const toggleMute = useStore((s) => s.toggleMute);
   const toggleSolo = useStore((s) => s.toggleSolo);
   const updateTrack = useStore((s) => s.updateTrack);
 
-  const analyser = getTrackAudioState(trackId)?.trackEngine.getAnalyserNode() ?? null;
+  const analyser =
+    getTrackAudioState(trackId)?.trackEngine.getAnalyserNode() ?? null;
   const liveLevel = useMeterLevel(analyser);
 
   if (!track) return null;
@@ -521,7 +607,7 @@ const MixingStrip = React.memo(function MixingStrip({ trackId }: { trackId: stri
 
   return (
     <div
-      className="flex flex-shrink-0 flex-col items-center py-3 px-2 gap-2 relative"
+      className="relative flex shrink-0 flex-col items-center gap-2 px-2 py-3"
       style={{
         width: STRIP_WIDTH,
         borderRight: '1px solid rgba(255, 255, 255, 0.06)',
@@ -532,9 +618,11 @@ const MixingStrip = React.memo(function MixingStrip({ trackId }: { trackId: stri
 
       <div className="flex gap-1">
         <button
-          className="px-2 h-6 rounded text-[9px] font-bold uppercase cursor-pointer transition-colors"
+          className="h-6 cursor-pointer rounded px-2 text-[9px] font-bold uppercase transition-colors"
           style={{
-            backgroundColor: track.mute ? 'var(--color-record)' : 'rgba(255, 255, 255, 0.06)',
+            backgroundColor: track.mute
+              ? 'var(--color-record)'
+              : 'rgba(255, 255, 255, 0.06)',
             color: track.mute ? '#fff' : 'var(--color-text-dim)',
             border: 'none',
           }}
@@ -543,9 +631,11 @@ const MixingStrip = React.memo(function MixingStrip({ trackId }: { trackId: stri
           Mute
         </button>
         <button
-          className="px-2 h-6 rounded text-[9px] font-bold uppercase cursor-pointer transition-colors"
+          className="h-6 cursor-pointer rounded px-2 text-[9px] font-bold uppercase transition-colors"
           style={{
-            backgroundColor: track.solo ? '#eab308' : 'rgba(255, 255, 255, 0.06)',
+            backgroundColor: track.solo
+              ? '#eab308'
+              : 'rgba(255, 255, 255, 0.06)',
             color: track.solo ? '#000' : 'var(--color-text-dim)',
             border: 'none',
           }}
@@ -555,7 +645,7 @@ const MixingStrip = React.memo(function MixingStrip({ trackId }: { trackId: stri
         </button>
       </div>
 
-      <div className="flex flex-1 items-center justify-center gap-2 w-full">
+      <div className="flex w-full flex-1 items-center justify-center gap-2">
         <div className="flex gap-0.5" style={{ height: '100%' }}>
           <MeterBar level={liveLevel} />
         </div>
@@ -581,10 +671,12 @@ const MixingStrip = React.memo(function MixingStrip({ trackId }: { trackId: stri
           </Slider.Track>
           <Slider.Thumb
             className="block h-4 w-5 rounded-sm shadow-sm focus:outline-none focus:ring-1"
-            style={{
-              backgroundColor: '#e8e8f0',
-              '--tw-ring-color': 'var(--color-accent)',
-            } as React.CSSProperties}
+            style={
+              {
+                backgroundColor: '#e8e8f0',
+                '--tw-ring-color': 'var(--color-accent)',
+              } as React.CSSProperties
+            }
             aria-label="Volume"
           />
         </Slider.Root>
@@ -599,10 +691,13 @@ const MixingStrip = React.memo(function MixingStrip({ trackId }: { trackId: stri
         onChange={(v) => updateTrack(track.id, { pan: v })}
       />
 
-      <div className="flex items-center gap-1 w-full justify-center">
-        <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: track.color }} />
+      <div className="flex w-full items-center justify-center gap-1">
+        <div
+          className="size-2 shrink-0 rounded-full"
+          style={{ backgroundColor: track.color }}
+        />
         <span
-          className="text-[10px] font-medium truncate text-center"
+          className="truncate text-center text-[10px] font-medium"
           style={{ color: 'var(--color-text)' }}
         >
           {track.name}
@@ -611,7 +706,7 @@ const MixingStrip = React.memo(function MixingStrip({ trackId }: { trackId: stri
 
       {/* Track color bar at bottom */}
       <div
-        className="absolute bottom-0 left-0 right-0"
+        className="absolute inset-x-0 bottom-0"
         style={{ height: 3, backgroundColor: track.color, opacity: 0.6 }}
       />
     </div>
@@ -643,7 +738,7 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
 
   return (
     <div
-      className="flex flex-shrink-0 flex-col items-center py-3 px-2 gap-2"
+      className="flex shrink-0 flex-col items-center gap-2 px-2 py-3"
       style={{
         width: MASTER_WIDTH,
         borderLeft: '2px solid rgba(255, 255, 255, 0.12)',
@@ -653,7 +748,7 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
       <DbReadout level={avgLevel} />
 
       <button
-        className="px-2 h-6 rounded text-[9px] font-bold uppercase cursor-pointer transition-colors"
+        className="h-6 cursor-pointer rounded px-2 text-[9px] font-bold uppercase transition-colors"
         style={{
           backgroundColor: 'rgba(255, 255, 255, 0.06)',
           color: 'var(--color-text-dim)',
@@ -664,7 +759,7 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
         Mute All
       </button>
 
-      <div className="flex flex-1 items-center justify-center gap-1.5 w-full">
+      <div className="flex w-full flex-1 items-center justify-center gap-1.5">
         <div className="flex gap-0.5" style={{ height: '100%' }}>
           <MeterBar level={masterLevelL} />
           <MeterBar level={masterLevelR} />
@@ -692,20 +787,30 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
           </Slider.Track>
           <Slider.Thumb
             className="block h-4 w-5 rounded-sm shadow-sm focus:outline-none focus:ring-1"
-            style={{
-              backgroundColor: 'var(--color-accent)',
-              '--tw-ring-color': 'var(--color-accent)',
-            } as React.CSSProperties}
+            style={
+              {
+                backgroundColor: 'var(--color-accent)',
+                '--tw-ring-color': 'var(--color-accent)',
+              } as React.CSSProperties
+            }
             aria-label="Master Volume"
           />
         </Slider.Root>
       </div>
 
-      <span className="text-[10px] font-mono font-medium" style={{ color: 'var(--color-text-dim)' }}>
-        {masterVolume === 80 ? '0 dB' : `${(levelToDb(masterVolume) + 1.9).toFixed(1)} dB`}
+      <span
+        className="font-mono text-[10px] font-medium"
+        style={{ color: 'var(--color-text-dim)' }}
+      >
+        {masterVolume === 80
+          ? '0 dB'
+          : `${(levelToDb(masterVolume) + 1.9).toFixed(1)} dB`}
       </span>
 
-      <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-text)' }}>
+      <span
+        className="text-[10px] font-bold uppercase tracking-wider"
+        style={{ color: 'var(--color-text)' }}
+      >
         Master
       </span>
     </div>
@@ -719,26 +824,39 @@ function MixingSection({ isReady }: { isReady: boolean }) {
   const trackCount = useTrackCount();
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* Section header */}
-      <div className="flex items-center gap-2 px-3 py-1.5 shrink-0">
-        <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text)' }}>
+      <div className="flex shrink-0 items-center gap-2 px-3 py-1.5">
+        <span
+          className="text-[10px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--color-text)' }}
+        >
           Mixer
         </span>
-        <div className="flex-1" style={{ height: 1, backgroundColor: 'var(--color-border)' }} />
+        <div
+          className="flex-1"
+          style={{ height: 1, backgroundColor: 'var(--color-border)' }}
+        />
       </div>
 
       {/* Mixer content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         {trackCount === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-3">
-            <Sliders size={28} strokeWidth={1.5} style={{ color: 'var(--color-text-dim)', opacity: 0.4 }} />
-            <span className="text-[12px]" style={{ color: 'var(--color-text-dim)' }}>
+          <div className="flex flex-1 flex-col items-center justify-center gap-3">
+            <Sliders
+              size={28}
+              strokeWidth={1.5}
+              style={{ color: 'var(--color-text-dim)', opacity: 0.4 }}
+            />
+            <span
+              className="text-[12px]"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
               Add tracks to see the mixer
             </span>
           </div>
         ) : (
-          <div className="flex-1 flex overflow-x-auto">
+          <div className="flex flex-1 overflow-x-auto">
             {trackIds.map((id) => (
               <MixingStrip key={id} trackId={id} />
             ))}
@@ -757,7 +875,7 @@ function MixingSection({ isReady }: { isReady: boolean }) {
 export function StudioView({ isReady }: { isReady: boolean }) {
   return (
     <div
-      className="flex-1 flex flex-col overflow-hidden"
+      className="flex flex-1 flex-col overflow-hidden"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
       {/* Top: Mastering */}

@@ -22,11 +22,14 @@ export function PitchEditorModal() {
 
   const [analyzing, setAnalyzing] = useState(false);
 
-  const isOpen = editingAudioClipId !== null && editingAudioClipTrackId !== null;
+  const isOpen =
+    editingAudioClipId !== null && editingAudioClipTrackId !== null;
 
   const track = tracks.find((t) => t.id === editingAudioClipTrackId);
   const clip = track?.audioClips.find((c) => c.id === editingAudioClipId);
-  const clipPitchData = editingAudioClipId ? pitchData[editingAudioClipId] : undefined;
+  const clipPitchData = editingAudioClipId
+    ? pitchData[editingAudioClipId]
+    : undefined;
 
   // Auto-analyze on open
   useEffect(() => {
@@ -73,16 +76,22 @@ export function PitchEditorModal() {
   }, [editingAudioClipId, clearPitchEdits]);
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) handleClose();
+      }}
+    >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
         <Dialog.Content
-          className="fixed top-[5%] left-[5%] right-[5%] bottom-[10%] rounded-2xl z-50 outline-none flex flex-col overflow-hidden"
+          className="fixed inset-x-[5%] bottom-[10%] top-[5%] z-50 flex flex-col overflow-hidden rounded-2xl outline-none"
           style={{
             backgroundColor: 'rgba(10, 10, 15, 0.92)',
             backdropFilter: 'blur(24px)',
             border: '1px solid rgba(255, 255, 255, 0.08)',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 24px 80px rgba(0,0,0,0.6)',
+            boxShadow:
+              'inset 0 1px 0 rgba(255,255,255,0.06), 0 24px 80px rgba(0,0,0,0.6)',
           }}
           onKeyDown={(e) => {
             if (e.code === 'Delete' || e.code === 'Backspace') {
@@ -92,13 +101,22 @@ export function PitchEditorModal() {
         >
           {/* Header */}
           <div
-            className="flex items-center justify-between px-4 shrink-0"
-            style={{ height: 44, borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+            className="flex shrink-0 items-center justify-between px-4"
+            style={{
+              height: 44,
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+            }}
           >
-            <Dialog.Title className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+            <Dialog.Title
+              className="text-sm font-semibold"
+              style={{ color: 'var(--color-text)' }}
+            >
               Vocal Pitch Editor
               {track && (
-                <span className="ml-2 text-xs font-normal" style={{ color: track.color }}>
+                <span
+                  className="ml-2 text-xs font-normal"
+                  style={{ color: track.color }}
+                >
                   {track.name}
                 </span>
               )}
@@ -108,7 +126,7 @@ export function PitchEditorModal() {
             </Dialog.Description>
             <Dialog.Close asChild>
               <button
-                className="w-7 h-7 flex items-center justify-center rounded-full transition-colors hover:bg-white/10"
+                className="flex size-7 items-center justify-center rounded-full transition-colors hover:bg-white/10"
                 style={{ color: 'var(--color-text-dim)' }}
                 aria-label="Close"
               >
@@ -120,7 +138,10 @@ export function PitchEditorModal() {
           {/* Editor */}
           <div className="flex-1 overflow-hidden">
             {analyzing ? (
-              <div className="flex items-center justify-center h-full text-sm" style={{ color: 'var(--color-text-dim)' }}>
+              <div
+                className="flex h-full items-center justify-center text-sm"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
                 Analyzing pitch...
               </div>
             ) : clip && track && clipPitchData?.analyzed ? (
@@ -137,7 +158,10 @@ export function PitchEditorModal() {
                 onResetAll={handleResetAll}
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-sm" style={{ color: 'var(--color-text-dim)' }}>
+              <div
+                className="flex h-full items-center justify-center text-sm"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
                 {!clip ? 'No clip selected' : 'No audio buffer available'}
               </div>
             )}

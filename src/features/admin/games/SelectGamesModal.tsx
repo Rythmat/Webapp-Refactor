@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-sort-props */
 import {
   useEffect,
   useMemo,
@@ -6,6 +7,7 @@ import {
   SetStateAction,
   type ReactNode,
 } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +15,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -152,7 +153,11 @@ export const SelectGamesModal = ({
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Button type="button" variant="ghost" onClick={() => setSelectedGameId(null)}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setSelectedGameId(null)}
+              >
                 Back to game options
               </Button>
               <Button

@@ -6,15 +6,23 @@ import type { InstrumentAdapter } from './InstrumentAdapter';
 // ---------------------------------------------------------------------------
 
 type WorkletSynth = import('spessasynth_lib').WorkletSynthesizer;
-
-console.log('[SoundFontAdapter] Module loaded');
+type MaybeNativeContext = AudioContext & { _nativeContext?: AudioContext };
+type MaybeNativeAudioNode = AudioNode & { _nativeAudioNode?: AudioNode };
+type SynthWithWorklet = WorkletSynth & { worklet?: EventTarget };
 
 /** Race a promise against a timeout — surfaces hangs as errors. */
-function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  label: string,
+): Promise<T> {
   return Promise.race([
     promise,
     new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`[SoundFont] TIMEOUT after ${ms}ms: ${label}`)), ms),
+      setTimeout(
+        () => reject(new Error(`[SoundFont] TIMEOUT after ${ms}ms: ${label}`)),
+        ms,
+      ),
     ),
   ]);
 }
@@ -46,7 +54,6 @@ export class SoundFontAdapter implements InstrumentAdapter {
   }
 
   async init(ctx: AudioContext, outputNode: AudioNode): Promise<void> {
-    console.log('[SoundFontAdapter] init() called');
     this.channel = allocateChannel();
 
     if (!synthInitPromise) {
@@ -63,8 +70,7 @@ export class SoundFontAdapter implements InstrumentAdapter {
     // never activates the output chain.
     // Fix: a silent ConstantSourceNode connected through the wrapper makes the
     // output node "active", re-establishing all native connections in the chain.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.activator = (ctx as any).createConstantSource();
+    this.activator = ctx.createConstantSource();
     this.activator!.offset.value = 0;
     this.activator!.start();
     this.activator!.connect(outputNode);
@@ -72,15 +78,14 @@ export class SoundFontAdapter implements InstrumentAdapter {
     // SpessaSynth uses the native AudioContext, but DAW nodes are created
     // with standardized-audio-context (Tone.js wrapper). Extract the native
     // AudioNode to ensure cross-context compatibility.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nativeOutput = (outputNode as any)._nativeAudioNode ?? outputNode;
+    const nativeOutput =
+      (outputNode as MaybeNativeAudioNode)._nativeAudioNode ?? outputNode;
     try {
       sharedSynth!.connect(nativeOutput);
-    } catch (err) {
+    } catch {
       // Fallback: connect to speakers if cross-context bridge fails
-      console.warn('[SoundFont] Track routing failed, falling back to destination:', err);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const nativeCtx: AudioContext = (ctx as any)._nativeContext ?? ctx;
+      const nativeCtx: AudioContext =
+        (ctx as MaybeNativeContext)._nativeContext ?? ctx;
       sharedSynth!.connect(nativeCtx.destination);
     }
 
@@ -105,7 +110,6 @@ export class SoundFontAdapter implements InstrumentAdapter {
 
   noteOn(note: number, velocity: number, _time?: number): void {
     if (!sharedSynth || !synthReady) {
-      console.warn('[SoundFont] noteOn dropped — synth not ready');
       return;
     }
     sharedSynth.noteOn(this.channel, note, velocity);
@@ -127,14 +131,27 @@ export class SoundFontAdapter implements InstrumentAdapter {
   dispose(): void {
     this.allNotesOff();
     if (this.activator) {
-      try { this.activator.stop(); } catch { /* may already be stopped */ }
-      try { this.activator.disconnect(); } catch { /* may already be disconnected */ }
+      try {
+        this.activator.stop();
+      } catch {
+        /* may already be stopped */
+      }
+      try {
+        this.activator.disconnect();
+      } catch {
+        /* may already be disconnected */
+      }
       this.activator = null;
     }
     if (sharedSynth && this.outputNode) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const nativeOutput = (this.outputNode as any)._nativeAudioNode ?? this.outputNode;
-      try { sharedSynth.disconnect(nativeOutput); } catch { /* may already be disconnected */ }
+      const nativeOutput =
+        (this.outputNode as MaybeNativeAudioNode)._nativeAudioNode ??
+        this.outputNode;
+      try {
+        sharedSynth.disconnect(nativeOutput);
+      } catch {
+        /* may already be disconnected */
+      }
     }
     this.outputNode = null;
   }
@@ -148,44 +165,41 @@ async function initSharedSynth(ctx: AudioContext): Promise<void> {
   // Tone.js v15 uses standardized-audio-context which wraps the native AudioContext.
   // SpessaSynth's WorkletSynthesizer needs the true native AudioContext because
   // the browser's AudioWorkletNode constructor rejects the wrapper.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const nativeCtx: AudioContext = (ctx as any)._nativeContext ?? ctx;
-
-  console.log('[SoundFont] AudioContext state:', nativeCtx.state);
+  const nativeCtx: AudioContext =
+    (ctx as MaybeNativeContext)._nativeContext ?? ctx;
   if (nativeCtx.state === 'suspended') {
     await nativeCtx.resume();
-    console.log('[SoundFont] AudioContext resumed:', nativeCtx.state);
   }
 
-  console.log('[SoundFont] Registering AudioWorklet processor...');
   await withTimeout(
-    nativeCtx.audioWorklet.addModule('/daw-assets/spessasynth_processor.min.js'),
+    nativeCtx.audioWorklet.addModule(
+      '/daw-assets/spessasynth_processor.min.js',
+    ),
     10_000,
     'addModule',
   );
 
-  console.log('[SoundFont] Importing spessasynth_lib...');
   const { WorkletSynthesizer } = await import('spessasynth_lib');
 
-  console.log('[SoundFont] Creating WorkletSynthesizer...');
   sharedSynth = new WorkletSynthesizer(nativeCtx);
 
   // Surface worklet-level errors that would otherwise be silent
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (sharedSynth as any).worklet?.addEventListener?.('processorerror', (e: Event) => {
-    console.error('[SoundFont] Worklet processor error:', e);
-  });
+  (sharedSynth as SynthWithWorklet).worklet?.addEventListener?.(
+    'processorerror',
+    (_e: Event) => {},
+  );
 
-  console.log('[SoundFont] Waiting for processor ready...');
   await withTimeout(sharedSynth.isReady, 15_000, 'isReady');
 
-  console.log('[SoundFont] Fetching GeneralUser_GS.sf2...');
-  const sfResponse = await withTimeout(fetch('/daw-assets/GeneralUser_GS.sf2'), 30_000, 'fetch SF2');
-  if (!sfResponse.ok) throw new Error(`SoundFont fetch failed: ${sfResponse.status}`);
+  const sfResponse = await withTimeout(
+    fetch('/daw-assets/GeneralUser_GS.sf2'),
+    30_000,
+    'fetch SF2',
+  );
+  if (!sfResponse.ok)
+    throw new Error(`SoundFont fetch failed: ${sfResponse.status}`);
   const sfData = await sfResponse.arrayBuffer();
-  console.log(`[SoundFont] Loaded ${(sfData.byteLength / 1024 / 1024).toFixed(1)} MB`);
 
-  console.log('[SoundFont] Adding sound bank...');
   await withTimeout(
     sharedSynth.soundBankManager.addSoundBank(sfData, 'gm'),
     30_000,
@@ -195,8 +209,6 @@ async function initSharedSynth(ctx: AudioContext): Promise<void> {
   // Don't connect to destination — each SoundFontAdapter instance will
   // connect the shared synth to its track's outputNode so audio flows
   // through the DAW's per-track effect chain and mastering chain.
-  console.log('[SoundFont] Synth ready (routing deferred to per-track init)');
 
   synthReady = true;
-  console.log('[SoundFont] ✅ Ready!');
 }

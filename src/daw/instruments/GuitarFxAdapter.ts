@@ -10,7 +10,12 @@
 //                                        └─ out[R] → Merger(1) ┘→ channelGain(2ch) → PedalChain → muteGain → track
 
 import type { InstrumentAdapter } from './InstrumentAdapter';
-import { GuitarPedalChain, type OverdriveParams, type AmpSimParams, type AmpSimMode } from '@/daw/audio/GuitarPedalChain';
+import {
+  GuitarPedalChain,
+  type OverdriveParams,
+  type AmpSimParams,
+  type AmpSimMode,
+} from '@/daw/audio/GuitarPedalChain';
 import type { PedalBlockDescriptor } from '@/daw/audio/pedals/PedalProcessor';
 import type { NamModelFile } from '@/daw/audio/nam/NamModelParser';
 // Note: We call navigator.mediaDevices.getUserMedia() directly instead of
@@ -100,8 +105,16 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     this.muteGain?.disconnect();
     this.analyserNode?.disconnect();
     if (this.activator) {
-      try { this.activator.stop(); } catch { /* may already be stopped */ }
-      try { this.activator.disconnect(); } catch { /* may already be disconnected */ }
+      try {
+        this.activator.stop();
+      } catch {
+        /* may already be stopped */
+      }
+      try {
+        this.activator.disconnect();
+      } catch {
+        /* may already be disconnected */
+      }
       this.activator = null;
     }
     this.pedalChain = null;
@@ -114,7 +127,10 @@ export class GuitarFxAdapter implements InstrumentAdapter {
 
   // ── Audio input management ─────────────────────────────────────────
 
-  async setDevice(deviceId: string | null, deviceChannelCount?: number): Promise<void> {
+  async setDevice(
+    deviceId: string | null,
+    deviceChannelCount?: number,
+  ): Promise<void> {
     if (deviceId === this.deviceId) return;
     this.deviceId = deviceId;
 
@@ -146,7 +162,9 @@ export class GuitarFxAdapter implements InstrumentAdapter {
       const track = stream.getAudioTracks()[0];
       if (track) {
         track.addEventListener('ended', () => {
-          console.warn('[GuitarFxAdapter] Audio input track ended (device disconnected?)');
+          console.warn(
+            '[GuitarFxAdapter] Audio input track ended (device disconnected?)',
+          );
           this.stopStream();
         });
       }
@@ -156,7 +174,9 @@ export class GuitarFxAdapter implements InstrumentAdapter {
       // Create splitter for channel selection — use device capability count
       // (sourceNode.channelCount only reflects browser-granted channels, often 1–2)
       this.deviceChCount = deviceChannelCount ?? this.sourceNode.channelCount;
-      this.splitterNode = this.nativeCtx.createChannelSplitter(Math.max(2, this.deviceChCount));
+      this.splitterNode = this.nativeCtx.createChannelSplitter(
+        Math.max(2, this.deviceChCount),
+      );
       this.sourceNode.connect(this.splitterNode);
 
       // Create gain node for the selected channel(s)
@@ -175,10 +195,16 @@ export class GuitarFxAdapter implements InstrumentAdapter {
   setChannelConfig(config: ChannelConfig): void {
     // Check if config actually changed
     if (
-      config.mode === this.channelConfig.mode &&
-      (config.mode === 'mono' && this.channelConfig.mode === 'mono' && config.channel === this.channelConfig.channel) ||
-      (config.mode === 'stereo' && this.channelConfig.mode === 'stereo' && config.left === this.channelConfig.left && config.right === this.channelConfig.right)
-    ) return;
+      (config.mode === this.channelConfig.mode &&
+        config.mode === 'mono' &&
+        this.channelConfig.mode === 'mono' &&
+        config.channel === this.channelConfig.channel) ||
+      (config.mode === 'stereo' &&
+        this.channelConfig.mode === 'stereo' &&
+        config.left === this.channelConfig.left &&
+        config.right === this.channelConfig.right)
+    )
+      return;
 
     this.channelConfig = config;
 
@@ -217,7 +243,11 @@ export class GuitarFxAdapter implements InstrumentAdapter {
   stopRecordingStream(): void {
     if (this.recordDest) {
       if (this.channelGain) {
-        try { this.channelGain.disconnect(this.recordDest); } catch { /* ok */ }
+        try {
+          this.channelGain.disconnect(this.recordDest);
+        } catch {
+          /* ok */
+        }
       }
       this.recordDest = null;
     }
@@ -230,7 +260,9 @@ export class GuitarFxAdapter implements InstrumentAdapter {
 
   getInputLevel(): number {
     if (!this.analyserNode || !this.rmsBuffer) return 0;
-    this.analyserNode.getFloatTimeDomainData(this.rmsBuffer as Float32Array<ArrayBuffer>);
+    this.analyserNode.getFloatTimeDomainData(
+      this.rmsBuffer as Float32Array<ArrayBuffer>,
+    );
     let sum = 0;
     for (let i = 0; i < this.rmsBuffer.length; i++) {
       sum += this.rmsBuffer[i] * this.rmsBuffer[i];
@@ -278,7 +310,13 @@ export class GuitarFxAdapter implements InstrumentAdapter {
   // ── Private ────────────────────────────────────────────────────────
 
   private connectChannelRouting(): void {
-    if (!this.nativeCtx || !this.splitterNode || !this.channelGain || !this.sourceNode) return;
+    if (
+      !this.nativeCtx ||
+      !this.splitterNode ||
+      !this.channelGain ||
+      !this.sourceNode
+    )
+      return;
 
     const channelCount = this.deviceChCount;
 
@@ -310,7 +348,11 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     }
     // Disconnect splitter → channelGain (mono path)
     if (this.splitterNode && this.channelGain) {
-      try { this.splitterNode.disconnect(this.channelGain); } catch { /* not connected */ }
+      try {
+        this.splitterNode.disconnect(this.channelGain);
+      } catch {
+        /* not connected */
+      }
     }
   }
 

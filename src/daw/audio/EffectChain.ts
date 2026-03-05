@@ -10,22 +10,27 @@ export type ReverbType = 'hall' | 'room' | 'chamber' | 'plate' | 'spring';
 
 export interface ReverbParams {
   enabled: boolean;
-  type: ReverbType;     // reverb algorithm
-  decay: number;        // 0.1 – 10 seconds
-  preDelay: number;     // 0 – 200 ms
-  highPass: number;     // 20 – 2000 Hz
-  lowPass: number;      // 1000 – 20000 Hz
-  wet: number;          // 0 – 1
+  type: ReverbType; // reverb algorithm
+  decay: number; // 0.1 – 10 seconds
+  preDelay: number; // 0 – 200 ms
+  highPass: number; // 20 – 2000 Hz
+  lowPass: number; // 1000 – 20000 Hz
+  wet: number; // 0 – 1
 }
 
-export type EqBandType = 'lowcut' | 'lowshelf' | 'peaking' | 'highshelf' | 'highcut';
+export type EqBandType =
+  | 'lowcut'
+  | 'lowshelf'
+  | 'peaking'
+  | 'highshelf'
+  | 'highcut';
 export type FilterSlope = 12 | 24; // dB/oct
 
 export interface EqBand {
   type: EqBandType;
-  freq: number;       // 20 – 20000 Hz
-  gain: number;       // -12 – 12 dB
-  Q: number;          // 0.1 – 10 (all band types)
+  freq: number; // 20 – 20000 Hz
+  gain: number; // -12 – 12 dB
+  Q: number; // 0.1 – 10 (all band types)
   enabled: boolean;
   slope?: FilterSlope; // lowcut/highcut only — 12 or 24 dB/oct (default 12)
 }
@@ -38,56 +43,63 @@ export interface EqParams {
 
 export interface GateParams {
   enabled: boolean;
-  threshold: number;  // -96 – 0 dB
-  range: number;      // 0 – 80 dB (attenuation when closed)
-  hold: number;       // 0 – 0.5 seconds
-  attack: number;     // 0.001 – 0.5 seconds
-  release: number;    // 0.01 – 2 seconds
+  threshold: number; // -96 – 0 dB
+  range: number; // 0 – 80 dB (attenuation when closed)
+  hold: number; // 0 – 0.5 seconds
+  attack: number; // 0.001 – 0.5 seconds
+  release: number; // 0.01 – 2 seconds
 }
 
 export interface CompressorParams {
   enabled: boolean;
-  threshold: number;  // -60 – 0 dB
-  ratio: number;      // 1 – 20
-  knee: number;       // 0 – 40 dB
-  attack: number;     // 0.001 – 1 seconds
-  release: number;    // 0.01 – 1 seconds
-  makeup: number;     // 0 – 24 dB (post-compression gain)
-  crush: number;      // 0 – 1 (saturation amount)
-  auto: boolean;      // auto makeup gain
+  threshold: number; // -60 – 0 dB
+  ratio: number; // 1 – 20
+  knee: number; // 0 – 40 dB
+  attack: number; // 0.001 – 1 seconds
+  release: number; // 0.01 – 1 seconds
+  makeup: number; // 0 – 24 dB (post-compression gain)
+  crush: number; // 0 – 1 (saturation amount)
+  auto: boolean; // auto makeup gain
   mode: 'studio' | 'creative';
 }
 
 export interface DelayParams {
   enabled: boolean;
-  time: number;       // 0 – 2 seconds
-  feedback: number;   // 0 – 0.95
-  wet: number;        // 0 – 1
+  time: number; // 0 – 2 seconds
+  feedback: number; // 0 – 0.95
+  wet: number; // 0 – 1
 }
 
 export interface PresenceParams {
   enabled: boolean;
-  amount: number;      // 0 – 100
-  frequency: number;   // 1000 – 12000 Hz
-  bandwidth: number;   // 0.1 – 4 (Q)
+  amount: number; // 0 – 100
+  frequency: number; // 1000 – 12000 Hz
+  bandwidth: number; // 0.1 – 4 (Q)
 }
 
 export interface DeEsserParams {
   enabled: boolean;
-  amount: number;      // 0 – 100
-  frequency: number;   // 2000 – 16000 Hz
-  range: number;       // 0 – 20 dB (reduction depth)
+  amount: number; // 0 – 100
+  frequency: number; // 2000 – 16000 Hz
+  range: number; // 0 – 20 dB (reduction depth)
 }
 
 export interface SaturatorParams {
   enabled: boolean;
-  drive: number;       // 0 – 100
-  mix: number;         // 0 – 100
-  tone: number;        // 0 – 100 (low=dark, high=bright)
+  drive: number; // 0 – 100
+  mix: number; // 0 – 100
+  tone: number; // 0 – 100 (low=dark, high=bright)
 }
 
-export type EffectSlotType = 'compressor' | 'gate' | 'eq' | 'reverb' | 'delay'
-  | 'presence' | 'de-esser' | 'saturator';
+export type EffectSlotType =
+  | 'compressor'
+  | 'gate'
+  | 'eq'
+  | 'reverb'
+  | 'delay'
+  | 'presence'
+  | 'de-esser'
+  | 'saturator';
 
 export interface TrackEffectState {
   reverb: ReverbParams;
@@ -101,7 +113,15 @@ export interface TrackEffectState {
 }
 
 export const DEFAULT_EFFECTS: TrackEffectState = {
-  reverb: { enabled: false, type: 'hall', decay: 2, preDelay: 20, highPass: 100, lowPass: 12000, wet: 0.3 },
+  reverb: {
+    enabled: false,
+    type: 'hall',
+    decay: 2,
+    preDelay: 20,
+    highPass: 100,
+    lowPass: 12000,
+    wet: 0.3,
+  },
   eq: {
     enabled: false,
     makeup: 0,
@@ -113,13 +133,35 @@ export const DEFAULT_EFFECTS: TrackEffectState = {
       { type: 'peaking', freq: 1000, gain: 0, Q: 1.0, enabled: true },
       { type: 'peaking', freq: 3000, gain: 0, Q: 1.0, enabled: true },
       { type: 'highshelf', freq: 8000, gain: 0, Q: 0.7, enabled: true },
-      { type: 'highcut', freq: 16000, gain: 0, Q: 0.7, enabled: true, slope: 12 },
+      {
+        type: 'highcut',
+        freq: 16000,
+        gain: 0,
+        Q: 0.7,
+        enabled: true,
+        slope: 12,
+      },
     ],
   },
-  gate: { enabled: false, threshold: -40, range: 40, hold: 0.01, attack: 0.001, release: 0.1 },
+  gate: {
+    enabled: false,
+    threshold: -40,
+    range: 40,
+    hold: 0.01,
+    attack: 0.001,
+    release: 0.1,
+  },
   compressor: {
-    enabled: false, threshold: -24, ratio: 4, knee: 10,
-    attack: 0.003, release: 0.25, makeup: 0, crush: 0, auto: false, mode: 'studio',
+    enabled: false,
+    threshold: -24,
+    ratio: 4,
+    knee: 10,
+    attack: 0.003,
+    release: 0.25,
+    makeup: 0,
+    crush: 0,
+    auto: false,
+    mode: 'studio',
   },
   delay: { enabled: false, time: 0.375, feedback: 0.3, wet: 0.25 },
   presence: { enabled: false, amount: 50, frequency: 4000, bandwidth: 1.0 },
@@ -131,11 +173,16 @@ export const DEFAULT_EFFECTS: TrackEffectState = {
 
 function eqBandTypeToBiquad(type: EqBandType): BiquadFilterType {
   switch (type) {
-    case 'lowcut':    return 'highpass';
-    case 'lowshelf':  return 'lowshelf';
-    case 'peaking':   return 'peaking';
-    case 'highshelf': return 'highshelf';
-    case 'highcut':   return 'lowpass';
+    case 'lowcut':
+      return 'highpass';
+    case 'lowshelf':
+      return 'lowshelf';
+    case 'peaking':
+      return 'peaking';
+    case 'highshelf':
+      return 'highshelf';
+    case 'highcut':
+      return 'lowpass';
   }
 }
 
@@ -143,7 +190,11 @@ function eqBandTypeToBiquad(type: EqBandType): BiquadFilterType {
 
 const irCache = new Map<string, AudioBuffer>();
 
-function generateImpulseResponse(ctx: AudioContext, decay: number, type: ReverbType = 'hall'): AudioBuffer {
+function generateImpulseResponse(
+  ctx: AudioContext,
+  decay: number,
+  type: ReverbType = 'hall',
+): AudioBuffer {
   const quantizedDecay = Math.round(decay * 10) / 10;
   const key = `${ctx.sampleRate}:${type}:${quantizedDecay}`;
 
@@ -165,32 +216,37 @@ function generateImpulseResponse(ctx: AudioContext, decay: number, type: ReverbT
           // Long, smooth decay with gradual onset and wide stereo
           const onset = Math.min(1, t / 0.03); // 30ms build-up
           const stereoSpread = ch === 0 ? 1 : 0.85 + Math.random() * 0.15;
-          data[i] = noise * onset * Math.exp(-2.5 * t / quantizedDecay) * stereoSpread;
+          data[i] =
+            noise *
+            onset *
+            Math.exp((-2.5 * t) / quantizedDecay) *
+            stereoSpread;
           break;
         }
         case 'room': {
           // Short early reflections, tighter stereo, faster decay
           const earlyRef = t < 0.015 ? 0.6 + Math.random() * 0.4 : 1;
-          data[i] = noise * earlyRef * Math.exp(-4 * t / quantizedDecay);
+          data[i] = noise * earlyRef * Math.exp((-4 * t) / quantizedDecay);
           break;
         }
         case 'chamber': {
           // Dense early reflections, warm mid-range
           const density = 1 + 0.3 * Math.sin(t * 200);
-          data[i] = noise * density * Math.exp(-3 * t / quantizedDecay);
+          data[i] = noise * density * Math.exp((-3 * t) / quantizedDecay);
           break;
         }
         case 'plate': {
           // Very dense, bright, instant onset — high-density noise
           const brightness = 1 + 0.15 * Math.sin(t * 800);
-          data[i] = noise * brightness * Math.exp(-3.5 * t / quantizedDecay);
+          data[i] = noise * brightness * Math.exp((-3.5 * t) / quantizedDecay);
           break;
         }
         case 'spring': {
           // Metallic, bouncy — comb filter resonance
           const combDelay = Math.round(sampleRate * 0.0037); // ~3.7ms comb
           const combSample = i > combDelay ? data[i - combDelay] * 0.4 : 0;
-          data[i] = (noise + combSample) * Math.exp(-4.5 * t / quantizedDecay);
+          data[i] =
+            (noise + combSample) * Math.exp((-4.5 * t) / quantizedDecay);
           break;
         }
       }
@@ -306,7 +362,11 @@ export class EffectChain {
 
     // ── Reverb ────────────────────────────────────────────────────────
     this.reverbConvolver = ctx.createConvolver();
-    this.reverbConvolver.buffer = generateImpulseResponse(ctx, this.state.reverb.decay, this.state.reverb.type);
+    this.reverbConvolver.buffer = generateImpulseResponse(
+      ctx,
+      this.state.reverb.decay,
+      this.state.reverb.type,
+    );
     this.reverbPreDelay = ctx.createDelay(0.2);
     this.reverbPreDelay.delayTime.value = this.state.reverb.preDelay / 1000;
     this.reverbHighPass = ctx.createBiquadFilter();
@@ -402,7 +462,9 @@ export class EffectChain {
     // ── Saturator (waveshaper with dry/wet mix and tone) ──────────────
     this.saturatorShaper = ctx.createWaveShaper();
     this.saturatorShaper.oversample = '2x';
-    this.saturatorShaper.curve = generateCrushCurve(0) as Float32Array<ArrayBuffer>;
+    this.saturatorShaper.curve = generateCrushCurve(
+      0,
+    ) as Float32Array<ArrayBuffer>;
     this.saturatorToneFilter = ctx.createBiquadFilter();
     this.saturatorToneFilter.type = 'lowpass';
     this.saturatorToneFilter.frequency.value = 10000;
@@ -471,7 +533,11 @@ export class EffectChain {
         // Signal above threshold — open gate
         if (!this.gateOpen) {
           this.gateGain.gain.cancelScheduledValues(now);
-          this.gateGain.gain.setTargetAtTime(1, now, Math.max(0.001, attack / 3));
+          this.gateGain.gain.setTargetAtTime(
+            1,
+            now,
+            Math.max(0.001, attack / 3),
+          );
           this.gateOpen = true;
         }
         this.gateHoldRemaining = hold;
@@ -482,7 +548,11 @@ export class EffectChain {
         // Below threshold, hold expired — close gate
         if (this.gateOpen) {
           this.gateGain.gain.cancelScheduledValues(now);
-          this.gateGain.gain.setTargetAtTime(closedGain, now, Math.max(0.005, release / 3));
+          this.gateGain.gain.setTargetAtTime(
+            closedGain,
+            now,
+            Math.max(0.005, release / 3),
+          );
           this.gateOpen = false;
         }
       }
@@ -518,7 +588,9 @@ export class EffectChain {
     // Disconnect everything first
     this.inputNode.disconnect();
     this.reverbMerge.disconnect();
-    this.eqFilterGroups.forEach((group) => group.forEach((f) => f.disconnect()));
+    this.eqFilterGroups.forEach((group) =>
+      group.forEach((f) => f.disconnect()),
+    );
     this.eqMakeupGain.disconnect();
     this.gateAnalyser.disconnect();
     this.gateGain.disconnect();
@@ -578,9 +650,21 @@ export class EffectChain {
   // Chain: makeupGain → [presenceFilter] → deEsser input
 
   private wirePresenceBypass(bypassed: boolean): void {
-    try { this.makeupGain.disconnect(this.presenceFilter); } catch { /* ok */ }
-    try { this.presenceFilter.disconnect(this.deEsserMerge); } catch { /* ok */ }
-    try { this.makeupGain.disconnect(this.deEsserMerge); } catch { /* ok */ }
+    try {
+      this.makeupGain.disconnect(this.presenceFilter);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.presenceFilter.disconnect(this.deEsserMerge);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.makeupGain.disconnect(this.deEsserMerge);
+    } catch {
+      /* ok */
+    }
 
     if (bypassed) {
       this.makeupGain.connect(this.deEsserMerge);
@@ -596,14 +680,46 @@ export class EffectChain {
   // Sidechain: deEsserMerge → bandpass → compressor (sidechain triggers on HF)
 
   private wireDeEsserBypass(bypassed: boolean): void {
-    try { this.deEsserMerge.disconnect(this.deEsserDryGain); } catch { /* ok */ }
-    try { this.deEsserMerge.disconnect(this.deEsserFilter); } catch { /* ok */ }
-    try { this.deEsserMerge.disconnect(this.deEsserCompressor); } catch { /* ok */ }
-    try { this.deEsserMerge.disconnect(this.reverbMerge); } catch { /* ok */ }
-    try { this.deEsserFilter.disconnect(); } catch { /* ok */ }
-    try { this.deEsserCompressor.disconnect(); } catch { /* ok */ }
-    try { this.deEsserDryGain.disconnect(); } catch { /* ok */ }
-    try { this.deEsserWetGain.disconnect(); } catch { /* ok */ }
+    try {
+      this.deEsserMerge.disconnect(this.deEsserDryGain);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.deEsserMerge.disconnect(this.deEsserFilter);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.deEsserMerge.disconnect(this.deEsserCompressor);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.deEsserMerge.disconnect(this.reverbMerge);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.deEsserFilter.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.deEsserCompressor.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.deEsserDryGain.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.deEsserWetGain.disconnect();
+    } catch {
+      /* ok */
+    }
 
     if (bypassed) {
       // Pass-through: skip de-esser entirely
@@ -624,15 +740,51 @@ export class EffectChain {
   // Chain: reverbMerge → [convolver wet/dry] → delayMerge input
 
   private wireReverbBypass(bypassed: boolean): void {
-    try { this.reverbMerge.disconnect(this.reverbDryGain); } catch { /* ok */ }
-    try { this.reverbMerge.disconnect(this.reverbPreDelay); } catch { /* ok */ }
-    try { this.reverbMerge.disconnect(this.delayMerge); } catch { /* ok */ }
-    try { this.reverbPreDelay.disconnect(); } catch { /* ok */ }
-    try { this.reverbHighPass.disconnect(); } catch { /* ok */ }
-    try { this.reverbConvolver.disconnect(); } catch { /* ok */ }
-    try { this.reverbLowPass.disconnect(); } catch { /* ok */ }
-    try { this.reverbWetGain.disconnect(); } catch { /* ok */ }
-    try { this.reverbDryGain.disconnect(); } catch { /* ok */ }
+    try {
+      this.reverbMerge.disconnect(this.reverbDryGain);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.reverbMerge.disconnect(this.reverbPreDelay);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.reverbMerge.disconnect(this.delayMerge);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.reverbPreDelay.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.reverbHighPass.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.reverbConvolver.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.reverbLowPass.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.reverbWetGain.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.reverbDryGain.disconnect();
+    } catch {
+      /* ok */
+    }
 
     if (bypassed) {
       this.reverbMerge.connect(this.delayMerge);
@@ -654,13 +806,41 @@ export class EffectChain {
   // ── True bypass: Delay ─────────────────────────────────────────────────
 
   private wireDelayBypass(bypassed: boolean): void {
-    try { this.delayMerge.disconnect(this.delayDryGain); } catch { /* ok */ }
-    try { this.delayMerge.disconnect(this.delayNode); } catch { /* ok */ }
-    try { this.delayMerge.disconnect(this.saturatorMerge); } catch { /* ok */ }
-    try { this.delayNode.disconnect(); } catch { /* ok */ }
-    try { this.delayWetGain.disconnect(); } catch { /* ok */ }
-    try { this.delayDryGain.disconnect(); } catch { /* ok */ }
-    try { this.delayFeedback.disconnect(); } catch { /* ok */ }
+    try {
+      this.delayMerge.disconnect(this.delayDryGain);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.delayMerge.disconnect(this.delayNode);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.delayMerge.disconnect(this.saturatorMerge);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.delayNode.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.delayWetGain.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.delayDryGain.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.delayFeedback.disconnect();
+    } catch {
+      /* ok */
+    }
 
     if (bypassed) {
       this.delayMerge.connect(this.saturatorMerge);
@@ -679,13 +859,41 @@ export class EffectChain {
   // ── True bypass: Saturator ──────────────────────────────────────────────
 
   private wireSaturatorBypass(bypassed: boolean): void {
-    try { this.saturatorMerge.disconnect(this.saturatorShaper); } catch { /* ok */ }
-    try { this.saturatorMerge.disconnect(this.saturatorDryGain); } catch { /* ok */ }
-    try { this.saturatorMerge.disconnect(this.outputNode); } catch { /* ok */ }
-    try { this.saturatorShaper.disconnect(); } catch { /* ok */ }
-    try { this.saturatorToneFilter.disconnect(); } catch { /* ok */ }
-    try { this.saturatorWetGain.disconnect(); } catch { /* ok */ }
-    try { this.saturatorDryGain.disconnect(); } catch { /* ok */ }
+    try {
+      this.saturatorMerge.disconnect(this.saturatorShaper);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.saturatorMerge.disconnect(this.saturatorDryGain);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.saturatorMerge.disconnect(this.outputNode);
+    } catch {
+      /* ok */
+    }
+    try {
+      this.saturatorShaper.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.saturatorToneFilter.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.saturatorWetGain.disconnect();
+    } catch {
+      /* ok */
+    }
+    try {
+      this.saturatorDryGain.disconnect();
+    } catch {
+      /* ok */
+    }
 
     if (bypassed) {
       this.saturatorMerge.connect(this.outputNode);
@@ -711,10 +919,14 @@ export class EffectChain {
       this.wireReverbBypass(wantReverbBypass);
     }
     if (newState.reverb.enabled) {
-      if (newState.reverb.decay !== this.state.reverb.decay ||
-          newState.reverb.type !== this.state.reverb.type) {
+      if (
+        newState.reverb.decay !== this.state.reverb.decay ||
+        newState.reverb.type !== this.state.reverb.type
+      ) {
         this.reverbConvolver.buffer = generateImpulseResponse(
-          this.ctx, newState.reverb.decay, newState.reverb.type,
+          this.ctx,
+          newState.reverb.decay,
+          newState.reverb.type,
         );
       }
       this.reverbPreDelay.delayTime.value = newState.reverb.preDelay / 1000;
@@ -788,7 +1000,9 @@ export class EffectChain {
 
     // Crush (saturation)
     if (newState.compressor.enabled && newState.compressor.crush > 0) {
-      this.crushNode.curve = generateCrushCurve(newState.compressor.crush) as Float32Array<ArrayBuffer>;
+      this.crushNode.curve = generateCrushCurve(
+        newState.compressor.crush,
+      ) as Float32Array<ArrayBuffer>;
     } else {
       this.crushNode.curve = generateCrushCurve(0) as Float32Array<ArrayBuffer>;
     }
@@ -798,7 +1012,10 @@ export class EffectChain {
       let makeupDb = newState.compressor.makeup;
       if (newState.compressor.auto) {
         // Auto makeup: compensate for gain reduction
-        makeupDb = -newState.compressor.threshold * (1 - 1 / newState.compressor.ratio) / 2;
+        makeupDb =
+          (-newState.compressor.threshold *
+            (1 - 1 / newState.compressor.ratio)) /
+          2;
       }
       this.makeupGain.gain.value = Math.pow(10, makeupDb / 20);
     } else {
@@ -825,8 +1042,10 @@ export class EffectChain {
     if (newState['de-esser'].enabled) {
       this.deEsserFilter.frequency.value = newState['de-esser'].frequency;
       // amount 0–100 maps to threshold 0 to -40 dB
-      this.deEsserCompressor.threshold.value = -(newState['de-esser'].amount / 100) * 40;
-      this.deEsserCompressor.ratio.value = 4 + (newState['de-esser'].range / 20) * 16; // 4:1 to 20:1
+      this.deEsserCompressor.threshold.value =
+        -(newState['de-esser'].amount / 100) * 40;
+      this.deEsserCompressor.ratio.value =
+        4 + (newState['de-esser'].range / 20) * 16; // 4:1 to 20:1
       // Wet/dry blend: more amount = more wet (compressed) signal
       const wetAmount = newState['de-esser'].amount / 100;
       this.deEsserWetGain.gain.value = wetAmount;
@@ -852,9 +1071,12 @@ export class EffectChain {
     }
     if (newState.saturator.enabled) {
       // drive 0–100 maps to crush curve 0–1
-      this.saturatorShaper.curve = generateCrushCurve(newState.saturator.drive / 100) as Float32Array<ArrayBuffer>;
+      this.saturatorShaper.curve = generateCrushCurve(
+        newState.saturator.drive / 100,
+      ) as Float32Array<ArrayBuffer>;
       // tone 0–100 maps to lowpass freq 2000–20000 Hz
-      this.saturatorToneFilter.frequency.value = 2000 + (newState.saturator.tone / 100) * 18000;
+      this.saturatorToneFilter.frequency.value =
+        2000 + (newState.saturator.tone / 100) * 18000;
       // mix 0–100 maps to wet/dry blend
       const mix = newState.saturator.mix / 100;
       this.saturatorWetGain.gain.value = mix;
@@ -872,7 +1094,9 @@ export class EffectChain {
     this.reverbWetGain.disconnect();
     this.reverbDryGain.disconnect();
     this.reverbMerge.disconnect();
-    this.eqFilterGroups.forEach((group) => group.forEach((f) => f.disconnect()));
+    this.eqFilterGroups.forEach((group) =>
+      group.forEach((f) => f.disconnect()),
+    );
     this.eqMakeupGain.disconnect();
     this.gateAnalyser.disconnect();
     this.gateGain.disconnect();

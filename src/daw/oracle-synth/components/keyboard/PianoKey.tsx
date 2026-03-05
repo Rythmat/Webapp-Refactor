@@ -23,13 +23,14 @@ export const PianoKey: React.FC<PianoKeyProps> = React.memo(
     const className = isBlack ? styles.blackKey : styles.whiteKey;
     const activeClass = isActive ? styles.active : '';
 
-    const activeStyle = isActive && activeColor
-      ? {
-          background: isBlack
-            ? `linear-gradient(to bottom, ${adjustHex(activeColor, -40)}, ${adjustHex(activeColor, -80)})`
-            : `linear-gradient(to bottom, ${activeColor}, ${adjustHex(activeColor, 50)})`,
-        }
-      : undefined;
+    const activeStyle =
+      isActive && activeColor
+        ? {
+            background: isBlack
+              ? `linear-gradient(to bottom, ${adjustHex(activeColor, -40)}, ${adjustHex(activeColor, -80)})`
+              : `linear-gradient(to bottom, ${activeColor}, ${adjustHex(activeColor, 50)})`,
+          }
+        : undefined;
 
     return (
       <div
@@ -46,5 +47,5 @@ export const PianoKey: React.FC<PianoKeyProps> = React.memo(
         }}
       />
     );
-  }
+  },
 );

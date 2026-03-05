@@ -1,31 +1,46 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import * as Tone from "tone";
-import { usePrismStartContours } from "@/hooks/data/prism/usePrismStartContours";
-import { NoteHold } from "./NoteHold";
-import { PlayAlong } from "./PlayAlong";
+/* eslint-disable import/order, no-duplicate-imports, react-hooks/exhaustive-deps, react-hooks/rules-of-hooks, sonarjs/no-collapsible-if, react/jsx-sort-props, tailwindcss/classnames-order */
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import * as Tone from 'tone';
+import { usePrismStartContours } from '@/hooks/data/prism/usePrismStartContours';
+import { NoteHold } from './NoteHold';
+import { PlayAlong } from './PlayAlong';
 // import { BoardChoiceGame } from "./BoardChoiceGame";
 // import { ChordPressGame } from "./ChordPressGame";
-import { LessonOverview } from "@/components/learn/LessonOverview";
-import type { NoteEvent } from "./PianoRollPlay";
-import { PrismModeSlug, usePrismModeChordsData } from "@/hooks/data";
-import { usePrismRhythms } from "@/hooks/data/prism/usePrismRhythms";
-import { useNavigate } from "react-router";
-import { LearnRoutes, StudioRoutes } from "@/constants/routes";
-import { keyLabelToUrlParam } from "@/lib/musicKeyUrl";
-import { useMidiInput } from "@/hooks/music/useMidiInput";
-import { useAuthToken } from "@/contexts/AuthContext/hooks/useAuthToken";
-import { PianoKeyboard } from "@/components/PianoKeyboard";
-import type { PlaybackEvent } from "@/contexts/PlaybackContext/helpers";
-import { pitchNameToMidi } from "./PianoRollPlay";
-import { colorForKeyMode } from "@/lib/modeColorShift";
-import { Env } from "@/constants/env";
-import { buildActivityInstanceId } from "@/lib/progress/activityInstanceId";
-import { selectResumeActivityIndex } from "@/lib/progress/resume";
-import { useLessonProgress, useUpdateActivityProgress, useUpdateLessonState } from "@/hooks/data/progress";
+import { LessonOverview } from '@/components/learn/LessonOverview';
+import { PrismModeSlug, usePrismModeChordsData } from '@/hooks/data';
+import { usePrismRhythms } from '@/hooks/data/prism/usePrismRhythms';
+import { useNavigate } from 'react-router';
+import { LearnRoutes, StudioRoutes } from '@/constants/routes';
+import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
+import { useMidiInput } from '@/hooks/music/useMidiInput';
+import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
+import { PianoKeyboard } from '@/components/PianoKeyboard';
+import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import { pitchNameToMidi, type NoteEvent } from './PianoRollPlay';
+import { colorForKeyMode } from '@/lib/modeColorShift';
+import { Env } from '@/constants/env';
+import { buildActivityInstanceId } from '@/lib/progress/activityInstanceId';
+import { selectResumeActivityIndex } from '@/lib/progress/resume';
+import {
+  useLessonProgress,
+  useUpdateActivityProgress,
+  useUpdateLessonState,
+} from '@/hooks/data/progress';
 type RhythmHit = [number, number];
 const chordRhythmFallbacks: Record<string, RhythmHit[]> = {
-  "Jazz 1a": [[0, 480], [720, 240], [1440, 480]],
-  "Jazz 5": [[0, 240], [480, 120], [600, 120], [720, 120], [840, 120], [1320, 120]],
+  'Jazz 1a': [
+    [0, 480],
+    [720, 240],
+    [1440, 480],
+  ],
+  'Jazz 5': [
+    [0, 240],
+    [480, 120],
+    [600, 120],
+    [720, 120],
+    [840, 120],
+    [1320, 120],
+  ],
 };
 
 type FlowActivityProps = {
@@ -47,11 +62,24 @@ type ActivityFlowProps = {
   mode?: PrismModeSlug;
   startAtActivityKey?: string;
 };
-type ActivityState = "pending" | "active" | "completed";
+type ActivityState = 'pending' | 'active' | 'completed';
 
 const DEFAULT_SCALE: number[] = [60, 62, 64, 65, 67, 69, 71, 72];
 const NOTE_DURATION_TICKS = 480;
-const CHROMATIC_KEYS = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"] as const;
+const CHROMATIC_KEYS = [
+  'C',
+  'Db',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B',
+] as const;
 const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;
 
 type ActivityDefinition = {
@@ -64,15 +92,21 @@ type ActivityDefinition = {
   direction: string;
 };
 
-const ACTIVITY_FLOW_LESSON_ID = "mode-lesson-flow";
+const ACTIVITY_FLOW_LESSON_ID = 'mode-lesson-flow';
 const ACTIVITY_FLOW_LESSON_VERSION = 1;
 
 const ChordLoadingStep: (props: FlowActivityProps) => JSX.Element = ({
   startMessage,
 }) => (
-  <div className="rounded-xl p-6 text-center glass-panel-sm" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)' }}>
+  <div
+    className="rounded-xl p-6 text-center glass-panel-sm"
+    style={{
+      background: 'rgba(255,255,255,0.03)',
+      border: '1px solid var(--color-border)',
+    }}
+  >
     <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
-      {startMessage ?? "Loading chord exercises..."}
+      {startMessage ?? 'Loading chord exercises...'}
     </div>
   </div>
 );
@@ -86,42 +120,51 @@ const normalizeMidiSequence = (sequence: number[] | number[][]): number[][] => {
   return grouped.map((slot) => Array.from(new Set(slot)));
 };
 
-const midiSequenceToEvents = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+const midiSequenceToEvents = (
+  sequence: number[] | number[][],
+  prefix: string,
+): NoteEvent[] => {
   return normalizeMidiSequence(sequence).flatMap((group, idx) =>
     group.map((midi, groupIndex) => ({
       id: `${prefix}-${idx}-${groupIndex}-${midi}`,
-      pitchName: Tone.Frequency(midi, "midi").toNote(),
+      pitchName: Tone.Frequency(midi, 'midi').toNote(),
       startTicks: idx * NOTE_DURATION_TICKS,
       durationTicks: NOTE_DURATION_TICKS,
     })),
   );
 };
 
-const midiSequenceToWholeNotes = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+const midiSequenceToWholeNotes = (
+  sequence: number[] | number[][],
+  prefix: string,
+): NoteEvent[] => {
   return normalizeMidiSequence(sequence).flatMap((group, idx) =>
     group.map((midi, groupIndex) => ({
       id: `${prefix}-${idx}-${groupIndex}-${midi}`,
-      pitchName: Tone.Frequency(midi, "midi").toNote(),
+      pitchName: Tone.Frequency(midi, 'midi').toNote(),
       startTicks: idx * 4 * NOTE_DURATION_TICKS,
       durationTicks: 4 * NOTE_DURATION_TICKS,
     })),
   );
 };
 
-const midiSequenceToHalfNotes = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+const midiSequenceToHalfNotes = (
+  sequence: number[] | number[][],
+  prefix: string,
+): NoteEvent[] => {
   return normalizeMidiSequence(sequence).flatMap((group, idx) => {
     const startTick = 4 * idx * NOTE_DURATION_TICKS;
     const nextStartTick = (4 * idx + 2) * NOTE_DURATION_TICKS;
     return group.flatMap((midi, groupIndex) => [
       {
         id: `${prefix}-${4 * idx}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: startTick,
         durationTicks: NOTE_DURATION_TICKS * 2,
       },
       {
         id: `${prefix}-${4 * idx + 2}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: nextStartTick,
         durationTicks: NOTE_DURATION_TICKS * 2,
       },
@@ -129,30 +172,33 @@ const midiSequenceToHalfNotes = (sequence: number[] | number[][], prefix: string
   });
 };
 
-const midiSequenceToQuarterNotes = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+const midiSequenceToQuarterNotes = (
+  sequence: number[] | number[][],
+  prefix: string,
+): NoteEvent[] => {
   return normalizeMidiSequence(sequence).flatMap((group, idx) =>
     group.flatMap((midi, groupIndex) => [
       {
         id: `${prefix}-${4 * idx}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: 4 * idx * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS,
       },
       {
         id: `${prefix}-${4 * idx + 1}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: (4 * idx + 1) * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS,
       },
       {
         id: `${prefix}-${4 * idx + 2}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: (4 * idx + 2) * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS,
       },
       {
         id: `${prefix}-${4 * idx + 3}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: (4 * idx + 3) * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS,
       },
@@ -160,54 +206,57 @@ const midiSequenceToQuarterNotes = (sequence: number[] | number[][], prefix: str
   );
 };
 
-const midiSequenceToEighthNotes = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+const midiSequenceToEighthNotes = (
+  sequence: number[] | number[][],
+  prefix: string,
+): NoteEvent[] => {
   return normalizeMidiSequence(sequence).flatMap((group, idx) =>
     group.flatMap((midi, groupIndex) => [
       {
         id: `${prefix}-${8 * idx}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: 4 * idx * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS * 0.5,
       },
       {
         id: `${prefix}-${8 * idx + 1}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: (4 * idx + 0.5) * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS * 0.5,
       },
       {
         id: `${prefix}-${8 * idx + 2}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: (4 * idx + 1) * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS * 0.5,
       },
       {
         id: `${prefix}-${8 * idx + 3}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: (4 * idx + 1.5) * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS * 0.5,
       },
       {
         id: `${prefix}-${8 * idx + 4}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: (4 * idx + 2) * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS * 0.5,
       },
       {
         id: `${prefix}-${8 * idx + 5}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: (4 * idx + 2.5) * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS * 0.5,
       },
       {
         id: `${prefix}-${8 * idx + 6}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: (4 * idx + 3) * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS * 0.5,
       },
       {
         id: `${prefix}-${8 * idx + 7}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, "midi").toNote(),
+        pitchName: Tone.Frequency(midi, 'midi').toNote(),
         startTicks: (4 * idx + 3.5) * NOTE_DURATION_TICKS,
         durationTicks: NOTE_DURATION_TICKS * 0.5,
       },
@@ -215,49 +264,62 @@ const midiSequenceToEighthNotes = (sequence: number[] | number[][], prefix: stri
   );
 };
 
-const midiSequenceToStoccatoEvents = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+const midiSequenceToStoccatoEvents = (
+  sequence: number[] | number[][],
+  prefix: string,
+): NoteEvent[] => {
   return normalizeMidiSequence(sequence).flatMap((group, idx) =>
     group.map((midi, groupIndex) => ({
       id: `${prefix}-${idx}-${groupIndex}-${midi}`,
-      pitchName: Tone.Frequency(midi, "midi").toNote(),
+      pitchName: Tone.Frequency(midi, 'midi').toNote(),
       startTicks: idx * NOTE_DURATION_TICKS,
       durationTicks: NOTE_DURATION_TICKS * 0.5,
     })),
   );
 };
 
-const midiSequenceToMixedArticulation = (sequence: number[] | number[][], prefix: string): NoteEvent[] => {
+const midiSequenceToMixedArticulation = (
+  sequence: number[] | number[][],
+  prefix: string,
+): NoteEvent[] => {
   return normalizeMidiSequence(sequence).flatMap((group, idx) =>
     group.map((midi, groupIndex) => ({
       id: `${prefix}-${idx}-${groupIndex}-${midi}`,
-      pitchName: Tone.Frequency(midi, "midi").toNote(),
+      pitchName: Tone.Frequency(midi, 'midi').toNote(),
       startTicks: idx * NOTE_DURATION_TICKS,
-      durationTicks: (NOTE_DURATION_TICKS * Math.floor(Math.random() * 2 + 1)) / 2,
+      durationTicks:
+        (NOTE_DURATION_TICKS * Math.floor(Math.random() * 2 + 1)) / 2,
     })),
   );
 };
- 
-const chordArpegiateEvents = (sequence: number[],prefix: string): NoteEvent[] => {  
-  const events: NoteEvent[] = []; 
+
+const chordArpegiateEvents = (
+  sequence: number[],
+  prefix: string,
+): NoteEvent[] => {
+  const events: NoteEvent[] = [];
   sequence.forEach((note, idx) => {
-    events.push({
-      id: `${prefix}-${idx}-${note}`,
-      pitchName: Tone.Frequency(note, "midi").toNote(),
-      startTicks: idx * NOTE_DURATION_TICKS,
-      durationTicks: NOTE_DURATION_TICKS,
-    },
-    {
-      id: `${prefix}Joined-${idx}-${note}`,
-      pitchName: Tone.Frequency(note, "midi").toNote(),
-      startTicks: (sequence.length+1) * NOTE_DURATION_TICKS,
-      durationTicks: NOTE_DURATION_TICKS*2,
-    });
+    events.push(
+      {
+        id: `${prefix}-${idx}-${note}`,
+        pitchName: Tone.Frequency(note, 'midi').toNote(),
+        startTicks: idx * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS,
+      },
+      {
+        id: `${prefix}Joined-${idx}-${note}`,
+        pitchName: Tone.Frequency(note, 'midi').toNote(),
+        startTicks: (sequence.length + 1) * NOTE_DURATION_TICKS,
+        durationTicks: NOTE_DURATION_TICKS * 2,
+      },
+    );
   });
   return events;
 };
 
 const isNumberArray = (value: unknown): value is number[] =>
-  Array.isArray(value) && value.every((n) => typeof n === "number" && Number.isFinite(n));
+  Array.isArray(value) &&
+  value.every((n) => typeof n === 'number' && Number.isFinite(n));
 
 const extractContours = (value: unknown): number[][] => {
   if (!value) return [];
@@ -290,19 +352,29 @@ const extractContours = (value: unknown): number[][] => {
     return results;
   }
 
-  if (typeof value === "object") {
+  if (typeof value === 'object') {
     inspectCollection(Object.values(value));
   }
 
   return results;
 };
 
-
-export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, rootMidi, mode, startAtActivityKey }: ActivityFlowProps) => {
+export const ActivityFlow = ({
+  scaleMidis,
+  onComplete,
+  labelChange,
+  rootKey,
+  rootMidi,
+  mode,
+  startAtActivityKey,
+}: ActivityFlowProps) => {
   const navigate = useNavigate();
   const authToken = useAuthToken();
-  const modeLabel = mode ?? "mode";
-  const activityColor = useMemo(() => colorForKeyMode(rootKey, mode), [rootKey, mode]);
+  const modeLabel = mode ?? 'mode';
+  const activityColor = useMemo(
+    () => colorForKeyMode(rootKey, mode),
+    [rootKey, mode],
+  );
   const lessonKeyScope = useMemo(
     () => `${keyLabelToUrlParam(rootKey)}:${modeLabel}`,
     [rootKey, modeLabel],
@@ -327,11 +399,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const triads = useMemo(() => {
     const raw = chordResponse?.chords?.triads;
     if (!raw || !Array.isArray(raw)) return [];
-    return raw.map(arr => arr.map(i => i + rootMidi));
+    return raw.map((arr) => arr.map((i) => i + rootMidi));
   }, [chordResponse, rootMidi]);
 
   type RhythmHit = [number, number];
-  type RhythmRecord = Record<string, RhythmHit[]>
+  type RhythmRecord = Record<string, RhythmHit[]>;
   const rhythmsQuery = usePrismRhythms();
 
   const melodyRhythms: RhythmRecord = rhythmsQuery.data?.melodies ?? {};
@@ -343,7 +415,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     [rhythmsQuery.data?.chords],
   );
 
-  const pickFallbackChordRhythm = (lengthOf?: number): RhythmHit[] | undefined => {
+  const pickFallbackChordRhythm = (
+    lengthOf?: number,
+  ): RhythmHit[] | undefined => {
     const entries = Object.entries(chordRhythmFallbacks);
     if (entries.length === 0) return undefined;
     if (lengthOf) {
@@ -354,19 +428,25 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       }
     }
     return (
-      chordRhythmFallbacks["Jazz 5"] ??
-      chordRhythmFallbacks["Jazz 1a"] ??
+      chordRhythmFallbacks['Jazz 5'] ??
+      chordRhythmFallbacks['Jazz 1a'] ??
       entries[0][1]
     );
   };
 
-  const getRhythm = (melOrChord: "melody" | "chord", name?: string, lengthOf?: number  ): RhythmHit[] | undefined => {
-    const rhythms = melOrChord === "chord" ? chordRhythms : melodyRhythms;
+  const getRhythm = (
+    melOrChord: 'melody' | 'chord',
+    name?: string,
+    lengthOf?: number,
+  ): RhythmHit[] | undefined => {
+    const rhythms = melOrChord === 'chord' ? chordRhythms : melodyRhythms;
 
     if (name) {
       const named = rhythms[name];
       if (named && named.length > 0) return named;
-      return melOrChord === "chord" ? pickFallbackChordRhythm(lengthOf) : undefined;
+      return melOrChord === 'chord'
+        ? pickFallbackChordRhythm(lengthOf)
+        : undefined;
     }
 
     const keys = lengthOf
@@ -376,37 +456,41 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       : Object.keys(rhythms);
 
     if (keys.length === 0) {
-      return melOrChord === "chord" ? pickFallbackChordRhythm(lengthOf) : undefined;
+      return melOrChord === 'chord'
+        ? pickFallbackChordRhythm(lengthOf)
+        : undefined;
     }
 
     const pick = keys[Math.floor(Math.random() * keys.length)];
     return rhythms[pick];
-  }
+  };
 
   const generateStepTriad = (step: number) => {
-    const baseChord = triads[step-1];
-    return baseChord ? baseChord: undefined;
-  }
+    const baseChord = triads[step - 1];
+    return baseChord ? baseChord : undefined;
+  };
 
-  const rhythmicMidiSequenceEvents = (sequence: number[],prefix: string, rhythmName?: string): NoteEvent[] => {
-    const rhythm = getRhythm("chord",rhythmName,sequence.length);
+  const rhythmicMidiSequenceEvents = (
+    sequence: number[],
+    prefix: string,
+    rhythmName?: string,
+  ): NoteEvent[] => {
+    const rhythm = getRhythm('chord', rhythmName, sequence.length);
     const resolvedRhythm = rhythm ?? pickFallbackChordRhythm(sequence.length);
-    if (resolvedRhythm == undefined){
+    if (resolvedRhythm == undefined) {
       return [];
-    } 
+    }
     const hits =
       resolvedRhythm.length >= sequence.length
         ? resolvedRhythm
         : sequence.map((_, idx) => resolvedRhythm[idx % resolvedRhythm.length]);
     return sequence.map((midi, idx) => ({
-    id: `${prefix}-${idx}-${midi}`,
-    pitchName: Tone.Frequency(midi, "midi").toNote(),
-    startTicks: hits[idx][0],
-    durationTicks: hits[idx][1],
+      id: `${prefix}-${idx}-${midi}`,
+      pitchName: Tone.Frequency(midi, 'midi').toNote(),
+      startTicks: hits[idx][0],
+      durationTicks: hits[idx][1],
     }));
-  }
-    
-  
+  };
 
   const buildFlowDefinitions = (
     scale: number[],
@@ -418,16 +502,19 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     const applyActivityColor = (seq: NoteEvent[]) =>
       seq.map((event) => ({
         ...event,
-        id: event.id.startsWith(`${lessonKeyScope}:`) ? event.id : scopeId(event.id),
+        id: event.id.startsWith(`${lessonKeyScope}:`)
+          ? event.id
+          : scopeId(event.id),
         color: event.color ?? activityColor,
       }));
     const ascending = scale;
     const descending = [...scale].reverse();
     const ascendDescend = [...ascending, ...descending];
-    const modeTitle = (mode as string).charAt(0).toUpperCase() + (mode as string).slice(1);
-    const chordHoldEvents = midiSequenceToEvents(ascending, "chord-hold");
+    const modeTitle =
+      (mode as string).charAt(0).toUpperCase() + (mode as string).slice(1);
+    const chordHoldEvents = midiSequenceToEvents(ascending, 'chord-hold');
     const overviewItem = {
-      key: "lesson-overview",
+      key: 'lesson-overview',
       label: `${rootKey} ${modeTitle} Overview`,
       Component: ({ onContinue }: FlowActivityProps) => (
         <LessonOverview
@@ -460,7 +547,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
       const seq = contour
         .map((scaleIdx) => mapContourValue(scaleIdx))
-        .filter((midi): midi is number => typeof midi === "number");
+        .filter((midi): midi is number => typeof midi === 'number');
 
       if (seq.length === 0) return;
       contourSeqs.push(seq);
@@ -469,18 +556,52 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     const sequences = [
       overviewItem,
       {
-        key: "asc-nh", label: `${rootKey} ${modeTitle} Ascend • Hold`, Component: NoteHold, seq: applyActivityColor(chordHoldEvents),
-        direction: `Hold the notes of the ${rootKey} ${modeTitle} scale.`},
-      { key: "asc-pa", label: `${rootKey} ${modeTitle} Ascend • Play Along`, Component: PlayAlong, seq: applyActivityColor(midiSequenceToEvents(ascending, "asc-pa")),
-        direction: "In a steady tempo, play the notes of the scale going up"},
-      { key: "desc-nh", label: `${rootKey} ${modeTitle} Descend • Hold`, Component: NoteHold, seq: applyActivityColor(midiSequenceToEvents(descending, "desc-nh")),
-        direction: "Play the notes of the scale going down (to the left)."  },
-      { key: "desc-pa", label: `${rootKey} ${modeTitle} Descend • Play Along`, Component: PlayAlong, seq: applyActivityColor(midiSequenceToEvents(descending, "desc-pa")),
-        direction: "In a steady tempo, play the notes of the scale going down" },
-      { key: "ascdesc-nh", label: `${rootKey} ${modeTitle} Ascend + Descend • Hold`, Component: NoteHold, seq: applyActivityColor(midiSequenceToEvents(ascendDescend, "ascdesc-nh")),
-        direction: "Play the notes of the scale going up and down." },
-      { key: "ascdesc-pa", label: `${rootKey} ${modeTitle} Ascend + Descend • Play Along`, Component: PlayAlong, seq: applyActivityColor(midiSequenceToEvents(ascendDescend, "ascdesc-pa")),
-        direction: "In a steady tempo, play the notes of the scale going up and down." },
+        key: 'asc-nh',
+        label: `${rootKey} ${modeTitle} Ascend • Hold`,
+        Component: NoteHold,
+        seq: applyActivityColor(chordHoldEvents),
+        direction: `Hold the notes of the ${rootKey} ${modeTitle} scale.`,
+      },
+      {
+        key: 'asc-pa',
+        label: `${rootKey} ${modeTitle} Ascend • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(midiSequenceToEvents(ascending, 'asc-pa')),
+        direction: 'In a steady tempo, play the notes of the scale going up',
+      },
+      {
+        key: 'desc-nh',
+        label: `${rootKey} ${modeTitle} Descend • Hold`,
+        Component: NoteHold,
+        seq: applyActivityColor(midiSequenceToEvents(descending, 'desc-nh')),
+        direction: 'Play the notes of the scale going down (to the left).',
+      },
+      {
+        key: 'desc-pa',
+        label: `${rootKey} ${modeTitle} Descend • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(midiSequenceToEvents(descending, 'desc-pa')),
+        direction: 'In a steady tempo, play the notes of the scale going down',
+      },
+      {
+        key: 'ascdesc-nh',
+        label: `${rootKey} ${modeTitle} Ascend + Descend • Hold`,
+        Component: NoteHold,
+        seq: applyActivityColor(
+          midiSequenceToEvents(ascendDescend, 'ascdesc-nh'),
+        ),
+        direction: 'Play the notes of the scale going up and down.',
+      },
+      {
+        key: 'ascdesc-pa',
+        label: `${rootKey} ${modeTitle} Ascend + Descend • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(
+          midiSequenceToEvents(ascendDescend, 'ascdesc-pa'),
+        ),
+        direction:
+          'In a steady tempo, play the notes of the scale going up and down.',
+      },
     ];
 
     //////////////////ACTIVITIES 2-3 ?4?
@@ -491,161 +612,206 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           key: `contour-1-nh`,
           label: `${rootKey} ${modeTitle} Musical Contour • Hold`,
           Component: NoteHold,
-          seq: applyActivityColor(midiSequenceToEvents(contourSeqs[0], `contour-1-nh`)),
-          direction: `Play this short melodic phrase in ${rootKey} ${modeTitle}`
+          seq: applyActivityColor(
+            midiSequenceToEvents(contourSeqs[0], `contour-1-nh`),
+          ),
+          direction: `Play this short melodic phrase in ${rootKey} ${modeTitle}`,
         },
         {
           key: `contour-1-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(midiSequenceToEvents(contourSeqs[0], `contour-1-pa`)),
-          direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle}`
+          seq: applyActivityColor(
+            midiSequenceToEvents(contourSeqs[0], `contour-1-pa`),
+          ),
+          direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle}`,
         },
         {
           key: `contour-2-nh`,
           label: `${rootKey} ${modeTitle} Melodic Phrase • Hold`,
           Component: NoteHold,
-          seq: applyActivityColor(midiSequenceToEvents(combined, `contour-2-nh`)),
+          seq: applyActivityColor(
+            midiSequenceToEvents(combined, `contour-2-nh`),
+          ),
           direction: `Play this longer melodic phrase in ${rootKey} ${modeTitle}`,
         },
         {
           key: `contour-2-pa`,
           label: `${rootKey} ${modeTitle} Melodic Phrase • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(midiSequenceToEvents(combined, `contour-2-pa`)),
+          seq: applyActivityColor(
+            midiSequenceToEvents(combined, `contour-2-pa`),
+          ),
           direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle}`,
         },
         {
           key: `contour-1-stac-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour (Staccato) • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(midiSequenceToStoccatoEvents(contourSeqs[0], `contour-1-stac-pa`)),
-          direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with short articulations (“staccato”).`
+          seq: applyActivityColor(
+            midiSequenceToStoccatoEvents(contourSeqs[0], `contour-1-stac-pa`),
+          ),
+          direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with short articulations (“staccato”).`,
         },
         {
           key: `contour-1-lega-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour (Legato) • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(midiSequenceToEvents(contourSeqs[0], `contour-1-lega-pa`)),
-          direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with long articulations (“legato”).`
+          seq: applyActivityColor(
+            midiSequenceToEvents(contourSeqs[0], `contour-1-lega-pa`),
+          ),
+          direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with long articulations (“legato”).`,
         },
         {
           key: `contour-1-mix-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour (Mixed Articulation) • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(midiSequenceToMixedArticulation(contourSeqs[0], `contour-1-mix-pa`)),
-          direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”). `
+          seq: applyActivityColor(
+            midiSequenceToMixedArticulation(contourSeqs[0], `contour-1-mix-pa`),
+          ),
+          direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”). `,
         },
         {
           key: `contour-2-mix-pa`,
           label: `${rootKey} ${modeTitle} Melodic Phrase (Mixed Articulation) • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(midiSequenceToMixedArticulation(combined, `contour-2-mix-pa`)),
+          seq: applyActivityColor(
+            midiSequenceToMixedArticulation(combined, `contour-2-mix-pa`),
+          ),
           direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”).`,
         },
         {
           key: `contour-1-rhythm-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour (Styled) • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(rhythmicMidiSequenceEvents(contourSeqs[0], `contour-1-rhythm-pa`)),
-          direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} in a rhythmic style. `
+          seq: applyActivityColor(
+            rhythmicMidiSequenceEvents(contourSeqs[0], `contour-1-rhythm-pa`),
+          ),
+          direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} in a rhythmic style. `,
         },
         {
           key: `contour-2-rhythm-pa`,
           label: `${rootKey} ${modeTitle} Melodic Phrase (Styled) • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(rhythmicMidiSequenceEvents(combined, `contour-2-rhythm-pa`)),
+          seq: applyActivityColor(
+            rhythmicMidiSequenceEvents(combined, `contour-2-rhythm-pa`),
+          ),
           direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle} in a rhythmic style.`,
         },
       );
     }
     /////////// ACTIVITIES FOR 5
     for (let i = 0; i < 4; i++) {
-      const chordNotes = generateStepTriad(i+1);
+      const chordNotes = generateStepTriad(i + 1);
       if (isNumberArray(chordNotes)) {
         sequences.push(
           {
             key: `arpeggiate-${i + 1}-nh`,
             label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Hold`,
             Component: NoteHold,
-            seq: applyActivityColor(chordArpegiateEvents(
-              chordNotes ?? [scale[0], scale[2], scale[4]],
-              `arpeggiate-${i + 1}-nh`
-            )),
+            seq: applyActivityColor(
+              chordArpegiateEvents(
+                chordNotes ?? [scale[0], scale[2], scale[4]],
+                `arpeggiate-${i + 1}-nh`,
+              ),
+            ),
             direction: `Play the notes of the ${i + 1} chord one at a time going up (to the right) and then play the chord.`,
           },
           {
             key: `arpeggiate-${i + 1}-pa`,
             label: `${rootKey} ${modeTitle} ${i + 1} Chord Arpeggio • Play Along`,
             Component: PlayAlong,
-            seq: applyActivityColor(chordArpegiateEvents(
-              chordNotes ?? [scale[0], scale[2], scale[4]],
-              `arpeggiate-${i + 1}-pa`
-            )),
+            seq: applyActivityColor(
+              chordArpegiateEvents(
+                chordNotes ?? [scale[0], scale[2], scale[4]],
+                `arpeggiate-${i + 1}-pa`,
+              ),
+            ),
             direction:
-              "In a steady tempo, play an arpeggio of the chord going up and then play the chord.",
+              'In a steady tempo, play an arpeggio of the chord going up and then play the chord.',
           },
         );
       }
     }
-    if(triads.length >4){
+    if (triads.length > 4) {
       ////////////////ACTIVITES FOR 6
       // NoteEvent {
       //   id: string;
       //   pitchName: string;
-      //   midi?: Midi; 
+      //   midi?: Midi;
       //   startTicks: number;
       //   durationTicks: number;
       //   velocity?: number;
       //   color?: string;
       // }
-      const oneToFourChords = [triads[0],triads[1],triads[2],triads[3]];
-      sequences.push({
-        key: `chords-1-nh`,
-        label: `${rootKey} ${modeTitle} Chords • Hold`,
-        Component: NoteHold,
-        seq: applyActivityColor(midiSequenceToEvents(oneToFourChords, `chords-1-nh`)),
-        direction: `Play the notes of the 1 through the four chord for ${rootKey} ${modeTitle}, holding down the notes of each chord as you go.`
-      },{
-        key: `chords-1-pa`,
-        label: `${rootKey} ${modeTitle} Chords (Whole) • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(midiSequenceToWholeNotes(oneToFourChords, `chords-1-pa`)),
-        direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in whole notes.`,
-      },{
-        key: `chords-2-pa`,
-        label: `${rootKey} ${modeTitle} Chords (Half) • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(midiSequenceToHalfNotes(oneToFourChords, `chords-2-pa`)),
-        direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in half notes.`,
-      },{
-        key: `chords-3-pa`,
-        label: `${rootKey} ${modeTitle} Chords (Quarter) • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(midiSequenceToQuarterNotes(oneToFourChords, `chords-3-pa`)),
-        direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in quarter notes.`,
-      });
-    
-    
+      const oneToFourChords = [triads[0], triads[1], triads[2], triads[3]];
+      sequences.push(
+        {
+          key: `chords-1-nh`,
+          label: `${rootKey} ${modeTitle} Chords • Hold`,
+          Component: NoteHold,
+          seq: applyActivityColor(
+            midiSequenceToEvents(oneToFourChords, `chords-1-nh`),
+          ),
+          direction: `Play the notes of the 1 through the four chord for ${rootKey} ${modeTitle}, holding down the notes of each chord as you go.`,
+        },
+        {
+          key: `chords-1-pa`,
+          label: `${rootKey} ${modeTitle} Chords (Whole) • Play Along`,
+          Component: PlayAlong,
+          seq: applyActivityColor(
+            midiSequenceToWholeNotes(oneToFourChords, `chords-1-pa`),
+          ),
+          direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in whole notes.`,
+        },
+        {
+          key: `chords-2-pa`,
+          label: `${rootKey} ${modeTitle} Chords (Half) • Play Along`,
+          Component: PlayAlong,
+          seq: applyActivityColor(
+            midiSequenceToHalfNotes(oneToFourChords, `chords-2-pa`),
+          ),
+          direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in half notes.`,
+        },
+        {
+          key: `chords-3-pa`,
+          label: `${rootKey} ${modeTitle} Chords (Quarter) • Play Along`,
+          Component: PlayAlong,
+          seq: applyActivityColor(
+            midiSequenceToQuarterNotes(oneToFourChords, `chords-3-pa`),
+          ),
+          direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in quarter notes.`,
+        },
+      );
 
       //////////ACTIVITES FOR 7
-      const indices = [0,1,2,3];
+      const indices = [0, 1, 2, 3];
       let shuffled = indices.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-4-pa`,
         label: `${rootKey} ${modeTitle} Two Chords (Staccato) • Play Along`,
         Component: PlayAlong,
-        seq: applyActivityColor(midiSequenceToStoccatoEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-4-pa`)),
-        direction: `Play chord ${shuffled[0]+1} and ${shuffled[1]+1} in a steady tempo, with short articulations (“staccato”).`
-      })
+        seq: applyActivityColor(
+          midiSequenceToStoccatoEvents(
+            [...triads[shuffled[0]], ...triads[shuffled[1]]],
+            `chords-4-pa`,
+          ),
+        ),
+        direction: `Play chord ${shuffled[0] + 1} and ${shuffled[1] + 1} in a steady tempo, with short articulations (“staccato”).`,
+      });
       shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-5-pa`,
         label: `${rootKey} ${modeTitle} Two Chords (Legato) • Play Along`,
         Component: PlayAlong,
-        seq: applyActivityColor(midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]]], `chords-5-pa`)),
-        direction: `Play chord ${shuffled[0]+1} and ${shuffled[1]+1} in a steady tempo, with long articulations (“legato”).`
-      })
+        seq: applyActivityColor(
+          midiSequenceToEvents(
+            [...triads[shuffled[0]], ...triads[shuffled[1]]],
+            `chords-5-pa`,
+          ),
+        ),
+        direction: `Play chord ${shuffled[0] + 1} and ${shuffled[1] + 1} in a steady tempo, with long articulations (“legato”).`,
+      });
 
       /////////ACTIVITES FOR 8
       shuffled = shuffled.sort(() => Math.random() - 0.5);
@@ -653,49 +819,99 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         key: `chords-2-nh`,
         label: `${rootKey} ${modeTitle} First Four Chords • Hold`,
         Component: NoteHold,
-        seq: applyActivityColor(midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-2-nh`)),
-        direction: `Play the first four chords in a mixed order, holding down each chord one by one.`
-      })
+        seq: applyActivityColor(
+          midiSequenceToEvents(
+            [
+              ...triads[shuffled[0]],
+              ...triads[shuffled[1]],
+              ...triads[shuffled[2]],
+              ...triads[shuffled[3]],
+            ],
+            `chords-2-nh`,
+          ),
+        ),
+        direction: `Play the first four chords in a mixed order, holding down each chord one by one.`,
+      });
       sequences.push({
         key: `chords-7-pa`,
         label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
         Component: PlayAlong,
-        seq: applyActivityColor(midiSequenceToHalfNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-7-pa`)),
-        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a half note.`
-      })
+        seq: applyActivityColor(
+          midiSequenceToHalfNotes(
+            [
+              ...triads[shuffled[0]],
+              ...triads[shuffled[1]],
+              ...triads[shuffled[2]],
+              ...triads[shuffled[3]],
+            ],
+            `chords-7-pa`,
+          ),
+        ),
+        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a half note.`,
+      });
       sequences.push({
         key: `chords-8-pa`,
         label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
         Component: PlayAlong,
-        seq: applyActivityColor(midiSequenceToQuarterNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-8-pa`)),
-        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a quarter note.`
-      })
+        seq: applyActivityColor(
+          midiSequenceToQuarterNotes(
+            [
+              ...triads[shuffled[0]],
+              ...triads[shuffled[1]],
+              ...triads[shuffled[2]],
+              ...triads[shuffled[3]],
+            ],
+            `chords-8-pa`,
+          ),
+        ),
+        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a quarter note.`,
+      });
       sequences.push({
         key: `chords-9-pa`,
         label: `${rootKey} ${modeTitle} First Four Chords • Play Along`,
         Component: PlayAlong,
-        seq: applyActivityColor(midiSequenceToEighthNotes([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-9-pa`)),
-        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a eighth note.`
-      })
+        seq: applyActivityColor(
+          midiSequenceToEighthNotes(
+            [
+              ...triads[shuffled[0]],
+              ...triads[shuffled[1]],
+              ...triads[shuffled[2]],
+              ...triads[shuffled[3]],
+            ],
+            `chords-9-pa`,
+          ),
+        ),
+        direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a eighth note.`,
+      });
       shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
         key: `chords-6-pa`,
         label: `${rootKey} ${modeTitle} Four Chords (Mixed Articulation) • Play Along`,
         Component: PlayAlong,
-        seq: applyActivityColor(midiSequenceToEvents([...triads[shuffled[0]],...triads[shuffled[1]],...triads[shuffled[2]],...triads[shuffled[3]]], `chords-6-pa`)),
-        direction: `Play the four chords in a steady tempo, with mixed articulations.`
-      })
+        seq: applyActivityColor(
+          midiSequenceToEvents(
+            [
+              ...triads[shuffled[0]],
+              ...triads[shuffled[1]],
+              ...triads[shuffled[2]],
+              ...triads[shuffled[3]],
+            ],
+            `chords-6-pa`,
+          ),
+        ),
+        direction: `Play the four chords in a steady tempo, with mixed articulations.`,
+      });
     }
     if (includeChordPlaceholder && chordTriads.length === 0) {
       sequences.push({
-        key: "chords-loading",
+        key: 'chords-loading',
         label: `${rootKey} ${modeTitle} Chords • Loading`,
         Component: ChordLoadingStep,
         seq: [] as NoteEvent[],
-        direction: "Loading chord exercises...",
+        direction: 'Loading chord exercises...',
       });
     }
-    
+
     return sequences.map(({ key, label, Component, seq, direction }) => ({
       activityDefId: key,
       activityInstanceId: buildActivityInstanceId({
@@ -709,28 +925,40 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       label,
       Component,
       events: seq,
-      direction
+      direction,
     }));
   };
   ////////////// end buildFlowDefinitions ///////////////////
 
   const randomContours = useMemo(() => {
-    if (availableContours.length === 0){
+    if (availableContours.length === 0) {
       return [];
-    } 
+    }
     const shuffled = [...availableContours].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 3);
   }, [availableContours]);
 
   const flowDefinitions = useMemo(() => {
-    const scale = scaleMidis && scaleMidis.length > 0 ? scaleMidis : DEFAULT_SCALE;
+    const scale =
+      scaleMidis && scaleMidis.length > 0 ? scaleMidis : DEFAULT_SCALE;
     return buildFlowDefinitions(
       scale,
       randomContours,
       triads,
       chordsQuery.isPending && triads.length === 0,
     );
-  }, [scaleMidis, randomContours, triads, chordsQuery.isPending, activityColor, lessonKeyScope, lessonId, lessonVersion, modeLabel, rootKey]);
+  }, [
+    scaleMidis,
+    randomContours,
+    triads,
+    chordsQuery.isPending,
+    activityColor,
+    lessonKeyScope,
+    lessonId,
+    lessonVersion,
+    modeLabel,
+    rootKey,
+  ]);
 
   const lessonProgressQuery = useLessonProgress(lessonId, lessonVersion, true);
   const updateActivityProgress = useUpdateActivityProgress();
@@ -739,10 +967,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   const explicitStartAppliedRef = useRef<string | null>(null);
   const completionReportedRef = useRef<Set<string>>(new Set());
 
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activityInstanceId, setActivityInstanceId] = useState(0);
-  const [activityState, setActivityState] = useState<ActivityState>("active");
+  const [activityState, setActivityState] = useState<ActivityState>('active');
   const [startSignal, setStartSignal] = useState(0);
   const [startOverlayStep, setStartOverlayStep] = useState(0);
   const [lessonComplete, setLessonComplete] = useState(false);
@@ -754,12 +981,14 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   );
   const nextCurriculumKey = useMemo(() => {
     const safeIndex = currentChromaticIndex >= 0 ? currentChromaticIndex : 0;
-    const nextIndex = (safeIndex + 1 + CHROMATIC_KEYS.length) % CHROMATIC_KEYS.length;
+    const nextIndex =
+      (safeIndex + 1 + CHROMATIC_KEYS.length) % CHROMATIC_KEYS.length;
     return CHROMATIC_KEYS[nextIndex];
   }, [currentChromaticIndex]);
   const [nextKeyChoice, setNextKeyChoice] = useState<string>(nextCurriculumKey);
   const midiTriggeredRef = useRef(false);
-  const isTrackableActivity = currentActivity?.activityDefId !== "lesson-overview";
+  const isTrackableActivity =
+    currentActivity?.activityDefId !== 'lesson-overview';
 
   const continueCurriculum = useCallback(() => {
     navigate(
@@ -773,7 +1002,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   useEffect(() => {
     setCurrentIndex(0);
     setActivityInstanceId(0);
-    setActivityState("active");
+    setActivityState('active');
     setLessonComplete(false);
     setNextKeyChoice(nextCurriculumKey);
     resumeAppliedScopeRef.current = null;
@@ -784,15 +1013,18 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   useEffect(() => {
     if (flowDefinitions.length === 0) return;
     const lessonOverviewIndex = flowDefinitions.findIndex(
-      (activity) => activity.activityDefId === "lesson-overview",
+      (activity) => activity.activityDefId === 'lesson-overview',
     );
     const introChordHoldActivity = flowDefinitions.find(
-      (activity) => activity.activityDefId === "intro-chord-hold",
+      (activity) => activity.activityDefId === 'intro-chord-hold',
     );
     const introChordHoldProgress = introChordHoldActivity
-      ? lessonProgressQuery.data?.progressByActivityInstanceId[introChordHoldActivity.activityInstanceId]
+      ? lessonProgressQuery.data?.progressByActivityInstanceId[
+          introChordHoldActivity.activityInstanceId
+        ]
       : undefined;
-    const introChordHoldCompleted = introChordHoldProgress?.status === "COMPLETED";
+    const introChordHoldCompleted =
+      introChordHoldProgress?.status === 'COMPLETED';
 
     const explicitStartIndex = startAtActivityKey
       ? flowDefinitions.findIndex(
@@ -852,17 +1084,23 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
     setLessonComplete(false);
     setCurrentIndex(resumeIndex);
-  }, [flowDefinitions, lessonProgressQuery.data, lessonProgressScope, startAtActivityKey]);
+  }, [
+    flowDefinitions,
+    lessonProgressQuery.data,
+    lessonProgressScope,
+    startAtActivityKey,
+  ]);
 
   useEffect(() => {
-    setActivityState("active");
+    setActivityState('active');
     if (!currentActivity) {
       setStartSignal(0);
       return;
     }
     const requiresStartOverlay =
-      currentActivity.Component === PlayAlong || currentActivity.Component === NoteHold;
-    setActivityState(requiresStartOverlay ? "pending" : "active");
+      currentActivity.Component === PlayAlong ||
+      currentActivity.Component === NoteHold;
+    setActivityState(requiresStartOverlay ? 'pending' : 'active');
     setStartOverlayStep(0);
     setStartSignal(0);
   }, [currentActivity?.key]);
@@ -892,10 +1130,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     setCurrentIndex(Math.max(flowDefinitions.length - 1, 0));
   }, [currentIndex, flowDefinitions.length, chordsQuery.isPending, onComplete]);
   useEffect(() => {
-    if(labelChange){
+    if (labelChange) {
       if (!currentActivity) return;
       const activityLabel = `Activity ${currentIndex + 1} of ${flowDefinitions.length}`;
-      labelChange([currentActivity.label,activityLabel]);
+      labelChange([currentActivity.label, activityLabel]);
     }
   }, [currentActivity, currentIndex, labelChange, flowDefinitions.length]);
 
@@ -907,11 +1145,17 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       lessonVersion,
       currentActivityInstanceId: currentActivity.activityInstanceId,
     });
-  }, [currentActivity?.activityInstanceId, lessonComplete, lessonId, lessonVersion, isTrackableActivity]);
+  }, [
+    currentActivity?.activityInstanceId,
+    lessonComplete,
+    lessonId,
+    lessonVersion,
+    isTrackableActivity,
+  ]);
 
   useEffect(() => {
     if (!currentActivity || lessonComplete) return;
-    if (activityState !== "active") return;
+    if (activityState !== 'active') return;
     if (!isTrackableActivity) return;
 
     updateActivityProgress.mutate({
@@ -921,7 +1165,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       activityDefId: currentActivity.activityDefId,
       mode: modeLabel,
       root: rootKey,
-      status: "IN_PROGRESS",
+      status: 'IN_PROGRESS',
       attemptsDelta: 1,
       resumePayloadJson: {
         activityIndex: currentIndex,
@@ -944,7 +1188,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   useEffect(() => {
     if (!currentActivity || lessonComplete) return;
-    if (activityState !== "active") return;
+    if (activityState !== 'active') return;
     if (!isTrackableActivity) return;
 
     const intervalId = window.setInterval(() => {
@@ -955,7 +1199,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         activityDefId: currentActivity.activityDefId,
         mode: modeLabel,
         root: rootKey,
-        status: "IN_PROGRESS",
+        status: 'IN_PROGRESS',
         resumePayloadJson: {
           activityIndex: currentIndex,
           activityDefId: currentActivity.activityDefId,
@@ -979,7 +1223,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
 
   const handleContinue = useCallback(() => {
     if (currentActivity && isTrackableActivity) {
-      if (!completionReportedRef.current.has(currentActivity.activityInstanceId)) {
+      if (
+        !completionReportedRef.current.has(currentActivity.activityInstanceId)
+      ) {
         completionReportedRef.current.add(currentActivity.activityInstanceId);
         updateActivityProgress.mutate({
           activityInstanceId: currentActivity.activityInstanceId,
@@ -988,11 +1234,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           activityDefId: currentActivity.activityDefId,
           mode: modeLabel,
           root: rootKey,
-          status: "COMPLETED",
+          status: 'COMPLETED',
           resumePayloadJson: {
             activityIndex: currentIndex,
             activityDefId: currentActivity.activityDefId,
-            completedVia: "continue",
+            completedVia: 'continue',
           },
         });
       }
@@ -1040,13 +1286,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       return;
     }
 
-    if (activityState === "pending") {
-      setActivityState("active");
+    if (activityState === 'pending') {
+      setActivityState('active');
       setStartSignal((value) => value + 1);
       return;
     }
 
-    if (activityState === "completed") {
+    if (activityState === 'completed') {
       handleContinue();
     }
   }, [activityState, continueCurriculum, handleContinue, lessonComplete]);
@@ -1058,7 +1304,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   useEffect(() => {
     const stop = startListening();
     return () => {
-      if (typeof stop === "function") {
+      if (typeof stop === 'function') {
         stop();
         return;
       }
@@ -1072,10 +1318,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       const isCompletionOverlayActivity =
         currentComponent === PlayAlong || currentComponent === NoteHold;
       if (!isComplete || !isCompletionOverlayActivity) return;
-      setActivityState("completed");
+      setActivityState('completed');
       if (!currentActivity) return;
       if (!isTrackableActivity) return;
-      if (completionReportedRef.current.has(currentActivity.activityInstanceId)) return;
+      if (completionReportedRef.current.has(currentActivity.activityInstanceId))
+        return;
       completionReportedRef.current.add(currentActivity.activityInstanceId);
       updateActivityProgress.mutate({
         activityInstanceId: currentActivity.activityInstanceId,
@@ -1084,7 +1331,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         activityDefId: currentActivity.activityDefId,
         mode: modeLabel,
         root: rootKey,
-        status: "COMPLETED",
+        status: 'COMPLETED',
         resumePayloadJson: {
           activityIndex: currentIndex,
           activityDefId: currentActivity.activityDefId,
@@ -1096,15 +1343,23 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         currentActivityInstanceId: null,
       });
     },
-    [currentActivity, currentIndex, lessonId, lessonVersion, modeLabel, rootKey, isTrackableActivity],
+    [
+      currentActivity,
+      currentIndex,
+      lessonId,
+      lessonVersion,
+      modeLabel,
+      rootKey,
+      isTrackableActivity,
+    ],
   );
 
   const handleRestartActivity = () => {
     setStartSignal(0);
     if (usesActivityStartOverlay) {
-      setActivityState("pending");
+      setActivityState('pending');
     } else {
-      setActivityState("active");
+      setActivityState('active');
     }
     setActivityInstanceId((id) => id + 1);
   };
@@ -1113,15 +1368,15 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     if (!authToken) return;
     if (!currentActivity) return;
     if (!isTrackableActivity) return;
-    const apiBase = Env.get("VITE_MUSIC_ATLAS_API_URL", { nullable: true });
+    const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true });
     if (!apiBase) return;
-    const normalizedBase = apiBase.replace(/\/+$/, "");
-    const progressPrefix = normalizedBase.endsWith("/api")
-      ? "/progress"
-      : "/api/progress";
+    const normalizedBase = apiBase.replace(/\/+$/, '');
+    const progressPrefix = normalizedBase.endsWith('/api')
+      ? '/progress'
+      : '/api/progress';
 
     const currentActivityInstanceId =
-      lessonComplete || activityState === "completed"
+      lessonComplete || activityState === 'completed'
         ? null
         : currentActivity.activityInstanceId;
 
@@ -1132,21 +1387,21 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     };
 
     void fetch(`${normalizedBase}${progressPrefix}/lessonState`, {
-      method: "PATCH",
+      method: 'PATCH',
       keepalive: true,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify(lessonStateBody),
     }).catch(() => {});
 
-    if (activityState === "active" && currentActivity) {
+    if (activityState === 'active' && currentActivity) {
       void fetch(`${normalizedBase}${progressPrefix}/activity`, {
-        method: "PATCH",
+        method: 'PATCH',
         keepalive: true,
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
@@ -1156,12 +1411,12 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           activityDefId: currentActivity.activityDefId,
           mode: modeLabel,
           root: rootKey,
-          status: "IN_PROGRESS",
+          status: 'IN_PROGRESS',
           resumePayloadJson: {
             activityIndex: currentIndex,
             activityDefId: currentActivity.activityDefId,
             flushedAt: Date.now(),
-            reason: "page-exit",
+            reason: 'page-exit',
           },
         }),
       }).catch(() => {});
@@ -1184,9 +1439,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       flushRecentLessonState();
     };
 
-    window.addEventListener("pagehide", onPageHide);
+    window.addEventListener('pagehide', onPageHide);
     return () => {
-      window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener('pagehide', onPageHide);
       flushRecentLessonState();
     };
   }, [flushRecentLessonState]);
@@ -1195,15 +1450,15 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     return null;
   }
 
-  const { Component, events, direction} = currentActivity;
+  const { Component, events, direction } = currentActivity;
   const usesActivityCompletionOverlay =
     Component === PlayAlong || Component === NoteHold;
   const usesActivityStartOverlay =
     Component === PlayAlong || Component === NoteHold;
   const showActivityCompletionOverlay =
-    usesActivityCompletionOverlay && activityState === "completed";
+    usesActivityCompletionOverlay && activityState === 'completed';
   const showStartOverlay =
-    usesActivityStartOverlay && activityState === "pending";
+    usesActivityStartOverlay && activityState === 'pending';
 
   const startOverlaySequence = useMemo(
     () =>
@@ -1213,9 +1468,9 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
             return a.startTicks - b.startTicks;
           }
           const aMidi =
-            typeof a.midi === "number" ? a.midi : pitchNameToMidi(a.pitchName);
+            typeof a.midi === 'number' ? a.midi : pitchNameToMidi(a.pitchName);
           const bMidi =
-            typeof b.midi === "number" ? b.midi : pitchNameToMidi(b.pitchName);
+            typeof b.midi === 'number' ? b.midi : pitchNameToMidi(b.pitchName);
           if (aMidi == null || bMidi == null) {
             return 0;
           }
@@ -1224,13 +1479,13 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         .map((event) => ({
           event,
           midi:
-            typeof event.midi === "number"
+            typeof event.midi === 'number'
               ? event.midi
               : pitchNameToMidi(event.pitchName),
         }))
         .filter(
           (item): item is { event: NoteEvent; midi: number } =>
-            typeof item.midi === "number",
+            typeof item.midi === 'number',
         ),
     [events],
   );
@@ -1268,7 +1523,7 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
     return [
       {
         id: `start-${item.event.id}-${cappedIndex}`,
-        type: "note",
+        type: 'note',
         midi: item.midi,
         time: now,
         duration: START_OVERLAY_NOTE_DURATION_SECONDS,
@@ -1293,18 +1548,31 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
   }, [startOverlaySequence]);
 
   const handleStartActivity = () => {
-    setActivityState("active");
+    setActivityState('active');
     setStartSignal((value) => value + 1);
   };
 
   if (lessonComplete) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-4">
-        <div className="w-full max-w-3xl rounded-2xl p-6 glass-panel" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', boxShadow: 'var(--glass-shadow)' }}>
+        <div
+          className="w-full max-w-3xl rounded-2xl p-6 glass-panel"
+          style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--glass-shadow)',
+          }}
+        >
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-semibold" style={{ color: 'var(--color-text)' }}>Great work!</h1>
+            <h1
+              className="text-2xl font-semibold"
+              style={{ color: 'var(--color-text)' }}
+            >
+              Great work!
+            </h1>
             <p className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
-              You completed the {modeLabel} lesson in {rootKey}. How would you like to continue?
+              You completed the {modeLabel} lesson in {rootKey}. How would you
+              like to continue?
             </p>
           </div>
           <div className="mt-6 grid gap-4">
@@ -1312,19 +1580,38 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
               type="button"
               onClick={() => navigate(StudioRoutes.root.definition)}
               className="rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors duration-150 glass-panel-sm"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text)',
+              }}
             >
               Go to Studio
             </button>
 
-            <div className="rounded-xl px-4 py-3 glass-panel-sm" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-border)' }}>
-              <div className="mb-2 text-sm font-semibold" style={{ color: 'var(--color-text)' }}>Pick next key center</div>
+            <div
+              className="rounded-xl px-4 py-3 glass-panel-sm"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid var(--color-border)',
+              }}
+            >
+              <div
+                className="mb-2 text-sm font-semibold"
+                style={{ color: 'var(--color-text)' }}
+              >
+                Pick next key center
+              </div>
               <div className="flex flex-wrap gap-2">
                 <select
                   value={nextKeyChoice}
                   onChange={(e) => setNextKeyChoice(e.target.value)}
                   className="rounded-md px-3 py-2 text-sm"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
+                  }}
                 >
                   {CHROMATIC_KEYS.map((key) => (
                     <option key={key} value={key}>
@@ -1343,7 +1630,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
                     )
                   }
                   className="rounded-md px-4 py-2 text-sm font-semibold transition-colors duration-150"
-                  style={{ background: 'var(--color-accent)', color: '#191919' }}
+                  style={{
+                    background: 'var(--color-accent)',
+                    color: '#191919',
+                  }}
                 >
                   Start selected key
                 </button>
@@ -1354,7 +1644,11 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
               type="button"
               onClick={continueCurriculum}
               className="rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors duration-150 glass-panel-sm"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text)',
+              }}
             >
               Continue curriculum ({nextCurriculumKey} {modeLabel})
             </button>
@@ -1363,22 +1657,22 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
       </div>
     );
   }
-  
+
   return (
     <div className="flex flex-col gap-4">
       <div className="relative">
         <div
           className={
             showActivityCompletionOverlay || showStartOverlay
-              ? "pointer-events-none opacity-30 blur-sm transition duration-300"
-              : "transition duration-300"
+              ? 'pointer-events-none opacity-30 blur-sm transition duration-300'
+              : 'transition duration-300'
           }
         >
           <Component
             key={`${currentActivity.key}-${activityInstanceId}`}
             activityColor={activityColor}
             events={events}
-            isActive={activityState === "active"}
+            isActive={activityState === 'active'}
             onContinue={handleContinue}
             onActivityCompleteChange={handleActivityCompleteChange}
             startSignal={startSignal}
@@ -1386,13 +1680,37 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
           />
         </div>
         {showStartOverlay && (
-          <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center px-4" style={{ background: 'rgba(25,25,25,0.8)', backdropFilter: 'blur(10px)' }}>
-            <div className="w-full max-w-lg rounded-2xl px-8 py-6 text-center glass-panel" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}>
+          <div
+            className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center px-4"
+            style={{
+              background: 'rgba(25,25,25,0.8)',
+              backdropFilter: 'blur(10px)',
+            }}
+          >
+            <div
+              className="w-full max-w-lg rounded-2xl px-8 py-6 text-center glass-panel"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text)',
+              }}
+            >
               <h3 className="text-2xl font-semibold">Ready to start?</h3>
-              <p className="mt-2 text-sm" style={{ color: 'var(--color-text-dim)' }}>{direction}</p>
+              <p
+                className="mt-2 text-sm"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                {direction}
+              </p>
               {startOverlayNotes.length > 0 && (
                 <div className="mt-4">
-                  <p className="mb-2 text-xs uppercase tracking-wide" style={{ color: 'var(--color-text-dim)', letterSpacing: '1px' }}>
+                  <p
+                    className="mb-2 text-xs uppercase tracking-wide"
+                    style={{
+                      color: 'var(--color-text-dim)',
+                      letterSpacing: '1px',
+                    }}
+                  >
                     Note sequence
                   </p>
                   <PianoKeyboard
@@ -1412,7 +1730,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
                   type="button"
                   onClick={handleStartActivity}
                   className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
-                  style={{ background: 'var(--color-accent)', color: '#191919' }}
+                  style={{
+                    background: 'var(--color-accent)',
+                    color: '#191919',
+                  }}
                 >
                   Start
                 </button>
@@ -1422,21 +1743,34 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
         )}
         {showActivityCompletionOverlay && (
           <div className="absolute inset-0 flex items-center justify-center px-4">
-            <div className="rounded-2xl px-8 py-6 text-center glass-panel" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}>
+            <div
+              className="rounded-2xl px-8 py-6 text-center glass-panel"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text)',
+              }}
+            >
               <h3 className="text-2xl font-semibold">
-                {Component === PlayAlong ? "Nice work!" : "Great job!"}
+                {Component === PlayAlong ? 'Nice work!' : 'Great job!'}
               </h3>
-              <p className="mt-2 text-sm" style={{ color: 'var(--color-text-dim)' }}>
+              <p
+                className="mt-2 text-sm"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
                 {Component === PlayAlong
-                  ? "You finished the play-along. Continue when you are ready, or restart to practice again."
-                  : "You completed the sequence. Continue when you are ready, or restart to practice again."}
+                  ? 'You finished the play-along. Continue when you are ready, or restart to practice again.'
+                  : 'You completed the sequence. Continue when you are ready, or restart to practice again.'}
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <button
                   type="button"
                   onClick={handleContinue}
                   className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
-                  style={{ background: 'var(--color-accent)', color: '#191919' }}
+                  style={{
+                    background: 'var(--color-accent)',
+                    color: '#191919',
+                  }}
                 >
                   Continue
                 </button>
@@ -1444,7 +1778,10 @@ export const ActivityFlow = ({ scaleMidis, onComplete, labelChange, rootKey, roo
                   type="button"
                   onClick={handleRestartActivity}
                   className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
-                  style={{ border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                  style={{
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
+                  }}
                 >
                   Restart
                 </button>

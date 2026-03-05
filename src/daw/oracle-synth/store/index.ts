@@ -34,7 +34,7 @@ export const useSynthStore = create<SynthStore>()(
     ...createFXSlice(...args),
     ...createRoutingSlice(...args),
     ...createArpSlice(...args),
-  }))
+  })),
 );
 
 // Mark preset as dirty when any audio parameter changes
@@ -61,5 +61,5 @@ useSynthStore.subscribe(
     const { isDirty, markDirty } = useSynthStore.getState();
     if (!isDirty) markDirty();
   },
-  { equalityFn: (a, b) => a.every((v, i) => v === b[i]) }
+  { equalityFn: (a, b) => a.every((v, i) => v === b[i]) },
 );

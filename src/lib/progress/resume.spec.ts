@@ -14,8 +14,16 @@ describe('selectResumeActivityIndex', () => {
       progress: {
         currentActivityInstanceId: 'a2',
         progressByActivityInstanceId: {
-          a1: { status: 'COMPLETED', attempts: 1, updatedAt: '2026-02-23T00:00:00.000Z' },
-          a2: { status: 'IN_PROGRESS', attempts: 1, updatedAt: '2026-02-23T00:01:00.000Z' },
+          a1: {
+            status: 'COMPLETED',
+            attempts: 1,
+            updatedAt: '2026-02-23T00:00:00.000Z',
+          },
+          a2: {
+            status: 'IN_PROGRESS',
+            attempts: 1,
+            updatedAt: '2026-02-23T00:01:00.000Z',
+          },
         },
       },
     });
@@ -29,8 +37,16 @@ describe('selectResumeActivityIndex', () => {
       progress: {
         currentActivityInstanceId: 'a2',
         progressByActivityInstanceId: {
-          a1: { status: 'COMPLETED', attempts: 1, updatedAt: '2026-02-23T00:00:00.000Z' },
-          a2: { status: 'COMPLETED', attempts: 1, updatedAt: '2026-02-23T00:01:00.000Z' },
+          a1: {
+            status: 'COMPLETED',
+            attempts: 1,
+            updatedAt: '2026-02-23T00:00:00.000Z',
+          },
+          a2: {
+            status: 'COMPLETED',
+            attempts: 1,
+            updatedAt: '2026-02-23T00:01:00.000Z',
+          },
         },
       },
     });
@@ -44,9 +60,21 @@ describe('selectResumeActivityIndex', () => {
       progress: {
         currentActivityInstanceId: null,
         progressByActivityInstanceId: {
-          a1: { status: 'COMPLETED', attempts: 1, updatedAt: '2026-02-23T00:00:00.000Z' },
-          a2: { status: 'COMPLETED', attempts: 1, updatedAt: '2026-02-23T00:01:00.000Z' },
-          a3: { status: 'COMPLETED', attempts: 1, updatedAt: '2026-02-23T00:02:00.000Z' },
+          a1: {
+            status: 'COMPLETED',
+            attempts: 1,
+            updatedAt: '2026-02-23T00:00:00.000Z',
+          },
+          a2: {
+            status: 'COMPLETED',
+            attempts: 1,
+            updatedAt: '2026-02-23T00:01:00.000Z',
+          },
+          a3: {
+            status: 'COMPLETED',
+            attempts: 1,
+            updatedAt: '2026-02-23T00:02:00.000Z',
+          },
         },
       },
     });

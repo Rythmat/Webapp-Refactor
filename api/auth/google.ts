@@ -1,3 +1,4 @@
+/* eslint-disable import/no-default-export */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeFreeCredits } from '../lib/db';
 
@@ -32,7 +33,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       prompt: 'consent',
     });
 
-    return res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
+    return res.redirect(
+      `https://accounts.google.com/o/oauth2/v2/auth?${params}`,
+    );
   }
 
   // Step 2: Exchange code for tokens
@@ -52,13 +55,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const tokenData = await tokenRes.json();
 
     if (!tokenData.access_token) {
-      return res.redirect(`${getFrontendUrl(req)}/auth/sign-in?error=google_token_failed`);
+      return res.redirect(
+        `${getFrontendUrl(req)}/auth/sign-in?error=google_token_failed`,
+      );
     }
 
     // Step 3: Get user info
-    const userRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: { Authorization: `Bearer ${tokenData.access_token}` },
-    });
+    const userRes = await fetch(
+      'https://www.googleapis.com/oauth2/v2/userinfo',
+      {
+        headers: { Authorization: `Bearer ${tokenData.access_token}` },
+      },
+    );
 
     const userData = await userRes.json();
     const email = userData.email as string;
@@ -78,7 +86,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const oauthData = await oauthRes.json();
 
     if (!oauthData.token) {
-      return res.redirect(`${getFrontendUrl(req)}/auth/sign-in?error=auth_failed`);
+      return res.redirect(
+        `${getFrontendUrl(req)}/auth/sign-in?error=auth_failed`,
+      );
     }
 
     // Step 5: Initialize free credits for new users
@@ -87,9 +97,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Step 6: Redirect to frontend with token
-    return res.redirect(`${getFrontendUrl(req)}/auth/sign-in#token=${oauthData.token}`);
+    return res.redirect(
+      `${getFrontendUrl(req)}/auth/sign-in#token=${oauthData.token}`,
+    );
   } catch (error) {
     console.error('Google OAuth error:', error);
-    return res.redirect(`${getFrontendUrl(req)}/auth/sign-in?error=google_auth_error`);
+    return res.redirect(
+      `${getFrontendUrl(req)}/auth/sign-in?error=google_auth_error`,
+    );
   }
 }

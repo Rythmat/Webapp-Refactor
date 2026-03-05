@@ -1,6 +1,5 @@
 import type { InstrumentAdapter } from '../instruments/InstrumentAdapter';
-import { EffectChain } from './EffectChain';
-import type { TrackEffectState } from './EffectChain';
+import { EffectChain, type TrackEffectState } from './EffectChain';
 
 export class TrackEngine {
   private instrument: InstrumentAdapter | null = null;

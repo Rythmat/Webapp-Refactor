@@ -20,9 +20,10 @@
   gap: 2px;
   padding: 8px;
   overflow-y: auto;
-  border-right: 1px solid var(--color-border, rgba(255,255,255,0.08));
+  border-right: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
   scrollbar-width: thin;
-  scrollbar-color: var(--color-scrollbar-thumb, rgba(255,255,255,0.08)) transparent;
+  scrollbar-color: var(--color-scrollbar-thumb, rgba(255, 255, 255, 0.08))
+    transparent;
 }
 
 .presetsTitle {
@@ -54,7 +55,8 @@
   flex-shrink: 0;
   overflow-x: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-scrollbar-thumb, rgba(255,255,255,0.08)) transparent;
+  scrollbar-color: var(--color-scrollbar-thumb, rgba(255, 255, 255, 0.08))
+    transparent;
 }
 
 /* ── Module container (glass) ────────────────────────────────────── */
@@ -64,12 +66,12 @@
   flex-direction: column;
   gap: 6px;
   padding: 8px;
-  background: rgba(255,255,255, 0.03);
-  border: 1px solid var(--color-border, rgba(255,255,255,0.08));
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
   border-radius: 6px;
   backdrop-filter: var(--glass-blur-sm, blur(10px));
   -webkit-backdrop-filter: var(--glass-blur-sm, blur(10px));
-  box-shadow: var(--glass-glow, inset 0 1px 0 rgba(255,255,255,0.04));
+  box-shadow: var(--glass-glow, inset 0 1px 0 rgba(255, 255, 255, 0.04));
   flex-shrink: 0;
 }
 
@@ -110,14 +112,14 @@
   position: relative;
   width: 20px;
   height: 120px;
-  background: rgba(0,0,0, 0.4);
+  background: rgba(0, 0, 0, 0.4);
   border-radius: 5px;
   cursor: pointer;
   touch-action: none;
-  border: 1px solid rgba(255,255,255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow:
-    inset 0 2px 6px rgba(0,0,0, 0.4),
-    inset 0 -1px 2px rgba(255,255,255, 0.03);
+    inset 0 2px 6px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.03);
 }
 
 .drawbarCap {
@@ -151,8 +153,8 @@
   align-items: center;
   justify-content: center;
   box-shadow:
-    0 2px 4px rgba(0,0,0, 0.4),
-    inset 0 1px 0 rgba(255,255,255, 0.15);
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .drawbarThumb:active {
@@ -162,9 +164,9 @@
 .drawbarThumbValue {
   font-size: 8px;
   font-weight: 700;
-  color: rgba(255,255,255, 0.95);
+  color: rgba(255, 255, 255, 0.95);
   pointer-events: none;
-  text-shadow: 0 1px 2px rgba(0,0,0, 0.6);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   line-height: 1;
 }
 
@@ -197,7 +199,7 @@
   width: 28px;
   height: 14px;
   border-radius: 7px;
-  background: rgba(255,255,255, 0.08);
+  background: rgba(255, 255, 255, 0.08);
   border: none;
   cursor: pointer;
   position: relative;
@@ -206,7 +208,7 @@
   flex-shrink: 0;
 }
 
-.toggleSwitch[data-active="true"] {
+.toggleSwitch[data-active='true'] {
   background: var(--toggle-accent, #e8c840);
 }
 
@@ -217,13 +219,13 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255,255,255, 0.5);
+  background: rgba(255, 255, 255, 0.5);
   transition: transform 0.15s;
 }
 
-.toggleSwitch[data-active="true"] .toggleThumbInner {
+.toggleSwitch[data-active='true'] .toggleThumbInner {
   transform: translateX(14px);
-  background: rgba(255,255,255, 0.9);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 /* ── Segmented control ───────────────────────────────────────────── */
@@ -241,21 +243,24 @@
   text-transform: uppercase;
   padding: 3px 6px;
   border-radius: 3px;
-  border: 1px solid var(--color-border, rgba(255,255,255,0.08));
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
   background: transparent;
   color: var(--color-text-dim, #6b6b80);
   cursor: pointer;
-  transition: background 0.1s, border-color 0.1s, color 0.1s;
+  transition:
+    background 0.1s,
+    border-color 0.1s,
+    color 0.1s;
 }
 
 .segmentBtn:hover {
-  background: rgba(255,255,255, 0.06);
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.segmentBtn[data-active="true"] {
+.segmentBtn[data-active='true'] {
   border-color: var(--seg-accent, #7ecfcf);
   color: var(--seg-accent, #7ecfcf);
-  background: rgba(126,207,207, 0.12);
+  background: rgba(126, 207, 207, 0.12);
 }
 
 /* ── Leslie speed buttons (larger) ──────────────────────────────── */
@@ -286,12 +291,12 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 2px solid var(--module-accent, #45B649);
+  border: 2px solid var(--module-accent, #45b649);
   position: relative;
 }
 
-.leslieRotorDot[data-stopped="true"] {
-  border-color: rgba(255,255,255, 0.15);
+.leslieRotorDot[data-stopped='true'] {
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .leslieRotorInner {
@@ -302,20 +307,24 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--module-accent, #45B649);
-  box-shadow: 0 0 4px var(--module-accent, #45B649);
+  background: var(--module-accent, #45b649);
+  box-shadow: 0 0 4px var(--module-accent, #45b649);
   animation: spin var(--rotor-speed, 2s) linear infinite;
   transform-origin: 50% 125%;
 }
 
-.leslieRotorDot[data-stopped="true"] .leslieRotorInner {
-  background: rgba(255,255,255, 0.15);
+.leslieRotorDot[data-stopped='true'] .leslieRotorInner {
+  background: rgba(255, 255, 255, 0.15);
   box-shadow: none;
 }
 
 @keyframes spin {
-  from { transform: translateX(-50%) rotate(0deg); }
-  to   { transform: translateX(-50%) rotate(360deg); }
+  from {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateX(-50%) rotate(360deg);
+  }
 }
 
 .leslieRotorLabel {
@@ -345,7 +354,7 @@
 }
 
 .knobSvg:focus {
-  outline: 1px solid rgba(126,207,207, 0.33);
+  outline: 1px solid rgba(126, 207, 207, 0.33);
   outline-offset: 2px;
   border-radius: 50%;
 }
@@ -356,7 +365,7 @@
 
 .knobTrack {
   fill: none;
-  stroke: rgba(255,255,255, 0.1);
+  stroke: rgba(255, 255, 255, 0.1);
   stroke-linecap: round;
 }
 
@@ -366,7 +375,7 @@
 }
 
 .knobPointer {
-  stroke: rgba(255,255,255, 0.8);
+  stroke: rgba(255, 255, 255, 0.8);
   stroke-linecap: round;
 }
 
@@ -399,5 +408,5 @@
   flex: 1;
   min-height: 100px;
   overflow: hidden;
-  border-top: 1px solid var(--color-border, rgba(255,255,255,0.08));
+  border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
 }

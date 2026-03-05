@@ -65,9 +65,7 @@ export const FilterModule: React.FC<FilterModuleProps> = React.memo(
         <Dropdown
           value={filter.type}
           options={FILTER_TYPE_OPTIONS}
-          onChange={(v) =>
-            setParam(index, 'type', v as typeof filter.type)
-          }
+          onChange={(v) => setParam(index, 'type', v as typeof filter.type)}
         />
 
         <FilterResponseVisualizer
@@ -107,7 +105,11 @@ export const FilterModule: React.FC<FilterModuleProps> = React.memo(
             defaultValue={0}
             accent={accent}
             formatValue={(v) =>
-              v === 0 ? 'C' : v < 0 ? `L${Math.round(-v * 100)}` : `R${Math.round(v * 100)}`
+              v === 0
+                ? 'C'
+                : v < 0
+                  ? `L${Math.round(-v * 100)}`
+                  : `R${Math.round(v * 100)}`
             }
             onChange={(v) => setParam(index, 'pan', v)}
           />
@@ -134,5 +136,5 @@ export const FilterModule: React.FC<FilterModuleProps> = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );

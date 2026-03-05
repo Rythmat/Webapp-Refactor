@@ -25,9 +25,23 @@ export type {
 export { StrumMode, VelocityTilt, InstrumentChannel, DrumNote } from './types';
 
 // Data
-export { NOTES, getMidi, noteName, noteNameLetter, noteNameInKey, BEAT_VAL } from './data/notes';
+export {
+  NOTES,
+  getMidi,
+  noteName,
+  noteNameLetter,
+  noteNameInKey,
+  BEAT_VAL,
+} from './data/notes';
 export { CHORDS } from './data/chords';
-export { MODES, MODE_NAMES, ALL_MODES, TRIADS, TETRADS, DEGREES } from './data/modes';
+export {
+  MODES,
+  MODE_NAMES,
+  ALL_MODES,
+  TRIADS,
+  TETRADS,
+  DEGREES,
+} from './data/modes';
 export {
   KEY_COLORS,
   KEYS,
@@ -73,11 +87,7 @@ export type { ChordMatch } from './engine/naming';
 export { getChordColor, getChordColorFromNotes } from './engine/colorSystem';
 
 // Engine — progression graph
-export {
-  getOptions,
-  getFirstChords,
-  numOptions,
-} from './engine/progression';
+export { getOptions, getFirstChords, numOptions } from './engine/progression';
 
 // Engine — melody
 export { getChordMelody } from './engine/melodyGenerator';
@@ -89,7 +99,11 @@ export { swingRhythm, isSwingable, rhythmNames } from './engine/rhythmUtils';
 export { modeChange } from './engine/modeUtils';
 
 // Engine — MIDI export
-export { generateChordMidi, generateMelodyMidi, distributeChords } from './engine/midiExport';
+export {
+  generateChordMidi,
+  generateMelodyMidi,
+  distributeChords,
+} from './engine/midiExport';
 
 // Engine — drums
 export { generateDrumMidi } from './engine/drumGenerator';

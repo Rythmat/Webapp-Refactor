@@ -20,9 +20,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = React.memo(
               key={opt.value}
               className={`${styles.segment} ${opt.value === value ? styles.active : ''}`}
               style={
-                opt.value === value && accent
-                  ? { color: accent }
-                  : undefined
+                opt.value === value && accent ? { color: accent } : undefined
               }
               onClick={() => onChange(opt.value)}
             >
@@ -32,5 +30,5 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );

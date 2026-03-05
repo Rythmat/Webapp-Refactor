@@ -1,4 +1,4 @@
-import type { City } from '@/components/atlas/types'
+import type { City } from '@/components/atlas/types';
 
 export const CITIES: City[] = [
   {
@@ -9,7 +9,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [29.9511, -90.0715],
     genres: ['Jazz', 'Blues', 'Funk', 'Brass Band'],
-    description: 'Birthplace of jazz music, blending African, Caribbean, and European traditions.',
+    description:
+      'Birthplace of jazz music, blending African, Caribbean, and European traditions.',
     activeDecades: [1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970],
   },
   {
@@ -31,8 +32,11 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [36.1627, -86.7816],
     genres: ['Country', 'Bluegrass', 'Gospel'],
-    description: 'Music City USA, the heart of country music and the Grand Ole Opry.',
-    activeDecades: [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
+    description:
+      'Music City USA, the heart of country music and the Grand Ole Opry.',
+    activeDecades: [
+      1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020,
+    ],
   },
   {
     id: 'memphis',
@@ -40,7 +44,7 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Tennessee',
     region: 'north-america',
-    coordinates: [35.1495, -90.0490],
+    coordinates: [35.1495, -90.049],
     genres: ['Blues', 'Rock & Roll', 'Soul'],
     description: 'Where blues met rock & roll at Sun Studio and Stax Records.',
     activeDecades: [1920, 1930, 1940, 1950, 1960, 1970],
@@ -51,10 +55,14 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'New York',
     region: 'north-america',
-    coordinates: [40.7128, -74.0060],
+    coordinates: [40.7128, -74.006],
     genres: ['Hip Hop', 'Punk', 'Jazz', 'Disco', 'Salsa'],
-    description: 'Global music capital from Tin Pan Alley to the birth of hip hop in the Bronx.',
-    activeDecades: [1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
+    description:
+      'Global music capital from Tin Pan Alley to the birth of hip hop in the Bronx.',
+    activeDecades: [
+      1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010,
+      2020,
+    ],
   },
   {
     id: 'chicago',
@@ -75,7 +83,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [34.0522, -118.2437],
     genres: ['West Coast Hip Hop', 'Surf Rock', 'Punk', 'G-Funk'],
-    description: 'Entertainment capital with a diverse musical legacy from surf to gangsta rap.',
+    description:
+      'Entertainment capital with a diverse musical legacy from surf to gangsta rap.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -86,7 +95,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [47.6062, -122.3321],
     genres: ['Grunge', 'Alternative Rock'],
-    description: 'Home of grunge: Nirvana, Pearl Jam, Soundgarden, and Alice in Chains.',
+    description:
+      'Home of grunge: Nirvana, Pearl Jam, Soundgarden, and Alice in Chains.',
     activeDecades: [1980, 1990],
   },
   {
@@ -95,7 +105,7 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Georgia',
     region: 'north-america',
-    coordinates: [33.7490, -84.3880],
+    coordinates: [33.749, -84.388],
     genres: ['Trap', 'Southern Hip Hop', 'R&B'],
     description: 'Epicenter of trap music and modern Southern hip hop.',
     activeDecades: [1990, 2000, 2010, 2020],
@@ -108,7 +118,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [37.7749, -122.4194],
     genres: ['Psychedelic Rock', 'Punk', 'Folk Rock'],
-    description: 'Epicenter of the Summer of Love, psychedelic rock, and the Haight-Ashbury counterculture.',
+    description:
+      'Epicenter of the Summer of Love, psychedelic rock, and the Haight-Ashbury counterculture.',
     activeDecades: [1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -119,7 +130,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [39.9526, -75.1652],
     genres: ['Philly Soul', 'Hip Hop', 'R&B'],
-    description: 'Home of the Philadelphia Sound, Gamble & Huff, and a thriving hip hop scene.',
+    description:
+      'Home of the Philadelphia Sound, Gamble & Huff, and a thriving hip hop scene.',
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -130,7 +142,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [29.7604, -95.3698],
     genres: ['Chopped & Screwed', 'Southern Hip Hop', 'Zydeco'],
-    description: 'DJ Screw invented chopped & screwed, shaping Southern hip hop culture.',
+    description:
+      'DJ Screw invented chopped & screwed, shaping Southern hip hop culture.',
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -141,7 +154,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [30.2672, -97.7431],
     genres: ['Outlaw Country', 'Blues Rock', 'Indie'],
-    description: 'Live Music Capital of the World, home of SXSW and Austin City Limits.',
+    description:
+      'Live Music Capital of the World, home of SXSW and Austin City Limits.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -152,7 +166,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [25.7617, -80.1918],
     genres: ['Miami Bass', 'Latin Pop', 'EDM', 'Reggaeton'],
-    description: 'Melting pot of Latin rhythms, bass music, and the global EDM scene.',
+    description:
+      'Melting pot of Latin rhythms, bass music, and the global EDM scene.',
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -161,9 +176,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Minnesota',
     region: 'north-america',
-    coordinates: [44.9778, -93.2650],
+    coordinates: [44.9778, -93.265],
     genres: ['Minneapolis Sound', 'Funk', 'Alternative Rock'],
-    description: 'Prince built the Minneapolis Sound here, blending funk, rock, and R&B.',
+    description:
+      'Prince built the Minneapolis Sound here, blending funk, rock, and R&B.',
     activeDecades: [1980, 1990, 2000],
   },
   {
@@ -174,7 +190,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [42.3601, -71.0589],
     genres: ['Punk', 'Alternative Rock', 'Folk'],
-    description: 'Berklee College of Music hub, home to The Pixies, Aerosmith, and the Dropkick Murphys.',
+    description:
+      'Berklee College of Music hub, home to The Pixies, Aerosmith, and the Dropkick Murphys.',
     activeDecades: [1970, 1980, 1990, 2000],
   },
   {
@@ -185,7 +202,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [38.9072, -77.0369],
     genres: ['Go-Go', 'Hardcore Punk', 'Go-Go'],
-    description: 'Birthplace of go-go music and D.C. hardcore punk with Fugazi and Minor Threat.',
+    description:
+      'Birthplace of go-go music and D.C. hardcore punk with Fugazi and Minor Threat.',
     activeDecades: [1970, 1980, 1990, 2000],
   },
   {
@@ -196,7 +214,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [45.5152, -122.6784],
     genres: ['Indie Rock', 'Folk', 'Electronic'],
-    description: 'Thriving indie music scene with labels like Kill Rock Stars and Jealous Butcher.',
+    description:
+      'Thriving indie music scene with labels like Kill Rock Stars and Jealous Butcher.',
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -218,7 +237,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [39.7392, -104.9903],
     genres: ['Jam Band', 'Folk Rock', 'Electronic'],
-    description: 'Red Rocks Amphitheatre and a strong jam band and electronic music community.',
+    description:
+      'Red Rocks Amphitheatre and a strong jam band and electronic music community.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -227,9 +247,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Missouri',
     region: 'north-america',
-    coordinates: [38.6270, -90.1994],
+    coordinates: [38.627, -90.1994],
     genres: ['Ragtime', 'Blues', 'Hip Hop'],
-    description: 'Ragtime was born here with Scott Joplin; Chuck Berry defined rock & roll.',
+    description:
+      'Ragtime was born here with Scott Joplin; Chuck Berry defined rock & roll.',
     activeDecades: [1900, 1910, 1920, 1940, 1950, 1960, 2000, 2010],
   },
   {
@@ -240,7 +261,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [39.0997, -94.5786],
     genres: ['Kansas City Jazz', 'Blues', 'Swing'],
-    description: 'A pivotal jazz city where Count Basie and Charlie Parker honed their craft.',
+    description:
+      'A pivotal jazz city where Count Basie and Charlie Parker honed their craft.',
     activeDecades: [1920, 1930, 1940, 1950],
   },
   {
@@ -251,7 +273,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [41.4993, -81.6944],
     genres: ['Rock & Roll', 'Punk', 'Industrial'],
-    description: 'Home of the Rock & Roll Hall of Fame; Alan Freed coined the term "rock and roll" here.',
+    description:
+      'Home of the Rock & Roll Hall of Fame; Alan Freed coined the term "rock and roll" here.',
     activeDecades: [1950, 1960, 1970, 1980],
   },
   {
@@ -262,7 +285,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [40.4406, -79.9959],
     genres: ['Hip Hop', 'Indie', 'Electronic'],
-    description: 'Mac Miller and Wiz Khalifa put Pittsburgh hip hop on the map.',
+    description:
+      'Mac Miller and Wiz Khalifa put Pittsburgh hip hop on the map.',
     activeDecades: [2000, 2010, 2020],
   },
   {
@@ -273,7 +297,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [39.2904, -76.6122],
     genres: ['Baltimore Club', 'Electronic', 'Punk'],
-    description: 'Baltimore club music and a DIY punk scene rooted in the city\'s creative spirit.',
+    description:
+      "Baltimore club music and a DIY punk scene rooted in the city's creative spirit.",
     activeDecades: [1990, 2000, 2010],
   },
   {
@@ -282,9 +307,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Texas',
     region: 'north-america',
-    coordinates: [32.7767, -96.7970],
+    coordinates: [32.7767, -96.797],
     genres: ['Country', 'Blues', 'Hip Hop'],
-    description: 'Deep Ellum district nurtured blues legends and a modern hip hop scene.',
+    description:
+      'Deep Ellum district nurtured blues legends and a modern hip hop scene.',
     activeDecades: [1920, 1930, 1940, 1980, 1990, 2000, 2010],
   },
   {
@@ -293,9 +319,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Arizona',
     region: 'north-america',
-    coordinates: [33.4484, -112.0740],
+    coordinates: [33.4484, -112.074],
     genres: ['Alternative Rock', 'Metal', 'Chicano Rock'],
-    description: 'Jimmy Eat World, The Refreshments, and a growing desert rock scene.',
+    description:
+      'Jimmy Eat World, The Refreshments, and a growing desert rock scene.',
     activeDecades: [1990, 2000, 2010],
   },
   {
@@ -306,7 +333,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [36.1699, -115.1398],
     genres: ['Lounge', 'EDM', 'Rock'],
-    description: 'Entertainment capital with legendary residencies from Elvis to modern EDM.',
+    description:
+      'Entertainment capital with legendary residencies from Elvis to modern EDM.',
     activeDecades: [1950, 1960, 1970, 2000, 2010, 2020],
   },
   {
@@ -315,9 +343,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Utah',
     region: 'north-america',
-    coordinates: [40.7608, -111.8910],
+    coordinates: [40.7608, -111.891],
     genres: ['Indie Rock', 'Post-Punk', 'Alternative'],
-    description: 'Home to an underground indie scene and bands like The Used and Neon Trees.',
+    description:
+      'Home to an underground indie scene and bands like The Used and Neon Trees.',
     activeDecades: [2000, 2010, 2020],
   },
   {
@@ -328,7 +357,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [38.2527, -85.7585],
     genres: ['Post-Rock', 'Indie', 'Bluegrass'],
-    description: 'Slint and My Morning Jacket anchored a fertile post-rock and indie scene.',
+    description:
+      'Slint and My Morning Jacket anchored a fertile post-rock and indie scene.',
     activeDecades: [1990, 2000, 2010],
   },
   {
@@ -339,7 +369,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [27.9506, -82.4572],
     genres: ['Death Metal', 'Hardcore', 'EDM'],
-    description: 'Tampa Bay death metal scene with Morbid Angel, Death, and Cannibal Corpse.',
+    description:
+      'Tampa Bay death metal scene with Morbid Angel, Death, and Cannibal Corpse.',
     activeDecades: [1980, 1990, 2000],
   },
   {
@@ -350,7 +381,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [21.3069, -157.8583],
     genres: ['Hawaiian', 'Slack-Key Guitar', 'Reggae'],
-    description: 'Traditional Hawaiian music blending with Polynesian and Pacific Island influences.',
+    description:
+      'Traditional Hawaiian music blending with Polynesian and Pacific Island influences.',
     activeDecades: [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -359,9 +391,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Oklahoma',
     region: 'north-america',
-    coordinates: [36.1540, -95.9928],
+    coordinates: [36.154, -95.9928],
     genres: ['Tulsa Sound', 'Country Rock', 'Swing'],
-    description: 'Leon Russell and J.J. Cale created the laid-back Tulsa Sound.',
+    description:
+      'Leon Russell and J.J. Cale created the laid-back Tulsa Sound.',
     activeDecades: [1960, 1970, 1980],
   },
   {
@@ -372,7 +405,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [32.0809, -81.0912],
     genres: ['Blues', 'R&B', 'Southern Rock'],
-    description: 'Johnny Mercer\'s hometown with deep Southern soul and blues roots.',
+    description:
+      "Johnny Mercer's hometown with deep Southern soul and blues roots.",
     activeDecades: [1940, 1950, 1960, 1970],
   },
   {
@@ -383,7 +417,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [33.5186, -86.8104],
     genres: ['Blues', 'Gospel', 'R&B', 'Southern Rock'],
-    description: 'A crucible of gospel and blues shaped by the civil rights movement and deep Southern tradition.',
+    description:
+      'A crucible of gospel and blues shaped by the civil rights movement and deep Southern tradition.',
     activeDecades: [1940, 1950, 1960, 1970, 1980],
   },
   {
@@ -394,7 +429,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [61.2181, -149.9003],
     genres: ['Folk', 'Indie', 'Indigenous Music'],
-    description: 'Alaska\'s cultural hub blending indigenous Yup\'ik and Inuit musical traditions with frontier folk.',
+    description:
+      "Alaska's cultural hub blending indigenous Yup'ik and Inuit musical traditions with frontier folk.",
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -405,7 +441,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [34.7465, -92.2896],
     genres: ['Blues', 'Rockabilly', 'Country'],
-    description: 'Crossroads of Delta blues and rockabilly with deep roots in Arkansas folk traditions.',
+    description:
+      'Crossroads of Delta blues and rockabilly with deep roots in Arkansas folk traditions.',
     activeDecades: [1940, 1950, 1960, 1970],
   },
   {
@@ -416,7 +453,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [41.7658, -72.6734],
     genres: ['Jazz', 'Hip Hop', 'Hardcore'],
-    description: 'New England jazz scene with a vibrant underground hip hop and hardcore punk community.',
+    description:
+      'New England jazz scene with a vibrant underground hip hop and hardcore punk community.',
     activeDecades: [1980, 1990, 2000, 2010],
   },
   {
@@ -427,7 +465,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [39.7391, -75.5398],
     genres: ['R&B', 'Jazz', 'Punk'],
-    description: 'Bob Marley once lived here; a small but storied music scene bridging Philly and Baltimore.',
+    description:
+      'Bob Marley once lived here; a small but storied music scene bridging Philly and Baltimore.',
     activeDecades: [1960, 1970, 1980, 1990],
   },
   {
@@ -436,9 +475,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Idaho',
     region: 'north-america',
-    coordinates: [43.6150, -116.2023],
+    coordinates: [43.615, -116.2023],
     genres: ['Indie Rock', 'Folk', 'Country'],
-    description: 'Home to Built to Spill and a thriving indie rock scene in the Pacific Northwest corridor.',
+    description:
+      'Home to Built to Spill and a thriving indie rock scene in the Pacific Northwest corridor.',
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -449,7 +489,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [39.7684, -86.1581],
     genres: ['Jazz', 'Funk', 'Hip Hop'],
-    description: 'Indiana Avenue was a major jazz corridor; Wes Montgomery honed his craft here.',
+    description:
+      'Indiana Avenue was a major jazz corridor; Wes Montgomery honed his craft here.',
     activeDecades: [1930, 1940, 1950, 1960, 1970, 1980],
   },
   {
@@ -458,9 +499,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Iowa',
     region: 'north-america',
-    coordinates: [41.5868, -93.6250],
+    coordinates: [41.5868, -93.625],
     genres: ['Punk', 'Hardcore', 'Metal'],
-    description: 'Birthplace of Slipknot and a surprisingly intense metal and hardcore punk scene.',
+    description:
+      'Birthplace of Slipknot and a surprisingly intense metal and hardcore punk scene.',
     activeDecades: [1990, 2000, 2010],
   },
   {
@@ -471,7 +513,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [37.6872, -97.3301],
     genres: ['Jazz', 'Blues', 'Country'],
-    description: 'A Great Plains jazz and blues crossroads where touring musicians passed through Route 66 corridors.',
+    description:
+      'A Great Plains jazz and blues crossroads where touring musicians passed through Route 66 corridors.',
     activeDecades: [1930, 1940, 1950, 1960],
   },
   {
@@ -482,7 +525,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [43.6591, -70.2568],
     genres: ['Indie Rock', 'Folk', 'Sea Shanty'],
-    description: 'A New England indie scene shaped by maritime folk traditions and DIY venues.',
+    description:
+      'A New England indie scene shaped by maritime folk traditions and DIY venues.',
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -493,7 +537,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [32.2988, -90.1848],
     genres: ['Blues', 'Gospel', 'Soul'],
-    description: 'The heart of Mississippi blues country, gateway to the Delta and home of deep gospel roots.',
+    description:
+      'The heart of Mississippi blues country, gateway to the Delta and home of deep gospel roots.',
     activeDecades: [1920, 1930, 1940, 1950, 1960, 1970],
   },
   {
@@ -502,9 +547,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Montana',
     region: 'north-america',
-    coordinates: [46.8721, -113.9940],
+    coordinates: [46.8721, -113.994],
     genres: ['Folk', 'Indie', 'Americana'],
-    description: 'Montana\'s cultural capital with a vibrant folk and Americana singer-songwriter scene.',
+    description:
+      "Montana's cultural capital with a vibrant folk and Americana singer-songwriter scene.",
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -515,7 +561,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [41.2565, -95.9345],
     genres: ['Indie Rock', 'Emo', 'Saddle Creek'],
-    description: 'Home of Saddle Creek Records, Bright Eyes, and a defining Midwest indie rock movement.',
+    description:
+      'Home of Saddle Creek Records, Bright Eyes, and a defining Midwest indie rock movement.',
     activeDecades: [1990, 2000, 2010],
   },
   {
@@ -526,7 +573,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [42.9956, -71.4548],
     genres: ['Punk', 'Hardcore', 'Indie'],
-    description: 'New England\'s scrappy punk and hardcore community with strong DIY house-show culture.',
+    description:
+      "New England's scrappy punk and hardcore community with strong DIY house-show culture.",
     activeDecades: [1990, 2000, 2010],
   },
   {
@@ -537,7 +585,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [40.7357, -74.1724],
     genres: ['Hip Hop', 'R&B', 'Jazz', 'House'],
-    description: 'Birthplace of Queen Latifah and Redman, with deep jazz roots and Jersey club dance music.',
+    description:
+      'Birthplace of Queen Latifah and Redman, with deep jazz roots and Jersey club dance music.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -548,7 +597,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [35.0844, -106.6504],
     genres: ['Americana', 'Country', 'Chicano Rock', 'Native Music'],
-    description: 'Where Southwestern Native American, Chicano, and desert rock traditions converge.',
+    description:
+      'Where Southwestern Native American, Chicano, and desert rock traditions converge.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -559,7 +609,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [35.2271, -80.8431],
     genres: ['Bluegrass', 'Gospel', 'Hip Hop', 'Punk'],
-    description: 'Piedmont blues and old-time Appalachian music shaped the Southeast, now a growing hip hop hub.',
+    description:
+      'Piedmont blues and old-time Appalachian music shaped the Southeast, now a growing hip hop hub.',
     activeDecades: [1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -570,7 +621,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [46.8772, -96.7898],
     genres: ['Folk', 'Indie', 'Country'],
-    description: 'A small but passionate Plains music scene with Scandinavian folk influences.',
+    description:
+      'A small but passionate Plains music scene with Scandinavian folk influences.',
     activeDecades: [1990, 2000, 2010],
   },
   {
@@ -579,9 +631,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Rhode Island',
     region: 'north-america',
-    coordinates: [41.8240, -71.4128],
+    coordinates: [41.824, -71.4128],
     genres: ['Noise Rock', 'Indie', 'Punk', 'Electronic'],
-    description: 'Fort Thunder and RISD fostered one of America\'s most creative underground noise and art-rock scenes.',
+    description:
+      "Fort Thunder and RISD fostered one of America's most creative underground noise and art-rock scenes.",
     activeDecades: [1990, 2000, 2010],
   },
   {
@@ -592,7 +645,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [32.7765, -79.9311],
     genres: ['Gullah Music', 'Gospel', 'Beach Music', 'Shag'],
-    description: 'Gullah spiritual traditions and beach music shag dancing define the Lowcountry sound.',
+    description:
+      'Gullah spiritual traditions and beach music shag dancing define the Lowcountry sound.',
     activeDecades: [1920, 1930, 1940, 1950, 1960, 1970],
   },
   {
@@ -603,7 +657,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [43.5446, -96.7311],
     genres: ['Rock', 'Country', 'Indigenous Music'],
-    description: 'Great Plains music hub where Lakota musical heritage meets Midwest rock and country.',
+    description:
+      'Great Plains music hub where Lakota musical heritage meets Midwest rock and country.',
     activeDecades: [1990, 2000, 2010],
   },
   {
@@ -614,7 +669,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [44.4759, -73.2121],
     genres: ['Jam Band', 'Folk', 'Indie'],
-    description: 'Where Phish was born; Burlington\'s jam band and folk scene is central to New England music.',
+    description:
+      "Where Phish was born; Burlington's jam band and folk scene is central to New England music.",
     activeDecades: [1980, 1990, 2000, 2010],
   },
   {
@@ -623,9 +679,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Virginia',
     region: 'north-america',
-    coordinates: [37.5407, -77.4360],
+    coordinates: [37.5407, -77.436],
     genres: ['Hardcore', 'Punk', 'Metal', 'Hip Hop'],
-    description: 'GWAR, Lamb of God, and a legendary hardcore punk scene made Richmond a metal capital.',
+    description:
+      'GWAR, Lamb of God, and a legendary hardcore punk scene made Richmond a metal capital.',
     activeDecades: [1980, 1990, 2000, 2010],
   },
   {
@@ -636,7 +693,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [38.3498, -81.6326],
     genres: ['Appalachian Folk', 'Bluegrass', 'Old-Time'],
-    description: 'The heart of Appalachian old-time and bluegrass music, fiddle tunes passed down for generations.',
+    description:
+      'The heart of Appalachian old-time and bluegrass music, fiddle tunes passed down for generations.',
     activeDecades: [1920, 1930, 1940, 1950, 1960, 1970, 1980],
   },
   {
@@ -647,7 +705,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [43.0389, -87.9065],
     genres: ['Jazz', 'Blues', 'Polka', 'Indie'],
-    description: 'Summerfest, the world\'s largest music festival, anchors a scene mixing jazz, blues, and polka.',
+    description:
+      "Summerfest, the world's largest music festival, anchors a scene mixing jazz, blues, and polka.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -656,9 +715,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Wyoming',
     region: 'north-america',
-    coordinates: [41.1400, -104.8202],
+    coordinates: [41.14, -104.8202],
     genres: ['Country', 'Western', 'Rodeo Music'],
-    description: 'Frontier Days and cowboy culture make Cheyenne a living monument to Western music.',
+    description:
+      'Frontier Days and cowboy culture make Cheyenne a living monument to Western music.',
     activeDecades: [1930, 1940, 1950, 1960, 1970, 1980],
   },
   {
@@ -669,7 +729,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [53.4084, -2.9916],
     genres: ['Merseybeat', 'Rock'],
-    description: 'Home of The Beatles and the Merseybeat explosion of the 1960s.',
+    description:
+      'Home of The Beatles and the Merseybeat explosion of the 1960s.',
     activeDecades: [1960, 1970],
   },
   {
@@ -680,7 +741,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [51.5074, -0.1278],
     genres: ['Punk', 'Grime', 'Drum & Bass', 'Britpop'],
-    description: 'From punk to grime, a constant engine of musical reinvention.',
+    description:
+      'From punk to grime, a constant engine of musical reinvention.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -689,9 +751,10 @@ export const CITIES: City[] = [
     country: 'Germany',
     subdivision: 'Berlin',
     region: 'west-europe',
-    coordinates: [52.5200, 13.4050],
+    coordinates: [52.52, 13.405],
     genres: ['Techno', 'Electronic', 'Krautrock'],
-    description: 'Global techno capital and electronic music hub since reunification.',
+    description:
+      'Global techno capital and electronic music hub since reunification.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -702,7 +765,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [48.8566, 2.3522],
     genres: ['Chanson', 'French House', 'Jazz'],
-    description: 'From Edith Piaf to Daft Punk, a city of artistic musical expression.',
+    description:
+      'From Edith Piaf to Daft Punk, a city of artistic musical expression.',
     activeDecades: [1920, 1930, 1940, 1950, 1960, 1990, 2000, 2010],
   },
   {
@@ -713,7 +777,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [18.0179, -76.8099],
     genres: ['Reggae', 'Ska', 'Dancehall', 'Dub'],
-    description: 'Birthplace of reggae, ska, and dancehall. Home of Bob Marley.',
+    description:
+      'Birthplace of reggae, ska, and dancehall. Home of Bob Marley.',
     activeDecades: [1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -746,7 +811,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [-12.9714, -38.5124],
     genres: ['Axé', 'Samba de Roda', 'Candomblé', 'Afoxé'],
-    description: 'Heart of Afro-Brazilian culture, where Yoruba traditions survived through Candomblé and birthed axé music.',
+    description:
+      'Heart of Afro-Brazilian culture, where Yoruba traditions survived through Candomblé and birthed axé music.',
     activeDecades: [1830, 1930, 1970, 1980, 1990, 2000],
   },
   {
@@ -757,7 +823,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [6.5244, 3.3792],
     genres: ['Afrobeat', 'Afrobeats', 'Jùjú', 'Highlife'],
-    description: 'Fela Kuti\'s afrobeat revolution and the modern afrobeats explosion.',
+    description:
+      "Fela Kuti's afrobeat revolution and the modern afrobeats explosion.",
     activeDecades: [1960, 1970, 1980, 2010, 2020],
   },
   {
@@ -766,9 +833,10 @@ export const CITIES: City[] = [
     country: 'India',
     subdivision: 'Maharashtra',
     region: 'south-asia',
-    coordinates: [19.0760, 72.8777],
+    coordinates: [19.076, 72.8777],
     genres: ['Bollywood', 'Indian Classical Fusion', 'Filmi'],
-    description: 'Bollywood film music capital, blending classical ragas with modern production.',
+    description:
+      'Bollywood film music capital, blending classical ragas with modern production.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -779,8 +847,12 @@ export const CITIES: City[] = [
     region: 'south-asia',
     coordinates: [25.3176, 82.9739],
     genres: ['Hindustani Classical', 'Dhrupad', 'Thumri'],
-    description: 'India\'s spiritual capital and cradle of Hindustani classical music — where the raga tradition has been transmitted for centuries.',
-    activeDecades: [1550, 1560, 1570, 1580, 1600, 1700, 1800, 1900, 1950, 1960, 1970, 1980, 1990, 2000],
+    description:
+      "India's spiritual capital and cradle of Hindustani classical music — where the raga tradition has been transmitted for centuries.",
+    activeDecades: [
+      1550, 1560, 1570, 1580, 1600, 1700, 1800, 1900, 1950, 1960, 1970, 1980,
+      1990, 2000,
+    ],
   },
   {
     id: 'chennai',
@@ -790,8 +862,12 @@ export const CITIES: City[] = [
     region: 'south-asia',
     coordinates: [13.0827, 80.2707],
     genres: ['Carnatic', 'Indian Classical', 'Bharatanatyam'],
-    description: 'Capital of Carnatic music, home of the December Music Season — the world\'s largest classical music festival.',
-    activeDecades: [1800, 1810, 1820, 1830, 1840, 1850, 1860, 1870, 1880, 1890, 1900, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
+    description:
+      "Capital of Carnatic music, home of the December Music Season — the world's largest classical music festival.",
+    activeDecades: [
+      1800, 1810, 1820, 1830, 1840, 1850, 1860, 1870, 1880, 1890, 1900, 1950,
+      1960, 1970, 1980, 1990, 2000, 2010, 2020,
+    ],
   },
   {
     id: 'tokyo',
@@ -801,7 +877,8 @@ export const CITIES: City[] = [
     region: 'east-asia',
     coordinates: [35.6762, 139.6503],
     genres: ['J-Pop', 'City Pop', 'Visual Kei', 'Noise'],
-    description: 'From Yellow Magic Orchestra to J-Pop, a unique musical ecosystem.',
+    description:
+      'From Yellow Magic Orchestra to J-Pop, a unique musical ecosystem.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -812,7 +889,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [48.2082, 16.3738],
     genres: ['Classical', 'Waltz', 'Opera'],
-    description: 'The classical music capital: Mozart, Beethoven, Strauss, and Schoenberg.',
+    description:
+      'The classical music capital: Mozart, Beethoven, Strauss, and Schoenberg.',
     activeDecades: [1900, 1910, 1920, 1930],
   },
 
@@ -825,7 +903,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [-34.6037, -58.3816],
     genres: ['Tango', 'Rock Nacional', 'Cumbia Villera'],
-    description: 'Birthplace of tango and home to one of Latin America\'s richest rock scenes.',
+    description:
+      "Birthplace of tango and home to one of Latin America's richest rock scenes.",
     activeDecades: [1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -836,7 +915,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [-23.5505, -46.6333],
     genres: ['Tropicália', 'MPB', 'Punk', 'Hip Hop'],
-    description: 'Brazil\'s cultural engine: Tropicália, punk, and the largest hip hop scene in the Southern Hemisphere.',
+    description:
+      "Brazil's cultural engine: Tropicália, punk, and the largest hip hop scene in the Southern Hemisphere.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -847,7 +927,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [5.6037, -0.187],
     genres: ['Highlife', 'Hiplife', 'Afrobeats'],
-    description: 'Ghana\'s capital where highlife was born and hiplife reinvented African pop.',
+    description:
+      "Ghana's capital where highlife was born and hiplife reinvented African pop.",
     activeDecades: [1950, 1960, 1970, 1980, 2000, 2010, 2020],
   },
   {
@@ -858,7 +939,8 @@ export const CITIES: City[] = [
     region: 'south-africa',
     coordinates: [-26.2041, 28.0473],
     genres: ['Amapiano', 'Kwaito', 'Township Jazz', 'Maskandi'],
-    description: 'From township jazz to kwaito to amapiano, Johannesburg pulses with South African innovation.',
+    description:
+      'From township jazz to kwaito to amapiano, Johannesburg pulses with South African innovation.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -869,7 +951,8 @@ export const CITIES: City[] = [
     region: 'east-asia',
     coordinates: [37.5665, 126.978],
     genres: ['K-Pop', 'K-Hip Hop', 'Trot'],
-    description: 'The beating heart of the Korean Wave, producing global pop superstars.',
+    description:
+      'The beating heart of the Korean Wave, producing global pop superstars.',
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -880,7 +963,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [38.7223, -9.1393],
     genres: ['Fado', 'Kuduro', 'Electronic'],
-    description: 'Fado\'s spiritual home, where melancholy Portuguese soul meets modern Lusophone beats.',
+    description:
+      "Fado's spiritual home, where melancholy Portuguese soul meets modern Lusophone beats.",
     activeDecades: [1920, 1930, 1940, 1950, 1960, 2000, 2010, 2020],
   },
   {
@@ -891,8 +975,11 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [37.3891, -5.9845],
     genres: ['Flamenco'],
-    description: 'The soul of flamenco: cante jondo, guitar, and passionate Andalusian artistry.',
-    activeDecades: [1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010],
+    description:
+      'The soul of flamenco: cante jondo, guitar, and passionate Andalusian artistry.',
+    activeDecades: [
+      1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010,
+    ],
   },
   {
     id: 'stockholm',
@@ -902,7 +989,8 @@ export const CITIES: City[] = [
     region: 'north-europe',
     coordinates: [59.3293, 18.0686],
     genres: ['Pop', 'Electronic', 'Death Metal'],
-    description: 'Pop hitmaking factory and birthplace of Swedish death metal and Spotify.',
+    description:
+      'Pop hitmaking factory and birthplace of Swedish death metal and Spotify.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -913,7 +1001,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [51.4545, -2.5879],
     genres: ['Trip-Hop', 'Drum & Bass', 'Dub'],
-    description: 'Massive Attack, Portishead, and Tricky invented trip-hop in this sound system city.',
+    description:
+      'Massive Attack, Portishead, and Tricky invented trip-hop in this sound system city.',
     activeDecades: [1980, 1990, 2000],
   },
   {
@@ -924,7 +1013,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [38.9067, 1.4206],
     genres: ['Electronic', 'House', 'Balearic Beat', 'Trance'],
-    description: 'The global pilgrimage site for electronic dance music since the late 1980s.',
+    description:
+      'The global pilgrimage site for electronic dance music since the late 1980s.',
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -935,7 +1025,8 @@ export const CITIES: City[] = [
     region: 'north-africa',
     coordinates: [31.6295, -7.9811],
     genres: ['Gnawa', 'Chaabi', 'Andalusian Classical'],
-    description: 'Ancient Gnawa trance music meets North African and Andalusian traditions.',
+    description:
+      'Ancient Gnawa trance music meets North African and Andalusian traditions.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -946,8 +1037,12 @@ export const CITIES: City[] = [
     region: 'north-africa',
     coordinates: [34.0181, -5.0078],
     genres: ['Andalusi Classical', 'Sufi Music', 'Malhun'],
-    description: 'Oldest imperial city of Morocco — preserves Andalusian classical music traditions brought by refugees from Iberia after 1492.',
-    activeDecades: [1490, 1500, 1550, 1600, 1700, 1800, 1900, 1950, 1960, 1970, 1980, 1990, 2000],
+    description:
+      'Oldest imperial city of Morocco — preserves Andalusian classical music traditions brought by refugees from Iberia after 1492.',
+    activeDecades: [
+      1490, 1500, 1550, 1600, 1700, 1800, 1900, 1950, 1960, 1970, 1980, 1990,
+      2000,
+    ],
   },
   {
     id: 'san-juan',
@@ -957,7 +1052,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [18.4655, -66.1057],
     genres: ['Reggaeton', 'Salsa', 'Bomba y Plena', 'Latin Trap'],
-    description: 'Reggaeton\'s birthplace and a powerhouse of Latin rhythms from bomba to trap.',
+    description:
+      "Reggaeton's birthplace and a powerhouse of Latin rhythms from bomba to trap.",
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -968,7 +1064,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [6.2476, -75.5658],
     genres: ['Reggaeton', 'Cumbia', 'Latin Trap'],
-    description: 'Colombia\'s music capital where J Balvin and Maluma launched Latin urban pop globally.',
+    description:
+      "Colombia's music capital where J Balvin and Maluma launched Latin urban pop globally.",
     activeDecades: [2010, 2020],
   },
   {
@@ -979,7 +1076,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [14.7167, -17.4677],
     genres: ['Mbalax', 'Afro-Jazz', 'Hip Hop'],
-    description: 'Youssou N\'Dour\'s mbalax rhythms and a thriving West African hip hop scene.',
+    description:
+      "Youssou N'Dour's mbalax rhythms and a thriving West African hip hop scene.",
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -990,7 +1088,8 @@ export const CITIES: City[] = [
     region: 'north-africa',
     coordinates: [30.0444, 31.2357],
     genres: ['Arabic Classical', 'Shaabi', 'Mahraganat'],
-    description: 'Umm Kulthum\'s golden voice, modern shaabi, and Egypt\'s electronic mahraganat revolution.',
+    description:
+      "Umm Kulthum's golden voice, modern shaabi, and Egypt's electronic mahraganat revolution.",
     activeDecades: [1930, 1940, 1950, 1960, 1970, 2010, 2020],
   },
   {
@@ -1001,7 +1100,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [51.2277, 6.7735],
     genres: ['Electronic', 'Krautrock'],
-    description: 'Kraftwerk\'s Kling Klang studio pioneered electronic music here.',
+    description:
+      "Kraftwerk's Kling Klang studio pioneered electronic music here.",
     activeDecades: [1970, 1980],
   },
   {
@@ -1012,7 +1112,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [25.6866, -100.3161],
     genres: ['Norteño', 'Cumbia', 'Regional Mexicano'],
-    description: 'Northern Mexico\'s music capital where accordion-driven norteño meets modern cumbia.',
+    description:
+      "Northern Mexico's music capital where accordion-driven norteño meets modern cumbia.",
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1023,7 +1124,8 @@ export const CITIES: City[] = [
     region: 'central-africa',
     coordinates: [-8.8399, 13.2894],
     genres: ['Kuduro', 'Semba', 'Kizomba'],
-    description: 'Angola\'s hyperkinetic kuduro and romantic kizomba spread from Luanda worldwide.',
+    description:
+      "Angola's hyperkinetic kuduro and romantic kizomba spread from Luanda worldwide.",
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -1034,8 +1136,11 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [19.4326, -99.1332],
     genres: ['Son', 'Rock en Español', 'Mariachi', 'Electronic'],
-    description: 'From mariachi in Plaza Garibaldi to the rock en español explosion and modern electronic scenes.',
-    activeDecades: [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
+    description:
+      'From mariachi in Plaza Garibaldi to the rock en español explosion and modern electronic scenes.',
+    activeDecades: [
+      1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020,
+    ],
   },
   {
     id: 'beijing',
@@ -1045,7 +1150,8 @@ export const CITIES: City[] = [
     region: 'east-asia',
     coordinates: [39.9042, 116.4074],
     genres: ['C-Rock', 'C-Pop', 'Chinese Classical'],
-    description: 'From Cui Jian\'s rock revolution to Beijing\'s underground punk and hip hop scenes.',
+    description:
+      "From Cui Jian's rock revolution to Beijing's underground punk and hip hop scenes.",
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1056,7 +1162,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [-1.2921, 36.8219],
     genres: ['Benga', 'Gengetone', 'Afro-Pop'],
-    description: 'Kenya\'s benga guitar tradition and the explosive gengetone youth movement.',
+    description:
+      "Kenya's benga guitar tradition and the explosive gengetone youth movement.",
     activeDecades: [1960, 1970, 1980, 2010, 2020],
   },
 
@@ -1069,7 +1176,8 @@ export const CITIES: City[] = [
     region: 'south-africa',
     coordinates: [-33.9249, 18.4241],
     genres: ['Cape Jazz', 'Hip Hop', 'Electronic'],
-    description: 'Cape jazz capital where Abdullah Ibrahim forged the anti-apartheid soundtrack.',
+    description:
+      'Cape jazz capital where Abdullah Ibrahim forged the anti-apartheid soundtrack.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1080,7 +1188,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [33.8938, 35.5018],
     genres: ['Arabic Classical', 'Lebanese Folk', 'Alternative'],
-    description: 'Fairuz\'s voice echoes from Baalbeck; Beirut\'s underground scene thrives despite upheaval.',
+    description:
+      "Fairuz's voice echoes from Baalbeck; Beirut's underground scene thrives despite upheaval.",
     activeDecades: [1950, 1960, 1970, 1980, 2000, 2010],
   },
 
@@ -1093,7 +1202,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [47.4979, 19.0402],
     genres: ['Classical', 'Folk', 'Ruin Bar Electronic'],
-    description: 'Béla Bartók\'s folk music laboratory and a modern ruin-bar electronic scene.',
+    description:
+      "Béla Bartók's folk music laboratory and a modern ruin-bar electronic scene.",
     activeDecades: [1900, 1910, 1920, 1930, 1980, 1990, 2000, 2010],
   },
   {
@@ -1104,7 +1214,8 @@ export const CITIES: City[] = [
     region: 'north-asia',
     coordinates: [51.7191, 94.4378],
     genres: ['Throat Singing', 'Tuvan Folk'],
-    description: 'Capital of Tuva and global center of khoomei throat singing, an ancient overtone vocal tradition.',
+    description:
+      'Capital of Tuva and global center of khoomei throat singing, an ancient overtone vocal tradition.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1115,7 +1226,8 @@ export const CITIES: City[] = [
     region: 'central-asia',
     coordinates: [41.2995, 69.2401],
     genres: ['Shashmaqam', 'Uzbek Pop', 'Silk Road Classical'],
-    description: 'Ancient crossroads of Silk Road music traditions and the Shashmaqam classical art.',
+    description:
+      'Ancient crossroads of Silk Road music traditions and the Shashmaqam classical art.',
     activeDecades: [1920, 1930, 1940, 1950, 1990, 2000],
   },
   {
@@ -1126,7 +1238,8 @@ export const CITIES: City[] = [
     region: 'central-asia',
     coordinates: [39.7747, 64.4286],
     genres: ['Shashmaqam', 'Central Asian Classical', 'Sufi Music'],
-    description: 'Ancient Silk Road oasis and birthplace of the Shashmaqam tradition — the "six maqams" classical system of Central Asia.',
+    description:
+      'Ancient Silk Road oasis and birthplace of the Shashmaqam tradition — the "six maqams" classical system of Central Asia.',
     activeDecades: [1500, 1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900],
   },
   {
@@ -1137,7 +1250,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [41.0082, 28.9784],
     genres: ['Anatolian Rock', 'Turkish Classical', 'Arabesque', 'Sufi'],
-    description: 'Where East meets West: Ottoman classical music, Anatolian psychedelic rock, and arabesque pop.',
+    description:
+      'Where East meets West: Ottoman classical music, Anatolian psychedelic rock, and arabesque pop.',
     activeDecades: [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1146,9 +1260,10 @@ export const CITIES: City[] = [
     country: 'Ethiopia',
     subdivision: 'Addis Ababa',
     region: 'east-africa',
-    coordinates: [9.0250, 38.7469],
+    coordinates: [9.025, 38.7469],
     genres: ['Ethio-Jazz', 'Tizita', 'Ethiopian Pop'],
-    description: 'Mulatu Astatke invented Ethio-jazz here, fusing Ethiopian scales with jazz and Latin grooves.',
+    description:
+      'Mulatu Astatke invented Ethio-jazz here, fusing Ethiopian scales with jazz and Latin grooves.',
     activeDecades: [1960, 1970, 1980, 2000, 2010],
   },
   {
@@ -1159,7 +1274,8 @@ export const CITIES: City[] = [
     region: 'oceania',
     coordinates: [-37.8136, 144.9631],
     genres: ['Pub Rock', 'Post-Punk', 'Indie', 'Electronic'],
-    description: 'Australia\'s live music capital, from AC/DC and Nick Cave to a thriving indie underground.',
+    description:
+      "Australia's live music capital, from AC/DC and Nick Cave to a thriving indie underground.",
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
 
@@ -1173,7 +1289,8 @@ export const CITIES: City[] = [
     region: 'north-africa',
     coordinates: [36.7538, 3.0588],
     genres: ['Raï', 'Chaabi', 'Andalusian Classical'],
-    description: 'Algeria\'s cultural capital where chaabi folk poetry meets the raï revolution that swept North Africa and Europe.',
+    description:
+      "Algeria's cultural capital where chaabi folk poetry meets the raï revolution that swept North Africa and Europe.",
     activeDecades: [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990],
   },
   {
@@ -1184,7 +1301,8 @@ export const CITIES: City[] = [
     region: 'north-africa',
     coordinates: [36.8065, 10.1815],
     genres: ['Malouf', 'Mezoued', 'Electronic'],
-    description: 'Ancient malouf Andalusian art music thrives alongside mezoued folk and a vibrant underground electronic scene.',
+    description:
+      'Ancient malouf Andalusian art music thrives alongside mezoued folk and a vibrant underground electronic scene.',
     activeDecades: [1930, 1940, 1950, 1960, 1970, 2010, 2020],
   },
   {
@@ -1193,9 +1311,10 @@ export const CITIES: City[] = [
     country: 'Libya',
     subdivision: 'Tripolitania',
     region: 'north-africa',
-    coordinates: [32.9022, 13.1800],
-    genres: ['Malouf', 'Tuareg Blues', 'Ma\'luf'],
-    description: 'Libya\'s coastal capital preserving centuries-old ma\'luf traditions rooted in Andalusian and Ottoman musical heritage.',
+    coordinates: [32.9022, 13.18],
+    genres: ['Malouf', 'Tuareg Blues', "Ma'luf"],
+    description:
+      "Libya's coastal capital preserving centuries-old ma'luf traditions rooted in Andalusian and Ottoman musical heritage.",
     activeDecades: [1950, 1960, 1970, 1980],
   },
   {
@@ -1206,7 +1325,8 @@ export const CITIES: City[] = [
     region: 'north-africa',
     coordinates: [15.5007, 32.5599],
     genres: ['Haqiba', 'Sudanese Jazz', 'Sufi Music'],
-    description: 'Where the Blue and White Nile meet, Sudanese haqiba poetry and jazz fusion create a unique musical crossroads.',
+    description:
+      'Where the Blue and White Nile meet, Sudanese haqiba poetry and jazz fusion create a unique musical crossroads.',
     activeDecades: [1940, 1950, 1960, 1970, 1980, 2000],
   },
 
@@ -1219,7 +1339,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [12.6392, -8.0029],
     genres: ['Desert Blues', 'Wassoulou', 'Griot Tradition'],
-    description: 'Mali\'s musical powerhouse where ancient griot traditions birthed Ali Farka Touré\'s desert blues and Oumou Sangaré\'s Wassoulou.',
+    description:
+      "Mali's musical powerhouse where ancient griot traditions birthed Ali Farka Touré's desert blues and Oumou Sangaré's Wassoulou.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1230,18 +1351,20 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [12.3714, -1.5197],
     genres: ['Warba', 'Afro-Funk', 'Mandingue'],
-    description: 'Home of the FESPACO film festival and a thriving scene where warba rhythms meet modern African funk.',
+    description:
+      'Home of the FESPACO film festival and a thriving scene where warba rhythms meet modern African funk.',
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
   {
     id: 'abidjan',
     name: 'Abidjan',
-    country: 'Côte d\'Ivoire',
+    country: "Côte d'Ivoire",
     subdivision: 'Abidjan',
     region: 'west-africa',
-    coordinates: [5.3600, -4.0083],
+    coordinates: [5.36, -4.0083],
     genres: ['Zouglou', 'Coupé-Décalé', 'Reggae'],
-    description: 'Abidjan\'s explosive coupé-décalé and zouglou scenes made it the party capital of Francophone West Africa.',
+    description:
+      "Abidjan's explosive coupé-décalé and zouglou scenes made it the party capital of Francophone West Africa.",
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1252,7 +1375,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [9.6412, -13.5784],
     genres: ['Mandingue', 'Afro-Jazz', 'Griot Tradition'],
-    description: 'Guinea\'s revolutionary-era state orchestras like Bembeya Jazz National forged a thrilling Pan-African big band sound.',
+    description:
+      "Guinea's revolutionary-era state orchestras like Bembeya Jazz National forged a thrilling Pan-African big band sound.",
     activeDecades: [1960, 1970, 1980, 1990],
   },
   {
@@ -1263,7 +1387,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [11.8636, -15.5977],
     genres: ['Gumbe', 'Afro-Portuguese', 'Tina'],
-    description: 'The rhythmic heartbeat of gumbe music — a creole fusion of African polyrhythm and Portuguese melody unique to Guinea-Bissau.',
+    description:
+      'The rhythmic heartbeat of gumbe music — a creole fusion of African polyrhythm and Portuguese melody unique to Guinea-Bissau.',
     activeDecades: [1970, 1980, 1990, 2000],
   },
   {
@@ -1274,7 +1399,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [8.4657, -13.2317],
     genres: ['Palm Wine', 'Milo Jazz', 'Bubu'],
-    description: 'Birthplace of palm wine guitar music, where Krio culture and returning diaspora traditions created a laid-back acoustic style.',
+    description:
+      'Birthplace of palm wine guitar music, where Krio culture and returning diaspora traditions created a laid-back acoustic style.',
     activeDecades: [1950, 1960, 1970, 1980, 2010],
   },
   {
@@ -1285,7 +1411,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [6.2907, -10.7605],
     genres: ['Hipco', 'Gbema', 'Gospel'],
-    description: 'Liberia\'s hipco movement fuses indigenous languages and rhythms with hip hop, becoming the voice of post-war youth.',
+    description:
+      "Liberia's hipco movement fuses indigenous languages and rhythms with hip hop, becoming the voice of post-war youth.",
     activeDecades: [1980, 2000, 2010, 2020],
   },
   {
@@ -1296,7 +1423,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [6.1256, 1.2254],
     genres: ['Agbadza', 'Afro-Funk', 'Highlife'],
-    description: 'Togo\'s vibrant capital where Ewe agbadza drum traditions meet modern highlife and Afro-funk innovation.',
+    description:
+      "Togo's vibrant capital where Ewe agbadza drum traditions meet modern highlife and Afro-funk innovation.",
     activeDecades: [1960, 1970, 1980, 1990, 2010],
   },
   {
@@ -1307,7 +1435,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [6.3703, 2.3912],
     genres: ['Vodun Music', 'Afrobeat', 'Tchinkoumé'],
-    description: 'Benin\'s pulsing port city where Vodun ceremonial rhythms and the Gangbé Brass Band forged a new African sound.',
+    description:
+      "Benin's pulsing port city where Vodun ceremonial rhythms and the Gangbé Brass Band forged a new African sound.",
     activeDecades: [1960, 1970, 1990, 2000, 2010],
   },
   {
@@ -1318,7 +1447,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [13.5127, 2.1128],
     genres: ['Tuareg Blues', 'Griot Tradition', 'Hausa Music'],
-    description: 'Gateway to the Sahara where Tuareg desert blues guitar and ancient Hausa and Djerma traditions converge.',
+    description:
+      'Gateway to the Sahara where Tuareg desert blues guitar and ancient Hausa and Djerma traditions converge.',
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1329,7 +1459,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [18.0735, -15.9582],
     genres: ['Griot Tradition', 'Moorish Classical', 'Desert Blues'],
-    description: 'Where Moorish classical poetry and West African griot traditions meet in the haunting sounds of the tidinit and ardin.',
+    description:
+      'Where Moorish classical poetry and West African griot traditions meet in the haunting sounds of the tidinit and ardin.',
     activeDecades: [1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -1338,9 +1469,10 @@ export const CITIES: City[] = [
     country: 'Gambia',
     subdivision: 'Nouakchott',
     region: 'west-africa',
-    coordinates: [13.4549, -16.5790],
+    coordinates: [13.4549, -16.579],
     genres: ['Mbalax', 'Afro-Manding', 'Kora Music'],
-    description: 'Tiny Gambia punches above its weight with master kora players and the roots of Alex Haley\'s ancestral musical heritage.',
+    description:
+      "Tiny Gambia punches above its weight with master kora players and the roots of Alex Haley's ancestral musical heritage.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1351,7 +1483,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [14.9315, -23.5133],
     genres: ['Morna', 'Funaná', 'Coladeira'],
-    description: 'Cesária Évora\'s morna — the barefoot diva\'s melancholic Atlantic blues — put these volcanic islands on the world music map.',
+    description:
+      "Cesária Évora's morna — the barefoot diva's melancholic Atlantic blues — put these volcanic islands on the world music map.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000],
   },
 
@@ -1364,7 +1497,8 @@ export const CITIES: City[] = [
     region: 'central-africa',
     coordinates: [-4.4419, 15.2663],
     genres: ['Rumba Congolaise', 'Soukous', 'Ndombolo'],
-    description: 'The undisputed musical capital of Africa, where Congolese rumba and soukous conquered the entire continent.',
+    description:
+      'The undisputed musical capital of Africa, where Congolese rumba and soukous conquered the entire continent.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1375,7 +1509,8 @@ export const CITIES: City[] = [
     region: 'central-africa',
     coordinates: [-4.2634, 15.2429],
     genres: ['Congolese Rumba', 'Soukous', 'Sapeur Music'],
-    description: 'Twin city of Kinshasa across the Congo River, where rumba giants and the sapeur dandy culture created a parallel musical powerhouse.',
+    description:
+      'Twin city of Kinshasa across the Congo River, where rumba giants and the sapeur dandy culture created a parallel musical powerhouse.',
     activeDecades: [1950, 1960, 1970, 1980, 1990],
   },
   {
@@ -1386,7 +1521,8 @@ export const CITIES: City[] = [
     region: 'central-africa',
     coordinates: [4.0511, 9.7679],
     genres: ['Makossa', 'Bikutsi', 'Afro-Pop'],
-    description: 'Manu Dibango\'s "Soul Makossa" launched from here to become one of the most sampled songs in music history.',
+    description:
+      'Manu Dibango\'s "Soul Makossa" launched from here to become one of the most sampled songs in music history.',
     activeDecades: [1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -1397,7 +1533,8 @@ export const CITIES: City[] = [
     region: 'central-africa',
     coordinates: [0.4162, 9.4673],
     genres: ['Bwiti Music', 'Rumba', 'Afro-Pop'],
-    description: 'Gabon\'s capital where sacred Bwiti ritual music and modern rumba-influenced pop coexist in tropical splendor.',
+    description:
+      "Gabon's capital where sacred Bwiti ritual music and modern rumba-influenced pop coexist in tropical splendor.",
     activeDecades: [1970, 1980, 1990, 2000],
   },
   {
@@ -1408,7 +1545,8 @@ export const CITIES: City[] = [
     region: 'central-africa',
     coordinates: [3.7504, 8.7371],
     genres: ['Balélé', 'Rumba', 'Spanish-African Fusion'],
-    description: 'Africa\'s only Spanish-speaking country blends Bubi and Fang traditions with Latin rhythms on the island of Bioko.',
+    description:
+      "Africa's only Spanish-speaking country blends Bubi and Fang traditions with Latin rhythms on the island of Bioko.",
     activeDecades: [1960, 1970, 1980, 1990],
   },
   {
@@ -1419,29 +1557,32 @@ export const CITIES: City[] = [
     region: 'central-africa',
     coordinates: [4.3947, 18.5582],
     genres: ['Pygmy Polyphony', 'Congolese Rumba', 'Sanza Music'],
-    description: 'UNESCO-recognized Aka Pygmy polyphonic singing and sanza thumb piano traditions survive in the forests near Bangui.',
+    description:
+      'UNESCO-recognized Aka Pygmy polyphonic singing and sanza thumb piano traditions survive in the forests near Bangui.',
     activeDecades: [1950, 1960, 1970, 1980, 1990],
   },
   {
     id: 'ndjamena',
-    name: 'N\'Djamena',
+    name: "N'Djamena",
     country: 'Chad',
     subdivision: 'Bangui',
     region: 'central-africa',
     coordinates: [12.1348, 15.0557],
     genres: ['Sai', 'Desert Blues', 'Sara Music'],
-    description: 'Chad\'s crossroads capital where Saharan sai music and southern Sara rhythms reflect the nation\'s cultural divide.',
+    description:
+      "Chad's crossroads capital where Saharan sai music and southern Sara rhythms reflect the nation's cultural divide.",
     activeDecades: [1970, 1980, 1990, 2000],
   },
   {
     id: 'sao-tome',
     name: 'São Tomé',
     country: 'São Tomé and Príncipe',
-    subdivision: 'N\'Djamena',
+    subdivision: "N'Djamena",
     region: 'central-africa',
     coordinates: [0.1864, 6.6131],
     genres: ['Ússua', 'Socopé', 'Dexa'],
-    description: 'These tiny equatorial islands preserve ússua, socopé, and dexa — creole dance music traditions found nowhere else on Earth.',
+    description:
+      'These tiny equatorial islands preserve ússua, socopé, and dexa — creole dance music traditions found nowhere else on Earth.',
     activeDecades: [1960, 1970, 1980, 1990, 2000],
   },
 
@@ -1454,7 +1595,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [-6.7924, 39.2083],
     genres: ['Bongo Flava', 'Taarab', 'Singeli'],
-    description: 'Tanzania\'s Bongo Flava hip hop explosion and the intoxicating taarab of the Swahili coast created a unique East African sound.',
+    description:
+      "Tanzania's Bongo Flava hip hop explosion and the intoxicating taarab of the Swahili coast created a unique East African sound.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1465,7 +1607,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [0.3476, 32.5825],
     genres: ['Kadongo Kamu', 'Kidandali', 'Afrobeats'],
-    description: 'Uganda\'s seven hills ring with kadongo kamu storytelling ballads and the modern kidandali dance explosion.',
+    description:
+      "Uganda's seven hills ring with kadongo kamu storytelling ballads and the modern kidandali dance explosion.",
     activeDecades: [1960, 1970, 1980, 2000, 2010, 2020],
   },
   {
@@ -1476,7 +1619,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [-1.9403, 29.8739],
     genres: ['Inanga', 'Hip Hop', 'Afro-Pop'],
-    description: 'Rwanda\'s resurgent music scene channels healing and hope through hip hop and neo-traditional inanga chant.',
+    description:
+      "Rwanda's resurgent music scene channels healing and hope through hip hop and neo-traditional inanga chant.",
     activeDecades: [1960, 1970, 2000, 2010, 2020],
   },
   {
@@ -1487,7 +1631,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [-3.3731, 29.3644],
     genres: ['Royal Drumming', 'Ikivuvu', 'Rumba'],
-    description: 'Home of the legendary Royal Drummers of Burundi — UNESCO-recognized ritual percussion that influenced rock and pop worldwide.',
+    description:
+      'Home of the legendary Royal Drummers of Burundi — UNESCO-recognized ritual percussion that influenced rock and pop worldwide.',
     activeDecades: [1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -1498,7 +1643,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [2.0469, 45.3182],
     genres: ['Somali Jazz', 'Qaraami', 'Heello'],
-    description: 'Before civil war silenced its clubs, 1970s Mogadishu had a dazzling funk and jazz scene rivaling any African capital.',
+    description:
+      'Before civil war silenced its clubs, 1970s Mogadishu had a dazzling funk and jazz scene rivaling any African capital.',
     activeDecades: [1950, 1960, 1970, 1980],
   },
   {
@@ -1509,7 +1655,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [15.3229, 38.9251],
     genres: ['Guayla', 'Tigrinya Music', 'Bilen Folk'],
-    description: 'Eritrea\'s art deco capital preserves guayla dance traditions and a distinct musical identity shaped by Italian colonial and Ethiopian influences.',
+    description:
+      "Eritrea's art deco capital preserves guayla dance traditions and a distinct musical identity shaped by Italian colonial and Ethiopian influences.",
     activeDecades: [1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -1520,7 +1667,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [11.5721, 43.1456],
     genres: ['Somali Music', 'Afar Folk', 'Oud Music'],
-    description: 'A tiny port city at the crossroads of Somali, Afar, and Arabian musical traditions on the Horn of Africa.',
+    description:
+      'A tiny port city at the crossroads of Somali, Afar, and Arabian musical traditions on the Horn of Africa.',
     activeDecades: [1970, 1980, 1990, 2000],
   },
   {
@@ -1531,7 +1679,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [4.8594, 31.5713],
     genres: ['Dinka Chant', 'Gospel', 'Reggae'],
-    description: 'The world\'s newest capital nurtures music as a tool for peace, blending Nilotic chanting traditions with gospel and reggae.',
+    description:
+      "The world's newest capital nurtures music as a tool for peace, blending Nilotic chanting traditions with gospel and reggae.",
     activeDecades: [2000, 2010, 2020],
   },
   {
@@ -1542,7 +1691,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [-18.8792, 47.5079],
     genres: ['Salegy', 'Tsapiky', 'Valiha Music'],
-    description: 'Madagascar\'s unique biodiversity extends to its music — salegy, tsapiky, and the valiha tube zither are found nowhere else.',
+    description:
+      "Madagascar's unique biodiversity extends to its music — salegy, tsapiky, and the valiha tube zither are found nowhere else.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1553,7 +1703,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [-11.7172, 43.2551],
     genres: ['Twarab', 'Mgodro', 'Chigoma'],
-    description: 'The Comoros islands blend Swahili twarab, Malagasy rhythms, and Arab oud traditions in the perfumed moonlight of the Indian Ocean.',
+    description:
+      'The Comoros islands blend Swahili twarab, Malagasy rhythms, and Arab oud traditions in the perfumed moonlight of the Indian Ocean.',
     activeDecades: [1970, 1980, 1990, 2000],
   },
   {
@@ -1564,7 +1715,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [-20.1609, 57.5012],
     genres: ['Sega', 'Seggae', 'Bhojpuri Folk'],
-    description: 'Sega — the hip-swaying creole music born from slavery — and its reggae fusion seggae define this Indian Ocean melting pot.',
+    description:
+      'Sega — the hip-swaying creole music born from slavery — and its reggae fusion seggae define this Indian Ocean melting pot.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1575,7 +1727,8 @@ export const CITIES: City[] = [
     region: 'east-africa',
     coordinates: [-4.6191, 55.4513],
     genres: ['Moutya', 'Sega', 'Kontredans'],
-    description: 'The world\'s smallest capital preserves moutya — a hypnotic creole drum tradition rooted in the resistance of enslaved peoples.',
+    description:
+      "The world's smallest capital preserves moutya — a hypnotic creole drum tradition rooted in the resistance of enslaved peoples.",
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
 
@@ -1588,7 +1741,8 @@ export const CITIES: City[] = [
     region: 'south-africa',
     coordinates: [-25.9692, 32.5732],
     genres: ['Marrabenta', 'Pandza', 'Timbila'],
-    description: 'Mozambique\'s marrabenta guitar music and UNESCO-honored Chopi timbila xylophone orchestras create an unmatched sonic palette.',
+    description:
+      "Mozambique's marrabenta guitar music and UNESCO-honored Chopi timbila xylophone orchestras create an unmatched sonic palette.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1599,7 +1753,8 @@ export const CITIES: City[] = [
     region: 'south-africa',
     coordinates: [-17.8292, 31.0522],
     genres: ['Chimurenga', 'Mbira', 'Jit'],
-    description: 'Thomas Mapfumo\'s chimurenga music weaponized ancient mbira melodies into anthems of liberation and resistance.',
+    description:
+      "Thomas Mapfumo's chimurenga music weaponized ancient mbira melodies into anthems of liberation and resistance.",
     activeDecades: [1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -1610,7 +1765,8 @@ export const CITIES: City[] = [
     region: 'south-africa',
     coordinates: [-15.3875, 28.3228],
     genres: ['Zamrock', 'Kalindula', 'Afro-Psych'],
-    description: 'Zambia\'s 1970s Zamrock scene — psychedelic rock fused with African rhythms — is one of music\'s great lost treasures.',
+    description:
+      "Zambia's 1970s Zamrock scene — psychedelic rock fused with African rhythms — is one of music's great lost treasures.",
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1621,7 +1777,8 @@ export const CITIES: City[] = [
     region: 'south-africa',
     coordinates: [-15.7667, 35.0168],
     genres: ['Malipenga', 'Gospel', 'Afro-Pop'],
-    description: 'Malawi\'s commercial capital where malipenga brass band traditions and vibrant gospel music fuel the Warm Heart of Africa.',
+    description:
+      "Malawi's commercial capital where malipenga brass band traditions and vibrant gospel music fuel the Warm Heart of Africa.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1632,7 +1789,8 @@ export const CITIES: City[] = [
     region: 'south-africa',
     coordinates: [-24.6282, 25.9231],
     genres: ['Kwaito', 'Motswako', 'Folk'],
-    description: 'Botswana\'s motswako rap and the legendary heavy metal cowboy subculture defy all expectations.',
+    description:
+      "Botswana's motswako rap and the legendary heavy metal cowboy subculture defy all expectations.",
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -1643,7 +1801,8 @@ export const CITIES: City[] = [
     region: 'south-africa',
     coordinates: [-22.5609, 17.0658],
     genres: ['Shambo', 'Kwaito', 'Ma |Gaisa'],
-    description: 'Namibia\'s capital where shambo dance music, township kwaito, and ancient San musical traditions coexist.',
+    description:
+      "Namibia's capital where shambo dance music, township kwaito, and ancient San musical traditions coexist.",
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -1654,7 +1813,8 @@ export const CITIES: City[] = [
     region: 'south-africa',
     coordinates: [-26.3054, 31.1367],
     genres: ['Sibhaca', 'Gospel', 'Swazi Traditional'],
-    description: 'Eswatini\'s annual Umhlanga Reed Dance and sibhaca stomping traditions keep ancient Swazi musical heritage alive.',
+    description:
+      "Eswatini's annual Umhlanga Reed Dance and sibhaca stomping traditions keep ancient Swazi musical heritage alive.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1665,7 +1825,8 @@ export const CITIES: City[] = [
     region: 'south-africa',
     coordinates: [-29.3167, 27.4833],
     genres: ['Famo', 'Sesotho Traditional', 'Gospel'],
-    description: 'Lesotho\'s famo music — accordion-driven Basotho folk — echoes through the mountain kingdom with raw, unfiltered emotion.',
+    description:
+      "Lesotho's famo music — accordion-driven Basotho folk — echoes through the mountain kingdom with raw, unfiltered emotion.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   // --- NORTH EUROPE ---
@@ -1677,7 +1838,8 @@ export const CITIES: City[] = [
     region: 'north-europe',
     coordinates: [59.9139, 10.7522],
     genres: ['Black Metal', 'Jazz', 'Electronic'],
-    description: 'Ground zero for Norwegian black metal and a thriving jazz and electronic scene.',
+    description:
+      'Ground zero for Norwegian black metal and a thriving jazz and electronic scene.',
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1688,7 +1850,8 @@ export const CITIES: City[] = [
     region: 'north-europe',
     coordinates: [60.1699, 24.9384],
     genres: ['Metal', 'Classical', 'Electronic'],
-    description: 'Finland\'s capital where heavy metal is mainstream and Sibelius\'s legacy endures.',
+    description:
+      "Finland's capital where heavy metal is mainstream and Sibelius's legacy endures.",
     activeDecades: [1900, 1910, 1920, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1699,7 +1862,8 @@ export const CITIES: City[] = [
     region: 'north-europe',
     coordinates: [55.6761, 12.5683],
     genres: ['Jazz', 'Electronic', 'Punk'],
-    description: 'Scandinavia\'s jazz capital and home to a vibrant electronic and punk underground.',
+    description:
+      "Scandinavia's jazz capital and home to a vibrant electronic and punk underground.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1710,7 +1874,8 @@ export const CITIES: City[] = [
     region: 'north-europe',
     coordinates: [64.1466, -21.9426],
     genres: ['Post-Rock', 'Electronic', 'Indie'],
-    description: 'Bjork and Sigur Ros made this tiny capital a global beacon of experimental music.',
+    description:
+      'Bjork and Sigur Ros made this tiny capital a global beacon of experimental music.',
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1721,7 +1886,8 @@ export const CITIES: City[] = [
     region: 'north-europe',
     coordinates: [53.3498, -6.2603],
     genres: ['Traditional Irish', 'Rock', 'Post-Punk'],
-    description: 'From traditional sessions in Temple Bar to U2 and the Cranberries, Dublin pulses with music.',
+    description:
+      'From traditional sessions in Temple Bar to U2 and the Cranberries, Dublin pulses with music.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
 
@@ -1734,7 +1900,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [52.3676, 4.9041],
     genres: ['EDM', 'Trance', 'Hardstyle', 'Jazz'],
-    description: 'Home of Tiesto, Armin van Buuren, and the world\'s largest dance music festival.',
+    description:
+      "Home of Tiesto, Armin van Buuren, and the world's largest dance music festival.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1745,7 +1912,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [50.8503, 4.3517],
     genres: ['New Beat', 'EBM', 'Electronic'],
-    description: 'Birthplace of electronic body music and the New Beat dance movement of the late 1980s.',
+    description:
+      'Birthplace of electronic body music and the New Beat dance movement of the late 1980s.',
     activeDecades: [1980, 1990, 2000, 2010],
   },
   {
@@ -1756,7 +1924,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [49.6117, 6.1319],
     genres: ['Classical', 'Rock', 'Electronic'],
-    description: 'Home of RTL broadcasting and a growing contemporary music scene at the Philharmonie.',
+    description:
+      'Home of RTL broadcasting and a growing contemporary music scene at the Philharmonie.',
     activeDecades: [1950, 1960, 1970, 1980, 2000, 2010],
   },
   {
@@ -1767,7 +1936,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [47.3769, 8.5417],
     genres: ['Electronic', 'Avant-Garde', 'Classical'],
-    description: 'Where Dada was born, and a rich tradition of avant-garde and electronic experimentation thrives.',
+    description:
+      'Where Dada was born, and a rich tradition of avant-garde and electronic experimentation thrives.',
     activeDecades: [1910, 1920, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1778,8 +1948,11 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [40.8518, 14.2681],
     genres: ['Neapolitan Song', 'Opera', 'Neomelodica'],
-    description: 'Birthplace of "O Sole Mio" and the canzone napoletana tradition that shaped Italian popular song.',
-    activeDecades: [1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000],
+    description:
+      'Birthplace of "O Sole Mio" and the canzone napoletana tradition that shaped Italian popular song.',
+    activeDecades: [
+      1890, 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000,
+    ],
   },
   {
     id: 'monte-carlo',
@@ -1789,8 +1962,11 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [43.7384, 7.4246],
     genres: ['Classical', 'Opera'],
-    description: 'The Monte-Carlo Philharmonic and Opera have sustained a glamorous classical tradition since the Belle Epoque.',
-    activeDecades: [1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010],
+    description:
+      'The Monte-Carlo Philharmonic and Opera have sustained a glamorous classical tradition since the Belle Epoque.',
+    activeDecades: [
+      1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010,
+    ],
   },
   {
     id: 'vaduz',
@@ -1798,9 +1974,10 @@ export const CITIES: City[] = [
     country: 'Liechtenstein',
     subdivision: 'Monte Carlo',
     region: 'west-europe',
-    coordinates: [47.1410, 9.5209],
+    coordinates: [47.141, 9.5209],
     genres: ['Classical', 'Choral'],
-    description: 'A tiny Alpine principality with a devoted choral and chamber music tradition.',
+    description:
+      'A tiny Alpine principality with a devoted choral and chamber music tradition.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1811,7 +1988,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [42.5063, 1.5218],
     genres: ['Folk', 'Rock', 'Classical'],
-    description: 'Pyrenean microstate with Catalan folk roots and a growing festival culture.',
+    description:
+      'Pyrenean microstate with Catalan folk roots and a growing festival culture.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1822,7 +2000,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [43.9424, 12.4578],
     genres: ['Classical', 'Pop', 'Folk'],
-    description: 'The world\'s oldest republic has embraced Eurovision and cultivated a small but vibrant musical identity.',
+    description:
+      "The world's oldest republic has embraced Eurovision and cultivated a small but vibrant musical identity.",
     activeDecades: [1970, 1980, 2000, 2010, 2020],
   },
   {
@@ -1833,7 +2012,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [35.8989, 14.5146],
     genres: ['Ghana', 'Folk', 'Electronic'],
-    description: 'Malta\'s capital where traditional ghana folk singing meets a booming clubbing scene.',
+    description:
+      "Malta's capital where traditional ghana folk singing meets a booming clubbing scene.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -1844,8 +2024,12 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [41.9029, 12.4534],
     genres: ['Sacred Music', 'Gregorian Chant', 'Choral'],
-    description: 'The Sistine Chapel Choir is the world\'s oldest active choir, preserving centuries of sacred polyphony.',
-    activeDecades: [1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
+    description:
+      "The Sistine Chapel Choir is the world's oldest active choir, preserving centuries of sacred polyphony.",
+    activeDecades: [
+      1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010,
+      2020,
+    ],
   },
 
   // --- Classical Music Cities (West Europe) ---
@@ -1857,7 +2041,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [41.9028, 12.4964],
     genres: ['Classical', 'Sacred', 'Opera'],
-    description: 'Papal patronage sustained centuries of sacred music from Palestrina to the Sistine Chapel Choir.',
+    description:
+      'Papal patronage sustained centuries of sacred music from Palestrina to the Sistine Chapel Choir.',
     activeDecades: [1500, 1560, 1600, 1700, 1800, 1900],
   },
   {
@@ -1868,7 +2053,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [45.4408, 12.3155],
     genres: ['Baroque', 'Opera'],
-    description: 'Vivaldi\'s home and the birthplace of public opera at Teatro San Cassiano in 1637.',
+    description:
+      "Vivaldi's home and the birthplace of public opera at Teatro San Cassiano in 1637.",
     activeDecades: [1550, 1600, 1610, 1620, 1700, 1710, 1720],
   },
   {
@@ -1879,7 +2065,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [43.7696, 11.2558],
     genres: ['Renaissance', 'Opera'],
-    description: 'The Florentine Camerata invented opera here, launching the Baroque revolution.',
+    description:
+      'The Florentine Camerata invented opera here, launching the Baroque revolution.',
     activeDecades: [1500, 1590, 1600],
   },
   {
@@ -1888,9 +2075,10 @@ export const CITIES: City[] = [
     country: 'Italy',
     subdivision: 'Lombardy',
     region: 'west-europe',
-    coordinates: [45.4642, 9.1900],
+    coordinates: [45.4642, 9.19],
     genres: ['Opera', 'Classical'],
-    description: 'La Scala opera house became the proving ground for Verdi, Puccini, and Italian operatic tradition.',
+    description:
+      'La Scala opera house became the proving ground for Verdi, Puccini, and Italian operatic tradition.',
     activeDecades: [1780, 1800, 1850, 1860, 1870, 1880, 1890, 1900, 1910, 1920],
   },
   {
@@ -1901,7 +2089,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [51.3397, 12.3731],
     genres: ['Baroque', 'Classical', 'Romantic'],
-    description: 'Bach\'s Thomaskirche and the Gewandhaus Orchestra made Leipzig a crucible of German music.',
+    description:
+      "Bach's Thomaskirche and the Gewandhaus Orchestra made Leipzig a crucible of German music.",
     activeDecades: [1720, 1730, 1740, 1750, 1840, 1850],
   },
   {
@@ -1910,10 +2099,13 @@ export const CITIES: City[] = [
     country: 'Austria',
     subdivision: 'Salzburg',
     region: 'west-europe',
-    coordinates: [47.8095, 13.0550],
+    coordinates: [47.8095, 13.055],
     genres: ['Classical', 'Opera'],
-    description: 'Mozart\'s birthplace and home of the Salzburg Festival since 1920.',
-    activeDecades: [1770, 1780, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000],
+    description:
+      "Mozart's birthplace and home of the Salzburg Festival since 1920.",
+    activeDecades: [
+      1770, 1780, 1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000,
+    ],
   },
   {
     id: 'bayreuth',
@@ -1923,7 +2115,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [49.9427, 11.5761],
     genres: ['Opera', 'Romantic'],
-    description: 'Wagner built the Festspielhaus here, creating the world\'s most famous opera festival.',
+    description:
+      "Wagner built the Festspielhaus here, creating the world's most famous opera festival.",
     activeDecades: [1870, 1880, 1890, 1900, 1910, 1920, 1930],
   },
   {
@@ -1934,7 +2127,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [50.7374, 7.0982],
     genres: ['Classical'],
-    description: 'Beethoven\'s birthplace, where the greatest symphonist received his earliest musical training.',
+    description:
+      "Beethoven's birthplace, where the greatest symphonist received his earliest musical training.",
     activeDecades: [1770, 1780, 1790],
   },
   {
@@ -1945,7 +2139,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [50.9795, 11.3235],
     genres: ['Baroque', 'Romantic'],
-    description: 'Bach served as court musician here; Liszt later made it a center of Romantic innovation.',
+    description:
+      'Bach served as court musician here; Liszt later made it a center of Romantic innovation.',
     activeDecades: [1700, 1710, 1840, 1850, 1860],
   },
 
@@ -1958,8 +2153,11 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [52.2297, 21.0122],
     genres: ['Classical', 'Jazz', 'Electronic'],
-    description: 'Chopin\'s birthplace and a city whose jazz and electronic scenes thrive amid rich classical heritage.',
-    activeDecades: [1830, 1840, 1920, 1930, 1950, 1960, 1970, 1980, 1990, 2000, 2010],
+    description:
+      "Chopin's birthplace and a city whose jazz and electronic scenes thrive amid rich classical heritage.",
+    activeDecades: [
+      1830, 1840, 1920, 1930, 1950, 1960, 1970, 1980, 1990, 2000, 2010,
+    ],
   },
   {
     id: 'prague',
@@ -1969,7 +2167,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [50.0755, 14.4378],
     genres: ['Classical', 'Rock', 'Electronic'],
-    description: 'Dvorak and Smetana\'s city, where underground rock survived communism and electronic music now flourishes.',
+    description:
+      "Dvorak and Smetana's city, where underground rock survived communism and electronic music now flourishes.",
     activeDecades: [1880, 1890, 1900, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1980,7 +2179,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [48.1486, 17.1077],
     genres: ['Classical', 'Folk', 'Electronic'],
-    description: 'A Danubian city where Slovak folk traditions blend with a growing electronic music scene.',
+    description:
+      'A Danubian city where Slovak folk traditions blend with a growing electronic music scene.',
     activeDecades: [1920, 1930, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -1991,7 +2191,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [44.4268, 26.1025],
     genres: ['Manele', 'Minimal Techno', 'Roma Music'],
-    description: 'Romania\'s capital where manele, Roma brass, and a world-class minimal techno scene collide.',
+    description:
+      "Romania's capital where manele, Roma brass, and a world-class minimal techno scene collide.",
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -2002,7 +2203,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [42.6977, 23.3219],
     genres: ['Choral', 'Folk', 'Chalga'],
-    description: 'Home of the legendary Bulgarian women\'s choir tradition and the infectious chalga pop sound.',
+    description:
+      "Home of the legendary Bulgarian women's choir tradition and the infectious chalga pop sound.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2011,9 +2213,10 @@ export const CITIES: City[] = [
     country: 'Croatia',
     subdivision: 'Sofia City',
     region: 'east-europe',
-    coordinates: [45.8150, 15.9819],
+    coordinates: [45.815, 15.9819],
     genres: ['Rock', 'Punk', 'Electronic'],
-    description: 'Yugoslavia\'s alternative rock hub where the Zagreb punk scene challenged communist conformity.',
+    description:
+      "Yugoslavia's alternative rock hub where the Zagreb punk scene challenged communist conformity.",
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2024,7 +2227,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [44.7866, 20.4489],
     genres: ['Turbo-Folk', 'Rock', 'Brass Band'],
-    description: 'A fiercely creative city where turbo-folk, punk, and Balkan brass collide in legendary nightlife.',
+    description:
+      'A fiercely creative city where turbo-folk, punk, and Balkan brass collide in legendary nightlife.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2035,7 +2239,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [43.8563, 18.4131],
     genres: ['Sevdah', 'Rock', 'Folk'],
-    description: 'Bosnia\'s capital where the melancholic sevdah tradition and Yugoslav rock heritage endure.',
+    description:
+      "Bosnia's capital where the melancholic sevdah tradition and Yugoslav rock heritage endure.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2046,7 +2251,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [42.4304, 19.2594],
     genres: ['Folk', 'Rock', 'Electronic'],
-    description: 'Montenegro\'s capital with deep Balkan folk roots and the Sea Dance festival on the coast.',
+    description:
+      "Montenegro's capital with deep Balkan folk roots and the Sea Dance festival on the coast.",
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2055,9 +2261,10 @@ export const CITIES: City[] = [
     country: 'North Macedonia',
     subdivision: 'Podgorica',
     region: 'east-europe',
-    coordinates: [41.9973, 21.4280],
+    coordinates: [41.9973, 21.428],
     genres: ['Roma Brass', 'Folk', 'Chalga'],
-    description: 'North Macedonia\'s capital, renowned for its Roma brass band tradition and Balkan folk heritage.',
+    description:
+      "North Macedonia's capital, renowned for its Roma brass band tradition and Balkan folk heritage.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2068,7 +2275,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [41.3275, 19.8187],
     genres: ['Iso-Polyphony', 'Folk', 'Pop'],
-    description: 'Albania\'s capital city preserving UNESCO-recognized iso-polyphonic singing traditions.',
+    description:
+      "Albania's capital city preserving UNESCO-recognized iso-polyphonic singing traditions.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2079,7 +2287,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [46.0569, 14.5058],
     genres: ['Industrial', 'Punk', 'Electronic'],
-    description: 'Laibach\'s hometown, where industrial provocateurs and the Metelkova squat shaped Slovenian counterculture.',
+    description:
+      "Laibach's hometown, where industrial provocateurs and the Metelkova squat shaped Slovenian counterculture.",
     activeDecades: [1980, 1990, 2000, 2010],
   },
   {
@@ -2090,7 +2299,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [50.4501, 30.5234],
     genres: ['Folk', 'Electronic', 'Hip Hop'],
-    description: 'Ukraine\'s capital where ancient choral traditions meet a defiant modern electronic and hip hop scene.',
+    description:
+      "Ukraine's capital where ancient choral traditions meet a defiant modern electronic and hip hop scene.",
     activeDecades: [1920, 1930, 1960, 1970, 1990, 2000, 2010, 2020],
   },
   {
@@ -2101,7 +2311,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [59.9343, 30.3351],
     genres: ['Classical', 'Ballet', 'Opera'],
-    description: 'Tchaikovsky, Rimsky-Korsakov, and the Mariinsky Theatre shaped Russian classical music.',
+    description:
+      'Tchaikovsky, Rimsky-Korsakov, and the Mariinsky Theatre shaped Russian classical music.',
     activeDecades: [1860, 1870, 1880, 1890, 1900, 1910, 1920, 1930, 1940],
   },
   {
@@ -2112,7 +2323,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [55.7558, 37.6173],
     genres: ['Classical', 'Opera'],
-    description: 'The Moscow Conservatory and Bolshoi Theatre anchored Russia\'s musical establishment.',
+    description:
+      "The Moscow Conservatory and Bolshoi Theatre anchored Russia's musical establishment.",
     activeDecades: [1870, 1880, 1890, 1900, 1910, 1920, 1930, 1940],
   },
   {
@@ -2121,9 +2333,10 @@ export const CITIES: City[] = [
     country: 'Belarus',
     subdivision: 'Kyiv',
     region: 'east-europe',
-    coordinates: [53.9006, 27.5590],
+    coordinates: [53.9006, 27.559],
     genres: ['Rock', 'Folk', 'Electronic'],
-    description: 'An underground rock and folk scene that has persisted as a voice of cultural resilience.',
+    description:
+      'An underground rock and folk scene that has persisted as a voice of cultural resilience.',
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2134,7 +2347,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [47.0105, 28.8638],
     genres: ['Folk', 'Pop', 'Electronic'],
-    description: 'Moldova\'s capital where lautari folk fiddling meets unexpected viral pop fame.',
+    description:
+      "Moldova's capital where lautari folk fiddling meets unexpected viral pop fame.",
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2145,7 +2359,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [37.9838, 23.7275],
     genres: ['Rebetiko', 'Laiko', 'Electronic'],
-    description: 'Rebetiko was born in Athens\' port tavernas — Greece\'s raw, soulful answer to the blues.',
+    description:
+      "Rebetiko was born in Athens' port tavernas — Greece's raw, soulful answer to the blues.",
     activeDecades: [1920, 1930, 1940, 1950, 1960, 1970, 1980, 2000, 2010],
   },
   {
@@ -2156,7 +2371,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [35.1856, 33.3823],
     genres: ['Greek Folk', 'Turkish Folk', 'Pop'],
-    description: 'A divided capital where Greek and Turkish musical traditions coexist and occasionally intertwine.',
+    description:
+      'A divided capital where Greek and Turkish musical traditions coexist and occasionally intertwine.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2167,7 +2383,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [54.6872, 25.2797],
     genres: ['Folk', 'Classical', 'Electronic'],
-    description: 'Lithuania\'s capital preserving ancient sutartines polyphonic songs alongside a modern electronic scene.',
+    description:
+      "Lithuania's capital preserving ancient sutartines polyphonic songs alongside a modern electronic scene.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2178,7 +2395,8 @@ export const CITIES: City[] = [
     region: 'east-europe',
     coordinates: [56.9496, 24.1052],
     genres: ['Choral', 'Classical', 'Electronic'],
-    description: 'The Song and Dance Festival tradition makes Latvia one of the world\'s great choral nations.',
+    description:
+      "The Song and Dance Festival tradition makes Latvia one of the world's great choral nations.",
     activeDecades: [1870, 1880, 1920, 1930, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2187,9 +2405,10 @@ export const CITIES: City[] = [
     country: 'Estonia',
     subdivision: 'Riga',
     region: 'east-europe',
-    coordinates: [59.4370, 24.7536],
+    coordinates: [59.437, 24.7536],
     genres: ['Choral', 'Electronic', 'Classical'],
-    description: 'Estonia\'s Singing Revolution proved music can topple empires; Arvo Part\'s tintinnabuli resonates worldwide.',
+    description:
+      "Estonia's Singing Revolution proved music can topple empires; Arvo Part's tintinnabuli resonates worldwide.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   // ─── WEST ASIA ───────────────────────────────────────────────
@@ -2199,9 +2418,10 @@ export const CITIES: City[] = [
     country: 'Iran',
     subdivision: 'Harju',
     region: 'west-asia',
-    coordinates: [35.6892, 51.3890],
+    coordinates: [35.6892, 51.389],
     genres: ['Persian Classical', 'Persian Pop', 'Iranian Rock'],
-    description: 'Ancient hub of Persian classical music where the tar and setar resonate alongside a vibrant underground rock scene.',
+    description:
+      'Ancient hub of Persian classical music where the tar and setar resonate alongside a vibrant underground rock scene.',
     activeDecades: [1950, 1960, 1970, 1990, 2000, 2010, 2020],
   },
   {
@@ -2210,10 +2430,14 @@ export const CITIES: City[] = [
     country: 'Iran',
     subdivision: 'Isfahan',
     region: 'west-asia',
-    coordinates: [32.6546, 51.6680],
+    coordinates: [32.6546, 51.668],
     genres: ['Persian Classical', 'Dastgah', 'Sufi Music'],
-    description: 'Safavid capital where Persian classical music reached its zenith — "Isfahan is half the world."',
-    activeDecades: [1500, 1510, 1520, 1530, 1540, 1550, 1560, 1570, 1580, 1590, 1600, 1700, 1800],
+    description:
+      'Safavid capital where Persian classical music reached its zenith — "Isfahan is half the world."',
+    activeDecades: [
+      1500, 1510, 1520, 1530, 1540, 1550, 1560, 1570, 1580, 1590, 1600, 1700,
+      1800,
+    ],
   },
   {
     id: 'baghdad',
@@ -2223,7 +2447,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [33.3152, 44.3661],
     genres: ['Iraqi Maqam', 'Choubi', 'Arabic Classical'],
-    description: 'Cradle of the Iraqi maqam tradition, where centuries of Mesopotamian music culture survive through haunting vocal improvisations.',
+    description:
+      'Cradle of the Iraqi maqam tradition, where centuries of Mesopotamian music culture survive through haunting vocal improvisations.',
     activeDecades: [1920, 1930, 1940, 1950, 1960, 1970],
   },
   {
@@ -2234,7 +2459,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [33.5138, 36.2765],
     genres: ['Arabic Classical', 'Muwashah', 'Syrian Folk'],
-    description: 'One of the world\'s oldest continuously inhabited cities, preserving the ornate muwashah vocal tradition and Sufi musical heritage.',
+    description:
+      "One of the world's oldest continuously inhabited cities, preserving the ornate muwashah vocal tradition and Sufi musical heritage.",
     activeDecades: [1920, 1930, 1940, 1950, 1960, 1970, 1980],
   },
   {
@@ -2245,7 +2471,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [31.9454, 35.9284],
     genres: ['Arabic Pop', 'Dabke', 'Indie'],
-    description: 'Jordan\'s emerging music hub where traditional dabke line dances meet a growing Arabic indie and electronic scene.',
+    description:
+      "Jordan's emerging music hub where traditional dabke line dances meet a growing Arabic indie and electronic scene.",
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -2256,7 +2483,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [32.0853, 34.7818],
     genres: ['Mizrahi', 'Electronic', 'Psytrance', 'Mediterranean Pop'],
-    description: 'A pulsing nightlife capital where Mizrahi melodies, psytrance, and cutting-edge electronic production collide on the Mediterranean coast.',
+    description:
+      'A pulsing nightlife capital where Mizrahi melodies, psytrance, and cutting-edge electronic production collide on the Mediterranean coast.',
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2267,7 +2495,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [31.9038, 35.2034],
     genres: ['Palestinian Folk', 'Hip Hop', 'Arabic Indie'],
-    description: 'Heart of Palestinian cultural resistance where traditional wedding songs and protest rap intertwine.',
+    description:
+      'Heart of Palestinian cultural resistance where traditional wedding songs and protest rap intertwine.',
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -2278,18 +2507,20 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [24.7136, 46.6753],
     genres: ['Khaliji', 'Arabian Pop', 'EDM'],
-    description: 'Saudi Arabia\'s rapidly opening music scene, from traditional khaliji rhythms to massive new concert arenas hosting global acts.',
+    description:
+      "Saudi Arabia's rapidly opening music scene, from traditional khaliji rhythms to massive new concert arenas hosting global acts.",
     activeDecades: [2010, 2020],
   },
   {
     id: 'sanaa',
-    name: 'Sana\'a',
+    name: "Sana'a",
     country: 'Yemen',
     subdivision: 'Riyadh',
     region: 'west-asia',
-    coordinates: [15.3694, 44.1910],
-    genres: ['Yemeni Folk', 'Dan', 'Al-Ghina Al-San\'ani'],
-    description: 'Preserving the al-ghina al-san\'ani sung-poetry tradition, a UNESCO-recognized art form echoing through ancient tower houses.',
+    coordinates: [15.3694, 44.191],
+    genres: ['Yemeni Folk', 'Dan', "Al-Ghina Al-San'ani"],
+    description:
+      "Preserving the al-ghina al-san'ani sung-poetry tradition, a UNESCO-recognized art form echoing through ancient tower houses.",
     activeDecades: [1940, 1950, 1960, 1970, 1980],
   },
   {
@@ -2298,9 +2529,10 @@ export const CITIES: City[] = [
     country: 'Oman',
     subdivision: 'Amanat Al Asimah',
     region: 'west-asia',
-    coordinates: [23.5880, 58.3829],
+    coordinates: [23.588, 58.3829],
     genres: ['Omani Folk', 'Liwa', 'Razha'],
-    description: 'Where Arabian Sea trade routes converge musically, blending East African liwa drums with Bedouin razha sword-dance chants.',
+    description:
+      'Where Arabian Sea trade routes converge musically, blending East African liwa drums with Bedouin razha sword-dance chants.',
     activeDecades: [1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -2311,7 +2543,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [25.2048, 55.2708],
     genres: ['Khaliji', 'EDM', 'Arabic Pop', 'Hip Hop'],
-    description: 'A 21st-century music crossroads hosting mega-festivals and nurturing a pan-Arab pop and hip hop scene.',
+    description:
+      'A 21st-century music crossroads hosting mega-festivals and nurturing a pan-Arab pop and hip hop scene.',
     activeDecades: [2000, 2010, 2020],
   },
   {
@@ -2320,9 +2553,10 @@ export const CITIES: City[] = [
     country: 'Qatar',
     subdivision: 'Dubai',
     region: 'west-asia',
-    coordinates: [25.2854, 51.5310],
+    coordinates: [25.2854, 51.531],
     genres: ['Khaliji', 'Fijiri', 'Arabian Pop'],
-    description: 'Qatar\'s cultural capital preserving pearl-diving fijiri sea chants while investing heavily in contemporary music infrastructure.',
+    description:
+      "Qatar's cultural capital preserving pearl-diving fijiri sea chants while investing heavily in contemporary music infrastructure.",
     activeDecades: [1990, 2000, 2010, 2020],
   },
   {
@@ -2331,9 +2565,10 @@ export const CITIES: City[] = [
     country: 'Bahrain',
     subdivision: 'Doha',
     region: 'west-asia',
-    coordinates: [26.2285, 50.5860],
+    coordinates: [26.2285, 50.586],
     genres: ['Khaliji', 'Sawt', 'Fijiri'],
-    description: 'The Gulf\'s oldest music scene, where sawt — the refined vocal art of Arabian maritime culture — has thrived for over a century.',
+    description:
+      "The Gulf's oldest music scene, where sawt — the refined vocal art of Arabian maritime culture — has thrived for over a century.",
     activeDecades: [1930, 1940, 1950, 1960, 1970, 1980, 1990],
   },
   {
@@ -2344,7 +2579,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [29.3759, 47.9774],
     genres: ['Khaliji', 'Sawt', 'Arabic Pop'],
-    description: 'A pioneer of Gulf popular music where Abdullah Al-Rowaished and Nabeel Shuail shaped modern khaliji pop.',
+    description:
+      'A pioneer of Gulf popular music where Abdullah Al-Rowaished and Nabeel Shuail shaped modern khaliji pop.',
     activeDecades: [1970, 1980, 1990, 2000],
   },
   {
@@ -2355,7 +2591,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [41.7151, 44.8271],
     genres: ['Georgian Polyphony', 'Electronic', 'Punk'],
-    description: 'Home of UNESCO-recognized polyphonic singing and the post-Soviet world\'s most vital techno underground at Bassiani.',
+    description:
+      "Home of UNESCO-recognized polyphonic singing and the post-Soviet world's most vital techno underground at Bassiani.",
     activeDecades: [1960, 1970, 1980, 2010, 2020],
   },
   {
@@ -2366,7 +2603,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [40.1792, 44.4991],
     genres: ['Armenian Folk', 'Duduk', 'Armenian Jazz'],
-    description: 'The duduk\'s spiritual home, where one of humanity\'s most hauntingly beautiful wind instruments has been played for millennia.',
+    description:
+      "The duduk's spiritual home, where one of humanity's most hauntingly beautiful wind instruments has been played for millennia.",
     activeDecades: [1940, 1950, 1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -2377,7 +2615,8 @@ export const CITIES: City[] = [
     region: 'west-asia',
     coordinates: [40.4093, 49.8671],
     genres: ['Mugham', 'Azerbaijani Jazz', 'Ashiq'],
-    description: 'Where the ancient mugham modal tradition fuses with jazz, earning UNESCO recognition and producing global virtuosi.',
+    description:
+      'Where the ancient mugham modal tradition fuses with jazz, earning UNESCO recognition and producing global virtuosi.',
     activeDecades: [1930, 1940, 1950, 1960, 1970, 2000, 2010],
   },
 
@@ -2388,9 +2627,10 @@ export const CITIES: City[] = [
     country: 'Kazakhstan',
     subdivision: 'Baku',
     region: 'central-asia',
-    coordinates: [43.2220, 76.8512],
+    coordinates: [43.222, 76.8512],
     genres: ['Kazakh Folk', 'Dombra', 'Post-Punk', 'Q-Pop'],
-    description: 'Kazakhstan\'s cultural capital where dombra lute traditions meet a booming Q-Pop and post-punk underground.',
+    description:
+      "Kazakhstan's cultural capital where dombra lute traditions meet a booming Q-Pop and post-punk underground.",
     activeDecades: [1960, 1970, 1980, 1990, 2010, 2020],
   },
   {
@@ -2401,7 +2641,8 @@ export const CITIES: City[] = [
     region: 'central-asia',
     coordinates: [42.8746, 74.5698],
     genres: ['Kyrgyz Folk', 'Komuz', 'Akyns'],
-    description: 'Gateway to the Tien Shan mountains and the akyn oral epic tradition, where komuz lute masters perform improvised verse.',
+    description:
+      'Gateway to the Tien Shan mountains and the akyn oral epic tradition, where komuz lute masters perform improvised verse.',
     activeDecades: [1950, 1960, 1970, 1980, 2000, 2010],
   },
   {
@@ -2410,9 +2651,10 @@ export const CITIES: City[] = [
     country: 'Tajikistan',
     subdivision: 'Bishkek',
     region: 'central-asia',
-    coordinates: [38.5598, 68.7740],
+    coordinates: [38.5598, 68.774],
     genres: ['Shashmaqam', 'Falak', 'Tajik Classical'],
-    description: 'Keeper of the Tajik-Uzbek Shashmaqam and the haunting falak mountain songs of the Pamir highlands.',
+    description:
+      'Keeper of the Tajik-Uzbek Shashmaqam and the haunting falak mountain songs of the Pamir highlands.',
     activeDecades: [1940, 1950, 1960, 1970, 1990, 2000],
   },
   {
@@ -2423,7 +2665,8 @@ export const CITIES: City[] = [
     region: 'central-asia',
     coordinates: [37.9601, 58.3261],
     genres: ['Turkmen Folk', 'Dutar', 'Bakhshi'],
-    description: 'Capital of Turkmenistan where bakhshi bards sing epic tales accompanied by the two-stringed dutar lute.',
+    description:
+      'Capital of Turkmenistan where bakhshi bards sing epic tales accompanied by the two-stringed dutar lute.',
     activeDecades: [1950, 1960, 1970, 1980, 2000],
   },
 
@@ -2436,7 +2679,8 @@ export const CITIES: City[] = [
     region: 'south-asia',
     coordinates: [31.5497, 74.3436],
     genres: ['Qawwali', 'Ghazal', 'Pakistani Rock', 'Punjabi Folk'],
-    description: 'Pakistan\'s cultural heart where Nusrat Fateh Ali Khan\'s qawwali devotion and Coke Studio fusions reshaped global music.',
+    description:
+      "Pakistan's cultural heart where Nusrat Fateh Ali Khan's qawwali devotion and Coke Studio fusions reshaped global music.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2447,7 +2691,8 @@ export const CITIES: City[] = [
     region: 'south-asia',
     coordinates: [23.8103, 90.4125],
     genres: ['Baul', 'Rabindra Sangeet', 'Bengali Rock'],
-    description: 'Where the mystic Baul wandering minstrels and Tagore\'s Rabindra Sangeet tradition shape Bengali musical identity.',
+    description:
+      "Where the mystic Baul wandering minstrels and Tagore's Rabindra Sangeet tradition shape Bengali musical identity.",
     activeDecades: [1940, 1950, 1960, 1970, 1980, 2000, 2010],
   },
   {
@@ -2458,7 +2703,8 @@ export const CITIES: City[] = [
     region: 'south-asia',
     coordinates: [6.9271, 79.8612],
     genres: ['Baila', 'Sinhalese Folk', 'Sri Lankan Pop'],
-    description: 'Port city where Portuguese-influenced baila dance music fuses with Sinhalese and Tamil musical traditions.',
+    description:
+      'Port city where Portuguese-influenced baila dance music fuses with Sinhalese and Tamil musical traditions.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -2467,9 +2713,10 @@ export const CITIES: City[] = [
     country: 'Nepal',
     subdivision: 'Western',
     region: 'south-asia',
-    coordinates: [27.7172, 85.3240],
+    coordinates: [27.7172, 85.324],
     genres: ['Newari Folk', 'Nepali Pop', 'Himalayan Devotional'],
-    description: 'Himalayan crossroads where Newari temple music, Nepali folk, and a growing indie rock scene coexist.',
+    description:
+      'Himalayan crossroads where Newari temple music, Nepali folk, and a growing indie rock scene coexist.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2480,7 +2727,8 @@ export const CITIES: City[] = [
     region: 'south-asia',
     coordinates: [27.4728, 89.6393],
     genres: ['Bhutanese Folk', 'Rigsar', 'Zhungdra'],
-    description: 'Bhutan\'s capital where ancient zhungdra court songs and modern rigsar pop reflect a kingdom balancing tradition and change.',
+    description:
+      "Bhutan's capital where ancient zhungdra court songs and modern rigsar pop reflect a kingdom balancing tradition and change.",
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2491,7 +2739,8 @@ export const CITIES: City[] = [
     region: 'south-asia',
     coordinates: [4.1755, 73.5093],
     genres: ['Bodu Beru', 'Maldivian Folk'],
-    description: 'Island capital where bodu beru drum circles — the Maldives\' ancient communal percussion tradition — pulse through the night.',
+    description:
+      "Island capital where bodu beru drum circles — the Maldives' ancient communal percussion tradition — pulse through the night.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2502,7 +2751,8 @@ export const CITIES: City[] = [
     region: 'south-asia',
     coordinates: [34.5553, 69.2075],
     genres: ['Afghan Classical', 'Rubab', 'Pashto Folk'],
-    description: 'Once a thriving crossroads of Hindustani and Persian music where the rubab lute — ancestor of the sarod — was born.',
+    description:
+      'Once a thriving crossroads of Hindustani and Persian music where the rubab lute — ancestor of the sarod — was born.',
     activeDecades: [1950, 1960, 1970, 1980],
   },
 
@@ -2515,7 +2765,8 @@ export const CITIES: City[] = [
     region: 'east-asia',
     coordinates: [47.9184, 106.9177],
     genres: ['Throat Singing', 'Mongolian Folk', 'Rock'],
-    description: 'Capital of the steppe where ancient khoomei throat singing traditions meet a growing modern rock scene.',
+    description:
+      'Capital of the steppe where ancient khoomei throat singing traditions meet a growing modern rock scene.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2526,7 +2777,8 @@ export const CITIES: City[] = [
     region: 'east-asia',
     coordinates: [39.0392, 125.7625],
     genres: ['Revolutionary Opera', 'North Korean Pop', 'Military Music'],
-    description: 'A state-controlled musical culture where revolutionary operas and the Moranbong Band define a hermit kingdom\'s sound.',
+    description:
+      "A state-controlled musical culture where revolutionary operas and the Moranbong Band define a hermit kingdom's sound.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   // --- Classical Music Cities (East Asia) ---
@@ -2538,8 +2790,12 @@ export const CITIES: City[] = [
     region: 'east-asia',
     coordinates: [35.0116, 135.7681],
     genres: ['Gagaku', 'Japanese Classical', 'Noh'],
-    description: 'Former imperial capital for over a millennium — the birthplace of gagaku, noh theater, and koto traditions.',
-    activeDecades: [790, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000],
+    description:
+      'Former imperial capital for over a millennium — the birthplace of gagaku, noh theater, and koto traditions.',
+    activeDecades: [
+      790, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
+      2000,
+    ],
   },
   {
     id: 'taipei',
@@ -2547,10 +2803,13 @@ export const CITIES: City[] = [
     country: 'Taiwan',
     subdivision: 'Taipei',
     region: 'east-asia',
-    coordinates: [25.0330, 121.5654],
+    coordinates: [25.033, 121.5654],
     genres: ['Nanguan', 'Mandopop', 'Hakka Folk'],
-    description: 'Cultural hub preserving Hokkien and Hakka musical traditions from southern China, including ancient nanguan chamber music.',
-    activeDecades: [1600, 1700, 1800, 1900, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
+    description:
+      'Cultural hub preserving Hokkien and Hakka musical traditions from southern China, including ancient nanguan chamber music.',
+    activeDecades: [
+      1600, 1700, 1800, 1900, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020,
+    ],
   },
 
   // --- SOUTHEAST ASIA ---
@@ -2562,7 +2821,8 @@ export const CITIES: City[] = [
     region: 'southeast-asia',
     coordinates: [16.8661, 96.1951],
     genres: ['Burmese Classical', 'Thangyat', 'Hip Hop'],
-    description: 'Myanmar\'s cultural capital where hsaing waing percussion ensembles and thangyat satirical songs thrive.',
+    description:
+      "Myanmar's cultural capital where hsaing waing percussion ensembles and thangyat satirical songs thrive.",
     activeDecades: [1940, 1950, 1960, 1970, 1980, 2000, 2010],
   },
   {
@@ -2573,7 +2833,8 @@ export const CITIES: City[] = [
     region: 'southeast-asia',
     coordinates: [13.7563, 100.5018],
     genres: ['Luk Thung', 'Thai Funk', 'Molam', 'T-Pop'],
-    description: 'Thailand\'s pulsing capital where luk thung country music and molam meet modern T-Pop and indie rock.',
+    description:
+      "Thailand's pulsing capital where luk thung country music and molam meet modern T-Pop and indie rock.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2584,7 +2845,8 @@ export const CITIES: City[] = [
     region: 'southeast-asia',
     coordinates: [21.0285, 105.8542],
     genres: ['Ca Tru', 'Vietnamese Folk', 'V-Pop'],
-    description: 'Vietnam\'s ancient capital preserving ca tru ceremonial singing alongside a booming V-Pop scene.',
+    description:
+      "Vietnam's ancient capital preserving ca tru ceremonial singing alongside a booming V-Pop scene.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2595,8 +2857,12 @@ export const CITIES: City[] = [
     region: 'southeast-asia',
     coordinates: [16.4637, 107.5909],
     genres: ['Nha nhac', 'Vietnamese Classical', 'Court Music'],
-    description: 'Former imperial capital of Vietnam, home of nha nhac court music — UNESCO Masterpiece of Intangible Heritage.',
-    activeDecades: [1800, 1810, 1820, 1830, 1840, 1850, 1860, 1870, 1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950],
+    description:
+      'Former imperial capital of Vietnam, home of nha nhac court music — UNESCO Masterpiece of Intangible Heritage.',
+    activeDecades: [
+      1800, 1810, 1820, 1830, 1840, 1850, 1860, 1870, 1880, 1890, 1900, 1910,
+      1920, 1930, 1940, 1950,
+    ],
   },
   {
     id: 'vientiane',
@@ -2606,7 +2872,8 @@ export const CITIES: City[] = [
     region: 'southeast-asia',
     coordinates: [17.9757, 102.6331],
     genres: ['Lam', 'Khene Music', 'Lao Pop'],
-    description: 'Where the ethereal bamboo khene mouth organ and lam vocal tradition represent one of mainland Southeast Asia\'s oldest continuous musical practices.',
+    description:
+      "Where the ethereal bamboo khene mouth organ and lam vocal tradition represent one of mainland Southeast Asia's oldest continuous musical practices.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -2617,7 +2884,8 @@ export const CITIES: City[] = [
     region: 'southeast-asia',
     coordinates: [11.5564, 104.9282],
     genres: ['Cambodian Rock', 'Khmer Pop', 'Chapei'],
-    description: 'Sinn Sisamouth and Ros Sereysothea\'s golden age of Khmer rock, tragically silenced by the Khmer Rouge, now rediscovered worldwide.',
+    description:
+      "Sinn Sisamouth and Ros Sereysothea's golden age of Khmer rock, tragically silenced by the Khmer Rouge, now rediscovered worldwide.",
     activeDecades: [1960, 1970, 2000, 2010, 2020],
   },
   {
@@ -2626,9 +2894,10 @@ export const CITIES: City[] = [
     country: 'Malaysia',
     subdivision: 'Phnom Penh',
     region: 'southeast-asia',
-    coordinates: [3.1390, 101.6869],
+    coordinates: [3.139, 101.6869],
     genres: ['Malay Rock', 'Malaysian Pop', 'Dikir Barat'],
-    description: 'The rock kapak power rock era made Malaysia a stadium rock powerhouse across Southeast Asia.',
+    description:
+      'The rock kapak power rock era made Malaysia a stadium rock powerhouse across Southeast Asia.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2639,7 +2908,8 @@ export const CITIES: City[] = [
     region: 'southeast-asia',
     coordinates: [1.3521, 103.8198],
     genres: ['Xinyao', 'Mandopop', 'Electronic'],
-    description: 'The xinyao Mandarin folk-pop movement and a thriving club scene in a hyper-modern city-state.',
+    description:
+      'The xinyao Mandarin folk-pop movement and a thriving club scene in a hyper-modern city-state.',
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2650,7 +2920,8 @@ export const CITIES: City[] = [
     region: 'southeast-asia',
     coordinates: [-6.2088, 106.8456],
     genres: ['Dangdut', 'Indonesian Pop', 'Gamelan'],
-    description: 'Rhoma Irama\'s dangdut conquered the world\'s largest archipelago — beloved by hundreds of millions.',
+    description:
+      "Rhoma Irama's dangdut conquered the world's largest archipelago — beloved by hundreds of millions.",
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2661,7 +2932,8 @@ export const CITIES: City[] = [
     region: 'southeast-asia',
     coordinates: [14.5995, 120.9842],
     genres: ['OPM', 'Filipino Rock', 'Manila Sound'],
-    description: 'One of Asia\'s most musically gifted nations — Manila Sound, OPM, and world-class vocalists define the Philippines.',
+    description:
+      "One of Asia's most musically gifted nations — Manila Sound, OPM, and world-class vocalists define the Philippines.",
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2672,7 +2944,8 @@ export const CITIES: City[] = [
     region: 'southeast-asia',
     coordinates: [-8.5569, 125.5603],
     genres: ['Resistance Music', 'Fado Timorense', 'Likurai'],
-    description: 'Timorese resistance songs blending Portuguese fado and Tetum-language lyrics accompanied the birth of the newest Southeast Asian nation.',
+    description:
+      'Timorese resistance songs blending Portuguese fado and Tetum-language lyrics accompanied the birth of the newest Southeast Asian nation.',
     activeDecades: [1990, 2000, 2010],
   },
   {
@@ -2683,7 +2956,8 @@ export const CITIES: City[] = [
     region: 'southeast-asia',
     coordinates: [4.9031, 114.9398],
     genres: ['Gulingtangan', 'Malay Classical', 'Pop'],
-    description: 'Brunei\'s capital preserving the gulingtangan bronze ensemble tradition central to Malay court music.',
+    description:
+      "Brunei's capital preserving the gulingtangan bronze ensemble tradition central to Malay court music.",
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
 
@@ -2696,7 +2970,8 @@ export const CITIES: City[] = [
     region: 'oceania',
     coordinates: [-36.8485, 174.7633],
     genres: ['Indie Rock', 'New Wave', 'Maori Music'],
-    description: 'Split Enz, Crowded House, and Flying Nun Records made New Zealand a fiercely independent music nation.',
+    description:
+      'Split Enz, Crowded House, and Flying Nun Records made New Zealand a fiercely independent music nation.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2707,7 +2982,8 @@ export const CITIES: City[] = [
     region: 'oceania',
     coordinates: [-9.4438, 147.1803],
     genres: ['Sing-Sing', 'String Band', 'PNG Reggae'],
-    description: 'Over 800 languages fuel extraordinary musical diversity, from ceremonial sing-sing drums to modern string band music.',
+    description:
+      'Over 800 languages fuel extraordinary musical diversity, from ceremonial sing-sing drums to modern string band music.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2718,7 +2994,8 @@ export const CITIES: City[] = [
     region: 'oceania',
     coordinates: [-18.1416, 178.4419],
     genres: ['Fijian Choral', 'Indo-Fijian Music', 'Island Reggae'],
-    description: 'Powerful Fijian choral harmonies meet Indo-Fijian musical traditions and a vibrant Pacific island reggae scene.',
+    description:
+      'Powerful Fijian choral harmonies meet Indo-Fijian musical traditions and a vibrant Pacific island reggae scene.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2729,7 +3006,8 @@ export const CITIES: City[] = [
     region: 'oceania',
     coordinates: [-9.4456, 159.9729],
     genres: ['Panpipe Ensemble', 'String Band', 'Island Reggae'],
-    description: 'The \'Are\'are panpipe orchestras of Malaita are among the world\'s most sophisticated indigenous musical traditions.',
+    description:
+      "The 'Are'are panpipe orchestras of Malaita are among the world's most sophisticated indigenous musical traditions.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2740,7 +3018,8 @@ export const CITIES: City[] = [
     region: 'oceania',
     coordinates: [-17.7334, 168.3273],
     genres: ['String Band', 'Custom Music', 'Pacific Reggae'],
-    description: 'Vanuatu\'s string band tradition and kastom ceremonial music reflect one of the Pacific\'s most culturally diverse nations.',
+    description:
+      "Vanuatu's string band tradition and kastom ceremonial music reflect one of the Pacific's most culturally diverse nations.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2749,20 +3028,22 @@ export const CITIES: City[] = [
     country: 'Samoa',
     subdivision: 'Shefa',
     region: 'oceania',
-    coordinates: [-13.8333, -171.7500],
-    genres: ['Samoan Choral', 'Fa\'ataupati', 'Island Reggae'],
-    description: 'Thunderous Samoan choir singing and the fa\'ataupati slap dance embody the powerful communal spirit of Polynesia.',
+    coordinates: [-13.8333, -171.75],
+    genres: ['Samoan Choral', "Fa'ataupati", 'Island Reggae'],
+    description:
+      "Thunderous Samoan choir singing and the fa'ataupati slap dance embody the powerful communal spirit of Polynesia.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
     id: 'nukualofa',
-    name: 'Nuku\'alofa',
+    name: "Nuku'alofa",
     country: 'Tonga',
     subdivision: 'Tuamasaga',
     region: 'oceania',
     coordinates: [-21.2087, -175.1982],
     genres: ['Tongan Choral', 'Lakalaka', 'Pacific Hip Hop'],
-    description: 'The lakalaka group dance and soaring Tongan church choirs preserve a Polynesian musical tradition recognized by UNESCO.',
+    description:
+      'The lakalaka group dance and soaring Tongan church choirs preserve a Polynesian musical tradition recognized by UNESCO.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2773,7 +3054,8 @@ export const CITIES: City[] = [
     region: 'oceania',
     coordinates: [1.4518, 172.9717],
     genres: ['Te Bino', 'Kiribati Chant', 'Island Pop'],
-    description: 'The te bino seated dance and te kaimatoa chanting traditions carry the ancient navigation songs of Micronesia.',
+    description:
+      'The te bino seated dance and te kaimatoa chanting traditions carry the ancient navigation songs of Micronesia.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2782,9 +3064,10 @@ export const CITIES: City[] = [
     country: 'Micronesia',
     subdivision: 'Gilbert Islands',
     region: 'oceania',
-    coordinates: [6.9248, 158.1610],
+    coordinates: [6.9248, 158.161],
     genres: ['Micronesian Chant', 'Stick Dance', 'Island Pop'],
-    description: 'Ancient navigational chants and stick dances span four distinct island states with unique Micronesian musical voices.',
+    description:
+      'Ancient navigational chants and stick dances span four distinct island states with unique Micronesian musical voices.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2795,7 +3078,8 @@ export const CITIES: City[] = [
     region: 'oceania',
     coordinates: [7.1164, 171.1858],
     genres: ['Marshallese Chant', 'Jebwa', 'Gospel'],
-    description: 'Traditional jebwa choral singing and bwebwenato storytelling songs preserve Marshallese oral history through music.',
+    description:
+      'Traditional jebwa choral singing and bwebwenato storytelling songs preserve Marshallese oral history through music.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2806,7 +3090,8 @@ export const CITIES: City[] = [
     region: 'oceania',
     coordinates: [7.5006, 134.6243],
     genres: ['Palauan Chant', 'Omengat Song', 'Island Pop'],
-    description: 'Palauan women\'s money dance songs and ancient oceanic chants connect this island nation to its Austronesian roots.',
+    description:
+      "Palauan women's money dance songs and ancient oceanic chants connect this island nation to its Austronesian roots.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2817,7 +3102,8 @@ export const CITIES: City[] = [
     region: 'oceania',
     coordinates: [-0.5477, 166.9209],
     genres: ['Nauruan Folk', 'Gospel Choir', 'Island Pop'],
-    description: 'The world\'s smallest republic keeps its frigate bird catching songs and communal choral traditions alive.',
+    description:
+      "The world's smallest republic keeps its frigate bird catching songs and communal choral traditions alive.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2828,7 +3114,8 @@ export const CITIES: City[] = [
     region: 'oceania',
     coordinates: [-8.5211, 179.1962],
     genres: ['Fatele', 'Tuvaluan Choral', 'Island Pop'],
-    description: 'The fatele action song and dance tradition unites this tiny atoll nation in powerful communal musical expression.',
+    description:
+      'The fatele action song and dance tradition unites this tiny atoll nation in powerful communal musical expression.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   // --- NORTH AMERICA (CANADA) ---
@@ -2840,7 +3127,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [45.5017, -73.5673],
     genres: ['Indie Rock', 'Electronic', 'Jazz', 'Chanson'],
-    description: 'A bilingual music powerhouse where Arcade Fire, Leonard Cohen, and a vibrant jazz festival scene bridge French and English traditions.',
+    description:
+      'A bilingual music powerhouse where Arcade Fire, Leonard Cohen, and a vibrant jazz festival scene bridge French and English traditions.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2851,7 +3139,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [43.6532, -79.3832],
     genres: ['Hip Hop', 'R&B', 'Indie Rock', 'Electronic', 'Reggae'],
-    description: 'Canada\'s largest city and a global music capital, home to Drake, The Weeknd, and a thriving multicultural scene spanning Caribbean dancehall to indie rock.',
+    description:
+      "Canada's largest city and a global music capital, home to Drake, The Weeknd, and a thriving multicultural scene spanning Caribbean dancehall to indie rock.",
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2862,7 +3151,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [49.2827, -123.1207],
     genres: ['Indie Rock', 'Electronic', 'Punk', 'Metal'],
-    description: 'A Pacific Northwest music hub where Bryan Adams, New Pornographers, and a vibrant electronic scene thrive alongside punk and metal communities.',
+    description:
+      'A Pacific Northwest music hub where Bryan Adams, New Pornographers, and a vibrant electronic scene thrive alongside punk and metal communities.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2873,7 +3163,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [53.5461, -113.4938],
     genres: ['Folk', 'Country', 'Punk', 'Indie Rock'],
-    description: 'Home to the Edmonton Folk Music Festival and a resilient indie scene where artists like Cadence Weapon and SNFU emerged from the prairies.',
+    description:
+      'Home to the Edmonton Folk Music Festival and a resilient indie scene where artists like Cadence Weapon and SNFU emerged from the prairies.',
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2884,7 +3175,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [49.8951, -97.1384],
     genres: ['Indie Rock', 'Folk', 'Indigenous', 'Post-Rock'],
-    description: 'A fiercely independent music city where The Guess Who, Neil Young, and later The Weakerthans built a tradition of heartfelt prairie songwriting.',
+    description:
+      'A fiercely independent music city where The Guess Who, Neil Young, and later The Weakerthans built a tradition of heartfelt prairie songwriting.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2893,9 +3185,10 @@ export const CITIES: City[] = [
     country: 'Canada',
     subdivision: 'Saskatchewan',
     region: 'north-america',
-    coordinates: [52.1332, -106.6700],
+    coordinates: [52.1332, -106.67],
     genres: ['Folk', 'Country', 'Indie Rock', 'Indigenous'],
-    description: 'Joni Mitchell\'s birthplace and a prairie music crossroads where folk, country, and Indigenous musical traditions intersect.',
+    description:
+      "Joni Mitchell's birthplace and a prairie music crossroads where folk, country, and Indigenous musical traditions intersect.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2906,7 +3199,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [44.6488, -63.5752],
     genres: ['Celtic', 'Folk', 'Indie Rock', 'Pop'],
-    description: 'A maritime music capital where Celtic fiddle traditions meet indie rock, home to Sloan, Joel Plaskett, and a legendary pop explosion in the 1990s.',
+    description:
+      'A maritime music capital where Celtic fiddle traditions meet indie rock, home to Sloan, Joel Plaskett, and a legendary pop explosion in the 1990s.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2917,18 +3211,20 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [46.0878, -64.7782],
     genres: ['Acadian', 'Folk', 'Indie Rock', 'Punk'],
-    description: 'The heart of Acadian music culture where French-language folk traditions blend with punk energy and independent rock spirit.',
+    description:
+      'The heart of Acadian music culture where French-language folk traditions blend with punk energy and independent rock spirit.',
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
     id: 'st-johns',
-    name: 'St. John\'s',
+    name: "St. John's",
     country: 'Canada',
     subdivision: 'Newfoundland and Labrador',
     region: 'north-america',
     coordinates: [47.5615, -52.7126],
     genres: ['Celtic', 'Folk', 'Traditional', 'Indie Rock'],
-    description: 'North America\'s easternmost city preserves centuries of Irish and English folk traditions along George Street, one of the continent\'s most famous pub-music strips.',
+    description:
+      "North America's easternmost city preserves centuries of Irish and English folk traditions along George Street, one of the continent's most famous pub-music strips.",
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2939,7 +3235,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [46.2382, -63.1311],
     genres: ['Celtic', 'Folk', 'Country', 'Fiddle'],
-    description: 'A small island capital with outsized musical heritage, where Celtic fiddle traditions and kitchen parties sustain one of Canada\'s most vibrant folk scenes.',
+    description:
+      "A small island capital with outsized musical heritage, where Celtic fiddle traditions and kitchen parties sustain one of Canada's most vibrant folk scenes.",
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
 
@@ -2952,7 +3249,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [18.5944, -72.3074],
     genres: ['Kompa', 'Rara', 'Mizik Rasin', 'Vodou Drumming'],
-    description: 'Birthplace of kompa and the spiritual rhythms of vodou, Haiti\'s capital pulses with a musical tradition that influenced all of the Caribbean.',
+    description:
+      "Birthplace of kompa and the spiritual rhythms of vodou, Haiti's capital pulses with a musical tradition that influenced all of the Caribbean.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -2963,7 +3261,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [18.4861, -69.9312],
     genres: ['Merengue', 'Bachata', 'Dembow'],
-    description: 'The merengue and bachata capital of the world, now driving the global dembow explosion.',
+    description:
+      'The merengue and bachata capital of the world, now driving the global dembow explosion.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2974,7 +3273,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [10.6596, -61.5086],
     genres: ['Calypso', 'Soca', 'Steelpan', 'Chutney'],
-    description: 'Where calypso was born, steelpan was invented, and soca ignites the greatest Carnival in the Caribbean.',
+    description:
+      'Where calypso was born, steelpan was invented, and soca ignites the greatest Carnival in the Caribbean.',
     activeDecades: [1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2985,7 +3285,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [13.0969, -59.6145],
     genres: ['Calypso', 'Soca', 'Spouge', 'Dancehall'],
-    description: 'Home of spouge music and Rihanna, Barbados blends calypso heritage with global pop stardom.',
+    description:
+      'Home of spouge music and Rihanna, Barbados blends calypso heritage with global pop stardom.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -2996,18 +3297,20 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [25.0343, -77.3963],
     genres: ['Junkanoo', 'Rake-and-Scrape', 'Goombay'],
-    description: 'Junkanoo\'s cowbell-driven rhythms and goatskin drums define the Bahamas\' vibrant street music tradition.',
+    description:
+      "Junkanoo's cowbell-driven rhythms and goatskin drums define the Bahamas' vibrant street music tradition.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
     id: 'st-georges',
-    name: 'St. George\'s',
+    name: "St. George's",
     country: 'Grenada',
     subdivision: 'New Providence',
     region: 'central-america',
     coordinates: [12.0564, -61.7485],
     genres: ['Soca', 'Calypso', 'Jab Jab'],
-    description: 'The Spice Isle\'s Jab Jab masquerade tradition fuels one of the Caribbean\'s most intense Carnival music scenes.',
+    description:
+      "The Spice Isle's Jab Jab masquerade tradition fuels one of the Caribbean's most intense Carnival music scenes.",
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -3018,7 +3321,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [14.0101, -60.9875],
     genres: ['Soca', 'Zouk', 'Cadence', 'Dennery Segment'],
-    description: 'Saint Lucia\'s unique Dennery Segment sound fuses soca with bouyon beats, creating a distinctively fast-paced Carnival music.',
+    description:
+      "Saint Lucia's unique Dennery Segment sound fuses soca with bouyon beats, creating a distinctively fast-paced Carnival music.",
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -3029,7 +3333,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [13.1587, -61.2248],
     genres: ['Soca', 'Calypso', 'Ragga Soca'],
-    description: 'Vincy Mas Carnival drives a powerful soca scene with artists like Skinny Fabulous and Problem Child.',
+    description:
+      'Vincy Mas Carnival drives a powerful soca scene with artists like Skinny Fabulous and Problem Child.',
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -3038,20 +3343,22 @@ export const CITIES: City[] = [
     country: 'Dominica',
     subdivision: 'Saint George',
     region: 'central-america',
-    coordinates: [15.3010, -61.3881],
+    coordinates: [15.301, -61.3881],
     genres: ['Bouyon', 'Cadence-lypso', 'Zouk'],
-    description: 'The Nature Isle created bouyon music, a bass-heavy fusion of cadence-lypso and soca that dominates Eastern Caribbean dancehalls.',
+    description:
+      'The Nature Isle created bouyon music, a bass-heavy fusion of cadence-lypso and soca that dominates Eastern Caribbean dancehalls.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
     id: 'st-johns',
-    name: 'St. John\'s',
+    name: "St. John's",
     country: 'Antigua and Barbuda',
     subdivision: 'Saint George',
     region: 'central-america',
     coordinates: [17.1175, -61.8456],
     genres: ['Calypso', 'Soca', 'Antigua Benna'],
-    description: 'Antigua\'s benna tradition and Carnival produce some of the Caribbean\'s most infectious soca anthems.',
+    description:
+      "Antigua's benna tradition and Carnival produce some of the Caribbean's most infectious soca anthems.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -3062,7 +3369,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [17.2948, -62.7261],
     genres: ['Calypso', 'Soca', 'String Band'],
-    description: 'Sugar Mas Carnival and a rich string band heritage make Basseterre a hidden gem of Caribbean music.',
+    description:
+      'Sugar Mas Carnival and a rich string band heritage make Basseterre a hidden gem of Caribbean music.',
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -3073,7 +3381,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [17.5046, -88.1962],
     genres: ['Punta', 'Brukdown', 'Reggae', 'Paranda'],
-    description: 'Where Garifuna punta rhythms meet Creole brukdown and Central American reggae.',
+    description:
+      'Where Garifuna punta rhythms meet Creole brukdown and Central American reggae.',
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -3084,7 +3393,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [14.6349, -90.5069],
     genres: ['Marimba', 'Rock en Espa\u00f1ol', 'Cumbia'],
-    description: 'The marimba is Guatemala\'s national instrument, and its wooden tones echo through a city that also nurtures Central America\'s rock underground.',
+    description:
+      "The marimba is Guatemala's national instrument, and its wooden tones echo through a city that also nurtures Central America's rock underground.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -3095,7 +3405,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [14.0723, -87.1921],
     genres: ['Punta', 'Cumbia', 'Reggaeton'],
-    description: 'Honduras\' Garifuna punta tradition merges with Latin pop and cumbia in the mountainous capital.',
+    description:
+      "Honduras' Garifuna punta tradition merges with Latin pop and cumbia in the mountainous capital.",
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -3106,7 +3417,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [13.6929, -89.2182],
     genres: ['Cumbia', 'Rock en Espa\u00f1ol', 'Hip Hop'],
-    description: 'El Salvador\'s cumbia scene and a resilient punk and hip hop underground thrive in a city shaped by diaspora and resilience.',
+    description:
+      "El Salvador's cumbia scene and a resilient punk and hip hop underground thrive in a city shaped by diaspora and resilience.",
     activeDecades: [1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -3115,9 +3427,10 @@ export const CITIES: City[] = [
     country: 'Nicaragua',
     subdivision: 'San Salvador',
     region: 'central-america',
-    coordinates: [12.1150, -86.2362],
+    coordinates: [12.115, -86.2362],
     genres: ['Son Nica', 'Palo de Mayo', 'Cumbia'],
-    description: 'Son nica\'s guitar poetry and the Afro-Caribbean Palo de Mayo carnival tradition define Nicaragua\'s musical identity.',
+    description:
+      "Son nica's guitar poetry and the Afro-Caribbean Palo de Mayo carnival tradition define Nicaragua's musical identity.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -3128,7 +3441,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [9.9281, -84.0907],
     genres: ['Calypso', 'Cumbia', 'Rock en Espa\u00f1ol', 'Reggae'],
-    description: 'Costa Rica\'s Lim\u00f3n province calypso tradition and a growing indie rock scene make San Jos\u00e9 Central America\'s most eclectic music city.',
+    description:
+      "Costa Rica's Lim\u00f3n province calypso tradition and a growing indie rock scene make San Jos\u00e9 Central America's most eclectic music city.",
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -3139,7 +3453,8 @@ export const CITIES: City[] = [
     region: 'central-america',
     coordinates: [8.9824, -79.5199],
     genres: ['Reggaeton', 'Reggae en Espa\u00f1ol', 'T\u00edpico', 'Plena'],
-    description: 'The crossroads where Jamaican dancehall became Spanish-language reggae en espa\u00f1ol, planting the seeds for reggaeton.',
+    description:
+      'The crossroads where Jamaican dancehall became Spanish-language reggae en espa\u00f1ol, planting the seeds for reggaeton.',
     activeDecades: [1970, 1980, 1990, 2000, 2010, 2020],
   },
 
@@ -3152,7 +3467,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [10.4806, -66.9036],
     genres: ['Salsa', 'Joropo', 'Gaita', 'Latin Pop'],
-    description: 'A salsa powerhouse and home of joropo, Venezuela\'s virtuosic harp-driven folk tradition.',
+    description:
+      "A salsa powerhouse and home of joropo, Venezuela's virtuosic harp-driven folk tradition.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -3163,7 +3479,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [-0.1807, -78.4678],
     genres: ['Pasillo', 'Cumbia Andina', 'Rock en Espa\u00f1ol'],
-    description: 'Ecuador\'s melancholic pasillo ballads and Andean folk fusion echo through the highest capital city in the Americas.',
+    description:
+      "Ecuador's melancholic pasillo ballads and Andean folk fusion echo through the highest capital city in the Americas.",
     activeDecades: [1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -3174,7 +3491,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [-12.0464, -77.0428],
     genres: ['Criolla', 'Chicha', 'Cumbia Peruana', 'Afro-Peruvian'],
-    description: 'From Afro-Peruvian caj\u00f3n rhythms to psychedelic chicha, Lima is a musical crossroads of indigenous, African, and Spanish traditions.',
+    description:
+      'From Afro-Peruvian caj\u00f3n rhythms to psychedelic chicha, Lima is a musical crossroads of indigenous, African, and Spanish traditions.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -3185,7 +3503,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [-16.4897, -68.1193],
     genres: ['Andean Folk', 'Morenada', 'Cumbia Boliviana'],
-    description: 'The world\'s highest capital reverberates with zampo\u00f1a panpipes, charango strings, and the thunderous brass of Oruro Carnival bands.',
+    description:
+      "The world's highest capital reverberates with zampo\u00f1a panpipes, charango strings, and the thunderous brass of Oruro Carnival bands.",
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -3195,8 +3514,14 @@ export const CITIES: City[] = [
     subdivision: 'La Paz',
     region: 'south-america',
     coordinates: [-33.4489, -70.6693],
-    genres: ['Nueva Canci\u00f3n', 'Cumbia Chilena', 'Rock en Espa\u00f1ol', 'Electronic'],
-    description: 'V\u00edctor Jara\'s nueva canci\u00f3n movement was born here, and Santiago continues to produce bold music from cumbia to experimental electronic.',
+    genres: [
+      'Nueva Canci\u00f3n',
+      'Cumbia Chilena',
+      'Rock en Espa\u00f1ol',
+      'Electronic',
+    ],
+    description:
+      "V\u00edctor Jara's nueva canci\u00f3n movement was born here, and Santiago continues to produce bold music from cumbia to experimental electronic.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -3207,7 +3532,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [-25.2637, -57.5759],
     genres: ['Guarania', 'Polka Paraguaya', 'Harp Music'],
-    description: 'The Paraguayan harp and the bittersweet guarania genre define South America\'s most distinctive and least-known musical tradition.',
+    description:
+      "The Paraguayan harp and the bittersweet guarania genre define South America's most distinctive and least-known musical tradition.",
     activeDecades: [1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000],
   },
   {
@@ -3218,7 +3544,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [-34.9011, -56.1645],
     genres: ['Candombe', 'Murga', 'Tango', 'Rock Uruguayo'],
-    description: 'Afro-Uruguayan candombe drumming and the theatrical murga tradition power Montevideo\'s legendary Carnival.',
+    description:
+      "Afro-Uruguayan candombe drumming and the theatrical murga tradition power Montevideo's legendary Carnival.",
     activeDecades: [1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020],
   },
   {
@@ -3229,7 +3556,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [6.8013, -58.1551],
     genres: ['Chutney', 'Soca', 'Reggae', 'Calypso'],
-    description: 'Guyana\'s unique Indo-Caribbean chutney music blends Hindu devotional singing with soca and calypso rhythms.',
+    description:
+      "Guyana's unique Indo-Caribbean chutney music blends Hindu devotional singing with soca and calypso rhythms.",
     activeDecades: [1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -3238,9 +3566,10 @@ export const CITIES: City[] = [
     country: 'Suriname',
     subdivision: 'Demerara-Mahaica',
     region: 'south-america',
-    coordinates: [5.8520, -55.2038],
+    coordinates: [5.852, -55.2038],
     genres: ['Kaseko', 'Kawina', 'Javanese Gamelan', 'Reggae'],
-    description: 'Suriname\'s kaseko fuses African, Javanese, and Amerindian traditions into one of South America\'s most eclectic musical cultures.',
+    description:
+      "Suriname's kaseko fuses African, Javanese, and Amerindian traditions into one of South America's most eclectic musical cultures.",
     activeDecades: [1960, 1970, 1980, 1990, 2000, 2010],
   },
   // ── Cities added for 10-Phase Music History Plan ──────────────────────
@@ -3252,7 +3581,8 @@ export const CITIES: City[] = [
     region: 'west-africa',
     coordinates: [16.7735, -3.0074],
     genres: ['Griot', 'Desert Blues', 'Songhai Music'],
-    description: 'Ancient center of learning and trade where the West African griot tradition was codified, preserving centuries of oral history through music.',
+    description:
+      'Ancient center of learning and trade where the West African griot tradition was codified, preserving centuries of oral history through music.',
     activeDecades: [1500, 1600, 1700, 1800],
   },
   {
@@ -3263,7 +3593,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [36.5951, -82.1887],
     genres: ['Country', 'Bluegrass', 'Old-Time', 'Appalachian'],
-    description: 'Site of the legendary 1927 Bristol Sessions, widely considered the "Big Bang of Country Music," where the Carter Family and Jimmie Rodgers were first recorded.',
+    description:
+      'Site of the legendary 1927 Bristol Sessions, widely considered the "Big Bang of Country Music," where the Carter Family and Jimmie Rodgers were first recorded.',
     activeDecades: [1920, 1930],
   },
   {
@@ -3274,7 +3605,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [34.2001, -90.5709],
     genres: ['Delta Blues', 'Blues'],
-    description: 'Heart of the Mississippi Delta blues, where W.C. Handy first heard the blues and Robert Johnson recorded his legendary crossroads sessions.',
+    description:
+      'Heart of the Mississippi Delta blues, where W.C. Handy first heard the blues and Robert Johnson recorded his legendary crossroads sessions.',
     activeDecades: [1900, 1910, 1920, 1930, 1940],
   },
   {
@@ -3285,7 +3617,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [52.4862, -1.8904],
     genres: ['Heavy Metal', 'Bhangra', 'Dub'],
-    description: 'Industrial city where Black Sabbath forged heavy metal from blues riffs and factory noise, and where South Asian bhangra found its UK home.',
+    description:
+      'Industrial city where Black Sabbath forged heavy metal from blues riffs and factory noise, and where South Asian bhangra found its UK home.',
     activeDecades: [1970, 1980, 1990],
   },
   {
@@ -3296,7 +3629,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [33.4735, -82.0105],
     genres: ['Funk', 'Soul', 'R&B'],
-    description: 'Hometown of James Brown, the Godfather of Soul, whose revolutionary funk rhythms reshaped popular music worldwide.',
+    description:
+      'Hometown of James Brown, the Godfather of Soul, whose revolutionary funk rhythms reshaped popular music worldwide.',
     activeDecades: [1960, 1970],
   },
   {
@@ -3307,7 +3641,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [52.4068, -1.5197],
     genres: ['2 Tone', 'Ska Revival', 'Post-Punk'],
-    description: 'Birthplace of the 2 Tone movement, where Jamaican ska was fused with punk energy by The Specials, creating a multiracial musical movement.',
+    description:
+      'Birthplace of the 2 Tone movement, where Jamaican ska was fused with punk energy by The Specials, creating a multiracial musical movement.',
     activeDecades: [1970, 1980],
   },
   {
@@ -3318,7 +3653,8 @@ export const CITIES: City[] = [
     region: 'west-europe',
     coordinates: [53.4808, -2.2426],
     genres: ['Madchester', 'Post-Punk', 'Indie', 'Acid House'],
-    description: 'Factory Records, the Haçienda, and bands like Joy Division and the Stone Roses made Manchester a crucible where post-punk met acid house.',
+    description:
+      'Factory Records, the Haçienda, and bands like Joy Division and the Stone Roses made Manchester a crucible where post-punk met acid house.',
     activeDecades: [1980, 1990, 2000],
   },
   {
@@ -3329,7 +3665,8 @@ export const CITIES: City[] = [
     region: 'south-america',
     coordinates: [10.9685, -74.7813],
     genres: ['Cumbia', 'Vallenato', 'Champeta'],
-    description: 'Colombia\'s carnival capital and the birthplace of cumbia, the rhythmic foundation that spread across Latin America in countless local variations.',
+    description:
+      "Colombia's carnival capital and the birthplace of cumbia, the rhythmic foundation that spread across Latin America in countless local variations.",
     activeDecades: [1940, 1950, 1960, 1970, 1980],
   },
   {
@@ -3340,7 +3677,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [18.4861, -69.9312],
     genres: ['Merengue', 'Bachata', 'Dembow'],
-    description: 'Capital of the Dominican Republic, where merengue became national identity and bachata rose from barrio guitar music to global phenomenon.',
+    description:
+      'Capital of the Dominican Republic, where merengue became national identity and bachata rose from barrio guitar music to global phenomenon.',
     activeDecades: [1950, 1960, 1970, 1980, 1990, 2000, 2010],
   },
   {
@@ -3351,7 +3689,8 @@ export const CITIES: City[] = [
     region: 'north-america',
     coordinates: [39.0997, -94.5786],
     genres: ['Jazz', 'Blues', 'Swing'],
-    description: 'During Prohibition, Kansas City\'s wide-open nightclub scene nurtured a swinging, blues-drenched jazz style that launched Count Basie and Charlie Parker.',
+    description:
+      "During Prohibition, Kansas City's wide-open nightclub scene nurtured a swinging, blues-drenched jazz style that launched Count Basie and Charlie Parker.",
     activeDecades: [1930, 1940],
   },
   {
@@ -3360,9 +3699,10 @@ export const CITIES: City[] = [
     country: 'US',
     subdivision: 'Missouri',
     region: 'north-america',
-    coordinates: [38.6270, -90.1994],
+    coordinates: [38.627, -90.1994],
     genres: ['Blues', 'Rock & Roll', 'Ragtime'],
-    description: 'Gateway city where ragtime flourished, Chuck Berry invented rock & roll guitar, and Ike Turner recorded one of the first rock & roll records.',
+    description:
+      'Gateway city where ragtime flourished, Chuck Berry invented rock & roll guitar, and Ike Turner recorded one of the first rock & roll records.',
     activeDecades: [1890, 1900, 1950, 1960],
   },
-]
+];

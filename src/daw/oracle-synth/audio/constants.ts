@@ -13,7 +13,7 @@ export function smoothParam(
   param: AudioParam,
   value: number,
   ctx: AudioContext,
-  timeConstant: number = 0.01
+  timeConstant: number = 0.01,
 ): void {
   param.cancelScheduledValues(ctx.currentTime);
   param.setTargetAtTime(value, ctx.currentTime, timeConstant);

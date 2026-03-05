@@ -8,7 +8,7 @@ import { useEffect, useRef } from 'react';
 export function useAnimationFrame(
   callback: (time: number) => void,
   active: boolean = true,
-  targetFps: number = 30
+  targetFps: number = 30,
 ) {
   const callbackRef = useRef(callback);
   callbackRef.current = callback;

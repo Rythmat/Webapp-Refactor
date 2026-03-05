@@ -2,7 +2,10 @@
 // Dynamic pedal chain for guitar/bass tracks. Supports arbitrary ordering
 // of pedal processors via syncChain().
 
-import type { PedalProcessor, PedalBlockDescriptor } from './pedals/PedalProcessor';
+import type {
+  PedalProcessor,
+  PedalBlockDescriptor,
+} from './pedals/PedalProcessor';
 import { OverdrivePedal } from './pedals/OverdrivePedal';
 import { NamAmpPedal } from './pedals/NamAmpPedal';
 import { CompressorPedal } from './pedals/CompressorPedal';
@@ -40,18 +43,31 @@ export type AmpSimMode = 'classic' | 'nam';
 
 // ── Factory ─────────────────────────────────────────────────────────────
 
-function createProcessor(type: string, ctx: AudioContext): PedalProcessor | null {
+function createProcessor(
+  type: string,
+  ctx: AudioContext,
+): PedalProcessor | null {
   switch (type) {
-    case 'overdrive':   return new OverdrivePedal(ctx);
-    case 'nam-amp':     return new NamAmpPedal(ctx);
-    case 'compressor':  return new CompressorPedal(ctx);
-    case 'eq':          return new EqPedal(ctx);
-    case 'chorus':      return new ChorusPedal(ctx);
-    case 'phaser':      return new PhaserPedal(ctx);
-    case 'flanger':     return new FlangerPedal(ctx);
-    case 'wah':         return new WahPedal(ctx);
-    case 'pitch-correction': return new PitchCorrectionPedal(ctx);
-    default:            return null;
+    case 'overdrive':
+      return new OverdrivePedal(ctx);
+    case 'nam-amp':
+      return new NamAmpPedal(ctx);
+    case 'compressor':
+      return new CompressorPedal(ctx);
+    case 'eq':
+      return new EqPedal(ctx);
+    case 'chorus':
+      return new ChorusPedal(ctx);
+    case 'phaser':
+      return new PhaserPedal(ctx);
+    case 'flanger':
+      return new FlangerPedal(ctx);
+    case 'wah':
+      return new WahPedal(ctx);
+    case 'pitch-correction':
+      return new PitchCorrectionPedal(ctx);
+    default:
+      return null;
   }
 }
 
@@ -78,8 +94,12 @@ export class GuitarPedalChain {
     this.inputNode.connect(this.outputNode);
   }
 
-  getInputNode(): GainNode { return this.inputNode; }
-  getOutputNode(): GainNode { return this.outputNode; }
+  getInputNode(): GainNode {
+    return this.inputNode;
+  }
+  getOutputNode(): GainNode {
+    return this.outputNode;
+  }
 
   // ── Dynamic chain sync ──────────────────────────────────────────────
 
@@ -132,7 +152,9 @@ export class GuitarPedalChain {
   }
 
   updateAmpSim(params: Partial<AmpSimParams>): void {
-    const proc = this.processors.find((p) => p.type === 'nam-amp') as NamAmpPedal | undefined;
+    const proc = this.processors.find((p) => p.type === 'nam-amp') as
+      | NamAmpPedal
+      | undefined;
     if (!proc) return;
     if (params.enabled !== undefined) proc.setEnabled(params.enabled);
     if (params.mode !== undefined) proc.setAmpSimMode(params.mode);
@@ -140,24 +162,32 @@ export class GuitarPedalChain {
   }
 
   async loadNamModel(model: NamModelFile): Promise<void> {
-    const proc = this.processors.find((p) => p.type === 'nam-amp') as NamAmpPedal | undefined;
+    const proc = this.processors.find((p) => p.type === 'nam-amp') as
+      | NamAmpPedal
+      | undefined;
     if (!proc) return;
     await proc.loadNamModel(model);
     this.wireChain();
   }
 
   setAmpSimMode(mode: AmpSimMode): void {
-    const proc = this.processors.find((p) => p.type === 'nam-amp') as NamAmpPedal | undefined;
+    const proc = this.processors.find((p) => p.type === 'nam-amp') as
+      | NamAmpPedal
+      | undefined;
     proc?.setAmpSimMode(mode);
   }
 
   getNamModelName(): string | null {
-    const proc = this.processors.find((p) => p.type === 'nam-amp') as NamAmpPedal | undefined;
+    const proc = this.processors.find((p) => p.type === 'nam-amp') as
+      | NamAmpPedal
+      | undefined;
     return proc?.getNamModelName() ?? null;
   }
 
   isNamLoaded(): boolean {
-    const proc = this.processors.find((p) => p.type === 'nam-amp') as NamAmpPedal | undefined;
+    const proc = this.processors.find((p) => p.type === 'nam-amp') as
+      | NamAmpPedal
+      | undefined;
     return proc?.isNamLoaded() ?? false;
   }
 
@@ -194,7 +224,11 @@ export class GuitarPedalChain {
     // Disconnect everything from inputNode
     this.inputNode.disconnect();
     for (const proc of this.processors) {
-      try { proc.getOutputNode().disconnect(); } catch { /* not connected */ }
+      try {
+        proc.getOutputNode().disconnect();
+      } catch {
+        /* not connected */
+      }
     }
 
     if (this.processors.length === 0) {
@@ -206,8 +240,12 @@ export class GuitarPedalChain {
     // Wire: input → proc[0] → proc[1] → ... → output
     this.inputNode.connect(this.processors[0].getInputNode());
     for (let i = 0; i < this.processors.length - 1; i++) {
-      this.processors[i].getOutputNode().connect(this.processors[i + 1].getInputNode());
+      this.processors[i]
+        .getOutputNode()
+        .connect(this.processors[i + 1].getInputNode());
     }
-    this.processors[this.processors.length - 1].getOutputNode().connect(this.outputNode);
+    this.processors[this.processors.length - 1]
+      .getOutputNode()
+      .connect(this.outputNode);
   }
 }

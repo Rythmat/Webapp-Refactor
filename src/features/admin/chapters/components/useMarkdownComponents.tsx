@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
+import { BoardChoiceGame } from '@/components/Games/BoardChoiceGame';
+import { ChordPressGame } from '@/components/Games/ChordPressGame';
 import { ImageComponent } from '@/components/ImageComponent';
 import { PhraseMapRenderer } from '../../phraseMaps/components/PhraseMapRenderer';
 import { PlayAlongPlayer } from '../../playAlongs/components/PlayAlongPlayer';
 import { YouTubePlayer } from './YouTubePlayer';
-import { BoardChoiceGame } from '@/components/Games/BoardChoiceGame';
-import { ChordPressGame } from '@/components/Games/ChordPressGame';
 
 export const useMarkdownComponents = (parentColor?: string) => {
   return useMemo(
@@ -18,7 +18,6 @@ export const useMarkdownComponents = (parentColor?: string) => {
       // eslint-disable-next-line sonarjs/cognitive-complexity
       em: ({ children }: { children?: React.ReactNode }) => {
         if (typeof children !== 'string') return <i>{children}</i>;
-
 
         // Match our custom syntax for rhythm maps: _component:rhythmmap(097d5c5e-62e1-418b-9f3d-a32aa9015294,default,#ff0000)_
         // The second parameter (view mode) is optional, third parameter (color) is optional
@@ -111,9 +110,9 @@ export const useMarkdownComponents = (parentColor?: string) => {
 
         if (boardGameMatch) {
           const items = boardGameMatch[1]
-            .split('|')         // ['', 'cmaj7', 'cmaj7', 'cmaj7']
-            .filter(Boolean)     // ['cmaj7','cmaj7','cmaj7']
-            .map(s => s.trim()); // trim spaces if any
+            .split('|') // ['', 'cmaj7', 'cmaj7', 'cmaj7']
+            .filter(Boolean) // ['cmaj7','cmaj7','cmaj7']
+            .map((s) => s.trim()); // trim spaces if any
 
           // Example: render as children of your Connect component
           return (
@@ -121,7 +120,6 @@ export const useMarkdownComponents = (parentColor?: string) => {
               <BoardChoiceGame />
               <p>{items}</p>
             </div>
-            
           );
         }
 
@@ -131,9 +129,9 @@ export const useMarkdownComponents = (parentColor?: string) => {
 
         if (pressGameMatch) {
           const items = pressGameMatch[1]
-            .split('|')         // ['', 'cmaj7', 'cmaj7', 'cmaj7']
-            .filter(Boolean)     // ['cmaj7','cmaj7','cmaj7']
-            .map(s => s.trim()); // trim spaces if any
+            .split('|') // ['', 'cmaj7', 'cmaj7', 'cmaj7']
+            .filter(Boolean) // ['cmaj7','cmaj7','cmaj7']
+            .map((s) => s.trim()); // trim spaces if any
 
           // Example: render as children of your Connect component
           return (
@@ -141,10 +139,8 @@ export const useMarkdownComponents = (parentColor?: string) => {
               <ChordPressGame />
               <p>{items}</p>
             </div>
-            
           );
         }
-
 
         const connectGameMatch = children.match(
           /component:connect\(\s*([^|)]+(?:\|[^|)]+)*)\s*\)/i,
@@ -152,9 +148,9 @@ export const useMarkdownComponents = (parentColor?: string) => {
 
         if (connectGameMatch) {
           const items = connectGameMatch[1]
-            .split('|')         // ['', 'cmaj7', 'cmaj7', 'cmaj7']
-            .filter(Boolean)     // ['cmaj7','cmaj7','cmaj7']
-            .map(s => s.trim()); // trim spaces if any
+            .split('|') // ['', 'cmaj7', 'cmaj7', 'cmaj7']
+            .filter(Boolean) // ['cmaj7','cmaj7','cmaj7']
+            .map((s) => s.trim()); // trim spaces if any
 
           // Example: render as children of your Connect component
           return (
@@ -162,10 +158,8 @@ export const useMarkdownComponents = (parentColor?: string) => {
               <ChordPressGame />
               <p>{items}</p>
             </div>
-            
           );
         }
-        
 
         // If none of the custom syntaxes match, render as default italic text
         return <i>{children}</i>;

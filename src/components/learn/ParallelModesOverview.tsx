@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
-import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { KEY_OF_COLORS } from '@/constants/theme';
-import { findByUrlParam } from './parallelModeContent';
+import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { rootToMidi, buildScaleMidis, MODE_STEPS } from './modeHelpers';
+import { findByUrlParam } from './parallelModeContent';
 import './learn.css';
 
 export function ParallelModesOverview() {
@@ -67,62 +67,76 @@ export function ParallelModesOverview() {
 
   if (!entry) {
     return (
-      <div className="learn-root flex flex-col items-center justify-center h-full" style={{ backgroundColor: 'var(--color-bg)' }}>
+      <div
+        className="learn-root flex h-full flex-col items-center justify-center"
+        style={{ backgroundColor: 'var(--color-bg)' }}
+      >
         <p style={{ color: 'var(--color-text-dim)' }}>Key not found.</p>
       </div>
     );
   }
 
-  const keyColor = KEY_OF_COLORS[entry.keyRoot as keyof typeof KEY_OF_COLORS] ?? '#7ecfcf';
+  const keyColor =
+    KEY_OF_COLORS[entry.keyRoot as keyof typeof KEY_OF_COLORS] ?? '#7ecfcf';
 
   return (
-    <div className="learn-root flex flex-col gap-6" style={{ backgroundColor: 'var(--color-bg)' }}>
+    <div
+      className="learn-root flex flex-col gap-6"
+      style={{ backgroundColor: 'var(--color-bg)' }}
+    >
       <h2
-        className="text-2xl md:text-3xl font-semibold text-left ml-[10%]"
+        className="ml-[10%] text-left text-2xl font-semibold md:text-3xl"
         style={{ color: keyColor }}
       >
         {entry.keyRoot} Parallel Modes
       </h2>
 
       <PianoKeyboard
-        endC={6}
-        startC={4}
-        playingNotes={activeNotes}
-        activeWhiteKeyColor={keyColor}
         activeBlackKeyColor={keyColor}
+        activeWhiteKeyColor={keyColor}
+        endC={6}
+        playingNotes={activeNotes}
+        startC={4}
       />
 
       {activeMode && (
         <p
-          className="text-base md:text-lg font-semibold text-left ml-[10%]"
+          className="ml-[10%] text-left text-base font-semibold md:text-lg"
           style={{ color: 'var(--color-text)' }}
         >
-          Playing: {activeMode.root} {activeMode.modeName} — {activeMode.intervals}
+          Playing: {activeMode.root} {activeMode.modeName} —{' '}
+          {activeMode.intervals}
         </p>
       )}
 
       <section className="mb-6 flex flex-col items-center">
-        <div className="grid grid-cols-1 gap-3 w-full max-w-3xl">
+        <div className="grid w-full max-w-3xl grid-cols-1 gap-3">
           {entry.modes.map((mode, modeIdx) => {
             const isActive = modeIdx === activeModeIndex;
             return (
               <button
                 key={modeIdx}
+                className="glass-panel-sm cursor-pointer rounded-lg p-3 text-left text-sm transition-colors duration-150"
+                style={{
+                  color: isActive ? keyColor : 'var(--color-text)',
+                  background: isActive
+                    ? 'rgba(255,255,255,0.06)'
+                    : 'rgba(255,255,255,0.03)',
+                  border: isActive
+                    ? `1px solid ${keyColor}44`
+                    : '1px solid var(--color-border)',
+                }}
                 onClick={() => {
                   setActiveModeIndex(modeIdx);
                   setNoteIndex(0);
                 }}
-                className="p-3 rounded-lg text-sm text-left transition-colors duration-150 glass-panel-sm cursor-pointer"
-                style={{
-                  color: isActive ? keyColor : 'var(--color-text)',
-                  background: isActive ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
-                  border: isActive ? `1px solid ${keyColor}44` : '1px solid var(--color-border)',
-                }}
                 onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                  if (!isActive)
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
                 }}
                 onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                  if (!isActive)
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
                 }}
               >
                 <div className="font-bold">

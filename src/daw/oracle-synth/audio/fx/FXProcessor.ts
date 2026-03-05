@@ -57,8 +57,16 @@ export abstract class FXProcessor {
       smoothParam(this.wetGain.gain, 0, this.ctx);
     } else {
       // Equal-power crossfade
-      smoothParam(this.dryGain.gain, Math.cos(this.mixValue * Math.PI * 0.5), this.ctx);
-      smoothParam(this.wetGain.gain, Math.sin(this.mixValue * Math.PI * 0.5), this.ctx);
+      smoothParam(
+        this.dryGain.gain,
+        Math.cos(this.mixValue * Math.PI * 0.5),
+        this.ctx,
+      );
+      smoothParam(
+        this.wetGain.gain,
+        Math.sin(this.mixValue * Math.PI * 0.5),
+        this.ctx,
+      );
     }
   }
 

@@ -14,9 +14,9 @@ export interface PitchSegment {
   startTimeMs: number;
   endTimeMs: number;
   medianFreqHz: number;
-  midiNote: number;        // nearest MIDI note (0–127)
-  centsOffset: number;     // deviation from nearest note (-50 to +50)
-  pitchContour: number[];  // per-frame Hz values
+  midiNote: number; // nearest MIDI note (0–127)
+  centsOffset: number; // deviation from nearest note (-50 to +50)
+  pitchContour: number[]; // per-frame Hz values
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -71,7 +71,7 @@ function yinDetect(
 
   // Step 3: Absolute threshold
   const minPeriod = Math.floor(sampleRate / 2000); // 2000 Hz max
-  const maxPeriod = Math.floor(sampleRate / 50);    // 50 Hz min
+  const maxPeriod = Math.floor(sampleRate / 50); // 50 Hz min
 
   let tauEstimate = -1;
   for (let tau = minPeriod; tau < Math.min(maxPeriod, halfLen); tau++) {
@@ -131,8 +131,18 @@ export function analyzeBuffer(audioBuffer: AudioBuffer): PitchSegment[] {
 
   // Step 1: Run YIN frame-by-frame
   const rawFrames: PitchFrame[] = [];
-  for (let offset = 0; offset + FRAME_LENGTH <= totalSamples; offset += HOP_SIZE) {
-    const freq = yinDetect(samples, offset, FRAME_LENGTH, sampleRate, YIN_THRESHOLD);
+  for (
+    let offset = 0;
+    offset + FRAME_LENGTH <= totalSamples;
+    offset += HOP_SIZE
+  ) {
+    const freq = yinDetect(
+      samples,
+      offset,
+      FRAME_LENGTH,
+      sampleRate,
+      YIN_THRESHOLD,
+    );
     rawFrames.push({
       timeMs: ((offset + FRAME_LENGTH / 2) / sampleRate) * 1000,
       frequency: freq,
@@ -149,18 +159,17 @@ export function analyzeBuffer(audioBuffer: AudioBuffer): PitchSegment[] {
 
   // Step 3: Group consecutive voiced frames with similar pitch into segments
   const segments: PitchSegment[] = [];
-  let segStart = -1;
   let segFrames: PitchFrame[] = [];
   let segId = 0;
 
   const flushSegment = () => {
     if (segFrames.length === 0) return;
     const startMs = segFrames[0].timeMs;
-    const endMs = segFrames[segFrames.length - 1].timeMs + (HOP_SIZE / sampleRate) * 1000;
+    const endMs =
+      segFrames[segFrames.length - 1].timeMs + (HOP_SIZE / sampleRate) * 1000;
 
     if (endMs - startMs < MIN_SEGMENT_MS) {
       segFrames = [];
-      segStart = -1;
       return;
     }
 
@@ -181,7 +190,6 @@ export function analyzeBuffer(audioBuffer: AudioBuffer): PitchSegment[] {
     });
 
     segFrames = [];
-    segStart = -1;
   };
 
   for (let i = 0; i < frames.length; i++) {
@@ -195,7 +203,6 @@ export function analyzeBuffer(audioBuffer: AudioBuffer): PitchSegment[] {
 
     if (segFrames.length === 0) {
       // Start new segment
-      segStart = i;
       segFrames.push(frame);
       continue;
     }
@@ -210,7 +217,6 @@ export function analyzeBuffer(audioBuffer: AudioBuffer): PitchSegment[] {
     } else {
       // Pitch jumped — flush and start new
       flushSegment();
-      segStart = i;
       segFrames.push(frame);
     }
   }

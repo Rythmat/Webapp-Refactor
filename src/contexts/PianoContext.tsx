@@ -1,10 +1,10 @@
 import { createContext, useState, useContext } from 'react';
 import * as Tone from 'tone';
-import { PlaybackEvent } from '@/contexts/PlaybackContext';
 import {
   startPianoSampler,
   triggerPianoAttackRelease,
 } from '@/audio/pianoSampler';
+import { PlaybackEvent } from '@/contexts/PlaybackContext';
 
 type PianoContextType = {
   notes: PlaybackEvent[];

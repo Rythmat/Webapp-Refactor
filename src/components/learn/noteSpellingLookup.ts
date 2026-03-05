@@ -1,14 +1,18 @@
-import { RELATIVE_MODES_CONTENT, getRelativeMode } from './relativeModeContent';
+import { DOUBLE_HARMONIC_MODES } from './doubleHarmonicContent';
+import { HARMONIC_MAJOR_MODES } from './harmonicMajorContent';
 import { HARMONIC_MINOR_MODES } from './harmonicMinorContent';
 import { MELODIC_MINOR_MODES } from './melodicMinorContent';
-import { HARMONIC_MAJOR_MODES } from './harmonicMajorContent';
-import { DOUBLE_HARMONIC_MODES } from './doubleHarmonicContent';
 import type { ScaleFamilyMode } from './modeHelpers';
+import { RELATIVE_MODES_CONTENT, getRelativeMode } from './relativeModeContent';
 
 // Normalize key roots so Unicode ♭/♯ and enharmonic equivalents all match
 // the canonical spellings used by CHROMATIC_KEYS in ModeOverview.
 const ENHARMONIC_TO_CANONICAL: Record<string, string> = {
-  'C#': 'Db', 'G#': 'Ab', 'D#': 'Eb', 'A#': 'Bb', 'Gb': 'F#',
+  'C#': 'Db',
+  'G#': 'Ab',
+  'D#': 'Eb',
+  'A#': 'Bb',
+  Gb: 'F#',
 };
 
 function normalizeKey(key: string): string {
@@ -50,7 +54,10 @@ for (const family of ALL_FAMILIES) {
  * Look up the enharmonic-correct note spelling for a given mode + root key.
  * Returns undefined if no data is available for this combination.
  */
-export function getNoteSpelling(modeSlug: string, rootKey: string): string[] | undefined {
+export function getNoteSpelling(
+  modeSlug: string,
+  rootKey: string,
+): string[] | undefined {
   // Diatonic modes: derive from relative mode content
   const diatonicIdx = DIATONIC_MODE_INDEX[modeSlug];
   if (diatonicIdx !== undefined) {

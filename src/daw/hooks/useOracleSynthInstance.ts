@@ -1,6 +1,10 @@
 import { useMemo, useSyncExternalStore } from 'react';
 import { useStore } from '@/daw/store';
-import { getTrackAudioState, subscribeEngineReady, getEngineReadyVersion } from './usePlaybackEngine';
+import {
+  getTrackAudioState,
+  subscribeEngineReady,
+  getEngineReadyVersion,
+} from './usePlaybackEngine';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
 
 // ── Hook ──────────────────────────────────────────────────────────────────
@@ -11,7 +15,10 @@ export function useOracleSynthInstance() {
   const tracks = useStore((s) => s.tracks);
 
   // Re-render when any instrument finishes async init
-  const readyVersion = useSyncExternalStore(subscribeEngineReady, getEngineReadyVersion);
+  const readyVersion = useSyncExternalStore(
+    subscribeEngineReady,
+    getEngineReadyVersion,
+  );
 
   const track = tracks.find((t) => t.id === selectedTrackId);
   const isOracleSynth = track?.instrument === 'oracle-synth';

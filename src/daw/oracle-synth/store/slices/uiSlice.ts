@@ -9,12 +9,7 @@ export interface UISlice {
   setSelectedSection: (section: string | null) => void;
 }
 
-export const createUISlice: StateCreator<
-  UISlice,
-  [],
-  [],
-  UISlice
-> = (set) => ({
+export const createUISlice: StateCreator<UISlice, [], [], UISlice> = (set) => ({
   activeLFOBar: 0,
   activeLFOIndex: 0,
   selectedSection: null,

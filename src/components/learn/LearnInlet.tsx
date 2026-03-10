@@ -9,8 +9,11 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { LearnRoutes } from '@/constants/routes';
+import { LearnRoutes, CurriculumRoutes } from '@/constants/routes';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
+import type { PrismModeSlug } from '@/hooks/data';
+import { colorForKeyMode } from '@/lib/modeColorShift';
+import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { HexagonPattern, DEFAULT_THEMES as THEMES } from '../ui/HexagonPattern';
 import './learn.css';
@@ -28,21 +31,25 @@ const COURSES_DATA: ContentItem[] = [
     title: 'Pop',
     variant: 'diagonal',
     colors: [THEMES.yellow, '#F4A261', THEMES.orange, '#A6A2C2', '#D3C2D6'],
-  },
-  {
-    title: 'Folk',
-    variant: 'cluster',
-    colors: ['#A3B18A', '#588157', '#3A5A40', '#DAD7CD', '#E3D5CA'],
+    route: CurriculumRoutes.genre({ genre: 'pop' }),
   },
   {
     title: 'Rock',
     variant: 'dense',
     colors: ['#E63946', '#1D3557', '#457B9D', '#A8DADC', '#2A3036'],
+    route: CurriculumRoutes.genre({ genre: 'rock' }),
+  },
+  {
+    title: 'Hip Hop',
+    variant: 'split',
+    colors: ['#003049', '#D62828', '#F77F00', '#FCBF49', '#EAE2B7'],
+    route: CurriculumRoutes.genre({ genre: 'hip-hop' }),
   },
   {
     title: 'R&B',
     variant: 'split',
     colors: [THEMES.teal, THEMES.indigo, THEMES.yellow, '#F4A261', '#9C27B0'],
+    route: CurriculumRoutes.genre({ genre: 'rnb' }),
   },
   {
     title: 'Jazz',
@@ -54,111 +61,122 @@ const COURSES_DATA: ContentItem[] = [
       '#F4A261',
       THEMES.orange,
     ],
+    route: CurriculumRoutes.genre({ genre: 'jazz' }),
   },
   {
-    title: 'Classical',
+    title: 'Blues',
     variant: 'cluster',
-    colors: ['#6D597A', '#B56576', '#E5989B', '#FFB4A2', '#FFCDB2'],
+    colors: ['#B5838D', '#6D4C41', '#D4A373', '#FAEDCD', '#CCD5AE'],
+    route: CurriculumRoutes.genre({ genre: 'blues' }),
+  },
+  {
+    title: 'Folk',
+    variant: 'cluster',
+    colors: ['#A3B18A', '#588157', '#3A5A40', '#DAD7CD', '#E3D5CA'],
+    route: CurriculumRoutes.genre({ genre: 'folk' }),
+  },
+  {
+    title: 'Funk',
+    variant: 'dense',
+    colors: ['#9B5DE5', '#F15BB5', '#FEE440', '#00BBF9', '#00F5D4'],
+    route: CurriculumRoutes.genre({ genre: 'funk' }),
+  },
+  {
+    title: 'Neo Soul',
+    variant: 'diagonal',
+    colors: ['#6D597A', '#B56576', '#E5989B', '#E8AC65', THEMES.teal],
+    route: CurriculumRoutes.genre({ genre: 'neo-soul' }),
   },
   {
     title: 'Electronic',
     variant: 'dense',
     colors: ['#7400B8', '#6930C3', '#5E60CE', '#5390D9', '#4EA8DE'],
+    route: CurriculumRoutes.genre({ genre: 'electronic' }),
   },
   {
-    title: 'Hip Hop',
+    title: 'Latin',
     variant: 'split',
-    colors: ['#003049', '#D62828', '#F77F00', '#FCBF49', '#EAE2B7'],
+    colors: ['#E63946', '#F4A261', THEMES.yellow, '#2A9D8F', '#264653'],
+    route: CurriculumRoutes.genre({ genre: 'latin' }),
+  },
+  {
+    title: 'Reggae',
+    variant: 'cluster',
+    colors: ['#2D6A4F', '#40916C', '#B7E4C7', '#FFD166', '#D62828'],
+    route: CurriculumRoutes.genre({ genre: 'reggae' }),
+  },
+  {
+    title: 'Jam Band',
+    variant: 'diagonal',
+    colors: [THEMES.purple, THEMES.orange, THEMES.teal, '#F4A261', '#A8DADC'],
+    route: CurriculumRoutes.genre({ genre: 'jam-band' }),
+  },
+  {
+    title: 'African',
+    variant: 'split',
+    colors: ['#BC6C25', '#DDA15E', '#606C38', '#FEFAE0', '#283618'],
+    route: CurriculumRoutes.genre({ genre: 'african' }),
   },
 ];
 
 const THEORY_DATA: ContentItem[] = [
   {
     title: 'Ionian (Major)',
+    mode: 'ionian',
     variant: 'cluster',
     colors: [THEMES.red, '#9D5C63'],
     route: LearnRoutes.overview({ mode: 'ionian' }),
   },
   {
     title: 'Dorian',
+    mode: 'dorian',
     variant: 'split',
     colors: [THEMES.orange, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'dorian' }),
   },
   {
     title: 'Phrygian',
+    mode: 'phrygian',
     variant: 'split',
     colors: [THEMES.red, THEMES.yellow],
     route: LearnRoutes.overview({ mode: 'phrygian' }),
   },
   {
     title: 'Lydian',
+    mode: 'lydian',
     variant: 'diagonal',
     colors: [THEMES.yellow, '#F4A261'],
     route: LearnRoutes.overview({ mode: 'lydian' }),
   },
   {
     title: 'Mixolydian',
+    mode: 'mixolydian',
     variant: 'dense',
     colors: [THEMES.beige, THEMES.darkGrey],
     route: LearnRoutes.overview({ mode: 'mixolydian' }),
   },
   {
     title: 'Aeolian (Minor)',
+    mode: 'aeolian',
     variant: 'diagonal',
     colors: [THEMES.blue, '#A8DADC'],
     route: LearnRoutes.overview({ mode: 'aeolian' }),
   },
   {
     title: 'Locrian',
+    mode: 'locrian',
     variant: 'cluster',
     colors: [THEMES.purple, '#E0AAFF'],
     route: LearnRoutes.overview({ mode: 'locrian' }),
   },
 ];
 
-const EXPLORE_DATA: ContentItem[] = [
+const TECHNIQUE_DATA: ContentItem[] = [
   {
-    title: 'Ionian (Major)',
-    variant: 'cluster',
-    colors: [THEMES.red, '#9D5C63'],
-    route: LearnRoutes.overview({ mode: 'ionian' }),
-  },
-  {
-    title: 'Dorian',
-    variant: 'split',
-    colors: [THEMES.orange, THEMES.teal],
-    route: LearnRoutes.overview({ mode: 'dorian' }),
-  },
-  {
-    title: 'Phrygian',
-    variant: 'split',
-    colors: [THEMES.red, THEMES.yellow],
-    route: LearnRoutes.overview({ mode: 'phrygian' }),
-  },
-  {
-    title: 'Lydian',
+    title: 'Fundamentals',
     variant: 'diagonal',
-    colors: [THEMES.yellow, '#F4A261'],
-    route: LearnRoutes.overview({ mode: 'lydian' }),
-  },
-  {
-    title: 'Mixolydian',
-    variant: 'dense',
-    colors: [THEMES.beige, THEMES.darkGrey],
-    route: LearnRoutes.overview({ mode: 'mixolydian' }),
-  },
-  {
-    title: 'Aeolian (Minor)',
-    variant: 'diagonal',
-    colors: [THEMES.blue, '#A8DADC'],
-    route: LearnRoutes.overview({ mode: 'aeolian' }),
-  },
-  {
-    title: 'Locrian',
-    variant: 'cluster',
-    colors: [THEMES.purple, '#E0AAFF'],
-    route: LearnRoutes.overview({ mode: 'locrian' }),
+    colors: [THEMES.blue, THEMES.teal, '#A8DADC', '#F4A261', THEMES.yellow],
+    route: CurriculumRoutes.genre({ genre: 'piano-fundamentals' }),
   },
 ];
 
@@ -315,42 +333,49 @@ const PARALLEL_MODES_DATA: ContentItem[] = [
 const HARMONIC_MINOR_DATA: ContentItem[] = [
   {
     title: 'Harmonic Minor',
+    mode: 'harmonicminor',
     variant: 'cluster',
     colors: [THEMES.blue, THEMES.indigo],
     route: LearnRoutes.overview({ mode: 'harmonicminor' }),
   },
   {
     title: 'Locrian ♮6',
+    mode: 'locriannat6',
     variant: 'split',
     colors: [THEMES.purple, THEMES.blue],
     route: LearnRoutes.overview({ mode: 'locriannat6' }),
   },
   {
     title: 'Ionian #5',
+    mode: 'ionian#5',
     variant: 'diagonal',
     colors: [THEMES.teal, THEMES.blue],
     route: LearnRoutes.overview({ mode: 'ionian#5' }),
   },
   {
     title: 'Dorian #4',
+    mode: 'dorian#4',
     variant: 'dense',
     colors: [THEMES.indigo, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'dorian#4' }),
   },
   {
     title: 'Phrygian Dominant',
+    mode: 'phrygiandominant',
     variant: 'cluster',
     colors: [THEMES.red, THEMES.indigo],
     route: LearnRoutes.overview({ mode: 'phrygiandominant' }),
   },
   {
     title: 'Lydian #2',
+    mode: 'lydian#2',
     variant: 'split',
     colors: [THEMES.yellow, THEMES.indigo],
     route: LearnRoutes.overview({ mode: 'lydian#2' }),
   },
   {
     title: 'Altered Diminished',
+    mode: 'altereddiminished',
     variant: 'diagonal',
     colors: [THEMES.purple, THEMES.darkGrey],
     route: LearnRoutes.overview({ mode: 'altereddiminished' }),
@@ -360,42 +385,49 @@ const HARMONIC_MINOR_DATA: ContentItem[] = [
 const MELODIC_MINOR_DATA: ContentItem[] = [
   {
     title: 'Melodic Minor',
+    mode: 'melodicminor',
     variant: 'cluster',
     colors: [THEMES.orange, THEMES.yellow],
     route: LearnRoutes.overview({ mode: 'melodicminor' }),
   },
   {
     title: 'Dorian ♭2',
+    mode: 'dorian♭2',
     variant: 'split',
     colors: [THEMES.orange, THEMES.darkGrey],
     route: LearnRoutes.overview({ mode: 'dorian♭2' }),
   },
   {
     title: 'Lydian Augmented',
+    mode: 'lydianaugmented',
     variant: 'diagonal',
     colors: [THEMES.yellow, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'lydianaugmented' }),
   },
   {
     title: 'Lydian Dominant',
+    mode: 'lydiandominant',
     variant: 'dense',
     colors: [THEMES.yellow, THEMES.orange],
     route: LearnRoutes.overview({ mode: 'lydiandominant' }),
   },
   {
     title: 'Mixolydian ♭6',
+    mode: 'mixolydiannat6',
     variant: 'cluster',
     colors: [THEMES.beige, THEMES.orange],
     route: LearnRoutes.overview({ mode: 'mixolydiannat6' }),
   },
   {
     title: 'Locrian ♮2',
+    mode: 'locriannat2',
     variant: 'split',
     colors: [THEMES.darkGrey, THEMES.orange],
     route: LearnRoutes.overview({ mode: 'locriannat2' }),
   },
   {
     title: 'Altered Dominant',
+    mode: 'altereddominant',
     variant: 'diagonal',
     colors: [THEMES.red, THEMES.orange],
     route: LearnRoutes.overview({ mode: 'altereddominant' }),
@@ -405,42 +437,49 @@ const MELODIC_MINOR_DATA: ContentItem[] = [
 const HARMONIC_MAJOR_DATA: ContentItem[] = [
   {
     title: 'Harmonic Major',
+    mode: 'harmonicmajor',
     variant: 'cluster',
     colors: [THEMES.teal, '#4ECDC4'],
     route: LearnRoutes.overview({ mode: 'harmonicmajor' }),
   },
   {
     title: 'Dorian ♭5',
+    mode: 'dorian♭5',
     variant: 'split',
     colors: [THEMES.teal, THEMES.darkGrey],
     route: LearnRoutes.overview({ mode: 'dorian♭5' }),
   },
   {
     title: 'Altered Dominant ♮5',
+    mode: 'altereddominantnat5',
     variant: 'diagonal',
     colors: [THEMES.blue, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'altereddominantnat5' }),
   },
   {
     title: 'Melodic Minor #4',
+    mode: 'melodicminor#4',
     variant: 'dense',
     colors: [THEMES.teal, THEMES.yellow],
     route: LearnRoutes.overview({ mode: 'melodicminor#4' }),
   },
   {
     title: 'Mixolydian ♭2',
+    mode: 'mixolydian♭2',
     variant: 'cluster',
     colors: [THEMES.indigo, '#4ECDC4'],
     route: LearnRoutes.overview({ mode: 'mixolydian♭2' }),
   },
   {
     title: 'Lydian Augmented #2',
+    mode: 'lydianaugmented#2',
     variant: 'split',
     colors: [THEMES.yellow, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'lydianaugmented#2' }),
   },
   {
     title: 'Locrian 𝄫7',
+    mode: 'locrian𝄫7',
     variant: 'diagonal',
     colors: [THEMES.darkGrey, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'locrian𝄫7' }),
@@ -450,46 +489,68 @@ const HARMONIC_MAJOR_DATA: ContentItem[] = [
 const DOUBLE_HARMONIC_DATA: ContentItem[] = [
   {
     title: 'Double Harmonic Major',
+    mode: 'doubleharmonicmajor',
     variant: 'cluster',
     colors: [THEMES.red, '#FF6B9D'],
     route: LearnRoutes.overview({ mode: 'doubleharmonicmajor' }),
   },
   {
     title: 'Lydian #2 #6',
+    mode: 'lydian#2#6',
     variant: 'split',
     colors: [THEMES.yellow, THEMES.red],
     route: LearnRoutes.overview({ mode: 'lydian#2#6' }),
   },
   {
     title: 'Ultraphrygian',
+    mode: 'ultraphrygian',
     variant: 'diagonal',
     colors: [THEMES.purple, THEMES.red],
     route: LearnRoutes.overview({ mode: 'ultraphrygian' }),
   },
   {
     title: 'Double Harmonic Minor',
+    mode: 'doubleharmonicminor',
     variant: 'dense',
     colors: ['#FF6B9D', THEMES.purple],
     route: LearnRoutes.overview({ mode: 'doubleharmonicminor' }),
   },
   {
     title: 'Oriental',
+    mode: 'oriental',
     variant: 'cluster',
     colors: [THEMES.red, THEMES.yellow],
     route: LearnRoutes.overview({ mode: 'oriental' }),
   },
   {
     title: 'Ionian #2 #5',
+    mode: 'ionian#2#5',
     variant: 'split',
     colors: ['#FF6B9D', THEMES.teal],
     route: LearnRoutes.overview({ mode: 'ionian#2#5' }),
   },
   {
     title: 'Locrian 𝄫3 𝄫7',
+    mode: 'locrian𝄫3𝄫7',
     variant: 'diagonal',
     colors: [THEMES.darkGrey, THEMES.purple],
     route: LearnRoutes.overview({ mode: 'locrian𝄫3𝄫7' }),
   },
+];
+
+const KEY_LABELS = [
+  'C',
+  'G',
+  'D',
+  'A',
+  'E',
+  'B',
+  'F#',
+  'D♭',
+  'A♭',
+  'E♭',
+  'B♭',
+  'F',
 ];
 
 // interface FilterCheckboxProps {
@@ -707,6 +768,10 @@ interface ExploreItemProps {
   colors: string[];
   variant?: 'diagonal' | 'cluster' | 'dense' | 'split' | 'default';
   onSelect?: () => void;
+  mode?: string;
+  expanded?: boolean;
+  onToggleExpand?: () => void;
+  onKeySelect?: (mode: string, keyLabel: string) => void;
 }
 
 const ExploreItem: React.FC<ExploreItemProps> = ({
@@ -714,49 +779,93 @@ const ExploreItem: React.FC<ExploreItemProps> = ({
   colors,
   variant,
   onSelect,
+  mode,
+  expanded,
+  onToggleExpand,
+  onKeySelect,
 }) => (
-  <div
-    className="group flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors duration-150"
-    style={{ borderBottom: '1px solid var(--color-border)' }}
-    onClick={onSelect}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.background = 'transparent';
-    }}
-  >
-    <div className="flex items-center gap-4">
-      <div
-        className="glass-panel-sm relative size-10 shrink-0 overflow-hidden rounded-lg"
-        style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid var(--color-border)',
-        }}
-      >
-        <HexagonPattern
-          className="absolute -left-1 -top-1 size-[150%]"
-          colorsOverride={colors}
-          variant={variant}
-        />
-      </div>
-      <div className="flex items-center gap-2">
-        <ChevronRight size={14} style={{ color: 'var(--color-text-dim)' }} />
-        <h3
-          className="text-base font-medium"
-          style={{ color: 'var(--color-text)' }}
+  <div style={{ borderBottom: '1px solid var(--color-border)' }}>
+    <div
+      className="group flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors duration-150"
+      onClick={onSelect}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'transparent';
+      }}
+    >
+      <div className="flex items-center gap-4">
+        <div
+          className="glass-panel-sm relative size-10 shrink-0 overflow-hidden rounded-lg"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid var(--color-border)',
+          }}
         >
-          {title}
-        </h3>
+          <HexagonPattern
+            className="absolute -left-1 -top-1 size-[150%]"
+            colorsOverride={colors}
+            variant={variant}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          {mode && onToggleExpand ? (
+            <button
+              type="button"
+              className="flex items-center justify-center rounded p-0.5 transition-colors hover:bg-white/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleExpand();
+              }}
+            >
+              <ChevronRight
+                size={14}
+                style={{
+                  color: 'var(--color-text-dim)',
+                  transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                  transition: 'transform 150ms',
+                }}
+              />
+            </button>
+          ) : (
+            <ChevronRight
+              size={14}
+              style={{ color: 'var(--color-text-dim)' }}
+            />
+          )}
+          <h3
+            className="text-base font-medium"
+            style={{ color: 'var(--color-text)' }}
+          >
+            {title}
+          </h3>
+        </div>
       </div>
     </div>
-    {/* <div className="flex items-center gap-6 text-gray-500">
-      <Volume2 size={16} className="hover:text-white transition-colors" />
-      <Play size={16} className="hover:text-white transition-colors fill-current" onClick={onSelect} />
-      <Heart size={16} className="hover:text-red-500 transition-colors" />
-      <CheckCircle2 size={16} className="hover:text-green-500 transition-colors" />
-      <MoreVertical size={16} className="hover:text-white transition-colors" />
-    </div> */}
+    {expanded && mode && (
+      <div className="flex flex-col pb-2 pl-[72px]">
+        {KEY_LABELS.map((keyLabel) => {
+          const keyColor = colorForKeyMode(keyLabel, mode as PrismModeSlug);
+          return (
+            <div
+              key={keyLabel}
+              className="cursor-pointer rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
+              style={{ color: keyColor }}
+              onClick={() => onKeySelect?.(mode, keyLabel)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              {keyLabel} {title}
+            </div>
+          );
+        })}
+      </div>
+    )}
   </div>
 );
 
@@ -777,6 +886,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     genreParam,
   );
   const highlightRef = useRef<HTMLDivElement>(null);
+  const [expandedMode, setExpandedMode] = useState<string | null>(null);
   // const [showFilter, setShowFilter] = useState(false);
   const navigate = useNavigate();
 
@@ -806,12 +916,16 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     if (parentSetSubTab) parentSetSubTab(subTab);
   }, [subTab, parentSetSubTab]);
 
+  useEffect(() => {
+    setViewMode(subTab === 'Theory' ? 'list' : 'grid');
+  }, [subTab]);
+
   const activeData =
     subTab === 'Courses'
       ? COURSES_DATA
       : subTab === 'Theory'
         ? THEORY_DATA
-        : EXPLORE_DATA;
+        : TECHNIQUE_DATA;
 
   const renderContent = (data: ContentItem[]) => {
     if (viewMode === 'grid') {
@@ -842,10 +956,27 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         {data.map((item, i) => {
           const isHighlighted =
             highlightedGenre !== null && item.title === highlightedGenre;
-          return subTab === 'Explore' || subTab === 'Theory' ? (
+          return subTab === 'Technique' || subTab === 'Theory' ? (
             <ExploreItem
               key={i}
               {...item}
+              expanded={expandedMode === item.mode}
+              onToggleExpand={
+                item.mode
+                  ? () =>
+                      setExpandedMode((prev) =>
+                        prev === item.mode ? null : (item.mode ?? null),
+                      )
+                  : undefined
+              }
+              onKeySelect={(mode, keyLabel) => {
+                navigate(
+                  LearnRoutes.lesson({
+                    mode,
+                    key: keyLabelToUrlParam(keyLabel),
+                  }),
+                );
+              }}
               onSelect={() => {
                 if (item.route) {
                   navigate(item.route);
@@ -886,7 +1017,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               border: '1px solid var(--color-border)',
             }}
           >
-            {['Courses', 'Theory', 'Explore'].map((tab) => (
+            {['Courses', 'Theory', 'Technique'].map((tab) => (
               <button
                 key={tab}
                 className="rounded-md px-6 py-2 text-sm font-medium transition-colors duration-150"
@@ -978,14 +1109,14 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         )} */}
 
         <div className="flex-1 overflow-y-auto">
-          {subTab === 'Explore' || subTab === 'Theory' ? (
+          {subTab === 'Theory' ? (
             <>
               <CollapsibleSection
                 defaultOpen
                 className="mt-4"
                 title="Diatonic Modes"
               >
-                {renderContent(activeData)}
+                {renderContent(THEORY_DATA)}
               </CollapsibleSection>
               <CollapsibleSection
                 className="mt-8 pt-4"
@@ -1030,6 +1161,14 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                 {renderContent(DOUBLE_HARMONIC_DATA)}
               </CollapsibleSection>
             </>
+          ) : subTab === 'Technique' ? (
+            <CollapsibleSection
+              defaultOpen
+              className="mt-4"
+              title="Foundational"
+            >
+              {renderContent(TECHNIQUE_DATA)}
+            </CollapsibleSection>
           ) : (
             <CollapsibleSection defaultOpen className="mt-4" title="Genres">
               {renderContent(activeData)}

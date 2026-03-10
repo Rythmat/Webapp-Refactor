@@ -79,6 +79,12 @@ export const GENRE_SWING: Record<GenreName, number> = {
   Bossa: 10,
   Samba: 10,
   Ballad: 0,
+  Blues: 40,
+  Folk: 0,
+  Reggae: 0,
+  Latin: 0,
+  Electronic: 0,
+  African: 0,
 };
 
 /**

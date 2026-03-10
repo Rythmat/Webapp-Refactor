@@ -199,7 +199,13 @@ export type GenreName =
   | 'Merengue'
   | 'Bossa'
   | 'Samba'
-  | 'Ballad';
+  | 'Ballad'
+  | 'Blues'
+  | 'Folk'
+  | 'Reggae'
+  | 'Latin'
+  | 'Electronic'
+  | 'African';
 
 /** Configuration for multi-track orchestration */
 export interface OrchestrateConfig {

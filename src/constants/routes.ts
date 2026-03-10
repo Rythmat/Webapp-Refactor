@@ -288,3 +288,23 @@ const atlasPrefix = '/atlas';
 export const AtlasRoutes = {
   root: createRouteDefinition(atlasPrefix),
 };
+
+const curriculumPrefix = '/curriculum';
+
+export const CurriculumRoutes = {
+  root: createRouteDefinition(curriculumPrefix),
+
+  genre: createRouteDefinition<{ genre: string }>('/:genre', {
+    prefix: curriculumPrefix,
+  }),
+
+  fundamentalsSection: createRouteDefinition<{ sectionId: string }>(
+    '/piano-fundamentals/:sectionId',
+    { prefix: curriculumPrefix },
+  ),
+
+  genreLevel: createRouteDefinition<{ genre: string; level: string }>(
+    '/:genre/:level',
+    { prefix: curriculumPrefix },
+  ),
+};

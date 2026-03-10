@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AppContext } from './contexts/AppContext';
+import { curriculumPages } from './curriculum/routes';
 import { WildcardPage } from './features/WildcardPage';
 import { adminPages } from './features/admin';
 import { authPages } from './features/authentication/AuthPages';
@@ -29,6 +30,7 @@ const routesArray = createBrowserRouter([
   connectPages(),
   libraryPages(),
   atlasPages(),
+  curriculumPages(),
   {
     path: '*',
     element: (

@@ -15,9 +15,15 @@ export class MidiScheduler {
     trackEngine: TrackEngine,
     offsetTicks: number = 0,
   ): void {
-    const allEvents: Array<
-      [string, { note: number; velocity: number; type: 'on' | 'off' }]
-    > = [];
+    type ScheduledEvent = {
+      note: number;
+      velocity: number;
+      type: 'on' | 'off' | 'cc';
+      controller?: number;
+      value?: number;
+    };
+
+    const allEvents: Array<[string, ScheduledEvent]> = [];
 
     for (const event of sequence.events) {
       const startTicks = event.startTick + offsetTicks;
@@ -33,11 +39,29 @@ export class MidiScheduler {
       ]);
     }
 
+    // Schedule CC events (e.g. sustain pedal)
+    if (sequence.ccEvents) {
+      for (const cc of sequence.ccEvents) {
+        allEvents.push([
+          `${cc.tick + offsetTicks}i`,
+          {
+            note: 0,
+            velocity: 0,
+            type: 'cc',
+            controller: cc.controller,
+            value: cc.value,
+          },
+        ]);
+      }
+    }
+
     const part = new Tone.Part((time, ev) => {
       if (ev.type === 'on') {
         trackEngine.noteOn(ev.note, ev.velocity, time);
-      } else {
+      } else if (ev.type === 'off') {
         trackEngine.noteOff(ev.note, time);
+      } else if (ev.type === 'cc') {
+        trackEngine.cc(ev.controller!, ev.value!, time);
       }
     }, allEvents);
 

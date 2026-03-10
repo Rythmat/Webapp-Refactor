@@ -117,3 +117,67 @@
     box-shadow: inset 0 10px 10px -10px rgba(0, 0, 0, 0.8);
   }
 }
+
+/* Rainbow border animation for Key button */
+.rainbow-border-wrapper {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 8px; /* inner radius (6px) + border width (2px) */
+  background: linear-gradient(
+    45deg,
+    #d2404a,
+    #ff7348,
+    #fea92a,
+    #ffcb30,
+    #aed580,
+    #7fc783,
+    #28a69a,
+    #62b4f7,
+    #7885cb,
+    #9d7fce,
+    #c785d3,
+    #f8a8c5,
+    #d2404a
+  );
+  background-size: 400%;
+  animation: rainbow 60s linear infinite;
+}
+
+.rainbow-border-inner {
+  border-radius: 6px;
+  border: none;
+  width: 100%;
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 400% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+@keyframes blob-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Per-tile gradient border on hover for Add Track tiles */
+.gradient-border-hover {
+  padding: 2px;
+  background: transparent;
+  border-radius: 14px;
+}
+.gradient-border-hover:hover {
+  background: var(--border-gradient);
+  background-size: 400%;
+  animation: rainbow 30s linear infinite;
+}

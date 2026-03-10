@@ -20,6 +20,8 @@ import {
   chordDeg,
   CHORD_COLORS,
   getChordColor,
+  getModeOffset,
+  ionianToModeLabel,
 } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
@@ -426,19 +428,27 @@ interface ChordInsight {
 export function InsightContent() {
   const stringSeq = useStore((s) => s.stringSeq);
   const rootNote = useStore((s) => s.rootNote);
+  const mode = useStore((s) => s.mode);
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
+  const audioActiveNotes = useStore((s) => s.audioActiveNotes);
+
+  // Use audio-detected notes when available, else MIDI hardware notes
+  const activeNotes = useMemo(() => {
+    if (audioActiveNotes.length > 0) return new Set(audioActiveNotes);
+    return hwActiveNotes;
+  }, [audioActiveNotes, hwActiveNotes]);
 
   const keyLetter = rootNote !== null ? NOTES[rootNote] : null;
 
   const [showLiveAlts, setShowLiveAlts] = useState(false);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
-  // ── Live MIDI chord detection ──
+  // ── Live chord detection (audio or MIDI) ──
 
   const liveChord = useMemo(() => {
-    if (hwActiveNotes.size < 2) return null;
+    if (activeNotes.size < 2) return null;
 
-    const sorted = [...hwActiveNotes].sort((a, b) => a - b);
+    const sorted = [...activeNotes].sort((a, b) => a - b);
     const match = detectChordWithInversion(sorted);
     if (!match) return null;
 
@@ -514,7 +524,7 @@ export function InsightContent() {
         const degPrefix = modifier === -1 ? 'b' : modifier === 1 ? '#' : '';
         const degreeName = `${degPrefix}${degree} ${quality}`;
         const rootMidi = rootNote + 48;
-        const [r, g, b] = getChordColor(degreeName, rootMidi);
+        const [r, g, b] = getChordColor(degreeName, rootMidi, mode);
         color = rgbString(r, g, b);
 
         // Chord root's mode from its quality (maj7 → ionian, min7 → dorian, etc.)
@@ -565,7 +575,7 @@ export function InsightContent() {
       isSessionParent,
       alternatives,
     };
-  }, [hwActiveNotes, rootNote]);
+  }, [activeNotes, rootNote, mode]);
 
   // ── Progression insights ──
 
@@ -581,7 +591,8 @@ export function InsightContent() {
       seen.add(degreeName);
 
       const quality = unstepChord(degreeName);
-      const bassMidi = degreeMidi(rootMidi, degreeName);
+      const parentRoot = rootMidi - getModeOffset(mode);
+      const bassMidi = degreeMidi(parentRoot, degreeName);
       const pitchedNotes = generateChord(bassMidi, quality);
       const noteNames = pitchedNotes.map((n) =>
         noteNameInKey(n % 12, rootNote),
@@ -590,7 +601,7 @@ export function InsightContent() {
       const intervals = CHORDS[quality];
 
       // Per-chord color via engine's circle-of-fifths rotation
-      const [r, g, b] = getChordColor(degreeName, rootMidi);
+      const [r, g, b] = getChordColor(degreeName, parentRoot);
 
       // Chord root's mode from its quality (maj7 → ionian, min7 → dorian, etc.)
       const chordRootPc = bassMidi % 12;
@@ -626,8 +637,8 @@ export function InsightContent() {
       );
 
       results.push({
-        degreeName,
-        hybrid: degreeToHybrid(degreeName),
+        degreeName: ionianToModeLabel(degreeName, mode),
+        hybrid: degreeToHybrid(ionianToModeLabel(degreeName, mode)),
         quality,
         chordLabel: `${rootLetter} ${formatQuality(quality)}`,
         rootLetter,
@@ -645,7 +656,7 @@ export function InsightContent() {
     }
 
     return results;
-  }, [stringSeq, rootNote]);
+  }, [stringSeq, rootNote, mode]);
 
   const hasProgression = stringSeq.length > 0 && rootNote !== null;
   const keyIdx = hasProgression ? ROOT_TO_KEY_INDEX[rootNote] : 0;
@@ -718,35 +729,95 @@ export function InsightContent() {
               Notes: {liveChord.noteNames.join(' \u2013 ')}
             </div>
             {liveChord.chordRootMode && (
-              <div
-                className="text-[9px] leading-snug"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                {liveChord.rootLetter}{' '}
-                {MODE_DISPLAY[liveChord.chordRootMode] ??
-                  liveChord.chordRootMode}
+              <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                <Link
+                  to={LearnRoutes.lesson({
+                    mode:
+                      MODE_TO_SLUG[liveChord.chordRootMode] ??
+                      liveChord.chordRootMode,
+                    key: keyLabelToUrlParam(liveChord.rootLetter),
+                  })}
+                  className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
+                  style={{
+                    backgroundColor: 'var(--color-surface-3)',
+                    color: 'var(--color-accent)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor =
+                      'rgba(126,207,207,0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor =
+                      'var(--color-surface-3)';
+                  }}
+                >
+                  <BookOpen size={8} strokeWidth={2} />
+                  {liveChord.rootLetter}{' '}
+                  {MODE_DISPLAY[liveChord.chordRootMode] ??
+                    liveChord.chordRootMode}
+                </Link>
                 {liveChord.sessionMode &&
                   keyLetter &&
                   !(
                     liveChord.sessionMode === liveChord.chordRootMode &&
                     liveChord.rootLetter === keyLetter
                   ) && (
-                    <>
-                      {' '}
-                      · {keyLetter}{' '}
+                    <Link
+                      to={LearnRoutes.lesson({
+                        mode:
+                          MODE_TO_SLUG[liveChord.sessionMode] ??
+                          liveChord.sessionMode,
+                        key: keyLabelToUrlParam(keyLetter),
+                      })}
+                      className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
+                      style={{
+                        backgroundColor: 'var(--color-surface-3)',
+                        color: 'var(--color-accent)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          'rgba(126,207,207,0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          'var(--color-surface-3)';
+                      }}
+                    >
+                      <BookOpen size={8} strokeWidth={2} />
+                      {keyLetter}{' '}
                       {MODE_DISPLAY[liveChord.sessionMode] ??
                         liveChord.sessionMode}
-                    </>
+                    </Link>
                   )}
                 {!liveChord.isSessionParent &&
                   liveChord.parentKeyLetter &&
                   liveChord.parentMode && (
-                    <>
-                      {' '}
-                      · Parent: {liveChord.parentKeyLetter}{' '}
+                    <Link
+                      to={LearnRoutes.lesson({
+                        mode:
+                          MODE_TO_SLUG[liveChord.parentMode] ??
+                          liveChord.parentMode,
+                        key: keyLabelToUrlParam(liveChord.parentKeyLetter),
+                      })}
+                      className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
+                      style={{
+                        backgroundColor: 'var(--color-surface-3)',
+                        color: 'var(--color-accent)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          'rgba(126,207,207,0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          'var(--color-surface-3)';
+                      }}
+                    >
+                      <BookOpen size={8} strokeWidth={2} />
+                      Parent: {liveChord.parentKeyLetter}{' '}
                       {MODE_DISPLAY[liveChord.parentMode] ??
                         liveChord.parentMode}
-                    </>
+                    </Link>
                   )}
               </div>
             )}
@@ -786,8 +857,14 @@ export function InsightContent() {
                     >
                       <span>
                         {liveChord.rootLetter}{' '}
-                        {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode} (
-                        {alt.family})
+                        {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}
+                        {' · '}
+                        {noteNameInKey(
+                          (rootNote! - alt.parentOffset + 12) % 12,
+                          rootNote!,
+                        )}{' '}
+                        {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ??
+                          alt.family}
                       </span>
                       <Link
                         to={LearnRoutes.lesson({
@@ -816,34 +893,6 @@ export function InsightContent() {
                     </div>
                   ))}
               </div>
-            )}
-            {liveChord.chordRootMode && liveChord.rootLetter && (
-              <Link
-                to={LearnRoutes.lesson({
-                  mode:
-                    MODE_TO_SLUG[liveChord.chordRootMode] ??
-                    liveChord.chordRootMode,
-                  key: keyLabelToUrlParam(liveChord.rootLetter),
-                })}
-                className="flex items-center gap-1 self-start mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
-                style={{
-                  backgroundColor: 'var(--color-surface-3)',
-                  color: 'var(--color-accent)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    'rgba(126,207,207,0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    'var(--color-surface-3)';
-                }}
-              >
-                <BookOpen size={9} strokeWidth={2} />
-                Learn {liveChord.rootLetter}{' '}
-                {MODE_DISPLAY[liveChord.chordRootMode] ??
-                  liveChord.chordRootMode}
-              </Link>
             )}
           </>
         ) : (
@@ -942,32 +991,91 @@ export function InsightContent() {
                 {chord.description}
               </div>
 
-              {/* Mode info */}
-              <div
-                className="text-[9px] leading-snug"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                {chord.rootLetter}{' '}
-                {MODE_DISPLAY[chord.chordRootMode] ?? chord.chordRootMode}
+              {/* Mode links */}
+              <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                <Link
+                  to={LearnRoutes.lesson({
+                    mode:
+                      MODE_TO_SLUG[chord.chordRootMode] ?? chord.chordRootMode,
+                    key: keyLabelToUrlParam(chord.rootLetter),
+                  })}
+                  className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
+                  style={{
+                    backgroundColor: 'var(--color-surface-3)',
+                    color: 'var(--color-accent)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor =
+                      'rgba(126,207,207,0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor =
+                      'var(--color-surface-3)';
+                  }}
+                >
+                  <BookOpen size={8} strokeWidth={2} />
+                  {chord.rootLetter}{' '}
+                  {MODE_DISPLAY[chord.chordRootMode] ?? chord.chordRootMode}
+                </Link>
                 {chord.sessionMode &&
                   keyLetter &&
                   !(
                     chord.sessionMode === chord.chordRootMode &&
                     chord.rootLetter === keyLetter
                   ) && (
-                    <>
-                      {' · '}
+                    <Link
+                      to={LearnRoutes.lesson({
+                        mode:
+                          MODE_TO_SLUG[chord.sessionMode] ?? chord.sessionMode,
+                        key: keyLabelToUrlParam(keyLetter),
+                      })}
+                      className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
+                      style={{
+                        backgroundColor: 'var(--color-surface-3)',
+                        color: 'var(--color-accent)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          'rgba(126,207,207,0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          'var(--color-surface-3)';
+                      }}
+                    >
+                      <BookOpen size={8} strokeWidth={2} />
                       {keyLetter}{' '}
                       {MODE_DISPLAY[chord.sessionMode] ?? chord.sessionMode}
-                    </>
+                    </Link>
                   )}
-                {!chord.isSessionParent && (
-                  <>
-                    {' '}
-                    · Parent: {chord.parentKeyLetter}{' '}
-                    {MODE_DISPLAY[chord.parentMode] ?? chord.parentMode}
-                  </>
-                )}
+                {!chord.isSessionParent &&
+                  chord.parentKeyLetter &&
+                  chord.parentMode && (
+                    <Link
+                      to={LearnRoutes.lesson({
+                        mode:
+                          MODE_TO_SLUG[chord.parentMode] ?? chord.parentMode,
+                        key: keyLabelToUrlParam(chord.parentKeyLetter),
+                      })}
+                      className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
+                      style={{
+                        backgroundColor: 'var(--color-surface-3)',
+                        color: 'var(--color-accent)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          'rgba(126,207,207,0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          'var(--color-surface-3)';
+                      }}
+                    >
+                      <BookOpen size={8} strokeWidth={2} />
+                      Parent: {chord.parentKeyLetter}{' '}
+                      {MODE_DISPLAY[chord.parentMode] ?? chord.parentMode}
+                    </Link>
+                  )}
               </div>
 
               {/* Alternative interpretations */}
@@ -1015,8 +1123,14 @@ export function InsightContent() {
                       >
                         <span>
                           {chord.rootLetter}{' '}
-                          {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}{' '}
-                          ({alt.family})
+                          {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}
+                          {' · '}
+                          {noteNameInKey(
+                            (rootNote! - alt.parentOffset + 12) % 12,
+                            rootNote!,
+                          )}{' '}
+                          {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ??
+                            alt.family}
                         </span>
                         <Link
                           to={LearnRoutes.lesson({
@@ -1046,32 +1160,6 @@ export function InsightContent() {
                     ))}
                 </div>
               )}
-
-              {/* Learn link */}
-              <Link
-                to={LearnRoutes.lesson({
-                  mode:
-                    MODE_TO_SLUG[chord.chordRootMode] ?? chord.chordRootMode,
-                  key: keyLabelToUrlParam(chord.rootLetter),
-                })}
-                className="flex items-center gap-1 self-start mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
-                style={{
-                  backgroundColor: 'var(--color-surface-3)',
-                  color: 'var(--color-accent)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    'rgba(126,207,207,0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    'var(--color-surface-3)';
-                }}
-              >
-                <BookOpen size={9} strokeWidth={2} />
-                Learn {chord.rootLetter}{' '}
-                {MODE_DISPLAY[chord.chordRootMode] ?? chord.chordRootMode}
-              </Link>
             </div>
           ))}
         </>

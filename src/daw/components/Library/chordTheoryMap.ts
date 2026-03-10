@@ -28,8 +28,8 @@ export const CHORD_THEORY: Record<
     description: 'Unstable and tense — wants to resolve up a half step',
   },
   augmented: {
-    mode: 'lydian',
-    description: 'Bright and mysterious — raised 5th creates tension',
+    mode: 'ionianSharp5',
+    description: 'Raised 5th creates a symmetrical, floating sound',
   },
   sus2: {
     mode: 'ionian',
@@ -44,11 +44,11 @@ export const CHORD_THEORY: Record<
     description: 'Half-diminished — common in jazz ii-V-i progressions',
   },
   diminished7: {
-    mode: 'locrian',
+    mode: 'alteredDiminished',
     description: 'Fully diminished — every note is a minor 3rd apart',
   },
   minormajor7: {
-    mode: 'aeolian',
+    mode: 'harmonicMinor',
     description: 'Dark and dramatic — minor with a natural 7th',
   },
   major6: {
@@ -64,20 +64,20 @@ export const CHORD_THEORY: Record<
     description: 'Rich dominant sound — adds the 9th for extra color',
   },
   'major7#5': {
-    mode: 'lydian',
-    description: 'Lydian augmented — both raised 5th and major 7th',
+    mode: 'ionianSharp5',
+    description: 'Augmented with major 7th — lush harmonic minor color',
   },
   dominant7sus4: {
     mode: 'mixolydian',
     description: 'Suspended dominant — delays resolution of the 3rd',
   },
   dominant7b5: {
-    mode: 'lydian',
+    mode: 'lydianDominant',
     description: 'Altered dominant — tritone substitution flavor',
   },
   'dominant7#5': {
-    mode: 'mixolydian',
-    description: 'Augmented dominant — heightened tension before resolving',
+    mode: 'phrygianDominant',
+    description: 'Augmented dominant — heightened tension from harmonic minor',
   },
   Add2: {
     mode: 'ionian',
@@ -121,13 +121,13 @@ export const CHORD_THEORY: Record<
     description: 'Half-diminished with \u266D9 — dark tension for jazz ii-V-i',
   },
   'major7#9': {
-    mode: 'harmonicMajor',
-    description: 'Major 7th with #9 — rich, colorful, neo-soul voicing',
+    mode: 'lydianSharp2',
+    description: 'Major 7th with #9 — exotic harmonic minor color',
   },
   'dominant7#5b9': {
-    mode: 'alteredDiminished',
+    mode: 'phrygianDominant',
     description:
-      'Altered dominant with #5 and \u266D9 — maximum tension before resolution',
+      'Dominant with #5 and \u266D9 — intense harmonic minor tension',
   },
   'dominant9#5': {
     mode: 'mixolydianFlat6',
@@ -138,7 +138,7 @@ export const CHORD_THEORY: Record<
     description: 'Half-diminished 9th — expanded jazz minor ii chord',
   },
   'dominant7#9': {
-    mode: 'altered',
+    mode: 'alteredDominantNat5',
     description: 'The "Hendrix chord" — bluesy, psychedelic dominant',
   },
   'dominant7#5#9': {
@@ -146,7 +146,7 @@ export const CHORD_THEORY: Record<
     description: 'Fully altered dominant — all tensions raised, jazz fusion',
   },
   'major7#5#9': {
-    mode: 'harmonicMajor',
+    mode: 'lydianAugmentedSharp2',
     description: 'Augmented major with #9 — exotic, rare extended harmony',
   },
   minor6add9: {
@@ -159,7 +159,7 @@ export const CHORD_THEORY: Record<
       'Major 6/9 — bright, warm ending chord common in jazz and bossa nova',
   },
   diminishedmajor7: {
-    mode: 'harmonicMinor',
+    mode: 'lydianSharp2',
     description:
       'Diminished triad with major 7th — dramatic harmonic minor tension',
   },
@@ -181,7 +181,7 @@ export const CHORD_THEORY: Record<
     description: 'Major 7th with \u266D5 — Lydian color with altered 5th',
   },
   'minor7#5': {
-    mode: 'dorianSharp4',
+    mode: 'aeolian',
     description: 'Minor 7th with raised 5th — unusual, modal jazz voicing',
   },
   major7sus2: {
@@ -189,8 +189,8 @@ export const CHORD_THEORY: Record<
     description: 'Major 7th with suspended 2nd — open and ethereal',
   },
   major7sus4: {
-    mode: 'lydian',
-    description: 'Major 7th with suspended 4th — Lydian color, unresolved',
+    mode: 'ionian',
+    description: 'Major 7th with suspended 4th — open and unresolved',
   },
   dominant7sus2: {
     mode: 'mixolydian',

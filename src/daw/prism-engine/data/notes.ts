@@ -94,5 +94,67 @@ export function noteNameInKey(pc: number, keyPc: number): string {
   return SHARP_KEY_PCS.has(keyPc) ? SHARP_NAMES[idx] : FLAT_NAMES[idx];
 }
 
+// ── Scale-aware enharmonic spelling ──────────────────────────────────────────
+
+import { KEYS } from './keyColors';
+import { ALL_MODES } from './modes';
+
+const SEMITONE_TO_COF: Record<number, number> = {
+  0: 1,
+  7: 2,
+  2: 3,
+  9: 4,
+  4: 5,
+  11: 6,
+  6: 7,
+  1: 8,
+  8: 9,
+  3: 10,
+  10: 11,
+  5: 12,
+};
+const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+const LETTER_TO_PC: Record<string, number> = {
+  C: 0,
+  D: 2,
+  E: 4,
+  F: 5,
+  G: 7,
+  A: 9,
+  B: 11,
+};
+
+/**
+ * Compute correctly-spelled note names for in-scale notes.
+ * Each of the 7 letter names (A-G) appears exactly once.
+ * Returns Map<pitchClass, spelledName> for the 7 in-scale notes.
+ */
+export function getScaleSpellings(
+  rootNote: number,
+  mode: string,
+): Map<number, string> {
+  const intervals = ALL_MODES[mode];
+  if (!intervals) return new Map();
+  const rootName = KEYS[SEMITONE_TO_COF[rootNote]];
+  const rootLetter = rootName[0];
+  const rootLetterIdx = LETTERS.indexOf(rootLetter);
+  const result = new Map<number, string>();
+  for (let i = 0; i < intervals.length; i++) {
+    const pc = (rootNote + intervals[i]) % 12;
+    const letter = LETTERS[(rootLetterIdx + i) % 7];
+    const letterPc = LETTER_TO_PC[letter];
+    const diff = (pc - letterPc + 12) % 12;
+    let name: string;
+    if (diff === 0) name = letter;
+    else if (diff === 1) name = letter + '#';
+    else if (diff === 11) name = letter + 'b';
+    else if (diff === 2) name = letter + '##';
+    else if (diff === 10) name = letter + 'bb';
+    else name = KEYS[SEMITONE_TO_COF[pc]];
+    result.set(pc, name);
+  }
+  return result;
+}
+
 /** Ticks per quarter note */
 export const BEAT_VAL = 480;

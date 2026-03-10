@@ -1,7 +1,13 @@
 import { useCallback } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import { useStore } from '@/daw/store';
-import { abbreviateSequence, StrumMode, VelocityTilt } from '@prism/engine';
+import {
+  abbreviateSequence,
+  ionianToModeLabel,
+  isDiatonicMode,
+  StrumMode,
+  VelocityTilt,
+} from '@prism/engine';
 import { ChordSequenceDisplay } from './ChordSequenceDisplay';
 import { RhythmSelector } from './RhythmSelector';
 
@@ -134,9 +140,14 @@ export function ChordSelection() {
   const addChord = useStore((s) => s.addChord);
   const undoChord = useStore((s) => s.undoChord);
   const clearSequence = useStore((s) => s.clearSequence);
+  const mode = useStore((s) => s.mode);
 
-  const chordOptions =
-    stringSeq.length === 0 ? availableFirstChords : availableNextChords;
+  const hasDiatonicProgressions = isDiatonicMode(mode);
+  const chordOptions = !hasDiatonicProgressions
+    ? []
+    : stringSeq.length === 0
+      ? availableFirstChords
+      : availableNextChords;
 
   const handleAddChord = useCallback(
     (name: string) => () => {
@@ -174,17 +185,27 @@ export function ChordSelection() {
               border: '1px solid var(--color-border)',
             }}
           >
-            {abbreviateSequence(name)}
+            {abbreviateSequence(ionianToModeLabel(name, mode))}
           </button>
         ))}
-        {chordOptions.length === 0 && stringSeq.length > 0 && (
+        {!hasDiatonicProgressions && (
           <div
             className="col-span-2 py-3 text-center text-xs italic"
             style={{ color: 'var(--color-text-dim)' }}
           >
-            No more options available
+            No progressions for this mode
           </div>
         )}
+        {chordOptions.length === 0 &&
+          hasDiatonicProgressions &&
+          stringSeq.length > 0 && (
+            <div
+              className="col-span-2 py-3 text-center text-xs italic"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              No more options available
+            </div>
+          )}
       </div>
 
       {/* Undo / Clear */}

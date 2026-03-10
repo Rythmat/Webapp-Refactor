@@ -1,12 +1,14 @@
 import { useStore } from './index';
+import type { ChordRegion } from './prismSlice';
 import type { Track } from './tracksSlice';
 
 // ── Undo/Redo Middleware ────────────────────────────────────────────────────
-// Snapshot-based undo system. Captures track state on significant actions.
+// Snapshot-based undo system. Captures track + chord region state on significant actions.
 // High-frequency updates (position, volume drags) are excluded.
 
 export interface UndoSnapshot {
   tracks: Track[];
+  chordRegions: ChordRegion[];
   timestamp: number;
 }
 
@@ -14,11 +16,12 @@ const MAX_UNDO_STACK = 50;
 const undoStack: UndoSnapshot[] = [];
 const redoStack: UndoSnapshot[] = [];
 
-/** Take a snapshot of the current track state for undo. */
+/** Take a snapshot of the current track + chord state for undo. */
 export function pushUndo(): void {
   const state = useStore.getState();
   undoStack.push({
     tracks: structuredClone(state.tracks),
+    chordRegions: structuredClone(state.chordRegions),
     timestamp: Date.now(),
   });
   if (undoStack.length > MAX_UNDO_STACK) {
@@ -36,11 +39,15 @@ export function undo(): boolean {
   // Push current state to redo
   redoStack.push({
     tracks: structuredClone(state.tracks),
+    chordRegions: structuredClone(state.chordRegions),
     timestamp: Date.now(),
   });
 
   const snapshot = undoStack.pop()!;
-  useStore.setState({ tracks: snapshot.tracks });
+  useStore.setState({
+    tracks: snapshot.tracks,
+    chordRegions: snapshot.chordRegions,
+  });
   return true;
 }
 
@@ -52,11 +59,15 @@ export function redo(): boolean {
   // Push current state to undo
   undoStack.push({
     tracks: structuredClone(state.tracks),
+    chordRegions: structuredClone(state.chordRegions),
     timestamp: Date.now(),
   });
 
   const snapshot = redoStack.pop()!;
-  useStore.setState({ tracks: snapshot.tracks });
+  useStore.setState({
+    tracks: snapshot.tracks,
+    chordRegions: snapshot.chordRegions,
+  });
   return true;
 }
 
@@ -74,35 +85,45 @@ export function canRedo(): boolean {
 // We debounce to avoid capturing every micro-change during drags.
 
 let lastTrackJson = '';
+let lastChordJson = '';
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function initUndoTracking(): void {
-  lastTrackJson = JSON.stringify(useStore.getState().tracks);
+  const initialState = useStore.getState();
+  lastTrackJson = JSON.stringify(initialState.tracks);
+  lastChordJson = JSON.stringify(initialState.chordRegions);
 
-  useStore.subscribe(
-    (state) => state.tracks,
-    (tracks) => {
-      const json = JSON.stringify(tracks);
-      if (json === lastTrackJson) return;
+  const handleChange = () => {
+    const state = useStore.getState();
+    const trackJson = JSON.stringify(state.tracks);
+    const chordJson = JSON.stringify(state.chordRegions);
+    if (trackJson === lastTrackJson && chordJson === lastChordJson) return;
 
-      // Debounce: only capture after 300ms of no changes
-      if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        // Don't push if the change was from undo/redo itself
-        const prevJson = lastTrackJson;
-        lastTrackJson = json;
-        if (prevJson !== json) {
-          // Push the PREVIOUS state, not the current one
-          try {
-            const prevTracks = JSON.parse(prevJson) as Track[];
-            undoStack.push({ tracks: prevTracks, timestamp: Date.now() });
-            if (undoStack.length > MAX_UNDO_STACK) undoStack.shift();
-            redoStack.length = 0;
-          } catch {
-            // Ignore parse errors
-          }
+    // Debounce: only capture after 300ms of no changes
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      const prevTrackJson = lastTrackJson;
+      const prevChordJson = lastChordJson;
+      lastTrackJson = trackJson;
+      lastChordJson = chordJson;
+      if (prevTrackJson !== trackJson || prevChordJson !== chordJson) {
+        try {
+          const prevTracks = JSON.parse(prevTrackJson) as Track[];
+          const prevChords = JSON.parse(prevChordJson) as ChordRegion[];
+          undoStack.push({
+            tracks: prevTracks,
+            chordRegions: prevChords,
+            timestamp: Date.now(),
+          });
+          if (undoStack.length > MAX_UNDO_STACK) undoStack.shift();
+          redoStack.length = 0;
+        } catch {
+          // Ignore parse errors
         }
-      }, 300);
-    },
-  );
+      }
+    }, 300);
+  };
+
+  useStore.subscribe((state) => state.tracks, handleChange);
+  useStore.subscribe((state) => state.chordRegions, handleChange);
 }

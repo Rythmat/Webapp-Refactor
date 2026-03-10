@@ -6,6 +6,8 @@ export interface SessionData {
   version: 1;
   timestamp: number;
   data: {
+    projectName?: string;
+    composerName?: string;
     transport: {
       bpm: number;
       position: number;
@@ -65,6 +67,8 @@ export function serializeSession(): SessionData {
     version: 1,
     timestamp: Date.now(),
     data: {
+      projectName: state.projectName,
+      composerName: state.composerName,
       transport: {
         bpm: state.bpm,
         position: state.position,
@@ -148,6 +152,10 @@ export function deserializeSession(session: SessionData): void {
   }
 
   useStore.setState({
+    // Project
+    projectName: d.projectName ?? 'Untitled Project',
+    composerName: d.composerName ?? '',
+
     // Transport
     bpm: d.transport.bpm,
     position: d.transport.position,

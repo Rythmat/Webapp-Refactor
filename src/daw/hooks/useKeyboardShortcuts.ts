@@ -10,6 +10,7 @@ import {
   loadFromLocalStorage,
 } from '@/daw/persistence/SessionStorage';
 import { undo, redo } from '@/daw/store/undoMiddleware';
+import { deriveChordRegionsFromNotes } from '@/daw/store/prismSlice';
 import { exportMidiFile, downloadMidiBlob } from '@/daw/midi/MidiFileIO';
 import {
   getAudioBuffer,
@@ -43,11 +44,11 @@ export function useKeyboardShortcuts() {
 
       // ── Cmd shortcuts (always active, even in inputs) ───────────────
 
-      // Cmd+S: Save session
+      // Cmd+S: Save session to current project slot
       if (e.code === 'KeyS' && isMod) {
         e.preventDefault();
         const session = serializeSession();
-        saveToLocalStorage(session);
+        saveToLocalStorage(session, state.projectName);
         return;
       }
 
@@ -120,6 +121,24 @@ export function useKeyboardShortcuts() {
                 startTick: position,
               });
             }
+            // Derive chord regions from all clips on target track (skip drums)
+            const { rootNote, mode, setChordRegions } = useStore.getState();
+            {
+              const updatedTrack = useStore
+                .getState()
+                .tracks.find((t) => t.id === targetTrackId);
+              if (updatedTrack && updatedTrack.instrument !== 'drum-machine') {
+                const allEvents = updatedTrack.midiClips.flatMap(
+                  (c) => c.events,
+                );
+                const regions = deriveChordRegionsFromNotes(
+                  allEvents,
+                  (rootNote ?? 0) + 48,
+                  mode,
+                );
+                setChordRegions(regions);
+              }
+            }
           }
         }
         return;
@@ -147,6 +166,24 @@ export function useKeyboardShortcuts() {
               startTick: midiClip.startTick + duration,
             });
             state.setSelectedClip(newId, selectedClipTrackId);
+            // Derive chord regions from all clips on track (skip drums)
+            const { rootNote, mode, setChordRegions } = useStore.getState();
+            {
+              const updatedTrack = useStore
+                .getState()
+                .tracks.find((t) => t.id === selectedClipTrackId);
+              if (updatedTrack && updatedTrack.instrument !== 'drum-machine') {
+                const allEvents = updatedTrack.midiClips.flatMap(
+                  (c) => c.events,
+                );
+                const regions = deriveChordRegionsFromNotes(
+                  allEvents,
+                  (rootNote ?? 0) + 48,
+                  mode,
+                );
+                setChordRegions(regions);
+              }
+            }
           } else {
             const audioClip = track?.audioClips.find(
               (c) => c.id === selectedClipId,

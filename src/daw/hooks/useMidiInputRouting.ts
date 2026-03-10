@@ -57,7 +57,7 @@ export function useMidiInputRouting() {
       useStore.getState().hwNoteOff(note);
     };
 
-    const onNoteOn = (note: number, velocity: number) => {
+    const onNoteOn = (note: number, velocity: number, timestamp: number) => {
       const { tracks, selectedTrackId, isRecording } = useStore.getState();
 
       // If re-striking a note held by sustain pedal, remove from pending release
@@ -107,16 +107,17 @@ export function useMidiInputRouting() {
       // Capture: feed recorder if recording + any MIDI track is armed
       if (isRecording) {
         const hasArmed = tracks.some((t) => t.recordArmed && t.type === 'midi');
-        if (hasArmed) midiRecorderRef.current.captureNoteOn(note, velocity);
+        if (hasArmed)
+          midiRecorderRef.current.captureNoteOn(note, velocity, timestamp);
       }
     };
 
-    const onNoteOff = (note: number) => {
+    const onNoteOff = (note: number, timestamp: number) => {
       // Record the physical noteOff regardless of sustain state
       const { isRecording, tracks } = useStore.getState();
       if (isRecording) {
         const hasArmed = tracks.some((t) => t.recordArmed && t.type === 'midi');
-        if (hasArmed) midiRecorderRef.current.captureNoteOff(note);
+        if (hasArmed) midiRecorderRef.current.captureNoteOff(note, timestamp);
       }
 
       // If sustain pedal is active, defer the release
@@ -129,7 +130,14 @@ export function useMidiInputRouting() {
     };
 
     const onCC = (cc: number, value: number) => {
-      if (cc !== 64) return; // Only handle sustain pedal
+      // Record CC event if recording
+      const { isRecording, tracks } = useStore.getState();
+      if (isRecording) {
+        const hasArmed = tracks.some((t) => t.recordArmed && t.type === 'midi');
+        if (hasArmed) midiRecorderRef.current.captureCC(cc, value);
+      }
+
+      if (cc !== 64) return; // Only handle sustain pedal for live routing
 
       if (value >= 64) {
         sustainActive = true;

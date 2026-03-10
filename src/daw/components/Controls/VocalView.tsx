@@ -29,7 +29,15 @@ import {
   SCALE_TYPES,
   NOTE_NAMES,
 } from '@/daw/audio/pitch-correction/PitchCorrectionNode';
-import { KEY_COLORS, type ColorIndex } from '@prism/engine';
+import {
+  KEY_COLORS,
+  ALL_MODES,
+  MODE_GROUPS,
+  MODE_DISPLAY,
+  FAMILY_COLOR_INDEX,
+  MODE_FAMILY_INFO,
+  type ColorIndex,
+} from '@prism/engine';
 import {
   getAudioInputs,
   probeDeviceChannelCount,
@@ -65,6 +73,34 @@ function rootNoteGradWhite(root: number): string {
 
 function rootNoteGradBlack(root: number): string {
   const [r, g, b] = KEY_COLORS[ROOT_TO_KEY_INDEX[root] ?? 1];
+  return `linear-gradient(to bottom, rgb(${Math.round(r * 0.7)}, ${Math.round(g * 0.7)}, ${Math.round(b * 0.7)}), rgb(${Math.round(r * 0.5)}, ${Math.round(g * 0.5)}, ${Math.round(b * 0.5)}))`;
+}
+
+function getModeRgb(
+  rootNote: number,
+  modeKey: string,
+): [number, number, number] {
+  const familyInfo = MODE_FAMILY_INFO[modeKey];
+  if (!familyInfo) return KEY_COLORS[ROOT_TO_KEY_INDEX[rootNote] ?? 1];
+  const fixedIdx = FAMILY_COLOR_INDEX[familyInfo.familyLabel];
+  if (fixedIdx != null) return KEY_COLORS[fixedIdx as ColorIndex];
+  const offset = ALL_MODES.ionian[familyInfo.position];
+  const parentRoot = (rootNote - offset + 12) % 12;
+  return KEY_COLORS[ROOT_TO_KEY_INDEX[parentRoot] ?? 1];
+}
+
+function modeColor(rootNote: number, modeKey: string): string {
+  const [r, g, b] = getModeRgb(rootNote, modeKey);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function modeGradWhite(rootNote: number, modeKey: string): string {
+  const [r, g, b] = getModeRgb(rootNote, modeKey);
+  return `linear-gradient(to bottom, rgb(${r}, ${g}, ${b}), rgb(${Math.min(255, r + 40)}, ${Math.min(255, g + 40)}, ${Math.min(255, b + 40)}))`;
+}
+
+function modeGradBlack(rootNote: number, modeKey: string): string {
+  const [r, g, b] = getModeRgb(rootNote, modeKey);
   return `linear-gradient(to bottom, rgb(${Math.round(r * 0.7)}, ${Math.round(g * 0.7)}, ${Math.round(b * 0.7)}), rgb(${Math.round(r * 0.5)}, ${Math.round(g * 0.5)}, ${Math.round(b * 0.5)}))`;
 }
 
@@ -111,7 +147,7 @@ const PEDAL_CATALOG: PedalDef[] = [
     color: '#ffffff',
     params: [
       { key: 'rootNote', label: 'Root', default: -1 },
-      { key: 'scaleType', label: 'Scale', default: 1 },
+      { key: 'scaleType', label: 'Scale', default: 2 },
       { key: 'correction', label: 'Strength', default: 80 },
       { key: 'speed', label: 'Smooth', default: 50 },
       { key: 'humanize', label: 'Human', default: 0 },
@@ -365,20 +401,14 @@ function PedalIcon({
 
 // ── Scale intervals for active notes computation ────────────────────────
 
-const SCALE_INTERVALS: number[][] = [
-  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], // Chromatic
-  [0, 2, 4, 5, 7, 9, 11], // Major
-  [0, 2, 3, 5, 7, 8, 10], // Minor
-  [0, 2, 4, 7, 9], // Pentatonic
-  [0, 3, 5, 7, 10], // Minor Pent
-  [0, 3, 5, 6, 7, 10], // Blues
-  [0, 2, 3, 5, 7, 9, 10], // Dorian
-  [0, 2, 4, 5, 7, 9, 10], // Mixolydian
-  [0, 2, 3, 5, 7, 8, 11], // Harmonic Minor
-];
+const CHROMATIC_INTERVALS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
 function scaleToNotesBitmask(rootNote: number, scaleType: number): number {
-  const intervals = SCALE_INTERVALS[scaleType] ?? SCALE_INTERVALS[0];
+  const modeKey = SCALE_TYPES[scaleType];
+  const intervals =
+    modeKey === 'chromatic'
+      ? CHROMATIC_INTERVALS
+      : (ALL_MODES[modeKey] ?? CHROMATIC_INTERVALS);
   let mask = 0;
   for (const interval of intervals) {
     mask |= 1 << (rootNote + interval) % 12;
@@ -429,16 +459,15 @@ function getAdapter(trackId: string): VocalFxAdapter | null {
 // ── VocalView ────────────────────────────────────────────────────────────
 
 export function VocalView({ trackId }: { trackId: string }) {
-  const monitoring = useStore(
-    (s) => s.tracks.find((t) => t.id === trackId)?.monitoring ?? false,
-  );
   const audioInputChannel = useStore(
     (s) => s.tracks.find((t) => t.id === trackId)?.audioInputChannel ?? null,
   );
   const globalInputDeviceId = useStore((s) => s.inputDeviceId);
   const bpm = useStore((s) => s.bpm);
   const globalRootNote = useStore((s) => s.rootNote);
+  const globalMode = useStore((s) => s.mode);
   const setGlobalRootNote = useStore((s) => s.setRootNote);
+  const setGlobalMode = useStore((s) => s.setMode);
   const rootLocked = useStore((s) => s.rootLocked);
   const toggleRootLock = useStore((s) => s.toggleRootLock);
   const updateTrack = useStore((s) => s.updateTrack);
@@ -468,6 +497,11 @@ export function VocalView({ trackId }: { trackId: string }) {
 
   // Pitch correction expanded popup
   const [pitchExpanded, setPitchExpanded] = useState(false);
+  const [scaleDropdownOpen, setScaleDropdownOpen] = useState(false);
+  const [scaleDropdownOpenExpanded, setScaleDropdownOpenExpanded] =
+    useState(false);
+  const scaleDropdownRef = useRef<HTMLDivElement>(null);
+  const scaleDropdownExpandedRef = useRef<HTMLDivElement>(null);
 
   // Pitch info for PitchMeter
   const pitchInfo = usePitchInfo(trackId);
@@ -504,11 +538,7 @@ export function VocalView({ trackId }: { trackId: string }) {
     });
   }, [trackId, globalInputDeviceId, audioInputChannel]);
 
-  // Sync monitoring to adapter
-  useEffect(() => {
-    const adapter = getAdapter(trackId);
-    adapter?.setMonitoring(monitoring);
-  }, [trackId, monitoring]);
+  // Monitoring sync is handled centrally in usePlaybackEngine
 
   // Sync pedal chain to audio engine (fast path avoids rewiring on param-only changes)
   useEffect(() => {
@@ -556,6 +586,47 @@ export function VocalView({ trackId }: { trackId: string }) {
       scaleToNotesBitmask(globalRootNote, pcBlock.params.scaleType ?? 0),
     );
   }, [globalRootNote, pcBlockId]);
+
+  // Sync global mode → pitch correction block's scaleType param
+  useEffect(() => {
+    if (!pcBlockId) return;
+    const modeIdx = SCALE_TYPES.indexOf(
+      globalMode as (typeof SCALE_TYPES)[number],
+    );
+    if (modeIdx < 0) return;
+    const pcBlock = chain.find((b) => b.id === pcBlockId);
+    if (!pcBlock) return;
+    if ((pcBlock.params.scaleType ?? 0) === modeIdx) return;
+    updateBlockParam(pcBlockId, 'scaleType', modeIdx);
+    const root = pcBlock.params.rootNote ?? 0;
+    if (root >= 0) {
+      updateBlockParam(
+        pcBlockId,
+        'activeNotes',
+        scaleToNotesBitmask(root, modeIdx),
+      );
+    }
+  }, [globalMode, pcBlockId]);
+
+  // Close scale dropdowns on click outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        scaleDropdownRef.current &&
+        !scaleDropdownRef.current.contains(e.target as Node)
+      ) {
+        setScaleDropdownOpen(false);
+      }
+      if (
+        scaleDropdownExpandedRef.current &&
+        !scaleDropdownExpandedRef.current.contains(e.target as Node)
+      ) {
+        setScaleDropdownOpenExpanded(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   // Input level metering loop
   useEffect(() => {
@@ -705,25 +776,35 @@ export function VocalView({ trackId }: { trackId: string }) {
       ))
     : 4095;
 
-  // Root-derived accent color for pitch correction controls
+  // Root + mode derived accent color for pitch correction controls
   const pitchRootNote =
     selectedBlock?.type === 'pitch-correction'
       ? (selectedBlock.params.rootNote ?? -1)
       : -1;
+  const pitchModeKey =
+    selectedBlock?.type === 'pitch-correction'
+      ? (SCALE_TYPES[selectedBlock.params.scaleType ?? 0] ?? 'chromatic')
+      : 'chromatic';
   const pitchAccentColor =
     selectedBlock?.type === 'pitch-correction'
       ? pitchRootNote === -1
         ? '#ffffff'
-        : rootNoteColor(pitchRootNote)
+        : pitchModeKey === 'chromatic'
+          ? rootNoteColor(pitchRootNote)
+          : modeColor(pitchRootNote, pitchModeKey)
       : selectedColor;
   const pitchWhiteGrad =
     pitchRootNote === -1
       ? 'linear-gradient(to bottom, #e8e8e8, #fff)'
-      : rootNoteGradWhite(pitchRootNote);
+      : pitchModeKey === 'chromatic'
+        ? rootNoteGradWhite(pitchRootNote)
+        : modeGradWhite(pitchRootNote, pitchModeKey);
   const pitchBlackGrad =
     pitchRootNote === -1
       ? 'linear-gradient(to bottom, #333, #1a1a1a)'
-      : rootNoteGradBlack(pitchRootNote);
+      : pitchModeKey === 'chromatic'
+        ? rootNoteGradBlack(pitchRootNote)
+        : modeGradBlack(pitchRootNote, pitchModeKey);
 
   return (
     <div className="flex h-full">
@@ -1245,38 +1326,143 @@ export function VocalView({ trackId }: { trackId: string }) {
                     >
                       Scale
                     </span>
-                    <select
-                      value={selectedBlock.params.scaleType ?? 0}
-                      onChange={(e) => {
-                        const scaleIdx = Number(e.target.value);
-                        updateBlockParam(
-                          selectedBlock.id,
-                          'scaleType',
-                          scaleIdx,
-                        );
-                        const newMask = scaleToNotesBitmask(
-                          selectedBlock.params.rootNote ?? 0,
-                          scaleIdx,
-                        );
-                        updateBlockParam(
-                          selectedBlock.id,
-                          'activeNotes',
-                          newMask,
-                        );
-                      }}
-                      className="text-[10px] rounded px-2 py-1 cursor-pointer"
-                      style={{
-                        backgroundColor: 'var(--color-surface-3)',
-                        color: 'var(--color-text)',
-                        border: '1px solid var(--color-border)',
-                      }}
-                    >
-                      {SCALE_TYPES.map((label, i) => (
-                        <option key={label} value={i}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative" ref={scaleDropdownRef}>
+                      <button
+                        onClick={() => setScaleDropdownOpen((v) => !v)}
+                        className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors hover:bg-white/10"
+                        style={{
+                          backgroundColor: 'var(--color-surface-3)',
+                          color: 'var(--color-text)',
+                          border: '1px solid var(--color-border)',
+                          minWidth: 90,
+                        }}
+                      >
+                        {(() => {
+                          const modeKey =
+                            SCALE_TYPES[selectedBlock.params.scaleType ?? 0];
+                          return modeKey === 'chromatic'
+                            ? 'Chromatic'
+                            : (MODE_DISPLAY[modeKey] ?? modeKey);
+                        })()}
+                        <ChevronDown
+                          size={10}
+                          strokeWidth={2}
+                          style={{
+                            marginLeft: 'auto',
+                            transform: scaleDropdownOpen
+                              ? 'rotate(180deg)'
+                              : undefined,
+                            transition: 'transform 0.15s',
+                          }}
+                        />
+                      </button>
+                      {scaleDropdownOpen && (
+                        <div
+                          className="absolute left-0 z-50 mt-1 overflow-y-auto rounded-md border"
+                          style={{
+                            maxHeight: 260,
+                            width: 200,
+                            backgroundColor: 'var(--color-surface-2, #1e1e2e)',
+                            borderColor:
+                              'var(--color-border, rgba(255,255,255,0.08))',
+                            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                          }}
+                        >
+                          {/* Chromatic option */}
+                          <button
+                            onClick={() => {
+                              updateBlockParam(
+                                selectedBlock.id,
+                                'scaleType',
+                                0,
+                              );
+                              updateBlockParam(
+                                selectedBlock.id,
+                                'activeNotes',
+                                4095,
+                              );
+                              setScaleDropdownOpen(false);
+                            }}
+                            className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
+                            style={{
+                              color:
+                                (selectedBlock.params.scaleType ?? 0) === 0
+                                  ? '#fff'
+                                  : 'var(--color-text-secondary, #a0a0b0)',
+                              background:
+                                (selectedBlock.params.scaleType ?? 0) === 0
+                                  ? 'rgba(255,255,255,0.08)'
+                                  : 'none',
+                              border: 'none',
+                              fontWeight:
+                                (selectedBlock.params.scaleType ?? 0) === 0
+                                  ? 600
+                                  : 400,
+                            }}
+                          >
+                            Chromatic
+                          </button>
+                          {MODE_GROUPS.map((group) => (
+                            <div key={group.label}>
+                              <div
+                                className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
+                                style={{
+                                  color: 'var(--color-text-dim, #6b6b80)',
+                                  backgroundColor:
+                                    'var(--color-surface-2, #1e1e2e)',
+                                }}
+                              >
+                                {group.label}
+                              </div>
+                              {group.modes.map((modeKey) => {
+                                const modeIdx = SCALE_TYPES.indexOf(
+                                  modeKey as (typeof SCALE_TYPES)[number],
+                                );
+                                const isActive =
+                                  (selectedBlock.params.scaleType ?? 0) ===
+                                  modeIdx;
+                                return (
+                                  <button
+                                    key={modeKey}
+                                    onClick={() => {
+                                      updateBlockParam(
+                                        selectedBlock.id,
+                                        'scaleType',
+                                        modeIdx,
+                                      );
+                                      const newMask = scaleToNotesBitmask(
+                                        selectedBlock.params.rootNote ?? 0,
+                                        modeIdx,
+                                      );
+                                      updateBlockParam(
+                                        selectedBlock.id,
+                                        'activeNotes',
+                                        newMask,
+                                      );
+                                      setGlobalMode(modeKey);
+                                      setScaleDropdownOpen(false);
+                                    }}
+                                    className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
+                                    style={{
+                                      color: isActive
+                                        ? '#fff'
+                                        : 'var(--color-text-secondary, #a0a0b0)',
+                                      background: isActive
+                                        ? 'rgba(255,255,255,0.08)'
+                                        : 'none',
+                                      border: 'none',
+                                      fontWeight: isActive ? 600 : 400,
+                                    }}
+                                  >
+                                    {MODE_DISPLAY[modeKey] ?? modeKey}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   {/* Strength knob */}
                   <RotaryKnob
@@ -1750,37 +1936,160 @@ export function VocalView({ trackId }: { trackId: string }) {
                               >
                                 Scale
                               </span>
-                              <select
-                                value={selectedBlock.params.scaleType ?? 0}
-                                onChange={(e) => {
-                                  const scaleIdx = Number(e.target.value);
-                                  updateBlockParam(
-                                    selectedBlock.id,
-                                    'scaleType',
-                                    scaleIdx,
-                                  );
-                                  updateBlockParam(
-                                    selectedBlock.id,
-                                    'activeNotes',
-                                    scaleToNotesBitmask(
-                                      selectedBlock.params.rootNote ?? 0,
-                                      scaleIdx,
-                                    ),
-                                  );
-                                }}
-                                className="text-[10px] rounded px-2 py-1 cursor-pointer"
-                                style={{
-                                  backgroundColor: 'var(--color-surface-3)',
-                                  color: 'var(--color-text)',
-                                  border: '1px solid var(--color-border)',
-                                }}
+                              <div
+                                className="relative"
+                                ref={scaleDropdownExpandedRef}
                               >
-                                {SCALE_TYPES.map((label, i) => (
-                                  <option key={label} value={i}>
-                                    {label}
-                                  </option>
-                                ))}
-                              </select>
+                                <button
+                                  onClick={() =>
+                                    setScaleDropdownOpenExpanded((v) => !v)
+                                  }
+                                  className="flex cursor-pointer items-center gap-1 rounded px-2 py-1 text-[10px] transition-colors hover:bg-white/10"
+                                  style={{
+                                    backgroundColor: 'var(--color-surface-3)',
+                                    color: 'var(--color-text)',
+                                    border: '1px solid var(--color-border)',
+                                    minWidth: 90,
+                                  }}
+                                >
+                                  {(() => {
+                                    const modeKey =
+                                      SCALE_TYPES[
+                                        selectedBlock.params.scaleType ?? 0
+                                      ];
+                                    return modeKey === 'chromatic'
+                                      ? 'Chromatic'
+                                      : (MODE_DISPLAY[modeKey] ?? modeKey);
+                                  })()}
+                                  <ChevronDown
+                                    size={10}
+                                    strokeWidth={2}
+                                    style={{
+                                      marginLeft: 'auto',
+                                      transform: scaleDropdownOpenExpanded
+                                        ? 'rotate(180deg)'
+                                        : undefined,
+                                      transition: 'transform 0.15s',
+                                    }}
+                                  />
+                                </button>
+                                {scaleDropdownOpenExpanded && (
+                                  <div
+                                    className="absolute left-0 z-50 mt-1 overflow-y-auto rounded-md border"
+                                    style={{
+                                      maxHeight: 260,
+                                      width: 200,
+                                      backgroundColor:
+                                        'var(--color-surface-2, #1e1e2e)',
+                                      borderColor:
+                                        'var(--color-border, rgba(255,255,255,0.08))',
+                                      boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                                    }}
+                                  >
+                                    <button
+                                      onClick={() => {
+                                        updateBlockParam(
+                                          selectedBlock.id,
+                                          'scaleType',
+                                          0,
+                                        );
+                                        updateBlockParam(
+                                          selectedBlock.id,
+                                          'activeNotes',
+                                          4095,
+                                        );
+                                        setScaleDropdownOpenExpanded(false);
+                                      }}
+                                      className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
+                                      style={{
+                                        color:
+                                          (selectedBlock.params.scaleType ??
+                                            0) === 0
+                                            ? '#fff'
+                                            : 'var(--color-text-secondary, #a0a0b0)',
+                                        background:
+                                          (selectedBlock.params.scaleType ??
+                                            0) === 0
+                                            ? 'rgba(255,255,255,0.08)'
+                                            : 'none',
+                                        border: 'none',
+                                        fontWeight:
+                                          (selectedBlock.params.scaleType ??
+                                            0) === 0
+                                            ? 600
+                                            : 400,
+                                      }}
+                                    >
+                                      Chromatic
+                                    </button>
+                                    {MODE_GROUPS.map((group) => (
+                                      <div key={group.label}>
+                                        <div
+                                          className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
+                                          style={{
+                                            color:
+                                              'var(--color-text-dim, #6b6b80)',
+                                            backgroundColor:
+                                              'var(--color-surface-2, #1e1e2e)',
+                                          }}
+                                        >
+                                          {group.label}
+                                        </div>
+                                        {group.modes.map((modeKey) => {
+                                          const modeIdx = SCALE_TYPES.indexOf(
+                                            modeKey as (typeof SCALE_TYPES)[number],
+                                          );
+                                          const isActive =
+                                            (selectedBlock.params.scaleType ??
+                                              0) === modeIdx;
+                                          return (
+                                            <button
+                                              key={modeKey}
+                                              onClick={() => {
+                                                updateBlockParam(
+                                                  selectedBlock.id,
+                                                  'scaleType',
+                                                  modeIdx,
+                                                );
+                                                const newMask =
+                                                  scaleToNotesBitmask(
+                                                    selectedBlock.params
+                                                      .rootNote ?? 0,
+                                                    modeIdx,
+                                                  );
+                                                updateBlockParam(
+                                                  selectedBlock.id,
+                                                  'activeNotes',
+                                                  newMask,
+                                                );
+                                                setGlobalMode(modeKey);
+                                                setScaleDropdownOpenExpanded(
+                                                  false,
+                                                );
+                                              }}
+                                              className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
+                                              style={{
+                                                color: isActive
+                                                  ? '#fff'
+                                                  : 'var(--color-text-secondary, #a0a0b0)',
+                                                background: isActive
+                                                  ? 'rgba(255,255,255,0.08)'
+                                                  : 'none',
+                                                border: 'none',
+                                                fontWeight: isActive
+                                                  ? 600
+                                                  : 400,
+                                              }}
+                                            >
+                                              {MODE_DISPLAY[modeKey] ?? modeKey}
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                             <div className="flex flex-col gap-1">
                               <span

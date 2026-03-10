@@ -10,6 +10,7 @@ export type {
   GraphKey,
   ModeName,
   MidiNoteEvent,
+  MidiCCEvent,
   MidiSequence,
   ChordDegree,
   PrismSessionState,
@@ -31,6 +32,7 @@ export {
   noteName,
   noteNameLetter,
   noteNameInKey,
+  getScaleSpellings,
   BEAT_VAL,
 } from './data/notes';
 export { CHORDS } from './data/chords';
@@ -41,6 +43,11 @@ export {
   TRIADS,
   TETRADS,
   DEGREES,
+  MODE_GROUPS,
+  MODE_DISPLAY,
+  FAMILY_COLOR_INDEX,
+  FAMILY_DEGREE_ORDER,
+  MODE_FAMILY_INFO,
 } from './data/modes';
 export {
   KEY_COLORS,
@@ -80,6 +87,10 @@ export {
   abbreviateSequence,
   graphToken,
   detectChordWithInversion,
+  getModeOffset,
+  isDiatonicMode,
+  ionianToModeLabel,
+  modeToIonianLabel,
 } from './engine/naming';
 export type { ChordMatch } from './engine/naming';
 
@@ -116,3 +127,16 @@ export { generatePadMidi } from './engine/padGenerator';
 
 // Engine — orchestrator
 export { orchestrate } from './engine/orchestrator';
+
+// Engine — suggestion
+export {
+  analyzeChordStyle,
+  extractGraphSeed,
+  generateSuggestions,
+  filterByStyle,
+} from './engine/suggestionEngine';
+export type {
+  ChordStyle,
+  SuggestionChord,
+  SuggestionSet,
+} from './engine/suggestionEngine';

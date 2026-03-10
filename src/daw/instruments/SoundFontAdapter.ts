@@ -120,6 +120,11 @@ export class SoundFontAdapter implements InstrumentAdapter {
     sharedSynth.noteOff(this.channel, note);
   }
 
+  cc(controller: number, value: number, _time?: number): void {
+    if (!sharedSynth || !synthReady) return;
+    sharedSynth.controllerChange(this.channel, controller as any, value);
+  }
+
   allNotesOff(): void {
     if (sharedSynth) sharedSynth.controllerChange(this.channel, 123, 0);
   }

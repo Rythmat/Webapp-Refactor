@@ -383,6 +383,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
               gr={gr}
               inLevel={inLevel}
               outLevel={outLevel}
+              analyserNode={masteringChain?.getPreCompAnalyser() ?? null}
             />
           ) : (
             <div

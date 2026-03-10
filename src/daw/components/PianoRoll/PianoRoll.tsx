@@ -7,7 +7,11 @@ import {
   ChevronDown,
   ChevronRight,
 } from 'lucide-react';
-import { noteNameInKey, type MidiNoteEvent } from '@prism/engine';
+import {
+  noteNameInKey,
+  getScaleSpellings,
+  type MidiNoteEvent,
+} from '@prism/engine';
 import { useStore } from '@/daw/store';
 import {
   GRID_VALUES,
@@ -28,7 +32,6 @@ const VEL_LANE_H = 60; // px height for velocity lane
 const VEL_CIRCLE_R = 4; // px radius of draggable velocity circle
 const VEL_CIRCLE_HIT_R = 7; // px hit test radius (circle + tolerance)
 const TICKS_PER_BEAT = 480;
-const BEATS_PER_BAR = 4;
 
 // Fixed view range (full keyboard C1–C7)
 const VIEW_MIN = 24; // C1
@@ -51,8 +54,15 @@ const PENCIL_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/200
 const ERASER_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21'/><path d='M22 21H7'/><path d='m5 11 9 9'/></svg>") 2 18, pointer`;
 
 // ── Note helpers ────────────────────────────────────────────────────────────
-function noteName(midi: number, keyPc: number): string {
-  return `${noteNameInKey(midi % 12, keyPc)}${Math.floor(midi / 12) - 1}`;
+function noteName(
+  midi: number,
+  keyPc: number,
+  spellings: Map<number, string> | null,
+): string {
+  const pc = midi % 12;
+  const octave = Math.floor(midi / 12) - 1;
+  if (spellings?.has(pc)) return `${spellings.get(pc)}${octave}`;
+  return `${noteNameInKey(pc, keyPc)}${octave}`;
 }
 function isBlackKey(midi: number): boolean {
   const n = midi % 12;
@@ -83,6 +93,10 @@ export function PianoRoll({
   onChange,
 }: PianoRollProps) {
   const rootNote = useStore((s) => s.rootNote);
+  const mode = useStore((s) => s.mode);
+  const tsNum = useStore((s) => s.timeSignatureNumerator);
+
+  const beatsPerBar = tsNum;
 
   // Refs — container + 3 canvases + 3 scroll containers
   const containerRef = useRef<HTMLDivElement>(null);
@@ -114,7 +128,7 @@ export function PianoRoll({
   const MAX_V_ZOOM = 4;
 
   // Compute horizontal extent from events (16-bar minimum)
-  const MIN_TICKS = TICKS_PER_BEAT * BEATS_PER_BAR * 16;
+  const MIN_TICKS = TICKS_PER_BEAT * beatsPerBar * 16;
   const maxTick = events.reduce(
     (max, e) => Math.max(max, e.startTick + e.durationTicks),
     clipStartTick + MIN_TICKS,
@@ -160,6 +174,9 @@ export function PianoRoll({
     // Background — matches theme
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, w, h);
+
+    const spellings =
+      rootNote !== null ? getScaleSpellings(rootNote, mode) : null;
 
     for (let i = 0; i < VIEW_RANGE; i++) {
       const midiNote = VIEW_MAX - i;
@@ -212,7 +229,11 @@ export function PianoRoll({
         ctx.font = `${isC ? 'bold ' : ''}${fontSize}px Inter, monospace`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'right';
-        ctx.fillText(noteName(midiNote, rootNote ?? 0), w - 4, rowY + rowH / 2);
+        ctx.fillText(
+          noteName(midiNote, rootNote ?? 0, spellings),
+          w - 4,
+          rowY + rowH / 2,
+        );
       }
     }
 
@@ -223,7 +244,7 @@ export function PianoRoll({
     ctx.moveTo(w - 0.5, 0);
     ctx.lineTo(w - 0.5, h);
     ctx.stroke();
-  }, [gridH, rowH, vZoom]);
+  }, [gridH, rowH, vZoom, rootNote, mode]);
 
   // ── Draw Ruler ──────────────────────────────────────────────────────────
   const drawRuler = useCallback(() => {
@@ -263,7 +284,7 @@ export function PianoRoll({
     ctx.textBaseline = 'middle';
     for (let beat = 0; beat <= totalBeats; beat++) {
       const x = beat * TICKS_PER_BEAT * pixelsPerTick;
-      const isBar = beat % BEATS_PER_BAR === 0;
+      const isBar = beat % beatsPerBar === 0;
 
       // Tick mark
       ctx.strokeStyle = isBar
@@ -276,7 +297,7 @@ export function PianoRoll({
       ctx.stroke();
 
       if (isBar) {
-        const barNum = beat / BEATS_PER_BAR + 1;
+        const barNum = beat / beatsPerBar + 1;
         ctx.fillStyle = colors.textDim;
         ctx.font = '10px Inter, sans-serif';
         ctx.fillText(String(barNum), x + 4, h / 2);
@@ -346,7 +367,7 @@ export function PianoRoll({
 
     // ── Alternating bar shading ─────────────────────────────────────────
     const barGroup = alternatingBarGroup(zoom);
-    const barGroupTicks = barGroup * BEATS_PER_BAR * TICKS_PER_BEAT;
+    const barGroupTicks = barGroup * beatsPerBar * TICKS_PER_BEAT;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.025)';
     const totalBarGroups = Math.ceil(totalTicks / barGroupTicks);
     for (let g = 0; g <= totalBarGroups; g++) {
@@ -360,7 +381,7 @@ export function PianoRoll({
     const totalBeats = Math.ceil(totalTicks / TICKS_PER_BEAT);
     for (let beat = 0; beat <= totalBeats; beat++) {
       const x = beat * TICKS_PER_BEAT * pixelsPerTick;
-      const isBar = beat % BEATS_PER_BAR === 0;
+      const isBar = beat % beatsPerBar === 0;
 
       ctx.strokeStyle = isBar
         ? 'rgba(255, 255, 255, 0.14)'

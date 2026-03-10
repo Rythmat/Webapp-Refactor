@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Maximize2 } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
@@ -69,7 +69,7 @@ export function TrackControlsPanel() {
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
       {track ? (
-        <>
+        <React.Fragment key={track.id}>
           {renderView(track)}
 
           {/* Pop-out button for oversized instruments */}
@@ -108,7 +108,7 @@ export function TrackControlsPanel() {
               renderView(track)
             )}
           </PopOutOverlay>
-        </>
+        </React.Fragment>
       ) : (
         <DefaultView message="Select a track to see controls" />
       )}

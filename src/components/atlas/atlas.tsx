@@ -48,7 +48,7 @@ function AppLayout() {
   const hasAI = aiInsight.status !== 'idle';
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-zinc-950 text-white">
+    <div className="flex h-full w-full flex-col overflow-hidden bg-zinc-950 text-white">
       <div className="relative flex-1">
         <TopBar />
         <BaseGlobe />

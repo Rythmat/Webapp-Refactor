@@ -1,7 +1,114 @@
-import type { ChordDegree } from '../types';
+import type { ChordDegree, ModeName } from '../types';
 import { CHORDS } from '../data/chords';
-import { MODES } from '../data/modes';
+import { MODES, MODE_NAMES } from '../data/modes';
 import { noteNameLetter } from '../data/notes';
+
+// ── Mode helpers ──────────────────────────────────────────────────────────
+
+const DIATONIC_SET = new Set<string>(MODE_NAMES);
+
+/** Returns true if the mode is one of the 7 diatonic modes. */
+export function isDiatonicMode(mode: string): boolean {
+  return DIATONIC_SET.has(mode);
+}
+
+/** Returns the semitone offset of a diatonic mode from its parent Ionian root. */
+export function getModeOffset(mode: string): number {
+  const idx = MODE_NAMES.indexOf(mode as ModeName);
+  if (idx <= 0) return 0;
+  return MODES.ionian[idx];
+}
+
+/**
+ * Convert a degree prefix + quality from Ionian-relative to mode-relative.
+ * Internal helper used by ionianToModeLabel and modeToIonianLabel.
+ */
+function convertDegreePart(
+  degreeStr: string,
+  quality: string,
+  semitoneShift: number,
+): string {
+  const deg = chordDeg(`${degreeStr} _`);
+  if (deg.degree === 0) return `${degreeStr} ${quality}`;
+  const ionianScale = MODES.ionian;
+  const srcSemitones = ionianScale[deg.degree - 1] + deg.modifier;
+  const targetSemitones = (((srcSemitones + semitoneShift) % 12) + 12) % 12;
+
+  for (let i = 0; i < ionianScale.length; i++) {
+    if (ionianScale[i] === targetSemitones) return `${i + 1} ${quality}`;
+  }
+  for (let i = 0; i < ionianScale.length; i++) {
+    if (ionianScale[i] === targetSemitones + 1) return `b${i + 1} ${quality}`;
+  }
+  for (let i = 0; i < ionianScale.length; i++) {
+    if (ionianScale[i] === targetSemitones - 1) return `#${i + 1} ${quality}`;
+  }
+  return `${degreeStr} ${quality}`;
+}
+
+/** Parse the degree prefix string from a chord label (e.g., "b3" from "b3 minor"). */
+function extractDegreePrefix(label: string): string {
+  const spaceIdx = label.indexOf(' ');
+  return spaceIdx >= 0 ? label.substring(0, spaceIdx) : label;
+}
+
+/**
+ * Convert an Ionian-relative chord label to a mode-relative label.
+ * Only transforms diatonic modes; non-diatonic modes return the label unchanged.
+ * Handles slash chords (e.g., "4 major/1").
+ */
+export function ionianToModeLabel(ionianLabel: string, mode: string): string {
+  if (mode === 'ionian' || !isDiatonicMode(mode)) return ionianLabel;
+  const offset = getModeOffset(mode);
+  if (offset === 0) return ionianLabel;
+
+  const slashIdx = ionianLabel.indexOf('/');
+  if (slashIdx >= 0) {
+    const mainPart = ionianLabel.substring(0, slashIdx);
+    const bassDegree = ionianLabel.substring(slashIdx + 1);
+    const mainQuality = unstepChord(mainPart);
+    const mainDegreeStr = extractDegreePrefix(mainPart);
+    const convertedMain = convertDegreePart(
+      mainDegreeStr,
+      mainQuality,
+      -offset,
+    );
+    // Bass is just a degree number (e.g., "1", "3")
+    const bassConverted = convertDegreePart(bassDegree, '', -offset);
+    const bassResult = extractDegreePrefix(bassConverted);
+    return `${convertedMain}/${bassResult}`;
+  }
+
+  const quality = unstepChord(ionianLabel);
+  const degreeStr = extractDegreePrefix(ionianLabel);
+  return convertDegreePart(degreeStr, quality, -offset);
+}
+
+/**
+ * Convert a mode-relative chord label back to Ionian-relative.
+ * Reverse of ionianToModeLabel.
+ */
+export function modeToIonianLabel(modeLabel: string, mode: string): string {
+  if (mode === 'ionian' || !isDiatonicMode(mode)) return modeLabel;
+  const offset = getModeOffset(mode);
+  if (offset === 0) return modeLabel;
+
+  const slashIdx = modeLabel.indexOf('/');
+  if (slashIdx >= 0) {
+    const mainPart = modeLabel.substring(0, slashIdx);
+    const bassDegree = modeLabel.substring(slashIdx + 1);
+    const mainQuality = unstepChord(mainPart);
+    const mainDegreeStr = extractDegreePrefix(mainPart);
+    const convertedMain = convertDegreePart(mainDegreeStr, mainQuality, offset);
+    const bassConverted = convertDegreePart(bassDegree, '', offset);
+    const bassResult = extractDegreePrefix(bassConverted);
+    return `${convertedMain}/${bassResult}`;
+  }
+
+  const quality = unstepChord(modeLabel);
+  const degreeStr = extractDegreePrefix(modeLabel);
+  return convertDegreePart(degreeStr, quality, offset);
+}
 
 /**
  * Given a pitched chord (array of MIDI note numbers), returns the full name

@@ -12,6 +12,7 @@ export interface NamModelEntry {
   forInstrument: 'guitar' | 'bass';
   url?: string; // bundled: relative to public/
   file?: NamModelFile; // user: already parsed
+  gainCompensation?: number; // per-model output level multiplier (default 1.0)
 }
 
 export const BUNDLED_MODELS: NamModelEntry[] = [
@@ -25,6 +26,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/clean-twin.nam',
+    gainCompensation: 1.0,
   },
   {
     id: 'nam-vox-ac15',
@@ -34,6 +36,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/vox-ac15.nam',
+    gainCompensation: 0.7,
   },
   {
     id: 'nam-marshall-jcm-clean',
@@ -43,6 +46,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/marshall-jcm-clean.nam',
+    gainCompensation: 1.0,
   },
   {
     id: 'nam-magnatone-59',
@@ -52,6 +56,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/magnatone-59.nam',
+    gainCompensation: 1.0,
   },
   {
     id: 'nam-roland-jc120',
@@ -61,6 +66,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/roland-jc120.nam',
+    gainCompensation: 1.0,
   },
   // Crunch
   {
@@ -71,6 +77,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/crunch-plexi.nam',
+    gainCompensation: 0.7,
   },
   {
     id: 'nam-orange-rockerverb',
@@ -80,6 +87,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/orange-rockerverb.nam',
+    gainCompensation: 0.5,
   },
   {
     id: 'nam-vox-ac30',
@@ -89,6 +97,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/vox-ac30.nam',
+    gainCompensation: 1.0,
   },
   {
     id: 'nam-marshall-jcm800',
@@ -98,6 +107,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/marshall-jcm800.nam',
+    gainCompensation: 0.7,
   },
   // Hi Gain
   {
@@ -108,6 +118,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/high-gain.nam',
+    gainCompensation: 0.5,
   },
   {
     id: 'nam-mesa-mark-iv',
@@ -117,6 +128,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/mesa-mark-iv.nam',
+    gainCompensation: 0.5,
   },
   {
     id: 'nam-engl-savage',
@@ -126,6 +138,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/engl-savage.nam',
+    gainCompensation: 0.5,
   },
   {
     id: 'nam-friedman-be',
@@ -135,6 +148,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/friedman-be.nam',
+    gainCompensation: 0.5,
   },
   {
     id: 'nam-soldano-slo',
@@ -144,6 +158,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'guitar',
     url: '/daw-assets/nam-models/soldano-slo.nam',
+    gainCompensation: 0.5,
   },
   // ── Bass Amps ───────────────────────────────────────────────────────────
   // Clean
@@ -155,6 +170,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'bass',
     url: '/daw-assets/nam-models/ampeg-svt.nam',
+    gainCompensation: 1.0,
   },
   {
     id: 'nam-fender-bassman',
@@ -164,6 +180,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'bass',
     url: '/daw-assets/nam-models/fender-bassman.nam',
+    gainCompensation: 0.7,
   },
   {
     id: 'nam-markbass-lm3',
@@ -173,6 +190,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'bass',
     url: '/daw-assets/nam-models/markbass-lm3.nam',
+    gainCompensation: 0.7,
   },
   {
     id: 'nam-gk-800rb',
@@ -182,6 +200,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'bass',
     url: '/daw-assets/nam-models/gk-800rb.nam',
+    gainCompensation: 1.0,
   },
   // Crunch
   {
@@ -192,6 +211,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'bass',
     url: '/daw-assets/nam-models/ampeg-v4.nam',
+    gainCompensation: 0.7,
   },
   {
     id: 'nam-svt-cranked',
@@ -201,6 +221,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'bass',
     url: '/daw-assets/nam-models/svt-cranked.nam',
+    gainCompensation: 0.5,
   },
   {
     id: 'nam-aguilar-th500',
@@ -210,6 +231,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'bass',
     url: '/daw-assets/nam-models/aguilar-th500.nam',
+    gainCompensation: 0.7,
   },
   // Hi Gain
   {
@@ -220,6 +242,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'bass',
     url: '/daw-assets/nam-models/darkglass-b7k.nam',
+    gainCompensation: 0.5,
   },
   {
     id: 'nam-mesa-subway',
@@ -229,6 +252,7 @@ export const BUNDLED_MODELS: NamModelEntry[] = [
     source: 'bundled',
     forInstrument: 'bass',
     url: '/daw-assets/nam-models/mesa-subway.nam',
+    gainCompensation: 1.0,
   },
 ];
 

@@ -12,7 +12,7 @@ import {
 } from '@/daw/audio/AudioBufferStore';
 import {
   TICKS_PER_BEAT,
-  TICKS_PER_BAR,
+  ticksPerBar,
   pixelsPerBeat,
   tickToPixel,
   pixelToTick,
@@ -27,6 +27,7 @@ import { ALL_GRID_VALUES, TRIPLET_GRID_VALUES } from '@/daw/utils/quantize';
 import type { MidiNoteEvent } from '@prism/engine';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { DRAG_MIME, type DragPayload } from '@/daw/data/libraryItems';
+import { AnimatedBlobs } from '@/components/ui/blobs';
 
 // ── Constants ───────────────────────────────────────────────────────────
 const TRACK_HEIGHT = 80; // px per track lane
@@ -215,8 +216,9 @@ function computeProjectLengthTicks(
     }[];
     audioClips: { startTick: number; duration: number }[];
   }[],
+  barTicks: number,
 ): number {
-  let maxTick = TICKS_PER_BAR * PROJECT_MIN_BARS;
+  let maxTick = barTicks * PROJECT_MIN_BARS;
   for (const track of tracks) {
     for (const clip of track.midiClips) {
       const endTick = clip.durationTicks
@@ -231,7 +233,7 @@ function computeProjectLengthTicks(
       maxTick = Math.max(maxTick, clip.startTick + clip.duration);
     }
   }
-  return maxTick + TICKS_PER_BAR * PROJECT_PAD_BARS;
+  return maxTick + barTicks * PROJECT_PAD_BARS;
 }
 
 // ── Snap helper ─────────────────────────────────────────────────────────
@@ -259,6 +261,7 @@ export function Timeline() {
     tick: number;
     audioClipId?: string;
     audioTrackId?: string;
+    blankTrackId?: string;
   } | null>(null);
 
   // ── Store state ──
@@ -274,13 +277,26 @@ export function Timeline() {
   const gridSize = useStore((s) => s.timelineGridSize);
   const snapEnabled = useStore((s) => s.timelineSnapEnabled);
   const markers = useStore((s) => s.markers);
+  const chordRulerShowNotes = useStore((s) => s.chordRulerShowNotes);
+  const renameChordRegion = useStore((s) => s.renameChordRegion);
+  const liveRecordingNotes = useStore((s) => s.liveRecordingNotes);
+  const liveAudioPeaks = useStore((s) => s.liveAudioPeaks);
+  const tsNum = useStore((s) => s.timeSignatureNumerator);
+  const tsDen = useStore((s) => s.timeSignatureDenominator);
+
+  const [editingChord, setEditingChord] = useState<{
+    id: string;
+    x: number;
+    y: number;
+    value: string;
+  } | null>(null);
 
   // ── Derived ──
   const ppb = pixelsPerBeat(zoom);
   const snapGridTicks = snapEnabled ? ALL_GRID_VALUES[gridSize] : 1;
   const projectLengthTicks = useMemo(
-    () => computeProjectLengthTicks(tracks),
-    [tracks],
+    () => computeProjectLengthTicks(tracks, ticksPerBar(tsNum, tsDen)),
+    [tracks, tsNum, tsDen],
   );
 
   // ── Snap helper with current grid ──
@@ -345,8 +361,9 @@ export function Timeline() {
       currentZoom,
       currentScrollLeft,
     );
-    const visStart = Math.max(0, visStartRaw - TICKS_PER_BAR);
-    const visEnd = visEndRaw + TICKS_PER_BAR;
+    const barTicks = ticksPerBar(tsNum, tsDen);
+    const visStart = Math.max(0, visStartRaw - barTicks);
+    const visEnd = visEndRaw + barTicks;
 
     // ── Clear ──────────────────────────────────────────────────────
     ctx.fillStyle = colorBg;
@@ -356,7 +373,7 @@ export function Timeline() {
 
     // ── Alternating bar shading ───────────────────────────────────
     const barGroup = alternatingBarGroup(currentZoom);
-    const barGroupTicks = barGroup * TICKS_PER_BAR;
+    const barGroupTicks = barGroup * barTicks;
     ctx.fillStyle = `rgba(${colorGridRgb}, 0.025)`;
     const firstGroup = Math.floor(visStart / barGroupTicks);
     const lastGroup = Math.ceil(visEnd / barGroupTicks);
@@ -377,7 +394,7 @@ export function Timeline() {
     }
 
     // ── Grid (zoom-adaptive subdivisions) ──────────────────────────
-    const subdivisions = visibleSubdivisions(currentZoom);
+    const subdivisions = visibleSubdivisions(currentZoom, tsNum, tsDen);
     for (const sub of subdivisions) {
       ctx.strokeStyle = `rgba(${colorGridRgb}, ${sub.alpha})`;
       ctx.lineWidth = sub.lineWidth;
@@ -538,6 +555,97 @@ export function Timeline() {
             );
           }
 
+          ctx.restore();
+        }
+      }
+
+      // ── Live recording overlay ─────────────────────────────────────
+      if (
+        state.liveRecordingTrackId === track.id &&
+        state.liveRecordingNotes.length > 0
+      ) {
+        const liveNotes = state.liveRecordingNotes;
+        const liveStart = state.liveRecordingStartTick;
+        const liveMax = liveNotes.reduce(
+          (max, e) => Math.max(max, e.startTick + e.durationTicks),
+          liveStart,
+        );
+        const liveDur = liveMax - liveStart;
+        if (liveDur > 0) {
+          const liveX = tickToPixel(liveStart, currentZoom, currentScrollLeft);
+          const liveW = Math.max((liveDur / TICKS_PER_BEAT) * currentPpb, 20);
+          ctx.fillStyle = track.color + '28';
+          ctx.beginPath();
+          ctx.roundRect(liveX, y + 2, liveW, TRACK_HEIGHT - 4, 4);
+          ctx.fill();
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect(liveX, y + 2, liveW, TRACK_HEIGHT - 4, 4);
+          ctx.clip();
+          drawPianoRoll(
+            ctx,
+            liveNotes,
+            liveX,
+            y + 2,
+            liveW,
+            TRACK_HEIGHT - 4,
+            liveStart,
+            liveDur,
+            track.color,
+            state.chordRegions,
+            state.clipColorMode === 'prism',
+          );
+          ctx.restore();
+        }
+      }
+
+      // ── Live audio recording waveform overlay ─────────────────────
+      if (
+        state.liveAudioTrackId === track.id &&
+        state.liveAudioPeaks.length > 0
+      ) {
+        const livePeaks = state.liveAudioPeaks;
+        const liveStart = state.liveAudioStartTick;
+        // Each peak ≈ 66ms of audio. Convert to ticks: (bpm/60) * 0.066 * 480
+        const ticksPerPeak = (state.bpm / 60) * 0.066 * 480;
+        const totalTicks = livePeaks.length * ticksPerPeak;
+        const liveX = tickToPixel(liveStart, currentZoom, currentScrollLeft);
+        const liveW = Math.max((totalTicks / TICKS_PER_BEAT) * currentPpb, 20);
+
+        // Background
+        ctx.fillStyle = track.color + '28';
+        ctx.beginPath();
+        ctx.roundRect(liveX, y + 2, liveW, TRACK_HEIGHT - 4, 4);
+        ctx.fill();
+
+        // Waveform
+        if (liveW > 8) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect(liveX, y + 2, liveW, TRACK_HEIGHT - 4, 4);
+          ctx.clip();
+
+          const centerY = y + TRACK_HEIGHT / 2;
+          const maxH = (TRACK_HEIGHT - 8) * 0.42;
+
+          // Normalize peaks for display
+          let maxPeak = 0;
+          for (let i = 0; i < livePeaks.length; i++) {
+            if (livePeaks[i] > maxPeak) maxPeak = livePeaks[i];
+          }
+          const normalizedPeaks =
+            maxPeak > 0 ? livePeaks.map((p) => p / maxPeak) : livePeaks;
+
+          drawSmoothWaveform(
+            ctx,
+            normalizedPeaks,
+            liveX,
+            centerY,
+            liveW,
+            maxH,
+            track.color + 'AA',
+          );
           ctx.restore();
         }
       }
@@ -742,7 +850,7 @@ export function Timeline() {
     ctx.stroke();
 
     // Ruler labels (zoom-adaptive)
-    const levels = rulerMarkings(currentZoom, state.bpm);
+    const levels = rulerMarkings(currentZoom, state.bpm, tsNum, tsDen);
     for (const level of levels) {
       ctx.fillStyle = `rgba(${colorGridRgb}, ${level.alpha * 0.6})`;
       ctx.font = `${level.fontSize}px Inter, sans-serif`;
@@ -840,7 +948,8 @@ export function Timeline() {
       ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, 0.85)`;
       ctx.font = '10px Inter, sans-serif';
       ctx.textBaseline = 'middle';
-      ctx.fillText(region.name, x1 + 6, chordRulerY + CHORD_RULER_HEIGHT / 2);
+      const label = chordRulerShowNotes ? region.name : region.noteName;
+      ctx.fillText(label, x1 + 6, chordRulerY + CHORD_RULER_HEIGHT / 2);
 
       // Right separator
       ctx.strokeStyle = `rgba(${colorGridRgb}, 0.06)`;
@@ -866,7 +975,7 @@ export function Timeline() {
 
     // Time labels
     const showTenths = currentPpb >= 80;
-    const timeLevels = rulerMarkings(currentZoom, state.bpm);
+    const timeLevels = rulerMarkings(currentZoom, state.bpm, tsNum, tsDen);
     const primaryInterval = timeLevels[0].tickInterval;
 
     ctx.fillStyle = `rgba(${colorGridRgb}, 0.3)`;
@@ -905,7 +1014,7 @@ export function Timeline() {
     }
 
     clipRectsRef.current = newClipRects;
-  }, [tracks, gridSize]);
+  }, [tracks, gridSize, chordRulerShowNotes, tsNum, tsDen]);
 
   // ── Redraw triggers ───────────────────────────────────────────────
   useEffect(() => {
@@ -921,6 +1030,9 @@ export function Timeline() {
     zoom,
     scrollLeft,
     markers,
+    chordRulerShowNotes,
+    liveRecordingNotes,
+    liveAudioPeaks,
   ]);
 
   // ── Redraw on vertical scroll (sticky rulers) ────────────────────
@@ -986,8 +1098,35 @@ export function Timeline() {
       const currentZoom = state.timelineZoom;
       const currentScrollLeft = state.timelineScrollLeft;
 
-      // Ruler click: check loop handles, then marker handles, then seek
+      // Chord ruler click: open inline editor for the clicked chord region
       const st = getScrollTop();
+      if (y >= st + RULER_HEIGHT && y < st + RULERS_HEIGHT) {
+        const currentState = useStore.getState();
+        const tick = pixelToTick(
+          x,
+          currentState.timelineZoom,
+          currentState.timelineScrollLeft,
+        );
+        const region = currentState.chordRegions.find(
+          (r) => r.startTick <= tick && r.endTick > tick,
+        );
+        if (region) {
+          const regionX = tickToPixel(
+            region.startTick,
+            currentState.timelineZoom,
+            currentState.timelineScrollLeft,
+          );
+          setEditingChord({
+            id: region.id,
+            x: regionX,
+            y: RULER_HEIGHT,
+            value: region.noteName,
+          });
+        }
+        return;
+      }
+
+      // Ruler click: check loop handles, then marker handles, then seek
       if (y >= st && y < st + RULERS_HEIGHT) {
         if (state.loopEnabled) {
           const lx1 = tickToPixel(
@@ -1159,13 +1298,16 @@ export function Timeline() {
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const { x, y } = getCanvasCoords(e);
       const st = getScrollTop();
-      if (y >= st && y < st + RULERS_HEIGHT) {
+      if (y >= st && y < st + RULER_HEIGHT) {
         const state = useStore.getState();
         const currentZoom = state.timelineZoom;
         const currentScrollLeft = state.timelineScrollLeft;
         const currentSnapTicks = state.timelineSnapEnabled
           ? ALL_GRID_VALUES[state.timelineGridSize]
-          : TICKS_PER_BAR;
+          : ticksPerBar(
+              state.timeSignatureNumerator,
+              state.timeSignatureDenominator,
+            );
         const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
         const snapped = snapTick(rawTick, currentSnapTicks);
         const nextNum = state.markers.length + 1;
@@ -1196,7 +1338,10 @@ export function Timeline() {
       const currentScrollLeft = state.timelineScrollLeft;
       const currentSnapTicks = state.timelineSnapEnabled
         ? ALL_GRID_VALUES[state.timelineGridSize]
-        : TICKS_PER_BAR;
+        : ticksPerBar(
+            state.timeSignatureNumerator,
+            state.timeSignatureDenominator,
+          );
 
       // Check audio clip hit first
       if (y >= st + RULERS_HEIGHT) {
@@ -1217,6 +1362,23 @@ export function Timeline() {
             });
             return;
           }
+        }
+
+        // Blank track region — offer Prism suggestion
+        const trackIdx = Math.floor((y - st - RULERS_HEIGHT) / TRACK_HEIGHT);
+        const track = state.tracks[trackIdx];
+        if (track) {
+          e.preventDefault();
+          const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
+          const snapped = snapTick(rawTick, currentSnapTicks);
+          setCtxMenu({
+            x: e.clientX,
+            y: e.clientY,
+            markerId: null,
+            tick: snapped,
+            blankTrackId: track.id,
+          });
+          return;
         }
       }
 
@@ -1247,6 +1409,12 @@ export function Timeline() {
     },
     [getCanvasCoords, getScrollTop, hitTestClip],
   );
+
+  const handlePrismSuggest = useCallback(() => {
+    if (!ctxMenu?.blankTrackId) return;
+    useStore.getState().openPrismSuggestion(ctxMenu.tick, ctxMenu.blankTrackId);
+    setCtxMenu(null);
+  }, [ctxMenu]);
 
   const handleCtxMenuRename = useCallback(() => {
     if (!ctxMenu?.markerId) return;
@@ -1563,11 +1731,13 @@ export function Timeline() {
           (c) => c.id === drag.clipId,
         );
         if (midiClip) {
+          const delta = newTick - drag.startTickOrigin;
           if (originTrack.id === targetTrack.id) {
-            if (newTick !== drag.startTickOrigin) {
+            if (delta !== 0) {
               state.updateMidiClip(originTrack.id, drag.clipId, {
                 startTick: newTick,
               });
+              state.offsetChordRegions(delta);
             }
           } else {
             state.removeMidiClip(originTrack.id, drag.clipId);
@@ -1576,6 +1746,9 @@ export function Timeline() {
               startTick: newTick,
             });
             state.setSelectedClip(midiClip.id, targetTrack.id);
+            if (delta !== 0) {
+              state.offsetChordRegions(delta);
+            }
           }
         } else {
           // Audio clip move
@@ -1878,6 +2051,57 @@ export function Timeline() {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         />
+        {/* Chord ruler inline editor */}
+        {editingChord && (
+          <>
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setEditingChord(null)}
+            />
+            <input
+              autoFocus
+              className="absolute z-50"
+              style={{
+                left: editingChord.x,
+                top: editingChord.y,
+                width: 120,
+                height: CHORD_RULER_HEIGHT,
+                fontSize: 10,
+                fontFamily: 'Inter, sans-serif',
+                background: 'var(--color-surface-2)',
+                color: 'var(--color-text)',
+                border: '1px solid var(--color-accent, #8b5cf6)',
+                borderRadius: 3,
+                padding: '0 4px',
+                outline: 'none',
+              }}
+              value={editingChord.value}
+              onChange={(e) =>
+                setEditingChord(
+                  (prev) => prev && { ...prev, value: e.target.value },
+                )
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const trimmed = editingChord.value.trim();
+                  if (trimmed) {
+                    renameChordRegion(editingChord.id, trimmed, trimmed);
+                  }
+                  setEditingChord(null);
+                } else if (e.key === 'Escape') {
+                  setEditingChord(null);
+                }
+              }}
+              onBlur={() => {
+                const trimmed = editingChord.value.trim();
+                if (trimmed) {
+                  renameChordRegion(editingChord.id, trimmed, trimmed);
+                }
+                setEditingChord(null);
+              }}
+            />
+          </>
+        )}
         {/* CSS playhead — GPU-accelerated, no canvas redraw needed */}
         {playheadPx >= -2 && playheadPx <= containerWidth + 2 && (
           <div
@@ -1998,6 +2222,15 @@ export function Timeline() {
                   Delete Marker
                 </button>
               </>
+            ) : ctxMenu.blankTrackId ? (
+              <button
+                className="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-white/5"
+                style={{ color: 'var(--color-text)' }}
+                onClick={handlePrismSuggest}
+              >
+                <AnimatedBlobs size={30} />
+                Prism — Suggest Chords
+              </button>
             ) : (
               <button
                 className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"

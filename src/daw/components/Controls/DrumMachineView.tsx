@@ -52,7 +52,6 @@ const VEL_LANE_H = 60;
 const VEL_CIRCLE_R = 4;
 const VEL_CIRCLE_HIT_R = 7;
 const TICKS_PER_BEAT = 480;
-const BEATS_PER_BAR = 4;
 const MIN_NOTE_W = 3;
 const RESIZE_EDGE_PX = 6;
 const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
@@ -149,6 +148,10 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const position = useStore((s) => s.position);
   const isPlaying = useStore((s) => s.isPlaying);
 
+  // Time signature
+  const tsNum = useStore((s) => s.timeSignatureNumerator);
+  const beatsPerBar = tsNum;
+
   const clip = track?.midiClips[0];
   const clipStartTick = clip?.startTick ?? 0;
   const events = useMemo(() => clip?.events ?? [], [clip?.events]);
@@ -184,7 +187,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const initialZoomSet = useRef(false);
 
   // ── Computed layout ───────────────────────────────────────────────────
-  const MIN_TICKS = TICKS_PER_BEAT * BEATS_PER_BAR * 4;
+  const MIN_TICKS = TICKS_PER_BEAT * beatsPerBar * 4;
   const maxTick = events.reduce(
     (max, e) => Math.max(max, e.startTick + e.durationTicks),
     clipStartTick + MIN_TICKS,
@@ -204,7 +207,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     if (initialZoomSet.current) return;
     const container = gridScrollRef.current;
     if (!container) return;
-    const fourBarPx = 4 * BEATS_PER_BAR * 40;
+    const fourBarPx = 4 * beatsPerBar * 40;
     const fitZoom = container.clientWidth / fourBarPx;
     setZoom(Math.max(0.15, fitZoom));
     initialZoomSet.current = true;
@@ -319,7 +322,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     ctx.textBaseline = 'middle';
     for (let beat = 0; beat <= totalBeats; beat++) {
       const x = beat * TICKS_PER_BEAT * pixelsPerTick;
-      const isBar = beat % BEATS_PER_BAR === 0;
+      const isBar = beat % beatsPerBar === 0;
 
       ctx.strokeStyle = isBar
         ? 'rgba(255,255,255,0.15)'
@@ -330,8 +333,8 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       ctx.lineTo(x, h);
       ctx.stroke();
 
-      const bar = Math.floor(beat / BEATS_PER_BAR) + 1;
-      const beatInBar = beat % BEATS_PER_BAR;
+      const bar = Math.floor(beat / beatsPerBar) + 1;
+      const beatInBar = beat % beatsPerBar;
       ctx.fillStyle = colors.textDim;
       ctx.font = isBar ? '10px Inter, sans-serif' : '9px Inter, sans-serif';
       const label = isBar ? String(bar) : `${bar}.${beatInBar + 1}`;
@@ -402,7 +405,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
     // Alternating bar shading
     const barGroup = alternatingBarGroup(zoom);
-    const barGroupTicks = barGroup * BEATS_PER_BAR * TICKS_PER_BEAT;
+    const barGroupTicks = barGroup * beatsPerBar * TICKS_PER_BEAT;
     ctx.fillStyle = 'rgba(255,255,255,0.025)';
     const totalBarGroups = Math.ceil(totalTicks / barGroupTicks);
     for (let g = 0; g <= totalBarGroups; g++) {
@@ -416,7 +419,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     const totalBeats = Math.ceil(totalTicks / TICKS_PER_BEAT);
     for (let beat = 0; beat <= totalBeats; beat++) {
       const x = beat * TICKS_PER_BEAT * pixelsPerTick;
-      const isBar = beat % BEATS_PER_BAR === 0;
+      const isBar = beat % beatsPerBar === 0;
 
       ctx.strokeStyle = isBar
         ? 'rgba(255,255,255,0.14)'

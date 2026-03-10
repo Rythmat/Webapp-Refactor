@@ -1,11 +1,17 @@
 import { useStore } from '@/daw/store';
-import { getChordColor, abbreviateSequence } from '@prism/engine';
+import {
+  getChordColor,
+  abbreviateSequence,
+  ionianToModeLabel,
+  getModeOffset,
+} from '@prism/engine';
 
 // ── Component ────────────────────────────────────────────────────────────
 
 export function ChordSequenceDisplay() {
   const stringSeq = useStore((s) => s.stringSeq);
   const rootNote = useStore((s) => s.rootNote);
+  const mode = useStore((s) => s.mode);
 
   if (stringSeq.length === 0) {
     return (
@@ -22,6 +28,7 @@ export function ChordSequenceDisplay() {
   }
 
   const rootMidi = (rootNote ?? 0) + 48;
+  const parentRoot = rootMidi - getModeOffset(mode);
 
   return (
     <div
@@ -29,8 +36,8 @@ export function ChordSequenceDisplay() {
       style={{ scrollbarWidth: 'thin' }}
     >
       {stringSeq.map((name, i) => {
-        const [r, g, b] = getChordColor(name, rootMidi);
-        const abbreviated = abbreviateSequence(name);
+        const [r, g, b] = getChordColor(name, parentRoot);
+        const abbreviated = abbreviateSequence(ionianToModeLabel(name, mode));
 
         return (
           <div

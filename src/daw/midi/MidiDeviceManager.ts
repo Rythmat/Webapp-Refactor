@@ -90,19 +90,25 @@ export class MidiDeviceManager {
    */
   subscribeToInput(
     inputId: string,
-    onNoteOn: (note: number, velocity: number) => void,
-    onNoteOff: (note: number) => void,
+    onNoteOn: (note: number, velocity: number, timestamp: number) => void,
+    onNoteOff: (note: number, timestamp: number) => void,
     onCC?: (cc: number, value: number) => void,
   ): () => void {
     const input = WebMidi.getInputById(inputId);
     if (!input) {
       return () => {};
     }
-    const handleNoteOn = (e: { note: { number: number; attack: number } }) => {
-      onNoteOn(e.note.number, Math.round(e.note.attack * 127));
+    const handleNoteOn = (e: {
+      note: { number: number; attack: number };
+      timestamp: number;
+    }) => {
+      onNoteOn(e.note.number, Math.round(e.note.attack * 127), e.timestamp);
     };
-    const handleNoteOff = (e: { note: { number: number } }) => {
-      onNoteOff(e.note.number);
+    const handleNoteOff = (e: {
+      note: { number: number };
+      timestamp: number;
+    }) => {
+      onNoteOff(e.note.number, e.timestamp);
     };
     const handleCC = onCC
       ? (e: MidiControlChangeEvent) => {

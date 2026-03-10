@@ -26,6 +26,12 @@ export interface InstrumentAdapter {
    */
   noteOff(note: number, time?: number): void;
 
+  /**
+   * Handle a MIDI CC message (e.g. CC64 sustain pedal).
+   * Optional — instruments that don't support CC can omit this.
+   */
+  cc?(controller: number, value: number, time?: number): void;
+
   /** Release all currently sounding notes (with envelope release). */
   allNotesOff(): void;
 

@@ -21,6 +21,8 @@ export class SamplerInstrument implements InstrumentAdapter {
   private sampler: Tone.Sampler | null = null;
   private bridge: Tone.Gain | null = null;
   private loaded = false;
+  private sustainActive = false;
+  private sustainedNotes = new Set<string>();
 
   constructor(private config: SamplerConfig) {}
 
@@ -51,15 +53,34 @@ export class SamplerInstrument implements InstrumentAdapter {
   noteOff(note: number, time?: number): void {
     if (!this.sampler) return;
     const noteName = Tone.Frequency(note, 'midi').toNote();
+    if (this.sustainActive) {
+      this.sustainedNotes.add(noteName);
+      return;
+    }
     this.sampler.triggerRelease(noteName, time);
   }
 
+  cc(controller: number, value: number): void {
+    if (controller !== 64) return;
+    if (value >= 64) {
+      this.sustainActive = true;
+    } else {
+      this.sustainActive = false;
+      for (const noteName of this.sustainedNotes) {
+        this.sampler?.triggerRelease(noteName);
+      }
+      this.sustainedNotes.clear();
+    }
+  }
+
   allNotesOff(): void {
+    this.sustainActive = false;
+    this.sustainedNotes.clear();
     this.sampler?.releaseAll();
   }
 
   panic(): void {
-    this.sampler?.releaseAll();
+    this.allNotesOff();
   }
 
   dispose(): void {

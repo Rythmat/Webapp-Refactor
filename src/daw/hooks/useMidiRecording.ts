@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
+import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
 import { MidiRecorder } from '@/daw/audio/MidiRecorder';
+import { deriveChordRegionsFromNotes } from '@/daw/store/prismSlice';
 
 // ── useMidiRecording ────────────────────────────────────────────────────
 // Manages the MIDI recording lifecycle:
@@ -18,8 +20,8 @@ export function useMidiRecording() {
     if (isRecording) {
       recorderRef.current.startRecording();
     } else if (recorderRef.current.isRecording()) {
-      const events = recorderRef.current.stopRecording();
-      if (events.length > 0) {
+      const { notes, ccEvents } = recorderRef.current.stopRecording();
+      if (notes.length > 0) {
         // Find the first record-armed MIDI track
         const armedTrack = tracks.find(
           (t) => t.recordArmed && t.type === 'midi',
@@ -27,13 +29,51 @@ export function useMidiRecording() {
         if (armedTrack) {
           addMidiClip(armedTrack.id, {
             id: crypto.randomUUID(),
-            startTick: events[0].startTick,
-            events,
+            startTick: notes[0].startTick,
+            events: notes,
+            ccEvents: ccEvents.length > 0 ? ccEvents : undefined,
           });
+
+          // Derive chord regions from recorded notes
+          const { rootNote, mode, setChordRegions } = useStore.getState();
+          const rootMidi = (rootNote ?? 0) + 48;
+          const regions = deriveChordRegionsFromNotes(notes, rootMidi, mode);
+          setChordRegions(regions);
         }
       }
     }
   }, [isRecording, tracks, addMidiClip]);
+
+  // Live recording display: poll recorder at ~15fps and push snapshots to store
+  useEffect(() => {
+    if (!isRecording) return;
+    const armedTrack = tracks.find((t) => t.recordArmed && t.type === 'midi');
+    if (!armedTrack) return;
+
+    let rafId: number;
+    let lastUpdate = 0;
+
+    const poll = (now: number) => {
+      if (now - lastUpdate >= 66) {
+        const snapshot = recorderRef.current.getSnapshot(
+          Math.round(Tone.getTransport().ticks),
+        );
+        if (snapshot.length > 0) {
+          useStore
+            .getState()
+            .setLiveRecording(armedTrack.id, snapshot, snapshot[0].startTick);
+        }
+        lastUpdate = now;
+      }
+      rafId = requestAnimationFrame(poll);
+    };
+    rafId = requestAnimationFrame(poll);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      useStore.getState().clearLiveRecording();
+    };
+  }, [isRecording, tracks]);
 
   return recorderRef.current;
 }

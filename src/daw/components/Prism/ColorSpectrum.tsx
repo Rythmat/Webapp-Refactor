@@ -1,9 +1,8 @@
 import { useMemo, useCallback } from 'react';
 import {
-  CHORD_COLORS,
   KEY_COLORS,
-  KEYS,
-  noteNameLetter,
+  getChordColor,
+  getModeOffset,
   type ColorIndex,
 } from '@prism/engine';
 
@@ -11,32 +10,29 @@ import {
 
 /** Spectrum order: warm → cool matching the circle-of-fifths color wheel */
 const SPECTRUM_ORDER: ColorIndex[] = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 ];
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
+/** Build a reverse lookup: "r,g,b" → KEY_COLORS index */
+const RGB_TO_INDEX = new Map<string, number>();
+for (const [idx, rgb] of Object.entries(KEY_COLORS)) {
+  RGB_TO_INDEX.set(rgb.join(','), Number(idx));
+}
+
 /**
- * Compute the rotated color index for a chord given the progression root.
- * Mirrors the rotation logic in getChordColor() from the engine.
+ * Compute the KEY_COLORS index for a chord by calling the engine's
+ * getChordColor (which handles mode remapping) and reverse-looking up.
  */
-function rotatedColorIndex(chordName: string, rootMidi: number): number {
-  const stepFrom = CHORD_COLORS[chordName] ?? 13;
-  if (stepFrom === 0 || stepFrom === 13) return stepFrom;
-
-  const letter = noteNameLetter(rootMidi);
-  let rootPos = -1;
-  for (let i = 1; i < KEYS.length; i++) {
-    if (KEYS[i] === letter) {
-      rootPos = i;
-      break;
-    }
-  }
-  if (rootPos < 1) return 0;
-
-  let keyInd = rootPos + stepFrom - 1;
-  if (keyInd > 13) keyInd = (keyInd % 13) + 1;
-  return keyInd as ColorIndex;
+function colorIndexForChord(
+  chordName: string,
+  rootMidi: number,
+  mode: string,
+): number {
+  const parentRoot = rootMidi - getModeOffset(mode);
+  const rgb = getChordColor(chordName, parentRoot);
+  return RGB_TO_INDEX.get(rgb.join(',')) ?? 0;
 }
 
 // ── Props ────────────────────────────────────────────────────────────────
@@ -44,6 +40,7 @@ function rotatedColorIndex(chordName: string, rootMidi: number): number {
 interface ColorSpectrumProps {
   chordOptions: string[];
   rootMidi: number;
+  mode: string;
   onSelectChord: (name: string) => void;
 }
 
@@ -52,20 +49,21 @@ interface ColorSpectrumProps {
 export function ColorSpectrum({
   chordOptions,
   rootMidi,
+  mode,
   onSelectChord,
 }: ColorSpectrumProps) {
   // Group available chords by their rotated color index
   const colorGroups = useMemo(() => {
     const groups = new Map<number, string[]>();
     for (const name of chordOptions) {
-      const colorIdx = rotatedColorIndex(name, rootMidi);
-      // Skip "other" colors (0=white, 13=chromatic) — only accessible via Advanced
+      const colorIdx = colorIndexForChord(name, rootMidi, mode);
+      // Skip unknown color (0=white) — only accessible via Advanced
       if (colorIdx === 0) continue;
       if (!groups.has(colorIdx)) groups.set(colorIdx, []);
       groups.get(colorIdx)!.push(name);
     }
     return groups;
-  }, [chordOptions, rootMidi]);
+  }, [chordOptions, rootMidi, mode]);
 
   // CSS gradient from KEY_COLORS
   const gradient = useMemo(() => {

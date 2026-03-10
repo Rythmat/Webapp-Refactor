@@ -18,6 +18,7 @@ export interface MidiDeviceSlice {
   outputs: MidiDevice[];
   midiStatus: MidiStatus;
   hwActiveNotes: Set<number>;
+  audioActiveNotes: number[];
 
   addDevice: (device: MidiDevice) => void;
   removeDevice: (id: string) => void;
@@ -26,6 +27,7 @@ export interface MidiDeviceSlice {
   setMidiStatus: (status: MidiStatus) => void;
   hwNoteOn: (note: number) => void;
   hwNoteOff: (note: number) => void;
+  setAudioActiveNotes: (notes: number[]) => void;
 }
 
 export const createMidiDeviceSlice: StateCreator<
@@ -39,6 +41,7 @@ export const createMidiDeviceSlice: StateCreator<
   outputs: [],
   midiStatus: 'idle' as MidiStatus,
   hwActiveNotes: new Set<number>(),
+  audioActiveNotes: [] as number[],
 
   // ── Actions ──
   addDevice: (device) =>
@@ -73,5 +76,13 @@ export const createMidiDeviceSlice: StateCreator<
       const next = new Set(state.hwActiveNotes);
       next.delete(note);
       return { hwActiveNotes: next };
+    }),
+
+  setAudioActiveNotes: (notes) =>
+    set((state) => {
+      const prev = state.audioActiveNotes;
+      if (prev.length === notes.length && prev.every((n, i) => n === notes[i]))
+        return state;
+      return { audioActiveNotes: notes };
     }),
 });

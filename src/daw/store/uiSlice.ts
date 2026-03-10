@@ -8,7 +8,18 @@ import type { ThemeId } from '@/daw/constants/themes';
 // Global UI state: active tool, selected clip, timeline zoom/scroll/grid.
 
 export type ToolType = 'cursor' | 'pencil' | 'scissors' | 'layout';
-export type ViewType = 'arrange' | 'studio';
+export type ViewType = 'arrange' | 'studio' | 'leadsheet';
+export type LeadSheetChordFormat = 'jazz' | 'hybrid' | 'numbers';
+
+export interface LeadSheetSection {
+  measureIdx: number;
+  label: string; // e.g. 'A', 'B', 'Intro', 'Bridge', 'Coda'
+}
+
+export interface LeadSheetRepeat {
+  startMeasure: number;
+  endMeasure: number;
+}
 
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 10.0;
@@ -72,6 +83,28 @@ export interface UiSlice {
   // ── Theme ──
   theme: ThemeId;
   setTheme: (theme: ThemeId) => void;
+
+  // ── Project ──
+  projectName: string;
+  setProjectName: (name: string) => void;
+  composerName: string;
+  setComposerName: (name: string) => void;
+
+  // ── Lead sheet ──
+  leadSheetChordFormat: LeadSheetChordFormat;
+  setLeadSheetChordFormat: (format: LeadSheetChordFormat) => void;
+  leadSheetSelectedChordIdx: string | null;
+  setLeadSheetSelectedChordIdx: (id: string | null) => void;
+  leadSheetSections: LeadSheetSection[];
+  setLeadSheetSections: (sections: LeadSheetSection[]) => void;
+  addLeadSheetSection: (section: LeadSheetSection) => void;
+  removeLeadSheetSection: (measureIdx: number) => void;
+  leadSheetRepeats: LeadSheetRepeat[];
+  setLeadSheetRepeats: (repeats: LeadSheetRepeat[]) => void;
+  addLeadSheetRepeat: (repeat: LeadSheetRepeat) => void;
+  removeLeadSheetRepeat: (startMeasure: number) => void;
+  leadSheetShowRepeats: boolean;
+  setLeadSheetShowRepeats: (show: boolean) => void;
 }
 
 export const createUiSlice: StateCreator<
@@ -152,7 +185,11 @@ export const createUiSlice: StateCreator<
 
   // ── View switcher ──
   currentView: 'arrange' as ViewType,
-  setCurrentView: (view) => set({ currentView: view }),
+  setCurrentView: (view) =>
+    set({
+      currentView: view,
+      libraryOpen: view === 'arrange',
+    }),
 
   // ── Library sidebar ──
   libraryOpen: true,
@@ -169,4 +206,53 @@ export const createUiSlice: StateCreator<
   // ── Theme ──
   theme: 'dark' as ThemeId,
   setTheme: (theme) => set({ theme }),
+
+  // ── Project ──
+  projectName: 'Untitled Project',
+  setProjectName: (name) => set({ projectName: name }),
+  composerName: '',
+  setComposerName: (name) => set({ composerName: name }),
+
+  // ── Lead sheet ──
+  leadSheetChordFormat: 'hybrid' as LeadSheetChordFormat,
+  setLeadSheetChordFormat: (format) => set({ leadSheetChordFormat: format }),
+  leadSheetSelectedChordIdx: null,
+  setLeadSheetSelectedChordIdx: (idx) =>
+    set({ leadSheetSelectedChordIdx: idx }),
+  leadSheetSections: [],
+  setLeadSheetSections: (sections) => set({ leadSheetSections: sections }),
+  addLeadSheetSection: (section) =>
+    set((s) => ({
+      leadSheetSections: [
+        ...s.leadSheetSections.filter(
+          (sec) => sec.measureIdx !== section.measureIdx,
+        ),
+        section,
+      ].sort((a, b) => a.measureIdx - b.measureIdx),
+    })),
+  removeLeadSheetSection: (measureIdx) =>
+    set((s) => ({
+      leadSheetSections: s.leadSheetSections.filter(
+        (sec) => sec.measureIdx !== measureIdx,
+      ),
+    })),
+  leadSheetRepeats: [],
+  setLeadSheetRepeats: (repeats) => set({ leadSheetRepeats: repeats }),
+  addLeadSheetRepeat: (repeat) =>
+    set((s) => ({
+      leadSheetRepeats: [
+        ...s.leadSheetRepeats.filter(
+          (r) => r.startMeasure !== repeat.startMeasure,
+        ),
+        repeat,
+      ].sort((a, b) => a.startMeasure - b.startMeasure),
+    })),
+  removeLeadSheetRepeat: (startMeasure) =>
+    set((s) => ({
+      leadSheetRepeats: s.leadSheetRepeats.filter(
+        (r) => r.startMeasure !== startMeasure,
+      ),
+    })),
+  leadSheetShowRepeats: false,
+  setLeadSheetShowRepeats: (show) => set({ leadSheetShowRepeats: show }),
 });

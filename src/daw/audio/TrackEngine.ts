@@ -67,6 +67,10 @@ export class TrackEngine {
     this.instrument?.noteOff(note, time);
   }
 
+  cc(controller: number, value: number, time?: number): void {
+    this.instrument?.cc?.(controller, value, time);
+  }
+
   allNotesOff(): void {
     this.instrument?.allNotesOff();
   }

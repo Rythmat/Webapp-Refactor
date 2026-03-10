@@ -1,7 +1,12 @@
 import { useCallback, useMemo } from 'react';
 import { Scissors, Lock, Unlock } from 'lucide-react';
 import { useStore } from '@/daw/store';
-import { getChordColor } from '@prism/engine';
+import {
+  getChordColor,
+  abbreviateSequence,
+  ionianToModeLabel,
+  getModeOffset,
+} from '@prism/engine';
 import { CircleOfFifths } from './CircleOfFifths';
 import { ColorSpectrum } from './ColorSpectrum';
 import { ChordSelection, RhythmExpression } from './ChordBuilder';
@@ -55,6 +60,7 @@ export function PrismStudio() {
   const genre = useStore((s) => s.genre);
   const availableFirstChords = useStore((s) => s.availableFirstChords);
   const availableNextChords = useStore((s) => s.availableNextChords);
+  const mode = useStore((s) => s.mode);
 
   // ── Actions ──
   const rootLocked = useStore((s) => s.rootLocked);
@@ -78,6 +84,7 @@ export function PrismStudio() {
     stringSeq.length === 0 ? availableFirstChords : availableNextChords;
   const canGenerate = chordSeq.length > 0 && isMidiTrack;
   const rootMidi = (rootNote ?? 0) + 48;
+  const parentRoot = rootMidi - getModeOffset(mode);
 
   // ── Handlers ──
   const handleGenreClick = useCallback(
@@ -155,13 +162,13 @@ export function PrismStudio() {
         {stringSeq.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {stringSeq.map((name, i) => {
-              const [r, g, b] = getChordColor(name, rootMidi);
+              const [r, g, b] = getChordColor(name, parentRoot);
               return (
                 <div
                   key={`${name}-${i}`}
                   className="size-2.5 rounded-full"
                   style={{ backgroundColor: `rgb(${r}, ${g}, ${b})` }}
-                  title={name}
+                  title={abbreviateSequence(ionianToModeLabel(name, mode))}
                 />
               );
             })}
@@ -179,6 +186,7 @@ export function PrismStudio() {
           <ColorSpectrum
             chordOptions={chordOptions}
             rootMidi={rootMidi}
+            mode={mode}
             onSelectChord={addChord}
           />
         </div>

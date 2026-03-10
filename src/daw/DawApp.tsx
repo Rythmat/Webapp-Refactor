@@ -5,8 +5,10 @@ import { LibraryPanel } from '@/daw/components/Library/LibraryPanel';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { PianoRollModal } from '@/daw/components/PianoRoll/PianoRollModal';
 import { PitchEditorModal } from '@/daw/components/PitchEditor/PitchEditorModal';
+import { LeadSheetView } from '@/daw/components/LeadSheet/LeadSheetView';
 import { StudioView } from '@/daw/components/Studio/StudioView';
 import { TimelineWithHeaders } from '@/daw/components/Timeline/TimelineWithHeaders';
+import { PrismSuggestionModal } from '@/daw/components/Prism/PrismSuggestionModal';
 import { SettingsModal } from '@/daw/components/Transport/SettingsModal';
 import { TransportBar } from '@/daw/components/Transport/TransportBar';
 import { useAudioEngine } from '@/daw/hooks/useAudioEngine';
@@ -14,6 +16,7 @@ import {
   useKeyboardShortcuts,
   loadSessionOnStartup,
 } from '@/daw/hooks/useKeyboardShortcuts';
+import { useAudioChordDetection } from '@/daw/hooks/useAudioChordDetection';
 import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
 import { usePlaybackEngine } from '@/daw/hooks/usePlaybackEngine';
 import { useTheme } from '@/daw/hooks/useTheme';
@@ -27,6 +30,7 @@ export function DawApp() {
   usePlaybackEngine(isReady);
   useKeyboardShortcuts();
   useMidiInputRouting();
+  useAudioChordDetection();
   useTheme();
   const currentView = useStore((s) => s.currentView);
 
@@ -50,7 +54,7 @@ export function DawApp() {
 
   return (
     <div
-      className="daw-root absolute inset-0 flex flex-col overflow-hidden"
+      className="daw-root flex-1 min-h-0 w-full flex flex-col overflow-hidden"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
       <MeshGradientBg />
@@ -67,6 +71,8 @@ export function DawApp() {
           <PianoRollModal />
           <PitchEditorModal />
         </>
+      ) : currentView === 'leadsheet' ? (
+        <LeadSheetView />
       ) : (
         <div className="flex flex-1 overflow-hidden">
           <StudioView isReady={isReady} />
@@ -74,6 +80,7 @@ export function DawApp() {
         </div>
       )}
       <SettingsModal />
+      <PrismSuggestionModal />
     </div>
   );
 }

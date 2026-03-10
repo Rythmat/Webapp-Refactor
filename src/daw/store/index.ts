@@ -10,6 +10,10 @@ import { createUiSlice, type UiSlice } from './uiSlice';
 import { createMasteringSlice, type MasteringSlice } from './masteringSlice';
 import { createMarkersSlice, type MarkersSlice } from './markersSlice';
 import { createAudioIOSlice, type AudioIOSlice } from './audioIOSlice';
+import {
+  createPrismSuggestionSlice,
+  type PrismSuggestionSlice,
+} from './prismSuggestionSlice';
 
 // ── Composed Store ──────────────────────────────────────────────────────
 // All slices merged into a single Zustand 5 store with subscribeWithSelector
@@ -22,7 +26,8 @@ export type AllSlices = TransportSlice &
   UiSlice &
   MasteringSlice &
   MarkersSlice &
-  AudioIOSlice;
+  AudioIOSlice &
+  PrismSuggestionSlice;
 
 export const useStore = create<AllSlices>()(
   subscribeWithSelector((...a) => ({
@@ -34,6 +39,7 @@ export const useStore = create<AllSlices>()(
     ...createMasteringSlice(...a),
     ...createMarkersSlice(...a),
     ...createAudioIOSlice(...a),
+    ...createPrismSuggestionSlice(...a),
   })),
 );
 
@@ -75,7 +81,14 @@ export type {
   MidiStatus,
 } from './midiDeviceSlice';
 export type { PrismSlice } from './prismSlice';
-export type { UiSlice, ToolType, ViewType } from './uiSlice';
+export type {
+  UiSlice,
+  ToolType,
+  ViewType,
+  LeadSheetChordFormat,
+  LeadSheetSection,
+  LeadSheetRepeat,
+} from './uiSlice';
 export type {
   MasteringSlice,
   MasteringStyle,
@@ -83,3 +96,4 @@ export type {
 } from './masteringSlice';
 export type { MarkersSlice, Marker } from './markersSlice';
 export type { AudioIOSlice } from './audioIOSlice';
+export type { PrismSuggestionSlice } from './prismSuggestionSlice';

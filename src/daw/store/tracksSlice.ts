@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import type { MidiNoteEvent } from '@prism/engine';
+import type { MidiNoteEvent, MidiCCEvent } from '@prism/engine';
 import type { AllSlices } from './index';
 import {
   DEFAULT_EFFECTS,
@@ -45,6 +45,7 @@ export interface MidiClip {
   startTick: number;
   durationTicks?: number;
   events: MidiNoteEvent[];
+  ccEvents?: MidiCCEvent[];
 }
 
 /** Audio clip metadata (no AudioBuffer — not serializable). */
@@ -81,6 +82,13 @@ export interface Track {
     type: string;
     enabled: boolean;
     params: Record<string, number>;
+  }[];
+  /** Persisted guitar/bass pedal chain config (survives GuitarBassView unmount). */
+  guitarChain?: {
+    type: string;
+    enabled: boolean;
+    params: Record<string, number>;
+    namModelId?: string | null;
   }[];
   /** Per-pad volume/pan for drum-machine tracks, keyed by MIDI note. */
   drumPads?: Record<number, { volume: number; pan: number }>;
@@ -157,6 +165,15 @@ export interface TracksSlice {
   setVocalChain: (
     trackId: string,
     chain: { type: string; enabled: boolean; params: Record<string, number> }[],
+  ) => void;
+  setGuitarChain: (
+    trackId: string,
+    chain: {
+      type: string;
+      enabled: boolean;
+      params: Record<string, number>;
+      namModelId?: string | null;
+    }[],
   ) => void;
   updateDrumPad: (
     trackId: string,
@@ -420,14 +437,7 @@ export const createTracksSlice: StateCreator<
       audioClips: [],
     };
     set((state) => ({
-      tracks: [
-        ...state.tracks.map((t) => ({
-          ...t,
-          recordArmed: false,
-          monitoring: false,
-        })),
-        track,
-      ],
+      tracks: [...state.tracks, track],
       selectedTrackId: id,
     }));
     return id;
@@ -601,6 +611,13 @@ export const createTracksSlice: StateCreator<
     set((state) => ({
       tracks: state.tracks.map((t) =>
         t.id === trackId ? { ...t, vocalChain: chain } : t,
+      ),
+    })),
+
+  setGuitarChain: (trackId, chain) =>
+    set((state) => ({
+      tracks: state.tracks.map((t) =>
+        t.id === trackId ? { ...t, guitarChain: chain } : t,
       ),
     })),
 

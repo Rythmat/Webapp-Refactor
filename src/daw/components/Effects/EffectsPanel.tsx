@@ -227,6 +227,7 @@ export function EffectsPanel() {
                 gr={gr}
                 inLevel={inLevel}
                 outLevel={outLevel}
+                analyserNode={effectChain?.getPreCompAnalyser() ?? null}
               />
             ) : (
               <div
@@ -432,6 +433,7 @@ export function FxControlsPanel({
   gr,
   inLevel,
   outLevel,
+  analyserNode,
 }: {
   trackId: string;
   selectedEffect: EffectSlotType;
@@ -443,6 +445,7 @@ export function FxControlsPanel({
   gr: number;
   inLevel: number;
   outLevel: number;
+  analyserNode?: AnalyserNode | null;
 }) {
   const color = FX_COLOR[selectedEffect] ?? '#7ecfcf';
   const category = FX_CATEGORY[selectedEffect] ?? '';
@@ -538,6 +541,7 @@ export function FxControlsPanel({
                 gr={gr}
                 inLevel={inLevel}
                 outLevel={outLevel}
+                analyserNode={analyserNode}
                 large
               />
             </div>
@@ -1159,6 +1163,7 @@ export function FxVisualizer({
   inLevel,
   outLevel,
   large,
+  analyserNode,
 }: {
   slot: EffectSlotType;
   effects: TrackEffectState;
@@ -1168,6 +1173,7 @@ export function FxVisualizer({
   inLevel: number;
   outLevel: number;
   large?: boolean;
+  analyserNode?: AnalyserNode | null;
 }) {
   switch (slot) {
     case 'compressor': {
@@ -1222,6 +1228,7 @@ export function FxVisualizer({
               onChange={(bands) =>
                 onUpdate(trackId, { eq: { ...effects.eq, bands } })
               }
+              analyserNode={analyserNode}
             />
           </div>
           <div className="flex shrink-0 flex-col items-center gap-2">

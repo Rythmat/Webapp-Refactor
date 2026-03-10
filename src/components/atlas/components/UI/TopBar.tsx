@@ -34,24 +34,20 @@ export function TopBar() {
   };
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 z-[1000] flex items-start px-4 pb-2 pt-4">
-      <div className="pointer-events-auto flex items-start gap-4">
-        <h1 className="whitespace-nowrap pt-1 text-2xl font-semibold">Atlas</h1>
-
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-            <input
-              className="w-64 rounded-lg border border-zinc-700/50 bg-zinc-900/80 py-1.5 pl-8 pr-3 text-sm text-white backdrop-blur-xl transition-colors placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none"
-              placeholder="Search (e.g. Rock LA 1960s)"
-              type="text"
-              value={searchQuery}
-              onChange={(e) =>
-                dispatch({ type: 'SET_SEARCH', payload: e.target.value })
-              }
-              onKeyDown={handleKeyDown}
-            />
-          </div>
+    <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start px-4 pb-2 pt-4">
+      <div className="pointer-events-auto">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
+          <input
+            className="w-64 rounded-lg border border-zinc-700/50 bg-zinc-900/80 py-1.5 pl-8 pr-3 text-sm text-white backdrop-blur-xl transition-colors placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none"
+            placeholder="Search (e.g. Rock LA 1960s)"
+            type="text"
+            value={searchQuery}
+            onChange={(e) =>
+              dispatch({ type: 'SET_SEARCH', payload: e.target.value })
+            }
+            onKeyDown={handleKeyDown}
+          />
         </div>
       </div>
     </div>

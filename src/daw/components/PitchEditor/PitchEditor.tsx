@@ -14,7 +14,6 @@ const RULER_H = 24;
 const TOOLBAR_H = 36;
 const ROW_H = 14;
 const TICKS_PER_BEAT = 480;
-const BEATS_PER_BAR = 4;
 
 const VIEW_MIN = 36; // C2
 const VIEW_MAX = 84; // C6
@@ -102,6 +101,10 @@ export function PitchEditor({
   // Subscribe to transport for playback cursor
   const isPlaying = useStore((s) => s.isPlaying);
   const position = useStore((s) => s.position);
+
+  // Time signature
+  const tsNum = useStore((s) => s.timeSignatureNumerator);
+  const beatsPerBar = tsNum;
 
   // Pixel scale
   const ticksPerSecond = (bpm / 60) * TICKS_PER_BEAT;
@@ -221,7 +224,7 @@ export function PitchEditor({
     ctx.textBaseline = 'middle';
     for (let beat = 0; beat <= totalBeats; beat++) {
       const x = beat * TICKS_PER_BEAT * pixelsPerTick;
-      const isBar = beat % BEATS_PER_BAR === 0;
+      const isBar = beat % beatsPerBar === 0;
 
       ctx.strokeStyle = isBar
         ? 'rgba(255, 255, 255, 0.15)'
@@ -233,7 +236,7 @@ export function PitchEditor({
       ctx.stroke();
 
       if (isBar) {
-        const barNum = beat / BEATS_PER_BAR + 1;
+        const barNum = beat / beatsPerBar + 1;
         ctx.fillStyle = '#7a7a90';
         ctx.font = '10px Inter, sans-serif';
         ctx.fillText(String(barNum), x + 4, h / 2);
@@ -297,7 +300,7 @@ export function PitchEditor({
     const totalBeats = Math.ceil(totalTicks / TICKS_PER_BEAT);
     for (let beat = 0; beat <= totalBeats; beat++) {
       const x = beat * TICKS_PER_BEAT * pixelsPerTick;
-      const isBar = beat % BEATS_PER_BAR === 0;
+      const isBar = beat % beatsPerBar === 0;
       ctx.strokeStyle = isBar
         ? 'rgba(255, 255, 255, 0.08)'
         : 'rgba(255, 255, 255, 0.03)';

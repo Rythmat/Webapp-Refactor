@@ -1,0 +1,88 @@
+@media print {
+  /* Page setup */
+  @page {
+    margin: 0.75in;
+    size: letter;
+  }
+
+  /* Allow content to flow naturally for print */
+  .daw-root {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    background: white !important;
+  }
+
+  /* Hide all DAW chrome */
+  .daw-root > *:not(.leadsheet-container) {
+    display: none !important;
+  }
+
+  /* Hide toolbar in print */
+  .leadsheet-toolbar {
+    display: none !important;
+  }
+
+  /* Show only the lead sheet content */
+  .leadsheet-container {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  .leadsheet-scroll {
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+  }
+
+  /* Ensure staff SVGs render with black strokes */
+  .leadsheet-staff {
+    color: black !important;
+  }
+
+  .leadsheet-staff text {
+    fill: black !important;
+  }
+
+  .leadsheet-staff line {
+    stroke: black !important;
+  }
+
+  .leadsheet-staff circle {
+    fill: black !important;
+  }
+
+  /* Page breaks between staff systems */
+  .leadsheet-system {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Title */
+  .leadsheet-title {
+    color: black !important;
+    font-size: 24px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .leadsheet-composer {
+    color: black !important;
+  }
+
+  .leadsheet-subtitle {
+    color: black !important;
+  }
+
+  /* Hide mesh gradient background */
+  .mesh-gradient-bg {
+    display: none !important;
+  }
+
+  /* Hide transport bar */
+  .transport-bar {
+    display: none !important;
+  }
+}

@@ -231,10 +231,14 @@ function fmtDb(db: number): string {
 interface GraphicEQProps {
   bands: EqBand[];
   onChange: (bands: EqBand[]) => void;
+  analyserNode?: AnalyserNode | null;
 }
 
-export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
+export function GraphicEQ({ bands, onChange, analyserNode }: GraphicEQProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number>(0);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
@@ -367,231 +371,342 @@ export function GraphicEQ({ bands, onChange }: GraphicEQProps) {
     return () => svg.removeEventListener('wheel', prevent);
   }, [hoverIdx]);
 
+  // ── Real-time spectrum canvas ─────────────────────────────────────
+
+  useEffect(() => {
+    if (!analyserNode) return;
+
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+
+    analyserNode.fftSize = 2048;
+    analyserNode.smoothingTimeConstant = 0.85;
+    const bufferLength = analyserNode.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    const sampleRate = analyserNode.context.sampleRate;
+
+    function resize() {
+      const rect = container!.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas!.width = rect.width * dpr;
+      canvas!.height = rect.height * dpr;
+      canvas!.style.width = `${rect.width}px`;
+      canvas!.style.height = `${rect.height}px`;
+    }
+
+    resize();
+    const observer = new ResizeObserver(resize);
+    observer.observe(container);
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    function draw() {
+      rafRef.current = requestAnimationFrame(draw);
+      analyserNode!.getByteFrequencyData(dataArray);
+
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas!.width / dpr;
+      const h = canvas!.height / dpr;
+
+      ctx!.save();
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx!.clearRect(0, 0, w, h);
+
+      // Map SVG coordinate system to canvas pixels
+      const scaleX = w / SVG_W;
+      const scaleY = h / SVG_H;
+      const offsetX = PAD.left * scaleX;
+      const offsetY = PAD.top * scaleY;
+      const graphW = GW * scaleX;
+      const graphH = GH * scaleY;
+
+      // Build spectrum path in canvas coordinates
+      const pts: [number, number][] = [];
+      for (let i = 0; i < bufferLength; i++) {
+        const freq = (i / bufferLength) * (sampleRate / 2);
+        if (freq < FREQ_MIN || freq > FREQ_MAX) continue;
+        const xNorm = freqToX(freq, GW) / GW; // 0..1 in graph space
+        const x = offsetX + xNorm * graphW;
+        const v = dataArray[i] / 255;
+        const y = offsetY + graphH - v * graphH;
+        pts.push([x, y]);
+      }
+
+      if (pts.length === 0) {
+        ctx!.restore();
+        return;
+      }
+
+      const bottomY = offsetY + graphH;
+
+      // Gradient fill
+      const grad = ctx!.createLinearGradient(0, bottomY, 0, offsetY);
+      grad.addColorStop(0, 'rgba(126, 207, 207, 0.02)');
+      grad.addColorStop(0.5, 'rgba(126, 207, 207, 0.08)');
+      grad.addColorStop(1, 'rgba(126, 207, 207, 0.18)');
+
+      ctx!.beginPath();
+      ctx!.moveTo(pts[0][0], bottomY);
+      for (const [x, y] of pts) ctx!.lineTo(x, y);
+      ctx!.lineTo(pts[pts.length - 1][0], bottomY);
+      ctx!.closePath();
+      ctx!.fillStyle = grad;
+      ctx!.fill();
+
+      // Spectrum stroke
+      ctx!.beginPath();
+      ctx!.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) ctx!.lineTo(pts[i][0], pts[i][1]);
+      ctx!.strokeStyle = 'rgba(126, 207, 207, 0.4)';
+      ctx!.lineWidth = 1;
+      ctx!.stroke();
+
+      ctx!.restore();
+    }
+
+    draw();
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      observer.disconnect();
+    };
+  }, [analyserNode, SVG_W, SVG_H, PAD.left, PAD.top, GW, GH]);
+
   // ── Render ─────────────────────────────────────────────────────────
 
   return (
     <div className="flex flex-col gap-1 h-full">
-      <svg
-        ref={svgRef}
-        viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        className="w-full flex-1 select-none"
-        preserveAspectRatio="xMidYMid meet"
-        style={{ cursor: dragIdx !== null ? 'grabbing' : 'default' }}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
-      >
-        {/* Background */}
-        <rect
-          x={0}
-          y={0}
-          width={SVG_W}
-          height={SVG_H}
-          rx={8}
-          fill="rgba(0, 0, 0, 0.3)"
-        />
-
-        <g transform={`translate(${PAD.left}, ${PAD.top})`}>
-          {/* ── Grid lines ──────────────────────────────────────── */}
-
-          {/* Horizontal dB grid */}
-          {DB_GRID.map((db) => {
-            const y = dbToY(db, GH);
-            return (
-              <g key={`db-${db}`}>
-                <line
-                  x1={0}
-                  y1={y}
-                  x2={GW}
-                  y2={y}
-                  stroke="rgba(255,255,255,0.06)"
-                  strokeWidth={db === 0 ? 0.8 : 0.5}
-                />
-                <text
-                  x={-4}
-                  y={y + 3}
-                  textAnchor="end"
-                  fill="rgba(255,255,255,0.25)"
-                  fontSize={8}
-                  fontFamily="system-ui"
-                >
-                  {db > 0 ? `+${db}` : db}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Vertical freq grid */}
-          {FREQ_GRID.map((f) => {
-            const x = freqToX(f, GW);
-            return (
-              <g key={`f-${f}`}>
-                <line
-                  x1={x}
-                  y1={0}
-                  x2={x}
-                  y2={GH}
-                  stroke="rgba(255,255,255,0.06)"
-                  strokeWidth={0.5}
-                />
-                <text
-                  x={x}
-                  y={GH + 12}
-                  textAnchor="middle"
-                  fill="rgba(255,255,255,0.25)"
-                  fontSize={8}
-                  fontFamily="system-ui"
-                >
-                  {fmtFreq(f)}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* ── Per-band colored fills ──────────────────────────── */}
-          {bands.map((band, i) => {
-            if (!band.enabled) return null;
-            const resp = bandResponses[i];
-            const hasEnergy = resp.some((d) => Math.abs(d) > 0.1);
-            if (!hasEnergy) return null;
-            return (
-              <path
-                key={`fill-${i}`}
-                d={filledCurvePath(resp, GW, GH)}
-                fill={BAND_COLORS[i]}
-                opacity={0.12}
-              />
-            );
-          })}
-
-          {/* ── Composite curve (white) ────────────────────────── */}
-          <path
-            d={curvePath(compositeDb, GW, GH)}
-            fill="none"
-            stroke="rgba(232,232,240,0.8)"
-            strokeWidth={1.5}
-            strokeLinejoin="round"
+      <div ref={containerRef} className="relative w-full flex-1">
+        {analyserNode && (
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 block"
+            style={{ borderRadius: 8, pointerEvents: 'none' }}
+          />
+        )}
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+          className="relative w-full h-full select-none"
+          preserveAspectRatio="xMidYMid meet"
+          style={{ cursor: dragIdx !== null ? 'grabbing' : 'default' }}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+        >
+          {/* Background */}
+          <rect
+            x={0}
+            y={0}
+            width={SVG_W}
+            height={SVG_H}
+            rx={8}
+            fill="rgba(0, 0, 0, 0.3)"
           />
 
-          {/* ── Draggable band nodes ───────────────────────────── */}
-          {bands.map((band, i) => {
-            if (!band.enabled) return null;
-            const isCut = band.type === 'lowcut' || band.type === 'highcut';
-            const cx = freqToX(band.freq, GW);
-            const cy = dbToY(isCut ? 0 : band.gain, GH);
-            const isActive = dragIdx === i || hoverIdx === i;
-            const color = BAND_COLORS[i];
+          <g transform={`translate(${PAD.left}, ${PAD.top})`}>
+            {/* ── Grid lines ──────────────────────────────────────── */}
 
-            return (
-              <g key={`node-${i}`}>
-                {/* Hover ring */}
-                {isActive && (
+            {/* Horizontal dB grid */}
+            {DB_GRID.map((db) => {
+              const y = dbToY(db, GH);
+              return (
+                <g key={`db-${db}`}>
+                  <line
+                    x1={0}
+                    y1={y}
+                    x2={GW}
+                    y2={y}
+                    stroke="rgba(255,255,255,0.06)"
+                    strokeWidth={db === 0 ? 0.8 : 0.5}
+                  />
+                  <text
+                    x={-4}
+                    y={y + 3}
+                    textAnchor="end"
+                    fill="rgba(255,255,255,0.25)"
+                    fontSize={8}
+                    fontFamily="system-ui"
+                  >
+                    {db > 0 ? `+${db}` : db}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Vertical freq grid */}
+            {FREQ_GRID.map((f) => {
+              const x = freqToX(f, GW);
+              return (
+                <g key={`f-${f}`}>
+                  <line
+                    x1={x}
+                    y1={0}
+                    x2={x}
+                    y2={GH}
+                    stroke="rgba(255,255,255,0.06)"
+                    strokeWidth={0.5}
+                  />
+                  <text
+                    x={x}
+                    y={GH + 12}
+                    textAnchor="middle"
+                    fill="rgba(255,255,255,0.25)"
+                    fontSize={8}
+                    fontFamily="system-ui"
+                  >
+                    {fmtFreq(f)}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* ── Per-band colored fills ──────────────────────────── */}
+            {bands.map((band, i) => {
+              if (!band.enabled) return null;
+              const resp = bandResponses[i];
+              const hasEnergy = resp.some((d) => Math.abs(d) > 0.1);
+              if (!hasEnergy) return null;
+              return (
+                <path
+                  key={`fill-${i}`}
+                  d={filledCurvePath(resp, GW, GH)}
+                  fill={BAND_COLORS[i]}
+                  opacity={0.12}
+                />
+              );
+            })}
+
+            {/* ── Composite curve (white) ────────────────────────── */}
+            <path
+              d={curvePath(compositeDb, GW, GH)}
+              fill="none"
+              stroke="rgba(232,232,240,0.8)"
+              strokeWidth={1.5}
+              strokeLinejoin="round"
+            />
+
+            {/* ── Draggable band nodes ───────────────────────────── */}
+            {bands.map((band, i) => {
+              if (!band.enabled) return null;
+              const isCut = band.type === 'lowcut' || band.type === 'highcut';
+              const cx = freqToX(band.freq, GW);
+              const cy = dbToY(isCut ? 0 : band.gain, GH);
+              const isActive = dragIdx === i || hoverIdx === i;
+              const color = BAND_COLORS[i];
+
+              return (
+                <g key={`node-${i}`}>
+                  {/* Hover ring */}
+                  {isActive && (
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={10}
+                      fill="none"
+                      stroke={color}
+                      strokeWidth={1}
+                      opacity={0.4}
+                    />
+                  )}
+
+                  {/* Node circle */}
                   <circle
                     cx={cx}
                     cy={cy}
-                    r={10}
-                    fill="none"
-                    stroke={color}
+                    r={7}
+                    fill={color}
+                    stroke="rgba(0,0,0,0.4)"
                     strokeWidth={1}
-                    opacity={0.4}
-                  />
-                )}
-
-                {/* Node circle */}
-                <circle
-                  cx={cx}
-                  cy={cy}
-                  r={7}
-                  fill={color}
-                  stroke="rgba(0,0,0,0.4)"
-                  strokeWidth={1}
-                  style={{ cursor: 'grab' }}
-                  onPointerDown={(e) => handlePointerDown(i, e)}
-                  onPointerEnter={() => setHoverIdx(i)}
-                  onPointerLeave={() => {
-                    if (dragIdx !== i) setHoverIdx(null);
-                  }}
-                  onWheel={(e) => handleWheel(i, e)}
-                  onDoubleClick={() => handleDblClick(i)}
-                />
-
-                {/* Band number */}
-                <text
-                  x={cx}
-                  y={cy + 3}
-                  textAnchor="middle"
-                  fill="rgba(0,0,0,0.7)"
-                  fontSize={8}
-                  fontWeight={700}
-                  fontFamily="system-ui"
-                  style={{ pointerEvents: 'none' }}
-                >
-                  {i + 1}
-                </text>
-
-                {/* Slope label for cut bands */}
-                {isCut && isActive && (
-                  <g
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleSlope(i);
+                    style={{ cursor: 'grab' }}
+                    onPointerDown={(e) => handlePointerDown(i, e)}
+                    onPointerEnter={() => setHoverIdx(i)}
+                    onPointerLeave={() => {
+                      if (dragIdx !== i) setHoverIdx(null);
                     }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <rect
-                      x={cx + 10}
-                      y={cy - 8}
-                      width={22}
-                      height={14}
-                      rx={3}
-                      fill="rgba(0,0,0,0.6)"
-                      stroke={color}
-                      strokeWidth={0.5}
-                    />
-                    <text
-                      x={cx + 21}
-                      y={cy + 1}
-                      textAnchor="middle"
-                      fill={color}
-                      fontSize={8}
-                      fontWeight={600}
-                      fontFamily="system-ui"
-                    >
-                      {band.slope ?? 12}
-                    </text>
-                  </g>
-                )}
+                    onWheel={(e) => handleWheel(i, e)}
+                    onDoubleClick={() => handleDblClick(i)}
+                  />
 
-                {/* Tooltip on hover: Freq / Gain / Q */}
-                {isActive && (
-                  <g style={{ pointerEvents: 'none' }}>
-                    <rect
-                      x={cx - 36}
-                      y={cy - 28}
-                      width={72}
-                      height={16}
-                      rx={4}
-                      fill="rgba(0,0,0,0.7)"
-                    />
-                    <text
-                      x={cx}
-                      y={cy - 17}
-                      textAnchor="middle"
-                      fill="rgba(255,255,255,0.85)"
-                      fontSize={8}
-                      fontFamily="system-ui"
+                  {/* Band number */}
+                  <text
+                    x={cx}
+                    y={cy + 3}
+                    textAnchor="middle"
+                    fill="rgba(0,0,0,0.7)"
+                    fontSize={8}
+                    fontWeight={700}
+                    fontFamily="system-ui"
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    {i + 1}
+                  </text>
+
+                  {/* Slope label for cut bands */}
+                  {isCut && isActive && (
+                    <g
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSlope(i);
+                      }}
+                      style={{ cursor: 'pointer' }}
                     >
-                      {fmtFreq(band.freq)} Hz{' '}
-                      {isCut ? '' : `${fmtDb(band.gain)} dB`} Q{' '}
-                      {band.Q.toFixed(1)}
-                    </text>
-                  </g>
-                )}
-              </g>
-            );
-          })}
-        </g>
-      </svg>
+                      <rect
+                        x={cx + 10}
+                        y={cy - 8}
+                        width={22}
+                        height={14}
+                        rx={3}
+                        fill="rgba(0,0,0,0.6)"
+                        stroke={color}
+                        strokeWidth={0.5}
+                      />
+                      <text
+                        x={cx + 21}
+                        y={cy + 1}
+                        textAnchor="middle"
+                        fill={color}
+                        fontSize={8}
+                        fontWeight={600}
+                        fontFamily="system-ui"
+                      >
+                        {band.slope ?? 12}
+                      </text>
+                    </g>
+                  )}
+
+                  {/* Tooltip on hover: Freq / Gain / Q */}
+                  {isActive && (
+                    <g style={{ pointerEvents: 'none' }}>
+                      <rect
+                        x={cx - 36}
+                        y={cy - 28}
+                        width={72}
+                        height={16}
+                        rx={4}
+                        fill="rgba(0,0,0,0.7)"
+                      />
+                      <text
+                        x={cx}
+                        y={cy - 17}
+                        textAnchor="middle"
+                        fill="rgba(255,255,255,0.85)"
+                        fontSize={8}
+                        fontFamily="system-ui"
+                      >
+                        {fmtFreq(band.freq)} Hz{' '}
+                        {isCut ? '' : `${fmtDb(band.gain)} dB`} Q{' '}
+                        {band.Q.toFixed(1)}
+                      </text>
+                    </g>
+                  )}
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+      </div>
 
       {/* ── Bottom readouts ────────────────────────────────────────── */}
       <div className="flex justify-between px-0.5">

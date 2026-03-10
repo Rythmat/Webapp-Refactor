@@ -18,8 +18,14 @@ const NOTE_NAMES = [
   'B',
 ];
 const A4_FREQ = 440;
-const MIN_FREQ = 60; // ~B1 — lowest guitar/bass note we care about
+const MIN_FREQ = 27; // Phase 2: ~A0 — covers drop-tuned 5-string bass
 const MAX_FREQ = 1200; // Well above high E4 guitar string
+const FFT_SIZE = 4096; // Phase 1: doubled from 2048 for better low-freq detection
+const YIN_THRESHOLD = 0.15; // Phase 5: YIN confidence threshold
+const RMS_THRESHOLD = 0.003; // Phase 4: lowered from 0.01 for quiet instruments
+const SMOOTHING_SIZE = 5; // Phase 6: median filter window
+const NOTE_HOLD_FRAMES = 2; // Phase 6: frames before switching displayed note
+const CENTS_ALPHA = 0.3; // Phase 6: EMA smoothing factor for cents
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -29,70 +35,74 @@ export interface TunerResult {
   octave: number;
   cents: number;
   frequency: number;
+  error: string | null;
 }
 
-// ── Pitch Detection (Autocorrelation) ────────────────────────────────────
+// ── YIN Pitch Detection (Phase 5) ────────────────────────────────────────
+// Ported from PitchAnalyzer.ts — superior to raw autocorrelation for
+// fundamental detection, eliminates octave-jumping errors.
 
-function autoCorrelate(buf: Float32Array, sampleRate: number): number {
-  // Check if there's enough signal (RMS threshold)
+function yinDetect(buf: Float32Array, sampleRate: number): number {
+  // Phase 4: check RMS
   let rms = 0;
   for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
   rms = Math.sqrt(rms / buf.length);
-  if (rms < 0.01) return -1; // Too quiet
+  if (rms < RMS_THRESHOLD) return -1;
 
-  // Trim leading/trailing silence for better correlation
-  let r1 = 0;
-  let r2 = buf.length - 1;
-  const threshold = 0.2;
-  for (let i = 0; i < buf.length / 2; i++) {
-    if (Math.abs(buf[i]) < threshold) {
-      r1 = i;
-    } else break;
-  }
-  for (let i = 1; i < buf.length / 2; i++) {
-    if (Math.abs(buf[buf.length - i]) < threshold) {
-      r2 = buf.length - i;
-    } else break;
-  }
+  const halfLen = Math.floor(buf.length / 2);
+  const diff = new Float32Array(halfLen);
+  const cmndf = new Float32Array(halfLen);
 
-  const trimmed = buf.slice(r1, r2);
-  const len = trimmed.length;
-
-  // Autocorrelation
-  const corr = new Float32Array(len);
-  for (let lag = 0; lag < len; lag++) {
+  // Step 1: Difference function
+  for (let tau = 0; tau < halfLen; tau++) {
     let sum = 0;
-    for (let i = 0; i < len - lag; i++) {
-      sum += trimmed[i] * trimmed[i + lag];
+    for (let i = 0; i < halfLen; i++) {
+      const d = buf[i] - buf[i + tau];
+      sum += d * d;
     }
-    corr[lag] = sum;
+    diff[tau] = sum;
   }
 
-  // Find first dip then first peak
-  let d = 0;
-  while (d < len && corr[d] > corr[d + 1]) d++;
+  // Step 2: Cumulative mean normalized difference
+  cmndf[0] = 1;
+  let runningSum = 0;
+  for (let tau = 1; tau < halfLen; tau++) {
+    runningSum += diff[tau];
+    cmndf[tau] = diff[tau] / (runningSum / tau);
+  }
 
-  let maxVal = -1;
-  let maxPos = -1;
-  for (let i = d; i < len; i++) {
-    if (corr[i] > maxVal) {
-      maxVal = corr[i];
-      maxPos = i;
+  // Step 3: Absolute threshold search
+  const minPeriod = Math.floor(sampleRate / MAX_FREQ);
+  const maxPeriod = Math.min(Math.floor(sampleRate / MIN_FREQ), halfLen);
+
+  let tauEstimate = -1;
+  for (let tau = minPeriod; tau < maxPeriod; tau++) {
+    if (cmndf[tau] < YIN_THRESHOLD) {
+      // Walk past the dip to find the local minimum
+      while (tau + 1 < halfLen && cmndf[tau + 1] < cmndf[tau]) tau++;
+      tauEstimate = tau;
+      break;
     }
   }
 
-  if (maxPos === -1) return -1;
+  if (tauEstimate === -1) return -1;
 
-  // Parabolic interpolation for sub-sample accuracy
-  const y1 = maxPos > 0 ? corr[maxPos - 1] : corr[maxPos];
-  const y2 = corr[maxPos];
-  const y3 = maxPos < len - 1 ? corr[maxPos + 1] : corr[maxPos];
-  const shift = (y3 - y1) / (2 * (2 * y2 - y1 - y3));
-  const period = maxPos + (Number.isFinite(shift) ? shift : 0);
+  // Step 4: Parabolic interpolation for sub-sample accuracy
+  const t = tauEstimate;
+  if (t > 0 && t < halfLen - 1) {
+    const s0 = cmndf[t - 1];
+    const s1 = cmndf[t];
+    const s2 = cmndf[t + 1];
+    const denom = s0 - 2 * s1 + s2;
+    if (denom !== 0) {
+      const shift = (s0 - s2) / (2 * denom);
+      if (Math.abs(shift) < 1) {
+        return sampleRate / (t + shift);
+      }
+    }
+  }
 
-  const freq = sampleRate / period;
-  if (freq < MIN_FREQ || freq > MAX_FREQ) return -1;
-  return freq;
+  return sampleRate / t;
 }
 
 // ── Frequency → Note conversion ──────────────────────────────────────────
@@ -114,6 +124,16 @@ function freqToNote(freq: number): {
   return { note: NOTE_NAMES[noteIndex], octave, cents };
 }
 
+// ── Smoothing helpers (Phase 6) ──────────────────────────────────────────
+
+function medianOfArray(arr: number[]): number {
+  const sorted = [...arr].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? (sorted[mid - 1] + sorted[mid]) / 2
+    : sorted[mid];
+}
+
 // ── Hook ─────────────────────────────────────────────────────────────────
 
 export function useTuner(deviceId: string | null) {
@@ -122,11 +142,19 @@ export function useTuner(deviceId: string | null) {
   const [octave, setOctave] = useState(0);
   const [cents, setCents] = useState(0);
   const [frequency, setFrequency] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   const ctxRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number>(0);
   const analyserRef = useRef<AnalyserNode | null>(null);
+
+  // Phase 6: smoothing refs
+  const freqHistoryRef = useRef<number[]>([]);
+  const lastNoteRef = useRef<string>('');
+  const lastOctaveRef = useRef<number>(0);
+  const noteCountRef = useRef<number>(0);
+  const smoothedCentsRef = useRef<number>(0);
 
   const stop = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -141,11 +169,20 @@ export function useTuner(deviceId: string | null) {
       ctxRef.current = null;
     }
     analyserRef.current = null;
+
+    // Reset smoothing state
+    freqHistoryRef.current = [];
+    lastNoteRef.current = '';
+    lastOctaveRef.current = 0;
+    noteCountRef.current = 0;
+    smoothedCentsRef.current = 0;
+
     setActive(false);
     setNote('');
     setOctave(0);
     setCents(0);
     setFrequency(0);
+    setError(null);
   }, []);
 
   const start = useCallback(async () => {
@@ -163,11 +200,20 @@ export function useTuner(deviceId: string | null) {
 
       const source = ctx.createMediaStreamSource(stream);
       const analyser = ctx.createAnalyser();
-      analyser.fftSize = 2048;
+      analyser.fftSize = FFT_SIZE; // Phase 1: increased buffer
       source.connect(analyser);
       analyserRef.current = analyser;
 
+      // Phase 10: listen for device disconnect
+      stream.getTracks().forEach((track) => {
+        track.onended = () => {
+          setError('Device disconnected');
+          stop();
+        };
+      });
+
       setActive(true);
+      setError(null);
 
       const buf = new Float32Array(analyser.fftSize);
 
@@ -175,13 +221,44 @@ export function useTuner(deviceId: string | null) {
         if (!analyserRef.current) return;
         analyserRef.current.getFloatTimeDomainData(buf);
 
-        const freq = autoCorrelate(buf, ctx.sampleRate);
+        const freq = yinDetect(buf, ctx.sampleRate);
         if (freq > 0) {
-          const result = freqToNote(freq);
-          setNote(result.note);
-          setOctave(result.octave);
-          setCents(result.cents);
-          setFrequency(Math.round(freq * 10) / 10);
+          // Phase 6: median filter on frequency
+          const history = freqHistoryRef.current;
+          history.push(freq);
+          if (history.length > SMOOTHING_SIZE) history.shift();
+
+          const smoothedFreq =
+            history.length >= 3 ? medianOfArray(history) : freq;
+
+          const result = freqToNote(smoothedFreq);
+
+          // Phase 6: note hysteresis — only switch if new note holds for N frames
+          const noteKey = `${result.note}${result.octave}`;
+          const lastKey = `${lastNoteRef.current}${lastOctaveRef.current}`;
+
+          if (noteKey !== lastKey) {
+            noteCountRef.current++;
+            if (noteCountRef.current >= NOTE_HOLD_FRAMES) {
+              lastNoteRef.current = result.note;
+              lastOctaveRef.current = result.octave;
+              noteCountRef.current = 0;
+              setNote(result.note);
+              setOctave(result.octave);
+            }
+          } else {
+            noteCountRef.current = 0;
+            setNote(result.note);
+            setOctave(result.octave);
+          }
+
+          // Phase 6: EMA smoothing on cents
+          smoothedCentsRef.current =
+            smoothedCentsRef.current * (1 - CENTS_ALPHA) +
+            result.cents * CENTS_ALPHA;
+          setCents(Math.round(smoothedCentsRef.current));
+
+          setFrequency(Math.round(smoothedFreq * 10) / 10);
         }
 
         rafRef.current = requestAnimationFrame(tick);
@@ -189,6 +266,7 @@ export function useTuner(deviceId: string | null) {
       rafRef.current = requestAnimationFrame(tick);
     } catch (err) {
       console.warn('Tuner: could not start audio stream', err);
+      setError('Could not access audio device');
       stop();
     }
   }, [deviceId, stop]);
@@ -196,5 +274,5 @@ export function useTuner(deviceId: string | null) {
   // Cleanup on unmount
   useEffect(() => stop, [stop]);
 
-  return { active, note, octave, cents, frequency, start, stop };
+  return { active, note, octave, cents, frequency, error, start, stop };
 }

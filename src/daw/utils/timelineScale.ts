@@ -3,9 +3,23 @@
 // playhead, and all mouse handlers.
 
 export const TICKS_PER_BEAT = 480;
+export const BASE_PIXELS_PER_BEAT = 40;
+
+// ── Dynamic time signature helpers ──────────────────────────────────────
+
+/** Ticks per single beat unit for the given denominator (4=quarter, 8=eighth, etc.) */
+export function ticksPerBeatUnit(denominator: number): number {
+  return (TICKS_PER_BEAT * 4) / denominator;
+}
+
+/** Ticks per bar for the given time signature */
+export function ticksPerBar(numerator: number, denominator: number): number {
+  return numerator * ticksPerBeatUnit(denominator);
+}
+
+// Legacy constants — kept for backward compatibility during migration
 export const BEATS_PER_BAR = 4;
 export const TICKS_PER_BAR = TICKS_PER_BEAT * BEATS_PER_BAR;
-export const BASE_PIXELS_PER_BEAT = 40;
 
 // ── Core conversions ─────────────────────────────────────────────────────
 
@@ -56,18 +70,24 @@ export interface SubdivisionLevel {
   lineWidth: number;
 }
 
-export function visibleSubdivisions(zoom: number): SubdivisionLevel[] {
+export function visibleSubdivisions(
+  zoom: number,
+  numerator = 4,
+  denominator = 4,
+): SubdivisionLevel[] {
   const ppb = pixelsPerBeat(zoom);
+  const barTicks = ticksPerBar(numerator, denominator);
+  const beatTicks = ticksPerBeatUnit(denominator);
   const result: SubdivisionLevel[] = [];
 
   // Bar lines — always visible
-  result.push({ tickInterval: TICKS_PER_BAR, alpha: 0.22, lineWidth: 1 });
+  result.push({ tickInterval: barTicks, alpha: 0.22, lineWidth: 1 });
 
   // Beat lines — visible when ppb >= 10
   if (ppb >= 10) {
     const fade = clamp01((ppb - 10) / 10);
     result.push({
-      tickInterval: TICKS_PER_BEAT,
+      tickInterval: beatTicks,
       alpha: 0.12 * fade,
       lineWidth: 0.5,
     });
@@ -103,39 +123,46 @@ export interface RulerLevel {
   alpha: number;
 }
 
-export function rulerMarkings(zoom: number, _bpm: number): RulerLevel[] {
+export function rulerMarkings(
+  zoom: number,
+  _bpm: number,
+  numerator = 4,
+  denominator = 4,
+): RulerLevel[] {
   const ppb = pixelsPerBeat(zoom);
+  const barTicks = ticksPerBar(numerator, denominator);
+  const beatTicks = ticksPerBeatUnit(denominator);
   const levels: RulerLevel[] = [];
 
   if (ppb < 10) {
     // Very zoomed out — every 4 bars
     levels.push({
-      tickInterval: TICKS_PER_BAR * 4,
-      format: (t) => `${Math.floor(t / TICKS_PER_BAR) + 1}`,
+      tickInterval: barTicks * 4,
+      format: (t) => `${Math.floor(t / barTicks) + 1}`,
       fontSize: 10,
       alpha: 0.65,
     });
   } else if (ppb < 30) {
     // Bar numbers only
     levels.push({
-      tickInterval: TICKS_PER_BAR,
-      format: (t) => `${Math.floor(t / TICKS_PER_BAR) + 1}`,
+      tickInterval: barTicks,
+      format: (t) => `${Math.floor(t / barTicks) + 1}`,
       fontSize: 10,
       alpha: 0.65,
     });
   } else if (ppb < 80) {
     // Bars + beat numbers
     levels.push({
-      tickInterval: TICKS_PER_BAR,
-      format: (t) => `${Math.floor(t / TICKS_PER_BAR) + 1}`,
+      tickInterval: barTicks,
+      format: (t) => `${Math.floor(t / barTicks) + 1}`,
       fontSize: 10,
       alpha: 0.65,
     });
     levels.push({
-      tickInterval: TICKS_PER_BEAT,
+      tickInterval: beatTicks,
       format: (t) => {
-        const bar = Math.floor(t / TICKS_PER_BAR) + 1;
-        const beat = (Math.floor(t / TICKS_PER_BEAT) % BEATS_PER_BAR) + 1;
+        const bar = Math.floor(t / barTicks) + 1;
+        const beat = (Math.floor(t / beatTicks) % numerator) + 1;
         return `${bar}.${beat}`;
       },
       fontSize: 9,
@@ -144,16 +171,16 @@ export function rulerMarkings(zoom: number, _bpm: number): RulerLevel[] {
   } else {
     // Very zoomed in — bars + beats + subdivisions
     levels.push({
-      tickInterval: TICKS_PER_BAR,
-      format: (t) => `${Math.floor(t / TICKS_PER_BAR) + 1}`,
+      tickInterval: barTicks,
+      format: (t) => `${Math.floor(t / barTicks) + 1}`,
       fontSize: 10,
       alpha: 0.65,
     });
     levels.push({
-      tickInterval: TICKS_PER_BEAT,
+      tickInterval: beatTicks,
       format: (t) => {
-        const bar = Math.floor(t / TICKS_PER_BAR) + 1;
-        const beat = (Math.floor(t / TICKS_PER_BEAT) % BEATS_PER_BAR) + 1;
+        const bar = Math.floor(t / barTicks) + 1;
+        const beat = (Math.floor(t / beatTicks) % numerator) + 1;
         return `${bar}.${beat}`;
       },
       fontSize: 9,
@@ -162,8 +189,8 @@ export function rulerMarkings(zoom: number, _bpm: number): RulerLevel[] {
     levels.push({
       tickInterval: 240,
       format: (t) => {
-        const bar = Math.floor(t / TICKS_PER_BAR) + 1;
-        const beat = (Math.floor(t / TICKS_PER_BEAT) % BEATS_PER_BAR) + 1;
+        const bar = Math.floor(t / barTicks) + 1;
+        const beat = (Math.floor(t / beatTicks) % numerator) + 1;
         const sub = (Math.floor(t / 240) % 2) + 1;
         return `${bar}.${beat}.${sub}`;
       },

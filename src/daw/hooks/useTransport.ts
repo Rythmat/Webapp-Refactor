@@ -11,6 +11,7 @@ export function seekTo(tick: number) {
   const t = Math.max(0, Math.round(tick));
   Tone.getTransport().ticks = t;
   useStore.getState().setPosition(t);
+  useStore.getState().setLastSeekPosition(t);
 }
 
 // ── useTransport ────────────────────────────────────────────────────────
@@ -27,11 +28,18 @@ export function useTransport() {
   const loopEnabled = useStore((s) => s.loopEnabled);
   const loopStart = useStore((s) => s.loopStart);
   const loopEnd = useStore((s) => s.loopEnd);
+  const tsNum = useStore((s) => s.timeSignatureNumerator);
+  const tsDen = useStore((s) => s.timeSignatureDenominator);
 
   // Sync BPM → Tone.Transport
   useEffect(() => {
     Tone.getTransport().bpm.value = bpm;
   }, [bpm]);
+
+  // Sync time signature → Tone.Transport
+  useEffect(() => {
+    Tone.getTransport().timeSignature = [tsNum, tsDen];
+  }, [tsNum, tsDen]);
 
   // Sync loop state → Tone.Transport
   useEffect(() => {
@@ -45,6 +53,7 @@ export function useTransport() {
   useEffect(() => {
     const transport = Tone.getTransport();
     if (isPlaying) {
+      transport.ticks = useStore.getState().position;
       transport.start();
     } else {
       transport.pause();

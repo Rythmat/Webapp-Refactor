@@ -31,7 +31,7 @@ export function MixerPanel({ isReady }: { isReady: boolean }) {
       className="glass-panel mx-auto flex shrink-0 flex-col overflow-hidden rounded-2xl"
       style={{
         width: totalWidth,
-        maxWidth: '100vw',
+        maxWidth: '100%',
         backgroundColor: 'var(--color-surface-2)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',

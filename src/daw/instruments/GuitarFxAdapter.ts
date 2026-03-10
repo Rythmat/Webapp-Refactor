@@ -42,6 +42,9 @@ export class GuitarFxAdapter implements InstrumentAdapter {
   private analyserNode: AnalyserNode | null = null;
   private rmsBuffer: Float32Array | null = null;
 
+  // Chord detection (separate analyser with larger FFT for chromagram)
+  private chordAnalyserNode: AnalyserNode | null = null;
+
   // State
   private deviceId: string | null = null;
   private deviceChCount = 2; // actual device channel count (from capabilities API)
@@ -90,6 +93,11 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     this.analyserNode.fftSize = 256;
     this.analyserNode.smoothingTimeConstant = 0;
     this.rmsBuffer = new Float32Array(this.analyserNode.fftSize);
+
+    // Chord detection analyser (larger FFT for chromagram resolution)
+    this.chordAnalyserNode = this.nativeCtx!.createAnalyser();
+    this.chordAnalyserNode.fftSize = 16384;
+    this.chordAnalyserNode.smoothingTimeConstant = 0.4;
   }
 
   // No-ops for audio input tracks (not MIDI-driven)
@@ -98,12 +106,17 @@ export class GuitarFxAdapter implements InstrumentAdapter {
   allNotesOff(): void {}
   panic(): void {}
 
+  getChordAnalyserNode(): AnalyserNode | null {
+    return this.chordAnalyserNode;
+  }
+
   dispose(): void {
     this.stopRecordingStream();
     this.stopStream();
     this.pedalChain?.dispose();
     this.muteGain?.disconnect();
     this.analyserNode?.disconnect();
+    this.chordAnalyserNode?.disconnect();
     if (this.activator) {
       try {
         this.activator.stop();
@@ -120,6 +133,7 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     this.pedalChain = null;
     this.muteGain = null;
     this.analyserNode = null;
+    this.chordAnalyserNode = null;
     this._ctx = null;
     this.nativeCtx = null;
     this._outputNode = null;
@@ -185,6 +199,7 @@ export class GuitarFxAdapter implements InstrumentAdapter {
       // Wire channel routing and connect to analyser + muteGain (→ pedalChain)
       this.connectChannelRouting();
       this.channelGain.connect(this.analyserNode!);
+      this.channelGain.connect(this.chordAnalyserNode!);
       this.channelGain.connect(this.muteGain!);
     } catch (err) {
       console.warn('[GuitarFxAdapter] Failed to open audio input:', err);
@@ -291,8 +306,11 @@ export class GuitarFxAdapter implements InstrumentAdapter {
 
   // ── NAM passthrough ──────────────────────────────────────────────────
 
-  async loadNamModel(model: NamModelFile): Promise<void> {
-    await this.pedalChain?.loadNamModel(model);
+  async loadNamModel(
+    model: NamModelFile,
+    gainCompensation?: number,
+  ): Promise<void> {
+    await this.pedalChain?.loadNamModel(model, gainCompensation);
   }
 
   setAmpSimMode(mode: AmpSimMode): void {

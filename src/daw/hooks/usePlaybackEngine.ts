@@ -159,6 +159,10 @@ export function usePlaybackEngine(isReady: boolean) {
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const recordStartTickRef = useRef<number>(0);
   const isActivelyRecordingRef = useRef(false);
+  const liveAudioAnalyserRef = useRef<AnalyserNode | null>(null);
+  const liveAudioSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const liveAudioRafRef = useRef<number>(0);
+  const liveAudioPeaksRef = useRef<number[]>([]);
 
   const countInTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countInSynthRef = useRef<Tone.MembraneSynth | null>(null);
@@ -169,6 +173,8 @@ export function usePlaybackEngine(isReady: boolean) {
   const isCountingIn = useStore((s) => s.isCountingIn);
   const countInBars = useStore((s) => s.countInBars);
   const metronomeEnabled = useStore((s) => s.metronomeEnabled);
+  const tsNum = useStore((s) => s.timeSignatureNumerator);
+  const tsDen = useStore((s) => s.timeSignatureDenominator);
   const loopEnabled = useStore((s) => s.loopEnabled);
   const masteringEffects = useStore((s) => s.masteringEffects);
 
@@ -246,6 +252,19 @@ export function usePlaybackEngine(isReady: boolean) {
     }
   }, [isReady, tracks]);
 
+  // ── Sync monitoring state to adapters for all tracks ──────────────────
+  useEffect(() => {
+    if (!isReady) return;
+    const audioMap = trackAudioRef.current;
+    for (const track of tracks) {
+      const state = audioMap.get(track.id);
+      if (!state?.instrument) continue;
+      if ('setMonitoring' in state.instrument) {
+        (state.instrument as any).setMonitoring(track.monitoring);
+      }
+    }
+  }, [isReady, tracks]);
+
   // ── Sync mastering effects with audio engine ─────────────────────────
   useEffect(() => {
     if (!isReady) return;
@@ -284,6 +303,7 @@ export function usePlaybackEngine(isReady: boolean) {
               ticksPerQuarterNote: 480,
               trackName: track.name,
               events: clip.events,
+              ccEvents: clip.ccEvents,
             },
             state.trackEngine,
             clip.startTick,
@@ -342,6 +362,7 @@ export function usePlaybackEngine(isReady: boolean) {
     }
 
     const metro = metronomeRef.current;
+    metro.setTimeSignature(tsNum, tsDen);
     metro.setEnabled(metronomeEnabled);
 
     if (isPlaying && metronomeEnabled) {
@@ -349,16 +370,23 @@ export function usePlaybackEngine(isReady: boolean) {
     } else {
       metro.stop();
     }
-  }, [isReady, isPlaying, metronomeEnabled]);
+  }, [isReady, isPlaying, metronomeEnabled, tsNum, tsDen]);
 
   // ── Count-in scheduling (audio-clock, transport stays paused) ────────
   useEffect(() => {
     if (!isReady || !isCountingIn) return;
 
-    const bpm = useStore.getState().bpm;
-    const beatDuration = 60 / bpm;
-    const totalBeats = countInBars * 4;
+    const storeSnap = useStore.getState();
+    const bpm = storeSnap.bpm;
+    const num = storeSnap.timeSignatureNumerator;
+    const den = storeSnap.timeSignatureDenominator;
+    // Beat duration based on denominator: eighth = half a quarter, half = two quarters
+    const beatDuration = (60 / bpm) * (4 / den);
+    const totalBeats = countInBars * num;
     const masterGain = audioEngine.getMasterGain();
+
+    // Compound meter detection (6/8, 9/8, 12/8)
+    const isCompound = den === 8 && num % 3 === 0 && num >= 6;
 
     // Create a temporary synth for count-in clicks (same config as MetronomeEngine)
     const synth = new Tone.MembraneSynth({
@@ -374,7 +402,14 @@ export function usePlaybackEngine(isReady: boolean) {
     const now = Tone.now();
     for (let i = 0; i < totalBeats; i++) {
       const time = now + i * beatDuration;
-      const pitch = i % 4 === 0 ? 'C5' : 'C4';
+      let pitch: string;
+      if (i % num === 0) {
+        pitch = 'C5'; // Beat 1 accent
+      } else if (isCompound && i % 3 === 0) {
+        pitch = 'C5'; // Compound sub-group accent
+      } else {
+        pitch = 'C4';
+      }
       synth.triggerAttackRelease(pitch, '32n', time);
     }
 
@@ -501,10 +536,55 @@ export function usePlaybackEngine(isReady: boolean) {
             ? audioState.instrument
             : null;
 
+      // Helper: start live waveform analyser from a recording stream
+      const startLiveAnalyser = (stream: MediaStream, trackId: string) => {
+        try {
+          const ctx = audioEngine.getContext();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const nativeCtx: AudioContext = (ctx as any)._nativeContext ?? ctx;
+          const source = nativeCtx.createMediaStreamSource(stream);
+          const analyser = nativeCtx.createAnalyser();
+          analyser.fftSize = 2048;
+          source.connect(analyser);
+          liveAudioAnalyserRef.current = analyser;
+          liveAudioSourceRef.current = source;
+          liveAudioPeaksRef.current = [];
+
+          const buf = new Float32Array(analyser.fftSize);
+          const startTick = recordStartTickRef.current;
+          let lastUpdate = 0;
+
+          const poll = (now: number) => {
+            if (now - lastUpdate >= 66) {
+              analyser.getFloatTimeDomainData(buf);
+              let peak = 0;
+              for (let i = 0; i < buf.length; i++) {
+                const abs = Math.abs(buf[i]);
+                if (abs > peak) peak = abs;
+              }
+              liveAudioPeaksRef.current.push(peak);
+              useStore
+                .getState()
+                .setLiveAudioRecording(
+                  trackId,
+                  [...liveAudioPeaksRef.current],
+                  startTick,
+                );
+              lastUpdate = now;
+            }
+            liveAudioRafRef.current = requestAnimationFrame(poll);
+          };
+          liveAudioRafRef.current = requestAnimationFrame(poll);
+        } catch (err) {
+          console.warn('[usePlaybackEngine] Live audio analyser failed:', err);
+        }
+      };
+
       if (adapter) {
         // Tap the pedal chain output (after amp model, before muteGain)
         const stream = adapter.startRecordingStream();
         recorder.startRecording(stream);
+        startLiveAnalyser(stream, recordArmedAudioTrack.id);
       } else {
         const audioConstraints: MediaTrackConstraints = {
           echoCancellation: false,
@@ -515,6 +595,7 @@ export function usePlaybackEngine(isReady: boolean) {
           .getUserMedia({ audio: audioConstraints })
           .then((stream) => {
             recorder.startRecording(stream);
+            startLiveAnalyser(stream, recordArmedAudioTrack.id);
           })
           .catch((err) => {
             console.warn('Audio recording failed:', err);
@@ -525,6 +606,15 @@ export function usePlaybackEngine(isReady: boolean) {
     } else if (audioRecorderRef.current?.isRecording()) {
       // Stop recording and create audio clip
       isActivelyRecordingRef.current = false;
+
+      // Stop live waveform analyser
+      cancelAnimationFrame(liveAudioRafRef.current);
+      liveAudioSourceRef.current?.disconnect();
+      liveAudioAnalyserRef.current?.disconnect();
+      liveAudioSourceRef.current = null;
+      liveAudioAnalyserRef.current = null;
+      liveAudioPeaksRef.current = [];
+      useStore.getState().clearLiveAudioRecording();
 
       const recorder = audioRecorderRef.current;
       const armedTrack = tracks.find(

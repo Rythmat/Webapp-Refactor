@@ -161,12 +161,15 @@ export class GuitarPedalChain {
     proc.updateParams(params as Record<string, number>);
   }
 
-  async loadNamModel(model: NamModelFile): Promise<void> {
+  async loadNamModel(
+    model: NamModelFile,
+    gainCompensation?: number,
+  ): Promise<void> {
     const proc = this.processors.find((p) => p.type === 'nam-amp') as
       | NamAmpPedal
       | undefined;
     if (!proc) return;
-    await proc.loadNamModel(model);
+    await proc.loadNamModel(model, gainCompensation);
     this.wireChain();
   }
 

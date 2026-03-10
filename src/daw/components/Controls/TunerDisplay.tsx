@@ -1,7 +1,7 @@
 /* eslint-disable tailwindcss/classnames-order */
 /* eslint-disable tailwindcss/enforces-shorthand */
 /* eslint-disable sonarjs/cognitive-complexity */
-import { memo, type ReactNode, useCallback } from 'react';
+import { memo, type ReactNode, useCallback, useMemo } from 'react';
 import { useTuner } from '@/daw/hooks/useTuner';
 
 // ── Constants ────────────────────────────────────────────────────────────
@@ -9,9 +9,27 @@ import { useTuner } from '@/daw/hooks/useTuner';
 const IN_TUNE_THRESHOLD = 5; // cents
 const GREEN = '#22c55e';
 const YELLOW = '#eab308';
+const RED = '#ef4444';
+
+// Phase 8: Standard tuning string references
+const GUITAR_STRINGS = [
+  { note: 'E', octave: 2, freq: 82.41 },
+  { note: 'A', octave: 2, freq: 110.0 },
+  { note: 'D', octave: 3, freq: 146.83 },
+  { note: 'G', octave: 3, freq: 196.0 },
+  { note: 'B', octave: 3, freq: 246.94 },
+  { note: 'E', octave: 4, freq: 329.63 },
+];
+
+const BASS_STRINGS = [
+  { note: 'B', octave: 0, freq: 30.87 },
+  { note: 'E', octave: 1, freq: 41.2 },
+  { note: 'A', octave: 1, freq: 55.0 },
+  { note: 'D', octave: 2, freq: 73.42 },
+  { note: 'G', octave: 2, freq: 98.0 },
+];
 
 // ── LED Bar (SVG) ────────────────────────────────────────────────────────
-// Dense tick marks with varying heights + a movable colored needle.
 
 function LedBar({
   cents,
@@ -91,35 +109,137 @@ function LedBar({
   );
 }
 
+// ── String Indicator Row (Phase 8) ───────────────────────────────────────
+
+function StringIndicator({
+  strings,
+  currentNote,
+  currentOctave,
+  hasNote,
+}: {
+  strings: typeof GUITAR_STRINGS;
+  currentNote: string;
+  currentOctave: number;
+  hasNote: boolean;
+}) {
+  const closestIdx = useMemo(() => {
+    if (!hasNote) return -1;
+    let best = -1;
+    let bestDist = Infinity;
+    for (let i = 0; i < strings.length; i++) {
+      const s = strings[i];
+      const dist =
+        Math.abs(s.octave - currentOctave) * 12 +
+        Math.abs(noteToSemitone(s.note) - noteToSemitone(currentNote));
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = i;
+      }
+    }
+    return bestDist <= 3 ? best : -1;
+  }, [hasNote, strings, currentNote, currentOctave]);
+
+  return (
+    <div className="flex justify-center gap-1.5">
+      {strings.map((s, i) => {
+        const isActive = i === closestIdx;
+        return (
+          <span
+            key={`${s.note}${s.octave}`}
+            className="text-[9px] font-mono font-semibold px-1 py-0.5 rounded"
+            style={{
+              color: isActive ? GREEN : 'var(--color-text-dim)',
+              backgroundColor: isActive ? `${GREEN}15` : 'transparent',
+            }}
+          >
+            {s.note}
+            {s.octave}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+function noteToSemitone(note: string): number {
+  const map: Record<string, number> = {
+    C: 0,
+    'C#': 1,
+    D: 2,
+    'D#': 3,
+    E: 4,
+    F: 5,
+    'F#': 6,
+    G: 7,
+    'G#': 8,
+    A: 9,
+    'A#': 10,
+    B: 11,
+  };
+  return map[note] ?? 0;
+}
+
 // ── Main Component ───────────────────────────────────────────────────────
 
 interface TunerDisplayProps {
   deviceId: string | null;
+  instrumentType?: 'guitar' | 'bass';
+  onActiveChange?: (active: boolean) => void;
 }
 
 export const TunerDisplay = memo(function TunerDisplay({
   deviceId,
+  instrumentType = 'guitar',
+  onActiveChange,
 }: TunerDisplayProps) {
-  const { active, note, cents, frequency, start, stop } = useTuner(deviceId);
+  const { active, note, octave, cents, frequency, error, start, stop } =
+    useTuner(deviceId);
 
   const hasNote = active && note !== '';
   const inTune = hasNote && Math.abs(cents) < IN_TUNE_THRESHOLD;
   const color = !hasNote ? 'var(--color-surface-3)' : inTune ? GREEN : YELLOW;
 
-  const statusText = !active
-    ? 'Off'
-    : !hasNote
-      ? 'Listening'
-      : inTune
-        ? 'Perfect'
-        : cents < 0
-          ? 'Low'
-          : 'High';
+  const strings = instrumentType === 'bass' ? BASS_STRINGS : GUITAR_STRINGS;
+
+  // Phase 10: error state overrides normal status
+  const statusText = error
+    ? error
+    : !active
+      ? 'Off'
+      : !hasNote
+        ? 'Listening'
+        : inTune
+          ? 'Perfect'
+          : cents < 0
+            ? 'Low'
+            : 'High';
+
+  const statusColor = error
+    ? RED
+    : !active
+      ? 'var(--color-text-dim)'
+      : hasNote
+        ? color
+        : 'var(--color-text-dim)';
+
+  // Phase 9: cents display text
+  const centsText = !hasNote
+    ? ''
+    : cents === 0
+      ? '0\u00A2'
+      : cents > 0
+        ? `+${cents}\u00A2`
+        : `${cents}\u00A2`;
 
   const handleToggle = useCallback(() => {
-    if (active) stop();
-    else start();
-  }, [active, start, stop]);
+    if (active) {
+      stop();
+      onActiveChange?.(false);
+    } else {
+      start();
+      onActiveChange?.(true);
+    }
+  }, [active, start, stop, onActiveChange]);
 
   return (
     <div
@@ -154,10 +274,10 @@ export const TunerDisplay = memo(function TunerDisplay({
         </button>
       </div>
 
-      {/* Note display */}
+      {/* Note display — Phase 7: shows octave */}
       <div className="flex flex-col items-center gap-0.5">
         <div
-          className="text-[18px] font-bold leading-none tracking-tight"
+          className="font-bold leading-none tracking-tight"
           style={{
             color: hasNote ? color : 'var(--color-surface-3)',
             textShadow: hasNote
@@ -165,18 +285,19 @@ export const TunerDisplay = memo(function TunerDisplay({
               : 'none',
           }}
         >
-          {hasNote ? note : '—'}
+          {hasNote ? (
+            <>
+              <span className="text-[18px]">{note}</span>
+              <span className="text-[12px] opacity-70">{octave}</span>
+            </>
+          ) : (
+            <span className="text-[18px]">&mdash;</span>
+          )}
         </div>
 
         <span
           className="text-[10px] font-medium"
-          style={{
-            color: !active
-              ? 'var(--color-text-dim)'
-              : hasNote
-                ? color
-                : 'var(--color-text-dim)',
-          }}
+          style={{ color: statusColor }}
         >
           {statusText}
         </span>
@@ -189,8 +310,16 @@ export const TunerDisplay = memo(function TunerDisplay({
         color={hasNote ? (inTune ? GREEN : YELLOW) : 'var(--color-surface-3)'}
       />
 
-      {/* Frequency readout */}
-      <div className="text-center pb-0.5">
+      {/* Phase 9: Cents offset + frequency readout */}
+      <div className="flex items-center justify-center gap-2 pb-0.5">
+        {hasNote && (
+          <span
+            className="text-[10px] font-mono font-semibold"
+            style={{ color: inTune ? GREEN : YELLOW }}
+          >
+            {centsText}
+          </span>
+        )}
         <span
           className="text-[10px] font-mono"
           style={{ color: hasNote ? 'var(--color-text-dim)' : 'transparent' }}
@@ -198,6 +327,16 @@ export const TunerDisplay = memo(function TunerDisplay({
           {hasNote && frequency > 0 ? `${frequency} Hz` : '\u00A0'}
         </span>
       </div>
+
+      {/* Phase 8: String reference indicators */}
+      {active && (
+        <StringIndicator
+          strings={strings}
+          currentNote={note}
+          currentOctave={octave}
+          hasNote={hasNote}
+        />
+      )}
     </div>
   );
 });

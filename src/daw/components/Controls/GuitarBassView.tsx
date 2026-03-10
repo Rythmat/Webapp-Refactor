@@ -79,7 +79,7 @@ const PEDAL_CATALOG: PedalDef[] = [
   },
   {
     type: 'nam-amp',
-    name: 'NAM Amp',
+    name: 'Amp',
     category: 'Amp',
     color: '#60a5fa',
     params: [
@@ -411,9 +411,6 @@ export function GuitarBassView({
   const filteredModels = BUNDLED_MODELS.filter(
     (m) => m.forInstrument === instrumentFilter,
   );
-  const monitoring = useStore(
-    (s) => s.tracks.find((t) => t.id === trackId)?.monitoring ?? false,
-  );
   const audioInputChannel = useStore(
     (s) => s.tracks.find((t) => t.id === trackId)?.audioInputChannel ?? null,
   );
@@ -425,9 +422,22 @@ export function GuitarBassView({
   const [showChannelMenu, setShowChannelMenu] = useState(false);
   const meterRafRef = useRef(0);
   const meterBarRef = useRef<HTMLDivElement>(null);
+  const [tunerActive, setTunerActive] = useState(false);
 
-  // Signal chain state
-  const [chain, setChain] = useState<PedalBlock[]>(DEFAULT_CHAIN);
+  // Signal chain state — restore from store if available (survives unmount/remount)
+  const storedChain = useStore(
+    (s) => s.tracks.find((t) => t.id === trackId)?.guitarChain,
+  );
+  const [chain, setChain] = useState<PedalBlock[]>(() =>
+    storedChain && storedChain.length > 0
+      ? storedChain.map((b) => ({
+          ...b,
+          type: b.type as PedalBlockType,
+          id: `${b.type}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          namModelId: b.namModelId,
+        }))
+      : DEFAULT_CHAIN,
+  );
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(
     'amp-1',
   );
@@ -470,14 +480,25 @@ export function GuitarBassView({
     });
   }, [trackId, globalInputDeviceId, audioInputChannel]);
 
-  // Sync monitoring to adapter
+  // Mute monitoring when tuner is active to prevent feedback
+  // (main monitoring sync is handled centrally in usePlaybackEngine)
   useEffect(() => {
+    if (!tunerActive) return;
     const adapter = getAdapter(trackId);
-    adapter?.setMonitoring(monitoring);
-  }, [trackId, monitoring]);
+    adapter?.setMonitoring(false);
+    return () => {
+      const mon =
+        useStore.getState().tracks.find((t) => t.id === trackId)?.monitoring ??
+        false;
+      const a = getAdapter(trackId);
+      a?.setMonitoring(mon);
+    };
+  }, [trackId, tunerActive]);
 
   // Auto-load first bundled NAM model
-  const autoLoadedRef = useRef(false);
+  const autoLoadedRef = useRef(
+    storedChain != null && storedChain.some((b) => b.namModelId != null),
+  );
   useEffect(() => {
     const ampBlock = chain.find((b) => b.type === 'nam-amp');
     if (autoLoadedRef.current || ampBlock?.namModelId) return;
@@ -488,21 +509,42 @@ export function GuitarBassView({
     autoLoadedRef.current = true;
     fetchBundledModel(entry.url)
       .then(async (model) => {
-        await adapter.loadNamModel(model);
-        setChain((prev) =>
-          prev.map((b) =>
-            b.type === 'nam-amp' && !b.namModelId
-              ? { ...b, namModelId: entry.id }
-              : b,
-          ),
-        );
-        adapter.setAmpSimMode('nam');
+        try {
+          await adapter.loadNamModel(model, entry.gainCompensation);
+          setChain((prev) =>
+            prev.map((b) =>
+              b.type === 'nam-amp' && !b.namModelId
+                ? { ...b, namModelId: entry.id }
+                : b,
+            ),
+          );
+          adapter.setAmpSimMode('nam');
+        } catch (err) {
+          console.warn('[NAM] Auto-load model failed:', err);
+          autoLoadedRef.current = false;
+        }
       })
       .catch((err) => {
-        console.warn('[NAM] Auto-load failed:', err);
+        console.warn('[NAM] Auto-load fetch failed:', err);
         autoLoadedRef.current = false;
       });
   }, [trackId, chain, readyVersion, instrumentFilter, filteredModels]);
+
+  // Restore persisted NAM model when engine becomes ready
+  useEffect(() => {
+    const ampBlock = chain.find((b) => b.type === 'nam-amp');
+    if (!ampBlock?.namModelId) return;
+    const adapter = getAdapter(trackId);
+    if (!adapter || adapter.isNamLoaded()) return;
+    const entry = BUNDLED_MODELS.find((m) => m.id === ampBlock.namModelId);
+    if (!entry?.url) return;
+    fetchBundledModel(entry.url)
+      .then(async (model) => {
+        await adapter.loadNamModel(model, entry.gainCompensation);
+        adapter.setAmpSimMode('nam');
+      })
+      .catch((err) => console.warn('[NAM] Restore failed:', err));
+  }, [trackId, readyVersion, chain]);
 
   // Sync full pedal chain to audio engine
   useEffect(() => {
@@ -518,6 +560,19 @@ export function GuitarBassView({
       })),
     );
   }, [chain, trackId, bpm]);
+
+  // Persist chain to store so it survives GuitarBassView unmount/remount
+  useEffect(() => {
+    useStore.getState().setGuitarChain(
+      trackId,
+      chain.map((b) => ({
+        type: b.type,
+        enabled: b.enabled,
+        params: b.params,
+        namModelId: b.namModelId,
+      })),
+    );
+  }, [chain, trackId]);
 
   // Input level metering loop — direct DOM updates, throttled to ~15fps
   useEffect(() => {
@@ -604,7 +659,7 @@ export function GuitarBassView({
       const model = await fetchBundledModel(entry.url);
       const adapter = getAdapter(trackId);
       if (!adapter) return;
-      await adapter.loadNamModel(model);
+      await adapter.loadNamModel(model, entry.gainCompensation);
       setChain((prev) =>
         prev.map((b) =>
           b.id === blockId ? { ...b, namModelId: entry.id } : b,
@@ -820,7 +875,11 @@ export function GuitarBassView({
         </div>
 
         {/* Tuner */}
-        <TunerDisplay deviceId={globalInputDeviceId} />
+        <TunerDisplay
+          deviceId={globalInputDeviceId}
+          instrumentType={instrument === 'bass-fx' ? 'bass' : 'guitar'}
+          onActiveChange={setTunerActive}
+        />
       </div>
 
       {/* ── Amps Column ────────────────────────────────────── */}
@@ -1247,7 +1306,7 @@ export function GuitarBassView({
                 {selectedBlock.type === 'nam-amp'
                   ? (BUNDLED_MODELS.find(
                       (m) => m.id === selectedBlock.namModelId,
-                    )?.name ?? 'NAM Amp')
+                    )?.name ?? 'Amp')
                   : selectedDef.name}
               </span>
               {selectedBlock.type !== 'nam-amp' && (

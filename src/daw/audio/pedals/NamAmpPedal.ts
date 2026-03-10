@@ -69,6 +69,7 @@ export class NamAmpPedal implements PedalProcessor {
   private treble: BiquadFilterNode;
   private presence: BiquadFilterNode;
   private volume: GainNode;
+  private modelGain: GainNode;
 
   // NAM
   private namNode: NamWorkletNode | null = null;
@@ -122,6 +123,9 @@ export class NamAmpPedal implements PedalProcessor {
     this.volume = ctx.createGain();
     this.volume.gain.value = 0.7;
 
+    this.modelGain = ctx.createGain();
+    this.modelGain.gain.value = 1.0;
+
     this.wireChain();
   }
 
@@ -174,7 +178,10 @@ export class NamAmpPedal implements PedalProcessor {
 
   // ── NAM-specific methods ───────────────────────────────────────────────
 
-  async loadNamModel(model: NamModelFile): Promise<void> {
+  async loadNamModel(
+    model: NamModelFile,
+    gainCompensation?: number,
+  ): Promise<void> {
     if (!this.namNode) {
       if (!this.namInitPromise) {
         const node = new NamWorkletNode(this.ctx);
@@ -193,6 +200,7 @@ export class NamAmpPedal implements PedalProcessor {
     await this.namNode!.loadModel(model);
     this.namNode!.setInputLevel(this.inputLevelValue * 2);
     this.namNode!.setOutputLevel(this.outputLevelValue * 2);
+    this.modelGain.gain.value = gainCompensation ?? 1.0;
     if (this.mode === 'nam') {
       this.wireChain();
     }
@@ -220,6 +228,7 @@ export class NamAmpPedal implements PedalProcessor {
     this.bypassNode.disconnect();
     this.preGain.disconnect();
     this.shaper.disconnect();
+    this.modelGain.disconnect();
     this.bass.disconnect();
     this.mid.disconnect();
     this.treble.disconnect();
@@ -233,6 +242,7 @@ export class NamAmpPedal implements PedalProcessor {
     this.inputNode.disconnect();
     this.bypassNode.disconnect();
     this.volume.disconnect();
+    this.modelGain.disconnect();
     this.preGain.disconnect();
     this.shaper.disconnect();
     try {
@@ -250,7 +260,8 @@ export class NamAmpPedal implements PedalProcessor {
     if (this.mode === 'nam' && this.namNode?.isLoaded()) {
       const namAudioNode = this.namNode.getNode();
       this.inputNode.connect(namAudioNode);
-      namAudioNode.connect(this.bass);
+      namAudioNode.connect(this.modelGain);
+      this.modelGain.connect(this.bass);
     } else {
       this.inputNode.connect(this.preGain);
       this.preGain.connect(this.shaper);

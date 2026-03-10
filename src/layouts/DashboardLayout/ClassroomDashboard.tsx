@@ -43,8 +43,8 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   }, [isStudio, setIsSidebarCollapsed]);
 
   return (
-    <div className="flex h-screen w-screen flex-col">
-      <div className="flex w-full flex-1">
+    <div className="flex h-screen w-full flex-col overflow-hidden">
+      <div className="flex min-h-0 w-full flex-1 overflow-hidden">
         <div
           className={cn(
             'relative shrink-0 transition-all duration-300',
@@ -70,8 +70,18 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
           />
         </div>
 
-        <main ref={mainRef} className="flex w-full flex-1 pl-0">
-          <div className="relative flex-1 overflow-auto rounded-xl bg-surface-box p-2">
+        <main
+          ref={mainRef}
+          className="flex min-w-0 flex-1 overflow-hidden pl-0"
+        >
+          <div
+            className={cn(
+              'relative flex-1',
+              isStudio
+                ? 'flex flex-col min-h-0 min-w-0 overflow-hidden'
+                : 'overflow-auto rounded-xl bg-surface-box p-2',
+            )}
+          >
             <Suspense fallback={props.fallback}>
               <Outlet />
             </Suspense>

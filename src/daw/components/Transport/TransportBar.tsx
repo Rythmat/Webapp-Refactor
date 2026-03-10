@@ -1,4 +1,5 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import {
   SkipBack,
@@ -14,21 +15,24 @@ import {
   Palette,
   Lock,
   Unlock,
+  Hash,
 } from 'lucide-react';
-import * as Popover from '@radix-ui/react-popover';
+
 import { useStore, type ViewType } from '@/daw/store';
 import { seekTo } from '@/daw/hooks/useTransport';
 import { NOTES } from '@prism/engine';
 import { ALL_GRID_VALUES } from '@/daw/utils/quantize';
 import { FileMenu } from './FileMenu';
 import { CircleOfFifths } from '../Prism/CircleOfFifths';
+import { RainbowBorderButton } from '@/components/ui/rainbow-borders-button';
 import { THEME_ORDER, THEME_LABELS } from '@/daw/constants/themes';
 
 // ── View Switcher ───────────────────────────────────────────────────────
 
 const VIEWS: { id: ViewType; label: string }[] = [
-  { id: 'arrange', label: 'Arrange' },
-  { id: 'studio', label: 'Studio' },
+  { id: 'arrange', label: 'Create' },
+  { id: 'studio', label: 'Master' },
+  { id: 'leadsheet', label: 'Score' },
 ];
 
 function ViewSwitcher() {
@@ -71,15 +75,14 @@ interface TransportBarProps {
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
-function formatPosition(ticks: number): string {
-  const TICKS_PER_QUARTER = 480;
-  const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
-  const TICKS_PER_SIXTEENTH = 120;
+function formatPosition(ticks: number, numerator = 4, denominator = 4): string {
+  const beatTicks = (480 * 4) / denominator;
+  const barTicks = numerator * beatTicks;
+  const sixteenthTicks = 120;
 
-  const bar = Math.floor(ticks / TICKS_PER_BAR) + 1;
-  const beat = Math.floor((ticks % TICKS_PER_BAR) / TICKS_PER_QUARTER) + 1;
-  const sixteenth =
-    Math.floor((ticks % TICKS_PER_QUARTER) / TICKS_PER_SIXTEENTH) + 1;
+  const bar = Math.floor(ticks / barTicks) + 1;
+  const beat = (Math.floor((ticks % barTicks) / beatTicks) % numerator) + 1;
+  const sixteenth = Math.floor((ticks % beatTicks) / sixteenthTicks) + 1;
 
   return `${bar}:${beat}:${sixteenth}`;
 }
@@ -88,13 +91,15 @@ function formatPosition(ticks: number): string {
 
 function PositionDisplay() {
   const position = useStore((s) => s.position);
+  const tsNum = useStore((s) => s.timeSignatureNumerator);
+  const tsDen = useStore((s) => s.timeSignatureDenominator);
   return (
     <div
       className="min-w-14 text-center font-mono text-xs tracking-wider"
       style={{ color: 'var(--color-text)' }}
       title="Bar : Beat : Sixteenth"
     >
-      {formatPosition(position)}
+      {formatPosition(position, tsNum, tsDen)}
     </div>
   );
 }
@@ -139,6 +144,9 @@ export const TransportBar = memo(function TransportBar({
   const rootTrackColor = useStore((s) => s.rootTrackColor);
   const rootLocked = useStore((s) => s.rootLocked);
   const toggleRootLock = useStore((s) => s.toggleRootLock);
+  const tsNum = useStore((s) => s.timeSignatureNumerator);
+  const tsDen = useStore((s) => s.timeSignatureDenominator);
+  const setTimeSignature = useStore((s) => s.setTimeSignature);
 
   const play = useStore((s) => s.play);
   const pause = useStore((s) => s.pause);
@@ -149,12 +157,16 @@ export const TransportBar = memo(function TransportBar({
   const toggleMetronome = useStore((s) => s.toggleMetronome);
   const toggleLoop = useStore((s) => s.toggleLoop);
   const toggleSnap = useStore((s) => s.toggleTimelineSnap);
+  const chordRulerShowNotes = useStore((s) => s.chordRulerShowNotes);
+  const toggleChordRulerLabels = useStore((s) => s.toggleChordRulerLabels);
   const libraryOpen = useStore((s) => s.libraryOpen);
   const toggleLibrary = useStore((s) => s.toggleLibrary);
   const theme = useStore((s) => s.theme);
   const setTheme = useStore((s) => s.setTheme);
   const settingsOpen = useStore((s) => s.settingsOpen);
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
+  const projectName = useStore((s) => s.projectName);
+  const setProjectName = useStore((s) => s.setProjectName);
 
   const withInit = useCallback(
     (action: () => void) => {
@@ -167,16 +179,50 @@ export const TransportBar = memo(function TransportBar({
   const tracks = useStore((s) => s.tracks);
 
   const handleStop = useCallback(() => withInit(stop), [withInit, stop]);
+  const handleStopToZero = useCallback(
+    () =>
+      withInit(() => {
+        stop();
+        seekTo(0);
+      }),
+    [withInit, stop],
+  );
 
   const handleSkipBack = useCallback(
-    () => withInit(() => seekTo(0)),
+    () =>
+      withInit(() => {
+        const pos = useStore.getState().position;
+        const sorted = [...useStore.getState().markers].sort(
+          (a, b) => a.tick - b.tick,
+        );
+        // Find the last marker strictly before current position
+        let target: number | null = null;
+        for (let i = sorted.length - 1; i >= 0; i--) {
+          if (sorted[i].tick < pos) {
+            target = sorted[i].tick;
+            break;
+          }
+        }
+        seekTo(target ?? 0);
+      }),
     [withInit],
   );
 
   const handleSkipForward = useCallback(
     () =>
       withInit(() => {
-        // Find the last tick across all MIDI clips
+        const pos = useStore.getState().position;
+        const sorted = [...useStore.getState().markers].sort(
+          (a, b) => a.tick - b.tick,
+        );
+        // Find the first marker strictly after current position
+        for (const m of sorted) {
+          if (m.tick > pos) {
+            seekTo(m.tick);
+            return;
+          }
+        }
+        // Fallback: seek to end of content
         let lastTick = 0;
         for (const t of tracks) {
           for (const clip of t.midiClips) {
@@ -186,7 +232,7 @@ export const TransportBar = memo(function TransportBar({
             }
           }
         }
-        if (lastTick > 0) seekTo(lastTick);
+        if (lastTick > pos) seekTo(lastTick);
       }),
     [withInit, tracks],
   );
@@ -199,6 +245,64 @@ export const TransportBar = memo(function TransportBar({
   // Local state so the user can freely clear / type without the controlled
   // value snapping back on every keystroke.
   const [bpmInput, setBpmInput] = useState(String(bpm));
+  const [projectNameInput, setProjectNameInput] = useState(projectName);
+  useEffect(() => setProjectNameInput(projectName), [projectName]);
+  const commitProjectName = useCallback(() => {
+    const trimmed = projectNameInput.trim();
+    if (trimmed) {
+      setProjectName(trimmed);
+    }
+    setProjectNameInput(useStore.getState().projectName);
+  }, [projectNameInput, setProjectName]);
+  const [keyOpen, setKeyOpen] = useState(false);
+  const keyPopoverRef = useRef<HTMLDivElement>(null);
+  const [tsOpen, setTsOpen] = useState(false);
+  const tsButtonRef = useRef<HTMLButtonElement>(null);
+  const tsPopoverRef = useRef<HTMLDivElement>(null);
+  const [customNum, setCustomNum] = useState('');
+  const [customDen, setCustomDen] = useState('4');
+  const keyButtonRef = useRef<HTMLDivElement>(null);
+
+  // Close Key popover on outside click
+  useEffect(() => {
+    if (!keyOpen) return;
+    function handleMouseDown(e: MouseEvent) {
+      const target = e.target as Node;
+      if (
+        keyPopoverRef.current?.contains(target) ||
+        keyButtonRef.current?.contains(target)
+      )
+        return;
+      setKeyOpen(false);
+      // Auto-lock root note when dismissing the popover
+      const {
+        rootNote: rn,
+        rootLocked: rl,
+        toggleRootLock: trl,
+      } = useStore.getState();
+      if (rn !== null && !rl) {
+        trl();
+      }
+    }
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, [keyOpen]);
+
+  // Close time signature popover on outside click
+  useEffect(() => {
+    if (!tsOpen) return;
+    function handleMouseDown(e: MouseEvent) {
+      const target = e.target as Node;
+      if (
+        tsPopoverRef.current?.contains(target) ||
+        tsButtonRef.current?.contains(target)
+      )
+        return;
+      setTsOpen(false);
+    }
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, [tsOpen]);
 
   // Sync from store when BPM changes externally (e.g. MIDI control)
   useEffect(() => setBpmInput(String(bpm)), [bpm]);
@@ -225,45 +329,71 @@ export const TransportBar = memo(function TransportBar({
         {/* File menu */}
         <FileMenu />
 
-        {/* View switcher */}
-        <ViewSwitcher />
+        {/* Project name */}
+        <input
+          type="text"
+          value={projectNameInput}
+          onChange={(e) => setProjectNameInput(e.target.value)}
+          onBlur={commitProjectName}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              commitProjectName();
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+          className="h-5 max-w-[140px] rounded border border-transparent bg-transparent px-1.5 text-[11px] font-medium outline-none transition-colors hover:border-white/10 focus:border-white/20 focus:ring-1"
+          style={{ color: 'var(--color-text)' }}
+          title="Project name (click to edit)"
+        />
 
         {/* Root Note selector */}
-        <Popover.Root>
-          <Popover.Trigger asChild>
-            <button
-              className="flex h-5 cursor-pointer items-center gap-1 rounded px-1.5 text-[10px] font-medium transition-colors hover:bg-white/5"
+        <RainbowBorderButton
+          ref={keyButtonRef}
+          active={rootNote === null}
+          onClick={() => {
+            if (!keyOpen) {
+              // Opening: unlock so user can freely change keys
+              const s = useStore.getState();
+              if (s.rootLocked) s.toggleRootLock();
+            } else {
+              // Closing via button: auto-lock
+              const s = useStore.getState();
+              if (s.rootNote !== null && !s.rootLocked) s.toggleRootLock();
+            }
+            setKeyOpen((v) => !v);
+          }}
+          className="flex h-5 items-center gap-1 px-2 text-[10px] font-semibold uppercase tracking-wider"
+          style={{
+            backgroundColor:
+              rootNote !== null && rootTrackColor
+                ? rootTrackColor
+                : 'var(--color-surface-2)',
+            color: '#fff',
+          }}
+          title="Key"
+        >
+          {rootNote !== null ? `Key: ${NOTES[rootNote]}` : 'Key'}
+        </RainbowBorderButton>
+        {keyOpen &&
+          createPortal(
+            <div
+              ref={keyPopoverRef}
+              className="fixed z-50 rounded-xl p-4 shadow-lg"
               style={{
-                backgroundColor:
-                  rootNote !== null && rootTrackColor
-                    ? rootTrackColor
-                    : 'var(--color-surface-2)',
-                color:
-                  rootNote !== null && rootTrackColor
-                    ? '#fff'
-                    : 'var(--color-text-dim)',
-                border: 'none',
-              }}
-              title="Root Note"
-            >
-              {rootNote !== null ? `Root: ${NOTES[rootNote]}` : 'Root'}
-            </button>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content
-              className="z-50 rounded-xl p-4 shadow-lg"
-              style={{
+                top:
+                  (keyButtonRef.current?.getBoundingClientRect().bottom ?? 0) +
+                  8,
+                left: keyButtonRef.current?.getBoundingClientRect().left ?? 0,
                 backgroundColor: 'var(--color-surface-2)',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
               }}
-              sideOffset={8}
             >
               <CircleOfFifths />
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
+            </div>,
+            document.body,
+          )}
         {rootNote !== null && (
           <button
             onClick={toggleRootLock}
@@ -284,15 +414,147 @@ export const TransportBar = memo(function TransportBar({
         {/* Musical Controls — centered in remaining space */}
         <div className="flex flex-1 items-center justify-center gap-2">
           {/* Time Signature */}
-          <span
-            className="flex h-5 items-center rounded px-1.5 font-mono text-[10px] font-medium"
-            style={{
-              backgroundColor: 'var(--color-surface-2)',
-              color: 'var(--color-text-dim)',
-            }}
-          >
-            4/4
-          </span>
+          <div className="relative">
+            <button
+              ref={tsButtonRef}
+              onClick={() => setTsOpen((v) => !v)}
+              className="flex h-5 cursor-pointer items-center rounded px-1.5 font-mono text-[10px] font-medium transition-colors hover:bg-white/5"
+              style={{
+                backgroundColor: 'var(--color-surface-2)',
+                color: 'var(--color-text-dim)',
+                border: 'none',
+              }}
+              title="Time Signature"
+            >
+              {tsNum}/{tsDen}
+            </button>
+            {tsOpen &&
+              createPortal(
+                <div
+                  ref={tsPopoverRef}
+                  className="fixed z-50 rounded-lg p-2 shadow-lg"
+                  style={{
+                    top:
+                      (tsButtonRef.current?.getBoundingClientRect().bottom ??
+                        0) + 6,
+                    left:
+                      tsButtonRef.current?.getBoundingClientRect().left ?? 0,
+                    backgroundColor: 'var(--color-surface-2)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(24px)',
+                    WebkitBackdropFilter: 'blur(24px)',
+                  }}
+                >
+                  <div className="grid grid-cols-3 gap-1">
+                    {(
+                      [
+                        [2, 4],
+                        [3, 4],
+                        [4, 4],
+                        [5, 4],
+                        [6, 4],
+                        [7, 4],
+                        [3, 8],
+                        [5, 8],
+                        [6, 8],
+                        [7, 8],
+                        [9, 8],
+                        [12, 8],
+                      ] as [number, number][]
+                    ).map(([n, d]) => {
+                      const isActive = n === tsNum && d === tsDen;
+                      return (
+                        <button
+                          key={`${n}/${d}`}
+                          onClick={() => {
+                            setTimeSignature(n, d);
+                            setTsOpen(false);
+                          }}
+                          className="flex h-6 w-10 cursor-pointer items-center justify-center rounded font-mono text-[10px] font-medium transition-colors hover:bg-white/10"
+                          style={{
+                            backgroundColor: isActive
+                              ? 'var(--color-accent)'
+                              : 'transparent',
+                            color: isActive ? '#000' : 'var(--color-text)',
+                            border: 'none',
+                          }}
+                        >
+                          {n}/{d}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {/* Custom time signature input */}
+                  <div
+                    className="mt-1.5 flex items-center gap-1 border-t pt-1.5"
+                    style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}
+                  >
+                    <input
+                      type="number"
+                      min={1}
+                      max={32}
+                      value={customNum}
+                      onChange={(e) => setCustomNum(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          const n = parseInt(customNum, 10);
+                          const d = parseInt(customDen, 10);
+                          if (n > 0) {
+                            setTimeSignature(n, d);
+                            setTsOpen(false);
+                          }
+                        }
+                      }}
+                      placeholder={String(tsNum)}
+                      className="h-5 w-8 rounded border bg-transparent text-center font-mono text-[10px] outline-none focus:ring-1"
+                      style={{
+                        borderColor: 'var(--color-border)',
+                        color: 'var(--color-text)',
+                      }}
+                    />
+                    <span
+                      className="font-mono text-[10px]"
+                      style={{ color: 'var(--color-text-dim)' }}
+                    >
+                      /
+                    </span>
+                    <select
+                      value={customDen}
+                      onChange={(e) => setCustomDen(e.target.value)}
+                      className="h-5 cursor-pointer rounded border bg-transparent font-mono text-[10px] outline-none focus:ring-1"
+                      style={{
+                        borderColor: 'var(--color-border)',
+                        color: 'var(--color-text)',
+                      }}
+                    >
+                      <option value="2">2</option>
+                      <option value="4">4</option>
+                      <option value="8">8</option>
+                      <option value="16">16</option>
+                    </select>
+                    <button
+                      onClick={() => {
+                        const n = parseInt(customNum, 10);
+                        const d = parseInt(customDen, 10);
+                        if (n > 0) {
+                          setTimeSignature(n, d);
+                          setTsOpen(false);
+                        }
+                      }}
+                      className="ml-auto flex h-5 cursor-pointer items-center rounded px-1.5 text-[9px] font-medium uppercase transition-colors hover:bg-white/10"
+                      style={{
+                        backgroundColor: 'var(--color-accent)',
+                        color: '#000',
+                        border: 'none',
+                      }}
+                    >
+                      Set
+                    </button>
+                  </div>
+                </div>,
+                document.body,
+              )}
+          </div>
 
           {/* BPM */}
           <div className="flex items-center gap-1">
@@ -399,6 +661,25 @@ export const TransportBar = memo(function TransportBar({
           >
             <Magnet size={14} strokeWidth={2} />
           </motion.button>
+
+          {/* Chord Ruler: Numbers ↔ Notes */}
+          <motion.button
+            onClick={toggleChordRulerLabels}
+            whileTap={{ scale: 0.85 }}
+            className="flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-white/5"
+            style={{
+              color: chordRulerShowNotes
+                ? 'var(--color-accent)'
+                : 'var(--color-text-dim)',
+            }}
+            title={
+              chordRulerShowNotes
+                ? 'Chord Ruler: Degree Numbers'
+                : 'Chord Ruler: Note Names'
+            }
+          >
+            <Hash size={14} strokeWidth={2} />
+          </motion.button>
         </div>
       </div>
 
@@ -407,10 +688,11 @@ export const TransportBar = memo(function TransportBar({
         {/* Stop */}
         <motion.button
           onClick={handleStop}
+          onDoubleClick={handleStopToZero}
           whileTap={{ scale: 0.85 }}
           className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
           style={{ color: 'var(--color-text-dim)' }}
-          title="Stop"
+          title="Stop (double-click for start)"
         >
           <Square size={12} fill="currentColor" strokeWidth={0} />
         </motion.button>
@@ -463,124 +745,132 @@ export const TransportBar = memo(function TransportBar({
       </div>
 
       {/* ── Right Half ────────────────────────────────────────── */}
-      <div className="flex min-w-0 flex-1 items-center justify-end gap-2 overflow-hidden">
-        {/* Skip Back */}
-        <motion.button
-          onClick={handleSkipBack}
-          whileTap={{ scale: 0.85 }}
-          className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
-          style={{ color: 'var(--color-text-dim)' }}
-          title="Skip Back"
-        >
-          <SkipBack size={12} fill="currentColor" strokeWidth={0} />
-        </motion.button>
-
-        {/* Skip Forward */}
-        <motion.button
-          onClick={handleSkipForward}
-          whileTap={{ scale: 0.85 }}
-          className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
-          style={{ color: 'var(--color-text-dim)' }}
-          title="Skip Forward"
-        >
-          <SkipForward size={12} fill="currentColor" strokeWidth={0} />
-        </motion.button>
-
-        {/* MIDI Status Indicator */}
-        <div
-          className="flex h-5 items-center gap-1 rounded px-1.5"
-          style={{
-            backgroundColor: 'var(--color-surface-2)',
-          }}
-          title={
-            midiStatus === 'ready'
-              ? `MIDI: ${midiInputs.length} input(s) — ${midiInputs.map((d) => d.name).join(', ')}`
-              : midiStatus === 'unavailable'
-                ? 'MIDI: Unavailable — use Chrome/Edge'
-                : 'MIDI: Initializing...'
-          }
-        >
-          <div
-            className="size-1.5 rounded-full"
-            style={{
-              backgroundColor:
-                midiStatus === 'ready'
-                  ? '#22c55e'
-                  : midiStatus === 'unavailable'
-                    ? '#ef4444'
-                    : '#6b7280',
-            }}
-          />
-          <span
-            className="text-[9px] font-medium uppercase"
-            style={{
-              color:
-                midiStatus === 'ready'
-                  ? '#22c55e'
-                  : midiStatus === 'unavailable'
-                    ? '#ef4444'
-                    : 'var(--color-text-dim)',
-            }}
-          >
-            MIDI
-          </span>
+      <div className="flex min-w-0 flex-1 items-center overflow-hidden">
+        {/* ViewSwitcher — its own div, centered between center and right controls */}
+        <div className="flex flex-1 items-center justify-center">
+          <ViewSwitcher />
         </div>
 
-        {/* Zoom indicator */}
-        <ZoomIndicator />
+        {/* Right controls */}
+        <div className="flex shrink-0 items-center gap-2">
+          {/* Skip Back */}
+          <motion.button
+            onClick={handleSkipBack}
+            whileTap={{ scale: 0.85 }}
+            className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
+            style={{ color: 'var(--color-text-dim)' }}
+            title="Skip Back"
+          >
+            <SkipBack size={12} fill="currentColor" strokeWidth={0} />
+          </motion.button>
 
-        <div
-          className="h-4 w-px"
-          style={{ backgroundColor: 'var(--color-border)' }}
-        />
+          {/* Skip Forward */}
+          <motion.button
+            onClick={handleSkipForward}
+            whileTap={{ scale: 0.85 }}
+            className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
+            style={{ color: 'var(--color-text-dim)' }}
+            title="Skip Forward"
+          >
+            <SkipForward size={12} fill="currentColor" strokeWidth={0} />
+          </motion.button>
 
-        {/* Theme cycle */}
-        <motion.button
-          onClick={() => {
-            const idx = THEME_ORDER.indexOf(theme);
-            setTheme(THEME_ORDER[(idx + 1) % THEME_ORDER.length]);
-          }}
-          whileTap={{ scale: 0.85 }}
-          className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
-          style={{ color: 'var(--color-accent)' }}
-          title={`Theme: ${THEME_LABELS[theme]}`}
-        >
-          <Palette size={13} strokeWidth={2} />
-        </motion.button>
+          {/* MIDI Status Indicator */}
+          <div
+            className="flex h-5 items-center gap-1 rounded px-1.5"
+            style={{
+              backgroundColor: 'var(--color-surface-2)',
+            }}
+            title={
+              midiStatus === 'ready'
+                ? `MIDI: ${midiInputs.length} input(s) — ${midiInputs.map((d) => d.name).join(', ')}`
+                : midiStatus === 'unavailable'
+                  ? 'MIDI: Unavailable — use Chrome/Edge'
+                  : 'MIDI: Initializing...'
+            }
+          >
+            <div
+              className="size-1.5 rounded-full"
+              style={{
+                backgroundColor:
+                  midiStatus === 'ready'
+                    ? '#22c55e'
+                    : midiStatus === 'unavailable'
+                      ? '#ef4444'
+                      : '#6b7280',
+              }}
+            />
+            <span
+              className="text-[9px] font-medium uppercase"
+              style={{
+                color:
+                  midiStatus === 'ready'
+                    ? '#22c55e'
+                    : midiStatus === 'unavailable'
+                      ? '#ef4444'
+                      : 'var(--color-text-dim)',
+              }}
+            >
+              MIDI
+            </span>
+          </div>
 
-        {/* Library toggle */}
-        <motion.button
-          onClick={toggleLibrary}
-          whileTap={{ scale: 0.85 }}
-          className="flex h-7 items-center gap-1 rounded-md px-1 transition-colors hover:bg-white/5"
-          style={{
-            color: libraryOpen
-              ? 'var(--color-accent)'
-              : 'var(--color-text-dim)',
-          }}
-          title="Library"
-        >
-          <Library size={13} strokeWidth={2} />
-        </motion.button>
+          {/* Zoom indicator */}
+          <ZoomIndicator />
 
-        <div
-          className="h-4 w-px"
-          style={{ backgroundColor: 'var(--color-border)' }}
-        />
-        {/* Settings */}
-        <motion.button
-          whileTap={{ scale: 0.85 }}
-          onClick={() => setSettingsOpen(true)}
-          className="flex h-7 items-center gap-1 rounded-md px-1 transition-colors hover:bg-white/5"
-          style={{
-            color: settingsOpen
-              ? 'var(--color-accent)'
-              : 'var(--color-text-dim)',
-          }}
-          title="Settings"
-        >
-          <Settings size={13} strokeWidth={2} />
-        </motion.button>
+          <div
+            className="h-4 w-px"
+            style={{ backgroundColor: 'var(--color-border)' }}
+          />
+
+          {/* Theme cycle */}
+          <motion.button
+            onClick={() => {
+              const idx = THEME_ORDER.indexOf(theme);
+              setTheme(THEME_ORDER[(idx + 1) % THEME_ORDER.length]);
+            }}
+            whileTap={{ scale: 0.85 }}
+            className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
+            style={{ color: 'var(--color-accent)' }}
+            title={`Theme: ${THEME_LABELS[theme]}`}
+          >
+            <Palette size={13} strokeWidth={2} />
+          </motion.button>
+
+          {/* Library toggle */}
+          <motion.button
+            onClick={toggleLibrary}
+            whileTap={{ scale: 0.85 }}
+            className="flex h-7 items-center gap-1 rounded-md px-1 transition-colors hover:bg-white/5"
+            style={{
+              color: libraryOpen
+                ? 'var(--color-accent)'
+                : 'var(--color-text-dim)',
+            }}
+            title="Library"
+          >
+            <Library size={13} strokeWidth={2} />
+          </motion.button>
+
+          <div
+            className="h-4 w-px"
+            style={{ backgroundColor: 'var(--color-border)' }}
+          />
+          {/* Settings */}
+          <motion.button
+            whileTap={{ scale: 0.85 }}
+            onClick={() => setSettingsOpen(true)}
+            className="flex h-7 items-center gap-1 rounded-md px-1 transition-colors hover:bg-white/5"
+            style={{
+              color: settingsOpen
+                ? 'var(--color-accent)'
+                : 'var(--color-text-dim)',
+            }}
+            title="Settings"
+          >
+            <Settings size={13} strokeWidth={2} />
+          </motion.button>
+        </div>
       </div>
     </div>
   );

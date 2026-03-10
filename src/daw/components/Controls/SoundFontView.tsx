@@ -183,13 +183,6 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
         className="flex shrink-0 items-center gap-4 border-b px-4 py-2"
         style={{ borderColor: 'var(--color-border)' }}
       >
-        <span
-          className="text-[10px] font-semibold uppercase tracking-wider"
-          style={{ color: 'var(--color-text-dim)' }}
-        >
-          SoundFont
-        </span>
-
         {/* Category selector */}
         <div className="relative">
           <button

@@ -1,5 +1,5 @@
 /* eslint-disable tailwindcss/classnames-order, tailwindcss/enforces-shorthand */
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import {
   Play,
   Square,
@@ -93,6 +93,23 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
 
   const addMidiClip = useStore((s) => s.addMidiClip);
   const setSelectedClip = useStore((s) => s.setSelectedClip);
+  const projectBpm = useStore((s) => s.bpm);
+  const setBpm = useStore((s) => s.setBpm);
+
+  // Pending groove awaiting BPM confirmation
+  const [pendingGroove, setPendingGroove] = useState<GrooveItem | null>(null);
+  const bpmPopoverRef = useRef<HTMLDivElement>(null);
+
+  // Close BPM popover on outside click
+  useEffect(() => {
+    if (!pendingGroove) return;
+    function handleMouseDown(e: MouseEvent) {
+      if (bpmPopoverRef.current?.contains(e.target as Node)) return;
+      setPendingGroove(null);
+    }
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, [pendingGroove]);
 
   const uniqueBpms = useMemo(() => getUniqueBpms(), []);
 
@@ -221,7 +238,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
 
   // ── Load groove into track ─────────────────────────────────────────
 
-  const loadGroove = useCallback(
+  const doLoadGroove = useCallback(
     async (groove: GrooveItem) => {
       try {
         const resp = await fetch(groove.url);
@@ -253,6 +270,17 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
     [trackId, addMidiClip, setSelectedClip],
   );
 
+  const loadGroove = useCallback(
+    (groove: GrooveItem) => {
+      if (groove.bpm !== projectBpm) {
+        setPendingGroove(groove);
+      } else {
+        doLoadGroove(groove);
+      }
+    },
+    [projectBpm, doLoadGroove],
+  );
+
   // ── Navigate preview ───────────────────────────────────────────────
 
   const navigatePreview = useCallback(
@@ -269,7 +297,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
 
   return (
     <div
-      className="flex flex-col h-full"
+      className="relative flex flex-col h-full"
       style={{ backgroundColor: 'var(--color-surface)' }}
     >
       {/* ── Filter bar ────────────────────────────────────────────── */}
@@ -570,6 +598,85 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
                 accentColor: 'var(--color-text)',
               }}
             />
+          </div>
+        </div>
+      )}
+
+      {/* BPM mismatch popover */}
+      {pendingGroove && (
+        <div
+          ref={bpmPopoverRef}
+          className="absolute left-1/2 top-1/2 z-50 w-56 -translate-x-1/2 -translate-y-1/2 rounded-xl p-4 shadow-lg"
+          style={{
+            backgroundColor: 'var(--color-surface-2)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            backdropFilter: 'blur(32px)',
+            WebkitBackdropFilter: 'blur(32px)',
+            boxShadow:
+              '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+          }}
+        >
+          <p
+            className="mb-1 text-xs font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
+            Change Project BPM?
+          </p>
+          <p
+            className="mb-4 text-[10px] leading-relaxed"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
+            This groove is{' '}
+            <strong style={{ color: 'var(--color-text)' }}>
+              {pendingGroove.bpm} BPM
+            </strong>
+            , but your project is{' '}
+            <strong style={{ color: 'var(--color-text)' }}>
+              {projectBpm} BPM
+            </strong>
+            .
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <button
+              onClick={() => {
+                setBpm(pendingGroove.bpm);
+                doLoadGroove(pendingGroove);
+                setPendingGroove(null);
+              }}
+              className="flex h-7 w-full cursor-pointer items-center justify-center rounded-md text-[10px] font-semibold transition-colors hover:opacity-90"
+              style={{
+                backgroundColor: 'var(--color-accent)',
+                color: '#000',
+                border: 'none',
+              }}
+            >
+              Change to {pendingGroove.bpm} BPM
+            </button>
+            <button
+              onClick={() => {
+                doLoadGroove(pendingGroove);
+                setPendingGroove(null);
+              }}
+              className="flex h-7 w-full cursor-pointer items-center justify-center rounded-md text-[10px] font-medium transition-colors hover:bg-white/10"
+              style={{
+                backgroundColor: 'transparent',
+                color: 'var(--color-text)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+              }}
+            >
+              Add Anyway
+            </button>
+            <button
+              onClick={() => setPendingGroove(null)}
+              className="flex h-6 w-full cursor-pointer items-center justify-center text-[10px] transition-colors hover:underline"
+              style={{
+                backgroundColor: 'transparent',
+                color: 'var(--color-text-dim)',
+                border: 'none',
+              }}
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}

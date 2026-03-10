@@ -67,11 +67,20 @@ export interface MidiNoteEvent {
   channel: number;
 }
 
+/** A single MIDI CC event (e.g. sustain pedal CC64) */
+export interface MidiCCEvent {
+  tick: Tick;
+  controller: number;
+  value: number;
+  channel: number;
+}
+
 /** A complete MIDI sequence (list of note events) */
 export interface MidiSequence {
   ticksPerQuarterNote: number;
   trackName: string;
   events: MidiNoteEvent[];
+  ccEvents?: MidiCCEvent[];
 }
 
 /** Parsed degree + modifier from graph chord names */

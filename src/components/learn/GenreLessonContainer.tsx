@@ -689,7 +689,7 @@ export const GenreLessonContainer = ({
           color: 'var(--color-text)',
         }}
       >
-        <HeaderBar title="Lesson" />
+        <HeaderBar title="Lesson" onBack={() => navigate(-1)} />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
             Loading activity flow...
@@ -720,7 +720,7 @@ export const GenreLessonContainer = ({
           color: 'var(--color-text)',
         }}
       >
-        <HeaderBar title="Lesson" />
+        <HeaderBar title="Lesson" onBack={() => navigate(-1)} />
         <div className="flex min-h-[60vh] items-center justify-center p-4">
           <div
             className="w-full max-w-3xl rounded-2xl p-6 glass-panel"
@@ -790,7 +790,7 @@ export const GenreLessonContainer = ({
       className="learn-root flex min-h-screen w-full flex-col"
       style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}
     >
-      <HeaderBar title="Lesson" />
+      <HeaderBar title="Lesson" onBack={() => navigate(-1)} />
 
       {/* Info bar */}
       <div

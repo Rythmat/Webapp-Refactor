@@ -1,6 +1,12 @@
 import type { LucideIcon } from 'lucide-react';
 import * as React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { cn } from '@/components/utilities';
 
 export type NavItemProps = {
@@ -16,53 +22,44 @@ export function SidebarMainNavItem(props: NavItemProps) {
   const isActive = location.pathname.startsWith(props.to);
   const [isHovered, setIsHovered] = React.useState(false);
 
-  // Clone the icon element and add the active prop
-  // const iconWithActiveState = React.cloneElement(props.icon, {
-  //   active: isActive || isHovered,
-  // });
   const Icon = props.icon;
 
   return (
-    <li
-      className={cn(
-        'rounded-[10px]',
-        !props.isCollapsed && 'pl-3',
-        isActive && 'bg-white/10',
-      )}
-    >
-      <NavLink
-        className={cn(
-          'flex items-center rounded-md text-foreground/80 hover:font-semibold hover:text-white whitespace-nowrap overflow-hidden',
-          props.isCollapsed ? 'justify-center py-2' : 'space-x-3 pr-4 py-2',
-          {
-            'text-white': isActive,
-            'pointer-events-none opacity-60': props.comingSoon,
-          },
-        )}
-        title={props.isCollapsed ? props.label : undefined}
-        to={props.to}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <span
-          className={cn(
-            props.isCollapsed ? 'w-6 h-6 flex items-center justify-center' : '',
-          )}
-        >
-          <Icon
-            className={cn(
-              'h-5 w-5 transition-colors',
-              isActive || isHovered ? 'text-white' : 'text-foreground/60',
-            )}
-          />
-        </span>
-        {!props.isCollapsed && <span>{props.label}</span>}
-        {!props.isCollapsed && props.comingSoon && (
-          <div className="ml-2 flex items-center rounded-full bg-zinc-200 px-1.5 py-0.5">
-            <span className="text-xs text-zinc-700">Soon</span>
-          </div>
-        )}
-      </NavLink>
+    <li className={cn('rounded-[10px]', isActive && 'bg-white/10')}>
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <NavLink
+              className={cn(
+                'flex items-center rounded-md text-foreground/80 hover:font-semibold hover:text-white whitespace-nowrap overflow-hidden justify-center py-2',
+                {
+                  'text-white': isActive,
+                  'pointer-events-none opacity-60': props.comingSoon,
+                },
+              )}
+              to={props.to}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <span className="flex size-6 items-center justify-center">
+                <Icon
+                  className={cn(
+                    'h-5 w-5 transition-colors',
+                    isActive || isHovered ? 'text-white' : 'text-foreground/60',
+                  )}
+                />
+              </span>
+            </NavLink>
+          </TooltipTrigger>
+          <TooltipContent
+            side="right"
+            sideOffset={8}
+            className="bg-black/20 backdrop-blur-2xl border border-white/[0.08] text-white shadow-2xl"
+          >
+            {props.label}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </li>
   );
 }

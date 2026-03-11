@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { PrismModeSlug } from '@/hooks/data';
 import { usePrismMode } from '@/hooks/data/prism/usePrismMode';
 import { urlParamToKeyLabel } from '@/lib/musicKeyUrl';
@@ -75,6 +76,7 @@ export const LessonContainer = ({
   rootKey,
   startAtActivityKey,
 }: LessonContainerProps) => {
+  const navigate = useNavigate();
   const [label, setLabel] = useState(['', '']);
   const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
   const modeTitle = modeSlug.charAt(0).toUpperCase() + modeSlug.slice(1);
@@ -91,7 +93,7 @@ export const LessonContainer = ({
       className="learn-root flex min-h-screen w-full flex-col"
       style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}
     >
-      <HeaderBar title="Lesson" />
+      <HeaderBar title="Lesson" onBack={() => navigate(-1)} />
       <div
         className="glass-panel-sm flex items-center justify-between px-4 py-3"
         style={{

@@ -7,6 +7,7 @@ import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { LearnRoutes } from '@/constants/routes';
 import { useNavigate } from 'react-router';
+import { HeaderBar } from '@/components/ClassroomLayout/HeaderBar';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { formatActivityTitle } from '@/lib/activityTitle';
@@ -311,12 +312,11 @@ export function ModeOverview({ mode }: ModeOverviewProps) {
       data-mode={mode}
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
-      <h2
-        className="text-2xl md:text-3xl font-semibold text-left ml-[10%]"
-        style={{ color: 'var(--color-text)' }}
-      >
-        {displayName}
-      </h2>
+      <HeaderBar
+        title={displayName}
+        onBack={() => navigate(-1)}
+        showProfile={false}
+      />
       {videoId && (
         <div className="w-1/2 mx-auto">
           <YouTubePlayer videoId={videoId} />

@@ -1,121 +1,280 @@
-import {
-  ChevronDown,
-  ChevronRight,
-  Heart,
-  LayoutGrid,
-  List as ListIcon,
-  Play,
-  Volume2,
-} from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LearnRoutes, CurriculumRoutes } from '@/constants/routes';
+import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
+import { getActivityFlow } from '@/curriculum/data/activityFlows';
+import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import type { PrismModeSlug } from '@/hooks/data';
+import { useProgressSummary } from '@/hooks/data/progress/useProgressSummary';
+import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
+import type { ProgressSummaryResponse } from '@/lib/progress/types';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
-import { HexagonPattern, DEFAULT_THEMES as THEMES } from '../ui/HexagonPattern';
+import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import './learn.css';
+
+interface ContentSubItem {
+  label: string;
+  color: string;
+  route: string;
+  genre?: string;
+  level?: number;
+}
 
 interface ContentItem {
   title: string;
-  variant: 'diagonal' | 'cluster' | 'dense' | 'split' | 'default';
-  colors: string[];
   mode?: string;
   route?: string;
+  expandId?: string;
+  subItems?: ContentSubItem[];
+  image?: string;
+}
+
+interface SelectedSubItem {
+  label: string;
+  route: string;
+  completionPct: number;
+  sections: { id: string; name: string; stepCount?: number }[];
+}
+
+function getLessonCompletion(
+  summary: ProgressSummaryResponse | undefined,
+  lessonIdPrefix: string,
+  mode?: string,
+  root?: string,
+): number {
+  if (!summary) return 0;
+  const lesson = summary.lessons.find((l) => {
+    if (mode && root) {
+      return (
+        l.lessonId.startsWith(lessonIdPrefix) &&
+        l.mode?.toLowerCase() === mode.toLowerCase() &&
+        l.root?.toLowerCase() === root.toLowerCase()
+      );
+    }
+    return l.lessonId === lessonIdPrefix;
+  });
+  if (!lesson || !lesson.totalCount) return 0;
+  return Math.round((lesson.completedCount / lesson.totalCount) * 100);
+}
+
+function getTileCompletion(
+  summary: ProgressSummaryResponse | undefined,
+  item: ContentItem,
+): number {
+  if (!summary) return 0;
+
+  // Theory tile: aggregate all keys for this mode
+  if (item.mode) {
+    const matching = summary.lessons.filter(
+      (l) =>
+        l.lessonId.startsWith('mode-lesson-flow') &&
+        l.mode?.toLowerCase() === item.mode!.toLowerCase(),
+    );
+    if (matching.length === 0) return 0;
+    const completed = matching.reduce((s, l) => s + l.completedCount, 0);
+    const total = matching.reduce((s, l) => s + (l.totalCount ?? 0), 0);
+    return total > 0 ? Math.round((completed / total) * 100) : 0;
+  }
+
+  // Genre tile: aggregate all levels
+  if (item.subItems?.some((s) => s.genre)) {
+    const genreSlug = item.subItems[0].genre!;
+    const genreId = SLUG_TO_CURRICULUM_GENRE[genreSlug];
+    if (!genreId) return 0;
+    const levels: ('L1' | 'L2' | 'L3')[] = ['L1', 'L2', 'L3'];
+    const lessonIds = levels.map((lv) => buildCurriculumLessonId(genreId, lv));
+    const matching = summary.lessons.filter((l) =>
+      lessonIds.includes(l.lessonId),
+    );
+    if (matching.length === 0) return 0;
+    const completed = matching.reduce((s, l) => s + l.completedCount, 0);
+    const total = matching.reduce((s, l) => s + (l.totalCount ?? 0), 0);
+    return total > 0 ? Math.round((completed / total) * 100) : 0;
+  }
+
+  return 0;
+}
+
+const THEORY_SECTIONS = [
+  { id: 'A', name: 'Melody' },
+  { id: 'B', name: 'Chords' },
+  { id: 'C', name: 'Bass' },
+  { id: 'D', name: 'Play-Along' },
+];
+
+const DIATONIC_MODES = [
+  { title: 'Ionian', slug: 'ionian' },
+  { title: 'Dorian', slug: 'dorian' },
+  { title: 'Phrygian', slug: 'phrygian' },
+  { title: 'Lydian', slug: 'lydian' },
+  { title: 'Mixolydian', slug: 'mixolydian' },
+  { title: 'Aeolian', slug: 'aeolian' },
+  { title: 'Locrian', slug: 'locrian' },
+];
+
+const MAJOR_SCALE_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
+
+const SEMITONE_TO_KEY = [
+  'C',
+  'D♭',
+  'D',
+  'E♭',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'A♭',
+  'A',
+  'B♭',
+  'B',
+];
+
+const KEY_TO_SEMITONE: Record<string, number> = {
+  C: 0,
+  'D♭': 1,
+  D: 2,
+  'E♭': 3,
+  E: 4,
+  F: 5,
+  'F#': 6,
+  G: 7,
+  'A♭': 8,
+  A: 9,
+  'B♭': 10,
+  B: 11,
+};
+
+function buildRelativeSubItems(keyLabel: string): ContentSubItem[] {
+  const root = KEY_TO_SEMITONE[keyLabel] ?? 0;
+  return DIATONIC_MODES.map((mode, i) => {
+    const note = SEMITONE_TO_KEY[(root + MAJOR_SCALE_INTERVALS[i]) % 12];
+    return {
+      label: `${note} ${mode.title}`,
+      color: colorForKeyMode(note, mode.slug as PrismModeSlug),
+      route: LearnRoutes.lesson({
+        mode: mode.slug,
+        key: keyLabelToUrlParam(note),
+      }),
+    };
+  });
+}
+
+function buildParallelSubItems(keyLabel: string): ContentSubItem[] {
+  return DIATONIC_MODES.map((mode) => ({
+    label: `${keyLabel} ${mode.title}`,
+    color: colorForKeyMode(keyLabel, mode.slug as PrismModeSlug),
+    route: LearnRoutes.lesson({
+      mode: mode.slug,
+      key: keyLabelToUrlParam(keyLabel),
+    }),
+  }));
+}
+
+function buildGenreLevels(genreSlug: string): ContentSubItem[] {
+  return [1, 2, 3].map((n) => ({
+    label: `Level ${n}`,
+    color: '#7ecfcf',
+    route: CurriculumRoutes.genreLevel({ genre: genreSlug, level: String(n) }),
+    genre: genreSlug,
+    level: n,
+  }));
 }
 
 const COURSES_DATA: ContentItem[] = [
   {
     title: 'Pop',
-    variant: 'diagonal',
-    colors: [THEMES.yellow, '#F4A261', THEMES.orange, '#A6A2C2', '#D3C2D6'],
     route: CurriculumRoutes.genre({ genre: 'pop' }),
+    expandId: 'course:pop',
+    subItems: buildGenreLevels('pop'),
   },
   {
     title: 'Rock',
-    variant: 'dense',
-    colors: ['#E63946', '#1D3557', '#457B9D', '#A8DADC', '#2A3036'],
     route: CurriculumRoutes.genre({ genre: 'rock' }),
+    expandId: 'course:rock',
+    subItems: buildGenreLevels('rock'),
+    image: '/learn-tiles/rock.svg',
   },
   {
     title: 'Hip Hop',
-    variant: 'split',
-    colors: ['#003049', '#D62828', '#F77F00', '#FCBF49', '#EAE2B7'],
     route: CurriculumRoutes.genre({ genre: 'hip-hop' }),
+    expandId: 'course:hip-hop',
+    subItems: buildGenreLevels('hip-hop'),
   },
   {
     title: 'R&B',
-    variant: 'split',
-    colors: [THEMES.teal, THEMES.indigo, THEMES.yellow, '#F4A261', '#9C27B0'],
     route: CurriculumRoutes.genre({ genre: 'rnb' }),
+    expandId: 'course:rnb',
+    subItems: buildGenreLevels('rnb'),
+    image: '/learn-tiles/r-and-b.svg',
   },
   {
     title: 'Jazz',
-    variant: 'diagonal',
-    colors: [
-      THEMES.indigo,
-      THEMES.teal,
-      THEMES.yellow,
-      '#F4A261',
-      THEMES.orange,
-    ],
     route: CurriculumRoutes.genre({ genre: 'jazz' }),
+    expandId: 'course:jazz',
+    subItems: buildGenreLevels('jazz'),
   },
   {
     title: 'Blues',
-    variant: 'cluster',
-    colors: ['#B5838D', '#6D4C41', '#D4A373', '#FAEDCD', '#CCD5AE'],
     route: CurriculumRoutes.genre({ genre: 'blues' }),
+    expandId: 'course:blues',
+    subItems: buildGenreLevels('blues'),
   },
   {
     title: 'Folk',
-    variant: 'cluster',
-    colors: ['#A3B18A', '#588157', '#3A5A40', '#DAD7CD', '#E3D5CA'],
     route: CurriculumRoutes.genre({ genre: 'folk' }),
+    expandId: 'course:folk',
+    subItems: buildGenreLevels('folk'),
   },
   {
     title: 'Funk',
-    variant: 'dense',
-    colors: ['#9B5DE5', '#F15BB5', '#FEE440', '#00BBF9', '#00F5D4'],
     route: CurriculumRoutes.genre({ genre: 'funk' }),
+    expandId: 'course:funk',
+    subItems: buildGenreLevels('funk'),
+    image: '/learn-tiles/funk.svg',
   },
   {
     title: 'Neo Soul',
-    variant: 'diagonal',
-    colors: ['#6D597A', '#B56576', '#E5989B', '#E8AC65', THEMES.teal],
     route: CurriculumRoutes.genre({ genre: 'neo-soul' }),
+    expandId: 'course:neo-soul',
+    subItems: buildGenreLevels('neo-soul'),
+    image: '/learn-tiles/neo-soul.svg',
   },
   {
     title: 'Electronic',
-    variant: 'dense',
-    colors: ['#7400B8', '#6930C3', '#5E60CE', '#5390D9', '#4EA8DE'],
     route: CurriculumRoutes.genre({ genre: 'electronic' }),
+    expandId: 'course:electronic',
+    subItems: buildGenreLevels('electronic'),
+    image: '/learn-tiles/electronic.svg',
   },
   {
     title: 'Latin',
-    variant: 'split',
-    colors: ['#E63946', '#F4A261', THEMES.yellow, '#2A9D8F', '#264653'],
     route: CurriculumRoutes.genre({ genre: 'latin' }),
+    expandId: 'course:latin',
+    subItems: buildGenreLevels('latin'),
   },
   {
     title: 'Reggae',
-    variant: 'cluster',
-    colors: ['#2D6A4F', '#40916C', '#B7E4C7', '#FFD166', '#D62828'],
     route: CurriculumRoutes.genre({ genre: 'reggae' }),
+    expandId: 'course:reggae',
+    subItems: buildGenreLevels('reggae'),
   },
   {
     title: 'Jam Band',
-    variant: 'diagonal',
-    colors: [THEMES.purple, THEMES.orange, THEMES.teal, '#F4A261', '#A8DADC'],
     route: CurriculumRoutes.genre({ genre: 'jam-band' }),
+    expandId: 'course:jam-band',
+    subItems: buildGenreLevels('jam-band'),
+    image: '/learn-tiles/jam-band.svg',
   },
   {
     title: 'African',
-    variant: 'split',
-    colors: ['#BC6C25', '#DDA15E', '#606C38', '#FEFAE0', '#283618'],
     route: CurriculumRoutes.genre({ genre: 'african' }),
+    expandId: 'course:african',
+    subItems: buildGenreLevels('african'),
+    image: '/learn-tiles/african.svg',
   },
 ];
 
@@ -123,50 +282,37 @@ const THEORY_DATA: ContentItem[] = [
   {
     title: 'Ionian (Major)',
     mode: 'ionian',
-    variant: 'cluster',
-    colors: [THEMES.red, '#9D5C63'],
     route: LearnRoutes.overview({ mode: 'ionian' }),
   },
   {
     title: 'Dorian',
     mode: 'dorian',
-    variant: 'split',
-    colors: [THEMES.orange, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'dorian' }),
   },
   {
     title: 'Phrygian',
     mode: 'phrygian',
-    variant: 'split',
-    colors: [THEMES.red, THEMES.yellow],
     route: LearnRoutes.overview({ mode: 'phrygian' }),
   },
   {
     title: 'Lydian',
     mode: 'lydian',
-    variant: 'diagonal',
-    colors: [THEMES.yellow, '#F4A261'],
     route: LearnRoutes.overview({ mode: 'lydian' }),
+    image: '/learn-tiles/lydian.svg',
   },
   {
     title: 'Mixolydian',
     mode: 'mixolydian',
-    variant: 'dense',
-    colors: [THEMES.beige, THEMES.darkGrey],
     route: LearnRoutes.overview({ mode: 'mixolydian' }),
   },
   {
     title: 'Aeolian (Minor)',
     mode: 'aeolian',
-    variant: 'diagonal',
-    colors: [THEMES.blue, '#A8DADC'],
     route: LearnRoutes.overview({ mode: 'aeolian' }),
   },
   {
     title: 'Locrian',
     mode: 'locrian',
-    variant: 'cluster',
-    colors: [THEMES.purple, '#E0AAFF'],
     route: LearnRoutes.overview({ mode: 'locrian' }),
   },
 ];
@@ -174,8 +320,6 @@ const THEORY_DATA: ContentItem[] = [
 const TECHNIQUE_DATA: ContentItem[] = [
   {
     title: 'Fundamentals',
-    variant: 'diagonal',
-    colors: [THEMES.blue, THEMES.teal, '#A8DADC', '#F4A261', THEMES.yellow],
     route: CurriculumRoutes.genre({ genre: 'piano-fundamentals' }),
   },
 ];
@@ -183,150 +327,150 @@ const TECHNIQUE_DATA: ContentItem[] = [
 const RELATIVE_MODES_DATA: ContentItem[] = [
   {
     title: 'Red',
-    variant: 'cluster',
-    colors: ['#D2404A', '#9D5C63'],
     route: '/learn/relative/c',
+    expandId: 'relative:c',
+    subItems: buildRelativeSubItems('C'),
   },
   {
     title: 'Vermillion',
-    variant: 'split',
-    colors: ['#FF7348', '#CC5C3A'],
     route: '/learn/relative/g',
+    expandId: 'relative:g',
+    subItems: buildRelativeSubItems('G'),
   },
   {
     title: 'Orange',
-    variant: 'diagonal',
-    colors: ['#FEA93A', '#CC872E'],
     route: '/learn/relative/d',
+    expandId: 'relative:d',
+    subItems: buildRelativeSubItems('D'),
   },
   {
     title: 'Amber',
-    variant: 'dense',
-    colors: ['#FFCB30', '#CCA226'],
     route: '/learn/relative/a',
+    expandId: 'relative:a',
+    subItems: buildRelativeSubItems('A'),
   },
   {
     title: 'Green',
-    variant: 'cluster',
-    colors: ['#AED580', '#8BAA66'],
     route: '/learn/relative/e',
+    expandId: 'relative:e',
+    subItems: buildRelativeSubItems('E'),
   },
   {
     title: 'Sage',
-    variant: 'split',
-    colors: ['#7FC783', '#669F69'],
     route: '/learn/relative/b',
+    expandId: 'relative:b',
+    subItems: buildRelativeSubItems('B'),
   },
   {
     title: 'Teal',
-    variant: 'diagonal',
-    colors: ['#28A69A', '#20857B'],
     route: '/learn/relative/fsharp',
+    expandId: 'relative:fsharp',
+    subItems: buildRelativeSubItems('F#'),
   },
   {
     title: 'Blue',
-    variant: 'dense',
-    colors: ['#62B4F7', '#4E90C6'],
     route: '/learn/relative/dflat',
+    expandId: 'relative:dflat',
+    subItems: buildRelativeSubItems('D♭'),
   },
   {
     title: 'Indigo',
-    variant: 'cluster',
-    colors: ['#7885CB', '#606AA2'],
     route: '/learn/relative/aflat',
+    expandId: 'relative:aflat',
+    subItems: buildRelativeSubItems('A♭'),
   },
   {
     title: 'Purple',
-    variant: 'split',
-    colors: ['#9D7FCE', '#7E66A5'],
     route: '/learn/relative/eflat',
+    expandId: 'relative:eflat',
+    subItems: buildRelativeSubItems('E♭'),
   },
   {
     title: 'Magenta',
-    variant: 'diagonal',
-    colors: ['#C783D3', '#9F69A9'],
     route: '/learn/relative/bflat',
+    expandId: 'relative:bflat',
+    subItems: buildRelativeSubItems('B♭'),
   },
   {
     title: 'Pink',
-    variant: 'dense',
-    colors: ['#F8C8C5', '#C6A09E'],
     route: '/learn/relative/f',
+    expandId: 'relative:f',
+    subItems: buildRelativeSubItems('F'),
   },
 ];
 
 const PARALLEL_MODES_DATA: ContentItem[] = [
   {
     title: 'C',
-    variant: 'cluster',
-    colors: ['#D2404A', '#9D5C63'],
     route: '/learn/parallel/c',
+    expandId: 'parallel:c',
+    subItems: buildParallelSubItems('C'),
   },
   {
     title: 'G',
-    variant: 'split',
-    colors: ['#FF7348', '#CC5C3A'],
     route: '/learn/parallel/g',
+    expandId: 'parallel:g',
+    subItems: buildParallelSubItems('G'),
   },
   {
     title: 'D',
-    variant: 'diagonal',
-    colors: ['#FEA93A', '#CC872E'],
     route: '/learn/parallel/d',
+    expandId: 'parallel:d',
+    subItems: buildParallelSubItems('D'),
   },
   {
     title: 'A',
-    variant: 'dense',
-    colors: ['#FFCB30', '#CCA226'],
     route: '/learn/parallel/a',
+    expandId: 'parallel:a',
+    subItems: buildParallelSubItems('A'),
   },
   {
     title: 'E',
-    variant: 'cluster',
-    colors: ['#AED580', '#8BAA66'],
     route: '/learn/parallel/e',
+    expandId: 'parallel:e',
+    subItems: buildParallelSubItems('E'),
   },
   {
     title: 'B',
-    variant: 'split',
-    colors: ['#7FC783', '#669F69'],
     route: '/learn/parallel/b',
+    expandId: 'parallel:b',
+    subItems: buildParallelSubItems('B'),
   },
   {
     title: 'F#',
-    variant: 'diagonal',
-    colors: ['#28A69A', '#20857B'],
     route: '/learn/parallel/fsharp',
+    expandId: 'parallel:fsharp',
+    subItems: buildParallelSubItems('F#'),
   },
   {
     title: 'D♭',
-    variant: 'dense',
-    colors: ['#62B4F7', '#4E90C6'],
     route: '/learn/parallel/dflat',
+    expandId: 'parallel:dflat',
+    subItems: buildParallelSubItems('D♭'),
   },
   {
     title: 'A♭',
-    variant: 'cluster',
-    colors: ['#7885CB', '#606AA2'],
     route: '/learn/parallel/aflat',
+    expandId: 'parallel:aflat',
+    subItems: buildParallelSubItems('A♭'),
   },
   {
     title: 'E♭',
-    variant: 'split',
-    colors: ['#9D7FCE', '#7E66A5'],
     route: '/learn/parallel/eflat',
+    expandId: 'parallel:eflat',
+    subItems: buildParallelSubItems('E♭'),
   },
   {
     title: 'B♭',
-    variant: 'diagonal',
-    colors: ['#C783D3', '#9F69A9'],
     route: '/learn/parallel/bflat',
+    expandId: 'parallel:bflat',
+    subItems: buildParallelSubItems('B♭'),
   },
   {
     title: 'F',
-    variant: 'dense',
-    colors: ['#F8C8C5', '#C6A09E'],
     route: '/learn/parallel/f',
+    expandId: 'parallel:f',
+    subItems: buildParallelSubItems('F'),
   },
 ];
 
@@ -334,50 +478,37 @@ const HARMONIC_MINOR_DATA: ContentItem[] = [
   {
     title: 'Harmonic Minor',
     mode: 'harmonicminor',
-    variant: 'cluster',
-    colors: [THEMES.blue, THEMES.indigo],
     route: LearnRoutes.overview({ mode: 'harmonicminor' }),
   },
   {
     title: 'Locrian ♮6',
     mode: 'locriannat6',
-    variant: 'split',
-    colors: [THEMES.purple, THEMES.blue],
     route: LearnRoutes.overview({ mode: 'locriannat6' }),
   },
   {
     title: 'Ionian #5',
     mode: 'ionian#5',
-    variant: 'diagonal',
-    colors: [THEMES.teal, THEMES.blue],
     route: LearnRoutes.overview({ mode: 'ionian#5' }),
   },
   {
     title: 'Dorian #4',
     mode: 'dorian#4',
-    variant: 'dense',
-    colors: [THEMES.indigo, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'dorian#4' }),
   },
   {
     title: 'Phrygian Dominant',
     mode: 'phrygiandominant',
-    variant: 'cluster',
-    colors: [THEMES.red, THEMES.indigo],
     route: LearnRoutes.overview({ mode: 'phrygiandominant' }),
   },
   {
     title: 'Lydian #2',
     mode: 'lydian#2',
-    variant: 'split',
-    colors: [THEMES.yellow, THEMES.indigo],
     route: LearnRoutes.overview({ mode: 'lydian#2' }),
+    image: '/learn-tiles/lydian-2.svg',
   },
   {
     title: 'Altered Diminished',
     mode: 'altereddiminished',
-    variant: 'diagonal',
-    colors: [THEMES.purple, THEMES.darkGrey],
     route: LearnRoutes.overview({ mode: 'altereddiminished' }),
   },
 ];
@@ -386,51 +517,39 @@ const MELODIC_MINOR_DATA: ContentItem[] = [
   {
     title: 'Melodic Minor',
     mode: 'melodicminor',
-    variant: 'cluster',
-    colors: [THEMES.orange, THEMES.yellow],
     route: LearnRoutes.overview({ mode: 'melodicminor' }),
   },
   {
     title: 'Dorian ♭2',
     mode: 'dorian♭2',
-    variant: 'split',
-    colors: [THEMES.orange, THEMES.darkGrey],
     route: LearnRoutes.overview({ mode: 'dorian♭2' }),
   },
   {
     title: 'Lydian Augmented',
     mode: 'lydianaugmented',
-    variant: 'diagonal',
-    colors: [THEMES.yellow, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'lydianaugmented' }),
+    image: '/learn-tiles/lydian-augmented.svg',
   },
   {
     title: 'Lydian Dominant',
     mode: 'lydiandominant',
-    variant: 'dense',
-    colors: [THEMES.yellow, THEMES.orange],
     route: LearnRoutes.overview({ mode: 'lydiandominant' }),
   },
   {
     title: 'Mixolydian ♭6',
     mode: 'mixolydiannat6',
-    variant: 'cluster',
-    colors: [THEMES.beige, THEMES.orange],
     route: LearnRoutes.overview({ mode: 'mixolydiannat6' }),
   },
   {
     title: 'Locrian ♮2',
     mode: 'locriannat2',
-    variant: 'split',
-    colors: [THEMES.darkGrey, THEMES.orange],
     route: LearnRoutes.overview({ mode: 'locriannat2' }),
   },
   {
     title: 'Altered Dominant',
     mode: 'altereddominant',
-    variant: 'diagonal',
-    colors: [THEMES.red, THEMES.orange],
     route: LearnRoutes.overview({ mode: 'altereddominant' }),
+    image: '/learn-tiles/altered-dominant.svg',
   },
 ];
 
@@ -438,50 +557,36 @@ const HARMONIC_MAJOR_DATA: ContentItem[] = [
   {
     title: 'Harmonic Major',
     mode: 'harmonicmajor',
-    variant: 'cluster',
-    colors: [THEMES.teal, '#4ECDC4'],
     route: LearnRoutes.overview({ mode: 'harmonicmajor' }),
   },
   {
     title: 'Dorian ♭5',
     mode: 'dorian♭5',
-    variant: 'split',
-    colors: [THEMES.teal, THEMES.darkGrey],
     route: LearnRoutes.overview({ mode: 'dorian♭5' }),
   },
   {
     title: 'Altered Dominant ♮5',
     mode: 'altereddominantnat5',
-    variant: 'diagonal',
-    colors: [THEMES.blue, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'altereddominantnat5' }),
   },
   {
     title: 'Melodic Minor #4',
     mode: 'melodicminor#4',
-    variant: 'dense',
-    colors: [THEMES.teal, THEMES.yellow],
     route: LearnRoutes.overview({ mode: 'melodicminor#4' }),
   },
   {
     title: 'Mixolydian ♭2',
     mode: 'mixolydian♭2',
-    variant: 'cluster',
-    colors: [THEMES.indigo, '#4ECDC4'],
     route: LearnRoutes.overview({ mode: 'mixolydian♭2' }),
   },
   {
     title: 'Lydian Augmented #2',
     mode: 'lydianaugmented#2',
-    variant: 'split',
-    colors: [THEMES.yellow, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'lydianaugmented#2' }),
   },
   {
     title: 'Locrian 𝄫7',
     mode: 'locrian𝄫7',
-    variant: 'diagonal',
-    colors: [THEMES.darkGrey, THEMES.teal],
     route: LearnRoutes.overview({ mode: 'locrian𝄫7' }),
   },
 ];
@@ -490,50 +595,36 @@ const DOUBLE_HARMONIC_DATA: ContentItem[] = [
   {
     title: 'Double Harmonic Major',
     mode: 'doubleharmonicmajor',
-    variant: 'cluster',
-    colors: [THEMES.red, '#FF6B9D'],
     route: LearnRoutes.overview({ mode: 'doubleharmonicmajor' }),
   },
   {
     title: 'Lydian #2 #6',
     mode: 'lydian#2#6',
-    variant: 'split',
-    colors: [THEMES.yellow, THEMES.red],
     route: LearnRoutes.overview({ mode: 'lydian#2#6' }),
   },
   {
     title: 'Ultraphrygian',
     mode: 'ultraphrygian',
-    variant: 'diagonal',
-    colors: [THEMES.purple, THEMES.red],
     route: LearnRoutes.overview({ mode: 'ultraphrygian' }),
   },
   {
     title: 'Double Harmonic Minor',
     mode: 'doubleharmonicminor',
-    variant: 'dense',
-    colors: ['#FF6B9D', THEMES.purple],
     route: LearnRoutes.overview({ mode: 'doubleharmonicminor' }),
   },
   {
     title: 'Oriental',
     mode: 'oriental',
-    variant: 'cluster',
-    colors: [THEMES.red, THEMES.yellow],
     route: LearnRoutes.overview({ mode: 'oriental' }),
   },
   {
     title: 'Ionian #2 #5',
     mode: 'ionian#2#5',
-    variant: 'split',
-    colors: ['#FF6B9D', THEMES.teal],
     route: LearnRoutes.overview({ mode: 'ionian#2#5' }),
   },
   {
     title: 'Locrian 𝄫3 𝄫7',
     mode: 'locrian𝄫3𝄫7',
-    variant: 'diagonal',
-    colors: [THEMES.darkGrey, THEMES.purple],
     route: LearnRoutes.overview({ mode: 'locrian𝄫3𝄫7' }),
   },
 ];
@@ -627,247 +718,102 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 
 interface CardItemProps {
   title: string;
-  colors: string[];
-  variant?: 'diagonal' | 'cluster' | 'dense' | 'split' | 'default';
+  mode?: string;
+  subItems?: ContentSubItem[];
   onSelect?: () => void;
   highlighted?: boolean;
   highlightRef?: React.Ref<HTMLDivElement>;
+  expanded?: boolean;
+  imageSize?: number;
+  onToggleExpand?: () => void;
+  image?: string;
+  progressPct?: number;
 }
 
 const CardItem: React.FC<CardItemProps> = ({
   title,
-  colors,
-  variant,
+  mode,
+  subItems,
   onSelect,
   highlighted,
   highlightRef,
-}) => (
-  <div
-    ref={highlightRef}
-    className={`group flex cursor-pointer flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
-  >
+  expanded,
+  imageSize,
+  onToggleExpand,
+  image,
+  progressPct,
+}) => {
+  const hasExpansion = !!(mode || subItems);
+
+  return (
     <div
-      className="glass-panel relative aspect-square overflow-hidden rounded-2xl transition-colors duration-150"
-      style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: highlighted
-          ? '2px solid var(--color-accent)'
-          : '1px solid var(--color-border)',
-      }}
-      onClick={onSelect}
+      ref={highlightRef}
+      className={`group flex cursor-pointer flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
     >
-      <HexagonPattern
-        className="absolute left-0 top-0 size-[120%] transition-transform duration-500 group-hover:scale-105"
-        colorsOverride={colors}
-        variant={variant}
-      />
-      <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
-    </div>
-    <div className="flex items-start justify-between px-1">
-      <h3
-        className="text-lg font-semibold"
-        style={{ color: 'var(--color-text)' }}
-      >
-        {title}
-      </h3>
       <div
-        className="flex items-center gap-3"
-        style={{ color: 'var(--color-text-dim)' }}
-      >
-        <Volume2
-          className="cursor-pointer opacity-60 transition-opacity hover:opacity-100"
-          size={18}
-        />
-        <div
-          className="flex items-center gap-3 pl-3"
-          style={{ borderLeft: '1px solid var(--color-border)' }}
-        >
-          <Play
-            className="cursor-pointer fill-current opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-60"
-            size={18}
-            onClick={onSelect}
-          />
-          <Heart
-            className="cursor-pointer transition-colors hover:text-red-500"
-            size={18}
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-interface ListItemProps {
-  title: string;
-  colors: string[];
-  variant?: 'diagonal' | 'cluster' | 'dense' | 'split' | 'default';
-  onSelect?: () => void;
-  highlighted?: boolean;
-  highlightRef?: React.Ref<HTMLDivElement>;
-}
-
-const ListItem: React.FC<ListItemProps> = ({
-  title,
-  colors,
-  variant,
-  onSelect,
-  highlighted,
-  highlightRef,
-}) => (
-  <div
-    ref={highlightRef}
-    className={`group flex cursor-pointer items-center justify-between rounded-xl p-2 transition-colors duration-150 ${highlighted ? 'genre-highlight' : ''}`}
-    style={{
-      borderBottom: '1px solid var(--color-border)',
-      ...(highlighted ? { border: '2px solid var(--color-accent)' } : {}),
-    }}
-    onClick={onSelect}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.background = 'transparent';
-    }}
-  >
-    <div className="flex items-center gap-4">
-      <div
-        className="glass-panel-sm relative size-12 shrink-0 overflow-hidden rounded-lg"
+        className={`glass-panel relative ${imageSize ? '' : 'aspect-square'} overflow-hidden rounded-2xl transition-colors duration-150`}
         style={{
+          ...(imageSize ? { width: imageSize, height: imageSize } : {}),
           background: 'rgba(255,255,255,0.03)',
-          border: '1px solid var(--color-border)',
+          border: expanded
+            ? '2px solid var(--color-accent)'
+            : highlighted
+              ? '2px solid var(--color-accent)'
+              : '1px solid var(--color-border)',
         }}
+        onClick={onSelect}
       >
-        <HexagonPattern
-          className="absolute -left-1 -top-1 size-[150%]"
-          colorsOverride={colors}
-          variant={variant}
-        />
+        {image ? (
+          <img
+            src={image}
+            alt={title}
+            className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <HexAvatarSVG
+            config={defaultAvatarConfig(title)}
+            circular={false}
+            className="absolute left-0 top-0 size-[120%] transition-transform duration-500 group-hover:scale-105"
+          />
+        )}
+        <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
       </div>
-      <div className="flex items-center gap-2">
-        <ChevronRight size={14} style={{ color: 'var(--color-text-dim)' }} />
+      <div className="flex items-start justify-between px-1">
         <h3
-          className="text-base font-medium"
+          className="text-lg font-semibold"
           style={{ color: 'var(--color-text)' }}
         >
           {title}
         </h3>
-      </div>
-    </div>
-    {/* <div className="flex items-center gap-6 text-gray-500">
-      <Volume2 size={16} className="hover:text-white transition-colors" />
-      <Play size={16} className="hover:text-white transition-colors fill-current" onClick={onSelect} />
-      <Heart size={16} className="hover:text-red-500 transition-colors" />
-      <CheckCircle2 size={16} className="hover:text-green-500 transition-colors" />
-      <MoreVertical size={16} className="hover:text-white transition-colors" />
-    </div> */}
-  </div>
-);
-
-interface ExploreItemProps {
-  title: string;
-  colors: string[];
-  variant?: 'diagonal' | 'cluster' | 'dense' | 'split' | 'default';
-  onSelect?: () => void;
-  mode?: string;
-  expanded?: boolean;
-  onToggleExpand?: () => void;
-  onKeySelect?: (mode: string, keyLabel: string) => void;
-}
-
-const ExploreItem: React.FC<ExploreItemProps> = ({
-  title,
-  colors,
-  variant,
-  onSelect,
-  mode,
-  expanded,
-  onToggleExpand,
-  onKeySelect,
-}) => (
-  <div style={{ borderBottom: '1px solid var(--color-border)' }}>
-    <div
-      className="group flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors duration-150"
-      onClick={onSelect}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'transparent';
-      }}
-    >
-      <div className="flex items-center gap-4">
-        <div
-          className="glass-panel-sm relative size-10 shrink-0 overflow-hidden rounded-lg"
-          style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          <HexagonPattern
-            className="absolute -left-1 -top-1 size-[150%]"
-            colorsOverride={colors}
-            variant={variant}
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          {mode && onToggleExpand ? (
-            <button
-              type="button"
-              className="flex items-center justify-center rounded p-0.5 transition-colors hover:bg-white/10"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleExpand();
-              }}
-            >
-              <ChevronRight
-                size={14}
-                style={{
-                  color: 'var(--color-text-dim)',
-                  transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                  transition: 'transform 150ms',
-                }}
-              />
-            </button>
-          ) : (
-            <ChevronRight
-              size={14}
-              style={{ color: 'var(--color-text-dim)' }}
-            />
-          )}
-          <h3
-            className="text-base font-medium"
-            style={{ color: 'var(--color-text)' }}
+        {progressPct != null && progressPct > 0 && (
+          <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
+            {progressPct}%
+          </span>
+        )}
+        {hasExpansion && (
+          <button
+            type="button"
+            className="flex items-center justify-center rounded p-1 transition-colors hover:bg-white/10"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleExpand?.();
+            }}
           >
-            {title}
-          </h3>
-        </div>
+            <ChevronRight
+              size={18}
+              style={{
+                color: expanded
+                  ? 'var(--color-accent)'
+                  : 'var(--color-text-dim)',
+                transition: 'color 150ms',
+              }}
+            />
+          </button>
+        )}
       </div>
     </div>
-    {expanded && mode && (
-      <div className="flex flex-col pb-2 pl-[72px]">
-        {KEY_LABELS.map((keyLabel) => {
-          const keyColor = colorForKeyMode(keyLabel, mode as PrismModeSlug);
-          return (
-            <div
-              key={keyLabel}
-              className="cursor-pointer rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
-              style={{ color: keyColor }}
-              onClick={() => onKeySelect?.(mode, keyLabel)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-              }}
-            >
-              {keyLabel} {title}
-            </div>
-          );
-        })}
-      </div>
-    )}
-  </div>
-);
+  );
+};
 
 interface LearnInletProps {
   initialTab?: string;
@@ -881,14 +827,60 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const genreParam = searchParams.get('genre');
   const [subTab, setSubTab] = useState(genreParam ? 'Courses' : initialTab);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(
     genreParam,
   );
   const highlightRef = useRef<HTMLDivElement>(null);
   const [expandedMode, setExpandedMode] = useState<string | null>(null);
+  const [selectedSubItem, setSelectedSubItem] =
+    useState<SelectedSubItem | null>(null);
   // const [showFilter, setShowFilter] = useState(false);
   const navigate = useNavigate();
+  const { data: progressSummary } = useProgressSummary();
+
+  const handleLevelSelect = async (sub: ContentSubItem) => {
+    if (sub.genre && sub.level) {
+      const flow = await getActivityFlow(sub.genre, sub.level);
+      if (flow) {
+        const genreId = SLUG_TO_CURRICULUM_GENRE[sub.genre];
+        const levelId = `L${sub.level}` as 'L1' | 'L2' | 'L3';
+        const lessonId = genreId
+          ? buildCurriculumLessonId(genreId, levelId)
+          : '';
+        setSelectedSubItem({
+          label: `Level ${sub.level}`,
+          route: sub.route,
+          completionPct: getLessonCompletion(progressSummary, lessonId),
+          sections: flow.sections.map((s) => ({
+            id: s.id,
+            name: s.name,
+            stepCount: s.steps.length,
+          })),
+        });
+        return;
+      }
+    }
+    navigate(sub.route);
+  };
+
+  const handleKeySelect = (
+    mode: string,
+    keyLabel: string,
+    modeTitle: string,
+  ) => {
+    const pct = getLessonCompletion(
+      progressSummary,
+      'mode-lesson-flow',
+      mode,
+      keyLabelToUrlParam(keyLabel),
+    );
+    setSelectedSubItem({
+      label: `${keyLabel} ${modeTitle}`,
+      route: LearnRoutes.lesson({ mode, key: keyLabelToUrlParam(keyLabel) }),
+      completionPct: pct,
+      sections: THEORY_SECTIONS,
+    });
+  };
 
   // Auto-select Courses tab and highlight the genre when arriving from Globe
   useEffect(() => {
@@ -916,10 +908,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     if (parentSetSubTab) parentSetSubTab(subTab);
   }, [subTab, parentSetSubTab]);
 
-  useEffect(() => {
-    setViewMode(subTab === 'Theory' ? 'list' : 'grid');
-  }, [subTab]);
-
   const activeData =
     subTab === 'Courses'
       ? COURSES_DATA
@@ -928,69 +916,284 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         : TECHNIQUE_DATA;
 
   const renderContent = (data: ContentItem[]) => {
-    if (viewMode === 'grid') {
+    const expandedItem = expandedMode
+      ? data.find((item) => (item.expandId ?? item.mode) === expandedMode)
+      : null;
+
+    if (expandedItem) {
+      const remainingItems = data.filter(
+        (item) => (item.expandId ?? item.mode) !== expandedMode,
+      );
       return (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {data.map((item, i) => {
-            const isHighlighted =
-              highlightedGenre !== null && item.title === highlightedGenre;
-            return (
+        <>
+          <div className="flex items-start gap-6">
+            {/* Featured tile on the left — image sized to match list */}
+            <div className="shrink-0">
               <CardItem
-                key={i}
-                {...item}
-                highlighted={isHighlighted}
-                highlightRef={isHighlighted ? highlightRef : undefined}
+                {...expandedItem}
+                expanded={true}
+                progressPct={getTileCompletion(progressSummary, expandedItem)}
+                onToggleExpand={() => {
+                  setExpandedMode(null);
+                  setSelectedSubItem(null);
+                }}
                 onSelect={() => {
-                  if (item.route) {
-                    navigate(item.route);
-                  }
+                  setExpandedMode(null);
+                  setSelectedSubItem(null);
                 }}
               />
-            );
-          })}
-        </div>
+            </div>
+            {/* Sub-item list on the right — always 12 rows tall */}
+            <div
+              className="glass-panel-sm flex w-64 flex-col gap-0.5 rounded-xl p-4"
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid var(--color-border)',
+              }}
+            >
+              <h4
+                className="mb-2 text-xs font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                {expandedItem.mode ? 'Keys' : 'Levels'}
+              </h4>
+              {(() => {
+                const items: React.ReactNode[] = [];
+                if (expandedItem.mode && !expandedItem.subItems) {
+                  KEY_LABELS.forEach((keyLabel) => {
+                    const keyColor = colorForKeyMode(
+                      keyLabel,
+                      expandedItem.mode as PrismModeSlug,
+                    );
+                    const isSelected =
+                      selectedSubItem?.label ===
+                      `${keyLabel} ${expandedItem.title}`;
+                    const keyPct = getLessonCompletion(
+                      progressSummary,
+                      'mode-lesson-flow',
+                      expandedItem.mode,
+                      keyLabelToUrlParam(keyLabel),
+                    );
+                    items.push(
+                      <div
+                        key={keyLabel}
+                        className="flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
+                        style={{
+                          color: keyColor,
+                          ...(isSelected
+                            ? { background: 'rgba(255,255,255,0.06)' }
+                            : {}),
+                        }}
+                        onClick={() =>
+                          handleKeySelect(
+                            expandedItem.mode!,
+                            keyLabel,
+                            expandedItem.title,
+                          )
+                        }
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            'rgba(255,255,255,0.04)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <span>
+                          {keyLabel} {expandedItem.title}
+                        </span>
+                        {keyPct > 0 && (
+                          <span
+                            className="text-xs"
+                            style={{ color: 'var(--color-text-dim)' }}
+                          >
+                            {keyPct}%
+                          </span>
+                        )}
+                      </div>,
+                    );
+                  });
+                }
+                if (expandedItem.subItems) {
+                  expandedItem.subItems.forEach((sub) => {
+                    let levelPct = 0;
+                    if (sub.genre && sub.level) {
+                      const gId = SLUG_TO_CURRICULUM_GENRE[sub.genre];
+                      const lId = `L${sub.level}` as 'L1' | 'L2' | 'L3';
+                      const lsnId = gId
+                        ? buildCurriculumLessonId(gId, lId)
+                        : '';
+                      if (lsnId)
+                        levelPct = getLessonCompletion(progressSummary, lsnId);
+                    }
+                    items.push(
+                      <div
+                        key={sub.label}
+                        className="flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
+                        style={{
+                          color: sub.color,
+                          ...(selectedSubItem?.label === `Level ${sub.level}`
+                            ? { background: 'rgba(255,255,255,0.06)' }
+                            : {}),
+                        }}
+                        onClick={() => {
+                          if (sub.genre && sub.level) {
+                            handleLevelSelect(sub);
+                          } else {
+                            navigate(sub.route);
+                          }
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            'rgba(255,255,255,0.04)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <span>{sub.label}</span>
+                        {levelPct > 0 && (
+                          <span
+                            className="text-xs"
+                            style={{ color: 'var(--color-text-dim)' }}
+                          >
+                            {levelPct}%
+                          </span>
+                        )}
+                      </div>,
+                    );
+                  });
+                }
+                // Pad to 12 rows so all tiles have consistent height
+                while (items.length < 12) {
+                  items.push(
+                    <div
+                      key={`spacer-${items.length}`}
+                      className="px-3 py-1.5 text-sm"
+                      aria-hidden="true"
+                    >
+                      &nbsp;
+                    </div>,
+                  );
+                }
+                return items;
+              })()}
+            </div>
+            {/* Chapter panel when a sub-item is selected */}
+            {selectedSubItem && (
+              <div
+                className="glass-panel-sm flex w-64 shrink-0 flex-col gap-1 self-start rounded-xl p-4"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid var(--color-border)',
+                }}
+              >
+                <h4
+                  className="mb-2 text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: 'var(--color-text-dim)' }}
+                >
+                  {selectedSubItem.label} Chapters
+                  {selectedSubItem.completionPct > 0 && (
+                    <span
+                      className="ml-2 normal-case tracking-normal"
+                      style={{ color: 'var(--color-accent)' }}
+                    >
+                      — {selectedSubItem.completionPct}%
+                    </span>
+                  )}
+                </h4>
+                {selectedSubItem.sections.map((section) => (
+                  <div
+                    key={section.id}
+                    className="cursor-pointer rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
+                    style={{ color: 'var(--color-text)' }}
+                    onClick={() => navigate(selectedSubItem.route)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background =
+                        'rgba(255,255,255,0.04)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <span style={{ color: 'var(--color-accent)' }}>
+                      {section.id}:
+                    </span>{' '}
+                    {section.name}
+                    {section.stepCount != null && (
+                      <span
+                        className="ml-2 text-xs"
+                        style={{ color: 'var(--color-text-dim)' }}
+                      >
+                        {section.stepCount} steps
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          {/* Remaining tiles below */}
+          {remainingItems.length > 0 && (
+            <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {remainingItems.map((item, i) => {
+                const itemExpandKey = item.expandId ?? item.mode;
+                return (
+                  <CardItem
+                    key={i}
+                    {...item}
+                    expanded={false}
+                    progressPct={getTileCompletion(progressSummary, item)}
+                    onToggleExpand={
+                      item.mode || item.subItems
+                        ? () => {
+                            setExpandedMode(itemExpandKey ?? null);
+                            setSelectedSubItem(null);
+                          }
+                        : undefined
+                    }
+                    onSelect={() => {
+                      if (item.mode || item.subItems) {
+                        setExpandedMode(itemExpandKey ?? null);
+                        setSelectedSubItem(null);
+                      } else if (item.route) {
+                        navigate(item.route);
+                      }
+                    }}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </>
       );
     }
+
     return (
-      <div className="flex flex-col">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {data.map((item, i) => {
           const isHighlighted =
             highlightedGenre !== null && item.title === highlightedGenre;
-          return subTab === 'Technique' || subTab === 'Theory' ? (
-            <ExploreItem
-              key={i}
-              {...item}
-              expanded={expandedMode === item.mode}
-              onToggleExpand={
-                item.mode
-                  ? () =>
-                      setExpandedMode((prev) =>
-                        prev === item.mode ? null : (item.mode ?? null),
-                      )
-                  : undefined
-              }
-              onKeySelect={(mode, keyLabel) => {
-                navigate(
-                  LearnRoutes.lesson({
-                    mode,
-                    key: keyLabelToUrlParam(keyLabel),
-                  }),
-                );
-              }}
-              onSelect={() => {
-                if (item.route) {
-                  navigate(item.route);
-                }
-              }}
-            />
-          ) : (
-            <ListItem
+          const itemExpandKey = item.expandId ?? item.mode;
+          return (
+            <CardItem
               key={i}
               {...item}
               highlighted={isHighlighted}
               highlightRef={isHighlighted ? highlightRef : undefined}
+              expanded={false}
+              progressPct={getTileCompletion(progressSummary, item)}
+              onToggleExpand={
+                item.mode || item.subItems
+                  ? () => {
+                      setExpandedMode(itemExpandKey ?? null);
+                    }
+                  : undefined
+              }
               onSelect={() => {
-                if (item.route) {
+                if (item.mode || item.subItems) {
+                  setExpandedMode(itemExpandKey ?? null);
+                } else if (item.route) {
                   navigate(item.route);
                 }
               }}
@@ -1049,36 +1252,9 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
             ))}
           </div>
           <div
-            className="relative flex items-center justify-between pb-4"
+            className="pb-4"
             style={{ borderBottom: '1px solid var(--color-border)' }}
-          >
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <LayoutGrid
-                  className="cursor-pointer transition-colors duration-150"
-                  size={20}
-                  style={{
-                    color:
-                      viewMode === 'grid'
-                        ? 'var(--color-accent)'
-                        : 'var(--color-text-dim)',
-                  }}
-                  onClick={() => setViewMode('grid')}
-                />
-                <ListIcon
-                  className="cursor-pointer transition-colors duration-150"
-                  size={20}
-                  style={{
-                    color:
-                      viewMode === 'list'
-                        ? 'var(--color-accent)'
-                        : 'var(--color-text-dim)',
-                  }}
-                  onClick={() => setViewMode('list')}
-                />
-              </div>
-            </div>
-          </div>
+          />
         </div>
 
         {/* {showFilter && (

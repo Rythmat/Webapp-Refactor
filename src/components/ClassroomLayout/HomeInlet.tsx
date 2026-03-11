@@ -20,7 +20,8 @@ import { formatActivityTitle } from '@/lib/activityTitle';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { useProgressSummary } from '@/hooks/data';
 import { GameRoutes, LearnRoutes, StudioRoutes } from '@/constants/routes';
-import { HexagonPattern, DEFAULT_THEMES as THEMES } from '../ui/HexagonPattern';
+import { HexAvatarSVG } from '../ui/HexAvatarSVG';
+import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { HeaderBar } from './HeaderBar';
 
 interface TagProps {
@@ -85,18 +86,14 @@ const ProjectCard: FC<ProjectCardProps> = ({
 const bannerSlides = [
   {
     title: 'Study',
-    color: [THEMES.red, THEMES.darkRed, THEMES.beige],
     route: LearnRoutes.root.definition,
   },
   {
     title: 'Create',
-    color: [THEMES.teal, THEMES.indigo, THEMES.yellow],
     route: StudioRoutes.root.definition,
   },
-  // { title: "Explore", color: [THEMES.orange, THEMES.darkGrey, THEMES.red], route: LibraryRoutes.root.definition },
   {
     title: 'Play',
-    color: [THEMES.purple, THEMES.beige, THEMES.blue],
     route: GameRoutes.root.definition,
   },
 ];
@@ -119,6 +116,12 @@ export const HomeInlet = () => {
     setCurrentSlide(
       (prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length,
     );
+
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   const handleGenerate = () => {
     setIsGenerating(true);
     setTimeout(() => setIsGenerating(false), 2000);
@@ -174,13 +177,29 @@ export const HomeInlet = () => {
       <div className="flex-1 overflow-hidden flex flex-col space-y-8">
         <div className="h-full overflow-y-auto custom-scrollbar pb-12 px-8 space-y-12">
           <section className="relative w-full h-80 rounded-[2rem] overflow-hidden mb-12 group">
-            <div className="absolute inset-0 bg-[#2A3036] transition-colors duration-500">
+            <div className="absolute inset-0 bg-[#2A3036]">
               <div className="absolute inset-0 bg-gradient-to-r from-[#2A3036] via-transparent to-[#E3D5CA] opacity-20" />
-              <HexagonPattern
-                className="w-full h-full object-cover opacity-80 transition-opacity duration-500"
-                colorsOverride={bannerSlides[currentSlide].color}
-                variant="dense"
-              />
+              {bannerSlides.map((slide, idx) => (
+                <div
+                  key={slide.title}
+                  className="absolute inset-0 transition-opacity duration-700"
+                  style={{ opacity: currentSlide === idx ? 1 : 0 }}
+                >
+                  {slide.title === 'Study' ? (
+                    <img
+                      src="/login-bg.svg"
+                      alt=""
+                      className="w-full h-full object-cover opacity-80"
+                    />
+                  ) : (
+                    <HexAvatarSVG
+                      config={defaultAvatarConfig(slide.title)}
+                      circular={false}
+                      className="w-full h-full object-cover opacity-80"
+                    />
+                  )}
+                </div>
+              ))}
             </div>
 
             <div className="absolute inset-0 p-8 flex flex-col justify-between">
@@ -242,10 +261,10 @@ export const HomeInlet = () => {
                 }
               >
                 <div className="absolute inset-0 opacity-30">
-                  <HexagonPattern
-                    className="w-[150%] h-[150%] -translate-x-1/4 -translate-y-1/4 text-emerald-500/20 fill-emerald-500/20"
-                    fixedPattern="cluster"
-                    colorsOverride={[THEMES.teal]}
+                  <HexAvatarSVG
+                    config={defaultAvatarConfig('study')}
+                    circular={false}
+                    className="w-[150%] h-[150%] -translate-x-1/4 -translate-y-1/4"
                   />
                 </div>
                 <div className="relative z-10 h-full flex flex-col justify-end">

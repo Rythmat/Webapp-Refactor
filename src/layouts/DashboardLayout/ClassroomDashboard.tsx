@@ -1,6 +1,5 @@
-import { Suspense, useEffect, useRef, useMemo, useState } from 'react';
+import { Suspense, useRef, useMemo } from 'react';
 import { Outlet, useLocation } from 'react-router';
-import useLocalStorageState from 'use-local-storage-state';
 import { cn } from '@/components/utilities';
 import { useProgressBootstrap } from '@/hooks/data';
 import { ClassroomSidebar } from './ClassroomSidebar';
@@ -28,45 +27,17 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
     return { ids, view };
   }, [pathname]);
 
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorageState(
-    'state:sidebar_collapsed',
-    { defaultValue: false },
-  );
-  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
-
   const isStudio = pathname.startsWith('/studio');
-
-  useEffect(() => {
-    if (isStudio) {
-      setIsSidebarCollapsed(true);
-    }
-  }, [isStudio, setIsSidebarCollapsed]);
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden">
       <div className="flex min-h-0 w-full flex-1 overflow-hidden">
-        <div
-          className={cn(
-            'relative shrink-0 transition-all duration-300',
-            isSidebarCollapsed ? 'w-20' : 'w-64',
-          )}
-          onMouseEnter={() => {
-            if (isSidebarCollapsed) setIsSidebarHovered(true);
-          }}
-          onMouseLeave={() => setIsSidebarHovered(false)}
-        >
+        <div className="relative w-20 shrink-0">
           <ClassroomSidebar
-            className={cn(
-              'transition-all duration-300',
-              isSidebarCollapsed && !isSidebarHovered ? 'w-20' : 'w-64',
-              isSidebarCollapsed &&
-                isSidebarHovered &&
-                'absolute inset-y-0 left-0 z-50 shadow-2xl',
-            )}
+            className="w-20"
             ids={ids}
-            isCollapsed={isSidebarCollapsed && !isSidebarHovered}
+            isCollapsed
             view={view}
-            onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           />
         </div>
 

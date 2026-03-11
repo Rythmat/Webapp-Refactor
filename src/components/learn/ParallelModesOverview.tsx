@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { HeaderBar } from '@/components/ClassroomLayout/HeaderBar';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { KEY_OF_COLORS } from '@/constants/theme';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
@@ -8,6 +9,7 @@ import { findByUrlParam } from './parallelModeContent';
 import './learn.css';
 
 export function ParallelModesOverview() {
+  const navigate = useNavigate();
   const { key: keyParam } = useParams<{ key: string }>();
 
   const entry = useMemo(
@@ -84,12 +86,11 @@ export function ParallelModesOverview() {
       className="learn-root flex flex-col gap-6"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
-      <h2
-        className="ml-[10%] text-left text-2xl font-semibold md:text-3xl"
-        style={{ color: keyColor }}
-      >
-        {entry.keyRoot} Parallel Modes
-      </h2>
+      <HeaderBar
+        title={`${entry.keyRoot} Parallel Modes`}
+        onBack={() => navigate(-1)}
+        showProfile={false}
+      />
 
       <PianoKeyboard
         activeBlackKeyColor={keyColor}

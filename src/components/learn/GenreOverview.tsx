@@ -12,6 +12,7 @@ import {
 import { getGCMEntry } from '@/curriculum/data/gcmHelpers';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import type { CurriculumLevelId } from '@/curriculum/types/curriculum';
+import { HeaderBar } from '@/components/ClassroomLayout/HeaderBar';
 import './learn.css';
 
 type GenreOverviewProps = {
@@ -165,13 +166,11 @@ export function GenreOverview({ genreSlug }: GenreOverviewProps) {
       className="learn-root flex flex-col gap-6"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
-      {/* Title */}
-      <h2
-        className="text-2xl md:text-3xl font-semibold text-left ml-[10%]"
-        style={{ color: 'var(--color-text)' }}
-      >
-        {displayName}
-      </h2>
+      <HeaderBar
+        title={displayName}
+        onBack={() => navigate(-1)}
+        showProfile={false}
+      />
 
       {/* Auto-playing piano */}
       <PianoKeyboard

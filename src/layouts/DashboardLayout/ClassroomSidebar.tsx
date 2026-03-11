@@ -1,5 +1,15 @@
-import { BookOpen, Earth, Gamepad2, Home, Music } from 'lucide-react';
-import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
+import {
+  BookOpen,
+  Earth,
+  FileText,
+  Gamepad2,
+  Home,
+  LifeBuoy,
+  Music,
+  Scale,
+  ScrollText,
+  Shield,
+} from 'lucide-react';
 import { CreditsBadge } from '@/components/CreditsBadge';
 import { Logo } from '@/components/Logo';
 import { BetaHelp } from '@/components/ui/beta-help';
@@ -18,7 +28,6 @@ import { UserWidget } from './UserWidget';
 // import { Library, Users } from 'lucide-react';
 interface SidebarProps {
   isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
   className?: string;
   view?: 'home' | 'collection' | 'lesson';
   ids?: {
@@ -31,7 +40,6 @@ interface SidebarProps {
 export const ClassroomSidebar = ({
   className,
   isCollapsed = false,
-  onToggleCollapse,
   view,
   ids,
 }: SidebarProps) => {
@@ -51,16 +59,6 @@ export const ClassroomSidebar = ({
         <div className="relative">
           <div className="flex items-center justify-center">
             <Logo className={cn('relative transition-all')} />
-          </div>
-
-          <div className="group pointer-events-none absolute -top-8 right-[-4.5rem] p-8">
-            <button
-              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              className="pointer-events-auto flex size-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 opacity-0 transition-all duration-200 hover:bg-gray-200 group-hover:opacity-100"
-              onClick={onToggleCollapse}
-            >
-              {isCollapsed ? <HiChevronRight /> : <HiChevronLeft />}
-            </button>
           </div>
         </div>
 
@@ -109,37 +107,43 @@ export const ClassroomSidebar = ({
                     /> */}
         </ul>
 
-        {!isCollapsed && (
-          <>
-            <ul className="flex flex-col space-y-1 text-sm">
-              <SidebarSecondaryNavItem
-                external
-                label="Changelog"
-                to="https://www.musicatlas.io/policies/change-log"
-              />
-              <SidebarSecondaryNavItem
-                external
-                label="Support"
-                to="mailto:aaron@musicatlas.io"
-              />
-              <SidebarSecondaryNavItem
-                external
-                label="Licensing"
-                to="https://www.musicatlas.io/policies/licensing"
-              />
-              <SidebarSecondaryNavItem
-                external
-                label="Privacy Policy"
-                to="https://www.musicatlas.io/policies/privacy"
-              />
-              <SidebarSecondaryNavItem
-                external
-                label="Terms of Use"
-                to="https://www.musicatlas.io/policies/terms"
-              />
-            </ul>
-          </>
-        )}
+        <ul className="flex flex-col space-y-1 border-t border-white/[0.06] pt-4 text-sm">
+          <SidebarSecondaryNavItem
+            external
+            icon={ScrollText}
+            isCollapsed={isCollapsed}
+            label="Changelog"
+            to="https://www.musicatlas.io/policies/change-log"
+          />
+          <SidebarSecondaryNavItem
+            external
+            icon={LifeBuoy}
+            isCollapsed={isCollapsed}
+            label="Support"
+            to="mailto:aaron@musicatlas.io"
+          />
+          <SidebarSecondaryNavItem
+            external
+            icon={Scale}
+            isCollapsed={isCollapsed}
+            label="Licensing"
+            to="https://www.musicatlas.io/policies/licensing"
+          />
+          <SidebarSecondaryNavItem
+            external
+            icon={Shield}
+            isCollapsed={isCollapsed}
+            label="Privacy Policy"
+            to="https://www.musicatlas.io/policies/privacy"
+          />
+          <SidebarSecondaryNavItem
+            external
+            icon={FileText}
+            isCollapsed={isCollapsed}
+            label="Terms of Use"
+            to="https://www.musicatlas.io/policies/terms"
+          />
+        </ul>
 
         <CreditsBadge isCollapsed={isCollapsed} />
 

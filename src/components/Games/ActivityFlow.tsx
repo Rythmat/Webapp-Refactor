@@ -82,6 +82,8 @@ const CHROMATIC_KEYS = [
 ] as const;
 const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;
 
+type SectionId = 'A' | 'B' | 'C' | 'D';
+
 type ActivityDefinition = {
   activityDefId: string;
   activityInstanceId: string;
@@ -90,6 +92,14 @@ type ActivityDefinition = {
   Component: (props: FlowActivityProps) => JSX.Element;
   events: NoteEvent[];
   direction: string;
+  section: SectionId;
+};
+
+const SECTION_LABELS: Record<string, string> = {
+  A: 'Melody',
+  B: 'Chords',
+  C: 'Bass',
+  D: 'Play-Along',
 };
 
 const ACTIVITY_FLOW_LESSON_ID = 'mode-lesson-flow';
@@ -525,6 +535,7 @@ export const ActivityFlow = ({
       ),
       seq: [] as NoteEvent[],
       direction: `Overview of ${rootKey} ${modeTitle}.`,
+      section: 'A' as SectionId,
     };
     const contourSeqs: number[][] = [];
     contours?.forEach((contour) => {
@@ -561,6 +572,7 @@ export const ActivityFlow = ({
         Component: NoteHold,
         seq: applyActivityColor(chordHoldEvents),
         direction: `Hold the notes of the ${rootKey} ${modeTitle} scale.`,
+        section: 'A' as SectionId,
       },
       {
         key: 'asc-pa',
@@ -568,6 +580,7 @@ export const ActivityFlow = ({
         Component: PlayAlong,
         seq: applyActivityColor(midiSequenceToEvents(ascending, 'asc-pa')),
         direction: 'In a steady tempo, play the notes of the scale going up',
+        section: 'A' as SectionId,
       },
       {
         key: 'desc-nh',
@@ -575,6 +588,7 @@ export const ActivityFlow = ({
         Component: NoteHold,
         seq: applyActivityColor(midiSequenceToEvents(descending, 'desc-nh')),
         direction: 'Play the notes of the scale going down (to the left).',
+        section: 'A' as SectionId,
       },
       {
         key: 'desc-pa',
@@ -582,6 +596,7 @@ export const ActivityFlow = ({
         Component: PlayAlong,
         seq: applyActivityColor(midiSequenceToEvents(descending, 'desc-pa')),
         direction: 'In a steady tempo, play the notes of the scale going down',
+        section: 'A' as SectionId,
       },
       {
         key: 'ascdesc-nh',
@@ -591,6 +606,7 @@ export const ActivityFlow = ({
           midiSequenceToEvents(ascendDescend, 'ascdesc-nh'),
         ),
         direction: 'Play the notes of the scale going up and down.',
+        section: 'A' as SectionId,
       },
       {
         key: 'ascdesc-pa',
@@ -601,6 +617,7 @@ export const ActivityFlow = ({
         ),
         direction:
           'In a steady tempo, play the notes of the scale going up and down.',
+        section: 'A' as SectionId,
       },
     ];
 
@@ -616,6 +633,7 @@ export const ActivityFlow = ({
             midiSequenceToEvents(contourSeqs[0], `contour-1-nh`),
           ),
           direction: `Play this short melodic phrase in ${rootKey} ${modeTitle}`,
+          section: 'A' as SectionId,
         },
         {
           key: `contour-1-pa`,
@@ -625,6 +643,7 @@ export const ActivityFlow = ({
             midiSequenceToEvents(contourSeqs[0], `contour-1-pa`),
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle}`,
+          section: 'A' as SectionId,
         },
         {
           key: `contour-2-nh`,
@@ -634,6 +653,7 @@ export const ActivityFlow = ({
             midiSequenceToEvents(combined, `contour-2-nh`),
           ),
           direction: `Play this longer melodic phrase in ${rootKey} ${modeTitle}`,
+          section: 'A' as SectionId,
         },
         {
           key: `contour-2-pa`,
@@ -643,6 +663,7 @@ export const ActivityFlow = ({
             midiSequenceToEvents(combined, `contour-2-pa`),
           ),
           direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle}`,
+          section: 'A' as SectionId,
         },
         {
           key: `contour-1-stac-pa`,
@@ -652,6 +673,7 @@ export const ActivityFlow = ({
             midiSequenceToStoccatoEvents(contourSeqs[0], `contour-1-stac-pa`),
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with short articulations (“staccato”).`,
+          section: 'A' as SectionId,
         },
         {
           key: `contour-1-lega-pa`,
@@ -661,6 +683,7 @@ export const ActivityFlow = ({
             midiSequenceToEvents(contourSeqs[0], `contour-1-lega-pa`),
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with long articulations (“legato”).`,
+          section: 'A' as SectionId,
         },
         {
           key: `contour-1-mix-pa`,
@@ -670,6 +693,7 @@ export const ActivityFlow = ({
             midiSequenceToMixedArticulation(contourSeqs[0], `contour-1-mix-pa`),
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”). `,
+          section: 'A' as SectionId,
         },
         {
           key: `contour-2-mix-pa`,
@@ -679,6 +703,7 @@ export const ActivityFlow = ({
             midiSequenceToMixedArticulation(combined, `contour-2-mix-pa`),
           ),
           direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”).`,
+          section: 'D' as SectionId,
         },
         {
           key: `contour-1-rhythm-pa`,
@@ -688,6 +713,7 @@ export const ActivityFlow = ({
             rhythmicMidiSequenceEvents(contourSeqs[0], `contour-1-rhythm-pa`),
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} in a rhythmic style. `,
+          section: 'D' as SectionId,
         },
         {
           key: `contour-2-rhythm-pa`,
@@ -697,6 +723,7 @@ export const ActivityFlow = ({
             rhythmicMidiSequenceEvents(combined, `contour-2-rhythm-pa`),
           ),
           direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle} in a rhythmic style.`,
+          section: 'D' as SectionId,
         },
       );
     }
@@ -716,6 +743,7 @@ export const ActivityFlow = ({
               ),
             ),
             direction: `Play the notes of the ${i + 1} chord one at a time going up (to the right) and then play the chord.`,
+            section: 'B' as SectionId,
           },
           {
             key: `arpeggiate-${i + 1}-pa`,
@@ -729,6 +757,7 @@ export const ActivityFlow = ({
             ),
             direction:
               'In a steady tempo, play an arpeggio of the chord going up and then play the chord.',
+            section: 'B' as SectionId,
           },
         );
       }
@@ -754,6 +783,7 @@ export const ActivityFlow = ({
             midiSequenceToEvents(oneToFourChords, `chords-1-nh`),
           ),
           direction: `Play the notes of the 1 through the four chord for ${rootKey} ${modeTitle}, holding down the notes of each chord as you go.`,
+          section: 'B' as SectionId,
         },
         {
           key: `chords-1-pa`,
@@ -763,6 +793,7 @@ export const ActivityFlow = ({
             midiSequenceToWholeNotes(oneToFourChords, `chords-1-pa`),
           ),
           direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in whole notes.`,
+          section: 'B' as SectionId,
         },
         {
           key: `chords-2-pa`,
@@ -772,6 +803,7 @@ export const ActivityFlow = ({
             midiSequenceToHalfNotes(oneToFourChords, `chords-2-pa`),
           ),
           direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in half notes.`,
+          section: 'B' as SectionId,
         },
         {
           key: `chords-3-pa`,
@@ -781,6 +813,7 @@ export const ActivityFlow = ({
             midiSequenceToQuarterNotes(oneToFourChords, `chords-3-pa`),
           ),
           direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in quarter notes.`,
+          section: 'B' as SectionId,
         },
       );
 
@@ -798,6 +831,7 @@ export const ActivityFlow = ({
           ),
         ),
         direction: `Play chord ${shuffled[0] + 1} and ${shuffled[1] + 1} in a steady tempo, with short articulations (“staccato”).`,
+        section: 'B' as SectionId,
       });
       shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
@@ -811,6 +845,7 @@ export const ActivityFlow = ({
           ),
         ),
         direction: `Play chord ${shuffled[0] + 1} and ${shuffled[1] + 1} in a steady tempo, with long articulations (“legato”).`,
+        section: 'B' as SectionId,
       });
 
       /////////ACTIVITES FOR 8
@@ -831,6 +866,7 @@ export const ActivityFlow = ({
           ),
         ),
         direction: `Play the first four chords in a mixed order, holding down each chord one by one.`,
+        section: 'B' as SectionId,
       });
       sequences.push({
         key: `chords-7-pa`,
@@ -848,6 +884,7 @@ export const ActivityFlow = ({
           ),
         ),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a half note.`,
+        section: 'B' as SectionId,
       });
       sequences.push({
         key: `chords-8-pa`,
@@ -865,6 +902,7 @@ export const ActivityFlow = ({
           ),
         ),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a quarter note.`,
+        section: 'B' as SectionId,
       });
       sequences.push({
         key: `chords-9-pa`,
@@ -882,6 +920,7 @@ export const ActivityFlow = ({
           ),
         ),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a eighth note.`,
+        section: 'B' as SectionId,
       });
       shuffled = shuffled.sort(() => Math.random() - 0.5);
       sequences.push({
@@ -900,8 +939,141 @@ export const ActivityFlow = ({
           ),
         ),
         direction: `Play the four chords in a steady tempo, with mixed articulations.`,
+        section: 'B' as SectionId,
       });
     }
+
+    // =========== SECTION C: BASS ===========
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const bassRoot = rootMidi - 12; // One octave lower
+    const bassScale = scale.map((m) => m - 12);
+    const bassDescending = [...bassScale].reverse();
+    const bassRootFifth = [bassScale[0], bassScale[4] ?? bassScale[0] + 7];
+
+    sequences.push(
+      {
+        key: 'bass-asc-nh',
+        label: `${rootKey} ${modeTitle} Bass Ascend • Hold`,
+        Component: NoteHold,
+        seq: applyActivityColor(midiSequenceToEvents(bassScale, 'bass-asc-nh')),
+        direction: `Hold the bass notes of the ${rootKey} ${modeTitle} scale (one octave lower).`,
+        section: 'C' as SectionId,
+      },
+      {
+        key: 'bass-asc-pa',
+        label: `${rootKey} ${modeTitle} Bass Ascend • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(midiSequenceToEvents(bassScale, 'bass-asc-pa')),
+        direction: `In a steady tempo, play the bass notes of the scale going up.`,
+        section: 'C' as SectionId,
+      },
+      {
+        key: 'bass-desc-nh',
+        label: `${rootKey} ${modeTitle} Bass Descend • Hold`,
+        Component: NoteHold,
+        seq: applyActivityColor(
+          midiSequenceToEvents(bassDescending, 'bass-desc-nh'),
+        ),
+        direction: `Hold the bass notes of the scale going down.`,
+        section: 'C' as SectionId,
+      },
+      {
+        key: 'bass-desc-pa',
+        label: `${rootKey} ${modeTitle} Bass Descend • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(
+          midiSequenceToEvents(bassDescending, 'bass-desc-pa'),
+        ),
+        direction: `In a steady tempo, play the bass notes of the scale going down.`,
+        section: 'C' as SectionId,
+      },
+      {
+        key: 'bass-root5-nh',
+        label: `${rootKey} ${modeTitle} Bass Root-Fifth • Hold`,
+        Component: NoteHold,
+        seq: applyActivityColor(
+          midiSequenceToEvents(bassRootFifth, 'bass-root5-nh'),
+        ),
+        direction: `Play the root and fifth in the bass register.`,
+        section: 'C' as SectionId,
+      },
+      {
+        key: 'bass-root5-pa',
+        label: `${rootKey} ${modeTitle} Bass Root-Fifth • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(
+          midiSequenceToHalfNotes(bassRootFifth, 'bass-root5-pa'),
+        ),
+        direction: `In a steady tempo, alternate between the root and fifth in the bass register.`,
+        section: 'C' as SectionId,
+      },
+      {
+        key: 'bass-whole-pa',
+        label: `${rootKey} ${modeTitle} Bass Scale (Whole Notes) • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(
+          midiSequenceToWholeNotes(bassScale, 'bass-whole-pa'),
+        ),
+        direction: `In a steady tempo, play the bass scale in whole notes.`,
+        section: 'C' as SectionId,
+      },
+      {
+        key: 'bass-quarter-pa',
+        label: `${rootKey} ${modeTitle} Bass Scale (Quarter Notes) • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(
+          midiSequenceToQuarterNotes(bassScale, 'bass-quarter-pa'),
+        ),
+        direction: `In a steady tempo, play the bass scale in quarter notes.`,
+        section: 'C' as SectionId,
+      },
+    );
+
+    // =========== SECTION D: PLAY-ALONG (additional) ===========
+    // Full scale rhythmic variations
+    sequences.push(
+      {
+        key: 'pa-scale-half',
+        label: `${rootKey} ${modeTitle} Scale (Half Notes) • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(
+          midiSequenceToHalfNotes(ascending, 'pa-scale-half'),
+        ),
+        direction: `In a steady tempo, play the ${rootKey} ${modeTitle} scale in half notes.`,
+        section: 'D' as SectionId,
+      },
+      {
+        key: 'pa-scale-quarter',
+        label: `${rootKey} ${modeTitle} Scale (Quarter Notes) • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(
+          midiSequenceToQuarterNotes(ascending, 'pa-scale-quarter'),
+        ),
+        direction: `In a steady tempo, play the ${rootKey} ${modeTitle} scale in quarter notes.`,
+        section: 'D' as SectionId,
+      },
+      {
+        key: 'pa-scale-eighth',
+        label: `${rootKey} ${modeTitle} Scale (Eighth Notes) • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(
+          midiSequenceToEighthNotes(ascending, 'pa-scale-eighth'),
+        ),
+        direction: `In a steady tempo, play the ${rootKey} ${modeTitle} scale in eighth notes.`,
+        section: 'D' as SectionId,
+      },
+      {
+        key: 'pa-ascdesc-half',
+        label: `${rootKey} ${modeTitle} Ascend + Descend (Half Notes) • Play Along`,
+        Component: PlayAlong,
+        seq: applyActivityColor(
+          midiSequenceToHalfNotes(ascendDescend, 'pa-ascdesc-half'),
+        ),
+        direction: `In a steady tempo, play the scale up and down in half notes.`,
+        section: 'D' as SectionId,
+      },
+    );
+
     if (includeChordPlaceholder && chordTriads.length === 0) {
       sequences.push({
         key: 'chords-loading',
@@ -909,24 +1081,28 @@ export const ActivityFlow = ({
         Component: ChordLoadingStep,
         seq: [] as NoteEvent[],
         direction: 'Loading chord exercises...',
+        section: 'B' as SectionId,
       });
     }
 
-    return sequences.map(({ key, label, Component, seq, direction }) => ({
-      activityDefId: key,
-      activityInstanceId: buildActivityInstanceId({
-        lessonId,
-        lessonVersion,
+    return sequences.map(
+      ({ key, label, Component, seq, direction, section }) => ({
         activityDefId: key,
-        mode: modeLabel,
-        root: rootKey,
+        activityInstanceId: buildActivityInstanceId({
+          lessonId,
+          lessonVersion,
+          activityDefId: key,
+          mode: modeLabel,
+          root: rootKey,
+        }),
+        key: scopeId(key),
+        label,
+        Component,
+        events: seq,
+        direction,
+        section,
       }),
-      key: scopeId(key),
-      label,
-      Component,
-      events: seq,
-      direction,
-    }));
+    );
   };
   ////////////// end buildFlowDefinitions ///////////////////
 
@@ -973,6 +1149,40 @@ export const ActivityFlow = ({
   const [startSignal, setStartSignal] = useState(0);
   const [startOverlayStep, setStartOverlayStep] = useState(0);
   const [lessonComplete, setLessonComplete] = useState(false);
+
+  // Section state
+  const [currentSectionId, setCurrentSectionId] = useState<SectionId>('A');
+  const [completedActivityKeys, setCompletedActivityKeys] = useState<
+    Set<string>
+  >(new Set());
+
+  const sectionIds = useMemo(() => {
+    const seen = new Set<SectionId>();
+    const ids: SectionId[] = [];
+    for (const def of flowDefinitions) {
+      if (!seen.has(def.section)) {
+        seen.add(def.section);
+        ids.push(def.section);
+      }
+    }
+    return ids;
+  }, [flowDefinitions]);
+
+  const sectionActivities = useMemo(
+    () => flowDefinitions.filter((d) => d.section === currentSectionId),
+    [flowDefinitions, currentSectionId],
+  );
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const currentSectionIdx = sectionIds.indexOf(currentSectionId);
+
+  // Map currentIndex to section-relative index
+  const currentStepInSection = useMemo(() => {
+    const activity = flowDefinitions[currentIndex];
+    if (!activity || activity.section !== currentSectionId) return 0;
+    return sectionActivities.findIndex((a) => a.key === activity.key);
+  }, [currentIndex, currentSectionId, flowDefinitions, sectionActivities]);
+
   const currentActivity = flowDefinitions[currentIndex];
   const lessonProgressScope = `${lessonId}:${lessonVersion}:${lessonKeyScope}`;
   const currentChromaticIndex = useMemo(
@@ -999,12 +1209,30 @@ export const ActivityFlow = ({
     );
   }, [modeLabel, navigate, nextCurriculumKey]);
 
+  const goToSection = useCallback(
+    (sectionId: SectionId) => {
+      setCurrentSectionId(sectionId);
+      const firstInSection = flowDefinitions.findIndex(
+        (d) => d.section === sectionId,
+      );
+      if (firstInSection >= 0) {
+        setCurrentIndex(firstInSection);
+        setActivityState('active');
+        setStartSignal(0);
+        setStartOverlayStep(0);
+      }
+    },
+    [flowDefinitions],
+  );
+
   useEffect(() => {
     setCurrentIndex(0);
     setActivityInstanceId(0);
     setActivityState('active');
     setLessonComplete(false);
     setNextKeyChoice(nextCurriculumKey);
+    setCurrentSectionId('A');
+    setCompletedActivityKeys(new Set());
     resumeAppliedScopeRef.current = null;
     explicitStartAppliedRef.current = null;
     completionReportedRef.current = new Set();
@@ -1243,6 +1471,12 @@ export const ActivityFlow = ({
         });
       }
     }
+    // Track completed activity for section progress
+    if (currentActivity) {
+      setCompletedActivityKeys(
+        (prev) => new Set([...prev, currentActivity.key]),
+      );
+    }
     if (currentActivity && isTrackableActivity) {
       updateLessonState.mutate({
         lessonId,
@@ -1251,8 +1485,14 @@ export const ActivityFlow = ({
       });
     }
     setCurrentIndex((idx) => {
-      if (idx < flowDefinitions.length - 1) {
-        return idx + 1;
+      const nextIdx = idx + 1;
+      if (nextIdx < flowDefinitions.length) {
+        const nextActivity = flowDefinitions[nextIdx];
+        // Auto-advance section when moving to next section's activity
+        if (nextActivity && nextActivity.section !== currentSectionId) {
+          setCurrentSectionId(nextActivity.section);
+        }
+        return nextIdx;
       }
       if (!chordsQuery.isPending) {
         setLessonComplete(true);
@@ -1269,7 +1509,8 @@ export const ActivityFlow = ({
     chordsQuery.isPending,
     currentActivity,
     currentIndex,
-    flowDefinitions.length,
+    currentSectionId,
+    flowDefinitions,
     lessonId,
     lessonVersion,
     modeLabel,
@@ -1320,6 +1561,9 @@ export const ActivityFlow = ({
       if (!isComplete || !isCompletionOverlayActivity) return;
       setActivityState('completed');
       if (!currentActivity) return;
+      setCompletedActivityKeys(
+        (prev) => new Set([...prev, currentActivity.key]),
+      );
       if (!isTrackableActivity) return;
       if (completionReportedRef.current.has(currentActivity.activityInstanceId))
         return;
@@ -1660,6 +1904,89 @@ export const ActivityFlow = ({
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Section navigation tabs */}
+      <div
+        className="flex gap-2 px-4 py-2"
+        style={{ borderBottom: '1px solid var(--color-border)' }}
+      >
+        {sectionIds.map((sId) => {
+          const isActive = sId === currentSectionId;
+          const sectionDefs = flowDefinitions.filter((d) => d.section === sId);
+          const completedCount = sectionDefs.filter((d) =>
+            completedActivityKeys.has(d.key),
+          ).length;
+          const totalCount = sectionDefs.length;
+          const isComplete = completedCount === totalCount && totalCount > 0;
+
+          return (
+            <button
+              key={sId}
+              type="button"
+              onClick={() => goToSection(sId)}
+              className="glass-panel-sm rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-150"
+              style={{
+                background: isActive
+                  ? 'rgba(126, 207, 207, 0.12)'
+                  : isComplete
+                    ? 'rgba(74, 255, 74, 0.08)'
+                    : 'rgba(255,255,255,0.03)',
+                border: isActive
+                  ? '1px solid var(--color-accent)'
+                  : '1px solid var(--color-border)',
+                color: isActive
+                  ? 'var(--color-accent)'
+                  : isComplete
+                    ? '#4aff4a'
+                    : 'var(--color-text-dim)',
+                cursor: 'pointer',
+              }}
+            >
+              {SECTION_LABELS[sId] ?? sId}
+              {isComplete && (
+                <span style={{ marginLeft: '6px' }}>&#10003;</span>
+              )}
+              {completedCount > 0 && !isComplete && (
+                <span
+                  style={{ fontSize: '11px', marginLeft: '6px', opacity: 0.7 }}
+                >
+                  {Math.round((completedCount / totalCount) * 100)}%
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Step progress dots */}
+      <div className="flex items-center gap-1 px-4 py-1">
+        {sectionActivities.map((activity, i) => {
+          const isStepDone = completedActivityKeys.has(activity.key);
+          const isCurrent = i === currentStepInSection;
+          return (
+            <div
+              key={activity.key}
+              style={{
+                width: isCurrent ? '24px' : '16px',
+                height: '6px',
+                borderRadius: '3px',
+                background: isStepDone
+                  ? '#4aff4a'
+                  : isCurrent
+                    ? 'var(--color-accent)'
+                    : 'rgba(255,255,255,0.1)',
+                transition: 'all 0.2s',
+              }}
+            />
+          );
+        })}
+        <span
+          className="ml-2 text-xs"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
+          {currentStepInSection + 1}/{sectionActivities.length}
+        </span>
+      </div>
+
       <div className="relative">
         <div
           className={

@@ -1,6 +1,6 @@
 /* eslint-disable tailwindcss/classnames-order, tailwindcss/migration-from-tailwind-2 */
+import { ChevronLeft } from 'lucide-react';
 import type { FC } from 'react';
-// import {  Hexagon } from "lucide-react";
 import { UserWidget } from '@/layouts/DashboardLayout/UserWidget';
 
 interface HeaderBarProps {
@@ -8,6 +8,7 @@ interface HeaderBarProps {
   subtitle?: string;
   showProfile?: boolean;
   className?: string;
+  onBack?: () => void;
 }
 
 export const HeaderBar: FC<HeaderBarProps> = ({
@@ -15,12 +16,22 @@ export const HeaderBar: FC<HeaderBarProps> = ({
   subtitle,
   showProfile = true,
   className = '',
+  onBack,
 }) => {
   return (
     <header
       className={`h-20 flex items-center justify-between px-8 py-6 bg-gradient-to-b from-[#0A0A0A] to-transparent z-10 flex-shrink-0 ${className}`}
     >
       <div className="flex items-center gap-4 group cursor-default">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex size-8 items-center justify-center rounded-full border border-white/10 text-gray-400 transition-colors hover:border-white/20 hover:text-white"
+          >
+            <ChevronLeft className="size-5" />
+          </button>
+        )}
         <h1 className="text-4xl font-serif text-gray-100 group-hover:text-white transition-colors">
           {title}
         </h1>

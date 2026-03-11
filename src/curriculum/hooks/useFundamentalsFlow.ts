@@ -5,7 +5,7 @@
  * MIDI notes, and calls the evaluator after each new note.
  */
 
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   evaluateStep,
   type NoteRecord,
@@ -210,13 +210,20 @@ export function useFundamentalsFlow(
     if (currentStep) initQuizIfNeeded(currentStep);
   }, [currentStep, initQuizIfNeeded]);
 
-  // Initialize quiz on first render if needed
-  useMemo(() => {
-    if (currentStep?.midiEval.type === 'quiz' && !quizState) {
-      initQuizIfNeeded(currentStep);
+  // Reset all state when the section changes (e.g. "Continue to:" navigation)
+  useEffect(() => {
+    setCurrentStepIndex(0);
+    setCompletedSteps(new Set());
+    setIsPassed(false);
+    setEvalResult(null);
+    setQuizState(null);
+    notesRef.current = [];
+    const firstStep = section?.steps[0];
+    if (firstStep?.midiEval.type === 'quiz') {
+      initQuizIfNeeded(firstStep);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStep?.id]);
+  }, [section?.id]);
 
   return {
     currentStepIndex,

@@ -2,12 +2,18 @@
 import { LogOut, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { ProfileRoutes } from '@/constants/routes';
 import { useAuthActions } from '@/contexts/AuthContext';
 import { useMe } from '@/hooks/data';
+import { useAvatarConfig } from '@/hooks/useAvatarConfig';
 
 export function UserWidget({
   className,
@@ -23,6 +29,7 @@ export function UserWidget({
   const { data: user, isLoading } = useMe();
   const { signOut } = useAuthActions();
   const navigate = useNavigate();
+  const { config: avatarConfig } = useAvatarConfig(user?.id);
 
   const name = nameOverride || user?.nickname || user?.username || 'USER';
 
@@ -45,9 +52,12 @@ export function UserWidget({
         </div>
 
         <Avatar className="size-10 select-none border-2 border-white/10 shadow-lg shadow-purple-500/20 transition-all group-hover:border-white/50">
-          <AvatarImage alt={name} src="/avatars/01.png" />
-          <AvatarFallback className="relative overflow-hidden bg-[#E8DAB2] p-0">
-            <UserAvatarPattern className="size-full" userName={name} />
+          <AvatarFallback className="relative overflow-hidden p-0">
+            <UserAvatarPattern
+              className="size-full"
+              userName={name}
+              config={avatarConfig}
+            />
           </AvatarFallback>
         </Avatar>
       </button>
@@ -56,19 +66,32 @@ export function UserWidget({
 
   if (isCollapsed) {
     return (
-      <Button
-        className="relative right-2 text-foreground/60 hover:text-foreground"
-        disabled={isLoading}
-        size="icon"
-        variant="ghost"
-        onClick={() => signOut()}
-      >
-        {isLoading ? (
-          <Loader2 className="size-2 animate-spin" />
-        ) : (
-          <LogOut className="size-2" />
-        )}
-      </Button>
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className="flex w-full items-center justify-center py-2 text-foreground/60 transition-colors hover:text-white disabled:opacity-50"
+              disabled={isLoading}
+              onClick={() => signOut()}
+            >
+              <span className="flex size-6 items-center justify-center">
+                {isLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <LogOut className="h-5 w-5" />
+                )}
+              </span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="right"
+            sideOffset={8}
+            className="bg-black/20 backdrop-blur-2xl border border-white/[0.08] text-white shadow-2xl"
+          >
+            Log out
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     );
   }
 
@@ -78,9 +101,12 @@ export function UserWidget({
     >
       <div className="flex items-center gap-3 text-foreground/80">
         <Avatar className="size-8 select-none">
-          <AvatarImage alt={name} src="/avatars/01.png" />
-          <AvatarFallback className="relative overflow-hidden bg-[#E8DAB2] p-0">
-            <UserAvatarPattern className="size-full" userName={name} />
+          <AvatarFallback className="relative overflow-hidden p-0">
+            <UserAvatarPattern
+              className="size-full"
+              userName={name}
+              config={avatarConfig}
+            />
           </AvatarFallback>
         </Avatar>
 

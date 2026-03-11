@@ -13,28 +13,15 @@ import {
 } from 'lucide-react';
 import React, { useState } from 'react';
 // import { useNavigate } from "react-router-dom";
+import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 // import { ProfileRoutes } from "@/constants/routes";
-import { HexagonPattern } from '../ui/HexagonPattern';
-
-const THEMES = {
-  red: '#D65A65',
-  darkGrey: '#5C6B73',
-  beige: '#C2C5AA',
-  darkRed: '#9D5C63',
-  yellow: '#E9C46A',
-  teal: '#2A9D8F',
-  purple: '#9D4EDD',
-  orange: '#E76F51',
-  blue: '#457B9D',
-  indigo: '#264653',
-};
+import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 
 interface LibraryItemProps {
   title: string;
   subtitle?: string;
   tags?: string[];
-  index: number;
   type: 'lesson' | 'sound';
 }
 
@@ -42,12 +29,9 @@ const LibraryItem: React.FC<LibraryItemProps> = ({
   title,
   subtitle,
   tags,
-  index,
   type,
 }) => {
   const [isChecked, setIsChecked] = useState(false);
-  const colors = [THEMES.red, THEMES.darkGrey, THEMES.beige, THEMES.darkRed];
-  const color = colors[index % colors.length];
 
   return (
     <div className="group -mx-2 flex cursor-pointer items-center gap-4 rounded-lg border-b border-white/5 px-2 py-3 transition-colors hover:bg-white/5">
@@ -62,9 +46,10 @@ const LibraryItem: React.FC<LibraryItemProps> = ({
       </div>
       <div className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-[#1A1A1A]">
         <div className="absolute inset-0 opacity-40">
-          <HexagonPattern
+          <HexAvatarSVG
+            config={defaultAvatarConfig(title)}
+            circular={false}
             className="size-[200%] -translate-x-1/2 -translate-y-1/2"
-            colorsOverride={[color]}
           />
         </div>
         {type === 'lesson' ? (
@@ -133,7 +118,6 @@ export const LibraryInlet: React.FC = () => {
             ].map((item, i) => (
               <LibraryItem
                 key={i}
-                index={i}
                 subtitle={item.date}
                 title={item.title}
                 type="lesson"
@@ -161,7 +145,6 @@ export const LibraryInlet: React.FC = () => {
             ].map((item, i) => (
               <LibraryItem
                 key={i}
-                index={i + 4}
                 tags={item.tags}
                 title={item.title}
                 type="sound"

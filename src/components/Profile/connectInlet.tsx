@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
-import { HexagonPattern, DEFAULT_THEMES as THEMES } from '../ui/HexagonPattern';
+import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 
 const CONNECT_USERS_DATA = [
   { name: 'Sarah J.', role: 'Vocalist', common: 'Pop, R&B' },
@@ -41,9 +42,10 @@ export const ConnectInlet: React.FC = () => {
               >
                 <div className="flex items-center gap-4">
                   <div className="relative size-12 overflow-hidden rounded-full bg-[#2A2A2A]">
-                    <HexagonPattern
+                    <HexAvatarSVG
+                      config={defaultAvatarConfig(person.name)}
+                      circular={true}
                       className="size-[150%] opacity-50"
-                      colorsOverride={[THEMES.red, THEMES.teal, THEMES.orange]}
                     />
                   </div>
                   <div>

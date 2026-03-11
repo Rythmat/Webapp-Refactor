@@ -33,7 +33,7 @@ export const CreditsBadge = ({ isCollapsed = false }: CreditsBadgeProps) => {
     <Link
       className={cn(
         'flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-100',
-        isCollapsed && 'justify-center px-2',
+        isCollapsed && 'justify-center px-0',
       )}
       to={ProfileRoutes.plan()}
     >

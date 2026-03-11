@@ -1,15 +1,15 @@
 /* eslint-disable react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand */
 import { Play, Trophy, Users } from 'lucide-react';
 import type { FC } from 'react';
+import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
-import { HexagonPattern, DEFAULT_THEMES as THEMES } from '../ui/HexagonPattern';
+import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import '@/components/learn/learn.css';
 
 interface ArcadeGame {
   title: string;
   players: string;
   category: string;
-  color: string;
   featured?: boolean;
 }
 
@@ -18,38 +18,32 @@ const ARCADE_GAMES_DATA: ArcadeGame[] = [
     title: 'Rhythm Racer',
     players: '1.2k',
     category: 'Rhythm',
-    color: THEMES.red,
     featured: true,
   },
   {
     title: 'Chord Crusher',
     players: '842',
     category: 'Theory',
-    color: THEMES.yellow,
   },
   {
     title: 'Synth Match',
     players: '530',
     category: 'Ear Training',
-    color: THEMES.teal,
   },
   {
     title: 'Beat Builder',
     players: '320',
     category: 'Production',
-    color: THEMES.indigo,
   },
   {
     title: 'Pitch Perfect',
     players: '1.5k',
     category: 'Ear Training',
-    color: THEMES.purple,
   },
   {
     title: 'Scale Runner',
     players: '605',
     category: 'Technique',
-    color: THEMES.orange,
   },
 ];
 
@@ -57,7 +51,6 @@ interface ArcadeGameCardProps {
   title: string;
   players: string;
   category: string;
-  color: string;
   featured?: boolean;
 }
 
@@ -65,7 +58,6 @@ const ArcadeGameCard: FC<ArcadeGameCardProps> = ({
   title,
   players,
   category,
-  color,
   featured,
 }) => (
   <div
@@ -82,12 +74,12 @@ const ArcadeGameCard: FC<ArcadeGameCardProps> = ({
         className="absolute inset-0 bg-gradient-to-br from-transparent to-black/80"
         style={{ zIndex: 1 }}
       />
-      <HexagonPattern
+      <HexAvatarSVG
+        config={defaultAvatarConfig(title)}
+        circular={false}
         className={`w-[150%] h-[150%] absolute transition-transform duration-700 group-hover:scale-110 ${
           featured ? '-top-10 -left-10' : '-top-4 -left-4'
         }`}
-        colorsOverride={[color, '#1A1A1A']}
-        variant={featured ? 'diagonal' : 'dense'}
       />
     </div>
     <div

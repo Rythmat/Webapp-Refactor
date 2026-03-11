@@ -21,6 +21,7 @@ import { LearnInlet } from '@/components/learn/LearnInlet';
 import { ProfilePage } from '@/components/Profile/ProfilePage';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
+
 import { useParams, useSearchParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
@@ -174,6 +175,10 @@ export const studentPages = () => {
       { path: ProfileRoutes.profile.definition, element: <ProfilePage /> },
       { path: ProfileRoutes.awards.definition, element: <AwardsInlet /> },
       { path: ProfileRoutes.plan.definition, element: <PlanPage /> },
+      {
+        path: ProfileRoutes.settings.definition,
+        element: <Navigate to={ProfileRoutes.profile()} />,
+      },
     ],
   };
 };

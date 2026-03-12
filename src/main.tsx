@@ -1,11 +1,10 @@
 import { Auth0Provider } from '@auth0/auth0-react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { App } from './App.tsx';
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx';
 import './index.css';
 import { Env } from './constants/env';
-
-const { App } = await import('./App.tsx');
 
 const auth0Audience = Env.get('VITE_AUTH0_AUDIENCE');
 const auth0RedirectUri =

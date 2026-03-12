@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FullScreenLoading } from '@/components/FullScreenLoading';
 import { AdminRoutes, ProfileRoutes } from '@/constants/routes';
 import { useAuthContext } from './hooks/useAuthContext';
 
@@ -27,7 +28,7 @@ export const AuthPage = ({ children }: { children: React.ReactNode }) => {
   }, [appUser, isBootstrapLoading, isSignupCompletionPath, navigate, role]);
 
   if (isBootstrapLoading) {
-    return null;
+    return <FullScreenLoading />;
   }
 
   if (!appUser || isSignupCompletionPath) {

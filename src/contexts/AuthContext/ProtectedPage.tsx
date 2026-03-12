@@ -1,4 +1,5 @@
 import { Navigate, useLocation } from 'react-router';
+import { FullScreenLoading } from '@/components/FullScreenLoading';
 import { AuthRoutes } from '@/constants/routes';
 import { useAuthContext } from './hooks/useAuthContext';
 
@@ -19,7 +20,7 @@ export const ProtectedPage = ({
   const location = useLocation();
 
   if (isBootstrapLoading) {
-    return null;
+    return <FullScreenLoading />;
   }
 
   if (!appUser) {

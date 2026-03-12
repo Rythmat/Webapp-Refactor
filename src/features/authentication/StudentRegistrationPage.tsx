@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
 import { AlertCircle } from 'lucide-react';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -30,14 +30,13 @@ import {
 } from '@/components/ui/input-otp';
 import { cn } from '@/components/utilities';
 import {
-  EmailMelody,
-  SuccessProgression,
-  FailureProgression,
   AutofillProgression,
-  PasswordMelody,
+  EmailMelody,
+  FailureProgression,
+  SuccessProgression,
 } from '@/constants/musicalConstants';
 import { AuthRoutes } from '@/constants/routes';
-import { useAuthActions } from '@/contexts/AuthContext';
+import { useAuthActions, useAuthContext } from '@/contexts/AuthContext';
 import { useClassroomDetailsByCode } from '@/hooks/data';
 import { useMusicalForm } from '@/hooks/useMusicalForm';
 
@@ -51,36 +50,29 @@ const codeFormSchema = z.object({
     ),
 });
 
-const registrationFormSchema = z
-  .object({
-    firstName: z
-      .string()
-      .min(1, 'First name is required')
-      .regex(/^\S*$/, 'First name cannot contain spaces'),
-    username: z
-      .string()
-      .min(3, 'Username must be at least 3 characters')
-      .max(20, 'Username must be at most 20 characters')
-      .regex(
-        /^[a-zA-Z0-9_-]+$/,
-        'Username can only contain letters, numbers, underscores, and hyphens',
-      ),
-    dateOfBirth: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/, 'Please enter a valid date')
-      .refine((date) => {
-        const dob = new Date(date);
-        const now = new Date();
-        const age = now.getFullYear() - dob.getFullYear();
-        return age >= 13;
-      }, 'You must be at least 13 years old to register'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
+const registrationFormSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, 'First name is required')
+    .regex(/^\S*$/, 'First name cannot contain spaces'),
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(20, 'Username must be at most 20 characters')
+    .regex(
+      /^[a-zA-Z0-9_-]+$/,
+      'Username can only contain letters, numbers, underscores, and hyphens',
+    ),
+  dateOfBirth: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Please enter a valid date')
+    .refine((date) => {
+      const dob = new Date(date);
+      const now = new Date();
+      const age = now.getFullYear() - dob.getFullYear();
+      return age >= 13;
+    }, 'You must be at least 13 years old to register'),
+});
 
 export const StudentRegistrationPage = () => {
   const navigate = useNavigate();
@@ -92,7 +84,9 @@ export const StudentRegistrationPage = () => {
     isFetching: isFetchingClassroom,
   } = useClassroomDetailsByCode(classroomCode);
 
+  const { appUser } = useAuthContext();
   const {
+    signUp,
     signUpAsStudent,
     error: signUpError,
     isPending: isSigningUp,
@@ -105,7 +99,6 @@ export const StudentRegistrationPage = () => {
     },
   });
 
-  // Get code from URL on mount
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const codeFromUrl = params.get('code');
@@ -125,7 +118,7 @@ export const StudentRegistrationPage = () => {
       try {
         setClassroomCode(data.classroomCode);
         classroomCodeForm.playSuccessProgression();
-      } catch (error) {
+      } catch {
         classroomCodeForm.playFailureProgression();
       }
     },
@@ -138,8 +131,6 @@ export const StudentRegistrationPage = () => {
       firstName: '',
       username: '',
       dateOfBirth: '',
-      password: '',
-      confirmPassword: '',
     },
   });
 
@@ -164,20 +155,6 @@ export const StudentRegistrationPage = () => {
     autofillProgression: AutofillProgression,
   });
 
-  const passwordForm = useMusicalForm({
-    typingMelody: PasswordMelody,
-    successProgression: SuccessProgression,
-    failureProgression: FailureProgression,
-    autofillProgression: AutofillProgression,
-  });
-
-  const confirmPasswordForm = useMusicalForm({
-    typingMelody: PasswordMelody,
-    successProgression: SuccessProgression,
-    failureProgression: FailureProgression,
-    autofillProgression: AutofillProgression,
-  });
-
   const onRegistrationSubmit = useCallback(
     async (data: z.infer<typeof registrationFormSchema>) => {
       if (!classroomCode) return;
@@ -187,13 +164,12 @@ export const StudentRegistrationPage = () => {
           username: data.username,
           birthDate: new Date(data.dateOfBirth),
           code: classroomCode,
-          password: data.password,
           nickname: data.firstName,
         });
 
         usernameForm.playSuccessProgression();
         navigate(AuthRoutes.root());
-      } catch (error) {
+      } catch {
         usernameForm.playFailureProgression();
       }
     },
@@ -295,130 +271,118 @@ export const StudentRegistrationPage = () => {
         </CardHeader>
       </Card>
 
-      <div>
-        <CardHeader>
-          <CardTitle className="text-2xl">Create Your Account</CardTitle>
-          <CardDescription>
-            Set up your account to start your musical journey!
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...registrationForm}>
-            <form
-              className="space-y-4"
-              onSubmit={registrationForm.handleSubmit(onRegistrationSubmit)}
+      {!appUser ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">
+              Create Your Auth0 Account
+            </CardTitle>
+            <CardDescription>
+              Continue with Auth0 first, then finish your student profile.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              className="w-full"
+              onClick={() => {
+                void signUp();
+              }}
+              type="button"
             >
-              <FormField
-                control={registrationForm.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>First Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        autoComplete="given-name"
-                        placeholder="John"
-                        {...field}
-                        {...firstNameForm.createInputProps(field.onChange)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              Continue with Auth0
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div>
+          <CardHeader>
+            <CardTitle className="text-2xl">
+              Complete Your Student Profile
+            </CardTitle>
+            <CardDescription>
+              Finish setup to join this classroom.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...registrationForm}>
+              <form
+                className="space-y-4"
+                onSubmit={registrationForm.handleSubmit(onRegistrationSubmit)}
+              >
+                <FormField
+                  control={registrationForm.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          autoComplete="given-name"
+                          placeholder="John"
+                          {...field}
+                          {...firstNameForm.createInputProps(field.onChange)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={registrationForm.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input
-                        autoComplete="username"
-                        placeholder="coolmusician123"
-                        {...field}
-                        {...usernameForm.createInputProps(field.onChange)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={registrationForm.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input
+                          autoComplete="username"
+                          placeholder="coolmusician123"
+                          {...field}
+                          {...usernameForm.createInputProps(field.onChange)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={registrationForm.control}
-                name="dateOfBirth"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date of Birth</FormLabel>
-                    <FormControl>
-                      <Input
-                        autoComplete="bday"
-                        max={new Date().toISOString().split('T')[0]}
-                        type="date"
-                        {...field}
-                        {...dateOfBirthForm.createInputProps(field.onChange)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={registrationForm.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date of Birth</FormLabel>
+                      <FormControl>
+                        <Input
+                          autoComplete="bday"
+                          max={new Date().toISOString().split('T')[0]}
+                          type="date"
+                          {...field}
+                          {...dateOfBirthForm.createInputProps(field.onChange)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={registrationForm.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        autoComplete="new-password"
-                        type="password"
-                        {...field}
-                        {...passwordForm.createInputProps(field.onChange)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={registrationForm.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        autoComplete="new-password"
-                        type="password"
-                        {...field}
-                        {...confirmPasswordForm.createInputProps(
-                          field.onChange,
-                        )}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button className="w-full" disabled={isSigningUp} type="submit">
-                {isSigningUp ? 'Creating Account...' : 'Create Account'}
-              </Button>
-            </form>
-          </Form>
-          {signUpError && (
-            <Alert className="mt-4" variant="destructive">
-              <AlertCircle className="size-4" />
-              <AlertDescription>Failed to create account</AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
-      </div>
+                <Button className="w-full" disabled={isSigningUp} type="submit">
+                  {isSigningUp ? 'Completing Setup...' : 'Finish Setup'}
+                </Button>
+              </form>
+            </Form>
+            {signUpError && (
+              <Alert className="mt-4" variant="destructive">
+                <AlertCircle className="size-4" />
+                <AlertDescription>
+                  {signUpError || 'Failed to complete account setup'}
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </div>
+      )}
     </div>
   );
 };

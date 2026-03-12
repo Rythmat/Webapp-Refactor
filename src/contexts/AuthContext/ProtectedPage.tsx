@@ -1,7 +1,6 @@
 import { Navigate, useLocation } from 'react-router';
 import { AuthRoutes } from '@/constants/routes';
 import { useAuthContext } from './hooks/useAuthContext';
-import { useIsAuthenticated } from './hooks/useIsAuthenticated';
 
 interface ProtectedPageProps {
   children: React.ReactNode;
@@ -16,11 +15,14 @@ export const ProtectedPage = ({
   teacherOnly,
   studentOnly,
 }: ProtectedPageProps) => {
-  const isAuthenticated = useIsAuthenticated();
-  const { role } = useAuthContext();
+  const { appUser, isBootstrapLoading, role } = useAuthContext();
   const location = useLocation();
 
-  if (!isAuthenticated) {
+  if (isBootstrapLoading) {
+    return null;
+  }
+
+  if (!appUser) {
     return (
       <Navigate
         replace

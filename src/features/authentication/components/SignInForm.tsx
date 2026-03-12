@@ -1,8 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router';
-import { z } from 'zod';
 import { ErrorBox } from '@/components/ErrorBox';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,71 +8,60 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
   EmailMelody,
-  PasswordMelody,
   SuccessProgression,
   FailureProgression,
-  AutofillProgression,
 } from '@/constants/musicalConstants';
-import { AuthRoutes } from '@/constants/routes';
 import { useAuthActions } from '@/contexts/AuthContext';
 import { useMusicalForm } from '@/hooks/useMusicalForm';
 
-const formSchema = z.object({
-  email: z
-    .string()
-    .min(1, 'Please enter your email')
-    .email('Please enter a valid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-});
-
-type FormData = z.infer<typeof formSchema>;
-
 export const SignInForm = () => {
-  const navigate = useNavigate();
-  const { signInWithEmailAndPassword, error } = useAuthActions();
+  const { signInWithEmailAndPassword, signInWithProvider, signUp, error } =
+    useAuthActions();
 
-  const emailForm = useMusicalForm({
+  const actionForm = useMusicalForm({
     typingMelody: EmailMelody,
     successProgression: SuccessProgression,
     failureProgression: FailureProgression,
-    autofillProgression: AutofillProgression,
   });
 
-  const passwordForm = useMusicalForm({
-    typingMelody: PasswordMelody,
+  const providerForm = useMusicalForm({
+    typingMelody: EmailMelody,
     successProgression: SuccessProgression,
     failureProgression: FailureProgression,
-    autofillProgression: AutofillProgression,
   });
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
+  const onSignIn = useCallback(async () => {
+    try {
+      await signInWithEmailAndPassword('ui', 'ui');
+      actionForm.playSuccessProgression();
+    } catch (err) {
+      actionForm.playFailureProgression();
+      console.error('Sign in failed:', err);
+    }
+  }, [signInWithEmailAndPassword, actionForm]);
 
-  const onSubmit = useCallback(
-    async (data: FormData) => {
+  const onSignUp = useCallback(async () => {
+    try {
+      await signUp();
+      actionForm.playSuccessProgression();
+    } catch (err) {
+      actionForm.playFailureProgression();
+      console.error('Sign up failed:', err);
+    }
+  }, [actionForm, signUp]);
+
+  const onProviderSignIn = useCallback(
+    async (provider: 'google' | 'apple') => {
       try {
-        await signInWithEmailAndPassword(data.email, data.password);
+        await signInWithProvider(provider);
+        providerForm.playSuccessProgression();
       } catch (err) {
-        emailForm.playFailureProgression();
-        console.error('Sign in failed:', err);
+        providerForm.playFailureProgression();
+        console.error('Provider sign in failed:', err);
       }
     },
-    [signInWithEmailAndPassword, emailForm],
+    [providerForm, signInWithProvider],
   );
 
   return (
@@ -89,7 +74,8 @@ export const SignInForm = () => {
         {/* OAuth buttons */}
         <a
           className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-          href="/api/auth/google"
+          href="#"
+          onClick={() => onProviderSignIn('google')}
         >
           <svg className="size-5" viewBox="0 0 24 24">
             <path
@@ -114,7 +100,8 @@ export const SignInForm = () => {
 
         <a
           className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-          href="/api/auth/apple"
+          href="#"
+          onClick={() => onProviderSignIn('apple')}
         >
           <svg className="size-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
@@ -134,85 +121,18 @@ export const SignInForm = () => {
           </div>
         </div>
 
-        {/* Email + Password form */}
-        <Form {...form}>
-          <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => {
-                const emailInputProps = emailForm.createInputProps(
-                  field.onChange,
-                );
+        <Button className="w-full" onClick={onSignIn} type="button">
+          Continue with email
+        </Button>
 
-                return (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        autoComplete="email"
-                        placeholder="you@example.com"
-                        {...field}
-                        {...emailInputProps}
-                        onKeyDown={() => {
-                          emailForm.playTypingNote();
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => {
-                const passwordInputProps = passwordForm.createInputProps(
-                  field.onChange,
-                );
-
-                return (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        autoComplete="current-password"
-                        type="password"
-                        {...field}
-                        {...passwordInputProps}
-                        onKeyDown={() => {
-                          passwordForm.playTypingNote();
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-
-            <div className="text-right text-sm">
-              <Button
-                className="h-auto p-0 font-medium"
-                type="button"
-                variant="link"
-                onClick={() => navigate(AuthRoutes.forgotPassword())}
-              >
-                Forgot password?
-              </Button>
-            </div>
-
-            <Button
-              className="w-full"
-              disabled={form.formState.isSubmitting}
-              type="submit"
-            >
-              {form.formState.isSubmitting ? 'Signing in...' : 'Sign in'}
-            </Button>
-          </form>
-        </Form>
+        <Button
+          className="w-full"
+          variant="outline"
+          onClick={onSignUp}
+          type="button"
+        >
+          Create account
+        </Button>
 
         {error && (
           <div className="my-4">

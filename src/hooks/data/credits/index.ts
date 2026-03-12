@@ -1,4 +1,5 @@
 export {
+  useBillingConfig,
   useCreditsBalance,
   useConsumeCredit,
   useStripeCheckout,

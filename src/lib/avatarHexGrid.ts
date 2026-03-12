@@ -319,7 +319,7 @@ export function generateAvatarPolygons(
   const noise2Strength = 0.2;
   const polygons: AvatarPolygon[] = [];
 
-  grid.forEach((hexagon) => {
+  grid.forEach((hexagon: any) => {
     // Calculate noise value
     const cx = (hexagon.x - cellsNumW / 2 + 1) / zoom;
     const cy = (hexagon.y - cellsNumH / 2 + 1) / zoom;
@@ -344,7 +344,7 @@ export function generateAvatarPolygons(
     const point = hexagon.toPoint();
     const corners = hexagon.corners();
     const pts = corners
-      .map((corner) => {
+      .map((corner: any) => {
         const { x, y } = corner.add(point);
         return `${Math.round(x)},${Math.round(y)}`;
       })

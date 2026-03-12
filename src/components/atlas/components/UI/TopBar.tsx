@@ -10,9 +10,9 @@ export function TopBar() {
   const dispatch = useAppDispatch();
   const search = useMusicSearch();
 
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = async () => {
     if (!searchQuery.trim()) return;
-    const { results, parsed } = search(searchQuery);
+    const { results, parsed } = await search(searchQuery);
     dispatch({ type: 'SET_SEARCH_RESULTS', payload: results });
     if (parsed.city) {
       dispatch({
@@ -29,8 +29,8 @@ export function TopBar() {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSearchSubmit();
+  const handleKeyDown = async (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') await handleSearchSubmit();
   };
 
   return (

@@ -1,3 +1,5 @@
+import { useAuth0 } from '@auth0/auth0-react';
+import { useQuery } from '@tanstack/react-query';
 import {
   createContext,
   useCallback,
@@ -5,20 +7,60 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
-import useLocalStorageState from 'use-local-storage-state';
+import { Env } from '@/constants/env';
 import { WildcardRoute } from '@/constants/routes';
-import { useLogin, useRegister } from '@/hooks/data';
-import { useMusicalForm } from '@/hooks/useMusicalForm';
-import { useNow } from '@/hooks/useNow';
-import { decodeToken } from './decodeToken';
+import { useGlobalMusicAtlas } from '../MusicAtlasContext/api';
 import {
+  AuthAppUser,
   AuthContextData,
   AuthContextValue,
   CreateStudentParams,
   CreateTeacherParams,
+  UserRole,
 } from './types';
+
+const mapMe = (value: unknown): AuthAppUser | null => {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const payload = value as Record<string, unknown>;
+
+  if (typeof payload.id !== 'string' || payload.id.length === 0) {
+    return null;
+  }
+
+  const organizations = Array.isArray(payload.organizations)
+    ? payload.organizations.map(
+        (entry) => entry as AuthAppUser['organizations'][number],
+      )
+    : [];
+  const username =
+    typeof payload.username === 'string' ? payload.username : null;
+  const nickname =
+    typeof payload.nickname === 'string' ? payload.nickname : (username ?? '');
+
+  return {
+    ...payload,
+    id: payload.id,
+    role: (typeof payload.role === 'string'
+      ? (payload.role as UserRole)
+      : 'student') as UserRole,
+    email: (payload.email as string | null) ?? null,
+    fullName: (payload.fullName as string | null) ?? null,
+    nickname,
+    school: (payload.school as string | null) ?? null,
+    createdAt: payload.createdAt as Date,
+    updatedAt: payload.updatedAt as Date,
+    auth0Sub: (payload.auth0Sub as string | null) ?? null,
+    avatarUrl: (payload.avatarUrl as string | null) ?? null,
+    organizations,
+    birthDate: (payload.birthDate as Date | null) ?? null,
+    username,
+  };
+};
 
 export const AuthContext = createContext<AuthContextValue>({
   userId: null,
@@ -27,9 +69,13 @@ export const AuthContext = createContext<AuthContextValue>({
   error: null,
   role: null,
   isPending: false,
+  isBootstrapLoading: false,
+  appUser: null,
   setToken: () => {},
   signInWithEmailAndPassword: async () => {},
   signInWithUsernameAndPassword: async () => {},
+  signInWithProvider: async () => {},
+  signUp: async () => {},
   signUpAsTeacher: async () => {},
   signUpAsStudent: async () => {},
   signOut: async () => {},
@@ -41,191 +87,344 @@ export const AuthContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [error, setError] = useState<string | null>(null);
-  const [token, setToken] = useLocalStorageState<string | null>('token', {
-    defaultValue: null,
-    serializer: {
-      parse: (value) => value,
-      stringify: (value) => (value ? `${value}` : ''),
+  const [appUser, setAppUser] = useState<AuthAppUser | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isTokenLoading, setIsTokenLoading] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const continuePath = searchParams.get('continue');
+
+  const {
+    isAuthenticated: isAuth0Authenticated,
+    isLoading: isAuth0Loading,
+    getAccessTokenSilently,
+    loginWithRedirect,
+    logout,
+  } = useAuth0();
+
+  const musicAtlas = useGlobalMusicAtlas({ token });
+
+  const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
+  const returnTo = continuePath || WildcardRoute.root();
+
+  const persistSessionToken = useCallback(
+    async (nextToken: string) => {
+      await fetch(`${apiBase}/auth/session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: nextToken }),
+        credentials: 'include',
+      }).catch(() => undefined);
+    },
+    [apiBase],
+  );
+
+  const syncAuth0Token = useCallback(async (): Promise<string | null> => {
+    try {
+      setIsTokenLoading(true);
+      const nextToken = await getAccessTokenSilently();
+      setToken(nextToken);
+      await persistSessionToken(nextToken);
+      setError(null);
+      return nextToken;
+    } catch {
+      setToken(null);
+      setAppUser(null);
+      setError('Unable to continue your session. Please sign in again.');
+      return null;
+    } finally {
+      setIsTokenLoading(false);
+    }
+  }, [getAccessTokenSilently, persistSessionToken]);
+
+  const ensureAccessToken = useCallback(async (): Promise<string | null> => {
+    if (token) return token;
+    if (!isAuth0Authenticated) return null;
+    return await syncAuth0Token();
+  }, [isAuth0Authenticated, syncAuth0Token, token]);
+
+  const startAuthLogin = useCallback(
+    async (
+      params?: {
+        screen_hint?: 'signup' | 'login';
+        connection?: 'google-oauth2' | 'apple';
+      },
+      overrideReturnTo?: string,
+    ) => {
+      await loginWithRedirect({
+        appState: {
+          returnTo: overrideReturnTo || returnTo,
+        },
+        authorizationParams: {
+          ...(params?.screen_hint ? { screen_hint: params.screen_hint } : {}),
+          ...(params?.connection ? { connection: params.connection } : {}),
+        },
+      });
+    },
+    [loginWithRedirect, returnTo],
+  );
+
+  const meQuery = useQuery({
+    queryKey: ['me', token],
+    enabled: Boolean(token),
+    staleTime: 30_000,
+    queryFn: async () => {
+      return musicAtlas.auth.getAuthMe();
     },
   });
 
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const {
-    mutateAsync: login,
-    isPending: isLoggingIn,
-    error: loginError,
-  } = useLogin();
+  const isBootstrapLoading =
+    isAuth0Loading || isTokenLoading || meQuery.isLoading;
+  const isPending = isBootstrapLoading;
 
-  const {
-    mutateAsync: register,
-    isPending: isRegistering,
-    error: registerError,
-  } = useRegister();
-
-  const isPending = isLoggingIn || isRegistering;
-
-  const continuePath = searchParams.get('continue');
-
-  const identifierForm = useMusicalForm();
-
-  const onAuthenticated = useCallback(() => {
-    if (continuePath) {
-      navigate(continuePath);
-      identifierForm.playWelcomeAudio();
-    } else {
-      navigate(WildcardRoute.root());
-      identifierForm.playWelcomeAudio();
-    }
-  }, [continuePath, navigate]);
-
-  // Handle OAuth callback: read JWT from URL hash (#token=...)
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.startsWith('#token=')) {
-      const oauthToken = hash.slice(7);
-      setToken(oauthToken);
-      window.history.replaceState(
-        null,
-        '',
-        window.location.pathname + window.location.search,
-      );
-      onAuthenticated();
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const now = useNow({ live: true });
-
-  const dataValue = useMemo((): AuthContextData => {
-    const decoded = token ? decodeToken(token) : null;
-    const contextError = loginError?.message || registerError?.message || error;
-
-    if (!decoded) {
-      return {
-        userId: null,
-        token: null,
-        expiresAt: null,
-        role: null,
-        error: contextError,
-        isPending,
-      };
+    if (isAuth0Authenticated && !isAuth0Loading && !token) {
+      void syncAuth0Token();
+      return;
     }
 
-    if (!decoded.expiresAt || decoded.expiresAt < now.getTime() / 1000) {
-      return {
-        userId: null,
-        token: null,
-        expiresAt: null,
-        role: null,
-        error: contextError,
-        isPending,
-      };
+    if (!isAuth0Authenticated && !token) {
+      setAppUser(null);
+    }
+  }, [isAuth0Authenticated, isAuth0Loading, syncAuth0Token, token]);
+
+  useEffect(() => {
+    if (!meQuery.data) {
+      return;
     }
 
-    return {
-      userId: decoded.userId,
-      token: decoded.token,
-      expiresAt: decoded.expiresAt,
-      role: decoded.role,
-      error: contextError,
-      isPending,
-    };
-  }, [error, now, token, isPending, loginError, registerError]);
+    const mapped = mapMe(meQuery.data);
+    setAppUser(mapped);
+
+    if (!mapped) {
+      return;
+    }
+
+    setError(null);
+
+    const currentPath = window.location.pathname;
+    const isOnAuthRoute = currentPath.startsWith('/auth');
+    const isSignupCompletionPath =
+      currentPath.startsWith('/auth/join/student') ||
+      currentPath.startsWith('/auth/join/teacher');
+
+    if (isOnAuthRoute && !isSignupCompletionPath) {
+      const destination = continuePath || WildcardRoute.root();
+      navigate(destination);
+    }
+  }, [continuePath, meQuery.data, navigate]);
+
+  useEffect(() => {
+    if (!meQuery.isError) {
+      return;
+    }
+
+    if (isAuth0Authenticated) {
+      setToken(null);
+      setAppUser(null);
+    }
+
+    setError('Unable to authorize your session. Please sign in again.');
+  }, [isAuth0Authenticated, meQuery.isError]);
 
   const signInWithEmailAndPassword = useCallback(
-    async (email: string, password: string) => {
+    async (_email: string, _password: string) => {
       try {
-        const response = await login({
-          email,
-          password,
-        });
-
-        const decoded = decodeToken(response.token);
-        setToken(decoded.token);
-        onAuthenticated();
-      } catch (error) {
-        setError(
-          'Login attempt failed. Please check your credentials and try again.',
-        );
-        throw error;
+        await startAuthLogin({ screen_hint: 'login' });
+      } catch {
+        setError('Login attempt failed. Please try again.');
       }
     },
-    [onAuthenticated, setToken, login],
+    [startAuthLogin],
   );
 
   const signInWithUsernameAndPassword = useCallback(
-    async (username: string, password: string) => {
+    async (_username: string, _password: string) => {
       try {
-        const response = await login({
-          username,
-          password,
-        });
-
-        const decoded = decodeToken(response.token);
-        setToken(decoded.token);
-        onAuthenticated();
-      } catch (error) {
-        setError(
-          'Login attempt failed. Please check your credentials and try again.',
-        );
-        throw error;
+        await startAuthLogin({ screen_hint: 'login' });
+      } catch {
+        setError('Login attempt failed. Please try again.');
       }
     },
-    [onAuthenticated, setToken, login],
+    [startAuthLogin],
   );
+
+  const signInWithProvider = useCallback(
+    async (provider: 'google' | 'apple') => {
+      try {
+        await startAuthLogin({
+          screen_hint: 'login',
+          connection: provider === 'google' ? 'google-oauth2' : 'apple',
+        });
+      } catch {
+        setError('Login attempt failed. Please try again.');
+      }
+    },
+    [startAuthLogin],
+  );
+
+  const signUp = useCallback(async () => {
+    try {
+      await startAuthLogin({ screen_hint: 'signup' });
+    } catch {
+      setError('Signup failed. Please try again.');
+    }
+  }, [startAuthLogin]);
 
   const signUpAsTeacher = useCallback(
     async (input: CreateTeacherParams) => {
-      try {
-        await register({
-          ...input,
-          role: 'teacher',
-        });
-
-        signInWithEmailAndPassword(input.email, input.password);
-      } catch (error) {
-        setError('Sign up attempt failed. Please try again.');
+      if (!isAuth0Authenticated) {
+        await startAuthLogin(
+          { screen_hint: 'signup' },
+          location.pathname + location.search,
+        );
+        return;
       }
+
+      const nextToken = await ensureAccessToken();
+
+      if (!nextToken) {
+        throw new Error('Authentication token is unavailable.');
+      }
+
+      const response = await fetch(`${apiBase}/auth/complete-signup/teacher`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${nextToken}`,
+        },
+        credentials: 'include',
+        body: JSON.stringify(input),
+      });
+
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as {
+          message?: string;
+          error?: string;
+        };
+        const message =
+          body.message || body.error || 'Unable to complete teacher signup.';
+        setError(message);
+        throw new Error(message);
+      }
+
+      await meQuery.refetch();
+      setError(null);
     },
-    [register, signInWithEmailAndPassword],
+    [
+      apiBase,
+      ensureAccessToken,
+      isAuth0Authenticated,
+      location.pathname,
+      location.search,
+      meQuery,
+      startAuthLogin,
+    ],
   );
 
   const signUpAsStudent = useCallback(
     async (input: CreateStudentParams) => {
-      try {
-        await register({
-          ...input,
-          role: 'student',
-        });
-
-        signInWithUsernameAndPassword(input.username, input.password);
-      } catch (error) {
-        setError('Sign up attempt failed. Please try again.');
+      if (!isAuth0Authenticated) {
+        await startAuthLogin(
+          { screen_hint: 'signup' },
+          location.pathname + location.search,
+        );
+        return;
       }
+
+      const nextToken = await ensureAccessToken();
+
+      if (!nextToken) {
+        throw new Error('Authentication token is unavailable.');
+      }
+
+      const response = await fetch(`${apiBase}/auth/complete-signup/student`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${nextToken}`,
+        },
+        credentials: 'include',
+        body: JSON.stringify(input),
+      });
+
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as {
+          message?: string;
+          error?: string;
+        };
+        const message =
+          body.message || body.error || 'Unable to complete student signup.';
+        setError(message);
+        throw new Error(message);
+      }
+
+      await meQuery.refetch();
+      setError(null);
     },
-    [register, signInWithUsernameAndPassword],
+    [
+      apiBase,
+      ensureAccessToken,
+      isAuth0Authenticated,
+      location.pathname,
+      location.search,
+      meQuery,
+      startAuthLogin,
+    ],
   );
 
   const signOut = useCallback(async () => {
+    void fetch(`${apiBase}/auth/session`, {
+      method: 'DELETE',
+      credentials: 'include',
+    }).catch(() => undefined);
+
     setToken(null);
-  }, [setToken]);
+    setAppUser(null);
+
+    await logout({
+      logoutParams: {
+        returnTo: window.location.origin,
+      },
+    });
+  }, [apiBase, logout]);
+
+  const dataValue = useMemo((): AuthContextData => {
+    return {
+      userId: appUser?.id ?? null,
+      token,
+      expiresAt: null,
+      role: appUser?.role ?? null,
+      error,
+      isPending,
+      isBootstrapLoading,
+      appUser,
+    };
+  }, [appUser, error, isPending, isBootstrapLoading, token]);
 
   const value = useMemo((): AuthContextValue => {
     return {
       ...dataValue,
       setToken,
-      signUpAsTeacher,
-      signUpAsStudent,
       signInWithEmailAndPassword,
       signInWithUsernameAndPassword,
+      signInWithProvider,
+      signUp,
+      signUpAsTeacher,
+      signUpAsStudent,
       signOut,
     };
   }, [
     dataValue,
-    setToken,
     signInWithEmailAndPassword,
     signInWithUsernameAndPassword,
+    signInWithProvider,
     signOut,
+    signUp,
     signUpAsTeacher,
     signUpAsStudent,
   ]);

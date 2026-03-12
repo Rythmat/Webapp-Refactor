@@ -1,17 +1,11 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { PostAuthRegisterPayload } from '@/contexts/MusicAtlasContext';
-import { useGlobalMusicAtlas } from '@/contexts/MusicAtlasContext/api';
+import { useMutation } from '@tanstack/react-query';
 
 export const useRegister = () => {
-  const musicAtlas = useGlobalMusicAtlas();
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: async (data: PostAuthRegisterPayload) => {
-      return await musicAtlas.auth.postAuthRegister(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
+    mutationFn: async () => {
+      throw new Error(
+        'Legacy registration is no longer supported. Use Auth0 signup.',
+      );
     },
   });
 };

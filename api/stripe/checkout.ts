@@ -1,8 +1,7 @@
 /* eslint-disable import/no-default-export */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { proxyJsonRequest, resolveApiBaseUrl } from '../lib/apiProxy';
 import { cors } from '../lib/cors';
-import { getSubscription } from '../lib/db';
-import { getUserFromRequest } from '../lib/jwt';
 import { stripe, TIER_PRICES } from '../lib/stripe';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -12,10 +11,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const user = getUserFromRequest(req.headers.authorization);
-  if (!user) {
+  if (!req.headers.authorization) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+
+  const apiBaseUrl = resolveApiBaseUrl(req);
 
   const { tier } = req.body as { tier?: string };
   if (!tier || !TIER_PRICES[tier]) {
@@ -32,7 +32,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const subscription = await getSubscription(user.user_id);
+    const subscriptionResponse = await proxyJsonRequest({
+      apiBaseUrl,
+      path: '/api/billing/subscription',
+      method: 'GET',
+      authHeader: req.headers.authorization,
+    });
+
+    if (!subscriptionResponse.ok) {
+      return res
+        .status(subscriptionResponse.status)
+        .json(subscriptionResponse.json);
+    }
+
+    const subscription = subscriptionResponse.json as {
+      stripeCustomerId?: string | null;
+    };
+
+    const meResponse = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/auth/me`, {
+      headers: {
+        Authorization: req.headers.authorization,
+      },
+    });
+
+    if (!meResponse.ok) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const me = (await meResponse.json()) as { id: string };
 
     const proto = req.headers['x-forwarded-proto'] || 'https';
     const host = req.headers['x-forwarded-host'] || req.headers.host;
@@ -44,7 +71,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         line_items: [{ price: priceId, quantity: 1 }],
         success_url: `${baseUrl}/home?checkout=success`,
         cancel_url: `${baseUrl}/home?checkout=cancelled`,
-        metadata: { userId: user.user_id },
+        metadata: { userId: me.id },
       };
 
     // Reuse existing Stripe customer if available

@@ -1,17 +1,9 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { PostAuthResetPasswordPayload } from '@/contexts/MusicAtlasContext';
-import { useGlobalMusicAtlas } from '@/contexts/MusicAtlasContext/api';
+import { useMutation } from '@tanstack/react-query';
 
 export const useResetPassword = () => {
-  const musicAtlas = useGlobalMusicAtlas();
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: async (data: PostAuthResetPasswordPayload) => {
-      return await musicAtlas.auth.postAuthResetPassword(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
+    mutationFn: async (_data: { token: string; password: string }) => {
+      throw new Error('Password reset is handled by Auth0 Universal Login.');
     },
   });
 };

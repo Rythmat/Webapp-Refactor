@@ -3,18 +3,13 @@
 import { Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
+  useBillingConfig,
   useCreditsBalance,
   useStripeCheckout,
   useStripePortal,
 } from '@/hooks/data/credits';
 
-const TIER_ALLOWANCES: Record<string, number> = {
-  free: 50,
-  artist: 100,
-  studio: 200,
-};
-
-const TIERS = [
+const FALLBACK_TIERS = [
   {
     id: 'free' as const,
     name: 'Free',
@@ -50,13 +45,19 @@ const TIERS = [
 ];
 
 export const PlanPage = () => {
+  const { data: billingConfig } = useBillingConfig();
   const { data: credits, isLoading } = useCreditsBalance();
   const checkout = useStripeCheckout();
   const portal = useStripePortal();
 
+  const tiers = billingConfig?.tiers ?? FALLBACK_TIERS;
+  const tierAllowance = Object.fromEntries(
+    tiers.map((tier) => [tier.id, tier.credits]),
+  ) as Record<string, number>;
+
   const currentTier = credits?.tier || 'free';
   const balance = credits?.balance ?? 0;
-  const allowance = TIER_ALLOWANCES[currentTier] ?? 50;
+  const allowance = tierAllowance[currentTier] ?? 50;
   const usagePercent = Math.min(100, Math.round((balance / allowance) * 100));
 
   if (isLoading) {
@@ -117,13 +118,13 @@ export const PlanPage = () => {
 
       {/* Tier cards */}
       <div className="grid gap-4 sm:grid-cols-3">
-        {TIERS.map((tier) => {
+        {tiers.map((tier) => {
           const isCurrent = currentTier === tier.id;
           const canUpgrade =
             tier.id !== 'free' &&
             !isCurrent &&
-            TIERS.findIndex((t) => t.id === tier.id) >
-              TIERS.findIndex((t) => t.id === currentTier);
+            tiers.findIndex((t) => t.id === tier.id) >
+              tiers.findIndex((t) => t.id === currentTier);
 
           return (
             <div

@@ -13,9 +13,3 @@ export const TIER_PRICES: Record<string, string | undefined> = {
   artist: process.env.STRIPE_PRICE_ARTIST,
   studio: process.env.STRIPE_PRICE_STUDIO,
 };
-
-export const TIER_CREDITS: Record<string, number> = {
-  free: 50,
-  artist: 100,
-  studio: 200,
-};

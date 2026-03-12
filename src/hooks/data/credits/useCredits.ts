@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 
 interface CreditsBalance {
@@ -10,6 +11,23 @@ interface CreditsBalance {
 interface ConsumeResult {
   success: boolean;
   remaining: number;
+}
+
+interface BillingConfig {
+  tiers: Array<{
+    id: 'free' | 'artist' | 'studio';
+    name: string;
+    price: string;
+    period: string;
+    credits: number;
+    description: string;
+    features: string[];
+  }>;
+}
+
+function billingPath(path: string) {
+  const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
+  return `${apiBase}/api/billing${path}`;
 }
 
 async function fetchWithAuth(
@@ -39,8 +57,22 @@ export const useCreditsBalance = () => {
 
   return useQuery<CreditsBalance>({
     queryKey: ['credits', 'balance'],
-    queryFn: () => fetchWithAuth('/api/credits/balance', token!),
+    queryFn: () => fetchWithAuth(billingPath('/credits/balance'), token!),
     enabled: !!token,
+  });
+};
+
+export const useBillingConfig = () => {
+  return useQuery<BillingConfig>({
+    queryKey: ['billing', 'config'],
+    staleTime: 1000 * 60 * 30,
+    queryFn: async () => {
+      const response = await fetch(billingPath('/config'), { method: 'GET' });
+      if (!response.ok) {
+        throw new Error(`Failed to load billing config: ${response.status}`);
+      }
+      return (await response.json()) as BillingConfig;
+    },
   });
 };
 
@@ -50,7 +82,7 @@ export const useConsumeCredit = () => {
 
   return useMutation<ConsumeResult, Error, { action?: string }>({
     mutationFn: ({ action }) =>
-      fetchWithAuth('/api/credits/consume', token!, {
+      fetchWithAuth(billingPath('/credits/consume'), token!, {
         method: 'POST',
         body: JSON.stringify({ action }),
       }),

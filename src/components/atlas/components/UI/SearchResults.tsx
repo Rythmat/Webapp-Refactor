@@ -18,8 +18,8 @@ export function SearchResults() {
     dispatch({ type: 'SET_SEARCH_RESULTS', payload: [] });
   };
 
-  const handleDeepDive = () => {
-    const { parsed } = search(searchQuery);
+  const handleDeepDive = async () => {
+    const { parsed } = await search(searchQuery);
     analyze(searchQuery, parsed, searchResults);
   };
 

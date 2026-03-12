@@ -9,6 +9,8 @@
  * ---------------------------------------------------------------
  */
 
+export type DeleteAuthSessionData = any;
+
 export type DeleteChaptersByIdData = any;
 
 export interface DeleteClassroomsByIdStudentsByStudentIdData {
@@ -77,6 +79,12 @@ export interface DeleteTeachersInvitationsByIdData {
   revoked: boolean;
 }
 
+export type GetApiBillingConfigData = any;
+
+export type GetApiBillingCreditsBalanceData = any;
+
+export type GetApiBillingSubscriptionData = any;
+
 export type GetApiProgressLessonData = any;
 
 export interface GetApiProgressLessonParams {
@@ -107,12 +115,28 @@ export interface GetAtlasSearchParams {
 }
 
 export interface GetAuthMeData {
+  auth0Sub: string | null;
+  avatarUrl: string | null;
   birthDate: (Date) | null;
   createdAt: Date;
   email: string | null;
   fullName: string | null;
   id: string;
   nickname: string;
+  organizations: {
+    createdAt: Date;
+    id: string;
+    organization: {
+      auth0OrgId: string | null;
+      id: string;
+      name: string;
+      slug: string | null;
+    };
+    organizationId: string;
+    role: string;
+    status: string;
+    updatedAt: Date;
+  }[];
   role: string;
   school: string | null;
   updatedAt: Date;
@@ -757,6 +781,56 @@ export interface PatchTeachersByIdRestoreData {
   restored: boolean;
 }
 
+export type PostApiBillingCreditsConsumeData = any;
+
+export type PostApiBillingInternalStripeEventData = any;
+
+export interface PostApiBillingInternalStripeEventPayload {
+  customerId: string;
+  event:
+    | 'checkout.session.completed'
+    | 'customer.subscription.updated'
+    | 'customer.subscription.deleted'
+    | 'invoice.payment_succeeded';
+  stripePeriodEnd?: number | null;
+  stripeSubscriptionId?: string | null;
+  tier?: 'free' | 'artist' | 'studio';
+  userId?: string;
+}
+
+export type PostApiStudioAnalyzeVideoData = any;
+
+export interface PostApiStudioAnalyzeVideoPayload {
+  keyframes: any[];
+}
+
+export type PostApiStudioCurateSoundsData = any;
+
+export type PostApiStudioCurateSoundsPayload = any;
+
+export type PostApiStudioGenerateScoreData = any;
+
+export type PostApiStudioGenerateScorePayload = any;
+
+export type PostApiStudioGenerateTrackData = any;
+
+export interface PostApiStudioGenerateTrackPayload {
+  context?: any;
+  prompt: string;
+  trackType: 'audio' | 'midi';
+}
+
+export type PostApiStudioReplicateGenerateData = any;
+
+export type PostApiStudioReplicateGeneratePayload = any;
+
+export type PostApiStudioSearchSfxData = any;
+
+export interface PostApiStudioSearchSfxPayload {
+  limit?: number;
+  query: string;
+}
+
 export type PostAtlasAiAnalyzeData = any;
 
 export interface PostAtlasAiAnalyzePayload {
@@ -777,54 +851,33 @@ export interface PostAtlasParseQueryPayload {
   query: string;
 }
 
-export interface PostAuthLoginData {
-  token: string;
-}
-
-export interface PostAuthLoginPayload {
-  email?: string;
-  password: string;
-  username?: string;
-}
-
-export interface PostAuthRecoverPasswordData {
+export interface PostAuthCompleteSignupStudentData {
+  classroomId: string;
   ok: true;
+  role: 'student';
 }
 
-export interface PostAuthRecoverPasswordPayload {
-  email: string;
-}
-
-export interface PostAuthRegisterData {
-  createdAt: Date;
-  email: string | null;
-  fullName: string | null;
-  id: string;
-  nickname: string;
-  school: string | null;
-  updatedAt: Date;
-  username: string | null;
-}
-
-export interface PostAuthRegisterPayload {
-  birthDate?: Date;
+export interface PostAuthCompleteSignupStudentPayload {
+  birthDate: Date;
   code: string;
-  email?: string;
-  fullName?: string;
   nickname: string;
-  password: string;
-  role: 'student' | 'teacher';
-  school?: string;
-  username?: string;
+  username: string;
 }
 
-export interface PostAuthResetPasswordData {
+export interface PostAuthCompleteSignupTeacherData {
   ok: true;
+  role: 'teacher';
 }
 
-export interface PostAuthResetPasswordPayload {
-  currentUserId?: string;
-  password: string;
+export interface PostAuthCompleteSignupTeacherPayload {
+  code: string;
+  fullName: string;
+  nickname: string;
+}
+
+export type PostAuthSessionData = any;
+
+export interface PostAuthSessionPayload {
   token: string;
 }
 
@@ -1163,6 +1216,21 @@ export namespace Auth {
   /**
    * No description
    * @tags Auth
+   * @name DeleteAuthSession
+   * @request DELETE:/auth/session
+   * @response `200` `DeleteAuthSessionData`
+   */
+  export namespace DeleteAuthSession {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = DeleteAuthSessionData;
+  }
+
+  /**
+   * No description
+   * @tags Auth
    * @name GetAuthMe
    * @request GET:/auth/me
    * @response `200` `GetAuthMeData`
@@ -1178,61 +1246,46 @@ export namespace Auth {
   /**
    * No description
    * @tags Auth
-   * @name PostAuthLogin
-   * @request POST:/auth/login
-   * @response `200` `PostAuthLoginData`
+   * @name PostAuthCompleteSignupStudent
+   * @request POST:/auth/complete-signup/student
+   * @response `200` `PostAuthCompleteSignupStudentData`
    */
-  export namespace PostAuthLogin {
+  export namespace PostAuthCompleteSignupStudent {
     export type RequestParams = {};
     export type RequestQuery = {};
-    export type RequestBody = PostAuthLoginPayload;
+    export type RequestBody = PostAuthCompleteSignupStudentPayload;
     export type RequestHeaders = {};
-    export type ResponseBody = PostAuthLoginData;
+    export type ResponseBody = PostAuthCompleteSignupStudentData;
   }
 
   /**
    * No description
    * @tags Auth
-   * @name PostAuthRecoverPassword
-   * @request POST:/auth/recover-password
-   * @response `200` `PostAuthRecoverPasswordData`
+   * @name PostAuthCompleteSignupTeacher
+   * @request POST:/auth/complete-signup/teacher
+   * @response `200` `PostAuthCompleteSignupTeacherData`
    */
-  export namespace PostAuthRecoverPassword {
+  export namespace PostAuthCompleteSignupTeacher {
     export type RequestParams = {};
     export type RequestQuery = {};
-    export type RequestBody = PostAuthRecoverPasswordPayload;
+    export type RequestBody = PostAuthCompleteSignupTeacherPayload;
     export type RequestHeaders = {};
-    export type ResponseBody = PostAuthRecoverPasswordData;
+    export type ResponseBody = PostAuthCompleteSignupTeacherData;
   }
 
   /**
    * No description
    * @tags Auth
-   * @name PostAuthRegister
-   * @request POST:/auth/register
-   * @response `200` `PostAuthRegisterData`
+   * @name PostAuthSession
+   * @request POST:/auth/session
+   * @response `200` `PostAuthSessionData`
    */
-  export namespace PostAuthRegister {
+  export namespace PostAuthSession {
     export type RequestParams = {};
     export type RequestQuery = {};
-    export type RequestBody = PostAuthRegisterPayload;
+    export type RequestBody = PostAuthSessionPayload;
     export type RequestHeaders = {};
-    export type ResponseBody = PostAuthRegisterData;
-  }
-
-  /**
-   * No description
-   * @tags Auth
-   * @name PostAuthResetPassword
-   * @request POST:/auth/reset-password
-   * @response `200` `PostAuthResetPasswordData`
-   */
-  export namespace PostAuthResetPassword {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostAuthResetPasswordPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostAuthResetPasswordData;
+    export type ResponseBody = PostAuthSessionData;
   }
 }
 
@@ -1359,6 +1412,83 @@ export namespace Atlas {
     export type RequestBody = PostAtlasParseQueryPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostAtlasParseQueryData;
+  }
+}
+
+export namespace Billing {
+  /**
+   * No description
+   * @tags Billing
+   * @name GetApiBillingConfig
+   * @request GET:/api/billing/config
+   * @response `200` `GetApiBillingConfigData`
+   */
+  export namespace GetApiBillingConfig {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiBillingConfigData;
+  }
+
+  /**
+   * No description
+   * @tags Billing
+   * @name GetApiBillingCreditsBalance
+   * @request GET:/api/billing/credits/balance
+   * @response `200` `GetApiBillingCreditsBalanceData`
+   */
+  export namespace GetApiBillingCreditsBalance {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiBillingCreditsBalanceData;
+  }
+
+  /**
+   * No description
+   * @tags Billing
+   * @name GetApiBillingSubscription
+   * @request GET:/api/billing/subscription
+   * @response `200` `GetApiBillingSubscriptionData`
+   */
+  export namespace GetApiBillingSubscription {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiBillingSubscriptionData;
+  }
+
+  /**
+   * No description
+   * @tags Billing
+   * @name PostApiBillingCreditsConsume
+   * @request POST:/api/billing/credits/consume
+   * @response `200` `PostApiBillingCreditsConsumeData`
+   */
+  export namespace PostApiBillingCreditsConsume {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiBillingCreditsConsumeData;
+  }
+
+  /**
+   * No description
+   * @tags Billing
+   * @name PostApiBillingInternalStripeEvent
+   * @request POST:/api/billing/internal/stripe-event
+   * @response `200` `PostApiBillingInternalStripeEventData`
+   */
+  export namespace PostApiBillingInternalStripeEvent {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiBillingInternalStripeEventPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiBillingInternalStripeEventData;
   }
 }
 
@@ -2563,7 +2693,62 @@ export namespace Music {
         | 'dominant (♭9) suspended 4'
         | 'minor major 9'
         | 'diminished 6/9'
-        | 'dominant 9(#5)';
+        | 'dominant 9(#5)'
+        | 'Add2'
+        | 'Add4'
+        | 'b7dominant7#11'
+        | 'diminished7'
+        | 'diminished7b9'
+        | 'diminishedmajor7'
+        | 'dominant7'
+        | 'dominant7#11'
+        | 'dominant7#5'
+        | 'dominant7#5#9'
+        | 'dominant7#5b9'
+        | 'dominant7#9'
+        | 'dominant7b5'
+        | 'dominant7b9'
+        | 'dominant7sus2'
+        | 'dominant7sus4'
+        | 'dominant9'
+        | 'dominant9#5'
+        | 'major4'
+        | 'major6'
+        | 'major6add9'
+        | 'major7'
+        | 'major7#11'
+        | 'major7#5'
+        | 'major7#5#9'
+        | 'major7#9'
+        | 'major7/5'
+        | 'major7b5'
+        | 'major7diminished'
+        | 'major7sus2'
+        | 'major7sus4'
+        | 'major9'
+        | 'major9#5'
+        | 'minor4'
+        | 'minor6'
+        | 'minor6/5'
+        | 'minor6/♭3'
+        | 'minor6/♭6'
+        | 'minor6add9'
+        | 'minor7'
+        | 'minor7#5'
+        | 'minor7b5'
+        | 'minor7b5/4'
+        | 'minor7b5/5'
+        | 'minor7b5b9'
+        | 'minor7b9'
+        | 'minor9'
+        | 'minor9b5'
+        | 'minormajor7'
+        | 'minormajor9'
+        | 'sus#4'
+        | 'sus2'
+        | 'sus4'
+        | 'susb2'
+        | 'susb2b5';
     };
     export type RequestQuery = {};
     export type RequestBody = never;
@@ -2821,6 +3006,98 @@ export namespace Music {
   }
 }
 
+export namespace Studio {
+  /**
+   * No description
+   * @tags Studio
+   * @name PostApiStudioAnalyzeVideo
+   * @request POST:/api/studio/analyze-video
+   * @response `200` `PostApiStudioAnalyzeVideoData`
+   */
+  export namespace PostApiStudioAnalyzeVideo {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStudioAnalyzeVideoPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioAnalyzeVideoData;
+  }
+
+  /**
+   * No description
+   * @tags Studio
+   * @name PostApiStudioCurateSounds
+   * @request POST:/api/studio/curate-sounds
+   * @response `200` `PostApiStudioCurateSoundsData`
+   */
+  export namespace PostApiStudioCurateSounds {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStudioCurateSoundsPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioCurateSoundsData;
+  }
+
+  /**
+   * No description
+   * @tags Studio
+   * @name PostApiStudioGenerateScore
+   * @request POST:/api/studio/generate-score
+   * @response `200` `PostApiStudioGenerateScoreData`
+   */
+  export namespace PostApiStudioGenerateScore {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStudioGenerateScorePayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioGenerateScoreData;
+  }
+
+  /**
+   * No description
+   * @tags Studio
+   * @name PostApiStudioGenerateTrack
+   * @request POST:/api/studio/generate-track
+   * @response `200` `PostApiStudioGenerateTrackData`
+   */
+  export namespace PostApiStudioGenerateTrack {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStudioGenerateTrackPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioGenerateTrackData;
+  }
+
+  /**
+   * No description
+   * @tags Studio
+   * @name PostApiStudioReplicateGenerate
+   * @request POST:/api/studio/replicate-generate
+   * @response `200` `PostApiStudioReplicateGenerateData`
+   */
+  export namespace PostApiStudioReplicateGenerate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStudioReplicateGeneratePayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioReplicateGenerateData;
+  }
+
+  /**
+   * No description
+   * @tags Studio
+   * @name PostApiStudioSearchSfx
+   * @request POST:/api/studio/search-sfx
+   * @response `200` `PostApiStudioSearchSfxData`
+   */
+  export namespace PostApiStudioSearchSfx {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStudioSearchSfxPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioSearchSfxData;
+  }
+}
+
 import type { AxiosInstance, AxiosRequestConfig, HeadersDefaults, ResponseType } from 'axios';
 import axios from 'axios';
 
@@ -2975,6 +3252,21 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
+     * @name DeleteAuthSession
+     * @request DELETE:/auth/session
+     * @response `200` `DeleteAuthSessionData`
+     */
+    deleteAuthSession: (params: RequestParams = {}) =>
+      this.http.request<DeleteAuthSessionData, any>({
+        path: `/auth/session`,
+        method: 'DELETE',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
      * @name GetAuthMe
      * @request GET:/auth/me
      * @response `200` `GetAuthMeData`
@@ -2991,13 +3283,13 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
-     * @name PostAuthLogin
-     * @request POST:/auth/login
-     * @response `200` `PostAuthLoginData`
+     * @name PostAuthCompleteSignupStudent
+     * @request POST:/auth/complete-signup/student
+     * @response `200` `PostAuthCompleteSignupStudentData`
      */
-    postAuthLogin: (data: PostAuthLoginPayload, params: RequestParams = {}) =>
-      this.http.request<PostAuthLoginData, any>({
-        path: `/auth/login`,
+    postAuthCompleteSignupStudent: (data: PostAuthCompleteSignupStudentPayload, params: RequestParams = {}) =>
+      this.http.request<PostAuthCompleteSignupStudentData, any>({
+        path: `/auth/complete-signup/student`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
@@ -3009,13 +3301,13 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
-     * @name PostAuthRecoverPassword
-     * @request POST:/auth/recover-password
-     * @response `200` `PostAuthRecoverPasswordData`
+     * @name PostAuthCompleteSignupTeacher
+     * @request POST:/auth/complete-signup/teacher
+     * @response `200` `PostAuthCompleteSignupTeacherData`
      */
-    postAuthRecoverPassword: (data: PostAuthRecoverPasswordPayload, params: RequestParams = {}) =>
-      this.http.request<PostAuthRecoverPasswordData, any>({
-        path: `/auth/recover-password`,
+    postAuthCompleteSignupTeacher: (data: PostAuthCompleteSignupTeacherPayload, params: RequestParams = {}) =>
+      this.http.request<PostAuthCompleteSignupTeacherData, any>({
+        path: `/auth/complete-signup/teacher`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
@@ -3027,35 +3319,16 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Auth
-     * @name PostAuthRegister
-     * @request POST:/auth/register
-     * @response `200` `PostAuthRegisterData`
+     * @name PostAuthSession
+     * @request POST:/auth/session
+     * @response `200` `PostAuthSessionData`
      */
-    postAuthRegister: (data: PostAuthRegisterPayload, params: RequestParams = {}) =>
-      this.http.request<PostAuthRegisterData, any>({
-        path: `/auth/register`,
+    postAuthSession: (data: PostAuthSessionPayload, params: RequestParams = {}) =>
+      this.http.request<PostAuthSessionData, any>({
+        path: `/auth/session`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Auth
-     * @name PostAuthResetPassword
-     * @request POST:/auth/reset-password
-     * @response `200` `PostAuthResetPasswordData`
-     */
-    postAuthResetPassword: (data: PostAuthResetPasswordPayload, params: RequestParams = {}) =>
-      this.http.request<PostAuthResetPasswordData, any>({
-        path: `/auth/reset-password`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
   };
@@ -3180,6 +3453,84 @@ export class Api<SecurityDataType extends unknown> {
     postAtlasParseQuery: (data: PostAtlasParseQueryPayload, params: RequestParams = {}) =>
       this.http.request<PostAtlasParseQueryData, any>({
         path: `/atlas/parse-query`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+  };
+  billing = {
+    /**
+     * No description
+     *
+     * @tags Billing
+     * @name GetApiBillingConfig
+     * @request GET:/api/billing/config
+     * @response `200` `GetApiBillingConfigData`
+     */
+    getApiBillingConfig: (params: RequestParams = {}) =>
+      this.http.request<GetApiBillingConfigData, any>({
+        path: `/api/billing/config`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Billing
+     * @name GetApiBillingCreditsBalance
+     * @request GET:/api/billing/credits/balance
+     * @response `200` `GetApiBillingCreditsBalanceData`
+     */
+    getApiBillingCreditsBalance: (params: RequestParams = {}) =>
+      this.http.request<GetApiBillingCreditsBalanceData, any>({
+        path: `/api/billing/credits/balance`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Billing
+     * @name GetApiBillingSubscription
+     * @request GET:/api/billing/subscription
+     * @response `200` `GetApiBillingSubscriptionData`
+     */
+    getApiBillingSubscription: (params: RequestParams = {}) =>
+      this.http.request<GetApiBillingSubscriptionData, any>({
+        path: `/api/billing/subscription`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Billing
+     * @name PostApiBillingCreditsConsume
+     * @request POST:/api/billing/credits/consume
+     * @response `200` `PostApiBillingCreditsConsumeData`
+     */
+    postApiBillingCreditsConsume: (params: RequestParams = {}) =>
+      this.http.request<PostApiBillingCreditsConsumeData, any>({
+        path: `/api/billing/credits/consume`,
+        method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Billing
+     * @name PostApiBillingInternalStripeEvent
+     * @request POST:/api/billing/internal/stripe-event
+     * @response `200` `PostApiBillingInternalStripeEventData`
+     */
+    postApiBillingInternalStripeEvent: (data: PostApiBillingInternalStripeEventPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiBillingInternalStripeEventData, any>({
+        path: `/api/billing/internal/stripe-event`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
@@ -4371,7 +4722,62 @@ export class Api<SecurityDataType extends unknown> {
         | 'dominant (♭9) suspended 4'
         | 'minor major 9'
         | 'diminished 6/9'
-        | 'dominant 9(#5)',
+        | 'dominant 9(#5)'
+        | 'Add2'
+        | 'Add4'
+        | 'b7dominant7#11'
+        | 'diminished7'
+        | 'diminished7b9'
+        | 'diminishedmajor7'
+        | 'dominant7'
+        | 'dominant7#11'
+        | 'dominant7#5'
+        | 'dominant7#5#9'
+        | 'dominant7#5b9'
+        | 'dominant7#9'
+        | 'dominant7b5'
+        | 'dominant7b9'
+        | 'dominant7sus2'
+        | 'dominant7sus4'
+        | 'dominant9'
+        | 'dominant9#5'
+        | 'major4'
+        | 'major6'
+        | 'major6add9'
+        | 'major7'
+        | 'major7#11'
+        | 'major7#5'
+        | 'major7#5#9'
+        | 'major7#9'
+        | 'major7/5'
+        | 'major7b5'
+        | 'major7diminished'
+        | 'major7sus2'
+        | 'major7sus4'
+        | 'major9'
+        | 'major9#5'
+        | 'minor4'
+        | 'minor6'
+        | 'minor6/5'
+        | 'minor6/♭3'
+        | 'minor6/♭6'
+        | 'minor6add9'
+        | 'minor7'
+        | 'minor7#5'
+        | 'minor7b5'
+        | 'minor7b5/4'
+        | 'minor7b5/5'
+        | 'minor7b5b9'
+        | 'minor7b9'
+        | 'minor9'
+        | 'minor9b5'
+        | 'minormajor7'
+        | 'minormajor9'
+        | 'sus#4'
+        | 'sus2'
+        | 'sus4'
+        | 'susb2'
+        | 'susb2b5',
       params: RequestParams = {},
     ) =>
       this.http.request<GetPrismChordsByNameData, any>({
@@ -4639,6 +5045,109 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<any, object>({
         path: `/prism/rhythms`,
         method: 'GET',
+        ...params,
+      }),
+  };
+  studio = {
+    /**
+     * No description
+     *
+     * @tags Studio
+     * @name PostApiStudioAnalyzeVideo
+     * @request POST:/api/studio/analyze-video
+     * @response `200` `PostApiStudioAnalyzeVideoData`
+     */
+    postApiStudioAnalyzeVideo: (data: PostApiStudioAnalyzeVideoPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiStudioAnalyzeVideoData, any>({
+        path: `/api/studio/analyze-video`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio
+     * @name PostApiStudioCurateSounds
+     * @request POST:/api/studio/curate-sounds
+     * @response `200` `PostApiStudioCurateSoundsData`
+     */
+    postApiStudioCurateSounds: (data: PostApiStudioCurateSoundsPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiStudioCurateSoundsData, any>({
+        path: `/api/studio/curate-sounds`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio
+     * @name PostApiStudioGenerateScore
+     * @request POST:/api/studio/generate-score
+     * @response `200` `PostApiStudioGenerateScoreData`
+     */
+    postApiStudioGenerateScore: (data: PostApiStudioGenerateScorePayload, params: RequestParams = {}) =>
+      this.http.request<PostApiStudioGenerateScoreData, any>({
+        path: `/api/studio/generate-score`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio
+     * @name PostApiStudioGenerateTrack
+     * @request POST:/api/studio/generate-track
+     * @response `200` `PostApiStudioGenerateTrackData`
+     */
+    postApiStudioGenerateTrack: (data: PostApiStudioGenerateTrackPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiStudioGenerateTrackData, any>({
+        path: `/api/studio/generate-track`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio
+     * @name PostApiStudioReplicateGenerate
+     * @request POST:/api/studio/replicate-generate
+     * @response `200` `PostApiStudioReplicateGenerateData`
+     */
+    postApiStudioReplicateGenerate: (data: PostApiStudioReplicateGeneratePayload, params: RequestParams = {}) =>
+      this.http.request<PostApiStudioReplicateGenerateData, any>({
+        path: `/api/studio/replicate-generate`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio
+     * @name PostApiStudioSearchSfx
+     * @request POST:/api/studio/search-sfx
+     * @response `200` `PostApiStudioSearchSfxData`
+     */
+    postApiStudioSearchSfx: (data: PostApiStudioSearchSfxPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiStudioSearchSfxData, any>({
+        path: `/api/studio/search-sfx`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
   };

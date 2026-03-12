@@ -5,7 +5,14 @@ export function decodeToken(
   token: string | null,
 ): Omit<AuthContextData, 'error' | 'isPending'> {
   if (!token) {
-    return { userId: null, token: null, expiresAt: null, role: null };
+    return {
+      userId: null,
+      token: null,
+      expiresAt: null,
+      role: null,
+      appUser: null,
+      isBootstrapLoading: false,
+    };
   }
 
   try {
@@ -20,8 +27,17 @@ export function decodeToken(
       token,
       expiresAt: decoded.exp,
       role: decoded.role,
+      appUser: null,
+      isBootstrapLoading: false,
     };
-  } catch (error) {
-    return { userId: null, token: null, expiresAt: null, role: null };
+  } catch {
+    return {
+      userId: null,
+      token: null,
+      expiresAt: null,
+      role: null,
+      appUser: null,
+      isBootstrapLoading: false,
+    };
   }
 }

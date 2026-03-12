@@ -15,8 +15,8 @@ export function AIInsightPanel() {
     cancel();
   };
 
-  const handleRetry = () => {
-    const { parsed } = search(searchQuery);
+  const handleRetry = async () => {
+    const { parsed } = await search(searchQuery);
     analyze(searchQuery, parsed, searchResults);
   };
 

@@ -22,35 +22,27 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
-  EmailMelody,
-  SuccessProgression,
-  FailureProgression,
   AutofillProgression,
-  PasswordMelody,
+  EmailMelody,
+  FailureProgression,
+  SuccessProgression,
 } from '@/constants/musicalConstants';
-import { useAuthActions } from '@/contexts/AuthContext';
+import { useAuthActions, useAuthContext } from '@/contexts/AuthContext';
 import { GetTeachersInvitationsByCodeData } from '@/contexts/MusicAtlasContext';
 import { useTeacherInvitationDetails } from '@/hooks/data';
 import { useMusicalForm } from '@/hooks/useMusicalForm';
 import { TeacherInvitationCard } from './components/TeacherInvitationCard';
 
-const formSchema = z
-  .object({
-    email: z.string().email('Invalid email address'),
-    nickname: z.string().min(2, 'Nickname must be at least 2 characters'),
-    fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
+const formSchema = z.object({
+  nickname: z.string().min(2, 'Nickname must be at least 2 characters'),
+  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
+});
 
 export const TeacherRegistrationPage = () => {
   const { code } = useParams<{ code: string }>();
-  const { signInWithEmailAndPassword } = useAuthActions();
+  const { appUser } = useAuthContext();
   const {
+    signUp,
     signUpAsTeacher,
     error: signUpError,
     isPending: isSigningUp,
@@ -73,36 +65,25 @@ export const TeacherRegistrationPage = () => {
     autofillProgression: AutofillProgression,
   });
 
-  const passwordForm = useMusicalForm({
-    typingMelody: PasswordMelody,
-    successProgression: SuccessProgression,
-    failureProgression: FailureProgression,
-    autofillProgression: AutofillProgression,
-  });
-
-  const confirmPasswordForm = useMusicalForm({
-    typingMelody: PasswordMelody,
-    successProgression: SuccessProgression,
-    failureProgression: FailureProgression,
-    autofillProgression: AutofillProgression,
-  });
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
       nickname: '',
       fullName: '',
-      password: '',
-      confirmPassword: '',
     },
   });
 
   const onInvitationLoad = useCallback(
-    (invite: GetTeachersInvitationsByCodeData) => {
-      form.setValue('email', invite.email);
+    (_invite: GetTeachersInvitationsByCodeData) => {
+      if (appUser?.nickname) {
+        form.setValue('nickname', appUser.nickname);
+      }
+
+      if (appUser?.fullName) {
+        form.setValue('fullName', appUser.fullName);
+      }
     },
-    [form],
+    [appUser?.fullName, appUser?.nickname, form],
   );
 
   const onSubmit = useCallback(
@@ -113,20 +94,17 @@ export const TeacherRegistrationPage = () => {
 
       try {
         await signUpAsTeacher({
-          code: code,
+          code,
           fullName: data.fullName,
-          password: data.password,
-          email: data.email,
           nickname: data.nickname,
         });
 
         fullNameForm.playSuccessProgression();
-        await signInWithEmailAndPassword(data.email, data.password);
-      } catch (error) {
+      } catch {
         fullNameForm.playFailureProgression();
       }
     },
-    [code, signInWithEmailAndPassword, signUpAsTeacher, fullNameForm],
+    [code, fullNameForm, signUpAsTeacher],
   );
 
   if (!code) {
@@ -146,7 +124,31 @@ export const TeacherRegistrationPage = () => {
     <div className="animate-fade-in-bottom space-y-6">
       <TeacherInvitationCard code={code} onLoad={onInvitationLoad} />
 
-      {!isPending && !invitationError && (
+      {!isPending && !invitationError && !appUser && (
+        <div className="animate-fade-in-bottom">
+          <CardHeader>
+            <CardTitle className="text-2xl">
+              Create Your Auth0 Account
+            </CardTitle>
+            <CardDescription>
+              Continue with Auth0 first, then finish teacher setup.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              className="w-full"
+              onClick={() => {
+                void signUp();
+              }}
+              type="button"
+            >
+              Continue with Auth0
+            </Button>
+          </CardContent>
+        </div>
+      )}
+
+      {!isPending && !invitationError && appUser && (
         <div className="animate-fade-in-bottom">
           <CardHeader>
             <CardTitle className="text-2xl">Complete Registration</CardTitle>
@@ -160,6 +162,13 @@ export const TeacherRegistrationPage = () => {
                 className="space-y-4"
                 onSubmit={form.handleSubmit(onSubmit)}
               >
+                <FormItem>
+                  <FormLabel>Signed In Email</FormLabel>
+                  <FormControl>
+                    <Input value={appUser.email ?? ''} disabled readOnly />
+                  </FormControl>
+                </FormItem>
+
                 <FormField
                   control={form.control}
                   name="fullName"
@@ -188,49 +197,9 @@ export const TeacherRegistrationPage = () => {
                       <FormControl>
                         <Input
                           autoComplete="nickname"
-                          placeholder="Your first name or nickname, e.g. 'Bach'"
+                          placeholder="Your first name or nickname"
                           {...field}
                           {...nicknameForm.createInputProps(field.onChange)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          autoComplete="new-password"
-                          type="password"
-                          {...field}
-                          {...passwordForm.createInputProps(field.onChange)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          autoComplete="new-password"
-                          type="password"
-                          {...field}
-                          {...confirmPasswordForm.createInputProps(
-                            field.onChange,
-                          )}
                         />
                       </FormControl>
                       <FormMessage />
@@ -247,7 +216,7 @@ export const TeacherRegistrationPage = () => {
               <Alert className="mt-4" variant="destructive">
                 <AlertCircle className="size-4" />
                 <AlertDescription>
-                  Failed to complete registration
+                  {signUpError || 'Failed to complete registration'}
                 </AlertDescription>
               </Alert>
             )}

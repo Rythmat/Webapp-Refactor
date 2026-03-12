@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
+  useBillingConfig,
   useCreditsBalance,
   useStripeCheckout,
   useStripePortal,
@@ -18,7 +19,7 @@ interface UpgradeModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const TIERS = [
+const FALLBACK_TIERS = [
   {
     id: 'free' as const,
     name: 'Free',
@@ -43,10 +44,12 @@ const TIERS = [
 ];
 
 export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
+  const { data: billingConfig } = useBillingConfig();
   const { data: credits } = useCreditsBalance();
   const checkout = useStripeCheckout();
   const portal = useStripePortal();
 
+  const tiers = billingConfig?.tiers ?? FALLBACK_TIERS;
   const currentTier = credits?.tier || 'free';
 
   return (
@@ -63,7 +66,7 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
         </DialogHeader>
 
         <div className="mt-4 space-y-3">
-          {TIERS.map((tier) => {
+          {tiers.map((tier) => {
             const isCurrent = currentTier === tier.id;
             const canUpgrade = tier.id !== 'free' && !isCurrent;
 

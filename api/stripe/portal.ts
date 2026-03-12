@@ -1,7 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { proxyJsonRequest, resolveApiBaseUrl } from '../lib/apiProxy';
 import { cors } from '../lib/cors';
-import { getSubscription } from '../lib/db';
-import { getUserFromRequest } from '../lib/jwt';
 import { stripe } from '../lib/stripe';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -11,13 +10,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const user = getUserFromRequest(req.headers.authorization);
-  if (!user) {
+  if (!req.headers.authorization) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
+  const apiBaseUrl = resolveApiBaseUrl(req);
+
   try {
-    const subscription = await getSubscription(user.user_id);
+    const subscriptionResponse = await proxyJsonRequest({
+      apiBaseUrl,
+      path: '/api/billing/subscription',
+      method: 'GET',
+      authHeader: req.headers.authorization,
+    });
+
+    if (!subscriptionResponse.ok) {
+      return res
+        .status(subscriptionResponse.status)
+        .json(subscriptionResponse.json);
+    }
+
+    const subscription = subscriptionResponse.json as {
+      stripeCustomerId?: string | null;
+    };
 
     if (!subscription.stripeCustomerId) {
       return res.status(400).json({ error: 'No active subscription found' });

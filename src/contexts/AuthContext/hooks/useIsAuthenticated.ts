@@ -1,5 +1,7 @@
-import { useAuthToken } from './useAuthToken';
+import { useAuthContext } from './useAuthContext';
 
 export const useIsAuthenticated = () => {
-  return useAuthToken() !== null;
+  const { appUser, isBootstrapLoading } = useAuthContext();
+
+  return Boolean(appUser) && !isBootstrapLoading;
 };

@@ -1,13 +1,8 @@
 /* eslint-disable import/no-default-export, sonarjs/cognitive-complexity */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
-import {
-  setSubscription,
-  refreshCredits,
-  linkStripeCustomer,
-  findUserByStripeCustomer,
-} from '../lib/db';
-import { stripe, TIER_CREDITS } from '../lib/stripe';
+import { resolveApiBaseUrl } from '../lib/apiProxy';
+import { stripe } from '../lib/stripe';
 
 // Disable body parsing — Stripe needs the raw body for signature verification
 export const config = {
@@ -26,6 +21,46 @@ function tierFromPriceId(priceId: string): 'artist' | 'studio' | null {
   if (priceId === process.env.STRIPE_PRICE_ARTIST) return 'artist';
   if (priceId === process.env.STRIPE_PRICE_STUDIO) return 'studio';
   return null;
+}
+
+async function pushInternalBillingEvent(params: {
+  req: VercelRequest;
+  payload: {
+    event:
+      | 'checkout.session.completed'
+      | 'customer.subscription.updated'
+      | 'customer.subscription.deleted'
+      | 'invoice.payment_succeeded';
+    customerId: string;
+    userId?: string;
+    tier?: 'free' | 'artist' | 'studio';
+    stripeSubscriptionId?: string | null;
+    stripePeriodEnd?: number | null;
+  };
+}) {
+  const apiBaseUrl = resolveApiBaseUrl(params.req);
+  const internalToken = process.env.BILLING_INTERNAL_TOKEN;
+
+  if (!internalToken) {
+    throw new Error('Missing BILLING_INTERNAL_TOKEN');
+  }
+
+  const response = await fetch(
+    `${apiBaseUrl.replace(/\/$/, '')}/api/billing/internal/stripe-event`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-billing-internal-token': internalToken,
+      },
+      body: JSON.stringify(params.payload),
+    },
+  );
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Billing sync failed (${response.status}): ${text}`);
+  }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -61,10 +96,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (!userId || !customerId) break;
 
-        // Link Stripe customer to user
-        await linkStripeCustomer(userId, customerId);
-
-        // Get subscription details
         const subscriptionId = session.subscription as string;
         if (subscriptionId) {
           const sub = await stripe.subscriptions.retrieve(subscriptionId);
@@ -72,14 +103,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const tier = priceId ? tierFromPriceId(priceId) : null;
 
           if (tier) {
-            await setSubscription(userId, {
-              tier,
-              stripeCustomerId: customerId,
-              stripeSubscriptionId: subscriptionId,
-              currentPeriodEnd: sub.current_period_end,
+            await pushInternalBillingEvent({
+              req,
+              payload: {
+                event: 'checkout.session.completed',
+                userId,
+                customerId,
+                tier,
+                stripeSubscriptionId: subscriptionId,
+                stripePeriodEnd: sub.current_period_end,
+              },
             });
-
-            await refreshCredits(userId, TIER_CREDITS[tier]);
           }
         }
         break;
@@ -88,17 +122,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       case 'customer.subscription.updated': {
         const sub = event.data.object as Stripe.Subscription;
         const customerId = sub.customer as string;
-        const userId = await findUserByStripeCustomer(customerId);
-        if (!userId) break;
 
         const priceId = sub.items.data[0]?.price.id;
         const tier = priceId ? tierFromPriceId(priceId) : null;
 
         if (tier) {
-          await setSubscription(userId, {
-            tier,
-            stripeSubscriptionId: sub.id,
-            currentPeriodEnd: sub.current_period_end,
+          await pushInternalBillingEvent({
+            req,
+            payload: {
+              event: 'customer.subscription.updated',
+              customerId,
+              tier,
+              stripeSubscriptionId: sub.id,
+              stripePeriodEnd: sub.current_period_end,
+            },
           });
         }
         break;
@@ -107,13 +144,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       case 'customer.subscription.deleted': {
         const sub = event.data.object as Stripe.Subscription;
         const customerId = sub.customer as string;
-        const userId = await findUserByStripeCustomer(customerId);
-        if (!userId) break;
 
-        await setSubscription(userId, {
-          tier: 'free',
-          stripeSubscriptionId: null,
-          currentPeriodEnd: null,
+        await pushInternalBillingEvent({
+          req,
+          payload: {
+            event: 'customer.subscription.deleted',
+            customerId,
+            tier: 'free',
+            stripeSubscriptionId: null,
+            stripePeriodEnd: null,
+          },
         });
         break;
       }
@@ -121,10 +161,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
-        const userId = await findUserByStripeCustomer(customerId);
-        if (!userId) break;
 
-        // Only refresh credits for subscription invoices (not one-time)
         if (invoice.subscription) {
           const sub = await stripe.subscriptions.retrieve(
             invoice.subscription as string,
@@ -133,7 +170,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const tier = priceId ? tierFromPriceId(priceId) : null;
 
           if (tier) {
-            await refreshCredits(userId, TIER_CREDITS[tier]);
+            await pushInternalBillingEvent({
+              req,
+              payload: {
+                event: 'invoice.payment_succeeded',
+                customerId,
+                tier,
+                stripeSubscriptionId: sub.id,
+                stripePeriodEnd: sub.current_period_end,
+              },
+            });
           }
         }
         break;
@@ -144,7 +190,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.warn(
           `Payment failed for customer ${invoice.customer}, invoice ${invoice.id}`,
         );
-        // Stripe handles retries automatically. Could send a notification here.
         break;
       }
     }

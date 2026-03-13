@@ -10,6 +10,8 @@ export function decodeToken(
       token: null,
       expiresAt: null,
       role: null,
+      isAuth0Loading: false,
+      isAuth0Authenticated: false,
       appUser: null,
       isBootstrapLoading: false,
     };
@@ -27,6 +29,8 @@ export function decodeToken(
       token,
       expiresAt: decoded.exp,
       role: decoded.role,
+      isAuth0Loading: false,
+      isAuth0Authenticated: true,
       appUser: null,
       isBootstrapLoading: false,
     };
@@ -36,6 +40,8 @@ export function decodeToken(
       token: null,
       expiresAt: null,
       role: null,
+      isAuth0Loading: false,
+      isAuth0Authenticated: false,
       appUser: null,
       isBootstrapLoading: false,
     };

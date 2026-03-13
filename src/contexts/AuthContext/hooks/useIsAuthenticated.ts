@@ -1,7 +1,7 @@
 import { useAuthContext } from './useAuthContext';
 
 export const useIsAuthenticated = () => {
-  const { appUser, isBootstrapLoading } = useAuthContext();
+  const { isAuth0Authenticated, isAuth0Loading } = useAuthContext();
 
-  return Boolean(appUser) && !isBootstrapLoading;
+  return isAuth0Authenticated && !isAuth0Loading;
 };

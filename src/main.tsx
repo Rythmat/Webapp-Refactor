@@ -28,9 +28,8 @@ const readAuth0Config = () => {
 
   return {
     audience: Env.get('VITE_AUTH0_AUDIENCE'),
-    redirectUri:
-      Env.get('VITE_AUTH0_REDIRECT_URI', { nullable: true }) ||
-      defaultRedirectUri,
+    // Use one canonical callback route so guards and post-login routing are deterministic.
+    redirectUri: defaultRedirectUri,
     domain: Env.get('VITE_AUTH0_DOMAIN'),
     clientId: Env.get('VITE_AUTH0_CLIENT_ID'),
   };
@@ -53,6 +52,7 @@ createRoot(document.getElementById('root')!).render(
         domain={auth0Config.domain}
         clientId={auth0Config.clientId}
         cacheLocation="localstorage"
+        useCookiesForTransactions
         authorizationParams={{
           redirect_uri: auth0Config.redirectUri,
           audience: auth0Config.audience,

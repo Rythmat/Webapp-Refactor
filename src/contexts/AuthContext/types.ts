@@ -32,6 +32,8 @@ export type AuthContextData = {
   expiresAt: number | null;
   error: string | null;
   role: UserRole | null;
+  isAuth0Loading: boolean;
+  isAuth0Authenticated: boolean;
   isPending: boolean;
   isBootstrapLoading: boolean;
   appUser: AuthAppUser | null;

@@ -69,6 +69,8 @@ export const AuthContext = createContext<AuthContextValue>({
   expiresAt: null,
   error: null,
   role: null,
+  isAuth0Loading: true,
+  isAuth0Authenticated: false,
   isPending: false,
   isBootstrapLoading: false,
   appUser: null,
@@ -110,7 +112,11 @@ export const AuthContextProvider = ({
   const musicAtlas = useGlobalMusicAtlas({ token });
 
   const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
-  const returnTo = continuePath || ProfileRoutes.root();
+  const returnTo =
+    continuePath ||
+    (location.pathname.startsWith('/auth')
+      ? ProfileRoutes.root()
+      : `${location.pathname}${location.search}`);
 
   const persistSessionToken = useCallback(
     async (nextToken: string) => {
@@ -186,7 +192,7 @@ export const AuthContextProvider = ({
 
   const meQuery = useQuery({
     queryKey: ['me', token],
-    enabled: Boolean(token),
+    enabled: Boolean(token) && isAuth0Authenticated,
     staleTime: 30_000,
     queryFn: async () => {
       return musicAtlas.auth.getAuthMe();
@@ -194,7 +200,9 @@ export const AuthContextProvider = ({
   });
 
   const isBootstrapLoading =
-    isAuth0Loading || isTokenLoading || meQuery.isLoading;
+    isAuth0Loading ||
+    (isAuth0Authenticated &&
+      (isTokenLoading || (Boolean(token) && meQuery.isLoading)));
   const isPending = isBootstrapLoading;
 
   useEffect(() => {
@@ -271,14 +279,10 @@ export const AuthContextProvider = ({
     if (!meQuery.isError) {
       return;
     }
-
-    if (isAuth0Authenticated) {
-      setToken(null);
-      setAppUser(null);
-    }
-
-    setError('Unable to authorize your session. Please sign in again.');
-  }, [isAuth0Authenticated, meQuery.isError]);
+    // Preserve Auth0 session to avoid callback/login loops; surface the real API error instead.
+    setError('Unable to load your account profile. Please try refreshing.');
+    console.error('Failed to load /auth/me after authentication.');
+  }, [meQuery.isError]);
 
   const signInWithEmailAndPassword = useCallback(
     async (_email: string, _password: string) => {
@@ -449,11 +453,21 @@ export const AuthContextProvider = ({
       expiresAt: null,
       role: appUser?.role ?? null,
       error,
+      isAuth0Loading,
+      isAuth0Authenticated,
       isPending,
       isBootstrapLoading,
       appUser,
     };
-  }, [appUser, error, isPending, isBootstrapLoading, token]);
+  }, [
+    appUser,
+    error,
+    isAuth0Authenticated,
+    isAuth0Loading,
+    isPending,
+    isBootstrapLoading,
+    token,
+  ]);
 
   const value = useMemo((): AuthContextValue => {
     return {

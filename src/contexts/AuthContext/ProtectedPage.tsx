@@ -1,5 +1,7 @@
 import { Navigate, useLocation } from 'react-router';
+import { ErrorBox } from '@/components/ErrorBox';
 import { FullScreenLoading } from '@/components/FullScreenLoading';
+import { Button } from '@/components/ui/button';
 import { AuthRoutes } from '@/constants/routes';
 import { useAuthContext } from './hooks/useAuthContext';
 
@@ -16,14 +18,23 @@ export const ProtectedPage = ({
   teacherOnly,
   studentOnly,
 }: ProtectedPageProps) => {
-  const { appUser, isBootstrapLoading, role } = useAuthContext();
+  const {
+    appUser,
+    isBootstrapLoading,
+    isAuth0Loading,
+    isAuth0Authenticated,
+    role,
+    error,
+    signOut,
+  } = useAuthContext();
   const location = useLocation();
 
-  if (isBootstrapLoading) {
+  // Never make unauthenticated decisions until the SDK has finished restoring auth state.
+  if (isAuth0Loading || isBootstrapLoading) {
     return <FullScreenLoading />;
   }
 
-  if (!appUser) {
+  if (!isAuth0Authenticated) {
     return (
       <Navigate
         replace
@@ -32,6 +43,27 @@ export const ProtectedPage = ({
         })}
       />
     );
+  }
+
+  if (!appUser) {
+    if (error) {
+      return (
+        <div className="mx-auto flex min-h-[50vh] max-w-lg items-center p-6">
+          <div className="w-full space-y-4">
+            <ErrorBox message={error} />
+            <Button
+              onClick={() => void signOut()}
+              type="button"
+              variant="outline"
+            >
+              Sign out
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return <FullScreenLoading />;
   }
 
   if (adminOnly && role !== 'admin') {

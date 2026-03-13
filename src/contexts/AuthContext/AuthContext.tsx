@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router';
@@ -86,6 +87,7 @@ export const AuthContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const didPlayLoginJingleRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [appUser, setAppUser] = useState<AuthAppUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -217,6 +219,30 @@ export const AuthContextProvider = ({
       navigate(destination);
     }
   }, [continuePath, meQuery.data, navigate]);
+
+  useEffect(() => {
+    if (didPlayLoginJingleRef.current) {
+      return;
+    }
+
+    if (!appUser || isBootstrapLoading) {
+      return;
+    }
+
+    const hadInteractiveAuthCallback =
+      typeof window !== 'undefined' &&
+      sessionStorage.getItem('auth0:interactive-login-callback') === '1';
+
+    if (!hadInteractiveAuthCallback) {
+      return;
+    }
+
+    didPlayLoginJingleRef.current = true;
+    sessionStorage.removeItem('auth0:interactive-login-callback');
+
+    const welcomeAudio = new Audio('/welcome.mp3');
+    void welcomeAudio.play().catch(() => undefined);
+  }, [appUser, isBootstrapLoading]);
 
   useEffect(() => {
     if (!meQuery.isError) {

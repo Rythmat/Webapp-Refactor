@@ -25,6 +25,11 @@ export const AuthRoutes = {
   signIn: createRouteDefinition('/sign-in', { prefix: authPrefix }),
 
   /**
+   * OAuth callback route used by Auth0 redirect processing.
+   */
+  callback: createRouteDefinition('/callback', { prefix: authPrefix }),
+
+  /**
    * The route to join as a student.
    * @param code Caller can pass a code to be injected into the query params.
    */

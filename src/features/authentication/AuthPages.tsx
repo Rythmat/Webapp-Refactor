@@ -3,6 +3,7 @@ import { AuthRoutes } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { AuthPage } from '@/contexts/AuthContext';
 import { AuthLayout } from '@/layouts/AuthLayout';
+import { AuthCallbackPage } from './AuthCallbackPage';
 import { SignInPage } from './SignInPage';
 import { StudentRegistrationPage } from './StudentRegistrationPage';
 import { TeacherRegistrationPage } from './TeacherRegistrationPage';
@@ -21,6 +22,10 @@ export const authPages = () => {
       {
         path: AuthRoutes.signIn.definition,
         element: <SignInPage />,
+      },
+      {
+        path: AuthRoutes.callback.definition,
+        element: <AuthCallbackPage />,
       },
       {
         path: AuthRoutes.signUpAsStudent.definition,

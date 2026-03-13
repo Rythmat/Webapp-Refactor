@@ -3,8 +3,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.tsx';
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx';
-import './index.css';
 import { Env } from './constants/env';
+import { AuthRoutes } from './constants/routes';
+import './index.css';
 
 const renderStartupError = (message: string) => {
   const rootElement = document.getElementById('root');
@@ -22,11 +23,14 @@ const renderStartupError = (message: string) => {
 };
 
 const readAuth0Config = () => {
+  const callbackPath = AuthRoutes.callback();
+  const defaultRedirectUri = `${window.location.origin}${callbackPath}`;
+
   return {
     audience: Env.get('VITE_AUTH0_AUDIENCE'),
     redirectUri:
       Env.get('VITE_AUTH0_REDIRECT_URI', { nullable: true }) ||
-      window.location.origin,
+      defaultRedirectUri,
     domain: Env.get('VITE_AUTH0_DOMAIN'),
     clientId: Env.get('VITE_AUTH0_CLIENT_ID'),
   };
@@ -48,15 +52,21 @@ createRoot(document.getElementById('root')!).render(
       <Auth0Provider
         domain={auth0Config.domain}
         clientId={auth0Config.clientId}
+        cacheLocation="localstorage"
         authorizationParams={{
           redirect_uri: auth0Config.redirectUri,
           audience: auth0Config.audience,
         }}
         onRedirectCallback={(appState) => {
           sessionStorage.setItem('auth0:interactive-login-callback', '1');
-          const returnTo = appState?.returnTo || '/';
+          const returnTo =
+            typeof appState?.returnTo === 'string' &&
+            appState.returnTo.startsWith('/')
+              ? appState.returnTo
+              : '/';
           window.history.replaceState({}, '', returnTo);
-          window.location.replace(returnTo);
+          // Notify React Router of the URL update without forcing a page reload.
+          window.dispatchEvent(new PopStateEvent('popstate'));
         }}
       >
         <App />

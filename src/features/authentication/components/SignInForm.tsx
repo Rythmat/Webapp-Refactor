@@ -34,7 +34,6 @@ export const SignInForm = () => {
   const onSignIn = useCallback(async () => {
     try {
       await signInWithEmailAndPassword('ui', 'ui');
-      actionForm.playSuccessProgression();
     } catch (err) {
       actionForm.playFailureProgression();
       console.error('Sign in failed:', err);
@@ -44,7 +43,6 @@ export const SignInForm = () => {
   const onSignUp = useCallback(async () => {
     try {
       await signUp();
-      actionForm.playSuccessProgression();
     } catch (err) {
       actionForm.playFailureProgression();
       console.error('Sign up failed:', err);
@@ -55,7 +53,6 @@ export const SignInForm = () => {
     async (provider: 'google' | 'apple') => {
       try {
         await signInWithProvider(provider);
-        providerForm.playSuccessProgression();
       } catch (err) {
         providerForm.playFailureProgression();
         console.error('Provider sign in failed:', err);

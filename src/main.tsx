@@ -53,6 +53,7 @@ createRoot(document.getElementById('root')!).render(
           audience: auth0Config.audience,
         }}
         onRedirectCallback={(appState) => {
+          sessionStorage.setItem('auth0:interactive-login-callback', '1');
           const returnTo = appState?.returnTo || '/';
           window.history.replaceState({}, '', returnTo);
           window.location.replace(returnTo);

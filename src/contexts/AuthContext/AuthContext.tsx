@@ -1,4 +1,4 @@
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth0, type AuthenticationError } from '@auth0/auth0-react';
 import { useQuery } from '@tanstack/react-query';
 import {
   createContext,
@@ -11,7 +11,7 @@ import {
 import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import { Env } from '@/constants/env';
-import { WildcardRoute } from '@/constants/routes';
+import { ProfileRoutes } from '@/constants/routes';
 import { useGlobalMusicAtlas } from '../MusicAtlasContext/api';
 import {
   AuthAppUser,
@@ -101,6 +101,7 @@ export const AuthContextProvider = ({
   const {
     isAuthenticated: isAuth0Authenticated,
     isLoading: isAuth0Loading,
+    error: auth0Error,
     getAccessTokenSilently,
     loginWithRedirect,
     logout,
@@ -109,7 +110,7 @@ export const AuthContextProvider = ({
   const musicAtlas = useGlobalMusicAtlas({ token });
 
   const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
-  const returnTo = continuePath || WildcardRoute.root();
+  const returnTo = continuePath || ProfileRoutes.root();
 
   const persistSessionToken = useCallback(
     async (nextToken: string) => {
@@ -133,10 +134,19 @@ export const AuthContextProvider = ({
       await persistSessionToken(nextToken);
       setError(null);
       return nextToken;
-    } catch {
+    } catch (caught) {
       setToken(null);
       setAppUser(null);
+
+      const sdkError = caught as AuthenticationError | null;
+      if (sdkError?.error === 'login_required') {
+        // Do not force a new login loop during startup token probing.
+        setError(null);
+        return null;
+      }
+
       setError('Unable to continue your session. Please sign in again.');
+      console.error('Auth0 token sync failed:', caught);
       return null;
     } finally {
       setIsTokenLoading(false);
@@ -157,6 +167,10 @@ export const AuthContextProvider = ({
       },
       overrideReturnTo?: string,
     ) => {
+      if (isAuth0Loading) {
+        return;
+      }
+
       await loginWithRedirect({
         appState: {
           returnTo: overrideReturnTo || returnTo,
@@ -167,7 +181,7 @@ export const AuthContextProvider = ({
         },
       });
     },
-    [loginWithRedirect, returnTo],
+    [isAuth0Loading, loginWithRedirect, returnTo],
   );
 
   const meQuery = useQuery({
@@ -215,10 +229,19 @@ export const AuthContextProvider = ({
       currentPath.startsWith('/auth/join/teacher');
 
     if (isOnAuthRoute && !isSignupCompletionPath) {
-      const destination = continuePath || WildcardRoute.root();
+      const destination = continuePath || ProfileRoutes.root();
       navigate(destination);
     }
   }, [continuePath, meQuery.data, navigate]);
+
+  useEffect(() => {
+    if (!auth0Error) {
+      return;
+    }
+
+    console.error('Auth0 SDK error:', auth0Error);
+    setError(auth0Error.message || 'Authentication failed.');
+  }, [auth0Error]);
 
   useEffect(() => {
     if (didPlayLoginJingleRef.current) {

@@ -22,6 +22,33 @@ import {
   UserRole,
 } from './types';
 
+const getApiErrorMessage = (value: unknown): string | null => {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const maybeError = value as {
+    response?: { data?: { message?: string; error?: string } };
+    message?: string;
+  };
+
+  const apiMessage =
+    maybeError.response?.data?.message || maybeError.response?.data?.error;
+
+  if (typeof apiMessage === 'string' && apiMessage.trim().length > 0) {
+    return apiMessage;
+  }
+
+  if (
+    typeof maybeError.message === 'string' &&
+    maybeError.message.trim().length > 0
+  ) {
+    return maybeError.message;
+  }
+
+  return null;
+};
+
 const mapMe = (value: unknown): AuthAppUser | null => {
   if (!value || typeof value !== 'object') {
     return null;
@@ -135,7 +162,12 @@ export const AuthContextProvider = ({
   const syncAuth0Token = useCallback(async (): Promise<string | null> => {
     try {
       setIsTokenLoading(true);
-      const nextToken = await getAccessTokenSilently();
+      const nextToken = await getAccessTokenSilently({
+        // Always request the API audience so /auth/me receives a verifiable JWT.
+        authorizationParams: {
+          audience: Env.get('VITE_AUTH0_AUDIENCE'),
+        },
+      });
       setToken(nextToken);
       await persistSessionToken(nextToken);
       setError(null);
@@ -279,10 +311,17 @@ export const AuthContextProvider = ({
     if (!meQuery.isError) {
       return;
     }
+
     // Preserve Auth0 session to avoid callback/login loops; surface the real API error instead.
-    setError('Unable to load your account profile. Please try refreshing.');
-    console.error('Failed to load /auth/me after authentication.');
-  }, [meQuery.isError]);
+    const message =
+      getApiErrorMessage(meQuery.error) ||
+      'Unable to load your account profile. Please try refreshing.';
+    setError(message);
+    console.error(
+      'Failed to load /auth/me after authentication:',
+      meQuery.error,
+    );
+  }, [meQuery.error, meQuery.isError]);
 
   const signInWithEmailAndPassword = useCallback(
     async (_email: string, _password: string) => {

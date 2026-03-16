@@ -71,7 +71,13 @@ function arcPath(
 
 export function CircleOfFifths({
   size = DEFAULT_SIZE,
-}: { size?: number } = {}) {
+  onNoteClick,
+  showModeSelector = true,
+}: {
+  size?: number;
+  onNoteClick?: (semitone: number) => void;
+  showModeSelector?: boolean;
+} = {}) {
   const rootNote = useStore((s) => s.rootNote);
   const rootLocked = useStore((s) => s.rootLocked);
   const setRootNote = useStore((s) => s.setRootNote);
@@ -142,9 +148,13 @@ export function CircleOfFifths({
 
   const handleClick = useCallback(
     (semitone: number) => () => {
-      setRootNote(semitone);
+      if (onNoteClick) {
+        onNoteClick(semitone);
+      } else {
+        setRootNote(semitone);
+      }
     },
-    [setRootNote],
+    [onNoteClick, setRootNote],
   );
 
   const handleClear = useCallback(() => {
@@ -258,7 +268,7 @@ export function CircleOfFifths({
       </svg>
 
       {/* Mode selector */}
-      <div className="relative" ref={dropdownRef}>
+      {showModeSelector && <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setDropdownOpen((v) => !v)}
           className="flex cursor-pointer items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors hover:bg-white/10"
@@ -326,7 +336,7 @@ export function CircleOfFifths({
             ))}
           </div>
         )}
-      </div>
+      </div>}
 
       {selectedIndex !== null && (
         <button

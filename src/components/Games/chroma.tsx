@@ -37,14 +37,7 @@ const POST_FLASH_MS = 500;
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
-type Phase =
-  | 'select'
-  | 'playing'
-  | 'input'
-  | 'evaluating'
-  | 'wrong'
-  | 'success'
-  | 'game-over';
+type Phase = 'select' | 'playing' | 'input' | 'wrong' | 'success' | 'game-over';
 
 interface DiffConfig {
   label: string;
@@ -86,18 +79,19 @@ function generateSequence(difficulty: Difficulty): number[] {
 // ── Crystal SVG ───────────────────────────────────────────────────────────────
 
 function Crystal({ lit }: { lit: boolean }) {
-  const W = 80,
-    H = 140;
-  const cx = W / 2;
-
-  // Six-point elongated crystal (diamond-hexagonal)
+  // Regular hexagon, pointy-top, radius 50, canvas 90×106, centred at (45,53)
+  const W = 90,
+    H = 106;
+  const cx = 45,
+    cy = 53;
+  // r=50 → half-width = r*sin60 ≈ 43, half-height = r=50
   const pts = [
-    [cx, 0],
-    [cx + 36, 42],
-    [cx + 36, 98],
-    [cx, H],
-    [cx - 36, 98],
-    [cx - 36, 42],
+    [cx, cy - 50], // top apex
+    [cx + 43, cy - 25], // top-right
+    [cx + 43, cy + 25], // bottom-right
+    [cx, cy + 50], // bottom apex
+    [cx - 43, cy + 25], // bottom-left
+    [cx - 43, cy - 25], // top-left
   ]
     .map(([x, y]) => `${x},${y}`)
     .join(' ');
@@ -136,9 +130,9 @@ function Crystal({ lit }: { lit: boolean }) {
       {lit && (
         <ellipse
           cx={cx}
-          cy={H / 2}
-          rx={52}
-          ry={68}
+          cy={cy}
+          rx={55}
+          ry={55}
           fill="rgba(139,92,246,0.18)"
           style={{ filter: 'blur(14px)' }}
         />
@@ -155,29 +149,29 @@ function Crystal({ lit }: { lit: boolean }) {
       {/* Vertical spine */}
       <line
         x1={cx}
-        y1={0}
+        y1={cy - 50}
         x2={cx}
-        y2={H}
+        y2={cy + 50}
         stroke={lit ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.04)'}
         strokeWidth={1}
       />
 
-      {/* Upper girdle */}
+      {/* Upper girdle — connects the two upper side vertices */}
       <line
-        x1={cx - 36}
-        y1={42}
-        x2={cx + 36}
-        y2={42}
+        x1={cx - 43}
+        y1={cy - 25}
+        x2={cx + 43}
+        y2={cy - 25}
         stroke={lit ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)'}
         strokeWidth={0.8}
       />
 
-      {/* Lower girdle */}
+      {/* Lower girdle — connects the two lower side vertices */}
       <line
-        x1={cx - 36}
-        y1={98}
-        x2={cx + 36}
-        y2={98}
+        x1={cx - 43}
+        y1={cy + 25}
+        x2={cx + 43}
+        y2={cy + 25}
         stroke={lit ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)'}
         strokeWidth={0.8}
       />
@@ -185,7 +179,7 @@ function Crystal({ lit }: { lit: boolean }) {
       {/* Upper highlight shard */}
       {lit && (
         <polygon
-          points={`${cx},8 ${cx + 16},42 ${cx},34 ${cx - 16},42`}
+          points={`${cx},${cy - 47} ${cx + 22},${cy - 25} ${cx},${cy - 32} ${cx - 22},${cy - 25}`}
           fill="rgba(255,255,255,0.22)"
         />
       )}
@@ -278,7 +272,6 @@ function AttemptPips({
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function Chroma() {
-  const rootNote = useStore((s) => s.rootNote);
   const setRootNote = useStore((s) => s.setRootNote);
 
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
@@ -310,86 +303,78 @@ export default function Chroma() {
 
   // ── Sequence playback ───────────────────────────────────────────────────
 
-  const playSeq = useCallback(
-    async (seq: number[]) => {
-      await startPianoSampler();
-      for (let i = 0; i < seq.length; i++) {
-        setPlayingIdx(i);
-        setRootNote(seq[i]); // highlight current note in circle
-        await triggerPianoAttackRelease(
-          CHROMATIC_NOTES[seq[i]] + '4',
-          NOTE_DURATION_S,
-          0.85,
-        );
-        await wait(NOTE_GAP_MS);
+  const playSeq = useCallback(async (seq: number[]) => {
+    await startPianoSampler();
+    for (let i = 0; i < seq.length; i++) {
+      setPlayingIdx(i);
+      await triggerPianoAttackRelease(
+        CHROMATIC_NOTES[seq[i]] + '4',
+        NOTE_DURATION_S,
+        0.85,
+      );
+      await wait(NOTE_GAP_MS);
+    }
+    setPlayingIdx(null);
+  }, []);
+
+  // ── Per-note input check ─────────────────────────────────────────────────
+
+  const handleNoteInput = useCallback(
+    async (semitone: number) => {
+      if (phaseRef.current !== 'input') return;
+
+      const idx = userInputRef.current.length;
+      const expected = sequenceRef.current[idx];
+
+      if (semitone !== expected) {
+        // Wrong note — immediate feedback
+        const remaining = attemptsRef.current - 1;
+        attemptsRef.current = remaining;
+        setAttemptsLeft(remaining);
+
+        setFlashRed(true);
+        sp('wrong');
+        await wait(FLASH_MS);
+        setFlashRed(false);
+
+        if (remaining <= 0) {
+          sp('game-over');
+          return;
+        }
+
+        await wait(POST_FLASH_MS);
+        userInputRef.current = [];
+        setUserInput([]);
+        sp('playing');
+        await playSeq(sequenceRef.current);
+        sp('input');
+      } else {
+        const newInput = [...userInputRef.current, semitone];
+        userInputRef.current = newInput;
+        setUserInput([...newInput]);
+
+        if (newInput.length >= sequenceRef.current.length) {
+          setCrystalLit(true);
+          sp('success');
+        }
       }
-      setPlayingIdx(null);
-      setRootNote(null);
-    },
-    [setRootNote],
-  );
-
-  // ── Evaluation ──────────────────────────────────────────────────────────
-
-  const evaluate = useCallback(
-    async (input: number[]) => {
-      const correct = input.every((n, i) => n === sequenceRef.current[i]);
-
-      if (correct) {
-        setCrystalLit(true);
-        sp('success');
-        return;
-      }
-
-      // Wrong — decrement attempts
-      const remaining = attemptsRef.current - 1;
-      attemptsRef.current = remaining;
-      setAttemptsLeft(remaining);
-
-      // Flash red + show "wrong" message
-      setFlashRed(true);
-      sp('wrong');
-      await wait(FLASH_MS);
-      setFlashRed(false);
-
-      if (remaining <= 0) {
-        sp('game-over');
-        return;
-      }
-
-      // Replay sequence
-      await wait(POST_FLASH_MS);
-      userInputRef.current = [];
-      setUserInput([]);
-      sp('playing');
-      await playSeq(sequenceRef.current);
-      sp('input');
     },
     [sp, playSeq],
   );
 
-  // ── Capture circle-of-fifths clicks as game input ───────────────────────
+  // ── Circle click: play audio + feed input ────────────────────────────────
 
-  useEffect(() => {
-    // Only process during active input phase
-    if (phaseRef.current !== 'input') return;
-    if (rootNote === null) return;
-    // Guard against overfill (sequence already complete)
-    if (userInputRef.current.length >= sequenceRef.current.length) return;
-
-    const captured = rootNote;
-    // Clear immediately so the same note can be re-selected next turn
-    setRootNote(null);
-
-    const newInput = [...userInputRef.current, captured];
-    userInputRef.current = newInput;
-    setUserInput([...newInput]);
-
-    if (newInput.length >= sequenceRef.current.length) {
-      sp('evaluating');
-      evaluate(newInput);
-    }
-  }, [rootNote, evaluate, setRootNote, sp]);
+  const handleCircleClick = useCallback(
+    (semitone: number) => {
+      triggerPianoAttackRelease(
+        CHROMATIC_NOTES[semitone] + '4',
+        NOTE_DURATION_S,
+        0.75,
+      );
+      handleNoteInput(semitone);
+    },
+    [handleNoteInput],
+  );
 
   // ── Start ───────────────────────────────────────────────────────────────
 
@@ -428,10 +413,7 @@ export default function Chroma() {
 
   const isInputActive = phase === 'input';
   const showSlots =
-    phase === 'playing' ||
-    phase === 'input' ||
-    phase === 'evaluating' ||
-    phase === 'wrong';
+    phase === 'playing' || phase === 'input' || phase === 'wrong';
   const showPips =
     phase !== 'select' && phase !== 'success' && phase !== 'game-over';
   const diffCfg = DIFF[difficulty];
@@ -440,7 +422,6 @@ export default function Chroma() {
     select: '',
     playing: 'Listen carefully…',
     input: 'Replay the sequence',
-    evaluating: 'Checking…',
     wrong: 'Not quite — listen again…',
     success: 'Crystal attuned!',
     'game-over': '',
@@ -543,16 +524,14 @@ export default function Chroma() {
           }}
         >
           {sequence.map((note, i) => {
-            // Playing phase: reveal notes as they're played
+            // Playing phase: only the root (slot 0) is revealed
             if (phase === 'playing') {
-              const isPlayed = playingIdx !== null && i <= playingIdx;
-              const isCurrent = i === playingIdx;
               return (
                 <NoteSlot
                   key={i}
-                  label={isPlayed ? CHROMATIC_NOTES[note] : undefined}
-                  active={isCurrent}
-                  reveal={isPlayed && !isCurrent}
+                  label={i === 0 ? CHROMATIC_NOTES[note] : undefined}
+                  active={i === playingIdx}
+                  reveal={i === 0}
                 />
               );
             }
@@ -758,7 +737,11 @@ export default function Chroma() {
           transition: 'opacity 0.3s ease',
         }}
       >
-        <CircleOfFifths size={300} />
+        <CircleOfFifths
+          onNoteClick={handleCircleClick}
+          showModeSelector={false}
+          size={300}
+        />
       </div>
     </div>
   );

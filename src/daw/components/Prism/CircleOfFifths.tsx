@@ -71,7 +71,13 @@ function arcPath(
 
 export function CircleOfFifths({
   size = DEFAULT_SIZE,
-}: { size?: number } = {}) {
+  onNoteClick,
+  showModeSelector = true,
+}: {
+  size?: number;
+  onNoteClick?: (semitone: number) => void;
+  showModeSelector?: boolean;
+} = {}) {
   const rootNote = useStore((s) => s.rootNote);
   const rootLocked = useStore((s) => s.rootLocked);
   const setRootNote = useStore((s) => s.setRootNote);
@@ -142,9 +148,13 @@ export function CircleOfFifths({
 
   const handleClick = useCallback(
     (semitone: number) => () => {
-      setRootNote(semitone);
+      if (onNoteClick) {
+        onNoteClick(semitone);
+      } else {
+        setRootNote(semitone);
+      }
     },
-    [setRootNote],
+    [onNoteClick, setRootNote],
   );
 
   const handleClear = useCallback(() => {
@@ -258,75 +268,77 @@ export function CircleOfFifths({
       </svg>
 
       {/* Mode selector */}
-      <div className="relative" ref={dropdownRef}>
-        <button
-          onClick={() => setDropdownOpen((v) => !v)}
-          className="flex cursor-pointer items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors hover:bg-white/10"
-          style={{
-            color: 'var(--color-text-dim)',
-            border: 'none',
-            background: 'none',
-          }}
-        >
-          {MODE_DISPLAY[mode] ?? mode}
-          <ChevronDown
-            size={10}
-            strokeWidth={2}
+      {showModeSelector && (
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setDropdownOpen((v) => !v)}
+            className="flex cursor-pointer items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors hover:bg-white/10"
             style={{
-              transform: dropdownOpen ? 'rotate(180deg)' : undefined,
-              transition: 'transform 0.15s',
-            }}
-          />
-        </button>
-
-        {dropdownOpen && (
-          <div
-            className="absolute left-1/2 z-50 mt-1 overflow-y-auto rounded-md border"
-            style={{
-              transform: 'translateX(-50%)',
-              maxHeight: 260,
-              width: 180,
-              backgroundColor: 'var(--color-surface-2, #1e1e2e)',
-              borderColor: 'var(--color-border, rgba(255,255,255,0.08))',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+              color: 'var(--color-text-dim)',
+              border: 'none',
+              background: 'none',
             }}
           >
-            {MODE_GROUPS.map((group) => (
-              <div key={group.label}>
-                {/* Group label */}
-                <div
-                  className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
-                  style={{
-                    color: 'var(--color-text-dim, #6b6b80)',
-                    backgroundColor: 'var(--color-surface-2, #1e1e2e)',
-                  }}
-                >
-                  {group.label}
-                </div>
-                {group.modes.map((modeKey) => (
-                  <button
-                    key={modeKey}
-                    onClick={() => handleModeSelect(modeKey)}
-                    className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
+            {MODE_DISPLAY[mode] ?? mode}
+            <ChevronDown
+              size={10}
+              strokeWidth={2}
+              style={{
+                transform: dropdownOpen ? 'rotate(180deg)' : undefined,
+                transition: 'transform 0.15s',
+              }}
+            />
+          </button>
+
+          {dropdownOpen && (
+            <div
+              className="absolute left-1/2 z-50 mt-1 overflow-y-auto rounded-md border"
+              style={{
+                transform: 'translateX(-50%)',
+                maxHeight: 260,
+                width: 180,
+                backgroundColor: 'var(--color-surface-2, #1e1e2e)',
+                borderColor: 'var(--color-border, rgba(255,255,255,0.08))',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+              }}
+            >
+              {MODE_GROUPS.map((group) => (
+                <div key={group.label}>
+                  {/* Group label */}
+                  <div
+                    className="sticky top-0 px-2 pb-0.5 pt-1.5 text-[8px] font-bold uppercase tracking-wider"
                     style={{
-                      color:
-                        modeKey === mode
-                          ? '#fff'
-                          : 'var(--color-text-secondary, #a0a0b0)',
-                      background:
-                        modeKey === mode ? 'rgba(255,255,255,0.08)' : 'none',
-                      border: 'none',
-                      fontWeight: modeKey === mode ? 600 : 400,
+                      color: 'var(--color-text-dim, #6b6b80)',
+                      backgroundColor: 'var(--color-surface-2, #1e1e2e)',
                     }}
                   >
-                    {MODE_DISPLAY[modeKey] ?? modeKey}
-                  </button>
-                ))}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+                    {group.label}
+                  </div>
+                  {group.modes.map((modeKey) => (
+                    <button
+                      key={modeKey}
+                      onClick={() => handleModeSelect(modeKey)}
+                      className="block w-full cursor-pointer px-3 py-[3px] text-left text-[10px] transition-colors hover:bg-white/10"
+                      style={{
+                        color:
+                          modeKey === mode
+                            ? '#fff'
+                            : 'var(--color-text-secondary, #a0a0b0)',
+                        background:
+                          modeKey === mode ? 'rgba(255,255,255,0.08)' : 'none',
+                        border: 'none',
+                        fontWeight: modeKey === mode ? 600 : 400,
+                      }}
+                    >
+                      {MODE_DISPLAY[modeKey] ?? modeKey}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {selectedIndex !== null && (
         <button

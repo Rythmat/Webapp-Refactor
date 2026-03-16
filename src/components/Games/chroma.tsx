@@ -37,13 +37,7 @@ const POST_FLASH_MS = 500;
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
-type Phase =
-  | 'select'
-  | 'playing'
-  | 'input'
-  | 'wrong'
-  | 'success'
-  | 'game-over';
+type Phase = 'select' | 'playing' | 'input' | 'wrong' | 'success' | 'game-over';
 
 interface DiffConfig {
   label: string;
@@ -92,12 +86,12 @@ function Crystal({ lit }: { lit: boolean }) {
     cy = 53;
   // r=50 → half-width = r*sin60 ≈ 43, half-height = r=50
   const pts = [
-    [cx, cy - 50],       // top apex
-    [cx + 43, cy - 25],  // top-right
-    [cx + 43, cy + 25],  // bottom-right
-    [cx, cy + 50],       // bottom apex
-    [cx - 43, cy + 25],  // bottom-left
-    [cx - 43, cy - 25],  // top-left
+    [cx, cy - 50], // top apex
+    [cx + 43, cy - 25], // top-right
+    [cx + 43, cy + 25], // bottom-right
+    [cx, cy + 50], // bottom apex
+    [cx - 43, cy + 25], // bottom-left
+    [cx - 43, cy - 25], // top-left
   ]
     .map(([x, y]) => `${x},${y}`)
     .join(' ');
@@ -372,7 +366,11 @@ export default function Chroma() {
 
   const handleCircleClick = useCallback(
     (semitone: number) => {
-      triggerPianoAttackRelease(CHROMATIC_NOTES[semitone] + '4', NOTE_DURATION_S, 0.75);
+      triggerPianoAttackRelease(
+        CHROMATIC_NOTES[semitone] + '4',
+        NOTE_DURATION_S,
+        0.75,
+      );
       handleNoteInput(semitone);
     },
     [handleNoteInput],

@@ -167,7 +167,11 @@ export const ArcadeInlet: FC = () => {
           <ArcadeGameCard
             key={i}
             {...game}
-            onClick={game.title === 'Chroma' ? () => navigate(GameRoutes.chroma()) : undefined}
+            onClick={
+              game.title === 'Chroma'
+                ? () => navigate(GameRoutes.chroma())
+                : undefined
+            }
           />
         ))}
         <div

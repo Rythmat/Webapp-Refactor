@@ -1,15 +1,37 @@
-import { type CSSProperties, useState, useEffect, useRef, useCallback } from 'react';
-import { startPianoSampler, triggerPianoAttackRelease } from '@/audio/pianoSampler';
+import {
+  type CSSProperties,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from 'react';
+import {
+  startPianoSampler,
+  triggerPianoAttackRelease,
+} from '@/audio/pianoSampler';
 import { CircleOfFifths } from '@/daw/components/Prism/CircleOfFifths';
 import { useStore } from '@/daw/store';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const CHROMATIC_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const CHROMATIC_NOTES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
 const NOTE_DURATION_S = 0.6;
-const NOTE_GAP_MS     = 1100;
-const FLASH_MS        = 700;
-const POST_FLASH_MS   = 500;
+const NOTE_GAP_MS = 1100;
+const FLASH_MS = 700;
+const POST_FLASH_MS = 500;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -25,18 +47,23 @@ type Phase =
   | 'game-over';
 
 interface DiffConfig {
-  label:      string;
-  attempts:   number;
-  color:      string;
+  label: string;
+  attempts: number;
+  color: string;
   extraNotes: () => number;
 }
 
 // ── Difficulty config ─────────────────────────────────────────────────────────
 
 const DIFF: Record<Difficulty, DiffConfig> = {
-  easy:   { label: 'Easy',   attempts: 2, color: '#22c55e', extraNotes: () => 1 },
-  medium: { label: 'Medium', attempts: 2, color: '#f59e0b', extraNotes: () => 2 + Math.floor(Math.random() * 2) },
-  hard:   { label: 'Hard',   attempts: 3, color: '#ef4444', extraNotes: () => 5 },
+  easy: { label: 'Easy', attempts: 2, color: '#22c55e', extraNotes: () => 1 },
+  medium: {
+    label: 'Medium',
+    attempts: 2,
+    color: '#f59e0b',
+    extraNotes: () => 2 + Math.floor(Math.random() * 2),
+  },
+  hard: { label: 'Hard', attempts: 3, color: '#ef4444', extraNotes: () => 5 },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -46,7 +73,7 @@ function wait(ms: number) {
 }
 
 function generateSequence(difficulty: Difficulty): number[] {
-  const root  = Math.floor(Math.random() * 12);
+  const root = Math.floor(Math.random() * 12);
   const extra = DIFF[difficulty].extraNotes();
   const notes = [root];
   for (let i = 0; i < extra; i++) {
@@ -59,21 +86,27 @@ function generateSequence(difficulty: Difficulty): number[] {
 // ── Crystal SVG ───────────────────────────────────────────────────────────────
 
 function Crystal({ lit }: { lit: boolean }) {
-  const W = 80, H = 140;
+  const W = 80,
+    H = 140;
   const cx = W / 2;
 
   // Six-point elongated crystal (diamond-hexagonal)
   const pts = [
-    [cx,      0],
+    [cx, 0],
     [cx + 36, 42],
     [cx + 36, 98],
-    [cx,      H],
+    [cx, H],
     [cx - 36, 98],
     [cx - 36, 42],
-  ].map(([x, y]) => `${x},${y}`).join(' ');
+  ]
+    .map(([x, y]) => `${x},${y}`)
+    .join(' ');
 
   const glowStyle: CSSProperties = lit
-    ? { filter: 'drop-shadow(0 0 16px rgba(167,139,250,0.9)) drop-shadow(0 0 32px rgba(56,189,248,0.4))' }
+    ? {
+        filter:
+          'drop-shadow(0 0 16px rgba(167,139,250,0.9)) drop-shadow(0 0 32px rgba(56,189,248,0.4))',
+      }
     : {};
 
   return (
@@ -81,16 +114,20 @@ function Crystal({ lit }: { lit: boolean }) {
       width={W}
       height={H}
       viewBox={`0 0 ${W} ${H}`}
-      style={{ overflow: 'visible', transition: 'filter 0.5s ease', ...glowStyle }}
+      style={{
+        overflow: 'visible',
+        transition: 'filter 0.5s ease',
+        ...glowStyle,
+      }}
     >
       <defs>
         <linearGradient id="cr-lit" x1="15%" y1="0%" x2="85%" y2="100%">
-          <stop offset="0%"   stopColor="#e9d5ff" />
-          <stop offset="45%"  stopColor="#38bdf8" />
+          <stop offset="0%" stopColor="#e9d5ff" />
+          <stop offset="45%" stopColor="#38bdf8" />
           <stop offset="100%" stopColor="#7c3aed" />
         </linearGradient>
         <linearGradient id="cr-dark" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stopColor="#2a2a3e" />
+          <stop offset="0%" stopColor="#2a2a3e" />
           <stop offset="100%" stopColor="#16162a" />
         </linearGradient>
       </defs>
@@ -98,7 +135,10 @@ function Crystal({ lit }: { lit: boolean }) {
       {/* Ambient glow behind when lit */}
       {lit && (
         <ellipse
-          cx={cx} cy={H / 2} rx={52} ry={68}
+          cx={cx}
+          cy={H / 2}
+          rx={52}
+          ry={68}
           fill="rgba(139,92,246,0.18)"
           style={{ filter: 'blur(14px)' }}
         />
@@ -113,19 +153,34 @@ function Crystal({ lit }: { lit: boolean }) {
       />
 
       {/* Vertical spine */}
-      <line x1={cx} y1={0} x2={cx} y2={H}
+      <line
+        x1={cx}
+        y1={0}
+        x2={cx}
+        y2={H}
         stroke={lit ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.04)'}
-        strokeWidth={1} />
+        strokeWidth={1}
+      />
 
       {/* Upper girdle */}
-      <line x1={cx - 36} y1={42} x2={cx + 36} y2={42}
+      <line
+        x1={cx - 36}
+        y1={42}
+        x2={cx + 36}
+        y2={42}
         stroke={lit ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)'}
-        strokeWidth={0.8} />
+        strokeWidth={0.8}
+      />
 
       {/* Lower girdle */}
-      <line x1={cx - 36} y1={98} x2={cx + 36} y2={98}
+      <line
+        x1={cx - 36}
+        y1={98}
+        x2={cx + 36}
+        y2={98}
         stroke={lit ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)'}
-        strokeWidth={0.8} />
+        strokeWidth={0.8}
+      />
 
       {/* Upper highlight shard */}
       {lit && (
@@ -146,33 +201,34 @@ function NoteSlot({
   filled = false,
   reveal = false,
 }: {
-  label?:   string;
-  active?:  boolean;
-  filled?:  boolean;
-  reveal?:  boolean;
+  label?: string;
+  active?: boolean;
+  filled?: boolean;
+  reveal?: boolean;
 }) {
   let borderColor = 'rgba(255,255,255,0.1)';
-  let bg          = 'rgba(255,255,255,0.03)';
-  let color       = 'rgba(255,255,255,0.2)';
+  let bg = 'rgba(255,255,255,0.03)';
+  let color = 'rgba(255,255,255,0.2)';
 
   if (active) {
     borderColor = '#a78bfa';
-    bg          = 'rgba(167,139,250,0.18)';
-    color       = '#ddd6fe';
+    bg = 'rgba(167,139,250,0.18)';
+    color = '#ddd6fe';
   } else if (reveal) {
     borderColor = '#c4b5fd';
-    bg          = 'rgba(196,181,253,0.12)';
-    color       = '#ddd6fe';
+    bg = 'rgba(196,181,253,0.12)';
+    color = '#ddd6fe';
   } else if (filled) {
     borderColor = '#38bdf8';
-    bg          = 'rgba(56,189,248,0.12)';
-    color       = '#bae6fd';
+    bg = 'rgba(56,189,248,0.12)';
+    color = '#bae6fd';
   }
 
   return (
     <div
       style={{
-        width: 38, height: 38,
+        width: 38,
+        height: 38,
         borderRadius: 7,
         border: `2px solid ${borderColor}`,
         backgroundColor: bg,
@@ -193,16 +249,24 @@ function NoteSlot({
 
 // ── Attempt Pips ──────────────────────────────────────────────────────────────
 
-function AttemptPips({ total, remaining }: { total: number; remaining: number }) {
+function AttemptPips({
+  total,
+  remaining,
+}: {
+  total: number;
+  remaining: number;
+}) {
   return (
     <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
       {Array.from({ length: total }).map((_, i) => (
         <div
           key={i}
           style={{
-            width: 9, height: 9,
+            width: 9,
+            height: 9,
             borderRadius: '50%',
-            backgroundColor: i < remaining ? '#a78bfa' : 'rgba(255,255,255,0.1)',
+            backgroundColor:
+              i < remaining ? '#a78bfa' : 'rgba(255,255,255,0.1)',
             transition: 'background-color 0.3s',
           }}
         />
@@ -214,27 +278,29 @@ function AttemptPips({ total, remaining }: { total: number; remaining: number })
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function Chroma() {
-  const rootNote    = useStore((s) => s.rootNote);
+  const rootNote = useStore((s) => s.rootNote);
   const setRootNote = useStore((s) => s.setRootNote);
 
-  const [difficulty,   setDifficulty]   = useState<Difficulty>('easy');
-  const [phase,        setPhase]        = useState<Phase>('select');
-  const [sequence,     setSequence]     = useState<number[]>([]);
-  const [userInput,    setUserInput]    = useState<number[]>([]);
+  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
+  const [phase, setPhase] = useState<Phase>('select');
+  const [sequence, setSequence] = useState<number[]>([]);
+  const [userInput, setUserInput] = useState<number[]>([]);
   const [attemptsLeft, setAttemptsLeft] = useState(2);
-  const [crystalLit,   setCrystalLit]  = useState(false);
-  const [flashRed,     setFlashRed]    = useState(false);
-  const [playingIdx,   setPlayingIdx]  = useState<number | null>(null);
+  const [crystalLit, setCrystalLit] = useState(false);
+  const [flashRed, setFlashRed] = useState(false);
+  const [playingIdx, setPlayingIdx] = useState<number | null>(null);
 
   // Stable refs for use inside async callbacks
-  const phaseRef       = useRef<Phase>('select');
-  const sequenceRef    = useRef<number[]>([]);
-  const userInputRef   = useRef<number[]>([]);
-  const attemptsRef    = useRef(2);
-  const difficultyRef  = useRef<Difficulty>('easy');
+  const phaseRef = useRef<Phase>('select');
+  const sequenceRef = useRef<number[]>([]);
+  const userInputRef = useRef<number[]>([]);
+  const attemptsRef = useRef(2);
+  const difficultyRef = useRef<Difficulty>('easy');
 
   // Sync difficulty ref
-  useEffect(() => { difficultyRef.current = difficulty; }, [difficulty]);
+  useEffect(() => {
+    difficultyRef.current = difficulty;
+  }, [difficulty]);
 
   // Sync phase to both state and ref
   const sp = useCallback((p: Phase) => {
@@ -244,57 +310,63 @@ export default function Chroma() {
 
   // ── Sequence playback ───────────────────────────────────────────────────
 
-  const playSeq = useCallback(async (seq: number[]) => {
-    await startPianoSampler();
-    for (let i = 0; i < seq.length; i++) {
-      setPlayingIdx(i);
-      setRootNote(seq[i]); // highlight current note in circle
-      await triggerPianoAttackRelease(
-        CHROMATIC_NOTES[seq[i]] + '4',
-        NOTE_DURATION_S,
-        0.85,
-      );
-      await wait(NOTE_GAP_MS);
-    }
-    setPlayingIdx(null);
-    setRootNote(null);
-  }, [setRootNote]);
+  const playSeq = useCallback(
+    async (seq: number[]) => {
+      await startPianoSampler();
+      for (let i = 0; i < seq.length; i++) {
+        setPlayingIdx(i);
+        setRootNote(seq[i]); // highlight current note in circle
+        await triggerPianoAttackRelease(
+          CHROMATIC_NOTES[seq[i]] + '4',
+          NOTE_DURATION_S,
+          0.85,
+        );
+        await wait(NOTE_GAP_MS);
+      }
+      setPlayingIdx(null);
+      setRootNote(null);
+    },
+    [setRootNote],
+  );
 
   // ── Evaluation ──────────────────────────────────────────────────────────
 
-  const evaluate = useCallback(async (input: number[]) => {
-    const correct = input.every((n, i) => n === sequenceRef.current[i]);
+  const evaluate = useCallback(
+    async (input: number[]) => {
+      const correct = input.every((n, i) => n === sequenceRef.current[i]);
 
-    if (correct) {
-      setCrystalLit(true);
-      sp('success');
-      return;
-    }
+      if (correct) {
+        setCrystalLit(true);
+        sp('success');
+        return;
+      }
 
-    // Wrong — decrement attempts
-    const remaining = attemptsRef.current - 1;
-    attemptsRef.current = remaining;
-    setAttemptsLeft(remaining);
+      // Wrong — decrement attempts
+      const remaining = attemptsRef.current - 1;
+      attemptsRef.current = remaining;
+      setAttemptsLeft(remaining);
 
-    // Flash red + show "wrong" message
-    setFlashRed(true);
-    sp('wrong');
-    await wait(FLASH_MS);
-    setFlashRed(false);
+      // Flash red + show "wrong" message
+      setFlashRed(true);
+      sp('wrong');
+      await wait(FLASH_MS);
+      setFlashRed(false);
 
-    if (remaining <= 0) {
-      sp('game-over');
-      return;
-    }
+      if (remaining <= 0) {
+        sp('game-over');
+        return;
+      }
 
-    // Replay sequence
-    await wait(POST_FLASH_MS);
-    userInputRef.current = [];
-    setUserInput([]);
-    sp('playing');
-    await playSeq(sequenceRef.current);
-    sp('input');
-  }, [sp, playSeq]);
+      // Replay sequence
+      await wait(POST_FLASH_MS);
+      userInputRef.current = [];
+      setUserInput([]);
+      sp('playing');
+      await playSeq(sequenceRef.current);
+      sp('input');
+    },
+    [sp, playSeq],
+  );
 
   // ── Capture circle-of-fifths clicks as game input ───────────────────────
 
@@ -323,12 +395,12 @@ export default function Chroma() {
 
   const handleStart = useCallback(async () => {
     const diff = difficultyRef.current;
-    const seq  = generateSequence(diff);
-    const cfg  = DIFF[diff];
+    const seq = generateSequence(diff);
+    const cfg = DIFF[diff];
 
-    sequenceRef.current  = seq;
+    sequenceRef.current = seq;
     userInputRef.current = [];
-    attemptsRef.current  = cfg.attempts;
+    attemptsRef.current = cfg.attempts;
 
     setSequence(seq);
     setUserInput([]);
@@ -354,18 +426,23 @@ export default function Chroma() {
 
   // ── Derived display ─────────────────────────────────────────────────────
 
-  const isInputActive  = phase === 'input';
-  const showSlots      = phase === 'playing' || phase === 'input' || phase === 'evaluating' || phase === 'wrong';
-  const showPips       = phase !== 'select' && phase !== 'success' && phase !== 'game-over';
-  const diffCfg        = DIFF[difficulty];
+  const isInputActive = phase === 'input';
+  const showSlots =
+    phase === 'playing' ||
+    phase === 'input' ||
+    phase === 'evaluating' ||
+    phase === 'wrong';
+  const showPips =
+    phase !== 'select' && phase !== 'success' && phase !== 'game-over';
+  const diffCfg = DIFF[difficulty];
 
   const statusLabel: Record<Phase, string> = {
-    select:      '',
-    playing:     'Listen carefully…',
-    input:       'Replay the sequence',
-    evaluating:  'Checking…',
-    wrong:       'Not quite — listen again…',
-    success:     'Crystal attuned!',
+    select: '',
+    playing: 'Listen carefully…',
+    input: 'Replay the sequence',
+    evaluating: 'Checking…',
+    wrong: 'Not quite — listen again…',
+    success: 'Crystal attuned!',
     'game-over': '',
   };
 
@@ -387,12 +464,15 @@ export default function Chroma() {
       {/* ── Red flash overlay ── */}
       <div
         style={{
-          position: 'fixed', inset: 0,
+          position: 'fixed',
+          inset: 0,
           backgroundColor: 'rgba(220,38,38,0.22)',
           pointerEvents: 'none',
           zIndex: 200,
           opacity: flashRed ? 1 : 0,
-          transition: flashRed ? 'opacity 0.08s ease-in' : 'opacity 0.55s ease-out',
+          transition: flashRed
+            ? 'opacity 0.08s ease-in'
+            : 'opacity 0.55s ease-out',
         }}
       />
 
@@ -424,12 +504,24 @@ export default function Chroma() {
       </div>
 
       {/* ── Crystal ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
         <Crystal lit={crystalLit} />
         <div
           style={{
             fontSize: 11,
-            color: phase === 'success' ? '#a78bfa' : phase === 'wrong' ? '#f87171' : 'var(--color-text-dim, #6b7280)',
+            color:
+              phase === 'success'
+                ? '#a78bfa'
+                : phase === 'wrong'
+                  ? '#f87171'
+                  : 'var(--color-text-dim, #6b7280)',
             fontWeight: 500,
             minHeight: 16,
             textAlign: 'center',
@@ -442,11 +534,18 @@ export default function Chroma() {
 
       {/* ── Note slots ── */}
       {showSlots && sequence.length > 0 && (
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 6,
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+          }}
+        >
           {sequence.map((note, i) => {
             // Playing phase: reveal notes as they're played
             if (phase === 'playing') {
-              const isPlayed  = playingIdx !== null && i <= playingIdx;
+              const isPlayed = playingIdx !== null && i <= playingIdx;
               const isCurrent = i === playingIdx;
               return (
                 <NoteSlot
@@ -461,7 +560,7 @@ export default function Chroma() {
             // Input / evaluating / wrong: show user's answers
             const entered = userInput[i];
             const isFilled = entered !== undefined;
-            const isNext   = i === userInput.length && phase === 'input';
+            const isNext = i === userInput.length && phase === 'input';
             return (
               <NoteSlot
                 key={i}
@@ -481,11 +580,18 @@ export default function Chroma() {
 
       {/* ── Difficulty select + Start button ── */}
       {phase === 'select' && (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 14,
+          }}
+        >
           {/* Difficulty buttons */}
           <div style={{ display: 'flex', gap: 8 }}>
             {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => {
-              const cfg     = DIFF[d];
+              const cfg = DIFF[d];
               const selected = difficulty === d;
               return (
                 <button
@@ -495,7 +601,9 @@ export default function Chroma() {
                     padding: '6px 16px',
                     borderRadius: 8,
                     border: `1.5px solid ${selected ? cfg.color : 'rgba(255,255,255,0.1)'}`,
-                    backgroundColor: selected ? `${cfg.color}1a` : 'transparent',
+                    backgroundColor: selected
+                      ? `${cfg.color}1a`
+                      : 'transparent',
                     color: selected ? cfg.color : 'rgba(255,255,255,0.45)',
                     fontSize: 11,
                     fontWeight: 600,
@@ -527,10 +635,12 @@ export default function Chroma() {
               transition: 'all 0.18s ease',
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(167,139,250,0.25)';
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                'rgba(167,139,250,0.25)';
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(167,139,250,0.14)';
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                'rgba(167,139,250,0.14)';
             }}
           >
             Start
@@ -540,7 +650,14 @@ export default function Chroma() {
 
       {/* ── Success screen ── */}
       {phase === 'success' && (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 12,
+          }}
+        >
           <button
             onClick={handleReset}
             style={{
@@ -572,15 +689,30 @@ export default function Chroma() {
             textAlign: 'center',
           }}
         >
-          <p style={{ fontSize: 12, color: '#f87171', fontWeight: 600, margin: 0 }}>
+          <p
+            style={{
+              fontSize: 12,
+              color: '#f87171',
+              fontWeight: 600,
+              margin: 0,
+            }}
+          >
             The sequence was:
           </p>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 6,
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+            }}
+          >
             {sequence.map((note, i) => (
               <div
                 key={i}
                 style={{
-                  width: 38, height: 38,
+                  width: 38,
+                  height: 38,
                   borderRadius: 7,
                   border: '2px solid #f87171',
                   backgroundColor: 'rgba(248,113,113,0.1)',

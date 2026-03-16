@@ -1,6 +1,8 @@
 /* eslint-disable react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand */
 import { Play, Trophy, Users } from 'lucide-react';
 import type { FC } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { GameRoutes } from '@/constants/routes';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
@@ -15,9 +17,9 @@ interface ArcadeGame {
 
 const ARCADE_GAMES_DATA: ArcadeGame[] = [
   {
-    title: 'Rhythm Racer',
+    title: 'Chroma',
     players: '1.2k',
-    category: 'Rhythm',
+    category: 'Ear Training',
     featured: true,
   },
   {
@@ -52,6 +54,7 @@ interface ArcadeGameCardProps {
   players: string;
   category: string;
   featured?: boolean;
+  onClick?: () => void;
 }
 
 const ArcadeGameCard: FC<ArcadeGameCardProps> = ({
@@ -59,8 +62,10 @@ const ArcadeGameCard: FC<ArcadeGameCardProps> = ({
   players,
   category,
   featured,
+  onClick,
 }) => (
   <div
+    onClick={onClick}
     className={`group relative rounded-3xl overflow-hidden cursor-pointer transition-colors duration-300 glass-panel ${
       featured ? 'md:col-span-2 md:row-span-2' : ''
     }`}
@@ -149,6 +154,8 @@ const ArcadeGameCard: FC<ArcadeGameCardProps> = ({
 );
 
 export const ArcadeInlet: FC = () => {
+  const navigate = useNavigate();
+
   return (
     <div
       className="learn-root flex flex-col h-full overflow-y-auto px-8 pb-12"
@@ -157,7 +164,15 @@ export const ArcadeInlet: FC = () => {
       <HeaderBar title="Arcade" />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[200px]">
         {ARCADE_GAMES_DATA.map((game, i) => (
-          <ArcadeGameCard key={i} {...game} />
+          <ArcadeGameCard
+            key={i}
+            {...game}
+            onClick={
+              game.title === 'Chroma'
+                ? () => navigate(GameRoutes.chroma())
+                : undefined
+            }
+          />
         ))}
         <div
           className="rounded-3xl p-6 flex flex-col justify-between group transition-colors duration-150 glass-panel"

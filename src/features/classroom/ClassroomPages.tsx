@@ -61,6 +61,12 @@ const ClassroomHomePage = lazy(() =>
 //   })),
 // );
 
+const Chroma = lazy(() =>
+  import('@/components/Games/chroma').then((m) => ({
+    default: m.default,
+  })),
+);
+
 const DawApp = lazy(() =>
   import('@/daw/DawApp').then(({ DawApp }) => ({
     default: DawApp,
@@ -136,6 +142,10 @@ export const gamesPages = () => {
       {
         element: <ArcadeInlet />,
         index: true,
+      },
+      {
+        path: GameRoutes.chroma.definition,
+        element: <Chroma />,
       },
     ],
   };

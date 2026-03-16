@@ -237,6 +237,8 @@ export const GameRoutes = {
   root: createRouteDefinition(gamesPrefix),
 
   picker: createRouteDefinition('/', { prefix: gamesPrefix }),
+
+  chroma: createRouteDefinition('/chroma', { prefix: gamesPrefix }),
 };
 
 const homePrefix = '/home';

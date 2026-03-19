@@ -25,7 +25,7 @@ export interface SubscriptionStatus {
   lastInvoiceStatus: string | null;
 
   // ── Payment method summary (optional — safe fields only, no raw card data)
-  // TODO: add these fields to the backend GET /api/me/subscription response
+  // Add these fields to the backend GET /api/me/subscription response
   // once the Stripe payment-method retrieval is implemented server-side.
   paymentMethodBrand?: string | null;
   paymentMethodLast4?: string | null;

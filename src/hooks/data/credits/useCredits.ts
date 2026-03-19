@@ -95,12 +95,16 @@ export const useConsumeCredit = () => {
 export const useStripeCheckout = () => {
   const { token } = useAuthContext();
 
-  return useMutation<void, Error, { tier: 'artist' | 'studio' }>({
-    mutationFn: async ({ tier }) => {
-      const data = await fetchWithAuth('/api/stripe/checkout', token!, {
-        method: 'POST',
-        body: JSON.stringify({ tier }),
-      });
+  // Calls POST /api/billing/create-checkout-session on the Elysia API.
+  // The price ID is resolved server-side from STRIPE_SUBSCRIPTION_PRICE_ID.
+  return useMutation<void, Error, void>({
+    mutationFn: async () => {
+      const data = await fetchWithAuth(
+        billingPath('/create-checkout-session'),
+        token!,
+        { method: 'POST' },
+      );
+      if (!data.url) throw new Error('No checkout URL returned from server.');
       window.location.href = data.url;
     },
   });
@@ -109,11 +113,15 @@ export const useStripeCheckout = () => {
 export const useStripePortal = () => {
   const { token } = useAuthContext();
 
+  // Calls POST /api/billing/create-portal-session on the Elysia API.
   return useMutation<void, Error, void>({
     mutationFn: async () => {
-      const data = await fetchWithAuth('/api/stripe/portal', token!, {
-        method: 'POST',
-      });
+      const data = await fetchWithAuth(
+        billingPath('/create-portal-session'),
+        token!,
+        { method: 'POST' },
+      );
+      if (!data.url) throw new Error('No portal URL returned from server.');
       window.location.href = data.url;
     },
   });

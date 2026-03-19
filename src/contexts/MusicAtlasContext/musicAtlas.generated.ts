@@ -85,6 +85,8 @@ export type GetApiBillingCreditsBalanceData = any;
 
 export type GetApiBillingSubscriptionData = any;
 
+export type GetApiMeSubscriptionData = any;
+
 export type GetApiProgressLessonData = any;
 
 export interface GetApiProgressLessonParams {
@@ -781,6 +783,10 @@ export interface PatchTeachersByIdRestoreData {
   restored: boolean;
 }
 
+export type PostApiBillingCreateCheckoutSessionData = any;
+
+export type PostApiBillingCreatePortalSessionData = any;
+
 export type PostApiBillingCreditsConsumeData = any;
 
 export type PostApiBillingInternalStripeEventData = any;
@@ -797,6 +803,10 @@ export interface PostApiBillingInternalStripeEventPayload {
   tier?: 'free' | 'artist' | 'studio';
   userId?: string;
 }
+
+export type PostApiStripeWebhookData = any;
+
+export type PostApiStripeWebhookPayload = string;
 
 export type PostApiStudioAnalyzeVideoData = any;
 
@@ -1489,6 +1499,77 @@ export namespace Billing {
     export type RequestBody = PostApiBillingInternalStripeEventPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostApiBillingInternalStripeEventData;
+  }
+}
+
+export namespace Stripe {
+  /**
+   * @description Creates a Stripe Checkout session in subscription mode for the authenticated user. Finds or creates the Stripe customer automatically.
+   * @tags Stripe
+   * @name PostApiBillingCreateCheckoutSession
+   * @summary Create Stripe Checkout subscription session
+   * @request POST:/api/billing/create-checkout-session
+   * @secure
+   * @response `200` `PostApiBillingCreateCheckoutSessionData`
+   */
+  export namespace PostApiBillingCreateCheckoutSession {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiBillingCreateCheckoutSessionData;
+  }
+
+  /**
+   * @description Creates a Stripe Billing Portal session so the authenticated user can manage their subscription, payment methods, and invoices.
+   * @tags Stripe
+   * @name PostApiBillingCreatePortalSession
+   * @summary Create Stripe Billing Portal session
+   * @request POST:/api/billing/create-portal-session
+   * @secure
+   * @response `200` `PostApiBillingCreatePortalSessionData`
+   */
+  export namespace PostApiBillingCreatePortalSession {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiBillingCreatePortalSessionData;
+  }
+
+  /**
+   * @description Stripe webhook endpoint. Raw body is required for signature verification. Do not add JSON middleware to this route.
+   * @tags Stripe
+   * @name PostApiStripeWebhook
+   * @summary Stripe webhook
+   * @request POST:/api/stripe/webhook
+   * @response `200` `PostApiStripeWebhookData`
+   */
+  export namespace PostApiStripeWebhook {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStripeWebhookPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStripeWebhookData;
+  }
+}
+
+export namespace Me {
+  /**
+   * @description Returns billing and subscription state for the authenticated user. hasPaidAccess is true for active/trialing subscriptions.
+   * @tags Me
+   * @name GetApiMeSubscription
+   * @summary Get current user subscription status
+   * @request GET:/api/me/subscription
+   * @secure
+   * @response `200` `GetApiMeSubscriptionData`
+   */
+  export namespace GetApiMeSubscription {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiMeSubscriptionData;
   }
 }
 
@@ -2845,7 +2926,16 @@ export namespace Music {
         | 'doubleharmonicminor'
         | 'oriental'
         | 'ionian#2#5'
-        | 'locrian𝄫3𝄫7';
+        | 'locrian𝄫3𝄫7'
+        | 'majorblues'
+        | 'minorblues'
+        | 'bebopdominant'
+        | 'halfwholediminished'
+        | 'wholehalfdiminished'
+        | 'messiaen'
+        | 'wholetone'
+        | 'majorpentatonic'
+        | 'minorpentatonic';
     };
     export type RequestQuery = {};
     export type RequestBody = never;
@@ -3534,6 +3624,80 @@ export class Api<SecurityDataType extends unknown> {
         method: 'POST',
         body: data,
         type: ContentType.Json,
+        ...params,
+      }),
+  };
+  stripe = {
+    /**
+     * @description Creates a Stripe Checkout session in subscription mode for the authenticated user. Finds or creates the Stripe customer automatically.
+     *
+     * @tags Stripe
+     * @name PostApiBillingCreateCheckoutSession
+     * @summary Create Stripe Checkout subscription session
+     * @request POST:/api/billing/create-checkout-session
+     * @secure
+     * @response `200` `PostApiBillingCreateCheckoutSessionData`
+     */
+    postApiBillingCreateCheckoutSession: (params: RequestParams = {}) =>
+      this.http.request<PostApiBillingCreateCheckoutSessionData, any>({
+        path: `/api/billing/create-checkout-session`,
+        method: 'POST',
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Creates a Stripe Billing Portal session so the authenticated user can manage their subscription, payment methods, and invoices.
+     *
+     * @tags Stripe
+     * @name PostApiBillingCreatePortalSession
+     * @summary Create Stripe Billing Portal session
+     * @request POST:/api/billing/create-portal-session
+     * @secure
+     * @response `200` `PostApiBillingCreatePortalSessionData`
+     */
+    postApiBillingCreatePortalSession: (params: RequestParams = {}) =>
+      this.http.request<PostApiBillingCreatePortalSessionData, any>({
+        path: `/api/billing/create-portal-session`,
+        method: 'POST',
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Stripe webhook endpoint. Raw body is required for signature verification. Do not add JSON middleware to this route.
+     *
+     * @tags Stripe
+     * @name PostApiStripeWebhook
+     * @summary Stripe webhook
+     * @request POST:/api/stripe/webhook
+     * @response `200` `PostApiStripeWebhookData`
+     */
+    postApiStripeWebhook: (data: PostApiStripeWebhookPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiStripeWebhookData, any>({
+        path: `/api/stripe/webhook`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+  };
+  me = {
+    /**
+     * @description Returns billing and subscription state for the authenticated user. hasPaidAccess is true for active/trialing subscriptions.
+     *
+     * @tags Me
+     * @name GetApiMeSubscription
+     * @summary Get current user subscription status
+     * @request GET:/api/me/subscription
+     * @secure
+     * @response `200` `GetApiMeSubscriptionData`
+     */
+    getApiMeSubscription: (params: RequestParams = {}) =>
+      this.http.request<GetApiMeSubscriptionData, any>({
+        path: `/api/me/subscription`,
+        method: 'GET',
+        secure: true,
         ...params,
       }),
   };
@@ -4879,7 +5043,16 @@ export class Api<SecurityDataType extends unknown> {
         | 'doubleharmonicminor'
         | 'oriental'
         | 'ionian#2#5'
-        | 'locrian𝄫3𝄫7',
+        | 'locrian𝄫3𝄫7'
+        | 'majorblues'
+        | 'minorblues'
+        | 'bebopdominant'
+        | 'halfwholediminished'
+        | 'wholehalfdiminished'
+        | 'messiaen'
+        | 'wholetone'
+        | 'majorpentatonic'
+        | 'minorpentatonic',
       params: RequestParams = {},
     ) =>
       this.http.request<GetPrismModesByModeData, any>({

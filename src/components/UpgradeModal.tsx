@@ -96,11 +96,7 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                     <Button
                       disabled={checkout.isPending}
                       size="sm"
-                      onClick={() =>
-                        checkout.mutate({
-                          tier: tier.id as 'artist' | 'studio',
-                        })
-                      }
+                      onClick={() => checkout.mutate()}
                     >
                       Upgrade
                     </Button>

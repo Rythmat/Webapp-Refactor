@@ -23,7 +23,9 @@ export const usePrismModeChords = (mode?: PrismModeSlug) => {
       }
 
       return musicAtlas.music.getPrismModesByModeChords(
-        mode as Parameters<typeof musicAtlas.music.getPrismModesByModeChords>[0],
+        mode as Parameters<
+          typeof musicAtlas.music.getPrismModesByModeChords
+        >[0],
       ) as unknown as {
         chords: PrismModeChordMap;
       };

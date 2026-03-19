@@ -1,6 +1,8 @@
 /* eslint-disable react/jsx-sort-props */
 /* eslint-disable tailwindcss/classnames-order */
-import { Check, Sparkles } from 'lucide-react';
+import { AlertTriangle, Check, CheckCircle2, Sparkles } from 'lucide-react';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   useBillingConfig,
@@ -8,6 +10,18 @@ import {
   useStripeCheckout,
   useStripePortal,
 } from '@/hooks/data/credits';
+import {
+  useMySubscription,
+  useRefreshSubscription,
+} from '@/hooks/data/subscription';
+import {
+  getBillingUiState,
+  hasPaymentIssue,
+  isActivePaidState,
+  BILLING_STATE_LABEL,
+  BILLING_STATE_MESSAGE,
+  formatPeriodDate,
+} from './subscription/subscriptionUtils';
 
 const FALLBACK_TIERS = [
   {
@@ -46,19 +60,42 @@ const FALLBACK_TIERS = [
 
 export const PlanPage = () => {
   const { data: billingConfig } = useBillingConfig();
-  const { data: credits, isLoading } = useCreditsBalance();
+  const { data: credits, isLoading: creditsLoading } = useCreditsBalance();
+  const { data: subscription, isLoading: subLoading } = useMySubscription();
+  const refreshSubscription = useRefreshSubscription();
   const checkout = useStripeCheckout();
   const portal = useStripePortal();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // ── Handle return from Stripe Checkout / Billing Portal ──────────────────
+  // Stripe redirects back with ?checkout=success or ?checkout=cancelled.
+  // Force-refetch subscription state so the plan page reflects the new status.
+  useEffect(() => {
+    const checkoutParam = searchParams.get('checkout');
+    if (checkoutParam === 'success' || checkoutParam === 'cancelled') {
+      refreshSubscription();
+      const next = new URLSearchParams(searchParams);
+      next.delete('checkout');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams, refreshSubscription]);
 
   const tiers = billingConfig?.tiers ?? FALLBACK_TIERS;
   const tierAllowance = Object.fromEntries(
     tiers.map((tier) => [tier.id, tier.credits]),
   ) as Record<string, number>;
 
-  const currentTier = credits?.tier || 'free';
+  const currentTier = credits?.tier ?? 'free';
   const balance = credits?.balance ?? 0;
   const allowance = tierAllowance[currentTier] ?? 50;
   const usagePercent = Math.min(100, Math.round((balance / allowance) * 100));
+
+  const uiState = getBillingUiState(subscription);
+  const paymentIssue = hasPaymentIssue(uiState);
+  const isPaidUser = isActivePaidState(uiState);
+  const periodEndDate = formatPeriodDate(subscription?.currentPeriodEnd);
+
+  const isLoading = creditsLoading || subLoading;
 
   if (isLoading) {
     return (
@@ -86,7 +123,55 @@ export const PlanPage = () => {
         </p>
       </div>
 
-      {/* Credit usage */}
+      {/* ── Subscription status banner ────────────────────────────────────── */}
+      {uiState !== 'unknown' && (
+        <div
+          className="flex items-start gap-3 rounded-lg border p-4"
+          style={
+            paymentIssue
+              ? {
+                  borderColor: 'rgba(245,158,11,0.35)',
+                  background: 'rgba(245,158,11,0.06)',
+                }
+              : uiState === 'active' || uiState === 'trialing'
+                ? {
+                    borderColor: 'rgba(34,197,94,0.25)',
+                    background: 'rgba(34,197,94,0.06)',
+                  }
+                : {}
+          }
+        >
+          {paymentIssue ? (
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-400" />
+          ) : uiState === 'active' || uiState === 'trialing' ? (
+            <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-green-400" />
+          ) : null}
+          <div className="flex-1 space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">
+                {BILLING_STATE_LABEL[uiState]}
+              </span>
+              {subscription?.cancelAtPeriodEnd && periodEndDate && (
+                <span className="text-xs text-muted-foreground">
+                  · Ends {periodEndDate}
+                </span>
+              )}
+              {!subscription?.cancelAtPeriodEnd &&
+                periodEndDate &&
+                isPaidUser && (
+                  <span className="text-xs text-muted-foreground">
+                    · Renews {periodEndDate}
+                  </span>
+                )}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {BILLING_STATE_MESSAGE[uiState]}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Credit usage ─────────────────────────────────────────────────── */}
       <div className="rounded-lg border p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -116,7 +201,7 @@ export const PlanPage = () => {
         )}
       </div>
 
-      {/* Tier cards */}
+      {/* ── Tier cards ───────────────────────────────────────────────────── */}
       <div className="grid gap-4 sm:grid-cols-3">
         {tiers.map((tier) => {
           const isCurrent = currentTier === tier.id;
@@ -171,11 +256,11 @@ export const PlanPage = () => {
                   <Button
                     className="w-full"
                     disabled={checkout.isPending}
-                    onClick={() =>
-                      checkout.mutate({ tier: tier.id as 'artist' | 'studio' })
-                    }
+                    onClick={() => checkout.mutate()}
                   >
-                    Upgrade to {tier.name}
+                    {checkout.isPending
+                      ? 'Loading…'
+                      : `Upgrade to ${tier.name}`}
                   </Button>
                 ) : (
                   <Button className="w-full" disabled variant="outline">
@@ -188,8 +273,15 @@ export const PlanPage = () => {
         })}
       </div>
 
-      {/* Manage billing */}
-      {currentTier !== 'free' && (
+      {/* ── Checkout/portal errors ────────────────────────────────────────── */}
+      {(checkout.error ?? portal.error) && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          {checkout.error?.message ?? portal.error?.message}
+        </div>
+      )}
+
+      {/* ── Manage billing ───────────────────────────────────────────────── */}
+      {isPaidUser && (
         <div className="rounded-lg border p-6">
           <h3 className="font-medium">Billing</h3>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -202,7 +294,7 @@ export const PlanPage = () => {
             variant="outline"
             onClick={() => portal.mutate()}
           >
-            Manage billing
+            {portal.isPending ? 'Loading…' : 'Manage billing'}
           </Button>
         </div>
       )}

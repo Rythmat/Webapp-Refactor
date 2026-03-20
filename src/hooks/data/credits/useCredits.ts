@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import SuperJSON from 'superjson';
 import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 
@@ -30,11 +31,11 @@ function billingPath(path: string) {
   return `${apiBase}/api/billing${path}`;
 }
 
-async function fetchWithAuth(
+async function fetchWithAuth<T = unknown>(
   url: string,
   token: string,
   options?: RequestInit,
-) {
+): Promise<T> {
   const res = await fetch(url, {
     ...options,
     headers: {
@@ -49,7 +50,8 @@ async function fetchWithAuth(
     throw new Error(body.error || `Request failed: ${res.status}`);
   }
 
-  return res.json();
+  const text = await res.text();
+  return SuperJSON.parse(text) as T;
 }
 
 export const useCreditsBalance = () => {
@@ -57,7 +59,8 @@ export const useCreditsBalance = () => {
 
   return useQuery<CreditsBalance>({
     queryKey: ['credits', 'balance'],
-    queryFn: () => fetchWithAuth(billingPath('/credits/balance'), token!),
+    queryFn: () =>
+      fetchWithAuth<CreditsBalance>(billingPath('/credits/balance'), token!),
     enabled: !!token,
   });
 };
@@ -71,7 +74,8 @@ export const useBillingConfig = () => {
       if (!response.ok) {
         throw new Error(`Failed to load billing config: ${response.status}`);
       }
-      return (await response.json()) as BillingConfig;
+      const text = await response.text();
+      return SuperJSON.parse(text) as BillingConfig;
     },
   });
 };
@@ -82,7 +86,7 @@ export const useConsumeCredit = () => {
 
   return useMutation<ConsumeResult, Error, { action?: string }>({
     mutationFn: ({ action }) =>
-      fetchWithAuth(billingPath('/credits/consume'), token!, {
+      fetchWithAuth<ConsumeResult>(billingPath('/credits/consume'), token!, {
         method: 'POST',
         body: JSON.stringify({ action }),
       }),
@@ -99,7 +103,7 @@ export const useStripeCheckout = () => {
   // The price ID is resolved server-side from STRIPE_SUBSCRIPTION_PRICE_ID.
   return useMutation<void, Error, void>({
     mutationFn: async () => {
-      const data = await fetchWithAuth(
+      const data = await fetchWithAuth<{ url?: string }>(
         billingPath('/create-checkout-session'),
         token!,
         { method: 'POST' },
@@ -116,7 +120,7 @@ export const useStripePortal = () => {
   // Calls POST /api/billing/create-portal-session on the Elysia API.
   return useMutation<void, Error, void>({
     mutationFn: async () => {
-      const data = await fetchWithAuth(
+      const data = await fetchWithAuth<{ url?: string }>(
         billingPath('/create-portal-session'),
         token!,
         { method: 'POST' },

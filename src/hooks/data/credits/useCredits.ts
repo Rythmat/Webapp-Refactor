@@ -59,7 +59,8 @@ export const useCreditsBalance = () => {
 
   return useQuery<CreditsBalance>({
     queryKey: ['credits', 'balance'],
-    queryFn: () => fetchWithAuth<CreditsBalance>(billingPath('/credits/balance'), token!),
+    queryFn: () =>
+      fetchWithAuth<CreditsBalance>(billingPath('/credits/balance'), token!),
     enabled: !!token,
   });
 };

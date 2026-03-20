@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import SuperJSON from 'superjson';
 import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import type { SubscriptionStatus } from '@/features/settings/subscription/subscriptionUtils';
@@ -29,7 +30,8 @@ async function fetchWithAuth(
     );
   }
 
-  return res.json() as Promise<SubscriptionStatus>;
+  const text = await res.text();
+  return SuperJSON.parse(text) as SubscriptionStatus;
 }
 
 /**

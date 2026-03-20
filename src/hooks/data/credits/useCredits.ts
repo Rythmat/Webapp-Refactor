@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import SuperJSON from 'superjson';
 import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 
@@ -49,7 +50,8 @@ async function fetchWithAuth(
     throw new Error(body.error || `Request failed: ${res.status}`);
   }
 
-  return res.json();
+  const text = await res.text();
+  return SuperJSON.parse(text);
 }
 
 export const useCreditsBalance = () => {

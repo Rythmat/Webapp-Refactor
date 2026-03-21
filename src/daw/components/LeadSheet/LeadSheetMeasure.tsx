@@ -50,6 +50,8 @@ interface LeadSheetMeasureProps {
     measureStartTick: number,
     measureWidth: number,
   ) => void;
+  onMarkAsMelody?: (regionId: string) => void;
+  onDeleteChord?: (regionId: string) => void;
 }
 
 /**
@@ -73,6 +75,8 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
   onRenameChord,
   onClickEmptyBeat,
   onChordDragStart,
+  onMarkAsMelody,
+  onDeleteChord,
 }: LeadSheetMeasureProps) {
   const width = w ?? MEASURE_WIDTH;
   const staffTop = CHORD_AREA_HEIGHT;
@@ -145,6 +149,8 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
                         onChordDragStart(id, clientX, measure.startTick, width)
                     : undefined
                 }
+                onMarkAsMelody={onMarkAsMelody}
+                onDelete={onDeleteChord}
               />
             );
           })}

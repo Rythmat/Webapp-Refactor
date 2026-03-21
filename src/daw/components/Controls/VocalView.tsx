@@ -464,8 +464,13 @@ export function VocalView({ trackId }: { trackId: string }) {
   );
   const globalInputDeviceId = useStore((s) => s.inputDeviceId);
   const bpm = useStore((s) => s.bpm);
-  const globalRootNote = useStore((s) => s.rootNote);
-  const globalMode = useStore((s) => s.mode);
+  const prismRootNote = useStore((s) => s.rootNote);
+  const prismMode = useStore((s) => s.mode);
+  // Prefer MusicIntelligenceBus detected key (from UNISON) over manual session key
+  const busKeyRootPc = useStore((s) => s.detectedKeyRootPc);
+  const busMode = useStore((s) => s.detectedMode);
+  const globalRootNote = busKeyRootPc ?? prismRootNote;
+  const globalMode = busMode ?? prismMode;
   const setGlobalRootNote = useStore((s) => s.setRootNote);
   const setGlobalMode = useStore((s) => s.setMode);
   const rootLocked = useStore((s) => s.rootLocked);

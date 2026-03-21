@@ -29,6 +29,8 @@ export function LeadSheetView() {
   const position = useStore((s) => s.position);
   const isPlaying = useStore((s) => s.isPlaying);
   const moveChordRegion = useStore((s) => s.moveChordRegion);
+  const deleteChordRegion = useStore((s) => s.deleteChordRegion);
+  const markAsMelody = useStore((s) => s.markAsMelody);
 
   // Auto-populate composer from logged-in user
   const { data: meData } = useMe();
@@ -155,6 +157,22 @@ export function LeadSheetView() {
       renameChordRegion(regionId, newNoteName, newNoteName);
     },
     [renameChordRegion],
+  );
+
+  const handleMarkAsMelody = useCallback(
+    (regionId: string) => {
+      markAsMelody(regionId);
+      setSelectedChordIdx(null);
+    },
+    [markAsMelody, setSelectedChordIdx],
+  );
+
+  const handleDeleteChord = useCallback(
+    (regionId: string) => {
+      deleteChordRegion(regionId);
+      setSelectedChordIdx(null);
+    },
+    [deleteChordRegion, setSelectedChordIdx],
   );
 
   const handleClickEmptyBeat = useCallback(
@@ -393,6 +411,8 @@ export function LeadSheetView() {
                 onRenameChord={handleRenameChord}
                 onClickEmptyBeat={handleClickEmptyBeat}
                 onChordDragStart={handleChordDragStart}
+                onMarkAsMelody={handleMarkAsMelody}
+                onDeleteChord={handleDeleteChord}
               />
             </div>
           );

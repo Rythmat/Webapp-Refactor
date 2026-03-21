@@ -3,6 +3,7 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import { memo, type ReactNode, useCallback, useMemo } from 'react';
 import { useTuner } from '@/daw/hooks/useTuner';
+import { useStore } from '@/daw/store';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
@@ -185,15 +186,22 @@ interface TunerDisplayProps {
   deviceId: string | null;
   instrumentType?: 'guitar' | 'bass';
   onActiveChange?: (active: boolean) => void;
+  /** Optional AnalyserNode from the DAW audio graph. When provided, reuses the
+   *  existing AudioContext instead of creating a separate one. */
+  externalAnalyser?: AnalyserNode | null;
 }
 
 export const TunerDisplay = memo(function TunerDisplay({
   deviceId,
   instrumentType = 'guitar',
   onActiveChange,
+  externalAnalyser,
 }: TunerDisplayProps) {
   const { active, note, octave, cents, frequency, error, start, stop } =
-    useTuner(deviceId);
+    useTuner(deviceId, externalAnalyser);
+
+  // Global tuning offset from chord detector via MusicIntelligenceBus
+  const globalTuningCents = useStore((s) => s.globalTuningCents);
 
   const hasNote = active && note !== '';
   const inTune = hasNote && Math.abs(cents) < IN_TUNE_THRESHOLD;
@@ -327,6 +335,20 @@ export const TunerDisplay = memo(function TunerDisplay({
           {hasNote && frequency > 0 ? `${frequency} Hz` : '\u00A0'}
         </span>
       </div>
+
+      {/* Global tuning reference from chord detector */}
+      {active && Math.abs(globalTuningCents) >= 2 && (
+        <div className="text-center">
+          <span
+            className="text-[9px] font-mono"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
+            A4 ≈ {Math.round(440 * Math.pow(2, globalTuningCents / 1200))} Hz (
+            {globalTuningCents > 0 ? '+' : ''}
+            {Math.round(globalTuningCents)}¢)
+          </span>
+        </div>
+      )}
 
       {/* Phase 8: String reference indicators */}
       {active && (

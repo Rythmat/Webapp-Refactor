@@ -68,16 +68,16 @@ const DEFAULT_SCALE: number[] = [60, 62, 64, 65, 67, 69, 71, 72];
 const NOTE_DURATION_TICKS = 480;
 const CHROMATIC_KEYS = [
   'C',
-  'Db',
+  'D♭',
   'D',
-  'Eb',
+  'E♭',
   'E',
   'F',
-  'F#',
+  'F♯',
   'G',
-  'Ab',
+  'A♭',
   'A',
-  'Bb',
+  'B♭',
   'B',
 ] as const;
 const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;

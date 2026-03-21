@@ -48,11 +48,20 @@ export type ChordFormat = 'jazz' | 'hybrid' | 'numbers';
  * plus any chord that started in a prior measure and is still active
  * at beat 1 (carried over as a chord at offset 0).
  */
+/** Minimum confidence for a chord region to appear on the lead sheet. */
+const MIN_CONFIDENCE = 0.5;
+
 export function regionToMeasures(
   regions: ChordRegion[],
   ticksPerMeasure = TICKS_PER_MEASURE,
 ): Measure[] {
-  if (regions.length === 0) {
+  // Phase 9: Filter out low-confidence regions before building measures.
+  // Regions without a confidence score (e.g., manually inserted) always pass.
+  const filtered = regions.filter(
+    (r) => r.confidence === undefined || r.confidence >= MIN_CONFIDENCE,
+  );
+
+  if (filtered.length === 0) {
     // Return 4 empty measures as a blank lead sheet
     return Array.from({ length: 4 }, (_, i) => ({
       index: i,
@@ -62,7 +71,7 @@ export function regionToMeasures(
     }));
   }
 
-  const maxTick = Math.max(...regions.map((r) => r.endTick));
+  const maxTick = Math.max(...filtered.map((r) => r.endTick));
   const totalMeasures = Math.max(4, Math.ceil(maxTick / ticksPerMeasure));
   const measures: Measure[] = [];
 
@@ -71,8 +80,8 @@ export function regionToMeasures(
     const mEnd = mStart + ticksPerMeasure;
     const chords: MeasureChord[] = [];
 
-    for (let i = 0; i < regions.length; i++) {
-      const r = regions[i];
+    for (let i = 0; i < filtered.length; i++) {
+      const r = filtered[i];
 
       // Chord starts within this measure
       if (r.startTick >= mStart && r.startTick < mEnd) {
@@ -85,9 +94,9 @@ export function regionToMeasures(
       }
       // Chord started before this measure but is still active at beat 1
       else if (r.startTick < mStart && r.endTick > mStart) {
-        // Only add carry-over if it's the first measure or a different chord
-        // than what ended the previous measure
-        if (m === 0 || chords.length === 0) {
+        // Only carry over if no chord already starts at beat 1 of this measure
+        const hasChordAtBeat1 = chords.some((c) => c.beatOffsetTicks === 0);
+        if (!hasChordAtBeat1) {
           chords.push({
             beatOffsetTicks: 0,
             regionId: r.id,

@@ -23,7 +23,10 @@ import type {
 import type { CurriculumLevelId } from '@/curriculum/types/curriculum';
 import { usePrismModeChordsData, type PrismModeSlug } from '@/hooks/data';
 import { usePrismStartContours } from '@/hooks/data/prism/usePrismStartContours';
-import { useMidiInput } from '@/hooks/music/useMidiInput';
+import {
+  LearnInputProvider,
+  useLearnInputStable,
+} from '@/learn/context/LearnInputContext';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { useNavigate } from 'react-router';
 import { CurriculumRoutes } from '@/constants/routes';
@@ -348,7 +351,15 @@ function extractContours(value: unknown): number[][] {
 // Component
 // ---------------------------------------------------------------------------
 
-export const GenreLessonContainer = ({
+export const GenreLessonContainer = (props: GenreLessonContainerProps) => {
+  return (
+    <LearnInputProvider detectionMode="polyphonic">
+      <GenreLessonContainerInner {...props} />
+    </LearnInputProvider>
+  );
+};
+
+const GenreLessonContainerInner = ({
   genreSlug,
   level,
 }: GenreLessonContainerProps) => {
@@ -649,20 +660,47 @@ export const GenreLessonContainer = ({
     }
   }, [activityState, lessonComplete, handleContinue, navigate, genreSlug]);
 
-  const { startListening, stopListening } = useMidiInput(undefined, {
-    onNoteOn: handleMidiActivity,
-  });
+  const {
+    subscribeNoteOn,
+    start: startInput,
+    stop: stopInput,
+    setKeyContext,
+    clearKeyContext,
+    setExpectedNotes,
+  } = useLearnInputStable();
 
   useEffect(() => {
-    const stop = startListening();
-    return () => {
-      if (typeof stop === 'function') {
-        stop();
-        return;
-      }
-      stopListening();
-    };
-  }, [startListening, stopListening]);
+    startInput();
+    return () => stopInput();
+  }, [startInput, stopInput]);
+
+  useEffect(() => {
+    return subscribeNoteOn(handleMidiActivity);
+  }, [subscribeNoteOn, handleMidiActivity]);
+
+  // Wire key context from activity to audio detection pipeline
+  useEffect(() => {
+    if (gcmEntry && keyRoot) {
+      const intervals = gcmEntry.melody.scale.intervals ?? [
+        0, 2, 4, 5, 7, 9, 11,
+      ];
+      setKeyContext(keyRoot.midi % 12, intervals);
+    }
+    return () => clearKeyContext();
+  }, [gcmEntry, keyRoot, setKeyContext, clearKeyContext]);
+
+  // Wire expected notes from current step to audio detection pipeline
+  useEffect(() => {
+    if (currentEvents.length > 0) {
+      const midis = currentEvents
+        .map((e) => (typeof e.midi === 'number' ? e.midi : null))
+        .filter((m): m is number => m !== null);
+      const unique = [...new Set(midis)];
+      setExpectedNotes(unique.length > 0 ? unique : null);
+    } else {
+      setExpectedNotes(null);
+    }
+  }, [currentEvents, setExpectedNotes]);
 
   // --- Render state ---
   const showStartOverlay = usesOverlay && activityState === 'pending';

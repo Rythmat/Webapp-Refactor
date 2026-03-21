@@ -1,7 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PrismModeSlug } from '@/hooks/data';
 import { usePrismMode } from '@/hooks/data/prism/usePrismMode';
+import {
+  LearnInputProvider,
+  useLearnInputStable,
+} from '@/learn/context/LearnInputContext';
 import { urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { ActivityFlow } from './ActivityFlow';
@@ -20,25 +24,39 @@ const BASE_C4 = 60;
 const KEY_SEMITONES: Record<string, number> = {
   C: 0,
   'C#': 1,
-  DB: 1,
+  'C♯': 1,
+  Db: 1,
+  'D♭': 1,
   D: 2,
   'D#': 3,
-  EB: 3,
+  'D♯': 3,
+  Eb: 3,
+  'E♭': 3,
   E: 4,
-  FB: 4,
+  Fb: 4,
+  'F♭': 4,
   'E#': 5,
+  'E♯': 5,
   F: 5,
   'F#': 6,
-  GB: 6,
+  'F♯': 6,
+  Gb: 6,
+  'G♭': 6,
   G: 7,
   'G#': 8,
-  AB: 8,
+  'G♯': 8,
+  Ab: 8,
+  'A♭': 8,
   A: 9,
   'A#': 10,
-  BB: 10,
+  'A♯': 10,
+  Bb: 10,
+  'B♭': 10,
   B: 11,
-  CB: 11,
+  Cb: 11,
+  'C♭': 11,
   'B#': 0,
+  'B♯': 0,
 };
 
 const normalizeKeyLabel = (input?: string) => {
@@ -47,8 +65,7 @@ const normalizeKeyLabel = (input?: string) => {
 
 const resolveKeyOption = (input?: string): KeyOption => {
   const normalized = normalizeKeyLabel(input);
-  const lookupKey = normalized.replace('b', 'B');
-  const semitone = KEY_SEMITONES[lookupKey] ?? 0;
+  const semitone = KEY_SEMITONES[normalized] ?? 0;
   return {
     label: normalized,
     midi: BASE_C4 + semitone,
@@ -71,7 +88,15 @@ const normalizeSteps = (steps?: number[]) => {
 const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
   normalizeSteps(steps).map((interval) => rootMidi + interval);
 
-export const LessonContainer = ({
+export const LessonContainer = (props: LessonContainerProps) => {
+  return (
+    <LearnInputProvider detectionMode="polyphonic">
+      <LessonContainerInner {...props} />
+    </LearnInputProvider>
+  );
+};
+
+const LessonContainerInner = ({
   modeSlug,
   rootKey,
   startAtActivityKey,
@@ -80,6 +105,13 @@ export const LessonContainer = ({
   const [label, setLabel] = useState(['', '']);
   const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
   const modeTitle = modeSlug.charAt(0).toUpperCase() + modeSlug.slice(1);
+
+  const { start: startInput, stop: stopInput } = useLearnInputStable();
+
+  useEffect(() => {
+    startInput();
+    return () => stopInput();
+  }, [startInput, stopInput]);
 
   const { data: modeDetail } = usePrismMode(modeSlug as any);
   const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;

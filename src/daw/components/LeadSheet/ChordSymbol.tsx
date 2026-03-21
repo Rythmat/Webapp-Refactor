@@ -1,4 +1,5 @@
 import { memo, useState, useCallback, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { formatChordSymbol, type ChordFormat } from '@/daw/midi/leadSheetUtils';
 
 interface ChordSymbolProps {
@@ -13,6 +14,8 @@ interface ChordSymbolProps {
   onSelect: (regionId: string) => void;
   onRename: (regionId: string, newNoteName: string) => void;
   onDragStart?: (regionId: string, startClientX: number) => void;
+  onMarkAsMelody?: (regionId: string) => void;
+  onDelete?: (regionId: string) => void;
 }
 
 /**
@@ -32,11 +35,35 @@ export const ChordSymbol = memo(function ChordSymbol({
   onSelect,
   onRename,
   onDragStart,
+  onMarkAsMelody,
+  onDelete,
 }: ChordSymbolProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const pointerOriginRef = useRef<{ x: number; moved: boolean } | null>(null);
+
+  // Close context menu on outside click
+  useEffect(() => {
+    if (!contextMenu) return;
+    const close = () => setContextMenu(null);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, [contextMenu]);
+
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onSelect(regionId);
+      setContextMenu({ x: e.clientX, y: e.clientY });
+    },
+    [onSelect, regionId],
+  );
 
   const displayText = formatChordSymbol(noteName, format, degreeName);
 
@@ -142,35 +169,138 @@ export const ChordSymbol = memo(function ChordSymbol({
   }
 
   return (
-    <text
-      x={x}
-      y={y}
-      fontSize={16}
-      fontWeight="bold"
-      fontFamily="serif"
-      fill="currentColor"
-      style={{
-        cursor: isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none',
-        opacity: isDragging ? 0.4 : 1,
-      }}
-      onClick={handleClick}
-      onDoubleClick={handleDoubleClick}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-    >
-      {isSelected && (
-        <tspan
-          style={{
-            stroke: 'var(--color-accent, #8b5cf6)',
-            strokeWidth: 0.5,
-          }}
-        >
-          {displayText}
-        </tspan>
-      )}
-      {!isSelected && displayText}
-    </text>
+    <>
+      <text
+        x={x}
+        y={y}
+        fontSize={16}
+        fontWeight="bold"
+        fontFamily="serif"
+        fill="currentColor"
+        style={{
+          cursor: isDragging ? 'grabbing' : 'grab',
+          userSelect: 'none',
+          opacity: isDragging ? 0.4 : 1,
+        }}
+        onClick={handleClick}
+        onDoubleClick={handleDoubleClick}
+        onContextMenu={handleContextMenu}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+      >
+        {isSelected && (
+          <tspan
+            style={{
+              stroke: 'var(--color-accent, #8b5cf6)',
+              strokeWidth: 0.5,
+            }}
+          >
+            {displayText}
+          </tspan>
+        )}
+        {!isSelected && displayText}
+      </text>
+
+      {/* Context menu — rendered via portal to escape SVG */}
+      {contextMenu &&
+        createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              left: contextMenu.x,
+              top: contextMenu.y,
+              zIndex: 9999,
+              background: 'var(--color-surface-2)',
+              border: '1px solid var(--color-border)',
+              borderRadius: '6px',
+              padding: '4px 0',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              minWidth: 140,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {onMarkAsMelody && (
+              <button
+                onClick={() => {
+                  onMarkAsMelody(regionId);
+                  setContextMenu(null);
+                }}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  textAlign: 'left',
+                  padding: '6px 12px',
+                  fontSize: '12px',
+                  color: 'var(--color-text)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = 'var(--color-surface-3)')
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = 'none')
+                }
+              >
+                Mark as Melody
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setEditValue(noteName);
+                setIsEditing(true);
+                setContextMenu(null);
+              }}
+              style={{
+                display: 'block',
+                width: '100%',
+                textAlign: 'left',
+                padding: '6px 12px',
+                fontSize: '12px',
+                color: 'var(--color-text)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = 'var(--color-surface-3)')
+              }
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+            >
+              Rename
+            </button>
+            {onDelete && (
+              <button
+                onClick={() => {
+                  onDelete(regionId);
+                  setContextMenu(null);
+                }}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  textAlign: 'left',
+                  padding: '6px 12px',
+                  fontSize: '12px',
+                  color: '#ef4444',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = 'var(--color-surface-3)')
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = 'none')
+                }
+              >
+                Delete
+              </button>
+            )}
+          </div>,
+          document.body,
+        )}
+    </>
   );
 });

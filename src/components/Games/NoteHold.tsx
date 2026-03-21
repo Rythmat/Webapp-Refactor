@@ -8,7 +8,8 @@ import {
 } from '@/audio/pianoSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
-import { useMidiInput, type MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import { useLearnInputStable } from '@/learn/context/LearnInputContext';
 import PianoRoll, {
   NoteEvent,
   NoteHoldMeta,
@@ -262,8 +263,10 @@ export const NoteHold = ({
         activeMidiSetRef.current.delete(midi);
         setActiveMidis([...activeMidiSetRef.current]);
 
-        const noteName = Tone.Frequency(midi, 'midi').toNote();
-        triggerSynthRelease(noteName);
+        if (event.source !== 'audio') {
+          const noteName = Tone.Frequency(midi, 'midi').toNote();
+          triggerSynthRelease(noteName);
+        }
       }
 
       handleKeyboardNoteOff(midi);
@@ -280,18 +283,22 @@ export const NoteHold = ({
   const handleMidiNoteOn = useCallback(
     (event: MidiNoteEvent) => {
       if (!isActive) return;
-      void startPianoSampler();
       const midi = event.number;
       if (event.velocity == 0) {
         handleMidiNoteOff(event);
         return;
       }
+      // Only play sampler sound for MIDI input — acoustic piano already produces sound
+      if (event.source !== 'audio') {
+        void startPianoSampler();
+        if (!activeMidiSetRef.current.has(midi)) {
+          const noteName = Tone.Frequency(midi, 'midi').toNote();
+          triggerSynthAttack(noteName, event.velocity);
+        }
+      }
       if (!activeMidiSetRef.current.has(midi)) {
         activeMidiSetRef.current.add(midi);
         setActiveMidis([...activeMidiSetRef.current]);
-
-        const noteName = Tone.Frequency(midi, 'midi').toNote();
-        triggerSynthAttack(noteName, event.velocity);
       }
       handleKeyboardNoteOn(midi);
     },
@@ -314,22 +321,23 @@ export const NoteHold = ({
     [handleMidiNoteOff, isActive],
   );
 
-  const { startListening, stopListening } = useMidiInput(undefined, {
-    onNoteOn: onMidiNoteOn,
-    onNoteOff: onMidiNoteOff,
-  });
+  const { subscribeNoteOn, subscribeNoteOff } = useLearnInputStable();
 
   useEffect(() => {
-    if (!isActive) {
-      stopListening();
-      return;
-    }
-    const stop = startListening();
+    if (!isActive) return;
+    const unsubOn = subscribeNoteOn(onMidiNoteOn);
+    const unsubOff = subscribeNoteOff(onMidiNoteOff);
     return () => {
-      stop?.();
-      stopListening();
+      unsubOn();
+      unsubOff();
     };
-  }, [isActive, startListening, stopListening]);
+  }, [
+    isActive,
+    subscribeNoteOn,
+    subscribeNoteOff,
+    onMidiNoteOn,
+    onMidiNoteOff,
+  ]);
 
   const noteHoldMeta = useMemo(() => {
     const meta: Record<string, NoteHoldMeta> = {};

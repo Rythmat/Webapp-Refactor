@@ -9,6 +9,7 @@
  * format for "practice what you just wrote" workflows.
  */
 
+import { getChordColor } from '../../daw/prism-engine/engine/colorSystem';
 import type { GeneratedActivity } from '../engine/contentOrchestrator';
 import type { MidiNoteEvent } from '../engine/melodyPipeline';
 import type { VoicedProgressionChord } from '../engine/progressionPipeline';
@@ -68,8 +69,11 @@ function nextRegionId(): string {
  * Genre → engine genre name.
  */
 export function curriculumToDaw(activity: GeneratedActivity): DawLoadPayload {
-  const chordRegions = progressionToChordRegions(activity.progression);
   const rootNote = activity.keyRoot % 12; // MIDI → chromatic pitch class
+  const chordRegions = progressionToChordRegions(
+    activity.progression,
+    rootNote,
+  );
 
   return {
     chordRegions,
@@ -87,10 +91,14 @@ export function curriculumToDaw(activity: GeneratedActivity): DawLoadPayload {
  */
 function progressionToChordRegions(
   progression: VoicedProgressionChord[],
+  rootNote: number,
 ): DawChordRegion[] {
   return progression.map((chord) => {
     const name = formatChordName(chord.degree, chord.qualityId);
     const noteName = name; // Display name matches chord name
+    const prismQuality =
+      CURRICULUM_TO_PRISM_QUALITY[chord.qualityId] ?? chord.qualityId;
+    const prismChord = `${chord.degree} ${prismQuality}`;
 
     return {
       id: nextRegionId(),
@@ -98,7 +106,7 @@ function progressionToChordRegions(
       endTick: chord.onset + chord.duration,
       name,
       noteName,
-      color: getQualityColor(chord.qualityId),
+      color: getChordColor(prismChord, rootNote),
       degreeKey: `${chord.degree} ${chord.qualityId}`,
     };
   });
@@ -153,20 +161,39 @@ function formatChordName(degree: string, qualityId: string): string {
 }
 
 /**
- * Get a color for a chord quality (basic color coding).
+ * Maps curriculum short quality IDs to Prism engine quality names
+ * used by CHORD_COLORS in keyColors.ts.
  */
-function getQualityColor(qualityId: string): [number, number, number] {
-  const COLORS: Record<string, [number, number, number]> = {
-    maj: [59, 130, 246], // blue
-    min: [139, 92, 246], // purple
-    dom7: [245, 158, 11], // amber
-    maj7: [96, 165, 250], // light blue
-    min7: [168, 85, 247], // violet
-    dim: [100, 116, 139], // slate
-    aug: [236, 72, 153], // pink
-  };
-  return COLORS[qualityId] ?? [148, 163, 184]; // default: gray
-}
+const CURRICULUM_TO_PRISM_QUALITY: Record<string, string> = {
+  maj: 'major',
+  min: 'minor',
+  aug: 'augmented',
+  dim: 'diminished',
+  maj7: 'major7',
+  min7: 'minor7',
+  dom7: 'dominant7',
+  dom9: 'dominant9',
+  maj9: 'major9',
+  min9: 'minor9',
+  dom11: 'dominant11',
+  min11: 'minor11',
+  dom13: 'dominant13',
+  min13: 'minor13',
+  maj13: 'major13',
+  min7b5: 'minor7b5',
+  dim7: 'diminished7',
+  sus2: 'sus2',
+  sus4: 'sus4',
+  min_maj7: 'minormajor7',
+  dom7b9: 'dominant7b9',
+  dom7s9: 'dominant7#9',
+  dom7b5: 'dominant7b5',
+  dom7s5: 'dominant7#5',
+  dom7s11: 'dominant7#11',
+  maj7_s5: 'major7#5',
+  maj7_b5: 'major7b5',
+  min7_s5: 'minor7#5',
+};
 
 // ---------------------------------------------------------------------------
 // DAW → Curriculum

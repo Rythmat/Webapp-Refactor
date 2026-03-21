@@ -87,11 +87,11 @@ const CHROMATIC_KEYS: KeyStep[] = [
   { label: 'A', semitone: 9 },
   { label: 'E', semitone: 4 },
   { label: 'B', semitone: 11 },
-  { label: 'F#', semitone: 6 },
-  { label: 'Db', semitone: 1 },
-  { label: 'Ab', semitone: 8 },
-  { label: 'Eb', semitone: 3 },
-  { label: 'Bb', semitone: 10 },
+  { label: 'F♯', semitone: 6 },
+  { label: 'D♭', semitone: 1 },
+  { label: 'A♭', semitone: 8 },
+  { label: 'E♭', semitone: 3 },
+  { label: 'B♭', semitone: 10 },
   { label: 'F', semitone: 5 },
 ];
 const normalizeSteps = (steps?: number[]) => {

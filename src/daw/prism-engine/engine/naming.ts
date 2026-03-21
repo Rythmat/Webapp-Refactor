@@ -1,6 +1,7 @@
 import type { ChordDegree, ModeName } from '../types';
 import { CHORDS } from '../data/chords';
 import { MODES, MODE_NAMES } from '../data/modes';
+import { CHORD_COLORS } from '../data/keyColors';
 import { noteNameLetter } from '../data/notes';
 
 // ── Mode helpers ──────────────────────────────────────────────────────────
@@ -108,6 +109,33 @@ export function modeToIonianLabel(modeLabel: string, mode: string): string {
   const quality = unstepChord(modeLabel);
   const degreeStr = extractDegreePrefix(modeLabel);
   return convertDegreePart(degreeStr, quality, offset);
+}
+
+/**
+ * Given a chord's root pitch class, quality, and the session key pitch class,
+ * resolves the degree-qualified chord key for CHORD_COLORS lookup.
+ * Prefers the flat/sharp candidate that exists in CHORD_COLORS.
+ * Shared by useLiveChordColor and prismSlice to guarantee identical results.
+ */
+export function resolveDegreeKey(
+  rootPc: number,
+  quality: string,
+  keyPc: number,
+): string | undefined {
+  const ionian = MODES.ionian;
+  const diff = (rootPc - keyPc + 12) % 12;
+  const directIdx = ionian.indexOf(diff);
+  if (directIdx >= 0) return `${directIdx + 1} ${quality}`;
+  const flatIdx = ionian.indexOf(diff + 1);
+  const sharpIdx = ionian.indexOf(diff - 1);
+  const flatKey = flatIdx >= 0 ? `b${flatIdx + 1} ${quality}` : undefined;
+  const sharpKey = sharpIdx >= 0 ? `#${sharpIdx + 1} ${quality}` : undefined;
+  if (flatKey && sharpKey) {
+    if (CHORD_COLORS[flatKey] !== undefined) return flatKey;
+    if (CHORD_COLORS[sharpKey] !== undefined) return sharpKey;
+    return flatKey;
+  }
+  return flatKey ?? sharpKey;
 }
 
 /**

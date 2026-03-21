@@ -5,6 +5,7 @@
 // can look at both past and future frames (bidirectional smoothing).
 
 import { CHORDS } from '@prism/engine';
+import type { AudioBufferLike } from '@/unison/converters/audioToUnison';
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -704,7 +705,7 @@ function optimizeDownbeatAlignment(
 // ── Main analysis function ──────────────────────────────────────────────
 
 export function analyzeChords(
-  audioBuffer: AudioBuffer,
+  audioBuffer: AudioBufferLike,
   keyRootPc?: number,
   modeIntervals?: number[],
   bpm?: number,

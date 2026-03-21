@@ -8,6 +8,7 @@ import {
 } from '@/daw/audio/EffectChain';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import { getProjectTemplate } from '@/daw/data/projectTemplates';
+import { guessTrackRole, type DawTrackRole } from '@/daw/utils/trackRole';
 import type { PitchSegment } from '@/daw/audio/pitch-analysis/PitchAnalyzer';
 
 /** Drum-machine tracks get a compressor enabled by default. */
@@ -92,6 +93,8 @@ export interface Track {
   }[];
   /** Per-pad volume/pan for drum-machine tracks, keyed by MIDI note. */
   drumPads?: Record<number, { volume: number; pan: number }>;
+  /** Harmonic role for chord detection (auto = infer from name/instrument). */
+  trackRole: DawTrackRole;
 }
 
 // ── Pitch editing ────────────────────────────────────────────────────────
@@ -236,6 +239,7 @@ function createDemoTracks(): Track[] {
       audioInputChannel: null,
       effects: structuredClone(DEFAULT_EFFECTS),
       activeEffects: [],
+      trackRole: 'chords',
       midiClips: [
         {
           id: 'clip-chords-1',
@@ -263,6 +267,7 @@ function createDemoTracks(): Track[] {
       audioInputChannel: null,
       effects: structuredClone(DEFAULT_EFFECTS),
       activeEffects: [],
+      trackRole: 'melody',
       midiClips: [
         {
           id: 'clip-melody-1',
@@ -290,6 +295,7 @@ function createDemoTracks(): Track[] {
       audioInputChannel: null,
       effects: structuredClone(DEFAULT_EFFECTS),
       activeEffects: [],
+      trackRole: 'bass',
       midiClips: [
         {
           id: 'clip-bass-1',
@@ -322,6 +328,7 @@ function createDemoTracks(): Track[] {
       audioInputId: null,
       audioInputChannel: null,
       ...drumMachineDefaults(),
+      trackRole: 'drums',
       midiClips: [
         {
           id: 'clip-drums-1',
@@ -435,6 +442,7 @@ export const createTracksSlice: StateCreator<
           }),
       midiClips: [],
       audioClips: [],
+      trackRole: guessTrackRole(name, instrument),
     };
     set((state) => ({
       tracks: [...state.tracks, track],
@@ -678,6 +686,7 @@ export const createTracksSlice: StateCreator<
             }),
         midiClips: [],
         audioClips: [],
+        trackRole: guessTrackRole(def.name, def.instrument),
       };
       set((state) => ({
         tracks: [...state.tracks, track],

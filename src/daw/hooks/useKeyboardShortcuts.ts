@@ -10,7 +10,7 @@ import {
   loadFromLocalStorage,
 } from '@/daw/persistence/SessionStorage';
 import { undo, redo } from '@/daw/store/undoMiddleware';
-import { deriveChordRegionsFromNotes } from '@/daw/store/prismSlice';
+import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
 import { exportMidiFile, downloadMidiBlob } from '@/daw/midi/MidiFileIO';
 import {
   getAudioBuffer,
@@ -122,17 +122,19 @@ export function useKeyboardShortcuts() {
               });
             }
             // Derive chord regions from all clips on target track (skip drums)
-            const { rootNote, mode, setChordRegions } = useStore.getState();
+            const {
+              rootNote,
+              mode,
+              setChordRegions,
+              tracks: allTracks,
+            } = useStore.getState();
             {
-              const updatedTrack = useStore
-                .getState()
-                .tracks.find((t) => t.id === targetTrackId);
+              const updatedTrack = allTracks.find(
+                (t) => t.id === targetTrackId,
+              );
               if (updatedTrack && updatedTrack.instrument !== 'drum-machine') {
-                const allEvents = updatedTrack.midiClips.flatMap(
-                  (c) => c.events,
-                );
-                const regions = deriveChordRegionsFromNotes(
-                  allEvents,
+                const regions = deriveChordRegionsFromSession(
+                  allTracks,
                   (rootNote ?? 0) + 48,
                   mode,
                 );
@@ -167,17 +169,19 @@ export function useKeyboardShortcuts() {
             });
             state.setSelectedClip(newId, selectedClipTrackId);
             // Derive chord regions from all clips on track (skip drums)
-            const { rootNote, mode, setChordRegions } = useStore.getState();
+            const {
+              rootNote,
+              mode,
+              setChordRegions,
+              tracks: allTracks,
+            } = useStore.getState();
             {
-              const updatedTrack = useStore
-                .getState()
-                .tracks.find((t) => t.id === selectedClipTrackId);
+              const updatedTrack = allTracks.find(
+                (t) => t.id === selectedClipTrackId,
+              );
               if (updatedTrack && updatedTrack.instrument !== 'drum-machine') {
-                const allEvents = updatedTrack.midiClips.flatMap(
-                  (c) => c.events,
-                );
-                const regions = deriveChordRegionsFromNotes(
-                  allEvents,
+                const regions = deriveChordRegionsFromSession(
+                  allTracks,
                   (rootNote ?? 0) + 48,
                   mode,
                 );
@@ -239,6 +243,14 @@ export function useKeyboardShortcuts() {
           const blob = exportMidiFile(sequences, state.bpm);
           downloadMidiBlob(blob, 'prism-session.mid');
         }
+        return;
+      }
+
+      // Cmd+Shift+U: Analyze (UNISON)
+      if (e.code === 'KeyU' && isMod && e.shiftKey) {
+        e.preventDefault();
+        state.analyzeSession();
+        state.setLibraryOpen(true);
         return;
       }
 

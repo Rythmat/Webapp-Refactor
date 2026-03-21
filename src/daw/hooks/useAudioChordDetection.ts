@@ -118,15 +118,22 @@ export function useAudioChordDetection(): void {
         }
       }
 
-      // Phase 10: Update key context when rootNote or mode changes
-      const { rootNote, mode } = useStore.getState();
-      const keyStr = rootNote !== null ? `${rootNote}:${mode}` : null;
+      // Update key context: prefer MusicIntelligenceBus (UNISON-detected key),
+      // fall back to manually-set session key from prism store
+      const { rootNote, mode, detectedKeyRootPc, detectedMode } =
+        useStore.getState();
+      const busRoot = detectedKeyRootPc;
+      const busMode = detectedMode;
+      const effectiveRoot = busRoot ?? rootNote;
+      const effectiveMode = busMode ?? mode;
+      const keyStr =
+        effectiveRoot !== null ? `${effectiveRoot}:${effectiveMode}` : null;
       if (keyStr !== lastKeyRef.current) {
         lastKeyRef.current = keyStr;
-        if (rootNote !== null && mode) {
-          const intervals = ALL_MODES[mode];
+        if (effectiveRoot !== null && effectiveMode) {
+          const intervals = ALL_MODES[effectiveMode];
           if (intervals) {
-            detector.setKeyContext(rootNote, intervals);
+            detector.setKeyContext(effectiveRoot, intervals);
           } else {
             detector.clearKeyContext();
           }
@@ -158,6 +165,20 @@ export function useAudioChordDetection(): void {
       if (!notesEqual(notes, prevNotesRef.current)) {
         prevNotesRef.current = notes;
         useStore.getState().setAudioActiveNotes(notes);
+      }
+
+      // Push live chord to MusicIntelligenceBus for live UNISON analysis
+      if (result && result.confidence > 0.5) {
+        useStore.getState().pushLiveChord({
+          rootPc: result.rootPc,
+          quality: result.quality,
+          confidence: result.confidence,
+        });
+      }
+
+      // Push tuning estimate to MusicIntelligenceBus for shared tuner display
+      if (result?.tuningCents !== undefined) {
+        useStore.getState().setGlobalTuningCents(result.tuningCents);
       }
 
       // Capture chord snapshots during audio recording for chord ruler
@@ -235,7 +256,16 @@ export function useAudioChordDetection(): void {
                 m,
               );
               if (refinedRegions.length > 0) {
-                useStore.getState().setChordRegions(refinedRegions);
+                useStore.getState().setChordRegions(refinedRegions, true);
+              }
+
+              // Run full UNISON analysis only if user has already activated it
+              if (useStore.getState().unisonDoc) {
+                useStore.getState().analyzeAudio(audioBuffer, {
+                  bpm: capturedBpm,
+                  keyRootPc: effectiveRoot,
+                  modeIntervals,
+                });
               }
             }, 500); // wait for AudioBuffer to be stored
           }

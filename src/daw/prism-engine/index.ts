@@ -91,6 +91,7 @@ export {
   isDiatonicMode,
   ionianToModeLabel,
   modeToIonianLabel,
+  resolveDegreeKey,
 } from './engine/naming';
 export type { ChordMatch } from './engine/naming';
 

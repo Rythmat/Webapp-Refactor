@@ -4,6 +4,7 @@ export interface MidiNoteEvent {
   number: number; // MIDI note number (e.g., 60 = C4)
   duration: number; // Duration in seconds
   velocity: number; // Original velocity from noteon
+  source?: 'midi' | 'audio'; // Which input produced this event
 }
 
 type Callback = (event: MidiNoteEvent) => void;

@@ -14,6 +14,11 @@ import {
   createPrismSuggestionSlice,
   type PrismSuggestionSlice,
 } from './prismSuggestionSlice';
+import { createUnisonSlice, type UnisonSlice } from './unisonSlice';
+import {
+  createMusicIntelligenceSlice,
+  type MusicIntelligenceSlice,
+} from './musicIntelligenceSlice';
 
 // ── Composed Store ──────────────────────────────────────────────────────
 // All slices merged into a single Zustand 5 store with subscribeWithSelector
@@ -27,7 +32,9 @@ export type AllSlices = TransportSlice &
   MasteringSlice &
   MarkersSlice &
   AudioIOSlice &
-  PrismSuggestionSlice;
+  PrismSuggestionSlice &
+  UnisonSlice &
+  MusicIntelligenceSlice;
 
 export const useStore = create<AllSlices>()(
   subscribeWithSelector((...a) => ({
@@ -40,6 +47,8 @@ export const useStore = create<AllSlices>()(
     ...createMarkersSlice(...a),
     ...createAudioIOSlice(...a),
     ...createPrismSuggestionSlice(...a),
+    ...createUnisonSlice(...a),
+    ...createMusicIntelligenceSlice(...a),
   })),
 );
 
@@ -97,3 +106,5 @@ export type {
 export type { MarkersSlice, Marker } from './markersSlice';
 export type { AudioIOSlice } from './audioIOSlice';
 export type { PrismSuggestionSlice } from './prismSuggestionSlice';
+export type { UnisonSlice } from './unisonSlice';
+export type { MusicIntelligenceSlice } from './musicIntelligenceSlice';

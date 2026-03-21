@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LearnRoutes, CurriculumRoutes } from '@/constants/routes';
 import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
@@ -834,6 +834,21 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const [expandedMode, setExpandedMode] = useState<string | null>(null);
   const [selectedSubItem, setSelectedSubItem] =
     useState<SelectedSubItem | null>(null);
+  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(
+    null,
+  );
+  const listPanelRef = useRef<HTMLDivElement>(null);
+  const [listPanelHeight, setListPanelHeight] = useState<number | undefined>(
+    undefined,
+  );
+
+  useLayoutEffect(() => {
+    if (listPanelRef.current) {
+      setListPanelHeight(listPanelRef.current.offsetHeight);
+    } else {
+      setListPanelHeight(undefined);
+    }
+  }, [expandedMode]);
   // const [showFilter, setShowFilter] = useState(false);
   const navigate = useNavigate();
   const { data: progressSummary } = useProgressSummary();
@@ -881,6 +896,32 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       sections: THEORY_SECTIONS,
     });
   };
+
+  // Auto-select the first key/level when a tile is expanded
+  useEffect(() => {
+    if (!expandedMode) return;
+    const data =
+      subTab === 'Courses'
+        ? COURSES_DATA
+        : subTab === 'Theory'
+          ? THEORY_DATA
+          : TECHNIQUE_DATA;
+    const item = data.find((d) => (d.expandId ?? d.mode) === expandedMode);
+    if (item?.mode) {
+      handleKeySelect(item.mode, KEY_LABELS[0], item.title);
+    } else if (item?.subItems?.[0]) {
+      handleLevelSelect(item.subItems[0]);
+    }
+  }, [expandedMode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-select the first chapter when a key/level is selected
+  useEffect(() => {
+    if (selectedSubItem?.sections?.[0]) {
+      setSelectedChapterId(selectedSubItem.sections[0].id);
+    } else {
+      setSelectedChapterId(null);
+    }
+  }, [selectedSubItem]);
 
   // Auto-select Courses tab and highlight the genre when arriving from Globe
   useEffect(() => {
@@ -932,6 +973,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               <CardItem
                 {...expandedItem}
                 expanded={true}
+                imageSize={listPanelHeight}
                 progressPct={getTileCompletion(progressSummary, expandedItem)}
                 onToggleExpand={() => {
                   setExpandedMode(null);
@@ -945,6 +987,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
             </div>
             {/* Sub-item list on the right — always 12 rows tall */}
             <div
+              ref={listPanelRef}
               className="glass-panel-sm flex w-64 flex-col gap-0.5 rounded-xl p-4"
               style={{
                 background: 'rgba(255,255,255,0.03)',
@@ -996,7 +1039,9 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                             'rgba(255,255,255,0.04)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.background = isSelected
+                            ? 'rgba(255,255,255,0.06)'
+                            : 'transparent';
                         }}
                       >
                         <span>
@@ -1026,13 +1071,15 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                       if (lsnId)
                         levelPct = getLessonCompletion(progressSummary, lsnId);
                     }
+                    const isLevelSelected =
+                      selectedSubItem?.label === `Level ${sub.level}`;
                     items.push(
                       <div
                         key={sub.label}
                         className="flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
                         style={{
                           color: sub.color,
-                          ...(selectedSubItem?.label === `Level ${sub.level}`
+                          ...(isLevelSelected
                             ? { background: 'rgba(255,255,255,0.06)' }
                             : {}),
                         }}
@@ -1048,7 +1095,9 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                             'rgba(255,255,255,0.04)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.background = isLevelSelected
+                            ? 'rgba(255,255,255,0.06)'
+                            : 'transparent';
                         }}
                       >
                         <span>{sub.label}</span>
@@ -1102,34 +1151,49 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                     </span>
                   )}
                 </h4>
-                {selectedSubItem.sections.map((section) => (
-                  <div
-                    key={section.id}
-                    className="cursor-pointer rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
-                    style={{ color: 'var(--color-text)' }}
-                    onClick={() => navigate(selectedSubItem.route)}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background =
-                        'rgba(255,255,255,0.04)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}
-                  >
-                    <span style={{ color: 'var(--color-accent)' }}>
-                      {section.id}:
-                    </span>{' '}
-                    {section.name}
-                    {section.stepCount != null && (
-                      <span
-                        className="ml-2 text-xs"
-                        style={{ color: 'var(--color-text-dim)' }}
-                      >
-                        {section.stepCount} steps
-                      </span>
-                    )}
-                  </div>
-                ))}
+                {selectedSubItem.sections.map((section) => {
+                  const isChapterSelected = selectedChapterId === section.id;
+                  return (
+                    <div
+                      key={section.id}
+                      className="cursor-pointer rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
+                      style={{
+                        color: isChapterSelected
+                          ? 'var(--color-accent)'
+                          : 'var(--color-text)',
+                        background: isChapterSelected
+                          ? 'rgba(255,255,255,0.06)'
+                          : 'transparent',
+                      }}
+                      onClick={() => {
+                        setSelectedChapterId(section.id);
+                        navigate(selectedSubItem.route);
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background =
+                          'rgba(255,255,255,0.04)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = isChapterSelected
+                          ? 'rgba(255,255,255,0.06)'
+                          : 'transparent';
+                      }}
+                    >
+                      <span style={{ color: 'var(--color-accent)' }}>
+                        {section.id}:
+                      </span>{' '}
+                      {section.name}
+                      {section.stepCount != null && (
+                        <span
+                          className="ml-2 text-xs"
+                          style={{ color: 'var(--color-text-dim)' }}
+                        >
+                          {section.stepCount} steps
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -1,4 +1,5 @@
 import {
+  CircleHelp,
   GalleryHorizontalEnd,
   Library,
   Music,
@@ -7,6 +8,7 @@ import {
   User,
   Users,
 } from 'lucide-react';
+import { useState } from 'react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { CreditsBadge } from '@/components/CreditsBadge';
 import { Logo } from '@/components/Logo';
@@ -30,6 +32,7 @@ export const Sidebar = ({
   onToggleCollapse,
 }: SidebarProps) => {
   const { role } = useAuthContext();
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const renderNavigation = () => {
     // Admin navigation
@@ -128,9 +131,28 @@ export const Sidebar = ({
 
         {renderNavigation()}
 
-        {!isCollapsed && (
-          <>
-            <ul className="flex flex-col space-y-1 text-sm">
+        {/* Help / Info toggle */}
+        <div>
+          <button
+            aria-label={helpOpen ? 'Hide help links' : 'Show help links'}
+            className={cn(
+              'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-foreground/60 transition-colors hover:text-white',
+              helpOpen && 'text-white',
+              isCollapsed && 'justify-center',
+            )}
+            onClick={() => setHelpOpen(!helpOpen)}
+          >
+            <CircleHelp className="h-5 w-5 shrink-0" />
+            {!isCollapsed && <span className="text-sm">Help & Info</span>}
+          </button>
+
+          {helpOpen && (
+            <ul
+              className={cn(
+                'flex flex-col space-y-1 text-sm',
+                !isCollapsed && 'mt-1 pl-3',
+              )}
+            >
               <SidebarSecondaryNavItem
                 external
                 label="Changelog"
@@ -157,8 +179,8 @@ export const Sidebar = ({
                 to="https://www.musicatlas.io/policies/terms"
               />
             </ul>
-          </>
-        )}
+          )}
+        </div>
 
         <CreditsBadge isCollapsed={isCollapsed} />
 

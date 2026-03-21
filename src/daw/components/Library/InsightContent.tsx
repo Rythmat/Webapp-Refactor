@@ -2,7 +2,7 @@
 /* eslint-disable sonarjs/no-duplicated-branches */
 /* eslint-disable tailwindcss/classnames-order */
 /* eslint-disable tailwindcss/enforces-shorthand */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, ChevronDown, Lightbulb } from 'lucide-react';
 import { useStore } from '@/daw/store';
@@ -17,7 +17,6 @@ import {
   noteNameInKey,
   detectChordWithInversion,
   KEY_COLORS,
-  chordDeg,
   CHORD_COLORS,
   getChordColor,
   getModeOffset,
@@ -26,402 +25,25 @@ import {
 import { LearnRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { getChordTheory } from './chordTheoryMap';
-
-// ── Helpers ──────────────────────────────────────────────────────────────
-
-const ROOT_TO_KEY_INDEX = [1, 8, 3, 10, 5, 12, 7, 2, 9, 4, 11, 6];
-
-const QUALITY_DISPLAY: Record<string, string> = {
-  // Triads
-  major: 'maj',
-  minor: 'min',
-  diminished: 'dim',
-  augmented: 'aug',
-  sus2: 'sus2',
-  sus4: 'sus4',
-  quartal: 'quartal',
-  'sus#4': 'sus(#4)',
-  susb2: 'sus(\u266D2)',
-  susb2b5: 'sus(\u266D2\u266D5)',
-  sus2b5: 'sus2(\u266D5)',
-  major4: 'maj4',
-  minor4: 'min4',
-  Add2: 'add2',
-  Add4: 'add4',
-  // 6th chords
-  major6: 'maj6',
-  minor6: 'min6',
-  major6add9: 'maj6/9',
-  // 7th chords
-  major7: 'maj7',
-  minor7: 'min7',
-  dominant7: 'dom7',
-  diminished7: 'dim7',
-  minor7b5: 'min7(\u266D5)',
-  minormajor7: 'min(maj7)',
-  major7diminished: 'dim(maj7)',
-  'minor7#5': 'min7(#5)',
-  'major7#5': 'maj7(#5)',
-  major7b5: 'maj7(\u266D5)',
-  dominant7b5: 'dom7(\u266D5)',
-  'dominant7#5': 'dom7(#5)',
-  dominant7b9: 'dom7(\u266D9)',
-  'major7#11': 'maj7(#11)',
-  'dominant7#11': 'dom7(#11)',
-  'b7dominant7#11': '\u266D7dom7(#11)',
-  // 7th sus chords
-  dominant7sus2: 'dom7sus2',
-  dominant7sus4: 'dom7sus4',
-  major7sus2: 'maj7sus2',
-  major7sus4: 'maj7sus4',
-  // 9th chords
-  dominant9: 'dom9',
-  major9: 'maj9',
-  minor9: 'min9',
-  minor7b9: 'min7(\u266D9)',
-  minormajor9: 'min(maj9)',
-  'major9#5': 'maj9(#5)',
-  diminished7b9: 'dim7(\u266D9)',
-  minor7b5b9: 'min7(\u266D5\u266D9)',
-  'major7#9': 'maj7(#9)',
-  'dominant7#5b9': 'dom7(#5\u266D9)',
-  'dominant9#5': 'dom9(#5)',
-  minor9b5: 'min9(\u266D5)',
-  'dominant7#9': 'dom7(#9)',
-  'dominant7#5#9': 'dom7(#5#9)',
-  'major7#5#9': 'maj7(#5#9)',
-  minor6add9: 'min6/9',
-  diminishedmajor7: 'dim(maj7)',
-  // Slash chords
-  'major/5': 'maj/5',
-  'major/4': 'maj/4',
-  'major/3': 'maj/3',
-  'major/6': 'maj/6',
-  'major/1': 'maj/1',
-  'major/7': 'maj/7',
-  'major/#5': 'maj/#5',
-  'major7/5': 'maj7/5',
-  'minor6/5': 'min6/5',
-  'minor6/b3': 'min6/\u266D3',
-  'minor6/b6': 'min6/\u266D6',
-  'minor7b5/4': 'min7(\u266D5)/4',
-  'minor7b5/5': 'min7(\u266D5)/5',
-};
-
-function formatQuality(quality: string): string {
-  return (
-    QUALITY_DISPLAY[quality] ??
-    quality
-      .replace(/dominant/g, 'dom')
-      .replace(/diminished/g, 'dim')
-      .replace(/minor/g, 'min')
-      .replace(/major/g, 'maj')
-  );
-}
-
-function degreeToHybrid(degreeName: string): string {
-  const deg = chordDeg(degreeName);
-  const quality = unstepChord(degreeName);
-  const prefix = deg.modifier === -1 ? '\u266D' : deg.modifier === 1 ? '#' : '';
-  return `${prefix}${deg.degree} ${formatQuality(quality)}`;
-}
-
-function intervalsToString(intervals: number[]): string {
-  const INTERVAL_NAMES: Record<number, string> = {
-    0: 'R',
-    1: 'b2',
-    2: '2',
-    3: 'b3',
-    4: '3',
-    5: '4',
-    6: 'b5',
-    7: '5',
-    8: '#5',
-    9: '6',
-    10: 'b7',
-    11: '7',
-    12: '8',
-    13: 'b9',
-    14: '9',
-    15: '#9',
-    16: '10',
-    17: '11',
-    18: '#11',
-  };
-  return intervals
-    .map((i) => {
-      const positive = i < 0 ? i + 12 : i;
-      return INTERVAL_NAMES[positive] ?? String(i);
-    })
-    .join(' ');
-}
-
-function rgbString(r: number, g: number, b: number): string {
-  return `rgb(${r},${g},${b})`;
-}
-
-/** Semitone offset from a mode's root to its parent scale root, plus family name. */
-const PARENT_SCALE_INFO: Record<string, { offset: number; family: string }> = {
-  // Diatonic → parent is Ionian
-  ionian: { offset: 0, family: 'Ionian' },
-  dorian: { offset: 10, family: 'Ionian' },
-  phrygian: { offset: 8, family: 'Ionian' },
-  lydian: { offset: 7, family: 'Ionian' },
-  mixolydian: { offset: 5, family: 'Ionian' },
-  aeolian: { offset: 3, family: 'Ionian' },
-  locrian: { offset: 1, family: 'Ionian' },
-  // Harmonic Minor family
-  harmonicMinor: { offset: 0, family: 'Harmonic Minor' },
-  locrianNat6: { offset: 10, family: 'Harmonic Minor' },
-  ionianSharp5: { offset: 9, family: 'Harmonic Minor' },
-  dorianSharp4: { offset: 7, family: 'Harmonic Minor' },
-  phrygianDominant: { offset: 5, family: 'Harmonic Minor' },
-  lydianSharp2: { offset: 4, family: 'Harmonic Minor' },
-  alteredDiminished: { offset: 1, family: 'Harmonic Minor' },
-  // Melodic Minor family
-  melodicMinor: { offset: 0, family: 'Melodic Minor' },
-  dorianFlat2: { offset: 10, family: 'Melodic Minor' },
-  lydianAugmented: { offset: 9, family: 'Melodic Minor' },
-  lydianDominant: { offset: 7, family: 'Melodic Minor' },
-  mixolydianFlat6: { offset: 5, family: 'Melodic Minor' },
-  locrianNat2: { offset: 3, family: 'Melodic Minor' },
-  altered: { offset: 1, family: 'Melodic Minor' },
-  // Harmonic Major family
-  harmonicMajor: { offset: 0, family: 'Harmonic Major' },
-  dorianFlat5: { offset: 10, family: 'Harmonic Major' },
-  alteredDominantNat5: { offset: 8, family: 'Harmonic Major' },
-  melodicMinorSharp4: { offset: 7, family: 'Harmonic Major' },
-  mixolydianFlat2: { offset: 5, family: 'Harmonic Major' },
-  lydianAugmentedSharp2: { offset: 4, family: 'Harmonic Major' },
-  locrianDoubleFlat7: { offset: 1, family: 'Harmonic Major' },
-  // Double Harmonic family
-  doubleHarmonicMajor: { offset: 0, family: 'Double Harmonic Major' },
-  lydianSharp2Sharp6: { offset: 11, family: 'Double Harmonic Major' },
-  ultraphrygian: { offset: 8, family: 'Double Harmonic Major' },
-  doubleHarmonicMinor: { offset: 7, family: 'Double Harmonic Major' },
-  oriental: { offset: 5, family: 'Double Harmonic Major' },
-  ionianSharp2Sharp5: { offset: 4, family: 'Double Harmonic Major' },
-  locrianDoubleFlat3DoubleFlat7: { offset: 1, family: 'Double Harmonic Major' },
-};
-
-/** Scale degree intervals for each family (used to find chord root's mode within parent scale) */
-const FAMILY_INTERVALS: Record<string, number[]> = {
-  Ionian: [0, 2, 4, 5, 7, 9, 11],
-  'Harmonic Minor': [0, 2, 3, 5, 7, 8, 11],
-  'Melodic Minor': [0, 2, 3, 5, 7, 9, 11],
-  'Harmonic Major': [0, 2, 4, 5, 7, 8, 11],
-  'Double Harmonic Major': [0, 1, 4, 5, 7, 8, 11],
-};
-
-/** Mode names for each degree of each scale family */
-const FAMILY_MODES: Record<string, string[]> = {
-  Ionian: [
-    'ionian',
-    'dorian',
-    'phrygian',
-    'lydian',
-    'mixolydian',
-    'aeolian',
-    'locrian',
-  ],
-  'Harmonic Minor': [
-    'harmonicMinor',
-    'locrianNat6',
-    'ionianSharp5',
-    'dorianSharp4',
-    'phrygianDominant',
-    'lydianSharp2',
-    'alteredDiminished',
-  ],
-  'Melodic Minor': [
-    'melodicMinor',
-    'dorianFlat2',
-    'lydianAugmented',
-    'lydianDominant',
-    'mixolydianFlat6',
-    'locrianNat2',
-    'altered',
-  ],
-  'Harmonic Major': [
-    'harmonicMajor',
-    'dorianFlat5',
-    'alteredDominantNat5',
-    'melodicMinorSharp4',
-    'mixolydianFlat2',
-    'lydianAugmentedSharp2',
-    'locrianDoubleFlat7',
-  ],
-  'Double Harmonic Major': [
-    'doubleHarmonicMajor',
-    'lydianSharp2Sharp6',
-    'ultraphrygian',
-    'doubleHarmonicMinor',
-    'oriental',
-    'ionianSharp2Sharp5',
-    'locrianDoubleFlat3DoubleFlat7',
-  ],
-};
-
-/** Display names for all modes across all families */
-const MODE_DISPLAY: Record<string, string> = {
-  ionian: 'Ionian',
-  dorian: 'Dorian',
-  phrygian: 'Phrygian',
-  lydian: 'Lydian',
-  mixolydian: 'Mixolydian',
-  aeolian: 'Aeolian',
-  locrian: 'Locrian',
-  harmonicMinor: 'Harmonic Minor',
-  locrianNat6: 'Locrian \u266E6',
-  ionianSharp5: 'Ionian #5',
-  dorianSharp4: 'Dorian #4',
-  phrygianDominant: 'Phrygian Dominant',
-  lydianSharp2: 'Lydian #2',
-  alteredDiminished: 'Altered Diminished',
-  melodicMinor: 'Melodic Minor',
-  dorianFlat2: 'Dorian \u266D2',
-  lydianAugmented: 'Lydian Augmented',
-  lydianDominant: 'Lydian Dominant',
-  mixolydianFlat6: 'Mixolydian \u266D6',
-  locrianNat2: 'Locrian \u266E2',
-  altered: 'Altered',
-  harmonicMajor: 'Harmonic Major',
-  dorianFlat5: 'Dorian \u266D5',
-  alteredDominantNat5: 'Altered Dominant \u266E5',
-  melodicMinorSharp4: 'Melodic Minor #4',
-  mixolydianFlat2: 'Mixolydian \u266D2',
-  lydianAugmentedSharp2: 'Lydian Augmented #2',
-  locrianDoubleFlat7: 'Locrian \u266D\u266D7',
-  doubleHarmonicMajor: 'Double Harmonic Major',
-  lydianSharp2Sharp6: 'Lydian #2 #6',
-  ultraphrygian: 'Ultraphrygian',
-  doubleHarmonicMinor: 'Double Harmonic Minor',
-  oriental: 'Oriental',
-  ionianSharp2Sharp5: 'Ionian #2 #5',
-  locrianDoubleFlat3DoubleFlat7: 'Locrian \u266D\u266D3 \u266D\u266D7',
-};
-
-/** URL slugs for Learn route */
-const MODE_TO_SLUG: Record<string, string> = {
-  ionian: 'ionian',
-  dorian: 'dorian',
-  phrygian: 'phrygian',
-  lydian: 'lydian',
-  mixolydian: 'mixolydian',
-  aeolian: 'aeolian',
-  locrian: 'locrian',
-  harmonicMinor: 'harmonic-minor',
-  locrianNat6: 'locrian-nat6',
-  ionianSharp5: 'ionian-sharp5',
-  dorianSharp4: 'dorian-sharp4',
-  phrygianDominant: 'phrygian-dominant',
-  lydianSharp2: 'lydian-sharp2',
-  alteredDiminished: 'altered-diminished',
-  melodicMinor: 'melodic-minor',
-  dorianFlat2: 'dorian-flat2',
-  lydianAugmented: 'lydian-augmented',
-  lydianDominant: 'lydian-dominant',
-  mixolydianFlat6: 'mixolydian-flat6',
-  locrianNat2: 'locrian-nat2',
-  altered: 'altered',
-  harmonicMajor: 'harmonic-major',
-  dorianFlat5: 'dorian-flat5',
-  alteredDominantNat5: 'altered-dominant-nat5',
-  melodicMinorSharp4: 'melodic-minor-sharp4',
-  mixolydianFlat2: 'mixolydian-flat2',
-  lydianAugmentedSharp2: 'lydian-augmented-sharp2',
-  locrianDoubleFlat7: 'locrian-double-flat7',
-  doubleHarmonicMajor: 'double-harmonic-major',
-  lydianSharp2Sharp6: 'lydian-sharp2-sharp6',
-  ultraphrygian: 'ultraphrygian',
-  doubleHarmonicMinor: 'double-harmonic-minor',
-  oriental: 'oriental',
-  ionianSharp2Sharp5: 'ionian-sharp2-sharp5',
-  locrianDoubleFlat3DoubleFlat7: 'locrian-double-flat3-double-flat7',
-};
-
-/** Family sort order: more common families first */
-const FAMILY_PRIORITY: Record<string, number> = {
-  Ionian: 0,
-  'Harmonic Minor': 1,
-  'Melodic Minor': 2,
-  'Harmonic Major': 3,
-  'Double Harmonic Major': 4,
-};
-
-interface ChordInterpretation {
-  family: string;
-  sessionMode: string; // mode the session key would be in
-  chordRootMode: string; // mode the chord root would be in
-  parentOffset: number; // semitones from session key to parent root
-}
-
-/**
- * Given a degree-qualified chord name, finds ALL scale families × modes
- * where this chord naturally occurs, sorted by commonality.
- */
-function findAllInterpretations(degreeName: string): ChordInterpretation[] {
-  const { degree, modifier } = chordDeg(degreeName);
-  const quality = unstepChord(degreeName);
-  const qualityIntervals = CHORDS[quality];
-  if (!qualityIntervals || degree === 0) return [];
-
-  const ionianRef = MODES.ionian;
-  const chordOffset = (ionianRef[degree - 1] + modifier + 12) % 12;
-  const chordTones = qualityIntervals.map(
-    (qi) => (((chordOffset + qi) % 12) + 12) % 12,
-  );
-
-  const results: ChordInterpretation[] = [];
-
-  for (const [familyName, familyIntervals] of Object.entries(
-    FAMILY_INTERVALS,
-  )) {
-    for (let m = 0; m < 7; m++) {
-      const scalePcs = familyIntervals.map(
-        (i) => (i - familyIntervals[m] + 12) % 12,
-      );
-      const chordDegIdx = scalePcs.indexOf(chordOffset);
-      if (chordDegIdx < 0) continue;
-
-      const scaleSet = new Set(scalePcs);
-      if (!chordTones.every((t) => scaleSet.has(t))) continue;
-
-      results.push({
-        family: familyName,
-        sessionMode: FAMILY_MODES[familyName][m],
-        chordRootMode: FAMILY_MODES[familyName][chordDegIdx],
-        parentOffset: familyIntervals[m],
-      });
-    }
-  }
-
-  results.sort(
-    (a, b) =>
-      (FAMILY_PRIORITY[a.family] ?? 99) - (FAMILY_PRIORITY[b.family] ?? 99),
-  );
-  return results;
-}
-
-// ── Types ────────────────────────────────────────────────────────────────
-
-interface ChordInsight {
-  degreeName: string;
-  hybrid: string;
-  quality: string;
-  chordLabel: string; // e.g. "C major"
-  rootLetter: string; // chord root letter for Learn link
-  noteNames: string[]; // e.g. ["C", "E", "G"]
-  intervals: string; // e.g. "R 3 5"
-  color: string; // CSS color (per-chord, mode-based)
-  sessionMode: string | null; // session key's mode from chord's perspective (e.g. "lydian" for E when chord is B maj7)
-  chordRootMode: string; // chord root's native mode from quality (e.g. "ionian" for maj7)
-  parentKeyLetter: string; // parent scale root letter (e.g. "G")
-  parentMode: string; // parent scale mode (first mode of family, e.g. "ionian")
-  isSessionParent: boolean; // true when session key = parent key (offset === 0)
-  description: string; // quality-based theory blurb
-  alternatives: ChordInterpretation[]; // non-primary interpretations, sorted by commonality
-}
+import type { UnisonChordRegion } from '@/unison/types/schema';
+import {
+  PARENT_SCALE_INFO,
+  FAMILY_INTERVALS,
+  FAMILY_MODES,
+  MODE_DISPLAY,
+  MODE_TO_SLUG,
+  ROOT_TO_KEY_INDEX,
+  formatQuality,
+  degreeToHybrid,
+  intervalsToString,
+  rgbString,
+  findAllInterpretations,
+  type ChordInsight,
+  type ChordInterpretation,
+} from './insightConstants';
+import { ChordCard } from './ChordCard';
+import { KeySection } from './KeySection';
+import { UnisonSections } from './UnisonSections';
 
 // ── Component ────────────────────────────────────────────────────────────
 
@@ -440,8 +62,42 @@ export function InsightContent() {
 
   const keyLetter = rootNote !== null ? NOTES[rootNote] : null;
 
+  // UNISON analysis state
+  const unisonDoc = useStore((s) => s.unisonDoc);
+  const unisonError = useStore((s) => s.unisonError);
+  const chordRegions = useStore((s) => s.chordRegions);
+  const tracks = useStore((s) => s.tracks);
+  const analyzeSession = useStore((s) => s.analyzeSession);
+
+  // Auto-analyze when inputs change (debounced 500ms)
+  useEffect(() => {
+    const hasMidi = tracks.some(
+      (t) => t.type === 'midi' && t.midiClips.some((c) => c.events.length > 0),
+    );
+    if (!hasMidi && chordRegions.length === 0) return;
+
+    const timer = setTimeout(() => {
+      analyzeSession();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [chordRegions, rootNote, mode, tracks, analyzeSession]);
+
   const [showLiveAlts, setShowLiveAlts] = useState(false);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+
+  // ── UNISON chord lookup map ──
+
+  const unisonChordMap = useMemo(() => {
+    if (!unisonDoc) return new Map<string, UnisonChordRegion>();
+    const map = new Map<string, UnisonChordRegion>();
+    for (const region of unisonDoc.analysis.chordTimeline) {
+      if (!map.has(region.hybridName)) {
+        map.set(region.hybridName, region);
+      }
+    }
+    return map;
+  }, [unisonDoc]);
 
   // ── Live chord detection (audio or MIDI) ──
 
@@ -459,7 +115,6 @@ export function InsightContent() {
         : noteNameLetter(rootPc + 48);
     const intervals = CHORDS[quality];
 
-    // Build chord label with ordinal inversion labels
     const INVERSION_LABELS = [
       '',
       '1st Inversion',
@@ -481,7 +136,6 @@ export function InsightContent() {
     let alternatives: ChordInterpretation[] = [];
 
     if (rootNote !== null) {
-      // Degree detection uses the true chord root, not the bass note
       const diff = (rootPc - rootNote + 12) % 12;
       const ionian = MODES.ionian;
       let degree = -1;
@@ -527,17 +181,14 @@ export function InsightContent() {
         const [r, g, b] = getChordColor(degreeName, rootMidi, mode);
         color = rgbString(r, g, b);
 
-        // Chord root's mode from its quality (maj7 → ionian, min7 → dorian, etc.)
         chordRootMode = getChordTheory(quality).mode;
 
-        // Derive parent scale from the chord's mode
         const chordModeInfo = PARENT_SCALE_INFO[chordRootMode];
         const chordParentFamily = chordModeInfo?.family ?? 'Ionian';
         const chordParentRootPc = chordModeInfo
           ? (rootPc + chordModeInfo.offset) % 12
           : rootPc;
 
-        // Session key's mode from chord's perspective
         const sessionInterval = (rootNote - chordParentRootPc + 12) % 12;
         const chordFamilyIntervals = FAMILY_INTERVALS[chordParentFamily];
         const sessionDegIdx =
@@ -547,13 +198,11 @@ export function InsightContent() {
             ? (FAMILY_MODES[chordParentFamily]?.[sessionDegIdx] ?? null)
             : null;
 
-        // Parent info
         const isChordParent = !chordModeInfo || chordModeInfo.offset === 0;
         isSessionParent = isChordParent || chordParentRootPc === rootNote;
         parentKeyLetter = noteNameInKey(chordParentRootPc, rootNote);
         parentMode = FAMILY_MODES[chordParentFamily]?.[0] ?? chordRootMode;
 
-        // All family interpretations (excluding primary)
         const allInterps = findAllInterpretations(degreeName);
         alternatives = allInterps.filter(
           (i) => i.chordRootMode !== chordRootMode,
@@ -577,16 +226,26 @@ export function InsightContent() {
     };
   }, [activeNotes, rootNote, mode]);
 
-  // ── Progression insights ──
+  // ── Progression insights (with UNISON enrichment) ──
 
   const insights = useMemo(() => {
-    if (stringSeq.length === 0 || rootNote === null) return [];
+    if (rootNote === null) return [];
+
+    // Prefer stringSeq (manual chord builder), fall back to chordRegions (recording)
+    const source: string[] =
+      stringSeq.length > 0
+        ? stringSeq
+        : chordRegions
+            .map((r) => r.degreeKey)
+            .filter((k): k is string => k != null);
+
+    if (source.length === 0) return [];
 
     const rootMidi = rootNote + 48;
     const seen = new Set<string>();
     const results: ChordInsight[] = [];
 
-    for (const degreeName of stringSeq) {
+    for (const degreeName of source) {
       if (seen.has(degreeName)) continue;
       seen.add(degreeName);
 
@@ -600,21 +259,17 @@ export function InsightContent() {
       const rootLetter = noteNameInKey(bassMidi % 12, rootNote);
       const intervals = CHORDS[quality];
 
-      // Per-chord color via engine's circle-of-fifths rotation
       const [r, g, b] = getChordColor(degreeName, parentRoot);
 
-      // Chord root's mode from its quality (maj7 → ionian, min7 → dorian, etc.)
       const chordRootPc = bassMidi % 12;
       const chordRootMode = getChordTheory(quality).mode;
 
-      // Derive parent scale from the chord's mode
       const chordModeInfo = PARENT_SCALE_INFO[chordRootMode];
       const chordParentFamily = chordModeInfo?.family ?? 'Ionian';
       const chordParentRootPc = chordModeInfo
         ? (chordRootPc + chordModeInfo.offset) % 12
         : chordRootPc;
 
-      // Session key's mode from chord's perspective
       const sessionInterval = (rootNote - chordParentRootPc + 12) % 12;
       const chordFamilyIntervals = FAMILY_INTERVALS[chordParentFamily];
       const sessionDegIdx =
@@ -624,17 +279,18 @@ export function InsightContent() {
           ? (FAMILY_MODES[chordParentFamily]?.[sessionDegIdx] ?? null)
           : null;
 
-      // Parent info
       const isChordParent = !chordModeInfo || chordModeInfo.offset === 0;
       const isSessionParent = isChordParent || chordParentRootPc === rootNote;
       const parentKeyLetter = noteNameInKey(chordParentRootPc, rootNote);
       const parentMode = FAMILY_MODES[chordParentFamily]?.[0] ?? chordRootMode;
 
-      // All family interpretations (excluding primary)
       const allInterps = findAllInterpretations(degreeName);
       const alternatives = allInterps.filter(
         (i) => i.chordRootMode !== chordRootMode,
       );
+
+      // UNISON enrichment lookup
+      const unisonRegion = unisonChordMap.get(degreeName);
 
       results.push({
         degreeName: ionianToModeLabel(degreeName, mode),
@@ -652,17 +308,23 @@ export function InsightContent() {
         isSessionParent,
         description: getChordTheory(quality).description,
         alternatives,
+        // UNISON fields
+        romanNumeral: unisonRegion?.romanNumeral,
+        isDiatonic: unisonRegion?.isDiatonic,
+        modalInterchange: unisonRegion?.modalInterchange,
+        sourceMode: unisonRegion?.sourceMode,
       });
     }
 
     return results;
-  }, [stringSeq, rootNote, mode]);
+  }, [stringSeq, chordRegions, rootNote, mode, unisonChordMap]);
 
-  const hasProgression = stringSeq.length > 0 && rootNote !== null;
+  const hasProgression =
+    (stringSeq.length > 0 || chordRegions.length > 0) && rootNote !== null;
   const keyIdx = hasProgression ? ROOT_TO_KEY_INDEX[rootNote] : 0;
-  const [kr, kg, kb] = hasProgression
+  const keyColor: [number, number, number] = hasProgression
     ? KEY_COLORS[keyIdx]
-    : ([255, 255, 255] as const);
+    : [255, 255, 255];
 
   return (
     <div className="flex flex-col gap-0.5">
@@ -858,7 +520,7 @@ export function InsightContent() {
                       <span>
                         {liveChord.rootLetter}{' '}
                         {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}
-                        {' · '}
+                        {' \u00B7 '}
                         {noteNameInKey(
                           (rootNote! - alt.parentOffset + 12) % 12,
                           rootNote!,
@@ -907,260 +569,34 @@ export function InsightContent() {
         )}
       </div>
 
-      {/* Progression: key indicator + chord cards */}
+      {/* Unified Key Section + Analyze Button */}
       {hasProgression ? (
         <>
-          {/* Key indicator */}
-          <div
-            className="flex items-center gap-2 px-3 py-2 border-b"
-            style={{ borderColor: 'var(--color-border)' }}
-          >
-            <div
-              className="w-2 h-2 rounded-full shrink-0"
-              style={{ backgroundColor: rgbString(kr, kg, kb) }}
-            />
-            <span
-              className="text-[11px] font-semibold"
-              style={{ color: 'var(--color-text)' }}
-            >
-              Key of {keyLetter}
-            </span>
-          </div>
+          <KeySection
+            keyLetter={keyLetter}
+            keyColor={keyColor}
+            rootNote={rootNote}
+            mode={mode}
+            unisonDoc={unisonDoc}
+          />
 
           {/* Chord cards */}
           {insights.map((chord) => (
-            <div
+            <ChordCard
               key={chord.degreeName}
-              className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
-              style={{ borderColor: 'var(--color-border)' }}
-            >
-              {/* Title row */}
-              <div className="flex items-center gap-1.5">
-                <div
-                  className="w-1.5 h-1.5 rounded-full shrink-0"
-                  style={{ backgroundColor: chord.color }}
-                />
-                <span
-                  className="text-[11px] font-semibold"
-                  style={{ color: 'var(--color-text)' }}
-                >
-                  {chord.hybrid}
-                </span>
-                <span
-                  className="text-[10px]"
-                  style={{ color: 'var(--color-text-dim)' }}
-                >
-                  {chord.chordLabel}
-                </span>
-              </div>
-
-              {/* Intervals */}
-              {chord.intervals && (
-                <div className="flex gap-1 flex-wrap">
-                  {chord.intervals.split(' ').map((interval, i) => (
-                    <span
-                      key={i}
-                      className="text-[9px] font-mono px-1 py-0.5 rounded"
-                      style={{
-                        backgroundColor: 'var(--color-surface-2)',
-                        color:
-                          interval === 'R'
-                            ? 'var(--color-accent)'
-                            : 'var(--color-text-dim)',
-                      }}
-                    >
-                      {interval}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* Note names */}
-              <div
-                className="text-[9px]"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                Notes: {chord.noteNames.join(' \u2013 ')}
-              </div>
-
-              {/* Theory description */}
-              <div
-                className="text-[9px] leading-snug"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                {chord.description}
-              </div>
-
-              {/* Mode links */}
-              <div className="flex flex-wrap items-center gap-1 mt-0.5">
-                <Link
-                  to={LearnRoutes.lesson({
-                    mode:
-                      MODE_TO_SLUG[chord.chordRootMode] ?? chord.chordRootMode,
-                    key: keyLabelToUrlParam(chord.rootLetter),
-                  })}
-                  className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
-                  style={{
-                    backgroundColor: 'var(--color-surface-3)',
-                    color: 'var(--color-accent)',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor =
-                      'rgba(126,207,207,0.15)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor =
-                      'var(--color-surface-3)';
-                  }}
-                >
-                  <BookOpen size={8} strokeWidth={2} />
-                  {chord.rootLetter}{' '}
-                  {MODE_DISPLAY[chord.chordRootMode] ?? chord.chordRootMode}
-                </Link>
-                {chord.sessionMode &&
-                  keyLetter &&
-                  !(
-                    chord.sessionMode === chord.chordRootMode &&
-                    chord.rootLetter === keyLetter
-                  ) && (
-                    <Link
-                      to={LearnRoutes.lesson({
-                        mode:
-                          MODE_TO_SLUG[chord.sessionMode] ?? chord.sessionMode,
-                        key: keyLabelToUrlParam(keyLetter),
-                      })}
-                      className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
-                      style={{
-                        backgroundColor: 'var(--color-surface-3)',
-                        color: 'var(--color-accent)',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor =
-                          'rgba(126,207,207,0.15)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor =
-                          'var(--color-surface-3)';
-                      }}
-                    >
-                      <BookOpen size={8} strokeWidth={2} />
-                      {keyLetter}{' '}
-                      {MODE_DISPLAY[chord.sessionMode] ?? chord.sessionMode}
-                    </Link>
-                  )}
-                {!chord.isSessionParent &&
-                  chord.parentKeyLetter &&
-                  chord.parentMode && (
-                    <Link
-                      to={LearnRoutes.lesson({
-                        mode:
-                          MODE_TO_SLUG[chord.parentMode] ?? chord.parentMode,
-                        key: keyLabelToUrlParam(chord.parentKeyLetter),
-                      })}
-                      className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
-                      style={{
-                        backgroundColor: 'var(--color-surface-3)',
-                        color: 'var(--color-accent)',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor =
-                          'rgba(126,207,207,0.15)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor =
-                          'var(--color-surface-3)';
-                      }}
-                    >
-                      <BookOpen size={8} strokeWidth={2} />
-                      Parent: {chord.parentKeyLetter}{' '}
-                      {MODE_DISPLAY[chord.parentMode] ?? chord.parentMode}
-                    </Link>
-                  )}
-              </div>
-
-              {/* Alternative interpretations */}
-              {chord.alternatives.length > 0 && (
-                <div className="flex flex-col gap-0.5 mt-0.5">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setExpandedCards((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(chord.degreeName))
-                          next.delete(chord.degreeName);
-                        else next.add(chord.degreeName);
-                        return next;
-                      })
-                    }
-                    className="flex items-center gap-1 text-[9px] font-medium"
-                    style={{
-                      color: 'var(--color-text-dim)',
-                      background: 'none',
-                      border: 'none',
-                      padding: 0,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <ChevronDown
-                      size={10}
-                      strokeWidth={2}
-                      style={{
-                        transition: 'transform 150ms',
-                        transform: expandedCards.has(chord.degreeName)
-                          ? 'rotate(180deg)'
-                          : 'rotate(0deg)',
-                      }}
-                    />
-                    Also found in {chord.alternatives.length} scale
-                    {chord.alternatives.length > 1 ? 's' : ''}
-                  </button>
-                  {expandedCards.has(chord.degreeName) &&
-                    chord.alternatives.map((alt, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-1.5 pl-3 text-[9px] leading-snug"
-                        style={{ color: 'var(--color-text-dim)', opacity: 0.7 }}
-                      >
-                        <span>
-                          {chord.rootLetter}{' '}
-                          {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}
-                          {' · '}
-                          {noteNameInKey(
-                            (rootNote! - alt.parentOffset + 12) % 12,
-                            rootNote!,
-                          )}{' '}
-                          {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ??
-                            alt.family}
-                        </span>
-                        <Link
-                          to={LearnRoutes.lesson({
-                            mode:
-                              MODE_TO_SLUG[alt.chordRootMode] ??
-                              alt.chordRootMode,
-                            key: keyLabelToUrlParam(chord.rootLetter),
-                          })}
-                          className="flex items-center gap-0.5 px-1 py-0.5 rounded text-[8px] font-medium transition-colors shrink-0"
-                          style={{
-                            backgroundColor: 'var(--color-surface-2)',
-                            color: 'var(--color-accent)',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor =
-                              'rgba(126,207,207,0.15)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor =
-                              'var(--color-surface-2)';
-                          }}
-                        >
-                          <BookOpen size={8} strokeWidth={2} />
-                          Learn
-                        </Link>
-                      </div>
-                    ))}
-                </div>
-              )}
-            </div>
+              chord={chord}
+              keyLetter={keyLetter}
+              rootNote={rootNote}
+              expanded={expandedCards.has(chord.degreeName)}
+              onToggleExpand={() =>
+                setExpandedCards((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(chord.degreeName)) next.delete(chord.degreeName);
+                  else next.add(chord.degreeName);
+                  return next;
+                })
+              }
+            />
           ))}
         </>
       ) : (
@@ -1178,6 +614,21 @@ export function InsightContent() {
           </span>
         </div>
       )}
+
+      {/* UNISON Analysis Sections */}
+      {unisonError && (
+        <div
+          className="mx-3 my-2 rounded px-2 py-1.5 text-[9px]"
+          style={{
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            color: '#ef4444',
+          }}
+        >
+          {unisonError}
+        </div>
+      )}
+
+      {unisonDoc && <UnisonSections unisonDoc={unisonDoc} />}
     </div>
   );
 }

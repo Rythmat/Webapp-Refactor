@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-sort-props */
 /* eslint-disable tailwindcss/classnames-order */
+import { useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, Check, CheckCircle2, Sparkles } from 'lucide-react';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -62,6 +63,7 @@ export const PlanPage = () => {
   const { data: billingConfig } = useBillingConfig();
   const { data: credits, isLoading: creditsLoading } = useCreditsBalance();
   const { data: subscription, isLoading: subLoading } = useMySubscription();
+  const queryClient = useQueryClient();
   const refreshSubscription = useRefreshSubscription();
   const checkout = useStripeCheckout();
   const portal = useStripePortal();
@@ -74,26 +76,27 @@ export const PlanPage = () => {
     const checkoutParam = searchParams.get('checkout');
     if (checkoutParam === 'success' || checkoutParam === 'cancelled') {
       refreshSubscription();
+      queryClient.invalidateQueries({ queryKey: ['credits', 'balance'] });
       const next = new URLSearchParams(searchParams);
       next.delete('checkout');
       setSearchParams(next, { replace: true });
     }
   }, [searchParams, setSearchParams, refreshSubscription]);
 
+  const uiState = getBillingUiState(subscription);
+  const paymentIssue = hasPaymentIssue(uiState);
+  const isPaidUser = isActivePaidState(uiState);
+  const periodEndDate = formatPeriodDate(subscription?.currentPeriodEnd);
+
   const tiers = billingConfig?.tiers ?? FALLBACK_TIERS;
   const tierAllowance = Object.fromEntries(
     tiers.map((tier) => [tier.id, tier.credits]),
   ) as Record<string, number>;
 
-  const currentTier = credits?.tier ?? 'free';
+  const currentTier = isPaidUser ? 'artist' : (credits?.tier ?? 'free');
   const balance = credits?.balance ?? 0;
   const allowance = tierAllowance[currentTier] ?? 50;
   const usagePercent = Math.min(100, Math.round((balance / allowance) * 100));
-
-  const uiState = getBillingUiState(subscription);
-  const paymentIssue = hasPaymentIssue(uiState);
-  const isPaidUser = isActivePaidState(uiState);
-  const periodEndDate = formatPeriodDate(subscription?.currentPeriodEnd);
 
   const isLoading = creditsLoading || subLoading;
 
@@ -248,6 +251,13 @@ export const PlanPage = () => {
               </ul>
 
               <div className="mt-6">
+                {isCurrent && isPaidUser && periodEndDate && (
+                  <p className="mb-2 text-center text-xs text-muted-foreground">
+                    {subscription?.cancelAtPeriodEnd
+                      ? `Access until ${periodEndDate}`
+                      : `Next billing: ${periodEndDate}`}
+                  </p>
+                )}
                 {isCurrent ? (
                   <Button className="w-full" disabled variant="outline">
                     Current plan

@@ -6,6 +6,9 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
+  server: {
+    port: 5179,
+  },
   resolve: {
     alias: {
       '@prism/engine': path.resolve(__dirname, 'src/daw/prism-engine/index.ts'),

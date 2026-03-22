@@ -9,6 +9,7 @@ import { cn } from '@/components/utilities';
 import { usePlayNote } from '@/contexts/PianoContext';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import { useOptionalLearnInputStable } from '@/learn/context/LearnInputContext';
 
 type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
 
@@ -265,6 +266,17 @@ export function ChordPressGame({
     [toggleNote],
   );
 
+  // Subscribe to unified input (audio + MIDI via context) when available.
+  // When rendered outside LearnInputProvider (e.g., classroom markdown),
+  // falls back to PianoKeyboard's built-in MIDI interface.
+  const learnInput = useOptionalLearnInputStable();
+  const hasLearnContext = learnInput !== null;
+
+  useEffect(() => {
+    if (!learnInput) return;
+    return learnInput.subscribeNoteOn(onMidiInput);
+  }, [learnInput, onMidiInput]);
+
   useEffect(() => {
     if (!enableComputerKeyboard) return;
 
@@ -388,8 +400,10 @@ export function ChordPressGame({
             endC={6}
             gaming={true}
             onKeyClick={toggleNote}
-            onMidiInput={enableMIDI ? onMidiInput : undefined}
-            enableMidiInterface={enableMIDI}
+            onMidiInput={
+              hasLearnContext ? undefined : enableMIDI ? onMidiInput : undefined
+            }
+            enableMidiInterface={hasLearnContext ? false : enableMIDI}
             playingNotes={selectedEvents}
             activeWhiteKeyColor={undefined}
             activeBlackKeyColor={undefined}

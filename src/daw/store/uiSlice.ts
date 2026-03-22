@@ -71,6 +71,7 @@ export interface UiSlice {
   // ── Library sidebar ──
   libraryOpen: boolean;
   toggleLibrary: () => void;
+  setLibraryOpen: (open: boolean) => void;
 
   // ── Clip color mode ──
   clipColorMode: 'track' | 'prism';
@@ -194,6 +195,7 @@ export const createUiSlice: StateCreator<
   // ── Library sidebar ──
   libraryOpen: true,
   toggleLibrary: () => set((s) => ({ libraryOpen: !s.libraryOpen })),
+  setLibraryOpen: (open) => set({ libraryOpen: open }),
 
   // ── Clip color mode ──
   clipColorMode: 'track',

@@ -11,6 +11,7 @@
  *   4. pitch_order_timing_duration — add duration accuracy (±300ms)
  */
 
+import type { ContinuousPerformanceScore } from '@/learn/audio/v2/types';
 import {
   type AssessmentType,
   type MatchResult,
@@ -20,6 +21,8 @@ import {
   matchPitchOrderTimingDuration,
 } from './assessmentMatchers';
 import { calculateScore, type AssessmentScore } from './assessmentScoring';
+import type { ReceivedNote } from './continuousMatchers';
+import { scoreContinuous } from './continuousScoring';
 import type { MidiNoteEvent } from './melodyPipeline';
 
 // ---------------------------------------------------------------------------
@@ -95,6 +98,40 @@ export function evaluate(
     type,
     matchResult,
     score,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// V2 continuous evaluation
+// ---------------------------------------------------------------------------
+
+export interface ContinuousAssessmentResult {
+  type: AssessmentType;
+  continuous: ContinuousPerformanceScore;
+  score: AssessmentScore;
+}
+
+/**
+ * Evaluate using the v2 continuous scoring system.
+ * Returns both the rich continuous result and a backward-compatible AssessmentScore.
+ */
+export function evaluateContinuous(
+  expected: MidiNoteEvent[],
+  received: ReceivedNote[],
+  type: AssessmentType,
+  tempo: number = 120,
+): ContinuousAssessmentResult {
+  const { continuous, legacy } = scoreContinuous(
+    expected,
+    received,
+    tempo,
+    type,
+  );
+
+  return {
+    type,
+    continuous,
+    score: legacy,
   };
 }
 

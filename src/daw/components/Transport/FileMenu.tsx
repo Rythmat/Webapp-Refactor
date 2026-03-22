@@ -11,6 +11,7 @@ import {
   SaveAll,
   FolderOpen,
   Trash2,
+  Sparkles,
 } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import {
@@ -203,6 +204,16 @@ export function FileMenu() {
     );
   }, []);
 
+  const handleAnalyze = useCallback(() => {
+    const state = useStore.getState();
+    state.analyzeSession();
+    state.setLibraryOpen(true);
+  }, []);
+
+  const handleExportUnison = useCallback(() => {
+    useStore.getState().exportUnisonJSON();
+  }, []);
+
   const savedSessions = listSessions();
 
   return (
@@ -355,6 +366,32 @@ export function FileMenu() {
             >
               <Music size={13} strokeWidth={2} />
               Export Lead Sheet
+            </DropdownMenu.Item>
+
+            <div style={separatorStyle} />
+
+            <DropdownMenu.Item
+              className={itemClass}
+              style={itemStyle}
+              onSelect={handleAnalyze}
+            >
+              <Sparkles size={13} strokeWidth={2} />
+              Analyze
+              <span
+                className="ml-auto text-[10px]"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                {'\u21e7\u2318'}U
+              </span>
+            </DropdownMenu.Item>
+
+            <DropdownMenu.Item
+              className={itemClass}
+              style={itemStyle}
+              onSelect={handleExportUnison}
+            >
+              <FileDown size={13} strokeWidth={2} />
+              Export Analysis JSON
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>

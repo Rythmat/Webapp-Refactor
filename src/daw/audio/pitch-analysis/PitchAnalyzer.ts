@@ -2,6 +2,9 @@
 // Offline pitch analysis engine. Runs YIN pitch detection on an AudioBuffer
 // and groups detections into PitchSegment objects for the vocal pitch editor.
 
+import type { AudioBufferLike } from '@/unison/converters/audioToUnison';
+import { yinDetectOffline } from '@/audio/pitch/YinCore';
+
 // ── Types ────────────────────────────────────────────────────────────────
 
 export interface PitchFrame {
@@ -37,68 +40,6 @@ function median(arr: number[]): number {
     : sorted[mid];
 }
 
-// ── YIN Pitch Detection (offline version) ────────────────────────────────
-// Ported from pitch-correction-processor.js YinDetector class.
-
-function yinDetect(
-  buffer: Float32Array,
-  offset: number,
-  frameLength: number,
-  sampleRate: number,
-  threshold: number,
-): number {
-  const halfLen = Math.floor(frameLength / 2);
-  const diff = new Float32Array(halfLen);
-  const cmndf = new Float32Array(halfLen);
-
-  // Step 1: Difference function
-  for (let tau = 0; tau < halfLen; tau++) {
-    let sum = 0;
-    for (let i = 0; i < halfLen; i++) {
-      const d = buffer[offset + i] - buffer[offset + i + tau];
-      sum += d * d;
-    }
-    diff[tau] = sum;
-  }
-
-  // Step 2: Cumulative mean normalized difference
-  cmndf[0] = 1;
-  let runningSum = 0;
-  for (let tau = 1; tau < halfLen; tau++) {
-    runningSum += diff[tau];
-    cmndf[tau] = diff[tau] / (runningSum / tau);
-  }
-
-  // Step 3: Absolute threshold
-  const minPeriod = Math.floor(sampleRate / 2000); // 2000 Hz max
-  const maxPeriod = Math.floor(sampleRate / 50); // 50 Hz min
-
-  let tauEstimate = -1;
-  for (let tau = minPeriod; tau < Math.min(maxPeriod, halfLen); tau++) {
-    if (cmndf[tau] < threshold) {
-      while (tau + 1 < halfLen && cmndf[tau + 1] < cmndf[tau]) tau++;
-      tauEstimate = tau;
-      break;
-    }
-  }
-
-  if (tauEstimate === -1) return 0;
-
-  // Step 4: Parabolic interpolation
-  const t = tauEstimate;
-  if (t > 0 && t < halfLen - 1) {
-    const s0 = cmndf[t - 1];
-    const s1 = cmndf[t];
-    const s2 = cmndf[t + 1];
-    const shift = (s0 - s2) / (2 * (s0 - 2 * s1 + s2));
-    if (Math.abs(shift) < 1) {
-      return sampleRate / (t + shift);
-    }
-  }
-
-  return sampleRate / t;
-}
-
 // ── Median Filter ────────────────────────────────────────────────────────
 
 function medianFilter(values: number[], windowSize: number): number[] {
@@ -124,7 +65,7 @@ const YIN_THRESHOLD = 0.15;
 const MIN_SEGMENT_MS = 30;
 const CENTS_GROUPING = 50; // max cents difference to merge frames
 
-export function analyzeBuffer(audioBuffer: AudioBuffer): PitchSegment[] {
+export function analyzeBuffer(audioBuffer: AudioBufferLike): PitchSegment[] {
   const sampleRate = audioBuffer.sampleRate;
   const samples = audioBuffer.getChannelData(0); // mono / left channel
   const totalSamples = samples.length;
@@ -136,7 +77,7 @@ export function analyzeBuffer(audioBuffer: AudioBuffer): PitchSegment[] {
     offset + FRAME_LENGTH <= totalSamples;
     offset += HOP_SIZE
   ) {
-    const freq = yinDetect(
+    const freq = yinDetectOffline(
       samples,
       offset,
       FRAME_LENGTH,

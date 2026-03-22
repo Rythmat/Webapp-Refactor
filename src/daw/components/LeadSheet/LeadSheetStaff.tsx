@@ -38,6 +38,8 @@ interface LeadSheetStaffProps {
     measureStartTick: number,
     measureWidth: number,
   ) => void;
+  onMarkAsMelody?: (regionId: string) => void;
+  onDeleteChord?: (regionId: string) => void;
 }
 
 /**
@@ -60,6 +62,8 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
   onRenameChord,
   onClickEmptyBeat,
   onChordDragStart,
+  onMarkAsMelody,
+  onDeleteChord,
 }: LeadSheetStaffProps) {
   const defaultWidth = measures.length * MEASURE_WIDTH;
   const isFull = measures.length === FULL_SYSTEM_COUNT;
@@ -105,6 +109,8 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
             onRenameChord={onRenameChord}
             onClickEmptyBeat={onClickEmptyBeat}
             onChordDragStart={onChordDragStart}
+            onMarkAsMelody={onMarkAsMelody}
+            onDeleteChord={onDeleteChord}
           />
         );
       })}

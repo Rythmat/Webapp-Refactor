@@ -56,7 +56,7 @@ const COLOR_SURFACES = {
 export const KEY_OF_COLORS = {
   C: '#D2404A',
   G: '#FF7348',
-  D: '#FEA93A',
+  D: '#FEA92A',
   A: '#FFCB30',
   E: '#AED580',
   B: '#7FC783',
@@ -64,8 +64,8 @@ export const KEY_OF_COLORS = {
   Db: '#62B4F7',
   Ab: '#7885CB',
   Eb: '#9D7FCE',
-  Bb: '#C783D3',
-  F: '#F8C8C5',
+  Bb: '#C785D3',
+  F: '#F8A8C5',
 };
 
 export const theme: Config['theme'] = {

@@ -120,7 +120,10 @@ function drawPianoRoll(
       nb = b;
     if (useChordColors) {
       for (let j = chordRegions.length - 1; j >= 0; j--) {
-        if (ev.startTick >= chordRegions[j].startTick) {
+        if (
+          ev.startTick >=
+          (chordRegions[j].rawStartTick ?? chordRegions[j].startTick)
+        ) {
           [nr, ng, nb] = chordRegions[j].color;
           break;
         }
@@ -278,6 +281,8 @@ export function Timeline() {
   const snapEnabled = useStore((s) => s.timelineSnapEnabled);
   const markers = useStore((s) => s.markers);
   const chordRulerShowNotes = useStore((s) => s.chordRulerShowNotes);
+  const chordRegions = useStore((s) => s.chordRegions);
+  const clipColorMode = useStore((s) => s.clipColorMode);
   const renameChordRegion = useStore((s) => s.renameChordRegion);
   const liveRecordingNotes = useStore((s) => s.liveRecordingNotes);
   const liveAudioPeaks = useStore((s) => s.liveAudioPeaks);
@@ -476,13 +481,23 @@ export function Timeline() {
         const effectiveTrackIndex = isDragging ? dragTrackRef.current : t;
         const effectiveY = effectiveTrackIndex * TRACK_HEIGHT + RULERS_HEIGHT;
 
-        const maxTick = clip.durationTicks
-          ? clip.startTick + clip.durationTicks
-          : clip.events.reduce(
-              (max, e) => Math.max(max, e.startTick + e.durationTicks),
-              clip.startTick,
-            );
-        const clipDuration = maxTick - clip.startTick;
+        let clipDuration: number;
+        let eventsMinTick = clip.startTick;
+        if (clip.durationTicks) {
+          clipDuration = clip.durationTicks;
+        } else if (clip.events.length > 0) {
+          eventsMinTick = clip.events.reduce(
+            (min, e) => Math.min(min, e.startTick),
+            Infinity,
+          );
+          const maxTick = clip.events.reduce(
+            (max, e) => Math.max(max, e.startTick + e.durationTicks),
+            -Infinity,
+          );
+          clipDuration = maxTick - eventsMinTick;
+        } else {
+          clipDuration = 0;
+        }
         const clipEndTick = effectiveStartTick + clipDuration;
 
         // Skip clips outside visible range
@@ -512,14 +527,18 @@ export function Timeline() {
           startTick: clip.startTick,
         });
 
-        // Background — rounded, vibrant
-        ctx.fillStyle = track.color + (isSelected ? '50' : '38');
+        // Background — neutral white glass so chord ruler / MIDI notes show through
+        ctx.fillStyle = isSelected
+          ? 'rgba(255,255,255,0.10)'
+          : 'rgba(255,255,255,0.05)';
         ctx.beginPath();
         ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
         ctx.fill();
 
-        // Border — selected clips get brighter border
-        ctx.strokeStyle = isSelected ? track.color + 'FF' : track.color + '90';
+        // Border — neutral white, brighter when selected
+        ctx.strokeStyle = isSelected
+          ? 'rgba(255,255,255,0.4)'
+          : 'rgba(255,255,255,0.2)';
         ctx.lineWidth = isSelected ? 2 : 1;
         ctx.beginPath();
         ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
@@ -533,12 +552,6 @@ export function Timeline() {
           ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
           ctx.clip();
 
-          const title = (clip as { name?: string }).name || clip.id;
-          ctx.fillStyle = `rgba(${colorGridRgb}, 0.7)`;
-          ctx.font = '9px Inter, sans-serif';
-          ctx.textBaseline = 'top';
-          ctx.fillText(title, clipX + 6, effectiveY + 6);
-
           if (clip.events.length > 0) {
             drawPianoRoll(
               ctx,
@@ -547,7 +560,7 @@ export function Timeline() {
               effectiveY + 2,
               clipWidth,
               TRACK_HEIGHT - 4,
-              clip.startTick,
+              eventsMinTick,
               clipDuration,
               track.color,
               state.chordRegions,
@@ -652,11 +665,20 @@ export function Timeline() {
 
       // ── Audio clips ───────────────────────────────────────────────
       for (const clip of track.audioClips) {
-        const clipEndTick = clip.startTick + clip.duration;
-        if (clipEndTick < visStart || clip.startTick > visEnd) continue;
+        const drag = dragRef.current;
+        const isDragging =
+          drag && drag.clipId === clip.id && drag.mode === 'move';
+        const effectiveStartTick = isDragging
+          ? dragTickRef.current
+          : clip.startTick;
+        const effectiveTrackIndex = isDragging ? dragTrackRef.current : t;
+        const effectiveY = effectiveTrackIndex * TRACK_HEIGHT + RULERS_HEIGHT;
+
+        const clipEndTick = effectiveStartTick + clip.duration;
+        if (clipEndTick < visStart || effectiveStartTick > visEnd) continue;
 
         const clipX = tickToPixel(
-          clip.startTick,
+          effectiveStartTick,
           currentZoom,
           currentScrollLeft,
         );
@@ -670,31 +692,35 @@ export function Timeline() {
           trackId: track.id,
           trackIndex: t,
           x: clipX,
-          y: y + 2,
+          y: effectiveY + 2,
           w: clipWidth,
           h: TRACK_HEIGHT - 4,
-          startTick: clip.startTick,
+          startTick: effectiveStartTick,
         });
 
-        ctx.fillStyle = track.color + (isSelected ? '50' : '30');
+        ctx.fillStyle = isSelected
+          ? 'rgba(255,255,255,0.10)'
+          : 'rgba(255,255,255,0.05)';
         ctx.beginPath();
-        ctx.roundRect(clipX, y + 2, clipWidth, TRACK_HEIGHT - 4, 4);
+        ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
         ctx.fill();
 
-        ctx.strokeStyle = isSelected ? track.color + 'FF' : track.color + '80';
+        ctx.strokeStyle = isSelected
+          ? 'rgba(255,255,255,0.4)'
+          : 'rgba(255,255,255,0.2)';
         ctx.lineWidth = isSelected ? 2 : 1;
         ctx.beginPath();
-        ctx.roundRect(clipX, y + 2, clipWidth, TRACK_HEIGHT - 4, 4);
+        ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
         ctx.stroke();
 
         if (clipWidth > 8 && currentPpb >= 5) {
           ctx.save();
           ctx.beginPath();
-          ctx.roundRect(clipX, y + 2, clipWidth, TRACK_HEIGHT - 4, 4);
+          ctx.roundRect(clipX, effectiveY + 2, clipWidth, TRACK_HEIGHT - 4, 4);
           ctx.clip();
 
           const sampleCount = Math.max(Math.floor(clipWidth / 2), 16);
-          const centerY = y + TRACK_HEIGHT / 2;
+          const centerY = effectiveY + TRACK_HEIGHT / 2;
           const maxH = (TRACK_HEIGHT - 8) * 0.42;
 
           const audioBuffer = getAudioBuffer(clip.id);
@@ -725,9 +751,9 @@ export function Timeline() {
             const fadeW = (clip.fadeInTicks / TICKS_PER_BEAT) * currentPpb;
             ctx.fillStyle = 'rgba(0,0,0,0.35)';
             ctx.beginPath();
-            ctx.moveTo(clipX, y + 2);
-            ctx.lineTo(clipX + fadeW, y + 2);
-            ctx.lineTo(clipX, y + 2 + clipH);
+            ctx.moveTo(clipX, effectiveY + 2);
+            ctx.lineTo(clipX + fadeW, effectiveY + 2);
+            ctx.lineTo(clipX, effectiveY + 2 + clipH);
             ctx.closePath();
             ctx.fill();
           }
@@ -736,9 +762,9 @@ export function Timeline() {
             const clipRight = clipX + clipWidth;
             ctx.fillStyle = 'rgba(0,0,0,0.35)';
             ctx.beginPath();
-            ctx.moveTo(clipRight, y + 2);
-            ctx.lineTo(clipRight - fadeW, y + 2);
-            ctx.lineTo(clipRight, y + 2 + clipH);
+            ctx.moveTo(clipRight, effectiveY + 2);
+            ctx.lineTo(clipRight - fadeW, effectiveY + 2);
+            ctx.lineTo(clipRight, effectiveY + 2 + clipH);
             ctx.closePath();
             ctx.fill();
           }
@@ -1031,6 +1057,8 @@ export function Timeline() {
     scrollLeft,
     markers,
     chordRulerShowNotes,
+    chordRegions,
+    clipColorMode,
     liveRecordingNotes,
     liveAudioPeaks,
   ]);

@@ -8,10 +8,14 @@ import {
   Repeat,
   Bookmark,
   Repeat2,
+  Layers,
+  Lock,
+  GitMerge,
 } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
 import type { LeadSheetChordFormat } from '@/daw/store/uiSlice';
+import type { ChordRecordMode } from '@/daw/store/prismSlice';
 
 interface LeadSheetToolbarProps {
   selectedMeasureIdx: number | null;
@@ -37,6 +41,8 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const repeats = useStore((s) => s.leadSheetRepeats);
   const addRepeat = useStore((s) => s.addLeadSheetRepeat);
   const removeRepeat = useStore((s) => s.removeLeadSheetRepeat);
+  const chordRecordMode = useStore((s) => s.chordRecordMode);
+  const setChordRecordMode = useStore((s) => s.setChordRecordMode);
 
   const handleExportMusicXml = useCallback(() => {
     if (chordRegions.length === 0) return;
@@ -220,6 +226,44 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
         <Repeat2 size={13} strokeWidth={2} />
         {hasRepeatAtSelected ? '− Repeat' : '+ Repeat'}
       </button>
+
+      <div
+        className="mx-1 h-4 w-px"
+        style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+      />
+
+      {/* Chord record mode toggle */}
+      <div
+        className="flex items-center rounded-md"
+        style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+      >
+        {(['replace', 'locked', 'merge'] as const).map((m) => (
+          <button
+            key={m}
+            className={btnClass}
+            style={{
+              ...btnStyle,
+              backgroundColor:
+                chordRecordMode === m ? 'rgba(255,255,255,0.1)' : 'transparent',
+            }}
+            onClick={() => setChordRecordMode(m as ChordRecordMode)}
+            title={
+              m === 'replace'
+                ? 'New chords overwrite existing'
+                : m === 'locked'
+                  ? 'Existing chords are protected'
+                  : 'Merge new notes with existing chords'
+            }
+          >
+            {m === 'replace' && <Layers size={13} strokeWidth={2} />}
+            {m === 'locked' && <Lock size={13} strokeWidth={2} />}
+            {m === 'merge' && <GitMerge size={13} strokeWidth={2} />}
+            <span className="ml-0.5">
+              {m.charAt(0).toUpperCase() + m.slice(1)}
+            </span>
+          </button>
+        ))}
+      </div>
 
       <div className="flex-1" />
 

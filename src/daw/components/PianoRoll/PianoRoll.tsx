@@ -13,6 +13,7 @@ import {
   type MidiNoteEvent,
 } from '@prism/engine';
 import { useStore } from '@/daw/store';
+import type { ChordRegion } from '@/daw/store/prismSlice';
 import {
   GRID_VALUES,
   quantizeEvents,
@@ -22,6 +23,34 @@ import {
 import { alternatingBarGroup } from '@/daw/utils/timelineScale';
 
 type Tool = 'select' | 'draw' | 'erase';
+
+function hexToRgb(hex: string): [number, number, number] {
+  const h = hex.replace('#', '');
+  return [
+    parseInt(h.substring(0, 2), 16),
+    parseInt(h.substring(2, 4), 16),
+    parseInt(h.substring(4, 6), 16),
+  ];
+}
+
+function resolveNoteColor(
+  ev: { startTick: number },
+  clipColor: string,
+  chordRegions: ChordRegion[],
+  useChordColors: boolean,
+): [number, number, number] {
+  const [r, g, b] = hexToRgb(clipColor);
+  if (!useChordColors) return [r, g, b];
+  for (let j = chordRegions.length - 1; j >= 0; j--) {
+    if (
+      ev.startTick >=
+      (chordRegions[j].rawStartTick ?? chordRegions[j].startTick)
+    ) {
+      return chordRegions[j].color;
+    }
+  }
+  return [r, g, b];
+}
 
 // ── Constants ───────────────────────────────────────────────────────────────
 const KEYS_WIDTH = 48; // px for piano key column
@@ -95,6 +124,8 @@ export function PianoRoll({
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
+  const chordRegions = useStore((s) => s.chordRegions);
+  const clipColorMode = useStore((s) => s.clipColorMode);
 
   const beatsPerBar = tsNum;
 
@@ -425,15 +456,30 @@ export function PianoRoll({
 
       const isSelected = selectedNoteIdx === i;
       const alpha = 0.7 + (ev.velocity / 127) * 0.3;
+      const useChordColors =
+        clipColorMode === 'prism' && chordRegions.length > 0;
+      const [nr, ng, nb] = resolveNoteColor(
+        ev,
+        clipColor,
+        chordRegions,
+        useChordColors,
+      );
 
       ctx.fillStyle = isSelected
-        ? clipColor
-        : `${clipColor}${Math.round(alpha * 255)
-            .toString(16)
-            .padStart(2, '0')}`;
+        ? `rgb(${nr}, ${ng}, ${nb})`
+        : `rgba(${nr}, ${ng}, ${nb}, ${alpha})`;
       ctx.beginPath();
       ctx.roundRect(x, noteY + 1, noteW, rowH - 2, 2);
       ctx.fill();
+
+      // Show note name when zoomed in enough
+      if (rowH >= 14 && noteW >= 24) {
+        const noteName = noteNameInKey(ev.note, rootNote ?? 0);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.font = `${Math.min(rowH - 4, 11)}px Inter, sans-serif`;
+        ctx.textBaseline = 'middle';
+        ctx.fillText(noteName, x + 3, noteY + rowH / 2);
+      }
 
       if (isSelected) {
         ctx.strokeStyle = '#ffffff';
@@ -447,6 +493,9 @@ export function PianoRoll({
     events,
     clipStartTick,
     clipColor,
+    chordRegions,
+    clipColorMode,
+    rootNote,
     gridSize,
     selectedNoteIdx,
     gridW,
@@ -522,11 +571,17 @@ export function PianoRoll({
         const circleY = h - stemH - 2;
 
         const alpha = 0.5 + (ev.velocity / 127) * 0.5;
+        const useChordColors =
+          clipColorMode === 'prism' && chordRegions.length > 0;
+        const [nr, ng, nb] = resolveNoteColor(
+          ev,
+          clipColor,
+          chordRegions,
+          useChordColors,
+        );
         const stemColor = isSelected
           ? '#ffffff'
-          : `${clipColor}${Math.round(alpha * 255)
-              .toString(16)
-              .padStart(2, '0')}`;
+          : `rgba(${nr}, ${ng}, ${nb}, ${alpha})`;
 
         // Stem line
         ctx.strokeStyle = stemColor;
@@ -537,7 +592,7 @@ export function PianoRoll({
         ctx.stroke();
 
         // Circle
-        ctx.fillStyle = isSelected ? '#ffffff' : clipColor;
+        ctx.fillStyle = isSelected ? '#ffffff' : `rgb(${nr}, ${ng}, ${nb})`;
         ctx.globalAlpha = isSelected ? 1 : alpha;
         ctx.beginPath();
         ctx.arc(x, circleY, VEL_CIRCLE_R, 0, Math.PI * 2);
@@ -558,6 +613,8 @@ export function PianoRoll({
     events,
     clipStartTick,
     clipColor,
+    chordRegions,
+    clipColorMode,
     selectedNoteIdx,
     gridW,
     pixelsPerTick,

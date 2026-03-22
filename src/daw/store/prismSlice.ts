@@ -1,6 +1,7 @@
 import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
-import type { MidiClip } from './tracksSlice';
+import type { MidiClip, Track } from './tracksSlice';
+import { guessTrackRole } from '@/daw/utils/trackRole';
 import {
   StrumMode,
   VelocityTilt,
@@ -26,6 +27,7 @@ import {
   noteNameLetter,
   getModeOffset,
   ionianToModeLabel,
+  resolveDegreeKey,
 } from '@prism/engine';
 
 // ── Types ────────────────────────────────────────────────────────────────
@@ -36,14 +38,19 @@ export function nextChordId(): string {
   return `cr-${++_chordIdCounter}`;
 }
 
+export type ChordRecordMode = 'replace' | 'locked' | 'merge';
+
 export interface ChordRegion {
   id: string;
   startTick: number;
   endTick: number;
+  rawStartTick?: number; // un-snapped actual chord hit time (for MIDI note coloring)
   name: string;
   noteName: string;
   color: [number, number, number];
   degreeKey?: string;
+  midis?: number[]; // MIDI pitches used for merge-mode recalculation
+  confidence?: number; // 0-1 chord confidence score (Phase 9)
 }
 
 export interface PrismSlice {
@@ -75,6 +82,9 @@ export interface PrismSlice {
   rootTrackColor: string | null;
   rootLocked: boolean;
   chordRulerShowNotes: boolean;
+  chordRecordMode: ChordRecordMode;
+  /** Region IDs the user has marked as melody (excluded from lead sheet display) */
+  melodyOverrides: Set<string>;
 
   // Actions — parameters
   setRootNote: (root: number | null) => void;
@@ -90,6 +100,7 @@ export interface PrismSlice {
   setFilterPercent: (percent: number) => void;
 
   toggleChordRulerLabels: () => void;
+  setChordRecordMode: (mode: ChordRecordMode) => void;
 
   // Actions — chord building
   addChord: (chordName: string) => void;
@@ -103,8 +114,12 @@ export interface PrismSlice {
   setSelectedTrackId: (id: string | null) => void;
 
   // Actions — chord regions
-  setChordRegions: (regions: ChordRegion[]) => void;
+  setChordRegions: (regions: ChordRegion[], force?: boolean) => void;
   offsetChordRegions: (deltaTicks: number) => void;
+  refineWithMelody: (
+    melodyTrackId: string,
+    pitchRange: { low: number; high: number },
+  ) => void;
 
   // Actions — lead sheet chord editing
   insertChordRegion: (
@@ -119,6 +134,11 @@ export interface PrismSlice {
   moveChordRegion: (id: string, newStartTick: number) => void;
   insertMeasure: (measureIdx: number) => void;
   deleteMeasure: (measureIdx: number) => void;
+
+  // Actions — melody overrides (Phase 10)
+  markAsMelody: (regionId: string) => void;
+  unmarkAsMelody: (regionId: string) => void;
+  clearMelodyOverrides: () => void;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -206,16 +226,112 @@ function getModeTrackColor(rootNote: number, mode: string): string {
   return rgbToHex(r, g, b);
 }
 
-function recolorChordRegions(
+/** Reverse lookup: note letter (with accidental) → pitch class */
+const NOTE_LETTER_TO_PC: Record<string, number> = {
+  C: 0,
+  'C#': 1,
+  Db: 1,
+  D: 2,
+  'D#': 3,
+  Eb: 3,
+  E: 4,
+  F: 5,
+  'F#': 6,
+  Gb: 6,
+  G: 7,
+  'G#': 8,
+  Ab: 8,
+  A: 9,
+  'A#': 10,
+  Bb: 10,
+  B: 11,
+};
+
+/** Un-abbreviate quality from abbreviated noteName form back to long form */
+const UNABBREV: Record<string, string> = {
+  maj: 'major',
+  min: 'minor',
+  dim: 'diminished',
+  aug: 'augmented',
+  dom: 'dominant',
+  maj7: 'major7',
+  min7: 'minor7',
+  dom7: 'dominant7',
+  dim7: 'diminished7',
+  dom9: 'dominant9',
+  maj9: 'major9',
+  min9: 'minor9',
+  'min7(b5)': 'minor7b5',
+  'min(maj7)': 'minormajor7',
+  'maj7(#5)': 'major7#5',
+  'dom7(b5)': 'dominant7b5',
+  'dom7(#5)': 'dominant7#5',
+  'dom7(b9)': 'dominant7b9',
+  'dom7(#11)': 'dominant7#11',
+  'maj7(#11)': 'major7#11',
+  min6: 'minor6',
+  maj6: 'major6',
+  dom7sus4: 'dominant7sus4',
+  dom7sus2: 'dominant7sus2',
+  maj7sus4: 'major7sus4',
+  maj7sus2: 'major7sus2',
+};
+
+/**
+ * Parse an abbreviated noteName like "Ab maj" or "F# dom7" into rootPc + long quality.
+ * Returns null if unparseable.
+ */
+function parseNoteNameChord(
+  noteName: string,
+): { rootPc: number; quality: string } | null {
+  const spaceIdx = noteName.indexOf(' ');
+  if (spaceIdx < 1) return null;
+  const letter = noteName.slice(0, spaceIdx);
+  const abbrevQuality = noteName.slice(spaceIdx + 1);
+  const pc = NOTE_LETTER_TO_PC[letter];
+  if (pc === undefined) return null;
+  const quality = UNABBREV[abbrevQuality] ?? abbrevQuality;
+  return { rootPc: pc, quality };
+}
+
+/**
+ * Re-derive degreeKey, name, noteName, and color for all chord regions
+ * when the key (rootNote/mode) changes.
+ */
+function rederiveChordRegions(
   regions: ChordRegion[],
   rootMidi: number,
   mode: string,
 ): ChordRegion[] {
-  const parentRoot = rootMidi - getModeOffset(mode);
-  return regions.map((r) => ({
-    ...r,
-    color: r.degreeKey ? getChordColor(r.degreeKey, parentRoot) : r.color,
-  }));
+  const keyPc = rootMidi % 12;
+  return regions.map((r) => {
+    const parsed = parseNoteNameChord(r.noteName);
+    if (!parsed) {
+      // Can't parse — just recolor if we have a degreeKey
+      if (!r.degreeKey) return r;
+      return { ...r, color: getChordColor(r.degreeKey, rootMidi, mode) };
+    }
+
+    // Re-derive degree relative to new key
+    const newDegreeKey = resolveDegreeKey(parsed.rootPc, parsed.quality, keyPc);
+
+    // Rebuild noteName with new key's enharmonic spelling
+    const newNoteName = abbreviateSequence(
+      `${noteNameInKey(parsed.rootPc, keyPc)} ${parsed.quality}`,
+    );
+
+    const newName = newDegreeKey ? abbreviateSequence(newDegreeKey) : r.name;
+
+    return {
+      ...r,
+      degreeKey: newDegreeKey,
+      name: newName,
+      noteName: newNoteName,
+      color: newDegreeKey
+        ? getChordColor(newDegreeKey, rootMidi, mode)
+        : r.color,
+    };
+  });
 }
 
 function findFirstRhythmForGenre(genre: string): string | undefined {
@@ -328,7 +444,8 @@ function deriveChordRegions(
         color: known
           ? getChordColor(known, parentRoot)
           : getChordColorFromNotes(currentNotes, rootMidi, mode),
-        degreeKey: known ?? undefined,
+        degreeKey: known ? ionianToModeLabel(known, mode) : undefined,
+        midis: [...currentNotes],
       });
       regionStart = hits[i].tick;
       currentNotes = hits[i].notes;
@@ -351,10 +468,239 @@ function deriveChordRegions(
     color: knownFinal
       ? getChordColor(knownFinal, parentRoot)
       : getChordColorFromNotes(currentNotes, rootMidi, mode),
-    degreeKey: knownFinal ?? undefined,
+    degreeKey: knownFinal ? ionianToModeLabel(knownFinal, mode) : undefined,
+    midis: [...currentNotes],
   });
 
   return regions;
+}
+
+// ── Shared label helpers (used by derivation and reconcile logic) ─────────
+
+function noteLabelFromNotes(notes: number[], keyPc: number): string {
+  const match = detectChordWithInversion(notes);
+  if (match) {
+    return abbreviateSequence(
+      `${noteNameInKey(match.rootPc, keyPc)} ${match.quality}`,
+    );
+  }
+  const raw = chordName(notes);
+  const bassPc = notes[0] % 12;
+  const oldLetter = noteNameLetter(bassPc);
+  const newLetter = noteNameInKey(bassPc, keyPc);
+  return abbreviateSequence(raw.replace(oldLetter, newLetter));
+}
+
+function rawDegreeKeyFromNotes(
+  notes: number[],
+  keyPc: number,
+): string | undefined {
+  const match = detectChordWithInversion(notes);
+  if (!match) return undefined;
+  return resolveDegreeKey(match.rootPc, match.quality, keyPc);
+}
+
+function degreeLabelFromNotes(notes: number[], keyPc: number): string {
+  const raw = rawDegreeKeyFromNotes(notes, keyPc);
+  return raw ? abbreviateSequence(raw) : noteLabelFromNotes(notes, keyPc);
+}
+
+// ── Reconcile chord regions (Replace / Locked / Merge) ──────────────────
+
+function regionsOverlap(a: ChordRegion, b: ChordRegion): boolean {
+  return a.startTick < b.endTick && a.endTick > b.startTick;
+}
+
+function reconcileChordRegions(
+  existing: ChordRegion[],
+  incoming: ChordRegion[],
+  mode: ChordRecordMode,
+  rootMidi: number,
+  currentMode: string,
+): ChordRegion[] {
+  // Fast path: nothing existing → all modes just accept incoming
+  if (existing.length === 0) return incoming;
+
+  if (mode === 'replace') return incoming;
+
+  const keyPc = rootMidi % 12;
+
+  if (mode === 'locked') {
+    // Keep all existing regions. Only add incoming regions (or slices of them)
+    // that don't overlap any existing region.
+    const result = [...existing];
+    for (const inc of incoming) {
+      // Check if any existing region overlaps this incoming region
+      const overlapping = existing.filter((ex) => regionsOverlap(ex, inc));
+      if (overlapping.length === 0) {
+        result.push(inc);
+        continue;
+      }
+      // Try to fit the incoming region into gaps between existing regions
+      let cursor = inc.startTick;
+      const overlappingSorted = [...overlapping].sort(
+        (a, b) => a.startTick - b.startTick,
+      );
+      for (const ex of overlappingSorted) {
+        if (cursor < ex.startTick) {
+          // Gap before this existing region
+          result.push({
+            ...inc,
+            id: nextChordId(),
+            startTick: cursor,
+            endTick: ex.startTick,
+          });
+        }
+        cursor = Math.max(cursor, ex.endTick);
+      }
+      // Gap after last overlapping region
+      if (cursor < inc.endTick) {
+        result.push({
+          ...inc,
+          id: nextChordId(),
+          startTick: cursor,
+          endTick: inc.endTick,
+        });
+      }
+    }
+    return result.sort((a, b) => a.startTick - b.startTick);
+  }
+
+  // mode === 'merge'
+  // For overlapping positions, union pitch classes and recalculate chord identity.
+  // Non-overlapping regions from both sides pass through unchanged.
+  const result: ChordRegion[] = [];
+  const usedExisting = new Set<string>();
+
+  for (const inc of incoming) {
+    const overlapping = existing.filter((ex) => regionsOverlap(ex, inc));
+    if (overlapping.length === 0) {
+      result.push(inc);
+      continue;
+    }
+    for (const ex of overlapping) {
+      usedExisting.add(ex.id);
+      // Union pitch classes from both regions
+      const pcSet = new Set<number>();
+      for (const m of ex.midis ?? []) pcSet.add(m % 12);
+      for (const m of inc.midis ?? []) pcSet.add(m % 12);
+      // Reconstruct at octave 4 for detection
+      const combined = Array.from(pcSet)
+        .sort((a, b) => a - b)
+        .map((pc) => 60 + pc);
+
+      const noteLabel = noteLabelFromNotes(combined, keyPc);
+      const degreeLabel = degreeLabelFromNotes(combined, keyPc);
+      const rawKey = rawDegreeKeyFromNotes(combined, keyPc);
+
+      // Use the union of the two regions' time spans
+      const mergedStart = Math.min(ex.startTick, inc.startTick);
+      const mergedEnd = Math.max(ex.endTick, inc.endTick);
+
+      result.push({
+        id: ex.id, // preserve existing region ID
+        startTick: mergedStart,
+        endTick: mergedEnd,
+        rawStartTick: ex.rawStartTick,
+        name: degreeLabel,
+        noteName: noteLabel,
+        color: rawKey
+          ? getChordColor(rawKey, rootMidi, currentMode)
+          : getChordColorFromNotes(combined, rootMidi, currentMode),
+        degreeKey: rawKey,
+        midis: combined,
+      });
+    }
+  }
+  // Add non-overlapping existing regions
+  for (const ex of existing) {
+    if (!usedExisting.has(ex.id)) {
+      result.push(ex);
+    }
+  }
+  // Add non-overlapping incoming regions (those with no overlapping existing)
+  // These were already added in the loop above.
+
+  return result.sort((a, b) => a.startTick - b.startTick);
+}
+
+// ── Phase 9: Chord confidence scoring ────────────────────────────────────
+
+/**
+ * Compute a 0-1 confidence score for a chord hit based on:
+ *   - Pitch class count (3+ = high, 2 = medium)
+ *   - Onset simultaneity (tight attack spread = high)
+ *   - Register coherence (notes within ~14 semitones = high)
+ *   - Velocity consistency (low CV = chord-like strum)
+ *   - Duration similarity (similar durations = chord voicing)
+ */
+function computeHitConfidence(
+  events: MidiNoteEvent[],
+  originalCount: number,
+): number {
+  if (events.length === 0) return 0;
+
+  const notes = events.map((e) => e.note).sort((a, b) => a - b);
+  const pcs = new Set(notes.map((n) => n % 12));
+
+  // 1. Pitch class count (weight: 0.25)
+  let pcScore: number;
+  if (pcs.size >= 4) pcScore = 1.0;
+  else if (pcs.size === 3) pcScore = 0.85;
+  else if (pcs.size === 2)
+    pcScore = 0.5; // power chord
+  else pcScore = 0;
+
+  // 2. Onset simultaneity (weight: 0.20)
+  // How tightly clustered are the attacks? Max spread within onset.
+  const ticks = events.map((e) => e.startTick);
+  const tickSpread = Math.max(...ticks) - Math.min(...ticks);
+  // 0 spread = perfect, 30 (ONSET_TOLERANCE) = still good, beyond = weaker
+  const onsetScore = Math.max(0, 1.0 - tickSpread / 60);
+
+  // 3. Register coherence (weight: 0.15)
+  const range = notes[notes.length - 1] - notes[0];
+  const registerScore = range <= 14 ? 1.0 : range <= 24 ? 0.6 : 0.3;
+
+  // 4. Velocity consistency (weight: 0.15)
+  const vels = events.map((e) => e.velocity);
+  const velMean = vels.reduce((a, b) => a + b, 0) / vels.length;
+  let velScore = 1.0;
+  if (vels.length >= 2 && velMean > 0) {
+    const velStd = Math.sqrt(
+      vels.reduce((sum, v) => sum + (v - velMean) ** 2, 0) / vels.length,
+    );
+    const cv = velStd / velMean;
+    velScore = cv < 0.15 ? 1.0 : cv < 0.3 ? 0.7 : 0.4;
+  }
+
+  // 5. Duration similarity (weight: 0.15)
+  const durs = events.map((e) => e.durationTicks);
+  const durMean = durs.reduce((a, b) => a + b, 0) / durs.length;
+  let durScore = 1.0;
+  if (durs.length >= 2 && durMean > 0) {
+    const durStd = Math.sqrt(
+      durs.reduce((sum, d) => sum + (d - durMean) ** 2, 0) / durs.length,
+    );
+    const durCv = durStd / durMean;
+    durScore = durCv < 0.2 ? 1.0 : durCv < 0.5 ? 0.6 : 0.3;
+  }
+
+  // 6. Stripped notes penalty (weight: 0.10)
+  // If velocity/register filtering removed notes, slightly lower confidence
+  const strippedRatio = events.length / Math.max(originalCount, 1);
+  const strippedScore =
+    strippedRatio >= 0.9 ? 1.0 : strippedRatio >= 0.7 ? 0.7 : 0.4;
+
+  // Weighted sum
+  return (
+    pcScore * 0.25 +
+    onsetScore * 0.2 +
+    registerScore * 0.15 +
+    velScore * 0.15 +
+    durScore * 0.15 +
+    strippedScore * 0.1
+  );
 }
 
 /** Derive chord regions from recorded MIDI (no stringSeq — pure detection). */
@@ -367,96 +713,211 @@ export function deriveChordRegionsFromNotes(
 
   const sorted = [...events].sort((a, b) => a.startTick - b.startTick);
 
-  // Group notes into chord hits (notes within TOLERANCE ticks = same hit)
-  const TOLERANCE = 60;
-  const hits: { tick: number; notes: number[] }[] = [];
-  let group = { tick: sorted[0].startTick, notes: [sorted[0].note] };
+  // ── Phase 2: Onset clustering ──
+  // Group notes by simultaneous attack (tight TOLERANCE window).
+  // Only notes whose startTick falls within ONSET_TOLERANCE of the group's
+  // first note are considered part of the same onset cluster.
+  const ONSET_TOLERANCE = 30;
+  const onsets: { tick: number; events: MidiNoteEvent[] }[] = [];
+  let group = { tick: sorted[0].startTick, events: [sorted[0]] };
 
   for (let i = 1; i < sorted.length; i++) {
-    if (sorted[i].startTick - group.tick <= TOLERANCE) {
-      group.notes.push(sorted[i].note);
+    if (sorted[i].startTick - group.tick <= ONSET_TOLERANCE) {
+      group.events.push(sorted[i]);
     } else {
-      hits.push(group);
-      group = { tick: sorted[i].startTick, notes: [sorted[i].note] };
+      onsets.push(group);
+      group = { tick: sorted[i].startTick, events: [sorted[i]] };
     }
   }
-  hits.push(group);
+  onsets.push(group);
 
-  // Sort each hit's notes ascending
-  for (const h of hits) h.notes.sort((a, b) => a - b);
+  // ── Phase 3: Sustain-aware chord hits ──
+  // For each onset, build the chord from newly attacked notes only.
+  // If new attacks are < 3 unique PCs, check if a previous chord is still
+  // sustaining — if so, the new notes are melody over the sustained chord.
+  //
+  // ── Phase 6: Velocity profile ──
+  // When an onset has enough PCs but velocities are extremely inconsistent
+  // (one loud note + several quiet ones), the loud outlier may be a melody
+  // accent over a soft chord pad. We skip onsets where a single note's
+  // velocity deviates > 50 from the mean AND the onset has exactly 1 outlier.
+  const hits: { tick: number; notes: number[]; confidence: number }[] = [];
+  let lastChordEnd = 0; // latest endTick of the most recent chord's notes
+
+  for (const onset of onsets) {
+    const newNotes = onset.events.map((e) => e.note);
+    newNotes.sort((a, b) => a - b);
+    const newPcs = new Set(newNotes.map((n) => n % 12));
+
+    const isChordSized = newPcs.size >= 3;
+    const isPowerChord =
+      newPcs.size === 2 &&
+      (() => {
+        const arr = [...newPcs].sort((a, b) => a - b);
+        return (arr[1] - arr[0] + 12) % 12 === 7;
+      })();
+
+    if (isChordSized || isPowerChord) {
+      // Phase 6: check for a single velocity outlier that may be melody
+      let chordEvents = onset.events;
+      if (chordEvents.length >= 4) {
+        const vels = chordEvents.map((e) => e.velocity);
+        const mean = vels.reduce((a, b) => a + b, 0) / vels.length;
+        const outliers = chordEvents.filter(
+          (e) => Math.abs(e.velocity - mean) > 50,
+        );
+        if (outliers.length === 1) {
+          // Strip the velocity outlier if remaining notes still form a chord
+          const remaining = chordEvents.filter((e) => e !== outliers[0]);
+          const remainPcs = new Set(remaining.map((e) => e.note % 12));
+          if (remainPcs.size >= 3) {
+            chordEvents = remaining;
+          }
+        }
+      }
+
+      const chordNotes = chordEvents.map((e) => e.note).sort((a, b) => a - b);
+
+      // ── Phase 9: Compute per-hit confidence score ──
+      const conf = computeHitConfidence(chordEvents, onset.events.length);
+
+      hits.push({ tick: onset.tick, notes: chordNotes, confidence: conf });
+      // Track when these chord notes end (for sustain detection)
+      lastChordEnd = Math.max(
+        ...chordEvents.map((e) => e.startTick + e.durationTicks),
+      );
+    } else if (onset.tick >= lastChordEnd) {
+      // No chord is sustaining — these isolated notes still get recorded
+      // (they'll likely be filtered by the chord-size gate below, but
+      // if someone plays a power chord as two quick sequential notes
+      // they should still pass)
+      hits.push({ tick: onset.tick, notes: newNotes, confidence: 0.3 });
+    }
+    // else: a chord is still sustaining and new notes are < 3 PCs → melody, skip
+  }
+
+  // Phase 1 gate: filter out hits with < 3 unique PCs (except power chords)
+  const chordHits = hits.filter((h) => {
+    const pcs = new Set(h.notes.map((n) => n % 12));
+    if (pcs.size >= 3) return true;
+    if (pcs.size === 2) {
+      const arr = [...pcs].sort((a, b) => a - b);
+      return (arr[1] - arr[0] + 12) % 12 === 7;
+    }
+    return false;
+  });
+
+  if (chordHits.length === 0) return [];
+
+  // ── Phase 4: Register separation ──
+  // If a hit spans > 14 semitones, strip outlier notes in a higher register
+  // that are likely melody, as long as the remaining cluster is still a chord.
+  const REGISTER_SPAN = 14;
+  for (const h of chordHits) {
+    if (h.notes.length < 4) continue; // need 4+ to strip and still have 3
+    const lo = h.notes[0]; // already sorted ascending
+    const hi = h.notes[h.notes.length - 1];
+    if (hi - lo <= REGISTER_SPAN) continue;
+    // Keep notes within REGISTER_SPAN of the lowest; check the cluster is valid
+    const cluster = h.notes.filter((n) => n - lo <= REGISTER_SPAN);
+    const clusterPcs = new Set(cluster.map((n) => n % 12));
+    if (clusterPcs.size >= 3) {
+      h.notes = cluster;
+    }
+  }
 
   // Build note-letter and degree labels for each hit
   const keyPc = rootMidi % 12;
-  const ionian = ALL_MODES.ionian; // [0, 2, 4, 5, 7, 9, 11]
 
-  function noteLabelForHit(notes: number[]): string {
-    const match = detectChordWithInversion(notes);
-    if (match) {
-      return abbreviateSequence(
-        `${noteNameInKey(match.rootPc, keyPc)} ${match.quality}`,
-      );
-    }
-    const raw = chordName(notes);
-    const bassPc = notes[0] % 12;
-    const oldLetter = noteNameLetter(bassPc);
-    const newLetter = noteNameInKey(bassPc, keyPc);
-    return abbreviateSequence(raw.replace(oldLetter, newLetter));
-  }
-
-  function degreeLabelForHit(notes: number[]): string {
-    const match = detectChordWithInversion(notes);
-    if (!match) return noteLabelForHit(notes);
-    const diff = (match.rootPc - keyPc + 12) % 12;
-    const directIdx = ionian.indexOf(diff);
-    if (directIdx >= 0) {
-      return abbreviateSequence(`${directIdx + 1} ${match.quality}`);
-    }
-    const flatIdx = ionian.indexOf(diff + 1);
-    if (flatIdx >= 0)
-      return abbreviateSequence(`b${flatIdx + 1} ${match.quality}`);
-    const sharpIdx = ionian.indexOf(diff - 1);
-    if (sharpIdx >= 0)
-      return abbreviateSequence(`#${sharpIdx + 1} ${match.quality}`);
-    return noteLabelForHit(notes);
-  }
+  const noteLabelForHit = (notes: number[]) => noteLabelFromNotes(notes, keyPc);
+  const rawDegreeKeyForHit = (notes: number[]) =>
+    rawDegreeKeyFromNotes(notes, keyPc);
+  const degreeLabelForHit = (notes: number[]) =>
+    degreeLabelFromNotes(notes, keyPc);
 
   // Build regions by merging consecutive same-chord hits
   const regions: ChordRegion[] = [];
-  let regionStart = hits[0].tick;
-  let currentNotes = hits[0].notes;
+  let regionStart = chordHits[0].tick;
+  let currentNotes = chordHits[0].notes;
   let currentNoteLabel = noteLabelForHit(currentNotes);
   let currentDegreeLabel = degreeLabelForHit(currentNotes);
+  let regionConfidences = [chordHits[0].confidence];
 
-  for (let i = 1; i < hits.length; i++) {
-    const nextNoteLabel = noteLabelForHit(hits[i].notes);
+  for (let i = 1; i < chordHits.length; i++) {
+    const nextNoteLabel = noteLabelForHit(chordHits[i].notes);
     if (nextNoteLabel !== currentNoteLabel) {
+      const rawKey = rawDegreeKeyForHit(currentNotes);
+      const avgConf =
+        regionConfidences.reduce((a, b) => a + b, 0) / regionConfidences.length;
       regions.push({
         id: nextChordId(),
         startTick: snapToQuarter(regionStart),
-        endTick: snapToQuarter(hits[i].tick),
+        endTick: snapToQuarter(chordHits[i].tick),
+        rawStartTick: regionStart,
         name: currentDegreeLabel,
         noteName: currentNoteLabel,
-        color: getChordColorFromNotes(currentNotes, rootMidi, mode),
+        color: rawKey
+          ? getChordColor(rawKey, rootMidi, mode)
+          : getChordColorFromNotes(currentNotes, rootMidi, mode),
+        degreeKey: rawKey,
+        midis: [...currentNotes],
+        confidence: Math.round(avgConf * 100) / 100,
       });
-      regionStart = hits[i].tick;
-      currentNotes = hits[i].notes;
+      regionStart = chordHits[i].tick;
+      currentNotes = chordHits[i].notes;
       currentNoteLabel = nextNoteLabel;
-      currentDegreeLabel = degreeLabelForHit(hits[i].notes);
+      currentDegreeLabel = degreeLabelForHit(chordHits[i].notes);
+      regionConfidences = [chordHits[i].confidence];
+    } else {
+      regionConfidences.push(chordHits[i].confidence);
     }
   }
 
   // Final region extends to last event's end
   const lastEvent = sorted[sorted.length - 1];
+  const rawKeyFinal = rawDegreeKeyForHit(currentNotes);
+  const avgConfFinal =
+    regionConfidences.reduce((a, b) => a + b, 0) / regionConfidences.length;
   regions.push({
     id: nextChordId(),
     startTick: snapToQuarter(regionStart),
     endTick: snapToQuarter(lastEvent.startTick + lastEvent.durationTicks),
+    rawStartTick: regionStart,
     name: currentDegreeLabel,
     noteName: currentNoteLabel,
-    color: getChordColorFromNotes(currentNotes, rootMidi, mode),
+    color: rawKeyFinal
+      ? getChordColor(rawKeyFinal, rootMidi, mode)
+      : getChordColorFromNotes(currentNotes, rootMidi, mode),
+    degreeKey: rawKeyFinal,
+    midis: [...currentNotes],
+    confidence: Math.round(avgConfFinal * 100) / 100,
   });
 
-  return regions;
+  // Remove zero-length regions and deduplicate same-startTick (from snapToQuarter collisions)
+  const cleaned: ChordRegion[] = [];
+  for (const r of regions) {
+    if (r.startTick >= r.endTick) continue;
+    if (
+      cleaned.length > 0 &&
+      cleaned[cleaned.length - 1].startTick === r.startTick
+    ) {
+      cleaned[cleaned.length - 1] = r;
+    } else {
+      cleaned.push(r);
+    }
+  }
+
+  // Extend first/last region to cover all events (snapToQuarter may shift boundaries)
+  if (cleaned.length > 0) {
+    cleaned[0].startTick = Math.min(cleaned[0].startTick, sorted[0].startTick);
+    const lastEnd = lastEvent.startTick + lastEvent.durationTicks;
+    cleaned[cleaned.length - 1].endTick = Math.max(
+      cleaned[cleaned.length - 1].endTick,
+      lastEnd,
+    );
+  }
+
+  return cleaned;
 }
 
 /**
@@ -470,76 +931,252 @@ export function deriveChordRegionsFromAudioSnapshots(
 ): ChordRegion[] {
   if (snapshots.length === 0) return [];
 
-  const keyPc = rootMidi % 12;
-  const ionian = ALL_MODES.ionian;
-
-  function noteLabelForNotes(notes: number[]): string {
-    const match = detectChordWithInversion(notes);
-    if (match) {
-      return abbreviateSequence(
-        `${noteNameInKey(match.rootPc, keyPc)} ${match.quality}`,
-      );
+  // Filter out melody snapshots (< 3 unique pitch classes, unless power chord)
+  const chordSnapshots = snapshots.filter((s) => {
+    const pcs = new Set(s.notes.map((n) => n % 12));
+    if (pcs.size >= 3) return true;
+    if (pcs.size === 2) {
+      const arr = [...pcs].sort((a, b) => a - b);
+      return (arr[1] - arr[0] + 12) % 12 === 7;
     }
-    const raw = chordName(notes);
-    const bassPc = notes[0] % 12;
-    return abbreviateSequence(
-      raw.replace(noteNameLetter(bassPc), noteNameInKey(bassPc, keyPc)),
-    );
-  }
+    return false;
+  });
 
-  function degreeLabelForNotes(notes: number[]): string {
-    const match = detectChordWithInversion(notes);
-    if (!match) return noteLabelForNotes(notes);
-    const diff = (match.rootPc - keyPc + 12) % 12;
-    const directIdx = ionian.indexOf(diff);
-    if (directIdx >= 0)
-      return abbreviateSequence(`${directIdx + 1} ${match.quality}`);
-    const flatIdx = ionian.indexOf(diff + 1);
-    if (flatIdx >= 0)
-      return abbreviateSequence(`b${flatIdx + 1} ${match.quality}`);
-    const sharpIdx = ionian.indexOf(diff - 1);
-    if (sharpIdx >= 0)
-      return abbreviateSequence(`#${sharpIdx + 1} ${match.quality}`);
-    return noteLabelForNotes(notes);
-  }
+  if (chordSnapshots.length === 0) return [];
+
+  const keyPc = rootMidi % 12;
+
+  const noteLabelForNotes = (notes: number[]) =>
+    noteLabelFromNotes(notes, keyPc);
+  const rawDegreeKeyForNotes = (notes: number[]) =>
+    rawDegreeKeyFromNotes(notes, keyPc);
+  const degreeLabelForNotes = (notes: number[]) =>
+    degreeLabelFromNotes(notes, keyPc);
 
   // Merge consecutive snapshots with same chord label into regions
   const regions: ChordRegion[] = [];
-  let regionStart = snapshots[0].tick;
-  let currentNotes = snapshots[0].notes;
+  let regionStart = chordSnapshots[0].tick;
+  let currentNotes = chordSnapshots[0].notes;
   let currentNoteLabel = noteLabelForNotes(currentNotes);
   let currentDegreeLabel = degreeLabelForNotes(currentNotes);
 
-  for (let i = 1; i < snapshots.length; i++) {
-    const nextLabel = noteLabelForNotes(snapshots[i].notes);
+  for (let i = 1; i < chordSnapshots.length; i++) {
+    const nextLabel = noteLabelForNotes(chordSnapshots[i].notes);
     if (nextLabel !== currentNoteLabel) {
+      const rawKey = rawDegreeKeyForNotes(currentNotes);
       regions.push({
         id: nextChordId(),
         startTick: snapToQuarter(regionStart),
-        endTick: snapToQuarter(snapshots[i].tick),
+        endTick: snapToQuarter(chordSnapshots[i].tick),
+        rawStartTick: regionStart,
         name: currentDegreeLabel,
         noteName: currentNoteLabel,
-        color: getChordColorFromNotes(currentNotes, rootMidi, mode),
+        color: rawKey
+          ? getChordColor(rawKey, rootMidi, mode)
+          : getChordColorFromNotes(currentNotes, rootMidi, mode),
+        degreeKey: rawKey,
+        midis: [...currentNotes],
       });
-      regionStart = snapshots[i].tick;
-      currentNotes = snapshots[i].notes;
+      regionStart = chordSnapshots[i].tick;
+      currentNotes = chordSnapshots[i].notes;
       currentNoteLabel = nextLabel;
-      currentDegreeLabel = degreeLabelForNotes(snapshots[i].notes);
+      currentDegreeLabel = degreeLabelForNotes(chordSnapshots[i].notes);
     }
   }
 
   // Final region extends to last snapshot + a quarter note
-  const lastTick = snapshots[snapshots.length - 1].tick;
+  const lastTick = chordSnapshots[chordSnapshots.length - 1].tick;
+  const rawKeyFinal = rawDegreeKeyForNotes(currentNotes);
   regions.push({
     id: nextChordId(),
     startTick: snapToQuarter(regionStart),
     endTick: snapToQuarter(lastTick + 480),
+    rawStartTick: regionStart,
     name: currentDegreeLabel,
     noteName: currentNoteLabel,
-    color: getChordColorFromNotes(currentNotes, rootMidi, mode),
+    color: rawKeyFinal
+      ? getChordColor(rawKeyFinal, rootMidi, mode)
+      : getChordColorFromNotes(currentNotes, rootMidi, mode),
+    degreeKey: rawKeyFinal,
+    midis: [...currentNotes],
   });
 
-  return regions;
+  // Remove zero-length regions and deduplicate same-startTick (from snapToQuarter collisions)
+  const cleaned: ChordRegion[] = [];
+  for (const r of regions) {
+    if (r.startTick >= r.endTick) continue;
+    if (
+      cleaned.length > 0 &&
+      cleaned[cleaned.length - 1].startTick === r.startTick
+    ) {
+      cleaned[cleaned.length - 1] = r;
+    } else {
+      cleaned.push(r);
+    }
+  }
+
+  // Extend first/last region to cover all chord snapshots
+  if (cleaned.length > 0) {
+    cleaned[0].startTick = Math.min(
+      cleaned[0].startTick,
+      chordSnapshots[0].tick,
+    );
+    cleaned[cleaned.length - 1].endTick = Math.max(
+      cleaned[cleaned.length - 1].endTick,
+      lastTick + 480,
+    );
+  }
+
+  return cleaned;
+}
+
+// ── Phase 7B: Multi-track chord derivation ──────────────────────────────
+
+/**
+ * Derive chord regions from all tracks in the session, using track roles
+ * to decide which notes contribute to harmony vs melody vs bass.
+ */
+export function deriveChordRegionsFromSession(
+  tracks: Track[],
+  rootMidi: number,
+  mode: string = 'ionian',
+): ChordRegion[] {
+  const harmonyEvents: MidiNoteEvent[] = [];
+  const bassEvents: MidiNoteEvent[] = [];
+
+  for (const track of tracks) {
+    if (track.type !== 'midi') continue;
+    const events = track.midiClips.flatMap((c) => c.events);
+    if (events.length === 0) continue;
+
+    const role =
+      track.trackRole === 'auto'
+        ? guessTrackRole(track.name, track.instrument)
+        : track.trackRole;
+
+    switch (role) {
+      case 'chords':
+      case 'auto':
+        harmonyEvents.push(...events);
+        break;
+      case 'bass':
+        bassEvents.push(...events);
+        break;
+      case 'melody':
+      case 'drums':
+        break; // excluded from chord detection
+    }
+  }
+
+  if (harmonyEvents.length === 0) return [];
+
+  const regions = deriveChordRegionsFromNotes(harmonyEvents, rootMidi, mode);
+  return enrichWithBass(regions, bassEvents, rootMidi);
+}
+
+// ── Phase 7C: Bass note enrichment ──────────────────────────────────────
+
+/**
+ * Enrich chord regions with bass note information. If the bass plays a
+ * different pitch class than the chord root, the chord becomes a slash
+ * chord (e.g., C maj → C maj/E for first inversion).
+ */
+function enrichWithBass(
+  regions: ChordRegion[],
+  bassEvents: MidiNoteEvent[],
+  rootMidi: number,
+): ChordRegion[] {
+  if (bassEvents.length === 0 || regions.length === 0) return regions;
+
+  const sorted = [...bassEvents].sort((a, b) => a.startTick - b.startTick);
+  const keyPc = rootMidi % 12;
+
+  return regions.map((region) => {
+    // Find bass notes within this region's time span
+    const bassInRegion = sorted.filter(
+      (e) => e.startTick >= region.startTick && e.startTick < region.endTick,
+    );
+    if (bassInRegion.length === 0) return region;
+
+    // Use the first bass note as the bass pitch class
+    const bassPc = bassInRegion[0].note % 12;
+
+    // Parse the current chord to check if bass matches the root
+    const parsed = parseNoteNameChord(region.noteName);
+    if (!parsed || parsed.rootPc === bassPc) return region;
+
+    // Bass differs from chord root → slash chord
+    const bassLetter = noteNameInKey(bassPc, keyPc);
+    return {
+      ...region,
+      noteName: `${region.noteName}/${bassLetter}`,
+    };
+  });
+}
+
+// ── Phase 8: UNISON Melody Feedback Loop ─────────────────────────────────
+
+/**
+ * Re-derive chord regions after UNISON identifies a melody track.
+ * If the melody track has trackRole 'auto', exclude it from harmony.
+ * For same-track melody+chords, strip notes within the melody pitch range
+ * from chord hits (they're likely melody notes over held chords).
+ */
+export function refineChordRegionsWithMelody(
+  tracks: Track[],
+  rootMidi: number,
+  mode: string,
+  melodyTrackId: string,
+  melodyPitchRange: { low: number; high: number },
+): ChordRegion[] {
+  const harmonyEvents: MidiNoteEvent[] = [];
+  const bassEvents: MidiNoteEvent[] = [];
+
+  for (const track of tracks) {
+    if (track.type !== 'midi') continue;
+    const events = track.midiClips.flatMap((c) => c.events);
+    if (events.length === 0) continue;
+
+    const role =
+      track.trackRole === 'auto'
+        ? guessTrackRole(track.name, track.instrument)
+        : track.trackRole;
+
+    // If UNISON identified this auto track as melody, skip it
+    if (
+      track.id === melodyTrackId &&
+      (role === 'auto' || track.trackRole === 'auto')
+    ) {
+      continue;
+    }
+
+    switch (role) {
+      case 'chords':
+      case 'auto': {
+        // For auto tracks, strip notes in the melody pitch range
+        // (they're likely melody notes on a mixed track)
+        const filtered = events.filter((e) => {
+          if (role !== 'auto') return true;
+          return (
+            e.note < melodyPitchRange.low || e.note > melodyPitchRange.high
+          );
+        });
+        harmonyEvents.push(...(filtered.length > 0 ? filtered : events));
+        break;
+      }
+      case 'bass':
+        bassEvents.push(...events);
+        break;
+      case 'melody':
+      case 'drums':
+        break;
+    }
+  }
+
+  if (harmonyEvents.length === 0) return [];
+
+  const regions = deriveChordRegionsFromNotes(harmonyEvents, rootMidi, mode);
+  return enrichWithBass(regions, bassEvents, rootMidi);
 }
 
 // ── Slice ────────────────────────────────────────────────────────────────
@@ -574,6 +1211,8 @@ export const createPrismSlice: StateCreator<
   rootTrackColor: null,
   rootLocked: false,
   chordRulerShowNotes: false,
+  chordRecordMode: 'replace',
+  melodyOverrides: new Set<string>(),
 
   // ── Actions — parameters ──
 
@@ -608,7 +1247,7 @@ export const createPrismSlice: StateCreator<
     const { chordRegions } = get();
     if (chordRegions.length > 0) {
       set({
-        chordRegions: recolorChordRegions(
+        chordRegions: rederiveChordRegions(
           chordRegions,
           clamped + 48,
           currentMode,
@@ -621,6 +1260,8 @@ export const createPrismSlice: StateCreator<
 
   toggleChordRulerLabels: () =>
     set((s) => ({ chordRulerShowNotes: !s.chordRulerShowNotes })),
+
+  setChordRecordMode: (mode) => set({ chordRecordMode: mode }),
 
   setMode: (mode) => {
     set({ mode });
@@ -644,7 +1285,7 @@ export const createPrismSlice: StateCreator<
     // Recolor chord regions with new mode
     if (chordRegions.length > 0) {
       set({
-        chordRegions: recolorChordRegions(chordRegions, rootNote + 48, mode),
+        chordRegions: rederiveChordRegions(chordRegions, rootNote + 48, mode),
       });
     }
   },
@@ -783,12 +1424,28 @@ export const createPrismSlice: StateCreator<
 
   // ── Actions — chord regions ──
 
-  setChordRegions: (regions) =>
-    set({
-      chordRegions: regions.map((r) =>
-        r.id ? r : { ...r, id: nextChordId() },
-      ),
-    }),
+  setChordRegions: (regions, force) => {
+    const tagged = regions.map((r) => (r.id ? r : { ...r, id: nextChordId() }));
+    const {
+      chordRecordMode,
+      chordRegions: existing,
+      rootNote,
+      mode: currentMode,
+    } = get();
+    const effectiveMode = force ? 'replace' : chordRecordMode;
+    const rootMidi = (rootNote ?? 0) + 48;
+    const result = reconcileChordRegions(
+      existing,
+      tagged,
+      effectiveMode,
+      rootMidi,
+      currentMode,
+    );
+    set({ chordRegions: result });
+    if (result.length > 0) {
+      get().setClipColorMode('prism');
+    }
+  },
 
   offsetChordRegions: (deltaTicks) =>
     set((s) => ({
@@ -798,6 +1455,36 @@ export const createPrismSlice: StateCreator<
         endTick: r.endTick + deltaTicks,
       })),
     })),
+
+  refineWithMelody: (melodyTrackId, pitchRange) => {
+    const state = get();
+    const rootMidi = (state.rootNote ?? 0) + 48;
+    const regions = refineChordRegionsWithMelody(
+      state.tracks,
+      rootMidi,
+      state.mode,
+      melodyTrackId,
+      pitchRange,
+    );
+    if (regions.length === 0) return;
+
+    // Only update if the refined regions differ from current ones
+    // (prevents infinite loop with auto-analyze in InsightContent)
+    const current = state.chordRegions;
+    if (
+      regions.length === current.length &&
+      regions.every(
+        (r, i) =>
+          r.startTick === current[i].startTick &&
+          r.endTick === current[i].endTick &&
+          r.noteName === current[i].noteName,
+      )
+    ) {
+      return; // No change — skip update to avoid re-triggering analysis
+    }
+
+    set({ chordRegions: regions });
+  },
 
   // ── Actions — lead sheet chord editing ──
 
@@ -979,4 +1666,25 @@ export const createPrismSlice: StateCreator<
           .filter((r) => r.startTick < r.endTick),
       };
     }),
+
+  // ── Actions — melody overrides (Phase 10) ──
+
+  markAsMelody: (regionId) =>
+    set((s) => {
+      const next = new Set(s.melodyOverrides);
+      next.add(regionId);
+      return {
+        melodyOverrides: next,
+        chordRegions: s.chordRegions.filter((r) => r.id !== regionId),
+      };
+    }),
+
+  unmarkAsMelody: (regionId) =>
+    set((s) => {
+      const next = new Set(s.melodyOverrides);
+      next.delete(regionId);
+      return { melodyOverrides: next };
+    }),
+
+  clearMelodyOverrides: () => set({ melodyOverrides: new Set<string>() }),
 });

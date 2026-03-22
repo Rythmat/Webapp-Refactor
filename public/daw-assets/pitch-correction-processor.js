@@ -34,6 +34,9 @@ function fastExpNeg(x) {
 }
 
 // ── YIN Pitch Detection ──────────────────────────────────────────────────
+// SYNC: This YIN implementation is kept in sync with src/audio/pitch/YinCore.ts.
+// AudioWorklet cannot import TS modules, so this is a manual copy.
+// If you change YinCore.ts, update this class to match.
 // Accepts ring buffer directly (no contiguous copy needed).
 
 class YinDetector {

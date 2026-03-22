@@ -17,6 +17,8 @@ import {
 } from '@/daw/hooks/usePlaybackEngine';
 import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
+import type { DawTrackRole } from '@/daw/utils/trackRole';
+import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
 
 // ── Props ────────────────────────────────────────────────────────────────
 interface TrackHeaderProps {
@@ -52,6 +54,31 @@ export const TrackHeader = memo(function TrackHeader({
   const analyser =
     getTrackAudioState(track.id)?.trackEngine.getAnalyserNode() ?? null;
   const liveLevel = useMeterLevel(analyser);
+
+  const handleRoleChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      e.stopPropagation();
+      const newRole = e.target.value as DawTrackRole;
+      updateTrack(track.id, { trackRole: newRole });
+      // Re-derive chord regions with updated role
+      const {
+        rootNote,
+        mode,
+        setChordRegions,
+        tracks: allTracks,
+      } = useStore.getState();
+      const updated = allTracks.map((t) =>
+        t.id === track.id ? { ...t, trackRole: newRole } : t,
+      );
+      const regions = deriveChordRegionsFromSession(
+        updated,
+        (rootNote ?? 0) + 48,
+        mode,
+      );
+      setChordRegions(regions);
+    },
+    [track.id, updateTrack],
+  );
 
   const handleNameBlur = useCallback(() => {
     const value = nameRef.current?.value.trim();
@@ -187,10 +214,27 @@ export const TrackHeader = memo(function TrackHeader({
           defaultValue={track.name}
           onBlur={handleNameBlur}
           onKeyDown={handleNameKeyDown}
-          className="w-full truncate border-none bg-transparent text-[11px] font-bold uppercase tracking-wide outline-none"
+          className="min-w-0 flex-1 truncate border-none bg-transparent text-[11px] font-bold uppercase tracking-wide outline-none"
           style={{ color: 'var(--color-text)' }}
           spellCheck={false}
         />
+        <select
+          value={track.trackRole}
+          onChange={handleRoleChange}
+          onClick={(e) => e.stopPropagation()}
+          className="shrink-0 cursor-pointer rounded border-none bg-transparent text-[9px] uppercase tracking-wide outline-none"
+          style={{
+            color: 'var(--color-text-dim)',
+            padding: '0 2px',
+          }}
+          title="Track role for chord analysis"
+        >
+          <option value="auto">Auto</option>
+          <option value="chords">Chords</option>
+          <option value="melody">Melody</option>
+          <option value="bass">Bass</option>
+          <option value="drums">Drums</option>
+        </select>
       </div>
 
       {/* Row 2: Monitor toggle + Test Sound */}

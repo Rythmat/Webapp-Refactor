@@ -10,6 +10,7 @@
  */
 
 import type { AssessmentType } from '../types/activity';
+import type { ReceivedNote } from './continuousMatchers';
 import type { MidiNoteEvent } from './melodyPipeline';
 
 // ---------------------------------------------------------------------------
@@ -137,4 +138,64 @@ export function getAudioAssessmentType(
   // For audio input, we keep the same type but the caller
   // should use getAudioTimingTolerance() for wider tolerance
   return baseType;
+}
+
+// ---------------------------------------------------------------------------
+// V2 conversion: DetectedPitch → ReceivedNote
+// ---------------------------------------------------------------------------
+
+/**
+ * Convert detected pitches to ReceivedNote[] for the v2 continuous scoring system.
+ * Groups consecutive same-pitch detections into single notes with onset and duration.
+ */
+export function detectedPitchesToReceivedNotes(
+  detectedPitches: DetectedPitch[],
+  config: AudioAssessmentConfig = DEFAULT_CONFIG,
+): ReceivedNote[] {
+  const confident = detectedPitches.filter(
+    (p) => p.confidence >= config.minConfidence,
+  );
+  if (confident.length === 0) return [];
+
+  const notes: ReceivedNote[] = [];
+  let currentMidi = confident[0].midi;
+  let startMs = confident[0].timestampMs;
+  let endMs = startMs;
+  let bestConfidence = confident[0].confidence;
+
+  for (let i = 1; i < confident.length; i++) {
+    const pitch = confident[i];
+
+    if (pitch.midi === currentMidi) {
+      endMs = pitch.timestampMs;
+      bestConfidence = Math.max(bestConfidence, pitch.confidence);
+    } else {
+      const durationMs = endMs - startMs;
+      if (durationMs >= config.minDurationMs) {
+        notes.push({
+          midi: currentMidi,
+          onsetMs: startMs,
+          durationMs,
+          confidence: bestConfidence,
+        });
+      }
+      currentMidi = pitch.midi;
+      startMs = pitch.timestampMs;
+      endMs = startMs;
+      bestConfidence = pitch.confidence;
+    }
+  }
+
+  // Finalize last note
+  const lastDurationMs = endMs - startMs;
+  if (lastDurationMs >= config.minDurationMs || confident.length === 1) {
+    notes.push({
+      midi: currentMidi,
+      onsetMs: startMs,
+      durationMs: Math.max(lastDurationMs, config.minDurationMs),
+      confidence: bestConfidence,
+    });
+  }
+
+  return notes;
 }

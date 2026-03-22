@@ -33,10 +33,10 @@ export const urlParamToKeyLabel = (value?: string): string => {
 
   const accidental = normalized.slice(1);
   if (accidental === 'sharp' || accidental === '#') {
-    return `${letter.toUpperCase()}#`;
+    return `${letter.toUpperCase()}♯`;
   }
   if (accidental === 'flat' || accidental === 'b') {
-    return `${letter.toUpperCase()}b`;
+    return `${letter.toUpperCase()}♭`;
   }
 
   return letter.toUpperCase();

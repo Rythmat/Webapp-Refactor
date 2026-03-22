@@ -6,6 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import { MODE_DISPLAY } from '../../daw/prism-engine/data/modes';
 // -- Directly-exported libraries --
 import {
   BASS_CONTOUR_PATTERNS,
@@ -36,7 +37,6 @@ import {
   VOICING_ALGORITHM_LIBRARY,
   getVoicingAlgorithm,
 } from '../data/voicingAlgorithmLibrary';
-
 // ---------------------------------------------------------------------------
 // Chord Quality Library
 // ---------------------------------------------------------------------------
@@ -301,6 +301,59 @@ describe('Master Rhythm Library', () => {
 // ---------------------------------------------------------------------------
 // Harmony Knowledge Base (lazy-loaded)
 // ---------------------------------------------------------------------------
+/** Normalize a note name to its chromatic pitch class (0-11, C=0) */
+const NOTE_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
+
+function noteToPitchClass(note: string): number {
+  const trimmed = note
+    .trim()
+    .replace('♯', '#')
+    .replace('♭', 'b')
+    .replace('𝄫', 'bb');
+  const letter = trimmed[0].toUpperCase();
+  const letterIdx = NOTE_NAMES.indexOf(letter);
+  if (letterIdx < 0) return -1;
+  const acc = trimmed.slice(1);
+  let offset = 0;
+  for (const c of acc) {
+    if (c === '#') offset++;
+    else if (c === 'b') offset--;
+  }
+  return (((letterIdx + offset) % 12) + 12) % 12;
+}
+
+/** MODE_DISPLAY uses Unicode (♭, ♮), HKB uses ASCII (b, nat). Normalize for comparison. */
+function normalizeModeName(name: string): string {
+  return name.replace(/♭/g, 'b').replace(/♮/g, 'nat').replace(/♯/g, '#');
+}
+
+/** Heptatonic modes from MODE_DISPLAY (35 modes, 7 notes each) */
+const HEPTATONIC_MODE_NAMES = new Set(
+  Object.values(MODE_DISPLAY).map(normalizeModeName),
+);
+
+/** Check if a HKB mode is heptatonic (from our regenerated data) */
+function isHeptatonicMode(modeName: string): boolean {
+  const normalized = normalizeModeName(modeName);
+  // Also handle "Aeolian (Minor)" matching "Aeolian" and "Ionian (Major)" matching "Ionian"
+  return [...HEPTATONIC_MODE_NAMES].some(
+    (m) => normalized === m || normalized.startsWith(m + ' ('),
+  );
+}
+
 describe('Harmony Knowledge Base', () => {
   it('has entries for expected mode|root keys', () => {
     const keys = Object.keys(HARMONY_KB);
@@ -312,7 +365,6 @@ describe('Harmony Knowledge Base', () => {
       expect(key).toContain('|');
       expect(entry.mode).toBeTruthy();
       expect(entry.root).toBeTruthy();
-      // intervals and scaleNotes are strings (may be empty for some entries)
       expect(typeof entry.intervals).toBe('string');
       expect(typeof entry.scaleNotes).toBe('string');
       expect(Array.isArray(entry.triads)).toBe(true);
@@ -322,7 +374,75 @@ describe('Harmony Knowledge Base', () => {
 
   it('covers all 12+ chromatic roots', () => {
     const roots = new Set(Object.values(HARMONY_KB).map((e) => e.root));
-    // 13 roots due to enharmonics (e.g., Gb and F#)
     expect(roots.size).toBeGreaterThanOrEqual(12);
+  });
+
+  it('heptatonic mode degree values contain no backslashes', () => {
+    for (const entry of Object.values(HARMONY_KB)) {
+      if (!isHeptatonicMode(entry.mode)) continue;
+      for (const chord of [...entry.triads, ...entry.sevenths]) {
+        expect(chord.degree).not.toMatch(/\\/);
+        // Degrees can be: 1-7, b2-b7, #1-#7, bb3, bb7, etc.
+        expect(chord.degree).toMatch(/^[b#]{0,2}\d$/);
+      }
+    }
+  });
+
+  it('entries have non-empty intervals and scaleNotes', () => {
+    for (const entry of Object.values(HARMONY_KB)) {
+      expect(entry.intervals.length).toBeGreaterThan(0);
+      expect(entry.scaleNotes.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('all heptatonic chord notes are within their mode scale', () => {
+    for (const entry of Object.values(HARMONY_KB)) {
+      if (!isHeptatonicMode(entry.mode)) continue;
+      // Parse scale notes into pitch classes
+      const scaleNotes = entry.scaleNotes.split(',').map((n) => n.trim());
+      const scalePCs = new Set(scaleNotes.map(noteToPitchClass));
+
+      for (const chord of [...entry.triads, ...entry.sevenths]) {
+        const chordNotes = chord.notes.split(',').map((n) => n.trim());
+        for (const note of chordNotes) {
+          const pc = noteToPitchClass(note);
+          expect(scalePCs.has(pc)).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('covers all 35 heptatonic modes from modes.ts', () => {
+    const hkbModes = new Set(
+      Object.values(HARMONY_KB).map((e) => normalizeModeName(e.mode)),
+    );
+    const expectedModes = Object.values(MODE_DISPLAY).map(normalizeModeName);
+    for (const modeName of expectedModes) {
+      // HKB may use extended names like "Aeolian (Minor)" for "Aeolian"
+      const found = [...hkbModes].some(
+        (m) => m === modeName || m.startsWith(modeName + ' ('),
+      );
+      expect(found).toBe(true);
+    }
+  });
+
+  it('each heptatonic mode has exactly 12 root entries', () => {
+    const modeCounts: Record<string, number> = {};
+    for (const entry of Object.values(HARMONY_KB)) {
+      if (!isHeptatonicMode(entry.mode)) continue;
+      const normalized = normalizeModeName(entry.mode);
+      modeCounts[normalized] = (modeCounts[normalized] ?? 0) + 1;
+    }
+    for (const count of Object.values(modeCounts)) {
+      expect(count).toBe(12);
+    }
+  });
+
+  it('each heptatonic entry has 7 triads and 7 sevenths', () => {
+    for (const entry of Object.values(HARMONY_KB)) {
+      if (!isHeptatonicMode(entry.mode)) continue;
+      expect(entry.triads).toHaveLength(7);
+      expect(entry.sevenths).toHaveLength(7);
+    }
   });
 });

@@ -21,7 +21,10 @@ import type {
   FundamentalsFlow,
   FundamentalsSection,
 } from '@/curriculum/types/fundamentals';
-import { useMidiInput } from '@/hooks/music/useMidiInput';
+import {
+  LearnInputProvider,
+  useLearnInputStable,
+} from '@/learn/context/LearnInputContext';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import '@/components/learn/learn.css';
 
@@ -56,7 +59,17 @@ interface FundamentalsLessonContainerProps {
 // Component
 // ---------------------------------------------------------------------------
 
-export function FundamentalsLessonContainer({
+export function FundamentalsLessonContainer(
+  props: FundamentalsLessonContainerProps,
+) {
+  return (
+    <LearnInputProvider detectionMode="monophonic">
+      <FundamentalsLessonContainerInner {...props} />
+    </LearnInputProvider>
+  );
+}
+
+function FundamentalsLessonContainerInner({
   sectionId,
 }: FundamentalsLessonContainerProps) {
   const navigate = useNavigate();
@@ -93,29 +106,32 @@ export function FundamentalsLessonContainer({
     resetStep,
   } = useFundamentalsFlow(section);
 
+  const {
+    subscribeNoteOn,
+    start: startInput,
+    stop: stopInput,
+  } = useLearnInputStable();
+
   // MIDI input handling — play sound and evaluate
   const handleNoteOn = useCallback(
-    (event: { number: number }) => {
-      playNote(event.number);
+    (event: { number: number; source?: 'midi' | 'audio' }) => {
+      // Only play sampler sound for MIDI input — acoustic piano already produces sound
+      if (event.source !== 'audio') {
+        playNote(event.number);
+      }
       onNoteReceived(event.number);
     },
     [playNote, onNoteReceived],
   );
 
-  const { startListening, stopListening } = useMidiInput(undefined, {
-    onNoteOn: handleNoteOn,
-  });
+  useEffect(() => {
+    startInput();
+    return () => stopInput();
+  }, [startInput, stopInput]);
 
   useEffect(() => {
-    const stop = startListening();
-    return () => {
-      if (typeof stop === 'function') {
-        stop();
-        return;
-      }
-      stopListening();
-    };
-  }, [startListening, stopListening]);
+    return subscribeNoteOn(handleNoteOn);
+  }, [subscribeNoteOn, handleNoteOn]);
 
   // Keyboard click handler (fallback for users without MIDI controller)
   const handleKeyClick = useCallback(

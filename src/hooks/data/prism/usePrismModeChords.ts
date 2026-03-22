@@ -22,7 +22,11 @@ export const usePrismModeChords = (mode?: PrismModeSlug) => {
         throw new Error('Mode is required');
       }
 
-      return musicAtlas.music.getPrismModesByModeChords(mode) as unknown as {
+      return musicAtlas.music.getPrismModesByModeChords(
+        mode as Parameters<
+          typeof musicAtlas.music.getPrismModesByModeChords
+        >[0],
+      ) as unknown as {
         chords: PrismModeChordMap;
       };
     },

@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { AccountSettings } from '@/features/settings/sections/AccountSettings';
 import { AudioSettings } from '@/features/settings/sections/AudioSettings';
+import { BillingSettings } from '@/features/settings/sections/BillingSettings';
 import { ContentCodesSettings } from '@/features/settings/sections/ContentCodesSettings';
 import { HelpPanel } from '@/features/settings/sections/HelpPanel';
 import { LookAndFeelSettings } from '@/features/settings/sections/LookAndFeelSettings';
@@ -28,7 +29,7 @@ import { Avatar, AvatarFallback } from '../ui/avatar';
 import { AvatarEditorModal } from './AvatarEditorModal';
 import '@/features/settings/settings.css';
 
-const TABS = ['Profile', 'General', 'Account', 'Codes'] as const;
+const TABS = ['Profile', 'General', 'Account', 'Billing', 'Codes'] as const;
 type Tab = (typeof TABS)[number];
 
 interface TagProps {
@@ -57,7 +58,7 @@ export const ProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('Profile');
   const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
   const { config: savedAvatarConfig, saveConfig: saveAvatarConfig } =
-    useAvatarConfig(user?.id);
+    useAvatarConfig(user?.id, (user as Record<string, unknown> | undefined)?.avatarConfig);
 
   return (
     <div
@@ -347,6 +348,15 @@ export const ProfilePage: React.FC = () => {
                 <div>
                   <HelpPanel />
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Billing Tab */}
+          {activeTab === 'Billing' && (
+            <div className="space-y-6">
+              <div className="max-w-lg space-y-6">
+                <BillingSettings />
               </div>
             </div>
           )}

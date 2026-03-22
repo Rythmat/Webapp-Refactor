@@ -58,7 +58,7 @@ export const ProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('Profile');
   const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
   const { config: savedAvatarConfig, saveConfig: saveAvatarConfig } =
-    useAvatarConfig(user?.id);
+    useAvatarConfig(user?.id, (user as Record<string, unknown> | undefined)?.avatarConfig);
 
   return (
     <div

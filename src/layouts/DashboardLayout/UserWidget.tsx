@@ -29,7 +29,10 @@ export function UserWidget({
   const { data: user, isLoading } = useMe();
   const { signOut } = useAuthActions();
   const navigate = useNavigate();
-  const { config: avatarConfig } = useAvatarConfig(user?.id, (user as Record<string, unknown> | undefined)?.avatarConfig);
+  const { config: avatarConfig } = useAvatarConfig(
+    user?.id,
+    (user as Record<string, unknown> | undefined)?.avatarConfig,
+  );
 
   const name = nameOverride || user?.nickname || user?.username || 'USER';
 

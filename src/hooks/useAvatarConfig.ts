@@ -30,8 +30,7 @@ function isAvatarConfig(value: unknown): value is AvatarConfig {
 }
 
 async function persistToApi(token: string, config: AvatarConfig) {
-  const apiBase =
-    Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
+  const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
 
   await fetch(`${apiBase}/auth/me/avatar-config`, {
     method: 'PUT',

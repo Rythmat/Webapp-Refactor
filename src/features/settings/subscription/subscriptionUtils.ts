@@ -65,6 +65,7 @@ export function getBillingUiState(
 
   const s = status.subscriptionStatus;
 
+  if (s === 'free_access') return 'active';
   if (s === 'active' && status.cancelAtPeriodEnd) return 'canceling';
   if (s === 'active') return 'active';
   if (s === 'trialing') return 'trialing';

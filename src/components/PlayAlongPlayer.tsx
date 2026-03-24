@@ -1,5 +1,5 @@
 import { debounce } from 'lodash';
-import { Play, Pause, RotateCcw } from 'lucide-react';
+import { Pause, Play, RotateCcw } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
 import { PianoKeyboard } from '@/components/PianoKeyboard/PianoKeyboard';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,6 @@ interface PlayAlongPlayerProps {
 }
 
 export const PlayAlongPlayer = ({ id, color }: PlayAlongPlayerProps) => {
-  // Fetch play along details
   const { data: playAlong, isLoading: playAlongLoading } = usePlayAlong({ id });
 
   const {
@@ -34,7 +33,6 @@ export const PlayAlongPlayer = ({ id, color }: PlayAlongPlayerProps) => {
     error: midiError,
   } = usePlayAlongMidiTracks(id);
 
-  // Set up MIDI playback with usePlayback hook
   const {
     play: playMidi,
     stop: stopMidi,
@@ -55,7 +53,6 @@ export const PlayAlongPlayer = ({ id, color }: PlayAlongPlayerProps) => {
     seek: seekAudio,
     isLoading: audioLoading,
     error: audioError,
-    // duration: audioDuration,
   } = useAudioFilePlayer(id);
 
   const debouncedSeekAudio = useMemo(
@@ -75,14 +72,6 @@ export const PlayAlongPlayer = ({ id, color }: PlayAlongPlayerProps) => {
   useEffect(() => {
     if (isPlayingMidi) {
       const audioPosition = currentPosition * totalDuration;
-
-      /**
-       * Workaround to keep the audio in sync with the MIDI:
-       * Every 30 seconds in MIDI playback, seek to the same position in audio to keep them in sync.
-       * This is needed as the audio duration is not exactly the same as the MIDI duration.
-       *
-       * TODO: Investigate why the audio duration is not exactly the same as the MIDI duration.
-       */
       const secondPosition = Math.round(audioPosition);
 
       if (secondPosition === 3 || secondPosition % 30 === 0) {
@@ -119,7 +108,6 @@ export const PlayAlongPlayer = ({ id, color }: PlayAlongPlayerProps) => {
   const error = midiError || audioError;
   const isLoading = midiLoading || audioLoading || playAlongLoading;
 
-  // Format time display
   const formatTime = (timeInSeconds: number) => {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = Math.floor(timeInSeconds % 60);
@@ -131,9 +119,7 @@ export const PlayAlongPlayer = ({ id, color }: PlayAlongPlayerProps) => {
   }
 
   if (isLoading) {
-    const skeletonStyle = color
-      ? { backgroundColor: `${color}15` } // 15 = ~8% opacity in hex
-      : {};
+    const skeletonStyle = color ? { backgroundColor: `${color}15` } : {};
 
     return (
       <div className="text-muted-foreground">

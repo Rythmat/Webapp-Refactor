@@ -73,62 +73,14 @@ export const AdminRoutes = {
   root: createRouteDefinition(adminPrefix),
 
   /**
-   * The route to the teachers page.
+   * The route to the users page (view all users + subscription status).
    */
-  teachers: createRouteDefinition('/teachers', { prefix: adminPrefix }),
+  users: createRouteDefinition('/users', { prefix: adminPrefix }),
 
   /**
-   * The route to the students page.
+   * The route to the free access management page.
    */
-  students: createRouteDefinition('/students', { prefix: adminPrefix }),
-
-  /**
-   * The route to the chapters page.
-   */
-  chapters: createRouteDefinition('/chapters', { prefix: adminPrefix }),
-
-  /**
-   * The route to the chapter page.
-   */
-  chapter: createRouteDefinition<{ id: string }>('/chapters/:id', {
-    prefix: adminPrefix,
-  }),
-
-  /**
-   * The route to the collections page.
-   */
-  collections: createRouteDefinition('/collections', { prefix: adminPrefix }),
-
-  /**
-   * The route to the collection page.
-   */
-  collection: createRouteDefinition<{ id: string }>('/collections/:id', {
-    prefix: adminPrefix,
-  }),
-
-  /**
-   * The route to the phrase maps page.
-   */
-  phraseMaps: createRouteDefinition('/rhythm-maps', { prefix: adminPrefix }),
-
-  /**
-   * The route to the phrase map page.
-   */
-  phraseMap: createRouteDefinition<{ id: string }>('/rhythm-maps/:id', {
-    prefix: adminPrefix,
-  }),
-
-  /**
-   * The route to the play alongs page.
-   */
-  playAlongs: createRouteDefinition('/play-along', { prefix: adminPrefix }),
-
-  /**
-   * The route to the play along page.
-   */
-  playAlong: createRouteDefinition<{ id: string }>('/play-along/:id', {
-    prefix: adminPrefix,
-  }),
+  freeAccess: createRouteDefinition('/free-access', { prefix: adminPrefix }),
 };
 
 /**

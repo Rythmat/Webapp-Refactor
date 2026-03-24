@@ -2,7 +2,7 @@ import { Navigate, useLocation } from 'react-router';
 import { ErrorBox } from '@/components/ErrorBox';
 import { FullScreenLoading } from '@/components/FullScreenLoading';
 import { Button } from '@/components/ui/button';
-import { AuthRoutes } from '@/constants/routes';
+import { AdminRoutes, AuthRoutes } from '@/constants/routes';
 import { useAuthContext } from './hooks/useAuthContext';
 
 interface ProtectedPageProps {
@@ -76,6 +76,11 @@ export const ProtectedPage = ({
 
   if (studentOnly && role !== 'student') {
     return <Navigate replace to={AuthRoutes.root()} />;
+  }
+
+  // Admin users should only access admin pages — redirect them to the admin console
+  if (!adminOnly && role === 'admin') {
+    return <Navigate replace to={AdminRoutes.root()} />;
   }
 
   return <>{children}</>;

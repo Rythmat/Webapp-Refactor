@@ -113,22 +113,27 @@ export const AdminUsersPage = () => {
         : undefined,
   });
 
-  const users = subscriptionFilter === 'all'
-    ? allUsers
-    : allUsers.filter((user) => {
-        switch (subscriptionFilter) {
-          case 'active':
-            return user.hasPaidAccess;
-          case 'past_due':
-            return user.subscriptionStatus === 'past_due';
-          case 'canceled':
-            return user.subscriptionStatus === 'canceled';
-          case 'free':
-            return !user.hasPaidAccess && user.subscriptionStatus !== 'past_due' && user.subscriptionStatus !== 'canceled';
-          default:
-            return true;
-        }
-      });
+  const users =
+    subscriptionFilter === 'all'
+      ? allUsers
+      : allUsers.filter((user) => {
+          switch (subscriptionFilter) {
+            case 'active':
+              return user.hasPaidAccess;
+            case 'past_due':
+              return user.subscriptionStatus === 'past_due';
+            case 'canceled':
+              return user.subscriptionStatus === 'canceled';
+            case 'free':
+              return (
+                !user.hasPaidAccess &&
+                user.subscriptionStatus !== 'past_due' &&
+                user.subscriptionStatus !== 'canceled'
+              );
+            default:
+              return true;
+          }
+        });
 
   return (
     <div className="animate-fade-in-bottom space-y-6">
@@ -160,7 +165,10 @@ export const AdminUsersPage = () => {
             <SelectItem value="student">Student</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={subscriptionFilter} onValueChange={setSubscriptionFilter}>
+        <Select
+          value={subscriptionFilter}
+          onValueChange={setSubscriptionFilter}
+        >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="All subscriptions" />
           </SelectTrigger>
@@ -182,7 +190,9 @@ export const AdminUsersPage = () => {
         </div>
       ) : users.length === 0 ? (
         <div className="py-12 text-center text-muted-foreground">
-          {debouncedSearch || roleFilter !== 'all' || subscriptionFilter !== 'all'
+          {debouncedSearch ||
+          roleFilter !== 'all' ||
+          subscriptionFilter !== 'all'
             ? 'No users found matching your filters'
             : 'No users found'}
         </div>

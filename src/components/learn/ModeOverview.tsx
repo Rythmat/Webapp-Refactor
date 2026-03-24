@@ -1,7 +1,7 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order */
 import { useEffect, useMemo, useState } from 'react';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
-import { YouTubePlayer } from '@/features/admin/chapters/components/YouTubePlayer';
+import { YouTubePlayer } from '@/components/YouTubePlayer';
 import { useProgressSummary } from '@/hooks/data/progress';
 import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';

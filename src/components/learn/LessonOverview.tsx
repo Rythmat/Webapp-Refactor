@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChordPressKeyboard } from '@/components/Games/ChordPressKeyboard';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
+import { YouTubePlayer } from '@/components/YouTubePlayer';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
-import { YouTubePlayer } from '@/features/admin/chapters/components/YouTubePlayer';
 import { useNoteByMidiMap } from '@/hooks/data/notes/useNotes';
 import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 // import { LearnRoutes } from "@/constants/routes";

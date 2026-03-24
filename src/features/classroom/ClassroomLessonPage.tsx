@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 import Markdown from 'react-markdown';
 import { useParams } from 'react-router-dom';
 import { ClassroomLayout } from '@/components/ClassroomLayout/ClassroomLayout';
+import { useMarkdownComponents } from '@/components/useMarkdownComponents';
 import { ClassroomRoutes } from '@/constants/routes';
 import { useChapter, useCollection, usePage } from '@/hooks/data';
-import { useMarkdownComponents } from '../admin/chapters/components';
 
 export const ClassroomLessonPage = () => {
   const { classroomId, collectionId, lessonId } = useParams<{

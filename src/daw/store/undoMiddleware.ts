@@ -101,7 +101,8 @@ export function initUndoTracking(): void {
     const state = useStore.getState();
 
     // Cheap identity check: skip if object references haven't changed
-    if (state.tracks === lastTracksRef && state.chordRegions === lastChordsRef) return;
+    if (state.tracks === lastTracksRef && state.chordRegions === lastChordsRef)
+      return;
     lastTracksRef = state.tracks;
     lastChordsRef = state.chordRegions;
 

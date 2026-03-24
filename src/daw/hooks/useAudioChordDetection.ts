@@ -46,7 +46,9 @@ export function useAudioChordDetection(): void {
   const wasRecordingRef = useRef(false);
   const recordingStartTickRef = useRef(0);
   const recordingTrackIdRef = useRef<string | null>(null);
-  const offlineAnalysisTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const offlineAnalysisTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   useEffect(() => {
     // Default to guitar — will be recreated if instrument type changes

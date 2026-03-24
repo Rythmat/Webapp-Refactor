@@ -3,12 +3,35 @@ import { KEY_COLORS, KEYS, type ColorIndex } from '@prism/engine';
 
 // ── Circle of Fifths constants (mirrored from CircleOfFifths.tsx) ────────
 
-const NOTE_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'] as const;
+const NOTE_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B',
+] as const;
 
 /** Circle-of-fifths position (1-12) → semitone (0-11) */
 const SEMITONES: Record<number, number> = {
-  1: 0, 2: 7, 3: 2, 4: 9, 5: 4, 6: 11,
-  7: 6, 8: 1, 9: 8, 10: 3, 11: 10, 12: 5,
+  1: 0,
+  2: 7,
+  3: 2,
+  4: 9,
+  5: 4,
+  6: 11,
+  7: 6,
+  8: 1,
+  9: 8,
+  10: 3,
+  11: 10,
+  12: 5,
 };
 
 /** Reverse: semitone → circle position */
@@ -30,9 +53,12 @@ const SLICE = (2 * Math.PI) / 12;
 const START = -Math.PI / 2 - SLICE / 2; // C centered at top
 
 function arcPath(
-  cx: number, cy: number,
-  r1: number, r2: number,
-  a1: number, a2: number,
+  cx: number,
+  cy: number,
+  r1: number,
+  r2: number,
+  a1: number,
+  a2: number,
 ): string {
   const x1o = cx + r2 * Math.cos(a1);
   const y1o = cy + r2 * Math.sin(a1);
@@ -83,7 +109,7 @@ export const KeyPicker: FC<KeyPickerProps> = ({
     return () => document.removeEventListener('mousedown', handler);
   }, [onClose]);
 
-  const selectedIdx = selected ? SEMI_TO_IDX[selected.root] ?? null : null;
+  const selectedIdx = selected ? (SEMI_TO_IDX[selected.root] ?? null) : null;
 
   const handleNote = (pc: number) => {
     const mode = isMinor ? 'aeolian' : 'ionian';
@@ -146,7 +172,9 @@ export const KeyPicker: FC<KeyPickerProps> = ({
 
             // Match Studio logic: in minor mode, use the relative major's color
             const colorIdx = isMinor
-              ? (SEMI_TO_IDX[(semitone - AEOLIAN_OFFSET + 12) % 12] as ColorIndex)
+              ? (SEMI_TO_IDX[
+                  (semitone - AEOLIAN_OFFSET + 12) % 12
+                ] as ColorIndex)
               : idx;
             const [r, g, b] = KEY_COLORS[colorIdx];
             const fill = `rgb(${r}, ${g}, ${b})`;

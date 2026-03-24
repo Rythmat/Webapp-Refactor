@@ -44,17 +44,20 @@ export class AudioEngine {
   }
 
   getContext(): AudioContext {
-    if (!this.ctx) throw new Error('AudioEngine not initialized. Call init() first.');
+    if (!this.ctx)
+      throw new Error('AudioEngine not initialized. Call init() first.');
     return this.ctx;
   }
 
   getMasterGain(): GainNode {
-    if (!this.masterGain) throw new Error('AudioEngine not initialized. Call init() first.');
+    if (!this.masterGain)
+      throw new Error('AudioEngine not initialized. Call init() first.');
     return this.masterGain;
   }
 
   getMasterAnalysers(): [AnalyserNode, AnalyserNode] {
-    if (!this.analyserL || !this.analyserR) throw new Error('AudioEngine not initialized. Call init() first.');
+    if (!this.analyserL || !this.analyserR)
+      throw new Error('AudioEngine not initialized. Call init() first.');
     return [this.analyserL, this.analyserR];
   }
 

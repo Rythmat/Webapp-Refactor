@@ -2,10 +2,7 @@ import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
 import type { MidiClip, Track } from './tracksSlice';
 import { guessTrackRole } from '@/daw/utils/trackRole';
-import {
-  DEFAULT_EFFECTS,
-  type EffectSlotType,
-} from '@/daw/audio/EffectChain';
+import { DEFAULT_EFFECTS, type EffectSlotType } from '@/daw/audio/EffectChain';
 import { GROOVES, type GrooveItem } from '@/daw/data/groovesLibrary';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
@@ -348,14 +345,14 @@ function rederiveChordRegions(
 
 /** Map STUDIO_GENRES to GENRE_MAP genre names for rhythm lookup */
 const GENRE_RHYTHM_ALIAS: Record<string, string[]> = {
-  'Rock': ['Rock'],
-  'Folk': ['Folk'],
-  'EDM': ['Electronic', 'Pop'],
+  Rock: ['Rock'],
+  Folk: ['Folk'],
+  EDM: ['Electronic', 'Pop'],
   'R&B': ['R&B', 'Neo Soul'],
   'Hip Hop': ['Hip Hop'],
-  'Reggae': ['Reggae'],
-  'Indie': ['Pop', 'Rock'],
-  'Latin': ['Salsa', 'Bossa', 'Samba'],
+  Reggae: ['Reggae'],
+  Indie: ['Pop', 'Rock'],
+  Latin: ['Salsa', 'Bossa', 'Samba'],
 };
 
 /** Extra weight for certain rhythms (added N extra times to the pool) */
@@ -379,17 +376,17 @@ function findRandomRhythmForGenre(genre: string): string | undefined {
 
 /** Map STUDIO_GENRES to groove genre names for matching */
 const GENRE_GROOVE_ALIAS: Record<string, string[]> = {
-  'Pop': ['Pop'],
-  'Rock': ['Rock', 'Punk'],
-  'Jazz': ['Jazz', 'Neo Soul'],
-  'Funk': ['Funk'],
-  'Folk': ['Rock', 'Indie'],
-  'EDM': ['House'],
+  Pop: ['Pop'],
+  Rock: ['Rock', 'Punk'],
+  Jazz: ['Jazz', 'Neo Soul'],
+  Funk: ['Funk'],
+  Folk: ['Rock', 'Indie'],
+  EDM: ['House'],
   'Hip Hop': ['Hip Hop', 'Trap'],
   'R&B': ['R&B', 'Neo Soul'],
-  'Reggae': ['Latin'],
-  'Latin': ['Latin'],
-  'Indie': ['Indie', 'Rock'],
+  Reggae: ['Latin'],
+  Latin: ['Latin'],
+  Indie: ['Indie', 'Rock'],
 };
 
 /** Find a matching groove by genre and closest BPM */
@@ -1373,7 +1370,11 @@ export const createPrismSlice: StateCreator<
     }
 
     if (chordRegions.length > 0) {
-      updates.chordRegions = rederiveChordRegions(chordRegions, rootNote + 48, mode);
+      updates.chordRegions = rederiveChordRegions(
+        chordRegions,
+        rootNote + 48,
+        mode,
+      );
     }
 
     set(updates);
@@ -1585,7 +1586,8 @@ export const createPrismSlice: StateCreator<
     const chordsGmProgram = useElectricPiano ? 4 : 0;
 
     // ── Create Chords track ──
-    const chordsColor = TRACK_PALETTES[get().nextColorIndex % TRACK_PALETTES.length];
+    const chordsColor =
+      TRACK_PALETTES[get().nextColorIndex % TRACK_PALETTES.length];
     const chordsId = crypto.randomUUID();
     const chordsTrack: Track = {
       id: chordsId,
@@ -1609,7 +1611,10 @@ export const createPrismSlice: StateCreator<
       audioClips: [],
       trackRole: guessTrackRole('Chords', 'soundfont'),
     };
-    set((s) => ({ tracks: [...s.tracks, chordsTrack], nextColorIndex: s.nextColorIndex + 1 }));
+    set((s) => ({
+      tracks: [...s.tracks, chordsTrack],
+      nextColorIndex: s.nextColorIndex + 1,
+    }));
 
     const chordSeq = result.get(InstrumentChannel.Chords);
     if (chordSeq && chordSeq.events.length > 0) {
@@ -1622,7 +1627,8 @@ export const createPrismSlice: StateCreator<
     }
 
     // ── Create Drums track ──
-    const drumsColor = TRACK_PALETTES[get().nextColorIndex % TRACK_PALETTES.length];
+    const drumsColor =
+      TRACK_PALETTES[get().nextColorIndex % TRACK_PALETTES.length];
     const drumsId = crypto.randomUUID();
     const drumsTrack: Track = {
       id: drumsId,
@@ -1644,11 +1650,16 @@ export const createPrismSlice: StateCreator<
       audioClips: [],
       trackRole: guessTrackRole('Drums', 'drum-machine'),
     };
-    set((s) => ({ tracks: [...s.tracks, drumsTrack], nextColorIndex: s.nextColorIndex + 1 }));
+    set((s) => ({
+      tracks: [...s.tracks, drumsTrack],
+      nextColorIndex: s.nextColorIndex + 1,
+    }));
 
     if (grooveEvents && grooveEvents.length > 0) {
       // Use the pre-recorded groove MIDI
-      const maxTick = Math.max(...grooveEvents.map((e) => e.startTick + e.durationTicks));
+      const maxTick = Math.max(
+        ...grooveEvents.map((e) => e.startTick + e.durationTicks),
+      );
       get().addMidiClip(drumsId, {
         id: crypto.randomUUID(),
         startTick: 0,
@@ -1683,9 +1694,7 @@ export const createPrismSlice: StateCreator<
     // Select first track and set Prism color mode
     set((s) => ({
       tracks: s.tracks.map((t) =>
-        t.id === chordsId
-          ? { ...t, monitoring: true, recordArmed: true }
-          : t,
+        t.id === chordsId ? { ...t, monitoring: true, recordArmed: true } : t,
       ),
       selectedTrackId: chordsId,
     }));

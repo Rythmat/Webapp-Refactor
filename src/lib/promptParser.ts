@@ -66,12 +66,9 @@ function extractGenre(text: string): string | null {
   return null;
 }
 
-function extractKey(
-  text: string,
-): { root: number; mode: string } | null {
+function extractKey(text: string): { root: number; mode: string } | null {
   // Match patterns like "C minor", "Dm", "F# major", "Bb min", "Ab maj"
-  const re =
-    /\b([A-G][#b]?)\s*(minor|major|min|maj|m(?!e|a|i|o|u))\b/i;
+  const re = /\b([A-G][#b]?)\s*(minor|major|min|maj|m(?!e|a|i|o|u))\b/i;
   const match = text.match(re);
   if (!match) return null;
 
@@ -95,17 +92,17 @@ function extractBpm(text: string): number | null {
 // ── Genre-based default tempo ranges (from curriculum Activity Flows) ────
 
 const GENRE_TEMPO_RANGE: Record<string, [number, number]> = {
-  'Pop':     [70, 110],
-  'Rock':    [110, 140],
-  'Jazz':    [100, 140],
-  'Funk':    [95, 120],
-  'Folk':    [80, 120],
-  'EDM':     [120, 135],
+  Pop: [70, 110],
+  Rock: [110, 140],
+  Jazz: [100, 140],
+  Funk: [95, 120],
+  Folk: [80, 120],
+  EDM: [120, 135],
   'Hip Hop': [80, 100],
-  'R&B':     [70, 100],
-  'Reggae':  [70, 90],
-  'Latin':   [100, 130],
-  'Indie':   [70, 110],
+  'R&B': [70, 100],
+  Reggae: [70, 90],
+  Latin: [100, 130],
+  Indie: [70, 110],
 };
 
 function randomBpmForGenre(genre: string): number {

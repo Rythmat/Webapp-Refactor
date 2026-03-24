@@ -157,13 +157,17 @@ export const HomeInlet = () => {
 
     try {
       // If nothing is specified, randomize everything
-      const hasInput = prompt.trim() || selectedGenre || selectedKey || selectedBpm;
+      const hasInput =
+        prompt.trim() || selectedGenre || selectedKey || selectedBpm;
       const randGenre = hasInput
         ? selectedGenre
         : STUDIO_GENRES[Math.floor(Math.random() * STUDIO_GENRES.length)];
       const randKey = hasInput
         ? selectedKey
-        : { root: Math.floor(Math.random() * 12), mode: Math.random() < 0.5 ? 'ionian' : 'aeolian' };
+        : {
+            root: Math.floor(Math.random() * 12),
+            mode: Math.random() < 0.5 ? 'ionian' : 'aeolian',
+          };
 
       const parsed = parsePrompt(prompt, randGenre, randKey, selectedBpm);
       const store = useStore.getState();

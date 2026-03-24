@@ -304,8 +304,10 @@ function detectChromaticMediant(
     if (bothDiatonicRoots) {
       const q1 = getExpectedQualities(d1!, key.mode);
       const q2 = getExpectedQualities(d2!, key.mode);
-      const q1IsMajorDiatonically = q1.triad != null && isMajorQuality(q1.triad);
-      const q2IsMajorDiatonically = q2.triad != null && isMajorQuality(q2.triad);
+      const q1IsMajorDiatonically =
+        q1.triad != null && isMajorQuality(q1.triad);
+      const q2IsMajorDiatonically =
+        q2.triad != null && isMajorQuality(q2.triad);
       // Both major AND both expected to be major diatonically → normal, not chromatic
       if (q1IsMajorDiatonically && q2IsMajorDiatonically) return null;
     }

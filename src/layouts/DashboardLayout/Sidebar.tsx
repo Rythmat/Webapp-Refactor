@@ -1,11 +1,7 @@
 import {
   CircleHelp,
-  GalleryHorizontalEnd,
-  Library,
-  Music,
-  Play,
   Ratio,
-  User,
+  Shield,
   Users,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -40,40 +36,16 @@ export const Sidebar = ({
       return (
         <ul className="flex flex-1 flex-col gap-y-1 pt-4">
           <SidebarMainNavItem
-            icon={User}
-            isCollapsed={isCollapsed}
-            label="Teachers"
-            to={AdminRoutes.teachers()}
-          />
-          <SidebarMainNavItem
             icon={Users}
             isCollapsed={isCollapsed}
-            label="Students"
-            to={AdminRoutes.students()}
+            label="Users"
+            to={AdminRoutes.users()}
           />
           <SidebarMainNavItem
-            icon={Library}
+            icon={Shield}
             isCollapsed={isCollapsed}
-            label="Books"
-            to={AdminRoutes.collections()}
-          />
-          <SidebarMainNavItem
-            icon={GalleryHorizontalEnd}
-            isCollapsed={isCollapsed}
-            label="Chapters"
-            to={AdminRoutes.chapters()}
-          />
-          <SidebarMainNavItem
-            icon={Music}
-            isCollapsed={isCollapsed}
-            label="Rhythm Maps"
-            to={AdminRoutes.phraseMaps()}
-          />
-          <SidebarMainNavItem
-            icon={Play}
-            isCollapsed={isCollapsed}
-            label="Play Along"
-            to={AdminRoutes.playAlongs()}
+            label="Free Access"
+            to={AdminRoutes.freeAccess()}
           />
         </ul>
       );

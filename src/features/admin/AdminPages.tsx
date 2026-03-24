@@ -7,61 +7,16 @@ import {
   DashboardLayout,
   DashboardContentSkeleton,
 } from '@/layouts/DashboardLayout';
-import { CollectionsPage } from './collections/CollectionsPage';
 
-const StudentManagementPage = lazy(() =>
-  import('./StudentManagementPage').then(({ StudentManagementPage }) => ({
-    default: StudentManagementPage,
+const AdminUsersPage = lazy(() =>
+  import('./AdminUsersPage').then(({ AdminUsersPage }) => ({
+    default: AdminUsersPage,
   })),
 );
 
-const TeacherManagementPage = lazy(() =>
-  import('./TeacherManagementPage').then(({ TeacherManagementPage }) => ({
-    default: TeacherManagementPage,
-  })),
-);
-
-const ChaptersPage = lazy(() =>
-  import('./chapters/ChaptersPage').then(({ ChaptersPage }) => ({
-    default: ChaptersPage,
-  })),
-);
-
-const ChapterEditorPage = lazy(() =>
-  import('./chapters/ChapterEditorPage').then(({ ChapterEditorPage }) => ({
-    default: ChapterEditorPage,
-  })),
-);
-
-const PhraseMapsPage = lazy(() =>
-  import('./phraseMaps/PhraseMapsPage').then(({ PhraseMapsPage }) => ({
-    default: PhraseMapsPage,
-  })),
-);
-
-const PhraseMapPage = lazy(() =>
-  import('./phraseMaps/PhraseMapPage').then(({ PhraseMapPage }) => ({
-    default: PhraseMapPage,
-  })),
-);
-
-const CollectionEditorPage = lazy(() =>
-  import('./collections/CollectionEditorPage').then(
-    ({ CollectionEditorPage }) => ({
-      default: CollectionEditorPage,
-    }),
-  ),
-);
-
-const PlayAlongsPage = lazy(() =>
-  import('./playAlongs/PlayAlongsPage').then(({ PlayAlongsPage }) => ({
-    default: PlayAlongsPage,
-  })),
-);
-
-const PlayAlongPage = lazy(() =>
-  import('./playAlongs/PlayAlongPage').then(({ PlayAlongPage }) => ({
-    default: PlayAlongPage,
+const AdminFreeAccessPage = lazy(() =>
+  import('./AdminFreeAccessPage').then(({ AdminFreeAccessPage }) => ({
+    default: AdminFreeAccessPage,
   })),
 );
 
@@ -76,54 +31,21 @@ export const adminPages = () => {
       </AppContext>
     ),
     children: [
-      // Admin routes
       {
         path: AdminRoutes.root.definition,
-        element: <Navigate to={AdminRoutes.teachers()} />,
+        element: <Navigate to={AdminRoutes.users()} />,
       },
       {
-        path: AdminRoutes.chapters.definition,
-        element: <ChaptersPage />,
+        path: AdminRoutes.users.definition,
+        element: <AdminUsersPage />,
       },
       {
-        path: AdminRoutes.chapter.definition,
-        element: <ChapterEditorPage />,
-      },
-      {
-        path: AdminRoutes.collections.definition,
-        element: <CollectionsPage />,
-      },
-      {
-        path: AdminRoutes.collection.definition,
-        element: <CollectionEditorPage />,
-      },
-      {
-        path: AdminRoutes.students.definition,
-        element: <StudentManagementPage />,
-      },
-      {
-        path: AdminRoutes.teachers.definition,
-        element: <TeacherManagementPage />,
-      },
-      {
-        path: AdminRoutes.phraseMaps.definition,
-        element: <PhraseMapsPage />,
-      },
-      {
-        path: AdminRoutes.phraseMap.definition,
-        element: <PhraseMapPage />,
-      },
-      {
-        path: AdminRoutes.playAlongs.definition,
-        element: <PlayAlongsPage />,
-      },
-      {
-        path: AdminRoutes.playAlong.definition,
-        element: <PlayAlongPage />,
+        path: AdminRoutes.freeAccess.definition,
+        element: <AdminFreeAccessPage />,
       },
       {
         path: '*',
-        element: <Navigate to={AdminRoutes.teachers()} />,
+        element: <Navigate to={AdminRoutes.users()} />,
       },
     ],
   };

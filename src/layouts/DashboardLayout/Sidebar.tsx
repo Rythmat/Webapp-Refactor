@@ -1,9 +1,4 @@
-import {
-  CircleHelp,
-  Ratio,
-  Shield,
-  Users,
-} from 'lucide-react';
+import { CircleHelp, Ratio, Shield, Users } from 'lucide-react';
 import { useState } from 'react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { CreditsBadge } from '@/components/CreditsBadge';

@@ -66,6 +66,10 @@ export const AdminFreeAccessPage = () => {
   const [ruleToDelete, setRuleToDelete] = useState<FreeAccessRule | null>(null);
   const [newType, setNewType] = useState<'email' | 'domain'>('email');
   const [newValue, setNewValue] = useState('');
+  const [newDuration, setNewDuration] = useState<'perpetual' | 'temporary'>(
+    'perpetual',
+  );
+  const [newExpiresAt, setNewExpiresAt] = useState('');
 
   const { data: rules = [], isLoading } = useFreeAccessRules();
   const createRule = useCreateFreeAccessRule();
@@ -74,9 +78,16 @@ export const AdminFreeAccessPage = () => {
   const handleCreate = async () => {
     if (!newValue.trim()) return;
 
-    await createRule.mutateAsync({ type: newType, value: newValue.trim() });
+    await createRule.mutateAsync({
+      type: newType,
+      value: newValue.trim(),
+      duration: newDuration,
+      expiresAt: newDuration === 'temporary' ? newExpiresAt : null,
+    });
     setNewValue('');
     setNewType('email');
+    setNewDuration('perpetual');
+    setNewExpiresAt('');
     setIsAddDialogOpen(false);
   };
 
@@ -138,6 +149,8 @@ export const AdminFreeAccessPage = () => {
               <TableHead>Type</TableHead>
               <TableHead>Value</TableHead>
               <TableHead>Added</TableHead>
+              <TableHead>Duration</TableHead>
+              <TableHead>Expires</TableHead>
               <TableHead className="w-[50px]" />
             </TableRow>
           </TableHeader>
@@ -148,6 +161,28 @@ export const AdminFreeAccessPage = () => {
                 <TableCell className="font-mono">{rule.value}</TableCell>
                 <TableCell className="text-muted-foreground">
                   {format(new Date(rule.createdAt), DATE_FORMAT)}
+                </TableCell>
+                <TableCell>
+                  {rule.duration === 'temporary' &&
+                  rule.expiresAt &&
+                  new Date(rule.expiresAt) < new Date() ? (
+                    <Badge className="bg-red-600/20 text-red-400 border-red-600/30">
+                      Expired
+                    </Badge>
+                  ) : rule.duration === 'temporary' ? (
+                    <Badge className="bg-amber-600/20 text-amber-400 border-amber-600/30">
+                      Temporary
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-green-600/20 text-green-400 border-green-600/30">
+                      Perpetual
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {rule.duration === 'temporary' && rule.expiresAt
+                    ? format(new Date(rule.expiresAt), DATE_FORMAT)
+                    : '\u2014'}
                 </TableCell>
                 <TableCell>
                   <TooltipProvider>
@@ -220,6 +255,34 @@ export const AdminFreeAccessPage = () => {
                 </p>
               )}
             </div>
+            <div className="space-y-2">
+              <Label>Duration</Label>
+              <Select
+                value={newDuration}
+                onValueChange={(v) =>
+                  setNewDuration(v as 'perpetual' | 'temporary')
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="perpetual">Perpetual</SelectItem>
+                  <SelectItem value="temporary">Temporary</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {newDuration === 'temporary' && (
+              <div className="space-y-2">
+                <Label>Expires At</Label>
+                <Input
+                  type="date"
+                  min={new Date().toISOString().split('T')[0]}
+                  value={newExpiresAt}
+                  onChange={(e) => setNewExpiresAt(e.target.value)}
+                />
+              </div>
+            )}
           </div>
 
           <DialogFooter>
@@ -227,7 +290,11 @@ export const AdminFreeAccessPage = () => {
               Cancel
             </Button>
             <Button
-              disabled={!newValue.trim() || createRule.isPending}
+              disabled={
+                !newValue.trim() ||
+                createRule.isPending ||
+                (newDuration === 'temporary' && !newExpiresAt)
+              }
               onClick={() => void handleCreate()}
             >
               {createRule.isPending ? (

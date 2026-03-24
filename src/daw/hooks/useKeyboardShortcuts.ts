@@ -353,16 +353,16 @@ export function useKeyboardShortcuts() {
         state.selectedClipTrackId
       ) {
         e.preventDefault();
-        const track = state.tracks.find(
-          (t) => t.id === state.selectedClipTrackId,
-        );
+        const clipTrackId = state.selectedClipTrackId;
+        if (!clipTrackId) return;
+        const track = state.tracks.find((t) => t.id === clipTrackId);
         const midiClip = track?.midiClips.find(
           (c) => c.id === state.selectedClipId,
         );
         if (midiClip) {
           const delta = e.code === 'ArrowRight' ? NUDGE_TICKS : -NUDGE_TICKS;
           const newStart = Math.max(0, midiClip.startTick + delta);
-          state.updateMidiClip(state.selectedClipTrackId!, midiClip.id, {
+          state.updateMidiClip(clipTrackId, midiClip.id, {
             startTick: newStart,
           });
         } else {
@@ -372,7 +372,7 @@ export function useKeyboardShortcuts() {
           if (audioClip) {
             const delta = e.code === 'ArrowRight' ? NUDGE_TICKS : -NUDGE_TICKS;
             const newStart = Math.max(0, audioClip.startTick + delta);
-            state.updateAudioClip(state.selectedClipTrackId!, audioClip.id, {
+            state.updateAudioClip(clipTrackId, audioClip.id, {
               startTick: newStart,
             });
           }

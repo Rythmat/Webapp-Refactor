@@ -23,15 +23,36 @@ import { GameRoutes, LearnRoutes, StudioRoutes } from '@/constants/routes';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { HeaderBar } from './HeaderBar';
+import { useStore } from '@/daw/store';
+import {
+  getFirstChords,
+  getOptions,
+  graphToken,
+  generateChord,
+  normalizeSequence,
+  unstepChord,
+  degreeMidi,
+  getModeOffset,
+  getChordColor,
+  noteNameInKey,
+  type RGB,
+  type SuggestionChord,
+} from '@prism/engine';
+import { parsePrompt } from '@/lib/promptParser';
+import { GenrePicker, STUDIO_GENRES } from './GenrePicker';
+import { KeyPicker, keyLabel, type KeySelection } from './KeyPicker';
+import { TempoPicker } from './TempoPicker';
 
 interface TagProps {
   label: string;
   icon?: ElementType;
   active?: boolean;
+  onClick?: () => void;
 }
 
-const Tag: FC<TagProps> = ({ label, icon: Icon, active }) => (
+const Tag: FC<TagProps> = ({ label, icon: Icon, active, onClick }) => (
   <button
+    onClick={onClick}
     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs transition-all ${active ? 'bg-white text-black border-white' : 'bg-white/5 border-white/5 text-gray-300 hover:bg-white/10 hover:border-white/20'}`}
   >
     {Icon && <Icon size={10} />}
@@ -103,6 +124,12 @@ export const HomeInlet = () => {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [projects, setProjects] = useState<ProjectCardProps[]>([]);
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+  const [selectedKey, setSelectedKey] = useState<KeySelection | null>(null);
+  const [selectedBpm, setSelectedBpm] = useState<number | null>(null);
+  const [showGenrePicker, setShowGenrePicker] = useState(false);
+  const [showKeyPicker, setShowKeyPicker] = useState(false);
+  const [showTempoPicker, setShowTempoPicker] = useState(false);
   const navigate = useNavigate();
   const { data: progressSummary } = useProgressSummary(true);
 
@@ -122,9 +149,95 @@ export const HomeInlet = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const handleGenerate = () => {
+  // Inline genre tags shown directly (first 5 of STUDIO_GENRES)
+  const INLINE_GENRES = STUDIO_GENRES.slice(0, 5);
+
+  const handleGenerate = async () => {
     setIsGenerating(true);
-    setTimeout(() => setIsGenerating(false), 2000);
+
+    try {
+      // If nothing is specified, randomize everything
+      const hasInput =
+        prompt.trim() || selectedGenre || selectedKey || selectedBpm;
+      const randGenre = hasInput
+        ? selectedGenre
+        : STUDIO_GENRES[Math.floor(Math.random() * STUDIO_GENRES.length)];
+      const randKey = hasInput
+        ? selectedKey
+        : {
+            root: Math.floor(Math.random() * 12),
+            mode: Math.random() < 0.5 ? 'ionian' : 'aeolian',
+          };
+
+      const parsed = parsePrompt(prompt, randGenre, randKey, selectedBpm);
+      const store = useStore.getState();
+
+      // Configure Prism
+      store.clearSequence();
+      store.setRootNote(parsed.rootNote);
+      store.setMode(parsed.mode);
+      store.selectGenre(parsed.genre);
+      store.setBpm(parsed.bpm);
+
+      // Random graph walk — picks randomly at every step for maximum variety
+      const numChords = 4;
+      const degrees: string[] = [];
+      const firstChords = getFirstChords();
+      const start = firstChords[Math.floor(Math.random() * firstChords.length)];
+      degrees.push(start);
+      let history = [start];
+
+      for (let i = 1; i < numChords; i++) {
+        const token = graphToken(history);
+        let options = getOptions(2, token);
+        if (options.length === 0) {
+          for (let len = history.length - 1; len > 0; len--) {
+            options = getOptions(2, graphToken(history.slice(-len)));
+            if (options.length > 0) break;
+          }
+        }
+        if (options.length === 0) options = firstChords;
+        degrees.push(options[Math.floor(Math.random() * options.length)]);
+        history = [...history, degrees[degrees.length - 1]];
+        if (history.length > 3) history = history.slice(-3);
+      }
+
+      // Convert degree names to SuggestionChord[] for loadProgression
+      // Apply modal shift: degree names are Ionian-relative, so shift root
+      // back to the parent Ionian root (matches degreeNameToChord in prismSlice)
+      const rootMidi = parsed.rootNote + 48;
+      const parentRoot = rootMidi - getModeOffset(parsed.mode);
+      const midiArrays = degrees.map((d) => {
+        const quality = unstepChord(d);
+        const midi = degreeMidi(parentRoot, d);
+        return generateChord(midi, quality);
+      });
+      const normalized = normalizeSequence(midiArrays);
+
+      const chords: SuggestionChord[] = degrees.map((degree, j) => {
+        const quality = unstepChord(degree);
+        const midi = degreeMidi(parentRoot, degree);
+        const pc = ((midi % 12) + 12) % 12;
+        const noteLetter = noteNameInKey(pc, rootMidi % 12);
+        return {
+          degree,
+          quality,
+          noteName: `${noteLetter} ${quality}`,
+          midi: normalized[j],
+          color: getChordColor(degree, rootMidi, parsed.mode) as RGB,
+        };
+      });
+
+      if (chords.length > 0) {
+        store.loadProgression(chords);
+        await store.generateOrchestration();
+        store.analyzeSession();
+      }
+
+      navigate(StudioRoutes.root.definition);
+    } finally {
+      setIsGenerating(false);
+    }
   };
   const visibleProjects = projects.slice(0, 2);
 
@@ -334,7 +447,7 @@ export const HomeInlet = () => {
                 <h2>Generate</h2>
                 <ChevronRight size={18} className="text-gray-600" />
               </div>
-              <div className="bg-[#151515] border border-white/5 rounded-3xl p-6 h-full flex flex-col relative overflow-hidden">
+              <div className="bg-[#151515] border border-white/5 rounded-3xl p-6 h-full flex flex-col relative">
                 <div className="flex-1 min-h-[160px]">
                   <textarea
                     value={prompt}
@@ -344,17 +457,63 @@ export const HomeInlet = () => {
                   />
                 </div>
                 <div className="space-y-4 pt-4 border-t border-white/5">
-                  <div className="flex flex-wrap gap-2">
-                    <Tag label="Key" icon={Music} />
-                    <Tag label="Tempo" icon={Activity} />
+                  <div className="flex flex-wrap gap-2 relative">
+                    <div className="relative">
+                      <Tag
+                        label={selectedKey ? keyLabel(selectedKey) : 'Key'}
+                        icon={Music}
+                        active={!!selectedKey}
+                        onClick={() => setShowKeyPicker((v) => !v)}
+                      />
+                      {showKeyPicker && (
+                        <KeyPicker
+                          selected={selectedKey}
+                          onSelect={setSelectedKey}
+                          onClose={() => setShowKeyPicker(false)}
+                        />
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Tag
+                        label={selectedBpm ? `${selectedBpm} BPM` : 'Tempo'}
+                        icon={Activity}
+                        active={!!selectedBpm}
+                        onClick={() => setShowTempoPicker((v) => !v)}
+                      />
+                      {showTempoPicker && (
+                        <TempoPicker
+                          selected={selectedBpm}
+                          onSelect={setSelectedBpm}
+                          onClose={() => setShowTempoPicker(false)}
+                        />
+                      )}
+                    </div>
                     <div className="w-px h-6 bg-white/10 mx-1" />
-                    <Tag label="Pop" />
-                    <Tag label="R&B" />
-                    <Tag label="Jazz" />
-                    <Tag label="Lo-Fi" />
-                    <button className="w-7 h-7 rounded-full border border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/30">
-                      <MoreVertical size={14} />
-                    </button>
+                    {INLINE_GENRES.map((g) => (
+                      <Tag
+                        key={g}
+                        label={g}
+                        active={selectedGenre === g}
+                        onClick={() =>
+                          setSelectedGenre((prev) => (prev === g ? null : g))
+                        }
+                      />
+                    ))}
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowGenrePicker((v) => !v)}
+                        className="w-7 h-7 rounded-full border border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/30"
+                      >
+                        <MoreVertical size={14} />
+                      </button>
+                      {showGenrePicker && (
+                        <GenrePicker
+                          selected={selectedGenre}
+                          onSelect={setSelectedGenre}
+                          onClose={() => setShowGenrePicker(false)}
+                        />
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center gap-2 text-xs text-gray-500">

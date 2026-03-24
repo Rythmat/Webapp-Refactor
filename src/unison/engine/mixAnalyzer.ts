@@ -41,7 +41,7 @@ const BAND_EDGES: Record<FrequencyBand, [number, number]> = {
   mid: [250, 2000],
   highMid: [2000, 6000],
   high: [6000, 12000],
-  air: [12000, 20000],
+  air: [12000, Infinity],
 };
 
 // ── Public API ───────────────────────────────────────────────────────────────

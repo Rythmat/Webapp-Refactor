@@ -82,6 +82,7 @@ export function fftMagnitude(input: Float64Array): Float64Array {
  * Convert a linear amplitude to dBFS with a -120 dB floor.
  */
 export function amplitudeToDb(amplitude: number): number {
-  if (amplitude <= 0) return DB_FLOOR;
-  return Math.max(DB_FLOOR, 20 * Math.log10(amplitude));
+  if (!Number.isFinite(amplitude) || amplitude <= 0) return DB_FLOOR;
+  const db = 20 * Math.log10(amplitude);
+  return Number.isFinite(db) ? Math.max(DB_FLOOR, db) : DB_FLOOR;
 }

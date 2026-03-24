@@ -71,7 +71,7 @@ export class MidiScheduler {
 
   cancelAll(): void {
     for (const part of this.parts) {
-      part.stop();
+      part.stop(0);
       part.dispose();
     }
     this.parts = [];

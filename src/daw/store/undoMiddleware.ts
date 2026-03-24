@@ -86,40 +86,48 @@ export function canRedo(): boolean {
 
 let lastTrackJson = '';
 let lastChordJson = '';
+let lastTracksRef: unknown = null;
+let lastChordsRef: unknown = null;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function initUndoTracking(): void {
   const initialState = useStore.getState();
   lastTrackJson = JSON.stringify(initialState.tracks);
   lastChordJson = JSON.stringify(initialState.chordRegions);
+  lastTracksRef = initialState.tracks;
+  lastChordsRef = initialState.chordRegions;
 
   const handleChange = () => {
     const state = useStore.getState();
-    const trackJson = JSON.stringify(state.tracks);
-    const chordJson = JSON.stringify(state.chordRegions);
-    if (trackJson === lastTrackJson && chordJson === lastChordJson) return;
 
-    // Debounce: only capture after 300ms of no changes
+    // Cheap identity check: skip if object references haven't changed
+    if (state.tracks === lastTracksRef && state.chordRegions === lastChordsRef)
+      return;
+    lastTracksRef = state.tracks;
+    lastChordsRef = state.chordRegions;
+
+    // Debounce: only stringify and capture after 300ms of no changes
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
+      const trackJson = JSON.stringify(state.tracks);
+      const chordJson = JSON.stringify(state.chordRegions);
+      if (trackJson === lastTrackJson && chordJson === lastChordJson) return;
       const prevTrackJson = lastTrackJson;
       const prevChordJson = lastChordJson;
       lastTrackJson = trackJson;
       lastChordJson = chordJson;
-      if (prevTrackJson !== trackJson || prevChordJson !== chordJson) {
-        try {
-          const prevTracks = JSON.parse(prevTrackJson) as Track[];
-          const prevChords = JSON.parse(prevChordJson) as ChordRegion[];
-          undoStack.push({
-            tracks: prevTracks,
-            chordRegions: prevChords,
-            timestamp: Date.now(),
-          });
-          if (undoStack.length > MAX_UNDO_STACK) undoStack.shift();
-          redoStack.length = 0;
-        } catch {
-          // Ignore parse errors
-        }
+      try {
+        const prevTracks = JSON.parse(prevTrackJson) as Track[];
+        const prevChords = JSON.parse(prevChordJson) as ChordRegion[];
+        undoStack.push({
+          tracks: prevTracks,
+          chordRegions: prevChords,
+          timestamp: Date.now(),
+        });
+        if (undoStack.length > MAX_UNDO_STACK) undoStack.shift();
+        redoStack.length = 0;
+      } catch {
+        // Ignore parse errors
       }
     }, 300);
   };

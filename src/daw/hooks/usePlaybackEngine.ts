@@ -196,6 +196,17 @@ export function usePlaybackEngine(isReady: boolean) {
       }
     }
 
+    // Evict stale pitchBufferCache entries for clips no longer in any track
+    if (pitchBufferCache.size > 0) {
+      const allClipIds = new Set<string>();
+      for (const t of tracks) {
+        for (const c of t.audioClips) allClipIds.add(c.id);
+      }
+      for (const clipId of pitchBufferCache.keys()) {
+        if (!allClipIds.has(clipId)) pitchBufferCache.delete(clipId);
+      }
+    }
+
     // Create / update TrackEngines for tracks
     for (const track of tracks) {
       const existing = audioMap.get(track.id);
@@ -674,6 +685,14 @@ export function usePlaybackEngine(isReady: boolean) {
     return () => {
       schedulerRef.current.cancelAll();
       audioClipSchedulerRef.current.cancelAll();
+
+      // Clean up any active audio recording resources
+      cancelAnimationFrame(liveAudioRafRef.current);
+      liveAudioSourceRef.current?.disconnect();
+      liveAudioAnalyserRef.current?.disconnect();
+      liveAudioSourceRef.current = null;
+      liveAudioAnalyserRef.current = null;
+
       for (const [, state] of trackAudioRef.current) {
         state.trackEngine.allNotesOff();
         state.trackEngine.dispose();

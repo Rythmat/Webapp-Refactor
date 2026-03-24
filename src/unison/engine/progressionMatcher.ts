@@ -84,7 +84,7 @@ function bestMatch(
         matched.push(detected[start + i]);
       }
 
-      const normalizedScore = totalScore / rotated.length;
+      const normalizedScore = totalScore / windowLen;
 
       if (normalizedScore > bestScore) {
         bestScore = normalizedScore;

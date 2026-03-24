@@ -15,7 +15,7 @@
  */
 
 import type { KeyDetection, UnisonChordRegion } from '../types/schema';
-import { getScaleDegree } from './diatonicChecker';
+import { getScaleDegree, getExpectedQualities } from './diatonicChecker';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -298,17 +298,18 @@ function detectChromaticMediant(
     const d2 = getScaleDegree(c2.rootPc, key.rootPc, key.mode);
     const bothDiatonicRoots = d1 !== null && d2 !== null;
 
-    // If both roots are diatonic, check if the quality combination is standard
-    // (e.g., I → iii in major has a minor third interval but iii is minor, not major)
+    // If both roots are diatonic, only flag if at least one chord's major
+    // quality is NOT the expected diatonic quality for its scale degree.
+    // (e.g., I → iii in major: iii should be minor, so E major IS chromatic)
     if (bothDiatonicRoots) {
-      // This could be a diatonic mediant — only flag if unusual
-      // (both major but one shouldn't be major diatonically)
-      return {
-        type: 'chromatic-mediant',
-        startIndex: i,
-        endIndex: i + 1,
-        label: `Chromatic mediant (${interval <= 6 ? 'up' : 'down'} ${Math.min(interval, 12 - interval)} semitones)`,
-      };
+      const q1 = getExpectedQualities(d1!, key.mode);
+      const q2 = getExpectedQualities(d2!, key.mode);
+      const q1IsMajorDiatonically =
+        q1.triad != null && isMajorQuality(q1.triad);
+      const q2IsMajorDiatonically =
+        q2.triad != null && isMajorQuality(q2.triad);
+      // Both major AND both expected to be major diatonically → normal, not chromatic
+      if (q1IsMajorDiatonically && q2IsMajorDiatonically) return null;
     }
 
     return {

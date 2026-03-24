@@ -7,6 +7,8 @@ export interface FreeAccessRule {
   id: string;
   type: 'email' | 'domain';
   value: string;
+  duration: 'perpetual' | 'temporary';
+  expiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -61,7 +63,12 @@ export const useCreateFreeAccessRule = () => {
   return useMutation<
     FreeAccessRule,
     Error,
-    { type: 'email' | 'domain'; value: string }
+    {
+      type: 'email' | 'domain';
+      value: string;
+      duration: 'perpetual' | 'temporary';
+      expiresAt: string | null;
+    }
   >({
     mutationFn: (body) =>
       fetchWithAuth<FreeAccessRule>(adminPath('/free-access'), token!, {

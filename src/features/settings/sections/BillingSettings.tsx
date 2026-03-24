@@ -182,7 +182,7 @@ export const BillingSettings = () => {
   const actionError = checkout.error?.message ?? portal.error?.message ?? null;
 
   const badgeVariant =
-    uiState === 'active' || uiState === 'trialing'
+    uiState === 'active' || uiState === 'trialing' || uiState === 'free_access'
       ? 'positive'
       : paymentIssue
         ? 'warning'
@@ -265,7 +265,7 @@ export const BillingSettings = () => {
         </p>
 
         {/* Period end date */}
-        {periodEndDate && (
+        {periodEndDate && uiState !== 'free_access' && (
           <div className="flex items-center justify-between">
             <span style={LABEL}>
               {uiState === 'canceling' ? 'Access ends' : 'Renews'}
@@ -279,7 +279,7 @@ export const BillingSettings = () => {
         )}
 
         {/* Last invoice status */}
-        {subscription?.lastInvoiceStatus && (
+        {subscription?.lastInvoiceStatus && uiState !== 'free_access' && (
           <div className="flex items-center justify-between">
             <span style={LABEL}>Last invoice</span>
             <span
@@ -300,32 +300,53 @@ export const BillingSettings = () => {
         )}
 
         {/* Action button */}
-        <div className="flex items-center gap-3 pt-1">
-          <button
-            type="button"
-            disabled={actionPending}
-            style={
-              paymentIssue ? BTN_WARN : isPaidUser ? BTN_OUTLINE : BTN_ACCENT
-            }
-            onClick={handleAction}
-          >
-            {actionPending ? 'Loading…' : actionLabel}
-          </button>
-
-          {isPaidUser && (
-            <span
-              style={{
-                fontSize: '11px',
-                color: 'var(--color-text-dim)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-              }}
+        {uiState === 'free_access' ? (
+          <div style={{ fontSize: '0.875rem', color: 'var(--color-text-dim)' }}>
+            {subscription?.freeAccessDuration === 'temporary' &&
+            subscription?.freeAccessExpiresAt ? (
+              <div className="flex items-center justify-between">
+                <span style={LABEL}>Access expires</span>
+                <span
+                  style={{
+                    fontSize: '0.875rem',
+                    color: 'var(--color-text-dim)',
+                  }}
+                >
+                  {formatPeriodDate(subscription.freeAccessExpiresAt)}
+                </span>
+              </div>
+            ) : (
+              <p>Your free access does not expire.</p>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 pt-1">
+            <button
+              type="button"
+              disabled={actionPending}
+              style={
+                paymentIssue ? BTN_WARN : isPaidUser ? BTN_OUTLINE : BTN_ACCENT
+              }
+              onClick={handleAction}
             >
-              <ExternalLink size={10} /> Opens Stripe
-            </span>
-          )}
-        </div>
+              {actionPending ? 'Loading…' : actionLabel}
+            </button>
+
+            {isPaidUser && (
+              <span
+                style={{
+                  fontSize: '11px',
+                  color: 'var(--color-text-dim)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                }}
+              >
+                <ExternalLink size={10} /> Opens Stripe
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Action error */}
         {actionError && (
@@ -347,61 +368,62 @@ export const BillingSettings = () => {
           paymentMethodBrand / paymentMethodLast4 / exp fields.
           Add those fields to the UserBilling table query once Stripe
           payment-method retrieval is implemented server-side. */}
-      {(paymentMethodLine ?? expiryLine ?? subscription?.billingEmail) && (
-        <>
-          <h2 style={{ ...HEADING, marginTop: '1.5rem' }}>Payment Method</h2>
-          <div style={PANEL} className="space-y-3">
-            {paymentMethodLine && (
-              <div className="flex items-center justify-between">
-                <span
-                  style={{
-                    ...LABEL,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.375rem',
-                  }}
-                >
-                  <CreditCard size={11} /> Card
-                </span>
-                <span
-                  style={{
-                    fontSize: '0.875rem',
-                    color: 'var(--color-text-dim)',
-                  }}
-                >
-                  {paymentMethodLine}
-                </span>
-              </div>
-            )}
-            {expiryLine && (
-              <div className="flex items-center justify-between">
-                <span style={LABEL}>Expires</span>
-                <span
-                  style={{
-                    fontSize: '0.875rem',
-                    color: 'var(--color-text-dim)',
-                  }}
-                >
-                  {expiryLine}
-                </span>
-              </div>
-            )}
-            {subscription?.billingEmail && (
-              <div className="flex items-center justify-between">
-                <span style={LABEL}>Billing email</span>
-                <span
-                  style={{
-                    fontSize: '0.875rem',
-                    color: 'var(--color-text-dim)',
-                  }}
-                >
-                  {subscription.billingEmail}
-                </span>
-              </div>
-            )}
-          </div>
-        </>
-      )}
+      {uiState !== 'free_access' &&
+        (paymentMethodLine ?? expiryLine ?? subscription?.billingEmail) && (
+          <>
+            <h2 style={{ ...HEADING, marginTop: '1.5rem' }}>Payment Method</h2>
+            <div style={PANEL} className="space-y-3">
+              {paymentMethodLine && (
+                <div className="flex items-center justify-between">
+                  <span
+                    style={{
+                      ...LABEL,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.375rem',
+                    }}
+                  >
+                    <CreditCard size={11} /> Card
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.875rem',
+                      color: 'var(--color-text-dim)',
+                    }}
+                  >
+                    {paymentMethodLine}
+                  </span>
+                </div>
+              )}
+              {expiryLine && (
+                <div className="flex items-center justify-between">
+                  <span style={LABEL}>Expires</span>
+                  <span
+                    style={{
+                      fontSize: '0.875rem',
+                      color: 'var(--color-text-dim)',
+                    }}
+                  >
+                    {expiryLine}
+                  </span>
+                </div>
+              )}
+              {subscription?.billingEmail && (
+                <div className="flex items-center justify-between">
+                  <span style={LABEL}>Billing email</span>
+                  <span
+                    style={{
+                      fontSize: '0.875rem',
+                      color: 'var(--color-text-dim)',
+                    }}
+                  >
+                    {subscription.billingEmail}
+                  </span>
+                </div>
+              )}
+            </div>
+          </>
+        )}
     </>
   );
 };

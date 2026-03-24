@@ -32,6 +32,8 @@ export interface SubscriptionStatus {
   paymentMethodExpMonth?: number | null;
   paymentMethodExpYear?: number | null;
   billingEmail?: string | null;
+  freeAccessDuration?: 'perpetual' | 'temporary' | null;
+  freeAccessExpiresAt?: number | null;
 }
 
 /**
@@ -46,6 +48,7 @@ export type BillingUiState =
   | 'unpaid' // payment exhausted all retries
   | 'incomplete' // initial payment not complete
   | 'canceled' // subscription ended
+  | 'free_access' // granted free access
   | 'free' // no subscription
   | 'unknown'; // no data yet / loading
 
@@ -65,7 +68,7 @@ export function getBillingUiState(
 
   const s = status.subscriptionStatus;
 
-  if (s === 'free_access') return 'active';
+  if (s === 'free_access') return 'free_access';
   if (s === 'active' && status.cancelAtPeriodEnd) return 'canceling';
   if (s === 'active') return 'active';
   if (s === 'trialing') return 'trialing';
@@ -90,6 +93,7 @@ export const BILLING_STATE_LABEL: Record<BillingUiState, string> = {
   unpaid: 'Unpaid',
   incomplete: 'Incomplete',
   canceled: 'Canceled',
+  free_access: 'Free Access',
   free: 'Free',
   unknown: 'No subscription',
 };
@@ -107,6 +111,7 @@ export const BILLING_STATE_MESSAGE: Record<BillingUiState, string> = {
   incomplete:
     'Your subscription setup is incomplete. Please complete checkout or contact support.',
   canceled: 'Your subscription has ended.',
+  free_access: 'You have been granted free access.',
   free: 'You are currently on the free plan.',
   unknown: 'Subscription status unavailable.',
 };
@@ -114,6 +119,8 @@ export const BILLING_STATE_MESSAGE: Record<BillingUiState, string> = {
 /** Which button label to show based on UI state. */
 export function getBillingActionLabel(uiState: BillingUiState): string {
   switch (uiState) {
+    case 'free_access':
+      return '';
     case 'active':
     case 'trialing':
     case 'canceling':
@@ -144,7 +151,8 @@ export function isActivePaidState(uiState: BillingUiState): boolean {
     uiState === 'active' ||
     uiState === 'trialing' ||
     uiState === 'canceling' ||
-    uiState === 'past_due'
+    uiState === 'past_due' ||
+    uiState === 'free_access'
   );
 }
 

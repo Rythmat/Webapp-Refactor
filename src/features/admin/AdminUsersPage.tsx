@@ -60,7 +60,10 @@ function subscriptionBadge(user: AdminUser) {
   }
 
   return (
-    <Badge variant="secondary" className="bg-white/5 text-white/50 border-white/10">
+    <Badge
+      variant="secondary"
+      className="bg-white/5 text-white/50 border-white/10"
+    >
       Free
     </Badge>
   );

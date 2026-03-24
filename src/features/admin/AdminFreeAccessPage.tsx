@@ -205,9 +205,7 @@ export const AdminFreeAccessPage = () => {
               <Label>{newType === 'email' ? 'Email Address' : 'Domain'}</Label>
               <Input
                 placeholder={
-                  newType === 'email'
-                    ? 'user@example.com'
-                    : 'school.edu'
+                  newType === 'email' ? 'user@example.com' : 'school.edu'
                 }
                 value={newValue}
                 onChange={(e) => setNewValue(e.target.value)}
@@ -225,10 +223,7 @@ export const AdminFreeAccessPage = () => {
           </div>
 
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsAddDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
               Cancel
             </Button>
             <Button

@@ -96,6 +96,7 @@ export const AdminUsersPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [subscriptionFilter, setSubscriptionFilter] = useState<string>('all');
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -104,13 +105,35 @@ export const AdminUsersPage = () => {
     return () => clearTimeout(handler);
   }, [searchInput]);
 
-  const { data: users = [], isLoading } = useAdminUsers({
+  const { data: allUsers = [], isLoading } = useAdminUsers({
     search: debouncedSearch || undefined,
     role:
       roleFilter !== 'all'
         ? (roleFilter as 'admin' | 'teacher' | 'student')
         : undefined,
   });
+
+  const users =
+    subscriptionFilter === 'all'
+      ? allUsers
+      : allUsers.filter((user) => {
+          switch (subscriptionFilter) {
+            case 'active':
+              return user.hasPaidAccess;
+            case 'past_due':
+              return user.subscriptionStatus === 'past_due';
+            case 'canceled':
+              return user.subscriptionStatus === 'canceled';
+            case 'free':
+              return (
+                !user.hasPaidAccess &&
+                user.subscriptionStatus !== 'past_due' &&
+                user.subscriptionStatus !== 'canceled'
+              );
+            default:
+              return true;
+          }
+        });
 
   return (
     <div className="animate-fade-in-bottom space-y-6">
@@ -142,6 +165,21 @@ export const AdminUsersPage = () => {
             <SelectItem value="student">Student</SelectItem>
           </SelectContent>
         </Select>
+        <Select
+          value={subscriptionFilter}
+          onValueChange={setSubscriptionFilter}
+        >
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All subscriptions" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All subscriptions</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="past_due">Past Due</SelectItem>
+            <SelectItem value="canceled">Canceled</SelectItem>
+            <SelectItem value="free">Free</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {isLoading ? (
@@ -152,7 +190,9 @@ export const AdminUsersPage = () => {
         </div>
       ) : users.length === 0 ? (
         <div className="py-12 text-center text-muted-foreground">
-          {debouncedSearch || roleFilter !== 'all'
+          {debouncedSearch ||
+          roleFilter !== 'all' ||
+          subscriptionFilter !== 'all'
             ? 'No users found matching your filters'
             : 'No users found'}
         </div>

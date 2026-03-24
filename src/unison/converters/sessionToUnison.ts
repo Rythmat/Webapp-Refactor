@@ -8,6 +8,7 @@
  *   - Key/mode (detected or user-set)
  */
 
+import { MODE_DISPLAY } from '@/daw/prism-engine/data/modes';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { analyzeHarmony } from '../engine/harmonicAnalyzer';
@@ -174,12 +175,13 @@ function resolveKey(
       'Bb',
       'B',
     ];
+    const effectiveMode = mode || detected.mode;
     return {
       ...detected,
       rootPc: rootNote,
       rootName: NOTE_NAMES[rootNote],
-      mode: mode || detected.mode,
-      modeDisplay: detected.modeDisplay, // keep display from detection
+      mode: effectiveMode,
+      modeDisplay: mode ? (MODE_DISPLAY[mode] ?? mode) : detected.modeDisplay,
     };
   }
 

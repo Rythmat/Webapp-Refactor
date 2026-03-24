@@ -222,13 +222,14 @@ function mergeRegions(
       // Absorb into previous region
       prev.endTick = curr.endTick;
       if (curr.confidence > prev.confidence) {
-        prev.confidence = curr.confidence;
-        prev.key = curr.key;
-        // Keep the higher-confidence key's root/mode if merging different keys
-        if (!isSameKey(prev, curr) && curr.confidence > prev.confidence) {
+        // Update rootPc/mode before overwriting confidence (otherwise the
+        // comparison would always be false since they'd be equal).
+        if (!isSameKey(prev, curr)) {
           prev.rootPc = curr.rootPc;
           prev.mode = curr.mode;
         }
+        prev.confidence = curr.confidence;
+        prev.key = curr.key;
       }
     } else if (prevDuration < cfg.minRegionLengthTicks) {
       // Previous region too short — absorb into current

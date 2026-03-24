@@ -597,8 +597,9 @@ export function BaseGlobe() {
     return () => {
       capMatCache.current.forEach((m) => m.dispose());
       sideMatCache.current.forEach((m) => m.dispose());
+      globeMaterial.dispose();
     };
-  }, []);
+  }, [globeMaterial]);
 
   // Polygon cap materials — light-responsive for day/night shading
   const polygonCapMaterial = useCallback((polygon: object) => {

@@ -181,15 +181,18 @@ function computeSpectralFeatures(
       }
     }
     let harmonicEnergy = 0;
+    const visitedBins = new Set<number>();
     for (let h = 1; h <= 8; h++) {
       const hBin = peakBin * h;
-      if (hBin < magnitudes.length) {
-        // Sum around the harmonic bin (±2 bins)
-        for (
-          let j = Math.max(0, hBin - 2);
-          j <= Math.min(magnitudes.length - 1, hBin + 2);
-          j++
-        ) {
+      if (hBin >= magnitudes.length) break;
+      // Sum around the harmonic bin (±2 bins), skipping already-counted bins
+      for (
+        let j = Math.max(0, hBin - 2);
+        j <= Math.min(magnitudes.length - 1, hBin + 2);
+        j++
+      ) {
+        if (!visitedBins.has(j)) {
+          visitedBins.add(j);
           harmonicEnergy += magnitudes[j] * magnitudes[j];
         }
       }

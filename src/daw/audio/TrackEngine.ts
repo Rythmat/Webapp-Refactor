@@ -80,10 +80,12 @@ export class TrackEngine {
   }
 
   setVolume(vol: number): void {
-    this.gainNode.gain.value = vol;
+    if (!Number.isFinite(vol)) return;
+    this.gainNode.gain.value = Math.max(0, Math.min(2, vol));
   }
 
   setPan(pan: number): void {
+    if (!Number.isFinite(pan)) return;
     this.pannerNode.pan.value = Math.max(-1, Math.min(1, pan));
   }
 

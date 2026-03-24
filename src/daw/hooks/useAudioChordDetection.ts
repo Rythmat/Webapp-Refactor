@@ -46,6 +46,7 @@ export function useAudioChordDetection(): void {
   const wasRecordingRef = useRef(false);
   const recordingStartTickRef = useRef(0);
   const recordingTrackIdRef = useRef<string | null>(null);
+  const offlineAnalysisTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     // Default to guitar — will be recreated if instrument type changes
@@ -231,7 +232,7 @@ export function useAudioChordDetection(): void {
           const lastClip = track?.audioClips[track.audioClips.length - 1];
           if (lastClip) {
             // Delay slightly to ensure AudioBuffer is stored (recording stop is async)
-            setTimeout(() => {
+            offlineAnalysisTimerRef.current = setTimeout(() => {
               const audioBuffer = getAudioBuffer(lastClip.id);
               if (!audioBuffer) return;
               const { rootNote: rn, mode: m } = useStore.getState();
@@ -281,6 +282,10 @@ export function useAudioChordDetection(): void {
 
     return () => {
       cancelAnimationFrame(rafRef.current);
+      if (offlineAnalysisTimerRef.current) {
+        clearTimeout(offlineAnalysisTimerRef.current);
+        offlineAnalysisTimerRef.current = null;
+      }
       useStore.getState().setAudioActiveNotes([]);
     };
   }, []);

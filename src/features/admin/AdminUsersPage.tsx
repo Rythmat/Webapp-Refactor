@@ -28,6 +28,14 @@ const DATE_FORMAT = 'MMM d, yyyy';
 const DEBOUNCE_MS = 300;
 
 function subscriptionBadge(user: AdminUser) {
+  if (user.subscriptionStatus === 'insider_access') {
+    return (
+      <Badge className="bg-indigo-600/20 text-indigo-400 border-indigo-600/30">
+        Insider Access
+      </Badge>
+    );
+  }
+
   if (user.hasPaidAccess) {
     const label =
       user.subscriptionTier === 'free'
@@ -119,7 +127,12 @@ export const AdminUsersPage = () => {
       : allUsers.filter((user) => {
           switch (subscriptionFilter) {
             case 'active':
-              return user.hasPaidAccess;
+              return (
+                user.hasPaidAccess &&
+                user.subscriptionStatus !== 'insider_access'
+              );
+            case 'insider_access':
+              return user.subscriptionStatus === 'insider_access';
             case 'past_due':
               return user.subscriptionStatus === 'past_due';
             case 'canceled':
@@ -175,6 +188,7 @@ export const AdminUsersPage = () => {
           <SelectContent>
             <SelectItem value="all">All subscriptions</SelectItem>
             <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="insider_access">Insider Access</SelectItem>
             <SelectItem value="past_due">Past Due</SelectItem>
             <SelectItem value="canceled">Canceled</SelectItem>
             <SelectItem value="free">Free</SelectItem>

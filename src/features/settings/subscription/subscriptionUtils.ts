@@ -93,7 +93,7 @@ export const BILLING_STATE_LABEL: Record<BillingUiState, string> = {
   unpaid: 'Unpaid',
   incomplete: 'Incomplete',
   canceled: 'Canceled',
-  free_access: 'Free Access',
+  free_access: 'Insider Access',
   free: 'Free',
   unknown: 'No subscription',
 };
@@ -111,7 +111,7 @@ export const BILLING_STATE_MESSAGE: Record<BillingUiState, string> = {
   incomplete:
     'Your subscription setup is incomplete. Please complete checkout or contact support.',
   canceled: 'Your subscription has ended.',
-  free_access: 'You have been granted free access.',
+  free_access: 'You have been granted insider access.',
   free: 'You are currently on the free plan.',
   unknown: 'Subscription status unavailable.',
 };

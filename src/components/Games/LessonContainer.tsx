@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { getChordScales } from '@/components/learn/chordScaleData';
 import { PrismModeSlug } from '@/hooks/data';
 import { usePrismMode } from '@/hooks/data/prism/usePrismMode';
 import {
   LearnInputProvider,
   useLearnInputStable,
 } from '@/learn/context/LearnInputContext';
+import { getLocalModeSteps } from '@/lib/modeStepsFallback';
 import { urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { ActivityFlow } from './ActivityFlow';
@@ -104,7 +106,7 @@ const LessonContainerInner = ({
   const navigate = useNavigate();
   const [label, setLabel] = useState(['', '']);
   const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
-  const modeTitle = modeSlug.charAt(0).toUpperCase() + modeSlug.slice(1);
+  const modeTitle = getChordScales(modeSlug)?.modeName ?? modeSlug;
 
   const { start: startInput, stop: stopInput } = useLearnInputStable();
 
@@ -114,7 +116,7 @@ const LessonContainerInner = ({
   }, [startInput, stopInput]);
 
   const { data: modeDetail } = usePrismMode(modeSlug as any);
-  const scaleSteps = modeDetail?.steps ?? DEFAULT_INTERVALS;
+  const scaleSteps = getLocalModeSteps(modeSlug) ?? modeDetail?.steps ?? DEFAULT_INTERVALS;
   const scaleMidis = useMemo(
     () => buildScaleMidis(keyOption.midi, scaleSteps),
     [keyOption.midi, scaleSteps],

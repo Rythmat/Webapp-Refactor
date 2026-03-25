@@ -10,7 +10,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { AccountSettings } from '@/features/settings/sections/AccountSettings';
@@ -22,13 +22,19 @@ import { LookAndFeelSettings } from '@/features/settings/sections/LookAndFeelSet
 import { MidiSettings } from '@/features/settings/sections/MidiSettings';
 import { useMe } from '@/hooks/data';
 import { useExperienceSummary } from '@/hooks/data/experience';
+import { useDiscoverUsers } from '@/hooks/data/useDiscoverUsers';
 import { useAvatarConfig } from '@/hooks/useAvatarConfig';
+import { useUserBioPreferences } from '@/hooks/useUserBioPreferences';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
+import { rankMatches } from '@/lib/userMatching';
+import { ALL_INSTRUMENTS, ALL_GENRES, ALL_FOCUS } from '@/types/userProfile';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { UserAvatarPattern } from '../ui/UserAvatarPattern';
 import { Avatar, AvatarFallback } from '../ui/avatar';
+import { Switch } from '../ui/switch';
 import { AvatarEditorModal } from './AvatarEditorModal';
 import { ExperienceWeekChart } from './ExperienceWeekChart';
+import { UserMatchCard } from './UserMatchCard';
 import '@/features/settings/settings.css';
 
 const TABS = ['Profile', 'General', 'Account', 'Billing'] as const;
@@ -37,15 +43,18 @@ type Tab = (typeof TABS)[number];
 interface TagProps {
   label: string;
   icon?: React.ElementType;
+  active?: boolean;
+  onClick?: () => void;
 }
 
-const Tag: React.FC<TagProps> = ({ label, icon: Icon }) => (
+const Tag: React.FC<TagProps> = ({ label, icon: Icon, active, onClick }) => (
   <div
-    className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs"
+    onClick={onClick}
+    className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs cursor-pointer select-none transition-all"
     style={{
-      border: '1px solid var(--color-border)',
-      background: 'rgba(255,255,255,0.05)',
-      color: 'var(--color-text-dim)',
+      border: active ? '1px solid rgba(255,255,255,0.3)' : '1px solid var(--color-border)',
+      background: active ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
+      color: active ? 'var(--color-text)' : 'var(--color-text-dim)',
     }}
   >
     {Icon && <Icon size={10} />}
@@ -60,6 +69,30 @@ export const ProfilePage: React.FC = () => {
   const displayName = user?.nickname || user?.username || 'USER';
   const [activeTab, setActiveTab] = useState<Tab>('Profile');
   const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
+
+  const {
+    instruments: selectedInstruments,
+    genres: selectedGenres,
+    focus: selectedFocus,
+    visibility,
+    toggleInstrument,
+    toggleGenre,
+    toggleFocus,
+    toggleVisibility,
+  } = useUserBioPreferences(user?.id);
+
+  const { data: discoverUsers } = useDiscoverUsers();
+
+  const topMatches = useMemo(() => {
+    if (!discoverUsers) return [];
+    const myBio = {
+      instruments: [...selectedInstruments],
+      genres: [...selectedGenres],
+      focus: [...selectedFocus],
+    };
+    return rankMatches(myBio, discoverUsers).slice(0, 6);
+  }, [discoverUsers, selectedInstruments, selectedGenres, selectedFocus]);
+
   const { config: savedAvatarConfig, saveConfig: saveAvatarConfig } =
     useAvatarConfig(
       user?.id,
@@ -196,12 +229,26 @@ export const ProfilePage: React.FC = () => {
                   />
                 </div>
                 <div className="lg:col-span-7">
-                  <div
-                    className="mb-4 flex items-center gap-2"
-                    style={{ color: 'var(--color-text)' }}
-                  >
-                    <User size={20} />
-                    <h2 className="font-serif text-lg">Bio</h2>
+                  <div className="mb-4 flex items-center justify-between">
+                    <div
+                      className="flex items-center gap-2"
+                      style={{ color: 'var(--color-text)' }}
+                    >
+                      <User size={20} />
+                      <h2 className="font-serif text-lg">Bio</h2>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-xs font-medium"
+                        style={{ color: 'var(--color-text-dim)' }}
+                      >
+                        {visibility === 'public' ? 'Public' : 'Private'}
+                      </span>
+                      <Switch
+                        checked={visibility === 'public'}
+                        onCheckedChange={toggleVisibility}
+                      />
+                    </div>
                   </div>
                   <div
                     className="glass-panel-sm relative rounded-3xl p-8"
@@ -219,10 +266,15 @@ export const ProfilePage: React.FC = () => {
                           Instruments
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                          <Tag icon={Mic2} label="Vocals" />
-                          <Tag icon={Music} label="Piano" />
-                          <Tag icon={Music} label="Guitar" />
-                          <Tag icon={Activity} label="Drums" />
+                          {ALL_INSTRUMENTS.map((inst) => (
+                            <Tag
+                              key={inst}
+                              label={inst}
+                              icon={inst === 'Vocals' ? Mic2 : Music}
+                              active={selectedInstruments.has(inst)}
+                              onClick={() => toggleInstrument(inst)}
+                            />
+                          ))}
                         </div>
                       </div>
                       <div
@@ -237,8 +289,15 @@ export const ProfilePage: React.FC = () => {
                           Genres
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                          <Tag icon={Activity} label="Pop" />
-                          <Tag icon={Activity} label="R&B" />
+                          {ALL_GENRES.map((genre) => (
+                            <Tag
+                              key={genre}
+                              label={genre}
+                              icon={Activity}
+                              active={selectedGenres.has(genre)}
+                              onClick={() => toggleGenre(genre)}
+                            />
+                          ))}
                         </div>
                       </div>
                       <div
@@ -253,11 +312,15 @@ export const ProfilePage: React.FC = () => {
                           Focus
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                          <Tag icon={Activity} label="Producing" />
-                          <Tag icon={Activity} label="Songwriting" />
-                          <Tag icon={Activity} label="Performing" />
-                          <Tag icon={Activity} label="Education" />
-                          <Tag icon={Activity} label="Audio" />
+                          {ALL_FOCUS.map((focus) => (
+                            <Tag
+                              key={focus}
+                              label={focus}
+                              icon={Activity}
+                              active={selectedFocus.has(focus)}
+                              onClick={() => toggleFocus(focus)}
+                            />
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -315,18 +378,26 @@ export const ProfilePage: React.FC = () => {
                       border: '1px solid var(--color-border)',
                     }}
                   >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1">
-                        <div>
-                          <div
-                            className="text-sm font-medium"
-                            style={{ color: 'var(--color-text)' }}
-                          >
-                            Coming Soon...
-                          </div>
-                        </div>
+                    {topMatches.length > 0 ? (
+                      <div className="space-y-3">
+                        {topMatches.map((m) => (
+                          <UserMatchCard
+                            key={m.user.id}
+                            match={m}
+                            compact
+                          />
+                        ))}
                       </div>
-                    </div>
+                    ) : (
+                      <div
+                        className="py-4 text-center text-sm"
+                        style={{ color: 'var(--color-text-dim)' }}
+                      >
+                        {selectedGenres.size === 0 && selectedInstruments.size === 0
+                          ? 'Select your instruments and genres to find matches'
+                          : 'No matches yet — try selecting more genres'}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

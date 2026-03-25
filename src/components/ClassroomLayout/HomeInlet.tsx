@@ -1,5 +1,12 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
-import { useEffect, useState, type ElementType, type FC } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ElementType,
+  type FC,
+} from 'react';
 import {
   Activity,
   Bookmark,
@@ -19,7 +26,12 @@ import { type PrismModeSlug } from '@/hooks/data/prism';
 import { formatActivityTitle } from '@/lib/activityTitle';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { useProgressSummary } from '@/hooks/data';
-import { GameRoutes, LearnRoutes, StudioRoutes } from '@/constants/routes';
+import {
+  AtlasRoutes,
+  GameRoutes,
+  LearnRoutes,
+  StudioRoutes,
+} from '@/constants/routes';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { HeaderBar } from './HeaderBar';
@@ -117,6 +129,10 @@ const bannerSlides = [
     title: 'Play',
     route: GameRoutes.root.definition,
   },
+  {
+    title: 'Explore',
+    route: AtlasRoutes.root.definition,
+  },
 ];
 
 export const HomeInlet = () => {
@@ -132,22 +148,36 @@ export const HomeInlet = () => {
   const [showTempoPicker, setShowTempoPicker] = useState(false);
   const navigate = useNavigate();
   const { data: progressSummary } = useProgressSummary(true);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     setProjects([]);
   }, []);
 
-  const nextSlide = () =>
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
+    }, 5000);
+  }, []);
+
+  const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
-  const prevSlide = () =>
+    resetTimer();
+  };
+  const prevSlide = () => {
     setCurrentSlide(
       (prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length,
     );
+    resetTimer();
+  };
 
   useEffect(() => {
-    const timer = setInterval(nextSlide, 5000);
-    return () => clearInterval(timer);
-  }, []);
+    resetTimer();
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [resetTimer]);
 
   // Inline genre tags shown directly (first 5 of STUDIO_GENRES)
   const INLINE_GENRES = STUDIO_GENRES.slice(0, 5);

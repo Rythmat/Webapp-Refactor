@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand */
-import { Play, Trophy } from 'lucide-react';
+import { Play } from 'lucide-react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GameRoutes } from '@/constants/routes';
@@ -102,17 +102,6 @@ const ArcadeGameCard: FC<ArcadeGameCardProps> = ({
         >
           {title}
         </h3>
-        {featured && (
-          <div
-            className="flex items-center gap-4"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
-            <div className="flex items-center gap-1.5 text-xs font-medium text-yellow-400">
-              <Trophy size={14} />
-              Prize: 500 Credits
-            </div>
-          </div>
-        )}
       </div>
       <div
         className="absolute bottom-6 right-6 w-12 h-12 rounded-full flex items-center justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"

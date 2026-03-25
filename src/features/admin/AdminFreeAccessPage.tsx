@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Globe, Loader2, Mail, Plus, Trash2 } from 'lucide-react';
+import { Globe, Loader2, Mail, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,7 @@ import {
 import {
   useCreateFreeAccessRule,
   useDeleteFreeAccessRule,
+  useUpdateFreeAccessRule,
   useFreeAccessRules,
   type FreeAccessRule,
 } from '@/hooks/data/admin/useAdminFreeAccess';
@@ -71,8 +72,15 @@ export const AdminFreeAccessPage = () => {
   );
   const [newExpiresAt, setNewExpiresAt] = useState('');
 
+  const [ruleToEdit, setRuleToEdit] = useState<FreeAccessRule | null>(null);
+  const [editDuration, setEditDuration] = useState<'perpetual' | 'temporary'>(
+    'perpetual',
+  );
+  const [editExpiresAt, setEditExpiresAt] = useState('');
+
   const { data: rules = [], isLoading } = useFreeAccessRules();
   const createRule = useCreateFreeAccessRule();
+  const updateRule = useUpdateFreeAccessRule();
   const deleteRule = useDeleteFreeAccessRule();
 
   const handleCreate = async () => {
@@ -95,6 +103,26 @@ export const AdminFreeAccessPage = () => {
     if (!ruleToDelete) return;
     await deleteRule.mutateAsync(ruleToDelete.id);
     setRuleToDelete(null);
+  };
+
+  const openEditDialog = (rule: FreeAccessRule) => {
+    setRuleToEdit(rule);
+    setEditDuration(rule.duration);
+    setEditExpiresAt(
+      rule.duration === 'temporary' && rule.expiresAt
+        ? new Date(rule.expiresAt).toISOString().split('T')[0]
+        : '',
+    );
+  };
+
+  const handleUpdate = async () => {
+    if (!ruleToEdit) return;
+    await updateRule.mutateAsync({
+      id: ruleToEdit.id,
+      duration: editDuration,
+      expiresAt: editDuration === 'temporary' ? editExpiresAt : null,
+    });
+    setRuleToEdit(null);
   };
 
   const emailRules = rules.filter((r) => r.type === 'email');
@@ -185,22 +213,39 @@ export const AdminFreeAccessPage = () => {
                     : '\u2014'}
                 </TableCell>
                 <TableCell>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          className="text-destructive hover:text-destructive"
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setRuleToDelete(rule)}
-                        >
-                          <Trash2 className="size-4" />
-                          <span className="sr-only">Delete</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Delete rule</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <div className="flex items-center gap-1">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => openEditDialog(rule)}
+                          >
+                            <Pencil className="size-4" />
+                            <span className="sr-only">Edit duration</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit duration</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            className="text-destructive hover:text-destructive"
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setRuleToDelete(rule)}
+                          >
+                            <Trash2 className="size-4" />
+                            <span className="sr-only">Delete</span>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Delete rule</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -304,6 +349,78 @@ export const AdminFreeAccessPage = () => {
                 </>
               ) : (
                 'Add Rule'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Duration Dialog */}
+      <Dialog
+        open={!!ruleToEdit}
+        onOpenChange={(open) => !open && setRuleToEdit(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Duration</DialogTitle>
+            <DialogDescription>
+              Change the duration of insider access for{' '}
+              <span className="font-mono font-semibold">
+                {ruleToEdit?.value}
+              </span>
+              .
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Duration</Label>
+              <Select
+                value={editDuration}
+                onValueChange={(v) =>
+                  setEditDuration(v as 'perpetual' | 'temporary')
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="perpetual">Perpetual</SelectItem>
+                  <SelectItem value="temporary">Temporary</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {editDuration === 'temporary' && (
+              <div className="space-y-2">
+                <Label>Expires At</Label>
+                <Input
+                  type="date"
+                  min={new Date().toISOString().split('T')[0]}
+                  value={editExpiresAt}
+                  onChange={(e) => setEditExpiresAt(e.target.value)}
+                />
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRuleToEdit(null)}>
+              Cancel
+            </Button>
+            <Button
+              disabled={
+                updateRule.isPending ||
+                (editDuration === 'temporary' && !editExpiresAt)
+              }
+              onClick={() => void handleUpdate()}
+            >
+              {updateRule.isPending ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save'
               )}
             </Button>
           </DialogFooter>

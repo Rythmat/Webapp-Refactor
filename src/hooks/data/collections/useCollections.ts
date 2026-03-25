@@ -4,15 +4,11 @@ import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
 /**
  * Hook to fetch all collections with pagination
  */
-export const useCollections = (params?: { includeEmpty?: boolean }) => {
+export const useCollections = () => {
   const musicAtlas = useMusicAtlas();
-  const includeEmpty = params?.includeEmpty || false;
 
   return useQuery({
-    queryKey: ['collections', params],
-    queryFn: () =>
-      musicAtlas.collections.getCollections({
-        includeEmpty,
-      }),
+    queryKey: ['collections'],
+    queryFn: () => musicAtlas.collections.getCollections(),
   });
 };

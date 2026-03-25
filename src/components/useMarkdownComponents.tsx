@@ -2,8 +2,6 @@ import { useMemo } from 'react';
 import { BoardChoiceGame } from '@/components/Games/BoardChoiceGame';
 import { ChordPressGame } from '@/components/Games/ChordPressGame';
 import { ImageComponent } from '@/components/ImageComponent';
-import { PhraseMapRenderer } from './PhraseMapRenderer';
-import { PlayAlongPlayer } from './PlayAlongPlayer';
 import { YouTubePlayer } from './YouTubePlayer';
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -17,39 +15,6 @@ export const useMarkdownComponents = (parentColor?: string) => {
       ),
       em: ({ children }: { children?: React.ReactNode }) => {
         if (typeof children !== 'string') return <i>{children}</i>;
-
-        const phraseMapMatch = children.match(
-          /component:rhythmmap\(([^,]+)(?:,\s*([^,)]+))?(?:,\s*([^)]+))?\)/,
-        );
-
-        if (phraseMapMatch) {
-          const phraseMapId = phraseMapMatch[1];
-          const viewMode = phraseMapMatch[2] || 'default';
-          const color = phraseMapMatch[3] || parentColor || undefined;
-          return (
-            <PhraseMapRenderer
-              color={color}
-              id={phraseMapId}
-              viewMode={viewMode}
-            />
-          );
-        }
-
-        const playAlongMatch = children.match(
-          /component:playalong\(([^,]+)(?:,\s*([^,)]+))?(?:,\s*([^)]+))?\)/,
-        );
-
-        if (playAlongMatch) {
-          const playAlongId = playAlongMatch[1];
-          const secondParam = playAlongMatch[2];
-          let color: string | undefined = parentColor || undefined;
-
-          if (secondParam) {
-            color = playAlongMatch[3] || parentColor || undefined;
-          }
-
-          return <PlayAlongPlayer color={color} id={playAlongId} />;
-        }
 
         const youtubeMatch = children.match(
           /component:youtube\(([^,]+)(?:,\s*(\d+))?(?:,\s*(\d+))?(?:,\s*([^)]+))?\)/,

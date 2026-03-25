@@ -1,38 +1,20 @@
 import { useMemo } from 'react';
-import Markdown from 'react-markdown';
 import { useParams } from 'react-router-dom';
 import { ClassroomLayout } from '@/components/ClassroomLayout/ClassroomLayout';
-import { useMarkdownComponents } from '@/components/useMarkdownComponents';
 import { ClassroomRoutes } from '@/constants/routes';
-import { useChapter, useCollection, usePage } from '@/hooks/data';
+import { useCollection } from '@/hooks/data';
 
 export const ClassroomLessonPage = () => {
-  const { classroomId, collectionId, lessonId } = useParams<{
+  const { classroomId, collectionId } = useParams<{
     classroomId: string;
     collectionId: string;
-    lessonId: string;
   }>();
 
   const {
-    data: page,
-    isLoading: isPageLoading,
-    error: pageError,
-  } = usePage(lessonId);
-
-  const {
-    data: chapter,
-    isLoading: isChapterLoading,
-    error: chapterError,
-  } = useChapter(page?.chapterId);
-
-  const {
     data: collection,
-    isLoading: isCollectionLoading,
+    isLoading,
     error: collectionError,
   } = useCollection(collectionId);
-
-  const isLoading = isPageLoading || isCollectionLoading || isChapterLoading;
-  const isError = pageError || collectionError || chapterError;
 
   const back = useMemo(
     () => ({
@@ -47,9 +29,7 @@ export const ClassroomLessonPage = () => {
     [collection?.name, classroomId, collectionId],
   );
 
-  const color = page?.color || chapter?.color || collection?.color || undefined;
-
-  const components = useMarkdownComponents(color);
+  const color = collection?.color || undefined;
 
   return (
     <>
@@ -62,15 +42,11 @@ export const ClassroomLessonPage = () => {
           classroomId={classroomId}
           isEmpty={false}
           isLoading={isLoading}
-          isNotFound={!!isError}
+          isNotFound={!!collectionError}
         >
-          <h1 className="mb-1 text-4xl font-medium text-white">{page?.name}</h1>
-          <Markdown
-            className="prose-h2:text-white prose-h3:text-white prose-h4:text-white prose-h5:text-white prose-h6:text-white"
-            components={components}
-          >
-            {page?.content}
-          </Markdown>
+          <h1 className="mb-1 text-4xl font-medium text-white">
+            {collection?.name}
+          </h1>
         </ClassroomLayout>
       </div>
     </>

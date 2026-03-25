@@ -81,6 +81,30 @@ export const useCreateFreeAccessRule = () => {
   });
 };
 
+export const useUpdateFreeAccessRule = () => {
+  const { token } = useAuthContext();
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    FreeAccessRule,
+    Error,
+    {
+      id: string;
+      duration: 'perpetual' | 'temporary';
+      expiresAt: string | null;
+    }
+  >({
+    mutationFn: ({ id, ...body }) =>
+      fetchWithAuth<FreeAccessRule>(adminPath(`/free-access/${id}`), token!, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: FREE_ACCESS_KEY });
+    },
+  });
+};
+
 export const useDeleteFreeAccessRule = () => {
   const { token } = useAuthContext();
   const queryClient = useQueryClient();

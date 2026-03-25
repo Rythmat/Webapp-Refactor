@@ -14,27 +14,21 @@ export const useUpdateCollection = () => {
       name,
       description,
       color,
-      chapters,
     }: {
       id: string;
       name?: string;
       description?: string;
       color?: string;
-      chapters?: { chapterId: string; order: number }[];
     }) => {
       return musicAtlas.collections.patchCollectionsById(id, {
         name,
         description,
         color,
-        chapters,
       });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ['collection', variables.id],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['collectionChapters'],
       });
       queryClient.invalidateQueries({
         queryKey: ['collections'],

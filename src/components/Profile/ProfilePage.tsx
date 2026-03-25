@@ -21,15 +21,17 @@ import { HelpPanel } from '@/features/settings/sections/HelpPanel';
 import { LookAndFeelSettings } from '@/features/settings/sections/LookAndFeelSettings';
 import { MidiSettings } from '@/features/settings/sections/MidiSettings';
 import { useMe } from '@/hooks/data';
+import { useExperienceSummary } from '@/hooks/data/experience';
 import { useAvatarConfig } from '@/hooks/useAvatarConfig';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { UserAvatarPattern } from '../ui/UserAvatarPattern';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { AvatarEditorModal } from './AvatarEditorModal';
+import { ExperienceWeekChart } from './ExperienceWeekChart';
 import '@/features/settings/settings.css';
 
-const TABS = ['Profile', 'General', 'Account', 'Billing', 'Codes'] as const;
+const TABS = ['Profile', 'General', 'Account', 'Billing'] as const;
 type Tab = (typeof TABS)[number];
 
 interface TagProps {
@@ -53,6 +55,7 @@ const Tag: React.FC<TagProps> = ({ label, icon: Icon }) => (
 
 export const ProfilePage: React.FC = () => {
   const { data: user } = useMe();
+  const { data: xpSummary } = useExperienceSummary();
   const navigate = useNavigate();
   const displayName = user?.nickname || user?.username || 'USER';
   const [activeTab, setActiveTab] = useState<Tab>('Profile');
@@ -275,18 +278,22 @@ export const ProfilePage: React.FC = () => {
                       className="flex gap-4 text-xs font-medium"
                       style={{ color: 'var(--color-text-dim)' }}
                     >
-                      <span>This Week vs Last Week</span>
+                      <span>
+                        Level {xpSummary?.level ?? 1} &middot;{' '}
+                        {xpSummary?.totalExperience?.toLocaleString() ?? 0} XP
+                        &middot; {xpSummary?.today?.totalExperience ?? 0} XP
+                        today
+                      </span>
                     </div>
                   </div>
                   <div
-                    className="glass-panel-sm relative flex h-64 w-full items-center justify-center rounded-3xl p-4"
+                    className="glass-panel-sm relative h-64 w-full overflow-hidden rounded-3xl px-6 pt-2 pb-0"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
                       border: '1px solid var(--color-border)',
-                      color: 'var(--color-text-dim)',
                     }}
                   >
-                    Chart Placeholder
+                    <ExperienceWeekChart />
                   </div>
                 </div>
                 <div className="mt-8 lg:col-span-4 lg:mt-0">
@@ -360,14 +367,8 @@ export const ProfilePage: React.FC = () => {
             <div className="space-y-6">
               <div className="max-w-lg space-y-6">
                 <BillingSettings />
+                <ContentCodesSettings />
               </div>
-            </div>
-          )}
-
-          {/* Codes Tab */}
-          {activeTab === 'Codes' && (
-            <div className="space-y-6">
-              <ContentCodesSettings />
             </div>
           )}
         </div>

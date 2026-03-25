@@ -7,7 +7,10 @@ export interface DailyExperienceSummary {
   arcadeCompletions: number;
 }
 
-export type ExperienceAwardReason = 'granted' | 'already_completed' | 'daily_cap_reached';
+export type ExperienceAwardReason =
+  | 'granted'
+  | 'already_completed'
+  | 'daily_cap_reached';
 
 export interface ExperienceAwardResponse {
   awarded: boolean;

@@ -50,9 +50,10 @@ async function apiRequest<T>(
   const parsed = parseApiResponse(text);
 
   if (!response.ok) {
-    const parsedObj = typeof parsed === 'object' && parsed !== null
-      ? (parsed as { message?: string; error?: string })
-      : undefined;
+    const parsedObj =
+      typeof parsed === 'object' && parsed !== null
+        ? (parsed as { message?: string; error?: string })
+        : undefined;
     const message =
       parsedObj?.message ?? parsedObj?.error ?? 'Experience request failed';
     throw new Error(

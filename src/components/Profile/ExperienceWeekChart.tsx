@@ -7,7 +7,9 @@ function getLastSevenDays(): string[] {
   const days: string[] = [];
   const now = new Date();
   for (let i = 6; i >= 0; i--) {
-    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i));
+    const d = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i),
+    );
     days.push(d.toISOString().slice(0, 10));
   }
   return days;
@@ -70,8 +72,16 @@ export const ExperienceWeekChart: React.FC = () => {
     >
       <defs>
         <linearGradient id="xp-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--color-accent)" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="var(--color-accent)" stopOpacity="0.03" />
+          <stop
+            offset="0%"
+            stopColor="var(--color-accent)"
+            stopOpacity="0.35"
+          />
+          <stop
+            offset="100%"
+            stopColor="var(--color-accent)"
+            stopOpacity="0.03"
+          />
         </linearGradient>
       </defs>
 
@@ -87,7 +97,9 @@ export const ExperienceWeekChart: React.FC = () => {
           return PADDING_TOP + chartH * (1 - ratio);
         };
 
-        const linePoints = points.map((p, i) => `${toX(i)},${toY(p.xp)}`).join(' ');
+        const linePoints = points
+          .map((p, i) => `${toX(i)},${toY(p.xp)}`)
+          .join(' ');
 
         const areaPoints = [
           `${toX(0)},${PADDING_TOP + chartH}`,

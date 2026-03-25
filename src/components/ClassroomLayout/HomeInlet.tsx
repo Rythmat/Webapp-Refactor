@@ -25,6 +25,7 @@ import { useNavigate } from 'react-router';
 import { type PrismModeSlug } from '@/hooks/data/prism';
 import { formatActivityTitle } from '@/lib/activityTitle';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
+import { getChordScales } from '@/components/learn/chordScaleData';
 import { useProgressSummary } from '@/hooks/data';
 import {
   AtlasRoutes,
@@ -284,7 +285,7 @@ export const HomeInlet = () => {
     const activityDefId = parts.length >= 5 ? parts[2] : null;
     const mode = latest.mode;
     const root = latest.root;
-    const modeTitle = mode.charAt(0).toUpperCase() + mode.slice(1);
+    const modeTitle = getChordScales(mode as PrismModeSlug)?.modeName ?? mode;
     const rootTitle = urlParamToKeyLabel(root);
     const progressPct =
       latest.totalCount && latest.totalCount > 0

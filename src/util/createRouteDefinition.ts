@@ -24,7 +24,11 @@ export function createRouteDefinition<
 
   return Object.assign(
     (params: Params, query?: Query) => {
-      const generated = generatePath(fullPath, params || {});
+      const raw = (params || {}) as Record<string, string>;
+      const encoded = Object.fromEntries(
+        Object.entries(raw).map(([k, v]) => [k, encodeURIComponent(String(v))]),
+      );
+      const generated = generatePath(fullPath, encoded);
 
       if (query) {
         return `${generated}?${new URLSearchParams(query).toString()}`;

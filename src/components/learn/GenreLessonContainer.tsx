@@ -1136,12 +1136,6 @@ const GenreLessonContainerInner = ({
           <LessonOverview
             mode={modeSlug}
             rootMidi={keyRoot.midi}
-            onStartLesson={() => {
-              if (sections.length > 0 && sections[0].steps.length > 0) {
-                setCurrentSectionIdx(0);
-                setCurrentStepIdx(0);
-              }
-            }}
           />
         )}
       </div>

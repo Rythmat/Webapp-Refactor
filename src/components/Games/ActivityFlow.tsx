@@ -392,7 +392,7 @@ export const ActivityFlow = ({
     [rootKey, mode],
   );
   const pcSpellingMap = useMemo(
-    () => buildPitchClassSpellingMap(mode as string, rootKey, scaleMidis),
+    () => buildPitchClassSpellingMap(mode as string, rootKey, scaleMidis ?? []),
     [mode, rootKey, scaleMidis],
   );
   const lessonKeyScope = useMemo(
@@ -1096,7 +1096,7 @@ export const ActivityFlow = ({
       sequences.push({
         key: 'chords-loading',
         label: `${rootKey} ${modeTitle} Chords • Loading`,
-        Component: ChordLoadingStep,
+        Component: ChordLoadingStep as typeof sequences[0]['Component'],
         seq: [] as NoteEvent[],
         direction: 'Loading chord exercises...',
         section: 'B' as SectionId,

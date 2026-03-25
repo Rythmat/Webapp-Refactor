@@ -1096,7 +1096,7 @@ export const ActivityFlow = ({
       sequences.push({
         key: 'chords-loading',
         label: `${rootKey} ${modeTitle} Chords • Loading`,
-        Component: ChordLoadingStep as typeof sequences[0]['Component'],
+        Component: ChordLoadingStep as (typeof sequences)[0]['Component'],
         seq: [] as NoteEvent[],
         direction: 'Loading chord exercises...',
         section: 'B' as SectionId,

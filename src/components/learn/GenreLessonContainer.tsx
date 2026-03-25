@@ -1133,10 +1133,7 @@ const GenreLessonContainerInner = ({
           </div>
         ) : (
           /* First step: show LessonOverview */
-          <LessonOverview
-            mode={modeSlug}
-            rootMidi={keyRoot.midi}
-          />
+          <LessonOverview mode={modeSlug} rootMidi={keyRoot.midi} />
         )}
       </div>
     </div>

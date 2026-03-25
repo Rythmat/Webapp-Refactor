@@ -316,7 +316,7 @@ export const BillingSettings = () => {
                 </span>
               </div>
             ) : (
-              <p>Your free access does not expire.</p>
+              <p>Your insider access does not expire.</p>
             )}
           </div>
         ) : (

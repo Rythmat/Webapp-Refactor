@@ -104,9 +104,9 @@ export const AdminFreeAccessPage = () => {
     <div className="animate-fade-in-bottom space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Free Access</h1>
+          <h1 className="text-3xl font-bold">Insider Access</h1>
           <p className="text-muted-foreground">
-            Manage emails and domains that receive free access without a
+            Manage emails and domains that receive insider access without a
             subscription
           </p>
         </div>
@@ -120,13 +120,13 @@ export const AdminFreeAccessPage = () => {
         <div className="rounded-lg border border-white/10 bg-white/5 p-4">
           <div className="text-2xl font-bold">{emailRules.length}</div>
           <div className="text-sm text-muted-foreground">
-            Email{emailRules.length !== 1 ? 's' : ''} with free access
+            Email{emailRules.length !== 1 ? 's' : ''} with insider access
           </div>
         </div>
         <div className="rounded-lg border border-white/10 bg-white/5 p-4">
           <div className="text-2xl font-bold">{domainRules.length}</div>
           <div className="text-sm text-muted-foreground">
-            Domain{domainRules.length !== 1 ? 's' : ''} with free access
+            Domain{domainRules.length !== 1 ? 's' : ''} with insider access
           </div>
         </div>
       </div>
@@ -139,7 +139,7 @@ export const AdminFreeAccessPage = () => {
         </div>
       ) : rules.length === 0 ? (
         <div className="py-12 text-center text-muted-foreground">
-          No free access rules configured yet. Add an email or domain to get
+          No insider access rules configured yet. Add an email or domain to get
           started.
         </div>
       ) : (
@@ -212,9 +212,9 @@ export const AdminFreeAccessPage = () => {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Free Access Rule</DialogTitle>
+            <DialogTitle>Add Insider Access Rule</DialogTitle>
             <DialogDescription>
-              Add an email address or domain that will receive free access
+              Add an email address or domain that will receive insider access
               without needing a subscription. Domain rules apply to all users
               whose email ends with that domain.
             </DialogDescription>
@@ -251,7 +251,7 @@ export const AdminFreeAccessPage = () => {
               {newType === 'domain' && (
                 <p className="text-xs text-muted-foreground">
                   All users with an email ending in @{newValue || 'domain.com'}{' '}
-                  will receive free access.
+                  will receive insider access.
                 </p>
               )}
             </div>
@@ -319,7 +319,7 @@ export const AdminFreeAccessPage = () => {
           <DialogHeader>
             <DialogTitle>Delete Rule</DialogTitle>
             <DialogDescription>
-              Are you sure you want to remove free access for{' '}
+              Are you sure you want to remove insider access for{' '}
               <span className="font-mono font-semibold">
                 {ruleToDelete?.value}
               </span>

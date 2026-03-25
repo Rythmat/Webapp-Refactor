@@ -39,7 +39,7 @@ export const Sidebar = ({
           <SidebarMainNavItem
             icon={Shield}
             isCollapsed={isCollapsed}
-            label="Free Access"
+            label="Insider Access"
             to={AdminRoutes.freeAccess()}
           />
         </ul>

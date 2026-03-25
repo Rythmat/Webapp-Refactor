@@ -1096,11 +1096,11 @@ export const ActivityFlow = ({
       sequences.push({
         key: 'chords-loading',
         label: `${rootKey} ${modeTitle} Chords • Loading`,
-        Component: ChordLoadingStep as (typeof sequences)[0]['Component'],
-        seq: [] as NoteEvent[],
+        Component: ChordLoadingStep,
+        seq: applyActivityColor([]),
         direction: 'Loading chord exercises...',
         section: 'B' as SectionId,
-      });
+      } as (typeof sequences)[number]);
     }
 
     return sequences.map(

@@ -98,6 +98,7 @@ export const SignInForm = () => {
           Continue with Google
         </Button>
 
+        {/* Apple login — uncomment when Apple sign-in is ready
         <Button
           className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
           onClick={() => {
@@ -111,6 +112,7 @@ export const SignInForm = () => {
           </svg>
           Continue with Apple
         </Button>
+        */}
 
         {/* Divider */}
         <div className="relative my-2">

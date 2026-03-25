@@ -1,6 +1,25 @@
 import { Midi } from '@tonejs/midi';
 import { v4 as uuidv4 } from 'uuid';
-import { PhraseMap } from '@/hooks/data';
+export type PhraseBarNote = {
+  id: string;
+  noteType: 'note' | 'rest';
+  noteDuration: string;
+  noteNumbers: number[];
+  color?: string | null;
+};
+
+export type PhraseBar = {
+  id: string;
+  color?: string | null;
+  PhraseBarNotes: PhraseBarNote[];
+};
+
+export type PhraseMap = {
+  beatsPerBar: number;
+  beatsPerMinute: number;
+  color?: string | null;
+  PhraseBars: PhraseBar[];
+};
 
 export const isPhraseMap = (input: unknown): input is PhraseMap => {
   return typeof input === 'object' && input !== null && 'PhraseBars' in input;
@@ -81,7 +100,7 @@ export const ticksToSeconds = (
   return ticks * secondsPerTick; // Step 4: Convert to total seconds
 };
 
-const RHYTHM_MAP_NOTE_DURATIONS = {
+const RHYTHM_MAP_NOTE_DURATIONS: Record<string, number> = {
   whole: 4,
   dotted_whole: 6,
   half: 2,

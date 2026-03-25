@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand */
-import { Play, Trophy, Users } from 'lucide-react';
+import { Play, Trophy } from 'lucide-react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GameRoutes } from '@/constants/routes';
@@ -10,7 +10,6 @@ import '@/components/learn/learn.css';
 
 interface ArcadeGame {
   title: string;
-  players: string;
   category: string;
   featured?: boolean;
 }
@@ -18,40 +17,33 @@ interface ArcadeGame {
 const ARCADE_GAMES_DATA: ArcadeGame[] = [
   {
     title: 'Chroma',
-    players: '1.2k',
     category: 'Ear Training',
     featured: true,
   },
   {
     title: 'Chord Crusher',
-    players: '842',
     category: 'Theory',
   },
   {
     title: 'Synth Match',
-    players: '530',
     category: 'Ear Training',
   },
   {
     title: 'Beat Builder',
-    players: '320',
     category: 'Production',
   },
   {
     title: 'Pitch Perfect',
-    players: '1.5k',
     category: 'Ear Training',
   },
   {
     title: 'Scale Runner',
-    players: '605',
     category: 'Technique',
   },
 ];
 
 interface ArcadeGameCardProps {
   title: string;
-  players: string;
   category: string;
   featured?: boolean;
   onClick?: () => void;
@@ -59,7 +51,6 @@ interface ArcadeGameCardProps {
 
 const ArcadeGameCard: FC<ArcadeGameCardProps> = ({
   title,
-  players,
   category,
   featured,
   onClick,
@@ -103,18 +94,6 @@ const ArcadeGameCard: FC<ArcadeGameCardProps> = ({
         >
           {category}
         </div>
-        {featured && (
-          <div
-            className="text-xs font-bold px-3 py-1 rounded-full animate-pulse"
-            style={{
-              background: 'var(--color-record)',
-              color: 'white',
-              boxShadow: '0 0 12px rgba(239,68,68,0.3)',
-            }}
-          >
-            LIVE
-          </div>
-        )}
       </div>
       <div>
         <h3
@@ -123,21 +102,17 @@ const ArcadeGameCard: FC<ArcadeGameCardProps> = ({
         >
           {title}
         </h3>
-        <div
-          className="flex items-center gap-4"
-          style={{ color: 'var(--color-text-dim)' }}
-        >
-          <div className="flex items-center gap-1.5 text-xs font-medium">
-            <Users size={14} />
-            {players} Playing
-          </div>
-          {featured && (
+        {featured && (
+          <div
+            className="flex items-center gap-4"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
             <div className="flex items-center gap-1.5 text-xs font-medium text-yellow-400">
               <Trophy size={14} />
               Prize: 500 Credits
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       <div
         className="absolute bottom-6 right-6 w-12 h-12 rounded-full flex items-center justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
@@ -174,48 +149,6 @@ export const ArcadeInlet: FC = () => {
             }
           />
         ))}
-        <div
-          className="rounded-3xl p-6 flex flex-col justify-between group transition-colors duration-150 glass-panel"
-          style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          <div>
-            <div className="flex items-center gap-2 text-yellow-500 mb-4">
-              <Trophy size={20} />
-              <span
-                className="text-xs font-semibold uppercase"
-                style={{ letterSpacing: '1px' }}
-              >
-                Your Rank
-              </span>
-            </div>
-            <div
-              className="text-3xl font-semibold"
-              style={{ color: 'var(--color-text)' }}
-            >
-              #428
-            </div>
-            <div
-              className="text-xs mt-1"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
-              Top 15% this week
-            </div>
-          </div>
-          <div className="flex gap-2 mt-4">
-            <div
-              className="h-1 flex-1 rounded-full overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.06)' }}
-            >
-              <div
-                className="h-full w-3/4"
-                style={{ background: 'var(--color-accent)' }}
-              />
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

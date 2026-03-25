@@ -27,12 +27,32 @@ const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
 const DEFAULT_ROOT_MIDI = 60;
 
 const PITCH_CLASS_NAMES = [
-  'C', 'D♭', 'D', 'E♭', 'E', 'F',
-  'F♯', 'G', 'A♭', 'A', 'B♭', 'B',
+  'C',
+  'D♭',
+  'D',
+  'E♭',
+  'E',
+  'F',
+  'F♯',
+  'G',
+  'A♭',
+  'A',
+  'B♭',
+  'B',
 ] as const;
 const KEY_LABEL_BY_PITCH_CLASS = [
-  'C', 'D♭', 'D', 'E♭', 'E', 'F',
-  'F♯', 'G', 'A♭', 'A', 'B♭', 'B',
+  'C',
+  'D♭',
+  'D',
+  'E♭',
+  'E',
+  'F',
+  'F♯',
+  'G',
+  'A♭',
+  'A',
+  'B♭',
+  'B',
 ] as const;
 const normalizePitchClass = (midi: number) => ((midi % 12) + 12) % 12;
 
@@ -97,10 +117,7 @@ function ChordCard({
           useContextNotes={false}
         />
       </div>
-      <p
-        className="text-[10px]"
-        style={{ color: 'var(--color-text-dim)' }}
-      >
+      <p className="text-[10px]" style={{ color: 'var(--color-text-dim)' }}>
         {chord.noteNames.join(' – ')}
       </p>
     </div>
@@ -193,9 +210,7 @@ export function LessonOverview({
   );
 
   const noteSpelling = useMemo(
-    () =>
-      getNoteSpelling(mode, activeKeyLabel) ??
-      scaleNoteLabels.slice(0, 7),
+    () => getNoteSpelling(mode, activeKeyLabel) ?? scaleNoteLabels.slice(0, 7),
     [mode, activeKeyLabel, scaleNoteLabels],
   );
 
@@ -223,7 +238,9 @@ export function LessonOverview({
 
   const keySignatureDescription = useMemo(() => {
     const notes = scaleNoteLabels.slice(0, 7);
-    const sharps = notes.filter((n) => n.includes('♯') || n.includes('#')).length;
+    const sharps = notes.filter(
+      (n) => n.includes('♯') || n.includes('#'),
+    ).length;
     const flats = notes.filter((n) => n.includes('♭')).length;
     if (sharps === 0 && flats === 0) return 'has no sharps or flats';
     const parts: string[] = [];
@@ -297,7 +314,6 @@ export function LessonOverview({
           title="Root Position 7th Chords"
         />
       )}
-
     </div>
   );
 }

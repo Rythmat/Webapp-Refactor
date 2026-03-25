@@ -17,9 +17,7 @@ export const UserMatchCard: React.FC<UserMatchCardProps> = ({
   const { user, commonGenres, complementarySkills, matchScore } = match;
 
   return (
-    <div
-      className="flex items-center justify-between rounded-xl border border-white/5 bg-[#151515] p-4 transition-colors hover:border-white/20"
-    >
+    <div className="flex items-center justify-between rounded-xl border border-white/5 bg-[#151515] p-4 transition-colors hover:border-white/20">
       <div className="flex items-center gap-4 min-w-0">
         {/* Avatar */}
         <div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-[#2A2A2A]">

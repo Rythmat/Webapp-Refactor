@@ -73,7 +73,10 @@ function buildChords(
 
   const chords: ChordInfo[] = [];
   for (let i = 0; i < 7; i++) {
-    const indices = Array.from({ length: stackSize }, (_, k) => (i + k * 2) % 7);
+    const indices = Array.from(
+      { length: stackSize },
+      (_, k) => (i + k * 2) % 7,
+    );
     const midis = indices.map((idx) => {
       return rootMidi + steps[idx];
     });

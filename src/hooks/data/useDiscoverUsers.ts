@@ -16,7 +16,9 @@ export function useDiscoverUsers() {
     queryKey: ['discover-users', me?.id],
     enabled: !!me?.id,
     queryFn: async () => {
-      const students = await musicAtlas.students.getStudents({ status: 'active' });
+      const students = await musicAtlas.students.getStudents({
+        status: 'active',
+      });
 
       const discoverable: DiscoverableUser[] = [];
 

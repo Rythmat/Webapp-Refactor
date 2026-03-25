@@ -21,8 +21,8 @@ const SLUG_ALIASES: Record<string, string> = {
   'lydian#2#6': 'lydiansharp2sharp6',
   'ionian#2#5': 'ioniansharp2sharp5',
   'locrian𝄫3𝄫7': 'locriandoubleflat3doubleflat7',
-  'mixolydiannat6': 'mixolydianflat6',
-  'altereddominant': 'altered',
+  mixolydiannat6: 'mixolydianflat6',
+  altereddominant: 'altered',
 };
 
 /** Look up mode intervals locally when the API is unavailable. */

@@ -116,7 +116,8 @@ const LessonContainerInner = ({
   }, [startInput, stopInput]);
 
   const { data: modeDetail } = usePrismMode(modeSlug as any);
-  const scaleSteps = getLocalModeSteps(modeSlug) ?? modeDetail?.steps ?? DEFAULT_INTERVALS;
+  const scaleSteps =
+    getLocalModeSteps(modeSlug) ?? modeDetail?.steps ?? DEFAULT_INTERVALS;
   const scaleMidis = useMemo(
     () => buildScaleMidis(keyOption.midi, scaleSteps),
     [keyOption.midi, scaleSteps],

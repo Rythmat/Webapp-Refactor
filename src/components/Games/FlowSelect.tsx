@@ -104,7 +104,10 @@ export const FlowSelect = () => {
   }, [modesData, selectedMode]);
 
   const scaleSteps =
-    getLocalModeSteps(selectedMode) ?? modeDetail?.steps ?? stepsFromModesMap ?? DEFAULT_INTERVALS;
+    getLocalModeSteps(selectedMode) ??
+    modeDetail?.steps ??
+    stepsFromModesMap ??
+    DEFAULT_INTERVALS;
   const scaleMidis = useMemo(
     () => buildScaleMidis(selectedKey.midi, scaleSteps),
     [selectedKey, scaleSteps],

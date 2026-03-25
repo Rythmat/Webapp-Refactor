@@ -1170,7 +1170,9 @@ export const ActivityFlow = ({
 
   // Section state
   const [currentSectionId, setCurrentSectionId] = useState<SectionId>('O');
-  const [overviewTab, setOverviewTab] = useState<'scale' | 'triads' | 'sevenths'>('scale');
+  const [overviewTab, setOverviewTab] = useState<
+    'scale' | 'triads' | 'sevenths'
+  >('scale');
   const overviewTabRef = useRef(overviewTab);
   overviewTabRef.current = overviewTab;
   const [completedActivityKeys, setCompletedActivityKeys] = useState<
@@ -1985,7 +1987,12 @@ export const ActivityFlow = ({
           style={{ borderBottom: '1px solid var(--color-border)' }}
         >
           {(['scale', 'triads', 'sevenths'] as const).map((t) => {
-            const label = t === 'scale' ? 'Scale' : t === 'triads' ? 'Triads' : '7th Chords';
+            const label =
+              t === 'scale'
+                ? 'Scale'
+                : t === 'triads'
+                  ? 'Triads'
+                  : '7th Chords';
             const isActive = overviewTab === t;
             return (
               <button
@@ -2015,34 +2022,34 @@ export const ActivityFlow = ({
 
       {/* Step progress dots */}
       {currentSectionId !== 'O' && (
-      <div className="flex items-center gap-1 px-4 py-1">
-        {sectionActivities.map((activity, i) => {
-          const isStepDone = completedActivityKeys.has(activity.key);
-          const isCurrent = i === currentStepInSection;
-          return (
-            <div
-              key={activity.key}
-              style={{
-                width: isCurrent ? '24px' : '16px',
-                height: '6px',
-                borderRadius: '3px',
-                background: isStepDone
-                  ? '#4aff4a'
-                  : isCurrent
-                    ? 'var(--color-accent)'
-                    : 'rgba(255,255,255,0.1)',
-                transition: 'all 0.2s',
-              }}
-            />
-          );
-        })}
-        <span
-          className="ml-2 text-xs"
-          style={{ color: 'var(--color-text-dim)' }}
-        >
-          {currentStepInSection + 1}/{sectionActivities.length}
-        </span>
-      </div>
+        <div className="flex items-center gap-1 px-4 py-1">
+          {sectionActivities.map((activity, i) => {
+            const isStepDone = completedActivityKeys.has(activity.key);
+            const isCurrent = i === currentStepInSection;
+            return (
+              <div
+                key={activity.key}
+                style={{
+                  width: isCurrent ? '24px' : '16px',
+                  height: '6px',
+                  borderRadius: '3px',
+                  background: isStepDone
+                    ? '#4aff4a'
+                    : isCurrent
+                      ? 'var(--color-accent)'
+                      : 'rgba(255,255,255,0.1)',
+                  transition: 'all 0.2s',
+                }}
+              />
+            );
+          })}
+          <span
+            className="ml-2 text-xs"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
+            {currentStepInSection + 1}/{sectionActivities.length}
+          </span>
+        </div>
       )}
 
       <div className="relative">

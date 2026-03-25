@@ -177,12 +177,11 @@ export function ModeOverview({ mode }: ModeOverviewProps) {
     setNoteIndex(0);
   }, [mode]);
 
-  const scaleSteps = getLocalModeSteps(mode) ?? modeDetail?.steps ?? DEFAULT_INTERVALS;
+  const scaleSteps =
+    getLocalModeSteps(mode) ?? modeDetail?.steps ?? DEFAULT_INTERVALS;
   const activeKey = CHROMATIC_KEYS[keyIndex];
   const activeKeyColor = colorForKeyMode(activeKey.label, mode);
-  const displayName =
-    getChordScales(mode)?.modeName ??
-    mode;
+  const displayName = getChordScales(mode)?.modeName ?? mode;
   const rootMidi = BASE_C4 + activeKey.semitone;
   const scaleMidis = useMemo(
     () => buildScaleMidis(rootMidi, scaleSteps),

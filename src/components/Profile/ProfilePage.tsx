@@ -52,7 +52,9 @@ const Tag: React.FC<TagProps> = ({ label, icon: Icon, active, onClick }) => (
     onClick={onClick}
     className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs cursor-pointer select-none transition-all"
     style={{
-      border: active ? '1px solid rgba(255,255,255,0.3)' : '1px solid var(--color-border)',
+      border: active
+        ? '1px solid rgba(255,255,255,0.3)'
+        : '1px solid var(--color-border)',
       background: active ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
       color: active ? 'var(--color-text)' : 'var(--color-text-dim)',
     }}
@@ -381,11 +383,7 @@ export const ProfilePage: React.FC = () => {
                     {topMatches.length > 0 ? (
                       <div className="space-y-3">
                         {topMatches.map((m) => (
-                          <UserMatchCard
-                            key={m.user.id}
-                            match={m}
-                            compact
-                          />
+                          <UserMatchCard key={m.user.id} match={m} compact />
                         ))}
                       </div>
                     ) : (
@@ -393,7 +391,8 @@ export const ProfilePage: React.FC = () => {
                         className="py-4 text-center text-sm"
                         style={{ color: 'var(--color-text-dim)' }}
                       >
-                        {selectedGenres.size === 0 && selectedInstruments.size === 0
+                        {selectedGenres.size === 0 &&
+                        selectedInstruments.size === 0
                           ? 'Select your instruments and genres to find matches'
                           : 'No matches yet — try selecting more genres'}
                       </div>

@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ProfileVisibility, UserBioPreferences } from '@/types/userProfile';
+import type {
+  ProfileVisibility,
+  UserBioPreferences,
+} from '@/types/userProfile';
 
 const STORAGE_PREFIX = 'user_bio_';
 

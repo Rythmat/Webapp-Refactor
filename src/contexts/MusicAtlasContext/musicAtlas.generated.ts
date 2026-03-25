@@ -9,9 +9,9 @@
  * ---------------------------------------------------------------
  */
 
-export type DeleteAuthSessionData = any;
+export type DeleteApiAdminFreeAccessByIdData = any;
 
-export type DeleteChaptersByIdData = any;
+export type DeleteAuthSessionData = any;
 
 export interface DeleteClassroomsByIdStudentsByStudentIdData {
   id: string;
@@ -22,44 +22,6 @@ export interface DeleteClassroomsByIdStudentsByStudentIdData {
 export interface DeleteCollectionsByIdData {
   deletedCollectionId: string;
   success: boolean;
-}
-
-export interface DeletePagesByIdData {
-  deleted: boolean;
-  id: string;
-}
-
-export type DeletePhraseMapsByIdBarsByBarIdData = any;
-
-export type DeletePhraseMapsByIdData = any;
-
-export interface DeletePlayAlongByIdData {
-  audioFilePath: string | null;
-  color: string | null;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  midiBeatsPerMinute: number | null;
-  midiFilePath: string | null;
-  name: string;
-  updatedAt: Date;
-}
-
-export interface DeletePlayAlongByIdFilesData {
-  audioFilePath: string | null;
-  color: string | null;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  midiBeatsPerMinute: number | null;
-  midiFilePath: string | null;
-  name: string;
-  updatedAt: Date;
-}
-
-export interface DeletePlayAlongByIdFilesParams {
-  id: string;
-  type: 'midi' | 'audio';
 }
 
 export interface DeleteStudentsByIdData {
@@ -77,6 +39,15 @@ export interface DeleteTeachersByIdData {
 export interface DeleteTeachersInvitationsByIdData {
   id: string;
   revoked: boolean;
+}
+
+export type GetApiAdminFreeAccessData = any;
+
+export type GetApiAdminUsersData = any;
+
+export interface GetApiAdminUsersParams {
+  role?: 'admin' | 'teacher' | 'student';
+  search?: string;
 }
 
 export type GetApiBillingConfigData = any;
@@ -118,6 +89,7 @@ export interface GetAtlasSearchParams {
 
 export interface GetAuthMeData {
   auth0Sub: string | null;
+  avatarConfig: null;
   avatarUrl: string | null;
   birthDate: (Date) | null;
   createdAt: Date;
@@ -143,43 +115,6 @@ export interface GetAuthMeData {
   school: string | null;
   updatedAt: Date;
   username: string | null;
-}
-
-export interface GetChaptersByIdData {
-  color: string | null;
-  description: string | null;
-  id: string;
-  name: string;
-  noteKey: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-  pages: {
-    color: string | null;
-    content: string;
-    createdAt: Date;
-    description: string | null;
-    id: string;
-    name: string | null;
-    noteKey: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-    order: number;
-    updatedAt: Date;
-  }[];
-}
-
-export type GetChaptersData = {
-  Pages: {
-    id: string;
-    name: string | null;
-    order: number;
-  }[];
-  color: string | null;
-  description: string | null;
-  id: string;
-  name: string;
-  noteKey: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-  order: number | null;
-}[];
-
-export interface GetChaptersParams {
-  collectionId?: string;
 }
 
 export interface GetClassroomsByIdData {
@@ -216,23 +151,6 @@ export interface GetClassroomsParams {
 }
 
 export interface GetCollectionsByIdData {
-  CollectionChapters: {
-    Chapter: {
-      color: string | null;
-      createdAt: Date;
-      description: string | null;
-      id: string;
-      name: string;
-      noteKey: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-      updatedAt: Date;
-    };
-    chapterId: string;
-    collectionId: string;
-    createdAt: Date;
-    id: string;
-    order: number;
-    updatedAt: Date;
-  }[];
   color: string | null;
   createdAt: Date;
   description: string | null;
@@ -242,7 +160,6 @@ export interface GetCollectionsByIdData {
 }
 
 export type GetCollectionsData = {
-  chapters: number;
   color: string | null;
   createdAt: Date;
   description: string | null;
@@ -250,11 +167,6 @@ export type GetCollectionsData = {
   name: string;
   updatedAt: Date;
 }[];
-
-export interface GetCollectionsParams {
-  /** @default false */
-  includeEmpty?: boolean;
-}
 
 export type GetNotesData = {
   key: string;
@@ -265,167 +177,6 @@ export type GetNotesData = {
   octave: number;
   offset: number;
 }[];
-
-export interface GetPagesByIdData {
-  chapterId: string;
-  color: string | null;
-  content: string;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  name: string | null;
-  noteKey: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-  order: number;
-  updatedAt: Date;
-}
-
-export type GetPagesData = {
-  chapterId: string;
-  color: string | null;
-  content: string;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  name: string | null;
-  noteKey: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-  order: number;
-  updatedAt: Date;
-}[];
-
-export interface GetPagesParams {
-  chapterId?: string;
-}
-
-export interface GetPhraseMapsByIdData {
-  PhraseBars: {
-    PhraseBarNotes: {
-      color: string | null;
-      id: string;
-      label: string | null;
-      noteDuration:
-        | 'whole'
-        | 'half'
-        | 'quarter'
-        | 'eighth'
-        | 'sixteenth'
-        | 'thirtysecond'
-        | 'dotted_whole'
-        | 'dotted_half'
-        | 'dotted_quarter'
-        | 'dotted_eighth'
-        | 'dotted_sixteenth';
-      noteNumbers: number[];
-      noteType: 'note' | 'rest';
-      order: number;
-    }[];
-    color: string | null;
-    endRepeat: boolean;
-    id: string;
-    label: string | null;
-    order: number;
-    startRepeat: boolean;
-  }[];
-  beatsPerBar: number;
-  beatsPerMinute: number;
-  color: string | null;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  label: string | null;
-  updatedAt: Date;
-}
-
-export interface GetPhraseMapsData {
-  data: {
-    bars: number;
-    beatsPerBar: number;
-    beatsPerMinute: number;
-    color: string | null;
-    createdAt: Date;
-    description: string | null;
-    id: string;
-    label: string | null;
-    updatedAt: Date;
-  }[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
-export interface GetPhraseMapsParams {
-  /**
-   * @min 1
-   * @default 1
-   */
-  page?: number;
-  /**
-   * @min 1
-   * @max 100
-   * @default 20
-   */
-  pageSize?: number;
-}
-
-export interface GetPlayAlongByIdData {
-  audioFilePath: string | null;
-  color: string | null;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  midiBeatsPerMinute: number | null;
-  midiFilePath: string | null;
-  name: string;
-  updatedAt: Date;
-}
-
-export interface GetPlayAlongData {
-  data: {
-    audioFilePath: string | null;
-    color: string | null;
-    createdAt: Date;
-    description: string | null;
-    id: string;
-    midiBeatsPerMinute: number | null;
-    midiFilePath: string | null;
-    name: string;
-    updatedAt: Date;
-  }[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
-export interface GetPlayAlongParams {
-  /**
-   * @min 1
-   * @default 1
-   */
-  page?: number;
-  /**
-   * @min 1
-   * @max 100
-   * @default 20
-   */
-  pageSize?: number;
-}
-
-export type GetPracticeEventsData = {
-  createdAt: Date;
-  id: string;
-  pageId: string;
-  studentId: string;
-}[];
-
-export interface GetPracticeEventsParams {
-  pageId?: string;
-  studentId?: string;
-}
 
 export interface GetPrismChordsByNameData {
   chord: number[];
@@ -475,7 +226,6 @@ export interface GetStudentsByIdData {
   fullName: string | null;
   id: string;
   nickname: string;
-  practiceEventCount: number;
   removedAt: (Date) | null;
   school: string | null;
   updatedAt: Date;
@@ -544,6 +294,13 @@ export interface GetTeachersParams {
   status?: 'all' | 'active' | 'removed';
 }
 
+export type PatchApiAdminFreeAccessByIdData = any;
+
+export interface PatchApiAdminFreeAccessByIdPayload {
+  duration: 'perpetual' | 'temporary';
+  expiresAt?: string | null;
+}
+
 export type PatchApiProgressActivityData = any;
 
 export interface PatchApiProgressActivityPayload {
@@ -565,16 +322,6 @@ export interface PatchApiProgressLessonStatePayload {
   currentActivityInstanceId: string | null;
   lessonId: string;
   lessonVersion: number;
-}
-
-export type PatchChaptersByIdData = any;
-
-export interface PatchChaptersByIdPayload {
-  color?: string | null;
-  description?: string | null;
-  id: string;
-  name?: string;
-  noteKey?: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
 }
 
 export interface PatchClassroomsByIdData {
@@ -599,14 +346,6 @@ export interface PatchClassroomsByIdStudentsByStudentIdRestoreData {
 }
 
 export interface PatchCollectionsByIdData {
-  CollectionChapters: {
-    chapterId: string;
-    collectionId: string;
-    createdAt: Date;
-    id: string;
-    order: number;
-    updatedAt: Date;
-  }[];
   color: string | null;
   createdAt: Date;
   description: string | null;
@@ -616,140 +355,7 @@ export interface PatchCollectionsByIdData {
 }
 
 export interface PatchCollectionsByIdPayload {
-  chapters?: {
-    chapterId: string;
-    order: number;
-  }[];
   color?: string;
-  description?: string | null;
-  name?: string;
-}
-
-export interface PatchPagesByIdData {
-  PagePhraseMaps: {
-    createdAt: Date;
-    id: string;
-    pageId: string;
-    phraseMapId: string;
-    updatedAt: Date;
-  }[];
-  PagePlayAlongs: {
-    createdAt: Date;
-    id: string;
-    pageId: string;
-    playAlongId: string;
-    updatedAt: Date;
-  }[];
-  chapterId: string;
-  color: string | null;
-  content: string;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  name: string | null;
-  noteKey: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-  order: number;
-  updatedAt: Date;
-}
-
-export interface PatchPagesByIdPayload {
-  color?: string | null;
-  content?: string;
-  description?: string | null;
-  name?: string;
-  noteKey?: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-  order?: number;
-  phraseMapIds?: string[];
-  playAlongIds?: string[];
-}
-
-export interface PatchPhraseMapsByIdBarsByBarIdData {
-  PhraseBarNotes: {
-    color: string | null;
-    id: string;
-    label: string | null;
-    noteDuration:
-      | 'whole'
-      | 'half'
-      | 'quarter'
-      | 'eighth'
-      | 'sixteenth'
-      | 'thirtysecond'
-      | 'dotted_whole'
-      | 'dotted_half'
-      | 'dotted_quarter'
-      | 'dotted_eighth'
-      | 'dotted_sixteenth';
-    noteNumbers: number[];
-    noteType: 'note' | 'rest';
-    order: number;
-  }[];
-  color: string | null;
-  createdAt: Date;
-  endRepeat: boolean;
-  id: string;
-  label: string | null;
-  order: number;
-  startRepeat: boolean;
-  updatedAt: Date;
-}
-
-export interface PatchPhraseMapsByIdBarsByBarIdPayload {
-  color?: string | null;
-  endRepeat?: boolean;
-  label?: string | null;
-  notes: {
-    color?: string | null;
-    label?: string | null;
-    noteDuration:
-      | 'whole'
-      | 'half'
-      | 'quarter'
-      | 'eighth'
-      | 'sixteenth'
-      | 'thirtysecond'
-      | 'dotted_whole'
-      | 'dotted_half'
-      | 'dotted_quarter'
-      | 'dotted_eighth'
-      | 'dotted_sixteenth';
-    noteNumbers: number[];
-    noteType: 'note' | 'rest';
-    order?: number;
-  }[];
-  order?: number;
-  startRepeat?: boolean;
-}
-
-export type PatchPhraseMapsByIdData = any;
-
-export interface PatchPhraseMapsByIdPayload {
-  /**
-   * @min 1
-   * @max 16
-   */
-  beatsPerBar?: number;
-  /**
-   * @min 0
-   * @max 240
-   */
-  beatsPerMinute?: number;
-  color?: string | null;
-  description?: string | null;
-  label?: string | null;
-}
-
-export interface PatchPlayAlongByIdData {
-  color: string | null;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  name: string;
-  updatedAt: Date;
-}
-
-export interface PatchPlayAlongByIdPayload {
-  color?: string | null;
   description?: string | null;
   name?: string;
 }
@@ -781,6 +387,16 @@ export interface PatchStudentsByIdRestoreData {
 export interface PatchTeachersByIdRestoreData {
   id: string;
   restored: boolean;
+}
+
+export type PostApiAdminFreeAccessData = any;
+
+export interface PostApiAdminFreeAccessPayload {
+  duration?: 'perpetual' | 'temporary';
+  expiresAt?: string | null;
+  type: 'email' | 'domain';
+  /** @minLength 1 */
+  value: string;
 }
 
 export type PostApiBillingCreateCheckoutSessionData = any;
@@ -891,48 +507,6 @@ export interface PostAuthSessionPayload {
   token: string;
 }
 
-export interface PostChaptersData {
-  color: string | null;
-  description: string | null;
-  id: string;
-  name: string;
-  noteKey: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-  pages: {
-    color: string | null;
-    content: string;
-    createdAt: Date;
-    description: string | null;
-    id: string;
-    noteKey: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-    order: number;
-    updatedAt: Date;
-  }[];
-}
-
-export interface PostChaptersPayload {
-  color?: string;
-  description?: string | null;
-  initialPage?: {
-    color?: string;
-    content: string;
-    description?: string | null;
-    noteKey?: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-  };
-  name: string;
-  noteKey?: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-}
-
-export interface PostChaptersReorderData {
-  success: boolean;
-}
-
-export interface PostChaptersReorderPayload {
-  chapterOrders: {
-    id: string;
-    order: number;
-  }[];
-}
-
 export interface PostClassroomsData {
   code: string;
   createdAt: Date;
@@ -960,29 +534,7 @@ export interface PostClassroomsPayload {
   year: number;
 }
 
-export interface PostCollectionsByIdChaptersData {
-  chapterId: string;
-  collectionId: string;
-  createdAt: Date;
-  id: string;
-  order: number;
-  updatedAt: Date;
-}
-
-export interface PostCollectionsByIdChaptersPayload {
-  chapterId: string;
-  order?: number;
-}
-
 export interface PostCollectionsData {
-  CollectionChapters: {
-    chapterId: string;
-    collectionId: string;
-    createdAt: Date;
-    id: string;
-    order: number;
-    updatedAt: Date;
-  }[];
   color: string | null;
   createdAt: Date;
   description: string | null;
@@ -992,23 +544,9 @@ export interface PostCollectionsData {
 }
 
 export interface PostCollectionsPayload {
-  chapters?: {
-    chapterId: string;
-    order: number;
-  }[];
   color?: string;
   description?: string | null;
   name: string;
-}
-
-export interface PostMediaData {
-  contentType: string;
-  createdAt: Date;
-  filePath: string;
-  id: string;
-  name: string;
-  updatedAt: Date;
-  uploadedBy: string;
 }
 
 export interface PostMediaGetUploadUrlData {
@@ -1021,195 +559,6 @@ export interface PostMediaGetUploadUrlParams {
   fileName: string;
 }
 
-export interface PostMediaPayload {
-  contentType: string;
-  filePath: string;
-  name: string;
-}
-
-export interface PostPagesData {
-  chapterId: string;
-  color: string | null;
-  content: string;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  name: string | null;
-  noteKey: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-  order: number;
-  updatedAt: Date;
-}
-
-export interface PostPagesPayload {
-  chapterId: string;
-  color?: string;
-  content: string;
-  description?: string | null;
-  name?: string;
-  noteKey?: ('c' | 'g' | 'd' | 'a' | 'e' | 'b' | 'f_sharp' | 'd_flat' | 'a_flat' | 'e_flat' | 'b_flat' | 'f') | null;
-  order?: number;
-}
-
-export interface PostPagesReorderData {
-  success: boolean;
-}
-
-export interface PostPagesReorderPayload {
-  chapterId: string;
-  pageOrders: {
-    id: string;
-    order: number;
-  }[];
-}
-
-export interface PostPhraseMapsByIdBarsData {
-  PhraseBarNotes: {
-    color: string | null;
-    id: string;
-    label: string | null;
-    noteDuration:
-      | 'whole'
-      | 'half'
-      | 'quarter'
-      | 'eighth'
-      | 'sixteenth'
-      | 'thirtysecond'
-      | 'dotted_whole'
-      | 'dotted_half'
-      | 'dotted_quarter'
-      | 'dotted_eighth'
-      | 'dotted_sixteenth';
-    noteNumbers: number[];
-    noteType: 'note' | 'rest';
-    order: number;
-  }[];
-  color: string | null;
-  createdAt: Date;
-  endRepeat: boolean;
-  id: string;
-  label: string | null;
-  order: number;
-  startRepeat: boolean;
-  updatedAt: Date;
-}
-
-export interface PostPhraseMapsByIdBarsPayload {
-  color?: string;
-  endRepeat?: boolean;
-  id?: string;
-  label?: string;
-  notes: {
-    color?: string;
-    id?: string;
-    label?: string;
-    noteDuration:
-      | 'whole'
-      | 'half'
-      | 'quarter'
-      | 'eighth'
-      | 'sixteenth'
-      | 'thirtysecond'
-      | 'dotted_whole'
-      | 'dotted_half'
-      | 'dotted_quarter'
-      | 'dotted_eighth'
-      | 'dotted_sixteenth';
-    noteNumbers: number[];
-    noteType: 'note' | 'rest';
-    order: number;
-  }[];
-  order?: number;
-  startRepeat?: boolean;
-}
-
-export interface PostPhraseMapsData {
-  beatsPerBar: number;
-  beatsPerMinute: number;
-  color: string | null;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  label: string | null;
-  updatedAt: Date;
-}
-
-export interface PostPhraseMapsPayload {
-  /**
-   * @min 1
-   * @max 16
-   */
-  beatsPerBar?: number;
-  /**
-   * @min 0
-   * @max 240
-   */
-  beatsPerMinute?: number;
-  color?: string;
-  description?: string;
-  label: string;
-  /** @min 1 */
-  repeatCount?: number;
-  shouldLoop?: boolean;
-}
-
-export interface PostPlayAlongByIdFilesData {
-  audioFilePath: string | null;
-  color: string | null;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  midiBeatsPerMinute: number | null;
-  midiFilePath: string | null;
-  name: string;
-  updatedAt: Date;
-}
-
-export interface PostPlayAlongByIdFilesPayload {
-  beatsPerMinute?: number;
-  color?: string;
-  filePath: string;
-  name: string;
-  type: 'audio' | 'midi';
-}
-
-export interface PostPlayAlongByIdUploadUrlData {
-  filePath: string;
-  signedUrl: string;
-}
-
-export interface PostPlayAlongByIdUploadUrlPayload {
-  contentType: string;
-  fileName: string;
-  type: 'audio' | 'midi';
-}
-
-export interface PostPlayAlongData {
-  audioFilePath: string | null;
-  color: string | null;
-  createdAt: Date;
-  description: string | null;
-  id: string;
-  midiBeatsPerMinute: number | null;
-  midiFilePath: string | null;
-  name: string;
-  updatedAt: Date;
-}
-
-export interface PostPlayAlongPayload {
-  color?: string | null;
-  description?: string;
-  name: string;
-}
-
-export interface PostPracticeEventsData {
-  message: string;
-  success: boolean;
-}
-
-export interface PostPracticeEventsPayload {
-  pageId: string;
-}
-
 export interface PostTeachersInvitationsData {
   code: string;
   createdAt: Date;
@@ -1220,6 +569,47 @@ export interface PostTeachersInvitationsData {
 
 export interface PostTeachersInvitationsPayload {
   email: string;
+}
+
+export interface PutAuthMeAvatarConfigData {
+  avatarConfig: any;
+}
+
+export interface PutAuthMeAvatarConfigPayload {
+  /**
+   * @min 2
+   * @max 8
+   */
+  cellSize: number;
+  /**
+   * @min -30
+   * @max 30
+   */
+  hueShift: number;
+  isGradient: boolean;
+  /**
+   * @min -20
+   * @max 20
+   */
+  lightnessShift: number;
+  noiseType: 'simplex' | 'diagonal' | 'circle' | 'sinCos' | 'line';
+  orientation: 'pointy' | 'flat';
+  /**
+   * @min 0
+   * @max 199
+   */
+  paletteIndex: number;
+  /**
+   * @min -20
+   * @max 20
+   */
+  saturationShift: number;
+  seed: number;
+  /**
+   * @min 5
+   * @max 20
+   */
+  zoom: number;
 }
 
 export namespace Auth {
@@ -1296,6 +686,21 @@ export namespace Auth {
     export type RequestBody = PostAuthSessionPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostAuthSessionData;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name PutAuthMeAvatarConfig
+   * @request PUT:/auth/me/avatar-config
+   * @response `200` `PutAuthMeAvatarConfigData`
+   */
+  export namespace PutAuthMeAvatarConfig {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PutAuthMeAvatarConfigPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PutAuthMeAvatarConfigData;
   }
 }
 
@@ -1573,103 +978,87 @@ export namespace Me {
   }
 }
 
-export namespace Chapters {
+export namespace Admin {
   /**
    * No description
-   * @tags Chapters
-   * @name DeleteChaptersById
-   * @request DELETE:/chapters/{id}
-   * @response `200` `DeleteChaptersByIdData`
+   * @tags Admin
+   * @name DeleteApiAdminFreeAccessById
+   * @request DELETE:/api/admin/free-access/{id}
+   * @response `200` `DeleteApiAdminFreeAccessByIdData`
    */
-  export namespace DeleteChaptersById {
+  export namespace DeleteApiAdminFreeAccessById {
     export type RequestParams = {
       id: string;
     };
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = DeleteChaptersByIdData;
+    export type ResponseBody = DeleteApiAdminFreeAccessByIdData;
   }
 
   /**
    * No description
-   * @tags Chapters
-   * @name GetChapters
-   * @request GET:/chapters
-   * @response `200` `GetChaptersData`
+   * @tags Admin
+   * @name GetApiAdminFreeAccess
+   * @request GET:/api/admin/free-access
+   * @response `200` `GetApiAdminFreeAccessData`
    */
-  export namespace GetChapters {
+  export namespace GetApiAdminFreeAccess {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminFreeAccessData;
+  }
+
+  /**
+   * No description
+   * @tags Admin
+   * @name GetApiAdminUsers
+   * @request GET:/api/admin/users
+   * @response `200` `GetApiAdminUsersData`
+   */
+  export namespace GetApiAdminUsers {
     export type RequestParams = {};
     export type RequestQuery = {
-      collectionId?: string;
+      role?: 'admin' | 'teacher' | 'student';
+      search?: string;
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = GetChaptersData;
+    export type ResponseBody = GetApiAdminUsersData;
   }
 
   /**
    * No description
-   * @tags Chapters
-   * @name GetChaptersById
-   * @request GET:/chapters/{id}
-   * @response `200` `GetChaptersByIdData`
+   * @tags Admin
+   * @name PatchApiAdminFreeAccessById
+   * @request PATCH:/api/admin/free-access/{id}
+   * @response `200` `PatchApiAdminFreeAccessByIdData`
    */
-  export namespace GetChaptersById {
+  export namespace PatchApiAdminFreeAccessById {
     export type RequestParams = {
       id: string;
     };
     export type RequestQuery = {};
-    export type RequestBody = never;
+    export type RequestBody = PatchApiAdminFreeAccessByIdPayload;
     export type RequestHeaders = {};
-    export type ResponseBody = GetChaptersByIdData;
+    export type ResponseBody = PatchApiAdminFreeAccessByIdData;
   }
 
   /**
    * No description
-   * @tags Chapters
-   * @name PatchChaptersById
-   * @request PATCH:/chapters/{id}
-   * @response `200` `PatchChaptersByIdData`
+   * @tags Admin
+   * @name PostApiAdminFreeAccess
+   * @request POST:/api/admin/free-access
+   * @response `200` `PostApiAdminFreeAccessData`
    */
-  export namespace PatchChaptersById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PatchChaptersByIdPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PatchChaptersByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Chapters
-   * @name PostChapters
-   * @request POST:/chapters
-   * @response `200` `PostChaptersData`
-   */
-  export namespace PostChapters {
+  export namespace PostApiAdminFreeAccess {
     export type RequestParams = {};
     export type RequestQuery = {};
-    export type RequestBody = PostChaptersPayload;
+    export type RequestBody = PostApiAdminFreeAccessPayload;
     export type RequestHeaders = {};
-    export type ResponseBody = PostChaptersData;
-  }
-
-  /**
-   * No description
-   * @tags Chapters
-   * @name PostChaptersReorder
-   * @request POST:/chapters/reorder
-   * @response `200` `PostChaptersReorderData`
-   */
-  export namespace PostChaptersReorder {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostChaptersReorderPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostChaptersReorderData;
+    export type ResponseBody = PostApiAdminFreeAccessData;
   }
 }
 
@@ -1836,10 +1225,7 @@ export namespace Collections {
    */
   export namespace GetCollections {
     export type RequestParams = {};
-    export type RequestQuery = {
-      /** @default false */
-      includeEmpty?: boolean;
-    };
+    export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = GetCollectionsData;
@@ -1892,23 +1278,6 @@ export namespace Collections {
     export type RequestBody = PostCollectionsPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostCollectionsData;
-  }
-
-  /**
-   * No description
-   * @tags Collections
-   * @name PostCollectionsByIdChapters
-   * @request POST:/collections/{id}/chapters
-   * @response `200` `PostCollectionsByIdChaptersData`
-   */
-  export namespace PostCollectionsByIdChapters {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PostCollectionsByIdChaptersPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostCollectionsByIdChaptersData;
   }
 }
 
@@ -2050,402 +1419,6 @@ export namespace Notes {
   }
 }
 
-export namespace Pages {
-  /**
-   * No description
-   * @tags Pages
-   * @name DeletePagesById
-   * @request DELETE:/pages/{id}
-   * @response `200` `DeletePagesByIdData`
-   */
-  export namespace DeletePagesById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = DeletePagesByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Pages
-   * @name GetPages
-   * @request GET:/pages
-   * @response `200` `GetPagesData`
-   */
-  export namespace GetPages {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      chapterId?: string;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetPagesData;
-  }
-
-  /**
-   * No description
-   * @tags Pages
-   * @name GetPagesById
-   * @request GET:/pages/{id}
-   * @response `200` `GetPagesByIdData`
-   */
-  export namespace GetPagesById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetPagesByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Pages
-   * @name PatchPagesById
-   * @request PATCH:/pages/{id}
-   * @response `200` `PatchPagesByIdData`
-   */
-  export namespace PatchPagesById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PatchPagesByIdPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PatchPagesByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Pages
-   * @name PostPages
-   * @request POST:/pages
-   * @response `200` `PostPagesData`
-   */
-  export namespace PostPages {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostPagesPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostPagesData;
-  }
-
-  /**
-   * No description
-   * @tags Pages
-   * @name PostPagesReorder
-   * @request POST:/pages/reorder
-   * @response `200` `PostPagesReorderData`
-   */
-  export namespace PostPagesReorder {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostPagesReorderPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostPagesReorderData;
-  }
-}
-
-export namespace PhraseMaps {
-  /**
-   * No description
-   * @tags Phrase Maps
-   * @name DeletePhraseMapsById
-   * @request DELETE:/phrase-maps/{id}
-   * @response `200` `DeletePhraseMapsByIdData`
-   */
-  export namespace DeletePhraseMapsById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = DeletePhraseMapsByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Phrase Maps
-   * @name DeletePhraseMapsByIdBarsByBarId
-   * @request DELETE:/phrase-maps/{id}/bars/{barId}
-   * @response `200` `DeletePhraseMapsByIdBarsByBarIdData`
-   */
-  export namespace DeletePhraseMapsByIdBarsByBarId {
-    export type RequestParams = {
-      barId: string;
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = DeletePhraseMapsByIdBarsByBarIdData;
-  }
-
-  /**
-   * No description
-   * @tags Phrase Maps
-   * @name GetPhraseMaps
-   * @request GET:/phrase-maps
-   * @response `200` `GetPhraseMapsData`
-   */
-  export namespace GetPhraseMaps {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      /**
-       * @min 1
-       * @default 1
-       */
-      page?: number;
-      /**
-       * @min 1
-       * @max 100
-       * @default 20
-       */
-      pageSize?: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetPhraseMapsData;
-  }
-
-  /**
-   * No description
-   * @tags Phrase Maps
-   * @name GetPhraseMapsById
-   * @request GET:/phrase-maps/{id}
-   * @response `200` `GetPhraseMapsByIdData`
-   */
-  export namespace GetPhraseMapsById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetPhraseMapsByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Phrase Maps
-   * @name PatchPhraseMapsById
-   * @request PATCH:/phrase-maps/{id}
-   * @response `200` `PatchPhraseMapsByIdData`
-   */
-  export namespace PatchPhraseMapsById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PatchPhraseMapsByIdPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PatchPhraseMapsByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Phrase Maps
-   * @name PatchPhraseMapsByIdBarsByBarId
-   * @request PATCH:/phrase-maps/{id}/bars/{barId}
-   * @response `200` `PatchPhraseMapsByIdBarsByBarIdData`
-   */
-  export namespace PatchPhraseMapsByIdBarsByBarId {
-    export type RequestParams = {
-      barId: string;
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PatchPhraseMapsByIdBarsByBarIdPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PatchPhraseMapsByIdBarsByBarIdData;
-  }
-
-  /**
-   * No description
-   * @tags Phrase Maps
-   * @name PostPhraseMaps
-   * @request POST:/phrase-maps
-   * @response `200` `PostPhraseMapsData`
-   */
-  export namespace PostPhraseMaps {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostPhraseMapsPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostPhraseMapsData;
-  }
-
-  /**
-   * No description
-   * @tags Phrase Maps
-   * @name PostPhraseMapsByIdBars
-   * @request POST:/phrase-maps/{id}/bars
-   * @response `200` `PostPhraseMapsByIdBarsData`
-   */
-  export namespace PostPhraseMapsByIdBars {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PostPhraseMapsByIdBarsPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostPhraseMapsByIdBarsData;
-  }
-}
-
-export namespace PlayAlong {
-  /**
-   * No description
-   * @tags Play-Along
-   * @name DeletePlayAlongById
-   * @request DELETE:/play-along/{id}
-   * @response `200` `DeletePlayAlongByIdData`
-   */
-  export namespace DeletePlayAlongById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = DeletePlayAlongByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Play-Along
-   * @name DeletePlayAlongByIdFiles
-   * @request DELETE:/play-along/{id}/files
-   * @response `200` `DeletePlayAlongByIdFilesData`
-   */
-  export namespace DeletePlayAlongByIdFiles {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {
-      type: 'midi' | 'audio';
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = DeletePlayAlongByIdFilesData;
-  }
-
-  /**
-   * No description
-   * @tags Play-Along
-   * @name GetPlayAlong
-   * @request GET:/play-along
-   * @response `200` `GetPlayAlongData`
-   */
-  export namespace GetPlayAlong {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      /**
-       * @min 1
-       * @default 1
-       */
-      page?: number;
-      /**
-       * @min 1
-       * @max 100
-       * @default 20
-       */
-      pageSize?: number;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetPlayAlongData;
-  }
-
-  /**
-   * No description
-   * @tags Play-Along
-   * @name GetPlayAlongById
-   * @request GET:/play-along/{id}
-   * @response `200` `GetPlayAlongByIdData`
-   */
-  export namespace GetPlayAlongById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetPlayAlongByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Play-Along
-   * @name PatchPlayAlongById
-   * @request PATCH:/play-along/{id}
-   * @response `200` `PatchPlayAlongByIdData`
-   */
-  export namespace PatchPlayAlongById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PatchPlayAlongByIdPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PatchPlayAlongByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Play-Along
-   * @name PostPlayAlong
-   * @request POST:/play-along
-   * @response `200` `PostPlayAlongData`
-   */
-  export namespace PostPlayAlong {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostPlayAlongPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostPlayAlongData;
-  }
-
-  /**
-   * No description
-   * @tags Play-Along
-   * @name PostPlayAlongByIdFiles
-   * @request POST:/play-along/{id}/files
-   * @response `200` `PostPlayAlongByIdFilesData`
-   */
-  export namespace PostPlayAlongByIdFiles {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PostPlayAlongByIdFilesPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostPlayAlongByIdFilesData;
-  }
-
-  /**
-   * No description
-   * @tags Play-Along
-   * @name PostPlayAlongByIdUploadUrl
-   * @request POST:/play-along/{id}/upload-url
-   * @response `200` `PostPlayAlongByIdUploadUrlData`
-   */
-  export namespace PostPlayAlongByIdUploadUrl {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PostPlayAlongByIdUploadUrlPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostPlayAlongByIdUploadUrlData;
-  }
-}
-
 export namespace Progress {
   /**
    * No description
@@ -2508,41 +1481,6 @@ export namespace Progress {
     export type RequestBody = PatchApiProgressLessonStatePayload;
     export type RequestHeaders = {};
     export type ResponseBody = PatchApiProgressLessonStateData;
-  }
-}
-
-export namespace PracticeEvents {
-  /**
-   * No description
-   * @tags Practice Events
-   * @name GetPracticeEvents
-   * @request GET:/practice-events
-   * @response `200` `GetPracticeEventsData`
-   */
-  export namespace GetPracticeEvents {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      pageId?: string;
-      studentId?: string;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetPracticeEventsData;
-  }
-
-  /**
-   * No description
-   * @tags Practice Events
-   * @name PostPracticeEvents
-   * @request POST:/practice-events
-   * @response `200` `PostPracticeEventsData`
-   */
-  export namespace PostPracticeEvents {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostPracticeEventsPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostPracticeEventsData;
   }
 }
 
@@ -2637,21 +1575,6 @@ export namespace Students {
 }
 
 export namespace Media {
-  /**
-   * No description
-   * @tags Media
-   * @name PostMedia
-   * @request POST:/media
-   * @response `200` `PostMediaData`
-   */
-  export namespace PostMedia {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostMediaPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostMediaData;
-  }
-
   /**
    * No description
    * @tags Media
@@ -3421,6 +2344,24 @@ export class Api<SecurityDataType extends unknown> {
         type: ContentType.Json,
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name PutAuthMeAvatarConfig
+     * @request PUT:/auth/me/avatar-config
+     * @response `200` `PutAuthMeAvatarConfigData`
+     */
+    putAuthMeAvatarConfig: (data: PutAuthMeAvatarConfigPayload, params: RequestParams = {}) =>
+      this.http.request<PutAuthMeAvatarConfigData, any>({
+        path: `/auth/me/avatar-config`,
+        method: 'PUT',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
   };
   atlas = {
     /**
@@ -3701,18 +2642,18 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
-  chapters = {
+  admin = {
     /**
      * No description
      *
-     * @tags Chapters
-     * @name DeleteChaptersById
-     * @request DELETE:/chapters/{id}
-     * @response `200` `DeleteChaptersByIdData`
+     * @tags Admin
+     * @name DeleteApiAdminFreeAccessById
+     * @request DELETE:/api/admin/free-access/{id}
+     * @response `200` `DeleteApiAdminFreeAccessByIdData`
      */
-    deleteChaptersById: (id: string, params: RequestParams = {}) =>
-      this.http.request<DeleteChaptersByIdData, any>({
-        path: `/chapters/${id}`,
+    deleteApiAdminFreeAccessById: (id: string, params: RequestParams = {}) =>
+      this.http.request<DeleteApiAdminFreeAccessByIdData, any>({
+        path: `/api/admin/free-access/${id}`,
         method: 'DELETE',
         ...params,
       }),
@@ -3720,47 +2661,45 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags Chapters
-     * @name GetChapters
-     * @request GET:/chapters
-     * @response `200` `GetChaptersData`
+     * @tags Admin
+     * @name GetApiAdminFreeAccess
+     * @request GET:/api/admin/free-access
+     * @response `200` `GetApiAdminFreeAccessData`
      */
-    getChapters: (query: GetChaptersParams, params: RequestParams = {}) =>
-      this.http.request<GetChaptersData, any>({
-        path: `/chapters`,
+    getApiAdminFreeAccess: (params: RequestParams = {}) =>
+      this.http.request<GetApiAdminFreeAccessData, any>({
+        path: `/api/admin/free-access`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Admin
+     * @name GetApiAdminUsers
+     * @request GET:/api/admin/users
+     * @response `200` `GetApiAdminUsersData`
+     */
+    getApiAdminUsers: (query: GetApiAdminUsersParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminUsersData, any>({
+        path: `/api/admin/users`,
         method: 'GET',
         query: query,
-        format: 'json',
         ...params,
       }),
 
     /**
      * No description
      *
-     * @tags Chapters
-     * @name GetChaptersById
-     * @request GET:/chapters/{id}
-     * @response `200` `GetChaptersByIdData`
+     * @tags Admin
+     * @name PatchApiAdminFreeAccessById
+     * @request PATCH:/api/admin/free-access/{id}
+     * @response `200` `PatchApiAdminFreeAccessByIdData`
      */
-    getChaptersById: (id: string, params: RequestParams = {}) =>
-      this.http.request<GetChaptersByIdData, any>({
-        path: `/chapters/${id}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Chapters
-     * @name PatchChaptersById
-     * @request PATCH:/chapters/{id}
-     * @response `200` `PatchChaptersByIdData`
-     */
-    patchChaptersById: (id: string, data: PatchChaptersByIdPayload, params: RequestParams = {}) =>
-      this.http.request<PatchChaptersByIdData, any>({
-        path: `/chapters/${id}`,
+    patchApiAdminFreeAccessById: (id: string, data: PatchApiAdminFreeAccessByIdPayload, params: RequestParams = {}) =>
+      this.http.request<PatchApiAdminFreeAccessByIdData, any>({
+        path: `/api/admin/free-access/${id}`,
         method: 'PATCH',
         body: data,
         type: ContentType.Json,
@@ -3770,36 +2709,17 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
-     * @tags Chapters
-     * @name PostChapters
-     * @request POST:/chapters
-     * @response `200` `PostChaptersData`
+     * @tags Admin
+     * @name PostApiAdminFreeAccess
+     * @request POST:/api/admin/free-access
+     * @response `200` `PostApiAdminFreeAccessData`
      */
-    postChapters: (data: PostChaptersPayload, params: RequestParams = {}) =>
-      this.http.request<PostChaptersData, any>({
-        path: `/chapters`,
+    postApiAdminFreeAccess: (data: PostApiAdminFreeAccessPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiAdminFreeAccessData, any>({
+        path: `/api/admin/free-access`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Chapters
-     * @name PostChaptersReorder
-     * @request POST:/chapters/reorder
-     * @response `200` `PostChaptersReorderData`
-     */
-    postChaptersReorder: (data: PostChaptersReorderPayload, params: RequestParams = {}) =>
-      this.http.request<PostChaptersReorderData, any>({
-        path: `/chapters/reorder`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
   };
@@ -3964,11 +2884,10 @@ export class Api<SecurityDataType extends unknown> {
      * @request GET:/collections
      * @response `200` `GetCollectionsData`
      */
-    getCollections: (query: GetCollectionsParams, params: RequestParams = {}) =>
+    getCollections: (params: RequestParams = {}) =>
       this.http.request<GetCollectionsData, any>({
         path: `/collections`,
         method: 'GET',
-        query: query,
         format: 'json',
         ...params,
       }),
@@ -4018,24 +2937,6 @@ export class Api<SecurityDataType extends unknown> {
     postCollections: (data: PostCollectionsPayload, params: RequestParams = {}) =>
       this.http.request<PostCollectionsData, any>({
         path: `/collections`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Collections
-     * @name PostCollectionsByIdChapters
-     * @request POST:/collections/{id}/chapters
-     * @response `200` `PostCollectionsByIdChaptersData`
-     */
-    postCollectionsByIdChapters: (id: string, data: PostCollectionsByIdChaptersPayload, params: RequestParams = {}) =>
-      this.http.request<PostCollectionsByIdChaptersData, any>({
-        path: `/collections/${id}/chapters`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
@@ -4177,389 +3078,6 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
-  pages = {
-    /**
-     * No description
-     *
-     * @tags Pages
-     * @name DeletePagesById
-     * @request DELETE:/pages/{id}
-     * @response `200` `DeletePagesByIdData`
-     */
-    deletePagesById: (id: string, params: RequestParams = {}) =>
-      this.http.request<DeletePagesByIdData, any>({
-        path: `/pages/${id}`,
-        method: 'DELETE',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Pages
-     * @name GetPages
-     * @request GET:/pages
-     * @response `200` `GetPagesData`
-     */
-    getPages: (query: GetPagesParams, params: RequestParams = {}) =>
-      this.http.request<GetPagesData, any>({
-        path: `/pages`,
-        method: 'GET',
-        query: query,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Pages
-     * @name GetPagesById
-     * @request GET:/pages/{id}
-     * @response `200` `GetPagesByIdData`
-     */
-    getPagesById: (id: string, params: RequestParams = {}) =>
-      this.http.request<GetPagesByIdData, any>({
-        path: `/pages/${id}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Pages
-     * @name PatchPagesById
-     * @request PATCH:/pages/{id}
-     * @response `200` `PatchPagesByIdData`
-     */
-    patchPagesById: (id: string, data: PatchPagesByIdPayload, params: RequestParams = {}) =>
-      this.http.request<PatchPagesByIdData, any>({
-        path: `/pages/${id}`,
-        method: 'PATCH',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Pages
-     * @name PostPages
-     * @request POST:/pages
-     * @response `200` `PostPagesData`
-     */
-    postPages: (data: PostPagesPayload, params: RequestParams = {}) =>
-      this.http.request<PostPagesData, any>({
-        path: `/pages`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Pages
-     * @name PostPagesReorder
-     * @request POST:/pages/reorder
-     * @response `200` `PostPagesReorderData`
-     */
-    postPagesReorder: (data: PostPagesReorderPayload, params: RequestParams = {}) =>
-      this.http.request<PostPagesReorderData, any>({
-        path: `/pages/reorder`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-  };
-  phraseMaps = {
-    /**
-     * No description
-     *
-     * @tags Phrase Maps
-     * @name DeletePhraseMapsById
-     * @request DELETE:/phrase-maps/{id}
-     * @response `200` `DeletePhraseMapsByIdData`
-     */
-    deletePhraseMapsById: (id: string, params: RequestParams = {}) =>
-      this.http.request<DeletePhraseMapsByIdData, any>({
-        path: `/phrase-maps/${id}`,
-        method: 'DELETE',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Phrase Maps
-     * @name DeletePhraseMapsByIdBarsByBarId
-     * @request DELETE:/phrase-maps/{id}/bars/{barId}
-     * @response `200` `DeletePhraseMapsByIdBarsByBarIdData`
-     */
-    deletePhraseMapsByIdBarsByBarId: (id: string, barId: string, params: RequestParams = {}) =>
-      this.http.request<DeletePhraseMapsByIdBarsByBarIdData, any>({
-        path: `/phrase-maps/${id}/bars/${barId}`,
-        method: 'DELETE',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Phrase Maps
-     * @name GetPhraseMaps
-     * @request GET:/phrase-maps
-     * @response `200` `GetPhraseMapsData`
-     */
-    getPhraseMaps: (query: GetPhraseMapsParams, params: RequestParams = {}) =>
-      this.http.request<GetPhraseMapsData, any>({
-        path: `/phrase-maps`,
-        method: 'GET',
-        query: query,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Phrase Maps
-     * @name GetPhraseMapsById
-     * @request GET:/phrase-maps/{id}
-     * @response `200` `GetPhraseMapsByIdData`
-     */
-    getPhraseMapsById: (id: string, params: RequestParams = {}) =>
-      this.http.request<GetPhraseMapsByIdData, any>({
-        path: `/phrase-maps/${id}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Phrase Maps
-     * @name PatchPhraseMapsById
-     * @request PATCH:/phrase-maps/{id}
-     * @response `200` `PatchPhraseMapsByIdData`
-     */
-    patchPhraseMapsById: (id: string, data: PatchPhraseMapsByIdPayload, params: RequestParams = {}) =>
-      this.http.request<PatchPhraseMapsByIdData, any>({
-        path: `/phrase-maps/${id}`,
-        method: 'PATCH',
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Phrase Maps
-     * @name PatchPhraseMapsByIdBarsByBarId
-     * @request PATCH:/phrase-maps/{id}/bars/{barId}
-     * @response `200` `PatchPhraseMapsByIdBarsByBarIdData`
-     */
-    patchPhraseMapsByIdBarsByBarId: (
-      id: string,
-      barId: string,
-      data: PatchPhraseMapsByIdBarsByBarIdPayload,
-      params: RequestParams = {},
-    ) =>
-      this.http.request<PatchPhraseMapsByIdBarsByBarIdData, any>({
-        path: `/phrase-maps/${id}/bars/${barId}`,
-        method: 'PATCH',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Phrase Maps
-     * @name PostPhraseMaps
-     * @request POST:/phrase-maps
-     * @response `200` `PostPhraseMapsData`
-     */
-    postPhraseMaps: (data: PostPhraseMapsPayload, params: RequestParams = {}) =>
-      this.http.request<PostPhraseMapsData, any>({
-        path: `/phrase-maps`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Phrase Maps
-     * @name PostPhraseMapsByIdBars
-     * @request POST:/phrase-maps/{id}/bars
-     * @response `200` `PostPhraseMapsByIdBarsData`
-     */
-    postPhraseMapsByIdBars: (id: string, data: PostPhraseMapsByIdBarsPayload, params: RequestParams = {}) =>
-      this.http.request<PostPhraseMapsByIdBarsData, any>({
-        path: `/phrase-maps/${id}/bars`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-  };
-  playAlong = {
-    /**
-     * No description
-     *
-     * @tags Play-Along
-     * @name DeletePlayAlongById
-     * @request DELETE:/play-along/{id}
-     * @response `200` `DeletePlayAlongByIdData`
-     */
-    deletePlayAlongById: (id: string, params: RequestParams = {}) =>
-      this.http.request<DeletePlayAlongByIdData, any>({
-        path: `/play-along/${id}`,
-        method: 'DELETE',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Play-Along
-     * @name DeletePlayAlongByIdFiles
-     * @request DELETE:/play-along/{id}/files
-     * @response `200` `DeletePlayAlongByIdFilesData`
-     */
-    deletePlayAlongByIdFiles: ({ id, ...query }: DeletePlayAlongByIdFilesParams, params: RequestParams = {}) =>
-      this.http.request<DeletePlayAlongByIdFilesData, any>({
-        path: `/play-along/${id}/files`,
-        method: 'DELETE',
-        query: query,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Play-Along
-     * @name GetPlayAlong
-     * @request GET:/play-along
-     * @response `200` `GetPlayAlongData`
-     */
-    getPlayAlong: (query: GetPlayAlongParams, params: RequestParams = {}) =>
-      this.http.request<GetPlayAlongData, any>({
-        path: `/play-along`,
-        method: 'GET',
-        query: query,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Play-Along
-     * @name GetPlayAlongById
-     * @request GET:/play-along/{id}
-     * @response `200` `GetPlayAlongByIdData`
-     */
-    getPlayAlongById: (id: string, params: RequestParams = {}) =>
-      this.http.request<GetPlayAlongByIdData, any>({
-        path: `/play-along/${id}`,
-        method: 'GET',
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Play-Along
-     * @name PatchPlayAlongById
-     * @request PATCH:/play-along/{id}
-     * @response `200` `PatchPlayAlongByIdData`
-     */
-    patchPlayAlongById: (id: string, data: PatchPlayAlongByIdPayload, params: RequestParams = {}) =>
-      this.http.request<PatchPlayAlongByIdData, any>({
-        path: `/play-along/${id}`,
-        method: 'PATCH',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Play-Along
-     * @name PostPlayAlong
-     * @request POST:/play-along
-     * @response `200` `PostPlayAlongData`
-     */
-    postPlayAlong: (data: PostPlayAlongPayload, params: RequestParams = {}) =>
-      this.http.request<PostPlayAlongData, any>({
-        path: `/play-along`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Play-Along
-     * @name PostPlayAlongByIdFiles
-     * @request POST:/play-along/{id}/files
-     * @response `200` `PostPlayAlongByIdFilesData`
-     */
-    postPlayAlongByIdFiles: (id: string, data: PostPlayAlongByIdFilesPayload, params: RequestParams = {}) =>
-      this.http.request<PostPlayAlongByIdFilesData, any>({
-        path: `/play-along/${id}/files`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Play-Along
-     * @name PostPlayAlongByIdUploadUrl
-     * @request POST:/play-along/{id}/upload-url
-     * @response `200` `PostPlayAlongByIdUploadUrlData`
-     */
-    postPlayAlongByIdUploadUrl: (id: string, data: PostPlayAlongByIdUploadUrlPayload, params: RequestParams = {}) =>
-      this.http.request<PostPlayAlongByIdUploadUrlData, any>({
-        path: `/play-along/${id}/upload-url`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-  };
   progress = {
     /**
      * No description
@@ -4623,42 +3141,6 @@ export class Api<SecurityDataType extends unknown> {
         method: 'PATCH',
         body: data,
         type: ContentType.Json,
-        ...params,
-      }),
-  };
-  practiceEvents = {
-    /**
-     * No description
-     *
-     * @tags Practice Events
-     * @name GetPracticeEvents
-     * @request GET:/practice-events
-     * @response `200` `GetPracticeEventsData`
-     */
-    getPracticeEvents: (query: GetPracticeEventsParams, params: RequestParams = {}) =>
-      this.http.request<GetPracticeEventsData, any>({
-        path: `/practice-events`,
-        method: 'GET',
-        query: query,
-        format: 'json',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Practice Events
-     * @name PostPracticeEvents
-     * @request POST:/practice-events
-     * @response `200` `PostPracticeEventsData`
-     */
-    postPracticeEvents: (data: PostPracticeEventsPayload, params: RequestParams = {}) =>
-      this.http.request<PostPracticeEventsData, any>({
-        path: `/practice-events`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
         ...params,
       }),
   };
@@ -4747,24 +3229,6 @@ export class Api<SecurityDataType extends unknown> {
       }),
   };
   media = {
-    /**
-     * No description
-     *
-     * @tags Media
-     * @name PostMedia
-     * @request POST:/media
-     * @response `200` `PostMediaData`
-     */
-    postMedia: (data: PostMediaPayload, params: RequestParams = {}) =>
-      this.http.request<PostMediaData, any>({
-        path: `/media`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
-        format: 'json',
-        ...params,
-      }),
-
     /**
      * No description
      *

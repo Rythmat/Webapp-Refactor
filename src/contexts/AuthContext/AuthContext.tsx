@@ -84,8 +84,7 @@ const mapMe = (value: unknown): AuthAppUser | null => {
     updatedAt: payload.updatedAt as Date,
     auth0Sub: (payload.auth0Sub as string | null) ?? null,
     avatarUrl: (payload.avatarUrl as string | null) ?? null,
-    avatarConfig:
-      (payload.avatarConfig as Record<string, unknown> | null) ?? null,
+    avatarConfig: null,
     organizations,
     birthDate: (payload.birthDate as Date | null) ?? null,
     username,

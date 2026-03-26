@@ -134,9 +134,7 @@ export const ArcadeInlet: FC = () => {
             key={i}
             {...game}
             onClick={
-              game.route
-                ? () => navigate(GameRoutes[game.route!]())
-                : undefined
+              game.route ? () => navigate(GameRoutes[game.route!]()) : undefined
             }
           />
         ))}

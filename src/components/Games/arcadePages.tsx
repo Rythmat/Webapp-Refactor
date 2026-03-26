@@ -65,12 +65,18 @@ export function BoardChoicePage() {
     <GameShell title="Board Choice">
       {done ? (
         <div className="flex flex-col items-center gap-4 pt-12">
-          <h2 className="text-2xl font-semibold" style={{ color: 'var(--color-text)' }}>
+          <h2
+            className="text-2xl font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
             Round Complete!
           </h2>
           <div className="flex gap-3">
             <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button variant="outline" onClick={() => navigate(GameRoutes.root())}>
+            <Button
+              variant="outline"
+              onClick={() => navigate(GameRoutes.root())}
+            >
               Back to Arcade
             </Button>
           </div>
@@ -100,12 +106,18 @@ export function ChordConnectionPage() {
     <GameShell title="Chord Connection">
       {done ? (
         <div className="flex flex-col items-center gap-4 pt-12">
-          <h2 className="text-2xl font-semibold" style={{ color: 'var(--color-text)' }}>
+          <h2
+            className="text-2xl font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
             Round Complete!
           </h2>
           <div className="flex gap-3">
             <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button variant="outline" onClick={() => navigate(GameRoutes.root())}>
+            <Button
+              variant="outline"
+              onClick={() => navigate(GameRoutes.root())}
+            >
               Back to Arcade
             </Button>
           </div>
@@ -135,12 +147,18 @@ export function ChordPressPage() {
     <GameShell title="Chord Press">
       {done ? (
         <div className="flex flex-col items-center gap-4 pt-12">
-          <h2 className="text-2xl font-semibold" style={{ color: 'var(--color-text)' }}>
+          <h2
+            className="text-2xl font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
             Round Complete!
           </h2>
           <div className="flex gap-3">
             <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button variant="outline" onClick={() => navigate(GameRoutes.root())}>
+            <Button
+              variant="outline"
+              onClick={() => navigate(GameRoutes.root())}
+            >
               Back to Arcade
             </Button>
           </div>
@@ -174,12 +192,18 @@ export function PlayAlongPage() {
     <GameShell title="Play Along">
       {done ? (
         <div className="flex flex-col items-center gap-4 pt-12">
-          <h2 className="text-2xl font-semibold" style={{ color: 'var(--color-text)' }}>
+          <h2
+            className="text-2xl font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
             Round Complete!
           </h2>
           <div className="flex gap-3">
             <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button variant="outline" onClick={() => navigate(GameRoutes.root())}>
+            <Button
+              variant="outline"
+              onClick={() => navigate(GameRoutes.root())}
+            >
               Back to Arcade
             </Button>
           </div>

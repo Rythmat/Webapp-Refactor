@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { PrismModeSlug } from '@/hooks/data';
 import { usePrismMode } from '@/hooks/data/prism/usePrismMode';
 import { usePrismModes } from '@/hooks/data/prism/usePrismModes';
+import { getLocalModeSteps } from '@/lib/modeStepsFallback';
 import '@/components/learn/learn.css';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { ActivityFlow } from './ActivityFlow';
@@ -103,7 +104,10 @@ export const FlowSelect = () => {
   }, [modesData, selectedMode]);
 
   const scaleSteps =
-    modeDetail?.steps ?? stepsFromModesMap ?? DEFAULT_INTERVALS;
+    getLocalModeSteps(selectedMode) ??
+    modeDetail?.steps ??
+    stepsFromModesMap ??
+    DEFAULT_INTERVALS;
   const scaleMidis = useMemo(
     () => buildScaleMidis(selectedKey.midi, scaleSteps),
     [selectedKey, scaleSteps],

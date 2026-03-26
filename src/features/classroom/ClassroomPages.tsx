@@ -67,6 +67,30 @@ const Chroma = lazy(() =>
   })),
 );
 
+const BoardChoicePage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ BoardChoicePage }) => ({
+    default: BoardChoicePage,
+  })),
+);
+
+const ChordConnectionPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ ChordConnectionPage }) => ({
+    default: ChordConnectionPage,
+  })),
+);
+
+const ChordPressPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ ChordPressPage }) => ({
+    default: ChordPressPage,
+  })),
+);
+
+const PlayAlongPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ PlayAlongPage }) => ({
+    default: PlayAlongPage,
+  })),
+);
+
 const DawApp = lazy(() =>
   import('@/daw/DawApp').then(({ DawApp }) => ({
     default: DawApp,
@@ -146,6 +170,22 @@ export const gamesPages = () => {
       {
         path: GameRoutes.chroma.definition,
         element: <Chroma />,
+      },
+      {
+        path: GameRoutes.boardChoice.definition,
+        element: <BoardChoicePage />,
+      },
+      {
+        path: GameRoutes.chordConnection.definition,
+        element: <ChordConnectionPage />,
+      },
+      {
+        path: GameRoutes.chordPress.definition,
+        element: <ChordPressPage />,
+      },
+      {
+        path: GameRoutes.playAlong.definition,
+        element: <PlayAlongPage />,
       },
     ],
   };

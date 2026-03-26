@@ -98,7 +98,6 @@ export const SignInForm = () => {
           Continue with Google
         </Button>
 
-
         {/* Divider */}
         <div className="relative my-2">
           <div className="absolute inset-0 flex items-center">

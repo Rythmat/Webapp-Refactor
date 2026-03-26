@@ -12,6 +12,7 @@ interface ArcadeGame {
   title: string;
   category: string;
   featured?: boolean;
+  route?: keyof typeof GameRoutes;
 }
 
 const ARCADE_GAMES_DATA: ArcadeGame[] = [
@@ -19,26 +20,27 @@ const ARCADE_GAMES_DATA: ArcadeGame[] = [
     title: 'Chroma',
     category: 'Ear Training',
     featured: true,
+    route: 'chroma',
   },
   {
-    title: 'Chord Crusher',
+    title: 'Board Choice',
     category: 'Theory',
+    route: 'boardChoice',
   },
   {
-    title: 'Synth Match',
-    category: 'Ear Training',
+    title: 'Chord Connection',
+    category: 'Theory',
+    route: 'chordConnection',
   },
   {
-    title: 'Beat Builder',
-    category: 'Production',
-  },
-  {
-    title: 'Pitch Perfect',
-    category: 'Ear Training',
-  },
-  {
-    title: 'Scale Runner',
+    title: 'Chord Press',
     category: 'Technique',
+    route: 'chordPress',
+  },
+  {
+    title: 'Play Along',
+    category: 'Performance',
+    route: 'playAlong',
   },
 ];
 
@@ -132,8 +134,8 @@ export const ArcadeInlet: FC = () => {
             key={i}
             {...game}
             onClick={
-              game.title === 'Chroma'
-                ? () => navigate(GameRoutes.chroma())
+              game.route
+                ? () => navigate(GameRoutes[game.route!]())
                 : undefined
             }
           />

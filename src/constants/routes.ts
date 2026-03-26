@@ -191,6 +191,16 @@ export const GameRoutes = {
   picker: createRouteDefinition('/', { prefix: gamesPrefix }),
 
   chroma: createRouteDefinition('/chroma', { prefix: gamesPrefix }),
+
+  boardChoice: createRouteDefinition('/board-choice', { prefix: gamesPrefix }),
+
+  chordConnection: createRouteDefinition('/chord-connection', {
+    prefix: gamesPrefix,
+  }),
+
+  chordPress: createRouteDefinition('/chord-press', { prefix: gamesPrefix }),
+
+  playAlong: createRouteDefinition('/play-along', { prefix: gamesPrefix }),
 };
 
 const homePrefix = '/home';

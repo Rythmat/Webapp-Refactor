@@ -365,7 +365,7 @@ export const ProfilePage: React.FC = () => {
           {/* Billing Tab */}
           {activeTab === 'Billing' && (
             <div className="space-y-6">
-              <div className="max-w-lg space-y-6">
+              <div className="space-y-6">
                 <BillingSettings />
                 <ContentCodesSettings />
               </div>

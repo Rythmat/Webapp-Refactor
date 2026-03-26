@@ -1,10 +1,7 @@
 import { Play } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
-import {
-  startEpSampler,
-  triggerEpAttackRelease,
-} from '@/audio/epSampler';
+import { startEpSampler, triggerEpAttackRelease } from '@/audio/epSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import {
   buildTriads,
@@ -42,12 +39,32 @@ const DEFAULT_INTERVALS = [0, 2, 4, 5, 7, 9, 11, 12];
 const DEFAULT_ROOT_MIDI = 60;
 
 const PITCH_CLASS_NAMES = [
-  'C', 'D♭', 'D', 'E♭', 'E', 'F',
-  'F♯', 'G', 'A♭', 'A', 'B♭', 'B',
+  'C',
+  'D♭',
+  'D',
+  'E♭',
+  'E',
+  'F',
+  'F♯',
+  'G',
+  'A♭',
+  'A',
+  'B♭',
+  'B',
 ] as const;
 const KEY_LABEL_BY_PITCH_CLASS = [
-  'C', 'D♭', 'D', 'E♭', 'E', 'F',
-  'F♯', 'G', 'A♭', 'A', 'B♭', 'B',
+  'C',
+  'D♭',
+  'D',
+  'E♭',
+  'E',
+  'F',
+  'F♯',
+  'G',
+  'A♭',
+  'A',
+  'B♭',
+  'B',
 ] as const;
 const normalizePitchClass = (midi: number) => ((midi % 12) + 12) % 12;
 
@@ -191,7 +208,10 @@ function ChordDetailDialog({
         }}
       >
         <DialogHeader className="text-left">
-          <DialogTitle className="text-lg" style={{ color: 'var(--color-text)' }}>
+          <DialogTitle
+            className="text-lg"
+            style={{ color: 'var(--color-text)' }}
+          >
             {title}
           </DialogTitle>
           <DialogDescription />
@@ -252,7 +272,11 @@ function ChordCard({
   const current = voicings[inversionIndex] ?? voicings[0];
 
   const playingNotes = useMemo(
-    () => midiToPlaybackEvents(current.midis, `chord-${chord.degreeNumber}-inv${inversionIndex}`),
+    () =>
+      midiToPlaybackEvents(
+        current.midis,
+        `chord-${chord.degreeNumber}-inv${inversionIndex}`,
+      ),
     [current.midis, chord.degreeNumber, inversionIndex],
   );
 
@@ -632,14 +656,16 @@ export function LessonOverview({
     playScaleAscending(scaleMidis);
     scaleMidis.forEach((midi, i) => {
       setTimeout(() => {
-        setAnimatingNotes([{
-          id: `anim-${midi}-${i}`,
-          type: 'note',
-          midi,
-          time: Date.now(),
-          duration: 0,
-          velocity: 1,
-        }]);
+        setAnimatingNotes([
+          {
+            id: `anim-${midi}-${i}`,
+            type: 'note',
+            midi,
+            time: Date.now(),
+            duration: 0,
+            velocity: 1,
+          },
+        ]);
       }, i * 600);
     });
     setTimeout(() => {
@@ -648,8 +674,7 @@ export function LessonOverview({
   }, [scaleMidis]);
 
   const { scaleStartC, scaleEndC } = useMemo(() => {
-    const midCenter =
-      (scaleMidis[0] + scaleMidis[scaleMidis.length - 1]) / 2;
+    const midCenter = (scaleMidis[0] + scaleMidis[scaleMidis.length - 1]) / 2;
     const centerOctave = Math.round(midCenter / 12) - 1;
     return {
       scaleStartC: Math.max(0, centerOctave - 2),
@@ -675,7 +700,9 @@ export function LessonOverview({
               activeWhiteKeyColor={activeKeyColor}
               enableClick={false}
               endC={scaleEndC}
-              playingNotes={animatingNotes.length > 0 ? animatingNotes : activeNotes}
+              playingNotes={
+                animatingNotes.length > 0 ? animatingNotes : activeNotes
+              }
               startC={scaleStartC}
               useContextNotes={false}
             />

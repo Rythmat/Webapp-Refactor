@@ -158,10 +158,7 @@ export function buildInversions(chord: ChordInfo): ChordVoicing[] {
   const n = chord.midis.length;
   const voicings: ChordVoicing[] = [];
   for (let inv = 0; inv < n; inv++) {
-    const rotated = [
-      ...chord.midis.slice(inv),
-      ...chord.midis.slice(0, inv),
-    ];
+    const rotated = [...chord.midis.slice(inv), ...chord.midis.slice(0, inv)];
     for (let j = 1; j < rotated.length; j++) {
       while (rotated[j] <= rotated[j - 1]) {
         rotated[j] += 12;

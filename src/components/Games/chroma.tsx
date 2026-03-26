@@ -98,7 +98,9 @@ function generateSequence(difficulty: Difficulty): number[] {
   for (let i = 0; i < extra; i++) {
     const interval =
       difficulty === 'easy'
-        ? EASY_SEMITONE_SET[Math.floor(Math.random() * EASY_SEMITONE_SET.length)]
+        ? EASY_SEMITONE_SET[
+            Math.floor(Math.random() * EASY_SEMITONE_SET.length)
+          ]
         : 1 + Math.floor(Math.random() * 11);
     notes.push((root + interval) % 12);
   }
@@ -413,7 +415,7 @@ export default function Chroma() {
       // The next slot to fill (skip slot 0 which is the root, always revealed)
       const idx = userInputRef.current.length + 1;
       const targetNote = seq[idx];
-      const expectedInterval = ((targetNote - root) % 12 + 12) % 12;
+      const expectedInterval = (((targetNote - root) % 12) + 12) % 12;
 
       // Play audio for the chosen interval
       const chosenNote = (root + chosenInterval) % 12;
@@ -609,18 +611,19 @@ export default function Chroma() {
           }}
         >
           {/* Root note — always revealed */}
-          <NoteSlot
-            label="Root"
-            active={playingIdx === 0}
-            reveal
-          />
+          <NoteSlot label="Root" active={playingIdx === 0} reveal />
           {/* Remaining slots — one per interval to identify */}
           {sequence.slice(1).map((note, i) => {
             const isFilled = userInput[i] !== undefined;
             const isNext = i === userInput.length && phase === 'input';
             return (
-              <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
+              <span
+                key={i}
+                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+              >
+                <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>
+                  →
+                </span>
                 <NoteSlot
                   label={
                     phase === 'playing'
@@ -773,7 +776,7 @@ export default function Chroma() {
             }}
           >
             {sequence.slice(1).map((note, i) => {
-              const interval = ((note - sequence[0]) % 12 + 12) % 12;
+              const interval = (((note - sequence[0]) % 12) + 12) % 12;
               const intervalLabel =
                 ALL_INTERVALS.find((iv) => iv.semitones === interval)?.label ??
                 `${interval} st`;

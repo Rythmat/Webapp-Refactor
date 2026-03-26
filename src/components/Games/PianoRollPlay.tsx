@@ -126,12 +126,20 @@ const midiToNoteName = (midi: number): string => {
 
 //Produces the list of lanes that span the entirety of the notes given in the event sequence
 function buildLaneList(events: NoteEvent[]): string[] {
+  // Build MIDI→name map from events so lanes match event pitchNames
+  const eventNameByMidi = new Map<number, string>();
   const midiValues = events
     .map((event) => {
       if (typeof event.midi === 'number') {
+        if (!eventNameByMidi.has(event.midi)) {
+          eventNameByMidi.set(event.midi, event.pitchName);
+        }
         return event.midi;
       }
       const midi = pitchNameToMidi(event.pitchName);
+      if (midi !== null && !eventNameByMidi.has(midi)) {
+        eventNameByMidi.set(midi, event.pitchName);
+      }
       return midi ?? null;
     })
     .filter((value): value is number => typeof value === 'number');
@@ -147,7 +155,7 @@ function buildLaneList(events: NoteEvent[]): string[] {
 
   const laneNames: string[] = [];
   for (let midi = maxLaneMidi; midi >= minLaneMidi; midi--) {
-    laneNames.push(midiToNoteName(midi));
+    laneNames.push(eventNameByMidi.get(midi) ?? midiToNoteName(midi));
   }
 
   return laneNames;

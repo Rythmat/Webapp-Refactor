@@ -18,6 +18,11 @@ import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import { pitchNameToMidi, type NoteEvent } from './PianoRollPlay';
 import { colorForKeyMode } from '@/lib/modeColorShift';
+import { getChordScales } from '@/components/learn/chordScaleData';
+import {
+  buildPitchClassSpellingMap,
+  spelledMidiNoteName,
+} from '@/components/learn/noteSpellingLookup';
 import { Env } from '@/constants/env';
 import { buildActivityInstanceId } from '@/lib/progress/activityInstanceId';
 import { selectResumeActivityIndex } from '@/lib/progress/resume';
@@ -82,7 +87,7 @@ const CHROMATIC_KEYS = [
 ] as const;
 const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;
 
-type SectionId = 'A' | 'B' | 'C' | 'D';
+type SectionId = 'O' | 'A' | 'B' | 'C' | 'D';
 
 type ActivityDefinition = {
   activityDefId: string;
@@ -96,6 +101,7 @@ type ActivityDefinition = {
 };
 
 const SECTION_LABELS: Record<string, string> = {
+  O: 'Overview',
   A: 'Melody',
   B: 'Chords',
   C: 'Bass',
@@ -385,6 +391,10 @@ export const ActivityFlow = ({
     () => colorForKeyMode(rootKey, mode),
     [rootKey, mode],
   );
+  const pcSpellingMap = useMemo(
+    () => buildPitchClassSpellingMap(mode as string, rootKey, scaleMidis ?? []),
+    [mode, rootKey, scaleMidis],
+  );
   const lessonKeyScope = useMemo(
     () => `${keyLabelToUrlParam(rootKey)}:${modeLabel}`,
     [rootKey, modeLabel],
@@ -510,32 +520,40 @@ export const ActivityFlow = ({
   ): ActivityDefinition[] => {
     const scopeId = (id: string) => `${lessonKeyScope}:${id}`;
     const applyActivityColor = (seq: NoteEvent[]) =>
-      seq.map((event) => ({
-        ...event,
-        id: event.id.startsWith(`${lessonKeyScope}:`)
-          ? event.id
-          : scopeId(event.id),
-        color: event.color ?? activityColor,
-      }));
+      seq.map((event) => {
+        const midi = pitchNameToMidi(event.pitchName);
+        return {
+          ...event,
+          pitchName:
+            typeof midi === 'number'
+              ? spelledMidiNoteName(midi, pcSpellingMap)
+              : event.pitchName,
+          id: event.id.startsWith(`${lessonKeyScope}:`)
+            ? event.id
+            : scopeId(event.id),
+          color: event.color ?? activityColor,
+        };
+      });
     const ascending = scale;
     const descending = [...scale].reverse();
     const ascendDescend = [...ascending, ...descending];
     const modeTitle =
-      (mode as string).charAt(0).toUpperCase() + (mode as string).slice(1);
+      getChordScales(mode as string)?.modeName ?? (mode as string);
     const chordHoldEvents = midiSequenceToEvents(ascending, 'chord-hold');
     const overviewItem = {
       key: 'lesson-overview',
       label: `${rootKey} ${modeTitle} Overview`,
-      Component: ({ onContinue }: FlowActivityProps) => (
+      Component: () => (
         <LessonOverview
+          activeTab={overviewTabRef.current}
           mode={mode as PrismModeSlug}
+          rootKey={rootKey}
           rootMidi={rootMidi}
-          onStartLesson={onContinue}
         />
       ),
       seq: [] as NoteEvent[],
       direction: `Overview of ${rootKey} ${modeTitle}.`,
-      section: 'A' as SectionId,
+      section: 'O' as SectionId,
     };
     const contourSeqs: number[][] = [];
     contours?.forEach((contour) => {
@@ -1079,10 +1097,10 @@ export const ActivityFlow = ({
         key: 'chords-loading',
         label: `${rootKey} ${modeTitle} Chords • Loading`,
         Component: ChordLoadingStep,
-        seq: [] as NoteEvent[],
+        seq: applyActivityColor([]),
         direction: 'Loading chord exercises...',
         section: 'B' as SectionId,
-      });
+      } as (typeof sequences)[number]);
     }
 
     return sequences.map(
@@ -1151,7 +1169,12 @@ export const ActivityFlow = ({
   const [lessonComplete, setLessonComplete] = useState(false);
 
   // Section state
-  const [currentSectionId, setCurrentSectionId] = useState<SectionId>('A');
+  const [currentSectionId, setCurrentSectionId] = useState<SectionId>('O');
+  const [overviewTab, setOverviewTab] = useState<
+    'scale' | 'triads' | 'sevenths'
+  >('scale');
+  const overviewTabRef = useRef(overviewTab);
+  overviewTabRef.current = overviewTab;
   const [completedActivityKeys, setCompletedActivityKeys] = useState<
     Set<string>
   >(new Set());
@@ -1231,7 +1254,7 @@ export const ActivityFlow = ({
     setActivityState('active');
     setLessonComplete(false);
     setNextKeyChoice(nextCurriculumKey);
-    setCurrentSectionId('A');
+    setCurrentSectionId('O');
     setCompletedActivityKeys(new Set());
     resumeAppliedScopeRef.current = null;
     explicitStartAppliedRef.current = null;
@@ -1957,35 +1980,77 @@ export const ActivityFlow = ({
         })}
       </div>
 
-      {/* Step progress dots */}
-      <div className="flex items-center gap-1 px-4 py-1">
-        {sectionActivities.map((activity, i) => {
-          const isStepDone = completedActivityKeys.has(activity.key);
-          const isCurrent = i === currentStepInSection;
-          return (
-            <div
-              key={activity.key}
-              style={{
-                width: isCurrent ? '24px' : '16px',
-                height: '6px',
-                borderRadius: '3px',
-                background: isStepDone
-                  ? '#4aff4a'
-                  : isCurrent
-                    ? 'var(--color-accent)'
-                    : 'rgba(255,255,255,0.1)',
-                transition: 'all 0.2s',
-              }}
-            />
-          );
-        })}
-        <span
-          className="ml-2 text-xs"
-          style={{ color: 'var(--color-text-dim)' }}
+      {/* Overview sub-tabs */}
+      {currentSectionId === 'O' && (
+        <div
+          className="flex gap-2 px-4 py-2"
+          style={{ borderBottom: '1px solid var(--color-border)' }}
         >
-          {currentStepInSection + 1}/{sectionActivities.length}
-        </span>
-      </div>
+          {(['scale', 'triads', 'sevenths'] as const).map((t) => {
+            const label =
+              t === 'scale'
+                ? 'Scale'
+                : t === 'triads'
+                  ? 'Triads'
+                  : '7th Chords';
+            const isActive = overviewTab === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setOverviewTab(t)}
+                className="glass-panel-sm rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-150"
+                style={{
+                  background: isActive
+                    ? 'rgba(126, 207, 207, 0.12)'
+                    : 'rgba(255,255,255,0.03)',
+                  border: isActive
+                    ? '1px solid var(--color-accent)'
+                    : '1px solid var(--color-border)',
+                  color: isActive
+                    ? 'var(--color-accent)'
+                    : 'var(--color-text-dim)',
+                  cursor: 'pointer',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Step progress dots */}
+      {currentSectionId !== 'O' && (
+        <div className="flex items-center gap-1 px-4 py-1">
+          {sectionActivities.map((activity, i) => {
+            const isStepDone = completedActivityKeys.has(activity.key);
+            const isCurrent = i === currentStepInSection;
+            return (
+              <div
+                key={activity.key}
+                style={{
+                  width: isCurrent ? '24px' : '16px',
+                  height: '6px',
+                  borderRadius: '3px',
+                  background: isStepDone
+                    ? '#4aff4a'
+                    : isCurrent
+                      ? 'var(--color-accent)'
+                      : 'rgba(255,255,255,0.1)',
+                  transition: 'all 0.2s',
+                }}
+              />
+            );
+          })}
+          <span
+            className="ml-2 text-xs"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
+            {currentStepInSection + 1}/{sectionActivities.length}
+          </span>
+        </div>
+      )}
 
       <div className="relative">
         <div

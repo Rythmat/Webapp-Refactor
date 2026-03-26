@@ -56,9 +56,9 @@ export const HARMONIC_MINOR_MODES: ScaleFamilyMode[] = [
       { root: 'E', notes: ['E', 'F', 'G', 'A', 'B♭', 'C#', 'D'] },
       { root: 'B', notes: ['B', 'C', 'D', 'E', 'F', 'G#', 'A'] },
       { root: 'F#', notes: ['F#', 'G', 'A', 'B', 'C', 'D#', 'E'] },
-      { root: 'C#', notes: ['C#', 'D', 'E', 'F#', 'G', 'A#', 'B'] },
-      { root: 'G#', notes: ['G#', 'A', 'B', 'C#', 'D', 'E#', 'F#'] },
-      { root: 'D#', notes: ['D#', 'E', 'F#', 'G#', 'A', 'B#', 'C#'] },
+      { root: 'D♭', notes: ['D♭', 'E𝄫', 'F♭', 'G♭', 'A𝄫', 'B♭', 'C♭'] },
+      { root: 'A♭', notes: ['A♭', 'B𝄫', 'C♭', 'D♭', 'E𝄫', 'F', 'G♭'] },
+      { root: 'E♭', notes: ['E♭', 'F♭', 'G♭', 'A♭', 'B𝄫', 'C', 'D♭'] },
       {
         root: 'B♭',
         notes: ['B♭', 'C♭', 'D♭', 'E♭', 'F♭', 'G', 'A♭'],
@@ -122,7 +122,7 @@ export const HARMONIC_MINOR_MODES: ScaleFamilyMode[] = [
       },
       {
         root: 'A♭',
-        notes: ['A♭', 'B♭', 'C', 'D', 'E♭', 'F', 'G♭'],
+        notes: ['A♭', 'B♭', 'C♭', 'D', 'E♭', 'F', 'G♭'],
       },
       {
         root: 'E♭',
@@ -152,8 +152,8 @@ export const HARMONIC_MINOR_MODES: ScaleFamilyMode[] = [
       { root: 'E', notes: ['E', 'F', 'G#', 'A', 'B', 'C', 'D'] },
       { root: 'B', notes: ['B', 'C', 'D#', 'E', 'F#', 'G', 'A'] },
       { root: 'F#', notes: ['F#', 'G', 'A#', 'B', 'C#', 'D', 'E'] },
-      { root: 'C#', notes: ['C#', 'D', 'E#', 'F#', 'G#', 'A', 'B'] },
-      { root: 'G#', notes: ['G#', 'A', 'B#', 'C#', 'D#', 'E', 'F#'] },
+      { root: 'D♭', notes: ['D♭', 'E𝄫', 'F', 'G♭', 'A♭', 'B𝄫', 'C♭'] },
+      { root: 'A♭', notes: ['A♭', 'B𝄫', 'C', 'D♭', 'E♭', 'F♭', 'G♭'] },
       {
         root: 'E♭',
         notes: ['E♭', 'F♭', 'G', 'A♭', 'B♭', 'C♭', 'D♭'],
@@ -230,10 +230,10 @@ export const HARMONIC_MINOR_MODES: ScaleFamilyMode[] = [
       },
       { root: 'B', notes: ['B', 'C', 'D', 'E♭', 'F', 'G', 'A♭'] },
       { root: 'F#', notes: ['F#', 'G', 'A', 'B♭', 'C', 'D', 'E♭'] },
-      { root: 'C#', notes: ['C#', 'D', 'E', 'F', 'G', 'A', 'B♭'] },
-      { root: 'G#', notes: ['G#', 'A', 'B', 'C', 'D', 'E', 'F'] },
-      { root: 'D#', notes: ['D#', 'E', 'F#', 'G', 'A', 'B', 'C'] },
-      { root: 'A#', notes: ['A#', 'B', 'C#', 'D', 'E', 'F#', 'G'] },
+      { root: 'D♭', notes: ['D♭', 'E𝄫', 'F♭', 'G𝄫', 'A𝄫', 'B𝄫', 'C𝄫'] },
+      { root: 'A♭', notes: ['A♭', 'B𝄫', 'C♭', 'D𝄫', 'E𝄫', 'F♭', 'G𝄫'] },
+      { root: 'E♭', notes: ['E♭', 'F♭', 'G♭', 'A𝄫', 'B𝄫', 'C♭', 'D𝄫'] },
+      { root: 'B♭', notes: ['B♭', 'C♭', 'D♭', 'E𝄫', 'F♭', 'G♭', 'A𝄫'] },
       {
         root: 'F',
         notes: ['F', 'G♭', 'A♭', 'B𝄫', 'C♭', 'D♭', 'E𝄫'],

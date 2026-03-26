@@ -84,3 +84,51 @@ export function getNoteSpelling(
   if (!keyMap) return undefined;
   return keyMap.get(normalizeKey(rootKey));
 }
+
+/**
+ * Build a pitch-class → note-name map from the spelling data + scale MIDIs.
+ * scaleMidis[i] and spelling[i] must correspond (same scale degree order).
+ */
+export function buildPitchClassSpellingMap(
+  modeSlug: string,
+  rootKey: string,
+  scaleMidis: number[],
+): Map<number, string> {
+  const spelling = getNoteSpelling(modeSlug, rootKey);
+  const map = new Map<number, string>();
+  if (spelling) {
+    for (let i = 0; i < spelling.length && i < scaleMidis.length; i++) {
+      map.set(((scaleMidis[i] % 12) + 12) % 12, spelling[i]);
+    }
+  }
+  return map;
+}
+
+const GENERIC_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
+
+/**
+ * Convert a MIDI number to a note name + octave using the spelled pitch-class map.
+ * Falls back to generic sharp-based names for notes not in the map.
+ */
+export function spelledMidiNoteName(
+  midi: number,
+  pcMap: Map<number, string>,
+): string {
+  const pc = ((midi % 12) + 12) % 12;
+  const octave = Math.floor(midi / 12) - 1;
+  const name = pcMap.get(pc);
+  return `${name ?? GENERIC_NAMES[pc]}${octave}`;
+}

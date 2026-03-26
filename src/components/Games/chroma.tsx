@@ -9,7 +9,6 @@ import {
   startPianoSampler,
   triggerPianoAttackRelease,
 } from '@/audio/pianoSampler';
-import { CircleOfFifths } from '@/daw/components/Prism/CircleOfFifths';
 import { useStore } from '@/daw/store';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -28,6 +27,33 @@ const CHROMATIC_NOTES = [
   'A#',
   'B',
 ];
+const EASY_INTERVALS: { label: string; semitones: number }[] = [
+  { label: 'Perfect Unison', semitones: 0 },
+  { label: 'Major 2nd', semitones: 2 },
+  { label: 'Major 3rd', semitones: 4 },
+  { label: 'Perfect 4th', semitones: 5 },
+  { label: 'Perfect 5th', semitones: 7 },
+  { label: 'Major 6th', semitones: 9 },
+  { label: 'Major 7th', semitones: 11 },
+];
+
+const ALL_INTERVALS: { label: string; semitones: number }[] = [
+  { label: 'Perfect Unison', semitones: 0 },
+  { label: 'Minor 2nd', semitones: 1 },
+  { label: 'Major 2nd', semitones: 2 },
+  { label: 'Minor 3rd', semitones: 3 },
+  { label: 'Major 3rd', semitones: 4 },
+  { label: 'Perfect 4th', semitones: 5 },
+  { label: 'Tritone', semitones: 6 },
+  { label: 'Perfect 5th', semitones: 7 },
+  { label: 'Minor 6th', semitones: 8 },
+  { label: 'Major 6th', semitones: 9 },
+  { label: 'Minor 7th', semitones: 10 },
+  { label: 'Major 7th', semitones: 11 },
+];
+
+const EASY_SEMITONE_SET = EASY_INTERVALS.map((i) => i.semitones);
+
 const NOTE_DURATION_S = 0.6;
 const NOTE_GAP_MS = 1100;
 const FLASH_MS = 700;
@@ -70,7 +96,10 @@ function generateSequence(difficulty: Difficulty): number[] {
   const extra = DIFF[difficulty].extraNotes();
   const notes = [root];
   for (let i = 0; i < extra; i++) {
-    const interval = 1 + Math.floor(Math.random() * 11);
+    const interval =
+      difficulty === 'easy'
+        ? EASY_SEMITONE_SET[Math.floor(Math.random() * EASY_SEMITONE_SET.length)]
+        : 1 + Math.floor(Math.random() * 11);
     notes.push((root + interval) % 12);
   }
   return notes;
@@ -269,6 +298,62 @@ function AttemptPips({
   );
 }
 
+// ── Interval Buttons ─────────────────────────────────────────────────────────
+
+function IntervalButtons({
+  intervals,
+  onSelect,
+  disabled,
+}: {
+  intervals: { label: string; semitones: number }[];
+  onSelect: (semitones: number) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: 8,
+        maxWidth: 340,
+        pointerEvents: disabled ? 'none' : 'auto',
+        opacity: disabled ? 0.4 : 1,
+        transition: 'opacity 0.3s ease',
+      }}
+    >
+      {intervals.map(({ label, semitones }) => (
+        <button
+          key={semitones}
+          onClick={() => onSelect(semitones)}
+          style={{
+            padding: '8px 14px',
+            borderRadius: 8,
+            border: '1.5px solid rgba(167,139,250,0.4)',
+            backgroundColor: 'rgba(167,139,250,0.08)',
+            color: '#ddd6fe',
+            fontSize: 11,
+            fontWeight: 600,
+            cursor: 'pointer',
+            letterSpacing: 0.5,
+            transition: 'all 0.18s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(167,139,250,0.22)';
+            e.currentTarget.style.borderColor = '#a78bfa';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(167,139,250,0.08)';
+            e.currentTarget.style.borderColor = 'rgba(167,139,250,0.4)';
+          }}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function Chroma() {
@@ -317,17 +402,29 @@ export default function Chroma() {
     setPlayingIdx(null);
   }, []);
 
-  // ── Per-note input check ─────────────────────────────────────────────────
+  // ── Interval input check ─────────────────────────────────────────────────
 
-  const handleNoteInput = useCallback(
-    async (semitone: number) => {
+  const handleIntervalInput = useCallback(
+    async (chosenInterval: number) => {
       if (phaseRef.current !== 'input') return;
 
-      const idx = userInputRef.current.length;
-      const expected = sequenceRef.current[idx];
+      const seq = sequenceRef.current;
+      const root = seq[0];
+      // The next slot to fill (skip slot 0 which is the root, always revealed)
+      const idx = userInputRef.current.length + 1;
+      const targetNote = seq[idx];
+      const expectedInterval = ((targetNote - root) % 12 + 12) % 12;
 
-      if (semitone !== expected) {
-        // Wrong note — immediate feedback
+      // Play audio for the chosen interval
+      const chosenNote = (root + chosenInterval) % 12;
+      triggerPianoAttackRelease(
+        CHROMATIC_NOTES[chosenNote] + '4',
+        NOTE_DURATION_S,
+        0.75,
+      );
+
+      if (chosenInterval !== expectedInterval) {
+        // Wrong interval — immediate feedback
         const remaining = attemptsRef.current - 1;
         attemptsRef.current = remaining;
         setAttemptsLeft(remaining);
@@ -349,31 +446,18 @@ export default function Chroma() {
         await playSeq(sequenceRef.current);
         sp('input');
       } else {
-        const newInput = [...userInputRef.current, semitone];
+        const newInput = [...userInputRef.current, chosenInterval];
         userInputRef.current = newInput;
         setUserInput([...newInput]);
 
-        if (newInput.length >= sequenceRef.current.length) {
+        // All intervals identified (sequence length - 1 because root is given)
+        if (newInput.length >= seq.length - 1) {
           setCrystalLit(true);
           sp('success');
         }
       }
     },
     [sp, playSeq],
-  );
-
-  // ── Circle click: play audio + feed input ────────────────────────────────
-
-  const handleCircleClick = useCallback(
-    (semitone: number) => {
-      triggerPianoAttackRelease(
-        CHROMATIC_NOTES[semitone] + '4',
-        NOTE_DURATION_S,
-        0.75,
-      );
-      handleNoteInput(semitone);
-    },
-    [handleNoteInput],
   );
 
   // ── Start ───────────────────────────────────────────────────────────────
@@ -421,7 +505,7 @@ export default function Chroma() {
   const statusLabel: Record<Phase, string> = {
     select: '',
     playing: 'Listen carefully…',
-    input: 'Replay the sequence',
+    input: 'Name the interval',
     wrong: 'Not quite — listen again…',
     success: 'Crystal attuned!',
     'game-over': '',
@@ -521,32 +605,34 @@ export default function Chroma() {
             gap: 6,
             flexWrap: 'wrap',
             justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
-          {sequence.map((note, i) => {
-            // Playing phase: only the root (slot 0) is revealed
-            if (phase === 'playing') {
-              return (
-                <NoteSlot
-                  key={i}
-                  label={i === 0 ? CHROMATIC_NOTES[note] : undefined}
-                  active={i === playingIdx}
-                  reveal={i === 0}
-                />
-              );
-            }
-
-            // Input / evaluating / wrong: show user's answers
-            const entered = userInput[i];
-            const isFilled = entered !== undefined;
+          {/* Root note — always revealed */}
+          <NoteSlot
+            label="Root"
+            active={playingIdx === 0}
+            reveal
+          />
+          {/* Remaining slots — one per interval to identify */}
+          {sequence.slice(1).map((note, i) => {
+            const isFilled = userInput[i] !== undefined;
             const isNext = i === userInput.length && phase === 'input';
             return (
-              <NoteSlot
-                key={i}
-                label={isFilled ? CHROMATIC_NOTES[entered] : undefined}
-                active={isNext}
-                filled={isFilled}
-              />
+              <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
+                <NoteSlot
+                  label={
+                    phase === 'playing'
+                      ? undefined
+                      : isFilled
+                        ? CHROMATIC_NOTES[note]
+                        : undefined
+                  }
+                  active={playingIdx === i + 1 || isNext}
+                  filled={isFilled}
+                />
+              </span>
             );
           })}
         </div>
@@ -676,7 +762,7 @@ export default function Chroma() {
               margin: 0,
             }}
           >
-            The sequence was:
+            The intervals were:
           </p>
           <div
             style={{
@@ -686,27 +772,47 @@ export default function Chroma() {
               justifyContent: 'center',
             }}
           >
-            {sequence.map((note, i) => (
-              <div
-                key={i}
-                style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 7,
-                  border: '2px solid #f87171',
-                  backgroundColor: 'rgba(248,113,113,0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: '#fca5a5',
-                  letterSpacing: 0.5,
-                }}
-              >
-                {CHROMATIC_NOTES[note]}
-              </div>
-            ))}
+            {sequence.slice(1).map((note, i) => {
+              const interval = ((note - sequence[0]) % 12 + 12) % 12;
+              const intervalLabel =
+                ALL_INTERVALS.find((iv) => iv.semitones === interval)?.label ??
+                `${interval} st`;
+              return (
+                <div
+                  key={i}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 7,
+                    border: '2px solid #f87171',
+                    backgroundColor: 'rgba(248,113,113,0.1)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 2,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: '#fca5a5',
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    {CHROMATIC_NOTES[note]}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 8,
+                      color: 'rgba(252,165,165,0.7)',
+                    }}
+                  >
+                    {intervalLabel}
+                  </span>
+                </div>
+              );
+            })}
           </div>
           <button
             onClick={handleReset}
@@ -729,20 +835,12 @@ export default function Chroma() {
         </div>
       )}
 
-      {/* ── Circle of Fifths ── */}
-      <div
-        style={{
-          pointerEvents: isInputActive ? 'auto' : 'none',
-          opacity: isInputActive ? 1 : 0.4,
-          transition: 'opacity 0.3s ease',
-        }}
-      >
-        <CircleOfFifths
-          onNoteClick={handleCircleClick}
-          showModeSelector={false}
-          size={300}
-        />
-      </div>
+      {/* ── Interval buttons ── */}
+      <IntervalButtons
+        intervals={difficulty === 'easy' ? EASY_INTERVALS : ALL_INTERVALS}
+        onSelect={handleIntervalInput}
+        disabled={!isInputActive}
+      />
     </div>
   );
 }

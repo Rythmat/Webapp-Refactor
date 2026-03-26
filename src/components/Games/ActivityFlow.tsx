@@ -1171,7 +1171,7 @@ export const ActivityFlow = ({
   // Section state
   const [currentSectionId, setCurrentSectionId] = useState<SectionId>('O');
   const [overviewTab, setOverviewTab] = useState<
-    'scale' | 'triads' | 'sevenths'
+    'scale' | 'triads' | 'sevenths' | 'inversions'
   >('scale');
   const overviewTabRef = useRef(overviewTab);
   overviewTabRef.current = overviewTab;
@@ -1986,13 +1986,15 @@ export const ActivityFlow = ({
           className="flex gap-2 px-4 py-2"
           style={{ borderBottom: '1px solid var(--color-border)' }}
         >
-          {(['scale', 'triads', 'sevenths'] as const).map((t) => {
+          {(['scale', 'triads', 'sevenths', 'inversions'] as const).map((t) => {
             const label =
               t === 'scale'
                 ? 'Scale'
                 : t === 'triads'
                   ? 'Triads'
-                  : '7th Chords';
+                  : t === 'sevenths'
+                    ? '7th Chords'
+                    : 'Inversions';
             const isActive = overviewTab === t;
             return (
               <button

@@ -100,6 +100,7 @@ function getTileCompletion(
 }
 
 const THEORY_SECTIONS = [
+  { id: 'O', name: 'Overview' },
   { id: 'A', name: 'Melody' },
   { id: 'B', name: 'Chords' },
   { id: 'C', name: 'Bass' },
@@ -107,6 +108,16 @@ const THEORY_SECTIONS = [
 ];
 
 const DIATONIC_MODES = [
+  { title: 'Lydian', slug: 'lydian' },
+  { title: 'Ionian', slug: 'ionian' },
+  { title: 'Mixolydian', slug: 'mixolydian' },
+  { title: 'Dorian', slug: 'dorian' },
+  { title: 'Aeolian', slug: 'aeolian' },
+  { title: 'Phrygian', slug: 'phrygian' },
+  { title: 'Locrian', slug: 'locrian' },
+];
+
+const DIATONIC_MODES_BY_DEGREE = [
   { title: 'Ionian', slug: 'ionian' },
   { title: 'Dorian', slug: 'dorian' },
   { title: 'Phrygian', slug: 'phrygian' },
@@ -150,7 +161,7 @@ const KEY_TO_SEMITONE: Record<string, number> = {
 
 function buildRelativeSubItems(keyLabel: string): ContentSubItem[] {
   const root = KEY_TO_SEMITONE[keyLabel] ?? 0;
-  return DIATONIC_MODES.map((mode, i) => {
+  return DIATONIC_MODES_BY_DEGREE.map((mode, i) => {
     const note = SEMITONE_TO_KEY[(root + MAJOR_SCALE_INTERVALS[i]) % 12];
     return {
       label: `${note} ${mode.title}`,
@@ -280,25 +291,15 @@ const COURSES_DATA: ContentItem[] = [
 
 const THEORY_DATA: ContentItem[] = [
   {
-    title: 'Ionian (Major)',
-    mode: 'ionian',
-    route: LearnRoutes.overview({ mode: 'ionian' }),
-  },
-  {
-    title: 'Dorian',
-    mode: 'dorian',
-    route: LearnRoutes.overview({ mode: 'dorian' }),
-  },
-  {
-    title: 'Phrygian',
-    mode: 'phrygian',
-    route: LearnRoutes.overview({ mode: 'phrygian' }),
-  },
-  {
     title: 'Lydian',
     mode: 'lydian',
     route: LearnRoutes.overview({ mode: 'lydian' }),
     image: '/learn-tiles/lydian.svg',
+  },
+  {
+    title: 'Ionian (Major)',
+    mode: 'ionian',
+    route: LearnRoutes.overview({ mode: 'ionian' }),
   },
   {
     title: 'Mixolydian',
@@ -306,9 +307,19 @@ const THEORY_DATA: ContentItem[] = [
     route: LearnRoutes.overview({ mode: 'mixolydian' }),
   },
   {
+    title: 'Dorian',
+    mode: 'dorian',
+    route: LearnRoutes.overview({ mode: 'dorian' }),
+  },
+  {
     title: 'Aeolian (Minor)',
     mode: 'aeolian',
     route: LearnRoutes.overview({ mode: 'aeolian' }),
+  },
+  {
+    title: 'Phrygian',
+    mode: 'phrygian',
+    route: LearnRoutes.overview({ mode: 'phrygian' }),
   },
   {
     title: 'Locrian',
@@ -1179,9 +1190,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                           : 'transparent';
                       }}
                     >
-                      <span style={{ color: 'var(--color-accent)' }}>
-                        {section.id}:
-                      </span>{' '}
                       {section.name}
                       {section.stepCount != null && (
                         <span

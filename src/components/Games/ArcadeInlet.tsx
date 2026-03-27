@@ -37,6 +37,11 @@ const ARCADE_GAMES_DATA: ArcadeGame[] = [
     category: 'Technique',
     route: 'chordPress',
   },
+  {
+    title: 'Foli',
+    category: 'Rhythm',
+    route: 'foli',
+  },
 ];
 
 interface ArcadeGameCardProps {

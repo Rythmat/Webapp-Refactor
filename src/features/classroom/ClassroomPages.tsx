@@ -91,6 +91,12 @@ const PlayAlongPage = lazy(() =>
   })),
 );
 
+const FoliPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ FoliPage }) => ({
+    default: FoliPage,
+  })),
+);
+
 const DawApp = lazy(() =>
   import('@/daw/DawApp').then(({ DawApp }) => ({
     default: DawApp,
@@ -186,6 +192,10 @@ export const gamesPages = () => {
       {
         path: GameRoutes.playAlong.definition,
         element: <PlayAlongPage />,
+      },
+      {
+        path: GameRoutes.foli.definition,
+        element: <FoliPage />,
       },
     ],
   };

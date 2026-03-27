@@ -3,9 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/components/utilities';
 import { usePlayNote } from '@/contexts/PianoContext';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
@@ -113,6 +110,31 @@ function toEvents(midi: number[], color?: string): PlaybackEvent[] {
   }));
 }
 
+// ── Styles ─────────────────────────────────────────────────────────────────
+
+const BTN: React.CSSProperties = {
+  padding: '9px 28px',
+  borderRadius: 10,
+  border: '1.5px solid #a78bfa',
+  backgroundColor: 'rgba(167,139,250,0.14)',
+  color: '#ddd6fe',
+  fontSize: 12,
+  fontWeight: 700,
+  cursor: 'pointer',
+  letterSpacing: 2,
+  textTransform: 'uppercase',
+  transition: 'all 0.18s ease',
+};
+
+const BTN_OUTLINE: React.CSSProperties = {
+  ...BTN,
+  border: '1.5px solid rgba(255,255,255,0.15)',
+  backgroundColor: 'rgba(255,255,255,0.03)',
+  color: 'var(--color-text-dim, #6b7280)',
+};
+
+// ── Component ──────────────────────────────────────────────────────────────
+
 export type ChordPressGameProps = {
   startC?: number;
   endC?: number;
@@ -177,12 +199,6 @@ export function ChordPressGame({
     });
     return bindings;
   }, [keyboardBaseMidi, rangeStart, rangeEnd]);
-  // const keyboardLegend = useMemo(() => {
-  //   return Array.from(keyboardMap.entries()).map(([key, midi]) => ({
-  //     key: key.toUpperCase(),
-  //     note: Tone.Frequency(midi, 'midi').toNote(),
-  //   }));
-  // }, [keyboardMap]);
 
   const targetMidi = useMemo(() => {
     if (targetNotes && targetNotes.length > 0) {
@@ -266,9 +282,6 @@ export function ChordPressGame({
     [toggleNote],
   );
 
-  // Subscribe to unified input (audio + MIDI via context) when available.
-  // When rendered outside LearnInputProvider (e.g., classroom markdown),
-  // falls back to PianoKeyboard's built-in MIDI interface.
   const learnInput = useOptionalLearnInputStable();
   const hasLearnContext = learnInput !== null;
 
@@ -310,7 +323,7 @@ export function ChordPressGame({
   }, [enableComputerKeyboard, keyboardMap, playNote, toggleNote]);
 
   const selectedEvents: PlaybackEvent[] = useMemo(() => {
-    const color = !checked ? '#60a5fa' : isCorrect ? '#22c55e' : '#ef4444';
+    const color = !checked ? '#a78bfa' : isCorrect ? '#22c55e' : '#f87171';
     return toEvents(selected, color);
   }, [selected, checked, isCorrect]);
 
@@ -343,11 +356,12 @@ export function ChordPressGame({
     submitted,
     targetNotes,
   ]);
+
   const feedback = useMemo(() => {
     if (!checked) return null;
     if (isCorrect)
       return (
-        <div className="text-sm font-medium text-green-600">
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#22c55e' }}>
           Correct! Nice job.
         </div>
       );
@@ -358,90 +372,179 @@ export function ChordPressGame({
       .map((value) => PITCH_CLASS_NAMES[value])
       .join(', ');
     return (
-      <div className="space-y-1 text-sm">
-        <div className="font-medium text-red-600">Not quite.</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#f87171' }}>
+          Not quite.
+        </div>
         {miss && (
-          <div>
-            Missing: <span className="text-foreground/90">{miss}</span>
+          <div
+            style={{
+              fontSize: 12,
+              color: 'var(--color-text-dim, #6b7280)',
+            }}
+          >
+            Missing: <span style={{ color: '#bae6fd' }}>{miss}</span>
           </div>
         )}
         {extra && (
-          <div>
-            Extra: <span className="text-foreground/90">{extra}</span>
+          <div
+            style={{
+              fontSize: 12,
+              color: 'var(--color-text-dim, #6b7280)',
+            }}
+          >
+            Extra: <span style={{ color: '#fca5a5' }}>{extra}</span>
           </div>
         )}
       </div>
     );
   }, [checked, isCorrect, missingAndExtra]);
 
+  const canCheck = selected.length > 0 && !(checked && isCorrect);
+  const canClear = selected.length > 0 && !(checked && isCorrect);
+
   return (
-    <Card className={cn('w-full', className)}>
-      <CardHeader>
-        <CardTitle className="text-center text-2xl">
-          <span>Chord Press Challenge</span>
-        </CardTitle>
-        <p className="text-center">
-          Trigger the chord tones using your MIDI controller, computer keyboard,
-          or by clicking the keys below.
+    <div className={className}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <h1
+          style={{
+            fontSize: 20,
+            fontWeight: 800,
+            letterSpacing: 5,
+            color: '#a78bfa',
+            margin: 0,
+            textTransform: 'uppercase',
+          }}
+        >
+          Chord Press
+        </h1>
+        <p
+          style={{
+            fontSize: 11,
+            color: 'var(--color-text-dim, #6b7280)',
+            marginTop: 6,
+            letterSpacing: 1.5,
+            textTransform: 'uppercase',
+          }}
+        >
+          Play the chord tones on the keyboard
         </p>
-      </CardHeader>
-      <CardContent className="space-y-4 text-center">
-        <div className="space-y-2 text-sm text-muted-foreground">
-          {showChordName && (
-            <span className="text-base font-bold text-muted-foreground">
-              {title}
-            </span>
-          )}
+      </div>
+
+      {/* Target chord */}
+      {showChordName && (
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <span
+            style={{
+              fontSize: 18,
+              fontWeight: 700,
+              color: '#ddd6fe',
+              letterSpacing: 1,
+            }}
+          >
+            {title}
+          </span>
         </div>
-        <div className="rounded-lg border bg-background p-2">
-          <PianoKeyboard
-            key={keyboardId}
-            startC={3}
-            endC={6}
-            gaming={true}
-            onKeyClick={toggleNote}
-            onMidiInput={
-              hasLearnContext ? undefined : enableMIDI ? onMidiInput : undefined
-            }
-            enableMidiInterface={hasLearnContext ? false : enableMIDI}
-            playingNotes={selectedEvents}
-            activeWhiteKeyColor={undefined}
-            activeBlackKeyColor={undefined}
-            showOctaveStart
-          />
+      )}
+
+      {/* Piano keyboard */}
+      <div
+        style={{
+          borderRadius: 12,
+          border: '1.5px solid rgba(255,255,255,0.08)',
+          backgroundColor: 'rgba(255,255,255,0.02)',
+          padding: 10,
+          marginBottom: 16,
+        }}
+      >
+        <PianoKeyboard
+          key={keyboardId}
+          startC={3}
+          endC={6}
+          gaming={true}
+          onKeyClick={toggleNote}
+          onMidiInput={
+            hasLearnContext ? undefined : enableMIDI ? onMidiInput : undefined
+          }
+          enableMidiInterface={hasLearnContext ? false : enableMIDI}
+          playingNotes={selectedEvents}
+          activeWhiteKeyColor={undefined}
+          activeBlackKeyColor={undefined}
+          showOctaveStart
+        />
+      </div>
+
+      {/* Target notes hint */}
+      <div
+        style={{
+          textAlign: 'right',
+          fontSize: 10,
+          color: 'var(--color-text-dim, #6b7280)',
+          letterSpacing: 0.5,
+          marginBottom: 16,
+        }}
+      >
+        Target:{' '}
+        {targetMidi
+          .map((value) => Tone.Frequency(value, 'midi').toNote())
+          .join(' ')}
+      </div>
+
+      {/* Action buttons */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 10,
+          marginBottom: 16,
+        }}
+      >
+        <button
+          onClick={() => setChecked(true)}
+          disabled={!canCheck}
+          style={{
+            ...BTN,
+            opacity: canCheck ? 1 : 0.4,
+            pointerEvents: canCheck ? 'auto' : 'none',
+          }}
+        >
+          Check Answer
+        </button>
+        <button
+          onClick={resetSelection}
+          disabled={!canClear}
+          style={{
+            ...BTN_OUTLINE,
+            opacity: canClear ? 1 : 0.4,
+            pointerEvents: canClear ? 'auto' : 'none',
+          }}
+        >
+          Clear Selection
+        </button>
+      </div>
+
+      {/* Feedback */}
+      {feedback && (
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>{feedback}</div>
+      )}
+
+      {/* Continue */}
+      {checked && (
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <button
+            onClick={handleContinue}
+            disabled={submitted}
+            style={{
+              ...BTN,
+              opacity: submitted ? 0.4 : 1,
+              pointerEvents: submitted ? 'none' : 'auto',
+            }}
+          >
+            Continue
+          </button>
         </div>
-        <div className="ml-auto text-sm text-muted-foreground">
-          Target:{' '}
-          {targetMidi
-            .map((value) => Tone.Frequency(value, 'midi').toNote())
-            .join(' ')}
-        </div>
-        <div className="flex flex-col items-center gap-3">
-          <div className="flex flex-wrap justify-center gap-2">
-            <Button
-              onClick={() => setChecked(true)}
-              disabled={selected.length === 0 || (checked && isCorrect)}
-            >
-              Check Answer
-            </Button>
-            <Button
-              variant="outline"
-              onClick={resetSelection}
-              disabled={selected.length === 0 || (checked && isCorrect)}
-            >
-              Clear Selection
-            </Button>
-          </div>
-        </div>
-        {feedback}
-        {checked && (
-          <div className="flex justify-center">
-            <Button onClick={handleContinue} disabled={submitted}>
-              Continue
-            </Button>
-          </div>
-        )}{' '}
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 }

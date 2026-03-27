@@ -4,11 +4,13 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { GameRoutes } from '@/constants/routes';
+import { LearnInputProvider } from '@/learn/context/LearnInputContext';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { BoardChoiceGame } from './BoardChoiceGame';
 import { ChordConnectionGame } from './ChordConnectionGame';
 import { ChordPressGame } from './ChordPressGame';
 import { PlayAlong } from './PlayAlong';
+import Chroma from './chroma';
 import '@/components/learn/learn.css';
 
 function BackToArcade() {
@@ -44,6 +46,14 @@ function GameShell({
       </div>
       <div className="mx-auto w-full max-w-5xl">{children}</div>
     </div>
+  );
+}
+
+export function ChromaPage() {
+  return (
+    <GameShell title="Chroma">
+      <Chroma />
+    </GameShell>
   );
 }
 
@@ -189,28 +199,30 @@ export function PlayAlongPage() {
   }, []);
 
   return (
-    <GameShell title="Play Along">
-      {done ? (
-        <div className="flex flex-col items-center gap-4 pt-12">
-          <h2
-            className="text-2xl font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            Round Complete!
-          </h2>
-          <div className="flex gap-3">
-            <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate(GameRoutes.root())}
+    <LearnInputProvider detectionMode="polyphonic">
+      <GameShell title="Play Along">
+        {done ? (
+          <div className="flex flex-col items-center gap-4 pt-12">
+            <h2
+              className="text-2xl font-semibold"
+              style={{ color: 'var(--color-text)' }}
             >
-              Back to Arcade
-            </Button>
+              Round Complete!
+            </h2>
+            <div className="flex gap-3">
+              <Button onClick={handlePlayAgain}>Play Again</Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate(GameRoutes.root())}
+              >
+                Back to Arcade
+              </Button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <PlayAlong key={key} onActivityCompleteChange={handleComplete} />
-      )}
-    </GameShell>
+        ) : (
+          <PlayAlong key={key} onActivityCompleteChange={handleComplete} />
+        )}
+      </GameShell>
+    </LearnInputProvider>
   );
 }

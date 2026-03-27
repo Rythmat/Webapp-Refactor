@@ -8,6 +8,7 @@ import { LearnInputProvider } from '@/learn/context/LearnInputContext';
 import { BoardChoiceGame } from './BoardChoiceGame';
 import { ChordConnectionGame } from './ChordConnectionGame';
 import { ChordPressGame } from './ChordPressGame';
+import Foli from './Foli';
 import { PlayAlong } from './PlayAlong';
 import Chroma from './chroma';
 import '@/components/learn/learn.css';
@@ -45,6 +46,14 @@ export function ChromaPage() {
   return (
     <GameShell>
       <Chroma />
+    </GameShell>
+  );
+}
+
+export function FoliPage() {
+  return (
+    <GameShell>
+      <Foli />
     </GameShell>
   );
 }

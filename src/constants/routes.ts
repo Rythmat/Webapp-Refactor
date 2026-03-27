@@ -201,6 +201,8 @@ export const GameRoutes = {
   chordPress: createRouteDefinition('/chord-press', { prefix: gamesPrefix }),
 
   playAlong: createRouteDefinition('/play-along', { prefix: gamesPrefix }),
+
+  foli: createRouteDefinition('/foli', { prefix: gamesPrefix }),
 };
 
 const homePrefix = '/home';

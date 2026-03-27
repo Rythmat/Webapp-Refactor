@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { GameRoutes } from '@/constants/routes';
 import { LearnInputProvider } from '@/learn/context/LearnInputContext';
-import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { BoardChoiceGame } from './BoardChoiceGame';
 import { ChordConnectionGame } from './ChordConnectionGame';
 import { ChordPressGame } from './ChordPressGame';
@@ -28,20 +27,13 @@ function BackToArcade() {
   );
 }
 
-function GameShell({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function GameShell({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="learn-root flex flex-col h-full overflow-y-auto px-8 pb-12"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
-      <HeaderBar title={title} />
-      <div className="mb-4">
+      <div className="mb-4 pt-6">
         <BackToArcade />
       </div>
       <div className="mx-auto w-full max-w-5xl">{children}</div>
@@ -51,7 +43,7 @@ function GameShell({
 
 export function ChromaPage() {
   return (
-    <GameShell title="Chroma">
+    <GameShell>
       <Chroma />
     </GameShell>
   );
@@ -72,7 +64,7 @@ export function BoardChoicePage() {
   }, []);
 
   return (
-    <GameShell title="Board Choice">
+    <GameShell>
       {done ? (
         <div className="flex flex-col items-center gap-4 pt-12">
           <h2
@@ -113,7 +105,7 @@ export function ChordConnectionPage() {
   }, []);
 
   return (
-    <GameShell title="Chord Connection">
+    <GameShell>
       {done ? (
         <div className="flex flex-col items-center gap-4 pt-12">
           <h2
@@ -154,7 +146,7 @@ export function ChordPressPage() {
   }, []);
 
   return (
-    <GameShell title="Chord Press">
+    <GameShell>
       {done ? (
         <div className="flex flex-col items-center gap-4 pt-12">
           <h2
@@ -200,7 +192,7 @@ export function PlayAlongPage() {
 
   return (
     <LearnInputProvider detectionMode="polyphonic">
-      <GameShell title="Play Along">
+      <GameShell>
         {done ? (
           <div className="flex flex-col items-center gap-4 pt-12">
             <h2

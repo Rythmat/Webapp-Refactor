@@ -1,11 +1,8 @@
-﻿/* eslint-disable react/jsx-sort-props */
+/* eslint-disable react/jsx-sort-props */
 /* eslint-disable sonarjs/cognitive-complexity */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/components/utilities';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 
 type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
@@ -244,6 +241,24 @@ function createRound({
   };
 }
 
+// ── Styles ─────────────────────────────────────────────────────────────────
+
+const BTN: React.CSSProperties = {
+  padding: '9px 28px',
+  borderRadius: 10,
+  border: '1.5px solid #a78bfa',
+  backgroundColor: 'rgba(167,139,250,0.14)',
+  color: '#ddd6fe',
+  fontSize: 12,
+  fontWeight: 700,
+  cursor: 'pointer',
+  letterSpacing: 2,
+  textTransform: 'uppercase',
+  transition: 'all 0.18s ease',
+};
+
+// ── Component ──────────────────────────────────────────────────────────────
+
 export type BoardChoiceGameProps = {
   startC?: number;
   endC?: number;
@@ -351,24 +366,32 @@ export function BoardChoiceGame({
     }
     startNewRound(initialChord);
   }, [initialChord, onComplete, selectedOption, startNewRound, submitted]);
+
   const feedback = useMemo(() => {
     if (!selectedOption) return null;
 
     if (selectedOption.isCorrect) {
       return (
-        <div className="text-sm font-medium text-green-600">
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#22c55e' }}>
           Correct! You nailed the chord.
         </div>
       );
     }
 
     return (
-      <div className="space-y-1 text-sm">
-        <div className="font-medium text-red-600">Not quite.</div>
-        <div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#f87171' }}>
+          Not quite.
+        </div>
+        <div
+          style={{
+            fontSize: 12,
+            color: 'var(--color-text-dim, #6b7280)',
+          }}
+        >
           The correct keyboard shows {resolvedTargetLabel}
           {targetNoteNames.length > 0 && (
-            <span className="text-foreground/90">
+            <span style={{ color: '#bae6fd' }}>
               {' '}
               ({targetNoteNames.join(', ')})
             </span>
@@ -380,104 +403,185 @@ export function BoardChoiceGame({
   }, [selectedOption, resolvedTargetLabel, targetNoteNames]);
 
   return (
-    <Card className={cn('w-full', className)}>
-      <CardHeader className="space-y-1 text-center">
-        <CardTitle className="text-2xl font-semibold">
-          Chord Board Challenge
-        </CardTitle>
+    <div className={className}>
+      {/* Header */}
+      <div
+        style={{
+          textAlign: 'center',
+          marginBottom: 24,
+        }}
+      >
+        <h1
+          style={{
+            fontSize: 20,
+            fontWeight: 800,
+            letterSpacing: 5,
+            color: '#a78bfa',
+            margin: 0,
+            textTransform: 'uppercase',
+          }}
+        >
+          Board Choice
+        </h1>
         {showChordName && (
-          <p className="text-sm text-muted-foreground">
-            Which keyboard highlights the notes of{' '}
-            <span className="font-semibold">{resolvedTargetLabel}</span>?
+          <p
+            style={{
+              fontSize: 11,
+              color: 'var(--color-text-dim, #6b7280)',
+              marginTop: 6,
+              letterSpacing: 1.5,
+              textTransform: 'uppercase',
+            }}
+          >
+            Which keyboard highlights{' '}
+            <span style={{ color: '#ddd6fe', fontWeight: 600 }}>
+              {resolvedTargetLabel}
+            </span>
+            ?
           </p>
         )}
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2">
-          {round.options.map((option, index) => {
-            const isSelected = option.id === selectedOptionId;
-            const isCorrect = option.isCorrect;
-            const showResult = Boolean(selectedOptionId);
+      </div>
 
-            const color = showResult
-              ? isCorrect
-                ? '#22c55e'
-                : isSelected
-                  ? '#ef4444'
-                  : '#94a3b8'
-              : '#60a5fa';
+      {/* Options grid */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 14,
+          marginBottom: 20,
+        }}
+      >
+        {round.options.map((option, index) => {
+          const isSelected = option.id === selectedOptionId;
+          const isCorrect = option.isCorrect;
+          const showResult = Boolean(selectedOptionId);
 
-            const playingNotes = toPlaybackEvents(
-              option.midi,
-              color,
-              option.id,
-            );
+          const color = showResult
+            ? isCorrect
+              ? '#22c55e'
+              : isSelected
+                ? '#ef4444'
+                : '#94a3b8'
+            : '#60a5fa';
 
-            const borderClass = showResult
-              ? isCorrect
-                ? 'border-green-500'
-                : isSelected
-                  ? 'border-red-500'
-                  : 'border-muted'
-              : 'border-muted';
+          const playingNotes = toPlaybackEvents(option.midi, color, option.id);
 
-            return (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => handleOptionSelect(option.id)}
-                className={cn(
-                  'group flex flex-col gap-3 rounded-lg border bg-card p-4 text-left shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                  borderClass,
-                  showResult && isCorrect && 'ring-1 ring-green-200',
-                  isSelected && !isCorrect && 'ring-1 ring-red-200',
-                )}
-                disabled={Boolean(selectedOptionId)}
-                aria-pressed={isSelected}
+          const borderColor = showResult
+            ? isCorrect
+              ? '#22c55e'
+              : isSelected
+                ? '#f87171'
+                : 'rgba(255,255,255,0.07)'
+            : isSelected
+              ? '#a78bfa'
+              : 'rgba(255,255,255,0.1)';
+
+          const bg = showResult
+            ? isCorrect
+              ? 'rgba(34,197,94,0.08)'
+              : isSelected
+                ? 'rgba(248,113,113,0.08)'
+                : 'rgba(255,255,255,0.02)'
+            : isSelected
+              ? 'rgba(167,139,250,0.1)'
+              : 'rgba(255,255,255,0.03)';
+
+          const labelColor = showResult
+            ? isCorrect
+              ? '#22c55e'
+              : isSelected
+                ? '#f87171'
+                : 'rgba(255,255,255,0.35)'
+            : '#ddd6fe';
+
+          return (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => handleOptionSelect(option.id)}
+              disabled={Boolean(selectedOptionId)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+                borderRadius: 12,
+                border: `1.5px solid ${borderColor}`,
+                backgroundColor: bg,
+                padding: 14,
+                textAlign: 'left',
+                cursor: selectedOptionId ? 'default' : 'pointer',
+                transition: 'all 0.18s ease',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  width: '100%',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: 1,
+                  textTransform: 'uppercase',
+                }}
               >
-                <div className="flex items-center justify-between text-sm font-medium">
-                  <span>Option {String.fromCharCode(65 + index)}</span>
-                  {showResult && (
-                    <span
-                      className={cn(
-                        'text-xs font-semibold uppercase tracking-wide',
-                        isCorrect
-                          ? 'text-green-600'
-                          : isSelected
-                            ? 'text-red-600'
-                            : 'text-muted-foreground/70',
-                      )}
-                    >
-                      {isCorrect
-                        ? 'Correct'
+                <span style={{ color: labelColor }}>
+                  Option {String.fromCharCode(65 + index)}
+                </span>
+                {showResult && (
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      color: isCorrect
+                        ? '#22c55e'
                         : isSelected
-                          ? 'Your Pick'
-                          : 'Incorrect'}
-                    </span>
-                  )}
-                </div>
-                <div className="pointer-events-none">
-                  <PianoKeyboard
-                    startC={startC}
-                    endC={endC}
-                    playingNotes={playingNotes}
-                  />
-                </div>
-              </button>
-            );
-          })}
+                          ? '#f87171'
+                          : 'rgba(255,255,255,0.25)',
+                    }}
+                  >
+                    {isCorrect
+                      ? 'Correct'
+                      : isSelected
+                        ? 'Your Pick'
+                        : 'Incorrect'}
+                  </span>
+                )}
+              </div>
+              <div style={{ pointerEvents: 'none' }}>
+                <PianoKeyboard
+                  startC={startC}
+                  endC={endC}
+                  playingNotes={playingNotes}
+                />
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Feedback */}
+      {feedback && (
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>{feedback}</div>
+      )}
+
+      {/* Continue */}
+      {selectedOptionId && (
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <button
+            onClick={handleContinue}
+            disabled={submitted}
+            style={{
+              ...BTN,
+              opacity: submitted ? 0.4 : 1,
+              pointerEvents: submitted ? 'none' : 'auto',
+            }}
+          >
+            Continue
+          </button>
         </div>
-
-        {feedback}
-
-        {selectedOptionId && (
-          <div className="flex justify-center">
-            <Button onClick={handleContinue} disabled={submitted}>
-              Continue
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 }

@@ -61,9 +61,9 @@ const ClassroomHomePage = lazy(() =>
 //   })),
 // );
 
-const Chroma = lazy(() =>
-  import('@/components/Games/chroma').then((m) => ({
-    default: m.default,
+const ChromaPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ ChromaPage }) => ({
+    default: ChromaPage,
   })),
 );
 
@@ -169,7 +169,7 @@ export const gamesPages = () => {
       },
       {
         path: GameRoutes.chroma.definition,
-        element: <Chroma />,
+        element: <ChromaPage />,
       },
       {
         path: GameRoutes.boardChoice.definition,

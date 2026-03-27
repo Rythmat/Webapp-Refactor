@@ -9,9 +9,6 @@ import {
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/components/utilities';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 
 type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
@@ -77,19 +74,10 @@ const PITCH_CLASS_NAMES = [
 const DEFAULT_CHORD_POOL: ChordType[] = ['maj', 'min', 'dim', 'aug'];
 
 const CONNECTION_COLORS = {
-  idle: '#60a5fa',
+  idle: '#a78bfa',
   correct: '#22c55e',
-  incorrect: '#ef4444',
+  incorrect: '#f87171',
 };
-
-const ITEM_BUTTON_BASE_CLASS =
-  'relative w-full rounded-md border bg-card/80 px-4 py-6 text-left transition shadow-sm min-h-[120px]';
-
-const ITEM_BUTTON_IDLE_CLASS = 'hover:border-primary/50 hover:text-foreground';
-
-const KEYBOARD_CLASS = 'pointer-events-none';
-
-const KEYBOARD_SCALE_CLASS = 'scale-95 origin-top';
 
 type CreateRoundArgs = {
   chordPool: ChordType[];
@@ -221,6 +209,31 @@ function createRound({
   return { chords, keyboards };
 }
 
+// ── Styles ─────────────────────────────────────────────────────────────────
+
+const BTN: React.CSSProperties = {
+  padding: '9px 28px',
+  borderRadius: 10,
+  border: '1.5px solid #a78bfa',
+  backgroundColor: 'rgba(167,139,250,0.14)',
+  color: '#ddd6fe',
+  fontSize: 12,
+  fontWeight: 700,
+  cursor: 'pointer',
+  letterSpacing: 2,
+  textTransform: 'uppercase',
+  transition: 'all 0.18s ease',
+};
+
+const BTN_OUTLINE: React.CSSProperties = {
+  ...BTN,
+  border: '1.5px solid rgba(255,255,255,0.15)',
+  backgroundColor: 'rgba(255,255,255,0.03)',
+  color: 'var(--color-text-dim, #6b7280)',
+};
+
+// ── Component ──────────────────────────────────────────────────────────────
+
 export type ChordConnectionGameProps = {
   chordPool?: ChordType[];
   keyboardBaseOctave?: number;
@@ -262,6 +275,7 @@ export function ChordConnectionGame({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chordRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const keyboardRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
   useEffect(() => {
     setRound(
       createRound({
@@ -300,6 +314,7 @@ export function ChordConnectionGame({
     ).length;
     return Math.round((correctCount / connections.length) * 100);
   }, [connections]);
+
   const allMatchesCorrect = useMemo(
     () =>
       connections.length === round.chords.length &&
@@ -307,6 +322,7 @@ export function ChordConnectionGame({
       connections.every((connection) => connection.correct),
     [connections, round.chords.length],
   );
+
   const handleContinue = useCallback(() => {
     if (!attachmentsFilled || submitted) return;
     setSubmitted(true);
@@ -386,28 +402,28 @@ export function ChordConnectionGame({
     ).length;
     if (correctCount === connections.length) {
       return (
-        <div className="text-sm font-medium text-green-600">
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#22c55e' }}>
           Perfect! All matches are correct.
         </div>
       );
     }
 
     return (
-      <div className="space-y-1 text-sm">
-        <div className="font-medium text-orange-600">Mixed results.</div>
-        <div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#f59e0b' }}>
+          Mixed results.
+        </div>
+        <div
+          style={{
+            fontSize: 12,
+            color: 'var(--color-text-dim, #6b7280)',
+          }}
+        >
           You matched {correctCount} of {connections.length} chords correctly.
         </div>
       </div>
     );
   }, [attachmentsFilled, connections]);
-
-  //   const map: Record<string, string[]> = {};
-  //   round.keyboards.forEach((keyboard) => {
-  //     map[keyboard.id] = keyboard.midi.map((value) => Tone.Frequency(value, 'midi').toNote());
-  //   });
-  //   return map;
-  // }, [round.keyboards]);
 
   const computeLines = useCallback(() => {
     const container = containerRef.current;
@@ -453,164 +469,296 @@ export function ChordConnectionGame({
   }, [computeLines]);
 
   return (
-    <Card className={cn('w-full', className)}>
-      <CardHeader className="space-y-1 text-center">
-        <CardTitle className="text-2xl font-semibold">
-          Chord Connection Challenge
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Draw matches between chord names and the keyboards that highlight
-          their tones.
+    <div className={className}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <h1
+          style={{
+            fontSize: 20,
+            fontWeight: 800,
+            letterSpacing: 5,
+            color: '#a78bfa',
+            margin: 0,
+            textTransform: 'uppercase',
+          }}
+        >
+          Chord Connection
+        </h1>
+        <p
+          style={{
+            fontSize: 11,
+            color: 'var(--color-text-dim, #6b7280)',
+            marginTop: 6,
+            letterSpacing: 1.5,
+            textTransform: 'uppercase',
+          }}
+        >
+          Match chord names to their keyboards
         </p>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-4 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-          <span>
-            Matches made: {connections.length}/{round.chords.length}
-          </span>
-          <span>Accuracy: {accuracy !== null ? `${accuracy}%` : 'N/A'}</span>
-        </div>
+      </div>
 
-        <div ref={containerRef} className="relative">
-          <svg className="pointer-events-none absolute inset-0 size-full">
-            {lines.map((line) => {
-              const color = attachmentsFilled
-                ? line.correct
-                  ? CONNECTION_COLORS.correct
-                  : CONNECTION_COLORS.incorrect
-                : CONNECTION_COLORS.idle;
+      {/* Stats bar */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 20,
+          marginBottom: 20,
+          fontSize: 11,
+          fontWeight: 600,
+          letterSpacing: 0.5,
+          color: 'var(--color-text-dim, #6b7280)',
+        }}
+      >
+        <span>
+          Matches: {connections.length}/{round.chords.length}
+        </span>
+        <span>Accuracy: {accuracy !== null ? `${accuracy}%` : '—'}</span>
+      </div>
+
+      {/* Connection area */}
+      <div ref={containerRef} style={{ position: 'relative' }}>
+        <svg
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+          }}
+        >
+          {lines.map((line) => {
+            const color = attachmentsFilled
+              ? line.correct
+                ? CONNECTION_COLORS.correct
+                : CONNECTION_COLORS.incorrect
+              : CONNECTION_COLORS.idle;
+
+            return (
+              <line
+                key={`${line.chordId}-${line.keyboardId}`}
+                x1={line.x1}
+                y1={line.y1}
+                x2={line.x2}
+                y2={line.y2}
+                stroke={color}
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                style={{ transition: 'stroke 0.3s' }}
+              />
+            );
+          })}
+        </svg>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 32,
+            maxWidth: '100%',
+            padding: '0 8px',
+          }}
+        >
+          {/* Chords column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <h3
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+                color: 'var(--color-text-dim, #6b7280)',
+                marginBottom: 4,
+              }}
+            >
+              Chords
+            </h3>
+            {round.chords.map((item) => {
+              const isActive = activeChord === item.id;
+              const isComplete = connections.some(
+                (connection) => connection.chordId === item.id,
+              );
+
+              const borderColor = isComplete
+                ? '#22c55e'
+                : isActive
+                  ? '#a78bfa'
+                  : 'rgba(255,255,255,0.1)';
+              const bg = isComplete
+                ? 'rgba(34,197,94,0.08)'
+                : isActive
+                  ? 'rgba(167,139,250,0.12)'
+                  : 'rgba(255,255,255,0.03)';
+              const textColor = isComplete
+                ? '#22c55e'
+                : isActive
+                  ? '#ddd6fe'
+                  : 'var(--color-text, #e2e8f0)';
 
               return (
-                <line
-                  key={`${line.chordId}-${line.keyboardId}`}
-                  x1={line.x1}
-                  y1={line.y1}
-                  x2={line.x2}
-                  y2={line.y2}
-                  stroke={color}
-                  strokeWidth={3}
-                  strokeLinecap="round"
-                  className="transition-colors"
-                />
+                <button
+                  key={item.id}
+                  ref={(node) => {
+                    chordRefs.current[item.id] = node;
+                  }}
+                  type="button"
+                  onClick={() => handleChordClick(item.id)}
+                  disabled={isComplete}
+                  style={{
+                    width: '60%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    padding: '20px 16px',
+                    borderRadius: 10,
+                    border: `1.5px solid ${borderColor}`,
+                    backgroundColor: bg,
+                    color: textColor,
+                    cursor: isComplete ? 'default' : 'pointer',
+                    transition: 'all 0.18s ease',
+                    minHeight: 80,
+                    textAlign: 'center',
+                  }}
+                >
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>
+                    {showChordNames ? item.label : 'Chord'}
+                  </span>
+                  {isComplete && (
+                    <span
+                      style={{
+                        fontSize: 9,
+                        fontWeight: 700,
+                        letterSpacing: 1,
+                        textTransform: 'uppercase',
+                        color: '#22c55e',
+                      }}
+                    >
+                      Matched
+                    </span>
+                  )}
+                </button>
               );
             })}
-          </svg>
+          </div>
 
-          <div className="mx-auto grid max-w-5xl gap-8 px-4 md:grid-cols-2 md:gap-12">
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Chords
-              </h3>
-              {round.chords.map((item) => {
-                const isActive = activeChord === item.id;
-                const isComplete = connections.some(
-                  (connection) => connection.chordId === item.id,
-                );
+          {/* Keyboards column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <h3
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+                color: 'var(--color-text-dim, #6b7280)',
+                marginBottom: 4,
+              }}
+            >
+              Keyboards
+            </h3>
+            {round.keyboards.map((item) => {
+              const isActive = activeKeyboard === item.id;
+              const isComplete = connections.some(
+                (connection) => connection.keyboardId === item.id,
+              );
 
-                const chordClass = cn(
-                  ITEM_BUTTON_BASE_CLASS,
-                  'w-1/2 flex flex-col items-center justify-center gap-2 text-center min-h-[169px]',
-                  isComplete && 'border-green-500 text-green-700',
-                  !isComplete && isActive && 'border-primary text-primary',
-                  !isComplete && !isActive && ITEM_BUTTON_IDLE_CLASS,
-                );
+              const color = attachmentsFilled
+                ? CONNECTION_COLORS.correct
+                : CONNECTION_COLORS.idle;
+              const playingNotes = toPlaybackEvents(item.midi, color, item.id);
 
-                return (
-                  <button
-                    key={item.id}
-                    ref={(node) => {
-                      chordRefs.current[item.id] = node;
+              const borderColor = isComplete
+                ? '#22c55e'
+                : isActive
+                  ? '#a78bfa'
+                  : 'rgba(255,255,255,0.1)';
+              const bg = isComplete
+                ? 'rgba(34,197,94,0.08)'
+                : isActive
+                  ? 'rgba(167,139,250,0.12)'
+                  : 'rgba(255,255,255,0.03)';
+
+              return (
+                <button
+                  key={item.id}
+                  ref={(node) => {
+                    keyboardRefs.current[item.id] = node;
+                  }}
+                  type="button"
+                  onClick={() => handleKeyboardClick(item.id)}
+                  disabled={isComplete}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 6,
+                    padding: 14,
+                    borderRadius: 10,
+                    border: `1.5px solid ${borderColor}`,
+                    backgroundColor: bg,
+                    cursor: isComplete ? 'default' : 'pointer',
+                    transition: 'all 0.18s ease',
+                    minHeight: 80,
+                  }}
+                >
+                  <div
+                    style={{
+                      pointerEvents: 'none',
+                      transform: 'scale(0.9)',
+                      transformOrigin: 'top center',
                     }}
-                    type="button"
-                    className={chordClass}
-                    onClick={() => handleChordClick(item.id)}
-                    disabled={isComplete}
                   >
-                    <span className="text-base font-medium">
-                      {showChordNames ? item.label : 'Chord'}
-                    </span>
-                    {isComplete && (
-                      <span className="text-xs font-semibold uppercase text-green-600">
-                        Matched
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Keyboards
-              </h3>
-              {round.keyboards.map((item) => {
-                const isActive = activeKeyboard === item.id;
-                const isComplete = connections.some(
-                  (connection) => connection.keyboardId === item.id,
-                );
-
-                const color = attachmentsFilled
-                  ? CONNECTION_COLORS.correct
-                  : CONNECTION_COLORS.idle;
-                const playingNotes = toPlaybackEvents(
-                  item.midi,
-                  color,
-                  item.id,
-                );
-
-                const keyboardClass = cn(
-                  ITEM_BUTTON_BASE_CLASS,
-                  'flex flex-col gap-2',
-                  isComplete && 'border-green-500 text-green-700',
-                  !isComplete && isActive && 'border-primary text-primary',
-                  !isComplete && !isActive && ITEM_BUTTON_IDLE_CLASS,
-                );
-
-                return (
-                  <button
-                    key={item.id}
-                    ref={(node) => {
-                      keyboardRefs.current[item.id] = node;
-                    }}
-                    type="button"
-                    className={keyboardClass}
-                    onClick={() => handleKeyboardClick(item.id)}
-                    disabled={isComplete}
-                  >
-                    <div className={cn(KEYBOARD_CLASS, KEYBOARD_SCALE_CLASS)}>
-                      <PianoKeyboard
-                        startC={3}
-                        endC={5}
-                        playingNotes={playingNotes}
-                        className="origin-top scale-90"
-                      />
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                    <PianoKeyboard
+                      startC={3}
+                      endC={5}
+                      playingNotes={playingNotes}
+                    />
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
+      </div>
 
-        <div className="mt-6 flex flex-col items-center gap-4">
-          {connectionSummary}
-          <div className="flex flex-wrap justify-center gap-3">
-            <Button
-              variant="outline"
-              onClick={resetConnections}
-              disabled={connections.length === 0}
-            >
-              Clear Lines
-            </Button>
-            <Button
-              onClick={handleContinue}
-              disabled={!attachmentsFilled || submitted}
-            >
-              Continue
-            </Button>
-          </div>
+      {/* Footer */}
+      <div
+        style={{
+          marginTop: 24,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 14,
+        }}
+      >
+        {connectionSummary && (
+          <div style={{ textAlign: 'center' }}>{connectionSummary}</div>
+        )}
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            onClick={resetConnections}
+            disabled={connections.length === 0}
+            style={{
+              ...BTN_OUTLINE,
+              opacity: connections.length === 0 ? 0.4 : 1,
+              pointerEvents: connections.length === 0 ? 'none' : 'auto',
+            }}
+          >
+            Clear Lines
+          </button>
+          <button
+            onClick={handleContinue}
+            disabled={!attachmentsFilled || submitted}
+            style={{
+              ...BTN,
+              opacity: !attachmentsFilled || submitted ? 0.4 : 1,
+              pointerEvents: !attachmentsFilled || submitted ? 'none' : 'auto',
+            }}
+          >
+            Continue
+          </button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

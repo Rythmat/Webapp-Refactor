@@ -100,8 +100,7 @@ const mapMe = (value: unknown): AuthAppUser | null => {
 
 /** Messages shown to the user based on session error type. */
 const SESSION_ERROR_MESSAGES: Record<string, string> = {
-  SESSION_REPLACED:
-    'You were signed out because your account was used on another device.',
+  SESSION_REPLACED: 'Your account has been logged in on another device.',
   SESSION_EXPIRED: 'Your session expired due to inactivity.',
   SESSION_INVALID: 'Your session is invalid. Please sign in again.',
 };

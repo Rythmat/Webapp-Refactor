@@ -482,7 +482,16 @@ export function ChordConnectionGame({
   }, [computeLines]);
 
   return (
-    <div className={className}>
+    <div
+      className={className}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100dvh',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+      }}
+    >
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         <h1
@@ -531,7 +540,15 @@ export function ChordConnectionGame({
       </div>
 
       {/* Connection area */}
-      <div ref={containerRef} style={{ position: 'relative' }}>
+      <div
+        ref={containerRef}
+        style={{
+          position: 'relative',
+          flex: 1,
+          minHeight: 0,
+          overflow: 'auto',
+        }}
+      >
         <svg
           style={{
             position: 'absolute',
@@ -714,11 +731,13 @@ export function ChordConnectionGame({
       {/* Footer */}
       <div
         style={{
-          marginTop: 24,
+          marginTop: 12,
+          paddingBottom: 12,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           gap: 14,
+          flexShrink: 0,
         }}
       >
         {connectionSummary && (

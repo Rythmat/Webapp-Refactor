@@ -7,14 +7,13 @@ export const usePrismRhythmStyling = () => {
   return useQuery({
     queryKey: ['prism', 'rhythms', 'styling'],
     queryFn: async () => {
-      const res = await musicAtlas.http.request<{
+      return musicAtlas.http.request<{
         styling: Record<string, string[]>;
       }>({
         path: `/prism/rhythms/styling`,
         method: 'GET',
         format: 'json',
       });
-      return res.data;
     },
   });
 };

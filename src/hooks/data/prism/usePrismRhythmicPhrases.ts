@@ -7,14 +7,13 @@ export const usePrismRhythmicPhrases = () => {
   return useQuery({
     queryKey: ['prism', 'rhythms', 'phrases'],
     queryFn: async () => {
-      const res = await musicAtlas.http.request<{
+      return musicAtlas.http.request<{
         phrases: Record<string, [number, number][][]>;
       }>({
         path: `/prism/rhythms/phrases`,
         method: 'GET',
         format: 'json',
       });
-      return res.data;
     },
   });
 };

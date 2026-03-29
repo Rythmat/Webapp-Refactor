@@ -7,12 +7,11 @@ export const usePrismScaleDegrees = () => {
   return useQuery({
     queryKey: ['prism', 'scale-degrees'],
     queryFn: async () => {
-      const res = await musicAtlas.http.request<{ scaleDegrees: string[] }>({
+      return musicAtlas.http.request<{ scaleDegrees: string[] }>({
         path: `/prism/scale-degrees`,
         method: 'GET',
         format: 'json',
       });
-      return res.data;
     },
   });
 };

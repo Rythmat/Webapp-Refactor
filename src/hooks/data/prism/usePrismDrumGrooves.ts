@@ -7,14 +7,13 @@ export const usePrismDrumGrooves = () => {
   return useQuery({
     queryKey: ['prism', 'drums', 'grooves'],
     queryFn: async () => {
-      const res = await musicAtlas.http.request<{
+      return musicAtlas.http.request<{
         grooves: Record<string, Record<string, string[]>>;
       }>({
         path: `/prism/drums/grooves`,
         method: 'GET',
         format: 'json',
       });
-      return res.data;
     },
   });
 };

@@ -28,3 +28,11 @@ export {
   type PrismModeFamilyDetail,
 } from './usePrismModeFamily';
 export type { PrismChordName, PrismModeSlug, PrismModeFamily } from './types';
+export { usePrismRhythms } from './usePrismRhythms';
+export { usePrismStartContours } from './usePrismStartContours';
+export { usePrismScaleDegrees } from './usePrismScaleDegrees';
+export { usePrismIntervals, type IntervalInfo } from './usePrismIntervals';
+export { usePrismRhythmStyling } from './usePrismRhythmStyling';
+export { usePrismRhythmicPhrases } from './usePrismRhythmicPhrases';
+export { usePrismBassRhythms } from './usePrismBassRhythms';
+export { usePrismDrumGrooves } from './usePrismDrumGrooves';

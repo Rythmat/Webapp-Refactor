@@ -59,7 +59,11 @@ type RoundState = {
 };
 
 function buildChord(rootMidi: number, type: ChordType) {
-  return CHORD_INTERVALS[type].map((interval) => rootMidi + interval);
+  const octaveStart = Math.floor(rootMidi / 12) * 12;
+  return CHORD_INTERVALS[type].map((interval) => {
+    const note = rootMidi + interval;
+    return note > octaveStart + 11 ? note - 12 : note;
+  });
 }
 
 function chordName(rootPc: number, type: ChordType) {
@@ -261,6 +265,7 @@ const BTN: React.CSSProperties = {
 
 export type BoardChoiceGameProps = {
   startC?: number;
+  /** @default 4 — one octave */
   endC?: number;
   chordPool?: ChordType[];
   showChordName?: boolean;
@@ -274,7 +279,7 @@ export type BoardChoiceGameProps = {
 
 export function BoardChoiceGame({
   startC = 4,
-  endC = 6,
+  endC = 4,
   chordPool = DEFAULT_CHORD_POOL,
   showChordName = true,
   keyboardBaseOctave = 4,
@@ -458,8 +463,9 @@ export function BoardChoiceGame({
       {/* Options grid */}
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           gap: 14,
           marginBottom: 20,
         }}
@@ -524,6 +530,8 @@ export function BoardChoiceGame({
                 textAlign: 'left',
                 cursor: selectedOptionId ? 'default' : 'pointer',
                 transition: 'all 0.18s ease',
+                width: '100%',
+                maxWidth: 400,
               }}
             >
               <div

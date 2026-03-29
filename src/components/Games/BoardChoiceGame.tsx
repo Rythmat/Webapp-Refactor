@@ -291,7 +291,8 @@ export function BoardChoiceGame({
   const [selectedOption, setSelectedOption] = useState<ChordOption | null>(
     null,
   );
-  const [submitted, setSubmitted] = useState(false);
+  const [sessionTotal, setSessionTotal] = useState(0);
+  const [sessionSuccessful, setSessionSuccessful] = useState(0);
 
   const [round, setRound] = useState<RoundState>(() => {
     if (targetNotes && targetNotes.length > 0) {
@@ -321,14 +322,13 @@ export function BoardChoiceGame({
           options,
         });
         setSelectedOption(null);
-        setSubmitted(false);
+
         return;
       }
       setRound(
         createRound({ chordPool, baseOctaveRoot, preferredChord: preferred }),
       );
       setSelectedOption(null);
-      setSubmitted(false);
     },
     [baseOctaveRoot, chordPool, targetLabel, targetNotes],
   );
@@ -352,20 +352,17 @@ export function BoardChoiceGame({
       if (!option) return;
 
       setSelectedOption(option);
-      setSubmitted(false);
     },
     [round.options, selectedOption],
   );
 
-  const handleContinue = useCallback(() => {
-    if (!selectedOption || submitted) return;
-    if (onComplete) {
-      setSubmitted(true);
-      onComplete();
-      return;
-    }
+  const handlePlayAgain = useCallback(() => {
+    if (!selectedOption) return;
+    setSessionTotal((prev) => prev + 1);
+    if (selectedOption.isCorrect) setSessionSuccessful((prev) => prev + 1);
+    onComplete?.();
     startNewRound(initialChord);
-  }, [initialChord, onComplete, selectedOption, startNewRound, submitted]);
+  }, [initialChord, onComplete, selectedOption, startNewRound]);
 
   const feedback = useMemo(() => {
     if (!selectedOption) return null;
@@ -439,6 +436,19 @@ export function BoardChoiceGame({
             </span>
             ?
           </p>
+        )}
+        {sessionTotal > 0 && (
+          <div
+            style={{
+              marginTop: 10,
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: 0.5,
+              color: '#a78bfa',
+            }}
+          >
+            Session: {Math.round((sessionSuccessful / sessionTotal) * 100)}%
+          </div>
         )}
       </div>
 
@@ -566,19 +576,11 @@ export function BoardChoiceGame({
         <div style={{ textAlign: 'center', marginBottom: 16 }}>{feedback}</div>
       )}
 
-      {/* Continue */}
+      {/* Play Again */}
       {selectedOptionId && (
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <button
-            onClick={handleContinue}
-            disabled={submitted}
-            style={{
-              ...BTN,
-              opacity: submitted ? 0.4 : 1,
-              pointerEvents: submitted ? 'none' : 'auto',
-            }}
-          >
-            Continue
+          <button onClick={handlePlayAgain} style={BTN}>
+            Play Again
           </button>
         </div>
       )}

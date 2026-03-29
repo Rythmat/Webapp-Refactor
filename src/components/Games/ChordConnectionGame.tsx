@@ -304,16 +304,6 @@ export function ChordConnectionGame({
     [connections.length, round.chords.length],
   );
 
-  const accuracy = useMemo(() => {
-    if (connections.length === 0) {
-      return null;
-    }
-    const correctCount = connections.filter(
-      (connection) => connection.correct,
-    ).length;
-    return Math.round((correctCount / connections.length) * 100);
-  }, [connections]);
-
   const allMatchesCorrect = useMemo(
     () =>
       connections.length === round.chords.length &&
@@ -538,10 +528,6 @@ export function ChordConnectionGame({
             Session: {Math.round((sessionSuccessful / sessionTotal) * 100)}%
           </span>
         )}
-        <span>
-          Matches: {connections.length}/{round.chords.length}
-        </span>
-        <span>Accuracy: {accuracy !== null ? `${accuracy}%` : '—'}</span>
       </div>
 
       {/* Connection area */}
@@ -589,18 +575,6 @@ export function ChordConnectionGame({
         >
           {/* Chords column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <h3
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: 2,
-                textTransform: 'uppercase',
-                color: 'var(--color-text-dim, #6b7280)',
-                marginBottom: 4,
-              }}
-            >
-              Chords
-            </h3>
             {round.chords.map((item) => {
               const isActive = activeChord === item.id;
               const isComplete = connections.some(
@@ -673,18 +647,6 @@ export function ChordConnectionGame({
 
           {/* Keyboards column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <h3
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: 2,
-                textTransform: 'uppercase',
-                color: 'var(--color-text-dim, #6b7280)',
-                marginBottom: 4,
-              }}
-            >
-              Keyboards
-            </h3>
             {round.keyboards.map((item) => {
               const isActive = activeKeyboard === item.id;
               const isComplete = connections.some(

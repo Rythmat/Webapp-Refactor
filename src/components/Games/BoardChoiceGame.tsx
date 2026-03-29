@@ -362,7 +362,16 @@ export function BoardChoiceGame({
   }, [initialChord, onComplete, selectedOption, startNewRound]);
 
   return (
-    <div className={className}>
+    <div
+      className={className}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        boxSizing: 'border-box',
+      }}
+    >
       {/* Header */}
       <div
         style={{
@@ -420,8 +429,8 @@ export function BoardChoiceGame({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 8,
-          marginBottom: 10,
+          gap: 12,
+          marginBottom: 0,
         }}
       >
         {round.options.map((option) => {

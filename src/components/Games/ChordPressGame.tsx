@@ -405,7 +405,16 @@ export function ChordPressGame({
   const canClear = selected.length > 0 && !(checked && isCorrect);
 
   return (
-    <div className={className}>
+    <div
+      className={className}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        boxSizing: 'border-box',
+      }}
+    >
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         <h1

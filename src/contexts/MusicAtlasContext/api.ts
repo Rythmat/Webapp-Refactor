@@ -30,14 +30,25 @@ const DefaultConfig = {
   },
 };
 
-const getClient = (params?: { token: string | null }) => {
-  const { token = null } = params ?? {};
+type ClientParams = {
+  token: string | null;
+  appSessionId: string | null;
+};
+
+const getClient = (params?: ClientParams) => {
+  const { token = null, appSessionId = null } = params ?? {};
+
+  const headers: Record<string, string | undefined> = {
+    Authorization: token ? `Bearer ${token}` : undefined,
+  };
+
+  if (appSessionId) {
+    headers['X-App-Session'] = appSessionId;
+  }
 
   const client = new HttpClient({
     ...DefaultConfig,
-    headers: {
-      Authorization: token ? `Bearer ${token}` : undefined,
-    },
+    headers,
   });
 
   // Intercept 401 responses to detect app-session errors
@@ -57,16 +68,16 @@ const getClient = (params?: { token: string | null }) => {
   return client;
 };
 
-export const useGlobalMusicAtlas = (params?: { token: string | null }) => {
-  const { token = null } = params ?? {};
+export const useGlobalMusicAtlas = (params?: Partial<ClientParams>) => {
+  const { token = null, appSessionId = null } = params ?? {};
 
   const [musicAtlas, setMusicAtlas] = useState(
-    () => new Api(getClient({ token })),
+    () => new Api(getClient({ token, appSessionId })),
   );
 
   useUpdateEffect(() => {
-    setMusicAtlas(new Api(getClient({ token })));
-  }, [token]);
+    setMusicAtlas(new Api(getClient({ token, appSessionId })));
+  }, [token, appSessionId]);
 
   return musicAtlas;
 };

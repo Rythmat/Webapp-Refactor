@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createContext, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
+import { useAppSessionId } from '../AuthContext/hooks/useAppSessionId';
 import { useAuthToken } from '../AuthContext/hooks/useAuthToken';
 import { useGlobalMusicAtlas } from './api';
 
@@ -14,7 +15,8 @@ export const MusicAtlasContextProvider = ({
   children: React.ReactNode;
 }) => {
   const token = useAuthToken();
-  const musicAtlas = useGlobalMusicAtlas({ token });
+  const appSessionId = useAppSessionId();
+  const musicAtlas = useGlobalMusicAtlas({ token, appSessionId });
 
   const [queryClient, setQueryClient] = useState(() => new QueryClient());
 

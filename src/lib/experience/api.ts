@@ -1,4 +1,5 @@
 import SuperJSON from 'superjson';
+import { getCurrentAppSessionId } from '@/auth/app-session-store';
 import { Env } from '@/constants/env';
 import type {
   ExperienceAwardResponse,
@@ -37,12 +38,18 @@ async function apiRequest<T>(
     body?: unknown;
   },
 ): Promise<T> {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${params.token}`,
+    'Content-Type': 'application/json',
+  };
+  const appSessionId = getCurrentAppSessionId();
+  if (appSessionId) {
+    headers['X-App-Session'] = appSessionId;
+  }
+
   const response = await fetch(`${normalizedApiBase()}${path}`, {
     method: params.method ?? 'GET',
-    headers: {
-      Authorization: `Bearer ${params.token}`,
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: params.body != null ? JSON.stringify(params.body) : undefined,
   });
 

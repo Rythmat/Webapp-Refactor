@@ -444,8 +444,8 @@ export const ProfilePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Logo — sticky to bottom */}
-      <div className="flex justify-center py-4">
+      {/* Logo — bottom of page */}
+      <div className="mt-auto flex justify-center py-4">
         <img
           src="/music-atlas-moving-logo.gif"
           alt="Music Atlas"

@@ -244,6 +244,7 @@ export type GetStudentsData = {
   removedFromClassroom?: (Date) | null;
   school: string | null;
   username: string | null;
+  avatarConfig?: Record<string, unknown> | null;
 }[];
 
 export interface GetStudentsParams {

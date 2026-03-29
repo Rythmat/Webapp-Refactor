@@ -411,8 +411,9 @@ export function ChordPressGame({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        minHeight: '100vh',
+        height: '100dvh',
         boxSizing: 'border-box',
+        overflow: 'hidden',
       }}
     >
       {/* Header */}

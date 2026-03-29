@@ -66,7 +66,7 @@ export const ExperienceWeekChart: React.FC = () => {
     <svg
       viewBox="0 0 400 200"
       preserveAspectRatio="xMidYMid meet"
-      className="h-full w-full"
+      className="max-h-full w-full"
       role="img"
       aria-label="Experience earned over the past week"
     >

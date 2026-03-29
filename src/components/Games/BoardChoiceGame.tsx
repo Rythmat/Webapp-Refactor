@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-sort-props */
 /* eslint-disable sonarjs/cognitive-complexity */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
@@ -121,12 +121,6 @@ function toPlaybackEvents(
     velocity: 1,
     color,
   }));
-}
-
-function midiToNoteName(midi: number) {
-  const pitchClass = ((midi % 12) + 12) % 12;
-  const octave = Math.floor(midi / 12) - 1;
-  return `${PITCH_CLASS_NAMES[pitchClass] ?? 'Unknown'}${octave}`;
 }
 
 function intervalsSignature(root: number, notes: number[]) {
@@ -344,11 +338,6 @@ export function BoardChoiceGame({
 
   const selectedOptionId = selectedOption?.id ?? null;
   const resolvedTargetLabel = round.targetLabel;
-  const resolvedTargetNotes = round.targetNotes;
-  const targetNoteNames = useMemo(
-    () => resolvedTargetNotes.map(midiToNoteName),
-    [resolvedTargetNotes],
-  );
 
   const handleOptionSelect = useCallback(
     (optionId: string) => {
@@ -372,48 +361,13 @@ export function BoardChoiceGame({
     startNewRound(initialChord);
   }, [initialChord, onComplete, selectedOption, startNewRound]);
 
-  const feedback = useMemo(() => {
-    if (!selectedOption) return null;
-
-    if (selectedOption.isCorrect) {
-      return (
-        <div style={{ fontSize: 13, fontWeight: 600, color: '#22c55e' }}>
-          Correct! You nailed the chord.
-        </div>
-      );
-    }
-
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: '#f87171' }}>
-          Not quite.
-        </div>
-        <div
-          style={{
-            fontSize: 12,
-            color: 'var(--color-text-dim, #6b7280)',
-          }}
-        >
-          The correct keyboard shows {resolvedTargetLabel}
-          {targetNoteNames.length > 0 && (
-            <span style={{ color: '#bae6fd' }}>
-              {' '}
-              ({targetNoteNames.join(', ')})
-            </span>
-          )}
-          .
-        </div>
-      </div>
-    );
-  }, [selectedOption, resolvedTargetLabel, targetNoteNames]);
-
   return (
     <div className={className}>
       {/* Header */}
       <div
         style={{
           textAlign: 'center',
-          marginBottom: 24,
+          marginBottom: 10,
         }}
       >
         <h1
@@ -466,11 +420,11 @@ export function BoardChoiceGame({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 14,
-          marginBottom: 20,
+          gap: 8,
+          marginBottom: 10,
         }}
       >
-        {round.options.map((option, index) => {
+        {round.options.map((option) => {
           const isSelected = option.id === selectedOptionId;
           const isCorrect = option.isCorrect;
           const showResult = Boolean(selectedOptionId);
@@ -505,14 +459,6 @@ export function BoardChoiceGame({
               ? 'rgba(167,139,250,0.1)'
               : 'rgba(255,255,255,0.03)';
 
-          const labelColor = showResult
-            ? isCorrect
-              ? '#22c55e'
-              : isSelected
-                ? '#f87171'
-                : 'rgba(255,255,255,0.35)'
-            : '#ddd6fe';
-
           return (
             <button
               key={option.id}
@@ -522,54 +468,16 @@ export function BoardChoiceGame({
               style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 10,
                 borderRadius: 12,
                 border: `1.5px solid ${borderColor}`,
                 backgroundColor: bg,
-                padding: 14,
-                textAlign: 'left',
+                padding: '6px 10px',
                 cursor: selectedOptionId ? 'default' : 'pointer',
                 transition: 'all 0.18s ease',
                 width: '100%',
                 maxWidth: 400,
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: '100%',
-                  fontSize: 11,
-                  fontWeight: 600,
-                  letterSpacing: 1,
-                  textTransform: 'uppercase',
-                }}
-              >
-                <span style={{ color: labelColor }}>
-                  Option {String.fromCharCode(65 + index)}
-                </span>
-                {showResult && (
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: 1,
-                      color: isCorrect
-                        ? '#22c55e'
-                        : isSelected
-                          ? '#f87171'
-                          : 'rgba(255,255,255,0.25)',
-                    }}
-                  >
-                    {isCorrect
-                      ? 'Correct'
-                      : isSelected
-                        ? 'Your Pick'
-                        : 'Incorrect'}
-                  </span>
-                )}
-              </div>
               <div style={{ pointerEvents: 'none' }}>
                 <PianoKeyboard
                   startC={startC}
@@ -581,11 +489,6 @@ export function BoardChoiceGame({
           );
         })}
       </div>
-
-      {/* Feedback */}
-      {feedback && (
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>{feedback}</div>
-      )}
 
       {/* Play Again */}
       {selectedOptionId && (

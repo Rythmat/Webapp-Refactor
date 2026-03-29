@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
+import { setCurrentAppSessionId } from '@/auth/app-session-store';
 import {
   onSessionError,
   type SessionErrorPayload,
@@ -107,6 +108,7 @@ const SESSION_ERROR_MESSAGES: Record<string, string> = {
 export const AuthContext = createContext<AuthContextValue>({
   userId: null,
   token: null,
+  appSessionId: null,
   expiresAt: null,
   error: null,
   role: null,
@@ -134,6 +136,7 @@ export const AuthContextProvider = ({
   const [error, setError] = useState<string | null>(null);
   const [appUser, setAppUser] = useState<AuthAppUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [appSessionId, setAppSessionId] = useState<string | null>(null);
   const [isTokenLoading, setIsTokenLoading] = useState(false);
   /** Guard to prevent multiple simultaneous session-error logouts */
   const isSessionLogoutInProgressRef = useRef(false);
@@ -152,7 +155,12 @@ export const AuthContextProvider = ({
     logout,
   } = useAuth0();
 
-  const musicAtlas = useGlobalMusicAtlas({ token });
+  // Keep the module-level store in sync so raw-fetch API modules pick it up
+  useEffect(() => {
+    setCurrentAppSessionId(appSessionId);
+  }, [appSessionId]);
+
+  const musicAtlas = useGlobalMusicAtlas({ token, appSessionId });
 
   const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
   const returnTo =
@@ -162,25 +170,42 @@ export const AuthContextProvider = ({
       : `${location.pathname}${location.search}`);
 
   const persistSessionToken = useCallback(
-    async (nextToken: string) => {
-      await fetch(`${apiBase}/auth/session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token: nextToken }),
-        credentials: 'include',
-      }).catch(() => undefined);
+    async (nextToken: string): Promise<string | null> => {
+      try {
+        const response = await fetch(`${apiBase}/auth/session`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token: nextToken }),
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = (await response.json()) as {
+            appSessionId?: string;
+          };
+          return data.appSessionId ?? null;
+        }
+      } catch {
+        // Session creation failed — continue without app session
+      }
+      return null;
     },
     [apiBase],
   );
 
-  const clearSessionCookie = useCallback(() => {
+  const clearSession = useCallback(() => {
+    const headers: Record<string, string> = {};
+    if (appSessionId) {
+      headers['X-App-Session'] = appSessionId;
+    }
     void fetch(`${apiBase}/auth/session`, {
       method: 'DELETE',
+      headers,
       credentials: 'include',
     }).catch(() => undefined);
-  }, [apiBase]);
+    setAppSessionId(null);
+  }, [apiBase, appSessionId]);
 
   /**
    * Hard logout: clears local state, clears backend session cookie, and
@@ -191,7 +216,7 @@ export const AuthContextProvider = ({
       if (isSessionLogoutInProgressRef.current) return;
       isSessionLogoutInProgressRef.current = true;
 
-      clearSessionCookie();
+      clearSession();
       setToken(null);
       setAppUser(null);
 
@@ -209,7 +234,7 @@ export const AuthContextProvider = ({
         isSessionLogoutInProgressRef.current = false;
       }
     },
-    [clearSessionCookie, logout],
+    [clearSession, logout],
   );
 
   // Listen for session errors emitted by the API interceptor
@@ -229,12 +254,16 @@ export const AuthContextProvider = ({
           audience: Env.get('VITE_AUTH0_AUDIENCE'),
         },
       });
+      // Create the app session BEFORE setting the token, so the API client
+      // has the appSessionId ready when meQuery fires on token change.
+      const nextAppSessionId = await persistSessionToken(nextToken);
+      setAppSessionId(nextAppSessionId);
       setToken(nextToken);
-      await persistSessionToken(nextToken);
       setError(null);
       return nextToken;
     } catch (caught) {
       setToken(null);
+      setAppSessionId(null);
       setAppUser(null);
 
       const sdkError = caught as AuthenticationError | null;
@@ -470,6 +499,7 @@ export const AuthContextProvider = ({
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${nextToken}`,
+          ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
         },
         credentials: 'include',
         body: JSON.stringify(input),
@@ -491,6 +521,7 @@ export const AuthContextProvider = ({
     },
     [
       apiBase,
+      appSessionId,
       ensureAccessToken,
       isAuth0Authenticated,
       location.pathname,
@@ -521,6 +552,7 @@ export const AuthContextProvider = ({
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${nextToken}`,
+          ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
         },
         credentials: 'include',
         body: JSON.stringify(input),
@@ -542,6 +574,7 @@ export const AuthContextProvider = ({
     },
     [
       apiBase,
+      appSessionId,
       ensureAccessToken,
       isAuth0Authenticated,
       location.pathname,
@@ -552,7 +585,7 @@ export const AuthContextProvider = ({
   );
 
   const signOut = useCallback(async () => {
-    clearSessionCookie();
+    clearSession();
     setToken(null);
     setAppUser(null);
 
@@ -561,12 +594,13 @@ export const AuthContextProvider = ({
         returnTo: window.location.origin,
       },
     });
-  }, [clearSessionCookie, logout]);
+  }, [clearSession, logout]);
 
   const dataValue = useMemo((): AuthContextData => {
     return {
       userId: appUser?.id ?? null,
       token,
+      appSessionId,
       expiresAt: null,
       role: appUser?.role ?? null,
       error,
@@ -577,6 +611,7 @@ export const AuthContextProvider = ({
       appUser,
     };
   }, [
+    appSessionId,
     appUser,
     error,
     isAuth0Authenticated,

@@ -29,6 +29,7 @@ export type AuthAppUser = Omit<GetAuthMeData, 'role'> & {
 export type AuthContextData = {
   userId: string | null;
   token: string | null;
+  appSessionId: string | null;
   expiresAt: number | null;
   error: string | null;
   role: UserRole | null;

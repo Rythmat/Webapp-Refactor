@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useUpdateEffect } from 'react-use';
 import SuperJSON from 'superjson';
+import { emitSessionError, parseSessionError } from '@/auth/session-errors';
 import { Env } from '@/constants/env';
 import { HttpClient, Api } from './musicAtlas.generated';
 
@@ -32,12 +33,28 @@ const DefaultConfig = {
 const getClient = (params?: { token: string | null }) => {
   const { token = null } = params ?? {};
 
-  return new HttpClient({
+  const client = new HttpClient({
     ...DefaultConfig,
     headers: {
       Authorization: token ? `Bearer ${token}` : undefined,
     },
   });
+
+  // Intercept 401 responses to detect app-session errors
+  client.instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error?.response?.status === 401) {
+        const sessionError = parseSessionError(error.response.data);
+        if (sessionError) {
+          emitSessionError(sessionError);
+        }
+      }
+      return Promise.reject(error);
+    },
+  );
+
+  return client;
 };
 
 export const useGlobalMusicAtlas = (params?: { token: string | null }) => {

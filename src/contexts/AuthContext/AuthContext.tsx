@@ -10,8 +10,13 @@ import {
 } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
+import {
+  onSessionError,
+  type SessionErrorPayload,
+} from '@/auth/session-errors';
 import { Env } from '@/constants/env';
 import { ProfileRoutes } from '@/constants/routes';
+import { showError } from '@/util/toast';
 import { useGlobalMusicAtlas } from '../MusicAtlasContext/api';
 import {
   AuthAppUser,
@@ -91,6 +96,14 @@ const mapMe = (value: unknown): AuthAppUser | null => {
   };
 };
 
+/** Messages shown to the user based on session error type. */
+const SESSION_ERROR_MESSAGES: Record<string, string> = {
+  SESSION_REPLACED:
+    'You were signed out because your account was used on another device.',
+  SESSION_EXPIRED: 'Your session expired due to inactivity.',
+  SESSION_INVALID: 'Your session is invalid. Please sign in again.',
+};
+
 export const AuthContext = createContext<AuthContextValue>({
   userId: null,
   token: null,
@@ -122,6 +135,8 @@ export const AuthContextProvider = ({
   const [appUser, setAppUser] = useState<AuthAppUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isTokenLoading, setIsTokenLoading] = useState(false);
+  /** Guard to prevent multiple simultaneous session-error logouts */
+  const isSessionLogoutInProgressRef = useRef(false);
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -160,6 +175,51 @@ export const AuthContextProvider = ({
     [apiBase],
   );
 
+  const clearSessionCookie = useCallback(() => {
+    void fetch(`${apiBase}/auth/session`, {
+      method: 'DELETE',
+      credentials: 'include',
+    }).catch(() => undefined);
+  }, [apiBase]);
+
+  /**
+   * Hard logout: clears local state, clears backend session cookie, and
+   * redirects to Auth0 logout. Optionally shows a user-facing message.
+   */
+  const hardLogout = useCallback(
+    async (message?: string) => {
+      if (isSessionLogoutInProgressRef.current) return;
+      isSessionLogoutInProgressRef.current = true;
+
+      clearSessionCookie();
+      setToken(null);
+      setAppUser(null);
+
+      if (message) {
+        showError(message);
+      }
+
+      try {
+        await logout({
+          logoutParams: {
+            returnTo: window.location.origin,
+          },
+        });
+      } finally {
+        isSessionLogoutInProgressRef.current = false;
+      }
+    },
+    [clearSessionCookie, logout],
+  );
+
+  // Listen for session errors emitted by the API interceptor
+  useEffect(() => {
+    return onSessionError((payload: SessionErrorPayload) => {
+      const message = SESSION_ERROR_MESSAGES[payload.code] ?? payload.message;
+      void hardLogout(message);
+    });
+  }, [hardLogout]);
+
   const syncAuth0Token = useCallback(async (): Promise<string | null> => {
     try {
       setIsTokenLoading(true);
@@ -178,9 +238,24 @@ export const AuthContextProvider = ({
       setAppUser(null);
 
       const sdkError = caught as AuthenticationError | null;
-      if (sdkError?.error === 'login_required') {
-        // Do not force a new login loop during startup token probing.
-        setError(null);
+
+      // Hard logout on login_required, consent_required, or missing_refresh_token
+      // These indicate that Auth0 can no longer silently provide a token.
+      const hardLogoutErrors = new Set([
+        'login_required',
+        'consent_required',
+        'missing_refresh_token',
+        'invalid_grant',
+      ]);
+
+      if (sdkError?.error && hardLogoutErrors.has(sdkError.error)) {
+        // Only force hard logout if the user was previously authenticated
+        // (avoid redirect loops during initial startup probing)
+        if (isAuth0Authenticated && token) {
+          void hardLogout('Your session expired due to inactivity.');
+        } else {
+          setError(null);
+        }
         return null;
       }
 
@@ -190,7 +265,13 @@ export const AuthContextProvider = ({
     } finally {
       setIsTokenLoading(false);
     }
-  }, [getAccessTokenSilently, persistSessionToken]);
+  }, [
+    getAccessTokenSilently,
+    hardLogout,
+    isAuth0Authenticated,
+    persistSessionToken,
+    token,
+  ]);
 
   const ensureAccessToken = useCallback(async (): Promise<string | null> => {
     if (token) return token;
@@ -471,11 +552,7 @@ export const AuthContextProvider = ({
   );
 
   const signOut = useCallback(async () => {
-    void fetch(`${apiBase}/auth/session`, {
-      method: 'DELETE',
-      credentials: 'include',
-    }).catch(() => undefined);
-
+    clearSessionCookie();
     setToken(null);
     setAppUser(null);
 
@@ -484,7 +561,7 @@ export const AuthContextProvider = ({
         returnTo: window.location.origin,
       },
     });
-  }, [apiBase, logout]);
+  }, [clearSessionCookie, logout]);
 
   const dataValue = useMemo((): AuthContextData => {
     return {

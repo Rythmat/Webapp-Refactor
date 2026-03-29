@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
+import SuperJSON from 'superjson';
 import { setCurrentAppSessionId } from '@/auth/app-session-store';
 import {
   onSessionError,
@@ -181,7 +182,9 @@ export const AuthContextProvider = ({
           credentials: 'include',
         });
         if (response.ok) {
-          const data = (await response.json()) as {
+          const text = await response.text();
+          // Backend uses SuperJSON serialization — parse accordingly
+          const data = SuperJSON.parse(text) as {
             appSessionId?: string;
           };
           return data.appSessionId ?? null;

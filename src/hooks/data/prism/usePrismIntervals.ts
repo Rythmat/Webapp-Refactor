@@ -13,7 +13,9 @@ export const usePrismIntervals = () => {
   return useQuery({
     queryKey: ['prism', 'intervals'],
     queryFn: async () => {
-      const res = await musicAtlas.http.request<{ intervals: Record<string, IntervalInfo> }>({
+      const res = await musicAtlas.http.request<{
+        intervals: Record<string, IntervalInfo>;
+      }>({
         path: `/prism/intervals`,
         method: 'GET',
         format: 'json',

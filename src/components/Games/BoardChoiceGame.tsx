@@ -360,7 +360,10 @@ export function BoardChoiceGame({
     if (!selectedOption) return;
     setSessionTotal((prev) => prev + 1);
     if (selectedOption.isCorrect) setSessionSuccessful((prev) => prev + 1);
-    onComplete?.();
+    if (onComplete) {
+      onComplete();
+      return;
+    }
     startNewRound(initialChord);
   }, [initialChord, onComplete, selectedOption, startNewRound]);
 

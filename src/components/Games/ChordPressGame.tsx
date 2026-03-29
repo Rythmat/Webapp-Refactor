@@ -334,7 +334,10 @@ export function ChordPressGame({
     if (!checked) return;
     setSessionTotal((prev) => prev + 1);
     if (isCorrect) setSessionSuccessful((prev) => prev + 1);
-    onComplete?.();
+    if (onComplete) {
+      onComplete();
+      return;
+    }
     if (targetNotes && targetNotes.length > 0) {
       resetSelection();
       return;

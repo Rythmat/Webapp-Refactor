@@ -44,6 +44,7 @@ export function decodeToken(
       role: null,
       isAuth0Loading: false,
       isAuth0Authenticated: false,
+      appSessionId: null,
       appUser: null,
       isBootstrapLoading: false,
     };

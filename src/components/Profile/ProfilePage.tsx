@@ -442,15 +442,15 @@ export const ProfilePage: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Logo — bottom of page */}
-      <div className="mt-auto flex justify-center py-4">
-        <img
-          src="/music-atlas-moving-logo.gif"
-          alt="Music Atlas"
-          className="h-24"
-        />
+        {/* Logo — bottom of page, visible only when scrolled down */}
+        <div className="mt-auto flex justify-center py-4">
+          <img
+            src="/music-atlas-moving-logo.gif"
+            alt="Music Atlas"
+            className="h-24"
+          />
+        </div>
       </div>
     </div>
   );

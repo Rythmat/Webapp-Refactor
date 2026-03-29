@@ -368,8 +368,9 @@ export function BoardChoiceGame({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        minHeight: '100vh',
+        height: '100vh',
         boxSizing: 'border-box',
+        padding: '12px 0',
       }}
     >
       {/* Header */}

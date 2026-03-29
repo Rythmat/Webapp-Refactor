@@ -361,7 +361,6 @@ export function BoardChoiceGame({
     startNewRound(initialChord);
   }, [initialChord, onComplete, selectedOption, startNewRound]);
 
-
   return (
     <div className={className}>
       {/* Header */}

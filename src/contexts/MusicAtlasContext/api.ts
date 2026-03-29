@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useUpdateEffect } from 'react-use';
+import { useMemo } from 'react';
 import SuperJSON from 'superjson';
 import { emitSessionError, parseSessionError } from '@/auth/session-errors';
 import { Env } from '@/constants/env';
@@ -71,13 +70,10 @@ const getClient = (params?: ClientParams) => {
 export const useGlobalMusicAtlas = (params?: Partial<ClientParams>) => {
   const { token = null, appSessionId = null } = params ?? {};
 
-  const [musicAtlas, setMusicAtlas] = useState(
+  // useMemo so the client is available synchronously during the same render
+  // that triggers queries — avoids race conditions with useUpdateEffect.
+  return useMemo(
     () => new Api(getClient({ token, appSessionId })),
+    [token, appSessionId],
   );
-
-  useUpdateEffect(() => {
-    setMusicAtlas(new Api(getClient({ token, appSessionId })));
-  }, [token, appSessionId]);
-
-  return musicAtlas;
 };

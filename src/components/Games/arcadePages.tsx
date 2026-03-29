@@ -59,128 +59,25 @@ export function FoliPage() {
 }
 
 export function BoardChoicePage() {
-  const navigate = useNavigate();
-  const [done, setDone] = useState(false);
-  const [key, setKey] = useState(0);
-
-  const handleComplete = useCallback(() => {
-    setDone(true);
-  }, []);
-
-  const handlePlayAgain = useCallback(() => {
-    setDone(false);
-    setKey((k) => k + 1);
-  }, []);
-
   return (
     <GameShell>
-      {done ? (
-        <div className="flex flex-col items-center gap-4 pt-12">
-          <h2
-            className="text-2xl font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            Round Complete!
-          </h2>
-          <div className="flex gap-3">
-            <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate(GameRoutes.root())}
-            >
-              Back to Arcade
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <BoardChoiceGame key={key} onComplete={handleComplete} />
-      )}
+      <BoardChoiceGame className="mx-auto max-w-5xl" />
     </GameShell>
   );
 }
 
 export function ChordConnectionPage() {
-  const navigate = useNavigate();
-  const [done, setDone] = useState(false);
-  const [key, setKey] = useState(0);
-
-  const handleComplete = useCallback((_result: { success: boolean }) => {
-    setDone(true);
-  }, []);
-
-  const handlePlayAgain = useCallback(() => {
-    setDone(false);
-    setKey((k) => k + 1);
-  }, []);
-
   return (
     <GameShell>
-      {done ? (
-        <div className="flex flex-col items-center gap-4 pt-12">
-          <h2
-            className="text-2xl font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            Round Complete!
-          </h2>
-          <div className="flex gap-3">
-            <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate(GameRoutes.root())}
-            >
-              Back to Arcade
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <ChordConnectionGame key={key} onComplete={handleComplete} />
-      )}
+      <ChordConnectionGame className="mx-auto max-w-5xl" />
     </GameShell>
   );
 }
 
 export function ChordPressPage() {
-  const navigate = useNavigate();
-  const [done, setDone] = useState(false);
-  const [key, setKey] = useState(0);
-
-  const handleComplete = useCallback(() => {
-    setDone(true);
-  }, []);
-
-  const handlePlayAgain = useCallback(() => {
-    setDone(false);
-    setKey((k) => k + 1);
-  }, []);
-
   return (
     <GameShell>
-      {done ? (
-        <div className="flex flex-col items-center gap-4 pt-12">
-          <h2
-            className="text-2xl font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            Round Complete!
-          </h2>
-          <div className="flex gap-3">
-            <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate(GameRoutes.root())}
-            >
-              Back to Arcade
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <ChordPressGame
-          key={key}
-          enableComputerKeyboard
-          onComplete={handleComplete}
-        />
-      )}
+      <ChordPressGame className="mx-auto max-w-5xl" enableComputerKeyboard />
     </GameShell>
   );
 }

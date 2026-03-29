@@ -326,7 +326,10 @@ export function ChordConnectionGame({
     if (!attachmentsFilled) return;
     setSessionTotal((prev) => prev + 1);
     if (allMatchesCorrect) setSessionSuccessful((prev) => prev + 1);
-    onComplete?.({ success: allMatchesCorrect });
+    if (onComplete) {
+      onComplete({ success: allMatchesCorrect });
+      return;
+    }
     setRound(
       createRound({
         chordPool,

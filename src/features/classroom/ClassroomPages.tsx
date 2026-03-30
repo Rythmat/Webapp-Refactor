@@ -55,12 +55,6 @@ const ClassroomHomePage = lazy(() =>
   })),
 );
 
-// const GamePlayer = lazy(() =>
-//   import('@/components/Games/GamePlayer').then(({ GamePlayer }) => ({
-//     default: GamePlayer,
-//   })),
-// );
-
 const ChromaPage = lazy(() =>
   import('@/components/Games/arcadePages').then(({ ChromaPage }) => ({
     default: ChromaPage,

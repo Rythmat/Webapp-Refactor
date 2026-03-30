@@ -16,6 +16,7 @@ import {
   onSessionError,
   type SessionErrorPayload,
 } from '@/auth/session-errors';
+import { connectSessionSSE } from '@/auth/session-sse';
 import { Env } from '@/constants/env';
 import { ProfileRoutes } from '@/constants/routes';
 import { showError } from '@/util/toast';
@@ -246,6 +247,14 @@ export const AuthContextProvider = ({
       void hardLogout(message);
     });
   }, [hardLogout]);
+
+  // Open an SSE connection to receive real-time session termination events.
+  // The SSE service emits through the same session-errors bus, so the
+  // listener above handles logout + popup automatically.
+  useEffect(() => {
+    if (!token || !appSessionId) return;
+    return connectSessionSSE(token, appSessionId);
+  }, [token, appSessionId]);
 
   const syncAuth0Token = useCallback(async (): Promise<string | null> => {
     try {

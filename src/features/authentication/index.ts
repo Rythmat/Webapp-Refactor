@@ -1,1 +1,0 @@
-export { authPages } from './AuthPages';

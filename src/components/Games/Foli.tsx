@@ -8,9 +8,9 @@ import {
   useState,
 } from 'react';
 import {
-  startPianoSampler,
-  triggerPianoAttackRelease,
-} from '@/audio/pianoSampler';
+  startEpSampler,
+  triggerEpAttackRelease,
+} from '@/audio/epSampler';
 import { usePrismRhythms } from '@/hooks/data/prism/usePrismRhythms';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -360,7 +360,7 @@ export default function Foli() {
   // ── Play the demonstration sequence ───────────────────────────────────
 
   const playSequence = useCallback(async (seq: RhythmHit[]) => {
-    await startPianoSampler();
+    await startEpSampler();
     for (let i = 0; i < seq.length; i++) {
       if (phaseRef.current !== 'listening') return;
       const [startTick] = seq[i];
@@ -371,7 +371,7 @@ export default function Foli() {
       if (phaseRef.current !== 'listening') return;
 
       setPillarGlow('hit');
-      triggerPianoAttackRelease(HIT_NOTE, HIT_DURATION_S, HIT_VELOCITY);
+      triggerEpAttackRelease(HIT_NOTE, HIT_DURATION_S, HIT_VELOCITY);
       // Hold the flash briefly then dim
       await wait(FLASH_HOLD_MS);
       if (phaseRef.current !== 'listening') return;
@@ -408,8 +408,8 @@ export default function Foli() {
   const handleHit = useCallback(async () => {
     if (phaseRef.current !== 'input') return;
 
-    await startPianoSampler();
-    triggerPianoAttackRelease(HIT_NOTE, HIT_DURATION_S, HIT_VELOCITY);
+    await startEpSampler();
+    triggerEpAttackRelease(HIT_NOTE, HIT_DURATION_S, HIT_VELOCITY);
 
     const now = performance.now();
     // Record first hit as time-zero

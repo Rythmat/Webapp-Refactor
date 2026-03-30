@@ -6,9 +6,9 @@ import {
   useCallback,
 } from 'react';
 import {
-  startPianoSampler,
-  triggerPianoAttackRelease,
-} from '@/audio/pianoSampler';
+  startEpSampler,
+  triggerEpAttackRelease,
+} from '@/audio/epSampler';
 import { useStore } from '@/daw/store';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -391,10 +391,10 @@ export default function Chroma() {
   // ── Sequence playback ───────────────────────────────────────────────────
 
   const playSeq = useCallback(async (seq: number[]) => {
-    await startPianoSampler();
+    await startEpSampler();
     for (let i = 0; i < seq.length; i++) {
       setPlayingIdx(i);
-      await triggerPianoAttackRelease(
+      await triggerEpAttackRelease(
         CHROMATIC_NOTES[seq[i]] + '4',
         NOTE_DURATION_S,
         0.85,
@@ -419,7 +419,7 @@ export default function Chroma() {
 
       // Play audio for the chosen interval
       const chosenNote = (root + chosenInterval) % 12;
-      triggerPianoAttackRelease(
+      triggerEpAttackRelease(
         CHROMATIC_NOTES[chosenNote] + '4',
         NOTE_DURATION_S,
         0.75,

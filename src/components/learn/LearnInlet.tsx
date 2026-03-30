@@ -655,28 +655,6 @@ const KEY_LABELS = [
   'F',
 ];
 
-// interface FilterCheckboxProps {
-//   label: string;
-//   checked?: boolean;
-// }
-
-// const FilterCheckbox: React.FC<FilterCheckboxProps> = ({ label, checked }) => {
-//   const [isChecked, setIsChecked] = useState(!!checked);
-
-//   return (
-//     <div
-//       className="flex items-center gap-3 p-1 cursor-pointer hover:bg-white/5 rounded transition-colors group"
-//       onClick={() => setIsChecked((prev) => !prev)}
-//     >
-//       <div
-//         className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isChecked ? "bg-white border-white" : "border-gray-600 group-hover:border-gray-400"}`}
-//       >
-//         {isChecked && <Check size={10} className="text-black" />}
-//       </div>
-//       <span className={`text-sm ${isChecked ? "text-white" : "text-gray-400 group-hover:text-gray-200"}`}>{label}</span>
-//     </div>
-//   );
-// };
 
 interface CollapsibleSectionProps {
   title: string;
@@ -860,7 +838,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       setListPanelHeight(undefined);
     }
   }, [expandedMode]);
-  // const [showFilter, setShowFilter] = useState(false);
   const navigate = useNavigate();
   const { data: progressSummary } = useProgressSummary();
 
@@ -1278,12 +1255,12 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
 
   return (
     <div
-      className="learn-root relative flex h-full flex-col"
-      style={{ backgroundColor: 'var(--color-bg)' }}
+      className="relative flex h-full flex-col"
+      style={{ backgroundColor: '#191919' }}
     >
       <MeshGradientBg />
       <HeaderBar title="Learn " />
-      <div className="relative flex flex-1 flex-col overflow-y-auto px-8 pb-12">
+      <div className="learn-root relative flex flex-1 flex-col overflow-y-auto px-8 pb-12">
         <div className="mb-8 flex flex-col gap-4">
           <div
             className="glass-panel-sm flex w-fit items-center gap-1 rounded-lg p-1"
@@ -1328,33 +1305,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
             style={{ borderBottom: '1px solid var(--color-border)' }}
           />
         </div>
-
-        {/* {showFilter && (
-          <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 absolute top-[150px] left-8 right-8 z-20 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
-            <div className="flex justify-between items-start mb-4 pb-2 border-b border-white/5">
-              <h3 className="text-sm font-medium text-gray-200">Filter</h3>
-              <X size={16} className="text-gray-500 cursor-pointer hover:text-white" onClick={() => setShowFilter(false)} />
-            </div>
-            <div className="grid grid-cols-4 gap-4 h-64 overflow-y-auto custom-scrollbar">
-              <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
-                <FilterCheckbox label="Diatonic Modes" />
-                <FilterCheckbox label="Relative Modes" />
-              </div>
-              <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
-                <FilterCheckbox label="Lydian" />
-                <FilterCheckbox label="Dorian" />
-              </div>
-              <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
-                {["C", "G", "D", "A"].map((key) => (
-                  <FilterCheckbox key={key} label={key}  />
-                ))}
-              </div>
-              <div className="flex flex-col gap-1">
-                <FilterCheckbox label="7th Chords"  />
-              </div>
-            </div>
-          </div>
-        )} */}
 
         <div className="flex-1 overflow-y-auto">
           {subTab === 'Theory' ? (

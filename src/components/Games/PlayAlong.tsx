@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import {
-  releaseAllPianoNotes,
-  startPianoSampler,
-  triggerPianoAttack,
-  triggerPianoRelease,
-} from '@/audio/pianoSampler';
+  releaseAllEpNotes,
+  startEpSampler,
+  triggerEpAttack,
+  triggerEpRelease,
+} from '@/audio/epSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
@@ -104,7 +104,7 @@ export const PlayAlong = ({
       return;
     }
     try {
-      await startPianoSampler();
+      await startEpSampler();
       hasStartedAudioContextRef.current = true;
     } catch (error) {
       console.warn('Failed to start Tone.js audio context', error);
@@ -128,7 +128,7 @@ export const PlayAlong = ({
   }, [firstMetronomePlayer, metronomePlayer]);
 
   const releaseActiveNotes = useCallback(() => {
-    void releaseAllPianoNotes();
+    void releaseAllEpNotes();
     activeMidiSetRef.current = new Set<number>();
     setActiveMidis([]);
     setKeyboardPlayingNotes([]);
@@ -142,12 +142,12 @@ export const PlayAlong = ({
 
   // Triggers the on state of the syntheizer with a specified note and a given velocity
   const triggerSynthAttack = useCallback((name: string, velocity?: number) => {
-    void triggerPianoAttack(name, velocity, Tone.now());
+    void triggerEpAttack(name, velocity, Tone.now());
   }, []);
 
   // Triggers the off state of the synthesizer for the specified note
   const triggerSynthRelease = useCallback((name: string) => {
-    void triggerPianoRelease(name, Tone.now());
+    void triggerEpRelease(name, Tone.now());
   }, []);
 
   const playMetronome = useCallback(
@@ -346,7 +346,7 @@ export const PlayAlong = ({
       }
       // Only play sampler sound for MIDI input — acoustic piano already produces sound
       if (event.source !== 'audio') {
-        void startPianoSampler();
+        void startEpSampler();
         if (!activeMidiSetRef.current.has(midi)) {
           const noteName = Tone.Frequency(midi, 'midi').toNote();
           triggerSynthAttack(noteName, event.velocity);
@@ -451,7 +451,7 @@ export const PlayAlong = ({
     if (isPlaying) {
       return;
     }
-    void releaseAllPianoNotes();
+    void releaseAllEpNotes();
     activeMidiSetRef.current = new Set<number>();
     setActiveMidis([]);
     setKeyboardPlayingNotes([]);

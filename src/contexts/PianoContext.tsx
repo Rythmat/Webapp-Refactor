@@ -1,9 +1,9 @@
 import { createContext, useState, useContext } from 'react';
 import * as Tone from 'tone';
 import {
-  startPianoSampler,
-  triggerPianoAttackRelease,
-} from '@/audio/pianoSampler';
+  startEpSampler,
+  triggerEpAttackRelease,
+} from '@/audio/epSampler';
 import { PlaybackEvent } from '@/contexts/PlaybackContext';
 
 type PianoContextType = {
@@ -21,7 +21,7 @@ const PianoProvider = ({ children }: { children: React.ReactNode }) => {
 
   const playNote = async (note: number) => {
     try {
-      await startPianoSampler();
+      await startEpSampler();
 
       // Convert MIDI note number to note name
       const noteName = Tone.Frequency(note, 'midi').toNote();
@@ -45,7 +45,7 @@ const PianoProvider = ({ children }: { children: React.ReactNode }) => {
       ]);
 
       // Play the note with a duration of 1 second
-      await triggerPianoAttackRelease(noteName, duration, 0.8);
+      await triggerEpAttackRelease(noteName, duration, 0.8);
 
       // Remove the note from state after it finishes playing
       setTimeout(() => {

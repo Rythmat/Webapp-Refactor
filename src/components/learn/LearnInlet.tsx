@@ -655,7 +655,6 @@ const KEY_LABELS = [
   'F',
 ];
 
-
 interface CollapsibleSectionProps {
   title: string;
   children: React.ReactNode;

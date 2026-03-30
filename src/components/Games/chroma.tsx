@@ -5,10 +5,7 @@ import {
   useRef,
   useCallback,
 } from 'react';
-import {
-  startEpSampler,
-  triggerEpAttackRelease,
-} from '@/audio/epSampler';
+import { startEpSampler, triggerEpAttackRelease } from '@/audio/epSampler';
 import { useStore } from '@/daw/store';
 
 // ── Constants ─────────────────────────────────────────────────────────────────

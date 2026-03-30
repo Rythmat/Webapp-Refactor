@@ -7,10 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  startEpSampler,
-  triggerEpAttackRelease,
-} from '@/audio/epSampler';
+import { startEpSampler, triggerEpAttackRelease } from '@/audio/epSampler';
 import { usePrismRhythms } from '@/hooks/data/prism/usePrismRhythms';
 
 // ── Constants ─────────────────────────────────────────────────────────────────

@@ -129,17 +129,19 @@ export const ArcadeInlet: FC = () => {
     >
       <HeaderBar title="Arcade" />
       <div className="learn-root flex-1 overflow-y-auto px-8 pb-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[200px]">
-        {ARCADE_GAMES_DATA.map((game, i) => (
-          <ArcadeGameCard
-            key={i}
-            {...game}
-            onClick={
-              game.route ? () => navigate(GameRoutes[game.route!]()) : undefined
-            }
-          />
-        ))}
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[200px]">
+          {ARCADE_GAMES_DATA.map((game, i) => (
+            <ArcadeGameCard
+              key={i}
+              {...game}
+              onClick={
+                game.route
+                  ? () => navigate(GameRoutes[game.route!]())
+                  : undefined
+              }
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

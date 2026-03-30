@@ -1,9 +1,6 @@
 import { createContext, useState, useContext } from 'react';
 import * as Tone from 'tone';
-import {
-  startEpSampler,
-  triggerEpAttackRelease,
-} from '@/audio/epSampler';
+import { startEpSampler, triggerEpAttackRelease } from '@/audio/epSampler';
 import { PlaybackEvent } from '@/contexts/PlaybackContext';
 
 type PianoContextType = {

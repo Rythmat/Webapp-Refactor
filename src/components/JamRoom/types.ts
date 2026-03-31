@@ -27,6 +27,7 @@ export interface JamNoteOffMessage {
   instrument: JamInstrument;
   midi: number;
   velocity?: number;
+  gmProgram?: number;
   userId: string;
   color: string;
 }

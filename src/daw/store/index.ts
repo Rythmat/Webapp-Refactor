@@ -43,19 +43,20 @@ export type AllSlices = TransportSlice &
 
 export const useStore = create<AllSlices>()(
   subscribeWithSelector(
-    (collabMiddleware as any)((...a: any[]) => ({
-      ...createTransportSlice(...a),
-      ...createTracksSlice(...a),
-      ...createMidiDeviceSlice(...a),
-      ...createPrismSlice(...a),
-      ...createUiSlice(...a),
-      ...createMasteringSlice(...a),
-      ...createMarkersSlice(...a),
-      ...createAudioIOSlice(...a),
-      ...createPrismSuggestionSlice(...a),
-      ...createUnisonSlice(...a),
-      ...createMusicIntelligenceSlice(...a),
-      ...createCollabSlice(...a),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (collabMiddleware as any)((set: any, get: any, api: any) => ({
+      ...createTransportSlice(set, get, api),
+      ...createTracksSlice(set, get, api),
+      ...createMidiDeviceSlice(set, get, api),
+      ...createPrismSlice(set, get, api),
+      ...createUiSlice(set, get, api),
+      ...createMasteringSlice(set, get, api),
+      ...createMarkersSlice(set, get, api),
+      ...createAudioIOSlice(set, get, api),
+      ...createPrismSuggestionSlice(set, get, api),
+      ...createUnisonSlice(set, get, api),
+      ...createMusicIntelligenceSlice(set, get, api),
+      ...createCollabSlice(set, get, api),
     })),
   ),
 );

@@ -31,11 +31,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { roomId, accept } = req.body ?? {};
   if (!roomId || typeof accept !== 'boolean') {
-    res
-      .status(400)
-      .json({
-        error: 'Invalid body: need roomId (string) and accept (boolean)',
-      });
+    res.status(400).json({
+      error: 'Invalid body: need roomId (string) and accept (boolean)',
+    });
     return;
   }
 

@@ -42,7 +42,7 @@ export function PresenceCursors({
           >
             {/* Small triangle indicator at the top */}
             <div
-              className="absolute -left-[4px] top-0"
+              className="absolute -left-1 top-0"
               style={{
                 width: 0,
                 height: 0,

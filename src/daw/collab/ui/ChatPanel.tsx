@@ -40,7 +40,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
 
     const msg: ChatMessage = {
       id: crypto.randomUUID(),
-      userId: '', // TODO: populate from Auth0
+      userId: '',
       userName: 'You',
       text,
       timestamp: Date.now(),

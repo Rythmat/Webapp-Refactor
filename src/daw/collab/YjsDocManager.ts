@@ -321,7 +321,7 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
     const project = getYProject(doc);
     project.set('name', state.projectName);
     project.set('composerName', state.composerName);
-    project.set('version', 1);
+    project.set('version', String(1));
 
     // Transport (persistent settings only)
     const transport = getYTransport(doc);

@@ -64,7 +64,7 @@ export function useJamRoom() {
 // ── Provider ─────────────────────────────────────────────────────────────
 
 const PARTYKIT_HOST =
-  (import.meta as Record<string, Record<string, string>>).env
+  (import.meta as unknown as Record<string, Record<string, string>>).env
     ?.VITE_PARTYKIT_HOST ?? 'localhost:1999';
 
 interface JamRoomProviderProps {
@@ -77,7 +77,7 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
   const providerRef = useRef<YPartyKitProvider | null>(null);
   const docRef = useRef<Y.Doc | null>(null);
   const rttRef = useRef(new RttMeasurer());
-  const colorRef = useRef(PRESENCE_COLORS[0]);
+  const colorRef = useRef<string>(PRESENCE_COLORS[0]);
   const noteListenersRef = useRef<Set<(msg: JamNoteMessage) => void>>(
     new Set(),
   );
@@ -166,7 +166,7 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
 
       // Assign color from client ID
       const colorIndex = provider.awareness.clientID % PRESENCE_COLORS.length;
-      colorRef.current = PRESENCE_COLORS[colorIndex];
+      colorRef.current = PRESENCE_COLORS[colorIndex] as string;
 
       // Set local presence
       const { localInstrument: instrument, localGmProgram: gmProgram } =

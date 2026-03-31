@@ -5,7 +5,7 @@
 import type { CollabRole, RoomMetadata } from './types';
 
 const API_BASE =
-  (import.meta as Record<string, Record<string, string>>).env
+  (import.meta as unknown as Record<string, Record<string, string>>).env
     ?.VITE_API_BASE_URL ?? 'https://api-refactor.vercel.app';
 
 async function apiFetch<T>(

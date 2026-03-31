@@ -47,7 +47,7 @@ export function useJamMidi(
 
   // MIDI hardware — attach once on mount, gate only network sends inside handler
   useEffect(() => {
-    const nav = navigator as NavigatorWithMIDI;
+    const nav = navigator as unknown as NavigatorWithMIDI;
     if (!nav.requestMIDIAccess) return;
 
     let midiAccess: MIDIAccess | null = null;

@@ -192,7 +192,7 @@ class SpinnerEngine {
 
     // Distortion
     this.distortionNode = this.ctx.createWaveShaper();
-    this.distortionNode.curve = this.makeDistortionCurve(0);
+    this.distortionNode.curve = this.makeDistortionCurve(0) as Float32Array<ArrayBuffer>;
     this.distortionNode.oversample = '4x';
     this.distortionGain = this.ctx.createGain();
     this.distortionGain.gain.value = 0;
@@ -208,7 +208,7 @@ class SpinnerEngine {
         (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.5));
   }
 
-  private makeDistortionCurve(amount: number): Float32Array {
+  private makeDistortionCurve(amount: number) {
     const k = amount;
     const samples = 44100;
     const curve = new Float32Array(samples);
@@ -306,7 +306,7 @@ class SpinnerEngine {
 
     // Distortion
     const distVal = get('distortion') / 100;
-    this.distortionNode.curve = this.makeDistortionCurve(distVal * 400);
+    this.distortionNode.curve = this.makeDistortionCurve(distVal * 400) as Float32Array<ArrayBuffer>;
     this.distortionGain.gain.setTargetAtTime(
       distVal * 0.5,
       this.ctx.currentTime,

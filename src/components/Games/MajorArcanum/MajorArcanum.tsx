@@ -455,7 +455,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
   const handleStart = useCallback(async () => {
     setUiState((prev) => ({ ...prev, midiStatus: 'Requesting Access...' }));
     // Bug fix #2: removed sysex: true — not needed, triggers stricter prompt
-    const nav = navigator as NavigatorWithMIDI;
+    const nav = navigator as unknown as NavigatorWithMIDI;
     if (nav.requestMIDIAccess) {
       try {
         const access = await nav.requestMIDIAccess();

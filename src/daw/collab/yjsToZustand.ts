@@ -92,7 +92,7 @@ export function observeYjsAndPushToStore(
   // tracks array from Yjs. This is simpler than surgical per-field updates
   // and fast enough for the typical track count (<20).
   const yTracks = getYTracks(doc);
-  const onTracks = (_events: Y.YEvent<unknown>[], tx: Y.Transaction) => {
+  const onTracks = (_events: Y.YEvent<any>[], tx: Y.Transaction) => {
     if (tx.origin === ORIGIN_LOCAL || isSuppressed()) return;
     const tracks: Track[] = yTracks
       .toArray()
@@ -104,7 +104,7 @@ export function observeYjsAndPushToStore(
 
   // ── Chord Regions ──
   const yChordRegions = getYChordRegions(doc);
-  const onChordRegions = (_events: Y.YEvent<unknown>[], tx: Y.Transaction) => {
+  const onChordRegions = (_events: Y.YEvent<any>[], tx: Y.Transaction) => {
     if (tx.origin === ORIGIN_LOCAL || isSuppressed()) return;
     const chordRegions: ChordRegion[] = yChordRegions
       .toArray()
@@ -116,7 +116,7 @@ export function observeYjsAndPushToStore(
 
   // ── Prism ──
   const yPrism = getYPrism(doc);
-  const onPrism = (events: Y.YEvent<unknown>[], tx: Y.Transaction) => {
+  const onPrism = (events: Y.YEvent<any>[], tx: Y.Transaction) => {
     if (tx.origin === ORIGIN_LOCAL || isSuppressed()) return;
     const patch: Partial<AllSlices> = {};
     for (const event of events) {
@@ -133,7 +133,7 @@ export function observeYjsAndPushToStore(
 
   // ── Markers ──
   const yMarkers = getYMarkers(doc);
-  const onMarkers = (_events: Y.YEvent<unknown>[], tx: Y.Transaction) => {
+  const onMarkers = (_events: Y.YEvent<any>[], tx: Y.Transaction) => {
     if (tx.origin === ORIGIN_LOCAL || isSuppressed()) return;
     const markers: Marker[] = yMarkers
       .toArray()
@@ -145,7 +145,7 @@ export function observeYjsAndPushToStore(
 
   // ── Mastering ──
   const yMastering = getYMastering(doc);
-  const onMastering = (events: Y.YEvent<unknown>[], tx: Y.Transaction) => {
+  const onMastering = (events: Y.YEvent<any>[], tx: Y.Transaction) => {
     if (tx.origin === ORIGIN_LOCAL || isSuppressed()) return;
     const patch: Partial<AllSlices> = {};
     for (const event of events) {
@@ -207,7 +207,7 @@ export function observeYjsAndPushToStore(
 
   // ── Lead Sheet ──
   const yLeadSheet = getYLeadSheet(doc);
-  const onLeadSheet = (events: Y.YEvent<unknown>[], tx: Y.Transaction) => {
+  const onLeadSheet = (events: Y.YEvent<any>[], tx: Y.Transaction) => {
     if (tx.origin === ORIGIN_LOCAL || isSuppressed()) return;
     const patch: Partial<AllSlices> = {};
     for (const event of events) {

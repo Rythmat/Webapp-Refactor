@@ -65,7 +65,7 @@ export function useCollab() {
 // ── Provider ────────────────────────────────────────────────────────────
 
 const PARTYKIT_HOST =
-  (import.meta as Record<string, Record<string, string>>).env
+  (import.meta as unknown as Record<string, Record<string, string>>).env
     ?.VITE_PARTYKIT_HOST ?? 'localhost:1999';
 
 interface CollabProviderProps {

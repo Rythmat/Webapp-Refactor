@@ -664,7 +664,6 @@ export default function Chroma() {
     cancelRef.current = true;
     setCrystalLit(false);
     setCurrentQuestion(null);
-    setPlayingIdx(null);
     setCorrectAnswer(null);
     setFlashRed(false);
     setFlashGreen(false);

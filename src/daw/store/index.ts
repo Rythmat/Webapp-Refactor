@@ -43,7 +43,7 @@ export type AllSlices = TransportSlice &
 
 export const useStore = create<AllSlices>()(
   subscribeWithSelector(
-    collabMiddleware((...a) => ({
+    (collabMiddleware as any)((...a: any[]) => ({
       ...createTransportSlice(...a),
       ...createTracksSlice(...a),
       ...createMidiDeviceSlice(...a),

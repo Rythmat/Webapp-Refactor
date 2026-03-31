@@ -36,7 +36,7 @@ export interface MIDIMessageEvent extends Event {
   data: Uint8Array;
 }
 
-export interface NavigatorWithMIDI extends Navigator {
+export interface NavigatorWithMIDI {
   requestMIDIAccess?: (options?: MIDIOptions) => Promise<MIDIAccess>;
 }
 

@@ -19,6 +19,7 @@ import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
 import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
+import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
 
 // ── Props ────────────────────────────────────────────────────────────────
 interface TrackHeaderProps {
@@ -218,6 +219,7 @@ export const TrackHeader = memo(function TrackHeader({
           style={{ color: 'var(--color-text)' }}
           spellCheck={false}
         />
+        <PresenceTrackDots trackId={track.id} />
         <select
           value={track.trackRole}
           onChange={handleRoleChange}

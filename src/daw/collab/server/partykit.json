@@ -1,0 +1,6 @@
+{
+  "$schema": "https://www.partykit.io/schema.json",
+  "name": "music-atlas-collab",
+  "main": "party.ts",
+  "compatibilityDate": "2024-09-01"
+}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import { ionianChordColor } from '@/lib/ionianChordColor';
 
 type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
 
@@ -44,7 +45,7 @@ const PITCH_CLASS_NAMES = [
   'B',
 ];
 
-const DEFAULT_CHORD_POOL: ChordType[] = ['maj', 'min', 'dim', 'aug'];
+const DEFAULT_CHORD_POOL: ChordType[] = ['maj', 'min', 'dim'];
 
 type CreateRoundArgs = {
   chordPool: ChordType[];
@@ -56,6 +57,7 @@ type RoundState = {
   targetLabel: string;
   targetNotes: number[];
   options: ChordOption[];
+  optionColors: Map<string, string>;
 };
 
 function buildChord(rootMidi: number, type: ChordType) {
@@ -138,14 +140,15 @@ function normalizeNotes(notes: number[]) {
 function createCustomOptions(targetNotes: number[]): {
   options: ChordOption[];
   targetNotes: number[];
+  optionColors: Map<string, string>;
 } {
   const normalizedTarget = normalizeNotes(targetNotes);
   if (normalizedTarget.length === 0) {
-    return { options: [], targetNotes: [] };
+    return { options: [], targetNotes: [], optionColors: new Map() };
   }
   const root = normalizedTarget[0];
   if (!Number.isFinite(root)) {
-    return { options: [], targetNotes: [] };
+    return { options: [], targetNotes: [], optionColors: new Map() };
   }
   const targetSignature = intervalsSignature(root, normalizedTarget);
   const used = new Set<string>([signatureToString(normalizedTarget)]);
@@ -187,7 +190,12 @@ function createCustomOptions(targetNotes: number[]): {
     });
   }
 
-  return { options: shuffle(options), targetNotes: normalizedTarget };
+  const shuffled = shuffle(options);
+  const optionColors = new Map<string, string>();
+  for (const opt of shuffled) {
+    optionColors.set(opt.id, ionianChordColor(opt.midi));
+  }
+  return { options: shuffled, targetNotes: normalizedTarget, optionColors };
 }
 
 function createRound({
@@ -232,10 +240,16 @@ function createRound({
   }
 
   const targetNotes = buildChord(baseOctaveRoot + target.rootPc, target.type);
+  const shuffled = shuffle(options);
+  const optionColors = new Map<string, string>();
+  for (const opt of shuffled) {
+    optionColors.set(opt.id, ionianChordColor(opt.midi));
+  }
   return {
     targetLabel: chordName(target.rootPc, target.type) ?? 'Unknown chord',
     targetNotes,
-    options: shuffle(options),
+    options: shuffled,
+    optionColors,
   };
 }
 
@@ -272,8 +286,8 @@ export type BoardChoiceGameProps = {
 };
 
 export function BoardChoiceGame({
-  startC = 4,
-  endC = 4,
+  startC = 3,
+  endC = 5,
   chordPool = DEFAULT_CHORD_POOL,
   showChordName = true,
   keyboardBaseOctave = 4,
@@ -295,12 +309,13 @@ export function BoardChoiceGame({
 
   const [round, setRound] = useState<RoundState>(() => {
     if (targetNotes && targetNotes.length > 0) {
-      const { options, targetNotes: normalizedTarget } =
+      const { options, targetNotes: normalizedTarget, optionColors } =
         createCustomOptions(targetNotes);
       return {
         targetLabel: targetLabel ?? 'Unknown chord',
         targetNotes: normalizedTarget,
         options,
+        optionColors,
       };
     }
     return createRound({
@@ -313,12 +328,13 @@ export function BoardChoiceGame({
   const startNewRound = useCallback(
     (preferred?: ChordSpec) => {
       if (targetNotes && targetNotes.length > 0) {
-        const { options, targetNotes: normalizedTarget } =
+        const { options, targetNotes: normalizedTarget, optionColors } =
           createCustomOptions(targetNotes);
         setRound({
           targetLabel: targetLabel ?? 'Unknown chord',
           targetNotes: normalizedTarget,
           options,
+          optionColors,
         });
         setSelectedOption(null);
 
@@ -440,13 +456,14 @@ export function BoardChoiceGame({
           const isCorrect = option.isCorrect;
           const showResult = Boolean(selectedOptionId);
 
+          const ionianColor = round.optionColors.get(option.id) ?? '#60a5fa';
           const color = showResult
             ? isCorrect
               ? '#22c55e'
               : isSelected
                 ? '#ef4444'
                 : '#94a3b8'
-            : '#60a5fa';
+            : ionianColor;
 
           const playingNotes = toPlaybackEvents(option.midi, color, option.id);
 

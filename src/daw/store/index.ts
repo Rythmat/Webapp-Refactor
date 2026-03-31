@@ -19,10 +19,17 @@ import {
   createMusicIntelligenceSlice,
   type MusicIntelligenceSlice,
 } from './musicIntelligenceSlice';
+import {
+  createCollabSlice,
+  type CollabSlice,
+} from '@/daw/collab/collabSlice';
+import { collabMiddleware } from '@/daw/collab/collabMiddleware';
 
 // ── Composed Store ──────────────────────────────────────────────────────
 // All slices merged into a single Zustand 5 store with subscribeWithSelector
 // middleware for fine-grained subscriptions (e.g. transport position ticks).
+// The collabMiddleware intercepts set() to propagate changes to Yjs when
+// a collaborative session is active.
 
 export type AllSlices = TransportSlice &
   TracksSlice &
@@ -34,22 +41,26 @@ export type AllSlices = TransportSlice &
   AudioIOSlice &
   PrismSuggestionSlice &
   UnisonSlice &
-  MusicIntelligenceSlice;
+  MusicIntelligenceSlice &
+  CollabSlice;
 
 export const useStore = create<AllSlices>()(
-  subscribeWithSelector((...a) => ({
-    ...createTransportSlice(...a),
-    ...createTracksSlice(...a),
-    ...createMidiDeviceSlice(...a),
-    ...createPrismSlice(...a),
-    ...createUiSlice(...a),
-    ...createMasteringSlice(...a),
-    ...createMarkersSlice(...a),
-    ...createAudioIOSlice(...a),
-    ...createPrismSuggestionSlice(...a),
-    ...createUnisonSlice(...a),
-    ...createMusicIntelligenceSlice(...a),
-  })),
+  subscribeWithSelector(
+    collabMiddleware((...a) => ({
+      ...createTransportSlice(...a),
+      ...createTracksSlice(...a),
+      ...createMidiDeviceSlice(...a),
+      ...createPrismSlice(...a),
+      ...createUiSlice(...a),
+      ...createMasteringSlice(...a),
+      ...createMarkersSlice(...a),
+      ...createAudioIOSlice(...a),
+      ...createPrismSuggestionSlice(...a),
+      ...createUnisonSlice(...a),
+      ...createMusicIntelligenceSlice(...a),
+      ...createCollabSlice(...a),
+    })),
+  ),
 );
 
 // ── Fine-grained selectors ───────────────────────────────────────────────
@@ -108,3 +119,4 @@ export type { AudioIOSlice } from './audioIOSlice';
 export type { PrismSuggestionSlice } from './prismSuggestionSlice';
 export type { UnisonSlice } from './unisonSlice';
 export type { MusicIntelligenceSlice } from './musicIntelligenceSlice';
+export type { CollabSlice } from '@/daw/collab/collabSlice';

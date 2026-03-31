@@ -42,6 +42,48 @@ const ARCADE_GAMES_DATA: ArcadeGame[] = [
     category: 'Rhythm',
     route: 'foli',
   },
+  {
+    title: 'Major Arcanum',
+    category: 'Technique',
+    featured: true,
+    route: 'majorArcanum',
+  },
+  {
+    title: 'Contour Trace',
+    category: 'Ear Training',
+    route: 'contourTrace',
+  },
+  {
+    title: 'Groove Lab',
+    category: 'Rhythm',
+    route: 'grooveLab',
+  },
+  {
+    title: 'Wave Sculptor',
+    category: 'Sound Lab',
+    route: 'waveSculptor',
+  },
+  {
+    title: 'Harmonic Strings',
+    category: 'Sound Lab',
+    route: 'harmonicStrings',
+  },
+  {
+    title: 'Sound Spinner',
+    category: 'Sound Lab',
+    route: 'soundSpinner',
+  },
+  {
+    title: 'Signal Flow',
+    category: 'Sound Lab',
+    route: 'signalFlow',
+  },
+  {
+    title: 'Jam Room',
+    category: 'Multiplayer',
+    featured: true,
+    route: 'jamLobby',
+  },
 ];
 
 interface ArcadeGameCardProps {

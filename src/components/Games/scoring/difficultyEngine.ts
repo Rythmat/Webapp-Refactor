@@ -29,11 +29,7 @@ function saveAccuracyMap(map: Record<string, SkillAccuracy>) {
 /**
  * Record a result for a skill tag.
  */
-export function recordSkillResult(
-  tag: string,
-  hits: number,
-  total: number,
-) {
+export function recordSkillResult(tag: string, hits: number, total: number) {
   const map = loadAccuracyMap();
   const prev = map[tag] ?? { hits: 0, total: 0 };
   // Keep a rolling window of the last ~100 attempts

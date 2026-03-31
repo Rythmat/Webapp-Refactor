@@ -137,11 +137,7 @@ export function drawGameFrame(
       ctx.font = '600 12px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(
-        NOTE_NAMES[note.midi % 12],
-        geom.x + geom.width / 2,
-        y - 15,
-      );
+      ctx.fillText(NOTE_NAMES[note.midi % 12], geom.x + geom.width / 2, y - 15);
     }
   });
 

@@ -104,10 +104,7 @@ export function observeYjsAndPushToStore(
 
   // ── Chord Regions ──
   const yChordRegions = getYChordRegions(doc);
-  const onChordRegions = (
-    _events: Y.YEvent<unknown>[],
-    tx: Y.Transaction,
-  ) => {
+  const onChordRegions = (_events: Y.YEvent<unknown>[], tx: Y.Transaction) => {
     if (tx.origin === ORIGIN_LOCAL || isSuppressed()) return;
     const chordRegions: ChordRegion[] = yChordRegions
       .toArray()

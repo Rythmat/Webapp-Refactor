@@ -39,13 +39,17 @@ interface Particle {
 }
 
 interface Shard {
-  cx: number; cy: number;       // origin (spawn point)
-  x: number;  y: number;        // offset from origin
-  vx: number; vy: number;       // velocity px/ms
-  rotation: number;              // radians
-  rotationSpeed: number;         // radians/ms
+  cx: number;
+  cy: number; // origin (spawn point)
+  x: number;
+  y: number; // offset from origin
+  vx: number;
+  vy: number; // velocity px/ms
+  rotation: number; // radians
+  rotationSpeed: number; // radians/ms
   size: number;
-  life: number; maxLife: number;
+  life: number;
+  maxLife: number;
   // 4 polygon vertices as [x0,y0, x1,y1, x2,y2, x3,y3] normalized 0–1
   poly: number[];
 }
@@ -64,11 +68,34 @@ interface NoteWaterfallProps {
 // ── Constants ────────────────────────────────────────────────────────────
 
 const SCROLL_SPEED = 0.12; // px per ms (~120 px/sec)
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const NOTE_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
 const BLACK_SET = new Set([1, 3, 6, 8, 10]); // semitone indices that are black keys
 const RAINBOW = [
-  '#D2404A', '#FF7348', '#FEA92A', '#FFCB30', '#AED580', '#7FC783',
-  '#28A69A', '#62B4F7', '#7885CB', '#9D7FCE', '#C785D3', '#F8A8C5',
+  '#D2404A',
+  '#FF7348',
+  '#FEA92A',
+  '#FFCB30',
+  '#AED580',
+  '#7FC783',
+  '#28A69A',
+  '#62B4F7',
+  '#7885CB',
+  '#9D7FCE',
+  '#C785D3',
+  '#F8A8C5',
 ];
 const GRADIENT_REBUILD_INTERVAL = 50; // ms — rebuild gradient at 20fps, not 60
 
@@ -93,7 +120,11 @@ function buildKeyLayout(start: number, end: number): Map<number, KeyLayout> {
   for (let m = start; m <= end; m++) {
     const black = isBlack(m);
     if (!black) {
-      layout.set(m, { x: whiteIdx + 1 / whiteIdx, barWidth: 1, isBlack: false });
+      layout.set(m, {
+        x: whiteIdx + 1 / whiteIdx,
+        barWidth: 1,
+        isBlack: false,
+      });
       // Will normalize below
       whiteIdx++;
     }
@@ -183,7 +214,7 @@ export const NoteWaterfall = forwardRef<WaterfallHandle, NoteWaterfallProps>(
           const dx = cx - lastShatterRef.current.x;
           const dy = cy - lastShatterRef.current.y;
           if (Math.sqrt(dx * dx + dy * dy) >= minDist) break;
-        // eslint-disable-next-line no-constant-condition
+          // eslint-disable-next-line no-constant-condition
         } while (true);
         lastShatterRef.current = { x: cx, y: cy };
         const count = 35;
@@ -192,8 +223,10 @@ export const NoteWaterfall = forwardRef<WaterfallHandle, NoteWaterfallProps>(
           const speed = 0.2 + Math.random() * 0.3; // px/ms
           const maxLife = 900 + Math.random() * 300;
           shardsRef.current.push({
-            cx, cy,
-            x: 0, y: 0,
+            cx,
+            cy,
+            x: 0,
+            y: 0,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             rotation: 0,
@@ -202,10 +235,14 @@ export const NoteWaterfall = forwardRef<WaterfallHandle, NoteWaterfallProps>(
             life: maxLife,
             maxLife,
             poly: [
-              Math.random() * 0.5, 0,
-              1, Math.random() * 0.5,
-              0.5 + Math.random() * 0.5, 1,
-              0, 0.5 + Math.random() * 0.5,
+              Math.random() * 0.5,
+              0,
+              1,
+              Math.random() * 0.5,
+              0.5 + Math.random() * 0.5,
+              1,
+              0,
+              0.5 + Math.random() * 0.5,
             ],
           });
         }
@@ -276,18 +313,26 @@ export const NoteWaterfall = forwardRef<WaterfallHandle, NoteWaterfallProps>(
         });
 
         // Rebuild rainbow gradient at reduced frequency
-        if (!cachedGrad || cachedGradH !== h || now - cachedGradTime > GRADIENT_REBUILD_INTERVAL) {
+        if (
+          !cachedGrad ||
+          cachedGradH !== h ||
+          now - cachedGradTime > GRADIENT_REBUILD_INTERVAL
+        ) {
           const cycleMs = (60 / bpmRef.current) * 8 * 1000; // two bars = one full rainbow cycle
           const t = (now % cycleMs) / cycleMs;
           const grad = ctx.createLinearGradient(0, 0, 0, h);
           // Build sorted stops
           const stops: { pos: number; color: string }[] = [];
           for (let i = 0; i < RAINBOW.length; i++) {
-            stops.push({ pos: ((i / RAINBOW.length) + t) % 1, color: RAINBOW[i] });
+            stops.push({
+              pos: (i / RAINBOW.length + t) % 1,
+              color: RAINBOW[i],
+            });
           }
           stops.sort((a, b) => a.pos - b.pos);
           grad.addColorStop(0, stops[0].color);
-          for (let i = 0; i < stops.length; i++) grad.addColorStop(stops[i].pos, stops[i].color);
+          for (let i = 0; i < stops.length; i++)
+            grad.addColorStop(stops[i].pos, stops[i].color);
           grad.addColorStop(1, stops[stops.length - 1].color);
           cachedGrad = grad;
           cachedGradH = h;
@@ -315,7 +360,8 @@ export const NoteWaterfall = forwardRef<WaterfallHandle, NoteWaterfallProps>(
           }
 
           // Y position
-          const duration = ((note.endTime ?? now) - note.startTime) * SCROLL_SPEED;
+          const duration =
+            ((note.endTime ?? now) - note.startTime) * SCROLL_SPEED;
           let bottomY: number;
           let topY: number;
 

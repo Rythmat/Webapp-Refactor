@@ -28,7 +28,12 @@ import {
 import { ZustandYjsBridge } from './ZustandYjsBridge';
 import { setBridge } from './collabMiddleware';
 import { initCollabUndo, destroyCollabUndo } from '@/daw/store/undoMiddleware';
-import { PRESENCE_COLORS, type CollabRole, type UserPresence, type TransportCommand } from './types';
+import {
+  PRESENCE_COLORS,
+  type CollabRole,
+  type UserPresence,
+  type TransportCommand,
+} from './types';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 
 // ── Context ─────────────────────────────────────────────────────────────
@@ -39,7 +44,9 @@ interface CollabContextValue {
   /** Leave the current room and tear down all sync infrastructure. */
   leaveRoom: () => void;
   /** Send a transport command to all peers. */
-  sendTransportCommand: (cmd: Omit<TransportCommand, 'serverTimestamp' | 'userId'>) => void;
+  sendTransportCommand: (
+    cmd: Omit<TransportCommand, 'serverTimestamp' | 'userId'>,
+  ) => void;
   /** The Yjs awareness instance (for presence). Null if not connected. */
   awareness: Awareness | null;
 }
@@ -128,93 +135,98 @@ export function CollabProvider({ children }: CollabProviderProps) {
 
   // ── Join ──────────────────────────────────────────────────────────────
 
-  const joinRoom = useCallback((roomId: string, role: CollabRole = 'editor') => {
-    // Tear down any existing session first
-    teardown();
+  const joinRoom = useCallback(
+    (roomId: string, role: CollabRole = 'editor') => {
+      // Tear down any existing session first
+      teardown();
 
-    const doc = getOrCreateDoc();
-    docRef.current = doc;
+      const doc = getOrCreateDoc();
+      docRef.current = doc;
 
-    // Hydrate the Yjs doc from the current Zustand state (first write)
-    const currentState = useStore.getState();
-    hydrateDocFromStore(doc, currentState);
+      // Hydrate the Yjs doc from the current Zustand state (first write)
+      const currentState = useStore.getState();
+      hydrateDocFromStore(doc, currentState);
 
-    // Set up the bridge
-    const bridge = new ZustandYjsBridge(doc, (partial) =>
-      useStore.setState(partial),
-    );
-    bridgeRef.current = bridge;
-    setBridge(bridge);
+      // Set up the bridge
+      const bridge = new ZustandYjsBridge(doc, (partial) =>
+        useStore.setState(partial),
+      );
+      bridgeRef.current = bridge;
+      setBridge(bridge);
 
-    // Initialize Yjs-based undo for collab mode
-    initCollabUndo(doc);
+      // Initialize Yjs-based undo for collab mode
+      initCollabUndo(doc);
 
-    // Connect to PartyKit
-    const provider = new YPartyKitProvider(PARTYKIT_HOST, roomId, doc, {
-      connect: true,
-    });
-    providerRef.current = provider;
-    awarenessRef.current = provider.awareness;
+      // Connect to PartyKit
+      const provider = new YPartyKitProvider(PARTYKIT_HOST, roomId, doc, {
+        connect: true,
+      });
+      providerRef.current = provider;
+      awarenessRef.current = provider.awareness;
 
-    // Offline persistence
-    const idb = new IndexeddbPersistence(`collab-${roomId}`, doc);
-    idbRef.current = idb;
+      // Offline persistence
+      const idb = new IndexeddbPersistence(`collab-${roomId}`, doc);
+      idbRef.current = idb;
 
-    // Update store with connection info
-    useStore.getState()._setRoomInfo(roomId, role);
-    useStore.getState()._setConnectionStatus('connecting');
+      // Update store with connection info
+      useStore.getState()._setRoomInfo(roomId, role);
+      useStore.getState()._setConnectionStatus('connecting');
 
-    // Listen for connection status
-    provider.on('sync', (synced: boolean) => {
-      if (synced) {
-        useStore.getState()._setConnectionStatus('connected');
-        // Start observing Yjs for remote changes AFTER initial sync
-        bridge.startObserving();
-      }
-    });
-
-    provider.on('connection-close', () => {
-      useStore.getState()._setConnectionStatus('disconnected');
-    });
-
-    provider.on('connection-error', () => {
-      useStore.getState()._setConnectionStatus('disconnected');
-    });
-
-    // Set up local presence with Auth0 user info
-    const colorIndex =
-      (provider.awareness.clientID % PRESENCE_COLORS.length);
-
-    provider.awareness.setLocalState({
-      userId: userId ?? '',
-      userName: appUser?.nickname ?? appUser?.fullName ?? 'Anonymous',
-      avatarUrl: appUser?.avatarUrl ?? '',
-      color: PRESENCE_COLORS[colorIndex],
-      selectedTrackId: null,
-      selectedClipId: null,
-      cursorTick: null,
-      cursorTrackIndex: null,
-      pianoRollCursor: null,
-      activity: 'idle',
-      lastActiveAt: Date.now(),
-    } satisfies UserPresence);
-
-    // Observe remote presence changes
-    const onAwarenessChange = () => {
-      const states = provider.awareness.getStates();
-      const remoteUsers = new Map<number, UserPresence>();
-      states.forEach((state, clientId) => {
-        if (clientId !== provider.awareness.clientID && state.userId !== undefined) {
-          remoteUsers.set(clientId, state as UserPresence);
+      // Listen for connection status
+      provider.on('sync', (synced: boolean) => {
+        if (synced) {
+          useStore.getState()._setConnectionStatus('connected');
+          // Start observing Yjs for remote changes AFTER initial sync
+          bridge.startObserving();
         }
       });
-      useStore.getState()._setRemoteUsers(remoteUsers);
-    };
-    provider.awareness.on('change', onAwarenessChange);
 
-    // Listen for ephemeral messages (transport commands)
-    provider.ws?.addEventListener('message', handleServerMessage);
-  }, [userId, appUser, handleServerMessage, teardown]);
+      provider.on('connection-close', () => {
+        useStore.getState()._setConnectionStatus('disconnected');
+      });
+
+      provider.on('connection-error', () => {
+        useStore.getState()._setConnectionStatus('disconnected');
+      });
+
+      // Set up local presence with Auth0 user info
+      const colorIndex = provider.awareness.clientID % PRESENCE_COLORS.length;
+
+      provider.awareness.setLocalState({
+        userId: userId ?? '',
+        userName: appUser?.nickname ?? appUser?.fullName ?? 'Anonymous',
+        avatarUrl: appUser?.avatarUrl ?? '',
+        color: PRESENCE_COLORS[colorIndex],
+        selectedTrackId: null,
+        selectedClipId: null,
+        cursorTick: null,
+        cursorTrackIndex: null,
+        pianoRollCursor: null,
+        activity: 'idle',
+        lastActiveAt: Date.now(),
+      } satisfies UserPresence);
+
+      // Observe remote presence changes
+      const onAwarenessChange = () => {
+        const states = provider.awareness.getStates();
+        const remoteUsers = new Map<number, UserPresence>();
+        states.forEach((state, clientId) => {
+          if (
+            clientId !== provider.awareness.clientID &&
+            state.userId !== undefined
+          ) {
+            remoteUsers.set(clientId, state as UserPresence);
+          }
+        });
+        useStore.getState()._setRemoteUsers(remoteUsers);
+      };
+      provider.awareness.on('change', onAwarenessChange);
+
+      // Listen for ephemeral messages (transport commands)
+      provider.ws?.addEventListener('message', handleServerMessage);
+    },
+    [userId, appUser, handleServerMessage, teardown],
+  );
 
   // ── Leave ─────────────────────────────────────────────────────────────
 

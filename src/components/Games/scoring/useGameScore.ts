@@ -36,18 +36,15 @@ export function useGameScore(gameId: string) {
     };
   }, []);
 
-  const hit = useCallback(
-    (points = 10) => {
-      const s = stateRef.current;
-      s.hits += 1;
-      s.streak += 1;
-      s.maxStreak = Math.max(s.maxStreak, s.streak);
-      s.multiplier = Math.min(Math.floor(s.streak / 10) + 1, 3);
-      s.score += points * s.multiplier;
-      return { ...s };
-    },
-    [],
-  );
+  const hit = useCallback((points = 10) => {
+    const s = stateRef.current;
+    s.hits += 1;
+    s.streak += 1;
+    s.maxStreak = Math.max(s.maxStreak, s.streak);
+    s.multiplier = Math.min(Math.floor(s.streak / 10) + 1, 3);
+    s.score += points * s.multiplier;
+    return { ...s };
+  }, []);
 
   const miss = useCallback(() => {
     const s = stateRef.current;

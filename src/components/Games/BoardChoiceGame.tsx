@@ -309,8 +309,11 @@ export function BoardChoiceGame({
 
   const [round, setRound] = useState<RoundState>(() => {
     if (targetNotes && targetNotes.length > 0) {
-      const { options, targetNotes: normalizedTarget, optionColors } =
-        createCustomOptions(targetNotes);
+      const {
+        options,
+        targetNotes: normalizedTarget,
+        optionColors,
+      } = createCustomOptions(targetNotes);
       return {
         targetLabel: targetLabel ?? 'Unknown chord',
         targetNotes: normalizedTarget,
@@ -328,8 +331,11 @@ export function BoardChoiceGame({
   const startNewRound = useCallback(
     (preferred?: ChordSpec) => {
       if (targetNotes && targetNotes.length > 0) {
-        const { options, targetNotes: normalizedTarget, optionColors } =
-          createCustomOptions(targetNotes);
+        const {
+          options,
+          targetNotes: normalizedTarget,
+          optionColors,
+        } = createCustomOptions(targetNotes);
         setRound({
           targetLabel: targetLabel ?? 'Unknown chord',
           targetNotes: normalizedTarget,

@@ -36,7 +36,11 @@ export async function initJamSynth(): Promise<void> {
 }
 
 /** Play a note on a channel. */
-export function jamNoteOn(channel: number, note: number, velocity: number): void {
+export function jamNoteOn(
+  channel: number,
+  note: number,
+  velocity: number,
+): void {
   if (!synth || !synthReady) return;
   synth.noteOn(channel, note, velocity);
 }
@@ -126,7 +130,9 @@ async function doInit(): Promise<void> {
   }
 
   // Load AudioWorklet processor
-  await audioCtx.audioWorklet.addModule('/daw-assets/spessasynth_processor.min.js');
+  await audioCtx.audioWorklet.addModule(
+    '/daw-assets/spessasynth_processor.min.js',
+  );
 
   // Create synth
   const { WorkletSynthesizer } = await import('spessasynth_lib');

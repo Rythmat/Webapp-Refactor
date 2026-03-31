@@ -40,7 +40,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only owner or editor can create invites
   const member = room.members[user.sub];
   if (!member || member.role === 'viewer') {
-    return res.status(403).json({ error: 'Insufficient permissions to create invite' });
+    return res
+      .status(403)
+      .json({ error: 'Insufficient permissions to create invite' });
   }
 
   const { role } = req.body ?? {};
@@ -50,8 +52,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { token: inviteToken, expiresAt } = signInviteToken(roomId, role);
 
-  const origin = req.headers.origin ?? req.headers.referer ?? 'https://app.musicatlas.com';
-  const baseUrl = typeof origin === 'string' ? origin.replace(/\/$/, '') : 'https://app.musicatlas.com';
+  const origin =
+    req.headers.origin ?? req.headers.referer ?? 'https://app.musicatlas.com';
+  const baseUrl =
+    typeof origin === 'string'
+      ? origin.replace(/\/$/, '')
+      : 'https://app.musicatlas.com';
   const inviteUrl = `${baseUrl}/studio/join?room=${roomId}&token=${inviteToken}`;
 
   res.setHeader('Access-Control-Allow-Origin', '*');

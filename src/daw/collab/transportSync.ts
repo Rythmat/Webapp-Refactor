@@ -42,9 +42,7 @@ export class RttMeasurer {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
     const now = Date.now();
     this.pendingPings.set(now, now);
-    this.ws.send(
-      JSON.stringify({ type: 'ping', clientTimestamp: now }),
-    );
+    this.ws.send(JSON.stringify({ type: 'ping', clientTimestamp: now }));
   }
 
   /** Process a pong response from the server. */

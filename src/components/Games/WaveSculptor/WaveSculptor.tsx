@@ -21,7 +21,12 @@ interface Challenge {
 const SAMPLE_RATE = 512;
 const MATCH_THRESHOLD = 0.9;
 
-const WAVEFORM_TYPES: WaveformType[] = ['sine', 'square', 'sawtooth', 'triangle'];
+const WAVEFORM_TYPES: WaveformType[] = [
+  'sine',
+  'square',
+  'sawtooth',
+  'triangle',
+];
 
 const WAVEFORM_COLORS: Record<WaveformType, string> = {
   sine: '#a78bfa',
@@ -46,7 +51,10 @@ function waveformSample(type: WaveformType, phase: number): number {
 }
 
 // Render a composite waveform from multiple oscillator slots
-function renderWaveform(slots: OscillatorSlot[], sampleCount: number): Float32Array {
+function renderWaveform(
+  slots: OscillatorSlot[],
+  sampleCount: number,
+): Float32Array {
   const buffer = new Float32Array(sampleCount);
   for (const slot of slots) {
     if (slot.amplitude === 0) continue;
@@ -180,7 +188,10 @@ class WavePreview {
   private master: GainNode;
 
   constructor() {
-    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AC =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
     this.ctx = new AC();
     this.master = this.ctx.createGain();
     this.master.gain.value = 0.15;
@@ -211,7 +222,11 @@ class WavePreview {
 
   stop() {
     for (const osc of this.oscillators) {
-      try { osc.stop(); } catch { /* already stopped */ }
+      try {
+        osc.stop();
+      } catch {
+        /* already stopped */
+      }
     }
     this.oscillators = [];
     this.gains = [];
@@ -316,7 +331,11 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
   }, []);
 
   const updateSlot = useCallback(
-    (index: number, field: keyof OscillatorSlot, value: number | WaveformType) => {
+    (
+      index: number,
+      field: keyof OscillatorSlot,
+      value: number | WaveformType,
+    ) => {
       setPlayerSlots((prev) => {
         const next = [...prev];
         next[index] = { ...next[index], [field]: value };
@@ -380,7 +399,11 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
 
   const similarityPct = Math.round(similarity * 100);
   const similarityColor =
-    similarityPct >= 90 ? '#34d399' : similarityPct >= 70 ? '#fbbf24' : '#ef4444';
+    similarityPct >= 90
+      ? '#34d399'
+      : similarityPct >= 70
+        ? '#fbbf24'
+        : '#ef4444';
 
   return (
     <div className="flex flex-col bg-[#09090b] rounded-2xl overflow-hidden border border-zinc-800">
@@ -394,20 +417,27 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
             Wave Sculptor
           </h2>
           <span className="text-xs text-zinc-500 font-mono">
-            Level {level + 1} · {challengeIndex + 1}/{CHALLENGES[level]?.length ?? 0}
+            Level {level + 1} · {challengeIndex + 1}/
+            {CHALLENGES[level]?.length ?? 0}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-zinc-500">Rounds won:</span>
-          <span className="text-sm text-emerald-400 font-mono">{roundsWon}</span>
+          <span className="text-sm text-emerald-400 font-mono">
+            {roundsWon}
+          </span>
         </div>
       </div>
 
       {/* Challenge info */}
       {challenge && (
         <div className="h-10 bg-[#0f0f11] border-b border-zinc-800 flex items-center px-6 gap-4">
-          <span className="text-xs text-zinc-500 uppercase tracking-wider">Target:</span>
-          <span className="text-sm text-white font-medium">{challenge.label}</span>
+          <span className="text-xs text-zinc-500 uppercase tracking-wider">
+            Target:
+          </span>
+          <span className="text-sm text-white font-medium">
+            {challenge.label}
+          </span>
           <span className="text-xs text-zinc-500">{challenge.description}</span>
           <button
             onClick={previewTarget}
@@ -421,14 +451,23 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
       {/* Waveform displays */}
       <div className="p-4 grid grid-cols-2 gap-4">
         <div>
-          <div className="text-xs text-zinc-500 mb-1 uppercase tracking-wider">Target</div>
+          <div className="text-xs text-zinc-500 mb-1 uppercase tracking-wider">
+            Target
+          </div>
           <div className="rounded-lg border border-zinc-800 bg-[#0a0a0c] overflow-hidden">
-            <canvas ref={targetCanvasRef} width={512} height={120} className="w-full" />
+            <canvas
+              ref={targetCanvasRef}
+              width={512}
+              height={120}
+              className="w-full"
+            />
           </div>
         </div>
         <div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-zinc-500 uppercase tracking-wider">Your Wave</span>
+            <span className="text-xs text-zinc-500 uppercase tracking-wider">
+              Your Wave
+            </span>
             <button
               onClick={previewPlayer}
               className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
@@ -437,7 +476,12 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
             </button>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-[#0a0a0c] overflow-hidden">
-            <canvas ref={playerCanvasRef} width={512} height={120} className="w-full" />
+            <canvas
+              ref={playerCanvasRef}
+              width={512}
+              height={120}
+              className="w-full"
+            />
           </div>
         </div>
       </div>
@@ -445,7 +489,9 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
       {/* Similarity meter */}
       <div className="px-6 pb-2">
         <div className="flex items-center gap-3">
-          <span className="text-xs text-zinc-500 uppercase tracking-wider w-20">Similarity</span>
+          <span className="text-xs text-zinc-500 uppercase tracking-wider w-20">
+            Similarity
+          </span>
           <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-300"
@@ -456,7 +502,10 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
               }}
             />
           </div>
-          <span className="text-sm font-mono w-12 text-right" style={{ color: similarityColor }}>
+          <span
+            className="text-sm font-mono w-12 text-right"
+            style={{ color: similarityColor }}
+          >
             {similarityPct}%
           </span>
         </div>
@@ -475,7 +524,9 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
               key={idx}
               className="flex items-center gap-3 p-3 rounded-lg bg-[#0f0f11] border border-zinc-800"
             >
-              <span className="text-xs text-zinc-500 w-8 shrink-0">#{idx + 1}</span>
+              <span className="text-xs text-zinc-500 w-8 shrink-0">
+                #{idx + 1}
+              </span>
 
               {/* Waveform type selector */}
               <div className="flex gap-1">
@@ -490,7 +541,10 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
                     }`}
                     style={
                       slot.type === wt
-                        ? { backgroundColor: WAVEFORM_COLORS[wt] + '40', color: WAVEFORM_COLORS[wt] }
+                        ? {
+                            backgroundColor: WAVEFORM_COLORS[wt] + '40',
+                            color: WAVEFORM_COLORS[wt],
+                          }
                         : undefined
                     }
                   >
@@ -508,7 +562,9 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
                   max={500}
                   step={10}
                   value={slot.frequency}
-                  onChange={(e) => updateSlot(idx, 'frequency', Number(e.target.value))}
+                  onChange={(e) =>
+                    updateSlot(idx, 'frequency', Number(e.target.value))
+                  }
                   className="flex-1 accent-purple-500 h-1"
                 />
                 <span className="text-[10px] text-zinc-400 font-mono w-10 text-right">
@@ -525,7 +581,9 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
                   max={100}
                   step={5}
                   value={Math.round(slot.amplitude * 100)}
-                  onChange={(e) => updateSlot(idx, 'amplitude', Number(e.target.value) / 100)}
+                  onChange={(e) =>
+                    updateSlot(idx, 'amplitude', Number(e.target.value) / 100)
+                  }
                   className="flex-1 accent-cyan-500 h-1"
                 />
                 <span className="text-[10px] text-zinc-400 font-mono w-10 text-right">

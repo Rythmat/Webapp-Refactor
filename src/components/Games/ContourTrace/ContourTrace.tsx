@@ -13,7 +13,20 @@ import {
 
 // --- Constants ---
 
-const NOTE_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+const NOTE_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B',
+];
 const DEFAULT_SCALE = [60, 62, 64, 65, 67, 69, 71, 72]; // C major, octave 4-5
 const NOTE_DURATION = 0.5; // seconds per note
 const NOTE_VELOCITY = 0.7;
@@ -69,7 +82,8 @@ export default function ContourTrace({ onComplete }: ContourTraceProps) {
     [],
   );
 
-  const availableContours = gameContours.length > 0 ? gameContours : FALLBACK_CONTOURS;
+  const availableContours =
+    gameContours.length > 0 ? gameContours : FALLBACK_CONTOURS;
 
   // --- Canvas resize ---
   useEffect(() => {
@@ -94,105 +108,98 @@ export default function ContourTrace({ onComplete }: ContourTraceProps) {
   }, [isPending, phase]);
 
   // --- Draw the grid and contour ---
-  const drawCanvas = useCallback(
-    (
-      showActual: boolean,
-      playProgress = -1,
-    ) => {
-      const canvas = canvasRef.current;
-      const ctx = canvas?.getContext('2d');
-      if (!canvas || !ctx) return;
-      const { width, height } = canvas;
+  const drawCanvas = useCallback((showActual: boolean, playProgress = -1) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+    const { width, height } = canvas;
 
-      ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, width, height);
 
-      const contour = currentContour.current;
-      if (contour.length === 0) return;
+    const contour = currentContour.current;
+    if (contour.length === 0) return;
 
-      const padding = 40;
-      const gridW = width - padding * 2;
-      const gridH = height - padding * 2;
-      const minVal = Math.min(...contour);
-      const maxVal = Math.max(...contour);
-      const range = Math.max(maxVal - minVal, 1);
+    const padding = 40;
+    const gridW = width - padding * 2;
+    const gridH = height - padding * 2;
+    const minVal = Math.min(...contour);
+    const maxVal = Math.max(...contour);
+    const range = Math.max(maxVal - minVal, 1);
 
-      // Grid lines
-      ctx.strokeStyle = '#27272a';
-      ctx.lineWidth = 1;
-      for (let i = 0; i <= contour.length; i++) {
-        const x = padding + (i / contour.length) * gridW;
-        ctx.beginPath();
-        ctx.moveTo(x, padding);
-        ctx.lineTo(x, padding + gridH);
-        ctx.stroke();
-      }
-      for (let i = 0; i <= range; i++) {
-        const y = padding + gridH - (i / range) * gridH;
-        ctx.beginPath();
-        ctx.moveTo(padding, y);
-        ctx.lineTo(padding + gridW, y);
-        ctx.stroke();
-      }
+    // Grid lines
+    ctx.strokeStyle = '#27272a';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= contour.length; i++) {
+      const x = padding + (i / contour.length) * gridW;
+      ctx.beginPath();
+      ctx.moveTo(x, padding);
+      ctx.lineTo(x, padding + gridH);
+      ctx.stroke();
+    }
+    for (let i = 0; i <= range; i++) {
+      const y = padding + gridH - (i / range) * gridH;
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(padding + gridW, y);
+      ctx.stroke();
+    }
 
-      // Playback progress indicator
-      if (playProgress >= 0 && playProgress < contour.length) {
-        const x =
-          padding + ((playProgress + 0.5) / contour.length) * gridW;
-        ctx.strokeStyle = 'rgba(167, 139, 250, 0.3)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(x, padding);
-        ctx.lineTo(x, padding + gridH);
-        ctx.stroke();
-      }
+    // Playback progress indicator
+    if (playProgress >= 0 && playProgress < contour.length) {
+      const x = padding + ((playProgress + 0.5) / contour.length) * gridW;
+      ctx.strokeStyle = 'rgba(167, 139, 250, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x, padding);
+      ctx.lineTo(x, padding + gridH);
+      ctx.stroke();
+    }
 
-      // Player's drawn line
-      if (drawnPoints.current.length > 1) {
-        ctx.strokeStyle = '#a78bfa';
-        ctx.lineWidth = 3;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = '#a78bfa';
-        ctx.beginPath();
-        drawnPoints.current.forEach((p, i) => {
-          if (i === 0) ctx.moveTo(p.x, p.y);
-          else ctx.lineTo(p.x, p.y);
-        });
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-      }
+    // Player's drawn line
+    if (drawnPoints.current.length > 1) {
+      ctx.strokeStyle = '#a78bfa';
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = '#a78bfa';
+      ctx.beginPath();
+      drawnPoints.current.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
 
-      // Actual contour (shown after drawing)
-      if (showActual) {
-        ctx.strokeStyle = '#34d399';
-        ctx.lineWidth = 3;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = '#34d399';
-        ctx.beginPath();
-        contour.forEach((val, i) => {
-          const x = padding + ((i + 0.5) / contour.length) * gridW;
-          const y = padding + gridH - ((val - minVal) / range) * gridH;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        });
-        ctx.stroke();
-        ctx.shadowBlur = 0;
+    // Actual contour (shown after drawing)
+    if (showActual) {
+      ctx.strokeStyle = '#34d399';
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = '#34d399';
+      ctx.beginPath();
+      contour.forEach((val, i) => {
+        const x = padding + ((i + 0.5) / contour.length) * gridW;
+        const y = padding + gridH - ((val - minVal) / range) * gridH;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.shadowBlur = 0;
 
-        // Note labels on actual
-        ctx.fillStyle = '#34d399';
-        ctx.font = '600 11px Inter, sans-serif';
-        ctx.textAlign = 'center';
-        contour.forEach((val, i) => {
-          const x = padding + ((i + 0.5) / contour.length) * gridW;
-          const y = padding + gridH - ((val - minVal) / range) * gridH;
-          const midi = currentMidi.current[i];
-          if (midi !== undefined) {
-            ctx.fillText(NOTE_NAMES[midi % 12], x, y - 12);
-          }
-        });
-      }
-    },
-    [],
-  );
+      // Note labels on actual
+      ctx.fillStyle = '#34d399';
+      ctx.font = '600 11px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      contour.forEach((val, i) => {
+        const x = padding + ((i + 0.5) / contour.length) * gridW;
+        const y = padding + gridH - ((val - minVal) / range) * gridH;
+        const midi = currentMidi.current[i];
+        if (midi !== undefined) {
+          ctx.fillText(NOTE_NAMES[midi % 12], x, y - 12);
+        }
+      });
+    }
+  }, []);
 
   // --- Start a new round ---
   const startRound = useCallback(async () => {
@@ -249,7 +256,10 @@ export default function ContourTrace({ onComplete }: ContourTraceProps) {
       const drawnDir = Math.sign(sampledY[i - 1] - sampledY[i]); // inverted Y
       if (actualDir === drawnDir) {
         correctDirections++;
-      } else if (actualDir === 0 && Math.abs(sampledY[i] - sampledY[i - 1]) < 20) {
+      } else if (
+        actualDir === 0 &&
+        Math.abs(sampledY[i] - sampledY[i - 1]) < 20
+      ) {
         correctDirections += 0.5; // Flat tolerance — partial credit for near-flat when expected flat
       }
     }
@@ -369,8 +379,8 @@ export default function ContourTrace({ onComplete }: ContourTraceProps) {
               Follow the melody
             </h3>
             <p className="text-zinc-400 mb-6 max-w-sm text-center">
-              Listen to a melody, then draw its shape on the grid.
-              Your directional accuracy will be scored.
+              Listen to a melody, then draw its shape on the grid. Your
+              directional accuracy will be scored.
             </p>
             <button
               onClick={startRound}

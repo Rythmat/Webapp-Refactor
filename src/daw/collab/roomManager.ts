@@ -58,15 +58,8 @@ export async function getRoom(
   );
 }
 
-export async function deleteRoom(
-  roomId: string,
-  token: string,
-): Promise<void> {
-  await apiFetch(
-    `/api/collab/rooms/${roomId}`,
-    { method: 'DELETE' },
-    token,
-  );
+export async function deleteRoom(roomId: string, token: string): Promise<void> {
+  await apiFetch(`/api/collab/rooms/${roomId}`, { method: 'DELETE' }, token);
 }
 
 // ── Invites ─────────────────────────────────────────────────────────────

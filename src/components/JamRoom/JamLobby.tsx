@@ -68,7 +68,9 @@ export function JamLobby() {
         <div className="bg-[#121214] rounded-xl border border-zinc-800 p-6 flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <Users size={16} className="text-zinc-500" />
-            <span className="text-sm text-zinc-300 font-medium">Start a new session</span>
+            <span className="text-sm text-zinc-300 font-medium">
+              Start a new session
+            </span>
           </div>
           <Button
             onClick={handleCreate}

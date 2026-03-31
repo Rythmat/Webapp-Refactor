@@ -11,7 +11,18 @@ type NoteEvent = {
 
 /** ASCII-normalized key labels indexed by pitch class 0–11 */
 const PC_TO_KEY: string[] = [
-  'C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B',
+  'C',
+  'Db',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B',
 ];
 
 /**
@@ -29,8 +40,8 @@ const PARENT_KEY_OFFSETS: Record<string, number[]> = {
 function detectQuality(midis: number[]): string {
   if (midis.length < 3) return 'major';
   const root = midis[0];
-  const i1 = ((midis[1] - root) % 12 + 12) % 12;
-  const i2 = ((midis[2] - root) % 12 + 12) % 12;
+  const i1 = (((midis[1] - root) % 12) + 12) % 12;
+  const i2 = (((midis[2] - root) % 12) + 12) % 12;
   if (i1 === 3 && i2 === 6) return 'diminished';
   if (i1 === 3 && i2 === 7) return 'minor';
   return 'major';
@@ -48,9 +59,11 @@ export function ionianChordColor(chordMidis: number[]): string {
   const offsets = PARENT_KEY_OFFSETS[quality] ?? [0];
 
   const parentColors = offsets.map((offset) => {
-    const keyPc = ((rootPc - offset) % 12 + 12) % 12;
+    const keyPc = (((rootPc - offset) % 12) + 12) % 12;
     const keyName = PC_TO_KEY[keyPc];
-    return (KEY_OF_COLORS as Record<string, string>)[keyName] ?? KEY_OF_COLORS.C;
+    return (
+      (KEY_OF_COLORS as Record<string, string>)[keyName] ?? KEY_OF_COLORS.C
+    );
   });
 
   return parentColors[Math.floor(Math.random() * parentColors.length)];

@@ -18,19 +18,12 @@ export function generateSong(
   const totalBeats = 120;
   const beatTime = 60 / bpm;
   const playableNotes = Object.values(keyboardMapping).sort((a, b) => a - b);
-  const availableNotes =
-    playableNotes.length > 0 ? playableNotes : scaleNotes;
+  const availableNotes = playableNotes.length > 0 ? playableNotes : scaleNotes;
 
   if (gameMode === 'Harmony') {
     return generateHarmony(song, totalBeats, beatTime, availableNotes);
   }
-  return generateMelody(
-    song,
-    totalBeats,
-    beatTime,
-    availableNotes,
-    keyRootVal,
-  );
+  return generateMelody(song, totalBeats, beatTime, availableNotes, keyRootVal);
 }
 
 function generateHarmony(
@@ -100,7 +93,9 @@ function generateMelody(
 
   const pickMelodyNote = () => {
     if (Math.random() < 0.85 && pentatonicNotes.length > 0) {
-      return pentatonicNotes[Math.floor(Math.random() * pentatonicNotes.length)];
+      return pentatonicNotes[
+        Math.floor(Math.random() * pentatonicNotes.length)
+      ];
     }
     return availableNotes[Math.floor(Math.random() * availableNotes.length)];
   };

@@ -44,10 +44,7 @@ export class ZustandYjsBridge {
    */
   private suppressYjsToStore = false;
 
-  constructor(
-    doc: Y.Doc,
-    setState: (partial: Partial<AllSlices>) => void,
-  ) {
+  constructor(doc: Y.Doc, setState: (partial: Partial<AllSlices>) => void) {
     this.doc = doc;
     this.setState = setState;
   }

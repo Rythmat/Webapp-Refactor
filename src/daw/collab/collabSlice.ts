@@ -74,8 +74,7 @@ export const createCollabSlice: StateCreator<
       isCollabActive: status === 'connected',
     }),
 
-  _setRoomInfo: (roomId, role) =>
-    set({ roomId, localRole: role }),
+  _setRoomInfo: (roomId, role) => set({ roomId, localRole: role }),
 
   _clearCollab: () =>
     set({

@@ -38,11 +38,14 @@ export const BOARD_OFFSET_X = BOARD_PADDING + HEX_WIDTH / 2;
 export const BOARD_OFFSET_Y = BOARD_PADDING + HEX_HEIGHT / 2;
 
 /** Board container = grid content + one full hex (half on each side) + padding */
-export const BOARD_WIDTH = Math.ceil(GRID_CONTENT_WIDTH + HEX_WIDTH + BOARD_PADDING * 2);
+export const BOARD_WIDTH = Math.ceil(
+  GRID_CONTENT_WIDTH + HEX_WIDTH + BOARD_PADDING * 2,
+);
 
 /** Power rail sits below the grid with a margin */
 const POWER_RAIL_MARGIN = 40;
-export const POWER_RAIL_Y = BOARD_OFFSET_Y + GRID_CONTENT_HEIGHT + HEX_HEIGHT / 2 + POWER_RAIL_MARGIN;
+export const POWER_RAIL_Y =
+  BOARD_OFFSET_Y + GRID_CONTENT_HEIGHT + HEX_HEIGHT / 2 + POWER_RAIL_MARGIN;
 
 /** Board height accommodates grid + power rail + bottom padding */
 export const BOARD_HEIGHT = Math.ceil(POWER_RAIL_Y + BOARD_PADDING);
@@ -78,7 +81,10 @@ export function snapToHex(px: number, py: number) {
 }
 
 /** Convert pixel position to hex grid col/row (inverse of getHexPos). */
-export function pixelToHex(px: number, py: number): { col: number; row: number } {
+export function pixelToHex(
+  px: number,
+  py: number,
+): { col: number; row: number } {
   const row = Math.round((py - BOARD_OFFSET_Y) / VERT_STEP);
   const isOddRow = row % 2 !== 0;
   const xOffset = isOddRow ? HORIZ_STEP / 2 : 0;
@@ -87,33 +93,38 @@ export function pixelToHex(px: number, py: number): { col: number; row: number }
 }
 
 /** Get the 6 neighboring hex cells in odd-R offset coordinates. */
-export function getHexNeighbors(col: number, row: number): { col: number; row: number }[] {
+export function getHexNeighbors(
+  col: number,
+  row: number,
+): { col: number; row: number }[] {
   if (row % 2 === 0) {
     // Even row
     return [
-      { col: col + 1, row },       // E
-      { col: col - 1, row },       // W
-      { col: col,     row: row - 1 }, // NE
+      { col: col + 1, row }, // E
+      { col: col - 1, row }, // W
+      { col: col, row: row - 1 }, // NE
       { col: col - 1, row: row - 1 }, // NW
-      { col: col,     row: row + 1 }, // SE
+      { col: col, row: row + 1 }, // SE
       { col: col - 1, row: row + 1 }, // SW
     ];
   }
   // Odd row
   return [
-    { col: col + 1, row },           // E
-    { col: col - 1, row },           // W
-    { col: col + 1, row: row - 1 },  // NE
-    { col: col,     row: row - 1 },  // NW
-    { col: col + 1, row: row + 1 },  // SE
-    { col: col,     row: row + 1 },  // SW
+    { col: col + 1, row }, // E
+    { col: col - 1, row }, // W
+    { col: col + 1, row: row - 1 }, // NE
+    { col: col, row: row - 1 }, // NW
+    { col: col + 1, row: row + 1 }, // SE
+    { col: col, row: row + 1 }, // SW
   ];
 }
 
 /** BFS shortest path between two hex cells. Returns array of {col, row} from start to end. */
 export function findHexPath(
-  startCol: number, startRow: number,
-  endCol: number, endRow: number,
+  startCol: number,
+  startRow: number,
+  endCol: number,
+  endRow: number,
 ): { col: number; row: number }[] {
   if (startCol === endCol && startRow === endRow) {
     return [{ col: startCol, row: startRow }];
@@ -127,7 +138,9 @@ export function findHexPath(
   visited.add(startKey);
   parent.set(startKey, null);
 
-  const queue: { col: number; row: number }[] = [{ col: startCol, row: startRow }];
+  const queue: { col: number; row: number }[] = [
+    { col: startCol, row: startRow },
+  ];
   let found = false;
 
   while (queue.length > 0) {

@@ -129,7 +129,11 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      )
+        return;
       const key = e.key.toLowerCase();
       const midiNote = QWERTY_MAP[key];
       if (midiNote !== undefined && !heldKeysRef.current.has(key)) {

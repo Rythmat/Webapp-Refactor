@@ -37,16 +37,8 @@ const HexagonPattern = () => (
       </pattern>
     </defs>
     <path d="M0 0H400L300 200H0V0Z" fill="#28a69a" fillOpacity="0.2" />
-    <path
-      d="M300 0H600L500 200H200L300 0Z"
-      fill="#d2404a"
-      fillOpacity="0.3"
-    />
-    <path
-      d="M550 0H900L800 200H450L550 0Z"
-      fill="#9d7fce"
-      fillOpacity="0.2"
-    />
+    <path d="M300 0H600L500 200H200L300 0Z" fill="#d2404a" fillOpacity="0.3" />
+    <path d="M550 0H900L800 200H450L550 0Z" fill="#9d7fce" fillOpacity="0.2" />
     <path
       d="M850 0H1200L1100 200H750L850 0Z"
       fill="#fea92a"
@@ -59,10 +51,7 @@ const HexagonPattern = () => (
 // --- Main Component ---
 
 interface MajorArcanumProps {
-  onComplete?: (result: {
-    score: number;
-    maxStreak: number;
-  }) => void;
+  onComplete?: (result: { score: number; maxStreak: number }) => void;
 }
 
 export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
@@ -147,11 +136,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     const x = geom.x + geom.width / 2;
     const y = gameState.current.canvasHeight - PIANO_HEIGHT;
     const st = gameState.current;
-    const color = getNoteColor(
-      midi,
-      st.currentScaleNotes,
-      st.currentKeyColor,
-    );
+    const color = getNoteColor(midi, st.currentScaleNotes, st.currentKeyColor);
 
     for (let i = 0; i < 6; i++) {
       particlesRef.current.push({
@@ -398,8 +383,13 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         // Bug fix #6: time-based hold scoring instead of probabilistic
         if (note.hit && note.isHolding && !note.completed && !note.lost) {
           const timeSinceLastScore = songTime - note.lastHoldScoreTime;
-          if (note.duration > 0.5 && timeSinceLastScore >= HOLD_SCORE_INTERVAL) {
-            const intervals = Math.floor(timeSinceLastScore / HOLD_SCORE_INTERVAL);
+          if (
+            note.duration > 0.5 &&
+            timeSinceLastScore >= HOLD_SCORE_INTERVAL
+          ) {
+            const intervals = Math.floor(
+              timeSinceLastScore / HOLD_SCORE_INTERVAL,
+            );
             st.score += intervals * st.multiplier;
             note.lastHoldScoreTime = songTime;
             setUiState((prev) => ({ ...prev, score: st.score }));
@@ -488,8 +478,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         });
         if (midiConnected)
           setUiState((prev) => ({ ...prev, midiStatus: 'MIDI Active' }));
-        else
-          setUiState((prev) => ({ ...prev, midiStatus: 'MIDI Ready' }));
+        else setUiState((prev) => ({ ...prev, midiStatus: 'MIDI Ready' }));
       } catch {
         setUiState((prev) => ({
           ...prev,
@@ -553,9 +542,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         <CircleOfFifthsSelector
           onSelect={changeKey}
           currentRoot={gameState.current.keyRootVal}
-          onClose={() =>
-            setUiState((s) => ({ ...s, showKeySelector: false }))
-          }
+          onClose={() => setUiState((s) => ({ ...s, showKeySelector: false }))}
         />
       )}
 

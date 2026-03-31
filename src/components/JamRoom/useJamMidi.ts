@@ -127,17 +127,20 @@ export function useJamMidi(
       });
     };
 
-    nav.requestMIDIAccess().then((access) => {
-      midiAccess = access;
-      attachAll(access);
-
-      // Re-attach when devices are plugged/unplugged
-      access.onstatechange = () => {
+    nav
+      .requestMIDIAccess()
+      .then((access) => {
+        midiAccess = access;
         attachAll(access);
-      };
-    }).catch((err) => {
-      console.warn('[useJamMidi] MIDI access failed:', err);
-    });
+
+        // Re-attach when devices are plugged/unplugged
+        access.onstatechange = () => {
+          attachAll(access);
+        };
+      })
+      .catch((err) => {
+        console.warn('[useJamMidi] MIDI access failed:', err);
+      });
 
     return () => {
       if (midiAccess) {
@@ -147,7 +150,7 @@ export function useJamMidi(
         midiAccess.onstatechange = null;
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // mount only — refs handle dynamic values, no race with cleanup
 
   // Cleanup drum engine on unmount

@@ -11,9 +11,7 @@ export function filterContoursByLength(
   minNotes: number,
   maxNotes: number,
 ): number[][] {
-  return contours.filter(
-    (c) => c.length >= minNotes && c.length <= maxNotes,
-  );
+  return contours.filter((c) => c.length >= minNotes && c.length <= maxNotes);
 }
 
 /** Pick a random contour from the filtered set */
@@ -42,7 +40,7 @@ export function contourToMidi(
 ): number[] {
   return contour.map((offset) => {
     const idx =
-      ((startIndex + offset) % scale.length + scale.length) % scale.length;
+      (((startIndex + offset) % scale.length) + scale.length) % scale.length;
     return scale[idx];
   });
 }

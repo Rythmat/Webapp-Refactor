@@ -44,17 +44,7 @@ export const HARMONY_KEYS = [
   'KeyK',
   'KeyL',
 ];
-export const HARMONY_LABELS = [
-  'A',
-  'S',
-  'D',
-  'F',
-  'G',
-  'H',
-  'J',
-  'K',
-  'L',
-];
+export const HARMONY_LABELS = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
 
 // Colors based on Circle of 5ths
 export const KEY_COLORS: Record<number, string> = {

@@ -22,44 +22,121 @@ type GameMode = 'creative' | 'challenge';
 // --- Constants ---
 
 const DEFAULT_EFFECTS: EffectParam[] = [
-  { id: 'filter', label: 'Filter', value: 1000, min: 100, max: 8000, color: '#a78bfa' },
-  { id: 'reverb', label: 'Reverb', value: 0, min: 0, max: 100, color: '#38bdf8' },
+  {
+    id: 'filter',
+    label: 'Filter',
+    value: 1000,
+    min: 100,
+    max: 8000,
+    color: '#a78bfa',
+  },
+  {
+    id: 'reverb',
+    label: 'Reverb',
+    value: 0,
+    min: 0,
+    max: 100,
+    color: '#38bdf8',
+  },
   { id: 'delay', label: 'Delay', value: 0, min: 0, max: 100, color: '#34d399' },
-  { id: 'distortion', label: 'Distort', value: 0, min: 0, max: 100, color: '#f97316' },
-  { id: 'pitch', label: 'Pitch', value: 0, min: -12, max: 12, color: '#ec4899' },
-  { id: 'speed', label: 'Speed', value: 100, min: 50, max: 200, color: '#eab308' },
+  {
+    id: 'distortion',
+    label: 'Distort',
+    value: 0,
+    min: 0,
+    max: 100,
+    color: '#f97316',
+  },
+  {
+    id: 'pitch',
+    label: 'Pitch',
+    value: 0,
+    min: -12,
+    max: 12,
+    color: '#ec4899',
+  },
+  {
+    id: 'speed',
+    label: 'Speed',
+    value: 100,
+    min: 50,
+    max: 200,
+    color: '#eab308',
+  },
 ];
 
 const GENRE_TARGETS: GenreTarget[] = [
   {
     label: 'Ambient',
     description: 'Washed out, reverb-heavy, filtered',
-    params: { filter: 2000, reverb: 85, delay: 60, distortion: 0, pitch: 0, speed: 80 },
+    params: {
+      filter: 2000,
+      reverb: 85,
+      delay: 60,
+      distortion: 0,
+      pitch: 0,
+      speed: 80,
+    },
   },
   {
     label: 'Lo-Fi',
     description: 'Warm, slow, slightly distorted',
-    params: { filter: 3000, reverb: 30, delay: 20, distortion: 15, pitch: 0, speed: 85 },
+    params: {
+      filter: 3000,
+      reverb: 30,
+      delay: 20,
+      distortion: 15,
+      pitch: 0,
+      speed: 85,
+    },
   },
   {
     label: 'Industrial',
     description: 'Heavy distortion, dark filter, fast',
-    params: { filter: 600, reverb: 10, delay: 30, distortion: 80, pitch: -3, speed: 120 },
+    params: {
+      filter: 600,
+      reverb: 10,
+      delay: 30,
+      distortion: 80,
+      pitch: -3,
+      speed: 120,
+    },
   },
   {
     label: 'Shoegaze',
     description: 'Maximum reverb and delay, bright filter',
-    params: { filter: 5000, reverb: 95, delay: 80, distortion: 30, pitch: 0, speed: 90 },
+    params: {
+      filter: 5000,
+      reverb: 95,
+      delay: 80,
+      distortion: 30,
+      pitch: 0,
+      speed: 90,
+    },
   },
   {
     label: 'Chiptune',
     description: 'High-pitched, fast, no reverb',
-    params: { filter: 7000, reverb: 0, delay: 10, distortion: 40, pitch: 12, speed: 140 },
+    params: {
+      filter: 7000,
+      reverb: 0,
+      delay: 10,
+      distortion: 40,
+      pitch: 12,
+      speed: 140,
+    },
   },
   {
     label: 'Dub',
     description: 'Heavy delay, deep filter, moderate reverb',
-    params: { filter: 800, reverb: 40, delay: 90, distortion: 5, pitch: -5, speed: 75 },
+    params: {
+      filter: 800,
+      reverb: 40,
+      delay: 90,
+      distortion: 5,
+      pitch: -5,
+      speed: 75,
+    },
   },
 ];
 
@@ -81,7 +158,10 @@ class SpinnerEngine {
   private isActive = false;
 
   constructor() {
-    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AC =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
     this.ctx = new AC();
     this.master = this.ctx.createGain();
     this.master.gain.value = 0.2;
@@ -123,7 +203,9 @@ class SpinnerEngine {
     const size = this.ctx.sampleRate * 2;
     this.noiseBuffer = this.ctx.createBuffer(1, size, this.ctx.sampleRate);
     const data = this.noiseBuffer.getChannelData(0);
-    for (let i = 0; i < size; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.5));
+    for (let i = 0; i < size; i++)
+      data[i] =
+        (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.5));
   }
 
   private makeDistortionCurve(amount: number): Float32Array {
@@ -181,7 +263,11 @@ class SpinnerEngine {
 
   stop() {
     if (this.sourceOsc) {
-      try { this.sourceOsc.stop(); } catch { /* ok */ }
+      try {
+        this.sourceOsc.stop();
+      } catch {
+        /* ok */
+      }
       this.sourceOsc = null;
     }
     this.isActive = false;
@@ -191,22 +277,46 @@ class SpinnerEngine {
     const get = (id: string) => effects.find((e) => e.id === id)?.value ?? 0;
 
     // Filter
-    this.filterNode.frequency.setTargetAtTime(get('filter'), this.ctx.currentTime, 0.05);
+    this.filterNode.frequency.setTargetAtTime(
+      get('filter'),
+      this.ctx.currentTime,
+      0.05,
+    );
 
     // Reverb (noise level)
     const reverbVal = get('reverb') / 100;
-    this.convolverGain.gain.setTargetAtTime(reverbVal * 0.15, this.ctx.currentTime, 0.05);
+    this.convolverGain.gain.setTargetAtTime(
+      reverbVal * 0.15,
+      this.ctx.currentTime,
+      0.05,
+    );
 
     // Delay
     const delayVal = get('delay') / 100;
-    this.delayWet.gain.setTargetAtTime(delayVal * 0.5, this.ctx.currentTime, 0.05);
-    this.delayFeedback.gain.setTargetAtTime(0.2 + delayVal * 0.5, this.ctx.currentTime, 0.05);
+    this.delayWet.gain.setTargetAtTime(
+      delayVal * 0.5,
+      this.ctx.currentTime,
+      0.05,
+    );
+    this.delayFeedback.gain.setTargetAtTime(
+      0.2 + delayVal * 0.5,
+      this.ctx.currentTime,
+      0.05,
+    );
 
     // Distortion
     const distVal = get('distortion') / 100;
     this.distortionNode.curve = this.makeDistortionCurve(distVal * 400);
-    this.distortionGain.gain.setTargetAtTime(distVal * 0.5, this.ctx.currentTime, 0.05);
-    this.dryGain.gain.setTargetAtTime(1 - distVal * 0.5, this.ctx.currentTime, 0.05);
+    this.distortionGain.gain.setTargetAtTime(
+      distVal * 0.5,
+      this.ctx.currentTime,
+      0.05,
+    );
+    this.dryGain.gain.setTargetAtTime(
+      1 - distVal * 0.5,
+      this.ctx.currentTime,
+      0.05,
+    );
 
     // Pitch (change oscillator frequency)
     if (this.sourceOsc) {
@@ -227,7 +337,10 @@ class SpinnerEngine {
 }
 
 // Compute similarity between player effects and target
-function computeMatchScore(effects: EffectParam[], target: Record<string, number>): number {
+function computeMatchScore(
+  effects: EffectParam[],
+  target: Record<string, number>,
+): number {
   let totalDiff = 0;
   let count = 0;
   for (const effect of effects) {
@@ -256,14 +369,29 @@ function RadialDial({ effects, matchScore }: DialProps) {
   return (
     <svg width={300} height={300} viewBox="0 0 300 300">
       {/* Background ring */}
-      <circle cx={cx} cy={cy} r={radius} fill="none" stroke="#27272a" strokeWidth={2} />
-      <circle cx={cx} cy={cy} r={radius - 20} fill="none" stroke="#18181b" strokeWidth={1} />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={radius}
+        fill="none"
+        stroke="#27272a"
+        strokeWidth={2}
+      />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={radius - 20}
+        fill="none"
+        stroke="#18181b"
+        strokeWidth={1}
+      />
 
       {/* Effect arcs */}
       {effects.map((effect, i) => {
         const angleStart = (i / effects.length) * Math.PI * 2 - Math.PI / 2;
         const angleEnd = ((i + 1) / effects.length) * Math.PI * 2 - Math.PI / 2;
-        const normalized = (effect.value - effect.min) / (effect.max - effect.min);
+        const normalized =
+          (effect.value - effect.min) / (effect.max - effect.min);
         const arcRadius = radius - 8;
 
         // Arc path for the filled portion
@@ -322,13 +450,26 @@ function RadialDial({ effects, matchScore }: DialProps) {
       {/* Center score */}
       {matchScore !== null && (
         <>
-          <circle cx={cx} cy={cy} r={40} fill="#09090b" stroke="#27272a" strokeWidth={1} />
+          <circle
+            cx={cx}
+            cy={cy}
+            r={40}
+            fill="#09090b"
+            stroke="#27272a"
+            strokeWidth={1}
+          />
           <text
             x={cx}
             y={cy - 6}
             textAnchor="middle"
             dominantBaseline="middle"
-            fill={matchScore >= 0.8 ? '#34d399' : matchScore >= 0.6 ? '#fbbf24' : '#ef4444'}
+            fill={
+              matchScore >= 0.8
+                ? '#34d399'
+                : matchScore >= 0.6
+                  ? '#fbbf24'
+                  : '#ef4444'
+            }
             fontSize={22}
             fontWeight="300"
           >
@@ -380,7 +521,9 @@ export default function SoundSpinner({ onComplete }: SoundSpinnerProps) {
 
   // Cleanup
   useEffect(() => {
-    return () => { engineRef.current?.close(); };
+    return () => {
+      engineRef.current?.close();
+    };
   }, []);
 
   // Update audio params when effects change
@@ -417,9 +560,7 @@ export default function SoundSpinner({ onComplete }: SoundSpinnerProps) {
   }, [getEngine, isPlaying, effects]);
 
   const updateEffect = useCallback((id: string, value: number) => {
-    setEffects((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, value } : e)),
-    );
+    setEffects((prev) => prev.map((e) => (e.id === id ? { ...e, value } : e)));
   }, []);
 
   const resetEffects = useCallback(() => {
@@ -456,7 +597,9 @@ export default function SoundSpinner({ onComplete }: SoundSpinnerProps) {
                   setChallengeComplete(false);
                 }}
                 className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                  mode === m ? 'bg-white text-black' : 'text-zinc-500 hover:text-white'
+                  mode === m
+                    ? 'bg-white text-black'
+                    : 'text-zinc-500 hover:text-white'
                 }`}
               >
                 {m.charAt(0).toUpperCase() + m.slice(1)}
@@ -466,7 +609,8 @@ export default function SoundSpinner({ onComplete }: SoundSpinnerProps) {
         </div>
         {mode === 'challenge' && (
           <span className="text-xs text-zinc-500">
-            Rounds: <span className="text-emerald-400 font-mono">{roundsWon}</span>
+            Rounds:{' '}
+            <span className="text-emerald-400 font-mono">{roundsWon}</span>
           </span>
         )}
       </div>
@@ -474,7 +618,9 @@ export default function SoundSpinner({ onComplete }: SoundSpinnerProps) {
       {/* Challenge target */}
       {mode === 'challenge' && target && (
         <div className="h-10 bg-[#0f0f11] border-b border-zinc-800 flex items-center px-6 gap-4">
-          <span className="text-xs text-zinc-500 uppercase tracking-wider">Make it sound:</span>
+          <span className="text-xs text-zinc-500 uppercase tracking-wider">
+            Make it sound:
+          </span>
           <span className="text-sm text-white font-medium">{target.label}</span>
           <span className="text-xs text-zinc-500">{target.description}</span>
         </div>
@@ -504,9 +650,13 @@ export default function SoundSpinner({ onComplete }: SoundSpinnerProps) {
                 type="range"
                 min={effect.min}
                 max={effect.max}
-                step={effect.id === 'pitch' ? 1 : (effect.max - effect.min) / 100}
+                step={
+                  effect.id === 'pitch' ? 1 : (effect.max - effect.min) / 100
+                }
                 value={effect.value}
-                onChange={(e) => updateEffect(effect.id, Number(e.target.value))}
+                onChange={(e) =>
+                  updateEffect(effect.id, Number(e.target.value))
+                }
                 className="flex-1 h-1.5"
                 style={{ accentColor: effect.color }}
               />
@@ -526,7 +676,9 @@ export default function SoundSpinner({ onComplete }: SoundSpinnerProps) {
       {challengeComplete && mode === 'challenge' && (
         <div className="px-6 pb-4 flex items-center justify-center gap-6">
           <div className="text-center">
-            <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Match!</div>
+            <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
+              Match!
+            </div>
             <div className="text-2xl font-light text-emerald-400">
               {Math.round((matchScore ?? 0) * 100)}%
             </div>
@@ -561,7 +713,9 @@ export default function SoundSpinner({ onComplete }: SoundSpinnerProps) {
           </button>
         </div>
         {mode === 'creative' && (
-          <span className="text-xs text-zinc-600">Twist the dials. Warp the sound.</span>
+          <span className="text-xs text-zinc-600">
+            Twist the dials. Warp the sound.
+          </span>
         )}
       </div>
     </div>

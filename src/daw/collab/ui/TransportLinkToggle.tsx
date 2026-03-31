@@ -23,7 +23,11 @@ export function TransportLinkToggle() {
       style={{
         color: linked ? 'var(--color-accent)' : 'var(--color-text-dim)',
       }}
-      title={linked ? 'Transport linked — click to unlink' : 'Transport unlinked — click to link'}
+      title={
+        linked
+          ? 'Transport linked — click to unlink'
+          : 'Transport unlinked — click to link'
+      }
     >
       <Icon size={11} strokeWidth={2} />
     </motion.button>

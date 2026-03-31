@@ -6,7 +6,10 @@
 
 /** Parse a progression key into individual chord symbols */
 export function parseProgression(key: string): string[] {
-  return key.split('-').map((s) => s.trim()).filter(Boolean);
+  return key
+    .split('-')
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 /** Filter progressions by chord count */

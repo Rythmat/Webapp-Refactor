@@ -163,10 +163,7 @@ function UserRow({
         >
           {name}
         </div>
-        <div
-          className="text-[8px]"
-          style={{ color: 'var(--color-text-dim)' }}
-        >
+        <div className="text-[8px]" style={{ color: 'var(--color-text-dim)' }}>
           {ACTIVITY_LABELS[activity]}
         </div>
       </div>

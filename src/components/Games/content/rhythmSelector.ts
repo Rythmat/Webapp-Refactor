@@ -42,10 +42,7 @@ export function filterRhythmsByHitCount(
  * Convert rhythm hits (tick-based) to a 16-step grid pattern.
  * Assumes 480 ticks per quarter note, 4 quarter notes per bar.
  */
-export function rhythmToGrid(
-  hits: RhythmHit[],
-  steps = 16,
-): boolean[] {
+export function rhythmToGrid(hits: RhythmHit[], steps = 16): boolean[] {
   const ticksPerStep = (480 * 4) / steps; // 480 ticks/quarter × 4 quarters / steps
   const grid = new Array(steps).fill(false);
 

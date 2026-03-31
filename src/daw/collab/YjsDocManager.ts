@@ -269,9 +269,7 @@ export function yMapToTrack(m: Y.Map<unknown>): Track {
     audioInputChannel: null,
     effects: effectsStr ? JSON.parse(effectsStr) : {},
     activeEffects: activeEffectsStr ? JSON.parse(activeEffectsStr) : [],
-    midiClips: midiClipsArr
-      ? midiClipsArr.toArray().map(yMapToMidiClip)
-      : [],
+    midiClips: midiClipsArr ? midiClipsArr.toArray().map(yMapToMidiClip) : [],
     audioClips: audioClipsArr
       ? audioClipsArr.toArray().map(yMapToAudioClip)
       : [],
@@ -362,10 +360,7 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
     const mastering = getYMastering(doc);
     mastering.set('style', state.masteringStyle);
     mastering.set('eq', JSON.stringify(state.masteringEq));
-    mastering.set(
-      'dynamics',
-      JSON.stringify(state.masteringDynamics),
-    );
+    mastering.set('dynamics', JSON.stringify(state.masteringDynamics));
     mastering.set('loudness', state.masteringLoudness);
     mastering.set('stereoField', state.masteringStereoField);
     mastering.set('bypass', state.masteringBypass);

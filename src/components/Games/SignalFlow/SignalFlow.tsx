@@ -23,7 +23,15 @@ import {
   pixelToHex,
   findHexPath,
 } from './hexGrid';
-import type { Item, Slot, Connection, Level, SlotStatus, ConnectionStatus, GameState } from './types';
+import type {
+  Item,
+  Slot,
+  Connection,
+  Level,
+  SlotStatus,
+  ConnectionStatus,
+  GameState,
+} from './types';
 
 // --- Sub-Components ---
 
@@ -40,18 +48,31 @@ function ItemIcon({ item, size = 20 }: { item: Item; size?: number }) {
 }
 
 // Level Select Screen
-const LevelSelectScreen = ({ levels, onSelect }: { levels: Level[]; onSelect: (id: number) => void }) => (
+const LevelSelectScreen = ({
+  levels,
+  onSelect,
+}: {
+  levels: Level[];
+  onSelect: (id: number) => void;
+}) => (
   <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-y-auto">
     <div className="max-w-5xl w-full">
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center p-4 bg-indigo-500/10 rounded-full mb-6 ring-1 ring-indigo-500/30">
           <Settings size={48} className="text-indigo-500" />
         </div>
-        <h1 className="text-4xl font-bold mb-3 tracking-tight" style={{ color: 'var(--color-text)' }}>
+        <h1
+          className="text-4xl font-bold mb-3 tracking-tight"
+          style={{ color: 'var(--color-text)' }}
+        >
           Signal Flow Trainer
         </h1>
-        <p className="text-lg max-w-lg mx-auto" style={{ color: 'var(--color-text-secondary, #a1a1aa)' }}>
-          Select a mission to begin your certification. Master the signal path from source to destination.
+        <p
+          className="text-lg max-w-lg mx-auto"
+          style={{ color: 'var(--color-text-secondary, #a1a1aa)' }}
+        >
+          Select a mission to begin your certification. Master the signal path
+          from source to destination.
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -72,7 +93,9 @@ const LevelSelectScreen = ({ levels, onSelect }: { levels: Level[]; onSelect: (i
             <h3 className="text-xl font-bold text-white mb-2 group-hover:text-indigo-300 transition-colors">
               {level.title}
             </h3>
-            <p className="text-sm text-zinc-500 leading-relaxed">{level.brief}</p>
+            <p className="text-sm text-zinc-500 leading-relaxed">
+              {level.brief}
+            </p>
           </button>
         ))}
       </div>
@@ -92,7 +115,16 @@ interface HexTileProps {
   onDrop?: (droppedItemId: string) => void;
 }
 
-const HexTile: React.FC<HexTileProps> = ({ x, y, tileType, status, item, label, onClick, onDrop }) => {
+const HexTile: React.FC<HexTileProps> = ({
+  x,
+  y,
+  tileType,
+  status,
+  item,
+  label,
+  onClick,
+  onDrop,
+}) => {
   const style = { left: x, top: y, width: HEX_WIDTH, height: HEX_HEIGHT };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -107,9 +139,18 @@ const HexTile: React.FC<HexTileProps> = ({ x, y, tileType, status, item, label, 
 
   if (tileType === 'background') {
     return (
-      <div className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={style}>
-        <div className="w-full h-full bg-zinc-800/40" style={{ clipPath: HEX_CLIP_PATH }} />
-        <div className="absolute inset-px bg-zinc-900/90" style={{ clipPath: HEX_CLIP_PATH }} />
+      <div
+        className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+        style={style}
+      >
+        <div
+          className="w-full h-full bg-zinc-800/40"
+          style={{ clipPath: HEX_CLIP_PATH }}
+        />
+        <div
+          className="absolute inset-px bg-zinc-900/90"
+          style={{ clipPath: HEX_CLIP_PATH }}
+        />
       </div>
     );
   }
@@ -141,7 +182,9 @@ const HexTile: React.FC<HexTileProps> = ({ x, y, tileType, status, item, label, 
         ? 'bg-white/10'
         : 'bg-zinc-800/80 hover:bg-zinc-800';
     content = (
-      <div className={`flex flex-col items-center gap-1 ${isHighlight ? 'text-indigo-300' : isTarget ? 'text-white' : 'text-zinc-600'}`}>
+      <div
+        className={`flex flex-col items-center gap-1 ${isHighlight ? 'text-indigo-300' : isTarget ? 'text-white' : 'text-zinc-600'}`}
+      >
         {isHighlight ? (
           <CheckCircle size={18} className="animate-bounce" />
         ) : isTarget ? (
@@ -149,7 +192,9 @@ const HexTile: React.FC<HexTileProps> = ({ x, y, tileType, status, item, label, 
         ) : (
           <div className="text-[10px] opacity-40">OPEN</div>
         )}
-        <span className="text-[9px] font-bold uppercase tracking-widest">{label}</span>
+        <span className="text-[9px] font-bold uppercase tracking-widest">
+          {label}
+        </span>
       </div>
     );
   }
@@ -159,7 +204,10 @@ const HexTile: React.FC<HexTileProps> = ({ x, y, tileType, status, item, label, 
   if (isFilled) borderClass = 'bg-zinc-600';
   if (isTarget) borderClass = 'bg-white animate-pulse';
 
-  const glow = isHighlight || isTarget ? 'drop-shadow-[0_0_12px_rgba(99,102,241,0.5)]' : 'drop-shadow-xl';
+  const glow =
+    isHighlight || isTarget
+      ? 'drop-shadow-[0_0_12px_rgba(99,102,241,0.5)]'
+      : 'drop-shadow-xl';
 
   return (
     <div
@@ -169,9 +217,17 @@ const HexTile: React.FC<HexTileProps> = ({ x, y, tileType, status, item, label, 
       className={`absolute transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group z-10 transition-transform active:scale-95 hover:z-20 ${isFilled ? '' : 'hover:scale-105'}`}
       style={style}
     >
-      <div className={`w-full h-full absolute transition-all duration-300 ${glow}`}>
-        <div className={`absolute inset-0 transition-colors ${borderClass}`} style={{ clipPath: HEX_CLIP_PATH }} />
-        <div className={`absolute inset-[2px] flex flex-col items-center justify-center p-2 transition-colors ${bgColorClass}`} style={{ clipPath: HEX_CLIP_PATH }}>
+      <div
+        className={`w-full h-full absolute transition-all duration-300 ${glow}`}
+      >
+        <div
+          className={`absolute inset-0 transition-colors ${borderClass}`}
+          style={{ clipPath: HEX_CLIP_PATH }}
+        />
+        <div
+          className={`absolute inset-[2px] flex flex-col items-center justify-center p-2 transition-colors ${bgColorClass}`}
+          style={{ clipPath: HEX_CLIP_PATH }}
+        >
           {content}
         </div>
       </div>
@@ -181,35 +237,51 @@ const HexTile: React.FC<HexTileProps> = ({ x, y, tileType, status, item, label, 
 
 // Background hex pattern — renders in board space using getHexPos for perfect alignment with slots.
 // Extends beyond the board boundaries to fill the entire wrapper area.
-const HexBoardBackground = React.memo(({
-  wrapperWidth, wrapperHeight, boardScale, boardOffsetX, boardOffsetY,
-}: {
-  wrapperWidth: number; wrapperHeight: number;
-  boardScale: number; boardOffsetX: number; boardOffsetY: number;
-}) => {
-  if (wrapperWidth === 0 || boardScale === 0) return null;
+const HexBoardBackground = React.memo(
+  ({
+    wrapperWidth,
+    wrapperHeight,
+    boardScale,
+    boardOffsetX,
+    boardOffsetY,
+  }: {
+    wrapperWidth: number;
+    wrapperHeight: number;
+    boardScale: number;
+    boardOffsetX: number;
+    boardOffsetY: number;
+  }) => {
+    if (wrapperWidth === 0 || boardScale === 0) return null;
 
-  // Map wrapper edges into board-space coordinates
-  const left = -boardOffsetX / boardScale;
-  const top = -boardOffsetY / boardScale;
-  const right = (wrapperWidth - boardOffsetX) / boardScale;
-  const bottom = (wrapperHeight - boardOffsetY) / boardScale;
+    // Map wrapper edges into board-space coordinates
+    const left = -boardOffsetX / boardScale;
+    const top = -boardOffsetY / boardScale;
+    const right = (wrapperWidth - boardOffsetX) / boardScale;
+    const bottom = (wrapperHeight - boardOffsetY) / boardScale;
 
-  // Convert to grid col/row range (with margin)
-  const minCol = Math.floor(left / HORIZ_STEP) - 1;
-  const maxCol = Math.ceil(right / HORIZ_STEP) + 1;
-  const minRow = Math.floor(top / VERT_STEP) - 1;
-  const maxRow = Math.ceil(bottom / VERT_STEP) + 1;
+    // Convert to grid col/row range (with margin)
+    const minCol = Math.floor(left / HORIZ_STEP) - 1;
+    const maxCol = Math.ceil(right / HORIZ_STEP) + 1;
+    const minRow = Math.floor(top / VERT_STEP) - 1;
+    const maxRow = Math.ceil(bottom / VERT_STEP) + 1;
 
-  const tiles = [];
-  for (let r = minRow; r <= maxRow; r++) {
-    for (let c = minCol; c <= maxCol; c++) {
-      const pos = getHexPos(c, r);
-      tiles.push(<HexTile key={`bg-${c}-${r}`} x={pos.x} y={pos.y} tileType="background" />);
+    const tiles = [];
+    for (let r = minRow; r <= maxRow; r++) {
+      for (let c = minCol; c <= maxCol; c++) {
+        const pos = getHexPos(c, r);
+        tiles.push(
+          <HexTile
+            key={`bg-${c}-${r}`}
+            x={pos.x}
+            y={pos.y}
+            tileType="background"
+          />,
+        );
+      }
     }
-  }
-  return <div className="absolute inset-0">{tiles}</div>;
-});
+    return <div className="absolute inset-0">{tiles}</div>;
+  },
+);
 HexBoardBackground.displayName = 'HexBoardBackground';
 
 // Jack Point (visual node on cable midpoint)
@@ -220,7 +292,12 @@ interface JackPointProps {
   cableType: string;
 }
 
-const JackPoint: React.FC<JackPointProps> = ({ status, onClick, onDrop, cableType }) => {
+const JackPoint: React.FC<JackPointProps> = ({
+  status,
+  onClick,
+  onDrop,
+  cableType,
+}) => {
   const baseColor = status === 'connected' ? 'bg-zinc-800' : 'bg-zinc-900';
   let borderColorClass = 'bg-zinc-600';
   if (status === 'connected') {
@@ -255,8 +332,13 @@ const JackPoint: React.FC<JackPointProps> = ({ status, onClick, onDrop, cableTyp
         className={`absolute inset-0 ${borderColorClass} transition-colors ${status === 'highlight' ? 'animate-pulse' : ''}`}
         style={{ clipPath: HEX_CLIP_PATH }}
       />
-      <div className={`absolute inset-[2px] ${baseColor}`} style={{ clipPath: HEX_CLIP_PATH }} />
-      <div className={`relative w-2 h-2 rounded-full ${status === 'connected' ? 'bg-white' : 'bg-zinc-700'}`} />
+      <div
+        className={`absolute inset-[2px] ${baseColor}`}
+        style={{ clipPath: HEX_CLIP_PATH }}
+      />
+      <div
+        className={`relative w-2 h-2 rounded-full ${status === 'connected' ? 'bg-white' : 'bg-zinc-700'}`}
+      />
     </div>
   );
 };
@@ -270,7 +352,13 @@ interface CableRouteProps {
   onDrop: (droppedId: string) => void;
 }
 
-const CableRoute: React.FC<CableRouteProps> = ({ connection, slots, status, onClick, onDrop }) => {
+const CableRoute: React.FC<CableRouteProps> = ({
+  connection,
+  slots,
+  status,
+  onClick,
+  onDrop,
+}) => {
   if (status === 'locked') return null;
 
   const fromSlot = slots.find((s) => s.id === connection.from);
@@ -285,13 +373,23 @@ const CableRoute: React.FC<CableRouteProps> = ({ connection, slots, status, onCl
     // Power cables: route down through hex grid, then straight to power rail
     const startHex = { col: fromSlot.col, row: fromSlot.row };
     const endHex = pixelToHex(startPos.x, POWER_RAIL_Y);
-    const hexPath = findHexPath(startHex.col, startHex.row, endHex.col, endHex.row);
+    const hexPath = findHexPath(
+      startHex.col,
+      startHex.row,
+      endHex.col,
+      endHex.row,
+    );
     waypoints = hexPath.map((h) => getHexPos(h.col, h.row));
     waypoints.push({ x: startPos.x, y: POWER_RAIL_Y });
   } else {
     const toSlot = slots.find((s) => s.id === connection.to);
     if (!toSlot) return null;
-    const hexPath = findHexPath(fromSlot.col, fromSlot.row, toSlot.col, toSlot.row);
+    const hexPath = findHexPath(
+      fromSlot.col,
+      fromSlot.row,
+      toSlot.col,
+      toSlot.row,
+    );
     waypoints = hexPath.map((h) => getHexPos(h.col, h.row));
   }
 
@@ -314,7 +412,13 @@ const CableRoute: React.FC<CableRouteProps> = ({ connection, slots, status, onCl
           d={path}
           fill="none"
           stroke={strokeColor}
-          strokeWidth={status === 'connected' ? (connection.required === 'snake_multi' ? '6' : '4') : '2'}
+          strokeWidth={
+            status === 'connected'
+              ? connection.required === 'snake_multi'
+                ? '6'
+                : '4'
+              : '2'
+          }
           strokeDasharray={status === 'connected' ? '0' : '6,6'}
           opacity={status === 'connected' ? 0.9 : 0.4}
           strokeLinecap="round"
@@ -327,15 +431,27 @@ const CableRoute: React.FC<CableRouteProps> = ({ connection, slots, status, onCl
           </circle>
         )}
       </svg>
-      <div className="absolute transform -translate-x-1/2 -translate-y-1/2 z-30" style={{ left: `${jackPos.x}px`, top: `${jackPos.y}px` }}>
-        <JackPoint status={status} cableType={connection.required} onClick={onClick} onDrop={onDrop} />
+      <div
+        className="absolute transform -translate-x-1/2 -translate-y-1/2 z-30"
+        style={{ left: `${jackPos.x}px`, top: `${jackPos.y}px` }}
+      >
+        <JackPoint
+          status={status}
+          cableType={connection.required}
+          onClick={onClick}
+          onDrop={onDrop}
+        />
       </div>
     </>
   );
 };
 
 // Toolbox Item — compact vertical pill for horizontal strip
-const ToolboxItem: React.FC<{ itemId: string; isSelected: boolean; onClick: () => void }> = ({ itemId, isSelected, onClick }) => {
+const ToolboxItem: React.FC<{
+  itemId: string;
+  isSelected: boolean;
+  onClick: () => void;
+}> = ({ itemId, isSelected, onClick }) => {
   const item = ITEMS[itemId.toUpperCase()];
   if (!item) return null;
 
@@ -352,9 +468,11 @@ const ToolboxItem: React.FC<{ itemId: string; isSelected: boolean; onClick: () =
       className={`
         flex flex-col items-center gap-1 px-3 py-2 rounded-lg border text-center
         transition-all cursor-grab active:cursor-grabbing shrink-0 min-w-[72px] group
-        ${isSelected
-          ? 'bg-indigo-500/10 border-indigo-500/50 text-white ring-1 ring-indigo-500/30'
-          : 'bg-zinc-800/50 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'}
+        ${
+          isSelected
+            ? 'bg-indigo-500/10 border-indigo-500/50 text-white ring-1 ring-indigo-500/30'
+            : 'bg-zinc-800/50 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
+        }
       `}
     >
       <div className="relative w-7 h-7 flex items-center justify-center pointer-events-none">
@@ -362,11 +480,15 @@ const ToolboxItem: React.FC<{ itemId: string; isSelected: boolean; onClick: () =
           className={`absolute inset-0 ${isSelected ? 'bg-indigo-500' : 'bg-zinc-700 group-hover:bg-zinc-600'} transition-colors`}
           style={{ clipPath: HEX_CLIP_PATH }}
         />
-        <div className={`relative z-10 ${isSelected ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-200'}`}>
+        <div
+          className={`relative z-10 ${isSelected ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-200'}`}
+        >
           <ItemIcon item={item} size={14} />
         </div>
       </div>
-      <div className="text-[10px] font-medium truncate max-w-[64px] pointer-events-none">{item.name}</div>
+      <div className="text-[10px] font-medium truncate max-w-[64px] pointer-events-none">
+        {item.name}
+      </div>
     </button>
   );
 };
@@ -381,12 +503,22 @@ const Modal: React.FC<{
 }> = ({ title, icon, children, primaryAction, primaryLabel }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
-      <div className="absolute top-0 right-0 -mr-12 -mt-12 w-32 h-32 bg-indigo-500/5" style={{ clipPath: HEX_CLIP_PATH }} />
-      <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 bg-zinc-800/30" style={{ clipPath: HEX_CLIP_PATH }} />
+      <div
+        className="absolute top-0 right-0 -mr-12 -mt-12 w-32 h-32 bg-indigo-500/5"
+        style={{ clipPath: HEX_CLIP_PATH }}
+      />
+      <div
+        className="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 bg-zinc-800/30"
+        style={{ clipPath: HEX_CLIP_PATH }}
+      />
       <div className="relative z-10 text-center">
-        {icon && <div className="flex justify-center mb-4 text-indigo-400">{icon}</div>}
+        {icon && (
+          <div className="flex justify-center mb-4 text-indigo-400">{icon}</div>
+        )}
         <h2 className="text-xl font-bold text-white mb-2">{title}</h2>
-        <div className="text-zinc-400 mb-8 text-sm leading-relaxed">{children}</div>
+        <div className="text-zinc-400 mb-8 text-sm leading-relaxed">
+          {children}
+        </div>
         <button
           onClick={primaryAction}
           className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold tracking-wide rounded-lg transition-colors shadow-lg shadow-indigo-500/20"
@@ -407,11 +539,15 @@ interface SignalFlowProps {
 export default function SignalFlow({ onComplete }: SignalFlowProps) {
   const [levelIndex, setLevelIndex] = useState<number>(-1); // -1 = level select
   const [placedItems, setPlacedItems] = useState<Record<string, string>>({});
-  const [connectedCables, setConnectedCables] = useState<Record<string, string>>({});
+  const [connectedCables, setConnectedCables] = useState<
+    Record<string, string>
+  >({});
 
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
-  const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null);
+  const [selectedConnectionId, setSelectedConnectionId] = useState<
+    string | null
+  >(null);
 
   const [gameState, setGameState] = useState<GameState>('intro');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -486,7 +622,8 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
         setPlacedItems((prev) => ({ ...prev, [slotId]: itemAttempted }));
         setSelectedTool(null);
       } else {
-        const attemptedName = ITEMS[itemAttempted.toUpperCase()]?.name || 'That item';
+        const attemptedName =
+          ITEMS[itemAttempted.toUpperCase()]?.name || 'That item';
         showError(`${attemptedName} doesn't go there!`);
       }
     },
@@ -500,10 +637,14 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
         return;
       }
       if (itemAttempted === requiredCable) {
-        setConnectedCables((prev) => ({ ...prev, [connectionId]: itemAttempted }));
+        setConnectedCables((prev) => ({
+          ...prev,
+          [connectionId]: itemAttempted,
+        }));
         setSelectedTool(null);
       } else {
-        const attemptedName = ITEMS[itemAttempted.toUpperCase()]?.name || 'That item';
+        const attemptedName =
+          ITEMS[itemAttempted.toUpperCase()]?.name || 'That item';
         showError(`${attemptedName} is not the right cable!`);
       }
     },
@@ -519,15 +660,29 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
         return;
       }
       if (selectedConnectionId) {
-        const conn = currentLevel.connections.find((c) => c.id === selectedConnectionId);
-        if (conn) handleConnectionInteraction(selectedConnectionId, itemId, conn.required);
+        const conn = currentLevel.connections.find(
+          (c) => c.id === selectedConnectionId,
+        );
+        if (conn)
+          handleConnectionInteraction(
+            selectedConnectionId,
+            itemId,
+            conn.required,
+          );
         setSelectedConnectionId(null);
         return;
       }
       setSelectedTool(selectedTool === itemId ? null : itemId);
       setErrorMsg(null);
     },
-    [selectedSlotId, selectedConnectionId, selectedTool, currentLevel, handleSlotInteraction, handleConnectionInteraction],
+    [
+      selectedSlotId,
+      selectedConnectionId,
+      selectedTool,
+      currentLevel,
+      handleSlotInteraction,
+      handleConnectionInteraction,
+    ],
   );
 
   const handleSlotClick = useCallback(
@@ -557,7 +712,9 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
     (connectionId: string, requiredCable: string) => {
       const connectedCableId = connectedCables[connectionId];
       if (connectedCableId) {
-        setSelectedTool(selectedTool === connectedCableId ? null : connectedCableId);
+        setSelectedTool(
+          selectedTool === connectedCableId ? null : connectedCableId,
+        );
         setErrorMsg(null);
         return;
       }
@@ -573,14 +730,23 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
         setErrorMsg(null);
       }
     },
-    [connectedCables, selectedTool, selectedConnectionId, handleConnectionInteraction],
+    [
+      connectedCables,
+      selectedTool,
+      selectedConnectionId,
+      handleConnectionInteraction,
+    ],
   );
 
   // Win condition
   useEffect(() => {
     if (gameState !== 'playing' || levelIndex < 0) return;
-    const allSlotsFilled = currentLevel.slots.every((s) => placedItems[s.id] === s.required);
-    const allCablesConnected = currentLevel.connections.every((c) => connectedCables[c.id] === c.required);
+    const allSlotsFilled = currentLevel.slots.every(
+      (s) => placedItems[s.id] === s.required,
+    );
+    const allCablesConnected = currentLevel.connections.every(
+      (c) => connectedCables[c.id] === c.required,
+    );
 
     if (allSlotsFilled && allCablesConnected) {
       const timer = setTimeout(() => setGameState('success'), 600);
@@ -671,7 +837,9 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
           />
           {/* Power Rail */}
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-zinc-900 to-transparent flex items-end px-8 justify-between z-10 pb-4 pointer-events-none">
-            <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest pl-4">Power Distro</div>
+            <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest pl-4">
+              Power Distro
+            </div>
             <div className="flex gap-24 mr-20 opacity-50">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex gap-1 items-center">
@@ -690,7 +858,9 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
               slots={currentLevel.slots}
               status={getConnectionStatus(conn)}
               onClick={() => handleConnectionClick(conn.id, conn.required)}
-              onDrop={(droppedId) => handleConnectionInteraction(conn.id, droppedId, conn.required)}
+              onDrop={(droppedId) =>
+                handleConnectionInteraction(conn.id, droppedId, conn.required)
+              }
             />
           ))}
 
@@ -707,7 +877,9 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
                 item={ITEMS[slot.required.toUpperCase()]}
                 label={slot.label}
                 onClick={() => handleSlotClick(slot.id, slot.required)}
-                onDrop={(droppedId) => handleSlotInteraction(slot.id, droppedId, slot.required)}
+                onDrop={(droppedId) =>
+                  handleSlotInteraction(slot.id, droppedId, slot.required)
+                }
               />
             );
           })}
@@ -725,7 +897,9 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
           </h2>
           <div className="flex items-center gap-2 text-zinc-500 ml-auto">
             <Info size={14} className="shrink-0 text-indigo-400" />
-            <p className="text-[11px] leading-snug truncate max-w-sm">{currentLevel.brief}</p>
+            <p className="text-[11px] leading-snug truncate max-w-sm">
+              {currentLevel.brief}
+            </p>
           </div>
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1">
@@ -749,8 +923,8 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
           primaryAction={() => setGameState('playing')}
         >
           <p>
-            Welcome, Engineer. Configure the studio signal flow by placing equipment into the grid and patching cables
-            correctly.
+            Welcome, Engineer. Configure the studio signal flow by placing
+            equipment into the grid and patching cables correctly.
           </p>
         </Modal>
       )}
@@ -759,10 +933,15 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
         <Modal
           title="Signal Path Verified"
           icon={<CheckCircle size={32} />}
-          primaryLabel={levelIndex < LEVELS.length - 1 ? 'Next Stage' : 'Finish Training'}
+          primaryLabel={
+            levelIndex < LEVELS.length - 1 ? 'Next Stage' : 'Finish Training'
+          }
           primaryAction={nextLevel}
         >
-          <p>Excellent work. All connections are stable and audio is passing cleanly.</p>
+          <p>
+            Excellent work. All connections are stable and audio is passing
+            cleanly.
+          </p>
         </Modal>
       )}
     </div>

@@ -16,10 +16,7 @@ export function CircleOfFifthsSelector({
   const outerRadius = 150;
   const innerRadius = 80;
 
-  const getCoordinatesForAngle = (
-    angleInDegrees: number,
-    radius: number,
-  ) => {
+  const getCoordinatesForAngle = (angleInDegrees: number, radius: number) => {
     const angleInRadians = (angleInDegrees - 90) * (Math.PI / 180);
     return {
       x: center + radius * Math.cos(angleInRadians),
@@ -48,15 +45,9 @@ export function CircleOfFifthsSelector({
             const startAngle = sliceCenterAngle - 15;
             const endAngle = sliceCenterAngle + 15;
 
-            const startOuter = getCoordinatesForAngle(
-              startAngle,
-              outerRadius,
-            );
+            const startOuter = getCoordinatesForAngle(startAngle, outerRadius);
             const endOuter = getCoordinatesForAngle(endAngle, outerRadius);
-            const startInner = getCoordinatesForAngle(
-              startAngle,
-              innerRadius,
-            );
+            const startInner = getCoordinatesForAngle(startAngle, innerRadius);
             const endInner = getCoordinatesForAngle(endAngle, innerRadius);
 
             const pathData = `

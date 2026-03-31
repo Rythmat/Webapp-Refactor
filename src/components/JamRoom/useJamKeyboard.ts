@@ -16,22 +16,22 @@ import { DRUM_MIDI_MAP, type JamInstrument, type DrumSound } from './types';
 // Piano key mapping: bottom row = white keys, top row = black keys
 // C4=60, D4=62, E4=64, F4=65, G4=67, A4=69, B4=71, C5=72, D5=74, E5=76, F5=77
 const PIANO_KEY_MAP: Record<string, number> = {
-  a: 60,  // C4
-  w: 61,  // C#4
-  s: 62,  // D4
-  e: 63,  // D#4
-  d: 64,  // E4
-  f: 65,  // F4
-  t: 66,  // F#4
-  g: 67,  // G4
-  y: 68,  // G#4
-  h: 69,  // A4
-  u: 70,  // A#4
-  j: 71,  // B4
-  k: 72,  // C5
-  o: 73,  // C#5
-  l: 74,  // D5
-  p: 75,  // D#5
+  a: 60, // C4
+  w: 61, // C#4
+  s: 62, // D4
+  e: 63, // D#4
+  d: 64, // E4
+  f: 65, // F4
+  t: 66, // F#4
+  g: 67, // G4
+  y: 68, // G#4
+  h: 69, // A4
+  u: 70, // A#4
+  j: 71, // B4
+  k: 72, // C5
+  o: 73, // C#5
+  l: 74, // D5
+  p: 75, // D#5
   ';': 76, // E5
   "'": 77, // F5
 };
@@ -78,7 +78,11 @@ export function useJamKeyboard(
       const el = document.activeElement;
       if (!el) return false;
       const tag = el.tagName.toLowerCase();
-      return tag === 'input' || tag === 'textarea' || (el as HTMLElement).isContentEditable;
+      return (
+        tag === 'input' ||
+        tag === 'textarea' ||
+        (el as HTMLElement).isContentEditable
+      );
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {

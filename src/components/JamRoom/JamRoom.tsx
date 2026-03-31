@@ -23,14 +23,27 @@ import { JamSoundPicker } from './JamSoundPicker';
 import { NoteWaterfall, type WaterfallHandle } from './NoteWaterfall';
 import { PianoKeyboard } from './PianoKeyboard';
 import { useJamRoomStore } from './jamRoomStore';
-import { initJamSynth, jamProgramChange, getLocalChannel, disposeJamSynth } from './jamSoundFont';
-import { JAM_PIANO_START, JAM_PIANO_END, MIDI_TO_DRUM, type DrumSound } from './types';
+import {
+  initJamSynth,
+  jamProgramChange,
+  getLocalChannel,
+  disposeJamSynth,
+} from './jamSoundFont';
+import {
+  JAM_PIANO_START,
+  JAM_PIANO_END,
+  MIDI_TO_DRUM,
+  type DrumSound,
+} from './types';
 import { useJamAudio } from './useJamAudio';
 import { useJamKeyboard } from './useJamKeyboard';
 import { useJamMidi } from './useJamMidi';
 
 const DRUM_GLOW_INTENSITY: Record<DrumSound, number> = {
-  kick: 0.8, snare: 0.8, rim: 0.45, hihat: 0,
+  kick: 0.8,
+  snare: 0.8,
+  rim: 0.45,
+  hihat: 0,
 };
 
 // ── Inner component (needs JamRoomProvider context) ─────────────────────
@@ -53,11 +66,14 @@ function JamRoomInner() {
   const localInstrument = useJamRoomStore((s) => s.localInstrument);
   const localGmProgram = useJamRoomStore((s) => s.localGmProgram);
 
-  const localPlayer = useMemo(() => ({
-    avatarUrl: appUser?.avatarUrl ?? '',
-    color: localColor,
-    userName: appUser?.nickname ?? appUser?.fullName ?? 'You',
-  }), [appUser, localColor]);
+  const localPlayer = useMemo(
+    () => ({
+      avatarUrl: appUser?.avatarUrl ?? '',
+      color: localColor,
+      userName: appUser?.nickname ?? appUser?.fullName ?? 'You',
+    }),
+    [appUser, localColor],
+  );
 
   const waterfallRef = useRef<WaterfallHandle>(null);
   const [showChat, setShowChat] = useState(false);
@@ -111,9 +127,12 @@ function JamRoomInner() {
   }, []);
 
   // Local drum hit → waterfall glow or particles
-  const onLocalDrumHit = useCallback((sound: DrumSound) => {
-    triggerDrumEffect(sound);
-  }, [triggerDrumEffect]);
+  const onLocalDrumHit = useCallback(
+    (sound: DrumSound) => {
+      triggerDrumEffect(sound);
+    },
+    [triggerDrumEffect],
+  );
 
   // Sync waterfall gradient speed to sequencer BPM
   const onBpmChange = useCallback((bpm: number) => {
@@ -133,7 +152,8 @@ function JamRoomInner() {
         return;
       }
       if (msg.instrument !== 'piano') return;
-      if (msg.action === 'on') waterfallRef.current?.noteOn(msg.midi, msg.color);
+      if (msg.action === 'on')
+        waterfallRef.current?.noteOn(msg.midi, msg.color);
       else waterfallRef.current?.noteOff(msg.midi);
     });
   }, [onNoteMessage, triggerDrumEffect, userId]);
@@ -185,7 +205,10 @@ function JamRoomInner() {
         {showChat && (
           <div
             className="absolute top-0 right-0 bottom-0 w-72 z-10 border-l border-zinc-800"
-            style={{ backgroundColor: '#0f0f11ee', backdropFilter: 'blur(12px)' }}
+            style={{
+              backgroundColor: '#0f0f11ee',
+              backdropFilter: 'blur(12px)',
+            }}
           >
             <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-800">
               <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-medium">
@@ -260,9 +283,16 @@ function JamRoomInner() {
               title={localPlayer.userName}
             >
               {localPlayer.avatarUrl ? (
-                <img src={localPlayer.avatarUrl} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={localPlayer.avatarUrl}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <span className="text-[8px] font-bold" style={{ color: localColor }}>
+                <span
+                  className="text-[8px] font-bold"
+                  style={{ color: localColor }}
+                >
                   {localPlayer.userName.charAt(0).toUpperCase()}
                 </span>
               )}
@@ -276,9 +306,16 @@ function JamRoomInner() {
                 title={p.userName}
               >
                 {p.avatarUrl ? (
-                  <img src={p.avatarUrl} alt="" className="w-full h-full object-cover" />
+                  <img
+                    src={p.avatarUrl}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <span className="text-[8px] font-bold" style={{ color: p.color }}>
+                  <span
+                    className="text-[8px] font-bold"
+                    style={{ color: p.color }}
+                  >
                     {p.userName.charAt(0).toUpperCase()}
                   </span>
                 )}

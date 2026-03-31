@@ -177,10 +177,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         >
           {message.userName}
         </span>
-        <span
-          className="text-[7px]"
-          style={{ color: 'var(--color-text-dim)' }}
-        >
+        <span className="text-[7px]" style={{ color: 'var(--color-text-dim)' }}>
           {timeStr}
         </span>
       </div>

@@ -12,10 +12,7 @@ interface AnalyserData {
  *
  * Returns refs that update every animation frame — read in canvas draw calls.
  */
-export function useAnalyser(
-  source?: Tone.ToneAudioNode | null,
-  fftSize = 256,
-) {
+export function useAnalyser(source?: Tone.ToneAudioNode | null, fftSize = 256) {
   const waveformAnalyser = useRef<Tone.Analyser | null>(null);
   const fftAnalyser = useRef<Tone.Analyser | null>(null);
   const dataRef = useRef<AnalyserData>({

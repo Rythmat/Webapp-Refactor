@@ -10,7 +10,20 @@ import { JAM_PIANO_START, JAM_PIANO_END, type JamPresence } from './types';
 
 // ── Key layout helpers ──────────────────────────────────────────────────
 
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const NOTE_NAMES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
 
 interface KeyInfo {
   midi: number;
@@ -55,7 +68,10 @@ function whiteKeysBefore(midi: number, start: number): number {
   return count;
 }
 
-function getActiveColor(midi: number, remoteNotes: Map<string, ActiveNote[]>): string | null {
+function getActiveColor(
+  midi: number,
+  remoteNotes: Map<string, ActiveNote[]>,
+): string | null {
   for (const [, notes] of remoteNotes) {
     for (const note of notes) {
       if (note.midi === midi && note.instrument === 'piano') return note.color;
@@ -82,7 +98,12 @@ interface PianoKeyboardProps {
   localPlayer?: PlayerAvatarInfo;
 }
 
-export function PianoKeyboard({ isLocalInstrument, onLocalNote, remotePlayers, localPlayer }: PianoKeyboardProps) {
+export function PianoKeyboard({
+  isLocalInstrument,
+  onLocalNote,
+  remotePlayers,
+  localPlayer,
+}: PianoKeyboardProps) {
   const { sendNote } = useJamRoom();
   const activeRemoteNotes = useJamRoomStore((s) => s.activeRemoteNotes);
   const heldRef = useRef<Set<number>>(new Set());
@@ -130,7 +151,12 @@ export function PianoKeyboard({ isLocalInstrument, onLocalNote, remotePlayers, l
 
   // Build avatar positions: one avatar per player at their lowest active piano note
   const avatarPositions = useMemo(() => {
-    const positions: { midi: number; avatarUrl: string; color: string; userName: string }[] = [];
+    const positions: {
+      midi: number;
+      avatarUrl: string;
+      color: string;
+      userName: string;
+    }[] = [];
 
     // Remote players
     if (remotePlayers) {
@@ -188,7 +214,9 @@ export function PianoKeyboard({ isLocalInstrument, onLocalNote, remotePlayers, l
                 width: `${whiteKeyWidth}%`,
                 backgroundColor: active ? '#d4d4d4' : '#ffffff',
                 borderColor: '#d4d4d4',
-                borderBottom: active ? '3px solid #b0b0b0' : '3px solid #d4d4d4',
+                borderBottom: active
+                  ? '3px solid #b0b0b0'
+                  : '3px solid #d4d4d4',
                 boxShadow: active ? '0 0 12px #b0b0b020 inset' : 'none',
                 cursor: isLocalInstrument ? 'pointer' : 'default',
                 borderRadius: '0 0 4px 4px',
@@ -247,8 +275,14 @@ export function PianoKeyboard({ isLocalInstrument, onLocalNote, remotePlayers, l
 
       {/* Player avatar circles below active keys */}
       {avatarPositions.map((avatar) => {
-        if (avatar.midi < JAM_PIANO_START || avatar.midi > JAM_PIANO_END) return null;
-        const black = avatar.midi % 12 === 1 || avatar.midi % 12 === 3 || avatar.midi % 12 === 6 || avatar.midi % 12 === 8 || avatar.midi % 12 === 10;
+        if (avatar.midi < JAM_PIANO_START || avatar.midi > JAM_PIANO_END)
+          return null;
+        const black =
+          avatar.midi % 12 === 1 ||
+          avatar.midi % 12 === 3 ||
+          avatar.midi % 12 === 6 ||
+          avatar.midi % 12 === 8 ||
+          avatar.midi % 12 === 10;
         const wkIdx = whiteKeysBefore(avatar.midi, JAM_PIANO_START);
         let leftPercent: number;
         if (!black) {
@@ -291,7 +325,6 @@ export function PianoKeyboard({ isLocalInstrument, onLocalNote, remotePlayers, l
           </div>
         );
       })}
-
     </div>
   );
 }

@@ -48,7 +48,11 @@ export function useKeyboardShortcuts(
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      )
+        return;
 
       const key = e.key.toLowerCase();
       const note = KEY_MAP[key];

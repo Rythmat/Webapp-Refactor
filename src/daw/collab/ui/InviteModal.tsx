@@ -4,14 +4,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Copy,
-  Check,
-  Search,
-  Send,
-  UserPlus,
-  X,
-} from 'lucide-react';
+import { Copy, Check, Search, Send, UserPlus, X } from 'lucide-react';
 import SuperJSON from 'superjson';
 import { useStore } from '@/daw/store/index';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
@@ -229,7 +222,9 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                           ? 'var(--color-accent)'
                           : 'var(--color-surface)',
                       color:
-                        selectedRole === role ? '#fff' : 'var(--color-text-dim)',
+                        selectedRole === role
+                          ? '#fff'
+                          : 'var(--color-text-dim)',
                       border: 'none',
                     }}
                   >
@@ -319,16 +314,14 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                   ))}
                 </div>
               )}
-              {query.length >= 2 &&
-                !searching &&
-                results.length === 0 && (
-                  <div
-                    className="px-2 py-2 text-center text-[10px]"
-                    style={{ color: 'var(--color-text-dim)' }}
-                  >
-                    No users found
-                  </div>
-                )}
+              {query.length >= 2 && !searching && results.length === 0 && (
+                <div
+                  className="px-2 py-2 text-center text-[10px]"
+                  style={{ color: 'var(--color-text-dim)' }}
+                >
+                  No users found
+                </div>
+              )}
             </div>
 
             {/* Divider */}

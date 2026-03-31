@@ -20,13 +20,15 @@ export function useRemoteUsers(): UserPresence[] {
  * Uses useShallow to avoid infinite re-renders from new array references.
  */
 export function useTrackPresence(trackId: string): UserPresence[] {
-  return useStore(useShallow((s) => {
-    const result: UserPresence[] = [];
-    s.remoteUsers.forEach((user) => {
-      if (user.selectedTrackId === trackId) result.push(user);
-    });
-    return result;
-  }));
+  return useStore(
+    useShallow((s) => {
+      const result: UserPresence[] = [];
+      s.remoteUsers.forEach((user) => {
+        if (user.selectedTrackId === trackId) result.push(user);
+      });
+      return result;
+    }),
+  );
 }
 
 /**

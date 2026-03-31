@@ -78,7 +78,9 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
   const docRef = useRef<Y.Doc | null>(null);
   const rttRef = useRef(new RttMeasurer());
   const colorRef = useRef(PRESENCE_COLORS[0]);
-  const noteListenersRef = useRef<Set<(msg: JamNoteMessage) => void>>(new Set());
+  const noteListenersRef = useRef<Set<(msg: JamNoteMessage) => void>>(
+    new Set(),
+  );
 
   // Reactive state (triggers re-renders for UI)
   const [isConnected, setIsConnected] = useState(false);
@@ -197,19 +199,16 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
       });
 
       // Clean up departed players' notes
-      provider.awareness.on(
-        'change',
-        ({ removed }: { removed: number[] }) => {
-          if (!removed?.length) return;
-          const store = useJamRoomStore.getState();
-          removed.forEach((clientId) => {
-            const state = provider.awareness.getStates().get(clientId) as
-              | JamPresence
-              | undefined;
-            if (state?.userId) store.clearUserNotes(state.userId);
-          });
-        },
-      );
+      provider.awareness.on('change', ({ removed }: { removed: number[] }) => {
+        if (!removed?.length) return;
+        const store = useJamRoomStore.getState();
+        removed.forEach((clientId) => {
+          const state = provider.awareness.getStates().get(clientId) as
+            | JamPresence
+            | undefined;
+          if (state?.userId) store.clearUserNotes(state.userId);
+        });
+      });
 
       // Listen for ephemeral messages once WebSocket is ready
       const attachWs = () => {

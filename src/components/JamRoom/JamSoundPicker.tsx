@@ -15,7 +15,10 @@ interface JamSoundPickerProps {
   onSelect: (program: number) => void;
 }
 
-export function JamSoundPicker({ currentProgram, onSelect }: JamSoundPickerProps) {
+export function JamSoundPicker({
+  currentProgram,
+  onSelect,
+}: JamSoundPickerProps) {
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<GMCategory>(() => {
     const current = GM_PROGRAMS.find((p) => p.number === currentProgram);
@@ -35,7 +38,10 @@ export function JamSoundPicker({ currentProgram, onSelect }: JamSoundPickerProps
         className="flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition-colors bg-zinc-800/50 text-zinc-300 hover:text-white hover:bg-zinc-800"
       >
         <span className="max-w-[120px] truncate">{currentName}</span>
-        <ChevronDown size={10} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown
+          size={10}
+          className={`transition-transform ${open ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {/* Popover */}

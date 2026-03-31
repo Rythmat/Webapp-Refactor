@@ -35,7 +35,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { targetUserId, targetUserName, role } = req.body ?? {};
   if (!targetUserId || !role || !['editor', 'viewer'].includes(role)) {
-    res.status(400).json({ error: 'Invalid body: need targetUserId and role (editor|viewer)' });
+    res
+      .status(400)
+      .json({
+        error: 'Invalid body: need targetUserId and role (editor|viewer)',
+      });
     return;
   }
 

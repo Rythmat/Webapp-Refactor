@@ -37,7 +37,9 @@ export async function validateConnection(
     const parts = token.split('.');
     if (parts.length !== 3) return null;
 
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    const payload = JSON.parse(
+      atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')),
+    );
     if (!payload.sub) return null;
 
     // In production with AUTH0_DOMAIN configured, you would verify the JWT

@@ -60,7 +60,11 @@ interface JamDrumMachineProps {
   onBpmChange?: (bpm: number) => void;
 }
 
-export function JamDrumMachine({ isLocalInstrument, onLocalDrumHit, onBpmChange }: JamDrumMachineProps) {
+export function JamDrumMachine({
+  isLocalInstrument,
+  onLocalDrumHit,
+  onBpmChange,
+}: JamDrumMachineProps) {
   const { sendNote, localColor } = useJamRoom();
   const activeRemoteNotes = useJamRoomStore((s) => s.activeRemoteNotes);
 
@@ -286,7 +290,10 @@ export function JamDrumMachine({ isLocalInstrument, onLocalDrumHit, onBpmChange 
             const rowFlash = flash ?? remoteColor;
 
             return (
-              <div key={inst} className="flex items-center gap-1.5 flex-1 min-h-0">
+              <div
+                key={inst}
+                className="flex items-center gap-1.5 flex-1 min-h-0"
+              >
                 {/* Instrument label — clickable for manual hit */}
                 <button
                   onClick={() => hitPad(inst)}
@@ -324,9 +331,7 @@ export function JamDrumMachine({ isLocalInstrument, onLocalDrumHit, onBpmChange 
                             ? '1px solid rgba(255,255,255,0.3)'
                             : '1px solid rgba(255,255,255,0.10)',
                           opacity: isActive ? 1 : 0.7,
-                          boxShadow: isActive
-                            ? `0 0 6px ${color}40`
-                            : 'none',
+                          boxShadow: isActive ? `0 0 6px ${color}40` : 'none',
                         }}
                       />
                     );

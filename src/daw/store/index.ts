@@ -19,10 +19,7 @@ import {
   createMusicIntelligenceSlice,
   type MusicIntelligenceSlice,
 } from './musicIntelligenceSlice';
-import {
-  createCollabSlice,
-  type CollabSlice,
-} from '@/daw/collab/collabSlice';
+import { createCollabSlice, type CollabSlice } from '@/daw/collab/collabSlice';
 import { collabMiddleware } from '@/daw/collab/collabMiddleware';
 
 // ── Composed Store ──────────────────────────────────────────────────────

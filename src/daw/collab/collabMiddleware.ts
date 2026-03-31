@@ -64,7 +64,9 @@ export const collabMiddleware =
         ) => void;
         getState: () => AllSlices;
         getInitialState: () => AllSlices;
-        subscribe: (listener: (state: AllSlices, prevState: AllSlices) => void) => () => void;
+        subscribe: (
+          listener: (state: AllSlices, prevState: AllSlices) => void,
+        ) => () => void;
       },
     ) => AllSlices,
   ) =>
@@ -87,7 +89,9 @@ export const collabMiddleware =
       ) => void;
       getState: () => AllSlices;
       getInitialState: () => AllSlices;
-      subscribe: (listener: (state: AllSlices, prevState: AllSlices) => void) => () => void;
+      subscribe: (
+        listener: (state: AllSlices, prevState: AllSlices) => void,
+      ) => () => void;
     },
   ): AllSlices => {
     const collabSet: typeof set = (partial, replace) => {

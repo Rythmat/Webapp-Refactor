@@ -1,9 +1,4 @@
-import {
-  type CSSProperties,
-  useState,
-  useRef,
-  useCallback,
-} from 'react';
+import { type CSSProperties, useState, useRef, useCallback } from 'react';
 import {
   startPianoSampler,
   triggerPianoAttackRelease,
@@ -16,8 +11,18 @@ import { useStore } from '@/daw/store';
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const CHROMATIC_NOTES = [
-  'C', 'C#', 'D', 'D#', 'E', 'F',
-  'F#', 'G', 'G#', 'A', 'A#', 'B',
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
 ];
 
 const NOTE_DURATION_S = 0.6;
@@ -60,98 +65,192 @@ const ALL_INTERVAL_BUTTONS: { label: string; semitones: number }[] = [
   { label: 'Octave', semitones: 12 },
 ];
 
-const INTERVAL_LEVELS: { label: string; hint: string; semitones: number[] }[] = [
-  { label: 'Level 1', hint: 'Major Scale', semitones: [0, 2, 4, 5, 7, 9, 11, 12] },
-  { label: 'Level 2', hint: 'Minor Scale', semitones: [0, 2, 3, 5, 7, 8, 10, 12] },
-  { label: 'Level 3', hint: 'All Intervals', semitones: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
-];
+const INTERVAL_LEVELS: { label: string; hint: string; semitones: number[] }[] =
+  [
+    {
+      label: 'Level 1',
+      hint: 'Major Scale',
+      semitones: [0, 2, 4, 5, 7, 9, 11, 12],
+    },
+    {
+      label: 'Level 2',
+      hint: 'Minor Scale',
+      semitones: [0, 2, 3, 5, 7, 8, 10, 12],
+    },
+    {
+      label: 'Level 3',
+      hint: 'All Intervals',
+      semitones: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    },
+  ];
 
 // ── Chord Definitions ─────────────────────────────────────────────────────────
 
 const CHORD_DEFS: Record<string, number[]> = {
-  'Major':      [0, 4, 7],
-  'Minor':      [0, 3, 7],
-  'Augmented':  [0, 4, 8],
-  'Diminished': [0, 3, 6],
-  'Major7':     [0, 4, 7, 11],
-  'Minor7':     [0, 3, 7, 10],
-  'Dom7':       [0, 4, 7, 10],
-  'Min7(b5)':   [0, 3, 6, 10],
-  'Dim7':       [0, 3, 6, 9],
-  'Major9':     [0, 4, 7, 11, 14],
-  'Minor9':     [0, 3, 7, 10, 14],
-  'Dom9':       [0, 4, 7, 10, 14],
-  'Sus':        [0, 5, 7],
+  Major: [0, 4, 7],
+  Minor: [0, 3, 7],
+  Augmented: [0, 4, 8],
+  Diminished: [0, 3, 6],
+  Major7: [0, 4, 7, 11],
+  Minor7: [0, 3, 7, 10],
+  Dom7: [0, 4, 7, 10],
+  'Min7(b5)': [0, 3, 6, 10],
+  Dim7: [0, 3, 6, 9],
+  Major9: [0, 4, 7, 11, 14],
+  Minor9: [0, 3, 7, 10, 14],
+  Dom9: [0, 4, 7, 10, 14],
+  Sus: [0, 5, 7],
 };
 
 const CHORD_LEVELS: { label: string; hint: string; pool: string[] }[] = [
   { label: 'Level 1', hint: 'Triads', pool: ['Major', 'Minor'] },
-  { label: 'Level 2', hint: 'Triads+', pool: ['Major', 'Minor', 'Augmented', 'Diminished'] },
-  { label: 'Level 3', hint: '7th Chords', pool: ['Major7', 'Minor7', 'Dom7', 'Min7(b5)', 'Dim7'] },
-  { label: 'Level 4', hint: 'Extended', pool: ['Major9', 'Minor9', 'Dom9', 'Sus'] },
+  {
+    label: 'Level 2',
+    hint: 'Triads+',
+    pool: ['Major', 'Minor', 'Augmented', 'Diminished'],
+  },
+  {
+    label: 'Level 3',
+    hint: '7th Chords',
+    pool: ['Major7', 'Minor7', 'Dom7', 'Min7(b5)', 'Dim7'],
+  },
+  {
+    label: 'Level 4',
+    hint: 'Extended',
+    pool: ['Major9', 'Minor9', 'Dom9', 'Sus'],
+  },
 ];
 
 // ── Scale Definitions ─────────────────────────────────────────────────────────
 
 const SCALE_DEFS: Record<string, number[]> = {
   // L1
-  'Major':               [0, 2, 4, 5, 7, 9, 11],
-  'Minor':               [0, 2, 3, 5, 7, 8, 10],
+  Major: [0, 2, 4, 5, 7, 9, 11],
+  Minor: [0, 2, 3, 5, 7, 8, 10],
   // L2
-  'Major Pentatonic':    [0, 2, 4, 7, 9],
-  'Minor Pentatonic':    [0, 3, 5, 7, 10],
-  'Major Blues':          [0, 2, 3, 4, 7, 9],
-  'Minor Blues':          [0, 3, 5, 6, 7, 10],
+  'Major Pentatonic': [0, 2, 4, 7, 9],
+  'Minor Pentatonic': [0, 3, 5, 7, 10],
+  'Major Blues': [0, 2, 3, 4, 7, 9],
+  'Minor Blues': [0, 3, 5, 6, 7, 10],
   // L3 - Diatonic Modes
-  'Ionian':              [0, 2, 4, 5, 7, 9, 11],
-  'Dorian':              [0, 2, 3, 5, 7, 9, 10],
-  'Phrygian':            [0, 1, 3, 5, 7, 8, 10],
-  'Lydian':              [0, 2, 4, 6, 7, 9, 11],
-  'Mixolydian':          [0, 2, 4, 5, 7, 9, 10],
-  'Aeolian':             [0, 2, 3, 5, 7, 8, 10],
-  'Locrian':             [0, 1, 3, 5, 6, 8, 10],
+  Ionian: [0, 2, 4, 5, 7, 9, 11],
+  Dorian: [0, 2, 3, 5, 7, 9, 10],
+  Phrygian: [0, 1, 3, 5, 7, 8, 10],
+  Lydian: [0, 2, 4, 6, 7, 9, 11],
+  Mixolydian: [0, 2, 4, 5, 7, 9, 10],
+  Aeolian: [0, 2, 3, 5, 7, 8, 10],
+  Locrian: [0, 1, 3, 5, 6, 8, 10],
   // L4 - Melodic Minor Modes
-  'Melodic Minor':       [0, 2, 3, 5, 7, 9, 11],
-  'Dorian b2':           [0, 1, 3, 5, 7, 9, 10],
-  'Lydian Augmented':    [0, 2, 4, 6, 8, 9, 11],
-  'Lydian Dominant':     [0, 2, 4, 6, 7, 9, 10],
-  'Mixolydian b6':       [0, 2, 4, 5, 7, 8, 10],
-  'Aeolian b5':          [0, 2, 3, 5, 6, 8, 10],
-  'Altered':             [0, 1, 3, 4, 6, 8, 10],
+  'Melodic Minor': [0, 2, 3, 5, 7, 9, 11],
+  'Dorian b2': [0, 1, 3, 5, 7, 9, 10],
+  'Lydian Augmented': [0, 2, 4, 6, 8, 9, 11],
+  'Lydian Dominant': [0, 2, 4, 6, 7, 9, 10],
+  'Mixolydian b6': [0, 2, 4, 5, 7, 8, 10],
+  'Aeolian b5': [0, 2, 3, 5, 6, 8, 10],
+  Altered: [0, 1, 3, 4, 6, 8, 10],
   // L5 - Harmonic Minor Modes
-  'Harmonic Minor':      [0, 2, 3, 5, 7, 8, 11],
-  'Locrian #6':          [0, 1, 3, 5, 6, 9, 10],
-  'Ionian #5':           [0, 2, 4, 5, 8, 9, 11],
-  'Dorian #4':           [0, 2, 3, 6, 7, 9, 10],
-  'Phrygian Dominant':   [0, 1, 4, 5, 7, 8, 10],
-  'Lydian #2':           [0, 3, 4, 6, 7, 9, 11],
-  'Ultralocrian':        [0, 1, 3, 4, 6, 8, 9],
+  'Harmonic Minor': [0, 2, 3, 5, 7, 8, 11],
+  'Locrian #6': [0, 1, 3, 5, 6, 9, 10],
+  'Ionian #5': [0, 2, 4, 5, 8, 9, 11],
+  'Dorian #4': [0, 2, 3, 6, 7, 9, 10],
+  'Phrygian Dominant': [0, 1, 4, 5, 7, 8, 10],
+  'Lydian #2': [0, 3, 4, 6, 7, 9, 11],
+  Ultralocrian: [0, 1, 3, 4, 6, 8, 9],
   // L6 - Harmonic Major Modes
-  'Harmonic Major':      [0, 2, 4, 5, 7, 8, 11],
-  'Dorian b5':           [0, 2, 3, 5, 6, 9, 10],
-  'Phrygian b4':         [0, 1, 3, 4, 7, 8, 10],
-  'Lydian b3':           [0, 2, 3, 6, 7, 9, 11],
-  'Mixolydian b2':       [0, 1, 4, 5, 7, 9, 10],
-  'Lydian Aug #2':       [0, 3, 4, 6, 8, 9, 11],
-  'Locrian bb7':         [0, 1, 3, 5, 6, 8, 9],
+  'Harmonic Major': [0, 2, 4, 5, 7, 8, 11],
+  'Dorian b5': [0, 2, 3, 5, 6, 9, 10],
+  'Phrygian b4': [0, 1, 3, 4, 7, 8, 10],
+  'Lydian b3': [0, 2, 3, 6, 7, 9, 11],
+  'Mixolydian b2': [0, 1, 4, 5, 7, 9, 10],
+  'Lydian Aug #2': [0, 3, 4, 6, 8, 9, 11],
+  'Locrian bb7': [0, 1, 3, 5, 6, 8, 9],
   // L7 - Double Harmonic Modes
-  'Double Harmonic':     [0, 1, 4, 5, 7, 8, 11],
-  'Lydian #2 #6':        [0, 3, 4, 6, 7, 10, 11],
-  'Ultraphrygian':       [0, 1, 3, 4, 7, 8, 9],
-  'Hungarian Minor':     [0, 2, 3, 6, 7, 8, 11],
-  'Oriental':            [0, 1, 4, 5, 6, 9, 10],
-  'Ionian Aug #2':       [0, 3, 4, 5, 8, 9, 11],
-  'Locrian bb3 bb7':     [0, 1, 2, 5, 6, 8, 9],
+  'Double Harmonic': [0, 1, 4, 5, 7, 8, 11],
+  'Lydian #2 #6': [0, 3, 4, 6, 7, 10, 11],
+  Ultraphrygian: [0, 1, 3, 4, 7, 8, 9],
+  'Hungarian Minor': [0, 2, 3, 6, 7, 8, 11],
+  Oriental: [0, 1, 4, 5, 6, 9, 10],
+  'Ionian Aug #2': [0, 3, 4, 5, 8, 9, 11],
+  'Locrian bb3 bb7': [0, 1, 2, 5, 6, 8, 9],
 };
 
 const SCALE_LEVELS: { label: string; hint: string; pool: string[] }[] = [
   { label: 'Level 1', hint: 'Major & Minor', pool: ['Major', 'Minor'] },
-  { label: 'Level 2', hint: 'Pentatonic & Blues', pool: ['Major Pentatonic', 'Minor Pentatonic', 'Major Blues', 'Minor Blues'] },
-  { label: 'Level 3', hint: 'Diatonic Modes', pool: ['Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian', 'Locrian'] },
-  { label: 'Level 4', hint: 'Melodic Minor', pool: ['Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Aeolian b5', 'Altered'] },
-  { label: 'Level 5', hint: 'Harmonic Minor', pool: ['Harmonic Minor', 'Locrian #6', 'Ionian #5', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Ultralocrian'] },
-  { label: 'Level 6', hint: 'Harmonic Major', pool: ['Harmonic Major', 'Dorian b5', 'Phrygian b4', 'Lydian b3', 'Mixolydian b2', 'Lydian Aug #2', 'Locrian bb7'] },
-  { label: 'Level 7', hint: 'Double Harmonic', pool: ['Double Harmonic', 'Lydian #2 #6', 'Ultraphrygian', 'Hungarian Minor', 'Oriental', 'Ionian Aug #2', 'Locrian bb3 bb7'] },
+  {
+    label: 'Level 2',
+    hint: 'Pentatonic & Blues',
+    pool: [
+      'Major Pentatonic',
+      'Minor Pentatonic',
+      'Major Blues',
+      'Minor Blues',
+    ],
+  },
+  {
+    label: 'Level 3',
+    hint: 'Diatonic Modes',
+    pool: [
+      'Ionian',
+      'Dorian',
+      'Phrygian',
+      'Lydian',
+      'Mixolydian',
+      'Aeolian',
+      'Locrian',
+    ],
+  },
+  {
+    label: 'Level 4',
+    hint: 'Melodic Minor',
+    pool: [
+      'Melodic Minor',
+      'Dorian b2',
+      'Lydian Augmented',
+      'Lydian Dominant',
+      'Mixolydian b6',
+      'Aeolian b5',
+      'Altered',
+    ],
+  },
+  {
+    label: 'Level 5',
+    hint: 'Harmonic Minor',
+    pool: [
+      'Harmonic Minor',
+      'Locrian #6',
+      'Ionian #5',
+      'Dorian #4',
+      'Phrygian Dominant',
+      'Lydian #2',
+      'Ultralocrian',
+    ],
+  },
+  {
+    label: 'Level 6',
+    hint: 'Harmonic Major',
+    pool: [
+      'Harmonic Major',
+      'Dorian b5',
+      'Phrygian b4',
+      'Lydian b3',
+      'Mixolydian b2',
+      'Lydian Aug #2',
+      'Locrian bb7',
+    ],
+  },
+  {
+    label: 'Level 7',
+    hint: 'Double Harmonic',
+    pool: [
+      'Double Harmonic',
+      'Lydian #2 #6',
+      'Ultraphrygian',
+      'Hungarian Minor',
+      'Oriental',
+      'Ionian Aug #2',
+      'Locrian bb3 bb7',
+    ],
+  },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -160,7 +259,11 @@ function wait(ms: number) {
   return new Promise<void>((r) => setTimeout(r, ms));
 }
 
-function semitonesToNote(rootIndex: number, rootOctave: number, semitones: number): string {
+function semitonesToNote(
+  rootIndex: number,
+  rootOctave: number,
+  semitones: number,
+): string {
   const noteIndex = (rootIndex + semitones) % 12;
   const octaveOffset = Math.floor((rootIndex + semitones) / 12);
   return `${CHROMATIC_NOTES[noteIndex]}${rootOctave + octaveOffset}`;
@@ -176,14 +279,17 @@ function getLevelsForType(type: GameType) {
   return SCALE_LEVELS;
 }
 
-function getAnswerOptions(type: GameType, level: number): { label: string; value: string }[] {
+function getAnswerOptions(
+  type: GameType,
+  level: number,
+): { label: string; value: string }[] {
   if (type === 'intervals') {
     const lvl = INTERVAL_LEVELS[level - 1];
     if (!lvl) return [];
     const semiSet = new Set(lvl.semitones);
-    return ALL_INTERVAL_BUTTONS
-      .filter((b) => semiSet.has(b.semitones))
-      .map((b) => ({ label: b.label, value: b.label }));
+    return ALL_INTERVAL_BUTTONS.filter((b) => semiSet.has(b.semitones)).map(
+      (b) => ({ label: b.label, value: b.label }),
+    );
   }
   if (type === 'chords') {
     const lvl = CHORD_LEVELS[level - 1];
@@ -195,7 +301,11 @@ function getAnswerOptions(type: GameType, level: number): { label: string; value
   return lvl.pool.map((name) => ({ label: name, value: name }));
 }
 
-function generateQuestion(type: GameType, level: number, lockedRootIndex?: number): Question {
+function generateQuestion(
+  type: GameType,
+  level: number,
+  lockedRootIndex?: number,
+): Question {
   const rootIndex = lockedRootIndex ?? Math.floor(Math.random() * 12);
 
   if (type === 'intervals') {
@@ -204,7 +314,9 @@ function generateQuestion(type: GameType, level: number, lockedRootIndex?: numbe
     const rootOctave = 4;
     const rootNote = semitonesToNote(rootIndex, rootOctave, 0);
     const questionNote = semitonesToNote(rootIndex, rootOctave, semitones);
-    const answerLabel = ALL_INTERVAL_BUTTONS.find((b) => b.semitones === semitones)!.label;
+    const answerLabel = ALL_INTERVAL_BUTTONS.find(
+      (b) => b.semitones === semitones,
+    )!.label;
     return {
       type: 'intervals',
       rootNoteIndex: rootIndex,
@@ -218,12 +330,18 @@ function generateQuestion(type: GameType, level: number, lockedRootIndex?: numbe
   if (type === 'chords') {
     const lvl = CHORD_LEVELS[level - 1];
     const chordName = pickRandom(lvl.pool);
-    const intervals = chordName === 'Sus'
-      ? pickRandom([[0, 2, 7], [0, 5, 7]])
-      : CHORD_DEFS[chordName];
+    const intervals =
+      chordName === 'Sus'
+        ? pickRandom([
+            [0, 2, 7],
+            [0, 5, 7],
+          ])
+        : CHORD_DEFS[chordName];
     const maxSemitone = Math.max(...intervals);
     const rootOctave = maxSemitone > 12 ? 3 : 4;
-    const notes = intervals.map((s) => semitonesToNote(rootIndex, rootOctave, s));
+    const notes = intervals.map((s) =>
+      semitonesToNote(rootIndex, rootOctave, s),
+    );
     return {
       type: 'chords',
       rootNoteIndex: rootIndex,
@@ -239,7 +357,9 @@ function generateQuestion(type: GameType, level: number, lockedRootIndex?: numbe
   const scaleName = pickRandom(lvl.pool);
   const intervals = SCALE_DEFS[scaleName];
   const rootOctave = 4;
-  const notes = [...intervals, 12].map((s) => semitonesToNote(rootIndex, rootOctave, s));
+  const notes = [...intervals, 12].map((s) =>
+    semitonesToNote(rootIndex, rootOctave, s),
+  );
   return {
     type: 'scales',
     rootNoteIndex: rootIndex,
@@ -254,38 +374,45 @@ function generateQuestion(type: GameType, level: number, lockedRootIndex?: numbe
 
 const CHROMA_ICONS: Record<GameType, { key: string; color: string }[]> = {
   intervals: [
-    { key: 'nam-clean-twin', color: '#f0f0f0' },       // L1 Quartz
-    { key: 'nam-roland-jc120', color: '#a8c8e8' },      // L2 Celestite
-    { key: 'nam-vox-ac30', color: '#50c878' },           // L3 Emerald
+    { key: 'nam-clean-twin', color: '#f0f0f0' }, // L1 Quartz
+    { key: 'nam-roland-jc120', color: '#a8c8e8' }, // L2 Celestite
+    { key: 'nam-vox-ac30', color: '#50c878' }, // L3 Emerald
   ],
   chords: [
     { key: 'nam-marshall-jcm-clean', color: '#f5a623' }, // L1 Amber
-    { key: 'nam-crunch-plexi', color: '#f0a040' },       // L2 Sunstone
-    { key: 'nam-vox-ac15', color: '#e85d2f' },           // L3 Fire Opal
-    { key: 'nam-marshall-jcm800', color: '#e0115f' },    // L4 Ruby
+    { key: 'nam-crunch-plexi', color: '#f0a040' }, // L2 Sunstone
+    { key: 'nam-vox-ac15', color: '#e85d2f' }, // L3 Fire Opal
+    { key: 'nam-marshall-jcm800', color: '#e0115f' }, // L4 Ruby
   ],
   scales: [
-    { key: 'nam-magnatone-59', color: '#48d1cc' },       // L1 Aquamarine
-    { key: 'nam-mesa-mark-iv', color: '#9966cc' },       // L2 Amethyst
-    { key: 'nam-soldano-slo', color: '#2850a8' },        // L3 Sapphire
-    { key: 'nam-ampeg-svt', color: '#b9f2ff' },          // L4 Diamond
-    { key: 'nam-orange-rockerverb', color: '#f4a0b0' },  // L5 Rose Quartz
-    { key: 'nam-engl-savage', color: '#3fb094' },         // L6 Amazonite
-    { key: 'nam-darkglass-b7k', color: '#882222' },      // L7 Bloodstone
+    { key: 'nam-magnatone-59', color: '#48d1cc' }, // L1 Aquamarine
+    { key: 'nam-mesa-mark-iv', color: '#9966cc' }, // L2 Amethyst
+    { key: 'nam-soldano-slo', color: '#2850a8' }, // L3 Sapphire
+    { key: 'nam-ampeg-svt', color: '#b9f2ff' }, // L4 Diamond
+    { key: 'nam-orange-rockerverb', color: '#f4a0b0' }, // L5 Rose Quartz
+    { key: 'nam-engl-savage', color: '#3fb094' }, // L6 Amazonite
+    { key: 'nam-darkglass-b7k', color: '#882222' }, // L7 Bloodstone
   ],
 };
 
 // ── Crystal SVG ───────────────────────────────────────────────────────────────
 
-function Crystal({ lit, gameType, level }: { lit: boolean; gameType: GameType; level: number }) {
-  const icon = CHROMA_ICONS[gameType][(level - 1)] ?? CHROMA_ICONS.intervals[0];
+function Crystal({
+  lit,
+  gameType,
+  level,
+}: {
+  lit: boolean;
+  gameType: GameType;
+  level: number;
+}) {
+  const icon = CHROMA_ICONS[gameType][level - 1] ?? CHROMA_ICONS.intervals[0];
   const crystal = CRYSTAL_PATHS[icon.key];
   const S = 90;
 
   const glowStyle: CSSProperties = lit
     ? {
-        filter:
-          `drop-shadow(0 0 14px ${icon.color}cc) drop-shadow(0 0 28px ${icon.color}55)`,
+        filter: `drop-shadow(0 0 14px ${icon.color}cc) drop-shadow(0 0 28px ${icon.color}55)`,
       }
     : {};
 
@@ -383,7 +510,6 @@ export default function Chroma() {
   const [flashGreen, setFlashGreen] = useState(false);
   const [correctAnswer, setCorrectAnswer] = useState<string | null>(null);
 
-
   // Scoring
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
@@ -422,7 +548,6 @@ export default function Chroma() {
         await triggerPianoAttackRelease(q.notes[i], NOTE_DURATION_S, 0.55);
         await wait(NOTE_GAP_MS);
       }
-
     }
   }, []);
 
@@ -431,7 +556,9 @@ export default function Chroma() {
   const startNextQuestion = useCallback(async () => {
     const type = gameTypeRef.current;
     const lvl = levelRef.current;
-    const root = fixedRootRef.current ? lockedRootRef.current ?? undefined : undefined;
+    const root = fixedRootRef.current
+      ? (lockedRootRef.current ?? undefined)
+      : undefined;
     const q = generateQuestion(type, lvl, root);
 
     currentQuestionRef.current = q;
@@ -569,7 +696,8 @@ export default function Chroma() {
   const getStatusLabel = (): string => {
     if (phase === 'select') return '';
     if (phase === 'playing') return 'Listen carefully\u2026';
-    if (phase === 'input') return `Name the ${typeLabel[currentQuestion?.type ?? 'intervals']}`;
+    if (phase === 'input')
+      return `Name the ${typeLabel[currentQuestion?.type ?? 'intervals']}`;
     if (phase === 'correct') return 'Correct!';
     if (phase === 'wrong' && correctAnswer) return `It was: ${correctAnswer}`;
     return '';
@@ -659,16 +787,12 @@ export default function Chroma() {
             letterSpacing: 0.5,
           }}
         >
-          <span style={{ color: '#a78bfa' }}>
-            Score: {score}
-          </span>
+          <span style={{ color: '#a78bfa' }}>Score: {score}</span>
           <span style={{ color: 'var(--color-text-dim, #6b7280)' }}>
             Best: {highScore}
           </span>
           {streak >= 2 && (
-            <span style={{ color: '#22c55e' }}>
-              {streak}x Streak!
-            </span>
+            <span style={{ color: '#22c55e' }}>{streak}x Streak!</span>
           )}
         </div>
       )}
@@ -701,8 +825,6 @@ export default function Chroma() {
           {getStatusLabel()}
         </div>
       </div>
-
-
 
       {/* ── Type/Level select + Start ── */}
       {phase === 'select' && (
@@ -805,7 +927,9 @@ export default function Chroma() {
               padding: '5px 14px',
               borderRadius: 7,
               border: `1.5px solid ${fixedRoot ? 'rgba(167,139,250,0.5)' : 'rgba(255,255,255,0.1)'}`,
-              backgroundColor: fixedRoot ? 'rgba(167,139,250,0.12)' : 'transparent',
+              backgroundColor: fixedRoot
+                ? 'rgba(167,139,250,0.12)'
+                : 'transparent',
               color: fixedRoot ? '#ddd6fe' : 'rgba(255,255,255,0.4)',
               fontSize: 10,
               fontWeight: 600,
@@ -874,7 +998,14 @@ export default function Chroma() {
 
       {/* ── Replay + End Game row (during gameplay) ── */}
       {isPlaying && (
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4 }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 10,
+            alignItems: 'center',
+            marginTop: 4,
+          }}
+        >
           {phase === 'input' && (
             <button
               onClick={handleReplay}

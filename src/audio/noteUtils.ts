@@ -1,6 +1,19 @@
 // ── MIDI Note Utilities ───────────────────────────────────────────────────
 
-const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const;
+const NOTES = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+] as const;
 
 /** Convert a MIDI note number to a note name string (e.g., 60 → "C4"). */
 export function midiToNoteName(midi: number): string {

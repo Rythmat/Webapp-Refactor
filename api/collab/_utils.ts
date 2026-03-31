@@ -24,7 +24,9 @@ interface TokenPayload {
  * Verify the Authorization header and return the user's sub claim.
  * Returns null if invalid / missing.
  */
-export function verifyAuthToken(authHeader: string | null): TokenPayload | null {
+export function verifyAuthToken(
+  authHeader: string | null,
+): TokenPayload | null {
   if (!authHeader?.startsWith('Bearer ')) return null;
   const token = authHeader.slice(7);
 
@@ -48,7 +50,9 @@ export function verifyAuthToken(authHeader: string | null): TokenPayload | null 
 // ── Invite Token ────────────────────────────────────────────────────────
 
 const INVITE_SECRET =
-  process.env.COLLAB_INVITE_SECRET ?? process.env.JWT_SECRET ?? 'collab-invite-dev-secret';
+  process.env.COLLAB_INVITE_SECRET ??
+  process.env.JWT_SECRET ??
+  'collab-invite-dev-secret';
 
 export interface InviteTokenPayload {
   roomId: string;
@@ -84,7 +88,10 @@ export interface StoredRoomMetadata {
   projectName: string;
   ownerId: string;
   createdAt: number;
-  members: Record<string, { role: 'owner' | 'editor' | 'viewer'; joinedAt: number }>;
+  members: Record<
+    string,
+    { role: 'owner' | 'editor' | 'viewer'; joinedAt: number }
+  >;
 }
 
 const ROOM_PREFIX = 'collab:room:';

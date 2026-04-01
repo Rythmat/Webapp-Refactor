@@ -480,6 +480,7 @@ export const HomeInlet = () => {
                     title={project.title}
                     genre={project.genre}
                     author={project.author}
+                    active={'active' in project ? project.active : undefined}
                   />
                 ))}
                 <div

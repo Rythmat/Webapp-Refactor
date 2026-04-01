@@ -92,9 +92,7 @@ function JamRoomInner() {
 
   useEffect(() => {
     if (paramRoomId && !roomId) {
-      joinRoomByCode(paramRoomId).catch((err) => {
-        console.error('Failed to join jam room:', err);
-      });
+      joinRoomByCode(paramRoomId);
     }
   }, [paramRoomId, roomId, joinRoomByCode]);
 

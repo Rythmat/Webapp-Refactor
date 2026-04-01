@@ -119,7 +119,7 @@ export default class CollabServer implements Party.Server {
 
     if (apiUrl && webhookSecret) {
       try {
-        await fetch(`${apiUrl}/rooms/webhook/host-disconnected`, {
+        await fetch(`${apiUrl}/api/collab/rooms/webhook/host-disconnected`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

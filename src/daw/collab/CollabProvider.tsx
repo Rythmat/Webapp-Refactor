@@ -38,22 +38,17 @@ import {
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
   createRoom as apiCreateRoom,
-  joinRoom as apiJoinRoom,
   closeRoom as apiCloseRoom,
   type RoomResponse,
-  type JoinRoomResponse,
 } from './roomManager';
 
 // ── Context ─────────────────────────────────────────────────────────────
 
 interface CollabContextValue {
   /** Create a new room via the API and join it as owner. */
-  createAndJoinRoom: (name: string) => Promise<RoomResponse>;
-  /** Join an existing room by code. */
-  joinRoomByCode: (
-    code: string,
-    role?: CollabRole,
-  ) => Promise<JoinRoomResponse>;
+  createAndJoinRoom: (projectName: string) => Promise<RoomResponse>;
+  /** Join an existing room by ID. */
+  joinRoomById: (roomId: string, role?: CollabRole) => void;
   /** Join using pre-fetched room info (partykitHost + partykitRoom). */
   joinRoom: (
     roomId: string,
@@ -74,7 +69,7 @@ interface CollabContextValue {
 
 const CollabContext = createContext<CollabContextValue>({
   createAndJoinRoom: () => Promise.reject(new Error('No CollabProvider')),
-  joinRoomByCode: () => Promise.reject(new Error('No CollabProvider')),
+  joinRoomById: () => Promise.reject(new Error('No CollabProvider')),
   joinRoom: () => {},
   leaveRoom: () => {},
   sendTransportCommand: () => {},
@@ -276,34 +271,22 @@ export function CollabProvider({ children }: CollabProviderProps) {
   // ── Create & join ────────────────────────────────────────────────────
 
   const createAndJoinRoom = useCallback(
-    async (name: string): Promise<RoomResponse> => {
+    async (projectName: string): Promise<RoomResponse> => {
       if (!token) throw new Error('Not authenticated');
-      const room = await apiCreateRoom({ name, type: 'daw' }, token);
-      joinRoom(
-        room.id,
-        'owner',
-        room.partykitHost,
-        room.partykitRoom,
-        room.code,
-      );
+      const room = await apiCreateRoom({ projectName }, token);
+      joinRoom(room.roomId, 'owner');
       return room;
     },
     [token, joinRoom],
   );
 
-  // ── Join by code ─────────────────────────────────────────────────────
+  // ── Join by ID ──────────────────────────────────────────────────────
 
-  const joinRoomByCode = useCallback(
-    async (
-      code: string,
-      role: CollabRole = 'editor',
-    ): Promise<JoinRoomResponse> => {
-      if (!token) throw new Error('Not authenticated');
-      const room = await apiJoinRoom(code, token);
-      joinRoom(room.id, role, room.partykitHost, room.partykitRoom, room.code);
-      return room;
+  const joinRoomById = useCallback(
+    (roomId: string, role: CollabRole = 'editor') => {
+      joinRoom(roomId, role);
     },
-    [token, joinRoom],
+    [joinRoom],
   );
 
   // ── Leave ─────────────────────────────────────────────────────────────
@@ -372,7 +355,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
   const value = useMemo<CollabContextValue>(
     () => ({
       createAndJoinRoom,
-      joinRoomByCode,
+      joinRoomById,
       joinRoom,
       leaveRoom,
       sendTransportCommand,
@@ -380,7 +363,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
     }),
     [
       createAndJoinRoom,
-      joinRoomByCode,
+      joinRoomById,
       joinRoom,
       leaveRoom,
       sendTransportCommand,

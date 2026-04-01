@@ -17,13 +17,6 @@ import YPartyKitProvider from 'y-partykit/provider';
 import * as Y from 'yjs';
 import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import {
-  createRoom as apiCreateRoom,
-  joinRoom as apiJoinRoom,
-  closeRoom as apiCloseRoom,
-  type RoomResponse,
-  type JoinRoomResponse,
-} from '@/daw/collab/roomManager';
 import { RttMeasurer } from '@/daw/collab/transportSync';
 import { PRESENCE_COLORS } from '@/daw/collab/types';
 import { useJamRoomStore } from './jamRoomStore';
@@ -40,13 +33,14 @@ interface JamRoomContextValue {
   isConnected: boolean;
   roomId: string | null;
   roomCode: string | null;
-  /** Create a new jam room via the API and connect to it. */
-  createAndJoinRoom: (name: string) => Promise<RoomResponse>;
-  /** Join an existing jam room by code. */
-  joinRoomByCode: (code: string) => Promise<JoinRoomResponse>;
+  /** Create a new jam room and connect to PartyKit. */
+  createAndJoinRoom: (name: string) => void;
+  /** Join an existing jam room by room ID. */
+  joinRoomByCode: (code: string) => void;
   /** Join using pre-fetched PartyKit connection info. */
   joinRoom: (
     roomId: string,
+    role?: 'owner' | 'editor',
     partykitHost?: string,
     partykitRoom?: string,
   ) => void;
@@ -65,8 +59,8 @@ const JamRoomContext = createContext<JamRoomContextValue>({
   isConnected: false,
   roomId: null,
   roomCode: null,
-  createAndJoinRoom: () => Promise.reject(new Error('No JamRoomProvider')),
-  joinRoomByCode: () => Promise.reject(new Error('No JamRoomProvider')),
+  createAndJoinRoom: () => {},
+  joinRoomByCode: () => {},
   joinRoom: () => {},
   leaveRoom: () => {},
   sendNote: () => {},
@@ -174,7 +168,12 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
   // ── Core join (connects to PartyKit given host + room) ─────────────────
 
   const joinRoom = useCallback(
-    (newRoomId: string, partykitHost?: string, partykitRoom?: string) => {
+    (
+      newRoomId: string,
+      role: 'owner' | 'editor' = 'editor',
+      partykitHost?: string,
+      partykitRoom?: string,
+    ) => {
       teardown();
 
       const host = partykitHost ?? DEFAULT_PARTYKIT_HOST;
@@ -187,7 +186,7 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
       currentRoomIdRef.current = newRoomId;
 
       // Connect to PartyKit
-      const params: Record<string, string> = { role: 'owner' };
+      const params: Record<string, string> = { role };
       if (token) params.token = token;
 
       const provider = new YPartyKitProvider(host, pkRoom, doc, {
@@ -260,41 +259,31 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
   // ── Create & join ─────────────────────────────────────────────────────
 
   const createAndJoinRoom = useCallback(
-    async (name: string): Promise<RoomResponse> => {
-      if (!token) throw new Error('Not authenticated');
-      const room = await apiCreateRoom({ name, type: 'jam' }, token);
-      setRoomCode(room.code);
-      joinRoom(room.id, room.partykitHost, room.partykitRoom);
-      return room;
+    (_name: string) => {
+      const newRoomId = crypto.randomUUID().slice(0, 8);
+      setRoomCode(newRoomId);
+      joinRoom(newRoomId, 'owner');
     },
-    [token, joinRoom],
+    [joinRoom],
   );
 
-  // ── Join by code ─────────────────────────────────────────────────────
+  // ── Join by code (room ID) ──────────────────────────────────────────
 
   const joinRoomByCode = useCallback(
-    async (code: string): Promise<JoinRoomResponse> => {
-      if (!token) throw new Error('Not authenticated');
-      const room = await apiJoinRoom(code, token);
-      setRoomCode(room.code);
-      joinRoom(room.id, room.partykitHost, room.partykitRoom);
-      return room;
+    (code: string) => {
+      setRoomCode(code);
+      joinRoom(code, 'editor');
     },
-    [token, joinRoom],
+    [joinRoom],
   );
 
   // ── Leave ──────────────────────────────────────────────────────────────
 
   const leaveRoom = useCallback(() => {
-    // If we created the room, close it via API
-    const rid = currentRoomIdRef.current;
-    if (rid && token) {
-      apiCloseRoom(rid, token).catch(() => {
-        // Best-effort — PartyKit onClose webhook handles this too
-      });
-    }
+    // Jam rooms are ephemeral (not stored in Redis), so no API cleanup needed.
+    // PartyKit handles room disposal when all clients disconnect.
     teardown();
-  }, [teardown, token]);
+  }, [teardown]);
 
   // Cleanup on unmount
   useEffect(() => teardown, [teardown]);

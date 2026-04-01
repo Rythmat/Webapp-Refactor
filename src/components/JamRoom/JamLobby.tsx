@@ -1,13 +1,17 @@
 // ── Jam Lobby ─────────────────────────────────────────────────────────────
 // Create or join a jam room.
 
-import { Music, Users, ArrowRight } from 'lucide-react';
-import { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Music, Users, ArrowRight, AlertCircle } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Env } from '@/constants/env';
 import { GameRoutes } from '@/constants/routes';
 
 const RECENT_ROOMS_KEY = 'jam-room-recent';
+
+const PARTYKIT_HOST =
+  Env.get('VITE_PARTYKIT_HOST', { nullable: true }) ?? 'localhost:1999';
 
 function getRecentRooms(): { id: string; name: string; timestamp: number }[] {
   try {
@@ -24,20 +28,96 @@ function addRecentRoom(id: string) {
   localStorage.setItem(RECENT_ROOMS_KEY, JSON.stringify(rooms.slice(0, 5)));
 }
 
+function removeRecentRoom(id: string) {
+  const rooms = getRecentRooms().filter((r) => r.id !== id);
+  localStorage.setItem(RECENT_ROOMS_KEY, JSON.stringify(rooms));
+}
+
+/** Check if a PartyKit jam room has an active host. */
+async function isRoomActive(roomId: string): Promise<boolean> {
+  try {
+    const protocol = PARTYKIT_HOST.startsWith('localhost') ? 'http' : 'https';
+    const res = await fetch(
+      `${protocol}://${PARTYKIT_HOST}/parties/main/jam-${roomId}`,
+      { signal: AbortSignal.timeout(3000) },
+    );
+    if (!res.ok) return false;
+    const data = (await res.json()) as { active?: boolean };
+    return data.active === true;
+  } catch {
+    return false;
+  }
+}
+
 export function JamLobby() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [joinCode, setJoinCode] = useState('');
-  const recentRooms = getRecentRooms();
+  const [error, setError] = useState<string | null>(null);
+  const [joining, setJoining] = useState(false);
+  const [recentRooms, setRecentRooms] = useState(getRecentRooms);
+
+  // Show error from navigation state (e.g. kicked from room)
+  useEffect(() => {
+    const state = location.state as { error?: string } | null;
+    if (state?.error) {
+      setError(state.error);
+      // Clear the state so it doesn't persist on refresh
+      window.history.replaceState({}, '');
+    }
+  }, [location.state]);
+
+  // Filter recent rooms to only show active ones on mount
+  useEffect(() => {
+    let cancelled = false;
+    async function filterRooms() {
+      const rooms = getRecentRooms();
+      if (!rooms.length) return;
+
+      const checks = await Promise.all(
+        rooms.map(async (room) => ({
+          ...room,
+          active: await isRoomActive(room.id),
+        })),
+      );
+      if (cancelled) return;
+
+      const activeRooms = checks.filter((r) => r.active);
+      // Update localStorage to drop stale rooms
+      localStorage.setItem(
+        RECENT_ROOMS_KEY,
+        JSON.stringify(activeRooms.slice(0, 5)),
+      );
+      setRecentRooms(activeRooms);
+    }
+    filterRooms();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleCreate = useCallback(() => {
+    setError(null);
     const roomId = crypto.randomUUID().slice(0, 8);
     addRecentRoom(roomId);
     navigate(GameRoutes.jamRoom({ roomId }));
   }, [navigate]);
 
-  const handleJoin = useCallback(() => {
+  const handleJoin = useCallback(async () => {
     const code = joinCode.trim();
     if (!code) return;
+    setError(null);
+    setJoining(true);
+
+    const active = await isRoomActive(code);
+    setJoining(false);
+
+    if (!active) {
+      setError('That room does not exist');
+      removeRecentRoom(code);
+      return;
+    }
+
     addRecentRoom(code);
     navigate(GameRoutes.jamRoom({ roomId: code }));
   }, [joinCode, navigate]);
@@ -48,6 +128,14 @@ export function JamLobby() {
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
       <div className="w-full max-w-md flex flex-col gap-8">
+        {/* Error banner */}
+        {error && (
+          <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-red-900/30 border border-red-800 text-red-300 text-sm">
+            <AlertCircle size={16} className="shrink-0" />
+            {error}
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
@@ -78,6 +166,13 @@ export function JamLobby() {
           >
             Create Jam Room
           </Button>
+          <Button
+            onClick={() => navigate(GameRoutes.jamLocal())}
+            variant="outline"
+            className="w-full"
+          >
+            Jam Locally
+          </Button>
         </div>
 
         {/* Join room */}
@@ -98,21 +193,21 @@ export function JamLobby() {
             />
             <Button
               onClick={handleJoin}
-              disabled={!joinCode.trim()}
+              disabled={!joinCode.trim() || joining}
               variant="outline"
               className="gap-1.5"
             >
-              Join
-              <ArrowRight size={14} />
+              {joining ? 'Checking...' : 'Join'}
+              {!joining && <ArrowRight size={14} />}
             </Button>
           </div>
         </div>
 
-        {/* Recent rooms */}
+        {/* Recent rooms (only active rooms shown) */}
         {recentRooms.length > 0 && (
           <div>
             <span className="text-xs text-zinc-600 uppercase tracking-wider">
-              Recent Rooms
+              Active Rooms
             </span>
             <div className="mt-2 flex flex-col gap-1">
               {recentRooms.map((room) => (
@@ -127,7 +222,10 @@ export function JamLobby() {
                   <span className="text-zinc-400 font-mono text-xs">
                     {room.id}
                   </span>
-                  <ArrowRight size={12} className="text-zinc-600" />
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <ArrowRight size={12} className="text-zinc-600" />
+                  </span>
                 </button>
               ))}
             </div>

@@ -3,9 +3,11 @@ import { Play } from 'lucide-react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GameRoutes } from '@/constants/routes';
+import { useIsPremium } from '@/hooks/useIsPremium';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
+import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
 import '@/components/learn/learn.css';
 
 interface ArcadeGame {
@@ -94,6 +96,18 @@ const ARCADE_GAMES_DATA: ArcadeGame[] = [
   },
 ];
 
+/** Routes of games that are available to free-tier users. */
+const FREE_GAME_ROUTES = new Set<string>([
+  'chroma',
+  'chordPress',
+  'boardChoice',
+  'chordConnection',
+  'harmonicStrings',
+]);
+
+const isGameFree = (game: ArcadeGame) =>
+  !!game.route && FREE_GAME_ROUTES.has(game.route);
+
 const gamesByCategory = CATEGORY_ORDER.map((cat) => ({
   category: cat,
   games: ARCADE_GAMES_DATA.filter((g) => g.category === cat),
@@ -176,6 +190,17 @@ const ArcadeGameCard: FC<ArcadeGameCardProps> = ({
 
 export const ArcadeInlet: FC = () => {
   const navigate = useNavigate();
+  const { isPremium } = useIsPremium();
+
+  // For free users, push categories with zero free games to the bottom.
+  const sortedCategories = isPremium
+    ? gamesByCategory
+    : [...gamesByCategory].sort((a, b) => {
+        const aHasFree = a.games.some(isGameFree);
+        const bHasFree = b.games.some(isGameFree);
+        if (aHasFree === bHasFree) return 0;
+        return aHasFree ? -1 : 1;
+      });
 
   return (
     <div
@@ -184,7 +209,7 @@ export const ArcadeInlet: FC = () => {
     >
       <HeaderBar title="Arcade" />
       <div className="learn-root flex-1 overflow-y-auto px-8 pb-12 space-y-10">
-        {gamesByCategory.map(({ category, games }) => (
+        {sortedCategories.map(({ category, games }) => (
           <section key={category}>
             <h2
               className="text-xs font-bold uppercase tracking-widest mb-4"
@@ -195,20 +220,28 @@ export const ArcadeInlet: FC = () => {
               {category}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[200px]">
-              {games.map((game, i) => (
-                <ArcadeGameCard
-                  key={i}
-                  {...game}
-                  onClick={
-                    game.route
-                      ? () =>
-                          navigate(
-                            (GameRoutes[game.route!] as (p?: void) => string)(),
-                          )
-                      : undefined
-                  }
-                />
-              ))}
+              {games.map((game, i) => {
+                const locked = !isPremium && !isGameFree(game);
+                return (
+                  <LockedFeatureOverlay key={i} locked={locked}>
+                    <ArcadeGameCard
+                      {...game}
+                      onClick={
+                        game.route
+                          ? () =>
+                              navigate(
+                                (
+                                  GameRoutes[game.route!] as (
+                                    p?: void,
+                                  ) => string
+                                )(),
+                              )
+                          : undefined
+                      }
+                    />
+                  </LockedFeatureOverlay>
+                );
+              })}
             </div>
           </section>
         ))}

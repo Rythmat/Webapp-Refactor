@@ -125,9 +125,10 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
     [roomId, token, selectedRole, sending, appUser],
   );
 
-  // Copy invite link fallback
-  const inviteUrl = roomId
-    ? `${window.location.origin}/studio/join?room=${roomId}&role=${selectedRole}`
+  // Build invite link using the room code
+  const roomCode = useStore((s) => s.roomCode);
+  const inviteUrl = roomCode
+    ? `${window.location.origin}/studio/join?code=${roomCode}&role=${selectedRole}`
     : '';
 
   const handleCopy = useCallback(async () => {

@@ -54,7 +54,8 @@ function JamRoomInner() {
   const {
     isConnected,
     roomId,
-    joinRoom,
+    roomCode,
+    joinRoomByCode,
     leaveRoom,
     localColor,
     setLocalInstrument,
@@ -91,9 +92,11 @@ function JamRoomInner() {
 
   useEffect(() => {
     if (paramRoomId && !roomId) {
-      joinRoom(paramRoomId);
+      joinRoomByCode(paramRoomId).catch((err) => {
+        console.error('Failed to join jam room:', err);
+      });
     }
-  }, [paramRoomId, roomId, joinRoom]);
+  }, [paramRoomId, roomId, joinRoomByCode]);
 
   // Audio engine for remote notes
   useJamAudio();
@@ -169,9 +172,11 @@ function JamRoomInner() {
     navigate(GameRoutes.jamLobby());
   };
 
+  const shareCode = roomCode ?? paramRoomId ?? '';
+
   const copyRoomCode = () => {
-    if (paramRoomId) {
-      navigator.clipboard.writeText(paramRoomId);
+    if (shareCode) {
+      navigator.clipboard.writeText(shareCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     }
@@ -336,7 +341,7 @@ function JamRoomInner() {
             className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] text-zinc-500 hover:text-zinc-300 bg-zinc-800/50 hover:bg-zinc-800 transition-colors font-mono"
           >
             <Copy size={8} />
-            {copied ? 'Copied!' : paramRoomId}
+            {copied ? 'Copied!' : shareCode}
           </button>
         </div>
 

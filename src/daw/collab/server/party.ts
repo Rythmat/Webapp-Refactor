@@ -2,6 +2,10 @@
 // Minimal PartyKit server that syncs a Yjs document between connected
 // clients and handles ephemeral transport commands.
 //
+// The room persists only while the host is connected. When the host
+// disconnects, all remaining clients are notified and the room is closed
+// via the Music Atlas API webhook.
+//
 // Deploy: `npx partykit deploy` from this directory.
 // Dev:    `npx partykit dev` for local testing.
 
@@ -15,6 +19,10 @@ import { validateConnection } from './auth';
 const connectionMeta = new Map<string, { userId: string; role: string }>();
 
 export default class CollabServer implements Party.Server {
+  // The connection ID of the room host (first 'owner' to connect)
+  private hostConnectionId: string | null = null;
+  private hostUserId: string | null = null;
+
   constructor(public room: Party.Room) {}
 
   /**
@@ -23,14 +31,20 @@ export default class CollabServer implements Party.Server {
    * for Yjs sync and awareness protocol.
    */
   async onConnect(conn: Party.Connection) {
-    // Validate auth token from connection URL
-    const auth = await validateConnection(conn.uri);
+    // Validate auth token from connection URL (pass env for JWKS config)
+    const auth = await validateConnection(conn.uri, this.room.env);
     if (auth) {
       connectionMeta.set(conn.id, { userId: auth.userId, role: auth.role });
 
       // Tag viewer connections so we can filter Yjs updates
       if (auth.role === 'viewer') {
         conn.setState({ readOnly: true });
+      }
+
+      // Track the host connection (first owner to connect)
+      if (auth.role === 'owner' && !this.hostConnectionId) {
+        this.hostConnectionId = conn.id;
+        this.hostUserId = auth.userId;
       }
     }
 
@@ -50,9 +64,73 @@ export default class CollabServer implements Party.Server {
 
   /**
    * Handle disconnect — clean up metadata.
+   * If the host disconnects, notify all clients and close the room via API.
    */
   async onClose(conn: Party.Connection) {
+    const meta = connectionMeta.get(conn.id);
     connectionMeta.delete(conn.id);
+
+    // Check if the disconnecting connection is the host
+    if (conn.id === this.hostConnectionId) {
+      await this.handleHostDisconnect();
+    } else if (meta && meta.userId === this.hostUserId) {
+      // Host may have reconnected with a different connection ID —
+      // check if any remaining connection belongs to the host
+      let hostStillConnected = false;
+      for (const [, m] of connectionMeta) {
+        if (m.userId === this.hostUserId) {
+          hostStillConnected = true;
+          break;
+        }
+      }
+      if (!hostStillConnected) {
+        await this.handleHostDisconnect();
+      }
+    }
+  }
+
+  /**
+   * Broadcast room:closing to all remaining clients and call the API
+   * webhook to mark the room as closed in the database.
+   */
+  private async handleHostDisconnect(): Promise<void> {
+    this.hostConnectionId = null;
+
+    // Notify all remaining clients that the room is closing
+    const closingMsg = JSON.stringify({
+      type: 'room:closing',
+      reason: 'host_disconnected',
+    });
+    for (const conn of this.room.getConnections()) {
+      conn.send(closingMsg);
+    }
+
+    // Call the API to mark the room as closed
+    // The room ID in PartyKit is the database room ID (or jam-{id})
+    const rawRoomId = this.room.id;
+    const roomId = rawRoomId.startsWith('jam-')
+      ? rawRoomId.slice(4)
+      : rawRoomId;
+
+    const apiUrl = this.room.env.MUSIC_ATLAS_API_URL as string | undefined;
+    const webhookSecret = this.room.env.PARTYKIT_WEBHOOK_SECRET as
+      | string
+      | undefined;
+
+    if (apiUrl && webhookSecret) {
+      try {
+        await fetch(`${apiUrl}/rooms/webhook/host-disconnected`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${webhookSecret}`,
+          },
+          body: JSON.stringify({ roomId }),
+        });
+      } catch (err) {
+        console.error('Failed to notify API of host disconnect:', err);
+      }
+    }
   }
 
   /**

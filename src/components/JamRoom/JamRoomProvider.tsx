@@ -16,6 +16,13 @@ import {
 import YPartyKitProvider from 'y-partykit/provider';
 import * as Y from 'yjs';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import {
+  createRoom as apiCreateRoom,
+  joinRoom as apiJoinRoom,
+  closeRoom as apiCloseRoom,
+  type RoomResponse,
+  type JoinRoomResponse,
+} from '@/daw/collab/roomManager';
 import { RttMeasurer } from '@/daw/collab/transportSync';
 import { PRESENCE_COLORS } from '@/daw/collab/types';
 import { useJamRoomStore } from './jamRoomStore';
@@ -31,7 +38,17 @@ import type {
 interface JamRoomContextValue {
   isConnected: boolean;
   roomId: string | null;
-  joinRoom: (roomId: string) => void;
+  roomCode: string | null;
+  /** Create a new jam room via the API and connect to it. */
+  createAndJoinRoom: (name: string) => Promise<RoomResponse>;
+  /** Join an existing jam room by code. */
+  joinRoomByCode: (code: string) => Promise<JoinRoomResponse>;
+  /** Join using pre-fetched PartyKit connection info. */
+  joinRoom: (
+    roomId: string,
+    partykitHost?: string,
+    partykitRoom?: string,
+  ) => void;
   leaveRoom: () => void;
   sendNote: (msg: Omit<JamNoteMessage, 'userId' | 'color'>) => void;
   sendChat: (text: string) => void;
@@ -46,6 +63,9 @@ interface JamRoomContextValue {
 const JamRoomContext = createContext<JamRoomContextValue>({
   isConnected: false,
   roomId: null,
+  roomCode: null,
+  createAndJoinRoom: () => Promise.reject(new Error('No JamRoomProvider')),
+  joinRoomByCode: () => Promise.reject(new Error('No JamRoomProvider')),
   joinRoom: () => {},
   leaveRoom: () => {},
   sendNote: () => {},
@@ -63,9 +83,7 @@ export function useJamRoom() {
 
 // ── Provider ─────────────────────────────────────────────────────────────
 
-const PARTYKIT_HOST =
-  (import.meta as unknown as Record<string, Record<string, string>>).env
-    ?.VITE_PARTYKIT_HOST ?? 'localhost:1999';
+const DEFAULT_PARTYKIT_HOST = 'localhost:1999';
 
 interface JamRoomProviderProps {
   children: ReactNode;
@@ -81,10 +99,12 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
   const noteListenersRef = useRef<Set<(msg: JamNoteMessage) => void>>(
     new Set(),
   );
+  const currentRoomIdRef = useRef<string | null>(null);
 
   // Reactive state (triggers re-renders for UI)
   const [isConnected, setIsConnected] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
+  const [roomCode, setRoomCode] = useState<string | null>(null);
   const [remotePlayers, setRemotePlayers] = useState<JamPresence[]>([]);
   const [latencyMs, setLatencyMs] = useState(0);
 
@@ -94,6 +114,12 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     if (typeof event.data !== 'string') return;
     try {
       const data = JSON.parse(event.data);
+
+      if (data.type === 'room:closing') {
+        // Host disconnected — the room is closing
+        setIsConnected(false);
+        return;
+      }
 
       if (data.type === 'jam:note') {
         const msg = data as JamNoteMessage;
@@ -136,32 +162,36 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     docRef.current = null;
     setIsConnected(false);
     setRoomId(null);
+    setRoomCode(null);
     setRemotePlayers([]);
     setLatencyMs(0);
+    currentRoomIdRef.current = null;
     useJamRoomStore.getState().reset();
   }, []);
 
-  // ── Join ───────────────────────────────────────────────────────────────
+  // ── Core join (connects to PartyKit given host + room) ─────────────────
 
   const joinRoom = useCallback(
-    (newRoomId: string) => {
+    (newRoomId: string, partykitHost?: string, partykitRoom?: string) => {
       teardown();
+
+      const host = partykitHost ?? DEFAULT_PARTYKIT_HOST;
+      const pkRoom = partykitRoom ?? `jam-${newRoomId}`;
 
       // Minimal Yjs doc (only for awareness protocol, not synced)
       const doc = new Y.Doc();
       docRef.current = doc;
       setRoomId(newRoomId);
+      currentRoomIdRef.current = newRoomId;
 
-      // Connect to PartyKit with jam-prefixed room name
-      const params: Record<string, string> = {};
+      // Connect to PartyKit
+      const params: Record<string, string> = { role: 'owner' };
       if (token) params.token = token;
 
-      const provider = new YPartyKitProvider(
-        PARTYKIT_HOST,
-        `jam-${newRoomId}`,
-        doc,
-        { connect: true, params },
-      );
+      const provider = new YPartyKitProvider(host, pkRoom, doc, {
+        connect: true,
+        params,
+      });
       providerRef.current = provider;
 
       // Assign color from client ID
@@ -225,9 +255,44 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     [userId, appUser, token, handleMessage, teardown],
   );
 
+  // ── Create & join ─────────────────────────────────────────────────────
+
+  const createAndJoinRoom = useCallback(
+    async (name: string): Promise<RoomResponse> => {
+      if (!token) throw new Error('Not authenticated');
+      const room = await apiCreateRoom({ name, type: 'jam' }, token);
+      setRoomCode(room.code);
+      joinRoom(room.id, room.partykitHost, room.partykitRoom);
+      return room;
+    },
+    [token, joinRoom],
+  );
+
+  // ── Join by code ─────────────────────────────────────────────────────
+
+  const joinRoomByCode = useCallback(
+    async (code: string): Promise<JoinRoomResponse> => {
+      if (!token) throw new Error('Not authenticated');
+      const room = await apiJoinRoom(code, token);
+      setRoomCode(room.code);
+      joinRoom(room.id, room.partykitHost, room.partykitRoom);
+      return room;
+    },
+    [token, joinRoom],
+  );
+
   // ── Leave ──────────────────────────────────────────────────────────────
 
-  const leaveRoom = useCallback(() => teardown(), [teardown]);
+  const leaveRoom = useCallback(() => {
+    // If we created the room, close it via API
+    const rid = currentRoomIdRef.current;
+    if (rid && token) {
+      apiCloseRoom(rid, token).catch(() => {
+        // Best-effort — PartyKit onClose webhook handles this too
+      });
+    }
+    teardown();
+  }, [teardown, token]);
 
   // Cleanup on unmount
   useEffect(() => teardown, [teardown]);
@@ -304,6 +369,9 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     () => ({
       isConnected,
       roomId,
+      roomCode,
+      createAndJoinRoom,
+      joinRoomByCode,
       joinRoom,
       leaveRoom,
       sendNote,
@@ -317,6 +385,9 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     [
       isConnected,
       roomId,
+      roomCode,
+      createAndJoinRoom,
+      joinRoomByCode,
       joinRoom,
       leaveRoom,
       sendNote,

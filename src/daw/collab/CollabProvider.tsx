@@ -35,12 +35,32 @@ import {
   type TransportCommand,
 } from './types';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import {
+  createRoom as apiCreateRoom,
+  joinRoom as apiJoinRoom,
+  closeRoom as apiCloseRoom,
+  type RoomResponse,
+  type JoinRoomResponse,
+} from './roomManager';
 
 // ── Context ─────────────────────────────────────────────────────────────
 
 interface CollabContextValue {
-  /** Join a collaborative room. Creates Yjs doc + WebSocket connection. */
-  joinRoom: (roomId: string, role?: CollabRole) => void;
+  /** Create a new room via the API and join it as owner. */
+  createAndJoinRoom: (name: string) => Promise<RoomResponse>;
+  /** Join an existing room by code. */
+  joinRoomByCode: (
+    code: string,
+    role?: CollabRole,
+  ) => Promise<JoinRoomResponse>;
+  /** Join using pre-fetched room info (partykitHost + partykitRoom). */
+  joinRoom: (
+    roomId: string,
+    role?: CollabRole,
+    partykitHost?: string,
+    partykitRoom?: string,
+    roomCode?: string,
+  ) => void;
   /** Leave the current room and tear down all sync infrastructure. */
   leaveRoom: () => void;
   /** Send a transport command to all peers. */
@@ -52,6 +72,8 @@ interface CollabContextValue {
 }
 
 const CollabContext = createContext<CollabContextValue>({
+  createAndJoinRoom: () => Promise.reject(new Error('No CollabProvider')),
+  joinRoomByCode: () => Promise.reject(new Error('No CollabProvider')),
   joinRoom: () => {},
   leaveRoom: () => {},
   sendTransportCommand: () => {},
@@ -64,28 +86,34 @@ export function useCollab() {
 
 // ── Provider ────────────────────────────────────────────────────────────
 
-const PARTYKIT_HOST =
-  (import.meta as unknown as Record<string, Record<string, string>>).env
-    ?.VITE_PARTYKIT_HOST ?? 'localhost:1999';
+const DEFAULT_PARTYKIT_HOST = 'localhost:1999';
 
 interface CollabProviderProps {
   children: ReactNode;
 }
 
 export function CollabProvider({ children }: CollabProviderProps) {
-  const { userId, appUser } = useAuthContext();
+  const { userId, appUser, token } = useAuthContext();
   const bridgeRef = useRef<ZustandYjsBridge | null>(null);
   const providerRef = useRef<YPartyKitProvider | null>(null);
   const idbRef = useRef<IndexeddbPersistence | null>(null);
   const awarenessRef = useRef<Awareness | null>(null);
   const docRef = useRef<Y.Doc | null>(null);
+  const currentRoomIdRef = useRef<string | null>(null);
 
-  // ── Transport message handler (must be defined before joinRoom) ──────
+  // ── Transport + room:closing message handler ──────────────────────────
 
   const handleServerMessage = useCallback((event: MessageEvent) => {
     if (typeof event.data !== 'string') return;
     try {
       const data = JSON.parse(event.data);
+
+      if (data.type === 'room:closing') {
+        // Host disconnected — tear down the session
+        useStore.getState()._setConnectionStatus('disconnected');
+        return;
+      }
+
       if (data.type === 'transport') {
         const store = useStore.getState();
         if (!store.transportLinked) return;
@@ -112,7 +140,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
     }
   }, []);
 
-  // ── Teardown (must be defined before joinRoom) ─────────────────────
+  // ── Teardown ─────────────────────────────────────────────────────────
 
   const teardown = useCallback(() => {
     bridgeRef.current?.destroy();
@@ -131,17 +159,28 @@ export function CollabProvider({ children }: CollabProviderProps) {
 
     destroyDoc();
     docRef.current = null;
+    currentRoomIdRef.current = null;
   }, []);
 
-  // ── Join ──────────────────────────────────────────────────────────────
+  // ── Core join (connects to PartyKit given host + room) ──────────────
 
   const joinRoom = useCallback(
-    (roomId: string, role: CollabRole = 'editor') => {
+    (
+      roomId: string,
+      role: CollabRole = 'editor',
+      partykitHost?: string,
+      partykitRoom?: string,
+      roomCode?: string,
+    ) => {
       // Tear down any existing session first
       teardown();
 
+      const host = partykitHost ?? DEFAULT_PARTYKIT_HOST;
+      const pkRoom = partykitRoom ?? roomId;
+
       const doc = getOrCreateDoc();
       docRef.current = doc;
+      currentRoomIdRef.current = roomId;
 
       // Hydrate the Yjs doc from the current Zustand state (first write)
       const currentState = useStore.getState();
@@ -157,9 +196,13 @@ export function CollabProvider({ children }: CollabProviderProps) {
       // Initialize Yjs-based undo for collab mode
       initCollabUndo(doc);
 
-      // Connect to PartyKit
-      const provider = new YPartyKitProvider(PARTYKIT_HOST, roomId, doc, {
+      // Connect to PartyKit with auth token and role
+      const params: Record<string, string> = { role };
+      if (token) params.token = token;
+
+      const provider = new YPartyKitProvider(host, pkRoom, doc, {
         connect: true,
+        params,
       });
       providerRef.current = provider;
       awarenessRef.current = provider.awareness;
@@ -169,7 +212,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
       idbRef.current = idb;
 
       // Update store with connection info
-      useStore.getState()._setRoomInfo(roomId, role);
+      useStore.getState()._setRoomInfo(roomId, role, roomCode);
       useStore.getState()._setConnectionStatus('connecting');
 
       // Listen for connection status
@@ -222,18 +265,60 @@ export function CollabProvider({ children }: CollabProviderProps) {
       };
       provider.awareness.on('change', onAwarenessChange);
 
-      // Listen for ephemeral messages (transport commands)
+      // Listen for ephemeral messages (transport commands, room:closing)
       provider.ws?.addEventListener('message', handleServerMessage);
     },
-    [userId, appUser, handleServerMessage, teardown],
+    [userId, appUser, token, handleServerMessage, teardown],
+  );
+
+  // ── Create & join ────────────────────────────────────────────────────
+
+  const createAndJoinRoom = useCallback(
+    async (name: string): Promise<RoomResponse> => {
+      if (!token) throw new Error('Not authenticated');
+      const room = await apiCreateRoom({ name, type: 'daw' }, token);
+      joinRoom(
+        room.id,
+        'owner',
+        room.partykitHost,
+        room.partykitRoom,
+        room.code,
+      );
+      return room;
+    },
+    [token, joinRoom],
+  );
+
+  // ── Join by code ─────────────────────────────────────────────────────
+
+  const joinRoomByCode = useCallback(
+    async (
+      code: string,
+      role: CollabRole = 'editor',
+    ): Promise<JoinRoomResponse> => {
+      if (!token) throw new Error('Not authenticated');
+      const room = await apiJoinRoom(code, token);
+      joinRoom(room.id, role, room.partykitHost, room.partykitRoom, room.code);
+      return room;
+    },
+    [token, joinRoom],
   );
 
   // ── Leave ─────────────────────────────────────────────────────────────
 
   const leaveRoom = useCallback(() => {
+    // If we are the host, close the room via API
+    const roomId = currentRoomIdRef.current;
+    const store = useStore.getState();
+    if (roomId && token && store.collabRole === 'owner') {
+      apiCloseRoom(roomId, token).catch(() => {
+        // Best-effort — PartyKit onClose will also trigger the webhook
+      });
+    }
+
     teardown();
     useStore.getState()._clearCollab();
-  }, [teardown]);
+  }, [teardown, token]);
 
   // Clean up on unmount
   useEffect(() => teardown, [teardown]);
@@ -284,12 +369,20 @@ export function CollabProvider({ children }: CollabProviderProps) {
 
   const value = useMemo<CollabContextValue>(
     () => ({
+      createAndJoinRoom,
+      joinRoomByCode,
       joinRoom,
       leaveRoom,
       sendTransportCommand,
       awareness: awarenessRef.current,
     }),
-    [joinRoom, leaveRoom, sendTransportCommand],
+    [
+      createAndJoinRoom,
+      joinRoomByCode,
+      joinRoom,
+      leaveRoom,
+      sendTransportCommand,
+    ],
   );
 
   return (

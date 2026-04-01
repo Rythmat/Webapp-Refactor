@@ -28,9 +28,10 @@ export function CollabToolbar({
   const connectionStatus = useStore((s) => s.connectionStatus);
   const unreadCount = useStore((s) => s.unreadChatCount);
   const collaboratorCount = useCollaboratorCount();
-  const { joinRoom, leaveRoom } = useCollab();
+  const { createAndJoinRoom, leaveRoom } = useCollab();
   const [showCreatePopover, setShowCreatePopover] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -42,12 +43,21 @@ export function CollabToolbar({
     }
   }, [isActive, onToggleUserList]);
 
-  const handleCreateSession = useCallback(() => {
-    const id = crypto.randomUUID().slice(0, 8);
-    joinRoom(id);
-    setShowCreatePopover(false);
-    setInviteOpen(true);
-  }, [joinRoom]);
+  const projectName = useStore((s) => s.projectName);
+
+  const handleCreateSession = useCallback(async () => {
+    if (isCreating) return;
+    setIsCreating(true);
+    try {
+      await createAndJoinRoom(projectName || 'Untitled Session');
+      setShowCreatePopover(false);
+      setInviteOpen(true);
+    } catch (err) {
+      console.error('Failed to create session:', err);
+    } finally {
+      setIsCreating(false);
+    }
+  }, [createAndJoinRoom, projectName, isCreating]);
 
   // Close popover on outside click
   useEffect(() => {
@@ -122,14 +132,15 @@ export function CollabToolbar({
           >
             <button
               onClick={handleCreateSession}
-              className="rounded-md py-1.5 text-[10px] font-medium transition-colors hover:brightness-110"
+              disabled={isCreating}
+              className="rounded-md py-1.5 text-[10px] font-medium transition-colors hover:brightness-110 disabled:opacity-50"
               style={{
                 backgroundColor: 'var(--color-accent)',
                 color: '#fff',
                 border: 'none',
               }}
             >
-              Create New Session
+              {isCreating ? 'Creating...' : 'Create New Session'}
             </button>
           </div>,
           document.body,

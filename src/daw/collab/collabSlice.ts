@@ -17,6 +17,7 @@ export interface CollabSlice {
   // ── Connection ──
   isCollabActive: boolean;
   roomId: string | null;
+  roomCode: string | null;
   connectionStatus: ConnectionStatus;
 
   // ── Presence ──
@@ -25,6 +26,7 @@ export interface CollabSlice {
 
   // ── Permissions ──
   localRole: CollabRole;
+  collabRole: CollabRole;
 
   // ── Transport sync ──
   /** When true, this client follows remote transport commands. */
@@ -38,7 +40,7 @@ export interface CollabSlice {
   /** Called by CollabProvider when the WebSocket connects. */
   _setConnectionStatus: (status: ConnectionStatus) => void;
   /** Called by CollabProvider when joining a room. */
-  _setRoomInfo: (roomId: string, role: CollabRole) => void;
+  _setRoomInfo: (roomId: string, role: CollabRole, roomCode?: string) => void;
   /** Called by CollabProvider on disconnect or leave. */
   _clearCollab: () => void;
   /** Called by the presence observer when remote awareness changes. */
@@ -61,9 +63,11 @@ export const createCollabSlice: StateCreator<
 > = (set) => ({
   isCollabActive: false,
   roomId: null,
+  roomCode: null,
   connectionStatus: 'disconnected',
   remoteUsers: new Map(),
   localRole: 'editor',
+  collabRole: 'editor',
   transportLinked: true,
   chatMessages: [],
   unreadChatCount: 0,
@@ -74,15 +78,23 @@ export const createCollabSlice: StateCreator<
       isCollabActive: status === 'connected',
     }),
 
-  _setRoomInfo: (roomId, role) => set({ roomId, localRole: role }),
+  _setRoomInfo: (roomId, role, roomCode) =>
+    set({
+      roomId,
+      localRole: role,
+      collabRole: role,
+      roomCode: roomCode ?? null,
+    }),
 
   _clearCollab: () =>
     set({
       isCollabActive: false,
       roomId: null,
+      roomCode: null,
       connectionStatus: 'disconnected',
       remoteUsers: new Map(),
       localRole: 'editor',
+      collabRole: 'editor',
       chatMessages: [],
       unreadChatCount: 0,
     }),

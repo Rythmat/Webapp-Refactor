@@ -18,6 +18,7 @@ import * as Y from 'yjs';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import YPartyKitProvider from 'y-partykit/provider';
 import { Awareness } from 'y-protocols/awareness';
+import { Env } from '@/constants/env';
 
 import { useStore } from '@/daw/store/index';
 import {
@@ -86,7 +87,8 @@ export function useCollab() {
 
 // ── Provider ────────────────────────────────────────────────────────────
 
-const DEFAULT_PARTYKIT_HOST = 'localhost:1999';
+const DEFAULT_PARTYKIT_HOST =
+  Env.get('VITE_PARTYKIT_HOST', { nullable: true }) ?? 'localhost:1999';
 
 interface CollabProviderProps {
   children: ReactNode;

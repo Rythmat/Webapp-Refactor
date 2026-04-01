@@ -38,8 +38,6 @@ const EP_BASE_URL =
 
 let samplerInstance: Tone.Sampler | null = null;
 let samplerPromise: Promise<Tone.Sampler> | null = null;
-let volumeDb = 0;
-const activeNotes = new Set<string>();
 
 const normalizeVelocity = (velocity?: number) => {
   if (typeof velocity !== 'number') return 0.8;
@@ -83,7 +81,6 @@ const getEpSampler = async (): Promise<Tone.Sampler> => {
         urls: EP_SAMPLE_MAP,
         baseUrl: EP_BASE_URL,
       }).toDestination();
-      sampler.volume.value = volumeDb;
       samplerInstance = sampler;
       await Tone.loaded();
       return sampler;
@@ -92,56 +89,10 @@ const getEpSampler = async (): Promise<Tone.Sampler> => {
   return samplerPromise;
 };
 
-export const setEpSamplerVolume = (db: number) => {
-  volumeDb = db;
-  if (samplerInstance) {
-    samplerInstance.volume.value = db;
-  }
-};
-
-export const releaseAllEpNotes = async () => {
-  if (activeNotes.size === 0) return;
-  const isRunning = await resumeContextIfNeeded();
-  if (!isRunning) {
-    activeNotes.clear();
-    return;
-  }
-  const sampler = await ensureSamplerLoaded();
-  activeNotes.forEach((note) => sampler.triggerRelease(note));
-  activeNotes.clear();
-};
-
-export const triggerEpAttack = async (
-  note: string,
-  velocity?: number,
-  time?: number,
-): Promise<void> => {
-  const isRunning = await resumeContextIfNeeded();
-  if (!isRunning) return;
-  const sampler = await ensureSamplerLoaded();
-  sampler.triggerAttack(note, time, normalizeVelocity(velocity));
-  activeNotes.add(note);
-};
-
-export const triggerEpRelease = async (
-  note: string,
-  time?: number,
-): Promise<void> => {
-  const isRunning = await resumeContextIfNeeded();
-  if (!isRunning) {
-    activeNotes.delete(note);
-    return;
-  }
-  const sampler = await ensureSamplerLoaded();
-  sampler.triggerRelease(note, time);
-  activeNotes.delete(note);
-};
-
 export const triggerEpAttackRelease = async (
   note: string,
   duration: number,
   velocity?: number,
-  time?: number,
 ): Promise<void> => {
   const isRunning = await resumeContextIfNeeded();
   if (!isRunning) return;
@@ -149,14 +100,7 @@ export const triggerEpAttackRelease = async (
   sampler.triggerAttackRelease(
     note,
     duration,
-    time,
+    undefined,
     normalizeVelocity(velocity),
-  );
-  activeNotes.add(note);
-  window.setTimeout(
-    () => {
-      activeNotes.delete(note);
-    },
-    Math.max(0, duration) * 1000,
   );
 };

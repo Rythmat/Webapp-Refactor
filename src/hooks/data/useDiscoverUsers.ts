@@ -35,7 +35,9 @@ export function useDiscoverUsers() {
           id: s.id,
           nickname: s.nickname,
           avatarSeed: s.nickname,
-          avatarConfig: s.avatarConfig,
+          avatarConfig: (s as Record<string, unknown>).avatarConfig as
+            | Record<string, unknown>
+            | undefined,
           bio,
         });
       }

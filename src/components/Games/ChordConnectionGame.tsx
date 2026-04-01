@@ -270,8 +270,7 @@ export function ChordConnectionGame({
   const [activeChord, setActiveChord] = useState<string | null>(null);
   const [activeKeyboard, setActiveKeyboard] = useState<string | null>(null);
   const [lines, setLines] = useState<ConnectorLine[]>([]);
-  const [sessionTotal, setSessionTotal] = useState(0);
-  const [sessionSuccessful, setSessionSuccessful] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chordRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -290,6 +289,7 @@ export function ChordConnectionGame({
     setActiveChord(null);
     setActiveKeyboard(null);
     setLines([]);
+    setSubmitted(false);
   }, [baseOctaveRoot, chordPool, initialChord, initialChordKey, pairs]);
 
   const resetConnections = useCallback(() => {
@@ -297,12 +297,23 @@ export function ChordConnectionGame({
     setActiveChord(null);
     setActiveKeyboard(null);
     setLines([]);
+    setSubmitted(false);
   }, []);
 
   const attachmentsFilled = useMemo(
     () => connections.length === round.chords.length,
     [connections.length, round.chords.length],
   );
+
+  const accuracy = useMemo(() => {
+    if (connections.length === 0) {
+      return null;
+    }
+    const correctCount = connections.filter(
+      (connection) => connection.correct,
+    ).length;
+    return Math.round((correctCount / connections.length) * 100);
+  }, [connections]);
 
   const allMatchesCorrect = useMemo(
     () =>
@@ -312,35 +323,11 @@ export function ChordConnectionGame({
     [connections, round.chords.length],
   );
 
-  const handlePlayAgain = useCallback(() => {
-    if (!attachmentsFilled) return;
-    setSessionTotal((prev) => prev + 1);
-    if (allMatchesCorrect) setSessionSuccessful((prev) => prev + 1);
-    if (onComplete) {
-      onComplete({ success: allMatchesCorrect });
-      return;
-    }
-    setRound(
-      createRound({
-        chordPool,
-        baseOctaveRoot,
-        preferredChord: initialChord,
-        pairs,
-      }),
-    );
-    setConnections([]);
-    setActiveChord(null);
-    setActiveKeyboard(null);
-    setLines([]);
-  }, [
-    allMatchesCorrect,
-    attachmentsFilled,
-    baseOctaveRoot,
-    chordPool,
-    initialChord,
-    onComplete,
-    pairs,
-  ]);
+  const handleContinue = useCallback(() => {
+    if (!attachmentsFilled || submitted) return;
+    setSubmitted(true);
+    onComplete?.({ success: allMatchesCorrect });
+  }, [allMatchesCorrect, attachmentsFilled, onComplete, submitted]);
 
   const attemptConnection = useCallback(
     (chordId: string, keyboardId: string) => {
@@ -482,16 +469,7 @@ export function ChordConnectionGame({
   }, [computeLines]);
 
   return (
-    <div
-      className={className}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100dvh',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
-      }}
-    >
+    <div className={className}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         <h1
@@ -519,7 +497,7 @@ export function ChordConnectionGame({
         </p>
       </div>
 
-      {/* Session + Stats bar */}
+      {/* Stats bar */}
       <div
         style={{
           display: 'flex',
@@ -532,23 +510,14 @@ export function ChordConnectionGame({
           color: 'var(--color-text-dim, #6b7280)',
         }}
       >
-        {sessionTotal > 0 && (
-          <span style={{ color: '#a78bfa' }}>
-            Session: {Math.round((sessionSuccessful / sessionTotal) * 100)}%
-          </span>
-        )}
+        <span>
+          Matches: {connections.length}/{round.chords.length}
+        </span>
+        <span>Accuracy: {accuracy !== null ? `${accuracy}%` : '—'}</span>
       </div>
 
       {/* Connection area */}
-      <div
-        ref={containerRef}
-        style={{
-          position: 'relative',
-          flex: 1,
-          minHeight: 0,
-          overflow: 'auto',
-        }}
-      >
+      <div ref={containerRef} style={{ position: 'relative' }}>
         <svg
           style={{
             position: 'absolute',
@@ -592,6 +561,18 @@ export function ChordConnectionGame({
         >
           {/* Chords column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <h3
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+                color: 'var(--color-text-dim, #6b7280)',
+                marginBottom: 4,
+              }}
+            >
+              Chords
+            </h3>
             {round.chords.map((item) => {
               const isActive = activeChord === item.id;
               const isComplete = connections.some(
@@ -664,6 +645,18 @@ export function ChordConnectionGame({
 
           {/* Keyboards column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <h3
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+                color: 'var(--color-text-dim, #6b7280)',
+                marginBottom: 4,
+              }}
+            >
+              Keyboards
+            </h3>
             {round.keyboards.map((item) => {
               const isActive = activeKeyboard === item.id;
               const isComplete = connections.some(
@@ -731,13 +724,11 @@ export function ChordConnectionGame({
       {/* Footer */}
       <div
         style={{
-          marginTop: 12,
-          paddingBottom: 12,
+          marginTop: 24,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           gap: 14,
-          flexShrink: 0,
         }}
       >
         {connectionSummary && (
@@ -756,15 +747,15 @@ export function ChordConnectionGame({
             Clear Lines
           </button>
           <button
-            onClick={handlePlayAgain}
-            disabled={!attachmentsFilled}
+            onClick={handleContinue}
+            disabled={!attachmentsFilled || submitted}
             style={{
               ...BTN,
-              opacity: !attachmentsFilled ? 0.4 : 1,
-              pointerEvents: !attachmentsFilled ? 'none' : 'auto',
+              opacity: !attachmentsFilled || submitted ? 0.4 : 1,
+              pointerEvents: !attachmentsFilled || submitted ? 'none' : 'auto',
             }}
           >
-            Play Again
+            Continue
           </button>
         </div>
       </div>

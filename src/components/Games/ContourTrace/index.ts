@@ -1,1 +1,1 @@
-export { default } from './ContourTrace';
+export { default as Constellations } from './ContourTrace';

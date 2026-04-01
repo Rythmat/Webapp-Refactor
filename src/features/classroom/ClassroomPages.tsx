@@ -163,6 +163,12 @@ const JamRoom = lazy(() =>
   })),
 );
 
+const JamLocalRoom = lazy(() =>
+  import('@/components/JamRoom').then(({ JamLocalRoom }) => ({
+    default: JamLocalRoom,
+  })),
+);
+
 export const classroomPages = () => {
   return {
     path: ClassroomRoutes.root.definition,
@@ -276,6 +282,10 @@ export const gamesPages = () => {
       {
         path: GameRoutes.jamLobby.definition,
         element: <JamLobby />,
+      },
+      {
+        path: GameRoutes.jamLocal.definition,
+        element: <JamLocalRoom />,
       },
       {
         path: GameRoutes.jamRoom.definition,

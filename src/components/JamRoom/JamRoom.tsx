@@ -55,6 +55,7 @@ function JamRoomInner() {
     isConnected,
     roomId,
     roomCode,
+    roomError,
     joinRoomByCode,
     leaveRoom,
     localColor,
@@ -79,6 +80,16 @@ function JamRoomInner() {
   const waterfallRef = useRef<WaterfallHandle>(null);
   const [showChat, setShowChat] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Navigate back to lobby on room error (room doesn't exist / host left)
+  useEffect(() => {
+    if (roomError) {
+      leaveRoom();
+      navigate(GameRoutes.jamLobby(), {
+        state: { error: roomError },
+      });
+    }
+  }, [roomError, leaveRoom, navigate]);
 
   // Initialize SoundFont engine + join room on mount
   useEffect(() => {

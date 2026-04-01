@@ -33,6 +33,8 @@ interface JamRoomContextValue {
   isConnected: boolean;
   roomId: string | null;
   roomCode: string | null;
+  /** Error string when room cannot be joined (e.g. room does not exist). */
+  roomError: string | null;
   /** Create a new jam room and connect to PartyKit. */
   createAndJoinRoom: (name: string) => void;
   /** Join an existing jam room by room ID. */
@@ -59,6 +61,7 @@ const JamRoomContext = createContext<JamRoomContextValue>({
   isConnected: false,
   roomId: null,
   roomCode: null,
+  roomError: null,
   createAndJoinRoom: () => {},
   joinRoomByCode: () => {},
   joinRoom: () => {},
@@ -101,6 +104,7 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [roomCode, setRoomCode] = useState<string | null>(null);
+  const [roomError, setRoomError] = useState<string | null>(null);
   const [remotePlayers, setRemotePlayers] = useState<JamPresence[]>([]);
   const [latencyMs, setLatencyMs] = useState(0);
 
@@ -111,8 +115,16 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     try {
       const data = JSON.parse(event.data);
 
+      if (data.type === 'room:not-found') {
+        // Room does not exist (no host)
+        setRoomError('That room does not exist');
+        setIsConnected(false);
+        return;
+      }
+
       if (data.type === 'room:closing') {
         // Host disconnected — the room is closing
+        setRoomError('The host has left the room');
         setIsConnected(false);
         return;
       }
@@ -159,6 +171,7 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     setIsConnected(false);
     setRoomId(null);
     setRoomCode(null);
+    setRoomError(null);
     setRemotePlayers([]);
     setLatencyMs(0);
     currentRoomIdRef.current = null;
@@ -175,6 +188,7 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
       partykitRoom?: string,
     ) => {
       teardown();
+      setRoomError(null);
 
       const host = partykitHost ?? DEFAULT_PARTYKIT_HOST;
       const pkRoom = partykitRoom ?? `jam-${newRoomId}`;
@@ -361,6 +375,7 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
       isConnected,
       roomId,
       roomCode,
+      roomError,
       createAndJoinRoom,
       joinRoomByCode,
       joinRoom,
@@ -377,6 +392,7 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
       isConnected,
       roomId,
       roomCode,
+      roomError,
       createAndJoinRoom,
       joinRoomByCode,
       joinRoom,

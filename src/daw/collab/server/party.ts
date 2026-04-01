@@ -26,6 +26,38 @@ export default class CollabServer implements Party.Server {
   constructor(public room: Party.Room) {}
 
   /**
+   * HTTP endpoint for room status checks.
+   * GET → { active: boolean, connections: number }
+   */
+  async onRequest(req: Party.Request) {
+    if (req.method === 'GET') {
+      return new Response(
+        JSON.stringify({
+          active: this.hostConnectionId !== null,
+          connections: connectionMeta.size,
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+        },
+      );
+    }
+    if (req.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+      });
+    }
+    return new Response('Method not allowed', { status: 405 });
+  }
+
+  /**
    * Handle a new WebSocket connection.
    * Validates auth, tags viewer connections, then hands off to y-partykit
    * for Yjs sync and awareness protocol.
@@ -45,6 +77,16 @@ export default class CollabServer implements Party.Server {
       if (auth.role === 'owner' && !this.hostConnectionId) {
         this.hostConnectionId = conn.id;
         this.hostUserId = auth.userId;
+      }
+
+      // Reject non-owner connections when there is no host
+      if (auth.role !== 'owner' && !this.hostConnectionId) {
+        conn.send(
+          JSON.stringify({ type: 'room:not-found', reason: 'no_host' }),
+        );
+        conn.close(4404, 'Room does not exist');
+        connectionMeta.delete(conn.id);
+        return;
       }
     }
 
@@ -96,14 +138,16 @@ export default class CollabServer implements Party.Server {
   private async handleHostDisconnect(): Promise<void> {
     this.hostConnectionId = null;
 
-    // Notify all remaining clients that the room is closing
+    // Notify all remaining clients that the room is closing, then kick them
     const closingMsg = JSON.stringify({
       type: 'room:closing',
       reason: 'host_disconnected',
     });
     for (const conn of this.room.getConnections()) {
       conn.send(closingMsg);
+      conn.close(4410, 'Host disconnected');
     }
+    connectionMeta.clear();
 
     // Call the API to mark the room as closed
     // The room ID in PartyKit is the database room ID (or jam-{id})

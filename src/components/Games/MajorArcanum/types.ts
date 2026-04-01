@@ -95,6 +95,12 @@ export interface GameState {
   metronomeEnabled: boolean;
   gameMode: string;
   bpm: number;
+  hits: number;
+  misses: number;
+  holdAttempts: number;
+  holdCompletions: number;
+  totalNotes: number;
+  difficulty: number;
 }
 
 export interface OscillatorEntry {

@@ -83,3 +83,12 @@ export const ROOTS: KeyRoot[] = [
   { name: 'Bb', val: 10 },
   { name: 'B', val: 11 },
 ];
+
+export const DIFFICULTY_PRESETS: Record<
+  number,
+  { label: string; bpm: number; totalNotes: number }
+> = {
+  1: { label: 'Easy', bpm: 70, totalNotes: 20 },
+  2: { label: 'Medium', bpm: 90, totalNotes: 30 },
+  3: { label: 'Hard', bpm: 120, totalNotes: 50 },
+};

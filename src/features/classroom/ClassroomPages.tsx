@@ -55,12 +55,6 @@ const ClassroomHomePage = lazy(() =>
   })),
 );
 
-// const GamePlayer = lazy(() =>
-//   import('@/components/Games/GamePlayer').then(({ GamePlayer }) => ({
-//     default: GamePlayer,
-//   })),
-// );
-
 const ChromaPage = lazy(() =>
   import('@/components/Games/arcadePages').then(({ ChromaPage }) => ({
     default: ChromaPage,
@@ -97,6 +91,42 @@ const FoliPage = lazy(() =>
   })),
 );
 
+const MajorArcanumPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ MajorArcanumPage }) => ({
+    default: MajorArcanumPage,
+  })),
+);
+
+const ConstellationsPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ ConstellationsPage }) => ({
+    default: ConstellationsPage,
+  })),
+);
+
+const GrooveLabPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ GrooveLabPage }) => ({
+    default: GrooveLabPage,
+  })),
+);
+
+const WaveSculptorPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ WaveSculptorPage }) => ({
+    default: WaveSculptorPage,
+  })),
+);
+
+const HarmonicStringsPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ HarmonicStringsPage }) => ({
+    default: HarmonicStringsPage,
+  })),
+);
+
+const SignalFlowPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ SignalFlowPage }) => ({
+    default: SignalFlowPage,
+  })),
+);
+
 const DawApp = lazy(() =>
   import('@/daw/DawApp').then(({ DawApp }) => ({
     default: DawApp,
@@ -112,6 +142,18 @@ const HomeInlet = lazy(() =>
 const ConnectInlet = lazy(() =>
   import('@/components/Profile/connectInlet').then(({ ConnectInlet }) => ({
     default: ConnectInlet,
+  })),
+);
+
+const JamLobby = lazy(() =>
+  import('@/components/JamRoom').then(({ JamLobby }) => ({
+    default: JamLobby,
+  })),
+);
+
+const JamRoom = lazy(() =>
+  import('@/components/JamRoom').then(({ JamRoom }) => ({
+    default: JamRoom,
   })),
 );
 
@@ -196,6 +238,38 @@ export const gamesPages = () => {
       {
         path: GameRoutes.foli.definition,
         element: <FoliPage />,
+      },
+      {
+        path: GameRoutes.majorArcanum.definition,
+        element: <MajorArcanumPage />,
+      },
+      {
+        path: GameRoutes.constellations.definition,
+        element: <ConstellationsPage />,
+      },
+      {
+        path: GameRoutes.grooveLab.definition,
+        element: <GrooveLabPage />,
+      },
+      {
+        path: GameRoutes.waveSculptor.definition,
+        element: <WaveSculptorPage />,
+      },
+      {
+        path: GameRoutes.harmonicStrings.definition,
+        element: <HarmonicStringsPage />,
+      },
+      {
+        path: GameRoutes.signalFlow.definition,
+        element: <SignalFlowPage />,
+      },
+      {
+        path: GameRoutes.jamLobby.definition,
+        element: <JamLobby />,
+      },
+      {
+        path: GameRoutes.jamRoom.definition,
+        element: <JamRoom />,
       },
     ],
   };

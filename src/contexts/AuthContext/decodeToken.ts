@@ -8,6 +8,7 @@ export function decodeToken(
     return {
       userId: null,
       token: null,
+      appSessionId: null,
       expiresAt: null,
       role: null,
       isAuth0Loading: false,
@@ -27,6 +28,7 @@ export function decodeToken(
     return {
       userId: decoded.user_id,
       token,
+      appSessionId: null,
       expiresAt: decoded.exp,
       role: decoded.role,
       isAuth0Loading: false,
@@ -38,6 +40,7 @@ export function decodeToken(
     return {
       userId: null,
       token: null,
+      appSessionId: null,
       expiresAt: null,
       role: null,
       isAuth0Loading: false,

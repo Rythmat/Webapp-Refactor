@@ -7,41 +7,24 @@ import { Env } from '@/constants/env';
 
 const API_BASE = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
 
-// ── Response types ──────────────────────────────────────────────────────
+// ── Response types (matches StoredRoomMetadata from API) ────────────────
 
 export interface RoomResponse {
-  id: string;
-  code: string;
-  name: string;
-  type: 'daw' | 'jam';
-  hostId: string;
-  status: string;
-  maxParticipants: number;
-  partykitHost: string;
-  partykitRoom: string;
-  createdAt: string;
-}
-
-export interface JoinRoomResponse {
-  id: string;
-  code: string;
-  name: string;
-  type: 'daw' | 'jam';
-  hostId: string;
-  hostName: string;
-  partykitHost: string;
-  partykitRoom: string;
+  roomId: string;
+  projectName: string;
+  ownerId: string;
+  createdAt: number;
+  members: Record<
+    string,
+    { role: 'owner' | 'editor' | 'viewer'; joinedAt: number }
+  >;
 }
 
 export interface RoomListItem {
-  id: string;
-  code: string;
-  name: string;
-  type: string;
-  hostId: string;
-  hostName: string;
-  status: string;
-  createdAt: string;
+  roomId: string;
+  projectName: string;
+  ownerId: string;
+  createdAt: number;
 }
 
 // ── Fetch helper ────────────────────────────────────────────────────────
@@ -77,7 +60,7 @@ async function apiFetch<T>(
 // ── Room CRUD ───────────────────────────────────────────────────────────
 
 export async function createRoom(
-  params: { name: string; type: 'daw' | 'jam'; maxParticipants?: number },
+  params: { projectName: string },
   token: string,
 ): Promise<RoomResponse> {
   return apiFetch<RoomResponse>(
@@ -97,20 +80,6 @@ export async function getRoom(
   return apiFetch<RoomResponse>(
     `/api/collab/rooms/${encodeURIComponent(idOrCode)}`,
     { method: 'GET' },
-    token,
-  );
-}
-
-export async function joinRoom(
-  code: string,
-  token: string,
-): Promise<JoinRoomResponse> {
-  return apiFetch<JoinRoomResponse>(
-    '/api/collab/rooms/join',
-    {
-      method: 'POST',
-      body: JSON.stringify({ code }),
-    },
     token,
   );
 }

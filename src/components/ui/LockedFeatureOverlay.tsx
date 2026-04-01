@@ -29,7 +29,13 @@ export const LockedFeatureOverlay: FC<LockedFeatureOverlayProps> = ({
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
 
-  if (!locked) return <>{children}</>;
+  if (!locked) {
+    return className ? (
+      <div className={className}>{children}</div>
+    ) : (
+      <>{children}</>
+    );
+  }
 
   return (
     <div className={`relative ${className}`}>

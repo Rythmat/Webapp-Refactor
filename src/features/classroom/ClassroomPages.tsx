@@ -234,27 +234,51 @@ export const gamesPages = () => {
       },
       {
         path: GameRoutes.playAlong.definition,
-        element: <RequirePremium><PlayAlongPage /></RequirePremium>,
+        element: (
+          <RequirePremium>
+            <PlayAlongPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.foli.definition,
-        element: <RequirePremium><FoliPage /></RequirePremium>,
+        element: (
+          <RequirePremium>
+            <FoliPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.majorArcanum.definition,
-        element: <RequirePremium><MajorArcanumPage /></RequirePremium>,
+        element: (
+          <RequirePremium>
+            <MajorArcanumPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.constellations.definition,
-        element: <RequirePremium><ConstellationsPage /></RequirePremium>,
+        element: (
+          <RequirePremium>
+            <ConstellationsPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.grooveLab.definition,
-        element: <RequirePremium><GrooveLabPage /></RequirePremium>,
+        element: (
+          <RequirePremium>
+            <GrooveLabPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.waveSculptor.definition,
-        element: <RequirePremium><WaveSculptorPage /></RequirePremium>,
+        element: (
+          <RequirePremium>
+            <WaveSculptorPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.harmonicStrings.definition,
@@ -262,15 +286,27 @@ export const gamesPages = () => {
       },
       {
         path: GameRoutes.signalFlow.definition,
-        element: <RequirePremium><SignalFlowPage /></RequirePremium>,
+        element: (
+          <RequirePremium>
+            <SignalFlowPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.jamLobby.definition,
-        element: <RequirePremium><JamLobby /></RequirePremium>,
+        element: (
+          <RequirePremium>
+            <JamLobby />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.jamRoom.definition,
-        element: <RequirePremium><JamRoom /></RequirePremium>,
+        element: (
+          <RequirePremium>
+            <JamRoom />
+          </RequirePremium>
+        ),
       },
     ],
   };
@@ -374,11 +410,19 @@ export const learnPages = () => {
       },
       {
         path: LearnRoutes.relativeOverview.definition,
-        element: <RequirePremium><RelativeModesOverview /></RequirePremium>,
+        element: (
+          <RequirePremium>
+            <RelativeModesOverview />
+          </RequirePremium>
+        ),
       },
       {
         path: LearnRoutes.parallelOverview.definition,
-        element: <RequirePremium><ParallelModesOverview /></RequirePremium>,
+        element: (
+          <RequirePremium>
+            <ParallelModesOverview />
+          </RequirePremium>
+        ),
       },
     ],
   };

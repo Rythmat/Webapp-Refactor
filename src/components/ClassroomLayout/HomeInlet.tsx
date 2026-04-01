@@ -451,7 +451,10 @@ export const HomeInlet = () => {
                 </div>
               </div>
             </div>
-            <LockedFeatureOverlay locked={!isPremium} className="lg:col-span-4 flex flex-col gap-4">
+            <LockedFeatureOverlay
+              locked={!isPremium}
+              className="lg:col-span-4 flex flex-col gap-4"
+            >
               <div className="flex items-center gap-2 text-xl font-serif text-gray-200">
                 <h2>Projects</h2>
                 <ChevronRight size={18} className="text-gray-600" />
@@ -476,7 +479,10 @@ export const HomeInlet = () => {
                 </div>
               </div>
             </LockedFeatureOverlay>
-            <LockedFeatureOverlay locked={!isPremium} className="lg:col-span-5 flex flex-col gap-4">
+            <LockedFeatureOverlay
+              locked={!isPremium}
+              className="lg:col-span-5 flex flex-col gap-4"
+            >
               <div className="flex items-center gap-2 text-xl font-serif text-gray-200">
                 <h2>Generate</h2>
                 <ChevronRight size={18} className="text-gray-600" />

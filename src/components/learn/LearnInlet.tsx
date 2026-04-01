@@ -779,72 +779,75 @@ const CardItem: React.FC<CardItemProps> = ({
 
   return (
     <LockedFeatureOverlay locked={!!locked}>
-    <div
-      ref={highlightRef}
-      className={`group flex cursor-pointer flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
-    >
       <div
-        className={`glass-panel relative ${imageSize ? '' : 'aspect-square'} overflow-hidden rounded-2xl transition-colors duration-150`}
-        style={{
-          ...(imageSize ? { width: imageSize, height: imageSize } : {}),
-          background: 'rgba(255,255,255,0.03)',
-          border: expanded
-            ? '2px solid var(--color-accent)'
-            : highlighted
-              ? '2px solid var(--color-accent)'
-              : '1px solid var(--color-border)',
-        }}
-        onClick={onSelect}
+        ref={highlightRef}
+        className={`group flex cursor-pointer flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
       >
-        {image ? (
-          <img
-            src={image}
-            alt={title}
-            className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <HexAvatarSVG
-            config={defaultAvatarConfig(title)}
-            circular={false}
-            className="absolute left-0 top-0 size-[120%] transition-transform duration-500 group-hover:scale-105"
-          />
-        )}
-        <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
-      </div>
-      <div className="flex items-start justify-between px-1">
-        <h3
-          className="text-lg font-semibold"
-          style={{ color: 'var(--color-text)' }}
+        <div
+          className={`glass-panel relative ${imageSize ? '' : 'aspect-square'} overflow-hidden rounded-2xl transition-colors duration-150`}
+          style={{
+            ...(imageSize ? { width: imageSize, height: imageSize } : {}),
+            background: 'rgba(255,255,255,0.03)',
+            border: expanded
+              ? '2px solid var(--color-accent)'
+              : highlighted
+                ? '2px solid var(--color-accent)'
+                : '1px solid var(--color-border)',
+          }}
+          onClick={onSelect}
         >
-          {title}
-        </h3>
-        {progressPct != null && progressPct > 0 && (
-          <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
-            {progressPct}%
-          </span>
-        )}
-        {hasExpansion && (
-          <button
-            type="button"
-            className="flex items-center justify-center rounded p-1 transition-colors hover:bg-white/10"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleExpand?.();
-            }}
-          >
-            <ChevronRight
-              size={18}
-              style={{
-                color: expanded
-                  ? 'var(--color-accent)'
-                  : 'var(--color-text-dim)',
-                transition: 'color 150ms',
-              }}
+          {image ? (
+            <img
+              src={image}
+              alt={title}
+              className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
-          </button>
-        )}
+          ) : (
+            <HexAvatarSVG
+              config={defaultAvatarConfig(title)}
+              circular={false}
+              className="absolute left-0 top-0 size-[120%] transition-transform duration-500 group-hover:scale-105"
+            />
+          )}
+          <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
+        </div>
+        <div className="flex items-start justify-between px-1">
+          <h3
+            className="text-lg font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
+            {title}
+          </h3>
+          {progressPct != null && progressPct > 0 && (
+            <span
+              className="text-xs"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              {progressPct}%
+            </span>
+          )}
+          {hasExpansion && (
+            <button
+              type="button"
+              className="flex items-center justify-center rounded p-1 transition-colors hover:bg-white/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleExpand?.();
+              }}
+            >
+              <ChevronRight
+                size={18}
+                style={{
+                  color: expanded
+                    ? 'var(--color-accent)'
+                    : 'var(--color-text-dim)',
+                  transition: 'color 150ms',
+                }}
+              />
+            </button>
+          )}
+        </div>
       </div>
-    </div>
     </LockedFeatureOverlay>
   );
 };
@@ -861,7 +864,11 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const genreParam = searchParams.get('genre');
   const { isPremium } = useIsPremium();
-  const defaultTab = genreParam ? 'Courses' : isPremium ? initialTab : 'Technique';
+  const defaultTab = genreParam
+    ? 'Courses'
+    : isPremium
+      ? initialTab
+      : 'Technique';
   const [subTab, setSubTab] = useState(defaultTab);
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(
     genreParam,

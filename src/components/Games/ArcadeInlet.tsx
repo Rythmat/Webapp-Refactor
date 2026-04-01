@@ -230,7 +230,11 @@ export const ArcadeInlet: FC = () => {
                         game.route
                           ? () =>
                               navigate(
-                                (GameRoutes[game.route!] as (p?: void) => string)(),
+                                (
+                                  GameRoutes[game.route!] as (
+                                    p?: void,
+                                  ) => string
+                                )(),
                               )
                           : undefined
                       }

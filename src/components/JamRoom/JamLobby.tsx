@@ -33,19 +33,22 @@ function removeRecentRoom(id: string) {
   localStorage.setItem(RECENT_ROOMS_KEY, JSON.stringify(rooms));
 }
 
-/** Check if a PartyKit jam room has an active host. */
-async function isRoomActive(roomId: string): Promise<boolean> {
+/**
+ * Check if a PartyKit jam room has an active host.
+ * Returns `true` (active), `false` (confirmed inactive), or `null` (unknown/unreachable).
+ */
+async function checkRoomStatus(roomId: string): Promise<boolean | null> {
   try {
     const protocol = PARTYKIT_HOST.startsWith('localhost') ? 'http' : 'https';
     const res = await fetch(
       `${protocol}://${PARTYKIT_HOST}/parties/main/jam-${roomId}`,
       { signal: AbortSignal.timeout(3000) },
     );
-    if (!res.ok) return false;
+    if (!res.ok) return null; // server error or not deployed yet
     const data = (await res.json()) as { active?: boolean };
     return data.active === true;
   } catch {
-    return false;
+    return null; // network error, CORS, timeout — treat as unknown
   }
 }
 
@@ -77,13 +80,14 @@ export function JamLobby() {
       const checks = await Promise.all(
         rooms.map(async (room) => ({
           ...room,
-          active: await isRoomActive(room.id),
+          status: await checkRoomStatus(room.id),
         })),
       );
       if (cancelled) return;
 
-      const activeRooms = checks.filter((r) => r.active);
-      // Update localStorage to drop stale rooms
+      // Keep rooms that are active or unknown (server unreachable)
+      // Only drop rooms explicitly confirmed inactive
+      const activeRooms = checks.filter((r) => r.status !== false);
       localStorage.setItem(
         RECENT_ROOMS_KEY,
         JSON.stringify(activeRooms.slice(0, 5)),
@@ -100,7 +104,7 @@ export function JamLobby() {
     setError(null);
     const roomId = crypto.randomUUID().slice(0, 8);
     addRecentRoom(roomId);
-    navigate(GameRoutes.jamRoom({ roomId }));
+    navigate(GameRoutes.jamRoom({ roomId }), { state: { role: 'owner' } });
   }, [navigate]);
 
   const handleJoin = useCallback(async () => {
@@ -109,10 +113,11 @@ export function JamLobby() {
     setError(null);
     setJoining(true);
 
-    const active = await isRoomActive(code);
+    const status = await checkRoomStatus(code);
     setJoining(false);
 
-    if (!active) {
+    // Only block if server explicitly confirms the room is inactive
+    if (status === false) {
       setError('That room does not exist');
       removeRecentRoom(code);
       return;

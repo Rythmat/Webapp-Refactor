@@ -13,7 +13,7 @@ import {
   Music,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { GameRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { JamChat } from './JamChat';
@@ -50,6 +50,7 @@ const DRUM_GLOW_INTENSITY: Record<DrumSound, number> = {
 
 function JamRoomInner() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { roomId: paramRoomId } = useParams<{ roomId: string }>();
   const {
     isConnected,
@@ -57,6 +58,7 @@ function JamRoomInner() {
     roomCode,
     roomError,
     joinRoomByCode,
+    joinRoom,
     leaveRoom,
     localColor,
     setLocalInstrument,
@@ -103,9 +105,16 @@ function JamRoomInner() {
 
   useEffect(() => {
     if (paramRoomId && !roomId) {
-      joinRoomByCode(paramRoomId);
+      const state = location.state as { role?: string } | null;
+      if (state?.role === 'owner') {
+        // Creator — connect as owner (registers as host in PartyKit)
+        joinRoom(paramRoomId, 'owner');
+      } else {
+        // Joiner — connect as editor (requires existing host)
+        joinRoomByCode(paramRoomId);
+      }
     }
-  }, [paramRoomId, roomId, joinRoomByCode]);
+  }, [paramRoomId, roomId, location.state, joinRoom, joinRoomByCode]);
 
   // Audio engine for remote notes
   useJamAudio();

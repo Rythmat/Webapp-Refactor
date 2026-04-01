@@ -21,6 +21,7 @@ import { LearnInlet } from '@/components/learn/LearnInlet';
 import { ProfilePage } from '@/components/Profile/ProfilePage';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
+import { RequirePremium } from '@/components/ui/RequirePremium';
 
 import { useParams, useSearchParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
@@ -55,15 +56,75 @@ const ClassroomHomePage = lazy(() =>
   })),
 );
 
-// const GamePlayer = lazy(() =>
-//   import('@/components/Games/GamePlayer').then(({ GamePlayer }) => ({
-//     default: GamePlayer,
-//   })),
-// );
+const ChromaPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ ChromaPage }) => ({
+    default: ChromaPage,
+  })),
+);
 
-const Chroma = lazy(() =>
-  import('@/components/Games/chroma').then((m) => ({
-    default: m.default,
+const BoardChoicePage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ BoardChoicePage }) => ({
+    default: BoardChoicePage,
+  })),
+);
+
+const ChordConnectionPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ ChordConnectionPage }) => ({
+    default: ChordConnectionPage,
+  })),
+);
+
+const ChordPressPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ ChordPressPage }) => ({
+    default: ChordPressPage,
+  })),
+);
+
+const PlayAlongPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ PlayAlongPage }) => ({
+    default: PlayAlongPage,
+  })),
+);
+
+const FoliPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ FoliPage }) => ({
+    default: FoliPage,
+  })),
+);
+
+const MajorArcanumPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ MajorArcanumPage }) => ({
+    default: MajorArcanumPage,
+  })),
+);
+
+const ConstellationsPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ ConstellationsPage }) => ({
+    default: ConstellationsPage,
+  })),
+);
+
+const GrooveLabPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ GrooveLabPage }) => ({
+    default: GrooveLabPage,
+  })),
+);
+
+const WaveSculptorPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ WaveSculptorPage }) => ({
+    default: WaveSculptorPage,
+  })),
+);
+
+const HarmonicStringsPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ HarmonicStringsPage }) => ({
+    default: HarmonicStringsPage,
+  })),
+);
+
+const SignalFlowPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ SignalFlowPage }) => ({
+    default: SignalFlowPage,
   })),
 );
 
@@ -82,6 +143,18 @@ const HomeInlet = lazy(() =>
 const ConnectInlet = lazy(() =>
   import('@/components/Profile/connectInlet').then(({ ConnectInlet }) => ({
     default: ConnectInlet,
+  })),
+);
+
+const JamLobby = lazy(() =>
+  import('@/components/JamRoom').then(({ JamLobby }) => ({
+    default: JamLobby,
+  })),
+);
+
+const JamRoom = lazy(() =>
+  import('@/components/JamRoom').then(({ JamRoom }) => ({
+    default: JamRoom,
   })),
 );
 
@@ -145,7 +218,95 @@ export const gamesPages = () => {
       },
       {
         path: GameRoutes.chroma.definition,
-        element: <Chroma />,
+        element: <ChromaPage />,
+      },
+      {
+        path: GameRoutes.boardChoice.definition,
+        element: <BoardChoicePage />,
+      },
+      {
+        path: GameRoutes.chordConnection.definition,
+        element: <ChordConnectionPage />,
+      },
+      {
+        path: GameRoutes.chordPress.definition,
+        element: <ChordPressPage />,
+      },
+      {
+        path: GameRoutes.playAlong.definition,
+        element: (
+          <RequirePremium>
+            <PlayAlongPage />
+          </RequirePremium>
+        ),
+      },
+      {
+        path: GameRoutes.foli.definition,
+        element: (
+          <RequirePremium>
+            <FoliPage />
+          </RequirePremium>
+        ),
+      },
+      {
+        path: GameRoutes.majorArcanum.definition,
+        element: (
+          <RequirePremium>
+            <MajorArcanumPage />
+          </RequirePremium>
+        ),
+      },
+      {
+        path: GameRoutes.constellations.definition,
+        element: (
+          <RequirePremium>
+            <ConstellationsPage />
+          </RequirePremium>
+        ),
+      },
+      {
+        path: GameRoutes.grooveLab.definition,
+        element: (
+          <RequirePremium>
+            <GrooveLabPage />
+          </RequirePremium>
+        ),
+      },
+      {
+        path: GameRoutes.waveSculptor.definition,
+        element: (
+          <RequirePremium>
+            <WaveSculptorPage />
+          </RequirePremium>
+        ),
+      },
+      {
+        path: GameRoutes.harmonicStrings.definition,
+        element: <HarmonicStringsPage />,
+      },
+      {
+        path: GameRoutes.signalFlow.definition,
+        element: (
+          <RequirePremium>
+            <SignalFlowPage />
+          </RequirePremium>
+        ),
+      },
+      {
+        path: GameRoutes.jamLobby.definition,
+        element: (
+          <RequirePremium>
+            <JamLobby />
+          </RequirePremium>
+        ),
+      },
+      {
+        path: GameRoutes.jamRoom.definition,
+        element: (
+          <RequirePremium>
+            <JamRoom />
+          </RequirePremium>
+        ),
       },
     ],
   };
@@ -201,13 +362,17 @@ const LessonRoute = () => {
   const [searchParams] = useSearchParams();
   const startActivity = searchParams.get('activity') ?? undefined;
 
-  return (
+  // Free users can access C Ionian only
+  const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
+  const inner = (
     <LessonContainer
       modeSlug={mode ?? 'ionian'}
       rootKey={keyParam}
       startAtActivityKey={startActivity}
     />
   );
+
+  return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
 };
 
 const OverviewRoute = () => {
@@ -215,7 +380,9 @@ const OverviewRoute = () => {
     mode: PrismModeSlug;
   }>();
 
-  return <ModeOverview mode={mode ?? 'ionian'} />;
+  // Free users can access Ionian overview only
+  const inner = <ModeOverview mode={mode ?? 'ionian'} />;
+  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
 };
 
 export const learnPages = () => {
@@ -243,11 +410,19 @@ export const learnPages = () => {
       },
       {
         path: LearnRoutes.relativeOverview.definition,
-        element: <RelativeModesOverview />,
+        element: (
+          <RequirePremium>
+            <RelativeModesOverview />
+          </RequirePremium>
+        ),
       },
       {
         path: LearnRoutes.parallelOverview.definition,
-        element: <ParallelModesOverview />,
+        element: (
+          <RequirePremium>
+            <ParallelModesOverview />
+          </RequirePremium>
+        ),
       },
     ],
   };

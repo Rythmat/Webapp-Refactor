@@ -23,8 +23,11 @@ import { useTheme } from '@/daw/hooks/useTheme';
 import { useTransport } from '@/daw/hooks/useTransport';
 import { useStore } from '@/daw/store';
 import { initUndoTracking } from '@/daw/store/undoMiddleware';
+import { CollabProvider } from '@/daw/collab/CollabProvider';
+import { UserList } from '@/daw/collab/ui/UserList';
+import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
 
-export function DawApp() {
+function DawAppInner() {
   const { isReady, initEngine } = useAudioEngine();
   useTransport();
   usePlaybackEngine(isReady);
@@ -33,6 +36,11 @@ export function DawApp() {
   useAudioChordDetection();
   useTheme();
   const currentView = useStore((s) => s.currentView);
+  const userListOpen = useStore((s) => s.userListOpen);
+  const toggleUserList = useStore((s) => s.toggleUserList);
+  const chatPanelOpen = useStore((s) => s.chatPanelOpen);
+  const toggleChatPanel = useStore((s) => s.toggleChatPanel);
+  const isCollabActive = useStore((s) => s.isCollabActive);
 
   useEffect(() => {
     loadSessionOnStartup();
@@ -66,6 +74,12 @@ export function DawApp() {
               <TimelineWithHeaders />
             </div>
             <LibraryPanel />
+            {isCollabActive && (
+              <>
+                <UserList open={userListOpen} onClose={toggleUserList} />
+                <ChatPanel open={chatPanelOpen} onClose={toggleChatPanel} />
+              </>
+            )}
           </div>
           <ChannelStrip />
           <PianoRollModal />
@@ -77,10 +91,24 @@ export function DawApp() {
         <div className="flex flex-1 overflow-hidden">
           <StudioView isReady={isReady} />
           <LibraryPanel />
+          {isCollabActive && (
+            <>
+              <UserList open={userListOpen} onClose={toggleUserList} />
+              <ChatPanel open={chatPanelOpen} onClose={toggleChatPanel} />
+            </>
+          )}
         </div>
       )}
       <SettingsModal />
       <PrismSuggestionModal />
     </div>
+  );
+}
+
+export function DawApp() {
+  return (
+    <CollabProvider>
+      <DawAppInner />
+    </CollabProvider>
   );
 }

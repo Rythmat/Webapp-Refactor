@@ -191,6 +191,48 @@ export const GameRoutes = {
   picker: createRouteDefinition('/', { prefix: gamesPrefix }),
 
   chroma: createRouteDefinition('/chroma', { prefix: gamesPrefix }),
+
+  boardChoice: createRouteDefinition('/board-choice', { prefix: gamesPrefix }),
+
+  chordConnection: createRouteDefinition('/chord-connection', {
+    prefix: gamesPrefix,
+  }),
+
+  chordPress: createRouteDefinition('/chord-press', { prefix: gamesPrefix }),
+
+  playAlong: createRouteDefinition('/play-along', { prefix: gamesPrefix }),
+
+  foli: createRouteDefinition('/foli', { prefix: gamesPrefix }),
+
+  majorArcanum: createRouteDefinition('/major-arcanum', {
+    prefix: gamesPrefix,
+  }),
+
+  constellations: createRouteDefinition('/constellations', {
+    prefix: gamesPrefix,
+  }),
+
+  grooveLab: createRouteDefinition('/groove-lab', { prefix: gamesPrefix }),
+
+  waveSculptor: createRouteDefinition('/wave-sculptor', {
+    prefix: gamesPrefix,
+  }),
+
+  harmonicStrings: createRouteDefinition('/harmonic-strings', {
+    prefix: gamesPrefix,
+  }),
+
+  signalFlow: createRouteDefinition('/signal-flow', {
+    prefix: gamesPrefix,
+  }),
+
+  jamLobby: createRouteDefinition('/jam', { prefix: gamesPrefix }),
+
+  jamLocal: createRouteDefinition('/jam/local', { prefix: gamesPrefix }),
+
+  jamRoom: createRouteDefinition<{ roomId: string }>('/jam/:roomId', {
+    prefix: gamesPrefix,
+  }),
 };
 
 const homePrefix = '/home';

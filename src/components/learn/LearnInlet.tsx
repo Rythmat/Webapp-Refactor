@@ -8,12 +8,14 @@ import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgres
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import type { PrismModeSlug } from '@/hooks/data';
 import { useProgressSummary } from '@/hooks/data/progress/useProgressSummary';
+import { useIsPremium } from '@/hooks/useIsPremium';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ProgressSummaryResponse } from '@/lib/progress/types';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
+import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
 import './learn.css';
 
 interface ContentSubItem {
@@ -100,6 +102,7 @@ function getTileCompletion(
 }
 
 const THEORY_SECTIONS = [
+  { id: 'O', name: 'Overview' },
   { id: 'A', name: 'Melody' },
   { id: 'B', name: 'Chords' },
   { id: 'C', name: 'Bass' },
@@ -107,6 +110,16 @@ const THEORY_SECTIONS = [
 ];
 
 const DIATONIC_MODES = [
+  { title: 'Lydian', slug: 'lydian' },
+  { title: 'Ionian', slug: 'ionian' },
+  { title: 'Mixolydian', slug: 'mixolydian' },
+  { title: 'Dorian', slug: 'dorian' },
+  { title: 'Aeolian', slug: 'aeolian' },
+  { title: 'Phrygian', slug: 'phrygian' },
+  { title: 'Locrian', slug: 'locrian' },
+];
+
+const DIATONIC_MODES_BY_DEGREE = [
   { title: 'Ionian', slug: 'ionian' },
   { title: 'Dorian', slug: 'dorian' },
   { title: 'Phrygian', slug: 'phrygian' },
@@ -150,7 +163,7 @@ const KEY_TO_SEMITONE: Record<string, number> = {
 
 function buildRelativeSubItems(keyLabel: string): ContentSubItem[] {
   const root = KEY_TO_SEMITONE[keyLabel] ?? 0;
-  return DIATONIC_MODES.map((mode, i) => {
+  return DIATONIC_MODES_BY_DEGREE.map((mode, i) => {
     const note = SEMITONE_TO_KEY[(root + MAJOR_SCALE_INTERVALS[i]) % 12];
     return {
       label: `${note} ${mode.title}`,
@@ -280,25 +293,15 @@ const COURSES_DATA: ContentItem[] = [
 
 const THEORY_DATA: ContentItem[] = [
   {
-    title: 'Ionian (Major)',
-    mode: 'ionian',
-    route: LearnRoutes.overview({ mode: 'ionian' }),
-  },
-  {
-    title: 'Dorian',
-    mode: 'dorian',
-    route: LearnRoutes.overview({ mode: 'dorian' }),
-  },
-  {
-    title: 'Phrygian',
-    mode: 'phrygian',
-    route: LearnRoutes.overview({ mode: 'phrygian' }),
-  },
-  {
     title: 'Lydian',
     mode: 'lydian',
     route: LearnRoutes.overview({ mode: 'lydian' }),
     image: '/learn-tiles/lydian.svg',
+  },
+  {
+    title: 'Ionian (Major)',
+    mode: 'ionian',
+    route: LearnRoutes.overview({ mode: 'ionian' }),
   },
   {
     title: 'Mixolydian',
@@ -306,9 +309,19 @@ const THEORY_DATA: ContentItem[] = [
     route: LearnRoutes.overview({ mode: 'mixolydian' }),
   },
   {
+    title: 'Dorian',
+    mode: 'dorian',
+    route: LearnRoutes.overview({ mode: 'dorian' }),
+  },
+  {
     title: 'Aeolian (Minor)',
     mode: 'aeolian',
     route: LearnRoutes.overview({ mode: 'aeolian' }),
+  },
+  {
+    title: 'Phrygian',
+    mode: 'phrygian',
+    route: LearnRoutes.overview({ mode: 'phrygian' }),
   },
   {
     title: 'Locrian',
@@ -716,6 +729,23 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   );
 };
 
+/**
+ * Determine whether a theory/course/technique item is available to free users.
+ *
+ * Free items:
+ *  - Technique → "Fundamentals" (piano-fundamentals)
+ *  - Theory (Diatonic Modes) → "Ionian (Major)" — specifically the C key sub-item
+ *
+ * Everything else (all courses, all other modes, relative/parallel/harmonic/melodic/
+ * double-harmonic sections) is premium-only.
+ */
+function isLearnItemFree(item: ContentItem, tab: string): boolean {
+  return (
+    tab === 'Technique' || // Piano Fundamentals
+    (tab === 'Theory' && item.mode === 'ionian') // C Ionian available
+  );
+}
+
 interface CardItemProps {
   title: string;
   mode?: string;
@@ -728,6 +758,7 @@ interface CardItemProps {
   onToggleExpand?: () => void;
   image?: string;
   progressPct?: number;
+  locked?: boolean;
 }
 
 const CardItem: React.FC<CardItemProps> = ({
@@ -742,76 +773,82 @@ const CardItem: React.FC<CardItemProps> = ({
   onToggleExpand,
   image,
   progressPct,
+  locked,
 }) => {
   const hasExpansion = !!(mode || subItems);
 
   return (
-    <div
-      ref={highlightRef}
-      className={`group flex cursor-pointer flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
-    >
+    <LockedFeatureOverlay locked={!!locked}>
       <div
-        className={`glass-panel relative ${imageSize ? '' : 'aspect-square'} overflow-hidden rounded-2xl transition-colors duration-150`}
-        style={{
-          ...(imageSize ? { width: imageSize, height: imageSize } : {}),
-          background: 'rgba(255,255,255,0.03)',
-          border: expanded
-            ? '2px solid var(--color-accent)'
-            : highlighted
-              ? '2px solid var(--color-accent)'
-              : '1px solid var(--color-border)',
-        }}
-        onClick={onSelect}
+        ref={highlightRef}
+        className={`group flex cursor-pointer flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
       >
-        {image ? (
-          <img
-            src={image}
-            alt={title}
-            className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <HexAvatarSVG
-            config={defaultAvatarConfig(title)}
-            circular={false}
-            className="absolute left-0 top-0 size-[120%] transition-transform duration-500 group-hover:scale-105"
-          />
-        )}
-        <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
-      </div>
-      <div className="flex items-start justify-between px-1">
-        <h3
-          className="text-lg font-semibold"
-          style={{ color: 'var(--color-text)' }}
+        <div
+          className={`glass-panel relative ${imageSize ? '' : 'aspect-square'} overflow-hidden rounded-2xl transition-colors duration-150`}
+          style={{
+            ...(imageSize ? { width: imageSize, height: imageSize } : {}),
+            background: 'rgba(255,255,255,0.03)',
+            border: expanded
+              ? '2px solid var(--color-accent)'
+              : highlighted
+                ? '2px solid var(--color-accent)'
+                : '1px solid var(--color-border)',
+          }}
+          onClick={onSelect}
         >
-          {title}
-        </h3>
-        {progressPct != null && progressPct > 0 && (
-          <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
-            {progressPct}%
-          </span>
-        )}
-        {hasExpansion && (
-          <button
-            type="button"
-            className="flex items-center justify-center rounded p-1 transition-colors hover:bg-white/10"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleExpand?.();
-            }}
-          >
-            <ChevronRight
-              size={18}
-              style={{
-                color: expanded
-                  ? 'var(--color-accent)'
-                  : 'var(--color-text-dim)',
-                transition: 'color 150ms',
-              }}
+          {image ? (
+            <img
+              src={image}
+              alt={title}
+              className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
-          </button>
-        )}
+          ) : (
+            <HexAvatarSVG
+              config={defaultAvatarConfig(title)}
+              circular={false}
+              className="absolute left-0 top-0 size-[120%] transition-transform duration-500 group-hover:scale-105"
+            />
+          )}
+          <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
+        </div>
+        <div className="flex items-start justify-between px-1">
+          <h3
+            className="text-lg font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
+            {title}
+          </h3>
+          {progressPct != null && progressPct > 0 && (
+            <span
+              className="text-xs"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              {progressPct}%
+            </span>
+          )}
+          {hasExpansion && (
+            <button
+              type="button"
+              className="flex items-center justify-center rounded p-1 transition-colors hover:bg-white/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleExpand?.();
+              }}
+            >
+              <ChevronRight
+                size={18}
+                style={{
+                  color: expanded
+                    ? 'var(--color-accent)'
+                    : 'var(--color-text-dim)',
+                  transition: 'color 150ms',
+                }}
+              />
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </LockedFeatureOverlay>
   );
 };
 
@@ -826,7 +863,13 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const genreParam = searchParams.get('genre');
-  const [subTab, setSubTab] = useState(genreParam ? 'Courses' : initialTab);
+  const { isPremium } = useIsPremium();
+  const defaultTab = genreParam
+    ? 'Courses'
+    : isPremium
+      ? initialTab
+      : 'Technique';
+  const [subTab, setSubTab] = useState(defaultTab);
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(
     genreParam,
   );
@@ -956,7 +999,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         ? THEORY_DATA
         : TECHNIQUE_DATA;
 
-  const renderContent = (data: ContentItem[]) => {
+  const renderContent = (data: ContentItem[], tab: string = subTab) => {
     const expandedItem = expandedMode
       ? data.find((item) => (item.expandId ?? item.mode) === expandedMode)
       : null;
@@ -975,6 +1018,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                 expanded={true}
                 imageSize={listPanelHeight}
                 progressPct={getTileCompletion(progressSummary, expandedItem)}
+                locked={!isPremium && !isLearnItemFree(expandedItem, tab)}
                 onToggleExpand={() => {
                   setExpandedMode(null);
                   setSelectedSubItem(null);
@@ -1179,9 +1223,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                           : 'transparent';
                       }}
                     >
-                      <span style={{ color: 'var(--color-accent)' }}>
-                        {section.id}:
-                      </span>{' '}
                       {section.name}
                       {section.stepCount != null && (
                         <span
@@ -1208,6 +1249,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                     {...item}
                     expanded={false}
                     progressPct={getTileCompletion(progressSummary, item)}
+                    locked={!isPremium && !isLearnItemFree(item, tab)}
                     onToggleExpand={
                       item.mode || item.subItems
                         ? () => {
@@ -1247,6 +1289,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               highlightRef={isHighlighted ? highlightRef : undefined}
               expanded={false}
               progressPct={getTileCompletion(progressSummary, item)}
+              locked={!isPremium && !isLearnItemFree(item, tab)}
               onToggleExpand={
                 item.mode || item.subItems
                   ? () => {
@@ -1284,7 +1327,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               border: '1px solid var(--color-border)',
             }}
           >
-            {['Courses', 'Theory', 'Technique'].map((tab) => (
+            {(isPremium
+              ? ['Courses', 'Theory', 'Technique']
+              : ['Technique', 'Theory', 'Courses']
+            ).map((tab) => (
               <button
                 key={tab}
                 className="rounded-md px-6 py-2 text-sm font-medium transition-colors duration-150"

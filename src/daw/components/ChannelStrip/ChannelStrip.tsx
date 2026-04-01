@@ -10,6 +10,8 @@ import {
   Disc3,
 } from 'lucide-react';
 import { useStore } from '@/daw/store';
+import { useIsPremium } from '@/hooks/useIsPremium';
+import { LockedFeatureOverlay } from '@/components/ui/LockedFeatureOverlay';
 import { TrackControlsPanel } from '@/daw/components/Controls/TrackControlsPanel';
 import { EffectsPanel } from '@/daw/components/Effects/EffectsPanel';
 import { PrismPanel } from '@/daw/components/Prism/PrismPanel';
@@ -99,6 +101,7 @@ function instrumentLabel(instrument: string): string {
 export function ChannelStrip() {
   const [activeTab, setActiveTab] = useState<TabId | null>(null);
   const prevTrackCount = useRef(0);
+  const { isPremium } = useIsPremium();
 
   const selectedTrackId = useStore((s) => s.selectedTrackId);
   const tracks = useStore((s) => s.tracks);
@@ -297,7 +300,11 @@ export function ChannelStrip() {
               {activeTab === 'grooves' && track && (
                 <GroovesBrowser trackId={track.id} />
               )}
-              {activeTab === 'prism' && <PrismPanel />}
+              {activeTab === 'prism' && (
+                <LockedFeatureOverlay locked={!isPremium}>
+                  <PrismPanel />
+                </LockedFeatureOverlay>
+              )}
               {activeTab === 'piano-roll' &&
                 ((selectedClip && selectedClipTrack) || isMidiInstrument ? (
                   <PianoRoll

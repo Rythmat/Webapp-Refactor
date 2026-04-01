@@ -10,6 +10,7 @@ import { FundamentalsLessonContainer } from '@/components/learn/FundamentalsLess
 import { FundamentalsOverview } from '@/components/learn/FundamentalsOverview';
 import { GenreLessonContainer } from '@/components/learn/GenreLessonContainer';
 import { GenreOverview } from '@/components/learn/GenreOverview';
+import { RequirePremium } from '@/components/ui/RequirePremium';
 import { CurriculumRoutes } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
@@ -18,24 +19,33 @@ import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard
 
 const GenreOverviewRoute = () => {
   const { genre } = useParams<{ genre: string }>();
+  // Piano Fundamentals is free — everything else requires premium
   if (genre === 'piano-fundamentals') {
     return <FundamentalsOverview />;
   }
-  return <GenreOverview genreSlug={genre ?? ''} />;
+  return (
+    <RequirePremium>
+      <GenreOverview genreSlug={genre ?? ''} />
+    </RequirePremium>
+  );
 };
 
 const FundamentalsLessonRoute = () => {
   const { sectionId } = useParams<{ sectionId: string }>();
+  // Piano Fundamentals sections are free
   return <FundamentalsLessonContainer sectionId={sectionId ?? '1'} />;
 };
 
 const GenreLessonRoute = () => {
   const { genre, level } = useParams<{ genre: string; level: string }>();
+  // All genre-level lessons require premium
   return (
-    <GenreLessonContainer
-      genreSlug={genre ?? ''}
-      level={parseInt(level ?? '1')}
-    />
+    <RequirePremium>
+      <GenreLessonContainer
+        genreSlug={genre ?? ''}
+        level={parseInt(level ?? '1')}
+      />
+    </RequirePremium>
   );
 };
 

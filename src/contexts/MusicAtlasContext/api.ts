@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useUpdateEffect } from 'react-use';
+import { useMemo } from 'react';
 import SuperJSON from 'superjson';
+import { emitSessionError, parseSessionError } from '@/auth/session-errors';
 import { Env } from '@/constants/env';
 import { HttpClient, Api } from './musicAtlas.generated';
 
@@ -29,27 +29,51 @@ const DefaultConfig = {
   },
 };
 
-const getClient = (params?: { token: string | null }) => {
-  const { token = null } = params ?? {};
-
-  return new HttpClient({
-    ...DefaultConfig,
-    headers: {
-      Authorization: token ? `Bearer ${token}` : undefined,
-    },
-  });
+type ClientParams = {
+  token: string | null;
+  appSessionId: string | null;
 };
 
-export const useGlobalMusicAtlas = (params?: { token: string | null }) => {
-  const { token = null } = params ?? {};
+const getClient = (params?: ClientParams) => {
+  const { token = null, appSessionId = null } = params ?? {};
 
-  const [musicAtlas, setMusicAtlas] = useState(
-    () => new Api(getClient({ token })),
+  const headers: Record<string, string | undefined> = {
+    Authorization: token ? `Bearer ${token}` : undefined,
+  };
+
+  if (appSessionId) {
+    headers['X-App-Session'] = appSessionId;
+  }
+
+  const client = new HttpClient({
+    ...DefaultConfig,
+    headers,
+  });
+
+  // Intercept 401 responses to detect app-session errors
+  client.instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error?.response?.status === 401) {
+        const sessionError = parseSessionError(error.response.data);
+        if (sessionError) {
+          emitSessionError(sessionError);
+        }
+      }
+      return Promise.reject(error);
+    },
   );
 
-  useUpdateEffect(() => {
-    setMusicAtlas(new Api(getClient({ token })));
-  }, [token]);
+  return client;
+};
 
-  return musicAtlas;
+export const useGlobalMusicAtlas = (params?: Partial<ClientParams>) => {
+  const { token = null, appSessionId = null } = params ?? {};
+
+  // useMemo so the client is available synchronously during the same render
+  // that triggers queries — avoids race conditions with useUpdateEffect.
+  return useMemo(
+    () => new Api(getClient({ token, appSessionId })),
+    [token, appSessionId],
+  );
 };

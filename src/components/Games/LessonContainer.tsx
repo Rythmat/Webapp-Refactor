@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { getChordScales } from '@/components/learn/chordScaleData';
 import { PrismModeSlug } from '@/hooks/data';
 import { usePrismMode } from '@/hooks/data/prism/usePrismMode';
 import {
@@ -104,9 +103,7 @@ const LessonContainerInner = ({
   startAtActivityKey,
 }: LessonContainerProps) => {
   const navigate = useNavigate();
-  const [label, setLabel] = useState(['', '']);
   const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
-  const modeTitle = getChordScales(modeSlug)?.modeName ?? modeSlug;
 
   const { start: startInput, stop: stopInput } = useLearnInputStable();
 
@@ -129,38 +126,8 @@ const LessonContainerInner = ({
       style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}
     >
       <HeaderBar title="Lesson" onBack={() => navigate(-1)} />
-      <div
-        className="glass-panel-sm flex items-center justify-between px-4 py-3"
-        style={{
-          borderBottom: '1px solid var(--color-border)',
-          background: 'rgba(255,255,255,0.03)',
-        }}
-      >
-        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
-          {label[1]}
-        </div>
-        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
-          {label[0]}
-        </div>
-        <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
-          Playing flow for{' '}
-          <span
-            className="font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            {keyOption.label}
-          </span>{' '}
-          <span
-            className="font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            {modeTitle}
-          </span>{' '}
-        </div>
-      </div>
       <div className="flex-1 p-3 sm:p-4">
         <ActivityFlow
-          labelChange={(newLabel) => setLabel(newLabel)}
           mode={modeSlug}
           rootKey={keyOption.label}
           rootMidi={keyOption.midi}

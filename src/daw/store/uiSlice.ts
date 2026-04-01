@@ -73,6 +73,12 @@ export interface UiSlice {
   toggleLibrary: () => void;
   setLibraryOpen: (open: boolean) => void;
 
+  // ── Collab panels ──
+  userListOpen: boolean;
+  toggleUserList: () => void;
+  chatPanelOpen: boolean;
+  toggleChatPanel: () => void;
+
   // ── Clip color mode ──
   clipColorMode: 'track' | 'prism';
   setClipColorMode: (mode: 'track' | 'prism') => void;
@@ -196,6 +202,12 @@ export const createUiSlice: StateCreator<
   libraryOpen: true,
   toggleLibrary: () => set((s) => ({ libraryOpen: !s.libraryOpen })),
   setLibraryOpen: (open) => set({ libraryOpen: open }),
+
+  // ── Collab panels ──
+  userListOpen: false,
+  toggleUserList: () => set((s) => ({ userListOpen: !s.userListOpen })),
+  chatPanelOpen: false,
+  toggleChatPanel: () => set((s) => ({ chatPanelOpen: !s.chatPanelOpen })),
 
   // ── Clip color mode ──
   clipColorMode: 'track',

@@ -26,6 +26,9 @@ import { FileMenu } from './FileMenu';
 import { CircleOfFifths } from '../Prism/CircleOfFifths';
 import { RainbowBorderButton } from '@/components/ui/rainbow-borders-button';
 import { THEME_ORDER, THEME_LABELS } from '@/daw/constants/themes';
+import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
+import { InviteNotificationBell } from '@/daw/collab/ui/InviteNotificationBell';
+import { TransportLinkToggle } from '@/daw/collab/ui/TransportLinkToggle';
 
 // ── View Switcher ───────────────────────────────────────────────────────
 
@@ -161,6 +164,10 @@ export const TransportBar = memo(function TransportBar({
   const toggleChordRulerLabels = useStore((s) => s.toggleChordRulerLabels);
   const libraryOpen = useStore((s) => s.libraryOpen);
   const toggleLibrary = useStore((s) => s.toggleLibrary);
+  const userListOpen = useStore((s) => s.userListOpen);
+  const toggleUserList = useStore((s) => s.toggleUserList);
+  const chatPanelOpen = useStore((s) => s.chatPanelOpen);
+  const toggleChatPanel = useStore((s) => s.toggleChatPanel);
   const theme = useStore((s) => s.theme);
   const setTheme = useStore((s) => s.setTheme);
   const settingsOpen = useStore((s) => s.settingsOpen);
@@ -836,6 +843,20 @@ export const TransportBar = memo(function TransportBar({
           >
             <Palette size={13} strokeWidth={2} />
           </motion.button>
+
+          {/* Collab invite notifications */}
+          <InviteNotificationBell />
+
+          {/* Transport link (collab only) */}
+          <TransportLinkToggle />
+
+          {/* Collaboration */}
+          <CollabToolbar
+            onToggleUserList={toggleUserList}
+            userListOpen={userListOpen}
+            onToggleChatPanel={toggleChatPanel}
+            chatPanelOpen={chatPanelOpen}
+          />
 
           {/* Library toggle */}
           <motion.button

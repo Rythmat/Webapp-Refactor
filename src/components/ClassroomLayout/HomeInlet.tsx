@@ -34,7 +34,9 @@ import {
   StudioRoutes,
 } from '@/constants/routes';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
+import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
+import { useIsPremium } from '@/hooks/useIsPremium';
 import { HeaderBar } from './HeaderBar';
 import { useStore } from '@/daw/store';
 import {
@@ -148,6 +150,7 @@ export const HomeInlet = () => {
   const [showKeyPicker, setShowKeyPicker] = useState(false);
   const [showTempoPicker, setShowTempoPicker] = useState(false);
   const navigate = useNavigate();
+  const { isPremium } = useIsPremium();
   const { data: progressSummary } = useProgressSummary(true);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -448,19 +451,36 @@ export const HomeInlet = () => {
                 </div>
               </div>
             </div>
-            <div className="lg:col-span-4 flex flex-col gap-4">
+            <LockedFeatureOverlay
+              locked={!isPremium}
+              className="lg:col-span-4 flex flex-col gap-4"
+            >
               <div className="flex items-center gap-2 text-xl font-serif text-gray-200">
                 <h2>Projects</h2>
                 <ChevronRight size={18} className="text-gray-600" />
               </div>
               <div className="flex flex-col gap-3">
-                {visibleProjects.map((project) => (
+                {(isPremium
+                  ? visibleProjects
+                  : [
+                      {
+                        title: 'My First Track',
+                        genre: 'Lo-fi',
+                        author: 'You',
+                      },
+                      {
+                        title: 'Sunset Groove',
+                        genre: 'Jazz',
+                        author: 'You',
+                      },
+                    ]
+                ).map((project) => (
                   <ProjectCard
                     key={`${project.title}-${project.author}`}
                     title={project.title}
                     genre={project.genre}
                     author={project.author}
-                    active={project.active}
+                    active={'active' in project ? project.active : undefined}
                   />
                 ))}
                 <div
@@ -472,8 +492,11 @@ export const HomeInlet = () => {
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="lg:col-span-5 flex flex-col gap-4">
+            </LockedFeatureOverlay>
+            <LockedFeatureOverlay
+              locked={!isPremium}
+              className="lg:col-span-5 flex flex-col gap-4"
+            >
               <div className="flex items-center gap-2 text-xl font-serif text-gray-200">
                 <h2>Generate</h2>
                 <ChevronRight size={18} className="text-gray-600" />
@@ -572,7 +595,7 @@ export const HomeInlet = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </LockedFeatureOverlay>
           </div>
         </div>
       </div>

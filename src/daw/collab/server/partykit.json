@@ -1,0 +1,12 @@
+{
+  "$schema": "https://www.partykit.io/schema.json",
+  "name": "music-atlas-collab",
+  "main": "party.ts",
+  "compatibilityDate": "2024-09-01",
+  "vars": {
+    "MUSIC_ATLAS_API_URL": "",
+    "PARTYKIT_WEBHOOK_SECRET": "",
+    "AUTH0_DOMAIN": "",
+    "AUTH0_AUDIENCE": ""
+  }
+}

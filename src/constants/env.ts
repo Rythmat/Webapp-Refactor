@@ -5,6 +5,7 @@ const ENV_KEYS = [
   'VITE_AUTH0_AUDIENCE',
   'VITE_AUTH0_REDIRECT_URI',
   'VITE_STRIPE_PUBLISHABLE_KEY',
+  'VITE_PARTYKIT_HOST',
 ] as const;
 
 type EnvKey = (typeof ENV_KEYS)[number];
@@ -17,6 +18,7 @@ const BUILD_TIME_ENV_VALUES: EnvValues = {
   VITE_AUTH0_AUDIENCE: import.meta.env.VITE_AUTH0_AUDIENCE,
   VITE_AUTH0_REDIRECT_URI: import.meta.env.VITE_AUTH0_REDIRECT_URI,
   VITE_STRIPE_PUBLISHABLE_KEY: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
+  VITE_PARTYKIT_HOST: import.meta.env.VITE_PARTYKIT_HOST,
 };
 
 export class Env {

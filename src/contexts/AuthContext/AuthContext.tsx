@@ -10,8 +10,23 @@ import {
 } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
+import SuperJSON from 'superjson';
+import {
+  getCurrentAppSessionId,
+  setCurrentAppSessionId,
+} from '@/auth/app-session-store';
+import {
+  onSessionError,
+  type SessionErrorPayload,
+} from '@/auth/session-errors';
+import { connectSessionSSE } from '@/auth/session-sse';
 import { Env } from '@/constants/env';
 import { ProfileRoutes } from '@/constants/routes';
+import {
+  SUBSCRIPTION_QUERY_KEY,
+  fetchSubscriptionStatus,
+} from '@/hooks/data/subscription/useMySubscription';
+import { showError } from '@/util/toast';
 import { useGlobalMusicAtlas } from '../MusicAtlasContext/api';
 import {
   AuthAppUser,
@@ -91,9 +106,17 @@ const mapMe = (value: unknown): AuthAppUser | null => {
   };
 };
 
+/** Messages shown to the user based on session error type. */
+const SESSION_ERROR_MESSAGES: Record<string, string> = {
+  SESSION_REPLACED: 'Your account has been logged in on another device.',
+  SESSION_EXPIRED: 'Your session expired due to inactivity.',
+  SESSION_INVALID: 'Your session is invalid. Please sign in again.',
+};
+
 export const AuthContext = createContext<AuthContextValue>({
   userId: null,
   token: null,
+  appSessionId: null,
   expiresAt: null,
   error: null,
   role: null,
@@ -121,7 +144,10 @@ export const AuthContextProvider = ({
   const [error, setError] = useState<string | null>(null);
   const [appUser, setAppUser] = useState<AuthAppUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [appSessionId, setAppSessionId] = useState<string | null>(null);
   const [isTokenLoading, setIsTokenLoading] = useState(false);
+  /** Guard to prevent multiple simultaneous session-error logouts */
+  const isSessionLogoutInProgressRef = useRef(false);
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -137,7 +163,12 @@ export const AuthContextProvider = ({
     logout,
   } = useAuth0();
 
-  const musicAtlas = useGlobalMusicAtlas({ token });
+  // Keep the module-level store in sync so raw-fetch API modules pick it up
+  useEffect(() => {
+    setCurrentAppSessionId(appSessionId);
+  }, [appSessionId]);
+
+  const musicAtlas = useGlobalMusicAtlas({ token, appSessionId });
 
   const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
   const returnTo =
@@ -147,18 +178,90 @@ export const AuthContextProvider = ({
       : `${location.pathname}${location.search}`);
 
   const persistSessionToken = useCallback(
-    async (nextToken: string) => {
-      await fetch(`${apiBase}/auth/session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token: nextToken }),
-        credentials: 'include',
-      }).catch(() => undefined);
+    async (nextToken: string): Promise<string | null> => {
+      try {
+        const response = await fetch(`${apiBase}/auth/session`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token: nextToken }),
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const text = await response.text();
+          // Backend uses SuperJSON serialization — parse accordingly
+          const data = SuperJSON.parse(text) as {
+            appSessionId?: string;
+          };
+          return data.appSessionId ?? null;
+        }
+      } catch {
+        // Session creation failed — continue without app session
+      }
+      return null;
     },
     [apiBase],
   );
+
+  const clearSession = useCallback(() => {
+    const headers: Record<string, string> = {};
+    if (appSessionId) {
+      headers['X-App-Session'] = appSessionId;
+    }
+    void fetch(`${apiBase}/auth/session`, {
+      method: 'DELETE',
+      headers,
+      credentials: 'include',
+    }).catch(() => undefined);
+    setAppSessionId(null);
+  }, [apiBase, appSessionId]);
+
+  /**
+   * Hard logout: clears local state, clears backend session cookie, and
+   * redirects to Auth0 logout. Optionally shows a user-facing message.
+   */
+  const hardLogout = useCallback(
+    async (message?: string) => {
+      if (isSessionLogoutInProgressRef.current) return;
+      isSessionLogoutInProgressRef.current = true;
+
+      clearSession();
+      setToken(null);
+      setAppUser(null);
+
+      if (message) {
+        showError(message);
+      }
+
+      try {
+        await logout({
+          logoutParams: {
+            returnTo: window.location.origin,
+          },
+        });
+      } finally {
+        isSessionLogoutInProgressRef.current = false;
+      }
+    },
+    [clearSession, logout],
+  );
+
+  // Listen for session errors emitted by the API interceptor
+  useEffect(() => {
+    return onSessionError((payload: SessionErrorPayload) => {
+      const message = SESSION_ERROR_MESSAGES[payload.code] ?? payload.message;
+      void hardLogout(message);
+    });
+  }, [hardLogout]);
+
+  // Open an SSE connection to receive real-time session termination events.
+  // The SSE service emits through the same session-errors bus, so the
+  // listener above handles logout + popup automatically.
+  useEffect(() => {
+    if (!token || !appSessionId) return;
+    return connectSessionSSE(token, appSessionId);
+  }, [token, appSessionId]);
 
   const syncAuth0Token = useCallback(async (): Promise<string | null> => {
     try {
@@ -169,18 +272,43 @@ export const AuthContextProvider = ({
           audience: Env.get('VITE_AUTH0_AUDIENCE'),
         },
       });
+      // Reuse the existing app session if another tab already created one
+      // (stored in localStorage). Only create a new session when none exists,
+      // so opening a second tab in the same browser doesn't revoke tab 1's
+      // session. Different browsers have separate localStorage, so the
+      // cross-browser single-session security is preserved.
+      const existingSessionId = getCurrentAppSessionId();
+      const nextAppSessionId = existingSessionId
+        ? existingSessionId
+        : await persistSessionToken(nextToken);
+      setAppSessionId(nextAppSessionId);
       setToken(nextToken);
-      await persistSessionToken(nextToken);
       setError(null);
       return nextToken;
     } catch (caught) {
       setToken(null);
+      setAppSessionId(null);
       setAppUser(null);
 
       const sdkError = caught as AuthenticationError | null;
-      if (sdkError?.error === 'login_required') {
-        // Do not force a new login loop during startup token probing.
-        setError(null);
+
+      // Hard logout on login_required, consent_required, or missing_refresh_token
+      // These indicate that Auth0 can no longer silently provide a token.
+      const hardLogoutErrors = new Set([
+        'login_required',
+        'consent_required',
+        'missing_refresh_token',
+        'invalid_grant',
+      ]);
+
+      if (sdkError?.error && hardLogoutErrors.has(sdkError.error)) {
+        // Only force hard logout if the user was previously authenticated
+        // (avoid redirect loops during initial startup probing)
+        if (isAuth0Authenticated && token) {
+          void hardLogout('Your session expired due to inactivity.');
+        } else {
+          setError(null);
+        }
         return null;
       }
 
@@ -190,7 +318,13 @@ export const AuthContextProvider = ({
     } finally {
       setIsTokenLoading(false);
     }
-  }, [getAccessTokenSilently, persistSessionToken]);
+  }, [
+    getAccessTokenSilently,
+    hardLogout,
+    isAuth0Authenticated,
+    persistSessionToken,
+    token,
+  ]);
 
   const ensureAccessToken = useCallback(async (): Promise<string | null> => {
     if (token) return token;
@@ -230,6 +364,17 @@ export const AuthContextProvider = ({
     queryFn: async () => {
       return musicAtlas.auth.getAuthMe();
     },
+  });
+
+  // Prefetch subscription status in parallel with meQuery so it is already
+  // in the React Query cache by the time any page component calls
+  // useMySubscription / useIsPremium — eliminates the flash of unlocked
+  // content for free-tier users.
+  useQuery({
+    queryKey: SUBSCRIPTION_QUERY_KEY,
+    enabled: Boolean(token) && isAuth0Authenticated,
+    staleTime: 1000 * 60 * 2,
+    queryFn: () => fetchSubscriptionStatus(token!),
   });
 
   const isBootstrapLoading =
@@ -389,6 +534,7 @@ export const AuthContextProvider = ({
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${nextToken}`,
+          ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
         },
         credentials: 'include',
         body: JSON.stringify(input),
@@ -410,6 +556,7 @@ export const AuthContextProvider = ({
     },
     [
       apiBase,
+      appSessionId,
       ensureAccessToken,
       isAuth0Authenticated,
       location.pathname,
@@ -440,6 +587,7 @@ export const AuthContextProvider = ({
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${nextToken}`,
+          ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
         },
         credentials: 'include',
         body: JSON.stringify(input),
@@ -461,6 +609,7 @@ export const AuthContextProvider = ({
     },
     [
       apiBase,
+      appSessionId,
       ensureAccessToken,
       isAuth0Authenticated,
       location.pathname,
@@ -471,11 +620,7 @@ export const AuthContextProvider = ({
   );
 
   const signOut = useCallback(async () => {
-    void fetch(`${apiBase}/auth/session`, {
-      method: 'DELETE',
-      credentials: 'include',
-    }).catch(() => undefined);
-
+    clearSession();
     setToken(null);
     setAppUser(null);
 
@@ -484,12 +629,13 @@ export const AuthContextProvider = ({
         returnTo: window.location.origin,
       },
     });
-  }, [apiBase, logout]);
+  }, [clearSession, logout]);
 
   const dataValue = useMemo((): AuthContextData => {
     return {
       userId: appUser?.id ?? null,
       token,
+      appSessionId,
       expiresAt: null,
       role: appUser?.role ?? null,
       error,
@@ -500,6 +646,7 @@ export const AuthContextProvider = ({
       appUser,
     };
   }, [
+    appSessionId,
     appUser,
     error,
     isAuth0Authenticated,

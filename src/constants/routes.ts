@@ -228,6 +228,8 @@ export const GameRoutes = {
 
   jamLobby: createRouteDefinition('/jam', { prefix: gamesPrefix }),
 
+  jamLocal: createRouteDefinition('/jam/local', { prefix: gamesPrefix }),
+
   jamRoom: createRouteDefinition<{ roomId: string }>('/jam/:roomId', {
     prefix: gamesPrefix,
   }),

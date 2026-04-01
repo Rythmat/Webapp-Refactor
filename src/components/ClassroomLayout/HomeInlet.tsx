@@ -460,13 +460,26 @@ export const HomeInlet = () => {
                 <ChevronRight size={18} className="text-gray-600" />
               </div>
               <div className="flex flex-col gap-3">
-                {visibleProjects.map((project) => (
+                {(isPremium
+                  ? visibleProjects
+                  : [
+                      {
+                        title: 'My First Track',
+                        genre: 'Lo-fi',
+                        author: 'You',
+                      },
+                      {
+                        title: 'Sunset Groove',
+                        genre: 'Jazz',
+                        author: 'You',
+                      },
+                    ]
+                ).map((project) => (
                   <ProjectCard
                     key={`${project.title}-${project.author}`}
                     title={project.title}
                     genre={project.genre}
                     author={project.author}
-                    active={project.active}
                   />
                 ))}
                 <div

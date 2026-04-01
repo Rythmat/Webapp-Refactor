@@ -81,7 +81,7 @@ export async function createRoom(
   token: string,
 ): Promise<RoomResponse> {
   return apiFetch<RoomResponse>(
-    '/rooms',
+    '/api/collab/rooms',
     {
       method: 'POST',
       body: JSON.stringify(params),
@@ -95,7 +95,7 @@ export async function getRoom(
   token: string,
 ): Promise<RoomResponse> {
   return apiFetch<RoomResponse>(
-    `/rooms/${encodeURIComponent(idOrCode)}`,
+    `/api/collab/rooms/${encodeURIComponent(idOrCode)}`,
     { method: 'GET' },
     token,
   );
@@ -106,7 +106,7 @@ export async function joinRoom(
   token: string,
 ): Promise<JoinRoomResponse> {
   return apiFetch<JoinRoomResponse>(
-    '/rooms/join',
+    '/api/collab/rooms/join',
     {
       method: 'POST',
       body: JSON.stringify({ code }),
@@ -124,14 +124,14 @@ export async function listRooms(
   if (query.status) params.set('status', query.status);
   const qs = params.toString();
   return apiFetch<RoomListItem[]>(
-    `/rooms${qs ? `?${qs}` : ''}`,
+    `/api/collab/rooms${qs ? `?${qs}` : ''}`,
     { method: 'GET' },
     token,
   );
 }
 
 export async function closeRoom(roomId: string, token: string): Promise<void> {
-  await apiFetch(`/rooms/${roomId}`, { method: 'DELETE' }, token);
+  await apiFetch(`/api/collab/rooms/${roomId}`, { method: 'DELETE' }, token);
 }
 
 // ── Invite helpers (generate a share link from the room code) ───────────

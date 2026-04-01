@@ -15,6 +15,7 @@ import {
 } from 'react';
 import YPartyKitProvider from 'y-partykit/provider';
 import * as Y from 'yjs';
+import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
   createRoom as apiCreateRoom,
@@ -83,7 +84,8 @@ export function useJamRoom() {
 
 // ── Provider ─────────────────────────────────────────────────────────────
 
-const DEFAULT_PARTYKIT_HOST = 'localhost:1999';
+const DEFAULT_PARTYKIT_HOST =
+  Env.get('VITE_PARTYKIT_HOST', { nullable: true }) ?? 'localhost:1999';
 
 interface JamRoomProviderProps {
   children: ReactNode;

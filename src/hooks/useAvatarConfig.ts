@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getCurrentAppSessionId } from '@/auth/app-session-store';
 import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import type { AvatarConfig } from '@/lib/avatarHexGrid';
@@ -33,16 +32,12 @@ function isAvatarConfig(value: unknown): value is AvatarConfig {
 async function persistToApi(token: string, config: AvatarConfig) {
   const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  };
-  const appSessionId = getCurrentAppSessionId();
-  if (appSessionId) headers['X-App-Session'] = appSessionId;
-
   await fetch(`${apiBase}/auth/me/avatar-config`, {
     method: 'PUT',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
     credentials: 'include',
     body: JSON.stringify(config),
   });

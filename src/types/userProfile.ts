@@ -49,7 +49,6 @@ export interface DiscoverableUser {
   id: string;
   nickname: string;
   avatarSeed: string;
-  avatarConfig?: Record<string, unknown> | null;
   bio: UserBioPreferences;
 }
 

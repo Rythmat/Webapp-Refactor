@@ -26,10 +26,10 @@ interface ChartPoint {
   xp: number;
 }
 
-const PADDING_LEFT = 24;
-const PADDING_RIGHT = 24;
+const PADDING_LEFT = 0;
+const PADDING_RIGHT = 0;
 const PADDING_TOP = 24;
-const PADDING_BOTTOM = 32;
+const PADDING_BOTTOM = 28;
 
 export const ExperienceWeekChart: React.FC = () => {
   const { data, isLoading } = useExperienceSummary();
@@ -65,7 +65,7 @@ export const ExperienceWeekChart: React.FC = () => {
   return (
     <svg
       viewBox="0 0 400 200"
-      preserveAspectRatio="xMidYMid meet"
+      preserveAspectRatio="none"
       className="h-full w-full"
       role="img"
       aria-label="Experience earned over the past week"
@@ -129,7 +129,9 @@ export const ExperienceWeekChart: React.FC = () => {
                 cx={toX(i)}
                 cy={toY(p.xp)}
                 r="4"
-                fill="var(--color-accent)"
+                fill="var(--color-bg)"
+                stroke="var(--color-accent)"
+                strokeWidth="2"
               />
             ))}
 

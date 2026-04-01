@@ -1,5 +1,5 @@
 import React from 'react';
-import { defaultAvatarConfig, type AvatarConfig } from '@/lib/avatarHexGrid';
+import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import type { ConnectionMatch } from '@/types/userProfile';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 
@@ -16,17 +16,13 @@ export const UserMatchCard: React.FC<UserMatchCardProps> = ({
 }) => {
   const { user, commonGenres, complementarySkills, matchScore } = match;
 
-  const avatarConfig = user.avatarConfig
-    ? (user.avatarConfig as unknown as AvatarConfig)
-    : defaultAvatarConfig(user.avatarSeed);
-
   return (
     <div className="flex items-center justify-between rounded-xl border border-white/5 bg-[#151515] p-4 transition-colors hover:border-white/20">
       <div className="flex items-center gap-4 min-w-0">
         {/* Avatar */}
         <div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-[#2A2A2A]">
           <HexAvatarSVG
-            config={avatarConfig}
+            config={defaultAvatarConfig(user.avatarSeed)}
             circular
             className="size-[150%] opacity-50"
           />

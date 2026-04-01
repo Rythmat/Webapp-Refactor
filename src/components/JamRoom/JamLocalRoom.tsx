@@ -2,11 +2,7 @@
 // Offline-only jam room — no WebSocket, no collaboration.
 // Lets the user play piano/drums locally with the full UI.
 
-import {
-  Drum,
-  Music,
-  LogOut,
-} from 'lucide-react';
+import { Drum, Music, LogOut } from 'lucide-react';
 import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GameRoutes } from '@/constants/routes';
@@ -21,11 +17,7 @@ import {
   getLocalChannel,
   disposeJamSynth,
 } from './jamSoundFont';
-import {
-  JAM_PIANO_START,
-  JAM_PIANO_END,
-  type DrumSound,
-} from './types';
+import { JAM_PIANO_START, JAM_PIANO_END, type DrumSound } from './types';
 import { useJamKeyboard } from './useJamKeyboard';
 import { useJamMidi } from './useJamMidi';
 
@@ -56,13 +48,10 @@ export function JamLocalRoom() {
   }, []);
 
   // ── Waterfall feed ──────────────────────────────────────────────────
-  const onLocalNote = useCallback(
-    (midi: number, action: 'on' | 'off') => {
-      if (action === 'on') waterfallRef.current?.noteOn(midi, '#a78bfa');
-      else waterfallRef.current?.noteOff(midi);
-    },
-    [],
-  );
+  const onLocalNote = useCallback((midi: number, action: 'on' | 'off') => {
+    if (action === 'on') waterfallRef.current?.noteOn(midi, '#a78bfa');
+    else waterfallRef.current?.noteOff(midi);
+  }, []);
 
   // ── Drum effects on waterfall ───────────────────────────────────────
   const flashTimer = useRef<number>();

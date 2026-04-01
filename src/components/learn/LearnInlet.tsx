@@ -8,12 +8,14 @@ import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgres
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import type { PrismModeSlug } from '@/hooks/data';
 import { useProgressSummary } from '@/hooks/data/progress/useProgressSummary';
+import { useIsPremium } from '@/hooks/useIsPremium';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ProgressSummaryResponse } from '@/lib/progress/types';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
+import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
 import './learn.css';
 
 interface ContentSubItem {
@@ -727,6 +729,23 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   );
 };
 
+/**
+ * Determine whether a theory/course/technique item is available to free users.
+ *
+ * Free items:
+ *  - Technique → "Fundamentals" (piano-fundamentals)
+ *  - Theory (Diatonic Modes) → "Ionian (Major)" — specifically the C key sub-item
+ *
+ * Everything else (all courses, all other modes, relative/parallel/harmonic/melodic/
+ * double-harmonic sections) is premium-only.
+ */
+function isLearnItemFree(item: ContentItem, tab: string): boolean {
+  return (
+    tab === 'Technique' || // Piano Fundamentals
+    (tab === 'Theory' && item.mode === 'ionian') // C Ionian available
+  );
+}
+
 interface CardItemProps {
   title: string;
   mode?: string;
@@ -739,6 +758,7 @@ interface CardItemProps {
   onToggleExpand?: () => void;
   image?: string;
   progressPct?: number;
+  locked?: boolean;
 }
 
 const CardItem: React.FC<CardItemProps> = ({
@@ -753,10 +773,12 @@ const CardItem: React.FC<CardItemProps> = ({
   onToggleExpand,
   image,
   progressPct,
+  locked,
 }) => {
   const hasExpansion = !!(mode || subItems);
 
   return (
+    <LockedFeatureOverlay locked={!!locked}>
     <div
       ref={highlightRef}
       className={`group flex cursor-pointer flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
@@ -823,6 +845,7 @@ const CardItem: React.FC<CardItemProps> = ({
         )}
       </div>
     </div>
+    </LockedFeatureOverlay>
   );
 };
 
@@ -837,7 +860,9 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const genreParam = searchParams.get('genre');
-  const [subTab, setSubTab] = useState(genreParam ? 'Courses' : initialTab);
+  const { isPremium } = useIsPremium();
+  const defaultTab = genreParam ? 'Courses' : isPremium ? initialTab : 'Technique';
+  const [subTab, setSubTab] = useState(defaultTab);
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(
     genreParam,
   );
@@ -967,7 +992,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         ? THEORY_DATA
         : TECHNIQUE_DATA;
 
-  const renderContent = (data: ContentItem[]) => {
+  const renderContent = (data: ContentItem[], tab: string = subTab) => {
     const expandedItem = expandedMode
       ? data.find((item) => (item.expandId ?? item.mode) === expandedMode)
       : null;
@@ -986,6 +1011,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                 expanded={true}
                 imageSize={listPanelHeight}
                 progressPct={getTileCompletion(progressSummary, expandedItem)}
+                locked={!isPremium && !isLearnItemFree(expandedItem, tab)}
                 onToggleExpand={() => {
                   setExpandedMode(null);
                   setSelectedSubItem(null);
@@ -1216,6 +1242,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                     {...item}
                     expanded={false}
                     progressPct={getTileCompletion(progressSummary, item)}
+                    locked={!isPremium && !isLearnItemFree(item, tab)}
                     onToggleExpand={
                       item.mode || item.subItems
                         ? () => {
@@ -1255,6 +1282,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               highlightRef={isHighlighted ? highlightRef : undefined}
               expanded={false}
               progressPct={getTileCompletion(progressSummary, item)}
+              locked={!isPremium && !isLearnItemFree(item, tab)}
               onToggleExpand={
                 item.mode || item.subItems
                   ? () => {
@@ -1292,7 +1320,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               border: '1px solid var(--color-border)',
             }}
           >
-            {['Courses', 'Theory', 'Technique'].map((tab) => (
+            {(isPremium
+              ? ['Courses', 'Theory', 'Technique']
+              : ['Technique', 'Theory', 'Courses']
+            ).map((tab) => (
               <button
                 key={tab}
                 className="rounded-md px-6 py-2 text-sm font-medium transition-colors duration-150"

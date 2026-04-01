@@ -1,0 +1,23 @@
+name: Deploy PartyKit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/daw/collab/server/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci --legacy-peer-deps
+
+      - run: npx partykit deploy --config src/daw/collab/server/partykit.json
+        env:
+          PARTYKIT_TOKEN: ${{ secrets.PARTYKIT_TOKEN }}

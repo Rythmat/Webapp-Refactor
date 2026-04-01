@@ -15,6 +15,7 @@ import {
 } from 'react';
 import YPartyKitProvider from 'y-partykit/provider';
 import * as Y from 'yjs';
+import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { RttMeasurer } from '@/daw/collab/transportSync';
 import { PRESENCE_COLORS } from '@/daw/collab/types';
@@ -28,14 +29,23 @@ import type {
 
 // ── Context ──────────────────────────────────────────────────────────────
 
-type ConnectionStatus = 'offline' | 'reconnecting' | 'live';
-
 interface JamRoomContextValue {
-  connectionStatus: ConnectionStatus;
-  /** Convenience derived from connectionStatus === 'live' */
   isConnected: boolean;
   roomId: string | null;
-  joinRoom: (roomId: string) => void;
+  roomCode: string | null;
+  /** Error string when room cannot be joined (e.g. room does not exist). */
+  roomError: string | null;
+  /** Create a new jam room and connect to PartyKit. */
+  createAndJoinRoom: (name: string) => void;
+  /** Join an existing jam room by room ID. */
+  joinRoomByCode: (code: string) => void;
+  /** Join using pre-fetched PartyKit connection info. */
+  joinRoom: (
+    roomId: string,
+    role?: 'owner' | 'editor',
+    partykitHost?: string,
+    partykitRoom?: string,
+  ) => void;
   leaveRoom: () => void;
   sendNote: (msg: Omit<JamNoteMessage, 'userId' | 'color'>) => void;
   sendChat: (text: string) => void;
@@ -48,9 +58,12 @@ interface JamRoomContextValue {
 }
 
 const JamRoomContext = createContext<JamRoomContextValue>({
-  connectionStatus: 'offline',
   isConnected: false,
   roomId: null,
+  roomCode: null,
+  roomError: null,
+  createAndJoinRoom: () => {},
+  joinRoomByCode: () => {},
   joinRoom: () => {},
   leaveRoom: () => {},
   sendNote: () => {},
@@ -68,9 +81,8 @@ export function useJamRoom() {
 
 // ── Provider ─────────────────────────────────────────────────────────────
 
-const PARTYKIT_HOST =
-  (import.meta as unknown as Record<string, Record<string, string>>).env
-    ?.VITE_PARTYKIT_HOST ?? 'localhost:1999';
+const DEFAULT_PARTYKIT_HOST =
+  Env.get('VITE_PARTYKIT_HOST', { nullable: true }) ?? 'localhost:1999';
 
 interface JamRoomProviderProps {
   children: ReactNode;
@@ -86,11 +98,13 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
   const noteListenersRef = useRef<Set<(msg: JamNoteMessage) => void>>(
     new Set(),
   );
+  const currentRoomIdRef = useRef<string | null>(null);
 
   // Reactive state (triggers re-renders for UI)
-  const [connectionStatus, setConnectionStatus] =
-    useState<ConnectionStatus>('offline');
+  const [isConnected, setIsConnected] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
+  const [roomCode, setRoomCode] = useState<string | null>(null);
+  const [roomError, setRoomError] = useState<string | null>(null);
   const [remotePlayers, setRemotePlayers] = useState<JamPresence[]>([]);
   const [latencyMs, setLatencyMs] = useState(0);
 
@@ -100,6 +114,20 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     if (typeof event.data !== 'string') return;
     try {
       const data = JSON.parse(event.data);
+
+      if (data.type === 'room:not-found') {
+        // Room does not exist (no host)
+        setRoomError('That room does not exist');
+        setIsConnected(false);
+        return;
+      }
+
+      if (data.type === 'room:closing') {
+        // Host disconnected — the room is closing
+        setRoomError('The host has left the room');
+        setIsConnected(false);
+        return;
+      }
 
       if (data.type === 'jam:note') {
         const msg = data as JamNoteMessage;
@@ -140,34 +168,45 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     providerRef.current = null;
     docRef.current?.destroy();
     docRef.current = null;
-    setConnectionStatus('offline');
+    setIsConnected(false);
     setRoomId(null);
+    setRoomCode(null);
+    setRoomError(null);
     setRemotePlayers([]);
     setLatencyMs(0);
+    currentRoomIdRef.current = null;
     useJamRoomStore.getState().reset();
   }, []);
 
-  // ── Join ───────────────────────────────────────────────────────────────
+  // ── Core join (connects to PartyKit given host + room) ─────────────────
 
   const joinRoom = useCallback(
-    (newRoomId: string) => {
+    (
+      newRoomId: string,
+      role: 'owner' | 'editor' = 'editor',
+      partykitHost?: string,
+      partykitRoom?: string,
+    ) => {
       teardown();
+      setRoomError(null);
+
+      const host = partykitHost ?? DEFAULT_PARTYKIT_HOST;
+      const pkRoom = partykitRoom ?? `jam-${newRoomId}`;
 
       // Minimal Yjs doc (only for awareness protocol, not synced)
       const doc = new Y.Doc();
       docRef.current = doc;
       setRoomId(newRoomId);
+      currentRoomIdRef.current = newRoomId;
 
-      // Connect to PartyKit with jam-prefixed room name
-      const params: Record<string, string> = {};
+      // Connect to PartyKit
+      const params: Record<string, string> = { role };
       if (token) params.token = token;
 
-      const provider = new YPartyKitProvider(
-        PARTYKIT_HOST,
-        `jam-${newRoomId}`,
-        doc,
-        { connect: true, params },
-      );
+      const provider = new YPartyKitProvider(host, pkRoom, doc, {
+        connect: true,
+        params,
+      });
       providerRef.current = provider;
 
       // Assign color from client ID
@@ -189,14 +228,8 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
       } satisfies JamPresence);
 
       // Connection status
-      provider.on('sync', () => setConnectionStatus('live'));
-      provider.on('status', ({ status }: { status: string }) => {
-        if (status === 'connected') setConnectionStatus('live');
-        else if (status === 'disconnected') setConnectionStatus('offline');
-      });
-      provider.on('connection-close', () =>
-        setConnectionStatus('reconnecting'),
-      );
+      provider.on('sync', () => setIsConnected(true));
+      provider.on('connection-close', () => setIsConnected(false));
 
       // Observe remote presence
       provider.awareness.on('change', () => {
@@ -237,9 +270,34 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     [userId, appUser, token, handleMessage, teardown],
   );
 
+  // ── Create & join ─────────────────────────────────────────────────────
+
+  const createAndJoinRoom = useCallback(
+    (_name: string) => {
+      const newRoomId = crypto.randomUUID().slice(0, 8);
+      setRoomCode(newRoomId);
+      joinRoom(newRoomId, 'owner');
+    },
+    [joinRoom],
+  );
+
+  // ── Join by code (room ID) ──────────────────────────────────────────
+
+  const joinRoomByCode = useCallback(
+    (code: string) => {
+      setRoomCode(code);
+      joinRoom(code, 'editor');
+    },
+    [joinRoom],
+  );
+
   // ── Leave ──────────────────────────────────────────────────────────────
 
-  const leaveRoom = useCallback(() => teardown(), [teardown]);
+  const leaveRoom = useCallback(() => {
+    // Jam rooms are ephemeral (not stored in Redis), so no API cleanup needed.
+    // PartyKit handles room disposal when all clients disconnect.
+    teardown();
+  }, [teardown]);
 
   // Cleanup on unmount
   useEffect(() => teardown, [teardown]);
@@ -314,9 +372,12 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
 
   const value = useMemo<JamRoomContextValue>(
     () => ({
-      connectionStatus,
-      isConnected: connectionStatus === 'live',
+      isConnected,
       roomId,
+      roomCode,
+      roomError,
+      createAndJoinRoom,
+      joinRoomByCode,
       joinRoom,
       leaveRoom,
       sendNote,
@@ -328,8 +389,12 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
       latencyMs,
     }),
     [
-      connectionStatus,
+      isConnected,
       roomId,
+      roomCode,
+      roomError,
+      createAndJoinRoom,
+      joinRoomByCode,
       joinRoom,
       leaveRoom,
       sendNote,

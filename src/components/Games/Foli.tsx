@@ -69,9 +69,8 @@ class BongoEngine {
   private metroClick: AudioBuffer | null = null;
   private activeShaker: AudioBufferSourceNode | null = null;
   private shakerGain: GainNode | null = null;
-  private metroTimer: ReturnType<typeof setTimeout> | null = null;
+  private metroInterval: ReturnType<typeof setInterval> | null = null;
   private metroBeatCount = 0;
-  private metroNextTime = 0;
   private loaded = false;
   private shakersLoaded = false;
   private metroLoaded = false;
@@ -132,36 +131,12 @@ class BongoEngine {
     source.start();
   }
 
-  private playBufferAt(buffer: AudioBuffer | null, when: number) {
-    if (!this.ctx || !buffer) return;
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-    const source = this.ctx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(this.ctx.destination);
-    source.start(when);
-  }
-
   play(side: Side) {
     this.playBuffer(side === 'left' ? this.bufferRight : this.bufferLeft);
   }
 
-  playAt(side: Side, when: number) {
-    this.playBufferAt(
-      side === 'left' ? this.bufferRight : this.bufferLeft,
-      when,
-    );
-  }
-
   playClick(isFirst: boolean) {
     this.playBuffer(isFirst ? this.metroFirst : this.metroClick);
-  }
-
-  private playClickAt(isFirst: boolean, when: number) {
-    this.playBufferAt(isFirst ? this.metroFirst : this.metroClick, when);
-  }
-
-  getCtxTime() {
-    return this.ctx?.currentTime ?? 0;
   }
 
   playShaker(index: number) {
@@ -184,30 +159,18 @@ class BongoEngine {
 
   startMetronome() {
     this.stopMetronome();
-    if (!this.ctx) return;
     this.metroBeatCount = 0;
-    this.metroNextTime = this.ctx.currentTime;
-    this.scheduleMetro();
-  }
-
-  private scheduleMetro() {
-    if (!this.ctx) return;
-    const LOOKAHEAD_S = 0.1;
-    const INTERVAL_MS = 50;
-    const beatS = 60 / BPM;
-
-    while (this.metroNextTime < this.ctx.currentTime + LOOKAHEAD_S) {
-      this.playClickAt(this.metroBeatCount % 4 === 0, this.metroNextTime);
+    this.playClick(true);
+    this.metroInterval = setInterval(() => {
       this.metroBeatCount++;
-      this.metroNextTime += beatS;
-    }
-    this.metroTimer = setTimeout(() => this.scheduleMetro(), INTERVAL_MS);
+      this.playClick(this.metroBeatCount % 4 === 0);
+    }, BEAT_MS);
   }
 
   stopMetronome() {
-    if (this.metroTimer !== null) {
-      clearTimeout(this.metroTimer);
-      this.metroTimer = null;
+    if (this.metroInterval !== null) {
+      clearInterval(this.metroInterval);
+      this.metroInterval = null;
     }
   }
 
@@ -878,17 +841,15 @@ export default function Foli() {
   // ── Play the demonstration sequence (fire-and-forget within a bar) ──
 
   const playSequence = useCallback(
-    (seq: SequenceNote[], engine: BongoEngine, barOrigin: number) => {
-      // Schedule all notes via Web Audio clock for sample-accurate timing
-      for (const note of seq) {
-        const when = barOrigin + ticksToMs(note.startTick) / 1000;
-        engine.playAt(note.side, when);
-        // Visual flash via setTimeout — visual jitter is acceptable
-        const delayMs = Math.max(0, (when - engine.getCtxTime()) * 1000);
-        const { side } = note;
+    (seq: SequenceNote[], engine: BongoEngine) => {
+      // Schedule all notes relative to now — does not await, returns immediately
+      for (let i = 0; i < seq.length; i++) {
+        const delayMs = ticksToMs(seq[i].startTick);
+        const side = seq[i].side;
         setTimeout(() => {
           if (!runningRef.current) return;
           flashSide(side);
+          engine.play(side);
         }, delayMs);
       }
     },
@@ -932,9 +893,8 @@ export default function Foli() {
         sp('listening');
         setLeftGlow('idle');
         setRightGlow('idle');
-        const barOrigin = engine.getCtxTime();
         setBarStartTime(performance.now());
-        playSequence(withSides, engine, barOrigin);
+        playSequence(withSides, engine);
         await wait(BAR_MS);
         if (!runningRef.current) return false;
 

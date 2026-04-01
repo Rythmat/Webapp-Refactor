@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import SuperJSON from 'superjson';
+import { getCurrentAppSessionId } from '@/auth/app-session-store';
 import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import type { SubscriptionStatus } from '@/features/settings/subscription/subscriptionUtils';
@@ -16,12 +17,14 @@ async function fetchWithAuth(
   url: string,
   token: string,
 ): Promise<SubscriptionStatus> {
-  const res = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
+  const appSessionId = getCurrentAppSessionId();
+  if (appSessionId) headers['X-App-Session'] = appSessionId;
+
+  const res = await fetch(url, { headers });
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));

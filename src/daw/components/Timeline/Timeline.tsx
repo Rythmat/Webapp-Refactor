@@ -23,6 +23,7 @@ import {
   tickToTime,
   tickToTimePrecise,
 } from '@/daw/utils/timelineScale';
+import { PresenceCursors } from '@/daw/collab/ui/PresenceCursors';
 import { ALL_GRID_VALUES, TRIPLET_GRID_VALUES } from '@/daw/utils/quantize';
 import type { MidiNoteEvent } from '@prism/engine';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -2142,6 +2143,11 @@ export function Timeline() {
             }}
           />
         )}
+        {/* Remote collaborator cursors */}
+        <PresenceCursors
+          tickToPixel={(tick: number) => tickToPixel(tick, zoom, scrollLeft)}
+          containerWidth={containerWidth}
+        />
       </div>
       {/* Marker context menu */}
       {ctxMenu && (

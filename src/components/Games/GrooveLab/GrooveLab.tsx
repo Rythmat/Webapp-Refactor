@@ -3,7 +3,7 @@ import { DrumEngine } from './DrumEngine';
 
 // --- Constants ---
 
-const INSTRUMENTS = ['rim', 'hihat', 'snare', 'kick'] as const;
+const INSTRUMENTS = ['kick', 'snare', 'hihat', 'rim'] as const;
 type Instrument = (typeof INSTRUMENTS)[number];
 
 const INSTRUMENT_COLORS: Record<Instrument, string> = {
@@ -306,12 +306,18 @@ const PRESET_GROOVES: Record<string, Record<Instrument, boolean[]>> = {
   },
 };
 
+type GameMode = 'creative' | 'match';
+
+interface GrooveLabProps {
+  onComplete?: (result: { accuracy: number }) => void;
+}
+
 /**
  * Groove Lab — "Program the beat. Feel the pocket."
  *
  * Drum machine step sequencer. Match a target groove or freestyle your own.
  */
-export default function GrooveLab() {
+export default function GrooveLab({ onComplete }: GrooveLabProps) {
   const drumRef = useRef<DrumEngine | null>(null);
   const playbackRef = useRef<number | null>(null);
   const stepRef = useRef(0);
@@ -325,6 +331,7 @@ export default function GrooveLab() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
   const [bpm, setBpm] = useState(DEFAULT_BPM);
+  const [mode, setMode] = useState<GameMode>('creative');
   const [targetGroove, setTargetGroove] = useState<string>('Basic Rock');
   const [showResult, setShowResult] = useState(false);
   const [matchAccuracy, setMatchAccuracy] = useState(0);
@@ -435,15 +442,16 @@ export default function GrooveLab() {
     const acc = correct / total;
     setMatchAccuracy(acc);
     setShowResult(true);
-  }, [grid, targetGroove]);
+    onComplete?.({ accuracy: acc });
+  }, [grid, targetGroove, onComplete]);
 
   const newTarget = useCallback(() => {
-    const names = Object.keys(PRESET_GROOVES).filter((n) => n !== targetGroove);
+    const names = Object.keys(PRESET_GROOVES);
     const next = names[Math.floor(Math.random() * names.length)];
     setTargetGroove(next);
     clearGrid();
     setShowResult(false);
-  }, [clearGrid, targetGroove]);
+  }, [clearGrid]);
 
   // Cleanup
   useEffect(() => {
@@ -466,6 +474,34 @@ export default function GrooveLab() {
           >
             Groove Lab
           </h2>
+          <div className="flex gap-1">
+            <button
+              onClick={() => {
+                setMode('creative');
+                setShowResult(false);
+              }}
+              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                mode === 'creative'
+                  ? 'bg-white text-black'
+                  : 'text-zinc-500 hover:text-white'
+              }`}
+            >
+              Creative
+            </button>
+            <button
+              onClick={() => {
+                setMode('match');
+                setShowResult(false);
+              }}
+              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+                mode === 'match'
+                  ? 'bg-white text-black'
+                  : 'text-zinc-500 hover:text-white'
+              }`}
+            >
+              Match
+            </button>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1 bg-zinc-900 rounded border border-zinc-800">
@@ -489,25 +525,27 @@ export default function GrooveLab() {
         </div>
       </div>
 
-      {/* Target info */}
-      <div className="h-10 bg-[#0f0f11] border-b border-zinc-800 flex items-center px-6 gap-4">
-        <span className="text-xs text-zinc-500 uppercase tracking-wider">
-          Target:
-        </span>
-        <span className="text-sm text-white font-medium">{targetGroove}</span>
-        <button
-          onClick={playTarget}
-          className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
-        >
-          Listen
-        </button>
-        <button
-          onClick={newTarget}
-          className="text-xs text-zinc-500 hover:text-white transition-colors ml-auto"
-        >
-          New Target
-        </button>
-      </div>
+      {/* Match mode target info */}
+      {mode === 'match' && (
+        <div className="h-10 bg-[#0f0f11] border-b border-zinc-800 flex items-center px-6 gap-4">
+          <span className="text-xs text-zinc-500 uppercase tracking-wider">
+            Target:
+          </span>
+          <span className="text-sm text-white font-medium">{targetGroove}</span>
+          <button
+            onClick={playTarget}
+            className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+          >
+            Listen
+          </button>
+          <button
+            onClick={newTarget}
+            className="text-xs text-zinc-500 hover:text-white transition-colors ml-auto"
+          >
+            New Target
+          </button>
+        </div>
+      )}
 
       {/* Step sequencer grid */}
       <div className="p-4">
@@ -589,16 +627,18 @@ export default function GrooveLab() {
             Clear
           </button>
         </div>
-        <button
-          onClick={checkMatch}
-          className="px-4 py-1.5 rounded text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white transition-colors"
-        >
-          Check Match
-        </button>
+        {mode === 'match' && (
+          <button
+            onClick={checkMatch}
+            className="px-4 py-1.5 rounded text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white transition-colors"
+          >
+            Check Match
+          </button>
+        )}
       </div>
 
       {/* Result overlay */}
-      {showResult && (
+      {showResult && mode === 'match' && (
         <div className="p-6 bg-[#0f0f11] border-t border-zinc-800 flex items-center justify-center gap-6">
           <div className="text-center">
             <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">

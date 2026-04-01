@@ -35,6 +35,7 @@ export function useDiscoverUsers() {
           id: s.id,
           nickname: s.nickname,
           avatarSeed: s.nickname,
+          avatarConfig: s.avatarConfig,
           bio,
         });
       }

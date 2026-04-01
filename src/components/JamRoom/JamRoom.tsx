@@ -7,14 +7,13 @@ import {
   Copy,
   LogOut,
   Drum,
-  Loader2,
   WifiOff,
   MessageSquare,
   X,
   Music,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { GameRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { JamChat } from './JamChat';
@@ -51,11 +50,14 @@ const DRUM_GLOW_INTENSITY: Record<DrumSound, number> = {
 
 function JamRoomInner() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { roomId: paramRoomId } = useParams<{ roomId: string }>();
   const {
-    connectionStatus,
     isConnected,
     roomId,
+    roomCode,
+    roomError,
+    joinRoomByCode,
     joinRoom,
     leaveRoom,
     localColor,
@@ -81,6 +83,16 @@ function JamRoomInner() {
   const [showChat, setShowChat] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Navigate back to lobby on room error (room doesn't exist / host left)
+  useEffect(() => {
+    if (roomError) {
+      leaveRoom();
+      navigate(GameRoutes.jamLobby(), {
+        state: { error: roomError },
+      });
+    }
+  }, [roomError, leaveRoom, navigate]);
+
   // Initialize SoundFont engine + join room on mount
   useEffect(() => {
     initJamSynth().catch((err) =>
@@ -93,9 +105,16 @@ function JamRoomInner() {
 
   useEffect(() => {
     if (paramRoomId && !roomId) {
-      joinRoom(paramRoomId);
+      const state = location.state as { role?: string } | null;
+      if (state?.role === 'owner') {
+        // Creator — connect as owner (registers as host in PartyKit)
+        joinRoom(paramRoomId, 'owner');
+      } else {
+        // Joiner — connect as editor (requires existing host)
+        joinRoomByCode(paramRoomId);
+      }
     }
-  }, [paramRoomId, roomId, joinRoom]);
+  }, [paramRoomId, roomId, location.state, joinRoom, joinRoomByCode]);
 
   // Audio engine for remote notes
   useJamAudio();
@@ -171,9 +190,11 @@ function JamRoomInner() {
     navigate(GameRoutes.jamLobby());
   };
 
+  const shareCode = roomCode ?? paramRoomId ?? '';
+
   const copyRoomCode = () => {
-    if (paramRoomId) {
-      navigator.clipboard.writeText(paramRoomId);
+    if (shareCode) {
+      navigator.clipboard.writeText(shareCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     }
@@ -264,15 +285,10 @@ function JamRoomInner() {
         {/* Left: status + room code */}
         <div className="flex items-center gap-3">
           {/* Connection badge — pill style */}
-          {connectionStatus === 'live' ? (
+          {isConnected ? (
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-emerald-900/50 text-emerald-400 border border-emerald-800">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Live
-            </span>
-          ) : connectionStatus === 'reconnecting' ? (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-amber-900/50 text-amber-400 border border-amber-800">
-              <Loader2 size={10} className="animate-spin" />
-              Reconnecting
             </span>
           ) : (
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-red-900/50 text-red-400 border border-red-800">
@@ -343,7 +359,7 @@ function JamRoomInner() {
             className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] text-zinc-500 hover:text-zinc-300 bg-zinc-800/50 hover:bg-zinc-800 transition-colors font-mono"
           >
             <Copy size={8} />
-            {copied ? 'Copied!' : paramRoomId}
+            {copied ? 'Copied!' : shareCode}
           </button>
         </div>
 

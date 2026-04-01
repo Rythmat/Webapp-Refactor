@@ -330,8 +330,8 @@ export const ProfilePage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-                <div className="lg:col-span-8">
+              <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-12">
+                <div className="flex flex-col lg:col-span-8">
                   <div className="mb-4 flex items-center gap-6">
                     <h2
                       className="font-serif text-xl"
@@ -352,7 +352,7 @@ export const ProfilePage: React.FC = () => {
                     </div>
                   </div>
                   <div
-                    className="glass-panel-sm relative h-64 w-full overflow-hidden rounded-3xl px-6 pt-2 pb-0"
+                    className="glass-panel-sm relative min-h-48 flex-1 overflow-hidden rounded-3xl px-6 pt-2 pb-0"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
                       border: '1px solid var(--color-border)',
@@ -361,7 +361,7 @@ export const ProfilePage: React.FC = () => {
                     <ExperienceWeekChart />
                   </div>
                 </div>
-                <div className="mt-8 lg:col-span-4 lg:mt-0">
+                <div className="flex flex-col lg:col-span-4">
                   <div
                     className="mb-4 flex items-center gap-2"
                     style={{ color: 'var(--color-text)' }}
@@ -374,7 +374,7 @@ export const ProfilePage: React.FC = () => {
                     />
                   </div>
                   <div
-                    className="glass-panel-sm relative rounded-3xl p-4"
+                    className="glass-panel-sm relative flex-1 rounded-3xl p-4"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
                       border: '1px solid var(--color-border)',
@@ -442,15 +442,15 @@ export const ProfilePage: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Logo — sticky to bottom */}
-      <div className="flex justify-center py-4">
-        <img
-          src="/music-atlas-moving-logo.gif"
-          alt="Music Atlas"
-          className="h-24"
-        />
+        {/* Logo — bottom of page, visible only when scrolled down */}
+        <div className="mt-auto flex justify-center py-4">
+          <img
+            src="/music-atlas-moving-logo.gif"
+            alt="Music Atlas"
+            className="h-24"
+          />
+        </div>
       </div>
     </div>
   );

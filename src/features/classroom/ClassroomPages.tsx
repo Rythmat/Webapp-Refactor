@@ -97,9 +97,9 @@ const MajorArcanumPage = lazy(() =>
   })),
 );
 
-const ConstellationsPage = lazy(() =>
-  import('@/components/Games/arcadePages').then(({ ConstellationsPage }) => ({
-    default: ConstellationsPage,
+const ContourTracePage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ ContourTracePage }) => ({
+    default: ContourTracePage,
   })),
 );
 
@@ -118,6 +118,12 @@ const WaveSculptorPage = lazy(() =>
 const HarmonicStringsPage = lazy(() =>
   import('@/components/Games/arcadePages').then(({ HarmonicStringsPage }) => ({
     default: HarmonicStringsPage,
+  })),
+);
+
+const SoundSpinnerPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ SoundSpinnerPage }) => ({
+    default: SoundSpinnerPage,
   })),
 );
 
@@ -154,6 +160,12 @@ const JamLobby = lazy(() =>
 const JamRoom = lazy(() =>
   import('@/components/JamRoom').then(({ JamRoom }) => ({
     default: JamRoom,
+  })),
+);
+
+const JamLocalRoom = lazy(() =>
+  import('@/components/JamRoom').then(({ JamLocalRoom }) => ({
+    default: JamLocalRoom,
   })),
 );
 
@@ -244,8 +256,8 @@ export const gamesPages = () => {
         element: <MajorArcanumPage />,
       },
       {
-        path: GameRoutes.constellations.definition,
-        element: <ConstellationsPage />,
+        path: GameRoutes.contourTrace.definition,
+        element: <ContourTracePage />,
       },
       {
         path: GameRoutes.grooveLab.definition,
@@ -260,12 +272,20 @@ export const gamesPages = () => {
         element: <HarmonicStringsPage />,
       },
       {
+        path: GameRoutes.soundSpinner.definition,
+        element: <SoundSpinnerPage />,
+      },
+      {
         path: GameRoutes.signalFlow.definition,
         element: <SignalFlowPage />,
       },
       {
         path: GameRoutes.jamLobby.definition,
         element: <JamLobby />,
+      },
+      {
+        path: GameRoutes.jamLocal.definition,
+        element: <JamLocalRoom />,
       },
       {
         path: GameRoutes.jamRoom.definition,

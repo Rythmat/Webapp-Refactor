@@ -15,46 +15,13 @@ interface ArcadeGame {
   route?: keyof typeof GameRoutes;
 }
 
-const CATEGORY_ORDER = [
-  'Multiplayer',
-  'Ear Training',
-  'Technique',
-  'Theory',
-  'Rhythm',
-  'Sound Lab',
-] as const;
-
 const ARCADE_GAMES_DATA: ArcadeGame[] = [
-  // Multiplayer
-  {
-    title: 'Jam Room',
-    category: 'Multiplayer',
-    featured: true,
-    route: 'jamLobby',
-  },
-  // Ear Training
   {
     title: 'Chroma',
     category: 'Ear Training',
+    featured: true,
     route: 'chroma',
   },
-  {
-    title: 'Constellations',
-    category: 'Ear Training',
-    route: 'constellations',
-  },
-  // Technique
-  {
-    title: 'Major Arcanum',
-    category: 'Technique',
-    route: 'majorArcanum',
-  },
-  {
-    title: 'Chord Press',
-    category: 'Technique',
-    route: 'chordPress',
-  },
-  // Theory
   {
     title: 'Board Choice',
     category: 'Theory',
@@ -65,18 +32,32 @@ const ARCADE_GAMES_DATA: ArcadeGame[] = [
     category: 'Theory',
     route: 'chordConnection',
   },
-  // Rhythm
+  {
+    title: 'Chord Press',
+    category: 'Technique',
+    route: 'chordPress',
+  },
   {
     title: 'Foli',
     category: 'Rhythm',
     route: 'foli',
   },
   {
+    title: 'Major Arcanum',
+    category: 'Technique',
+    featured: true,
+    route: 'majorArcanum',
+  },
+  {
+    title: 'Contour Trace',
+    category: 'Ear Training',
+    route: 'contourTrace',
+  },
+  {
     title: 'Groove Lab',
     category: 'Rhythm',
     route: 'grooveLab',
   },
-  // Sound Lab
   {
     title: 'Wave Sculptor',
     category: 'Sound Lab',
@@ -88,16 +69,22 @@ const ARCADE_GAMES_DATA: ArcadeGame[] = [
     route: 'harmonicStrings',
   },
   {
+    title: 'Sound Spinner',
+    category: 'Sound Lab',
+    route: 'soundSpinner',
+  },
+  {
     title: 'Signal Flow',
     category: 'Sound Lab',
     route: 'signalFlow',
   },
+  {
+    title: 'Jam Room',
+    category: 'Multiplayer',
+    featured: true,
+    route: 'jamLobby',
+  },
 ];
-
-const gamesByCategory = CATEGORY_ORDER.map((cat) => ({
-  category: cat,
-  games: ARCADE_GAMES_DATA.filter((g) => g.category === cat),
-}));
 
 interface ArcadeGameCardProps {
   title: string;
@@ -183,35 +170,23 @@ export const ArcadeInlet: FC = () => {
       style={{ backgroundColor: '#0A0A0A' }}
     >
       <HeaderBar title="Arcade" />
-      <div className="learn-root flex-1 overflow-y-auto px-8 pb-12 space-y-10">
-        {gamesByCategory.map(({ category, games }) => (
-          <section key={category}>
-            <h2
-              className="text-xs font-bold uppercase tracking-widest mb-4"
-              style={{
-                color: 'var(--color-text-muted, rgba(255,255,255,0.45))',
-              }}
-            >
-              {category}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[200px]">
-              {games.map((game, i) => (
-                <ArcadeGameCard
-                  key={i}
-                  {...game}
-                  onClick={
-                    game.route
-                      ? () =>
-                          navigate(
-                            (GameRoutes[game.route!] as (p?: void) => string)(),
-                          )
-                      : undefined
-                  }
-                />
-              ))}
-            </div>
-          </section>
-        ))}
+      <div className="learn-root flex-1 overflow-y-auto px-8 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[200px]">
+          {ARCADE_GAMES_DATA.map((game, i) => (
+            <ArcadeGameCard
+              key={i}
+              {...game}
+              onClick={
+                game.route
+                  ? () =>
+                      navigate(
+                        (GameRoutes[game.route!] as (p?: void) => string)(),
+                      )
+                  : undefined
+              }
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

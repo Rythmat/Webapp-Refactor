@@ -1,9 +1,14 @@
+import * as Y from 'yjs';
+import { UndoManager } from 'yjs';
 import { useStore } from './index';
 import type { ChordRegion } from './prismSlice';
 import type { Track } from './tracksSlice';
+import { ORIGIN_LOCAL } from '@/daw/collab/types';
 
 // ── Undo/Redo Middleware ────────────────────────────────────────────────────
-// Snapshot-based undo system. Captures track + chord region state on significant actions.
+// Dual-mode undo system:
+// - Solo mode: Snapshot-based (captures full tracks + chord regions)
+// - Collab mode: Yjs UndoManager (per-user, conflict-free)
 // High-frequency updates (position, volume drags) are excluded.
 
 export interface UndoSnapshot {
@@ -134,4 +139,76 @@ export function initUndoTracking(): void {
 
   useStore.subscribe((state) => state.tracks, handleChange);
   useStore.subscribe((state) => state.chordRegions, handleChange);
+}
+
+// ── Collab-mode Undo (Yjs UndoManager) ──────────────────────────────────
+// When collaboration is active, undo/redo is handled by Yjs's built-in
+// UndoManager which only tracks the local user's changes, allowing
+// User A to undo without affecting User B's concurrent edits.
+
+let _yjsUndoManager: UndoManager | null = null;
+
+/**
+ * Initialize Yjs-based undo for collaborative mode.
+ * Call after the Y.Doc is synced and shared types are populated.
+ */
+export function initCollabUndo(doc: Y.Doc): void {
+  destroyCollabUndo();
+  const yTracks = doc.getArray('tracks');
+  const yChordRegions = doc.getArray('chordRegions');
+  const yMarkers = doc.getArray('markers');
+
+  _yjsUndoManager = new UndoManager([yTracks, yChordRegions, yMarkers], {
+    trackedOrigins: new Set([ORIGIN_LOCAL]),
+    captureTimeout: 300,
+  });
+}
+
+/** Tear down the collab undo manager. */
+export function destroyCollabUndo(): void {
+  _yjsUndoManager?.destroy();
+  _yjsUndoManager = null;
+}
+
+/** Check if collab undo is active. */
+export function isCollabUndoActive(): boolean {
+  return _yjsUndoManager !== null;
+}
+
+/**
+ * Smart undo: uses Yjs UndoManager in collab mode, snapshot undo in solo mode.
+ */
+export function smartUndo(): boolean {
+  if (_yjsUndoManager) {
+    if (_yjsUndoManager.canUndo()) {
+      _yjsUndoManager.undo();
+      return true;
+    }
+    return false;
+  }
+  return undo();
+}
+
+/**
+ * Smart redo: uses Yjs UndoManager in collab mode, snapshot redo in solo mode.
+ */
+export function smartRedo(): boolean {
+  if (_yjsUndoManager) {
+    if (_yjsUndoManager.canRedo()) {
+      _yjsUndoManager.redo();
+      return true;
+    }
+    return false;
+  }
+  return redo();
+}
+
+export function smartCanUndo(): boolean {
+  if (_yjsUndoManager) return _yjsUndoManager.canUndo();
+  return canUndo();
+}
+
+export function smartCanRedo(): boolean {
+  if (_yjsUndoManager) return _yjsUndoManager.canRedo();
+  return canRedo();
 }

@@ -1,27 +1,52 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useGameScore } from '../scoring/useGameScore';
 import { AudioEngine } from './AudioEngine';
 import { CircleOfFifthsSelector } from './CircleOfFifthsSelector';
-import { GameHeader } from './GameHeader';
-import { StartScreen, GameOverScreen } from './GameOverlay';
-import { GameToolbar } from './GameToolbar';
-import {
-  getNoteColor,
-  drawCountIn,
-  drawGameFrame,
-  drawPauseOverlay,
-} from './canvasRenderer';
+import { getNoteColor, drawCountIn, drawGameFrame } from './canvasRenderer';
 import {
   PIANO_HEIGHT,
   INPUT_WINDOW,
   HOLD_SCORE_INTERVAL,
   ROOTS,
-  DIFFICULTY_PRESETS,
-  DRUM_PATTERNS,
 } from './constants';
 import { getKeyGeometry, buildKeyMapping } from './keyMapping';
 import { generateSong, getSongDuration } from './songGenerator';
 import type { Note, Particle, GameState, NavigatorWithMIDI } from './types';
+
+// --- Sub-components ---
+
+const HexagonPattern = () => (
+  <svg
+    className="absolute inset-0 w-full h-full opacity-40"
+    preserveAspectRatio="xMidYMid slice"
+  >
+    <defs>
+      <pattern
+        id="hexagons"
+        width="50"
+        height="43.4"
+        patternUnits="userSpaceOnUse"
+        patternTransform="scale(2)"
+      >
+        <path
+          d="M25 0L50 14.4V43.3L25 57.7L0 43.3V14.4L25 0Z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1"
+          className="text-white/10"
+        />
+      </pattern>
+    </defs>
+    <path d="M0 0H400L300 200H0V0Z" fill="#28a69a" fillOpacity="0.2" />
+    <path d="M300 0H600L500 200H200L300 0Z" fill="#d2404a" fillOpacity="0.3" />
+    <path d="M550 0H900L800 200H450L550 0Z" fill="#9d7fce" fillOpacity="0.2" />
+    <path
+      d="M850 0H1200L1100 200H750L850 0Z"
+      fill="#fea92a"
+      fillOpacity="0.2"
+    />
+    <rect width="100%" height="100%" fill="url(#hexagons)" />
+  </svg>
+);
 
 // --- Main Component ---
 
@@ -37,16 +62,6 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
   const activeMidiNotes = useRef<Set<number>>(new Set());
   const notesRef = useRef<Note[]>([]);
   const particlesRef = useRef<Particle[]>([]);
-  const drumPatternRef = useRef({ patternIndex: 0, lastBarChanged: -1 });
-
-  // Shared scoring integration — destructure to get individually stable refs
-  const {
-    hit: scoringHit,
-    miss: scoringMiss,
-    addScore: scoringAddScore,
-    resetScore: scoringReset,
-    completeRound: scoringComplete,
-  } = useGameScore('majorArcanum');
 
   // Game state (refs for performance in render loop)
   const gameState = useRef<GameState>({
@@ -68,18 +83,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     lastBeatScheduled: -1,
     metronomeEnabled: true,
     gameMode: 'Melody',
-    bpm: 80,
-    totalNotes: 0,
-    hits: 0,
-    misses: 0,
-    holdCompletions: 0,
-    holdAttempts: 0,
-    uiDirty: false,
-    missFlashTime: 0,
-    isPaused: false,
-    pauseStartTime: 0,
-    totalPausedDuration: 0,
-    difficulty: 3,
+    bpm: 120,
   });
 
   const [uiState, setUiState] = useState({
@@ -95,18 +99,12 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     feedbackColor: '#fff',
     feedbackVisible: false,
     metronomeEnabled: true,
-    gameMode: 'Melody' as 'Melody' | 'Harmony',
-    bpm: 80,
+    gameMode: 'Melody',
+    bpm: 120,
     showKeySelector: false,
-    showVolumePanel: false,
-    isPaused: false,
-    difficulty: 3,
-    melodyVolume: 1.0,
-    drumVolume: 1.0,
-    metronomeVolume: 1.0,
   });
 
-  // Ref-based showFeedback to avoid stale closure in renderFrame
+  // Bug fix #3: ref-based showFeedback to avoid stale closure in renderFrame
   const showFeedbackRef = useRef<(text: string, color: string) => void>(
     () => {},
   );
@@ -121,6 +119,16 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
       setUiState((prev) => ({ ...prev, feedbackVisible: false }));
     }, 300);
   };
+
+  const handleResize = useCallback(() => {
+    if (containerRef.current && canvasRef.current) {
+      const { width, height } = containerRef.current.getBoundingClientRect();
+      canvasRef.current.width = width;
+      canvasRef.current.height = height;
+      gameState.current.canvasWidth = width;
+      gameState.current.canvasHeight = height;
+    }
+  }, []);
 
   const spawnParticles = useCallback((midi: number) => {
     const geom = getKeyGeometry(midi, gameState.current.canvasWidth);
@@ -146,7 +154,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     (midi: number) => {
       if (!audioRef.current) return;
       audioRef.current.startTone(midi);
-      if (!gameState.current.isPlaying || gameState.current.isPaused) return;
+      if (!gameState.current.isPlaying) return;
 
       const songTime =
         audioRef.current.ctx.currentTime - gameState.current.startTime;
@@ -165,19 +173,17 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         note.lastHoldScoreTime = songTime;
 
         const st = gameState.current;
-        st.hits += 1;
+        st.streak += 1;
+        st.maxStreak = Math.max(st.maxStreak, st.streak);
+        st.multiplier = Math.floor(st.streak / 10) + 1;
+        st.score += 10 * st.multiplier;
 
-        const scoreState = scoringHit(10);
-        st.score = scoreState.score;
-        st.streak = scoreState.streak;
-        st.maxStreak = scoreState.maxStreak;
-        st.multiplier = scoreState.multiplier;
-        st.uiDirty = true;
-
-        const currentBeatTime = 60 / st.bpm;
-        if (note.duration * currentBeatTime >= 0.3) {
-          st.holdAttempts += 1;
-        }
+        setUiState((prev) => ({
+          ...prev,
+          streak: st.streak,
+          multiplier: st.multiplier,
+          score: st.score,
+        }));
 
         spawnParticles(midi);
         const color = getNoteColor(
@@ -188,14 +194,14 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         showFeedbackRef.current('Perfect', color);
       }
     },
-    [spawnParticles, scoringHit],
+    [spawnParticles],
   );
 
   const handleNoteOff = useCallback(
     (midi: number) => {
       if (!audioRef.current) return;
       audioRef.current.stopTone(midi);
-      if (!gameState.current.isPlaying || gameState.current.isPaused) return;
+      if (!gameState.current.isPlaying) return;
 
       const noteIdx = notesRef.current.findIndex(
         (n) =>
@@ -216,40 +222,27 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
           note.completed = true;
         } else if (songTime < noteEndTime - tolerance) {
           note.lost = true;
-          const scoreState = scoringMiss();
-          st.score = scoreState.score;
-          st.streak = scoreState.streak;
-          st.multiplier = scoreState.multiplier;
-          st.uiDirty = true;
+          st.streak = 0;
+          st.multiplier = 1;
+          setUiState((prev) => ({ ...prev, streak: 0, multiplier: 1 }));
           showFeedbackRef.current('Early Release', '#ef4444');
         } else if (songTime > noteEndTime + tolerance) {
           note.lost = true;
-          const scoreState = scoringMiss();
-          st.score = scoreState.score;
-          st.streak = scoreState.streak;
-          st.multiplier = scoreState.multiplier;
-          st.uiDirty = true;
+          st.streak = 0;
+          st.multiplier = 1;
+          setUiState((prev) => ({ ...prev, streak: 0, multiplier: 1 }));
           showFeedbackRef.current('Late Release', '#ef4444');
         } else {
           note.completed = true;
-          st.holdCompletions += 1;
-          const scoreState = scoringAddScore(40);
-          st.score = scoreState.score;
-          st.uiDirty = true;
+          st.score += 40 * st.multiplier;
+          setUiState((prev) => ({ ...prev, score: st.score }));
           spawnParticles(note.midi);
           showFeedbackRef.current('Release!', '#34d399');
         }
       }
     },
-    [spawnParticles, scoringMiss, scoringAddScore],
+    [spawnParticles],
   );
-
-  // Stable refs for callbacks used in game loop / event listeners.
-  // These decouple the 60fps render loop from React's dependency system.
-  const handleNoteOnRef = useRef(handleNoteOn);
-  handleNoteOnRef.current = handleNoteOn;
-  const handleNoteOffRef = useRef(handleNoteOff);
-  handleNoteOffRef.current = handleNoteOff;
 
   const toggleMetronome = useCallback(() => {
     gameState.current.metronomeEnabled = !gameState.current.metronomeEnabled;
@@ -265,25 +258,6 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     gameState.current.bpm = newBPM;
     setUiState((prev) => ({ ...prev, bpm: newBPM }));
   }, []);
-
-  const changeVolume = useCallback(
-    (category: 'melody' | 'drums' | 'metronome', value: number) => {
-      audioRef.current?.setVolume(category, value);
-      const key = `${category}Volume` as
-        | 'melodyVolume'
-        | 'drumVolume'
-        | 'metronomeVolume';
-      setUiState((prev) => ({ ...prev, [key]: value }));
-      try {
-        const stored = JSON.parse(localStorage.getItem('ma:volumes') ?? '{}');
-        stored[category] = value;
-        localStorage.setItem('ma:volumes', JSON.stringify(stored));
-      } catch {
-        /* ignore */
-      }
-    },
-    [],
-  );
 
   const changeKey = useCallback((rootIndex: number) => {
     const { keyName, keyColor, scaleNotes, keyboardMapping } = buildKeyMapping(
@@ -304,27 +278,14 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
       keyboardMapping,
       scaleNotes,
       rootIndex,
-      st.difficulty,
     );
-    st.totalNotes = notesRef.current.length;
-    st.songDuration = getSongDuration(st.bpm, st.difficulty);
+    st.songDuration = getSongDuration(st.bpm);
   }, []);
 
   const toggleMode = useCallback(
-    (mode: 'Melody' | 'Harmony') => {
+    (mode: string) => {
       gameState.current.gameMode = mode;
       setUiState((prev) => ({ ...prev, gameMode: mode }));
-      changeKey(gameState.current.keyRootVal);
-    },
-    [changeKey],
-  );
-
-  const changeDifficulty = useCallback(
-    (diff: number) => {
-      gameState.current.difficulty = diff;
-      const preset = DIFFICULTY_PRESETS[diff];
-      gameState.current.bpm = preset.bpm;
-      setUiState((prev) => ({ ...prev, difficulty: diff, bpm: preset.bpm }));
       changeKey(gameState.current.keyRootVal);
     },
     [changeKey],
@@ -338,9 +299,6 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
 
     const { width, height } = canvas;
     const st = gameState.current;
-
-    if (st.isPaused) return;
-
     const currentTime = audioRef.current.ctx.currentTime;
     const currentBeatTime = 60 / st.bpm;
 
@@ -354,7 +312,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         st.isPlaying = true;
         st.lastBeatScheduled = -1;
         st.countInNumber = 0;
-        st.uiDirty = true;
+        setUiState((prev) => ({ ...prev, countInNumber: 0 }));
       } else {
         const nextBeatIndex = Math.ceil(
           (currentTime - st.startTime) / currentBeatTime,
@@ -369,13 +327,11 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
           const count = Math.abs(nextBeatIndex);
           if (count > 0 && count <= 4) {
             st.countInNumber = count;
-            st.uiDirty = true;
+            setUiState((prev) => ({ ...prev, countInNumber: count }));
           }
         }
         drawCountIn(ctx, width, height, st.countInNumber, st.currentKeyColor);
-        requestRef.current = requestAnimationFrame(() =>
-          renderFrameRef.current(),
-        );
+        requestRef.current = requestAnimationFrame(renderFrame);
         return;
       }
     }
@@ -385,27 +341,13 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
       const songTime = currentTime - st.startTime;
       if (songTime > st.songDuration + 2) {
         st.isPlaying = false;
-        scoringComplete(st.difficulty, ['majorArcanum']);
         setUiState((prev) => ({ ...prev, gameOver: true }));
         onComplete?.({ score: st.score, maxStreak: st.maxStreak });
         return;
       }
 
-      // Schedule metronome + drums with pattern rotation
+      // Schedule metronome + drums
       const currentBeat = songTime / currentBeatTime;
-      const currentBar = Math.floor(currentBeat / 4);
-
-      const dp = drumPatternRef.current;
-      if (
-        currentBar > 0 &&
-        currentBar % 8 === 0 &&
-        currentBar !== dp.lastBarChanged
-      ) {
-        dp.patternIndex = (dp.patternIndex + 1) % DRUM_PATTERNS.length;
-        dp.lastBarChanged = currentBar;
-      }
-      const drumPattern = DRUM_PATTERNS[dp.patternIndex];
-
       const nextBeatIndex = Math.ceil(currentBeat);
       const nextBeatTime = st.startTime + nextBeatIndex * currentBeatTime;
 
@@ -417,21 +359,11 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
           audioRef.current.playClick(nextBeatTime, nextBeatIndex % 4 === 0);
 
         const beatInBar = nextBeatIndex % 4;
-        drumPattern.forEach((hit) => {
-          if (Math.abs(hit.beatOffset - beatInBar) < 0.01) {
-            audioRef.current!.playDrum(hit.instrument, nextBeatTime);
-          } else if (
-            hit.beatOffset > beatInBar &&
-            hit.beatOffset < beatInBar + 1
-          ) {
-            const subOffset = (hit.beatOffset - beatInBar) * currentBeatTime;
-            audioRef.current!.playDrum(
-              hit.instrument,
-              nextBeatTime + subOffset,
-            );
-          }
-        });
-
+        if (beatInBar === 0 || beatInBar === 2)
+          audioRef.current.playDrum('kick', nextBeatTime);
+        if (beatInBar === 1 || beatInBar === 3)
+          audioRef.current.playDrum('snare', nextBeatTime);
+        audioRef.current.playDrum('hat', nextBeatTime);
         st.lastBeatScheduled = nextBeatIndex;
       }
 
@@ -440,19 +372,15 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         // Miss detection
         if (!note.hit && !note.missed && songTime > note.time + INPUT_WINDOW) {
           note.missed = true;
-          st.misses += 1;
           if (st.streak > 0) {
-            const scoreState = scoringMiss();
-            st.score = scoreState.score;
-            st.streak = scoreState.streak;
-            st.multiplier = scoreState.multiplier;
-            st.missFlashTime = songTime;
+            st.streak = 0;
+            st.multiplier = 1;
+            setUiState((prev) => ({ ...prev, streak: 0, multiplier: 1 }));
             showFeedbackRef.current('Miss', '#71717a');
           }
-          st.uiDirty = true;
         }
 
-        // Time-based hold scoring
+        // Bug fix #6: time-based hold scoring instead of probabilistic
         if (note.hit && note.isHolding && !note.completed && !note.lost) {
           const timeSinceLastScore = songTime - note.lastHoldScoreTime;
           if (
@@ -462,15 +390,11 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
             const intervals = Math.floor(
               timeSinceLastScore / HOLD_SCORE_INTERVAL,
             );
-            const scoreState = scoringAddScore(intervals);
-            st.score = scoreState.score;
+            st.score += intervals * st.multiplier;
             note.lastHoldScoreTime = songTime;
-            st.uiDirty = true;
+            setUiState((prev) => ({ ...prev, score: st.score }));
           }
-          if (songTime - note.lastParticleTime >= 0.15) {
-            spawnParticles(note.midi);
-            note.lastParticleTime = songTime;
-          }
+          if (Math.random() > 0.8) spawnParticles(note.midi);
         }
       });
 
@@ -494,109 +418,27 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         particlesRef.current,
         activeMidiNotes.current,
       );
-
-      // Throttled UI update — single setUiState per frame
-      if (st.uiDirty) {
-        st.uiDirty = false;
-        setUiState((prev) => ({
-          ...prev,
-          score: st.score,
-          streak: st.streak,
-          multiplier: st.multiplier,
-          countInNumber: st.countInNumber,
-        }));
-      }
     }
 
-    requestRef.current = requestAnimationFrame(() => renderFrameRef.current());
-  }, [
-    onComplete,
-    spawnParticles,
-    scoringMiss,
-    scoringAddScore,
-    scoringComplete,
-  ]);
-
-  const renderFrameRef = useRef(renderFrame);
-  renderFrameRef.current = renderFrame;
-
-  // --- Pause / Resume ---
-  const togglePause = useCallback(() => {
-    const st = gameState.current;
-    if (!st.isPlaying && !st.isPaused) return;
-
-    if (st.isPaused) {
-      // Resume
-      const pauseDuration =
-        audioRef.current!.ctx.currentTime - st.pauseStartTime;
-      st.totalPausedDuration += pauseDuration;
-      st.startTime += pauseDuration;
-      st.isPaused = false;
-      audioRef.current?.resume();
-      setUiState((prev) => ({ ...prev, isPaused: false }));
-      requestRef.current = requestAnimationFrame(() =>
-        renderFrameRef.current(),
-      );
-    } else {
-      // Pause
-      st.isPaused = true;
-      st.pauseStartTime = audioRef.current!.ctx.currentTime;
-      audioRef.current?.suspend();
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
-      setUiState((prev) => ({ ...prev, isPaused: true }));
-
-      const canvas = canvasRef.current;
-      const ctx = canvas?.getContext('2d');
-      if (canvas && ctx) {
-        drawPauseOverlay(ctx, canvas.width, canvas.height);
-      }
-    }
-  }, []);
-
-  const togglePauseRef = useRef(togglePause);
-  togglePauseRef.current = togglePause;
+    requestRef.current = requestAnimationFrame(renderFrame);
+  }, [onComplete, spawnParticles]);
 
   const initGame = useCallback(() => {
     if (!audioRef.current) audioRef.current = new AudioEngine();
     audioRef.current.resume();
-
-    // Restore saved volume preferences
-    try {
-      const stored = JSON.parse(localStorage.getItem('ma:volumes') ?? '{}');
-      if (stored.melody != null)
-        audioRef.current.setVolume('melody', stored.melody);
-      if (stored.drums != null)
-        audioRef.current.setVolume('drums', stored.drums);
-      if (stored.metronome != null)
-        audioRef.current.setVolume('metronome', stored.metronome);
-    } catch {
-      /* ignore */
-    }
-
     changeKey(gameState.current.keyRootVal);
-    scoringReset();
 
-    const st = gameState.current;
-    const currentBeatTime = 60 / st.bpm;
-    st.score = 0;
-    st.streak = 0;
-    st.maxStreak = 0;
-    st.multiplier = 1;
-    st.hits = 0;
-    st.misses = 0;
-    st.holdCompletions = 0;
-    st.holdAttempts = 0;
-    st.missFlashTime = 0;
-    st.isPaused = false;
-    st.totalPausedDuration = 0;
-    st.startTime = audioRef.current.ctx.currentTime + 4 * currentBeatTime;
-    st.isPlaying = false;
-    st.isCountingIn = true;
-    st.lastBeatScheduled = -5;
-    st.countInNumber = 4;
-    st.uiDirty = false;
-
-    drumPatternRef.current = { patternIndex: 0, lastBarChanged: -1 };
+    const currentBeatTime = 60 / gameState.current.bpm;
+    gameState.current.score = 0;
+    gameState.current.streak = 0;
+    gameState.current.maxStreak = 0;
+    gameState.current.multiplier = 1;
+    gameState.current.startTime =
+      audioRef.current.ctx.currentTime + 4 * currentBeatTime;
+    gameState.current.isPlaying = false;
+    gameState.current.isCountingIn = true;
+    gameState.current.lastBeatScheduled = -5;
+    gameState.current.countInNumber = 4;
 
     setUiState((prev) => ({
       ...prev,
@@ -606,13 +448,13 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
       gameStarted: true,
       gameOver: false,
       countInNumber: 4,
-      isPaused: false,
     }));
-    requestRef.current = requestAnimationFrame(() => renderFrameRef.current());
-  }, [changeKey, scoringReset]);
+    requestRef.current = requestAnimationFrame(renderFrame);
+  }, [changeKey, renderFrame]);
 
   const handleStart = useCallback(async () => {
     setUiState((prev) => ({ ...prev, midiStatus: 'Requesting Access...' }));
+    // Bug fix #2: removed sysex: true — not needed, triggers stricter prompt
     const nav = navigator as unknown as NavigatorWithMIDI;
     if (nav.requestMIDIAccess) {
       try {
@@ -624,13 +466,13 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
             const [cmd, note, vel] = msg.data;
             if (cmd >= 144 && cmd <= 159 && vel > 0) {
               activeMidiNotes.current.add(note);
-              handleNoteOnRef.current(note);
+              handleNoteOn(note);
             } else if (
               (cmd >= 128 && cmd <= 143) ||
               (cmd >= 144 && cmd <= 159 && vel === 0)
             ) {
               activeMidiNotes.current.delete(note);
-              handleNoteOffRef.current(note);
+              handleNoteOff(note);
             }
           };
         });
@@ -650,68 +492,48 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
       }));
     }
     initGame();
-  }, [initGame]);
+  }, [handleNoteOn, handleNoteOff, initGame]);
 
-  // --- Effects (mount-only — all callbacks accessed via stable refs) ---
+  // --- Effects ---
   useEffect(() => {
     const handleDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
-
-      if (
-        e.code === 'Escape' &&
-        (gameState.current.isPlaying || gameState.current.isPaused)
-      ) {
-        togglePauseRef.current();
-        return;
-      }
-
-      if (gameState.current.isPaused) return;
-
       const mapping = gameState.current.keyboardMapping;
       if (mapping[e.code]) {
         const midi = mapping[e.code];
         activeMidiNotes.current.add(midi);
-        handleNoteOnRef.current(midi);
+        handleNoteOn(midi);
       }
     };
     const handleUp = (e: KeyboardEvent) => {
-      if (gameState.current.isPaused) return;
       const mapping = gameState.current.keyboardMapping;
       if (mapping[e.code]) {
         const midi = mapping[e.code];
         activeMidiNotes.current.delete(midi);
-        handleNoteOffRef.current(midi);
-      }
-    };
-
-    const onResize = () => {
-      if (containerRef.current && canvasRef.current) {
-        const { width, height } = containerRef.current.getBoundingClientRect();
-        canvasRef.current.width = width;
-        canvasRef.current.height = height;
-        gameState.current.canvasWidth = width;
-        gameState.current.canvasHeight = height;
+        handleNoteOff(midi);
       }
     };
 
     window.addEventListener('keydown', handleDown);
     window.addEventListener('keyup', handleUp);
-    window.addEventListener('resize', onResize);
-    onResize();
+    window.addEventListener('resize', handleResize);
+    handleResize();
 
     // Initialize with random key
-    const root = ROOTS[0]; // Default to C Major
-    changeKey(root.val);
+    if (!audioRef.current) {
+      const root = ROOTS[Math.floor(Math.random() * ROOTS.length)];
+      changeKey(root.val);
+    }
 
+    // Bug fix #5: close AudioContext on unmount
     return () => {
       window.removeEventListener('keydown', handleDown);
       window.removeEventListener('keyup', handleUp);
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener('resize', handleResize);
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       audioRef.current?.close();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [handleResize, handleNoteOn, handleNoteOff, changeKey]);
 
   // --- Render ---
   return (
@@ -725,37 +547,133 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
       )}
 
       <div className="flex-1 flex flex-col relative bg-[#09090b]">
-        <GameHeader
-          gameMode={uiState.gameMode}
-          keyName={uiState.keyName}
-          keyColor={gameState.current.currentKeyColor}
-          score={uiState.score}
-          streak={uiState.streak}
-          multiplier={uiState.multiplier}
-          onToggleMode={toggleMode}
-          onOpenKeySelector={() =>
-            setUiState((s) => ({ ...s, showKeySelector: true }))
-          }
-        />
+        {/* Header */}
+        <div className="h-28 relative w-full flex items-center px-8 justify-between shrink-0 overflow-hidden border-b border-zinc-800">
+          <div className="absolute inset-0 bg-[#18181b]">
+            <HexagonPattern />
+          </div>
+          <div className="relative z-10 flex flex-col">
+            <h1
+              className="text-5xl font-serif italic text-white tracking-wide"
+              style={{ fontFamily: '"Playfair Display", serif' }}
+            >
+              Major Arcanum
+            </h1>
+            <div className="mt-2 flex items-center gap-2">
+              <button
+                onClick={() => toggleMode('Melody')}
+                className={`px-3 py-1 rounded text-xs font-medium uppercase tracking-wider transition-all ${
+                  uiState.gameMode === 'Melody'
+                    ? 'bg-white text-black'
+                    : 'text-zinc-500 hover:text-white'
+                }`}
+              >
+                Melody
+              </button>
+              <button
+                onClick={() => toggleMode('Harmony')}
+                className={`px-3 py-1 rounded text-xs font-medium uppercase tracking-wider transition-all ${
+                  uiState.gameMode === 'Harmony'
+                    ? 'bg-white text-black'
+                    : 'text-zinc-500 hover:text-white'
+                }`}
+              >
+                Harmony
+              </button>
+              <div className="w-px h-3 bg-zinc-700 mx-1" />
+              <button
+                onClick={() =>
+                  setUiState((s) => ({ ...s, showKeySelector: true }))
+                }
+                className="px-3 py-1 rounded text-xs font-medium uppercase tracking-wider transition-all text-zinc-400 hover:text-white hover:bg-zinc-800 border border-zinc-700 flex items-center gap-2"
+              >
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{
+                    background: gameState.current.currentKeyColor,
+                  }}
+                />
+                {uiState.keyName}
+              </button>
+            </div>
+          </div>
 
-        <GameToolbar
-          bpm={uiState.bpm}
-          metronomeEnabled={uiState.metronomeEnabled}
-          midiStatus={uiState.midiStatus}
-          showVolumePanel={uiState.showVolumePanel}
-          melodyVolume={uiState.melodyVolume}
-          drumVolume={uiState.drumVolume}
-          metronomeVolume={uiState.metronomeVolume}
-          onChangeBPM={changeBPM}
-          onToggleMetronome={toggleMetronome}
-          onToggleVolumePanel={() =>
-            setUiState((s) => ({
-              ...s,
-              showVolumePanel: !s.showVolumePanel,
-            }))
-          }
-          onChangeVolume={changeVolume}
-        />
+          <div className="relative z-10 flex items-center gap-8 bg-black/20 backdrop-blur-sm px-6 py-3 rounded-xl border border-white/5">
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">
+                Session XP
+              </span>
+              <span className="text-xl font-medium text-white tabular-nums">
+                {uiState.score.toLocaleString()}
+              </span>
+            </div>
+            <div className="w-px h-8 bg-white/10" />
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">
+                Streak
+              </span>
+              <span className="text-xl font-medium text-cyan-400 tabular-nums">
+                {uiState.streak}
+              </span>
+            </div>
+            <div className="w-px h-8 bg-white/10" />
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">
+                Multiplier
+              </span>
+              <span className="text-xl font-bold text-yellow-400 tabular-nums">
+                x{uiState.multiplier}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Toolbar */}
+        <div className="h-12 bg-[#121214] border-b border-zinc-800 flex items-center px-6 gap-4 shrink-0">
+          <div className="flex items-center gap-2 px-3 py-1 bg-zinc-900 rounded border border-zinc-800">
+            <button
+              onClick={() => changeBPM(-5)}
+              className="text-zinc-400 hover:text-white px-2"
+            >
+              -
+            </button>
+            <span className="text-xs text-zinc-500 font-mono">BPM</span>
+            <span className="text-sm text-zinc-200 font-mono w-8 text-center">
+              {uiState.bpm}
+            </span>
+            <button
+              onClick={() => changeBPM(5)}
+              className="text-zinc-400 hover:text-white px-2"
+            >
+              +
+            </button>
+          </div>
+          <button
+            onClick={toggleMetronome}
+            className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-medium transition-colors border ${
+              uiState.metronomeEnabled
+                ? 'bg-emerald-900/30 border-emerald-800 text-emerald-400'
+                : 'bg-zinc-900 border-zinc-800 text-zinc-500'
+            }`}
+          >
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${
+                uiState.metronomeEnabled ? 'bg-emerald-400' : 'bg-zinc-600'
+              }`}
+            />
+            Metronome
+          </button>
+          <div className="ml-auto flex items-center gap-2 text-xs text-zinc-500">
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${
+                uiState.midiStatus.includes('Active')
+                  ? 'bg-green-500'
+                  : 'bg-zinc-600'
+              }`}
+            />
+            {uiState.midiStatus}
+          </div>
+        </div>
 
         {/* Canvas */}
         <div ref={containerRef} className="flex-1 relative bg-[#09090b]">
@@ -778,21 +696,56 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
             {uiState.feedbackText}
           </div>
 
-          {/* Overlays */}
+          {/* Start screen */}
           {!uiState.gameStarted && (
-            <StartScreen
-              difficulty={uiState.difficulty}
-              onChangeDifficulty={changeDifficulty}
-              onStart={handleStart}
-            />
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center z-20">
+              <h2 className="text-4xl font-serif italic text-white mb-2">
+                Ready to Play?
+              </h2>
+              <p className="text-zinc-400 mb-8 max-w-md text-center">
+                Connect your MIDI keyboard or use keys A-L to begin the rhythm
+                training session.
+              </p>
+              <button
+                onClick={handleStart}
+                className="px-8 py-3 bg-[#d2404a] hover:bg-[#b9363f] text-white font-medium rounded shadow-lg shadow-red-900/20 transition-all"
+              >
+                Start Session
+              </button>
+            </div>
           )}
 
+          {/* Game over screen */}
           {uiState.gameOver && (
-            <GameOverScreen
-              score={uiState.score}
-              gameState={gameState.current}
-              onRestart={initGame}
-            />
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center z-20">
+              <h2 className="text-5xl font-serif italic text-white mb-2">
+                Session Complete
+              </h2>
+              <div className="flex gap-12 mt-12 mb-12">
+                <div className="text-center">
+                  <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">
+                    Final Score
+                  </div>
+                  <div className="text-4xl text-white font-light">
+                    {uiState.score.toLocaleString()}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">
+                    Accuracy Streak
+                  </div>
+                  <div className="text-4xl text-cyan-400 font-light">
+                    {gameState.current.maxStreak}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={initGame}
+                className="px-8 py-3 border border-zinc-700 hover:bg-zinc-800 text-white font-medium rounded transition-all"
+              >
+                Restart
+              </button>
+            </div>
           )}
         </div>
       </div>

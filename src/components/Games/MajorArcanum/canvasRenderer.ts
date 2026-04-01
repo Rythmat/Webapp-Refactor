@@ -41,79 +41,7 @@ export function drawCountIn(
 }
 
 /**
- * Draw a red vignette flash when a note is missed.
- */
-function drawMissFlash(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  intensity: number,
-) {
-  if (intensity <= 0) return;
-  ctx.save();
-  ctx.globalAlpha = intensity * 0.4;
-
-  // Edge vignette
-  const gradient = ctx.createRadialGradient(
-    width / 2,
-    height / 2,
-    Math.min(width, height) * 0.3,
-    width / 2,
-    height / 2,
-    Math.max(width, height) * 0.7,
-  );
-  gradient.addColorStop(0, 'transparent');
-  gradient.addColorStop(1, '#ef4444');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
-
-  ctx.restore();
-}
-
-/**
- * Draw a pause overlay on the canvas.
- */
-export function drawPauseOverlay(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-) {
-  ctx.save();
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  ctx.fillRect(0, 0, width, height);
-
-  // Pause icon (two bars)
-  const barWidth = 16;
-  const barHeight = 60;
-  const gap = 20;
-  const cx = width / 2;
-  const cy = height / 2 - 30;
-
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(
-    cx - gap / 2 - barWidth,
-    cy - barHeight / 2,
-    barWidth,
-    barHeight,
-  );
-  ctx.fillRect(cx + gap / 2, cy - barHeight / 2, barWidth, barHeight);
-
-  // "PAUSED" text
-  ctx.fillStyle = '#a1a1aa';
-  ctx.font = '600 16px Inter, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillText('PAUSED', cx, cy + barHeight / 2 + 16);
-
-  ctx.font = '400 12px Inter, sans-serif';
-  ctx.fillStyle = '#71717a';
-  ctx.fillText('Press Escape to resume', cx, cy + barHeight / 2 + 40);
-
-  ctx.restore();
-}
-
-/**
- * Draw the full game frame: grid, notes, piano, particles, miss flash.
+ * Draw the full game frame: grid, notes, piano, particles.
  */
 export function drawGameFrame(
   ctx: CanvasRenderingContext2D,
@@ -181,8 +109,7 @@ export function drawGameFrame(
       st.currentScaleNotes,
       st.currentKeyColor,
     );
-    if (note.missed || note.lost)
-      color = '#52525b'; // Brighter than before (#27272a)
+    if (note.missed || note.lost) color = '#27272a';
     else if (note.completed) color = '#ffffff';
 
     ctx.fillStyle = color;
@@ -191,16 +118,6 @@ export function drawGameFrame(
     // Top highlight
     ctx.fillStyle = 'rgba(255,255,255,0.2)';
     ctx.fillRect(geom.x + 1, y - h, geom.width - 2, 2);
-
-    // Red border for missed/lost notes
-    if (note.missed || note.lost) {
-      ctx.save();
-      ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 1.5;
-      ctx.globalAlpha = 0.6;
-      ctx.strokeRect(geom.x + 1, y - h, geom.width - 2, h);
-      ctx.restore();
-    }
 
     // Hold beam
     if (note.isHolding) {
@@ -236,16 +153,6 @@ export function drawGameFrame(
     ctx.fill();
   });
   ctx.globalAlpha = 1.0;
-
-  // Miss flash vignette
-  if (st.missFlashTime > 0) {
-    const elapsed = songTime - st.missFlashTime;
-    const duration = 0.3;
-    if (elapsed < duration) {
-      const intensity = 1 - elapsed / duration;
-      drawMissFlash(ctx, width, height, intensity);
-    }
-  }
 }
 
 function drawPiano(

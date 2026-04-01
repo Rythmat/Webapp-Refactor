@@ -62,7 +62,7 @@ export function getKeyGeometry(
  */
 export function buildKeyMapping(
   rootVal: number,
-  gameMode: 'Melody' | 'Harmony',
+  gameMode: string,
 ): {
   keyName: string;
   keyColor: string;

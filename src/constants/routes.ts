@@ -208,7 +208,7 @@ export const GameRoutes = {
     prefix: gamesPrefix,
   }),
 
-  constellations: createRouteDefinition('/constellations', {
+  contourTrace: createRouteDefinition('/contour-trace', {
     prefix: gamesPrefix,
   }),
 
@@ -222,11 +222,17 @@ export const GameRoutes = {
     prefix: gamesPrefix,
   }),
 
+  soundSpinner: createRouteDefinition('/sound-spinner', {
+    prefix: gamesPrefix,
+  }),
+
   signalFlow: createRouteDefinition('/signal-flow', {
     prefix: gamesPrefix,
   }),
 
   jamLobby: createRouteDefinition('/jam', { prefix: gamesPrefix }),
+
+  jamLocal: createRouteDefinition('/jam/local', { prefix: gamesPrefix }),
 
   jamRoom: createRouteDefinition<{ roomId: string }>('/jam/:roomId', {
     prefix: gamesPrefix,

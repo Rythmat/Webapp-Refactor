@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import SuperJSON from 'superjson';
+import { getCurrentAppSessionId } from '@/auth/app-session-store';
 import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import type { SubscriptionStatus } from '@/features/settings/subscription/subscriptionUtils';
@@ -12,14 +13,16 @@ function apiPath(path: string) {
   return `${apiBase}${path}`;
 }
 
-async function fetchWithAuth(
-  url: string,
+/** Fetch subscription status with a bearer token. Exported for prefetch use. */
+export async function fetchSubscriptionStatus(
   token: string,
 ): Promise<SubscriptionStatus> {
-  const res = await fetch(url, {
+  const appSessionId = getCurrentAppSessionId();
+  const res = await fetch(apiPath('/api/me/subscription'), {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
+      ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
     },
   });
 
@@ -48,7 +51,7 @@ export const useMySubscription = () => {
 
   return useQuery<SubscriptionStatus>({
     queryKey: SUBSCRIPTION_QUERY_KEY,
-    queryFn: () => fetchWithAuth(apiPath('/api/me/subscription'), token!),
+    queryFn: () => fetchSubscriptionStatus(token!),
     enabled: !!token,
     // Don't refetch too aggressively — subscription state changes via webhooks,
     // not on every render. A 2-minute stale time balances freshness with load.

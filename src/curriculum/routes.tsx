@@ -5,6 +5,7 @@
  * so curriculum pages get sidebar, auth protection, and identical UI.
  */
 
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { FundamentalsLessonContainer } from '@/components/learn/FundamentalsLessonContainer';
 import { FundamentalsOverview } from '@/components/learn/FundamentalsOverview';
@@ -14,6 +15,12 @@ import { RequirePremium } from '@/components/ui/RequirePremium';
 import { CurriculumRoutes } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
+import { getActivityFlow } from '@/curriculum/data/activityFlows';
+import { getGenreProfile } from '@/curriculum/data/genreProfiles';
+import { GenreCourseOverview } from '@/curriculum/pages/GenreCourseOverview';
+import { GenreLessonContainerV2 } from '@/curriculum/pages/GenreLessonContainerV2';
+import type { ActivityFlow } from '@/curriculum/types/activity';
+import type { ActivityFlowV2 } from '@/curriculum/types/activity.v2';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 
@@ -23,6 +30,16 @@ const GenreOverviewRoute = () => {
   if (genre === 'piano-fundamentals') {
     return <FundamentalsOverview />;
   }
+  // Rich genre overview for genres with a profile (Funk first)
+  const profile = getGenreProfile(genre ?? '');
+  if (profile) {
+    return (
+      <RequirePremium>
+        <GenreCourseOverview genreSlug={genre ?? ''} />
+      </RequirePremium>
+    );
+  }
+  // Fallback — existing overview for genres without a profile
   return (
     <RequirePremium>
       <GenreOverview genreSlug={genre ?? ''} />
@@ -38,12 +55,33 @@ const FundamentalsLessonRoute = () => {
 
 const GenreLessonRoute = () => {
   const { genre, level } = useParams<{ genre: string; level: string }>();
-  // All genre-level lessons require premium
+  const genreSlug = genre ?? '';
+  const levelNum = parseInt(level ?? '1');
+  const [flow, setFlow] = useState<ActivityFlow | null>(null);
+
+  useEffect(() => {
+    getActivityFlow(genreSlug, levelNum).then(setFlow);
+  }, [genreSlug, levelNum]);
+
+  // V2 flow detection — route to new container
+  if (flow && 'version' in flow && (flow as ActivityFlowV2).version === 'v2') {
+    return (
+      <RequirePremium>
+        <GenreLessonContainerV2
+          flow={flow as ActivityFlowV2}
+          genre={genreSlug}
+          level={levelNum}
+        />
+      </RequirePremium>
+    );
+  }
+
+  // V1 fallback — existing container
   return (
     <RequirePremium>
       <GenreLessonContainer
-        genreSlug={genre ?? ''}
-        level={parseInt(level ?? '1')}
+        genreSlug={genreSlug}
+        level={levelNum}
       />
     </RequirePremium>
   );

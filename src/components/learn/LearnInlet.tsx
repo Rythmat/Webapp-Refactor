@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LearnRoutes, CurriculumRoutes } from '@/constants/routes';
 import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
+import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import type { PrismModeSlug } from '@/hooks/data';
@@ -39,7 +40,7 @@ interface SelectedSubItem {
   label: string;
   route: string;
   completionPct: number;
-  sections: { id: string; name: string; stepCount?: number }[];
+  sections: { id: string; name: string; stepCount?: number; route?: string }[];
 }
 
 function getLessonCompletion(
@@ -213,9 +214,9 @@ const COURSES_DATA: ContentItem[] = [
   },
   {
     title: 'Hip Hop',
-    route: CurriculumRoutes.genre({ genre: 'hip-hop' }),
-    expandId: 'course:hip-hop',
-    subItems: buildGenreLevels('hip-hop'),
+    route: CurriculumRoutes.genre({ genre: 'hip hop' }),
+    expandId: 'course:hip hop',
+    subItems: buildGenreLevels('hip hop'),
   },
   {
     title: 'R&B',
@@ -874,6 +875,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     genreParam,
   );
   const highlightRef = useRef<HTMLDivElement>(null);
+  const expandedContentRef = useRef<HTMLDivElement>(null);
   const [expandedMode, setExpandedMode] = useState<string | null>(null);
   const [selectedSubItem, setSelectedSubItem] =
     useState<SelectedSubItem | null>(null);
@@ -905,15 +907,26 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         const lessonId = genreId
           ? buildCurriculumLessonId(genreId, levelId)
           : '';
+        const flowSections = flow.sections.map((s) => ({
+          id: s.id,
+          name: s.name,
+          stepCount: s.steps.length,
+        }));
+        const hasProfile = !!getGenreProfile(sub.genre);
         setSelectedSubItem({
           label: `Level ${sub.level}`,
           route: sub.route,
           completionPct: getLessonCompletion(progressSummary, lessonId),
-          sections: flow.sections.map((s) => ({
-            id: s.id,
-            name: s.name,
-            stepCount: s.steps.length,
-          })),
+          sections: hasProfile
+            ? [
+                {
+                  id: 'O',
+                  name: 'Overview',
+                  route: CurriculumRoutes.genre({ genre: sub.genre }),
+                },
+                ...flowSections,
+              ]
+            : flowSections,
         });
         return;
       }
@@ -1010,7 +1023,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       );
       return (
         <>
-          <div className="flex items-start gap-6">
+          <div ref={expandedContentRef} className="flex items-start gap-6">
             {/* Featured tile on the left — image sized to match list */}
             <div className="shrink-0">
               <CardItem
@@ -1211,7 +1224,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                       }}
                       onClick={() => {
                         setSelectedChapterId(section.id);
-                        navigate(selectedSubItem.route);
+                        navigate(section.route ?? selectedSubItem.route);
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.background =
@@ -1255,6 +1268,9 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                         ? () => {
                             setExpandedMode(itemExpandKey ?? null);
                             setSelectedSubItem(null);
+                            setTimeout(() => {
+                              expandedContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }, 0);
                           }
                         : undefined
                     }
@@ -1262,6 +1278,9 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                       if (item.mode || item.subItems) {
                         setExpandedMode(itemExpandKey ?? null);
                         setSelectedSubItem(null);
+                        setTimeout(() => {
+                          expandedContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 0);
                       } else if (item.route) {
                         navigate(item.route);
                       }
@@ -1294,12 +1313,18 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                 item.mode || item.subItems
                   ? () => {
                       setExpandedMode(itemExpandKey ?? null);
+                      setTimeout(() => {
+                        expandedContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }, 0);
                     }
                   : undefined
               }
               onSelect={() => {
                 if (item.mode || item.subItems) {
                   setExpandedMode(itemExpandKey ?? null);
+                  setTimeout(() => {
+                    expandedContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }, 0);
                 } else if (item.route) {
                   navigate(item.route);
                 }

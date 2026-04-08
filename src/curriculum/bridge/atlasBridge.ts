@@ -54,7 +54,7 @@ const GENRE_REGION_MAP: GenreRegionInfo[] = [
       'American and British rock traditions from the 1950s onward',
   },
   {
-    genre: 'HIP-HOP',
+    genre: 'HIP HOP',
     region: 'north-america',
     displayLabel: 'Hip-Hop',
     culturalContext: 'Born in the Bronx, New York in the 1970s',

@@ -26,7 +26,7 @@ const ALL_GENRES: CurriculumGenreId[] = [
   'ELECTRONIC',
   'FOLK',
   'FUNK',
-  'HIP-HOP',
+  'HIP HOP',
   'JAM BAND',
   'JAZZ',
   'LATIN',

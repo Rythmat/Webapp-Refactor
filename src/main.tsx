@@ -3,8 +3,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.tsx';
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx';
-import { Env } from './constants/env';
-import { AuthRoutes } from './constants/routes';
+import { Env } from './constants/env.ts';
+import { AuthRoutes } from './constants/routes.ts';
 import './index.css';
 
 const renderStartupError = (message: string) => {

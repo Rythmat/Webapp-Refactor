@@ -30,8 +30,8 @@ export type VibeTag =
 export type StyleTag =
   | 'pop'
   | 'rock'
-  | 'hip-hop'
-  | 'jam-band'
+  | 'hip hop'
+  | 'jam band'
   | 'funk'
   | 'neo-soul'
   | 'jazz'

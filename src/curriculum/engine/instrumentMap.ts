@@ -143,7 +143,7 @@ export const GENRE_INSTRUMENT_MAP: Record<
     melody: { ...SYNTH_LEAD, oscillator: 'square' },
     description: 'Electric piano, electric bass, overdriven lead',
   },
-  'HIP-HOP': {
+  'HIP HOP': {
     chords: SYNTH_PAD,
     bass: SYNTH_BASS,
     melody: SYNTH_LEAD,

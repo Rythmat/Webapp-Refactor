@@ -36,7 +36,7 @@ const GENRE_DISPLAY: Record<
 > = {
   POP: { label: 'Pop', color: '#3b82f6' },
   ROCK: { label: 'Rock', color: '#ef4444' },
-  'HIP-HOP': { label: 'Hip-Hop', color: '#8b5cf6' },
+  'HIP HOP': { label: 'Hip-Hop', color: '#8b5cf6' },
   'JAM BAND': { label: 'Jam Band', color: '#10b981' },
   FUNK: { label: 'Funk', color: '#f59e0b' },
   'NEO SOUL': { label: 'Neo Soul', color: '#ec4899' },

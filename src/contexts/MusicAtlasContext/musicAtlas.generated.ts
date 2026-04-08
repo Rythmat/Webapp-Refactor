@@ -24,6 +24,12 @@ export interface DeleteCollectionsByIdData {
   success: boolean;
 }
 
+export interface DeleteRoomsByIdData {
+  closedAt: (Date) | null;
+  id: string;
+  status: string;
+}
+
 export interface DeleteStudentsByIdData {
   id: string;
   removed: boolean;
@@ -55,6 +61,12 @@ export type GetApiBillingConfigData = any;
 export type GetApiBillingCreditsBalanceData = any;
 
 export type GetApiBillingSubscriptionData = any;
+
+export type GetApiExperienceSummaryData = any;
+
+export interface GetApiExperienceSummaryParams {
+  days?: string | number;
+}
 
 export type GetApiMeSubscriptionData = any;
 
@@ -116,6 +128,8 @@ export interface GetAuthMeData {
   updatedAt: Date;
   username: string | null;
 }
+
+export type GetAuthSessionEventsData = any;
 
 export interface GetClassroomsByIdData {
   code: string;
@@ -194,6 +208,14 @@ export interface GetPrismContoursStartData {
   contours: object;
 }
 
+export interface GetPrismDrumsGroovesData {
+  grooves: object;
+}
+
+export interface GetPrismIntervalsData {
+  intervals: object;
+}
+
 export interface GetPrismModesByModeChordsData {
   chords: object;
 }
@@ -218,6 +240,52 @@ export interface GetPrismModesFamilyData {
   families: ('diatonic' | 'harmonic minor' | 'melodic minor' | 'harmonic major' | 'double harmonic')[];
 }
 
+export interface GetPrismRhythmsBassData {
+  bassRhythms: object;
+}
+
+export interface GetPrismRhythmsPhrasesData {
+  phrases: object;
+}
+
+export interface GetPrismRhythmsStylingData {
+  styling: object;
+}
+
+export interface GetPrismScaleDegreesData {
+  scaleDegrees: string[];
+}
+
+export interface GetRoomsByIdOrCodeData {
+  code: string;
+  createdAt: Date;
+  hostId: string;
+  hostName: string;
+  id: string;
+  maxParticipants: number;
+  name: string;
+  partykitHost: string;
+  partykitRoom: string;
+  status: string;
+  type: string;
+}
+
+export type GetRoomsData = {
+  code: string;
+  createdAt: Date;
+  hostId: string;
+  hostName: string;
+  id: string;
+  name: string;
+  status: string;
+  type: string;
+}[];
+
+export interface GetRoomsParams {
+  status?: 'active' | 'closed';
+  type?: 'daw' | 'jam';
+}
+
 export interface GetStudentsByIdData {
   birthDate: (Date) | null;
   classroomCount: number;
@@ -233,6 +301,7 @@ export interface GetStudentsByIdData {
 }
 
 export type GetStudentsData = {
+  avatarConfig?: null;
   classroomCount: number;
   classroomStudentId?: string;
   createdAt: Date;
@@ -405,19 +474,18 @@ export type PostApiBillingCreatePortalSessionData = any;
 
 export type PostApiBillingCreditsConsumeData = any;
 
-export type PostApiBillingInternalStripeEventData = any;
+export type PostApiExperienceArcadeData = any;
 
-export interface PostApiBillingInternalStripeEventPayload {
-  customerId: string;
-  event:
-    | 'checkout.session.completed'
-    | 'customer.subscription.updated'
-    | 'customer.subscription.deleted'
-    | 'invoice.payment_succeeded';
-  stripePeriodEnd?: number | null;
-  stripeSubscriptionId?: string | null;
-  tier?: 'free' | 'artist' | 'studio';
-  userId?: string;
+export type PostApiExperienceLessonActivityData = any;
+
+export interface PostApiExperienceLessonActivityPayload {
+  activityId: string;
+}
+
+export type PostApiExperienceLessonData = any;
+
+export interface PostApiExperienceLessonPayload {
+  lessonId: string;
 }
 
 export type PostApiStripeWebhookData = any;
@@ -559,6 +627,62 @@ export interface PostMediaGetUploadUrlParams {
   fileName: string;
 }
 
+export interface PostRoomsData {
+  code: string;
+  createdAt: Date;
+  hostId: string;
+  id: string;
+  maxParticipants: number;
+  name: string;
+  partykitHost: string;
+  partykitRoom: string;
+  status: string;
+  type: string;
+}
+
+export interface PostRoomsJoinData {
+  code: string;
+  hostId: string;
+  hostName: string;
+  id: string;
+  name: string;
+  partykitHost: string;
+  partykitRoom: string;
+  type: string;
+}
+
+export interface PostRoomsJoinPayload {
+  /**
+   * @minLength 1
+   * @maxLength 8
+   */
+  code: string;
+}
+
+export interface PostRoomsPayload {
+  /**
+   * @min 0
+   * @max 50
+   */
+  maxParticipants?: number;
+  /**
+   * @minLength 1
+   * @maxLength 120
+   */
+  name: string;
+  type: 'daw' | 'jam';
+}
+
+export interface PostRoomsWebhookHostDisconnectedData {
+  closedAt: (Date) | null;
+  id: string;
+  status: string;
+}
+
+export interface PostRoomsWebhookHostDisconnectedPayload {
+  roomId: string;
+}
+
 export interface PostTeachersInvitationsData {
   code: string;
   createdAt: Date;
@@ -641,6 +765,21 @@ export namespace Auth {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = GetAuthMeData;
+  }
+
+  /**
+   * No description
+   * @tags Auth
+   * @name GetAuthSessionEvents
+   * @request GET:/auth/session/events
+   * @response `200` `GetAuthSessionEventsData`
+   */
+  export namespace GetAuthSessionEvents {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetAuthSessionEventsData;
   }
 
   /**
@@ -889,21 +1028,6 @@ export namespace Billing {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = PostApiBillingCreditsConsumeData;
-  }
-
-  /**
-   * No description
-   * @tags Billing
-   * @name PostApiBillingInternalStripeEvent
-   * @request POST:/api/billing/internal/stripe-event
-   * @response `200` `PostApiBillingInternalStripeEventData`
-   */
-  export namespace PostApiBillingInternalStripeEvent {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostApiBillingInternalStripeEventPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiBillingInternalStripeEventData;
   }
 }
 
@@ -1484,6 +1608,70 @@ export namespace Progress {
   }
 }
 
+export namespace Experience {
+  /**
+   * No description
+   * @tags Experience
+   * @name GetApiExperienceSummary
+   * @request GET:/api/experience/summary
+   * @response `200` `GetApiExperienceSummaryData`
+   */
+  export namespace GetApiExperienceSummary {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      days?: string | number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiExperienceSummaryData;
+  }
+
+  /**
+   * No description
+   * @tags Experience
+   * @name PostApiExperienceArcade
+   * @request POST:/api/experience/arcade
+   * @response `200` `PostApiExperienceArcadeData`
+   */
+  export namespace PostApiExperienceArcade {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiExperienceArcadeData;
+  }
+
+  /**
+   * No description
+   * @tags Experience
+   * @name PostApiExperienceLesson
+   * @request POST:/api/experience/lesson
+   * @response `200` `PostApiExperienceLessonData`
+   */
+  export namespace PostApiExperienceLesson {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiExperienceLessonPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiExperienceLessonData;
+  }
+
+  /**
+   * No description
+   * @tags Experience
+   * @name PostApiExperienceLessonActivity
+   * @request POST:/api/experience/lesson-activity
+   * @response `200` `PostApiExperienceLessonActivityData`
+   */
+  export namespace PostApiExperienceLessonActivity {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiExperienceLessonActivityPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiExperienceLessonActivityData;
+  }
+}
+
 export namespace Students {
   /**
    * No description
@@ -1793,6 +1981,36 @@ export namespace Music {
   /**
    * No description
    * @tags Music
+   * @name GetPrismDrumsGrooves
+   * @request GET:/prism/drums/grooves
+   * @response `200` `GetPrismDrumsGroovesData`
+   */
+  export namespace GetPrismDrumsGrooves {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismDrumsGroovesData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismIntervals
+   * @request GET:/prism/intervals
+   * @response `200` `GetPrismIntervalsData`
+   */
+  export namespace GetPrismIntervals {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismIntervalsData;
+  }
+
+  /**
+   * No description
+   * @tags Music
    * @name GetPrismModes
    * @request GET:/prism/modes
    * @response `200` `GetPrismModesData`
@@ -2017,6 +2235,66 @@ export namespace Music {
     export type RequestHeaders = {};
     export type ResponseBody = any;
   }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismRhythmsBass
+   * @request GET:/prism/rhythms/bass
+   * @response `200` `GetPrismRhythmsBassData`
+   */
+  export namespace GetPrismRhythmsBass {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismRhythmsBassData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismRhythmsPhrases
+   * @request GET:/prism/rhythms/phrases
+   * @response `200` `GetPrismRhythmsPhrasesData`
+   */
+  export namespace GetPrismRhythmsPhrases {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismRhythmsPhrasesData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismRhythmsStyling
+   * @request GET:/prism/rhythms/styling
+   * @response `200` `GetPrismRhythmsStylingData`
+   */
+  export namespace GetPrismRhythmsStyling {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismRhythmsStylingData;
+  }
+
+  /**
+   * No description
+   * @tags Music
+   * @name GetPrismScaleDegrees
+   * @request GET:/prism/scale-degrees
+   * @response `200` `GetPrismScaleDegreesData`
+   */
+  export namespace GetPrismScaleDegrees {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetPrismScaleDegreesData;
+  }
 }
 
 export namespace Studio {
@@ -2108,6 +2386,105 @@ export namespace Studio {
     export type RequestBody = PostApiStudioSearchSfxPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostApiStudioSearchSfxData;
+  }
+}
+
+export namespace Rooms {
+  /**
+   * No description
+   * @tags Rooms
+   * @name DeleteRoomsById
+   * @request DELETE:/rooms/{id}
+   * @response `200` `DeleteRoomsByIdData`
+   */
+  export namespace DeleteRoomsById {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = DeleteRoomsByIdData;
+  }
+
+  /**
+   * No description
+   * @tags Rooms
+   * @name GetRooms
+   * @request GET:/rooms
+   * @response `200` `GetRoomsData`
+   */
+  export namespace GetRooms {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      status?: 'active' | 'closed';
+      type?: 'daw' | 'jam';
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetRoomsData;
+  }
+
+  /**
+   * No description
+   * @tags Rooms
+   * @name GetRoomsByIdOrCode
+   * @request GET:/rooms/{idOrCode}
+   * @response `200` `GetRoomsByIdOrCodeData`
+   */
+  export namespace GetRoomsByIdOrCode {
+    export type RequestParams = {
+      idOrCode: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetRoomsByIdOrCodeData;
+  }
+
+  /**
+   * No description
+   * @tags Rooms
+   * @name PostRooms
+   * @request POST:/rooms
+   * @response `200` `PostRoomsData`
+   */
+  export namespace PostRooms {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostRoomsPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostRoomsData;
+  }
+
+  /**
+   * No description
+   * @tags Rooms
+   * @name PostRoomsJoin
+   * @request POST:/rooms/join
+   * @response `200` `PostRoomsJoinData`
+   */
+  export namespace PostRoomsJoin {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostRoomsJoinPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostRoomsJoinData;
+  }
+
+  /**
+   * No description
+   * @tags Rooms
+   * @name PostRoomsWebhookHostDisconnected
+   * @request POST:/rooms/webhook/host-disconnected
+   * @response `200` `PostRoomsWebhookHostDisconnectedData`
+   */
+  export namespace PostRoomsWebhookHostDisconnected {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostRoomsWebhookHostDisconnectedPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostRoomsWebhookHostDisconnectedData;
   }
 }
 
@@ -2289,6 +2666,21 @@ export class Api<SecurityDataType extends unknown> {
         path: `/auth/me`,
         method: 'GET',
         format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name GetAuthSessionEvents
+     * @request GET:/auth/session/events
+     * @response `200` `GetAuthSessionEventsData`
+     */
+    getAuthSessionEvents: (params: RequestParams = {}) =>
+      this.http.request<GetAuthSessionEventsData, any>({
+        path: `/auth/session/events`,
+        method: 'GET',
         ...params,
       }),
 
@@ -2548,23 +2940,6 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<PostApiBillingCreditsConsumeData, any>({
         path: `/api/billing/credits/consume`,
         method: 'POST',
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Billing
-     * @name PostApiBillingInternalStripeEvent
-     * @request POST:/api/billing/internal/stripe-event
-     * @response `200` `PostApiBillingInternalStripeEventData`
-     */
-    postApiBillingInternalStripeEvent: (data: PostApiBillingInternalStripeEventPayload, params: RequestParams = {}) =>
-      this.http.request<PostApiBillingInternalStripeEventData, any>({
-        path: `/api/billing/internal/stripe-event`,
-        method: 'POST',
-        body: data,
-        type: ContentType.Json,
         ...params,
       }),
   };
@@ -3144,6 +3519,72 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
+  experience = {
+    /**
+     * No description
+     *
+     * @tags Experience
+     * @name GetApiExperienceSummary
+     * @request GET:/api/experience/summary
+     * @response `200` `GetApiExperienceSummaryData`
+     */
+    getApiExperienceSummary: (query: GetApiExperienceSummaryParams, params: RequestParams = {}) =>
+      this.http.request<GetApiExperienceSummaryData, any>({
+        path: `/api/experience/summary`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Experience
+     * @name PostApiExperienceArcade
+     * @request POST:/api/experience/arcade
+     * @response `200` `PostApiExperienceArcadeData`
+     */
+    postApiExperienceArcade: (params: RequestParams = {}) =>
+      this.http.request<PostApiExperienceArcadeData, any>({
+        path: `/api/experience/arcade`,
+        method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Experience
+     * @name PostApiExperienceLesson
+     * @request POST:/api/experience/lesson
+     * @response `200` `PostApiExperienceLessonData`
+     */
+    postApiExperienceLesson: (data: PostApiExperienceLessonPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiExperienceLessonData, any>({
+        path: `/api/experience/lesson`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Experience
+     * @name PostApiExperienceLessonActivity
+     * @request POST:/api/experience/lesson-activity
+     * @response `200` `PostApiExperienceLessonActivityData`
+     */
+    postApiExperienceLessonActivity: (data: PostApiExperienceLessonActivityPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiExperienceLessonActivityData, any>({
+        path: `/api/experience/lesson-activity`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+  };
   students = {
     /**
      * No description
@@ -3451,6 +3892,38 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Music
+     * @name GetPrismDrumsGrooves
+     * @request GET:/prism/drums/grooves
+     * @response `200` `GetPrismDrumsGroovesData`
+     */
+    getPrismDrumsGrooves: (params: RequestParams = {}) =>
+      this.http.request<GetPrismDrumsGroovesData, any>({
+        path: `/prism/drums/grooves`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismIntervals
+     * @request GET:/prism/intervals
+     * @response `200` `GetPrismIntervalsData`
+     */
+    getPrismIntervals: (params: RequestParams = {}) =>
+      this.http.request<GetPrismIntervalsData, any>({
+        path: `/prism/intervals`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
      * @name GetPrismModes
      * @request GET:/prism/modes
      * @response `200` `GetPrismModesData`
@@ -3684,6 +4157,70 @@ export class Api<SecurityDataType extends unknown> {
         method: 'GET',
         ...params,
       }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismRhythmsBass
+     * @request GET:/prism/rhythms/bass
+     * @response `200` `GetPrismRhythmsBassData`
+     */
+    getPrismRhythmsBass: (params: RequestParams = {}) =>
+      this.http.request<GetPrismRhythmsBassData, any>({
+        path: `/prism/rhythms/bass`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismRhythmsPhrases
+     * @request GET:/prism/rhythms/phrases
+     * @response `200` `GetPrismRhythmsPhrasesData`
+     */
+    getPrismRhythmsPhrases: (params: RequestParams = {}) =>
+      this.http.request<GetPrismRhythmsPhrasesData, any>({
+        path: `/prism/rhythms/phrases`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismRhythmsStyling
+     * @request GET:/prism/rhythms/styling
+     * @response `200` `GetPrismRhythmsStylingData`
+     */
+    getPrismRhythmsStyling: (params: RequestParams = {}) =>
+      this.http.request<GetPrismRhythmsStylingData, any>({
+        path: `/prism/rhythms/styling`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name GetPrismScaleDegrees
+     * @request GET:/prism/scale-degrees
+     * @response `200` `GetPrismScaleDegreesData`
+     */
+    getPrismScaleDegrees: (params: RequestParams = {}) =>
+      this.http.request<GetPrismScaleDegreesData, any>({
+        path: `/prism/scale-degrees`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
   };
   studio = {
     /**
@@ -3785,6 +4322,110 @@ export class Api<SecurityDataType extends unknown> {
         method: 'POST',
         body: data,
         type: ContentType.Json,
+        ...params,
+      }),
+  };
+  rooms = {
+    /**
+     * No description
+     *
+     * @tags Rooms
+     * @name DeleteRoomsById
+     * @request DELETE:/rooms/{id}
+     * @response `200` `DeleteRoomsByIdData`
+     */
+    deleteRoomsById: (id: string, params: RequestParams = {}) =>
+      this.http.request<DeleteRoomsByIdData, any>({
+        path: `/rooms/${id}`,
+        method: 'DELETE',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Rooms
+     * @name GetRooms
+     * @request GET:/rooms
+     * @response `200` `GetRoomsData`
+     */
+    getRooms: (query: GetRoomsParams, params: RequestParams = {}) =>
+      this.http.request<GetRoomsData, any>({
+        path: `/rooms`,
+        method: 'GET',
+        query: query,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Rooms
+     * @name GetRoomsByIdOrCode
+     * @request GET:/rooms/{idOrCode}
+     * @response `200` `GetRoomsByIdOrCodeData`
+     */
+    getRoomsByIdOrCode: (idOrCode: string, params: RequestParams = {}) =>
+      this.http.request<GetRoomsByIdOrCodeData, any>({
+        path: `/rooms/${idOrCode}`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Rooms
+     * @name PostRooms
+     * @request POST:/rooms
+     * @response `200` `PostRoomsData`
+     */
+    postRooms: (data: PostRoomsPayload, params: RequestParams = {}) =>
+      this.http.request<PostRoomsData, any>({
+        path: `/rooms`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Rooms
+     * @name PostRoomsJoin
+     * @request POST:/rooms/join
+     * @response `200` `PostRoomsJoinData`
+     */
+    postRoomsJoin: (data: PostRoomsJoinPayload, params: RequestParams = {}) =>
+      this.http.request<PostRoomsJoinData, any>({
+        path: `/rooms/join`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Rooms
+     * @name PostRoomsWebhookHostDisconnected
+     * @request POST:/rooms/webhook/host-disconnected
+     * @response `200` `PostRoomsWebhookHostDisconnectedData`
+     */
+    postRoomsWebhookHostDisconnected: (data: PostRoomsWebhookHostDisconnectedPayload, params: RequestParams = {}) =>
+      this.http.request<PostRoomsWebhookHostDisconnectedData, any>({
+        path: `/rooms/webhook/host-disconnected`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
         ...params,
       }),
   };

@@ -160,7 +160,7 @@ describe('contentOrchestrator', () => {
       'ELECTRONIC',
       'FOLK',
       'FUNK',
-      'HIP-HOP',
+      'HIP HOP',
       'JAM BAND',
       'JAZZ',
       'LATIN',

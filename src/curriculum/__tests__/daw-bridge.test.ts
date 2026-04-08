@@ -72,7 +72,7 @@ describe('dawBridge', () => {
 
     it('maps engine genre to curriculum genre', () => {
       const ctx = dawToCurriculumContext(0, 120, 'Hip Hop', 2);
-      expect(ctx.genre).toBe('HIP-HOP');
+      expect(ctx.genre).toBe('HIP HOP');
     });
   });
 });

@@ -248,6 +248,12 @@ export class DrumMachineEngine implements InstrumentAdapter {
     const canonical = canonicalPadNote(note);
     const velGain = Math.max(0, Math.min(1, velocity / 127));
 
+    // Hi-hat choke: closed hat (42) or pedal (44) cuts open hat (46)
+    if (canonical === 42 || canonical === 44) {
+      const openHat = this.players.get(46);
+      if (openHat?.loaded) openHat.stop(t);
+    }
+
     // Apply velocity on the dedicated velocity gain node (pad volume stays untouched)
     const chain = this.padChains.get(canonical);
     if (chain) {

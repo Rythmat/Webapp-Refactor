@@ -17,7 +17,7 @@ import {
 import * as Y from 'yjs';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import YPartyKitProvider from 'y-partykit/provider';
-import { Awareness } from 'y-protocols/awareness';
+import { Awareness } from 'y-protocols/awareness.js';
 import { Env } from '@/constants/env';
 
 import { useStore } from '@/daw/store/index';

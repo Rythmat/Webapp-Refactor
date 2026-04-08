@@ -99,8 +99,8 @@ export const STYLE_ALGORITHMS: Record<StyleTag, StyleAlgorithmDef> = {
     primaryModes: ['dorian', 'aeolian', 'mixolydian'],
     secondaryModes: ['lydian', 'pentatonicMinor', 'blues'],
   },
-  'jam-band': {
-    genre: 'jam-band',
+  'jam band': {
+    genre: 'jam band',
     typicalQualities: ['major', 'minor', 'minor7', 'dominant7', 'sus4'],
     avoidQualities: [],
     primaryModes: ['ionian', 'dorian', 'mixolydian'],
@@ -113,8 +113,8 @@ export const STYLE_ALGORITHMS: Record<StyleTag, StyleAlgorithmDef> = {
     primaryModes: ['ionian', 'aeolian'],
     secondaryModes: ['mixolydian', 'dorian'],
   },
-  'hip-hop': {
-    genre: 'hip-hop',
+  'hip hop': {
+    genre: 'hip hop',
     typicalQualities: ['minor', 'minor7', 'power'],
     avoidQualities: ['major7#11', 'dominant13'],
     primaryModes: ['aeolian', 'pentatonicMinor', 'dorian'],

@@ -94,7 +94,7 @@ const MODE_TO_GENRES: Record<string, GenreForMode[]> = {
   pentatonicMinor: [
     { genre: 'ROCK', level: 'L1', description: 'Rock and blues riffs' },
     { genre: 'BLUES', level: 'L1', description: 'Blues soloing foundation' },
-    { genre: 'HIP-HOP', level: 'L1', description: 'Hip-hop melodic motifs' },
+    { genre: 'HIP HOP', level: 'L1', description: 'Hip-hop melodic motifs' },
   ],
   blues: [
     { genre: 'BLUES', level: 'L1', description: 'Core blues expression' },
@@ -173,7 +173,7 @@ const GENRE_TO_MODES: Record<string, ModeForGenre[]> = {
     { mode: 'aeolian', usage: 'Dark synth atmospheres' },
     { mode: 'dorian', usage: 'Uplifting house progressions' },
   ],
-  'HIP-HOP:L1': [
+  'HIP HOP:L1': [
     { mode: 'pentatonicMinor', usage: 'Melodic motifs and hooks' },
     { mode: 'aeolian', usage: 'Minor key beats' },
   ],

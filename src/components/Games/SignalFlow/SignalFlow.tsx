@@ -22,6 +22,7 @@ import {
   getHexPos,
   pixelToHex,
   findHexPath,
+  buildEdgeRoute,
 } from './hexGrid';
 import type {
   Item,
@@ -368,6 +369,7 @@ const CableRoute: React.FC<CableRouteProps> = ({
 
   // Build waypoints along hex grid edges via BFS pathfinding
   let waypoints: { x: number; y: number }[];
+  let vertexIndices: number[] = [];
 
   if (connection.to === 'POWER') {
     // Power cables: route down through hex grid, then straight to power rail
@@ -379,7 +381,9 @@ const CableRoute: React.FC<CableRouteProps> = ({
       endHex.col,
       endHex.row,
     );
-    waypoints = hexPath.map((h) => getHexPos(h.col, h.row));
+    const route = buildEdgeRoute(hexPath);
+    waypoints = route.points;
+    vertexIndices = route.vertexIndices;
     waypoints.push({ x: startPos.x, y: POWER_RAIL_Y });
   } else {
     const toSlot = slots.find((s) => s.id === connection.to);
@@ -390,11 +394,21 @@ const CableRoute: React.FC<CableRouteProps> = ({
       toSlot.col,
       toSlot.row,
     );
-    waypoints = hexPath.map((h) => getHexPos(h.col, h.row));
+    const route = buildEdgeRoute(hexPath);
+    waypoints = route.points;
+    vertexIndices = route.vertexIndices;
   }
 
-  // Jack point at the middle waypoint
-  const jackIdx = Math.floor(waypoints.length / 2);
+  // Place jack point at the vertex (hex corner) closest to the cable midpoint
+  const mid = waypoints.length / 2;
+  let jackIdx: number;
+  if (vertexIndices.length > 0) {
+    jackIdx = vertexIndices.reduce((best, vi) =>
+      Math.abs(vi - mid) < Math.abs(best - mid) ? vi : best,
+    );
+  } else {
+    jackIdx = Math.floor(mid);
+  }
   const jackPos = waypoints[jackIdx];
 
   const targetColor = CABLE_COLOR_MAP[connection.required] || '#cbd5e1';

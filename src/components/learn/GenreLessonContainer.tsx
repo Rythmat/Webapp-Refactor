@@ -191,7 +191,7 @@ function buildStepEvents(
   prefix: string,
 ): NoteEvent[] {
   const tag = step.tag.toLowerCase();
-  const dir = step.direction.toLowerCase();
+  const dir = (step.direction ?? '').toLowerCase();
   const section = step.section;
   const isTimed =
     step.assessment === 'pitch_order_timing' ||

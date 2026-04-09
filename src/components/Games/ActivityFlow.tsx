@@ -13,7 +13,6 @@ import { useNavigate } from 'react-router';
 import { LearnRoutes, StudioRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { useMidiInput } from '@/hooks/music/useMidiInput';
-import { getCurrentAppSessionId } from '@/auth/app-session-store';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
@@ -1654,17 +1653,13 @@ export const ActivityFlow = ({
       currentActivityInstanceId,
     };
 
-    const sessionHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${authToken}`,
-    };
-    const _appSessionId = getCurrentAppSessionId();
-    if (_appSessionId) sessionHeaders['X-App-Session'] = _appSessionId;
-
     void fetch(`${normalizedBase}${progressPrefix}/lessonState`, {
       method: 'PATCH',
       keepalive: true,
-      headers: sessionHeaders,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
+      },
       body: JSON.stringify(lessonStateBody),
     }).catch(() => {});
 
@@ -1672,7 +1667,10 @@ export const ActivityFlow = ({
       void fetch(`${normalizedBase}${progressPrefix}/activity`, {
         method: 'PATCH',
         keepalive: true,
-        headers: sessionHeaders,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
         body: JSON.stringify({
           activityInstanceId: currentActivity.activityInstanceId,
           lessonId,

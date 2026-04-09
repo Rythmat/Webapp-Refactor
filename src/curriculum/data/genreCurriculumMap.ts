@@ -1498,11 +1498,11 @@ const JAMBAND_L3: GenreCurriculumEntry = {
 };
 
 // ---------------------------------------------------------------------------
-// 10. HIP-HOP
+// 10. HIP HOP
 // ---------------------------------------------------------------------------
 
 const HIPHOP_L1: GenreCurriculumEntry = {
-  genre: 'HIP-HOP',
+  genre: 'HIP HOP',
   level: 'L1',
   melody: {
     scale: s('minor_pentatonic = [0, 3, 5, 7, 10]'),
@@ -1537,7 +1537,7 @@ const HIPHOP_L1: GenreCurriculumEntry = {
 };
 
 const HIPHOP_L2: GenreCurriculumEntry = {
-  genre: 'HIP-HOP',
+  genre: 'HIP HOP',
   level: 'L2',
   melody: {
     scale: s('aeolian = [0, 2, 3, 5, 7, 8, 10]'),
@@ -1590,7 +1590,7 @@ const HIPHOP_L2: GenreCurriculumEntry = {
 };
 
 const HIPHOP_L3: GenreCurriculumEntry = {
-  genre: 'HIP-HOP',
+  genre: 'HIP HOP',
   level: 'L3',
   melody: {
     scale: s('dorian = [0, 2, 3, 5, 7, 9, 10]'),
@@ -2245,9 +2245,9 @@ export const GENRE_CURRICULUM_MAP: Record<GCMKey, GenreCurriculumEntry> = {
   'JAM BAND:L1': JAMBAND_L1,
   'JAM BAND:L2': JAMBAND_L2,
   'JAM BAND:L3': JAMBAND_L3,
-  'HIP-HOP:L1': HIPHOP_L1,
-  'HIP-HOP:L2': HIPHOP_L2,
-  'HIP-HOP:L3': HIPHOP_L3,
+  'HIP HOP:L1': HIPHOP_L1,
+  'HIP HOP:L2': HIPHOP_L2,
+  'HIP HOP:L3': HIPHOP_L3,
   'ELECTRONIC:L1': ELECTRONIC_L1,
   'ELECTRONIC:L2': ELECTRONIC_L2,
   'ELECTRONIC:L3': ELECTRONIC_L3,

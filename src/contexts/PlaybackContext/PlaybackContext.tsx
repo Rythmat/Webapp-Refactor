@@ -9,10 +9,10 @@ import {
 } from 'react';
 import * as Tone from 'tone';
 import {
-  setEpSamplerVolume,
-  startEpSampler,
-  triggerEpAttackRelease,
-} from '@/audio/epSampler';
+  setPianoSamplerVolume,
+  startPianoSampler,
+  triggerPianoAttackRelease,
+} from '@/audio/pianoSampler';
 import { PlaybackEvent } from './helpers';
 import { getTotalDuration } from './useTotalDuration';
 
@@ -205,14 +205,16 @@ export const PlaybackProvider = ({
       const transport = Tone.getTransport();
 
       try {
-        await startEpSampler();
+        await startPianoSampler();
 
         // Set the BPM
         transport.bpm.value = newBpm;
 
         // Convert volume from 0-1 range to Tone.js volume in decibels
         // 0 (silent) maps to -Infinity dB, 1 (full) maps to 0 dB
-        setEpSamplerVolume(volume === 0 ? -Infinity : 20 * Math.log10(volume));
+        setPianoSamplerVolume(
+          volume === 0 ? -Infinity : 20 * Math.log10(volume),
+        );
 
         // Store playback rate in state but don't try to set it on transport
         // as it's not directly supported in Tone.js Transport
@@ -237,7 +239,7 @@ export const PlaybackProvider = ({
 
           // Only trigger sound for note events, not for rests
           if (event.type === 'note') {
-            void triggerEpAttackRelease(
+            void triggerPianoAttackRelease(
               Tone.Frequency(event.midi, 'midi').toNote(),
               event.duration,
               event.velocity,

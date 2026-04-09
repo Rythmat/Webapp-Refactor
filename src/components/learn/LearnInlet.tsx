@@ -4,16 +4,19 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LearnRoutes, CurriculumRoutes } from '@/constants/routes';
 import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
+import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import type { PrismModeSlug } from '@/hooks/data';
 import { useProgressSummary } from '@/hooks/data/progress/useProgressSummary';
+import { useIsPremium } from '@/hooks/useIsPremium';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ProgressSummaryResponse } from '@/lib/progress/types';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
+import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
 import './learn.css';
 
 interface ContentSubItem {
@@ -37,7 +40,7 @@ interface SelectedSubItem {
   label: string;
   route: string;
   completionPct: number;
-  sections: { id: string; name: string; stepCount?: number }[];
+  sections: { id: string; name: string; stepCount?: number; route?: string }[];
 }
 
 function getLessonCompletion(
@@ -211,9 +214,9 @@ const COURSES_DATA: ContentItem[] = [
   },
   {
     title: 'Hip Hop',
-    route: CurriculumRoutes.genre({ genre: 'hip-hop' }),
-    expandId: 'course:hip-hop',
-    subItems: buildGenreLevels('hip-hop'),
+    route: CurriculumRoutes.genre({ genre: 'hip hop' }),
+    expandId: 'course:hip hop',
+    subItems: buildGenreLevels('hip hop'),
   },
   {
     title: 'R&B',
@@ -655,6 +658,29 @@ const KEY_LABELS = [
   'F',
 ];
 
+// interface FilterCheckboxProps {
+//   label: string;
+//   checked?: boolean;
+// }
+
+// const FilterCheckbox: React.FC<FilterCheckboxProps> = ({ label, checked }) => {
+//   const [isChecked, setIsChecked] = useState(!!checked);
+
+//   return (
+//     <div
+//       className="flex items-center gap-3 p-1 cursor-pointer hover:bg-white/5 rounded transition-colors group"
+//       onClick={() => setIsChecked((prev) => !prev)}
+//     >
+//       <div
+//         className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isChecked ? "bg-white border-white" : "border-gray-600 group-hover:border-gray-400"}`}
+//       >
+//         {isChecked && <Check size={10} className="text-black" />}
+//       </div>
+//       <span className={`text-sm ${isChecked ? "text-white" : "text-gray-400 group-hover:text-gray-200"}`}>{label}</span>
+//     </div>
+//   );
+// };
+
 interface CollapsibleSectionProps {
   title: string;
   children: React.ReactNode;
@@ -704,6 +730,23 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   );
 };
 
+/**
+ * Determine whether a theory/course/technique item is available to free users.
+ *
+ * Free items:
+ *  - Technique → "Fundamentals" (piano-fundamentals)
+ *  - Theory (Diatonic Modes) → "Ionian (Major)" — specifically the C key sub-item
+ *
+ * Everything else (all courses, all other modes, relative/parallel/harmonic/melodic/
+ * double-harmonic sections) is premium-only.
+ */
+function isLearnItemFree(item: ContentItem, tab: string): boolean {
+  return (
+    tab === 'Technique' || // Piano Fundamentals
+    (tab === 'Theory' && item.mode === 'ionian') // C Ionian available
+  );
+}
+
 interface CardItemProps {
   title: string;
   mode?: string;
@@ -716,6 +759,7 @@ interface CardItemProps {
   onToggleExpand?: () => void;
   image?: string;
   progressPct?: number;
+  locked?: boolean;
 }
 
 const CardItem: React.FC<CardItemProps> = ({
@@ -730,76 +774,82 @@ const CardItem: React.FC<CardItemProps> = ({
   onToggleExpand,
   image,
   progressPct,
+  locked,
 }) => {
   const hasExpansion = !!(mode || subItems);
 
   return (
-    <div
-      ref={highlightRef}
-      className={`group flex cursor-pointer flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
-    >
+    <LockedFeatureOverlay locked={!!locked}>
       <div
-        className={`glass-panel relative ${imageSize ? '' : 'aspect-square'} overflow-hidden rounded-2xl transition-colors duration-150`}
-        style={{
-          ...(imageSize ? { width: imageSize, height: imageSize } : {}),
-          background: 'rgba(255,255,255,0.03)',
-          border: expanded
-            ? '2px solid var(--color-accent)'
-            : highlighted
-              ? '2px solid var(--color-accent)'
-              : '1px solid var(--color-border)',
-        }}
-        onClick={onSelect}
+        ref={highlightRef}
+        className={`group flex cursor-pointer flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
       >
-        {image ? (
-          <img
-            src={image}
-            alt={title}
-            className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <HexAvatarSVG
-            config={defaultAvatarConfig(title)}
-            circular={false}
-            className="absolute left-0 top-0 size-[120%] transition-transform duration-500 group-hover:scale-105"
-          />
-        )}
-        <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
-      </div>
-      <div className="flex items-start justify-between px-1">
-        <h3
-          className="text-lg font-semibold"
-          style={{ color: 'var(--color-text)' }}
+        <div
+          className={`glass-panel relative ${imageSize ? '' : 'aspect-square'} overflow-hidden rounded-2xl transition-colors duration-150`}
+          style={{
+            ...(imageSize ? { width: imageSize, height: imageSize } : {}),
+            background: 'rgba(255,255,255,0.03)',
+            border: expanded
+              ? '2px solid var(--color-accent)'
+              : highlighted
+                ? '2px solid var(--color-accent)'
+                : '1px solid var(--color-border)',
+          }}
+          onClick={onSelect}
         >
-          {title}
-        </h3>
-        {progressPct != null && progressPct > 0 && (
-          <span className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
-            {progressPct}%
-          </span>
-        )}
-        {hasExpansion && (
-          <button
-            type="button"
-            className="flex items-center justify-center rounded p-1 transition-colors hover:bg-white/10"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleExpand?.();
-            }}
-          >
-            <ChevronRight
-              size={18}
-              style={{
-                color: expanded
-                  ? 'var(--color-accent)'
-                  : 'var(--color-text-dim)',
-                transition: 'color 150ms',
-              }}
+          {image ? (
+            <img
+              src={image}
+              alt={title}
+              className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
-          </button>
-        )}
+          ) : (
+            <HexAvatarSVG
+              config={defaultAvatarConfig(title)}
+              circular={false}
+              className="absolute left-0 top-0 size-[120%] transition-transform duration-500 group-hover:scale-105"
+            />
+          )}
+          <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
+        </div>
+        <div className="flex items-start justify-between px-1">
+          <h3
+            className="text-lg font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
+            {title}
+          </h3>
+          {progressPct != null && progressPct > 0 && (
+            <span
+              className="text-xs"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              {progressPct}%
+            </span>
+          )}
+          {hasExpansion && (
+            <button
+              type="button"
+              className="flex items-center justify-center rounded p-1 transition-colors hover:bg-white/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleExpand?.();
+              }}
+            >
+              <ChevronRight
+                size={18}
+                style={{
+                  color: expanded
+                    ? 'var(--color-accent)'
+                    : 'var(--color-text-dim)',
+                  transition: 'color 150ms',
+                }}
+              />
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </LockedFeatureOverlay>
   );
 };
 
@@ -814,11 +864,18 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const genreParam = searchParams.get('genre');
-  const [subTab, setSubTab] = useState(genreParam ? 'Courses' : initialTab);
+  const { isPremium } = useIsPremium();
+  const defaultTab = genreParam
+    ? 'Courses'
+    : isPremium
+      ? initialTab
+      : 'Technique';
+  const [subTab, setSubTab] = useState(defaultTab);
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(
     genreParam,
   );
   const highlightRef = useRef<HTMLDivElement>(null);
+  const expandedContentRef = useRef<HTMLDivElement>(null);
   const [expandedMode, setExpandedMode] = useState<string | null>(null);
   const [selectedSubItem, setSelectedSubItem] =
     useState<SelectedSubItem | null>(null);
@@ -837,6 +894,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       setListPanelHeight(undefined);
     }
   }, [expandedMode]);
+  // const [showFilter, setShowFilter] = useState(false);
   const navigate = useNavigate();
   const { data: progressSummary } = useProgressSummary();
 
@@ -849,15 +907,26 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         const lessonId = genreId
           ? buildCurriculumLessonId(genreId, levelId)
           : '';
+        const flowSections = flow.sections.map((s) => ({
+          id: s.id,
+          name: s.name,
+          stepCount: s.steps.length,
+        }));
+        const hasProfile = !!getGenreProfile(sub.genre);
         setSelectedSubItem({
           label: `Level ${sub.level}`,
           route: sub.route,
           completionPct: getLessonCompletion(progressSummary, lessonId),
-          sections: flow.sections.map((s) => ({
-            id: s.id,
-            name: s.name,
-            stepCount: s.steps.length,
-          })),
+          sections: hasProfile
+            ? [
+                {
+                  id: 'O',
+                  name: 'Overview',
+                  route: CurriculumRoutes.genre({ genre: sub.genre }),
+                },
+                ...flowSections,
+              ]
+            : flowSections,
         });
         return;
       }
@@ -943,7 +1012,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         ? THEORY_DATA
         : TECHNIQUE_DATA;
 
-  const renderContent = (data: ContentItem[]) => {
+  const renderContent = (data: ContentItem[], tab: string = subTab) => {
     const expandedItem = expandedMode
       ? data.find((item) => (item.expandId ?? item.mode) === expandedMode)
       : null;
@@ -954,7 +1023,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       );
       return (
         <>
-          <div className="flex items-start gap-6">
+          <div ref={expandedContentRef} className="flex items-start gap-6">
             {/* Featured tile on the left — image sized to match list */}
             <div className="shrink-0">
               <CardItem
@@ -962,6 +1031,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                 expanded={true}
                 imageSize={listPanelHeight}
                 progressPct={getTileCompletion(progressSummary, expandedItem)}
+                locked={!isPremium && !isLearnItemFree(expandedItem, tab)}
                 onToggleExpand={() => {
                   setExpandedMode(null);
                   setSelectedSubItem(null);
@@ -1154,7 +1224,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                       }}
                       onClick={() => {
                         setSelectedChapterId(section.id);
-                        navigate(selectedSubItem.route);
+                        navigate(section.route ?? selectedSubItem.route);
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.background =
@@ -1192,11 +1262,18 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                     {...item}
                     expanded={false}
                     progressPct={getTileCompletion(progressSummary, item)}
+                    locked={!isPremium && !isLearnItemFree(item, tab)}
                     onToggleExpand={
                       item.mode || item.subItems
                         ? () => {
                             setExpandedMode(itemExpandKey ?? null);
                             setSelectedSubItem(null);
+                            setTimeout(() => {
+                              expandedContentRef.current?.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start',
+                              });
+                            }, 0);
                           }
                         : undefined
                     }
@@ -1204,6 +1281,12 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                       if (item.mode || item.subItems) {
                         setExpandedMode(itemExpandKey ?? null);
                         setSelectedSubItem(null);
+                        setTimeout(() => {
+                          expandedContentRef.current?.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start',
+                          });
+                        }, 0);
                       } else if (item.route) {
                         navigate(item.route);
                       }
@@ -1231,16 +1314,29 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               highlightRef={isHighlighted ? highlightRef : undefined}
               expanded={false}
               progressPct={getTileCompletion(progressSummary, item)}
+              locked={!isPremium && !isLearnItemFree(item, tab)}
               onToggleExpand={
                 item.mode || item.subItems
                   ? () => {
                       setExpandedMode(itemExpandKey ?? null);
+                      setTimeout(() => {
+                        expandedContentRef.current?.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'start',
+                        });
+                      }, 0);
                     }
                   : undefined
               }
               onSelect={() => {
                 if (item.mode || item.subItems) {
                   setExpandedMode(itemExpandKey ?? null);
+                  setTimeout(() => {
+                    expandedContentRef.current?.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start',
+                    });
+                  }, 0);
                 } else if (item.route) {
                   navigate(item.route);
                 }
@@ -1254,12 +1350,12 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
 
   return (
     <div
-      className="relative flex h-full flex-col"
-      style={{ backgroundColor: '#191919' }}
+      className="learn-root relative flex h-full flex-col"
+      style={{ backgroundColor: 'var(--color-bg)' }}
     >
       <MeshGradientBg />
       <HeaderBar title="Learn " />
-      <div className="learn-root relative flex flex-1 flex-col overflow-y-auto px-8 pb-12">
+      <div className="relative flex flex-1 flex-col overflow-y-auto px-8 pb-12">
         <div className="mb-8 flex flex-col gap-4">
           <div
             className="glass-panel-sm flex w-fit items-center gap-1 rounded-lg p-1"
@@ -1268,7 +1364,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               border: '1px solid var(--color-border)',
             }}
           >
-            {['Courses', 'Theory', 'Technique'].map((tab) => (
+            {(isPremium
+              ? ['Courses', 'Theory', 'Technique']
+              : ['Technique', 'Theory', 'Courses']
+            ).map((tab) => (
               <button
                 key={tab}
                 className="rounded-md px-6 py-2 text-sm font-medium transition-colors duration-150"
@@ -1304,6 +1403,33 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
             style={{ borderBottom: '1px solid var(--color-border)' }}
           />
         </div>
+
+        {/* {showFilter && (
+          <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 absolute top-[150px] left-8 right-8 z-20 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex justify-between items-start mb-4 pb-2 border-b border-white/5">
+              <h3 className="text-sm font-medium text-gray-200">Filter</h3>
+              <X size={16} className="text-gray-500 cursor-pointer hover:text-white" onClick={() => setShowFilter(false)} />
+            </div>
+            <div className="grid grid-cols-4 gap-4 h-64 overflow-y-auto custom-scrollbar">
+              <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
+                <FilterCheckbox label="Diatonic Modes" />
+                <FilterCheckbox label="Relative Modes" />
+              </div>
+              <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
+                <FilterCheckbox label="Lydian" />
+                <FilterCheckbox label="Dorian" />
+              </div>
+              <div className="flex flex-col gap-1 border-r border-white/5 pr-4">
+                {["C", "G", "D", "A"].map((key) => (
+                  <FilterCheckbox key={key} label={key}  />
+                ))}
+              </div>
+              <div className="flex flex-col gap-1">
+                <FilterCheckbox label="7th Chords"  />
+              </div>
+            </div>
+          </div>
+        )} */}
 
         <div className="flex-1 overflow-y-auto">
           {subTab === 'Theory' ? (

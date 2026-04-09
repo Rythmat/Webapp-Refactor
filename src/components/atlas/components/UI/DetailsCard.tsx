@@ -1,12 +1,14 @@
 import {
   X,
   ChevronDown,
+  ChevronRight,
   Calendar,
   MapPin,
   ArrowUpRight,
   ArrowDownRight,
+  GripVertical,
 } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   useAppState,
@@ -127,7 +129,13 @@ function GenreBadge({ genre }: { genre: string }) {
   const navigate = useNavigate();
   const course = mapGenreToCourse(genre);
 
-  if (course) {
+  const nonCurriculumGenres = [
+    'Classical',
+    'Film Scoring',
+    'Musical Theatre',
+    'Jingles',
+  ];
+  if (course && !nonCurriculumGenres.includes(course)) {
     return (
       <button
         className="inline-flex cursor-pointer items-center gap-0.5 rounded-full bg-teal-600/30 px-2 py-0.5 text-xs text-teal-300 transition-colors hover:bg-teal-500/40 hover:text-teal-200"
@@ -269,6 +277,33 @@ export function DetailsCard() {
   const { selectedLocation, pinnedEvent } = useAppState();
   const dispatch = useAppDispatch();
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
+  const [collapsed, setCollapsed] = useState(false);
+  const [width, setWidth] = useState(480);
+  const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
+
+  const onDragStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      dragRef.current = { startX: e.clientX, startWidth: width };
+      const onMove = (mv: MouseEvent) => {
+        if (!dragRef.current) return;
+        const delta = mv.clientX - dragRef.current.startX;
+        const next = Math.min(
+          Math.max(dragRef.current.startWidth + delta, 280),
+          Math.round(window.innerWidth * 0.72),
+        );
+        setWidth(next);
+      };
+      const onUp = () => {
+        dragRef.current = null;
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+      };
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    },
+    [width],
+  );
 
   const events = useMemo(() => {
     if (!selectedLocation) return [];
@@ -360,15 +395,40 @@ export function DetailsCard() {
   };
 
   return (
-    <div className="absolute left-4 top-16 z-[1000] flex max-h-[calc(100%-6rem)] w-[480px] flex-col rounded-xl border border-zinc-700/50 bg-zinc-900/80 shadow-2xl backdrop-blur-xl">
+    <div
+      className="absolute left-4 top-16 z-[1000] flex flex-col rounded-xl border border-zinc-700/50 bg-zinc-900/80 shadow-2xl backdrop-blur-xl"
+      style={{
+        width,
+        maxHeight: collapsed ? undefined : 'calc(100% - 14rem)',
+      }}
+    >
+      {/* Drag-resize handle on right edge */}
+      <div
+        className="absolute right-0 top-0 flex h-full w-2 cursor-ew-resize items-center justify-center rounded-r-xl opacity-0 transition-opacity hover:opacity-100 active:opacity-100"
+        onMouseDown={onDragStart}
+      >
+        <GripVertical className="size-3 text-zinc-500" />
+      </div>
+
       <div className="shrink-0 p-4">
-        {/* Close button */}
-        <button
-          className="absolute right-3 top-3 text-zinc-500 transition-colors hover:text-white"
-          onClick={close}
-        >
-          <X className="size-4" />
-        </button>
+        {/* Collapse + Close buttons */}
+        <div className="absolute right-3 top-3 flex items-center gap-1">
+          <button
+            className="text-zinc-500 transition-colors hover:text-white"
+            title={collapsed ? 'Expand' : 'Collapse'}
+            onClick={() => setCollapsed((c) => !c)}
+          >
+            <ChevronRight
+              className={`size-4 transition-transform ${collapsed ? 'rotate-0' : 'rotate-90'}`}
+            />
+          </button>
+          <button
+            className="text-zinc-500 transition-colors hover:text-white"
+            onClick={close}
+          >
+            <X className="size-4" />
+          </button>
+        </div>
 
         {/* Country */}
         {selectedLocation.type === 'country' && (
@@ -415,12 +475,14 @@ export function DetailsCard() {
           })()}
       </div>
 
-      <EventList
-        events={events}
-        expandedEvents={expandedEvents}
-        onNavigateToEvent={navigateToEvent}
-        onToggle={toggleEvent}
-      />
+      {!collapsed && (
+        <EventList
+          events={events}
+          expandedEvents={expandedEvents}
+          onNavigateToEvent={navigateToEvent}
+          onToggle={toggleEvent}
+        />
+      )}
     </div>
   );
 }

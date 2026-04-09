@@ -6,6 +6,8 @@
 import type { ActivityFlow } from '../../types/activity';
 import type { FundamentalsFlow } from '../../types/fundamentals';
 
+const USE_V2_FUNK = true;
+
 // ---------------------------------------------------------------------------
 // Lazy loaders
 // ---------------------------------------------------------------------------
@@ -51,7 +53,7 @@ export async function loadFolkFlows(): Promise<ActivityFlow[]> {
 export async function loadFunkFlows(): Promise<ActivityFlow[]> {
   const key = 'funk';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./funk');
+  const mod = USE_V2_FUNK ? await import('./funk_v2') : await import('./funk');
   const flows = [...mod.funkFlows];
   cache.set(key, flows);
   return flows;
@@ -173,11 +175,11 @@ export async function loadAllFlows(): Promise<Map<string, ActivityFlow[]>> {
   return all;
 }
 
-/** Normalize URL slugs (hip-hop, neo-soul, jam-band) to loader keys */
+/** Normalize URL slugs (hip hop, neo-soul, jam band) to loader keys */
 const SLUG_TO_FLOW_KEY: Record<string, string> = {
-  'hip-hop': 'hipHop',
+  'hip hop': 'hipHop',
   'neo-soul': 'neoSoul',
-  'jam-band': 'jamBand',
+  'jam band': 'jamBand',
 };
 
 export async function getActivityFlow(

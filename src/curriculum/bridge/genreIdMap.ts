@@ -1,7 +1,7 @@
 /**
  * Phase 1 — Bidirectional genre ID mapping between curriculum and engine.
  *
- * Curriculum uses UPPER_CASE/hyphenated names (e.g. 'POP', 'HIP-HOP').
+ * Curriculum uses UPPER_CASE names (e.g. 'POP', 'HIP HOP').
  * Engine uses Title Case names (e.g. 'Pop', 'Hip Hop').
  *
  * The curriculum has 14 genres; the engine's GenreName type has 13
@@ -18,7 +18,7 @@ export type CurriculumGenreId =
   | 'ELECTRONIC'
   | 'FOLK'
   | 'FUNK'
-  | 'HIP-HOP'
+  | 'HIP HOP'
   | 'JAM BAND'
   | 'JAZZ'
   | 'LATIN'
@@ -33,7 +33,7 @@ export const CURRICULUM_TO_ENGINE_GENRE: Record<CurriculumGenreId, GenreName> =
   {
     POP: 'Pop',
     ROCK: 'Rock',
-    'HIP-HOP': 'Hip Hop',
+    'HIP HOP': 'Hip Hop',
     'JAM BAND': 'Jam Band',
     FUNK: 'Funk',
     'NEO SOUL': 'Neo Soul',
@@ -53,7 +53,7 @@ export const ENGINE_TO_CURRICULUM_GENRE: Partial<
 > = {
   Pop: 'POP',
   Rock: 'ROCK',
-  'Hip Hop': 'HIP-HOP',
+  'Hip Hop': 'HIP HOP',
   'Jam Band': 'JAM BAND',
   Funk: 'FUNK',
   'Neo Soul': 'NEO SOUL',
@@ -82,7 +82,7 @@ export const ENGINE_ONLY_GENRES: Record<string, CurriculumGenreId> = {
 
 /**
  * Slug form used in URLs and internal keys (lowercase, hyphens).
- * e.g. 'neo-soul', 'hip-hop', 'jam-band'
+ * e.g. 'neo-soul', 'hip hop', 'jam band'
  */
 export const CURRICULUM_GENRE_SLUGS: Record<CurriculumGenreId, string> = {
   AFRICAN: 'african',
@@ -90,8 +90,8 @@ export const CURRICULUM_GENRE_SLUGS: Record<CurriculumGenreId, string> = {
   ELECTRONIC: 'electronic',
   FOLK: 'folk',
   FUNK: 'funk',
-  'HIP-HOP': 'hip-hop',
-  'JAM BAND': 'jam-band',
+  'HIP HOP': 'hip hop',
+  'JAM BAND': 'jam band',
   JAZZ: 'jazz',
   LATIN: 'latin',
   'NEO SOUL': 'neo-soul',

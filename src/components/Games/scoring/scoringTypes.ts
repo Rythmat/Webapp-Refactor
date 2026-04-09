@@ -35,9 +35,8 @@ export const BASE_XP: Record<string, number> = {
   chordConnection: 12,
   chordPress: 15,
   majorArcanum: 20,
-  contourTrace: 18,
+  constellations: 18,
   grooveLab: 20,
   waveSculptor: 10,
   harmonicStrings: 8,
-  soundSpinner: 12,
 };

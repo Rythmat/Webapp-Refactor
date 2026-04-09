@@ -170,10 +170,9 @@ export function ChordPressGame({
   const pressedKeysRef = useRef<Set<string>>(new Set());
 
   const [seed] = useState(uuidv4());
+  const [submitted, setSubmitted] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
   const [checked, setChecked] = useState(false);
-  const [sessionTotal, setSessionTotal] = useState(0);
-  const [sessionSuccessful, setSessionSuccessful] = useState(0);
   const [current, setCurrent] = useState<{ rootPc: number; type: ChordType }>(
     () =>
       initialChord || {
@@ -226,6 +225,7 @@ export function ChordPressGame({
     setSelected([]);
     setChecked(false);
     pressedKeysRef.current.clear();
+    setSubmitted(false);
   }, []);
 
   const selectNextRandomChord = useCallback(() => {
@@ -330,11 +330,10 @@ export function ChordPressGame({
   const keyboardId = useMemo(() => `kbd-${seed}`, [seed]);
   const title = targetLabel ?? chordName(current.rootPc, current.type);
 
-  const handlePlayAgain = useCallback(() => {
-    if (!checked) return;
-    setSessionTotal((prev) => prev + 1);
-    if (isCorrect) setSessionSuccessful((prev) => prev + 1);
+  const handleContinue = useCallback(() => {
+    if (!checked || submitted) return;
     if (onComplete) {
+      setSubmitted(true);
       onComplete();
       return;
     }
@@ -351,10 +350,10 @@ export function ChordPressGame({
   }, [
     checked,
     initialChord,
-    isCorrect,
     onComplete,
     resetSelection,
     selectNextRandomChord,
+    submitted,
     targetNotes,
   ]);
 
@@ -405,17 +404,7 @@ export function ChordPressGame({
   const canClear = selected.length > 0 && !(checked && isCorrect);
 
   return (
-    <div
-      className={className}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        height: '100dvh',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
-      }}
-    >
+    <div className={className}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         <h1
@@ -441,19 +430,6 @@ export function ChordPressGame({
         >
           Play the chord tones on the keyboard
         </p>
-        {sessionTotal > 0 && (
-          <div
-            style={{
-              marginTop: 10,
-              fontSize: 11,
-              fontWeight: 600,
-              letterSpacing: 0.5,
-              color: '#a78bfa',
-            }}
-          >
-            Session: {Math.round((sessionSuccessful / sessionTotal) * 100)}%
-          </div>
-        )}
       </div>
 
       {/* Target chord */}
@@ -553,11 +529,19 @@ export function ChordPressGame({
         <div style={{ textAlign: 'center', marginBottom: 16 }}>{feedback}</div>
       )}
 
-      {/* Play Again */}
+      {/* Continue */}
       {checked && (
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <button onClick={handlePlayAgain} style={BTN}>
-            Play Again
+          <button
+            onClick={handleContinue}
+            disabled={submitted}
+            style={{
+              ...BTN,
+              opacity: submitted ? 0.4 : 1,
+              pointerEvents: submitted ? 'none' : 'auto',
+            }}
+          >
+            Continue
           </button>
         </div>
       )}

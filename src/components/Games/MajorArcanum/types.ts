@@ -53,6 +53,7 @@ export interface Note {
   duration: number;
   isHolding: boolean;
   lastHoldScoreTime: number;
+  lastParticleTime: number;
 }
 
 export interface Particle {
@@ -93,13 +94,18 @@ export interface GameState {
   canvasHeight: number;
   lastBeatScheduled: number;
   metronomeEnabled: boolean;
-  gameMode: string;
+  gameMode: 'Melody' | 'Harmony';
   bpm: number;
+  totalNotes: number;
   hits: number;
   misses: number;
-  holdAttempts: number;
   holdCompletions: number;
-  totalNotes: number;
+  holdAttempts: number;
+  uiDirty: boolean;
+  missFlashTime: number;
+  isPaused: boolean;
+  pauseStartTime: number;
+  totalPausedDuration: number;
   difficulty: number;
 }
 

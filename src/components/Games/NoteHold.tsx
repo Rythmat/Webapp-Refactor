@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import {
-  releaseAllEpNotes,
-  startEpSampler,
-  triggerEpAttack,
-  triggerEpRelease,
-} from '@/audio/epSampler';
+  releaseAllPianoNotes,
+  startPianoSampler,
+  triggerPianoAttack,
+  triggerPianoRelease,
+} from '@/audio/pianoSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
@@ -75,7 +75,7 @@ export const NoteHold = ({
       return;
     }
     try {
-      await startEpSampler();
+      await startPianoSampler();
       hasStartedAudioContextRef.current = true;
     } catch (error) {
       console.warn('Failed to start Tone.js audio context', error);
@@ -83,7 +83,7 @@ export const NoteHold = ({
   }, []);
 
   const releaseActiveNotes = useCallback(() => {
-    void releaseAllEpNotes();
+    void releaseAllPianoNotes();
     activeMidiSetRef.current = new Set<number>();
     setActiveMidis([]);
     setKeyboardPlayingNotes([]);
@@ -91,12 +91,12 @@ export const NoteHold = ({
 
   // Triggers the on state of the syntheizer with a specified note and a given velocity
   const triggerSynthAttack = useCallback((name: string, velocity?: number) => {
-    void triggerEpAttack(name, velocity, Tone.now());
+    void triggerPianoAttack(name, velocity, Tone.now());
   }, []);
 
   // Triggers the off state of the synthesizer for the specified note
   const triggerSynthRelease = useCallback((name: string) => {
-    void triggerEpRelease(name, Tone.now());
+    void triggerPianoRelease(name, Tone.now());
   }, []);
 
   const chords = useMemo(() => {
@@ -290,7 +290,7 @@ export const NoteHold = ({
       }
       // Only play sampler sound for MIDI input — acoustic piano already produces sound
       if (event.source !== 'audio') {
-        void startEpSampler();
+        void startPianoSampler();
         if (!activeMidiSetRef.current.has(midi)) {
           const noteName = Tone.Frequency(midi, 'midi').toNote();
           triggerSynthAttack(noteName, event.velocity);

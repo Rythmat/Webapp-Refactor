@@ -11,7 +11,10 @@ import {
 import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import SuperJSON from 'superjson';
-import { setCurrentAppSessionId } from '@/auth/app-session-store';
+import {
+  getCurrentAppSessionId,
+  setCurrentAppSessionId,
+} from '@/auth/app-session-store';
 import {
   onSessionError,
   type SessionErrorPayload,
@@ -19,6 +22,10 @@ import {
 import { connectSessionSSE } from '@/auth/session-sse';
 import { Env } from '@/constants/env';
 import { ProfileRoutes } from '@/constants/routes';
+import {
+  SUBSCRIPTION_QUERY_KEY,
+  fetchSubscriptionStatus,
+} from '@/hooks/data/subscription/useMySubscription';
 import { showError } from '@/util/toast';
 import { useGlobalMusicAtlas } from '../MusicAtlasContext/api';
 import {
@@ -265,9 +272,15 @@ export const AuthContextProvider = ({
           audience: Env.get('VITE_AUTH0_AUDIENCE'),
         },
       });
-      // Create the app session BEFORE setting the token, so the API client
-      // has the appSessionId ready when meQuery fires on token change.
-      const nextAppSessionId = await persistSessionToken(nextToken);
+      // Reuse the existing app session if another tab already created one
+      // (stored in localStorage). Only create a new session when none exists,
+      // so opening a second tab in the same browser doesn't revoke tab 1's
+      // session. Different browsers have separate localStorage, so the
+      // cross-browser single-session security is preserved.
+      const existingSessionId = getCurrentAppSessionId();
+      const nextAppSessionId = existingSessionId
+        ? existingSessionId
+        : await persistSessionToken(nextToken);
       setAppSessionId(nextAppSessionId);
       setToken(nextToken);
       setError(null);
@@ -351,6 +364,17 @@ export const AuthContextProvider = ({
     queryFn: async () => {
       return musicAtlas.auth.getAuthMe();
     },
+  });
+
+  // Prefetch subscription status in parallel with meQuery so it is already
+  // in the React Query cache by the time any page component calls
+  // useMySubscription / useIsPremium — eliminates the flash of unlocked
+  // content for free-tier users.
+  useQuery({
+    queryKey: SUBSCRIPTION_QUERY_KEY,
+    enabled: Boolean(token) && isAuth0Authenticated,
+    staleTime: 1000 * 60 * 2,
+    queryFn: () => fetchSubscriptionStatus(token!),
   });
 
   const isBootstrapLoading =

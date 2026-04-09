@@ -21,6 +21,7 @@ import { LearnInlet } from '@/components/learn/LearnInlet';
 import { ProfilePage } from '@/components/Profile/ProfilePage';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
+import { RequirePremium } from '@/components/ui/RequirePremium';
 
 import { useParams, useSearchParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
@@ -97,9 +98,9 @@ const MajorArcanumPage = lazy(() =>
   })),
 );
 
-const ContourTracePage = lazy(() =>
-  import('@/components/Games/arcadePages').then(({ ContourTracePage }) => ({
-    default: ContourTracePage,
+const ConstellationsPage = lazy(() =>
+  import('@/components/Games/arcadePages').then(({ ConstellationsPage }) => ({
+    default: ConstellationsPage,
   })),
 );
 
@@ -118,12 +119,6 @@ const WaveSculptorPage = lazy(() =>
 const HarmonicStringsPage = lazy(() =>
   import('@/components/Games/arcadePages').then(({ HarmonicStringsPage }) => ({
     default: HarmonicStringsPage,
-  })),
-);
-
-const SoundSpinnerPage = lazy(() =>
-  import('@/components/Games/arcadePages').then(({ SoundSpinnerPage }) => ({
-    default: SoundSpinnerPage,
   })),
 );
 
@@ -160,12 +155,6 @@ const JamLobby = lazy(() =>
 const JamRoom = lazy(() =>
   import('@/components/JamRoom').then(({ JamRoom }) => ({
     default: JamRoom,
-  })),
-);
-
-const JamLocalRoom = lazy(() =>
-  import('@/components/JamRoom').then(({ JamLocalRoom }) => ({
-    default: JamLocalRoom,
   })),
 );
 
@@ -245,51 +234,79 @@ export const gamesPages = () => {
       },
       {
         path: GameRoutes.playAlong.definition,
-        element: <PlayAlongPage />,
+        element: (
+          <RequirePremium>
+            <PlayAlongPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.foli.definition,
-        element: <FoliPage />,
+        element: (
+          <RequirePremium>
+            <FoliPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.majorArcanum.definition,
-        element: <MajorArcanumPage />,
+        element: (
+          <RequirePremium>
+            <MajorArcanumPage />
+          </RequirePremium>
+        ),
       },
       {
-        path: GameRoutes.contourTrace.definition,
-        element: <ContourTracePage />,
+        path: GameRoutes.constellations.definition,
+        element: (
+          <RequirePremium>
+            <ConstellationsPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.grooveLab.definition,
-        element: <GrooveLabPage />,
+        element: (
+          <RequirePremium>
+            <GrooveLabPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.waveSculptor.definition,
-        element: <WaveSculptorPage />,
+        element: (
+          <RequirePremium>
+            <WaveSculptorPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.harmonicStrings.definition,
         element: <HarmonicStringsPage />,
       },
       {
-        path: GameRoutes.soundSpinner.definition,
-        element: <SoundSpinnerPage />,
-      },
-      {
         path: GameRoutes.signalFlow.definition,
-        element: <SignalFlowPage />,
+        element: (
+          <RequirePremium>
+            <SignalFlowPage />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.jamLobby.definition,
-        element: <JamLobby />,
-      },
-      {
-        path: GameRoutes.jamLocal.definition,
-        element: <JamLocalRoom />,
+        element: (
+          <RequirePremium>
+            <JamLobby />
+          </RequirePremium>
+        ),
       },
       {
         path: GameRoutes.jamRoom.definition,
-        element: <JamRoom />,
+        element: (
+          <RequirePremium>
+            <JamRoom />
+          </RequirePremium>
+        ),
       },
     ],
   };
@@ -345,13 +362,17 @@ const LessonRoute = () => {
   const [searchParams] = useSearchParams();
   const startActivity = searchParams.get('activity') ?? undefined;
 
-  return (
+  // Free users can access C Ionian only
+  const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
+  const inner = (
     <LessonContainer
       modeSlug={mode ?? 'ionian'}
       rootKey={keyParam}
       startAtActivityKey={startActivity}
     />
   );
+
+  return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
 };
 
 const OverviewRoute = () => {
@@ -359,7 +380,9 @@ const OverviewRoute = () => {
     mode: PrismModeSlug;
   }>();
 
-  return <ModeOverview mode={mode ?? 'ionian'} />;
+  // Free users can access Ionian overview only
+  const inner = <ModeOverview mode={mode ?? 'ionian'} />;
+  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
 };
 
 export const learnPages = () => {
@@ -387,11 +410,19 @@ export const learnPages = () => {
       },
       {
         path: LearnRoutes.relativeOverview.definition,
-        element: <RelativeModesOverview />,
+        element: (
+          <RequirePremium>
+            <RelativeModesOverview />
+          </RequirePremium>
+        ),
       },
       {
         path: LearnRoutes.parallelOverview.definition,
-        element: <ParallelModesOverview />,
+        element: (
+          <RequirePremium>
+            <ParallelModesOverview />
+          </RequirePremium>
+        ),
       },
     ],
   };

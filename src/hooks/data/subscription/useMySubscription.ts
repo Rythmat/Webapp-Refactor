@@ -13,18 +13,18 @@ function apiPath(path: string) {
   return `${apiBase}${path}`;
 }
 
-async function fetchWithAuth(
-  url: string,
+/** Fetch subscription status with a bearer token. Exported for prefetch use. */
+export async function fetchSubscriptionStatus(
   token: string,
 ): Promise<SubscriptionStatus> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  };
   const appSessionId = getCurrentAppSessionId();
-  if (appSessionId) headers['X-App-Session'] = appSessionId;
-
-  const res = await fetch(url, { headers });
+  const res = await fetch(apiPath('/api/me/subscription'), {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
+    },
+  });
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -51,7 +51,7 @@ export const useMySubscription = () => {
 
   return useQuery<SubscriptionStatus>({
     queryKey: SUBSCRIPTION_QUERY_KEY,
-    queryFn: () => fetchWithAuth(apiPath('/api/me/subscription'), token!),
+    queryFn: () => fetchSubscriptionStatus(token!),
     enabled: !!token,
     // Don't refetch too aggressively — subscription state changes via webhooks,
     // not on every render. A 2-minute stale time balances freshness with load.

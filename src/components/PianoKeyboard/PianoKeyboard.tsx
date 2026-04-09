@@ -6,6 +6,7 @@ import { cn } from '@/components/utilities';
 import { usePlayingNotes, usePlayNote } from '@/contexts/PianoContext';
 import { PlaybackEvent } from '@/contexts/PlaybackContext';
 import { MidiNoteEvent, useMidiInput } from '@/hooks/music/useMidiInput';
+// import { DragableDebugMidiKeyboard } from './DragableDebugMidiKeyboard';
 import {
   OCTAVE_HEIGHT,
   OCTAVE_WIDTH,
@@ -331,6 +332,10 @@ export function PianoKeyboard({
           MIDI {isListening ? 'On' : 'Off'}
         </button>
       )}
+
+      {/* {DEBUG && testTarget && (
+        <DragableDebugMidiKeyboard eventTarget={testTarget} />
+      )} */}
     </div>
   );
 }

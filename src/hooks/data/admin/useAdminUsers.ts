@@ -28,14 +28,14 @@ async function fetchWithAuth<T = unknown>(
   url: string,
   token: string,
 ): Promise<T> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  };
   const appSessionId = getCurrentAppSessionId();
-  if (appSessionId) headers['X-App-Session'] = appSessionId;
-
-  const res = await fetch(url, { headers });
+  const res = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
+    },
+  });
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));

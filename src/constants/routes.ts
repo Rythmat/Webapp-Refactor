@@ -208,7 +208,7 @@ export const GameRoutes = {
     prefix: gamesPrefix,
   }),
 
-  contourTrace: createRouteDefinition('/contour-trace', {
+  constellations: createRouteDefinition('/constellations', {
     prefix: gamesPrefix,
   }),
 
@@ -219,10 +219,6 @@ export const GameRoutes = {
   }),
 
   harmonicStrings: createRouteDefinition('/harmonic-strings', {
-    prefix: gamesPrefix,
-  }),
-
-  soundSpinner: createRouteDefinition('/sound-spinner', {
     prefix: gamesPrefix,
   }),
 

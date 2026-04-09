@@ -19,13 +19,27 @@
 // ── Note name → pitch class (0-11) ─────────────────────────────────────────
 
 const NOTE_TO_PC: Record<string, number> = {
-  C: 0, 'C#': 1, Db: 1,
-  D: 2, 'D#': 3, Eb: 3,
-  E: 4, Fb: 4,
-  'E#': 5, F: 5, 'F#': 6, Gb: 6,
-  G: 7, 'G#': 8, Ab: 8,
-  A: 9, 'A#': 10, Bb: 10,
-  B: 11, Cb: 11, 'B#': 0,
+  C: 0,
+  'C#': 1,
+  Db: 1,
+  D: 2,
+  'D#': 3,
+  Eb: 3,
+  E: 4,
+  Fb: 4,
+  'E#': 5,
+  F: 5,
+  'F#': 6,
+  Gb: 6,
+  G: 7,
+  'G#': 8,
+  Ab: 8,
+  A: 9,
+  'A#': 10,
+  Bb: 10,
+  B: 11,
+  Cb: 11,
+  'B#': 0,
 };
 
 /**
@@ -83,7 +97,7 @@ export function chordSymbolToBassPC(symbol: string): number | null {
  */
 export function bassPC_toMidi(pc: number): number {
   let midi = 36 + (pc % 12); // octave 2 (C2 = 36)
-  while (midi < 33) midi += 12;  // 33 = A1
+  while (midi < 33) midi += 12; // 33 = A1
   while (midi > 47) midi -= 12;
   return midi;
 }

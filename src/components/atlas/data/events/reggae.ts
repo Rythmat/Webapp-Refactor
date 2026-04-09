@@ -720,7 +720,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
     genre: ['Reggae', 'Roots Reggae'],
     title: 'Bob Marley unites rivals at the One Love Peace Concert',
     description:
-      'Bob Marley performs at the One Love Peace Concert at the National Heroes Stadium in Kingston, famously joining the hands of political rivals Michael Manley and Edward Seaga onstage. The concert becomes one of the most iconic moments in reggae history, demonstrating music\'s power to transcend political violence during Jamaica\'s turbulent 1970s.',
+      "Bob Marley performs at the One Love Peace Concert at the National Heroes Stadium in Kingston, famously joining the hands of political rivals Michael Manley and Edward Seaga onstage. The concert becomes one of the most iconic moments in reggae history, demonstrating music's power to transcend political violence during Jamaica's turbulent 1970s.",
     tags: [
       'bob marley',
       'one love peace concert',
@@ -813,7 +813,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
     genre: ['Reggae', 'Roots Reggae'],
     title: "Steel Pulse releases 'Handsworth Revolution'",
     description:
-      'Steel Pulse releases "Handsworth Revolution", the definitive British roots reggae album, from the heart of Birmingham\'s Afro-Caribbean community. Addressing racism, police brutality, and life in Thatcher-era Britain, the album proves that reggae\'s message of resistance translates powerfully beyond Jamaica, making Steel Pulse the first reggae band to appear on BBC\'s Top of the Pops.',
+      "Steel Pulse releases \"Handsworth Revolution\", the definitive British roots reggae album, from the heart of Birmingham's Afro-Caribbean community. Addressing racism, police brutality, and life in Thatcher-era Britain, the album proves that reggae's message of resistance translates powerfully beyond Jamaica, making Steel Pulse the first reggae band to appear on BBC's Top of the Pops.",
     tags: [
       'steel pulse',
       'handsworth revolution',
@@ -1186,7 +1186,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
     genre: ['Reggae', 'Reggae Pop'],
     title: "Third World releases '96° in the Shade'",
     description:
-      'Third World releases "96° in the Shade", blending roots reggae with funk, disco, and pop sensibilities to create one of Jamaica\'s most versatile and enduring acts. The album\'s title track is a powerful meditation on colonial history and resistance. Third World\'s ability to fuse reggae with other genres makes them perennial festival favorites and paves the way for reggae-pop crossover artists.',
+      "Third World releases \"96° in the Shade\", blending roots reggae with funk, disco, and pop sensibilities to create one of Jamaica's most versatile and enduring acts. The album's title track is a powerful meditation on colonial history and resistance. Third World's ability to fuse reggae with other genres makes them perennial festival favorites and paves the way for reggae-pop crossover artists.",
     tags: [
       'third world',
       '96 degrees in the shade',
@@ -1209,7 +1209,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
     genre: ['Reggae', 'Reggae Pop'],
     title: "Inner Circle's 'Bad Boys' becomes a global anthem",
     description:
-      'Inner Circle\'s "Bad Boys" becomes the theme song for the TV show COPS and one of the most recognizable reggae tracks in American pop culture. Originally formed in Kingston in 1968, the band\'s smooth reggae-pop sound brings Jamaican music into millions of American living rooms weekly, demonstrating reggae\'s remarkable ability to permeate mainstream culture through unexpected channels.',
+      "Inner Circle's \"Bad Boys\" becomes the theme song for the TV show COPS and one of the most recognizable reggae tracks in American pop culture. Originally formed in Kingston in 1968, the band's smooth reggae-pop sound brings Jamaican music into millions of American living rooms weekly, demonstrating reggae's remarkable ability to permeate mainstream culture through unexpected channels.",
     tags: [
       'inner circle',
       'bad boys',
@@ -1324,7 +1324,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
     genre: ['Reggae', 'European Reggae'],
     title: 'Gentleman establishes Germany as a reggae stronghold',
     description:
-      'German artist Gentleman (Tilmann Otto) releases "Journey to Jah", sung entirely in Jamaican patois, becoming one of Europe\'s biggest reggae stars. Having lived in Kingston and earned respect in Jamaica\'s music scene, Gentleman demonstrates that reggae has truly become a global language. Germany\'s large reggae scene — with festivals like Summerjam in Cologne — becomes one of the genre\'s strongest markets outside the Caribbean.',
+      "German artist Gentleman (Tilmann Otto) releases \"Journey to Jah\", sung entirely in Jamaican patois, becoming one of Europe's biggest reggae stars. Having lived in Kingston and earned respect in Jamaica's music scene, Gentleman demonstrates that reggae has truly become a global language. Germany's large reggae scene — with festivals like Summerjam in Cologne — becomes one of the genre's strongest markets outside the Caribbean.",
     tags: [
       'gentleman',
       'journey to jah',
@@ -1347,7 +1347,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
     genre: ['Reggae', 'California Reggae'],
     title: 'Rebelution forms, anchoring the California reggae scene',
     description:
-      'Rebelution forms at UC Santa Barbara, becoming the flagship band of the California reggae movement alongside Stick Figure, SOJA, and Slightly Stoopid. Their laid-back, melodic take on roots reggae — blending it with rock, dub, and surf culture — creates a distinctly American reggae scene that fills amphitheaters and festivals across the West Coast, proving reggae\'s adaptability to local cultures.',
+      "Rebelution forms at UC Santa Barbara, becoming the flagship band of the California reggae movement alongside Stick Figure, SOJA, and Slightly Stoopid. Their laid-back, melodic take on roots reggae — blending it with rock, dub, and surf culture — creates a distinctly American reggae scene that fills amphitheaters and festivals across the West Coast, proving reggae's adaptability to local cultures.",
     tags: [
       'rebelution',
       'california reggae',

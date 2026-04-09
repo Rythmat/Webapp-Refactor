@@ -1602,7 +1602,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
     genre: ['Rock en Español', 'New Wave', 'Post-Punk'],
     title: 'Soda Stereo launches Argentine rock en español',
     description:
-      'Gustavo Cerati, Zeta Bosio, and Charly Alberti form Soda Stereo in Buenos Aires, releasing their debut album and igniting the rock en español movement across Latin America. Cerati\'s guitar textures and poetic Spanish lyrics prove that rock in Spanish can be as sophisticated as anything in English. Their 1997 farewell tour becomes the biggest rock tour in Latin American history.',
+      "Gustavo Cerati, Zeta Bosio, and Charly Alberti form Soda Stereo in Buenos Aires, releasing their debut album and igniting the rock en español movement across Latin America. Cerati's guitar textures and poetic Spanish lyrics prove that rock in Spanish can be as sophisticated as anything in English. Their 1997 farewell tour becomes the biggest rock tour in Latin American history.",
     tags: [
       'soda stereo',
       'gustavo cerati',

@@ -9,9 +9,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     year: 1607,
     location: { lat: 45.1564, lng: 10.7914, city: 'Mantua', country: 'Italy' },
     genre: ['Opera', 'Classical'],
-    title: "Monteverdi's \"L'Orfeo\" establishes opera as an art form",
+    title: 'Monteverdi\'s "L\'Orfeo" establishes opera as an art form',
     description:
-      "Claudio Monteverdi's \"L'Orfeo\" premieres at the ducal palace in Mantua, transforming the experimental Florentine \"dramma per musica\" into a fully realized dramatic art form. Its sophisticated use of orchestration, recitative, and aria creates the blueprint that opera composers would follow for the next four centuries. This is widely considered the first great opera in the Western canon.",
+      'Claudio Monteverdi\'s "L\'Orfeo" premieres at the ducal palace in Mantua, transforming the experimental Florentine "dramma per musica" into a fully realized dramatic art form. Its sophisticated use of orchestration, recitative, and aria creates the blueprint that opera composers would follow for the next four centuries. This is widely considered the first great opera in the Western canon.',
     tags: [
       'monteverdi',
       'orfeo',
@@ -33,7 +33,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Opera', 'Classical'],
     title: 'Mozart\'s "The Marriage of Figaro" revolutionizes comic opera',
     description:
-      "Mozart and librettist Lorenzo Da Ponte premiere \"Le nozze di Figaro\" at Vienna's Burgtheater, elevating opera buffa from light entertainment into psychologically complex drama. The opera's ensemble finales, where multiple characters sing simultaneously with distinct emotions, represent a quantum leap in musical storytelling. Its subversive class commentary — servants outwitting aristocrats — also made it politically charged.",
+      'Mozart and librettist Lorenzo Da Ponte premiere "Le nozze di Figaro" at Vienna\'s Burgtheater, elevating opera buffa from light entertainment into psychologically complex drama. The opera\'s ensemble finales, where multiple characters sing simultaneously with distinct emotions, represent a quantum leap in musical storytelling. Its subversive class commentary — servants outwitting aristocrats — also made it politically charged.',
     tags: [
       'mozart',
       'da ponte',
@@ -73,7 +73,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Opera', 'Classical'],
     title: 'Puccini\'s "La Bohème" perfects emotional opera',
     description:
-      "Giacomo Puccini's \"La Bohème\" premieres at Turin's Teatro Regio under the baton of a young Arturo Toscanini, telling the story of struggling Parisian artists with unprecedented melodic beauty and emotional directness. Its influence extends far beyond the opera house — it directly inspires Jonathan Larson's \"Rent\" a century later and remains the gateway opera for new audiences worldwide.",
+      'Giacomo Puccini\'s "La Bohème" premieres at Turin\'s Teatro Regio under the baton of a young Arturo Toscanini, telling the story of struggling Parisian artists with unprecedented melodic beauty and emotional directness. Its influence extends far beyond the opera house — it directly inspires Jonathan Larson\'s "Rent" a century later and remains the gateway opera for new audiences worldwide.',
     tags: [
       'puccini',
       'la boheme',
@@ -95,7 +95,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Operetta', 'Musical Theatre'],
     title: 'Gilbert & Sullivan invent the modern musical',
     description:
-      "W.S. Gilbert and Arthur Sullivan premiere \"H.M.S. Pinafore\" in London, launching a series of comic operettas that bridge European opera and what will become the Broadway musical. Their witty librettos, catchy melodies, and satirical plots create a popular entertainment model that directly influences Cole Porter, Rodgers and Hammerstein, and Stephen Sondheim. The Savoy Theatre, built specifically for their works, becomes synonymous with English-language musical theater.",
+      'W.S. Gilbert and Arthur Sullivan premiere "H.M.S. Pinafore" in London, launching a series of comic operettas that bridge European opera and what will become the Broadway musical. Their witty librettos, catchy melodies, and satirical plots create a popular entertainment model that directly influences Cole Porter, Rodgers and Hammerstein, and Stephen Sondheim. The Savoy Theatre, built specifically for their works, becomes synonymous with English-language musical theater.',
     tags: [
       'gilbert and sullivan',
       'operetta',
@@ -117,7 +117,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Opera', 'Ragtime'],
     title: 'Scott Joplin composes "Treemonisha," the first Black opera',
     description:
-      "Scott Joplin, already the undisputed king of ragtime, self-publishes \"Treemonisha,\" a grand opera incorporating ragtime, spirituals, and folk music into a story about education lifting Black communities out of superstition. Largely ignored during his lifetime and staged only in a partial, unpaid rehearsal, the opera is posthumously recognized as a groundbreaking fusion of African American musical traditions with European operatic form. Joplin receives a posthumous Pulitzer Prize in 1976.",
+      'Scott Joplin, already the undisputed king of ragtime, self-publishes "Treemonisha," a grand opera incorporating ragtime, spirituals, and folk music into a story about education lifting Black communities out of superstition. Largely ignored during his lifetime and staged only in a partial, unpaid rehearsal, the opera is posthumously recognized as a groundbreaking fusion of African American musical traditions with European operatic form. Joplin receives a posthumous Pulitzer Prize in 1976.',
     tags: [
       'scott joplin',
       'treemonisha',
@@ -140,7 +140,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Opera', 'Jazz'],
     title: 'Gershwin\'s "Porgy and Bess" fuses opera with jazz and blues',
     description:
-      "George Gershwin's \"Porgy and Bess\" premieres on Broadway, creating what he calls a \"folk opera\" that weaves jazz harmonies, blues melodies, and spirituals into a fully operatic framework. Standards like \"Summertime\" and \"It Ain't Necessarily So\" become jazz repertoire staples. Though controversial for its portrayal of Black life by a white composer, it remains a landmark in bringing African American musical idioms into the operatic canon.",
+      'George Gershwin\'s "Porgy and Bess" premieres on Broadway, creating what he calls a "folk opera" that weaves jazz harmonies, blues melodies, and spirituals into a fully operatic framework. Standards like "Summertime" and "It Ain\'t Necessarily So" become jazz repertoire staples. Though controversial for its portrayal of Black life by a white composer, it remains a landmark in bringing African American musical idioms into the operatic canon.',
     tags: [
       'gershwin',
       'porgy and bess',
@@ -161,9 +161,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Musical Theatre'],
-    title: 'Rodgers & Hammerstein\'s "Oklahoma!" invents the integrated musical',
+    title:
+      'Rodgers & Hammerstein\'s "Oklahoma!" invents the integrated musical',
     description:
-      "\"Oklahoma!\" opens at the St. James Theatre and runs for an unprecedented 2,212 performances, establishing the template for the modern American musical. Richard Rodgers and Oscar Hammerstein II integrate songs, dialogue, and Agnes de Mille's dream ballet choreography into a unified dramatic narrative — replacing the loosely plotted revue format. Every major musical that follows owes a debt to this structural revolution.",
+      '"Oklahoma!" opens at the St. James Theatre and runs for an unprecedented 2,212 performances, establishing the template for the modern American musical. Richard Rodgers and Oscar Hammerstein II integrate songs, dialogue, and Agnes de Mille\'s dream ballet choreography into a unified dramatic narrative — replacing the loosely plotted revue format. Every major musical that follows owes a debt to this structural revolution.',
     tags: [
       'rodgers and hammerstein',
       'oklahoma',
@@ -208,7 +209,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Musical Theatre'],
     title: 'Sondheim\'s "Company" reinvents the concept musical',
     description:
-      "Stephen Sondheim and director Hal Prince premiere \"Company\" on Broadway, abandoning linear narrative entirely in favor of a thematic exploration of modern relationships and urban loneliness. Its non-chronological structure, sophisticated lyrics, and willingness to leave questions unanswered rather than tie up neatly pioneered the \"concept musical\" form. Sondheim's subsequent works — \"Follies,\" \"Sweeney Todd,\" \"Into the Woods\" — build on this foundation to make him the most influential theater composer of the late 20th century.",
+      'Stephen Sondheim and director Hal Prince premiere "Company" on Broadway, abandoning linear narrative entirely in favor of a thematic exploration of modern relationships and urban loneliness. Its non-chronological structure, sophisticated lyrics, and willingness to leave questions unanswered rather than tie up neatly pioneered the "concept musical" form. Sondheim\'s subsequent works — "Follies," "Sweeney Todd," "Into the Woods" — build on this foundation to make him the most influential theater composer of the late 20th century.',
     tags: [
       'sondheim',
       'company',
@@ -228,9 +229,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United Kingdom',
     },
     genre: ['Musical Theatre', 'Rock'],
-    title: 'Andrew Lloyd Webber\'s "Jesus Christ Superstar" launches the rock musical',
+    title:
+      'Andrew Lloyd Webber\'s "Jesus Christ Superstar" launches the rock musical',
     description:
-      "Andrew Lloyd Webber and Tim Rice's \"Jesus Christ Superstar\" premieres in London after its concept album becomes a worldwide hit, proving that rock music and theater could merge commercially and artistically. The sung-through format — no spoken dialogue — becomes Lloyd Webber's signature and dominates the West End and Broadway for decades through \"Evita,\" \"Cats,\" and \"Phantom of the Opera.\" It opens the door for rock-influenced musicals from \"Hair\" to \"Rent.\"",
+      'Andrew Lloyd Webber and Tim Rice\'s "Jesus Christ Superstar" premieres in London after its concept album becomes a worldwide hit, proving that rock music and theater could merge commercially and artistically. The sung-through format — no spoken dialogue — becomes Lloyd Webber\'s signature and dominates the West End and Broadway for decades through "Evita," "Cats," and "Phantom of the Opera." It opens the door for rock-influenced musicals from "Hair" to "Rent."',
     tags: [
       'andrew lloyd webber',
       'tim rice',
@@ -251,9 +253,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Musical Theatre', 'Rock'],
-    title: "Larson's \"Rent\" brings rock authenticity and the AIDS crisis to Broadway",
+    title:
+      'Larson\'s "Rent" brings rock authenticity and the AIDS crisis to Broadway',
     description:
-      "Jonathan Larson's \"Rent\" opens off-Broadway at New York Theatre Workshop, updating Puccini's \"La Bohème\" to 1990s East Village bohemia amid the AIDS epidemic. Larson tragically dies the night before opening, but his rock-driven score — featuring raw, emotionally direct songs — shatters Broadway's MOR aesthetic and attracts a younger, more diverse audience. It runs for 12 years and proves musical theater can speak to contemporary counterculture.",
+      'Jonathan Larson\'s "Rent" opens off-Broadway at New York Theatre Workshop, updating Puccini\'s "La Bohème" to 1990s East Village bohemia amid the AIDS epidemic. Larson tragically dies the night before opening, but his rock-driven score — featuring raw, emotionally direct songs — shatters Broadway\'s MOR aesthetic and attracts a younger, more diverse audience. It runs for 12 years and proves musical theater can speak to contemporary counterculture.',
     tags: [
       'jonathan larson',
       'rent',
@@ -274,9 +277,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Musical Theatre', 'Hip Hop'],
-    title: 'Lin-Manuel Miranda\'s "Hamilton" fuses hip hop with American history',
+    title:
+      'Lin-Manuel Miranda\'s "Hamilton" fuses hip hop with American history',
     description:
-      "\"Hamilton\" opens on Broadway, using hip hop, R&B, and rap battles to tell the story of founding father Alexander Hamilton with a deliberately multiracial cast. Lin-Manuel Miranda's score collapses the distance between 18th-century political debate and 21st-century freestyle, making the show a once-in-a-generation cultural phenomenon. It wins 11 Tony Awards, becomes the hardest ticket on Broadway, and fundamentally expands who musical theater is for.",
+      '"Hamilton" opens on Broadway, using hip hop, R&B, and rap battles to tell the story of founding father Alexander Hamilton with a deliberately multiracial cast. Lin-Manuel Miranda\'s score collapses the distance between 18th-century political debate and 21st-century freestyle, making the show a once-in-a-generation cultural phenomenon. It wins 11 Tony Awards, becomes the hardest ticket on Broadway, and fundamentally expands who musical theater is for.',
     tags: [
       'lin-manuel miranda',
       'hamilton',
@@ -325,7 +329,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Film Scoring', 'Jazz'],
     title: '"The Jazz Singer" ushers in the sound era of cinema',
     description:
-      "Warner Bros.' \"The Jazz Singer\" starring Al Jolson premieres as the first feature-length \"talkie\" with synchronized dialogue and musical numbers, ending the silent film era virtually overnight. The film's commercial success forces every studio to adopt sound technology, creating an entirely new industry for film music and destroying the careers of silent film musicians. It also establishes Hollywood's complicated relationship with Black music — Jolson performs in blackface while singing jazz and blues.",
+      'Warner Bros.\' "The Jazz Singer" starring Al Jolson premieres as the first feature-length "talkie" with synchronized dialogue and musical numbers, ending the silent film era virtually overnight. The film\'s commercial success forces every studio to adopt sound technology, creating an entirely new industry for film music and destroying the careers of silent film musicians. It also establishes Hollywood\'s complicated relationship with Black music — Jolson performs in blackface while singing jazz and blues.',
     tags: [
       'jazz singer',
       'al jolson',
@@ -348,7 +352,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Film Scoring', 'Classical'],
     title: 'Max Steiner\'s "King Kong" invents the Hollywood film score',
     description:
-      "Max Steiner's wall-to-wall orchestral score for \"King Kong\" at RKO Pictures establishes the template for Hollywood film music — leitmotifs for characters, Mickey Mousing for action, and lush Romantic-era orchestration for emotion. Steiner, a Vienna-trained composer, essentially imports the Wagnerian tradition into cinema and proves that original scores dramatically enhance audience engagement. His approach dominates film scoring for the next 90 years.",
+      'Max Steiner\'s wall-to-wall orchestral score for "King Kong" at RKO Pictures establishes the template for Hollywood film music — leitmotifs for characters, Mickey Mousing for action, and lush Romantic-era orchestration for emotion. Steiner, a Vienna-trained composer, essentially imports the Wagnerian tradition into cinema and proves that original scores dramatically enhance audience engagement. His approach dominates film scoring for the next 90 years.',
     tags: [
       'max steiner',
       'king kong',
@@ -368,9 +372,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Classical'],
-    title: "Disney's \"Fantasia\" merges animation with classical masterworks",
+    title: 'Disney\'s "Fantasia" merges animation with classical masterworks',
     description:
-      "Walt Disney's \"Fantasia\" pairs animated sequences with classical works by Bach, Beethoven, Stravinsky, and others, conducted by Leopold Stokowski with the Philadelphia Orchestra. The film introduces millions of Americans to classical music and pioneers Fantasound, an early surround-sound system. Though initially a commercial disappointment, it becomes a cultural touchstone that proves classical music can be a mass-market visual experience.",
+      'Walt Disney\'s "Fantasia" pairs animated sequences with classical works by Bach, Beethoven, Stravinsky, and others, conducted by Leopold Stokowski with the Philadelphia Orchestra. The film introduces millions of Americans to classical music and pioneers Fantasound, an early surround-sound system. Though initially a commercial disappointment, it becomes a cultural touchstone that proves classical music can be a mass-market visual experience.',
     tags: [
       'disney',
       'fantasia',
@@ -391,7 +395,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring'],
-    title: "Bernard Herrmann's \"Psycho\" score redefines suspense in film",
+    title: 'Bernard Herrmann\'s "Psycho" score redefines suspense in film',
     description:
       "Bernard Herrmann's all-strings score for Alfred Hitchcock's \"Psycho\" — particularly the shrieking violins of the shower scene — becomes the most iconic moment in film music history. Herrmann's decision to use only strings creates a monochromatic, claustrophobic sound world that mirrors the film's black-and-white photography. The score demonstrates that film music can be as avant-garde as concert hall modernism while remaining viscerally effective for mass audiences.",
     tags: [
@@ -414,9 +418,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Jazz'],
-    title: "Henry Mancini's \"Moon River\" bridges jazz and Hollywood",
+    title: 'Henry Mancini\'s "Moon River" bridges jazz and Hollywood',
     description:
-      "Henry Mancini's \"Moon River,\" sung by Audrey Hepburn in \"Breakfast at Tiffany's,\" wins the Academy Award and becomes one of the most covered songs in history. Mancini's approach — blending cool jazz sophistication with memorable pop melody — creates a new model for film music that is simultaneously atmospheric and commercially viable. His scores for \"The Pink Panther\" and \"Peter Gunn\" further establish jazz as a cinematic language for wit and urbanity.",
+      'Henry Mancini\'s "Moon River," sung by Audrey Hepburn in "Breakfast at Tiffany\'s," wins the Academy Award and becomes one of the most covered songs in history. Mancini\'s approach — blending cool jazz sophistication with memorable pop melody — creates a new model for film music that is simultaneously atmospheric and commercially viable. His scores for "The Pink Panther" and "Peter Gunn" further establish jazz as a cinematic language for wit and urbanity.',
     tags: [
       'henry mancini',
       'moon river',
@@ -460,9 +464,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Jazz'],
-    title: "Lalo Schifrin's \"Mission: Impossible\" theme fuses jazz with suspense",
+    title:
+      'Lalo Schifrin\'s "Mission: Impossible" theme fuses jazz with suspense',
     description:
-      "Argentine-born composer Lalo Schifrin writes the iconic \"Mission: Impossible\" theme in 5/4 time for the CBS television series, bringing Latin jazz rhythms and big band energy into mainstream American television. Schifrin, a student of Olivier Messiaen who played piano for Dizzy Gillespie, represents the sophisticated jazz musicians who brought genuine harmonic complexity to Hollywood. The theme remains instantly recognizable across six decades of franchise reboots.",
+      'Argentine-born composer Lalo Schifrin writes the iconic "Mission: Impossible" theme in 5/4 time for the CBS television series, bringing Latin jazz rhythms and big band energy into mainstream American television. Schifrin, a student of Olivier Messiaen who played piano for Dizzy Gillespie, represents the sophisticated jazz musicians who brought genuine harmonic complexity to Hollywood. The theme remains instantly recognizable across six decades of franchise reboots.',
     tags: [
       'lalo schifrin',
       'mission impossible',
@@ -483,9 +488,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Italy',
     },
     genre: ['Film Scoring'],
-    title: "Ennio Morricone's Spaghetti Western scores revolutionize film music",
+    title:
+      "Ennio Morricone's Spaghetti Western scores revolutionize film music",
     description:
-      "Ennio Morricone's score for Sergio Leone's \"The Good, the Bad and the Ugly\" uses electric guitars, whistling, whip cracks, and wordless vocals to create a completely new sonic language for cinema. Breaking from the orchestral tradition, Morricone treats the film score as a standalone art form with its own sonic world. His partnership with Leone across the Dollars Trilogy and \"Once Upon a Time\" films makes him the most influential European film composer of the 20th century.",
+      'Ennio Morricone\'s score for Sergio Leone\'s "The Good, the Bad and the Ugly" uses electric guitars, whistling, whip cracks, and wordless vocals to create a completely new sonic language for cinema. Breaking from the orchestral tradition, Morricone treats the film score as a standalone art form with its own sonic world. His partnership with Leone across the Dollars Trilogy and "Once Upon a Time" films makes him the most influential European film composer of the 20th century.',
     tags: [
       'ennio morricone',
       'sergio leone',
@@ -508,7 +514,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Film Scoring', 'Jazz'],
     title: 'Quincy Jones breaks the color barrier in Hollywood film scoring',
     description:
-      "Quincy Jones scores Sidney Poitier's \"In the Heat of the Night,\" becoming one of the first African American composers to score a major Hollywood studio film. Jones brings authentic jazz, blues, and soul sensibility to the soundtrack, enhancing the film's exploration of racial tension in the Deep South. His Hollywood career paves the way for Black composers in film and foreshadows his transformation into the most powerful producer in popular music.",
+      'Quincy Jones scores Sidney Poitier\'s "In the Heat of the Night," becoming one of the first African American composers to score a major Hollywood studio film. Jones brings authentic jazz, blues, and soul sensibility to the soundtrack, enhancing the film\'s exploration of racial tension in the Deep South. His Hollywood career paves the way for Black composers in film and foreshadows his transformation into the most powerful producer in popular music.',
     tags: [
       'quincy jones',
       'in the heat of the night',
@@ -531,7 +537,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Film Scoring', 'Funk', 'Soul'],
     title: 'Isaac Hayes\' "Shaft" launches the Blaxploitation soundtrack era',
     description:
-      "Isaac Hayes' \"Theme from Shaft\" — with its wah-wah guitar, hi-hat sixteenths, and orchestral funk — wins the Academy Award for Best Original Song, making Hayes the first African American to win an Oscar in a non-acting category. The score proves that Black popular music can drive mainstream cinema and launches the Blaxploitation soundtrack era, inspiring Curtis Mayfield's \"Super Fly\" and countless funk-driven scores. Hayes' approach directly influences hip hop sampling decades later.",
+      'Isaac Hayes\' "Theme from Shaft" — with its wah-wah guitar, hi-hat sixteenths, and orchestral funk — wins the Academy Award for Best Original Song, making Hayes the first African American to win an Oscar in a non-acting category. The score proves that Black popular music can drive mainstream cinema and launches the Blaxploitation soundtrack era, inspiring Curtis Mayfield\'s "Super Fly" and countless funk-driven scores. Hayes\' approach directly influences hip hop sampling decades later.',
     tags: [
       'isaac hayes',
       'shaft',
@@ -554,7 +560,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Film Scoring', 'Pop'],
     title: "Burt Bacharach's film work bridges Tin Pan Alley and Hollywood",
     description:
-      "Burt Bacharach's score for \"Butch Cassidy and the Sundance Kid\" — including the Oscar-winning \"Raindrops Keep Fallin' on My Head\" — represents the peak of pop songwriting in film. Bacharach's sophisticated chord progressions and unusual time signatures bring a Brill Building craftsmanship to Hollywood that contrasts with both the orchestral tradition and the rock era. His approach proves that a pop hit can be the emotional centerpiece of a major motion picture.",
+      'Burt Bacharach\'s score for "Butch Cassidy and the Sundance Kid" — including the Oscar-winning "Raindrops Keep Fallin\' on My Head" — represents the peak of pop songwriting in film. Bacharach\'s sophisticated chord progressions and unusual time signatures bring a Brill Building craftsmanship to Hollywood that contrasts with both the orchestral tradition and the rock era. His approach proves that a pop hit can be the emotional centerpiece of a major motion picture.',
     tags: [
       'burt bacharach',
       'hal david',
@@ -579,7 +585,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Classical'],
-    title: "John Williams' \"Jaws\" theme proves two notes can terrify millions",
+    title: 'John Williams\' "Jaws" theme proves two notes can terrify millions',
     description:
       "John Williams' alternating E and F two-note motif for Steven Spielberg's \"Jaws\" becomes the most primal piece of film music ever composed — a heartbeat of dread that audiences associate with unseen danger. The score wins Williams his second Academy Award and begins his partnership with Spielberg that will define blockbuster film music for 50 years. Williams' return to Romantic-era orchestral grandeur reverses the trend toward jazz and pop scores.",
     tags: [
@@ -602,7 +608,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Classical'],
-    title: 'John Williams\' "Star Wars" score becomes the most iconic in cinema history',
+    title:
+      'John Williams\' "Star Wars" score becomes the most iconic in cinema history',
     description:
       "John Williams' score for George Lucas' \"Star Wars\" — recorded with the London Symphony Orchestra — revives the Wagnerian leitmotif technique on an unprecedented scale, giving every character, location, and emotion its own musical identity. The main theme, Imperial March, and Force theme become part of global cultural vocabulary. The score's massive commercial success (the album goes quadruple platinum) proves that orchestral film music can be a standalone cultural product.",
     tags: [
@@ -648,9 +655,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United Kingdom',
     },
     genre: ['Film Scoring', 'Electronic'],
-    title: "Vangelis' \"Chariots of Fire\" synthesizer theme becomes a global hit",
+    title:
+      'Vangelis\' "Chariots of Fire" synthesizer theme becomes a global hit',
     description:
-      "Greek composer Vangelis' entirely electronic score for \"Chariots of Fire\" wins the Academy Award and the main theme reaches #1 on the Billboard Hot 100 — an astonishing feat for an instrumental synthesizer piece. The score's shimmering Yamaha CS-80 arpeggios become universally associated with slow-motion triumph and are endlessly parodied. Vangelis proves that electronic music can convey the same emotional grandeur as a full orchestra.",
+      'Greek composer Vangelis\' entirely electronic score for "Chariots of Fire" wins the Academy Award and the main theme reaches #1 on the Billboard Hot 100 — an astonishing feat for an instrumental synthesizer piece. The score\'s shimmering Yamaha CS-80 arpeggios become universally associated with slow-motion triumph and are endlessly parodied. Vangelis proves that electronic music can convey the same emotional grandeur as a full orchestra.',
     tags: [
       'vangelis',
       'chariots of fire',
@@ -671,9 +679,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Japan',
     },
     genre: ['Film Scoring'],
-    title: "Ryuichi Sakamoto's \"The Last Emperor\" wins the Oscar",
+    title: 'Ryuichi Sakamoto\'s "The Last Emperor" wins the Oscar',
     description:
-      "Yellow Magic Orchestra co-founder Ryuichi Sakamoto, collaborating with David Byrne and Cong Su, wins the Academy Award for \"The Last Emperor,\" bridging Japanese electronic music, Western orchestration, and Chinese traditional music in a single score. Sakamoto's dual career as a pop innovator and film composer opens the door for electronic musicians to work in cinema. His later scores for films like \"The Revenant\" continue to push the boundaries of ambient and textural film music.",
+      'Yellow Magic Orchestra co-founder Ryuichi Sakamoto, collaborating with David Byrne and Cong Su, wins the Academy Award for "The Last Emperor," bridging Japanese electronic music, Western orchestration, and Chinese traditional music in a single score. Sakamoto\'s dual career as a pop innovator and film composer opens the door for electronic musicians to work in cinema. His later scores for films like "The Revenant" continue to push the boundaries of ambient and textural film music.',
     tags: [
       'ryuichi sakamoto',
       'last emperor',
@@ -694,9 +702,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring'],
-    title: "Danny Elfman's \"Batman\" creates the dark blockbuster sound",
+    title: 'Danny Elfman\'s "Batman" creates the dark blockbuster sound',
     description:
-      "Former Oingo Boingo frontman Danny Elfman scores Tim Burton's \"Batman,\" creating a brooding, gothic orchestral sound that stands in dramatic contrast to John Williams' heroic bombast. Elfman's collaboration with Burton — extending through \"Edward Scissorhands,\" \"The Nightmare Before Christmas,\" and beyond — establishes an alternative aesthetic for blockbuster scoring: whimsical, dark, and tinged with carnival macabre. He proves that rock musicians can reinvent themselves as top-tier film composers.",
+      'Former Oingo Boingo frontman Danny Elfman scores Tim Burton\'s "Batman," creating a brooding, gothic orchestral sound that stands in dramatic contrast to John Williams\' heroic bombast. Elfman\'s collaboration with Burton — extending through "Edward Scissorhands," "The Nightmare Before Christmas," and beyond — establishes an alternative aesthetic for blockbuster scoring: whimsical, dark, and tinged with carnival macabre. He proves that rock musicians can reinvent themselves as top-tier film composers.',
     tags: [
       'danny elfman',
       'batman',
@@ -719,7 +727,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Film Scoring', 'Classical'],
     title: 'Hans Zimmer\'s "The Lion King" launches a film scoring empire',
     description:
-      "Hans Zimmer's Oscar-winning score for \"The Lion King\" — blending African choral music with orchestral grandeur and Elton John's songs — establishes him as Hollywood's most commercially powerful composer. Working from his London studio before relocating to Santa Monica, the German-born Zimmer pioneers a collaborative \"media ventures\" model where teams of composers work under his supervision. This factory approach transforms how Hollywood scores are produced and makes Zimmer the defining sound of modern blockbuster cinema.",
+      'Hans Zimmer\'s Oscar-winning score for "The Lion King" — blending African choral music with orchestral grandeur and Elton John\'s songs — establishes him as Hollywood\'s most commercially powerful composer. Working from his London studio before relocating to Santa Monica, the German-born Zimmer pioneers a collaborative "media ventures" model where teams of composers work under his supervision. This factory approach transforms how Hollywood scores are produced and makes Zimmer the defining sound of modern blockbuster cinema.',
     tags: [
       'hans zimmer',
       'lion king',
@@ -740,9 +748,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Japan',
     },
     genre: ['Film Scoring', 'Classical'],
-    title: "Joe Hisaishi begins his legendary Studio Ghibli partnership",
+    title: 'Joe Hisaishi begins his legendary Studio Ghibli partnership',
     description:
-      "Joe Hisaishi composes the score for Hayao Miyazaki's \"Nausicaä of the Valley of the Wind,\" launching a composer-director partnership that rivals Williams-Spielberg in its cultural impact. Hisaishi's scores for \"My Neighbor Totoro,\" \"Princess Mononoke,\" and \"Spirited Away\" blend Western classical traditions with Japanese minimalism and childlike wonder, creating some of the most beloved film music in history. His work introduces millions of Western audiences to Japanese animation through its universally emotional music.",
+      'Joe Hisaishi composes the score for Hayao Miyazaki\'s "Nausicaä of the Valley of the Wind," launching a composer-director partnership that rivals Williams-Spielberg in its cultural impact. Hisaishi\'s scores for "My Neighbor Totoro," "Princess Mononoke," and "Spirited Away" blend Western classical traditions with Japanese minimalism and childlike wonder, creating some of the most beloved film music in history. His work introduces millions of Western audiences to Japanese animation through its universally emotional music.',
     tags: [
       'joe hisaishi',
       'studio ghibli',
@@ -763,7 +771,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'New Zealand',
     },
     genre: ['Film Scoring', 'Classical'],
-    title: "Howard Shore's \"Lord of the Rings\" creates cinema's grandest score",
+    title:
+      'Howard Shore\'s "Lord of the Rings" creates cinema\'s grandest score',
     description:
       "Canadian composer Howard Shore records his massive \"Lord of the Rings\" score in Wellington, New Zealand, creating over 10 hours of interconnected music with dozens of leitmotifs representing the cultures, characters, and themes of Middle-earth. The trilogy's scores — performed by the London Philharmonic and recorded at Wellington's Town Hall — represent the most ambitious film music project ever undertaken. Shore's work wins three Academy Awards and is studied as a modern symphonic cycle on par with Wagner's Ring.",
     tags: [
@@ -789,7 +798,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Film Scoring', 'Folk'],
     title: "Gustavo Santaolalla's spare guitar work wins back-to-back Oscars",
     description:
-      "Argentine musician Gustavo Santaolalla wins consecutive Academy Awards for \"Brokeback Mountain\" and \"Babel,\" using little more than solo guitar to create devastating emotional landscapes. His minimalist approach — rooted in Argentine folk and nueva cancion traditions — represents a radical departure from the orchestral maximalism dominating Hollywood. Santaolalla proves that sometimes a single instrument can be more powerful than a hundred-piece orchestra, influencing a generation of indie film composers.",
+      'Argentine musician Gustavo Santaolalla wins consecutive Academy Awards for "Brokeback Mountain" and "Babel," using little more than solo guitar to create devastating emotional landscapes. His minimalist approach — rooted in Argentine folk and nueva cancion traditions — represents a radical departure from the orchestral maximalism dominating Hollywood. Santaolalla proves that sometimes a single instrument can be more powerful than a hundred-piece orchestra, influencing a generation of indie film composers.',
     tags: [
       'gustavo santaolalla',
       'brokeback mountain',
@@ -810,7 +819,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United Kingdom',
     },
     genre: ['Film Scoring'],
-    title: 'Jonny Greenwood brings Radiohead\'s experimentalism to "There Will Be Blood"',
+    title:
+      'Jonny Greenwood brings Radiohead\'s experimentalism to "There Will Be Blood"',
     description:
       "Radiohead guitarist Jonny Greenwood scores Paul Thomas Anderson's \"There Will Be Blood\" with dissonant string writing influenced by Penderecki and Ligeti, creating one of the most unsettling and critically acclaimed film scores of the 21st century. Greenwood's refusal to provide conventional emotional cues — instead using avant-garde techniques to mirror the protagonist's inner madness — earns him recognition as one of cinema's most daring composers. His subsequent Anderson collaborations cement a partnership that rivals the greatest composer-director pairings.",
     tags: [
@@ -833,7 +843,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'India',
     },
     genre: ['Film Scoring', 'Bollywood'],
-    title: 'A.R. Rahman\'s "Slumdog Millionaire" brings Bollywood to the Oscars',
+    title:
+      'A.R. Rahman\'s "Slumdog Millionaire" brings Bollywood to the Oscars',
     description:
       "A.R. Rahman, already India's most celebrated film composer, wins two Academy Awards for \"Slumdog Millionaire,\" introducing global audiences to the ecstatic energy of Bollywood film music. His score fuses electronic beats, Sufi devotional singing, Indian classical instruments, and Western orchestration into a kinetic whole that mirrors Mumbai's chaotic vitality. Rahman's crossover success spotlights India's massive film music industry — the world's largest — for Western audiences.",
     tags: [
@@ -857,7 +868,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Electronic'],
-    title: 'Trent Reznor & Atticus Ross redefine film scoring with "The Social Network"',
+    title:
+      'Trent Reznor & Atticus Ross redefine film scoring with "The Social Network"',
     description:
       "Nine Inch Nails' Trent Reznor and producer Atticus Ross win the Academy Award for their cold, ambient electronic score for David Fincher's \"The Social Network.\" Their approach — layered synthesizers, processed textures, and industrial atmospherics rather than traditional orchestration — permanently expands the sonic palette of mainstream film scoring. The score's commercial success (it debuts in the Billboard top 20) and critical acclaim open Hollywood's doors to electronic and ambient composers.",
     tags: [
@@ -883,7 +895,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Film Scoring', 'Electronic'],
     title: 'Hans Zimmer\'s "Inception" BRAAAM changes blockbuster sound design',
     description:
-      "Hans Zimmer's score for Christopher Nolan's \"Inception\" introduces the \"BRAAAM\" — a massive, distorted brass note that becomes the defining sound of 2010s blockbuster trailers and scores. Built on a slowed-down version of Edith Piaf's \"Non, je ne regrette rien,\" the score's hybrid of electronic processing and orchestral power creates an oppressive, dream-like atmosphere. The BRAAAM sound is so widely imitated that it transforms the entire aesthetic of action film marketing for a decade.",
+      'Hans Zimmer\'s score for Christopher Nolan\'s "Inception" introduces the "BRAAAM" — a massive, distorted brass note that becomes the defining sound of 2010s blockbuster trailers and scores. Built on a slowed-down version of Edith Piaf\'s "Non, je ne regrette rien," the score\'s hybrid of electronic processing and orchestral power creates an oppressive, dream-like atmosphere. The BRAAAM sound is so widely imitated that it transforms the entire aesthetic of action film marketing for a decade.',
     tags: [
       'hans zimmer',
       'inception',
@@ -910,7 +922,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Film Scoring', 'Pop'],
     title: '"I Love Lucy" launches the TV theme song era',
     description:
-      "\"I Love Lucy\" debuts on CBS with one of television's first iconic theme songs, establishing the tradition of catchy, instantly recognizable opening music that will define the medium for decades. As television rapidly enters American homes, theme songs become some of the most-heard music in the country — cultural earworms that unite millions of viewers in shared ritual. The TV theme becomes a distinct compositional art form, spawning hit singles and shaping how Americans experience music in daily life.",
+      '"I Love Lucy" debuts on CBS with one of television\'s first iconic theme songs, establishing the tradition of catchy, instantly recognizable opening music that will define the medium for decades. As television rapidly enters American homes, theme songs become some of the most-heard music in the country — cultural earworms that unite millions of viewers in shared ritual. The TV theme becomes a distinct compositional art form, spawning hit singles and shaping how Americans experience music in daily life.',
     tags: [
       'i love lucy',
       'cbs',
@@ -932,7 +944,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Film Scoring'],
     title: "Mike Post's TV themes define an era of American television",
     description:
-      "Mike Post composes the iconic \"doink doink\" sound and theme for \"Law & Order,\" capping a career that includes themes for \"The A-Team,\" \"Hill Street Blues,\" \"NYPD Blue,\" and \"Magnum, P.I.\" Post's ability to capture a show's essence in 30 seconds of music makes him the most prolific and successful TV composer in history. The \"Law & Order\" sound effect alone becomes one of the most recognized audio cues in American culture.",
+      'Mike Post composes the iconic "doink doink" sound and theme for "Law & Order," capping a career that includes themes for "The A-Team," "Hill Street Blues," "NYPD Blue," and "Magnum, P.I." Post\'s ability to capture a show\'s essence in 30 seconds of music makes him the most prolific and successful TV composer in history. The "Law & Order" sound effect alone becomes one of the most recognized audio cues in American culture.',
     tags: [
       'mike post',
       'law and order',
@@ -953,9 +965,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Jazz'],
-    title: "Angelo Badalamenti's \"Twin Peaks\" score creates a new TV atmosphere",
+    title:
+      'Angelo Badalamenti\'s "Twin Peaks" score creates a new TV atmosphere',
     description:
-      "Angelo Badalamenti's dreamy, jazz-noir score for David Lynch's \"Twin Peaks\" — anchored by the haunting \"Falling\" theme with Julee Cruise's ethereal vocals — proves that television music can be as artistically ambitious as cinema scoring. The soundtrack album reaches #22 on the Billboard 200, unprecedented for a TV score. Badalamenti's moody blend of cool jazz, ambient textures, and surrealist dread establishes the template for \"prestige TV\" music that shows like \"The Sopranos\" and \"True Detective\" later follow.",
+      'Angelo Badalamenti\'s dreamy, jazz-noir score for David Lynch\'s "Twin Peaks" — anchored by the haunting "Falling" theme with Julee Cruise\'s ethereal vocals — proves that television music can be as artistically ambitious as cinema scoring. The soundtrack album reaches #22 on the Billboard 200, unprecedented for a TV score. Badalamenti\'s moody blend of cool jazz, ambient textures, and surrealist dread establishes the template for "prestige TV" music that shows like "The Sopranos" and "True Detective" later follow.',
     tags: [
       'angelo badalamenti',
       'david lynch',
@@ -976,9 +989,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Classical'],
-    title: "Ramin Djawadi's \"Game of Thrones\" elevates TV scoring to blockbuster scale",
+    title:
+      'Ramin Djawadi\'s "Game of Thrones" elevates TV scoring to blockbuster scale',
     description:
-      "Iranian-German composer Ramin Djawadi's orchestral score for HBO's \"Game of Thrones\" — with its cello-driven main theme — brings cinematic grandeur to television, matching the show's unprecedented production scale. His score for the \"Light of the Seven\" sequence in season six, built on a piano ostinato that builds to devastating orchestral catharsis, is widely considered the greatest piece of television scoring ever composed. Djawadi proves that the golden age of TV demands golden-age-quality music.",
+      'Iranian-German composer Ramin Djawadi\'s orchestral score for HBO\'s "Game of Thrones" — with its cello-driven main theme — brings cinematic grandeur to television, matching the show\'s unprecedented production scale. His score for the "Light of the Seven" sequence in season six, built on a piano ostinato that builds to devastating orchestral catharsis, is widely considered the greatest piece of television scoring ever composed. Djawadi proves that the golden age of TV demands golden-age-quality music.',
     tags: [
       'ramin djawadi',
       'game of thrones',
@@ -999,7 +1013,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Classical'],
-    title: "Nicholas Britell's \"Succession\" theme becomes a cultural meme",
+    title: 'Nicholas Britell\'s "Succession" theme becomes a cultural meme',
     description:
       "Nicholas Britell's piano-and-strings theme for HBO's \"Succession\" — a baroque, anxious composition that mirrors the Roy family's obscene wealth and dysfunction — becomes one of the most recognized TV themes of the streaming era. Britell's classical training (Juilliard, collaboration with Barry Jenkins) brings concert-hall sophistication to television while remaining endlessly memeable. The theme's fusion of classical gravitas and hip hop percussion reflects Britell's unique background producing for Jay-Z and Kanye West.",
     tags: [
@@ -1022,9 +1036,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring'],
-    title: "Ludwig Goransson's \"Mandalorian\" score wins the first streaming-era Emmy",
+    title:
+      'Ludwig Goransson\'s "Mandalorian" score wins the first streaming-era Emmy',
     description:
-      "Swedish composer Ludwig Goransson — fresh from his Oscar for \"Black Panther\" — creates the score for Disney+'s \"The Mandalorian,\" blending recorders, bass flutes, and electronic production to give Star Wars a spaghetti-western-meets-world-music sound that deliberately departs from John Williams' symphonic tradition. Goransson's dual career producing Childish Gambino's Grammy-winning \"This Is America\" and scoring blockbusters makes him the most versatile composer of his generation.",
+      'Swedish composer Ludwig Goransson — fresh from his Oscar for "Black Panther" — creates the score for Disney+\'s "The Mandalorian," blending recorders, bass flutes, and electronic production to give Star Wars a spaghetti-western-meets-world-music sound that deliberately departs from John Williams\' symphonic tradition. Goransson\'s dual career producing Childish Gambino\'s Grammy-winning "This Is America" and scoring blockbusters makes him the most versatile composer of his generation.',
     tags: [
       'ludwig goransson',
       'mandalorian',
@@ -1045,7 +1060,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Electronic'],
-    title: "Cristobal Tapia de Veer's \"White Lotus\" theme goes viral",
+    title: 'Cristobal Tapia de Veer\'s "White Lotus" theme goes viral',
     description:
       "Chilean-Canadian composer Cristobal Tapia de Veer creates the unhinged, percussion-and-chant theme for HBO's \"The White Lotus\" that becomes a TikTok sensation and one of the most discussed TV themes in years. His use of distorted vocals, tribal percussion, and deliberately unsettling textures creates a sonic identity that perfectly captures the show's satirical unease. The theme's virality demonstrates how streaming-era TV music can break through the cultural noise in ways that traditional advertising cannot.",
     tags: [
@@ -1068,9 +1083,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring'],
-    title: "Bear McCreary's \"Battlestar Galactica\" fuses world music with sci-fi",
+    title:
+      'Bear McCreary\'s "Battlestar Galactica" fuses world music with sci-fi',
     description:
-      "Bear McCreary's score for the reimagined \"Battlestar Galactica\" on Syfy rejects the standard sci-fi orchestral template in favor of taiko drums, duduk, erhu, and gamelan instruments, creating an intensely percussive and ethnically diverse sound world for a space opera. His approach — treating an alien civilization's music as genuinely unfamiliar rather than conventionally \"futuristic\" — influences a generation of sci-fi scoring. McCreary becomes one of the most in-demand TV composers, later scoring \"The Walking Dead\" and \"Outlander.\"",
+      'Bear McCreary\'s score for the reimagined "Battlestar Galactica" on Syfy rejects the standard sci-fi orchestral template in favor of taiko drums, duduk, erhu, and gamelan instruments, creating an intensely percussive and ethnically diverse sound world for a space opera. His approach — treating an alien civilization\'s music as genuinely unfamiliar rather than conventionally "futuristic" — influences a generation of sci-fi scoring. McCreary becomes one of the most in-demand TV composers, later scoring "The Walking Dead" and "Outlander."',
     tags: [
       'bear mccreary',
       'battlestar galactica',
@@ -1091,7 +1107,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Jazz'],
-    title: "Jeff Beal's \"House of Cards\" score helps legitimize streaming originals",
+    title:
+      'Jeff Beal\'s "House of Cards" score helps legitimize streaming originals',
     description:
       "Jeff Beal composes the dark, trumpet-and-piano jazz score for Netflix's \"House of Cards\" — the streamer's first prestige original series. The score's smoky, Washingtonian atmosphere and Beal's improvisational approach bring cinematic sophistication to what many still dismissed as a tech company's vanity project. The show's success, aided by Beal's Emmy-nominated music, proves that streaming platforms can produce content rivaling HBO and the major networks.",
     tags: [
@@ -1116,7 +1133,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Film Scoring', 'Jazz'],
     title: '"Mad Men" revives curated soundtrack culture on television',
     description:
-      "AMC's \"Mad Men\" uses carefully curated period music — from Don Draper's jazz LPs to the Beatles' \"Tomorrow Never Knows\" — as a narrative device, making licensed music as important as original scoring in prestige television. The show's music supervisor creates emotional resonance through song placement rather than traditional underscore, influencing the soundtrack approach of \"Breaking Bad,\" \"Stranger Things,\" and every prestige drama that follows. This model transforms music supervision into a respected creative role.",
+      'AMC\'s "Mad Men" uses carefully curated period music — from Don Draper\'s jazz LPs to the Beatles\' "Tomorrow Never Knows" — as a narrative device, making licensed music as important as original scoring in prestige television. The show\'s music supervisor creates emotional resonance through song placement rather than traditional underscore, influencing the soundtrack approach of "Breaking Bad," "Stranger Things," and every prestige drama that follows. This model transforms music supervision into a respected creative role.',
     tags: [
       'mad men',
       'amc',
@@ -1141,9 +1158,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Japan',
     },
     genre: ['Electronic', 'Pop'],
-    title: 'Koji Kondo\'s "Super Mario Bros." theme becomes gaming\'s first anthem',
+    title:
+      'Koji Kondo\'s "Super Mario Bros." theme becomes gaming\'s first anthem',
     description:
-      "Working within the severe limitations of the Nintendo Entertainment System's sound chip — just three melodic channels and one noise channel — Koji Kondo composes the \"Super Mario Bros.\" theme, which becomes the most recognized piece of video game music in history. The infectious, syncopated melody proves that memorable composition can overcome any technical constraint. The theme transcends gaming to become a universally known cultural artifact, recognizable across generations and continents.",
+      'Working within the severe limitations of the Nintendo Entertainment System\'s sound chip — just three melodic channels and one noise channel — Koji Kondo composes the "Super Mario Bros." theme, which becomes the most recognized piece of video game music in history. The infectious, syncopated melody proves that memorable composition can overcome any technical constraint. The theme transcends gaming to become a universally known cultural artifact, recognizable across generations and continents.',
     tags: [
       'koji kondo',
       'super mario bros',
@@ -1164,7 +1182,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Japan',
     },
     genre: ['Classical', 'Electronic'],
-    title: 'Koji Kondo\'s "Legend of Zelda" brings orchestral ambition to 8-bit',
+    title:
+      'Koji Kondo\'s "Legend of Zelda" brings orchestral ambition to 8-bit',
     description:
       "Koji Kondo composes the overworld theme for \"The Legend of Zelda,\" creating a sweeping, adventurous melody that sounds orchestral despite the NES's primitive sound hardware. The dungeon theme's ominous tritones and the title screen's fanfare establish the idea that game music can create distinct emotional worlds for different gameplay contexts. Kondo's Zelda scores evolve across 35 years of sequels, eventually performed by full orchestras at concerts worldwide.",
     tags: [
@@ -1187,9 +1206,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Japan',
     },
     genre: ['Classical', 'Electronic'],
-    title: "Nobuo Uematsu's \"Final Fantasy\" scores elevate game music to art",
+    title: 'Nobuo Uematsu\'s "Final Fantasy" scores elevate game music to art',
     description:
-      "Nobuo Uematsu begins composing for Square's \"Final Fantasy\" series, eventually creating some of the most emotionally ambitious music in any medium. His scores — from the operatic \"Aria di Mezzo Carattere\" in FFVI to \"One-Winged Angel\" in FFVII — draw on classical, progressive rock, and Celtic folk traditions to create music that rivals film scores in scope. Uematsu's work is performed by orchestras worldwide and is central to the argument that video game music is a legitimate art form.",
+      'Nobuo Uematsu begins composing for Square\'s "Final Fantasy" series, eventually creating some of the most emotionally ambitious music in any medium. His scores — from the operatic "Aria di Mezzo Carattere" in FFVI to "One-Winged Angel" in FFVII — draw on classical, progressive rock, and Celtic folk traditions to create music that rivals film scores in scope. Uematsu\'s work is performed by orchestras worldwide and is central to the argument that video game music is a legitimate art form.',
     tags: [
       'nobuo uematsu',
       'final fantasy',
@@ -1210,9 +1229,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Japan',
     },
     genre: ['Electronic'],
-    title: "Yuzo Koshiro's \"Streets of Rage\" brings club music to consoles",
+    title: 'Yuzo Koshiro\'s "Streets of Rage" brings club music to consoles',
     description:
-      "Yuzo Koshiro composes the \"Streets of Rage\" soundtrack for Sega Genesis, programming house, techno, and early rave music directly into the console's Yamaha FM synthesis chip. His approach — treating the game console as a synthesizer rather than a limitation — produces genuinely club-worthy electronic music years before the mainstream discovers electronica. The \"Streets of Rage 2\" soundtrack is widely considered the greatest 16-bit game soundtrack ever made and directly influences future game composers.",
+      'Yuzo Koshiro composes the "Streets of Rage" soundtrack for Sega Genesis, programming house, techno, and early rave music directly into the console\'s Yamaha FM synthesis chip. His approach — treating the game console as a synthesizer rather than a limitation — produces genuinely club-worthy electronic music years before the mainstream discovers electronica. The "Streets of Rage 2" soundtrack is widely considered the greatest 16-bit game soundtrack ever made and directly influences future game composers.',
     tags: [
       'yuzo koshiro',
       'streets of rage',
@@ -1233,9 +1252,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United Kingdom',
     },
     genre: ['Classical', 'Pop'],
-    title: "Grant Kirkhope's \"Banjo-Kazooie\" perfects adaptive game music",
+    title: 'Grant Kirkhope\'s "Banjo-Kazooie" perfects adaptive game music',
     description:
-      "Working at Rare's studio in rural Leicestershire, Grant Kirkhope composes the score for \"Banjo-Kazooie,\" pioneering an adaptive music system where the soundtrack dynamically shifts instrumentation based on the player's location. Moving from a grassy field to an underwater cave seamlessly transforms the same melody from banjo-and-fiddle to muted, bubbling tones. This technical and compositional innovation becomes the gold standard for interactive music design in 3D platformers.",
+      'Working at Rare\'s studio in rural Leicestershire, Grant Kirkhope composes the score for "Banjo-Kazooie," pioneering an adaptive music system where the soundtrack dynamically shifts instrumentation based on the player\'s location. Moving from a grassy field to an underwater cave seamlessly transforms the same melody from banjo-and-fiddle to muted, bubbling tones. This technical and compositional innovation becomes the gold standard for interactive music design in 3D platformers.',
     tags: [
       'grant kirkhope',
       'banjo-kazooie',
@@ -1256,9 +1275,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Classical', 'Electronic'],
-    title: "Martin O'Donnell's \"Halo\" theme merges Gregorian chant with electronica",
+    title:
+      'Martin O\'Donnell\'s "Halo" theme merges Gregorian chant with electronica',
     description:
-      "Martin O'Donnell's score for Bungie's \"Halo: Combat Evolved\" opens with Gregorian-style chanting over driving electronic beats, creating an instantly iconic sound that elevates the Xbox launch title into a cultural event. The score proves that game music can be as cinematic as anything Hollywood produces and helps establish the first-person shooter as a vehicle for serious artistic expression. \"Halo\" essentially does for game music what \"Star Wars\" did for film scores — it makes people take the medium seriously.",
+      'Martin O\'Donnell\'s score for Bungie\'s "Halo: Combat Evolved" opens with Gregorian-style chanting over driving electronic beats, creating an instantly iconic sound that elevates the Xbox launch title into a cultural event. The score proves that game music can be as cinematic as anything Hollywood produces and helps establish the first-person shooter as a vehicle for serious artistic expression. "Halo" essentially does for game music what "Star Wars" did for film scores — it makes people take the medium seriously.',
     tags: [
       'martin odonnell',
       'halo',
@@ -1279,9 +1299,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Denmark',
     },
     genre: ['Electronic', 'Classical'],
-    title: "Jesper Kyd's \"Assassin's Creed\" blends electronic and period music",
+    title:
+      'Jesper Kyd\'s "Assassin\'s Creed" blends electronic and period music',
     description:
-      "Danish composer Jesper Kyd scores Ubisoft's \"Assassin's Creed,\" fusing electronic ambient textures with Middle Eastern instruments and Renaissance-era musical idioms to create an immersive historical soundscape. His approach — using authentic period instruments processed through modern production — becomes a template for how open-world games handle historically diverse settings. Kyd's work across the \"Hitman\" and \"Assassin's Creed\" franchises establishes him as a pioneer of atmospheric game scoring.",
+      'Danish composer Jesper Kyd scores Ubisoft\'s "Assassin\'s Creed," fusing electronic ambient textures with Middle Eastern instruments and Renaissance-era musical idioms to create an immersive historical soundscape. His approach — using authentic period instruments processed through modern production — becomes a template for how open-world games handle historically diverse settings. Kyd\'s work across the "Hitman" and "Assassin\'s Creed" franchises establishes him as a pioneer of atmospheric game scoring.',
     tags: [
       'jesper kyd',
       'assassins creed',
@@ -1302,7 +1323,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Classical'],
-    title: "Austin Wintory's \"Journey\" earns the first Grammy-nominated game score",
+    title:
+      'Austin Wintory\'s "Journey" earns the first Grammy-nominated game score',
     description:
       "Austin Wintory's score for thatgamecompany's \"Journey\" becomes the first video game soundtrack nominated for a Grammy Award, featuring a solo cello that dynamically responds to the player's actions throughout the entire game. The score's integration with gameplay — building from sparse solo instrument to full orchestral catharsis as the player progresses — represents the medium's most sophisticated fusion of music and interactivity. \"Journey\" proves to the music establishment that game scores deserve the same recognition as film and concert music.",
     tags: [
@@ -1325,9 +1347,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Australia',
     },
     genre: ['Electronic', 'Metal'],
-    title: "Mick Gordon's \"DOOM\" soundtrack weaponizes heavy metal for gaming",
+    title: 'Mick Gordon\'s "DOOM" soundtrack weaponizes heavy metal for gaming',
     description:
-      "Australian composer Mick Gordon creates the \"DOOM (2016)\" soundtrack by processing nine-string guitar riffs through chains of synthesizers, creating an unholy fusion of djent metal and industrial electronics that perfectly matches the game's hyper-violent demon-slaying. Gordon's innovative technique of feeding distorted guitar through modular synths produces a sound that is neither purely metal nor electronic but something entirely new. The soundtrack becomes a phenomenon on YouTube and streaming platforms, often listened to independently of the game.",
+      'Australian composer Mick Gordon creates the "DOOM (2016)" soundtrack by processing nine-string guitar riffs through chains of synthesizers, creating an unholy fusion of djent metal and industrial electronics that perfectly matches the game\'s hyper-violent demon-slaying. Gordon\'s innovative technique of feeding distorted guitar through modular synths produces a sound that is neither purely metal nor electronic but something entirely new. The soundtrack becomes a phenomenon on YouTube and streaming platforms, often listened to independently of the game.',
     tags: [
       'mick gordon',
       'doom',
@@ -1348,7 +1370,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Folk'],
-    title: "Gustavo Santaolalla scores \"The Last of Us,\" bridging film and games",
+    title:
+      'Gustavo Santaolalla scores "The Last of Us," bridging film and games',
     description:
       "Gustavo Santaolalla's spare acoustic guitar score for Naughty Dog's \"The Last of Us\" brings his Oscar-winning film sensibility to gaming, creating one of the most emotionally devastating soundtracks in any medium. The score's heartbreaking simplicity — often just a single guitar against silence — matches the game's post-apocalyptic intimacy. When the game is adapted into an HBO series, Santaolalla's music carries over directly, symbolizing the convergence of film and game scoring into a single art form.",
     tags: [
@@ -1394,9 +1417,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Electronic'],
-    title: "Lena Raine's \"Celeste\" score redefines indie game music",
+    title: 'Lena Raine\'s "Celeste" score redefines indie game music',
     description:
-      "Lena Raine's score for the indie platformer \"Celeste\" — a game about climbing a mountain while battling anxiety and depression — uses layered synths, piano, and dynamic music systems to mirror the protagonist's emotional journey. The soundtrack becomes a breakout hit on streaming platforms, demonstrating that indie game music can achieve cultural impact without orchestral budgets. Raine's subsequent work on \"Minecraft\" and other titles establishes her as one of the most important voices in modern game composition.",
+      'Lena Raine\'s score for the indie platformer "Celeste" — a game about climbing a mountain while battling anxiety and depression — uses layered synths, piano, and dynamic music systems to mirror the protagonist\'s emotional journey. The soundtrack becomes a breakout hit on streaming platforms, demonstrating that indie game music can achieve cultural impact without orchestral budgets. Raine\'s subsequent work on "Minecraft" and other titles establishes her as one of the most important voices in modern game composition.',
     tags: [
       'lena raine',
       'celeste',
@@ -1421,9 +1444,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Japan',
     },
     genre: ['Electronic', 'Pop'],
-    title: "Junichi Masuda's \"Pokemon\" music becomes a global childhood anthem",
+    title:
+      'Junichi Masuda\'s "Pokemon" music becomes a global childhood anthem',
     description:
-      "Junichi Masuda composes the music for \"Pokemon Red and Green\" on Game Boy, creating chiptune melodies — especially the battle theme and Pallet Town — that become embedded in the childhood memories of an entire generation worldwide. The Pokemon franchise grows into the highest-grossing media property in history, and Masuda's compositions are recognizable across cultures. The music's evolution from 8-bit to orchestral across 25 years of sequels mirrors the maturation of game music as a whole.",
+      'Junichi Masuda composes the music for "Pokemon Red and Green" on Game Boy, creating chiptune melodies — especially the battle theme and Pallet Town — that become embedded in the childhood memories of an entire generation worldwide. The Pokemon franchise grows into the highest-grossing media property in history, and Masuda\'s compositions are recognizable across cultures. The music\'s evolution from 8-bit to orchestral across 25 years of sequels mirrors the maturation of game music as a whole.',
     tags: [
       'junichi masuda',
       'pokemon',
@@ -1444,9 +1468,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Classical'],
-    title: "Bear McCreary's \"God of War\" score proves games rival film in orchestral ambition",
+    title:
+      'Bear McCreary\'s "God of War" score proves games rival film in orchestral ambition',
     description:
-      "Bear McCreary composes a massive orchestral and choral score for Santa Monica Studio's \"God of War\" reboot, featuring Icelandic and Old Norse vocal performances recorded with a full orchestra. The score wins the BAFTA for Best Music and is widely considered one of the greatest game scores ever written. Its cinematic quality and emotional depth demonstrate that AAA game music has reached full artistic parity with Hollywood film scoring.",
+      'Bear McCreary composes a massive orchestral and choral score for Santa Monica Studio\'s "God of War" reboot, featuring Icelandic and Old Norse vocal performances recorded with a full orchestra. The score wins the BAFTA for Best Music and is widely considered one of the greatest game scores ever written. Its cinematic quality and emotional depth demonstrate that AAA game music has reached full artistic parity with Hollywood film scoring.',
     tags: [
       'bear mccreary',
       'god of war',
@@ -1467,7 +1492,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Classical', 'Electronic'],
-    title: "\"Final Fantasy VII Remake\" reinvents Uematsu's classic score for a new generation",
+    title:
+      '"Final Fantasy VII Remake" reinvents Uematsu\'s classic score for a new generation',
     description:
       "Square Enix's \"Final Fantasy VII Remake\" reimagines Nobuo Uematsu's iconic 1997 score with fully orchestrated and dynamically adaptive arrangements that shift seamlessly between exploration, battle, and cinematic modes. The soundtrack becomes the best-selling game soundtrack album in years and introduces Uematsu's melodies to an audience born after the original release. The project demonstrates how beloved game music can be preserved, expanded, and made newly relevant through modern production techniques.",
     tags: [
@@ -1494,9 +1520,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Germany',
     },
     genre: ['Musical Theatre', 'Jazz'],
-    title: 'Kurt Weill\'s "The Threepenny Opera" merges cabaret with social critique',
+    title:
+      'Kurt Weill\'s "The Threepenny Opera" merges cabaret with social critique',
     description:
-      "Kurt Weill and Bertolt Brecht's \"Die Dreigroschenoper\" premieres in Berlin, using jazz, cabaret, and popular song forms to deliver biting Marxist social commentary. \"Mack the Knife\" becomes one of the 20th century's most recorded songs, covered by Louis Armstrong, Bobby Darin, and Ella Fitzgerald. Weill's deliberate use of \"low\" popular music in a theatrical context — designed to alienate audiences from comfortable emotion — profoundly influences Sondheim, Kander and Ebb, and the entire tradition of the dark, politically engaged musical.",
+      'Kurt Weill and Bertolt Brecht\'s "Die Dreigroschenoper" premieres in Berlin, using jazz, cabaret, and popular song forms to deliver biting Marxist social commentary. "Mack the Knife" becomes one of the 20th century\'s most recorded songs, covered by Louis Armstrong, Bobby Darin, and Ella Fitzgerald. Weill\'s deliberate use of "low" popular music in a theatrical context — designed to alienate audiences from comfortable emotion — profoundly influences Sondheim, Kander and Ebb, and the entire tradition of the dark, politically engaged musical.',
     tags: [
       'kurt weill',
       'bertolt brecht',
@@ -1517,9 +1544,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Jazz'],
-    title: "\"La La Land\" revives the Hollywood musical and jazz on the big screen",
+    title:
+      '"La La Land" revives the Hollywood musical and jazz on the big screen',
     description:
-      "Damien Chazelle's \"La La Land,\" with a jazz-infused score by Justin Hurwitz, wins six Academy Awards and grosses over $440 million worldwide, proving that the original movie musical is commercially viable in the 21st century. The score's nostalgic blend of classic Hollywood musical language with modern jazz sensibility introduces jazz to millions of younger viewers. Its success triggers a wave of new musical films and demonstrates that jazz can still be a mainstream cinematic language.",
+      'Damien Chazelle\'s "La La Land," with a jazz-infused score by Justin Hurwitz, wins six Academy Awards and grosses over $440 million worldwide, proving that the original movie musical is commercially viable in the 21st century. The score\'s nostalgic blend of classic Hollywood musical language with modern jazz sensibility introduces jazz to millions of younger viewers. Its success triggers a wave of new musical films and demonstrates that jazz can still be a mainstream cinematic language.',
     tags: [
       'la la land',
       'justin hurwitz',
@@ -1540,9 +1568,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring', 'Hip Hop'],
-    title: "\"Black Panther\" fuses orchestral scoring with African music and hip hop",
+    title:
+      '"Black Panther" fuses orchestral scoring with African music and hip hop',
     description:
-      "Ludwig Goransson's Oscar-winning score for \"Black Panther\" incorporates talking drums, fula flute, and senegalese sabar alongside a full orchestra, while Kendrick Lamar curates a companion hip hop album that charts at #1. The dual approach — authentic African instrumentation in the score, contemporary Black American music in the album — represents a new model for blockbuster music that honors cultural specificity. Goransson's meticulous research trip to Senegal and South Africa sets a new standard for cultural authenticity in film scoring.",
+      'Ludwig Goransson\'s Oscar-winning score for "Black Panther" incorporates talking drums, fula flute, and senegalese sabar alongside a full orchestra, while Kendrick Lamar curates a companion hip hop album that charts at #1. The dual approach — authentic African instrumentation in the score, contemporary Black American music in the album — represents a new model for blockbuster music that honors cultural specificity. Goransson\'s meticulous research trip to Senegal and South Africa sets a new standard for cultural authenticity in film scoring.',
     tags: [
       'ludwig goransson',
       'black panther',
@@ -1564,9 +1593,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Film Scoring'],
-    title: "Michael Abels' \"Get Out\" score channels the Black experience into horror",
+    title:
+      'Michael Abels\' "Get Out" score channels the Black experience into horror',
     description:
-      "Composer Michael Abels creates the score for Jordan Peele's \"Get Out,\" using Swahili vocals singing warnings like \"Run! Listen to your ancestors!\" to create a horror score rooted specifically in the Black American experience. Abels' approach — where the music literally tells the protagonist what the genre conventions prevent him from seeing — invents a new form of culturally specific horror scoring. The film's massive commercial and critical success launches a wave of socially conscious horror with equally inventive scores.",
+      'Composer Michael Abels creates the score for Jordan Peele\'s "Get Out," using Swahili vocals singing warnings like "Run! Listen to your ancestors!" to create a horror score rooted specifically in the Black American experience. Abels\' approach — where the music literally tells the protagonist what the genre conventions prevent him from seeing — invents a new form of culturally specific horror scoring. The film\'s massive commercial and critical success launches a wave of socially conscious horror with equally inventive scores.',
     tags: [
       'michael abels',
       'get out',
@@ -1587,7 +1617,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Musical Theatre', 'Pop'],
-    title: "\"Tick, Tick... Boom!\" film brings awareness to musical theater's creative process",
+    title:
+      '"Tick, Tick... Boom!" film brings awareness to musical theater\'s creative process',
     description:
       "Netflix's film adaptation of Jonathan Larson's autobiographical musical \"Tick, Tick... Boom!\" — directed by Lin-Manuel Miranda and starring Andrew Garfield — introduces a new generation to the anguished creative process behind musical theater. The film's streaming success demonstrates that Broadway stories can thrive on digital platforms and honors Larson's legacy as the bridge between Sondheim's art musical tradition and the pop-influenced musicals of the 21st century.",
     tags: [
@@ -1616,7 +1647,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Jingles'],
     title: "Wheaties airs the world's first radio jingle",
     description:
-      "A barbershop quartet sings \"Have You Tried Wheaties?\" on WCCO radio in Minneapolis, creating the world's first singing commercial jingle. General Mills notices that Wheaties sales spike dramatically in the Minneapolis broadcast area compared to the rest of the country, proving that catchy music can sell products. This discovery launches the jingle industry and fundamentally changes the relationship between music and commerce for the next century.",
+      'A barbershop quartet sings "Have You Tried Wheaties?" on WCCO radio in Minneapolis, creating the world\'s first singing commercial jingle. General Mills notices that Wheaties sales spike dramatically in the Minneapolis broadcast area compared to the rest of the country, proving that catchy music can sell products. This discovery launches the jingle industry and fundamentally changes the relationship between music and commerce for the next century.',
     tags: [
       'wheaties',
       'radio jingle',
@@ -1636,9 +1667,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Jingles', 'Pop'],
-    title: "Barry Manilow's jingle work creates America's commercial soundtrack",
+    title:
+      "Barry Manilow's jingle work creates America's commercial soundtrack",
     description:
-      "Before becoming a pop superstar, Barry Manilow works as a jingle writer in New York, composing some of the most memorable advertising music in history — including \"I Am Stuck on Band-Aid\" and the State Farm \"Like a Good Neighbor\" theme. His melodic gift, honed in the jingle trenches, translates directly to his pop career. Manilow represents the golden age of jingle writing when Madison Avenue's best musical minds created 30-second songs that embedded themselves permanently in the American subconscious.",
+      'Before becoming a pop superstar, Barry Manilow works as a jingle writer in New York, composing some of the most memorable advertising music in history — including "I Am Stuck on Band-Aid" and the State Farm "Like a Good Neighbor" theme. His melodic gift, honed in the jingle trenches, translates directly to his pop career. Manilow represents the golden age of jingle writing when Madison Avenue\'s best musical minds created 30-second songs that embedded themselves permanently in the American subconscious.',
     tags: [
       'barry manilow',
       'jingle',
@@ -1659,9 +1691,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United Kingdom',
     },
     genre: ['Jingles', 'Pop'],
-    title: "\"I'd Like to Buy the World a Coke\" becomes the ultimate jingle",
+    title: '"I\'d Like to Buy the World a Coke" becomes the ultimate jingle',
     description:
-      "Songwriter Billy Davis and the New Seekers record \"I'd Like to Buy the World a Coke\" (later reworked as \"I'd Like to Teach the World to Sing\") for Coca-Cola, creating arguably the most famous advertising jingle ever made. The song crosses over to become a legitimate pop hit, reaching #7 on the Billboard Hot 100 in its non-commercial version. It establishes the template for brands using aspirational, anthem-like music to associate products with universal human emotions.",
+      'Songwriter Billy Davis and the New Seekers record "I\'d Like to Buy the World a Coke" (later reworked as "I\'d Like to Teach the World to Sing") for Coca-Cola, creating arguably the most famous advertising jingle ever made. The song crosses over to become a legitimate pop hit, reaching #7 on the Billboard Hot 100 in its non-commercial version. It establishes the template for brands using aspirational, anthem-like music to associate products with universal human emotions.',
     tags: [
       'coca-cola',
       'hilltop ad',
@@ -1684,7 +1716,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Jingles', 'Electronic'],
     title: "Walter Werzowa's Intel bong pioneers sonic branding",
     description:
-      "Austrian composer Walter Werzowa (of the band Edelweiss) creates the five-note \"Intel Inside\" sonic logo — a 3-second mnemonic that plays billions of times through TV ads and computer startups. This tiny composition pioneers the modern field of sonic branding, where companies invest in audio identities as carefully as visual logos. The Intel bong's ubiquity inspires Netflix's \"ta-dum,\" HBO's static buzz, and every other corporate sound mark that follows.",
+      'Austrian composer Walter Werzowa (of the band Edelweiss) creates the five-note "Intel Inside" sonic logo — a 3-second mnemonic that plays billions of times through TV ads and computer startups. This tiny composition pioneers the modern field of sonic branding, where companies invest in audio identities as carefully as visual logos. The Intel bong\'s ubiquity inspires Netflix\'s "ta-dum," HBO\'s static buzz, and every other corporate sound mark that follows.',
     tags: [
       'walter werzowa',
       'intel',
@@ -1705,9 +1737,9 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Electronic'],
-    title: "Moby's \"Play\" revolutionizes music licensing for advertising",
+    title: 'Moby\'s "Play" revolutionizes music licensing for advertising',
     description:
-      "Moby licenses every track from his album \"Play\" to films, TV shows, and commercials — an unprecedented move that transforms the economics of independent music. The album goes on to sell over 12 million copies worldwide, largely driven by its ubiquitous presence in advertising from Volkswagen to American Express. While criticized for \"selling out,\" Moby's strategy becomes the standard model for independent artists seeking income beyond record sales, permanently blurring the line between art and commerce.",
+      'Moby licenses every track from his album "Play" to films, TV shows, and commercials — an unprecedented move that transforms the economics of independent music. The album goes on to sell over 12 million copies worldwide, largely driven by its ubiquitous presence in advertising from Volkswagen to American Express. While criticized for "selling out," Moby\'s strategy becomes the standard model for independent artists seeking income beyond record sales, permanently blurring the line between art and commerce.',
     tags: [
       'moby',
       'play',
@@ -1728,9 +1760,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Pop'],
-    title: "Apple's iPod silhouette ads merge music marketing with product design",
+    title:
+      "Apple's iPod silhouette ads merge music marketing with product design",
     description:
-      "Apple's iconic iPod silhouette campaign — featuring black silhouettes dancing against neon backgrounds with white earbuds — transforms how music is marketed and consumed. The ads launch the careers of artists like Feist (\"1234\") and Jet (\"Are You Gonna Be My Girl\") while establishing Apple as a cultural tastemaker. The campaign proves that a tech company can shape musical taste as powerfully as any record label, foreshadowing Apple Music's later influence on the industry.",
+      'Apple\'s iconic iPod silhouette campaign — featuring black silhouettes dancing against neon backgrounds with white earbuds — transforms how music is marketed and consumed. The ads launch the careers of artists like Feist ("1234") and Jet ("Are You Gonna Be My Girl") while establishing Apple as a cultural tastemaker. The campaign proves that a tech company can shape musical taste as powerfully as any record label, foreshadowing Apple Music\'s later influence on the industry.',
     tags: [
       'apple',
       'ipod',
@@ -1751,7 +1784,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Pop'],
-    title: "Michael Jackson's Super Bowl halftime transforms the event into a music spectacle",
+    title:
+      "Michael Jackson's Super Bowl halftime transforms the event into a music spectacle",
     description:
       "Michael Jackson's 1993 Super Bowl XXVII halftime performance at the Rose Bowl in Pasadena — featuring his trademark entrance of standing motionless for 90 seconds as 100,000 fans scream — transforms the halftime show from a marching band intermission into the most-watched annual music event on Earth. From this point forward, the Super Bowl halftime becomes a career-defining platform for the world's biggest artists, from Prince's legendary rain-soaked performance to Shakira and J.Lo's cultural statements.",
     tags: [
@@ -1776,7 +1810,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Pop', 'Hip Hop', 'Electronic'],
     title: 'TikTok fundamentally reshapes how music is discovered and consumed',
     description:
-      "ByteDance's TikTok (originally Musical.ly) transforms music discovery by making 15-60 second clips the primary way young audiences encounter new songs. The platform's algorithm can turn decades-old tracks into viral hits overnight — Fleetwood Mac's \"Dreams\" re-charts 43 years after release — while unknown artists like Lil Nas X (\"Old Town Road\") and Olivia Rodrigo launch careers from TikTok virality. The platform fundamentally changes how songs are written, with artists now optimizing for the \"TikTok moment\" in every track.",
+      'ByteDance\'s TikTok (originally Musical.ly) transforms music discovery by making 15-60 second clips the primary way young audiences encounter new songs. The platform\'s algorithm can turn decades-old tracks into viral hits overnight — Fleetwood Mac\'s "Dreams" re-charts 43 years after release — while unknown artists like Lil Nas X ("Old Town Road") and Olivia Rodrigo launch careers from TikTok virality. The platform fundamentally changes how songs are written, with artists now optimizing for the "TikTok moment" in every track.',
     tags: [
       'tiktok',
       'bytedance',
@@ -1803,7 +1837,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Electronic'],
     title: 'Napster shatters the music industry business model',
     description:
-      "Shawn Fanning and Sean Parker launch Napster from San Mateo, California, enabling free peer-to-peer music file sharing that reaches 80 million users in two years. The service is eventually shut down after lawsuits from Metallica and the RIAA, but the damage is done — global music revenue drops from $23.8 billion in 1999 to $15 billion by 2004. Napster proves that digital distribution is inevitable and forces the industry into a decade-long crisis that ultimately produces the streaming economy.",
+      'Shawn Fanning and Sean Parker launch Napster from San Mateo, California, enabling free peer-to-peer music file sharing that reaches 80 million users in two years. The service is eventually shut down after lawsuits from Metallica and the RIAA, but the damage is done — global music revenue drops from $23.8 billion in 1999 to $15 billion by 2004. Napster proves that digital distribution is inevitable and forces the industry into a decade-long crisis that ultimately produces the streaming economy.',
     tags: [
       'napster',
       'shawn fanning',
@@ -1827,7 +1861,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Pop'],
     title: 'iTunes Store launches the legal digital music economy',
     description:
-      "Steve Jobs launches the iTunes Music Store with 200,000 songs at 99 cents each, selling one million tracks in the first week and proving that consumers will pay for digital music if the experience is convenient. iTunes rescues the music industry from the Napster-era freefall by creating a legal digital marketplace, but its a la carte model — buying individual songs rather than full albums — fundamentally disrupts the album format that artists had relied on since the 1960s.",
+      'Steve Jobs launches the iTunes Music Store with 200,000 songs at 99 cents each, selling one million tracks in the first week and proving that consumers will pay for digital music if the experience is convenient. iTunes rescues the music industry from the Napster-era freefall by creating a legal digital marketplace, but its a la carte model — buying individual songs rather than full albums — fundamentally disrupts the album format that artists had relied on since the 1960s.',
     tags: [
       'itunes',
       'apple',
@@ -1896,7 +1930,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     genre: ['Indie Rock'],
     title: 'Bandcamp launches the artist-direct digital model',
     description:
-      "Ethan Diamond launches Bandcamp from Oakland, California, creating a platform that lets artists sell music directly to fans with an artist-favorable revenue split (artists keep 82-90%). In contrast to streaming platforms that pay fractions of a penny per play, Bandcamp's model — particularly its \"Bandcamp Fridays\" where the platform waives its cut — becomes a lifeline for independent and experimental musicians. The platform proves that a viable alternative to the streaming economy exists for artists willing to cultivate direct fan relationships.",
+      'Ethan Diamond launches Bandcamp from Oakland, California, creating a platform that lets artists sell music directly to fans with an artist-favorable revenue split (artists keep 82-90%). In contrast to streaming platforms that pay fractions of a penny per play, Bandcamp\'s model — particularly its "Bandcamp Fridays" where the platform waives its cut — becomes a lifeline for independent and experimental musicians. The platform proves that a viable alternative to the streaming economy exists for artists willing to cultivate direct fan relationships.',
     tags: [
       'bandcamp',
       'independent music',
@@ -1917,7 +1951,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'Sweden',
     },
     genre: ['Pop'],
-    title: "Spotify launches and invents the modern streaming model",
+    title: 'Spotify launches and invents the modern streaming model',
     description:
       "Daniel Ek and Martin Lorentzon launch Spotify in Stockholm, offering legal, on-demand music streaming through both a free ad-supported tier and a paid subscription. By providing instant access to millions of songs, Spotify finally offers a legal alternative that matches piracy's convenience. The platform's algorithmic playlists — Discover Weekly, Release Radar — fundamentally reshape how listeners find new music, shifting power from radio programmers and critics to data scientists and algorithms.",
     tags: [
@@ -1940,9 +1974,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       country: 'United States',
     },
     genre: ['Pop', 'Electronic', 'R&B'],
-    title: "Beyonce's \"Renaissance\" resurrects dance music through streaming culture",
+    title:
+      'Beyonce\'s "Renaissance" resurrects dance music through streaming culture',
     description:
-      "Beyonce's \"Renaissance\" arrives as a streaming-era album that pays tribute to Black and queer dance music history — from disco and house to ballroom and Afrobeats — while dominating every digital platform simultaneously. The album's first-day Spotify record and subsequent Grammy wins demonstrate that streaming-era release strategy and artistic ambition are not mutually exclusive. \"Renaissance\" proves that albums can still be cultural events in the playlist era if the artist commands sufficient cultural authority.",
+      'Beyonce\'s "Renaissance" arrives as a streaming-era album that pays tribute to Black and queer dance music history — from disco and house to ballroom and Afrobeats — while dominating every digital platform simultaneously. The album\'s first-day Spotify record and subsequent Grammy wins demonstrate that streaming-era release strategy and artistic ambition are not mutually exclusive. "Renaissance" proves that albums can still be cultural events in the playlist era if the artist commands sufficient cultural authority.',
     tags: [
       'beyonce',
       'renaissance',

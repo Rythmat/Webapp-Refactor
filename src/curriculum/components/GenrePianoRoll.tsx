@@ -479,7 +479,11 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
           <div className="sticky left-0 z-20" style={{ width: laneLabelWidth }}>
             {laneList.map((name, _idx) => {
               const laneMidi = pitchNameToMidi(name);
-              const baseBackground = getRowBackground(laneMidi, keyRoot, keyColor);
+              const baseBackground = getRowBackground(
+                laneMidi,
+                keyRoot,
+                keyColor,
+              );
               const isActiveLane =
                 typeof laneMidi === 'number' && activeMidiSet.has(laneMidi);
               const background = isActiveLane
@@ -741,7 +745,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                         left: `${Math.max(0, startPct)}%`,
                         width: `${widthPct}%`,
                         backgroundColor: isCorrect
-                          ? keyColor ?? '#4ecdc4'
+                          ? (keyColor ?? '#4ecdc4')
                           : '#888888',
                         opacity: isCorrect ? 1.0 : 0.5,
                         boxShadow: isCorrect

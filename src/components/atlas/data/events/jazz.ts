@@ -560,7 +560,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Jazz', 'Hot Jazz'],
-    title: "Lil Hardin Armstrong: pianist, composer, and architect of Louis Armstrong's career",
+    title:
+      "Lil Hardin Armstrong: pianist, composer, and architect of Louis Armstrong's career",
     description:
       "Lil Hardin Armstrong — classically trained pianist, bandleader, and composer — is the musical director and driving force behind Louis Armstrong's Hot Five and Hot Seven recordings. A graduate of Fisk University and a professional musician before Louis arrived in Chicago, she arranges sessions, writes compositions, and pushes her husband to leave King Oliver's shadow and lead his own group. Her own recordings as leader showcase a bold, rhythmically advanced piano style that predates many later innovations.",
     tags: [
@@ -632,7 +633,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Jazz', 'Swing', 'Big Band'],
-    title: "Duke Ellington begins his Cotton Club residency in Harlem",
+    title: 'Duke Ellington begins his Cotton Club residency in Harlem',
     description:
       "Duke Ellington and his orchestra begin their legendary residency at the Cotton Club in Harlem, broadcast nationally via radio. Over the next four years, Ellington transforms the jazz orchestra from a dance band into America's most sophisticated compositional vehicle. His 'jungle sound' — featuring growling brass and exotic harmonies — and extended works like 'Black and Tan Fantasy' establish him as the greatest composer in jazz history and one of the most important in all of American music.",
     tags: [
@@ -728,7 +729,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Afro-Cuban Jazz', 'Latin Jazz', 'Mambo'],
-    title: "Tito Puente and Machito forge Afro-Cuban jazz at the Palladium",
+    title: 'Tito Puente and Machito forge Afro-Cuban jazz at the Palladium',
     description:
       "Tito Puente, Machito and his Afro-Cubans, and Tito Rodríguez transform the Palladium Ballroom on Broadway into the epicenter of Afro-Cuban jazz and mambo. Machito's musical director Mario Bauzá — who had introduced Dizzy Gillespie to Chano Pozo — arranges searing big band charts that merge bebop harmonies with clave-driven Cuban rhythms. The Palladium era cements New York as the capital of Latin jazz and the meeting point of African diasporic musical traditions from North America and the Caribbean.",
     tags: [
@@ -777,7 +778,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Jazz', 'Vocal Jazz', 'Bebop'],
-    title: "Sarah Vaughan records with Clifford Brown — a vocal-jazz landmark",
+    title: 'Sarah Vaughan records with Clifford Brown — a vocal-jazz landmark',
     description:
       "Sarah Vaughan records 'Sarah Vaughan with Clifford Brown,' an album that showcases the full range of 'The Divine One's' extraordinary instrument — a four-octave voice with operatic richness, bebop agility, and an uncanny sense of harmonic sophistication. Paired with Clifford Brown's warm trumpet, the album captures two of jazz's greatest talents at their peak and sets the standard for jazz vocal albums.",
     tags: [
@@ -825,7 +826,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Jazz', 'Vocal Jazz', 'Standards'],
-    title: "Ella Fitzgerald begins her Great American Songbook series",
+    title: 'Ella Fitzgerald begins her Great American Songbook series',
     description:
       "Ella Fitzgerald begins recording her monumental Songbook series for Verve Records, produced by Norman Granz, starting with the Cole Porter Songbook. Over the next decade, she records definitive interpretations of Rodgers and Hart, Duke Ellington, George and Ira Gershwin, Harold Arlen, and Irving Berlin. The series simultaneously elevates jazz vocals to the highest art form and canonizes the Great American Songbook as a permanent body of work. Fitzgerald's flawless intonation, rhythmic invention, and joyful swing set a standard that has never been surpassed.",
     tags: [
@@ -969,7 +970,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Jazz', 'Modal Jazz'],
-    title: "Miles Davis records 'Kind of Blue' — the best-selling jazz album of all time",
+    title:
+      "Miles Davis records 'Kind of Blue' — the best-selling jazz album of all time",
     description:
       "Miles Davis assembles John Coltrane, Cannonball Adderley, Bill Evans, Wynton Kelly, Paul Chambers, and Jimmy Cobb at Columbia's 30th Street Studio and records 'Kind of Blue' in two sessions. The album replaces bebop's dense chord changes with modal scales, giving soloists unprecedented freedom to explore melody and mood. Its combination of intellectual rigor and emotional beauty makes it the best-selling jazz album in history, a gateway record for millions of listeners worldwide.",
     tags: [
@@ -1137,7 +1139,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Jazz', 'Bossa Nova', 'Latin Jazz'],
-    title: "Stan Getz and João Gilberto bring bossa nova to the world",
+    title: 'Stan Getz and João Gilberto bring bossa nova to the world',
     description:
       "Stan Getz and João Gilberto's album 'Getz/Gilberto' — featuring Astrud Gilberto's accidental vocal on 'The Girl from Ipanema' and Antônio Carlos Jobim on piano — becomes a massive crossover hit, introducing Brazilian bossa nova to a global audience. The fusion of Getz's cool tenor saxophone with Gilberto's whispering guitar and Jobim's sophisticated harmonies creates one of the most successful and influential genre crossovers in music history.",
     tags: [
@@ -1281,7 +1283,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Jazz', 'Jazz Fusion', 'Latin Jazz'],
-    title: "Chick Corea's Return to Forever blends jazz, Brazilian, and electric fusion",
+    title:
+      "Chick Corea's Return to Forever blends jazz, Brazilian, and electric fusion",
     description:
       "Chick Corea forms Return to Forever with Stanley Clarke, Joe Farrell, Airto Moreira, and Flora Purim, recording a self-titled debut that merges post-bop jazz with Brazilian rhythms and an effervescent, acoustic energy. The group later evolves into a high-voltage electric fusion powerhouse. Corea's crystalline piano touch, Latin rhythmic sensibility, and compositional craft — from the lyrical 'Spain' to complex fusion workouts — make him one of the most influential pianist-composers of his generation.",
     tags: [
@@ -1425,7 +1428,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Jazz', 'Post-Bop', 'Chamber Jazz'],
-    title: "Brad Mehldau records 'Largo' — jazz piano meets Radiohead and orchestral textures",
+    title:
+      "Brad Mehldau records 'Largo' — jazz piano meets Radiohead and orchestral textures",
     description:
       "Brad Mehldau records 'Largo' with producer Jon Brion in Los Angeles, merging his virtuosic jazz piano with orchestral arrangements, rock textures, and the influence of Radiohead and Brahms. The album breaks from the conventional piano trio format that made Mehldau famous, incorporating guitars, strings, and studio production into a genre-defying statement. Mehldau's willingness to bring contemporary rock, pop, and classical influences into jazz — while maintaining the highest improvisational standards — redefines the jazz pianist's role in the 21st century.",
     tags: [
@@ -1473,7 +1477,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Jazz', 'Post-Bop', 'Contemporary Jazz'],
-    title: "Terri Lyne Carrington's 'The Mosaic Project' celebrates women in jazz",
+    title:
+      "Terri Lyne Carrington's 'The Mosaic Project' celebrates women in jazz",
     description:
       "Terri Lyne Carrington releases 'The Mosaic Project,' an all-female album featuring Esperanza Spalding, Dee Dee Bridgewater, Cassandra Wilson, Geri Allen, and others. The album wins the Grammy for Best Jazz Vocal Album, and Carrington — a drumming prodigy who debuted professionally at age 10 and studied at Berklee — becomes one of the most important bandleaders and educators in contemporary jazz. Her work intentionally centers women's voices and contributions in a genre where they have been historically marginalized.",
     tags: [
@@ -1497,7 +1502,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Jazz', 'Spiritual Jazz', 'Hip Hop'],
-    title: "Kamasi Washington releases 'The Epic' — jazz meets the hip-hop generation",
+    title:
+      "Kamasi Washington releases 'The Epic' — jazz meets the hip-hop generation",
     description:
       "Kamasi Washington releases 'The Epic,' a sprawling triple album of spiritual jazz that reaches far beyond the traditional jazz audience. Washington — a tenor saxophonist from South Central LA who played on Kendrick Lamar's 'To Pimp a Butterfly' — creates maximalist, cinematic jazz rooted in John Coltrane's legacy, the Black church, and the LA beat scene. The album introduces jazz to a new generation of listeners through hip-hop, Brainfeeder Records, and the cultural moment of Black Lives Matter.",
     tags: [
@@ -1547,7 +1553,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
     genre: ['Jazz', 'Post-Bop', 'Contemporary Jazz'],
     title: 'Artemis supergroup debuts — an all-star women-in-jazz collective',
     description:
-      "Artemis, an all-star jazz supergroup, debuts at the Newport Jazz Festival. The collective — featuring pianist and bandleader Renee Rosnes, saxophonist Melissa Aldana, trumpeter Ingrid Jensen, clarinetist Anat Cohen, drummer Allison Miller, and bassist Noriko Ueda — represents the depth and diversity of women instrumentalists in contemporary jazz. Named for the Greek goddess of the hunt, Artemis proves that women are not a niche but a driving force in 21st-century jazz, performing original compositions and reimagined standards at the highest level.",
+      'Artemis, an all-star jazz supergroup, debuts at the Newport Jazz Festival. The collective — featuring pianist and bandleader Renee Rosnes, saxophonist Melissa Aldana, trumpeter Ingrid Jensen, clarinetist Anat Cohen, drummer Allison Miller, and bassist Noriko Ueda — represents the depth and diversity of women instrumentalists in contemporary jazz. Named for the Greek goddess of the hunt, Artemis proves that women are not a niche but a driving force in 21st-century jazz, performing original compositions and reimagined standards at the highest level.',
     tags: [
       'artemis',
       'supergroup',

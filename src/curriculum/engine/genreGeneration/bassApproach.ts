@@ -26,28 +26,38 @@
  * Source: Peter Stoltzman — Funk SOP training + DCB rhythm chart
  */
 
-export type ApproachDirection = 'single_below' | 'double_above' | 'double_below' | 'single_above';
-export type ApproachStyle = 'funk' | 'rnb' | 'neo_soul' | 'blues' | 'jazz_l1' | 'jazz_l3';
+export type ApproachDirection =
+  | 'single_below'
+  | 'double_above'
+  | 'double_below'
+  | 'single_above';
+export type ApproachStyle =
+  | 'funk'
+  | 'rnb'
+  | 'neo_soul'
+  | 'blues'
+  | 'jazz_l1'
+  | 'jazz_l3';
 
 export interface ApproachNote {
   midi: number;
-  onset: number;      // absolute ticks (barOffset already applied)
-  duration: number;   // ticks
+  onset: number; // absolute ticks (barOffset already applied)
+  duration: number; // ticks
 }
 
 // ── Rhythmic patterns (offsets relative to goal_tick) ───────────────────
 
 const DOUBLE_APPROACH_RHYTHMS: Array<{
   id: string;
-  offsets: [number, number];   // [first_approach_offset, second_approach_offset]
+  offsets: [number, number]; // [first_approach_offset, second_approach_offset]
   weight: number;
 }> = [
-  { id: 'DCB1',    offsets: [-480, -360], weight: 20 },  // beat4 + e-of-4
-  { id: 'DCB2',    offsets: [-720, -360], weight: 20 },  // and-of-3 + e-of-4
-  { id: 'DCB3',    offsets: [-600, -360], weight: 20 },  // a-of-3 + e-of-4
-  { id: 'PAIR_16', offsets: [-240, -120], weight: 15 },  // and-of-4 + a-of-4
-  { id: 'PAIR_8',  offsets: [-480, -240], weight: 15 },  // beat4 + and-of-4
-  { id: 'PAIR_Q',  offsets: [-960, -480], weight: 10 },  // beat3 + beat4
+  { id: 'DCB1', offsets: [-480, -360], weight: 20 }, // beat4 + e-of-4
+  { id: 'DCB2', offsets: [-720, -360], weight: 20 }, // and-of-3 + e-of-4
+  { id: 'DCB3', offsets: [-600, -360], weight: 20 }, // a-of-3 + e-of-4
+  { id: 'PAIR_16', offsets: [-240, -120], weight: 15 }, // and-of-4 + a-of-4
+  { id: 'PAIR_8', offsets: [-480, -240], weight: 15 }, // beat4 + and-of-4
+  { id: 'PAIR_Q', offsets: [-960, -480], weight: 10 }, // beat3 + beat4
 ];
 
 function weightedPick<T extends { weight: number }>(items: T[]): T {
@@ -63,22 +73,24 @@ function weightedPick<T extends { weight: number }>(items: T[]): T {
 // ── Direction picker ────────────────────────────────────────────────────
 
 const STYLE_DIRECTIONS: Record<ApproachStyle, ApproachDirection[]> = {
-  funk:      ['single_below', 'double_above', 'double_below'],
-  rnb:       ['single_below', 'double_above', 'double_below'],
-  neo_soul:  ['single_below', 'double_above', 'double_below'],
-  blues:     ['single_below', 'double_above', 'double_below'],
-  jazz_l1:   ['single_below'],
-  jazz_l3:   ['single_below', 'double_above', 'double_below', 'single_above'],
+  funk: ['single_below', 'double_above', 'double_below'],
+  rnb: ['single_below', 'double_above', 'double_below'],
+  neo_soul: ['single_below', 'double_above', 'double_below'],
+  blues: ['single_below', 'double_above', 'double_below'],
+  jazz_l1: ['single_below'],
+  jazz_l3: ['single_below', 'double_above', 'double_below', 'single_above'],
 };
 
-export function pickApproachDirection(style: ApproachStyle = 'funk'): ApproachDirection {
+export function pickApproachDirection(
+  style: ApproachStyle = 'funk',
+): ApproachDirection {
   const available = STYLE_DIRECTIONS[style];
   return available[Math.floor(Math.random() * available.length)];
 }
 
 // ── Main builder ────────────────────────────────────────────────────────
 
-const MIN_GAP = 240;  // minimum ticks after previous chord before approach can start
+const MIN_GAP = 240; // minimum ticks after previous chord before approach can start
 
 /**
  * Build chromatic approach notes leading into a chord change.
@@ -105,28 +117,32 @@ export function buildApproachNotes(
   const earliestApproach = prevChordTick + MIN_GAP;
 
   if (dir === 'single_below') {
-    const onset = goalTick - 600;  // standard: ~a-of-3 before goal
+    const onset = goalTick - 600; // standard: ~a-of-3 before goal
     if (onset < earliestApproach) return [];
-    return [{
-      midi:     targetMidi - 1,
-      onset:    barOffset + onset,
-      duration: 120,
-    }];
+    return [
+      {
+        midi: targetMidi - 1,
+        onset: barOffset + onset,
+        duration: 120,
+      },
+    ];
   }
 
   if (dir === 'single_above') {
     // Jazz L3 only — one semitone above
     const onset = goalTick - 600;
     if (onset < earliestApproach) return [];
-    return [{
-      midi:     targetMidi + 1,
-      onset:    barOffset + onset,
-      duration: 120,
-    }];
+    return [
+      {
+        midi: targetMidi + 1,
+        onset: barOffset + onset,
+        duration: 120,
+      },
+    ];
   }
 
   // Double approach — filter patterns that fit the available space
-  const validRhythms = DOUBLE_APPROACH_RHYTHMS.filter(r => {
+  const validRhythms = DOUBLE_APPROACH_RHYTHMS.filter((r) => {
     const firstOnset = goalTick + r.offsets[0];
     return firstOnset >= earliestApproach;
   });
@@ -138,9 +154,9 @@ export function buildApproachNotes(
   const t2 = goalTick + rhythm.offsets[1];
   // First chromatic: short (16th = 120t)
   // Second chromatic (lands on the "e"): long — held to the goal (dotted 8th feel)
-  const dur1 = 120;                       // first note: short stab
-  const dur2 = goalTick - t2;             // second note: holds until the goal lands
-  const safeDur2 = Math.max(dur2, 240);   // at least an 8th note
+  const dur1 = 120; // first note: short stab
+  const dur2 = goalTick - t2; // second note: holds until the goal lands
+  const safeDur2 = Math.max(dur2, 240); // at least an 8th note
 
   if (dir === 'double_above') {
     return [

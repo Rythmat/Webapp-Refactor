@@ -10,7 +10,10 @@ import {
   triggerPianoAttackRelease,
   startPianoSampler,
 } from '@/audio/pianoSampler';
-import { midiToPitchName, type GenreNoteEvent } from '../engine/genreGeneration/resolveStepContent';
+import {
+  midiToPitchName,
+  type GenreNoteEvent,
+} from '../engine/genreGeneration/resolveStepContent';
 
 export function useDemoPlayback(keyRoot: number, tempo: number) {
   const [demoHighlightMidis, setDemoHighlightMidis] = useState<Set<number>>(
@@ -66,7 +69,10 @@ export function useDemoPlayback(keyRoot: number, tempo: number) {
           // Play through Salamander piano sampler
           group.forEach((note) => {
             const noteName = midiToPitchName(note.midi, keyRoot);
-            const durationSec = Math.max(0.3, (note.duration * demoTickMs) / 1000);
+            const durationSec = Math.max(
+              0.3,
+              (note.duration * demoTickMs) / 1000,
+            );
             void triggerPianoAttackRelease(noteName, durationSec, 80);
           });
         }, delay);
@@ -97,9 +103,12 @@ export function useDemoPlayback(keyRoot: number, tempo: number) {
       const totalMs = (lastOnset + lastDuration) * demoTickMs + 200;
 
       // Clear highlights after last note's duration
-      const clearLastT = setTimeout(() => {
-        setDemoHighlightMidis(new Set());
-      }, (lastOnset * demoTickMs) + (lastDuration * demoTickMs));
+      const clearLastT = setTimeout(
+        () => {
+          setDemoHighlightMidis(new Set());
+        },
+        lastOnset * demoTickMs + lastDuration * demoTickMs,
+      );
       timeoutsRef.current.push(clearLastT);
 
       const doneT = setTimeout(() => {

@@ -394,7 +394,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-losangeles-1982-michaeljackson',
     year: 1982,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Pop', 'R&B', 'Funk'],
     title: 'Michael Jackson\'s "Thriller" redefines pop music globally',
     description:
@@ -412,7 +417,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-nyc-1984-madonna',
     year: 1984,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Pop', 'Dance Pop'],
     title: 'Madonna\'s "Like a Virgin" launches the Material Girl era',
     description:
@@ -432,7 +442,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
     year: 1985,
     location: { lat: 40.7357, lng: -74.1724, city: 'Newark', country: 'US' },
     genre: ['Pop', 'R&B', 'Soul'],
-    title: 'Whitney Houston\'s debut showcases the greatest voice of her generation',
+    title:
+      "Whitney Houston's debut showcases the greatest voice of her generation",
     description:
       'Whitney Houston releases her self-titled debut album, spawning three consecutive #1 singles including "Saving All My Love for You" and "Greatest Love of All". Trained in gospel by her mother Cissy Houston and mentored by Clive Davis, Whitney\'s vocal power bridges pop and R&B, opening doors for Mariah Carey and Beyoncé.',
     tags: [
@@ -448,9 +459,15 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-minneapolis-1984-prince',
     year: 1984,
-    location: { lat: 44.9778, lng: -93.265, city: 'Minneapolis', country: 'US' },
+    location: {
+      lat: 44.9778,
+      lng: -93.265,
+      city: 'Minneapolis',
+      country: 'US',
+    },
     genre: ['Pop', 'Funk', 'Rock', 'R&B'],
-    title: 'Prince\'s "Purple Rain" fuses rock, funk, and pop into a singular vision',
+    title:
+      'Prince\'s "Purple Rain" fuses rock, funk, and pop into a singular vision',
     description:
       'Prince releases "Purple Rain" — both album and film — from his Paisley Park headquarters in Minneapolis. The record sells over 25 million copies and proves that a Black artist can dominate rock, pop, and R&B simultaneously. Minneapolis becomes a creative hub, spawning the "Minneapolis Sound" that influences Jimmy Jam & Terry Lewis, The Time, and beyond.',
     tags: [
@@ -466,7 +483,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-stockholm-1976-abba',
     year: 1976,
-    location: { lat: 59.3293, lng: 18.0686, city: 'Stockholm', country: 'Sweden' },
+    location: {
+      lat: 59.3293,
+      lng: 18.0686,
+      city: 'Stockholm',
+      country: 'Sweden',
+    },
     genre: ['Pop', 'Europop', 'Disco'],
     title: 'ABBA\'s "Arrival" establishes Sweden as a pop superpower',
     description:
@@ -487,7 +509,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
     year: 1973,
     location: { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
     genre: ['Pop', 'Rock', 'Glam Rock'],
-    title: 'Elton John\'s "Goodbye Yellow Brick Road" cements his piano-pop legacy',
+    title:
+      'Elton John\'s "Goodbye Yellow Brick Road" cements his piano-pop legacy',
     description:
       'Elton John releases the double album "Goodbye Yellow Brick Road", featuring "Bennie and the Jets", "Candle in the Wind", and the title track. His partnership with lyricist Bernie Taupin produces some of pop\'s most enduring songs, while his flamboyant stage presence and genre-blending ambition make him one of the best-selling artists of all time.',
     tags: [
@@ -503,7 +526,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-losangeles-1977-fleetwoodmac',
     year: 1977,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Pop', 'Soft Rock', 'Rock'],
     title: 'Fleetwood Mac\'s "Rumours" turns heartbreak into pop perfection',
     description:
@@ -521,9 +549,14 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-nyc-1990-mariahcarey',
     year: 1990,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Pop', 'R&B', 'Gospel'],
-    title: 'Mariah Carey\'s debut showcases a five-octave vocal phenomenon',
+    title: "Mariah Carey's debut showcases a five-octave vocal phenomenon",
     description:
       'Mariah Carey releases her self-titled debut, featuring "Vision of Love", which hits #1 and introduces her signature melismatic vocal style to mainstream pop. Her ability to bridge pop accessibility with R&B and gospel vocal virtuosity creates a template that shapes the next two decades of pop divas, from Christina Aguilera to Ariana Grande.',
     tags: [
@@ -539,9 +572,15 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-nyc-1999-britneyspears',
     year: 1999,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Pop', 'Teen Pop', 'Dance Pop'],
-    title: 'Britney Spears\' "...Baby One More Time" ignites the teen pop explosion',
+    title:
+      'Britney Spears\' "...Baby One More Time" ignites the teen pop explosion',
     description:
       'Britney Spears, from Kentwood, Louisiana, releases "...Baby One More Time", written by Max Martin. The single and its iconic schoolgirl music video sell over 10 million copies of the debut album in the US alone. Britney becomes the face of the late-\'90s teen pop boom, launching a cultural phenomenon that reshapes the music industry\'s approach to young female artists.',
     tags: [
@@ -561,7 +600,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
     genre: ['Pop', 'Teen Pop', 'R&B'],
     title: 'NSYNC forms in Orlando, fueling the boy band boom',
     description:
-      'Justin Timberlake, JC Chasez, Chris Kirkpatrick, Joey Fatone, and Lance Bass form NSYNC in Orlando, Florida — the same city that produced the Backstreet Boys. Orlando\'s network of talent managers, vocal coaches, and theme-park performance culture creates a boy band factory that dominates late-\'90s pop and launches Timberlake\'s solo career.',
+      "Justin Timberlake, JC Chasez, Chris Kirkpatrick, Joey Fatone, and Lance Bass form NSYNC in Orlando, Florida — the same city that produced the Backstreet Boys. Orlando's network of talent managers, vocal coaches, and theme-park performance culture creates a boy band factory that dominates late-'90s pop and launches Timberlake's solo career.",
     tags: [
       'nsync',
       'justin timberlake',
@@ -593,7 +632,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-losangeles-1986-janetjackson',
     year: 1986,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Pop', 'R&B', 'Dance Pop', 'New Jack Swing'],
     title: 'Janet Jackson\'s "Control" declares artistic independence',
     description:
@@ -614,7 +658,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
     year: 1987,
     location: { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
     genre: ['Pop', 'Soul', 'R&B'],
-    title: 'George Michael\'s "Faith" proves boy band alumni can be serious artists',
+    title:
+      'George Michael\'s "Faith" proves boy band alumni can be serious artists',
     description:
       'After leaving Wham!, George Michael releases "Faith", which tops the Billboard 200 for twelve weeks and wins the Grammy for Album of the Year. His transition from teen idol to sophisticated pop-soul artist blazes a trail for Justin Timberlake, Harry Styles, and every boy band graduate seeking artistic credibility.',
     tags: [
@@ -632,7 +677,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
     year: 1981,
     location: { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
     genre: ['Pop', 'Soft Rock', 'Art Rock'],
-    title: 'Phil Collins\' solo breakout bridges prog rock and pop',
+    title: "Phil Collins' solo breakout bridges prog rock and pop",
     description:
       'Phil Collins releases "Face Value", featuring the iconic gated-reverb drum sound on "In the Air Tonight". Transitioning from Genesis\'s progressive rock to mainstream pop, Collins becomes one of the decade\'s biggest-selling artists, and his distinctive drum production — engineered by Hugh Padgham — becomes the defining sonic signature of 1980s pop.',
     tags: [
@@ -685,9 +730,15 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-nyc-2014-taylorswift',
     year: 2014,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Pop', 'Synth Pop'],
-    title: 'Taylor Swift\'s "1989" completes her transformation into a pop juggernaut',
+    title:
+      'Taylor Swift\'s "1989" completes her transformation into a pop juggernaut',
     description:
       'Taylor Swift fully abandons country with "1989", a synth-pop album inspired by the sounds of her birth year. It sells 1.287 million copies in its first week and spawns hits like "Shake It Off" and "Blank Space". Her decision to pull her catalog from Spotify — and later her fight to re-record her masters — reshapes the music industry\'s power dynamics.',
     tags: [
@@ -724,7 +775,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
     year: 2011,
     location: { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
     genre: ['Pop', 'Soul', 'Blue-Eyed Soul'],
-    title: 'Adele\'s "21" proves raw vocal power still conquers the digital age',
+    title:
+      'Adele\'s "21" proves raw vocal power still conquers the digital age',
     description:
       'Adele releases "21", which spends 24 weeks at #1 on the Billboard 200 and sells over 31 million copies worldwide. In an era of Auto-Tune and EDM, her emotionally devastating vocals and classic songwriting — rooted in Tottenham\'s soul and jazz traditions — prove that stripped-back, voice-driven pop can still dominate global charts.',
     tags: [
@@ -740,7 +792,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-nyc-2008-ladygaga',
     year: 2008,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Pop', 'Dance Pop', 'Electropop'],
     title: 'Lady Gaga\'s "The Fame" revives art-pop spectacle',
     description:
@@ -776,9 +833,14 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-losangeles-2019-billieeilish',
     year: 2019,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Pop', 'Electropop', 'Dark Pop'],
-    title: 'Billie Eilish\'s bedroom-produced debut rewrites pop\'s sonic rules',
+    title: "Billie Eilish's bedroom-produced debut rewrites pop's sonic rules",
     description:
       'Seventeen-year-old Billie Eilish releases "When We All Fall Asleep, Where Do We Go?", produced entirely by her brother Finneas in their Highland Park bedroom. The album\'s whispered vocals, ASMR textures, and bass-heavy production sweep all four major Grammy categories, proving that the bedroom studio has replaced the major-label hit factory.',
     tags: [
@@ -795,7 +857,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-losangeles-2019-arianagrande',
     year: 2019,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Pop', 'R&B', 'Dance Pop'],
     title: 'Ariana Grande\'s "Thank U, Next" dominates the streaming era',
     description:
@@ -813,9 +880,15 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-losangeles-2015-justinbieber',
     year: 2015,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Pop', 'EDM', 'R&B'],
-    title: 'Justin Bieber\'s "Purpose" transforms a YouTube discovery into a mature pop force',
+    title:
+      'Justin Bieber\'s "Purpose" transforms a YouTube discovery into a mature pop force',
     description:
       'Justin Bieber, discovered on YouTube in Stratford, Ontario, releases "Purpose", featuring "Sorry" and "What Do You Mean?" The album\'s tropical house and EDM-inflected pop marks his artistic maturation from teen idol to serious recording artist, while his career arc — from YouTube cover videos to global superstar — defines the social media era\'s star-making pipeline.',
     tags: [
@@ -831,7 +904,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-toronto-2020-theweeknd',
     year: 2020,
-    location: { lat: 43.6532, lng: -79.3832, city: 'Toronto', country: 'Canada' },
+    location: {
+      lat: 43.6532,
+      lng: -79.3832,
+      city: 'Toronto',
+      country: 'Canada',
+    },
     genre: ['Pop', 'R&B', 'Synth Pop'],
     title: 'The Weeknd\'s "After Hours" merges 80s nostalgia with modern R&B',
     description:
@@ -868,9 +946,15 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-losangeles-2021-oliviarodrigo',
     year: 2021,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Pop', 'Pop Rock', 'Pop Punk'],
-    title: 'Olivia Rodrigo\'s "SOUR" channels teenage heartbreak into a cultural moment',
+    title:
+      'Olivia Rodrigo\'s "SOUR" channels teenage heartbreak into a cultural moment',
     description:
       'Olivia Rodrigo, from Temecula, California, releases "SOUR" after her single "drivers license" breaks Spotify\'s single-day streaming record. The album\'s raw, confessional songwriting — blending pop-punk, indie rock, and ballads — captures Gen Z\'s emotional landscape and proves that guitar-driven pop still resonates in a streaming-dominated market.',
     tags: [
@@ -886,7 +970,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-losangeles-2022-harrystyles',
     year: 2022,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Pop', 'Soft Rock', 'Funk Pop'],
     title: 'Harry Styles\' "Harry\'s House" crowns a post-boy-band pop king',
     description:
@@ -904,9 +993,15 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-minneapolis-2019-lizzo',
     year: 2019,
-    location: { lat: 44.9778, lng: -93.265, city: 'Minneapolis', country: 'US' },
+    location: {
+      lat: 44.9778,
+      lng: -93.265,
+      city: 'Minneapolis',
+      country: 'US',
+    },
     genre: ['Pop', 'R&B', 'Hip Hop'],
-    title: 'Lizzo\'s "Cuz I Love You" brings body positivity and flute solos to pop',
+    title:
+      'Lizzo\'s "Cuz I Love You" brings body positivity and flute solos to pop',
     description:
       'Lizzo, originally from Detroit but based in Minneapolis, releases "Cuz I Love You", featuring the breakout hit "Truth Hurts". A classically trained flutist who brings her instrument on stage, Lizzo\'s music fuses pop, hip hop, and soul with an unapologetic message of self-love and body positivity that resonates across demographics.',
     tags: [
@@ -923,7 +1018,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-losangeles-2021-dojacat',
     year: 2021,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Pop', 'Hip Hop', 'R&B'],
     title: 'Doja Cat\'s "Planet Her" embodies internet-native pop stardom',
     description:
@@ -941,7 +1041,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-auckland-2013-lorde',
     year: 2013,
-    location: { lat: -36.8485, lng: 174.7633, city: 'Auckland', country: 'New Zealand' },
+    location: {
+      lat: -36.8485,
+      lng: 174.7633,
+      city: 'Auckland',
+      country: 'New Zealand',
+    },
     genre: ['Pop', 'Art Pop', 'Electropop'],
     title: 'Lorde\'s "Pure Heroine" offers a minimalist antidote to pop excess',
     description:
@@ -959,7 +1064,12 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-stockholm-2010-robyn',
     year: 2010,
-    location: { lat: 59.3293, lng: 18.0686, city: 'Stockholm', country: 'Sweden' },
+    location: {
+      lat: 59.3293,
+      lng: 18.0686,
+      city: 'Stockholm',
+      country: 'Sweden',
+    },
     genre: ['Pop', 'Electropop', 'Dance Pop'],
     title: 'Robyn\'s "Body Talk" reinvents dance-pop for the indie era',
     description:
@@ -979,7 +1089,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
     year: 2001,
     location: { lat: 25.7617, lng: -80.1918, city: 'Miami', country: 'US' },
     genre: ['Pop', 'Latin Pop', 'Rock'],
-    title: 'Shakira\'s English-language crossover bridges Latin America and the mainstream',
+    title:
+      "Shakira's English-language crossover bridges Latin America and the mainstream",
     description:
       'Shakira, from Barranquilla, Colombia, releases "Laundry Service", her English-language crossover album featuring "Whenever, Wherever". The album sells over 13 million copies worldwide, proving that Latin artists can dominate Anglo pop markets without abandoning their identity. Her success paves the way for the Latin pop explosion of the 2010s led by Bad Bunny and Rosalía.',
     tags: [
@@ -995,9 +1106,15 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-nyc-2007-rihanna',
     year: 2007,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Pop', 'R&B', 'Dance Pop', 'Dancehall'],
-    title: 'Rihanna\'s "Good Girl Gone Bad" launches a Caribbean icon into pop\'s stratosphere',
+    title:
+      'Rihanna\'s "Good Girl Gone Bad" launches a Caribbean icon into pop\'s stratosphere',
     description:
       'Rihanna, from Bridgetown, Barbados, releases "Good Girl Gone Bad", featuring "Umbrella" — the song that makes her a global superstar. Her ability to channel Caribbean dancehall rhythms through cutting-edge pop production, combined with her fearless image reinventions, establishes her as the 21st century\'s most consistent hitmaker and cultural tastemaker.',
     tags: [
@@ -1014,11 +1131,17 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-losangeles-2012-brunomars',
     year: 2012,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Pop', 'R&B', 'Funk', 'Reggae'],
-    title: 'Bruno Mars\' "Unorthodox Jukebox" channels every era of pop into one artist',
+    title:
+      'Bruno Mars\' "Unorthodox Jukebox" channels every era of pop into one artist',
     description:
-      'Bruno Mars, born Peter Gene Hernandez in Honolulu to a Filipino-Puerto Rican family, releases "Unorthodox Jukebox". The album hops from reggae to rock to funk to doo-wop, showcasing Mars\' ability to authentically channel Elvis, James Brown, Prince, and the Police in a single set. His Hawai\'i-born multicultural musicality makes him pop\'s most versatile live performer.',
+      "Bruno Mars, born Peter Gene Hernandez in Honolulu to a Filipino-Puerto Rican family, releases \"Unorthodox Jukebox\". The album hops from reggae to rock to funk to doo-wop, showcasing Mars' ability to authentically channel Elvis, James Brown, Prince, and the Police in a single set. His Hawai'i-born multicultural musicality makes him pop's most versatile live performer.",
     tags: [
       'bruno mars',
       'unorthodox jukebox',
@@ -1032,9 +1155,15 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-losangeles-1976-steviewonder',
     year: 1976,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Pop', 'Soul', 'R&B', 'Funk'],
-    title: 'Stevie Wonder\'s "Songs in the Key of Life" achieves pop-soul perfection',
+    title:
+      'Stevie Wonder\'s "Songs in the Key of Life" achieves pop-soul perfection',
     description:
       'Stevie Wonder releases "Songs in the Key of Life", a sprawling double album that enters the Billboard 200 at #1 and wins the Grammy for Album of the Year. Its fusion of pop accessibility with jazz harmony, African rhythms, and social consciousness sets a standard for ambitious pop that influences everyone from Prince to Kanye West to Beyoncé.',
     tags: [
@@ -1050,9 +1179,14 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-charlemagne-1996-celinedion',
     year: 1996,
-    location: { lat: 45.7136, lng: -73.4823, city: 'Charlemagne', country: 'Canada' },
+    location: {
+      lat: 45.7136,
+      lng: -73.4823,
+      city: 'Charlemagne',
+      country: 'Canada',
+    },
     genre: ['Pop', 'Adult Contemporary', 'Power Ballad'],
-    title: 'Celine Dion\'s peak era makes Quebec\'s voice the world\'s biggest',
+    title: "Celine Dion's peak era makes Quebec's voice the world's biggest",
     description:
       'Celine Dion, from the small Quebec town of Charlemagne, releases "Falling into You", which sells over 32 million copies and wins the Grammy for Album of the Year. Her operatic vocal power, honed singing in French-Canadian clubs from age five, culminates in "My Heart Will Go On" from Titanic — the decade\'s defining power ballad.',
     tags: [
@@ -1070,7 +1204,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
     year: 1984,
     location: { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
     genre: ['Pop', 'Rock', 'R&B'],
-    title: 'Tina Turner\'s "Private Dancer" stages the greatest comeback in pop history',
+    title:
+      'Tina Turner\'s "Private Dancer" stages the greatest comeback in pop history',
     description:
       'Tina Turner, born in Nutbush, Tennessee, releases "Private Dancer" from London, selling over 20 million copies and winning four Grammys. After escaping an abusive marriage and years of obscurity, her raw vocal power and fierce stage presence at age 44 prove that pop has no age limit, inspiring future comeback narratives for decades.',
     tags: [
@@ -1086,9 +1221,15 @@ export const POP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-pop-nyc-1983-cyndilauper',
     year: 1983,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Pop', 'New Wave', 'Synth Pop'],
-    title: 'Cyndi Lauper\'s "She\'s So Unusual" proves girls just want equality',
+    title:
+      'Cyndi Lauper\'s "She\'s So Unusual" proves girls just want equality',
     description:
       'Cyndi Lauper releases "She\'s So Unusual", becoming the first female artist to have four top-five singles from a debut album. "Girls Just Want to Have Fun" becomes a feminist anthem, while her quirky visual style and powerful vocals challenge Madonna\'s dominance of the MTV era, offering an alternative model of female pop stardom rooted in punk and new wave.',
     tags: [
@@ -1106,7 +1247,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
     year: 1977,
     location: { lat: 36.1627, lng: -86.7816, city: 'Nashville', country: 'US' },
     genre: ['Pop', 'Country', 'Country Pop'],
-    title: 'Dolly Parton\'s crossover pop moment transcends Nashville',
+    title: "Dolly Parton's crossover pop moment transcends Nashville",
     description:
       'Dolly Parton, from Sevierville, Tennessee, releases "Here You Come Again", her first album produced in Los Angeles rather than Nashville. The pop-oriented production earns her first platinum record and crossover success, proving that Appalachian storytelling and country authenticity could thrive in pop contexts — a path that Taylor Swift would follow three decades later.',
     tags: [

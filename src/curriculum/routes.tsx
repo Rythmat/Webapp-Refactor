@@ -79,10 +79,7 @@ const GenreLessonRoute = () => {
   // V1 fallback — existing container
   return (
     <RequirePremium>
-      <GenreLessonContainer
-        genreSlug={genreSlug}
-        level={levelNum}
-      />
+      <GenreLessonContainer genreSlug={genreSlug} level={levelNum} />
     </RequirePremium>
   );
 };

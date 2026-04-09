@@ -861,7 +861,8 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
     year: 2005,
     location: { lat: 5.6037, lng: -0.187, city: 'Accra', country: 'Ghana' },
     genre: ['Ewe Drumming', 'Traditional'],
-    title: 'Korku Agbeli continues the Agbeli family drumming lineage worldwide',
+    title:
+      'Korku Agbeli continues the Agbeli family drumming lineage worldwide',
     description:
       'Following in the footsteps of his father Godwin, Korku Agbeli carries the Agbeli family drumming tradition to workshops and universities across North America and Europe. His teaching keeps the intricate Ewe drum-dance repertoire alive in a diaspora context while maintaining the authority of oral transmission from master to student.',
     tags: [
@@ -886,7 +887,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
     genre: ['Ewe Drumming', 'Traditional'],
     title: 'Adzogbo and Agbadza dances anchor Ewe cultural identity',
     description:
-      'In the Volta Region of southeastern Ghana, the Ewe people maintain an elaborate tradition of communal drum-dance suites. Adzogbo — originally a war dance — and the social dance Agbadza feature multi-layered polyrhythmic drumming on atsimevu, sogo, and kidi drums coordinated by the master drummer\'s bell pattern, creating one of Africa\'s most complex rhythmic systems.',
+      "In the Volta Region of southeastern Ghana, the Ewe people maintain an elaborate tradition of communal drum-dance suites. Adzogbo — originally a war dance — and the social dance Agbadza feature multi-layered polyrhythmic drumming on atsimevu, sogo, and kidi drums coordinated by the master drummer's bell pattern, creating one of Africa's most complex rhythmic systems.",
     tags: [
       'ewe',
       'adzogbo',
@@ -1125,9 +1126,9 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       country: 'Kenya',
     },
     genre: ['Afro-Pop', 'R&B', 'Kenyan Pop'],
-    title: 'Sauti Sol breaks out as East Africa\'s premier afro-pop group',
+    title: "Sauti Sol breaks out as East Africa's premier afro-pop group",
     description:
-      'Nairobi quartet Sauti Sol rises from acoustic street performances to become East Africa\'s biggest pop act, fusing Swahili lyrics with Afro-pop, R&B, and rock guitar. Their polished sound and music videos help establish Kenya as a pop-music hub independent of the West African Afrobeats machine, earning multiple MTV Africa Awards.',
+      "Nairobi quartet Sauti Sol rises from acoustic street performances to become East Africa's biggest pop act, fusing Swahili lyrics with Afro-pop, R&B, and rock guitar. Their polished sound and music videos help establish Kenya as a pop-music hub independent of the West African Afrobeats machine, earning multiple MTV Africa Awards.",
     tags: [
       'sauti sol',
       'kenyan pop',
@@ -1360,7 +1361,8 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       country: 'Mali',
     },
     genre: ['Wassoulou', 'Mandé', 'Afro-Pop'],
-    title: 'Oumou Sangaré debuts with "Moussolou" and transforms Wassoulou music',
+    title:
+      'Oumou Sangaré debuts with "Moussolou" and transforms Wassoulou music',
     description:
       'At just nineteen, Oumou Sangaré releases "Moussolou" ("Women"), an album championing women\'s rights over the hunter\'s harp rhythms of Wassoulou tradition from southern Mali. Selling over 200,000 copies across West Africa, it makes her a feminist icon and establishes Wassoulou as a major genre on the global stage.',
     tags: [
@@ -1410,7 +1412,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
     genre: ['Afro-Cuban', 'Mbalax', 'Griot'],
     title: 'Orchestra Baobab forms at Club Baobab in Dakar',
     description:
-      'Orchestra Baobab assembles a multi-ethnic lineup — Wolof, Mandinka, Toucouleur, and Casamançais musicians — at Dakar\'s Club Baobab, fusing Cuban son montuno with Senegalese griot melodies and Mandinka kora. Their cosmopolitan groove captures the optimism of post-independence West Africa and creates a template for Afro-Cuban fusion that endures through their 2002 comeback.',
+      "Orchestra Baobab assembles a multi-ethnic lineup — Wolof, Mandinka, Toucouleur, and Casamançais musicians — at Dakar's Club Baobab, fusing Cuban son montuno with Senegalese griot melodies and Mandinka kora. Their cosmopolitan groove captures the optimism of post-independence West Africa and creates a template for Afro-Cuban fusion that endures through their 2002 comeback.",
     tags: [
       'orchestra baobab',
       'club baobab',
@@ -1691,7 +1693,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
     year: 2008,
     location: { lat: 6.5244, lng: 3.3792, city: 'Lagos', country: 'Nigeria' },
     genre: ['Afrobeat', 'Funk'],
-    title: 'Seun Kuti continues Fela\'s Afrobeat legacy at the Shrine',
+    title: "Seun Kuti continues Fela's Afrobeat legacy at the Shrine",
     description:
       'Seun Kuti, youngest son of Fela Kuti, takes over leadership of Egypt 80, his father\'s legendary band, and releases "Many Things." Performing at the New Afrika Shrine in Lagos, Seun channels Fela\'s political fire and extended-groove aesthetic into a new generation, keeping classic Afrobeat alive while his brother Femi pursues a more modernized approach.',
     tags: [

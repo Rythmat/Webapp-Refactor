@@ -116,13 +116,17 @@ const TAB_ACCENT = '#7ecfcf';
 
 const tabStyle = (isActive: boolean) => ({
   background: isActive ? 'rgba(126, 207, 207, 0.12)' : 'rgba(255,255,255,0.03)',
-  border: isActive ? `1px solid ${TAB_ACCENT}` : '1px solid var(--color-border)',
+  border: isActive
+    ? `1px solid ${TAB_ACCENT}`
+    : '1px solid var(--color-border)',
   color: isActive ? TAB_ACCENT : 'var(--color-text-dim)',
 });
 
 const levelPillStyle = (isActive: boolean, accentColor: string) => ({
   background: isActive ? `${accentColor}20` : 'rgba(255,255,255,0.03)',
-  border: isActive ? `1px solid ${accentColor}` : '1px solid var(--color-border)',
+  border: isActive
+    ? `1px solid ${accentColor}`
+    : '1px solid var(--color-border)',
   color: isActive ? accentColor : 'var(--color-text-dim)',
 });
 
@@ -556,10 +560,7 @@ function TechniqueTab({
                   >
                     {label}
                   </p>
-                  <p
-                    className="text-sm"
-                    style={{ color: 'var(--color-text)' }}
-                  >
+                  <p className="text-sm" style={{ color: 'var(--color-text)' }}>
                     {entry.summary}
                   </p>
                   <ul className="flex flex-col gap-1 mt-1">

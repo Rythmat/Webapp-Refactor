@@ -1402,105 +1402,285 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   // ═══════════════════════════════════════════════════════════════
 
   // Existing R&B/Soul → Neo Soul founders
-  { from: 'evt-pop-losangeles-1976-steviewonder', to: 'evt-neosoul-richmond-1995-dangelo' },
-  { from: 'evt-pop-losangeles-1976-steviewonder', to: 'evt-neosoul-dallas-1997-badu' },
-  { from: 'evt-pop-losangeles-1976-steviewonder', to: 'evt-neosoul-southorange-1998-laurynhill' },
+  {
+    from: 'evt-pop-losangeles-1976-steviewonder',
+    to: 'evt-neosoul-richmond-1995-dangelo',
+  },
+  {
+    from: 'evt-pop-losangeles-1976-steviewonder',
+    to: 'evt-neosoul-dallas-1997-badu',
+  },
+  {
+    from: 'evt-pop-losangeles-1976-steviewonder',
+    to: 'evt-neosoul-southorange-1998-laurynhill',
+  },
   { from: 'evt-motown-detroit-1966', to: 'evt-neosoul-richmond-1995-dangelo' },
-  { from: 'evt-southern-soul-memphis-1965', to: 'evt-neosoul-richmond-1995-dangelo' },
+  {
+    from: 'evt-southern-soul-memphis-1965',
+    to: 'evt-neosoul-richmond-1995-dangelo',
+  },
   { from: 'evt-funk-augusta-1970', to: 'evt-neosoul-richmond-1995-dangelo' },
 
   // D'Angelo Brown Sugar → downstream
-  { from: 'evt-neosoul-richmond-1995-dangelo', to: 'evt-neosoul-nyc-2000-dangelo' },
-  { from: 'evt-neosoul-richmond-1995-dangelo', to: 'evt-neosoul-dallas-1997-badu' },
-  { from: 'evt-neosoul-richmond-1995-dangelo', to: 'evt-neosoul-philadelphia-2000-jillscott' },
-  { from: 'evt-neosoul-richmond-1995-dangelo', to: 'evt-neosoul-philadelphia-2000-musiq' },
-  { from: 'evt-neosoul-richmond-1995-dangelo', to: 'evt-neosoul-atlanta-2001-indiaarie' },
+  {
+    from: 'evt-neosoul-richmond-1995-dangelo',
+    to: 'evt-neosoul-nyc-2000-dangelo',
+  },
+  {
+    from: 'evt-neosoul-richmond-1995-dangelo',
+    to: 'evt-neosoul-dallas-1997-badu',
+  },
+  {
+    from: 'evt-neosoul-richmond-1995-dangelo',
+    to: 'evt-neosoul-philadelphia-2000-jillscott',
+  },
+  {
+    from: 'evt-neosoul-richmond-1995-dangelo',
+    to: 'evt-neosoul-philadelphia-2000-musiq',
+  },
+  {
+    from: 'evt-neosoul-richmond-1995-dangelo',
+    to: 'evt-neosoul-atlanta-2001-indiaarie',
+  },
 
   // Erykah Badu → downstream
-  { from: 'evt-neosoul-dallas-1997-badu', to: 'evt-neosoul-houston-2016-solange' },
-  { from: 'evt-neosoul-dallas-1997-badu', to: 'evt-neosoul-maplewood-2017-sza' },
+  {
+    from: 'evt-neosoul-dallas-1997-badu',
+    to: 'evt-neosoul-houston-2016-solange',
+  },
+  {
+    from: 'evt-neosoul-dallas-1997-badu',
+    to: 'evt-neosoul-maplewood-2017-sza',
+  },
   { from: 'evt-neosoul-dallas-1997-badu', to: 'evt-neosoul-vallejo-2017-her' },
-  { from: 'evt-neosoul-dallas-1997-badu', to: 'evt-neosoul-atlanta-2019-summerwalker' },
+  {
+    from: 'evt-neosoul-dallas-1997-badu',
+    to: 'evt-neosoul-atlanta-2019-summerwalker',
+  },
 
   // Lauryn Hill → downstream
-  { from: 'evt-neosoul-southorange-1998-laurynhill', to: 'evt-neosoul-longbeach-2012-frankocean' },
-  { from: 'evt-neosoul-southorange-1998-laurynhill', to: 'evt-neosoul-maplewood-2017-sza' },
-  { from: 'evt-neosoul-southorange-1998-laurynhill', to: 'evt-neosoul-chicago-2018-noname' },
-  { from: 'evt-neosoul-southorange-1998-laurynhill', to: 'evt-neosoul-chicago-2019-jamilawoods' },
+  {
+    from: 'evt-neosoul-southorange-1998-laurynhill',
+    to: 'evt-neosoul-longbeach-2012-frankocean',
+  },
+  {
+    from: 'evt-neosoul-southorange-1998-laurynhill',
+    to: 'evt-neosoul-maplewood-2017-sza',
+  },
+  {
+    from: 'evt-neosoul-southorange-1998-laurynhill',
+    to: 'evt-neosoul-chicago-2018-noname',
+  },
+  {
+    from: 'evt-neosoul-southorange-1998-laurynhill',
+    to: 'evt-neosoul-chicago-2019-jamilawoods',
+  },
 
   // D'Angelo Voodoo → downstream
-  { from: 'evt-neosoul-nyc-2000-dangelo', to: 'evt-neosoul-houston-2012-glasper' },
-  { from: 'evt-neosoul-nyc-2000-dangelo', to: 'evt-neosoul-oxnard-2016-andersonpaak' },
-  { from: 'evt-neosoul-nyc-2000-dangelo', to: 'evt-neosoul-la-2017-thundercat' },
-  { from: 'evt-neosoul-nyc-2000-dangelo', to: 'evt-neosoul-compton-2022-stevelacy' },
+  {
+    from: 'evt-neosoul-nyc-2000-dangelo',
+    to: 'evt-neosoul-houston-2012-glasper',
+  },
+  {
+    from: 'evt-neosoul-nyc-2000-dangelo',
+    to: 'evt-neosoul-oxnard-2016-andersonpaak',
+  },
+  {
+    from: 'evt-neosoul-nyc-2000-dangelo',
+    to: 'evt-neosoul-la-2017-thundercat',
+  },
+  {
+    from: 'evt-neosoul-nyc-2000-dangelo',
+    to: 'evt-neosoul-compton-2022-stevelacy',
+  },
 
   // Robert Glasper → downstream
-  { from: 'evt-neosoul-houston-2012-glasper', to: 'evt-neosoul-houston-2013-glasper-experiment' },
-  { from: 'evt-neosoul-houston-2012-glasper', to: 'evt-neosoul-la-2021-terracemartin' },
-  { from: 'evt-neosoul-houston-2012-glasper', to: 'evt-neosoul-montreal-2016-kaytranada' },
-  { from: 'evt-neosoul-houston-2012-glasper', to: 'evt-neosoul-la-2015-theinternet' },
+  {
+    from: 'evt-neosoul-houston-2012-glasper',
+    to: 'evt-neosoul-houston-2013-glasper-experiment',
+  },
+  {
+    from: 'evt-neosoul-houston-2012-glasper',
+    to: 'evt-neosoul-la-2021-terracemartin',
+  },
+  {
+    from: 'evt-neosoul-houston-2012-glasper',
+    to: 'evt-neosoul-montreal-2016-kaytranada',
+  },
+  {
+    from: 'evt-neosoul-houston-2012-glasper',
+    to: 'evt-neosoul-la-2015-theinternet',
+  },
 
   // Other neo soul chains
-  { from: 'evt-neosoul-philadelphia-2000-jillscott', to: 'evt-neosoul-philadelphia-2021-jazminesullivan' },
-  { from: 'evt-neosoul-philadelphia-2000-musiq', to: 'evt-neosoul-toronto-2017-danielcaesar' },
-  { from: 'evt-neosoul-longbeach-2012-frankocean', to: 'evt-neosoul-longbeach-2020-giveon' },
-  { from: 'evt-neosoul-la-2015-theinternet', to: 'evt-neosoul-compton-2022-stevelacy' },
-  { from: 'evt-neosoul-london-2017-sampha', to: 'evt-neosoul-london-2018-tommisch' },
-  { from: 'evt-neosoul-london-2012-liannalahavas', to: 'evt-neosoul-london-2017-sampha' },
+  {
+    from: 'evt-neosoul-philadelphia-2000-jillscott',
+    to: 'evt-neosoul-philadelphia-2021-jazminesullivan',
+  },
+  {
+    from: 'evt-neosoul-philadelphia-2000-musiq',
+    to: 'evt-neosoul-toronto-2017-danielcaesar',
+  },
+  {
+    from: 'evt-neosoul-longbeach-2012-frankocean',
+    to: 'evt-neosoul-longbeach-2020-giveon',
+  },
+  {
+    from: 'evt-neosoul-la-2015-theinternet',
+    to: 'evt-neosoul-compton-2022-stevelacy',
+  },
+  {
+    from: 'evt-neosoul-london-2017-sampha',
+    to: 'evt-neosoul-london-2018-tommisch',
+  },
+  {
+    from: 'evt-neosoul-london-2012-liannalahavas',
+    to: 'evt-neosoul-london-2017-sampha',
+  },
 
   // ═══════════════════════════════════════════════════════════════
   // ██  JAM BAND CONNECTIONS  ██
   // ═══════════════════════════════════════════════════════════════
 
   // Grateful Dead → downstream
-  { from: 'evt-jamband-paloalto-1965-grateful-dead', to: 'evt-jamband-sf-1970-grateful-dead' },
-  { from: 'evt-jamband-paloalto-1965-grateful-dead', to: 'evt-phish-burlington-1983' },
-  { from: 'evt-jamband-paloalto-1965-grateful-dead', to: 'evt-jamband-athens-1986-widespread-panic' },
-  { from: 'evt-jamband-paloalto-1965-grateful-dead', to: 'evt-jamband-crestedbutte-1993-sci' },
-  { from: 'evt-jamband-paloalto-1965-grateful-dead', to: 'evt-jamband-buffalo-1989-moe' },
-  { from: 'evt-jamband-paloalto-1965-grateful-dead', to: 'evt-jamband-philadelphia-1995-disco-biscuits' },
+  {
+    from: 'evt-jamband-paloalto-1965-grateful-dead',
+    to: 'evt-jamband-sf-1970-grateful-dead',
+  },
+  {
+    from: 'evt-jamband-paloalto-1965-grateful-dead',
+    to: 'evt-phish-burlington-1983',
+  },
+  {
+    from: 'evt-jamband-paloalto-1965-grateful-dead',
+    to: 'evt-jamband-athens-1986-widespread-panic',
+  },
+  {
+    from: 'evt-jamband-paloalto-1965-grateful-dead',
+    to: 'evt-jamband-crestedbutte-1993-sci',
+  },
+  {
+    from: 'evt-jamband-paloalto-1965-grateful-dead',
+    to: 'evt-jamband-buffalo-1989-moe',
+  },
+  {
+    from: 'evt-jamband-paloalto-1965-grateful-dead',
+    to: 'evt-jamband-philadelphia-1995-disco-biscuits',
+  },
 
   // Allman Brothers → downstream
-  { from: 'evt-jamband-macon-1969-allman-brothers', to: 'evt-jamband-nyc-1971-allman-brothers' },
-  { from: 'evt-jamband-macon-1969-allman-brothers', to: 'evt-jamband-nyc-1994-govt-mule' },
-  { from: 'evt-jamband-macon-1969-allman-brothers', to: 'evt-jamband-jacksonville-1994-derek-trucks' },
-  { from: 'evt-jamband-macon-1969-allman-brothers', to: 'evt-jamband-jacksonville-2010-ttb' },
-  { from: 'evt-jamband-macon-1969-allman-brothers', to: 'evt-jamband-athens-1986-widespread-panic' },
+  {
+    from: 'evt-jamband-macon-1969-allman-brothers',
+    to: 'evt-jamband-nyc-1971-allman-brothers',
+  },
+  {
+    from: 'evt-jamband-macon-1969-allman-brothers',
+    to: 'evt-jamband-nyc-1994-govt-mule',
+  },
+  {
+    from: 'evt-jamband-macon-1969-allman-brothers',
+    to: 'evt-jamband-jacksonville-1994-derek-trucks',
+  },
+  {
+    from: 'evt-jamband-macon-1969-allman-brothers',
+    to: 'evt-jamband-jacksonville-2010-ttb',
+  },
+  {
+    from: 'evt-jamband-macon-1969-allman-brothers',
+    to: 'evt-jamband-athens-1986-widespread-panic',
+  },
 
   // Phish → downstream
-  { from: 'evt-phish-burlington-1983', to: 'evt-jamband-burlington-1995-phish' },
+  {
+    from: 'evt-phish-burlington-1983',
+    to: 'evt-jamband-burlington-1995-phish',
+  },
   { from: 'evt-phish-burlington-1983', to: 'evt-jamband-nyc-1998-tab' },
-  { from: 'evt-phish-burlington-1983', to: 'evt-jamband-southbend-1997-umphreys' },
+  {
+    from: 'evt-phish-burlington-1983',
+    to: 'evt-jamband-southbend-1997-umphreys',
+  },
   { from: 'evt-phish-burlington-1983', to: 'evt-jamband-norwalk-2016-goose' },
-  { from: 'evt-phish-burlington-1983', to: 'evt-jamband-castleton-2004-twiddle' },
-  { from: 'evt-phish-burlington-1983', to: 'evt-jamband-prescott-2009-spafford' },
+  {
+    from: 'evt-phish-burlington-1983',
+    to: 'evt-jamband-castleton-2004-twiddle',
+  },
+  {
+    from: 'evt-phish-burlington-1983',
+    to: 'evt-jamband-prescott-2009-spafford',
+  },
 
   // Lettuce → downstream
-  { from: 'evt-jamband-boston-1992-lettuce', to: 'evt-jamband-nyc-2019-vulfpeck' },
-  { from: 'evt-jamband-boston-1992-lettuce', to: 'evt-jamband-minneapolis-2017-cory-wong' },
-  { from: 'evt-jamband-boston-1992-lettuce', to: 'evt-jamband-utrecht-2014-snarky-puppy' },
+  {
+    from: 'evt-jamband-boston-1992-lettuce',
+    to: 'evt-jamband-nyc-2019-vulfpeck',
+  },
+  {
+    from: 'evt-jamband-boston-1992-lettuce',
+    to: 'evt-jamband-minneapolis-2017-cory-wong',
+  },
+  {
+    from: 'evt-jamband-boston-1992-lettuce',
+    to: 'evt-jamband-utrecht-2014-snarky-puppy',
+  },
 
   // Other jam band chains
-  { from: 'evt-jamband-jacksonville-1994-derek-trucks', to: 'evt-jamband-jacksonville-2010-ttb' },
-  { from: 'evt-jamband-nyc-2019-vulfpeck', to: 'evt-jamband-minneapolis-2017-cory-wong' },
-  { from: 'evt-jamband-nashville-1988-flecktones', to: 'evt-jamband-lansing-2019-billy-strings' },
-  { from: 'evt-jamband-nashville-1988-flecktones', to: 'evt-jamband-kalamazoo-2000-greensky-bluegrass' },
-  { from: 'evt-jamband-neworleans-1994-galactic', to: 'evt-jamband-neworleans-2003-dumpstaphunk' },
+  {
+    from: 'evt-jamband-jacksonville-1994-derek-trucks',
+    to: 'evt-jamband-jacksonville-2010-ttb',
+  },
+  {
+    from: 'evt-jamband-nyc-2019-vulfpeck',
+    to: 'evt-jamband-minneapolis-2017-cory-wong',
+  },
+  {
+    from: 'evt-jamband-nashville-1988-flecktones',
+    to: 'evt-jamband-lansing-2019-billy-strings',
+  },
+  {
+    from: 'evt-jamband-nashville-1988-flecktones',
+    to: 'evt-jamband-kalamazoo-2000-greensky-bluegrass',
+  },
+  {
+    from: 'evt-jamband-neworleans-1994-galactic',
+    to: 'evt-jamband-neworleans-2003-dumpstaphunk',
+  },
 
   // Existing rock/blues → Jam Band founders
-  { from: 'evt-psychedelia-sf-1967', to: 'evt-jamband-paloalto-1965-grateful-dead' },
-  { from: 'evt-british-blues-london-1962', to: 'evt-jamband-macon-1969-allman-brothers' },
-  { from: 'evt-blues-memphis-1951', to: 'evt-jamband-macon-1969-allman-brothers' },
+  {
+    from: 'evt-psychedelia-sf-1967',
+    to: 'evt-jamband-paloalto-1965-grateful-dead',
+  },
+  {
+    from: 'evt-british-blues-london-1962',
+    to: 'evt-jamband-macon-1969-allman-brothers',
+  },
+  {
+    from: 'evt-blues-memphis-1951',
+    to: 'evt-jamband-macon-1969-allman-brothers',
+  },
 
   // ═══════════════════════════════════════════════════════════════
   // ██  POP CONNECTIONS  ██
   // ═══════════════════════════════════════════════════════════════
 
   // Michael Jackson → downstream
-  { from: 'evt-pop-losangeles-1982-michaeljackson', to: 'evt-pop-houston-2016-beyonce' },
-  { from: 'evt-pop-losangeles-1982-michaeljackson', to: 'evt-pop-losangeles-2015-justinbieber' },
-  { from: 'evt-pop-losangeles-1982-michaeljackson', to: 'evt-pop-losangeles-2012-brunomars' },
-  { from: 'evt-pop-losangeles-1982-michaeljackson', to: 'evt-pop-toronto-2020-theweeknd' },
+  {
+    from: 'evt-pop-losangeles-1982-michaeljackson',
+    to: 'evt-pop-houston-2016-beyonce',
+  },
+  {
+    from: 'evt-pop-losangeles-1982-michaeljackson',
+    to: 'evt-pop-losangeles-2015-justinbieber',
+  },
+  {
+    from: 'evt-pop-losangeles-1982-michaeljackson',
+    to: 'evt-pop-losangeles-2012-brunomars',
+  },
+  {
+    from: 'evt-pop-losangeles-1982-michaeljackson',
+    to: 'evt-pop-toronto-2020-theweeknd',
+  },
 
   // Madonna → downstream
   { from: 'evt-pop-nyc-1984-madonna', to: 'evt-pop-nyc-2008-ladygaga' },
@@ -1508,100 +1688,241 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-pop-nyc-1984-madonna', to: 'evt-pop-nyc-2007-rihanna' },
 
   // Whitney Houston → downstream
-  { from: 'evt-pop-newark-1985-whitneyhouston', to: 'evt-pop-nyc-1990-mariahcarey' },
-  { from: 'evt-pop-newark-1985-whitneyhouston', to: 'evt-pop-london-2011-adele' },
-  { from: 'evt-pop-newark-1985-whitneyhouston', to: 'evt-pop-losangeles-2019-arianagrande' },
+  {
+    from: 'evt-pop-newark-1985-whitneyhouston',
+    to: 'evt-pop-nyc-1990-mariahcarey',
+  },
+  {
+    from: 'evt-pop-newark-1985-whitneyhouston',
+    to: 'evt-pop-london-2011-adele',
+  },
+  {
+    from: 'evt-pop-newark-1985-whitneyhouston',
+    to: 'evt-pop-losangeles-2019-arianagrande',
+  },
 
   // Prince → downstream
-  { from: 'evt-pop-minneapolis-1984-prince', to: 'evt-pop-toronto-2020-theweeknd' },
-  { from: 'evt-pop-minneapolis-1984-prince', to: 'evt-pop-london-2020-dualipa' },
-  { from: 'evt-pop-minneapolis-1984-prince', to: 'evt-pop-losangeles-2012-brunomars' },
+  {
+    from: 'evt-pop-minneapolis-1984-prince',
+    to: 'evt-pop-toronto-2020-theweeknd',
+  },
+  {
+    from: 'evt-pop-minneapolis-1984-prince',
+    to: 'evt-pop-london-2020-dualipa',
+  },
+  {
+    from: 'evt-pop-minneapolis-1984-prince',
+    to: 'evt-pop-losangeles-2012-brunomars',
+  },
 
   // Taylor Swift → Olivia Rodrigo
-  { from: 'evt-pop-nashville-2008-taylorswift', to: 'evt-pop-nyc-2014-taylorswift' },
-  { from: 'evt-pop-nyc-2014-taylorswift', to: 'evt-pop-losangeles-2021-oliviarodrigo' },
+  {
+    from: 'evt-pop-nashville-2008-taylorswift',
+    to: 'evt-pop-nyc-2014-taylorswift',
+  },
+  {
+    from: 'evt-pop-nyc-2014-taylorswift',
+    to: 'evt-pop-losangeles-2021-oliviarodrigo',
+  },
 
   // Other pop chains
-  { from: 'evt-pop-losangeles-1986-janetjackson', to: 'evt-pop-houston-2016-beyonce' },
-  { from: 'evt-pop-losangeles-1986-janetjackson', to: 'evt-pop-nyc-1999-britneyspears' },
-  { from: 'evt-pop-nyc-1990-mariahcarey', to: 'evt-pop-losangeles-2019-arianagrande' },
+  {
+    from: 'evt-pop-losangeles-1986-janetjackson',
+    to: 'evt-pop-houston-2016-beyonce',
+  },
+  {
+    from: 'evt-pop-losangeles-1986-janetjackson',
+    to: 'evt-pop-nyc-1999-britneyspears',
+  },
+  {
+    from: 'evt-pop-nyc-1990-mariahcarey',
+    to: 'evt-pop-losangeles-2019-arianagrande',
+  },
   { from: 'evt-pop-london-1996-spicegirls', to: 'evt-pop-london-2020-dualipa' },
-  { from: 'evt-pop-london-1973-eltonjohn', to: 'evt-pop-london-2011-edsheeran' },
-  { from: 'evt-pop-losangeles-1977-fleetwoodmac', to: 'evt-pop-nashville-2008-taylorswift' },
+  {
+    from: 'evt-pop-london-1973-eltonjohn',
+    to: 'evt-pop-london-2011-edsheeran',
+  },
+  {
+    from: 'evt-pop-losangeles-1977-fleetwoodmac',
+    to: 'evt-pop-nashville-2008-taylorswift',
+  },
   { from: 'evt-pop-stockholm-1976-abba', to: 'evt-pop-stockholm-2010-robyn' },
-  { from: 'evt-pop-london-1987-georgemichael', to: 'evt-pop-losangeles-2022-harrystyles' },
+  {
+    from: 'evt-pop-london-1987-georgemichael',
+    to: 'evt-pop-losangeles-2022-harrystyles',
+  },
   { from: 'evt-pop-nyc-2007-rihanna', to: 'evt-pop-london-2020-dualipa' },
   { from: 'evt-pop-nyc-2008-ladygaga', to: 'evt-pop-losangeles-2021-dojacat' },
-  { from: 'evt-pop-auckland-2013-lorde', to: 'evt-pop-losangeles-2019-billieeilish' },
-  { from: 'evt-pop-miami-2001-shakira', to: 'evt-pop-losangeles-2012-brunomars' },
-  { from: 'evt-pop-minneapolis-1984-prince', to: 'evt-pop-minneapolis-2019-lizzo' },
+  {
+    from: 'evt-pop-auckland-2013-lorde',
+    to: 'evt-pop-losangeles-2019-billieeilish',
+  },
+  {
+    from: 'evt-pop-miami-2001-shakira',
+    to: 'evt-pop-losangeles-2012-brunomars',
+  },
+  {
+    from: 'evt-pop-minneapolis-1984-prince',
+    to: 'evt-pop-minneapolis-2019-lizzo',
+  },
 
   // Stevie Wonder → pop legacy
-  { from: 'evt-pop-losangeles-1976-steviewonder', to: 'evt-pop-losangeles-1982-michaeljackson' },
-  { from: 'evt-pop-losangeles-1976-steviewonder', to: 'evt-pop-losangeles-2012-brunomars' },
+  {
+    from: 'evt-pop-losangeles-1976-steviewonder',
+    to: 'evt-pop-losangeles-1982-michaeljackson',
+  },
+  {
+    from: 'evt-pop-losangeles-1976-steviewonder',
+    to: 'evt-pop-losangeles-2012-brunomars',
+  },
 
   // ═══════════════════════════════════════════════════════════════
   // ██  REGGAE CONNECTIONS  ██
   // ═══════════════════════════════════════════════════════════════
 
   // Bob Marley → downstream
-  { from: 'evt-reggae-kingston-1978-marley', to: 'evt-reggae-kingston-1977-tosh' },
-  { from: 'evt-reggae-kingston-1978-marley', to: 'evt-reggae-kingston-1972-cliff' },
-  { from: 'evt-reggae-kingston-1978-marley', to: 'evt-roots-reggae-kingston-1975-spear' },
-  { from: 'evt-reggae-kingston-1978-marley', to: 'evt-reggae-birmingham-1978-steel-pulse' },
-  { from: 'evt-reggae-kingston-1978-marley', to: 'evt-reggae-kingston-1977-third-world' },
-  { from: 'evt-reggae-kingston-1978-marley', to: 'evt-reggae-kingston-1988-ziggy' },
-  { from: 'evt-reggae-kingston-1978-marley', to: 'evt-reggae-kingston-2005-damian' },
+  {
+    from: 'evt-reggae-kingston-1978-marley',
+    to: 'evt-reggae-kingston-1977-tosh',
+  },
+  {
+    from: 'evt-reggae-kingston-1978-marley',
+    to: 'evt-reggae-kingston-1972-cliff',
+  },
+  {
+    from: 'evt-reggae-kingston-1978-marley',
+    to: 'evt-roots-reggae-kingston-1975-spear',
+  },
+  {
+    from: 'evt-reggae-kingston-1978-marley',
+    to: 'evt-reggae-birmingham-1978-steel-pulse',
+  },
+  {
+    from: 'evt-reggae-kingston-1978-marley',
+    to: 'evt-reggae-kingston-1977-third-world',
+  },
+  {
+    from: 'evt-reggae-kingston-1978-marley',
+    to: 'evt-reggae-kingston-1988-ziggy',
+  },
+  {
+    from: 'evt-reggae-kingston-1978-marley',
+    to: 'evt-reggae-kingston-2005-damian',
+  },
 
   // Dub lineage
   { from: 'evt-dub-kingston-1972-tubby', to: 'evt-dub-kingston-1976-pablo' },
-  { from: 'evt-dub-kingston-1972-tubby', to: 'evt-reggae-kingston-1978-marley' },
+  {
+    from: 'evt-dub-kingston-1972-tubby',
+    to: 'evt-reggae-kingston-1978-marley',
+  },
 
   // Dancehall lineage
-  { from: 'evt-dancehall-kingston-1982-yellowman', to: 'evt-dancehall-kingston-1991-shabba' },
-  { from: 'evt-dancehall-kingston-1991-shabba', to: 'evt-dancehall-kingston-2002-sean-paul' },
-  { from: 'evt-dancehall-kingston-1991-shabba', to: 'evt-dancehall-kingston-2000-beenie' },
+  {
+    from: 'evt-dancehall-kingston-1982-yellowman',
+    to: 'evt-dancehall-kingston-1991-shabba',
+  },
+  {
+    from: 'evt-dancehall-kingston-1991-shabba',
+    to: 'evt-dancehall-kingston-2002-sean-paul',
+  },
+  {
+    from: 'evt-dancehall-kingston-1991-shabba',
+    to: 'evt-dancehall-kingston-2000-beenie',
+  },
 
   // Reggae revival
-  { from: 'evt-reggae-kingston-2017-chronixx', to: 'evt-reggae-kingston-2018-protoje' },
-  { from: 'evt-reggae-kingston-2018-protoje', to: 'evt-reggae-spanish-town-2019-koffee' },
-  { from: 'evt-roots-reggae-kingston-1975-spear', to: 'evt-reggae-kingston-2017-chronixx' },
+  {
+    from: 'evt-reggae-kingston-2017-chronixx',
+    to: 'evt-reggae-kingston-2018-protoje',
+  },
+  {
+    from: 'evt-reggae-kingston-2018-protoje',
+    to: 'evt-reggae-spanish-town-2019-koffee',
+  },
+  {
+    from: 'evt-roots-reggae-kingston-1975-spear',
+    to: 'evt-reggae-kingston-2017-chronixx',
+  },
 
   // Marley family
-  { from: 'evt-reggae-kingston-1988-ziggy', to: 'evt-reggae-kingston-2005-damian' },
+  {
+    from: 'evt-reggae-kingston-1988-ziggy',
+    to: 'evt-reggae-kingston-2005-damian',
+  },
 
   // Roots reggae chains
   { from: 'evt-reggae-kingston-1971', to: 'evt-reggae-kingston-1978-marley' },
   { from: 'evt-reggae-kingston-1971', to: 'evt-reggae-kingston-1973-maytals' },
   { from: 'evt-reggae-kingston-1971', to: 'evt-reggae-kingston-1972-cliff' },
-  { from: 'evt-roots-reggae-kingston-1973', to: 'evt-roots-reggae-kingston-1975-spear' },
-  { from: 'evt-reggae-kingston-1993-inner-circle', to: 'evt-dancehall-nyc-1995-shaggy' },
-  { from: 'evt-reggae-kingston-1995-buju', to: 'evt-reggae-kingston-1997-sizzla' },
-  { from: 'evt-reggae-kingston-1997-sizzla', to: 'evt-reggae-kingston-2009-tarrus' },
+  {
+    from: 'evt-roots-reggae-kingston-1973',
+    to: 'evt-roots-reggae-kingston-1975-spear',
+  },
+  {
+    from: 'evt-reggae-kingston-1993-inner-circle',
+    to: 'evt-dancehall-nyc-1995-shaggy',
+  },
+  {
+    from: 'evt-reggae-kingston-1995-buju',
+    to: 'evt-reggae-kingston-1997-sizzla',
+  },
+  {
+    from: 'evt-reggae-kingston-1997-sizzla',
+    to: 'evt-reggae-kingston-2009-tarrus',
+  },
 
   // ═══════════════════════════════════════════════════════════════
   // ██  AFRICAN CONNECTIONS  ██
   // ═══════════════════════════════════════════════════════════════
 
   // Ewe drumming lineage
-  { from: 'evt-ewe-tradition-volta-1900', to: 'evt-ewe-drums-accra-1965-agbeli' },
-  { from: 'evt-ewe-drums-accra-1965-agbeli', to: 'evt-ewe-drums-accra-2005-korku' },
+  {
+    from: 'evt-ewe-tradition-volta-1900',
+    to: 'evt-ewe-drums-accra-1965-agbeli',
+  },
+  {
+    from: 'evt-ewe-drums-accra-1965-agbeli',
+    to: 'evt-ewe-drums-accra-2005-korku',
+  },
 
   // Kora / Mande lineage
   { from: 'evt-kora-bamako-1988-toumani', to: 'evt-kora-bamako-2009-sissoko' },
-  { from: 'evt-kora-bamako-1988-toumani', to: 'evt-kora-bamako-1999-newancient' },
+  {
+    from: 'evt-kora-bamako-1988-toumani',
+    to: 'evt-kora-bamako-1999-newancient',
+  },
   { from: 'evt-griot-timbuktu-1500', to: 'evt-kora-bamako-1988-toumani' },
 
   // Fela Kuti → downstream
   { from: 'evt-afrobeat-lagos-1971', to: 'evt-afrobeat-lagos-2008-seunkuti' },
-  { from: 'evt-afrobeat-lagos-1971', to: 'evt-afrobeat-brooklyn-2002-antibalas' },
+  {
+    from: 'evt-afrobeat-lagos-1971',
+    to: 'evt-afrobeat-brooklyn-2002-antibalas',
+  },
 
   // Saharan guitar lineage (Ali Farka Toure → desert guitar)
-  { from: 'evt-desert-blues-niafunke-1994-toure', to: 'evt-tuareg-kidal-2004-tinariwen' },
-  { from: 'evt-desert-blues-niafunke-1994-toure', to: 'evt-tuareg-agadez-2013-bombino' },
-  { from: 'evt-desert-blues-niafunke-1994-toure', to: 'evt-tuareg-agadez-2021-moctar' },
-  { from: 'evt-tuareg-kidal-2004-tinariwen', to: 'evt-tuareg-agadez-2013-bombino' },
-  { from: 'evt-tuareg-agadez-2013-bombino', to: 'evt-tuareg-agadez-2021-moctar' },
+  {
+    from: 'evt-desert-blues-niafunke-1994-toure',
+    to: 'evt-tuareg-kidal-2004-tinariwen',
+  },
+  {
+    from: 'evt-desert-blues-niafunke-1994-toure',
+    to: 'evt-tuareg-agadez-2013-bombino',
+  },
+  {
+    from: 'evt-desert-blues-niafunke-1994-toure',
+    to: 'evt-tuareg-agadez-2021-moctar',
+  },
+  {
+    from: 'evt-tuareg-kidal-2004-tinariwen',
+    to: 'evt-tuareg-agadez-2013-bombino',
+  },
+  {
+    from: 'evt-tuareg-agadez-2013-bombino',
+    to: 'evt-tuareg-agadez-2021-moctar',
+  },
 
   // Youssou N'Dour → modern Afrobeats / Afropop
   { from: 'evt-mbalax-dakar-1990-ndour', to: 'evt-afrobeats-lagos-2010' },
@@ -1609,88 +1930,202 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // King Sunny Ade → Afrobeats artists
   { from: 'evt-juju-lagos-1982-ade', to: 'evt-afrobeats-lagos-2020-wizkid' },
-  { from: 'evt-juju-lagos-1982-ade', to: 'evt-afrobeats-portharcourt-2019-burna' },
+  {
+    from: 'evt-juju-lagos-1982-ade',
+    to: 'evt-afrobeats-portharcourt-2019-burna',
+  },
 
   // Highlife → Afrobeats
   { from: 'evt-highlife-accra-1960', to: 'evt-afrobeats-lagos-2010' },
   { from: 'evt-highlife-lagos-1952', to: 'evt-juju-lagos-1982-ade' },
 
   // Ethiopian jazz lineage
-  { from: 'evt-ethiojazz-addis-1969-mulatu', to: 'evt-ethiojazz-addis-1972-getatchew' },
-  { from: 'evt-ethiojazz-addis-1969-mulatu', to: 'evt-ethiopian-addis-1975-mahmoud' },
-  { from: 'evt-ethiojazz-addis-1969-mulatu', to: 'evt-ethiojazz-addis-2018-hailu' },
-  { from: 'evt-ethiojazz-addis-1972-getatchew', to: 'evt-ethiopiques-paris-1997' },
+  {
+    from: 'evt-ethiojazz-addis-1969-mulatu',
+    to: 'evt-ethiojazz-addis-1972-getatchew',
+  },
+  {
+    from: 'evt-ethiojazz-addis-1969-mulatu',
+    to: 'evt-ethiopian-addis-1975-mahmoud',
+  },
+  {
+    from: 'evt-ethiojazz-addis-1969-mulatu',
+    to: 'evt-ethiojazz-addis-2018-hailu',
+  },
+  {
+    from: 'evt-ethiojazz-addis-1972-getatchew',
+    to: 'evt-ethiopiques-paris-1997',
+  },
 
   // South African lineage
-  { from: 'evt-jazz-johannesburg-1968-masekela', to: 'evt-crossover-johannesburg-1982-clegg' },
-  { from: 'evt-mbaqanga-johannesburg-1964-mahotella', to: 'evt-bubblegum-johannesburg-1983-fassie' },
+  {
+    from: 'evt-jazz-johannesburg-1968-masekela',
+    to: 'evt-crossover-johannesburg-1982-clegg',
+  },
+  {
+    from: 'evt-mbaqanga-johannesburg-1964-mahotella',
+    to: 'evt-bubblegum-johannesburg-1983-fassie',
+  },
 
   // West African pop chains
-  { from: 'evt-mande-pop-bamako-1987-keita', to: 'evt-mande-bamako-2011-diawara' },
-  { from: 'evt-wassoulou-bamako-1989-sangare', to: 'evt-mande-bamako-2011-diawara' },
-  { from: 'evt-afrocuban-dakar-1970-baobab', to: 'evt-mbalax-dakar-1990-ndour' },
+  {
+    from: 'evt-mande-pop-bamako-1987-keita',
+    to: 'evt-mande-bamako-2011-diawara',
+  },
+  {
+    from: 'evt-wassoulou-bamako-1989-sangare',
+    to: 'evt-mande-bamako-2011-diawara',
+  },
+  {
+    from: 'evt-afrocuban-dakar-1970-baobab',
+    to: 'evt-mbalax-dakar-1990-ndour',
+  },
   { from: 'evt-afropop-dakar-1989-maal', to: 'evt-mbalax-dakar-1990-ndour' },
   { from: 'evt-afropop-bamako-2004-amadou', to: 'evt-afrofusion-accra-2019' },
-  { from: 'evt-highlife-saltpond-2010-ebotaylor', to: 'evt-afrofusion-accra-2019' },
+  {
+    from: 'evt-highlife-saltpond-2010-ebotaylor',
+    to: 'evt-afrofusion-accra-2019',
+  },
 
   // Afrobeats modern chains
-  { from: 'evt-afrobeats-lagos-2020-wizkid', to: 'evt-afrobeats-lagos-2021-tems' },
-  { from: 'evt-afrobeats-portharcourt-2019-burna', to: 'evt-burna-boy-lagos-2020' },
+  {
+    from: 'evt-afrobeats-lagos-2020-wizkid',
+    to: 'evt-afrobeats-lagos-2021-tems',
+  },
+  {
+    from: 'evt-afrobeats-portharcourt-2019-burna',
+    to: 'evt-burna-boy-lagos-2020',
+  },
   { from: 'evt-afrobeats-lagos-2019-davido', to: 'evt-afrobeats-lagos-2023' },
   { from: 'evt-afrobeats-lagos-2020-tiwa', to: 'evt-afrobeats-lagos-2023' },
   { from: 'evt-afrosoul-paris-2007-asa', to: 'evt-afrobeats-lagos-2021-tems' },
 
   // Kenyan / East African
-  { from: 'evt-kenyanpop-nairobi-2001-wainaina', to: 'evt-afropop-nairobi-2012-sautisol' },
+  {
+    from: 'evt-kenyanpop-nairobi-2001-wainaina',
+    to: 'evt-afropop-nairobi-2012-sautisol',
+  },
 
   // ─── FUNK CONNECTIONS (Phase 2) ────────────────────────────────────
 
   // James Brown lineage
-  { from: 'evt-funk-nyc-1963-james-brown-apollo', to: 'evt-funk-macon-1965-james-brown-papas' },
-  { from: 'evt-funk-macon-1965-james-brown-papas', to: 'evt-funk-la-1975-parliament-mothership' },
-  { from: 'evt-funk-la-1975-parliament-mothership', to: 'evt-funk-cincinnati-1977-bootsy-collins' },
-  { from: 'evt-funk-macon-1965-james-brown-papas', to: 'evt-funk-memphis-1967-bar-kays' },
-  { from: 'evt-funk-macon-1965-james-brown-papas', to: 'evt-funk-oakland-1973-tower-of-power' },
+  {
+    from: 'evt-funk-nyc-1963-james-brown-apollo',
+    to: 'evt-funk-macon-1965-james-brown-papas',
+  },
+  {
+    from: 'evt-funk-macon-1965-james-brown-papas',
+    to: 'evt-funk-la-1975-parliament-mothership',
+  },
+  {
+    from: 'evt-funk-la-1975-parliament-mothership',
+    to: 'evt-funk-cincinnati-1977-bootsy-collins',
+  },
+  {
+    from: 'evt-funk-macon-1965-james-brown-papas',
+    to: 'evt-funk-memphis-1967-bar-kays',
+  },
+  {
+    from: 'evt-funk-macon-1965-james-brown-papas',
+    to: 'evt-funk-oakland-1973-tower-of-power',
+  },
 
   // Sly Stone -> funk bands
-  { from: 'evt-funk-sf-1969-sly-stone-stand', to: 'evt-funk-la-1975-earth-wind-fire' },
-  { from: 'evt-funk-sf-1969-sly-stone-stand', to: 'evt-funk-dayton-1974-ohio-players' },
-  { from: 'evt-funk-sf-1969-sly-stone-stand', to: 'evt-funk-longbeach-1975-war-low-rider' },
-  { from: 'evt-funk-sf-1969-sly-stone-stand', to: 'evt-funk-la-1975-parliament-mothership' },
+  {
+    from: 'evt-funk-sf-1969-sly-stone-stand',
+    to: 'evt-funk-la-1975-earth-wind-fire',
+  },
+  {
+    from: 'evt-funk-sf-1969-sly-stone-stand',
+    to: 'evt-funk-dayton-1974-ohio-players',
+  },
+  {
+    from: 'evt-funk-sf-1969-sly-stone-stand',
+    to: 'evt-funk-longbeach-1975-war-low-rider',
+  },
+  {
+    from: 'evt-funk-sf-1969-sly-stone-stand',
+    to: 'evt-funk-la-1975-parliament-mothership',
+  },
 
   // The Meters -> New Orleans funk lineage
-  { from: 'evt-funk-neworleans-1974-meters-rejuvenation', to: 'evt-jamband-neworleans-1994-galactic' },
-  { from: 'evt-funk-neworleans-1974-meters-rejuvenation', to: 'evt-jamband-neworleans-2003-dumpstaphunk' },
-  { from: 'evt-meters-neworleans-1969', to: 'evt-funk-neworleans-1974-meters-rejuvenation' },
+  {
+    from: 'evt-funk-neworleans-1974-meters-rejuvenation',
+    to: 'evt-jamband-neworleans-1994-galactic',
+  },
+  {
+    from: 'evt-funk-neworleans-1974-meters-rejuvenation',
+    to: 'evt-jamband-neworleans-2003-dumpstaphunk',
+  },
+  {
+    from: 'evt-meters-neworleans-1969',
+    to: 'evt-funk-neworleans-1974-meters-rejuvenation',
+  },
 
   // Isley Brothers -> Rick James, Cameo
-  { from: 'evt-funk-cincinnati-1969-isley-brothers', to: 'evt-funk-buffalo-1981-rick-james' },
-  { from: 'evt-funk-cincinnati-1969-isley-brothers', to: 'evt-funk-nyc-1986-cameo-word-up' },
+  {
+    from: 'evt-funk-cincinnati-1969-isley-brothers',
+    to: 'evt-funk-buffalo-1981-rick-james',
+  },
+  {
+    from: 'evt-funk-cincinnati-1969-isley-brothers',
+    to: 'evt-funk-nyc-1986-cameo-word-up',
+  },
 
   // Rufus/Chaka Khan lineage
-  { from: 'evt-funk-chicago-1970-rufus-chaka-khan', to: 'evt-funk-chicago-1978-chaka-khan' },
+  {
+    from: 'evt-funk-chicago-1970-rufus-chaka-khan',
+    to: 'evt-funk-chicago-1978-chaka-khan',
+  },
 
   // Nile Rodgers/Chic -> Disco
   { from: 'evt-funk-nyc-1978-chic-le-freak', to: 'evt-disco-nyc-1977' },
 
   // George Clinton -> hip hop roots
-  { from: 'evt-funk-detroit-1982-george-clinton-solo', to: 'evt-hiphop-nyc-1984' },
-  { from: 'evt-funk-la-1975-parliament-mothership', to: 'evt-funk-detroit-1982-george-clinton-solo' },
+  {
+    from: 'evt-funk-detroit-1982-george-clinton-solo',
+    to: 'evt-hiphop-nyc-1984',
+  },
+  {
+    from: 'evt-funk-la-1975-parliament-mothership',
+    to: 'evt-funk-detroit-1982-george-clinton-solo',
+  },
 
   // Betty Davis -> Janelle Monáe
-  { from: 'evt-funk-pittsburgh-1974-betty-davis', to: 'evt-funk-kansascity-2010-janelle-monae' },
+  {
+    from: 'evt-funk-pittsburgh-1974-betty-davis',
+    to: 'evt-funk-kansascity-2010-janelle-monae',
+  },
 
   // Stevie Wonder connections
-  { from: 'evt-funk-detroit-1972-stevie-wonder-superstition', to: 'evt-funk-la-1975-earth-wind-fire' },
-  { from: 'evt-funk-detroit-1972-stevie-wonder-superstition', to: 'evt-funk-chicago-1978-chaka-khan' },
+  {
+    from: 'evt-funk-detroit-1972-stevie-wonder-superstition',
+    to: 'evt-funk-la-1975-earth-wind-fire',
+  },
+  {
+    from: 'evt-funk-detroit-1972-stevie-wonder-superstition',
+    to: 'evt-funk-chicago-1978-chaka-khan',
+  },
 
   // Dayton funk scene connections
-  { from: 'evt-funk-dayton-1974-ohio-players', to: 'evt-funk-dayton-1980-zapp-roger' },
-  { from: 'evt-funk-dayton-1980-zapp-roger', to: 'evt-funk-dayton-1981-lakeside' },
+  {
+    from: 'evt-funk-dayton-1974-ohio-players',
+    to: 'evt-funk-dayton-1980-zapp-roger',
+  },
+  {
+    from: 'evt-funk-dayton-1980-zapp-roger',
+    to: 'evt-funk-dayton-1981-lakeside',
+  },
 
   // Commodores and misc funk
-  { from: 'evt-funk-tuskegee-1974-commodores', to: 'evt-funk-jerseycity-1980-kool-gang' },
-  { from: 'evt-funk-tulsa-1982-gap-band', to: 'evt-funk-nyc-1986-cameo-word-up' },
+  {
+    from: 'evt-funk-tuskegee-1974-commodores',
+    to: 'evt-funk-jerseycity-1980-kool-gang',
+  },
+  {
+    from: 'evt-funk-tulsa-1982-gap-band',
+    to: 'evt-funk-nyc-1986-cameo-word-up',
+  },
 
   // ─── BLUES CONNECTIONS (Phase 2) ───────────────────────────────────
 
@@ -1729,7 +2164,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-blues-angola-1933', to: 'evt-blues-statesboro-1928' },
 
   // Dr. John -> New Orleans blues/funk
-  { from: 'evt-blues-nola-1968', to: 'evt-funk-neworleans-1974-meters-rejuvenation' },
+  {
+    from: 'evt-blues-nola-1968',
+    to: 'evt-funk-neworleans-1974-meters-rejuvenation',
+  },
   { from: 'evt-blues-nola-1968', to: 'evt-meters-neworleans-1969' },
 
   // Delta blues -> Chicago blues bridge
@@ -1756,23 +2194,38 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-ruben-blades-siembra-1978', to: 'evt-marc-anthony-nyc-1999' },
 
   // Violeta Parra -> Mercedes Sosa (nueva cancion)
-  { from: 'evt-violeta-parra-santiago-1966', to: 'evt-mercedes-sosa-tucuman-1971' },
+  {
+    from: 'evt-violeta-parra-santiago-1966',
+    to: 'evt-mercedes-sosa-tucuman-1971',
+  },
 
   // Joao Gilberto -> bossa nova -> Jorge Ben
   { from: 'evt-joao-gilberto-bossanova-1958', to: 'evt-bossanova-rio-1962' },
-  { from: 'evt-joao-gilberto-bossanova-1958', to: 'evt-jorge-ben-jor-rio-1963' },
+  {
+    from: 'evt-joao-gilberto-bossanova-1958',
+    to: 'evt-jorge-ben-jor-rio-1963',
+  },
   { from: 'evt-jorge-ben-jor-rio-1963', to: 'evt-tropicalia-sao-paulo-1968' },
 
   // Cafe Tacvba -> Natalia Lafourcade
   { from: 'evt-cafe-tacvba-re-1994', to: 'evt-natalia-lafourcade-musas-2017' },
 
   // Soda Stereo -> Latin rock lineage
-  { from: 'evt-soda-stereo-buenosaires-1984', to: 'evt-fabulosos-cadillacs-buenosaires-1986' },
-  { from: 'evt-soda-stereo-buenosaires-1984', to: 'evt-aterciopelados-bogota-1990' },
+  {
+    from: 'evt-soda-stereo-buenosaires-1984',
+    to: 'evt-fabulosos-cadillacs-buenosaires-1986',
+  },
+  {
+    from: 'evt-soda-stereo-buenosaires-1984',
+    to: 'evt-aterciopelados-bogota-1990',
+  },
   { from: 'evt-soda-stereo-buenosaires-1984', to: 'evt-cafe-tacvba-re-1994' },
 
   // Reggaeton pioneers -> modern
-  { from: 'evt-reggaeton-underground-sanjuan-1993', to: 'evt-reggaeton-san-juan-2004' },
+  {
+    from: 'evt-reggaeton-underground-sanjuan-1993',
+    to: 'evt-reggaeton-san-juan-2004',
+  },
   { from: 'evt-reggaeton-san-juan-2004', to: 'evt-bad-bunny-sanjuan-2020' },
   { from: 'evt-reggaeton-san-juan-2004', to: 'evt-jbalvin-energia-2016' },
   { from: 'evt-reggaeton-san-juan-2004', to: 'evt-ozuna-aura-2018' },
@@ -1780,7 +2233,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // Ivy Queen, Tego Calderon -> reggaeton pioneers -> modern
   { from: 'evt-ivy-queen-anasco-2003', to: 'evt-reggaeton-san-juan-2004' },
-  { from: 'evt-tego-calderon-santurce-2003', to: 'evt-reggaeton-san-juan-2004' },
+  {
+    from: 'evt-tego-calderon-santurce-2003',
+    to: 'evt-reggaeton-san-juan-2004',
+  },
   { from: 'evt-tego-calderon-santurce-2003', to: 'evt-calle13-sanjuan-2005' },
 
   // Selena -> Shakira crossover
@@ -1799,7 +2255,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-contradanza-havana-1800', to: 'evt-danzon-havana-1879' },
 
   // Mon Laferte, Bomba Estereo, Juanes, Karol G
-  { from: 'evt-mon-laferte-vina-2015', to: 'evt-natalia-lafourcade-musas-2017' },
+  {
+    from: 'evt-mon-laferte-vina-2015',
+    to: 'evt-natalia-lafourcade-musas-2017',
+  },
   { from: 'evt-juanes-fijate-bien-2000', to: 'evt-bomba-estereo-bogota-2015' },
   { from: 'evt-jbalvin-energia-2016', to: 'evt-karol-g-manana-2023' },
 
@@ -1808,7 +2267,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // Cumbia lineage
   { from: 'evt-cumbia-barranquilla-1962', to: 'evt-sonidero-mexicocity-1975' },
-  { from: 'evt-cumbia-barranquilla-1962', to: 'evt-cumbia-villera-buenosaires-1990' },
+  {
+    from: 'evt-cumbia-barranquilla-1962',
+    to: 'evt-cumbia-villera-buenosaires-1990',
+  },
 
   // Merengue -> NYC
   { from: 'evt-merengue-santodomingo-1958', to: 'evt-merengue-nyc-1985' },
@@ -1821,72 +2283,174 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   // ═══════════════════════════════════════════════════════════════════
 
   // ── Early Jazz Lineage (Congo Square -> New Orleans -> Chicago) ──
-  { from: 'evt-jazz-congo-square-nola-1819', to: 'evt-jazz-jelly-roll-morton-chicago-1926' },
-  { from: 'evt-jazz-jelly-roll-morton-chicago-1926', to: 'evt-jazz-armstrong-hotfive-chicago-1925' },
-  { from: 'evt-jazz-armstrong-hotfive-chicago-1925', to: 'evt-jazz-ellington-cotton-club-1927' },
+  {
+    from: 'evt-jazz-congo-square-nola-1819',
+    to: 'evt-jazz-jelly-roll-morton-chicago-1926',
+  },
+  {
+    from: 'evt-jazz-jelly-roll-morton-chicago-1926',
+    to: 'evt-jazz-armstrong-hotfive-chicago-1925',
+  },
+  {
+    from: 'evt-jazz-armstrong-hotfive-chicago-1925',
+    to: 'evt-jazz-ellington-cotton-club-1927',
+  },
 
   // ── Louis Armstrong & Lil' Hardin (collaborators) ──
-  { from: 'evt-jazz-armstrong-hotfive-chicago-1925', to: 'evt-jazz-lil-hardin-chicago-1925' },
+  {
+    from: 'evt-jazz-armstrong-hotfive-chicago-1925',
+    to: 'evt-jazz-lil-hardin-chicago-1925',
+  },
 
   // ── Ellington Branching ──
-  { from: 'evt-jazz-ellington-cotton-club-1927', to: 'evt-jazz-mary-lou-williams-nyc-1945' },
-  { from: 'evt-jazz-ellington-cotton-club-1927', to: 'evt-jazz-art-blakey-messengers-nyc-1955' },
+  {
+    from: 'evt-jazz-ellington-cotton-club-1927',
+    to: 'evt-jazz-mary-lou-williams-nyc-1945',
+  },
+  {
+    from: 'evt-jazz-ellington-cotton-club-1927',
+    to: 'evt-jazz-art-blakey-messengers-nyc-1955',
+  },
 
   // ── Bebop Revolution (Parker -> Gillespie, Monk -> Miles) ──
-  { from: 'evt-jazz-parker-savoy-nyc-1945', to: 'evt-jazz-monk-brilliant-corners-nyc-1956' },
-  { from: 'evt-jazz-monk-brilliant-corners-nyc-1956', to: 'evt-jazz-miles-kind-of-blue-nyc-1959' },
-  { from: 'evt-jazz-parker-savoy-nyc-1945', to: 'evt-jazz-miles-kind-of-blue-nyc-1959' },
+  {
+    from: 'evt-jazz-parker-savoy-nyc-1945',
+    to: 'evt-jazz-monk-brilliant-corners-nyc-1956',
+  },
+  {
+    from: 'evt-jazz-monk-brilliant-corners-nyc-1956',
+    to: 'evt-jazz-miles-kind-of-blue-nyc-1959',
+  },
+  {
+    from: 'evt-jazz-parker-savoy-nyc-1945',
+    to: 'evt-jazz-miles-kind-of-blue-nyc-1959',
+  },
 
   // ── Kind of Blue Radiations ──
-  { from: 'evt-jazz-miles-kind-of-blue-nyc-1959', to: 'evt-jazz-bill-evans-vanguard-1961' },
-  { from: 'evt-jazz-miles-kind-of-blue-nyc-1959', to: 'evt-jazz-coltrane-love-supreme-1965' },
-  { from: 'evt-jazz-miles-kind-of-blue-nyc-1959', to: 'evt-jazz-wayne-shorter-speak-no-evil-1966' },
+  {
+    from: 'evt-jazz-miles-kind-of-blue-nyc-1959',
+    to: 'evt-jazz-bill-evans-vanguard-1961',
+  },
+  {
+    from: 'evt-jazz-miles-kind-of-blue-nyc-1959',
+    to: 'evt-jazz-coltrane-love-supreme-1965',
+  },
+  {
+    from: 'evt-jazz-miles-kind-of-blue-nyc-1959',
+    to: 'evt-jazz-wayne-shorter-speak-no-evil-1966',
+  },
 
   // ── Bitches Brew Radiations ──
-  { from: 'evt-jazz-miles-bitches-brew-1970', to: 'evt-jazz-herbie-hancock-headhunters-la-1973' },
-  { from: 'evt-jazz-miles-bitches-brew-1970', to: 'evt-jazz-chick-corea-return-to-forever-1972' },
-  { from: 'evt-jazz-miles-bitches-brew-1970', to: 'evt-jazz-weather-report-heavy-weather-la-1977' },
+  {
+    from: 'evt-jazz-miles-bitches-brew-1970',
+    to: 'evt-jazz-herbie-hancock-headhunters-la-1973',
+  },
+  {
+    from: 'evt-jazz-miles-bitches-brew-1970',
+    to: 'evt-jazz-chick-corea-return-to-forever-1972',
+  },
+  {
+    from: 'evt-jazz-miles-bitches-brew-1970',
+    to: 'evt-jazz-weather-report-heavy-weather-la-1977',
+  },
 
   // ── Miles: Kind of Blue -> Bitches Brew ──
-  { from: 'evt-jazz-miles-kind-of-blue-nyc-1959', to: 'evt-jazz-miles-bitches-brew-1970' },
+  {
+    from: 'evt-jazz-miles-kind-of-blue-nyc-1959',
+    to: 'evt-jazz-miles-bitches-brew-1970',
+  },
 
   // ── Coltrane Branching ──
-  { from: 'evt-jazz-coltrane-love-supreme-1965', to: 'evt-jazz-mccoy-tyner-real-mccoy-1967' },
-  { from: 'evt-jazz-coltrane-love-supreme-1965', to: 'evt-jazz-ornette-coleman-shape-nyc-1959' },
+  {
+    from: 'evt-jazz-coltrane-love-supreme-1965',
+    to: 'evt-jazz-mccoy-tyner-real-mccoy-1967',
+  },
+  {
+    from: 'evt-jazz-coltrane-love-supreme-1965',
+    to: 'evt-jazz-ornette-coleman-shape-nyc-1959',
+  },
 
   // ── Vocal Jazz Lineage (Holiday -> Vaughan -> Simone -> Spalding) ──
-  { from: 'evt-jazz-billie-holiday-nyc-1939', to: 'evt-jazz-sarah-vaughan-clifford-brown-1954' },
-  { from: 'evt-jazz-sarah-vaughan-clifford-brown-1954', to: 'evt-jazz-nina-simone-mississippi-goddam-1964' },
-  { from: 'evt-jazz-nina-simone-mississippi-goddam-1964', to: 'evt-jazz-esperanza-spalding-portland-2016' },
+  {
+    from: 'evt-jazz-billie-holiday-nyc-1939',
+    to: 'evt-jazz-sarah-vaughan-clifford-brown-1954',
+  },
+  {
+    from: 'evt-jazz-sarah-vaughan-clifford-brown-1954',
+    to: 'evt-jazz-nina-simone-mississippi-goddam-1964',
+  },
+  {
+    from: 'evt-jazz-nina-simone-mississippi-goddam-1964',
+    to: 'evt-jazz-esperanza-spalding-portland-2016',
+  },
 
   // ── Women Arrangers/Composers Lineage ──
-  { from: 'evt-jazz-melba-liston-nyc-1958', to: 'evt-jazz-carla-bley-escalator-nyc-1971' },
-  { from: 'evt-jazz-carla-bley-escalator-nyc-1971', to: 'evt-jazz-maria-schneider-concert-garden-nyc-2004' },
-  { from: 'evt-jazz-maria-schneider-concert-garden-nyc-2004', to: 'evt-jazz-artemis-nyc-2017' },
+  {
+    from: 'evt-jazz-melba-liston-nyc-1958',
+    to: 'evt-jazz-carla-bley-escalator-nyc-1971',
+  },
+  {
+    from: 'evt-jazz-carla-bley-escalator-nyc-1971',
+    to: 'evt-jazz-maria-schneider-concert-garden-nyc-2004',
+  },
+  {
+    from: 'evt-jazz-maria-schneider-concert-garden-nyc-2004',
+    to: 'evt-jazz-artemis-nyc-2017',
+  },
 
   // ── Art Blakey -> Wynton Marsalis ──
-  { from: 'evt-jazz-art-blakey-messengers-nyc-1955', to: 'evt-jazz-wynton-marsalis-black-codes-1985' },
+  {
+    from: 'evt-jazz-art-blakey-messengers-nyc-1955',
+    to: 'evt-jazz-wynton-marsalis-black-codes-1985',
+  },
 
   // ── Kamasi Washington Connections ──
-  { from: 'evt-jazz-coltrane-love-supreme-1965', to: 'evt-jazz-kamasi-washington-the-epic-la-2015' },
-  { from: 'evt-jazz-kamasi-washington-the-epic-la-2015', to: 'evt-jazz-artemis-nyc-2017' },
+  {
+    from: 'evt-jazz-coltrane-love-supreme-1965',
+    to: 'evt-jazz-kamasi-washington-the-epic-la-2015',
+  },
+  {
+    from: 'evt-jazz-kamasi-washington-the-epic-la-2015',
+    to: 'evt-jazz-artemis-nyc-2017',
+  },
 
   // ── Ahmad Jamal -> Modern Jazz ──
-  { from: 'evt-jazz-ahmad-jamal-chicago-1958', to: 'evt-jazz-miles-kind-of-blue-nyc-1959' },
-  { from: 'evt-jazz-ahmad-jamal-chicago-1958', to: 'evt-jazz-brad-mehldau-largo-la-2002' },
+  {
+    from: 'evt-jazz-ahmad-jamal-chicago-1958',
+    to: 'evt-jazz-miles-kind-of-blue-nyc-1959',
+  },
+  {
+    from: 'evt-jazz-ahmad-jamal-chicago-1958',
+    to: 'evt-jazz-brad-mehldau-largo-la-2002',
+  },
 
   // ── Wes Montgomery Connections ──
-  { from: 'evt-jazz-wes-montgomery-indianapolis-1960', to: 'evt-jazz-pat-metheny-bright-size-life-1976' },
+  {
+    from: 'evt-jazz-wes-montgomery-indianapolis-1960',
+    to: 'evt-jazz-pat-metheny-bright-size-life-1976',
+  },
 
   // ── Sun Ra -> Kamasi (spiritual jazz lineage) ──
-  { from: 'evt-jazz-sunra-arkestra-chicago-1956', to: 'evt-jazz-kamasi-washington-the-epic-la-2015' },
+  {
+    from: 'evt-jazz-sunra-arkestra-chicago-1956',
+    to: 'evt-jazz-kamasi-washington-the-epic-la-2015',
+  },
 
   // ── Mingus -> Carla Bley ──
-  { from: 'evt-jazz-mingus-ah-um-nyc-1959', to: 'evt-jazz-carla-bley-escalator-nyc-1971' },
+  {
+    from: 'evt-jazz-mingus-ah-um-nyc-1959',
+    to: 'evt-jazz-carla-bley-escalator-nyc-1971',
+  },
 
   // ── Terri Lyne Carrington (modern hub) ──
-  { from: 'evt-jazz-art-blakey-messengers-nyc-1955', to: 'evt-jazz-terri-lyne-carrington-boston-2011' },
-  { from: 'evt-jazz-terri-lyne-carrington-boston-2011', to: 'evt-jazz-esperanza-spalding-portland-2016' },
+  {
+    from: 'evt-jazz-art-blakey-messengers-nyc-1955',
+    to: 'evt-jazz-terri-lyne-carrington-boston-2011',
+  },
+  {
+    from: 'evt-jazz-terri-lyne-carrington-boston-2011',
+    to: 'evt-jazz-esperanza-spalding-portland-2016',
+  },
 
   // ═══════════════════════════════════════════════════════════════════
   // ██  PHASE 3 — Rock Influence Connections                        ██
@@ -1894,7 +2458,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // ── Sister Rosetta Tharpe -> Rock Origins ──
   { from: 'evt-sister-rosetta-tharpe-nyc-1945', to: 'evt-elvis-memphis-1954' },
-  { from: 'evt-sister-rosetta-tharpe-nyc-1945', to: 'evt-chuck-berry-stlouis-1955' },
+  {
+    from: 'evt-sister-rosetta-tharpe-nyc-1945',
+    to: 'evt-chuck-berry-stlouis-1955',
+  },
 
   // ── Tina Turner -> Female Rock Lineage ──
   { from: 'evt-tina-turner-la-1966', to: 'evt-janis-joplin-sf-1967' },
@@ -1916,11 +2483,17 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // ── Punk Lineage (Clash -> Bikini Kill -> Sleater-Kinney) ──
   { from: 'evt-clash-london-1979', to: 'evt-bikini-kill-olympia-1990' },
-  { from: 'evt-bikini-kill-olympia-1990', to: 'evt-sleater-kinney-olympia-1997' },
+  {
+    from: 'evt-bikini-kill-olympia-1990',
+    to: 'evt-sleater-kinney-olympia-1997',
+  },
 
   // ── Talking Heads -> Sonic Youth -> My Bloody Valentine ──
   { from: 'evt-talking-heads-nyc-1980', to: 'evt-sonic-youth-nyc-1988' },
-  { from: 'evt-sonic-youth-nyc-1988', to: 'evt-my-bloody-valentine-london-1991' },
+  {
+    from: 'evt-sonic-youth-nyc-1988',
+    to: 'evt-my-bloody-valentine-london-1991',
+  },
 
   // ── Pearl Jam -> Foo Fighters; Soundgarden ──
   { from: 'evt-pearl-jam-seattle-1991', to: 'evt-foo-fighters-seattle-1995' },
@@ -1942,13 +2515,19 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // ── Strokes -> Arctic Monkeys; White Stripes ──
   { from: 'evt-strokes-nyc-2001', to: 'evt-arctic-monkeys-sheffield-2006' },
-  { from: 'evt-white-stripes-detroit-2003', to: 'evt-arctic-monkeys-sheffield-2006' },
+  {
+    from: 'evt-white-stripes-detroit-2003',
+    to: 'evt-arctic-monkeys-sheffield-2006',
+  },
 
   // ── Hole -> Garbage ──
   { from: 'evt-hole-la-1994', to: 'evt-garbage-madison-1995' },
 
   // ── Heavy Metal -> Metallica ──
-  { from: 'evt-heavy-metal-birmingham-1970', to: 'evt-led-zeppelin-london-1971' },
+  {
+    from: 'evt-heavy-metal-birmingham-1970',
+    to: 'evt-led-zeppelin-london-1971',
+  },
   { from: 'evt-heavy-metal-birmingham-1970', to: 'evt-metallica-sf-1986' },
 
   // ── Queen -> RHCP (showmanship lineage) ──
@@ -1968,126 +2547,291 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   // ═══════════════════════════════════════════════════════════════════
 
   // ── Woody Guthrie -> Pete Seeger -> Bob Dylan -> Joni Mitchell ──
-  { from: 'evt-woody-guthrie-this-land-nyc-1940', to: 'evt-pete-seeger-overcome-nyc-1963' },
-  { from: 'evt-pete-seeger-overcome-nyc-1963', to: 'evt-bob-dylan-freewheelin-nyc-1963' },
-  { from: 'evt-bob-dylan-freewheelin-nyc-1963', to: 'evt-joni-mitchell-blue-la-1971' },
+  {
+    from: 'evt-woody-guthrie-this-land-nyc-1940',
+    to: 'evt-pete-seeger-overcome-nyc-1963',
+  },
+  {
+    from: 'evt-pete-seeger-overcome-nyc-1963',
+    to: 'evt-bob-dylan-freewheelin-nyc-1963',
+  },
+  {
+    from: 'evt-bob-dylan-freewheelin-nyc-1963',
+    to: 'evt-joni-mitchell-blue-la-1971',
+  },
 
   // ── Odetta -> Joan Baez -> Tracy Chapman -> Indigo Girls -> Ani DiFranco ──
   { from: 'evt-odetta-folk-revival-sf-1956', to: 'evt-joan-baez-newport-1959' },
-  { from: 'evt-joan-baez-newport-1959', to: 'evt-tracy-chapman-debut-boston-1988' },
-  { from: 'evt-tracy-chapman-debut-boston-1988', to: 'evt-indigo-girls-decatur-1989' },
-  { from: 'evt-indigo-girls-decatur-1989', to: 'evt-ani-difranco-righteous-babe-buffalo-1990' },
+  {
+    from: 'evt-joan-baez-newport-1959',
+    to: 'evt-tracy-chapman-debut-boston-1988',
+  },
+  {
+    from: 'evt-tracy-chapman-debut-boston-1988',
+    to: 'evt-indigo-girls-decatur-1989',
+  },
+  {
+    from: 'evt-indigo-girls-decatur-1989',
+    to: 'evt-ani-difranco-righteous-babe-buffalo-1990',
+  },
 
   // ── Bob Dylan -> Simon & Garfunkel, Phil Ochs, Arlo Guthrie ──
-  { from: 'evt-bob-dylan-freewheelin-nyc-1963', to: 'evt-simon-garfunkel-bridge-nyc-1970' },
-  { from: 'evt-bob-dylan-freewheelin-nyc-1963', to: 'evt-phil-ochs-protest-nyc-1964' },
-  { from: 'evt-bob-dylan-freewheelin-nyc-1963', to: 'evt-arlo-guthrie-alice-nyc-1967' },
+  {
+    from: 'evt-bob-dylan-freewheelin-nyc-1963',
+    to: 'evt-simon-garfunkel-bridge-nyc-1970',
+  },
+  {
+    from: 'evt-bob-dylan-freewheelin-nyc-1963',
+    to: 'evt-phil-ochs-protest-nyc-1964',
+  },
+  {
+    from: 'evt-bob-dylan-freewheelin-nyc-1963',
+    to: 'evt-arlo-guthrie-alice-nyc-1967',
+  },
 
   // ── Nick Drake -> Bon Iver, Fleet Foxes, Sufjan Stevens ──
-  { from: 'evt-nick-drake-pink-moon-london-1972', to: 'evt-bon-iver-emma-eau-claire-2008' },
-  { from: 'evt-nick-drake-pink-moon-london-1972', to: 'evt-fleet-foxes-debut-seattle-2008' },
-  { from: 'evt-nick-drake-pink-moon-london-1972', to: 'evt-sufjan-stevens-illinois-brooklyn-2005' },
+  {
+    from: 'evt-nick-drake-pink-moon-london-1972',
+    to: 'evt-bon-iver-emma-eau-claire-2008',
+  },
+  {
+    from: 'evt-nick-drake-pink-moon-london-1972',
+    to: 'evt-fleet-foxes-debut-seattle-2008',
+  },
+  {
+    from: 'evt-nick-drake-pink-moon-london-1972',
+    to: 'evt-sufjan-stevens-illinois-brooklyn-2005',
+  },
 
   // ── Emmylou Harris -> Lucinda Williams -> Gillian Welch -> Jason Isbell ──
-  { from: 'evt-emmylou-harris-wrecking-ball-nashville-1995', to: 'evt-lucinda-williams-car-wheels-nashville-1998' },
-  { from: 'evt-lucinda-williams-car-wheels-nashville-1998', to: 'evt-gillian-welch-revival-nashville-1996' },
-  { from: 'evt-gillian-welch-revival-nashville-1996', to: 'evt-jason-isbell-southeastern-nashville-2013' },
+  {
+    from: 'evt-emmylou-harris-wrecking-ball-nashville-1995',
+    to: 'evt-lucinda-williams-car-wheels-nashville-1998',
+  },
+  {
+    from: 'evt-lucinda-williams-car-wheels-nashville-1998',
+    to: 'evt-gillian-welch-revival-nashville-1996',
+  },
+  {
+    from: 'evt-gillian-welch-revival-nashville-1996',
+    to: 'evt-jason-isbell-southeastern-nashville-2013',
+  },
 
   // ── Elizabeth Cotten -> Folk Guitar Tradition ──
-  { from: 'evt-elizabeth-cotten-freight-train-dc-1958', to: 'evt-bob-dylan-freewheelin-nyc-1963' },
-  { from: 'evt-elizabeth-cotten-freight-train-dc-1958', to: 'evt-joan-baez-newport-1959' },
+  {
+    from: 'evt-elizabeth-cotten-freight-train-dc-1958',
+    to: 'evt-bob-dylan-freewheelin-nyc-1963',
+  },
+  {
+    from: 'evt-elizabeth-cotten-freight-train-dc-1958',
+    to: 'evt-joan-baez-newport-1959',
+  },
 
   // ── John Prine -> Phoebe Bridgers, Brandi Carlile ──
-  { from: 'evt-john-prine-debut-chicago-1971', to: 'evt-phoebe-bridgers-punisher-la-2020' },
-  { from: 'evt-john-prine-debut-chicago-1971', to: 'evt-brandi-carlile-forgive-you-seattle-2018' },
+  {
+    from: 'evt-john-prine-debut-chicago-1971',
+    to: 'evt-phoebe-bridgers-punisher-la-2020',
+  },
+  {
+    from: 'evt-john-prine-debut-chicago-1971',
+    to: 'evt-brandi-carlile-forgive-you-seattle-2018',
+  },
 
   // ── Townes Van Zandt -> Lucinda Williams ──
-  { from: 'evt-townes-van-zandt-houston-1968', to: 'evt-lucinda-williams-car-wheels-nashville-1998' },
+  {
+    from: 'evt-townes-van-zandt-houston-1968',
+    to: 'evt-lucinda-williams-car-wheels-nashville-1998',
+  },
 
   // ── Buffy Sainte-Marie Connections ──
-  { from: 'evt-buffy-sainte-marie-soldier-nyc-1964', to: 'evt-joni-mitchell-blue-la-1971' },
-  { from: 'evt-buffy-sainte-marie-soldier-nyc-1964', to: 'evt-tracy-chapman-debut-boston-1988' },
+  {
+    from: 'evt-buffy-sainte-marie-soldier-nyc-1964',
+    to: 'evt-joni-mitchell-blue-la-1971',
+  },
+  {
+    from: 'evt-buffy-sainte-marie-soldier-nyc-1964',
+    to: 'evt-tracy-chapman-debut-boston-1988',
+  },
 
   // ── Woody Guthrie -> Arlo Guthrie (family lineage) ──
-  { from: 'evt-woody-guthrie-this-land-nyc-1940', to: 'evt-arlo-guthrie-alice-nyc-1967' },
+  {
+    from: 'evt-woody-guthrie-this-land-nyc-1940',
+    to: 'evt-arlo-guthrie-alice-nyc-1967',
+  },
 
   // ── Iron & Wine, Richie Havens connections ──
-  { from: 'evt-richie-havens-woodstock-1969', to: 'evt-tracy-chapman-debut-boston-1988' },
-  { from: 'evt-bon-iver-emma-eau-claire-2008', to: 'evt-phoebe-bridgers-punisher-la-2020' },
+  {
+    from: 'evt-richie-havens-woodstock-1969',
+    to: 'evt-tracy-chapman-debut-boston-1988',
+  },
+  {
+    from: 'evt-bon-iver-emma-eau-claire-2008',
+    to: 'evt-phoebe-bridgers-punisher-la-2020',
+  },
 
   // ═══════════════════════════════════════════════════════════════════
   // ██  PHASE 3 — Hip Hop Influence Connections                     ██
   // ═══════════════════════════════════════════════════════════════════
 
   // ── Public Enemy -> Nas, Wu-Tang, A Tribe Called Quest ──
-  { from: 'evt-hiphop-longisland-1988-publicenemy', to: 'evt-hiphop-queens-1994-nas' },
-  { from: 'evt-hiphop-longisland-1988-publicenemy', to: 'evt-hiphop-statenisland-1993-wutang' },
-  { from: 'evt-hiphop-longisland-1988-publicenemy', to: 'evt-hiphop-queens-1991-tribecalledquest' },
+  {
+    from: 'evt-hiphop-longisland-1988-publicenemy',
+    to: 'evt-hiphop-queens-1994-nas',
+  },
+  {
+    from: 'evt-hiphop-longisland-1988-publicenemy',
+    to: 'evt-hiphop-statenisland-1993-wutang',
+  },
+  {
+    from: 'evt-hiphop-longisland-1988-publicenemy',
+    to: 'evt-hiphop-queens-1991-tribecalledquest',
+  },
 
   // ── A Tribe Called Quest -> Gang Starr -> Black Star ──
-  { from: 'evt-hiphop-queens-1991-tribecalledquest', to: 'evt-hiphop-brooklyn-1991-gangstarr' },
-  { from: 'evt-hiphop-brooklyn-1991-gangstarr', to: 'evt-hiphop-brooklyn-1998-blackstar' },
+  {
+    from: 'evt-hiphop-queens-1991-tribecalledquest',
+    to: 'evt-hiphop-brooklyn-1991-gangstarr',
+  },
+  {
+    from: 'evt-hiphop-brooklyn-1991-gangstarr',
+    to: 'evt-hiphop-brooklyn-1998-blackstar',
+  },
 
   // ── Nas -> Jay-Z (rivalry/influence) ──
   { from: 'evt-hiphop-queens-1994-nas', to: 'evt-hiphop-brooklyn-1996-jayz' },
 
   // ── OutKast -> Kanye West -> Kendrick Lamar -> J. Cole ──
-  { from: 'evt-hiphop-atlanta-1998-outkast', to: 'evt-hiphop-chicago-2004-kanyewest' },
-  { from: 'evt-hiphop-chicago-2004-kanyewest', to: 'evt-hiphop-compton-2012-kendricklamar' },
-  { from: 'evt-hiphop-compton-2012-kendricklamar', to: 'evt-hiphop-fayetteville-2014-jcole' },
+  {
+    from: 'evt-hiphop-atlanta-1998-outkast',
+    to: 'evt-hiphop-chicago-2004-kanyewest',
+  },
+  {
+    from: 'evt-hiphop-chicago-2004-kanyewest',
+    to: 'evt-hiphop-compton-2012-kendricklamar',
+  },
+  {
+    from: 'evt-hiphop-compton-2012-kendricklamar',
+    to: 'evt-hiphop-fayetteville-2014-jcole',
+  },
 
   // ── Jay-Z -> Kanye West -> Drake, Travis Scott ──
-  { from: 'evt-hiphop-brooklyn-1996-jayz', to: 'evt-hiphop-chicago-2004-kanyewest' },
-  { from: 'evt-hiphop-chicago-2004-kanyewest', to: 'evt-hiphop-toronto-2011-drake' },
-  { from: 'evt-hiphop-chicago-2004-kanyewest', to: 'evt-hiphop-houston-2018-travisscott' },
+  {
+    from: 'evt-hiphop-brooklyn-1996-jayz',
+    to: 'evt-hiphop-chicago-2004-kanyewest',
+  },
+  {
+    from: 'evt-hiphop-chicago-2004-kanyewest',
+    to: 'evt-hiphop-toronto-2011-drake',
+  },
+  {
+    from: 'evt-hiphop-chicago-2004-kanyewest',
+    to: 'evt-hiphop-houston-2018-travisscott',
+  },
 
   // ── Lil Wayne -> Nicki Minaj, Drake ──
-  { from: 'evt-hiphop-neworleans-2008-lilwayne', to: 'evt-hiphop-nyc-2010-nickiminaj' },
-  { from: 'evt-hiphop-neworleans-2008-lilwayne', to: 'evt-hiphop-toronto-2011-drake' },
+  {
+    from: 'evt-hiphop-neworleans-2008-lilwayne',
+    to: 'evt-hiphop-nyc-2010-nickiminaj',
+  },
+  {
+    from: 'evt-hiphop-neworleans-2008-lilwayne',
+    to: 'evt-hiphop-toronto-2011-drake',
+  },
 
   // ── Missy Elliott -> Cardi B, Megan Thee Stallion, Doechii ──
-  { from: 'evt-hiphop-portsmouth-1997-missyelliott', to: 'evt-hiphop-bronx-2018-cardib' },
-  { from: 'evt-hiphop-portsmouth-1997-missyelliott', to: 'evt-hiphop-houston-2020-megtheestallion' },
-  { from: 'evt-hiphop-portsmouth-1997-missyelliott', to: 'evt-hiphop-tampa-2024-doechii' },
+  {
+    from: 'evt-hiphop-portsmouth-1997-missyelliott',
+    to: 'evt-hiphop-bronx-2018-cardib',
+  },
+  {
+    from: 'evt-hiphop-portsmouth-1997-missyelliott',
+    to: 'evt-hiphop-houston-2020-megtheestallion',
+  },
+  {
+    from: 'evt-hiphop-portsmouth-1997-missyelliott',
+    to: 'evt-hiphop-tampa-2024-doechii',
+  },
 
   // ── Queen Latifah -> Eve -> Nicki Minaj -> Cardi B (female MC lineage) ──
   { from: 'evt-queenlatifah-newark-1989', to: 'evt-hiphop-philly-1999-eve' },
   { from: 'evt-hiphop-philly-1999-eve', to: 'evt-hiphop-nyc-2010-nickiminaj' },
-  { from: 'evt-hiphop-nyc-2010-nickiminaj', to: 'evt-hiphop-bronx-2018-cardib' },
+  {
+    from: 'evt-hiphop-nyc-2010-nickiminaj',
+    to: 'evt-hiphop-bronx-2018-cardib',
+  },
 
   // ── Lil' Kim -> Nicki Minaj ──
-  { from: 'evt-hiphop-brooklyn-1996-lilkim', to: 'evt-hiphop-nyc-2010-nickiminaj' },
+  {
+    from: 'evt-hiphop-brooklyn-1996-lilkim',
+    to: 'evt-hiphop-nyc-2010-nickiminaj',
+  },
 
   // ── Wu-Tang -> MF DOOM ──
-  { from: 'evt-hiphop-statenisland-1993-wutang', to: 'evt-hiphop-la-2004-mfdoom' },
+  {
+    from: 'evt-hiphop-statenisland-1993-wutang',
+    to: 'evt-hiphop-la-2004-mfdoom',
+  },
 
   // ── The Roots -> Common, Chance the Rapper ──
-  { from: 'evt-hiphop-philly-1999-theroots', to: 'evt-hiphop-chicago-2000-common' },
-  { from: 'evt-hiphop-philly-1999-theroots', to: 'evt-hiphop-chicago-2016-chancetherapper' },
+  {
+    from: 'evt-hiphop-philly-1999-theroots',
+    to: 'evt-hiphop-chicago-2000-common',
+  },
+  {
+    from: 'evt-hiphop-philly-1999-theroots',
+    to: 'evt-hiphop-chicago-2016-chancetherapper',
+  },
 
   // ── Big Pun -> Fat Joe; Cypress Hill connections ──
   { from: 'evt-hiphop-bronx-1998-bigpun', to: 'evt-hiphop-bronx-1998-fatjoe' },
-  { from: 'evt-hiphop-la-1991-cypresshill', to: 'evt-hiphop-bronx-1998-bigpun' },
+  {
+    from: 'evt-hiphop-la-1991-cypresshill',
+    to: 'evt-hiphop-bronx-1998-bigpun',
+  },
 
   // ── Rapsody, Little Simz, Tierra Whack connections ──
-  { from: 'evt-hiphop-raleigh-2017-rapsody', to: 'evt-hiphop-compton-2012-kendricklamar' },
+  {
+    from: 'evt-hiphop-raleigh-2017-rapsody',
+    to: 'evt-hiphop-compton-2012-kendricklamar',
+  },
   { from: 'evt-hiphop-queens-1994-nas', to: 'evt-hiphop-raleigh-2017-rapsody' },
-  { from: 'evt-hiphop-london-2021-littlesimz', to: 'evt-hiphop-raleigh-2017-rapsody' },
-  { from: 'evt-hiphop-portsmouth-1997-missyelliott', to: 'evt-hiphop-philly-2018-tierrawhack' },
+  {
+    from: 'evt-hiphop-london-2021-littlesimz',
+    to: 'evt-hiphop-raleigh-2017-rapsody',
+  },
+  {
+    from: 'evt-hiphop-portsmouth-1997-missyelliott',
+    to: 'evt-hiphop-philly-2018-tierrawhack',
+  },
 
   // ── Conscious rap -> Tribe, Common ──
-  { from: 'evt-conscious-rap-nyc-1982', to: 'evt-hiphop-queens-1991-tribecalledquest' },
-  { from: 'evt-conscious-rap-nyc-1982', to: 'evt-hiphop-longisland-1988-publicenemy' },
+  {
+    from: 'evt-conscious-rap-nyc-1982',
+    to: 'evt-hiphop-queens-1991-tribecalledquest',
+  },
+  {
+    from: 'evt-conscious-rap-nyc-1982',
+    to: 'evt-hiphop-longisland-1988-publicenemy',
+  },
 
   // ── OutKast -> Atlanta trap lineage ──
   { from: 'evt-hiphop-atlanta-1998-outkast', to: 'evt-hiphop-atlanta-2003' },
 
   // ── Eminem connections ──
-  { from: 'evt-hiphop-brooklyn-1996-jayz', to: 'evt-hiphop-detroit-2000-eminem' },
+  {
+    from: 'evt-hiphop-brooklyn-1996-jayz',
+    to: 'evt-hiphop-detroit-2000-eminem',
+  },
 
   // ── Tyler the Creator connections ──
-  { from: 'evt-hiphop-la-2004-mfdoom', to: 'evt-hiphop-la-2019-tylerthecreator' },
-  { from: 'evt-hiphop-compton-2012-kendricklamar', to: 'evt-hiphop-la-2019-tylerthecreator' },
+  {
+    from: 'evt-hiphop-la-2004-mfdoom',
+    to: 'evt-hiphop-la-2019-tylerthecreator',
+  },
+  {
+    from: 'evt-hiphop-compton-2012-kendricklamar',
+    to: 'evt-hiphop-la-2019-tylerthecreator',
+  },
 
   // ══════════════════════════════════════════════════════════════════
   // ── Music for Media ──
@@ -2095,20 +2839,38 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // ── Opera -> Musical Theater -> Film chain ──
   { from: 'evt-media-mantua-1607-orfeo', to: 'evt-media-vienna-1786-figaro' },
-  { from: 'evt-media-vienna-1786-figaro', to: 'evt-media-venice-1853-traviata' },
+  {
+    from: 'evt-media-vienna-1786-figaro',
+    to: 'evt-media-venice-1853-traviata',
+  },
   { from: 'evt-media-venice-1853-traviata', to: 'evt-media-turin-1896-boheme' },
   { from: 'evt-media-turin-1896-boheme', to: 'evt-media-nyc-1996-rent' },
   { from: 'evt-media-london-1878-savoy', to: 'evt-media-nyc-1943-oklahoma' },
-  { from: 'evt-media-nyc-1943-oklahoma', to: 'evt-media-nyc-1957-westsidestory' },
-  { from: 'evt-media-nyc-1957-westsidestory', to: 'evt-media-nyc-1970-company' },
+  {
+    from: 'evt-media-nyc-1943-oklahoma',
+    to: 'evt-media-nyc-1957-westsidestory',
+  },
+  {
+    from: 'evt-media-nyc-1957-westsidestory',
+    to: 'evt-media-nyc-1970-company',
+  },
   { from: 'evt-media-nyc-1970-company', to: 'evt-media-nyc-1996-rent' },
   { from: 'evt-media-nyc-1996-rent', to: 'evt-media-nyc-2015-hamilton' },
   { from: 'evt-media-nyc-1911-treemonisha', to: 'evt-media-nyc-1935-porgy' },
   { from: 'evt-media-nyc-1935-porgy', to: 'evt-media-nyc-1957-westsidestory' },
   { from: 'evt-media-london-1971-superstar', to: 'evt-media-nyc-1996-rent' },
-  { from: 'evt-media-berlin-1928-threepenny', to: 'evt-media-nyc-1970-company' },
-  { from: 'evt-media-mantua-1607-orfeo', to: 'evt-media-berlin-1928-threepenny' },
-  { from: 'evt-media-london-1878-savoy', to: 'evt-media-london-1971-superstar' },
+  {
+    from: 'evt-media-berlin-1928-threepenny',
+    to: 'evt-media-nyc-1970-company',
+  },
+  {
+    from: 'evt-media-mantua-1607-orfeo',
+    to: 'evt-media-berlin-1928-threepenny',
+  },
+  {
+    from: 'evt-media-london-1878-savoy',
+    to: 'evt-media-london-1971-superstar',
+  },
 
   // ── Film scoring lineage ──
   { from: 'evt-media-nyc-1900-silentfilm', to: 'evt-media-la-1927-jazzsinger' },
@@ -2117,70 +2879,151 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-media-la-1960-psycho', to: 'evt-media-la-1975-jaws' },
   { from: 'evt-media-la-1975-jaws', to: 'evt-media-la-1977-starwars' },
   { from: 'evt-media-la-1960-psycho', to: 'evt-media-la-1989-elfman' },
-  { from: 'evt-media-rome-1966-morricone', to: 'evt-media-london-2010-inception' },
-  { from: 'evt-media-munich-1978-moroder', to: 'evt-media-london-1981-chariots' },
-  { from: 'evt-media-london-1981-chariots', to: 'evt-media-la-2010-socialnetwork' },
+  {
+    from: 'evt-media-rome-1966-morricone',
+    to: 'evt-media-london-2010-inception',
+  },
+  {
+    from: 'evt-media-munich-1978-moroder',
+    to: 'evt-media-london-1981-chariots',
+  },
+  {
+    from: 'evt-media-london-1981-chariots',
+    to: 'evt-media-la-2010-socialnetwork',
+  },
   { from: 'evt-media-la-1977-starwars', to: 'evt-media-wellington-2001-lotr' },
   { from: 'evt-media-la-1977-starwars', to: 'evt-media-london-2010-inception' },
   { from: 'evt-media-tokyo-1984-ghibli', to: 'evt-media-tokyo-1987-sakamoto' },
-  { from: 'evt-media-la-1967-quincyjones', to: 'evt-media-chennai-2008-rahman' },
-  { from: 'evt-media-memphis-1971-shaft', to: 'evt-media-la-2018-blackpanther' },
+  {
+    from: 'evt-media-la-1967-quincyjones',
+    to: 'evt-media-chennai-2008-rahman',
+  },
+  {
+    from: 'evt-media-memphis-1971-shaft',
+    to: 'evt-media-la-2018-blackpanther',
+  },
   { from: 'evt-media-london-2007-greenwood', to: 'evt-media-la-2017-getout' },
   { from: 'evt-media-la-1961-moonriver', to: 'evt-media-la-1969-bacharach' },
-  { from: 'evt-media-la-1966-missionimpossible', to: 'evt-media-la-1967-quincyjones' },
+  {
+    from: 'evt-media-la-1966-missionimpossible',
+    to: 'evt-media-la-1967-quincyjones',
+  },
   { from: 'evt-media-la-1933-kingkong', to: 'evt-media-la-1940-fantasia' },
   { from: 'evt-media-la-1940-fantasia', to: 'evt-media-london-1994-lionking' },
-  { from: 'evt-media-london-1962-bond', to: 'evt-media-la-1966-missionimpossible' },
-  { from: 'evt-media-la-2005-santaolalla-bbm', to: 'evt-media-la-2013-lastofus' },
+  {
+    from: 'evt-media-london-1962-bond',
+    to: 'evt-media-la-1966-missionimpossible',
+  },
+  {
+    from: 'evt-media-la-2005-santaolalla-bbm',
+    to: 'evt-media-la-2013-lastofus',
+  },
   { from: 'evt-media-la-1960-psycho', to: 'evt-media-london-2007-greenwood' },
-  { from: 'evt-media-rome-1966-morricone', to: 'evt-media-la-2005-santaolalla-bbm' },
+  {
+    from: 'evt-media-rome-1966-morricone',
+    to: 'evt-media-la-2005-santaolalla-bbm',
+  },
 
   // ── TV scoring ──
-  { from: 'evt-media-la-1951-tvtheme', to: 'evt-media-la-1966-missionimpossible' },
+  {
+    from: 'evt-media-la-1951-tvtheme',
+    to: 'evt-media-la-1966-missionimpossible',
+  },
   { from: 'evt-media-la-1951-tvtheme', to: 'evt-media-la-1990-lawandorder' },
   { from: 'evt-media-la-1951-tvtheme', to: 'evt-media-la-1990-twinpeaks' },
   { from: 'evt-media-la-1990-twinpeaks', to: 'evt-media-la-2004-bsg' },
-  { from: 'evt-media-london-2010-inception', to: 'evt-media-la-2011-gameofthrones' },
-  { from: 'evt-media-london-2010-inception', to: 'evt-media-la-2019-mandalorian' },
+  {
+    from: 'evt-media-london-2010-inception',
+    to: 'evt-media-la-2011-gameofthrones',
+  },
+  {
+    from: 'evt-media-london-2010-inception',
+    to: 'evt-media-la-2019-mandalorian',
+  },
   { from: 'evt-media-la-1990-twinpeaks', to: 'evt-media-la-2021-whitelotus' },
-  { from: 'evt-media-la-2011-gameofthrones', to: 'evt-media-la-2019-mandalorian' },
+  {
+    from: 'evt-media-la-2011-gameofthrones',
+    to: 'evt-media-la-2019-mandalorian',
+  },
   { from: 'evt-media-nyc-2009-madmen', to: 'evt-media-nyc-2018-succession' },
   { from: 'evt-media-nyc-2018-succession', to: 'evt-media-la-2021-whitelotus' },
   { from: 'evt-media-la-2004-bsg', to: 'evt-media-la-2011-gameofthrones' },
-  { from: 'evt-media-la-2010-socialnetwork', to: 'evt-media-la-2013-houseofcards' },
+  {
+    from: 'evt-media-la-2010-socialnetwork',
+    to: 'evt-media-la-2013-houseofcards',
+  },
 
   // ── Video game music ──
   { from: 'evt-media-kyoto-1985-mario', to: 'evt-media-kyoto-1986-zelda' },
-  { from: 'evt-media-tokyo-1987-finalfantasy', to: 'evt-media-la-2020-ffviiremake' },
-  { from: 'evt-media-seattle-2001-halo', to: 'evt-media-copenhagen-2007-assassinscreed' },
+  {
+    from: 'evt-media-tokyo-1987-finalfantasy',
+    to: 'evt-media-la-2020-ffviiremake',
+  },
+  {
+    from: 'evt-media-seattle-2001-halo',
+    to: 'evt-media-copenhagen-2007-assassinscreed',
+  },
   { from: 'evt-media-kyoto-1985-mario', to: 'evt-media-tokyo-1996-pokemon' },
-  { from: 'evt-media-tokyo-1987-finalfantasy', to: 'evt-media-la-2012-journey' },
+  {
+    from: 'evt-media-tokyo-1987-finalfantasy',
+    to: 'evt-media-la-2012-journey',
+  },
   { from: 'evt-media-la-2012-journey', to: 'evt-media-seattle-2018-celeste' },
   { from: 'evt-media-kyoto-1986-zelda', to: 'evt-media-la-2018-godsofwar' },
-  { from: 'evt-media-tokyo-1991-streetsofrage', to: 'evt-media-melbourne-2016-doom' },
-  { from: 'evt-media-twycross-1998-banjokazooie', to: 'evt-media-la-2005-vglive' },
+  {
+    from: 'evt-media-tokyo-1991-streetsofrage',
+    to: 'evt-media-melbourne-2016-doom',
+  },
+  {
+    from: 'evt-media-twycross-1998-banjokazooie',
+    to: 'evt-media-la-2005-vglive',
+  },
 
   // ── Streaming & tech platform chain ──
-  { from: 'evt-media-sanmateo-1999-napster', to: 'evt-media-cupertino-2003-itunes' },
-  { from: 'evt-media-cupertino-2003-itunes', to: 'evt-media-sanbruno-2005-youtube' },
-  { from: 'evt-media-sanbruno-2005-youtube', to: 'evt-media-stockholm-2008-spotify' },
-  { from: 'evt-media-sanbruno-2005-youtube', to: 'evt-media-berlin-2008-soundcloud' },
-  { from: 'evt-media-sanbruno-2005-youtube', to: 'evt-media-oakland-2008-bandcamp' },
+  {
+    from: 'evt-media-sanmateo-1999-napster',
+    to: 'evt-media-cupertino-2003-itunes',
+  },
+  {
+    from: 'evt-media-cupertino-2003-itunes',
+    to: 'evt-media-sanbruno-2005-youtube',
+  },
+  {
+    from: 'evt-media-sanbruno-2005-youtube',
+    to: 'evt-media-stockholm-2008-spotify',
+  },
+  {
+    from: 'evt-media-sanbruno-2005-youtube',
+    to: 'evt-media-berlin-2008-soundcloud',
+  },
+  {
+    from: 'evt-media-sanbruno-2005-youtube',
+    to: 'evt-media-oakland-2008-bandcamp',
+  },
   { from: 'evt-media-nyc-1999-moby', to: 'evt-media-cupertino-2003-ipod' },
   { from: 'evt-media-stockholm-2008-spotify', to: 'evt-media-la-2017-tiktok' },
   { from: 'evt-media-la-2017-tiktok', to: 'evt-media-la-2022-renaissance' },
 
   // ── Advertising & sync ──
-  { from: 'evt-media-minneapolis-1926-wheaties', to: 'evt-media-nyc-1970-manilow' },
+  {
+    from: 'evt-media-minneapolis-1926-wheaties',
+    to: 'evt-media-nyc-1970-manilow',
+  },
   { from: 'evt-media-nyc-1970-manilow', to: 'evt-media-london-1971-coke' },
   { from: 'evt-media-london-1971-coke', to: 'evt-media-vienna-1994-intel' },
   { from: 'evt-media-vienna-1994-intel', to: 'evt-media-nyc-1999-moby' },
-  { from: 'evt-media-pasadena-1993-superbowl', to: 'evt-media-cupertino-2003-ipod' },
+  {
+    from: 'evt-media-pasadena-1993-superbowl',
+    to: 'evt-media-cupertino-2003-ipod',
+  },
 
   // ── Cross-genre connections (media <-> existing events) ──
   { from: 'evt-funk-augusta-1970', to: 'evt-media-memphis-1971-shaft' },
   { from: 'evt-hiphop-nyc-1973', to: 'evt-media-nyc-2015-hamilton' },
-  { from: 'evt-jazz-kamasi-washington-the-epic-la-2015', to: 'evt-media-la-2016-lalaland' },
+  {
+    from: 'evt-jazz-kamasi-washington-the-epic-la-2015',
+    to: 'evt-media-la-2016-lalaland',
+  },
   { from: 'evt-media-nyc-2021-tick', to: 'evt-media-la-2022-renaissance' },
   { from: 'evt-hiphop-nyc-1984', to: 'evt-media-toronto-2024-drakevsken' },
 ];

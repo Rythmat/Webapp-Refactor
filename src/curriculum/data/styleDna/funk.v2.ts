@@ -36,7 +36,7 @@ const funkStyleDna: GenreStyleDnaV2 = {
   },
   dualFunctionality: {
     commonTone: 0.95,
-    parentMode: 0.90,
+    parentMode: 0.9,
     borrowedTone: 0.05,
     chromatic: 0.02,
     defaultBehavior: 'parent_mode',

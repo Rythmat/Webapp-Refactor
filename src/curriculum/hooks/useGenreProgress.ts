@@ -119,9 +119,7 @@ export function useGenreProgress(
           lastKeyUsed: context.key,
           lastStyleRef: context.styleRef,
           xpTotal: prev.xpTotal + result.xpEarned,
-          skillTags: [
-            ...new Set([...prev.skillTags, ...context.skillTags]),
-          ],
+          skillTags: [...new Set([...prev.skillTags, ...context.skillTags])],
           completedSteps: {
             ...prev.completedSteps,
             [stepId]: {
@@ -130,8 +128,7 @@ export function useGenreProgress(
               keyUsed: context.key,
               styleRef: context.styleRef,
               timestamp: Date.now(),
-              attempts:
-                (prev.completedSteps[stepId]?.attempts ?? 0) + 1,
+              attempts: (prev.completedSteps[stepId]?.attempts ?? 0) + 1,
             },
           },
           sections: updateSectionProgress(

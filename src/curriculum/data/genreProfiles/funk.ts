@@ -77,13 +77,15 @@ export const funkProfile: GenreProfile = {
           label: 'Dm7 rootless',
           symbol: 'Dm7',
           midis: [38, 60, 65, 69], // D2+C4+F4+A4
-          description: 'D2 root + b7-b3-5 \u2014 the home base of funk keyboard',
+          description:
+            'D2 root + b7-b3-5 \u2014 the home base of funk keyboard',
         },
         {
           label: 'G7 (Drop the Sizzle)',
           symbol: 'G7',
           midis: [43, 59, 65, 69], // G2+B3+F4+A4
-          description: 'G2 root + 3-b7-9 \u2014 C4\u2192B3 is the only voice that moves',
+          description:
+            'G2 root + 3-b7-9 \u2014 C4\u2192B3 is the only voice that moves',
         },
       ],
       technique: {
@@ -142,18 +144,21 @@ export const funkProfile: GenreProfile = {
           label: 'D dom13',
           symbol: 'D13',
           midis: [38, 60, 66, 71], // D2+C4+F#4+B4
-          description: 'D2 root + b7-9-3-13 \u2014 G4\u2192F#4 is the Drop the Sizzle',
+          description:
+            'D2 root + b7-9-3-13 \u2014 G4\u2192F#4 is the Drop the Sizzle',
         },
         {
           label: 'E dom7#5',
           symbol: 'E7#5',
           midis: [40, 62, 68, 72], // E2+D4+G#4+C5
-          description: 'E2 root + b7-3-#5 \u2014 3-voice altered dominant, resolves to Amin9',
+          description:
+            'E2 root + b7-3-#5 \u2014 3-voice altered dominant, resolves to Amin9',
         },
       ],
       technique: {
         melody: {
-          summary: 'A Dorian phrases using the natural 6th (F#) as the signature color note.',
+          summary:
+            'A Dorian phrases using the natural 6th (F#) as the signature color note.',
           details: [
             'Scale: A Dorian [A B C D E F# G] \u2014 F# natural is the Dorian fingerprint',
             "2-bar motivic phrases with A-A' call-and-answer shape",
@@ -161,7 +166,8 @@ export const funkProfile: GenreProfile = {
           ],
         },
         chords: {
-          summary: 'Open 3-voice rootless voicings with Drop the Sizzle voice leading.',
+          summary:
+            'Open 3-voice rootless voicings with Drop the Sizzle voice leading.',
           details: [
             'Am9\u2192D13: G4\u2192F#4 (\u22121 semitone) \u2014 C4 and B4 are common tones',
             'E dom7#5 as the V chord: D4\u2192C4, G#4\u2192G4, C5\u2192B4 \u2014 all voices resolve by step',
@@ -169,7 +175,8 @@ export const funkProfile: GenreProfile = {
           ],
         },
         bass: {
-          summary: 'Octave pop and chromatic approach entering on chord changes.',
+          summary:
+            'Octave pop and chromatic approach entering on chord changes.',
           details: [
             'Root on beat 1, octave pop on and-of-1 (A2\u2192A3)',
             'Chromatic approach note before chord changes (Tier 2\u20133)',
@@ -207,7 +214,8 @@ export const funkProfile: GenreProfile = {
           label: 'F13 rootless',
           symbol: 'F13',
           midis: [41, 51, 55, 57, 62], // F2+Eb3+G3+A3+D4
-          description: 'F2 root + b7-9-3-13 \u2014 Bb3\u2192A3 is the Drop the Sizzle',
+          description:
+            'F2 root + b7-9-3-13 \u2014 Bb3\u2192A3 is the Drop the Sizzle',
         },
         {
           label: 'Ab dom13',
@@ -219,12 +227,14 @@ export const funkProfile: GenreProfile = {
           label: 'G7alt',
           symbol: 'G7alt',
           midis: [43, 53, 56, 59, 63], // G2+F3+Ab3+B3+Eb4
-          description: 'G2 root + b7-b9-3-#5 \u2014 true altered dominant, resolves to Cm',
+          description:
+            'G2 root + b7-b9-3-#5 \u2014 true altered dominant, resolves to Cm',
         },
       ],
       technique: {
         melody: {
-          summary: '8-bar motivic architecture with dual functionality over Cm9 and F13.',
+          summary:
+            '8-bar motivic architecture with dual functionality over Cm9 and F13.',
           details: [
             "A-B-A-B' structure across 8 bars \u2014 one idea, developed across repeats",
             'Dual functionality: same phrase works over Cm9 AND F13 (Dorian ambiguity)',
@@ -232,7 +242,8 @@ export const funkProfile: GenreProfile = {
           ],
         },
         chords: {
-          summary: 'Dense 4\u20135 voice extended voicings with chromatic planing and full progression.',
+          summary:
+            'Dense 4\u20135 voice extended voicings with chromatic planing and full progression.',
           details: [
             'Cm9\u2192F13 via Drop the Sizzle (Bb3\u2192A3, 1 voice moves, 3 common tones)',
             'Ab13 as the bVI chord \u2014 adds color before G7alt resolution',
@@ -240,7 +251,8 @@ export const funkProfile: GenreProfile = {
           ],
         },
         bass: {
-          summary: 'Melodic independence \u2014 bass floats against kick with ghost note density.',
+          summary:
+            'Melodic independence \u2014 bass floats against kick with ghost note density.',
           details: [
             'Melodic fills between chord changes, not just root patterns',
             'Ghost-to-strong onset ratio 1.5:1\u20132:1 (Tier 4\u20135)',

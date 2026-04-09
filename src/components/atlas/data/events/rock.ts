@@ -1770,7 +1770,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-sister-rosetta-tharpe-nyc-1945',
     year: 1945,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Gospel', 'Rock and Roll'],
     title: 'Sister Rosetta Tharpe — Godmother of Rock and Roll',
     description:
@@ -1788,7 +1793,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-tina-turner-la-1966',
     year: 1966,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Rock', 'Soul', 'R&B'],
     title: 'Tina Turner records "River Deep — Mountain High"',
     description:
@@ -1805,7 +1815,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-carole-kaye-la-1963',
     year: 1963,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Rock', 'Pop', 'Session Music'],
     title: 'Carole Kaye and the Wrecking Crew reshape popular music',
     description:
@@ -1823,7 +1838,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-carole-king-la-1971',
     year: 1971,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Rock', 'Singer-Songwriter', 'Pop'],
     title: 'Carole King\'s "Tapestry" redefines the singer-songwriter era',
     description:
@@ -1841,9 +1861,15 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-janis-joplin-sf-1967',
     year: 1967,
-    location: { lat: 37.7749, lng: -122.4194, city: 'San Francisco', country: 'US' },
+    location: {
+      lat: 37.7749,
+      lng: -122.4194,
+      city: 'San Francisco',
+      country: 'US',
+    },
     genre: ['Blues Rock', 'Psychedelic Rock'],
-    title: 'Janis Joplin and Big Brother & the Holding Company electrify Monterey',
+    title:
+      'Janis Joplin and Big Brother & the Holding Company electrify Monterey',
     description:
       'Janis Joplin\'s raw, emotionally devastating performance with Big Brother & the Holding Company at the Monterey Pop Festival makes her an instant star. Her fearless vocal style — drawing on Bessie Smith, Odetta, and the blues — shatters expectations of what a female rock singer could be. Songs like "Piece of My Heart" and "Ball and Chain" become anthems of the counterculture, and Joplin becomes the first female rock superstar.',
     tags: [
@@ -1863,7 +1889,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
     genre: ['Hard Rock', 'Blues Rock', 'Folk Rock'],
     title: 'Led Zeppelin releases "Led Zeppelin IV"',
     description:
-      'Led Zeppelin releases their untitled fourth album, featuring "Stairway to Heaven" — the most played song in FM radio history. The album fuses thunderous hard rock with English folk, Celtic mysticism, and blues, selling over 37 million copies worldwide. Jimmy Page\'s guitar wizardry, Robert Plant\'s banshee vocals, John Bonham\'s seismic drumming, and John Paul Jones\'s versatility establish the template for heavy rock that endures for decades.',
+      "Led Zeppelin releases their untitled fourth album, featuring \"Stairway to Heaven\" — the most played song in FM radio history. The album fuses thunderous hard rock with English folk, Celtic mysticism, and blues, selling over 37 million copies worldwide. Jimmy Page's guitar wizardry, Robert Plant's banshee vocals, John Bonham's seismic drumming, and John Paul Jones's versatility establish the template for heavy rock that endures for decades.",
     tags: [
       'led zeppelin',
       'stairway to heaven',
@@ -1881,7 +1907,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
     genre: ['Progressive Rock', 'Art Rock'],
     title: 'Pink Floyd releases "The Dark Side of the Moon"',
     description:
-      'Pink Floyd releases "The Dark Side of the Moon," a concept album exploring madness, greed, time, and death that spends 937 weeks on the Billboard 200 — the longest chart run in history. Roger Waters\'s philosophical lyrics, David Gilmour\'s soaring guitar, and the band\'s pioneering use of synthesizers, tape loops, and quadraphonic sound create the definitive progressive rock album and one of the best-selling records of all time.',
+      "Pink Floyd releases \"The Dark Side of the Moon,\" a concept album exploring madness, greed, time, and death that spends 937 weeks on the Billboard 200 — the longest chart run in history. Roger Waters's philosophical lyrics, David Gilmour's soaring guitar, and the band's pioneering use of synthesizers, tape loops, and quadraphonic sound create the definitive progressive rock album and one of the best-selling records of all time.",
     tags: [
       'pink floyd',
       'dark side of the moon',
@@ -1913,7 +1939,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-patti-smith-nyc-1975',
     year: 1975,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Punk', 'Art Rock', 'Proto-Punk'],
     title: 'Patti Smith releases "Horses" — punk\'s opening salvo',
     description:
@@ -1932,7 +1963,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-stevie-nicks-la-1975',
     year: 1975,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Rock', 'Soft Rock'],
     title: 'Stevie Nicks joins Fleetwood Mac and transforms rock',
     description:
@@ -1968,7 +2004,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-blondie-nyc-1978',
     year: 1978,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['New Wave', 'Punk', 'Pop'],
     title: 'Blondie\'s "Parallel Lines" fuses punk with pop perfection',
     description:
@@ -1990,7 +2031,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
     genre: ['Punk', 'Post-Punk', 'Reggae'],
     title: 'The Clash release "London Calling"',
     description:
-      'The Clash release "London Calling," a double album that explodes punk\'s self-imposed limitations by incorporating reggae, ska, rockabilly, jazz, and R&B. Joe Strummer\'s politically charged lyrics and Mick Jones\'s melodic guitar work create what is widely considered one of the greatest albums ever made. The iconic Pennie Smith cover photo of Paul Simonon smashing his bass becomes punk\'s defining image.',
+      "The Clash release \"London Calling,\" a double album that explodes punk's self-imposed limitations by incorporating reggae, ska, rockabilly, jazz, and R&B. Joe Strummer's politically charged lyrics and Mick Jones's melodic guitar work create what is widely considered one of the greatest albums ever made. The iconic Pennie Smith cover photo of Paul Simonon smashing his bass becomes punk's defining image.",
     tags: [
       'the clash',
       'london calling',
@@ -2008,7 +2049,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
     genre: ['New Wave', 'Rock', 'Punk'],
     title: 'Chrissie Hynde and the Pretenders debut',
     description:
-      'Akron, Ohio native Chrissie Hynde releases the Pretenders\' self-titled debut in London, featuring "Brass in Pocket" — a number one UK hit. Hynde\'s tough, streetwise vocals, razor-sharp songwriting, and refusal to conform to rock\'s gender expectations make her one of the most respected figures in rock. The album\'s blend of punk edge, pop melody, and new wave cool proves enormously influential.',
+      "Akron, Ohio native Chrissie Hynde releases the Pretenders' self-titled debut in London, featuring \"Brass in Pocket\" — a number one UK hit. Hynde's tough, streetwise vocals, razor-sharp songwriting, and refusal to conform to rock's gender expectations make her one of the most respected figures in rock. The album's blend of punk edge, pop melody, and new wave cool proves enormously influential.",
     tags: [
       'pretenders',
       'chrissie hynde',
@@ -2021,7 +2062,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-talking-heads-nyc-1980',
     year: 1980,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['New Wave', 'Art Rock', 'Afrobeat'],
     title: 'Talking Heads release "Remain in Light"',
     description:
@@ -2040,11 +2086,16 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-joan-jett-nyc-1981',
     year: 1981,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Rock', 'Punk', 'Hard Rock'],
-    title: 'Joan Jett\'s "I Love Rock \'n\' Roll" conquers the charts',
+    title: "Joan Jett's \"I Love Rock 'n' Roll\" conquers the charts",
     description:
-      'After being rejected by 23 record labels, Joan Jett co-founds Blackheart Records and releases "I Love Rock \'n\' Roll," which spends seven weeks at number one. A former member of the all-female teenage band the Runaways, Jett\'s unapologetic swagger, leather-jacket attitude, and three-chord anthems make her the definitive female rock star of the early 1980s. She proves women don\'t need permission — or a major label — to dominate rock and roll.',
+      "After being rejected by 23 record labels, Joan Jett co-founds Blackheart Records and releases \"I Love Rock 'n' Roll,\" which spends seven weeks at number one. A former member of the all-female teenage band the Runaways, Jett's unapologetic swagger, leather-jacket attitude, and three-chord anthems make her the definitive female rock star of the early 1980s. She proves women don't need permission — or a major label — to dominate rock and roll.",
     tags: [
       'joan jett',
       'i love rock n roll',
@@ -2058,7 +2109,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-metallica-sf-1986',
     year: 1986,
-    location: { lat: 37.7749, lng: -122.4194, city: 'San Francisco', country: 'US' },
+    location: {
+      lat: 37.7749,
+      lng: -122.4194,
+      city: 'San Francisco',
+      country: 'US',
+    },
     genre: ['Thrash Metal', 'Heavy Metal'],
     title: 'Metallica releases "Master of Puppets"',
     description:
@@ -2076,11 +2132,16 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-sonic-youth-nyc-1988',
     year: 1988,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Noise Rock', 'Alternative Rock', 'Experimental'],
     title: 'Sonic Youth releases "Daydream Nation"',
     description:
-      'Sonic Youth releases "Daydream Nation," a double album of dissonant, alternate-tuned guitar noise that is widely regarded as one of the defining albums of 1980s underground rock. Thurston Moore and Lee Ranaldo\'s feedback-drenched guitars, Kim Gordon\'s cool vocals and bass, and the band\'s art-world connections bridge New York\'s no-wave scene with the emerging alternative rock movement. Their signing to DGC Records paves the way for Nirvana and the entire alt-rock explosion.',
+      "Sonic Youth releases \"Daydream Nation,\" a double album of dissonant, alternate-tuned guitar noise that is widely regarded as one of the defining albums of 1980s underground rock. Thurston Moore and Lee Ranaldo's feedback-drenched guitars, Kim Gordon's cool vocals and bass, and the band's art-world connections bridge New York's no-wave scene with the emerging alternative rock movement. Their signing to DGC Records paves the way for Nirvana and the entire alt-rock explosion.",
     tags: [
       'sonic youth',
       'daydream nation',
@@ -2151,7 +2212,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-rhcp-la-1991',
     year: 1991,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Alternative Rock', 'Funk Rock'],
     title: 'Red Hot Chili Peppers release "Blood Sugar Sex Magik"',
     description:
@@ -2169,7 +2235,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-rage-la-1992',
     year: 1992,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Rap Metal', 'Alternative Rock', 'Political Rock'],
     title: 'Rage Against the Machine ignites political rock',
     description:
@@ -2205,7 +2276,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hole-la-1994',
     year: 1994,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Alternative Rock', 'Grunge'],
     title: 'Hole releases "Live Through This"',
     description:
@@ -2241,9 +2317,15 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-alanis-morissette-la-1995',
     year: 1995,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Alternative Rock', 'Post-Grunge'],
-    title: 'Alanis Morissette\'s "Jagged Little Pill" becomes a global phenomenon',
+    title:
+      'Alanis Morissette\'s "Jagged Little Pill" becomes a global phenomenon',
     description:
       'Ottawa-born Alanis Morissette releases "Jagged Little Pill," recorded in Los Angeles with producer Glen Ballard. The album\'s unfiltered female rage, confessional lyrics, and anthems like "You Oughta Know," "Ironic," and "Hand in My Pocket" sell over 33 million copies worldwide, making it one of the best-selling albums in history. Morissette shatters the polished pop mold expected of female artists and opens the door for a generation of raw, emotionally honest women in rock.',
     tags: [
@@ -2279,7 +2361,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
     year: 1995,
     location: { lat: 47.6062, lng: -122.3321, city: 'Seattle', country: 'US' },
     genre: ['Alternative Rock', 'Post-Grunge'],
-    title: 'Foo Fighters rise from Nirvana\'s ashes',
+    title: "Foo Fighters rise from Nirvana's ashes",
     description:
       'Dave Grohl, emerging from the devastation of Nirvana\'s end, records the Foo Fighters\' debut album almost entirely by himself in a Seattle studio. The album\'s muscular, melodic rock — anchored by singles like "This Is a Call" and "Big Me" — channels grief into exuberant creation. Grohl\'s transformation from the greatest rock drummer of his generation into a charismatic frontman launches a band that becomes one of the biggest and most enduring rock acts of the next three decades.',
     tags: [
@@ -2314,7 +2396,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-strokes-nyc-2001',
     year: 2001,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Indie Rock', 'Garage Rock Revival'],
     title: 'The Strokes release "Is This It" and revive rock',
     description:
@@ -2332,11 +2419,16 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-tool-la-2001',
     year: 2001,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Progressive Metal', 'Alternative Metal', 'Art Rock'],
     title: 'Tool releases "Lateralus"',
     description:
-      'Tool releases "Lateralus," a progressive metal masterpiece structured around the Fibonacci sequence and sacred geometry. Maynard James Keenan\'s cryptic vocals, Adam Jones\'s grinding guitar tones, Justin Chancellor\'s intricate bass lines, and Danny Carey\'s polyrhythmic drumming create music that is simultaneously crushing and transcendent. The album debuts at number one and cements Tool as the most intellectually ambitious heavy band of their generation.',
+      "Tool releases \"Lateralus,\" a progressive metal masterpiece structured around the Fibonacci sequence and sacred geometry. Maynard James Keenan's cryptic vocals, Adam Jones's grinding guitar tones, Justin Chancellor's intricate bass lines, and Danny Carey's polyrhythmic drumming create music that is simultaneously crushing and transcendent. The album debuts at number one and cements Tool as the most intellectually ambitious heavy band of their generation.",
     tags: [
       'tool',
       'lateralus',
@@ -2369,7 +2461,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-yeah-yeah-yeahs-nyc-2003',
     year: 2003,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Indie Rock', 'Garage Rock', 'Art Punk'],
     title: 'Yeah Yeah Yeahs release "Fever to Tell"',
     description:
@@ -2389,9 +2486,10 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
     year: 2006,
     location: { lat: 53.3811, lng: -1.4701, city: 'Sheffield', country: 'UK' },
     genre: ['Indie Rock', 'Post-Punk Revival'],
-    title: 'Arctic Monkeys\' "Whatever People Say I Am" becomes fastest-selling UK debut',
+    title:
+      'Arctic Monkeys\' "Whatever People Say I Am" becomes fastest-selling UK debut',
     description:
-      'Arctic Monkeys release "Whatever People Say I Am, That\'s What I\'m Not," which becomes the fastest-selling debut album in UK chart history. Alex Turner\'s witty, observational lyrics about Sheffield nightlife, delivered in an uncompromising Yorkshire accent over jagged guitars, make the band the first major act to be built by internet hype rather than traditional industry machinery. The album revitalizes British guitar music for a new generation.',
+      "Arctic Monkeys release \"Whatever People Say I Am, That's What I'm Not,\" which becomes the fastest-selling debut album in UK chart history. Alex Turner's witty, observational lyrics about Sheffield nightlife, delivered in an uncompromising Yorkshire accent over jagged guitars, make the band the first major act to be built by internet hype rather than traditional industry machinery. The album revitalizes British guitar music for a new generation.",
     tags: [
       'arctic monkeys',
       'alex turner',
@@ -2424,7 +2522,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-st-vincent-nyc-2011',
     year: 2011,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Art Rock', 'Indie Rock', 'Experimental'],
     title: 'St. Vincent releases "Strange Mercy"',
     description:
@@ -2442,7 +2545,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-tame-impala-perth-2015',
     year: 2015,
-    location: { lat: -31.9505, lng: 115.8605, city: 'Perth', country: 'Australia' },
+    location: {
+      lat: -31.9505,
+      lng: 115.8605,
+      city: 'Perth',
+      country: 'Australia',
+    },
     genre: ['Psychedelic Rock', 'Synth-Pop', 'Neo-Psychedelia'],
     title: 'Tame Impala\'s "Currents" bridges psychedelic rock and synth-pop',
     description:
@@ -2461,7 +2569,12 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-karen-carpenter-la-1970',
     year: 1970,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Soft Rock', 'Pop'],
     title: 'Karen Carpenter — the voice that redefined soft rock',
     description:
@@ -2482,7 +2595,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
     year: 1955,
     location: { lat: 32.8407, lng: -83.6324, city: 'Macon', country: 'US' },
     genre: ['Rock and Roll', 'R&B'],
-    title: 'Little Richard records "Tutti Frutti" and unleashes rock and roll\'s wildest voice',
+    title:
+      'Little Richard records "Tutti Frutti" and unleashes rock and roll\'s wildest voice',
     description:
       'Richard Penniman walks into J&M Recording Studio in New Orleans and records "Tutti Frutti" — its opening "A-wop-bop-a-loo-bop-a-lop-bam-boom" detonating like a bomb across 1950s America. Born in Macon, Georgia, Little Richard\'s frenetic piano pounding, shrieking vocals, and flamboyant showmanship shatter every convention of race, gender, and genre, directly inspiring Elvis Presley, The Beatles, Prince, and every rock performer who ever dared to be outrageous.',
     tags: [
@@ -2501,7 +2615,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
     year: 1957,
     location: { lat: 33.5779, lng: -101.8552, city: 'Lubbock', country: 'US' },
     genre: ['Rock and Roll'],
-    title: 'Buddy Holly records "That\'ll Be the Day" and revolutionizes rock songwriting',
+    title:
+      'Buddy Holly records "That\'ll Be the Day" and revolutionizes rock songwriting',
     description:
       'From Lubbock, Texas, Buddy Holly and the Crickets record "That\'ll Be the Day" at Norman Petty\'s studio in Clovis, New Mexico. Holly\'s innovations — writing his own songs, leading a self-contained guitar-bass-drums band, and pioneering studio techniques like double-tracking — create the template for every rock band from The Beatles (who named themselves after the Crickets) to the present. His death in a 1959 plane crash at 22 becomes "The Day the Music Died."',
     tags: [

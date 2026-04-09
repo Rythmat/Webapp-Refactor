@@ -26,7 +26,7 @@ export interface AssessmentResult {
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const TIMING_TOLERANCE_TICKS = 480; // one quarter note window — generous for L1
-const PASS_THRESHOLD = 0.60; // 60% to pass — encouraging for beginners
+const PASS_THRESHOLD = 0.6; // 60% to pass — encouraging for beginners
 
 // ── Assessment functions ─────────────────────────────────────────────────────
 
@@ -65,9 +65,7 @@ function assessPitchOnly(
 
   // Wrong note penalty: scales relative to activity size
   const wrongPenalty =
-    wrong.length > 0
-      ? wrong.length / (targetMidis.size + wrong.length)
-      : 0;
+    wrong.length > 0 ? wrong.length / (targetMidis.size + wrong.length) : 0;
 
   // Final score: pitch accuracy minus wrong note penalty (weighted 50%)
   const overallScore = Math.max(0, pitchAccuracy - wrongPenalty * 0.5);

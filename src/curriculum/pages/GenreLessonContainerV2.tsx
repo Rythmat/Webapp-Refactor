@@ -70,9 +70,23 @@ type ActivityState = 'preview' | 'practice' | 'performance' | 'complete';
 // ── Key root parser ──────────────────────────────────────────────────────────
 
 const KEY_MAP: Record<string, number> = {
-  C: 60, 'C#': 61, Db: 61, D: 62, 'D#': 63, Eb: 63,
-  E: 64, F: 65, 'F#': 66, Gb: 66, G: 67, 'G#': 68,
-  Ab: 68, A: 69, 'A#': 70, Bb: 70, B: 71,
+  C: 60,
+  'C#': 61,
+  Db: 61,
+  D: 62,
+  'D#': 63,
+  Eb: 63,
+  E: 64,
+  F: 65,
+  'F#': 66,
+  Gb: 66,
+  G: 67,
+  'G#': 68,
+  Ab: 68,
+  A: 69,
+  'A#': 70,
+  Bb: 70,
+  B: 71,
 };
 
 function parseKeyRoot(keyName: string): number {
@@ -96,14 +110,17 @@ function GenreLessonContainerV2Inner({
   // ── State ────────────────────────────────────────────────────────────────
   const [activeSection, setActiveSection] = useState<ActivitySectionId>('A');
   const [stepIndex, setStepIndex] = useState(0);
-  const [_activityState, _setActivityState] = useState<ActivityState>('preview');
+  const [_activityState, _setActivityState] =
+    useState<ActivityState>('preview');
   const activityStateRef = useRef<ActivityState>('preview');
   const [tempo, setTempo] = useState(flow.params.tempoRange[0]);
   const [userNotes, setUserNotes] = useState<GenreNoteEvent[]>([]);
   const [lastResult, setLastResult] = useState<AssessmentResult | null>(null);
   const [activeMidis, setActiveMidis] = useState<number[]>([]);
   const [activityInstanceId, setActivityInstanceId] = useState(0);
-  const [practiceHighlightMidis, setPracticeHighlightMidis] = useState<Set<number>>(new Set());
+  const [practiceHighlightMidis, setPracticeHighlightMidis] = useState<
+    Set<number>
+  >(new Set());
 
   // Keep ref and state in sync
   const setActivityState = useCallback((s: ActivityState) => {
@@ -179,20 +196,31 @@ function GenreLessonContainerV2Inner({
     ? {
         ...currentStep,
         targetNotes: activeVariant.targetNotes,
-        ...(activeVariant.chordSymbols ? { chordSymbols: activeVariant.chordSymbols } : {}),
+        ...(activeVariant.chordSymbols
+          ? { chordSymbols: activeVariant.chordSymbols }
+          : {}),
       }
     : currentStep;
 
   // Notes from resolver
-  if (import.meta.env.DEV && (currentStep.variants || currentStep.tag.includes('performance'))) {
+  if (
+    import.meta.env.DEV &&
+    (currentStep.variants || currentStep.tag.includes('performance'))
+  ) {
     console.log(
       '[VARIANT DEBUG]',
-      'tag:', currentStep.tag,
-      '| hasVariants:', !!currentStep.variants,
-      '| variantCount:', currentStep.variants?.length,
-      '| attemptCount:', attemptCount,
-      '| activeVariantId:', activeVariant?.variantId,
-      '| resolvedCount:', resolvedStep.targetNotes?.length,
+      'tag:',
+      currentStep.tag,
+      '| hasVariants:',
+      !!currentStep.variants,
+      '| variantCount:',
+      currentStep.variants?.length,
+      '| attemptCount:',
+      attemptCount,
+      '| activeVariantId:',
+      activeVariant?.variantId,
+      '| resolvedCount:',
+      resolvedStep.targetNotes?.length,
     );
   }
   const targetNotes = useMemo(
@@ -330,7 +358,9 @@ function GenreLessonContainerV2Inner({
 
   // Get the current target event for a MIDI pitch (next uncompleted one)
   const getCurrentEventForMidi = useCallback(
-    (midi: number): { event: typeof pianoRollEvents[0]; index: number } | null => {
+    (
+      midi: number,
+    ): { event: (typeof pianoRollEvents)[0]; index: number } | null => {
       const indices = midiToEventIndices.get(midi);
       if (!indices) return null;
       for (const idx of indices) {
@@ -383,7 +413,15 @@ function GenreLessonContainerV2Inner({
   const noteHoldMeta = useMemo(() => {
     void holdTick;
     const now = performance.now();
-    const meta: Record<string, { isCompleted: boolean; isCurrentChord: boolean; holdProgress: number; isHeld?: boolean }> = {};
+    const meta: Record<
+      string,
+      {
+        isCompleted: boolean;
+        isCurrentChord: boolean;
+        holdProgress: number;
+        isHeld?: boolean;
+      }
+    > = {};
 
     pianoRollEvents.forEach((event) => {
       const midi = event.midi ?? 0;
@@ -534,7 +572,10 @@ function GenreLessonContainerV2Inner({
       void triggerPianoAttack(noteName, event.velocity);
 
       // Capture notes for visual rendering (both practice + performance)
-      const compensatedOnset = Math.max(0, currentTickRef.current - MIDI_LATENCY_TICKS);
+      const compensatedOnset = Math.max(
+        0,
+        currentTickRef.current - MIDI_LATENCY_TICKS,
+      );
       setUserNotes((prev) => [
         ...prev,
         {
@@ -611,8 +652,18 @@ function GenreLessonContainerV2Inner({
     // to prevent PianoRoll from restarting the animation loop
     doComplete();
   }, [
-    targetNotes, userNotes, currentStep, activeSection, flow, isIT,
-    currentSection, assess, recordResult, setActivityState, stopTickCounter, stopBacking,
+    targetNotes,
+    userNotes,
+    currentStep,
+    activeSection,
+    flow,
+    isIT,
+    currentSection,
+    assess,
+    recordResult,
+    setActivityState,
+    stopTickCounter,
+    stopBacking,
   ]);
 
   // Max tick = end of last note (with COUNT_IN_OFFSET for IT)
@@ -657,8 +708,14 @@ function GenreLessonContainerV2Inner({
       }
     }
   }, [
-    stepIndex, currentSection, activeSection, flow, currentStep,
-    recordSectionComplete, setActivityState, stopTickCounter,
+    stepIndex,
+    currentSection,
+    activeSection,
+    flow,
+    currentStep,
+    recordSectionComplete,
+    setActivityState,
+    stopTickCounter,
   ]);
 
   const handleRetry = useCallback(() => {
@@ -732,7 +789,17 @@ function GenreLessonContainerV2Inner({
       completedEventIdsRef.current.clear();
       noteHoldStartRef.current.clear();
     }
-  }, [holdTick, activityState, currentStep.assessment, targetNotes, handleComplete, stopDemo, setActivityState, isIT, pianoRollEvents]);
+  }, [
+    holdTick,
+    activityState,
+    currentStep.assessment,
+    targetNotes,
+    handleComplete,
+    stopDemo,
+    setActivityState,
+    isIT,
+    pianoRollEvents,
+  ]);
 
   // ── IT completion timer ─────────────────────────────────────────────────
   // Ref to latest handleComplete so the timer always calls the current version
@@ -744,7 +811,10 @@ function GenreLessonContainerV2Inner({
 
   useEffect(() => {
     // Only for IT performance or practice mode
-    if ((activityState !== 'performance' && activityState !== 'practice') || !isIT) {
+    if (
+      (activityState !== 'performance' && activityState !== 'practice') ||
+      !isIT
+    ) {
       if (itTimerRef.current) {
         clearTimeout(itTimerRef.current);
         itTimerRef.current = null;
@@ -757,7 +827,14 @@ function GenreLessonContainerV2Inner({
     const msPerTick = (60 / tempo / 480) * 1000;
     const totalMs = contentTicks * msPerTick;
 
-    console.log('[IT Timer] Starting. Duration:', Math.round(totalMs), 'ms, ticks:', contentTicks, 'tempo:', tempo);
+    console.log(
+      '[IT Timer] Starting. Duration:',
+      Math.round(totalMs),
+      'ms, ticks:',
+      contentTicks,
+      'tempo:',
+      tempo,
+    );
 
     itTimerRef.current = setTimeout(() => {
       console.log('[IT Timer] Fired! State:', activityStateRef.current);
@@ -784,7 +861,10 @@ function GenreLessonContainerV2Inner({
     const handleKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return;
       if (activityState !== 'preview') return;
-      if (e.key === 'ArrowRight' && stepIndex < currentSection.steps.length - 1) {
+      if (
+        e.key === 'ArrowRight' &&
+        stepIndex < currentSection.steps.length - 1
+      ) {
         setStepIndex((i) => i + 1);
       }
       if (e.key === 'ArrowLeft' && stepIndex > 0) {
@@ -807,8 +887,6 @@ function GenreLessonContainerV2Inner({
     stopTickCounter();
     setTempo(flow.params.tempoRange[0]);
   }, [flow, setActivityState, stopTickCounter]);
-
-
 
   // ── Practice mode handlers ──────────────────────────────────────────────
 
@@ -881,7 +959,8 @@ function GenreLessonContainerV2Inner({
 
     // Start backing track FIRST — audio must be running before playhead starts
     const hasBackingParts =
-      ((currentStep as ActivityStepV2).backing_parts?.engine_generates?.length ?? 0) > 0;
+      ((currentStep as ActivityStepV2).backing_parts?.engine_generates
+        ?.length ?? 0) > 0;
     if (hasBackingParts) {
       setInstrumentsLoading(true);
       await initSF2();
@@ -921,7 +1000,7 @@ function GenreLessonContainerV2Inner({
       await prepareMetronome();
       Tone.getTransport().start('+0.05');
       // Wait for Transport to start before activating the piano roll playhead.
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
       playStartedAtRef.current = Date.now();
       setActivityState('performance');
     } else {
@@ -929,7 +1008,19 @@ function GenreLessonContainerV2Inner({
       playStartedAtRef.current = Date.now();
       setActivityState('performance');
     }
-  }, [setActivityState, handleStopPractice, stopDemo, stopBacking, startBacking, initSF2, prepareMetronome, isIT, currentStep, keyRoot, requiredBars]);
+  }, [
+    setActivityState,
+    handleStopPractice,
+    stopDemo,
+    stopBacking,
+    startBacking,
+    initSF2,
+    prepareMetronome,
+    isIT,
+    currentStep,
+    keyRoot,
+    requiredBars,
+  ]);
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -979,7 +1070,13 @@ function GenreLessonContainerV2Inner({
             >
               Courses
             </button>
-            <span style={{ fontSize: '11px', color: 'var(--color-text-dim)', opacity: 0.4 }}>
+            <span
+              style={{
+                fontSize: '11px',
+                color: 'var(--color-text-dim)',
+                opacity: 0.4,
+              }}
+            >
               ›
             </span>
             <button
@@ -1006,11 +1103,19 @@ function GenreLessonContainerV2Inner({
           <div style={{ fontSize: '18px', fontWeight: 600 }}>
             {currentStep.activity}
           </div>
-          {resolvedStep.chordSymbols && resolvedStep.chordSymbols.length > 0 && (
-            <div style={{ fontSize: '14px', color: keyColor, marginTop: '2px', fontWeight: 600 }}>
-              {resolvedStep.chordSymbols.join(' → ')}
-            </div>
-          )}
+          {resolvedStep.chordSymbols &&
+            resolvedStep.chordSymbols.length > 0 && (
+              <div
+                style={{
+                  fontSize: '14px',
+                  color: keyColor,
+                  marginTop: '2px',
+                  fontWeight: 600,
+                }}
+              >
+                {resolvedStep.chordSymbols.join(' → ')}
+              </div>
+            )}
         </div>
         <div style={{ textAlign: 'right', fontSize: '13px', color: '#888' }}>
           <div>
@@ -1040,7 +1145,9 @@ function GenreLessonContainerV2Inner({
               onClick={() => handleSectionChange(section.id)}
               style={{
                 padding: '6px 14px',
-                border: isSectionActive ? '2px solid #4a9eff' : '1px solid #555',
+                border: isSectionActive
+                  ? '2px solid #4a9eff'
+                  : '1px solid #555',
                 borderRadius: '8px',
                 background: isSectionActive ? '#1a3a5c' : '#222',
                 color: isSectionActive ? '#4a9eff' : '#aaa',
@@ -1051,12 +1158,16 @@ function GenreLessonContainerV2Inner({
             >
               {section.id} {section.name}
               {sectionProg.percentage > 0 && sectionProg.percentage < 100 && (
-                <span style={{ fontSize: '11px', marginLeft: '6px', opacity: 0.7 }}>
+                <span
+                  style={{ fontSize: '11px', marginLeft: '6px', opacity: 0.7 }}
+                >
                   {sectionProg.percentage}%
                 </span>
               )}
               {sectionProg.percentage === 100 && (
-                <span style={{ marginLeft: '6px', fontSize: '12px' }}>&#10003;</span>
+                <span style={{ marginLeft: '6px', fontSize: '12px' }}>
+                  &#10003;
+                </span>
               )}
             </button>
           );
@@ -1077,7 +1188,10 @@ function GenreLessonContainerV2Inner({
           onClick={() => {
             if (stepIndex > 0) {
               stopDemo();
-              if (itTimerRef.current) { clearTimeout(itTimerRef.current); itTimerRef.current = null; }
+              if (itTimerRef.current) {
+                clearTimeout(itTimerRef.current);
+                itTimerRef.current = null;
+              }
               setStepIndex((i) => i - 1);
               setActivityState('preview');
               setUserNotes([]);
@@ -1108,7 +1222,10 @@ function GenreLessonContainerV2Inner({
 
           const handleDotClick = () => {
             stopDemo();
-            if (itTimerRef.current) { clearTimeout(itTimerRef.current); itTimerRef.current = null; }
+            if (itTimerRef.current) {
+              clearTimeout(itTimerRef.current);
+              itTimerRef.current = null;
+            }
             setStepIndex(i);
             setActivityState('preview');
             setUserNotes([]);
@@ -1178,7 +1295,10 @@ function GenreLessonContainerV2Inner({
           onClick={() => {
             if (stepIndex < currentSection.steps.length - 1) {
               stopDemo();
-              if (itTimerRef.current) { clearTimeout(itTimerRef.current); itTimerRef.current = null; }
+              if (itTimerRef.current) {
+                clearTimeout(itTimerRef.current);
+                itTimerRef.current = null;
+              }
               setStepIndex((i) => i + 1);
               setActivityState('preview');
               setUserNotes([]);
@@ -1190,9 +1310,13 @@ function GenreLessonContainerV2Inner({
           style={{
             background: 'none',
             border: 'none',
-            color: stepIndex === currentSection.steps.length - 1 ? '#333' : '#888',
+            color:
+              stepIndex === currentSection.steps.length - 1 ? '#333' : '#888',
             fontSize: '18px',
-            cursor: stepIndex === currentSection.steps.length - 1 ? 'default' : 'pointer',
+            cursor:
+              stepIndex === currentSection.steps.length - 1
+                ? 'default'
+                : 'pointer',
             padding: '0 4px',
           }}
         >
@@ -1245,7 +1369,15 @@ function GenreLessonContainerV2Inner({
       )}
 
       {/* Main content area */}
-      <div style={{ flex: 1, padding: '8px 16px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{
+          flex: 1,
+          padding: '8px 16px',
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         {/* Piano Roll — constrained height */}
         <div
           style={{
@@ -1410,13 +1542,32 @@ function GenreLessonContainerV2Inner({
                 textAlign: 'center',
               }}
             >
-              <h2 style={{ fontSize: '22px', fontWeight: 600, marginBottom: '12px' }}>
+              <h2
+                style={{
+                  fontSize: '22px',
+                  fontWeight: 600,
+                  marginBottom: '12px',
+                }}
+              >
                 Ready to start?
               </h2>
-              <p style={{ fontSize: '14px', color: '#aaa', marginBottom: '24px', lineHeight: 1.5 }}>
+              <p
+                style={{
+                  fontSize: '14px',
+                  color: '#aaa',
+                  marginBottom: '24px',
+                  lineHeight: 1.5,
+                }}
+              >
                 {currentStep.direction}
               </p>
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '12px',
+                  justifyContent: 'center',
+                }}
+              >
                 <button
                   onClick={() => {
                     void playDemo(targetNotes);
@@ -1497,14 +1648,33 @@ function GenreLessonContainerV2Inner({
                 textAlign: 'center',
               }}
             >
-              <h2 style={{ fontSize: '28px', fontWeight: 600, marginBottom: '8px' }}>
+              <h2
+                style={{
+                  fontSize: '28px',
+                  fontWeight: 600,
+                  marginBottom: '8px',
+                }}
+              >
                 {lastResult.passed ? '✓' : '✗'}{' '}
                 {Math.round(lastResult.overallScore * 100)}%
               </h2>
-              <p style={{ fontSize: '14px', color: '#aaa', marginBottom: '24px', lineHeight: 1.5 }}>
+              <p
+                style={{
+                  fontSize: '14px',
+                  color: '#aaa',
+                  marginBottom: '24px',
+                  lineHeight: 1.5,
+                }}
+              >
                 {lastResult.feedbackText}
               </p>
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '12px',
+                  justifyContent: 'center',
+                }}
+              >
                 <button
                   onClick={handleRetry}
                   style={{

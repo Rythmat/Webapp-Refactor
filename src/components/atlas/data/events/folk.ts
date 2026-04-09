@@ -2571,7 +2571,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
     genre: ['Folk', 'Protest Folk'],
     title: 'Joan Baez electrifies the Newport Folk Festival',
     description:
-      'An eighteen-year-old Joan Baez makes her breakthrough appearance at the inaugural Newport Folk Festival in Rhode Island, captivating audiences with her crystalline soprano voice and spare guitar accompaniment. Her performance launches her career as folk music\'s most visible activist-performer and helps establish Newport as the epicenter of the American folk revival.',
+      "An eighteen-year-old Joan Baez makes her breakthrough appearance at the inaugural Newport Folk Festival in Rhode Island, captivating audiences with her crystalline soprano voice and spare guitar accompaniment. Her performance launches her career as folk music's most visible activist-performer and helps establish Newport as the epicenter of the American folk revival.",
     tags: [
       'joan baez',
       'newport folk festival',
@@ -2804,7 +2804,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Folk', 'Indie Folk'],
-    title: "Fleet Foxes release self-titled debut",
+    title: 'Fleet Foxes release self-titled debut',
     description:
       'Fleet Foxes release their self-titled debut album, a lush tapestry of baroque folk harmonies and Pacific Northwest imagery that earns immediate critical acclaim. Robin Pecknold\'s layered vocal arrangements on songs like "White Winter Hymnal" evoke Crosby, Stills & Nash filtered through the misty forests of the Pacific Northwest, helping define the late-2000s indie folk renaissance.',
     tags: [
@@ -2924,7 +2924,8 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Folk', 'Spirituals'],
-    title: "Odetta releases 'Ballad for Americans' and ignites the folk revival",
+    title:
+      "Odetta releases 'Ballad for Americans' and ignites the folk revival",
     description:
       'Odetta Holmes, born in Birmingham and raised in Los Angeles, releases "Ballad for Americans and Other American Ballads" while performing at San Francisco\'s hungry i nightclub. Her thunderous contralto voice and commanding stage presence make her the catalyst of the folk revival — Martin Luther King Jr. calls her "the Queen of American Folk Music," and she inspires a young Bob Dylan to trade his electric guitar for an acoustic.',
     tags: [
@@ -3046,10 +3047,10 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
     genre: ['Folk', 'Talking Blues'],
     title: "Arlo Guthrie releases 'Alice's Restaurant'",
     description:
-      'Arlo Guthrie, son of Woody, releases "Alice\'s Restaurant Massacree" — an eighteen-minute talking blues monologue about draft evasion, littering, and bureaucratic absurdity that becomes the signature protest-comedy anthem of the Vietnam era. The song\'s Thanksgiving Day radio tradition endures for decades, and its anti-establishment humor carries on his father\'s populist folk legacy.',
+      "Arlo Guthrie, son of Woody, releases \"Alice's Restaurant Massacree\" — an eighteen-minute talking blues monologue about draft evasion, littering, and bureaucratic absurdity that becomes the signature protest-comedy anthem of the Vietnam era. The song's Thanksgiving Day radio tradition endures for decades, and its anti-establishment humor carries on his father's populist folk legacy.",
     tags: [
       'arlo guthrie',
-      'alice\'s restaurant',
+      "alice's restaurant",
       'talking blues',
       'vietnam draft',
       'thanksgiving',
@@ -3068,7 +3069,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Folk', 'Country Folk'],
-    title: "John Prine releases self-titled debut",
+    title: 'John Prine releases self-titled debut',
     description:
       'John Prine, a former mailman from Maywood, Illinois, releases his self-titled debut after being discovered by Kris Kristofferson at a Chicago open mic. Songs like "Angel from Montgomery," "Sam Stone," and "Hello in There" display a gift for empathetic storytelling and wry humor that earns him comparisons to Mark Twain. Prine becomes the songwriter\'s songwriter, revered by peers for decades.',
     tags: [
@@ -3207,7 +3208,8 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
     year: 1950,
     location: { lat: 40.7128, lng: -74.006, city: 'New York', country: 'US' },
     genre: ['Folk'],
-    title: 'The Weavers\' "Goodnight, Irene" tops the charts and launches the folk era',
+    title:
+      'The Weavers\' "Goodnight, Irene" tops the charts and launches the folk era',
     description:
       'Pete Seeger, Lee Hays, Ronnie Gilbert, and Fred Hellerman — the Weavers — record Lead Belly\'s "Goodnight, Irene" for Decca Records, and it spends 13 weeks at No. 1 on the pop charts. The quartet proves that folk music can be commercially viable, but their leftist politics soon attract the attention of HUAC. Despite being blacklisted, the Weavers plant seeds that bloom into the full folk revival of the 1960s.',
     tags: [
@@ -3226,7 +3228,8 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
     year: 1952,
     location: { lat: 40.7128, lng: -74.006, city: 'New York', country: 'US' },
     genre: ['Folk', 'Blues', 'Country'],
-    title: 'Harry Smith\'s "Anthology of American Folk Music" becomes the folk revival bible',
+    title:
+      'Harry Smith\'s "Anthology of American Folk Music" becomes the folk revival bible',
     description:
       'Eccentric filmmaker and collector Harry Smith compiles the "Anthology of American Folk Music" for Folkways Records — 84 tracks of blues, folk, country, and gospel from 1920s-30s 78 RPM records, organized into three mystical volumes. The Anthology becomes the Rosetta Stone of the folk revival, teaching Bob Dylan, Joan Baez, Jerry Garcia, and a generation of musicians to hear the uncanny depths of American vernacular music.',
     tags: [
@@ -3247,7 +3250,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
     genre: ['Folk'],
     title: 'Pete Seeger leads the Freedom Singers at Newport Folk Festival',
     description:
-      'Pete Seeger brings the SNCC Freedom Singers to the Newport Folk Festival, forging an unbreakable bond between the folk revival and the civil rights movement. The festival becomes a annual summit where traditional folk, topical songwriting, and political activism converge. Seeger\'s insistence that folk music belongs to the people — not the entertainment industry — shapes the genre\'s activist DNA for generations.',
+      "Pete Seeger brings the SNCC Freedom Singers to the Newport Folk Festival, forging an unbreakable bond between the folk revival and the civil rights movement. The festival becomes a annual summit where traditional folk, topical songwriting, and political activism converge. Seeger's insistence that folk music belongs to the people — not the entertainment industry — shapes the genre's activist DNA for generations.",
     tags: [
       'pete seeger',
       'newport folk festival',
@@ -3264,9 +3267,10 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
     year: 2022,
     location: { lat: 40.7128, lng: -74.006, city: 'New York', country: 'US' },
     genre: ['Folk', 'Indie Folk'],
-    title: 'Big Thief\'s "Dragon New Warm Mountain I Believe in You" expands folk\'s boundaries',
+    title:
+      'Big Thief\'s "Dragon New Warm Mountain I Believe in You" expands folk\'s boundaries',
     description:
-      'Big Thief releases a sprawling double album recorded across four studios in four locations — from upstate New York to Tucson, Arizona — embracing country, noise rock, folk, and electronic textures. Adrianne Lenker\'s trembling vocals and oblique poetry, combined with the band\'s telepathic interplay, earn universal acclaim and cement Big Thief as the most important folk-rooted band of the 2020s.',
+      "Big Thief releases a sprawling double album recorded across four studios in four locations — from upstate New York to Tucson, Arizona — embracing country, noise rock, folk, and electronic textures. Adrianne Lenker's trembling vocals and oblique poetry, combined with the band's telepathic interplay, earn universal acclaim and cement Big Thief as the most important folk-rooted band of the 2020s.",
     tags: [
       'big thief',
       'adrianne lenker',
@@ -3281,9 +3285,15 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-billy-strings-michigan-2023',
     year: 2023,
-    location: { lat: 42.9634, lng: -85.6681, city: 'Grand Rapids', country: 'US' },
+    location: {
+      lat: 42.9634,
+      lng: -85.6681,
+      city: 'Grand Rapids',
+      country: 'US',
+    },
     genre: ['Folk', 'Bluegrass'],
-    title: 'Billy Strings sells out arenas and redefines bluegrass for a new generation',
+    title:
+      'Billy Strings sells out arenas and redefines bluegrass for a new generation',
     description:
       'Michigan-raised flatpicker Billy Strings fills arenas across America, bringing bluegrass to audiences raised on jam bands and indie rock. His ferocious guitar technique, rooted in traditional Appalachian picking but unafraid of psychedelic improvisation and punk energy, earns him a Grammy and positions him as the most exciting figure in acoustic roots music. Strings proves that folk and bluegrass can be young, raw, and culturally vital.',
     tags: [

@@ -435,7 +435,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     year: 1995,
     location: { lat: 37.5407, lng: -77.436, city: 'Richmond', country: 'US' },
     genre: ['Neo Soul', 'R&B'],
-    title: "D'Angelo releases \"Brown Sugar\" — neo soul before it had a name",
+    title: 'D\'Angelo releases "Brown Sugar" — neo soul before it had a name',
     description:
       "D'Angelo's debut album \"Brown Sugar\" fuses classic soul, hip-hop production, and jazz harmony into something entirely new. Recorded largely in his Richmond apartment and at Electric Lady Studios, the album anticipates the neo soul movement by two years and establishes D'Angelo as a generational talent.",
     tags: [
@@ -455,7 +455,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'R&B'],
     title: 'Erykah Badu releases "Baduizm" and defines neo soul',
     description:
-      "Erykah Badu's debut album \"Baduizm\" arrives from Dallas and immediately defines the neo soul movement. Her fusion of jazz, hip-hop, and spirituality — anchored by the hit \"On & On\" — offers a radical alternative to mainstream R&B and inspires a generation of artists to embrace organic, consciousness-driven soul music.",
+      'Erykah Badu\'s debut album "Baduizm" arrives from Dallas and immediately defines the neo soul movement. Her fusion of jazz, hip-hop, and spirituality — anchored by the hit "On & On" — offers a radical alternative to mainstream R&B and inspires a generation of artists to embrace organic, consciousness-driven soul music.',
     tags: [
       'erykah badu',
       'baduizm',
@@ -503,7 +503,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'R&B'],
     title: 'Angie Stone releases "Black Diamond"',
     description:
-      "Angie Stone's debut solo album \"Black Diamond\" draws from her South Carolina roots, her time in the hip-hop trio The Sequence, and deep gospel influences. The album bridges classic soul with the emerging neo soul sound, earning platinum status and establishing Stone as a vital voice in the movement.",
+      'Angie Stone\'s debut solo album "Black Diamond" draws from her South Carolina roots, her time in the hip-hop trio The Sequence, and deep gospel influences. The album bridges classic soul with the emerging neo soul sound, earning platinum status and establishing Stone as a vital voice in the movement.',
     tags: [
       'angie stone',
       'black diamond',
@@ -524,9 +524,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Neo Soul', 'R&B', 'Funk'],
-    title: "D'Angelo releases \"Voodoo\" — a genre-redefining masterpiece",
+    title: 'D\'Angelo releases "Voodoo" — a genre-redefining masterpiece',
     description:
-      "Recorded at Electric Lady Studios in New York, D'Angelo's \"Voodoo\" deconstructs soul, funk, and hip-hop into something primal and hypnotic. With Questlove on drums and contributions from J Dilla and Q-Tip, the album pushes neo soul into uncharted territory and is widely regarded as one of the greatest R&B albums ever made.",
+      'Recorded at Electric Lady Studios in New York, D\'Angelo\'s "Voodoo" deconstructs soul, funk, and hip-hop into something primal and hypnotic. With Questlove on drums and contributions from J Dilla and Q-Tip, the album pushes neo soul into uncharted territory and is widely regarded as one of the greatest R&B albums ever made.',
     tags: [
       "d'angelo",
       'voodoo',
@@ -574,7 +574,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'R&B'],
     title: 'Musiq Soulchild debuts with "Aijuswanaseing"',
     description:
-      "Musiq Soulchild's debut album emerges from Philadelphia's thriving neo soul scene and delivers a smooth, accessible take on the genre. Powered by the hit singles \"Just Friends\" and \"Love\", the album goes double platinum and proves that neo soul can achieve mainstream commercial success without sacrificing artistic integrity.",
+      'Musiq Soulchild\'s debut album emerges from Philadelphia\'s thriving neo soul scene and delivers a smooth, accessible take on the genre. Powered by the hit singles "Just Friends" and "Love", the album goes double platinum and proves that neo soul can achieve mainstream commercial success without sacrificing artistic integrity.',
     tags: [
       'musiq soulchild',
       'aijuswanaseing',
@@ -592,7 +592,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Acoustic Soul'],
     title: 'India.Arie releases "Acoustic Soul"',
     description:
-      "India.Arie's debut album \"Acoustic Soul\" brings an organic, guitar-driven sensibility to the neo soul movement from Atlanta. Led by the self-empowerment anthem \"Video\", the album earns seven Grammy nominations and sells over two million copies, offering a gentler, folk-influenced counterpoint to the movement's urban core.",
+      'India.Arie\'s debut album "Acoustic Soul" brings an organic, guitar-driven sensibility to the neo soul movement from Atlanta. Led by the self-empowerment anthem "Video", the album earns seven Grammy nominations and sells over two million copies, offering a gentler, folk-influenced counterpoint to the movement\'s urban core.',
     tags: [
       'india arie',
       'acoustic soul',
@@ -635,7 +635,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Jazz', 'R&B'],
     title: 'Robert Glasper releases "Black Radio"',
     description:
-      "Houston-raised pianist Robert Glasper's \"Black Radio\" shatters the walls between jazz, neo soul, and hip-hop. Featuring vocals from Erykah Badu, Musiq Soulchild, and Lalah Hathaway, the album wins a Grammy and proves that jazz can remain a living, breathing force when it embraces R&B and hip-hop as kin rather than rivals.",
+      'Houston-raised pianist Robert Glasper\'s "Black Radio" shatters the walls between jazz, neo soul, and hip-hop. Featuring vocals from Erykah Badu, Musiq Soulchild, and Lalah Hathaway, the album wins a Grammy and proves that jazz can remain a living, breathing force when it embraces R&B and hip-hop as kin rather than rivals.',
     tags: [
       'robert glasper',
       'black radio',
@@ -654,7 +654,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Jazz', 'Hip-Hop'],
     title: 'Robert Glasper Experiment continues blending jazz and neo soul',
     description:
-      "The Robert Glasper Experiment's \"Black Radio 2\" deepens the fusion of jazz improvisation with neo soul and hip-hop production. Featuring Common, Brandy, and Norah Jones, the project cements Glasper's role as the primary architect bridging the jazz and neo soul worlds, inspiring a wave of genre-fluid musicians.",
+      'The Robert Glasper Experiment\'s "Black Radio 2" deepens the fusion of jazz improvisation with neo soul and hip-hop production. Featuring Common, Brandy, and Norah Jones, the project cements Glasper\'s role as the primary architect bridging the jazz and neo soul worlds, inspiring a wave of genre-fluid musicians.',
     tags: [
       'robert glasper experiment',
       'black radio 2',
@@ -702,7 +702,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Alternative R&B'],
     title: 'Jhene Aiko releases "Souled Out"',
     description:
-      "Los Angeles singer Jhene Aiko's debut studio album \"Souled Out\" floats on ethereal production and breathy vocals, carving out a meditative, atmospheric corner of neo soul. Her introspective songwriting and minimalist approach influence the wave of ambient R&B that follows throughout the 2010s.",
+      'Los Angeles singer Jhene Aiko\'s debut studio album "Souled Out" floats on ethereal production and breathy vocals, carving out a meditative, atmospheric corner of neo soul. Her introspective songwriting and minimalist approach influence the wave of ambient R&B that follows throughout the 2010s.',
     tags: [
       'jhene aiko',
       'souled out',
@@ -726,7 +726,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Funk', 'R&B'],
     title: 'The Internet releases "Ego Death"',
     description:
-      "The Internet's third album \"Ego Death\" earns a Grammy nomination and brings the LA-based collective — led by Syd and Matt Martians — into the spotlight. Their laid-back fusion of funk, neo soul, and jazz represents a new generation carrying the torch of West Coast alternative R&B.",
+      'The Internet\'s third album "Ego Death" earns a Grammy nomination and brings the LA-based collective — led by Syd and Matt Martians — into the spotlight. Their laid-back fusion of funk, neo soul, and jazz represents a new generation carrying the torch of West Coast alternative R&B.',
     tags: [
       'the internet',
       'ego death',
@@ -750,7 +750,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Future Soul', 'Jazz'],
     title: 'Hiatus Kaiyote releases "Choose Your Weapon"',
     description:
-      "Melbourne's Hiatus Kaiyote, led by Nai Palm, releases \"Choose Your Weapon\" and proves that neo soul has become a global language. Their virtuosic blend of jazz, soul, electronica, and prog-influenced arrangements earns a Grammy nomination and the admiration of artists from Erykah Badu to Questlove.",
+      'Melbourne\'s Hiatus Kaiyote, led by Nai Palm, releases "Choose Your Weapon" and proves that neo soul has become a global language. Their virtuosic blend of jazz, soul, electronica, and prog-influenced arrangements earns a Grammy nomination and the admiration of artists from Erykah Badu to Questlove.',
     tags: [
       'hiatus kaiyote',
       'choose your weapon',
@@ -769,7 +769,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Hip-Hop', 'Funk'],
     title: 'Anderson .Paak releases "Malibu"',
     description:
-      "Oxnard, California native Anderson .Paak's \"Malibu\" fuses hip-hop, soul, funk, and Brazilian music into a sun-drenched, rhythmically dazzling statement. His unique ability to sing and drum simultaneously and his infectious energy make him a breakout star and a vital link between neo soul's past and future.",
+      'Oxnard, California native Anderson .Paak\'s "Malibu" fuses hip-hop, soul, funk, and Brazilian music into a sun-drenched, rhythmically dazzling statement. His unique ability to sing and drum simultaneously and his infectious energy make him a breakout star and a vital link between neo soul\'s past and future.',
     tags: [
       'anderson paak',
       'malibu',
@@ -788,7 +788,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Art Pop', 'R&B'],
     title: 'Solange releases "A Seat at the Table"',
     description:
-      "Solange's \"A Seat at the Table\" is a quietly revolutionary meditation on Black womanhood, identity, and self-care. Rooted in her Houston upbringing and Southern Black culture, the album blends neo soul, synth-funk, and interludes from her parents into one of the decade's most critically acclaimed works.",
+      'Solange\'s "A Seat at the Table" is a quietly revolutionary meditation on Black womanhood, identity, and self-care. Rooted in her Houston upbringing and Southern Black culture, the album blends neo soul, synth-funk, and interludes from her parents into one of the decade\'s most critically acclaimed works.',
     tags: [
       'solange',
       'a seat at the table',
@@ -812,7 +812,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Electronic', 'House'],
     title: 'Kaytranada releases "99.9%"',
     description:
-      "Haitian-Canadian producer Kaytranada's debut album \"99.9%\" merges house music, neo soul, and hip-hop with effortless sophistication. Featuring collaborations with Craig David, Anderson .Paak, and Syd, the Montreal-made album wins the Polaris Music Prize and demonstrates neo soul's expanding reach into electronic music.",
+      'Haitian-Canadian producer Kaytranada\'s debut album "99.9%" merges house music, neo soul, and hip-hop with effortless sophistication. Featuring collaborations with Craig David, Anderson .Paak, and Syd, the Montreal-made album wins the Polaris Music Prize and demonstrates neo soul\'s expanding reach into electronic music.',
     tags: [
       'kaytranada',
       '99.9%',
@@ -836,7 +836,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Jazz Fusion', 'Funk'],
     title: 'Thundercat releases "Drunk"',
     description:
-      "Bassist Thundercat's \"Drunk\" is a sprawling, genre-defying journey through jazz fusion, funk, neo soul, and electronic music. The Los Angeles virtuoso, fresh from his contributions to Kendrick Lamar's \"To Pimp a Butterfly\", creates an album that expands the boundaries of what bass-driven soul music can be.",
+      'Bassist Thundercat\'s "Drunk" is a sprawling, genre-defying journey through jazz fusion, funk, neo soul, and electronic music. The Los Angeles virtuoso, fresh from his contributions to Kendrick Lamar\'s "To Pimp a Butterfly", creates an album that expands the boundaries of what bass-driven soul music can be.',
     tags: [
       'thundercat',
       'drunk',
@@ -855,7 +855,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'R&B', 'Pop'],
     title: 'Kehlani releases "SweetSexySavage"',
     description:
-      "Oakland's Kehlani delivers her debut album \"SweetSexySavage\", blending neo soul warmth with contemporary pop-R&B production. Drawing from a tough upbringing and the Bay Area's multicultural musical legacy, she represents a new generation bringing raw emotional honesty to mainstream R&B.",
+      'Oakland\'s Kehlani delivers her debut album "SweetSexySavage", blending neo soul warmth with contemporary pop-R&B production. Drawing from a tough upbringing and the Bay Area\'s multicultural musical legacy, she represents a new generation bringing raw emotional honesty to mainstream R&B.',
     tags: [
       'kehlani',
       'sweetsexysavage',
@@ -922,7 +922,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Gospel', 'R&B'],
     title: 'Daniel Caesar releases "Freudian"',
     description:
-      "Toronto's Daniel Caesar blends gospel harmonies with intimate neo soul on his debut album \"Freudian\". Raised in a devoutly religious household, Caesar channels his church upbringing into lush, emotionally transparent love songs, led by the hit \"Get You\" featuring Kali Uchis. The album establishes Toronto as a new hub for alternative R&B.",
+      'Toronto\'s Daniel Caesar blends gospel harmonies with intimate neo soul on his debut album "Freudian". Raised in a devoutly religious household, Caesar channels his church upbringing into lush, emotionally transparent love songs, led by the hit "Get You" featuring Kali Uchis. The album establishes Toronto as a new hub for alternative R&B.',
     tags: [
       'daniel caesar',
       'freudian',
@@ -970,7 +970,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Electronic', 'Jazz'],
     title: 'Jordan Rakei releases "Wallflower"',
     description:
-      "New Zealand-born, Brisbane-raised Jordan Rakei releases \"Wallflower\" before relocating to London, blending neo soul with electronic textures and jazz sensibilities. His introspective songwriting and warm production connect Australia's nascent neo soul scene to the thriving UK movement.",
+      'New Zealand-born, Brisbane-raised Jordan Rakei releases "Wallflower" before relocating to London, blending neo soul with electronic textures and jazz sensibilities. His introspective songwriting and warm production connect Australia\'s nascent neo soul scene to the thriving UK movement.',
     tags: [
       'jordan rakei',
       'wallflower',
@@ -989,7 +989,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Electronic', 'R&B'],
     title: 'Sampha releases "Process"',
     description:
-      "South London's Sampha releases his debut album \"Process\", an emotionally devastating blend of neo soul, electronic music, and classical piano. Written partly while caring for his dying mother, the album wins the Mercury Prize and establishes Sampha as one of the UK's most important voices in contemporary soul.",
+      'South London\'s Sampha releases his debut album "Process", an emotionally devastating blend of neo soul, electronic music, and classical piano. Written partly while caring for his dying mother, the album wins the Mercury Prize and establishes Sampha as one of the UK\'s most important voices in contemporary soul.',
     tags: [
       'sampha',
       'process',
@@ -1032,7 +1032,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Jazz', 'Electronic'],
     title: 'Tom Misch releases "Geography"',
     description:
-      "London guitarist and producer Tom Misch's debut album \"Geography\" weaves neo soul, jazz, and electronic beats into a warm, approachable sound. His viral YouTube guitar videos and the album's crossover appeal help bring neo soul aesthetics to a new generation of listeners worldwide.",
+      'London guitarist and producer Tom Misch\'s debut album "Geography" weaves neo soul, jazz, and electronic beats into a warm, approachable sound. His viral YouTube guitar videos and the album\'s crossover appeal help bring neo soul aesthetics to a new generation of listeners worldwide.',
     tags: [
       'tom misch',
       'geography',
@@ -1051,7 +1051,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Hip-Hop', 'Jazz'],
     title: 'Noname releases "Room 25"',
     description:
-      "Chicago poet and rapper Noname's \"Room 25\" blends jazz-inflected neo soul with literary hip-hop, reflecting on Black womanhood, fame, and Chicago's South Side with sharp wit and vulnerability. The album cements Chicago as a crucial city in the ongoing evolution of soul-adjacent music.",
+      'Chicago poet and rapper Noname\'s "Room 25" blends jazz-inflected neo soul with literary hip-hop, reflecting on Black womanhood, fame, and Chicago\'s South Side with sharp wit and vulnerability. The album cements Chicago as a crucial city in the ongoing evolution of soul-adjacent music.',
     tags: [
       'noname',
       'room 25',
@@ -1094,7 +1094,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'R&B'],
     title: 'Summer Walker releases "Over It"',
     description:
-      "Atlanta-based Summer Walker's debut album \"Over It\" becomes the highest-streamed album by a female R&B artist in its opening week. Produced largely by London on da Track, the album's vulnerable, conversational vocals and stripped-back neo soul production resonate with a generation raised on streaming.",
+      'Atlanta-based Summer Walker\'s debut album "Over It" becomes the highest-streamed album by a female R&B artist in its opening week. Produced largely by London on da Track, the album\'s vulnerable, conversational vocals and stripped-back neo soul production resonate with a generation raised on streaming.',
     tags: [
       'summer walker',
       'over it',
@@ -1156,7 +1156,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'R&B'],
     title: 'Giveon releases "Take Time"',
     description:
-      "Long Beach baritone Giveon's debut EP \"Take Time\" showcases a deep, distinctive voice that sets him apart in modern R&B. His rich, low register and emotionally direct songwriting — highlighted by the hit \"Heartbreak Anniversary\" — recall classic soul while fitting seamlessly into the streaming era's sonic landscape.",
+      'Long Beach baritone Giveon\'s debut EP "Take Time" showcases a deep, distinctive voice that sets him apart in modern R&B. His rich, low register and emotionally direct songwriting — highlighted by the hit "Heartbreak Anniversary" — recall classic soul while fitting seamlessly into the streaming era\'s sonic landscape.',
     tags: [
       'giveon',
       'take time',
@@ -1204,7 +1204,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Jazz', 'Funk'],
     title: 'Terrace Martin releases "Drones"',
     description:
-      "Los Angeles multi-instrumentalist and producer Terrace Martin's \"Drones\" distills his work with Kendrick Lamar, Herbie Hancock, and Snoop Dogg into a statement of jazz-inflected neo soul and West Coast funk. The album cements Martin as a crucial behind-the-scenes architect of LA's modern soul sound.",
+      'Los Angeles multi-instrumentalist and producer Terrace Martin\'s "Drones" distills his work with Kendrick Lamar, Herbie Hancock, and Snoop Dogg into a statement of jazz-inflected neo soul and West Coast funk. The album cements Martin as a crucial behind-the-scenes architect of LA\'s modern soul sound.',
     tags: [
       'terrace martin',
       'drones',
@@ -1228,7 +1228,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'R&B'],
     title: 'Jazmine Sullivan releases "Heaux Tales"',
     description:
-      "Philadelphia's Jazmine Sullivan returns with \"Heaux Tales\", a concept EP that weaves spoken-word interludes with powerhouse neo soul vocals to explore female sexuality and empowerment. The project wins a Grammy and reaffirms Philadelphia's enduring role as a capital of soul music innovation.",
+      'Philadelphia\'s Jazmine Sullivan returns with "Heaux Tales", a concept EP that weaves spoken-word interludes with powerhouse neo soul vocals to explore female sexuality and empowerment. The project wins a Grammy and reaffirms Philadelphia\'s enduring role as a capital of soul music innovation.',
     tags: [
       'jazmine sullivan',
       'heaux tales',
@@ -1266,7 +1266,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Neo Soul', 'Alternative R&B', 'Funk'],
     title: 'Steve Lacy releases "Gemini Rights"',
     description:
-      "Compton-raised guitarist and producer Steve Lacy's \"Gemini Rights\" catapults him from Internet side-project member to bona fide star. The viral hit \"Bad Habit\" tops the Billboard Hot 100, bringing neo soul's guitar-driven warmth and DIY spirit to the biggest possible stage.",
+      'Compton-raised guitarist and producer Steve Lacy\'s "Gemini Rights" catapults him from Internet side-project member to bona fide star. The viral hit "Bad Habit" tops the Billboard Hot 100, bringing neo soul\'s guitar-driven warmth and DIY spirit to the biggest possible stage.',
     tags: [
       'steve lacy',
       'gemini rights',
@@ -1351,7 +1351,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Funk', 'P-Funk', 'Psychedelic Funk'],
     title: 'Parliament-Funkadelic release "Mothership Connection"',
     description:
-      'George Clinton and Parliament-Funkadelic release "Mothership Connection", recorded at Hollywood Sound Recorders in Los Angeles. The album\'s Afrofuturist concept — featuring the Star Child descending from the Mothership to bring funk to the unfunky — becomes one of the most iconic mythologies in Black music. Bootsy Collins\' bass, Bernie Worrell\'s synths, and the Horny Horns create a dense, cosmic funk that becomes the most sampled source material in hip-hop history.',
+      "George Clinton and Parliament-Funkadelic release \"Mothership Connection\", recorded at Hollywood Sound Recorders in Los Angeles. The album's Afrofuturist concept — featuring the Star Child descending from the Mothership to bring funk to the unfunky — becomes one of the most iconic mythologies in Black music. Bootsy Collins' bass, Bernie Worrell's synths, and the Horny Horns create a dense, cosmic funk that becomes the most sampled source material in hip-hop history.",
     tags: [
       'parliament',
       'funkadelic',
@@ -1399,7 +1399,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Funk', 'P-Funk'],
     title: 'Bootsy Collins releases "Ahh...The Name Is Bootsy, Baby!"',
     description:
-      'Cincinnati native Bootsy Collins releases "Ahh...The Name Is Bootsy, Baby!" with his Rubber Band, cementing his status as funk\'s most flamboyant and inventive bassist. After apprenticing with James Brown\'s JBs as a teenager and co-creating Parliament-Funkadelic\'s sound with George Clinton, Bootsy channels his star-shaped bass and space-cowboy persona into solo funk anthems that define the genre\'s joyful, theatrical side.',
+      "Cincinnati native Bootsy Collins releases \"Ahh...The Name Is Bootsy, Baby!\" with his Rubber Band, cementing his status as funk's most flamboyant and inventive bassist. After apprenticing with James Brown's JBs as a teenager and co-creating Parliament-Funkadelic's sound with George Clinton, Bootsy channels his star-shaped bass and space-cowboy persona into solo funk anthems that define the genre's joyful, theatrical side.",
     tags: [
       'bootsy collins',
       'rubber band',
@@ -1422,7 +1422,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Funk', 'Soul', 'Disco', 'Jazz Fusion'],
     title: 'Earth, Wind & Fire reach their creative and commercial peak',
     description:
-      'Earth, Wind & Fire release "That\'s the Way of the World" and its soundtrack album, reaching the pinnacle of their Los Angeles-based fusion of funk, soul, jazz, and Afro-Brazilian rhythms. Maurice White\'s vision of spiritually uplifting funk — featuring Philip Bailey\'s soaring falsetto, the Phoenix Horns, and elaborate stage shows with levitation and pyrotechnics — makes EWF one of the best-selling acts of the 1970s and the gold standard for orchestral funk.',
+      "Earth, Wind & Fire release \"That's the Way of the World\" and its soundtrack album, reaching the pinnacle of their Los Angeles-based fusion of funk, soul, jazz, and Afro-Brazilian rhythms. Maurice White's vision of spiritually uplifting funk — featuring Philip Bailey's soaring falsetto, the Phoenix Horns, and elaborate stage shows with levitation and pyrotechnics — makes EWF one of the best-selling acts of the 1970s and the gold standard for orchestral funk.",
     tags: [
       'earth wind and fire',
       'maurice white',
@@ -1555,7 +1555,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Funk', 'Electro-Funk'],
     title: 'Cameo release "Word Up!"',
     description:
-      'New York City\'s Cameo release "Word Up!", a global smash that becomes one of the defining funk songs of the 1980s. Larry Blackmon\'s distinctive baritone, the codpiece, and the band\'s fusion of classic funk with synth-heavy electro production creates a blueprint for late-80s funk-pop. The song tops charts worldwide and proves that funk can evolve with the times without losing its essential groove.',
+      "New York City's Cameo release \"Word Up!\", a global smash that becomes one of the defining funk songs of the 1980s. Larry Blackmon's distinctive baritone, the codpiece, and the band's fusion of classic funk with synth-heavy electro production creates a blueprint for late-80s funk-pop. The song tops charts worldwide and proves that funk can evolve with the times without losing its essential groove.",
     tags: [
       'cameo',
       'word up',
@@ -1649,7 +1649,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Funk', 'R&B'],
     title: 'Lakeside release "Fantastic Voyage"',
     description:
-      'Dayton\'s Lakeside release "Fantastic Voyage", a smooth funk anthem that becomes their signature hit and further cements Dayton, Ohio\'s reputation as funk\'s heartland. The nine-piece band\'s polished, groove-heavy sound represents the sophisticated side of Dayton funk, complementing the rawer approach of their Ohio neighbors Zapp and the Ohio Players. Coolio later samples the song for his 1994 hip-hop hit of the same name.',
+      "Dayton's Lakeside release \"Fantastic Voyage\", a smooth funk anthem that becomes their signature hit and further cements Dayton, Ohio's reputation as funk's heartland. The nine-piece band's polished, groove-heavy sound represents the sophisticated side of Dayton funk, complementing the rawer approach of their Ohio neighbors Zapp and the Ohio Players. Coolio later samples the song for his 1994 hip-hop hit of the same name.",
     tags: [
       'lakeside',
       'fantastic voyage',
@@ -1759,7 +1759,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     year: 1967,
     location: { lat: 35.1495, lng: -90.049, city: 'Memphis', country: 'US' },
     genre: ['Funk', 'Soul', 'R&B'],
-    title: 'The Bar-Kays emerge as Stax Records\' funk powerhouse',
+    title: "The Bar-Kays emerge as Stax Records' funk powerhouse",
     description:
       'Memphis\'s Bar-Kays release "Soul Finger" and become Otis Redding\'s backing band at Stax Records, bringing a youthful, funky energy to the Memphis soul sound. Tragedy strikes when most of the band perishes in the December 1967 plane crash that also kills Redding. The surviving members rebuild and evolve into one of the hardest funk bands of the 1970s and 80s, bridging Stax soul and the emerging funk era.',
     tags: [
@@ -1876,7 +1876,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Funk', 'Disco', 'R&B'],
     title: 'Nile Rodgers & Chic release "Le Freak"',
     description:
-      'Nile Rodgers and Bernard Edwards release "Le Freak" with Chic, which becomes the best-selling single in Atlantic Records\' history. Rodgers\'s razor-sharp rhythm guitar and Edwards\'s melodic bass create a sophisticated, groove-driven sound that bridges funk and disco. Rodgers goes on to become one of the most influential producers in pop history, shaping hits for David Bowie, Madonna, and Daft Punk, all built on the funk foundation he forged with Chic.',
+      "Nile Rodgers and Bernard Edwards release \"Le Freak\" with Chic, which becomes the best-selling single in Atlantic Records' history. Rodgers's razor-sharp rhythm guitar and Edwards's melodic bass create a sophisticated, groove-driven sound that bridges funk and disco. Rodgers goes on to become one of the most influential producers in pop history, shaping hits for David Bowie, Madonna, and Daft Punk, all built on the funk foundation he forged with Chic.",
     tags: [
       'nile rodgers',
       'chic',
@@ -1929,7 +1929,12 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-sam-cooke-la-1964',
     year: 1964,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Soul'],
     title: 'Sam Cooke records "A Change Is Gonna Come"',
     description:
@@ -1967,7 +1972,12 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-aretha-franklin-muscle-shoals-1967',
     year: 1967,
-    location: { lat: 34.7448, lng: -87.6676, city: 'Muscle Shoals', country: 'US' },
+    location: {
+      lat: 34.7448,
+      lng: -87.6676,
+      city: 'Muscle Shoals',
+      country: 'US',
+    },
     genre: ['Soul', 'R&B'],
     title: 'Aretha Franklin records "I Never Loved a Man" at FAME Studios',
     description:
@@ -1990,7 +2000,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     genre: ['Soul', 'R&B'],
     title: 'Marvin Gaye releases "What\'s Going On"',
     description:
-      'Defying Berry Gordy\'s wishes, Marvin Gaye releases "What\'s Going On" — a seamlessly flowing concept album addressing Vietnam, poverty, ecology, and racial injustice. Recorded at Hitsville U.S.A. and United Sound Systems in Detroit, it transforms Motown from a singles factory into a vehicle for artistic vision, proving that Black popular music could be as conceptually ambitious as any art form. The album\'s influence echoes through Stevie Wonder, Prince, Kendrick Lamar, and beyond.',
+      "Defying Berry Gordy's wishes, Marvin Gaye releases \"What's Going On\" — a seamlessly flowing concept album addressing Vietnam, poverty, ecology, and racial injustice. Recorded at Hitsville U.S.A. and United Sound Systems in Detroit, it transforms Motown from a singles factory into a vehicle for artistic vision, proving that Black popular music could be as conceptually ambitious as any art form. The album's influence echoes through Stevie Wonder, Prince, Kendrick Lamar, and beyond.",
     tags: [
       'marvin gaye',
       'whats going on',
@@ -2007,9 +2017,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
     year: 1972,
     location: { lat: 35.1495, lng: -90.049, city: 'Memphis', country: 'US' },
     genre: ['Soul', 'R&B'],
-    title: 'Al Green and Hi Records define Memphis soul\'s second act',
+    title: "Al Green and Hi Records define Memphis soul's second act",
     description:
-      'Al Green releases "Let\'s Stay Together" on Hi Records, produced by Willie Mitchell at Royal Studios in Memphis. Green\'s impossibly tender falsetto over Mitchell\'s warm, understated arrangements — all tremolo guitar, lush strings, and the Hi Rhythm Section\'s locked-in groove — creates the most seductive soul music ever recorded. The album sells over four million copies and establishes Memphis as a soul capital beyond Stax.',
+      "Al Green releases \"Let's Stay Together\" on Hi Records, produced by Willie Mitchell at Royal Studios in Memphis. Green's impossibly tender falsetto over Mitchell's warm, understated arrangements — all tremolo guitar, lush strings, and the Hi Rhythm Section's locked-in groove — creates the most seductive soul music ever recorded. The album sells over four million copies and establishes Memphis as a soul capital beyond Stax.",
     tags: [
       'al green',
       'lets stay together',

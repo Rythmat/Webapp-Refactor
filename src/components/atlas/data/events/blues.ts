@@ -275,7 +275,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
     genre: ['Chicago Blues', 'Electric Blues'],
     title: "Howlin' Wolf dominates the Chess Records roster",
     description:
-      "Howlin' Wolf (Chester Burnett), with his massive frame, otherworldly howl, and ferocious stage presence, records a string of Chess Records classics including \"Smokestack Lightnin'\" and \"Evil.\" His raw, primal power — rooted in Charley Patton's Delta tradition — stands in dramatic contrast to Muddy Waters' smoother style, creating a rivalry that pushes both artists to greatness and defines the Chicago blues sound.",
+      'Howlin\' Wolf (Chester Burnett), with his massive frame, otherworldly howl, and ferocious stage presence, records a string of Chess Records classics including "Smokestack Lightnin\'" and "Evil." His raw, primal power — rooted in Charley Patton\'s Delta tradition — stands in dramatic contrast to Muddy Waters\' smoother style, creating a rivalry that pushes both artists to greatness and defines the Chicago blues sound.',
     tags: [
       'howlin wolf',
       'chess records',
@@ -390,11 +390,16 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-blues-la-1968-taj',
     year: 1968,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Blues', 'World Blues'],
     title: 'Taj Mahal releases his self-titled debut',
     description:
-      'Taj Mahal\'s debut album reimagines acoustic and electric blues through a lens informed by Caribbean, African, and Hawaiian music. Born Henry Saint Clair Fredericks, his deep scholarship of blues history and willingness to explore its global roots opens a path for world-blues fusion that artists like Ry Cooder and Ben Harper will follow.',
+      "Taj Mahal's debut album reimagines acoustic and electric blues through a lens informed by Caribbean, African, and Hawaiian music. Born Henry Saint Clair Fredericks, his deep scholarship of blues history and willingness to explore its global roots opens a path for world-blues fusion that artists like Ry Cooder and Ben Harper will follow.",
     tags: [
       'taj mahal',
       'debut album',
@@ -407,7 +412,12 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-blues-la-1994-keb',
     year: 1994,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Blues', 'Acoustic Blues'],
     title: "Keb' Mo' releases his self-titled debut",
     description:
@@ -475,7 +485,12 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-blues-statesboro-1928',
     year: 1928,
-    location: { lat: 32.4488, lng: -81.7832, city: 'Statesboro', country: 'US' },
+    location: {
+      lat: 32.4488,
+      lng: -81.7832,
+      city: 'Statesboro',
+      country: 'US',
+    },
     genre: ['Blues', 'Piedmont Blues'],
     title: 'Blind Willie McTell records "Statesboro Blues"',
     description:
@@ -550,7 +565,12 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-blues-nola-1968',
     year: 1968,
-    location: { lat: 29.9511, lng: -90.0715, city: 'New Orleans', country: 'US' },
+    location: {
+      lat: 29.9511,
+      lng: -90.0715,
+      city: 'New Orleans',
+      country: 'US',
+    },
     genre: ['Blues', 'Psychedelic', 'New Orleans R&B'],
     title: 'Dr. John releases "Gris-Gris"',
     description:
@@ -585,7 +605,12 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-blues-la-1952-thornton',
     year: 1952,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Blues', 'R&B'],
     title: 'Big Mama Thornton records "Hound Dog"',
     description:
@@ -646,7 +671,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
     genre: ['Blues', 'Delta Blues'],
     title: 'Charley Patton lays the foundation of Delta blues',
     description:
-      'Charley Patton records his first sessions for Paramount Records, capturing the rough, impassioned style he developed on Will Dockery\'s plantation in the Mississippi Delta. His percussive guitar attack, gravelly voice, and showmanship — playing guitar behind his head and between his legs — establish the Delta blues archetype. Patton directly mentors Son House and Howlin\' Wolf, making him the founding figure of the tradition that produces Robert Johnson, Muddy Waters, and ultimately rock and roll.',
+      "Charley Patton records his first sessions for Paramount Records, capturing the rough, impassioned style he developed on Will Dockery's plantation in the Mississippi Delta. His percussive guitar attack, gravelly voice, and showmanship — playing guitar behind his head and between his legs — establish the Delta blues archetype. Patton directly mentors Son House and Howlin' Wolf, making him the founding figure of the tradition that produces Robert Johnson, Muddy Waters, and ultimately rock and roll.",
     tags: [
       'charley patton',
       'delta blues',
@@ -696,11 +721,16 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-blues-hollysprings-1996',
     year: 1996,
-    location: { lat: 34.7676, lng: -89.4484, city: 'Holly Springs', country: 'US' },
+    location: {
+      lat: 34.7676,
+      lng: -89.4484,
+      city: 'Holly Springs',
+      country: 'US',
+    },
     genre: ['Blues', 'Hill Country Blues', 'Punk Blues'],
     title: 'R.L. Burnside releases "A Ass Pocket of Whiskey"',
     description:
-      'R.L. Burnside collaborates with Jon Spencer Blues Explosion on "A Ass Pocket of Whiskey," recorded at Junior Kimbrough\'s juke joint in Chulahoma, Mississippi. The album fuses raw hill country blues with punk-rock energy, introducing Burnside\'s hypnotic, drone-heavy style to indie rock audiences. Fat Possum Records\' championing of aging Mississippi bluesmen like Burnside creates an unlikely bridge between the deepest rural blues and 1990s alternative culture.',
+      "R.L. Burnside collaborates with Jon Spencer Blues Explosion on \"A Ass Pocket of Whiskey,\" recorded at Junior Kimbrough's juke joint in Chulahoma, Mississippi. The album fuses raw hill country blues with punk-rock energy, introducing Burnside's hypnotic, drone-heavy style to indie rock audiences. Fat Possum Records' championing of aging Mississippi bluesmen like Burnside creates an unlikely bridge between the deepest rural blues and 1990s alternative culture.",
     tags: [
       'rl burnside',
       'fat possum',
@@ -714,7 +744,12 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-blues-hollysprings-1992',
     year: 1992,
-    location: { lat: 34.7676, lng: -89.4484, city: 'Holly Springs', country: 'US' },
+    location: {
+      lat: 34.7676,
+      lng: -89.4484,
+      city: 'Holly Springs',
+      country: 'US',
+    },
     genre: ['Blues', 'Hill Country Blues'],
     title: 'Junior Kimbrough and the juke joint blues tradition',
     description:
@@ -790,7 +825,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
     genre: ['Blues', 'Texas Blues'],
     title: "Lightnin' Hopkins begins his prolific recording career",
     description:
-      "Sam \"Lightnin'\" Hopkins begins recording in Houston, launching one of the most prolific careers in blues history — over 800 songs across his lifetime. His loose, conversational guitar style, improvised lyrics commenting on everyday life, and ability to record for virtually any label that asks make him the quintessential Texas blues troubadour. Hopkins proves that one man with a guitar and a story to tell is the irreducible core of the blues.",
+      'Sam "Lightnin\'" Hopkins begins recording in Houston, launching one of the most prolific careers in blues history — over 800 songs across his lifetime. His loose, conversational guitar style, improvised lyrics commenting on everyday life, and ability to record for virtually any label that asks make him the quintessential Texas blues troubadour. Hopkins proves that one man with a guitar and a story to tell is the irreducible core of the blues.',
     tags: [
       'lightnin hopkins',
       'houston',

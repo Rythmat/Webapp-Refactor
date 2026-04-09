@@ -629,9 +629,15 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-skrillex-la-2010',
     year: 2010,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Dubstep', 'EDM', 'Electronic'],
-    title: 'Skrillex\'s "Scary Monsters and Nice Sprites" detonates American dubstep',
+    title:
+      'Skrillex\'s "Scary Monsters and Nice Sprites" detonates American dubstep',
     description:
       'Sonny Moore, formerly of post-hardcore band From First to Last, releases the "Scary Monsters and Nice Sprites" EP under the name Skrillex, bringing aggressive, bass-heavy dubstep to American mainstream audiences. The EP\'s filthy wobble bass and maximalist drops win three Grammys and ignite the brostep phenomenon, making EDM a stadium-scale cultural force in the US.',
     tags: [
@@ -648,7 +654,12 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-flying-lotus-la-2010',
     year: 2010,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Electronic', 'Experimental Hip-Hop'],
     title: 'Flying Lotus releases "Cosmogramma" and expands the LA beat scene',
     description:
@@ -688,9 +699,9 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
     year: 2011,
     location: { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
     genre: ['Electronic', 'Post-Dubstep'],
-    title: 'James Blake\'s self-titled debut invents post-dubstep soul',
+    title: "James Blake's self-titled debut invents post-dubstep soul",
     description:
-      'James Blake releases his self-titled debut album, stripping dubstep\'s bass weight down to skeletal piano, Auto-Tuned vocals, and cavernous silence. The album redefines what electronic music can be — intimate, vulnerable, and song-driven. Blake\'s fusion of UK bass culture with classical training and soul singing opens doors for artists like Bon Iver, Frank Ocean, and Mount Kimbie.',
+      "James Blake releases his self-titled debut album, stripping dubstep's bass weight down to skeletal piano, Auto-Tuned vocals, and cavernous silence. The album redefines what electronic music can be — intimate, vulnerable, and song-driven. Blake's fusion of UK bass culture with classical training and soul singing opens doors for artists like Bon Iver, Frank Ocean, and Mount Kimbie.",
     tags: [
       'james blake',
       'post-dubstep',
@@ -705,11 +716,16 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-flume-sydney-2012',
     year: 2012,
-    location: { lat: -33.8688, lng: 151.2093, city: 'Sydney', country: 'Australia' },
+    location: {
+      lat: -33.8688,
+      lng: 151.2093,
+      city: 'Sydney',
+      country: 'Australia',
+    },
     genre: ['Electronic', 'Future Bass'],
-    title: 'Flume\'s self-titled debut launches future bass from Sydney',
+    title: "Flume's self-titled debut launches future bass from Sydney",
     description:
-      'Nineteen-year-old Harley Streten releases his self-titled debut as Flume after winning a producer competition, and the album goes platinum in Australia. His glitchy, textured production — built on chopped vocal samples, massive synth washes, and hip-hop rhythms — defines the future bass genre and puts Australian electronic music on the global map alongside the country\'s thriving festival scene.',
+      "Nineteen-year-old Harley Streten releases his self-titled debut as Flume after winning a producer competition, and the album goes platinum in Australia. His glitchy, textured production — built on chopped vocal samples, massive synth washes, and hip-hop rhythms — defines the future bass genre and puts Australian electronic music on the global map alongside the country's thriving festival scene.",
     tags: [
       'flume',
       'future bass',
@@ -723,9 +739,15 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-nina-kraviz-irkutsk-2012',
     year: 2012,
-    location: { lat: 52.2978, lng: 104.2964, city: 'Irkutsk', country: 'Russia' },
+    location: {
+      lat: 52.2978,
+      lng: 104.2964,
+      city: 'Irkutsk',
+      country: 'Russia',
+    },
     genre: ['Techno', 'Acid House', 'Electronic'],
-    title: 'Nina Kraviz releases debut album, bringing Siberian techno to the world',
+    title:
+      'Nina Kraviz releases debut album, bringing Siberian techno to the world',
     description:
       'Born in Irkutsk, Siberia, Nina Kraviz releases her self-titled debut album on Rekids, blending raw acid house, deep techno, and soulful vocals into an intensely personal statement. Her трип (trip) label and fearless DJ sets — spanning from 150 BPM acid to delicate ambient — make her one of the most distinctive voices in global techno, connecting Siberia to Berlin and beyond.',
     tags: [
@@ -801,7 +823,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
     year: 2015,
     location: { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
     genre: ['Electronic', 'UK Dance'],
-    title: 'Jamie xx\'s "In Colour" distills UK dance history into a modern classic',
+    title:
+      'Jamie xx\'s "In Colour" distills UK dance history into a modern classic',
     description:
       'Jamie Smith of The xx releases "In Colour," a solo album that filters three decades of UK dance music — rave, jungle, garage, dancehall — through a minimalist pop sensibility. "Loud Places" featuring Romy becomes a generational anthem of euphoria, and the album\'s steel drum textures and found-sound approach influence a wave of UK producers blending nostalgia with innovation.',
     tags: [
@@ -844,7 +867,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
     year: 2017,
     location: { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
     genre: ['Electronic', 'House', 'Ambient'],
-    title: 'Four Tet\'s "New Energy" crystallizes a decade of genre-defying electronic music',
+    title:
+      'Four Tet\'s "New Energy" crystallizes a decade of genre-defying electronic music',
     description:
       'Kieran Hebden releases "New Energy" as Four Tet, blending South Asian samples, minimalist techno, ambient textures, and folktronica into a radiant album that defies categorization. A beloved figure in London\'s electronic underground since the early 2000s, Four Tet\'s genre-agnostic approach — DJing at Brixton Academy one night and releasing on Text Records the next — makes him a lodestar for producers seeking to dissolve genre boundaries.',
     tags: [
@@ -861,7 +885,12 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-peggy-gou-seoul-2018',
     year: 2018,
-    location: { lat: 37.5665, lng: 126.978, city: 'Seoul', country: 'South Korea' },
+    location: {
+      lat: 37.5665,
+      lng: 126.978,
+      city: 'Seoul',
+      country: 'South Korea',
+    },
     genre: ['House', 'Techno', 'Electronic'],
     title: 'Peggy Gou puts Korean electronic music on the global map',
     description:
@@ -882,9 +911,10 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
     year: 2018,
     location: { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
     genre: ['Electronic', 'Hyperpop', 'Experimental'],
-    title: 'SOPHIE\'s "Oil of Every Pearl\'s Un-Insides" shatters electronic music\'s boundaries',
+    title:
+      "SOPHIE's \"Oil of Every Pearl's Un-Insides\" shatters electronic music's boundaries",
     description:
-      'Scottish producer SOPHIE releases her debut album, a radical deconstruction of pop and electronic music that bends synthetic sounds into shapes never heard before — latex-snap percussion, helium vocals, and industrial bass that somehow resolves into euphoric beauty. The album earns a Grammy nomination and becomes a foundational text for hyperpop and experimental pop, while SOPHIE\'s visibility as a trans artist reshapes electronic music\'s cultural landscape.',
+      "Scottish producer SOPHIE releases her debut album, a radical deconstruction of pop and electronic music that bends synthetic sounds into shapes never heard before — latex-snap percussion, helium vocals, and industrial bass that somehow resolves into euphoric beauty. The album earns a Grammy nomination and becomes a foundational text for hyperpop and experimental pop, while SOPHIE's visibility as a trans artist reshapes electronic music's cultural landscape.",
     tags: [
       'sophie',
       'hyperpop',
@@ -901,7 +931,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
     year: 2019,
     location: { lat: 53.4808, lng: -2.2426, city: 'Manchester', country: 'UK' },
     genre: ['Electronic', 'Ambient', 'Jazz'],
-    title: 'Floating Points\' "Crush" bridges neuroscience and electronic ecstasy',
+    title:
+      'Floating Points\' "Crush" bridges neuroscience and electronic ecstasy',
     description:
       'Sam Shepherd — a neuroscientist and producer from Manchester — releases "Crush" as Floating Points, an album of explosive, granular electronic music that ranges from delicate ambient passages to overwhelming dancefloor crescendos. His later collaboration with Pharoah Sanders on "Promises" is hailed as one of the greatest albums of the decade, bridging electronic music and spiritual jazz.',
     tags: [
@@ -920,9 +951,10 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
     year: 2019,
     location: { lat: 51.0543, lng: 3.7174, city: 'Ghent', country: 'Belgium' },
     genre: ['Techno', 'Electronic'],
-    title: 'Charlotte de Witte\'s "Formula EP" and the rise of Belgian hard techno',
+    title:
+      'Charlotte de Witte\'s "Formula EP" and the rise of Belgian hard techno',
     description:
-      'Ghent-born DJ Charlotte de Witte releases the "Formula EP" on her KNTXT label, cementing her position as one of techno\'s most powerful artists. Her relentless, dark, industrial-tinged sets at festivals from Tomorrowland to Awakenings draw massive crowds, and she becomes the first woman to close Tomorrowland\'s mainstage — a milestone in electronic music\'s ongoing reckoning with gender imbalance.',
+      "Ghent-born DJ Charlotte de Witte releases the \"Formula EP\" on her KNTXT label, cementing her position as one of techno's most powerful artists. Her relentless, dark, industrial-tinged sets at festivals from Tomorrowland to Awakenings draw massive crowds, and she becomes the first woman to close Tomorrowland's mainstage — a milestone in electronic music's ongoing reckoning with gender imbalance.",
     tags: [
       'charlotte de witte',
       'kntxt',
@@ -937,7 +969,12 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-arca-kick-2020',
     year: 2020,
-    location: { lat: 10.4806, lng: -66.9036, city: 'Caracas', country: 'Venezuela' },
+    location: {
+      lat: 10.4806,
+      lng: -66.9036,
+      city: 'Caracas',
+      country: 'Venezuela',
+    },
     genre: ['Electronic', 'Experimental', 'Reggaeton'],
     title: 'Arca\'s "KiCk i" fuses Latin music with avant-garde electronics',
     description:

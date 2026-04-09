@@ -809,7 +809,12 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-portsmouth-1997-missyelliott',
     year: 1997,
-    location: { lat: 36.8354, lng: -76.2983, city: 'Portsmouth', country: 'US' },
+    location: {
+      lat: 36.8354,
+      lng: -76.2983,
+      city: 'Portsmouth',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'R&B', 'Rap'],
     title: 'Missy Elliott releases "Supa Dupa Fly"',
     description:
@@ -832,7 +837,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
     genre: ['Hip Hop', 'Hardcore Rap'],
     title: 'Lil\' Kim releases "Hard Core"',
     description:
-      'Brooklyn\'s Lil\' Kim releases her debut album "Hard Core," a groundbreaking statement of female sexual agency in hip hop. Mentored by The Notorious B.I.G., Kim\'s explicit lyricism, luxury fashion aesthetic, and unapologetic attitude shatter conventions for women in rap and influence generations of female MCs from Nicki Minaj to Cardi B.',
+      "Brooklyn's Lil' Kim releases her debut album \"Hard Core,\" a groundbreaking statement of female sexual agency in hip hop. Mentored by The Notorious B.I.G., Kim's explicit lyricism, luxury fashion aesthetic, and unapologetic attitude shatter conventions for women in rap and influence generations of female MCs from Nicki Minaj to Cardi B.",
     tags: [
       'lil kim',
       'hard core',
@@ -847,7 +852,12 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-philly-1999-eve',
     year: 1999,
-    location: { lat: 39.9526, lng: -75.1652, city: 'Philadelphia', country: 'US' },
+    location: {
+      lat: 39.9526,
+      lng: -75.1652,
+      city: 'Philadelphia',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'Rap'],
     title: 'Eve releases "Let There Be Eve...Ruff Ryders\' First Lady"',
     description:
@@ -865,7 +875,12 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-nyc-2010-nickiminaj',
     year: 2010,
-    location: { lat: 40.7128, lng: -74.006, city: 'New York City', country: 'US' },
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      city: 'New York City',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'Pop Rap'],
     title: 'Nicki Minaj releases "Pink Friday"',
     description:
@@ -979,11 +994,16 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-philly-2018-tierrawhack',
     year: 2018,
-    location: { lat: 39.9526, lng: -75.1652, city: 'Philadelphia', country: 'US' },
+    location: {
+      lat: 39.9526,
+      lng: -75.1652,
+      city: 'Philadelphia',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'Alternative Hip Hop', 'Experimental'],
     title: 'Tierra Whack releases "Whack World"',
     description:
-      'Philadelphia\'s Tierra Whack releases "Whack World," a wildly inventive 15-track audiovisual album where every song is exactly one minute long. The project\'s playful genre-hopping, surreal visuals, and DIY creativity earn universal acclaim and position Whack as hip hop\'s most imaginative conceptualist — a fitting heir to Philly\'s tradition of boundary-pushing artists.',
+      "Philadelphia's Tierra Whack releases \"Whack World,\" a wildly inventive 15-track audiovisual album where every song is exactly one minute long. The project's playful genre-hopping, surreal visuals, and DIY creativity earn universal acclaim and position Whack as hip hop's most imaginative conceptualist — a fitting heir to Philly's tradition of boundary-pushing artists.",
     tags: [
       'tierra whack',
       'whack world',
@@ -1019,11 +1039,16 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-la-1991-cypresshill',
     year: 1991,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'West Coast Hip Hop', 'Latin Hip Hop'],
     title: 'Cypress Hill releases self-titled debut',
     description:
-      'South Gate, Los Angeles group Cypress Hill — B-Real, Sen Dog, and DJ Muggs — release their self-titled debut, blending Latin identity with West Coast hip hop and stoner culture. The Cuban-American and Mexican-American trio\'s nasal flows, dark production, and bilingual swagger create a unique lane in hip hop and make them the first Latino group to achieve multi-platinum sales in rap.',
+      "South Gate, Los Angeles group Cypress Hill — B-Real, Sen Dog, and DJ Muggs — release their self-titled debut, blending Latin identity with West Coast hip hop and stoner culture. The Cuban-American and Mexican-American trio's nasal flows, dark production, and bilingual swagger create a unique lane in hip hop and make them the first Latino group to achieve multi-platinum sales in rap.",
     tags: [
       'cypress hill',
       'b-real',
@@ -1080,7 +1105,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
     genre: ['Hip Hop', 'Latin Hip Hop', 'Crunk'],
     title: 'Pitbull releases "M.I.A.M.I."',
     description:
-      'Cuban-American rapper Pitbull (Armando Christian Pérez) releases his debut "M.I.A.M.I. (Money Is A Major Issue)," blending Miami bass, crunk, and reggaeton with bilingual English-Spanish flows. Rising from Miami\'s Little Havana neighborhood, Pitbull represents the city\'s Latino hip hop identity and eventually becomes one of the best-selling Latin artists of all time, taking Miami\'s party-driven sound global.',
+      "Cuban-American rapper Pitbull (Armando Christian Pérez) releases his debut \"M.I.A.M.I. (Money Is A Major Issue),\" blending Miami bass, crunk, and reggaeton with bilingual English-Spanish flows. Rising from Miami's Little Havana neighborhood, Pitbull represents the city's Latino hip hop identity and eventually becomes one of the best-selling Latin artists of all time, taking Miami's party-driven sound global.",
     tags: [
       'pitbull',
       'miami',
@@ -1154,11 +1179,16 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-philly-1999-theroots',
     year: 1999,
-    location: { lat: 39.9526, lng: -75.1652, city: 'Philadelphia', country: 'US' },
+    location: {
+      lat: 39.9526,
+      lng: -75.1652,
+      city: 'Philadelphia',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'Jazz Rap', 'Conscious Rap'],
     title: 'The Roots release "Things Fall Apart"',
     description:
-      'Philadelphia\'s The Roots, led by MC Black Thought and drummer Questlove, release "Things Fall Apart," their commercial and artistic breakthrough. As hip hop\'s premier live band, The Roots prove that rap can be performed with real instruments at the highest level, blending jazz, soul, and funk into a sound that earns them the role of house band on The Tonight Show and cements Black Thought\'s reputation as one of rap\'s greatest lyricists.',
+      "Philadelphia's The Roots, led by MC Black Thought and drummer Questlove, release \"Things Fall Apart,\" their commercial and artistic breakthrough. As hip hop's premier live band, The Roots prove that rap can be performed with real instruments at the highest level, blending jazz, soul, and funk into a sound that earns them the role of house band on The Tonight Show and cements Black Thought's reputation as one of rap's greatest lyricists.",
     tags: [
       'the roots',
       'black thought',
@@ -1175,9 +1205,15 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-longisland-1988-publicenemy',
     year: 1988,
-    location: { lat: 40.7891, lng: -73.1350, city: 'Long Island', country: 'US' },
+    location: {
+      lat: 40.7891,
+      lng: -73.135,
+      city: 'Long Island',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'Political Rap'],
-    title: 'Public Enemy releases "It Takes a Nation of Millions to Hold Us Back"',
+    title:
+      'Public Enemy releases "It Takes a Nation of Millions to Hold Us Back"',
     description:
       'Long Island\'s Public Enemy — Chuck D, Flavor Flav, and the Bomb Squad production team — release "It Takes a Nation of Millions to Hold Us Back," widely regarded as the most important political rap album ever made. Its dense, sample-heavy sonic assault and Chuck D\'s booming sociopolitical commentary transform hip hop into a vehicle for Black revolutionary thought.',
     tags: [
@@ -1255,7 +1291,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
     genre: ['Hip Hop', 'West Coast Hip Hop', 'Conscious Rap'],
     title: 'Kendrick Lamar releases "good kid, m.A.A.d city"',
     description:
-      'Compton\'s Kendrick Lamar releases "good kid, m.A.A.d city," a cinematic coming-of-age narrative set in the same streets that birthed N.W.A. two decades earlier. The album\'s literary ambition, technical virtuosity, and unflinching honesty mark Lamar as hip hop\'s most important new voice, beginning a run of albums that will earn him a Pulitzer Prize — the first non-classical, non-jazz musician to win the award.',
+      "Compton's Kendrick Lamar releases \"good kid, m.A.A.d city,\" a cinematic coming-of-age narrative set in the same streets that birthed N.W.A. two decades earlier. The album's literary ambition, technical virtuosity, and unflinching honesty mark Lamar as hip hop's most important new voice, beginning a run of albums that will earn him a Pulitzer Prize — the first non-classical, non-jazz musician to win the award.",
     tags: [
       'kendrick lamar',
       'good kid maad city',
@@ -1270,7 +1306,12 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-toronto-2011-drake',
     year: 2011,
-    location: { lat: 43.6532, lng: -79.3832, city: 'Toronto', country: 'Canada' },
+    location: {
+      lat: 43.6532,
+      lng: -79.3832,
+      city: 'Toronto',
+      country: 'Canada',
+    },
     genre: ['Hip Hop', 'R&B', 'Pop Rap'],
     title: 'Drake releases "Take Care"',
     description:
@@ -1289,7 +1330,12 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-la-2019-tylerthecreator',
     year: 2019,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'Alternative Hip Hop', 'Neo Soul'],
     title: 'Tyler, the Creator releases "IGOR"',
     description:
@@ -1308,11 +1354,16 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-fayetteville-2014-jcole',
     year: 2014,
-    location: { lat: 35.0527, lng: -78.8784, city: 'Fayetteville', country: 'US' },
+    location: {
+      lat: 35.0527,
+      lng: -78.8784,
+      city: 'Fayetteville',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'Conscious Rap'],
     title: 'J. Cole releases "2014 Forest Hills Drive"',
     description:
-      'Fayetteville, North Carolina\'s Jermaine Cole releases "2014 Forest Hills Drive" — named after the address of his childhood home — with no features and no singles, yet it debuts at number one. The album\'s introspective, narrative-driven approach proves that lyrical, substance-first hip hop can thrive commercially in the streaming era, making Cole one of rap\'s biggest stars on his own terms.',
+      "Fayetteville, North Carolina's Jermaine Cole releases \"2014 Forest Hills Drive\" — named after the address of his childhood home — with no features and no singles, yet it debuts at number one. The album's introspective, narrative-driven approach proves that lyrical, substance-first hip hop can thrive commercially in the streaming era, making Cole one of rap's biggest stars on his own terms.",
     tags: [
       'j cole',
       '2014 forest hills drive',
@@ -1327,7 +1378,12 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-neworleans-2008-lilwayne',
     year: 2008,
-    location: { lat: 29.9511, lng: -90.0715, city: 'New Orleans', country: 'US' },
+    location: {
+      lat: 29.9511,
+      lng: -90.0715,
+      city: 'New Orleans',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'Southern Hip Hop', 'Pop Rap'],
     title: 'Lil Wayne releases "Tha Carter III"',
     description:
@@ -1403,11 +1459,16 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-statenisland-1993-wutang',
     year: 1993,
-    location: { lat: 40.5795, lng: -74.1502, city: 'Staten Island', country: 'US' },
+    location: {
+      lat: 40.5795,
+      lng: -74.1502,
+      city: 'Staten Island',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'East Coast Rap', 'Hardcore Rap'],
     title: 'Wu-Tang Clan releases "Enter the Wu-Tang (36 Chambers)"',
     description:
-      'Nine MCs from Staten Island\'s Shaolin (as they rename it) release "Enter the Wu-Tang (36 Chambers)," a raw, kung-fu-sampling masterpiece produced by the RZA. The Wu-Tang Clan\'s revolutionary business model — allowing members to sign solo deals with different labels — and their gritty, cinematic sound reshape the hip hop industry and spawn one of the culture\'s most enduring empires.',
+      "Nine MCs from Staten Island's Shaolin (as they rename it) release \"Enter the Wu-Tang (36 Chambers),\" a raw, kung-fu-sampling masterpiece produced by the RZA. The Wu-Tang Clan's revolutionary business model — allowing members to sign solo deals with different labels — and their gritty, cinematic sound reshape the hip hop industry and spawn one of the culture's most enduring empires.",
     tags: [
       'wu-tang clan',
       'rza',
@@ -1441,7 +1502,12 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-hiphop-la-2004-mfdoom',
     year: 2004,
-    location: { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'US' },
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Hip Hop', 'Abstract Hip Hop', 'Underground Hip Hop'],
     title: 'MF DOOM & Madlib release "Madvillainy"',
     description:
@@ -1464,7 +1530,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
     genre: ['Hip Hop', 'Gospel Rap', 'Pop Rap'],
     title: 'Chance the Rapper releases "Coloring Book"',
     description:
-      'Chicago\'s Chance the Rapper releases "Coloring Book," the first streaming-only album to win a Grammy (Best Rap Album). Infused with gospel choirs, jazz horns, and South Side Chicago joy, the mixtape proves that an independent artist can thrive without a label in the streaming age. Chance\'s success extends Chicago\'s hip hop legacy from Common and Kanye West into a new generation of genre-fluid, community-minded artists.',
+      "Chicago's Chance the Rapper releases \"Coloring Book,\" the first streaming-only album to win a Grammy (Best Rap Album). Infused with gospel choirs, jazz horns, and South Side Chicago joy, the mixtape proves that an independent artist can thrive without a label in the streaming age. Chance's success extends Chicago's hip hop legacy from Common and Kanye West into a new generation of genre-fluid, community-minded artists.",
     tags: [
       'chance the rapper',
       'coloring book',

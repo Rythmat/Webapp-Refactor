@@ -129,7 +129,12 @@ function GenreBadge({ genre }: { genre: string }) {
   const navigate = useNavigate();
   const course = mapGenreToCourse(genre);
 
-  const nonCurriculumGenres = ['Classical', 'Film Scoring', 'Musical Theatre', 'Jingles'];
+  const nonCurriculumGenres = [
+    'Classical',
+    'Film Scoring',
+    'Musical Theatre',
+    'Jingles',
+  ];
   if (course && !nonCurriculumGenres.includes(course)) {
     return (
       <button
@@ -276,26 +281,29 @@ export function DetailsCard() {
   const [width, setWidth] = useState(480);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
-  const onDragStart = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    dragRef.current = { startX: e.clientX, startWidth: width };
-    const onMove = (mv: MouseEvent) => {
-      if (!dragRef.current) return;
-      const delta = mv.clientX - dragRef.current.startX;
-      const next = Math.min(
-        Math.max(dragRef.current.startWidth + delta, 280),
-        Math.round(window.innerWidth * 0.72),
-      );
-      setWidth(next);
-    };
-    const onUp = () => {
-      dragRef.current = null;
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-    };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  }, [width]);
+  const onDragStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      dragRef.current = { startX: e.clientX, startWidth: width };
+      const onMove = (mv: MouseEvent) => {
+        if (!dragRef.current) return;
+        const delta = mv.clientX - dragRef.current.startX;
+        const next = Math.min(
+          Math.max(dragRef.current.startWidth + delta, 280),
+          Math.round(window.innerWidth * 0.72),
+        );
+        setWidth(next);
+      };
+      const onUp = () => {
+        dragRef.current = null;
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+      };
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    },
+    [width],
+  );
 
   const events = useMemo(() => {
     if (!selectedLocation) return [];

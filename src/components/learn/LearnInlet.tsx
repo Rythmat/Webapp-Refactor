@@ -1269,7 +1269,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                             setExpandedMode(itemExpandKey ?? null);
                             setSelectedSubItem(null);
                             setTimeout(() => {
-                              expandedContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              expandedContentRef.current?.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start',
+                              });
                             }, 0);
                           }
                         : undefined
@@ -1279,7 +1282,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                         setExpandedMode(itemExpandKey ?? null);
                         setSelectedSubItem(null);
                         setTimeout(() => {
-                          expandedContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          expandedContentRef.current?.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start',
+                          });
                         }, 0);
                       } else if (item.route) {
                         navigate(item.route);
@@ -1314,7 +1320,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                   ? () => {
                       setExpandedMode(itemExpandKey ?? null);
                       setTimeout(() => {
-                        expandedContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        expandedContentRef.current?.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'start',
+                        });
                       }, 0);
                     }
                   : undefined
@@ -1323,7 +1332,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                 if (item.mode || item.subItems) {
                   setExpandedMode(itemExpandKey ?? null);
                   setTimeout(() => {
-                    expandedContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    expandedContentRef.current?.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start',
+                    });
                   }, 0);
                 } else if (item.route) {
                   navigate(item.route);

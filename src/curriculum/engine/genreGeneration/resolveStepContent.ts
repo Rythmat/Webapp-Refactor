@@ -31,7 +31,9 @@ export interface StepContext {
 
 function isScaleStep(tag: string): boolean {
   return (
-    /pentatonic|blues_scale|minor_blues|dorian_scale|dorian_full|ascending|descending/.test(tag) &&
+    /pentatonic|blues_scale|minor_blues|dorian_scale|dorian_full|ascending|descending/.test(
+      tag,
+    ) &&
     !tag.includes('arpeggio') &&
     !tag.includes('arpeggiate') &&
     !tag.includes('voicing') &&
@@ -44,10 +46,7 @@ function isArpeggioStep(tag: string): boolean {
   return tag.includes('arpeggio') || tag.includes('arpeggiate');
 }
 
-function isBassScaleStep(
-  tag: string,
-  section: ActivitySectionId,
-): boolean {
+function isBassScaleStep(tag: string, section: ActivitySectionId): boolean {
   return (
     section === 'C' &&
     (tag.includes('pentatonic') ||
@@ -93,7 +92,8 @@ function generateScale(
   step: ActivityStepV2,
   ctx: StepContext,
 ): GenreNoteEvent[] {
-  const intervals = step.scaleIntervals ?? ctx.defaultScale ?? [0, 2, 3, 5, 7, 9, 10];
+  const intervals = step.scaleIntervals ??
+    ctx.defaultScale ?? [0, 2, 3, 5, 7, 9, 10];
   const tag = step.tag.toLowerCase();
   const descending = tag.includes('descending');
   const register = ctx.section === 'C' ? ctx.keyRoot - 24 : ctx.keyRoot; // bass = 2 octaves down
@@ -142,15 +142,26 @@ export function resolveStepContent(
   const tag = step.tag.toLowerCase();
 
   // Diagnostic — trace step 96 path
-  if (step.stepNumber === 96 || (step.activity && step.activity.includes('A1.1'))) {
-    console.log('[resolveStepContent TRACE]',
-      'stepNumber:', step.stepNumber,
-      '| tag:', tag,
-      '| targetNotes:', step.targetNotes?.length ?? 'none',
-      '| scaleId:', (step as any).scaleId ?? 'none',
-      '| scaleIntervals:', (step as any).scaleIntervals ?? 'none',
-      '| keyRoot:', ctx.keyRoot,
-      '| section:', ctx.section,
+  if (
+    step.stepNumber === 96 ||
+    (step.activity && step.activity.includes('A1.1'))
+  ) {
+    console.log(
+      '[resolveStepContent TRACE]',
+      'stepNumber:',
+      step.stepNumber,
+      '| tag:',
+      tag,
+      '| targetNotes:',
+      step.targetNotes?.length ?? 'none',
+      '| scaleId:',
+      (step as any).scaleId ?? 'none',
+      '| scaleIntervals:',
+      (step as any).scaleIntervals ?? 'none',
+      '| keyRoot:',
+      ctx.keyRoot,
+      '| section:',
+      ctx.section,
     );
   }
 
@@ -208,25 +219,35 @@ export function resolveStepContent(
 // DO NOT MODIFY THIS TABLE — it is the canonical enharmonic reference.
 
 export const KEY_NOTE_NAMES: Record<string, string[]> = {
-  'C':  ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
-  'Db': ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'Cb'],
-  'D':  ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
-  'Eb': ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
-  'E':  ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'],
-  'F':  ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
+  C: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
+  Db: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'Cb'],
+  D: ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
+  Eb: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
+  E: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'],
+  F: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
   'F#': ['B#', 'C#', 'D', 'D#', 'E', 'E#', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
-  'Gb': ['C', 'Db', 'D', 'Eb', 'Fb', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'Cb'],
-  'G':  ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
-  'Ab': ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
-  'A':  ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'],
-  'Bb': ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
-  'B':  ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+  Gb: ['C', 'Db', 'D', 'Eb', 'Fb', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'Cb'],
+  G: ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
+  Ab: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
+  A: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'],
+  Bb: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
+  B: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
 };
 
 // Map MIDI root number to key name
 export const MIDI_ROOT_TO_KEY: Record<number, string> = {
-  0: 'C', 1: 'Db', 2: 'D', 3: 'Eb', 4: 'E', 5: 'F',
-  6: 'F#', 7: 'G', 8: 'Ab', 9: 'A', 10: 'Bb', 11: 'B',
+  0: 'C',
+  1: 'Db',
+  2: 'D',
+  3: 'Eb',
+  4: 'E',
+  5: 'F',
+  6: 'F#',
+  7: 'G',
+  8: 'Ab',
+  9: 'A',
+  10: 'Bb',
+  11: 'B',
 };
 
 /**
@@ -240,9 +261,8 @@ export function midiToPitchName(midi: number, keyRoot?: number): string {
   const semitone = midi % 12;
   const octave = Math.floor(midi / 12) - 1;
 
-  const keyName = keyRoot !== undefined
-    ? MIDI_ROOT_TO_KEY[keyRoot % 12] ?? 'C'
-    : 'C';
+  const keyName =
+    keyRoot !== undefined ? (MIDI_ROOT_TO_KEY[keyRoot % 12] ?? 'C') : 'C';
 
   const noteNames = KEY_NOTE_NAMES[keyName] ?? KEY_NOTE_NAMES['C'];
   return `${noteNames[semitone]}${octave}`;

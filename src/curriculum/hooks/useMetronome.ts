@@ -71,7 +71,16 @@ export function useMetronome({
   // start: called from useEffect (React-driven) OR as fallback manual start.
   // Idempotent — safe to call multiple times.
   const start = useCallback(async () => {
-    console.log('[metronome] start called. running:', runningRef.current, 'transport:', Tone.getTransport().state, 'loop:', !!loopRef.current, 'synth:', !!synthRef.current);
+    console.log(
+      '[metronome] start called. running:',
+      runningRef.current,
+      'transport:',
+      Tone.getTransport().state,
+      'loop:',
+      !!loopRef.current,
+      'synth:',
+      !!synthRef.current,
+    );
     if (runningRef.current) return; // already running (prepare() was called), don't restart
     await prepare();
     if (Tone.getTransport().state !== 'started') {
@@ -94,7 +103,12 @@ export function useMetronome({
   // React-driven start/stop. The runningRef guard prevents the useEffect
   // from interfering with a manually-started metronome.
   useEffect(() => {
-    console.log('[metronome] useEffect. enabled:', enabled, 'running:', runningRef.current);
+    console.log(
+      '[metronome] useEffect. enabled:',
+      enabled,
+      'running:',
+      runningRef.current,
+    );
     if (enabled && !runningRef.current) {
       start();
     } else if (!enabled && runningRef.current) {

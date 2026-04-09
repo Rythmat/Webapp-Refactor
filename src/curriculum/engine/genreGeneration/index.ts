@@ -4,10 +4,7 @@ export {
   hasWideLeap,
 } from './voiceLeading';
 
-export type {
-  VoiceLeadingResult,
-  VoiceLeadingViolation,
-} from './voiceLeading';
+export type { VoiceLeadingResult, VoiceLeadingViolation } from './voiceLeading';
 
 export {
   resolveStepContent,
@@ -15,10 +12,7 @@ export {
   toPianoRollEvents,
 } from './resolveStepContent';
 
-export type {
-  GenreNoteEvent,
-  StepContext,
-} from './resolveStepContent';
+export type { GenreNoteEvent, StepContext } from './resolveStepContent';
 
 export {
   parseNoteName,

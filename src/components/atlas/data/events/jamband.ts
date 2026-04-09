@@ -175,7 +175,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
     genre: ['Jam Band', 'Rock', 'Pop Rock'],
     title: 'Dave Matthews Band forms in Charlottesville',
     description:
-      "South African-born Dave Matthews assembles a musically diverse group in Charlottesville, Virginia, blending jazz, folk, rock, and world music into an accessible yet improvisational sound. Their early residencies at local venues like Trax build a devoted college-town following that spreads virally through tape trading. DMB becomes the most commercially successful jam band of all time, selling tens of millions of albums and consistently ranking among the top-grossing touring acts.",
+      'South African-born Dave Matthews assembles a musically diverse group in Charlottesville, Virginia, blending jazz, folk, rock, and world music into an accessible yet improvisational sound. Their early residencies at local venues like Trax build a devoted college-town following that spreads virally through tape trading. DMB becomes the most commercially successful jam band of all time, selling tens of millions of albums and consistently ranking among the top-grossing touring acts.',
     tags: [
       'dave matthews band',
       'charlottesville',
@@ -313,7 +313,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
     genre: ['Jam Band', 'Electronica', 'Dance'],
     title: 'Lotus forms in Philadelphia',
     description:
-      "Lotus forms in the Philly area, pioneering a livetronica sound that emphasizes pulsating electronic beats and dance-floor energy alongside organic improvisation. Their largely instrumental approach and DJ-influenced builds make them a bridge between the jam band and electronic dance music worlds. Lotus helps define the livetronica subgenre that becomes increasingly central to the jam scene in the 2000s and 2010s.",
+      'Lotus forms in the Philly area, pioneering a livetronica sound that emphasizes pulsating electronic beats and dance-floor energy alongside organic improvisation. Their largely instrumental approach and DJ-influenced builds make them a bridge between the jam band and electronic dance music worlds. Lotus helps define the livetronica subgenre that becomes increasingly central to the jam scene in the 2000s and 2010s.',
     tags: [
       'lotus',
       'philadelphia',
@@ -336,7 +336,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
     genre: ['Jam Band', 'Funk', 'Soul'],
     title: 'Lettuce forms at Berklee College of Music',
     description:
-      "A group of students at Berklee College of Music form Lettuce, a funk powerhouse that channels the spirit of classic funk and soul through virtuosic musicianship and explosive live performances. Their Berklee pedigree connects them to a network of musicians who become central figures across the jam and funk scenes. Lettuce becomes one of the most respected funk acts in the jam band world, known for tight grooves and horn-driven arrangements.",
+      'A group of students at Berklee College of Music form Lettuce, a funk powerhouse that channels the spirit of classic funk and soul through virtuosic musicianship and explosive live performances. Their Berklee pedigree connects them to a network of musicians who become central figures across the jam and funk scenes. Lettuce becomes one of the most respected funk acts in the jam band world, known for tight grooves and horn-driven arrangements.',
     tags: [
       'lettuce',
       'berklee',
@@ -474,7 +474,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
     genre: ['Jam Band', 'Blues', 'World Music'],
     title: 'Derek Trucks Band forms in Jacksonville',
     description:
-      "Guitar prodigy Derek Trucks, nephew of Allman Brothers drummer Butch Trucks, launches his own band as a teenager, channeling slide guitar mastery influenced by Duane Allman, Indian classical music, and West African traditions. His open-tuning slide style and spiritual approach to improvisation make him one of the most distinctive voices in modern guitar. The Derek Trucks Band bridges the Allman Brothers legacy with global musical traditions.",
+      'Guitar prodigy Derek Trucks, nephew of Allman Brothers drummer Butch Trucks, launches his own band as a teenager, channeling slide guitar mastery influenced by Duane Allman, Indian classical music, and West African traditions. His open-tuning slide style and spiritual approach to improvisation make him one of the most distinctive voices in modern guitar. The Derek Trucks Band bridges the Allman Brothers legacy with global musical traditions.',
     tags: [
       'derek trucks',
       'jacksonville',
@@ -589,7 +589,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
     genre: ['Jam Band', 'Funk', 'R&B'],
     title: 'Cory Wong launches his solo career from Minneapolis',
     description:
-      "Guitarist Cory Wong, known for his razor-sharp rhythm guitar work with Vulfpeck, launches a prolific solo career from Minneapolis that blends funk, pop, and jazz with infectious energy. His relentless output and charismatic social media presence help bring a new, younger audience to funk and jam music. Wong becomes one of the most visible modern ambassadors of groove-based guitar music, channeling the spirit of Nile Rodgers through a jam band sensibility.",
+      'Guitarist Cory Wong, known for his razor-sharp rhythm guitar work with Vulfpeck, launches a prolific solo career from Minneapolis that blends funk, pop, and jazz with infectious energy. His relentless output and charismatic social media presence help bring a new, younger audience to funk and jam music. Wong becomes one of the most visible modern ambassadors of groove-based guitar music, channeling the spirit of Nile Rodgers through a jam band sensibility.',
     tags: [
       'cory wong',
       'minneapolis',
@@ -659,7 +659,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
     genre: ['Jam Band', 'Progressive Rock', 'Electronica', 'Funk'],
     title: 'Dopapod forms at Berklee College of Music',
     description:
-      "Dopapod comes together at Berklee College of Music in Boston, developing a genre-fluid sound that weaves progressive rock, electronic music, funk, and Eastern European folk influences into intricate jam vehicles. Their Berklee training gives them a compositional sophistication that sets them apart from many peers in the scene. Dopapod builds a devoted following through constant touring and sets that emphasize tight ensemble interplay and exploratory improvisation.",
+      'Dopapod comes together at Berklee College of Music in Boston, developing a genre-fluid sound that weaves progressive rock, electronic music, funk, and Eastern European folk influences into intricate jam vehicles. Their Berklee training gives them a compositional sophistication that sets them apart from many peers in the scene. Dopapod builds a devoted following through constant touring and sets that emphasize tight ensemble interplay and exploratory improvisation.',
     tags: [
       'dopapod',
       'berklee',
@@ -729,7 +729,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
     genre: ['Jam Band', 'Progressive Rock', 'Electronica'],
     title: 'Spafford forms in Prescott, Arizona',
     description:
-      "Spafford forms in the unlikely jam band outpost of Prescott, Arizona, developing a sound that blends progressive rock structures with electronic textures and extended improvisational passages. Their isolation from the East Coast jam corridor forces them to build a following through relentless touring and word-of-mouth buzz about their incendiary live shows. Spafford represents the geographic expansion of the jam band scene beyond its traditional Northeastern strongholds.",
+      'Spafford forms in the unlikely jam band outpost of Prescott, Arizona, developing a sound that blends progressive rock structures with electronic textures and extended improvisational passages. Their isolation from the East Coast jam corridor forces them to build a following through relentless touring and word-of-mouth buzz about their incendiary live shows. Spafford represents the geographic expansion of the jam band scene beyond its traditional Northeastern strongholds.',
     tags: [
       'spafford',
       'prescott',

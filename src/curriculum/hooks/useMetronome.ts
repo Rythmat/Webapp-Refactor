@@ -63,7 +63,8 @@ export function useMetronome({
     }
     ensureSequence();
     Tone.getTransport().bpm.value = bpm;
-    loopRef.current?.start(0);
+    // Cast resets CFA narrowing — ensureSequence() sets loopRef.current above
+    (loopRef.current as Tone.Sequence | null)?.start(0);
     runningRef.current = true;
     console.log('[metronome] prepared. transport:', Tone.getTransport().state);
   }, [bpm, ensureSynth, ensureSequence]);

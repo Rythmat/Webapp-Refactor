@@ -31,7 +31,7 @@ export interface ActivityStep {
   /** Specific activity name */
   activity: string;
   /** Instruction text for the student */
-  direction: string;
+  direction?: string;
   /** Assessment type for this step (null if no assessment) */
   assessment: AssessmentType | null;
   /** Tag for categorization */
@@ -45,7 +45,7 @@ export interface ActivityStep {
    * that gets parsed into pipeline calls by contentGenerationParser.
    * e.g. "Query Melody_Phrase_Rhythm_Library.csv (genre='reggae', note_count=3)"
    */
-  contentGeneration: string;
+  contentGeneration?: string;
 }
 
 /** A section (A/B/C/D) containing ordered steps */

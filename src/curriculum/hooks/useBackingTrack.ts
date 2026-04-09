@@ -1116,6 +1116,7 @@ export function useBackingTrack(tempo: number) {
         sf2LoadingRef.current = true;
         await Tone.start();
         const ctx = Tone.getContext().rawContext as AudioContext;
+        const out = ctx.destination;
         sf2BassRef.current = new SoundFontAdapter(33);
         sf2ChordsRef.current = new SoundFontAdapter(4);
         await Promise.all([

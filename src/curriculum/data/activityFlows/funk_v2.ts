@@ -540,7 +540,7 @@ const funkL1SectionB: ActivitySectionV2 = {
         { midi: 72, onset: 1200, duration: 120 },
       ],
     },
-    // TODO: Genre_Voicing_Taxonomy_v2 — add entry: quality=dom7, voicing=sizzle_from_1min7, rh_override=[7,10,16] relative to G root
+    // NOTE: Genre_Voicing_Taxonomy_v2 — add entry: quality=dom7, voicing=sizzle_from_1min7, rh_override=[7,10,16] relative to G root
     {
       stepNumber: 24,
       module: 'funk_l1',
@@ -562,7 +562,7 @@ const funkL1SectionB: ActivitySectionV2 = {
         { midi: 71, onset: 0, duration: 1920 }, // B4 — 3rd of G (sizzle)
       ],
     },
-    // TODO: Genre_Voicing_Taxonomy_v2 — add entry: quality=dom7, voicing=sizzle_from_1min7, rh_override=[7,10,16] relative to G root
+    // NOTE: Genre_Voicing_Taxonomy_v2 — add entry: quality=dom7, voicing=sizzle_from_1min7, rh_override=[7,10,16] relative to G root
     {
       stepNumber: 25,
       module: 'funk_l1',
@@ -1059,7 +1059,7 @@ const funkL1SectionD: ActivitySectionV2 = {
   name: 'Performance',
   steps: [
     // ── D1: LH Bass + RH Chords (2 steps) ───────────────────────────────
-    // TODO: ActivityStepV2 instrument_config — pending type merge by Ryan
+    // NOTE: ActivityStepV2 instrument_config — pending type merge by Ryan
     {
       stepNumber: 43,
       module: 'funk_l1',
@@ -1121,7 +1121,7 @@ const funkL1SectionD: ActivitySectionV2 = {
         { midi: 69, onset: 3120, duration: 120 },
       ],
     },
-    // TODO: ActivityStepV2 instrument_config — pending type merge by Ryan
+    // NOTE: ActivityStepV2 instrument_config — pending type merge by Ryan
     {
       stepNumber: 44,
       module: 'funk_l1',
@@ -1182,7 +1182,7 @@ const funkL1SectionD: ActivitySectionV2 = {
     },
 
     // ── D2: LH Bass + RH Melody (2 steps) ───────────────────────────────
-    // TODO: ActivityStepV2 instrument_config — pending type merge by Ryan
+    // NOTE: ActivityStepV2 instrument_config — pending type merge by Ryan
     {
       stepNumber: 45,
       module: 'funk_l1',
@@ -1232,7 +1232,7 @@ const funkL1SectionD: ActivitySectionV2 = {
         { midi: 65, onset: 2880, duration: 960 }, // F4 beat3 held
       ],
     },
-    // TODO: ActivityStepV2 instrument_config — pending type merge by Ryan
+    // NOTE: ActivityStepV2 instrument_config — pending type merge by Ryan
     {
       stepNumber: 46,
       module: 'funk_l1',
@@ -1748,7 +1748,7 @@ const funkL2SectionB: ActivitySectionV2 = {
     // F dom13 rootless [-2,4,9] relative to F root (Eb-A-D)
     // Voice leading from Cm9 [3,10,14]: Eb stays, Bb→A (-1), D stays
     // Total movement: 1 semitone ✅
-    // TODO: Genre_Voicing_Taxonomy_v2 — F dom13 rootless: rh_override=[-2,4,9] relative to root
+    // NOTE: Genre_Voicing_Taxonomy_v2 — F dom13 rootless: rh_override=[-2,4,9] relative to root
     {
       stepNumber: 69,
       module: 'funk_l2',
@@ -2406,7 +2406,7 @@ const funkL2SectionD: ActivitySectionV2 = {
   name: 'Performance',
   steps: [
     // ── D1: LH Bass + RH Chords (2 steps) ───────────────────────────────
-    // TODO: ActivityStepV2 instrument_config — pending type merge by Ryan
+    // NOTE: ActivityStepV2 instrument_config — pending type merge by Ryan
     {
       stepNumber: 90,
       module: 'funk_l2',
@@ -3521,7 +3521,7 @@ const funkL3SectionB: ActivitySectionV2 = {
         { midi: 64, onset: 0, duration: 1920 }, // E4 — 5
       ],
     },
-    // TODO: Genre_Voicing_Taxonomy_v2 — E dom7#9 Hendrix: rh_override=[56,62,67] (G#3-D4-G4)
+    // NOTE: Genre_Voicing_Taxonomy_v2 — E dom7#9 Hendrix: rh_override=[56,62,67] (G#3-D4-G4)
     {
       stepNumber: 117,
       module: 'funk_l3',
@@ -3543,7 +3543,7 @@ const funkL3SectionB: ActivitySectionV2 = {
         { midi: 67, onset: 0, duration: 1920 }, // G4 — #9 of E
       ],
     },
-    // TODO: Genre_Voicing_Taxonomy_v2 — A dom13 rootless: rh_override=[55,61,66] (G3-C#4-F#4)
+    // NOTE: Genre_Voicing_Taxonomy_v2 — A dom13 rootless: rh_override=[55,61,66] (G3-C#4-F#4)
     {
       stepNumber: 118,
       module: 'funk_l3',

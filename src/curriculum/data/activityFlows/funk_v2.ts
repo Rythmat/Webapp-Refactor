@@ -413,7 +413,7 @@ const funkL1SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Arpeggiate Chords',
       activity: 'B1.4: Gm7 Arpeggio (Out of Time)',
-      direction: 'Play the notes of a Gm7 chord one at a time: G-Bb-D-F.',
+      direction: 'Play the notes of a Gm7 chord one at a time: G-B♭-D-F.',
       assessment: 'pitch_only',
       tag: 'funk:arpeggiate_gm7_oot | funk',
       styleRef: 'l1a',
@@ -2010,7 +2010,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       module: 'funk_l2',
       section: 'B',
       subsection: 'B3: Funk Progressions',
-      activity: 'B3.3: Ab13-G7alt-Cm9-F13 Full Progression (In Time)',
+      activity: 'B3.3: A♭13-G7alt-Cm9-F13 Full Progression (In Time)',
       direction:
         'Four chords, four bars. Ab13 — G7alt — Cm9 — F13. ' +
         'Each chord was chosen by voice leading proximity to the next. ' +
@@ -2022,7 +2022,7 @@ const funkL2SectionB: ActivitySectionV2 = {
         'Ab13 to G7alt to Cm9 to F13 — that is sophisticated Funk harmony.',
       contentGeneration:
         'GCM v8: FUNK L2 full progression. HKB v2: Ab13→G7alt→Cm9→F13. Ab13: rootless voicing. G7alt: rootless voicing. Cm9: rootless_b3_b7_9 [3,10,14] (Eb-Bb-D). F13: rootless_b7_3_13 [-2,4,9] (Eb-A-D). Voice leading: chromatic descent through the top voices. Register: C3-C5. Tempo: 95-108 BPM, one chord per bar.',
-      chordSymbols: ['Ab13', 'G7', 'Cm9', 'F13'],
+      chordSymbols: ['A♭13', 'G7', 'Cm9', 'F13'],
       targetNotes: [
         // Bar 1 — Ab13: Gb3+Bb3+C4+F4  [b7-9-3-13]
         { midi: 54, onset: 0, duration: 120 }, // Gb3
@@ -3011,7 +3011,7 @@ const funkL3SectionA: ActivitySectionV2 = {
       module: 'funk_l3',
       section: 'A',
       subsection: 'A1: Advanced Scales',
-      activity: 'A1.4: Dorian Nat.6 Ornament — G→F#→E→D (Out of Time)',
+      activity: 'A1.4: Dorian Nat.6 Ornament — G→F♯→E→D (Out of Time)',
       scaleIntervals: [0, 2, 3, 5, 7, 9, 10],
       scaleId: 'dorian',
       direction:
@@ -3038,7 +3038,7 @@ const funkL3SectionA: ActivitySectionV2 = {
       activity: 'A1.5: Dorian Nat.6 Ornament (In Time)',
       scaleIntervals: [0, 2, 3, 5, 7, 9, 10],
       scaleId: 'dorian',
-      direction: 'Play the G→F#→E→D ornament in time.',
+      direction: 'Play the G→F♯→E→D ornament in time.',
       assessment: 'pitch_order_timing',
       tag: 'funk:dorian_nat6_ornament_it | funk',
       styleRef: 'l3a',
@@ -3057,7 +3057,7 @@ const funkL3SectionA: ActivitySectionV2 = {
       module: 'funk_l3',
       section: 'A',
       subsection: 'A1: Advanced Scales',
-      activity: 'A1.6: Blue Note (Eb) Chromatic Color Exercise (Out of Time)',
+      activity: 'A1.6: Blue Note (E♭) Chromatic Color Exercise (Out of Time)',
       scaleIntervals: [0, 3, 5, 6, 7, 10],
       scaleId: 'minor_blues',
       direction:
@@ -3374,7 +3374,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       module: 'funk_l3',
       section: 'B',
       subsection: 'B1: Extended Chord Arpeggios',
-      activity: 'B1.2: Eb Dom9 (Tritone Sub) Arpeggio (Out of Time)',
+      activity: 'B1.2: E♭ Dom9 (Tritone Sub) Arpeggio (Out of Time)',
       direction:
         'Play Eb dom9 chord tones: Eb-G-Bb-Db-F. This is the tritone substitution of A dom7 — same tritone (G-Db), different root.',
       assessment: 'pitch_only',
@@ -4190,7 +4190,7 @@ const funkL3SectionC: ActivitySectionV2 = {
       styleRef: 'l3b',
       successFeedback:
         'Bass roots under chromatic planing — vertical tightness rule V2 in action.',
-      chordSymbols: ['Am6', 'Eb9', 'D9', 'E9'],
+      chordSymbols: ['Am6', 'E♭9', 'D9', 'E9'],
       targetNotes: [
         { midi: 45, onset: 0, duration: 460 }, // A2 (under Am6)
         { midi: 39, onset: 480, duration: 460 }, // Eb2 (under Eb9)

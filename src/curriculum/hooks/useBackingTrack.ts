@@ -1204,6 +1204,7 @@ export function useBackingTrack(tempo: number) {
       level: number = 1,
       styleRef: string = 'l1a',
       targetNotes: GenreNoteEvent[] = [],
+      preStartCallback?: () => Promise<void>,
     ) => {
       Tone.getTransport().stop();
       Tone.getTransport().cancel();
@@ -1439,6 +1440,7 @@ export function useBackingTrack(tempo: number) {
         partsRef.current.chords = chordPart;
       }
 
+      if (preStartCallback) await preStartCallback();
       Tone.getTransport().start('+0.1');
       isPlayingRef.current = true;
     },

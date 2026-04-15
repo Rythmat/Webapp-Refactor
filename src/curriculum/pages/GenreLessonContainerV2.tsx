@@ -49,6 +49,7 @@ import type {
   ActivityStepV2,
   StyleSubProfile,
 } from '../types/activity.v2';
+import { formatAccidentalsForDisplay } from '../utils/formatAccidentals';
 
 // ── Props ────────────────────────────────────────────────────────────────────
 
@@ -966,26 +967,17 @@ function GenreLessonContainerV2Inner({
       await initSF2();
       setInstrumentsLoading(false);
 
-      // startBacking internally calls Transport.cancel() then Transport.start('+0.1').
-      // Let it run first so all drum/bass/chord Parts are registered on the timeline.
+      // Pass prepareMetronome as a pre-start callback for IT steps so the
+      // metronome sequence is registered at position 0 BEFORE Transport.start().
+      // This guarantees beat 1 fires in sync with drums/bass/chords.
       await startBacking(
         resolvedStep as ActivityStepV2,
         keyRoot,
         flow.level,
         (resolvedStep as ActivityStepV2).styleRef ?? 'l1a',
         targetNotes,
+        isIT ? prepareMetronome : undefined,
       );
-
-      if (isIT) {
-        // Stop without cancel — preserves the registered Parts on the timeline.
-        // Reset position to 0, register metronome sequence, then restart.
-        // This is the same stop/reset/restart pattern that works for the
-        // non-backing IT path, applied after parts are already scheduled.
-        Tone.getTransport().stop();
-        Tone.getTransport().seconds = 0;
-        await prepareMetronome();
-        Tone.getTransport().start('+0.05');
-      }
 
       // Wait for Transport start offset + Web Audio latency
       await new Promise((r) => setTimeout(r, 150));
@@ -1113,7 +1105,9 @@ function GenreLessonContainerV2Inner({
                   fontWeight: 600,
                 }}
               >
-                {resolvedStep.chordSymbols.join(' → ')}
+                {resolvedStep.chordSymbols
+                  .map(formatAccidentalsForDisplay)
+                  .join(' → ')}
               </div>
             )}
         </div>

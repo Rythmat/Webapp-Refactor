@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { PlayNote } from '@/components/Games/PlayNote';
 import { midiToPitchName } from '@/curriculum/engine/genreGeneration/resolveStepContent';
+import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidentals';
 
 export type Midi = number; // 0..127
 
@@ -502,7 +503,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                     fontWeight: isActiveLane ? 600 : 400,
                   }}
                 >
-                  {name}
+                  {formatAccidentalsForDisplay(name)}
                 </div>
               );
             })}

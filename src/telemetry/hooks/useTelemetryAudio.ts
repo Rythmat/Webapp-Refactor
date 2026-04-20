@@ -50,7 +50,11 @@ export function trackAudioTrigger(
   }
 }
 
-export function trackAudioRelease(note: string, success: boolean, route?: string): void {
+export function trackAudioRelease(
+  note: string,
+  success: boolean,
+  route?: string,
+): void {
   try {
     if (!isAudioTelemetryEnabled()) return;
 
@@ -68,7 +72,11 @@ export function trackAudioRelease(note: string, success: boolean, route?: string
   }
 }
 
-export function trackMidiNoteOn(note: string, velocity: number, route?: string): void {
+export function trackMidiNoteOn(
+  note: string,
+  velocity: number,
+  route?: string,
+): void {
   try {
     if (!isAudioTelemetryEnabled()) return;
 

@@ -5,13 +5,20 @@ import { telemetryClient } from './client';
 import { trackSessionStarted } from './hooks/useTelemetryProduct';
 import { useTelemetryRouting } from './hooks/useTelemetryRouting';
 
-export const TelemetryProvider = ({ children }: { children: React.ReactNode }) => {
+export const TelemetryProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const { token } = useAuthContext();
   const hasTrackedSession = useRef(false);
 
   useEffect(() => {
     const appSessionId = getCurrentAppSessionId();
-    telemetryClient.configure({ token: token ?? null, appSessionId: appSessionId ?? null });
+    telemetryClient.configure({
+      token: token ?? null,
+      appSessionId: appSessionId ?? null,
+    });
   }, [token]);
 
   useEffect(() => {

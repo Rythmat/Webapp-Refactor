@@ -16,7 +16,10 @@ const TIME_RANGE_LABELS: Record<TimeRange, string> = {
   '30d': 'Last 30 days',
 };
 
-export function timeRangeToParams(range: TimeRange): { from: string; to: string } {
+export function timeRangeToParams(range: TimeRange): {
+  from: string;
+  to: string;
+} {
   const now = new Date();
   const to = now.toISOString();
 

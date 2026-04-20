@@ -37,7 +37,13 @@ const CATEGORIES = [
   { value: 'product', label: 'Product' },
 ];
 
-function TruncatedCell({ text, maxWidth = 200 }: { text: string; maxWidth?: number }) {
+function TruncatedCell({
+  text,
+  maxWidth = 200,
+}: {
+  text: string;
+  maxWidth?: number;
+}) {
   if (text.length <= 40) {
     return <span>{text}</span>;
   }
@@ -46,10 +52,7 @@ function TruncatedCell({ text, maxWidth = 200 }: { text: string; maxWidth?: numb
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span
-            className="block truncate"
-            style={{ maxWidth }}
-          >
+          <span className="block truncate" style={{ maxWidth }}>
             {text}
           </span>
         </TooltipTrigger>
@@ -157,7 +160,8 @@ export const AdminErrorsPage = () => {
           </div>
 
           <div className="text-xs text-muted-foreground">
-            {data.errors.length} error{data.errors.length !== 1 ? 's' : ''} shown
+            {data.errors.length} error{data.errors.length !== 1 ? 's' : ''}{' '}
+            shown
           </div>
         </>
       )}

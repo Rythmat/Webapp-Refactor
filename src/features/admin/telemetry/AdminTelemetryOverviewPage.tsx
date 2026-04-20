@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  useAdminTelemetryOverview,
-} from '@/hooks/data/admin/useAdminTelemetry';
+import { useAdminTelemetryOverview } from '@/hooks/data/admin/useAdminTelemetry';
 import { StatCard } from './components/StatCard';
 import {
   TimeRangeSelect,
@@ -34,7 +32,10 @@ export const AdminTelemetryOverviewPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <StatCard label="Total Events" value={data.totalEvents.toLocaleString()} />
+          <StatCard
+            label="Total Events"
+            value={data.totalEvents.toLocaleString()}
+          />
           <StatCard
             label="API Success Rate"
             value={`${(data.apiSuccessRate * 100).toFixed(1)}%`}
@@ -47,11 +48,19 @@ export const AdminTelemetryOverviewPage = () => {
           />
           <StatCard
             label="Avg API Latency"
-            value={data.avgApiLatencyMs != null ? `${Math.round(data.avgApiLatencyMs)} ms` : '-'}
+            value={
+              data.avgApiLatencyMs != null
+                ? `${Math.round(data.avgApiLatencyMs)} ms`
+                : '-'
+            }
           />
           <StatCard
             label="P95 API Latency"
-            value={data.p95ApiLatencyMs != null ? `${Math.round(data.p95ApiLatencyMs)} ms` : '-'}
+            value={
+              data.p95ApiLatencyMs != null
+                ? `${Math.round(data.p95ApiLatencyMs)} ms`
+                : '-'
+            }
           />
           <StatCard
             label="Routing Events"

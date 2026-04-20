@@ -34,9 +34,18 @@ export const AdminProductFunnelPage = () => {
   const learningFunnelData = data
     ? [
         { name: 'Lesson Started', value: data.learningFunnel.lessonStarted },
-        { name: 'Activity Started', value: data.learningFunnel.activityStarted },
-        { name: 'Activity Completed', value: data.learningFunnel.activityCompleted },
-        { name: 'Lesson Completed', value: data.learningFunnel.lessonCompleted },
+        {
+          name: 'Activity Started',
+          value: data.learningFunnel.activityStarted,
+        },
+        {
+          name: 'Activity Completed',
+          value: data.learningFunnel.activityCompleted,
+        },
+        {
+          name: 'Lesson Completed',
+          value: data.learningFunnel.lessonCompleted,
+        },
       ]
     : [];
 
@@ -46,9 +55,18 @@ export const AdminProductFunnelPage = () => {
 
   const subscriptionFunnelData = data
     ? [
-        { name: 'Paywall Viewed', value: data.subscriptionFunnel.paywallViewed },
-        { name: 'Checkout Started', value: data.subscriptionFunnel.checkoutStarted },
-        { name: 'Subscription Activated', value: data.subscriptionFunnel.subscriptionActivated },
+        {
+          name: 'Paywall Viewed',
+          value: data.subscriptionFunnel.paywallViewed,
+        },
+        {
+          name: 'Checkout Started',
+          value: data.subscriptionFunnel.checkoutStarted,
+        },
+        {
+          name: 'Subscription Activated',
+          value: data.subscriptionFunnel.subscriptionActivated,
+        },
       ]
     : [];
 
@@ -81,7 +99,10 @@ export const AdminProductFunnelPage = () => {
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={learningFunnelData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.1)"
+                />
                 <XAxis
                   dataKey="name"
                   stroke="rgba(255,255,255,0.5)"
@@ -121,7 +142,10 @@ export const AdminProductFunnelPage = () => {
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={subscriptionFunnelData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.1)"
+                />
                 <XAxis
                   dataKey="name"
                   stroke="rgba(255,255,255,0.5)"
@@ -175,9 +199,7 @@ export const AdminProductFunnelPage = () => {
                       <TableCell>{row.started}</TableCell>
                       <TableCell>{row.completed}</TableCell>
                       <TableCell
-                        className={
-                          row.failureRate > 0.2 ? 'text-red-400' : ''
-                        }
+                        className={row.failureRate > 0.2 ? 'text-red-400' : ''}
                       >
                         {(row.failureRate * 100).toFixed(1)}%
                       </TableCell>

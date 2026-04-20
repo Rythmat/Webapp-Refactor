@@ -169,7 +169,9 @@ async function fetchWithAuth<T = unknown>(
   return SuperJSON.parse(text) as T;
 }
 
-function buildQuery(params: Record<string, string | number | undefined>): string {
+function buildQuery(
+  params: Record<string, string | number | undefined>,
+): string {
   const sp = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== '') {
@@ -282,7 +284,9 @@ export const useAdminTelemetryErrors = (params: {
     queryKey: ['admin', 'telemetry', 'errors', params],
     queryFn: () =>
       fetchWithAuth<TelemetryErrorsData>(
-        adminPath(`/telemetry/errors${buildQuery(params as Record<string, string | number | undefined>)}`),
+        adminPath(
+          `/telemetry/errors${buildQuery(params as Record<string, string | number | undefined>)}`,
+        ),
         token!,
       ),
     enabled: !!token,

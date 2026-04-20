@@ -21,21 +21,27 @@ const AdminFreeAccessPage = lazy(() =>
 );
 
 const AdminTelemetryLayout = lazy(() =>
-  import('./telemetry/AdminTelemetryLayout').then(({ AdminTelemetryLayout }) => ({
-    default: AdminTelemetryLayout,
-  })),
+  import('./telemetry/AdminTelemetryLayout').then(
+    ({ AdminTelemetryLayout }) => ({
+      default: AdminTelemetryLayout,
+    }),
+  ),
 );
 
 const AdminTelemetryOverviewPage = lazy(() =>
-  import('./telemetry/AdminTelemetryOverviewPage').then(({ AdminTelemetryOverviewPage }) => ({
-    default: AdminTelemetryOverviewPage,
-  })),
+  import('./telemetry/AdminTelemetryOverviewPage').then(
+    ({ AdminTelemetryOverviewPage }) => ({
+      default: AdminTelemetryOverviewPage,
+    }),
+  ),
 );
 
 const AdminApiPerformancePage = lazy(() =>
-  import('./telemetry/AdminApiPerformancePage').then(({ AdminApiPerformancePage }) => ({
-    default: AdminApiPerformancePage,
-  })),
+  import('./telemetry/AdminApiPerformancePage').then(
+    ({ AdminApiPerformancePage }) => ({
+      default: AdminApiPerformancePage,
+    }),
+  ),
 );
 
 const AdminRoutingPage = lazy(() =>
@@ -51,9 +57,11 @@ const AdminAudioPage = lazy(() =>
 );
 
 const AdminProductFunnelPage = lazy(() =>
-  import('./telemetry/AdminProductFunnelPage').then(({ AdminProductFunnelPage }) => ({
-    default: AdminProductFunnelPage,
-  })),
+  import('./telemetry/AdminProductFunnelPage').then(
+    ({ AdminProductFunnelPage }) => ({
+      default: AdminProductFunnelPage,
+    }),
+  ),
 );
 
 const AdminErrorsPage = lazy(() =>

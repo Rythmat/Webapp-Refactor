@@ -70,7 +70,10 @@ export function trackActivityCompleted(
       lessonId,
       activityId,
       durationMs: attrs?.durationMs ?? null,
-      attributesJson: attrs?.attemptNumber != null ? { attemptNumber: attrs.attemptNumber } : null,
+      attributesJson:
+        attrs?.attemptNumber != null
+          ? { attemptNumber: attrs.attemptNumber }
+          : null,
     });
   } catch {
     // Silent failure
@@ -89,7 +92,10 @@ export function trackActivityFailed(
       lessonId,
       activityId,
       errorName: attrs?.errorName ?? null,
-      attributesJson: attrs?.attemptNumber != null ? { attemptNumber: attrs.attemptNumber } : null,
+      attributesJson:
+        attrs?.attemptNumber != null
+          ? { attemptNumber: attrs.attemptNumber }
+          : null,
     });
   } catch {
     // Silent failure

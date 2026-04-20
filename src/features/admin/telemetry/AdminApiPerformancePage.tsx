@@ -66,7 +66,10 @@ export const AdminApiPerformancePage = () => {
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={data.timeSeries}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.1)"
+                />
                 <XAxis
                   dataKey="bucket"
                   stroke="rgba(255,255,255,0.5)"
@@ -123,7 +126,10 @@ export const AdminApiPerformancePage = () => {
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={data.timeSeries}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.1)"
+                />
                 <XAxis
                   dataKey="bucket"
                   stroke="rgba(255,255,255,0.5)"

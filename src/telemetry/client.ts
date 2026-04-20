@@ -92,7 +92,9 @@ function flushWithBeacon(): void {
         headers: {
           'Content-Type': 'application/json',
           ...(config.token ? { Authorization: `Bearer ${config.token}` } : {}),
-          ...(config.appSessionId ? { 'X-App-Session': config.appSessionId } : {}),
+          ...(config.appSessionId
+            ? { 'X-App-Session': config.appSessionId }
+            : {}),
         },
         body,
         keepalive: true,
@@ -151,7 +153,10 @@ function track(event: TelemetryEventPayload): void {
   }
 }
 
-function configure(opts: { token: string | null; appSessionId: string | null }): void {
+function configure(opts: {
+  token: string | null;
+  appSessionId: string | null;
+}): void {
   config = { ...opts };
   startFlushTimer();
 }

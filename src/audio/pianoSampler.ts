@@ -1,5 +1,8 @@
 import * as Tone from 'tone';
-import { trackAudioTrigger, trackAudioRelease } from '@/telemetry/hooks/useTelemetryAudio';
+import {
+  trackAudioTrigger,
+  trackAudioRelease,
+} from '@/telemetry/hooks/useTelemetryAudio';
 
 const NOTE_SEQUENCE = [
   'C',

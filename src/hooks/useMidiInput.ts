@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { showSuccess, showError } from '@/components/utils/toast';
-import { trackMidiNoteOn, trackMidiNoteOff } from '@/telemetry/hooks/useTelemetryAudio';
+import {
+  trackMidiNoteOn,
+  trackMidiNoteOff,
+} from '@/telemetry/hooks/useTelemetryAudio';
 
 type UseMidiInputProps = {
   onNoteOn: (note: string, velocity: number) => void;

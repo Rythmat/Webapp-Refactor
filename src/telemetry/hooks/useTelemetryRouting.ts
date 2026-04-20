@@ -10,13 +10,16 @@ export function useTelemetryRouting(): void {
   const lastNavigationTimeRef = useRef<number>(performance.now());
 
   useEffect(() => {
-    const routingEnabled = Env.get('VITE_TELEMETRY_ROUTING_ENABLED', { nullable: true });
+    const routingEnabled = Env.get('VITE_TELEMETRY_ROUTING_ENABLED', {
+      nullable: true,
+    });
     if (routingEnabled === 'false') return;
 
     const now = performance.now();
-    const durationMs = previousPathnameRef.current !== null
-      ? Math.round(now - lastNavigationTimeRef.current)
-      : null;
+    const durationMs =
+      previousPathnameRef.current !== null
+        ? Math.round(now - lastNavigationTimeRef.current)
+        : null;
 
     telemetryClient.track({
       category: 'routing',

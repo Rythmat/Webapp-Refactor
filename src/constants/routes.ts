@@ -81,6 +81,36 @@ export const AdminRoutes = {
    * The route to the free access management page.
    */
   freeAccess: createRouteDefinition('/free-access', { prefix: adminPrefix }),
+
+  /**
+   * Telemetry overview dashboard.
+   */
+  telemetry: createRouteDefinition('/telemetry', { prefix: adminPrefix }),
+
+  /**
+   * API performance telemetry dashboard.
+   */
+  telemetryApi: createRouteDefinition('/telemetry/api', { prefix: adminPrefix }),
+
+  /**
+   * Routing analytics dashboard.
+   */
+  telemetryRouting: createRouteDefinition('/telemetry/routing', { prefix: adminPrefix }),
+
+  /**
+   * Audio/keyboard analytics dashboard.
+   */
+  telemetryAudio: createRouteDefinition('/telemetry/audio', { prefix: adminPrefix }),
+
+  /**
+   * Product funnel / learning analytics dashboard.
+   */
+  telemetryProduct: createRouteDefinition('/telemetry/product', { prefix: adminPrefix }),
+
+  /**
+   * Recent errors / failures dashboard.
+   */
+  telemetryErrors: createRouteDefinition('/telemetry/errors', { prefix: adminPrefix }),
 };
 
 /**

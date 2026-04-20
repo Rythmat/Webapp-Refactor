@@ -1,4 +1,5 @@
 import * as Tone from 'tone';
+import { trackAudioTrigger, trackAudioRelease } from '@/telemetry/hooks/useTelemetryAudio';
 
 const NOTE_SEQUENCE = [
   'C',
@@ -111,11 +112,16 @@ export const triggerPianoAttack = async (
   velocity?: number,
   time?: number,
 ): Promise<void> => {
+  const start = performance.now();
   const isRunning = await resumeContextIfNeeded();
-  if (!isRunning) return;
+  if (!isRunning) {
+    trackAudioTrigger(note, false);
+    return;
+  }
   const sampler = await ensureSamplerLoaded();
   sampler.triggerAttack(note, time, normalizeVelocity(velocity));
   activeNotes.add(note);
+  trackAudioTrigger(note, true, performance.now() - start);
 };
 
 export const triggerPianoRelease = async (
@@ -125,11 +131,13 @@ export const triggerPianoRelease = async (
   const isRunning = await resumeContextIfNeeded();
   if (!isRunning) {
     activeNotes.delete(note);
+    trackAudioRelease(note, false);
     return;
   }
   const sampler = await ensureSamplerLoaded();
   sampler.triggerRelease(note, time);
   activeNotes.delete(note);
+  trackAudioRelease(note, true);
 };
 
 export const triggerPianoAttackRelease = async (

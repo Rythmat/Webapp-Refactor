@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { showSuccess, showError } from '@/components/utils/toast';
+import { trackMidiNoteOn, trackMidiNoteOff } from '@/telemetry/hooks/useTelemetryAudio';
 
 type UseMidiInputProps = {
   onNoteOn: (note: string, velocity: number) => void;
@@ -98,9 +99,13 @@ export const useMidiInput = ({
       if (!event.data) return;
       const [command, noteNumber, velocity] = event.data;
       if (command === 144 && velocity > 0) {
-        onNoteOn(midiNumberToNoteName(noteNumber), velocity);
+        const noteName = midiNumberToNoteName(noteNumber);
+        trackMidiNoteOn(noteName, velocity);
+        onNoteOn(noteName, velocity);
       } else if (command === 128 || (command === 144 && velocity === 0)) {
-        onNoteOff(midiNumberToNoteName(noteNumber));
+        const noteName = midiNumberToNoteName(noteNumber);
+        trackMidiNoteOff(noteName);
+        onNoteOff(noteName);
       }
     },
     [onNoteOn, onNoteOff],

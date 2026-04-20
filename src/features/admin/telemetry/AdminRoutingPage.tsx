@@ -97,7 +97,7 @@ export const AdminRoutingPage = () => {
                   }}
                   labelStyle={{ color: 'white' }}
                   itemStyle={{ color: 'white' }}
-                  labelFormatter={formatBucketLabel}
+                  labelFormatter={(v) => formatBucketLabel(String(v))}
                 />
                 <Area
                   type="monotone"

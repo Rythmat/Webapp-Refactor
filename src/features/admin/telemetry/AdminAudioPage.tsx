@@ -95,7 +95,7 @@ export const AdminAudioPage = () => {
                   }}
                   labelStyle={{ color: 'white' }}
                   itemStyle={{ color: 'white' }}
-                  labelFormatter={formatBucketLabel}
+                  labelFormatter={(v) => formatBucketLabel(String(v))}
                 />
                 <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.7)' }} />
                 <Line

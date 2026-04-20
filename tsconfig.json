@@ -9,7 +9,8 @@
     "jsx": "react-jsx",
     "skipLibCheck": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@prism/engine": ["./src/daw/prism-engine/index.ts"]
     }
   }
 }

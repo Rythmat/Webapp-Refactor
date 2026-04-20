@@ -6,9 +6,9 @@
 //
 // Designed to be driven by the MusicIntelligenceBus liveChordStream.
 
+import { CHORDS } from '@prism/engine';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import type { ChordRegion } from '@/daw/store/prismSlice';
-import { CHORDS } from '@prism/engine';
 import type {
   KeyDetection,
   UnisonChordRegion,

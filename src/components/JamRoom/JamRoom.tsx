@@ -134,9 +134,7 @@ function JamRoomInner() {
   useEffect(() => {
     if (!paramRoomId || roomId) return;
 
-    const state = location.state as
-      | { role?: string; created?: boolean }
-      | null;
+    const state = location.state as { role?: string; created?: boolean } | null;
 
     if (state?.role === 'owner' && state?.created) {
       // Creator — connect as owner (registers as host in PartyKit)

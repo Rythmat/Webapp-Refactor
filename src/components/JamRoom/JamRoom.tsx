@@ -11,9 +11,13 @@ import {
   MessageSquare,
   X,
   Music,
+  AlertCircle,
+  ArrowLeft,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Env } from '@/constants/env';
 import { GameRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { JamChat } from './JamChat';
@@ -38,6 +42,25 @@ import {
 import { useJamAudio } from './useJamAudio';
 import { useJamKeyboard } from './useJamKeyboard';
 import { useJamMidi } from './useJamMidi';
+
+const PARTYKIT_HOST =
+  Env.get('VITE_PARTYKIT_HOST', { nullable: true }) ?? 'localhost:1999';
+
+/** Check if a PartyKit jam room has an active host. */
+async function checkRoomExists(roomId: string): Promise<boolean> {
+  try {
+    const protocol = PARTYKIT_HOST.startsWith('localhost') ? 'http' : 'https';
+    const res = await fetch(
+      `${protocol}://${PARTYKIT_HOST}/parties/main/jam-${roomId}`,
+      { signal: AbortSignal.timeout(3000) },
+    );
+    if (!res.ok) return false;
+    const data = (await res.json()) as { active?: boolean };
+    return data.active === true;
+  } catch {
+    return false;
+  }
+}
 
 const DRUM_GLOW_INTENSITY: Record<DrumSound, number> = {
   kick: 0.8,
@@ -82,6 +105,8 @@ function JamRoomInner() {
   const waterfallRef = useRef<WaterfallHandle>(null);
   const [showChat, setShowChat] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [roomNotFound, setRoomNotFound] = useState(false);
+  const [validating, setValidating] = useState(false);
 
   // Navigate back to lobby on room error (room doesn't exist / host left)
   useEffect(() => {
@@ -103,17 +128,37 @@ function JamRoomInner() {
     };
   }, []);
 
+  // Validate room existence before connecting.
+  // Only the "Create Jam Room" button sets `created: true` in navigation state,
+  // which allows creating a new room. All other access must join an existing room.
   useEffect(() => {
-    if (paramRoomId && !roomId) {
-      const state = location.state as { role?: string } | null;
-      if (state?.role === 'owner') {
-        // Creator — connect as owner (registers as host in PartyKit)
-        joinRoom(paramRoomId, 'owner');
-      } else {
-        // Joiner — connect as editor (requires existing host)
-        joinRoomByCode(paramRoomId);
-      }
+    if (!paramRoomId || roomId) return;
+
+    const state = location.state as { role?: string; created?: boolean } | null;
+
+    if (state?.role === 'owner' && state?.created) {
+      // Creator — connect as owner (registers as host in PartyKit)
+      // Clear the state so a page refresh doesn't re-create
+      window.history.replaceState({}, '');
+      joinRoom(paramRoomId, 'owner');
+      return;
     }
+
+    // Everyone else — validate that the room exists first
+    let cancelled = false;
+    setValidating(true);
+    checkRoomExists(paramRoomId).then((exists) => {
+      if (cancelled) return;
+      setValidating(false);
+      if (exists) {
+        joinRoomByCode(paramRoomId);
+      } else {
+        setRoomNotFound(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [paramRoomId, roomId, location.state, joinRoom, joinRoomByCode]);
 
   // Audio engine for remote notes
@@ -210,6 +255,46 @@ function JamRoomInner() {
   };
 
   // ── Render ──────────────────────────────────────────────────────────
+
+  // Room not found screen
+  if (roomNotFound) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center h-full gap-6"
+        style={{ backgroundColor: '#0a0a0c' }}
+      >
+        <div className="flex flex-col items-center gap-3 text-center">
+          <AlertCircle size={48} className="text-red-400" />
+          <h1 className="text-2xl font-semibold text-white">Room not found</h1>
+          <p className="text-sm text-zinc-500 max-w-xs">
+            This room doesn't exist or has been closed. Rooms are only available
+            while the host is connected.
+          </p>
+        </div>
+        <Button
+          onClick={() => navigate(GameRoutes.jamLobby())}
+          variant="outline"
+          className="gap-2"
+        >
+          <ArrowLeft size={14} />
+          Back to Lobby
+        </Button>
+      </div>
+    );
+  }
+
+  // Validating room screen
+  if (validating) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center h-full gap-3"
+        style={{ backgroundColor: '#0a0a0c' }}
+      >
+        <div className="w-5 h-5 border-2 border-zinc-600 border-t-purple-400 rounded-full animate-spin" />
+        <span className="text-sm text-zinc-500">Checking room...</span>
+      </div>
+    );
+  }
 
   return (
     <div

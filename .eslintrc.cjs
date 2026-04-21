@@ -62,6 +62,11 @@ module.exports = {
             group: 'builtin',
             position: 'before',
           },
+          {
+            pattern: '@prism/**',
+            group: 'internal',
+            position: 'before',
+          },
         ],
         'newlines-between': 'never',
         alphabetize: {

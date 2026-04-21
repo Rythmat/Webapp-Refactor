@@ -20,6 +20,56 @@ const AdminFreeAccessPage = lazy(() =>
   })),
 );
 
+const AdminTelemetryLayout = lazy(() =>
+  import('./telemetry/AdminTelemetryLayout').then(
+    ({ AdminTelemetryLayout }) => ({
+      default: AdminTelemetryLayout,
+    }),
+  ),
+);
+
+const AdminTelemetryOverviewPage = lazy(() =>
+  import('./telemetry/AdminTelemetryOverviewPage').then(
+    ({ AdminTelemetryOverviewPage }) => ({
+      default: AdminTelemetryOverviewPage,
+    }),
+  ),
+);
+
+const AdminApiPerformancePage = lazy(() =>
+  import('./telemetry/AdminApiPerformancePage').then(
+    ({ AdminApiPerformancePage }) => ({
+      default: AdminApiPerformancePage,
+    }),
+  ),
+);
+
+const AdminRoutingPage = lazy(() =>
+  import('./telemetry/AdminRoutingPage').then(({ AdminRoutingPage }) => ({
+    default: AdminRoutingPage,
+  })),
+);
+
+const AdminAudioPage = lazy(() =>
+  import('./telemetry/AdminAudioPage').then(({ AdminAudioPage }) => ({
+    default: AdminAudioPage,
+  })),
+);
+
+const AdminProductFunnelPage = lazy(() =>
+  import('./telemetry/AdminProductFunnelPage').then(
+    ({ AdminProductFunnelPage }) => ({
+      default: AdminProductFunnelPage,
+    }),
+  ),
+);
+
+const AdminErrorsPage = lazy(() =>
+  import('./telemetry/AdminErrorsPage').then(({ AdminErrorsPage }) => ({
+    default: AdminErrorsPage,
+  })),
+);
+
 export const adminPages = () => {
   return {
     path: AdminRoutes.root.definition,
@@ -42,6 +92,36 @@ export const adminPages = () => {
       {
         path: AdminRoutes.freeAccess.definition,
         element: <AdminFreeAccessPage />,
+      },
+      {
+        path: AdminRoutes.telemetry.definition,
+        element: <AdminTelemetryLayout />,
+        children: [
+          {
+            index: true,
+            element: <AdminTelemetryOverviewPage />,
+          },
+          {
+            path: 'api',
+            element: <AdminApiPerformancePage />,
+          },
+          {
+            path: 'routing',
+            element: <AdminRoutingPage />,
+          },
+          {
+            path: 'audio',
+            element: <AdminAudioPage />,
+          },
+          {
+            path: 'product',
+            element: <AdminProductFunnelPage />,
+          },
+          {
+            path: 'errors',
+            element: <AdminErrorsPage />,
+          },
+        ],
       },
       {
         path: '*',

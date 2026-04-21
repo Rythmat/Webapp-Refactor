@@ -1,4 +1,4 @@
-import { CircleHelp, Ratio, Shield, Users } from 'lucide-react';
+import { Activity, CircleHelp, Ratio, Shield, Users } from 'lucide-react';
 import { useState } from 'react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { CreditsBadge } from '@/components/CreditsBadge';
@@ -41,6 +41,12 @@ export const Sidebar = ({
             isCollapsed={isCollapsed}
             label="Insider Access"
             to={AdminRoutes.freeAccess()}
+          />
+          <SidebarMainNavItem
+            icon={Activity}
+            isCollapsed={isCollapsed}
+            label="Telemetry"
+            to={AdminRoutes.telemetry()}
           />
         </ul>
       );

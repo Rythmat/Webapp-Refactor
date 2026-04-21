@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
+import { trackKeyboardInput } from '@/telemetry/hooks/useTelemetryAudio';
 
 const KEY_MAP: Record<string, string> = {
   a: 'C4',
@@ -49,6 +50,7 @@ export const useMidiKeyboard = ({
       if (note) {
         event.preventDefault();
         pressedKeys.current.add(key);
+        trackKeyboardInput(note);
         onNoteOn(note);
       }
     },

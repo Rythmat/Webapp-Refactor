@@ -85,9 +85,8 @@ export function JamLobby() {
       );
       if (cancelled) return;
 
-      // Keep rooms that are active or unknown (server unreachable)
-      // Only drop rooms explicitly confirmed inactive
-      const activeRooms = checks.filter((r) => r.status !== false);
+      // Only keep rooms confirmed active — drop unknown/unreachable rooms
+      const activeRooms = checks.filter((r) => r.status === true);
       localStorage.setItem(
         RECENT_ROOMS_KEY,
         JSON.stringify(activeRooms.slice(0, 5)),
@@ -104,7 +103,9 @@ export function JamLobby() {
     setError(null);
     const roomId = crypto.randomUUID().slice(0, 8);
     addRecentRoom(roomId);
-    navigate(GameRoutes.jamRoom({ roomId }), { state: { role: 'owner' } });
+    navigate(GameRoutes.jamRoom({ roomId }), {
+      state: { role: 'owner', created: true },
+    });
   }, [navigate]);
 
   const handleJoin = useCallback(async () => {
@@ -116,9 +117,9 @@ export function JamLobby() {
     const status = await checkRoomStatus(code);
     setJoining(false);
 
-    // Only block if server explicitly confirms the room is inactive
-    if (status === false) {
-      setError('That room does not exist');
+    // Only allow joining rooms confirmed as active
+    if (status !== true) {
+      setError('Room not found');
       removeRecentRoom(code);
       return;
     }
@@ -126,6 +127,29 @@ export function JamLobby() {
     addRecentRoom(code);
     navigate(GameRoutes.jamRoom({ roomId: code }));
   }, [joinCode, navigate]);
+
+  const [joiningRecent, setJoiningRecent] = useState<string | null>(null);
+
+  const handleJoinRecent = useCallback(
+    async (roomIdToJoin: string) => {
+      setError(null);
+      setJoiningRecent(roomIdToJoin);
+
+      const status = await checkRoomStatus(roomIdToJoin);
+      setJoiningRecent(null);
+
+      if (status !== true) {
+        setError('Room not found');
+        removeRecentRoom(roomIdToJoin);
+        setRecentRooms((prev) => prev.filter((r) => r.id !== roomIdToJoin));
+        return;
+      }
+
+      addRecentRoom(roomIdToJoin);
+      navigate(GameRoutes.jamRoom({ roomId: roomIdToJoin }));
+    },
+    [navigate],
+  );
 
   return (
     <div
@@ -218,18 +242,22 @@ export function JamLobby() {
               {recentRooms.map((room) => (
                 <button
                   key={room.id}
-                  onClick={() => {
-                    addRecentRoom(room.id);
-                    navigate(GameRoutes.jamRoom({ roomId: room.id }));
-                  }}
-                  className="flex items-center justify-between px-3 py-2 bg-zinc-900 hover:bg-zinc-800 rounded-lg text-sm transition-colors"
+                  onClick={() => handleJoinRecent(room.id)}
+                  disabled={joiningRecent === room.id}
+                  className="flex items-center justify-between px-3 py-2 bg-zinc-900 hover:bg-zinc-800 rounded-lg text-sm transition-colors disabled:opacity-50"
                 >
                   <span className="text-zinc-400 font-mono text-xs">
                     {room.id}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    <ArrowRight size={12} className="text-zinc-600" />
+                    {joiningRecent === room.id ? (
+                      <span className="w-3 h-3 border border-zinc-600 border-t-emerald-400 rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        <ArrowRight size={12} className="text-zinc-600" />
+                      </>
+                    )}
                   </span>
                 </button>
               ))}

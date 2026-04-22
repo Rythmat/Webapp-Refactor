@@ -38,8 +38,9 @@ export const PlayNote: React.FC<PlayNoteProps> = ({
   dimmed = false,
   highlighted = false,
 }) => {
-  const top = row * rowHeight + 4;
-  const height = rowHeight - 8;
+  const margin = Math.max(1, Math.floor(rowHeight * 0.15));
+  const top = row * rowHeight + margin;
+  const height = Math.max(1, rowHeight - margin * 2);
   const effectiveColor = color;
   const playedFillOpacity = inTime && dimmed ? 0.2 : 1;
 

@@ -57,7 +57,7 @@ export function useMetronome({
     // Always dispose the old sequence — Transport.cancel() clears its internal events
     // and a stopped sequence may not re-register cleanly via start(0).
     if (loopRef.current) {
-      loopRef.current.stop();
+      loopRef.current.stop(Math.max(0, Tone.now()));
       loopRef.current.dispose();
       loopRef.current = null;
     }
@@ -93,7 +93,7 @@ export function useMetronome({
   const stop = useCallback(() => {
     console.log('[metronome] stop called. running:', runningRef.current);
     if (!runningRef.current) return;
-    loopRef.current?.stop();
+    loopRef.current?.stop(Math.max(0, Tone.now()));
     runningRef.current = false;
   }, []);
 
@@ -120,7 +120,7 @@ export function useMetronome({
   // Dispose on unmount
   useEffect(() => {
     return () => {
-      loopRef.current?.stop();
+      loopRef.current?.stop(Math.max(0, Tone.now()));
       loopRef.current?.dispose();
       loopRef.current = null;
       synthRef.current?.dispose();

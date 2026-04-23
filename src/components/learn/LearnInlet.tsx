@@ -911,6 +911,10 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           id: s.id,
           name: s.name,
           stepCount: s.steps.length,
+          route: CurriculumRoutes.genreLevel(
+            { genre: sub.genre!, level: String(sub.level) },
+            { section: s.id },
+          ),
         }));
         const hasProfile = !!getGenreProfile(sub.genre);
         setSelectedSubItem({

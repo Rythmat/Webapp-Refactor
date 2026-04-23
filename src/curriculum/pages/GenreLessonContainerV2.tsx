@@ -11,18 +11,20 @@ import * as Tone from 'tone';
 import {
   triggerPianoAttack,
   triggerPianoRelease,
+  triggerPianoAttackRelease,
   startPianoSampler,
 } from '@/audio/pianoSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { CurriculumRoutes } from '@/constants/routes';
-import { KEY_OF_COLORS } from '@/constants/theme';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import DualStaffPianoRoll from '@/curriculum/components/DualStaffPianoRoll';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import {
   LearnInputProvider,
   useLearnInputStable,
 } from '@/learn/context/LearnInputContext';
+import { colorForKeyMode } from '@/lib/modeColorShift';
 import {
   resolveStepContent,
   toPianoRollEvents,
@@ -57,6 +59,7 @@ interface GenreLessonContainerV2Props {
   flow: ActivityFlowV2;
   genre: string;
   level: number;
+  initialSection?: ActivitySectionId;
   // Dongle callbacks — wire these when Globe/Studio/Arcade are ready
   onGlobeUpdate?: (data: GlobeDongleData) => void;
   onStudioUpdate?: (data: StudioDongleData) => void;
@@ -67,6 +70,25 @@ interface GenreLessonContainerV2Props {
 // ── Activity state machine ───────────────────────────────────────────────────
 
 type ActivityState = 'preview' | 'practice' | 'performance' | 'complete';
+
+// ── Scale → mode slug mapping (for key center color) ────────────────────────
+
+const SCALE_TO_MODE: Record<string, string> = {
+  ionian: 'ionian',
+  dorian: 'dorian',
+  phrygian: 'phrygian',
+  lydian: 'lydian',
+  mixolydian: 'mixolydian',
+  aeolian: 'aeolian',
+  locrian: 'locrian',
+  major_pentatonic: 'ionian',
+  minor_pentatonic: 'dorian',
+  blues: 'dorian',
+  minor_blues: 'dorian',
+  major_blues: 'ionian',
+  harmonic_minor: 'aeolian',
+  melodic_minor: 'aeolian',
+};
 
 // ── Key root parser ──────────────────────────────────────────────────────────
 
@@ -100,6 +122,7 @@ function GenreLessonContainerV2Inner({
   flow,
   genre,
   level,
+  initialSection,
   onGlobeUpdate,
   onStudioUpdate,
   onArcadeUpdate,
@@ -109,7 +132,9 @@ function GenreLessonContainerV2Inner({
   const genreDisplayName = genre.charAt(0).toUpperCase() + genre.slice(1);
 
   // ── State ────────────────────────────────────────────────────────────────
-  const [activeSection, setActiveSection] = useState<ActivitySectionId>('A');
+  const [activeSection, setActiveSection] = useState<ActivitySectionId>(
+    initialSection ?? 'A',
+  );
   const [stepIndex, setStepIndex] = useState(0);
   const [_activityState, _setActivityState] =
     useState<ActivityState>('preview');
@@ -138,6 +163,8 @@ function GenreLessonContainerV2Inner({
   const playStartedAtRef = useRef(0);
   // Guard against multiple completions in IT mode
   const hasStartedRef = useRef(false);
+  // Practice-mode melody rendering — target notes played as audio guide
+  const practiceNotePartRef = useRef<Tone.Part | null>(null);
 
   // Drag refs for tempo control
   const dragStartY = useRef(0);
@@ -161,6 +188,11 @@ function GenreLessonContainerV2Inner({
   const isPerforming = activityState === 'performance';
   const isPracticing = activityState === 'practice';
   const isActive = isPerforming || isPracticing;
+  // True when the current step has an engine-generated backing track (drums/bass/chords).
+  // Used to suppress the metronome in Play Now mode — the drum track provides the pulse.
+  const hasBackingParts =
+    ((currentStep as ActivityStepV2).backing_parts?.engine_generates?.length ??
+      0) > 0;
 
   // Key from flow params — no GCM dependency
   const keyRoot = useMemo(() => {
@@ -168,11 +200,16 @@ function GenreLessonContainerV2Inner({
     return parseKeyRoot(keyName);
   }, [flow.params.defaultKey]);
 
-  // Key color from app's color system
+  // Key color from app's color system — mode-shifted to match Music Atlas key center colors
   const keyColor = useMemo(() => {
     const keyName = flow.params.defaultKey.split(' ')[0];
-    return (KEY_OF_COLORS as Record<string, string>)[keyName] ?? '#FEA92A';
-  }, [flow.params.defaultKey]);
+    const modeSlug =
+      SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? 'dorian';
+    return colorForKeyMode(
+      keyName,
+      modeSlug as Parameters<typeof colorForKeyMode>[1],
+    );
+  }, [flow.params.defaultKey, flow.params.defaultScaleId]);
 
   // Demo playback hook
   const { playDemo, stopDemo, demoHighlightMidis, isPlayingDemo } =
@@ -262,7 +299,13 @@ function GenreLessonContainerV2Inner({
 
   // Auto-fit note range from target notes
   const noteRange = useMemo(() => {
-    if (!targetNotes.length) return { min: 48, max: 72 }; // C3-C5 default
+    // Section C = Bass — cap the top at C4 (MIDI 60) so the keyboard renders low
+    const isBassSection = activeSection === 'C';
+    const keyboardMaxCap = isBassSection ? 60 : Infinity;
+
+    if (!targetNotes.length) {
+      return isBassSection ? { min: 36, max: 60 } : { min: 48, max: 72 }; // C2-C4 for bass, C3-C5 default
+    }
 
     const midis = targetNotes.map((n) => n.midi);
     const rawMin = Math.min(...midis);
@@ -270,27 +313,59 @@ function GenreLessonContainerV2Inner({
 
     // Pad 3 semitones above and below
     const paddedMin = rawMin - 3;
-    const paddedMax = rawMax + 3;
+    const paddedMax = Math.min(rawMax + 3, keyboardMaxCap);
 
     // Never less than one octave (12 semitones)
     const range = paddedMax - paddedMin;
     if (range < 12) {
       const center = Math.floor((paddedMin + paddedMax) / 2);
-      return { min: center - 6, max: center + 6 };
+      return { min: center - 6, max: Math.min(center + 6, keyboardMaxCap) };
     }
 
     return { min: paddedMin, max: paddedMax };
-  }, [targetNotes]);
+  }, [targetNotes, activeSection]);
 
   // Convert MIDI range to octave numbers for PianoKeyboard
   const startOctave = Math.floor(noteRange.min / 12) - 1;
   const endOctave = Math.floor(noteRange.max / 12) - 1;
+
+  // Detect two-hand D section steps — use dual grand staff layout
+  const isDualStaff = useMemo(
+    () =>
+      !!resolvedStep.instrument_config &&
+      resolvedStep.instrument_config.hand_config !== 'open' &&
+      resolvedStep.instrument_config.lh_role !== 'open' &&
+      resolvedStep.instrument_config.rh_role !== 'open',
+    [resolvedStep.instrument_config],
+  );
 
   // Piano roll container height
   const PIANO_ROLL_HEIGHT = 400;
   // rowHeight is the TOTAL height passed to PianoRoll — it divides internally by lane count
   // Subtract ~40px for timeline header and padding
   const rowHeight = PIANO_ROLL_HEIGHT - 40;
+
+  // Static piano roll height for dual stave — computed once on mount at 90% of available space.
+  // Not reactive to resize: avoids layout thrashing and prevents the preview modal from
+  // covering the keyboard demo during playback.
+  const pianoRollMaxHeight = useMemo(() => {
+    const HEADER = 82; // breadcrumb + title + step counter
+    const SECTION_TABS = 48; // A/B/C/D tabs row
+    const STEP_NAV = 38; // dot progress nav row
+    const TEMPO_BAR = 44; // always reserve even when hidden (IT-only bar)
+    const SECTION_PADDING = 16; // 8px top + 8px bottom of piano section container
+    const KEYBOARD = 128; // 120px keyboard + 8px margin-top
+    const PRACTICE_CONTROLS = 64; // Back / Demo / Perform bar
+    const overhead =
+      HEADER +
+      SECTION_TABS +
+      STEP_NAV +
+      TEMPO_BAR +
+      SECTION_PADDING +
+      KEYBOARD +
+      PRACTICE_CONTROLS;
+    return Math.max(200, Math.floor((window.innerHeight - overhead) * 0.9));
+  }, []); // empty deps — computed once at mount
 
   // Keyboard highlights
   const keyboardPlayingNotes: PlaybackEvent[] = useMemo(
@@ -357,22 +432,49 @@ function GenreLessonContainerV2Inner({
     return () => cancelAnimationFrame(rafId);
   }, [activityState, activeMidis.length]);
 
-  // Get the current target event for a MIDI pitch (next uncompleted one)
+  // Get the current target event for a MIDI pitch (next uncompleted one).
+  // OOT: enforces sequential order — only events at the earliest uncompleted
+  // onset are eligible, so you can't skip ahead by playing a later note.
   const getCurrentEventForMidi = useCallback(
     (
       midi: number,
     ): { event: (typeof pianoRollEvents)[0]; index: number } | null => {
       const indices = midiToEventIndices.get(midi);
       if (!indices) return null;
+
+      if (!isIT) {
+        // Find the minimum onset among all uncompleted events (the current onset group)
+        let minOnset = Infinity;
+        for (const ev of pianoRollEvents) {
+          if (!completedEventIdsRef.current.has(ev.id)) {
+            const onset = ev.startTicks;
+            if (onset < minOnset) minOnset = onset;
+          }
+        }
+        if (minOnset === Infinity) return null;
+        // Only match events belonging to that onset group
+        for (const idx of indices) {
+          const ev = pianoRollEvents[idx];
+          if (
+            !completedEventIdsRef.current.has(ev.id) &&
+            ev.startTicks === minOnset
+          ) {
+            return { event: ev, index: idx };
+          }
+        }
+        return null;
+      }
+
+      // IT: original behavior — next uncompleted event for this pitch
       for (const idx of indices) {
         const ev = pianoRollEvents[idx];
         if (!completedEventIdsRef.current.has(ev.id)) {
           return { event: ev, index: idx };
         }
       }
-      return null; // all events for this pitch are completed
+      return null;
     },
-    [midiToEventIndices, pianoRollEvents],
+    [midiToEventIndices, pianoRollEvents, isIT],
   );
 
   // Track note-on start times
@@ -516,13 +618,11 @@ function GenreLessonContainerV2Inner({
   const { startBacking, stopBacking, initSF2 } = useBackingTrack(tempo);
   const [instrumentsLoading, setInstrumentsLoading] = useState(false);
 
-  // Disable metronome when backing track is playing — drums provide the pulse
-  const hasBackingTrack = !!(currentStep as ActivityStepV2).backing_parts
-    ?.engine_generates?.length;
-
   const { setBpm, prepare: prepareMetronome } = useMetronome({
     bpm: tempo,
-    enabled: isActive && isIT,
+    // Disable metronome in Play Now (performance) mode when a backing track is running —
+    // the drum track provides the pulse. Practice mode always gets the metronome.
+    enabled: isActive && isIT && !(isPerforming && hasBackingParts),
   });
 
   // ── Tick counter ──────────────────────────────────────────────────────────
@@ -751,6 +851,14 @@ function GenreLessonContainerV2Inner({
 
   const handleSectionChange = useCallback(
     (sectionId: ActivitySectionId) => {
+      stopDemo();
+      stopBacking();
+      Tone.getTransport().stop();
+      Tone.getTransport().cancel();
+      if (itTimerRef.current) {
+        clearTimeout(itTimerRef.current);
+        itTimerRef.current = null;
+      }
       stopTickCounter();
       setActiveSection(sectionId);
       setStepIndex(0);
@@ -759,7 +867,7 @@ function GenreLessonContainerV2Inner({
       setLastResult(null);
       setActiveMidis([]);
     },
-    [setActivityState, stopTickCounter],
+    [setActivityState, stopTickCounter, stopDemo, stopBacking],
   );
 
   // ── OOT auto-completion detection ─────────────────────────────────────────
@@ -879,7 +987,7 @@ function GenreLessonContainerV2Inner({
   // ── Reset on flow change ───────────────────────────────────────────────
 
   useEffect(() => {
-    setActiveSection('A');
+    setActiveSection(initialSection ?? 'A');
     setStepIndex(0);
     setActivityState('preview');
     setUserNotes([]);
@@ -892,6 +1000,12 @@ function GenreLessonContainerV2Inner({
   // ── Practice mode handlers ──────────────────────────────────────────────
 
   const handleStartPractice = useCallback(async () => {
+    // Stop any audio that may be running from a prior state
+    stopDemo();
+    stopBacking();
+    Tone.getTransport().stop();
+    Tone.getTransport().cancel();
+
     await Tone.start();
     await startPianoSampler();
 
@@ -917,8 +1031,46 @@ function GenreLessonContainerV2Inner({
     // Set up metronome synth + sequence at position 0 BEFORE Transport starts,
     // so beat 1 fires cleanly. The runningRef guard prevents the useEffect from
     // restarting when enabled flips true after setActivityState('practice').
-    if (!hasBackingTrack) {
-      await prepareMetronome();
+    // Always call prepareMetronome — in practice mode no backing track runs,
+    // so the metronome must always be primed here (including D activities).
+    await prepareMetronome();
+
+    // Schedule target notes as an audio guide in practice mode.
+    // Notes are offset by the count-in bar (COUNT_IN_OFFSET ticks) to align
+    // with the piano roll playhead. Muted in Play Now (performance) mode so
+    // the student plays without a guide.
+    if (practiceNotePartRef.current) {
+      practiceNotePartRef.current.stop();
+      practiceNotePartRef.current.dispose();
+      practiceNotePartRef.current = null;
+    }
+    if (targetNotes.length > 0) {
+      const spt = 60 / (tempo * 480); // seconds per tick
+      const noteEvents = targetNotes.map((n) => ({
+        time: (n.onset + COUNT_IN_OFFSET * 2) * spt,
+        midi: n.midi,
+        durationSec: n.duration * spt,
+      }));
+      const part = new Tone.Part(
+        (time, value: { midi: number; durationSec: number }) => {
+          const noteName = Tone.Frequency(value.midi, 'midi').toNote();
+          void triggerPianoAttackRelease(noteName, value.durationSec, 80, time);
+          // Drive keyboard highlight in sync with audio guide
+          Tone.getDraw().schedule(() => {
+            setPracticeHighlightMidis((prev) => new Set([...prev, value.midi]));
+          }, time);
+          Tone.getDraw().schedule(() => {
+            setPracticeHighlightMidis((prev) => {
+              const next = new Set(prev);
+              next.delete(value.midi);
+              return next;
+            });
+          }, time + value.durationSec);
+        },
+        noteEvents,
+      );
+      part.start(0);
+      practiceNotePartRef.current = part;
     }
 
     Tone.getTransport().start();
@@ -926,11 +1078,25 @@ function GenreLessonContainerV2Inner({
     // Match audio latency before starting piano roll playhead
     await new Promise((r) => setTimeout(r, 150));
     setActivityState('practice');
-  }, [tempo, isIT, hasBackingTrack, prepareMetronome, setActivityState]);
+  }, [
+    tempo,
+    isIT,
+    targetNotes,
+    prepareMetronome,
+    setActivityState,
+    stopDemo,
+    stopBacking,
+  ]);
 
   const handleStopPractice = useCallback(() => {
     Tone.getTransport().stop();
     Tone.getTransport().position = 0;
+    // Dispose practice melody guide part
+    if (practiceNotePartRef.current) {
+      practiceNotePartRef.current.stop();
+      practiceNotePartRef.current.dispose();
+      practiceNotePartRef.current = null;
+    }
     setPracticeHighlightMidis(new Set());
     setActivityState('preview');
   }, [setActivityState]);
@@ -967,16 +1133,13 @@ function GenreLessonContainerV2Inner({
       await initSF2();
       setInstrumentsLoading(false);
 
-      // Pass prepareMetronome as a pre-start callback for IT steps so the
-      // metronome sequence is registered at position 0 BEFORE Transport.start().
-      // This guarantees beat 1 fires in sync with drums/bass/chords.
       await startBacking(
         resolvedStep as ActivityStepV2,
         keyRoot,
         flow.level,
         (resolvedStep as ActivityStepV2).styleRef ?? 'l1a',
         targetNotes,
-        isIT ? prepareMetronome : undefined,
+        undefined, // no metronome in Play Now with backing track — drums provide the pulse
       );
 
       // Wait for Transport start offset + Web Audio latency
@@ -1182,10 +1345,14 @@ function GenreLessonContainerV2Inner({
           onClick={() => {
             if (stepIndex > 0) {
               stopDemo();
+              stopBacking();
+              Tone.getTransport().stop();
+              Tone.getTransport().cancel();
               if (itTimerRef.current) {
                 clearTimeout(itTimerRef.current);
                 itTimerRef.current = null;
               }
+              stopTickCounter();
               setStepIndex((i) => i - 1);
               setActivityState('preview');
               setUserNotes([]);
@@ -1216,10 +1383,14 @@ function GenreLessonContainerV2Inner({
 
           const handleDotClick = () => {
             stopDemo();
+            stopBacking();
+            Tone.getTransport().stop();
+            Tone.getTransport().cancel();
             if (itTimerRef.current) {
               clearTimeout(itTimerRef.current);
               itTimerRef.current = null;
             }
+            stopTickCounter();
             setStepIndex(i);
             setActivityState('preview');
             setUserNotes([]);
@@ -1289,10 +1460,14 @@ function GenreLessonContainerV2Inner({
           onClick={() => {
             if (stepIndex < currentSection.steps.length - 1) {
               stopDemo();
+              stopBacking();
+              Tone.getTransport().stop();
+              Tone.getTransport().cancel();
               if (itTimerRef.current) {
                 clearTimeout(itTimerRef.current);
                 itTimerRef.current = null;
               }
+              stopTickCounter();
               setStepIndex((i) => i + 1);
               setActivityState('preview');
               setUserNotes([]);
@@ -1372,37 +1547,63 @@ function GenreLessonContainerV2Inner({
           flexDirection: 'column',
         }}
       >
-        {/* Piano Roll — constrained height */}
+        {/* Piano Roll — fixed height for single stave; viewport-fitted for dual stave */}
         <div
           style={{
-            height: `${PIANO_ROLL_HEIGHT}px`,
-            minHeight: '300px',
-            maxHeight: `${PIANO_ROLL_HEIGHT}px`,
+            height: isDualStaff ? pianoRollMaxHeight : PIANO_ROLL_HEIGHT,
+            minHeight: '200px',
             position: 'relative',
             flexShrink: 0,
             overflow: 'hidden',
           }}
         >
-          <GenrePianoRoll
-            key={`roll-${activityInstanceId}`}
-            events={pianoRollEvents}
-            bars={requiredBars}
-            beatsPerBar={4}
-            subdivision={isIT ? 4 : 1}
-            rowHeight={rowHeight}
-            inTime={isIT}
-            playSpeed={tempo}
-            isPlaying={isActive && isIT}
-            onPlayingChange={() => {}}
-            onTickChange={handleTickChange}
-            activeMidis={activeMidis}
-            noteHoldMeta={isActive && !isIT ? noteHoldMeta : undefined}
-            performanceMeta={isIT ? performanceMeta : undefined}
-            keyRoot={keyRoot}
-            keyColor={keyColor}
-            userNotes={isActive ? userNotes : []}
-            targetMidiSet={targetMidiSet}
-          />
+          {isDualStaff ? (
+            <DualStaffPianoRoll
+              key={`roll-${activityInstanceId}`}
+              handConfig={resolvedStep.instrument_config!.hand_config}
+              containerHeight={pianoRollMaxHeight}
+              events={pianoRollEvents}
+              bars={requiredBars}
+              beatsPerBar={4}
+              subdivision={isIT ? 4 : 1}
+              rowHeight={rowHeight}
+              inTime={isIT}
+              playSpeed={tempo}
+              isPlaying={isActive && isIT}
+              onPlayingChange={() => {}}
+              onTickChange={handleTickChange}
+              activeMidis={activeMidis}
+              noteHoldMeta={isActive && !isIT ? noteHoldMeta : undefined}
+              performanceMeta={isIT ? performanceMeta : undefined}
+              keyRoot={keyRoot}
+              keyColor={keyColor}
+              userNotes={isActive ? userNotes : []}
+              targetMidiSet={targetMidiSet}
+            />
+          ) : (
+            <GenrePianoRoll
+              key={`roll-${activityInstanceId}`}
+              events={pianoRollEvents}
+              bars={requiredBars}
+              beatsPerBar={4}
+              subdivision={isIT ? 4 : 1}
+              rowHeight={rowHeight}
+              midiRangeMin={noteRange.min}
+              midiRangeMax={noteRange.max}
+              inTime={isIT}
+              playSpeed={tempo}
+              isPlaying={isActive && isIT}
+              onPlayingChange={() => {}}
+              onTickChange={handleTickChange}
+              activeMidis={activeMidis}
+              noteHoldMeta={isActive && !isIT ? noteHoldMeta : undefined}
+              performanceMeta={isIT ? performanceMeta : undefined}
+              keyRoot={keyRoot}
+              keyColor={keyColor}
+              userNotes={isActive ? userNotes : []}
+              targetMidiSet={targetMidiSet}
+            />
+          )}
         </div>
 
         {/* Piano Keyboard — fixed height, range matches piano roll */}
@@ -1509,7 +1710,7 @@ function GenreLessonContainerV2Inner({
           </div>
         )}
 
-        {/* Preview modal */}
+        {/* Preview modal — covers only the piano roll, never the keyboard */}
         {activityState === 'preview' && (
           <div
             style={{
@@ -1517,7 +1718,7 @@ function GenreLessonContainerV2Inner({
               top: 0,
               left: 0,
               right: 0,
-              height: `${PIANO_ROLL_HEIGHT}px`, // only covers the piano roll, not the keyboard
+              height: `${isDualStaff ? pianoRollMaxHeight : PIANO_ROLL_HEIGHT}px`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

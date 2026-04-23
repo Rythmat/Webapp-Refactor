@@ -17,7 +17,7 @@ const cache = new Map<string, ActivityFlow[]>();
 export async function loadAfricanFlows(): Promise<ActivityFlow[]> {
   const key = 'african';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./african');
+  const mod = await import('./african_v2');
   const flows = [...mod.africanFlows];
   cache.set(key, flows);
   return flows;
@@ -26,7 +26,7 @@ export async function loadAfricanFlows(): Promise<ActivityFlow[]> {
 export async function loadBluesFlows(): Promise<ActivityFlow[]> {
   const key = 'blues';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./blues');
+  const mod = await import('./blues_v2');
   const flows = [...mod.bluesFlows];
   cache.set(key, flows);
   return flows;
@@ -35,7 +35,7 @@ export async function loadBluesFlows(): Promise<ActivityFlow[]> {
 export async function loadElectronicFlows(): Promise<ActivityFlow[]> {
   const key = 'electronic';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./electronic');
+  const mod = await import('./electronic_v2');
   const flows = [...mod.electronicFlows];
   cache.set(key, flows);
   return flows;
@@ -44,7 +44,7 @@ export async function loadElectronicFlows(): Promise<ActivityFlow[]> {
 export async function loadFolkFlows(): Promise<ActivityFlow[]> {
   const key = 'folk';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./folk');
+  const mod = await import('./folk_v2');
   const flows = [...mod.folkFlows];
   cache.set(key, flows);
   return flows;
@@ -62,7 +62,7 @@ export async function loadFunkFlows(): Promise<ActivityFlow[]> {
 export async function loadHipHopFlows(): Promise<ActivityFlow[]> {
   const key = 'hipHop';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./hipHop');
+  const mod = await import('./hipHop_v2');
   const flows = [...mod.hipHopFlows];
   cache.set(key, flows);
   return flows;
@@ -71,7 +71,7 @@ export async function loadHipHopFlows(): Promise<ActivityFlow[]> {
 export async function loadJamBandFlows(): Promise<ActivityFlow[]> {
   const key = 'jamBand';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./jamBand');
+  const mod = await import('./jamBand_v2');
   const flows = [...mod.jamBandFlows];
   cache.set(key, flows);
   return flows;
@@ -80,7 +80,7 @@ export async function loadJamBandFlows(): Promise<ActivityFlow[]> {
 export async function loadJazzFlows(): Promise<ActivityFlow[]> {
   const key = 'jazz';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./jazz');
+  const mod = await import('./jazz_v2');
   const flows = [...mod.jazzFlows];
   cache.set(key, flows);
   return flows;
@@ -89,7 +89,7 @@ export async function loadJazzFlows(): Promise<ActivityFlow[]> {
 export async function loadLatinFlows(): Promise<ActivityFlow[]> {
   const key = 'latin';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./latin');
+  const mod = await import('./latin_v2');
   const flows = [...mod.latinFlows];
   cache.set(key, flows);
   return flows;
@@ -98,7 +98,7 @@ export async function loadLatinFlows(): Promise<ActivityFlow[]> {
 export async function loadNeoSoulFlows(): Promise<ActivityFlow[]> {
   const key = 'neoSoul';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./neoSoul');
+  const mod = await import('./neoSoul_v2');
   const flows = [...mod.neoSoulFlows];
   cache.set(key, flows);
   return flows;
@@ -107,7 +107,7 @@ export async function loadNeoSoulFlows(): Promise<ActivityFlow[]> {
 export async function loadPopFlows(): Promise<ActivityFlow[]> {
   const key = 'pop';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./pop');
+  const mod = await import('./pop_v2');
   const flows = [...mod.popFlows];
   cache.set(key, flows);
   return flows;
@@ -116,7 +116,7 @@ export async function loadPopFlows(): Promise<ActivityFlow[]> {
 export async function loadReggaeFlows(): Promise<ActivityFlow[]> {
   const key = 'reggae';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./reggae');
+  const mod = await import('./reggae_v2');
   const flows = [...mod.reggaeFlows];
   cache.set(key, flows);
   return flows;
@@ -125,7 +125,7 @@ export async function loadReggaeFlows(): Promise<ActivityFlow[]> {
 export async function loadRnbFlows(): Promise<ActivityFlow[]> {
   const key = 'rnb';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./rnb');
+  const mod = await import('./rnb_v2');
   const flows = [...mod.rnbFlows];
   cache.set(key, flows);
   return flows;
@@ -134,7 +134,7 @@ export async function loadRnbFlows(): Promise<ActivityFlow[]> {
 export async function loadRockFlows(): Promise<ActivityFlow[]> {
   const key = 'rock';
   if (cache.has(key)) return cache.get(key)!;
-  const mod = await import('./rock');
+  const mod = await import('./rock_v2');
   const flows = [...mod.rockFlows];
   cache.set(key, flows);
   return flows;

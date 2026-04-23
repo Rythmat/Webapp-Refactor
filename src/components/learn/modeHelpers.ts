@@ -82,6 +82,24 @@ export const rootToMidi = (root: string): number => {
 export const buildScaleMidis = (rootMidi: number, steps: number[]): number[] =>
   steps.map((s) => rootMidi + s);
 
+const SEMITONE_TO_DEGREE: Record<number, string> = {
+  0: '1',
+  1: '♭2',
+  2: '2',
+  3: '♭3',
+  4: '3',
+  5: '4',
+  6: '♯4',
+  7: '5',
+  8: '♭6',
+  9: '6',
+  10: '♭7',
+  11: '7',
+};
+
+export const formatScaleDegrees = (intervals: number[]): string[] =>
+  intervals.map((n) => SEMITONE_TO_DEGREE[n] ?? String(n));
+
 export const buildPlaybackEvents = (
   midis: number[],
   prefix: string,

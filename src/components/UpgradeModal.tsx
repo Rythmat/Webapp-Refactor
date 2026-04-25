@@ -28,18 +28,11 @@ const FALLBACK_TIERS = [
     description: 'Get started with AI generation',
   },
   {
-    id: 'artist' as const,
-    name: 'Artist',
+    id: 'pro' as const,
+    name: 'Pro',
     price: '$10/mo',
-    credits: '100/month',
-    description: 'For serious music makers',
-  },
-  {
-    id: 'studio' as const,
-    name: 'Studio',
-    price: '$20/mo',
-    credits: '200/month',
-    description: 'Unlimited creative freedom',
+    credits: 'Access to all content',
+    description: 'Access to all content',
   },
 ];
 

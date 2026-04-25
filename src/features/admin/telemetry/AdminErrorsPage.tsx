@@ -25,7 +25,7 @@ import {
 import { useAdminTelemetryErrors } from '@/hooks/data/admin/useAdminTelemetry';
 import {
   TimeRangeSelect,
-  timeRangeToParams,
+  useTimeRangeParams,
   type TimeRange,
 } from './components/TimeRangeSelect';
 
@@ -67,7 +67,7 @@ function TruncatedCell({
 export const AdminErrorsPage = () => {
   const [range, setRange] = useState<TimeRange>('24h');
   const [category, setCategory] = useState('all');
-  const params = timeRangeToParams(range);
+  const params = useTimeRangeParams(range);
 
   const { data, isLoading } = useAdminTelemetryErrors({
     ...params,

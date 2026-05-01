@@ -16,6 +16,10 @@ import {
   useRefreshSubscription,
 } from '@/hooks/data/subscription';
 import {
+  trackCheckoutStarted,
+  trackSubscriptionActivated,
+} from '@/telemetry/hooks/useTelemetryProduct';
+import {
   getBillingUiState,
   hasPaymentIssue,
   isActivePaidState,
@@ -61,6 +65,9 @@ export const PlanPage = () => {
     if (checkoutParam === 'success' || checkoutParam === 'cancelled') {
       refreshSubscription();
       queryClient.invalidateQueries({ queryKey: ['credits', 'balance'] });
+      if (checkoutParam === 'success') {
+        trackSubscriptionActivated();
+      }
       const next = new URLSearchParams(searchParams);
       next.delete('checkout');
       setSearchParams(next, { replace: true });
@@ -250,7 +257,10 @@ export const PlanPage = () => {
                   <Button
                     className="w-full"
                     disabled={checkout.isPending}
-                    onClick={() => checkout.mutate()}
+                    onClick={() => {
+                      trackCheckoutStarted();
+                      checkout.mutate();
+                    }}
                   >
                     {checkout.isPending
                       ? 'Loading…'

@@ -1,4 +1,5 @@
 import { Sparkles } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -13,6 +14,10 @@ import {
   useStripeCheckout,
   useStripePortal,
 } from '@/hooks/data/credits';
+import {
+  trackCheckoutStarted,
+  trackPaywallViewed,
+} from '@/telemetry/hooks/useTelemetryProduct';
 
 interface UpgradeModalProps {
   open: boolean;
@@ -41,9 +46,20 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   const { data: credits } = useCreditsBalance();
   const checkout = useStripeCheckout();
   const portal = useStripePortal();
+  const paywallReportedRef = useRef(false);
 
   const tiers = billingConfig?.tiers ?? FALLBACK_TIERS;
   const currentTier = credits?.tier || 'free';
+
+  useEffect(() => {
+    if (open && !paywallReportedRef.current) {
+      paywallReportedRef.current = true;
+      trackPaywallViewed(window.location.pathname);
+    }
+    if (!open) {
+      paywallReportedRef.current = false;
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -89,7 +105,10 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                     <Button
                       disabled={checkout.isPending}
                       size="sm"
-                      onClick={() => checkout.mutate()}
+                      onClick={() => {
+                        trackCheckoutStarted();
+                        checkout.mutate();
+                      }}
                     >
                       Upgrade
                     </Button>

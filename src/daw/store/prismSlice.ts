@@ -84,6 +84,14 @@ export interface PrismSlice {
   availableFirstChords: string[];
   availableNextChords: string[];
   chordRegions: ChordRegion[];
+  /** Measures per row in Lead Sheet view. Defaults to 4. */
+  measuresPerLine: number;
+  /** Custom row sizes from chord chart export. e.g. [4, 5, 4, 4] means row1=4bars, row2=5bars, etc. When set, overrides measuresPerLine. */
+  measureRowSizes: number[] | null;
+  /** Map of measure index → rest bar count. e.g. { 8: 2 } means measure 8 is a 2-bar rest. */
+  measureRestMap: Record<number, number> | null;
+  /** Measure indices that have a fermata. */
+  measureFermatas: number[] | null;
   filterPercent: number;
   selectedTrackId: string | null;
   rootTrackColor: string | null;
@@ -1296,6 +1304,10 @@ export const createPrismSlice: StateCreator<
   availableFirstChords: getFirstChords(),
   availableNextChords: [],
   chordRegions: [],
+  measuresPerLine: 4,
+  measureRowSizes: null,
+  measureRestMap: null,
+  measureFermatas: null,
   filterPercent: 1.0,
   selectedTrackId: 'demo-chords',
   rootTrackColor: null,
@@ -1447,6 +1459,10 @@ export const createPrismSlice: StateCreator<
       stringSeq: [],
       availableNextChords: [],
       chordRegions: [],
+      measuresPerLine: 4,
+      measureRowSizes: null,
+      measureRestMap: null,
+      measureFermatas: null,
     }),
 
   // ── Actions — generation (offloaded to Web Worker) ──

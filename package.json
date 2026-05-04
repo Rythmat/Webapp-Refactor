@@ -147,6 +147,7 @@
     "jsdom": "24.1.0",
     "lint-staged": "15.2.7",
     "partykit": "0.0.115",
+    "pdf-parse": "2.4.5",
     "postcss": "8.4.39",
     "prettier": "3.5.3",
     "shadcn-theme-editor": "1.4.3",

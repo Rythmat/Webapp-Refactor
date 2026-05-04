@@ -1,0 +1,208 @@
+/* ── Dashboard Design Tokens (scoped to .dashboard-root) ───────────────
+   Mirrors the DAW's glass design system for visual consistency.
+   Identical tokens to daw.css, learn.css, settings.css.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.dashboard-root {
+  --color-bg: #191919;
+  --color-surface: #1a1a1a;
+  --color-surface-2: #1e1e1e;
+  --color-surface-3: #222222;
+  --color-border: rgba(255, 255, 255, 0.08);
+
+  --color-text: #e8e8f0;
+  --color-text-dim: #6b6b80;
+
+  --color-accent: #7ecfcf;
+
+  --glass-blur: blur(20px);
+  --glass-blur-sm: blur(10px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-border-light: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --glass-shadow-deep: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-glow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  --color-scrollbar-thumb: rgba(255, 255, 255, 0.08);
+
+  --grain-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Reset border-color inside dashboard */
+.dashboard-root,
+.dashboard-root *,
+.dashboard-root *::before,
+.dashboard-root *::after {
+  border-color: var(--color-border);
+}
+
+/* ── Glass panels ────────────────────────────────────────────────────── */
+.dashboard-root .glass-panel {
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+  position: relative;
+}
+
+.dashboard-root .glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grain-texture);
+  background-size: 128px 128px;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.dashboard-root .glass-panel-sm {
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  box-shadow: var(--glass-glow);
+  position: relative;
+}
+
+.dashboard-root .glass-panel-sm::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grain-texture);
+  background-size: 128px 128px;
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+/* ── Adaptive tab accent colors ──────────────────────────────────────── */
+.dashboard-root {
+  --tab-accent: var(--color-accent);
+  --tab-accent-dim: rgba(126, 207, 207, 0.15);
+}
+.dashboard-root[data-tab="home"]    { --tab-accent: #e8e8f0; --tab-accent-dim: rgba(232, 232, 240, 0.08); }
+.dashboard-root[data-tab="learn"]   { --tab-accent: #34d399; --tab-accent-dim: rgba(52, 211, 153, 0.12); }
+.dashboard-root[data-tab="studio"]  { --tab-accent: #FFCC33; --tab-accent-dim: rgba(255, 204, 51, 0.12); }
+.dashboard-root[data-tab="globe"]   { --tab-accent: #60a5fa; --tab-accent-dim: rgba(96, 165, 250, 0.12); }
+.dashboard-root[data-tab="arcade"]  { --tab-accent: #a78bfa; --tab-accent-dim: rgba(167, 139, 250, 0.12); }
+
+/* ── Micro-interactions ─────────────────────────────────────────────── */
+
+/* Card hover lift */
+.dashboard-root .glass-panel-sm,
+.dashboard-root .glass-panel {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+/* Tab content crossfade */
+.dashboard-root .dashboard-tab-content {
+  animation: dashFadeIn 150ms ease-out;
+}
+
+@keyframes dashFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Progress bar animate on mount */
+.dashboard-root .progress-fill {
+  animation: progressGrow 400ms ease-out;
+}
+
+@keyframes progressGrow {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
+}
+
+/* Streak flame pulse */
+.dashboard-root .flame-pulse {
+  animation: flamePulse 2s ease-in-out infinite;
+}
+
+@keyframes flamePulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.7; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-root .dashboard-tab-content,
+  .dashboard-root .progress-fill,
+  .dashboard-root .flame-pulse {
+    animation: none;
+  }
+  .dashboard-root .glass-panel-sm,
+  .dashboard-root .glass-panel {
+    transition: none;
+  }
+}
+
+/* ── Player range inputs ─────────────────────────────────────────────── */
+.dashboard-root .player-range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-root .player-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-root .player-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  margin-top: -4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.dashboard-root .player-range:hover::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.dashboard-root .player-range::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+}
+
+.dashboard-root .player-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.dashboard-root .player-range:hover::-moz-range-thumb {
+  opacity: 1;
+}
+
+/* ── Scrollbars ──────────────────────────────────────────────────────── */
+.dashboard-root ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.dashboard-root ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dashboard-root ::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar-thumb);
+  border-radius: 3px;
+}

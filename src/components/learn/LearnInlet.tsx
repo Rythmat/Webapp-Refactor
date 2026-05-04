@@ -17,6 +17,7 @@ import type { ProgressSummaryResponse } from '@/lib/progress/types';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
+import { LearnDashboard } from './LearnDashboard';
 import './learn.css';
 
 interface ContentSubItem {
@@ -864,12 +865,17 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const genreParam = searchParams.get('genre');
+  const tabParam = searchParams.get('tab');
   const { isPremium } = useIsPremium();
-  const defaultTab = genreParam
-    ? 'Courses'
-    : isPremium
-      ? initialTab
-      : 'Technique';
+  const validTabs = ['Courses', 'Theory', 'Technique'];
+  const showDashboard = !tabParam || !validTabs.includes(tabParam);
+  const defaultTab = tabParam && validTabs.includes(tabParam)
+    ? tabParam
+    : genreParam
+      ? 'Courses'
+      : isPremium
+        ? initialTab
+        : 'Technique';
   const [subTab, setSubTab] = useState(defaultTab);
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(
     genreParam,
@@ -978,6 +984,13 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       setSelectedChapterId(null);
     }
   }, [selectedSubItem]);
+
+  // Auto-select tab from ?tab= param
+  useEffect(() => {
+    if (tabParam && validTabs.includes(tabParam)) {
+      setSubTab(tabParam);
+    }
+  }, [tabParam]);
 
   // Auto-select Courses tab and highlight the genre when arriving from Globe
   useEffect(() => {
@@ -1353,8 +1366,15 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       className="learn-root relative flex h-full flex-col"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
+      {showDashboard ? (
+        <LearnDashboard navigate={navigate} />
+      ) : (
+      <>
       <MeshGradientBg />
-      <HeaderBar title="Learn " />
+      <HeaderBar
+        title="Learn"
+        onBack={() => { setSearchParams({}, { replace: true }); }}
+      />
       <div className="relative flex flex-1 flex-col overflow-y-auto px-8 pb-12">
         <div className="mb-8 flex flex-col gap-4">
           <div
@@ -1499,6 +1519,8 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           )}
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 };

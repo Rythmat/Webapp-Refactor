@@ -11,6 +11,7 @@ import {
   ConnectRoutes,
   LibraryRoutes,
   AtlasRoutes,
+  SongRoutes,
 } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
@@ -27,6 +28,16 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
 import Atlas from '@/components/atlas/atlas';
+const SongLibraryPage = lazy(() =>
+  import('@/components/songLibrary/SongLibraryPage').then((m) => ({
+    default: m.SongLibraryPage,
+  })),
+);
+const SongDetailPage = lazy(() =>
+  import('@/components/songLibrary/SongDetailPage').then((m) => ({
+    default: m.SongDetailPage,
+  })),
+);
 import { PrismModeSlug } from '@/hooks/data';
 import { ModeOverview } from '@/components/learn/ModeOverview';
 import { RelativeModesOverview } from '@/components/learn/RelativeModesOverview';
@@ -480,6 +491,29 @@ export const atlasPages = () => {
       {
         index: true,
         element: <Atlas />,
+      },
+    ],
+  };
+};
+
+export const songsPages = () => {
+  return {
+    path: SongRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage>
+          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [
+      {
+        index: true,
+        element: <SongLibraryPage />,
+      },
+      {
+        path: ':songId',
+        element: <SongDetailPage />,
       },
     ],
   };

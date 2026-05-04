@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import ModalSphereDemo from './components/ui/3d-orb-demo';
 import { AppContext } from './contexts/AppContext';
 import { curriculumPages } from './curriculum/routes';
 import { WildcardPage } from './features/WildcardPage';
@@ -13,6 +14,7 @@ import {
   connectPages,
   libraryPages,
   atlasPages,
+  songsPages,
 } from './features/classroom/ClassroomPages';
 import { legalPages } from './features/legal';
 import { teacherPages } from './features/teacher/TeacherPages';
@@ -30,7 +32,9 @@ const routesArray = createBrowserRouter([
   connectPages(),
   libraryPages(),
   atlasPages(),
+  songsPages(),
   curriculumPages(),
+  { path: '/modal-sphere', element: <ModalSphereDemo /> },
   {
     path: '*',
     element: (

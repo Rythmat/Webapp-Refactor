@@ -330,6 +330,15 @@ export const AtlasRoutes = {
   root: createRouteDefinition(atlasPrefix),
 };
 
+const songsPrefix = '/songs';
+
+export const SongRoutes = {
+  root: createRouteDefinition(songsPrefix),
+  song: createRouteDefinition<{ songId: string }>('/:songId', {
+    prefix: songsPrefix,
+  }),
+};
+
 const curriculumPrefix = '/curriculum';
 
 export const CurriculumRoutes = {

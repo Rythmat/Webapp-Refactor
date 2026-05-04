@@ -17,6 +17,7 @@ import type { ProgressSummaryResponse } from '@/lib/progress/types';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
+import { LearnDashboard } from './LearnDashboard';
 import './learn.css';
 
 interface ContentSubItem {
@@ -864,12 +865,18 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const genreParam = searchParams.get('genre');
+  const tabParam = searchParams.get('tab');
   const { isPremium } = useIsPremium();
-  const defaultTab = genreParam
-    ? 'Courses'
-    : isPremium
-      ? initialTab
-      : 'Technique';
+  const validTabs = ['Courses', 'Theory', 'Technique'];
+  const showDashboard = !tabParam || !validTabs.includes(tabParam);
+  const defaultTab =
+    tabParam && validTabs.includes(tabParam)
+      ? tabParam
+      : genreParam
+        ? 'Courses'
+        : isPremium
+          ? initialTab
+          : 'Technique';
   const [subTab, setSubTab] = useState(defaultTab);
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(
     genreParam,
@@ -982,6 +989,13 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       setSelectedChapterId(null);
     }
   }, [selectedSubItem]);
+
+  // Auto-select tab from ?tab= param
+  useEffect(() => {
+    if (tabParam && validTabs.includes(tabParam)) {
+      setSubTab(tabParam);
+    }
+  }, [tabParam]);
 
   // Auto-select Courses tab and highlight the genre when arriving from Globe
   useEffect(() => {
@@ -1357,58 +1371,67 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       className="learn-root relative flex h-full flex-col"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
-      <MeshGradientBg />
-      <HeaderBar title="Learn " />
-      <div className="relative flex flex-1 flex-col overflow-y-auto px-8 pb-12">
-        <div className="mb-8 flex flex-col gap-4">
-          <div
-            className="glass-panel-sm flex w-fit items-center gap-1 rounded-lg p-1"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid var(--color-border)',
+      {showDashboard ? (
+        <LearnDashboard navigate={navigate} />
+      ) : (
+        <>
+          <MeshGradientBg />
+          <HeaderBar
+            title="Learn"
+            onBack={() => {
+              setSearchParams({}, { replace: true });
             }}
-          >
-            {(isPremium
-              ? ['Courses', 'Theory', 'Technique']
-              : ['Technique', 'Theory', 'Courses']
-            ).map((tab) => (
-              <button
-                key={tab}
-                className="rounded-md px-6 py-2 text-sm font-medium transition-colors duration-150"
-                style={
-                  subTab === tab
-                    ? {
-                        background: 'var(--color-surface-3)',
-                        color: 'var(--color-accent)',
-                        borderBottom: '2px solid var(--color-accent)',
-                      }
-                    : {
-                        color: 'var(--color-text-dim)',
-                        background: 'transparent',
-                        borderBottom: '2px solid transparent',
-                      }
-                }
-                onClick={() => setSubTab(tab)}
-                onMouseEnter={(e) => {
-                  if (subTab !== tab)
-                    e.currentTarget.style.color = 'var(--color-text)';
-                }}
-                onMouseLeave={(e) => {
-                  if (subTab !== tab)
-                    e.currentTarget.style.color = 'var(--color-text-dim)';
+          />
+          <div className="relative flex flex-1 flex-col overflow-y-auto px-8 pb-12">
+            <div className="mb-8 flex flex-col gap-4">
+              <div
+                className="glass-panel-sm flex w-fit items-center gap-1 rounded-lg p-1"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid var(--color-border)',
                 }}
               >
-                {tab}
-              </button>
-            ))}
-          </div>
-          <div
-            className="pb-4"
-            style={{ borderBottom: '1px solid var(--color-border)' }}
-          />
-        </div>
+                {(isPremium
+                  ? ['Courses', 'Theory', 'Technique']
+                  : ['Technique', 'Theory', 'Courses']
+                ).map((tab) => (
+                  <button
+                    key={tab}
+                    className="rounded-md px-6 py-2 text-sm font-medium transition-colors duration-150"
+                    style={
+                      subTab === tab
+                        ? {
+                            background: 'var(--color-surface-3)',
+                            color: 'var(--color-accent)',
+                            borderBottom: '2px solid var(--color-accent)',
+                          }
+                        : {
+                            color: 'var(--color-text-dim)',
+                            background: 'transparent',
+                            borderBottom: '2px solid transparent',
+                          }
+                    }
+                    onClick={() => setSubTab(tab)}
+                    onMouseEnter={(e) => {
+                      if (subTab !== tab)
+                        e.currentTarget.style.color = 'var(--color-text)';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (subTab !== tab)
+                        e.currentTarget.style.color = 'var(--color-text-dim)';
+                    }}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+              <div
+                className="pb-4"
+                style={{ borderBottom: '1px solid var(--color-border)' }}
+              />
+            </div>
 
-        {/* {showFilter && (
+            {/* {showFilter && (
           <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 absolute top-[150px] left-8 right-8 z-20 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex justify-between items-start mb-4 pb-2 border-b border-white/5">
               <h3 className="text-sm font-medium text-gray-200">Filter</h3>
@@ -1435,74 +1458,76 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           </div>
         )} */}
 
-        <div className="flex-1 overflow-y-auto">
-          {subTab === 'Theory' ? (
-            <>
-              <CollapsibleSection
-                defaultOpen
-                className="mt-4"
-                title="Diatonic Modes"
-              >
-                {renderContent(THEORY_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-8 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Relative Modes"
-              >
-                {renderContent(RELATIVE_MODES_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-4 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Parallel Modes"
-              >
-                {renderContent(PARALLEL_MODES_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-4 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Harmonic Minor Modes"
-              >
-                {renderContent(HARMONIC_MINOR_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-4 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Melodic Minor Modes"
-              >
-                {renderContent(MELODIC_MINOR_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-4 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Harmonic Major Modes"
-              >
-                {renderContent(HARMONIC_MAJOR_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-4 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Double Harmonic Modes"
-              >
-                {renderContent(DOUBLE_HARMONIC_DATA)}
-              </CollapsibleSection>
-            </>
-          ) : subTab === 'Technique' ? (
-            <CollapsibleSection
-              defaultOpen
-              className="mt-4"
-              title="Foundational"
-            >
-              {renderContent(TECHNIQUE_DATA)}
-            </CollapsibleSection>
-          ) : (
-            <CollapsibleSection defaultOpen className="mt-4" title="Genres">
-              {renderContent(activeData)}
-            </CollapsibleSection>
-          )}
-        </div>
-      </div>
+            <div className="flex-1 overflow-y-auto">
+              {subTab === 'Theory' ? (
+                <>
+                  <CollapsibleSection
+                    defaultOpen
+                    className="mt-4"
+                    title="Diatonic Modes"
+                  >
+                    {renderContent(THEORY_DATA)}
+                  </CollapsibleSection>
+                  <CollapsibleSection
+                    className="mt-8 pt-4"
+                    style={{ borderTop: '1px solid var(--color-border)' }}
+                    title="Relative Modes"
+                  >
+                    {renderContent(RELATIVE_MODES_DATA)}
+                  </CollapsibleSection>
+                  <CollapsibleSection
+                    className="mt-4 pt-4"
+                    style={{ borderTop: '1px solid var(--color-border)' }}
+                    title="Parallel Modes"
+                  >
+                    {renderContent(PARALLEL_MODES_DATA)}
+                  </CollapsibleSection>
+                  <CollapsibleSection
+                    className="mt-4 pt-4"
+                    style={{ borderTop: '1px solid var(--color-border)' }}
+                    title="Harmonic Minor Modes"
+                  >
+                    {renderContent(HARMONIC_MINOR_DATA)}
+                  </CollapsibleSection>
+                  <CollapsibleSection
+                    className="mt-4 pt-4"
+                    style={{ borderTop: '1px solid var(--color-border)' }}
+                    title="Melodic Minor Modes"
+                  >
+                    {renderContent(MELODIC_MINOR_DATA)}
+                  </CollapsibleSection>
+                  <CollapsibleSection
+                    className="mt-4 pt-4"
+                    style={{ borderTop: '1px solid var(--color-border)' }}
+                    title="Harmonic Major Modes"
+                  >
+                    {renderContent(HARMONIC_MAJOR_DATA)}
+                  </CollapsibleSection>
+                  <CollapsibleSection
+                    className="mt-4 pt-4"
+                    style={{ borderTop: '1px solid var(--color-border)' }}
+                    title="Double Harmonic Modes"
+                  >
+                    {renderContent(DOUBLE_HARMONIC_DATA)}
+                  </CollapsibleSection>
+                </>
+              ) : subTab === 'Technique' ? (
+                <CollapsibleSection
+                  defaultOpen
+                  className="mt-4"
+                  title="Foundational"
+                >
+                  {renderContent(TECHNIQUE_DATA)}
+                </CollapsibleSection>
+              ) : (
+                <CollapsibleSection defaultOpen className="mt-4" title="Genres">
+                  {renderContent(activeData)}
+                </CollapsibleSection>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

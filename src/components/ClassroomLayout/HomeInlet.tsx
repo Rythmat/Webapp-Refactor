@@ -1,29 +1,21 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
+import { useState, type FC, type FormEvent } from 'react';
 import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type ElementType,
-  type FC,
-} from 'react';
-import {
-  Activity,
-  Bookmark,
-  ChevronLeft,
-  ChevronRight,
-  Heart,
-  Hexagon,
-  Mic2,
-  MoreVertical,
-  Music,
+  ArrowRight,
+  Pause,
+  RotateCcw,
+  SkipBack,
+  SkipForward,
   Play,
-  PlusCircle,
-  RefreshCw,
+  Volume2,
+  VolumeX,
+  Heart,
+  Repeat,
+  Shuffle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { useUISound } from '@/hooks/useUISound';
 import { type PrismModeSlug } from '@/hooks/data/prism';
-import { formatActivityTitle } from '@/lib/activityTitle';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { getChordScales } from '@/components/learn/chordScaleData';
 import { useProgressSummary } from '@/hooks/data';
@@ -34,283 +26,106 @@ import {
   StudioRoutes,
 } from '@/constants/routes';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
-import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
-import { useIsPremium } from '@/hooks/useIsPremium';
-import { HeaderBar } from './HeaderBar';
-import { useStore } from '@/daw/store';
-import {
-  getFirstChords,
-  getOptions,
-  graphToken,
-  generateChord,
-  normalizeSequence,
-  unstepChord,
-  degreeMidi,
-  getModeOffset,
-  getChordColor,
-  noteNameInKey,
-  type RGB,
-  type SuggestionChord,
-} from '@prism/engine';
-import { parsePrompt } from '@/lib/promptParser';
-import { GenrePicker, STUDIO_GENRES } from './GenrePicker';
-import { KeyPicker, keyLabel, type KeySelection } from './KeyPicker';
-import { TempoPicker } from './TempoPicker';
+import { useAssistantMatcher } from './dashboard/assistant/useAssistantMatcher';
+import type { AssistantPhase } from './dashboard/assistant/types';
 
-interface TagProps {
-  label: string;
-  icon?: ElementType;
-  active?: boolean;
-  onClick?: () => void;
-}
-
-const Tag: FC<TagProps> = ({ label, icon: Icon, active, onClick }) => (
-  <button
-    onClick={onClick}
-    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs transition-all ${active ? 'bg-white text-black border-white' : 'bg-white/5 border-white/5 text-gray-300 hover:bg-white/10 hover:border-white/20'}`}
-  >
-    {Icon && <Icon size={10} />}
-    {label}
-  </button>
+/* ── Inline icon helper ──────────────────────────────────────────────── */
+const Icon: FC<{
+  src: string;
+  className?: string;
+  alt?: string;
+  style?: React.CSSProperties;
+}> = ({ src, className = 'w-4 h-4', alt = '', style }) => (
+  <img
+    src={src}
+    alt={alt}
+    className={className}
+    style={style}
+    draggable={false}
+  />
 );
 
-interface ProjectCardProps {
-  title: string;
-  genre: string;
-  author: string;
-  active?: boolean;
-}
-
-const ProjectCard: FC<ProjectCardProps> = ({
-  title,
-  genre,
-  author,
-  active,
-}) => (
-  <div
-    className={`group relative p-4 rounded-2xl border transition-all duration-300 ${active ? 'bg-white/5 border-white/10' : 'bg-transparent border-white/5 hover:bg-white/5'}`}
-  >
-    <div className="flex justify-between items-start mb-2">
-      <div>
-        <h3 className="text-lg font-serif text-gray-100 mb-1">{title}</h3>
-        <div className="flex items-center gap-2 text-xs text-gray-400">
-          <Activity size={12} />
-          <span>{genre}</span>
-        </div>
-      </div>
-      <Bookmark
-        size={18}
-        className="text-gray-500 hover:text-white cursor-pointer"
-      />
-    </div>
-    <div className="flex justify-between items-end mt-4">
-      <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-[10px] font-bold">
-          {author[0]}
-        </div>
-        <span className="text-xs text-gray-400">{author}</span>
-      </div>
-      <Heart
-        size={16}
-        className="text-gray-500 hover:text-white cursor-pointer transition-colors"
-      />
-    </div>
-  </div>
-);
-
-const bannerSlides = [
+/* ── Section card config ─────────────────────────────────────────────── */
+const SECTIONS = [
   {
-    title: 'Study',
+    label: 'Learn',
+    icon: '/icons/learn-icon.svg',
+    bg: '/backgrounds/learn-bg.svg',
     route: LearnRoutes.root.definition,
   },
   {
-    title: 'Create',
+    label: 'Studio',
+    icon: '/icons/studio-icon.svg',
+    bg: '/backgrounds/studio-bg.svg',
     route: StudioRoutes.root.definition,
   },
   {
-    title: 'Play',
+    label: 'Arcade',
+    icon: '/icons/arcade-icon.svg',
+    bg: '/backgrounds/arcade-bg.svg',
     route: GameRoutes.root.definition,
   },
   {
-    title: 'Explore',
+    label: 'Globe',
+    icon: '/icons/globe-icon.svg',
+    bg: '/backgrounds/globe-bg.svg',
     route: AtlasRoutes.root.definition,
   },
-];
+] as const;
 
+/* ── Component ───────────────────────────────────────────────────────── */
 export const HomeInlet = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [prompt, setPrompt] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [projects, setProjects] = useState<ProjectCardProps[]>([]);
-  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
-  const [selectedKey, setSelectedKey] = useState<KeySelection | null>(null);
-  const [selectedBpm, setSelectedBpm] = useState<number | null>(null);
-  const [showGenrePicker, setShowGenrePicker] = useState(false);
-  const [showKeyPicker, setShowKeyPicker] = useState(false);
-  const [showTempoPicker, setShowTempoPicker] = useState(false);
   const navigate = useNavigate();
-  const { isPremium } = useIsPremium();
+  const { play } = useUISound();
   const { data: progressSummary } = useProgressSummary(true);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    setProjects([]);
-  }, []);
+  /* Assistant state */
+  const [phase, setPhase] = useState<AssistantPhase>({ type: 'idle' });
+  const [assistantInput, setAssistantInput] = useState('');
+  const { match } = useAssistantMatcher();
 
-  const resetTimer = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
-    }, 5000);
-  }, []);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % bannerSlides.length);
-    resetTimer();
+  const handleAssistantSubmit = (e?: FormEvent) => {
+    e?.preventDefault();
+    const trimmed = assistantInput.trim();
+    if (!trimmed) return;
+    play('click');
+    setPhase({ type: 'result', query: trimmed, matches: match(trimmed) });
   };
-  const prevSlide = () => {
-    setCurrentSlide(
-      (prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length,
-    );
-    resetTimer();
+  const handleAssistantReset = () => {
+    play('click');
+    setPhase({ type: 'idle' });
+    setAssistantInput('');
   };
 
-  useEffect(() => {
-    resetTimer();
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [resetTimer]);
+  /* Player state */
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(66);
+  const [seekPosition, setSeekPosition] = useState(33);
+  const [isShuffle, setIsShuffle] = useState(false);
+  const [isRepeat, setIsRepeat] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
-  // Inline genre tags shown directly (first 5 of STUDIO_GENRES)
-  const INLINE_GENRES = STUDIO_GENRES.slice(0, 5);
+  const totalSeconds = 204; // 3:24
+  const currentSeconds = Math.round((seekPosition / 100) * totalSeconds);
+  const formatTime = (s: number) =>
+    `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
-  const handleGenerate = async () => {
-    setIsGenerating(true);
-
-    try {
-      // If nothing is specified, randomize everything
-      const hasInput =
-        prompt.trim() || selectedGenre || selectedKey || selectedBpm;
-      const randGenre = hasInput
-        ? selectedGenre
-        : STUDIO_GENRES[Math.floor(Math.random() * STUDIO_GENRES.length)];
-      const randKey = hasInput
-        ? selectedKey
-        : {
-            root: Math.floor(Math.random() * 12),
-            mode: Math.random() < 0.5 ? 'ionian' : 'aeolian',
-          };
-
-      const parsed = parsePrompt(prompt, randGenre, randKey, selectedBpm);
-      const store = useStore.getState();
-
-      // Configure Prism
-      store.clearSequence();
-      store.setRootNote(parsed.rootNote);
-      store.setMode(parsed.mode);
-      store.selectGenre(parsed.genre);
-      store.setBpm(parsed.bpm);
-
-      // Random graph walk — picks randomly at every step for maximum variety
-      const numChords = 4;
-      const degrees: string[] = [];
-      const firstChords = getFirstChords();
-      const start = firstChords[Math.floor(Math.random() * firstChords.length)];
-      degrees.push(start);
-      let history = [start];
-
-      for (let i = 1; i < numChords; i++) {
-        const token = graphToken(history);
-        let options = getOptions(2, token);
-        if (options.length === 0) {
-          for (let len = history.length - 1; len > 0; len--) {
-            options = getOptions(2, graphToken(history.slice(-len)));
-            if (options.length > 0) break;
-          }
-        }
-        if (options.length === 0) options = firstChords;
-        degrees.push(options[Math.floor(Math.random() * options.length)]);
-        history = [...history, degrees[degrees.length - 1]];
-        if (history.length > 3) history = history.slice(-3);
-      }
-
-      // Convert degree names to SuggestionChord[] for loadProgression
-      // Apply modal shift: degree names are Ionian-relative, so shift root
-      // back to the parent Ionian root (matches degreeNameToChord in prismSlice)
-      const rootMidi = parsed.rootNote + 48;
-      const parentRoot = rootMidi - getModeOffset(parsed.mode);
-      const midiArrays = degrees.map((d) => {
-        const quality = unstepChord(d);
-        const midi = degreeMidi(parentRoot, d);
-        return generateChord(midi, quality);
-      });
-      const normalized = normalizeSequence(midiArrays);
-
-      const chords: SuggestionChord[] = degrees.map((degree, j) => {
-        const quality = unstepChord(degree);
-        const midi = degreeMidi(parentRoot, degree);
-        const pc = ((midi % 12) + 12) % 12;
-        const noteLetter = noteNameInKey(pc, rootMidi % 12);
-        return {
-          degree,
-          quality,
-          noteName: `${noteLetter} ${quality}`,
-          midi: normalized[j],
-          color: getChordColor(degree, rootMidi, parsed.mode) as RGB,
-        };
-      });
-
-      if (chords.length > 0) {
-        store.loadProgression(chords);
-        await store.generateOrchestration();
-        store.analyzeSession();
-      }
-
-      navigate(StudioRoutes.root.definition);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-  const visibleProjects = projects.slice(0, 2);
-
+  /* Latest continue lesson */
   const latestContinue = (() => {
     const latest = progressSummary?.lessons?.find(
-      (lesson) =>
-        lesson.lessonId.startsWith('mode-lesson-flow') &&
-        !!lesson.mode &&
-        !!lesson.root &&
-        (lesson.completedCount ?? 0) > 0,
+      (l) =>
+        l.lessonId.startsWith('mode-lesson-flow') &&
+        !!l.mode &&
+        !!l.root &&
+        (l.completedCount ?? 0) > 0,
     );
     if (!latest?.mode || !latest.root) return null;
-    const parts = latest.currentActivityInstanceId?.split('::') ?? [];
-    const activityDefId = parts.length >= 5 ? parts[2] : null;
     const mode = latest.mode;
     const root = latest.root;
-    const modeTitle = getChordScales(mode as PrismModeSlug)?.modeName ?? mode;
-    const rootTitle = urlParamToKeyLabel(root);
-    const progressPct =
-      latest.totalCount && latest.totalCount > 0
-        ? Math.max(
-            0,
-            Math.min(
-              100,
-              Math.round((latest.completedCount / latest.totalCount) * 100),
-            ),
-          )
-        : null;
-
     return {
-      lessonId: latest.lessonId,
-      mode,
-      root,
-      rootTitle,
-      modeTitle,
-      activityDefId,
-      progressPct,
-      completedCount: latest.completedCount,
-      totalCount: latest.totalCount,
+      modeTitle: getChordScales(mode as PrismModeSlug)?.modeName ?? mode,
+      rootTitle: urlParamToKeyLabel(root),
       route: LearnRoutes.lesson({
         mode: mode as PrismModeSlug,
         key: keyLabelToUrlParam(root),
@@ -319,286 +134,679 @@ export const HomeInlet = () => {
   })();
 
   return (
-    <div className="flex flex-col h-full">
-      <HeaderBar title="Welcome" />
-      <div className="flex-1 overflow-hidden flex flex-col space-y-8">
-        <div className="h-full overflow-y-auto custom-scrollbar pb-12 px-8 space-y-12">
-          <section className="relative w-full h-80 rounded-[2rem] overflow-hidden mb-12 group">
-            <div className="absolute inset-0 bg-[#2A3036]">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#2A3036] via-transparent to-[#E3D5CA] opacity-20" />
-              {bannerSlides.map((slide, idx) => (
-                <div
-                  key={slide.title}
-                  className="absolute inset-0 transition-opacity duration-700"
-                  style={{ opacity: currentSlide === idx ? 1 : 0 }}
+    <div
+      className="flex flex-col h-full"
+      style={{
+        backgroundImage: 'url(/backgrounds/dashboard-bg.svg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      {/* ── Main area — flex fills viewport, no scroll on desktop ──── */}
+      <div
+        className="flex-1 min-h-0 flex flex-col lg:overflow-hidden overflow-y-auto custom-scrollbar"
+        style={{ padding: 'clamp(0.5rem, 1.5vw, 2rem)' }}
+      >
+        {/* ── Row 1: Section Navigation Cards ── */}
+        <div
+          className="grid grid-cols-2 lg:grid-cols-4 flex-[5] min-h-0"
+          style={{ gap: 'clamp(0.5rem, 1vw, 1rem)' }}
+        >
+          {SECTIONS.map((sec) => (
+            <div
+              key={sec.label}
+              className="relative rounded-2xl glass-panel overflow-hidden cursor-pointer group transition-all duration-200 hover:brightness-110"
+              style={{ background: 'rgba(26, 26, 26, 0.7)' }}
+              onClick={() => {
+                play('select');
+                navigate(sec.route);
+              }}
+            >
+              <img
+                src={sec.bg}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+                draggable={false}
+              />
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center">
+                <Icon
+                  src={sec.icon}
+                  className="opacity-100"
+                  style={{
+                    width: 'clamp(2.5rem, 5vw, 4rem)',
+                    height: 'clamp(2.5rem, 5vw, 4rem)',
+                  }}
+                />
+                <span
+                  className="font-medium text-white/80 mt-2"
+                  style={{ fontSize: 'clamp(0.75rem, 1.2vw, 1rem)' }}
                 >
-                  {slide.title === 'Study' ? (
-                    <img
-                      src="/login-bg.svg"
-                      alt=""
-                      className="w-full h-full object-cover opacity-80"
-                    />
+                  {sec.label}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Spacer ── */}
+        <div style={{ height: 'clamp(0.5rem, 1vw, 1rem)', flexShrink: 0 }} />
+
+        {/* ── Row 2: Quick Start / Assistant / Challenges ── */}
+        <div
+          className="grid grid-cols-1 md:grid-cols-3 flex-[2] min-h-0"
+          style={{ gap: 'clamp(0.5rem, 1vw, 1rem)' }}
+        >
+          {/* Quick Start */}
+          <div
+            className="rounded-2xl glass-panel-sm overflow-hidden flex flex-col"
+            style={{
+              background: 'rgba(26, 26, 26, 0.7)',
+              padding: 'clamp(0.75rem, 1.5vw, 1.25rem)',
+            }}
+          >
+            <div className="flex items-center gap-2 mb-auto">
+              <Icon
+                src="/icons/quick-start-icon.svg"
+                className="opacity-100"
+                style={{
+                  width: 'clamp(0.75rem, 1.2vw, 1rem)',
+                  height: 'clamp(0.75rem, 1.2vw, 1rem)',
+                }}
+              />
+              <span
+                className="font-medium"
+                style={{
+                  fontSize: 'clamp(0.65rem, 1vw, 0.875rem)',
+                  color: '#ffffff',
+                }}
+              >
+                Quick Start
+              </span>
+            </div>
+            <div className="flex gap-2 mt-auto">
+              <button
+                onClick={() => {
+                  play('click');
+                  navigate(
+                    latestContinue?.route ?? LearnRoutes.root.definition,
+                  );
+                }}
+                className="flex-1 flex items-center gap-2 rounded-xl font-medium transition-colors hover:bg-white/5"
+                style={{
+                  background: 'rgba(30, 30, 30, 0.6)',
+                  color: '#ffffff',
+                  padding:
+                    'clamp(0.4rem, 0.8vw, 0.625rem) clamp(0.5rem, 1vw, 0.75rem)',
+                  fontSize: 'clamp(0.6rem, 0.9vw, 0.75rem)',
+                }}
+              >
+                <Icon
+                  src="/icons/continue-learning-icon.svg"
+                  className="opacity-100 flex-shrink-0"
+                  style={{
+                    width: 'clamp(0.75rem, 1vw, 1rem)',
+                    height: 'clamp(0.75rem, 1vw, 1rem)',
+                  }}
+                />
+                Continue Learning
+              </button>
+              <button
+                onClick={() => {
+                  play('click');
+                  navigate(StudioRoutes.root.definition);
+                }}
+                className="flex-1 flex items-center gap-2 rounded-xl font-medium transition-colors hover:bg-white/5"
+                style={{
+                  background: 'rgba(30, 30, 30, 0.6)',
+                  color: '#ffffff',
+                  padding:
+                    'clamp(0.4rem, 0.8vw, 0.625rem) clamp(0.5rem, 1vw, 0.75rem)',
+                  fontSize: 'clamp(0.6rem, 0.9vw, 0.75rem)',
+                }}
+              >
+                <Icon
+                  src="/icons/new-session-icon.svg"
+                  className="opacity-100 flex-shrink-0"
+                  style={{
+                    width: 'clamp(0.75rem, 1vw, 1rem)',
+                    height: 'clamp(0.75rem, 1vw, 1rem)',
+                  }}
+                />
+                New Session
+              </button>
+            </div>
+          </div>
+
+          {/* Assistant */}
+          <div
+            className="rounded-2xl glass-panel-sm overflow-hidden flex flex-col"
+            style={{
+              background: 'rgba(26, 26, 26, 0.7)',
+              padding: 'clamp(0.75rem, 1.5vw, 1.25rem)',
+            }}
+          >
+            <div className="flex items-center gap-2 mb-auto">
+              <Icon
+                src="/icons/assistant-icon.svg"
+                className="opacity-100"
+                style={{
+                  width: 'clamp(0.75rem, 1.2vw, 1rem)',
+                  height: 'clamp(0.75rem, 1.2vw, 1rem)',
+                }}
+              />
+              <span
+                className="font-medium"
+                style={{
+                  fontSize: 'clamp(0.65rem, 1vw, 0.875rem)',
+                  color: '#ffffff',
+                }}
+              >
+                Assistant
+              </span>
+            </div>
+
+            <div className="mt-auto">
+              {phase.type === 'idle' ? (
+                <form
+                  onSubmit={handleAssistantSubmit}
+                  className="flex items-center gap-2"
+                >
+                  <input
+                    type="text"
+                    value={assistantInput}
+                    onChange={(e) => setAssistantInput(e.target.value)}
+                    placeholder="Try 'learn funk' or 'play a game'..."
+                    className="flex-1 rounded-xl outline-none transition-colors"
+                    style={{
+                      background: 'rgba(30, 30, 30, 0.6)',
+                      color: '#ffffff',
+                      padding:
+                        'clamp(0.4rem, 0.8vw, 0.625rem) clamp(0.5rem, 1vw, 0.75rem)',
+                      fontSize: 'clamp(0.6rem, 0.9vw, 0.75rem)',
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    className="flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors"
+                    style={{
+                      color: '#ffffff',
+                      width: 'clamp(1.5rem, 2.5vw, 2rem)',
+                      height: 'clamp(1.5rem, 2.5vw, 2rem)',
+                    }}
+                  >
+                    <ArrowRight size={14} />
+                  </button>
+                </form>
+              ) : (
+                <div className="flex flex-col gap-1.5">
+                  {phase.matches.length > 0 ? (
+                    phase.matches.slice(0, 2).map((m) => (
+                      <button
+                        key={m.entry.route}
+                        onClick={() => navigate(m.entry.route)}
+                        className="flex items-center justify-between rounded-xl transition-colors hover:bg-white/5 text-left"
+                        style={{
+                          background: 'rgba(30, 30, 30, 0.6)',
+                          color: '#ffffff',
+                          padding:
+                            'clamp(0.4rem, 0.6vw, 0.5rem) clamp(0.5rem, 1vw, 0.75rem)',
+                          fontSize: 'clamp(0.6rem, 0.9vw, 0.75rem)',
+                        }}
+                      >
+                        <span className="truncate">{m.entry.label}</span>
+                        <ArrowRight size={12} style={{ color: '#ffffff' }} />
+                      </button>
+                    ))
                   ) : (
-                    <HexAvatarSVG
-                      config={defaultAvatarConfig(slide.title)}
-                      circular={false}
-                      className="w-full h-full object-cover opacity-80"
-                    />
+                    <p
+                      style={{
+                        fontSize: 'clamp(0.6rem, 0.9vw, 0.75rem)',
+                        color: '#ffffff',
+                      }}
+                    >
+                      No matches found.
+                    </p>
                   )}
+                  <button
+                    onClick={handleAssistantReset}
+                    className="self-start flex items-center gap-1"
+                    style={{
+                      fontSize: 'clamp(0.5rem, 0.7vw, 0.625rem)',
+                      color: '#ffffff',
+                    }}
+                  >
+                    <RotateCcw size={10} /> Ask again
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Challenges */}
+          <div
+            className="rounded-2xl glass-panel-sm overflow-hidden flex flex-col"
+            style={{
+              background: 'rgba(26, 26, 26, 0.7)',
+              padding: 'clamp(0.75rem, 1.5vw, 1.25rem)',
+            }}
+          >
+            <div className="flex items-center gap-2 mb-auto">
+              <Icon
+                src="/icons/challenges-icon.svg"
+                className="opacity-100"
+                style={{
+                  width: 'clamp(0.75rem, 1.2vw, 1rem)',
+                  height: 'clamp(0.75rem, 1.2vw, 1rem)',
+                }}
+              />
+              <span
+                className="font-medium"
+                style={{
+                  fontSize: 'clamp(0.65rem, 1vw, 0.875rem)',
+                  color: '#ffffff',
+                }}
+              >
+                Challenges
+              </span>
+            </div>
+            <div className="flex flex-col gap-2 mt-auto">
+              {[
+                { name: 'Challenge 1', time: '16 hrs' },
+                { name: 'Challenge 2', time: '5 days' },
+              ].map((c) => (
+                <div key={c.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="rounded border flex-shrink-0"
+                      style={{
+                        borderColor: 'var(--color-border)',
+                        width: 'clamp(0.75rem, 1.2vw, 1rem)',
+                        height: 'clamp(0.75rem, 1.2vw, 1rem)',
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: 'clamp(0.6rem, 0.9vw, 0.75rem)',
+                        color: '#ffffff',
+                      }}
+                    >
+                      {c.name}
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: 'clamp(0.5rem, 0.8vw, 0.625rem)',
+                      color: '#ffffff',
+                    }}
+                  >
+                    {c.time}
+                  </span>
                 </div>
               ))}
             </div>
+          </div>
+        </div>
 
-            <div className="absolute inset-0 p-8 flex flex-col justify-between">
-              <div className="flex justify-between items-center w-full z-10">
-                <button
-                  onClick={prevSlide}
-                  className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center hover:bg-black/40 transition-colors text-white border border-white/10"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button
-                  onClick={nextSlide}
-                  className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center hover:bg-black/40 transition-colors text-white border border-white/10"
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </div>
+        {/* ── Spacer ── */}
+        <div style={{ height: 'clamp(0.5rem, 1vw, 1rem)', flexShrink: 0 }} />
 
-              <div className="flex items-end justify-between z-10">
-                <div className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-full p-1.5 pr-2 flex items-center gap-4 pl-6 group/start cursor-pointer transition-all hover:bg-black/40">
-                  <span className="font-serif text-2xl italic pr-4">
-                    {bannerSlides[currentSlide].title}
+        {/* ── Row 3: Notifications / Recent Projects ── */}
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 flex-[2] min-h-0"
+          style={{ gap: 'clamp(0.5rem, 1vw, 1rem)' }}
+        >
+          {/* Notifications */}
+          <div
+            className="rounded-2xl glass-panel-sm overflow-hidden flex flex-col"
+            style={{
+              background: 'rgba(26, 26, 26, 0.7)',
+              padding: 'clamp(0.75rem, 1.5vw, 1.25rem)',
+            }}
+          >
+            <div className="flex items-center gap-2 mb-auto">
+              <Icon
+                src="/icons/notifications-icon.svg"
+                className="opacity-100"
+                style={{
+                  width: 'clamp(0.75rem, 1.2vw, 1rem)',
+                  height: 'clamp(0.75rem, 1.2vw, 1rem)',
+                }}
+              />
+              <span
+                className="font-medium"
+                style={{
+                  fontSize: 'clamp(0.65rem, 1vw, 0.875rem)',
+                  color: '#ffffff',
+                }}
+              >
+                Notifications
+              </span>
+            </div>
+            <div className="flex flex-col gap-2 mt-auto">
+              {[
+                '"User Name" invited you to...',
+                '"User Name" invited you to...',
+              ].map((msg, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div
+                    className="rounded border flex-shrink-0"
+                    style={{
+                      borderColor: 'var(--color-border)',
+                      width: 'clamp(0.75rem, 1.2vw, 1rem)',
+                      height: 'clamp(0.75rem, 1.2vw, 1rem)',
+                    }}
+                  />
+                  <span
+                    className="truncate"
+                    style={{
+                      fontSize: 'clamp(0.6rem, 0.9vw, 0.75rem)',
+                      color: '#ffffff',
+                    }}
+                  >
+                    {msg}
                   </span>
-                  <div className="h-10 w-24 bg-white/10 rounded-full flex items-center justify-end px-1 group-hover/start:bg-white/20 transition-colors">
-                    <div
-                      className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-lg transform group-hover/start:scale-105 transition-transform"
-                      onClick={() => {
-                        navigate(bannerSlides[currentSlide].route);
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Projects */}
+          <div
+            className="rounded-2xl glass-panel-sm overflow-hidden flex flex-col"
+            style={{
+              background: 'rgba(26, 26, 26, 0.7)',
+              padding: 'clamp(0.75rem, 1.5vw, 1.25rem)',
+            }}
+          >
+            <div className="flex items-center gap-2 mb-auto">
+              <Icon
+                src="/icons/popular-releases-icon.svg"
+                className="opacity-100"
+                style={{
+                  width: 'clamp(0.75rem, 1.2vw, 1rem)',
+                  height: 'clamp(0.75rem, 1.2vw, 1rem)',
+                }}
+              />
+              <span
+                className="font-medium"
+                style={{
+                  fontSize: 'clamp(0.65rem, 1vw, 0.875rem)',
+                  color: '#ffffff',
+                }}
+              >
+                Recent Projects
+              </span>
+            </div>
+            <div className="flex gap-4 mt-auto">
+              {[
+                { title: 'Untitled 1', icon: '/icons/file-icon-1.svg' },
+                { title: 'Untitled 2', icon: '/icons/file-icon-2.svg' },
+                { title: 'Untitled 3', icon: '/icons/file-icon-1.svg' },
+              ].map((release) => (
+                <div key={release.title} className="flex items-center gap-2.5">
+                  <div
+                    className="rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: 'rgba(30, 30, 30, 0.6)',
+                      width: 'clamp(2.5rem, 4vw, 5rem)',
+                      height: 'clamp(2.5rem, 4vw, 5rem)',
+                    }}
+                  >
+                    <Icon
+                      src={release.icon}
+                      className="opacity-100"
+                      style={{
+                        width: 'clamp(1.75rem, 3vw, 3.5rem)',
+                        height: 'clamp(1.75rem, 3vw, 3.5rem)',
+                      }}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <span
+                      className="block truncate"
+                      style={{
+                        fontSize: 'clamp(0.6rem, 0.9vw, 0.75rem)',
+                        color: '#ffffff',
                       }}
                     >
-                      <ChevronRight size={18} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  {bannerSlides.map((_, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => setCurrentSlide(idx)}
-                      className={`w-3 h-3 rounded-full cursor-pointer transition-all ${currentSlide === idx ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] scale-110' : 'bg-white/20 hover:bg-white/40'}`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-3 flex flex-col gap-4">
-              <div className="flex items-center gap-2 text-xl font-serif text-gray-200">
-                <h2>{latestContinue ? 'Continue' : 'Start'}</h2>
-                <ChevronRight size={18} className="text-gray-600" />
-              </div>
-              <div
-                className="flex-1 bg-gradient-to-br from-teal-800/20 to-emerald-900/20 border border-white/5 rounded-3xl p-6 relative overflow-hidden group cursor-pointer hover:border-emerald-500/30 transition-all"
-                onClick={() =>
-                  navigate(latestContinue?.route ?? LearnRoutes.root.definition)
-                }
-              >
-                <div className="absolute inset-0 opacity-30">
-                  <HexAvatarSVG
-                    config={defaultAvatarConfig('study')}
-                    circular={false}
-                    className="w-[150%] h-[150%] -translate-x-1/4 -translate-y-1/4"
-                  />
-                </div>
-                <div className="relative z-10 h-full flex flex-col justify-end">
-                  <div className="mb-4">
-                    <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1 block">
-                      {latestContinue ? 'Resume lesson' : 'Start Learning'}
+                      {release.title}
                     </span>
-                    <h3 className="text-2xl font-serif leading-tight mb-2">
-                      {latestContinue
-                        ? `${latestContinue.rootTitle} ${latestContinue.modeTitle}`
-                        : ''}
-                      <br />
-                      {latestContinue
-                        ? formatActivityTitle(latestContinue.activityDefId)
-                        : 'Start a music lesson'}
-                    </h3>
-                    <div className="w-full bg-white/10 h-1.5 rounded-full mt-3 overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500 rounded-full"
-                        style={{
-                          width: `${latestContinue?.progressPct ?? 0}%`,
-                        }}
-                      />
-                    </div>
-                    {latestContinue &&
-                      latestContinue.totalCount != null &&
-                      latestContinue.completedCount > 0 && (
-                        <div className="mt-2 text-xs text-emerald-200/80">
-                          {latestContinue.completedCount} /{' '}
-                          {latestContinue.totalCount} completed
-                        </div>
-                      )}
-                  </div>
-                  <button className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
-                    <Play size={18} fill="currentColor" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            <LockedFeatureOverlay
-              locked={!isPremium}
-              className="lg:col-span-4 flex flex-col gap-4"
-            >
-              <div className="flex items-center gap-2 text-xl font-serif text-gray-200">
-                <h2>Projects</h2>
-                <ChevronRight size={18} className="text-gray-600" />
-              </div>
-              <div className="flex flex-col gap-3">
-                {(isPremium
-                  ? visibleProjects
-                  : [
-                      {
-                        title: 'My First Track',
-                        genre: 'Lo-fi',
-                        author: 'You',
-                      },
-                      {
-                        title: 'Sunset Groove',
-                        genre: 'Jazz',
-                        author: 'You',
-                      },
-                    ]
-                ).map((project) => (
-                  <ProjectCard
-                    key={`${project.title}-${project.author}`}
-                    title={project.title}
-                    genre={project.genre}
-                    author={project.author}
-                    active={'active' in project ? project.active : undefined}
-                  />
-                ))}
-                <div
-                  className="p-4 rounded-2xl border border-dashed border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/30 cursor-pointer transition-all h-20"
-                  onClick={() => navigate(StudioRoutes.root.definition)}
-                >
-                  <div className="flex items-center gap-2 text-sm font-medium">
-                    <PlusCircle size={16} /> Create New Project
-                  </div>
-                </div>
-              </div>
-            </LockedFeatureOverlay>
-            <LockedFeatureOverlay
-              locked={!isPremium}
-              className="lg:col-span-5 flex flex-col gap-4"
-            >
-              <div className="flex items-center gap-2 text-xl font-serif text-gray-200">
-                <h2>Generate</h2>
-                <ChevronRight size={18} className="text-gray-600" />
-              </div>
-              <div className="bg-[#151515] border border-white/5 rounded-3xl p-6 h-full flex flex-col relative">
-                <div className="flex-1 min-h-[160px]">
-                  <textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Describe the song you want to create... (e.g., 'An upbeat lo-fi track with jazzy piano chords and a relaxed drum beat')"
-                    className="w-full h-full bg-transparent border-none resize-none text-gray-300 placeholder:text-gray-600 focus:outline-none text-lg leading-relaxed custom-scrollbar"
-                  />
-                </div>
-                <div className="space-y-4 pt-4 border-t border-white/5">
-                  <div className="flex flex-wrap gap-2 relative">
-                    <div className="relative">
-                      <Tag
-                        label={selectedKey ? keyLabel(selectedKey) : 'Key'}
-                        icon={Music}
-                        active={!!selectedKey}
-                        onClick={() => setShowKeyPicker((v) => !v)}
-                      />
-                      {showKeyPicker && (
-                        <KeyPicker
-                          selected={selectedKey}
-                          onSelect={setSelectedKey}
-                          onClose={() => setShowKeyPicker(false)}
-                        />
-                      )}
-                    </div>
-                    <div className="relative">
-                      <Tag
-                        label={selectedBpm ? `${selectedBpm} BPM` : 'Tempo'}
-                        icon={Activity}
-                        active={!!selectedBpm}
-                        onClick={() => setShowTempoPicker((v) => !v)}
-                      />
-                      {showTempoPicker && (
-                        <TempoPicker
-                          selected={selectedBpm}
-                          onSelect={setSelectedBpm}
-                          onClose={() => setShowTempoPicker(false)}
-                        />
-                      )}
-                    </div>
-                    <div className="w-px h-6 bg-white/10 mx-1" />
-                    {INLINE_GENRES.map((g) => (
-                      <Tag
-                        key={g}
-                        label={g}
-                        active={selectedGenre === g}
-                        onClick={() =>
-                          setSelectedGenre((prev) => (prev === g ? null : g))
-                        }
-                      />
-                    ))}
-                    <div className="relative">
-                      <button
-                        onClick={() => setShowGenrePicker((v) => !v)}
-                        className="w-7 h-7 rounded-full border border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/30"
-                      >
-                        <MoreVertical size={14} />
-                      </button>
-                      {showGenrePicker && (
-                        <GenrePicker
-                          selected={selectedGenre}
-                          onSelect={setSelectedGenre}
-                          onClose={() => setShowGenrePicker(false)}
-                        />
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Mic2 size={12} />
-                      <span>
-                        Voice Mode:{' '}
-                        <span className="text-gray-300">Instrumental</span>
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleGenerate}
-                      className="bg-white text-black px-6 py-2.5 rounded-full font-medium text-sm hover:bg-gray-200 transition-colors flex items-center gap-2 shadow-lg shadow-white/5"
+                    <span
+                      className="block"
+                      style={{
+                        fontSize: 'clamp(0.5rem, 0.8vw, 0.625rem)',
+                        color: '#ffffff',
+                      }}
                     >
-                      {isGenerating ? (
-                        <>
-                          <RefreshCw size={14} className="animate-spin" />{' '}
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Hexagon size={16} fill="black" /> Generate
-                        </>
-                      )}
-                    </button>
+                      Artist Name
+                    </span>
                   </div>
                 </div>
-              </div>
-            </LockedFeatureOverlay>
+              ))}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* ── Now Playing Footer — interactive 3-column layout ─────── */}
+      <footer
+        className="flex-shrink-0 glass-panel px-4 sm:px-6 lg:px-8"
+        style={{
+          background: 'rgba(26, 26, 26, 0.85)',
+          height: 'clamp(4.5rem, 6vw, 5.5rem)',
+        }}
+      >
+        <div className="h-full grid grid-cols-[auto_1fr_auto] lg:grid-cols-[1fr_2fr_1fr] items-center gap-3 lg:gap-4">
+          {/* ── Left: Track info ── */}
+          <div className="flex items-center gap-2 lg:gap-3 min-w-0">
+            <div
+              className="rounded-lg flex-shrink-0 overflow-hidden"
+              style={{
+                background: 'rgba(30, 30, 30, 0.6)',
+                width: 'clamp(2.5rem, 3.5vw, 3.5rem)',
+                height: 'clamp(2.5rem, 3.5vw, 3.5rem)',
+              }}
+            >
+              <HexAvatarSVG
+                config={defaultAvatarConfig('now-playing')}
+                circular={false}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="min-w-0">
+              <p
+                className="font-medium text-white truncate"
+                style={{ fontSize: 'clamp(0.7rem, 1vw, 0.875rem)' }}
+              >
+                Untitled 1
+              </p>
+              <p
+                className="text-white/50 truncate"
+                style={{ fontSize: 'clamp(0.55rem, 0.8vw, 0.75rem)' }}
+              >
+                Artist Name
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                play(isLiked ? 'item-locked' : 'select');
+                setIsLiked(!isLiked);
+              }}
+              className={`flex-shrink-0 transition-colors ${isLiked ? 'text-emerald-400' : 'text-white/40 hover:text-white'}`}
+              aria-label={isLiked ? 'Unlike' : 'Like'}
+            >
+              <Heart size={14} fill={isLiked ? 'currentColor' : 'none'} />
+            </button>
+          </div>
+
+          {/* ── Center: Controls + seek bar ── */}
+          <div className="flex flex-col items-center justify-center gap-0.5">
+            {/* Controls */}
+            <div
+              className="flex items-center"
+              style={{ gap: 'clamp(0.5rem, 1.2vw, 1rem)' }}
+            >
+              <button
+                onClick={() => {
+                  play(isShuffle ? 'alt-click' : 'click');
+                  setIsShuffle(!isShuffle);
+                }}
+                className={`transition-colors ${isShuffle ? 'text-emerald-400' : 'text-white/40 hover:text-white'}`}
+                aria-label="Shuffle"
+              >
+                <Shuffle
+                  style={{
+                    width: 'clamp(0.7rem, 1vw, 0.875rem)',
+                    height: 'clamp(0.7rem, 1vw, 0.875rem)',
+                  }}
+                />
+              </button>
+              <button
+                className="text-white/70 hover:text-white transition-colors"
+                aria-label="Previous"
+              >
+                <SkipBack
+                  style={{
+                    width: 'clamp(0.8rem, 1.1vw, 1rem)',
+                    height: 'clamp(0.8rem, 1.1vw, 1rem)',
+                  }}
+                />
+              </button>
+              <button
+                onClick={() => setIsPlaying(!isPlaying)}
+                className="rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform"
+                style={{
+                  width: 'clamp(1.75rem, 2.5vw, 2.25rem)',
+                  height: 'clamp(1.75rem, 2.5vw, 2.25rem)',
+                }}
+                aria-label={isPlaying ? 'Pause' : 'Play'}
+              >
+                {isPlaying ? (
+                  <Pause
+                    fill="currentColor"
+                    style={{
+                      width: 'clamp(0.7rem, 1vw, 0.875rem)',
+                      height: 'clamp(0.7rem, 1vw, 0.875rem)',
+                    }}
+                  />
+                ) : (
+                  <Play
+                    className="ml-0.5"
+                    fill="currentColor"
+                    style={{
+                      width: 'clamp(0.7rem, 1vw, 0.875rem)',
+                      height: 'clamp(0.7rem, 1vw, 0.875rem)',
+                    }}
+                  />
+                )}
+              </button>
+              <button
+                className="text-white/70 hover:text-white transition-colors"
+                aria-label="Next"
+              >
+                <SkipForward
+                  style={{
+                    width: 'clamp(0.8rem, 1.1vw, 1rem)',
+                    height: 'clamp(0.8rem, 1.1vw, 1rem)',
+                  }}
+                />
+              </button>
+              <button
+                onClick={() => {
+                  play(isRepeat ? 'alt-click' : 'click');
+                  setIsRepeat(!isRepeat);
+                }}
+                className={`transition-colors ${isRepeat ? 'text-emerald-400' : 'text-white/40 hover:text-white'}`}
+                aria-label="Repeat"
+              >
+                <Repeat
+                  style={{
+                    width: 'clamp(0.7rem, 1vw, 0.875rem)',
+                    height: 'clamp(0.7rem, 1vw, 0.875rem)',
+                  }}
+                />
+              </button>
+            </div>
+            {/* Seek bar */}
+            <div
+              className="w-full flex items-center"
+              style={{
+                gap: 'clamp(0.25rem, 0.5vw, 0.375rem)',
+                maxWidth: 'min(100%, 40rem)',
+              }}
+            >
+              <span
+                className="text-white/40 tabular-nums flex-shrink-0"
+                style={{ fontSize: 'clamp(0.5rem, 0.65vw, 0.625rem)' }}
+              >
+                {formatTime(currentSeconds)}
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={seekPosition}
+                onChange={(e) => setSeekPosition(Number(e.target.value))}
+                className="player-range flex-1"
+                style={{
+                  background: `linear-gradient(to right, rgba(255,255,255,0.7) ${seekPosition}%, rgba(255,255,255,0.1) ${seekPosition}%)`,
+                }}
+                aria-label="Seek"
+              />
+              <span
+                className="text-white/40 tabular-nums flex-shrink-0"
+                style={{ fontSize: 'clamp(0.5rem, 0.65vw, 0.625rem)' }}
+              >
+                {formatTime(totalSeconds)}
+              </span>
+            </div>
+          </div>
+
+          {/* ── Right: Volume ── */}
+          <div
+            className="flex items-center justify-end"
+            style={{ gap: 'clamp(0.25rem, 0.5vw, 0.375rem)' }}
+          >
+            <button
+              onClick={() => {
+                play('click');
+                setVolume(volume > 0 ? 0 : 66);
+              }}
+              className="text-white/50 hover:text-white transition-colors flex-shrink-0"
+              aria-label={volume === 0 ? 'Unmute' : 'Mute'}
+            >
+              {volume === 0 ? (
+                <VolumeX
+                  style={{
+                    width: 'clamp(0.75rem, 1vw, 0.875rem)',
+                    height: 'clamp(0.75rem, 1vw, 0.875rem)',
+                  }}
+                />
+              ) : (
+                <Volume2
+                  style={{
+                    width: 'clamp(0.75rem, 1vw, 0.875rem)',
+                    height: 'clamp(0.75rem, 1vw, 0.875rem)',
+                  }}
+                />
+              )}
+            </button>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={volume}
+              onChange={(e) => setVolume(Number(e.target.value))}
+              className="player-range"
+              style={{
+                width: 'clamp(3rem, 5vw, 5rem)',
+                background: `linear-gradient(to right, rgba(255,255,255,0.5) ${volume}%, rgba(255,255,255,0.1) ${volume}%)`,
+              }}
+              aria-label="Volume"
+            />
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

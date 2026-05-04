@@ -52,6 +52,10 @@ interface LeadSheetMeasureProps {
   ) => void;
   onMarkAsMelody?: (regionId: string) => void;
   onDeleteChord?: (regionId: string) => void;
+  /** If set, this measure is a multi-bar rest displaying this many bars. */
+  restBars?: number;
+  /** If true, draw a fermata symbol above this measure. */
+  hasFermata?: boolean;
 }
 
 /**
@@ -77,8 +81,11 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
   onChordDragStart,
   onMarkAsMelody,
   onDeleteChord,
+  restBars,
+  hasFermata,
 }: LeadSheetMeasureProps) {
   const width = w ?? MEASURE_WIDTH;
+  const isMultiBarRest = restBars != null && restBars > 0;
   const staffTop = CHORD_AREA_HEIGHT;
 
   const handleStaffClick = useCallback(
@@ -99,8 +106,8 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
         <SectionMarker label={section.label} x={2} y={CHORD_AREA_HEIGHT - 30} />
       )}
 
-      {/* Chord symbols or repeat sign */}
-      {showRepeats && measure.isRepeatOfPrevious ? (
+      {/* Chord symbols or repeat sign (skip for multi-bar rests) */}
+      {isMultiBarRest ? null : showRepeats && measure.isRepeatOfPrevious ? (
         /* % repeat sign — two dots with a diagonal line */
         <g opacity={0.6}>
           <circle
@@ -206,24 +213,86 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
         />
       ))}
 
-      {/* Beat slash marks (4 per measure) */}
-      {Array.from({ length: 4 }, (_, beat) => {
-        const bx = (beat + 0.5) * (width / 4);
-        const cy = staffTop + STAFF_HEIGHT / 2;
-        const isTarget = chordDrag?.targetBeat === beat;
-        return (
-          <line
-            key={`slash-${beat}`}
-            x1={bx - 5}
-            y1={cy + 6}
-            x2={bx + 5}
-            y2={cy - 6}
-            stroke={isTarget ? 'var(--color-accent, #8b5cf6)' : 'currentColor'}
-            strokeWidth={isTarget ? 3 : 2}
-            opacity={isTarget ? 0.9 : 0.35}
+      {/* Multi-bar rest notation */}
+      {isMultiBarRest ? (
+        <g>
+          {/* Rest count number above */}
+          <text
+            x={width / 2}
+            y={staffTop + LINE_SPACING * 0.8}
+            fill="currentColor"
+            fontSize={16}
+            fontWeight="bold"
+            textAnchor="middle"
+            fontFamily="serif"
+          >
+            {restBars}
+          </text>
+          {/* Thick horizontal block */}
+          <rect
+            x={width * 0.15}
+            y={staffTop + LINE_SPACING * 1.5}
+            width={width * 0.7}
+            height={LINE_SPACING}
+            fill="currentColor"
+            opacity={0.7}
           />
-        );
-      })}
+          {/* Left serif */}
+          <line
+            x1={width * 0.15}
+            y1={staffTop + LINE_SPACING}
+            x2={width * 0.15}
+            y2={staffTop + LINE_SPACING * 3}
+            stroke="currentColor"
+            strokeWidth={2}
+            opacity={0.7}
+          />
+          {/* Right serif */}
+          <line
+            x1={width * 0.85}
+            y1={staffTop + LINE_SPACING}
+            x2={width * 0.85}
+            y2={staffTop + LINE_SPACING * 3}
+            stroke="currentColor"
+            strokeWidth={2}
+            opacity={0.7}
+          />
+        </g>
+      ) : (
+        /* Beat slash marks (4 per measure) */
+        Array.from({ length: 4 }, (_, beat) => {
+          const bx = (beat + 0.5) * (width / 4);
+          const cy = staffTop + STAFF_HEIGHT / 2;
+          const isTarget = chordDrag?.targetBeat === beat;
+          return (
+            <line
+              key={`slash-${beat}`}
+              x1={bx - 5}
+              y1={cy + 6}
+              x2={bx + 5}
+              y2={cy - 6}
+              stroke={
+                isTarget ? 'var(--color-accent, #8b5cf6)' : 'currentColor'
+              }
+              strokeWidth={isTarget ? 3 : 2}
+              opacity={isTarget ? 0.9 : 0.35}
+            />
+          );
+        })
+      )}
+
+      {/* Fermata symbol */}
+      {hasFermata && (
+        <g transform={`translate(${width / 2}, ${CHORD_AREA_HEIGHT - 8})`}>
+          <path
+            d="M -8 0 A 8 6 0 0 1 8 0"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          />
+          <circle cx={0} cy={-1} r={1.5} fill="currentColor" />
+        </g>
+      )}
 
       {/* Right bar line */}
       <line

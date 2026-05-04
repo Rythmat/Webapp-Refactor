@@ -7,11 +7,16 @@ import { LeadSheetStaff } from './LeadSheetStaff';
 import { LeadSheetToolbar } from './LeadSheetToolbar';
 import './leadsheet-print.css';
 
-/** Number of measures per system (row) */
-const MEASURES_PER_LINE = 4;
+/** Default number of measures per system (row) */
+const DEFAULT_MEASURES_PER_LINE = 4;
 
 export function LeadSheetView() {
   const chordRegions = useStore((s) => s.chordRegions);
+  const MEASURES_PER_LINE =
+    useStore((s) => s.measuresPerLine) || DEFAULT_MEASURES_PER_LINE;
+  const measureRowSizes = useStore((s) => s.measureRowSizes);
+  const measureRestMap = useStore((s) => s.measureRestMap);
+  const measureFermatas = useStore((s) => s.measureFermatas);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
   const bpm = useStore((s) => s.bpm);
@@ -89,30 +94,84 @@ export function LeadSheetView() {
   }, []);
 
   // Build measures from chord regions
-  const measures = useMemo(
+  const rawMeasures = useMemo(
     () => regionToMeasures(chordRegions),
     [chordRegions],
   );
 
-  // Split measures into systems (rows)
+  // Filter out ghost measures consumed by multi-bar rests.
+  // If measureRestMap says index 8 is a 2-bar rest, skip index 9 (the consumed bar).
+  const measures = useMemo(() => {
+    if (!measureRestMap) return rawMeasures;
+    const skipSet = new Set<number>();
+    for (const [idxStr, count] of Object.entries(measureRestMap)) {
+      const idx = Number(idxStr);
+      for (let j = 1; j < count; j++) {
+        skipSet.add(idx + j);
+      }
+    }
+    if (skipSet.size === 0) return rawMeasures;
+    return rawMeasures.filter((m) => !skipSet.has(m.index));
+  }, [rawMeasures, measureRestMap]);
+
+  // Split measures into systems (rows) — uses custom row sizes if available
   const systems = useMemo(() => {
-    const result: { startIndex: number; measures: typeof measures }[] = [];
-    for (let i = 0; i < measures.length; i += MEASURES_PER_LINE) {
-      result.push({
-        startIndex: i,
-        measures: measures.slice(i, i + MEASURES_PER_LINE),
-      });
+    const result: {
+      startIndex: number;
+      measures: typeof measures;
+      rowSize: number;
+    }[] = [];
+    if (measureRowSizes && measureRowSizes.length > 0) {
+      // Custom row sizes from chord chart export
+      let i = 0;
+      for (const size of measureRowSizes) {
+        if (i >= measures.length) break;
+        result.push({
+          startIndex: i,
+          measures: measures.slice(i, i + size),
+          rowSize: size,
+        });
+        i += size;
+      }
+      // Any remaining measures use default
+      while (i < measures.length) {
+        result.push({
+          startIndex: i,
+          measures: measures.slice(i, i + MEASURES_PER_LINE),
+          rowSize: MEASURES_PER_LINE,
+        });
+        i += MEASURES_PER_LINE;
+      }
+    } else {
+      // Uniform row sizes
+      for (let i = 0; i < measures.length; i += MEASURES_PER_LINE) {
+        result.push({
+          startIndex: i,
+          measures: measures.slice(i, i + MEASURES_PER_LINE),
+          rowSize: MEASURES_PER_LINE,
+        });
+      }
     }
     return result;
-  }, [measures]);
+  }, [measures, measureRowSizes, MEASURES_PER_LINE]);
 
-  // Playhead position mapped to system index and x offset
+  // Playhead position mapped to system index
   const playheadSystemIdx = useMemo(() => {
     if (!isPlaying && position === 0) return -1;
-    if (measures.length === 0) return -1;
+    if (systems.length === 0) return -1;
     const measureIdx = Math.floor(position / 1920);
-    return Math.floor(measureIdx / MEASURES_PER_LINE);
-  }, [position, isPlaying, measures.length]);
+    // Find which system contains this measure
+    for (let si = 0; si < systems.length; si++) {
+      const sys = systems[si];
+      if (
+        measureIdx >= sys.startIndex &&
+        measureIdx < sys.startIndex + sys.measures.length
+      ) {
+        return si;
+      }
+    }
+    return systems.length - 1;
+  }, [position, isPlaying, systems]);
 
   // Auto-scroll to keep playhead system visible during playback
   const prevSystemIdx = useRef(-1);
@@ -381,10 +440,10 @@ export function LeadSheetView() {
           let playheadX: number | undefined;
           if (sysIdx === playheadSystemIdx) {
             const measureIdx = Math.floor(position / 1920);
-            const measureInSystem = measureIdx % MEASURES_PER_LINE;
+            const measureInSystem = measureIdx - system.startIndex;
             const ticksInMeasure = position % 1920;
-            // Compute measure width matching LeadSheetStaff logic
-            const isFull = system.measures.length === MEASURES_PER_LINE;
+            const rowSize = system.rowSize;
+            const isFull = system.measures.length === rowSize;
             const defaultW = system.measures.length * 200;
             const svgW =
               isFull && contentWidth && contentWidth > defaultW
@@ -398,6 +457,7 @@ export function LeadSheetView() {
               <LeadSheetStaff
                 measures={system.measures}
                 startIndex={system.startIndex}
+                fullSystemCount={system.rowSize}
                 chordFormat={chordFormat}
                 selectedChordId={selectedChordIdx}
                 sections={sections}
@@ -413,6 +473,8 @@ export function LeadSheetView() {
                 onChordDragStart={handleChordDragStart}
                 onMarkAsMelody={handleMarkAsMelody}
                 onDeleteChord={handleDeleteChord}
+                measureRestMap={measureRestMap}
+                measureFermatas={measureFermatas}
               />
             </div>
           );

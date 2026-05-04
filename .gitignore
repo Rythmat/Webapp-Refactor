@@ -24,3 +24,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Generated scratch files
+src/curriculum/data/songs/_generated_index.ts

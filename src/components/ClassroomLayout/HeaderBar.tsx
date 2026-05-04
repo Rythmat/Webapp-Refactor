@@ -14,13 +14,13 @@ interface HeaderBarProps {
 export const HeaderBar: FC<HeaderBarProps> = ({
   title,
   subtitle,
-  showProfile = true,
+  showProfile = false,
   className = '',
   onBack,
 }) => {
   return (
     <header
-      className={`h-20 flex items-center justify-between px-8 py-6 bg-gradient-to-b from-[#0A0A0A] to-transparent z-10 flex-shrink-0 ${className}`}
+      className={`h-16 flex items-center justify-between px-4 sm:px-6 lg:px-10 py-4 bg-transparent z-10 flex-shrink-0 ${className}`}
     >
       <div className="flex items-center gap-4 group cursor-default">
         {onBack && (
@@ -32,7 +32,7 @@ export const HeaderBar: FC<HeaderBarProps> = ({
             <ChevronLeft className="size-5" />
           </button>
         )}
-        <h1 className="text-4xl font-serif text-gray-100 group-hover:text-white transition-colors">
+        <h1 className="text-2xl md:text-3xl font-serif text-gray-100 group-hover:text-white transition-colors">
           {title}
         </h1>
         {subtitle && (

@@ -2,7 +2,12 @@ import { Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 import { ProfileRoutes } from '@/constants/routes';
+import {
+  getBillingUiState,
+  isActivePaidState,
+} from '@/features/settings/subscription/subscriptionUtils';
 import { useCreditsBalance } from '@/hooks/data/credits';
+import { useMySubscription } from '@/hooks/data/subscription';
 
 interface CreditsBadgeProps {
   isCollapsed?: boolean;
@@ -10,6 +15,9 @@ interface CreditsBadgeProps {
 
 export const CreditsBadge = ({ isCollapsed = false }: CreditsBadgeProps) => {
   const { data, isLoading } = useCreditsBalance();
+  const { data: subscription } = useMySubscription();
+
+  if (isActivePaidState(getBillingUiState(subscription))) return null;
 
   if (isLoading) {
     return (

@@ -1,4 +1,5 @@
 import { Sparkles } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -13,6 +14,10 @@ import {
   useStripeCheckout,
   useStripePortal,
 } from '@/hooks/data/credits';
+import {
+  trackCheckoutStarted,
+  trackPaywallViewed,
+} from '@/telemetry/hooks/useTelemetryProduct';
 
 interface UpgradeModalProps {
   open: boolean;
@@ -28,18 +33,11 @@ const FALLBACK_TIERS = [
     description: 'Get started with AI generation',
   },
   {
-    id: 'artist' as const,
-    name: 'Artist',
+    id: 'pro' as const,
+    name: 'Pro',
     price: '$10/mo',
-    credits: '100/month',
-    description: 'For serious music makers',
-  },
-  {
-    id: 'studio' as const,
-    name: 'Studio',
-    price: '$20/mo',
-    credits: '200/month',
-    description: 'Unlimited creative freedom',
+    credits: 'Access to all content',
+    description: 'Access to all content',
   },
 ];
 
@@ -48,9 +46,20 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   const { data: credits } = useCreditsBalance();
   const checkout = useStripeCheckout();
   const portal = useStripePortal();
+  const paywallReportedRef = useRef(false);
 
   const tiers = billingConfig?.tiers ?? FALLBACK_TIERS;
   const currentTier = credits?.tier || 'free';
+
+  useEffect(() => {
+    if (open && !paywallReportedRef.current) {
+      paywallReportedRef.current = true;
+      trackPaywallViewed(window.location.pathname);
+    }
+    if (!open) {
+      paywallReportedRef.current = false;
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -96,7 +105,10 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                     <Button
                       disabled={checkout.isPending}
                       size="sm"
-                      onClick={() => checkout.mutate()}
+                      onClick={() => {
+                        trackCheckoutStarted();
+                        checkout.mutate();
+                      }}
                     >
                       Upgrade
                     </Button>

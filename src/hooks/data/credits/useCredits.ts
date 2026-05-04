@@ -17,7 +17,7 @@ interface ConsumeResult {
 
 interface BillingConfig {
   tiers: Array<{
-    id: 'free' | 'artist' | 'studio';
+    id: 'free' | 'pro';
     name: string;
     price: string;
     period: string;

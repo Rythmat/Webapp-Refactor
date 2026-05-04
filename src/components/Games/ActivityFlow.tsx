@@ -31,6 +31,12 @@ import {
   useUpdateActivityProgress,
   useUpdateLessonState,
 } from '@/hooks/data/progress';
+import {
+  trackActivityCompleted,
+  trackActivityStarted,
+  trackLessonCompleted,
+  trackLessonStarted,
+} from '@/telemetry/hooks/useTelemetryProduct';
 type RhythmHit = [number, number];
 const chordRhythmFallbacks: Record<string, RhythmHit[]> = {
   'Jazz 1a': [
@@ -1160,6 +1166,9 @@ export const ActivityFlow = ({
   const resumeAppliedScopeRef = useRef<string | null>(null);
   const explicitStartAppliedRef = useRef<string | null>(null);
   const completionReportedRef = useRef<Set<string>>(new Set());
+  const activityStartReportedRef = useRef<Set<string>>(new Set());
+  const lessonStartReportedRef = useRef<string | null>(null);
+  const lessonCompleteReportedRef = useRef<string | null>(null);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activityInstanceId, setActivityInstanceId] = useState(0);
@@ -1389,6 +1398,17 @@ export const ActivityFlow = ({
   }, [currentActivity, currentIndex, labelChange, flowDefinitions.length]);
 
   useEffect(() => {
+    if (!lessonId || !isTrackableActivity) return;
+    const key = `${lessonId}::${lessonVersion}`;
+    if (lessonStartReportedRef.current === key) return;
+    lessonStartReportedRef.current = key;
+    trackLessonStarted(lessonId, {
+      mode: modeLabel ?? undefined,
+      rootNote: rootKey ?? undefined,
+    });
+  }, [lessonId, lessonVersion, modeLabel, rootKey, isTrackableActivity]);
+
+  useEffect(() => {
     if (!currentActivity || lessonComplete) return;
     if (!isTrackableActivity) return;
     updateLessonState.mutate({
@@ -1423,6 +1443,16 @@ export const ActivityFlow = ({
         activityDefId: currentActivity.activityDefId,
       },
     });
+
+    if (
+      !activityStartReportedRef.current.has(currentActivity.activityInstanceId)
+    ) {
+      activityStartReportedRef.current.add(currentActivity.activityInstanceId);
+      trackActivityStarted(lessonId, currentActivity.activityDefId, {
+        mode: modeLabel ?? undefined,
+        rootNote: rootKey ?? undefined,
+      });
+    }
   }, [
     activityState,
     activityInstanceId,
@@ -1492,6 +1522,7 @@ export const ActivityFlow = ({
             completedVia: 'continue',
           },
         });
+        trackActivityCompleted(lessonId, currentActivity.activityDefId);
       }
     }
     // Track completed activity for section progress
@@ -1524,6 +1555,11 @@ export const ActivityFlow = ({
           lessonVersion,
           currentActivityInstanceId: null,
         });
+        const lessonKey = `${lessonId}::${lessonVersion}`;
+        if (lessonCompleteReportedRef.current !== lessonKey) {
+          lessonCompleteReportedRef.current = lessonKey;
+          trackLessonCompleted(lessonId);
+        }
         onComplete?.();
       }
       return idx;
@@ -1604,6 +1640,7 @@ export const ActivityFlow = ({
           activityDefId: currentActivity.activityDefId,
         },
       });
+      trackActivityCompleted(lessonId, currentActivity.activityDefId);
       updateLessonState.mutate({
         lessonId,
         lessonVersion,

@@ -695,7 +695,7 @@ function buildBassPattern(
   for (let bar = 0; bar < bars; bar++) {
     const o = bar * 1920;
     const root = bassNotes[bar];
-    const oct = root + 12;
+    const oct = Math.min(root + 12, 48); // cap at C3 — keeps bass in C1-C3
     const fifth = root + 7;
 
     const push = (note: number, onset: number, dur: number, vel: number) =>
@@ -765,7 +765,7 @@ function buildBassPattern(
           }),
         );
       } else {
-        push(root - 12, 1320, 120, 75); // fallback: low root fill
+        push(fifth, 1320, 120, 75); // fallback: 5th fill
       }
     }
   }
@@ -1070,8 +1070,8 @@ export function useBackingTrack(tempo: number) {
       // Bridge Tone.js Gain nodes route through standardized-audio-context
       // so SamplerInstrument/DrumMachineEngine audio reaches speakers.
       // (native AudioNode passed directly can be silent due to wrapper mismatch)
-      drumBridgeRef.current = new Tone.Gain(1).toDestination();
-      bassBridgeRef.current = new Tone.Gain(1).toDestination();
+      drumBridgeRef.current = new Tone.Gain(1.38).toDestination();
+      bassBridgeRef.current = new Tone.Gain(0.9).toDestination();
 
       // DrumMachineEngine — real .wav samples (kick, snare, hihat, etc.)
       try {

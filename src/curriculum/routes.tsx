@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { FundamentalsLessonContainer } from '@/components/learn/FundamentalsLessonContainer';
 import { FundamentalsOverview } from '@/components/learn/FundamentalsOverview';
 import { GenreLessonContainer } from '@/components/learn/GenreLessonContainer';
@@ -55,8 +55,14 @@ const FundamentalsLessonRoute = () => {
 
 const GenreLessonRoute = () => {
   const { genre, level } = useParams<{ genre: string; level: string }>();
+  const [searchParams] = useSearchParams();
   const genreSlug = genre ?? '';
   const levelNum = parseInt(level ?? '1');
+  const initialSection = (searchParams.get('section') ?? 'A') as
+    | 'A'
+    | 'B'
+    | 'C'
+    | 'D';
   const [flow, setFlow] = useState<ActivityFlow | null>(null);
 
   useEffect(() => {
@@ -71,6 +77,7 @@ const GenreLessonRoute = () => {
           flow={flow as ActivityFlowV2}
           genre={genreSlug}
           level={levelNum}
+          initialSection={initialSection}
         />
       </RequirePremium>
     );

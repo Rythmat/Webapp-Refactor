@@ -16,6 +16,10 @@ import {
   useRefreshSubscription,
 } from '@/hooks/data/subscription';
 import {
+  trackCheckoutStarted,
+  trackSubscriptionActivated,
+} from '@/telemetry/hooks/useTelemetryProduct';
+import {
   getBillingUiState,
   hasPaymentIssue,
   isActivePaidState,
@@ -34,28 +38,12 @@ const FALLBACK_TIERS = [
     features: ['AI chord generation', 'Basic MIDI export', 'Community access'],
   },
   {
-    id: 'artist' as const,
-    name: 'Artist',
+    id: 'pro' as const,
+    name: 'Pro',
     price: '$10',
     period: '/month',
     credits: '100 credits/month',
-    features: [
-      'Everything in Free',
-      'Monthly credit refresh',
-      'Priority support',
-    ],
-  },
-  {
-    id: 'studio' as const,
-    name: 'Studio',
-    price: '$20',
-    period: '/month',
-    credits: '200 credits/month',
-    features: [
-      'Everything in Artist',
-      'Double monthly credits',
-      'Early access to features',
-    ],
+    features: ['Access to all content'],
   },
 ];
 
@@ -77,6 +65,9 @@ export const PlanPage = () => {
     if (checkoutParam === 'success' || checkoutParam === 'cancelled') {
       refreshSubscription();
       queryClient.invalidateQueries({ queryKey: ['credits', 'balance'] });
+      if (checkoutParam === 'success') {
+        trackSubscriptionActivated();
+      }
       const next = new URLSearchParams(searchParams);
       next.delete('checkout');
       setSearchParams(next, { replace: true });
@@ -93,7 +84,7 @@ export const PlanPage = () => {
     tiers.map((tier) => [tier.id, tier.credits]),
   ) as Record<string, number>;
 
-  const currentTier = isPaidUser ? 'artist' : (credits?.tier ?? 'free');
+  const currentTier = isPaidUser ? 'pro' : (credits?.tier ?? 'free');
   const balance = credits?.balance ?? 0;
   const allowance = tierAllowance[currentTier] ?? 50;
   const usagePercent = Math.min(100, Math.round((balance / allowance) * 100));
@@ -105,8 +96,8 @@ export const PlanPage = () => {
       <div className="mx-auto max-w-3xl space-y-6">
         <div className="h-8 w-48 animate-pulse rounded bg-muted" />
         <div className="h-4 w-64 animate-pulse rounded bg-muted" />
-        <div className="grid gap-4 sm:grid-cols-3">
-          {[1, 2, 3].map((i) => (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[1, 2].map((i) => (
             <div
               key={i}
               className="h-64 animate-pulse rounded-lg border bg-muted"
@@ -205,7 +196,7 @@ export const PlanPage = () => {
       </div>
 
       {/* ── Tier cards ───────────────────────────────────────────────────── */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         {tiers.map((tier) => {
           const isCurrent = currentTier === tier.id;
           const canUpgrade =
@@ -266,7 +257,10 @@ export const PlanPage = () => {
                   <Button
                     className="w-full"
                     disabled={checkout.isPending}
-                    onClick={() => checkout.mutate()}
+                    onClick={() => {
+                      trackCheckoutStarted();
+                      checkout.mutate();
+                    }}
                   >
                     {checkout.isPending
                       ? 'Loading…'

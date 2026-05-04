@@ -13,6 +13,7 @@ import {
   triggerPianoRelease,
   triggerPianoAttackRelease,
   startPianoSampler,
+  setPianoSamplerVolume,
 } from '@/audio/pianoSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { CurriculumRoutes } from '@/constants/routes';
@@ -618,11 +619,28 @@ function GenreLessonContainerV2Inner({
   const { startBacking, stopBacking, initSF2 } = useBackingTrack(tempo);
   const [instrumentsLoading, setInstrumentsLoading] = useState(false);
 
+  // Lesson volume — controls metronome click and piano sampler output (the
+  // sounds the activity makes for both demo playback and the user's own
+  // MIDI notes). Stored as a 0..1 percentage; converted to dB on use.
+  const [lessonVolume, setLessonVolume] = useState(0.8);
+  const lessonVolumeDb = useMemo(
+    () => (lessonVolume <= 0.001 ? -Infinity : 20 * Math.log10(lessonVolume)),
+    [lessonVolume],
+  );
+
+  // Push volume to the piano sampler whenever it changes.
+  useEffect(() => {
+    setPianoSamplerVolume(lessonVolumeDb);
+  }, [lessonVolumeDb]);
+
   const { setBpm, prepare: prepareMetronome } = useMetronome({
     bpm: tempo,
     // Disable metronome in Play Now (performance) mode when a backing track is running —
     // the drum track provides the pulse. Practice mode always gets the metronome.
     enabled: isActive && isIT && !(isPerforming && hasBackingParts),
+    // Metronome sits ~10 dB below the instruments by default; the user volume
+    // dial scales it on top of that baseline.
+    volumeDb: lessonVolumeDb === -Infinity ? -Infinity : lessonVolumeDb - 10,
   });
 
   // ── Tick counter ──────────────────────────────────────────────────────────
@@ -1274,12 +1292,62 @@ function GenreLessonContainerV2Inner({
               </div>
             )}
         </div>
-        <div style={{ textAlign: 'right', fontSize: '13px', color: '#888' }}>
-          <div>
-            {flow.genre} Level {flow.level}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
+          {/* Volume dial — controls metronome and piano sampler output */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '12px',
+              color: '#888',
+            }}
+          >
+            <label
+              htmlFor="lesson-volume"
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+              title="Volume — metronome and lesson playback"
+            >
+              {lessonVolume <= 0.001 ? 'Muted' : 'Volume'}
+            </label>
+            <input
+              id="lesson-volume"
+              type="range"
+              min={0}
+              max={100}
+              value={Math.round(lessonVolume * 100)}
+              onChange={(e) => setLessonVolume(Number(e.target.value) / 100)}
+              style={{
+                width: '100px',
+                accentColor: '#4a9eff',
+                cursor: 'pointer',
+              }}
+              aria-label="Lesson volume"
+            />
+            <span
+              style={{
+                width: '28px',
+                textAlign: 'right',
+                fontVariantNumeric: 'tabular-nums',
+                color: '#aaa',
+              }}
+            >
+              {Math.round(lessonVolume * 100)}
+            </span>
           </div>
-          <div>
-            Step {stepIndex + 1} of {currentSection.steps.length}
+          <div style={{ textAlign: 'right', fontSize: '13px', color: '#888' }}>
+            <div>
+              {flow.genre} Level {flow.level}
+            </div>
+            <div>
+              Step {stepIndex + 1} of {currentSection.steps.length}
+            </div>
           </div>
         </div>
       </div>

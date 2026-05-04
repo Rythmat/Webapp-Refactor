@@ -1,3 +1,4 @@
 node_modules
 dist
 public
+src/curriculum/data/songs/_generated_index.ts

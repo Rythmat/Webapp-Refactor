@@ -1292,62 +1292,12 @@ function GenreLessonContainerV2Inner({
               </div>
             )}
         </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
-          }}
-        >
-          {/* Volume dial — controls metronome and piano sampler output */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: '12px',
-              color: '#888',
-            }}
-          >
-            <label
-              htmlFor="lesson-volume"
-              style={{ cursor: 'pointer', userSelect: 'none' }}
-              title="Volume — metronome and lesson playback"
-            >
-              {lessonVolume <= 0.001 ? 'Muted' : 'Volume'}
-            </label>
-            <input
-              id="lesson-volume"
-              type="range"
-              min={0}
-              max={100}
-              value={Math.round(lessonVolume * 100)}
-              onChange={(e) => setLessonVolume(Number(e.target.value) / 100)}
-              style={{
-                width: '100px',
-                accentColor: '#4a9eff',
-                cursor: 'pointer',
-              }}
-              aria-label="Lesson volume"
-            />
-            <span
-              style={{
-                width: '28px',
-                textAlign: 'right',
-                fontVariantNumeric: 'tabular-nums',
-                color: '#aaa',
-              }}
-            >
-              {Math.round(lessonVolume * 100)}
-            </span>
+        <div style={{ textAlign: 'right', fontSize: '13px', color: '#888' }}>
+          <div>
+            {flow.genre} Level {flow.level}
           </div>
-          <div style={{ textAlign: 'right', fontSize: '13px', color: '#888' }}>
-            <div>
-              {flow.genre} Level {flow.level}
-            </div>
-            <div>
-              Step {stepIndex + 1} of {currentSection.steps.length}
-            </div>
+          <div>
+            Step {stepIndex + 1} of {currentSection.steps.length}
           </div>
         </div>
       </div>
@@ -1674,50 +1624,112 @@ function GenreLessonContainerV2Inner({
           )}
         </div>
 
-        {/* Piano Keyboard — fixed height, range matches piano roll */}
-        <div style={{ marginTop: '8px', height: '120px', flexShrink: 0 }}>
-          <PianoKeyboard
-            showOctaveStart
-            activeWhiteKeyColor={keyboardActiveColor ?? keyColor}
-            activeBlackKeyColor={keyboardActiveColor ?? keyColor}
-            endC={endOctave + 1}
-            startC={startOctave}
-            playingNotes={
-              // Priority: demo > user MIDI > practice Tone.Part > static preview
-              // When demo is playing, ONLY show demo highlights (gaps = empty keyboard)
-              demoHighlightMidis.size > 0
-                ? [...demoHighlightMidis].map((midi, i) => ({
-                    id: `demo_${i}`,
-                    type: 'note' as const,
-                    midi,
-                    time: 0,
-                    duration: 1,
-                    velocity: 80,
-                  }))
-                : isPlayingDemo
-                  ? [] // demo is playing but between notes — show nothing
-                  : isActive && activeMidis.length > 0
-                    ? activeMidis.map((midi, i) => ({
-                        id: `active_${i}`,
-                        type: 'note' as const,
-                        midi,
-                        time: 0,
-                        duration: 1,
-                        velocity: 80,
-                      }))
-                    : isPracticing && practiceHighlightMidis.size > 0
-                      ? [...practiceHighlightMidis].map((midi, i) => ({
-                          id: `practice_${i}`,
+        {/* Piano Keyboard — fixed height, range matches piano roll.
+            Volume dial sits alongside on the right so it's always within
+            reach during practice without crowding the header. */}
+        <div
+          style={{
+            marginTop: '8px',
+            height: '120px',
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'stretch',
+            gap: '12px',
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <PianoKeyboard
+              showOctaveStart
+              activeWhiteKeyColor={keyboardActiveColor ?? keyColor}
+              activeBlackKeyColor={keyboardActiveColor ?? keyColor}
+              endC={endOctave + 1}
+              startC={startOctave}
+              playingNotes={
+                // Priority: demo > user MIDI > practice Tone.Part > static preview
+                // When demo is playing, ONLY show demo highlights (gaps = empty keyboard)
+                demoHighlightMidis.size > 0
+                  ? [...demoHighlightMidis].map((midi, i) => ({
+                      id: `demo_${i}`,
+                      type: 'note' as const,
+                      midi,
+                      time: 0,
+                      duration: 1,
+                      velocity: 80,
+                    }))
+                  : isPlayingDemo
+                    ? [] // demo is playing but between notes — show nothing
+                    : isActive && activeMidis.length > 0
+                      ? activeMidis.map((midi, i) => ({
+                          id: `active_${i}`,
                           type: 'note' as const,
                           midi,
                           time: 0,
                           duration: 1,
                           velocity: 80,
                         }))
-                      : keyboardPlayingNotes
-            }
-            enableMidiInterface
-          />
+                      : isPracticing && practiceHighlightMidis.size > 0
+                        ? [...practiceHighlightMidis].map((midi, i) => ({
+                            id: `practice_${i}`,
+                            type: 'note' as const,
+                            midi,
+                            time: 0,
+                            duration: 1,
+                            velocity: 80,
+                          }))
+                        : keyboardPlayingNotes
+              }
+              enableMidiInterface
+            />
+          </div>
+
+          {/* Volume dial — controls metronome and piano sampler output */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '4px 0',
+              fontSize: '11px',
+              color: '#888',
+              userSelect: 'none',
+              flexShrink: 0,
+            }}
+          >
+            <span
+              style={{
+                fontVariantNumeric: 'tabular-nums',
+                color: '#aaa',
+                lineHeight: 1,
+              }}
+            >
+              {Math.round(lessonVolume * 100)}
+            </span>
+            <input
+              id="lesson-volume"
+              type="range"
+              min={0}
+              max={100}
+              value={Math.round(lessonVolume * 100)}
+              onChange={(e) => setLessonVolume(Number(e.target.value) / 100)}
+              style={{
+                writingMode: 'vertical-lr',
+                direction: 'rtl',
+                width: '20px',
+                height: '80px',
+                accentColor: '#4a9eff',
+                cursor: 'pointer',
+              }}
+              aria-label="Lesson volume"
+              title="Volume — metronome and lesson playback"
+            />
+            <label
+              htmlFor="lesson-volume"
+              style={{ cursor: 'pointer', lineHeight: 1 }}
+            >
+              {lessonVolume <= 0.001 ? 'Mute' : 'Vol'}
+            </label>
+          </div>
         </div>
 
         {/* Practice mode controls — below keyboard */}

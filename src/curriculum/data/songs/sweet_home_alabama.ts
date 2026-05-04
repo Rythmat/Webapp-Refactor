@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const sweet_home_alabama: Song = {
   id: 'sweet_home_alabama',
-  title: "Sweet Home Alabama",
+  title: 'Sweet Home Alabama',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,16 +21,16 @@ export const sweet_home_alabama: Song = {
       id: 'section_d',
       label: 'Section D',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
   ],

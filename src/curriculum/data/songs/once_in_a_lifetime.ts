@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const once_in_a_lifetime: Song = {
   id: 'once_in_a_lifetime',
-  title: "Once In A Lifetime",
+  title: 'Once In A Lifetime',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,8 +21,8 @@ export const once_in_a_lifetime: Song = {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
   ],

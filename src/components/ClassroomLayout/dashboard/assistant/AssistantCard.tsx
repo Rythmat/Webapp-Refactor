@@ -56,7 +56,8 @@ export const AssistantCard: FC<AssistantCardProps> = ({ navigate }) => {
           {phase.type === 'idle' && (
             <>
               <p className="text-xl sm:text-2xl lg:text-[1.7rem] text-white leading-snug tracking-tight mb-4">
-                What do you want to <span className="font-bold">learn</span> today?
+                What do you want to <span className="font-bold">learn</span>{' '}
+                today?
               </p>
               <form onSubmit={handleSubmit} className="flex items-center gap-2">
                 <input
@@ -99,14 +100,19 @@ export const AssistantCard: FC<AssistantCardProps> = ({ navigate }) => {
                         {m.entry.description}
                       </p>
                     </div>
-                    <ArrowRight size={14} className="text-white/40 group-hover:text-white shrink-0 transition-colors" />
+                    <ArrowRight
+                      size={14}
+                      className="text-white/40 group-hover:text-white shrink-0 transition-colors"
+                    />
                   </button>
                 ))
               ) : (
                 <p className="text-sm text-white/70 leading-relaxed">
                   No matches found. Try something like{' '}
-                  <span className="font-medium">&ldquo;learn jazz&rdquo;</span> or{' '}
-                  <span className="font-medium">&ldquo;play a game&rdquo;</span>.
+                  <span className="font-medium">&ldquo;learn jazz&rdquo;</span>{' '}
+                  or{' '}
+                  <span className="font-medium">&ldquo;play a game&rdquo;</span>
+                  .
                 </p>
               )}
 

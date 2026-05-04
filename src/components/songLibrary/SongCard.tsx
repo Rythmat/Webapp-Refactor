@@ -28,14 +28,19 @@ export const SongCard: FC<SongCardProps> = ({ song }) => {
       style={{ background: 'rgba(26, 26, 26, 0.75)' }}
     >
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden" style={{ background: 'rgba(30,30,30,0.6)' }}>
+      <div
+        className="relative aspect-square overflow-hidden"
+        style={{ background: 'rgba(30,30,30,0.6)' }}
+      >
         {song.artistImageRef ? (
           <img
             src={song.artistImageRef}
             alt=""
             loading="lazy"
             className="w-full h-full object-cover"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
           />
         ) : (
           <HexAvatarSVG
@@ -53,30 +58,62 @@ export const SongCard: FC<SongCardProps> = ({ song }) => {
         {/* Initials fallback (behind HexAvatar) */}
         {!song.artistImageRef && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <span className="text-white/20 font-bold" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}>{initials}</span>
+            <span
+              className="text-white/20 font-bold"
+              style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+            >
+              {initials}
+            </span>
           </div>
         )}
       </div>
 
       {/* Info */}
       <div style={{ padding: 'clamp(0.5rem, 1vw, 0.875rem)' }}>
-        <h3 className="font-semibold text-white truncate" style={{ fontSize: 'clamp(0.7rem, 1.1vw, 0.9rem)' }}>
+        <h3
+          className="font-semibold text-white truncate"
+          style={{ fontSize: 'clamp(0.7rem, 1.1vw, 0.9rem)' }}
+        >
           {song.title}
         </h3>
-        <p className="text-white/50 truncate" style={{ fontSize: 'clamp(0.55rem, 0.85vw, 0.75rem)' }}>
+        <p
+          className="text-white/50 truncate"
+          style={{ fontSize: 'clamp(0.55rem, 0.85vw, 0.75rem)' }}
+        >
           {song.artist}
         </p>
-        <p className="text-white/30 tabular-nums" style={{ fontSize: 'clamp(0.5rem, 0.75vw, 0.65rem)', marginTop: 'clamp(0.15rem, 0.3vw, 0.25rem)' }}>
+        <p
+          className="text-white/30 tabular-nums"
+          style={{
+            fontSize: 'clamp(0.5rem, 0.75vw, 0.65rem)',
+            marginTop: 'clamp(0.15rem, 0.3vw, 0.25rem)',
+          }}
+        >
           {song.key} · {song.tempo} BPM
         </p>
         {/* Chips */}
         <div className="flex gap-1 mt-1.5 flex-wrap">
           {song.genreTags.slice(0, 1).map((g) => (
-            <span key={g} className="rounded-full text-white/50" style={{ padding: '1px clamp(0.3rem, 0.5vw, 0.4rem)', fontSize: 'clamp(0.4rem, 0.6vw, 0.5rem)', background: 'rgba(255,255,255,0.06)' }}>
+            <span
+              key={g}
+              className="rounded-full text-white/50"
+              style={{
+                padding: '1px clamp(0.3rem, 0.5vw, 0.4rem)',
+                fontSize: 'clamp(0.4rem, 0.6vw, 0.5rem)',
+                background: 'rgba(255,255,255,0.06)',
+              }}
+            >
               {g}
             </span>
           ))}
-          <span className="rounded-full text-white/50" style={{ padding: '1px clamp(0.3rem, 0.5vw, 0.4rem)', fontSize: 'clamp(0.4rem, 0.6vw, 0.5rem)', background: 'rgba(255,255,255,0.06)' }}>
+          <span
+            className="rounded-full text-white/50"
+            style={{
+              padding: '1px clamp(0.3rem, 0.5vw, 0.4rem)',
+              fontSize: 'clamp(0.4rem, 0.6vw, 0.5rem)',
+              background: 'rgba(255,255,255,0.06)',
+            }}
+          >
             {DIFFICULTY_LABEL[song.difficulty] ?? `L${song.difficulty}`}
           </span>
         </div>

@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const your_love_keeps_lifting_me_higher_and_higher: Song = {
   id: 'your_love_keeps_lifting_me_higher_and_higher',
-  title: "(Your Love Keeps Lifting Me) Higher And Higher",
+  title: '(Your Love Keeps Lifting Me) Higher And Higher',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,23 +21,27 @@ export const your_love_keeps_lifting_me_higher_and_higher: Song = {
       id: 'section_d',
       label: 'Section D',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'section_e',
       label: 'Section E',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
     },
   ],

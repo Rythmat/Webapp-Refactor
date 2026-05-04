@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const shotgun: Song = {
   id: 'shotgun',
-  title: "Shotgun",
+  title: 'Shotgun',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,15 +21,19 @@ export const shotgun: Song = {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'intro',
       label: 'Intro',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
   ],

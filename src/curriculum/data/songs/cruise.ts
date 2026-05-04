@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const cruise: Song = {
   id: 'cruise',
-  title: "Cruise",
+  title: 'Cruise',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,22 +21,40 @@ export const cruise: Song = {
       id: 'section_f',
       label: 'Section F',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Gmin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Gmin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

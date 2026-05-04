@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const pride_and_joy: Song = {
   id: 'pride_and_joy',
-  title: "Pride And Joy",
+  title: 'Pride And Joy',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,21 +21,37 @@ export const pride_and_joy: Song = {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'intro',
       label: 'Intro',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

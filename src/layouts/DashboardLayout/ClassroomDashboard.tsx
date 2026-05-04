@@ -16,10 +16,7 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
     <div className="dashboard-root flex h-screen w-full flex-col overflow-hidden">
       <TopBar />
 
-      <main
-        ref={mainRef}
-        className="flex min-w-0 flex-1 overflow-hidden"
-      >
+      <main ref={mainRef} className="flex min-w-0 flex-1 overflow-hidden">
         <div
           className={cn(
             'relative flex-1',

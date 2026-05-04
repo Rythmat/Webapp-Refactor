@@ -1,12 +1,24 @@
-import type { Song, ContentRef, ContentRefType } from '@/curriculum/types/songLibrary';
+import type {
+  Song,
+  ContentRef,
+  ContentRefType,
+} from '@/curriculum/types/songLibrary';
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
 const capitalize = (s: string) =>
-  s.replace(/(^|[\s_-])(\w)/g, (_, sep, c) => (sep === '_' ? ' ' : sep) + c.toUpperCase()).trim();
+  s
+    .replace(
+      /(^|[\s_-])(\w)/g,
+      (_, sep, c) => (sep === '_' ? ' ' : sep) + c.toUpperCase(),
+    )
+    .trim();
 
 const slugify = (s: string) =>
-  s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/(^_|_$)/g, '');
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/(^_|_$)/g, '');
 
 function hasRefOfType(refs: ContentRef[], type: ContentRefType): boolean {
   return refs.some((r) => r.refType === type);
@@ -41,7 +53,10 @@ function deriveModeRef(mode: string): ContentRef {
   };
 }
 
-function deriveTechniqueRef(technique: string, genre: string): ContentRef | null {
+function deriveTechniqueRef(
+  technique: string,
+  genre: string,
+): ContentRef | null {
   return {
     module: 'genre',
     genre,
@@ -94,10 +109,16 @@ function deriveProgressionRef(pattern: string, genre: string): ContentRef {
 /* ── Reference ordering ──────────────────────────────────────────────── */
 
 const REF_ORDER: ContentRefType[] = [
-  'key', 'mode',
-  'technique', 'progression',
-  'globe_artist', 'globe_scene', 'globe_region', 'globe_era',
-  'genre_overview', 'studio_jam',
+  'key',
+  'mode',
+  'technique',
+  'progression',
+  'globe_artist',
+  'globe_scene',
+  'globe_region',
+  'globe_era',
+  'genre_overview',
+  'studio_jam',
 ];
 
 function dedupeAndOrder(refs: ContentRef[]): ContentRef[] {
@@ -139,13 +160,19 @@ export function resolveContentRefs(song: Song): ContentRef[] {
   }
 
   // ── 2. Theory: mode (only if non-standard major/minor) ──
-  if (!hasRefOfType(refs, 'mode') && !['major', 'minor', 'ionian', 'aeolian'].includes(song.mode)) {
+  if (
+    !hasRefOfType(refs, 'mode') &&
+    !['major', 'minor', 'ionian', 'aeolian'].includes(song.mode)
+  ) {
     refs.push(deriveModeRef(song.mode));
   }
 
   // ── 3. Genre lessons: each technique tag ──
   for (const tech of song.techniques) {
-    if (!hasRefOfType(refs, 'technique') || !refs.some((r) => r.displayLabel === capitalize(tech))) {
+    if (
+      !hasRefOfType(refs, 'technique') ||
+      !refs.some((r) => r.displayLabel === capitalize(tech))
+    ) {
       const ref = deriveTechniqueRef(tech, song.genreTags[0] ?? 'pop');
       if (ref) refs.push(ref);
     }
@@ -159,7 +186,9 @@ export function resolveContentRefs(song: Song): ContentRef[] {
 
   // ── 5. Genre overview ──
   for (const genre of song.genreTags) {
-    if (!refs.some((r) => r.refType === 'genre_overview' && r.genre === genre)) {
+    if (
+      !refs.some((r) => r.refType === 'genre_overview' && r.genre === genre)
+    ) {
       refs.push(deriveGenreOverviewRef(genre));
     }
   }
@@ -214,8 +243,20 @@ export function splitContentRefs(refs: ContentRef[]): {
   learnRefs: ContentRef[];
   globeRefs: ContentRef[];
 } {
-  const learnTypes: ContentRefType[] = ['key', 'mode', 'progression', 'technique', 'genre_overview', 'studio_jam'];
-  const globeTypes: ContentRefType[] = ['globe_region', 'globe_era', 'globe_artist', 'globe_scene'];
+  const learnTypes: ContentRefType[] = [
+    'key',
+    'mode',
+    'progression',
+    'technique',
+    'genre_overview',
+    'studio_jam',
+  ];
+  const globeTypes: ContentRefType[] = [
+    'globe_region',
+    'globe_era',
+    'globe_artist',
+    'globe_scene',
+  ];
 
   return {
     learnRefs: refs.filter((r) => learnTypes.includes(r.refType)),

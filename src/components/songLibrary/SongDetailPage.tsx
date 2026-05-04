@@ -26,7 +26,10 @@ export const SongDetailPage: FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-full" style={{ background: 'var(--color-bg, #191919)' }}>
+    <div
+      className="flex flex-col h-full"
+      style={{ background: 'var(--color-bg, #191919)' }}
+    >
       <HeaderBar
         title={song.title}
         subtitle={song.artist}

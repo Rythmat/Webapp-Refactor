@@ -7,7 +7,14 @@ interface SpeechRecognitionInstance extends EventTarget {
   start(): void;
   stop(): void;
   abort(): void;
-  onresult: ((event: { results: { item(i: number): { item(i: number): { transcript: string } }; length: number } }) => void) | null;
+  onresult:
+    | ((event: {
+        results: {
+          item(i: number): { item(i: number): { transcript: string } };
+          length: number;
+        };
+      }) => void)
+    | null;
   onerror: ((event: { error: string }) => void) | null;
   onend: (() => void) | null;
 }
@@ -16,14 +23,17 @@ type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
 function getSpeechRecognition(): SpeechRecognitionConstructor | null {
   const w = window as unknown as Record<string, unknown>;
-  return (w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null) as SpeechRecognitionConstructor | null;
+  return (w.SpeechRecognition ??
+    w.webkitSpeechRecognition ??
+    null) as SpeechRecognitionConstructor | null;
 }
 
 export function useSpeechRecognition() {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const isSupported = typeof window !== 'undefined' && getSpeechRecognition() !== null;
+  const isSupported =
+    typeof window !== 'undefined' && getSpeechRecognition() !== null;
 
   useEffect(() => {
     if (!isSupported) return;

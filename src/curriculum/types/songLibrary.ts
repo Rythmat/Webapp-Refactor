@@ -14,9 +14,15 @@
 /* ── Enums & Unions ─────────────────────────────────────────────────── */
 
 export type SongMode =
-  | 'major' | 'minor'
-  | 'dorian' | 'mixolydian' | 'phrygian'
-  | 'lydian' | 'locrian' | 'aeolian' | 'ionian';
+  | 'major'
+  | 'minor'
+  | 'dorian'
+  | 'mixolydian'
+  | 'phrygian'
+  | 'lydian'
+  | 'locrian'
+  | 'aeolian'
+  | 'ionian';
 
 export type DifficultyLevel = 1 | 2 | 3;
 
@@ -25,16 +31,16 @@ export type AudioProvider = 'spotify' | 'youtube' | 'apple_music' | 'tidal';
 export type ArtistImageSource = 'spotify' | 'youtube' | 'commissioned' | 'none';
 
 export type ContentRefType =
-  | 'key'             // Theory: this song's key
-  | 'mode'            // Theory: this song's mode
-  | 'progression'     // Genre lesson: chord progression pattern
-  | 'technique'       // Genre lesson: a technique used
-  | 'genre_overview'  // Genre profile entry point
-  | 'globe_region'    // Globe geographic location
-  | 'globe_era'       // Globe time period
-  | 'globe_artist'    // Globe artist deep dive
-  | 'globe_scene'     // Globe music scene/movement
-  | 'studio_jam';     // Studio: open this song in Studio
+  | 'key' // Theory: this song's key
+  | 'mode' // Theory: this song's mode
+  | 'progression' // Genre lesson: chord progression pattern
+  | 'technique' // Genre lesson: a technique used
+  | 'genre_overview' // Genre profile entry point
+  | 'globe_region' // Globe geographic location
+  | 'globe_era' // Globe time period
+  | 'globe_artist' // Globe artist deep dive
+  | 'globe_scene' // Globe music scene/movement
+  | 'studio_jam'; // Studio: open this song in Studio
 
 /* ── Chord-level types ──────────────────────────────────────────────── */
 

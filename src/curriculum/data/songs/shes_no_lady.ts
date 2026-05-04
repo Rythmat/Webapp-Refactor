@@ -21,91 +21,239 @@ export const shes_no_lady: Song = {
       id: 'section_c',
       label: 'Section C',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'section_b',
       label: 'Section B',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'D♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'D♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭7', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'section_d',
       label: 'Section D',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_e',
       label: 'Section E',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

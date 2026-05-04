@@ -46,15 +46,24 @@ export const dontStopBelievin: Song = {
       label: 'Intro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
-      notes: 'The signature piano riff outlines these chords with eighth notes. Focus on keeping a steady, even rhythm in the right hand while the left hand plays roots.',
+      notes:
+        'The signature piano riff outlines these chords with eighth notes. Focus on keeping a steady, even rhythm in the right hand while the left hand plays roots.',
     },
 
     // ── Verse 1 (8 bars) ──
@@ -63,15 +72,24 @@ export const dontStopBelievin: Song = {
       label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
-      notes: 'Same progression as the intro. Keep dynamics softer here to allow the vocal to sit on top. The piano pattern continues underneath.',
+      notes:
+        'Same progression as the intro. Keep dynamics softer here to allow the vocal to sit on top. The piano pattern continues underneath.',
     },
 
     // ── Verse 2 (8 bars) ──
@@ -80,15 +98,24 @@ export const dontStopBelievin: Song = {
       label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
-      notes: 'Identical chords to Verse 1. Band intensity builds slightly with fuller guitar strums entering.',
+      notes:
+        'Identical chords to Verse 1. Band intensity builds slightly with fuller guitar strums entering.',
     },
 
     // ── Pre-Chorus (4 bars) ──
@@ -101,7 +128,8 @@ export const dontStopBelievin: Song = {
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
-      notes: 'The harmony simplifies to just the 4 and 5 chords. This builds tension before the chorus release. Try sustained whole-note voicings here.',
+      notes:
+        'The harmony simplifies to just the 4 and 5 chords. This builds tension before the chorus release. Try sustained whole-note voicings here.',
     },
 
     // ── Chorus (8 bars) ──
@@ -111,14 +139,22 @@ export const dontStopBelievin: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 2 }, { degree: '4 maj', chordName: 'A', beat: 3, duration: 2 }] },
+        {
+          chords: [
+            { degree: '6 min', chordName: 'C♯m', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 3, duration: 2 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
-      notes: 'Full band energy. Note the 5 chord replaces the 5/7 inversion here for a stronger sound. Bar 7 has a quick 6m→4 change on beat 3.',
+      notes:
+        'Full band energy. Note the 5 chord replaces the 5/7 inversion here for a stronger sound. Bar 7 has a quick 6m→4 change on beat 3.',
     },
 
     // ── Interlude (4 bars) ──
@@ -127,11 +163,16 @@ export const dontStopBelievin: Song = {
       label: 'Interlude',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
-      notes: 'Returns to the intro pattern. Guitar solo begins over these chords.',
+      notes:
+        'Returns to the intro pattern. Guitar solo begins over these chords.',
     },
 
     // ── Verse 3 (8 bars) ──
@@ -140,15 +181,24 @@ export const dontStopBelievin: Song = {
       label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
-      notes: 'Same verse progression. Full band continues from the interlude energy level.',
+      notes:
+        'Same verse progression. Full band continues from the interlude energy level.',
     },
 
     // ── Pre-Chorus 2 (4 bars) ──
@@ -161,7 +211,8 @@ export const dontStopBelievin: Song = {
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
-      notes: 'Same 4-5 tension builder. Push the dynamics here to set up the final chorus.',
+      notes:
+        'Same 4-5 tension builder. Push the dynamics here to set up the final chorus.',
     },
 
     // ── Final Chorus (8 bars, repeated) ──
@@ -171,15 +222,23 @@ export const dontStopBelievin: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 2 }, { degree: '4 maj', chordName: 'A', beat: 3, duration: 2 }] },
+        {
+          chords: [
+            { degree: '6 min', chordName: 'C♯m', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 3, duration: 2 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
       repeatCount: 2,
-      notes: 'Repeat the chorus twice with maximum energy. The song builds to its climax here with layered vocals.',
+      notes:
+        'Repeat the chorus twice with maximum energy. The song builds to its climax here with layered vocals.',
     },
 
     // ── Outro (4 bars, fade) ──
@@ -189,11 +248,14 @@ export const dontStopBelievin: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
       repeatCount: 4,
-      notes: 'Repeats and fades out. The original recording fades over approximately 4 repetitions of this progression.',
+      notes:
+        'Repeats and fades out. The original recording fades over approximately 4 repetitions of this progression.',
     },
   ],
 

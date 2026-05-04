@@ -651,7 +651,8 @@ const SONGS: Record<string, Song> = {
   dont_stop_believin: dontStopBelievin,
   sittin_on_the_dock_of_the_bay: sittin_on_the_dock_of_the_bay,
   they_long_to_be_close_to_you: they_long_to_be_close_to_you,
-  your_love_keeps_lifting_me_higher_and_higher: your_love_keeps_lifting_me_higher_and_higher,
+  your_love_keeps_lifting_me_higher_and_higher:
+    your_love_keeps_lifting_me_higher_and_higher,
   '100_days_100_nights': _100_days_100_nights,
   '1612': _1612,
   '1999': _1999,
@@ -834,7 +835,8 @@ const SONGS: Record<string, Song> = {
   get_down_on_it: get_down_on_it,
   get_down_tonight: get_down_tonight,
   get_lucky: get_lucky,
-  get_up_i_feel_like_being_a_sex_machine: get_up_i_feel_like_being_a_sex_machine,
+  get_up_i_feel_like_being_a_sex_machine:
+    get_up_i_feel_like_being_a_sex_machine,
   get_up_offa_that_thing: get_up_offa_that_thing,
   gimme_shelter: gimme_shelter,
   girl_crush: girl_crush,
@@ -891,7 +893,8 @@ const SONGS: Record<string, Song> = {
   i_believe_in_a_thing_called_love: i_believe_in_a_thing_called_love,
   i_cant_go_for_that_no_can_do: i_cant_go_for_that_no_can_do,
   i_cant_help_it: i_cant_help_it,
-  i_cant_help_myself_sugar_pie_honey_bunch: i_cant_help_myself_sugar_pie_honey_bunch,
+  i_cant_help_myself_sugar_pie_honey_bunch:
+    i_cant_help_myself_sugar_pie_honey_bunch,
   i_choose_you: i_choose_you,
   i_feel_for_you: i_feel_for_you,
   i_feel_the_earth_move: i_feel_the_earth_move,
@@ -906,7 +909,8 @@ const SONGS: Record<string, Song> = {
   i_shot_the_sheriff: i_shot_the_sheriff,
   i_should_have_known_better: i_should_have_known_better,
   i_think_were_alone_now: i_think_were_alone_now,
-  i_wanna_dance_with_somebody_who_loves_me: i_wanna_dance_with_somebody_who_loves_me,
+  i_wanna_dance_with_somebody_who_loves_me:
+    i_wanna_dance_with_somebody_who_loves_me,
   i_want_you_back: i_want_you_back,
   i_will_follow_you_into_the_dark: i_will_follow_you_into_the_dark,
   i_will_survive: i_will_survive,
@@ -956,7 +960,8 @@ const SONGS: Record<string, Song> = {
   just_dance: just_dance,
   just_kissed_my_baby: just_kissed_my_baby,
   just_like_a_woman: just_like_a_woman,
-  just_my_imagination_running_away_with_me: just_my_imagination_running_away_with_me,
+  just_my_imagination_running_away_with_me:
+    just_my_imagination_running_away_with_me,
   just_one_kiss: just_one_kiss,
   just_the_two_of_us: just_the_two_of_us,
   karma_police: karma_police,
@@ -1044,7 +1049,8 @@ const SONGS: Record<string, Song> = {
   my_type: my_type,
   never_gonna_give_you_up: never_gonna_give_you_up,
   new_york_new_york: new_york_new_york,
-  ngiculela_es_una_historia_i_am_singing: ngiculela_es_una_historia_i_am_singing,
+  ngiculela_es_una_historia_i_am_singing:
+    ngiculela_es_una_historia_i_am_singing,
   night_time_is_the_right_time: night_time_is_the_right_time,
   no_diggity_blackstreet: no_diggity_blackstreet,
   no_diggity_chet_faker: no_diggity_chet_faker,
@@ -1161,7 +1167,8 @@ const SONGS: Record<string, Song> = {
   steal_my_kisses: steal_my_kisses,
   still_the_one: still_the_one,
   stir_it_up: stir_it_up,
-  stop_making_sense_girlfriend_is_better: stop_making_sense_girlfriend_is_better,
+  stop_making_sense_girlfriend_is_better:
+    stop_making_sense_girlfriend_is_better,
   stuck_in_the_middle_with_you: stuck_in_the_middle_with_you,
   subterranean_homesick_alien: subterranean_homesick_alien,
   sugar: sugar,
@@ -1187,7 +1194,8 @@ const SONGS: Record<string, Song> = {
   tell_me_something_good: tell_me_something_good,
   tennessee_whiskey: tennessee_whiskey,
   tequila: tequila,
-  thank_you_falettinme_be_mice_elf_again: thank_you_falettinme_be_mice_elf_again,
+  thank_you_falettinme_be_mice_elf_again:
+    thank_you_falettinme_be_mice_elf_again,
   thats_the_way_i_like_it: thats_the_way_i_like_it,
   thats_what_i_like: thats_what_i_like,
   the_big_country: the_big_country,
@@ -1230,7 +1238,8 @@ const SONGS: Record<string, Song> = {
   twistin_the_night_away: twistin_the_night_away,
   umbrella: umbrella,
   unforgettable: unforgettable,
-  until_you_come_back_to_me_thats_what_im_gonna_do: until_you_come_back_to_me_thats_what_im_gonna_do,
+  until_you_come_back_to_me_thats_what_im_gonna_do:
+    until_you_come_back_to_me_thats_what_im_gonna_do,
   uptight_everythings_alright: uptight_everythings_alright,
   uptown_funk: uptown_funk,
   uptown_girl: uptown_girl,
@@ -1285,7 +1294,8 @@ const SONGS: Record<string, Song> = {
   you_can_call_me_al: you_can_call_me_al,
   you_dont_know_how_it_feels: you_dont_know_how_it_feels,
   you_gotta_be: you_gotta_be,
-  you_made_me_love_you_i_didnt_want_to_do_it: you_made_me_love_you_i_didnt_want_to_do_it,
+  you_made_me_love_you_i_didnt_want_to_do_it:
+    you_made_me_love_you_i_didnt_want_to_do_it,
   you_make_me_feel_like_a_natural_woman: you_make_me_feel_like_a_natural_woman,
   you_make_my_dreams: you_make_my_dreams,
   you_shook_me_all_night_long: you_shook_me_all_night_long,

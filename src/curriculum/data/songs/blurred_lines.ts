@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const blurred_lines: Song = {
   id: 'blurred_lines',
-  title: "Blurred Lines",
+  title: 'Blurred Lines',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,21 +21,21 @@ export const blurred_lines: Song = {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_d',
       label: 'Section D',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'intro',
       label: 'Intro',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
     },
   ],

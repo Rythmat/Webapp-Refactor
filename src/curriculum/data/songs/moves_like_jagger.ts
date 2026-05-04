@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const moves_like_jagger: Song = {
   id: 'moves_like_jagger',
-  title: "Moves Like Jagger",
+  title: 'Moves Like Jagger',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,28 +21,36 @@ export const moves_like_jagger: Song = {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_b',
       label: 'Section B',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'section_e',
       label: 'Section E',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'intro',
       label: 'Intro',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
   ],

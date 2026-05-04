@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const pony: Song = {
   id: 'pony',
-  title: "Pony",
+  title: 'Pony',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,23 +21,39 @@ export const pony: Song = {
       id: 'section_c',
       label: 'Section C',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'C♯min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'C♯min7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'section_f',
       label: 'Section F',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
   ],

@@ -1,77 +1,86 @@
-import React, { useState, useMemo, useRef, type FC } from "react"
+import React, { useState, useMemo, useRef, type FC } from 'react';
 
 export interface ExternalDataPoint {
-  label: string
-  value: number
+  label: string;
+  value: number;
 }
 
 interface XpTrackerProps {
   /** This week's daily XP data (Mon–Sun) */
-  thisWeek: ExternalDataPoint[]
+  thisWeek: ExternalDataPoint[];
   /** Last week's daily XP data (Mon–Sun) */
-  lastWeek: ExternalDataPoint[]
+  lastWeek: ExternalDataPoint[];
   /** Additional className */
-  className?: string
+  className?: string;
 }
 
-const DAYS = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
+const DAYS = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun'];
 
 export const RealTimeAnalytics: FC<XpTrackerProps> = ({
   thisWeek,
   lastWeek,
-  className = "",
+  className = '',
 }) => {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
-  const svgRef = useRef<SVGSVGElement>(null)
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
-  const width = 700
-  const height = 140
-  const padding = { top: 12, right: 16, bottom: 28, left: 36 }
+  const width = 700;
+  const height = 140;
+  const padding = { top: 12, right: 16, bottom: 28, left: 36 };
 
   const maxValue = useMemo(() => {
-    const allValues = [...thisWeek.map(d => d.value), ...lastWeek.map(d => d.value)]
-    const peak = Math.max(...allValues, 10)
-    return Math.ceil(peak / 20) * 20 // round up to nearest 20
-  }, [thisWeek, lastWeek])
+    const allValues = [
+      ...thisWeek.map((d) => d.value),
+      ...lastWeek.map((d) => d.value),
+    ];
+    const peak = Math.max(...allValues, 10);
+    return Math.ceil(peak / 20) * 20; // round up to nearest 20
+  }, [thisWeek, lastWeek]);
 
   const yTicks = useMemo(() => {
-    const ticks: number[] = []
-    for (let v = 0; v <= maxValue; v += 20) ticks.push(v)
-    return ticks
-  }, [maxValue])
+    const ticks: number[] = [];
+    for (let v = 0; v <= maxValue; v += 20) ticks.push(v);
+    return ticks;
+  }, [maxValue]);
 
   const getX = (i: number) => {
-    return padding.left + (i / (DAYS.length - 1)) * (width - padding.left - padding.right)
-  }
+    return (
+      padding.left +
+      (i / (DAYS.length - 1)) * (width - padding.left - padding.right)
+    );
+  };
 
   const getY = (value: number) => {
-    return padding.top + (1 - value / maxValue) * (height - padding.top - padding.bottom)
-  }
+    return (
+      padding.top +
+      (1 - value / maxValue) * (height - padding.top - padding.bottom)
+    );
+  };
 
   const makePath = (data: ExternalDataPoint[]) => {
-    if (data.length < 2) return ""
+    if (data.length < 2) return '';
     return data
-      .map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)},${getY(d.value)}`)
-      .join(" ")
-  }
+      .map((d, i) => `${i === 0 ? 'M' : 'L'} ${getX(i)},${getY(d.value)}`)
+      .join(' ');
+  };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!svgRef.current) return
-    const rect = svgRef.current.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * width
-    const chartLeft = padding.left
-    const chartRight = width - padding.right
-    const chartWidth = chartRight - chartLeft
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * width;
+    const chartLeft = padding.left;
+    const chartRight = width - padding.right;
+    const chartWidth = chartRight - chartLeft;
 
     if (x < chartLeft || x > chartRight) {
-      setHoveredIndex(null)
-      return
+      setHoveredIndex(null);
+      return;
     }
 
-    const ratio = (x - chartLeft) / chartWidth
-    const idx = Math.round(ratio * (DAYS.length - 1))
-    setHoveredIndex(Math.max(0, Math.min(DAYS.length - 1, idx)))
-  }
+    const ratio = (x - chartLeft) / chartWidth;
+    const idx = Math.round(ratio * (DAYS.length - 1));
+    setHoveredIndex(Math.max(0, Math.min(DAYS.length - 1, idx)));
+  };
 
   return (
     <div className={`flex flex-col h-full ${className}`}>
@@ -157,7 +166,7 @@ export const RealTimeAnalytics: FC<XpTrackerProps> = ({
               cy={getY(d.value)}
               r={hoveredIndex === i ? 5 : 4}
               fill="#6b7280"
-              style={{ transition: "r 0.15s ease" }}
+              style={{ transition: 'r 0.15s ease' }}
             />
           ))}
 
@@ -179,7 +188,7 @@ export const RealTimeAnalytics: FC<XpTrackerProps> = ({
               cy={getY(d.value)}
               r={hoveredIndex === i ? 6 : 4.5}
               fill="white"
-              style={{ transition: "r 0.15s ease" }}
+              style={{ transition: 'r 0.15s ease' }}
             />
           ))}
 
@@ -205,18 +214,24 @@ export const RealTimeAnalytics: FC<XpTrackerProps> = ({
               bottom: `${((height - getY(Math.max(thisWeek[hoveredIndex]?.value ?? 0, lastWeek[hoveredIndex]?.value ?? 0))) / height) * 100 + 8}%`,
             }}
           >
-            <div className="text-[10px] text-gray-500 mb-1">{DAYS[hoveredIndex]}</div>
+            <div className="text-[10px] text-gray-500 mb-1">
+              {DAYS[hoveredIndex]}
+            </div>
             <div className="flex items-center gap-2 text-xs">
               <span className="w-1.5 h-1.5 rounded-full bg-white" />
-              <span className="text-white font-semibold">{thisWeek[hoveredIndex]?.value ?? 0} XP</span>
+              <span className="text-white font-semibold">
+                {thisWeek[hoveredIndex]?.value ?? 0} XP
+              </span>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <span className="w-1.5 h-1.5 rounded-full bg-gray-500" />
-              <span className="text-gray-400">{lastWeek[hoveredIndex]?.value ?? 0} XP</span>
+              <span className="text-gray-400">
+                {lastWeek[hoveredIndex]?.value ?? 0} XP
+              </span>
             </div>
           </div>
         )}
       </div>
     </div>
-  )
-}
+  );
+};

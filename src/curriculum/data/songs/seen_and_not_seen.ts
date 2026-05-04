@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const seen_and_not_seen: Song = {
   id: 'seen_and_not_seen',
-  title: "Seen And Not Seen",
+  title: 'Seen And Not Seen',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,40 +21,72 @@ export const seen_and_not_seen: Song = {
       id: 'section_d',
       label: 'Section D',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'section_e',
       label: 'Section E',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'intro',
       label: 'Intro',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
   ],

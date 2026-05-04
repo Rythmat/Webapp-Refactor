@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const shake_your_body_down_to_the_ground: Song = {
   id: 'shake_your_body_down_to_the_ground',
-  title: "Shake Your Body (Down To The Ground)",
+  title: 'Shake Your Body (Down To The Ground)',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,15 +21,19 @@ export const shake_your_body_down_to_the_ground: Song = {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }] },
-      { chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'intro',
       label: 'Intro',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
   ],

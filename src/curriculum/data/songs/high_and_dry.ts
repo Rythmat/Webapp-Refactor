@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const high_and_dry: Song = {
   id: 'high_and_dry',
-  title: "High And Dry",
+  title: 'High And Dry',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,28 +21,32 @@ export const high_and_dry: Song = {
       id: 'section_f',
       label: 'Section F',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_e',
       label: 'Section E',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'intro',
       label: 'Intro',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
     },
   ],

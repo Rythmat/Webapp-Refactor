@@ -13,12 +13,14 @@ import fs from 'fs';
 import path from 'path';
 
 const PDF_DIR = '/Users/marfizo/Downloads/NEW BASS SOUL PROP BOOK';
-const OUT_DIR = '/Users/marfizo/Documents/Full App Code/Webapp-Refactor/src/curriculum/data/songs';
+const OUT_DIR =
+  '/Users/marfizo/Documents/Full App Code/Webapp-Refactor/src/curriculum/data/songs';
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
 function slugify(s) {
-  return s.toLowerCase()
+  return s
+    .toLowerCase()
     .replace(/['']/g, '')
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/(^_|_$)/g, '');
@@ -29,13 +31,25 @@ const SHARP_KEYS = ['C', 'G', 'D', 'A', 'E', 'B', 'F♯', 'C♯'];
 const FLAT_KEYS = ['C', 'F', 'B♭', 'E♭', 'A♭', 'D♭', 'G♭', 'C♭'];
 
 const KEY_TO_MIDI = {
-  'C': 60, 'C♯': 61, 'D♭': 61, 'D': 62, 'E♭': 63, 'E': 64,
-  'F': 65, 'F♯': 66, 'G♭': 66, 'G': 67, 'A♭': 68, 'A': 69,
-  'B♭': 70, 'B': 71,
+  C: 60,
+  'C♯': 61,
+  'D♭': 61,
+  D: 62,
+  'E♭': 63,
+  E: 64,
+  F: 65,
+  'F♯': 66,
+  'G♭': 66,
+  G: 67,
+  'A♭': 68,
+  A: 69,
+  'B♭': 70,
+  B: 71,
 };
 
 // Chord name regex — matches standard chord symbols
-const CHORD_RE = /^([A-G][#♯b♭]?)\s*(maj7?|min7?|m7?|dim7?|aug|dom7|\+|sus[24]|7|9|11|13|add\d+|6)?(\s*\/\s*[A-G][#♯b♭]?)?$/;
+const CHORD_RE =
+  /^([A-G][#♯b♭]?)\s*(maj7?|min7?|m7?|dim7?|aug|dom7|\+|sus[24]|7|9|11|13|add\d+|6)?(\s*\/\s*[A-G][#♯b♭]?)?$/;
 
 function isChordName(s) {
   const cleaned = s.trim();
@@ -54,29 +68,29 @@ function normalizeChord(s) {
 
 // Genre normalization map
 const GENRE_MAP = {
-  'soul': ['soul', 'r_and_b'],
-  'pop': ['pop'],
+  soul: ['soul', 'r_and_b'],
+  pop: ['pop'],
   'pop rock': ['pop', 'rock'],
-  'rock': ['rock'],
-  'funk': ['funk'],
+  rock: ['rock'],
+  funk: ['funk'],
   'r&b': ['r_and_b'],
-  'jazz': ['jazz'],
-  'blues': ['blues'],
-  'folk': ['folk'],
-  'reggae': ['reggae'],
-  'latin': ['latin'],
+  jazz: ['jazz'],
+  blues: ['blues'],
+  folk: ['folk'],
+  reggae: ['reggae'],
+  latin: ['latin'],
   'hip hop': ['hip_hop'],
-  'electronic': ['electronic'],
+  electronic: ['electronic'],
   'neo soul': ['neo_soul'],
-  'country': ['folk'],
-  'motown': ['soul', 'r_and_b'],
-  'disco': ['funk', 'pop'],
+  country: ['folk'],
+  motown: ['soul', 'r_and_b'],
+  disco: ['funk', 'pop'],
   'straight eighth rock': ['rock'],
-  'swing': ['jazz'],
-  'ballad': ['pop'],
+  swing: ['jazz'],
+  ballad: ['pop'],
   'bossa nova': ['latin', 'jazz'],
-  'shuffle': ['blues'],
-  'gospel': ['soul'],
+  shuffle: ['blues'],
+  gospel: ['soul'],
   'new wave': ['pop', 'rock'],
 };
 
@@ -88,7 +102,10 @@ function normalizeGenre(raw) {
 /* ── PDF Text Parser ─────────────────────────────────────────────────── */
 
 function parseMetadata(fullText) {
-  const lines = fullText.split('\n').map(l => l.trim()).filter(Boolean);
+  const lines = fullText
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
 
   // The metadata is typically near the end of page 1 text
   // Pattern: Title + Artist on same or adjacent lines, then genre, tempo, album
@@ -102,7 +119,7 @@ function parseMetadata(fullText) {
   let timeSig = [4, 4];
 
   // Find tempo line
-  const tempoLine = lines.find(l => /quarter note\s*=\s*\d+/i.test(l));
+  const tempoLine = lines.find((l) => /quarter note\s*=\s*\d+/i.test(l));
   if (tempoLine) {
     const m = tempoLine.match(/quarter note\s*=\s*(\d+)/i);
     if (m) tempo = parseInt(m[1], 10);
@@ -134,7 +151,9 @@ function parseMetadata(fullText) {
   // Genre line — usually one of the known genre strings
   for (const line of lines) {
     const lower = line.toLowerCase();
-    if (Object.keys(GENRE_MAP).some(g => lower === g || lower.startsWith(g))) {
+    if (
+      Object.keys(GENRE_MAP).some((g) => lower === g || lower.startsWith(g))
+    ) {
       genre = line.toLowerCase();
       break;
     }
@@ -148,8 +167,10 @@ function parseMetadata(fullText) {
   let keyName = 'C';
   const sharpCount = (fullText.match(/\?\s*(#+|♯+)/)?.[1] || '').length;
   const flatCount = (fullText.match(/\?\s*(b+|♭+)/)?.[1] || '').length;
-  if (sharpCount > 0 && sharpCount < SHARP_KEYS.length) keyName = SHARP_KEYS[sharpCount];
-  else if (flatCount > 0 && flatCount < FLAT_KEYS.length) keyName = FLAT_KEYS[flatCount];
+  if (sharpCount > 0 && sharpCount < SHARP_KEYS.length)
+    keyName = SHARP_KEYS[sharpCount];
+  else if (flatCount > 0 && flatCount < FLAT_KEYS.length)
+    keyName = FLAT_KEYS[flatCount];
 
   return { title, artist, bassist, genre, tempo, album, keyName, timeSig };
 }
@@ -165,7 +186,12 @@ function extractChords(fullText) {
     let combined = normalized;
     if (i + 1 < tokens.length) {
       const next = tokens[i + 1]?.trim();
-      if (next && /^(maj7?|min7?|m7?|dim7?|aug|dom7|7|9|11|13|sus[24]|add\d+|6)$/i.test(next)) {
+      if (
+        next &&
+        /^(maj7?|min7?|m7?|dim7?|aug|dom7|7|9|11|13|sus[24]|add\d+|6)$/i.test(
+          next,
+        )
+      ) {
         combined = normalized + next;
         i++; // skip the quality token
       }
@@ -235,9 +261,15 @@ function generateSongFile(pdfPath) {
     for (let si = 0; si < Math.max(labels.length, 1); si++) {
       const label = labels[si] || String.fromCharCode(65 + si);
       const sectionChords = [];
-      const chordsPerSection = Math.ceil(allChords.length / Math.max(labels.length, 1));
+      const chordsPerSection = Math.ceil(
+        allChords.length / Math.max(labels.length, 1),
+      );
 
-      for (let j = 0; j < chordsPerSection && chordIdx < allChords.length; j++) {
+      for (
+        let j = 0;
+        j < chordsPerSection && chordIdx < allChords.length;
+        j++
+      ) {
         sectionChords.push(allChords[chordIdx]);
         chordIdx++;
       }
@@ -245,12 +277,14 @@ function generateSongFile(pdfPath) {
       if (sectionChords.length === 0) continue;
 
       // Group chords into bars (1 chord per bar default, unless many chords)
-      const bars = sectionChords.map(chord => ({
-        chords: [{ degree: '1 maj', chordName: chord, beat: 1, duration: 4 }]
+      const bars = sectionChords.map((chord) => ({
+        chords: [{ degree: '1 maj', chordName: chord, beat: 1, duration: 4 }],
       }));
 
       sections.push({
-        id: slugify(label === 'Intro' ? 'intro' : `section_${label.toLowerCase()}`),
+        id: slugify(
+          label === 'Intro' ? 'intro' : `section_${label.toLowerCase()}`,
+        ),
         label: label === 'Intro' ? 'Intro' : `Section ${label}`,
         bars,
       });
@@ -261,7 +295,18 @@ function generateSongFile(pdfPath) {
       sections.push({
         id: 'section_a',
         label: 'Section A',
-        bars: [{ chords: [{ degree: '1 maj', chordName: meta.keyName, beat: 1, duration: 4 }] }],
+        bars: [
+          {
+            chords: [
+              {
+                degree: '1 maj',
+                chordName: meta.keyName,
+                beat: 1,
+                duration: 4,
+              },
+            ],
+          },
+        ],
       });
     }
 
@@ -270,8 +315,8 @@ function generateSongFile(pdfPath) {
     const keyRoot = KEY_TO_MIDI[meta.keyName] || 60;
 
     // Estimate difficulty from chord complexity
-    const hasSevenths = allChords.some(c => /7|9|11|13/.test(c));
-    const hasAltered = allChords.some(c => /dim|aug|\+|♯|♭/.test(c));
+    const hasSevenths = allChords.some((c) => /7|9|11|13/.test(c));
+    const hasAltered = allChords.some((c) => /dim|aug|\+|♯|♭/.test(c));
     const difficulty = hasAltered ? 3 : hasSevenths ? 2 : 1;
 
     return {
@@ -291,22 +336,29 @@ function generateSongFile(pdfPath) {
 }
 
 function songToTypeScript(song) {
-  const sectionsStr = song.sections.map(section => {
-    const barsStr = section.bars.map(bar => {
-      const chordsStr = bar.chords.map(c =>
-        `{ degree: '1 maj', chordName: '${c.chordName.replace(/'/g, "\\'")}', beat: ${c.beat}, duration: ${c.duration} }`
-      ).join(', ');
-      return `      { chords: [${chordsStr}] }`;
-    }).join(',\n');
+  const sectionsStr = song.sections
+    .map((section) => {
+      const barsStr = section.bars
+        .map((bar) => {
+          const chordsStr = bar.chords
+            .map(
+              (c) =>
+                `{ degree: '1 maj', chordName: '${c.chordName.replace(/'/g, "\\'")}', beat: ${c.beat}, duration: ${c.duration} }`,
+            )
+            .join(', ');
+          return `      { chords: [${chordsStr}] }`;
+        })
+        .join(',\n');
 
-    return `    {
+      return `    {
       id: '${section.id}',
       label: '${section.label}',
       bars: [
 ${barsStr},
       ],
     }`;
-  }).join(',\n');
+    })
+    .join(',\n');
 
   return `import type { Song } from '@/curriculum/types/songLibrary';
 
@@ -323,7 +375,7 @@ export const ${song.varName}: Song = {
   timeSignature: [4, 4],
 
   difficulty: ${song.difficulty},
-  genreTags: [${song.genreTags.map(g => `'${g}'`).join(', ')}],
+  genreTags: [${song.genreTags.map((g) => `'${g}'`).join(', ')}],
   techniques: [],
 
   sections: [
@@ -340,8 +392,9 @@ ${sectionsStr},
 /* ── Main ────────────────────────────────────────────────────────────── */
 
 async function main() {
-  const files = fs.readdirSync(PDF_DIR)
-    .filter(f => f.endsWith('.pdf'))
+  const files = fs
+    .readdirSync(PDF_DIR)
+    .filter((f) => f.endsWith('.pdf'))
     .sort();
 
   console.log(`Found ${files.length} PDFs to process`);
@@ -377,27 +430,33 @@ async function main() {
     }
   }
 
-  console.log(`\nDone! ${results.length} songs generated, ${failures.length} failures`);
+  console.log(
+    `\nDone! ${results.length} songs generated, ${failures.length} failures`,
+  );
 
   if (failures.length > 0) {
     console.log('\nFailures:');
     for (const f of failures.slice(0, 20)) {
       console.log(`  ${f.file}: ${f.error}`);
     }
-    if (failures.length > 20) console.log(`  ... and ${failures.length - 20} more`);
+    if (failures.length > 20)
+      console.log(`  ... and ${failures.length - 20} more`);
   }
 
   // Generate index imports
-  const indexImports = results.map(s =>
-    `import { ${s.varName} } from './${s.slug}';`
-  ).join('\n');
+  const indexImports = results
+    .map((s) => `import { ${s.varName} } from './${s.slug}';`)
+    .join('\n');
 
-  const indexEntries = results.map(s =>
-    `  ${s.slug}: ${s.varName},`
-  ).join('\n');
+  const indexEntries = results
+    .map((s) => `  ${s.slug}: ${s.varName},`)
+    .join('\n');
 
   const indexPath = path.join(OUT_DIR, '_generated_index.ts');
-  fs.writeFileSync(indexPath, `// Auto-generated song imports — paste into index.ts\n\n${indexImports}\n\n// Add to SONGS record:\n// {\n${indexEntries}\n// }\n`);
+  fs.writeFileSync(
+    indexPath,
+    `// Auto-generated song imports — paste into index.ts\n\n${indexImports}\n\n// Add to SONGS record:\n// {\n${indexEntries}\n// }\n`,
+  );
 
   console.log(`\nGenerated index file: ${indexPath}`);
 }

@@ -2,7 +2,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const the_great_curve: Song = {
   id: 'the_great_curve',
-  title: "The Great Curve",
+  title: 'The Great Curve',
   artist: 'Unknown Artist',
   year: undefined,
 
@@ -21,14 +21,18 @@ export const the_great_curve: Song = {
       id: 'section_f',
       label: 'Section F',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'Fmin7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'section_a',
       label: 'Section A',
       bars: [
-      { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
   ],

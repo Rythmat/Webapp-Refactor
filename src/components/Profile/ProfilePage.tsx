@@ -82,8 +82,14 @@ export const ProfilePage: React.FC = () => {
     }
     const LABELS = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun'];
     const toPoints = (dates: string[]) =>
-      dates.map((date, i) => ({ label: LABELS[i] ?? '', value: timelineMap.get(date) ?? 0 }));
-    return { xpThisWeek: toPoints(days.slice(7, 14)), xpLastWeek: toPoints(days.slice(0, 7)) };
+      dates.map((date, i) => ({
+        label: LABELS[i] ?? '',
+        value: timelineMap.get(date) ?? 0,
+      }));
+    return {
+      xpThisWeek: toPoints(days.slice(7, 14)),
+      xpLastWeek: toPoints(days.slice(0, 7)),
+    };
   }, [xpSummary?.timeline]);
   const displayName = user?.nickname || user?.username || 'USER';
   const [activeTab, setActiveTab] = useState<Tab>('Profile');

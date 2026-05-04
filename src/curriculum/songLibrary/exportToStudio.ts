@@ -16,19 +16,48 @@ const PPQ = 480; // pulses per quarter note — matches the DAW
 /* ── Chord name → MIDI resolution ────────────────────────────────────── */
 
 const NOTE_TO_MIDI: Record<string, number> = {
-  'C': 60, 'C♯': 61, 'D♭': 61, 'D': 62, 'D♯': 63, 'E♭': 63, 'E': 64,
-  'F': 65, 'F♯': 66, 'G♭': 66, 'G': 67, 'G♯': 68, 'A♭': 68, 'A': 69,
-  'A♯': 70, 'B♭': 70, 'B': 71,
+  C: 60,
+  'C♯': 61,
+  'D♭': 61,
+  D: 62,
+  'D♯': 63,
+  'E♭': 63,
+  E: 64,
+  F: 65,
+  'F♯': 66,
+  'G♭': 66,
+  G: 67,
+  'G♯': 68,
+  'A♭': 68,
+  A: 69,
+  'A♯': 70,
+  'B♭': 70,
+  B: 71,
 };
 
 const QUALITY_INTERVALS: Record<string, number[]> = {
-  'maj': [0, 4, 7], 'min': [0, 3, 7], 'm': [0, 3, 7],
-  'dim': [0, 3, 6], 'aug': [0, 4, 8],
-  '7': [0, 4, 7, 10], 'maj7': [0, 4, 7, 11], 'min7': [0, 3, 7, 10], 'm7': [0, 3, 7, 10],
-  'dim7': [0, 3, 6, 9], 'sus': [0, 5, 7], 'sus2': [0, 2, 7], 'sus4': [0, 5, 7],
-  '7sus': [0, 5, 7, 10], 'alt7': [0, 4, 6, 10], 'alt': [0, 4, 6, 10],
-  '9': [0, 4, 7, 10, 14], 'min9': [0, 3, 7, 10, 14], 'add9': [0, 4, 7, 14],
-  '6': [0, 4, 7, 9], 'min6': [0, 3, 7, 9], 'power': [0, 7],
+  maj: [0, 4, 7],
+  min: [0, 3, 7],
+  m: [0, 3, 7],
+  dim: [0, 3, 6],
+  aug: [0, 4, 8],
+  '7': [0, 4, 7, 10],
+  maj7: [0, 4, 7, 11],
+  min7: [0, 3, 7, 10],
+  m7: [0, 3, 7, 10],
+  dim7: [0, 3, 6, 9],
+  sus: [0, 5, 7],
+  sus2: [0, 2, 7],
+  sus4: [0, 5, 7],
+  '7sus': [0, 5, 7, 10],
+  alt7: [0, 4, 6, 10],
+  alt: [0, 4, 6, 10],
+  '9': [0, 4, 7, 10, 14],
+  min9: [0, 3, 7, 10, 14],
+  add9: [0, 4, 7, 14],
+  '6': [0, 4, 7, 9],
+  min6: [0, 3, 7, 9],
+  power: [0, 7],
 };
 
 function chordNameToMidi(chordName: string): number[] {
@@ -39,14 +68,15 @@ function chordNameToMidi(chordName: string): number[] {
   const rootMidi = NOTE_TO_MIDI[rootNote];
   if (rootMidi == null) return [60, 64, 67];
 
-  const remainder = chordName.slice(rootNote.length)
+  const remainder = chordName
+    .slice(rootNote.length)
     .replace(/\(.*\)/, '')
     .replace(/\/[A-G][♭♯]?$/, '')
     .replace(/\s+/g, '')
     .trim();
   const quality = remainder || 'maj';
   const intervals = QUALITY_INTERVALS[quality] ?? QUALITY_INTERVALS['maj'];
-  return intervals.map(i => rootMidi + i);
+  return intervals.map((i) => rootMidi + i);
 }
 
 /* ── Export as ChordRegions (correct beat/measure timing) ────────────── */
@@ -177,9 +207,18 @@ export function exportSongToStudio(
           if (!hit.chordName) continue;
           const midi = chordNameToMidi(hit.chordName);
           let color: RGB;
-          try { color = getChordColor(hit.degree, rootMidi, song.mode) as RGB; }
-          catch { color = [200, 200, 200] as unknown as RGB; }
-          chords.push({ degree: hit.degree || '1 maj', quality: hit.chordName, noteName: hit.chordName, midi, color });
+          try {
+            color = getChordColor(hit.degree, rootMidi, song.mode) as RGB;
+          } catch {
+            color = [200, 200, 200] as unknown as RGB;
+          }
+          chords.push({
+            degree: hit.degree || '1 maj',
+            quality: hit.chordName,
+            noteName: hit.chordName,
+            midi,
+            color,
+          });
         }
       }
     }

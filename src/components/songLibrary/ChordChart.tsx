@@ -471,7 +471,7 @@ const SectionStaff: FC<{
               activeBarIdx != null &&
               activeBarIdx >= globalBarOffset &&
               activeBarIdx < globalBarOffset + row.length
-                ? activeBarRef
+                ? (activeBarRef as React.RefObject<HTMLDivElement>)
                 : undefined
             }
             style={{ marginBottom: 4 }}

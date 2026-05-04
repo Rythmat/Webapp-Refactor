@@ -12,7 +12,8 @@ const DEFAULT_MEASURES_PER_LINE = 4;
 
 export function LeadSheetView() {
   const chordRegions = useStore((s) => s.chordRegions);
-  const MEASURES_PER_LINE = useStore((s) => s.measuresPerLine) || DEFAULT_MEASURES_PER_LINE;
+  const MEASURES_PER_LINE =
+    useStore((s) => s.measuresPerLine) || DEFAULT_MEASURES_PER_LINE;
   const measureRowSizes = useStore((s) => s.measureRowSizes);
   const measureRestMap = useStore((s) => s.measureRestMap);
   const measureFermatas = useStore((s) => s.measureFermatas);
@@ -115,7 +116,11 @@ export function LeadSheetView() {
 
   // Split measures into systems (rows) — uses custom row sizes if available
   const systems = useMemo(() => {
-    const result: { startIndex: number; measures: typeof measures; rowSize: number }[] = [];
+    const result: {
+      startIndex: number;
+      measures: typeof measures;
+      rowSize: number;
+    }[] = [];
     if (measureRowSizes && measureRowSizes.length > 0) {
       // Custom row sizes from chord chart export
       let i = 0;
@@ -158,7 +163,10 @@ export function LeadSheetView() {
     // Find which system contains this measure
     for (let si = 0; si < systems.length; si++) {
       const sys = systems[si];
-      if (measureIdx >= sys.startIndex && measureIdx < sys.startIndex + sys.measures.length) {
+      if (
+        measureIdx >= sys.startIndex &&
+        measureIdx < sys.startIndex + sys.measures.length
+      ) {
         return si;
       }
     }

@@ -72,7 +72,8 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
   measureFermatas,
 }: LeadSheetStaffProps) {
   const defaultWidth = measures.length * MEASURE_WIDTH;
-  const isFull = measures.length === (fullSystemCount ?? DEFAULT_FULL_SYSTEM_COUNT);
+  const isFull =
+    measures.length === (fullSystemCount ?? DEFAULT_FULL_SYSTEM_COUNT);
 
   // Stretch full systems to fill container; keep partial lines at natural size
   const svgWidth =

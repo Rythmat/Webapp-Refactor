@@ -217,19 +217,46 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
       {isMultiBarRest ? (
         <g>
           {/* Rest count number above */}
-          <text x={width / 2} y={staffTop + LINE_SPACING * 0.8} fill="currentColor"
-            fontSize={16} fontWeight="bold" textAnchor="middle" fontFamily="serif">
+          <text
+            x={width / 2}
+            y={staffTop + LINE_SPACING * 0.8}
+            fill="currentColor"
+            fontSize={16}
+            fontWeight="bold"
+            textAnchor="middle"
+            fontFamily="serif"
+          >
             {restBars}
           </text>
           {/* Thick horizontal block */}
-          <rect x={width * 0.15} y={staffTop + LINE_SPACING * 1.5} width={width * 0.7} height={LINE_SPACING}
-            fill="currentColor" opacity={0.7} />
+          <rect
+            x={width * 0.15}
+            y={staffTop + LINE_SPACING * 1.5}
+            width={width * 0.7}
+            height={LINE_SPACING}
+            fill="currentColor"
+            opacity={0.7}
+          />
           {/* Left serif */}
-          <line x1={width * 0.15} y1={staffTop + LINE_SPACING} x2={width * 0.15} y2={staffTop + LINE_SPACING * 3}
-            stroke="currentColor" strokeWidth={2} opacity={0.7} />
+          <line
+            x1={width * 0.15}
+            y1={staffTop + LINE_SPACING}
+            x2={width * 0.15}
+            y2={staffTop + LINE_SPACING * 3}
+            stroke="currentColor"
+            strokeWidth={2}
+            opacity={0.7}
+          />
           {/* Right serif */}
-          <line x1={width * 0.85} y1={staffTop + LINE_SPACING} x2={width * 0.85} y2={staffTop + LINE_SPACING * 3}
-            stroke="currentColor" strokeWidth={2} opacity={0.7} />
+          <line
+            x1={width * 0.85}
+            y1={staffTop + LINE_SPACING}
+            x2={width * 0.85}
+            y2={staffTop + LINE_SPACING * 3}
+            stroke="currentColor"
+            strokeWidth={2}
+            opacity={0.7}
+          />
         </g>
       ) : (
         /* Beat slash marks (4 per measure) */
@@ -244,7 +271,9 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
               y1={cy + 6}
               x2={bx + 5}
               y2={cy - 6}
-              stroke={isTarget ? 'var(--color-accent, #8b5cf6)' : 'currentColor'}
+              stroke={
+                isTarget ? 'var(--color-accent, #8b5cf6)' : 'currentColor'
+              }
               strokeWidth={isTarget ? 3 : 2}
               opacity={isTarget ? 0.9 : 0.35}
             />
@@ -255,7 +284,12 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
       {/* Fermata symbol */}
       {hasFermata && (
         <g transform={`translate(${width / 2}, ${CHORD_AREA_HEIGHT - 8})`}>
-          <path d="M -8 0 A 8 6 0 0 1 8 0" fill="none" stroke="currentColor" strokeWidth={1.5} />
+          <path
+            d="M -8 0 A 8 6 0 0 1 8 0"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          />
           <circle cx={0} cy={-1} r={1.5} fill="currentColor" />
         </g>
       )}

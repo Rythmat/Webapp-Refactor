@@ -624,8 +624,7 @@ function GenreLessonContainerV2Inner({
   // MIDI notes). Stored as a 0..1 percentage; converted to dB on use.
   const [lessonVolume, setLessonVolume] = useState(0.8);
   const lessonVolumeDb = useMemo(
-    () =>
-      lessonVolume <= 0.001 ? -Infinity : 20 * Math.log10(lessonVolume),
+    () => (lessonVolume <= 0.001 ? -Infinity : 20 * Math.log10(lessonVolume)),
     [lessonVolume],
   );
 
@@ -1323,9 +1322,7 @@ function GenreLessonContainerV2Inner({
               min={0}
               max={100}
               value={Math.round(lessonVolume * 100)}
-              onChange={(e) =>
-                setLessonVolume(Number(e.target.value) / 100)
-              }
+              onChange={(e) => setLessonVolume(Number(e.target.value) / 100)}
               style={{
                 width: '100px',
                 accentColor: '#4a9eff',

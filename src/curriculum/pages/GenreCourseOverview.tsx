@@ -14,7 +14,17 @@ import type {
   GenreProfile,
   VoicingRef,
 } from '@/curriculum/types/genreProfile';
+import { formatScaleDegrees } from '@/components/learn/modeHelpers';
+import { colorForKeyMode } from '@/lib/modeColorShift';
 import '@/components/learn/learn.css';
+
+// ── Section key → ActivitySectionId mapping ─────────────────────────────
+const TECHNIQUE_TO_SECTION: Record<string, string> = {
+  melody: 'A',
+  chords: 'B',
+  bass: 'C',
+  performance: 'D',
+};
 
 // ── Audio helpers (copied from LessonOverview.tsx) ──────────────────────
 
@@ -346,12 +356,14 @@ function TheoryTab({
   selectedLevel,
   onLevelChange,
   onStartActivity,
+  keyColor,
 }: {
   profile: GenreProfile;
   levelProfile: GenreLevelProfile;
   selectedLevel: LevelNum;
   onLevelChange: (level: LevelNum) => void;
   onStartActivity: (level: LevelNum, section: string) => void;
+  keyColor: string;
 }) {
   const [animatingNotes, setAnimatingNotes] = useState<PlaybackEvent[]>([]);
 
@@ -410,6 +422,7 @@ function TheoryTab({
         selectedLevel={selectedLevel}
         onLevelChange={onLevelChange}
         accentColor={profile.accentColor}
+        keyColor={keyColor}
       />
 
       {/* Key & Scale section */}
@@ -429,8 +442,8 @@ function TheoryTab({
 
         <ScaledPiano>
           <PianoKeyboard
-            activeWhiteKeyColor={profile.accentColor}
-            activeBlackKeyColor={profile.accentColor}
+            activeWhiteKeyColor={keyColor}
+            activeBlackKeyColor={keyColor}
             enableClick={false}
             startC={lowestC}
             endC={highestC}
@@ -452,7 +465,8 @@ function TheoryTab({
             [{levelProfile.scaleNotes.join(', ')}]
           </p>
           <p className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
-            Intervals: [{levelProfile.scaleIntervals.join(', ')}]
+            Intervals: [
+            {formatScaleDegrees(levelProfile.scaleIntervals).join(', ')}]
           </p>
           <p className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
             {levelProfile.tempoRange}
@@ -462,8 +476,8 @@ function TheoryTab({
             onClick={handlePlayScale}
             className="ml-auto flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
             style={{
-              border: `1px solid ${profile.accentColor}`,
-              color: profile.accentColor,
+              border: `1px solid ${keyColor}`,
+              color: keyColor,
             }}
           >
             <Play size={12} fill="currentColor" />
@@ -485,7 +499,7 @@ function TheoryTab({
             <VoicingCard
               key={v.symbol}
               voicing={v}
-              accentColor={profile.accentColor}
+              accentColor={keyColor}
               startC={voicingStartC}
               endC={voicingEndC}
             />
@@ -499,7 +513,7 @@ function TheoryTab({
           type="button"
           onClick={() => onStartActivity(selectedLevel, 'chords')}
           className="rounded-full px-6 py-2 text-sm font-semibold"
-          style={{ background: profile.accentColor, color: '#fff' }}
+          style={{ background: keyColor, color: '#fff' }}
         >
           {levelProfile.entryLabel}
         </button>
@@ -523,12 +537,14 @@ function TechniqueTab({
   selectedLevel,
   onLevelChange,
   onStartActivity,
+  keyColor,
 }: {
   profile: GenreProfile;
   levelProfile: GenreLevelProfile;
   selectedLevel: LevelNum;
   onLevelChange: (level: LevelNum) => void;
   onStartActivity: (level: LevelNum, section: string) => void;
+  keyColor: string;
 }) {
   return (
     <div className="flex flex-col gap-6">
@@ -537,6 +553,7 @@ function TechniqueTab({
         selectedLevel={selectedLevel}
         onLevelChange={onLevelChange}
         accentColor={profile.accentColor}
+        keyColor={keyColor}
       />
 
       {/* Section rows */}
@@ -556,7 +573,7 @@ function TechniqueTab({
                 <div className="flex flex-col gap-1.5 flex-1">
                   <p
                     className="text-xs font-bold uppercase tracking-wide"
-                    style={{ color: profile.accentColor }}
+                    style={{ color: keyColor }}
                   >
                     {label}
                   </p>
@@ -601,10 +618,12 @@ function LevelPills({
   selectedLevel,
   onLevelChange,
   accentColor,
+  keyColor,
 }: {
   selectedLevel: LevelNum;
   onLevelChange: (level: LevelNum) => void;
   accentColor: string;
+  keyColor?: string;
 }) {
   return (
     <div className="flex gap-2">
@@ -614,7 +633,7 @@ function LevelPills({
           type="button"
           onClick={() => onLevelChange(lvl)}
           className="rounded-full px-4 py-1 text-xs font-semibold"
-          style={levelPillStyle(selectedLevel === lvl, accentColor)}
+          style={levelPillStyle(selectedLevel === lvl, keyColor ?? accentColor)}
         >
           L{lvl}
         </button>
@@ -641,13 +660,26 @@ export function GenreCourseOverview({ genreSlug }: GenreCourseOverviewProps) {
     return profile.levels[selectedLevel];
   }, [profile, selectedLevel]);
 
+  const keyColor = useMemo(() => {
+    if (!levelProfile) return profile?.accentColor ?? '#888';
+    const root = levelProfile.keyCenter.split(' ')[0];
+    const rawMode = levelProfile.mode.toLowerCase();
+    // Minor Pentatonic → treat as Dorian for color (same relative-major relationship)
+    const modeSlug = rawMode.includes('pentatonic') ? 'dorian' : rawMode;
+    return colorForKeyMode(
+      root,
+      modeSlug as Parameters<typeof colorForKeyMode>[1],
+    );
+  }, [levelProfile, profile]);
+
   const handleStartActivity = useCallback(
-    (level: LevelNum, _section: string) => {
+    (level: LevelNum, section: string) => {
+      const sectionId = TECHNIQUE_TO_SECTION[section] ?? 'A';
       navigate(
         CurriculumRoutes.genreLevel({
           genre: genreSlug,
           level: String(level),
-        }),
+        }) + `?section=${sectionId}`,
       );
     },
     [navigate, genreSlug],
@@ -714,6 +746,7 @@ export function GenreCourseOverview({ genreSlug }: GenreCourseOverviewProps) {
             selectedLevel={selectedLevel}
             onLevelChange={setSelectedLevel}
             onStartActivity={handleStartActivity}
+            keyColor={keyColor}
           />
         )}
         {activeTab === 'technique' && (
@@ -723,6 +756,7 @@ export function GenreCourseOverview({ genreSlug }: GenreCourseOverviewProps) {
             selectedLevel={selectedLevel}
             onLevelChange={setSelectedLevel}
             onStartActivity={handleStartActivity}
+            keyColor={keyColor}
           />
         )}
       </div>

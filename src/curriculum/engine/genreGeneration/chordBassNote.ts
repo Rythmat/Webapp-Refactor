@@ -92,14 +92,13 @@ export function chordSymbolToBassPC(symbol: string): number | null {
 }
 
 /**
- * Convert a pitch class (0-11) to a MIDI note in bass register (octave 2: 36-47).
- * Floor at A1 (MIDI 33) — low E string gets used constantly in funk.
+ * Convert a pitch class (0-11) to a MIDI note in bass register.
+ * Targets E1–Eb2 (MIDI 28–39) — the lowest octave of a standard electric bass.
+ * This ensures oct = root+12 stays in E2–Eb3 (40–51), within the C1-C3 range.
  */
 export function bassPC_toMidi(pc: number): number {
-  let midi = 36 + (pc % 12); // octave 2 (C2 = 36)
-  while (midi < 33) midi += 12; // 33 = A1
-  while (midi > 47) midi -= 12;
-  return midi;
+  // Map all 12 pitch classes into E1(28)…Eb2(39): E=28, F=29, F#=30 … Eb=39
+  return 28 + ((pc - 4 + 12) % 12);
 }
 
 /**

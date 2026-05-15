@@ -13,6 +13,7 @@ export interface NoteEvent {
   durationTicks: number;
   velocity?: number;
   color?: string;
+  hand?: 'lh' | 'rh'; // grand staff stave assignment (D section dual staff only)
 }
 
 export interface NoteHoldMeta {
@@ -43,6 +44,14 @@ export interface PianoRollProps {
   keyColor?: string; // hex color from KEY_OF_COLORS for key center tint
   userNotes?: Array<{ midi: number; onset: number; duration: number }>; // user performance layer
   targetMidiSet?: Set<number>; // target pitches for correct/wrong detection
+  showTimeline?: boolean; // whether to render the beat/bar timeline header (default true)
+  /** Fixed MIDI range for lane display (chromatic mode only) — stave always shows at least
+   *  this range, expanding outward if notes fall outside. */
+  midiRangeMin?: number;
+  midiRangeMax?: number;
+  /** When true, renders one lane per unique pitch only (no gap-filling between notes).
+   *  Ensures large note bubbles even when notes span a wide MIDI range. Used by DualStaffPianoRoll. */
+  noteOnlyLanes?: boolean;
 }
 
 // ===== Helpers =====
@@ -116,8 +125,16 @@ const midiToNoteName = (midi: number, keyRoot?: number): string => {
   return midiToPitchName(midi, keyRoot);
 };
 
-//Produces the list of lanes that span the entirety of the notes given in the event sequence
-function buildLaneList(events: NoteEvent[], keyRoot?: number): string[] {
+//Produces the list of lanes that span the entirety of the notes given in the event sequence.
+// noteOnlyLanes=true: only one lane per unique pitch in events (no gap-filling). Used by
+// DualStaffPianoRoll so wide-range content (octave-pop bass) stays readable with large bubbles.
+function buildLaneList(
+  events: NoteEvent[],
+  keyRoot?: number,
+  midiRangeMin?: number,
+  midiRangeMax?: number,
+  noteOnlyLanes?: boolean,
+): string[] {
   // Build MIDI→name map from events so lanes match event pitchNames
   const eventNameByMidi = new Map<number, string>();
   const midiValues = events
@@ -140,10 +157,26 @@ function buildLaneList(events: NoteEvent[], keyRoot?: number): string[] {
     return ['C4'];
   }
 
-  const minMidi = Math.min(...midiValues);
-  const maxMidi = Math.max(...midiValues);
-  const minLaneMidi = Math.max(minMidi - 1, 0);
-  const maxLaneMidi = Math.min(maxMidi + 1, 127);
+  // Note-only mode: one lane per unique pitch, sorted high→low. No empty semitone rows.
+  if (noteOnlyLanes) {
+    const uniqueSorted = [...new Set(midiValues)].sort((a, b) => b - a);
+    return uniqueSorted.map(
+      (midi) => eventNameByMidi.get(midi) ?? midiToNoteName(midi, keyRoot),
+    );
+  }
+
+  // Chromatic mode: fill every semitone between min and max (original behaviour).
+  const dataMin =
+    midiValues.length > 0 ? Math.min(...midiValues) : (midiRangeMin ?? 60);
+  const dataMax =
+    midiValues.length > 0 ? Math.max(...midiValues) : (midiRangeMax ?? 60);
+  const effectiveMin =
+    midiRangeMin !== undefined ? Math.min(midiRangeMin, dataMin) : dataMin;
+  const effectiveMax =
+    midiRangeMax !== undefined ? Math.max(midiRangeMax, dataMax) : dataMax;
+
+  const minLaneMidi = Math.max(effectiveMin - 1, 0);
+  const maxLaneMidi = Math.min(effectiveMax + 1, 127);
 
   const laneNames: string[] = [];
   for (let midi = maxLaneMidi; midi >= minLaneMidi; midi--) {
@@ -248,8 +281,18 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   keyColor,
   userNotes,
   targetMidiSet,
+  showTimeline = true,
+  midiRangeMin,
+  midiRangeMax,
+  noteOnlyLanes,
 }) => {
-  const laneList = buildLaneList(events, keyRoot);
+  const laneList = buildLaneList(
+    events,
+    keyRoot,
+    midiRangeMin,
+    midiRangeMax,
+    noteOnlyLanes,
+  );
   const effectiveRowHeight =
     laneList.length > 0 ? rowHeight / laneList.length : rowHeight;
   const ticksPerBar = beatsPerBar * beatTicks;
@@ -400,79 +443,81 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
         }}
       >
         {/* Header: beat markers & optional chord strip */}
-        <div
-          className="sticky top-0 z-30 backdrop-blur"
-          style={{
-            background: 'rgba(25,25,25,0.95)',
-            borderBottom: '1px solid rgba(120,120,120,0.25)',
-            position: 'relative',
-          }}
-        >
-          {/* Top ruler */}
-          <div className="relative flex" style={{ height: 40 }}>
-            <div
-              className="shrink-0 border-r border-neutral-800/50"
-              style={{ width: laneLabelWidth }}
-            />
-            <div className="relative flex-1" style={{ minWidth: 0 }}>
-              {/* beat labels */}
-              {visibleLabels.map(({ tick, label }) => {
-                const isFinalTick = Math.abs(tick - timelineEndTick) < 0.0001;
-                return (
+        {showTimeline && (
+          <div
+            className="sticky top-0 z-30 backdrop-blur"
+            style={{
+              background: 'rgba(25,25,25,0.95)',
+              borderBottom: '1px solid rgba(120,120,120,0.25)',
+              position: 'relative',
+            }}
+          >
+            {/* Top ruler */}
+            <div className="relative flex" style={{ height: 40 }}>
+              <div
+                className="shrink-0 border-r border-neutral-800/50"
+                style={{ width: laneLabelWidth }}
+              />
+              <div className="relative flex-1" style={{ minWidth: 0 }}>
+                {/* beat labels */}
+                {visibleLabels.map(({ tick, label }) => {
+                  const isFinalTick = Math.abs(tick - timelineEndTick) < 0.0001;
+                  return (
+                    <div
+                      key={`lbl-${tick}`}
+                      className="absolute top-1 select-none text-xs text-neutral-300"
+                      style={{
+                        left: `${tickPercent(tick)}%`,
+                        transform: isFinalTick
+                          ? 'translateX(-100%)'
+                          : 'translateX(6px)',
+                      }}
+                    >
+                      {label}
+                    </div>
+                  );
+                })}
+                {/* vertical beat lines (stronger) */}
+                {beatLines.map((b) => (
                   <div
-                    key={`lbl-${tick}`}
-                    className="absolute top-1 select-none text-xs text-neutral-300"
+                    key={`beat-${b}`}
+                    className="absolute top-0 h-full"
                     style={{
-                      left: `${tickPercent(tick)}%`,
-                      transform: isFinalTick
-                        ? 'translateX(-100%)'
-                        : 'translateX(6px)',
+                      left: `${tickPercent(b)}%`,
+                      width: 1,
+                      background: 'rgba(160,160,160,0.25)',
                     }}
-                  >
-                    {label}
-                  </div>
-                );
-              })}
-              {/* vertical beat lines (stronger) */}
-              {beatLines.map((b) => (
-                <div
-                  key={`beat-${b}`}
-                  className="absolute top-0 h-full"
-                  style={{
-                    left: `${tickPercent(b)}%`,
-                    width: 1,
-                    background: 'rgba(160,160,160,0.25)',
-                  }}
-                />
-              ))}
-              {/* bar separators */}
-              {barLines.map((b, i) => (
-                <div
-                  key={`bar-${b}`}
-                  className="absolute top-0 h-full"
-                  style={{
-                    left: `${tickPercent(b)}%`,
-                    width: 2,
-                    background:
-                      i === 0
-                        ? 'rgba(200,200,255,0.45)'
-                        : 'rgba(200,200,200,0.35)',
-                  }}
-                >
+                  />
+                ))}
+                {/* bar separators */}
+                {barLines.map((b, i) => (
                   <div
-                    className="absolute left-0 top-0 h-[40px] w-full bg-current"
+                    key={`bar-${b}`}
+                    className="absolute top-0 h-full"
                     style={{
+                      left: `${tickPercent(b)}%`,
+                      width: 2,
                       background:
                         i === 0
                           ? 'rgba(200,200,255,0.45)'
                           : 'rgba(200,200,200,0.35)',
                     }}
-                  />
-                </div>
-              ))}
+                  >
+                    <div
+                      className="absolute left-0 top-0 h-[40px] w-full bg-current"
+                      style={{
+                        background:
+                          i === 0
+                            ? 'rgba(200,200,255,0.45)'
+                            : 'rgba(200,200,200,0.35)',
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Body */}
         <div className="relative flex w-full">
@@ -494,9 +539,13 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
               return (
                 <div
                   key={name}
-                  className="flex select-none items-center justify-end pr-2 text-sm transition-colors"
+                  className="flex select-none items-center justify-end pr-2 transition-colors"
                   style={{
                     height: effectiveRowHeight,
+                    fontSize: Math.max(
+                      8,
+                      Math.min(13, effectiveRowHeight * 0.65),
+                    ),
                     borderBottom: '1px solid rgba(120,120,120,0.15)',
                     background,
                     color,
@@ -707,7 +756,10 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                     holdProgress={holdProgress}
                     inTime={inTime}
                     isHeld={meta?.isHeld}
-                    note={e}
+                    note={{
+                      ...e,
+                      pitchName: formatAccidentalsForDisplay(e.pitchName),
+                    }}
                     row={row}
                     rowHeight={effectiveRowHeight}
                     segments={segments}

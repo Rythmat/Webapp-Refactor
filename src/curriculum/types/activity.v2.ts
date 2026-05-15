@@ -40,6 +40,7 @@ export interface TargetNote {
   midi: number;
   onset: number; // ticks from start (480 = quarter note)
   duration: number; // ticks
+  hand?: 'lh' | 'rh'; // explicit stave assignment for grand staff rendering (D section only)
 }
 
 export interface ActivityVariant {

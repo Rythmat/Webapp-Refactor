@@ -11,7 +11,7 @@ export interface AdminUser {
   fullName: string | null;
   username: string | null;
   role: 'admin' | 'teacher' | 'student';
-  subscriptionTier: 'free' | 'artist' | 'studio';
+  subscriptionTier: 'free' | 'pro';
   subscriptionStatus: string | null;
   hasPaidAccess: boolean;
   cancelAtPeriodEnd: boolean;

@@ -13,7 +13,26 @@ import { getGCMEntry } from '@/curriculum/data/gcmHelpers';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import type { CurriculumLevelId } from '@/curriculum/types/curriculum';
 import { HeaderBar } from '@/components/ClassroomLayout/HeaderBar';
+import { formatScaleDegrees } from '@/components/learn/modeHelpers';
+import { colorForKeyMode } from '@/lib/modeColorShift';
 import './learn.css';
+
+const SCALE_TO_MODE: Record<string, string> = {
+  ionian: 'ionian',
+  dorian: 'dorian',
+  phrygian: 'phrygian',
+  lydian: 'lydian',
+  mixolydian: 'mixolydian',
+  aeolian: 'aeolian',
+  locrian: 'locrian',
+  major_pentatonic: 'ionian',
+  minor_pentatonic: 'dorian',
+  blues: 'dorian',
+  minor_blues: 'dorian',
+  major_blues: 'ionian',
+  harmonic_minor: 'aeolian',
+  melodic_minor: 'aeolian',
+};
 
 type GenreOverviewProps = {
   genreSlug: string;
@@ -159,7 +178,12 @@ export function GenreOverview({ genreSlug }: GenreOverviewProps) {
   }
 
   const tempoRange = gcmL1.global.tempoRange;
-  const accentColor = '#7ecfcf'; // Same as --color-accent
+  const keyColor = colorForKeyMode(
+    keyRoot.label,
+    (SCALE_TO_MODE[gcmL1.melody.scale.name] ?? 'dorian') as Parameters<
+      typeof colorForKeyMode
+    >[1],
+  );
 
   return (
     <div
@@ -177,8 +201,8 @@ export function GenreOverview({ genreSlug }: GenreOverviewProps) {
         endC={6}
         startC={4}
         playingNotes={activeNotes}
-        activeWhiteKeyColor={accentColor}
-        activeBlackKeyColor={accentColor}
+        activeWhiteKeyColor={keyColor}
+        activeBlackKeyColor={keyColor}
       />
 
       <section className="mb-6 flex flex-col items-center">
@@ -188,7 +212,7 @@ export function GenreOverview({ genreSlug }: GenreOverviewProps) {
           style={{ color: 'var(--color-text)' }}
         >
           Scale: {formatScaleName(gcmL1.melody.scale.name)} (
-          {scaleIntervals.join(', ')})
+          {formatScaleDegrees(scaleIntervals).join(', ')})
         </p>
 
         {/* Tempo range */}
@@ -245,7 +269,7 @@ export function GenreOverview({ genreSlug }: GenreOverviewProps) {
                       style={{
                         background: 'rgba(255,255,255,0.04)',
                         border: '1px solid var(--color-border)',
-                        color: accentColor,
+                        color: keyColor,
                       }}
                     >
                       {ct.trim().split('[')[0].trim()}
@@ -271,7 +295,7 @@ export function GenreOverview({ genreSlug }: GenreOverviewProps) {
                         style={{
                           background: 'rgba(255,255,255,0.04)',
                           border: '1px solid var(--color-border)',
-                          color: accentColor,
+                          color: keyColor,
                         }}
                       >
                         {p.split('|')[0].trim()}
@@ -304,7 +328,7 @@ export function GenreOverview({ genreSlug }: GenreOverviewProps) {
                 }
                 className="p-3 rounded-lg text-sm font-bold text-left transition-colors duration-150 glass-panel-sm cursor-pointer"
                 style={{
-                  color: accentColor,
+                  color: keyColor,
                   background: 'rgba(255,255,255,0.03)',
                   border: '1px solid var(--color-border)',
                 }}

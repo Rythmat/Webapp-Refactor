@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   Select,
   SelectContent,
@@ -33,6 +34,13 @@ export function timeRangeToParams(range: TimeRange): {
 
   const from = new Date(now.getTime() - msMap[range]).toISOString();
   return { from, to };
+}
+
+// Snapshots `from`/`to` when `range` changes so query keys stay stable across
+// renders — calling `timeRangeToParams` inline produces a fresh `new Date()`
+// every render, which re-keys React Query and triggers an infinite refetch.
+export function useTimeRangeParams(range: TimeRange) {
+  return useMemo(() => timeRangeToParams(range), [range]);
 }
 
 export const TimeRangeSelect = ({

@@ -6,6 +6,7 @@ interface UseMetronomeOptions {
   enabled: boolean;
   beatsPerBar?: number; // default 4
   accentBeat1?: boolean; // default true — louder click on beat 1
+  volumeDb?: number; // default 0 — synth output level in decibels
 }
 
 export function useMetronome({
@@ -13,6 +14,7 @@ export function useMetronome({
   enabled,
   beatsPerBar = 4,
   accentBeat1 = true,
+  volumeDb = 0,
 }: UseMetronomeOptions) {
   const synthRef = useRef<Tone.MembraneSynth | null>(null);
   const loopRef = useRef<Tone.Sequence | null>(null);
@@ -25,8 +27,16 @@ export function useMetronome({
         octaves: 2,
         envelope: { attack: 0.001, decay: 0.04, sustain: 0, release: 0.05 },
       }).toDestination();
+      synthRef.current.volume.value = volumeDb;
     }
-  }, []);
+  }, [volumeDb]);
+
+  // Track volume changes after the synth exists so the dial responds live.
+  useEffect(() => {
+    if (synthRef.current) {
+      synthRef.current.volume.value = volumeDb;
+    }
+  }, [volumeDb]);
 
   const ensureSequence = useCallback(() => {
     if (!loopRef.current) {
@@ -57,7 +67,7 @@ export function useMetronome({
     // Always dispose the old sequence — Transport.cancel() clears its internal events
     // and a stopped sequence may not re-register cleanly via start(0).
     if (loopRef.current) {
-      loopRef.current.stop();
+      loopRef.current.stop(Math.max(0, Tone.now()));
       loopRef.current.dispose();
       loopRef.current = null;
     }
@@ -93,7 +103,7 @@ export function useMetronome({
   const stop = useCallback(() => {
     console.log('[metronome] stop called. running:', runningRef.current);
     if (!runningRef.current) return;
-    loopRef.current?.stop();
+    loopRef.current?.stop(Math.max(0, Tone.now()));
     runningRef.current = false;
   }, []);
 
@@ -120,7 +130,7 @@ export function useMetronome({
   // Dispose on unmount
   useEffect(() => {
     return () => {
-      loopRef.current?.stop();
+      loopRef.current?.stop(Math.max(0, Tone.now()));
       loopRef.current?.dispose();
       loopRef.current = null;
       synthRef.current?.dispose();

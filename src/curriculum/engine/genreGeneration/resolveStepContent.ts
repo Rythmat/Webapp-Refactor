@@ -16,6 +16,7 @@ export interface GenreNoteEvent {
   onset: number; // ticks, PPQ=480
   duration: number; // ticks
   velocity?: number;
+  hand?: 'lh' | 'rh'; // grand staff stave assignment (passed through from TargetNote)
 }
 
 export interface StepContext {
@@ -283,5 +284,6 @@ export function toPianoRollEvents(
     durationTicks: note.duration,
     velocity: note.velocity ?? 80,
     color: keyColor ? `${keyColor}b3` : undefined, // 70% opacity target color
+    ...(note.hand !== undefined ? { hand: note.hand } : {}),
   }));
 }

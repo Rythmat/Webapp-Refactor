@@ -188,7 +188,7 @@ export const useAdminTelemetryOverview = (params: {
   from?: string;
   to?: string;
 }) => {
-  const { token } = useAuthContext();
+  const { token, appSessionId } = useAuthContext();
 
   return useQuery<TelemetryOverview>({
     queryKey: ['admin', 'telemetry', 'overview', params],
@@ -197,7 +197,7 @@ export const useAdminTelemetryOverview = (params: {
         adminPath(`/telemetry/overview${buildQuery(params)}`),
         token!,
       ),
-    enabled: !!token,
+    enabled: !!token && !!appSessionId,
   });
 };
 
@@ -208,7 +208,7 @@ export const useAdminApiPerformance = (params: {
   method?: string;
   statusClass?: string;
 }) => {
-  const { token } = useAuthContext();
+  const { token, appSessionId } = useAuthContext();
 
   return useQuery<ApiPerformanceData>({
     queryKey: ['admin', 'telemetry', 'api-performance', params],
@@ -217,7 +217,7 @@ export const useAdminApiPerformance = (params: {
         adminPath(`/telemetry/api-performance${buildQuery(params)}`),
         token!,
       ),
-    enabled: !!token,
+    enabled: !!token && !!appSessionId,
   });
 };
 
@@ -225,7 +225,7 @@ export const useAdminRoutingAnalytics = (params: {
   from?: string;
   to?: string;
 }) => {
-  const { token } = useAuthContext();
+  const { token, appSessionId } = useAuthContext();
 
   return useQuery<RoutingAnalyticsData>({
     queryKey: ['admin', 'telemetry', 'routing', params],
@@ -234,7 +234,7 @@ export const useAdminRoutingAnalytics = (params: {
         adminPath(`/telemetry/routing${buildQuery(params)}`),
         token!,
       ),
-    enabled: !!token,
+    enabled: !!token && !!appSessionId,
   });
 };
 
@@ -242,7 +242,7 @@ export const useAdminAudioAnalytics = (params: {
   from?: string;
   to?: string;
 }) => {
-  const { token } = useAuthContext();
+  const { token, appSessionId } = useAuthContext();
 
   return useQuery<AudioAnalyticsData>({
     queryKey: ['admin', 'telemetry', 'audio', params],
@@ -251,7 +251,7 @@ export const useAdminAudioAnalytics = (params: {
         adminPath(`/telemetry/audio${buildQuery(params)}`),
         token!,
       ),
-    enabled: !!token,
+    enabled: !!token && !!appSessionId,
   });
 };
 
@@ -259,7 +259,7 @@ export const useAdminProductFunnel = (params: {
   from?: string;
   to?: string;
 }) => {
-  const { token } = useAuthContext();
+  const { token, appSessionId } = useAuthContext();
 
   return useQuery<ProductFunnelData>({
     queryKey: ['admin', 'telemetry', 'product-funnel', params],
@@ -268,7 +268,7 @@ export const useAdminProductFunnel = (params: {
         adminPath(`/telemetry/product-funnel${buildQuery(params)}`),
         token!,
       ),
-    enabled: !!token,
+    enabled: !!token && !!appSessionId,
   });
 };
 
@@ -278,7 +278,7 @@ export const useAdminTelemetryErrors = (params: {
   category?: string;
   limit?: number;
 }) => {
-  const { token } = useAuthContext();
+  const { token, appSessionId } = useAuthContext();
 
   return useQuery<TelemetryErrorsData>({
     queryKey: ['admin', 'telemetry', 'errors', params],
@@ -289,6 +289,6 @@ export const useAdminTelemetryErrors = (params: {
         ),
         token!,
       ),
-    enabled: !!token,
+    enabled: !!token && !!appSessionId,
   });
 };

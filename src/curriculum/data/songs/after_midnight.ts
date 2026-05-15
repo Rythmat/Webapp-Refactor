@@ -3,133 +3,187 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const after_midnight: Song = {
   id: 'after_midnight',
   title: 'After Midnight',
-  artist: 'Unknown Artist',
-  year: undefined,
-
-  key: 'B♭ major',
-  keyRoot: 70,
-  mode: 'major',
+  artist: 'Eric Clapton',
+  year: 1983,
+  historicalDescription:
+    "Eric Clapton revisits J.J. Cale's 'After Midnight', a song he first made famous in 1970. The re-recording in 1983 captures Clapton's enduring love for Cale's laid-back Tulsa sound — a blues-rock groove that helped define his solo career and introduced Cale's songwriting genius to a global audience.",
+  key: 'C minor',
+  keyRoot: 60,
+  mode: 'minor',
   tempo: 254,
   timeSignature: [4, 4],
 
-  difficulty: 3,
-  genreTags: ['pop'],
+  difficulty: 2,
+  genreTags: ['blues_rock'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
       id: 'section_a',
       label: 'Section A',
+      measuresPerRow: 6,
+      bars: [
+        { chords: [], fermata: true },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse',
+      label: 'Verse',
+      measuresPerRow: 8,
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'chorus',
+      label: 'Chorus',
+      measuresPerRow: 8,
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'bridge',
+      label: 'Bridge',
+      measuresPerRow: 10,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_2',
+      label: 'Verse 2',
+      measuresPerRow: 8,
+      repeatCount: 4,
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -137,24 +191,49 @@ export const after_midnight: Song = {
     {
       id: 'section_e',
       label: 'Section E',
+      measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=RdjBrnV-U9M' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

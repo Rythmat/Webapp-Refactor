@@ -305,19 +305,6 @@ export const LearnDashboard: FC<LearnDashboardProps> = ({ navigate }) => {
         backgroundPosition: 'center',
       }}
     >
-      {/* ── Banner ── */}
-      <div
-        className="flex-shrink-0 overflow-hidden"
-        style={{ height: 'clamp(2.5rem, 5vh, 4rem)' }}
-      >
-        <img
-          src="/backgrounds/learn-banner.svg"
-          alt=""
-          className="w-full h-full object-cover"
-          draggable={false}
-        />
-      </div>
-
       {/* ── Pill Tabs ── */}
       <div
         className="flex-shrink-0 flex justify-start px-4 sm:px-6 lg:px-8"

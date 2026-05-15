@@ -3,110 +3,98 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const blank_space: Song = {
   id: 'blank_space',
   title: 'Blank Space',
-  artist: 'Unknown Artist',
-  year: undefined,
-
+  artist: 'Taylor Swift',
+  year: 2014,
+  historicalDescription:
+    "Taylor Swift releases 'Blank Space', a razor-sharp satire of her own media-constructed image as a serial dater. Rather than deflect the tabloid narrative, she weaponizes it — playing the villainous romantic with gleeful self-awareness. The song becomes one of the defining pop moments of 2014, cementing Swift's transition from country sweetheart to global pop architect.",
   key: 'F major',
   keyRoot: 65,
   mode: 'major',
   tempo: 96,
   timeSignature: [4, 4],
 
-  difficulty: 3,
-  genreTags: ['pop', 'rock'],
+  difficulty: 2,
+  genreTags: ['pop_rock'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
       id: 'section_a',
       label: 'Section A',
+      measuresPerRow: 1,
+      bars: [{ chords: [], restBars: 2 }],
+    },
+    {
+      id: 'verse',
+      label: 'Verse',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [
-            { degree: '1 maj', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'chorus',
+      label: 'Chorus',
+      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 min7', chordName: 'G min7', beat: 1, duration: 4 },
+          ],
         },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [
-            { degree: '1 maj', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 min7', chordName: 'G min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -114,33 +102,43 @@ export const blank_space: Song = {
       id: 'section_e',
       label: 'Section E',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [
-            { degree: '1 maj', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'section_f',
+      label: 'Section F',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'G min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=e-ORhEE9VVg' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

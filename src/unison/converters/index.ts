@@ -16,3 +16,5 @@ export type {
   LeadSheetSnapshot,
   LeadSheetData,
 } from './leadSheetConverters';
+export { songToUnison } from './songToUnison';
+export type { SongToUnisonOptions } from './songToUnison';

@@ -25,5 +25,14 @@ dist-ssr
 *.sln
 *.sw?
 
-# Generated scratch files
+# Secrets
+.env
+.env.*
+
+# Tesseract trained data (downloaded artifact, not source)
+*.traineddata
+
+# Generated scratch files / caches / audit dumps
 src/curriculum/data/songs/_generated_index.ts
+**/_*.json
+**/_vision_cache/

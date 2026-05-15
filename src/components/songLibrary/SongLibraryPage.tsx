@@ -1,7 +1,7 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import { useMemo, useState, useEffect, useCallback, type FC } from 'react';
 import { Search, X, Music } from 'lucide-react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import type { Song, DifficultyLevel } from '@/curriculum/types/songLibrary';
 import { getAllSongs } from '@/curriculum/data/songs';
 import { useUISound } from '@/hooks/useUISound';
@@ -75,6 +75,7 @@ function sortSongs(songs: Song[], mode: SortMode): Song[] {
 
 export const SongLibraryPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { play } = useUISound();
   const allSongs = useMemo(() => getAllSongs(), []);
 
@@ -135,16 +136,52 @@ export const SongLibraryPage: FC = () => {
         backgroundPosition: 'center',
       }}
     >
-      {/* ── Header + Filters ── */}
-      <div className="flex-shrink-0 px-4 sm:px-6 lg:px-8 pt-4 pb-2">
-        {/* Title */}
-        <h1
-          className="text-white font-bold mb-3"
-          style={{ fontSize: 'clamp(1rem, 1.6vw, 1.3rem)' }}
-        >
-          Songs
-        </h1>
+      {/* ── Pill Tabs ── */}
+      <div
+        className="flex-shrink-0 flex justify-start px-4 sm:px-6 lg:px-8"
+        style={{
+          paddingTop: 'clamp(0.4rem, 0.8vw, 0.75rem)',
+          paddingBottom: 'clamp(0.3rem, 0.6vw, 0.5rem)',
+        }}
+      >
+        <div className="flex gap-1">
+          {(['Keyboard', 'Style', 'Theory', 'Technique', 'Songs'] as const).map(
+            (tab) => {
+              const isActive = tab === 'Songs';
+              return (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    play('click');
+                    if (tab === 'Keyboard') {
+                      navigate('/learn');
+                    } else if (tab === 'Style') {
+                      navigate('/learn?tab=Courses');
+                    } else if (tab === 'Theory') {
+                      navigate('/learn?tab=Theory');
+                    } else if (tab === 'Technique') {
+                      navigate('/learn?tab=Technique');
+                    }
+                  }}
+                  className="rounded-full font-medium transition-all"
+                  style={{
+                    padding:
+                      'clamp(0.25rem, 0.4vw, 0.375rem) clamp(0.6rem, 1.2vw, 1rem)',
+                    fontSize: 'clamp(0.55rem, 0.85vw, 0.7rem)',
+                    background: isActive ? '#ffffff' : 'rgba(255,255,255,0.06)',
+                    color: isActive ? '#000000' : 'rgba(255,255,255,0.5)',
+                  }}
+                >
+                  {tab}
+                </button>
+              );
+            },
+          )}
+        </div>
+      </div>
 
+      {/* ── Filters ── */}
+      <div className="flex-shrink-0 px-4 sm:px-6 lg:px-8 pt-2 pb-2">
         {/* Filter row: dropdowns + search */}
         <div className="flex items-center gap-3 flex-wrap">
           {/* Difficulty dropdown */}

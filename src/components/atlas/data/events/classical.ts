@@ -24,6 +24,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'jugendstil',
       'fin de siecle',
     ],
+    videoId: '5Eaue-TTNBY',
   },
   {
     id: 'evt-raga-mumbai-1966',
@@ -43,6 +44,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'raga',
       'asha bhosle',
     ],
+    videoId: '92TvX5hf5zo',
   },
   {
     id: 'evt-bartok-budapest-1906',
@@ -67,6 +69,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'folk music',
       'magyar',
     ],
+    videoId: 'rS-tMMy9EfY',
   },
   {
     id: 'evt-shashmaqam-tashkent-2003',
@@ -93,6 +96,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'dutar',
       'tanbur',
     ],
+    videoId: 'ZagFXO6uVXE',
   },
   {
     id: 'evt-fairuz-beirut-1957',
@@ -117,6 +121,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'dabke',
       'arab world',
     ],
+    videoId: 'B9g7_iKU-ZA',
   },
   {
     id: 'evt-umm-kulthum-cairo-1944',
@@ -136,6 +141,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'star of the east',
       'egyptian music',
     ],
+    videoId: 'WWxgkG7WdLk',
   },
   {
     id: 'evt-bollywood-mumbai-1935',
@@ -155,6 +161,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'raga',
       'indian cinema',
     ],
+    videoId: 'WLJa3EDlHmU',
   },
   {
     id: 'evt-aka-polyphony-bangui-2003',
@@ -179,6 +186,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'intangible heritage',
       'oral tradition',
     ],
+    videoId: 'afWGeb60NNk',
   },
   {
     id: 'evt-dada-zurich-1916',
@@ -202,6 +210,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'montreux jazz',
       'avant-garde',
     ],
+    videoId: 'fkl92oV1kMc',
   },
   {
     id: 'evt-neapolitan-naples-1898',
@@ -220,6 +229,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'naples',
       'tenor',
     ],
+    videoId: 'TmzYZ3cmRyk',
   },
   {
     id: 'evt-philharmonic-montecarlo-1911',
@@ -243,6 +253,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'classical music',
       'princely patronage',
     ],
+    videoId: 'TmheaCwYl8A',
   },
   {
     id: 'evt-choral-vaduz-1960',
@@ -267,6 +278,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'vaduz',
       'principality',
     ],
+    videoId: 'Hyp6t5mIJM4',
   },
   {
     id: 'evt-sistine-vatican-1956',
@@ -290,6 +302,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'bartolucci',
       'papal music',
     ],
+    videoId: 'EJj0as_Mic4',
   },
   {
     id: 'evt-chopin-warsaw-1927',
@@ -331,6 +344,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'folk choir',
       'sofia',
     ],
+    videoId: 'AFgzzWT3zX4',
   },
   {
     id: 'evt-iso-polyphony-tirana-2005',
@@ -354,6 +368,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'tirana',
       'multipart singing',
     ],
+    videoId: 'mriwgIlJDnQ',
   },
   {
     id: 'evt-song-festival-riga-1873',
@@ -373,6 +388,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'soviet resistance',
       'mass choir',
     ],
+    videoId: 'Anzd14FydRY',
   },
   {
     id: 'evt-singing-revolution-tallinn-1988',
@@ -396,6 +412,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'tallinn',
       'soviet resistance',
     ],
+    videoId: 'WmNZcWlxQkc',
   },
   {
     id: 'evt-iraqi-maqam-baghdad-1932',
@@ -414,6 +431,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'baghdad',
       'unesco',
     ],
+    videoId: 'PxYsRXS9DB4',
   },
   {
     id: 'evt-mugham-jazz-baku-1960',
@@ -437,6 +455,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'unesco',
       'azerbaijani music',
     ],
+    videoId: 'YEhFzntosWU',
   },
   {
     id: 'evt-rubab-kabul-1965',
@@ -461,6 +480,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'kabul golden age',
       'afghan music',
     ],
+    videoId: 'AzYWnjxyIlk',
   },
   {
     id: 'evt-opera-pyongyang-1971',
@@ -483,6 +503,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'kim il-sung',
       'pyongyang grand theatre',
     ],
+    videoId: 'quIl4qeEWog',
   },
   {
     id: 'evt-hsaingwaing-yangon-1950',
@@ -505,6 +526,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'thingyan',
       'nat ceremony',
     ],
+    videoId: '3NKZ76lur2E',
   },
   {
     id: 'evt-classical-vienna-1700',
@@ -531,6 +553,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'tonal system',
       'orchestral',
     ],
+    videoId: 'ig8g3NcPYI4',
   },
   {
     id: 'evt-maqam-cairo-1870',
@@ -575,6 +598,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'court music',
       'istanbul',
     ],
+    videoId: 'SRGxLy2SCeE',
   },
   {
     id: 'evt-maqam-baghdad-1932',
@@ -617,6 +641,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'tbilisi',
       'caucasus',
     ],
+    videoId: 'rg8xrdbnH8E',
   },
   {
     id: 'evt-mugham-baku-2003',
@@ -641,6 +666,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'baku',
       'modal improvisation',
     ],
+    videoId: 'f3DEyWWUwJI',
   },
   {
     id: 'evt-duduk-yerevan-1950',
@@ -665,6 +691,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'double reed',
       'melancholy',
     ],
+    videoId: '_cPSKUta3hM',
   },
   {
     id: 'evt-oud-damascus-1920',
@@ -689,6 +716,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'salon',
       'arabic classical',
     ],
+    videoId: '7VYfq06fBBA',
   },
   {
     id: 'evt-peking-opera-beijing-1790',
@@ -713,6 +741,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'beijing',
       'chinese opera',
     ],
+    videoId: 'TsnSet1M89M',
   },
   {
     id: 'evt-pansori-seoul-1800',
@@ -737,6 +766,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'unesco',
       'chunhyangga',
     ],
+    videoId: 'YfGT-mN6ngw',
   },
   {
     id: 'evt-gregorian-rome-590',
@@ -755,6 +785,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'sacred music',
       'medieval',
     ],
+    videoId: 'CfabklSg4Fk',
   },
   {
     id: 'evt-notredame-paris-1163',
@@ -773,6 +804,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'magnus liber',
       'medieval paris',
     ],
+    videoId: 'kOOUslUtkPI',
   },
   {
     id: 'evt-troubadour-seville-1200',
@@ -791,6 +823,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'medieval iberia',
       'monophonic song',
     ],
+    videoId: '2Ios-NT0fNI',
   },
   {
     id: 'evt-arsnova-paris-1320',
@@ -809,6 +842,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'messe de nostre dame',
       'medieval',
     ],
+    videoId: '3g6AfdF9etc',
   },
   {
     id: 'evt-burgundian-brussels-1430',
@@ -832,6 +866,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'sacred music',
       'renaissance',
     ],
+    videoId: 'rPOzpLrphwo',
   },
   {
     id: 'evt-josquin-rome-1486',
@@ -851,6 +886,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'motet',
       'franco-flemish',
     ],
+    videoId: '27zREJQkXjI',
   },
   {
     id: 'evt-venetian-venice-1550',
@@ -869,6 +905,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'brass',
       'spatial music',
     ],
+    videoId: '42ASVkyTFsU',
   },
   {
     id: 'evt-palestrina-rome-1565',
@@ -886,6 +923,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'sacred polyphony',
       'roman school',
     ],
+    videoId: 'iBDBXh_X3Sw',
   },
   {
     id: 'evt-madrigal-london-1588',
@@ -905,6 +943,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'morley',
       'english renaissance',
     ],
+    videoId: 'H5vEryZjFuQ',
   },
   {
     id: 'evt-opera-florence-1597',
@@ -928,6 +967,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'baroque',
       'florence',
     ],
+    videoId: 'F4TuUiZhdWg',
   },
   {
     id: 'evt-monteverdi-venice-1613',
@@ -946,6 +986,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'public opera',
       'baroque',
     ],
+    videoId: 'LDKhYnKzb5E',
   },
   {
     id: 'evt-vivaldi-venice-1711',
@@ -964,6 +1005,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'baroque venice',
       'ritornello',
     ],
+    videoId: 't7qCbn-Ms7I',
   },
   {
     id: 'evt-bach-leipzig-1723',
@@ -987,6 +1029,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'fugue',
       'baroque',
     ],
+    videoId: 'KobsVcHzgQc',
   },
   {
     id: 'evt-handel-london-1741',
@@ -1005,6 +1048,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'baroque',
       'music for the royal fireworks',
     ],
+    videoId: '2-QV_I-xseA',
   },
   {
     id: 'evt-haydn-vienna-1761',
@@ -1028,6 +1072,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'classical period',
       'vienna',
     ],
+    videoId: 'OXd4xmLwIZM',
   },
   {
     id: 'evt-mozart-salzburg-1773',
@@ -1051,6 +1096,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'archbishop',
       'don giovanni',
     ],
+    videoId: '_gWYFoqqAAo',
   },
   {
     id: 'evt-mozart-vienna-1786',
@@ -1074,6 +1120,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'classical',
       'requiem',
     ],
+    videoId: '55ik-PzAXsQ',
   },
   {
     id: 'evt-beethoven-bonn-1792',
@@ -1092,6 +1139,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'classical',
       'court musician',
     ],
+    videoId: 'Pu4TdbWD-8c',
   },
   {
     id: 'evt-beethoven-vienna-1808',
@@ -1116,6 +1164,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'fate motif',
       'romantic',
     ],
+    videoId: 'q_kw904K2bw',
   },
   {
     id: 'evt-schubert-vienna-1814',
@@ -1139,6 +1188,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'schubertiade',
       'vienna romantic',
     ],
+    videoId: 'sBLZ5g5SY_0',
   },
   {
     id: 'evt-berlioz-paris-1830',
@@ -1158,6 +1208,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'paris conservatoire',
       'romantic',
     ],
+    videoId: 'BriaViTV0AM',
   },
   {
     id: 'evt-chopin-paris-1832',
@@ -1176,6 +1227,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'polish exile',
       'salle pleyel',
     ],
+    videoId: 'hAWjxsgJw-s',
   },
   {
     id: 'evt-mendelssohn-leipzig-1843',
@@ -1199,6 +1251,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'romantic',
       'music education',
     ],
+    videoId: 'fb-KlxxPpsY',
   },
   {
     id: 'evt-liszt-weimar-1848',
@@ -1222,6 +1275,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'piano',
       'new german school',
     ],
+    videoId: 're33JEGxNFs',
   },
   {
     id: 'evt-verdi-milan-1871',
@@ -1240,6 +1294,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'va pensiero',
       'nabucco',
     ],
+    videoId: '8yPPgElWlnk',
   },
   {
     id: 'evt-wagner-bayreuth-1876',
@@ -1263,6 +1318,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'festspielhaus',
       'music drama',
     ],
+    videoId: 'B3nZ8Jcojlc',
   },
   {
     id: 'evt-brahms-vienna-1876',
@@ -1286,6 +1342,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'conservative',
       'romantic',
     ],
+    videoId: '16KBDfHuA5U',
   },
   {
     id: 'evt-tchaikovsky-stpetersburg-1877',
@@ -1310,6 +1367,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'ballet',
       'symphony',
     ],
+    videoId: 'OSVSlddJMn8',
   },
   {
     id: 'evt-sibelius-helsinki-1899',
@@ -1333,6 +1391,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'violin concerto',
       'national romanticism',
     ],
+    videoId: 'vLEPmdrTGyA',
   },
   {
     id: 'evt-debussy-paris-1894',
@@ -1352,6 +1411,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'modernism',
       'paris',
     ],
+    videoId: 'Y9iDOt2WbjY',
   },
   {
     id: 'evt-stravinsky-paris-1913',
@@ -1372,6 +1432,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'primitivism',
       'modernism',
     ],
+    videoId: 'EkwqPJZe8ms',
   },
   {
     id: 'evt-schoenberg-vienna-1921',
@@ -1395,6 +1456,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'berg',
       'webern',
     ],
+    videoId: 'yRue1YvnvEs',
   },
   {
     id: 'evt-shostakovich-moscow-1937',
@@ -1413,6 +1475,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'lady macbeth',
       'dissidence',
     ],
+    videoId: 'L__jruvYuCg',
   },
   {
     id: 'evt-cage-nyc-1952',
@@ -1436,6 +1499,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'fluxus',
       'indeterminacy',
     ],
+    videoId: 'vjbYgueQilU',
   },
   {
     id: 'evt-stockhausen-dusseldorf-1956',
@@ -1459,6 +1523,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'licht',
       'avant-garde',
     ],
+    videoId: 'YSwvW9fNyjI',
   },
   {
     id: 'evt-minimalism-nyc-1964',
@@ -1482,6 +1547,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'repetition',
       'john adams',
     ],
+    videoId: 'BppFFtxgbEU',
   },
   {
     id: 'evt-part-tallinn-1977',
@@ -1505,6 +1571,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'sacred',
       'fratres',
     ],
+    videoId: 'gL2IBY9WvWo',
   },
   {
     id: 'evt-gagaku-kyoto-794',
@@ -1525,6 +1592,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'tang dynasty',
       'court music',
     ],
+    videoId: 'rRM_FNooJHc',
   },
   {
     id: 'evt-pinpeat-phnompenh-802',
@@ -1549,6 +1617,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'cambodian classical',
       'apsara',
     ],
+    videoId: 'VKOIRLBhfUs',
   },
   {
     id: 'evt-arabic-classical-baghdad-800',
@@ -1570,6 +1639,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'baghdad',
       'golden age',
     ],
+    videoId: 'ZZCS9Xk66DQ',
   },
   {
     id: 'evt-gamelan-jakarta-900',
@@ -1595,6 +1665,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'mataram',
       'shadow puppetry',
     ],
+    videoId: '2937xfI_kKI',
   },
   {
     id: 'evt-piphat-bangkok-1350',
@@ -1619,6 +1690,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'muay thai',
       'heterophony',
     ],
+    videoId: 'z1FRl9iLxC8',
   },
   {
     id: 'evt-jeongak-seoul-1392',
@@ -1644,6 +1716,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'korean court',
       'ritual',
     ],
+    videoId: 'Ojt8M49VrBg',
   },
   {
     id: 'evt-klasik-kualalumpur-1400',
@@ -1667,6 +1740,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'court music',
       'sultanate',
     ],
+    videoId: 'RZlmZBfyC10',
   },
   {
     id: 'evt-yayue-beijing-1420',
@@ -1692,6 +1766,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'temple of heaven',
       'ritual',
     ],
+    videoId: '24oOazSpdNY',
   },
   {
     id: 'evt-andalusi-fez-1492',
@@ -1713,6 +1788,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'expulsion',
       'al-andalus',
     ],
+    videoId: 'OZSv7lqsQRY',
   },
   {
     id: 'evt-persian-classical-isfahan-1501',
@@ -1733,6 +1809,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'kamancheh',
       'persian modal',
     ],
+    videoId: 'Qye5FuDGQps',
   },
   {
     id: 'evt-hindustani-varanasi-1560',
@@ -1759,6 +1836,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'sitar',
       'tabla',
     ],
+    videoId: 'h1Oe4u_0tPo',
   },
   {
     id: 'evt-shashmaqam-bukhara-1600',
@@ -1784,6 +1862,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'tajik',
       'uzbek',
     ],
+    videoId: '0bTsso3Kd1k',
   },
   {
     id: 'evt-nanguan-taipei-1600',
@@ -1805,6 +1884,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'southern sound',
       'chamber',
     ],
+    videoId: '8NOanLG0k0s',
   },
   {
     id: 'evt-mahori-bangkok-1600',
@@ -1828,6 +1908,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'thai classical',
       'strings',
     ],
+    videoId: 'ZziliZ4Ny80',
   },
   {
     id: 'evt-carnatic-chennai-1800',
@@ -1849,6 +1930,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'december season',
       'chennai',
     ],
+    videoId: 'LTnofY3Y9q8',
   },
   {
     id: 'evt-nhanhac-hue-1802',
@@ -1868,6 +1950,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'vietnamese court',
       'confucian',
     ],
+    videoId: 'G5X7KUtbEkk',
   },
   {
     id: 'evt-odissi-mumbai-1952',
@@ -1888,5 +1971,6 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'jagannath',
       'classical revival',
     ],
+    videoId: 'L-7apTiVAnQ',
   },
 ];

@@ -133,6 +133,9 @@ export interface PrismSlice {
   // Actions — chord regions
   setChordRegions: (regions: ChordRegion[], force?: boolean) => void;
   offsetChordRegions: (deltaTicks: number) => void;
+  setMeasureRowSizes: (sizes: number[] | null) => void;
+  setMeasureRestMap: (map: Record<number, number> | null) => void;
+  setMeasureFermatas: (fermatas: number[] | null) => void;
   refineWithMelody: (
     melodyTrackId: string,
     pitchRange: { low: number; high: number },
@@ -1754,6 +1757,10 @@ export const createPrismSlice: StateCreator<
         endTick: r.endTick + deltaTicks,
       })),
     })),
+
+  setMeasureRowSizes: (sizes) => set({ measureRowSizes: sizes }),
+  setMeasureRestMap: (map) => set({ measureRestMap: map }),
+  setMeasureFermatas: (fermatas) => set({ measureFermatas: fermatas }),
 
   refineWithMelody: (melodyTrackId, pitchRange) => {
     const state = get();

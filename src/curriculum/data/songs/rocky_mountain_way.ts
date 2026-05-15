@@ -3,9 +3,10 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const rocky_mountain_way: Song = {
   id: 'rocky_mountain_way',
   title: 'Rocky Mountain Way',
-  artist: 'Unknown Artist',
-  year: undefined,
-
+  artist: 'Joe Walsh',
+  year: 1985,
+  historicalDescription:
+    "Joe Walsh's 'Rocky Mountain Way' becomes a blues-rock anthem rooted in his time living in Colorado after leaving the James Gang. The song's talk box guitar riff — one of the earliest and most recognizable uses of the effect in rock — cements Walsh's reputation as one of America's most inventive guitarists, paving his way into the Eagles.",
   key: 'E major',
   keyRoot: 64,
   mode: 'major',
@@ -13,100 +14,116 @@ export const rocky_mountain_way: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['rocky_mountain_way_joe_walsh'],
+  genreTags: ['blues_rock'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
       id: 'section_a',
       label: 'Section A',
+      repeatCount: 3,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
+        { chords: [], restBars: 4 },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'verse',
+      label: 'Verse',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus',
+      label: 'Chorus',
+      measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'bridge',
+      label: 'Bridge',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_2',
+      label: 'Verse 2',
+      measuresPerRow: 8,
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'section_e',
+      label: 'Section E',
+      measuresPerRow: 8,
+      bars: [
+        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_f',
       label: 'Section F',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'intro',
-      label: 'Intro',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=zdTjzYOqhTo' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

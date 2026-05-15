@@ -45,6 +45,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'porteno',
       'arrabal',
     ],
+    videoId: 'iqONTxrkyJE',
   },
   {
     id: 'evt-samba-rio-1928',
@@ -68,6 +69,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'percussion',
       'batucada',
     ],
+    videoId: 'hS0NqPlHuTA',
   },
   {
     id: 'evt-mambo-havana-1950',
@@ -86,6 +88,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'conga',
       'big band',
     ],
+    videoId: 'OD-yXiRIIrc',
   },
   {
     id: 'evt-salsa-nyc-1973',
@@ -110,6 +113,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'nuyorican',
       'south bronx',
     ],
+    videoId: 'EaHMG-6v2u8',
   },
   {
     id: 'evt-tropicalia-sao-paulo-1968',
@@ -134,6 +138,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'brazilian psychedelic',
       'dictatorship',
     ],
+    videoId: '9lB07O0eMYA',
   },
   {
     id: 'evt-cumbia-monterrey-1990',
@@ -158,6 +163,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'accordion',
       'border music',
     ],
+    videoId: 'KSEeH_TAoJ4',
   },
   {
     id: 'evt-reggaeton-san-juan-2004',
@@ -182,6 +188,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'tego calderon',
       'perreo',
     ],
+    videoId: 'dEEjlrAdAMQ',
   },
   {
     id: 'evt-latin-urban-medellin-2017',
@@ -206,6 +213,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'colombia',
       'urban latino',
     ],
+    videoId: 'iM1kZqJgZMg',
   },
   {
     id: 'evt-mariachi-mexicocity-1950',
@@ -230,6 +238,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'golden age cinema',
       'unesco',
     ],
+    videoId: 'qmeQw_cuGQU',
   },
   {
     id: 'evt-latin-streaming-mexicocity-2023',
@@ -254,6 +263,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin pop',
       'foro sol',
     ],
+    videoId: 'Q7OXxlLql1I',
   },
   {
     id: 'evt-mambo-havana-1948',
@@ -273,6 +283,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'danzon',
       'afro-cuban',
     ],
+    videoId: 'j1p2kbh7k9k',
   },
   {
     id: 'evt-buena-vista-havana-1996',
@@ -291,6 +302,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'egrem',
       'wim wenders',
     ],
+    videoId: 'tGbRZ73NvlY',
   },
   {
     id: 'evt-tango-buenosaires-1913',
@@ -315,6 +327,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'milonga',
       'port',
     ],
+    videoId: 'P27riD9iW6k',
   },
   {
     id: 'evt-bachata-santodomingo-1962',
@@ -338,6 +351,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'dominican music',
       'barrio',
     ],
+    videoId: 'Z8IqTFOWaH8',
   },
   {
     id: 'evt-punta-belizecity-1981',
@@ -384,6 +398,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'honduras music',
       'caribbean coast',
     ],
+    videoId: 'i5FpSQGnAsw',
   },
   {
     id: 'evt-cumbia-sansalvador-1990',
@@ -407,6 +422,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'rock salvadoreno',
       'post-war',
     ],
+    videoId: '2inkIttJbXQ',
   },
   {
     id: 'evt-sonnica-managua-1975',
@@ -431,6 +447,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'nicaragua folk',
       'revolution',
     ],
+    videoId: 'U46L89Ryg_Y',
   },
   {
     id: 'evt-salsa-caracas-1974',
@@ -455,6 +472,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'leon de la salsa',
       'venezuelan music',
     ],
+    videoId: '8zGkG6OAmUA',
   },
   {
     id: 'evt-pasillo-quito-1930',
@@ -478,6 +496,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'melancholy',
       'quito',
     ],
+    videoId: 'IjoyedX1X1M',
   },
   {
     id: 'evt-chicha-lima-1970',
@@ -497,6 +516,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'barriada',
       'andean migration',
     ],
+    videoId: 'UHJINRWcDNY',
   },
   {
     id: 'evt-guarania-asuncion-1944',
@@ -521,6 +541,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'classical guitar',
       'mangore',
     ],
+    videoId: '9rv4WjgNXCg',
   },
   {
     id: 'evt-diaspora-lima-afro-peruvian-1957',
@@ -542,6 +563,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'diaspora',
       'peru',
     ],
+    videoId: 'StSS1JHYuuc',
   },
   {
     id: 'evt-contradanza-havana-1800',
@@ -562,6 +584,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'syncopation',
       'cuba',
     ],
+    videoId: 'vj90lvzmlIo',
   },
   {
     id: 'evt-lundu-rio-1895',
@@ -587,6 +610,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'rio de janeiro',
       'brazilian dance',
     ],
+    videoId: 'Pe69Jld_TOw',
   },
   {
     id: 'evt-son-havana-1930',
@@ -606,6 +630,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'havana',
       'golden age',
     ],
+    videoId: '4F6fTcJUfGU',
   },
   {
     id: 'evt-revolution-havana-1959',
@@ -628,6 +653,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'mambo',
       'diaspora',
     ],
+    videoId: 'qdDkrljef3I',
   },
   {
     id: 'evt-salsa-nyc-1971',
@@ -651,6 +677,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin',
       'nuyorican',
     ],
+    videoId: 'j37DqKzE0D8',
   },
   {
     id: 'evt-chicha-lima-1971',
@@ -670,6 +697,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'lima',
       'migration',
     ],
+    videoId: '-tQtg3VUVcA',
   },
   {
     id: 'evt-merengue-santodomingo-1958',
@@ -693,6 +721,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'santo domingo',
       'big band',
     ],
+    videoId: 'DLA4cS6RdeA',
   },
   {
     id: 'evt-cumbia-barranquilla-1962',
@@ -717,6 +746,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'colombian',
       'golden age',
     ],
+    videoId: 'igc3_4h8rw0',
   },
   {
     id: 'evt-boogaloo-nyc-1966',
@@ -741,6 +771,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'bilingual',
       'nuyorican',
     ],
+    videoId: 'lanGvlnBt6c',
   },
   {
     id: 'evt-fania-nyc-1971',
@@ -765,6 +796,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'salsa',
       'pan-latin',
     ],
+    videoId: 'uaBKPGNt2fs',
   },
   {
     id: 'evt-sonidero-mexicocity-1975',
@@ -788,6 +820,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'cumbia rebajada',
       'barrio',
     ],
+    videoId: 'yeN7x0pvAqg',
   },
   {
     id: 'evt-bachata-santodomingo-1980',
@@ -811,6 +844,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'santo domingo',
       'dominican',
     ],
+    videoId: 'QLZeAAesMhc',
   },
   {
     id: 'evt-cumbia-villera-buenosaires-1990',
@@ -834,6 +868,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'argentine cumbia',
       'digital cumbia',
     ],
+    videoId: 'Um_G38xP0RQ',
   },
   {
     id: 'evt-reggaeton-underground-sanjuan-1993',
@@ -857,6 +892,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'san juan',
       'playero tapes',
     ],
+    videoId: 'uqJN_fYrQ_U',
   },
   {
     id: 'evt-bad-bunny-sanjuan-2020',
@@ -898,6 +934,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'contradanza',
       'national dance',
     ],
+    videoId: 'm74f80e0SsI',
   },
   {
     id: 'evt-son-montuno-havana-1940',
@@ -917,6 +954,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'blind marvel',
       'salsa blueprint',
     ],
+    videoId: '47bsjg_aR1U',
   },
   {
     id: 'evt-chacha-havana-1953',
@@ -936,6 +974,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'triple step',
       'chacha',
     ],
+    videoId: 'BG1iX9fy3Wc',
   },
   {
     id: 'evt-palladium-nyc-1954',
@@ -960,6 +999,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'integrated',
       'latin dance',
     ],
+    videoId: '47SC-kL5M0I',
   },
   {
     id: 'evt-pachanga-nyc-1961',
@@ -984,6 +1024,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin dance hall',
       'craze',
     ],
+    videoId: 'p5Dly0w7Tpw',
   },
   {
     id: 'evt-merengue-nyc-1985',
@@ -1007,6 +1048,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'ojala que llueva cafe',
       'nyc latin',
     ],
+    videoId: 'mumX3aR5FN8',
   },
   {
     id: 'evt-salsa-romantica-nyc-1987',
@@ -1031,6 +1073,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin radio',
       'crossover',
     ],
+    videoId: 'sC-BiiTvWeU',
   },
   {
     id: 'evt-timba-havana-1990',
@@ -1051,6 +1094,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'havana',
       'cuban dance music',
     ],
+    videoId: 'rV89ldxaVlg',
   },
   {
     id: 'evt-tito-puente-nyc-1958',
@@ -1074,6 +1118,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin jazz',
       'nuyorican',
     ],
+    videoId: 'ZuBhOvH3XV8',
   },
   {
     id: 'evt-celia-cruz-havana-1960',
@@ -1092,6 +1137,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'cuban exile',
       'fania',
     ],
+    videoId: 'ZkWBMU9QGEw',
   },
   {
     id: 'evt-hector-lavoe-nyc-1975',
@@ -1116,6 +1162,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'fania',
       'el cantante',
     ],
+    videoId: 'wCOI2Kl9gv8',
   },
   {
     id: 'evt-ruben-blades-siembra-1978',
@@ -1140,6 +1187,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'fania',
       'narrative salsa',
     ],
+    videoId: 'FlOLubxgzBI',
   },
   {
     id: 'evt-santana-abraxas-1970',
@@ -1164,6 +1212,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'tito puente',
       'mexican american',
     ],
+    videoId: 'kUTspJemhvc',
   },
   {
     id: 'evt-bad-bunny-verano-2022',
@@ -1188,6 +1237,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'grammy',
       'latin pop',
     ],
+    videoId: 'iBup7PGKLas',
   },
   {
     id: 'evt-jbalvin-energia-2016',
@@ -1211,6 +1261,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'colombia',
       'latin pop',
     ],
+    videoId: '8j1xiiAZhIQ',
   },
   {
     id: 'evt-shakira-laundry-2001',
@@ -1235,6 +1286,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin pop',
       'miami',
     ],
+    videoId: 'KB5VUfRsRLQ',
   },
   {
     id: 'evt-juanes-fijate-bien-2000',
@@ -1258,6 +1310,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'colombia',
       'la camisa negra',
     ],
+    videoId: 'JvXiwb_FFuM',
   },
   {
     id: 'evt-piazzolla-libertango-1974',
@@ -1281,6 +1334,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'tango fusion',
       'classical crossover',
     ],
+    videoId: 'QSpX8hVGr60',
   },
   {
     id: 'evt-joao-gilberto-bossanova-1958',
@@ -1304,6 +1358,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'batida',
       'rio de janeiro',
     ],
+    videoId: 'vnARrAonAM4',
   },
   {
     id: 'evt-mercedes-sosa-tucuman-1971',
@@ -1352,6 +1407,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'victor jara',
       'inti-illimani',
     ],
+    videoId: 'a2pwvptmfCQ',
   },
   {
     id: 'evt-cafe-tacvba-re-1994',
@@ -1376,6 +1432,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'son huasteco',
       'experimental',
     ],
+    videoId: 'kIr8hsVTCzg',
   },
   {
     id: 'evt-manu-chao-clandestino-1998',
@@ -1401,6 +1458,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'reggae',
       'latin alternative',
     ],
+    videoId: 'cfLIlP-GAmg',
   },
   {
     id: 'evt-rosalia-el-mal-querer-2018',
@@ -1425,6 +1483,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin pop',
       'latin grammy',
     ],
+    videoId: '5W-_NEGq2R4',
   },
   {
     id: 'evt-selena-amor-prohibido-1994',
@@ -1449,6 +1508,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'mexican american',
       'latin pop',
     ],
+    videoId: 'yYwyeXBe5Qc',
   },
   {
     id: 'evt-jorge-ben-jor-rio-1963',
@@ -1472,6 +1532,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'sergio mendes',
       'mpb',
     ],
+    videoId: 'gLBHwkfOoqM',
   },
   {
     id: 'evt-marc-anthony-nyc-1999',
@@ -1495,6 +1556,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin pop',
       'grammy',
     ],
+    videoId: 'fLVzw9wVd9o',
   },
   {
     id: 'evt-ozuna-aura-2018',
@@ -1518,6 +1580,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'youtube',
       'latin pop',
     ],
+    videoId: 'Mp0d3xnNeok',
   },
   {
     id: 'evt-karol-g-manana-2023',
@@ -1542,6 +1605,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'billboard',
       'latin pop',
     ],
+    videoId: 'tJRDBRsVPZM',
   },
   {
     id: 'evt-natalia-lafourcade-musas-2017',
@@ -1566,6 +1630,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'bolero',
       'latin grammy',
     ],
+    videoId: 'emTLbk7jd8E',
   },
   {
     id: 'evt-mon-laferte-vina-2015',
@@ -1589,6 +1654,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'ranchera',
       'rock en espanol',
     ],
+    videoId: 'epNbtk3rL_o',
   },
   {
     id: 'evt-soda-stereo-buenosaires-1984',
@@ -1612,6 +1678,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'argentina',
       'post-punk',
     ],
+    videoId: 'OX-us7PEfkc',
   },
   {
     id: 'evt-fabulosos-cadillacs-buenosaires-1986',
@@ -1659,6 +1726,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'alternative rock',
       'el dorado',
     ],
+    videoId: '8brMWtEvzZA',
   },
   {
     id: 'evt-bomba-estereo-bogota-2015',
@@ -1683,6 +1751,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin alternative',
       'electronic',
     ],
+    videoId: 'THBP1tq49wk',
   },
   {
     id: 'evt-calle13-sanjuan-2005',
@@ -1707,6 +1776,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin grammy',
       'protest music',
     ],
+    videoId: 'KgJzb_c2iiM',
   },
   {
     id: 'evt-ivy-queen-anasco-2003',

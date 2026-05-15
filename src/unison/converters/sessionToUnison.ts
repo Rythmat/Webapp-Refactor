@@ -61,20 +61,30 @@ export interface SessionSnapshot {
 const PPQ = 480;
 
 export function sessionToUnison(snapshot: SessionSnapshot): UnisonDocument {
-  // 1. Gather all MIDI events across tracks
-  const allEvents = gatherAllEvents(snapshot.tracks);
+  // 1. Gather MIDI events. Pitch-aware analyzers (key, harmony, voice leading,
+  //    tonal regions) must NOT see drum events — kick=36 / snare=38 would
+  //    pollute the pitch-class histogram and add phantom chord tones. Rhythm
+  //    analysis, in contrast, wants the drums for solid pulse detection.
+  const pitchedEvents = gatherAllEvents(snapshot.tracks, {
+    excludeDrums: true,
+  });
+  const rhythmEvents = gatherAllEvents(snapshot.tracks);
 
   // 2. Detect key (or use existing if user has set one)
-  const key = resolveKey(allEvents, snapshot.rootNote, snapshot.mode);
+  const key = resolveKey(pitchedEvents, snapshot.rootNote, snapshot.mode);
 
   // 3. Enrich existing chord regions with Hybrid Numbers + roman numerals
-  const chordTimeline = analyzeHarmony(snapshot.chordRegions, key, allEvents);
+  const chordTimeline = analyzeHarmony(
+    snapshot.chordRegions,
+    key,
+    pitchedEvents,
+  );
 
   // 3.5 Voice leading analysis
-  const voiceLeading = analyzeVoiceLeading(chordTimeline, allEvents);
+  const voiceLeading = analyzeVoiceLeading(chordTimeline, pitchedEvents);
 
   // 3.6 Detect tonal regions
-  const tonalRegions = detectTonalRegions(allEvents, chordTimeline, key);
+  const tonalRegions = detectTonalRegions(pitchedEvents, chordTimeline, key);
 
   // 3.7 Build modal interchange summary
   const modalInterchangeSummary = buildModalInterchangeSummary(
@@ -90,9 +100,9 @@ export function sessionToUnison(snapshot: SessionSnapshot): UnisonDocument {
   const vibes = aggregateTags(progressionMatches.map((m) => m.vibes));
   const styles = aggregateTags(progressionMatches.map((m) => m.styles));
 
-  // 6. Rhythm analysis
+  // 6. Rhythm analysis (drums included — they reinforce the pulse)
   const rhythm = analyzeRhythm(
-    allEvents,
+    rhythmEvents,
     PPQ,
     snapshot.bpm,
     snapshot.timeSignatureNumerator,
@@ -140,15 +150,23 @@ export function sessionToUnison(snapshot: SessionSnapshot): UnisonDocument {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function gatherAllEvents(tracks: SessionSnapshot['tracks']): MidiNoteEvent[] {
+function gatherAllEvents(
+  tracks: SessionSnapshot['tracks'],
+  options?: { excludeDrums?: boolean },
+): MidiNoteEvent[] {
   const events: MidiNoteEvent[] = [];
   for (const track of tracks) {
     if (track.type !== 'midi') continue;
+    if (options?.excludeDrums && isDrumTrack(track)) continue;
     for (const clip of track.midiClips) {
       events.push(...clip.events);
     }
   }
   return events;
+}
+
+function isDrumTrack(track: SessionSnapshot['tracks'][0]): boolean {
+  return guessTrackRole(track) === 'drums';
 }
 
 function resolveKey(
@@ -246,6 +264,7 @@ function findAndAnalyzeMelody(
 
   for (const track of tracks) {
     if (track.type !== 'midi') continue;
+    if (isDrumTrack(track)) continue;
 
     const events = track.midiClips.flatMap((c) => c.events);
     if (events.length === 0) continue;
@@ -254,7 +273,7 @@ function findAndAnalyzeMelody(
     let score = events.length; // more notes = more likely melodic
     const name = track.name.toLowerCase();
     if (name.includes('melody') || name.includes('lead')) score += 10000;
-    if (name.includes('drum') || name.includes('bass')) score -= 10000;
+    if (name.includes('bass')) score -= 10000;
 
     // Check if mostly monophonic (few simultaneous notes)
     const avgPitch = events.reduce((s, e) => s + e.note, 0) / events.length;

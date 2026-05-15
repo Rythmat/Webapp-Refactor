@@ -11,6 +11,36 @@ export {
   estimateBpm,
   analyzeTimbre,
   analyzeMix,
+  renderVoicing,
+  applyVoicingsToTimeline,
+  listAvailableGenreLevels,
+  renderComping,
+  applyComping,
+  listCompingPatternsForGenre,
+  renderBass,
+  applyBass,
+  listBassContours,
+  listBassRhythmsForGenre,
+  renderDrums,
+  applyDrums,
+  listDrumGenres,
+  renderMelody,
+  applyMelody,
+  parseStyle,
+  arrangeForStyle,
+} from './engine';
+export type {
+  VoicingRenderResult,
+  RenderVoicingOptions,
+  ApplyVoicingsOptions,
+  RenderCompingOptions,
+  RenderBassOptions,
+  RenderDrumsOptions,
+  MelodyConfig,
+  RenderMelodyOptions,
+  ParsedStyle,
+  ArrangeForStyleOptions,
+  ArrangeResult,
 } from './engine';
 
 export {
@@ -24,6 +54,7 @@ export {
   importMusicXmlFileAsUnison,
   leadSheetToUnison,
   unisonToLeadSheet,
+  songToUnison,
 } from './converters';
 export type {
   SessionSnapshot,
@@ -34,6 +65,7 @@ export type {
   LeadSheetToUnisonOptions,
   LeadSheetSnapshot,
   LeadSheetData,
+  SongToUnisonOptions,
 } from './converters';
 
 export type {

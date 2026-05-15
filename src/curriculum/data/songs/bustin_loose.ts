@@ -2,99 +2,158 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const bustin_loose: Song = {
   id: 'bustin_loose',
-  title: "Bustin' Loose",
-  artist: 'Unknown Artist',
-  year: undefined,
-
-  key: 'G♭ major',
-  keyRoot: 66,
-  mode: 'major',
+  title: 'Bustin’ Loose',
+  artist: 'Chuck Brown',
+  year: 1978,
+  historicalDescription:
+    "Chuck Brown releases 'Bustin' Loose', a landmark record that brings Washington D.C.'s go-go sound to wider attention. Built on relentless percussion, call-and-response crowd chants, and deep funk grooves, it becomes the defining anthem of a genre Brown himself invented — one that will sustain a vibrant, distinctly D.C. live music culture for decades.",
+  key: 'E♭ minor',
+  keyRoot: 63,
+  mode: 'minor',
   tempo: 112,
   timeSignature: [4, 4],
 
-  difficulty: 3,
-  genreTags: ['pop'],
+  difficulty: 2,
+  genreTags: ['funk'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse',
+      label: 'Verse',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'chorus',
+      label: 'Chorus',
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
+      repeatCount: 4,
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_2',
+      label: 'Verse 2',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'section_e',
       label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
+      measuresPerRow: 1,
+      bars: [{ chords: [], restBars: 7 }],
     },
     {
       id: 'section_f',
@@ -102,40 +161,248 @@ export const bustin_loose: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'section_g',
+      label: 'Section G',
+      repeatCount: 4,
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'section_h',
+      label: 'Section H',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'section_i',
+      label: 'Section I',
+      repeatCount: 5,
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'section_j',
+      label: 'Section J',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'section_k',
+      label: 'Section K',
+      measuresPerRow: 1,
+      bars: [{ chords: [], restBars: 20 }],
+    },
+    {
+      id: 'section_l',
+      label: 'Section L',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'section_m',
+      label: 'Section M',
+      repeatCount: 8,
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'section_n',
+      label: 'Section N',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'section_o',
+      label: 'Section O',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=MuWKRuN0ss0' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

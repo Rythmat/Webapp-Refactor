@@ -2,64 +2,66 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const no_diggity_blackstreet: Song = {
   id: 'no_diggity_blackstreet',
-  title: 'No Diggity (Blackstreet)',
-  artist: 'Unknown Artist',
-  year: undefined,
-
-  key: 'E major',
-  keyRoot: 64,
-  mode: 'major',
+  title: 'No Diggity',
+  artist: 'Chet Faker',
+  year: 2012,
+  historicalDescription:
+    "Australian musician Chet Faker releases a haunting, stripped-back cover of Blackstreet's 1996 R&B classic 'No Diggity', reframing the hip hop anthem as a moody, minimalist bedroom recording. The cover spreads virally online, introducing Faker to a global audience and establishing his signature approach — dissolving genre boundaries between soul, R&B, and electronic music. It becomes one of the most celebrated reinterpretations of the era.",
+  key: 'E♭ minor',
+  keyRoot: 63,
+  mode: 'minor',
   tempo: 90,
   timeSignature: [4, 4],
 
-  difficulty: 3,
+  difficulty: 2,
   genreTags: ['hip_hop'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'D♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
       id: 'intro',
       label: 'Intro',
+      measuresPerRow: 2,
+      bars: [
+        { chords: [], restBars: 7 },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse',
+      label: 'Verse',
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'D♯min7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=3KL9mRus19o' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

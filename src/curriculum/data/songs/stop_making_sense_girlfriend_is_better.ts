@@ -2,13 +2,15 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const stop_making_sense_girlfriend_is_better: Song = {
   id: 'stop_making_sense_girlfriend_is_better',
-  title: 'Stop Making Sense:Girlfriend is Better',
-  artist: 'Unknown Artist',
+  title: 'Stop Making Sense/Girlfriend Is Better',
+  artist: 'Talking Heads',
   year: undefined,
 
-  key: 'F major',
-  keyRoot: 65,
-  mode: 'major',
+  historicalDescription:
+    "Talking Heads release 'Stop Making Sense', the concert film directed by Jonathan Demme that captures the band at the peak of their powers. 'Girlfriend Is Better' becomes one of its defining moments — David Byrne stalking the stage in his oversized suit, blending African rhythms, funk, and art-rock into something utterly alive. The film redefines what a concert movie can be.",
+  key: 'D minor',
+  keyRoot: 62,
+  mode: 'minor',
   tempo: 119,
   timeSignature: [4, 4],
 
@@ -18,26 +20,36 @@ export const stop_making_sense_girlfriend_is_better: Song = {
 
   sections: [
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'verse',
+      label: 'Verse',
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
-    {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=9r7X3f2gFz4' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

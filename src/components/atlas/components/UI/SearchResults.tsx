@@ -119,6 +119,19 @@ export function SearchResults() {
               >
                 {event.description}
               </p>
+              {isPinned && event.videoId && (
+                <div className="mt-2 rounded overflow-hidden border border-zinc-700/30">
+                  <iframe
+                    width="100%"
+                    style={{ aspectRatio: '16/9' }}
+                    src={`https://www.youtube.com/embed/${event.videoId}?modestbranding=1&rel=0`}
+                    title={event.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="rounded"
+                  />
+                </div>
+              )}
             </button>
           );
         })}

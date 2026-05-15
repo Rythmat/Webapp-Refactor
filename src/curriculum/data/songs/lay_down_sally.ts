@@ -3,9 +3,10 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const lay_down_sally: Song = {
   id: 'lay_down_sally',
   title: 'Lay Down Sally',
-  artist: 'Unknown Artist',
-  year: undefined,
-
+  artist: 'Eric Clapton',
+  year: 1977,
+  historicalDescription:
+    "Eric Clapton releases 'Lay Down Sally' in 1977, a sun-warmed shuffle that marks a turning point in his career — trading the tortured blues of his earlier years for a relaxed, country-tinged ease. Written with Marcy Levy and George Terry, the song reflects Clapton's deep immersion in the laid-back sounds of American roots music and becomes one of his biggest commercial hits.",
   key: 'A major',
   keyRoot: 69,
   mode: 'major',
@@ -13,155 +14,204 @@ export const lay_down_sally: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['blues_rock'],
+  genreTags: ['rock', 'blues'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'verse_2',
+      label: 'Verse 2',
+      measuresPerRow: 6,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_e',
       label: 'Section E',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'chorus_1',
+      label: 'Chorus',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'bridge',
+      label: 'Bridge',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'intro',
       label: 'Intro',
+      measuresPerRow: 6,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_f',
       label: 'Section F',
+      measuresPerRow: 8,
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'outro',
+      label: 'Outro',
+      measuresPerRow: 8,
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'section_9',
+      label: 'Section I',
+      measuresPerRow: 8,
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'section_10',
+      label: 'Section J',
+      measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'section_11',
+      label: 'Section K',
+      measuresPerRow: 8,
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'section_12',
+      label: 'Section L',
+      measuresPerRow: 8,
+      repeatCount: 4,
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'section_13',
+      label: 'Section M',
+      measuresPerRow: 8,
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=9BYyPok2O5k' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

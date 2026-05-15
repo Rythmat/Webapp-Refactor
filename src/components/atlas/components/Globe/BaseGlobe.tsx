@@ -390,7 +390,8 @@ export function BaseGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const { countries, adminRegions, loading, error } = useGeoData();
-  const { globeAltitude, pinnedEvent, selectedLocation } = useAppState();
+  const { globeAltitude, pinnedEvent, selectedLocation, visibleArcDirections } =
+    useAppState();
   const dispatch = useAppDispatch();
   const [GlobeModule, setGlobeModule] = useState<
     typeof import('react-globe.gl').default | null
@@ -495,11 +496,18 @@ export function BaseGlobe() {
     ];
   }, [pinnedEvent]);
 
-  // Influence arcs for pinned event (full recursive chain)
-  const influenceArcs = useMemo(() => {
+  // Influence arcs for pinned event — filtered by which dropdowns are open
+  const allArcs = useMemo(() => {
     if (!pinnedEvent) return [];
     return getRecursiveArcsForEvent(pinnedEvent.id);
   }, [pinnedEvent]);
+
+  const influenceArcs = useMemo(() => {
+    if (visibleArcDirections.size === 0) return []; // No dropdowns open → no arcs
+    return allArcs.filter((arc: any) =>
+      visibleArcDirections.has(arc.direction),
+    );
+  }, [allArcs, visibleArcDirections]);
 
   // Altitude tracking
   const handleZoom = useCallback(

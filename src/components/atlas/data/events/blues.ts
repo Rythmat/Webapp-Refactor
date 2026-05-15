@@ -16,6 +16,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'sam phillips',
       'rock and roll origins',
     ],
+    videoId: 'Gbfnh1oVTk0',
   },
   {
     id: 'evt-blues-mississippi-1936',
@@ -38,6 +39,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'mississippi',
       'acoustic blues',
     ],
+    videoId: 'LChYrY6yRQs',
   },
   {
     id: 'evt-rnb-chicago-1955',
@@ -56,6 +58,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'south side',
       'maxwell street',
     ],
+    videoId: 'cXKMt3dPGgI',
   },
   {
     id: 'evt-handy-memphis-1912',
@@ -74,6 +77,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'delta',
       'tutwiler',
     ],
+    videoId: 'WWfMKFQjonY',
   },
   {
     id: 'evt-desert-blues-bamako-1994',
@@ -93,6 +97,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'niafunke',
       'world music',
     ],
+    videoId: 'FnC_kFsV7a0',
   },
   {
     id: 'evt-mdou-moctar-niamey-2019',
@@ -112,6 +117,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'guitar',
       'sahara',
     ],
+    videoId: 'GZvPoE0EH1o',
   },
   {
     id: 'evt-blues-jackson-1930',
@@ -131,6 +137,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'delta blues',
       'jackson',
     ],
+    videoId: 'NcQn2Dtr5Ak',
   },
   {
     id: 'evt-piedmontblues-charlotte-1940',
@@ -150,6 +157,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'charlotte',
       'north carolina',
     ],
+    videoId: 'HkKH3tPNun0',
   },
   {
     id: 'evt-blues-clarksdale-1903',
@@ -174,6 +182,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'clarksdale',
       'crossroads',
     ],
+    videoId: 'U7zAqgL0KgA',
   },
   {
     id: 'evt-blues-recording-nyc-1920',
@@ -197,6 +206,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'recording industry',
       'harlem',
     ],
+    videoId: 'OiJrBgbwsJw',
   },
   {
     id: 'evt-british-blues-london-1962',
@@ -214,6 +224,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'british invasion',
       'transatlantic',
     ],
+    videoId: 'F-F_oHOvBsM',
   },
   {
     id: 'evt-desert-blues-bamako-1980',
@@ -250,6 +261,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'compilation',
       'hoochie coochie man',
     ],
+    videoId: 'cXKMt3dPGgI',
   },
   {
     id: 'evt-blues-chicago-1965-bking',
@@ -267,6 +279,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'chicago',
       'live album',
     ],
+    videoId: '7HFfiFfj5Sc',
   },
   {
     id: 'evt-blues-chicago-1956-wolf',
@@ -284,6 +297,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'delta blues',
       'chester burnett',
     ],
+    videoId: 'VMUt8KdDtTY',
   },
   {
     id: 'evt-blues-detroit-1948',
@@ -301,6 +315,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'one chord',
       'hypnotic',
     ],
+    videoId: '-U_I6QPgXsI',
   },
   {
     id: 'evt-blues-chicago-1968-buddy',
@@ -318,6 +333,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'vanguard records',
       'influence',
     ],
+    videoId: 'l0RMjKbqU_E',
   },
   {
     id: 'evt-blues-memphis-1967-albert',
@@ -335,6 +351,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'soul blues',
       'flying v',
     ],
+    videoId: 'SyVhBfIFbiQ',
   },
   {
     id: 'evt-blues-dallas-1961',
@@ -352,6 +369,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'three kings',
       'dallas',
     ],
+    videoId: '2901LXCUXrs',
   },
   {
     id: 'evt-blues-austin-1983',
@@ -369,6 +387,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'blues revival',
       'double trouble',
     ],
+    videoId: 'MrbAaQ3BXgA',
   },
   {
     id: 'evt-blues-burbank-1989',
@@ -386,6 +405,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'blues rock',
       'capitol records',
     ],
+    videoId: '6FbPxp0me7Y',
   },
   {
     id: 'evt-blues-la-1968-taj',
@@ -408,6 +428,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'blues scholarship',
       'los angeles',
     ],
+    videoId: 'oz3HZCGMzqU',
   },
   {
     id: 'evt-blues-la-1994-keb',
@@ -430,6 +451,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'grammy',
       'contemporary blues',
     ],
+    videoId: 'WOJzDLaGe9w',
   },
   {
     id: 'evt-blues-austin-2012',
@@ -447,6 +469,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'blues rock',
       'genre fusion',
     ],
+    videoId: 'WgRPv99Tt44',
   },
   {
     id: 'evt-blues-utica-2000',
@@ -464,6 +487,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'utica',
       'bb king',
     ],
+    videoId: 'YgrbQCaOXaQ',
   },
   {
     id: 'evt-blues-boston-1998',
@@ -481,6 +505,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'female vocalist',
       'grammy nominated',
     ],
+    videoId: 'oOLKqpVwwr8',
   },
   {
     id: 'evt-blues-statesboro-1928',
@@ -503,6 +528,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'georgia',
       'allman brothers',
     ],
+    videoId: 'fnWxZtI3ONY',
   },
   {
     id: 'evt-blues-rochester-1965',
@@ -520,6 +546,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'slide guitar',
       'rochester',
     ],
+    videoId: 'NdgrQoZHnNY',
   },
   {
     id: 'evt-blues-angola-1933',
@@ -539,6 +566,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'folk blues',
       'field recordings',
     ],
+    videoId: 'Gx9gah7owl4',
   },
   {
     id: 'evt-blues-nyc-1923-bessie',
@@ -561,6 +589,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'classic blues',
       'vaudeville',
     ],
+    videoId: 'XsHiWhj5Wo4',
   },
   {
     id: 'evt-blues-nola-1968',
@@ -584,6 +613,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'night tripper',
       'mac rebennack',
     ],
+    videoId: '1CWH3-CZcqE',
   },
   {
     id: 'evt-blues-memphis-1929-minnie',
@@ -601,6 +631,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'beale street',
       'prewar blues',
     ],
+    videoId: 'WSlt8-fmvas',
   },
   {
     id: 'evt-blues-la-1952-thornton',
@@ -623,6 +654,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'r&b',
       'elvis presley',
     ],
+    videoId: 'JHhx1m69icU',
   },
   {
     id: 'evt-blues-chicago-1966-koko',
@@ -640,6 +672,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'queen of the blues',
       'chicago',
     ],
+    videoId: 'dLgsC0YVXnk',
   },
   {
     id: 'evt-blues-atlanta-1923-rainey',
@@ -658,6 +691,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'atlanta',
       'bessie smith',
     ],
+    videoId: 'h4R42yHQTbg',
   },
   {
     id: 'evt-blues-clarksdale-1929-patton',
@@ -681,6 +715,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'mississippi',
       'founding father',
     ],
+    videoId: 'EyIquE0izAg',
   },
   {
     id: 'evt-blues-grafton-1931',
@@ -699,6 +734,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'minor key blues',
       'folk revival',
     ],
+    videoId: 'MTDQrgb7nhE',
   },
   {
     id: 'evt-blues-como-1959',
@@ -717,6 +753,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'field recordings',
       'north mississippi',
     ],
+    videoId: 'Nqpm3sCWRPM',
   },
   {
     id: 'evt-blues-hollysprings-1996',
@@ -763,6 +800,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'all night long',
       'the black keys',
     ],
+    videoId: 'QSJEIihIOsw',
   },
   {
     id: 'evt-blues-chicago-1961-etta',
@@ -781,6 +819,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'chicago',
       'vocal performance',
     ],
+    videoId: '5jrmBjxdz5s',
   },
   {
     id: 'evt-blues-canton-1951',
@@ -799,6 +838,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'mississippi',
       'electric blues',
     ],
+    videoId: '3FIhtRvvbkY',
   },
   {
     id: 'evt-blues-chicago-1952-walter',
@@ -817,6 +857,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'chicago blues',
       'number one',
     ],
+    videoId: 'kWLQSplVP3Y',
   },
   {
     id: 'evt-blues-houston-1946',
@@ -834,5 +875,6 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'acoustic blues',
       'third ward',
     ],
+    videoId: 'tjE_o3NmS_U',
   },
 ];

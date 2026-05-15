@@ -50,7 +50,7 @@ export const TopBar: FC = () => {
   const awards = 60;
 
   return (
-    <header className="h-12 flex items-center justify-between px-4 sm:px-6 lg:px-8 flex-shrink-0 z-20">
+    <header className="h-12 flex items-center justify-between px-4 sm:px-6 lg:px-8 flex-shrink-0 z-20 max-w-full overflow-hidden">
       {/* Left: 5 nav icons */}
       <nav className="flex items-center gap-1">
         {NAV_ITEMS.map((item) => (

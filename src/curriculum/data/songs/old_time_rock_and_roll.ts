@@ -3,86 +3,78 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const old_time_rock_and_roll: Song = {
   id: 'old_time_rock_and_roll',
   title: 'Old Time Rock And Roll',
-  artist: 'Unknown Artist',
-  year: undefined,
-
-  key: 'F♯ major',
-  keyRoot: 66,
+  artist: 'Bob Seger',
+  year: 1981,
+  historicalDescription:
+    "Bob Seger's 'Old Time Rock And Roll' becomes a generational anthem for classic rock purists who distrust the flashy sounds of disco and new wave. Already a staple of his live shows, the song crystallizes a defiant nostalgia — a working-class refusal to abandon the raw, guitar-driven music of the 1950s and 60s. Its cultural reach explodes when Tom Cruise slides across the floor in his socks in Risky Business in 1983.",
+  key: 'D♭ major',
+  keyRoot: 61,
   mode: 'major',
   tempo: 124,
   timeSignature: [4, 4],
 
-  difficulty: 3,
-  genreTags: ['pop'],
+  difficulty: 2,
+  genreTags: ['classic_rock'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B7', beat: 1, duration: 4 }],
-        },
-      ],
+      id: 'intro',
+      label: 'Intro',
+      measuresPerRow: 1,
+      bars: [{ chords: [], restBars: 4 }],
     },
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse',
+      label: 'Verse',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯7', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_c',
       label: 'Section C',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'B7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'chorus',
+      label: 'Chorus',
+      measuresPerRow: 1,
+      bars: [{ chords: [], restBars: 8 }],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'B7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'section_f',
+      label: 'Section F',
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=W1LsRShUPtY' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

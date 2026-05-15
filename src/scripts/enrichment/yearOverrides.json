@@ -1,0 +1,13 @@
+{
+  "_comment": "Manual year overrides for songs where MusicBrainz returns a wrong year (typically compilation/reissue dates instead of the original release year). enrichSongYears.mjs consults this file first and only queries MB if no override is set. Add entries here when you spot bad MB picks in _year_audit.json.",
+  "overrides": {
+    "respect": {
+      "year": 1967,
+      "note": "Aretha Franklin single from I Never Loved a Man (1967). MB returns 1989 compilation."
+    },
+    "hey_jude": {
+      "year": 1968,
+      "note": "Beatles single 1968. Catalog credits Paul McCartney; MB's solo McCartney recording is a 1990 live version."
+    }
+  }
+}

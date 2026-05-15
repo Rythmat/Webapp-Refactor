@@ -20,6 +20,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'mantua',
       'dramma per musica',
     ],
+    videoId: '8Gb844K7DIQ',
   },
   {
     id: 'evt-media-vienna-1786-figaro',
@@ -43,6 +44,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'classical era',
       'burgtheater',
     ],
+    videoId: 'jIr15B23oOc',
   },
   {
     id: 'evt-media-venice-1853-traviata',
@@ -65,6 +67,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'verismo',
       'romanticism',
     ],
+    videoId: 'ukIiDzaF5hQ',
   },
   {
     id: 'evt-media-turin-1896-boheme',
@@ -82,6 +85,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'italian opera',
       'romanticism',
     ],
+    videoId: 'H2cJidZKb9g',
   },
   {
     id: 'evt-media-london-1878-savoy',
@@ -104,6 +108,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'comic opera',
       'victorian era',
     ],
+    videoId: '4FPwhJhBJ-A',
   },
   {
     id: 'evt-media-nyc-1911-treemonisha',
@@ -127,6 +132,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'african american',
       'pulitzer',
     ],
+    videoId: 'w1PYexzFn1Y',
   },
   {
     id: 'evt-media-nyc-1935-porgy',
@@ -150,6 +156,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'jazz opera',
       'african american',
     ],
+    videoId: 'VAuTouBhN5k',
   },
   {
     id: 'evt-media-nyc-1943-oklahoma',
@@ -173,6 +180,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'agnes de mille',
       'golden age',
     ],
+    videoId: 'sziEAnkpa48',
   },
   {
     id: 'evt-media-nyc-1957-westsidestory',
@@ -196,6 +204,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'latin jazz',
       'romeo and juliet',
     ],
+    videoId: 'Gt2zubHcER4',
   },
   {
     id: 'evt-media-nyc-1970-company',
@@ -218,6 +227,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'broadway',
       'modern musical',
     ],
+    videoId: '04zBxmsE7zw',
   },
   {
     id: 'evt-media-london-1971-superstar',
@@ -242,6 +252,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'sung through',
       'concept album',
     ],
+    videoId: 'mdBVJbzkoqo',
   },
   {
     id: 'evt-media-nyc-1996-rent',
@@ -266,6 +277,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'broadway',
       'rock musical',
     ],
+    videoId: '2Ga5JnwBOzE',
   },
   {
     id: 'evt-media-nyc-2015-hamilton',
@@ -290,6 +302,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'tony awards',
       'american history',
     ],
+    videoId: 'r69-fohpJ3o',
   },
 
   // =============================================
@@ -316,6 +329,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'accompaniment',
       'early cinema',
     ],
+    videoId: 'TC0otEEpQ8I',
   },
   {
     id: 'evt-media-la-1927-jazzsinger',
@@ -361,6 +375,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'orchestral score',
       'golden age hollywood',
     ],
+    videoId: 'wTdOjpGhvPs',
   },
   {
     id: 'evt-media-la-1940-fantasia',
@@ -384,6 +399,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'bach',
       'fantasound',
     ],
+    videoId: 'ZClKwA8k564',
   },
   {
     id: 'evt-media-la-1960-psycho',
@@ -407,6 +423,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'shower scene',
       'paramount',
     ],
+    videoId: 'ApdNzbaFEnc',
   },
   {
     id: 'evt-media-la-1961-moonriver',
@@ -430,6 +447,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'jazz score',
       'cool jazz',
     ],
+    videoId: 'evly0OnAtPk',
   },
   {
     id: 'evt-media-london-1962-bond',
@@ -453,6 +471,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'eon productions',
       'theme song',
     ],
+    videoId: 'EHoMPdUHr8M',
   },
   {
     id: 'evt-media-la-1966-missionimpossible',
@@ -477,6 +496,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'cbs',
       'spy music',
     ],
+    videoId: 'hlN7ruQuFJY',
   },
   {
     id: 'evt-media-rome-1966-morricone',
@@ -501,6 +521,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'cinecitta',
       'italian cinema',
     ],
+    videoId: 'lzd8zDPQ2Y0',
   },
   {
     id: 'evt-media-la-1967-quincyjones',
@@ -524,6 +545,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'civil rights',
       'united artists',
     ],
+    videoId: 'LFTl2gHMOPA',
   },
   {
     id: 'evt-media-memphis-1971-shaft',
@@ -547,6 +569,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'stax records',
       'funk soundtrack',
     ],
+    videoId: 'Q429AOpL_ds',
   },
   {
     id: 'evt-media-la-1969-bacharach',
@@ -570,6 +593,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'pop score',
       'brill building',
     ],
+    videoId: 'p63dLKuXUXE',
   },
 
   // =============================================
@@ -621,6 +645,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'imperial march',
       'force theme',
     ],
+    videoId: 'e9lapdvLSGw',
   },
   {
     id: 'evt-media-munich-1978-moroder',
@@ -644,6 +669,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'munich',
       'moog',
     ],
+    videoId: 'cH2guTTyX8s',
   },
   {
     id: 'evt-media-london-1981-chariots',
@@ -668,6 +694,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'electronic score',
       'greek',
     ],
+    videoId: '8a-HfNE3EIo',
   },
   {
     id: 'evt-media-tokyo-1987-sakamoto',
@@ -691,6 +718,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'bernardo bertolucci',
       'east meets west',
     ],
+    videoId: 'pWI5aVKvkCg',
   },
   {
     id: 'evt-media-la-1989-elfman',
@@ -714,6 +742,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'warner bros',
       'dark orchestral',
     ],
+    videoId: '8JtDHoK9KL8',
   },
   {
     id: 'evt-media-london-1994-lionking',
@@ -760,6 +789,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'spirited away',
       'anime',
     ],
+    videoId: 'eKC3_9gRrOI',
   },
   {
     id: 'evt-media-wellington-2001-lotr',
@@ -785,6 +815,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'oscar',
       'tolkien',
     ],
+    videoId: 'sqe7rpkpm2c',
   },
   {
     id: 'evt-media-la-2005-santaolalla-bbm',
@@ -832,6 +863,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'penderecki',
       'strings',
     ],
+    videoId: 'ktkE5IIK9XU',
   },
   {
     id: 'evt-media-chennai-2008-rahman',
@@ -857,6 +889,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'chennai',
       'indian cinema',
     ],
+    videoId: '6E51wmh9f9g',
   },
   {
     id: 'evt-media-la-2010-socialnetwork',
@@ -882,6 +915,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'electronic score',
       'ambient',
     ],
+    videoId: '0BqJNEV9QVE',
   },
   {
     id: 'evt-media-london-2010-inception',
@@ -905,6 +939,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'hybrid score',
       'blockbuster',
     ],
+    videoId: 'va1oiojnGrA',
   },
 
   // =============================================
@@ -954,6 +989,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'hill street blues',
       'television',
     ],
+    videoId: 'VRQcke3XcnE',
   },
   {
     id: 'evt-media-la-1990-twinpeaks',
@@ -1002,6 +1038,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'prestige tv',
       'orchestral',
     ],
+    videoId: 'rZk2C9Ol6gk',
   },
   {
     id: 'evt-media-nyc-2018-succession',
@@ -1072,6 +1109,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'percussion',
       'electronic',
     ],
+    videoId: 'Q-xTYfAjQEU',
   },
   {
     id: 'evt-media-la-2004-bsg',
@@ -1096,6 +1134,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'sci-fi score',
       'percussion',
     ],
+    videoId: 'Th4sczrRSWk',
   },
   {
     id: 'evt-media-la-2013-houseofcards',
@@ -1120,6 +1159,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'streaming original',
       'prestige tv',
     ],
+    videoId: 'bx2b5NAS3y4',
   },
   {
     id: 'evt-media-nyc-2009-madmen',
@@ -1171,6 +1211,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       '8-bit',
       'kyoto',
     ],
+    videoId: 'dBNJ5cAxcQ8',
   },
   {
     id: 'evt-media-kyoto-1986-zelda',
@@ -1195,6 +1236,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'adventure',
       '8-bit',
     ],
+    videoId: 'dBNJ5cAxcQ8',
   },
   {
     id: 'evt-media-tokyo-1987-finalfantasy',
@@ -1218,6 +1260,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'orchestral',
       'tokyo',
     ],
+    videoId: 'fHyIdyrxd5U',
   },
   {
     id: 'evt-media-tokyo-1991-streetsofrage',
@@ -1241,6 +1284,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'techno',
       '16-bit',
     ],
+    videoId: '73yLg3UjJK0',
   },
   {
     id: 'evt-media-twycross-1998-banjokazooie',
@@ -1288,6 +1332,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'microsoft',
       'fps',
     ],
+    videoId: '-iPzww7jGjI',
   },
   {
     id: 'evt-media-copenhagen-2007-assassinscreed',
@@ -1336,6 +1381,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'interactive music',
       'indie game',
     ],
+    videoId: 'CEClFWa_GcQ',
   },
   {
     id: 'evt-media-melbourne-2016-doom',
@@ -1359,6 +1405,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'metal',
       'modular synth',
     ],
+    videoId: 'eH9Xmq8-yOM',
   },
   {
     id: 'evt-media-la-2013-lastofus',
@@ -1383,6 +1430,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'post-apocalyptic',
       'hbo adaptation',
     ],
+    videoId: 'xqjdeVUXK0c',
   },
   {
     id: 'evt-media-la-2005-vglive',
@@ -1406,6 +1454,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'game music',
       'symphony',
     ],
+    videoId: 'DZjv0VcAlzE',
   },
   {
     id: 'evt-media-seattle-2018-celeste',
@@ -1457,6 +1506,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'battle theme',
       'franchise',
     ],
+    videoId: 'dNv8b8Ee0zc',
   },
   {
     id: 'evt-media-la-2018-godsofwar',
@@ -1481,6 +1531,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'bafta',
       'choral',
     ],
+    videoId: 'UReZ6Ky5ISc',
   },
   {
     id: 'evt-media-la-2020-ffviiremake',

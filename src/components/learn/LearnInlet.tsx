@@ -10,11 +10,11 @@ import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import type { PrismModeSlug } from '@/hooks/data';
 import { useProgressSummary } from '@/hooks/data/progress/useProgressSummary';
 import { useIsPremium } from '@/hooks/useIsPremium';
+import { useUISound } from '@/hooks/useUISound';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ProgressSummaryResponse } from '@/lib/progress/types';
-import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
 import { LearnDashboard } from './LearnDashboard';
@@ -903,6 +903,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   }, [expandedMode]);
   // const [showFilter, setShowFilter] = useState(false);
   const navigate = useNavigate();
+  const { play } = useUISound();
   const { data: progressSummary } = useProgressSummary();
 
   const handleLevelSelect = async (sub: ContentSubItem) => {
@@ -1372,59 +1373,54 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       ) : (
         <>
           <MeshGradientBg />
-          <HeaderBar
-            title="Learn"
-            onBack={() => {
-              setSearchParams({}, { replace: true });
-            }}
-          />
           <div className="relative flex flex-1 flex-col overflow-y-auto px-8 pb-12">
-            <div className="mb-8 flex flex-col gap-4">
-              <div
-                className="glass-panel-sm flex w-fit items-center gap-1 rounded-lg p-1"
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid var(--color-border)',
-                }}
-              >
-                {(isPremium
-                  ? ['Courses', 'Theory', 'Technique']
-                  : ['Technique', 'Theory', 'Courses']
-                ).map((tab) => (
-                  <button
-                    key={tab}
-                    className="rounded-md px-6 py-2 text-sm font-medium transition-colors duration-150"
-                    style={
-                      subTab === tab
-                        ? {
-                            background: 'var(--color-surface-3)',
-                            color: 'var(--color-accent)',
-                            borderBottom: '2px solid var(--color-accent)',
-                          }
-                        : {
-                            color: 'var(--color-text-dim)',
-                            background: 'transparent',
-                            borderBottom: '2px solid transparent',
-                          }
-                    }
-                    onClick={() => setSubTab(tab)}
-                    onMouseEnter={(e) => {
-                      if (subTab !== tab)
-                        e.currentTarget.style.color = 'var(--color-text)';
-                    }}
-                    onMouseLeave={(e) => {
-                      if (subTab !== tab)
-                        e.currentTarget.style.color = 'var(--color-text-dim)';
-                    }}
-                  >
-                    {tab}
-                  </button>
-                ))}
+            {/* ── Pill Tabs ── */}
+            <div
+              className="flex-shrink-0 flex justify-start mb-6"
+              style={{
+                paddingTop: 'clamp(0.4rem, 0.8vw, 0.75rem)',
+                paddingBottom: 'clamp(0.3rem, 0.6vw, 0.5rem)',
+              }}
+            >
+              <div className="flex gap-1">
+                {(
+                  ['Keyboard', 'Style', 'Theory', 'Technique', 'Songs'] as const
+                ).map((tab) => {
+                  const isActive =
+                    (tab === 'Style' && subTab === 'Courses') ||
+                    (tab === 'Theory' && subTab === 'Theory') ||
+                    (tab === 'Technique' && subTab === 'Technique');
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => {
+                        play('click');
+                        if (tab === 'Keyboard') {
+                          setSearchParams({}, { replace: true });
+                        } else if (tab === 'Songs') {
+                          navigate('/songs');
+                        } else if (tab === 'Style') {
+                          setSubTab('Courses');
+                        } else {
+                          setSubTab(tab);
+                        }
+                      }}
+                      className="rounded-full font-medium transition-all"
+                      style={{
+                        padding:
+                          'clamp(0.25rem, 0.4vw, 0.375rem) clamp(0.6rem, 1.2vw, 1rem)',
+                        fontSize: 'clamp(0.55rem, 0.85vw, 0.7rem)',
+                        background: isActive
+                          ? '#ffffff'
+                          : 'rgba(255,255,255,0.06)',
+                        color: isActive ? '#000000' : 'rgba(255,255,255,0.5)',
+                      }}
+                    >
+                      {tab}
+                    </button>
+                  );
+                })}
               </div>
-              <div
-                className="pb-4"
-                style={{ borderBottom: '1px solid var(--color-border)' }}
-              />
             </div>
 
             {/* {showFilter && (

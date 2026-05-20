@@ -242,6 +242,8 @@ export type ChordConnectionGameProps = {
   initialChord?: ChordSpec;
   className?: string;
   onComplete?: (result: { success: boolean }) => void;
+  onCorrect?: () => void;
+  onWrong?: () => void;
 };
 
 export function ChordConnectionGame({
@@ -252,6 +254,8 @@ export function ChordConnectionGame({
   initialChord,
   className,
   onComplete,
+  onCorrect,
+  onWrong,
 }: ChordConnectionGameProps) {
   const baseOctaveRoot = keyboardBaseOctave * 12;
   const initialChordKey = initialChord
@@ -343,11 +347,13 @@ export function ChordConnectionGame({
 
       const correct =
         chordSignature(chord.spec) === chordSignature(keyboard.spec);
+      if (correct) onCorrect?.();
+      else onWrong?.();
       setConnections((prev) => [...prev, { chordId, keyboardId, correct }]);
       setActiveChord(null);
       setActiveKeyboard(null);
     },
-    [connections, round.chords, round.keyboards],
+    [connections, round.chords, round.keyboards, onCorrect, onWrong],
   );
 
   const handleChordClick = useCallback(

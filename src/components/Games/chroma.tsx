@@ -358,7 +358,12 @@ function IntervalButtons({
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function Chroma() {
+export type ChromaProps = {
+  onCorrect?: () => void;
+  onWrong?: () => void;
+};
+
+export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
   const setRootNote = useStore((s) => s.setRootNote);
 
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
@@ -426,6 +431,7 @@ export default function Chroma() {
       );
 
       if (chosenInterval !== expectedInterval) {
+        onWrong?.();
         // Wrong interval — immediate feedback
         const remaining = attemptsRef.current - 1;
         attemptsRef.current = remaining;
@@ -448,6 +454,7 @@ export default function Chroma() {
         await playSeq(sequenceRef.current);
         sp('input');
       } else {
+        onCorrect?.();
         const newInput = [...userInputRef.current, chosenInterval];
         userInputRef.current = newInput;
         setUserInput([...newInput]);
@@ -459,7 +466,7 @@ export default function Chroma() {
         }
       }
     },
-    [sp, playSeq],
+    [sp, playSeq, onCorrect, onWrong],
   );
 
   // ── Start ───────────────────────────────────────────────────────────────

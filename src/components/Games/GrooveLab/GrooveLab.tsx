@@ -311,7 +311,12 @@ const PRESET_GROOVES: Record<string, Record<Instrument, boolean[]>> = {
  *
  * Drum machine step sequencer. Match a target groove or freestyle your own.
  */
-export default function GrooveLab() {
+export type GrooveLabProps = {
+  onCorrect?: () => void;
+  onWrong?: () => void;
+};
+
+export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
   const drumRef = useRef<DrumEngine | null>(null);
   const playbackRef = useRef<number | null>(null);
   const stepRef = useRef(0);
@@ -433,9 +438,11 @@ export default function GrooveLab() {
     });
 
     const acc = correct / total;
+    if (acc >= 0.8) onCorrect?.();
+    else onWrong?.();
     setMatchAccuracy(acc);
     setShowResult(true);
-  }, [grid, targetGroove]);
+  }, [grid, targetGroove, onCorrect, onWrong]);
 
   const newTarget = useCallback(() => {
     const names = Object.keys(PRESET_GROOVES).filter((n) => n !== targetGroove);

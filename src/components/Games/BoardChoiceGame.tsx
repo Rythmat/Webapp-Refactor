@@ -335,6 +335,8 @@ export type BoardChoiceGameProps = {
   targetLabel?: string;
   className?: string;
   onComplete?: () => void;
+  onCorrect?: () => void;
+  onWrong?: () => void;
 };
 
 export function BoardChoiceGame({
@@ -347,6 +349,8 @@ export function BoardChoiceGame({
   targetLabel,
   className,
   onComplete,
+  onCorrect,
+  onWrong,
 }: BoardChoiceGameProps) {
   const baseOctaveRoot = keyboardBaseOctave * 12;
   const initialChordKey = initialChord ? chordSignature(initialChord) : 'none';
@@ -532,6 +536,7 @@ export function BoardChoiceGame({
       setSessionTotal((prev) => prev + 1);
 
       if (option.isCorrect) {
+        onCorrect?.();
         setScore((prev) => prev + bpm);
         setBeatsLeft((prev) => {
           if (prev >= MAX_BEATS) {
@@ -540,6 +545,7 @@ export function BoardChoiceGame({
           return prev + BEAT_REWARD;
         });
       } else {
+        onWrong?.();
         setBeatsLeft((prev) => {
           const newBeats = prev - BEAT_PENALTY;
           if (newBeats <= 0) {
@@ -567,6 +573,8 @@ export function BoardChoiceGame({
       bpm,
       initialChord,
       onComplete,
+      onCorrect,
+      onWrong,
       startNewRound,
     ],
   );

@@ -171,10 +171,10 @@
     ],
     "**/*.{ts,tsx}": [
       "eslint",
-      "prettier"
+      "prettier --write"
     ],
     "**/*.json": [
-      "prettier"
+      "prettier --write"
     ]
   },
   "resolutions": {

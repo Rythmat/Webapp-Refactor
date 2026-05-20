@@ -8952,15 +8952,15 @@ space-separated-tokens@^2.0.0:
   resolved "https://registry.npmjs.org/space-separated-tokens/-/space-separated-tokens-2.0.2.tgz"
   integrity sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==
 
-spessasynth_core@latest:
-  version "4.1.5"
-  resolved "https://registry.npmjs.org/spessasynth_core/-/spessasynth_core-4.1.5.tgz"
-  integrity sha512-mb2NydeXOnojqub19Jt2Nwde/lHA9YXGaVYbaslZxwNP+AOwPb79E/wkV5Wzgqd2LOPLArxuPg8Z+GelFVrYiA==
+spessasynth_core@4.3.3, spessasynth_core@latest:
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/spessasynth_core/-/spessasynth_core-4.3.3.tgz#cbc7c68d79d981c72dcce405e427698283725955"
+  integrity sha512-WhdL1/rKP3QDJHq9/W7ayLqcvEMSciTalAYJUPp1QXRzGUBJnIOC0hvCf1QpPIMw4ie9BfOY3rZ5SuRY82iv2A==
 
-spessasynth_lib@4.1.5:
-  version "4.1.5"
-  resolved "https://registry.npmjs.org/spessasynth_lib/-/spessasynth_lib-4.1.5.tgz"
-  integrity sha512-W/ZlcMN0AaUB51yGMqefFksIRslLe5EUqIcX+iWYl+p0qXPHzU/7wWxyR6AK6atCNbsAq8Or79itDfSdiYlq+Q==
+spessasynth_lib@4.3.3:
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/spessasynth_lib/-/spessasynth_lib-4.3.3.tgz#dd7034329d80eaddacedcb21ca99f13688bf411e"
+  integrity sha512-4fedp9m170b9U12rkZ2NPGqq0Vpkc9iWDxVOuhVuzyD3flBrPxGA9iTY0aOeYMM2pQ6S/EtH7elHnsfU8EsI9w==
   dependencies:
     spessasynth_core latest
 

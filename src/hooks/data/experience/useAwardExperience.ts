@@ -46,3 +46,11 @@ export const useAwardArcadeExperience = () => {
     },
   });
 };
+
+// Helper to award activity XP by activity id
+export const awardActivityXP = async (token: string, activityId: string) =>
+  experienceApi.awardLessonActivity(token, activityId);
+
+// Helper to award lesson completion XP by lesson id
+export const awardLessonXP = async (token: string, lessonId: string) =>
+  experienceApi.awardLessonCompletion(token, lessonId);

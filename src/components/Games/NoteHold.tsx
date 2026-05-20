@@ -9,6 +9,7 @@ import {
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
 import PianoRoll, {
   NoteEvent,
@@ -425,15 +426,20 @@ export const NoteHold = ({
             subdivision={1}
             onPlayingChange={setIsPlaying}
           />
-          <PianoKeyboard
-            showOctaveStart
-            activeBlackKeyColor={activityColor}
-            activeWhiteKeyColor={activityColor}
-            className="mx-auto"
-            endC={6}
-            playingNotes={keyboardPlayingNotes}
-            startC={2}
-          />
+          <div className="flex items-stretch gap-3">
+            <div className="flex-1 min-w-0">
+              <PianoKeyboard
+                showOctaveStart
+                activeBlackKeyColor={activityColor}
+                activeWhiteKeyColor={activityColor}
+                className="mx-auto"
+                endC={6}
+                playingNotes={keyboardPlayingNotes}
+                startC={2}
+              />
+            </div>
+            <LessonVolumeDial />
+          </div>
         </div>
       </div>
     </div>

@@ -21,6 +21,7 @@ import type {
   FundamentalsFlow,
   FundamentalsSection,
 } from '@/curriculum/types/fundamentals';
+import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import {
   LearnInputProvider,
   useLearnInputStable,
@@ -454,19 +455,25 @@ function FundamentalsLessonContainerInner({
           </div>
         )}
 
-        {/* Piano keyboard */}
-        <div className="w-full max-w-3xl">
-          <PianoKeyboard
-            startC={startC}
-            endC={endC}
-            enableClick
-            enableMidiInterface={false}
-            onKeyClick={handleKeyClick}
-            playingNotes={highlightNotes}
-            activeWhiteKeyColor={accentColor}
-            activeBlackKeyColor={accentColor}
-            gaming
-          />
+        {/* Piano keyboard with volume dial alongside */}
+        <div
+          className="flex w-full max-w-3xl items-stretch gap-3"
+          style={{ alignItems: 'stretch' }}
+        >
+          <div className="flex-1 min-w-0">
+            <PianoKeyboard
+              startC={startC}
+              endC={endC}
+              enableClick
+              enableMidiInterface={false}
+              onKeyClick={handleKeyClick}
+              playingNotes={highlightNotes}
+              activeWhiteKeyColor={accentColor}
+              activeBlackKeyColor={accentColor}
+              gaming
+            />
+          </div>
+          <LessonVolumeDial />
         </div>
 
         {/* Success overlay */}

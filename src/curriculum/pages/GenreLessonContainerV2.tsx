@@ -13,7 +13,6 @@ import {
   triggerPianoRelease,
   triggerPianoAttackRelease,
   startPianoSampler,
-  setPianoSamplerVolume,
 } from '@/audio/pianoSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { CurriculumRoutes } from '@/constants/routes';
@@ -21,6 +20,8 @@ import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import DualStaffPianoRoll from '@/curriculum/components/DualStaffPianoRoll';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import { useLessonVolume } from '@/learn/audio/useLessonVolume';
+import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import {
   LearnInputProvider,
   useLearnInputStable,
@@ -619,28 +620,21 @@ function GenreLessonContainerV2Inner({
   const { startBacking, stopBacking, initSF2 } = useBackingTrack(tempo);
   const [instrumentsLoading, setInstrumentsLoading] = useState(false);
 
-  // Lesson volume — controls metronome click and piano sampler output (the
-  // sounds the activity makes for both demo playback and the user's own
-  // MIDI notes). Stored as a 0..1 percentage; converted to dB on use.
-  const [lessonVolume, setLessonVolume] = useState(0.8);
-  const lessonVolumeDb = useMemo(
-    () => (lessonVolume <= 0.001 ? -Infinity : 20 * Math.log10(lessonVolume)),
-    [lessonVolume],
-  );
-
-  // Push volume to the piano sampler whenever it changes.
-  useEffect(() => {
-    setPianoSamplerVolume(lessonVolumeDb);
-  }, [lessonVolumeDb]);
+  // Lesson volume — shared across every lesson surface so theory/technique
+  // activities and genre lessons stay in sync. The store applies the value
+  // to the piano sampler internally; we read volumeDb here to retune the
+  // metronome synth on top of that.
+  const { volumeDb: lessonVolumeDb } = useLessonVolume();
 
   const { setBpm, prepare: prepareMetronome } = useMetronome({
     bpm: tempo,
     // Disable metronome in Play Now (performance) mode when a backing track is running —
     // the drum track provides the pulse. Practice mode always gets the metronome.
     enabled: isActive && isIT && !(isPerforming && hasBackingParts),
-    // Metronome sits ~10 dB below the instruments by default; the user volume
-    // dial scales it on top of that baseline.
-    volumeDb: lessonVolumeDb === -Infinity ? -Infinity : lessonVolumeDb - 10,
+    // Track the dial directly. The synth's intrinsic level + the velocity
+    // attack values inside useMetronome already balance it relative to the
+    // piano sampler — adding extra attenuation here made the click inaudible.
+    volumeDb: lessonVolumeDb,
   });
 
   // ── Tick counter ──────────────────────────────────────────────────────────
@@ -1683,53 +1677,7 @@ function GenreLessonContainerV2Inner({
           </div>
 
           {/* Volume dial — controls metronome and piano sampler output */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '4px 0',
-              fontSize: '11px',
-              color: '#888',
-              userSelect: 'none',
-              flexShrink: 0,
-            }}
-          >
-            <span
-              style={{
-                fontVariantNumeric: 'tabular-nums',
-                color: '#aaa',
-                lineHeight: 1,
-              }}
-            >
-              {Math.round(lessonVolume * 100)}
-            </span>
-            <input
-              id="lesson-volume"
-              type="range"
-              min={0}
-              max={100}
-              value={Math.round(lessonVolume * 100)}
-              onChange={(e) => setLessonVolume(Number(e.target.value) / 100)}
-              style={{
-                writingMode: 'vertical-lr',
-                direction: 'rtl',
-                width: '20px',
-                height: '80px',
-                accentColor: '#4a9eff',
-                cursor: 'pointer',
-              }}
-              aria-label="Lesson volume"
-              title="Volume — metronome and lesson playback"
-            />
-            <label
-              htmlFor="lesson-volume"
-              style={{ cursor: 'pointer', lineHeight: 1 }}
-            >
-              {lessonVolume <= 0.001 ? 'Mute' : 'Vol'}
-            </label>
-          </div>
+          <LessonVolumeDial />
         </div>
 
         {/* Practice mode controls — below keyboard */}

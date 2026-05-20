@@ -1650,9 +1650,9 @@ export const ActivityFlow = ({
       });
       trackActivityCompleted(lessonId, currentActivity.activityDefId);
       // Award activity experience (best-effort, backend dedup protects duplicates)
-      void awardLessonActivity.mutateAsync(
-        currentActivity.activityInstanceId,
-      ).catch(() => {});
+      void awardLessonActivity
+        .mutateAsync(currentActivity.activityInstanceId)
+        .catch(() => {});
       updateLessonState.mutate({
         lessonId,
         lessonVersion,

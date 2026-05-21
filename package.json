@@ -95,7 +95,7 @@
     "recharts": "3.8.1",
     "simplex-noise": "4.0.3",
     "sonner": "1.5.0",
-    "spessasynth_lib": "4.1.5",
+    "spessasynth_lib": "4.3.3",
     "stripe": "20.4.0",
     "superjson": "2.2.2",
     "tailwind-merge": "2.5.4",
@@ -176,13 +176,14 @@
     ],
     "**/*.{ts,tsx}": [
       "eslint",
-      "prettier"
+      "prettier --write"
     ],
     "**/*.json": [
-      "prettier"
+      "prettier --write"
     ]
   },
   "resolutions": {
-    "prettier": "3.5.3"
+    "prettier": "3.5.3",
+    "spessasynth_core": "4.3.3"
   }
 }

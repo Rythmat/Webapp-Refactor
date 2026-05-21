@@ -45,7 +45,7 @@ export const TopBar: FC = () => {
   const { data: xpSummary } = useExperienceSummary();
   const { play } = useUISound();
 
-  const xp = xpSummary?.totalExperience ?? 0;
+  const level = xpSummary?.level ?? 1;
   const streak = 12;
   const awards = 60;
 
@@ -77,8 +77,7 @@ export const TopBar: FC = () => {
         className="flex items-center gap-3 text-xs lg:text-sm"
         style={{ color: 'var(--color-text-dim)' }}
       >
-        <span className="font-bold text-white">{xp.toLocaleString()}</span>
-        <span>XP</span>
+        <span className="font-bold text-white">Level {level}</span>
         <Icon
           src="/icons/credits-icon.svg"
           className="w-3.5 h-3.5 opacity-50"

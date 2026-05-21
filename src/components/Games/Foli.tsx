@@ -791,7 +791,12 @@ function FoilDrums({
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function Foli() {
+export type FoliProps = {
+  onCorrect?: () => void;
+  onWrong?: () => void;
+};
+
+export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
   const rhythmsQuery = usePrismRhythms();
 
   const [phase, setPhase] = useState<Phase>('loading');
@@ -987,12 +992,14 @@ export default function Foli() {
 
       setBarStartTime(null);
       if (passed) {
+        onCorrect?.();
         scoreRef.current += 1;
         setScore(scoreRef.current);
         setLeftGlow('success');
         setRightGlow('success');
         sp('success');
       } else {
+        onWrong?.();
         livesRef.current -= 1;
         setLives(livesRef.current);
         setLeftGlow('fail');
@@ -1005,7 +1012,7 @@ export default function Foli() {
     engine.stopMetronome();
     engine.stopShaker();
     sp('gameover');
-  }, [allPatterns, getEngine, playRound, sp]);
+  }, [allPatterns, getEngine, playRound, sp, onCorrect, onWrong]);
 
   // ── Handle user bongo press ─────────────────────────────────────────
 

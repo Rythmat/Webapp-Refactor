@@ -32,6 +32,10 @@ import {
   useUpdateLessonState,
 } from '@/hooks/data/progress';
 import {
+  useAwardLessonActivityExperience,
+  useAwardLessonCompletionExperience,
+} from '@/hooks/data/experience/useAwardExperience';
+import {
   trackActivityCompleted,
   trackActivityStarted,
   trackLessonCompleted,
@@ -1163,6 +1167,8 @@ export const ActivityFlow = ({
   const lessonProgressQuery = useLessonProgress(lessonId, lessonVersion, true);
   const updateActivityProgress = useUpdateActivityProgress();
   const updateLessonState = useUpdateLessonState();
+  const awardLessonActivity = useAwardLessonActivityExperience();
+  const awardLessonCompletion = useAwardLessonCompletionExperience();
   const resumeAppliedScopeRef = useRef<string | null>(null);
   const explicitStartAppliedRef = useRef<string | null>(null);
   const completionReportedRef = useRef<Set<string>>(new Set());
@@ -1559,6 +1565,8 @@ export const ActivityFlow = ({
         if (lessonCompleteReportedRef.current !== lessonKey) {
           lessonCompleteReportedRef.current = lessonKey;
           trackLessonCompleted(lessonId);
+          // Award lesson completion experience (best-effort)
+          void awardLessonCompletion.mutateAsync(lessonId).catch(() => {});
         }
         onComplete?.();
       }
@@ -1641,6 +1649,10 @@ export const ActivityFlow = ({
         },
       });
       trackActivityCompleted(lessonId, currentActivity.activityDefId);
+      // Award activity experience (best-effort, backend dedup protects duplicates)
+      void awardLessonActivity
+        .mutateAsync(currentActivity.activityInstanceId)
+        .catch(() => {});
       updateLessonState.mutate({
         lessonId,
         lessonVersion,

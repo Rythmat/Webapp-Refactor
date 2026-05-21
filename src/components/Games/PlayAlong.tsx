@@ -9,6 +9,8 @@ import {
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import { useLessonVolume } from '@/learn/audio/useLessonVolume';
+import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
 import PianoRoll, { NoteEvent, pitchNameToMidi } from './PianoRollPlay';
 
@@ -84,14 +86,26 @@ export const PlayAlong = ({
   const lastMetronomeBeatRef = useRef<number | null>(null);
   const lastMetronomeClickAtRef = useRef<number>(-1);
   const hasStartedAudioContextRef = useRef(false);
-  const firstMetronomePlayer = useMemo(
-    () => new Tone.Player('/sound/firstMetronomeClick.mp3').toDestination(),
+  // Programmatic metronome synth — same MembraneSynth recipe used by the
+  // genre/courses lessons (curriculum/hooks/useMetronome.ts). Switched away
+  // from pre-rendered mp3 Tone.Players because the player buffers were
+  // failing to play reliably in theory activities.
+  const metronomeSynth = useMemo(
+    () =>
+      new Tone.MembraneSynth({
+        pitchDecay: 0.008,
+        octaves: 2,
+        envelope: { attack: 0.001, decay: 0.04, sustain: 0, release: 0.05 },
+      }).toDestination(),
     [],
   );
-  const metronomePlayer = useMemo(
-    () => new Tone.Player('/sound/metronomeClick.mp3').toDestination(),
-    [],
-  );
+
+  // Mirror the lesson volume dial onto the metronome synth so the dial in
+  // theory lessons actually controls the click level.
+  const { volumeDb: lessonVolumeDb } = useLessonVolume();
+  useEffect(() => {
+    metronomeSynth.volume.value = lessonVolumeDb;
+  }, [metronomeSynth, lessonVolumeDb]);
 
   //Current tick reference
   const currentTickRef = useRef(currentTick);
@@ -113,19 +127,13 @@ export const PlayAlong = ({
 
   useEffect(() => {
     return () => {
-      for (const p of [firstMetronomePlayer, metronomePlayer]) {
-        try {
-          // Tone.Source has `state` in many versions ("started"/"stopped")
-          if ((p as any).state === 'started') {
-            p.stop();
-          }
-        } catch {}
-        try {
-          p.dispose();
-        } catch {}
+      try {
+        metronomeSynth.dispose();
+      } catch {
+        // Already disposed or in an inconsistent state — safe to ignore.
       }
     };
-  }, [firstMetronomePlayer, metronomePlayer]);
+  }, [metronomeSynth]);
 
   const releaseActiveNotes = useCallback(() => {
     void releaseAllPianoNotes();
@@ -153,8 +161,6 @@ export const PlayAlong = ({
   const playMetronome = useCallback(
     (isDownbeat: boolean) => {
       if (Tone.getContext().state !== 'running') return;
-      const player = isDownbeat ? firstMetronomePlayer : metronomePlayer;
-      if (!player.loaded) return;
       const now = Tone.now();
       // Guard against duplicate same-tick starts (can happen around rerenders/activity transitions).
       if (
@@ -164,18 +170,18 @@ export const PlayAlong = ({
         return;
       }
       lastMetronomeClickAtRef.current = now;
-      if ((player as any).state === 'started') {
-        try {
-          player.stop(now);
-        } catch {}
-      }
       try {
-        player.start(now);
+        metronomeSynth.triggerAttackRelease(
+          isDownbeat ? 'C5' : 'C6',
+          '32n',
+          now,
+          isDownbeat ? 0.9 : 0.5,
+        );
       } catch {
-        // Can happen transiently if the player buffer has not loaded yet.
+        // Synth may be disposed mid-transition.
       }
     },
-    [firstMetronomePlayer, metronomePlayer],
+    [metronomeSynth],
   );
 
   useEffect(() => {
@@ -488,15 +494,20 @@ export const PlayAlong = ({
             onPlayingChange={setIsPlaying}
             onTickChange={setCurrentTick}
           />
-          <PianoKeyboard
-            showOctaveStart
-            activeBlackKeyColor={activityColor}
-            activeWhiteKeyColor={activityColor}
-            className="mx-auto"
-            endC={6}
-            playingNotes={keyboardPlayingNotes}
-            startC={2}
-          />
+          <div className="flex items-stretch gap-3">
+            <div className="flex-1 min-w-0">
+              <PianoKeyboard
+                showOctaveStart
+                activeBlackKeyColor={activityColor}
+                activeWhiteKeyColor={activityColor}
+                className="mx-auto"
+                endC={6}
+                playingNotes={keyboardPlayingNotes}
+                startC={2}
+              />
+            </div>
+            <LessonVolumeDial />
+          </div>
         </div>
       </div>
     </div>

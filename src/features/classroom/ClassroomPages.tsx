@@ -28,11 +28,6 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
 import Atlas from '@/components/atlas/atlas';
-const SongLibraryPage = lazy(() =>
-  import('@/components/songLibrary/SongLibraryPage').then((m) => ({
-    default: m.SongLibraryPage,
-  })),
-);
 const SongDetailPage = lazy(() =>
   import('@/components/songLibrary/SongDetailPage').then((m) => ({
     default: m.SongDetailPage,
@@ -509,7 +504,7 @@ export const songsPages = () => {
     children: [
       {
         index: true,
-        element: <SongLibraryPage />,
+        element: <Navigate to={LearnRoutes.root()} replace />,
       },
       {
         path: ':songId',

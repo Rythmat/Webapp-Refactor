@@ -1,36 +1,60 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
-import type { FC } from 'react';
-import { Play } from 'lucide-react';
+import { memo, useCallback, useMemo, type MouseEvent } from 'react';
+import { BookOpen, Heart, Music, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
+import { useSavedSongsStore } from '@/features/songs/useSavedSongsStore';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 
 interface SongCardProps {
   song: Song;
 }
 
-const DIFFICULTY_LABEL: Record<number, string> = { 1: 'L1', 2: 'L2', 3: 'L3' };
+const ICON_SIZE = 12;
 
-export const SongCard: FC<SongCardProps> = ({ song }) => {
-  const initials = song.artist
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+const SongCardImpl = ({ song }: SongCardProps) => {
+  const isSaved = useSavedSongsStore((s) => Boolean(s.savedIds[song.id]));
+  const toggleSaved = useSavedSongsStore((s) => s.toggleSaved);
+
+  const avatarConfig = useMemo(
+    () => defaultAvatarConfig(song.genreTags[0] ?? song.artist),
+    [song.id, song.genreTags, song.artist],
+  );
+
+  const initials = useMemo(
+    () =>
+      song.artist
+        .split(' ')
+        .map((w) => w[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase(),
+    [song.artist],
+  );
+
+  const handleHeartClick = useCallback(
+    (e: MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleSaved(song.id);
+    },
+    [toggleSaved, song.id],
+  );
 
   return (
     <Link
       to={`/songs/${song.id}`}
       aria-label={`${song.title} by ${song.artist}, ${song.key}, ${song.genreTags[0] ?? ''}, Difficulty ${song.difficulty}`}
-      className="group rounded-2xl overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_8px_24px_rgba(0,0,0,0.3)] focus-visible:ring-2 focus-visible:ring-white/50 outline-none block"
-      style={{ background: 'rgba(26, 26, 26, 0.75)' }}
+      className="group block overflow-hidden transition-all duration-200 hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-white/40 outline-none"
+      style={{
+        background: 'rgba(28,28,30,0.85)',
+        borderRadius: 12,
+      }}
     >
-      {/* Image */}
       <div
-        className="relative aspect-square overflow-hidden"
-        style={{ background: 'rgba(30,30,30,0.6)' }}
+        className="relative"
+        style={{ aspectRatio: '1 / 1', background: 'rgba(30,30,30,0.6)' }}
       >
         {song.artistImageRef ? (
           <img
@@ -44,18 +68,19 @@ export const SongCard: FC<SongCardProps> = ({ song }) => {
           />
         ) : (
           <HexAvatarSVG
-            config={defaultAvatarConfig(song.genreTags[0] ?? song.artist)}
+            config={avatarConfig}
             circular={false}
             className="w-full h-full object-cover opacity-60"
           />
         )}
-        {/* Hover play overlay */}
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
-          <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
-            <Play size={20} className="text-black ml-0.5" fill="currentColor" />
+          <div
+            className="rounded-full bg-white/90 flex items-center justify-center"
+            style={{ width: 44, height: 44 }}
+          >
+            <Play size={18} className="text-black ml-0.5" fill="currentColor" />
           </div>
         </div>
-        {/* Initials fallback (behind HexAvatar) */}
         {!song.artistImageRef && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <span
@@ -68,56 +93,72 @@ export const SongCard: FC<SongCardProps> = ({ song }) => {
         )}
       </div>
 
-      {/* Info */}
-      <div style={{ padding: 'clamp(0.5rem, 1vw, 0.875rem)' }}>
+      <div style={{ padding: 12 }}>
         <h3
-          className="font-semibold text-white truncate"
-          style={{ fontSize: 'clamp(0.7rem, 1.1vw, 0.9rem)' }}
+          style={{
+            fontSize: 14,
+            lineHeight: 1.3,
+            fontWeight: 600,
+            color: '#ffffff',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            wordBreak: 'break-word',
+          }}
         >
           {song.title}
         </h3>
         <p
-          className="text-white/50 truncate"
-          style={{ fontSize: 'clamp(0.55rem, 0.85vw, 0.75rem)' }}
+          className="truncate"
+          style={{
+            fontSize: 12,
+            color: 'rgba(255,255,255,0.55)',
+            marginTop: 2,
+          }}
         >
           {song.artist}
         </p>
-        <p
-          className="text-white/30 tabular-nums"
-          style={{
-            fontSize: 'clamp(0.5rem, 0.75vw, 0.65rem)',
-            marginTop: 'clamp(0.15rem, 0.3vw, 0.25rem)',
-          }}
+        <div
+          className="flex items-center justify-between"
+          style={{ marginTop: 8 }}
         >
-          {song.key} · {song.tempo} BPM
-        </p>
-        {/* Chips */}
-        <div className="flex gap-1 mt-1.5 flex-wrap">
-          {song.genreTags.slice(0, 1).map((g) => (
-            <span
-              key={g}
-              className="rounded-full text-white/50"
-              style={{
-                padding: '1px clamp(0.3rem, 0.5vw, 0.4rem)',
-                fontSize: 'clamp(0.4rem, 0.6vw, 0.5rem)',
-                background: 'rgba(255,255,255,0.06)',
-              }}
-            >
-              {g}
-            </span>
-          ))}
-          <span
-            className="rounded-full text-white/50"
-            style={{
-              padding: '1px clamp(0.3rem, 0.5vw, 0.4rem)',
-              fontSize: 'clamp(0.4rem, 0.6vw, 0.5rem)',
-              background: 'rgba(255,255,255,0.06)',
-            }}
-          >
-            {DIFFICULTY_LABEL[song.difficulty] ?? `L${song.difficulty}`}
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>
+            Lvl. {song.difficulty}
           </span>
+          <div className="flex items-center" style={{ gap: 6 }}>
+            <BookOpen
+              width={ICON_SIZE}
+              height={ICON_SIZE}
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            />
+            <Music
+              width={ICON_SIZE}
+              height={ICON_SIZE}
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            />
+            <button
+              type="button"
+              onClick={handleHeartClick}
+              aria-label={isSaved ? 'Remove from saved' : 'Save song'}
+              aria-pressed={isSaved}
+              className="transition-colors"
+            >
+              <Heart
+                width={ICON_SIZE}
+                height={ICON_SIZE}
+                fill={isSaved ? 'currentColor' : 'none'}
+                style={{
+                  color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.4)',
+                }}
+              />
+            </button>
+          </div>
         </div>
       </div>
     </Link>
   );
 };
+
+export const SongCard = memo(SongCardImpl);
+SongCard.displayName = 'SongCard';

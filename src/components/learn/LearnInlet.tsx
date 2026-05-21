@@ -10,14 +10,13 @@ import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import type { PrismModeSlug } from '@/hooks/data';
 import { useProgressSummary } from '@/hooks/data/progress/useProgressSummary';
 import { useIsPremium } from '@/hooks/useIsPremium';
-import { useUISound } from '@/hooks/useUISound';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ProgressSummaryResponse } from '@/lib/progress/types';
+import { SongLibraryBody } from '../songLibrary/SongLibraryPage';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
-import { LearnDashboard } from './LearnDashboard';
 import './learn.css';
 
 interface ContentSubItem {
@@ -860,23 +859,22 @@ interface LearnInletProps {
 }
 
 export const LearnInlet: React.FC<LearnInletProps> = ({
-  initialTab = 'Courses',
+  initialTab,
   setSubTab: parentSetSubTab,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const genreParam = searchParams.get('genre');
   const tabParam = searchParams.get('tab');
   const { isPremium } = useIsPremium();
-  const validTabs = ['Courses', 'Theory', 'Technique'];
-  const showDashboard = !tabParam || !validTabs.includes(tabParam);
+  const validTabs = ['Songs', 'Courses', 'Theory', 'Technique'];
   const defaultTab =
     tabParam && validTabs.includes(tabParam)
       ? tabParam
       : genreParam
         ? 'Courses'
-        : isPremium
+        : initialTab && validTabs.includes(initialTab)
           ? initialTab
-          : 'Technique';
+          : 'Songs';
   const [subTab, setSubTab] = useState(defaultTab);
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(
     genreParam,
@@ -903,7 +901,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   }, [expandedMode]);
   // const [showFilter, setShowFilter] = useState(false);
   const navigate = useNavigate();
-  const { play } = useUISound();
   const { data: progressSummary } = useProgressSummary();
 
   const handleLevelSelect = async (sub: ContentSubItem) => {
@@ -991,11 +988,14 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     }
   }, [selectedSubItem]);
 
-  // Auto-select tab from ?tab= param
+  // Auto-select tab from ?tab= param (and reset to Songs when param is cleared)
   useEffect(() => {
     if (tabParam && validTabs.includes(tabParam)) {
       setSubTab(tabParam);
+    } else if (!tabParam) {
+      setSubTab('Songs');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabParam]);
 
   // Auto-select Courses tab and highlight the genre when arriving from Globe
@@ -1372,62 +1372,9 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       className="learn-root relative flex h-full flex-col"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
-      {showDashboard ? (
-        <LearnDashboard navigate={navigate} />
-      ) : (
-        <>
-          <MeshGradientBg />
-          <div className="relative flex flex-1 flex-col overflow-y-auto px-8 pb-12">
-            {/* ── Pill Tabs ── */}
-            <div
-              className="flex-shrink-0 flex justify-start mb-6"
-              style={{
-                paddingTop: 'clamp(0.4rem, 0.8vw, 0.75rem)',
-                paddingBottom: 'clamp(0.3rem, 0.6vw, 0.5rem)',
-              }}
-            >
-              <div className="flex gap-1">
-                {(
-                  ['Keyboard', 'Style', 'Theory', 'Technique', 'Songs'] as const
-                ).map((tab) => {
-                  const isActive =
-                    (tab === 'Style' && subTab === 'Courses') ||
-                    (tab === 'Theory' && subTab === 'Theory') ||
-                    (tab === 'Technique' && subTab === 'Technique');
-                  return (
-                    <button
-                      key={tab}
-                      onClick={() => {
-                        play('click');
-                        if (tab === 'Keyboard') {
-                          setSearchParams({}, { replace: true });
-                        } else if (tab === 'Songs') {
-                          navigate('/songs');
-                        } else if (tab === 'Style') {
-                          setSubTab('Courses');
-                        } else {
-                          setSubTab(tab);
-                        }
-                      }}
-                      className="rounded-full font-medium transition-all"
-                      style={{
-                        padding:
-                          'clamp(0.25rem, 0.4vw, 0.375rem) clamp(0.6rem, 1.2vw, 1rem)',
-                        fontSize: 'clamp(0.55rem, 0.85vw, 0.7rem)',
-                        background: isActive
-                          ? '#ffffff'
-                          : 'rgba(255,255,255,0.06)',
-                        color: isActive ? '#000000' : 'rgba(255,255,255,0.5)',
-                      }}
-                    >
-                      {tab}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* {showFilter && (
+      <MeshGradientBg />
+      <div className="relative flex flex-1 flex-col overflow-y-auto px-8 pb-6 pt-4">
+        {/* {showFilter && (
           <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 absolute top-[150px] left-8 right-8 z-20 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex justify-between items-start mb-4 pb-2 border-b border-white/5">
               <h3 className="text-sm font-medium text-gray-200">Filter</h3>
@@ -1454,76 +1401,76 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           </div>
         )} */}
 
-            <div className="flex-1 overflow-y-auto">
-              {subTab === 'Theory' ? (
-                <>
-                  <CollapsibleSection
-                    defaultOpen
-                    className="mt-4"
-                    title="Diatonic Modes"
-                  >
-                    {renderContent(THEORY_DATA)}
-                  </CollapsibleSection>
-                  <CollapsibleSection
-                    className="mt-8 pt-4"
-                    style={{ borderTop: '1px solid var(--color-border)' }}
-                    title="Relative Modes"
-                  >
-                    {renderContent(RELATIVE_MODES_DATA)}
-                  </CollapsibleSection>
-                  <CollapsibleSection
-                    className="mt-4 pt-4"
-                    style={{ borderTop: '1px solid var(--color-border)' }}
-                    title="Parallel Modes"
-                  >
-                    {renderContent(PARALLEL_MODES_DATA)}
-                  </CollapsibleSection>
-                  <CollapsibleSection
-                    className="mt-4 pt-4"
-                    style={{ borderTop: '1px solid var(--color-border)' }}
-                    title="Harmonic Minor Modes"
-                  >
-                    {renderContent(HARMONIC_MINOR_DATA)}
-                  </CollapsibleSection>
-                  <CollapsibleSection
-                    className="mt-4 pt-4"
-                    style={{ borderTop: '1px solid var(--color-border)' }}
-                    title="Melodic Minor Modes"
-                  >
-                    {renderContent(MELODIC_MINOR_DATA)}
-                  </CollapsibleSection>
-                  <CollapsibleSection
-                    className="mt-4 pt-4"
-                    style={{ borderTop: '1px solid var(--color-border)' }}
-                    title="Harmonic Major Modes"
-                  >
-                    {renderContent(HARMONIC_MAJOR_DATA)}
-                  </CollapsibleSection>
-                  <CollapsibleSection
-                    className="mt-4 pt-4"
-                    style={{ borderTop: '1px solid var(--color-border)' }}
-                    title="Double Harmonic Modes"
-                  >
-                    {renderContent(DOUBLE_HARMONIC_DATA)}
-                  </CollapsibleSection>
-                </>
-              ) : subTab === 'Technique' ? (
-                <CollapsibleSection
-                  defaultOpen
-                  className="mt-4"
-                  title="Foundational"
-                >
-                  {renderContent(TECHNIQUE_DATA)}
-                </CollapsibleSection>
-              ) : (
-                <CollapsibleSection defaultOpen className="mt-4" title="Genres">
-                  {renderContent(activeData)}
-                </CollapsibleSection>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+        <div className="flex-1 overflow-y-auto">
+          {subTab === 'Songs' ? (
+            <SongLibraryBody />
+          ) : subTab === 'Theory' ? (
+            <>
+              <CollapsibleSection
+                defaultOpen
+                className="mt-4"
+                title="Diatonic Modes"
+              >
+                {renderContent(THEORY_DATA)}
+              </CollapsibleSection>
+              <CollapsibleSection
+                className="mt-8 pt-4"
+                style={{ borderTop: '1px solid var(--color-border)' }}
+                title="Relative Modes"
+              >
+                {renderContent(RELATIVE_MODES_DATA)}
+              </CollapsibleSection>
+              <CollapsibleSection
+                className="mt-4 pt-4"
+                style={{ borderTop: '1px solid var(--color-border)' }}
+                title="Parallel Modes"
+              >
+                {renderContent(PARALLEL_MODES_DATA)}
+              </CollapsibleSection>
+              <CollapsibleSection
+                className="mt-4 pt-4"
+                style={{ borderTop: '1px solid var(--color-border)' }}
+                title="Harmonic Minor Modes"
+              >
+                {renderContent(HARMONIC_MINOR_DATA)}
+              </CollapsibleSection>
+              <CollapsibleSection
+                className="mt-4 pt-4"
+                style={{ borderTop: '1px solid var(--color-border)' }}
+                title="Melodic Minor Modes"
+              >
+                {renderContent(MELODIC_MINOR_DATA)}
+              </CollapsibleSection>
+              <CollapsibleSection
+                className="mt-4 pt-4"
+                style={{ borderTop: '1px solid var(--color-border)' }}
+                title="Harmonic Major Modes"
+              >
+                {renderContent(HARMONIC_MAJOR_DATA)}
+              </CollapsibleSection>
+              <CollapsibleSection
+                className="mt-4 pt-4"
+                style={{ borderTop: '1px solid var(--color-border)' }}
+                title="Double Harmonic Modes"
+              >
+                {renderContent(DOUBLE_HARMONIC_DATA)}
+              </CollapsibleSection>
+            </>
+          ) : subTab === 'Technique' ? (
+            <CollapsibleSection
+              defaultOpen
+              className="mt-4"
+              title="Foundational"
+            >
+              {renderContent(TECHNIQUE_DATA)}
+            </CollapsibleSection>
+          ) : (
+            <CollapsibleSection defaultOpen className="mt-4" title="Genres">
+              {renderContent(activeData)}
+            </CollapsibleSection>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

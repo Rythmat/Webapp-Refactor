@@ -1,1 +1,8 @@
 src/contexts/MusicAtlasContext/musicAtlas.generated.ts
+
+# Generated caches and audit dumps (large, machine-written)
+src/scripts/enrichment/_*.json
+src/curriculum/data/songs/_*.json
+src/scripts/artistLocations.json
+src/curriculum/data/harmonyKB.generated.ts
+src/curriculum/data/harmonyKB.backup.ts

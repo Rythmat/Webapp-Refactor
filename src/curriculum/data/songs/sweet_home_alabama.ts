@@ -3,11 +3,12 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const sweet_home_alabama: Song = {
   id: 'sweet_home_alabama',
   title: 'Sweet Home Alabama',
-  artist: 'Unknown Artist',
-  year: undefined,
-
-  key: 'G major',
-  keyRoot: 67,
+  artist: 'Lynyrd Skynyrd',
+  year: 1976,
+  historicalDescription:
+    "Lynyrd Skynyrd's 'Sweet Home Alabama' becomes an anthem of Southern pride and a defining moment for Southern rock. Written partly as a rebuttal to Neil Young's criticisms of the South in 'Southern Man' and 'Alabama', the song stakes out a defiant regional identity — and its three-guitar attack cements Lynyrd Skynyrd as the genre's definitive voice.",
+  key: 'D major',
+  keyRoot: 62,
   mode: 'major',
   tempo: 98,
   timeSignature: [4, 4],
@@ -18,24 +19,22 @@ export const sweet_home_alabama: Song = {
 
   sections: [
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'verse',
+      label: 'Verse',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [] },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=-p8GXZcdrIk' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

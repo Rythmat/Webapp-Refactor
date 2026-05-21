@@ -3,9 +3,10 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const the_loco_motion: Song = {
   id: 'the_loco_motion',
   title: 'The Loco-Motion',
-  artist: 'Unknown Artist',
-  year: undefined,
-
+  artist: 'Little Eva',
+  year: 1962,
+  historicalDescription:
+    "Little Eva records 'The Loco-Motion', a song written for her by Carole King and Gerry Goffin — her employers, for whom she worked as a babysitter. The infectious dance track rockets to #1, making Eva Boyd an overnight star and cementing the Brill Building songwriting machine as the hitmaking engine of early 1960s pop.",
   key: 'E♭ major',
   keyRoot: 63,
   mode: 'major',
@@ -13,43 +14,31 @@ export const the_loco_motion: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop'],
+  genreTags: ['classic_R&B'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 5', chordName: 'E♭5', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 5', chordName: 'E♭5', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 5', chordName: 'E♭5', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 5', chordName: 'E♭5', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse',
+      label: 'Verse',
+      measuresPerRow: 8,
       bars: [
         {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -57,76 +46,88 @@ export const the_loco_motion: Song = {
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'chorus',
+      label: 'Chorus',
+      measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
         },
+        {
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '2 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'bridge',
+      label: 'Bridge',
+      measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
+        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'verse_2',
+      label: 'Verse 2',
+      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -134,7 +135,7 @@ export const the_loco_motion: Song = {
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -142,7 +143,15 @@ export const the_loco_motion: Song = {
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -150,52 +159,62 @@ export const the_loco_motion: Song = {
     {
       id: 'section_e',
       label: 'Section E',
+      measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '2 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
+        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'section_f',
+      label: 'Section F',
+      measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭7', beat: 1, duration: 4 }],
-        },
-        {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=eKpVQm41f8Y' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

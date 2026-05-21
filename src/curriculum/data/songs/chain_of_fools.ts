@@ -3,9 +3,10 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const chain_of_fools: Song = {
   id: 'chain_of_fools',
   title: 'Chain of Fools',
-  artist: 'Unknown Artist',
-  year: undefined,
-
+  artist: 'Aretha Franklin',
+  year: 1967,
+  historicalDescription:
+    "Aretha Franklin records 'Chain of Fools' in 1967, delivering a raw, commanding vocal performance that cements her reign as the Queen of Soul. The track's churning groove and call-and-response structure draw deep from gospel and R&B roots, becoming one of the defining hits of her landmark breakthrough year — the same year she released 'Respect.' Together, these recordings transform American popular music.",
   key: 'C major',
   keyRoot: 60,
   mode: 'major',
@@ -18,47 +19,51 @@ export const chain_of_fools: Song = {
 
   sections: [
     {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
       id: 'section_a',
       label: 'Section A',
+      measuresPerRow: 1,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 maj', chordName: 'C7', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }],
+          fermata: true,
         },
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'verse',
+      label: 'Verse',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'chorus',
+      label: 'Chorus',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [], restBars: 8 },
+        { chords: [] },
+        { chords: [] },
+      ],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=5C4FnlftQt4' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

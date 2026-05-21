@@ -99,20 +99,25 @@ function countNodes(nodes: UpstreamChainNode[]): number {
 function CollapsibleInfluence({
   label,
   count,
+  direction,
   children,
 }: {
   label: string;
   count: number;
+  direction: 'upstream' | 'downstream';
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const dispatch = useAppDispatch();
   return (
     <div>
       <button
         className="mb-1 flex items-center gap-1 text-xs font-medium text-zinc-400 transition-colors hover:text-zinc-300"
         onClick={(e) => {
           e.stopPropagation();
-          setOpen(!open);
+          const next = !open;
+          setOpen(next);
+          dispatch({ type: 'TOGGLE_ARC_DIRECTION', payload: direction });
         }}
       >
         <ChevronDown
@@ -235,12 +240,26 @@ function EventList({
                       <p className="mt-2 text-sm leading-relaxed text-zinc-300">
                         {event.description}
                       </p>
+                      {event.videoId && (
+                        <div className="mt-3 rounded-lg overflow-hidden border border-zinc-700/30">
+                          <iframe
+                            width="100%"
+                            style={{ aspectRatio: '16/9' }}
+                            src={`https://www.youtube.com/embed/${event.videoId}?modestbranding=1&rel=0`}
+                            title={event.title}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="rounded-lg"
+                          />
+                        </div>
+                      )}
                       {hasConnections && (
                         <div className="mt-3 space-y-2 border-t border-zinc-700/40 pt-2">
                           {upstreamChain.length > 0 && (
                             <CollapsibleInfluence
                               count={countNodes(upstreamChain)}
                               label="Influenced by"
+                              direction="upstream"
                             >
                               <InfluenceTree
                                 nodes={upstreamChain}
@@ -252,6 +271,7 @@ function EventList({
                             <CollapsibleInfluence
                               count={countNodes(downstreamChain)}
                               label="Influenced"
+                              direction="downstream"
                             >
                               <InfluenceTree
                                 direction="downstream"

@@ -162,6 +162,10 @@ export interface Song {
 
   // ── Globe metadata ──
   origin?: GlobeOrigin;
+  /** Curated 2-3 sentence narrative for the Globe event card. Auto-generated
+   *  by enrichSongDescriptions.mjs and round-tripped through this file so
+   *  buildGlobeData.mjs can pick it up on regeneration. */
+  historicalDescription?: string;
 
   // ── Content cross-references ──
   /** Explicit overrides; resolver fills in the rest from metadata. */

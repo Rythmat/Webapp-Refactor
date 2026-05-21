@@ -3,9 +3,10 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const mustang_sally: Song = {
   id: 'mustang_sally',
   title: 'Mustang Sally',
-  artist: 'Unknown Artist',
-  year: undefined,
-
+  artist: 'Wilson Pickett',
+  year: 1966,
+  historicalDescription:
+    "Wilson Pickett records 'Mustang Sally' in 1966, transforming a minor Mack Rice original into a defining moment of Southern soul. Pickett's raw, commanding vocal performance turns the song into an anthem of R&B swagger, cementing his reputation as 'The Wicked Pickett.' The track becomes so ubiquitous it outlives its era, a staple of every bar band and wedding reception for decades to come.",
   key: 'C major',
   keyRoot: 60,
   mode: 'major',
@@ -13,69 +14,79 @@ export const mustang_sally: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop'],
+  genreTags: ['R&B'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
       id: 'section_a',
       label: 'Section A',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse',
+      label: 'Verse',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'section_c',
+      label: 'Section C',
+      measuresPerRow: 7,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'section_d',
+      label: 'Section D',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus',
+      label: 'Chorus',
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=16u6w0cjjrU' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

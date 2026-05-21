@@ -12,6 +12,8 @@ export const dontStopBelievin: Song = {
   artist: 'Journey',
   year: 1981,
 
+  historicalDescription:
+    "Journey releases 'Don't Stop Believin'' from their album Escape, anchoring the anthem in the working-class romanticism of small-town dreamers heading to the city. Steve Perry's soaring vocals and Jonathan Cain's opening piano riff become the defining sound of arena rock — massive, earnest, and impossible to ignore. Decades later, the song resurges through film, television, and stadiums, cementing its place as one of the best-selling digital singles in history.",
   key: 'E major',
   keyRoot: 64,
   mode: 'major',

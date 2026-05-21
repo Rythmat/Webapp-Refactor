@@ -19,10 +19,10 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
       <main ref={mainRef} className="flex min-w-0 flex-1 overflow-hidden">
         <div
           className={cn(
-            'relative flex-1',
+            'relative flex-1 min-w-0',
             isStudio
-              ? 'flex flex-col min-h-0 min-w-0 overflow-hidden'
-              : 'overflow-auto rounded-xl bg-surface-box p-2',
+              ? 'flex flex-col min-h-0 overflow-hidden'
+              : 'overflow-y-auto overflow-x-hidden rounded-xl bg-surface-box p-2',
           )}
         >
           <Suspense fallback={props.fallback}>

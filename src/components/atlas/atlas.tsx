@@ -1,5 +1,6 @@
 import './index.css';
-import { Component, type ReactNode } from 'react';
+import { Component, useEffect, type ReactNode } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { BaseGlobe } from '@/components/atlas/components/Globe';
 import { AIInsightPanel } from '@/components/atlas/components/UI/AIInsightPanel';
 import { DetailsCard } from '@/components/atlas/components/UI/DetailsCard';
@@ -12,7 +13,9 @@ import { TopBar } from '@/components/atlas/components/UI/TopBar';
 import {
   AppProvider,
   useAppState,
+  useAppDispatch,
 } from '@/components/atlas/context/AppContext';
+import { MUSIC_HISTORY } from '@/components/atlas/data';
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -45,7 +48,31 @@ class ErrorBoundary extends Component<
 function AppLayout() {
   const { selectedLocation, searchResults, aiInsight, activeModule } =
     useAppState();
+  const dispatch = useAppDispatch();
+  const [searchParams] = useSearchParams();
   const hasAI = aiInsight.status !== 'idle';
+
+  // Handle ?event=song-xxx URL parameter — pin event and fly to location
+  useEffect(() => {
+    const eventId = searchParams.get('event');
+    if (!eventId) return;
+    const event = MUSIC_HISTORY.find((e) => e.id === eventId);
+    if (event) {
+      // Show the event in search results panel
+      dispatch({ type: 'SET_SEARCH_RESULTS', payload: [event] });
+      // Pin it so it's highlighted
+      dispatch({ type: 'PIN_EVENT', payload: event });
+      // Fly the camera to the event location
+      dispatch({
+        type: 'EXECUTE_SEARCH',
+        payload: {
+          lat: event.location.lat,
+          lng: event.location.lng,
+          zoom: 6,
+        },
+      });
+    }
+  }, [searchParams, dispatch]);
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden bg-zinc-950 text-white">

@@ -128,6 +128,10 @@ export interface UnisonChordRegion {
   isDiatonic?: boolean;
   modalInterchange?: ModalInterchangeAnnotation | null;
   sourceMode?: string;
+  /** MIDI pitches for the genre-specific voicing, when one has been applied. */
+  voicingNotes?: number[];
+  /** Identifier of the genre/voicing source, e.g. "jazz:L2:maj7:va_4n_area_code_735". */
+  voicingId?: string;
 }
 
 // ── Modal Interchange ────────────────────────────────────────────────────────

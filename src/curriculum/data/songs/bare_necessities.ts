@@ -3,150 +3,128 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const bare_necessities: Song = {
   id: 'bare_necessities',
   title: 'Bare Necessities',
-  artist: 'Unknown Artist',
+  artist: 'Jungle Book',
   year: undefined,
 
+  historicalDescription:
+    "'The Bare Necessities' is performed in Disney's animated film The Jungle Book, with voice actor Phil Harris bringing the lovable bear Baloo to life. Written by Terry Gilkyson, the shuffling, jazz-inflected number becomes one of Disney's most beloved songs — a carefree anthem about simple pleasures that earns an Academy Award nomination and outlives the film itself.",
   key: 'C major',
   keyRoot: 60,
   mode: 'major',
   tempo: 206,
   timeSignature: [4, 4],
 
-  difficulty: 3,
-  genreTags: ['pop'],
+  difficulty: 2,
+  genreTags: ['disney'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse',
+      label: 'Verse',
+      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus',
+      label: 'Chorus',
+      measuresPerRow: 8,
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 7', chordName: 'A7', beat: 1, duration: 1 },
+            { degree: '2 min7', chordName: 'Dmin7', beat: 2, duration: 1 },
+            { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'bridge',
+      label: 'Bridge',
+      measuresPerRow: 12,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
-        },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_2',
+      label: 'Verse 2',
+      measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B♭', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
-        },
-        {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '3 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -154,35 +132,39 @@ export const bare_necessities: Song = {
     {
       id: 'section_e',
       label: 'Section E',
+      measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
-        },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=6BH-Rxd-NBo' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

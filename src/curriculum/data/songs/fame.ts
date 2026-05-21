@@ -3,113 +3,134 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const fame: Song = {
   id: 'fame',
   title: 'Fame',
-  artist: 'Unknown Artist',
-  year: undefined,
-
-  key: 'B♭ major',
-  keyRoot: 70,
-  mode: 'major',
+  artist: 'David Bowie',
+  year: 1975,
+  historicalDescription:
+    "David Bowie co-writes 'Fame' with John Lennon and Carlos Alomar, a funk-driven meditation on the hollow seductions of celebrity. Built on Alomar's choppy guitar riff, it becomes Bowie's first US number-one single — a cynical anthem arriving at the peak of his own stardom. The song signals his pivot toward American funk and soul, setting the stage for the 'plastic soul' era of Young Americans.",
+  key: 'F minor',
+  keyRoot: 65,
+  mode: 'minor',
   tempo: 96,
   timeSignature: [4, 4],
 
-  difficulty: 3,
+  difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'intro',
+      label: 'Intro',
+      measuresPerRow: 8,
+      repeatCount: 3,
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse',
+      label: 'Verse',
+      measuresPerRow: 8,
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_c',
       label: 'Section C',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'chorus',
+      label: 'Chorus',
+      measuresPerRow: 8,
+      repeatCount: 3,
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
           chords: [
-            { degree: '1 maj', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
         },
+        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'bridge',
+      label: 'Bridge',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_2',
+      label: 'Verse 2',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=Ypgq0qdgVZA' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

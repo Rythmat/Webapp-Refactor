@@ -3,13 +3,14 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const best_of_my_love: Song = {
   id: 'best_of_my_love',
   title: 'Best Of My Love',
-  artist: 'Unknown Artist',
-  year: undefined,
-
-  key: 'F major',
-  keyRoot: 65,
+  artist: 'The Emotions',
+  year: 1996,
+  historicalDescription:
+    "The Emotions bring their silky harmonies back to the charts with 'Best Of My Love', a buoyant pop track that leans into the decade's taste for feel-good nostalgia. The song reintroduces the Chicago-bred sister trio to a new generation raised on contemporary R&B, reminding listeners that the warmth and precision of classic soul vocal groups still has a place in the 1990s.",
+  key: 'C major',
+  keyRoot: 60,
   mode: 'major',
-  tempo: 115,
+  tempo: 120,
   timeSignature: [4, 4],
 
   difficulty: 2,
@@ -18,162 +19,51 @@ export const best_of_my_love: Song = {
 
   sections: [
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'section_a',
+      label: 'Section A',
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'F/G', beat: 1, duration: 4 }],
+          chords: [{ degree: '2 7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C/E', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 maj/5', chordName: 'F/G', beat: 1, duration: 4 },
           ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C/E', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C/E', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 maj/5', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_e',
       label: 'Section E',
+      measuresPerRow: 8,
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C/E', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F/G', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C/E', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [
-        {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C/E', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C/E', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C/E', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F/G', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C/E', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C/E', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'intro',
-      label: 'Intro',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -181,7 +71,9 @@ export const best_of_my_love: Song = {
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=Pbg66_KdJ5Q' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

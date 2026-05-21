@@ -3,79 +3,101 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const cant_feel_my_face: Song = {
   id: 'cant_feel_my_face',
   title: "Can't Feel My Face",
-  artist: 'Unknown Artist',
+  artist: 'The Weekend',
   year: undefined,
 
-  key: 'C major',
-  keyRoot: 60,
-  mode: 'major',
+  historicalDescription:
+    "The Weeknd releases 'Can't Feel My Face', a sleek pop anthem that marks his breakthrough into mainstream radio. Produced with Max Martin, the track wraps a dark narrative about destructive obsession in an irresistibly upbeat, Michael Jackson-influenced groove — demonstrating that Abel Tesfaye can conquer pop without abandoning his signature unease.",
+  key: 'A minor',
+  keyRoot: 69,
+  mode: 'minor',
   tempo: 108,
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop', 'rock'],
+  genreTags: ['pop_rock'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse',
+      label: 'Verse',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'chorus',
+      label: 'Chorus',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'bridge',
+      label: 'Bridge',
+      measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [], restBars: 1 },
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=KEI4qSrkPAs' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

@@ -161,14 +161,14 @@ describe('Content Generation Parser', () => {
 
   it('parses bass pattern references', () => {
     const result = parseContentGeneration(
-      'Select from Bass_Contour_Patterns.csv (bass_c_r_01, bass_c_r5_01) + Bass_Rhythm_Patterns.csv (bass_r_pop_01, bass_r_pop_02). Resolve through Major Pentatonic.',
+      'Select from Bass_Contour_Patterns.csv (bass_c_ped_01, bass_c_r5_01) + Bass_Rhythm_Patterns.csv (bass_r_pop_01, bass_r_pop_02). Resolve through Major Pentatonic.',
     );
     expect(result).not.toBeNull();
     const bassContour = result!.queries.find(
       (q) => q.library === 'bassContour',
     );
     expect(bassContour).toBeDefined();
-    expect(bassContour!.params.patternIds).toContain('bass_c_r_01');
+    expect(bassContour!.params.patternIds).toContain('bass_c_ped_01');
     const bassRhythm = result!.queries.find((q) => q.library === 'bassRhythm');
     expect(bassRhythm).toBeDefined();
   });

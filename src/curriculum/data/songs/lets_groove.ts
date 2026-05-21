@@ -2,18 +2,20 @@ import type { Song } from '@/curriculum/types/songLibrary';
 
 export const lets_groove: Song = {
   id: 'lets_groove',
-  title: "Let's Groove",
-  artist: 'Unknown Artist',
+  title: 'Let’s Groove',
+  artist: 'Earth, Wind, And Fire',
   year: undefined,
 
-  key: 'G major',
-  keyRoot: 67,
-  mode: 'major',
+  historicalDescription:
+    "Earth, Wind & Fire release 'Let's Groove', a sleek fusion of funk, soul, and synthesizer-driven disco that captures the sound of a genre in transition. As the early 1980s pull pop music toward electronic production, Maurice White and the band ride the wave without losing their rhythmic soul. The song becomes one of their signature hits, cementing their legacy as architects of sophisticated Black pop.",
+  key: 'B minor',
+  keyRoot: 71,
+  mode: 'minor',
   tempo: 124,
   timeSignature: [4, 4],
 
-  difficulty: 3,
-  genreTags: ['funk'],
+  difficulty: 2,
+  genreTags: ['funk', 'soul'],
   techniques: [],
 
   sections: [
@@ -23,50 +25,53 @@ export const lets_groove: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '7 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '4 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 2 },
+            { degree: '1 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 2 },
+            { degree: '1 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
       ],
     },
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse',
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 2 },
+            { degree: '4 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 2 },
+            { degree: '4 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -77,101 +82,56 @@ export const lets_groove: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♭2 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
+            { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
+        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'chorus_1',
+      label: 'Chorus',
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 2 },
+            { degree: '5 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 2 },
+            { degree: '4 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=Lrle0x_DHBM' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

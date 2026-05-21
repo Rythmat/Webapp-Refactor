@@ -48,6 +48,7 @@ export interface HistoricalEvent {
   title: string;
   description: string;
   tags: string[];
+  videoId?: string;
 }
 
 // --- UI types ---
@@ -119,6 +120,8 @@ export interface AppState {
   selectedEra: string | null;
   searchFlyTarget: FlyTarget | null;
   aiInsight: AIInsight;
+  /** Which influence arc directions are visible on the globe */
+  visibleArcDirections: Set<'upstream' | 'downstream'>;
 }
 
 export type AppAction =
@@ -148,4 +151,5 @@ export type AppAction =
   | { type: 'MODULE_STEP'; payload: number }
   | { type: 'EXIT_MODULE' }
   | { type: 'AI_INSIGHT_CLEAR' }
-  | { type: 'SET_ERA'; payload: string | null };
+  | { type: 'SET_ERA'; payload: string | null }
+  | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' };

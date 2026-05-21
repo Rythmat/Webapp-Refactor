@@ -3,9 +3,10 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const wake_me_up: Song = {
   id: 'wake_me_up',
   title: 'Wake Me Up',
-  artist: 'Unknown Artist',
-  year: undefined,
-
+  artist: 'Avicii',
+  year: 2013,
+  historicalDescription:
+    "Avicii releases 'Wake Me Up' in 2013, fusing electronic dance music with folk and bluegrass elements in a way that shocks dance music purists but captivates the world. The track becomes a global phenomenon, demonstrating that EDM could absorb acoustic warmth and emotional depth without losing the dancefloor. It signals a new era of genre-blurring pop that defines the mid-2010s mainstream.",
   key: 'D major',
   keyRoot: 62,
   mode: 'major',
@@ -20,111 +21,125 @@ export const wake_me_up: Song = {
     {
       id: 'section_a',
       label: 'Section A',
+      measuresPerRow: 1,
+      bars: [{ chords: [], restBars: 4 }],
+    },
+    {
+      id: 'verse',
+      label: 'Verse',
+      measuresPerRow: 1,
+      bars: [{ chords: [], restBars: 16 }],
+    },
+    {
+      id: 'chorus',
+      label: 'Chorus',
+      measuresPerRow: 6,
+      repeatCount: 4,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
+      id: 'bridge',
+      label: 'Bridge',
+      measuresPerRow: 1,
+      bars: [{ chords: [], restBars: 12 }],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'verse_2',
+      label: 'Verse 2',
+      measuresPerRow: 6,
+      repeatCount: 4,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_e',
       label: 'Section E',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
+      measuresPerRow: 1,
+      bars: [{ chords: [], restBars: 16 }],
     },
     {
       id: 'section_f',
       label: 'Section F',
+      measuresPerRow: 6,
+      repeatCount: 4,
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'section_g',
+      label: 'Section G',
+      measuresPerRow: 1,
+      bars: [{ chords: [], restBars: 16 }],
+    },
+    {
+      id: 'section_h',
+      label: 'Section H',
+      measuresPerRow: 6,
       bars: [
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=IcrbM1l_BoI' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

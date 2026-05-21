@@ -1,0 +1,26 @@
+{
+  "_comment": "Hand-curated 'song INFLUENCED event' pairs. Only seminal songs that clearly catalyzed or anchored a downstream historical event/movement. Used by buildSongConnections.mjs to emit `{ from: 'song-X', to: 'evt-Y' }` connections.",
+  "_format": "{ <song-slug>: [<event-id>, ...] }",
+  "pairs": {
+    "johnny_b_goode": ["evt-merseybeat-liverpool-1963"],
+    "papas_got_a_brand_new_bag": ["evt-funk-augusta-1970"],
+    "cold_sweat": ["evt-funk-augusta-1970"],
+    "i_want_you_back": ["evt-motown-detroit-1966"],
+    "whole_lotta_love": ["evt-punk-london-1976"],
+    "superstition": ["evt-funk-detroit-1972-stevie-wonder-superstition"],
+    "good_times": ["evt-hiphop-nyc-1979"],
+    "le_freak": ["evt-disco-nyc-1977"],
+    "we_are_family": ["evt-disco-nyc-1977"],
+    "i_will_survive": ["evt-disco-nyc-1977"],
+    "billie_jean": ["evt-pop-losangeles-1982-michaeljackson"],
+    "thriller": ["evt-pop-losangeles-1982-michaeljackson"],
+    "1999": ["evt-pop-minneapolis-1984-prince", "evt-funk-minneapolis-1979"],
+    "kiss": ["evt-pop-minneapolis-1984-prince"],
+    "three_little_birds": ["evt-reggae-kingston-1978-marley"],
+    "smells_like_teen_spirit": ["evt-grunge-seattle-1991"],
+    "umbrella": ["evt-pop-nyc-2007-rihanna"],
+    "rolling_in_the_deep": ["evt-pop-london-2011-adele"],
+    "uptown_funk": ["evt-pop-losangeles-2012-brunomars"],
+    "shape_of_you": ["evt-pop-london-2011-edsheeran"]
+  }
+}

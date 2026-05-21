@@ -3,11 +3,12 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const run_around: Song = {
   id: 'run_around',
   title: 'Run-Around',
-  artist: 'Unknown Artist',
-  year: undefined,
-
-  key: 'G major',
-  keyRoot: 67,
+  artist: 'Blues Traveler',
+  year: 1994,
+  historicalDescription:
+    "Blues Traveler releases 'Run-Around' in 1994, a blues-rock anthem built around John Popper's virtuosic harmonica work and a deceptively catchy melody. The song becomes a massive radio hit, introducing a generation to the band's jam-band roots and proving that guitar-driven blues rock with genuine instrumental chops can still conquer mainstream airwaves.",
+  key: 'D major',
+  keyRoot: 62,
   mode: 'major',
   tempo: 152,
   timeSignature: [4, 4],
@@ -18,47 +19,40 @@ export const run_around: Song = {
 
   sections: [
     {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse',
+      label: 'Verse',
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '4 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '1 7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'D7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '4 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'C', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '1 7', chordName: 'D7', beat: 3, duration: 2 },
+          ],
         },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=ousaiByU1ko' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

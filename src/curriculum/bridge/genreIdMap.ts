@@ -123,6 +123,18 @@ export function curriculumToEngineGenre(id: CurriculumGenreId): GenreName {
 }
 
 /**
+ * Convert a curriculum genre ID to the voicing-taxonomy genre slug.
+ *
+ * The voicing taxonomy in src/curriculum/data/genreVoicingTaxonomy.ts uses
+ * lowercase + underscore form for multi-word genres ('hip_hop', 'neo_soul',
+ * 'jam_band') and the slug 'rnb' for R&B. This converter normalizes the
+ * curriculum slug map (which uses spaces / hyphens) into that format.
+ */
+export function curriculumToVoicingGenre(id: CurriculumGenreId): string {
+  return CURRICULUM_GENRE_SLUGS[id].replace(/[ -]/g, '_');
+}
+
+/**
  * Convert an engine GenreName to curriculum genre ID.
  * Falls back via ENGINE_ONLY_GENRES for sub-genres like Salsa → LATIN.
  */

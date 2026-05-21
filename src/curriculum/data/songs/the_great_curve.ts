@@ -3,41 +3,52 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const the_great_curve: Song = {
   id: 'the_great_curve',
   title: 'The Great Curve',
-  artist: 'Unknown Artist',
-  year: undefined,
-
-  key: 'C major',
-  keyRoot: 60,
-  mode: 'major',
+  artist: 'Talking Heads',
+  year: 1980,
+  historicalDescription:
+    "Talking Heads release 'The Great Curve' on their landmark album 'Remain in Light', a record that rewires the DNA of rock by fusing it with West African polyrhythmic grooves and dense, interlocking guitar parts. Co-produced with Brian Eno, the track pulses with a collective, almost ceremonial energy — David Byrne's fractured vocals circling layers of rhythm like a chant. It marks a turning point where art-rock fully embraces the global.",
+  key: 'F minor',
+  keyRoot: 65,
+  mode: 'minor',
   tempo: 153,
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse',
+      label: 'Verse',
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
-    {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=3N5qQrGSuJ4' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

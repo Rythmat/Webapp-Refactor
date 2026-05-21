@@ -44,7 +44,7 @@ const POP_L1: GenreCurriculumEntry = {
   },
   bass: {
     bassScale: s('major_pentatonic = [0, 2, 4, 7, 9]'),
-    bassContours: ['bass_c_r_01', 'bass_c_r5_01'],
+    bassContours: ['bass_c_ped_01', 'bass_c_r5_01'],
     bassRhythms: ['bass_r_pop_01', 'bass_r_pop_02', 'bass_r_pop_03'],
   },
   global: {
@@ -92,12 +92,12 @@ const POP_L2: GenreCurriculumEntry = {
       'comp_pop_05',
       'comp_pop_06',
       'comp_pop_07',
-      'comp_pop_08',
-      'comp_pop_09',
-      'comp_pop_10',
-      'comp_rock_01',
-      'comp_rock_02',
-      'comp_rock_03',
+      'comp_pop_04',
+      'comp_pop_05',
+      'comp_pop_06',
+      'comp_pop_01',
+      'comp_pop_02',
+      'comp_pop_03',
     ],
     newTechniques:
       'Broken chords with inversions, descending arpeggio, syncopated chunking, voicing the melody (top note = melody)',
@@ -105,11 +105,11 @@ const POP_L2: GenreCurriculumEntry = {
   bass: {
     bassScale: s('ionian = [0, 2, 4, 5, 7, 9, 11]'),
     bassContours: [
-      'bass_c_r_01',
+      'bass_c_ped_01',
       'bass_c_r5_01',
-      'bass_c_alt_01',
-      'bass_c_158_01',
-      'bass_c_1585_01',
+      'bass_c_r5_04',
+      'bass_c_r58_02',
+      'bass_c_r58_01',
     ],
     bassRhythms: [
       'bass_r_pop_01',
@@ -186,16 +186,16 @@ const POP_L3: GenreCurriculumEntry = {
       'comp_pop_05',
       'comp_pop_06',
       'comp_pop_07',
-      'comp_pop_08',
-      'comp_pop_09',
-      'comp_pop_10',
-      'comp_rock_01',
-      'comp_rock_02',
-      'comp_rock_03',
+      'comp_pop_04',
+      'comp_pop_05',
+      'comp_pop_06',
+      'comp_pop_01',
+      'comp_pop_02',
+      'comp_pop_03',
       'comp_rnb_01',
       'comp_rnb_02',
       'comp_rnb_03',
-      'comp_neosoul_01',
+      'comp_neo_01',
     ],
     newTechniques:
       '7-3-5 voicings, "drop the sizzle" ii-V formula, voicing the melody with 7th chord inversions, walking bass comping',
@@ -203,18 +203,18 @@ const POP_L3: GenreCurriculumEntry = {
   bass: {
     bassScale: s('mixolydian = [0, 2, 4, 5, 7, 9, 10]'),
     bassContours: [
-      'bass_c_r_01',
+      'bass_c_ped_01',
       'bass_c_r5_01',
-      'bass_c_alt_01',
-      'bass_c_158_01',
-      'bass_c_1585_01',
+      'bass_c_r5_04',
+      'bass_c_r58_02',
+      'bass_c_r58_01',
       'bass_c_walk_01',
       'bass_c_walk_02',
       'bass_c_walk_03',
       'bass_c_walk_04',
-      'bass_c_chrom_01',
-      'bass_c_chrom_02',
-      'bass_c_chrom_03',
+      'bass_c_walk_01',
+      'bass_c_walk_02',
+      'bass_c_walk_03',
     ],
     bassRhythms: [
       'bass_r_pop_01',
@@ -342,9 +342,9 @@ const JAZZ_L2: GenreCurriculumEntry = {
       'bass_c_walk_03',
       'bass_c_walk_04',
       'bass_c_r5_01',
-      'bass_c_chrom_01',
-      'bass_c_chrom_02',
-      'bass_c_chrom_03',
+      'bass_c_walk_01',
+      'bass_c_walk_02',
+      'bass_c_walk_03',
     ],
     bassRhythms: [
       'bass_r_jazz_01',
@@ -412,9 +412,9 @@ const JAZZ_L3: GenreCurriculumEntry = {
       'bass_c_walk_03',
       'bass_c_walk_04',
       'bass_c_r5_01',
-      'bass_c_chrom_01',
-      'bass_c_chrom_02',
-      'bass_c_chrom_03',
+      'bass_c_walk_01',
+      'bass_c_walk_02',
+      'bass_c_walk_03',
     ],
     bassRhythms: [
       'bass_r_jazz_01',
@@ -471,7 +471,7 @@ const BLUES_L1: GenreCurriculumEntry = {
   },
   bass: {
     bassScale: s('minor_blues = [0, 3, 5, 6, 7, 10]'),
-    bassContours: ['bass_c_boogie_01', 'bass_c_r5_01'],
+    bassContours: ['bass_c_r56_06', 'bass_c_r5_01'],
     bassRhythms: [
       'bass_r_blues_01',
       'bass_r_blues_02',
@@ -483,7 +483,7 @@ const BLUES_L1: GenreCurriculumEntry = {
     defaultKey: 'C major',
     tempoRange: [80, 120],
     swing: [6, 8],
-    grooves: ['groove_blues_shuffle_01', 'groove_blues_slow_01'],
+    grooves: ['groove_blues_01', 'groove_blues_02'],
   },
 };
 
@@ -516,13 +516,13 @@ const BLUES_L2: GenreCurriculumEntry = {
   },
   bass: {
     bassContours: [
-      'bass_c_boogie_01',
+      'bass_c_r56_06',
       'bass_c_r5_01',
       'bass_c_walk_01',
       'bass_c_walk_02',
       'bass_c_walk_03',
       'bass_c_walk_04',
-      'bass_c_boogie_02',
+      'bass_c_r56_07',
     ],
     bassRhythms: [
       'bass_r_blues_01',
@@ -537,7 +537,7 @@ const BLUES_L2: GenreCurriculumEntry = {
     defaultKey: 'F major',
     tempoRange: [70, 130],
     swing: [5, 8],
-    grooves: ['groove_blues_shuffle_01', 'groove_jazz_01'],
+    grooves: ['groove_blues_01', 'groove_jazz_01'],
   },
 };
 
@@ -569,16 +569,16 @@ const BLUES_L3: GenreCurriculumEntry = {
   },
   bass: {
     bassContours: [
-      'bass_c_boogie_01',
-      'bass_c_boogie_02',
+      'bass_c_r56_06',
+      'bass_c_r56_07',
       'bass_c_r5_01',
       'bass_c_walk_01',
       'bass_c_walk_02',
       'bass_c_walk_03',
       'bass_c_walk_04',
-      'bass_c_chrom_01',
-      'bass_c_chrom_02',
-      'bass_c_chrom_03',
+      'bass_c_walk_01',
+      'bass_c_walk_02',
+      'bass_c_walk_03',
     ],
     bassRhythms: [
       'bass_r_blues_01',
@@ -594,8 +594,8 @@ const BLUES_L3: GenreCurriculumEntry = {
     tempoRange: [60, 140],
     swing: [5, 9],
     grooves: [
-      'groove_blues_shuffle_01',
-      'groove_blues_slow_01',
+      'groove_blues_01',
+      'groove_blues_02',
       'groove_jazz_01',
       'groove_jazz_02',
     ],
@@ -627,11 +627,11 @@ const ROCK_L1: GenreCurriculumEntry = {
       '1 maj - 5 maj - 6 min - 4 maj',
       '1 maj (4) - 4 maj (2) - 1 maj (2) - 5 maj (1) - 4 maj (1) - 1 maj (2)',
     ],
-    compingPatterns: ['comp_rock_01', 'comp_rock_02'],
+    compingPatterns: ['comp_pop_01', 'comp_pop_02'],
   },
   bass: {
     bassScale: s('minor_pentatonic = [0, 3, 5, 7, 10]'),
-    bassContours: ['bass_c_r_01', 'bass_c_r5_01', 'bass_c_boogie_01'],
+    bassContours: ['bass_c_ped_01', 'bass_c_r5_01', 'bass_c_r56_06'],
     bassRhythms: ['bass_r_rock_01', 'bass_r_rock_02'],
   },
   global: {
@@ -675,10 +675,10 @@ const ROCK_L2: GenreCurriculumEntry = {
   },
   bass: {
     bassContours: [
-      'bass_c_riff_01',
-      'bass_c_riff_02',
-      'bass_c_riff_03',
-      'bass_c_octave_01',
+      'bass_c_walk_04',
+      'bass_c_walk_05',
+      'bass_c_walk_06',
+      'bass_c_ped_02',
     ],
     bassRhythms: [
       'bass_r_rock_01',
@@ -731,13 +731,13 @@ const ROCK_L3: GenreCurriculumEntry = {
   },
   bass: {
     bassContours: [
-      'bass_c_ostinato_01',
-      'bass_c_ostinato_02',
-      'bass_c_ostinato_03',
-      'bass_c_pedal_01',
-      'bass_c_chrom_01',
-      'bass_c_chrom_02',
-      'bass_c_chrom_03',
+      'bass_c_ped_04',
+      'bass_c_ped_05',
+      'bass_c_ped_06',
+      'bass_c_ped_01',
+      'bass_c_walk_01',
+      'bass_c_walk_02',
+      'bass_c_walk_03',
     ],
     bassRhythms: [
       'bass_r_rock_01',
@@ -793,7 +793,7 @@ const FOLK_L1: GenreCurriculumEntry = {
   },
   bass: {
     bassScale: s('major_pentatonic = [0, 2, 4, 7, 9]'),
-    bassContours: ['bass_c_r_01', 'bass_c_r5_01'],
+    bassContours: ['bass_c_ped_01', 'bass_c_r5_01'],
     bassRhythms: ['bass_r_folk_01', 'bass_r_folk_02'],
   },
   global: {
@@ -841,7 +841,7 @@ const FOLK_L2: GenreCurriculumEntry = {
       'bass_c_r5_01',
       'bass_c_r5_02',
       'bass_c_r5_03',
-      'bass_c_alberti_01',
+      'bass_c_arp_01',
     ],
     bassRhythms: [
       'bass_r_folk_01',
@@ -898,10 +898,10 @@ const FOLK_L3: GenreCurriculumEntry = {
   },
   bass: {
     bassContours: [
-      'bass_c_pedal_01',
-      'bass_c_ostinato_01',
-      'bass_c_ostinato_02',
-      'bass_c_ostinato_03',
+      'bass_c_ped_01',
+      'bass_c_ped_04',
+      'bass_c_ped_05',
+      'bass_c_ped_06',
       'bass_c_walk_01',
       'bass_c_walk_02',
       'bass_c_walk_03',
@@ -958,10 +958,10 @@ const FUNK_L1: GenreCurriculumEntry = {
   bass: {
     bassScale: s('dorian = [0, 2, 3, 5, 7, 9, 10]'),
     bassContours: [
-      'bass_c_r8_01',
-      'bass_c_funk_01',
-      'bass_c_funk_02',
-      'bass_c_funk_03',
+      'bass_c_ped_02',
+      'bass_c_r7_01',
+      'bass_c_r7_02',
+      'bass_c_r7_03',
     ],
     bassRhythms: [
       'bass_r_funk_01',
@@ -1013,19 +1013,19 @@ const FUNK_L2: GenreCurriculumEntry = {
       'comp_funk_03',
       'comp_funk_04',
       'comp_funk_05',
-      'comp_funk_06',
-      'comp_funk_07',
+      'comp_funk_02a',
+      'comp_funk_03a',
     ],
   },
   bass: {
     bassContours: [
-      'bass_c_r8_01',
-      'bass_c_funk_01',
-      'bass_c_funk_02',
-      'bass_c_funk_03',
-      'bass_c_funk_04',
-      'bass_c_funk_05',
-      'bass_c_funk_06',
+      'bass_c_ped_02',
+      'bass_c_r7_01',
+      'bass_c_r7_02',
+      'bass_c_r7_03',
+      'bass_c_r7_04',
+      'bass_c_r7_05',
+      'bass_c_r7_06',
     ],
     bassRhythms: [
       'bass_r_funk_01',
@@ -1077,13 +1077,13 @@ const FUNK_L3: GenreCurriculumEntry = {
   },
   bass: {
     bassContours: [
-      'bass_c_r8_01',
-      'bass_c_funk_01',
-      'bass_c_funk_02',
-      'bass_c_funk_03',
-      'bass_c_funk_04',
-      'bass_c_funk_05',
-      'bass_c_funk_06',
+      'bass_c_ped_02',
+      'bass_c_r7_01',
+      'bass_c_r7_02',
+      'bass_c_r7_03',
+      'bass_c_r7_04',
+      'bass_c_r7_05',
+      'bass_c_r7_06',
     ],
     bassRhythms: [
       'bass_r_funk_01',
@@ -1139,7 +1139,7 @@ const RNB_L1: GenreCurriculumEntry = {
   },
   bass: {
     bassScale: s('major_pentatonic = [0, 2, 4, 7, 9]'),
-    bassContours: ['bass_c_r_01', 'bass_c_r5_01'],
+    bassContours: ['bass_c_ped_01', 'bass_c_r5_01'],
     bassRhythms: ['bass_r_rnb_01', 'bass_r_rnb_02'],
   },
   global: {
@@ -1179,7 +1179,7 @@ const RNB_L2: GenreCurriculumEntry = {
     ],
   },
   bass: {
-    bassContours: ['bass_c_158_01', 'bass_c_scalar_01'],
+    bassContours: ['bass_c_r58_02', 'bass_c_walk_01'],
     bassRhythms: [
       'bass_r_rnb_01',
       'bass_r_rnb_02',
@@ -1228,15 +1228,15 @@ const RNB_L3: GenreCurriculumEntry = {
   },
   bass: {
     bassContours: [
-      'bass_c_158_01',
-      'bass_c_scalar_01',
+      'bass_c_r58_02',
+      'bass_c_walk_01',
       'bass_c_walk_01',
       'bass_c_walk_02',
       'bass_c_walk_03',
       'bass_c_walk_04',
-      'bass_c_chrom_01',
-      'bass_c_chrom_02',
-      'bass_c_chrom_03',
+      'bass_c_walk_01',
+      'bass_c_walk_02',
+      'bass_c_walk_03',
     ],
     bassRhythms: [
       'bass_r_rnb_01',
@@ -1335,7 +1335,7 @@ const NEOSOUL_L2: GenreCurriculumEntry = {
     defaultKey: 'Ab minor',
     tempoRange: [70, 110],
     swing: [0, 3],
-    grooves: ['groove_neosoul_01', 'groove_neosoul_02', 'groove_neosoul_03'],
+    grooves: ['groove_neosoul_01', 'groove_neosoul_02', 'groove_neosoul_02'],
   },
 };
 
@@ -1374,7 +1374,7 @@ const NEOSOUL_L3: GenreCurriculumEntry = {
     defaultKey: 'F# minor',
     tempoRange: [65, 110],
     swing: [0, 3],
-    grooves: ['groove_neosoul_01', 'groove_neosoul_02', 'groove_neosoul_03'],
+    grooves: ['groove_neosoul_01', 'groove_neosoul_02', 'groove_neosoul_02'],
   },
 };
 
@@ -1413,7 +1413,7 @@ const JAMBAND_L1: GenreCurriculumEntry = {
     defaultKey: 'G major',
     tempoRange: [100, 140],
     swing: [0, 3],
-    grooves: ['groove_jam_01', 'groove_jam_02'],
+    grooves: ['groove_jam_01', 'groove_jam_01'],
   },
 };
 
@@ -1453,7 +1453,7 @@ const JAMBAND_L2: GenreCurriculumEntry = {
     defaultKey: 'A major',
     tempoRange: [90, 160],
     swing: [0, 4],
-    grooves: ['groove_jam_01', 'groove_jam_02'],
+    grooves: ['groove_jam_01', 'groove_jam_01'],
   },
 };
 
@@ -1493,7 +1493,7 @@ const JAMBAND_L3: GenreCurriculumEntry = {
     defaultKey: 'D major',
     tempoRange: [80, 180],
     swing: [0, 5],
-    grooves: ['groove_jam_01', 'groove_jam_02'],
+    grooves: ['groove_jam_01', 'groove_jam_01'],
   },
 };
 
@@ -1685,7 +1685,7 @@ const ELECTRONIC_L1: GenreCurriculumEntry = {
     defaultKey: 'A minor',
     tempoRange: [120, 135],
     swing: 0,
-    grooves: ['groove_electronic_house_01', 'groove_electronic_techno_01'],
+    grooves: ['groove_electronic_01', 'groove_electronic_02'],
   },
 };
 
@@ -1722,7 +1722,7 @@ const ELECTRONIC_L2: GenreCurriculumEntry = {
     defaultKey: 'D minor',
     tempoRange: [110, 140],
     swing: 0,
-    grooves: ['groove_electronic_house_01', 'groove_electronic_techno_01'],
+    grooves: ['groove_electronic_01', 'groove_electronic_02'],
   },
 };
 
@@ -1762,7 +1762,7 @@ const ELECTRONIC_L3: GenreCurriculumEntry = {
     defaultKey: 'F# minor',
     tempoRange: [90, 150],
     swing: 0,
-    grooves: ['groove_electronic_house_01', 'groove_electronic_techno_01'],
+    grooves: ['groove_electronic_01', 'groove_electronic_02'],
   },
 };
 
@@ -1791,7 +1791,7 @@ const LATIN_L1: GenreCurriculumEntry = {
   },
   bass: {
     bassScale: s('ionian = [0, 2, 4, 5, 7, 9, 11]'),
-    bassContours: ['bass_c_tumbao_01'],
+    bassContours: ['bass_c_r5_07'],
     bassRhythms: [
       'bass_r_latin_01',
       'bass_r_latin_02',
@@ -1803,7 +1803,7 @@ const LATIN_L1: GenreCurriculumEntry = {
     defaultKey: 'C major',
     tempoRange: [100, 130],
     swing: 0,
-    grooves: ['groove_latin_01'],
+    grooves: ['groove_salsa_01'],
   },
 };
 
@@ -1841,7 +1841,7 @@ const LATIN_L2: GenreCurriculumEntry = {
       '"Drop the sizzle" ii-V in Latin context, bossa voicings with LH shells',
   },
   bass: {
-    bassContours: ['bass_c_tumbao_01', 'bass_c_tumbao_02', 'bass_c_bossa_01'],
+    bassContours: ['bass_c_r5_07', 'bass_c_r5_08', 'bass_c_r5_05'],
     bassRhythms: [
       'bass_r_latin_01',
       'bass_r_latin_02',
@@ -1856,7 +1856,7 @@ const LATIN_L2: GenreCurriculumEntry = {
     defaultKey: 'F major',
     tempoRange: [90, 140],
     swing: 0,
-    grooves: ['groove_latin_01', 'groove_bossa_01'],
+    grooves: ['groove_salsa_01', 'groove_bossa_01'],
   },
 };
 
@@ -1900,16 +1900,16 @@ const LATIN_L3: GenreCurriculumEntry = {
   },
   bass: {
     bassContours: [
-      'bass_c_tumbao_01',
-      'bass_c_tumbao_02',
-      'bass_c_bossa_01',
+      'bass_c_r5_07',
+      'bass_c_r5_08',
+      'bass_c_r5_05',
       'bass_c_walk_01',
       'bass_c_walk_02',
       'bass_c_walk_03',
       'bass_c_walk_04',
-      'bass_c_chrom_01',
-      'bass_c_chrom_02',
-      'bass_c_chrom_03',
+      'bass_c_walk_01',
+      'bass_c_walk_02',
+      'bass_c_walk_03',
     ],
     bassRhythms: [
       'bass_r_latin_01',
@@ -1927,7 +1927,7 @@ const LATIN_L3: GenreCurriculumEntry = {
     defaultKey: 'E major',
     tempoRange: [80, 160],
     swing: 0,
-    grooves: ['groove_latin_01', 'groove_bossa_01', 'groove_samba_01'],
+    grooves: ['groove_salsa_01', 'groove_bossa_01', 'groove_samba_01'],
   },
 };
 
@@ -1966,7 +1966,7 @@ const AFRICAN_L1: GenreCurriculumEntry = {
     defaultKey: 'F major',
     tempoRange: [105, 130],
     swing: 0,
-    grooves: ['groove_afrobeat_01', 'groove_highlife_01'],
+    grooves: ['groove_afrobeat_01', 'groove_afrobeat_01'],
   },
 };
 
@@ -2004,11 +2004,11 @@ const AFRICAN_L2: GenreCurriculumEntry = {
   },
   bass: {
     bassContours: [
-      'bass_c_afr_01',
-      'bass_c_afr_02',
-      'bass_c_afr_03',
-      'bass_c_afr_04',
-      'bass_c_highlife_01',
+      'bass_c_r5_01',
+      'bass_c_r5_02',
+      'bass_c_r5_03',
+      'bass_c_r5_04',
+      'bass_c_r5_06',
     ],
     bassRhythms: [
       'bass_r_afr_01',
@@ -2023,7 +2023,7 @@ const AFRICAN_L2: GenreCurriculumEntry = {
     defaultKey: 'Bb major',
     tempoRange: [100, 140],
     swing: 0,
-    grooves: ['groove_afrobeat_01', 'groove_highlife_01'],
+    grooves: ['groove_afrobeat_01', 'groove_afrobeat_01'],
   },
 };
 
@@ -2063,11 +2063,11 @@ const AFRICAN_L3: GenreCurriculumEntry = {
   },
   bass: {
     bassContours: [
-      'bass_c_afr_01',
-      'bass_c_afr_02',
-      'bass_c_afr_03',
-      'bass_c_afr_04',
-      'bass_c_highlife_01',
+      'bass_c_r5_01',
+      'bass_c_r5_02',
+      'bass_c_r5_03',
+      'bass_c_r5_04',
+      'bass_c_r5_06',
       'bass_c_walk_01',
       'bass_c_walk_02',
       'bass_c_walk_03',
@@ -2081,14 +2081,14 @@ const AFRICAN_L3: GenreCurriculumEntry = {
       'bass_r_afr_05',
       'bass_r_afr_06',
       'bass_r_afr_07',
-      'bass_r_afr_08',
+      'bass_r_afr_07',
     ],
   },
   global: {
     defaultKey: 'C major',
     tempoRange: [90, 140],
     swing: [0, 3],
-    grooves: ['groove_afrobeat_01', 'groove_highlife_01', 'groove_jazz_01'],
+    grooves: ['groove_afrobeat_01', 'groove_afrobeat_01', 'groove_jazz_01'],
   },
 };
 
@@ -2117,7 +2117,7 @@ const REGGAE_L1: GenreCurriculumEntry = {
   },
   bass: {
     bassScale: s('minor_pentatonic = [0, 3, 5, 7, 10]'),
-    bassContours: ['bass_c_onedrop_01', 'bass_c_r5_01'],
+    bassContours: ['bass_c_ped_01', 'bass_c_r5_01'],
     bassRhythms: [
       'bass_r_reg_01',
       'bass_r_reg_02',
@@ -2129,7 +2129,7 @@ const REGGAE_L1: GenreCurriculumEntry = {
     defaultKey: 'G minor',
     tempoRange: [70, 90],
     swing: 0,
-    grooves: ['groove_reggae_onedrop_01', 'groove_reggae_steppers_01'],
+    grooves: ['groove_reggae_01', 'groove_reggae_03'],
   },
 };
 
@@ -2153,7 +2153,7 @@ const REGGAE_L2: GenreCurriculumEntry = {
     progressions: ['1 min - 4 maj', '1 min - b7 maj'],
   },
   bass: {
-    bassContours: ['bass_c_onedrop_01', 'bass_c_r5_01'],
+    bassContours: ['bass_c_ped_01', 'bass_c_r5_01'],
     bassRhythms: [
       'bass_r_reg_01',
       'bass_r_reg_02',
@@ -2165,7 +2165,7 @@ const REGGAE_L2: GenreCurriculumEntry = {
     defaultKey: 'A minor',
     tempoRange: [65, 95],
     swing: 0,
-    grooves: ['groove_reggae_onedrop_01', 'groove_reggae_steppers_01'],
+    grooves: ['groove_reggae_01', 'groove_reggae_03'],
   },
 };
 
@@ -2193,7 +2193,7 @@ const REGGAE_L3: GenreCurriculumEntry = {
     progressions: ['1 min - 4 maj', '1 min - b7 maj'],
   },
   bass: {
-    bassContours: ['bass_c_onedrop_01', 'bass_c_r5_01'],
+    bassContours: ['bass_c_ped_01', 'bass_c_r5_01'],
     bassRhythms: [
       'bass_r_reg_01',
       'bass_r_reg_02',
@@ -2205,11 +2205,7 @@ const REGGAE_L3: GenreCurriculumEntry = {
     defaultKey: 'E minor',
     tempoRange: [75, 105],
     swing: 0,
-    grooves: [
-      'groove_reggae_onedrop_01',
-      'groove_reggae_steppers_01',
-      'groove_reggae_rockers_01',
-    ],
+    grooves: ['groove_reggae_01', 'groove_reggae_03', 'groove_reggae_02'],
   },
 };
 

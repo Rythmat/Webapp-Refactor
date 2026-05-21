@@ -3,58 +3,57 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const fresh_eyes: Song = {
   id: 'fresh_eyes',
   title: 'Fresh Eyes',
-  artist: 'Unknown Artist',
-  year: undefined,
-
-  key: 'G major',
-  keyRoot: 67,
+  artist: 'Andy Grammar',
+  year: 2017,
+  historicalDescription:
+    "Andy Grammer releases 'Fresh Eyes', a warm pop-rock anthem about rediscovering love for someone familiar. The song captures a universal emotional moment — seeing a partner as if for the first time — and becomes one of Grammer's most celebrated tracks, finding its way into weddings and romantic playlists worldwide.",
+  key: 'C major',
+  keyRoot: 60,
   mode: 'major',
   tempo: 122,
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop', 'rock'],
+  genreTags: ['pop_rock'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse',
+      label: 'Verse',
+      measuresPerRow: 6,
       bars: [
         {
           chords: [
-            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '5 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '2 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+          ],
+        },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=5bgemCaaQkU' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

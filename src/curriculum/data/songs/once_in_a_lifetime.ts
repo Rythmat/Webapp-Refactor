@@ -3,31 +3,38 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const once_in_a_lifetime: Song = {
   id: 'once_in_a_lifetime',
   title: 'Once In A Lifetime',
-  artist: 'Unknown Artist',
-  year: undefined,
-
-  key: 'D major',
-  keyRoot: 62,
+  artist: 'The Talking Heads',
+  year: 1980,
+  historicalDescription:
+    "Talking Heads release 'Once In A Lifetime', a hypnotic meditation on suburban alienation and the unconscious drift of modern life. Built on African polyrhythms and Brian Eno's production, David Byrne's stream-of-consciousness delivery — 'same as it ever was' — captures something universal about routine and awakening. It becomes one of new wave's defining artistic statements.",
+  key: 'A major',
+  keyRoot: 69,
   mode: 'major',
   tempo: 118,
   timeSignature: [4, 4],
 
-  difficulty: 1,
-  genreTags: ['pop', 'rock'],
+  difficulty: 2,
+  genreTags: ['new_wave'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse',
+      label: 'Verse',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [] },
+        { chords: [] },
+        { chords: [] },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=5IsSpAOD6K8' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

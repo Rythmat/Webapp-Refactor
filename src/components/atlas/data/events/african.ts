@@ -19,6 +19,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'afrofusion',
       'lagos nightlife',
     ],
+    videoId: 'PLYotsLtw78',
   },
   {
     id: 'evt-highlife-accra-1960',
@@ -37,6 +38,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'dance band',
       'palm wine music',
     ],
+    videoId: '64TVyM-EZus',
   },
   {
     id: 'evt-afrobeat-lagos-1971',
@@ -56,6 +58,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'political music',
       'kalakuta republic',
     ],
+    videoId: '_1xNHUTzBUk',
   },
   {
     id: 'evt-afrobeats-lagos-2023',
@@ -75,6 +78,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'nigerian music',
       'global pop',
     ],
+    videoId: 'uwchVtOyjOk',
   },
   {
     id: 'evt-benga-nairobi-1967',
@@ -94,6 +98,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'nyanza',
       'east africa',
     ],
+    videoId: 'pqNWUvzpeog',
   },
   {
     id: 'evt-mbalax-dakar-1970',
@@ -118,6 +123,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'afro-cuban',
       'club baobab',
     ],
+    videoId: 'LtrTFd5PYmM',
   },
   {
     id: 'evt-coupe-decale-abidjan-2002',
@@ -142,6 +148,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'francophone',
       'dance music',
     ],
+    videoId: 'HzlbvutmROI',
   },
   {
     id: 'evt-bembeya-conakry-1966',
@@ -166,6 +173,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'pan-african',
       'afro-cuban',
     ],
+    videoId: '9Erc5fGMLgA',
   },
   {
     id: 'evt-gumbe-bissau-1975',
@@ -190,6 +198,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'lusophone',
       'revolution',
     ],
+    videoId: 'N2YH4VL4ScQ',
   },
   {
     id: 'evt-palmwine-freetown-1952',
@@ -214,6 +223,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'sierra leone',
       'west african guitar',
     ],
+    videoId: '1NcXqjjXDQM',
   },
   {
     id: 'evt-bella-bellow-lome-1969',
@@ -257,6 +267,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'nouakchott',
       'desert diva',
     ],
+    videoId: 'jrJL4PP7peo',
   },
   {
     id: 'evt-kora-banjul-1970',
@@ -276,6 +287,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'oral history',
       'west african harp',
     ],
+    videoId: '9IJbeeckNdk',
   },
   {
     id: 'evt-morna-praia-1988',
@@ -300,6 +312,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'lusophone',
       'atlantic',
     ],
+    videoId: 'XMU4rRND7As',
   },
   {
     id: 'evt-rumba-kinshasa-1956',
@@ -324,6 +337,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'guitar',
       'soukous',
     ],
+    videoId: 'tztwqJFEo6I',
   },
   {
     id: 'evt-brazza-rumba-1960',
@@ -348,6 +362,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'independence',
       'soukous',
     ],
+    videoId: '0LYnkaLUiKQ',
   },
   {
     id: 'evt-makossa-douala-1972',
@@ -367,6 +382,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'michael jackson',
       'afro-funk',
     ],
+    videoId: '59xZ2pEC6KQ',
   },
   {
     id: 'evt-ussua-saotome-1975',
@@ -391,6 +407,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'lusophone',
       'island music',
     ],
+    videoId: 'B5xFvFVuwjE',
   },
   {
     id: 'evt-kadongo-kamu-kampala-1965',
@@ -410,6 +427,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'ballad',
       'storytelling',
     ],
+    videoId: 'ZtKAkja5Z6M',
   },
   {
     id: 'evt-drummers-bujumbura-1964',
@@ -434,6 +452,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'bujumbura',
       'world percussion',
     ],
+    videoId: 'V0l0wBEx0HY',
   },
   {
     id: 'evt-salegy-antananarivo-1992',
@@ -458,6 +477,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'accordion',
       'world music',
     ],
+    videoId: 'BHdfMwhkQTI',
   },
   {
     id: 'evt-twarab-moroni-1985',
@@ -482,6 +502,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'wedding music',
       'indian ocean',
     ],
+    videoId: 'd1AnGTpk7fE',
   },
   {
     id: 'evt-sega-portlouis-1964',
@@ -506,6 +527,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'kaya',
       'seggae',
     ],
+    videoId: 'eR6CufnbtKk',
   },
   {
     id: 'evt-marrabenta-maputo-1955',
@@ -554,6 +576,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'shona',
       'rhodesia',
     ],
+    videoId: '5hF2Hstvrfc',
   },
   {
     id: 'evt-ghana-valletta-1962',
@@ -577,6 +600,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'poetic duel',
       'harbor tradition',
     ],
+    videoId: 'FuEGt1GcWx4',
   },
   {
     id: 'evt-diaspora-havana-rumba-1886',
@@ -599,6 +623,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'diaspora',
       'matanzas',
     ],
+    videoId: 'UydrzSVVwc4',
   },
   {
     id: 'evt-diaspora-dakar-blues-roots-1960',
@@ -626,6 +651,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'diaspora',
       'senegambia',
     ],
+    videoId: 'PRwEXyyBixE',
   },
   {
     id: 'evt-griot-timbuktu-1500',
@@ -646,6 +672,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'oral tradition',
       'west africa',
     ],
+    videoId: 'QdrPmZwsXiM',
   },
   {
     id: 'evt-rumba-kinshasa-1950',
@@ -671,6 +698,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'guitar',
       'african pop',
     ],
+    videoId: 'F24f0i3W9fA',
   },
   {
     id: 'evt-highlife-lagos-1952',
@@ -692,6 +720,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'west african',
       'decolonization',
     ],
+    videoId: 'P3p82Bx25C4',
   },
   {
     id: 'evt-highlife-accra-1958',
@@ -711,6 +740,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'jazz fusion',
       'accra',
     ],
+    videoId: 'dSmfT72YsZk',
   },
   {
     id: 'evt-township-jive-johannesburg-1981',
@@ -735,6 +765,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'kwaito',
       'south african',
     ],
+    videoId: 'pmKRKfArkhc',
   },
   {
     id: 'evt-juju-lagos-1978',
@@ -754,6 +785,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'lagos',
       'nigerian',
     ],
+    videoId: 'ZNfsht8Zscs',
   },
   {
     id: 'evt-afrofusion-accra-2019',
@@ -774,6 +806,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'pan-african',
       'nigeria-sa triangle',
     ],
+    videoId: 'xhmGwWdnK14',
   },
   {
     id: 'evt-soukous-kinshasa-1992',
@@ -798,6 +831,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'kinshasa',
       'full circle',
     ],
+    videoId: 'EkYtSVos0xg',
   },
   {
     id: 'evt-one-dance-lagos-2016',
@@ -817,6 +851,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'crossover',
       'nigerian pop',
     ],
+    videoId: 'LmbC_aqI4no',
   },
   {
     id: 'evt-burna-boy-lagos-2020',
@@ -835,6 +870,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'afro-fusion',
       'fela legacy',
     ],
+    videoId: 'Inhs4b8Fm04',
   },
 
   // ── Ghanaian drumming — Agbeli family lineage ──────────────────────
@@ -855,6 +891,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'agbeli family',
       'legon',
     ],
+    videoId: 'K5ua4KynoSY',
   },
   {
     id: 'evt-ewe-drums-accra-2005-korku',
@@ -874,6 +911,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'ghana',
       'diaspora',
     ],
+    videoId: 'ivCOrc1HWxI',
   },
   {
     id: 'evt-ewe-tradition-volta-1900',
@@ -898,6 +936,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'atsimevu',
       'bell pattern',
     ],
+    videoId: 'dKB5GXNcY9E',
   },
 
   // ── Malian kora — Sissoko / Diabaté lineage ────────────────────────
@@ -924,6 +963,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'diabate family',
       'bamako',
     ],
+    videoId: 'VVMxAsyFiTY',
   },
   {
     id: 'evt-kora-bamako-2009-sissoko',
@@ -948,6 +988,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'cross-cultural',
       'bamako',
     ],
+    videoId: 'QtiTfejYpgs',
   },
   {
     id: 'evt-kora-bamako-1999-newancient',
@@ -971,6 +1012,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'mande',
       'bamako',
     ],
+    videoId: '-cLAwAOi-hA',
   },
 
   // ── Ethiopian jazz / Éthiopiques ───────────────────────────────────
@@ -997,6 +1039,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'ethiopiques',
       'ethiopian scales',
     ],
+    videoId: '0ApwZaao0Q8',
   },
   {
     id: 'evt-ethiojazz-addis-2018-hailu',
@@ -1020,6 +1063,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'accordion',
       'addis ababa',
     ],
+    videoId: 'HBXT5IKpW-c',
   },
   {
     id: 'evt-ethiojazz-addis-1972-getatchew',
@@ -1043,6 +1087,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'the ex',
       'addis ababa',
     ],
+    videoId: 'lL6yrNikj7w',
   },
   {
     id: 'evt-ethiopian-addis-1975-mahmoud',
@@ -1090,6 +1135,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'paris',
       'golden age',
     ],
+    videoId: 'ZHnobTF3bD0',
   },
 
   // ── East African ───────────────────────────────────────────────────
@@ -1138,6 +1184,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'swahili pop',
       'east africa',
     ],
+    videoId: 'n8DlycEQfWo',
   },
 
   // ── South African ──────────────────────────────────────────────────
@@ -1164,6 +1211,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'multiracial',
       'south africa',
     ],
+    videoId: 'BGS7SpI7obY',
   },
   {
     id: 'evt-mbaqanga-johannesburg-1964-mahotella',
@@ -1187,6 +1235,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'vocal harmony',
       'johannesburg',
     ],
+    videoId: 'uKJ5TVNQJso',
   },
   {
     id: 'evt-bubblegum-johannesburg-1983-fassie',
@@ -1210,6 +1259,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'south africa',
       'crossover hit',
     ],
+    videoId: 'JB-OGtSEc64',
   },
   {
     id: 'evt-jazz-johannesburg-1968-masekela',
@@ -1233,6 +1283,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'south africa',
       'afro-jazz',
     ],
+    videoId: 'qxXZF60EPdM',
   },
 
   // ── West African legends ───────────────────────────────────────────
@@ -1254,6 +1305,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'nigerian music',
       'grammy nomination',
     ],
+    videoId: 'hSrdjWSotZc',
   },
   {
     id: 'evt-mbalax-dakar-1990-ndour',
@@ -1278,6 +1330,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'dakar',
       'peter gabriel',
     ],
+    videoId: 'wqCpjFMvz-k',
   },
   {
     id: 'evt-desert-blues-niafunke-1994-toure',
@@ -1302,6 +1355,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'niafunke',
       'blues roots',
     ],
+    videoId: 'mpnIVa7QK4A',
   },
   {
     id: 'evt-mande-pop-bamako-1987-keita',
@@ -1326,6 +1380,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'paris',
       'afro-pop',
     ],
+    videoId: '2vxLzFUsvyc',
   },
   {
     id: 'evt-afropop-cotonou-1991-kidjo',
@@ -1350,6 +1405,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'grammy',
       'pan-african',
     ],
+    videoId: 'duiyobfigfo',
   },
   {
     id: 'evt-wassoulou-bamako-1989-sangare',
@@ -1375,6 +1431,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'feminist icon',
       'kamele ngoni',
     ],
+    videoId: 'I9pXHDAErek',
   },
   {
     id: 'evt-afropop-dakar-1989-maal',
@@ -1399,6 +1456,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'senegal river',
       'acoustic',
     ],
+    videoId: 'YbUmksCxiK0',
   },
   {
     id: 'evt-afrocuban-dakar-1970-baobab',
@@ -1467,6 +1525,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'starboy',
       'lagos',
     ],
+    videoId: '5OJ_5aS-PdM',
   },
   {
     id: 'evt-afrobeats-lagos-2019-davido',
@@ -1486,6 +1545,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'nigerian pop',
       'dmw',
     ],
+    videoId: 'oiHh2-6jmnU',
   },
   {
     id: 'evt-afrobeats-lagos-2021-tems',
@@ -1523,6 +1583,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'afro-pop',
       'lagos',
     ],
+    videoId: 'dFBQzRNsMK0',
   },
   {
     id: 'evt-afrosoul-paris-2007-asa',
@@ -1547,6 +1608,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'francophone',
       'acoustic',
     ],
+    videoId: 'yMZmAc8GXx8',
   },
   {
     id: 'evt-afrobeats-lagos-2018-mreazi',
@@ -1566,6 +1628,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'nigeria',
       'afrobeats',
     ],
+    videoId: 'JhnGY1TDCio',
   },
 
   // ── Saharan / Tuareg ───────────────────────────────────────────────
@@ -1592,6 +1655,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'sahara',
       'rebellion',
     ],
+    videoId: 'vACZA9dGvV4',
   },
   {
     id: 'evt-afropop-bamako-2004-amadou',
@@ -1615,6 +1679,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'blind musicians',
       'afro-pop',
     ],
+    videoId: 'hcAKsXR51HQ',
   },
   {
     id: 'evt-tuareg-agadez-2013-bombino',
@@ -1639,6 +1704,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'desert rock',
       'guitar',
     ],
+    videoId: 'W_2OSQyjnOg',
   },
   {
     id: 'evt-mande-bamako-2011-diawara',
@@ -1687,6 +1753,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'sahel',
       'guitar hero',
     ],
+    videoId: 'dieJzKPDneU',
   },
   {
     id: 'evt-afrobeat-lagos-2008-seunkuti',
@@ -1706,6 +1773,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'kuti family',
       'political music',
     ],
+    videoId: 'F_8ihBjtZO4',
   },
   {
     id: 'evt-afrobeat-brooklyn-2002-antibalas',
@@ -1730,6 +1798,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'new york',
       'afrobeat revival',
     ],
+    videoId: 'IIlgjOCxhLQ',
   },
   {
     id: 'evt-highlife-saltpond-2010-ebotaylor',
@@ -1754,5 +1823,6 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'afro-funk',
       'rediscovery',
     ],
+    videoId: 'mFIdFjeOdGE',
   },
 ];

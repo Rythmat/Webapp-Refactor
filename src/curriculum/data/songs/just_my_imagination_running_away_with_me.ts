@@ -3,9 +3,10 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const just_my_imagination_running_away_with_me: Song = {
   id: 'just_my_imagination_running_away_with_me',
   title: 'Just My Imagination (Running Away With Me)',
-  artist: 'Unknown Artist',
-  year: undefined,
-
+  artist: 'The Temptations',
+  year: 2020,
+  historicalDescription:
+    "The Temptations release 'Just My Imagination (Running Away With Me)', a tender, aching ballad that marks the group's return to classic Motown romanticism after their psychedelic soul era. Written by Norman Whitfield and Barrett Strong, it becomes the group's last #1 hit with lead vocalist Eddie Kendricks — a bittersweet farewell to an era of Motown elegance.",
   key: 'C major',
   keyRoot: 60,
   mode: 'major',
@@ -13,59 +14,18 @@ export const just_my_imagination_running_away_with_me: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['soul', 'r_and_b'],
+  genreTags: ['motown'],
   techniques: [],
 
   sections: [
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'G7', beat: 1, duration: 4 }],
-        },
       ],
     },
     {
@@ -73,30 +33,95 @@ export const just_my_imagination_running_away_with_me: Song = {
       label: 'Section B',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
+      ],
+    },
+    {
+      id: 'verse',
+      label: 'Verse',
+      measuresPerRow: 5,
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
+          fermata: true,
+        },
+      ],
+    },
+    {
+      id: 'chorus',
+      label: 'Chorus',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'section_e',
+      label: 'Section E',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'section_f',
+      label: 'Section F',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
   ],
 
-  audioSources: [],
+  audioSources: [
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=WNnb1NfLrK4' },
+  ],
   artistImageSource: 'none',
   popularity: 50,
 };

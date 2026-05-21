@@ -43,18 +43,18 @@ export function UserWidget({
         type="button"
         onClick={() => navigate(ProfileRoutes.profile())}
       >
-        <div className="text-right hidden md:block text-xs">
+        <div className="text-right hidden md:block text-sm">
           {isLoading ? (
             <>
               <Skeleton className="mb-1 ml-auto h-3 w-24" />
               <Skeleton className="ml-auto h-2 w-20" />
             </>
           ) : (
-            <div className="text-sm leading-none text-white">{name}</div>
+            <div className="text-base leading-none text-white">{name}</div>
           )}
         </div>
 
-        <Avatar className="size-10 select-none border-2 border-white/10 shadow-lg shadow-purple-500/20 transition-all group-hover:border-white/50">
+        <Avatar className="size-14 select-none border-2 border-white/10 shadow-lg shadow-purple-500/20 transition-all group-hover:border-white/50">
           <AvatarFallback className="relative overflow-hidden p-0">
             <UserAvatarPattern
               className="size-full"

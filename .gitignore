@@ -13,6 +13,17 @@ dist-ssr
 *.local
 .partykit/
 
+# Build caches / coverage / deploy metadata
+*.tsbuildinfo
+coverage/
+.vercel/
+
+# Other package managers (we use npm)
+yarn.lock
+bun.lock
+bun.lockb
+pnpm-lock.yaml
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

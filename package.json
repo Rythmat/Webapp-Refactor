@@ -10,7 +10,7 @@
     "lint": "no-hats package.json && prettier . --check && eslint . --max-warnings 0 && tsc -b",
     "partykit:deploy": "partykit deploy --config src/daw/collab/server/partykit.json",
     "partykit:dev": "partykit dev --config src/daw/collab/server/partykit.json",
-    "predev": "stay-fresh check --install && yarn generate:api",
+    "predev": "stay-fresh check --install && npm run generate:api",
     "prepare": "node .husky/install.mjs",
     "preview": "vite preview",
     "test:unit": "vitest"
@@ -165,6 +165,10 @@
     "vitest": "4.1.1",
     "youtube-search-api": "2.0.1"
   },
+  "overrides": {
+    "prettier": "3.5.3",
+    "spessasynth_core": "4.3.3"
+  },
   "engines": {
     "node": "20"
   },
@@ -181,9 +185,5 @@
     "**/*.json": [
       "prettier --write"
     ]
-  },
-  "resolutions": {
-    "prettier": "3.5.3",
-    "spessasynth_core": "4.3.3"
   }
 }

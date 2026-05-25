@@ -1529,6 +1529,9 @@ export const ActivityFlow = ({
           },
         });
         trackActivityCompleted(lessonId, currentActivity.activityDefId);
+        void awardLessonActivity
+          .mutateAsync(currentActivity.activityInstanceId)
+          .catch(() => {});
       }
     }
     // Track completed activity for section progress

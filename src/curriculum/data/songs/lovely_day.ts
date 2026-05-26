@@ -14,7 +14,7 @@ export const lovely_day: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -183,6 +183,8 @@ export const lovely_day: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bEeaS6fuUoA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bill-withers.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const listen_to_the_music: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -230,6 +230,8 @@ export const listen_to_the_music: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nbVE-1rHyVY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/doobie-brothers.webp',
   popularity: 50,
 };

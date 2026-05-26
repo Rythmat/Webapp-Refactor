@@ -14,7 +14,7 @@ export const friends_in_low_places: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['country_pop'],
+  genreTags: ['folk', 'pop'],
   techniques: [],
 
   sections: [
@@ -272,6 +272,8 @@ export const friends_in_low_places: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=b7P97b64Q5E' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/garth-brooks.webp',
   popularity: 50,
 };

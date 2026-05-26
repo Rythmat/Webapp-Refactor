@@ -14,7 +14,7 @@ export const you_shook_me_all_night_long: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -281,6 +281,8 @@ export const you_shook_me_all_night_long: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Lo2qQmj0_h4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ac-dc.webp',
   popularity: 50,
 };

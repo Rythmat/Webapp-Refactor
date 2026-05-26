@@ -14,7 +14,7 @@ export const fly_like_an_eagle: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -285,6 +285,8 @@ export const fly_like_an_eagle: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WuXwSyahgW4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/steve-miller-band.webp',
   popularity: 50,
 };

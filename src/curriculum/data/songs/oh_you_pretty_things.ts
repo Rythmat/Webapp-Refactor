@@ -434,6 +434,8 @@ export const oh_you_pretty_things: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IBgU0tiLy2s' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/david-bowie.webp',
   popularity: 50,
 };

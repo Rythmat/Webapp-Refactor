@@ -14,7 +14,7 @@ export const man_of_constant_sorrow: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['bluegrass'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -168,6 +168,8 @@ export const man_of_constant_sorrow: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sRnxr4XF9yA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-soggy-bottom-boys.webp',
   popularity: 50,
 };

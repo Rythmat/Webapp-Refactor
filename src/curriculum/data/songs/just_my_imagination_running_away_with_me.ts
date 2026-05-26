@@ -14,7 +14,7 @@ export const just_my_imagination_running_away_with_me: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['motown'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -122,6 +122,8 @@ export const just_my_imagination_running_away_with_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WNnb1NfLrK4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-temptations.webp',
   popularity: 50,
 };

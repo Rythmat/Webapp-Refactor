@@ -14,7 +14,7 @@ export const nowhere_man: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -211,6 +211,8 @@ export const nowhere_man: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8scSwaKbE64' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

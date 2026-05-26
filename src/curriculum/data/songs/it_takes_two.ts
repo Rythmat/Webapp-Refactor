@@ -15,7 +15,7 @@ export const it_takes_two: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -398,6 +398,8 @@ export const it_takes_two: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=phOW-CZJWT0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/rob-base-and-e-z-rock.webp',
   popularity: 50,
 };

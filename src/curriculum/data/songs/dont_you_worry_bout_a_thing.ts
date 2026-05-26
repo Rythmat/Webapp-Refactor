@@ -14,7 +14,7 @@ export const dont_you_worry_bout_a_thing: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['latin_funk'],
+  genreTags: ['funk', 'latin'],
   techniques: [],
 
   sections: [
@@ -752,6 +752,8 @@ export const dont_you_worry_bout_a_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mMTkujnftIs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const in_my_life: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -203,6 +203,8 @@ export const in_my_life: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=YBcdt6DsLQA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

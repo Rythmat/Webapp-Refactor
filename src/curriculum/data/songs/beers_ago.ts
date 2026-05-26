@@ -14,7 +14,7 @@ export const beers_ago: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -190,6 +190,8 @@ export const beers_ago: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Hosifr6ycwU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/toby-keith.webp',
   popularity: 50,
 };

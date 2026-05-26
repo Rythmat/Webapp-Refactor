@@ -14,7 +14,7 @@ export const a_thousand_years: Song = {
   timeSignature: [6, 4],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -389,6 +389,8 @@ export const a_thousand_years: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rtOvBOTyX00' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/christina-perri.webp',
   popularity: 50,
 };

@@ -15,7 +15,7 @@ export const sweet_thing: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -258,6 +258,8 @@ export const sweet_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Y7dwufE72UE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'manual',
+
+  artistImageRef: '/artists/chaka-khan.webp',
   popularity: 50,
 };

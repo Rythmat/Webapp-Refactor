@@ -1,6 +1,6 @@
 import SuperJSON from 'superjson';
 import { Env } from '@/constants/env';
-import type { ChallengesListResponse } from './types';
+import type { Challenge, ChallengesListResponse } from './types';
 
 function normalizedApiBase() {
   return Env.get('VITE_MUSIC_ATLAS_API_URL').replace(/\/+$/, '');
@@ -63,4 +63,9 @@ async function apiRequest<T>(
 export const challengesApi = {
   fetchList: (token: string) =>
     apiRequest<ChallengesListResponse>(challengesPath('/list'), { token }),
+  complete: (token: string, id: string, evidence?: Record<string, unknown>) =>
+    apiRequest<{ challenge: Challenge }>(
+      challengesPath(`/${encodeURIComponent(id)}/complete`),
+      { method: 'POST', token, body: { evidence } },
+    ),
 };

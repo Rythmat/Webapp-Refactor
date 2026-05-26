@@ -15,7 +15,7 @@ export const wagon_wheel: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['bluegrass'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -48,6 +48,8 @@ export const wagon_wheel: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1gX1EP6mG-E' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/darius-rucker-old-crow-medicine-show.webp',
   popularity: 50,
 };

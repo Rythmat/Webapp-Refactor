@@ -14,7 +14,7 @@ export const off_the_wall: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -405,6 +405,8 @@ export const off_the_wall: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_BfcRjZn6y4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/michael-jackson.webp',
   popularity: 50,
 };

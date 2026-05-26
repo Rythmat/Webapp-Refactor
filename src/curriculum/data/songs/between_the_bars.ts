@@ -14,7 +14,7 @@ export const between_the_bars: Song = {
   timeSignature: [3, 4],
 
   difficulty: 2,
-  genreTags: ['acoustic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -286,6 +286,8 @@ export const between_the_bars: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=p4cJv6s_Yjw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/elliott-smith.webp',
   popularity: 50,
 };

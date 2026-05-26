@@ -14,7 +14,7 @@ export const dont_you_forget_about_me: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -177,6 +177,8 @@ export const dont_you_forget_about_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CdqoNKCCt7A' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/simple-minds.webp',
   popularity: 50,
 };

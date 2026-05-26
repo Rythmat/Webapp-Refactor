@@ -14,7 +14,7 @@ export const runnin_down_a_dream: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -225,6 +225,8 @@ export const runnin_down_a_dream: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Y1D3a5eDJIs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tom-petty.webp',
   popularity: 50,
 };

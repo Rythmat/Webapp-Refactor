@@ -14,7 +14,7 @@ export const hey_jude: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -204,6 +204,8 @@ export const hey_jude: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tRnFHfI7WAQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/paul-mccartney.webp',
   popularity: 50,
 };

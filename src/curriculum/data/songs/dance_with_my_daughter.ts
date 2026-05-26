@@ -14,7 +14,7 @@ export const dance_with_my_daughter: Song = {
   timeSignature: [6, 8],
 
   difficulty: 2,
-  genreTags: ['country_pop'],
+  genreTags: ['folk', 'pop'],
   techniques: [],
 
   sections: [
@@ -196,6 +196,8 @@ export const dance_with_my_daughter: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=7q-stqFU5RA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/jason-blaine.webp',
   popularity: 50,
 };

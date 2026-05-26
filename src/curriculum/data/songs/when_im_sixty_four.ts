@@ -14,7 +14,7 @@ export const when_im_sixty_four: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -314,6 +314,8 @@ export const when_im_sixty_four: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wUDRIC5RSX4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

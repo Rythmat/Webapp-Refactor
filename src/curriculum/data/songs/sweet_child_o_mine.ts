@@ -386,6 +386,8 @@ export const sweet_child_o_mine: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1w7OgIMMRc4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/guns-n-roses.webp',
   popularity: 50,
 };

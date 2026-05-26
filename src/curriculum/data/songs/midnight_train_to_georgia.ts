@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const midnight_train_to_georgia: Song = {
   id: 'midnight_train_to_georgia',
   title: 'Midnight Train To Georgia',
-  artist: 'Gladys Night And The Pips',
+  artist: 'Gladys Knight and the Pips',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const midnight_train_to_georgia: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_motown'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -489,6 +489,8 @@ export const midnight_train_to_georgia: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=A0F9lh8TiSM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/gladys-knight-and-the-pips.webp',
   popularity: 50,
 };

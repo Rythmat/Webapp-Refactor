@@ -14,7 +14,7 @@ export const honky_tonk_women: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -101,6 +101,8 @@ export const honky_tonk_women: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hqqkGxZ1_8I' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-rolling-stones.webp',
   popularity: 50,
 };

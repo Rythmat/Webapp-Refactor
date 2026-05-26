@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const love_on_the_brain: Song = {
   id: 'love_on_the_brain',
   title: 'Love On The Brain',
-  artist: 'Rhianna',
+  artist: 'Rihanna',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const love_on_the_brain: Song = {
   timeSignature: [6, 8],
 
   difficulty: 2,
-  genreTags: ['hip_hop_soul'],
+  genreTags: ['hip hop', 'rnb'],
   techniques: [],
 
   sections: [
@@ -303,6 +303,8 @@ export const love_on_the_brain: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=QMP-o8WXSPM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/rihanna.webp',
   popularity: 50,
 };

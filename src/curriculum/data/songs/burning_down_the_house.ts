@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const burning_down_the_house: Song = {
   id: 'burning_down_the_house',
   title: 'Burning Down The House',
-  artist: 'The Talking Heads',
+  artist: 'Talking Heads',
   year: 1983,
   historicalDescription:
     "Talking Heads release 'Burning Down The House' in 1983, the lead single from their album 'Speaking in Tongues'. Driven by a funk-locked groove and David Byrne's jittery, unpredictable energy, the song becomes their first Top 10 hit — a breakthrough that brings their art-rock experimentalism into the mainstream. It captures a band at the peak of their powers, fusing new wave, funk, and postpunk into something utterly their own.",
@@ -14,7 +14,7 @@ export const burning_down_the_house: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -179,6 +179,8 @@ export const burning_down_the_house: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_3eC35LoF4U' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

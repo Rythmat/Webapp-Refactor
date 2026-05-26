@@ -165,6 +165,8 @@ export const heaven: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=JAa7J10D8Qw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

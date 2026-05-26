@@ -14,7 +14,7 @@ export const killing_me_softly_flack: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_soul'],
+  genreTags: ['funk', 'rnb'],
   techniques: [],
 
   sections: [
@@ -276,6 +276,8 @@ export const killing_me_softly_flack: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oKOtzIo-uYw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-fugees.webp',
   popularity: 50,
 };

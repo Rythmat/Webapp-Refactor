@@ -145,6 +145,8 @@ export const say_something_timberlake: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8MPbR6Cbwi4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'manual',
+
+  artistImageRef: '/artists/justin-timberlake.webp',
   popularity: 50,
 };

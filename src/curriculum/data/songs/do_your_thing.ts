@@ -235,6 +235,8 @@ export const do_your_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gcq9ZtJ9tfU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/isaac-hayes.webp',
   popularity: 50,
 };

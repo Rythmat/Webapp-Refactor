@@ -188,6 +188,8 @@ export const use_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=LuzlbR5V_hc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bill-withers.webp',
   popularity: 50,
 };

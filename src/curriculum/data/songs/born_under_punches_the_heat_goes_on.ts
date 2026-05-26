@@ -44,6 +44,8 @@ export const born_under_punches_the_heat_goes_on: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=w6T_X7MXg40' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

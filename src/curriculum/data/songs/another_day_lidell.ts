@@ -14,7 +14,7 @@ export const another_day_lidell: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_groove'],
+  genreTags: ['funk'],
   techniques: [],
 
   sections: [
@@ -172,6 +172,8 @@ export const another_day_lidell: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hhoiwDLVTnE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/paul-mccartney.webp',
   popularity: 50,
 };

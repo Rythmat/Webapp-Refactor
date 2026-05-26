@@ -403,6 +403,8 @@ export const changes: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4BgF7Y3q-as' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/david-bowie.webp',
   popularity: 50,
 };

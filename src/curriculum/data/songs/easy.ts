@@ -14,7 +14,7 @@ export const easy: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -484,6 +484,8 @@ export const easy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=9nBSd1U18vM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-commodores.webp',
   popularity: 50,
 };

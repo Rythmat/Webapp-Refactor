@@ -14,7 +14,7 @@ export const respect: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -154,6 +154,8 @@ export const respect: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=A134hShx_gw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/aretha-franklin.webp',
   popularity: 50,
 };

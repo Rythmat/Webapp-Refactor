@@ -14,7 +14,7 @@ export const you_are_the_sunshine_of_my_life: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['soul'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -202,6 +202,8 @@ export const you_are_the_sunshine_of_my_life: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sp6hzycBsTI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

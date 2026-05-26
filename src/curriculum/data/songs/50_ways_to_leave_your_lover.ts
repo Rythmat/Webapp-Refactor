@@ -14,7 +14,7 @@ export const _50_ways_to_leave_your_lover: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -289,6 +289,8 @@ export const _50_ways_to_leave_your_lover: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ABXtWqmArUU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/paul-simon.webp',
   popularity: 50,
 };

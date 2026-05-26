@@ -14,7 +14,7 @@ export const we_are_family: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['disco'],
+  genreTags: ['funk'],
   techniques: [],
 
   sections: [
@@ -111,6 +111,8 @@ export const we_are_family: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uyGY2NfYpeE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sister-sledge.webp',
   popularity: 50,
 };

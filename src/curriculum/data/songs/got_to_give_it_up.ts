@@ -14,7 +14,7 @@ export const got_to_give_it_up: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -529,6 +529,8 @@ export const got_to_give_it_up: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=jkCUWNbTiA4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/marvin-gaye.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const december_1963_oh_what_a_night: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -312,6 +312,8 @@ export const december_1963_oh_what_a_night: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mTUhnIY3oRM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-four-seasons.webp',
   popularity: 50,
 };

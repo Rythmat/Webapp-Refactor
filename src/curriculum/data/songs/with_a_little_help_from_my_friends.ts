@@ -14,7 +14,7 @@ export const with_a_little_help_from_my_friends: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -309,6 +309,8 @@ export const with_a_little_help_from_my_friends: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=eXV4WyQMHFM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/joe-cocker.webp',
   popularity: 50,
 };

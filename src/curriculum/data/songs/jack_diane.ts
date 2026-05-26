@@ -15,7 +15,7 @@ export const jack_diane: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -211,6 +211,8 @@ export const jack_diane: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6gy16cbFZbI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/john-cougar-mellencamp.webp',
   popularity: 50,
 };

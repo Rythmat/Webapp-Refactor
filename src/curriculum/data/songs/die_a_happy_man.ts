@@ -14,7 +14,7 @@ export const die_a_happy_man: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country_pop'],
+  genreTags: ['folk', 'pop'],
   techniques: [],
 
   sections: [
@@ -326,6 +326,8 @@ export const die_a_happy_man: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=w2CELiObPeQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/thomas-rhett.webp',
   popularity: 50,
 };

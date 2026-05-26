@@ -14,7 +14,7 @@ export const no_diggity_blackstreet: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -62,6 +62,8 @@ export const no_diggity_blackstreet: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3KL9mRus19o' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/chet-faker.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const twistin_the_night_away: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -178,6 +178,8 @@ export const twistin_the_night_away: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yddHfpbK438' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sam-cooke.webp',
   popularity: 50,
 };

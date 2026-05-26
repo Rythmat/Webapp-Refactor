@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const let_the_music_take_your_mind: Song = {
   id: 'let_the_music_take_your_mind',
   title: 'Let The Music Take Your Mind',
-  artist: 'Kool And The Gang',
+  artist: 'Kool & the Gang',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const let_the_music_take_your_mind: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funk', 'disco'],
+  genreTags: ['funk'],
   techniques: [],
 
   sections: [
@@ -115,6 +115,8 @@ export const let_the_music_take_your_mind: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iJfKHFrpfzw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/kool-and-the-gang.webp',
   popularity: 50,
 };

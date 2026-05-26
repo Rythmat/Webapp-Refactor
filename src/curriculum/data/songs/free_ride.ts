@@ -14,7 +14,7 @@ export const free_ride: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -279,6 +279,8 @@ export const free_ride: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=JAFyvePcR_o' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/edgar-winter-group.webp',
   popularity: 50,
 };

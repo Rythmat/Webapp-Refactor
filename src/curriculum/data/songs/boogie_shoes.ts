@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const boogie_shoes: Song = {
   id: 'boogie_shoes',
   title: 'Boogie Shoes',
-  artist: 'KC and The Sunshine Band',
+  artist: 'KC and the Sunshine Band',
   year: 1975,
   historicalDescription:
     "KC and The Sunshine Band release 'Boogie Shoes' in 1975, capturing the irresistible pulse of Miami's funk and disco scene. The track's tight rhythm section and playful energy embody the Sunshine Band's signature sound — danceable, joyful, and rooted in the Black music traditions of South Florida. It later reaches a wider audience through its appearance in the Saturday Night Fever soundtrack.",
@@ -235,6 +235,8 @@ export const boogie_shoes: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Ia0zeuZMJbo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/kc-and-the-sunshine-band.webp',
   popularity: 50,
 };

@@ -187,6 +187,8 @@ export const making_flippy_floppy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=xphLY5ucIpQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

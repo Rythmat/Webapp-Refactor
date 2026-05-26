@@ -14,7 +14,7 @@ export const solsbury_hill: Song = {
   timeSignature: [7, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -192,6 +192,8 @@ export const solsbury_hill: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_OO2PuGz-H8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/peter-gabriel.webp',
   popularity: 50,
 };

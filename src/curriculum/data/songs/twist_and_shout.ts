@@ -15,7 +15,7 @@ export const twist_and_shout: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -94,6 +94,8 @@ export const twist_and_shout: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=cTaqn8_gMR0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'manual',
+
+  artistImageRef: '/artists/beatles.webp',
   popularity: 50,
 };

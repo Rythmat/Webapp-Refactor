@@ -15,7 +15,7 @@ export const all_the_small_things: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['punk_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -144,6 +144,8 @@ export const all_the_small_things: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=9Ht5RZpzPqw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/blink-182.webp',
   popularity: 50,
 };

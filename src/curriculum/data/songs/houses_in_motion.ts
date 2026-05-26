@@ -70,6 +70,8 @@ export const houses_in_motion: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Yt9_uyXgOzc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

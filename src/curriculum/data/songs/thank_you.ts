@@ -56,6 +56,8 @@ export const thank_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=jXScXVYEON4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/unknown-artist.webp',
   popularity: 50,
 };

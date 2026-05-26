@@ -14,7 +14,7 @@ export const love_on_top: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -303,6 +303,8 @@ export const love_on_top: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Ob7vObnFUJc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/beyonce.webp',
   popularity: 50,
 };

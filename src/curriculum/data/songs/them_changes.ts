@@ -14,7 +14,7 @@ export const them_changes: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funk_rock'],
+  genreTags: ['funk', 'rock'],
   techniques: [],
 
   sections: [
@@ -137,6 +137,8 @@ export const them_changes: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_DDbjm_fId8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/buddy-miles.webp',
   popularity: 50,
 };

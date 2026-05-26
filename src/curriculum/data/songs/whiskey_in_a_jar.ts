@@ -14,7 +14,7 @@ export const whiskey_in_a_jar: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['irish_folk'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -104,6 +104,8 @@ export const whiskey_in_a_jar: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Hwb8C2TijYE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-dubliners.webp',
   popularity: 50,
 };

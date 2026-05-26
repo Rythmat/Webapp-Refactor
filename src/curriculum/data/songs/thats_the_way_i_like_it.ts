@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const thats_the_way_i_like_it: Song = {
   id: 'thats_the_way_i_like_it',
   title: 'That’s The Way (I Like It)',
-  artist: 'KC and The Sunshine Band',
+  artist: 'KC and the Sunshine Band',
   year: 1975,
   historicalDescription:
     "KC and the Sunshine Band release 'That's The Way (I Like It)', a Miami funk anthem that becomes one of the defining hits of the disco era. The track's irresistible groove and call-and-response hook capture the celebratory spirit of mid-70s dance floors, helping cement Miami's TK Records scene as a powerhouse alongside New York and Philadelphia.",
@@ -127,6 +127,8 @@ export const thats_the_way_i_like_it: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yupPvZF6oBw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/kc-and-the-sunshine-band.webp',
   popularity: 50,
 };

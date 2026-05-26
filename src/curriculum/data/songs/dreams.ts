@@ -14,7 +14,7 @@ export const dreams: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -72,6 +72,8 @@ export const dreams: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Y3ywicffOj4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/fleetwood-mac.webp',
   popularity: 50,
 };

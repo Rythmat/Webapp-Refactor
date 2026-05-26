@@ -14,7 +14,7 @@ export const raging: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -183,6 +183,8 @@ export const raging: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZWyktWYW3ZM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/kygo.webp',
   popularity: 50,
 };

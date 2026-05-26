@@ -210,6 +210,8 @@ export const still_the_one: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ADS81q5E0ps' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/lake-street-dive.webp',
   popularity: 50,
 };

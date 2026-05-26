@@ -33,7 +33,6 @@ import { and_i_love_her } from './and_i_love_her';
 import { and_she_was } from './and_she_was';
 import { angel_from_montgomery } from './angel_from_montgomery';
 import { another_day_lidell } from './another_day_lidell';
-import { another_day_mccartney } from './another_day_mccartney';
 import { another_star } from './another_star';
 import { ants_marching } from './ants_marching';
 import { any_man_of_mine } from './any_man_of_mine';
@@ -83,7 +82,6 @@ import { cant_feel_my_face } from './cant_feel_my_face';
 import { cant_help_falling_in_love } from './cant_help_falling_in_love';
 import { cant_hide_love } from './cant_hide_love';
 import { cant_stop_the_feeling } from './cant_stop_the_feeling';
-import { cant_take_my_eyes_off_you_hill } from './cant_take_my_eyes_off_you_hill';
 import { cant_take_my_eyes_off_you_valli } from './cant_take_my_eyes_off_you_valli';
 import { car_wash } from './car_wash';
 import { caravan } from './caravan';
@@ -233,7 +231,6 @@ import { honky_tonk_women } from './honky_tonk_women';
 import { hot_n_cold } from './hot_n_cold';
 import { houses_in_motion } from './houses_in_motion';
 import { how_come_you_dont_call_me } from './how_come_you_dont_call_me';
-import { how_come_you_dont_call_me_timberlake } from './how_come_you_dont_call_me_timberlake';
 import { how_sweet_it_is_to_be_loved_by_you } from './how_sweet_it_is_to_be_loved_by_you';
 import { i_and_love_and_you } from './i_and_love_and_you';
 import { i_believe_in_a_thing_called_love } from './i_believe_in_a_thing_called_love';
@@ -311,15 +308,13 @@ import { karma_police } from './karma_police';
 import { kashmir } from './kashmir';
 import { keep_your_soul_together } from './keep_your_soul_together';
 import { killing_me_softly_flack } from './killing_me_softly_flack';
-import { killing_me_softly_fugees } from './killing_me_softly_fugees';
 import { kiss } from './kiss';
 import { kiss_from_a_rose } from './kiss_from_a_rose';
 import { kiss_me } from './kiss_me';
 import { kiss_on_my_list } from './kiss_on_my_list';
 import { knocks_me_off_my_feet } from './knocks_me_off_my_feet';
 import { la_vie_en_rose } from './la_vie_en_rose';
-import { lady_marmalade_labelle } from './lady_marmalade_labelle';
-import { lady_marmalade_moulin_rouge } from './lady_marmalade_moulin_rouge';
+import { lady_marmalade_aguilera } from './lady_marmalade_aguilera';
 import { landslide } from './landslide';
 import { late_in_the_evening } from './late_in_the_evening';
 import { lay_down_sally } from './lay_down_sally';
@@ -395,7 +390,6 @@ import { new_york_new_york } from './new_york_new_york';
 import { ngiculela_es_una_historia_i_am_singing } from './ngiculela_es_una_historia_i_am_singing';
 import { night_time_is_the_right_time } from './night_time_is_the_right_time';
 import { no_diggity_blackstreet } from './no_diggity_blackstreet';
-import { no_diggity_chet_faker } from './no_diggity_chet_faker';
 import { no_easy_way_down } from './no_easy_way_down';
 import { no_scrubs } from './no_scrubs';
 import { nothing_compares_2_u } from './nothing_compares_2_u';
@@ -462,7 +456,6 @@ import { saturday_in_the_park } from './saturday_in_the_park';
 import { saturn } from './saturn';
 import { saving_all_my_love_for_you } from './saving_all_my_love_for_you';
 import { say_it_aint_so } from './say_it_aint_so';
-import { say_something_a_great_big_world } from './say_something_a_great_big_world';
 import { say_something_timberlake } from './say_something_timberlake';
 import { seen_and_not_seen } from './seen_and_not_seen';
 import { semi_charmed_life } from './semi_charmed_life';
@@ -586,7 +579,6 @@ import { uptown_funk } from './uptown_funk';
 import { uptown_girl } from './uptown_girl';
 import { use_me } from './use_me';
 import { valerie } from './valerie';
-import { valerie_bbc_live_version } from './valerie_bbc_live_version';
 import { village_ghetto_land } from './village_ghetto_land';
 import { virtual_insanity } from './virtual_insanity';
 import { vivir_mi_vida } from './vivir_mi_vida';
@@ -644,7 +636,6 @@ import { your_love_keeps_lifting_me_higher_and_higher } from './your_love_keeps_
 import { youre_my_best_friend } from './youre_my_best_friend';
 import { youre_the_one_that_i_want } from './youre_the_one_that_i_want';
 import { youve_got_a_friend_king } from './youve_got_a_friend_king';
-import { youve_got_a_friend_taylor } from './youve_got_a_friend_taylor';
 import { ziggy_stardust } from './ziggy_stardust';
 
 const SONGS: Record<string, Song> = {
@@ -687,7 +678,6 @@ const SONGS: Record<string, Song> = {
   and_she_was: and_she_was,
   angel_from_montgomery: angel_from_montgomery,
   another_day_lidell: another_day_lidell,
-  another_day_mccartney: another_day_mccartney,
   another_star: another_star,
   ants_marching: ants_marching,
   any_man_of_mine: any_man_of_mine,
@@ -736,7 +726,6 @@ const SONGS: Record<string, Song> = {
   cant_help_falling_in_love: cant_help_falling_in_love,
   cant_hide_love: cant_hide_love,
   cant_stop_the_feeling: cant_stop_the_feeling,
-  cant_take_my_eyes_off_you_hill: cant_take_my_eyes_off_you_hill,
   cant_take_my_eyes_off_you_valli: cant_take_my_eyes_off_you_valli,
   canned_heat: canned_heat,
   car_wash: car_wash,
@@ -886,7 +875,6 @@ const SONGS: Record<string, Song> = {
   honky_tonk_women: honky_tonk_women,
   hot_n_cold: hot_n_cold,
   houses_in_motion: houses_in_motion,
-  how_come_you_dont_call_me_timberlake: how_come_you_dont_call_me_timberlake,
   how_come_you_dont_call_me: how_come_you_dont_call_me,
   how_sweet_it_is_to_be_loved_by_you: how_sweet_it_is_to_be_loved_by_you,
   i_and_love_and_you: i_and_love_and_you,
@@ -968,15 +956,13 @@ const SONGS: Record<string, Song> = {
   kashmir: kashmir,
   keep_your_soul_together: keep_your_soul_together,
   killing_me_softly_flack: killing_me_softly_flack,
-  killing_me_softly_fugees: killing_me_softly_fugees,
   kiss_from_a_rose: kiss_from_a_rose,
   kiss_me: kiss_me,
   kiss_on_my_list: kiss_on_my_list,
   kiss: kiss,
   knocks_me_off_my_feet: knocks_me_off_my_feet,
   la_vie_en_rose: la_vie_en_rose,
-  lady_marmalade_labelle: lady_marmalade_labelle,
-  lady_marmalade_moulin_rouge: lady_marmalade_moulin_rouge,
+  lady_marmalade_aguilera: lady_marmalade_aguilera,
   landslide: landslide,
   late_in_the_evening: late_in_the_evening,
   lay_down_sally: lay_down_sally,
@@ -1053,7 +1039,6 @@ const SONGS: Record<string, Song> = {
     ngiculela_es_una_historia_i_am_singing,
   night_time_is_the_right_time: night_time_is_the_right_time,
   no_diggity_blackstreet: no_diggity_blackstreet,
-  no_diggity_chet_faker: no_diggity_chet_faker,
   no_easy_way_down: no_easy_way_down,
   no_scrubs: no_scrubs,
   nothing_compares_2_u: nothing_compares_2_u,
@@ -1120,7 +1105,6 @@ const SONGS: Record<string, Song> = {
   saturn: saturn,
   saving_all_my_love_for_you: saving_all_my_love_for_you,
   say_it_aint_so: say_it_aint_so,
-  say_something_a_great_big_world: say_something_a_great_big_world,
   say_something_timberlake: say_something_timberlake,
   seen_and_not_seen: seen_and_not_seen,
   semi_charmed_life: semi_charmed_life,
@@ -1244,7 +1228,6 @@ const SONGS: Record<string, Song> = {
   uptown_funk: uptown_funk,
   uptown_girl: uptown_girl,
   use_me: use_me,
-  valerie_bbc_live_version: valerie_bbc_live_version,
   valerie: valerie,
   village_ghetto_land: village_ghetto_land,
   virtual_insanity: virtual_insanity,
@@ -1302,7 +1285,6 @@ const SONGS: Record<string, Song> = {
   youre_my_best_friend: youre_my_best_friend,
   youre_the_one_that_i_want: youre_the_one_that_i_want,
   youve_got_a_friend_king: youve_got_a_friend_king,
-  youve_got_a_friend_taylor: youve_got_a_friend_taylor,
   young_americans: young_americans,
   ziggy_stardust: ziggy_stardust,
 };

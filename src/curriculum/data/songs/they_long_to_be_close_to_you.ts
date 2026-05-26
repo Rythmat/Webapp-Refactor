@@ -14,7 +14,7 @@ export const they_long_to_be_close_to_you: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -289,6 +289,8 @@ export const they_long_to_be_close_to_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NpQRsXrduc8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-carpenters.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const shower_the_people: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -323,6 +323,8 @@ export const shower_the_people: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GfJWqjoekow' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/james-taylor.webp',
   popularity: 50,
 };

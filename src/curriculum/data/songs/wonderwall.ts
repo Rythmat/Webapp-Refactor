@@ -353,6 +353,8 @@ export const wonderwall: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bx1Bh8ZvH84' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/oasis.webp',
   popularity: 50,
 };

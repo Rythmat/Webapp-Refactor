@@ -14,7 +14,7 @@ export const dance_with_me_tonight: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['jazzy_pop'],
+  genreTags: ['jazz', 'pop'],
   techniques: [],
 
   sections: [
@@ -223,6 +223,8 @@ export const dance_with_me_tonight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=F3EG4olrFjY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/olly-murs.webp',
   popularity: 50,
 };

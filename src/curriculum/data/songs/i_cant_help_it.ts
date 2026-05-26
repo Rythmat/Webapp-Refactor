@@ -14,7 +14,7 @@ export const i_cant_help_it: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -327,6 +327,8 @@ export const i_cant_help_it: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=re3MOe1SBOs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/michael-jackson.webp',
   popularity: 50,
 };

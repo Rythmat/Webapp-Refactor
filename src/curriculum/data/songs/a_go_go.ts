@@ -14,7 +14,7 @@ export const a_go_go: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_soul_jazz'],
+  genreTags: ['funk', 'jazz', 'rnb'],
   techniques: [],
 
   sections: [
@@ -188,6 +188,8 @@ export const a_go_go: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=-PXOr681_VU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/john-scofield.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const friend_of_the_devil: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -314,6 +314,8 @@ export const friend_of_the_devil: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XacvydVrhuI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/grateful-dead.webp',
   popularity: 50,
 };

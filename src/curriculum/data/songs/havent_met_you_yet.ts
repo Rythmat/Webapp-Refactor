@@ -14,7 +14,7 @@ export const havent_met_you_yet: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['jazzy_pop'],
+  genreTags: ['jazz', 'pop'],
   techniques: [],
 
   sections: [
@@ -631,6 +631,8 @@ export const havent_met_you_yet: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1AJmKkU5POA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/michael-buble.webp',
   popularity: 50,
 };

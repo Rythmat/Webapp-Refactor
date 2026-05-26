@@ -2,7 +2,6 @@ import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
 import type { MidiClip, AudioClip } from './tracksSlice';
 import type { AllGridSize } from '@/daw/utils/quantize';
-import type { ThemeId } from '@/daw/constants/themes';
 
 // ── UI Slice ──────────────────────────────────────────────────────────────
 // Global UI state: active tool, selected clip, timeline zoom/scroll/grid.
@@ -86,10 +85,6 @@ export interface UiSlice {
   // ── Settings modal ──
   settingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
-
-  // ── Theme ──
-  theme: ThemeId;
-  setTheme: (theme: ThemeId) => void;
 
   // ── Project ──
   projectName: string;
@@ -216,10 +211,6 @@ export const createUiSlice: StateCreator<
   // ── Settings modal ──
   settingsOpen: false,
   setSettingsOpen: (open) => set({ settingsOpen: open }),
-
-  // ── Theme ──
-  theme: 'dark' as ThemeId,
-  setTheme: (theme) => set({ theme }),
 
   // ── Project ──
   projectName: 'Untitled Project',

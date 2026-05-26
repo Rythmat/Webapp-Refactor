@@ -109,6 +109,8 @@ export const steal_my_kisses: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NL6dIt0CHe0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ben-harper.webp',
   popularity: 50,
 };

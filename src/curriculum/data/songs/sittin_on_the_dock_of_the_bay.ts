@@ -14,7 +14,7 @@ export const sittin_on_the_dock_of_the_bay: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['soul'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -151,6 +151,8 @@ export const sittin_on_the_dock_of_the_bay: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rTVjnBo96Ug' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/otis-redding.webp',
   popularity: 50,
 };

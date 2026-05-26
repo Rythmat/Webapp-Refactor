@@ -14,7 +14,7 @@ export const a_long_walk: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -301,6 +301,8 @@ export const a_long_walk: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5SK48Bk_RnI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/jill-scott.webp',
   popularity: 50,
 };

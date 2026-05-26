@@ -14,7 +14,7 @@ export const all_about_that_bass: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['straight_eighth_pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -359,6 +359,8 @@ export const all_about_that_bass: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=7PCkvCPvDXk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/meghan-trainor.webp',
   popularity: 50,
 };

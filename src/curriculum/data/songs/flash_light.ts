@@ -658,6 +658,8 @@ export const flash_light: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bWurqD68u70' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/parliament.webp',
   popularity: 50,
 };

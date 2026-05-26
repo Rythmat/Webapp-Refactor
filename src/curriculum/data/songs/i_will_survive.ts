@@ -14,7 +14,7 @@ export const i_will_survive: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['disco'],
+  genreTags: ['funk'],
   techniques: [],
 
   sections: [
@@ -155,6 +155,8 @@ export const i_will_survive: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6dYWe1c3OyU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/gloria-gaynor.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const crocodile_rock: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -139,6 +139,8 @@ export const crocodile_rock: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=75r0nQu-hMs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/elton-john.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const one_way_out: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['blues_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -123,6 +123,8 @@ export const one_way_out: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=d0En8iD2uVI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-allman-brothers.webp',
   popularity: 50,
 };

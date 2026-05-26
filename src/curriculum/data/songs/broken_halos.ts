@@ -14,7 +14,7 @@ export const broken_halos: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country_pop'],
+  genreTags: ['folk', 'pop'],
   techniques: [],
 
   sections: [
@@ -238,6 +238,8 @@ export const broken_halos: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sI0TeFf6uD8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/chris-stapleton.webp',
   popularity: 50,
 };

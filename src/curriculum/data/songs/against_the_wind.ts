@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const against_the_wind: Song = {
   id: 'against_the_wind',
   title: 'Against The Wind',
-  artist: 'Bob Seger &amp; The Silver Bullet Band',
+  artist: 'Bob Seger & The Silver Bullet Band',
   year: undefined,
 
   historicalDescription:
@@ -175,6 +175,8 @@ export const against_the_wind: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2vRsEC65NTA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bob-seger-amp-the-silver-bullet-band.webp',
   popularity: 50,
 };

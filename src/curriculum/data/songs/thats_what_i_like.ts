@@ -14,7 +14,7 @@ export const thats_what_i_like: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -512,6 +512,8 @@ export const thats_what_i_like: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PMivT7MJ41M' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bruno-mars.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const will_it_go_round_in_circles: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['soul'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -192,6 +192,8 @@ export const will_it_go_round_in_circles: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=QDtYo2IPTsw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/billy-preston.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const _1612: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['straight_eighth_funk'],
+  genreTags: ['funk'],
   techniques: [],
 
   sections: [
@@ -363,6 +363,8 @@ export const _1612: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=jRHQPG1xd9o' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'manual',
+
+  artistImageRef: '/artists/vulfpeck.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const fire_and_rain: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -145,6 +145,8 @@ export const fire_and_rain: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_1nKGVDhQ60' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/james-taylor.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const forget_you: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -198,6 +198,8 @@ export const forget_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bKxodgpyGec' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ceelo-green.webp',
   popularity: 50,
 };

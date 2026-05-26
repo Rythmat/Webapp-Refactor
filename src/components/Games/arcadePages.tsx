@@ -54,7 +54,7 @@ function GameShell({ children }: { children: React.ReactNode }) {
 
 export function ChromaPage() {
   const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward();
+    useArcadeStreakReward('chroma');
   return (
     <GameShell>
       <div className="relative">
@@ -67,7 +67,7 @@ export function ChromaPage() {
 
 export function FoliPage() {
   const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward();
+    useArcadeStreakReward('foli');
   return (
     <GameShell>
       <div className="relative">
@@ -80,7 +80,7 @@ export function FoliPage() {
 
 export function BoardChoicePage() {
   const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward();
+    useArcadeStreakReward('board_choice');
   return (
     <GameShell>
       <div className="relative">
@@ -97,7 +97,7 @@ export function BoardChoicePage() {
 
 export function ChordConnectionPage() {
   const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward();
+    useArcadeStreakReward('chord_connection');
   return (
     <GameShell>
       <div className="relative">
@@ -114,7 +114,7 @@ export function ChordConnectionPage() {
 
 export function ChordPressPage() {
   const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward();
+    useArcadeStreakReward('chord_press');
   return (
     <GameShell>
       <div className="relative">
@@ -281,7 +281,7 @@ export function ConstellationsPage() {
 
 export function GrooveLabPage() {
   const { streak, target, registerCorrect, registerWrong } =
-    useArcadeStreakReward();
+    useArcadeStreakReward('groove_lab');
   return (
     <GameShell>
       <div className="relative">

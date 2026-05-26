@@ -14,7 +14,7 @@ export const shout: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['soul'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -242,6 +242,8 @@ export const shout: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=DPVf01jXL7M' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/isley-brothers.webp',
   popularity: 50,
 };

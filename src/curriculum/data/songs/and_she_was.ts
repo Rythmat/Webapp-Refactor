@@ -267,6 +267,8 @@ export const and_she_was: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=cl3B_FTDKD0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useStore } from '@/daw/store';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
@@ -55,7 +56,7 @@ export function RootNoteSelector() {
                 border: 'none',
               }}
             >
-              {name}
+              {displayAccidentals(name)}
             </button>
           );
         })}

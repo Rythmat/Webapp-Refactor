@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const i_cant_go_for_that_no_can_do: Song = {
   id: 'i_cant_go_for_that_no_can_do',
   title: 'I Can’t Go For That (No Can Do)',
-  artist: 'Hall And Oates',
+  artist: 'Hall & Oates',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const i_cant_go_for_that_no_can_do: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -212,6 +212,8 @@ export const i_cant_go_for_that_no_can_do: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ccenFp_3kq8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/hall-and-oates.webp',
   popularity: 50,
 };

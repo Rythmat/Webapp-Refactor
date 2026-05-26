@@ -103,6 +103,8 @@ export const cissy_strut: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Nd3yDoOyvbY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-meters.webp',
   popularity: 50,
 };

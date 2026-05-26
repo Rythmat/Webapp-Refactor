@@ -14,7 +14,7 @@ export const everybody_wants_to_rule_the_world: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -384,6 +384,8 @@ export const everybody_wants_to_rule_the_world: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aGCdLKXNF3w' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tears-for-fears.webp',
   popularity: 50,
 };

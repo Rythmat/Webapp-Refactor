@@ -14,7 +14,7 @@ export const waterfalls: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -66,6 +66,8 @@ export const waterfalls: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8WEtxJ4-sh4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tlc.webp',
   popularity: 50,
 };

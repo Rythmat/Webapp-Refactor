@@ -14,7 +14,7 @@ export const im_into_something_good: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -393,6 +393,8 @@ export const im_into_something_good: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=n0J6q42zLH0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/herman-s-hermits.webp',
   popularity: 50,
 };

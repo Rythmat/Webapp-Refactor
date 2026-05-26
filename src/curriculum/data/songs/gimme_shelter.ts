@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const gimme_shelter: Song = {
   id: 'gimme_shelter',
   title: 'Gimme Shelter',
-  artist: 'Rolling Stones',
+  artist: 'The Rolling Stones',
   year: 1971,
   historicalDescription:
     "'Gimme Shelter' opens Let It Bleed as one of the Rolling Stones' most haunting and powerful statements — a brooding vision of war, violence, and apocalypse that captures the dark end of the 1960s dream. Merry Clayton's stunning guest vocal, raw and ragged, transforms the track into something terrifying and transcendent. It becomes the defining sound of an era turning dangerous.",
@@ -14,7 +14,7 @@ export const gimme_shelter: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -212,6 +212,8 @@ export const gimme_shelter: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RbmS3tQJ7Os' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-rolling-stones.webp',
   popularity: 50,
 };

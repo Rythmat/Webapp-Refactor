@@ -250,6 +250,8 @@ export const semi_charmed_life: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=beINamVRGy4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/third-eye-blind.webp',
   popularity: 50,
 };

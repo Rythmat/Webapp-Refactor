@@ -14,7 +14,7 @@ export const the_weight: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -147,6 +147,8 @@ export const the_weight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=xLFAQuWFcTo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-band.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const i_should_have_known_better: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -327,6 +327,8 @@ export const i_should_have_known_better: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=35EhCYuEWMI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

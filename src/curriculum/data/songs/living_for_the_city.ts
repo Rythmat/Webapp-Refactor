@@ -917,6 +917,8 @@ export const living_for_the_city: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ghLWjyOOLno' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

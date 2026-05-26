@@ -15,7 +15,7 @@ export const something_just_like_this: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -375,6 +375,8 @@ export const something_just_like_this: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FM7MFYoylVs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-chainsmokers-and-coldplay.webp',
   popularity: 50,
 };

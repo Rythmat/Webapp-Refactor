@@ -14,7 +14,7 @@ export const man_i_feel_like_a_woman: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country_pop'],
+  genreTags: ['folk', 'pop'],
   techniques: [],
 
   sections: [
@@ -426,6 +426,8 @@ export const man_i_feel_like_a_woman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZJL4UGSbeFg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/shania-twain.webp',
   popularity: 50,
 };

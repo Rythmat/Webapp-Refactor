@@ -14,7 +14,7 @@ export const the_bones: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -471,6 +471,8 @@ export const the_bones: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gvPMVKUI9go' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/maren-morris.webp',
   popularity: 50,
 };

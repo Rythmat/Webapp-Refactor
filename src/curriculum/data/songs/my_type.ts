@@ -14,7 +14,7 @@ export const my_type: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['indie_pop'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -300,6 +300,8 @@ export const my_type: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IyVPyKrx0Xo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/saint-motel.webp',
   popularity: 50,
 };

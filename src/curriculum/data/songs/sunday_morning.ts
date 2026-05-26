@@ -14,7 +14,7 @@ export const sunday_morning: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -432,6 +432,8 @@ export const sunday_morning: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=S2Cti12XBw4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/maroon-5.webp',
   popularity: 50,
 };

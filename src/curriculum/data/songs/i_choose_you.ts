@@ -14,7 +14,7 @@ export const i_choose_you: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['indie_pop'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -248,6 +248,8 @@ export const i_choose_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=xjE5D9cHiOk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sara-bareilles.webp',
   popularity: 50,
 };

@@ -5543,7 +5543,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'RQa7SvVCdZk',
   },
   {
-    id: 'song-lady_marmalade_labelle',
+    id: 'song-lady_marmalade_aguilera',
     year: 2000,
     location: {
       lat: 40.31,
@@ -8005,7 +8005,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: '8MPbR6Cbwi4',
   },
   {
-    id: 'song-say_something_a_great_big_world',
+    id: 'song-say_something_timberlake',
     year: 2000,
     location: {
       lat: 35.15,

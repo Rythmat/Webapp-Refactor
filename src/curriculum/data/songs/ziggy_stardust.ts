@@ -260,6 +260,8 @@ export const ziggy_stardust: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=na8xgu-KLAk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/david-bowie.webp',
   popularity: 50,
 };

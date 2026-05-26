@@ -9,6 +9,7 @@ import SuperJSON from 'superjson';
 import { useStore } from '@/daw/store/index';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { Env } from '@/constants/env';
+import { reportChallengeEvent } from '@/lib/challenges/eventBus';
 import { showSuccess, showError } from '@/util/toast';
 import type { CollabRole } from '../types';
 
@@ -108,6 +109,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
 
         if (res.ok) {
           showSuccess(`Invited ${user.nickname} as ${selectedRole}`);
+          reportChallengeEvent({ kind: 'studio_invite', roomId });
           // Remove from results so they can't be invited again
           setResults((prev) => prev.filter((r) => r.id !== user.id));
         } else {

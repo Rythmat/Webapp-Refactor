@@ -14,7 +14,7 @@ export const smells_like_teen_spirit: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['grunge_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -442,6 +442,8 @@ export const smells_like_teen_spirit: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hTWKbfoikeg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/nirvana.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const all_my_loving: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['rock_shuffle'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -208,6 +208,8 @@ export const all_my_loving: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=TSpiwK5fig0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const sing_a_song: Song = {
   id: 'sing_a_song',
   title: 'Sing A Song',
-  artist: 'Earth, Wind And Fire',
+  artist: 'Earth, Wind & Fire',
   year: undefined,
 
   historicalDescription:
@@ -361,6 +361,8 @@ export const sing_a_song: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=X4dsPZmeTys' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/earth-wind-and-fire.webp',
   popularity: 50,
 };

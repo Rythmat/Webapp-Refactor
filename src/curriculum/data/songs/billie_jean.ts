@@ -14,7 +14,7 @@ export const billie_jean: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -562,6 +562,8 @@ export const billie_jean: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Zi_XLOBDo_Y' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/michael-jackson.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const somethin_for_ya: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['jam_band'],
+  genreTags: ['jam-band'],
   techniques: [],
 
   sections: [
@@ -282,6 +282,8 @@ export const somethin_for_ya: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=KDtbimiwhO0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/pigeons-playing-ping-pong.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const i_feel_the_earth_move: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -441,6 +441,8 @@ export const i_feel_the_earth_move: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6913KnbMpHM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/carole-king.webp',
   popularity: 50,
 };

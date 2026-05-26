@@ -14,7 +14,7 @@ export const baby_one_more_time: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['rock_pop'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -296,6 +296,8 @@ export const baby_one_more_time: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=C-u5WLJ9Yk4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/britney-spears.webp',
   popularity: 50,
 };

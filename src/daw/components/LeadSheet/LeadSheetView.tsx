@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { useStore } from '@/daw/store';
 import { regionToMeasures, PPQ } from '@/daw/midi/leadSheetUtils';
 import { NOTES } from '@prism/engine';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useMe } from '@/hooks/data/auth/useMe';
 import { LeadSheetStaff } from './LeadSheetStaff';
 import { LeadSheetToolbar } from './LeadSheetToolbar';
@@ -191,7 +192,7 @@ export function LeadSheetView() {
   // Key signature display
   const keyDisplay = useMemo(() => {
     if (rootNote === null) return '';
-    const note = NOTES[rootNote] ?? '';
+    const note = displayAccidentals(NOTES[rootNote] ?? '');
     const modeLabel =
       mode === 'ionian' ? 'Major' : mode === 'aeolian' ? 'Minor' : mode;
     return `${note} ${modeLabel}`;

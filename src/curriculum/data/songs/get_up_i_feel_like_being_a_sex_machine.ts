@@ -112,6 +112,8 @@ export const get_up_i_feel_like_being_a_sex_machine: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZNaXb3uuekk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/james-brown.webp',
   popularity: 50,
 };

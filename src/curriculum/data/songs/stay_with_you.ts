@@ -14,7 +14,7 @@ export const stay_with_you: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -305,6 +305,8 @@ export const stay_with_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_9n4FTk4I3M' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/john-legend.webp',
   popularity: 50,
 };

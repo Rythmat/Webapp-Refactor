@@ -14,7 +14,7 @@ export const lonely_boy: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['alternative_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -183,6 +183,8 @@ export const lonely_boy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=a_426RiwST8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-black-keys.webp',
   popularity: 50,
 };

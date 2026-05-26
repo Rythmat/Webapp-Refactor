@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const fresh_eyes: Song = {
   id: 'fresh_eyes',
   title: 'Fresh Eyes',
-  artist: 'Andy Grammar',
+  artist: 'Andy Grammer',
   year: 2017,
   historicalDescription:
     "Andy Grammer releases 'Fresh Eyes', a warm pop-rock anthem about rediscovering love for someone familiar. The song captures a universal emotional moment — seeing a partner as if for the first time — and becomes one of Grammer's most celebrated tracks, finding its way into weddings and romantic playlists worldwide.",
@@ -14,7 +14,7 @@ export const fresh_eyes: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -54,6 +54,8 @@ export const fresh_eyes: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5bgemCaaQkU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/andy-grammer.webp',
   popularity: 50,
 };

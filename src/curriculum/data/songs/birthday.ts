@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const birthday: Song = {
   id: 'birthday',
   title: 'Birthday',
-  artist: 'Beatles',
+  artist: 'The Beatles',
   year: 1968,
   historicalDescription:
     "The Beatles record 'Birthday' during the marathon White Album sessions, with John Lennon and Paul McCartney reportedly writing it on the spot in the studio. A raw, stomping rock and roll burst, it stands out on the double album as a deliberate throwback — pure fun amid the experimental sprawl. Its driving riff and call-and-response vocals make it one of the band's most unguarded moments.",
@@ -14,7 +14,7 @@ export const birthday: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -244,6 +244,8 @@ export const birthday: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=dhdOPhTHeoE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const shake_your_body_down_to_the_ground: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -45,6 +45,8 @@ export const shake_your_body_down_to_the_ground: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kldVOhKe4rg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/michael-jackson.webp',
   popularity: 50,
 };

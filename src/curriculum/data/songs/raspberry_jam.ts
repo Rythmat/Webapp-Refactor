@@ -14,7 +14,7 @@ export const raspberry_jam: Song = {
   timeSignature: [3, 4],
 
   difficulty: 2,
-  genreTags: ['jazz_waltz'],
+  genreTags: ['jazz'],
   techniques: [],
 
   sections: [
@@ -449,6 +449,8 @@ export const raspberry_jam: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=es50vEmmKqo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/carole-king.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const whip_it: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['new_wave'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -239,6 +239,8 @@ export const whip_it: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=j_QLzthSkfM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/devo.webp',
   popularity: 50,
 };

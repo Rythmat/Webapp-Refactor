@@ -14,7 +14,7 @@ export const ill_take_you_there: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['motown'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -53,6 +53,8 @@ export const ill_take_you_there: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IhHBr7nMMio' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-staple-singers.webp',
   popularity: 50,
 };

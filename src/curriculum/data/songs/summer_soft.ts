@@ -438,6 +438,8 @@ export const summer_soft: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Kfuapstb50o' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

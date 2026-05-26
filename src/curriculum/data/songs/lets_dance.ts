@@ -15,7 +15,7 @@ export const lets_dance: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['art_rock', 'glam_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -228,6 +228,8 @@ export const lets_dance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=VbD_kBJc_gI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/david-bowie.webp',
   popularity: 50,
 };

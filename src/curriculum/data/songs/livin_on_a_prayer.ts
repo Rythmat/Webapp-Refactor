@@ -14,7 +14,7 @@ export const livin_on_a_prayer: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -374,6 +374,8 @@ export const livin_on_a_prayer: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lDK9QqIzhwk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/jon-bon-jovi.webp',
   popularity: 50,
 };

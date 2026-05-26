@@ -14,7 +14,7 @@ export const have_you_ever_seen_the_rain: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -152,6 +152,8 @@ export const have_you_ever_seen_the_rain: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=u1V8YRJnr4Q' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/creedence-clearwater-revival.webp',
   popularity: 50,
 };

@@ -67,6 +67,8 @@ export const get_up_offa_that_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZEh9QAmy3lg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/james-brown.webp',
   popularity: 50,
 };

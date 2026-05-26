@@ -15,7 +15,7 @@ export const tell_me_something_good: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -249,6 +249,8 @@ export const tell_me_something_good: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BLTpyw9pUoE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'manual',
+
+  artistImageRef: '/artists/chaka-khan.webp',
   popularity: 50,
 };

@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const lets_groove: Song = {
   id: 'lets_groove',
   title: 'Let’s Groove',
-  artist: 'Earth, Wind, And Fire',
+  artist: 'Earth, Wind & Fire',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const lets_groove: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funk', 'soul'],
+  genreTags: ['funk', 'rnb'],
   techniques: [],
 
   sections: [
@@ -132,6 +132,8 @@ export const lets_groove: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Lrle0x_DHBM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/earth-wind-and-fire.webp',
   popularity: 50,
 };

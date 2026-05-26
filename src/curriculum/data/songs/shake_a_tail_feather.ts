@@ -170,6 +170,8 @@ export const shake_a_tail_feather: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=qdbrIrFxas0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ray-charles.webp',
   popularity: 50,
 };

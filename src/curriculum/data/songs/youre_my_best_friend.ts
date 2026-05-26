@@ -573,6 +573,8 @@ export const youre_my_best_friend: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=HaZpZQG2z10' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/queen.webp',
   popularity: 50,
 };

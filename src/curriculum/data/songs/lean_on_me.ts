@@ -14,7 +14,7 @@ export const lean_on_me: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['soul', 'r_and_b'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -205,6 +205,8 @@ export const lean_on_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fOZ-MySzAac' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bill-withers.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const ebony_eyes: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -242,6 +242,8 @@ export const ebony_eyes: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sqKyPQUReys' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

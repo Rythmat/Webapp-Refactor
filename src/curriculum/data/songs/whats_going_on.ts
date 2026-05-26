@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const whats_going_on: Song = {
   id: 'whats_going_on',
   title: 'What’s Going On',
-  artist: 'Marivn Gaye',
+  artist: 'Marvin Gaye',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const whats_going_on: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['motown'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -484,6 +484,8 @@ export const whats_going_on: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=H-kA3UtBj4M' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/marvin-gaye.webp',
   popularity: 50,
 };

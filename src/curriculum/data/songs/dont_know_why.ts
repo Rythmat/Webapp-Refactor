@@ -14,7 +14,7 @@ export const dont_know_why: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['jazzy_pop'],
+  genreTags: ['jazz', 'pop'],
   techniques: [],
 
   sections: [
@@ -324,6 +324,8 @@ export const dont_know_why: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tO4dxvguQDk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/norah-jones.webp',
   popularity: 50,
 };

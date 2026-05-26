@@ -43,6 +43,8 @@ export const high_and_dry: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=7qFfFVSerQo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/radiohead.webp',
   popularity: 50,
 };

@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const i_love_rock_n_roll: Song = {
   id: 'i_love_rock_n_roll',
   title: 'I Love Rock ‘N’ Roll',
-  artist: 'Joan Jett &amp; The Blackhearts',
+  artist: 'Joan Jett & The Blackhearts',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const i_love_rock_n_roll: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -164,6 +164,8 @@ export const i_love_rock_n_roll: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wMsazR6Tnf8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/joan-jett-amp-the-blackhearts.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const what_is_and_what_should_never_be: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -112,6 +112,8 @@ export const what_is_and_what_should_never_be: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uwOOFYDhAQA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/led-zeppelin.webp',
   popularity: 50,
 };

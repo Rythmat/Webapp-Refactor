@@ -178,6 +178,8 @@ export const five_years: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8gPSGrpIlkc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/david-bowie.webp',
   popularity: 50,
 };

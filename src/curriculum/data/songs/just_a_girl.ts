@@ -14,7 +14,7 @@ export const just_a_girl: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['alternative_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -473,6 +473,8 @@ export const just_a_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PHzOOQfhPFg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/no-doubt.webp',
   popularity: 50,
 };

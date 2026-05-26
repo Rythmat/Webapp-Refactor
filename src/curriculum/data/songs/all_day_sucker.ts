@@ -14,7 +14,7 @@ export const all_day_sucker: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['straight_eighth_funk'],
+  genreTags: ['funk'],
   techniques: [],
 
   sections: [
@@ -435,6 +435,8 @@ export const all_day_sucker: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pz3rrESMnzI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

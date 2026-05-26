@@ -14,7 +14,7 @@ export const yer_so_bad: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -343,6 +343,8 @@ export const yer_so_bad: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WdRViFCvvUo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tom-petty.webp',
   popularity: 50,
 };

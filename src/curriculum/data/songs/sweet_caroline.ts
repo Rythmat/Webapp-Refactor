@@ -14,7 +14,7 @@ export const sweet_caroline: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -206,6 +206,8 @@ export const sweet_caroline: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4F_RCWVoL4s' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/neil-diamond.webp',
   popularity: 50,
 };

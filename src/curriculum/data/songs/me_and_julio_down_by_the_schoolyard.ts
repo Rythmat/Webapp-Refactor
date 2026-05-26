@@ -14,7 +14,7 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -294,6 +294,8 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Z6VrKro8djw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/paul-simon.webp',
   popularity: 50,
 };

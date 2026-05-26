@@ -14,7 +14,7 @@ export const royals: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -61,6 +61,8 @@ export const royals: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nlcIKh6sBtc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/lorde.webp',
   popularity: 50,
 };

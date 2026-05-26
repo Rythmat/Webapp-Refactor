@@ -14,7 +14,7 @@ export const any_man_of_mine: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['country_pop'],
+  genreTags: ['folk', 'pop'],
   techniques: [],
 
   sections: [
@@ -346,6 +346,8 @@ export const any_man_of_mine: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8N2k-gv6xNE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/shania-twain.webp',
   popularity: 50,
 };

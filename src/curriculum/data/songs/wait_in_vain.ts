@@ -90,6 +90,8 @@ export const wait_in_vain: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IWxbhC44p2w' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bob-marley.webp',
   popularity: 50,
 };

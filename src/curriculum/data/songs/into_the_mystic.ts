@@ -14,7 +14,7 @@ export const into_the_mystic: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -210,6 +210,8 @@ export const into_the_mystic: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=syIUmrSJWAU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/van-morrison.webp',
   popularity: 50,
 };

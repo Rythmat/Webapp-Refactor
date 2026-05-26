@@ -14,7 +14,7 @@ export const aint_it_funky_now: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_jazz_soul'],
+  genreTags: ['funk', 'jazz', 'rnb'],
   techniques: [],
 
   sections: [
@@ -191,6 +191,8 @@ export const aint_it_funky_now: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GLBTSrD42QY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/grant-green.webp',
   popularity: 50,
 };

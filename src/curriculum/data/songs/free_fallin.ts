@@ -14,7 +14,7 @@ export const free_fallin: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -53,6 +53,8 @@ export const free_fallin: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1lWJXDG2i0A' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tom-petty.webp',
   popularity: 50,
 };

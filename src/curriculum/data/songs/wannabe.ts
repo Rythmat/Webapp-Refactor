@@ -371,6 +371,8 @@ export const wannabe: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gJLIiF15wjQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-spice-girls.webp',
   popularity: 50,
 };

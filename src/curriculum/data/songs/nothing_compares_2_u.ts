@@ -15,7 +15,7 @@ export const nothing_compares_2_u: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -459,6 +459,8 @@ export const nothing_compares_2_u: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=TBQrFXP3kaI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sinead-o.webp',
   popularity: 50,
 };

@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const aint_too_proud_to_beg: Song = {
   id: 'aint_too_proud_to_beg',
   title: 'Ain’t Too Proud To Beg',
-  artist: 'Temptations',
+  artist: 'The Temptations',
   year: 1966,
   historicalDescription:
     "The Temptations release 'Ain't Too Proud To Beg' on Motown, a raw, pleading showcase for David Ruffin's gritty lead vocals that sets it apart from the group's smoother earlier work. The track becomes one of their signature hits, capturing the tension between heartbreak and dignity that defines the golden era of soul. It cements the Temptations as Motown's most dynamic vocal group.",
@@ -14,7 +14,7 @@ export const aint_too_proud_to_beg: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_motown'],
+  genreTags: ['funk', 'rnb'],
   techniques: [],
 
   sections: [
@@ -217,6 +217,8 @@ export const aint_too_proud_to_beg: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3s0TkufXA38' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-temptations.webp',
   popularity: 50,
 };

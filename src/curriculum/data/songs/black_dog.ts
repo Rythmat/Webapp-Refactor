@@ -14,7 +14,7 @@ export const black_dog: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['straight_eighth_classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -378,6 +378,8 @@ export const black_dog: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2KPEHohJMuw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/led-zeppelin.webp',
   popularity: 50,
 };

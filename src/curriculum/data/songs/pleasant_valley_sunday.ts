@@ -14,7 +14,7 @@ export const pleasant_valley_sunday: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -329,6 +329,8 @@ export const pleasant_valley_sunday: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lDBPq_9hKqE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-monkees.webp',
   popularity: 50,
 };

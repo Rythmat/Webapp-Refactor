@@ -14,7 +14,7 @@ export const cant_take_my_eyes_off_you_valli: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['classic_pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -315,6 +315,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wVzvXW9bo5U' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/lauryn-hill.webp',
   popularity: 50,
 };

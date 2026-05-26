@@ -14,7 +14,7 @@ export const blurred_lines: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -52,6 +52,8 @@ export const blurred_lines: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yyDUC1LUXSU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/robin-thicke.webp',
   popularity: 50,
 };

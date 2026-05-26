@@ -3,12 +3,14 @@ import { Outlet, useLocation } from 'react-router';
 import { TopBar } from '@/components/ClassroomLayout/TopBar';
 import { cn } from '@/components/utilities';
 import { useProgressBootstrap } from '@/hooks/data';
+import { useChallengeWatcher } from '@/hooks/useChallengeWatcher';
 import '@/components/ClassroomLayout/dashboard/dashboard.css';
 
 export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   const mainRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
   useProgressBootstrap();
+  useChallengeWatcher();
 
   const isStudio = pathname.startsWith('/studio');
 

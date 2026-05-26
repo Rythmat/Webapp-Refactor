@@ -14,7 +14,7 @@ export const all_i_wanna_do: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -249,6 +249,8 @@ export const all_i_wanna_do: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ClbmWkbocoY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sheryl-crow.webp',
   popularity: 50,
 };

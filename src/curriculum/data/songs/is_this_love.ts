@@ -390,6 +390,8 @@ export const is_this_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=69RdQFDuYPI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bob-marley.webp',
   popularity: 50,
 };

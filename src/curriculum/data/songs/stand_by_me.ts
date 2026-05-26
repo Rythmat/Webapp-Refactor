@@ -14,7 +14,7 @@ export const stand_by_me: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['soul'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -51,6 +51,8 @@ export const stand_by_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hwZNL7QVJjE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ben-e-king.webp',
   popularity: 50,
 };

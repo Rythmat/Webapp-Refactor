@@ -328,6 +328,8 @@ export const this_is_not_america: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ubc3o2KZA4w' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/david-bowie.webp',
   popularity: 50,
 };

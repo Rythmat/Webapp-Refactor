@@ -14,7 +14,7 @@ export const ho_hey: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -253,6 +253,8 @@ export const ho_hey: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=zvCBSSwgtg4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-lumineers.webp',
   popularity: 50,
 };

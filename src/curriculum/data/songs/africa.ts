@@ -14,7 +14,7 @@ export const africa: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['straight_eighth_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -589,6 +589,8 @@ export const africa: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FTQbiNvZqaY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/toto.webp',
   popularity: 50,
 };

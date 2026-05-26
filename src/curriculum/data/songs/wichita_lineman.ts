@@ -14,7 +14,7 @@ export const wichita_lineman: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['country'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -120,6 +120,8 @@ export const wichita_lineman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Q8P_xTBpAcY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/glen-campbell.webp',
   popularity: 50,
 };

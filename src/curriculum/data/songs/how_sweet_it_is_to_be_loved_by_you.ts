@@ -14,7 +14,7 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -139,6 +139,8 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Wh__udyczFM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/james-taylor.webp',
   popularity: 50,
 };

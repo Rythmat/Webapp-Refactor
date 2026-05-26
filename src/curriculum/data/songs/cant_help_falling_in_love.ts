@@ -14,7 +14,7 @@ export const cant_help_falling_in_love: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -201,6 +201,8 @@ export const cant_help_falling_in_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=vGJTaP6anOU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/elvis-presley.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const these_arms_of_mine: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['soul'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -108,6 +108,8 @@ export const these_arms_of_mine: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GVbTE4wCbpw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/otis-redding.webp',
   popularity: 50,
 };

@@ -1,21 +1,20 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
-import { useState, useEffect, useRef, useCallback, type FC } from 'react';
+import { useState, useEffect, useRef, type FC } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BookOpen, Music, Globe, ChevronLeft } from 'lucide-react';
+import {
+  KeyCenterBadge,
+  prettyGenre,
+} from '@/components/common/CircleOfFifthsSvg';
 import { getSong } from '@/curriculum/data/songs';
 import { ChordChart } from './ChordChart';
-import { useUISound } from '@/hooks/useUISound';
-import { StudioRoutes } from '@/constants/routes';
-import {
-  exportSongToChordRegions,
-  chordRegionsToMidiClip,
-} from '@/curriculum/songLibrary/exportToStudio';
 import {
   getSectionTimeRange,
   getSectionTimeRangeFromBeats,
 } from '@/curriculum/songLibrary/timing';
 import { useBeatGrid } from '@/curriculum/songLibrary/useBeatGrid';
-import { useStore } from '@/daw/store';
+import { useSongActions } from '@/features/songs/useSongActions';
+import type { Song } from '@/curriculum/types/songLibrary';
 
 /** Extract YouTube video ID from a URL or URI */
 function extractYouTubeId(uri: string): string | null {
@@ -28,7 +27,6 @@ function extractYouTubeId(uri: string): string | null {
 export const SongDetailPage: FC = () => {
   const { songId } = useParams<{ songId: string }>();
   const navigate = useNavigate();
-  const { play } = useUISound();
   const song = songId ? getSong(songId) : null;
 
   // YouTube playback state
@@ -127,37 +125,6 @@ export const SongDetailPage: FC = () => {
     };
   }, [videoId]);
 
-  // Export to Studio handler
-  const handleOpenInStudio = useCallback(() => {
-    if (!song) return;
-    play('select');
-    const { regions, restMap, fermatas, rowSizes } = exportSongToChordRegions(
-      song,
-      { voicingMode: 'auto', bassLine: false },
-    );
-    const store = useStore.getState();
-    store.setRootNote(song.keyRoot % 12);
-    store.setMode(song.mode === 'major' ? 'ionian' : song.mode);
-    store.setBpm(song.tempo);
-    store.setChordRegions(regions);
-    if (rowSizes) store.setMeasureRowSizes(rowSizes);
-    if (restMap && Object.keys(restMap).length > 0)
-      store.setMeasureRestMap(restMap);
-    if (fermatas && fermatas.length > 0) store.setMeasureFermatas(fermatas);
-    const clip = chordRegionsToMidiClip(regions);
-    if (clip) {
-      const trackId = store.addTrack(
-        'midi',
-        'piano-sampler',
-        `${song.title} — Chords`,
-      );
-      store.addMidiClip(trackId, clip);
-      store.setLoopRange(0, clip.durationTicks ?? 7680);
-    }
-    store.setCurrentView('arrange');
-    navigate(StudioRoutes.root.definition);
-  }, [song, navigate, play]);
-
   if (!song) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
@@ -178,79 +145,81 @@ export const SongDetailPage: FC = () => {
       className="flex flex-col h-full min-w-0 overflow-hidden"
       style={{ background: 'var(--color-bg, #191919)' }}
     >
-      {/* ── Sub-header: Back + Action Pills ── */}
-      <div className="flex items-center gap-3 px-4 sm:px-6 py-2 flex-shrink-0">
-        <button
-          onClick={() => navigate('/songs')}
-          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors text-white/50 hover:text-white"
-        >
-          <ChevronLeft size={20} />
-        </button>
-
-        {[
-          { label: 'Open in Lesson', icon: BookOpen, route: '/learn' },
-          { label: 'Open in Studio', icon: Music, action: handleOpenInStudio },
-          {
-            label: 'Open in Globe',
-            icon: Globe,
-            route: `/atlas?event=song-${songId}`,
-          },
-        ].map((btn) => (
+      {/* ── Subheading: Back · Pills/Badge/Meta · Title/Artist · YouTube ── */}
+      <div
+        className="grid items-start gap-4 px-4 sm:px-6 py-3 flex-shrink-0"
+        style={{ gridTemplateColumns: '1fr auto 1fr' }}
+      >
+        {/* Left track: back arrow + pills/badge/meta */}
+        <div className="flex items-start gap-4 min-w-0">
           <button
-            key={btn.label}
-            onClick={() => {
-              play('click');
-              if (btn.action) btn.action();
-              else if (btn.route) navigate(btn.route);
-            }}
-            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-white/60 hover:text-white transition-colors"
-            style={{
-              border: '1px solid var(--color-border, rgba(255,255,255,0.12))',
-              background: 'transparent',
-            }}
+            onClick={() => navigate('/songs')}
+            aria-label="Back to Song Library"
+            className="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full hover:bg-white/5 transition-colors text-white/50 hover:text-white"
           >
-            <btn.icon size={13} />
-            {btn.label}
+            <ChevronLeft size={20} />
           </button>
-        ))}
-      </div>
 
-      {/* ── Metadata + YouTube Player ── */}
-      <div className="flex items-start justify-between px-4 sm:px-6 pb-3 flex-shrink-0 gap-4">
-        {/* Left: BPM + Key */}
-        <div className="flex-shrink-0">
-          <p className="text-white/50 text-sm">{song.tempo} BPM</p>
-          <p className="text-white/50 text-sm">{song.key}</p>
+          <div className="flex flex-col gap-3 flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <SongActionPills song={song} />
+            </div>
+            <div className="flex items-center gap-4">
+              <KeyCenterBadge song={song} size={160} />
+              <div
+                className="text-sm leading-6 text-white/55"
+                style={{ minWidth: 120 }}
+              >
+                <p>
+                  Key: <span className="text-white/85">{song.key}</span>
+                </p>
+                <p>
+                  BPM: <span className="text-white/85">{song.tempo}</span>
+                </p>
+                <p>
+                  Genre:{' '}
+                  <span className="text-white/85">
+                    {prettyGenre(song.genreTags[0])}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Center: Title + Artist */}
-        <div className="text-center flex-1 min-w-0">
+        {/* Center track: Title + Artist, vertically centered in the row */}
+        <div className="self-center text-center min-w-0 px-4">
           <h2
             className="text-white truncate"
             style={{
               fontFamily: 'serif',
-              fontSize: 'clamp(1rem, 1.6vw, 1.3rem)',
+              fontSize: 'clamp(1rem, 1.6vw, 1.4rem)',
             }}
           >
             &ldquo;{song.title}&rdquo;
           </h2>
-          <p className="text-white/40 text-sm">{song.artist}</p>
+          <p className="text-white/55 text-sm">{song.artist}</p>
         </div>
 
-        {/* Right: YouTube Player — container always mounted to avoid React/YT DOM conflict */}
-        <div className="flex-shrink-0 w-[200px] lg:w-[240px]">
+        {/* Right track: YouTube embed sized to row height */}
+        <div className="flex justify-end items-start min-w-0">
           <div
             className="rounded-lg overflow-hidden bg-black/40"
-            style={{ aspectRatio: '16/9', display: videoId ? 'block' : 'none' }}
+            style={{
+              aspectRatio: '16/9',
+              height: 'clamp(160px, 22vh, 220px)',
+              display: videoId ? 'block' : 'none',
+            }}
           >
-            {/* This div is managed by YT.Player — React must not touch its children.
-                We use suppressHydrationWarning and keep it as the sole child. */}
             <div ref={ytContainerRef} className="w-full h-full" />
           </div>
           {!videoId && (
             <div
               className="rounded-lg flex items-center justify-center bg-white/5 text-white/20 text-xs"
-              style={{ aspectRatio: '16/9' }}
+              style={{
+                aspectRatio: '16/9',
+                height: 'clamp(160px, 22vh, 220px)',
+              }}
             >
               No video
             </div>
@@ -259,7 +228,10 @@ export const SongDetailPage: FC = () => {
       </div>
 
       {/* ── Chord Chart (scrollable) ── */}
-      <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden custom-scrollbar px-4 sm:px-6 pb-4">
+      <div
+        className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden custom-scrollbar px-4 sm:px-6 pb-4 pt-4"
+        style={{ background: '#222222' }}
+      >
         <ChordChart
           song={song}
           loopSection={loopSection}
@@ -267,5 +239,34 @@ export const SongDetailPage: FC = () => {
         />
       </div>
     </div>
+  );
+};
+
+const SongActionPills: FC<{ song: Song }> = ({ song }) => {
+  const { openInLesson, openInStudio, openInGlobe } = useSongActions(song);
+  const pills: { label: string; icon: typeof BookOpen; onClick: () => void }[] =
+    [
+      { label: 'Open in Lesson', icon: BookOpen, onClick: openInLesson },
+      { label: 'Open in Studio', icon: Music, onClick: openInStudio },
+      { label: 'Open in Globe', icon: Globe, onClick: openInGlobe },
+    ];
+
+  return (
+    <>
+      {pills.map(({ label, icon: Icon, onClick }) => (
+        <button
+          key={label}
+          onClick={onClick}
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-white/60 hover:text-white transition-colors"
+          style={{
+            border: '1px solid var(--color-border, rgba(255,255,255,0.12))',
+            background: 'transparent',
+          }}
+        >
+          <Icon size={13} />
+          {label}
+        </button>
+      ))}
+    </>
   );
 };

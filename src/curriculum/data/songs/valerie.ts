@@ -14,7 +14,7 @@ export const valerie: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -257,6 +257,8 @@ export const valerie: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NowjRIm6eqY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/amy-winehouse.webp',
   popularity: 50,
 };

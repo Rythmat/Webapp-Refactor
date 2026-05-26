@@ -265,6 +265,8 @@ export const just_kissed_my_baby: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZoBIp817miY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-meters.webp',
   popularity: 50,
 };

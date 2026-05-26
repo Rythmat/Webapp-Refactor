@@ -112,6 +112,8 @@ export const sugar: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=09R8_2nJtjg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/maroon-5.webp',
   popularity: 50,
 };

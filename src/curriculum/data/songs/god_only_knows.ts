@@ -14,7 +14,7 @@ export const god_only_knows: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -390,6 +390,8 @@ export const god_only_knows: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NADx3-qRxek' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beach-boys.webp',
   popularity: 50,
 };

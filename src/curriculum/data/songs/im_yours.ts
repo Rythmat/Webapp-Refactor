@@ -14,7 +14,7 @@ export const im_yours: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -121,6 +121,8 @@ export const im_yours: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=EkHTsc9PU2A' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/jason-mraz.webp',
   popularity: 50,
 };

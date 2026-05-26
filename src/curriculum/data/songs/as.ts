@@ -293,6 +293,8 @@ export const as: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GYQfWJNWe3I' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

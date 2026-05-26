@@ -14,7 +14,7 @@ export const every_little_thing: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -443,6 +443,8 @@ export const every_little_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IGAKs0a-uiY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/chaka-khan.webp',
   popularity: 50,
 };

@@ -7,6 +7,7 @@ import {
 import type { PitchEdit } from '@/daw/store/tracksSlice';
 import { getAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import { useStore } from '@/daw/store';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
 // ── Constants ───────────────────────────────────────────────────────────────
 const KEYS_WIDTH = 48;
@@ -35,7 +36,9 @@ const NOTE_NAMES = [
   'B',
 ];
 function noteName(midi: number): string {
-  return `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`;
+  return displayAccidentals(
+    `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`,
+  );
 }
 function isBlackKey(midi: number): boolean {
   const n = midi % 12;

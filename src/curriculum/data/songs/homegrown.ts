@@ -14,7 +14,7 @@ export const homegrown: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -363,6 +363,8 @@ export const homegrown: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8N8_CRpL6wk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/zac-brown-band.webp',
   popularity: 50,
 };

@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const come_and_get_your_love: Song = {
   id: 'come_and_get_your_love',
   title: 'Come And Get Your Love',
-  artist: 'Redbone (Pat Vegas)',
+  artist: 'Redbone',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const come_and_get_your_love: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -269,6 +269,8 @@ export const come_and_get_your_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=OnJqFrVD3uE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/redbone.webp',
   popularity: 50,
 };

@@ -103,6 +103,8 @@ export const the_way_you_make_me_feel: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=HzZ_urpj4As' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/michael-jackson.webp',
   popularity: 50,
 };

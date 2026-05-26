@@ -14,7 +14,7 @@ export const hallelujah_i_love_her_so: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['classic_jazz_pop'],
+  genreTags: ['jazz', 'pop'],
   techniques: [],
 
   sections: [
@@ -431,6 +431,8 @@ export const hallelujah_i_love_her_so: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=v-JsqKlVVGk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ray-charles.webp',
   popularity: 50,
 };

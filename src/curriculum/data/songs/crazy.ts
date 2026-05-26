@@ -14,7 +14,7 @@ export const crazy: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -182,6 +182,8 @@ export const crazy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=-N4jf6rtyuw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/gnarls-barkley.webp',
   popularity: 50,
 };

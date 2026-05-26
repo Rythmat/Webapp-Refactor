@@ -14,7 +14,7 @@ export const golden: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -66,6 +66,8 @@ export const golden: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4QCXr79Rkcw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/jill-scott.webp',
   popularity: 50,
 };

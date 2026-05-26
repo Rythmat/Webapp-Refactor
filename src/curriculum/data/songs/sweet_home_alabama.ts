@@ -14,7 +14,7 @@ export const sweet_home_alabama: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['country_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -35,6 +35,8 @@ export const sweet_home_alabama: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=-p8GXZcdrIk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/lynyrd-skynyrd.webp',
   popularity: 50,
 };

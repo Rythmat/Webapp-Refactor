@@ -14,7 +14,7 @@ export const la_vie_en_rose: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['traditional_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -181,6 +181,8 @@ export const la_vie_en_rose: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=qPU8mENUBXk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/edith-piaf.webp',
   popularity: 50,
 };

@@ -90,6 +90,8 @@ export const its_your_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Tqc_EhmL8-E' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/isley-brothers.webp',
   popularity: 50,
 };

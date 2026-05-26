@@ -14,7 +14,7 @@ export const angel_from_montgomery: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['country_folk'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -144,6 +144,8 @@ export const angel_from_montgomery: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=U6cagWYTGCY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/john-prine.webp',
   popularity: 50,
 };

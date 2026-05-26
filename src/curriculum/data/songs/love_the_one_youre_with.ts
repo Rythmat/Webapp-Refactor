@@ -14,7 +14,7 @@ export const love_the_one_youre_with: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -363,6 +363,8 @@ export const love_the_one_youre_with: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=cZyj6GECjZ0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stephen-stills.webp',
   popularity: 50,
 };

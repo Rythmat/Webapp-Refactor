@@ -14,7 +14,7 @@ export const tiny_dancer: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -467,6 +467,8 @@ export const tiny_dancer: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yYcyacLRPNs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/elton-john.webp',
   popularity: 50,
 };

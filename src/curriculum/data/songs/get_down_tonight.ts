@@ -150,6 +150,8 @@ export const get_down_tonight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BXIBEW5MLuU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/kc-and-the-sunshine-band.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const change_the_world: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['blues_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -434,6 +434,8 @@ export const change_the_world: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kntzQiaFzOQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/eric-clapton.webp',
   popularity: 50,
 };

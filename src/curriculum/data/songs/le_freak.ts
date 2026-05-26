@@ -14,7 +14,7 @@ export const le_freak: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['disco', 'funk'],
+  genreTags: ['funk'],
   techniques: [],
 
   sections: [
@@ -280,6 +280,8 @@ export const le_freak: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aXgSHL7efKg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/chic.webp',
   popularity: 50,
 };

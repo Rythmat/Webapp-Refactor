@@ -364,6 +364,8 @@ export const space_oddity: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iYYRH4apXDo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/david-bowie.webp',
   popularity: 50,
 };

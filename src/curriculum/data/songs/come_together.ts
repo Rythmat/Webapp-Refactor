@@ -14,7 +14,7 @@ export const come_together: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -380,6 +380,8 @@ export const come_together: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=45cYwDMibGo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

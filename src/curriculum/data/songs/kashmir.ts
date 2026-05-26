@@ -14,7 +14,7 @@ export const kashmir: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -129,6 +129,8 @@ export const kashmir: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PD-MdiUm1_Y' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/led-zeppelin.webp',
   popularity: 50,
 };

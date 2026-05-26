@@ -14,7 +14,7 @@ export const kiss: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -164,6 +164,8 @@ export const kiss: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=H9tEvfIsDyo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/prince.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const blackbird: Song = {
   timeSignature: [3, 4],
 
   difficulty: 3,
-  genreTags: ['classic_folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -388,6 +388,8 @@ export const blackbird: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Man4Xw8Xypo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const uptown_girl: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -256,6 +256,8 @@ export const uptown_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hCuMWrfXG4E' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/billy-joel.webp',
   popularity: 50,
 };

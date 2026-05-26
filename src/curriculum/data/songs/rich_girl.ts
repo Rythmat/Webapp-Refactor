@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const rich_girl: Song = {
   id: 'rich_girl',
   title: 'Rich Girl',
-  artist: 'Hall and Oates',
+  artist: 'Hall & Oates',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const rich_girl: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -457,6 +457,8 @@ export const rich_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=AmHE65RAkSY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/hall-and-oates.webp',
   popularity: 50,
 };

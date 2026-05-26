@@ -14,7 +14,7 @@ export const saving_all_my_love_for_you: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -522,6 +522,8 @@ export const saving_all_my_love_for_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ewxmv2tyeRs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/whitney-houston.webp',
   popularity: 50,
 };

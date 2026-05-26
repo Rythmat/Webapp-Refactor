@@ -171,6 +171,8 @@ export const hard_to_handle_black_crowes: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BRcs_OzQb14' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-black-crowes.webp',
   popularity: 50,
 };

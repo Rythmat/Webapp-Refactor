@@ -14,7 +14,7 @@ export const even_if_it_breaks_your_heart: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -407,6 +407,8 @@ export const even_if_it_breaks_your_heart: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=D-5GnZYxI4M' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/eli-young-band.webp',
   popularity: 50,
 };

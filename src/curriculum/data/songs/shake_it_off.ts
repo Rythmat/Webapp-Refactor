@@ -14,7 +14,7 @@ export const shake_it_off: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['synth_pop'],
+  genreTags: ['electronic', 'pop'],
   techniques: [],
 
   sections: [
@@ -139,6 +139,8 @@ export const shake_it_off: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nfWlot6h_JM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/taylor-swift.webp',
   popularity: 50,
 };

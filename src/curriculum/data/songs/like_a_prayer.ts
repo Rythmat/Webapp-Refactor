@@ -14,7 +14,7 @@ export const like_a_prayer: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_pop'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -267,6 +267,8 @@ export const like_a_prayer: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=79fzeNUqQbQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/madonna.webp',
   popularity: 50,
 };

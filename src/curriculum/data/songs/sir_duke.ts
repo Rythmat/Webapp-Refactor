@@ -487,6 +487,8 @@ export const sir_duke: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ETFvmkIA6S4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

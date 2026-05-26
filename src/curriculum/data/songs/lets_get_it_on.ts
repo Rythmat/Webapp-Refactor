@@ -15,7 +15,7 @@ export const lets_get_it_on: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['soul', 'r_and_b'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -159,6 +159,8 @@ export const lets_get_it_on: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=AqPBfbLoF_M' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/marvin-gaye.webp',
   popularity: 50,
 };

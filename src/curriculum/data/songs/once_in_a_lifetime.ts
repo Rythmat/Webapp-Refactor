@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const once_in_a_lifetime: Song = {
   id: 'once_in_a_lifetime',
   title: 'Once In A Lifetime',
-  artist: 'The Talking Heads',
+  artist: 'Talking Heads',
   year: 1980,
   historicalDescription:
     "Talking Heads release 'Once In A Lifetime', a hypnotic meditation on suburban alienation and the unconscious drift of modern life. Built on African polyrhythms and Brian Eno's production, David Byrne's stream-of-consciousness delivery — 'same as it ever was' — captures something universal about routine and awakening. It becomes one of new wave's defining artistic statements.",
@@ -14,7 +14,7 @@ export const once_in_a_lifetime: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['new_wave'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -35,6 +35,8 @@ export const once_in_a_lifetime: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5IsSpAOD6K8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

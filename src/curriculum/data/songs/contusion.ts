@@ -14,7 +14,7 @@ export const contusion: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['funk_fusion'],
+  genreTags: ['funk', 'rock'],
   techniques: [],
 
   sections: [
@@ -416,6 +416,8 @@ export const contusion: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6T5q7BzpEe4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const the_joker: Song = {
   id: 'the_joker',
   title: 'The Joker',
-  artist: 'The Steve Miller Band',
+  artist: 'Steve Miller Band',
   year: 1973,
   historicalDescription:
     "The Steve Miller Band releases 'The Joker,' a laid-back, swaggering anthem that becomes one of the defining rock tracks of 1973. Miller weaves together his own self-referential nicknames — the joker, the smoker, the midnight toker — into a chorus so effortlessly catchy it transcends the decade. The song cements Miller's reputation as a craftsman of accessible, groove-driven rock and earns him his first number one hit.",
@@ -14,7 +14,7 @@ export const the_joker: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -219,6 +219,8 @@ export const the_joker: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=dV3AziKTBUo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/steve-miller-band.webp',
   popularity: 50,
 };

@@ -28,7 +28,13 @@ export type DifficultyLevel = 1 | 2 | 3;
 
 export type AudioProvider = 'spotify' | 'youtube' | 'apple_music' | 'tidal';
 
-export type ArtistImageSource = 'spotify' | 'youtube' | 'commissioned' | 'none';
+export type ArtistImageSource =
+  | 'spotify'
+  | 'youtube'
+  | 'commissioned'
+  | 'wikipedia'
+  | 'manual'
+  | 'none';
 
 export type ContentRefType =
   | 'key' // Theory: this song's key

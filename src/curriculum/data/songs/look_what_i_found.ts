@@ -14,7 +14,7 @@ export const look_what_i_found: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -533,6 +533,8 @@ export const look_what_i_found: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8uGVZoqJjn4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/lady-gaga.webp',
   popularity: 50,
 };

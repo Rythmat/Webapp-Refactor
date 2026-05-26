@@ -14,7 +14,7 @@ export const sexyback: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['dance_pop'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -305,6 +305,8 @@ export const sexyback: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3gOHvDP_vCs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/justin-timberlake.webp',
   popularity: 50,
 };

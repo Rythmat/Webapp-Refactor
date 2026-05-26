@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
+import { reportChallengeEvent } from '@/lib/challenges/eventBus';
 import { experienceApi } from '@/lib/experience/api';
 
 export const useAwardLessonActivityExperience = () => {
@@ -11,8 +12,9 @@ export const useAwardLessonActivityExperience = () => {
       if (!token) throw new Error('Not authenticated');
       return experienceApi.awardLessonActivity(token, activityId);
     },
-    onSuccess: () => {
+    onSuccess: (_data, activityId) => {
       queryClient.invalidateQueries({ queryKey: ['experienceSummary'] });
+      reportChallengeEvent({ kind: 'activity_completed', activityId });
     },
   });
 };
@@ -26,8 +28,9 @@ export const useAwardLessonCompletionExperience = () => {
       if (!token) throw new Error('Not authenticated');
       return experienceApi.awardLessonCompletion(token, lessonId);
     },
-    onSuccess: () => {
+    onSuccess: (_data, lessonId) => {
       queryClient.invalidateQueries({ queryKey: ['experienceSummary'] });
+      reportChallengeEvent({ kind: 'lesson_completed', lessonId });
     },
   });
 };

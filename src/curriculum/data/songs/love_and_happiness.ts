@@ -14,7 +14,7 @@ export const love_and_happiness: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['soul'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -342,6 +342,8 @@ export const love_and_happiness: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=cPkXeWww0U8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/al-green.webp',
   popularity: 50,
 };

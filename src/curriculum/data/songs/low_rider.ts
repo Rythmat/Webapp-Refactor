@@ -55,6 +55,8 @@ export const low_rider: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BsrqKE1iqqo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/war.webp',
   popularity: 50,
 };

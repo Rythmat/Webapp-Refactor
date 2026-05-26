@@ -14,7 +14,7 @@ export const i_will: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -375,6 +375,8 @@ export const i_will: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=p-abNGP1BK4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

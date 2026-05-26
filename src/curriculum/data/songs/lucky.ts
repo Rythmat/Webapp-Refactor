@@ -14,7 +14,7 @@ export const lucky: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -317,6 +317,8 @@ export const lucky: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=acvIVA9-FMQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/jason-mraz.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const oye_como_va: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['latin_rock'],
+  genreTags: ['latin', 'rock'],
   techniques: [],
 
   sections: [
@@ -307,6 +307,8 @@ export const oye_como_va: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=J7ATTjg7tpE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/santana.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -724,6 +724,8 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=eH3giaIzONA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/whitney-houston.webp',
   popularity: 50,
 };

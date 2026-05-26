@@ -77,6 +77,8 @@ export const passionfruit: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5HZl-8a85p8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/drake-scary-pockets.webp',
   popularity: 50,
 };

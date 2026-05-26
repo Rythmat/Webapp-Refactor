@@ -14,7 +14,7 @@ export const something: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -213,6 +213,8 @@ export const something: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=UelDrZ1aFeY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

@@ -15,7 +15,7 @@ export const pride_and_joy: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['blues_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -65,6 +65,8 @@ export const pride_and_joy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kfjXp4KTTY8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-ray-vaughn.webp',
   popularity: 50,
 };

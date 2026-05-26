@@ -458,6 +458,8 @@ export const golden_lady: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CXCTjAMR3eA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

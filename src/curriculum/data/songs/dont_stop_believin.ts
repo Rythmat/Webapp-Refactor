@@ -21,7 +21,7 @@ export const dontStopBelievin: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['rock', 'pop'],
+  genreTags: ['pop', 'rock'],
   techniques: ['eighth_note_chunking', 'basic_triads', 'chord_inversions'],
 
   origin: {
@@ -266,6 +266,8 @@ export const dontStopBelievin: Song = {
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1k8craCGpgs' },
   ],
 
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/journey.webp',
   popularity: 95,
 };

@@ -14,7 +14,7 @@ export const funk_49: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funk_rock'],
+  genreTags: ['funk', 'rock'],
   techniques: [],
 
   sections: [
@@ -185,6 +185,8 @@ export const funk_49: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ex7JTWDbH1A' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-james-gang.webp',
   popularity: 50,
 };

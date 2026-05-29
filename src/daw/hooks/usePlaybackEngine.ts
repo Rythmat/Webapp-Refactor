@@ -7,7 +7,11 @@ import { MidiScheduler } from '@/daw/audio/MidiScheduler';
 import { AudioClipScheduler } from '@/daw/audio/AudioClipScheduler';
 import { MetronomeEngine } from '@/daw/audio/MetronomeEngine';
 import { AudioRecorder } from '@/daw/audio/AudioRecorder';
-import { setAudioBuffer, getAudioBuffer } from '@/daw/audio/AudioBufferStore';
+import {
+  setAudioBuffer,
+  setOriginalAudio,
+  getAudioBuffer,
+} from '@/daw/audio/AudioBufferStore';
 import {
   renderPitchEdits,
   pitchEditCacheKey,
@@ -649,9 +653,12 @@ export function usePlaybackEngine(isReady: boolean) {
       const ctx = audioEngine.getContext();
       recorder
         .stopRecording(ctx)
-        .then((audioBuffer) => {
+        .then(({ buffer: audioBuffer, originalBytes, originalContentType }) => {
           const clipId = `clip-audio-${crypto.randomUUID().slice(0, 8)}`;
           setAudioBuffer(clipId, audioBuffer);
+          // Stash the original Opus/WebM bytes so cloud save can upload them
+          // as-is instead of re-encoding to ~10x larger WAV.
+          setOriginalAudio(clipId, originalBytes, originalContentType);
 
           // Convert duration in seconds to ticks
           const bpm = useStore.getState().bpm;

@@ -104,6 +104,7 @@
     "tone": "15.0.4",
     "use-local-storage-state": "19.4.1",
     "uuid": "11.1.0",
+    "webm-muxer": "5.1.4",
     "webmidi": "3.1.14",
     "y-indexeddb": "9.0.12",
     "y-partykit": "0.0.33",

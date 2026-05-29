@@ -12,10 +12,10 @@ import { PrismSuggestionModal } from '@/daw/components/Prism/PrismSuggestionModa
 import { SettingsModal } from '@/daw/components/Transport/SettingsModal';
 import { TransportBar } from '@/daw/components/Transport/TransportBar';
 import { useAudioEngine } from '@/daw/hooks/useAudioEngine';
-import {
-  useKeyboardShortcuts,
-  loadSessionOnStartup,
-} from '@/daw/hooks/useKeyboardShortcuts';
+import { useAutosave } from '@/daw/hooks/useAutosave';
+import { useKeyboardShortcuts } from '@/daw/hooks/useKeyboardShortcuts';
+import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
+import { restoreLocalSessionIfPresent } from '@/lib/studio-projects/localSession';
 import { useAudioChordDetection } from '@/daw/hooks/useAudioChordDetection';
 import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
 import { usePlaybackEngine } from '@/daw/hooks/usePlaybackEngine';
@@ -31,7 +31,9 @@ function DawAppInner() {
   const { isReady, initEngine } = useAudioEngine();
   useTransport();
   usePlaybackEngine(isReady);
-  useKeyboardShortcuts();
+  const authToken = useAuthToken();
+  useKeyboardShortcuts(authToken);
+  useAutosave();
   useMidiInputRouting();
   useAudioChordDetection();
   useTheme();
@@ -43,8 +45,10 @@ function DawAppInner() {
   const isCollabActive = useStore((s) => s.isCollabActive);
 
   useEffect(() => {
-    loadSessionOnStartup();
     initUndoTracking();
+    // Restore the last in-progress session from localStorage, if any. Cloud
+    // remains the source of truth for explicit saves; this is crash recovery.
+    restoreLocalSessionIfPresent();
   }, []);
 
   useEffect(() => {

@@ -430,6 +430,10 @@ export function deserializeSession(session: SessionData): void {
 
     return {
       ...t,
+      // Autosave intentionally omits the (large, derivable) effects state;
+      // re-default it on restore so the playback engine's effect chain has
+      // a shape to operate on.
+      effects: structuredClone(DEFAULT_EFFECTS),
       activeEffects: t.activeEffects ?? [],
       midiClips,
       audioClips: (t.audioClips ?? []).map((c) => ({

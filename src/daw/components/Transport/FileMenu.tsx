@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { useStore } from '@/daw/store';
+import { THEMES } from '@/daw/constants/themes';
 import {
   importMidiFile,
   exportMidiFile,
@@ -59,6 +60,21 @@ const separatorStyle = {
 export function FileMenu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const token = useAuthToken();
+
+  // Radix portals the menu content to document.body, which is outside the
+  // `.daw-root` element that the theme tokens (--color-surface-2, etc.) are
+  // scoped to — so `var(...)` references resolve to nothing and the menu
+  // renders transparent. Inject the active palette as inline custom properties
+  // on the content elements so every `var(...)` inside resolves correctly and
+  // the surface stays fully opaque.
+  const theme = useStore((s) => s.theme);
+  // Spread onto the portalled content as inline custom properties.
+  const paletteVars = THEMES[theme] as unknown as React.CSSProperties;
+
+  // Controlled state lets us close the "Open" submenu on mouse-leave and reset
+  // it whenever the root menu closes (e.g. after a selection is processed).
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [openSubmenu, setOpenSubmenu] = useState(false);
 
   // Cloud project list for the Open submenu. Re-fetched on save / delete.
   const [cloudProjects, setCloudProjects] = useState<StudioProjectSummary[]>(
@@ -344,7 +360,15 @@ export function FileMenu() {
         onChange={handleFileChange}
       />
 
-      <DropdownMenu.Root>
+      <DropdownMenu.Root
+        open={menuOpen}
+        onOpenChange={(open) => {
+          setMenuOpen(open);
+          // Reset the submenu when the whole menu closes so it doesn't
+          // auto-reopen the next time the File menu is opened.
+          if (!open) setOpenSubmenu(false);
+        }}
+      >
         <DropdownMenu.Trigger asChild>
           <button
             className="flex h-7 cursor-pointer items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors hover:bg-white/5"
@@ -363,6 +387,7 @@ export function FileMenu() {
           <DropdownMenu.Content
             className="z-50 min-w-[180px] rounded-lg p-1 shadow-lg"
             style={{
+              ...paletteVars,
               backgroundColor: 'var(--color-surface-2)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
             }}
@@ -407,7 +432,7 @@ export function FileMenu() {
             </DropdownMenu.Item>
 
             {/* Open submenu */}
-            <DropdownMenu.Sub>
+            <DropdownMenu.Sub open={openSubmenu} onOpenChange={setOpenSubmenu}>
               <DropdownMenu.SubTrigger className={itemClass} style={itemStyle}>
                 <FolderOpen size={13} strokeWidth={2} />
                 Open
@@ -417,10 +442,13 @@ export function FileMenu() {
                 <DropdownMenu.SubContent
                   className="z-50 min-w-[200px] rounded-lg p-1 shadow-lg"
                   style={{
+                    ...paletteVars,
                     backgroundColor: 'var(--color-surface-2)',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
                   }}
                   sideOffset={4}
+                  // Close the submenu as soon as the pointer leaves it.
+                  onPointerLeave={() => setOpenSubmenu(false)}
                 >
                   {cloudListError ? (
                     <DropdownMenu.Item

@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { useStore } from '@/daw/store';
-import { THEMES } from '@/daw/constants/themes';
 import {
   importMidiFile,
   exportMidiFile,
@@ -61,20 +60,37 @@ export function FileMenu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const token = useAuthToken();
 
-  // Radix portals the menu content to document.body, which is outside the
-  // `.daw-root` element that the theme tokens (--color-surface-2, etc.) are
-  // scoped to — so `var(...)` references resolve to nothing and the menu
-  // renders transparent. Inject the active palette as inline custom properties
-  // on the content elements so every `var(...)` inside resolves correctly and
-  // the surface stays fully opaque.
-  const theme = useStore((s) => s.theme);
-  // Spread onto the portalled content as inline custom properties.
-  const paletteVars = THEMES[theme] as unknown as React.CSSProperties;
-
   // Controlled state lets us close the "Open" submenu on mouse-leave and reset
   // it whenever the root menu closes (e.g. after a selection is processed).
   const [menuOpen, setMenuOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState(false);
+
+  // Radix portals the menu content to document.body, which is outside the
+  // `.daw-root` element that the theme tokens (--color-surface-2, etc.) are
+  // scoped to — so `var(...)` references resolve to nothing and the menu
+  // renders transparent. Snapshot the active theme's custom properties from
+  // `.daw-root` whenever the menu opens and re-apply them inline on the
+  // portalled content, so every `var(...)` inside resolves and the surface
+  // stays fully opaque (and theme-accurate) without coupling to the store.
+  const [menuVars, setMenuVars] = useState<React.CSSProperties>({});
+  useEffect(() => {
+    if (!menuOpen) return;
+    const root = document.querySelector('.daw-root');
+    if (!root) return;
+    const computed = getComputedStyle(root);
+    const vars: Record<string, string> = {};
+    for (const name of [
+      '--color-surface-2',
+      '--color-text',
+      '--color-text-dim',
+      '--color-border',
+      '--color-bg',
+      '--color-accent',
+    ]) {
+      vars[name] = computed.getPropertyValue(name);
+    }
+    setMenuVars(vars as unknown as React.CSSProperties);
+  }, [menuOpen]);
 
   // Cloud project list for the Open submenu. Re-fetched on save / delete.
   const [cloudProjects, setCloudProjects] = useState<StudioProjectSummary[]>(
@@ -387,7 +403,7 @@ export function FileMenu() {
           <DropdownMenu.Content
             className="z-50 min-w-[180px] rounded-lg p-1 shadow-lg"
             style={{
-              ...paletteVars,
+              ...menuVars,
               backgroundColor: 'var(--color-surface-2)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
             }}
@@ -442,7 +458,7 @@ export function FileMenu() {
                 <DropdownMenu.SubContent
                   className="z-50 min-w-[200px] rounded-lg p-1 shadow-lg"
                   style={{
-                    ...paletteVars,
+                    ...menuVars,
                     backgroundColor: 'var(--color-surface-2)',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
                   }}

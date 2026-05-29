@@ -92,6 +92,10 @@ export interface UiSlice {
   setTheme: (theme: ThemeId) => void;
 
   // ── Project ──
+  // Set when the project has been saved to the cloud; null for unsaved or
+  // local-only projects. First save calls POST; subsequent saves call PUT.
+  projectId: string | null;
+  setProjectId: (id: string | null) => void;
   projectName: string;
   setProjectName: (name: string) => void;
   composerName: string;
@@ -222,6 +226,8 @@ export const createUiSlice: StateCreator<
   setTheme: (theme) => set({ theme }),
 
   // ── Project ──
+  projectId: null,
+  setProjectId: (id) => set({ projectId: id }),
   projectName: 'Untitled Project',
   setProjectName: (name) => set({ projectName: name }),
   composerName: '',

@@ -6,9 +6,11 @@ import * as Tone from 'tone';
 import {
   getAudioBuffer,
   setAudioBuffer,
+  setOriginalAudio,
   removeAudioBuffer,
   computePeaks,
   sliceBuffer,
+  subscribeAudioBufferChanges,
 } from '@/daw/audio/AudioBufferStore';
 import {
   TICKS_PER_BEAT,
@@ -39,6 +41,31 @@ const TIME_RULER_HEIGHT = 22; // px for time ruler at bottom
 const RESIZE_EDGE_PX = 6; // px threshold for resize handle
 const PROJECT_MIN_BARS = 8; // minimum visible project length
 const PROJECT_PAD_BARS = 4; // extra bars of padding beyond content
+
+// ── MIME-type inference (for audio assets without a Content-Type header) ────
+
+const AUDIO_EXTENSION_MIME: Record<string, string> = {
+  wav: 'audio/wav',
+  mp3: 'audio/mpeg',
+  ogg: 'audio/ogg',
+  oga: 'audio/ogg',
+  opus: 'audio/ogg',
+  webm: 'audio/webm',
+  flac: 'audio/flac',
+  m4a: 'audio/mp4',
+  aac: 'audio/aac',
+};
+
+function inferContentTypeFromUrl(url: string): string | null {
+  try {
+    const path = new URL(url, window.location.origin).pathname;
+    const ext = path.split('.').pop()?.toLowerCase();
+    if (!ext) return null;
+    return AUDIO_EXTENSION_MIME[ext] ?? null;
+  } catch {
+    return null;
+  }
+}
 
 // ── Seeded PRNG (deterministic per clip) ────────────────────────────────
 
@@ -289,6 +316,18 @@ export function Timeline() {
   const liveAudioPeaks = useStore((s) => s.liveAudioPeaks);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const tsDen = useStore((s) => s.timeSignatureDenominator);
+
+  // Bumped whenever the AudioBufferStore mutates so the canvas redraws when a
+  // cloud-loaded audio buffer arrives (without it, "Loading…" overlays would
+  // sit forever even after the bytes decoded).
+  const [audioBufferVersion, setAudioBufferVersion] = useState(0);
+  useEffect(
+    () =>
+      subscribeAudioBufferChanges(() => {
+        setAudioBufferVersion((v) => v + 1);
+      }),
+    [],
+  );
 
   const [editingChord, setEditingChord] = useState<{
     id: string;
@@ -725,26 +764,53 @@ export function Timeline() {
           const maxH = (TRACK_HEIGHT - 8) * 0.42;
 
           const audioBuffer = getAudioBuffer(clip.id);
-          let amps: number[];
-          if (audioBuffer) {
-            amps = computePeaks(audioBuffer, sampleCount);
+          // A clip with an assetId but no buffer yet is mid-download from GCS
+          // (loadCloudProjectAudio in progress). Skip the placeholder waveform
+          // — which would mislead the user into thinking the audio is loaded
+          // — and overlay a "Loading…" label instead.
+          const isLoadingCloudAudio = !audioBuffer && Boolean(clip.assetId);
+
+          if (isLoadingCloudAudio) {
+            if (clipWidth > 60) {
+              ctx.fillStyle = 'rgba(255,255,255,0.55)';
+              ctx.font = '11px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText('Loading…', clipX + clipWidth / 2, centerY);
+            } else {
+              // Too narrow for text — draw a subtle dashed line so the user
+              // sees that something's pending.
+              ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+              ctx.lineWidth = 1;
+              ctx.setLineDash([4, 3]);
+              ctx.beginPath();
+              ctx.moveTo(clipX + 4, centerY);
+              ctx.lineTo(clipX + clipWidth - 4, centerY);
+              ctx.stroke();
+              ctx.setLineDash([]);
+            }
           } else {
-            const rand = seededRandom(hashStr(clip.id));
-            amps = Array.from(
-              { length: sampleCount },
-              () => rand() * 0.6 + 0.2,
+            let amps: number[];
+            if (audioBuffer) {
+              amps = computePeaks(audioBuffer, sampleCount);
+            } else {
+              const rand = seededRandom(hashStr(clip.id));
+              amps = Array.from(
+                { length: sampleCount },
+                () => rand() * 0.6 + 0.2,
+              );
+            }
+
+            drawSmoothWaveform(
+              ctx,
+              amps,
+              clipX,
+              centerY,
+              clipWidth,
+              maxH,
+              track.color + 'AA',
             );
           }
-
-          drawSmoothWaveform(
-            ctx,
-            amps,
-            clipX,
-            centerY,
-            clipWidth,
-            maxH,
-            track.color + 'AA',
-          );
 
           // ── Fade overlays ──
           const clipH = TRACK_HEIGHT - 4;
@@ -1062,6 +1128,7 @@ export function Timeline() {
     clipColorMode,
     liveRecordingNotes,
     liveAudioPeaks,
+    audioBufferVersion,
   ]);
 
   // ── Redraw on vertical scroll (sticky rulers) ────────────────────
@@ -1895,6 +1962,15 @@ export function Timeline() {
           if (!resp.ok)
             throw new Error(`Failed to fetch sample: ${resp.status}`);
           const arrayBuf = await resp.arrayBuffer();
+          // Clone the bytes before decodeAudioData — some browsers neuter the
+          // input. We need both: the decoded buffer for playback, and the
+          // original bytes for upload (already a compressed format on the
+          // server, so uploading as-is avoids a quality-losing re-encode).
+          const originalBytes = arrayBuf.slice(0);
+          const originalContentType =
+            resp.headers.get('content-type') ||
+            inferContentTypeFromUrl(payload.url) ||
+            'audio/wav';
           const ctx = new AudioContext();
           const audioBuf = await ctx.decodeAudioData(arrayBuf);
           const trackId = st.addTrack('audio', 'none', payload.name, '#f59e0b');
@@ -1904,6 +1980,7 @@ export function Timeline() {
             (audioBuf.duration / 60) * st.bpm * 480,
           );
           setAudioBuffer(clipId, audioBuf);
+          setOriginalAudio(clipId, originalBytes, originalContentType);
           st.addAudioClip(trackId, {
             id: clipId,
             startTick: 0,

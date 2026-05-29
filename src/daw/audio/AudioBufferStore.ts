@@ -1,24 +1,79 @@
 // ── AudioBufferStore ────────────────────────────────────────────────────────
-// Module-level Map<clipId, AudioBuffer>. AudioBuffers are not serializable
-// and won't survive page refresh, but they're needed for waveform rendering
-// and playback during a session.
+// Module-level per-clip audio store. Holds two things per clip id, both
+// optional and set independently:
+//
+//   - `buffer`:   decoded PCM (AudioBuffer) used for playback + waveform render.
+//   - `original`: the bytes the audio arrived as (e.g. audio/webm Opus from
+//                 MediaRecorder, or the original File bytes from a drop). Used
+//                 at cloud-save time to upload without re-encoding to WAV —
+//                 Opus is ~10x smaller than WAV at equivalent quality.
+//
+// Neither survives a page refresh; for cloud-saved clips the bytes live in GCS
+// and are re-fetched on Open via loadCloudProjectAudio.
 
-const audioBufferStore = new Map<string, AudioBuffer>();
+interface ClipAudio {
+  buffer?: AudioBuffer;
+  original?: { bytes: ArrayBuffer; contentType: string };
+}
+
+const audioStore = new Map<string, ClipAudio>();
+
+// Subscribers notified whenever the store mutates. Used by the timeline so a
+// freshly-loaded audio buffer triggers a waveform redraw without polling.
+const subscribers = new Set<() => void>();
+
+function emitChange(): void {
+  for (const cb of subscribers) cb();
+}
+
+export function subscribeAudioBufferChanges(cb: () => void): () => void {
+  subscribers.add(cb);
+  return () => {
+    subscribers.delete(cb);
+  };
+}
+
+function getOrCreate(clipId: string): ClipAudio {
+  let entry = audioStore.get(clipId);
+  if (!entry) {
+    entry = {};
+    audioStore.set(clipId, entry);
+  }
+  return entry;
+}
 
 export function getAudioBuffer(clipId: string): AudioBuffer | undefined {
-  return audioBufferStore.get(clipId);
+  return audioStore.get(clipId)?.buffer;
 }
 
 export function setAudioBuffer(clipId: string, buffer: AudioBuffer): void {
-  audioBufferStore.set(clipId, buffer);
+  getOrCreate(clipId).buffer = buffer;
+  emitChange();
+}
+
+export function getOriginalAudio(
+  clipId: string,
+): { bytes: ArrayBuffer; contentType: string } | undefined {
+  return audioStore.get(clipId)?.original;
+}
+
+export function setOriginalAudio(
+  clipId: string,
+  bytes: ArrayBuffer,
+  contentType: string,
+): void {
+  getOrCreate(clipId).original = { bytes, contentType };
+  emitChange();
 }
 
 export function removeAudioBuffer(clipId: string): void {
-  audioBufferStore.delete(clipId);
+  audioStore.delete(clipId);
+  emitChange();
 }
 
 export function clearAudioBuffers(): void {
-  audioBufferStore.clear();
+  audioStore.clear();
+  emitChange();
 }
 
 /** Slice an AudioBuffer from startSample to endSample (exclusive). */

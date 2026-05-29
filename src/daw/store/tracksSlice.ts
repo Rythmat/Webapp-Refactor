@@ -56,6 +56,16 @@ export interface AudioClip {
   duration: number; // ticks (PPQ=480)
   fadeInTicks: number; // 0 = no fade
   fadeOutTicks: number; // 0 = no fade
+  /**
+   * GCS-backed asset id. Null while the clip is ephemeral (just recorded /
+   * imported / generated, bytes not yet uploaded). Becomes a real id after
+   * the upload-and-finalize flow. Cloud save skips clips with assetId=null.
+   */
+  assetId?: string | null;
+  /** Start offset into the underlying asset, in seconds (for trimming). */
+  offsetSeconds?: number;
+  /** Per-clip gain multiplier; defaults to 1 (no change). */
+  gain?: number;
 }
 
 export interface Track {

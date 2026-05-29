@@ -36,7 +36,9 @@ const DEFAULT_EVENTS: NoteEvent[] = [
 const TICKS_PER_QUARTER = 480;
 const COUNT_IN_TICKS = 4 * TICKS_PER_QUARTER;
 const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
-const ACTIVATION_WINDOW_SHIFT_RATIO = 1 / 8;
+// How far before a note's start it may be played early, as a fraction of the
+// note's play window (its duration).
+const EARLY_PLAY_WINDOW_RATIO = 1 / 8;
 
 type PlayAlongProps = {
   events?: NoteEvent[];
@@ -253,10 +255,13 @@ export const PlayAlong = ({
     !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
 
   const getActivationWindow = useCallback((note: NoteEvent) => {
-    const shift = note.durationTicks * ACTIVATION_WINDOW_SHIFT_RATIO;
+    // Extend the window earlier by 1/8 of the play window so a note can be
+    // played early, while still accepting it through to the note's natural
+    // end (extend, don't shift).
+    const earlyAllowance = note.durationTicks * EARLY_PLAY_WINDOW_RATIO;
     return {
-      start: note.startTicks - shift,
-      end: note.startTicks + note.durationTicks - shift,
+      start: note.startTicks - earlyAllowance,
+      end: note.startTicks + note.durationTicks,
     };
   }, []);
 
@@ -264,23 +269,32 @@ export const PlayAlong = ({
   const parsePerformance = useCallback(
     (midi: number, tick: number, onSignal: boolean) => {
       if (onSignal) {
-        const note = resolvedEvents.find(
-          (note) =>
-            pitchNameToMidi(note.pitchName) === midi &&
-            tick >= getActivationWindow(note).start &&
-            tick < getActivationWindow(note).end,
-        );
-        if (note == null) return;
-        const normalizedStartTick = Math.max(tick, note.startTicks);
         setNotePerformance((prev) => {
-          const existing = prev[note.id];
-          if (existing && existing.startTick != null) {
-            return prev;
-          }
+          // Every same-pitch note whose (extended) window contains this tick.
+          const candidates = resolvedEvents.filter(
+            (note) =>
+              pitchNameToMidi(note.pitchName) === midi &&
+              tick >= getActivationWindow(note).start &&
+              tick < getActivationWindow(note).end,
+          );
+          // Only notes that haven't been played yet can absorb this press.
+          const unplayed = candidates.filter(
+            (note) => prev[note.id]?.startTick == null,
+          );
+          if (unplayed.length === 0) return prev;
+
+          // When two same-pitch notes are back to back, their extended early
+          // windows overlap. If neither has been played, default to the latter
+          // (latest-starting) note so the early hit credits the upcoming note.
+          const note = unplayed.reduce((latest, candidate) =>
+            candidate.startTicks > latest.startTicks ? candidate : latest,
+          );
+
+          const normalizedStartTick = Math.max(tick, note.startTicks);
           return {
             ...prev,
             [note.id]: {
-              ...(existing ?? {}),
+              ...(prev[note.id] ?? {}),
               startTick: normalizedStartTick,
               endTick: null,
             },

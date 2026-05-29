@@ -28,20 +28,35 @@ export const RealTimeAnalytics: FC<XpTrackerProps> = ({
   const height = 140;
   const padding = { top: 12, right: 16, bottom: 28, left: 36 };
 
-  const maxValue = useMemo(() => {
+  const { maxValue, step } = useMemo(() => {
     const allValues = [
       ...thisWeek.map((d) => d.value),
       ...lastWeek.map((d) => d.value),
     ];
     const peak = Math.max(...allValues, 10);
-    return Math.ceil(peak / 20) * 20; // round up to nearest 20
+
+    // Pick a tick increment that scales with the peak:
+    //   ≤100 → 10, ≤500 → 50, ≤1000 → 100, ≤5000 → 500, ≤10000 → 1000, …
+    // The enclosing band climbs by alternating ×5 and ×2 (100, 500, 1000,
+    // 5000, 10000, …) and the increment is one tenth of that band.
+    let band = 100;
+    let timesFive = true;
+    while (band < peak) {
+      band *= timesFive ? 5 : 2;
+      timesFive = !timesFive;
+    }
+    const increment = band / 10;
+
+    // Round the axis top up to the next increment so the line fills the chart.
+    const top = Math.ceil(peak / increment) * increment;
+    return { maxValue: top, step: increment };
   }, [thisWeek, lastWeek]);
 
   const yTicks = useMemo(() => {
     const ticks: number[] = [];
-    for (let v = 0; v <= maxValue; v += 20) ticks.push(v);
+    for (let v = 0; v <= maxValue; v += step) ticks.push(v);
     return ticks;
-  }, [maxValue]);
+  }, [maxValue, step]);
 
   const getX = (i: number) => {
     return (

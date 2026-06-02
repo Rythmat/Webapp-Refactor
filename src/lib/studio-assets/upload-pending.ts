@@ -102,6 +102,72 @@ export class PartialUploadError extends Error {
   }
 }
 
+// Clips whose audio is currently being uploaded by uploadRecordedClip (the
+// immediate-on-record path), keyed by clip id. uploadPendingAudioClips awaits
+// these instead of starting its own upload, so a Save fired mid-record-upload
+// doesn't race and leak a duplicate orphan asset.
+const recordingUploadsInFlight = new Map<string, Promise<void>>();
+
+/**
+ * Upload a single just-recorded clip's audio to GCS immediately and stamp the
+ * returned assetId onto the clip. Called the instant recording stops so the
+ * bytes are durably persisted before a page reload can drop the in-memory
+ * AudioBuffer (which never survives a refresh).
+ *
+ * Ensures the cloud project exists first (minting it if this is an unsaved
+ * project). On any failure the clip keeps assetId=null, so the eventual cloud
+ * Save will retry it via uploadPendingAudioClips — the caller should surface
+ * the error to the user.
+ */
+export async function uploadRecordedClip(
+  token: string,
+  trackId: string,
+  clipId: string,
+): Promise<void> {
+  const existing = recordingUploadsInFlight.get(clipId);
+  if (existing) return existing;
+
+  const upload = (async () => {
+    const buffer = getAudioBuffer(clipId);
+    if (!buffer) {
+      throw new Error(`No AudioBuffer in store for recorded clip ${clipId}`);
+    }
+
+    // Dynamic import to keep the studio-projects module out of the recording
+    // hot path's static graph (and to avoid a static import cycle).
+    const { ensureProjectId } = await import('@/lib/studio-projects/api');
+    const projectId = await ensureProjectId(token);
+
+    const payload = await pickUploadPayload(clipId, buffer);
+    const asset = await uploadAndFinalizeAsset(token, {
+      projectId,
+      bytes: payload.bytes,
+      contentType: payload.contentType,
+      source: 'recording',
+      durationSeconds: buffer.duration,
+      sampleRate: buffer.sampleRate,
+      channels: buffer.numberOfChannels,
+    });
+
+    // Guard against the clip having been deleted while the upload was in flight.
+    const stillExists = useStore
+      .getState()
+      .tracks.some((t) => t.audioClips.some((c) => c.id === clipId));
+    if (stillExists) {
+      useStore.getState().updateAudioClip(trackId, clipId, {
+        assetId: asset.id,
+      });
+    }
+  })();
+
+  recordingUploadsInFlight.set(clipId, upload);
+  try {
+    await upload;
+  } finally {
+    recordingUploadsInFlight.delete(clipId);
+  }
+}
+
 /**
  * Find every audio clip in the store whose `assetId` is still null, encode its
  * in-memory AudioBuffer as WAV, upload to GCS, and stamp the returned asset id
@@ -123,10 +189,17 @@ export async function uploadPendingAudioClips(
   token: string,
   projectId: string,
 ): Promise<void> {
-  const state = useStore.getState();
+  // Let any in-progress immediate-on-record uploads finish first; they stamp
+  // their own assetIds, so awaiting them keeps us from re-uploading the same
+  // clip (a duplicate orphan asset). Failures are ignored here — the clip just
+  // stays pending and gets picked up below.
+  const inFlight = Array.from(recordingUploadsInFlight.values());
+  if (inFlight.length > 0) {
+    await Promise.allSettled(inFlight);
+  }
 
   const pending: PendingClip[] = [];
-  for (const track of state.tracks) {
+  for (const track of useStore.getState().tracks) {
     for (const clip of track.audioClips) {
       if (clip.assetId) continue;
       const buffer = getAudioBuffer(clip.id);

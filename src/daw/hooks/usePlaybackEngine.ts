@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
+import { showError } from '@/components/utils/toast';
 import { useStore, type InstrumentType } from '@/daw/store';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { TrackEngine } from '@/daw/audio/TrackEngine';
@@ -154,7 +155,13 @@ function resolvePitchBuffer(
 // created/destroyed. When playback starts, all MIDI clips are scheduled
 // through Tone.Transport.
 
-export function usePlaybackEngine(isReady: boolean) {
+export function usePlaybackEngine(isReady: boolean, token: string | null) {
+  // Kept in a ref so the recording effect can read the latest token when a
+  // recording stops without re-subscribing (and re-creating the recorder)
+  // every time the token refreshes.
+  const tokenRef = useRef(token);
+  tokenRef.current = token;
+
   const trackAudioRef = useRef(trackEngineRegistry);
   const schedulerRef = useRef(new MidiScheduler());
   const audioClipSchedulerRef = useRef(new AudioClipScheduler());
@@ -675,6 +682,27 @@ export function usePlaybackEngine(isReady: boolean) {
             });
             // Auto-rewind playhead to clip start so next play replays the recording
             seekTo(startTick);
+
+            // Upload to GCS immediately so the bytes survive a page reload —
+            // the decoded buffer and original bytes live only in memory until
+            // now. Stamps the returned assetId onto the clip. Fire-and-forget:
+            // a failure leaves assetId=null so the next cloud Save retries.
+            const token = tokenRef.current;
+            if (token) {
+              void (async () => {
+                const { uploadRecordedClip } = await import(
+                  '@/lib/studio-assets/upload-pending'
+                );
+                await uploadRecordedClip(token, trackId, clipId);
+              })().catch((err) => {
+                console.error('[recording] immediate upload failed', err);
+                showError(
+                  `Recorded audio couldn't be saved to the cloud: ${
+                    err instanceof Error ? err.message : 'unknown error'
+                  }. It will retry on the next Save.`,
+                );
+              });
+            }
           }
         })
         .catch((err) => {

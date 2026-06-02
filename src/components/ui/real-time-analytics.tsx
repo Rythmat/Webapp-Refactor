@@ -26,7 +26,6 @@ export const RealTimeAnalytics: FC<XpTrackerProps> = ({
 
   const width = 700;
   const height = 140;
-  const padding = { top: 12, right: 16, bottom: 28, left: 36 };
 
   const { maxValue, step } = useMemo(() => {
     const allValues = [
@@ -57,6 +56,20 @@ export const RealTimeAnalytics: FC<XpTrackerProps> = ({
     for (let v = 0; v <= maxValue; v += step) ticks.push(v);
     return ticks;
   }, [maxValue, step]);
+
+  // The widest label is the top tick. Shrink the font as digits are added and
+  // widen the left gutter to match, so large numbers never get clipped.
+  const { yLabelFontSize, padding } = useMemo(() => {
+    const digits = String(maxValue).length;
+    // 12px up to 3 digits, then step down 1px per extra digit (floor 9px).
+    const fontSize = Math.max(9, 12 - Math.max(0, digits - 3));
+    // Approx label width (≈0.6em per char) + 12px gap to the axis + buffer.
+    const left = Math.ceil(digits * fontSize * 0.6) + 12 + 6;
+    return {
+      yLabelFontSize: fontSize,
+      padding: { top: 12, right: 16, bottom: 28, left },
+    };
+  }, [maxValue]);
 
   const getX = (i: number) => {
     return (
@@ -140,7 +153,7 @@ export const RealTimeAnalytics: FC<XpTrackerProps> = ({
                 x={padding.left - 12}
                 y={getY(val)}
                 fill="rgba(255,255,255,0.35)"
-                fontSize="12"
+                fontSize={yLabelFontSize}
                 textAnchor="end"
                 dominantBaseline="middle"
               >

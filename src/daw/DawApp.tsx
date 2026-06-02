@@ -29,9 +29,9 @@ import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
 
 function DawAppInner() {
   const { isReady, initEngine } = useAudioEngine();
-  useTransport();
-  usePlaybackEngine(isReady);
   const authToken = useAuthToken();
+  useTransport();
+  usePlaybackEngine(isReady, authToken);
   useKeyboardShortcuts(authToken);
   useAutosave();
   useMidiInputRouting();

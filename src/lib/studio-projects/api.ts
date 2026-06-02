@@ -1,5 +1,6 @@
 import SuperJSON from 'superjson';
 import { getCurrentAppSessionId } from '@/auth/app-session-store';
+import { showWarning } from '@/components/utils/toast';
 import { Env } from '@/constants/env';
 import {
   serializeSessionForCloud,
@@ -173,19 +174,53 @@ export const studioProjectsApi = {
     ),
 };
 
+// Guards against two concurrent first-saves (e.g. an upload-on-record firing at
+// the same moment the user hits Save) each POSTing a fresh project. Whoever
+// wins the race mints the id; everyone else awaits the same promise.
+let projectCreateInFlight: Promise<string> | null = null;
+
+/**
+ * Return the current cloud project id, minting the project (audio-less) if it
+ * doesn't exist yet. Audio clips without an assetId are dropped from the create
+ * payload (they're uploaded separately), so this is safe to call the moment a
+ * recording finishes — before any audio has an assetId.
+ *
+ * Concurrency-safe: simultaneous callers share a single create request.
+ */
+export async function ensureProjectId(token: string): Promise<string> {
+  const existing = useStore.getState().projectId;
+  if (existing) return existing;
+  if (projectCreateInFlight) return projectCreateInFlight;
+
+  projectCreateInFlight = (async () => {
+    const created = await studioProjectsApi.create(
+      token,
+      serializeSessionForCloud(),
+    );
+    useStore.getState().setProjectId(created.id);
+    return created.id;
+  })();
+
+  try {
+    return await projectCreateInFlight;
+  } finally {
+    projectCreateInFlight = null;
+  }
+}
+
 /**
  * Save the current store state to the cloud, including uploading any in-memory
- * audio clips that don't yet have an assetId. Audio bytes only leave the
- * browser when Save is invoked — recording and importing keep clips ephemeral
- * until the user commits.
+ * audio clips that don't yet have an assetId.
+ *
+ * Recorded clips are normally uploaded the instant recording stops (see
+ * uploadRecordedClip), so by Save time they usually already carry an assetId.
+ * This still re-uploads anything left pending (e.g. imported clips, or a
+ * recording whose immediate upload failed) as a safety net.
  *
  * Shapes the save as:
- *   1. If projectId is null: POST with whatever state we have (audio clips
- *      without assetId get dropped in serializeSessionForCloud, returning an
- *      empty audio section). This mints the projectId we need to upload to.
+ *   1. Ensure the project exists (mint the id if this is the first save).
  *   2. Upload any pending audio clips, stamping their assetId onto the store.
- *   3. If there were pending clips OR this is an existing project: PUT the
- *      now-complete state.
+ *   3. PUT the now-complete state.
  *
  * Shared by the File menu Save button and the Cmd-S keyboard shortcut.
  */
@@ -198,38 +233,35 @@ export async function saveCurrentProjectToCloud(
     '@/lib/studio-assets/upload-pending'
   );
 
-  const state = useStore.getState();
-  const hasPendingAudio = state.tracks.some((t) =>
-    t.audioClips.some((c) => !c.assetId),
-  );
+  const projectId = await ensureProjectId(token);
 
-  let result: StudioProjectDetail;
-
-  if (!state.projectId) {
-    // First save — POST to mint the project id, even if we'll re-PUT in a
-    // moment to attach uploaded audio. POST first because asset upload needs
-    // a real projectId for ownership + bucket-key layout.
-    result = await studioProjectsApi.create(token, serializeSessionForCloud());
-    state.setProjectId(result.id);
-    if (!hasPendingAudio) return result;
-  }
-
-  // projectId is non-null here either because it was set on entry or just got
-  // stamped above.
-  const projectId = useStore.getState().projectId;
-  if (!projectId) {
-    throw new Error('Save failed: projectId was unexpectedly null after POST');
-  }
-
+  const hasPendingAudio = useStore
+    .getState()
+    .tracks.some((t) => t.audioClips.some((c) => !c.assetId));
   if (hasPendingAudio) {
     await uploadPendingAudioClips(token, projectId);
   }
 
   // Final write with the up-to-date payload (post-upload assetIds included).
-  result = await studioProjectsApi.update(
+  const result = await studioProjectsApi.update(
     token,
     projectId,
     serializeSessionForCloud(),
   );
+
+  // Any clip still missing an assetId here is one whose audio bytes are no
+  // longer in memory (e.g. recorded before this build, or an upload that kept
+  // failing) — it was just dropped from the saved project. Don't let that pass
+  // silently as a clean save.
+  const unsavedAudioClips = useStore
+    .getState()
+    .tracks.flatMap((t) => t.audioClips)
+    .filter((c) => !c.assetId).length;
+  if (unsavedAudioClips > 0) {
+    showWarning(
+      `${unsavedAudioClips} audio clip(s) could not be uploaded and were left out of the saved project.`,
+    );
+  }
+
   return result;
 }

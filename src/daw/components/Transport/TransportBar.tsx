@@ -27,6 +27,7 @@ import { CircleOfFifths } from '../Prism/CircleOfFifths';
 import { RainbowBorderButton } from '@/components/ui/rainbow-borders-button';
 import { THEME_ORDER, THEME_LABELS } from '@/daw/constants/themes';
 import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
+import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
 import { InviteNotificationBell } from '@/daw/collab/ui/InviteNotificationBell';
 import { TransportLinkToggle } from '@/daw/collab/ui/TransportLinkToggle';
 
@@ -247,7 +248,23 @@ export const TransportBar = memo(function TransportBar({
     () => withInit(isPlaying ? pause : play),
     [withInit, isPlaying, pause, play],
   );
-  const handleRecord = useCallback(() => withInit(record), [withInit, record]);
+  // Recording onto an audio track that already has a take overwrites whatever
+  // the new take rolls over in time — warn before starting.
+  const [overwriteConfirmOpen, setOverwriteConfirmOpen] = useState(false);
+  const startRecording = useCallback(
+    () => withInit(record),
+    [withInit, record],
+  );
+  const handleRecord = useCallback(() => {
+    const armedAudio = useStore
+      .getState()
+      .tracks.find((t) => t.type === 'audio' && t.recordArmed);
+    if (armedAudio && armedAudio.audioClips.length > 0) {
+      setOverwriteConfirmOpen(true);
+      return;
+    }
+    startRecording();
+  }, [startRecording]);
 
   // Local state so the user can freely clear / type without the controlled
   // value snapping back on every keystroke.
@@ -893,6 +910,17 @@ export const TransportBar = memo(function TransportBar({
           </motion.button>
         </div>
       </div>
+
+      <ConfirmModal
+        open={overwriteConfirmOpen}
+        onOpenChange={setOverwriteConfirmOpen}
+        title="Overwrite existing recording?"
+        description="This track already has a recording. Starting a new recording will overwrite any audio it rolls over in time."
+        confirmLabel="Continue"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={startRecording}
+      />
     </div>
   );
 });

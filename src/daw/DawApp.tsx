@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import './daw.css';
 import { ChannelStrip } from '@/daw/components/ChannelStrip/ChannelStrip';
 import { LibraryPanel } from '@/daw/components/Library/LibraryPanel';
@@ -10,12 +10,23 @@ import { StudioView } from '@/daw/components/Studio/StudioView';
 import { TimelineWithHeaders } from '@/daw/components/Timeline/TimelineWithHeaders';
 import { PrismSuggestionModal } from '@/daw/components/Prism/PrismSuggestionModal';
 import { SettingsModal } from '@/daw/components/Transport/SettingsModal';
+import { RecordingLimitModal } from '@/daw/components/Transport/RecordingLimitModal';
 import { TransportBar } from '@/daw/components/Transport/TransportBar';
 import { useAudioEngine } from '@/daw/hooks/useAudioEngine';
 import { useAutosave } from '@/daw/hooks/useAutosave';
 import { useKeyboardShortcuts } from '@/daw/hooks/useKeyboardShortcuts';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
-import { restoreLocalSessionIfPresent } from '@/lib/studio-projects/localSession';
+import {
+  clearLocalSession,
+  restoreLocalSessionIfPresent,
+} from '@/lib/studio-projects/localSession';
+import { studioProjectsApi } from '@/lib/studio-projects/api';
+import {
+  deserializeCloudProject,
+  resetSessionToEmpty,
+} from '@/daw/persistence/SessionSerializer';
+import { loadCloudProjectAudio } from '@/lib/studio-assets/load-audio';
+import { StudioRoutes } from '@/constants/routes';
 import { useAudioChordDetection } from '@/daw/hooks/useAudioChordDetection';
 import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
 import { usePlaybackEngine } from '@/daw/hooks/usePlaybackEngine';
@@ -46,10 +57,65 @@ function DawAppInner() {
 
   useEffect(() => {
     initUndoTracking();
-    // Restore the last in-progress session from localStorage, if any. Cloud
-    // remains the source of truth for explicit saves; this is crash recovery.
-    restoreLocalSessionIfPresent();
   }, []);
+
+  // Decide what to load when the studio boots. The home page routes here with
+  // `?project=<id>` to open a saved project, or `?new=1` to start fresh; absent
+  // either, we fall back to crash-recovery restore from localStorage. The store
+  // is a module singleton that survives SPA navigation, so an explicit New
+  // Project must reset it — a stale project would otherwise bleed through.
+  const bootedRef = useRef(false);
+  useEffect(() => {
+    if (bootedRef.current) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const projectParam = params.get('project');
+    const isNew = params.get('new') === '1';
+
+    // Strip the boot intent from the URL so a later refresh just restores the
+    // (now-current) local session instead of re-running this.
+    const clearQuery = () =>
+      window.history.replaceState({}, '', StudioRoutes.root.definition);
+
+    if (projectParam) {
+      // Opening a cloud project needs a token; wait for it to resolve rather
+      // than consuming the boot intent prematurely.
+      if (!authToken) return;
+      bootedRef.current = true;
+      void (async () => {
+        try {
+          const project = await studioProjectsApi.get(authToken, projectParam);
+          deserializeCloudProject(project);
+          // Audio buffers download + decode in the background; clips appear in
+          // the timeline immediately and become playable as bytes arrive.
+          void loadCloudProjectAudio(authToken).catch((err) => {
+            console.error('Audio asset load failed', err);
+          });
+        } catch (err) {
+          console.error('Failed to open project from home', err);
+          // Fall back to whatever in-progress session exists locally.
+          restoreLocalSessionIfPresent();
+        } finally {
+          clearQuery();
+        }
+      })();
+      return;
+    }
+
+    bootedRef.current = true;
+    if (isNew) {
+      // Drop the local autosave so nothing restores the project we're leaving.
+      clearLocalSession();
+      resetSessionToEmpty();
+      clearQuery();
+      return;
+    }
+
+    // Default: restore the last in-progress session from localStorage, if any.
+    // Cloud remains the source of truth for explicit saves; this is crash
+    // recovery.
+    restoreLocalSessionIfPresent();
+  }, [authToken]);
 
   useEffect(() => {
     if (isReady) return;
@@ -105,6 +171,7 @@ function DawAppInner() {
       )}
       <SettingsModal />
       <PrismSuggestionModal />
+      <RecordingLimitModal />
     </div>
   );
 }

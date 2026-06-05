@@ -14,7 +14,7 @@ export const easy_goin_evening_my_mamas_call: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['slow_swing'],
+  genreTags: ['jazz'],
   techniques: [],
 
   sections: [
@@ -325,6 +325,8 @@ export const easy_goin_evening_my_mamas_call: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=L0ZXSbUvWWs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

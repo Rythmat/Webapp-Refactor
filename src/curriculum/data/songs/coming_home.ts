@@ -14,7 +14,7 @@ export const coming_home: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['soul'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -228,6 +228,8 @@ export const coming_home: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MTrKkqE9p1o' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/leon-bridges.webp',
   popularity: 50,
 };

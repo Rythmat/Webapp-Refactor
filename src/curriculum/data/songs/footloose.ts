@@ -15,7 +15,7 @@ export const footloose: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -390,6 +390,8 @@ export const footloose: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=-iiNm0WxJ7Q' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/kenny-loggins-nathan-east.webp',
   popularity: 50,
 };

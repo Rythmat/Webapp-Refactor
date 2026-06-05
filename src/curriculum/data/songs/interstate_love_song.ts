@@ -14,7 +14,7 @@ export const interstate_love_song: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['alternative_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -297,6 +297,8 @@ export const interstate_love_song: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yjJL9DGU7Gg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stone-temple-pilots.webp',
   popularity: 50,
 };

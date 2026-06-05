@@ -14,7 +14,7 @@ export const jump_jive_an_wail: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['blues_jazz'],
+  genreTags: ['blues', 'jazz'],
   techniques: [],
 
   sections: [
@@ -130,6 +130,8 @@ export const jump_jive_an_wail: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aHWcN5YxuYc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/brian-setzer.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const tapestry: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -395,6 +395,8 @@ export const tapestry: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=SyQ-TgA6bQk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/carole-king.webp',
   popularity: 50,
 };

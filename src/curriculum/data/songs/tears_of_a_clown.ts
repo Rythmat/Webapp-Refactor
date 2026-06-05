@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const tears_of_a_clown: Song = {
   id: 'tears_of_a_clown',
   title: 'Tears Of A Clown',
-  artist: 'Smokey Robinson &amp; The Miracles',
+  artist: 'Smokey Robinson & The Miracles',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const tears_of_a_clown: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['motown'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -289,6 +289,8 @@ export const tears_of_a_clown: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=51B55OQysj8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/smokey-robinson-amp-the-miracles.webp',
   popularity: 50,
 };

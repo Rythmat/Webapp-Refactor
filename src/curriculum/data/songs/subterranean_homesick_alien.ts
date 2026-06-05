@@ -265,6 +265,8 @@ export const subterranean_homesick_alien: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_fTWmUlTEqE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/radiohead.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const saturn: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -315,6 +315,8 @@ export const saturn: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=p3KpUO6t9qQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

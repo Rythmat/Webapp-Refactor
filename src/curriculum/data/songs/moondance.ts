@@ -14,7 +14,7 @@ export const moondance: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['jazzy_pop'],
+  genreTags: ['jazz', 'pop'],
   techniques: [],
 
   sections: [
@@ -342,6 +342,8 @@ export const moondance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6lFxGBB4UGU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/van-morrison.webp',
   popularity: 50,
 };

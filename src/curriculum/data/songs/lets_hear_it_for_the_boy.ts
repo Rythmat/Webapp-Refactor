@@ -294,6 +294,8 @@ export const lets_hear_it_for_the_boy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gI7YHZVc7mM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/deniece-williams.webp',
   popularity: 50,
 };

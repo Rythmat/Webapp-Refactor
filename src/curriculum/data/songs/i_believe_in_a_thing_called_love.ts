@@ -14,7 +14,7 @@ export const i_believe_in_a_thing_called_love: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['glam_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -483,6 +483,8 @@ export const i_believe_in_a_thing_called_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tKjZuykKY1I' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-darkness.webp',
   popularity: 50,
 };

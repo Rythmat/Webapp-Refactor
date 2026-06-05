@@ -15,7 +15,7 @@ export const the_love_shack: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['new_wave'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -191,6 +191,8 @@ export const the_love_shack: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=9SOryJvTAGs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-b-52s.webp',
   popularity: 50,
 };

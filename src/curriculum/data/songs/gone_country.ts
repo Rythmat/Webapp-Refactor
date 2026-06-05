@@ -14,7 +14,7 @@ export const gone_country: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country_pop'],
+  genreTags: ['folk', 'pop'],
   techniques: [],
 
   sections: [
@@ -327,6 +327,8 @@ export const gone_country: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=si-ja75bFvI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/alan-jackson.webp',
   popularity: 50,
 };

@@ -89,6 +89,8 @@ export const what_i_like_about_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Rqnw5IfbZOU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-romantics.webp',
   popularity: 50,
 };

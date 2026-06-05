@@ -14,7 +14,7 @@ export const sangria: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -164,6 +164,8 @@ export const sangria: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=KoQrH6EMnas' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/blake-shelton.webp',
   popularity: 50,
 };

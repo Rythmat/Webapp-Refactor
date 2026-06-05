@@ -14,7 +14,7 @@ export const chain_of_fools: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -64,6 +64,8 @@ export const chain_of_fools: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5C4FnlftQt4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/aretha-franklin.webp',
   popularity: 50,
 };

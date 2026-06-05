@@ -15,7 +15,7 @@ export const pumped_up_for_kicks: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['indie_pop'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -54,6 +54,8 @@ export const pumped_up_for_kicks: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=SDTZ7iX4vTQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/foster-the-people.webp',
   popularity: 50,
 };

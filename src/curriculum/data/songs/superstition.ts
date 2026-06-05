@@ -300,6 +300,8 @@ export const superstition: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ftdZ363R9kQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

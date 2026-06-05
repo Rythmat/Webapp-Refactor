@@ -15,7 +15,7 @@ export const this_must_be_the_place_naive_melody: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['new_wave'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -63,6 +63,8 @@ export const this_must_be_the_place_naive_melody: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Fb2q141rMNE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads-tina-weymouth.webp',
   popularity: 50,
 };

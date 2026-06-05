@@ -14,7 +14,7 @@ export const hot_n_cold: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -177,6 +177,8 @@ export const hot_n_cold: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kTHNpusq654' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/katy-perry.webp',
   popularity: 50,
 };

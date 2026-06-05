@@ -14,7 +14,7 @@ export const aint_it_fun: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['straight_eighth_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -302,6 +302,8 @@ export const aint_it_fun: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=EFEmTsfFL5A' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/paramore.webp',
   popularity: 50,
 };

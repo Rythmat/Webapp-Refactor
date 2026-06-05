@@ -15,7 +15,7 @@ export const i_hope_you_dance: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -303,6 +303,8 @@ export const i_hope_you_dance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RV-Z1YwaOiw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/leann-womack.webp',
   popularity: 50,
 };

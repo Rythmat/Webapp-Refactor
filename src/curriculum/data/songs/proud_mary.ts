@@ -15,7 +15,7 @@ export const proud_mary: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -192,6 +192,8 @@ export const proud_mary: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hzQnPz6TpGc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ike-and-tina-turner.webp',
   popularity: 50,
 };

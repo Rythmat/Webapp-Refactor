@@ -14,7 +14,7 @@ export const what_a_wonderful_world: Song = {
   timeSignature: [6, 8],
 
   difficulty: 3,
-  genreTags: ['jazz_ballad'],
+  genreTags: ['jazz'],
   techniques: [],
 
   sections: [
@@ -303,6 +303,8 @@ export const what_a_wonderful_world: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rBrd_3VMC3c' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/louis-armstrong.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const the_seed_2_0: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -720,6 +720,8 @@ export const the_seed_2_0: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ojC0mg2hJCc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-roots.webp',
   popularity: 50,
 };

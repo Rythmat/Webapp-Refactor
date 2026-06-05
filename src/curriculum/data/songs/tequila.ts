@@ -14,7 +14,7 @@ export const tequila: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -133,6 +133,8 @@ export const tequila: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=U_JFLb1IItM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-champs.webp',
   popularity: 50,
 };

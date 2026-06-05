@@ -14,7 +14,7 @@ export const power_of_love: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -363,6 +363,8 @@ export const power_of_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wBl2QGAIx1s' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/huey-lewis-and-the-news.webp',
   popularity: 50,
 };

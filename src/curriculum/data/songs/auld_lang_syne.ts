@@ -14,7 +14,7 @@ export const auld_lang_syne: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_song'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -63,6 +63,8 @@ export const auld_lang_syne: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yRk_vbg9sWA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/traditional.webp',
   popularity: 50,
 };

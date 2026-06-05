@@ -14,7 +14,7 @@ export const i_got_a_woman: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['jazzy_pop'],
+  genreTags: ['jazz', 'pop'],
   techniques: [],
 
   sections: [
@@ -221,6 +221,8 @@ export const i_got_a_woman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CnI_LuCJ4Ek' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ray-charles.webp',
   popularity: 50,
 };

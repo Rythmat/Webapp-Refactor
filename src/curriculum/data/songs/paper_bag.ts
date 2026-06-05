@@ -14,7 +14,7 @@ export const paper_bag: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['indie_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -310,6 +310,8 @@ export const paper_bag: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BK30r_SIZ-g' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/fiona-apple.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const its_too_late: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -378,6 +378,8 @@ export const its_too_late: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=VkKxmnrRVHo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/carole-king.webp',
   popularity: 50,
 };

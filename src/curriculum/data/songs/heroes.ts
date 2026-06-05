@@ -93,6 +93,8 @@ export const heroes: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lXgkuM2NhYI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/david-bowie.webp',
   popularity: 50,
 };

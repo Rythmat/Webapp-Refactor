@@ -14,7 +14,7 @@ export const chicken_fried: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['country_pop'],
+  genreTags: ['folk', 'pop'],
   techniques: [],
 
   sections: [
@@ -291,6 +291,8 @@ export const chicken_fried: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=e4ujS1er1r0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/zac-brown-band.webp',
   popularity: 50,
 };

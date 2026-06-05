@@ -14,7 +14,7 @@ export const hey_soul_sister: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -373,6 +373,8 @@ export const hey_soul_sister: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kVpv8-5XWOI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/train.webp',
   popularity: 50,
 };

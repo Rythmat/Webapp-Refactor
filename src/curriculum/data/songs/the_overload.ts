@@ -62,6 +62,8 @@ export const the_overload: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fNpc8jv7Awk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

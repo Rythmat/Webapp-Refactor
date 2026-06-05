@@ -14,7 +14,7 @@ export const mad_world: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['synth_pop'],
+  genreTags: ['electronic', 'pop'],
   techniques: [],
 
   sections: [
@@ -239,6 +239,8 @@ export const mad_world: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=u1ZvPSpLxCg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tears-for-fears.webp',
   popularity: 50,
 };

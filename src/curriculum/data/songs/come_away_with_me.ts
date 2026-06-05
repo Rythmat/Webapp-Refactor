@@ -14,7 +14,7 @@ export const come_away_with_me: Song = {
   timeSignature: [3, 4],
 
   difficulty: 2,
-  genreTags: ['pop_waltz'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -185,6 +185,8 @@ export const come_away_with_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lbjZPFBD6JU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/norah-jones.webp',
   popularity: 50,
 };

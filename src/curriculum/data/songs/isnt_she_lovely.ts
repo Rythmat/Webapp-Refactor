@@ -14,7 +14,7 @@ export const isnt_she_lovely: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -97,6 +97,8 @@ export const isnt_she_lovely: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oE56g61mW44' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

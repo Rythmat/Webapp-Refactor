@@ -14,7 +14,7 @@ export const graceland: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -327,6 +327,8 @@ export const graceland: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GP6a-7MP91g' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/paul-simon.webp',
   popularity: 50,
 };

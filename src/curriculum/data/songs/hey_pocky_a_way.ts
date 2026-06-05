@@ -196,6 +196,8 @@ export const hey_pocky_a_way: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=EEtXT9w9AYU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-meters.webp',
   popularity: 50,
 };

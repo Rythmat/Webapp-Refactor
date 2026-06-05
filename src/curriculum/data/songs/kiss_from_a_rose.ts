@@ -14,7 +14,7 @@ export const kiss_from_a_rose: Song = {
   timeSignature: [6, 8],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -366,6 +366,8 @@ export const kiss_from_a_rose: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hDd2G_V1rzc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/seal.webp',
   popularity: 50,
 };

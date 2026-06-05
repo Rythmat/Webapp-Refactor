@@ -14,7 +14,7 @@ export const motownphilly: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -420,6 +420,8 @@ export const motownphilly: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Rciee-oQLoI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/boyz-2-men.webp',
   popularity: 50,
 };

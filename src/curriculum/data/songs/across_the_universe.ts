@@ -14,7 +14,7 @@ export const across_the_universe: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -342,6 +342,8 @@ export const across_the_universe: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=90M60PzmxEE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

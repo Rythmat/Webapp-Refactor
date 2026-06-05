@@ -14,7 +14,7 @@ export const ignition_remix: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -104,6 +104,8 @@ export const ignition_remix: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MKvqpnB0SxE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/r-kelly.webp',
   popularity: 50,
 };

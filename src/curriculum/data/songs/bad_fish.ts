@@ -14,7 +14,7 @@ export const bad_fish: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['ska_rock'],
+  genreTags: ['reggae', 'rock'],
   techniques: [],
 
   sections: [
@@ -174,6 +174,8 @@ export const bad_fish: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rmadSGJCzo8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sublime.webp',
   popularity: 50,
 };

@@ -49,6 +49,8 @@ export const crosseyed_and_painless: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=z92avHmgDRA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

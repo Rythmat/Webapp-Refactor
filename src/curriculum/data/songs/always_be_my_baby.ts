@@ -14,7 +14,7 @@ export const always_be_my_baby: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -310,6 +310,8 @@ export const always_be_my_baby: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=LfRNRymrv9k' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/mariah-carey.webp',
   popularity: 50,
 };

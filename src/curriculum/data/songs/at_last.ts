@@ -14,7 +14,7 @@ export const at_last: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -543,6 +543,8 @@ export const at_last: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1qJU8G7gR_g' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/etta-james.webp',
   popularity: 50,
 };

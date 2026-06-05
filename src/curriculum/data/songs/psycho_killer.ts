@@ -262,6 +262,8 @@ export const psycho_killer: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CJ54eImz88w' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

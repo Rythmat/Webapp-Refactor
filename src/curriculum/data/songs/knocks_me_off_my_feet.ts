@@ -14,7 +14,7 @@ export const knocks_me_off_my_feet: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -492,6 +492,8 @@ export const knocks_me_off_my_feet: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BI4sC5hidUg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

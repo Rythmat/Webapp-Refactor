@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const if_you_want_me_to_stay: Song = {
   id: 'if_you_want_me_to_stay',
   title: 'If You Want Me To Stay',
-  artist: 'Sly And The Family Stone',
+  artist: 'Sly and the Family Stone',
   year: undefined,
 
   historicalDescription:
@@ -103,6 +103,8 @@ export const if_you_want_me_to_stay: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gZFabOuF4Ps' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sly-and-the-family-stone.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const son_of_a_preacher_man: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['soul'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -172,6 +172,8 @@ export const son_of_a_preacher_man: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oAZLgsDRUv4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/dusty-springfield.webp',
   popularity: 50,
 };

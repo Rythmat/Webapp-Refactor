@@ -14,7 +14,7 @@ export const i_kissed_a_girl: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -573,6 +573,8 @@ export const i_kissed_a_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tAp9BKosZXs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/katy-perry.webp',
   popularity: 50,
 };

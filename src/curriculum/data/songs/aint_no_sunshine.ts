@@ -14,7 +14,7 @@ export const aint_no_sunshine: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -192,6 +192,8 @@ export const aint_no_sunshine: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=YuKfiH0Scao' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bill-withers.webp',
   popularity: 50,
 };

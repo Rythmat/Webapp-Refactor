@@ -14,7 +14,7 @@ export const cold_sweat: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['straight_eighth_funk'],
+  genreTags: ['funk'],
   techniques: [],
 
   sections: [
@@ -165,6 +165,8 @@ export const cold_sweat: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tvltTXEg5kI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/james-brown.webp',
   popularity: 50,
 };

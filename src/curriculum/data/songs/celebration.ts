@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const celebration: Song = {
   id: 'celebration',
   title: 'Celebration',
-  artist: 'Kool And The Gang',
+  artist: 'Kool & the Gang',
   year: undefined,
 
   historicalDescription:
@@ -296,6 +296,8 @@ export const celebration: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3GwjfUFyY6M' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/kool-and-the-gang.webp',
   popularity: 50,
 };

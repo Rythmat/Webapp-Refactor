@@ -263,6 +263,8 @@ export const play_that_funky_music: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=JTvlujbJ5vg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/wild-cherry.webp',
   popularity: 50,
 };

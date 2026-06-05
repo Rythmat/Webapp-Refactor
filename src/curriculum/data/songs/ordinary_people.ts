@@ -15,7 +15,7 @@ export const ordinary_people: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -115,6 +115,8 @@ export const ordinary_people: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PIh07c_P4hc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/joe-legend.webp',
   popularity: 50,
 };

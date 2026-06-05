@@ -403,6 +403,8 @@ export const bustin_loose: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MuWKRuN0ss0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/chuck-brown.webp',
   popularity: 50,
 };

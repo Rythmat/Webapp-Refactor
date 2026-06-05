@@ -319,6 +319,8 @@ export const jump_for_my_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uyTVyCp7xrw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-pointer-sisters.webp',
   popularity: 50,
 };

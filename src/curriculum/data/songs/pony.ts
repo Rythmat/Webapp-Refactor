@@ -14,7 +14,7 @@ export const pony: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -49,6 +49,8 @@ export const pony: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lbnoG2dsUk0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ginuwine.webp',
   popularity: 50,
 };

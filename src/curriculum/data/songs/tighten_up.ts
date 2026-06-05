@@ -182,6 +182,8 @@ export const tighten_up: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mpaPBCBjSVc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-black-keys.webp',
   popularity: 50,
 };

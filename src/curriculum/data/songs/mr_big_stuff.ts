@@ -240,6 +240,8 @@ export const mr_big_stuff: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=EJ-4cKFVC34' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/jean-knight.webp',
   popularity: 50,
 };

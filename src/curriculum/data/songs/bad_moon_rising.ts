@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const bad_moon_rising: Song = {
   id: 'bad_moon_rising',
   title: 'Bad Moon Rising',
-  artist: 'CCR',
+  artist: 'Creedence Clearwater Revival',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const bad_moon_rising: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -301,6 +301,8 @@ export const bad_moon_rising: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=zUQiUFZ5RDw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/creedence-clearwater-revival.webp',
   popularity: 50,
 };

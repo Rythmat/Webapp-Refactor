@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const maneater: Song = {
   id: 'maneater',
   title: 'Maneater',
-  artist: 'Hall and Oates',
+  artist: 'Hall & Oates',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const maneater: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -544,6 +544,8 @@ export const maneater: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yRYFKcMa_Ek' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/hall-and-oates.webp',
   popularity: 50,
 };

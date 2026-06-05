@@ -14,7 +14,7 @@ export const late_in_the_evening: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -387,6 +387,8 @@ export const late_in_the_evening: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ilzvuie7Bks' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/paul-simon.webp',
   popularity: 50,
 };

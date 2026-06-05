@@ -15,7 +15,7 @@ export const love_never_felt_so_good: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -420,6 +420,8 @@ export const love_never_felt_so_good: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oG08ukJPtR8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'manual',
+
+  artistImageRef: '/artists/michael-jackson.webp',
   popularity: 50,
 };

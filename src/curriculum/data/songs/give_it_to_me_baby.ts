@@ -155,6 +155,8 @@ export const give_it_to_me_baby: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1dNIQVYGXbM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/rick-james.webp',
   popularity: 50,
 };

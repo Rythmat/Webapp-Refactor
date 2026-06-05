@@ -14,7 +14,7 @@ export const little_lion_man: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['indie_folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -274,6 +274,8 @@ export const little_lion_man: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lLJf9qJHR3E' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/mumford-sons.webp',
   popularity: 50,
 };

@@ -99,6 +99,8 @@ export const have_a_talk_with_god: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yQVeCxtuP14' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

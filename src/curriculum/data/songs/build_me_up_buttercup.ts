@@ -14,7 +14,7 @@ export const build_me_up_buttercup: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -263,6 +263,8 @@ export const build_me_up_buttercup: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hSofzQURQDk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-foundations.webp',
   popularity: 50,
 };

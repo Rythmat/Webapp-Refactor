@@ -368,6 +368,8 @@ export const new_york_new_york: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=le1QF3uoQNg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/frank-sinatra.webp',
   popularity: 50,
 };

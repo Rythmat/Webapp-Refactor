@@ -14,7 +14,7 @@ export const perfect: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -452,6 +452,8 @@ export const perfect: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2Vv-BfVoq4g' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ed-sheeran.webp',
   popularity: 50,
 };

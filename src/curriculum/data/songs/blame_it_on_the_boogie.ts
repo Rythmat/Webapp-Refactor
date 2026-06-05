@@ -298,6 +298,8 @@ export const blame_it_on_the_boogie: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nqxVMLVe62U' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/michael-jackson.webp',
   popularity: 50,
 };

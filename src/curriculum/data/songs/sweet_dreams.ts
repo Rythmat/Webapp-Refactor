@@ -15,7 +15,7 @@ export const sweet_dreams: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['new_wave'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -394,6 +394,8 @@ export const sweet_dreams: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=qeMFqkcPYcg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/eurhythmics.webp',
   popularity: 50,
 };

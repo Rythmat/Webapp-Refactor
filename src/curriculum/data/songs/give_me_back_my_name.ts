@@ -320,6 +320,8 @@ export const give_me_back_my_name: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=J-Oag4UAz_Y' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

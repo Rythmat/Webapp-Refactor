@@ -15,7 +15,7 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['soul_R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -260,6 +260,8 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=EKTgWozFEyo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'manual',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const september: Song = {
   id: 'september',
   title: 'September',
-  artist: 'Earth, Wind And Fire',
+  artist: 'Earth, Wind & Fire',
   year: undefined,
 
   historicalDescription:
@@ -565,6 +565,8 @@ export const september: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Gs069dndIYk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/earth-wind-and-fire.webp',
   popularity: 50,
 };

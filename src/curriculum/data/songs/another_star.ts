@@ -14,7 +14,7 @@ export const another_star: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['calypso'],
+  genreTags: ['latin'],
   techniques: [],
 
   sections: [
@@ -458,6 +458,8 @@ export const another_star: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Up4FPkv2Ycc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

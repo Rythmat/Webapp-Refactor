@@ -14,7 +14,7 @@ export const eight_days_a_week: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -158,6 +158,8 @@ export const eight_days_a_week: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kle2xHhRHg4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

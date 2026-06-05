@@ -14,7 +14,7 @@ export const hey_ya: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -44,6 +44,8 @@ export const hey_ya: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PWgvGjAhvIw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/outkast.webp',
   popularity: 50,
 };

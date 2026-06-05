@@ -14,7 +14,7 @@ export const magic_carpet_ride: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -183,6 +183,8 @@ export const magic_carpet_ride: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=HPE9a_epmWw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/steppenwolf.webp',
   popularity: 50,
 };

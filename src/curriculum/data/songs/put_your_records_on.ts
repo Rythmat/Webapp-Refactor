@@ -14,7 +14,7 @@ export const put_your_records_on: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -291,6 +291,8 @@ export const put_your_records_on: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rjOhZZyn30k' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/corinne-bailey-rae.webp',
   popularity: 50,
 };

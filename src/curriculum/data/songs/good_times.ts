@@ -14,7 +14,7 @@ export const good_times: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['disco'],
+  genreTags: ['funk'],
   techniques: [],
 
   sections: [
@@ -319,6 +319,8 @@ export const good_times: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Er9xGRolrT4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/chic.webp',
   popularity: 50,
 };

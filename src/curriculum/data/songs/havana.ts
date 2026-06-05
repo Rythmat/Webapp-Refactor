@@ -14,7 +14,7 @@ export const havana: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['latin_pop'],
+  genreTags: ['latin', 'pop'],
   techniques: [],
 
   sections: [
@@ -133,6 +133,8 @@ export const havana: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BQ0mxQXmLsk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/camila-cabello.webp',
   popularity: 50,
 };

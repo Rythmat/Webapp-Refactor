@@ -14,7 +14,7 @@ export const my_little_girl: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['country_pop_ballad'],
+  genreTags: ['folk', 'pop'],
   techniques: [],
 
   sections: [
@@ -271,6 +271,8 @@ export const my_little_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3cznXIXDlM4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tim-mcgraw.webp',
   popularity: 50,
 };

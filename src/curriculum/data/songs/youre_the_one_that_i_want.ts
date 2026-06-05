@@ -15,7 +15,7 @@ export const youre_the_one_that_i_want: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -411,6 +411,8 @@ export const youre_the_one_that_i_want: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=e__Pp4FxsjU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/grease.webp',
   popularity: 50,
 };

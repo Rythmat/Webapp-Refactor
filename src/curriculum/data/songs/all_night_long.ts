@@ -14,7 +14,7 @@ export const all_night_long: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -308,6 +308,8 @@ export const all_night_long: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nqAvFx3NxUM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/lionel-richie.webp',
   popularity: 50,
 };

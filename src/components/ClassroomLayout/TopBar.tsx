@@ -1,6 +1,6 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import type { FC } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useUISound } from '@/hooks/useUISound';
 import {
   AtlasRoutes,
@@ -10,71 +10,6 @@ import {
 } from '@/constants/routes';
 import { useExperienceSummary } from '@/hooks/data/experience';
 import { UserWidget } from '@/layouts/DashboardLayout/UserWidget';
-
-type LearnTabKey = 'Songs' | 'Style' | 'Theory' | 'Technique';
-
-const LEARN_TABS: LearnTabKey[] = ['Songs', 'Style', 'Theory', 'Technique'];
-
-// Maps the user-facing tab label to the URL `tab` searchParam value.
-// `Songs` is the default (no param).
-const TAB_TO_PARAM: Record<LearnTabKey, string | null> = {
-  Songs: null,
-  Style: 'Courses',
-  Theory: 'Theory',
-  Technique: 'Technique',
-};
-
-const LearnTabs: FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { play } = useUISound();
-  const currentParam = searchParams.get('tab');
-
-  const isActive = (tab: LearnTabKey) => {
-    const target = TAB_TO_PARAM[tab];
-    if (target === null) {
-      return !currentParam || currentParam === 'Songs';
-    }
-    return currentParam === target;
-  };
-
-  const handleClick = (tab: LearnTabKey) => {
-    play('click');
-    const target = TAB_TO_PARAM[tab];
-    const next = new URLSearchParams(searchParams);
-    if (target === null) {
-      next.delete('tab');
-    } else {
-      next.set('tab', target);
-    }
-    setSearchParams(next, { replace: true });
-  };
-
-  return (
-    <div className="flex items-center" style={{ gap: 4 }}>
-      {LEARN_TABS.map((tab) => {
-        const active = isActive(tab);
-        return (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => handleClick(tab)}
-            className="rounded-full transition-colors"
-            style={{
-              height: 28,
-              padding: '0 14px',
-              fontSize: 12,
-              fontWeight: 500,
-              background: active ? '#ffffff' : 'transparent',
-              color: active ? '#000000' : 'rgba(255,255,255,0.55)',
-            }}
-          >
-            {tab}
-          </button>
-        );
-      })}
-    </div>
-  );
-};
 
 const Icon: FC<{ src: string; className?: string }> = ({
   src,
@@ -107,7 +42,6 @@ const NAV_ITEMS = [
 
 export const TopBar: FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { data: xpSummary } = useExperienceSummary();
   const { play } = useUISound();
 
@@ -116,18 +50,8 @@ export const TopBar: FC = () => {
   const streak = 12;
   const awards = 60;
 
-  const showLearnTabs = location.pathname === LearnRoutes.root.definition;
-
   return (
-    <header className="relative h-[100px] flex items-center justify-between px-4 sm:px-6 lg:px-8 flex-shrink-0 z-20 max-w-full overflow-hidden">
-      {showLearnTabs && (
-        <div
-          className="absolute left-1/2"
-          style={{ transform: 'translateX(-50%)' }}
-        >
-          <LearnTabs />
-        </div>
-      )}
+    <header className="h-[100px] flex items-center justify-between px-4 sm:px-6 lg:px-8 flex-shrink-0 z-20 max-w-full overflow-hidden">
       {/* Left: 5 nav icons */}
       <nav className="flex items-center gap-3">
         {NAV_ITEMS.map((item) => (

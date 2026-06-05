@@ -14,7 +14,7 @@ export const johnny_b_goode: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['blues_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -126,6 +126,8 @@ export const johnny_b_goode: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aKCt8ssC7cs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/chuck-berry.webp',
   popularity: 50,
 };

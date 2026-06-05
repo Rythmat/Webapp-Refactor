@@ -14,7 +14,7 @@ export const hello_walls: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_country'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -128,6 +128,8 @@ export const hello_walls: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wB4br_nDHnQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/willie-nelson.webp',
   popularity: 50,
 };

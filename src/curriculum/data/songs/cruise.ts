@@ -14,7 +14,7 @@ export const cruise: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country_pop'],
+  genreTags: ['folk', 'pop'],
   techniques: [],
 
   sections: [
@@ -58,6 +58,8 @@ export const cruise: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8PvebsWcpto' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/florida-georgia-line.webp',
   popularity: 50,
 };

@@ -318,6 +318,8 @@ export const gold_on_the_ceiling: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6yCIDkFI7ew' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-black-keys.webp',
   popularity: 50,
 };

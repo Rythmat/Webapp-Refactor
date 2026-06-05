@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const jungle_boogie: Song = {
   id: 'jungle_boogie',
   title: 'Jungle Boogie',
-  artist: 'Kool And The Gang',
+  artist: 'Kool & the Gang',
   year: undefined,
 
   historicalDescription:
@@ -240,6 +240,8 @@ export const jungle_boogie: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=QGKiC2suCHQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/kool-and-the-gang.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const make_you_feel_my_love: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -241,6 +241,8 @@ export const make_you_feel_my_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0put0_a--Ng' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/adele.webp',
   popularity: 50,
 };

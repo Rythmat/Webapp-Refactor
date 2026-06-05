@@ -56,6 +56,8 @@ export const creep: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XFkzRNyygfk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/radiohead.webp',
   popularity: 50,
 };

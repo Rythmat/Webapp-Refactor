@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const kiss_on_my_list: Song = {
   id: 'kiss_on_my_list',
   title: 'Kiss On My List',
-  artist: 'Hall and Oates',
+  artist: 'Hall & Oates',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const kiss_on_my_list: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -268,6 +268,8 @@ export const kiss_on_my_list: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lsHld-iArOc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/hall-and-oates.webp',
   popularity: 50,
 };

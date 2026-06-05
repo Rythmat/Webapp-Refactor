@@ -14,7 +14,7 @@ export const just_like_a_woman: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_ballad'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -328,6 +328,8 @@ export const just_like_a_woman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=dRLXZVojdhQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bob-dylan.webp',
   popularity: 50,
 };

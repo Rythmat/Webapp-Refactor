@@ -14,7 +14,7 @@ export const harvest_moon: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -255,6 +255,8 @@ export const harvest_moon: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=n2MtEsrcTTs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/neil-young.webp',
   popularity: 50,
 };

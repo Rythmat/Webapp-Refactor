@@ -14,7 +14,7 @@ export const mustang_sally: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -87,6 +87,8 @@ export const mustang_sally: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=16u6w0cjjrU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/wilson-pickett.webp',
   popularity: 50,
 };

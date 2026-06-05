@@ -14,7 +14,7 @@ export const mony_mony: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -358,6 +358,8 @@ export const mony_mony: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sYYAv-QW38Q' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/billy-idol.webp',
   popularity: 50,
 };

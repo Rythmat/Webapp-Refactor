@@ -14,7 +14,7 @@ export const wake_me_up: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['rock_pop'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -140,6 +140,8 @@ export const wake_me_up: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IcrbM1l_BoI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/avicii.webp',
   popularity: 50,
 };

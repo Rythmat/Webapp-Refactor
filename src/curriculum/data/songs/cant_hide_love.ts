@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const cant_hide_love: Song = {
   id: 'cant_hide_love',
   title: 'Can’t Hide Love',
-  artist: 'Earth, Wind and Fire',
+  artist: 'Earth, Wind & Fire',
   year: undefined,
 
   historicalDescription:
@@ -337,6 +337,8 @@ export const cant_hide_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1TxgfbPl9Qg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/earth-wind-and-fire.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const eventually: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -439,6 +439,8 @@ export const eventually: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GPpcHUr2AP0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/carole-king.webp',
   popularity: 50,
 };

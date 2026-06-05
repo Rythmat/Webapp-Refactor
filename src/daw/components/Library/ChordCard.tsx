@@ -10,6 +10,7 @@ import {
   noteNameInKey,
   type ChordInsight,
 } from './insightConstants';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
 interface ChordCardProps {
   chord: ChordInsight;
@@ -261,9 +262,11 @@ export function ChordCard({
                     {chord.rootLetter}{' '}
                     {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}
                     {' \u00B7 '}
-                    {noteNameInKey(
-                      (rootNote! - alt.parentOffset + 12) % 12,
-                      rootNote!,
+                    {displayAccidentals(
+                      noteNameInKey(
+                        (rootNote! - alt.parentOffset + 12) % 12,
+                        rootNote!,
+                      ),
                     )}{' '}
                     {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ?? alt.family}
                     {isDetectedSource && (

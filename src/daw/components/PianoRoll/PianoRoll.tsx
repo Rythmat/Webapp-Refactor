@@ -13,6 +13,7 @@ import {
   type MidiNoteEvent,
 } from '@prism/engine';
 import { useStore } from '@/daw/store';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import {
   GRID_VALUES,
@@ -90,8 +91,10 @@ function noteName(
 ): string {
   const pc = midi % 12;
   const octave = Math.floor(midi / 12) - 1;
-  if (spellings?.has(pc)) return `${spellings.get(pc)}${octave}`;
-  return `${noteNameInKey(pc, keyPc)}${octave}`;
+  const raw = spellings?.has(pc)
+    ? `${spellings.get(pc)}${octave}`
+    : `${noteNameInKey(pc, keyPc)}${octave}`;
+  return displayAccidentals(raw);
 }
 function isBlackKey(midi: number): boolean {
   const n = midi % 12;
@@ -474,7 +477,9 @@ export function PianoRoll({
 
       // Show note name when zoomed in enough
       if (rowH >= 14 && noteW >= 24) {
-        const noteName = noteNameInKey(ev.note, rootNote ?? 0);
+        const noteName = displayAccidentals(
+          noteNameInKey(ev.note, rootNote ?? 0),
+        );
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.font = `${Math.min(rowH - 4, 11)}px Inter, sans-serif`;
         ctx.textBaseline = 'middle';

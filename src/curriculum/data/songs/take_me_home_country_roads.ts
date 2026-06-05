@@ -14,7 +14,7 @@ export const take_me_home_country_roads: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -165,6 +165,8 @@ export const take_me_home_country_roads: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IUmnTfsY3hI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/john-denver.webp',
   popularity: 50,
 };

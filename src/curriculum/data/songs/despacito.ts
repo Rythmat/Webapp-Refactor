@@ -14,7 +14,7 @@ export const despacito: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['latin_pop'],
+  genreTags: ['latin', 'pop'],
   techniques: [],
 
   sections: [
@@ -93,6 +93,8 @@ export const despacito: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kJQP7kiw5Fk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/luis-fonsi.webp',
   popularity: 50,
 };

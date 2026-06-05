@@ -14,7 +14,7 @@ export const me_myself_and_i: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -79,6 +79,8 @@ export const me_myself_and_i: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4S37SGxZSMc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/beyonce.webp',
   popularity: 50,
 };

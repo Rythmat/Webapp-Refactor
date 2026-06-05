@@ -6,25 +6,19 @@ import {
   useEffect,
   useCallback,
   type FC,
-  type MouseEvent,
 } from 'react';
-import {
-  BookOpen,
-  Heart,
-  LayoutGrid,
-  List,
-  Music,
-  Search,
-  X,
-} from 'lucide-react';
+import { BookOpen, Globe, Heart, LayoutGrid, List, Music } from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { FixedSizeGrid, type GridChildComponentProps } from 'react-window';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { getAllSongs } from '@/curriculum/data/songs';
 import { useSavedSongsStore } from '@/features/songs/useSavedSongsStore';
+import { useSongActions } from '@/features/songs/useSongActions';
 import { useElementSize } from '@/hooks/useElementSize';
 import { useUISound } from '@/hooks/useUISound';
+import { LearnSubheader } from '@/components/learn/LearnTabs';
 import { FilterDropdown } from './FilterDropdown';
+import { SearchInput } from './SearchInput';
 import { SongCard } from './SongCard';
 
 /* ── Types ───────────────────────────────────────────────────────────── */
@@ -38,7 +32,7 @@ type SortMode =
 
 type SavedFilter = 'all' | 'saved' | 'unsaved';
 
-type ViewMode = 'grid' | 'list';
+export type ViewMode = 'grid' | 'list';
 
 interface Filters {
   search: string;
@@ -119,6 +113,27 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: 'difficulty_desc', label: 'Difficulty (Hard → Easy)' },
 ];
 
+// Canonical 14-genre list, matching the Courses section. Source of truth for
+// both the dropdown and the `song.genreTags` values produced by
+// scripts/normalize-song-genres.mjs.
+const GENRE_OPTIONS = [
+  { value: 'all', label: 'All Genres' },
+  { value: 'pop', label: 'Pop' },
+  { value: 'rock', label: 'Rock' },
+  { value: 'hip hop', label: 'Hip Hop' },
+  { value: 'rnb', label: 'R&B' },
+  { value: 'jazz', label: 'Jazz' },
+  { value: 'blues', label: 'Blues' },
+  { value: 'folk', label: 'Folk' },
+  { value: 'funk', label: 'Funk' },
+  { value: 'neo-soul', label: 'Neo Soul' },
+  { value: 'electronic', label: 'Electronic' },
+  { value: 'latin', label: 'Latin' },
+  { value: 'reggae', label: 'Reggae' },
+  { value: 'jam-band', label: 'Jam Band' },
+  { value: 'african', label: 'African' },
+];
+
 /* ── SongLibraryBody (used inside Learn) ─────────────────────────────── */
 
 export const SongLibraryBody: FC = () => {
@@ -126,14 +141,13 @@ export const SongLibraryBody: FC = () => {
   const { play } = useUISound();
   const allSongs = useMemo(() => getAllSongs(), []);
   const savedIds = useSavedSongsStore((s) => s.savedIds);
-  const toggleSaved = useSavedSongsStore((s) => s.toggleSaved);
 
   const [filters, setFilters] = useState<Filters>(() => ({
     search: searchParams.get('q') ?? '',
     genre: searchParams.get('genre') ?? 'all',
     difficulty: searchParams.get('difficulty') ?? 'all',
     saved: (searchParams.get('saved') as SavedFilter) || 'all',
-    sort: (searchParams.get('sort') as SortMode) || 'popularity',
+    sort: (searchParams.get('sort') as SortMode) || 'title',
   }));
 
   const [viewMode, setViewMode] = useState<ViewMode>(
@@ -153,7 +167,7 @@ export const SongLibraryBody: FC = () => {
     update('genre', filters.genre, 'all');
     update('difficulty', filters.difficulty, 'all');
     update('saved', filters.saved, 'all');
-    update('sort', filters.sort, 'popularity');
+    update('sort', filters.sort, 'title');
     update('view', viewMode, 'grid');
     setSearchParams(params, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -165,18 +179,6 @@ export const SongLibraryBody: FC = () => {
     },
     [],
   );
-
-  const genreOptions = useMemo(() => {
-    const counts = new Map<string, number>();
-    allSongs.forEach((s) =>
-      s.genreTags.forEach((g) => counts.set(g, (counts.get(g) ?? 0) + 1)),
-    );
-    const sorted = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
-    return [
-      { value: 'all', label: 'All genres' },
-      ...sorted.map(([g]) => ({ value: g, label: g })),
-    ];
-  }, [allSongs]);
 
   const results = useMemo(
     () => sortSongs(filterSongs(allSongs, filters, savedIds), filters.sort),
@@ -192,69 +194,64 @@ export const SongLibraryBody: FC = () => {
   return (
     <div
       className="flex flex-col"
-      style={{ paddingTop: 16, paddingBottom: 24, height: '100%' }}
+      style={{ paddingBottom: 24, height: '100%' }}
     >
-      {/* ── Header row: title + view toggle ── */}
       <div
-        className="flex items-center justify-between"
-        style={{ marginBottom: 14 }}
+        className="sticky top-0 z-10 pt-1 pb-3"
+        style={{ background: 'var(--color-bg)' }}
       >
-        <h1
-          style={{
-            fontSize: 22,
-            fontWeight: 500,
-            color: '#e8e8e8',
-            margin: 0,
-          }}
-        >
-          Song Library
-        </h1>
-        <ViewToggle
-          viewMode={viewMode}
-          onChange={(m) => {
-            play('click');
-            setViewMode(m);
-          }}
+        {/* ── Header row: title + tab pills + view toggle ── */}
+        <LearnSubheader
+          title="Song Library"
+          right={
+            <ViewToggle
+              viewMode={viewMode}
+              onChange={(m) => {
+                play('click');
+                setViewMode(m);
+              }}
+            />
+          }
         />
-      </div>
 
-      {/* ── Filter row ── */}
-      <div
-        className="flex items-center flex-wrap"
-        style={{ gap: 10, marginBottom: 16 }}
-      >
-        <FilterDropdown
-          label="Difficulty"
-          value={filters.difficulty}
-          options={DIFFICULTY_OPTIONS}
-          onChange={(v) => updateFilter('difficulty', v)}
-        />
-        <FilterDropdown
-          label="Genre"
-          value={filters.genre}
-          options={genreOptions}
-          onChange={(v) => updateFilter('genre', v)}
-        />
-        <FilterDropdown
-          label="Saved"
-          value={filters.saved}
-          options={SAVED_OPTIONS}
-          onChange={(v) => updateFilter('saved', v as SavedFilter)}
-        />
-        <FilterDropdown
-          label="Sort"
-          value={filters.sort}
-          options={SORT_OPTIONS}
-          onChange={(v) => updateFilter('sort', v as SortMode)}
-        />
-        <SearchInput
-          value={searchInput}
-          onChange={setSearchInput}
-          onClear={() => {
-            setSearchInput('');
-            updateFilter('search', '');
-          }}
-        />
+        {/* ── Filter row ── */}
+        <div
+          className="flex items-center flex-wrap"
+          style={{ gap: 10, marginBottom: 16 }}
+        >
+          <FilterDropdown
+            label="Difficulty"
+            value={filters.difficulty}
+            options={DIFFICULTY_OPTIONS}
+            onChange={(v) => updateFilter('difficulty', v)}
+          />
+          <FilterDropdown
+            label="Genre"
+            value={filters.genre}
+            options={GENRE_OPTIONS}
+            onChange={(v) => updateFilter('genre', v)}
+          />
+          <FilterDropdown
+            label="Saved"
+            value={filters.saved}
+            options={SAVED_OPTIONS}
+            onChange={(v) => updateFilter('saved', v as SavedFilter)}
+          />
+          <FilterDropdown
+            label="Sort"
+            value={filters.sort}
+            options={SORT_OPTIONS}
+            onChange={(v) => updateFilter('sort', v as SortMode)}
+          />
+          <SearchInput
+            value={searchInput}
+            onChange={setSearchInput}
+            onClear={() => {
+              setSearchInput('');
+              updateFilter('search', '');
+            }}
+          />
+        </div>
       </div>
 
       {/* ── Content ── */}
@@ -275,37 +272,33 @@ export const SongLibraryBody: FC = () => {
       ) : viewMode === 'grid' ? (
         <VirtualizedSongGrid songs={results} />
       ) : (
-        <SongListTable
-          songs={results}
-          savedIds={savedIds}
-          onToggleSaved={toggleSaved}
-        />
+        <SongListTable songs={results} />
       )}
     </div>
   );
 };
 
-/* ── VirtualizedSongGrid (react-window) ─────────────────────────────── */
+/* ── VirtualizedSongGrid (react-window, breakpoint-locked columns) ──── */
 
-const MIN_TILE_WIDTH = 220;
-const TILE_FOOTER_HEIGHT = 96;
-const TILE_GAP = 16;
+const GRID_GAP = 24;
+const CARD_FOOTER_HEIGHT = 120;
+const BREAKPOINT_MD = 768;
+const BREAKPOINT_LG = 1024;
+
+function getColumnCount(width: number): number {
+  if (width >= BREAKPOINT_LG) return 4;
+  if (width >= BREAKPOINT_MD) return 2;
+  return 1;
+}
 
 const VirtualizedSongGrid: FC<{ songs: Song[] }> = ({ songs }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width, height } = useElementSize(containerRef);
 
-  const columnCount = Math.max(
-    1,
-    Math.floor((width + TILE_GAP) / (MIN_TILE_WIDTH + TILE_GAP)),
-  );
-  // Each react-window "column" takes width/columnCount; the SongCard inside
-  // gets right/bottom padding equal to TILE_GAP, which produces the visual gap.
-  const columnWidth = columnCount > 0 ? width / columnCount : MIN_TILE_WIDTH;
-  // The card's visible width = columnWidth - TILE_GAP (since the cell
-  // contributes a right-padding of TILE_GAP).
-  const tileVisualWidth = Math.max(0, columnWidth - TILE_GAP);
-  const rowHeight = tileVisualWidth + TILE_FOOTER_HEIGHT + TILE_GAP;
+  const columnCount = Math.max(1, getColumnCount(width));
+  const columnWidth = columnCount > 0 ? width / columnCount : width;
+  const tileVisualWidth = Math.max(0, columnWidth - GRID_GAP);
+  const rowHeight = tileVisualWidth + CARD_FOOTER_HEIGHT;
   const rowCount = Math.ceil(songs.length / columnCount);
 
   const Cell = useCallback(
@@ -317,8 +310,8 @@ const VirtualizedSongGrid: FC<{ songs: Song[] }> = ({ songs }) => {
         <div
           style={{
             ...style,
-            paddingRight: TILE_GAP,
-            paddingBottom: TILE_GAP,
+            paddingRight: GRID_GAP,
+            paddingBottom: GRID_GAP,
             boxSizing: 'border-box',
           }}
         >
@@ -349,6 +342,7 @@ const VirtualizedSongGrid: FC<{ songs: Song[] }> = ({ songs }) => {
           height={height}
           overscanRowCount={2}
           itemKey={itemKey}
+          style={{ overflowX: 'hidden' }}
         >
           {Cell}
         </FixedSizeGrid>
@@ -359,7 +353,7 @@ const VirtualizedSongGrid: FC<{ songs: Song[] }> = ({ songs }) => {
 
 /* ── ViewToggle ─────────────────────────────────────────────────────── */
 
-const ViewToggle: FC<{
+export const ViewToggle: FC<{
   viewMode: ViewMode;
   onChange: (mode: ViewMode) => void;
 }> = ({ viewMode, onChange }) => {
@@ -403,82 +397,18 @@ const ViewToggle: FC<{
   );
 };
 
-/* ── SearchInput ────────────────────────────────────────────────────── */
-
-const SearchInput: FC<{
-  value: string;
-  onChange: (v: string) => void;
-  onClear: () => void;
-}> = ({ value, onChange, onClear }) => {
-  return (
-    <div
-      className="flex items-center"
-      style={{
-        flex: 1,
-        minWidth: 200,
-        height: 32,
-        padding: '0 12px',
-        gap: 8,
-        borderRadius: 6,
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.08)',
-      }}
-    >
-      <Search
-        width={14}
-        height={14}
-        style={{ color: 'rgba(255,255,255,0.4)', flexShrink: 0 }}
-      />
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Search artist name or song title"
-        className="flex-1 bg-transparent outline-none"
-        style={{
-          fontSize: 12,
-          color: '#ffffff',
-        }}
-      />
-      {value && (
-        <button
-          type="button"
-          onClick={onClear}
-          className="transition-colors"
-          style={{ color: 'rgba(255,255,255,0.4)' }}
-          aria-label="Clear search"
-        >
-          <X width={12} height={12} />
-        </button>
-      )}
-    </div>
-  );
-};
-
 /* ── SongListTable ──────────────────────────────────────────────────── */
+
+const LIST_FS = 12;
+const LIST_FS_SMALL = 11;
+const LIST_CELL_PAD = '8px 12px';
+const LIST_ICON_SIZE = 14;
 
 interface SongListTableProps {
   songs: Song[];
-  savedIds: Record<string, true>;
-  onToggleSaved: (id: string) => void;
 }
 
-const SongListTable: FC<SongListTableProps> = ({
-  songs,
-  savedIds,
-  onToggleSaved,
-}) => {
-  const fs = 12;
-  const fsSmall = 11;
-  const cellPad = '8px 12px';
-  const iconSize = 14;
-
-  const handleHeartClick = (e: MouseEvent, songId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onToggleSaved(songId);
-  };
-
+const SongListTable: FC<SongListTableProps> = ({ songs }) => {
   return (
     <table
       className="w-full"
@@ -492,7 +422,7 @@ const SongListTable: FC<SongListTableProps> = ({
                 key={col}
                 className="text-left font-medium pb-2 px-3"
                 style={{
-                  fontSize: fsSmall,
+                  fontSize: LIST_FS_SMALL,
                   color: 'rgba(255,255,255,0.4)',
                   borderBottom: '1px solid rgba(255,255,255,0.06)',
                 }}
@@ -504,112 +434,130 @@ const SongListTable: FC<SongListTableProps> = ({
         </tr>
       </thead>
       <tbody>
-        {songs.map((song, i) => {
-          const isSaved = Boolean(savedIds[song.id]);
-          return (
-            <tr
-              key={song.id}
-              className="cursor-pointer transition-colors hover:bg-white/[0.04]"
-              style={{
-                background:
-                  i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
-              }}
-            >
-              <td style={{ padding: cellPad }}>
-                <Link
-                  to={`/songs/${song.id}`}
-                  className="block"
-                  style={{ fontSize: fs, color: '#ffffff' }}
-                >
-                  {song.artist}
-                </Link>
-              </td>
-              <td style={{ padding: cellPad }}>
-                <Link
-                  to={`/songs/${song.id}`}
-                  className="block"
-                  style={{ fontSize: fs, color: 'rgba(255,255,255,0.6)' }}
-                >
-                  "{song.title}"
-                </Link>
-              </td>
-              <td
-                style={{
-                  fontSize: fs,
-                  padding: cellPad,
-                  color: 'rgba(255,255,255,0.5)',
-                }}
-              >
-                Lvl. {song.difficulty}
-              </td>
-              <td
-                style={{
-                  fontSize: fs,
-                  padding: cellPad,
-                  color: 'rgba(255,255,255,0.4)',
-                }}
-              >
-                {song.genreTags[0] ?? ''}
-              </td>
-              <td style={{ padding: cellPad }}>
-                <button
-                  type="button"
-                  onClick={(e) => handleHeartClick(e, song.id)}
-                  aria-label={isSaved ? 'Remove from saved' : 'Save song'}
-                  aria-pressed={isSaved}
-                  className="transition-colors"
-                >
-                  <Heart
-                    width={iconSize}
-                    height={iconSize}
-                    fill={isSaved ? 'currentColor' : 'none'}
-                    style={{
-                      color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.3)',
-                    }}
-                  />
-                </button>
-              </td>
-              <td style={{ padding: cellPad }}>
-                <div className="flex items-center" style={{ gap: 8 }}>
-                  <Link
-                    to={`/songs/${song.id}`}
-                    className="transition-colors"
-                    style={{ color: 'rgba(255,255,255,0.4)' }}
-                    aria-label="Open song"
-                  >
-                    <BookOpen width={iconSize} height={iconSize} />
-                  </Link>
-                  <Link
-                    to={`/songs/${song.id}`}
-                    className="transition-colors"
-                    style={{ color: 'rgba(255,255,255,0.4)' }}
-                    aria-label="Play song"
-                  >
-                    <Music width={iconSize} height={iconSize} />
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={(e) => handleHeartClick(e, song.id)}
-                    aria-label={isSaved ? 'Remove from saved' : 'Save song'}
-                    aria-pressed={isSaved}
-                    className="transition-colors"
-                  >
-                    <Heart
-                      width={iconSize}
-                      height={iconSize}
-                      fill={isSaved ? 'currentColor' : 'none'}
-                      style={{
-                        color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.4)',
-                      }}
-                    />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          );
-        })}
+        {songs.map((song, i) => (
+          <SongListRow key={song.id} song={song} index={i} />
+        ))}
       </tbody>
     </table>
+  );
+};
+
+interface SongListRowProps {
+  song: Song;
+  index: number;
+}
+
+const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
+  const { openInLesson, openInStudio, openInGlobe, toggleSaved, isSaved } =
+    useSongActions(song);
+
+  return (
+    <tr
+      className="cursor-pointer transition-colors hover:bg-white/[0.04]"
+      style={{
+        background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
+      }}
+    >
+      <td style={{ padding: LIST_CELL_PAD }}>
+        <Link
+          to={`/songs/${song.id}`}
+          className="block"
+          style={{ fontSize: LIST_FS, color: '#ffffff' }}
+        >
+          {song.artist}
+        </Link>
+      </td>
+      <td style={{ padding: LIST_CELL_PAD }}>
+        <Link
+          to={`/songs/${song.id}`}
+          className="block"
+          style={{ fontSize: LIST_FS, color: 'rgba(255,255,255,0.6)' }}
+        >
+          "{song.title}"
+        </Link>
+      </td>
+      <td
+        style={{
+          fontSize: LIST_FS,
+          padding: LIST_CELL_PAD,
+          color: 'rgba(255,255,255,0.5)',
+        }}
+      >
+        Lvl. {song.difficulty}
+      </td>
+      <td
+        style={{
+          fontSize: LIST_FS,
+          padding: LIST_CELL_PAD,
+          color: 'rgba(255,255,255,0.4)',
+        }}
+      >
+        {song.genreTags[0] ?? ''}
+      </td>
+      <td style={{ padding: LIST_CELL_PAD }}>
+        <button
+          type="button"
+          onClick={toggleSaved}
+          aria-label={isSaved ? 'Remove from saved' : 'Save song'}
+          aria-pressed={isSaved}
+          title={isSaved ? 'Remove from saved' : 'Save song'}
+          className="transition-colors hover:text-white"
+          style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.3)' }}
+        >
+          <Heart
+            width={LIST_ICON_SIZE}
+            height={LIST_ICON_SIZE}
+            fill={isSaved ? 'currentColor' : 'none'}
+          />
+        </button>
+      </td>
+      <td style={{ padding: LIST_CELL_PAD }}>
+        <div className="flex items-center" style={{ gap: 8 }}>
+          <button
+            type="button"
+            onClick={openInLesson}
+            aria-label="Open in Lesson"
+            title="Open in Lesson"
+            className="text-white/40 hover:text-white transition-colors"
+          >
+            <BookOpen width={LIST_ICON_SIZE} height={LIST_ICON_SIZE} />
+          </button>
+          <button
+            type="button"
+            onClick={openInStudio}
+            aria-label="Open in Studio"
+            title="Open in Studio"
+            className="text-white/40 hover:text-white transition-colors"
+          >
+            <Music width={LIST_ICON_SIZE} height={LIST_ICON_SIZE} />
+          </button>
+          <button
+            type="button"
+            onClick={openInGlobe}
+            aria-label="Open in Globe"
+            title="Open in Globe"
+            className="text-white/40 hover:text-white transition-colors"
+          >
+            <Globe width={LIST_ICON_SIZE} height={LIST_ICON_SIZE} />
+          </button>
+          <button
+            type="button"
+            onClick={toggleSaved}
+            aria-label={isSaved ? 'Remove from saved' : 'Save song'}
+            aria-pressed={isSaved}
+            title={isSaved ? 'Remove from saved' : 'Save song'}
+            className="transition-colors hover:text-white"
+            style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.4)' }}
+          >
+            <Heart
+              width={LIST_ICON_SIZE}
+              height={LIST_ICON_SIZE}
+              fill={isSaved ? 'currentColor' : 'none'}
+            />
+          </button>
+        </div>
+      </td>
+    </tr>
   );
 };
 

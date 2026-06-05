@@ -14,7 +14,7 @@ export const geronimo: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['indie_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -237,6 +237,8 @@ export const geronimo: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=UL_EXAyGCkw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sheppard.webp',
   popularity: 50,
 };

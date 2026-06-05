@@ -14,7 +14,7 @@ export const i_want_you_back: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['motown'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -462,6 +462,8 @@ export const i_want_you_back: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=y2bVIBwpCTA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-jackson-5.webp',
   popularity: 50,
 };

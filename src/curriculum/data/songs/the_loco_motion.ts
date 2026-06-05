@@ -14,7 +14,7 @@ export const the_loco_motion: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['classic_R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -215,6 +215,8 @@ export const the_loco_motion: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=eKpVQm41f8Y' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/little-eva.webp',
   popularity: 50,
 };

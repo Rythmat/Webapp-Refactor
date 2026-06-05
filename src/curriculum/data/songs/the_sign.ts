@@ -14,7 +14,7 @@ export const the_sign: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -306,6 +306,8 @@ export const the_sign: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NIPPh7AWSt4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ace-of-base.webp',
   popularity: 50,
 };

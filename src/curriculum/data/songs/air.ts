@@ -207,6 +207,8 @@ export const air: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=i6WaEcv9sdw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

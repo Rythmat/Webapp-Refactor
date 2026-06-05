@@ -14,7 +14,7 @@ export const domino: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -93,6 +93,8 @@ export const domino: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=UJtB55MaoD0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/jessie-j.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const train_in_vain: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -227,6 +227,8 @@ export const train_in_vain: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aUzBgeI5dpc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-clash.webp',
   popularity: 50,
 };

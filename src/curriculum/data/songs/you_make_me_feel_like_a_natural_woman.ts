@@ -14,7 +14,7 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
   timeSignature: [6, 8],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -255,6 +255,8 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MOyvYnkdEcc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/carole-king.webp',
   popularity: 50,
 };

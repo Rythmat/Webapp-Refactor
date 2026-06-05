@@ -14,7 +14,7 @@ export const suit_tie: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['rock_pop'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -487,6 +487,8 @@ export const suit_tie: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XKCiflNvDp4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/justin-timberlake.webp',
   popularity: 50,
 };

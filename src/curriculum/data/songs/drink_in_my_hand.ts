@@ -14,7 +14,7 @@ export const drink_in_my_hand: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -336,6 +336,8 @@ export const drink_in_my_hand: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=usGv0gB2zEU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/eric-church.webp',
   popularity: 50,
 };

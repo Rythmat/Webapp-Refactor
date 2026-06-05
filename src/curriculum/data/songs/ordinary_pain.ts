@@ -220,6 +220,8 @@ export const ordinary_pain: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=se0g2f5Ub0A' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

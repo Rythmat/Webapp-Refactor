@@ -14,7 +14,7 @@ export const just_the_two_of_us: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_soul'],
+  genreTags: ['funk', 'rnb'],
   techniques: [],
 
   sections: [
@@ -368,6 +368,8 @@ export const just_the_two_of_us: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Uw5OLnN7UvM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bill-withers.webp',
   popularity: 50,
 };

@@ -97,6 +97,8 @@ export const stir_it_up: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rf8GjhXvOjU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bob-marley.webp',
   popularity: 50,
 };

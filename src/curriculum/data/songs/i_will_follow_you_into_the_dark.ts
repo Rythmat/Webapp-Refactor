@@ -14,7 +14,7 @@ export const i_will_follow_you_into_the_dark: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['indie_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -247,6 +247,8 @@ export const i_will_follow_you_into_the_dark: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3iV_1ESMHaI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/death-cab-for-cutie.webp',
   popularity: 50,
 };

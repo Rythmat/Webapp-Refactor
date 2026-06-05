@@ -14,7 +14,7 @@ export const give_me_one_reason: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['bluesy_pop'],
+  genreTags: ['blues', 'pop'],
   techniques: [],
 
   sections: [
@@ -107,6 +107,8 @@ export const give_me_one_reason: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=V6hQ9HSKlIE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tracy-chapman.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const days_like_this: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -200,6 +200,8 @@ export const days_like_this: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3UUWkr4FUlo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/van-morrison.webp',
   popularity: 50,
 };

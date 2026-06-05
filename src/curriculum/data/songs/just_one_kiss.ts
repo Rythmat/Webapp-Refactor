@@ -14,7 +14,7 @@ export const just_one_kiss: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_soul'],
+  genreTags: ['funk', 'rnb'],
   techniques: [],
 
   sections: [
@@ -165,6 +165,8 @@ export const just_one_kiss: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NNw_IpH1Imc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/raphael-saadiq.webp',
   popularity: 50,
 };

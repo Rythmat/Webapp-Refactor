@@ -14,7 +14,7 @@ export const jesus_children: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_jazz'],
+  genreTags: ['funk', 'jazz'],
   techniques: [],
 
   sections: [
@@ -460,6 +460,8 @@ export const jesus_children: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ebZdRmYId_c' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/soulive.webp',
   popularity: 50,
 };

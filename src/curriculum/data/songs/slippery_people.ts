@@ -49,6 +49,8 @@ export const slippery_people: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=paSczHpWC3I' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

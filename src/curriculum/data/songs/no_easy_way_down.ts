@@ -14,7 +14,7 @@ export const no_easy_way_down: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -254,6 +254,8 @@ export const no_easy_way_down: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WkgsFbdsD6Y' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/dusty-springfield.webp',
   popularity: 50,
 };

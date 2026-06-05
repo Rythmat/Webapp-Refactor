@@ -14,7 +14,7 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -245,6 +245,8 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Nbokg0KM-n8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/aretha-franklin.webp',
   popularity: 50,
 };

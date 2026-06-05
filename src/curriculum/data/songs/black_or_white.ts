@@ -14,7 +14,7 @@ export const black_or_white: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['straight_eighth_pop'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -269,6 +269,8 @@ export const black_or_white: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=F2AitTPI5U0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/michael-jackson.webp',
   popularity: 50,
 };

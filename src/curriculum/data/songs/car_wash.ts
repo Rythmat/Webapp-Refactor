@@ -147,6 +147,8 @@ export const car_wash: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PkxaunLybuM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/rose-royce.webp',
   popularity: 50,
 };

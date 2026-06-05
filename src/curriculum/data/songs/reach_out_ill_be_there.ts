@@ -14,7 +14,7 @@ export const reach_out_ill_be_there: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['motown'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -345,6 +345,8 @@ export const reach_out_ill_be_there: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2EaflX0MWRo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/four-tops.webp',
   popularity: 50,
 };

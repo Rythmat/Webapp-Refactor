@@ -14,7 +14,7 @@ export const let_me_clear_my_throat: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -157,6 +157,8 @@ export const let_me_clear_my_throat: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gnsqvz9iIlA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/dj-kool.webp',
   popularity: 50,
 };

@@ -31,6 +31,8 @@ export const ProductEvents = {
   PAYWALL_VIEWED: 'paywall_viewed',
   CHECKOUT_STARTED: 'checkout_started',
   SUBSCRIPTION_ACTIVATED: 'subscription_activated',
+  CHALLENGE_STARTED: 'challenge_started',
+  CHALLENGE_COMPLETED: 'challenge_completed',
 } as const;
 
 export const AudioEvents = {

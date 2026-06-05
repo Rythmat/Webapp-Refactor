@@ -37,6 +37,8 @@ export const whats_up: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6NXnxTNIWkc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/4-non-blondes.webp',
   popularity: 50,
 };

@@ -465,6 +465,8 @@ export const you_are_the_best_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pkntWssHboY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ray-lamontagne.webp',
   popularity: 50,
 };

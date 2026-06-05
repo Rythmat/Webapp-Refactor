@@ -294,6 +294,8 @@ export const fire_on_the_bayou: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=KoHJZT8U-wE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-meters.webp',
   popularity: 50,
 };

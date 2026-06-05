@@ -15,7 +15,7 @@ export const im_comin_out: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -475,6 +475,8 @@ export const im_comin_out: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3pmt-wWzC1E' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/diana-ross.webp',
   popularity: 50,
 };

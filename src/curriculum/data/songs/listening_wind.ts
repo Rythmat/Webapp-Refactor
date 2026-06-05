@@ -82,6 +82,8 @@ export const listening_wind: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RjWej8fOdR8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/remind-in-light.webp',
   popularity: 50,
 };

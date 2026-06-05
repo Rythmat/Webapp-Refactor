@@ -1,4 +1,5 @@
 import type { ChordRegion } from '@/daw/store/prismSlice';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
@@ -247,14 +248,14 @@ export function formatChordSymbol(
   format: ChordFormat = 'jazz',
   degreeName?: string,
 ): string {
-  if (format === 'numbers') return degreeName ?? noteName;
-  if (format === 'hybrid') return noteName;
+  if (format === 'numbers') return displayAccidentals(degreeName ?? noteName);
+  if (format === 'hybrid') return displayAccidentals(noteName);
 
   const { root, quality } = parseChordDisplay(noteName);
   const jazzSuffix = JAZZ_MAP[quality];
 
   if (jazzSuffix !== undefined) {
-    return root + jazzSuffix;
+    return displayAccidentals(root + jazzSuffix);
   }
 
   // Handle slash chords — quality may contain "/"
@@ -262,12 +263,12 @@ export function formatChordSymbol(
     const [baseQuality, bassNote] = quality.split('/');
     const baseSuffix = JAZZ_MAP[baseQuality];
     if (baseSuffix !== undefined) {
-      return `${root}${baseSuffix}/${bassNote}`;
+      return displayAccidentals(`${root}${baseSuffix}/${bassNote}`);
     }
   }
 
   // Fallback: just concatenate root + quality
-  return root + quality;
+  return displayAccidentals(root + quality);
 }
 
 // ── Duration Helpers ─────────────────────────────────────────────────────

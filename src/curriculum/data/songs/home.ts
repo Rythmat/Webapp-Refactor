@@ -14,7 +14,7 @@ export const home: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -187,6 +187,8 @@ export const home: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=DHEOF_rcND8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/edward-sharpe-and-the-magnetic-zeros.webp',
   popularity: 50,
 };

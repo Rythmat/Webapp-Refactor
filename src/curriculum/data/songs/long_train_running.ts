@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const long_train_running: Song = {
   id: 'long_train_running',
   title: 'Long Train Running',
-  artist: 'Doobie Brothers',
+  artist: 'The Doobie Brothers',
   year: 1987,
   historicalDescription:
     "The Doobie Brothers re-release 'Long Train Runnin'' as the classic rock era gives way to a new wave of nostalgia for 1970s sounds. Originally a funk-driven rock staple from their 1973 album 'The Captain and Me', the song's relentless groove and hypnotic guitar riff have kept it a radio fixture for over a decade — a reminder that the Doobies' San Francisco Bay Area swagger never really left.",
@@ -14,7 +14,7 @@ export const long_train_running: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -378,6 +378,8 @@ export const long_train_running: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=qKlvXKUCguI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/doobie-brothers.webp',
   popularity: 50,
 };

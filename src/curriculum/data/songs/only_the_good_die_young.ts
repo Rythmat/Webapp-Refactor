@@ -14,7 +14,7 @@ export const only_the_good_die_young: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['jazzy_pop'],
+  genreTags: ['jazz', 'pop'],
   techniques: [],
 
   sections: [
@@ -276,6 +276,8 @@ export const only_the_good_die_young: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Crif5E67ar0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/billy-joel.webp',
   popularity: 50,
 };

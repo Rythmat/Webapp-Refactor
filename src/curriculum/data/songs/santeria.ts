@@ -14,7 +14,7 @@ export const santeria: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['ska_punk'],
+  genreTags: ['reggae', 'rock'],
   techniques: [],
 
   sections: [
@@ -461,6 +461,8 @@ export const santeria: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=AEYN5w4T_aM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sublime.webp',
   popularity: 50,
 };

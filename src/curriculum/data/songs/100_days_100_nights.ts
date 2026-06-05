@@ -14,7 +14,7 @@ export const _100_days_100_nights: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['straight_eighth_funky_soul'],
+  genreTags: ['funk', 'rnb'],
   techniques: [],
 
   sections: [
@@ -509,6 +509,8 @@ export const _100_days_100_nights: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8ouI5KcyHfE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sharon-jones-and-the-dap-kings.webp',
   popularity: 50,
 };

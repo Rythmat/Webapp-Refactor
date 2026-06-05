@@ -14,7 +14,7 @@ export const it_wasnt_me: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['reggae_fusion'],
+  genreTags: ['reggae'],
   techniques: [],
 
   sections: [
@@ -52,6 +52,8 @@ export const it_wasnt_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2g5Hz17C4is' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/shaggy.webp',
   popularity: 50,
 };

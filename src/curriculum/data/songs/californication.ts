@@ -402,6 +402,8 @@ export const californication: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=YlUKcNNmywk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-red-hot-chili-peppers.webp',
   popularity: 50,
 };

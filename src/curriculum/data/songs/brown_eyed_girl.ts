@@ -14,7 +14,7 @@ export const brown_eyed_girl: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -185,6 +185,8 @@ export const brown_eyed_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=UfmkgQRmmeE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/van-morrison.webp',
   popularity: 50,
 };

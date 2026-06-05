@@ -14,7 +14,7 @@ export const lets_stay_together: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['soul', 'r_and_b'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -324,6 +324,8 @@ export const lets_stay_together: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XXx6RDzR6eM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/al-green.webp',
   popularity: 50,
 };

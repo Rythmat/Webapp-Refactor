@@ -15,7 +15,7 @@ export const fourfiveseconds: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -466,6 +466,8 @@ export const fourfiveseconds: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kt0g4dWxEBo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/rihanna-kanye-west-and-paul-mccartney.webp',
   popularity: 50,
 };

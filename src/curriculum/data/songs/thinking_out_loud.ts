@@ -329,6 +329,8 @@ export const thinking_out_loud: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lp-EO5I60KA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ed-sheeran.webp',
   popularity: 50,
 };

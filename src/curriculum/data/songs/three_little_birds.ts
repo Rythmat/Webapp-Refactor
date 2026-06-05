@@ -98,6 +98,8 @@ export const three_little_birds: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=HNBCVM4KbUM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bob-marley.webp',
   popularity: 50,
 };

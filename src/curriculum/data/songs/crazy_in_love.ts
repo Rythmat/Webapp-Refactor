@@ -14,7 +14,7 @@ export const crazy_in_love: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -195,6 +195,8 @@ export const crazy_in_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ViwtNLUqkMY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/beyonce.webp',
   popularity: 50,
 };

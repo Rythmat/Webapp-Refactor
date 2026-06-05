@@ -14,7 +14,7 @@ export const flowers_on_the_wall: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -220,6 +220,8 @@ export const flowers_on_the_wall: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=W6DmeR9a6ig' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-statler-brothers.webp',
   popularity: 50,
 };

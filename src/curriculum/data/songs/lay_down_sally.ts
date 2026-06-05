@@ -14,7 +14,7 @@ export const lay_down_sally: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['rock', 'blues'],
+  genreTags: ['blues', 'rock'],
   techniques: [],
 
   sections: [
@@ -212,6 +212,8 @@ export const lay_down_sally: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=9BYyPok2O5k' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/eric-clapton.webp',
   popularity: 50,
 };

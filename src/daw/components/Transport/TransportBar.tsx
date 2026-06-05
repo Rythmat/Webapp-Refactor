@@ -12,7 +12,6 @@ import {
   Repeat,
   Library,
   Magnet,
-  Palette,
   Lock,
   Unlock,
   Hash,
@@ -25,7 +24,7 @@ import { ALL_GRID_VALUES } from '@/daw/utils/quantize';
 import { FileMenu } from './FileMenu';
 import { CircleOfFifths } from '../Prism/CircleOfFifths';
 import { RainbowBorderButton } from '@/components/ui/rainbow-borders-button';
-import { THEME_ORDER, THEME_LABELS } from '@/daw/constants/themes';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
 import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
 import { InviteNotificationBell } from '@/daw/collab/ui/InviteNotificationBell';
@@ -169,8 +168,6 @@ export const TransportBar = memo(function TransportBar({
   const toggleUserList = useStore((s) => s.toggleUserList);
   const chatPanelOpen = useStore((s) => s.chatPanelOpen);
   const toggleChatPanel = useStore((s) => s.toggleChatPanel);
-  const theme = useStore((s) => s.theme);
-  const setTheme = useStore((s) => s.setTheme);
   const settingsOpen = useStore((s) => s.settingsOpen);
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
   const projectName = useStore((s) => s.projectName);
@@ -396,7 +393,9 @@ export const TransportBar = memo(function TransportBar({
           }}
           title="Key"
         >
-          {rootNote !== null ? `Key: ${NOTES[rootNote]}` : 'Key'}
+          {rootNote !== null
+            ? `Key: ${displayAccidentals(NOTES[rootNote])}`
+            : 'Key'}
         </RainbowBorderButton>
         {keyOpen &&
           createPortal(
@@ -846,20 +845,6 @@ export const TransportBar = memo(function TransportBar({
             className="h-4 w-px"
             style={{ backgroundColor: 'var(--color-border)' }}
           />
-
-          {/* Theme cycle */}
-          <motion.button
-            onClick={() => {
-              const idx = THEME_ORDER.indexOf(theme);
-              setTheme(THEME_ORDER[(idx + 1) % THEME_ORDER.length]);
-            }}
-            whileTap={{ scale: 0.85 }}
-            className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
-            style={{ color: 'var(--color-accent)' }}
-            title={`Theme: ${THEME_LABELS[theme]}`}
-          >
-            <Palette size={13} strokeWidth={2} />
-          </motion.button>
 
           {/* Collab invite notifications */}
           <InviteNotificationBell />

@@ -14,7 +14,7 @@ export const night_time_is_the_right_time: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -63,6 +63,8 @@ export const night_time_is_the_right_time: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BTruv-lVoLk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ray-charles.webp',
   popularity: 50,
 };

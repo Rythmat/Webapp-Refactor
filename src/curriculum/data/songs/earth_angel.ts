@@ -14,7 +14,7 @@ export const earth_angel: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -250,6 +250,8 @@ export const earth_angel: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=VJcGi4-n_Yw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-penguins.webp',
   popularity: 50,
 };

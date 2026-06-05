@@ -14,7 +14,7 @@ export const i_heard_it_through_the_grapevine: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['motown'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -325,6 +325,8 @@ export const i_heard_it_through_the_grapevine: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=VWG3npfEoHo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/marvin-gaye.webp',
   popularity: 50,
 };

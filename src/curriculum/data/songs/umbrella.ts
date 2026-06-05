@@ -14,7 +14,7 @@ export const umbrella: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -205,6 +205,8 @@ export const umbrella: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CvBfHwUxHIk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/rihanna.webp',
   popularity: 50,
 };

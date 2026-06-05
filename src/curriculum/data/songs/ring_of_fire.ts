@@ -14,7 +14,7 @@ export const ring_of_fire: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['country'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -208,6 +208,8 @@ export const ring_of_fire: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1WaV2x8GXj0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/johnny-cash.webp',
   popularity: 50,
 };

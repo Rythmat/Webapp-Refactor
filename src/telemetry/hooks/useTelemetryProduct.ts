@@ -151,3 +151,33 @@ export function trackSubscriptionActivated(): void {
     // Silent failure
   }
 }
+
+export function trackChallengeStarted(
+  challengeId: string,
+  attrs?: { name?: string; xpReward?: number; criteriaKind?: string },
+): void {
+  try {
+    telemetryClient.track({
+      category: 'product',
+      eventName: ProductEvents.CHALLENGE_STARTED,
+      attributesJson: { challengeId, ...attrs },
+    });
+  } catch {
+    // Silent failure
+  }
+}
+
+export function trackChallengeCompleted(
+  challengeId: string,
+  attrs?: { name?: string; xpReward?: number; criteriaKind?: string },
+): void {
+  try {
+    telemetryClient.track({
+      category: 'product',
+      eventName: ProductEvents.CHALLENGE_COMPLETED,
+      attributesJson: { challengeId, ...attrs },
+    });
+  } catch {
+    // Silent failure
+  }
+}

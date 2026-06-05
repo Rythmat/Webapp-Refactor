@@ -4055,11 +4055,11 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-jamband-burlington-1995-phish', to: 'song-lady_marmalade' },
   {
     from: 'evt-hiphop-atlanta-1998-outkast',
-    to: 'song-lady_marmalade_labelle',
+    to: 'song-lady_marmalade_aguilera',
   },
   {
     from: 'evt-jamband-burlington-1995-phish',
-    to: 'song-lady_marmalade_labelle',
+    to: 'song-lady_marmalade_aguilera',
   },
   {
     from: 'evt-hiphop-atlanta-1998-outkast',
@@ -4483,11 +4483,11 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-jamband-sandiego-1998-kdtu', to: 'song-say_something' },
   {
     from: 'evt-pop-nyc-1999-britneyspears',
-    to: 'song-say_something_a_great_big_world',
+    to: 'song-say_something_timberlake',
   },
   {
     from: 'evt-pop-orlando-1995-nsync',
-    to: 'song-say_something_a_great_big_world',
+    to: 'song-say_something_timberlake',
   },
   {
     from: 'evt-pop-nyc-1999-britneyspears',
@@ -5445,9 +5445,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
   { from: 'song-killing_me_softly', to: 'song-killing_me_softly_flack' },
   { from: 'song-killing_me_softly_flack', to: 'song-killing_me_softly_fugees' },
-  { from: 'song-lady_marmalade', to: 'song-lady_marmalade_labelle' },
+  { from: 'song-lady_marmalade', to: 'song-lady_marmalade_aguilera' },
   {
-    from: 'song-lady_marmalade_labelle',
+    from: 'song-lady_marmalade_aguilera',
     to: 'song-lady_marmalade_moulin_rouge',
   },
   { from: 'song-lets_stay_together', to: 'song-love_and_happiness' },
@@ -5471,9 +5471,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     from: 'song-they_long_to_be_close_to_you',
     to: 'song-rainy_days_and_mondays',
   },
-  { from: 'song-say_something', to: 'song-say_something_a_great_big_world' },
+  { from: 'song-say_something', to: 'song-say_something_timberlake' },
   {
-    from: 'song-say_something_a_great_big_world',
+    from: 'song-say_something_timberlake',
     to: 'song-say_something_timberlake',
   },
   { from: 'song-these_arms_of_mine', to: 'song-sittin_on_the_dock_of_the_bay' },

@@ -14,7 +14,7 @@ export const your_love_keeps_lifting_me_higher_and_higher: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['motown'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -59,6 +59,8 @@ export const your_love_keeps_lifting_me_higher_and_higher: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mzDVaKRApcg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/jackie-wilson.webp',
   popularity: 50,
 };

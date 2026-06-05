@@ -14,7 +14,7 @@ export const in_the_midnight_hour: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -144,6 +144,8 @@ export const in_the_midnight_hour: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FGVGFfj7POA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/wilson-pickett.webp',
   popularity: 50,
 };

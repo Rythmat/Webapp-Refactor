@@ -14,7 +14,7 @@ export const im_the_only_one: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['blues_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -193,6 +193,8 @@ export const im_the_only_one: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=xB-QQAM1GDM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/melissa-etheridge.webp',
   popularity: 50,
 };

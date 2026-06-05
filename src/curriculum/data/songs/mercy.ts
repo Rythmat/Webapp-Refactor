@@ -14,7 +14,7 @@ export const mercy: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -180,6 +180,8 @@ export const mercy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=y7ZEVA5dy-Y' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/duffy.webp',
   popularity: 50,
 };

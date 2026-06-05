@@ -15,7 +15,7 @@ export const cant_feel_my_face: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -98,6 +98,8 @@ export const cant_feel_my_face: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=KEI4qSrkPAs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-weekend.webp',
   popularity: 50,
 };

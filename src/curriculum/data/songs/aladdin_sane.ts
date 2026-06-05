@@ -349,6 +349,8 @@ export const aladdin_sane: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bc-E78guBLI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/david-bowie.webp',
   popularity: 50,
 };

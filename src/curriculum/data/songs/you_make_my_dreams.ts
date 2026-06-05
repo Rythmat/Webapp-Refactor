@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const you_make_my_dreams: Song = {
   id: 'you_make_my_dreams',
   title: 'You Make My Dreams',
-  artist: 'Hall And Oates',
+  artist: 'Hall & Oates',
   year: undefined,
 
   historicalDescription:
@@ -332,6 +332,8 @@ export const you_make_my_dreams: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=EErSKhC0CZs' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/hall-and-oates.webp',
   popularity: 50,
 };

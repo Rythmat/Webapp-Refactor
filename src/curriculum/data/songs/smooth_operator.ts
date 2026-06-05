@@ -14,7 +14,7 @@ export const smooth_operator: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -709,6 +709,8 @@ export const smooth_operator: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4TYv2PhG89A' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sade.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const ants_marching: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['jam_rock'],
+  genreTags: ['jam-band'],
   techniques: [],
 
   sections: [
@@ -453,6 +453,8 @@ export const ants_marching: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MNgJBIx-hK8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/dave-matthews-band.webp',
   popularity: 50,
 };

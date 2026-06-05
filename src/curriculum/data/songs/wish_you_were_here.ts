@@ -14,7 +14,7 @@ export const wish_you_were_here: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -304,6 +304,8 @@ export const wish_you_were_here: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=K6qj09OHvjw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/pink-floyd.webp',
   popularity: 50,
 };

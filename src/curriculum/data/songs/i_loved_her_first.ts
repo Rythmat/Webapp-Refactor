@@ -14,7 +14,7 @@ export const i_loved_her_first: Song = {
   timeSignature: [6, 8],
 
   difficulty: 2,
-  genreTags: ['country'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -423,6 +423,8 @@ export const i_loved_her_first: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=svDDL2OHQ-I' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/heartland.webp',
   popularity: 50,
 };

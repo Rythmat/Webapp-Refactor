@@ -14,7 +14,7 @@ export const vivir_mi_vida: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['latin_pop'],
+  genreTags: ['latin', 'pop'],
   techniques: [],
 
   sections: [
@@ -461,6 +461,8 @@ export const vivir_mi_vida: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=YXnjy5YlDwk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/marc-anthony.webp',
   popularity: 50,
 };

@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const cruisin_dangelo: Song = {
   id: 'cruisin_dangelo',
   title: "Cruisin'",
-  artist: "D'Angelo",
+  artist: 'D’Angelo',
   year: 1995,
   historicalDescription:
     "D'Angelo covers Smokey Robinson's 1979 classic 'Cruisin'' on his debut album 'Brown Sugar', signaling his deep reverence for soul's golden era while staking his own claim as a new voice in R&B. Released in 1995, the cover helps establish neo-soul as a movement — a return to organic, emotionally raw Black music at a moment when hip hop production dominates the mainstream.",
@@ -14,7 +14,7 @@ export const cruisin_dangelo: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -156,6 +156,8 @@ export const cruisin_dangelo: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=JAfuUZRou7g' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/d-angelo.webp',
   popularity: 50,
 };

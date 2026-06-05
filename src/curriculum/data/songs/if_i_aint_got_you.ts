@@ -14,7 +14,7 @@ export const if_i_aint_got_you: Song = {
   timeSignature: [6, 8],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -191,6 +191,8 @@ export const if_i_aint_got_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Ju8Hr50Ckwk' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/alicia-keys.webp',
   popularity: 50,
 };

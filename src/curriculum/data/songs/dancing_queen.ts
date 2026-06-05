@@ -14,7 +14,7 @@ export const dancing_queen: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['disco'],
+  genreTags: ['funk'],
   techniques: [],
 
   sections: [
@@ -256,6 +256,8 @@ export const dancing_queen: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=xFrGuyw1V8s' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/abba.webp',
   popularity: 50,
 };

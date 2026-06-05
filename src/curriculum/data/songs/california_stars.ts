@@ -14,7 +14,7 @@ export const california_stars: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -48,6 +48,8 @@ export const california_stars: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FeQX-9Uxh_w' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/wilco.webp',
   popularity: 50,
 };

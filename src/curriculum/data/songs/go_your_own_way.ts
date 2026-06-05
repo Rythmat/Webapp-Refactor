@@ -14,7 +14,7 @@ export const go_your_own_way: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -148,6 +148,8 @@ export const go_your_own_way: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oiosqtFLBBA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/fleetwood-mac.webp',
   popularity: 50,
 };

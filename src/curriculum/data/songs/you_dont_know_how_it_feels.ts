@@ -14,7 +14,7 @@ export const you_dont_know_how_it_feels: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -435,6 +435,8 @@ export const you_dont_know_how_it_feels: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ygfA1A45tn8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tom-petty.webp',
   popularity: 50,
 };

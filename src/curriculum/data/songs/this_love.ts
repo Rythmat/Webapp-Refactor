@@ -359,6 +359,8 @@ export const this_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XPpTgCho5ZA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/maroon-5.webp',
   popularity: 50,
 };

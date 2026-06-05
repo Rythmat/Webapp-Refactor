@@ -14,7 +14,7 @@ export const hit_me_with_your_best_shot: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -346,6 +346,8 @@ export const hit_me_with_your_best_shot: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aU5aDqLUvug' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/pat-benatar.webp',
   popularity: 50,
 };

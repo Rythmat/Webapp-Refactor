@@ -14,7 +14,7 @@ export const just_dance: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['glam_pop'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -464,6 +464,8 @@ export const just_dance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2Abk1jAONjw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/lady-gaga.webp',
   popularity: 50,
 };

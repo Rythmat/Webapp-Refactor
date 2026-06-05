@@ -170,6 +170,8 @@ export const hold_on_im_comin: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6JElrEbAcwY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sam-and-dave.webp',
   popularity: 50,
 };

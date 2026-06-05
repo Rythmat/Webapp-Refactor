@@ -14,7 +14,7 @@ export const mary_janes_last_dance: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -190,6 +190,8 @@ export const mary_janes_last_dance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aowSGxim_O8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tom-petty-and-the-heartbreakers.webp',
   popularity: 50,
 };

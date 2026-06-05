@@ -14,7 +14,7 @@ export const i_gotta_feeling: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -141,6 +141,8 @@ export const i_gotta_feeling: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uSD4vsh1zDA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/black-eyed-peas.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const the_gambler: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country_pop'],
+  genreTags: ['folk', 'pop'],
   techniques: [],
 
   sections: [
@@ -366,6 +366,8 @@ export const the_gambler: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=7hx4gdlfamo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/kenny-rogers.webp',
   popularity: 50,
 };

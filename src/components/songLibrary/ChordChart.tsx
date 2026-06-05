@@ -1,8 +1,10 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
-import { useState, type FC } from 'react';
+import { useMemo, useState, type FC } from 'react';
 import { Repeat } from 'lucide-react';
+import { getChordColorFromNotes } from '@prism/engine';
 import type {
   Song,
+  SongMode,
   SongSection,
   ChordBar,
   ChordHit,
@@ -36,6 +38,17 @@ function formatChord(hit: ChordHit, mode: DisplayMode): string {
 function chordAriaLabel(hit: ChordHit): string {
   return `${hit.degree} chord, beat ${hit.beat}, ${hit.duration} beat${hit.duration !== 1 ? 's' : ''}`;
 }
+
+/** Map Song's SongMode to the Prism engine's parent-Ionian mode keys. */
+function normalizeMode(m: SongMode): string {
+  if (m === 'major') return 'ionian';
+  if (m === 'minor') return 'aeolian';
+  return m;
+}
+
+type ChordRgb = readonly [number, number, number];
+
+const FALLBACK_RGB: ChordRgb = [126, 207, 207]; // teal, matches former hard-coded #7ecfcf
 
 /* ── Chord name → MIDI resolution ────────────────────────────────────── */
 function midiToPlaybackEvents(midis: number[]): PlaybackEvent[] {
@@ -413,13 +426,40 @@ export const ChordChart: FC<ChordChartProps> = ({
   const [selectedChord, setSelectedChord] = useState<{
     hit: ChordHit;
     midi: number[];
+    rgb: ChordRgb | null;
   } | null>(null);
   const { play } = useUISound();
+
+  // Map each unique chord name → its Studio key-color RGB tuple. Routed
+  // through MIDI (via chordNameToMidi) so we don't have to translate the
+  // song's degree strings (`'1 maj'`, `'♭7 maj'`) into Studio's format.
+  const chordColorCache = useMemo(() => {
+    const cache = new Map<string, ChordRgb>();
+    const studioMode = normalizeMode(song.mode);
+    for (const section of song.sections) {
+      for (const bar of section.bars) {
+        for (const hit of bar.chords) {
+          if (cache.has(hit.chordName)) continue;
+          const midis = chordNameToMidi(hit.chordName);
+          if (midis.length === 0) continue;
+          const [r, g, b] = getChordColorFromNotes(
+            midis,
+            song.keyRoot,
+            studioMode,
+          );
+          cache.set(hit.chordName, [r, g, b] as const);
+        }
+      }
+    }
+    return cache;
+  }, [song]);
 
   const handleChordClick = (hit: ChordHit) => {
     play('click');
     const midi = chordNameToMidi(hit.chordName);
-    setSelectedChord(midi.length > 0 ? { hit, midi } : null);
+    if (midi.length === 0) return;
+    const rgb = chordColorCache.get(hit.chordName) ?? null;
+    setSelectedChord({ hit, midi, rgb });
   };
 
   return (
@@ -443,74 +483,81 @@ export const ChordChart: FC<ChordChartProps> = ({
       </div>
 
       {/* ── Chord Diagram Popup ── */}
-      {selectedChord && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          onClick={() => setSelectedChord(null)}
-        >
-          <div
-            className="rounded-2xl max-w-md w-full overflow-hidden"
-            style={{
-              background: 'var(--color-surface, #1a1a1a)',
-              border: '1px solid var(--color-border, rgba(255,255,255,0.08))',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-5 pt-5 pb-3">
-              <h3
-                className="text-white font-bold text-xl"
-                style={{ fontFamily: 'serif' }}
+      {selectedChord &&
+        (() => {
+          const [r, g, b] = selectedChord.rgb ?? FALLBACK_RGB;
+          const keyColor = `rgb(${r}, ${g}, ${b})`;
+          const pillBg = `rgba(${r}, ${g}, ${b}, 0.18)`;
+          return (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+              onClick={() => setSelectedChord(null)}
+            >
+              <div
+                className="rounded-2xl max-w-md w-full overflow-hidden"
+                style={{
+                  background: 'var(--color-surface, #1a1a1a)',
+                  border:
+                    '1px solid var(--color-border, rgba(255,255,255,0.08))',
+                }}
+                onClick={(e) => e.stopPropagation()}
               >
-                {selectedChord.hit.chordName}
-              </h3>
-              <p
-                className="text-white/40 text-sm"
-                style={{ fontFamily: 'serif' }}
-              >
-                {selectedChord.hit.degree}
-              </p>
-            </div>
-            <div className="px-3 pb-5" style={{ height: 120 }}>
-              <PianoKeyboard
-                startC={4}
-                endC={6}
-                playingNotes={midiToPlaybackEvents(selectedChord.midi)}
-                activeWhiteKeyColor="#7ecfcf"
-                activeBlackKeyColor="#7ecfcf"
-                enableClick={false}
-              />
-            </div>
-            <div className="px-5 pb-4 flex gap-2 flex-wrap">
-              {selectedChord.midi.map((m) => {
-                const noteNames = [
-                  'C',
-                  'C♯',
-                  'D',
-                  'E♭',
-                  'E',
-                  'F',
-                  'F♯',
-                  'G',
-                  'A♭',
-                  'A',
-                  'B♭',
-                  'B',
-                ];
-                return (
-                  <span
-                    key={m}
-                    className="rounded-full text-xs text-white/70 px-2 py-0.5"
-                    style={{ background: 'rgba(126,207,207,0.15)' }}
+                <div className="px-5 pt-5 pb-3">
+                  <h3
+                    className="text-white font-bold text-xl"
+                    style={{ fontFamily: 'serif' }}
                   >
-                    {noteNames[m % 12]}
-                    {Math.floor(m / 12) - 1}
-                  </span>
-                );
-              })}
+                    {selectedChord.hit.chordName}
+                  </h3>
+                  <p
+                    className="text-white/40 text-sm"
+                    style={{ fontFamily: 'serif' }}
+                  >
+                    {selectedChord.hit.degree}
+                  </p>
+                </div>
+                <div className="px-3 pb-5" style={{ height: 120 }}>
+                  <PianoKeyboard
+                    startC={4}
+                    endC={6}
+                    playingNotes={midiToPlaybackEvents(selectedChord.midi)}
+                    activeWhiteKeyColor={keyColor}
+                    activeBlackKeyColor={keyColor}
+                    enableClick={false}
+                  />
+                </div>
+                <div className="px-5 pb-4 flex gap-2 flex-wrap">
+                  {selectedChord.midi.map((m) => {
+                    const noteNames = [
+                      'C',
+                      'C♯',
+                      'D',
+                      'E♭',
+                      'E',
+                      'F',
+                      'F♯',
+                      'G',
+                      'A♭',
+                      'A',
+                      'B♭',
+                      'B',
+                    ];
+                    return (
+                      <span
+                        key={m}
+                        className="rounded-full text-xs px-2 py-0.5"
+                        style={{ background: pillBg, color: keyColor }}
+                      >
+                        {noteNames[m % 12]}
+                        {Math.floor(m / 12) - 1}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          );
+        })()}
     </div>
   );
 };

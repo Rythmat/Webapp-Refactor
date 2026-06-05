@@ -14,7 +14,7 @@ export const youve_got_a_friend_king: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -401,6 +401,8 @@ export const youve_got_a_friend_king: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2ZI3kLrHK80' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/james-taylor.webp',
   popularity: 50,
 };

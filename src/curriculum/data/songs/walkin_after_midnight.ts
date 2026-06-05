@@ -14,7 +14,7 @@ export const walkin_after_midnight: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -156,6 +156,8 @@ export const walkin_after_midnight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bsRNCvHXHHU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/patsy-cline.webp',
   popularity: 50,
 };

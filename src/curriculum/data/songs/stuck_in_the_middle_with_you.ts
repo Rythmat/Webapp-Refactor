@@ -203,6 +203,8 @@ export const stuck_in_the_middle_with_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8StG4fFWHqg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stealers-wheel.webp',
   popularity: 50,
 };

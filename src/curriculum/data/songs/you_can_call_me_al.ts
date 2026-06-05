@@ -94,6 +94,8 @@ export const you_can_call_me_al: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uq-gYOrU8bA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/paul-simon.webp',
   popularity: 50,
 };

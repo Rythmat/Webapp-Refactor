@@ -14,7 +14,7 @@ export const blank_space: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -139,6 +139,8 @@ export const blank_space: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=e-ORhEE9VVg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/taylor-swift.webp',
   popularity: 50,
 };

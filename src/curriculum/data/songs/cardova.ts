@@ -119,6 +119,8 @@ export const cardova: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4kd3QuTexvM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-meters.webp',
   popularity: 50,
 };

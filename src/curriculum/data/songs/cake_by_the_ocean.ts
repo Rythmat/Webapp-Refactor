@@ -14,7 +14,7 @@ export const cake_by_the_ocean: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -62,6 +62,8 @@ export const cake_by_the_ocean: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=vWaRiD5ym74' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/dnce.webp',
   popularity: 50,
 };

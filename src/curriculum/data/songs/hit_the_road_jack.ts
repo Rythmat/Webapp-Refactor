@@ -14,7 +14,7 @@ export const hit_the_road_jack: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['swing'],
+  genreTags: ['jazz'],
   techniques: [],
 
   sections: [
@@ -53,6 +53,8 @@ export const hit_the_road_jack: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uSiHqxgE2d0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ray-charles.webp',
   popularity: 50,
 };

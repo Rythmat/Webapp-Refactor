@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const i_cant_help_myself_sugar_pie_honey_bunch: Song = {
   id: 'i_cant_help_myself_sugar_pie_honey_bunch',
   title: 'I Can’t Help Myself (Sugar Pie, Honey Bunch)',
-  artist: 'The Four Tops',
+  artist: 'Four Tops',
   year: 1965,
   historicalDescription:
     "The Four Tops release 'I Can't Help Myself (Sugar Pie, Honey Bunch)', a propulsive Motown anthem that shoots to #1 and becomes one of the label's signature sounds. Levi Stubbs' raw, urgent lead vocal — desperate and joyful at once — sets the Four Tops apart from their Motown peers. The song cements Detroit's grip on popular music in 1965.",
@@ -14,7 +14,7 @@ export const i_cant_help_myself_sugar_pie_honey_bunch: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['motown'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -120,6 +120,8 @@ export const i_cant_help_myself_sugar_pie_honey_bunch: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=s3bksUSPB4c' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/four-tops.webp',
   popularity: 50,
 };

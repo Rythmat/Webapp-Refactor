@@ -14,7 +14,7 @@ export const forever_young_dylan: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -76,6 +76,8 @@ export const forever_young_dylan: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mwG6g5boyF4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/rod-stewart.webp',
   popularity: 50,
 };

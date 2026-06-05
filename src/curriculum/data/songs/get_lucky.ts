@@ -14,7 +14,7 @@ export const get_lucky: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -528,6 +528,8 @@ export const get_lucky: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5NV6Rdv1a3I' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'manual',
+
+  artistImageRef: '/artists/daft-punk.webp',
   popularity: 50,
 };

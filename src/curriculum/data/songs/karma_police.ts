@@ -368,6 +368,8 @@ export const karma_police: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1uYWYWPc9HU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/radiohead.webp',
   popularity: 50,
 };

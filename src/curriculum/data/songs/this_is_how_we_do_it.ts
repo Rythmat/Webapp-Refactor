@@ -14,7 +14,7 @@ export const this_is_how_we_do_it: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -134,6 +134,8 @@ export const this_is_how_we_do_it: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0hiUuL5uTKc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/montell-jordan.webp',
   popularity: 50,
 };

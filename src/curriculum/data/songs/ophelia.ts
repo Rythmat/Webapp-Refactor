@@ -14,7 +14,7 @@ export const ophelia: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -141,6 +141,8 @@ export const ophelia: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=xe7y7ByOrwQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-band.webp',
   popularity: 50,
 };

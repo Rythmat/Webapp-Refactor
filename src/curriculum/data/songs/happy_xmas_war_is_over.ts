@@ -14,7 +14,7 @@ export const happy_xmas_war_is_over: Song = {
   timeSignature: [6, 8],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -163,6 +163,8 @@ export const happy_xmas_war_is_over: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8gWHlHWIaRQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/john-lennon.webp',
   popularity: 50,
 };

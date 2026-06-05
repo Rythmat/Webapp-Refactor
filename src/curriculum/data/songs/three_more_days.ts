@@ -203,6 +203,8 @@ export const three_more_days: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=d5Vi3q211vM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ray-lamontagne.webp',
   popularity: 50,
 };

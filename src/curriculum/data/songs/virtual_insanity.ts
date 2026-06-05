@@ -387,6 +387,8 @@ export const virtual_insanity: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=OeTFAiYbR9o' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/jamiroquai.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const dear_prudence: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock_pop'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -523,6 +523,8 @@ export const dear_prudence: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wQA59IkCF5I' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

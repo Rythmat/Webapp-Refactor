@@ -14,7 +14,7 @@ export const old_time_rock_and_roll: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -75,6 +75,8 @@ export const old_time_rock_and_roll: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=W1LsRShUPtY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bob-seger.webp',
   popularity: 50,
 };

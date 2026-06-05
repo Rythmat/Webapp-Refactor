@@ -14,7 +14,7 @@ export const tupelo_honey: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -126,6 +126,8 @@ export const tupelo_honey: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3DbTIKHYwog' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/van-morrison.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const livin_la_vida_loca: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['latin_pop'],
+  genreTags: ['latin', 'pop'],
   techniques: [],
 
   sections: [
@@ -448,6 +448,8 @@ export const livin_la_vida_loca: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=p47fEXGabaY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/ricky-martin.webp',
   popularity: 50,
 };

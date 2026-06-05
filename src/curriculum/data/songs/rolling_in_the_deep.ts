@@ -14,7 +14,7 @@ export const rolling_in_the_deep: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -486,6 +486,8 @@ export const rolling_in_the_deep: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rYEDA3JcQqw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/adele.webp',
   popularity: 50,
 };

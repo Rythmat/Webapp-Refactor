@@ -14,7 +14,7 @@ export const ill_be_there: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -234,6 +234,8 @@ export const ill_be_there: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PPTSvPVf6Pg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/michael-jackson.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const young_americans: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -239,6 +239,8 @@ export const young_americans: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iO6OvHxD_m8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/david-bowie.webp',
   popularity: 50,
 };

@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const get_down_on_it: Song = {
   id: 'get_down_on_it',
   title: 'Get Down On It',
-  artist: 'Kool and the Gang',
+  artist: 'Kool & the Gang',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const get_down_on_it: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -202,6 +202,8 @@ export const get_down_on_it: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=qchPLaiKocI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/kool-and-the-gang.webp',
   popularity: 50,
 };

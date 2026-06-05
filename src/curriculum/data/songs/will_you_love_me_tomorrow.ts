@@ -14,7 +14,7 @@ export const will_you_love_me_tomorrow: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -230,6 +230,8 @@ export const will_you_love_me_tomorrow: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Dfmn9M6hXVI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/carole-king.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const dont_stop_til_you_get_enough: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -113,6 +113,8 @@ export const dont_stop_til_you_get_enough: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yURRmWtbTbo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/michael-jackson.webp',
   popularity: 50,
 };

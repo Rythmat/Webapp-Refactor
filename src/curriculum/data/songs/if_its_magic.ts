@@ -14,7 +14,7 @@ export const if_its_magic: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad_slow_rubato'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -242,6 +242,8 @@ export const if_its_magic: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fX36mGEqfw4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

@@ -179,6 +179,8 @@ export const s_o_b: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1iAYhQsQhSY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/nathaniel-rateliff.webp',
   popularity: 50,
 };

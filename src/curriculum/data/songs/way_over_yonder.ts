@@ -14,7 +14,7 @@ export const way_over_yonder: Song = {
   timeSignature: [6, 8],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -546,6 +546,8 @@ export const way_over_yonder: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=G8se6T5d3K0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/carole-king.webp',
   popularity: 50,
 };

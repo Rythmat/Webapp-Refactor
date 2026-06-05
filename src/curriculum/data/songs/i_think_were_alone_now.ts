@@ -14,7 +14,7 @@ export const i_think_were_alone_now: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -274,6 +274,8 @@ export const i_think_were_alone_now: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=w6Q3mHyzn78' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tiffany.webp',
   popularity: 50,
 };

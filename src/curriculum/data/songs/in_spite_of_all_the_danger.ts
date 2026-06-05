@@ -14,7 +14,7 @@ export const in_spite_of_all_the_danger: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -176,6 +176,8 @@ export const in_spite_of_all_the_danger: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RuuOAA9ekbg' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

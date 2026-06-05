@@ -14,7 +14,7 @@ export const shut_up_and_dance: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -479,6 +479,8 @@ export const shut_up_and_dance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6JCLY0Rlx6Q' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/walk-the-moon.webp',
   popularity: 50,
 };

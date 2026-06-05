@@ -172,6 +172,8 @@ export const sing_a_simple_song: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=42YGprrAOj0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sly-and-the-family-stone.webp',
   popularity: 50,
 };

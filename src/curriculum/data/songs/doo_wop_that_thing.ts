@@ -14,7 +14,7 @@ export const doo_wop_that_thing: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip_hop'],
+  genreTags: ['hip hop'],
   techniques: [],
 
   sections: [
@@ -445,6 +445,8 @@ export const doo_wop_that_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=T6QKqFPRZSA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/lauryn-hill.webp',
   popularity: 50,
 };

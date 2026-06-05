@@ -14,7 +14,7 @@ export const loves_in_need_of_love_today: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -404,6 +404,8 @@ export const loves_in_need_of_love_today: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FGZYWSfiYbM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/stevie-wonder.webp',
   popularity: 50,
 };

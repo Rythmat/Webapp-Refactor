@@ -12,6 +12,7 @@ import {
   MODE_FAMILY_INFO,
   type ColorIndex,
 } from '@prism/engine';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
@@ -260,7 +261,9 @@ export function CircleOfFifths({
                 fontWeight={isSelected ? 700 : 500}
                 style={{ pointerEvents: 'none' }}
               >
-                {scaleInfo?.spellings.get(semitone) ?? KEYS[idx]}
+                {displayAccidentals(
+                  scaleInfo?.spellings.get(semitone) ?? KEYS[idx],
+                )}
               </text>
             </g>
           );

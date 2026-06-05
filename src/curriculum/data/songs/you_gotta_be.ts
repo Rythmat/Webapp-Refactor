@@ -14,7 +14,7 @@ export const you_gotta_be: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['R&B'],
+  genreTags: ['rnb'],
   techniques: [],
 
   sections: [
@@ -176,6 +176,8 @@ export const you_gotta_be: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WRUwSk9UTrA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/des-ree.webp',
   popularity: 50,
 };

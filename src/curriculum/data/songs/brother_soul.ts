@@ -15,7 +15,7 @@ export const brother_soul: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['funky_soul'],
+  genreTags: ['funk', 'rnb'],
   techniques: [],
 
   sections: [
@@ -209,6 +209,8 @@ export const brother_soul: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2fRrb0h_HjU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/lou-donaldson-soulive.webp',
   popularity: 50,
 };

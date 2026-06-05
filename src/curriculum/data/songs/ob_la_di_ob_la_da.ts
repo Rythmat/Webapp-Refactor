@@ -14,7 +14,7 @@ export const ob_la_di_ob_la_da: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -440,6 +440,8 @@ export const ob_la_di_ob_la_da: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=i6BKhvhSehc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-beatles.webp',
   popularity: 50,
 };

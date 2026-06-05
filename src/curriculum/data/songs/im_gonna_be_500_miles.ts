@@ -14,7 +14,7 @@ export const im_gonna_be_500_miles: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -191,6 +191,8 @@ export const im_gonna_be_500_miles: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tbNlMtqrYS0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-proclaimers.webp',
   popularity: 50,
 };

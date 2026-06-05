@@ -14,7 +14,7 @@ export const beast_of_burden: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -286,6 +286,8 @@ export const beast_of_burden: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tuk1NnnMQBA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/the-rolling-stones.webp',
   popularity: 50,
 };

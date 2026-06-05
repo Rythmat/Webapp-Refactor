@@ -14,7 +14,7 @@ export const landslide: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -415,6 +415,8 @@ export const landslide: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WM7-PYtXtJM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/fleetwood-mac.webp',
   popularity: 50,
 };

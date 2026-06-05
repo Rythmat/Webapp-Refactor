@@ -14,7 +14,7 @@ export const p_y_t_pretty_young_thing: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -548,6 +548,8 @@ export const p_y_t_pretty_young_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1ZZQuj6htF4' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/michael-jackson.webp',
   popularity: 50,
 };

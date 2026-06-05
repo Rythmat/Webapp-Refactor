@@ -14,7 +14,7 @@ export const girl_crush: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['country_ballad'],
+  genreTags: ['folk'],
   techniques: [],
 
   sections: [
@@ -125,6 +125,8 @@ export const girl_crush: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=JYZMT8otKdI' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/little-big-town.webp',
   popularity: 50,
 };

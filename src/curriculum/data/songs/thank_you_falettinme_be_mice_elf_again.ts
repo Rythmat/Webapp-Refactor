@@ -66,6 +66,8 @@ export const thank_you_falettinme_be_mice_elf_again: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wj5VODa-eTY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/sly-and-the-family-stone-larry-graham.webp',
   popularity: 50,
 };

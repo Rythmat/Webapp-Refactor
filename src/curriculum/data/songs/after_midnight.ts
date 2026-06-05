@@ -14,7 +14,7 @@ export const after_midnight: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['blues_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -234,6 +234,8 @@ export const after_midnight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RdjBrnV-U9M' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/eric-clapton.webp',
   popularity: 50,
 };

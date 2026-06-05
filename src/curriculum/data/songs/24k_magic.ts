@@ -9,7 +9,7 @@ export const _24k_magic: Song = {
   historicalDescription:
     "Bruno Mars releases '24K Magic', a shimmering throwback to 1980s funk, R&B, and new jack swing that announces his full pivot away from acoustic balladry. The song captures a moment when nostalgia for the Prince and Rick James era floods pop radio, and Mars proves himself one of the few artists of his generation who can channel that era without pastiche. It sets the tone for an album that sweeps the Grammy Awards.",
   key: 'F minor',
-  keyRoot: 68,
+  keyRoot: 65,
   mode: 'minor',
   tempo: 96,
   timeSignature: [4, 4],
@@ -422,6 +422,8 @@ export const _24k_magic: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=UqyT8IEBkvY' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bruno-mars.webp',
   popularity: 50,
 };

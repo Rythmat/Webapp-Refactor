@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const ill_make_love_to_you: Song = {
   id: 'ill_make_love_to_you',
   title: 'I’ll Make Love To You',
-  artist: 'Boyz 2 Men',
+  artist: 'Boyz II Men',
   year: undefined,
 
   historicalDescription:
@@ -15,7 +15,7 @@ export const ill_make_love_to_you: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -305,6 +305,8 @@ export const ill_make_love_to_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fV8vB1BB2qc' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/boyz-2-men.webp',
   popularity: 50,
 };

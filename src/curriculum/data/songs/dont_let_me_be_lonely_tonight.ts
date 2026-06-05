@@ -14,7 +14,7 @@ export const dont_let_me_be_lonely_tonight: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['folk_rock'],
+  genreTags: ['folk', 'rock'],
   techniques: [],
 
   sections: [
@@ -345,6 +345,8 @@ export const dont_let_me_be_lonely_tonight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=y8cPCYZz6uE' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/james-taylor.webp',
   popularity: 50,
 };

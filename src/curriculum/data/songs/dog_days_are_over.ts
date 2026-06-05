@@ -14,7 +14,7 @@ export const dog_days_are_over: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['indie_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -213,6 +213,8 @@ export const dog_days_are_over: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iWOyfLBYtuU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/florence-and-the-machine.webp',
   popularity: 50,
 };

@@ -114,6 +114,8 @@ export const papas_got_a_brand_new_bag: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=QE5D2hJhacU' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/james-brown.webp',
   popularity: 50,
 };

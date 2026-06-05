@@ -14,7 +14,7 @@ export const locked_out_of_heaven: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_rock'],
+  genreTags: ['pop', 'rock'],
   techniques: [],
 
   sections: [
@@ -371,6 +371,8 @@ export const locked_out_of_heaven: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=e-fA-gBCkj0' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/bruno-mars.webp',
   popularity: 50,
 };

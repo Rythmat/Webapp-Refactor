@@ -14,7 +14,7 @@ export const run_around: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['blues_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -53,6 +53,8 @@ export const run_around: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ousaiByU1ko' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/blues-traveler.webp',
   popularity: 50,
 };

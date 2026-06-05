@@ -14,7 +14,7 @@ export const beyond: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['pop_ballad'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -366,6 +366,8 @@ export const beyond: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ELPOCJvDz3w' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/leon-bridges.webp',
   popularity: 50,
 };

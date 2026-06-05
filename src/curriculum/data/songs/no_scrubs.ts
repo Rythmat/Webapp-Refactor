@@ -14,7 +14,7 @@ export const no_scrubs: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['hip_hop_R&B'],
+  genreTags: ['hip hop', 'rnb'],
   techniques: [],
 
   sections: [
@@ -166,6 +166,8 @@ export const no_scrubs: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FrLequ6dUdM' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tlc.webp',
   popularity: 50,
 };

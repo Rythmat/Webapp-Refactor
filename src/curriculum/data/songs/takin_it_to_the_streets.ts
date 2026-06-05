@@ -14,7 +14,7 @@ export const takin_it_to_the_streets: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -1264,6 +1264,8 @@ export const takin_it_to_the_streets: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gh6BfGdffQw' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/doobie-brothers.webp',
   popularity: 50,
 };

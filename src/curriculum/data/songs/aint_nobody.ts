@@ -649,6 +649,8 @@ export const aint_nobody: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BNirQXe8HOA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'manual',
+
+  artistImageRef: '/artists/chaka-khan.webp',
   popularity: 50,
 };

@@ -14,7 +14,7 @@ export const cruisin: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -145,6 +145,8 @@ export const cruisin: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Gx77P0VH6FA' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/smokey-robinson.webp',
   popularity: 50,
 };

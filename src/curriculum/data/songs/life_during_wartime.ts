@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const life_during_wartime: Song = {
   id: 'life_during_wartime',
   title: 'Life During Wartime',
-  artist: 'The Talking Heads',
+  artist: 'Talking Heads',
   year: 1979,
   historicalDescription:
     "Talking Heads release 'Life During Wartime' from their landmark album 'Fear of Music', capturing a paranoid urban America through David Byrne's anxious, breathless delivery. The song blends new wave's angular energy with a driving funk pulse, conjuring a world of safe houses and guerrilla tactics from a New York art-rock band at the peak of their powers. It becomes one of the defining tracks of the CBGB generation's restless, cerebral edge.",
@@ -14,7 +14,7 @@ export const life_during_wartime: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['new_wave', 'art_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -200,6 +200,8 @@ export const life_during_wartime: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8al5cSQNmME' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/talking-heads.webp',
   popularity: 50,
 };

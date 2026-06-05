@@ -14,7 +14,7 @@ export const its_not_unusual: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['lounge_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -369,6 +369,8 @@ export const its_not_unusual: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=k-HdGnzYdFQ' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/tom-jones.webp',
   popularity: 50,
 };

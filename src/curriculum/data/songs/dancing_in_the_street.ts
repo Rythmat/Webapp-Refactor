@@ -14,7 +14,7 @@ export const dancing_in_the_street: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funky_pop'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -298,6 +298,8 @@ export const dancing_in_the_street: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GuCBXTfoVq8' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/martha-and-the-vandellas.webp',
   popularity: 50,
 };

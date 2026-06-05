@@ -15,7 +15,7 @@ export const bare_necessities: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['disney'],
+  genreTags: ['pop'],
   techniques: [],
 
   sections: [
@@ -165,6 +165,8 @@ export const bare_necessities: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6BH-Rxd-NBo' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/jungle-book.webp',
   popularity: 50,
 };

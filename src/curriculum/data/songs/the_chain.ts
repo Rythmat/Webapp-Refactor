@@ -14,7 +14,7 @@ export const the_chain: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['classic_rock'],
+  genreTags: ['rock'],
   techniques: [],
 
   sections: [
@@ -144,6 +144,8 @@ export const the_chain: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kBYHwH1Vb-c' },
   ],
-  artistImageSource: 'none',
+  artistImageSource: 'commissioned',
+
+  artistImageRef: '/artists/fleetwood-mac.webp',
   popularity: 50,
 };

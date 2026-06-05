@@ -390,6 +390,41 @@ export function deserializeCloudProject(project: CloudProjectDetail): void {
   });
 }
 
+/**
+ * Reset the store to a pristine, empty project — the same clean slate a fresh
+ * page load yields, but without reloading. Used when the user explicitly starts
+ * a new project (e.g. the home page "Create New Project" tile) so any project
+ * left in the (module-singleton) store from a previous studio session doesn't
+ * bleed through. Mirrors the slice initial-state defaults.
+ */
+export function resetSessionToEmpty(): void {
+  useStore.setState({
+    // Project identity
+    projectId: null,
+    projectName: 'Untitled Project',
+    composerName: '',
+
+    // Transport
+    bpm: 120,
+    position: 0,
+    isPlaying: false,
+    isRecording: false,
+
+    // Tracks
+    tracks: [],
+    nextColorIndex: 0,
+    pitchData: {},
+
+    // Prism
+    chordRegions: [],
+    rootNote: null,
+    mode: 'ionian',
+    rhythmName: 'Quarters',
+    genre: 'Pop',
+    swing: 0,
+  });
+}
+
 // ── Deserialize ──────────────────────────────────────────────────────────
 
 export function deserializeSession(session: SessionData): void {

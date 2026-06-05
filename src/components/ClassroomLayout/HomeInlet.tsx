@@ -1,10 +1,13 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getChordScales } from '@/components/learn/chordScaleData';
 import { LearnRoutes, StudioRoutes } from '@/constants/routes';
+import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { useProgressSummary } from '@/hooks/data';
 import { type PrismModeSlug } from '@/hooks/data/prism';
 import { useUISound } from '@/hooks/useUISound';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
+import { studioProjectsApi } from '@/lib/studio-projects/api';
 import { ChallengesCard } from './dashboard/ChallengesCard';
 import { HoneycombCarousel } from './dashboard/HoneycombCarousel';
 import { QuickStartCard } from './dashboard/QuickStartCard';
@@ -18,33 +21,48 @@ const BANNER_SLIDES: string[] = [
   '/backgrounds/banner4.svg',
 ];
 
-const SAMPLE_PROJECTS: RecentProject[] = [
-  {
-    title: 'Untitled 1',
-    artist: 'Artist Name',
-    icon: '/icons/file-icon-1.svg',
-  },
-  {
-    title: 'Untitled 2',
-    artist: 'Artist Name',
-    icon: '/icons/file-icon-2.svg',
-  },
-  {
-    title: 'Untitled 1',
-    artist: 'Artist Name',
-    icon: '/icons/file-icon-1.svg',
-  },
-  {
-    title: 'Untitled 2',
-    artist: 'Artist Name',
-    icon: '/icons/file-icon-2.svg',
-  },
-];
-
 export const HomeInlet = () => {
   const navigate = useNavigate();
   const { play } = useUISound();
+  const token = useAuthToken();
   const { data: progressSummary } = useProgressSummary(true);
+
+  // Most-recently-touched projects for the dashboard grid. The list endpoint
+  // already orders by updatedAt desc; we only need the first 4.
+  const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const list = await studioProjectsApi.list(token);
+        if (cancelled) return;
+        setRecentProjects(
+          list.slice(0, 4).map((p) => ({
+            id: p.id,
+            title: p.name,
+          })),
+        );
+      } catch (err) {
+        console.error('Failed to load recent projects', err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  const handleOpenProject = (id: string) => {
+    play('click');
+    navigate(
+      `${StudioRoutes.root.definition}?project=${encodeURIComponent(id)}`,
+    );
+  };
+
+  const handleCreateProject = () => {
+    play('click');
+    navigate(`${StudioRoutes.root.definition}?new=1`);
+  };
 
   const latestContinue = (() => {
     const latest = progressSummary?.lessons?.find(
@@ -98,7 +116,11 @@ export const HomeInlet = () => {
         style={{ gap: 'clamp(0.75rem, 1.3vw, 1.5rem)' }}
       >
         <XpCalendar />
-        <RecentProjects projects={SAMPLE_PROJECTS} />
+        <RecentProjects
+          projects={recentProjects}
+          onOpenProject={handleOpenProject}
+          onCreateNew={handleCreateProject}
+        />
         <ChallengesCard />
       </div>
     </div>

@@ -86,6 +86,15 @@ export interface UiSlice {
   settingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
 
+  // ── Recording-limit modal ──
+  // Opened when an audio recording auto-stops at the per-track 5-minute cap.
+  recordingLimitModalOpen: boolean;
+  setRecordingLimitModalOpen: (open: boolean) => void;
+
+  // ── Theme ──
+  theme: ThemeId;
+  setTheme: (theme: ThemeId) => void;
+
   // ── Project ──
   // Set when the project has been saved to the cloud; null for unsaved or
   // local-only projects. First save calls POST; subsequent saves call PUT.
@@ -215,6 +224,13 @@ export const createUiSlice: StateCreator<
   // ── Settings modal ──
   settingsOpen: false,
   setSettingsOpen: (open) => set({ settingsOpen: open }),
+
+  recordingLimitModalOpen: false,
+  setRecordingLimitModalOpen: (open) => set({ recordingLimitModalOpen: open }),
+
+  // ── Theme ──
+  theme: 'dark' as ThemeId,
+  setTheme: (theme) => set({ theme }),
 
   // ── Project ──
   projectId: null,

@@ -14,6 +14,12 @@ import {
   getAudioBuffer,
 } from '@/daw/audio/AudioBufferStore';
 import {
+  audioClipIntervalsSeconds,
+  computeMaxRecordSeconds,
+  ticksToSeconds,
+} from '@/daw/audio/recordingLimit';
+import { overwriteAudioRegion } from '@/daw/audio/overwriteAudioRegion';
+import {
   renderPitchEdits,
   pitchEditCacheKey,
 } from '@/daw/audio/pitch-analysis/PitchRenderer';
@@ -170,6 +176,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const recordStartTickRef = useRef<number>(0);
   const isActivelyRecordingRef = useRef(false);
+  // Auto-stop timer that enforces the per-track 5-minute audio recording cap.
+  const recordLimitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const liveAudioAnalyserRef = useRef<AnalyserNode | null>(null);
   const liveAudioSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const liveAudioRafRef = useRef<number>(0);
@@ -542,10 +552,34 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       if (isActivelyRecordingRef.current) return;
       isActivelyRecordingRef.current = true;
 
+      // Enforce the per-track 5-minute total-audio cap. Time the take may run
+      // is the remaining budget, walked forward from the playhead (time spent
+      // over existing audio is free — it just overwrites). If there's no budget
+      // and nothing to overwrite at the start, refuse to record.
+      const startTickForLimit = useStore.getState().position;
+      const bpmForLimit = useStore.getState().bpm;
+      const maxRecordSeconds = computeMaxRecordSeconds(
+        audioClipIntervalsSeconds(recordArmedAudioTrack, bpmForLimit),
+        ticksToSeconds(startTickForLimit, bpmForLimit),
+      );
+      if (maxRecordSeconds <= 0.05) {
+        isActivelyRecordingRef.current = false;
+        useStore.getState().stop();
+        useStore.getState().setRecordingLimitModalOpen(true);
+        return;
+      }
+
       // Start recording
       const recorder = new AudioRecorder();
       audioRecorderRef.current = recorder;
-      recordStartTickRef.current = useStore.getState().position;
+      recordStartTickRef.current = startTickForLimit;
+
+      recordLimitTimerRef.current = setTimeout(() => {
+        // stop() flips isRecording/isPlaying off, which re-runs this effect and
+        // finalizes the take below (capturing the first `maxRecordSeconds`).
+        useStore.getState().stop();
+        useStore.getState().setRecordingLimitModalOpen(true);
+      }, maxRecordSeconds * 1000);
 
       // For Guitar/Bass/Vocal tracks, tap the adapter's raw input signal
       // (DRY, before pedal chain) so playback re-applies effects in real time.
@@ -623,11 +657,21 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
             console.warn('Audio recording failed:', err);
             audioRecorderRef.current = null;
             isActivelyRecordingRef.current = false;
+            if (recordLimitTimerRef.current !== null) {
+              clearTimeout(recordLimitTimerRef.current);
+              recordLimitTimerRef.current = null;
+            }
           });
       }
     } else if (audioRecorderRef.current?.isRecording()) {
       // Stop recording and create audio clip
       isActivelyRecordingRef.current = false;
+
+      // Cancel the 5-minute auto-stop timer (manual stop, or it already fired).
+      if (recordLimitTimerRef.current !== null) {
+        clearTimeout(recordLimitTimerRef.current);
+        recordLimitTimerRef.current = null;
+      }
 
       // Stop live waveform analyser
       cancelAnimationFrame(liveAudioRafRef.current);
@@ -680,6 +724,23 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
               fadeInTicks: 0,
               fadeOutTicks: 0,
             });
+
+            // Overwrite whatever the take rolled over: trim/remove existing
+            // audio clips on this track within the recorded span so only the
+            // overlapping region is replaced (non-overlapping audio survives).
+            const rawCtx = Tone.getContext().rawContext;
+            const nativeCtx: AudioContext =
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (rawCtx as any)._nativeContext ?? (rawCtx as AudioContext);
+            overwriteAudioRegion(
+              trackId,
+              startTick,
+              startTick + durationTicks,
+              nativeCtx,
+              bpm,
+              clipId,
+            );
+
             // Auto-rewind playhead to clip start so next play replays the recording
             seekTo(startTick);
 
@@ -727,6 +788,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       liveAudioAnalyserRef.current?.disconnect();
       liveAudioSourceRef.current = null;
       liveAudioAnalyserRef.current = null;
+      if (recordLimitTimerRef.current !== null) {
+        clearTimeout(recordLimitTimerRef.current);
+        recordLimitTimerRef.current = null;
+      }
 
       for (const [, state] of trackAudioRef.current) {
         state.trackEngine.allNotesOff();

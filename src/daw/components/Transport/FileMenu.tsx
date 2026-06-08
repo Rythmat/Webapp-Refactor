@@ -27,7 +27,7 @@ import {
   studioProjectsApi,
   type StudioProjectSummary,
 } from '@/lib/studio-projects/api';
-import { clearLocalSession } from '@/lib/studio-projects/localSession';
+import { resetToNewProject } from '@/lib/studio-projects/newProject';
 import { loadCloudProjectAudio } from '@/lib/studio-assets/load-audio';
 import { PartialUploadError } from '@/lib/studio-assets/upload-pending';
 import { showError, showSuccess } from '@/components/utils/toast';
@@ -59,6 +59,10 @@ const separatorStyle = {
 export function FileMenu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const token = useAuthToken();
+  // During a collab session, New Project and Open are unavailable: New Project
+  // would reload and silently drop the user, and Open isn't supported in a
+  // shared session (each user saves to their own account instead).
+  const isCollabActive = useStore((s) => s.isCollabActive);
 
   // Controlled state lets us close the "Open" submenu on mouse-leave and reset
   // it whenever the root menu closes (e.g. after a selection is processed).
@@ -138,13 +142,9 @@ export function FileMenu() {
       }
     }
 
-    // Drop the local autosave so the upcoming reload doesn't restore the
-    // session we're explicitly leaving behind.
-    clearLocalSession();
-    const state = useStore.getState();
-    state.setProjectId(null);
-    state.setProjectName('Untitled Project');
-    window.location.reload();
+    // Drop the local autosave (so the reload doesn't restore the session we're
+    // leaving) and reload into a blank project.
+    resetToNewProject();
   }, [token]);
 
   const handleSave = useCallback(async () => {
@@ -409,17 +409,22 @@ export function FileMenu() {
             }}
             sideOffset={4}
           >
-            {/* Project management */}
-            <DropdownMenu.Item
-              className={itemClass}
-              style={itemStyle}
-              onSelect={() => void handleNewProject()}
-            >
-              <FilePlus size={13} strokeWidth={2} />
-              New Project
-            </DropdownMenu.Item>
+            {/* Project management — New Project is hidden during a collab
+                session (it reloads, which would drop the user from the room). */}
+            {!isCollabActive && (
+              <>
+                <DropdownMenu.Item
+                  className={itemClass}
+                  style={itemStyle}
+                  onSelect={() => void handleNewProject()}
+                >
+                  <FilePlus size={13} strokeWidth={2} />
+                  New Project
+                </DropdownMenu.Item>
 
-            <div style={separatorStyle} />
+                <div style={separatorStyle} />
+              </>
+            )}
 
             <DropdownMenu.Item
               className={itemClass}
@@ -447,9 +452,18 @@ export function FileMenu() {
               Save As…
             </DropdownMenu.Item>
 
-            {/* Open submenu */}
+            {/* Open submenu — disabled during a collab session (opening a
+                different project isn't supported in a shared session). */}
             <DropdownMenu.Sub open={openSubmenu} onOpenChange={setOpenSubmenu}>
-              <DropdownMenu.SubTrigger className={itemClass} style={itemStyle}>
+              <DropdownMenu.SubTrigger
+                className={itemClass}
+                style={
+                  isCollabActive
+                    ? { color: 'var(--color-text-dim)' }
+                    : itemStyle
+                }
+                disabled={isCollabActive}
+              >
                 <FolderOpen size={13} strokeWidth={2} />
                 Open
                 <ChevronRight size={11} className="ml-auto" strokeWidth={2} />

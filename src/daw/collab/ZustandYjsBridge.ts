@@ -28,6 +28,7 @@ import { ORIGIN_LOCAL } from './types';
 export class ZustandYjsBridge {
   private doc: Y.Doc;
   private setState: (partial: Partial<AllSlices>) => void;
+  private getState: () => AllSlices;
   private disposeObservers: YjsObserverDisposer | null = null;
 
   /**
@@ -44,9 +45,14 @@ export class ZustandYjsBridge {
    */
   private suppressYjsToStore = false;
 
-  constructor(doc: Y.Doc, setState: (partial: Partial<AllSlices>) => void) {
+  constructor(
+    doc: Y.Doc,
+    setState: (partial: Partial<AllSlices>) => void,
+    getState: () => AllSlices,
+  ) {
     this.doc = doc;
     this.setState = setState;
+    this.getState = getState;
   }
 
   /**
@@ -67,6 +73,7 @@ export class ZustandYjsBridge {
         }
       },
       () => this.suppressYjsToStore,
+      this.getState,
     );
   }
 

@@ -108,13 +108,13 @@ export default class CollabServer implements Party.Server {
    * Handle disconnect — clean up metadata.
    * If the host disconnects, notify all clients and close the room via API.
    */
-  async onClose(conn: Party.Connection) {
+  onClose(conn: Party.Connection) {
     const meta = connectionMeta.get(conn.id);
     connectionMeta.delete(conn.id);
 
     // Check if the disconnecting connection is the host
     if (conn.id === this.hostConnectionId) {
-      await this.handleHostDisconnect();
+      this.handleHostDisconnect();
     } else if (meta && meta.userId === this.hostUserId) {
       // Host may have reconnected with a different connection ID —
       // check if any remaining connection belongs to the host
@@ -126,16 +126,17 @@ export default class CollabServer implements Party.Server {
         }
       }
       if (!hostStillConnected) {
-        await this.handleHostDisconnect();
+        this.handleHostDisconnect();
       }
     }
   }
 
   /**
-   * Broadcast room:closing to all remaining clients and call the API
-   * webhook to mark the room as closed in the database.
+   * Broadcast room:closing to all remaining clients and kick them. Studio and
+   * jam rooms are ephemeral — there is no backend room record to mark closed —
+   * so when the host disconnects the room simply ceases to exist.
    */
-  private async handleHostDisconnect(): Promise<void> {
+  private handleHostDisconnect(): void {
     this.hostConnectionId = null;
 
     // Notify all remaining clients that the room is closing, then kick them
@@ -148,33 +149,6 @@ export default class CollabServer implements Party.Server {
       conn.close(4410, 'Host disconnected');
     }
     connectionMeta.clear();
-
-    // Call the API to mark the room as closed
-    // The room ID in PartyKit is the database room ID (or jam-{id})
-    const rawRoomId = this.room.id;
-    const roomId = rawRoomId.startsWith('jam-')
-      ? rawRoomId.slice(4)
-      : rawRoomId;
-
-    const apiUrl = this.room.env.MUSIC_ATLAS_API_URL as string | undefined;
-    const webhookSecret = this.room.env.PARTYKIT_WEBHOOK_SECRET as
-      | string
-      | undefined;
-
-    if (apiUrl && webhookSecret) {
-      try {
-        await fetch(`${apiUrl}/api/collab/rooms/webhook/host-disconnected`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${webhookSecret}`,
-          },
-          body: JSON.stringify({ roomId }),
-        });
-      } catch (err) {
-        console.error('Failed to notify API of host disconnect:', err);
-      }
-    }
   }
 
   /**

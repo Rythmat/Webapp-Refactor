@@ -48,14 +48,14 @@ function findYMap(
 }
 
 // ── Track scalar keys that should be diffed individually ────────────────
+// NOTE: `mute` and `solo` are intentionally excluded — in collab sessions they
+// are per-user-local (personal monitoring), so they must never sync to peers.
 const TRACK_SCALAR_KEYS: (keyof Track)[] = [
   'name',
   'type',
   'instrument',
   'gmProgram',
   'color',
-  'mute',
-  'solo',
   'volume',
   'pan',
   'recordArmed',
@@ -113,18 +113,15 @@ export function diffAndApply(
 // ── Transport diff ──────────────────────────────────────────────────────
 
 function diffTransport(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
+  // Only tempo + time signature are shared. Loop region and metronome are
+  // per-user-local (each collaborator runs an independent transport), and
+  // play/position/recording state is never written to the doc at all.
   const yT = getYTransport(doc);
   if (prev.bpm !== next.bpm) yT.set('bpm', next.bpm);
   if (prev.timeSignatureNumerator !== next.timeSignatureNumerator)
     yT.set('timeSignatureNumerator', next.timeSignatureNumerator);
   if (prev.timeSignatureDenominator !== next.timeSignatureDenominator)
     yT.set('timeSignatureDenominator', next.timeSignatureDenominator);
-  if (prev.metronomeEnabled !== next.metronomeEnabled)
-    yT.set('metronomeEnabled', next.metronomeEnabled);
-  if (prev.loopEnabled !== next.loopEnabled)
-    yT.set('loopEnabled', next.loopEnabled);
-  if (prev.loopStart !== next.loopStart) yT.set('loopStart', next.loopStart);
-  if (prev.loopEnd !== next.loopEnd) yT.set('loopEnd', next.loopEnd);
 }
 
 // ── Track diff ──────────────────────────────────────────────────────────

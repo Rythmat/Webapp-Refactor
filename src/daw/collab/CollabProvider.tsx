@@ -36,17 +36,13 @@ import {
   type TransportCommand,
 } from './types';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import {
-  createRoom as apiCreateRoom,
-  closeRoom as apiCloseRoom,
-  type RoomResponse,
-} from './roomManager';
+import { toast } from '@/hooks/use-toast';
 
 // ── Context ─────────────────────────────────────────────────────────────
 
 interface CollabContextValue {
-  /** Create a new room via the API and join it as owner. */
-  createAndJoinRoom: (projectName: string) => Promise<RoomResponse>;
+  /** Create an ephemeral room (client-generated id) and join it as host. */
+  createAndJoinRoom: () => void;
   /** Join an existing room by ID. */
   joinRoomById: (roomId: string, role?: CollabRole) => void;
   /** Join using pre-fetched room info (partykitHost + partykitRoom). */
@@ -68,8 +64,8 @@ interface CollabContextValue {
 }
 
 const CollabContext = createContext<CollabContextValue>({
-  createAndJoinRoom: () => Promise.reject(new Error('No CollabProvider')),
-  joinRoomById: () => Promise.reject(new Error('No CollabProvider')),
+  createAndJoinRoom: () => {},
+  joinRoomById: () => {},
   joinRoom: () => {},
   leaveRoom: () => {},
   sendTransportCommand: () => {},
@@ -106,32 +102,26 @@ export function CollabProvider({ children }: CollabProviderProps) {
       const data = JSON.parse(event.data);
 
       if (data.type === 'room:closing') {
-        // Host disconnected — tear down the session
-        useStore.getState()._setConnectionStatus('disconnected');
+        // Host disconnected. Remaining (non-owner) users are offered the chance
+        // to save the project to their own account before the session ends.
+        const store = useStore.getState();
+        store._setConnectionStatus('disconnected');
+        if (store.collabRole !== 'owner') store._setLeavePrompt(true);
         return;
       }
 
-      if (data.type === 'transport') {
-        const store = useStore.getState();
-        if (!store.transportLinked) return;
-
-        const cmd = data as TransportCommand;
-        switch (cmd.action) {
-          case 'play':
-            store.setPosition(cmd.tick ?? 0);
-            store.play();
-            break;
-          case 'pause':
-            store.pause();
-            break;
-          case 'stop':
-            store.stop();
-            break;
-          case 'seek':
-            if (cmd.tick !== undefined) store.setPosition(cmd.tick);
-            break;
-        }
+      if (data.type === 'room:not-found') {
+        // Join-by-id targeted a room with no active host.
+        useStore
+          .getState()
+          ._setRoomError(
+            'That room is not active. Check the room id and try again.',
+          );
+        return;
       }
+
+      // Transport commands are intentionally ignored: in a collab session each
+      // user runs an independent transport and hears only their own playback.
     } catch {
       // Ignore non-JSON or malformed messages
     }
@@ -173,7 +163,9 @@ export function CollabProvider({ children }: CollabProviderProps) {
       teardown();
 
       const host = partykitHost ?? DEFAULT_PARTYKIT_HOST;
-      const pkRoom = partykitRoom ?? roomId;
+      // Mirror the jam room's naming so every entry point lands on the same
+      // ephemeral PartyKit room: `studio-${id}`.
+      const pkRoom = partykitRoom ?? `studio-${roomId}`;
 
       const doc = getOrCreateDoc();
       docRef.current = doc;
@@ -184,8 +176,10 @@ export function CollabProvider({ children }: CollabProviderProps) {
       hydrateDocFromStore(doc, currentState);
 
       // Set up the bridge
-      const bridge = new ZustandYjsBridge(doc, (partial) =>
-        useStore.setState(partial),
+      const bridge = new ZustandYjsBridge(
+        doc,
+        (partial) => useStore.setState(partial),
+        () => useStore.getState(),
       );
       bridgeRef.current = bridge;
       setBridge(bridge);
@@ -259,6 +253,26 @@ export function CollabProvider({ children }: CollabProviderProps) {
           }
         });
         useStore.getState()._setRemoteUsers(remoteUsers);
+
+        // Tiebreaker for simultaneous selection of the same free track: the
+        // exclusive lock is optimistic, so two users can briefly hold the same
+        // track. Both sides run the same comparison; whoever has the higher
+        // clientID yields, so exactly one releases.
+        const mySelected = useStore.getState().selectedTrackId;
+        if (mySelected) {
+          const myId = provider.awareness.clientID;
+          for (const [clientId, u] of remoteUsers) {
+            if (u.selectedTrackId === mySelected && clientId < myId) {
+              useStore.getState().setSelectedTrackId(null);
+              toast({
+                title: 'Track taken',
+                description: `${u.userName} selected this track first`,
+                variant: 'destructive',
+              });
+              break;
+            }
+          }
+        }
       };
       provider.awareness.on('change', onAwarenessChange);
 
@@ -270,21 +284,19 @@ export function CollabProvider({ children }: CollabProviderProps) {
 
   // ── Create & join ────────────────────────────────────────────────────
 
-  const createAndJoinRoom = useCallback(
-    async (projectName: string): Promise<RoomResponse> => {
-      if (!token) throw new Error('Not authenticated');
-      const room = await apiCreateRoom({ projectName }, token);
-      joinRoom(room.roomId, 'owner');
-      return room;
-    },
-    [token, joinRoom],
-  );
+  const createAndJoinRoom = useCallback(() => {
+    // Ephemeral, jam-room style: short client-generated id, no backend record.
+    // The room lives only as long as the host's PartyKit connection.
+    const newRoomId = crypto.randomUUID().slice(0, 8);
+    joinRoom(newRoomId, 'owner', undefined, `studio-${newRoomId}`, newRoomId);
+  }, [joinRoom]);
 
   // ── Join by ID ──────────────────────────────────────────────────────
 
   const joinRoomById = useCallback(
     (roomId: string, role: CollabRole = 'editor') => {
-      joinRoom(roomId, role);
+      const id = roomId.trim().toLowerCase();
+      joinRoom(id, role, undefined, `studio-${id}`, id);
     },
     [joinRoom],
   );
@@ -292,18 +304,11 @@ export function CollabProvider({ children }: CollabProviderProps) {
   // ── Leave ─────────────────────────────────────────────────────────────
 
   const leaveRoom = useCallback(() => {
-    // If we are the host, close the room via API
-    const roomId = currentRoomIdRef.current;
-    const store = useStore.getState();
-    if (roomId && token && store.collabRole === 'owner') {
-      apiCloseRoom(roomId, token).catch(() => {
-        // Best-effort — PartyKit onClose will also trigger the webhook
-      });
-    }
-
+    // Ephemeral rooms have no backend record to delete — the room dies when the
+    // host's PartyKit connection closes (mirrors the jam room). Just tear down.
     teardown();
     useStore.getState()._clearCollab();
-  }, [teardown, token]);
+  }, [teardown]);
 
   // Clean up on unmount
   useEffect(() => teardown, [teardown]);
@@ -330,7 +335,9 @@ export function CollabProvider({ children }: CollabProviderProps) {
   useEffect(() => {
     return useStore.subscribe(
       (state) => ({
-        selectedTrackId: state.selectedClipTrackId,
+        // Broadcast the header-track selection (prismSlice) — this is what the
+        // exclusive lock and the rainbow-neon border key off of.
+        selectedTrackId: state.selectedTrackId,
         selectedClipId: state.selectedClipId,
         editingClipId: state.editingClipId,
       }),

@@ -6,6 +6,7 @@ import { DEFAULT_EFFECTS, type EffectSlotType } from '@/daw/audio/EffectChain';
 import { GROOVES, type GrooveItem } from '@/daw/data/groovesLibrary';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
+import { toast } from '@/hooks/use-toast';
 import {
   StrumMode,
   VelocityTilt,
@@ -1722,7 +1723,23 @@ export const createPrismSlice: StateCreator<
 
   // ── Actions — track selection ──
 
-  setSelectedTrackId: (id) => set({ selectedTrackId: id }),
+  setSelectedTrackId: (id) => {
+    // Hard exclusive lock: during a collab session a track selected by another
+    // user cannot be selected here. Deselecting (id === null) is always allowed.
+    if (id) {
+      for (const u of get().remoteUsers.values()) {
+        if (u.selectedTrackId === id) {
+          toast({
+            title: 'Track locked',
+            description: `${u.userName} is editing this track`,
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+    }
+    set({ selectedTrackId: id });
+  },
 
   // ── Actions — chord regions ──
 

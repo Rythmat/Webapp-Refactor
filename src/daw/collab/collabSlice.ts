@@ -28,9 +28,12 @@ export interface CollabSlice {
   localRole: CollabRole;
   collabRole: CollabRole;
 
-  // ── Transport sync ──
-  /** When true, this client follows remote transport commands. */
-  transportLinked: boolean;
+  // ── Leave flow ──
+  /** When true, the "save project before leaving?" prompt is shown. Set when
+   *  the local user clicks Leave, or when the host disconnects. */
+  leavePromptPending: boolean;
+  /** Error shown when a Join-by-id attempt targets a room that does not exist. */
+  roomError: string | null;
 
   // ── Chat ──
   chatMessages: ChatMessage[];
@@ -45,8 +48,10 @@ export interface CollabSlice {
   _clearCollab: () => void;
   /** Called by the presence observer when remote awareness changes. */
   _setRemoteUsers: (users: Map<number, UserPresence>) => void;
-  /** Toggle transport linking on/off. */
-  setTransportLinked: (linked: boolean) => void;
+  /** Open/close the save-before-leaving prompt. */
+  _setLeavePrompt: (pending: boolean) => void;
+  /** Set/clear the Join-room error message. */
+  _setRoomError: (error: string | null) => void;
   /** Append a chat message (from local send or remote receive). */
   _appendChatMessage: (msg: ChatMessage) => void;
   /** Reset unread count (user opened chat panel). */
@@ -68,7 +73,8 @@ export const createCollabSlice: StateCreator<
   remoteUsers: new Map(),
   localRole: 'editor',
   collabRole: 'editor',
-  transportLinked: true,
+  leavePromptPending: false,
+  roomError: null,
   chatMessages: [],
   unreadChatCount: 0,
 
@@ -95,13 +101,17 @@ export const createCollabSlice: StateCreator<
       remoteUsers: new Map(),
       localRole: 'editor',
       collabRole: 'editor',
+      leavePromptPending: false,
+      roomError: null,
       chatMessages: [],
       unreadChatCount: 0,
     }),
 
   _setRemoteUsers: (users) => set({ remoteUsers: users }),
 
-  setTransportLinked: (linked) => set({ transportLinked: linked }),
+  _setLeavePrompt: (pending) => set({ leavePromptPending: pending }),
+
+  _setRoomError: (error) => set({ roomError: error }),
 
   _appendChatMessage: (msg) =>
     set((s) => ({

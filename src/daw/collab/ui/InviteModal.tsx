@@ -1,5 +1,6 @@
 // ── InviteModal ──────────────────────────────────────────────────────────
-// Modal for inviting collaborators by username search or via link.
+// Modal for inviting collaborators by username search, or by sharing the room
+// code that others type into "Join Room".
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -129,21 +130,18 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
     [roomId, token, selectedRole, sending, appUser, projectName],
   );
 
-  // Build invite link using the room code
+  // The room code another user types into "Join Room" to join this session.
   const roomCode = useStore((s) => s.roomCode);
-  const inviteUrl = roomCode
-    ? `${window.location.origin}/studio/join?code=${roomCode}&role=${selectedRole}`
-    : '';
 
-  const handleCopy = useCallback(async () => {
-    if (!inviteUrl) return;
+  const handleCopyCode = useCallback(async () => {
+    if (!roomCode) return;
     try {
-      await navigator.clipboard.writeText(inviteUrl);
+      await navigator.clipboard.writeText(roomCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
       const textarea = document.createElement('textarea');
-      textarea.value = inviteUrl;
+      textarea.value = roomCode;
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand('copy');
@@ -151,7 +149,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  }, [inviteUrl]);
+  }, [roomCode]);
 
   return createPortal(
     <AnimatePresence>
@@ -166,213 +164,225 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
             className="fixed inset-0 z-50 bg-black/50"
           />
 
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            onKeyDown={(e) => e.stopPropagation()}
-            className="fixed left-1/2 top-1/2 z-50 flex w-[380px] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-xl p-5 shadow-2xl"
-            style={{
-              backgroundColor: 'var(--color-surface-2)',
-              border: '1px solid var(--color-border)',
-              backdropFilter: 'blur(24px)',
-            }}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <UserPlus
-                  size={14}
-                  strokeWidth={2}
-                  style={{ color: 'var(--color-accent)' }}
-                />
-                <span
-                  className="text-sm font-semibold"
-                  style={{ color: 'var(--color-text)' }}
-                >
-                  Invite Collaborators
-                </span>
-              </div>
-              <button
-                onClick={onClose}
-                className="flex size-5 items-center justify-center rounded transition-colors hover:bg-white/10"
-                style={{
-                  color: 'var(--color-text-dim)',
-                  background: 'none',
-                  border: 'none',
-                }}
-              >
-                <X size={12} strokeWidth={2.5} />
-              </button>
-            </div>
-
-            {/* Role selector */}
-            <div className="flex flex-col gap-1.5">
-              <span
-                className="text-[10px] font-medium uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                Permission
-              </span>
-              <div className="flex gap-1.5">
-                {(['editor', 'viewer'] as const).map((role) => (
-                  <button
-                    key={role}
-                    onClick={() => setSelectedRole(role)}
-                    className="flex-1 rounded-md py-1.5 text-[10px] font-medium capitalize transition-colors"
-                    style={{
-                      backgroundColor:
-                        selectedRole === role
-                          ? 'var(--color-accent)'
-                          : 'var(--color-surface)',
-                      color:
-                        selectedRole === role
-                          ? '#fff'
-                          : 'var(--color-text-dim)',
-                      border: 'none',
-                    }}
+          {/* Centering wrapper — uses flex (not translate) so framer-motion's
+              scale animation can't clobber the centering transform. The wrapper
+              ignores pointer events so clicks outside the card hit the backdrop. */}
+          <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onKeyDown={(e) => e.stopPropagation()}
+              className="pointer-events-auto flex w-[380px] flex-col gap-4 rounded-xl p-5 shadow-2xl"
+              style={{
+                backgroundColor: 'var(--color-surface-2)',
+                border: '1px solid var(--color-border)',
+                backdropFilter: 'blur(24px)',
+              }}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <UserPlus
+                    size={14}
+                    strokeWidth={2}
+                    style={{ color: 'var(--color-accent)' }}
+                  />
+                  <span
+                    className="text-sm font-semibold"
+                    style={{ color: 'var(--color-text)' }}
                   >
-                    {role}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* User search */}
-            <div className="flex flex-col gap-1.5">
-              <span
-                className="text-[10px] font-medium uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                Search by name
-              </span>
-              <div
-                className="flex items-center gap-2 rounded-md px-2.5 py-1.5"
-                style={{ backgroundColor: 'var(--color-surface)' }}
-              >
-                <Search
-                  size={12}
-                  style={{ color: 'var(--color-text-dim)', flexShrink: 0 }}
-                />
-                <input
-                  ref={inputRef}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Type a username or nickname..."
-                  className="flex-1 border-none bg-transparent text-[11px] outline-none"
-                  style={{ color: 'var(--color-text)' }}
-                />
-              </div>
-
-              {/* Search results */}
-              {(results.length > 0 || searching) && (
-                <div
-                  className="flex max-h-[160px] flex-col gap-0.5 overflow-y-auto rounded-md p-1"
-                  style={{ backgroundColor: 'var(--color-surface)' }}
-                >
-                  {searching && results.length === 0 && (
-                    <div
-                      className="px-2 py-2 text-center text-[10px]"
-                      style={{ color: 'var(--color-text-dim)' }}
-                    >
-                      Searching...
-                    </div>
-                  )}
-                  {results.map((user) => (
-                    <div
-                      key={user.id}
-                      className="flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-white/5"
-                    >
-                      <div className="flex flex-col">
-                        <span
-                          className="text-[11px] font-medium"
-                          style={{ color: 'var(--color-text)' }}
-                        >
-                          {user.nickname}
-                        </span>
-                        {user.username && (
-                          <span
-                            className="text-[9px]"
-                            style={{ color: 'var(--color-text-dim)' }}
-                          >
-                            @{user.username}
-                          </span>
-                        )}
-                      </div>
-                      <motion.button
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleInvite(user)}
-                        disabled={sending === user.id}
-                        className="flex items-center gap-1 rounded-md px-2 py-1 text-[9px] font-medium transition-colors"
-                        style={{
-                          backgroundColor: 'var(--color-accent)',
-                          color: '#fff',
-                          border: 'none',
-                          opacity: sending === user.id ? 0.5 : 1,
-                        }}
-                      >
-                        <Send size={9} />
-                        {sending === user.id ? 'Sending...' : 'Invite'}
-                      </motion.button>
-                    </div>
-                  ))}
+                    Invite Collaborators
+                  </span>
                 </div>
-              )}
-              {query.length >= 2 && !searching && results.length === 0 && (
-                <div
-                  className="px-2 py-2 text-center text-[10px]"
-                  style={{ color: 'var(--color-text-dim)' }}
-                >
-                  No users found
-                </div>
-              )}
-            </div>
-
-            {/* Divider */}
-            <div
-              className="h-px w-full"
-              style={{ backgroundColor: 'var(--color-border)' }}
-            />
-
-            {/* Invite link fallback */}
-            <div className="flex flex-col gap-1.5">
-              <span
-                className="text-[10px] font-medium uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                Or share a link
-              </span>
-              <div className="flex items-center gap-1.5">
-                <input
-                  value={inviteUrl}
-                  readOnly
-                  className="flex-1 rounded-md border-none px-2 py-1.5 text-[10px] outline-none"
+                <button
+                  onClick={onClose}
+                  className="flex size-5 items-center justify-center rounded transition-colors hover:bg-white/10"
                   style={{
-                    backgroundColor: 'var(--color-surface)',
-                    color: 'var(--color-text)',
-                  }}
-                />
-                <motion.button
-                  onClick={handleCopy}
-                  whileTap={{ scale: 0.9 }}
-                  className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
-                  style={{
-                    color: copied ? '#22c55e' : 'var(--color-text-dim)',
+                    color: 'var(--color-text-dim)',
                     background: 'none',
                     border: 'none',
                   }}
-                  title="Copy to clipboard"
                 >
-                  {copied ? (
-                    <Check size={12} strokeWidth={2.5} />
-                  ) : (
-                    <Copy size={12} strokeWidth={2} />
-                  )}
-                </motion.button>
+                  <X size={12} strokeWidth={2.5} />
+                </button>
               </div>
-            </div>
-          </motion.div>
+
+              {/* Role selector */}
+              <div className="flex flex-col gap-1.5">
+                <span
+                  className="text-[10px] font-medium uppercase tracking-wider"
+                  style={{ color: 'var(--color-text-dim)' }}
+                >
+                  Permission
+                </span>
+                <div className="flex gap-1.5">
+                  {(['editor', 'viewer'] as const).map((role) => (
+                    <button
+                      key={role}
+                      onClick={() => setSelectedRole(role)}
+                      className="flex-1 rounded-md py-1.5 text-[10px] font-medium capitalize transition-colors"
+                      style={{
+                        backgroundColor:
+                          selectedRole === role
+                            ? 'var(--color-accent)'
+                            : 'var(--color-surface)',
+                        color:
+                          selectedRole === role
+                            ? '#fff'
+                            : 'var(--color-text-dim)',
+                        border: 'none',
+                      }}
+                    >
+                      {role}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* User search */}
+              <div className="flex flex-col gap-1.5">
+                <span
+                  className="text-[10px] font-medium uppercase tracking-wider"
+                  style={{ color: 'var(--color-text-dim)' }}
+                >
+                  Search by name
+                </span>
+                <div
+                  className="flex items-center gap-2 rounded-md px-2.5 py-1.5"
+                  style={{ backgroundColor: 'var(--color-surface)' }}
+                >
+                  <Search
+                    size={12}
+                    style={{ color: 'var(--color-text-dim)', flexShrink: 0 }}
+                  />
+                  <input
+                    ref={inputRef}
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Type a username or nickname..."
+                    className="flex-1 border-none bg-transparent text-[11px] outline-none"
+                    style={{ color: 'var(--color-text)' }}
+                  />
+                </div>
+
+                {/* Search results */}
+                {(results.length > 0 || searching) && (
+                  <div
+                    className="flex max-h-[160px] flex-col gap-0.5 overflow-y-auto rounded-md p-1"
+                    style={{ backgroundColor: 'var(--color-surface)' }}
+                  >
+                    {searching && results.length === 0 && (
+                      <div
+                        className="px-2 py-2 text-center text-[10px]"
+                        style={{ color: 'var(--color-text-dim)' }}
+                      >
+                        Searching...
+                      </div>
+                    )}
+                    {results.map((user) => (
+                      <div
+                        key={user.id}
+                        className="flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-white/5"
+                      >
+                        <div className="flex flex-col">
+                          <span
+                            className="text-[11px] font-medium"
+                            style={{ color: 'var(--color-text)' }}
+                          >
+                            {user.nickname}
+                          </span>
+                          {user.username && (
+                            <span
+                              className="text-[9px]"
+                              style={{ color: 'var(--color-text-dim)' }}
+                            >
+                              @{user.username}
+                            </span>
+                          )}
+                        </div>
+                        <motion.button
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => handleInvite(user)}
+                          disabled={sending === user.id}
+                          className="flex items-center gap-1 rounded-md px-2 py-1 text-[9px] font-medium transition-colors"
+                          style={{
+                            backgroundColor: 'var(--color-accent)',
+                            color: '#fff',
+                            border: 'none',
+                            opacity: sending === user.id ? 0.5 : 1,
+                          }}
+                        >
+                          <Send size={9} />
+                          {sending === user.id ? 'Sending...' : 'Invite'}
+                        </motion.button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {query.length >= 2 && !searching && results.length === 0 && (
+                  <div
+                    className="px-2 py-2 text-center text-[10px]"
+                    style={{ color: 'var(--color-text-dim)' }}
+                  >
+                    No users found
+                  </div>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div
+                className="h-px w-full"
+                style={{ backgroundColor: 'var(--color-border)' }}
+              />
+
+              {/* Room code — share so others can join via Join Room */}
+              <div className="flex flex-col gap-1.5">
+                <span
+                  className="text-[10px] font-medium uppercase tracking-wider"
+                  style={{ color: 'var(--color-text-dim)' }}
+                >
+                  Or share this room code
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <div
+                    className="flex-1 rounded-md px-3 py-2 text-center font-mono text-base font-semibold tracking-[0.3em]"
+                    style={{
+                      backgroundColor: 'var(--color-surface)',
+                      color: 'var(--color-text)',
+                    }}
+                  >
+                    {roomCode ?? '—'}
+                  </div>
+                  <motion.button
+                    onClick={handleCopyCode}
+                    whileTap={{ scale: 0.9 }}
+                    disabled={!roomCode}
+                    className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5 disabled:opacity-40"
+                    style={{
+                      color: copied ? '#22c55e' : 'var(--color-text-dim)',
+                      background: 'none',
+                      border: 'none',
+                    }}
+                    title="Copy room code"
+                  >
+                    {copied ? (
+                      <Check size={12} strokeWidth={2.5} />
+                    ) : (
+                      <Copy size={12} strokeWidth={2} />
+                    )}
+                  </motion.button>
+                </div>
+                <span
+                  className="text-[9px]"
+                  style={{ color: 'var(--color-text-dim)' }}
+                >
+                  They can join from Start Collaboration → Join Room.
+                </span>
+              </div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>,

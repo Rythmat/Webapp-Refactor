@@ -20,6 +20,9 @@ interface JamRoomState {
   localInstrument: JamInstrument;
   /** Local GM program number (0-127). Default 0 = Acoustic Grand Piano. */
   localGmProgram: number;
+  /** Current drum-machine tempo — used to map a recorded jam onto the
+   *  studio timeline when bringing it into the DAW. */
+  localBpm: number;
 
   // --- Actions ---
   addRemoteNote: (userId: string, note: ActiveNote) => void;
@@ -28,6 +31,7 @@ interface JamRoomState {
   addChatMessage: (msg: JamChatMessage) => void;
   setLocalInstrument: (instrument: JamInstrument) => void;
   setLocalGmProgram: (program: number) => void;
+  setLocalBpm: (bpm: number) => void;
   reset: () => void;
 }
 
@@ -36,6 +40,7 @@ export const useJamRoomStore = create<JamRoomState>((set) => ({
   chatMessages: [],
   localInstrument: 'piano',
   localGmProgram: 0,
+  localBpm: 100,
 
   addRemoteNote: (userId, note) =>
     set((state) => {
@@ -76,11 +81,14 @@ export const useJamRoomStore = create<JamRoomState>((set) => ({
 
   setLocalGmProgram: (program) => set({ localGmProgram: program }),
 
+  setLocalBpm: (bpm) => set({ localBpm: bpm }),
+
   reset: () =>
     set({
       activeRemoteNotes: new Map(),
       chatMessages: [],
       localInstrument: 'piano',
       localGmProgram: 0,
+      localBpm: 100,
     }),
 }));

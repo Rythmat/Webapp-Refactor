@@ -13,19 +13,26 @@ import {
   Music,
   AlertCircle,
   ArrowLeft,
+  Disc3,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { showError } from '@/components/utils/toast';
 import { Env } from '@/constants/env';
-import { GameRoutes } from '@/constants/routes';
+import { GameRoutes, StudioRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import {
+  saveJamSession,
+  type JamSessionParticipant,
+} from '@/daw/jam-import/jamSession';
 import { JamChat } from './JamChat';
 import { JamDrumMachine } from './JamDrumMachine';
 import { JamRoomProvider, useJamRoom } from './JamRoomProvider';
 import { JamSoundPicker } from './JamSoundPicker';
 import { NoteWaterfall, type WaterfallHandle } from './NoteWaterfall';
 import { PianoKeyboard } from './PianoKeyboard';
+import { jamRecorder } from './jamRecorder';
 import { useJamRoomStore } from './jamRoomStore';
 import {
   initJamSynth,
@@ -200,9 +207,11 @@ function JamRoomInner() {
     [triggerDrumEffect],
   );
 
-  // Sync waterfall gradient speed to sequencer BPM
+  // Sync waterfall gradient speed to sequencer BPM, and remember the tempo so
+  // a recorded jam maps onto the studio timeline correctly.
   const onBpmChange = useCallback((bpm: number) => {
     waterfallRef.current?.setBpm(bpm);
+    useJamRoomStore.getState().setLocalBpm(bpm);
   }, []);
 
   // Remote notes → waterfall + drum effects
@@ -233,6 +242,35 @@ function JamRoomInner() {
   const handleLeave = () => {
     leaveRoom();
     navigate(GameRoutes.jamLobby());
+  };
+
+  // Save the local jam recording and open it in the studio, where it becomes
+  // one MIDI track per participant (auto-imported on arrival via ?jam=1).
+  const handleBringToStudio = () => {
+    if (!jamRecorder.hasRecording()) {
+      showError('Play some notes first, then bring the jam into the studio.');
+      return;
+    }
+    const participants: JamSessionParticipant[] = [
+      {
+        userId: userId ?? '',
+        userName: localPlayer.userName,
+        color: localColor,
+      },
+      ...remotePlayers.map((p) => ({
+        userId: p.userId,
+        userName: p.userName,
+        color: p.color,
+      })),
+    ];
+    const session = jamRecorder.finalize({
+      roomId,
+      bpm: useJamRoomStore.getState().localBpm,
+      localUserId: userId ?? '',
+      participants,
+    });
+    saveJamSession(session);
+    navigate(`${StudioRoutes.root.definition}?jam=1`);
   };
 
   const shareCode = roomCode ?? paramRoomId ?? '';
@@ -498,6 +536,16 @@ function JamRoomInner() {
             title="Toggle chat"
           >
             <MessageSquare size={14} />
+          </button>
+
+          {/* Bring the recorded jam into the studio */}
+          <button
+            onClick={handleBringToStudio}
+            className="flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium text-purple-300 hover:text-white bg-purple-900/40 hover:bg-purple-800/60 transition-colors"
+            title="Save this jam and open it in the studio as MIDI tracks"
+          >
+            <Disc3 size={12} />
+            Bring to Studio
           </button>
 
           {/* Leave */}

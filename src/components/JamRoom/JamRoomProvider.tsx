@@ -19,6 +19,7 @@ import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { RttMeasurer } from '@/daw/collab/transportSync';
 import { PRESENCE_COLORS } from '@/daw/collab/types';
+import { jamRecorder } from './jamRecorder';
 import { useJamRoomStore } from './jamRoomStore';
 import type {
   JamInstrument,
@@ -99,6 +100,9 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     new Set(),
   );
   const currentRoomIdRef = useRef<string | null>(null);
+  // Keep the local user id available to the (stable) message handler.
+  const localUserIdRef = useRef('');
+  localUserIdRef.current = userId ?? '';
 
   // Reactive state (triggers re-renders for UI)
   const [isConnected, setIsConnected] = useState(false);
@@ -133,6 +137,20 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
         const msg = data as JamNoteMessage;
         // Dispatch to audio listeners (low-latency path, no React re-render)
         noteListenersRef.current.forEach((handler) => handler(msg));
+        // Capture remote notes for the local recording. (Local notes are
+        // captured in sendNote; the server never echoes our own back, but
+        // guard against it just in case.)
+        if (msg.userId !== localUserIdRef.current) {
+          jamRecorder.record({
+            action: msg.action,
+            userId: msg.userId,
+            color: msg.color,
+            instrument: msg.instrument,
+            gmProgram: msg.gmProgram,
+            midi: msg.midi,
+            velocity: msg.velocity,
+          });
+        }
         // Update store for visualization
         const store = useJamRoomStore.getState();
         if (msg.action === 'on') {
@@ -176,6 +194,7 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     setLatencyMs(0);
     currentRoomIdRef.current = null;
     useJamRoomStore.getState().reset();
+    jamRecorder.reset();
   }, []);
 
   // ── Core join (connects to PartyKit given host + room) ─────────────────
@@ -189,6 +208,8 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     ) => {
       teardown();
       setRoomError(null);
+      // Arm a fresh local recording for this session.
+      jamRecorder.start();
 
       const host = partykitHost ?? DEFAULT_PARTYKIT_HOST;
       const pkRoom = partykitRoom ?? `jam-${newRoomId}`;
@@ -306,6 +327,18 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
 
   const sendNote = useCallback(
     (msg: Omit<JamNoteMessage, 'userId' | 'color'>) => {
+      // Capture our own note in the local recording (the server doesn't echo
+      // it back to us). Recorded even if the socket is momentarily down so the
+      // recording matches what the player heard.
+      jamRecorder.record({
+        action: msg.action,
+        userId: userId ?? '',
+        color: colorRef.current,
+        instrument: msg.instrument,
+        gmProgram: msg.gmProgram,
+        midi: msg.midi,
+        velocity: msg.velocity,
+      });
       const ws = providerRef.current?.ws;
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
       ws.send(

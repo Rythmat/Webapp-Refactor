@@ -26,6 +26,7 @@ interface InviteModalProps {
 
 export function InviteModal({ open, onClose }: InviteModalProps) {
   const roomId = useStore((s) => s.roomId);
+  const projectName = useStore((s) => s.projectName);
   const { token, appUser } = useAuthContext();
   const [selectedRole, setSelectedRole] = useState<CollabRole>('editor');
   const [query, setQuery] = useState('');
@@ -104,6 +105,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
             targetUserId: user.id,
             targetUserName: appUser?.nickname ?? 'Someone',
             role: selectedRole,
+            projectName,
           }),
         });
 
@@ -124,7 +126,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
         setSending(null);
       }
     },
-    [roomId, token, selectedRole, sending, appUser],
+    [roomId, token, selectedRole, sending, appUser, projectName],
   );
 
   // Build invite link using the room code

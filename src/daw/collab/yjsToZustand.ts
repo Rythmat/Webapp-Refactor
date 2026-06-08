@@ -30,6 +30,18 @@ type SetState = (partial: Partial<AllSlices>) => void;
 export type YjsObserverDisposer = () => void;
 
 /**
+ * Transport keys that are shared across the room. Everything else on the
+ * transport map (play state, playhead, loop region, metronome, recording) is
+ * per-user-local and must never be applied from a remote update — even if a
+ * stray write somehow lands in the doc.
+ */
+const SYNCED_TRANSPORT_KEYS = new Set([
+  'bpm',
+  'timeSignatureNumerator',
+  'timeSignatureDenominator',
+]);
+
+/**
  * Subscribe to all synced Yjs shared types and push remote changes into
  * the Zustand store via `setState`. Returns a disposer to unsubscribe.
  *
@@ -37,11 +49,14 @@ export type YjsObserverDisposer = () => void;
  * @param setState - A function that calls `useStore.setState(partial)`
  * @param isSuppressed - Returns true when the bridge should NOT push
  *   Yjs changes into Zustand (i.e. the change originated locally).
+ * @param getState - Reads the current Zustand state (used to preserve
+ *   per-user-local track fields like mute/solo across remote track updates).
  */
 export function observeYjsAndPushToStore(
   doc: Y.Doc,
   setState: SetState,
   isSuppressed: () => boolean,
+  getState: () => AllSlices,
 ): YjsObserverDisposer {
   const disposers: (() => void)[] = [];
 
@@ -78,6 +93,7 @@ export function observeYjsAndPushToStore(
     for (const event of events) {
       if (event instanceof Y.YMapEvent) {
         for (const key of event.keysChanged) {
+          if (!SYNCED_TRANSPORT_KEYS.has(key)) continue; // skip per-user-local
           (patch as Record<string, unknown>)[key] = yTransport.get(key);
         }
       }
@@ -94,9 +110,15 @@ export function observeYjsAndPushToStore(
   const yTracks = getYTracks(doc);
   const onTracks = (_events: Y.YEvent<any>[], tx: Y.Transaction) => {
     if (tx.origin === ORIGIN_LOCAL || isSuppressed()) return;
-    const tracks: Track[] = yTracks
-      .toArray()
-      .map((ym) => yMapToTrack(ym as Y.Map<unknown>));
+    // mute/solo are per-user-local: yMapToTrack returns false defaults, so we
+    // carry the local user's current mute/solo forward by track id rather than
+    // letting a remote track update clobber them.
+    const prevById = new Map(getState().tracks.map((t) => [t.id, t]));
+    const tracks: Track[] = yTracks.toArray().map((ym) => {
+      const t = yMapToTrack(ym as Y.Map<unknown>);
+      const prev = prevById.get(t.id);
+      return prev ? { ...t, mute: prev.mute, solo: prev.solo } : t;
+    });
     setState({ tracks } as Partial<AllSlices>);
   };
   yTracks.observeDeep(onTracks);

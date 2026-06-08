@@ -28,7 +28,7 @@ import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
 import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
 import { InviteNotificationBell } from '@/daw/collab/ui/InviteNotificationBell';
-import { TransportLinkToggle } from '@/daw/collab/ui/TransportLinkToggle';
+import { LeaveSavePrompt } from '@/daw/collab/ui/LeaveSavePrompt';
 
 // ── View Switcher ───────────────────────────────────────────────────────
 
@@ -849,9 +849,6 @@ export const TransportBar = memo(function TransportBar({
           {/* Collab invite notifications */}
           <InviteNotificationBell />
 
-          {/* Transport link (collab only) */}
-          <TransportLinkToggle />
-
           {/* Collaboration */}
           <CollabToolbar
             onToggleUserList={toggleUserList}
@@ -859,6 +856,9 @@ export const TransportBar = memo(function TransportBar({
             onToggleChatPanel={toggleChatPanel}
             chatPanelOpen={chatPanelOpen}
           />
+
+          {/* Save-before-leaving prompt (collab) */}
+          <LeaveSavePrompt />
 
           {/* Library toggle */}
           <motion.button

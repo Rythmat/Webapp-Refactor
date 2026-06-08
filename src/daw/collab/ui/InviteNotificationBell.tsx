@@ -22,7 +22,7 @@ const POLL_INTERVAL = 30_000; // 30 seconds
 
 export function InviteNotificationBell() {
   const { token } = useAuthContext();
-  const { joinRoom } = useCollab();
+  const { joinRoomById } = useCollab();
   const [invites, setInvites] = useState<PendingInvite[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [responding, setResponding] = useState<string | null>(null);
@@ -93,7 +93,7 @@ export function InviteNotificationBell() {
           setInvites((prev) => prev.filter((i) => i.roomId !== roomId));
           if (accept) {
             showSuccess('Joined session!');
-            joinRoom(roomId, 'editor');
+            joinRoomById(roomId, 'editor');
             setDropdownOpen(false);
           } else {
             showSuccess('Invite declined');
@@ -107,7 +107,7 @@ export function InviteNotificationBell() {
         setResponding(null);
       }
     },
-    [token, responding, joinRoom],
+    [token, responding, joinRoomById],
   );
 
   // Compute dropdown position from button rect

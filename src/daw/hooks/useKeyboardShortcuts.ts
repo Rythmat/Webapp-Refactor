@@ -259,7 +259,7 @@ export function useKeyboardShortcuts(token: string | null) {
         return;
       }
 
-      // Cmd+N: Add new MIDI track
+      // Cmd+N: Add new MIDI track (addTrack enforces the limit + notifies)
       if (e.code === 'KeyN' && isMod) {
         e.preventDefault();
         const colors = [

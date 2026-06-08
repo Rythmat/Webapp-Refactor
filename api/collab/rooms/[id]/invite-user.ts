@@ -33,7 +33,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const { targetUserId, targetUserName, role } = req.body ?? {};
+  const { targetUserId, targetUserName, role, projectName } = req.body ?? {};
   if (!targetUserId || !role || !['editor', 'viewer'].includes(role)) {
     res.status(400).json({
       error: 'Invalid body: need targetUserId and role (editor|viewer)',
@@ -42,28 +42,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const redis = getRedis();
+  // Studio/jam rooms are ephemeral and have no stored record. When there's no
+  // room record we skip the membership-based permission and duplicate checks
+  // and trust the caller's auth token; the room name comes from the request.
   const room = await getStoredRoom(redis, roomId);
-  if (!room) {
-    res.status(404).json({ error: 'Room not found' });
-    return;
-  }
+  if (room) {
+    // Only owner or editor can invite
+    const callerMember = room.members[auth.sub];
+    if (!callerMember || callerMember.role === 'viewer') {
+      res
+        .status(403)
+        .json({ error: 'Only owners and editors can invite users' });
+      return;
+    }
 
-  // Only owner or editor can invite
-  const callerMember = room.members[auth.sub];
-  if (!callerMember || callerMember.role === 'viewer') {
-    res.status(403).json({ error: 'Only owners and editors can invite users' });
-    return;
-  }
-
-  // Don't invite someone already in the room
-  if (room.members[targetUserId]) {
-    res.status(409).json({ error: 'User is already a member of this room' });
-    return;
+    // Don't invite someone already in the room
+    if (room.members[targetUserId]) {
+      res.status(409).json({ error: 'User is already a member of this room' });
+      return;
+    }
   }
 
   await storePendingInvite(redis, targetUserId, {
     roomId,
-    roomName: room.projectName,
+    roomName: room?.projectName ?? String(projectName ?? 'Studio Session'),
     invitedBy: auth.sub,
     inviterName: targetUserName ? String(targetUserName) : 'Someone',
     role,

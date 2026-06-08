@@ -132,12 +132,15 @@ export function NewTrackModal({ open, onOpenChange }: NewTrackModalProps) {
 
   const handleSelect = useCallback(
     (template: TrackTemplate) => {
-      addTrack(
+      // addTrack returns '' (and toasts) when a track limit is hit; keep the
+      // modal open in that case so the user sees the notification.
+      const id = addTrack(
         template.trackType,
         template.instrument,
         template.label,
         template.color,
       );
+      if (!id) return;
       onOpenChange(false);
     },
     [addTrack, onOpenChange],

@@ -27,11 +27,14 @@ export function CollabToolbar({
   const isActive = useStore((s) => s.isCollabActive);
   const connectionStatus = useStore((s) => s.connectionStatus);
   const unreadCount = useStore((s) => s.unreadChatCount);
+  const roomError = useStore((s) => s.roomError);
+  const setRoomError = useStore((s) => s._setRoomError);
+  const setLeavePrompt = useStore((s) => s._setLeavePrompt);
   const collaboratorCount = useCollaboratorCount();
-  const { createAndJoinRoom, leaveRoom } = useCollab();
+  const { createAndJoinRoom, joinRoomById } = useCollab();
   const [showCreatePopover, setShowCreatePopover] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
+  const [joinId, setJoinId] = useState('');
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -39,25 +42,25 @@ export function CollabToolbar({
     if (isActive) {
       onToggleUserList();
     } else {
+      setRoomError(null);
       setShowCreatePopover((prev) => !prev);
     }
-  }, [isActive, onToggleUserList]);
+  }, [isActive, onToggleUserList, setRoomError]);
 
-  const projectName = useStore((s) => s.projectName);
+  const handleCreateSession = useCallback(() => {
+    createAndJoinRoom();
+    setShowCreatePopover(false);
+    setInviteOpen(true);
+  }, [createAndJoinRoom]);
 
-  const handleCreateSession = useCallback(async () => {
-    if (isCreating) return;
-    setIsCreating(true);
-    try {
-      await createAndJoinRoom(projectName || 'Untitled Session');
-      setShowCreatePopover(false);
-      setInviteOpen(true);
-    } catch (err) {
-      console.error('Failed to create session:', err);
-    } finally {
-      setIsCreating(false);
-    }
-  }, [createAndJoinRoom, projectName, isCreating]);
+  const handleJoinRoom = useCallback(() => {
+    const id = joinId.trim();
+    if (!id) return;
+    setRoomError(null);
+    joinRoomById(id, 'editor');
+    // Keep the popover open: it hides automatically once isCollabActive flips
+    // true on a successful sync, and stays visible to show roomError on failure.
+  }, [joinId, joinRoomById, setRoomError]);
 
   // Close popover on outside click
   useEffect(() => {
@@ -83,8 +86,8 @@ export function CollabToolbar({
     return {
       position: 'fixed',
       top: rect.bottom + 4,
-      left: rect.right - 180,
-      width: 180,
+      left: rect.right - 220,
+      width: 220,
       zIndex: 9999,
       backgroundColor: 'var(--color-surface-2)',
       border: '1px solid var(--color-border)',
@@ -121,27 +124,77 @@ export function CollabToolbar({
         )}
       </motion.button>
 
-      {/* Create session popover — rendered via portal to escape overflow-hidden */}
+      {/* Start Collaboration popover — rendered via portal to escape overflow-hidden */}
       {showCreatePopover &&
         !isActive &&
         createPortal(
           <div
             ref={popoverRef}
-            className="flex flex-col gap-1.5 rounded-lg p-2 shadow-2xl"
+            className="flex flex-col gap-2 rounded-lg p-2 shadow-2xl"
             style={getPopoverStyle()}
           >
             <button
               onClick={handleCreateSession}
-              disabled={isCreating}
-              className="rounded-md py-1.5 text-[10px] font-medium transition-colors hover:brightness-110 disabled:opacity-50"
+              className="rounded-md py-1.5 text-[10px] font-medium transition-colors hover:brightness-110"
               style={{
                 backgroundColor: 'var(--color-accent)',
                 color: '#fff',
                 border: 'none',
               }}
             >
-              {isCreating ? 'Creating...' : 'Create New Session'}
+              Create Session
             </button>
+
+            {/* Divider */}
+            <div
+              className="h-px"
+              style={{ backgroundColor: 'var(--color-border)' }}
+            />
+
+            {/* Join Room by id */}
+            <span
+              className="text-[9px] font-medium uppercase tracking-wide"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              Join Room
+            </span>
+            <div className="flex items-center gap-1">
+              <input
+                value={joinId}
+                onChange={(e) => {
+                  setJoinId(e.target.value);
+                  if (roomError) setRoomError(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleJoinRoom();
+                }}
+                placeholder="Enter room id"
+                spellCheck={false}
+                autoComplete="off"
+                className="min-w-0 flex-1 rounded border bg-transparent px-1.5 py-1 text-[10px] outline-none"
+                style={{
+                  color: 'var(--color-text)',
+                  borderColor: 'var(--color-border)',
+                }}
+              />
+              <button
+                onClick={handleJoinRoom}
+                disabled={!joinId.trim()}
+                className="rounded-md px-2 py-1 text-[10px] font-medium transition-colors hover:bg-white/10 disabled:opacity-40"
+                style={{
+                  color: 'var(--color-text)',
+                  border: '1px solid var(--color-border)',
+                  background: 'none',
+                }}
+              >
+                Join
+              </button>
+            </div>
+            {roomError && (
+              <span className="text-[9px]" style={{ color: '#ef4444' }}>
+                {roomError}
+              </span>
+            )}
           </div>,
           document.body,
         )}
@@ -184,12 +237,12 @@ export function CollabToolbar({
         </motion.button>
       )}
 
-      {/* Leave button when connected */}
+      {/* Leave button when connected — opens the save-before-leaving prompt */}
       {isActive && (
         <motion.button
           onClick={(e) => {
             e.stopPropagation();
-            leaveRoom();
+            setLeavePrompt(true);
           }}
           whileTap={{ scale: 0.85 }}
           className="ml-0.5 flex h-5 items-center rounded px-1 text-[8px] font-medium transition-colors hover:bg-red-500/10"
@@ -198,9 +251,9 @@ export function CollabToolbar({
             background: 'none',
             border: 'none',
           }}
-          title="Leave Room"
+          title="Leave Collaborative Session"
         >
-          Leave
+          Leave Session
         </motion.button>
       )}
 

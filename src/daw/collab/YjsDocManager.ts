@@ -135,8 +135,8 @@ export function trackToYMap(track: Track): Y.Map<unknown> {
   m.set('instrument', track.instrument);
   m.set('gmProgram', track.gmProgram ?? null);
   m.set('color', track.color);
-  m.set('mute', track.mute);
-  m.set('solo', track.solo);
+  // NOTE: `mute`/`solo` are intentionally NOT written — they are per-user-local
+  // (personal monitoring) and must never sync to peers.
   m.set('volume', track.volume);
   m.set('pan', track.pan);
   m.set('recordArmed', track.recordArmed);
@@ -257,8 +257,10 @@ export function yMapToTrack(m: Y.Map<unknown>): Track {
     instrument: m.get('instrument') as Track['instrument'],
     gmProgram: (m.get('gmProgram') as number | null) ?? undefined,
     color: m.get('color') as string,
-    mute: m.get('mute') as boolean,
-    solo: m.get('solo') as boolean,
+    // mute/solo are per-user-local; never read from the shared doc. The
+    // Yjs→Zustand observer preserves the local user's values on remote updates.
+    mute: false,
+    solo: false,
     volume: m.get('volume') as number,
     pan: m.get('pan') as number,
     recordArmed: m.get('recordArmed') as boolean,
@@ -323,15 +325,12 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
     project.set('composerName', state.composerName);
     project.set('version', String(1));
 
-    // Transport (persistent settings only)
+    // Transport — only tempo + time signature are shared. Loop region and
+    // metronome are per-user-local, and play/position state is never synced.
     const transport = getYTransport(doc);
     transport.set('bpm', state.bpm);
     transport.set('timeSignatureNumerator', state.timeSignatureNumerator);
     transport.set('timeSignatureDenominator', state.timeSignatureDenominator);
-    transport.set('metronomeEnabled', state.metronomeEnabled);
-    transport.set('loopEnabled', state.loopEnabled);
-    transport.set('loopStart', state.loopStart);
-    transport.set('loopEnd', state.loopEnd);
 
     // Tracks
     const yTracks = getYTracks(doc);

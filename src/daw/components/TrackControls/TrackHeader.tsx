@@ -20,6 +20,7 @@ import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
 import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
 import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
+import { useTrackPresence } from '@/daw/collab/presence';
 
 // ── Props ────────────────────────────────────────────────────────────────
 interface TrackHeaderProps {
@@ -50,6 +51,10 @@ export const TrackHeader = memo(function TrackHeader({
   const selectedTrackId = useStore((s) => s.selectedTrackId);
   const setSelectedTrackId = useStore((s) => s.setSelectedTrackId);
   const isSelected = selectedTrackId === track.id;
+
+  // Remote collaborators who have this track selected (locked). When present,
+  // the header shows an animated rainbow-neon border (see daw.css).
+  const lockedByRemote = useTrackPresence(track.id).length > 0;
 
   // Live audio metering (same pattern as mixer ChannelStrip)
   const analyser =
@@ -141,6 +146,13 @@ export const TrackHeader = memo(function TrackHeader({
         borderLeft: `3px solid ${track.color}`,
       }}
     >
+      {/* Rainbow-neon lock overlay — shown when a remote collaborator has this
+          track selected. Absolute + pointer-events-none so it never shifts
+          layout or steals clicks. */}
+      {lockedByRemote && (
+        <div className="rainbow-neon-border absolute inset-0 z-20" />
+      )}
+
       {/* Delete button — top-right corner */}
       <motion.button
         onClick={(e) => {

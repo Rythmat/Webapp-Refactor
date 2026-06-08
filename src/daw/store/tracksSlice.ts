@@ -10,12 +10,42 @@ import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import { getProjectTemplate } from '@/daw/data/projectTemplates';
 import { guessTrackRole, type DawTrackRole } from '@/daw/utils/trackRole';
 import type { PitchSegment } from '@/daw/audio/pitch-analysis/PitchAnalyzer';
+import { toast } from '@/hooks/use-toast';
 
 /** Drum-machine tracks get a compressor enabled by default. */
 function drumMachineDefaults() {
   const effects = structuredClone(DEFAULT_EFFECTS);
   effects.compressor = { ...effects.compressor, enabled: true };
   return { effects, activeEffects: ['compressor'] as EffectSlotType[] };
+}
+
+// ── Track limits ────────────────────────────────────────────────────────
+
+/** Maximum number of audio tracks allowed in a single project. */
+export const MAX_AUDIO_TRACKS = 6;
+/** Maximum number of tracks (audio + midi) allowed in a single project. */
+export const MAX_TOTAL_TRACKS = 10;
+
+/**
+ * Returns a human-readable message explaining why a track of `type` cannot be
+ * added to `tracks`, or `null` if it is within the limits. The midi cap is
+ * implicit: with at most {@link MAX_TOTAL_TRACKS} total tracks, the number of
+ * midi tracks can never exceed `MAX_TOTAL_TRACKS - audioCount`.
+ */
+export function getTrackLimitMessage(
+  tracks: { type: TrackType }[],
+  type: TrackType,
+): string | null {
+  if (tracks.length >= MAX_TOTAL_TRACKS) {
+    return `You've reached the maximum of ${MAX_TOTAL_TRACKS} tracks per project.`;
+  }
+  if (type === 'audio') {
+    const audioCount = tracks.filter((t) => t.type === 'audio').length;
+    if (audioCount >= MAX_AUDIO_TRACKS) {
+      return `You've reached the maximum of ${MAX_AUDIO_TRACKS} audio tracks per project.`;
+    }
+  }
+  return null;
 }
 
 // ── Types ───────────────────────────────────────────────────────────────
@@ -136,6 +166,11 @@ export interface TracksSlice {
   removePitchEdit: (clipId: string, segmentId: string) => void;
   clearPitchEdits: (clipId: string) => void;
 
+  /**
+   * Adds a track and returns its id, or returns `''` (and shows a toast)
+   * without creating anything when a project track limit would be exceeded.
+   * @see getTrackLimitMessage
+   */
   addTrack: (
     type: TrackType,
     instrument: InstrumentType,
@@ -413,6 +448,18 @@ export const createTracksSlice: StateCreator<
 
   // ── Actions ──
   addTrack: (type, instrument, name) => {
+    // Enforce per-project track limits. Returns '' (no track created) and
+    // notifies the user when adding would exceed a cap, so every creation
+    // path — menus, Cmd+N, drag-drop, file import — is covered.
+    const limitMessage = getTrackLimitMessage(get().tracks, type);
+    if (limitMessage) {
+      toast({
+        title: 'Track limit reached',
+        description: limitMessage,
+        variant: 'destructive',
+      });
+      return '';
+    }
     const id = crypto.randomUUID();
     let assignedColor = '';
     set((state) => {

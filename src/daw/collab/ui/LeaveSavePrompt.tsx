@@ -65,86 +65,90 @@ export function LeaveSavePrompt() {
             className="fixed inset-0 z-50 bg-black/50"
           />
 
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed left-1/2 top-1/2 z-50 flex w-[360px] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-xl p-5 shadow-2xl"
-            style={{
-              backgroundColor: 'var(--color-surface-2)',
-              border: '1px solid var(--color-border)',
-              backdropFilter: 'blur(24px)',
-            }}
-          >
-            {/* Header */}
-            <div className="flex items-center gap-2">
-              <LogOut
-                size={14}
-                strokeWidth={2}
-                style={{ color: 'var(--color-accent)' }}
-              />
-              <span
-                className="text-sm font-semibold"
-                style={{ color: 'var(--color-text)' }}
-              >
-                Save project before leaving?
-              </span>
-            </div>
-
-            <p
-              className="text-xs leading-relaxed"
-              style={{ color: 'var(--color-text-dim)' }}
+          {/* Centering wrapper — flex (not translate) so framer-motion's scale
+              animation can't clobber the centering transform. */}
+          <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="pointer-events-auto flex w-[360px] flex-col gap-4 rounded-xl p-5 shadow-2xl"
+              style={{
+                backgroundColor: 'var(--color-surface-2)',
+                border: '1px solid var(--color-border)',
+                backdropFilter: 'blur(24px)',
+              }}
             >
-              {hostLeft
-                ? 'The host ended the session. '
-                : "You're about to leave the collaborative session. "}
-              Save a copy to your own account before you go — you'll continue in
-              a new solo project.
-            </p>
+              {/* Header */}
+              <div className="flex items-center gap-2">
+                <LogOut
+                  size={14}
+                  strokeWidth={2}
+                  style={{ color: 'var(--color-accent)' }}
+                />
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  Save project before leaving?
+                </span>
+              </div>
 
-            {/* Actions */}
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={() => void handleSaveAndLeave()}
-                disabled={saving}
-                className="rounded-md py-2 text-xs font-medium transition-colors hover:brightness-110 disabled:opacity-50"
-                style={{
-                  backgroundColor: 'var(--color-accent)',
-                  color: '#fff',
-                  border: 'none',
-                }}
+              <p
+                className="text-xs leading-relaxed"
+                style={{ color: 'var(--color-text-dim)' }}
               >
-                {saving ? 'Saving…' : 'Save & Leave'}
-              </button>
-              <button
-                onClick={finishLeave}
-                disabled={saving}
-                className="rounded-md py-2 text-xs font-medium transition-colors hover:bg-white/5 disabled:opacity-50"
-                style={{
-                  color: 'var(--color-text)',
-                  border: '1px solid var(--color-border)',
-                  background: 'none',
-                }}
-              >
-                Leave without saving
-              </button>
-              {!hostLeft && (
+                {hostLeft
+                  ? 'The host ended the session. '
+                  : "You're about to leave the collaborative session. "}
+                Save a copy to your own account before you go — you'll continue
+                in a new solo project.
+              </p>
+
+              {/* Actions */}
+              <div className="flex flex-col gap-2">
                 <button
-                  onClick={() => setLeavePrompt(false)}
+                  onClick={() => void handleSaveAndLeave()}
                   disabled={saving}
-                  className="rounded-md py-1.5 text-[11px] transition-colors hover:bg-white/5 disabled:opacity-50"
+                  className="rounded-md py-2 text-xs font-medium transition-colors hover:brightness-110 disabled:opacity-50"
                   style={{
-                    color: 'var(--color-text-dim)',
-                    background: 'none',
+                    backgroundColor: 'var(--color-accent)',
+                    color: '#fff',
                     border: 'none',
                   }}
                 >
-                  Cancel
+                  {saving ? 'Saving…' : 'Save & Leave'}
                 </button>
-              )}
-            </div>
-          </motion.div>
+                <button
+                  onClick={finishLeave}
+                  disabled={saving}
+                  className="rounded-md py-2 text-xs font-medium transition-colors hover:bg-white/5 disabled:opacity-50"
+                  style={{
+                    color: 'var(--color-text)',
+                    border: '1px solid var(--color-border)',
+                    background: 'none',
+                  }}
+                >
+                  Leave without saving
+                </button>
+                {!hostLeft && (
+                  <button
+                    onClick={() => setLeavePrompt(false)}
+                    disabled={saving}
+                    className="rounded-md py-1.5 text-[11px] transition-colors hover:bg-white/5 disabled:opacity-50"
+                    style={{
+                      color: 'var(--color-text-dim)',
+                      background: 'none',
+                      border: 'none',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>,

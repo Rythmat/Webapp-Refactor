@@ -26,6 +26,7 @@ import {
   resetSessionToEmpty,
 } from '@/daw/persistence/SessionSerializer';
 import { loadCloudProjectAudio } from '@/lib/studio-assets/load-audio';
+import { importPendingJamSession } from '@/daw/jam-import/importJamSession';
 import { StudioRoutes } from '@/constants/routes';
 import { useAudioChordDetection } from '@/daw/hooks/useAudioChordDetection';
 import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
@@ -71,6 +72,7 @@ function DawAppInner() {
     const params = new URLSearchParams(window.location.search);
     const projectParam = params.get('project');
     const isNew = params.get('new') === '1';
+    const isJamImport = params.get('jam') === '1';
 
     // Strip the boot intent from the URL so a later refresh just restores the
     // (now-current) local session instead of re-running this.
@@ -103,6 +105,15 @@ function DawAppInner() {
     }
 
     bootedRef.current = true;
+    if (isJamImport) {
+      // Arrived from a jam room: start a fresh project, then add the recorded
+      // jam as one MIDI track per participant.
+      clearLocalSession();
+      resetSessionToEmpty();
+      importPendingJamSession();
+      clearQuery();
+      return;
+    }
     if (isNew) {
       // Drop the local autosave so nothing restores the project we're leaving.
       clearLocalSession();

@@ -2,8 +2,9 @@
 // Sidebar panel showing all online collaborators with their current
 // activity and presence state. Follows the LibraryPanel pattern.
 
+import { useCallback, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { Check, Copy, X } from 'lucide-react';
 import { useRemoteUsers } from '../presence';
 import { useStore } from '@/daw/store/index';
 import type { UserActivity } from '../types';
@@ -26,6 +27,24 @@ interface UserListProps {
 export function UserList({ open, onClose }: UserListProps) {
   const remoteUsers = useRemoteUsers();
   const connectionStatus = useStore((s) => s.connectionStatus);
+  const roomCode = useStore((s) => s.roomCode);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCode = useCallback(async () => {
+    if (!roomCode) return;
+    try {
+      await navigator.clipboard.writeText(roomCode);
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = roomCode;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [roomCode]);
 
   return (
     <AnimatePresence>
@@ -91,6 +110,45 @@ export function UserList({ open, onClose }: UserListProps) {
               {connectionStatus}
             </span>
           </div>
+
+          {/* Room code — share so others can join via Join Room */}
+          {roomCode && (
+            <div
+              className="flex shrink-0 flex-col gap-1 border-b px-3 py-2"
+              style={{ borderColor: 'var(--color-border)' }}
+            >
+              <span
+                className="text-[8px] font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                Room Code
+              </span>
+              <div className="flex items-center gap-1.5">
+                <span
+                  className="flex-1 truncate font-mono text-xs font-semibold tracking-[0.2em]"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  {roomCode}
+                </span>
+                <button
+                  onClick={handleCopyCode}
+                  className="flex size-5 shrink-0 items-center justify-center rounded transition-colors hover:bg-white/10"
+                  style={{
+                    color: copied ? '#22c55e' : 'var(--color-text-dim)',
+                    background: 'none',
+                    border: 'none',
+                  }}
+                  title="Copy room code"
+                >
+                  {copied ? (
+                    <Check size={10} strokeWidth={2.5} />
+                  ) : (
+                    <Copy size={10} strokeWidth={2} />
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* User list */}
           <div

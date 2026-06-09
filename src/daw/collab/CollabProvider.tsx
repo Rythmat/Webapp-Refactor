@@ -417,9 +417,17 @@ export function CollabProvider({ children }: CollabProviderProps) {
 
   const kickUser = useCallback((targetUserId: string) => {
     const ws = providerRef.current?.ws;
+    // DEBUG (temporary): trace the kick send path.
+    console.log('[kick] kickUser', {
+      targetUserId,
+      hasWs: !!ws,
+      readyState: ws?.readyState,
+      open: ws?.readyState === WebSocket.OPEN,
+    });
     if (!ws || ws.readyState !== WebSocket.OPEN || !targetUserId) return;
     // The server enforces that only the host may kick.
     ws.send(JSON.stringify({ type: 'collab:kick', targetUserId }));
+    console.log('[kick] collab:kick SENT', targetUserId);
   }, []);
 
   // ── Presence sync from Zustand UI state ───────────────────────────────

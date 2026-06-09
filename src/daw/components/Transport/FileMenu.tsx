@@ -182,13 +182,16 @@ export function FileMenu() {
     const name = window.prompt('Project name:', state.projectName);
     if (!name || !name.trim()) return;
     const trimmed = name.trim();
+    // Apply as the session title only when allowed (no-op for a non-host in a
+    // collab session — the host owns the shared title). Either way the cloud
+    // copy is saved under `trimmed` via the name override below.
     state.setProjectName(trimmed);
     // Clear projectId so the helper POSTs (creates a new project) instead of
     // overwriting the currently loaded one.
     state.setProjectId(null);
     setSaving(true);
     try {
-      await saveCurrentProjectToCloud(token);
+      await saveCurrentProjectToCloud(token, trimmed);
       await refreshCloudProjects();
       showSuccess(`Saved as "${trimmed}"`);
     } catch (err) {

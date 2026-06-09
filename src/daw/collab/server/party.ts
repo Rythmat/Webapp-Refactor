@@ -22,6 +22,10 @@ export default class CollabServer implements Party.Server {
   // The connection ID of the room host (first 'owner' to connect)
   private hostConnectionId: string | null = null;
   private hostUserId: string | null = null;
+  // Users the host has kicked. Kept in memory for the life of the room (the
+  // Durable Object) — when the host leaves and the room is disposed, the bans
+  // go with it.
+  private bannedUserIds = new Set<string>();
 
   constructor(public room: Party.Room) {}
 
@@ -66,6 +70,13 @@ export default class CollabServer implements Party.Server {
     // Validate auth token from connection URL (pass env for JWKS config)
     const auth = await validateConnection(conn.uri, this.room.env);
     if (auth) {
+      // Reject users the host has kicked from this room.
+      if (this.bannedUserIds.has(auth.userId)) {
+        conn.send(JSON.stringify({ type: 'kicked', reason: 'banned' }));
+        conn.close(4403, 'You have been removed from this room');
+        return;
+      }
+
       connectionMeta.set(conn.id, { userId: auth.userId, role: auth.role });
 
       // Tag viewer connections so we can filter Yjs updates
@@ -166,6 +177,23 @@ export default class CollabServer implements Party.Server {
 
     try {
       const data = JSON.parse(message);
+
+      if (data.type === 'collab:kick') {
+        // Only the host may kick, and the host can't kick themselves.
+        if (sender.id !== this.hostConnectionId) return;
+        const targetUserId = String(data.targetUserId ?? '');
+        if (!targetUserId || targetUserId === this.hostUserId) return;
+        this.bannedUserIds.add(targetUserId);
+        // Close every connection belonging to the kicked user.
+        for (const conn of this.room.getConnections()) {
+          if (connectionMeta.get(conn.id)?.userId === targetUserId) {
+            conn.send(JSON.stringify({ type: 'kicked', reason: 'kicked' }));
+            conn.close(4403, 'Kicked by host');
+            connectionMeta.delete(conn.id);
+          }
+        }
+        return;
+      }
 
       if (data.type === 'transport') {
         // Add server timestamp for latency compensation

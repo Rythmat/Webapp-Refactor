@@ -187,7 +187,10 @@ let projectCreateInFlight: Promise<string> | null = null;
  *
  * Concurrency-safe: simultaneous callers share a single create request.
  */
-export async function ensureProjectId(token: string): Promise<string> {
+export async function ensureProjectId(
+  token: string,
+  nameOverride?: string,
+): Promise<string> {
   const existing = useStore.getState().projectId;
   if (existing) return existing;
   if (projectCreateInFlight) return projectCreateInFlight;
@@ -195,7 +198,7 @@ export async function ensureProjectId(token: string): Promise<string> {
   projectCreateInFlight = (async () => {
     const created = await studioProjectsApi.create(
       token,
-      serializeSessionForCloud(),
+      serializeSessionForCloud(nameOverride),
     );
     useStore.getState().setProjectId(created.id);
     return created.id;
@@ -226,6 +229,7 @@ export async function ensureProjectId(token: string): Promise<string> {
  */
 export async function saveCurrentProjectToCloud(
   token: string,
+  nameOverride?: string,
 ): Promise<StudioProjectDetail> {
   // Lazy import to avoid pulling the AudioBufferStore + WAV encoder into the
   // module graph for callers that don't need them (e.g. cmd-S handler binding).
@@ -233,7 +237,7 @@ export async function saveCurrentProjectToCloud(
     '@/lib/studio-assets/upload-pending'
   );
 
-  const projectId = await ensureProjectId(token);
+  const projectId = await ensureProjectId(token, nameOverride);
 
   const hasPendingAudio = useStore
     .getState()
@@ -246,7 +250,7 @@ export async function saveCurrentProjectToCloud(
   const result = await studioProjectsApi.update(
     token,
     projectId,
-    serializeSessionForCloud(),
+    serializeSessionForCloud(nameOverride),
   );
 
   // Any clip still missing an assetId here is one whose audio bytes are no

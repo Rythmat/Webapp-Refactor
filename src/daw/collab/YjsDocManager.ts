@@ -8,6 +8,7 @@ import type { Track, MidiClip, AudioClip } from '@/daw/store/tracksSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { Marker } from '@/daw/store/markersSlice';
 import type { MidiNoteEvent, MidiCCEvent } from '@prism/engine';
+import type { ChatMessage } from './types';
 
 // ── Document singleton ──────────────────────────────────────────────────
 
@@ -60,7 +61,9 @@ export function getYLeadSheet(doc: Y.Doc): Y.Map<unknown> {
   return doc.getMap('leadSheet');
 }
 
-export function getYChat(doc: Y.Doc): Y.Array<Y.Map<unknown>> {
+// Chat messages are stored as plain JSON objects (they're small and never
+// mutated in place — only appended).
+export function getYChat(doc: Y.Doc): Y.Array<ChatMessage> {
   return doc.getArray('chat');
 }
 

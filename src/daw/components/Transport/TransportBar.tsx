@@ -172,6 +172,10 @@ export const TransportBar = memo(function TransportBar({
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
   const projectName = useStore((s) => s.projectName);
   const setProjectName = useStore((s) => s.setProjectName);
+  // In a collab session only the host may rename the (shared) project.
+  const canEditName = useStore(
+    (s) => !s.isCollabActive || s.collabRole === 'owner',
+  );
 
   const withInit = useCallback(
     (action: () => void) => {
@@ -350,7 +354,7 @@ export const TransportBar = memo(function TransportBar({
         {/* File menu */}
         <FileMenu />
 
-        {/* Project name */}
+        {/* Project name (read-only for non-host collaborators) */}
         <input
           type="text"
           value={projectNameInput}
@@ -362,9 +366,18 @@ export const TransportBar = memo(function TransportBar({
               (e.target as HTMLInputElement).blur();
             }
           }}
-          className="h-5 max-w-[140px] rounded border border-transparent bg-transparent px-1.5 text-[11px] font-medium outline-none transition-colors hover:border-white/10 focus:border-white/20 focus:ring-1"
+          readOnly={!canEditName}
+          className={`h-5 max-w-[140px] rounded border border-transparent bg-transparent px-1.5 text-[11px] font-medium outline-none transition-colors ${
+            canEditName
+              ? 'hover:border-white/10 focus:border-white/20 focus:ring-1'
+              : 'cursor-default'
+          }`}
           style={{ color: 'var(--color-text)' }}
-          title="Project name (click to edit)"
+          title={
+            canEditName
+              ? 'Project name (click to edit)'
+              : 'Only the host can rename the project'
+          }
         />
 
         {/* Root Note selector */}

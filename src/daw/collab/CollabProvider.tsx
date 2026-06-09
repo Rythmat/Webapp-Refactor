@@ -25,6 +25,7 @@ import {
   getOrCreateDoc,
   destroyDoc,
   hydrateDocFromStore,
+  getYChat,
 } from './YjsDocManager';
 import { ZustandYjsBridge } from './ZustandYjsBridge';
 import { setBridge } from './collabMiddleware';
@@ -34,6 +35,7 @@ import {
   type CollabRole,
   type UserPresence,
   type TransportCommand,
+  type ChatMessage,
 } from './types';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { toast } from '@/hooks/use-toast';
@@ -59,6 +61,10 @@ interface CollabContextValue {
   sendTransportCommand: (
     cmd: Omit<TransportCommand, 'serverTimestamp' | 'userId'>,
   ) => void;
+  /** Send a chat message to the room (synced + persisted via the Yjs doc). */
+  sendChatMessage: (text: string) => void;
+  /** Host-only: remove a user from the room and block them from rejoining. */
+  kickUser: (userId: string) => void;
   /** The Yjs awareness instance (for presence). Null if not connected. */
   awareness: Awareness | null;
 }
@@ -69,6 +75,8 @@ const CollabContext = createContext<CollabContextValue>({
   joinRoom: () => {},
   leaveRoom: () => {},
   sendTransportCommand: () => {},
+  sendChatMessage: () => {},
+  kickUser: () => {},
   awareness: null,
 });
 
@@ -93,6 +101,9 @@ export function CollabProvider({ children }: CollabProviderProps) {
   const awarenessRef = useRef<Awareness | null>(null);
   const docRef = useRef<Y.Doc | null>(null);
   const currentRoomIdRef = useRef<string | null>(null);
+  const chatUnobserveRef = useRef<(() => void) | null>(null);
+  // Points at leaveRoom so the (stable) message handler can tear down on kick.
+  const leaveRoomRef = useRef<() => void>(() => {});
 
   // ── Transport + room:closing message handler ──────────────────────────
 
@@ -111,12 +122,28 @@ export function CollabProvider({ children }: CollabProviderProps) {
       }
 
       if (data.type === 'room:not-found') {
-        // Join-by-id targeted a room with no active host.
+        // Join-by-id targeted a room with no active host, or a room the user
+        // has been kicked from (the server rejects banned users up front).
         useStore
           .getState()
           ._setRoomError(
             'That room is not active. Check the room id and try again.',
           );
+        return;
+      }
+
+      if (data.type === 'kicked') {
+        // The host removed us (or we tried to rejoin after being kicked). Drop
+        // out of the session — the project stays loaded so no work is lost.
+        toast({
+          title: 'Removed from session',
+          description:
+            data.reason === 'banned'
+              ? 'You have been removed from this room and cannot rejoin it.'
+              : 'The host removed you from the room.',
+          variant: 'destructive',
+        });
+        leaveRoomRef.current();
         return;
       }
 
@@ -135,6 +162,9 @@ export function CollabProvider({ children }: CollabProviderProps) {
     setBridge(null);
 
     destroyCollabUndo();
+
+    chatUnobserveRef.current?.();
+    chatUnobserveRef.current = null;
 
     providerRef.current?.destroy();
     providerRef.current = null;
@@ -179,6 +209,20 @@ export function CollabProvider({ children }: CollabProviderProps) {
       if (role === 'owner') {
         hydrateDocFromStore(doc, useStore.getState());
       }
+
+      // Chat: append every message in the shared chat array (local or remote,
+      // deduped by id) to the store. Attached before connecting so the initial
+      // sync's existing messages are captured too.
+      const yChat = getYChat(doc);
+      const onChat = () => {
+        const store = useStore.getState();
+        const seen = new Set(store.chatMessages.map((m) => m.id));
+        for (const msg of yChat.toArray()) {
+          if (!seen.has(msg.id)) store._appendChatMessage(msg);
+        }
+      };
+      yChat.observe(onChat);
+      chatUnobserveRef.current = () => yChat.unobserve(onChat);
 
       // Set up the bridge
       const bridge = new ZustandYjsBridge(
@@ -319,6 +363,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
     teardown();
     useStore.getState()._clearCollab();
   }, [teardown]);
+  leaveRoomRef.current = leaveRoom;
 
   // Clean up on unmount
   useEffect(() => teardown, [teardown]);
@@ -339,6 +384,36 @@ export function CollabProvider({ children }: CollabProviderProps) {
     },
     [userId],
   );
+
+  // ── Chat ──────────────────────────────────────────────────────────────
+
+  const sendChatMessage = useCallback(
+    (text: string) => {
+      const doc = docRef.current;
+      const trimmed = text.trim();
+      if (!doc || !trimmed) return;
+      const msg: ChatMessage = {
+        id: crypto.randomUUID(),
+        userId: userId ?? '',
+        userName: appUser?.nickname ?? appUser?.fullName ?? 'Anonymous',
+        text: trimmed,
+        timestamp: Date.now(),
+      };
+      // Append to the shared chat array — the observer (set up in joinRoom)
+      // mirrors it into the store for us and every peer.
+      getYChat(doc).push([msg]);
+    },
+    [userId, appUser],
+  );
+
+  // ── Kick (host only) ──────────────────────────────────────────────────
+
+  const kickUser = useCallback((targetUserId: string) => {
+    const ws = providerRef.current?.ws;
+    if (!ws || ws.readyState !== WebSocket.OPEN || !targetUserId) return;
+    // The server enforces that only the host may kick.
+    ws.send(JSON.stringify({ type: 'collab:kick', targetUserId }));
+  }, []);
 
   // ── Presence sync from Zustand UI state ───────────────────────────────
 
@@ -376,6 +451,8 @@ export function CollabProvider({ children }: CollabProviderProps) {
       joinRoom,
       leaveRoom,
       sendTransportCommand,
+      sendChatMessage,
+      kickUser,
       awareness: awarenessRef.current,
     }),
     [
@@ -384,6 +461,8 @@ export function CollabProvider({ children }: CollabProviderProps) {
       joinRoom,
       leaveRoom,
       sendTransportCommand,
+      sendChatMessage,
+      kickUser,
     ],
   );
 

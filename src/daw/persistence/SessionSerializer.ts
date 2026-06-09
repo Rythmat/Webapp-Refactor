@@ -265,7 +265,9 @@ export interface CloudProjectDetail extends CloudProjectInput {
   >;
 }
 
-export function serializeSessionForCloud(): CloudProjectInput {
+export function serializeSessionForCloud(
+  nameOverride?: string,
+): CloudProjectInput {
   const state = useStore.getState();
   let droppedAudioClipCount = 0;
 
@@ -314,7 +316,9 @@ export function serializeSessionForCloud(): CloudProjectInput {
   }
 
   return {
-    name: state.projectName,
+    // A non-host saving their own copy can override the name without touching
+    // the (host-owned) shared project title.
+    name: nameOverride ?? state.projectName,
     composerName: state.composerName || null,
     bpm: state.bpm,
     prism: {

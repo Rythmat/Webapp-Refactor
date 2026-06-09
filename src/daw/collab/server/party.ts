@@ -69,6 +69,13 @@ export default class CollabServer implements Party.Server {
   async onConnect(conn: Party.Connection) {
     // Validate auth token from connection URL (pass env for JWKS config)
     const auth = await validateConnection(conn.uri, this.room.env);
+    // DEBUG (temporary): what identity did this connection get?
+    console.log('[collab] onConnect', {
+      connId: conn.id,
+      userId: auth?.userId,
+      role: auth?.role,
+      hostConnectionId: this.hostConnectionId,
+    });
     if (auth) {
       // Reject users the host has kicked from this room.
       if (this.bannedUserIds.has(auth.userId)) {
@@ -179,19 +186,33 @@ export default class CollabServer implements Party.Server {
       const data = JSON.parse(message);
 
       if (data.type === 'collab:kick') {
+        // DEBUG (temporary): trace the kick on the server.
+        console.log('[kick] received', {
+          senderId: sender.id,
+          hostConnectionId: this.hostConnectionId,
+          isHost: sender.id === this.hostConnectionId,
+          targetUserId: data.targetUserId,
+          connections: [...this.room.getConnections()].map((c) => ({
+            id: c.id,
+            userId: connectionMeta.get(c.id)?.userId,
+          })),
+        });
         // Only the host may kick, and the host can't kick themselves.
         if (sender.id !== this.hostConnectionId) return;
         const targetUserId = String(data.targetUserId ?? '');
         if (!targetUserId || targetUserId === this.hostUserId) return;
         this.bannedUserIds.add(targetUserId);
         // Close every connection belonging to the kicked user.
+        let closed = 0;
         for (const conn of this.room.getConnections()) {
           if (connectionMeta.get(conn.id)?.userId === targetUserId) {
             conn.send(JSON.stringify({ type: 'kicked', reason: 'kicked' }));
             conn.close(4403, 'Kicked by host');
             connectionMeta.delete(conn.id);
+            closed += 1;
           }
         }
+        console.log('[kick] closed connections:', closed);
         return;
       }
 

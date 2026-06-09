@@ -238,6 +238,8 @@ export function UserList({ open, onClose }: UserListProps) {
           >
             <button
               onClick={() => {
+                // DEBUG (temporary): confirm the menu click fires.
+                console.log('[kick] menu click', kickMenu);
                 kickUser(kickMenu.userId);
                 setKickMenu(null);
               }}

@@ -128,7 +128,7 @@ export const createUiSlice: StateCreator<
   [['zustand/subscribeWithSelector', never]],
   [],
   UiSlice
-> = (set) => ({
+> = (set, get) => ({
   activeTool: 'cursor',
   selectedClipId: null,
   selectedClipTrackId: null,
@@ -237,7 +237,14 @@ export const createUiSlice: StateCreator<
   projectId: null,
   setProjectId: (id) => set({ projectId: id }),
   projectName: 'Untitled Project',
-  setProjectName: (name) => set({ projectName: name }),
+  setProjectName: (name) => {
+    // In a collab session only the host owns the (synced) project title. A
+    // non-host's change is ignored here; remote title updates arrive via the
+    // Yjs observer (setState), which bypasses this action.
+    const { isCollabActive, collabRole } = get();
+    if (isCollabActive && collabRole !== 'owner') return;
+    set({ projectName: name });
+  },
   composerName: '',
   setComposerName: (name) => set({ composerName: name }),
 

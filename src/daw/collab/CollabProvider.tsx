@@ -171,9 +171,14 @@ export function CollabProvider({ children }: CollabProviderProps) {
       docRef.current = doc;
       currentRoomIdRef.current = roomId;
 
-      // Hydrate the Yjs doc from the current Zustand state (first write)
-      const currentState = useStore.getState();
-      hydrateDocFromStore(doc, currentState);
+      // Only the room creator seeds the shared doc from their local project.
+      // Joiners must NOT hydrate — doing so would push their (often blank, since
+      // leaving reloads into an empty project) state into the shared doc and
+      // clobber the host's project. Joiners receive the project via the pull on
+      // initial sync below.
+      if (role === 'owner') {
+        hydrateDocFromStore(doc, useStore.getState());
+      }
 
       // Set up the bridge
       const bridge = new ZustandYjsBridge(
@@ -210,6 +215,11 @@ export function CollabProvider({ children }: CollabProviderProps) {
       provider.on('sync', (synced: boolean) => {
         if (synced) {
           useStore.getState()._setConnectionStatus('connected');
+          // Seed the store from the synced document so a joiner sees the
+          // existing project. (The owner already has it locally — pulling would
+          // also reset their local-only input routing — so skip it for them.)
+          // Must run BEFORE startObserving so the one-time pull isn't a no-op.
+          if (role !== 'owner') bridge.pullFromYjs();
           // Start observing Yjs for remote changes AFTER initial sync
           bridge.startObserving();
         }

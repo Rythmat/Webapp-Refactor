@@ -110,14 +110,22 @@ export function observeYjsAndPushToStore(
   const yTracks = getYTracks(doc);
   const onTracks = (_events: Y.YEvent<any>[], tx: Y.Transaction) => {
     if (tx.origin === ORIGIN_LOCAL || isSuppressed()) return;
-    // mute/solo are per-user-local: yMapToTrack returns false defaults, so we
-    // carry the local user's current mute/solo forward by track id rather than
-    // letting a remote track update clobber them.
+    // mute/solo/recordArmed/monitoring are per-user-local: yMapToTrack returns
+    // false defaults, so we carry the local user's current values forward by
+    // track id rather than letting a remote track update clobber them.
     const prevById = new Map(getState().tracks.map((t) => [t.id, t]));
     const tracks: Track[] = yTracks.toArray().map((ym) => {
       const t = yMapToTrack(ym as Y.Map<unknown>);
       const prev = prevById.get(t.id);
-      return prev ? { ...t, mute: prev.mute, solo: prev.solo } : t;
+      return prev
+        ? {
+            ...t,
+            mute: prev.mute,
+            solo: prev.solo,
+            recordArmed: prev.recordArmed,
+            monitoring: prev.monitoring,
+          }
+        : t;
     });
     setState({ tracks } as Partial<AllSlices>);
   };
@@ -265,4 +273,106 @@ export function observeYjsAndPushToStore(
   return () => {
     for (const dispose of disposers) dispose();
   };
+}
+
+/**
+ * One-time full read of the shared document into the Zustand store.
+ *
+ * The observers above only fire on *subsequent* changes, so a client that joins
+ * a room with existing content would never see it — the document is populated
+ * by the initial sync, but nothing copies that state into the store. Call this
+ * once, right after the initial sync, to seed the store from the document.
+ *
+ * Per-user-local track fields (mute/solo/recordArmed/monitoring) are preserved
+ * from the current store rather than reset to the doc's `false` defaults.
+ */
+export function pullDocIntoStore(
+  doc: Y.Doc,
+  setState: SetState,
+  getState: () => AllSlices,
+): void {
+  const patch: Record<string, unknown> = {};
+
+  // ── Project ──
+  const yProject = getYProject(doc);
+  if (yProject.has('name')) patch.projectName = yProject.get('name');
+  if (yProject.has('composerName'))
+    patch.composerName = yProject.get('composerName');
+
+  // ── Transport (shared keys only) ──
+  const yTransport = getYTransport(doc);
+  for (const key of SYNCED_TRANSPORT_KEYS) {
+    if (yTransport.has(key)) patch[key] = yTransport.get(key);
+  }
+
+  // ── Tracks (preserve local per-user fields by id) ──
+  const prevById = new Map(getState().tracks.map((t) => [t.id, t]));
+  patch.tracks = getYTracks(doc)
+    .toArray()
+    .map((ym) => {
+      const t = yMapToTrack(ym as Y.Map<unknown>);
+      const prev = prevById.get(t.id);
+      return prev
+        ? {
+            ...t,
+            mute: prev.mute,
+            solo: prev.solo,
+            recordArmed: prev.recordArmed,
+            monitoring: prev.monitoring,
+          }
+        : t;
+    });
+
+  // ── Chord regions ──
+  patch.chordRegions = getYChordRegions(doc)
+    .toArray()
+    .map((ym) => yMapToChordRegion(ym as Y.Map<unknown>));
+
+  // ── Prism ──
+  const yPrism = getYPrism(doc);
+  for (const key of ['rootNote', 'mode', 'genre', 'rhythmName', 'swing']) {
+    if (yPrism.has(key)) patch[key] = yPrism.get(key);
+  }
+
+  // ── Markers ──
+  patch.markers = getYMarkers(doc)
+    .toArray()
+    .map((ym) => yMapToMarker(ym as Y.Map<unknown>));
+
+  // ── Mastering ── (docKey → [storeKey, isJsonEncoded])
+  const yMastering = getYMastering(doc);
+  const masteringMap: Record<string, [string, boolean]> = {
+    style: ['masteringStyle', false],
+    eq: ['masteringEq', true],
+    dynamics: ['masteringDynamics', true],
+    loudness: ['masteringLoudness', false],
+    stereoField: ['masteringStereoField', false],
+    bypass: ['masteringBypass', false],
+    amount: ['masteringAmount', false],
+    presence: ['masteringPresence', false],
+    deEsser: ['masteringDeEsser', true],
+    fxChain: ['masteringFxChain', true],
+    effects: ['masteringEffects', true],
+  };
+  for (const [docKey, [storeKey, isJson]] of Object.entries(masteringMap)) {
+    if (!yMastering.has(docKey)) continue;
+    const value = yMastering.get(docKey);
+    patch[storeKey] = isJson ? JSON.parse(value as string) : value;
+  }
+
+  // ── Lead sheet ──
+  const yLeadSheet = getYLeadSheet(doc);
+  const leadSheetMap: Record<string, [string, boolean]> = {
+    sections: ['leadSheetSections', true],
+    repeats: ['leadSheetRepeats', true],
+    chordFormat: ['leadSheetChordFormat', false],
+    showRepeats: ['leadSheetShowRepeats', false],
+  };
+  for (const [docKey, [storeKey, isJson]] of Object.entries(leadSheetMap)) {
+    if (!yLeadSheet.has(docKey)) continue;
+    const value = yLeadSheet.get(docKey);
+    patch[storeKey] = isJson ? JSON.parse(value as string) : value;
+  }
+
+  setState(patch as Partial<AllSlices>);
 }

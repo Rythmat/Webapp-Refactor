@@ -135,12 +135,11 @@ export function trackToYMap(track: Track): Y.Map<unknown> {
   m.set('instrument', track.instrument);
   m.set('gmProgram', track.gmProgram ?? null);
   m.set('color', track.color);
-  // NOTE: `mute`/`solo` are intentionally NOT written — they are per-user-local
-  // (personal monitoring) and must never sync to peers.
+  // NOTE: `mute`/`solo`/`recordArmed`/`monitoring` are intentionally NOT
+  // written — they are per-user-local (personal monitoring/recording) and must
+  // never sync to peers.
   m.set('volume', track.volume);
   m.set('pan', track.pan);
-  m.set('recordArmed', track.recordArmed);
-  m.set('monitoring', track.monitoring);
   m.set('trackRole', track.trackRole);
 
   // Effects — store as a JSON string for simplicity (deeply nested params).
@@ -257,14 +256,15 @@ export function yMapToTrack(m: Y.Map<unknown>): Track {
     instrument: m.get('instrument') as Track['instrument'],
     gmProgram: (m.get('gmProgram') as number | null) ?? undefined,
     color: m.get('color') as string,
-    // mute/solo are per-user-local; never read from the shared doc. The
-    // Yjs→Zustand observer preserves the local user's values on remote updates.
+    // mute/solo/recordArmed/monitoring are per-user-local; never read from the
+    // shared doc. The Yjs→Zustand observer preserves the local user's values on
+    // remote updates.
     mute: false,
     solo: false,
+    recordArmed: false,
+    monitoring: false,
     volume: m.get('volume') as number,
     pan: m.get('pan') as number,
-    recordArmed: m.get('recordArmed') as boolean,
-    monitoring: m.get('monitoring') as boolean,
     trackRole: m.get('trackRole') as Track['trackRole'],
     midiInputId: null,
     audioInputId: null,

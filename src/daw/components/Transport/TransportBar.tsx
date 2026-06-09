@@ -29,6 +29,7 @@ import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
 import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
 import { InviteNotificationBell } from '@/daw/collab/ui/InviteNotificationBell';
 import { LeaveSavePrompt } from '@/daw/collab/ui/LeaveSavePrompt';
+import { KickedModal } from '@/daw/collab/ui/KickedModal';
 
 // ── View Switcher ───────────────────────────────────────────────────────
 
@@ -872,6 +873,9 @@ export const TransportBar = memo(function TransportBar({
 
           {/* Save-before-leaving prompt (collab) */}
           <LeaveSavePrompt />
+
+          {/* "You have been kicked" popup (collab) */}
+          <KickedModal />
 
           {/* Library toggle */}
           <motion.button

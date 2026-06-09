@@ -34,6 +34,8 @@ export interface CollabSlice {
   leavePromptPending: boolean;
   /** Error shown when a Join-by-id attempt targets a room that does not exist. */
   roomError: string | null;
+  /** When true, the "you were kicked" popup is shown. */
+  kickedNotice: boolean;
 
   // ── Chat ──
   chatMessages: ChatMessage[];
@@ -52,6 +54,8 @@ export interface CollabSlice {
   _setLeavePrompt: (pending: boolean) => void;
   /** Set/clear the Join-room error message. */
   _setRoomError: (error: string | null) => void;
+  /** Show/hide the "you were kicked from the session" popup. */
+  _setKickedNotice: (kicked: boolean) => void;
   /** Append a chat message (from local send or remote receive). */
   _appendChatMessage: (msg: ChatMessage) => void;
   /** Reset unread count (user opened chat panel). */
@@ -75,6 +79,7 @@ export const createCollabSlice: StateCreator<
   collabRole: 'editor',
   leavePromptPending: false,
   roomError: null,
+  kickedNotice: false,
   chatMessages: [],
   unreadChatCount: 0,
 
@@ -103,6 +108,7 @@ export const createCollabSlice: StateCreator<
       collabRole: 'editor',
       leavePromptPending: false,
       roomError: null,
+      kickedNotice: false,
       chatMessages: [],
       unreadChatCount: 0,
     }),
@@ -112,6 +118,8 @@ export const createCollabSlice: StateCreator<
   _setLeavePrompt: (pending) => set({ leavePromptPending: pending }),
 
   _setRoomError: (error) => set({ roomError: error }),
+
+  _setKickedNotice: (kicked) => set({ kickedNotice: kicked }),
 
   _appendChatMessage: (msg) =>
     set((s) => ({

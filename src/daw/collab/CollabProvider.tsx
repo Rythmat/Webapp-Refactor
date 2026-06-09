@@ -133,17 +133,12 @@ export function CollabProvider({ children }: CollabProviderProps) {
       }
 
       if (data.type === 'kicked') {
-        // The host removed us (or we tried to rejoin after being kicked). Drop
-        // out of the session — the project stays loaded so no work is lost.
-        toast({
-          title: 'Removed from session',
-          description:
-            data.reason === 'banned'
-              ? 'You have been removed from this room and cannot rejoin it.'
-              : 'The host removed you from the room.',
-          variant: 'destructive',
-        });
+        // The host removed us (or we tried to rejoin after being kicked). Tear
+        // down the session — the project stays loaded, so the user lands in a
+        // local studio — and show the "you were kicked" popup. The notice is set
+        // AFTER leaveRoom (which clears collab state) so it survives.
         leaveRoomRef.current();
+        useStore.getState()._setKickedNotice(true);
         return;
       }
 

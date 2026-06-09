@@ -52,9 +52,16 @@ export const TrackHeader = memo(function TrackHeader({
   const setSelectedTrackId = useStore((s) => s.setSelectedTrackId);
   const isSelected = selectedTrackId === track.id;
 
-  // Remote collaborators who have this track selected (locked). When present,
-  // the header shows an animated rainbow-neon border (see daw.css).
-  const lockedByRemote = useTrackPresence(track.id).length > 0;
+  // The remote collaborator (if any) who currently has this track selected.
+  // Their selection locks the track: it's bordered in their presence colour
+  // (matching their icon in the Connected list) and all of its controls become
+  // read-only (the store also blocks any change). Clicks fall through to the
+  // row, whose handler toasts "Track locked".
+  const lockOwner = useTrackPresence(track.id)[0] ?? null;
+  const lockedByRemote = lockOwner !== null;
+  const lockedStyle = lockedByRemote
+    ? ({ pointerEvents: 'none', opacity: 0.6 } as const)
+    : undefined;
 
   // Live audio metering (same pattern as mixer ChannelStrip)
   const analyser =
@@ -146,33 +153,50 @@ export const TrackHeader = memo(function TrackHeader({
         borderLeft: `3px solid ${track.color}`,
       }}
     >
-      {/* Rainbow-neon lock overlay — shown when a remote collaborator has this
-          track selected. Absolute + pointer-events-none so it never shifts
-          layout or steals clicks. */}
-      {lockedByRemote && (
-        <div className="rainbow-neon-border absolute inset-0 z-20" />
+      {/* Selection highlight overlay — pointer-events-none so it never shifts
+          layout or steals clicks. A track locked by a remote collaborator is
+          bordered in that user's colour; your own selection gets a white
+          border. */}
+      {lockOwner ? (
+        <div
+          className="pointer-events-none absolute inset-0 z-20"
+          style={{
+            border: `2px solid ${lockOwner.color}`,
+            borderRadius: 4,
+            boxShadow: `0 0 6px ${lockOwner.color}, inset 0 0 4px ${lockOwner.color}`,
+          }}
+        />
+      ) : (
+        isSelected && (
+          <div
+            className="pointer-events-none absolute inset-0 z-20"
+            style={{ border: '2px solid #fff', borderRadius: 4 }}
+          />
+        )
       )}
 
-      {/* Delete button — top-right corner */}
-      <motion.button
-        onClick={(e) => {
-          e.stopPropagation();
-          removeTrack(track.id);
-        }}
-        whileTap={{ scale: 0.85 }}
-        className="absolute right-1.5 top-1.5 z-10 flex size-4 cursor-pointer items-center justify-center rounded opacity-0 transition-opacity hover:bg-red-500/20 hover:text-red-400 group-hover:opacity-100"
-        style={{
-          color: 'var(--color-text-dim)',
-          background: 'none',
-          border: 'none',
-        }}
-        title="Delete Track"
-      >
-        <X size={10} strokeWidth={2.5} />
-      </motion.button>
+      {/* Delete button — top-right corner (hidden while remote-locked) */}
+      {!lockedByRemote && (
+        <motion.button
+          onClick={(e) => {
+            e.stopPropagation();
+            removeTrack(track.id);
+          }}
+          whileTap={{ scale: 0.85 }}
+          className="absolute right-1.5 top-1.5 z-10 flex size-4 cursor-pointer items-center justify-center rounded opacity-0 transition-opacity hover:bg-red-500/20 hover:text-red-400 group-hover:opacity-100"
+          style={{
+            color: 'var(--color-text-dim)',
+            background: 'none',
+            border: 'none',
+          }}
+          title="Delete Track"
+        >
+          <X size={10} strokeWidth={2.5} />
+        </motion.button>
+      )}
 
       {/* Row 1: Colored dot (color picker trigger) + uppercase name */}
-      <div className="flex min-w-0 items-center gap-1.5">
+      <div className="flex min-w-0 items-center gap-1.5" style={lockedStyle}>
         <Popover.Root open={colorOpen} onOpenChange={setColorOpen}>
           <Popover.Trigger asChild>
             <button
@@ -252,7 +276,7 @@ export const TrackHeader = memo(function TrackHeader({
       </div>
 
       {/* Row 2: Monitor toggle + Test Sound */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1" style={lockedStyle}>
         <motion.button
           onClick={(e) => {
             e.stopPropagation();
@@ -285,10 +309,30 @@ export const TrackHeader = memo(function TrackHeader({
             <Volume2 size={10} strokeWidth={2} />
           </motion.button>
         )}
+
+        {/* Release — deselect your own track (frees the lock for others) */}
+        {isSelected && (
+          <motion.button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedTrackId(null);
+            }}
+            whileTap={{ scale: 0.9 }}
+            className="ml-auto flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors hover:bg-white/10"
+            style={{
+              color: 'var(--color-text-dim)',
+              border: '1px solid var(--color-border)',
+              background: 'none',
+            }}
+            title="Release this track so others can select it"
+          >
+            Release
+          </motion.button>
+        )}
       </div>
 
       {/* Row 3: M / S buttons + level meter */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1" style={lockedStyle}>
         <motion.button
           onClick={(e) => {
             e.stopPropagation();

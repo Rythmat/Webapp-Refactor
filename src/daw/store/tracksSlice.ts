@@ -48,6 +48,36 @@ export function getTrackLimitMessage(
   return null;
 }
 
+// ── Collab track lock ───────────────────────────────────────────────────
+
+/**
+ * True when a remote collaborator currently has `trackId` selected. Such a
+ * track is fully read-only for the local user — every control and every
+ * midi/audio edit is blocked. Outside a collab session `remoteUsers` is empty,
+ * so this never restricts anything.
+ */
+export function isTrackLockedByRemote(
+  remoteUsers: AllSlices['remoteUsers'],
+  trackId: string,
+): boolean {
+  for (const u of remoteUsers.values()) {
+    if (u.selectedTrackId === trackId) return true;
+  }
+  return false;
+}
+
+/**
+ * Wrap a track-scoped Zustand set-updater so it becomes a no-op when the track
+ * is locked by a remote collaborator.
+ */
+function guardTrack(
+  trackId: string,
+  updater: (state: AllSlices) => Partial<AllSlices>,
+): (state: AllSlices) => Partial<AllSlices> {
+  return (state) =>
+    isTrackLockedByRemote(state.remoteUsers, trackId) ? state : updater(state);
+}
+
 // ── Types ───────────────────────────────────────────────────────────────
 
 export type TrackType = 'midi' | 'audio';
@@ -509,128 +539,164 @@ export const createTracksSlice: StateCreator<
   },
 
   removeTrack: (id) =>
-    set((state) => ({ tracks: state.tracks.filter((t) => t.id !== id) })),
+    set(
+      guardTrack(id, (state) => ({
+        tracks: state.tracks.filter((t) => t.id !== id),
+      })),
+    ),
 
   updateTrack: (id, updates) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) => (t.id === id ? { ...t, ...updates } : t)),
-    })),
+    set(
+      guardTrack(id, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === id ? { ...t, ...updates } : t,
+        ),
+      })),
+    ),
 
   toggleMute: (id) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === id ? { ...t, mute: !t.mute } : t,
-      ),
-    })),
+    set(
+      guardTrack(id, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === id ? { ...t, mute: !t.mute } : t,
+        ),
+      })),
+    ),
 
   toggleSolo: (id) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === id ? { ...t, solo: !t.solo } : t,
-      ),
-    })),
+    set(
+      guardTrack(id, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === id ? { ...t, solo: !t.solo } : t,
+        ),
+      })),
+    ),
 
   toggleRecordArm: (id) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === id ? { ...t, recordArmed: !t.recordArmed } : t,
-      ),
-    })),
+    set(
+      guardTrack(id, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === id ? { ...t, recordArmed: !t.recordArmed } : t,
+        ),
+      })),
+    ),
 
   toggleMonitoring: (id) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === id ? { ...t, monitoring: !t.monitoring } : t,
-      ),
-    })),
+    set(
+      guardTrack(id, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === id ? { ...t, monitoring: !t.monitoring } : t,
+        ),
+      })),
+    ),
 
   addMidiClip: (trackId, clip) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === trackId ? { ...t, midiClips: [...t.midiClips, clip] } : t,
-      ),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId ? { ...t, midiClips: [...t.midiClips, clip] } : t,
+        ),
+      })),
+    ),
 
   removeMidiClip: (trackId, clipId) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === trackId
-          ? { ...t, midiClips: t.midiClips.filter((c) => c.id !== clipId) }
-          : t,
-      ),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId
+            ? { ...t, midiClips: t.midiClips.filter((c) => c.id !== clipId) }
+            : t,
+        ),
+      })),
+    ),
 
   updateMidiClip: (trackId, clipId, updates) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === trackId
-          ? {
-              ...t,
-              midiClips: t.midiClips.map((c) =>
-                c.id === clipId ? { ...c, ...updates } : c,
-              ),
-            }
-          : t,
-      ),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId
+            ? {
+                ...t,
+                midiClips: t.midiClips.map((c) =>
+                  c.id === clipId ? { ...c, ...updates } : c,
+                ),
+              }
+            : t,
+        ),
+      })),
+    ),
 
   updateMidiClipEvents: (trackId, clipId, events) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === trackId
-          ? {
-              ...t,
-              midiClips: t.midiClips.map((c) =>
-                c.id === clipId ? { ...c, events } : c,
-              ),
-            }
-          : t,
-      ),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId
+            ? {
+                ...t,
+                midiClips: t.midiClips.map((c) =>
+                  c.id === clipId ? { ...c, events } : c,
+                ),
+              }
+            : t,
+        ),
+      })),
+    ),
 
   updateTrackEffects: (trackId, effects) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === trackId ? { ...t, effects: { ...t.effects, ...effects } } : t,
-      ),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId
+            ? { ...t, effects: { ...t.effects, ...effects } }
+            : t,
+        ),
+      })),
+    ),
 
   addAudioClip: (trackId, clip) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === trackId ? { ...t, audioClips: [...t.audioClips, clip] } : t,
-      ),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId ? { ...t, audioClips: [...t.audioClips, clip] } : t,
+        ),
+      })),
+    ),
 
   removeAudioClip: (trackId, clipId) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === trackId
-          ? { ...t, audioClips: t.audioClips.filter((c) => c.id !== clipId) }
-          : t,
-      ),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId
+            ? { ...t, audioClips: t.audioClips.filter((c) => c.id !== clipId) }
+            : t,
+        ),
+      })),
+    ),
 
   updateAudioClip: (trackId, clipId, updates) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === trackId
-          ? {
-              ...t,
-              audioClips: t.audioClips.map((c) =>
-                c.id === clipId ? { ...c, ...updates } : c,
-              ),
-            }
-          : t,
-      ),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId
+            ? {
+                ...t,
+                audioClips: t.audioClips.map((c) =>
+                  c.id === clipId ? { ...c, ...updates } : c,
+                ),
+              }
+            : t,
+        ),
+      })),
+    ),
 
   clearMidiClips: (trackId) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === trackId ? { ...t, midiClips: [] } : t,
-      ),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId ? { ...t, midiClips: [] } : t,
+        ),
+      })),
+    ),
 
   reorderTrack: (id, newIndex) =>
     set((state) => {
@@ -643,63 +709,74 @@ export const createTracksSlice: StateCreator<
     }),
 
   addActiveEffect: (trackId, effectType) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) => {
-        if (t.id !== trackId || t.activeEffects.includes(effectType)) return t;
-        return {
-          ...t,
-          activeEffects: [...t.activeEffects, effectType],
-          effects: {
-            ...t.effects,
-            [effectType]: { ...t.effects[effectType], enabled: true },
-          },
-        };
-      }),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) => {
+          if (t.id !== trackId || t.activeEffects.includes(effectType))
+            return t;
+          return {
+            ...t,
+            activeEffects: [...t.activeEffects, effectType],
+            effects: {
+              ...t.effects,
+              [effectType]: { ...t.effects[effectType], enabled: true },
+            },
+          };
+        }),
+      })),
+    ),
 
   removeActiveEffect: (trackId, effectType) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) => {
-        if (t.id !== trackId) return t;
-        return {
-          ...t,
-          activeEffects: t.activeEffects.filter((e) => e !== effectType),
-          effects: {
-            ...t.effects,
-            [effectType]: { ...t.effects[effectType], enabled: false },
-          },
-        };
-      }),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) => {
+          if (t.id !== trackId) return t;
+          return {
+            ...t,
+            activeEffects: t.activeEffects.filter((e) => e !== effectType),
+            effects: {
+              ...t.effects,
+              [effectType]: { ...t.effects[effectType], enabled: false },
+            },
+          };
+        }),
+      })),
+    ),
 
   setVocalChain: (trackId, chain) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === trackId ? { ...t, vocalChain: chain } : t,
-      ),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId ? { ...t, vocalChain: chain } : t,
+        ),
+      })),
+    ),
 
   setGuitarChain: (trackId, chain) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) =>
-        t.id === trackId ? { ...t, guitarChain: chain } : t,
-      ),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId ? { ...t, guitarChain: chain } : t,
+        ),
+      })),
+    ),
 
   updateDrumPad: (trackId, note, params) =>
-    set((state) => ({
-      tracks: state.tracks.map((t) => {
-        if (t.id !== trackId) return t;
-        const prev = t.drumPads?.[note] ?? { volume: 0.8, pan: 0 };
-        return {
-          ...t,
-          drumPads: {
-            ...t.drumPads,
-            [note]: { ...prev, ...params },
-          },
-        };
-      }),
-    })),
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) => {
+          if (t.id !== trackId) return t;
+          const prev = t.drumPads?.[note] ?? { volume: 0.8, pan: 0 };
+          return {
+            ...t,
+            drumPads: {
+              ...t.drumPads,
+              [note]: { ...prev, ...params },
+            },
+          };
+        }),
+      })),
+    ),
 
   loadProjectTemplate: (templateId) => {
     const template = getProjectTemplate(templateId);

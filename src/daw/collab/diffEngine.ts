@@ -48,8 +48,9 @@ function findYMap(
 }
 
 // ── Track scalar keys that should be diffed individually ────────────────
-// NOTE: `mute` and `solo` are intentionally excluded — in collab sessions they
-// are per-user-local (personal monitoring), so they must never sync to peers.
+// NOTE: `mute`/`solo`/`recordArmed`/`monitoring` are intentionally excluded —
+// in collab sessions they are per-user-local (personal monitoring/recording),
+// so they must never sync to peers.
 const TRACK_SCALAR_KEYS: (keyof Track)[] = [
   'name',
   'type',
@@ -58,8 +59,6 @@ const TRACK_SCALAR_KEYS: (keyof Track)[] = [
   'color',
   'volume',
   'pan',
-  'recordArmed',
-  'monitoring',
   'trackRole',
 ];
 

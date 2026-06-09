@@ -7,6 +7,7 @@ import type { AllSlices } from '@/daw/store/index';
 import { diffAndApply } from './diffEngine';
 import {
   observeYjsAndPushToStore,
+  pullDocIntoStore,
   type YjsObserverDisposer,
 } from './yjsToZustand';
 import { ORIGIN_LOCAL } from './types';
@@ -30,6 +31,7 @@ export class ZustandYjsBridge {
   private setState: (partial: Partial<AllSlices>) => void;
   private getState: () => AllSlices;
   private disposeObservers: YjsObserverDisposer | null = null;
+  private hasPulled = false;
 
   /**
    * When true, the collab middleware should NOT propagate Zustand changes
@@ -53,6 +55,23 @@ export class ZustandYjsBridge {
     this.doc = doc;
     this.setState = setState;
     this.getState = getState;
+  }
+
+  /**
+   * One-time seed of the store from the document, run right after the initial
+   * sync. The observers only catch *subsequent* changes, so without this a
+   * client joining a room with existing content would never see it. Wrapped in
+   * the suppression flag so the resulting setState isn't echoed back to Yjs.
+   */
+  pullFromYjs(): void {
+    if (this.hasPulled) return;
+    this.hasPulled = true;
+    this.suppressStoreToYjs = true;
+    try {
+      pullDocIntoStore(this.doc, this.setState, this.getState);
+    } finally {
+      this.suppressStoreToYjs = false;
+    }
   }
 
   /**

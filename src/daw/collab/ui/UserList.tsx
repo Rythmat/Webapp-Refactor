@@ -2,12 +2,10 @@
 // Sidebar panel showing all online collaborators with their current
 // activity and presence state. Follows the LibraryPanel pattern.
 
-import { useCallback, useEffect, useState, type MouseEvent } from 'react';
-import { createPortal } from 'react-dom';
+import { useCallback, useState, type MouseEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Copy, UserX, X } from 'lucide-react';
+import { Check, Copy, X } from 'lucide-react';
 import { useRemoteUsers } from '../presence';
-import { useCollab } from '../CollabProvider';
 import { useStore } from '@/daw/store/index';
 import type { UserActivity } from '../types';
 
@@ -30,28 +28,7 @@ export function UserList({ open, onClose }: UserListProps) {
   const remoteUsers = useRemoteUsers();
   const connectionStatus = useStore((s) => s.connectionStatus);
   const roomCode = useStore((s) => s.roomCode);
-  const isHost = useStore((s) => s.collabRole === 'owner');
-  const { kickUser } = useCollab();
   const [copied, setCopied] = useState(false);
-
-  // Host-only kick context menu (right-click a connected user).
-  const [kickMenu, setKickMenu] = useState<{
-    userId: string;
-    userName: string;
-    x: number;
-    y: number;
-  } | null>(null);
-
-  useEffect(() => {
-    if (!kickMenu) return;
-    const close = () => setKickMenu(null);
-    window.addEventListener('click', close);
-    window.addEventListener('keydown', close);
-    return () => {
-      window.removeEventListener('click', close);
-      window.removeEventListener('keydown', close);
-    };
-  }, [kickMenu]);
 
   const handleCopyCode = useCallback(async () => {
     if (!roomCode) return;
@@ -187,26 +164,13 @@ export function UserList({ open, onClose }: UserListProps) {
                 isSelf
               />
 
-              {/* Remote users — host can right-click to kick */}
+              {/* Remote users */}
               {remoteUsers.map((user) => (
                 <UserRow
                   key={user.userId}
                   name={user.userName}
                   color={user.color}
                   activity={user.activity}
-                  onContextMenu={
-                    isHost
-                      ? (e) => {
-                          e.preventDefault();
-                          setKickMenu({
-                            userId: user.userId,
-                            userName: user.userName,
-                            x: e.clientX,
-                            y: e.clientY,
-                          });
-                        }
-                      : undefined
-                  }
                 />
               ))}
 
@@ -222,36 +186,6 @@ export function UserList({ open, onClose }: UserListProps) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Kick context menu (host only) */}
-      {kickMenu &&
-        createPortal(
-          <div
-            className="fixed z-[9999] overflow-hidden rounded-md shadow-2xl"
-            style={{
-              top: kickMenu.y,
-              left: kickMenu.x,
-              backgroundColor: 'var(--color-surface-2)',
-              border: '1px solid var(--color-border)',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => {
-                // DEBUG (temporary): confirm the menu click fires.
-                console.log('[kick] menu click', kickMenu);
-                kickUser(kickMenu.userId);
-                setKickMenu(null);
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium transition-colors hover:bg-white/10"
-              style={{ color: '#ef4444', background: 'none', border: 'none' }}
-            >
-              <UserX size={11} strokeWidth={2} />
-              Kick {kickMenu.userName}
-            </button>
-          </div>,
-          document.body,
-        )}
     </>
   );
 }

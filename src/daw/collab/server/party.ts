@@ -230,8 +230,16 @@ export default class CollabServer implements Party.Server {
         }
       }
 
-      // Jam Room: relay note and chat messages to all other clients
-      if (data.type === 'jam:note' || data.type === 'jam:chat') {
+      // Jam Room: relay note, chat, and shared-drum messages to other clients.
+      // `jam:drum-sync-request` is relayed so the host can answer a late joiner;
+      // `jam:drum-grid` / `jam:drum-mode` carry the shared sequencer state.
+      if (
+        data.type === 'jam:note' ||
+        data.type === 'jam:chat' ||
+        data.type === 'jam:drum-grid' ||
+        data.type === 'jam:drum-mode' ||
+        data.type === 'jam:drum-sync-request'
+      ) {
         for (const conn of this.room.getConnections()) {
           if (conn.id !== sender.id) {
             conn.send(JSON.stringify(data));

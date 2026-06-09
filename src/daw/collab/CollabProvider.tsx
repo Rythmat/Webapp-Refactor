@@ -325,8 +325,20 @@ export function CollabProvider({ children }: CollabProviderProps) {
       };
       provider.awareness.on('change', onAwarenessChange);
 
-      // Listen for ephemeral messages (transport commands, room:closing)
-      provider.ws?.addEventListener('message', handleServerMessage);
+      // Listen for ephemeral server messages (room:closing, room:not-found,
+      // kicked). `provider.ws` may not exist on the very first tick, so retry
+      // until it does — otherwise these notifications are silently never
+      // received. Bail if the session was torn down while we waited.
+      const attachWs = () => {
+        if (providerRef.current !== provider) return;
+        const ws = provider.ws;
+        if (ws) {
+          ws.addEventListener('message', handleServerMessage);
+        } else {
+          setTimeout(attachWs, 100);
+        }
+      };
+      attachWs();
     },
     [userId, appUser, token, handleServerMessage, teardown],
   );

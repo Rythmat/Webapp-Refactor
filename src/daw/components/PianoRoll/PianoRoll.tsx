@@ -131,6 +131,12 @@ interface PianoRollProps {
   clipStartTick: number;
   clipColor: string;
   onChange: (events: MidiNoteEvent[]) => void;
+  /**
+   * Optional MIDI-note → label map. When provided (e.g. a drum track), the left
+   * key column shows these labels (Kick, Snare, …) instead of scale note names,
+   * matching the track's drum control. The column also widens to fit them.
+   */
+  noteLabels?: ReadonlyMap<number, string>;
 }
 
 export function PianoRoll({
@@ -138,6 +144,7 @@ export function PianoRoll({
   clipStartTick,
   clipColor,
   onChange,
+  noteLabels,
 }: PianoRollProps) {
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
@@ -290,26 +297,41 @@ export function PianoRoll({
         ctx.stroke();
       }
 
-      // Note labels — progressive: C always, white keys at 1.2x+, black keys at 1.7x+
-      const showAllWhite = rowH >= 14;
-      const showBlack = rowH >= 20;
-      const showLabel = isC || (showAllWhite && !black) || (showBlack && black);
+      if (noteLabels) {
+        // Drum track: label only the rows that map to a drum sound, using the
+        // same names as the drum control.
+        const label = noteLabels.get(midiNote);
+        if (label) {
+          const fontSize = Math.max(8, Math.round(9 * vZoom));
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.font = `${fontSize}px Inter, sans-serif`;
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'right';
+          ctx.fillText(label, w - 4, rowY + rowH / 2);
+        }
+      } else {
+        // Note labels — progressive: C always, white keys at 1.2x+, black keys at 1.7x+
+        const showAllWhite = rowH >= 14;
+        const showBlack = rowH >= 20;
+        const showLabel =
+          isC || (showAllWhite && !black) || (showBlack && black);
 
-      if (showLabel) {
-        const fontSize = Math.max(7, Math.round(8 * vZoom));
-        ctx.fillStyle = isC
-          ? 'rgba(255, 255, 255, 0.6)'
-          : black
-            ? 'rgba(255, 255, 255, 0.3)'
-            : 'rgba(255, 255, 255, 0.4)';
-        ctx.font = `${isC ? 'bold ' : ''}${fontSize}px Inter, monospace`;
-        ctx.textBaseline = 'middle';
-        ctx.textAlign = 'right';
-        ctx.fillText(
-          noteName(midiNote, rootNote ?? 0, spellings),
-          w - 4,
-          rowY + rowH / 2,
-        );
+        if (showLabel) {
+          const fontSize = Math.max(7, Math.round(8 * vZoom));
+          ctx.fillStyle = isC
+            ? 'rgba(255, 255, 255, 0.6)'
+            : black
+              ? 'rgba(255, 255, 255, 0.3)'
+              : 'rgba(255, 255, 255, 0.4)';
+          ctx.font = `${isC ? 'bold ' : ''}${fontSize}px Inter, monospace`;
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'right';
+          ctx.fillText(
+            noteName(midiNote, rootNote ?? 0, spellings),
+            w - 4,
+            rowY + rowH / 2,
+          );
+        }
       }
     }
 
@@ -320,7 +342,7 @@ export function PianoRoll({
     ctx.moveTo(w - 0.5, 0);
     ctx.lineTo(w - 0.5, h);
     ctx.stroke();
-  }, [gridH, rowH, vZoom, rootNote, mode]);
+  }, [gridH, rowH, vZoom, rootNote, mode, noteLabels]);
 
   // ── Draw Ruler ──────────────────────────────────────────────────────────
   const drawRuler = useCallback(() => {

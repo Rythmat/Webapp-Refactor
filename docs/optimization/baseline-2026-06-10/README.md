@@ -6,21 +6,21 @@ Captured on commit `a27c8909` (branch `optimize/phase-1-baseline`, off `aaron`).
 
 ```
 nvm use 20
-NODE_OPTIONS="--max-old-space-size=8192" npm run analyze   # → bundle.html, build.log
+NODE_OPTIONS="--max-old-space-size=8192" npm run analyze   # → bundle.html
 npm run knip                                               # → knip.txt
 npm run depcheck                                           # → depcheck.txt
-npm run coverage                                           # → coverage.log
+npm run coverage                                           # vitest run --coverage
 ```
+
+Raw stdout from `analyze` and `coverage` is omitted from the repo because the project's `.gitignore` excludes `*.log`. Re-run the commands above to regenerate.
 
 ## Files
 
-| File              | Purpose                                                  |
-| ----------------- | -------------------------------------------------------- |
-| `bundle.html`     | rollup-plugin-visualizer treemap of the production build |
-| `build.log`       | full stdout/stderr from `vite build` (analyze run)       |
-| `knip.txt`        | knip output — unused files, exports, types, deps         |
-| `depcheck.txt`    | depcheck output — unused dependencies                    |
-| `coverage.log`    | full vitest output (test results, coverage was enabled)  |
+| File           | Purpose                                                  |
+| -------------- | -------------------------------------------------------- |
+| `bundle.html`  | rollup-plugin-visualizer treemap of the production build |
+| `knip.txt`     | knip output — unused files, exports, types, deps         |
+| `depcheck.txt` | depcheck output — unused dependencies                    |
 
 ## Headline numbers
 

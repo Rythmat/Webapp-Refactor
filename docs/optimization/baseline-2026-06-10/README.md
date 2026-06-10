@@ -40,9 +40,11 @@ Raw stdout from `analyze` and `coverage` is omitted from the repo because the pr
 ## Notes on findings to investigate later
 
 From `depcheck.txt`:
+
 - `@vitejs/plugin-react` — confirmed orphan; `vite.config.ts` uses the SWC variant only. **Phase 6.**
 - `pdf-parse` — flagged unused; confirm against `src/`. **Phase 6.**
 - `@uiw/react-md-editor`, `react-diff-view`, `react-dnd*`, `react-dropzone`, `stripe`, `@upstash/redis` (not listed but worth checking) — verify usage before removal in **Phase 6**.
 
 From `knip.txt`:
+
 - 219 unused files. Heavy concentration in `src/components/Games/*`, `src/components/ClassroomLayout/dashboard/assistant/*`, `src/components/atlas/components/UI/*` — likely cluster-deletable in **Phase 3**.

@@ -196,8 +196,8 @@ export const will_you_be_there: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=jQY_QL_wvQU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/michael-jackson.webp',
+  artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
 };

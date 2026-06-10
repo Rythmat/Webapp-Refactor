@@ -444,8 +444,8 @@ export const sex_on_fire: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RF0HhrwIwp0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/kings-of-leon.webp',
+  artistImageRef: '/artists/svg/kings-of-leon.webp',
   popularity: 50,
 };

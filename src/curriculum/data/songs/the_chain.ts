@@ -144,8 +144,8 @@ export const the_chain: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kBYHwH1Vb-c' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/fleetwood-mac.webp',
+  artistImageRef: '/artists/svg/fleetwood-mac.webp',
   popularity: 50,
 };

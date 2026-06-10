@@ -128,8 +128,8 @@ export const hello_walls: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wB4br_nDHnQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/willie-nelson.webp',
+  artistImageRef: '/artists/svg/willie-nelson.webp',
   popularity: 50,
 };

@@ -486,8 +486,8 @@ export const rolling_in_the_deep: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rYEDA3JcQqw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/adele.webp',
+  artistImageRef: '/artists/svg/adele.webp',
   popularity: 50,
 };

@@ -461,8 +461,8 @@ export const vivir_mi_vida: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=YXnjy5YlDwk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/marc-anthony.webp',
+  artistImageRef: '/artists/svg/marc-anthony.webp',
   popularity: 50,
 };

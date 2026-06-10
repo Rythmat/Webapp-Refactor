@@ -291,8 +291,8 @@ export const put_your_records_on: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rjOhZZyn30k' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/corinne-bailey-rae.webp',
+  artistImageRef: '/artists/svg/corinne-bailey-rae.webp',
   popularity: 50,
 };

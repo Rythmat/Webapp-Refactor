@@ -53,8 +53,8 @@ export const free_fallin: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1lWJXDG2i0A' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tom-petty.webp',
+  artistImageRef: '/artists/svg/tom-petty.webp',
   popularity: 50,
 };

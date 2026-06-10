@@ -230,8 +230,8 @@ export const jack_amp_diane: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6gy16cbFZbI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/john-cougar-mellencamp.webp',
+  artistImageRef: '/artists/svg/john-cougar-mellencamp.webp',
   popularity: 50,
 };

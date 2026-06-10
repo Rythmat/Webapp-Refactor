@@ -228,8 +228,8 @@ export const coming_home: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MTrKkqE9p1o' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/leon-bridges.webp',
+  artistImageRef: '/artists/svg/leon-bridges.webp',
   popularity: 50,
 };

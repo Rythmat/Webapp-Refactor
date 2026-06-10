@@ -290,8 +290,8 @@ export const uptown_funk: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=OPf0YbXqDm0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bruno-mars.webp',
+  artistImageRef: '/artists/svg/bruno-mars.webp',
   popularity: 50,
 };

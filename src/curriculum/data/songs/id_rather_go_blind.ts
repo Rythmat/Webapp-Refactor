@@ -37,8 +37,8 @@ export const id_rather_go_blind: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uZt1xKtPbUQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/etta-james.webp',
+  artistImageRef: '/artists/svg/etta-james.webp',
   popularity: 50,
 };

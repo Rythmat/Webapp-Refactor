@@ -256,8 +256,8 @@ export const uptown_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hCuMWrfXG4E' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/billy-joel.webp',
+  artistImageRef: '/artists/svg/billy-joel.webp',
   popularity: 50,
 };

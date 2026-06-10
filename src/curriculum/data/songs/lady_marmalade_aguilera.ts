@@ -289,6 +289,6 @@ export const lady_marmalade_aguilera: Song = {
   ],
   artistImageSource: 'manual',
 
-  artistImageRef: '/artists/christina-aguilera.webp',
+  artistImageRef: '/artists/svg/christina-aguilera.webp',
   popularity: 50,
 };

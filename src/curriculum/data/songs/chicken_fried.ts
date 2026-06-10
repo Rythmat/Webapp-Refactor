@@ -291,8 +291,8 @@ export const chicken_fried: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=e4ujS1er1r0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/zac-brown-band.webp',
+  artistImageRef: '/artists/svg/zac-brown-band.webp',
   popularity: 50,
 };

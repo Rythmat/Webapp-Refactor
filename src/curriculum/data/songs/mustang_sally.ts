@@ -87,8 +87,8 @@ export const mustang_sally: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=16u6w0cjjrU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/wilson-pickett.webp',
+  artistImageRef: '/artists/svg/wilson-pickett.webp',
   popularity: 50,
 };

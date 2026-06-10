@@ -235,8 +235,8 @@ export const boogie_shoes: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Ia0zeuZMJbo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/kc-and-the-sunshine-band.webp',
+  artistImageRef: '/artists/svg/kc-and-the-sunshine-band.webp',
   popularity: 50,
 };

@@ -165,8 +165,8 @@ export const take_me_home_country_roads: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IUmnTfsY3hI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/john-denver.webp',
+  artistImageRef: '/artists/svg/john-denver.webp',
   popularity: 50,
 };

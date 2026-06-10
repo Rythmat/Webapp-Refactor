@@ -263,8 +263,8 @@ export const build_me_up_buttercup: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hSofzQURQDk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-foundations.webp',
+  artistImageRef: '/artists/svg/the-foundations.webp',
   popularity: 50,
 };

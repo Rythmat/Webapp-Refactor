@@ -125,8 +125,8 @@ export const girl_crush: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=JYZMT8otKdI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/little-big-town.webp',
+  artistImageRef: '/artists/svg/little-big-town.webp',
   popularity: 50,
 };

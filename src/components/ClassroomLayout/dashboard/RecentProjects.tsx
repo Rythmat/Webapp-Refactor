@@ -1,5 +1,6 @@
 import { AudioWaveform, Plus } from 'lucide-react';
 import type { CSSProperties, FC } from 'react';
+import { CardShell, HeaderRow } from '@/components/ui/CardShell';
 import { ProjectAvatarPattern } from '@/components/ui/ProjectAvatarPattern';
 
 export interface RecentProject {
@@ -36,30 +37,13 @@ export const RecentProjects: FC<RecentProjectsProps> = ({
   const showCreateTile = projects.length < 4;
 
   return (
-    <div
-      className="glass-panel-sm flex flex-col overflow-hidden rounded-2xl"
-      style={{
-        background: 'rgba(26, 26, 26, 0.7)',
-        padding: 'clamp(0.85rem, 1.3vw, 1.5rem)',
-      }}
+    <CardShell
+      header={<HeaderRow icon={AudioWaveform} title="Recent Projects" />}
     >
-      <div className="mb-4 flex items-center gap-2">
-        <AudioWaveform
-          className="text-white/85"
-          style={{
-            width: 'clamp(0.95rem, 1.25vw, 1.15rem)',
-            height: 'clamp(0.95rem, 1.25vw, 1.15rem)',
-          }}
-        />
-        <span
-          className="font-medium text-white"
-          style={{ fontSize: 'clamp(0.75rem, 1.05vw, 1rem)' }}
-        >
-          Recent Projects
-        </span>
-      </div>
+      {/* Container query: stack 1-col when card is narrow, 2-col when wider.
+          @sm here = card container query (>= 24rem), NOT the viewport. */}
       <div
-        className="grid flex-1 grid-cols-2 grid-rows-2"
+        className="mt-4 grid grid-cols-1 @sm:grid-cols-2"
         style={{
           columnGap: 'clamp(0.75rem, 1.3vw, 1.25rem)',
           rowGap: 'clamp(0.5rem, 1vw, 1rem)',
@@ -111,6 +95,6 @@ export const RecentProjects: FC<RecentProjectsProps> = ({
           </button>
         )}
       </div>
-    </div>
+    </CardShell>
   );
 };

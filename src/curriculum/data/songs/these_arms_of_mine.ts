@@ -108,8 +108,8 @@ export const these_arms_of_mine: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GVbTE4wCbpw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/otis-redding.webp',
+  artistImageRef: '/artists/svg/otis-redding.webp',
   popularity: 50,
 };

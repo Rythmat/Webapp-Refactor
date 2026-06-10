@@ -614,8 +614,8 @@ export const my_old_man: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=h1_PIuEmj8s' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/joni-mitchell.webp',
+  artistImageRef: '/artists/svg/joni-mitchell.webp',
   popularity: 50,
 };

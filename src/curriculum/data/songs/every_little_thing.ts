@@ -443,8 +443,8 @@ export const every_little_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IGAKs0a-uiY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chaka-khan.webp',
+  artistImageRef: '/artists/svg/chaka-khan.webp',
   popularity: 50,
 };

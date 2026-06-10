@@ -504,8 +504,8 @@ export const sledgehammer: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=OJWJE0x7T4Q' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/peter-gabriel.webp',
+  artistImageRef: '/artists/svg/peter-gabriel.webp',
   popularity: 50,
 };

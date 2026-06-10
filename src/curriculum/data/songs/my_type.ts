@@ -300,8 +300,8 @@ export const my_type: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IyVPyKrx0Xo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/saint-motel.webp',
+  artistImageRef: '/artists/svg/saint-motel.webp',
   popularity: 50,
 };

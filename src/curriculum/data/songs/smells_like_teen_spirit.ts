@@ -442,8 +442,8 @@ export const smells_like_teen_spirit: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hTWKbfoikeg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/nirvana.webp',
+  artistImageRef: '/artists/svg/nirvana.webp',
   popularity: 50,
 };

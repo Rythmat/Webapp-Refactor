@@ -208,8 +208,8 @@ export const stay_with_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pB-5XG-DbAA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sam-smith.webp',
+  artistImageRef: '/artists/svg/sam-smith.webp',
   popularity: 50,
 };

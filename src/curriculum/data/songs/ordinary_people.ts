@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const ordinary_people: Song = {
   id: 'ordinary_people',
   title: 'Ordinary People',
-  artist: 'Joe Legend',
+  artist: 'John Legend',
   year: undefined,
 
   historicalDescription:
@@ -115,8 +115,8 @@ export const ordinary_people: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PIh07c_P4hc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/joe-legend.webp',
+  artistImageRef: '/artists/svg/john-legend.webp',
   popularity: 50,
 };

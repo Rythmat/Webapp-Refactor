@@ -533,8 +533,8 @@ export const look_what_i_found: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8uGVZoqJjn4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/lady-gaga.webp',
+  artistImageRef: '/artists/svg/lady-gaga.webp',
   popularity: 50,
 };

@@ -28,6 +28,15 @@
 
   --grain-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
 
+  /* Responsive dashboard layout tokens — see docs/dashboard-responsive.md.
+     Used by HomeInlet's grid template areas and per-card density. */
+  --dash-card-pad: clamp(0.85rem, 1.3vw, 1.5rem);
+  --dash-card-gap: clamp(0.75rem, 1.3vw, 1.5rem);
+  --dash-banner-h: clamp(200px, 32vh, 380px);
+  --dash-card-min-h: 280px;
+  --dash-icon-sz: clamp(0.95rem, 1.25vw, 1.15rem);
+  --dash-label-fz: clamp(0.75rem, 1.05vw, 1rem);
+
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
 }
@@ -227,6 +236,60 @@
 
 .dashboard-root .player-range:hover::-moz-range-thumb {
   opacity: 1;
+}
+
+/* ── Home Dashboard layout (CSS Grid template areas) ────────────────────
+   See docs/dashboard-responsive.md. Three regimes:
+   - compact (default):  1 col stack
+   - comfortable (md):   2 col hybrid
+   - expansive (lg):     3 col with banner spanning + absolute overlays
+   ──────────────────────────────────────────────────────────────────────── */
+.dashboard-root .home-grid {
+  display: grid;
+  gap: var(--dash-card-gap);
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    'banner'
+    'quickstart'
+    'featured'
+    'calendar'
+    'recent'
+    'challenges';
+}
+
+@media (min-width: 768px) {
+  .dashboard-root .home-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      'banner banner'
+      'quickstart featured'
+      'calendar calendar'
+      'recent challenges';
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-root .home-grid {
+    height: 100%;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: minmax(420px, 3fr) minmax(280px, 2fr);
+    grid-template-areas:
+      'banner banner banner'
+      'calendar recent challenges';
+  }
+}
+
+.dashboard-root .area-banner    { grid-area: banner; position: relative; min-width: 0; height: var(--dash-banner-h); }
+.dashboard-root .area-quickstart{ grid-area: quickstart; min-width: 0; }
+.dashboard-root .area-featured  { grid-area: featured; min-width: 0; }
+.dashboard-root .area-calendar  { grid-area: calendar; min-width: 0; min-height: 0; }
+.dashboard-root .area-recent    { grid-area: recent; min-width: 0; min-height: 0; }
+.dashboard-root .area-challenges{ grid-area: challenges; min-width: 0; min-height: 0; }
+
+@media (min-width: 1024px) {
+  /* At lg+, banner row is sized by grid template (minmax(420px, 3fr));
+     unset the explicit height so the banner fills the row. */
+  .dashboard-root .area-banner { height: auto; }
 }
 
 /* ── Scrollbars ──────────────────────────────────────────────────────── */

@@ -724,8 +724,8 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=eH3giaIzONA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/whitney-houston.webp',
+  artistImageRef: '/artists/svg/whitney-houston.webp',
   popularity: 50,
 };

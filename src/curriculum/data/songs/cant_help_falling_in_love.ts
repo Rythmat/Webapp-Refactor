@@ -201,8 +201,8 @@ export const cant_help_falling_in_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=vGJTaP6anOU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/elvis-presley.webp',
+  artistImageRef: '/artists/svg/elvis-presley.webp',
   popularity: 50,
 };

@@ -268,8 +268,8 @@ export const kiss_on_my_list: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lsHld-iArOc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/hall-and-oates.webp',
+  artistImageRef: '/artists/svg/hall-and-oates.webp',
   popularity: 50,
 };

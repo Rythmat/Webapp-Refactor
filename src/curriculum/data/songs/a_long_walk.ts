@@ -301,8 +301,8 @@ export const a_long_walk: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5SK48Bk_RnI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jill-scott.webp',
+  artistImageRef: '/artists/svg/jill-scott.webp',
   popularity: 50,
 };

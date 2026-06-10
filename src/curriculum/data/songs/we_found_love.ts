@@ -329,8 +329,8 @@ export const we_found_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tg00YEETFzg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/rihanna.webp',
+  artistImageRef: '/artists/svg/rihanna.webp',
   popularity: 50,
 };

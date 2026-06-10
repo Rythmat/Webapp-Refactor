@@ -310,8 +310,8 @@ export const always_be_my_baby: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=LfRNRymrv9k' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/mariah-carey.webp',
+  artistImageRef: '/artists/svg/mariah-carey.webp',
   popularity: 50,
 };

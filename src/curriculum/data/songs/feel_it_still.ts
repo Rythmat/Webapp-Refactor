@@ -224,8 +224,8 @@ export const feel_it_still: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pBkHHoOIIn8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/portugal-the-man.webp',
+  artistImageRef: '/artists/svg/portugal-the-man.webp',
   popularity: 50,
 };

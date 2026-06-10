@@ -61,8 +61,8 @@ export const royals: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nlcIKh6sBtc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/lorde.webp',
+  artistImageRef: '/artists/svg/lorde.webp',
   popularity: 50,
 };

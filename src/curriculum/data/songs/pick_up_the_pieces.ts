@@ -455,8 +455,8 @@ export const pick_up_the_pieces: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MfAJLGFWxYo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-average-white-band.webp',
+  artistImageRef: '/artists/svg/the-average-white-band.webp',
   popularity: 50,
 };

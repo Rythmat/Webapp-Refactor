@@ -305,8 +305,8 @@ export const sexyback: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3gOHvDP_vCs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/justin-timberlake.webp',
+  artistImageRef: '/artists/svg/justin-timberlake.webp',
   popularity: 50,
 };

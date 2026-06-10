@@ -249,8 +249,8 @@ export const all_i_wanna_do: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ClbmWkbocoY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sheryl-crow.webp',
+  artistImageRef: '/artists/svg/sheryl-crow.webp',
   popularity: 50,
 };

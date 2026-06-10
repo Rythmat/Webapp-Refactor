@@ -190,8 +190,8 @@ export const beers_ago: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Hosifr6ycwU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/toby-keith.webp',
+  artistImageRef: '/artists/svg/toby-keith.webp',
   popularity: 50,
 };

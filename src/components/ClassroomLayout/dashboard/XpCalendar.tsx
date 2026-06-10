@@ -1,5 +1,6 @@
 import { Clock } from 'lucide-react';
 import { useMemo, type FC } from 'react';
+import { CardShell, HeaderRow } from '@/components/ui/CardShell';
 
 export const XpCalendar: FC = () => {
   const { title, days, leadingBlanks } = useMemo(() => {
@@ -17,33 +18,13 @@ export const XpCalendar: FC = () => {
   }, []);
 
   return (
-    <div
-      className="glass-panel-sm flex flex-col overflow-hidden rounded-2xl"
-      style={{
-        background: 'rgba(26, 26, 26, 0.7)',
-        padding: 'clamp(0.85rem, 1.3vw, 1.5rem)',
-      }}
-    >
-      <div className="mb-4 flex items-center gap-2">
-        <Clock
-          className="text-white/85"
-          style={{
-            width: 'clamp(0.95rem, 1.25vw, 1.15rem)',
-            height: 'clamp(0.95rem, 1.25vw, 1.15rem)',
-          }}
-        />
-        <span
-          className="font-medium text-white"
-          style={{ fontSize: 'clamp(0.75rem, 1.05vw, 1rem)' }}
-        >
-          {title}
-        </span>
-      </div>
+    <CardShell header={<HeaderRow icon={Clock} title={title} />}>
       <div
         className="grid grid-cols-7 text-white/45"
         style={{
           gap: 'clamp(0.2rem, 0.45vw, 0.4rem)',
           fontSize: 'clamp(0.6rem, 0.8vw, 0.72rem)',
+          marginTop: 'clamp(0.75rem, 1vw, 1rem)',
           marginBottom: 'clamp(0.25rem, 0.5vw, 0.4rem)',
         }}
       >
@@ -54,7 +35,7 @@ export const XpCalendar: FC = () => {
         ))}
       </div>
       <div
-        className="grid flex-1 grid-cols-7 auto-rows-fr"
+        className="grid grid-cols-7"
         style={{ gap: 'clamp(0.2rem, 0.45vw, 0.4rem)' }}
       >
         {Array.from({ length: leadingBlanks }, (_, i) => (
@@ -64,7 +45,11 @@ export const XpCalendar: FC = () => {
           <div
             key={day}
             className="flex items-center justify-center rounded-md text-white/85 tabular-nums"
-            style={{ fontSize: 'clamp(0.85rem, 1.15vw, 1.1rem)' }}
+            style={{
+              fontSize: 'clamp(0.85rem, 1.15vw, 1.1rem)',
+              aspectRatio: '1 / 1',
+              minHeight: 'clamp(1.5rem, 3vw, 2.25rem)',
+            }}
           >
             {day}
           </div>
@@ -81,6 +66,6 @@ export const XpCalendar: FC = () => {
         <span>Current Streak: 0</span>
         <span>High Score: 0</span>
       </div>
-    </div>
+    </CardShell>
   );
 };

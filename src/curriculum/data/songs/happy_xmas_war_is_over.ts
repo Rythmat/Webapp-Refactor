@@ -163,8 +163,8 @@ export const happy_xmas_war_is_over: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8gWHlHWIaRQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/john-lennon.webp',
+  artistImageRef: '/artists/svg/john-lennon.webp',
   popularity: 50,
 };

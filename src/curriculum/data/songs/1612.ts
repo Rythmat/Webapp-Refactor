@@ -365,6 +365,6 @@ export const _1612: Song = {
   ],
   artistImageSource: 'manual',
 
-  artistImageRef: '/artists/vulfpeck.webp',
+  artistImageRef: '/artists/svg/vulfpeck.webp',
   popularity: 50,
 };

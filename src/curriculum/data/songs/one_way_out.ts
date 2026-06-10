@@ -123,8 +123,8 @@ export const one_way_out: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=d0En8iD2uVI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-allman-brothers.webp',
+  artistImageRef: '/artists/svg/the-allman-brothers.webp',
   popularity: 50,
 };

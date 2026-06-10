@@ -395,8 +395,8 @@ export const tapestry: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=SyQ-TgA6bQk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

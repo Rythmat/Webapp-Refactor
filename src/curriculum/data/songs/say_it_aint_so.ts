@@ -278,8 +278,8 @@ export const say_it_aint_so: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ENXvZ9YRjbo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/weezer.webp',
+  artistImageRef: '/artists/svg/weezer.webp',
   popularity: 50,
 };

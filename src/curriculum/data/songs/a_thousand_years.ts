@@ -389,8 +389,8 @@ export const a_thousand_years: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rtOvBOTyX00' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/christina-perri.webp',
+  artistImageRef: '/artists/svg/christina-perri.webp',
   popularity: 50,
 };

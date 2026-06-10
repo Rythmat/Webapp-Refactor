@@ -113,8 +113,8 @@ export const out_of_sight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=zieXmNwHGYA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/james-brown.webp',
+  artistImageRef: '/artists/svg/james-brown.webp',
   popularity: 50,
 };

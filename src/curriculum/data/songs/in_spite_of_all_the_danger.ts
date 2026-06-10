@@ -176,8 +176,8 @@ export const in_spite_of_all_the_danger: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RuuOAA9ekbg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-beatles.webp',
+  artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
 };

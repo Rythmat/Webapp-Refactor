@@ -330,8 +330,8 @@ export const take_me_to_the_river: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bP3PIn8ff74' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/talking-heads.webp',
+  artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
 };

@@ -303,8 +303,8 @@ export const what_a_wonderful_world: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rBrd_3VMC3c' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/louis-armstrong.webp',
+  artistImageRef: '/artists/svg/louis-armstrong.webp',
   popularity: 50,
 };

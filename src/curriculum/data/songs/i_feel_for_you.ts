@@ -245,8 +245,8 @@ export const i_feel_for_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MEtx6L4U9rI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/prince.webp',
+  artistImageRef: '/artists/svg/prince.webp',
   popularity: 50,
 };

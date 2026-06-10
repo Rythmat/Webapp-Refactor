@@ -347,8 +347,8 @@ export const smackwater_jack: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4ttfcrg-Yow' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

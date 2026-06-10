@@ -190,8 +190,8 @@ export const mary_janes_last_dance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aowSGxim_O8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tom-petty-and-the-heartbreakers.webp',
+  artistImageRef: '/artists/svg/tom-petty.webp',
   popularity: 50,
 };

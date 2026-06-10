@@ -490,8 +490,8 @@ export const jump: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=SwYN7mTi6HM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/van-halen.webp',
+  artistImageRef: '/artists/svg/van-halen.webp',
   popularity: 50,
 };

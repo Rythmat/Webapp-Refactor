@@ -489,8 +489,8 @@ export const black_man: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pEoE2UQXduA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

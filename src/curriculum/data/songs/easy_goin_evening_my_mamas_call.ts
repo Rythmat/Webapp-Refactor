@@ -325,8 +325,8 @@ export const easy_goin_evening_my_mamas_call: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=L0ZXSbUvWWs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

@@ -338,8 +338,8 @@ export const black_hole_sun: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3mbBbFH9fAg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/soundgarden.webp',
+  artistImageRef: '/artists/svg/soundgarden.webp',
   popularity: 50,
 };

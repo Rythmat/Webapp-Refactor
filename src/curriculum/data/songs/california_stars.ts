@@ -48,8 +48,8 @@ export const california_stars: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FeQX-9Uxh_w' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/wilco.webp',
+  artistImageRef: '/artists/svg/wilco.webp',
   popularity: 50,
 };

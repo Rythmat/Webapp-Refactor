@@ -191,8 +191,8 @@ export const im_gonna_be_500_miles: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tbNlMtqrYS0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-proclaimers.webp',
+  artistImageRef: '/artists/svg/the-proclaimers.webp',
   popularity: 50,
 };

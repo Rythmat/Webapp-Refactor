@@ -301,8 +301,8 @@ export const bad_moon_rising: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=zUQiUFZ5RDw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/creedence-clearwater-revival.webp',
+  artistImageRef: '/artists/svg/creedence-clearwater-revival.webp',
   popularity: 50,
 };

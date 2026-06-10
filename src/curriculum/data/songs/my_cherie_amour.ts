@@ -287,8 +287,8 @@ export const my_cherie_amour: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Fjufjv4rH0s' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

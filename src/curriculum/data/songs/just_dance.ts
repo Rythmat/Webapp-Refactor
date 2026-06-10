@@ -464,8 +464,8 @@ export const just_dance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2Abk1jAONjw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/lady-gaga.webp',
+  artistImageRef: '/artists/svg/lady-gaga.webp',
   popularity: 50,
 };

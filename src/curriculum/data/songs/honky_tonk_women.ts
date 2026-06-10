@@ -101,8 +101,8 @@ export const honky_tonk_women: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hqqkGxZ1_8I' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-rolling-stones.webp',
+  artistImageRef: '/artists/svg/the-rolling-stones.webp',
   popularity: 50,
 };

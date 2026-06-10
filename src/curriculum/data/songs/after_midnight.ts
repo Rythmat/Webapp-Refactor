@@ -234,8 +234,8 @@ export const after_midnight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RdjBrnV-U9M' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/eric-clapton.webp',
+  artistImageRef: '/artists/svg/eric-clapton.webp',
   popularity: 50,
 };

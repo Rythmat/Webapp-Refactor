@@ -303,8 +303,8 @@ export const i_wish: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=B6cqrjlqjuM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

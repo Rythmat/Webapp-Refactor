@@ -289,8 +289,8 @@ export const they_long_to_be_close_to_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NpQRsXrduc8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-carpenters.webp',
+  artistImageRef: '/artists/svg/the-carpenters.webp',
   popularity: 50,
 };

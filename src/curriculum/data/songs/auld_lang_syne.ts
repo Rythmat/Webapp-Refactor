@@ -63,8 +63,8 @@ export const auld_lang_syne: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yRk_vbg9sWA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/traditional.webp',
+  artistImageRef: '/artists/svg/auld-lang-syne.webp',
   popularity: 50,
 };

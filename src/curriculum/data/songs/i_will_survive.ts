@@ -155,8 +155,8 @@ export const i_will_survive: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6dYWe1c3OyU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/gloria-gaynor.webp',
+  artistImageRef: '/artists/svg/gloria-gaynor.webp',
   popularity: 50,
 };

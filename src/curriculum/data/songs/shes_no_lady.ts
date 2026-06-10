@@ -277,8 +277,8 @@ export const shes_no_lady: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4o3m1FwhusY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/lyle-lovett.webp',
+  artistImageRef: '/artists/svg/lyle-lovett.webp',
   popularity: 50,
 };

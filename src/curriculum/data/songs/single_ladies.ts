@@ -288,8 +288,8 @@ export const single_ladies: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=b1qD4LtaRIU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sara-bareilles.webp',
+  artistImageRef: '/artists/svg/sara-bareilles.webp',
   popularity: 50,
 };

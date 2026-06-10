@@ -87,8 +87,8 @@ export const moves_like_jagger: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iEPTlhBmwRg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/maroon-5.webp',
+  artistImageRef: '/artists/svg/maroon-5.webp',
   popularity: 50,
 };

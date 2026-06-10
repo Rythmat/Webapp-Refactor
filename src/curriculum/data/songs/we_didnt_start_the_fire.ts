@@ -427,8 +427,8 @@ export const we_didnt_start_the_fire: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=eFTLKWw542g' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/billy-joel.webp',
+  artistImageRef: '/artists/svg/billy-joel.webp',
   popularity: 50,
 };

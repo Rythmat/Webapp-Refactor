@@ -274,8 +274,8 @@ export const little_lion_man: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lLJf9qJHR3E' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/mumford-sons.webp',
+  artistImageRef: '/artists/svg/mumford-and-sons.webp',
   popularity: 50,
 };

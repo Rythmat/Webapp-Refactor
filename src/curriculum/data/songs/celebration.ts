@@ -296,8 +296,8 @@ export const celebration: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3GwjfUFyY6M' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/kool-and-the-gang.webp',
+  artistImageRef: '/artists/svg/kool-and-the-gang.webp',
   popularity: 50,
 };

@@ -401,8 +401,8 @@ export const youve_got_a_friend_king: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2ZI3kLrHK80' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/james-taylor.webp',
+  artistImageRef: '/artists/svg/james-taylor.webp',
   popularity: 50,
 };

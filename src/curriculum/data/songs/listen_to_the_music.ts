@@ -230,8 +230,8 @@ export const listen_to_the_music: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nbVE-1rHyVY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/doobie-brothers.webp',
+  artistImageRef: '/artists/svg/the-doobie-brothers.webp',
   popularity: 50,
 };

@@ -198,8 +198,8 @@ export const forget_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bKxodgpyGec' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/ceelo-green.webp',
+  artistImageRef: '/artists/svg/ceelo-green.webp',
   popularity: 50,
 };

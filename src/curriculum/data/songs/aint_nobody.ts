@@ -651,6 +651,6 @@ export const aint_nobody: Song = {
   ],
   artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chaka-khan.webp',
+  artistImageRef: '/artists/svg/rufus-and-chaka-khan.webp',
   popularity: 50,
 };

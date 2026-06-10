@@ -183,8 +183,8 @@ export const lonely_boy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=a_426RiwST8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-black-keys.webp',
+  artistImageRef: '/artists/svg/the-black-keys.webp',
   popularity: 50,
 };

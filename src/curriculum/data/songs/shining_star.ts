@@ -128,8 +128,8 @@ export const shining_star: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Zu9a29UR2dU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/earth-wind-and-fire.webp',
+  artistImageRef: '/artists/svg/earth-wind-and-fire.webp',
   popularity: 50,
 };

@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const listening_wind: Song = {
   id: 'listening_wind',
   title: 'Listening Wind',
-  artist: 'Remind In Light',
+  artist: 'Talking Heads',
   year: undefined,
 
   historicalDescription:
@@ -82,8 +82,8 @@ export const listening_wind: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RjWej8fOdR8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/remind-in-light.webp',
+  artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
 };

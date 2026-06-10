@@ -752,8 +752,8 @@ export const dont_you_worry_bout_a_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mMTkujnftIs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

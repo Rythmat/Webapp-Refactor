@@ -346,8 +346,8 @@ export const any_man_of_mine: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8N2k-gv6xNE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/shania-twain.webp',
+  artistImageRef: '/artists/svg/shania-twain.webp',
   popularity: 50,
 };

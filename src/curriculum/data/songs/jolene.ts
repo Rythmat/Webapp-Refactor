@@ -354,8 +354,8 @@ export const jolene: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Ixrje2rXLMA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/dolly-parton.webp',
+  artistImageRef: '/artists/svg/dolly-parton.webp',
   popularity: 50,
 };

@@ -212,8 +212,8 @@ export const lay_down_sally: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=9BYyPok2O5k' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/eric-clapton.webp',
+  artistImageRef: '/artists/svg/eric-clapton.webp',
   popularity: 50,
 };

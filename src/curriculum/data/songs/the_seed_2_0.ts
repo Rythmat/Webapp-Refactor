@@ -720,8 +720,8 @@ export const the_seed_2_0: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ojC0mg2hJCc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-roots.webp',
+  artistImageRef: '/artists/svg/the-roots.webp',
   popularity: 50,
 };

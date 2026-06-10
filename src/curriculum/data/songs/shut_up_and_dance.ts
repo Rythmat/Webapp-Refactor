@@ -479,8 +479,8 @@ export const shut_up_and_dance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6JCLY0Rlx6Q' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/walk-the-moon.webp',
+  artistImageRef: '/artists/svg/walk-the-moon.webp',
   popularity: 50,
 };

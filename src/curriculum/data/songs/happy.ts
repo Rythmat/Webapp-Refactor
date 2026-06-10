@@ -224,8 +224,8 @@ export const happy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZbZSe6N_BXs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/pharrell-williams.webp',
+  artistImageRef: '/artists/svg/pharrell-williams.webp',
   popularity: 50,
 };

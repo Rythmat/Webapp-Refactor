@@ -133,8 +133,8 @@ export const havana: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BQ0mxQXmLsk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/camila-cabello.webp',
+  artistImageRef: '/artists/svg/camila-cabello.webp',
   popularity: 50,
 };

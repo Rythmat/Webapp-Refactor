@@ -272,8 +272,8 @@ export const friends_in_low_places: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=b7P97b64Q5E' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/garth-brooks.webp',
+  artistImageRef: '/artists/svg/garth-brooks.webp',
   popularity: 50,
 };

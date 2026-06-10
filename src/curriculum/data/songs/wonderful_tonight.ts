@@ -336,8 +336,8 @@ export const wonderful_tonight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=UprwkbzUX6g' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/eric-clapton.webp',
+  artistImageRef: '/artists/svg/eric-clapton.webp',
   popularity: 50,
 };

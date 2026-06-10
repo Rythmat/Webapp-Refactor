@@ -48,8 +48,8 @@ export const wagon_wheel: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1gX1EP6mG-E' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/darius-rucker-old-crow-medicine-show.webp',
+  artistImageRef: '/artists/svg/old-crow-medicine-show.webp',
   popularity: 50,
 };

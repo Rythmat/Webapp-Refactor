@@ -96,6 +96,6 @@ export const twist_and_shout: Song = {
   ],
   artistImageSource: 'manual',
 
-  artistImageRef: '/artists/beatles.webp',
+  artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
 };

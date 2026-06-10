@@ -115,8 +115,8 @@ export const let_the_music_take_your_mind: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iJfKHFrpfzw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/kool-and-the-gang.webp',
+  artistImageRef: '/artists/svg/kool-and-the-gang.webp',
   popularity: 50,
 };

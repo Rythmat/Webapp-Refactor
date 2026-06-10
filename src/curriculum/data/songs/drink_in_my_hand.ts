@@ -336,8 +336,8 @@ export const drink_in_my_hand: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=usGv0gB2zEU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/eric-church.webp',
+  artistImageRef: '/artists/svg/eric-church.webp',
   popularity: 50,
 };

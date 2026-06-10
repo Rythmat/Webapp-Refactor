@@ -191,8 +191,8 @@ export const crazy_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=OIaKy1vM9hs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/van-morrison.webp',
+  artistImageRef: '/artists/svg/van-morrison.webp',
   popularity: 50,
 };

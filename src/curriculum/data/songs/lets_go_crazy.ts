@@ -325,8 +325,8 @@ export const lets_go_crazy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aXJhDltzYVQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/prince.webp',
+  artistImageRef: '/artists/svg/prince.webp',
   popularity: 50,
 };

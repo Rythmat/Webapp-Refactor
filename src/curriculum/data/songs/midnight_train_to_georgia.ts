@@ -489,8 +489,8 @@ export const midnight_train_to_georgia: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=A0F9lh8TiSM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/gladys-knight-and-the-pips.webp',
+  artistImageRef: '/artists/svg/gladys-knight-and-the-pips.webp',
   popularity: 50,
 };

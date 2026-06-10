@@ -363,8 +363,8 @@ export const power_of_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wBl2QGAIx1s' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/huey-lewis-and-the-news.webp',
+  artistImageRef: '/artists/svg/huey-lewis-and-the-news.webp',
   popularity: 50,
 };

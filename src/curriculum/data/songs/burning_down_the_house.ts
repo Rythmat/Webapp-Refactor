@@ -179,8 +179,8 @@ export const burning_down_the_house: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_3eC35LoF4U' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/talking-heads.webp',
+  artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
 };

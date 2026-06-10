@@ -309,8 +309,8 @@ export const with_a_little_help_from_my_friends: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=eXV4WyQMHFM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/joe-cocker.webp',
+  artistImageRef: '/artists/svg/joe-cocker.webp',
   popularity: 50,
 };

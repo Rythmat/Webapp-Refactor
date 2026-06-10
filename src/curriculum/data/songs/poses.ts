@@ -433,8 +433,8 @@ export const poses: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=T4ChJ0_wGxY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/rufus-wainwright.webp',
+  artistImageRef: '/artists/svg/rufus-wainwright.webp',
   popularity: 50,
 };

@@ -49,8 +49,8 @@ export const pony: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lbnoG2dsUk0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/ginuwine.webp',
+  artistImageRef: '/artists/svg/ginuwine.webp',
   popularity: 50,
 };

@@ -116,8 +116,8 @@ export const on_amp_on: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NyTQOQLy8Us' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/erykah-badu.webp',
+  artistImageRef: '/artists/svg/erykah-badu.webp',
   popularity: 50,
 };

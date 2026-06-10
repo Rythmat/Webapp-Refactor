@@ -522,8 +522,8 @@ export const saving_all_my_love_for_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ewxmv2tyeRs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/whitney-houston.webp',
+  artistImageRef: '/artists/svg/whitney-houston.webp',
   popularity: 50,
 };

@@ -269,8 +269,8 @@ export const black_or_white: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=F2AitTPI5U0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/michael-jackson.webp',
+  artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
 };

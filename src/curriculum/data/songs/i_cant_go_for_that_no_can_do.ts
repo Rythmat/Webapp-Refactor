@@ -212,8 +212,8 @@ export const i_cant_go_for_that_no_can_do: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ccenFp_3kq8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/hall-and-oates.webp',
+  artistImageRef: '/artists/svg/hall-and-oates.webp',
   popularity: 50,
 };

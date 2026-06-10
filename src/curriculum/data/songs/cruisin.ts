@@ -145,8 +145,8 @@ export const cruisin: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Gx77P0VH6FA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/smokey-robinson.webp',
+  artistImageRef: '/artists/svg/smokey-robinson.webp',
   popularity: 50,
 };

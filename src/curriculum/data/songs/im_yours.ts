@@ -121,8 +121,8 @@ export const im_yours: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=EkHTsc9PU2A' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jason-mraz.webp',
+  artistImageRef: '/artists/svg/jason-mraz.webp',
   popularity: 50,
 };

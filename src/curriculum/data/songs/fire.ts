@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const fire: Song = {
   id: 'fire',
   title: 'Fire',
-  artist: 'Jimmy Hendrix',
+  artist: 'Jimi Hendrix',
   year: undefined,
 
   historicalDescription:
@@ -214,8 +214,8 @@ export const fire: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=9-2m07d2Neo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jimmy-hendrix.webp',
+  artistImageRef: '/artists/svg/jimi-hendrix.webp',
   popularity: 50,
 };

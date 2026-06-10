@@ -327,8 +327,8 @@ export const graceland: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GP6a-7MP91g' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/paul-simon.webp',
+  artistImageRef: '/artists/svg/paul-simon.webp',
   popularity: 50,
 };

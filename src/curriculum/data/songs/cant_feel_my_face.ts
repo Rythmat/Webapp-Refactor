@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const cant_feel_my_face: Song = {
   id: 'cant_feel_my_face',
   title: "Can't Feel My Face",
-  artist: 'The Weekend',
+  artist: 'The Weeknd',
   year: undefined,
 
   historicalDescription:
@@ -98,8 +98,8 @@ export const cant_feel_my_face: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=KEI4qSrkPAs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-weekend.webp',
+  artistImageRef: '/artists/svg/the-weeknd.webp',
   popularity: 50,
 };

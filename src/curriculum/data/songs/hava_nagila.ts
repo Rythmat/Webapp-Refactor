@@ -201,8 +201,8 @@ export const hava_nagila: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=vHSNZK4Je-Y' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/traditional.webp',
+  artistImageRef: '/artists/svg/hava-nagila.webp',
   popularity: 50,
 };

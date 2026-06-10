@@ -175,8 +175,8 @@ export const im_a_believer: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5tpxXDILZHs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-monkees.webp',
+  artistImageRef: '/artists/svg/the-monkees.webp',
   popularity: 50,
 };

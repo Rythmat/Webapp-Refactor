@@ -164,8 +164,8 @@ export const i_love_rock_n_roll: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wMsazR6Tnf8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/joan-jett-amp-the-blackhearts.webp',
+  artistImageRef: '/artists/svg/joan-jett-the-blackhearts.webp',
   popularity: 50,
 };

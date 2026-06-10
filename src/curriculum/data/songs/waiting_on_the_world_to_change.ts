@@ -301,8 +301,8 @@ export const waiting_on_the_world_to_change: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oBIxScJ5rlY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/john-mayer.webp',
+  artistImageRef: '/artists/svg/john-mayer.webp',
   popularity: 50,
 };

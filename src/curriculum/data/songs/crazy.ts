@@ -182,8 +182,8 @@ export const crazy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=-N4jf6rtyuw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/gnarls-barkley.webp',
+  artistImageRef: '/artists/svg/gnarls-barkley.webp',
   popularity: 50,
 };

@@ -220,8 +220,8 @@ export const flowers_on_the_wall: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=W6DmeR9a6ig' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-statler-brothers.webp',
+  artistImageRef: '/artists/svg/the-statler-brothers.webp',
   popularity: 50,
 };

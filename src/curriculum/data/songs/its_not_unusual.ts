@@ -369,8 +369,8 @@ export const its_not_unusual: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=k-HdGnzYdFQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tom-jones.webp',
+  artistImageRef: '/artists/svg/tom-jones.webp',
   popularity: 50,
 };

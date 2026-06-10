@@ -5,5 +5,9 @@ export default {
   darkMode: ['class'],
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: theme,
-  plugins: [require('@tailwindcss/typography'), require('tailwindcss-animate')],
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('tailwindcss-animate'),
+    require('@tailwindcss/container-queries'),
+  ],
 };

@@ -118,6 +118,7 @@
     "@flasd/no-hats": "1.0.3",
     "@flasd/pretty-package": "1.0.3",
     "@flasd/stay-fresh": "2.0.2",
+    "@tailwindcss/container-queries": "0.1.1",
     "@tailwindcss/typography": "0.5.15",
     "@types/geojson": "7946.0.16",
     "@types/jsonwebtoken": "9.0.10",

@@ -573,8 +573,8 @@ export const i_kissed_a_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tAp9BKosZXs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/katy-perry.webp',
+  artistImageRef: '/artists/svg/katy-perry.webp',
   popularity: 50,
 };

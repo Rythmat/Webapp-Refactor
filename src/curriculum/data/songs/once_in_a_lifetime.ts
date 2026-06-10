@@ -35,8 +35,8 @@ export const once_in_a_lifetime: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5IsSpAOD6K8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/talking-heads.webp',
+  artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
 };

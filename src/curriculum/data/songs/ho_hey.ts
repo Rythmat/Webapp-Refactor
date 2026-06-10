@@ -253,8 +253,8 @@ export const ho_hey: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=zvCBSSwgtg4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-lumineers.webp',
+  artistImageRef: '/artists/svg/the-lumineers.webp',
   popularity: 50,
 };

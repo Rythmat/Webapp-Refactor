@@ -215,8 +215,8 @@ export const the_loco_motion: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=eKpVQm41f8Y' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/little-eva.webp',
+  artistImageRef: '/artists/svg/little-eva.webp',
   popularity: 50,
 };

@@ -106,8 +106,8 @@ export const sneakin_sally_through_the_alley: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=W4q9_XlsU3Y' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/robert-palmer.webp',
+  artistImageRef: '/artists/svg/robert-palmer.webp',
   popularity: 50,
 };

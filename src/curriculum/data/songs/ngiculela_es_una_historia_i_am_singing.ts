@@ -262,6 +262,6 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
   ],
   artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

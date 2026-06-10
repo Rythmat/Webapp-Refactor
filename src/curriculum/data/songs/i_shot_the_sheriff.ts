@@ -317,8 +317,8 @@ export const i_shot_the_sheriff: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=zGO8HN1QQdI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bob-marley.webp',
+  artistImageRef: '/artists/svg/bob-marley.webp',
   popularity: 50,
 };

@@ -651,8 +651,8 @@ export const paranoid_android: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fHiGbolFFGw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/radiohead.webp',
+  artistImageRef: '/artists/svg/radiohead.webp',
   popularity: 50,
 };

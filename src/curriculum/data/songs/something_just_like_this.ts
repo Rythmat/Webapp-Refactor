@@ -375,8 +375,8 @@ export const something_just_like_this: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FM7MFYoylVs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-chainsmokers-and-coldplay.webp',
+  artistImageRef: '/artists/svg/the-chainsmokers.webp',
   popularity: 50,
 };

@@ -349,8 +349,8 @@ export const boogie_oogie_oogie: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=y9IYWwWnpuA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/taste-of-honey.webp',
+  artistImageRef: '/artists/svg/taste-of-honey.webp',
   popularity: 50,
 };

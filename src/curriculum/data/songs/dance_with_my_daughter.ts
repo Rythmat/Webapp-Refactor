@@ -196,8 +196,8 @@ export const dance_with_my_daughter: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=7q-stqFU5RA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jason-blaine.webp',
+  artistImageRef: '/artists/svg/jason-blaine.webp',
   popularity: 50,
 };

@@ -230,8 +230,8 @@ export const will_you_love_me_tomorrow: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Dfmn9M6hXVI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

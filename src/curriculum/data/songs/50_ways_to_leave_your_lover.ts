@@ -289,8 +289,8 @@ export const _50_ways_to_leave_your_lover: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ABXtWqmArUU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/paul-simon.webp',
+  artistImageRef: '/artists/svg/paul-simon.webp',
   popularity: 50,
 };

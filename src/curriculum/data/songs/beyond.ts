@@ -366,8 +366,8 @@ export const beyond: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ELPOCJvDz3w' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/leon-bridges.webp',
+  artistImageRef: '/artists/svg/leon-bridges.webp',
   popularity: 50,
 };

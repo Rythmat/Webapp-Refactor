@@ -256,8 +256,8 @@ export const dancing_queen: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=xFrGuyw1V8s' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/abba.webp',
+  artistImageRef: '/artists/svg/abba.webp',
   popularity: 50,
 };

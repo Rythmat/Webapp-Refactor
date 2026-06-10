@@ -157,8 +157,8 @@ export const counting_stars: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hT_nvWreIhg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/one-republic.webp',
+  artistImageRef: '/artists/svg/one-republic.webp',
   popularity: 50,
 };

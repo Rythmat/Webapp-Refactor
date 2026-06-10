@@ -313,8 +313,8 @@ export const in_love_with_a_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3of_EN0XpxI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/gavin-degraw.webp',
+  artistImageRef: '/artists/svg/gavin-degraw.webp',
   popularity: 50,
 };

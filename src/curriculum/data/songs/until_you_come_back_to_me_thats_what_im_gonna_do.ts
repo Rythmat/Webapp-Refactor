@@ -245,8 +245,8 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Nbokg0KM-n8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/aretha-franklin.webp',
+  artistImageRef: '/artists/svg/aretha-franklin.webp',
   popularity: 50,
 };

@@ -172,8 +172,8 @@ export const village_ghetto_land: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Tk2R7pVWFVo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

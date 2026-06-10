@@ -50,8 +50,8 @@ export const stop_making_sense_girlfriend_is_better: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=9r7X3f2gFz4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/talking-heads.webp',
+  artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
 };

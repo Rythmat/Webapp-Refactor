@@ -559,8 +559,8 @@ export const feel_like_makin_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=SMuMMhfHaNw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/d-angelo.webp',
+  artistImageRef: '/artists/svg/d-angelo.webp',
   popularity: 50,
 };

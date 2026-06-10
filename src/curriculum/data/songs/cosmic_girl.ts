@@ -279,8 +279,8 @@ export const cosmic_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=D-NvQ6VJYtE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jamiroquai.webp',
+  artistImageRef: '/artists/svg/jamiroquai.webp',
   popularity: 50,
 };

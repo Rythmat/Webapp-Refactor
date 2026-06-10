@@ -305,8 +305,8 @@ export const ill_make_love_to_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fV8vB1BB2qc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/boyz-2-men.webp',
+  artistImageRef: '/artists/svg/boyz-ii-men.webp',
   popularity: 50,
 };

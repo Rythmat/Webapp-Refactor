@@ -431,8 +431,8 @@ export const hallelujah_i_love_her_so: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=v-JsqKlVVGk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/ray-charles.webp',
+  artistImageRef: '/artists/svg/ray-charles.webp',
   popularity: 50,
 };

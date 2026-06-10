@@ -207,8 +207,8 @@ export const brick_house: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZdJmXeod0RE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-commodores.webp',
+  artistImageRef: '/artists/svg/the-commodores.webp',
   popularity: 50,
 };

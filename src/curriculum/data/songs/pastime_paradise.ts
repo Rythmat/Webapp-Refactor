@@ -261,8 +261,8 @@ export const pastime_paradise: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_H3Sv2zad6s' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

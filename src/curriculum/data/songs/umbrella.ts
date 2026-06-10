@@ -205,8 +205,8 @@ export const umbrella: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CvBfHwUxHIk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/rihanna.webp',
+  artistImageRef: '/artists/svg/rihanna.webp',
   popularity: 50,
 };

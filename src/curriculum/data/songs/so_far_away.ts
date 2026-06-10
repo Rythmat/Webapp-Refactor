@@ -346,8 +346,8 @@ export const so_far_away: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=UofYl3dataU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

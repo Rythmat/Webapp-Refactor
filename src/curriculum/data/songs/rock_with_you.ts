@@ -372,8 +372,8 @@ export const rock_with_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5X-Mrc2l1d0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/michael-jackson.webp',
+  artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
 };

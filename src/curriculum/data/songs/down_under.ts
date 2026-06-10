@@ -327,8 +327,8 @@ export const down_under: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XfR9iY5y94s' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/men-at-work.webp',
+  artistImageRef: '/artists/svg/men-at-work.webp',
   popularity: 50,
 };

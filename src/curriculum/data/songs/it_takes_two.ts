@@ -398,8 +398,8 @@ export const it_takes_two: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=phOW-CZJWT0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/rob-base-and-e-z-rock.webp',
+  artistImageRef: '/artists/svg/rob-base-and-e-z-rock.webp',
   popularity: 50,
 };

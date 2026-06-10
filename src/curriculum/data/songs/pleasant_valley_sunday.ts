@@ -329,8 +329,8 @@ export const pleasant_valley_sunday: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lDBPq_9hKqE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-monkees.webp',
+  artistImageRef: '/artists/svg/the-monkees.webp',
   popularity: 50,
 };

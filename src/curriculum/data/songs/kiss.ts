@@ -164,8 +164,8 @@ export const kiss: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=H9tEvfIsDyo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/prince.webp',
+  artistImageRef: '/artists/svg/prince.webp',
   popularity: 50,
 };

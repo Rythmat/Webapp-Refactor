@@ -144,8 +144,8 @@ export const all_the_small_things: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=9Ht5RZpzPqw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/blink-182.webp',
+  artistImageRef: '/artists/svg/blink-182.webp',
   popularity: 50,
 };

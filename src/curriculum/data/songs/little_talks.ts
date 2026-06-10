@@ -370,8 +370,8 @@ export const little_talks: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ghb6eDopW8I' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/of-monsters-and-men.webp',
+  artistImageRef: '/artists/svg/of-monsters-and-men.webp',
   popularity: 50,
 };

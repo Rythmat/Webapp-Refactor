@@ -165,8 +165,8 @@ export const just_one_kiss: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NNw_IpH1Imc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/raphael-saadiq.webp',
+  artistImageRef: '/artists/svg/raphael-saadiq.webp',
   popularity: 50,
 };

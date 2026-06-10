@@ -366,8 +366,8 @@ export const kiss_from_a_rose: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hDd2G_V1rzc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/seal.webp',
+  artistImageRef: '/artists/svg/seal.webp',
   popularity: 50,
 };

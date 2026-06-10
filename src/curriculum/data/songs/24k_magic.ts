@@ -422,8 +422,8 @@ export const _24k_magic: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=UqyT8IEBkvY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bruno-mars.webp',
+  artistImageRef: '/artists/svg/bruno-mars.webp',
   popularity: 50,
 };

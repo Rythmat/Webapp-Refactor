@@ -107,8 +107,8 @@ export const move_on_up: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=A9RMr9KuVZo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/curtis-mayfield.webp',
+  artistImageRef: '/artists/svg/curtis-mayfield.webp',
   popularity: 50,
 };

@@ -120,8 +120,8 @@ export const i_cant_help_myself_sugar_pie_honey_bunch: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=s3bksUSPB4c' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/four-tops.webp',
+  artistImageRef: '/artists/svg/four-tops.webp',
   popularity: 50,
 };

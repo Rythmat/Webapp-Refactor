@@ -565,8 +565,8 @@ export const september: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Gs069dndIYk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/earth-wind-and-fire.webp',
+  artistImageRef: '/artists/svg/earth-wind-and-fire.webp',
   popularity: 50,
 };

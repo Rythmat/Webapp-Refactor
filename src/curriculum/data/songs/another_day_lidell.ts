@@ -172,8 +172,8 @@ export const another_day_lidell: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hhoiwDLVTnE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/paul-mccartney.webp',
+  artistImageRef: '/artists/svg/paul-mccartney.webp',
   popularity: 50,
 };

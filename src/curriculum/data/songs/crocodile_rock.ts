@@ -139,8 +139,8 @@ export const crocodile_rock: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=75r0nQu-hMs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/elton-john.webp',
+  artistImageRef: '/artists/svg/elton-john.webp',
   popularity: 50,
 };

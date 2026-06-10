@@ -378,8 +378,8 @@ export const its_too_late: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=VkKxmnrRVHo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

@@ -279,17 +279,42 @@
   }
 }
 
-.dashboard-root .area-banner    { grid-area: banner; position: relative; min-width: 0; height: var(--dash-banner-h); }
-.dashboard-root .area-quickstart{ grid-area: quickstart; min-width: 0; }
-.dashboard-root .area-featured  { grid-area: featured; min-width: 0; }
-.dashboard-root .area-calendar  { grid-area: calendar; min-width: 0; min-height: 0; }
-.dashboard-root .area-recent    { grid-area: recent; min-width: 0; min-height: 0; }
-.dashboard-root .area-challenges{ grid-area: challenges; min-width: 0; min-height: 0; }
+.dashboard-root .area-banner {
+  grid-area: banner;
+  position: relative;
+  min-width: 0;
+  height: var(--dash-banner-h);
+}
+.dashboard-root .area-quickstart {
+  grid-area: quickstart;
+  min-width: 0;
+}
+.dashboard-root .area-featured {
+  grid-area: featured;
+  min-width: 0;
+}
+.dashboard-root .area-calendar {
+  grid-area: calendar;
+  min-width: 0;
+  min-height: 0;
+}
+.dashboard-root .area-recent {
+  grid-area: recent;
+  min-width: 0;
+  min-height: 0;
+}
+.dashboard-root .area-challenges {
+  grid-area: challenges;
+  min-width: 0;
+  min-height: 0;
+}
 
 @media (min-width: 1024px) {
   /* At lg+, banner row is sized by grid template (minmax(420px, 3fr));
      unset the explicit height so the banner fills the row. */
-  .dashboard-root .area-banner { height: auto; }
+  .dashboard-root .area-banner {
+    height: auto;
+  }
 }
 
 /* ── Scrollbars ──────────────────────────────────────────────────────── */

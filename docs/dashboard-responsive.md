@@ -20,11 +20,11 @@ The dashboard itself does NOT manage scroll — the parent `<main>` wrapper at `
 
 Driven by viewport breakpoints (Tailwind defaults):
 
-| Regime | Viewport | Grid template |
-|---|---|---|
-| **compact** | < md (640–768 px) | 1 column: banner → quickstart → featured → calendar → recent → challenges (vertical stack) |
+| Regime          | Viewport              | Grid template                                                                                                              |
+| --------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **compact**     | < md (640–768 px)     | 1 column: banner → quickstart → featured → calendar → recent → challenges (vertical stack)                                 |
 | **comfortable** | md ≤ lg (768–1024 px) | 2 columns: banner spans both → quickstart + featured side by side → calendar spans both → recent + challenges side by side |
-| **expansive** | ≥ lg (1024+ px) | 3 columns: banner spans all (with QuickStart + Featured as absolute overlays) → calendar + recent + challenges |
+| **expansive**   | ≥ lg (1024+ px)       | 3 columns: banner spans all (with QuickStart + Featured as absolute overlays) → calendar + recent + challenges             |
 
 Implemented as `grid-template-areas` with Tailwind responsive variants.
 
@@ -34,12 +34,12 @@ Defined on the dashboard root, consumed by cards. Keeps "spacing magic numbers" 
 
 ```css
 .dashboard {
-  --dash-card-pad:   clamp(0.85rem, 1.3vw, 1.5rem);
-  --dash-card-gap:   clamp(0.75rem, 1.3vw, 1.5rem);
-  --dash-banner-h:   clamp(200px, 32vh, 380px);   /* compact + comfortable */
-  --dash-card-min-h: 280px;                        /* expansive — protects against squeeze */
-  --dash-icon-sz:    clamp(0.95rem, 1.25vw, 1.15rem);
-  --dash-label-fz:   clamp(0.75rem, 1.05vw, 1rem);
+  --dash-card-pad: clamp(0.85rem, 1.3vw, 1.5rem);
+  --dash-card-gap: clamp(0.75rem, 1.3vw, 1.5rem);
+  --dash-banner-h: clamp(200px, 32vh, 380px); /* compact + comfortable */
+  --dash-card-min-h: 280px; /* expansive — protects against squeeze */
+  --dash-icon-sz: clamp(0.95rem, 1.25vw, 1.15rem);
+  --dash-label-fz: clamp(0.75rem, 1.05vw, 1rem);
 }
 ```
 
@@ -52,12 +52,16 @@ The dashboard intentionally has **no max-width cap** — components stretch to f
 [src/components/ui/CardShell.tsx](../src/components/ui/CardShell.tsx) — every dashboard card uses it.
 
 ```tsx
-<CardShell header={<HeaderRow icon={Clock} title="May 2026" />} containerName="card">
+<CardShell
+  header={<HeaderRow icon={Clock} title="May 2026" />}
+  containerName="card"
+>
   {/* body — scrolls internally if it exceeds available height */}
 </CardShell>
 ```
 
 What it provides:
+
 - Glass-panel chrome with rounded corners.
 - Sticky header row inside the rounded boundary.
 - Body region wrapped in Radix `<ScrollArea>` — touch + keyboard + RTL + scrollbar styling handled.
@@ -68,6 +72,7 @@ What it provides:
 ## Why container queries (not viewport queries) for cards
 
 A card 25% as wide as the dashboard could be:
+
 - 400 px wide on a 1600 px wide dashboard
 - 200 px wide on an 800 px wide dashboard
 
@@ -124,7 +129,9 @@ for (const w of WIDTHS) {
   test(`dashboard @ ${w}px`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: 900 });
     await page.goto('http://localhost:5179/');
-    await expect(page).toHaveScreenshot(`dashboard-${w}.png`, { maxDiffPixelRatio: 0.001 });
+    await expect(page).toHaveScreenshot(`dashboard-${w}.png`, {
+      maxDiffPixelRatio: 0.001,
+    });
   });
 }
 ```

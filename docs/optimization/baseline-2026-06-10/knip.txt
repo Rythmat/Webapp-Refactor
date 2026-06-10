@@ -1,0 +1,1152 @@
+Unused files (219)
+src/audio/noteUtils.ts                                                    
+src/components/atlas/components/UI/index.ts                               
+src/components/atlas/components/UI/Sidebar.tsx                            
+src/components/atlas/components/UI/Timeline.tsx                           
+src/components/ClassroomLayout/dashboard/assistant/AssistantCard.tsx      
+src/components/ClassroomLayout/dashboard/assistant/types.ts               
+src/components/ClassroomLayout/dashboard/assistant/useAssistantMatcher.ts 
+src/components/ClassroomLayout/dashboard/assistant/useSpeechRecognition.ts
+src/components/ClassroomLayout/GenrePicker.tsx                            
+src/components/ClassroomLayout/KeyPicker.tsx                              
+src/components/ClassroomLayout/TempoPicker.tsx                            
+src/components/Games/ChordPressKeyboard.tsx                               
+src/components/Games/content/index.ts                                     
+src/components/Games/content/progressionSelector.ts                       
+src/components/Games/content/rhythmSelector.ts                            
+src/components/Games/ContourTrace/index.ts                                
+src/components/Games/ContourTrace/StarsCanvasDemo.tsx                     
+src/components/Games/ContourTrace/TubesCursorDemo.tsx                     
+src/components/Games/FlowSelect.tsx                                       
+src/components/Games/GamePlayer.tsx                                       
+src/components/Games/GrooveLab/index.ts                                   
+src/components/Games/HarmonicStrings/index.ts                             
+src/components/Games/MajorArcanum/index.ts                                
+src/components/Games/scoring/difficultyEngine.ts                          
+src/components/Games/scoring/index.ts                                     
+src/components/Games/SignalFlow/index.ts                                  
+src/components/Games/SoundSpinner/index.ts                                
+src/components/Games/SoundSpinner/SoundSpinner.tsx                        
+src/components/Games/viz/index.ts                                         
+src/components/Games/viz/SpectrumCanvas.tsx                               
+src/components/Games/viz/useAnalyser.ts                                   
+src/components/Games/viz/WaveformCanvas.tsx                               
+src/components/Games/WaveSculptor/index.ts                                
+src/components/ImageComponent.tsx                                         
+src/components/JamRoom/PlayerStrip.tsx                                    
+src/components/NavMain.tsx                                                
+src/components/NavUser.tsx                                                
+src/components/PianoKeyboard/DragableDebugMidiKeyboard.tsx                
+src/components/PianoPlayerSkeleton.tsx                                    
+src/components/Profile/ExperienceWeekChart.tsx                            
+src/components/ui/alert-dialog.tsx                                        
+src/components/ui/breadcrumb.tsx                                          
+src/components/ui/checkbox.tsx                                            
+src/components/ui/collapsible.tsx                                         
+src/components/ui/color-picker.tsx                                        
+src/components/ui/context-menu.tsx                                        
+src/components/ui/HexagonPattern.tsx                                      
+src/components/ui/hover-card.tsx                                          
+src/components/ui/icons/chapters-icon.tsx                                 
+src/components/ui/icons/collections-icon.tsx                              
+src/components/ui/icons/delete-icon.tsx                                   
+src/components/ui/icons/edit-icon.tsx                                     
+src/components/ui/icons/home-icon.tsx                                     
+src/components/ui/icons/market-icon.tsx                                   
+src/components/ui/icons/note-icon.tsx                                     
+src/components/ui/icons/play-along-icon.tsx                               
+src/components/ui/icons/play-icon.tsx                                     
+src/components/ui/icons/rhythm-icon.tsx                                   
+src/components/ui/icons/student-icon.tsx                                  
+src/components/ui/icons/teacher-icon.tsx                                  
+src/components/ui/lightbox-dialog.tsx                                     
+src/components/ui/progress.tsx                                            
+src/components/ui/radio-group.tsx                                         
+src/components/ui/tabs.tsx                                                
+src/components/ui/toggle-group.tsx                                        
+src/components/ui/toggle.tsx                                              
+src/components/ui/use-toast.ts                                            
+src/components/UpgradeModal.tsx                                           
+src/components/useMarkdownComponents.tsx                                  
+src/components/utils/audio.ts                                             
+src/components/utils/ScrollToTop.tsx                                      
+src/contexts/AuthContext/decodeToken.ts                                   
+src/contexts/AuthContext/hooks/useUserRole.ts                             
+src/curriculum/bridge/harmonyBridge.ts                                    
+src/curriculum/components/ActivityFlowPlayer.tsx                          
+src/curriculum/components/ActivityStep.tsx                                
+src/curriculum/components/ArtistCard.tsx                                  
+src/curriculum/components/AssessmentFeedback.tsx                          
+src/curriculum/components/CurriculumBrowser.tsx                           
+src/curriculum/components/GenreLevelPage.tsx                              
+src/curriculum/components/LiveFeedbackOverlay.tsx                         
+src/curriculum/components/OpenInStudioButton.tsx                          
+src/curriculum/components/PlayAlongPlayer.tsx                             
+src/curriculum/components/ProgressIndicator.tsx                           
+src/curriculum/components/ProgressMap.tsx                                 
+src/curriculum/components/SectionNav.tsx                                  
+src/curriculum/components/StyleDnaBrowser.tsx                             
+src/curriculum/components/VocabularyTable.tsx                             
+src/curriculum/data/activityFlows/african.ts                              
+src/curriculum/data/activityFlows/blues.ts                                
+src/curriculum/data/activityFlows/electronic.ts                           
+src/curriculum/data/activityFlows/folk.ts                                 
+src/curriculum/data/activityFlows/hipHop.ts                               
+src/curriculum/data/activityFlows/jamBand.ts                              
+src/curriculum/data/activityFlows/jazz.ts                                 
+src/curriculum/data/activityFlows/latin.ts                                
+src/curriculum/data/activityFlows/neoSoul.ts                              
+src/curriculum/data/activityFlows/pop.ts                                  
+src/curriculum/data/activityFlows/reggae.ts                               
+src/curriculum/data/activityFlows/rnb.ts                                  
+src/curriculum/data/activityFlows/rock.ts                                 
+src/curriculum/data/harmonyKB.backup.ts                                   
+src/curriculum/data/harmonyKBHelpers.ts                                   
+src/curriculum/data/loaders.ts                                            
+src/curriculum/data/songs/jack_amp_diane.ts                               
+src/curriculum/data/songs/on_amp_on.ts                                    
+src/curriculum/data/songs/suit_amp_tie.ts                                 
+src/curriculum/data/songs/thank_you.ts                                    
+src/curriculum/data/songs/this_must_be_the_place.ts                       
+src/curriculum/data/styleDna/african.ts                                   
+src/curriculum/data/styleDna/blues.ts                                     
+src/curriculum/data/styleDna/electronic.ts                                
+src/curriculum/data/styleDna/folk.ts                                      
+src/curriculum/data/styleDna/funk.ts                                      
+src/curriculum/data/styleDna/funk.v2.ts                                   
+src/curriculum/data/styleDna/hipHop.ts                                    
+src/curriculum/data/styleDna/index.ts                                     
+src/curriculum/data/styleDna/jamBand.ts                                   
+src/curriculum/data/styleDna/jazz.ts                                      
+src/curriculum/data/styleDna/latin.ts                                     
+src/curriculum/data/styleDna/neoSoul.ts                                   
+src/curriculum/data/styleDna/pop.ts                                       
+src/curriculum/data/styleDna/reggae.ts                                    
+src/curriculum/data/styleDna/rnb.ts                                       
+src/curriculum/data/styleDna/rock.ts                                      
+src/curriculum/data/styleDna/types.ts                                     
+src/curriculum/data/styleDna/types.v2.ts                                  
+src/curriculum/engine/audioAssessmentBridge.ts                            
+src/curriculum/engine/genreGeneration/enharmonicEngine.ts                 
+src/curriculum/engine/genreGeneration/index.ts                            
+src/curriculum/engine/genreGeneration/scaleRegistry.ts                    
+src/curriculum/engine/genreGeneration/voiceLeading.ts                     
+src/curriculum/hooks/useActivityFlow.ts                                   
+src/curriculum/hooks/useContinuousFeedback.ts                             
+src/curriculum/hooks/useCurriculum.ts                                     
+src/curriculum/hooks/useCurriculumAssignment.ts                           
+src/curriculum/hooks/useCurriculumNavigation.ts                           
+src/curriculum/hooks/useLiveFeedback.ts                                   
+src/curriculum/hooks/usePlayAlong.ts                                      
+src/curriculum/pages/CurriculumBrowserPage.tsx                            
+src/curriculum/pages/CurriculumLayout.tsx                                 
+src/curriculum/pages/GenreLevelPageRoute.tsx                              
+src/curriculum/songLibrary/contentRefResolver.ts                          
+src/curriculum/store/curriculumStore.ts                                   
+src/curriculum/types/contour.ts                                           
+src/curriculum/types/index.ts                                             
+src/curriculum/types/rhythm.ts                                            
+src/curriculum/types/styleDna.ts                                          
+src/curriculum/types/voicing.ts                                           
+src/daw/audio/pedals/DelayPedal.ts                                        
+src/daw/audio/pedals/ReverbPedal.ts                                       
+src/daw/audio/VocalProcessingChain.ts                                     
+src/daw/collab/server/auth.ts                                             
+src/daw/collab/server/party.ts                                            
+src/daw/components/Controls/DrumKitSelector.tsx                           
+src/daw/components/Controls/NamModelBrowser.tsx                           
+src/daw/components/Effects/InfoPanel.tsx                                  
+src/daw/components/Mixer/ChannelStrip.tsx                                 
+src/daw/components/Mixer/MixerPanel.tsx                                   
+src/daw/components/OracleSynth/OracleSynthBridge.tsx                      
+src/daw/components/OracleSynth/OracleSynthPanel.tsx                       
+src/daw/components/Prism/PrismDrawer.tsx                                  
+src/daw/components/Prism/RootNoteSelector.tsx                             
+src/daw/components/StatusBar.tsx                                          
+src/daw/components/TrackControls/NewTrackModal.tsx                        
+src/daw/components/TrackControls/TrackList.tsx                            
+src/daw/components/ui/demo.tsx                                            
+src/daw/components/ui/minimal-dock.tsx                                    
+src/daw/data/sampleLibrary.ts                                             
+src/daw/hooks/useLiveUnisonAnalysis.ts                                    
+src/daw/hooks/useTrackSelection.ts                                        
+src/daw/oracle-synth/App.tsx                                              
+src/daw/oracle-synth/audio/index.ts                                       
+src/daw/oracle-synth/components/controls/Slider.tsx                       
+src/daw/oracle-synth/components/layout/SynthLayout.tsx                    
+src/daw/oracle-synth/hooks/useAudioEngine.ts                              
+src/daw/oracle-synth/hooks/useViewportScale.ts                            
+src/daw/oracle-synth/main.tsx                                             
+src/daw/oracle-synth/vite-env.d.ts                                        
+src/features/authentication/index.ts                                      
+src/features/authentication/RecoverPassword.tsx                           
+src/features/authentication/ResetPassword.tsx                             
+src/features/settings/SettingsPage.tsx                                    
+src/features/student/StudentProfilePage.tsx                               
+src/hooks/data/auth/useRecoverPassword.ts                                 
+src/hooks/data/auth/useResetPassword.ts                                   
+src/hooks/music/useMidi.ts                                                
+src/hooks/music/useMidiTracks.ts                                          
+src/hooks/use-mobile.tsx                                                  
+src/hooks/useComponentSize.ts                                             
+src/hooks/useCropImage.ts                                                 
+src/hooks/useDebounce.ts                                                  
+src/hooks/useMidiInput.ts                                                 
+src/hooks/useMidiKeyboard.ts                                              
+src/hooks/useSynth.ts                                                     
+src/layouts/DashboardLayout/ClassroomSidebar.tsx                          
+src/layouts/DashboardLayout/SidebarSocialLink.tsx                         
+src/layouts/PresentationLayout/index.ts                                   
+src/layouts/PresentationLayout/PresentationLayout.tsx                     
+src/layouts/StudentLayout/index.ts                                        
+src/layouts/StudentLayout/StudentLayout.tsx                               
+src/learn/audio/PianoCalibration.ts                                       
+src/learn/components/AudioFeedbackOverlay.tsx                             
+src/learn/components/AudioLevelMeter.tsx                                  
+src/learn/components/CalibrationWizard.tsx                                
+src/learn/components/InputStatusIndicator.tsx                             
+src/lib/mood-mappings.ts                                                  
+src/lib/promptParser.ts                                                   
+src/telemetry/hooks/useTelemetryApi.ts                                    
+src/telemetry/index.ts                                                    
+src/types/external-modules.d.ts                                           
+src/types/index.ts                                                        
+src/types/lamejs.d.ts                                                     
+src/unison/converters/index.ts                                            
+src/unison/engine/index.ts                                                
+src/unison/index.ts                                                       
+src/unison/types/index.ts                                                 
+src/util/audio.ts                                                         
+src/util/quickHash.ts                                                     
+Unused dependencies (28)
+@ffmpeg/ffmpeg                package.json:24:6 
+@ffmpeg/util                  package.json:25:6 
+@radix-ui/react-alert-dialog  package.json:27:6 
+@radix-ui/react-checkbox      package.json:29:6 
+@radix-ui/react-collapsible   package.json:30:6 
+@radix-ui/react-context-menu  package.json:31:6 
+@radix-ui/react-hover-card    package.json:34:6 
+@radix-ui/react-progress      package.json:38:6 
+@radix-ui/react-radio-group   package.json:39:6 
+@radix-ui/react-tabs          package.json:46:6 
+@radix-ui/react-toggle        package.json:48:6 
+@radix-ui/react-toggle-group  package.json:49:6 
+@uiw/react-md-editor          package.json:55:6 
+@upstash/redis                package.json:56:6 
+cuid                          package.json:63:6 
+jose                          package.json:68:6 
+jsonwebtoken                  package.json:69:6 
+jwt-decode                    package.json:70:6 
+lamejs                        package.json:71:6 
+object-hash                   package.json:77:6 
+partysocket                   package.json:78:6 
+react-diff-view               package.json:80:6 
+react-dnd                     package.json:81:6 
+react-dnd-html5-backend       package.json:82:6 
+react-draggable               package.json:84:6 
+react-dropzone                package.json:85:6 
+react-easy-crop               package.json:86:6 
+stripe                        package.json:103:6
+Unused devDependencies (17)
+@anthropic-ai/sdk            package.json:121:6
+@types/jsonwebtoken          package.json:128:6
+@types/object-hash           package.json:131:6
+@vercel/node                 package.json:139:6
+@vitejs/plugin-react         package.json:140:6
+@vitest/coverage-v8          package.json:142:6
+dependency-cruiser           package.json:145:6
+eslint-plugin-react-refresh  package.json:152:6
+globals                      package.json:155:6
+lint-staged                  package.json:159:6
+pdf-parse                    package.json:161:6
+pdfjs-dist                   package.json:162:6
+shadcn-theme-editor          package.json:166:6
+sharp                        package.json:167:6
+tesseract.js                 package.json:170:6
+typescript-eslint            package.json:173:6
+youtube-search-api           package.json:177:6
+Unused exports (555)
+getPianoSampler                                     src/audio/pianoSampler.ts:73:14                                     
+getPianoSamplerVolume                               src/audio/pianoSampler.ts:99:14                                     
+getConnectionsForEvent                   function   src/components/atlas/data/eventConnections.ts:5563:17               
+getArcsForEvent                          function   src/components/atlas/data/eventConnections.ts:5640:17               
+ALL_GENRES                                          src/components/atlas/data/events/index.ts:40:14                     
+COUNTRY_FLAG_COLORS                                 src/components/atlas/data/flagColors.ts:2:14                        
+STATE_FLAG_COLORS                                   src/components/atlas/data/flagColors.ts:429:14                      
+PROVINCE_FLAG_COLORS                                src/components/atlas/data/flagColors.ts:484:14                      
+SIDEBAR_ITEMS                                       src/components/atlas/data/index.ts:4:3                              
+CATEGORY_TABS                                       src/components/atlas/data/index.ts:5:3                              
+DECADES                                             src/components/atlas/data/index.ts:6:3                              
+ALL_GENRES                                          src/components/atlas/data/index.ts:9:25                             
+COUNTRY_FLAG_COLORS                                 src/components/atlas/data/index.ts:11:3                             
+STATE_FLAG_COLORS                                   src/components/atlas/data/index.ts:12:3                             
+PROVINCE_FLAG_COLORS                                src/components/atlas/data/index.ts:13:3                             
+getCountryColor                                     src/components/atlas/data/index.ts:16:10                            
+getContrastColor                                    src/components/atlas/data/index.ts:16:27                            
+getArcsForEvent                                     src/components/atlas/data/index.ts:18:3                             
+getConnectionsForEvent                              src/components/atlas/data/index.ts:19:3                             
+SIDEBAR_ITEMS                                       src/components/atlas/data/menuItems.ts:3:14                         
+CATEGORY_TABS                                       src/components/atlas/data/menuItems.ts:13:14                        
+DECADES                                             src/components/atlas/data/menuItems.ts:21:14                        
+ALL_GENRES                                          src/components/atlas/data/musicHistory.ts:5:25                      
+useMusicSearch                                      src/components/atlas/hooks/index.ts:3:10                            
+useAIAnalysis                                       src/components/atlas/hooks/index.ts:4:10                            
+courseToSlug                             function   src/components/atlas/utils/genreMapping.ts:649:17                   
+CircleOfFifthsSvg                                   src/components/common/CircleOfFifthsSvg.tsx:101:14                  
+GENRE_DISPLAY_LABELS                                src/components/common/CircleOfFifthsSvg.tsx:205:14                  
+NOTE_NAMES                                          src/components/common/CircleOfFifthsSvg.tsx:228:10                  
+pickRandomContours                       function   src/components/Games/content/contourSelector.ts:24:17               
+DIFFICULTY_MULTIPLIERS                              src/components/Games/scoring/scoringTypes.ts:23:14                  
+BASE_XP                                             src/components/Games/scoring/scoringTypes.ts:31:14                  
+HEX_SIZE                                            src/components/Games/SignalFlow/hexGrid.ts:4:14                     
+HEX_SPACING                                         src/components/Games/SignalFlow/hexGrid.ts:7:14                     
+VERT_DIST                                           src/components/Games/SignalFlow/hexGrid.ts:16:14                    
+HORIZ_DIST                                          src/components/Games/SignalFlow/hexGrid.ts:19:14                    
+GRID_ROWS                                           src/components/Games/SignalFlow/hexGrid.ts:22:14                    
+GRID_COLS                                           src/components/Games/SignalFlow/hexGrid.ts:23:14                    
+BOARD_OFFSET_X                                      src/components/Games/SignalFlow/hexGrid.ts:37:14                    
+BOARD_OFFSET_Y                                      src/components/Games/SignalFlow/hexGrid.ts:38:14                    
+snapToHex                                function   src/components/Games/SignalFlow/hexGrid.ts:75:17                    
+getHexNeighbors                          function   src/components/Games/SignalFlow/hexGrid.ts:96:17                    
+getHexVertices                           function   src/components/Games/SignalFlow/hexGrid.ts:185:17                   
+getEdgeMidpoint                          function   src/components/Games/SignalFlow/hexGrid.ts:198:17                   
+getExitEdge                              function   src/components/Games/SignalFlow/hexGrid.ts:212:17                   
+getDrumChannel                           function   src/components/JamRoom/jamSoundFont.ts:66:17                        
+releaseChannel                           function   src/components/JamRoom/jamSoundFont.ts:94:17                        
+isJamSynthReady                          function   src/components/JamRoom/jamSoundFont.ts:103:17                       
+qualityDisplayName                       function   src/components/learn/buildDiatonicChords.ts:60:17                   
+CHORD_SCALE_DATA                                    src/components/learn/chordScaleData.ts:1328:14                      
+COURSES_GENRE_OPTIONS                               src/components/learn/learnFilterOptions.ts:84:14                    
+LearnTabs                                           src/components/learn/LearnTabs.tsx:18:14                            
+NOTE_TO_PITCH_CLASS                                 src/components/learn/modeHelpers.ts:48:14                           
+buildPlaybackEvents                                 src/components/learn/modeHelpers.ts:103:14                          
+PARALLEL_MODES_CONTENT                              src/components/learn/parallelModeContent.ts:16:14                   
+SongLibraryPage                                     src/components/songLibrary/SongLibraryPage.tsx:566:14               
+AlertTitle                                          src/components/ui/alert.tsx:58:17                                   
+badgeVariants                                       src/components/ui/badge.tsx:35:17                                   
+buttonVariants                                      src/components/ui/button.tsx:58:18                                  
+CommandDialog                                       src/components/ui/command.tsx:143:3                                 
+CommandShortcut                                     src/components/ui/command.tsx:149:3                                 
+DialogPortal                                        src/components/ui/dialog.tsx:133:3                                  
+DialogOverlay                                       src/components/ui/dialog.tsx:134:3                                  
+DialogTrigger                                       src/components/ui/dialog.tsx:135:3                                  
+DropdownMenuCheckboxItem                            src/components/ui/dropdown-menu.tsx:191:3                           
+DropdownMenuRadioItem                               src/components/ui/dropdown-menu.tsx:192:3                           
+DropdownMenuShortcut                                src/components/ui/dropdown-menu.tsx:195:3                           
+DropdownMenuGroup                                   src/components/ui/dropdown-menu.tsx:196:3                           
+DropdownMenuPortal                                  src/components/ui/dropdown-menu.tsx:197:3                           
+DropdownMenuSub                                     src/components/ui/dropdown-menu.tsx:198:3                           
+DropdownMenuSubContent                              src/components/ui/dropdown-menu.tsx:199:3                           
+DropdownMenuSubTrigger                              src/components/ui/dropdown-menu.tsx:200:3                           
+DropdownMenuRadioGroup                              src/components/ui/dropdown-menu.tsx:201:3                           
+useFormField                                        src/components/ui/form.tsx:168:3                                    
+InputOTPSeparator                                   src/components/ui/input-otp.tsx:68:49                               
+InputAutosize                                       src/components/ui/input.tsx:55:17                                   
+PopoverAnchor                                       src/components/ui/popover.tsx:30:51                                 
+ScrollBar                                           src/components/ui/scroll-area.tsx:45:22                             
+SelectGroup                                         src/components/ui/select.tsx:152:3                                  
+SelectLabel                                         src/components/ui/select.tsx:156:3                                  
+SelectSeparator                                     src/components/ui/select.tsx:158:3                                  
+SelectScrollUpButton                                src/components/ui/select.tsx:159:3                                  
+SelectScrollDownButton                              src/components/ui/select.tsx:160:3                                  
+SheetPortal                                         src/components/ui/sheet.tsx:130:3                                   
+SheetOverlay                                        src/components/ui/sheet.tsx:131:3                                   
+SheetTrigger                                        src/components/ui/sheet.tsx:132:3                                   
+SheetClose                                          src/components/ui/sheet.tsx:133:3                                   
+SheetHeader                                         src/components/ui/sheet.tsx:135:3                                   
+SheetFooter                                         src/components/ui/sheet.tsx:136:3                                   
+SheetTitle                                          src/components/ui/sheet.tsx:137:3                                   
+SheetDescription                                    src/components/ui/sheet.tsx:138:3                                   
+Sidebar                                             src/components/ui/sidebar.tsx:747:3                                 
+SidebarContent                                      src/components/ui/sidebar.tsx:748:3                                 
+SidebarFooter                                       src/components/ui/sidebar.tsx:749:3                                 
+SidebarGroup                                        src/components/ui/sidebar.tsx:750:3                                 
+SidebarGroupAction                                  src/components/ui/sidebar.tsx:751:3                                 
+SidebarGroupContent                                 src/components/ui/sidebar.tsx:752:3                                 
+SidebarGroupLabel                                   src/components/ui/sidebar.tsx:753:3                                 
+SidebarHeader                                       src/components/ui/sidebar.tsx:754:3                                 
+SidebarInput                                        src/components/ui/sidebar.tsx:755:3                                 
+SidebarInset                                        src/components/ui/sidebar.tsx:756:3                                 
+SidebarMenu                                         src/components/ui/sidebar.tsx:757:3                                 
+SidebarMenuAction                                   src/components/ui/sidebar.tsx:758:3                                 
+SidebarMenuBadge                                    src/components/ui/sidebar.tsx:759:3                                 
+SidebarMenuButton                                   src/components/ui/sidebar.tsx:760:3                                 
+SidebarMenuItem                                     src/components/ui/sidebar.tsx:761:3                                 
+SidebarMenuSkeleton                                 src/components/ui/sidebar.tsx:762:3                                 
+SidebarMenuSub                                      src/components/ui/sidebar.tsx:763:3                                 
+SidebarMenuSubButton                                src/components/ui/sidebar.tsx:764:3                                 
+SidebarMenuSubItem                                  src/components/ui/sidebar.tsx:765:3                                 
+SidebarRail                                         src/components/ui/sidebar.tsx:767:3                                 
+SidebarSeparator                                    src/components/ui/sidebar.tsx:768:3                                 
+SidebarTrigger                                      src/components/ui/sidebar.tsx:769:3                                 
+useSidebar                                          src/components/ui/sidebar.tsx:770:3                                 
+TableFooter                                         src/components/ui/table.tsx:108:3                                   
+TableCaption                                        src/components/ui/table.tsx:112:3                                   
+textareaClassname                                   src/components/ui/textarea.tsx:10:14                                
+TextareaAutosize                                    src/components/ui/textarea.tsx:40:20                                
+ToastProvider                                       src/components/ui/toast.tsx:119:3                                   
+ToastViewport                                       src/components/ui/toast.tsx:120:3                                   
+Toast                                               src/components/ui/toast.tsx:121:3                                   
+ToastTitle                                          src/components/ui/toast.tsx:122:3                                   
+ToastDescription                                    src/components/ui/toast.tsx:123:3                                   
+ToastClose                                          src/components/ui/toast.tsx:124:3                                   
+ToastAction                                         src/components/ui/toast.tsx:125:3                                   
+TooltipArrow                                        src/components/ui/tooltip.tsx:36:3                                  
+showLoading                                         src/components/utils/toast.ts:15:14                                 
+dismissToast                                        src/components/utils/toast.ts:19:14                                 
+INVISIBLE_CHARACTER                                 src/constants/index.ts:1:14                                         
+PasswordMelody                                      src/constants/musicalConstants.ts:16:14                             
+ConfirmPasswordMelody                               src/constants/musicalConstants.ts:30:14                             
+WildcardRoute                                       src/constants/routes.ts:4:14                                        
+ExternalLinks                                       src/constants/routes.ts:212:14                                      
+useIsAuthenticated                                  src/contexts/AuthContext/hooks/useIsAuthenticated.ts:3:14           
+useIsAuthenticated                                  src/contexts/AuthContext/index.ts:2:10                              
+useSignInMutation                                   src/contexts/MusicAtlasContext/hooks/authentication/index.ts:1:10   
+useSignInMutation                                   …ts/MusicAtlasContext/hooks/authentication/useSignInMutation.ts:3:14
+useSignUpMutation                                   src/contexts/MusicAtlasContext/hooks/users/index.ts:1:10            
+useSignUpMutation                                   src/contexts/MusicAtlasContext/hooks/users/useSignUpMutation.ts:3:14
+Auth                                     namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:1137:18      
+Atlas                                    namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:1244:18      
+Billing                                  namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:1370:18      
+Stripe                                   namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:1432:18      
+Me                                       namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:1484:18      
+Admin                                    namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:1503:18      
+Telemetry                                namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:1700:18      
+Collections                              namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:1853:18      
+Teachers                                 namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:1936:18      
+Progress                                 namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:2074:18      
+Experience                               namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:2139:18      
+Students                                 namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:2203:18      
+Music                                    namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:2293:18      
+Studio                                   namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:2808:18      
+StudioProjects                           namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:2900:18      
+StudioAssets                             namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:3000:18      
+Rooms                                    namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:3051:18      
+Cron                                     namespace  src/contexts/MusicAtlasContext/musicAtlas.generated.ts:3150:18      
+useNavigationBreadcrumbs                            src/contexts/NavigationContext/index.ts:3:3                         
+useNavigationContext                                src/contexts/NavigationContext/index.ts:4:3                         
+useNavigationTitle                                  src/contexts/NavigationContext/index.ts:5:3                         
+useNavigationContext                                src/contexts/NavigationContext/NavigationContext.tsx:44:14          
+useNavigationBreadcrumbs                            src/contexts/NavigationContext/NavigationContext.tsx:48:14          
+useNavigationTitle                                  src/contexts/NavigationContext/NavigationContext.tsx:62:14          
+PianoContext                                        src/contexts/PianoContext.tsx:74:10                                 
+ticksToSeconds                                      src/contexts/PlaybackContext/helpers.ts:92:14                       
+getPositionCountFromStartByActiveEvents             src/contexts/PlaybackContext/helpers.ts:183:14                      
+PlaybackProvider                                    src/contexts/PlaybackContext/index.ts:1:10                          
+usePlayback                                         src/contexts/PlaybackContext/index.ts:2:10                          
+isMidiTrack                                         src/contexts/PlaybackContext/index.ts:5:3                           
+isPhraseMap                                         src/contexts/PlaybackContext/index.ts:6:3                           
+ticksToSeconds                                      src/contexts/PlaybackContext/index.ts:7:3                           
+parseMidi                                           src/contexts/PlaybackContext/index.ts:8:3                           
+parsePhraseMap                                      src/contexts/PlaybackContext/index.ts:9:3                           
+usePlayback                                         src/contexts/PlaybackContext/usePlayback/index.ts:1:10              
+usePlayback                                         src/contexts/PlaybackContext/usePlayback/usePlayback.ts:32:14       
+curriculumToEngineChordId                           src/curriculum/bridge/chordBridge.ts:17:10                          
+engineToCurriculumChordId                           src/curriculum/bridge/chordBridge.ts:17:37                          
+hasEngineEquivalent                      function   src/curriculum/bridge/chordBridge.ts:33:17                          
+hasCurriculumEquivalent                  function   src/curriculum/bridge/chordBridge.ts:40:17                          
+getOverlappingChordIds                   function   src/curriculum/bridge/chordBridge.ts:47:17                          
+curriculumToEngineGenre                             src/curriculum/bridge/genreBridge.ts:21:10                          
+engineToCurriculumGenre                             src/curriculum/bridge/genreBridge.ts:21:35                          
+slugToGenre                              function   src/curriculum/bridge/genreBridge.ts:35:17                          
+isDirectCurriculumGenre                  function   src/curriculum/bridge/genreBridge.ts:43:17                          
+isSubGenre                               function   src/curriculum/bridge/genreBridge.ts:51:17                          
+getAllCurriculumGenres                   function   src/curriculum/bridge/genreBridge.ts:58:17                          
+getAllGenreSlugs                         function   src/curriculum/bridge/genreBridge.ts:65:17                          
+curriculumToEngineScale                  function   src/curriculum/bridge/scaleBridge.ts:101:17                         
+validateScaleIntervals                   function   src/curriculum/bridge/scaleBridge.ts:111:17                         
+DUAL_STAFF_TIMELINE_HEIGHT                          src/curriculum/components/DualStaffPianoRoll.tsx:256:29             
+pitchNameToMidi                                     src/curriculum/components/GenrePianoRoll.tsx:117:14                 
+africanL1                                           src/curriculum/data/activityFlows/african_v2.ts:103:14              
+africanL2                                           src/curriculum/data/activityFlows/african_v2.ts:111:14              
+africanL3                                           src/curriculum/data/activityFlows/african_v2.ts:119:14              
+bluesL1                                             src/curriculum/data/activityFlows/blues_v2.ts:103:14                
+bluesL2                                             src/curriculum/data/activityFlows/blues_v2.ts:111:14                
+bluesL3                                             src/curriculum/data/activityFlows/blues_v2.ts:119:14                
+electronicL1                                        src/curriculum/data/activityFlows/electronic_v2.ts:103:14           
+electronicL2                                        src/curriculum/data/activityFlows/electronic_v2.ts:111:14           
+electronicL3                                        src/curriculum/data/activityFlows/electronic_v2.ts:119:14           
+folkL1                                              src/curriculum/data/activityFlows/folk_v2.ts:98:14                  
+folkL2                                              src/curriculum/data/activityFlows/folk_v2.ts:106:14                 
+folkL3                                              src/curriculum/data/activityFlows/folk_v2.ts:114:14                 
+hipHopL1                                            src/curriculum/data/activityFlows/hipHop_v2.ts:103:14               
+hipHopL2                                            src/curriculum/data/activityFlows/hipHop_v2.ts:111:14               
+hipHopL3                                            src/curriculum/data/activityFlows/hipHop_v2.ts:119:14               
+loadAfricanFlows                         function   src/curriculum/data/activityFlows/index.ts:17:23                    
+loadBluesFlows                           function   src/curriculum/data/activityFlows/index.ts:26:23                    
+loadElectronicFlows                      function   src/curriculum/data/activityFlows/index.ts:35:23                    
+loadFolkFlows                            function   src/curriculum/data/activityFlows/index.ts:44:23                    
+loadFunkFlows                            function   src/curriculum/data/activityFlows/index.ts:53:23                    
+loadHipHopFlows                          function   src/curriculum/data/activityFlows/index.ts:62:23                    
+loadJamBandFlows                         function   src/curriculum/data/activityFlows/index.ts:71:23                    
+loadJazzFlows                            function   src/curriculum/data/activityFlows/index.ts:80:23                    
+loadLatinFlows                           function   src/curriculum/data/activityFlows/index.ts:89:23                    
+loadNeoSoulFlows                         function   src/curriculum/data/activityFlows/index.ts:98:23                    
+loadPopFlows                             function   src/curriculum/data/activityFlows/index.ts:107:23                   
+loadReggaeFlows                          function   src/curriculum/data/activityFlows/index.ts:116:23                   
+loadRnbFlows                             function   src/curriculum/data/activityFlows/index.ts:125:23                   
+loadRockFlows                            function   src/curriculum/data/activityFlows/index.ts:134:23                   
+loadAllFlows                             function   src/curriculum/data/activityFlows/index.ts:152:23                   
+jamBandL1                                           src/curriculum/data/activityFlows/jamBand_v2.ts:103:14              
+jamBandL2                                           src/curriculum/data/activityFlows/jamBand_v2.ts:111:14              
+jamBandL3                                           src/curriculum/data/activityFlows/jamBand_v2.ts:119:14              
+jazzL1                                              src/curriculum/data/activityFlows/jazz_v2.ts:102:14                 
+jazzL2                                              src/curriculum/data/activityFlows/jazz_v2.ts:111:14                 
+jazzL3                                              src/curriculum/data/activityFlows/jazz_v2.ts:120:14                 
+latinL1                                             src/curriculum/data/activityFlows/latin_v2.ts:103:14                
+latinL2                                             src/curriculum/data/activityFlows/latin_v2.ts:111:14                
+latinL3                                             src/curriculum/data/activityFlows/latin_v2.ts:119:14                
+neoSoulL1                                           src/curriculum/data/activityFlows/neoSoul_v2.ts:103:14              
+neoSoulL2                                           src/curriculum/data/activityFlows/neoSoul_v2.ts:111:14              
+neoSoulL3                                           src/curriculum/data/activityFlows/neoSoul_v2.ts:119:14              
+popL1                                               src/curriculum/data/activityFlows/pop_v2.ts:98:14                   
+popL2                                               src/curriculum/data/activityFlows/pop_v2.ts:106:14                  
+popL3                                               src/curriculum/data/activityFlows/pop_v2.ts:114:14                  
+reggaeL1                                            src/curriculum/data/activityFlows/reggae_v2.ts:103:14               
+reggaeL2                                            src/curriculum/data/activityFlows/reggae_v2.ts:111:14               
+reggaeL3                                            src/curriculum/data/activityFlows/reggae_v2.ts:119:14               
+rnbL1                                               src/curriculum/data/activityFlows/rnb_v2.ts:98:14                   
+rnbL2                                               src/curriculum/data/activityFlows/rnb_v2.ts:106:14                  
+rnbL3                                               src/curriculum/data/activityFlows/rnb_v2.ts:114:14                  
+rockL1                                              src/curriculum/data/activityFlows/rock_v2.ts:98:14                  
+rockL2                                              src/curriculum/data/activityFlows/rock_v2.ts:106:14                 
+rockL3                                              src/curriculum/data/activityFlows/rock_v2.ts:114:14                 
+getProgressionsByVibe                    function   src/curriculum/data/chordProgressionLibrary.ts:8416:17              
+getCompingPatternsForGenre               function   src/curriculum/data/compingPatterns.ts:2789:17                      
+makeGCMKey                               function   src/curriculum/data/gcmHelpers.ts:23:17                             
+SPECIAL_RULES                                       src/curriculum/data/genreCurriculumMap.ts:2265:14                   
+getVoicingsForQuality                    function   src/curriculum/data/genreVoicingTaxonomy.ts:1855:17                 
+getRhythmsByTier                         function   src/curriculum/data/masterRhythmLibrary.ts:989:17                   
+getSongsByGenre                          function   src/curriculum/data/songs/index.ts:1300:17                          
+getSongsByDifficulty                     function   src/curriculum/data/songs/index.ts:1304:17                          
+getSongsByGlobeRegion                    function   src/curriculum/data/songs/index.ts:1308:17                          
+getSongsByGlobeEra                       function   src/curriculum/data/songs/index.ts:1314:17                          
+getSongsByArtist                         function   src/curriculum/data/songs/index.ts:1318:17                          
+getVoicingAlgorithmById                  function   src/curriculum/data/voicingAlgorithmLibrary.ts:630:17               
+evaluateContinuous                       function   src/curriculum/engine/assessmentEngine.ts:118:17                    
+PASS_THRESHOLDS                                     src/curriculum/engine/assessmentScoring.ts:149:10                   
+GRADE_BOUNDARIES                                    src/curriculum/engine/assessmentScoring.ts:149:27                   
+scoreNoteContinuous                      function   src/curriculum/engine/continuousMatchers.ts:64:17                   
+pickApproachDirection                    function   src/curriculum/engine/genreGeneration/bassApproach.ts:84:17         
+parseNoteName                            function   src/curriculum/engine/genreGeneration/chordBassNote.ts:50:17        
+chordSymbolToBassPC                      function   src/curriculum/engine/genreGeneration/chordBassNote.ts:79:17        
+bassPC_toMidi                            function   src/curriculum/engine/genreGeneration/chordBassNote.ts:99:17        
+KEY_NOTE_NAMES                                      src/curriculum/engine/genreGeneration/resolveStepContent.ts:222:14  
+MIDI_ROOT_TO_KEY                                    src/curriculum/engine/genreGeneration/resolveStepContent.ts:239:14  
+GENRE_INSTRUMENT_MAP                                src/curriculum/engine/instrumentMap.ts:130:14                       
+getScalesForContext                                 src/curriculum/engine/modeAssociations.ts:14:10                     
+getPrimaryModesForStyle                  function   src/curriculum/engine/styleAlgorithms.ts:186:17                     
+progressionMatchesVibe                   function   src/curriculum/engine/vibeAlgorithms.ts:189:17                      
+getTempoRangeForVibe                     function   src/curriculum/engine/vibeAlgorithms.ts:235:17                      
+useCurriculumProgress                    function   src/curriculum/hooks/useCurriculumProgress.ts:79:17                 
+exportSongToStudio                       function   src/curriculum/songLibrary/exportToStudio.ts:272:17                 
+barDurationSec                           function   src/curriculum/songLibrary/timing.ts:15:17                          
+getActiveBarIndex                        function   src/curriculum/songLibrary/timing.ts:20:17                          
+getBarStartTime                          function   src/curriculum/songLibrary/timing.ts:39:17                          
+findBeatIndex                            function   src/curriculum/songLibrary/timing.ts:80:17                          
+barAudioBeats                            function   src/curriculum/songLibrary/timing.ts:93:17                          
+getActiveFromBeats                       function   src/curriculum/songLibrary/timing.ts:136:17                         
+getBarStartFromBeats                     function   src/curriculum/songLibrary/timing.ts:158:17                         
+getBarProgressFromBeats                  function   src/curriculum/songLibrary/timing.ts:198:17                         
+clearAudioBuffers                        function   src/daw/audio/AudioBufferStore.ts:74:17                             
+AudioEngine                              class      src/daw/audio/AudioEngine.ts:4:14                                   
+loadModelFromFile                        function   src/daw/audio/nam/NamModelStore.ts:276:23                           
+RATE_DIVISIONS                                      src/daw/audio/pedals/PhaserPedal.ts:10:14                           
+midiToHz                                            src/daw/audio/pitch-analysis/PitchAnalyzer.ts:171:20                
+DEFAULT_PITCH_CORRECTION                            src/daw/audio/pitch-correction/PitchCorrectionNode.ts:81:14         
+audioCoverageSeconds                     function   src/daw/audio/recordingLimit.ts:57:17                               
+getBridge                                function   src/daw/collab/collabMiddleware.ts:21:17                            
+ORIGIN_REMOTE                                       src/daw/collab/types.ts:125:14                                      
+getYAssets                               function   src/daw/collab/YjsDocManager.ts:70:17                               
+ccEventToYMap                            function   src/daw/collab/YjsDocManager.ts:93:17                               
+yMapToMidiEvent                          function   src/daw/collab/YjsDocManager.ts:198:17                              
+yMapToCCEvent                            function   src/daw/collab/YjsDocManager.ts:211:17                              
+yMapToMidiClip                           function   src/daw/collab/YjsDocManager.ts:220:17                              
+yMapToAudioClip                          function   src/daw/collab/YjsDocManager.ts:234:17                              
+HAS_VIZ                                             src/daw/components/Effects/EffectsPanel.tsx:31:14                   
+FxKnobs                                  function   src/daw/components/Effects/EffectsPanel.tsx:557:17                  
+FxVisualizer                             function   src/daw/components/Effects/EffectsPanel.tsx:1157:17                 
+SECTION_STYLE                                       src/daw/components/Effects/FxShared.tsx:20:14                       
+VIZ_SPRING                                          src/daw/components/Effects/FxShared.tsx:25:14                       
+SectionHeader                            function   src/daw/components/Effects/FxShared.tsx:33:17                       
+StudioCreativeToggle                     function   src/daw/components/Effects/FxShared.tsx:140:17                      
+InlineViz                                function   src/daw/components/Effects/FxShared.tsx:320:17                      
+CHORD_THEORY                                        src/daw/components/Library/chordTheoryMap.ts:2:14                   
+QUALITY_DISPLAY                                     src/daw/components/Library/insightConstants.ts:12:14                
+ChordBuilder                             function   src/daw/components/Prism/ChordBuilder.tsx:298:17                    
+PRESETS                                             src/daw/data/instrumentPresets.ts:33:14                             
+PROJECT_TEMPLATES                                   src/daw/data/projectTemplates.ts:24:14                              
+getGMProgram                             function   src/daw/instruments/gmPrograms.ts:194:17                            
+BEATS_PER_MEASURE                                   src/daw/midi/leadSheetUtils.ts:9:14                                 
+TICKS_PER_MEASURE                                   src/daw/midi/leadSheetUtils.ts:11:14                                
+MidiDeviceManager                        class      src/daw/midi/MidiDeviceManager.ts:22:14                             
+buildLeadSheetXml                        function   src/daw/midi/MusicXmlExport.ts:192:17                               
+exportLeadSheetBlob                      function   src/daw/midi/MusicXmlExport.ts:293:17                               
+clamp                                    function   src/daw/oracle-synth/audio/constants.ts:7:17                        
+MAX_VOICE_COUNT                                     src/daw/oracle-synth/audio/constants.ts:24:14                       
+NOTE_NAMES                                          src/daw/oracle-synth/audio/constants.ts:30:14                       
+noteToName                               function   src/daw/oracle-synth/audio/constants.ts:45:17                       
+divToHz                                  function   src/daw/oracle-synth/audio/rateDivisions.ts:26:17                   
+BASE_RATE_OPTIONS                                   src/daw/oracle-synth/audio/rateDivisions.ts:60:14                   
+applyRateModifier                        function   src/daw/oracle-synth/audio/rateDivisions.ts:90:17                   
+getBaseRate                              function   src/daw/oracle-synth/audio/rateDivisions.ts:97:17                   
+PAD                                                 src/daw/oracle-synth/store/presets/factoryPresets.ts:211:14         
+BASS                                                src/daw/oracle-synth/store/presets/factoryPresets.ts:355:14         
+LEAD                                                src/daw/oracle-synth/store/presets/factoryPresets.ts:455:14         
+PLUCK                                               src/daw/oracle-synth/store/presets/factoryPresets.ts:574:14         
+WOBBLE                                              src/daw/oracle-synth/store/presets/factoryPresets.ts:674:14         
+DRIFT                                               src/daw/oracle-synth/store/presets/factoryPresets.ts:823:14         
+TRANCE                                              src/daw/oracle-synth/store/presets/factoryPresets.ts:1003:14        
+SEQUENCE                                            src/daw/oracle-synth/store/presets/factoryPresets.ts:1165:14        
+CHORDS                                              src/daw/oracle-synth/store/presets/factoryPresets.ts:1290:14        
+STAB                                                src/daw/oracle-synth/store/presets/factoryPresets.ts:1409:14        
+encodeMidiEvents                         function   src/daw/persistence/SessionSerializer.ts:68:17                      
+decodeMidiEvents                         function   src/daw/persistence/SessionSerializer.ts:93:17                      
+SESSION_SCHEMA_VERSION                              src/daw/persistence/SessionSerializer.ts:112:14                     
+DEGREES                                             src/daw/prism-engine/data/modes.ts:191:14                           
+getMidi                                  function   src/daw/prism-engine/data/notes.ts:32:17                            
+noteName                                 function   src/daw/prism-engine/data/notes.ts:44:17                            
+BEAT_VAL                                            src/daw/prism-engine/data/notes.ts:160:14                           
+findTriadChords                          function   src/daw/prism-engine/engine/chordUtils.ts:9:17                      
+findSeventhChords                        function   src/daw/prism-engine/engine/chordUtils.ts:25:17                     
+shiftOctave                              function   src/daw/prism-engine/engine/chordUtils.ts:76:17                     
+findRoot                                 function   src/daw/prism-engine/engine/chordUtils.ts:83:17                     
+distributeChords                         function   src/daw/prism-engine/engine/midiExport.ts:27:17                     
+modeChange                               function   src/daw/prism-engine/engine/modeUtils.ts:14:17                      
+modeToIonianLabel                        function   src/daw/prism-engine/engine/naming.ts:92:17                         
+flatChordName                            function   src/daw/prism-engine/engine/naming.ts:165:17                        
+unpitchedChordName                       function   src/daw/prism-engine/engine/naming.ts:184:17                        
+degreeChordName                          function   src/daw/prism-engine/engine/naming.ts:278:17                        
+numOptions                               function   src/daw/prism-engine/engine/progression.ts:39:17                    
+isSwingable                              function   src/daw/prism-engine/engine/rhythmUtils.ts:35:17                    
+filterByStyle                            function   src/daw/prism-engine/engine/suggestionEngine.ts:215:17              
+DrumNote                                            src/daw/prism-engine/index.ts:26:54                                 
+getMidi                                             src/daw/prism-engine/index.ts:31:3                                  
+noteName                                            src/daw/prism-engine/index.ts:32:3                                  
+BEAT_VAL                                            src/daw/prism-engine/index.ts:36:3                                  
+MODE_NAMES                                          src/daw/prism-engine/index.ts:41:3                                  
+TRIADS                                              src/daw/prism-engine/index.ts:43:3                                  
+TETRADS                                             src/daw/prism-engine/index.ts:44:3                                  
+DEGREES                                             src/daw/prism-engine/index.ts:45:3                                  
+FAMILY_DEGREE_ORDER                                 src/daw/prism-engine/index.ts:49:3                                  
+COLOR_TO_MODE                                       src/daw/prism-engine/index.ts:56:3                                  
+MELODY_RHYTHMS                                      src/daw/prism-engine/index.ts:59:10                                 
+MELODY_CONTOURS                                     src/daw/prism-engine/index.ts:60:10                                 
+PROGRESSION_GRAPH                                   src/daw/prism-engine/index.ts:61:10                                 
+DRUM_PATTERNS                                       src/daw/prism-engine/index.ts:62:10                                 
+BASS_PATTERNS                                       src/daw/prism-engine/index.ts:63:10                                 
+PAD_PATTERNS                                        src/daw/prism-engine/index.ts:64:10                                 
+findTriadChords                                     src/daw/prism-engine/index.ts:69:3                                  
+findSeventhChords                                   src/daw/prism-engine/index.ts:70:3                                  
+shiftOctave                                         src/daw/prism-engine/index.ts:73:3                                  
+findRoot                                            src/daw/prism-engine/index.ts:74:3                                  
+flatChordName                                       src/daw/prism-engine/index.ts:80:3                                  
+unpitchedChordName                                  src/daw/prism-engine/index.ts:81:3                                  
+steppedChord                                        src/daw/prism-engine/index.ts:82:3                                  
+degreeChordName                                     src/daw/prism-engine/index.ts:86:3                                  
+modeToIonianLabel                                   src/daw/prism-engine/index.ts:93:3                                  
+numOptions                                          src/daw/prism-engine/index.ts:102:38                                
+getChordMelody                                      src/daw/prism-engine/index.ts:105:10                                
+swingRhythm                                         src/daw/prism-engine/index.ts:108:10                                
+isSwingable                                         src/daw/prism-engine/index.ts:108:23                                
+modeChange                                          src/daw/prism-engine/index.ts:111:10                                
+generateMelodyMidi                                  src/daw/prism-engine/index.ts:116:3                                 
+distributeChords                                    src/daw/prism-engine/index.ts:117:3                                 
+generateDrumMidi                                    src/daw/prism-engine/index.ts:121:10                                
+generateBassMidi                                    src/daw/prism-engine/index.ts:124:10                                
+generatePadMidi                                     src/daw/prism-engine/index.ts:127:10                                
+analyzeChordStyle                                   src/daw/prism-engine/index.ts:134:3                                 
+extractGraphSeed                                    src/daw/prism-engine/index.ts:135:3                                 
+generateSuggestions                                 src/daw/prism-engine/index.ts:136:3                                 
+filterByStyle                                       src/daw/prism-engine/index.ts:137:3                                 
+MAX_AUDIO_TRACKS                                    src/daw/store/index.ts:85:3                                         
+MAX_TOTAL_TRACKS                                    src/daw/store/index.ts:86:3                                         
+getTrackLimitMessage                                src/daw/store/index.ts:87:3                                         
+refineChordRegionsWithMelody             function   src/daw/store/prismSlice.ts:1227:17                                 
+MAX_AUDIO_TRACKS                                    src/daw/store/tracksSlice.ts:25:14                                  
+MAX_TOTAL_TRACKS                                    src/daw/store/tracksSlice.ts:27:14                                  
+getTrackLimitMessage                     function   src/daw/store/tracksSlice.ts:35:17                                  
+isTrackLockedByRemote                    function   src/daw/store/tracksSlice.ts:59:17                                  
+pushUndo                                 function   src/daw/store/undoMiddleware.ts:25:17                               
+canUndo                                  function   src/daw/store/undoMiddleware.ts:80:17                               
+canRedo                                  function   src/daw/store/undoMiddleware.ts:84:17                               
+isCollabUndoActive                       function   src/daw/store/undoMiddleware.ts:174:17                              
+smartUndo                                function   src/daw/store/undoMiddleware.ts:181:17                              
+smartRedo                                function   src/daw/store/undoMiddleware.ts:195:17                              
+smartCanUndo                             function   src/daw/store/undoMiddleware.ts:206:17                              
+smartCanRedo                             function   src/daw/store/undoMiddleware.ts:211:17                              
+snapToGridTicks                          function   src/daw/utils/quantize.ts:55:17                                     
+BASE_PIXELS_PER_BEAT                                src/daw/utils/timelineScale.ts:6:14                                 
+ticksPerBeatUnit                         function   src/daw/utils/timelineScale.ts:11:17                                
+BEATS_PER_BAR                                       src/daw/utils/timelineScale.ts:21:14                                
+TICKS_PER_BAR                                       src/daw/utils/timelineScale.ts:22:14                                
+timeRangeToParams                        function   src/features/admin/telemetry/components/TimeRangeSelect.tsx:20:17   
+useLogin                                            src/hooks/data/auth/index.ts:1:10                                   
+useRegister                                         src/hooks/data/auth/index.ts:3:10                                   
+useLogin                                            src/hooks/data/auth/useLogin.ts:3:14                                
+useRegister                                         src/hooks/data/auth/useRegister.ts:3:14                             
+useCurrentClassroom                                 src/hooks/data/classrooms/index.ts:1:10                             
+useSetCurrentClassroom                              src/hooks/data/classrooms/index.ts:2:10                             
+useClearCurrentClassroom                            src/hooks/data/classrooms/index.ts:3:10                             
+useToggleClassroom                                  src/hooks/data/classrooms/index.ts:7:10                             
+useUpdateClassroom                                  src/hooks/data/classrooms/index.ts:8:10                             
+useInviteStudent                                    src/hooks/data/classrooms/index.ts:9:10                             
+useClearCurrentClassroom                            src/hooks/data/classrooms/useClearCurrentClassroom.ts:6:14          
+useCurrentClassroom                                 src/hooks/data/classrooms/useCurrentClassroom.ts:7:14               
+useInviteStudent                                    src/hooks/data/classrooms/useInviteStudent.ts:3:14                  
+useSetCurrentClassroom                              src/hooks/data/classrooms/useSetCurrentClassroom.ts:6:14            
+useToggleClassroom                                  src/hooks/data/classrooms/useToggleClassroom.ts:4:14                
+useUpdateClassroom                                  src/hooks/data/classrooms/useUpdateClassroom.ts:4:14                
+useCreateCollection                                 src/hooks/data/collections/index.ts:3:10                            
+useUpdateCollection                                 src/hooks/data/collections/index.ts:4:10                            
+useDeleteCollection                                 src/hooks/data/collections/index.ts:5:10                            
+useCreateCollection                                 src/hooks/data/collections/useCreateCollection.ts:7:14              
+useDeleteCollection                                 src/hooks/data/collections/useDeleteCollection.ts:7:14              
+useUpdateCollection                                 src/hooks/data/collections/useUpdateCollection.ts:7:14              
+useConsumeCredit                                    src/hooks/data/credits/index.ts:4:3                                 
+useConsumeCredit                                    src/hooks/data/credits/useCredits.ts:86:14                          
+awardActivityXP                                     src/hooks/data/experience/useAwardExperience.ts:54:14               
+awardLessonXP                                       src/hooks/data/experience/useAwardExperience.ts:58:14               
+useNotes                                            src/hooks/data/notes/useNotes.ts:5:14                               
+usePrismChords                                      src/hooks/data/prism/index.ts:2:3                                   
+usePrismChord                                       src/hooks/data/prism/index.ts:6:10                                  
+usePrismChordsProgressions                          src/hooks/data/prism/index.ts:8:3                                   
+usePrismModes                                       src/hooks/data/prism/index.ts:11:10                                 
+usePrismModeChords                                  src/hooks/data/prism/index.ts:14:3                                  
+usePrismModeFamilies                                src/hooks/data/prism/index.ts:22:3                                  
+usePrismModeFamily                                  src/hooks/data/prism/index.ts:27:3                                  
+usePrismRhythms                                     src/hooks/data/prism/index.ts:31:10                                 
+usePrismStartContours                               src/hooks/data/prism/index.ts:32:10                                 
+usePrismScaleDegrees                                src/hooks/data/prism/index.ts:33:10                                 
+usePrismIntervals                                   src/hooks/data/prism/index.ts:34:10                                 
+usePrismRhythmStyling                               src/hooks/data/prism/index.ts:35:10                                 
+usePrismRhythmicPhrases                             src/hooks/data/prism/index.ts:36:10                                 
+usePrismBassRhythms                                 src/hooks/data/prism/index.ts:37:10                                 
+usePrismDrumGrooves                                 src/hooks/data/prism/index.ts:38:10                                 
+usePrismBassRhythms                                 src/hooks/data/prism/usePrismBassRhythms.ts:4:14                    
+usePrismChord                                       src/hooks/data/prism/usePrismChord.ts:10:14                         
+usePrismChords                                      src/hooks/data/prism/usePrismChords.ts:10:14                        
+usePrismChordsProgressions                          src/hooks/data/prism/usePrismChordsProgressions.ts:10:14            
+usePrismDrumGrooves                                 src/hooks/data/prism/usePrismDrumGrooves.ts:4:14                    
+usePrismIntervals                                   src/hooks/data/prism/usePrismIntervals.ts:10:14                     
+usePrismModeChords                                  src/hooks/data/prism/usePrismModeChords.ts:15:14                    
+usePrismModeFamilies                                src/hooks/data/prism/usePrismModeFamilies.ts:10:14                  
+usePrismModeFamily                                  src/hooks/data/prism/usePrismModeFamily.ts:10:14                    
+usePrismModes                                       src/hooks/data/prism/usePrismModes.ts:6:14                          
+usePrismRhythmicPhrases                             src/hooks/data/prism/usePrismRhythmicPhrases.ts:4:14                
+usePrismRhythmStyling                               src/hooks/data/prism/usePrismRhythmStyling.ts:4:14                  
+usePrismScaleDegrees                                src/hooks/data/prism/usePrismScaleDegrees.ts:4:14                   
+useStudents                                         src/hooks/data/students/index.ts:1:10                               
+useStudent                                          src/hooks/data/students/index.ts:2:10                               
+useUpdateStudent                                    src/hooks/data/students/index.ts:3:10                               
+useDeleteStudent                                    src/hooks/data/students/index.ts:4:10                               
+useRestoreStudent                                   src/hooks/data/students/index.ts:5:10                               
+useDeleteStudent                                    src/hooks/data/students/useDeleteStudent.ts:4:14                    
+useRestoreStudent                                   src/hooks/data/students/useRestoreStudent.ts:4:14                   
+useStudent                                          src/hooks/data/students/useStudent.ts:4:14                          
+useStudents                                         src/hooks/data/students/useStudents.ts:4:14                         
+useUpdateStudent                                    src/hooks/data/students/useUpdateStudent.ts:4:14                    
+SUBSCRIPTION_QUERY_KEY                              src/hooks/data/subscription/index.ts:4:3                            
+useTeachers                                         src/hooks/data/teachers/index.ts:1:10                               
+useTeacherInvitations                               src/hooks/data/teachers/index.ts:2:10                               
+useCreateTeacherInvitation                          src/hooks/data/teachers/index.ts:3:10                               
+useCancelTeacherInvitation                          src/hooks/data/teachers/index.ts:4:10                               
+useRemoveTeacher                                    src/hooks/data/teachers/index.ts:5:10                               
+useRestoreTeacher                                   src/hooks/data/teachers/index.ts:6:10                               
+useCancelTeacherInvitation                          src/hooks/data/teachers/useCancelTeacherInvitation.ts:4:14          
+useCreateTeacherInvitation                          src/hooks/data/teachers/useCreateTeacherInvitation.ts:4:14          
+useRemoveTeacher                                    src/hooks/data/teachers/useRemoveTeacher.ts:4:14                    
+useRestoreTeacher                                   src/hooks/data/teachers/useRestoreTeacher.ts:4:14                   
+useTeacherInvitations                               src/hooks/data/teachers/useTeacherInvitations.ts:4:14               
+useTeachers                                         src/hooks/data/teachers/useTeachers.ts:4:14                         
+reducer                                             src/hooks/use-toast.ts:70:14                                        
+useToast                                            src/hooks/use-toast.ts:187:10                                       
+getAudioSystemVersion                    function   src/learn/audio/AudioSystemSelector.ts:16:17                        
+setAudioSystemVersion                    function   src/learn/audio/AudioSystemSelector.ts:27:17                        
+lessonVolumeToDb                         function   src/learn/audio/lessonVolumeStore.ts:33:17                          
+makePianoTone                            function   src/learn/audio/v2/__tests__/testUtils.ts:105:17                    
+makeNoise                                function   src/learn/audio/v2/__tests__/testUtils.ts:145:17                    
+scaleAmplitude                           function   src/learn/audio/v2/__tests__/testUtils.ts:165:17                    
+computeRMS                               function   src/learn/audio/v2/__tests__/testUtils.ts:177:17                    
+peakMidi                                 function   src/learn/audio/v2/__tests__/testUtils.ts:237:17                    
+NUM_STATES                                          src/learn/audio/v2/index.ts:17:3                                    
+SILENCE_STATE                                       src/learn/audio/v2/index.ts:18:3                                    
+MIDI_OFFSET                                         src/learn/audio/v2/index.ts:19:3                                    
+A4_FREQ                                             src/learn/audio/v2/index.ts:20:3                                    
+freqToMidi                                          src/learn/audio/v2/index.ts:21:3                                    
+freqToMidiContinuous                                src/learn/audio/v2/index.ts:22:3                                    
+midiToFreq                                          src/learn/audio/v2/index.ts:23:3                                    
+stateToMidi                                         src/learn/audio/v2/index.ts:24:3                                    
+midiToState                                         src/learn/audio/v2/index.ts:25:3                                    
+normalizeDistribution                               src/learn/audio/v2/index.ts:26:3                                    
+createUniformDistribution                           src/learn/audio/v2/index.ts:27:3                                    
+createSilenceDistribution                           src/learn/audio/v2/index.ts:28:3                                    
+OnsetStream                                         src/learn/audio/v2/index.ts:34:10                                   
+FastPitchStream                                     src/learn/audio/v2/index.ts:35:10                                   
+HiResPitchStream                                    src/learn/audio/v2/index.ts:36:10                                   
+TransitionMatrix                                    src/learn/audio/v2/index.ts:39:10                                   
+ObservationModel                                    src/learn/audio/v2/index.ts:40:10                                   
+NoteHMM                                             src/learn/audio/v2/index.ts:41:10                                   
+PianoTemplates                                      src/learn/audio/v2/index.ts:44:10                                   
+NMFDetector                                         src/learn/audio/v2/index.ts:45:10                                   
+BasicPitchPeer                                      src/learn/audio/v2/index.ts:48:10                                   
+AdaptiveNoiseFloor                                  src/learn/audio/v2/index.ts:51:10                                   
+InstrumentProfiler                                  src/learn/audio/v2/index.ts:52:10                                   
+PianoCalibrationV2Runner                            src/learn/audio/v2/index.ts:57:10                                   
+loadCalibrationV2Profile                            src/learn/audio/v2/index.ts:64:3                                    
+saveCalibrationV2Profile                            src/learn/audio/v2/index.ts:65:3                                    
+clearCalibrationV2Profile                           src/learn/audio/v2/index.ts:66:3                                    
+loadCalibrationV2Profile                 function   src/learn/audio/v2/PianoCalibrationV2.ts:66:17                      
+saveCalibrationV2Profile                 function   src/learn/audio/v2/PianoCalibrationV2.ts:76:17                      
+clearCalibrationV2Profile                function   src/learn/audio/v2/PianoCalibrationV2.ts:84:17                      
+PianoCalibrationV2Runner                 class      src/learn/audio/v2/PianoCalibrationV2.ts:94:14                      
+useLearnInputContext                     function   src/learn/context/LearnInputContext.tsx:138:17                      
+useLearnInputLive                        function   src/learn/context/LearnInputContext.tsx:164:17                      
+buildChordColorMap                       function   src/lib/ionianChordColor.ts:76:17                                   
+applyChordColors                         function   src/lib/ionianChordColor.ts:84:17                                   
+MODE_LESSON_FLOW_ACTIVITY_TOTAL                     src/lib/progress/summaryTotals.ts:3:14                              
+readLocalSession                         function   src/lib/studio-projects/localSession.ts:22:17                       
+isUISoundMuted                           function   src/lib/uiSounds.ts:73:17                                           
+setUISoundMuted                          function   src/lib/uiSounds.ts:78:17                                           
+setUISoundVolume                         function   src/lib/uiSounds.ts:108:17                                          
+computeMatch                             function   src/lib/userMatching.ts:53:17                                       
+trackKeyboardInput                       function   src/telemetry/hooks/useTelemetryAudio.ts:10:17                      
+trackMidiNoteOn                          function   src/telemetry/hooks/useTelemetryAudio.ts:75:17                      
+trackMidiNoteOff                         function   src/telemetry/hooks/useTelemetryAudio.ts:94:17                      
+trackPageViewed                          function   src/telemetry/hooks/useTelemetryProduct.ts:15:17                    
+trackActivityFailed                      function   src/telemetry/hooks/useTelemetryProduct.ts:83:17                    
+trackPaywallViewed                       function   src/telemetry/hooks/useTelemetryProduct.ts:121:17                   
+ApiEvents                                           src/telemetry/types.ts:53:14                                        
+importMidiFileAsUnison                   function   src/unison/converters/midiToUnison.ts:87:17                         
+LiveUnisonAnalyzer                       class      src/unison/engine/liveAnalyzer.ts:111:14                            
+showLoading                                         src/util/toast.ts:11:14                                             
+dismissToast                                        src/util/toast.ts:15:14                                             
+Unused exported types (261)
+EventConnectionInfo          interface  src/components/atlas/data/eventConnections.ts:5558:18         
+EventConnectionInfo          type       src/components/atlas/data/index.ts:27:3                       
+UpstreamChainNode            type       src/components/atlas/data/index.ts:28:3                       
+MusicalEra                   type       src/components/atlas/data/index.ts:31:29                      
+RegionId                     type       src/components/atlas/types/index.ts:2:13                      
+FlyTarget                    interface  src/components/atlas/types/index.ts:76:18                     
+ModuleProgress               interface  src/components/atlas/types/index.ts:91:18                     
+AIInsight                    interface  src/components/atlas/types/index.ts:97:18                     
+LearnCourse                  type       src/components/atlas/utils/genreMapping.ts:654:13             
+CircleOfFifthsSvgProps       interface  src/components/common/CircleOfFifthsSvg.tsx:91:18             
+MIDIOptions                  interface  src/components/Games/MajorArcanum/types.ts:9:18               
+MIDIInputMap                 interface  src/components/Games/MajorArcanum/types.ts:14:18              
+MIDIPort                     interface  src/components/Games/MajorArcanum/types.ts:21:18              
+MIDIInput                    interface  src/components/Games/MajorArcanum/types.ts:31:18              
+Midi                         type       src/components/Games/PianoRollPlay.tsx:4:13                   
+PianoRollProps               interface  src/components/Games/PianoRollPlay.tsx:23:18                  
+ItemType                     type       src/components/Games/SignalFlow/types.ts:3:13                 
+JamNoteOnMessage             interface  src/components/JamRoom/types.ts:10:18                         
+JamNoteOffMessage            interface  src/components/JamRoom/types.ts:24:18                         
+JamDrumGridMessage           interface  src/components/JamRoom/types.ts:60:18                         
+JamDrumModeMessage           interface  src/components/JamRoom/types.ts:67:18                         
+JamDrumSyncRequestMessage    interface  src/components/JamRoom/types.ts:76:18                         
+JamMessage                   type       src/components/JamRoom/types.ts:81:13                         
+CoursesGenre                 type       src/components/learn/learnFilterOptions.ts:63:13              
+ModeKeyEntry                 interface  src/components/learn/modeHelpers.ts:3:18                      
+ParallelModeEntry            interface  src/components/learn/parallelModeContent.ts:1:18              
+BadgeProps                   interface  src/components/ui/badge.tsx:25:18                             
+ButtonProps                  interface  src/components/ui/button.tsx:38:18                            
+InputProps                   interface  src/components/ui/input.tsx:4:18                              
+InputAutosizeProps           interface  src/components/ui/input.tsx:24:18                             
+RainbowBorderButtonProps     interface  src/components/ui/rainbow-borders-button.tsx:4:18             
+ExternalDataPoint            interface  src/components/ui/real-time-analytics.tsx:3:18                
+TextareaProps                interface  src/components/ui/textarea.tsx:7:18                           
+AuthOrganization             type       src/contexts/AuthContext/types.ts:5:13                        
+AuthOrganizationMembership   type       src/contexts/AuthContext/types.ts:12:13                       
+AuthContextActions           type       src/contexts/AuthContext/types.ts:56:13                       
+QueryParamsType              type       src/contexts/MusicAtlasContext/musicAtlas.generated.ts:3170:13
+ContentType                  enum       src/contexts/MusicAtlasContext/musicAtlas.generated.ts:3197:13
+PhraseBarNote                type       src/contexts/PlaybackContext/helpers.ts:3:13                  
+PhraseBar                    type       src/contexts/PlaybackContext/helpers.ts:11:13                 
+PlaybackInputType            type       src/contexts/PlaybackContext/index.ts:10:21                   
+DawChordRegion               interface  src/curriculum/bridge/dawBridge.ts:27:18                      
+LeadSheetChord               interface  src/curriculum/bridge/leadSheetBridge.ts:15:18                
+LeadSheetSection             interface  src/curriculum/bridge/leadSheetBridge.ts:24:18                
+DualStaffPianoRollProps      interface  src/curriculum/components/DualStaffPianoRoll.tsx:26:18        
+Midi                         type       src/curriculum/components/GenrePianoRoll.tsx:6:13             
+NoteHoldMeta                 interface  src/curriculum/components/GenrePianoRoll.tsx:19:18            
+DrumGrooveHit                interface  src/curriculum/data/drumGrooveLibrary.ts:6:18                 
+HKBChordEntry                interface  src/curriculum/data/harmonyKB.ts:9:18                         
+HKBModeRoot                  interface  src/curriculum/data/harmonyKB.ts:17:18                        
+MasterRhythmEntry            interface  src/curriculum/data/masterRhythmLibrary.ts:7:18               
+DifficultyTier               type       src/curriculum/engine/adaptiveDifficulty.ts:16:13             
+ContinuousAssessmentResult   interface  src/curriculum/engine/assessmentEngine.ts:108:18              
+MatchResult                  type       src/curriculum/engine/assessmentEngine.ts:139:31              
+AssessmentScore              type       src/curriculum/engine/assessmentEngine.ts:139:44              
+NoteMatchResult              interface  src/curriculum/engine/assessmentMatchers.ts:24:18             
+ContentQueryLibrary          type       src/curriculum/engine/contentGenerationParser.ts:19:13        
+ContentQuery                 interface  src/curriculum/engine/contentGenerationParser.ts:31:18        
+InstrumentConfig             interface  src/curriculum/engine/instrumentMap.ts:15:18                  
+PlacementRecommendation      interface  src/curriculum/engine/placementScoring.ts:30:18               
+QuizState                    interface  src/curriculum/hooks/useFundamentalsFlow.ts:23:18             
+AssessmentResult             interface  src/curriculum/types/activity.ts:85:18                        
+NoteResult                   interface  src/curriculum/types/activity.ts:99:18                        
+InstrumentConfig             interface  src/curriculum/types/activity.v2.ts:19:18                     
+BackingParts                 interface  src/curriculum/types/activity.v2.ts:27:18                     
+ActivityFlowParamsV2         interface  src/curriculum/types/activity.v2.ts:32:18                     
+TargetNote                   interface  src/curriculum/types/activity.v2.ts:39:18                     
+ActivityVariant              interface  src/curriculum/types/activity.v2.ts:46:18                     
+CurriculumGenre              type       src/curriculum/types/curriculum.ts:11:13                      
+CurriculumLevel              type       src/curriculum/types/curriculum.ts:28:13                      
+CurriculumComponent          type       src/curriculum/types/curriculum.ts:34:13                      
+MelodyParams                 interface  src/curriculum/types/curriculum.ts:46:18                      
+ChordParams                  interface  src/curriculum/types/curriculum.ts:69:18                      
+BassParams                   interface  src/curriculum/types/curriculum.ts:83:18                      
+GlobalParams                 interface  src/curriculum/types/curriculum.ts:92:18                      
+FundamentalsAssessment       type       src/curriculum/types/fundamentals.ts:3:13                     
+ArtistRef                    interface  src/curriculum/types/genreProfile.ts:22:18                    
+TechniqueEntry               interface  src/curriculum/types/genreProfile.ts:57:18                    
+ProgressionChord             interface  src/curriculum/types/progression.ts:50:18                     
+CurriculumProgression        interface  src/curriculum/types/progression.ts:60:18                     
+VibeAlgorithm                interface  src/curriculum/types/progression.ts:81:18                     
+VibeRule                     interface  src/curriculum/types/progression.ts:92:18                     
+StyleAlgorithm               interface  src/curriculum/types/progression.ts:106:18                    
+StyleRule                    interface  src/curriculum/types/progression.ts:113:18                    
+AudioProvider                type       src/curriculum/types/songLibrary.ts:29:13                     
+ArtistImageSource            type       src/curriculum/types/songLibrary.ts:31:13                     
+ContentRefType               type       src/curriculum/types/songLibrary.ts:39:13                     
+GlobeOrigin                  interface  src/curriculum/types/songLibrary.ts:95:18                     
+ContentRef                   interface  src/curriculum/types/songLibrary.ts:110:18                    
+AudioSource                  interface  src/curriculum/types/songLibrary.ts:140:18                    
+ReverbParams                 interface  src/daw/audio/EffectChain.ts:11:18                            
+FilterSlope                  type       src/daw/audio/EffectChain.ts:27:13                            
+EqParams                     interface  src/daw/audio/EffectChain.ts:38:18                            
+GateParams                   interface  src/daw/audio/EffectChain.ts:44:18                            
+CompressorParams             interface  src/daw/audio/EffectChain.ts:53:18                            
+DelayParams                  interface  src/daw/audio/EffectChain.ts:66:18                            
+PresenceParams               interface  src/daw/audio/EffectChain.ts:73:18                            
+DeEsserParams                interface  src/daw/audio/EffectChain.ts:80:18                            
+SaturatorParams              interface  src/daw/audio/EffectChain.ts:87:18                            
+NamMetadata                  interface  src/daw/audio/nam/NamModelParser.ts:7:18                      
+LstmConfig                   interface  src/daw/audio/nam/NamModelParser.ts:16:18                     
+LinearConfig                 interface  src/daw/audio/nam/NamModelParser.ts:22:18                     
+WaveNetLayerConfig           interface  src/daw/audio/nam/NamModelParser.ts:27:18                     
+WaveNetConfig                interface  src/daw/audio/nam/NamModelParser.ts:39:18                     
+NamArchitecture              type       src/daw/audio/nam/NamModelParser.ts:45:13                     
+PitchFrame                   interface  src/daw/audio/pitch-analysis/PitchAnalyzer.ts:10:18           
+ScaleTypeName                type       src/daw/audio/pitch-correction/PitchCorrectionNode.ts:64:13   
+SharedAudioAsset             interface  src/daw/collab/types.ts:64:18                                 
+RoomMetadata                 interface  src/daw/collab/types.ts:76:18                                 
+RoomMember                   interface  src/daw/collab/types.ts:85:18                                 
+GrooveGenre                  type       src/daw/data/groovesLibrary.ts:30:13                          
+PresetCategory               type       src/daw/data/instrumentPresets.ts:31:13                       
+ProjectTemplateTrack         interface  src/daw/data/projectTemplates.ts:5:18                         
+TunerResult                  interface  src/daw/hooks/useTuner.ts:30:18                               
+MidiDeviceInfo               interface  src/daw/midi/MidiDeviceManager.ts:5:18                        
+NoteEvent                    interface  src/daw/oracle-synth/audio/types.ts:46:18                     
+SerializedTrackSettings      interface  src/daw/persistence/SessionSerializer.ts:11:18                
+MidiClipEvents               interface  src/daw/persistence/SessionSerializer.ts:53:18                
+CloudAudioClip               interface  src/daw/persistence/SessionSerializer.ts:265:18               
+MidiNote                     type       src/daw/prism-engine/index.ts:3:3                             
+Tick                         type       src/daw/prism-engine/index.ts:4:3                             
+RhythmHit                    type       src/daw/prism-engine/index.ts:5:3                             
+RhythmPattern                type       src/daw/prism-engine/index.ts:6:3                             
+DegreeChordName              type       src/daw/prism-engine/index.ts:9:3                             
+GraphKey                     type       src/daw/prism-engine/index.ts:10:3                            
+ModeName                     type       src/daw/prism-engine/index.ts:11:3                            
+ChordDegree                  type       src/daw/prism-engine/index.ts:15:3                            
+PrismSessionState            type       src/daw/prism-engine/index.ts:16:3                            
+ChordMidiOptions             type       src/daw/prism-engine/index.ts:17:3                            
+MelodyMidiOptions            type       src/daw/prism-engine/index.ts:18:3                            
+DrumPattern                  type       src/daw/prism-engine/index.ts:19:3                            
+BassHit                      type       src/daw/prism-engine/index.ts:20:3                            
+BassPattern                  type       src/daw/prism-engine/index.ts:21:3                            
+OrchestrateConfig            type       src/daw/prism-engine/index.ts:23:3                            
+ChordMatch                   type       src/daw/prism-engine/index.ts:96:15                           
+ChordStyle                   type       src/daw/prism-engine/index.ts:140:3                           
+SuggestionSet                type       src/daw/prism-engine/index.ts:142:3                           
+MidiNote                     type       src/daw/prism-engine/types.ts:2:13                            
+Tick                         type       src/daw/prism-engine/types.ts:5:13                            
+DegreeChordName              type       src/daw/prism-engine/types.ts:23:13                           
+GraphKey                     type       src/daw/prism-engine/types.ts:29:13                           
+PrismSessionState            interface  src/daw/prism-engine/types.ts:93:18                           
+BassHit                      type       src/daw/prism-engine/types.ts:183:13                          
+TransportSlice               type       src/daw/store/index.ts:83:15                                  
+TracksSlice                  type       src/daw/store/index.ts:90:3                                   
+MidiClip                     type       src/daw/store/index.ts:94:3                                   
+AudioClip                    type       src/daw/store/index.ts:95:3                                   
+PitchEdit                    type       src/daw/store/index.ts:96:3                                   
+AudioClipPitchData           type       src/daw/store/index.ts:97:3                                   
+AudioInputChannel            type       src/daw/store/index.ts:98:3                                   
+EffectSlotType               type       src/daw/store/index.ts:100:15                                 
+MidiDeviceSlice              type       src/daw/store/index.ts:102:3                                  
+MidiDevice                   type       src/daw/store/index.ts:103:3                                  
+MidiStatus                   type       src/daw/store/index.ts:104:3                                  
+PrismSlice                   type       src/daw/store/index.ts:106:15                                 
+UiSlice                      type       src/daw/store/index.ts:108:3                                  
+ToolType                     type       src/daw/store/index.ts:109:3                                  
+LeadSheetChordFormat         type       src/daw/store/index.ts:111:3                                  
+LeadSheetSection             type       src/daw/store/index.ts:112:3                                  
+LeadSheetRepeat              type       src/daw/store/index.ts:113:3                                  
+MasteringSlice               type       src/daw/store/index.ts:116:3                                  
+MasteringStyle               type       src/daw/store/index.ts:117:3                                  
+StereoFieldMode              type       src/daw/store/index.ts:118:3                                  
+MarkersSlice                 type       src/daw/store/index.ts:120:15                                 
+Marker                       type       src/daw/store/index.ts:120:29                                 
+AudioIOSlice                 type       src/daw/store/index.ts:121:15                                 
+PrismSuggestionSlice         type       src/daw/store/index.ts:122:15                                 
+UnisonSlice                  type       src/daw/store/index.ts:123:15                                 
+MusicIntelligenceSlice       type       src/daw/store/index.ts:124:15                                 
+CollabSlice                  type       src/daw/store/index.ts:125:15                                 
+MasteringStyle               type       src/daw/store/masteringSlice.ts:11:13                         
+StereoFieldMode              type       src/daw/store/masteringSlice.ts:12:13                         
+MidiDevice                   interface  src/daw/store/midiDeviceSlice.ts:6:18                         
+MidiStatus                   type       src/daw/store/midiDeviceSlice.ts:14:13                        
+KeySource                    type       src/daw/store/musicIntelligenceSlice.ts:18:13                 
+LiveChordEntry               interface  src/daw/store/musicIntelligenceSlice.ts:20:18                 
+AudioClipPitchData           interface  src/daw/store/tracksSlice.ts:177:18                           
+UndoSnapshot                 interface  src/daw/store/undoMiddleware.ts:14:18                         
+TripletGridSize              type       src/daw/utils/quantize.ts:31:13                               
+ApiTimeBucket                interface  src/hooks/data/admin/useAdminTelemetry.ts:21:18               
+SlowestRoute                 interface  src/hooks/data/admin/useAdminTelemetry.ts:30:18               
+FailingRoute                 interface  src/hooks/data/admin/useAdminTelemetry.ts:37:18               
+RoutingTimeBucket            interface  src/hooks/data/admin/useAdminTelemetry.ts:50:18               
+TopRoute                     interface  src/hooks/data/admin/useAdminTelemetry.ts:55:18               
+AudioTimeBucket              interface  src/hooks/data/admin/useAdminTelemetry.ts:65:18               
+AudioFailureType             interface  src/hooks/data/admin/useAdminTelemetry.ts:73:18               
+AudioRecentError             interface  src/hooks/data/admin/useAdminTelemetry.ts:78:18               
+LearningFunnel               interface  src/hooks/data/admin/useAdminTelemetry.ts:95:18               
+SubscriptionFunnel           interface  src/hooks/data/admin/useAdminTelemetry.ts:103:18              
+PerLessonStat                interface  src/hooks/data/admin/useAdminTelemetry.ts:109:18              
+TelemetryError               interface  src/hooks/data/admin/useAdminTelemetry.ts:122:18              
+Classroom                    type       src/hooks/data/classrooms/index.ts:12:15                      
+Classroom                    type       src/hooks/data/classrooms/useClassroom.ts:14:13               
+PrismChordList               type       src/hooks/data/prism/index.ts:3:8                             
+PrismChordListItem           type       src/hooks/data/prism/index.ts:4:8                             
+PrismChordIntervals          type       src/hooks/data/prism/index.ts:6:30                            
+PrismChordProgressionKey     type       src/hooks/data/prism/index.ts:9:8                             
+PrismModesMap                type       src/hooks/data/prism/index.ts:11:30                           
+PrismModeSteps               type       src/hooks/data/prism/index.ts:12:29                           
+PrismModeChordMap            type       src/hooks/data/prism/index.ts:15:8                            
+PrismModeChordDataMap        type       src/hooks/data/prism/index.ts:19:8                            
+PrismModeFamilyList          type       src/hooks/data/prism/index.ts:23:8                            
+PrismModeFamilyOption        type       src/hooks/data/prism/index.ts:24:8                            
+PrismModeFamilyDetail        type       src/hooks/data/prism/index.ts:28:8                            
+PrismChordName               type       src/hooks/data/prism/index.ts:30:15                           
+PrismModeFamily              type       src/hooks/data/prism/index.ts:30:46                           
+IntervalInfo                 type       src/hooks/data/prism/index.ts:34:34                           
+PrismChordIntervals          type       src/hooks/data/prism/usePrismChord.ts:8:13                    
+PrismChordList               type       src/hooks/data/prism/usePrismChords.ts:7:13                   
+PrismChordListItem           type       src/hooks/data/prism/usePrismChords.ts:8:13                   
+PrismChordProgressionKey     type       src/hooks/data/prism/usePrismChordsProgressions.ts:7:13       
+IntervalInfo                 type       src/hooks/data/prism/usePrismIntervals.ts:4:13                
+PrismModeSteps               type       src/hooks/data/prism/usePrismMode.ts:8:13                     
+PrismModeChordMap            type       src/hooks/data/prism/usePrismModeChords.ts:5:13               
+PrismModeFamilyList          type       src/hooks/data/prism/usePrismModeFamilies.ts:7:13             
+PrismModeFamilyOption        type       src/hooks/data/prism/usePrismModeFamilies.ts:8:13             
+PrismModeFamilyDetail        type       src/hooks/data/prism/usePrismModeFamily.ts:8:13               
+PrismModesMap                type       src/hooks/data/prism/usePrismModes.ts:4:13                    
+AudioSystemVersion           type       src/learn/audio/AudioSystemSelector.ts:13:13                  
+OnsetEvent                   interface  src/learn/audio/OnsetDetector.ts:16:18                        
+PitchDistribution            type       src/learn/audio/v2/index.ts:6:3                               
+OnsetEvent                   type       src/learn/audio/v2/index.ts:7:3                               
+TrackedNote                  type       src/learn/audio/v2/index.ts:8:3                               
+NMFActivation                type       src/learn/audio/v2/index.ts:9:3                               
+ContinuousNoteScore          type       src/learn/audio/v2/index.ts:10:3                              
+ContinuousPerformanceScore   type       src/learn/audio/v2/index.ts:11:3                              
+ContinuousNoteFeedback       type       src/learn/audio/v2/index.ts:12:3                              
+DetectionMode                type       src/learn/audio/v2/index.ts:13:3                              
+StreamingCaptureState        type       src/learn/audio/v2/index.ts:33:15                             
+OrchestratorCallbacks        type       src/learn/audio/v2/index.ts:56:15                             
+CalibrationV2Profile         type       src/learn/audio/v2/index.ts:59:3                              
+CalibrationV2Step            type       src/learn/audio/v2/index.ts:60:3                              
+CalibrationV2Progress        type       src/learn/audio/v2/index.ts:61:3                              
+CalibrationV2Profile         interface  src/learn/audio/v2/PianoCalibrationV2.ts:21:18                
+CalibrationV2Step            type       src/learn/audio/v2/PianoCalibrationV2.ts:29:13                
+CalibrationV2Progress        interface  src/learn/audio/v2/PianoCalibrationV2.ts:31:18                
+ContinuousNoteFeedback       interface  src/learn/audio/v2/types.ts:166:18                            
+InputSource                  type       src/learn/context/LearnInputContext.tsx:184:15                
+UseLearnInputOptions         type       src/learn/context/LearnInputContext.tsx:184:28                
+UseLearnInputReturn          type       src/learn/context/LearnInputContext.tsx:184:50                
+AvatarPolygon                interface  src/lib/avatarHexGrid.ts:50:18                                
+ChallengeStatus              type       src/lib/challenges/types.ts:1:13                              
+ChallengeCriteria            type       src/lib/challenges/types.ts:3:13                              
+DailyExperienceSummary       interface  src/lib/experience/types.ts:1:18                              
+ExperienceAwardReason        type       src/lib/experience/types.ts:10:13                             
+ProgressSummaryLesson        interface  src/lib/progress/types.ts:21:18                               
+AudioAssetSource             type       src/lib/studio-assets/api.ts:7:13                             
+AudioAssetUploadStatus       type       src/lib/studio-assets/api.ts:13:13                            
+StudioProjectAudioClipInput  interface  src/lib/studio-projects/api.ts:13:18                          
+StudioProjectAudioClip       interface  src/lib/studio-projects/api.ts:23:18                          
+StudioProjectTrackInput      interface  src/lib/studio-projects/api.ts:31:18                          
+StudioProjectTrack           interface  src/lib/studio-projects/api.ts:67:18                          
+TelemetryCategory            type       src/telemetry/types.ts:1:13                                   
+LiveChordInput               interface  src/unison/engine/liveAnalyzer.ts:23:18                       
+MixturePatternType           type       src/unison/engine/modeMixture.ts:22:13                        
+UnisonMetadata               interface  src/unison/types/schema.ts:26:18                              
+UnisonLyricEvent             interface  src/unison/types/schema.ts:78:18                              
+UnisonAnalysis               interface  src/unison/types/schema.ts:86:18                              
+FormRepeat                   interface  src/unison/types/schema.ts:260:18                             
+FormAnalysis                 interface  src/unison/types/schema.ts:265:18                             
+InstrumentGuess              interface  src/unison/types/schema.ts:290:18                             
+Unused exported enum members (9)
+SideStick   DrumNote  src/daw/prism-engine/types.ts:154:3
+Clap        DrumNote  src/daw/prism-engine/types.ts:156:3
+HiHatPedal  DrumNote  src/daw/prism-engine/types.ts:158:3
+HiHatOpen   DrumNote  src/daw/prism-engine/types.ts:159:3
+TomMid      DrumNote  src/daw/prism-engine/types.ts:161:3
+RideBell    DrumNote  src/daw/prism-engine/types.ts:165:3
+Cowbell     DrumNote  src/daw/prism-engine/types.ts:166:3
+Shaker      DrumNote  src/daw/prism-engine/types.ts:167:3
+Clave       DrumNote  src/daw/prism-engine/types.ts:168:3
+Unused exported namespace members (43)
+DeleteClassroomsByIdStudentsByStudentId.RequestParams  Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1726:17
+DeleteClassroomsByIdStudentsByStudentId.RequestQuery   Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1730:17
+DeleteClassroomsByIdStudentsByStudentId.RequestBody    Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1731:17
+DeleteClassroomsByIdStudentsByStudentId.RequestHeade…  Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1732:17
+DeleteClassroomsByIdStudentsByStudentId.ResponseBody   Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1733:17
+GetClassrooms.RequestParams                            Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1744:17
+GetClassrooms.RequestQuery                             Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1745:17
+GetClassrooms.RequestBody                              Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1748:17
+GetClassrooms.RequestHeaders                           Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1749:17
+GetClassrooms.ResponseBody                             Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1750:17
+GetClassroomsById.RequestParams                        Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1761:17
+GetClassroomsById.RequestQuery                         Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1764:17
+GetClassroomsById.RequestBody                          Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1765:17
+GetClassroomsById.RequestHeaders                       Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1766:17
+GetClassroomsDetailsByCode.RequestParams               Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1778:17
+GetClassroomsDetailsByCode.RequestQuery                Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1781:17
+GetClassroomsDetailsByCode.RequestBody                 Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1782:17
+GetClassroomsDetailsByCode.RequestHeaders              Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1783:17
+GetClassroomsDetailsByCode.ResponseBody                Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1784:17
+PatchClassroomsById.RequestParams                      Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1795:17
+PatchClassroomsById.RequestQuery                       Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1798:17
+PatchClassroomsById.RequestBody                        Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1799:17
+PatchClassroomsById.RequestHeaders                     Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1800:17
+PatchClassroomsById.ResponseBody                       Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1801:17
+PatchClassroomsByIdStudentsByStudentIdRestore.Reques…  Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1812:17
+PatchClassroomsByIdStudentsByStudentIdRestore.Reques…  Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1816:17
+PatchClassroomsByIdStudentsByStudentIdRestore.Reques…  Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1817:17
+PatchClassroomsByIdStudentsByStudentIdRestore.Reques…  Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1818:17
+PatchClassroomsByIdStudentsByStudentIdRestore.Respon…  Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1819:17
+PostClassrooms.RequestParams                           Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1830:17
+PostClassrooms.RequestQuery                            Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1831:17
+PostClassrooms.RequestBody                             Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1832:17
+PostClassrooms.RequestHeaders                          Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1833:17
+PostClassrooms.ResponseBody                            Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1834:17
+PostClassroomsJoin.RequestParams                       Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1845:17
+PostClassroomsJoin.RequestQuery                        Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1846:17
+PostClassroomsJoin.RequestBody                         Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1847:17
+PostClassroomsJoin.RequestHeaders                      Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1848:17
+PostClassroomsJoin.ResponseBody                        Classrooms  …ts/MusicAtlasContext/musicAtlas.generated.ts:1849:17
+GetNotes.RequestParams                                 Notes       …ts/MusicAtlasContext/musicAtlas.generated.ts:2066:17
+GetNotes.RequestQuery                                  Notes       …ts/MusicAtlasContext/musicAtlas.generated.ts:2067:17
+GetNotes.RequestBody                                   Notes       …ts/MusicAtlasContext/musicAtlas.generated.ts:2068:17
+GetNotes.RequestHeaders                                Notes       …ts/MusicAtlasContext/musicAtlas.generated.ts:2069:17
+Duplicate exports (1)
+HEX_WIDTH|HORIZ_DIST  src/components/Games/SignalFlow/hexGrid.ts
+Configuration hints (10)
+. (root)                                   knip.json  Add entry and/or refine project files (219 unused files)
+src/curriculum/data/_generated_index.ts    knip.json  Remove from ignore                                      
+@flasd/no-hats                             knip.json  Remove from ignoreDependencies                          
+@flasd/pretty-package                      knip.json  Remove from ignoreDependencies                          
+@flasd/stay-fresh                          knip.json  Remove from ignoreDependencies                          
+vitest.config.ts                           knip.json  Refine entry pattern (no matches)                       
+test/**/*.{ts,tsx}                         knip.json  Refine entry pattern (no matches)                       
+src/main.tsx                               knip.json  Remove redundant entry pattern                          
+vite.config.ts                             knip.json  Remove redundant entry pattern                          
+.swagger/generate.ts                       knip.json  Remove redundant entry pattern                          

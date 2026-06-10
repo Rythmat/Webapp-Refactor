@@ -1,0 +1,23 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "index.html",
+    "src/main.tsx",
+    "vite.config.ts",
+    "vitest.config.ts",
+    ".swagger/generate.ts",
+    "src/**/*.spec.{ts,tsx}",
+    "src/**/*.test.{ts,tsx}",
+    "test/**/*.{ts,tsx}"
+  ],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignore": [
+    "src/curriculum/data/_generated_index.ts",
+    "src/curriculum/data/harmonyKB.generated.ts"
+  ],
+  "ignoreDependencies": [
+    "@flasd/no-hats",
+    "@flasd/pretty-package",
+    "@flasd/stay-fresh"
+  ]
+}

@@ -98,16 +98,29 @@ export function sliceBuffer(
 }
 
 /** Compute peak amplitudes for waveform rendering. Returns normalized 0-1 peaks. */
-export function computePeaks(buffer: AudioBuffer, numPeaks: number): number[] {
+export function computePeaks(
+  buffer: AudioBuffer,
+  numPeaks: number,
+  // Optional sample window [windowStart, windowEnd) so a trimmed clip can render
+  // only the portion of the buffer it actually plays. Defaults to the whole buffer.
+  windowStart = 0,
+  windowEnd = buffer.length,
+): number[] {
   const channelData = buffer.getChannelData(0); // mono or left channel
-  const samplesPerPeak = Math.floor(channelData.length / numPeaks);
+  const rangeStart = Math.max(0, Math.min(windowStart, channelData.length));
+  const rangeEnd = Math.max(
+    rangeStart,
+    Math.min(windowEnd, channelData.length),
+  );
+  const rangeLength = rangeEnd - rangeStart;
+  const samplesPerPeak = Math.max(1, Math.floor(rangeLength / numPeaks));
   const peaks: number[] = [];
 
   let maxPeak = 0;
   for (let i = 0; i < numPeaks; i++) {
     let peak = 0;
-    const start = i * samplesPerPeak;
-    const end = Math.min(start + samplesPerPeak, channelData.length);
+    const start = rangeStart + i * samplesPerPeak;
+    const end = Math.min(start + samplesPerPeak, rangeEnd);
     for (let j = start; j < end; j++) {
       const abs = Math.abs(channelData[j]);
       if (abs > peak) peak = abs;

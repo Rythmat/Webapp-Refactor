@@ -44,8 +44,12 @@ export function JamDrumModeControl({ participants }: JamDrumModeControlProps) {
     return () => document.removeEventListener('mousedown', onClick);
   }, [open]);
 
-  const drummerName =
-    participants.find((p) => p.userId === drummerId)?.userName ?? 'someone';
+  // Label the designated drummer; the local user reads as "You" so the
+  // chosen player sees "Drummer: You" rather than their own name.
+  const drummer = participants.find((p) => p.userId === drummerId);
+  const drummerName = drummer?.isLocal
+    ? 'You'
+    : (drummer?.userName ?? 'someone');
 
   const applyMode = (mode: 'open' | 'designated', id: string | null) => {
     setDrumMode(mode, id);

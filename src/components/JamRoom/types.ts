@@ -78,12 +78,51 @@ export interface JamDrumSyncRequestMessage {
   userId: string;
 }
 
+/**
+ * Host → room: the host is moving the jam into a collaborative Studio session.
+ * Carries the Studio room code other players can join.
+ */
+export interface JamStudioInviteMessage {
+  type: 'jam:studio-invite';
+  /** Collaborative Studio room code to join. */
+  roomCode: string;
+  userId: string;
+}
+
+/**
+ * Shared sequencer transport — drives lock-step playback across the room.
+ * `startedAt` is a **server-clock** epoch (ms) so every client can map it onto
+ * its own clock and land on the same step at the same instant.
+ */
+export interface DrumTransport {
+  /** Whether the shared sequencer is currently running. */
+  playing: boolean;
+  /** Server-clock ms at which step 0 began; `null` when stopped. */
+  startedAt: number | null;
+  /** Tempo (BPM) the loop runs at. */
+  bpm: number;
+}
+
+export const DRUM_DEFAULT_BPM = 100;
+
+export function defaultDrumTransport(): DrumTransport {
+  return { playing: false, startedAt: null, bpm: DRUM_DEFAULT_BPM };
+}
+
+/** Broadcast of the shared sequencer transport (play / stop / tempo). */
+export interface JamDrumTransportMessage extends DrumTransport {
+  type: 'jam:drum-transport';
+  userId: string;
+}
+
 export type JamMessage =
   | JamNoteMessage
   | JamChatMessage
   | JamDrumGridMessage
   | JamDrumModeMessage
-  | JamDrumSyncRequestMessage;
+  | JamDrumSyncRequestMessage
+  | JamDrumTransportMessage
+  | JamStudioInviteMessage;
 
 /** Awareness state broadcast to all clients in the jam room. */
 export interface JamPresence {

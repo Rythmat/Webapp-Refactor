@@ -35,13 +35,14 @@ import { useTheme } from '@/daw/hooks/useTheme';
 import { useTransport } from '@/daw/hooks/useTransport';
 import { useStore } from '@/daw/store';
 import { initUndoTracking } from '@/daw/store/undoMiddleware';
-import { CollabProvider } from '@/daw/collab/CollabProvider';
+import { CollabProvider, useCollab } from '@/daw/collab/CollabProvider';
 import { UserList } from '@/daw/collab/ui/UserList';
 import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
 
 function DawAppInner() {
   const { isReady, initEngine } = useAudioEngine();
   const authToken = useAuthToken();
+  const { joinRoom, joinRoomAwaitingHost } = useCollab();
   useTransport();
   usePlaybackEngine(isReady, authToken);
   useKeyboardShortcuts(authToken);
@@ -104,6 +105,36 @@ function DawAppInner() {
       return;
     }
 
+    // Handed off from a jam room into a collaborative Studio session. The host
+    // arrives with `?jam=1&collab=<code>&host=1` (carries the jam tracks in and
+    // creates the room); invited players arrive with `?collab=<code>` and join.
+    // Connecting to PartyKit needs an auth token, so wait for it like a project.
+    const collabCode = params.get('collab');
+    if (collabCode) {
+      if (!authToken) return;
+      bootedRef.current = true;
+      const isCollabHost = params.get('host') === '1';
+      clearLocalSession();
+      resetSessionToEmpty();
+      // The host imports the recorded jam, then seeds the shared doc with it on
+      // create; joiners receive those tracks via the initial Yjs sync.
+      if (isJamImport) importPendingJamSession();
+      if (isCollabHost) {
+        joinRoom(
+          collabCode,
+          'owner',
+          undefined,
+          `studio-${collabCode}`,
+          collabCode,
+        );
+      } else {
+        // Joiners may beat the host to PartyKit; retry until the room exists.
+        joinRoomAwaitingHost(collabCode);
+      }
+      clearQuery();
+      return;
+    }
+
     bootedRef.current = true;
     if (isJamImport) {
       // Arrived from a jam room: start a fresh project, then add the recorded
@@ -126,7 +157,7 @@ function DawAppInner() {
     // Cloud remains the source of truth for explicit saves; this is crash
     // recovery.
     restoreLocalSessionIfPresent();
-  }, [authToken]);
+  }, [authToken, joinRoom, joinRoomAwaitingHost]);
 
   useEffect(() => {
     if (isReady) return;

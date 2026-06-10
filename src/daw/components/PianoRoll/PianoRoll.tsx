@@ -62,6 +62,11 @@ const VEL_LANE_H = 60; // px height for velocity lane
 const VEL_CIRCLE_R = 4; // px radius of draggable velocity circle
 const VEL_CIRCLE_HIT_R = 7; // px hit test radius (circle + tolerance)
 const TICKS_PER_BEAT = 480;
+// Dragging vertically on the bar-number ruler scales the piano roll (horizontal
+// zoom, up = in). Horizontal movement is ignored — the piano roll has no
+// drag-to-pan.
+const RULER_DRAG_THRESHOLD = 3; // px before a ruler press becomes a zoom drag
+const RULER_ZOOM_SENSITIVITY = 0.01; // zoom delta per px of vertical movement
 
 // Fixed view range (full keyboard C1–C7)
 const VIEW_MIN = 24; // C1
@@ -171,6 +176,16 @@ export function PianoRoll({
     moved: boolean;
   } | null>(null);
   const velDragRef = useRef<{ noteIndex: number } | null>(null);
+  // Active ruler scale drag (vertical → horizontal zoom).
+  const rulerDragRef = useRef<{
+    startY: number;
+    lastY: number;
+    moved: boolean;
+  } | null>(null);
+  // Live mirrors of zoom + its lower bound so the window-level ruler drag reads
+  // current values without re-attaching its listeners on every zoom step.
+  const zoomRef = useRef(1);
+  const minZoomRef = useRef(0.15);
 
   const selectSingle = useCallback((i: number | null) => {
     setSelectedIndices(i === null ? new Set() : new Set([i]));
@@ -200,6 +215,8 @@ export function PianoRoll({
     0.15,
     containerW / ((totalTicks * 40) / TICKS_PER_BEAT),
   );
+  zoomRef.current = zoom;
+  minZoomRef.current = MIN_ZOOM;
 
   // Pixel scale (zoom-dependent)
   const pixelsPerTick = (40 * zoom) / TICKS_PER_BEAT;
@@ -1198,6 +1215,71 @@ export function PianoRoll({
     return () => container.removeEventListener('wheel', handleWheel);
   }, [zoom, pixelsPerTick, vZoom, rowH]);
 
+  // ── Ruler scale drag: vertical → horizontal zoom ─────────────────────────
+  // Mirrors the timeline's bar-ruler scale drag. Movement is tracked at the
+  // window level so the gesture continues even when the cursor leaves the ruler
+  // (e.g. dragging up into the toolbar to keep scaling — no ceiling). The piano
+  // roll has no drag-to-pan; horizontal movement here is ignored.
+  const handleRulerMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
+      rulerDragRef.current = {
+        startY: e.clientY,
+        lastY: e.clientY,
+        moved: false,
+      };
+      if (rulerCanvasRef.current)
+        rulerCanvasRef.current.style.cursor = 'ns-resize';
+
+      const onMove = (me: MouseEvent) => {
+        const d = rulerDragRef.current;
+        const container = gridScrollRef.current;
+        if (!d || !container) return;
+
+        if (!d.moved) {
+          if (Math.abs(me.clientY - d.startY) <= RULER_DRAG_THRESHOLD) return;
+          d.moved = true;
+          d.lastY = me.clientY;
+        }
+
+        const dy = d.lastY - me.clientY; // up → positive → zoom in
+        d.lastY = me.clientY;
+        if (dy === 0) return;
+
+        const rect = container.getBoundingClientRect();
+        const localX = me.clientX - rect.left;
+        const curZoom = zoomRef.current;
+        const ppt = (40 * curZoom) / TICKS_PER_BEAT;
+        const tickAtMouse = (localX + container.scrollLeft) / ppt;
+        const newZoom = Math.min(
+          MAX_ZOOM,
+          Math.max(
+            minZoomRef.current,
+            curZoom * (1 + dy * RULER_ZOOM_SENSITIVITY),
+          ),
+        );
+        zoomRef.current = newZoom; // update now so rapid moves don't compound
+        const newScrollLeft =
+          tickAtMouse * ((40 * newZoom) / TICKS_PER_BEAT) - localX;
+        setZoom(newZoom);
+        requestAnimationFrame(() => {
+          if (gridScrollRef.current)
+            gridScrollRef.current.scrollLeft = Math.max(0, newScrollLeft);
+        });
+      };
+      const onUp = () => {
+        rulerDragRef.current = null;
+        if (rulerCanvasRef.current)
+          rulerCanvasRef.current.style.cursor = 'ns-resize';
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+      };
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    },
+    [MAX_ZOOM],
+  );
+
   // ── Render ──────────────────────────────────────────────────────────────
   // Velocity control reflects the selection: shows the first selected note's
   // value and applies edits to every selected note.
@@ -1377,7 +1459,7 @@ export function PianoRoll({
 
           {/* Right column: ruler + grid */}
           <div className="flex flex-1 flex-col overflow-hidden">
-            {/* Ruler — syncs horizontally with grid */}
+            {/* Ruler — syncs horizontally with grid; drag to scale/pan */}
             <div
               ref={rulerScrollRef}
               style={{
@@ -1387,7 +1469,12 @@ export function PianoRoll({
                 overflowY: 'hidden',
               }}
             >
-              <canvas ref={rulerCanvasRef} className="block" />
+              <canvas
+                ref={rulerCanvasRef}
+                className="block"
+                style={{ cursor: 'ns-resize' }}
+                onMouseDown={handleRulerMouseDown}
+              />
             </div>
             {/* Grid — scroll master */}
             <div

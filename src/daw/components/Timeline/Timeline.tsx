@@ -1565,12 +1565,10 @@ export function Timeline() {
       }
       const hit = hitTestClip(x, y);
       if (hit) {
-        const hitTrack = useStore
-          .getState()
-          .tracks.find((t) => t.id === hit.trackId);
-        if (hitTrack?.instrument !== 'drum-machine') {
-          useStore.getState().setEditingClip(hit.clipId, hit.trackId);
-        }
+        // Open the piano roll for any MIDI clip, including drum-machine tracks.
+        // Drum hits are MIDI notes, so they edit in the roll just like any other
+        // MIDI clip (the drum machine remains available in the track controls).
+        useStore.getState().setEditingClip(hit.clipId, hit.trackId);
       }
     },
     [getCanvasCoords, getScrollTop, hitTestClip],
@@ -2193,6 +2191,64 @@ export function Timeline() {
   }, [draw]);
 
   // Global mouseup listener for drag release outside canvas
+  // While a ruler zoom-drag or empty-area pan is active, keep processing mouse
+  // movement at the window level so the gesture continues even after the cursor
+  // leaves the canvas (e.g. dragging up into the transport bar to keep scaling
+  // the timeline — there's no ceiling on how far up the user can go). Both
+  // deltas are incremental and update their own `last` reference, so the
+  // canvas's own onMouseMove and this listener can't double-apply: whichever
+  // fires second for a given event sees a zero delta.
+  const handleWindowMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (rulerZoomRef.current) {
+        const { x, y } = getCanvasCoords(e);
+        const r = rulerZoomRef.current;
+        if (!r.moved) {
+          if (Math.abs(y - r.startY) <= RULER_ZOOM_DRAG_THRESHOLD) return;
+          r.moved = true;
+          r.lastY = y;
+        }
+        const dy = r.lastY - y; // up (y decreases) → positive → zoom in
+        if (dy !== 0) {
+          const state = useStore.getState();
+          state.zoomAtPoint(
+            dy * RULER_ZOOM_SENSITIVITY,
+            x + state.timelineScrollLeft,
+          );
+          r.lastY = y;
+        }
+        if (canvasRef.current) canvasRef.current.style.cursor = 'ns-resize';
+      } else if (panDragRef.current) {
+        const { x } = getCanvasCoords(e);
+        const p = panDragRef.current;
+        if (!p.moved) {
+          if (Math.abs(x - p.startX) <= PAN_DRAG_THRESHOLD) return;
+          p.moved = true;
+          p.lastX = x;
+        }
+        const deltaX = x - p.lastX;
+        if (deltaX !== 0) {
+          const state = useStore.getState();
+          const maxScrollNow = Math.max(
+            0,
+            (projectLengthTicks / TICKS_PER_BEAT) *
+              pixelsPerBeat(state.timelineZoom) -
+              (canvasRef.current?.parentElement?.clientWidth ?? 800),
+          );
+          state.setTimelineScrollLeft(
+            Math.min(
+              maxScrollNow,
+              Math.max(0, state.timelineScrollLeft - deltaX),
+            ),
+          );
+          p.lastX = x;
+        }
+        if (canvasRef.current) canvasRef.current.style.cursor = 'grabbing';
+      }
+    },
+    [getCanvasCoords, projectLengthTicks],
+  );
+
   useEffect(() => {
     const handleGlobalUp = () => {
       if (
@@ -2205,8 +2261,12 @@ export function Timeline() {
       }
     };
     window.addEventListener('mouseup', handleGlobalUp);
-    return () => window.removeEventListener('mouseup', handleGlobalUp);
-  }, [handleCanvasMouseUp]);
+    window.addEventListener('mousemove', handleWindowMouseMove);
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalUp);
+      window.removeEventListener('mousemove', handleWindowMouseMove);
+    };
+  }, [handleCanvasMouseUp, handleWindowMouseMove]);
 
   // ── Wheel: zoom (Cmd/Ctrl) + horizontal scroll (Shift/trackpad) ────
 

@@ -34,6 +34,13 @@ export function PianoRollModal() {
     [editingClipTrackId, editingClipId, updateMidiClipEvents],
   );
 
+  // Events are clip-relative; after a front-trim the clip sits at a non-zero
+  // startTick while its events still start near tick 0. Anchor the editor at
+  // whichever is smaller so notes never render off the left edge.
+  const pianoRollStartTick = clip
+    ? clip.events.reduce((min, e) => Math.min(min, e.startTick), clip.startTick)
+    : 0;
+
   return (
     <Dialog.Root
       open={isOpen}
@@ -97,7 +104,7 @@ export function PianoRollModal() {
             {clip && track ? (
               <PianoRoll
                 events={clip.events}
-                clipStartTick={clip.startTick}
+                clipStartTick={pianoRollStartTick}
                 clipColor={track.color}
                 onChange={handleChange}
               />

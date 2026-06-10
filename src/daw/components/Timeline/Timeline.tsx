@@ -227,13 +227,23 @@ interface ClipRect {
 
 // ── Drag state ──────────────────────────────────────────────────────────
 
+type DragMode = 'move' | 'resize-left' | 'resize-right';
+
 interface DragState {
   clipId: string;
   trackId: string;
   originTrackIndex: number;
   offsetX: number; // px offset from clip left edge to mouse
   startTickOrigin: number;
-  mode: 'move' | 'resize';
+  // Clip's right edge (timeline ticks) at grab time — the fixed anchor when
+  // trimming the left edge.
+  endTickOrigin: number;
+  // Bounds the trimmed edges may travel to. For MIDI these are the content
+  // extent (shrink-only); for audio they extend to the underlying buffer so a
+  // previously trimmed head/tail can be revealed again.
+  minStartTick: number;
+  maxEndTick: number;
+  mode: DragMode;
 }
 
 // ── Project length computation ──────────────────────────────────────────
@@ -280,6 +290,7 @@ export function Timeline() {
   const clipRectsRef = useRef<ClipRect[]>([]);
   const dragRef = useRef<DragState | null>(null);
   const dragTickRef = useRef<number>(0);
+  const dragEndTickRef = useRef<number>(0);
   const dragTrackRef = useRef<number>(0);
   const loopDragRef = useRef<'start' | 'end' | null>(null);
   const markerDragRef = useRef<string | null>(null);
@@ -513,12 +524,9 @@ export function Timeline() {
       // ── MIDI clips ────────────────────────────────────────────────
       for (const clip of track.midiClips) {
         const drag = dragRef.current;
-        const isDragging =
-          drag && drag.clipId === clip.id && drag.mode === 'move';
-        const effectiveStartTick = isDragging
-          ? dragTickRef.current
-          : clip.startTick;
-        const effectiveTrackIndex = isDragging ? dragTrackRef.current : t;
+        const dmode = drag && drag.clipId === clip.id ? drag.mode : null;
+        const isMoving = dmode === 'move';
+        const effectiveTrackIndex = isMoving ? dragTrackRef.current : t;
         const effectiveY = effectiveTrackIndex * TRACK_HEIGHT + RULERS_HEIGHT;
 
         let clipDuration: number;
@@ -538,18 +546,38 @@ export function Timeline() {
         } else {
           clipDuration = 0;
         }
-        const clipEndTick = effectiveStartTick + clipDuration;
 
-        // Skip clips outside visible range
-        if (clipEndTick < visStart || effectiveStartTick > visEnd) continue;
-
-        const clipX = tickToPixel(
-          effectiveStartTick,
+        // Notes follow the clip when moving but stay anchored when trimming an
+        // edge — the box (below) clips them. Their pixel scale is constant
+        // (clipWidth / clipDuration === ppb / TPB) so positions don't squish.
+        const noteStartTick = isMoving ? dragTickRef.current : clip.startTick;
+        const noteX = tickToPixel(
+          noteStartTick,
           currentZoom,
           currentScrollLeft,
         );
-        const clipWidth = Math.max(
+        const noteWidth = Math.max(
           (clipDuration / TICKS_PER_BEAT) * currentPpb,
+          20,
+        );
+
+        // Box edges — live values while trimming, content extent otherwise.
+        let boxStartTick = noteStartTick;
+        let boxEndTick = noteStartTick + clipDuration;
+        if (dmode === 'resize-left') {
+          boxStartTick = dragTickRef.current;
+          boxEndTick = clip.startTick + clipDuration;
+        } else if (dmode === 'resize-right') {
+          boxStartTick = clip.startTick;
+          boxEndTick = dragEndTickRef.current;
+        }
+
+        // Skip clips outside visible range
+        if (boxEndTick < visStart || boxStartTick > visEnd) continue;
+
+        const clipX = tickToPixel(boxStartTick, currentZoom, currentScrollLeft);
+        const clipWidth = Math.max(
+          ((boxEndTick - boxStartTick) / TICKS_PER_BEAT) * currentPpb,
           20,
         );
 
@@ -564,7 +592,7 @@ export function Timeline() {
           y: effectiveY + 2,
           w: clipWidth,
           h: TRACK_HEIGHT - 4,
-          startTick: clip.startTick,
+          startTick: boxStartTick,
         });
 
         // Background — neutral white glass so chord ruler / MIDI notes show through
@@ -596,9 +624,9 @@ export function Timeline() {
             drawPianoRoll(
               ctx,
               clip.events,
-              clipX,
+              noteX,
               effectiveY + 2,
-              clipWidth,
+              noteWidth,
               TRACK_HEIGHT - 4,
               eventsMinTick,
               clipDuration,
@@ -706,23 +734,36 @@ export function Timeline() {
       // ── Audio clips ───────────────────────────────────────────────
       for (const clip of track.audioClips) {
         const drag = dragRef.current;
-        const isDragging =
-          drag && drag.clipId === clip.id && drag.mode === 'move';
-        const effectiveStartTick = isDragging
-          ? dragTickRef.current
-          : clip.startTick;
-        const effectiveTrackIndex = isDragging ? dragTrackRef.current : t;
+        const dmode = drag && drag.clipId === clip.id ? drag.mode : null;
+        const isMoving = dmode === 'move';
+        const effectiveTrackIndex = isMoving ? dragTrackRef.current : t;
         const effectiveY = effectiveTrackIndex * TRACK_HEIGHT + RULERS_HEIGHT;
 
-        const clipEndTick = effectiveStartTick + clip.duration;
-        if (clipEndTick < visStart || effectiveStartTick > visEnd) continue;
+        // Box edges — live values while trimming, content extent otherwise.
+        const baseStartTick = isMoving ? dragTickRef.current : clip.startTick;
+        let boxStartTick = baseStartTick;
+        let boxEndTick = baseStartTick + clip.duration;
+        if (dmode === 'resize-left') {
+          boxStartTick = dragTickRef.current;
+          boxEndTick = clip.startTick + clip.duration;
+        } else if (dmode === 'resize-right') {
+          boxStartTick = clip.startTick;
+          boxEndTick = dragEndTickRef.current;
+        }
 
-        const clipX = tickToPixel(
-          effectiveStartTick,
-          currentZoom,
-          currentScrollLeft,
-        );
-        const clipWidth = (clip.duration / TICKS_PER_BEAT) * currentPpb;
+        if (boxEndTick < visStart || boxStartTick > visEnd) continue;
+
+        const clipX = tickToPixel(boxStartTick, currentZoom, currentScrollLeft);
+        const clipWidth =
+          ((boxEndTick - boxStartTick) / TICKS_PER_BEAT) * currentPpb;
+
+        // Portion of the underlying asset the (previewed) box plays, so the
+        // waveform reflects front/back trims.
+        const ticksPerSec = (state.bpm * 480) / 60;
+        const previewOffsetSec =
+          (clip.offsetSeconds ?? 0) +
+          (boxStartTick - clip.startTick) / ticksPerSec;
+        const previewDurationSec = (boxEndTick - boxStartTick) / ticksPerSec;
 
         const isSelected = currentSelectedClipId === clip.id;
 
@@ -735,7 +776,7 @@ export function Timeline() {
           y: effectiveY + 2,
           w: clipWidth,
           h: TRACK_HEIGHT - 4,
-          startTick: effectiveStartTick,
+          startTick: boxStartTick,
         });
 
         ctx.fillStyle = isSelected
@@ -792,7 +833,13 @@ export function Timeline() {
           } else {
             let amps: number[];
             if (audioBuffer) {
-              amps = computePeaks(audioBuffer, sampleCount);
+              const sr = audioBuffer.sampleRate;
+              amps = computePeaks(
+                audioBuffer,
+                sampleCount,
+                Math.floor(previewOffsetSec * sr),
+                Math.floor((previewOffsetSec + previewDurationSec) * sr),
+              );
             } else {
               const rand = seededRandom(hashStr(clip.id));
               amps = Array.from(
@@ -1184,6 +1231,16 @@ export function Timeline() {
     [],
   );
 
+  const isNearLeftEdge = useCallback(
+    (x: number, clipRect: ClipRect): boolean => {
+      // Don't claim the left edge on a clip too narrow to also grab/move.
+      return (
+        clipRect.w > RESIZE_EDGE_PX * 3 && x <= clipRect.x + RESIZE_EDGE_PX
+      );
+    },
+    [],
+  );
+
   // ── Mouse down ─────────────────────────────────────────────────────
 
   const handleCanvasMouseDown = useCallback(
@@ -1265,7 +1322,53 @@ export function Timeline() {
         if (hit) {
           state.setSelectedClip(hit.clipId, hit.trackId);
 
-          const mode = isNearRightEdge(x, hit) ? 'resize' : 'move';
+          const mode: DragMode = isNearLeftEdge(x, hit)
+            ? 'resize-left'
+            : isNearRightEdge(x, hit)
+              ? 'resize-right'
+              : 'move';
+
+          // Resolve the clip's content end + the bounds its edges may travel to.
+          const hitTrack = state.tracks.find((t) => t.id === hit.trackId);
+          const midiClip = hitTrack?.midiClips.find((c) => c.id === hit.clipId);
+          const audioClip = hitTrack?.audioClips.find(
+            (c) => c.id === hit.clipId,
+          );
+          let endTickOrigin = hit.startTick;
+          let minStartTick = hit.startTick;
+          let maxEndTick = hit.startTick;
+          if (midiClip) {
+            // MIDI trims are destructive — bound the edges to the content.
+            let dur = 0;
+            if (midiClip.durationTicks != null) {
+              dur = midiClip.durationTicks;
+            } else if (midiClip.events.length > 0) {
+              const minT = midiClip.events.reduce(
+                (m, e) => Math.min(m, e.startTick),
+                Infinity,
+              );
+              const maxT = midiClip.events.reduce(
+                (m, e) => Math.max(m, e.startTick + e.durationTicks),
+                -Infinity,
+              );
+              dur = maxT - minT;
+            }
+            endTickOrigin = midiClip.startTick + dur;
+            minStartTick = midiClip.startTick;
+            maxEndTick = endTickOrigin;
+          } else if (audioClip) {
+            // Audio trims are non-destructive — the buffer beyond the current
+            // edges can be revealed, so bounds span the whole underlying asset.
+            endTickOrigin = audioClip.startTick + audioClip.duration;
+            const ticksPerSec = (state.bpm * 480) / 60;
+            const offsetTicks = (audioClip.offsetSeconds ?? 0) * ticksPerSec;
+            const bufferTicks =
+              (getAudioBuffer(audioClip.id)?.duration ?? 0) * ticksPerSec;
+            const assetStart = audioClip.startTick - offsetTicks;
+            minStartTick = Math.max(0, assetStart);
+            maxEndTick =
+              bufferTicks > 0 ? assetStart + bufferTicks : endTickOrigin;
+          }
 
           dragRef.current = {
             clipId: hit.clipId,
@@ -1273,9 +1376,13 @@ export function Timeline() {
             originTrackIndex: hit.trackIndex,
             offsetX: x - hit.x,
             startTickOrigin: hit.startTick,
+            endTickOrigin,
+            minStartTick,
+            maxEndTick,
             mode,
           };
           dragTickRef.current = hit.startTick;
+          dragEndTickRef.current = endTickOrigin;
           dragTrackRef.current = hit.trackIndex;
         } else {
           state.setSelectedClip(null, null);
@@ -1386,7 +1493,14 @@ export function Timeline() {
         }
       }
     },
-    [getCanvasCoords, getScrollTop, hitTestClip, isNearRightEdge, doSnap],
+    [
+      getCanvasCoords,
+      getScrollTop,
+      hitTestClip,
+      isNearRightEdge,
+      isNearLeftEdge,
+      doSnap,
+    ],
   );
 
   // Double-click: ruler → add marker, clip → open Piano Roll
@@ -1735,9 +1849,28 @@ export function Timeline() {
           if (!state.isPlaying) {
             draw();
           }
+        } else if (drag.mode === 'resize-left') {
+          // Left edge can travel between its lower bound and one grid step
+          // short of the fixed right edge.
+          const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
+          const snapped = snapTick(rawTick, currentSnapTicks);
+          dragTickRef.current = Math.max(
+            drag.minStartTick,
+            Math.min(snapped, drag.endTickOrigin - currentSnapTicks),
+          );
+          if (!state.isPlaying) draw();
+        } else if (drag.mode === 'resize-right') {
+          // Right edge can travel between one grid step past the fixed left
+          // edge and its upper bound.
+          const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
+          const snapped = snapTick(rawTick, currentSnapTicks);
+          dragEndTickRef.current = Math.min(
+            drag.maxEndTick,
+            Math.max(snapped, drag.startTickOrigin + currentSnapTicks),
+          );
+          if (!state.isPlaying) draw();
         }
-        canvas.style.cursor =
-          drag.mode === 'resize' ? 'col-resize' : 'grabbing';
+        canvas.style.cursor = drag.mode === 'move' ? 'grabbing' : 'col-resize';
         return;
       }
 
@@ -1774,7 +1907,7 @@ export function Timeline() {
         const hit = hitTestClip(x, y);
         if (state.activeTool === 'scissors' && hit) {
           canvas.style.cursor = 'crosshair';
-        } else if (hit && isNearRightEdge(x, hit)) {
+        } else if (hit && (isNearLeftEdge(x, hit) || isNearRightEdge(x, hit))) {
           canvas.style.cursor = 'col-resize';
         } else if (hit) {
           canvas.style.cursor = 'grab';
@@ -1790,6 +1923,7 @@ export function Timeline() {
       getScrollTop,
       hitTestClip,
       isNearRightEdge,
+      isNearLeftEdge,
       draw,
       tracks.length,
     ],
@@ -1867,6 +2001,74 @@ export function Timeline() {
               state.setSelectedClip(audioClip.id, targetTrack.id);
             }
           }
+        }
+      }
+    } else if (drag.mode === 'resize-left' || drag.mode === 'resize-right') {
+      const track = state.tracks.find((tr) => tr.id === drag.trackId);
+      const midiClip = track?.midiClips.find((c) => c.id === drag.clipId);
+      const audioClip = track?.audioClips.find((c) => c.id === drag.clipId);
+
+      if (midiClip) {
+        // MIDI trims are destructive: drop events outside the new bounds,
+        // clamp those that straddle an edge, and leave durationTicks unset so
+        // the clip box tracks its (now trimmed) content.
+        if (drag.mode === 'resize-left') {
+          const shift = dragTickRef.current - midiClip.startTick; // ticks off front
+          if (shift > 0) {
+            const events = midiClip.events
+              .filter((e) => e.startTick + e.durationTicks > shift)
+              .map((e) => {
+                const rel = e.startTick - shift;
+                return rel < 0
+                  ? { ...e, startTick: 0, durationTicks: e.durationTicks + rel }
+                  : { ...e, startTick: rel };
+              });
+            const ccEvents = midiClip.ccEvents
+              ?.map((c) => ({ ...c, tick: c.tick - shift }))
+              .filter((c) => c.tick >= 0);
+            state.updateMidiClip(drag.trackId, drag.clipId, {
+              startTick: dragTickRef.current,
+              events,
+              ccEvents: ccEvents?.length ? ccEvents : undefined,
+              durationTicks: undefined,
+            });
+          }
+        } else {
+          const newLen = dragEndTickRef.current - midiClip.startTick;
+          const events = midiClip.events
+            .filter((e) => e.startTick < newLen)
+            .map((e) =>
+              e.startTick + e.durationTicks > newLen
+                ? { ...e, durationTicks: newLen - e.startTick }
+                : e,
+            );
+          const ccEvents = midiClip.ccEvents?.filter((c) => c.tick < newLen);
+          state.updateMidiClip(drag.trackId, drag.clipId, {
+            events,
+            ccEvents: ccEvents?.length ? ccEvents : undefined,
+            durationTicks: undefined,
+          });
+        }
+      } else if (audioClip) {
+        // Audio trims are non-destructive: shift the asset read offset and the
+        // played duration; the buffer itself is untouched.
+        const ticksPerSec = (state.bpm * 480) / 60;
+        if (drag.mode === 'resize-left') {
+          const shift = dragTickRef.current - audioClip.startTick;
+          if (shift !== 0) {
+            state.updateAudioClip(drag.trackId, drag.clipId, {
+              startTick: dragTickRef.current,
+              duration: audioClip.duration - shift,
+              offsetSeconds: Math.max(
+                0,
+                (audioClip.offsetSeconds ?? 0) + shift / ticksPerSec,
+              ),
+            });
+          }
+        } else {
+          state.updateAudioClip(drag.trackId, drag.clipId, {
+            duration: dragEndTickRef.current - audioClip.startTick,
+          });
         }
       }
     }

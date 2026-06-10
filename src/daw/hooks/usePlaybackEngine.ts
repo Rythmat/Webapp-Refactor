@@ -372,6 +372,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
             pedalInput,
             clip.fadeInTicks,
             clip.fadeOutTicks,
+            clip.offsetSeconds ?? 0,
           );
         }
       }

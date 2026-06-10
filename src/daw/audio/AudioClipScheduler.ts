@@ -30,6 +30,9 @@ export class AudioClipScheduler {
     pedalInputNode?: AudioNode,
     fadeInTicks = 0,
     fadeOutTicks = 0,
+    // Trim offset into the underlying asset, in seconds. Front-trimming a clip
+    // advances this; the source must start reading the buffer from here.
+    clipOffsetSeconds = 0,
   ): void {
     const clipEndTick = startTick + durationTicks;
 
@@ -39,16 +42,20 @@ export class AudioClipScheduler {
     const clipDurationSeconds = (durationTicks / 480) * (60 / bpm);
     const fadeInSeconds = (fadeInTicks / 480) * (60 / bpm);
     const fadeOutSeconds = (fadeOutTicks / 480) * (60 / bpm);
+    const maxBufferOffset = Math.max(0, audioBuffer.duration - 0.001);
 
     if (currentTick >= startTick) {
-      // Playhead is at or inside the clip — start immediately with offset
+      // Playhead is at or inside the clip — start immediately. The buffer read
+      // position is the clip's trim offset plus how far the playhead already is
+      // into the clip; the fade math still uses the in-clip position.
       const offsetTicks = currentTick - startTick;
-      const offsetSeconds = (offsetTicks / 480) * (60 / bpm);
-      // Clamp to buffer duration to prevent RangeError
+      const playheadSeconds = (offsetTicks / 480) * (60 / bpm);
       const safeOffset = Math.min(
-        Math.max(0, offsetSeconds),
-        Math.max(0, audioBuffer.duration - 0.001),
+        Math.max(0, clipOffsetSeconds + playheadSeconds),
+        maxBufferOffset,
       );
+      // Stop at the clip's (trimmed) end rather than playing the whole buffer.
+      const playDuration = Math.max(0, clipDurationSeconds - playheadSeconds);
       this.startSourceNow(
         audioBuffer,
         safeOffset,
@@ -56,20 +63,26 @@ export class AudioClipScheduler {
         pedalInputNode,
         fadeInSeconds,
         fadeOutSeconds,
-        offsetSeconds,
+        playheadSeconds,
         clipDurationSeconds,
+        playDuration,
       );
     } else {
       // Clip is in the future — schedule via Transport
+      const startOffset = Math.min(
+        Math.max(0, clipOffsetSeconds),
+        maxBufferOffset,
+      );
       const id = Tone.getTransport().schedule((time) => {
         this.startSource(
           audioBuffer,
-          0,
+          startOffset,
           time,
           trackEngine,
           pedalInputNode,
           fadeInSeconds,
           fadeOutSeconds,
+          clipDurationSeconds,
           clipDurationSeconds,
         );
       }, `${startTick}i`);
@@ -110,6 +123,7 @@ export class AudioClipScheduler {
     fadeInSeconds = 0,
     fadeOutSeconds = 0,
     clipDurationSeconds = 0,
+    playDuration = 0,
   ): void {
     try {
       // Extract true native AudioContext — Tone.js rawContext is a
@@ -152,7 +166,11 @@ export class AudioClipScheduler {
         sourceOut.connect(dest);
       }
 
-      source.start(time, offsetSeconds);
+      if (playDuration > 0) {
+        source.start(time, offsetSeconds, playDuration);
+      } else {
+        source.start(time, offsetSeconds);
+      }
       this.activeSources.push(source);
       source.onended = () => {
         const idx = this.activeSources.indexOf(source);
@@ -173,6 +191,7 @@ export class AudioClipScheduler {
     fadeOutSeconds = 0,
     currentOffsetSeconds = 0,
     clipDurationSeconds = 0,
+    playDuration = 0,
   ): void {
     try {
       // Extract true native AudioContext (same as startSource above)
@@ -235,7 +254,11 @@ export class AudioClipScheduler {
         sourceOut.connect(dest);
       }
 
-      source.start(now, offsetSeconds);
+      if (playDuration > 0) {
+        source.start(now, offsetSeconds, playDuration);
+      } else {
+        source.start(now, offsetSeconds);
+      }
       this.activeSources.push(source);
       source.onended = () => {
         const idx = this.activeSources.indexOf(source);

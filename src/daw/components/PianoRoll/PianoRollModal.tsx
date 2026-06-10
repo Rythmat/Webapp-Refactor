@@ -1,6 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useStore } from '@/daw/store';
+import { DRUM_PADS } from '@/daw/instruments/DrumMachineEngine';
 import { PianoRoll } from './PianoRoll';
 import type { MidiNoteEvent } from '@prism/engine';
 
@@ -40,6 +41,16 @@ export function PianoRollModal() {
   const pianoRollStartTick = clip
     ? clip.events.reduce((min, e) => Math.min(min, e.startTick), clip.startTick)
     : 0;
+
+  // Drum tracks: label the key column with the same drum-pad codes (KCK, SNR, …)
+  // the track's drum control shows, instead of scale note names.
+  const noteLabels = useMemo(
+    () =>
+      track?.instrument === 'drum-machine'
+        ? new Map(DRUM_PADS.map((p) => [p.note, p.shortLabel]))
+        : undefined,
+    [track?.instrument],
+  );
 
   return (
     <Dialog.Root
@@ -107,6 +118,7 @@ export function PianoRollModal() {
                 clipStartTick={pianoRollStartTick}
                 clipColor={track.color}
                 onChange={handleChange}
+                noteLabels={noteLabels}
               />
             ) : (
               <div

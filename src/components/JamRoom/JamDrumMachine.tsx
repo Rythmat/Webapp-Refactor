@@ -3,17 +3,25 @@
 // 4 instruments × 16 steps. Sequencer playback sends notes over the network
 // so other players hear the beat.
 
-import { Play, Square, Trash2 } from 'lucide-react';
+import { Lock, Play, Square, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DrumEngine } from '@/components/Games/GrooveLab/DrumEngine';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useJamRoom } from './JamRoomProvider';
 import { useJamRoomStore, type ActiveNote } from './jamRoomStore';
-import { DRUM_MIDI_MAP, MIDI_TO_DRUM, type DrumSound } from './types';
+import {
+  DRUM_INSTRUMENTS,
+  DRUM_MIDI_MAP,
+  DRUM_STEPS,
+  MIDI_TO_DRUM,
+  emptyDrumGrid,
+  type DrumSound,
+} from './types';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
-const INSTRUMENTS: DrumSound[] = ['rim', 'hihat', 'snare', 'kick'];
-const STEPS = 16;
+const INSTRUMENTS = DRUM_INSTRUMENTS;
+const STEPS = DRUM_STEPS;
 const DEFAULT_BPM = 100;
 
 const INSTRUMENT_COLORS: Record<DrumSound, string> = {
@@ -29,14 +37,6 @@ const INSTRUMENT_LABELS: Record<DrumSound, string> = {
   hihat: 'Hi-Hat',
   rim: 'Rim',
 };
-
-type Grid = Record<DrumSound, boolean[]>;
-
-function emptyGrid(): Grid {
-  const g: Record<string, boolean[]> = {};
-  INSTRUMENTS.forEach((inst) => (g[inst] = new Array(STEPS).fill(false)));
-  return g as Grid;
-}
 
 function getActiveDrumColor(
   midi: number,
@@ -65,14 +65,24 @@ export function JamDrumMachine({
   onLocalDrumHit,
   onBpmChange,
 }: JamDrumMachineProps) {
-  const { sendNote, localColor } = useJamRoom();
+  const { sendNote, localColor, roomId, sendDrumGrid } = useJamRoom();
+  const { userId } = useAuthContext();
   const activeRemoteNotes = useJamRoomStore((s) => s.activeRemoteNotes);
+
+  // Shared drum pattern + edit permission (synced across the room).
+  const grid = useJamRoomStore((s) => s.drumGrid);
+  const drumMode = useJamRoomStore((s) => s.drumMode);
+  const drummerId = useJamRoomStore((s) => s.drummerId);
+
+  // Who may edit the pattern: everyone in a local/open session, or only the
+  // designated drummer when the host has locked editing to one player.
+  const canEdit =
+    roomId === null || drumMode === 'open' || drummerId === userId;
 
   const drumRef = useRef<DrumEngine | null>(null);
   const playbackRef = useRef<number | null>(null);
   const stepRef = useRef(0);
 
-  const [grid, setGrid] = useState<Grid>(emptyGrid);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
   const [bpm, setBpm] = useState(DEFAULT_BPM);
@@ -193,16 +203,32 @@ export function JamDrumMachine({
 
   // ── Grid toggle ──────────────────────────────────────────────────────
 
-  const toggleCell = useCallback((instrument: DrumSound, step: number) => {
-    setGrid((prev) => {
-      const next = { ...prev };
-      next[instrument] = [...prev[instrument]];
-      next[instrument][step] = !next[instrument][step];
-      return next;
-    });
-  }, []);
+  // Apply a grid edit locally (instant feedback) and broadcast it to the room.
+  const applyGrid = useCallback(
+    (next: typeof grid) => {
+      useJamRoomStore.getState().setDrumGrid(next);
+      sendDrumGrid(next);
+    },
+    [sendDrumGrid],
+  );
 
-  const clearGrid = useCallback(() => setGrid(emptyGrid()), []);
+  const toggleCell = useCallback(
+    (instrument: DrumSound, step: number) => {
+      if (!canEdit) return;
+      const prev = useJamRoomStore.getState().drumGrid;
+      const next = {
+        ...prev,
+        [instrument]: prev[instrument].map((on, i) => (i === step ? !on : on)),
+      };
+      applyGrid(next);
+    },
+    [canEdit, applyGrid],
+  );
+
+  const clearGrid = useCallback(() => {
+    if (!canEdit) return;
+    applyGrid(emptyDrumGrid());
+  }, [canEdit, applyGrid]);
 
   // ── Manual pad hit ───────────────────────────────────────────────────
 
@@ -267,13 +293,22 @@ export function JamDrumMachine({
           </button>
         </div>
 
-        <button
-          onClick={clearGrid}
-          className="text-zinc-600 hover:text-white transition-colors"
-          title="Clear"
-        >
-          <Trash2 size={12} />
-        </button>
+        {canEdit ? (
+          <button
+            onClick={clearGrid}
+            className="text-zinc-600 hover:text-white transition-colors"
+            title="Clear"
+          >
+            <Trash2 size={12} />
+          </button>
+        ) : (
+          <span
+            className="text-zinc-600"
+            title="Only the designated drummer can edit the pattern"
+          >
+            <Lock size={12} />
+          </span>
+        )}
       </div>
 
       {/* Right: grid + beat numbers */}
@@ -318,6 +353,7 @@ export function JamDrumMachine({
                       <button
                         key={step}
                         onClick={() => toggleCell(inst, step)}
+                        disabled={!canEdit}
                         className={`flex-1 rounded-[2px] transition-all ${
                           isBeatStart && step > 0 ? 'ml-0.5' : ''
                         }`}
@@ -332,6 +368,7 @@ export function JamDrumMachine({
                             : '1px solid rgba(255,255,255,0.10)',
                           opacity: isActive ? 1 : 0.7,
                           boxShadow: isActive ? `0 0 6px ${color}40` : 'none',
+                          cursor: canEdit ? 'pointer' : 'default',
                         }}
                       />
                     );

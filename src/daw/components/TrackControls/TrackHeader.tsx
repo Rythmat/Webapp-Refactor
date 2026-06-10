@@ -331,8 +331,10 @@ export const TrackHeader = memo(function TrackHeader({
         )}
       </div>
 
-      {/* Row 3: M / S buttons + level meter */}
-      <div className="flex items-center gap-1" style={lockedStyle}>
+      {/* Row 3: M / S buttons + level meter. M/S are per-user-local settings,
+          so they stay interactive even when the track is remote-locked; the
+          remaining controls (record-arm, volume) keep the lock. */}
+      <div className="flex items-center gap-1">
         <motion.button
           onClick={(e) => {
             e.stopPropagation();
@@ -378,6 +380,7 @@ export const TrackHeader = memo(function TrackHeader({
               : 'transparent',
             color: track.recordArmed ? track.color : 'var(--color-text-dim)',
             border: `1px solid ${track.recordArmed ? track.color : 'var(--color-border)'}`,
+            ...lockedStyle,
           }}
           title="Record Arm"
         >
@@ -388,9 +391,11 @@ export const TrackHeader = memo(function TrackHeader({
           />
         </motion.button>
 
-        {/* Live level meter + volume slider */}
+        {/* Live level meter + volume slider. Volume syncs to collaborators, so
+            it stays lock-protected. */}
         <Slider.Root
           className="relative ml-1 flex h-3 flex-1 cursor-pointer touch-none select-none items-center"
+          style={lockedStyle}
           min={0}
           max={100}
           step={1}

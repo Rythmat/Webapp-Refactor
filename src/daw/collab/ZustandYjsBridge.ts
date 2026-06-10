@@ -30,6 +30,7 @@ export class ZustandYjsBridge {
   private doc: Y.Doc;
   private setState: (partial: Partial<AllSlices>) => void;
   private getState: () => AllSlices;
+  private subscribe: (listener: () => void) => () => void;
   private disposeObservers: YjsObserverDisposer | null = null;
   private hasPulled = false;
 
@@ -51,10 +52,12 @@ export class ZustandYjsBridge {
     doc: Y.Doc,
     setState: (partial: Partial<AllSlices>) => void,
     getState: () => AllSlices,
+    subscribe: (listener: () => void) => () => void,
   ) {
     this.doc = doc;
     this.setState = setState;
     this.getState = getState;
+    this.subscribe = subscribe;
   }
 
   /**
@@ -93,6 +96,7 @@ export class ZustandYjsBridge {
       },
       () => this.suppressYjsToStore,
       this.getState,
+      this.subscribe,
     );
   }
 

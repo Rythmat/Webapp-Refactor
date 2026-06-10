@@ -62,6 +62,11 @@ const VEL_LANE_H = 60; // px height for velocity lane
 const VEL_CIRCLE_R = 4; // px radius of draggable velocity circle
 const VEL_CIRCLE_HIT_R = 7; // px hit test radius (circle + tolerance)
 const TICKS_PER_BEAT = 480;
+// Dragging vertically on the bar-number ruler scales the piano roll (horizontal
+// zoom, up = in). Horizontal movement is ignored — the piano roll has no
+// drag-to-pan.
+const RULER_DRAG_THRESHOLD = 3; // px before a ruler press becomes a zoom drag
+const RULER_ZOOM_SENSITIVITY = 0.01; // zoom delta per px of vertical movement
 
 // Fixed view range (full keyboard C1–C7)
 const VIEW_MIN = 24; // C1
@@ -102,12 +107,22 @@ function isBlackKey(midi: number): boolean {
 }
 
 // ── Drag mode ───────────────────────────────────────────────────────────────
+// A drag operates on the whole current selection. `originals` snapshots every
+// selected note at grab time (keyed by index) so deltas apply relative to the
+// starting state; `anchorIndex` is the note actually grabbed.
 interface NoteDrag {
-  noteIndex: number;
   mode: 'move' | 'resize';
-  offsetTick: number;
-  offsetPitch: number;
-  originalNote: MidiNoteEvent;
+  anchorIndex: number;
+  grabTickOffset: number; // tick offset of the cursor within the anchor note
+  originals: Map<number, MidiNoteEvent>;
+}
+
+// Marquee (rubber-band) selection rectangle, in grid-canvas content coords.
+interface MarqueeRect {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
 }
 
 // ── Props ───────────────────────────────────────────────────────────────────
@@ -116,6 +131,12 @@ interface PianoRollProps {
   clipStartTick: number;
   clipColor: string;
   onChange: (events: MidiNoteEvent[]) => void;
+  /**
+   * Optional MIDI-note → label map. When provided (e.g. a drum track), the left
+   * key column shows these labels (Kick, Snare, …) instead of scale note names,
+   * matching the track's drum control. The column also widens to fit them.
+   */
+  noteLabels?: ReadonlyMap<number, string>;
 }
 
 export function PianoRoll({
@@ -123,6 +144,7 @@ export function PianoRoll({
   clipStartTick,
   clipColor,
   onChange,
+  noteLabels,
 }: PianoRollProps) {
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
@@ -143,13 +165,38 @@ export function PianoRoll({
   const velCanvasRef = useRef<HTMLCanvasElement>(null);
   const velScrollRef = useRef<HTMLDivElement>(null);
 
-  const [gridSize, setGridSize] = useState<GridSize>('1/2');
+  // Default to a quarter-note grid so every drawn beat line is a snap target.
+  // A coarser default (e.g. 1/2) leaves beats 2 and 4 of each bar unreachable
+  // when dragging/drawing notes, even though their beat lines are visible.
+  const [gridSize, setGridSize] = useState<GridSize>('1/4');
   const [tool, setTool] = useState<Tool>('draw');
   const [velocity, setVelocity] = useState(100);
-  const [selectedNoteIdx, setSelectedNoteIdx] = useState<number | null>(null);
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
+    () => new Set(),
+  );
   const [velLaneOpen, setVelLaneOpen] = useState(true);
+  const [marqueeRect, setMarqueeRect] = useState<MarqueeRect | null>(null);
   const dragRef = useRef<NoteDrag | null>(null);
+  const marqueeRef = useRef<{
+    originX: number;
+    originY: number;
+    moved: boolean;
+  } | null>(null);
   const velDragRef = useRef<{ noteIndex: number } | null>(null);
+  // Active ruler scale drag (vertical → horizontal zoom).
+  const rulerDragRef = useRef<{
+    startY: number;
+    lastY: number;
+    moved: boolean;
+  } | null>(null);
+  // Live mirrors of zoom + its lower bound so the window-level ruler drag reads
+  // current values without re-attaching its listeners on every zoom step.
+  const zoomRef = useRef(1);
+  const minZoomRef = useRef(0.15);
+
+  const selectSingle = useCallback((i: number | null) => {
+    setSelectedIndices(i === null ? new Set() : new Set([i]));
+  }, []);
   const eventsRef = useRef(events);
   eventsRef.current = events;
   const initialScrollDone = useRef(false);
@@ -175,6 +222,8 @@ export function PianoRoll({
     0.15,
     containerW / ((totalTicks * 40) / TICKS_PER_BEAT),
   );
+  zoomRef.current = zoom;
+  minZoomRef.current = MIN_ZOOM;
 
   // Pixel scale (zoom-dependent)
   const pixelsPerTick = (40 * zoom) / TICKS_PER_BEAT;
@@ -248,26 +297,41 @@ export function PianoRoll({
         ctx.stroke();
       }
 
-      // Note labels — progressive: C always, white keys at 1.2x+, black keys at 1.7x+
-      const showAllWhite = rowH >= 14;
-      const showBlack = rowH >= 20;
-      const showLabel = isC || (showAllWhite && !black) || (showBlack && black);
+      if (noteLabels) {
+        // Drum track: label only the rows that map to a drum sound, using the
+        // same names as the drum control.
+        const label = noteLabels.get(midiNote);
+        if (label) {
+          const fontSize = Math.max(8, Math.round(9 * vZoom));
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.font = `${fontSize}px Inter, sans-serif`;
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'right';
+          ctx.fillText(label, w - 4, rowY + rowH / 2);
+        }
+      } else {
+        // Note labels — progressive: C always, white keys at 1.2x+, black keys at 1.7x+
+        const showAllWhite = rowH >= 14;
+        const showBlack = rowH >= 20;
+        const showLabel =
+          isC || (showAllWhite && !black) || (showBlack && black);
 
-      if (showLabel) {
-        const fontSize = Math.max(7, Math.round(8 * vZoom));
-        ctx.fillStyle = isC
-          ? 'rgba(255, 255, 255, 0.6)'
-          : black
-            ? 'rgba(255, 255, 255, 0.3)'
-            : 'rgba(255, 255, 255, 0.4)';
-        ctx.font = `${isC ? 'bold ' : ''}${fontSize}px Inter, monospace`;
-        ctx.textBaseline = 'middle';
-        ctx.textAlign = 'right';
-        ctx.fillText(
-          noteName(midiNote, rootNote ?? 0, spellings),
-          w - 4,
-          rowY + rowH / 2,
-        );
+        if (showLabel) {
+          const fontSize = Math.max(7, Math.round(8 * vZoom));
+          ctx.fillStyle = isC
+            ? 'rgba(255, 255, 255, 0.6)'
+            : black
+              ? 'rgba(255, 255, 255, 0.3)'
+              : 'rgba(255, 255, 255, 0.4)';
+          ctx.font = `${isC ? 'bold ' : ''}${fontSize}px Inter, monospace`;
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'right';
+          ctx.fillText(
+            noteName(midiNote, rootNote ?? 0, spellings),
+            w - 4,
+            rowY + rowH / 2,
+          );
+        }
       }
     }
 
@@ -278,7 +342,7 @@ export function PianoRoll({
     ctx.moveTo(w - 0.5, 0);
     ctx.lineTo(w - 0.5, h);
     ctx.stroke();
-  }, [gridH, rowH, vZoom, rootNote, mode]);
+  }, [gridH, rowH, vZoom, rootNote, mode, noteLabels]);
 
   // ── Draw Ruler ──────────────────────────────────────────────────────────
   const drawRuler = useCallback(() => {
@@ -457,7 +521,7 @@ export function PianoRoll({
       // Skip notes outside view range
       if (ev.note < VIEW_MIN || ev.note > VIEW_MAX) continue;
 
-      const isSelected = selectedNoteIdx === i;
+      const isSelected = selectedIndices.has(i);
       const alpha = 0.7 + (ev.velocity / 127) * 0.3;
       const useChordColors =
         clipColorMode === 'prism' && chordRegions.length > 0;
@@ -494,6 +558,16 @@ export function PianoRoll({
         ctx.stroke();
       }
     }
+
+    // ── Marquee selection rectangle ────────────────────────────────────
+    if (marqueeRect) {
+      const { x1, y1, x2, y2 } = marqueeRect;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x1 + 0.5, y1 + 0.5, x2 - x1, y2 - y1);
+    }
   }, [
     events,
     clipStartTick,
@@ -502,7 +576,8 @@ export function PianoRoll({
     clipColorMode,
     rootNote,
     gridSize,
-    selectedNoteIdx,
+    selectedIndices,
+    marqueeRect,
     gridW,
     gridH,
     rowH,
@@ -563,7 +638,7 @@ export function PianoRoll({
     // Draw unselected first, then selected on top
     for (let pass = 0; pass < 2; pass++) {
       for (let i = 0; i < currentEvents.length; i++) {
-        const isSelected = selectedNoteIdx === i;
+        const isSelected = selectedIndices.has(i);
         if ((pass === 0 && isSelected) || (pass === 1 && !isSelected)) continue;
 
         const ev = currentEvents[i];
@@ -620,7 +695,7 @@ export function PianoRoll({
     clipColor,
     chordRegions,
     clipColorMode,
-    selectedNoteIdx,
+    selectedIndices,
     gridW,
     pixelsPerTick,
     velLaneOpen,
@@ -669,7 +744,7 @@ export function PianoRoll({
 
       const targetIdx = hitIdx ?? closestIdx;
       if (targetIdx !== null) {
-        setSelectedNoteIdx(targetIdx);
+        selectSingle(targetIdx);
         velDragRef.current = { noteIndex: targetIdx };
 
         const newVel = Math.max(
@@ -681,7 +756,7 @@ export function PianoRoll({
         onChange(updated);
       }
     },
-    [clipStartTick, pixelsPerTick, onChange],
+    [clipStartTick, pixelsPerTick, onChange, selectSingle],
   );
 
   const handleVelMouseMove = useCallback(
@@ -811,10 +886,10 @@ export function PianoRoll({
         case 'draw': {
           if (noteIdx !== null) {
             // In draw mode, clicking an existing note selects it (for velocity editing)
-            setSelectedNoteIdx(noteIdx);
+            selectSingle(noteIdx);
             return;
           }
-          setSelectedNoteIdx(null);
+          selectSingle(null);
           const gridTicks = GRID_VALUES[gridSize];
           const clickTick = x / pixelsPerTick + clipStartTick;
           const snappedTick = snapToGrid(clickTick, gridSize);
@@ -838,29 +913,45 @@ export function PianoRoll({
                 n.note === pitch &&
                 n.durationTicks === gridTicks,
             );
-            setSelectedNoteIdx(addedIdx >= 0 ? addedIdx : null);
+            selectSingle(addedIdx >= 0 ? addedIdx : null);
           }
           break;
         }
 
         case 'select': {
           if (noteIdx !== null) {
-            setSelectedNoteIdx(noteIdx);
+            // Drag the whole selection if the grabbed note is part of an
+            // existing multi-selection; otherwise grab just this note.
+            let indices: Set<number>;
+            if (selectedIndices.has(noteIdx) && selectedIndices.size > 1) {
+              indices = selectedIndices;
+            } else {
+              indices = new Set([noteIdx]);
+              setSelectedIndices(indices);
+            }
+
             const ev = currentEvents[noteIdx];
             const relTick = ev.startTick - clipStartTick;
             const noteX = relTick * pixelsPerTick;
             const noteW = Math.max(3, ev.durationTicks * pixelsPerTick);
             const nearRightEdge = x >= noteX + noteW - 6;
 
+            const originals = new Map<number, MidiNoteEvent>();
+            for (const i of indices) originals.set(i, { ...currentEvents[i] });
+
             dragRef.current = {
-              noteIndex: noteIdx,
               mode: nearRightEdge ? 'resize' : 'move',
-              offsetTick: Math.round((x - noteX) / pixelsPerTick),
-              offsetPitch: 0,
-              originalNote: { ...ev },
+              anchorIndex: noteIdx,
+              grabTickOffset: Math.round((x - noteX) / pixelsPerTick),
+              originals,
             };
           } else {
-            setSelectedNoteIdx(null);
+            // Empty space: start a marquee. Selection is cleared now so that a
+            // plain click (no drag) deselects everything, while a drag rebuilds
+            // the selection live in handleMouseMove.
+            setSelectedIndices(new Set());
+            marqueeRef.current = { originX: x, originY: y, moved: false };
+            setMarqueeRect(null);
           }
           break;
         }
@@ -869,7 +960,7 @@ export function PianoRoll({
           if (noteIdx !== null) {
             const newEvents = currentEvents.filter((_, i) => i !== noteIdx);
             onChange(newEvents);
-            setSelectedNoteIdx(null);
+            selectSingle(null);
           }
           break;
         }
@@ -884,12 +975,49 @@ export function PianoRoll({
       pixelsPerTick,
       gridSize,
       onChange,
+      selectSingle,
+      selectedIndices,
     ],
   );
 
   // ── Mouse move ──────────────────────────────────────────────────────────
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
+      // ── Marquee in progress: rebuild selection from notes inside the rect ──
+      if (marqueeRef.current) {
+        const { x, y } = getCanvasCoords(e);
+        const m = marqueeRef.current;
+        m.moved = true;
+        const rect: MarqueeRect = {
+          x1: Math.min(m.originX, x),
+          y1: Math.min(m.originY, y),
+          x2: Math.max(m.originX, x),
+          y2: Math.max(m.originY, y),
+        };
+        setMarqueeRect(rect);
+
+        const sel = new Set<number>();
+        const evs = eventsRef.current;
+        for (let i = 0; i < evs.length; i++) {
+          const ev = evs[i];
+          if (ev.note < VIEW_MIN || ev.note > VIEW_MAX) continue;
+          const nx = (ev.startTick - clipStartTick) * pixelsPerTick;
+          const nw = Math.max(3, ev.durationTicks * pixelsPerTick);
+          const ny = (VIEW_MAX - ev.note) * rowH;
+          // Select on any overlap between the note bar and the marquee rect.
+          if (
+            nx <= rect.x2 &&
+            nx + nw >= rect.x1 &&
+            ny <= rect.y2 &&
+            ny + rowH >= rect.y1
+          ) {
+            sel.add(i);
+          }
+        }
+        setSelectedIndices(sel);
+        return;
+      }
+
       const drag = dragRef.current;
       if (!drag) {
         const canvas = gridCanvasRef.current;
@@ -913,7 +1041,7 @@ export function PianoRoll({
               canvas.style.cursor =
                 x >= noteX + noteW - 6 ? 'col-resize' : 'grab';
             } else {
-              canvas.style.cursor = 'default';
+              canvas.style.cursor = 'crosshair';
             }
             break;
           }
@@ -923,27 +1051,57 @@ export function PianoRoll({
 
       const { x, y } = getCanvasCoords(e);
       const currentEvents = [...eventsRef.current];
+      const anchorOrig = drag.originals.get(drag.anchorIndex);
+      if (!anchorOrig) return;
 
       if (drag.mode === 'move') {
-        const rawTick = x / pixelsPerTick + clipStartTick - drag.offsetTick;
+        // Derive the anchor's snapped delta, then shift the whole group by it.
+        const rawTick = x / pixelsPerTick + clipStartTick - drag.grabTickOffset;
         const snappedTick = snapToGrid(rawTick, gridSize);
+        let tickDelta = snappedTick - anchorOrig.startTick;
         const pitch = VIEW_MAX - Math.floor(y / rowH);
-        const clampedPitch = Math.max(0, Math.min(127, pitch));
+        let pitchDelta = pitch - anchorOrig.note;
 
-        currentEvents[drag.noteIndex] = {
-          ...currentEvents[drag.noteIndex],
-          startTick: Math.max(0, snappedTick),
-          note: clampedPitch,
-        };
+        // Clamp the deltas so no note in the group leaves valid bounds.
+        let minStart = Infinity;
+        let minPitch = Infinity;
+        let maxPitch = -Infinity;
+        for (const o of drag.originals.values()) {
+          if (o.startTick < minStart) minStart = o.startTick;
+          if (o.note < minPitch) minPitch = o.note;
+          if (o.note > maxPitch) maxPitch = o.note;
+        }
+        if (minStart + tickDelta < 0) tickDelta = -minStart;
+        if (minPitch + pitchDelta < 0) pitchDelta = -minPitch;
+        if (maxPitch + pitchDelta > 127) pitchDelta = 127 - maxPitch;
+
+        for (const [idx, o] of drag.originals) {
+          currentEvents[idx] = {
+            ...currentEvents[idx],
+            startTick: o.startTick + tickDelta,
+            note: o.note + pitchDelta,
+          };
+        }
       } else if (drag.mode === 'resize') {
+        // Derive the anchor's snapped duration delta, then stretch every
+        // selected note by the same amount (clamped to the grid minimum).
         const endTick = x / pixelsPerTick + clipStartTick;
         const snappedEnd = snapToGrid(endTick, gridSize);
-        const ev = currentEvents[drag.noteIndex];
-        const newDuration = Math.max(
+        const newAnchorDur = Math.max(
           GRID_VALUES[gridSize],
-          snappedEnd - ev.startTick,
+          snappedEnd - anchorOrig.startTick,
         );
-        currentEvents[drag.noteIndex] = { ...ev, durationTicks: newDuration };
+        const durDelta = newAnchorDur - anchorOrig.durationTicks;
+
+        for (const [idx, o] of drag.originals) {
+          currentEvents[idx] = {
+            ...currentEvents[idx],
+            durationTicks: Math.max(
+              GRID_VALUES[gridSize],
+              o.durationTicks + durDelta,
+            ),
+          };
+        }
       }
 
       onChange(currentEvents);
@@ -954,6 +1112,7 @@ export function PianoRoll({
       hitTestNote,
       clipStartTick,
       pixelsPerTick,
+      rowH,
       gridSize,
       onChange,
     ],
@@ -962,6 +1121,8 @@ export function PianoRoll({
   // ── Mouse up ────────────────────────────────────────────────────────────
   const handleMouseUp = useCallback(() => {
     dragRef.current = null;
+    marqueeRef.current = null;
+    setMarqueeRect(null);
     if (gridCanvasRef.current) {
       gridCanvasRef.current.style.cursor =
         tool === 'draw'
@@ -974,7 +1135,7 @@ export function PianoRoll({
 
   useEffect(() => {
     const handler = () => {
-      if (dragRef.current) handleMouseUp();
+      if (dragRef.current || marqueeRef.current) handleMouseUp();
     };
     window.addEventListener('mouseup', handler);
     return () => window.removeEventListener('mouseup', handler);
@@ -997,21 +1158,21 @@ export function PianoRoll({
         return;
       }
 
-      // Delete selected note
+      // Delete selected note(s)
       if (
         (e.code === 'Delete' || e.code === 'Backspace') &&
-        selectedNoteIdx !== null
+        selectedIndices.size > 0
       ) {
         e.preventDefault();
         e.stopPropagation();
         const newEvents = eventsRef.current.filter(
-          (_, i) => i !== selectedNoteIdx,
+          (_, i) => !selectedIndices.has(i),
         );
         onChange(newEvents);
-        setSelectedNoteIdx(null);
+        setSelectedIndices(new Set());
       }
     },
-    [selectedNoteIdx, onChange],
+    [selectedIndices, onChange],
   );
 
   // ── Quantize handler ────────────────────────────────────────────────────
@@ -1076,7 +1237,81 @@ export function PianoRoll({
     return () => container.removeEventListener('wheel', handleWheel);
   }, [zoom, pixelsPerTick, vZoom, rowH]);
 
+  // ── Ruler scale drag: vertical → horizontal zoom ─────────────────────────
+  // Mirrors the timeline's bar-ruler scale drag. Movement is tracked at the
+  // window level so the gesture continues even when the cursor leaves the ruler
+  // (e.g. dragging up into the toolbar to keep scaling — no ceiling). The piano
+  // roll has no drag-to-pan; horizontal movement here is ignored.
+  const handleRulerMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
+      rulerDragRef.current = {
+        startY: e.clientY,
+        lastY: e.clientY,
+        moved: false,
+      };
+      if (rulerCanvasRef.current)
+        rulerCanvasRef.current.style.cursor = 'ns-resize';
+
+      const onMove = (me: MouseEvent) => {
+        const d = rulerDragRef.current;
+        const container = gridScrollRef.current;
+        if (!d || !container) return;
+
+        if (!d.moved) {
+          if (Math.abs(me.clientY - d.startY) <= RULER_DRAG_THRESHOLD) return;
+          d.moved = true;
+          d.lastY = me.clientY;
+        }
+
+        const dy = d.lastY - me.clientY; // up → positive → zoom in
+        d.lastY = me.clientY;
+        if (dy === 0) return;
+
+        const rect = container.getBoundingClientRect();
+        const localX = me.clientX - rect.left;
+        const curZoom = zoomRef.current;
+        const ppt = (40 * curZoom) / TICKS_PER_BEAT;
+        const tickAtMouse = (localX + container.scrollLeft) / ppt;
+        const newZoom = Math.min(
+          MAX_ZOOM,
+          Math.max(
+            minZoomRef.current,
+            curZoom * (1 + dy * RULER_ZOOM_SENSITIVITY),
+          ),
+        );
+        zoomRef.current = newZoom; // update now so rapid moves don't compound
+        const newScrollLeft =
+          tickAtMouse * ((40 * newZoom) / TICKS_PER_BEAT) - localX;
+        setZoom(newZoom);
+        requestAnimationFrame(() => {
+          if (gridScrollRef.current)
+            gridScrollRef.current.scrollLeft = Math.max(0, newScrollLeft);
+        });
+      };
+      const onUp = () => {
+        rulerDragRef.current = null;
+        if (rulerCanvasRef.current)
+          rulerCanvasRef.current.style.cursor = 'ns-resize';
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+      };
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    },
+    [MAX_ZOOM],
+  );
+
   // ── Render ──────────────────────────────────────────────────────────────
+  // Velocity control reflects the selection: shows the first selected note's
+  // value and applies edits to every selected note.
+  const selectedArr = Array.from(selectedIndices);
+  const velRefIdx = selectedArr.length > 0 ? selectedArr[0] : null;
+  const velDisplay =
+    velRefIdx !== null
+      ? (eventsRef.current[velRefIdx]?.velocity ?? velocity)
+      : velocity;
+
   return (
     <div
       ref={containerRef}
@@ -1172,25 +1407,22 @@ export function PianoRoll({
         {/* Velocity control */}
         <div className="flex items-center gap-1.5">
           <span className="text-[9px] font-semibold uppercase text-white/30">
-            {selectedNoteIdx !== null ? 'Sel Vel' : 'Vel'}
+            {selectedArr.length > 0 ? 'Sel Vel' : 'Vel'}
           </span>
           <input
             type="range"
             min={1}
             max={127}
-            value={
-              selectedNoteIdx !== null
-                ? (eventsRef.current[selectedNoteIdx]?.velocity ?? velocity)
-                : velocity
-            }
+            value={velDisplay}
             onChange={(e) => {
-              const val = Number(e.target.value);
-              if (selectedNoteIdx !== null) {
+              const val = Math.max(1, Math.min(127, Number(e.target.value)));
+              if (selectedArr.length > 0) {
                 const updated = [...eventsRef.current];
-                updated[selectedNoteIdx] = {
-                  ...updated[selectedNoteIdx],
-                  velocity: Math.max(1, Math.min(127, val)),
-                };
+                for (const idx of selectedArr) {
+                  if (updated[idx]) {
+                    updated[idx] = { ...updated[idx], velocity: val };
+                  }
+                }
                 onChange(updated);
               } else {
                 setVelocity(val);
@@ -1199,9 +1431,7 @@ export function PianoRoll({
             className="h-1 w-16 accent-white/50"
           />
           <span className="w-6 text-right font-mono text-[10px] text-white/40">
-            {selectedNoteIdx !== null
-              ? (eventsRef.current[selectedNoteIdx]?.velocity ?? velocity)
-              : velocity}
+            {velDisplay}
           </span>
         </div>
 
@@ -1251,7 +1481,7 @@ export function PianoRoll({
 
           {/* Right column: ruler + grid */}
           <div className="flex flex-1 flex-col overflow-hidden">
-            {/* Ruler — syncs horizontally with grid */}
+            {/* Ruler — syncs horizontally with grid; drag to scale/pan */}
             <div
               ref={rulerScrollRef}
               style={{
@@ -1261,7 +1491,12 @@ export function PianoRoll({
                 overflowY: 'hidden',
               }}
             >
-              <canvas ref={rulerCanvasRef} className="block" />
+              <canvas
+                ref={rulerCanvasRef}
+                className="block"
+                style={{ cursor: 'ns-resize' }}
+                onMouseDown={handleRulerMouseDown}
+              />
             </div>
             {/* Grid — scroll master */}
             <div

@@ -28,6 +28,7 @@ import {
 } from '@/daw/jam-import/jamSession';
 import { JamChat } from './JamChat';
 import { JamDrumMachine } from './JamDrumMachine';
+import { JamDrumModeControl, type JamParticipant } from './JamDrumModeControl';
 import { JamRoomProvider, useJamRoom } from './JamRoomProvider';
 import { JamSoundPicker } from './JamSoundPicker';
 import { NoteWaterfall, type WaterfallHandle } from './NoteWaterfall';
@@ -107,6 +108,19 @@ function JamRoomInner() {
       userName: appUser?.nickname ?? appUser?.fullName ?? 'You',
     }),
     [appUser, localColor],
+  );
+
+  // Everyone in the room (local + remote) — for the "Designate Drummer" picker.
+  const participants = useMemo<JamParticipant[]>(
+    () => [
+      { userId: userId ?? '', userName: localPlayer.userName, isLocal: true },
+      ...remotePlayers.map((p) => ({
+        userId: p.userId,
+        userName: p.userName,
+        isLocal: false,
+      })),
+    ],
+    [userId, localPlayer.userName, remotePlayers],
   );
 
   const waterfallRef = useRef<WaterfallHandle>(null);
@@ -521,6 +535,9 @@ function JamRoomInner() {
             <Drum size={11} />
             Drums
           </button>
+
+          {/* Shared drum pattern: host controls who can edit; others see status */}
+          <JamDrumModeControl participants={participants} />
         </div>
 
         {/* Right: toggles + leave */}

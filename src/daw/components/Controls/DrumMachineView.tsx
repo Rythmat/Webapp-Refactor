@@ -32,12 +32,21 @@ import { alternatingBarGroup } from '@/daw/utils/timelineScale';
 
 type Tool = 'select' | 'draw' | 'erase';
 
+// A drag operates on the whole current selection. `originals` snapshots every
+// selected note at grab time (keyed by index); `anchorIndex` is the grabbed one.
 interface NoteDrag {
-  noteIndex: number;
   mode: 'move' | 'resize';
-  offsetTick: number;
-  originalPadIndex: number;
-  originalNote: MidiNoteEvent;
+  anchorIndex: number;
+  grabTickOffset: number;
+  originals: Map<number, MidiNoteEvent>;
+}
+
+// Marquee (rubber-band) selection rectangle, in grid-canvas content coords.
+interface MarqueeRect {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────
@@ -55,6 +64,10 @@ const TICKS_PER_BEAT = 480;
 const MIN_NOTE_W = 3;
 const RESIZE_EDGE_PX = 6;
 const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
+// Dragging vertically on the bar-number ruler scales the editor (horizontal
+// zoom, up = in). Horizontal movement is ignored — there is no drag-to-pan.
+const RULER_DRAG_THRESHOLD = 3; // px before a ruler press becomes a zoom drag
+const RULER_ZOOM_SENSITIVITY = 0.01; // zoom delta per px of vertical movement
 
 // ── Custom cursors ────────────────────────────────────────────────────────
 
@@ -169,9 +182,16 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const [tool, setTool] = useState<Tool>('draw');
   const [gridSize, setGridSize] = useState<GridSize>('1/16');
   const [velocity, setVelocity] = useState(100);
-  const [selectedNoteIdx, setSelectedNoteIdx] = useState<number | null>(null);
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
+    () => new Set(),
+  );
+  const [marqueeRect, setMarqueeRect] = useState<MarqueeRect | null>(null);
   const [zoom, setZoom] = useState(1);
   const MAX_ZOOM = 6;
+
+  const selectSingle = useCallback((i: number | null) => {
+    setSelectedIndices(i === null ? new Set() : new Set([i]));
+  }, []);
 
   // ── Refs ──────────────────────────────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
@@ -183,8 +203,22 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const velScrollRef = useRef<HTMLDivElement>(null);
   const labelScrollRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<NoteDrag | null>(null);
+  const marqueeRef = useRef<{
+    originX: number;
+    originY: number;
+    moved: boolean;
+  } | null>(null);
   const paintRef = useRef<{ padIdx: number; tick: number } | null>(null);
   const initialZoomSet = useRef(false);
+  // Active ruler scale drag (vertical → horizontal zoom).
+  const rulerDragRef = useRef<{
+    startY: number;
+    lastY: number;
+    moved: boolean;
+  } | null>(null);
+  // Live mirrors of zoom + its lower bound for the window-level ruler drag.
+  const zoomRef = useRef(1);
+  const minZoomRef = useRef(0.15);
 
   // ── Computed layout ───────────────────────────────────────────────────
   const MIN_TICKS = TICKS_PER_BEAT * beatsPerBar * 4;
@@ -199,6 +233,8 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     0.15,
     containerW / ((totalTicks * 40) / TICKS_PER_BEAT),
   );
+  zoomRef.current = zoom;
+  minZoomRef.current = MIN_ZOOM;
   const pixelsPerTick = (40 * zoom) / TICKS_PER_BEAT;
   const gridW = totalTicks * pixelsPerTick;
 
@@ -272,8 +308,8 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
   const handleClear = useCallback(() => {
     if (clip) updateMidiClipEvents(trackId, clip.id, []);
-    setSelectedNoteIdx(null);
-  }, [clip, trackId, updateMidiClipEvents]);
+    selectSingle(null);
+  }, [clip, trackId, updateMidiClipEvents, selectSingle]);
 
   const handlePadTrigger = useCallback(
     (note: number) => {
@@ -462,7 +498,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       const x = relTick * pixelsPerTick;
       const noteW = Math.max(MIN_NOTE_W, ev.durationTicks * pixelsPerTick);
       const noteY = row * PAD_ROW_H;
-      const isSelected = selectedNoteIdx === i;
+      const isSelected = selectedIndices.has(i);
 
       const alpha = 0.5 + (ev.velocity / 127) * 0.5;
       ctx.fillStyle = isSelected
@@ -483,10 +519,21 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         ctx.stroke();
       }
     }
+
+    // ── Marquee selection rectangle ────────────────────────────────────
+    if (marqueeRect) {
+      const { x1, y1, x2, y2 } = marqueeRect;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x1 + 0.5, y1 + 0.5, x2 - x1, y2 - y1);
+    }
   }, [
     events,
     clipStartTick,
-    selectedNoteIdx,
+    selectedIndices,
+    marqueeRect,
     gridW,
     totalTicks,
     pixelsPerTick,
@@ -548,7 +595,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     // Draw unselected first, then selected on top
     for (let pass = 0; pass < 2; pass++) {
       for (let i = 0; i < currentEvents.length; i++) {
-        const isSelected = selectedNoteIdx === i;
+        const isSelected = selectedIndices.has(i);
         if ((pass === 0 && isSelected) || (pass === 1 && !isSelected)) continue;
 
         const ev = currentEvents[i];
@@ -594,7 +641,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   }, [
     events,
     clipStartTick,
-    selectedNoteIdx,
+    selectedIndices,
     gridW,
     pixelsPerTick,
     velLaneOpen,
@@ -680,11 +727,11 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       switch (tool) {
         case 'draw': {
           if (noteIdx !== null) {
-            setSelectedNoteIdx(noteIdx);
+            selectSingle(noteIdx);
             setSelectedPad(pad.note);
             return;
           }
-          setSelectedNoteIdx(null);
+          selectSingle(null);
           setSelectedPad(pad.note);
 
           const gridTicks = GRID_VALUES[gridSize];
@@ -713,13 +760,22 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
               n.note === pad.note &&
               n.durationTicks === gridTicks,
           );
-          setSelectedNoteIdx(addedIdx >= 0 ? addedIdx : null);
+          selectSingle(addedIdx >= 0 ? addedIdx : null);
           break;
         }
 
         case 'select': {
           if (noteIdx !== null) {
-            setSelectedNoteIdx(noteIdx);
+            // Drag the whole selection if the grabbed note is part of an
+            // existing multi-selection; otherwise grab just this note.
+            let indices: Set<number>;
+            if (selectedIndices.has(noteIdx) && selectedIndices.size > 1) {
+              indices = selectedIndices;
+            } else {
+              indices = new Set([noteIdx]);
+              setSelectedIndices(indices);
+            }
+
             const ev = currentEvents[noteIdx];
             setSelectedPad(canonicalNote(ev.note));
             const relTick = ev.startTick - clipStartTick;
@@ -730,16 +786,22 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             );
             const nearRightEdge = x >= noteX + noteW - RESIZE_EDGE_PX;
 
+            const originals = new Map<number, MidiNoteEvent>();
+            for (const i of indices) originals.set(i, { ...currentEvents[i] });
+
             dragRef.current = {
-              noteIndex: noteIdx,
               mode: nearRightEdge ? 'resize' : 'move',
-              offsetTick: Math.round((x - noteX) / pixelsPerTick),
-              originalPadIndex: padIdx,
-              originalNote: { ...ev },
+              anchorIndex: noteIdx,
+              grabTickOffset: Math.round((x - noteX) / pixelsPerTick),
+              originals,
             };
           } else {
-            setSelectedNoteIdx(null);
+            // Empty space: start a marquee. Clear selection now so a plain
+            // click deselects, while a drag rebuilds it live in mouse-move.
+            setSelectedIndices(new Set());
             setSelectedPad(pad.note);
+            marqueeRef.current = { originX: x, originY: y, moved: false };
+            setMarqueeRect(null);
           }
           break;
         }
@@ -748,7 +810,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           if (noteIdx !== null) {
             const newEvents = currentEvents.filter((_, i) => i !== noteIdx);
             onChange(newEvents);
-            setSelectedNoteIdx(null);
+            selectSingle(null);
           }
           paintRef.current = { padIdx, tick: -1 }; // enable drag-erase
           break;
@@ -765,14 +827,51 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       gridSize,
       onChange,
       audition,
+      selectSingle,
+      selectedIndices,
     ],
   );
 
   // ── Mouse move (grid canvas) ──────────────────────────────────────────
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
-      const drag = dragRef.current;
       const { x, y } = getCanvasCoords(e);
+
+      // Marquee selection in progress — rebuild selection from notes inside it.
+      if (marqueeRef.current) {
+        const m = marqueeRef.current;
+        m.moved = true;
+        const rect: MarqueeRect = {
+          x1: Math.min(m.originX, x),
+          y1: Math.min(m.originY, y),
+          x2: Math.max(m.originX, x),
+          y2: Math.max(m.originY, y),
+        };
+        setMarqueeRect(rect);
+        const sel = new Set<number>();
+        const evs = eventsRef.current;
+        for (let i = 0; i < evs.length; i++) {
+          const ev = evs[i];
+          const padIdx = padIndexForNote(ev.note);
+          if (padIdx < 0) continue;
+          const nrow = padIndexToRow(padIdx);
+          const nx = (ev.startTick - clipStartTick) * pixelsPerTick;
+          const nw = Math.max(MIN_NOTE_W, ev.durationTicks * pixelsPerTick);
+          const ny = nrow * PAD_ROW_H;
+          if (
+            nx <= rect.x2 &&
+            nx + nw >= rect.x1 &&
+            ny <= rect.y2 &&
+            ny + PAD_ROW_H >= rect.y1
+          ) {
+            sel.add(i);
+          }
+        }
+        setSelectedIndices(sel);
+        return;
+      }
+
+      const drag = dragRef.current;
       const canvas = gridCanvasRef.current;
 
       // No active drag — just update cursor
@@ -798,7 +897,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
               canvas.style.cursor =
                 x >= noteX + noteW - RESIZE_EDGE_PX ? 'col-resize' : 'grab';
             } else {
-              canvas.style.cursor = 'default';
+              canvas.style.cursor = 'crosshair';
             }
             break;
           }
@@ -857,33 +956,66 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         return;
       }
 
-      // Select tool drag
+      // Select tool drag — moves/resizes the whole selection together.
       if (drag) {
         const currentEvents = [...eventsRef.current];
+        const anchorOrig = drag.originals.get(drag.anchorIndex);
+        if (!anchorOrig) return;
 
         if (drag.mode === 'move') {
-          const rawTick = x / pixelsPerTick + clipStartTick - drag.offsetTick;
+          // Derive the anchor's snapped tick + row delta, then shift the group.
+          const rawTick =
+            x / pixelsPerTick + clipStartTick - drag.grabTickOffset;
           const snappedTick = snapToGrid(rawTick, gridSize);
+          let tickDelta = snappedTick - anchorOrig.startTick;
 
-          const row = Math.floor(y / PAD_ROW_H);
-          const clampedRow = Math.max(0, Math.min(NUM_PADS - 1, row));
-          const newPadIdx = rowToPadIndex(clampedRow);
-          const newPad = DRUM_PADS[newPadIdx];
+          const row = Math.max(
+            0,
+            Math.min(NUM_PADS - 1, Math.floor(y / PAD_ROW_H)),
+          );
+          const anchorRow = padIndexToRow(padIndexForNote(anchorOrig.note));
+          let rowDelta = row - anchorRow;
 
-          currentEvents[drag.noteIndex] = {
-            ...currentEvents[drag.noteIndex],
-            startTick: Math.max(0, snappedTick),
-            note: newPad.note,
-          };
+          // Clamp deltas so no note in the group leaves valid bounds.
+          let minStart = Infinity;
+          let minRow = Infinity;
+          let maxRow = -Infinity;
+          for (const o of drag.originals.values()) {
+            if (o.startTick < minStart) minStart = o.startTick;
+            const r = padIndexToRow(padIndexForNote(o.note));
+            if (r < minRow) minRow = r;
+            if (r > maxRow) maxRow = r;
+          }
+          if (minStart + tickDelta < 0) tickDelta = -minStart;
+          if (minRow + rowDelta < 0) rowDelta = -minRow;
+          if (maxRow + rowDelta > NUM_PADS - 1)
+            rowDelta = NUM_PADS - 1 - maxRow;
+
+          for (const [idx, o] of drag.originals) {
+            const newRow = padIndexToRow(padIndexForNote(o.note)) + rowDelta;
+            currentEvents[idx] = {
+              ...currentEvents[idx],
+              startTick: o.startTick + tickDelta,
+              note: DRUM_PADS[rowToPadIndex(newRow)].note,
+            };
+          }
         } else if (drag.mode === 'resize') {
           const endTick = x / pixelsPerTick + clipStartTick;
           const snappedEnd = snapToGrid(endTick, gridSize);
-          const ev = currentEvents[drag.noteIndex];
-          const newDuration = Math.max(
+          const newAnchorDur = Math.max(
             GRID_VALUES[gridSize],
-            snappedEnd - ev.startTick,
+            snappedEnd - anchorOrig.startTick,
           );
-          currentEvents[drag.noteIndex] = { ...ev, durationTicks: newDuration };
+          const durDelta = newAnchorDur - anchorOrig.durationTicks;
+          for (const [idx, o] of drag.originals) {
+            currentEvents[idx] = {
+              ...currentEvents[idx],
+              durationTicks: Math.max(
+                GRID_VALUES[gridSize],
+                o.durationTicks + durDelta,
+              ),
+            };
+          }
         }
 
         onChange(currentEvents);
@@ -906,6 +1038,8 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const handleMouseUp = useCallback(() => {
     dragRef.current = null;
     paintRef.current = null;
+    marqueeRef.current = null;
+    setMarqueeRect(null);
     if (gridCanvasRef.current) {
       gridCanvasRef.current.style.cursor =
         tool === 'draw'
@@ -918,14 +1052,15 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
   useEffect(() => {
     const handler = () => {
-      if (dragRef.current || paintRef.current) handleMouseUp();
+      if (dragRef.current || paintRef.current || marqueeRef.current)
+        handleMouseUp();
     };
     window.addEventListener('mouseup', handler);
     return () => window.removeEventListener('mouseup', handler);
   }, [handleMouseUp]);
 
   // ── Velocity lane mouse handler ───────────────────────────────────────
-  const velDragRef = useRef<boolean>(false);
+  const velDragRef = useRef<{ noteIndex: number } | null>(null);
   const handleVelMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const canvas = velCanvasRef.current;
@@ -966,8 +1101,8 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
       const targetIdx = hitIdx ?? closestIdx;
       if (targetIdx !== null) {
-        setSelectedNoteIdx(targetIdx);
-        velDragRef.current = true;
+        selectSingle(targetIdx);
+        velDragRef.current = { noteIndex: targetIdx };
 
         const newVel = Math.max(
           1,
@@ -978,12 +1113,12 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         onChange(updated);
       }
     },
-    [clipStartTick, pixelsPerTick, onChange],
+    [clipStartTick, pixelsPerTick, onChange, selectSingle],
   );
 
   const handleVelMouseMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
-      if (!velDragRef.current || selectedNoteIdx === null) return;
+      if (!velDragRef.current) return;
       const canvas = velCanvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
@@ -996,17 +1131,18 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         Math.min(127, Math.round(((h - 2 - my) / maxStemH) * 127)),
       );
       const currentEvents = [...eventsRef.current];
-      currentEvents[selectedNoteIdx] = {
-        ...currentEvents[selectedNoteIdx],
+      const idx = velDragRef.current.noteIndex;
+      currentEvents[idx] = {
+        ...currentEvents[idx],
         velocity: newVel,
       };
       onChange(currentEvents);
     },
-    [selectedNoteIdx, onChange],
+    [onChange],
   );
 
   const handleVelMouseUp = useCallback(() => {
-    velDragRef.current = false;
+    velDragRef.current = null;
   }, []);
 
   // ── Keyboard shortcuts ────────────────────────────────────────────────
@@ -1027,18 +1163,18 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
       if (
         (e.code === 'Delete' || e.code === 'Backspace') &&
-        selectedNoteIdx !== null
+        selectedIndices.size > 0
       ) {
         e.preventDefault();
         e.stopPropagation();
         const newEvents = eventsRef.current.filter(
-          (_, i) => i !== selectedNoteIdx,
+          (_, i) => !selectedIndices.has(i),
         );
         onChange(newEvents);
-        setSelectedNoteIdx(null);
+        setSelectedIndices(new Set());
       }
     },
-    [selectedNoteIdx, onChange],
+    [selectedIndices, onChange],
   );
 
   // ── Wheel zoom ────────────────────────────────────────────────────────
@@ -1071,6 +1207,70 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     return () => container.removeEventListener('wheel', handleWheel);
   }, [zoom, pixelsPerTick, MIN_ZOOM]);
 
+  // ── Ruler scale drag: vertical → horizontal zoom ─────────────────────────
+  // Movement is tracked at the window level so the gesture keeps scaling even
+  // after the cursor leaves the ruler (no ceiling). Horizontal movement is
+  // ignored; the grid keeps its note tools, so scaling lives on the ruler.
+  const handleRulerMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
+      rulerDragRef.current = {
+        startY: e.clientY,
+        lastY: e.clientY,
+        moved: false,
+      };
+      if (rulerCanvasRef.current)
+        rulerCanvasRef.current.style.cursor = 'ns-resize';
+
+      const onMove = (me: MouseEvent) => {
+        const d = rulerDragRef.current;
+        const container = gridScrollRef.current;
+        if (!d || !container) return;
+
+        if (!d.moved) {
+          if (Math.abs(me.clientY - d.startY) <= RULER_DRAG_THRESHOLD) return;
+          d.moved = true;
+          d.lastY = me.clientY;
+        }
+
+        const dy = d.lastY - me.clientY; // up → positive → zoom in
+        d.lastY = me.clientY;
+        if (dy === 0) return;
+
+        const rect = container.getBoundingClientRect();
+        const localX = me.clientX - rect.left;
+        const curZoom = zoomRef.current;
+        const ppt = (40 * curZoom) / TICKS_PER_BEAT;
+        const tickAtMouse = (localX + container.scrollLeft) / ppt;
+        const newZoom = Math.min(
+          MAX_ZOOM,
+          Math.max(
+            minZoomRef.current,
+            curZoom * (1 + dy * RULER_ZOOM_SENSITIVITY),
+          ),
+        );
+        zoomRef.current = newZoom; // update now so rapid moves don't compound
+        const newScrollLeft =
+          tickAtMouse * ((40 * newZoom) / TICKS_PER_BEAT) - localX;
+        setZoom(newZoom);
+        requestAnimationFrame(() => {
+          if (gridScrollRef.current)
+            gridScrollRef.current.scrollLeft = Math.max(0, newScrollLeft);
+        });
+      };
+      const onUp = () => {
+        rulerDragRef.current = null;
+        if (rulerCanvasRef.current)
+          rulerCanvasRef.current.style.cursor = 'ns-resize';
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+      };
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    },
+    [MAX_ZOOM],
+  );
+
   // ── Playhead position ─────────────────────────────────────────────────
   const playheadPx = useMemo(() => {
     if (!isPlaying) return -1;
@@ -1082,6 +1282,15 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     DRUM_KITS.find((k) => k.id === currentKit)?.label ?? currentKit;
 
   if (!track) return null;
+
+  // Velocity control reflects the selection: shows the first selected note's
+  // value and applies edits to every selected note.
+  const selectedArr = Array.from(selectedIndices);
+  const velRefIdx = selectedArr.length > 0 ? selectedArr[0] : null;
+  const velDisplay =
+    velRefIdx !== null
+      ? (eventsRef.current[velRefIdx]?.velocity ?? velocity)
+      : velocity;
 
   // ── Render ────────────────────────────────────────────────────────────
   return (
@@ -1257,25 +1466,22 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         {/* Velocity slider */}
         <div className="flex items-center gap-1.5">
           <span className="text-[9px] text-white/30 font-semibold uppercase">
-            {selectedNoteIdx !== null ? 'Sel Vel' : 'Vel'}
+            {selectedArr.length > 0 ? 'Sel Vel' : 'Vel'}
           </span>
           <input
             type="range"
             min={1}
             max={127}
-            value={
-              selectedNoteIdx !== null
-                ? (eventsRef.current[selectedNoteIdx]?.velocity ?? velocity)
-                : velocity
-            }
+            value={velDisplay}
             onChange={(e) => {
-              const val = Number(e.target.value);
-              if (selectedNoteIdx !== null) {
+              const val = Math.max(1, Math.min(127, Number(e.target.value)));
+              if (selectedArr.length > 0) {
                 const updated = [...eventsRef.current];
-                updated[selectedNoteIdx] = {
-                  ...updated[selectedNoteIdx],
-                  velocity: Math.max(1, Math.min(127, val)),
-                };
+                for (const idx of selectedArr) {
+                  if (updated[idx]) {
+                    updated[idx] = { ...updated[idx], velocity: val };
+                  }
+                }
                 onChange(updated);
               } else {
                 setVelocity(val);
@@ -1284,9 +1490,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             className="w-16 h-1 accent-white/50"
           />
           <span className="text-[10px] font-mono text-white/40 w-6 text-right">
-            {selectedNoteIdx !== null
-              ? (eventsRef.current[selectedNoteIdx]?.velocity ?? velocity)
-              : velocity}
+            {velDisplay}
           </span>
         </div>
 
@@ -1376,7 +1580,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
           {/* Right column: ruler + grid */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Ruler */}
+            {/* Ruler — drag vertically to scale (horizontal zoom) */}
             <div
               ref={rulerScrollRef}
               style={{
@@ -1386,7 +1590,12 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
                 overflowY: 'hidden',
               }}
             >
-              <canvas ref={rulerCanvasRef} className="block" />
+              <canvas
+                ref={rulerCanvasRef}
+                className="block"
+                style={{ cursor: 'ns-resize' }}
+                onMouseDown={handleRulerMouseDown}
+              />
             </div>
 
             {/* Grid — scroll master (scrolls both X and Y) */}

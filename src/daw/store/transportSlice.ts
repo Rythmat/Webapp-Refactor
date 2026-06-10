@@ -10,6 +10,9 @@ export interface TransportSlice {
   isPlaying: boolean;
   isRecording: boolean;
   isCountingIn: boolean;
+  // Whether the in-progress count-in should begin RECORDING (vs. just playing)
+  // when it completes. Set when the count-in starts; read by _startAfterCountIn.
+  countInIsRecording: boolean;
   countInBars: number; // 0 = off, 1 = 1 bar, 2 = 2 bars
   bpm: number;
   timeSignatureNumerator: number; // beats per bar (default: 4)
@@ -32,7 +35,7 @@ export interface TransportSlice {
   stop: () => void;
   record: () => void;
   setCountInBars: (bars: number) => void;
-  _startRecordingAfterCountIn: () => void;
+  _startAfterCountIn: () => void;
   setBpm: (bpm: number) => void;
   setTimeSignature: (numerator: number, denominator: number) => void;
   setPosition: (tick: number) => void;
@@ -64,6 +67,7 @@ export const createTransportSlice: StateCreator<
   isPlaying: false,
   isRecording: false,
   isCountingIn: false,
+  countInIsRecording: false,
   countInBars: 0,
   bpm: 120,
   timeSignatureNumerator: 4,
@@ -82,13 +86,25 @@ export const createTransportSlice: StateCreator<
   liveAudioStartTick: 0,
 
   // ── Actions ──
-  play: () => set({ isPlaying: true }),
+  // Starting playback (or recording) with a count-in armed first runs the
+  // metronome for `countInBars` bars (handled by the count-in effect in
+  // usePlaybackEngine) while the transport stays paused, then begins moving the
+  // playhead. The count-in is a no-op once already playing or counting in.
+  play: () =>
+    set((state) => {
+      if (state.isPlaying || state.isCountingIn) return {};
+      if (state.countInBars > 0) {
+        return { isCountingIn: true, countInIsRecording: false };
+      }
+      return { isPlaying: true };
+    }),
 
   pause: () =>
     set({
       isPlaying: false,
       isRecording: false,
       isCountingIn: false,
+      countInIsRecording: false,
       liveRecordingNotes: [],
       liveRecordingTrackId: null,
       liveRecordingStartTick: 0,
@@ -102,6 +118,7 @@ export const createTransportSlice: StateCreator<
       isPlaying: false,
       isRecording: false,
       isCountingIn: false,
+      countInIsRecording: false,
       position: state.lastSeekPosition,
       liveRecordingNotes: [],
       liveRecordingTrackId: null,
@@ -113,8 +130,9 @@ export const createTransportSlice: StateCreator<
 
   record: () =>
     set((state) => {
+      if (state.isCountingIn) return {};
       if (state.countInBars > 0) {
-        return { isCountingIn: true };
+        return { isCountingIn: true, countInIsRecording: true };
       }
       return { isRecording: true, isPlaying: true };
     }),
@@ -122,8 +140,13 @@ export const createTransportSlice: StateCreator<
   setCountInBars: (bars) =>
     set({ countInBars: Math.max(0, Math.min(2, bars)) }),
 
-  _startRecordingAfterCountIn: () =>
-    set({ isCountingIn: false, isRecording: true, isPlaying: true }),
+  _startAfterCountIn: () =>
+    set((state) => ({
+      isCountingIn: false,
+      isPlaying: true,
+      isRecording: state.countInIsRecording,
+      countInIsRecording: false,
+    })),
 
   setBpm: (bpm) => set({ bpm: Math.max(40, Math.min(300, bpm)) }),
 

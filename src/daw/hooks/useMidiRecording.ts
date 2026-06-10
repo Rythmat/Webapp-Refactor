@@ -27,11 +27,34 @@ export function useMidiRecording() {
           (t) => t.recordArmed && t.type === 'midi',
         );
         if (armedTrack) {
+          // Recorded events carry ABSOLUTE transport ticks, so the silence
+          // between pressing record and the first note is baked into them.
+          // Every other clip source stores clip-relative events with
+          // clip.startTick as the timeline position (playback re-adds
+          // clip.startTick). Match that convention: rebase so the earliest note
+          // is at tick 0 (dropping the leading delay) and place the clip at the
+          // start. The clip's startTick now solely determines when it plays, so
+          // the delay no longer persists and moving the clip repositions
+          // playback to wherever its front is placed.
+          // NB: completedNotes is ordered by note-OFF, so notes[0] isn't
+          // necessarily the earliest — take the true minimum startTick.
+          const earliestTick = notes.reduce(
+            (min, n) => Math.min(min, n.startTick),
+            Infinity,
+          );
+          const rebasedNotes = notes.map((n) => ({
+            ...n,
+            startTick: n.startTick - earliestTick,
+          }));
+          const rebasedCC = ccEvents.map((c) => ({
+            ...c,
+            tick: Math.max(0, c.tick - earliestTick),
+          }));
           addMidiClip(armedTrack.id, {
             id: crypto.randomUUID(),
-            startTick: notes[0].startTick,
-            events: notes,
-            ccEvents: ccEvents.length > 0 ? ccEvents : undefined,
+            startTick: 0,
+            events: rebasedNotes,
+            ccEvents: rebasedCC.length > 0 ? rebasedCC : undefined,
           });
 
           // Derive chord regions from all tracks (role-aware)

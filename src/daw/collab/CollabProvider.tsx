@@ -224,6 +224,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
         doc,
         (partial) => useStore.setState(partial),
         () => useStore.getState(),
+        (listener) => useStore.subscribe(listener),
       );
       bridgeRef.current = bridge;
       setBridge(bridge);

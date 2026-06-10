@@ -130,8 +130,8 @@ export const jump_jive_an_wail: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aHWcN5YxuYc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/brian-setzer.webp',
+  artistImageRef: '/artists/svg/brian-setzer.webp',
   popularity: 50,
 };

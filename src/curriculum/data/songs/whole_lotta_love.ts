@@ -152,8 +152,8 @@ export const whole_lotta_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=HQmmM_qwG4k' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/led-zeppelin.webp',
+  artistImageRef: '/artists/svg/led-zeppelin.webp',
   popularity: 50,
 };

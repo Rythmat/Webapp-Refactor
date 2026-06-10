@@ -390,8 +390,8 @@ export const footloose: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=-iiNm0WxJ7Q' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/kenny-loggins-nathan-east.webp',
+  artistImageRef: '/artists/svg/kenny-loggins.webp',
   popularity: 50,
 };

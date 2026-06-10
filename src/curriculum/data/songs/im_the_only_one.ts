@@ -193,8 +193,8 @@ export const im_the_only_one: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=xB-QQAM1GDM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/melissa-etheridge.webp',
+  artistImageRef: '/artists/svg/melissa-etheridge.webp',
   popularity: 50,
 };

@@ -345,8 +345,8 @@ export const hard_rock_cafe: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pOnY3l_vvPw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king-rob-galloway.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

@@ -206,8 +206,8 @@ export const sweet_caroline: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4F_RCWVoL4s' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/neil-diamond.webp',
+  artistImageRef: '/artists/svg/neil-diamond.webp',
   popularity: 50,
 };

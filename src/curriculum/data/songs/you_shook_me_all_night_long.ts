@@ -281,8 +281,8 @@ export const you_shook_me_all_night_long: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Lo2qQmj0_h4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/ac-dc.webp',
+  artistImageRef: '/artists/svg/ac-dc.webp',
   popularity: 50,
 };

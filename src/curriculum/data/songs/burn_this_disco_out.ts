@@ -618,8 +618,8 @@ export const burn_this_disco_out: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_F06umiWDDw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/michael-jackson.webp',
+  artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
 };

@@ -188,8 +188,8 @@ export const a_go_go: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=-PXOr681_VU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/john-scofield.webp',
+  artistImageRef: '/artists/svg/john-scofield.webp',
   popularity: 50,
 };

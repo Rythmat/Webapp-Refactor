@@ -298,8 +298,8 @@ export const dancing_in_the_street: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GuCBXTfoVq8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/martha-and-the-vandellas.webp',
+  artistImageRef: '/artists/svg/martha-and-the-vandellas.webp',
   popularity: 50,
 };

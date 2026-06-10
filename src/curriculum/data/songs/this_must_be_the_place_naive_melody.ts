@@ -63,8 +63,8 @@ export const this_must_be_the_place_naive_melody: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Fb2q141rMNE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/talking-heads-tina-weymouth.webp',
+  artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
 };

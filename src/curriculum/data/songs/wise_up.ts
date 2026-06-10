@@ -281,8 +281,8 @@ export const wise_up: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aNmKghTvj0E' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/aimee-mann.webp',
+  artistImageRef: '/artists/svg/aimee-mann.webp',
   popularity: 50,
 };

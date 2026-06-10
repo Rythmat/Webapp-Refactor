@@ -173,8 +173,8 @@ export const watermelon_sugar: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=E07s5ZYygMg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/harry-styles.webp',
+  artistImageRef: '/artists/svg/harry-styles.webp',
   popularity: 50,
 };

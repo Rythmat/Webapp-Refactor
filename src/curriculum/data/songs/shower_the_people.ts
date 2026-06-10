@@ -323,8 +323,8 @@ export const shower_the_people: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GfJWqjoekow' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/james-taylor.webp',
+  artistImageRef: '/artists/svg/james-taylor.webp',
   popularity: 50,
 };

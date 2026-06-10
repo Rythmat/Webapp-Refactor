@@ -134,8 +134,8 @@ export const this_is_how_we_do_it: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0hiUuL5uTKc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/montell-jordan.webp',
+  artistImageRef: '/artists/svg/montell-jordan.webp',
   popularity: 50,
 };

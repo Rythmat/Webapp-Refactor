@@ -375,8 +375,8 @@ export const i_will: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=p-abNGP1BK4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-beatles.webp',
+  artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
 };

@@ -306,8 +306,8 @@ export const the_sign: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NIPPh7AWSt4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/ace-of-base.webp',
+  artistImageRef: '/artists/svg/ace-of-base.webp',
   popularity: 50,
 };

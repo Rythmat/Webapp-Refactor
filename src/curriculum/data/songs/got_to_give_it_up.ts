@@ -529,8 +529,8 @@ export const got_to_give_it_up: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=jkCUWNbTiA4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/marvin-gaye.webp',
+  artistImageRef: '/artists/svg/marvin-gaye.webp',
   popularity: 50,
 };

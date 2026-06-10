@@ -250,8 +250,8 @@ export const earth_angel: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=VJcGi4-n_Yw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-penguins.webp',
+  artistImageRef: '/artists/svg/the-penguins.webp',
   popularity: 50,
 };

@@ -41,8 +41,8 @@ export const what_i_got: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0Uc3ZrmhDN4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sublime.webp',
+  artistImageRef: '/artists/svg/sublime.webp',
   popularity: 50,
 };

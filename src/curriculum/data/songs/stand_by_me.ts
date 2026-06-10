@@ -51,8 +51,8 @@ export const stand_by_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hwZNL7QVJjE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/ben-e-king.webp',
+  artistImageRef: '/artists/svg/ben-e-king.webp',
   popularity: 50,
 };

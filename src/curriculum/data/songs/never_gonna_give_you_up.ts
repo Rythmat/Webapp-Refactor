@@ -359,8 +359,8 @@ export const never_gonna_give_you_up: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=dQw4w9WgXcQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/rick-astley.webp',
+  artistImageRef: '/artists/svg/rick-astley.webp',
   popularity: 50,
 };

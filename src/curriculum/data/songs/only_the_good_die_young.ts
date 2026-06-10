@@ -276,8 +276,8 @@ export const only_the_good_die_young: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Crif5E67ar0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/billy-joel.webp',
+  artistImageRef: '/artists/svg/billy-joel.webp',
   popularity: 50,
 };

@@ -239,8 +239,8 @@ export const young_americans: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iO6OvHxD_m8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/david-bowie.webp',
+  artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
 };

@@ -1,6 +1,7 @@
 import { ArrowRight, Target } from 'lucide-react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
+import { CardShell, HeaderRow } from '@/components/ui/CardShell';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useChallenges } from '@/hooks/data/challenges';
 import { useCountdown } from '@/hooks/useCountdown';
@@ -23,7 +24,7 @@ const CountdownLabel: FC<{ deadline: string }> = ({ deadline }) => {
 
   return (
     <span
-      className={`mx-3 min-w-20 flex-shrink-0 text-right tabular-nums ${color}`}
+      className={`mx-2 min-w-14 flex-shrink-0 text-right tabular-nums sm:mx-3 sm:min-w-20 ${color}`}
       style={{ fontSize: 'clamp(0.7rem, 0.95vw, 0.9rem)' }}
     >
       {label}
@@ -60,14 +61,14 @@ const ChallengeRow: FC<{ challenge: Challenge; onSelect: () => void }> = ({
       </span>
       {isCompleted ? (
         <span
-          className="mx-3 min-w-20 flex-shrink-0 text-right text-emerald-400"
+          className="mx-2 min-w-14 flex-shrink-0 text-right text-emerald-400 sm:mx-3 sm:min-w-20"
           style={{ fontSize: 'clamp(0.7rem, 0.95vw, 0.9rem)' }}
         >
           Completed
         </span>
       ) : isExpired ? (
         <span
-          className="mx-3 min-w-20 flex-shrink-0 text-right text-white/30"
+          className="mx-2 min-w-14 flex-shrink-0 text-right text-white/30 sm:mx-3 sm:min-w-20"
           style={{ fontSize: 'clamp(0.7rem, 0.95vw, 0.9rem)' }}
         >
           Expired
@@ -76,7 +77,7 @@ const ChallengeRow: FC<{ challenge: Challenge; onSelect: () => void }> = ({
         <CountdownLabel deadline={challenge.deadline} />
       )}
       <span
-        className={`mr-3 min-w-[4.5rem] flex-shrink-0 text-right tabular-nums ${
+        className={`mr-2 min-w-12 flex-shrink-0 text-right tabular-nums sm:mr-3 sm:min-w-[4.5rem] ${
           isInactive ? 'text-white/40' : 'text-white'
         }`}
         style={{ fontSize: 'clamp(0.7rem, 0.95vw, 0.9rem)' }}
@@ -114,56 +115,37 @@ export const ChallengesCard: FC = () => {
   const challenges = data?.challenges ?? [];
 
   return (
-    <div
-      className="glass-panel-sm flex flex-col overflow-hidden rounded-2xl"
-      style={{
-        background: 'rgba(26, 26, 26, 0.7)',
-        padding: 'clamp(0.85rem, 1.3vw, 1.5rem)',
-      }}
-    >
-      <div className="mb-4 flex items-center gap-2">
-        <Target
-          className="text-white/85"
-          style={{
-            width: 'clamp(0.95rem, 1.25vw, 1.15rem)',
-            height: 'clamp(0.95rem, 1.25vw, 1.15rem)',
-          }}
-        />
-        <span
-          className="font-medium text-white"
-          style={{ fontSize: 'clamp(0.75rem, 1.05vw, 1rem)' }}
-        >
-          Challenges
-        </span>
+    <CardShell header={<HeaderRow icon={Target} title="Challenges" />}>
+      <div style={{ marginTop: 'clamp(0.75rem, 1vw, 1rem)' }}>
+        {isLoading ? (
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 w-full bg-white/5" />
+            ))}
+          </div>
+        ) : challenges.length === 0 ? (
+          <p
+            className="text-white/50"
+            style={{ fontSize: 'clamp(0.7rem, 0.95vw, 0.9rem)' }}
+          >
+            No challenges yet.
+          </p>
+        ) : (
+          <div className="flex flex-col divide-y divide-white/[0.06]">
+            {challenges.slice(0, 4).map((c) => (
+              <ChallengeRow
+                key={c.id}
+                challenge={c}
+                onSelect={() => {
+                  if (!c.route) return;
+                  play('click');
+                  navigate(c.route);
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
-      {isLoading ? (
-        <div className="flex flex-1 flex-col gap-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-10 w-full bg-white/5" />
-          ))}
-        </div>
-      ) : challenges.length === 0 ? (
-        <p
-          className="text-white/50"
-          style={{ fontSize: 'clamp(0.7rem, 0.95vw, 0.9rem)' }}
-        >
-          No challenges yet.
-        </p>
-      ) : (
-        <div className="flex flex-1 flex-col divide-y divide-white/[0.06]">
-          {challenges.slice(0, 4).map((c) => (
-            <ChallengeRow
-              key={c.id}
-              challenge={c}
-              onSelect={() => {
-                if (!c.route) return;
-                play('click');
-                navigate(c.route);
-              }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+    </CardShell>
   );
 };

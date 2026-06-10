@@ -103,8 +103,8 @@ export const if_you_want_me_to_stay: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gZFabOuF4Ps' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sly-and-the-family-stone.webp',
+  artistImageRef: '/artists/svg/sly-and-the-family-stone.webp',
   popularity: 50,
 };

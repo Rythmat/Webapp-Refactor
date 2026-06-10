@@ -104,8 +104,8 @@ export const whiskey_in_a_jar: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Hwb8C2TijYE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-dubliners.webp',
+  artistImageRef: '/artists/svg/the-dubliners.webp',
   popularity: 50,
 };

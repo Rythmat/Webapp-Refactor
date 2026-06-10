@@ -192,8 +192,8 @@ export const solsbury_hill: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_OO2PuGz-H8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/peter-gabriel.webp',
+  artistImageRef: '/artists/svg/peter-gabriel.webp',
   popularity: 50,
 };

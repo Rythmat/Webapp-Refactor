@@ -297,8 +297,8 @@ export const interstate_love_song: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yjJL9DGU7Gg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stone-temple-pilots.webp',
+  artistImageRef: '/artists/svg/stone-temple-pilots.webp',
   popularity: 50,
 };

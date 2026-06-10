@@ -241,8 +241,8 @@ export const make_you_feel_my_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0put0_a--Ng' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/adele.webp',
+  artistImageRef: '/artists/svg/adele.webp',
   popularity: 50,
 };

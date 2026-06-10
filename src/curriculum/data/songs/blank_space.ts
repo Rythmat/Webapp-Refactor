@@ -139,8 +139,8 @@ export const blank_space: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=e-ORhEE9VVg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/taylor-swift.webp',
+  artistImageRef: '/artists/svg/taylor-swift.webp',
   popularity: 50,
 };

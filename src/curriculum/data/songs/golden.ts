@@ -66,8 +66,8 @@ export const golden: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4QCXr79Rkcw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jill-scott.webp',
+  artistImageRef: '/artists/svg/jill-scott.webp',
   popularity: 50,
 };

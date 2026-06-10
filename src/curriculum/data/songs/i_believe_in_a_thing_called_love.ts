@@ -483,8 +483,8 @@ export const i_believe_in_a_thing_called_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tKjZuykKY1I' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-darkness.webp',
+  artistImageRef: '/artists/svg/the-darkness.webp',
   popularity: 50,
 };

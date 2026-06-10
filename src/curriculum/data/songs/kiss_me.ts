@@ -278,8 +278,8 @@ export const kiss_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Jnq9wPDoDKg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sixpence-none-the-richer.webp',
+  artistImageRef: '/artists/svg/sixpence-none-the-richer.webp',
   popularity: 50,
 };

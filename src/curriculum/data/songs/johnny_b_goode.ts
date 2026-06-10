@@ -126,8 +126,8 @@ export const johnny_b_goode: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aKCt8ssC7cs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chuck-berry.webp',
+  artistImageRef: '/artists/svg/chuck-berry.webp',
   popularity: 50,
 };

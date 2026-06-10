@@ -191,8 +191,8 @@ export const if_i_aint_got_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Ju8Hr50Ckwk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/alicia-keys.webp',
+  artistImageRef: '/artists/svg/alicia-keys.webp',
   popularity: 50,
 };

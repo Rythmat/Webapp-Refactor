@@ -137,8 +137,8 @@ export const pass_the_peas: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=YJmIN8RNBUg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/maceo-parker.webp',
+  artistImageRef: '/artists/svg/maceo-parker.webp',
   popularity: 50,
 };

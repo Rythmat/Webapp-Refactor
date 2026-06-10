@@ -217,8 +217,8 @@ export const aint_too_proud_to_beg: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3s0TkufXA38' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-temptations.webp',
+  artistImageRef: '/artists/svg/the-temptations.webp',
   popularity: 50,
 };

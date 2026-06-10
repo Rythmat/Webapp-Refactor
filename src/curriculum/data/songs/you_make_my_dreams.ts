@@ -332,8 +332,8 @@ export const you_make_my_dreams: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=EErSKhC0CZs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/hall-and-oates.webp',
+  artistImageRef: '/artists/svg/hall-and-oates.webp',
   popularity: 50,
 };

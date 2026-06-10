@@ -93,8 +93,8 @@ export const domino: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=UJtB55MaoD0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jessie-j.webp',
+  artistImageRef: '/artists/svg/jessie-j.webp',
   popularity: 50,
 };

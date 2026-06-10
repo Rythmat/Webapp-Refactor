@@ -225,8 +225,8 @@ export const yellow_moon: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lDzraECGfUY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-neville-brothers.webp',
+  artistImageRef: '/artists/svg/the-neville-brothers.webp',
   popularity: 50,
 };

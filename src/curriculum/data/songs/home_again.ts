@@ -448,8 +448,8 @@ export const home_again: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lNTjfaWnKIM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

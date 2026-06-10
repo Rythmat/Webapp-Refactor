@@ -52,8 +52,8 @@ export const blurred_lines: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yyDUC1LUXSU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/robin-thicke.webp',
+  artistImageRef: '/artists/svg/robin-thicke.webp',
   popularity: 50,
 };

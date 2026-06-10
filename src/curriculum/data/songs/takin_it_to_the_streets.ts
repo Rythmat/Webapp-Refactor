@@ -1264,8 +1264,8 @@ export const takin_it_to_the_streets: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gh6BfGdffQw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/doobie-brothers.webp',
+  artistImageRef: '/artists/svg/the-doobie-brothers.webp',
   popularity: 50,
 };

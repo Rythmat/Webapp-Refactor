@@ -322,8 +322,8 @@ export const dont_worry_about_the_government: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ff7kt88dPj0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/talking-heads.webp',
+  artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
 };

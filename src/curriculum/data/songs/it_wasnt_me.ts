@@ -52,8 +52,8 @@ export const it_wasnt_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2g5Hz17C4is' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/shaggy.webp',
+  artistImageRef: '/artists/svg/shaggy.webp',
   popularity: 50,
 };

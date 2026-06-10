@@ -193,8 +193,8 @@ export const cisco_kid: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_86iwnPKzBY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/war.webp',
+  artistImageRef: '/artists/svg/war.webp',
   popularity: 50,
 };

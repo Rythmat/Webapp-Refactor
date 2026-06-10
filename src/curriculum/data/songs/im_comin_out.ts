@@ -475,8 +475,8 @@ export const im_comin_out: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3pmt-wWzC1E' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/diana-ross.webp',
+  artistImageRef: '/artists/svg/diana-ross.webp',
   popularity: 50,
 };

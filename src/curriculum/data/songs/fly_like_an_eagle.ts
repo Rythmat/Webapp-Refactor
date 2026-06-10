@@ -285,8 +285,8 @@ export const fly_like_an_eagle: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WuXwSyahgW4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/steve-miller-band.webp',
+  artistImageRef: '/artists/svg/steve-miller-band.webp',
   popularity: 50,
 };

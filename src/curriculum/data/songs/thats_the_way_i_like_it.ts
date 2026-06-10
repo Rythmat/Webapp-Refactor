@@ -127,8 +127,8 @@ export const thats_the_way_i_like_it: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yupPvZF6oBw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/kc-and-the-sunshine-band.webp',
+  artistImageRef: '/artists/svg/kc-and-the-sunshine-band.webp',
   popularity: 50,
 };

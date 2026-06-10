@@ -198,8 +198,8 @@ export const i_got_you_i_feel_good: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pTdihu-mp90' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/james-brown.webp',
+  artistImageRef: '/artists/svg/james-brown.webp',
   popularity: 50,
 };

@@ -188,8 +188,8 @@ export const american_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=J7bAeH7iJFc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tom-petty.webp',
+  artistImageRef: '/artists/svg/tom-petty.webp',
   popularity: 50,
 };

@@ -303,8 +303,8 @@ export const love_on_the_brain: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=QMP-o8WXSPM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/rihanna.webp',
+  artistImageRef: '/artists/svg/rihanna.webp',
   popularity: 50,
 };

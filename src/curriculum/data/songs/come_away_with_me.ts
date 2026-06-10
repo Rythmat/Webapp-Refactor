@@ -185,8 +185,8 @@ export const come_away_with_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lbjZPFBD6JU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/norah-jones.webp',
+  artistImageRef: '/artists/svg/norah-jones.webp',
   popularity: 50,
 };

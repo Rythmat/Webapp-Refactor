@@ -306,8 +306,8 @@ export const how_come_you_dont_call_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=-ez-rivUZgc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/alicia-keys.webp',
+  artistImageRef: '/artists/svg/alicia-keys.webp',
   popularity: 50,
 };

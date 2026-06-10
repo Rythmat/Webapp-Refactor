@@ -211,8 +211,8 @@ export const nowhere_man: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8scSwaKbE64' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-beatles.webp',
+  artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
 };

@@ -335,8 +335,8 @@ export const treasure: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nPvuNsRccVw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bruno-mars.webp',
+  artistImageRef: '/artists/svg/bruno-mars.webp',
   popularity: 50,
 };

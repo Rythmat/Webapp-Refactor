@@ -79,8 +79,8 @@ export const me_myself_and_i: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4S37SGxZSMc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/beyonce.webp',
+  artistImageRef: '/artists/svg/beyonce.webp',
   popularity: 50,
 };

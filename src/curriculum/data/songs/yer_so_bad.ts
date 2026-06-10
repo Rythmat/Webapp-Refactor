@@ -343,8 +343,8 @@ export const yer_so_bad: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WdRViFCvvUo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tom-petty.webp',
+  artistImageRef: '/artists/svg/tom-petty.webp',
   popularity: 50,
 };

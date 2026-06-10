@@ -239,8 +239,8 @@ export const mad_world: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=u1ZvPSpLxCg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tears-for-fears.webp',
+  artistImageRef: '/artists/svg/tears-for-fears.webp',
   popularity: 50,
 };

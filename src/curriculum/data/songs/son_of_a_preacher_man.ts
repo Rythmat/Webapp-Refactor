@@ -172,8 +172,8 @@ export const son_of_a_preacher_man: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oAZLgsDRUv4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/dusty-springfield.webp',
+  artistImageRef: '/artists/svg/dusty-springfield.webp',
   popularity: 50,
 };

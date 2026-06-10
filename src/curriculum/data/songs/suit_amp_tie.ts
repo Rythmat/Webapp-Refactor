@@ -439,8 +439,8 @@ export const suit_amp_tie: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4fb4GyOylK8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/justin-timberlake.webp',
+  artistImageRef: '/artists/svg/justin-timberlake.webp',
   popularity: 50,
 };

@@ -133,8 +133,8 @@ export const tequila: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=U_JFLb1IItM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-champs.webp',
+  artistImageRef: '/artists/svg/the-champs.webp',
   popularity: 50,
 };

@@ -156,8 +156,8 @@ export const the_big_country: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=93oFXRedHy0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/talking-heads.webp',
+  artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
 };

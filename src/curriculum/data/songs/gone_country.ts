@@ -327,8 +327,8 @@ export const gone_country: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=si-ja75bFvI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/alan-jackson.webp',
+  artistImageRef: '/artists/svg/alan-jackson.webp',
   popularity: 50,
 };

@@ -208,8 +208,8 @@ export const ring_of_fire: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1WaV2x8GXj0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/johnny-cash.webp',
+  artistImageRef: '/artists/svg/johnny-cash.webp',
   popularity: 50,
 };

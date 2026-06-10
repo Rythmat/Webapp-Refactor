@@ -251,8 +251,8 @@ export const twisted: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bM97VbuIBcw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/usher.webp',
+  artistImageRef: '/artists/svg/usher.webp',
   popularity: 50,
 };

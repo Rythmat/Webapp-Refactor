@@ -363,8 +363,8 @@ export const love_the_one_youre_with: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=cZyj6GECjZ0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stephen-stills.webp',
+  artistImageRef: '/artists/svg/stephen-stills.webp',
   popularity: 50,
 };

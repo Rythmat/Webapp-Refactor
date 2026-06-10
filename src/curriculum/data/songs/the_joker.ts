@@ -219,8 +219,8 @@ export const the_joker: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=dV3AziKTBUo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/steve-miller-band.webp',
+  artistImageRef: '/artists/svg/steve-miller-band.webp',
   popularity: 50,
 };

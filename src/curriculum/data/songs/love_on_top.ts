@@ -303,8 +303,8 @@ export const love_on_top: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Ob7vObnFUJc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/beyonce.webp',
+  artistImageRef: '/artists/svg/beyonce.webp',
   popularity: 50,
 };

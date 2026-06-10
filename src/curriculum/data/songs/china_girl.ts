@@ -317,8 +317,8 @@ export const china_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_YC3sTbAPcU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/david-bowie.webp',
+  artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
 };

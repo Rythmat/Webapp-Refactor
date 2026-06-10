@@ -305,8 +305,8 @@ export const stay_with_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_9n4FTk4I3M' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/john-legend.webp',
+  artistImageRef: '/artists/svg/john-legend.webp',
   popularity: 50,
 };

@@ -448,8 +448,8 @@ export const livin_la_vida_loca: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=p47fEXGabaY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/ricky-martin.webp',
+  artistImageRef: '/artists/svg/ricky-martin.webp',
   popularity: 50,
 };

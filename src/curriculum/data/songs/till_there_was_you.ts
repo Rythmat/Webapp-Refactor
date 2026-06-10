@@ -501,8 +501,8 @@ export const till_there_was_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=SHAqAO7w8M8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-beatles.webp',
+  artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
 };

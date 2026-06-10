@@ -328,8 +328,8 @@ export const just_like_a_woman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=dRLXZVojdhQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bob-dylan.webp',
+  artistImageRef: '/artists/svg/bob-dylan.webp',
   popularity: 50,
 };

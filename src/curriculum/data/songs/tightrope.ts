@@ -579,8 +579,8 @@ export const tightrope: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pwnefUaKCbc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/janelle-monae.webp',
+  artistImageRef: '/artists/svg/janelle-monae.webp',
   popularity: 50,
 };

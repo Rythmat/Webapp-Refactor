@@ -164,8 +164,8 @@ export const california_gurls: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=F57P9C4SAW4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/katy-perry.webp',
+  artistImageRef: '/artists/svg/katy-perry.webp',
   popularity: 50,
 };

@@ -631,8 +631,8 @@ export const havent_met_you_yet: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1AJmKkU5POA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/michael-buble.webp',
+  artistImageRef: '/artists/svg/michael-buble.webp',
   popularity: 50,
 };

@@ -97,8 +97,8 @@ export const isnt_she_lovely: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oE56g61mW44' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

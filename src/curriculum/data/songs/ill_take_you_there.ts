@@ -53,8 +53,8 @@ export const ill_take_you_there: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IhHBr7nMMio' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-staple-singers.webp',
+  artistImageRef: '/artists/svg/the-staple-singers.webp',
   popularity: 50,
 };

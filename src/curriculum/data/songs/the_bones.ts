@@ -471,8 +471,8 @@ export const the_bones: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gvPMVKUI9go' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/maren-morris.webp',
+  artistImageRef: '/artists/svg/maren-morris.webp',
   popularity: 50,
 };

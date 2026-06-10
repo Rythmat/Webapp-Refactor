@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const i_hope_you_dance: Song = {
   id: 'i_hope_you_dance',
   title: 'I Hope You Dance',
-  artist: 'Leann Womack',
+  artist: 'Lee Ann Womack',
   year: undefined,
 
   historicalDescription:
@@ -303,8 +303,8 @@ export const i_hope_you_dance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RV-Z1YwaOiw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/leann-womack.webp',
+  artistImageRef: '/artists/svg/lee-ann-womack.webp',
   popularity: 50,
 };

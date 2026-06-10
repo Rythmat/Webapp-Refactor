@@ -33,8 +33,8 @@ export const the_national_anthem: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NfQD1QiQ9o4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/radiohead.webp',
+  artistImageRef: '/artists/svg/radiohead.webp',
   popularity: 50,
 };

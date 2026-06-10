@@ -450,8 +450,8 @@ export const canned_heat: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=vE4VlA_9OrI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jamiroquai.webp',
+  artistImageRef: '/artists/svg/jamiroquai.webp',
   popularity: 50,
 };

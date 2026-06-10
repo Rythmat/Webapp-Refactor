@@ -177,8 +177,8 @@ export const dont_you_forget_about_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CdqoNKCCt7A' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/simple-minds.webp',
+  artistImageRef: '/artists/svg/simple-minds.webp',
   popularity: 50,
 };

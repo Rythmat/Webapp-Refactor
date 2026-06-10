@@ -238,8 +238,8 @@ export const broken_halos: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sI0TeFf6uD8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chris-stapleton.webp',
+  artistImageRef: '/artists/svg/chris-stapleton.webp',
   popularity: 50,
 };

@@ -144,8 +144,8 @@ export const in_the_midnight_hour: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FGVGFfj7POA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/wilson-pickett.webp',
+  artistImageRef: '/artists/svg/wilson-pickett.webp',
   popularity: 50,
 };

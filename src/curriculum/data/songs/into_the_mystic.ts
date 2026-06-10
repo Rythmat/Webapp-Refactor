@@ -210,8 +210,8 @@ export const into_the_mystic: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=syIUmrSJWAU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/van-morrison.webp',
+  artistImageRef: '/artists/svg/van-morrison.webp',
   popularity: 50,
 };

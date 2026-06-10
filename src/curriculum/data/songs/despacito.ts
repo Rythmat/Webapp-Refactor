@@ -93,8 +93,8 @@ export const despacito: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kJQP7kiw5Fk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/luis-fonsi.webp',
+  artistImageRef: '/artists/svg/luis-fonsi.webp',
   popularity: 50,
 };

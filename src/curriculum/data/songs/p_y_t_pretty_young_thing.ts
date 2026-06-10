@@ -548,8 +548,8 @@ export const p_y_t_pretty_young_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1ZZQuj6htF4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/michael-jackson.webp',
+  artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
 };

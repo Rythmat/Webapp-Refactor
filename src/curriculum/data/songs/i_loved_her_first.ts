@@ -423,8 +423,8 @@ export const i_loved_her_first: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=svDDL2OHQ-I' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/heartland.webp',
+  artistImageRef: '/artists/svg/heartland.webp',
   popularity: 50,
 };

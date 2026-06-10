@@ -144,8 +144,8 @@ export const faith: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6Cs3Pvmmv0E' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/george-michael.webp',
+  artistImageRef: '/artists/svg/george-michael.webp',
   popularity: 50,
 };

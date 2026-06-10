@@ -209,8 +209,8 @@ export const cant_stop_the_feeling: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ru0K8uYEZWw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/justin-timberlake.webp',
+  artistImageRef: '/artists/svg/justin-timberlake.webp',
   popularity: 50,
 };

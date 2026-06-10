@@ -112,8 +112,8 @@ export const what_is_and_what_should_never_be: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uwOOFYDhAQA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/led-zeppelin.webp',
+  artistImageRef: '/artists/svg/led-zeppelin.webp',
   popularity: 50,
 };

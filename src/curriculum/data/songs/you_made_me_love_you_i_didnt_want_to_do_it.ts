@@ -277,8 +277,8 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nfwTIheDo6A' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/patsy-cline.webp',
+  artistImageRef: '/artists/svg/patsy-cline.webp',
   popularity: 50,
 };

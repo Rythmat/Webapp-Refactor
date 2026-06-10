@@ -279,8 +279,8 @@ export const free_ride: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=JAFyvePcR_o' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/edgar-winter-group.webp',
+  artistImageRef: '/artists/svg/edgar-winter-group.webp',
   popularity: 50,
 };

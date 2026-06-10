@@ -392,8 +392,8 @@ export const joy_inside_my_tears: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Ecl4I_5ZLgk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

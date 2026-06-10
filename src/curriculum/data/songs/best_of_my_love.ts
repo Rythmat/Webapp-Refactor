@@ -74,8 +74,8 @@ export const best_of_my_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Pbg66_KdJ5Q' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-emotions.webp',
+  artistImageRef: '/artists/svg/the-emotions.webp',
   popularity: 50,
 };

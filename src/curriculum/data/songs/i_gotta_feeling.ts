@@ -141,8 +141,8 @@ export const i_gotta_feeling: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uSD4vsh1zDA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/black-eyed-peas.webp',
+  artistImageRef: '/artists/svg/black-eyed-peas.webp',
   popularity: 50,
 };

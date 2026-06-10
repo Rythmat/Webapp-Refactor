@@ -530,8 +530,8 @@ export const jessies_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=qYkbTyHXwbs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/rick-springfield.webp',
+  artistImageRef: '/artists/svg/rick-springfield.webp',
   popularity: 50,
 };

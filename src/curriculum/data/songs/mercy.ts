@@ -180,8 +180,8 @@ export const mercy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=y7ZEVA5dy-Y' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/duffy.webp',
+  artistImageRef: '/artists/svg/duffy.webp',
   popularity: 50,
 };

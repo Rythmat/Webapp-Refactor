@@ -178,8 +178,8 @@ export const twistin_the_night_away: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yddHfpbK438' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sam-cooke.webp',
+  artistImageRef: '/artists/svg/sam-cooke.webp',
   popularity: 50,
 };

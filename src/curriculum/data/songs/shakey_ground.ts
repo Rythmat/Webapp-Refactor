@@ -210,8 +210,8 @@ export const shakey_ground: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=W_UxlayuJpk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-temptations.webp',
+  artistImageRef: '/artists/svg/the-temptations.webp',
   popularity: 50,
 };

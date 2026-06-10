@@ -200,8 +200,8 @@ export const dynamite: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=VUjdiDeJ0xg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/taio-cruz.webp',
+  artistImageRef: '/artists/svg/taio-cruz.webp',
   popularity: 50,
 };

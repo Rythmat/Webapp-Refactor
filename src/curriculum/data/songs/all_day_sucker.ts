@@ -435,8 +435,8 @@ export const all_day_sucker: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pz3rrESMnzI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

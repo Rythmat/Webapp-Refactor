@@ -237,8 +237,8 @@ export const try_a_little_tenderness: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CjO7qdADCyQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/otis-redding.webp',
+  artistImageRef: '/artists/svg/otis-redding.webp',
   popularity: 50,
 };

@@ -55,8 +55,8 @@ export const marry_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=dElRVQFqj-k' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bruno-mars.webp',
+  artistImageRef: '/artists/svg/bruno-mars.webp',
   popularity: 50,
 };

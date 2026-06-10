@@ -221,8 +221,8 @@ export const i_got_a_woman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CnI_LuCJ4Ek' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/ray-charles.webp',
+  artistImageRef: '/artists/svg/ray-charles.webp',
   popularity: 50,
 };

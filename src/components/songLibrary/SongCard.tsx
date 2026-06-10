@@ -45,8 +45,8 @@ const SongCardImpl = ({ song }: SongCardProps) => {
       <div
         className="glass-panel relative aspect-square overflow-hidden rounded-2xl transition-colors duration-150"
         style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid var(--color-border)',
+          background: 'rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.18)',
         }}
       >
         {hasArtistImage ? (

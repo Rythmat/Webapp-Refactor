@@ -140,8 +140,8 @@ export const wake_me_up: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IcrbM1l_BoI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/avicii.webp',
+  artistImageRef: '/artists/svg/avicii.webp',
   popularity: 50,
 };

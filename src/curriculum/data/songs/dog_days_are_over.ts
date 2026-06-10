@@ -213,8 +213,8 @@ export const dog_days_are_over: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iWOyfLBYtuU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/florence-and-the-machine.webp',
+  artistImageRef: '/artists/svg/florence-and-the-machine.webp',
   popularity: 50,
 };

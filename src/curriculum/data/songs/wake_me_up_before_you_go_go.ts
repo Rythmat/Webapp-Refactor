@@ -240,8 +240,8 @@ export const wake_me_up_before_you_go_go: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pIgZ7gMze7A' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/wham.webp',
+  artistImageRef: '/artists/svg/wham.webp',
   popularity: 50,
 };

@@ -181,8 +181,8 @@ export const la_vie_en_rose: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=qPU8mENUBXk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/edith-piaf.webp',
+  artistImageRef: '/artists/svg/edith-piaf.webp',
   popularity: 50,
 };

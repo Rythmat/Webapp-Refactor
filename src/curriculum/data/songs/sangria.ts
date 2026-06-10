@@ -164,8 +164,8 @@ export const sangria: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=KoQrH6EMnas' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/blake-shelton.webp',
+  artistImageRef: '/artists/svg/blake-shelton.webp',
   popularity: 50,
 };

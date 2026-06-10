@@ -41,8 +41,8 @@ export const shape_of_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=JGwWNGJdvx8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/ed-sheeran.webp',
+  artistImageRef: '/artists/svg/ed-sheeran.webp',
   popularity: 50,
 };

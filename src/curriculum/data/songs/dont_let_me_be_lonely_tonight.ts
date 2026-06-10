@@ -345,8 +345,8 @@ export const dont_let_me_be_lonely_tonight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=y8cPCYZz6uE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/james-taylor.webp',
+  artistImageRef: '/artists/svg/james-taylor.webp',
   popularity: 50,
 };

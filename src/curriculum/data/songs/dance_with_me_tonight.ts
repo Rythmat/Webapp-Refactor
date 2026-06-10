@@ -223,8 +223,8 @@ export const dance_with_me_tonight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=F3EG4olrFjY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/olly-murs.webp',
+  artistImageRef: '/artists/svg/olly-murs.webp',
   popularity: 50,
 };

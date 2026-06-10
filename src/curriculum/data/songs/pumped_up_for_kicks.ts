@@ -54,8 +54,8 @@ export const pumped_up_for_kicks: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=SDTZ7iX4vTQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/foster-the-people.webp',
+  artistImageRef: '/artists/svg/foster-the-people.webp',
   popularity: 50,
 };

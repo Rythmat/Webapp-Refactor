@@ -315,8 +315,8 @@ export const saturn: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=p3KpUO6t9qQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

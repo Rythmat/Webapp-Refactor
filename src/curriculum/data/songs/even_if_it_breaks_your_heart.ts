@@ -407,8 +407,8 @@ export const even_if_it_breaks_your_heart: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=D-5GnZYxI4M' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/eli-young-band.webp',
+  artistImageRef: '/artists/svg/eli-young-band.webp',
   popularity: 50,
 };

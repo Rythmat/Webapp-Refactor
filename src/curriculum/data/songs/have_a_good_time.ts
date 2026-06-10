@@ -226,8 +226,8 @@ export const have_a_good_time: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XJlCzHup1nQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/brand-new-heavies.webp',
+  artistImageRef: '/artists/svg/brand-new-heavies.webp',
   popularity: 50,
 };

@@ -208,8 +208,8 @@ export const all_my_loving: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=TSpiwK5fig0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-beatles.webp',
+  artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
 };

@@ -363,8 +363,8 @@ export const the_ocean: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6XIQR4p30Wo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/led-zeppelin.webp',
+  artistImageRef: '/artists/svg/led-zeppelin.webp',
   popularity: 50,
 };

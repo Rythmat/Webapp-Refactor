@@ -255,8 +255,8 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MOyvYnkdEcc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

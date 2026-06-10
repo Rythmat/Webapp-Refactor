@@ -459,8 +459,8 @@ export const nothing_compares_2_u: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=TBQrFXP3kaI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sinead-o.webp',
+  artistImageRef: '/artists/svg/sinead-o-connor.webp',
   popularity: 50,
 };

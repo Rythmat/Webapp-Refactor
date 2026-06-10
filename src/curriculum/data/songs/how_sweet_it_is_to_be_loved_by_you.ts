@@ -139,8 +139,8 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Wh__udyczFM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/james-taylor.webp',
+  artistImageRef: '/artists/svg/james-taylor.webp',
   popularity: 50,
 };

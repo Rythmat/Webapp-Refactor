@@ -254,8 +254,8 @@ export const no_easy_way_down: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WkgsFbdsD6Y' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/dusty-springfield.webp',
+  artistImageRef: '/artists/svg/dusty-springfield.webp',
   popularity: 50,
 };

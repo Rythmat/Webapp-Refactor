@@ -242,8 +242,8 @@ export const shout: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=DPVf01jXL7M' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/isley-brothers.webp',
+  artistImageRef: '/artists/svg/isley-brothers.webp',
   popularity: 50,
 };

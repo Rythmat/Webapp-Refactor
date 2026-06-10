@@ -254,8 +254,8 @@ export const pretty_woman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=D3a8Seh3Cp4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/roy-orbison.webp',
+  artistImageRef: '/artists/svg/roy-orbison.webp',
   popularity: 50,
 };

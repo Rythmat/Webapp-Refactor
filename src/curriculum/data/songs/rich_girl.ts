@@ -457,8 +457,8 @@ export const rich_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=AmHE65RAkSY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/hall-and-oates.webp',
+  artistImageRef: '/artists/svg/hall-and-oates.webp',
   popularity: 50,
 };

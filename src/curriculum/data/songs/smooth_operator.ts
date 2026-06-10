@@ -709,8 +709,8 @@ export const smooth_operator: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4TYv2PhG89A' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sade.webp',
+  artistImageRef: '/artists/svg/sade.webp',
   popularity: 50,
 };

@@ -544,8 +544,8 @@ export const maneater: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yRYFKcMa_Ek' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/hall-and-oates.webp',
+  artistImageRef: '/artists/svg/hall-and-oates.webp',
   popularity: 50,
 };

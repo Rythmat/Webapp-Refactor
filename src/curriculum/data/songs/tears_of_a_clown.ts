@@ -289,8 +289,8 @@ export const tears_of_a_clown: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=51B55OQysj8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/smokey-robinson-amp-the-miracles.webp',
+  artistImageRef: '/artists/svg/smokey-robinson.webp',
   popularity: 50,
 };

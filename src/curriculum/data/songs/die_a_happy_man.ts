@@ -326,8 +326,8 @@ export const die_a_happy_man: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=w2CELiObPeQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/thomas-rhett.webp',
+  artistImageRef: '/artists/svg/thomas-rhett.webp',
   popularity: 50,
 };

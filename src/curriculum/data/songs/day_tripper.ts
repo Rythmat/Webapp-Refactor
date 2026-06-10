@@ -163,8 +163,8 @@ export const day_tripper: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2IbPn5j2YKk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-beatles.webp',
+  artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
 };

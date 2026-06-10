@@ -324,8 +324,8 @@ export const dont_know_why: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tO4dxvguQDk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/norah-jones.webp',
+  artistImageRef: '/artists/svg/norah-jones.webp',
   popularity: 50,
 };

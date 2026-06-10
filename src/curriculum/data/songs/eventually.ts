@@ -439,8 +439,8 @@ export const eventually: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GPpcHUr2AP0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

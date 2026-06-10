@@ -492,8 +492,8 @@ export const knocks_me_off_my_feet: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BI4sC5hidUg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

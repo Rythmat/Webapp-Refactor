@@ -573,8 +573,8 @@ export const the_book_i_read: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZLkmYOGZHzE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/talking-heads.webp',
+  artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
 };

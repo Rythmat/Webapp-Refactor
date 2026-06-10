@@ -199,8 +199,8 @@ export const will_you_still_love_me_tomorrow: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=O0jYMMTb0XU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/amy-winehouse.webp',
+  artistImageRef: '/artists/svg/amy-winehouse.webp',
   popularity: 50,
 };

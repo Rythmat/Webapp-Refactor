@@ -239,8 +239,8 @@ export const whip_it: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=j_QLzthSkfM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/devo.webp',
+  artistImageRef: '/artists/svg/devo.webp',
   popularity: 50,
 };

@@ -525,8 +525,8 @@ export const higher_ground: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1esf0efHbjM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

@@ -192,8 +192,8 @@ export const will_it_go_round_in_circles: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=QDtYo2IPTsw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/billy-preston.webp',
+  artistImageRef: '/artists/svg/billy-preston.webp',
   popularity: 50,
 };

@@ -260,6 +260,6 @@ export const sweet_thing: Song = {
   ],
   artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chaka-khan.webp',
+  artistImageRef: '/artists/svg/rufus-and-chaka-khan.webp',
   popularity: 50,
 };

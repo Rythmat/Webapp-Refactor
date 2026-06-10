@@ -543,8 +543,8 @@ export const at_last: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1qJU8G7gR_g' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/etta-james.webp',
+  artistImageRef: '/artists/svg/etta-james.webp',
   popularity: 50,
 };

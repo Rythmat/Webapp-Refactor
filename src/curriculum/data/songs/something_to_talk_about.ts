@@ -347,8 +347,8 @@ export const something_to_talk_about: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mJ58TVYNFro' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bonnie-raitt.webp',
+  artistImageRef: '/artists/svg/bonnie-raitt.webp',
   popularity: 50,
 };

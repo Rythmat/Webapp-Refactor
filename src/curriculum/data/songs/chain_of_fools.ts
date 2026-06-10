@@ -64,8 +64,8 @@ export const chain_of_fools: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5C4FnlftQt4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/aretha-franklin.webp',
+  artistImageRef: '/artists/svg/aretha-franklin.webp',
   popularity: 50,
 };

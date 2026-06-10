@@ -221,8 +221,8 @@ export const forever_young_stewart: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mwG6g5boyF4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/rod-stewart.webp',
+  artistImageRef: '/artists/svg/rod-stewart.webp',
   popularity: 50,
 };

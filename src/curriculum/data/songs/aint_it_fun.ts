@@ -302,8 +302,8 @@ export const aint_it_fun: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=EFEmTsfFL5A' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/paramore.webp',
+  artistImageRef: '/artists/svg/paramore.webp',
   popularity: 50,
 };

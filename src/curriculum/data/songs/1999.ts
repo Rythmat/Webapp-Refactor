@@ -499,8 +499,8 @@ export const _1999: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rblt2EtFfC4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/prince.webp',
+  artistImageRef: '/artists/svg/prince.webp',
   popularity: 50,
 };

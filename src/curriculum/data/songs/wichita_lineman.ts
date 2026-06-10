@@ -120,8 +120,8 @@ export const wichita_lineman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Q8P_xTBpAcY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/glen-campbell.webp',
+  artistImageRef: '/artists/svg/glen-campbell.webp',
   popularity: 50,
 };

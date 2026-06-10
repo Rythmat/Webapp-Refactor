@@ -466,8 +466,8 @@ export const fourfiveseconds: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kt0g4dWxEBo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/rihanna-kanye-west-and-paul-mccartney.webp',
+  artistImageRef: '/artists/svg/rihanna.webp',
   popularity: 50,
 };

@@ -124,8 +124,8 @@ export const rocky_mountain_way: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=zdTjzYOqhTo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/joe-walsh.webp',
+  artistImageRef: '/artists/svg/joe-walsh.webp',
   popularity: 50,
 };

@@ -147,6 +147,6 @@ export const say_something_timberlake: Song = {
   ],
   artistImageSource: 'manual',
 
-  artistImageRef: '/artists/justin-timberlake.webp',
+  artistImageRef: '/artists/svg/justin-timberlake.webp',
   popularity: 50,
 };

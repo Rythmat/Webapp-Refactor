@@ -58,8 +58,8 @@ export const cruise: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8PvebsWcpto' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/florida-georgia-line.webp',
+  artistImageRef: '/artists/svg/florida-georgia-line.webp',
   popularity: 50,
 };

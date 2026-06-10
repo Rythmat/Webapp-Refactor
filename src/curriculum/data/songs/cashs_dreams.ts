@@ -254,8 +254,8 @@ export const cashs_dreams: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=n0tNIpeS0A8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/soulive.webp',
+  artistImageRef: '/artists/svg/soulive.webp',
   popularity: 50,
 };

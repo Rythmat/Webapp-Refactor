@@ -441,8 +441,8 @@ export const i_feel_the_earth_move: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6913KnbMpHM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

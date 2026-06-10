@@ -62,8 +62,8 @@ export const no_diggity_blackstreet: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3KL9mRus19o' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chet-faker.webp',
+  artistImageRef: '/artists/svg/chet-faker.webp',
   popularity: 50,
 };

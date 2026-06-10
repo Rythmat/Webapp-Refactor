@@ -203,8 +203,8 @@ export const in_my_life: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=YBcdt6DsLQA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-beatles.webp',
+  artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
 };

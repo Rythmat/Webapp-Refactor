@@ -75,8 +75,8 @@ export const old_time_rock_and_roll: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=W1LsRShUPtY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bob-seger.webp',
+  artistImageRef: '/artists/svg/bob-seger.webp',
   popularity: 50,
 };

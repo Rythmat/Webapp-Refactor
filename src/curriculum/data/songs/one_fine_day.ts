@@ -396,8 +396,8 @@ export const one_fine_day: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=KvyOqKhKWQ4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-chiffons.webp',
+  artistImageRef: '/artists/svg/the-chiffons.webp',
   popularity: 50,
 };

@@ -101,8 +101,8 @@ export const it_all_comes_back: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Q2kujcF-nk0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tower-of-power.webp',
+  artistImageRef: '/artists/svg/tower-of-power.webp',
   popularity: 50,
 };

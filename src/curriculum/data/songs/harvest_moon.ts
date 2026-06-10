@@ -255,8 +255,8 @@ export const harvest_moon: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=n2MtEsrcTTs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/neil-young.webp',
+  artistImageRef: '/artists/svg/neil-young.webp',
   popularity: 50,
 };

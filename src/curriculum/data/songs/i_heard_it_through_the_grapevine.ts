@@ -325,8 +325,8 @@ export const i_heard_it_through_the_grapevine: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=VWG3npfEoHo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/marvin-gaye.webp',
+  artistImageRef: '/artists/svg/marvin-gaye.webp',
   popularity: 50,
 };

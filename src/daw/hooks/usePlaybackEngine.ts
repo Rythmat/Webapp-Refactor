@@ -638,11 +638,15 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
         }
       };
 
-      if (adapter) {
+      // Tap the adapter's raw input when one is attached AND it has a live
+      // input device. Without a device (e.g. armed but no mic selected in a
+      // collab session), startRecordingStream() returns null and we fall back
+      // to generic mic capture below instead of crashing.
+      const adapterStream = adapter?.startRecordingStream() ?? null;
+      if (adapterStream) {
         // Tap the pedal chain output (after amp model, before muteGain)
-        const stream = adapter.startRecordingStream();
-        recorder.startRecording(stream);
-        startLiveAnalyser(stream, recordArmedAudioTrack.id);
+        recorder.startRecording(adapterStream);
+        startLiveAnalyser(adapterStream, recordArmedAudioTrack.id);
       } else {
         const audioConstraints: MediaTrackConstraints = {
           echoCancellation: false,

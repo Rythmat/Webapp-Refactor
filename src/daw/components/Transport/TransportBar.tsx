@@ -929,24 +929,81 @@ export const TransportBar = memo(function TransportBar({
 
 // ── Inline SVG Components ────────────────────────────────────────────────
 
+// Tracks the current metronome beat index while a click sequence is sounding
+// (playback with the metronome on, or a count-in). The parity of the returned
+// index drives which circle the icon fills. Returns 0 (left) when idle.
+function useMetronomeBeat(animating: boolean): number {
+  const [beat, setBeat] = useState(0);
+  useEffect(() => {
+    if (!animating) {
+      setBeat(0);
+      return;
+    }
+    let raf = 0;
+    let countInStart: number | null = null;
+    let startBeat: number | null = null;
+    const tick = () => {
+      const s = useStore.getState();
+      const den = s.timeSignatureDenominator;
+      // Beat length matches the metronome/count-in scheduling: eighth-note
+      // meters click twice as fast, half-note meters half as fast.
+      const beatTicks = den === 8 ? 240 : den === 2 ? 960 : 480;
+      const beatMs = (60 / s.bpm) * (4 / den) * 1000;
+      let next: number;
+      if (s.isCountingIn) {
+        // Transport is paused during count-in — derive beats from elapsed time.
+        if (countInStart === null) countInStart = performance.now();
+        next = Math.floor((performance.now() - countInStart) / beatMs);
+      } else {
+        // Playing — derive from the audio-synced playhead, offset so the first
+        // beat after playback starts fills the left circle.
+        const absBeat = Math.floor(s.position / beatTicks);
+        if (startBeat === null) startBeat = absBeat;
+        next = absBeat - startBeat;
+      }
+      setBeat((prev) => (prev === next ? prev : next));
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [animating]);
+  return beat;
+}
+
 function MetronomeIcon({ active }: { active: boolean }) {
+  const isPlaying = useStore((s) => s.isPlaying);
+  const isCountingIn = useStore((s) => s.isCountingIn);
+  // A click sequence is sounding during a count-in, or during playback while
+  // the metronome is enabled.
+  const animating = isCountingIn || (isPlaying && active);
+  const beat = useMetronomeBeat(animating);
+
+  // Sounding → fill one circle, alternating each beat (left first). Idle + on →
+  // both filled. Off → both outlined.
+  const leftFilled = animating ? beat % 2 === 0 : active;
+  const rightFilled = animating ? beat % 2 !== 0 : active;
+
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
       <circle
         cx="4"
         cy="7"
         r="2.5"
-        fill={active ? 'currentColor' : 'none'}
+        fill="currentColor"
+        fillOpacity={leftFilled ? 1 : 0}
         stroke="currentColor"
         strokeWidth="1.5"
+        style={{ transition: 'fill-opacity 90ms ease-out' }}
       />
       <circle
         cx="10"
         cy="7"
         r="2.5"
         fill="currentColor"
+        fillOpacity={rightFilled ? 1 : 0}
         stroke="currentColor"
         strokeWidth="1.5"
+        style={{ transition: 'fill-opacity 90ms ease-out' }}
       />
     </svg>
   );

@@ -41,6 +41,12 @@ const TIME_RULER_HEIGHT = 22; // px for time ruler at bottom
 const RESIZE_EDGE_PX = 6; // px threshold for resize handle
 const PROJECT_MIN_BARS = 8; // minimum visible project length
 const PROJECT_PAD_BARS = 4; // extra bars of padding beyond content
+// Dragging vertically on the bar-number ruler zooms the timeline: this much
+// zoom delta is applied per pixel of vertical movement (up = zoom in).
+const RULER_ZOOM_SENSITIVITY = 0.006;
+// Vertical pixels of movement before a ruler press becomes a zoom drag rather
+// than a seek click.
+const RULER_ZOOM_DRAG_THRESHOLD = 3;
 
 // ── MIME-type inference (for audio assets without a Content-Type header) ────
 
@@ -294,6 +300,15 @@ export function Timeline() {
   const dragTrackRef = useRef<number>(0);
   const loopDragRef = useRef<'start' | 'end' | null>(null);
   const markerDragRef = useRef<string | null>(null);
+  // Active vertical drag-to-zoom on the bar-number ruler. `seekTick` is applied
+  // on release if the press never crossed the drag threshold (i.e. a plain
+  // click), preserving the ruler's click-to-seek behavior.
+  const rulerZoomRef = useRef<{
+    startY: number;
+    lastY: number;
+    moved: boolean;
+    seekTick: number;
+  } | null>(null);
 
   // ── Context menu state ──
   const [ctxMenu, setCtxMenu] = useState<{
@@ -1309,9 +1324,15 @@ export function Timeline() {
             return;
           }
         }
+        // Bar-number ruler: begin a vertical drag-to-zoom. A plain click (no
+        // vertical movement past the threshold) still seeks on release.
         const tick = pixelToTick(x, currentZoom, currentScrollLeft);
-        seekTo(doSnap(tick));
-        state.setSelectedClip(null, null);
+        rulerZoomRef.current = {
+          startY: y,
+          lastY: y,
+          moved: false,
+          seekTick: doSnap(tick),
+        };
         return;
       }
 
@@ -1831,6 +1852,24 @@ export function Timeline() {
         return;
       }
 
+      // Bar-number ruler vertical drag → zoom (up = in, down = out), anchored
+      // at the cursor so the bar under it stays put.
+      if (rulerZoomRef.current) {
+        const r = rulerZoomRef.current;
+        if (!r.moved) {
+          if (Math.abs(y - r.startY) <= RULER_ZOOM_DRAG_THRESHOLD) return;
+          r.moved = true;
+          r.lastY = y;
+        }
+        const dy = r.lastY - y; // up (y decreases) → positive → zoom in
+        if (dy !== 0) {
+          state.zoomAtPoint(dy * RULER_ZOOM_SENSITIVITY, x + currentScrollLeft);
+          r.lastY = y;
+        }
+        canvas.style.cursor = 'ns-resize';
+        return;
+      }
+
       const drag = dragRef.current;
 
       if (drag) {
@@ -1902,6 +1941,11 @@ export function Timeline() {
             return;
           }
         }
+        // Bar-number ruler: hint the vertical drag-to-zoom.
+        if (y < st + RULER_HEIGHT) {
+          canvas.style.cursor = 'ns-resize';
+          return;
+        }
       }
       if (y > st + RULERS_HEIGHT) {
         const hit = hitTestClip(x, y);
@@ -1932,6 +1976,17 @@ export function Timeline() {
   // ── Mouse up ───────────────────────────────────────────────────────
 
   const handleCanvasMouseUp = useCallback(() => {
+    if (rulerZoomRef.current) {
+      const r = rulerZoomRef.current;
+      rulerZoomRef.current = null;
+      // Never crossed the drag threshold → treat as a ruler click and seek.
+      if (!r.moved) {
+        seekTo(r.seekTick);
+        useStore.getState().setSelectedClip(null, null);
+      }
+      if (canvasRef.current) canvasRef.current.style.cursor = 'default';
+      return;
+    }
     if (markerDragRef.current) {
       markerDragRef.current = null;
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
@@ -2084,7 +2139,7 @@ export function Timeline() {
   // Global mouseup listener for drag release outside canvas
   useEffect(() => {
     const handleGlobalUp = () => {
-      if (dragRef.current || loopDragRef.current) {
+      if (dragRef.current || loopDragRef.current || rulerZoomRef.current) {
         handleCanvasMouseUp();
       }
     };

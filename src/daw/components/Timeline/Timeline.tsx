@@ -47,6 +47,9 @@ const RULER_ZOOM_SENSITIVITY = 0.006;
 // Vertical pixels of movement before a ruler press becomes a zoom drag rather
 // than a seek click.
 const RULER_ZOOM_DRAG_THRESHOLD = 3;
+// Horizontal pixels of movement before an empty-area press becomes a pan drag
+// rather than a seek click.
+const PAN_DRAG_THRESHOLD = 4;
 
 // ── MIME-type inference (for audio assets without a Content-Type header) ────
 
@@ -306,6 +309,14 @@ export function Timeline() {
   const rulerZoomRef = useRef<{
     startY: number;
     lastY: number;
+    moved: boolean;
+    seekTick: number;
+  } | null>(null);
+  // Active hand/grab pan started on empty timeline space. `seekTick` is applied
+  // on release if the press never crossed the drag threshold (a plain click).
+  const panDragRef = useRef<{
+    startX: number;
+    lastX: number;
     moved: boolean;
     seekTick: number;
   } | null>(null);
@@ -956,10 +967,9 @@ export function Timeline() {
 
     // Scroll-offset positions so rulers stay pinned during vertical scroll
     const rulerY = scrollTop;
-    // Account for horizontal scrollbar (h-3 = 12px) when it's visible
-    const totalPx =
-      (projectLengthTicks / TICKS_PER_BEAT) * pixelsPerBeat(currentZoom);
-    const hScrollbarH = totalPx > cw ? 12 : 0;
+    // The horizontal scrollbar (h-3 = 12px) is always shown, so always reserve
+    // space for it beneath the time ruler.
+    const hScrollbarH = 12;
     const timeRulerY =
       viewportH > 0
         ? scrollTop + viewportH - TIME_RULER_HEIGHT - hScrollbarH
@@ -1406,9 +1416,17 @@ export function Timeline() {
           dragEndTickRef.current = endTickOrigin;
           dragTrackRef.current = hit.trackIndex;
         } else {
+          // Empty space: deselect now, then begin a hand/grab pan. A plain
+          // click (no horizontal movement past the threshold) still seeks on
+          // release.
           state.setSelectedClip(null, null);
           const tick = pixelToTick(x, currentZoom, currentScrollLeft);
-          seekTo(doSnap(tick));
+          panDragRef.current = {
+            startX: x,
+            lastX: x,
+            moved: false,
+            seekTick: doSnap(tick),
+          };
         }
       }
 
@@ -1870,6 +1888,32 @@ export function Timeline() {
         return;
       }
 
+      // Hand/grab pan over empty timeline space. Dragging the mouse left scrolls
+      // toward the right of the timeline and vice-versa (content follows the
+      // cursor), clamped to the content extent.
+      if (panDragRef.current) {
+        const p = panDragRef.current;
+        if (!p.moved) {
+          if (Math.abs(x - p.startX) <= PAN_DRAG_THRESHOLD) return;
+          p.moved = true;
+          p.lastX = x;
+        }
+        const deltaX = x - p.lastX;
+        if (deltaX !== 0) {
+          const maxScrollNow = Math.max(
+            0,
+            (projectLengthTicks / TICKS_PER_BEAT) * pixelsPerBeat(currentZoom) -
+              (canvas.parentElement?.clientWidth ?? 800),
+          );
+          state.setTimelineScrollLeft(
+            Math.min(maxScrollNow, Math.max(0, currentScrollLeft - deltaX)),
+          );
+          p.lastX = x;
+        }
+        canvas.style.cursor = 'grabbing';
+        return;
+      }
+
       const drag = dragRef.current;
 
       if (drag) {
@@ -1955,6 +1999,9 @@ export function Timeline() {
           canvas.style.cursor = 'col-resize';
         } else if (hit) {
           canvas.style.cursor = 'grab';
+        } else if (state.activeTool === 'cursor') {
+          // Empty space is grab-pannable.
+          canvas.style.cursor = 'grab';
         } else {
           canvas.style.cursor = 'default';
         }
@@ -1970,6 +2017,7 @@ export function Timeline() {
       isNearLeftEdge,
       draw,
       tracks.length,
+      projectLengthTicks,
     ],
   );
 
@@ -1984,6 +2032,14 @@ export function Timeline() {
         seekTo(r.seekTick);
         useStore.getState().setSelectedClip(null, null);
       }
+      if (canvasRef.current) canvasRef.current.style.cursor = 'default';
+      return;
+    }
+    if (panDragRef.current) {
+      const p = panDragRef.current;
+      panDragRef.current = null;
+      // Didn't pan → treat as a click and seek (selection was already cleared).
+      if (!p.moved) seekTo(p.seekTick);
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
       return;
     }
@@ -2139,7 +2195,12 @@ export function Timeline() {
   // Global mouseup listener for drag release outside canvas
   useEffect(() => {
     const handleGlobalUp = () => {
-      if (dragRef.current || loopDragRef.current || rulerZoomRef.current) {
+      if (
+        dragRef.current ||
+        loopDragRef.current ||
+        rulerZoomRef.current ||
+        panDragRef.current
+      ) {
         handleCanvasMouseUp();
       }
     };
@@ -2349,14 +2410,30 @@ export function Timeline() {
 
   // ── Scrollbar ──────────────────────────────────────────────────────
 
+  // Track the viewport width reactively so the always-visible scrollbar stays
+  // correctly sized as side panels open/close or the window resizes (a plain
+  // render-time read of clientWidth is stale on resize and can mis-hide it).
+  const [viewportWidth, setViewportWidth] = useState(800);
+  useEffect(() => {
+    const el = canvasRef.current?.parentElement;
+    if (!el) return;
+    const measure = () => setViewportWidth(el.clientWidth);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const totalContentWidth = (projectLengthTicks / TICKS_PER_BEAT) * ppb;
-  const containerWidth = canvasRef.current?.parentElement?.clientWidth ?? 800;
-  const showScrollbar = totalContentWidth > containerWidth;
-  const thumbWidth = showScrollbar
-    ? Math.max(30, (containerWidth / totalContentWidth) * containerWidth)
-    : 0;
+  const containerWidth = viewportWidth;
+  // The scrollbar is always visible; when the content fits, the thumb fills the
+  // whole track (and dragging is a no-op).
+  const scrollable = totalContentWidth > containerWidth;
   const maxScroll = Math.max(1, totalContentWidth - containerWidth);
-  const thumbLeft = showScrollbar
+  const thumbWidth = scrollable
+    ? Math.max(30, (containerWidth / totalContentWidth) * containerWidth)
+    : containerWidth;
+  const thumbLeft = scrollable
     ? (scrollLeft / maxScroll) * (containerWidth - thumbWidth)
     : 0;
 
@@ -2611,27 +2688,30 @@ export function Timeline() {
           </div>
         </>
       )}
-      {/* Horizontal scrollbar */}
-      {showScrollbar && (
+      {/* Horizontal scrollbar — always visible, pinned to the bottom of the
+          timeline just below the time ruler. It rides up with the timeline when
+          a bottom toolbar (e.g. the channel strip) expands. */}
+      <div
+        className="h-3 shrink-0"
+        style={{
+          backgroundColor: 'var(--color-grid-line)',
+          position: 'sticky',
+          bottom: 0,
+          zIndex: 30,
+        }}
+      >
         <div
-          className="h-3 shrink-0"
+          className="absolute top-0.5 h-2 rounded-full"
           style={{
-            backgroundColor: 'var(--color-grid-line)',
-            position: 'sticky',
-            bottom: 0,
+            width: thumbWidth,
+            left: thumbLeft,
+            backgroundColor: 'var(--color-scrollbar-thumb)',
+            cursor: scrollable ? 'pointer' : 'default',
+            opacity: scrollable ? 1 : 0.4,
           }}
-        >
-          <div
-            className="absolute top-0.5 h-2 cursor-pointer rounded-full"
-            style={{
-              width: thumbWidth,
-              left: thumbLeft,
-              backgroundColor: 'var(--color-scrollbar-thumb)',
-            }}
-            onMouseDown={handleScrollbarMouseDown}
-          />
-        </div>
-      )}
+          onMouseDown={scrollable ? handleScrollbarMouseDown : undefined}
+        />
+      </div>
     </div>
   );
 }

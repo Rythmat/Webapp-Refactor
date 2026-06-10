@@ -245,13 +245,18 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     }
   }
 
-  /** Create a MediaStream from the raw input (before pedal chain) for DRY recording. */
-  startRecordingStream(): MediaStream {
-    if (!this.recordDest && this.nativeCtx && this.channelGain) {
+  /**
+   * Create a MediaStream from the raw input (before pedal chain) for DRY recording.
+   * Returns null when no input device is attached (channelGain not yet created),
+   * so callers can fall back to a generic mic capture instead of crashing.
+   */
+  startRecordingStream(): MediaStream | null {
+    if (!this.nativeCtx || !this.channelGain) return null;
+    if (!this.recordDest) {
       this.recordDest = this.nativeCtx.createMediaStreamDestination();
       this.channelGain.connect(this.recordDest);
     }
-    return this.recordDest!.stream;
+    return this.recordDest.stream;
   }
 
   /** Disconnect the recording tap. */

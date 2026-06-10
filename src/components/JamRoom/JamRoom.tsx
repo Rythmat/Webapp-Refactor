@@ -96,10 +96,13 @@ function JamRoomInner() {
     remotePlayers,
     onNoteMessage,
     latencyMs,
+    isHost,
+    sendStudioInvite,
   } = useJamRoom();
   const { appUser, userId } = useAuthContext();
   const localInstrument = useJamRoomStore((s) => s.localInstrument);
   const localGmProgram = useJamRoomStore((s) => s.localGmProgram);
+  const studioInvite = useJamRoomStore((s) => s.studioInvite);
 
   const localPlayer = useMemo(
     () => ({
@@ -128,6 +131,8 @@ function JamRoomInner() {
   const [copied, setCopied] = useState(false);
   const [roomNotFound, setRoomNotFound] = useState(false);
   const [validating, setValidating] = useState(false);
+  // Host-only: confirm how to leave for the Studio (invite the room, or solo).
+  const [showBringModal, setShowBringModal] = useState(false);
 
   // Navigate back to lobby on room error (room doesn't exist / host left)
   useEffect(() => {
@@ -258,13 +263,9 @@ function JamRoomInner() {
     navigate(GameRoutes.jamLobby());
   };
 
-  // Save the local jam recording and open it in the studio, where it becomes
-  // one MIDI track per participant (auto-imported on arrival via ?jam=1).
-  const handleBringToStudio = () => {
-    if (!jamRecorder.hasRecording()) {
-      showError('Play some notes first, then bring the jam into the studio.');
-      return;
-    }
+  // Snapshot the local jam recording to localStorage so the studio can import
+  // it on arrival (one MIDI track per participant, via ?jam=1).
+  const saveRecording = useCallback(() => {
     const participants: JamSessionParticipant[] = [
       {
         userId: userId ?? '',
@@ -284,7 +285,53 @@ function JamRoomInner() {
       participants,
     });
     saveJamSession(session);
+  }, [userId, localPlayer.userName, localColor, remotePlayers, roomId]);
+
+  // "Bring to Studio": the host is offered a choice (invite the room or go
+  // solo); everyone else just takes their own recording to a solo studio.
+  const handleBringToStudio = () => {
+    if (!jamRecorder.hasRecording()) {
+      showError('Play some notes first, then bring the jam into the studio.');
+      return;
+    }
+    if (isHost) {
+      setShowBringModal(true);
+      return;
+    }
+    saveRecording();
     navigate(`${StudioRoutes.root.definition}?jam=1`);
+  };
+
+  // Host → "Go Solo": local studio with the jam imported. Leaving closes the
+  // room, kicking the other players back to the lobby as usual.
+  const handleGoSolo = () => {
+    saveRecording();
+    navigate(`${StudioRoutes.root.definition}?jam=1`);
+  };
+
+  // Host → "Invite Users": create a collaborative studio session, tell the room
+  // its code, then open the studio as the room owner with the jam imported.
+  const handleInviteUsers = () => {
+    const studioCode = crypto.randomUUID().slice(0, 8);
+    sendStudioInvite(studioCode);
+    saveRecording();
+    navigate(
+      `${StudioRoutes.root.definition}?jam=1&collab=${studioCode}&host=1`,
+    );
+  };
+
+  // Invited player → "Join Studio": join the host's collaborative session.
+  const handleJoinStudio = () => {
+    if (!studioInvite) return;
+    const code = studioInvite.roomCode;
+    leaveRoom();
+    navigate(`${StudioRoutes.root.definition}?collab=${code}`);
+  };
+
+  // Invited player → "Don't Join": leave the (now-closed) room for the lobby.
+  const handleDeclineStudio = () => {
+    leaveRoom();
+    navigate(GameRoutes.jamLobby());
   };
 
   const shareCode = roomCode ?? paramRoomId ?? '';
@@ -350,9 +397,94 @@ function JamRoomInner() {
 
   return (
     <div
-      className="flex flex-col h-full overflow-hidden"
+      className="relative flex flex-col h-full overflow-hidden"
       style={{ backgroundColor: '#0a0a0c' }}
     >
+      {/* Host: choose how to leave for the Studio */}
+      {showBringModal && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div
+            className="relative w-full max-w-sm rounded-xl border border-zinc-800 p-5 shadow-2xl"
+            style={{ backgroundColor: '#141416' }}
+          >
+            <button
+              onClick={() => setShowBringModal(false)}
+              className="absolute top-3 right-3 text-zinc-500 hover:text-white transition-colors"
+              title="Cancel"
+            >
+              <X size={16} />
+            </button>
+            <div className="flex items-center gap-2 mb-3">
+              <Disc3 size={18} className="text-purple-400" />
+              <h2 className="text-sm font-semibold text-white">
+                Bring the Jam to the Studio
+              </h2>
+            </div>
+            <p className="text-[13px] leading-relaxed text-zinc-400 mb-5">
+              Leaving this Jam Room session will close the room for all other
+              users. Would you like to invite them to the Studio, or go to the
+              Studio solo?
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleInviteUsers}
+                className="flex-1 px-3 py-2 rounded-lg text-[12px] font-medium text-white bg-purple-600 hover:bg-purple-500 transition-colors"
+              >
+                Invite Users
+              </button>
+              <button
+                onClick={handleGoSolo}
+                className="flex-1 px-3 py-2 rounded-lg text-[12px] font-medium text-zinc-200 bg-zinc-800 hover:bg-zinc-700 transition-colors"
+              >
+                Go Solo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Invited player: the host moved the jam into the Studio */}
+      {studioInvite && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div
+            className="w-full max-w-sm rounded-xl border border-zinc-800 p-5 shadow-2xl"
+            style={{ backgroundColor: '#141416' }}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <Disc3 size={18} className="text-purple-400" />
+              <h2 className="text-sm font-semibold text-white">
+                Jam moved to the Studio
+              </h2>
+            </div>
+            <p className="text-[13px] leading-relaxed text-zinc-400 mb-3">
+              The host brought the Jam into the Studio. Would you like to join?
+            </p>
+            <div className="flex items-center justify-center gap-2 mb-5">
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">
+                Room code
+              </span>
+              <span className="px-2 py-0.5 rounded bg-zinc-800 text-[12px] font-mono text-zinc-200">
+                {studioInvite.roomCode}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleJoinStudio}
+                className="flex-1 px-3 py-2 rounded-lg text-[12px] font-medium text-white bg-purple-600 hover:bg-purple-500 transition-colors"
+              >
+                Join Studio
+              </button>
+              <button
+                onClick={handleDeclineStudio}
+                className="flex-1 px-3 py-2 rounded-lg text-[12px] font-medium text-zinc-200 bg-zinc-800 hover:bg-zinc-700 transition-colors"
+              >
+                Don't Join
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Waterfall — fills all remaining space */}
       <div className="flex-1 relative min-h-0">
         <NoteWaterfall

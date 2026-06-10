@@ -47,6 +47,8 @@ interface CollabContextValue {
   createAndJoinRoom: () => void;
   /** Join an existing room by ID. */
   joinRoomById: (roomId: string, role?: CollabRole) => void;
+  /** Join by ID as an editor, retrying until the host creates the room. */
+  joinRoomAwaitingHost: (roomId: string) => void;
   /** Join using pre-fetched room info (partykitHost + partykitRoom). */
   joinRoom: (
     roomId: string,
@@ -72,6 +74,7 @@ interface CollabContextValue {
 const CollabContext = createContext<CollabContextValue>({
   createAndJoinRoom: () => {},
   joinRoomById: () => {},
+  joinRoomAwaitingHost: () => {},
   joinRoom: () => {},
   leaveRoom: () => {},
   sendTransportCommand: () => {},
@@ -89,6 +92,12 @@ export function useCollab() {
 const DEFAULT_PARTYKIT_HOST =
   Env.get('VITE_PARTYKIT_HOST', { nullable: true }) ?? 'localhost:1999';
 
+// When a jam→studio joiner arrives before the host has created the room, keep
+// retrying the join (the room appears the moment the host connects) for up to
+// this long before surfacing a "room not active" error.
+const AWAIT_HOST_TIMEOUT_MS = 20_000;
+const AWAIT_HOST_RETRY_MS = 1_000;
+
 interface CollabProviderProps {
   children: ReactNode;
 }
@@ -104,6 +113,13 @@ export function CollabProvider({ children }: CollabProviderProps) {
   const chatUnobserveRef = useRef<(() => void) | null>(null);
   // Points at leaveRoom so the (stable) message handler can tear down on kick.
   const leaveRoomRef = useRef<() => void>(() => {});
+  // "Waiting for host" retry state: whether the current join should retry on
+  // room:not-found, the deadline to stop, the pending retry timer, and a
+  // closure that re-runs the same join.
+  const awaitHostRef = useRef(false);
+  const awaitDeadlineRef = useRef(0);
+  const retryTimerRef = useRef<number | null>(null);
+  const rejoinRef = useRef<() => void>(() => {});
 
   // ── Transport + room:closing message handler ──────────────────────────
 
@@ -122,8 +138,22 @@ export function CollabProvider({ children }: CollabProviderProps) {
       }
 
       if (data.type === 'room:not-found') {
+        // A jam→studio joiner can arrive before the host has registered the
+        // room. Keep retrying until the host shows up or the deadline passes.
+        if (awaitHostRef.current && Date.now() < awaitDeadlineRef.current) {
+          if (retryTimerRef.current !== null) {
+            clearTimeout(retryTimerRef.current);
+          }
+          retryTimerRef.current = window.setTimeout(() => {
+            retryTimerRef.current = null;
+            rejoinRef.current();
+          }, AWAIT_HOST_RETRY_MS);
+          return;
+        }
         // Join-by-id targeted a room with no active host, or a room the user
         // has been kicked from (the server rejects banned users up front).
+        awaitHostRef.current = false;
+        useStore.getState()._setAwaitingSession(false);
         useStore
           .getState()
           ._setRoomError(
@@ -152,6 +182,11 @@ export function CollabProvider({ children }: CollabProviderProps) {
   // ── Teardown ─────────────────────────────────────────────────────────
 
   const teardown = useCallback(() => {
+    if (retryTimerRef.current !== null) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+
     bridgeRef.current?.destroy();
     bridgeRef.current = null;
     setBridge(null);
@@ -254,6 +289,12 @@ export function CollabProvider({ children }: CollabProviderProps) {
       // Listen for connection status
       provider.on('sync', (synced: boolean) => {
         if (synced) {
+          // The room exists — stop any "waiting for host" retry loop.
+          awaitHostRef.current = false;
+          if (retryTimerRef.current !== null) {
+            clearTimeout(retryTimerRef.current);
+            retryTimerRef.current = null;
+          }
           useStore.getState()._setConnectionStatus('connected');
           // Seed the store from the synced document so a joiner sees the
           // existing project. (The owner already has it locally — pulling would
@@ -349,6 +390,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
   const createAndJoinRoom = useCallback(() => {
     // Ephemeral, jam-room style: short client-generated id, no backend record.
     // The room lives only as long as the host's PartyKit connection.
+    awaitHostRef.current = false;
     const newRoomId = crypto.randomUUID().slice(0, 8);
     joinRoom(newRoomId, 'owner', undefined, `studio-${newRoomId}`, newRoomId);
   }, [joinRoom]);
@@ -357,8 +399,28 @@ export function CollabProvider({ children }: CollabProviderProps) {
 
   const joinRoomById = useCallback(
     (roomId: string, role: CollabRole = 'editor') => {
+      awaitHostRef.current = false;
       const id = roomId.trim().toLowerCase();
       joinRoom(id, role, undefined, `studio-${id}`, id);
+    },
+    [joinRoom],
+  );
+
+  // ── Join, waiting for the host to create the room ────────────────────
+  // Used when a jam-room player accepts a "moved to studio" invite: they may
+  // beat the host to PartyKit, so retry the join until the room exists.
+
+  const joinRoomAwaitingHost = useCallback(
+    (roomId: string) => {
+      const id = roomId.trim().toLowerCase();
+      awaitHostRef.current = true;
+      awaitDeadlineRef.current = Date.now() + AWAIT_HOST_TIMEOUT_MS;
+      useStore.getState()._setRoomError(null);
+      useStore.getState()._setAwaitingSession(true);
+      // Re-run on retry without resetting the deadline.
+      rejoinRef.current = () =>
+        joinRoom(id, 'editor', undefined, `studio-${id}`, id);
+      rejoinRef.current();
     },
     [joinRoom],
   );
@@ -368,6 +430,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
   const leaveRoom = useCallback(() => {
     // Ephemeral rooms have no backend record to delete — the room dies when the
     // host's PartyKit connection closes (mirrors the jam room). Just tear down.
+    awaitHostRef.current = false;
     teardown();
     useStore.getState()._clearCollab();
   }, [teardown]);
@@ -464,6 +527,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
     () => ({
       createAndJoinRoom,
       joinRoomById,
+      joinRoomAwaitingHost,
       joinRoom,
       leaveRoom,
       sendTransportCommand,
@@ -474,6 +538,7 @@ export function CollabProvider({ children }: CollabProviderProps) {
     [
       createAndJoinRoom,
       joinRoomById,
+      joinRoomAwaitingHost,
       joinRoom,
       leaveRoom,
       sendTransportCommand,

@@ -30,6 +30,7 @@ import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
 import { InviteNotificationBell } from '@/daw/collab/ui/InviteNotificationBell';
 import { LeaveSavePrompt } from '@/daw/collab/ui/LeaveSavePrompt';
 import { KickedModal } from '@/daw/collab/ui/KickedModal';
+import { WaitingForSessionModal } from '@/daw/collab/ui/WaitingForSessionModal';
 
 // ── View Switcher ───────────────────────────────────────────────────────
 
@@ -876,6 +877,9 @@ export const TransportBar = memo(function TransportBar({
 
           {/* "You have been kicked" popup (collab) */}
           <KickedModal />
+
+          {/* "Waiting on session creation" popup (jam→studio handoff) */}
+          <WaitingForSessionModal />
 
           {/* Library toggle */}
           <motion.button

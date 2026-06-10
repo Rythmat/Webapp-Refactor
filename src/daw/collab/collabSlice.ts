@@ -36,6 +36,9 @@ export interface CollabSlice {
   roomError: string | null;
   /** When true, the "you were kicked" popup is shown. */
   kickedNotice: boolean;
+  /** When true, a join is retrying because the host hasn't created the room yet
+   *  (a jam→studio joiner beat the host to it). Drives the waiting popup. */
+  awaitingSessionCreation: boolean;
 
   // ── Chat ──
   chatMessages: ChatMessage[];
@@ -56,6 +59,8 @@ export interface CollabSlice {
   _setRoomError: (error: string | null) => void;
   /** Show/hide the "you were kicked from the session" popup. */
   _setKickedNotice: (kicked: boolean) => void;
+  /** Show/hide the "waiting on session creation" popup while a join retries. */
+  _setAwaitingSession: (waiting: boolean) => void;
   /** Append a chat message (from local send or remote receive). */
   _appendChatMessage: (msg: ChatMessage) => void;
   /** Reset unread count (user opened chat panel). */
@@ -80,6 +85,7 @@ export const createCollabSlice: StateCreator<
   leavePromptPending: false,
   roomError: null,
   kickedNotice: false,
+  awaitingSessionCreation: false,
   chatMessages: [],
   unreadChatCount: 0,
 
@@ -87,6 +93,8 @@ export const createCollabSlice: StateCreator<
     set({
       connectionStatus: status,
       isCollabActive: status === 'connected',
+      // A successful connect resolves any pending "waiting for host" retry.
+      ...(status === 'connected' ? { awaitingSessionCreation: false } : {}),
     }),
 
   _setRoomInfo: (roomId, role, roomCode) =>
@@ -109,6 +117,7 @@ export const createCollabSlice: StateCreator<
       leavePromptPending: false,
       roomError: null,
       kickedNotice: false,
+      awaitingSessionCreation: false,
       chatMessages: [],
       unreadChatCount: 0,
     }),
@@ -120,6 +129,8 @@ export const createCollabSlice: StateCreator<
   _setRoomError: (error) => set({ roomError: error }),
 
   _setKickedNotice: (kicked) => set({ kickedNotice: kicked }),
+
+  _setAwaitingSession: (waiting) => set({ awaitingSessionCreation: waiting }),
 
   _appendChatMessage: (msg) =>
     set((s) => ({

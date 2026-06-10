@@ -3,9 +3,11 @@
 
 import { create } from 'zustand';
 import {
+  defaultDrumTransport,
   emptyDrumGrid,
   type DrumGrid,
   type DrumMode,
+  type DrumTransport,
   type JamChatMessage,
   type JamInstrument,
 } from './types';
@@ -35,6 +37,13 @@ interface JamRoomState {
   drumMode: DrumMode;
   /** Designated drummer's userId when `drumMode` is `designated`. */
   drummerId: string | null;
+  /** Room-wide sequencer transport (lock-step playback across devices). */
+  drumTransport: DrumTransport;
+  /**
+   * Set when the host moves the jam into a collaborative Studio session, so
+   * other players can be offered the chance to join. `null` otherwise.
+   */
+  studioInvite: { roomCode: string } | null;
 
   // --- Actions ---
   addRemoteNote: (userId: string, note: ActiveNote) => void;
@@ -46,6 +55,8 @@ interface JamRoomState {
   setLocalBpm: (bpm: number) => void;
   setDrumGrid: (grid: DrumGrid) => void;
   setDrumMode: (mode: DrumMode, drummerId: string | null) => void;
+  setDrumTransport: (transport: DrumTransport) => void;
+  setStudioInvite: (invite: { roomCode: string } | null) => void;
   reset: () => void;
 }
 
@@ -58,6 +69,8 @@ export const useJamRoomStore = create<JamRoomState>((set) => ({
   drumGrid: emptyDrumGrid(),
   drumMode: 'open',
   drummerId: null,
+  drumTransport: defaultDrumTransport(),
+  studioInvite: null,
 
   addRemoteNote: (userId, note) =>
     set((state) => {
@@ -104,6 +117,10 @@ export const useJamRoomStore = create<JamRoomState>((set) => ({
 
   setDrumMode: (mode, drummerId) => set({ drumMode: mode, drummerId }),
 
+  setDrumTransport: (transport) => set({ drumTransport: transport }),
+
+  setStudioInvite: (invite) => set({ studioInvite: invite }),
+
   reset: () =>
     set({
       activeRemoteNotes: new Map(),
@@ -114,5 +131,7 @@ export const useJamRoomStore = create<JamRoomState>((set) => ({
       drumGrid: emptyDrumGrid(),
       drumMode: 'open',
       drummerId: null,
+      drumTransport: defaultDrumTransport(),
+      studioInvite: null,
     }),
 }));

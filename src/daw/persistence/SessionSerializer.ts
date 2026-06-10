@@ -1,7 +1,47 @@
 import { DEFAULT_EFFECTS } from '@/daw/audio/EffectChain';
 import { useStore } from '@/daw/store';
+import type { Track } from '@/daw/store/tracksSlice';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import { guessTrackRole } from '@/daw/utils/trackRole';
+
+// Instrument + effect configuration persisted alongside a track so the
+// instrument voice (gmProgram), effect rack (effects), pedal chains, and drum
+// pad mix survive leaving and returning to a project. Stored as one opaque blob
+// (`settings_json` column on the DB) — additive, so older saves load fine.
+export interface SerializedTrackSettings {
+  gmProgram?: number;
+  effects?: Track['effects'];
+  vocalChain?: Track['vocalChain'];
+  guitarChain?: Track['guitarChain'];
+  drumPads?: Track['drumPads'];
+}
+
+/** Build the persisted settings blob from a track (undefined fields are dropped on JSON encode). */
+function trackSettings(t: Track): SerializedTrackSettings {
+  return {
+    gmProgram: t.gmProgram,
+    effects: t.effects,
+    vocalChain: t.vocalChain,
+    guitarChain: t.guitarChain,
+    drumPads: t.drumPads,
+  };
+}
+
+/** Spread the saved settings back onto a deserialized track (effects re-defaulted when absent). */
+function applyTrackSettings(
+  settings: SerializedTrackSettings | undefined,
+): Pick<
+  Track,
+  'gmProgram' | 'effects' | 'vocalChain' | 'guitarChain' | 'drumPads'
+> {
+  return {
+    gmProgram: settings?.gmProgram,
+    effects: settings?.effects ?? structuredClone(DEFAULT_EFFECTS),
+    vocalChain: settings?.vocalChain,
+    guitarChain: settings?.guitarChain,
+    drumPads: settings?.drumPads,
+  };
+}
 
 // ── MIDI Event Codec (columnar + delta-encoded ticks) ────────────────────
 //
@@ -118,6 +158,7 @@ export interface SessionData {
         gain?: number;
       }>;
       activeEffects?: string[];
+      settings?: SerializedTrackSettings;
     }>;
     prism: {
       rootNote: number | null;
@@ -201,6 +242,7 @@ export function serializeSession(): SessionData {
           gain: c.gain,
         })),
         activeEffects: t.activeEffects,
+        settings: trackSettings(t),
       })),
       prism: {
         rootNote: state.rootNote,
@@ -251,6 +293,7 @@ export interface CloudProjectInput {
     volume: number;
     pan: number;
     activeEffects: string[];
+    settings?: SerializedTrackSettings;
     midiClips: MidiClipColumnar[];
     audioClips: CloudAudioClip[];
   }>;
@@ -299,6 +342,7 @@ export function serializeSessionForCloud(
       volume: t.volume,
       pan: t.pan,
       activeEffects: t.activeEffects ?? [],
+      settings: trackSettings(t),
       midiClips: t.midiClips.map((c) => ({
         id: c.id,
         name: c.name,
@@ -348,7 +392,9 @@ export function deserializeCloudProject(project: CloudProjectDetail): void {
     midiInputId: null,
     audioInputId: null,
     audioInputChannel: null,
-    effects: structuredClone(DEFAULT_EFFECTS),
+    // Instrument voice + effect config (effects re-default when a save predates
+    // this field).
+    ...applyTrackSettings(t.settings),
     activeEffects: t.activeEffects,
     midiClips: t.midiClips.map((c) => ({
       id: c.id,
@@ -469,10 +515,9 @@ export function deserializeSession(session: SessionData): void {
 
     return {
       ...t,
-      // Autosave intentionally omits the (large, derivable) effects state;
-      // re-default it on restore so the playback engine's effect chain has
-      // a shape to operate on.
-      effects: structuredClone(DEFAULT_EFFECTS),
+      // Restore the instrument voice + effect config (effects re-default when a
+      // save predates this field).
+      ...applyTrackSettings(t.settings),
       activeEffects: t.activeEffects ?? [],
       midiClips,
       audioClips: (t.audioClips ?? []).map((c) => ({

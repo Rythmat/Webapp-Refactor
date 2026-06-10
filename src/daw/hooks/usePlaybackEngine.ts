@@ -446,10 +446,11 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       synth.triggerAttackRelease(pitch, '32n', time);
     }
 
-    // After count-in completes, start transport + recording
+    // After count-in completes, start the transport (and recording, if this
+    // count-in was armed by Record rather than Play).
     const timer = setTimeout(
       () => {
-        useStore.getState()._startRecordingAfterCountIn();
+        useStore.getState()._startAfterCountIn();
       },
       totalBeats * beatDuration * 1000,
     );

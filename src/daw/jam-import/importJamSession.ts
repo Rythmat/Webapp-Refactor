@@ -8,6 +8,7 @@
 import type { MidiNoteEvent } from '@prism/engine';
 import { useStore } from '@/daw/store';
 import type { MidiClip } from '@/daw/store/tracksSlice';
+import { GM_PROGRAMS } from '@/daw/instruments/gmPrograms';
 import {
   loadJamSession,
   clearJamSession,
@@ -66,26 +67,31 @@ export function importPendingJamSession(): number {
   const store = useStore.getState();
   let created = 0;
 
-  // ── Piano: one SoundFont track per participant (in first-seen order) ──
-  const pianoByUser = new Map<string, JamSessionNote[]>();
+  // ── Melodic: one SoundFont track per (participant × GM instrument) ──
+  // Grouping by the sound, not just the player, preserves every distinct
+  // instrument each user played — including when they switched sounds mid-jam,
+  // which a single per-player track (carrying only the first note's program)
+  // would silently collapse to one voice. Map keeps first-seen order.
+  const byUserInstrument = new Map<string, JamSessionNote[]>();
   for (const n of session.notes) {
     if (n.instrument !== 'piano') continue;
-    const list = pianoByUser.get(n.userId);
+    const key = `${n.userId}::${n.gmProgram}`;
+    const list = byUserInstrument.get(key);
     if (list) list.push(n);
-    else pianoByUser.set(n.userId, [n]);
+    else byUserInstrument.set(key, [n]);
   }
 
-  for (const [userId, groupNotes] of pianoByUser) {
+  for (const groupNotes of byUserInstrument.values()) {
+    const { userId, gmProgram } = groupNotes[0];
     const { userName, color } = nameFor(userId);
-    const trackId = store.addTrack(
-      'midi',
-      'soundfont',
-      `${userName} (Jam)`,
-      color,
-    );
+    const soundName = GM_PROGRAMS.find((p) => p.number === gmProgram)?.name;
+    const trackName = soundName
+      ? `${userName} — ${soundName} (Jam)`
+      : `${userName} (Jam)`;
+    const trackId = store.addTrack('midi', 'soundfont', trackName, color);
     if (!trackId) continue; // track cap reached (addTrack toasts)
-    // Carry the player's GM sound across.
-    store.updateTrack(trackId, { gmProgram: groupNotes[0].gmProgram });
+    // Carry the player's GM sound across so the studio track sounds like the jam.
+    store.updateTrack(trackId, { gmProgram });
     const { events, lengthTicks } = buildEvents(groupNotes);
     const clip: MidiClip = {
       id: crypto.randomUUID(),
@@ -98,21 +104,34 @@ export function importPendingJamSession(): number {
     created += 1;
   }
 
-  // ── Drums: only the importing user's own hits → one drum-machine track ──
-  const ownDrums = session.notes.filter(
-    (n) => n.instrument === 'drums' && n.userId === session.localUserId,
-  );
-  if (ownDrums.length > 0) {
+  // ── Drums: the rack is now shared room-wide (one sequencer everyone hears),
+  // so import every player's hits into a single drum-machine track. The old
+  // local-only filter dropped the whole beat whenever someone else drove the
+  // shared sequencer (the hits are attributed to whoever pressed play). Hits
+  // are deduped by (step, sound) so a beat driven — or network-echoed — by more
+  // than one player at the same instant isn't doubled.
+  const drumNotes = session.notes.filter((n) => n.instrument === 'drums');
+  if (drumNotes.length > 0) {
     const { color } = nameFor(session.localUserId);
     const trackId = store.addTrack('midi', 'drum-machine', 'Jam Drums', color);
     if (trackId) {
-      const { events, lengthTicks } = buildEvents(ownDrums);
+      const { events } = buildEvents(drumNotes);
+      const seen = new Set<string>();
+      const deduped: MidiNoteEvent[] = [];
+      let lengthTicks = 0;
+      for (const ev of events) {
+        const key = `${ev.startTick}:${ev.note}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        deduped.push(ev);
+        lengthTicks = Math.max(lengthTicks, ev.startTick + ev.durationTicks);
+      }
       const clip: MidiClip = {
         id: crypto.randomUUID(),
         name: 'Jam Drums',
         startTick: 0,
         durationTicks: lengthTicks,
-        events,
+        events: deduped,
       };
       store.addMidiClip(trackId, clip);
       created += 1;

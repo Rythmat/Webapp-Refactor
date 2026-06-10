@@ -554,23 +554,23 @@ export const createTracksSlice: StateCreator<
       })),
     ),
 
+  // mute/solo are per-user-local (excluded from collab sync — see
+  // diffEngine.ts) so they stay editable even when a remote collaborator has
+  // locked the track. They never propagate to peers, so toggling them can't
+  // clobber the lock owner's state. Other track edits remain guarded.
   toggleMute: (id) =>
-    set(
-      guardTrack(id, (state) => ({
-        tracks: state.tracks.map((t) =>
-          t.id === id ? { ...t, mute: !t.mute } : t,
-        ),
-      })),
-    ),
+    set((state) => ({
+      tracks: state.tracks.map((t) =>
+        t.id === id ? { ...t, mute: !t.mute } : t,
+      ),
+    })),
 
   toggleSolo: (id) =>
-    set(
-      guardTrack(id, (state) => ({
-        tracks: state.tracks.map((t) =>
-          t.id === id ? { ...t, solo: !t.solo } : t,
-        ),
-      })),
-    ),
+    set((state) => ({
+      tracks: state.tracks.map((t) =>
+        t.id === id ? { ...t, solo: !t.solo } : t,
+      ),
+    })),
 
   toggleRecordArm: (id) =>
     set(

@@ -259,6 +259,9 @@ export function observeYjsAndPushToStore(
                 value as string,
               );
               break;
+            case 'masterVolume':
+              (patch as Record<string, unknown>).masterVolume = value;
+              break;
           }
         }
       }
@@ -386,6 +389,7 @@ export function pullDocIntoStore(
     deEsser: ['masteringDeEsser', true],
     fxChain: ['masteringFxChain', true],
     effects: ['masteringEffects', true],
+    masterVolume: ['masterVolume', false],
   };
   for (const [docKey, [storeKey, isJson]] of Object.entries(masteringMap)) {
     if (!yMastering.has(docKey)) continue;

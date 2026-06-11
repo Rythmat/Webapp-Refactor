@@ -42,6 +42,7 @@ export class VocalFxAdapter implements InstrumentAdapter {
   private channelConfig: ChannelConfig = { mode: 'mono', channel: 0 };
   private monitoringEnabled = false;
   private muteGain: GainNode | null = null;
+  private monitorSend: GainNode | null = null; // always-on input send for collab monitoring
   private activator: ConstantSourceNode | null = null;
   private recordDest: MediaStreamAudioDestinationNode | null = null;
 
@@ -61,6 +62,12 @@ export class VocalFxAdapter implements InstrumentAdapter {
     this.muteGain = this.nativeCtx!.createGain();
     this.muteGain.gain.value = this.monitoringEnabled ? 1 : 0;
     this.muteGain.connect(this.pedalChain.getInputNode());
+
+    // Always-on send tap for collaborative monitoring. Receives the raw input
+    // (independent of the local monitoring toggle) and is tapped by the
+    // AudioEngine monitor bus. Placed BEFORE the pedal chain so transport
+    // playback (which joins at the pedal-chain input) is never streamed.
+    this.monitorSend = this.nativeCtx!.createGain();
 
     // Cross-context bridge to wrapped outputNode
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -101,6 +108,8 @@ export class VocalFxAdapter implements InstrumentAdapter {
     this.stopStream();
     this.pedalChain?.dispose();
     this.muteGain?.disconnect();
+    this.monitorSend?.disconnect();
+    this.monitorSend = null;
     this.analyserNode?.disconnect();
     this.chordAnalyserNode?.disconnect();
     if (this.activator) {
@@ -179,6 +188,7 @@ export class VocalFxAdapter implements InstrumentAdapter {
       this.channelGain.connect(this.analyserNode!);
       this.channelGain.connect(this.chordAnalyserNode!);
       this.channelGain.connect(this.muteGain!);
+      this.channelGain.connect(this.monitorSend!);
     } catch (err) {
       console.warn('[VocalFxAdapter] Failed to open audio input:', err);
       this.stopStream();
@@ -278,6 +288,17 @@ export class VocalFxAdapter implements InstrumentAdapter {
   /** Return the native pedal chain input node for routing playback audio. */
   getNativePedalInputNode(): AudioNode | null {
     return this.pedalChain?.getInputNode() ?? null;
+  }
+
+  /**
+   * Live-input tap for collaborative monitoring (streamed to peers). Carries the
+   * raw mic signal REGARDLESS of the local monitoring toggle, taken BEFORE the
+   * pedal chain so it deliberately excludes this track's clip/transport playback
+   * (playback joins at the pedal-chain input, downstream of this node).
+   * Trade-off: peers hear the dry input, never the user's transport.
+   */
+  getMonitorOutputNode(): AudioNode | null {
+    return this.monitorSend ?? null;
   }
 
   // ── Pitch info (finds pitch-correction processor in chain) ────────────

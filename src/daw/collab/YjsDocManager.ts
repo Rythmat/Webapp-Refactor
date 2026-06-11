@@ -371,6 +371,7 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
     mastering.set('deEsser', JSON.stringify(state.masteringDeEsser));
     mastering.set('fxChain', JSON.stringify(state.masteringFxChain));
     mastering.set('effects', JSON.stringify(state.masteringEffects));
+    mastering.set('masterVolume', state.masterVolume);
 
     // Lead sheet
     const leadSheet = getYLeadSheet(doc);

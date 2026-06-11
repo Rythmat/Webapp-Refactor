@@ -30,6 +30,7 @@ import { importPendingJamSession } from '@/daw/jam-import/importJamSession';
 import { StudioRoutes } from '@/constants/routes';
 import { useAudioChordDetection } from '@/daw/hooks/useAudioChordDetection';
 import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
+import { useStudioMonitor } from '@/daw/hooks/useStudioMonitor';
 import { usePlaybackEngine } from '@/daw/hooks/usePlaybackEngine';
 import { useTheme } from '@/daw/hooks/useTheme';
 import { useTransport } from '@/daw/hooks/useTransport';
@@ -42,12 +43,13 @@ import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
 function DawAppInner() {
   const { isReady, initEngine } = useAudioEngine();
   const authToken = useAuthToken();
-  const { joinRoom, joinRoomAwaitingHost } = useCollab();
+  const { joinRoom, joinRoomById, joinRoomAwaitingHost } = useCollab();
   useTransport();
   usePlaybackEngine(isReady, authToken);
   useKeyboardShortcuts(authToken);
   useAutosave();
   useMidiInputRouting();
+  useStudioMonitor(isReady);
   useAudioChordDetection();
   useTheme();
   const currentView = useStore((s) => s.currentView);
@@ -135,6 +137,23 @@ function DawAppInner() {
       return;
     }
 
+    // No boot intent in the URL, yet the store still holds a collab room
+    // identity: this is an SPA back/forward navigation. Going back unmounted the
+    // studio route, which ran teardown() — the socket closed, so peers saw us
+    // leave — but the store is a module singleton, so roomId/role survived (a
+    // real Leave clears them via _clearCollab; this does not). Reconnect to the
+    // same room so peers see us return and we share their live document instead
+    // of drifting on a frozen local copy. PartyKit needs the auth token, so wait
+    // for it like a project. Hosts are excluded: a host leaving closes the room
+    // for everyone, so there is nothing to rejoin.
+    const { roomId: activeRoomId, collabRole } = useStore.getState();
+    if (activeRoomId && collabRole !== 'owner') {
+      if (!authToken) return;
+      bootedRef.current = true;
+      joinRoomById(activeRoomId, collabRole);
+      return;
+    }
+
     bootedRef.current = true;
     if (isJamImport) {
       // Arrived from a jam room: start a fresh project, then add the recorded
@@ -157,7 +176,7 @@ function DawAppInner() {
     // Cloud remains the source of truth for explicit saves; this is crash
     // recovery.
     restoreLocalSessionIfPresent();
-  }, [authToken, joinRoom, joinRoomAwaitingHost]);
+  }, [authToken, joinRoom, joinRoomById, joinRoomAwaitingHost]);
 
   useEffect(() => {
     if (isReady) return;
@@ -172,6 +191,25 @@ function DawAppInner() {
     };
   }, [isReady, initEngine]);
 
+  // ── Disable trackpad swipe-to-navigate inside the DAW ───────────────────
+  // A two-finger horizontal swipe on a Mac trackpad triggers the browser's
+  // back/forward history navigation, which was kicking users out of studio
+  // (and collab/jam) sessions mid-edit. While the DAW is mounted we set
+  // `overscroll-behavior-x: none` on the document root, which suppresses the
+  // history-navigation gesture WITHOUT affecting in-component scrolling: a
+  // horizontal swipe over the timeline or piano roll still pans that view (the
+  // grid scrolls natively, the timeline via its own wheel handler), and a swipe
+  // over any other area of the session simply does nothing. The previous value
+  // is restored on unmount so the rest of the site keeps native swipe-back.
+  useEffect(() => {
+    const root = document.documentElement;
+    const prev = root.style.overscrollBehaviorX;
+    root.style.overscrollBehaviorX = 'none';
+    return () => {
+      root.style.overscrollBehaviorX = prev;
+    };
+  }, []);
+
   return (
     <div
       className="daw-root flex-1 min-h-0 w-full flex flex-col overflow-hidden"
@@ -183,7 +221,7 @@ function DawAppInner() {
         <>
           <div className="flex flex-1 overflow-hidden">
             <div className="flex flex-1 flex-col overflow-hidden">
-              <TimelineWithHeaders />
+              <TimelineWithHeaders isReady={isReady} />
             </div>
             <LibraryPanel />
             {isCollabActive && (

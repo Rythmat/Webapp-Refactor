@@ -4,6 +4,17 @@ import { useMidiDevices } from './useMidiDevices';
 import { useMidiRecording } from './useMidiRecording';
 import { midiDeviceManager } from '@/daw/midi/MidiDeviceManager';
 import { trackEngineRegistry } from './usePlaybackEngine';
+import { studioRealtime } from '@/daw/collab/studioRealtime';
+
+/** Track ids this user's live MIDI is currently driving (monitored, else selected). */
+function liveMidiTargets(): string[] {
+  const { tracks, selectedTrackId } = useStore.getState();
+  const monitored = tracks
+    .filter((t) => t.monitoring && t.type === 'midi')
+    .map((t) => t.id);
+  if (monitored.length > 0) return monitored;
+  return selectedTrackId ? [selectedTrackId] : [];
+}
 
 // ── useMidiInputRouting ──────────────────────────────────────────────────
 // Subscribes to ALL available MIDI input devices and routes note events
@@ -55,6 +66,19 @@ export function useMidiInputRouting() {
         trackEngineRegistry.get(selectedTrackId)?.trackEngine.noteOff(note);
       }
       useStore.getState().hwNoteOff(note);
+
+      // Relay to collaborators so they can monitor this user's live playing.
+      if (studioRealtime.shouldBroadcast()) {
+        for (const trackId of liveMidiTargets()) {
+          studioRealtime.send({
+            type: 'studio:note',
+            action: 'off',
+            note,
+            velocity: 0,
+            trackId,
+          });
+        }
+      }
     };
 
     const onNoteOn = (note: number, velocity: number, timestamp: number) => {
@@ -103,6 +127,19 @@ export function useMidiInputRouting() {
 
       // Visual: light up keyboard in control section
       useStore.getState().hwNoteOn(note);
+
+      // Relay to collaborators so they can monitor this user's live playing.
+      if (studioRealtime.shouldBroadcast()) {
+        for (const trackId of liveMidiTargets()) {
+          studioRealtime.send({
+            type: 'studio:note',
+            action: 'on',
+            note,
+            velocity,
+            trackId,
+          });
+        }
+      }
 
       // Capture: feed recorder if recording + any MIDI track is armed
       if (isRecording) {

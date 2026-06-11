@@ -727,7 +727,12 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
 
   const tracks = useStore((s) => s.tracks);
   const toggleMute = useStore((s) => s.toggleMute);
-  const [masterVolume, setMasterVolume] = useState(80);
+  const masterVolume = useStore((s) => Math.round(s.masterVolume * 100));
+  const setMasterVolumeStore = useStore((s) => s.setMasterVolume);
+  const setMasterVolume = useCallback(
+    (v: number) => setMasterVolumeStore(v / 100),
+    [setMasterVolumeStore],
+  );
 
   const handleMuteAll = useCallback(() => {
     for (const t of tracks) {

@@ -7,6 +7,12 @@ export class AudioEngine {
   private analyserL: AnalyserNode | null = null;
   private analyserR: AnalyserNode | null = null;
   private masteringChain: EffectChain | null = null;
+  // Live-monitor send bus: a parallel tap that captures this user's LIVE input
+  // monitoring (mic / instrument FX) for streaming to collaborators. It is NOT
+  // connected to the speakers (the user already hears their own monitor through
+  // the normal track path) — only to a MediaStreamDestination for WebRTC.
+  private monitorBus: GainNode | null = null;
+  private monitorDest: MediaStreamAudioDestinationNode | null = null;
   private isInitialized = false;
 
   async init(): Promise<void> {
@@ -37,6 +43,13 @@ export class AudioEngine {
     splitter.connect(this.analyserL, 0);
     splitter.connect(this.analyserR, 1);
 
+    // Live-monitor send bus (for collaborative monitoring). Input adapters tap
+    // their monitored output into monitorBus; monitorBus feeds only a
+    // MediaStreamDestination, so it never reaches the local speakers.
+    this.monitorBus = this.ctx.createGain();
+    this.monitorDest = this.ctx.createMediaStreamDestination();
+    this.monitorBus.connect(this.monitorDest);
+
     // Sync Tone.js Transport PPQ with our engine's 480 ticks per quarter note
     Tone.getTransport().PPQ = 480;
 
@@ -63,6 +76,16 @@ export class AudioEngine {
 
   getMasteringChain(): EffectChain | null {
     return this.masteringChain;
+  }
+
+  /** The send-bus node that input adapters tap for collaborative monitoring. */
+  getMonitorBus(): GainNode | null {
+    return this.monitorBus;
+  }
+
+  /** The outgoing MediaStream carrying this user's live input monitor (WebRTC). */
+  getMonitorStream(): MediaStream | null {
+    return this.monitorDest?.stream ?? null;
   }
 
   updateMasteringEffects(state: TrackEffectState): void {
@@ -106,6 +129,9 @@ export class AudioEngine {
     this.masterGain?.disconnect();
     this.analyserL?.disconnect();
     this.analyserR?.disconnect();
+    this.monitorBus?.disconnect();
+    this.monitorBus = null;
+    this.monitorDest = null;
     this.isInitialized = false;
   }
 }

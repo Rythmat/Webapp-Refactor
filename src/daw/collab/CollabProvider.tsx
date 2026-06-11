@@ -39,6 +39,7 @@ import {
 } from './types';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { toast } from '@/hooks/use-toast';
+import { studioRealtime, isStudioMessage } from './studioRealtime';
 
 // ── Context ─────────────────────────────────────────────────────────────
 
@@ -162,6 +163,17 @@ export function CollabProvider({ children }: CollabProviderProps) {
         return;
       }
 
+      if (data.type === 'room:full') {
+        // The room is at capacity (MAX_ROOM_USERS). Stop any await-host retry
+        // loop and surface a clear message; the project stays loaded locally.
+        awaitHostRef.current = false;
+        useStore.getState()._setAwaitingSession(false);
+        useStore
+          .getState()
+          ._setRoomError('This room is full (max 5 collaborators).');
+        return;
+      }
+
       if (data.type === 'kicked') {
         // The host removed us (or we tried to rejoin after being kicked). Tear
         // down the session — the project stays loaded, so the user lands in a
@@ -169,6 +181,12 @@ export function CollabProvider({ children }: CollabProviderProps) {
         // AFTER leaveRoom (which clears collab state) so it survives.
         leaveRoomRef.current();
         useStore.getState()._setKickedNotice(true);
+        return;
+      }
+
+      // Studio live monitoring: live MIDI notes + WebRTC signaling from peers.
+      if (isStudioMessage(data)) {
+        studioRealtime.dispatch(data);
         return;
       }
 
@@ -196,6 +214,8 @@ export function CollabProvider({ children }: CollabProviderProps) {
     chatUnobserveRef.current?.();
     chatUnobserveRef.current = null;
 
+    studioRealtime.setSender(null);
+
     providerRef.current?.destroy();
     providerRef.current = null;
 
@@ -207,6 +227,17 @@ export function CollabProvider({ children }: CollabProviderProps) {
     destroyDoc();
     docRef.current = null;
     currentRoomIdRef.current = null;
+
+    // Drop live-connection state — peers and status — so a torn-down session
+    // never shows a frozen "still in the room" snapshot. The room IDENTITY
+    // (roomId/roomCode/role) is left intact on purpose: when the studio route
+    // unmounts on an SPA back/forward, this lets the remount tell "we were in a
+    // room and got navigated away" apart from "we never joined" and rejoin. A
+    // real departure (leaveRoom / kick) follows teardown with _clearCollab,
+    // which wipes the identity too so no rejoin is attempted.
+    const store = useStore.getState();
+    store._setRemoteUsers(new Map());
+    store._setConnectionStatus('disconnected');
   }, []);
 
   // ── Core join (connects to PartyKit given host + room) ──────────────
@@ -278,6 +309,15 @@ export function CollabProvider({ children }: CollabProviderProps) {
       providerRef.current = provider;
       awarenessRef.current = provider.awareness;
 
+      // Wire the live-monitoring bus: peers are keyed by awareness clientID, and
+      // outgoing messages go over this provider's socket (read lazily so the
+      // sender survives brief socket churn).
+      studioRealtime.setLocalClientId(provider.awareness.clientID);
+      studioRealtime.setSender((json) => {
+        const ws = providerRef.current?.ws;
+        if (ws && ws.readyState === WebSocket.OPEN) ws.send(json);
+      });
+
       // Offline persistence
       const idb = new IndexeddbPersistence(`collab-${roomId}`, doc);
       idbRef.current = idb;
@@ -344,6 +384,8 @@ export function CollabProvider({ children }: CollabProviderProps) {
           }
         });
         useStore.getState()._setRemoteUsers(remoteUsers);
+        // Drives the MIDI-broadcast gate: don't send live notes to an empty room.
+        studioRealtime.setPeerCount(remoteUsers.size);
 
         // Tiebreaker for simultaneous selection of the same free track: the
         // exclusive lock is optimistic, so two users can briefly hold the same

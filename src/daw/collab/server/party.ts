@@ -18,6 +18,10 @@ import { validateConnection } from './auth';
 // Track connection metadata (role, userId)
 const connectionMeta = new Map<string, { userId: string; role: string }>();
 
+// Maximum distinct users allowed in a room. Caps collaboration cost (PartyKit
+// message fan-out) and keeps the WebRTC audio mesh within a workable size.
+const MAX_ROOM_USERS = 5;
+
 export default class CollabServer implements Party.Server {
   // The connection ID of the room host (first 'owner' to connect)
   private hostConnectionId: string | null = null;
@@ -82,6 +86,19 @@ export default class CollabServer implements Party.Server {
         conn.send(JSON.stringify({ type: 'kicked', reason: 'banned' }));
         conn.close(4403, 'You have been removed from this room');
         return;
+      }
+
+      // Enforce room capacity (distinct users). The host is always admitted —
+      // the room can't exist without them — and a reconnect / second tab from a
+      // user who is already present does not consume an additional slot.
+      if (auth.role !== 'owner') {
+        const users = new Set<string>();
+        for (const [, m] of connectionMeta) users.add(m.userId);
+        if (!users.has(auth.userId) && users.size >= MAX_ROOM_USERS) {
+          conn.send(JSON.stringify({ type: 'room:full', reason: 'capacity' }));
+          conn.close(4408, 'Room is full');
+          return;
+        }
       }
 
       connectionMeta.set(conn.id, { userId: auth.userId, role: auth.role });
@@ -243,6 +260,21 @@ export default class CollabServer implements Party.Server {
         data.type === 'jam:drum-sync-request' ||
         data.type === 'jam:drum-transport' ||
         data.type === 'jam:studio-invite'
+      ) {
+        for (const conn of this.room.getConnections()) {
+          if (conn.id !== sender.id) {
+            conn.send(JSON.stringify(data));
+          }
+        }
+      }
+
+      // Studio live monitoring: relay live MIDI notes and WebRTC signaling to
+      // other clients. These are ephemeral (never touch the Yjs doc) and let a
+      // user hear collaborators' live playing. Each client filters by the `to`
+      // field for directed (RTC) messages.
+      if (
+        typeof data.type === 'string' &&
+        (data.type as string).startsWith('studio:')
       ) {
         for (const conn of this.room.getConnections()) {
           if (conn.id !== sender.id) {

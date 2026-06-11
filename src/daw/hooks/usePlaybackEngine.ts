@@ -198,6 +198,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const tsDen = useStore((s) => s.timeSignatureDenominator);
   const loopEnabled = useStore((s) => s.loopEnabled);
   const masteringEffects = useStore((s) => s.masteringEffects);
+  const masterVolume = useStore((s) => s.masterVolume);
 
   // ── Sync TrackEngine instances with store tracks ───────────────────────
   useEffect(() => {
@@ -265,6 +266,19 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
           .then(() => {
             trackEngine.setInstrument(instrument);
             console.log(`[Audio] Instrument ready for track "${track.name}"`);
+            // Tap audio-input adapters into the live-monitor send bus so this
+            // user's mic / instrument FX can be streamed to collaborators.
+            const monitorBus = audioEngine.getMonitorBus();
+            const getTap = (
+              instrument as { getMonitorOutputNode?: () => AudioNode | null }
+            ).getMonitorOutputNode;
+            if (monitorBus && typeof getTap === 'function') {
+              try {
+                getTap.call(instrument)?.connect(monitorBus);
+              } catch (err) {
+                console.warn('[Audio] monitor tap connect failed:', err);
+              }
+            }
             engineReadyVersion++;
             engineReadyListeners.forEach((cb) => cb());
           })
@@ -302,6 +316,13 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
     if (!isReady) return;
     audioEngine.updateMasteringEffects(masteringEffects);
   }, [isReady, masteringEffects]);
+
+  // ── Sync master output volume with audio engine ──────────────────────
+  useEffect(() => {
+    if (!isReady) return;
+    const gain = audioEngine.getMasterGain();
+    gain.gain.setTargetAtTime(masterVolume, gain.context.currentTime, 0.01);
+  }, [isReady, masterVolume]);
 
   // ── Schedule / cancel MIDI + audio clips on play/stop ───────────────────
   useEffect(() => {

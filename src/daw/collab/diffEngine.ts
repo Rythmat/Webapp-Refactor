@@ -434,6 +434,8 @@ function diffMastering(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
     yM.set('fxChain', JSON.stringify(next.masteringFxChain));
   if (prev.masteringEffects !== next.masteringEffects)
     yM.set('effects', JSON.stringify(next.masteringEffects));
+  if (prev.masterVolume !== next.masterVolume)
+    yM.set('masterVolume', next.masterVolume);
 }
 
 // ── Lead sheet diff ─────────────────────────────────────────────────────

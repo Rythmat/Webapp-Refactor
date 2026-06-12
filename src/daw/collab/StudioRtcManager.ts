@@ -11,8 +11,7 @@
 
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { studioRealtime, type StudioMessage } from './studioRealtime';
-
-const ICE_SERVERS: RTCIceServer[] = [{ urls: 'stun:stun.l.google.com:19302' }];
+import { FALLBACK_ICE_SERVERS, fetchTurnIceServers } from './turnCredentials';
 
 interface PeerEntry {
   pc: RTCPeerConnection;
@@ -31,6 +30,18 @@ export class StudioRtcManager {
   private unsub: (() => void) | null = null;
   private started = false;
 
+  // ICE config. Starts STUN-only and is upgraded to Cloudflare TURN once the
+  // credential fetch resolves. Peer creation is deferred until then so the first
+  // connection already has TURN available (see loadIceServers / syncPeers).
+  private iceServers: RTCIceServer[] = FALLBACK_ICE_SERVERS;
+  private iceLoad: Promise<void> | null = null;
+  private iceReady = false;
+  /** Latest desired peer set requested before ICE config finished loading. */
+  private pendingPeerSync: number[] | null = null;
+
+  /** Reads the current auth token lazily so creds use a fresh token at start. */
+  constructor(private getToken: () => string | null) {}
+
   private get supported(): boolean {
     return typeof RTCPeerConnection !== 'undefined';
   }
@@ -39,6 +50,7 @@ export class StudioRtcManager {
     if (this.started || !this.supported) return;
     this.started = true;
     this.unsub = studioRealtime.subscribe((msg) => this.onMessage(msg));
+    this.iceLoad = this.loadIceServers();
   }
 
   stop(): void {
@@ -46,11 +58,42 @@ export class StudioRtcManager {
     this.unsub = null;
     for (const id of [...this.peers.keys()]) this.removePeer(id);
     this.started = false;
+    this.pendingPeerSync = null;
+  }
+
+  /** Fetch TURN credentials, then flush any peer sync that arrived meanwhile. */
+  private async loadIceServers(): Promise<void> {
+    try {
+      const servers = await fetchTurnIceServers(this.getToken());
+      if (servers.length) this.iceServers = servers;
+      const hasTurn = servers.some((s) => {
+        const urls = Array.isArray(s.urls) ? s.urls : [s.urls];
+        return urls.some(
+          (u) => u.startsWith('turn:') || u.startsWith('turns:'),
+        );
+      });
+      console.log(
+        `[StudioRtc] ICE config ready (${hasTurn ? 'TURN + STUN' : 'STUN only'})`,
+      );
+    } finally {
+      this.iceReady = true;
+      if (this.started && this.pendingPeerSync) {
+        const ids = this.pendingPeerSync;
+        this.pendingPeerSync = null;
+        this.syncPeers(ids);
+      }
+    }
   }
 
   /** Ensure exactly the given peers have connections; drop any others. */
   syncPeers(peerIds: number[]): void {
     if (!this.started) return;
+    // Hold off creating peers until we know whether TURN is available, so we
+    // don't build the first (often only) connection with STUN-only ICE.
+    if (!this.iceReady) {
+      this.pendingPeerSync = peerIds;
+      return;
+    }
     const wanted = new Set(peerIds);
     for (const id of [...this.peers.keys()]) {
       if (!wanted.has(id)) this.removePeer(id);
@@ -88,7 +131,7 @@ export class StudioRtcManager {
     const master = audioEngine.getMasterGain();
     if (!ctx || !master) return;
 
-    const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+    const pc = new RTCPeerConnection({ iceServers: this.iceServers });
     const gain = ctx.createGain();
     gain.gain.value = 1;
     gain.connect(master);
@@ -127,7 +170,19 @@ export class StudioRtcManager {
 
     pc.ontrack = (e) => this.attachRemoteStream(peerId, e);
 
+    pc.oniceconnectionstatechange = () => {
+      console.log(`[StudioRtc] peer ${peerId} ICE → ${pc.iceConnectionState}`);
+    };
+
     pc.onconnectionstatechange = () => {
+      console.log(
+        `[StudioRtc] peer ${peerId} connection → ${pc.connectionState}`,
+      );
+      if (pc.connectionState === 'connected') {
+        // Report whether the live path is a direct hole-punch or a TURN relay —
+        // the single most useful signal for diagnosing "no live audio".
+        void this.logSelectedCandidate(peerId, pc);
+      }
       if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
         // Leave cleanup to syncPeers / awareness; just stop audio on hard fail.
         if (pc.connectionState === 'failed') this.teardownAudio(entry);
@@ -161,8 +216,11 @@ export class StudioRtcManager {
     if (msg.type !== 'studio:rtc') return;
     if (msg.to !== studioRealtime.getLocalClientId()) return;
 
-    // An offer can arrive before syncPeers created the connection.
+    // An offer can arrive before syncPeers created the connection. Wait for the
+    // ICE config (TURN) to load first so the answering peer isn't built STUN-only.
     if (msg.kind === 'offer' && !this.peers.has(msg.from)) {
+      if (!this.iceReady && this.iceLoad) await this.iceLoad;
+      if (!this.started) return;
       this.addPeer(msg.from);
     }
     const entry = this.peers.get(msg.from);
@@ -231,6 +289,52 @@ export class StudioRtcManager {
     entry.source = ctx.createMediaStreamSource(stream);
     entry.source.connect(entry.gain);
     entry.source.connect(entry.analyser);
+  }
+
+  /** Log whether the connected media path is direct or routed through TURN. */
+  private async logSelectedCandidate(
+    peerId: number,
+    pc: RTCPeerConnection,
+  ): Promise<void> {
+    try {
+      const stats = await pc.getStats();
+      let pair: RTCIceCandidatePairStats | undefined;
+      stats.forEach((report) => {
+        if (
+          report.type === 'candidate-pair' &&
+          (report as RTCIceCandidatePairStats & { selected?: boolean })
+            .selected === true
+        ) {
+          pair = report as RTCIceCandidatePairStats;
+        }
+      });
+      // Some browsers don't flag `selected`; fall back to the transport's pointer.
+      if (!pair) {
+        stats.forEach((report) => {
+          if (report.type === 'transport') {
+            const id = (report as { selectedCandidatePairId?: string })
+              .selectedCandidatePairId;
+            if (id)
+              pair = stats.get(id) as RTCIceCandidatePairStats | undefined;
+          }
+        });
+      }
+      if (!pair) return;
+      const local = stats.get(pair.localCandidateId ?? '') as
+        | { candidateType?: string }
+        | undefined;
+      const remote = stats.get(pair.remoteCandidateId ?? '') as
+        | { candidateType?: string }
+        | undefined;
+      const relayed =
+        local?.candidateType === 'relay' || remote?.candidateType === 'relay';
+      console.log(
+        `[StudioRtc] peer ${peerId} media path: local=${local?.candidateType} ` +
+          `remote=${remote?.candidateType} → ${relayed ? 'TURN relay' : 'direct P2P'}`,
+      );
+    } catch {
+      /* stats are best-effort diagnostics */
+    }
   }
 
   private teardownAudio(entry: PeerEntry): void {

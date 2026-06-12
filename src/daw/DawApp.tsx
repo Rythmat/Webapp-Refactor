@@ -31,6 +31,7 @@ import { StudioRoutes } from '@/constants/routes';
 import { useAudioChordDetection } from '@/daw/hooks/useAudioChordDetection';
 import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
 import { useStudioMonitor } from '@/daw/hooks/useStudioMonitor';
+import { useCollabAudioLoader } from '@/daw/hooks/useCollabAudioLoader';
 import { usePlaybackEngine } from '@/daw/hooks/usePlaybackEngine';
 import { useTheme } from '@/daw/hooks/useTheme';
 import { useTransport } from '@/daw/hooks/useTransport';
@@ -49,7 +50,8 @@ function DawAppInner() {
   useKeyboardShortcuts(authToken);
   useAutosave();
   useMidiInputRouting();
-  useStudioMonitor(isReady);
+  useStudioMonitor(isReady, authToken);
+  useCollabAudioLoader(authToken);
   useAudioChordDetection();
   useTheme();
   const currentView = useStore((s) => s.currentView);

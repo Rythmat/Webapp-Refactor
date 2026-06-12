@@ -21,8 +21,13 @@ import {
 
 const MIDI_PULSE_MS = 260;
 
-export function useStudioMonitor(isReady: boolean) {
+export function useStudioMonitor(isReady: boolean, token: string | null) {
   const remoteUsers = useStore((s) => s.remoteUsers);
+
+  // Hold the token in a ref so the RTC manager (created once per session) reads
+  // the latest value when it mints TURN credentials, without re-creating it.
+  const tokenRef = useRef(token);
+  tokenRef.current = token;
 
   const rtcRef = useRef<StudioRtcManager | null>(null);
   // trackId → set of notes a remote user currently holds on that track.
@@ -62,7 +67,7 @@ export function useStudioMonitor(isReady: boolean) {
   // ── WebRTC mesh lifecycle ──────────────────────────────────────────────
   useEffect(() => {
     if (!isReady) return;
-    const mgr = new StudioRtcManager();
+    const mgr = new StudioRtcManager(() => tokenRef.current);
     mgr.start();
     rtcRef.current = mgr;
     return () => {

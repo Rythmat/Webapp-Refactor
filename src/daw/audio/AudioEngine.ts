@@ -46,8 +46,17 @@ export class AudioEngine {
     // Live-monitor send bus (for collaborative monitoring). Input adapters tap
     // their monitored output into monitorBus; monitorBus feeds only a
     // MediaStreamDestination, so it never reaches the local speakers.
-    this.monitorBus = this.ctx.createGain();
-    this.monitorDest = this.ctx.createMediaStreamDestination();
+    //
+    // Built on the NATIVE context, not Tone's standardized-audio-context wrapper.
+    // The input adapters create their monitorSend tap on the native context
+    // (wrapped nodes can't connect to native ones), so the bus must be native too
+    // — otherwise the tap → bus connect throws "Overload resolution failed" and
+    // the outgoing WebRTC stream carries silence.
+    const nativeCtx =
+      (this.ctx as unknown as { _nativeContext?: AudioContext })
+        ._nativeContext ?? this.ctx;
+    this.monitorBus = nativeCtx.createGain();
+    this.monitorDest = nativeCtx.createMediaStreamDestination();
     this.monitorBus.connect(this.monitorDest);
 
     // Sync Tone.js Transport PPQ with our engine's 480 ticks per quarter note

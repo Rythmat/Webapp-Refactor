@@ -38,6 +38,8 @@ export class StudioRtcManager {
   private iceReady = false;
   /** Latest desired peer set requested before ICE config finished loading. */
   private pendingPeerSync: number[] | null = null;
+  /** Periodic audio-flow diagnostics (temporary; pinpoints where audio dies). */
+  private statsTimer: ReturnType<typeof setInterval> | null = null;
 
   /** Reads the current auth token lazily so creds use a fresh token at start. */
   constructor(private getToken: () => string | null) {}
@@ -51,11 +53,16 @@ export class StudioRtcManager {
     this.started = true;
     this.unsub = studioRealtime.subscribe((msg) => this.onMessage(msg));
     this.iceLoad = this.loadIceServers();
+    this.statsTimer = setInterval(() => void this.pollAudioFlow(), 5000);
   }
 
   stop(): void {
     this.unsub?.();
     this.unsub = null;
+    if (this.statsTimer !== null) {
+      clearInterval(this.statsTimer);
+      this.statsTimer = null;
+    }
     for (const id of [...this.peers.keys()]) this.removePeer(id);
     this.started = false;
     this.pendingPeerSync = null;
@@ -289,6 +296,56 @@ export class StudioRtcManager {
     entry.source = ctx.createMediaStreamSource(stream);
     entry.source.connect(entry.gain);
     entry.source.connect(entry.analyser);
+  }
+
+  /**
+   * Temporary diagnostic: every 5s, for each connected peer, log where audio is
+   * (or isn't) flowing. Reads four numbers that together locate any break:
+   *   outLevel — level of OUR audio entering the outgoing track (the monitor
+   *              bus). ~0 ⇒ our capture/monitor-tap is dead (send-graph bug).
+   *   sent     — bytes we've sent on the audio track. Not rising ⇒ encode/send.
+   *   inLevel  — level of the audio we're RECEIVING. ~0 with sent>0 on their
+   *              side ⇒ they're sending silence; >0 here but no sound ⇒ our
+   *              local playback graph is the problem.
+   *   recv     — bytes received. Not rising ⇒ nothing arriving (transport).
+   */
+  private async pollAudioFlow(): Promise<void> {
+    const fmt = (n: number | undefined) =>
+      typeof n === 'number' ? n.toFixed(4) : '—';
+    const kb = (n: number) => `${Math.round(n / 1024)}kB`;
+    for (const [peerId, entry] of this.peers) {
+      if (entry.pc.connectionState !== 'connected') continue;
+      try {
+        const stats = await entry.pc.getStats();
+        let sent = 0;
+        let recv = 0;
+        let outLevel: number | undefined;
+        let inLevel: number | undefined;
+        stats.forEach((r) => {
+          const s = r as unknown as {
+            type: string;
+            kind?: string;
+            bytesSent?: number;
+            bytesReceived?: number;
+            audioLevel?: number;
+          };
+          if (s.type === 'outbound-rtp' && s.kind === 'audio') {
+            sent = s.bytesSent ?? 0;
+          } else if (s.type === 'inbound-rtp' && s.kind === 'audio') {
+            recv = s.bytesReceived ?? 0;
+            inLevel = s.audioLevel;
+          } else if (s.type === 'media-source' && s.kind === 'audio') {
+            outLevel = s.audioLevel;
+          }
+        });
+        console.log(
+          `[StudioRtc] peer ${peerId} audio: outLevel=${fmt(outLevel)} ` +
+            `sent=${kb(sent)} | inLevel=${fmt(inLevel)} recv=${kb(recv)}`,
+        );
+      } catch {
+        /* stats are best-effort diagnostics */
+      }
+    }
   }
 
   /** Log whether the connected media path is direct or routed through TURN. */

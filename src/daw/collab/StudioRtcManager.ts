@@ -23,9 +23,22 @@ interface PeerEntry {
   /** ICE candidates received before the remote description was applied. */
   pendingCandidates: RTCIceCandidateInit[];
   remoteSet: boolean;
+  /** Grace timer giving a `disconnected` peer a chance to self-heal before we
+   *  force an ICE restart. Null when no recovery is pending. */
+  reconnectTimer: ReturnType<typeof setTimeout> | null;
+  /** True while a recovery offer is in flight, to avoid stacking restarts. */
+  recovering: boolean;
+  /** Consecutive ICE-restart attempts since the last successful connect. */
+  restartAttempts: number;
 }
 
 export class StudioRtcManager {
+  /** How long a `disconnected` peer is given to recover on its own before we
+   *  force an ICE restart. `disconnected` is frequently a brief blip. */
+  private static readonly DISCONNECT_GRACE_MS = 3000;
+  /** ICE restarts to try before tearing the connection down and rebuilding it. */
+  private static readonly MAX_ICE_RESTARTS = 2;
+
   private peers = new Map<number, PeerEntry>();
   private unsub: (() => void) | null = null;
   private started = false;
@@ -155,6 +168,9 @@ export class StudioRtcManager {
       source: null,
       pendingCandidates: [],
       remoteSet: false,
+      reconnectTimer: null,
+      recovering: false,
+      restartAttempts: 0,
     };
     this.peers.set(peerId, entry);
 
@@ -182,31 +198,50 @@ export class StudioRtcManager {
     };
 
     pc.onconnectionstatechange = () => {
-      console.log(
-        `[StudioRtc] peer ${peerId} connection → ${pc.connectionState}`,
-      );
-      if (pc.connectionState === 'connected') {
-        // Report whether the live path is a direct hole-punch or a TURN relay —
-        // the single most useful signal for diagnosing "no live audio".
-        void this.logSelectedCandidate(peerId, pc);
-      }
-      if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
-        // Leave cleanup to syncPeers / awareness; just stop audio on hard fail.
-        if (pc.connectionState === 'failed') this.teardownAudio(entry);
+      const state = pc.connectionState;
+      console.log(`[StudioRtc] peer ${peerId} connection → ${state}`);
+      switch (state) {
+        case 'connected':
+          // Recovered (or first connect): clear any pending recovery + counters.
+          this.clearReconnect(entry);
+          entry.recovering = false;
+          entry.restartAttempts = 0;
+          // Report whether the live path is a direct hole-punch or a TURN relay
+          // — the single most useful signal for diagnosing "no live audio".
+          void this.logSelectedCandidate(peerId, pc);
+          break;
+        case 'disconnected':
+          // Usually a brief network/relay blip that ICE heals on its own. Give
+          // it a grace window; only force a restart if still down afterwards.
+          this.scheduleReconnect(peerId, entry);
+          break;
+        case 'failed':
+          // Hard failure — recover immediately instead of waiting out the grace.
+          this.clearReconnect(entry);
+          this.recoverPeer(peerId, entry);
+          break;
+        // 'closed' is our own teardown (removePeer); nothing to do.
       }
     };
 
     // The lower clientID initiates; the higher waits for the offer.
-    if (studioRealtime.getLocalClientId() < peerId) {
+    if (this.isOfferer(peerId)) {
       void this.makeOffer(peerId);
     }
   }
 
-  private async makeOffer(peerId: number): Promise<void> {
+  /** Deterministic glare rule: the lower clientID is the offerer for a pair. */
+  private isOfferer(peerId: number): boolean {
+    return studioRealtime.getLocalClientId() < peerId;
+  }
+
+  private async makeOffer(peerId: number, iceRestart = false): Promise<void> {
     const entry = this.peers.get(peerId);
     if (!entry) return;
     try {
-      const offer = await entry.pc.createOffer();
+      const offer = await entry.pc.createOffer(
+        iceRestart ? { iceRestart: true } : undefined,
+      );
       await entry.pc.setLocalDescription(offer);
       studioRealtime.send({
         type: 'studio:rtc',
@@ -219,9 +254,84 @@ export class StudioRtcManager {
     }
   }
 
+  // ── Recovery ───────────────────────────────────────────────────────────────
+  // A dropped connection is repaired in two tiers, always driven by the
+  // deterministic offerer to avoid offer glare:
+  //   1. ICE restart — renegotiate ICE on the SAME RTCPeerConnection. Cheap and
+  //      seamless (media tracks survive), fixes most transient drops including
+  //      a relay path that died. Tried up to MAX_ICE_RESTARTS times.
+  //   2. Rebuild — tear the connection down on both sides and start fresh, used
+  //      when ICE restarts don't stick.
+  // The non-offerer recovers passively: it processes the re-offer (tier 1) or
+  // the `reset` message (tier 2) it receives.
+
+  /** Give a `disconnected` peer a grace window to self-heal, then recover. */
+  private scheduleReconnect(peerId: number, entry: PeerEntry): void {
+    if (entry.reconnectTimer !== null || entry.recovering) return;
+    entry.reconnectTimer = setTimeout(() => {
+      entry.reconnectTimer = null;
+      if (this.peers.get(peerId) !== entry) return; // peer gone / replaced
+      const state = entry.pc.connectionState;
+      if (state === 'connected' || state === 'closed') return; // healed itself
+      this.recoverPeer(peerId, entry);
+    }, StudioRtcManager.DISCONNECT_GRACE_MS);
+  }
+
+  private clearReconnect(entry: PeerEntry): void {
+    if (entry.reconnectTimer !== null) {
+      clearTimeout(entry.reconnectTimer);
+      entry.reconnectTimer = null;
+    }
+  }
+
+  /** Repair a broken peer connection (offerer only; see recovery notes above). */
+  private recoverPeer(peerId: number, entry: PeerEntry): void {
+    if (!this.isOfferer(peerId) || entry.recovering) return;
+    if (entry.restartAttempts >= StudioRtcManager.MAX_ICE_RESTARTS) {
+      this.rebuildPeer(peerId);
+      return;
+    }
+    entry.restartAttempts++;
+    entry.recovering = true;
+    console.log(
+      `[StudioRtc] peer ${peerId} recovering via ICE restart ` +
+        `(attempt ${entry.restartAttempts}/${StudioRtcManager.MAX_ICE_RESTARTS})`,
+    );
+    void this.makeOffer(peerId, true).finally(() => {
+      entry.recovering = false;
+    });
+  }
+
+  /** Tear down and re-create a peer from scratch, telling the peer to do the
+   *  same so our fresh offer lands on a clean connection rather than the dead
+   *  one. Messages are ordered on the socket, so the `reset` is processed
+   *  before the offer that follows from addPeer. */
+  private rebuildPeer(peerId: number): void {
+    console.log(`[StudioRtc] peer ${peerId} rebuilding connection`);
+    studioRealtime.send({
+      type: 'studio:rtc',
+      kind: 'reset',
+      to: peerId,
+      payload: null,
+    });
+    this.removePeer(peerId);
+    this.addPeer(peerId); // as offerer, this sends a fresh offer
+  }
+
   private async onMessage(msg: StudioMessage): Promise<void> {
     if (msg.type !== 'studio:rtc') return;
     if (msg.to !== studioRealtime.getLocalClientId()) return;
+
+    // Peer is rebuilding its side: drop our stale connection and recreate it so
+    // the fresh offer that follows lands on a clean peer. We never offer here —
+    // the sender (the offerer) drives that.
+    if (msg.kind === 'reset') {
+      if (this.peers.has(msg.from)) {
+        this.removePeer(msg.from);
+        this.addPeer(msg.from);
+      }
+      return;
+    }
 
     // An offer can arrive before syncPeers created the connection. Wait for the
     // ICE config (TURN) to load first so the answering peer isn't built STUN-only.
@@ -410,6 +520,7 @@ export class StudioRtcManager {
   private removePeer(peerId: number): void {
     const entry = this.peers.get(peerId);
     if (!entry) return;
+    this.clearReconnect(entry);
     this.teardownAudio(entry);
     try {
       entry.gain.disconnect();

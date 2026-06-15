@@ -569,10 +569,33 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       (t) => t.type === 'audio' && t.recordArmed,
     );
 
+    // Tear down all live-recording artifacts (waveform RAF, analyser nodes, the
+    // 5-minute cap timer, and the on-screen live peaks). Idempotent and safe to
+    // call on any effect run — this is what keeps a stale RAF/timer from
+    // surviving when the effect re-runs for unrelated reasons. In a collab
+    // session `tracks` changes constantly, re-running this effect mid-take, so
+    // cleanup must NOT be conditional on the recorder still "recording".
+    const cleanupLiveRecordingArtifacts = () => {
+      cancelAnimationFrame(liveAudioRafRef.current);
+      liveAudioSourceRef.current?.disconnect();
+      liveAudioAnalyserRef.current?.disconnect();
+      liveAudioSourceRef.current = null;
+      liveAudioAnalyserRef.current = null;
+      liveAudioPeaksRef.current = [];
+      if (recordLimitTimerRef.current !== null) {
+        clearTimeout(recordLimitTimerRef.current);
+        recordLimitTimerRef.current = null;
+      }
+      useStore.getState().clearLiveAudioRecording();
+    };
+
     if (isPlaying && isRecording && recordArmedAudioTrack) {
       // Guard: don't re-create recorder if already recording (effect re-runs
       // when `tracks` changes during recording, e.g. MIDI clips added)
       if (isActivelyRecordingRef.current) return;
+      // Clear anything a previous take left behind before starting fresh, so a
+      // leaked RAF/timer from a botched teardown can't keep running.
+      cleanupLiveRecordingArtifacts();
       isActivelyRecordingRef.current = true;
 
       // Enforce the per-track 5-minute total-audio cap. Time the take may run
@@ -690,26 +713,20 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
             }
           });
       }
-    } else if (audioRecorderRef.current?.isRecording()) {
-      // Stop recording and create audio clip
-      isActivelyRecordingRef.current = false;
-
-      // Cancel the 5-minute auto-stop timer (manual stop, or it already fired).
-      if (recordLimitTimerRef.current !== null) {
-        clearTimeout(recordLimitTimerRef.current);
-        recordLimitTimerRef.current = null;
-      }
-
-      // Stop live waveform analyser
-      cancelAnimationFrame(liveAudioRafRef.current);
-      liveAudioSourceRef.current?.disconnect();
-      liveAudioAnalyserRef.current?.disconnect();
-      liveAudioSourceRef.current = null;
-      liveAudioAnalyserRef.current = null;
-      liveAudioPeaksRef.current = [];
-      useStore.getState().clearLiveAudioRecording();
-
+    } else {
+      // Not in the recording state (stopped/paused, or never started). ALWAYS
+      // tear down live artifacts first so a stale waveform RAF or 5-minute cap
+      // timer can't survive a stop — robust to the effect re-running for
+      // unrelated reasons (e.g. collab track syncs). Then finalize the take if a
+      // recorder was actually running.
       const recorder = audioRecorderRef.current;
+      const wasRecording = recorder?.isRecording() ?? false;
+      isActivelyRecordingRef.current = false;
+      cleanupLiveRecordingArtifacts();
+      audioRecorderRef.current = null;
+
+      if (!wasRecording || !recorder) return;
+
       const armedTrack = tracks.find(
         (t) => t.type === 'audio' && t.recordArmed,
       );
@@ -796,10 +813,6 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
         .catch((err) => {
           console.warn('Failed to stop audio recording:', err);
         });
-
-      audioRecorderRef.current = null;
-    } else {
-      isActivelyRecordingRef.current = false;
     }
   }, [isReady, isPlaying, isRecording, tracks]);
 

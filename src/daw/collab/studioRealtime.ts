@@ -23,7 +23,9 @@ export interface StudioNoteMessage {
   from: number;
 }
 
-export type RtcSignalKind = 'offer' | 'answer' | 'ice';
+// 'reset' asks the peer to drop its stale connection and rebuild from scratch,
+// used as the recovery escalation when ICE restarts fail to reconnect.
+export type RtcSignalKind = 'offer' | 'answer' | 'ice' | 'reset';
 
 export interface StudioRtcMessage {
   type: 'studio:rtc';

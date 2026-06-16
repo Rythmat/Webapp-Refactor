@@ -25,6 +25,10 @@ import {
 } from '@/daw/audio/pitch-analysis/PitchRenderer';
 import { seekTo } from '@/daw/hooks/useTransport';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
+import {
+  getTrackSynthState,
+  applySynthStateToEngine,
+} from '@/daw/oracle-synth/synthTrackState';
 import { PianoSampler } from '@/daw/instruments/PianoSampler';
 import { SamplerInstrument } from '@/daw/instruments/SamplerInstrument';
 import {
@@ -266,6 +270,16 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
           .then(() => {
             trackEngine.setInstrument(instrument);
             console.log(`[Audio] Instrument ready for track "${track.name}"`);
+            // Apply the track's saved Oracle Synth patch to its fresh engine so
+            // a loaded project plays with the right sound even before the synth
+            // panel (which would otherwise be the first thing to sync it) opens.
+            if (instrument instanceof OracleSynthAdapter) {
+              const synthState = getTrackSynthState(track.id);
+              const synthEngine = instrument.getEngine();
+              if (synthState && synthEngine) {
+                applySynthStateToEngine(synthEngine, synthState);
+              }
+            }
             // Tap audio-input adapters into the live-monitor send bus so this
             // user's mic / instrument FX can be streamed to collaborators.
             const monitorBus = audioEngine.getMonitorBus();

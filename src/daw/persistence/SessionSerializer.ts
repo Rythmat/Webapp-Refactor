@@ -3,6 +3,11 @@ import { useStore } from '@/daw/store';
 import type { Track } from '@/daw/store/tracksSlice';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import { guessTrackRole } from '@/daw/utils/trackRole';
+import {
+  getTrackSynthState,
+  setTrackSynthState,
+  type SynthTrackState,
+} from '@/daw/oracle-synth/synthTrackState';
 
 // Instrument + effect configuration persisted alongside a track so the
 // instrument voice (gmProgram), effect rack (effects), pedal chains, and drum
@@ -14,6 +19,10 @@ export interface SerializedTrackSettings {
   vocalChain?: Track['vocalChain'];
   guitarChain?: Track['guitarChain'];
   drumPads?: Track['drumPads'];
+  // Full Oracle Synth patch for oracle-synth tracks. The synth params live in a
+  // shared store + per-track cache (see synthTrackState.ts), not on the Track,
+  // so this is pulled from there at save time and seeded back on load.
+  oracleSynth?: SynthTrackState;
 }
 
 /** Build the persisted settings blob from a track (undefined fields are dropped on JSON encode). */
@@ -24,6 +33,8 @@ function trackSettings(t: Track): SerializedTrackSettings {
     vocalChain: t.vocalChain,
     guitarChain: t.guitarChain,
     drumPads: t.drumPads,
+    oracleSynth:
+      t.instrument === 'oracle-synth' ? getTrackSynthState(t.id) : undefined,
   };
 }
 
@@ -376,47 +387,55 @@ export function serializeSessionForCloud(
 }
 
 export function deserializeCloudProject(project: CloudProjectDetail): void {
-  const tracks = project.tracks.map((t) => ({
-    id: crypto.randomUUID(),
-    name: t.name,
-    type: t.type,
-    instrument: t.instrument,
-    color: t.color,
-    mute: t.mute,
-    solo: t.solo,
-    volume: t.volume,
-    pan: t.pan,
-    // Local-only state — re-defaulted on load
-    recordArmed: false,
-    monitoring: false,
-    midiInputId: null,
-    audioInputId: null,
-    audioInputChannel: null,
-    // Instrument voice + effect config (effects re-default when a save predates
-    // this field).
-    ...applyTrackSettings(t.settings),
-    activeEffects: t.activeEffects,
-    midiClips: t.midiClips.map((c) => ({
-      id: c.id,
-      name: c.name,
-      startTick: c.startTick,
-      events: decodeMidiEvents(c.events),
-    })),
-    audioClips: t.audioClips.map((c) => ({
-      // Track-local clip id. The AudioBufferStore is keyed on this; bytes
-      // for this clip will be fetched + decoded asynchronously by the
-      // caller (loadCloudProjectAudio).
-      id: crypto.randomUUID(),
-      assetId: c.assetId,
-      startTick: c.startTick,
-      duration: c.duration,
-      offsetSeconds: c.offsetSeconds,
-      gain: c.gain,
-      fadeInTicks: c.fadeInTicks,
-      fadeOutTicks: c.fadeOutTicks,
-    })),
-    trackRole: guessTrackRole(t.name, t.instrument),
-  })) as unknown as ReturnType<typeof useStore.getState>['tracks'];
+  const tracks = project.tracks.map((t) => {
+    const id = crypto.randomUUID();
+    // Seed the per-track synth patch so the panel restores it on open and the
+    // engine is configured at instrument init (keyed by the freshly minted id).
+    if (t.instrument === 'oracle-synth' && t.settings?.oracleSynth) {
+      setTrackSynthState(id, t.settings.oracleSynth);
+    }
+    return {
+      id,
+      name: t.name,
+      type: t.type,
+      instrument: t.instrument,
+      color: t.color,
+      mute: t.mute,
+      solo: t.solo,
+      volume: t.volume,
+      pan: t.pan,
+      // Local-only state — re-defaulted on load
+      recordArmed: false,
+      monitoring: false,
+      midiInputId: null,
+      audioInputId: null,
+      audioInputChannel: null,
+      // Instrument voice + effect config (effects re-default when a save predates
+      // this field).
+      ...applyTrackSettings(t.settings),
+      activeEffects: t.activeEffects,
+      midiClips: t.midiClips.map((c) => ({
+        id: c.id,
+        name: c.name,
+        startTick: c.startTick,
+        events: decodeMidiEvents(c.events),
+      })),
+      audioClips: t.audioClips.map((c) => ({
+        // Track-local clip id. The AudioBufferStore is keyed on this; bytes
+        // for this clip will be fetched + decoded asynchronously by the
+        // caller (loadCloudProjectAudio).
+        id: crypto.randomUUID(),
+        assetId: c.assetId,
+        startTick: c.startTick,
+        duration: c.duration,
+        offsetSeconds: c.offsetSeconds,
+        gain: c.gain,
+        fadeInTicks: c.fadeInTicks,
+        fadeOutTicks: c.fadeOutTicks,
+      })),
+      trackRole: guessTrackRole(t.name, t.instrument),
+    };
+  }) as unknown as ReturnType<typeof useStore.getState>['tracks'];
 
   // Ensure at least one MIDI track has monitoring ON for MIDI input to work
   const firstMidi = tracks.find((t) => t.type === 'midi');
@@ -512,6 +531,12 @@ export function deserializeSession(session: SessionData): void {
         events: decodeMidiEvents(c.events),
       };
     });
+
+    // Seed the per-track synth patch so the panel restores it on open and the
+    // engine is configured at instrument init.
+    if (t.instrument === 'oracle-synth' && t.settings?.oracleSynth) {
+      setTrackSynthState(t.id, t.settings.oracleSynth);
+    }
 
     return {
       ...t,

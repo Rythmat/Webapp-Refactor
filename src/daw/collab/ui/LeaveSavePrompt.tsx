@@ -9,7 +9,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut } from 'lucide-react';
 import { useStore } from '@/daw/store/index';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { saveCurrentProjectToCloud } from '@/lib/studio-projects/api';
+import {
+  saveCurrentProjectToCloud,
+  studioProjectsApi,
+} from '@/lib/studio-projects/api';
 import { resetToNewProject } from '@/lib/studio-projects/newProject';
 import { showError, showSuccess } from '@/components/utils/toast';
 import { useCollab } from '../CollabProvider';
@@ -31,6 +34,28 @@ export function LeaveSavePrompt() {
     // Reloads into a blank solo project (also resets leavePromptPending).
     resetToNewProject();
   }, [leaveRoom]);
+
+  // "Leave without saving": the session is being abandoned. Reclaim the
+  // auto-created draft project (minted on the first record-stop) along with the
+  // assets only it uses — the server keeps any asset another, saved project
+  // still references, so a collaborator who DID save is unaffected. Skip this if
+  // a save was made this session (the draft IS the saved project then).
+  const handleLeaveWithoutSaving = useCallback(async () => {
+    const { sessionSaved, projectId } = useStore.getState();
+    if (token && projectId && !sessionSaved) {
+      try {
+        await studioProjectsApi.remove(token, projectId);
+      } catch (err) {
+        // Best-effort cleanup — never block leaving on it. The hourly orphan
+        // cron is the backstop for anything left behind.
+        console.warn(
+          '[leave] failed to delete unsaved draft project',
+          err instanceof Error ? err.message : err,
+        );
+      }
+    }
+    finishLeave();
+  }, [token, finishLeave]);
 
   const handleSaveAndLeave = useCallback(async () => {
     if (!token) {
@@ -121,7 +146,7 @@ export function LeaveSavePrompt() {
                   {saving ? 'Saving…' : 'Save & Leave'}
                 </button>
                 <button
-                  onClick={finishLeave}
+                  onClick={() => void handleLeaveWithoutSaving()}
                   disabled={saving}
                   className="rounded-md py-2 text-xs font-medium transition-colors hover:bg-white/5 disabled:opacity-50"
                   style={{

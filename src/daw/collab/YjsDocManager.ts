@@ -125,6 +125,12 @@ export function audioClipToYMap(clip: AudioClip): Y.Map<unknown> {
   m.set('duration', clip.duration);
   m.set('fadeInTicks', clip.fadeInTicks);
   m.set('fadeOutTicks', clip.fadeOutTicks);
+  // assetId is required for peers to download & decode the audio bytes for
+  // playback (without it they only get a placeholder waveform). offsetSeconds
+  // and gain affect how the clip is rendered/played, so sync them too.
+  m.set('assetId', clip.assetId ?? null);
+  m.set('offsetSeconds', clip.offsetSeconds ?? 0);
+  m.set('gain', clip.gain ?? 1);
   return m;
 }
 
@@ -238,6 +244,9 @@ export function yMapToAudioClip(m: Y.Map<unknown>): AudioClip {
     duration: m.get('duration') as number,
     fadeInTicks: m.get('fadeInTicks') as number,
     fadeOutTicks: m.get('fadeOutTicks') as number,
+    assetId: (m.get('assetId') as string | null) ?? null,
+    offsetSeconds: (m.get('offsetSeconds') as number | undefined) ?? 0,
+    gain: (m.get('gain') as number | undefined) ?? 1,
   };
 }
 

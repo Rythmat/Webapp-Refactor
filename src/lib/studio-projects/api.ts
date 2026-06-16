@@ -1,6 +1,6 @@
 import SuperJSON from 'superjson';
 import { getCurrentAppSessionId } from '@/auth/app-session-store';
-import { showWarning } from '@/components/utils/toast';
+import { showError, showWarning } from '@/components/utils/toast';
 import { Env } from '@/constants/env';
 import {
   serializeSessionForCloud,
@@ -233,7 +233,7 @@ export async function saveCurrentProjectToCloud(
 ): Promise<StudioProjectDetail> {
   // Lazy import to avoid pulling the AudioBufferStore + WAV encoder into the
   // module graph for callers that don't need them (e.g. cmd-S handler binding).
-  const { uploadPendingAudioClips } = await import(
+  const { uploadPendingAudioClips, reconcileMissingAssets } = await import(
     '@/lib/studio-assets/upload-pending'
   );
 
@@ -246,6 +246,17 @@ export async function saveCurrentProjectToCloud(
     await uploadPendingAudioClips(token, projectId);
   }
 
+  // Close the collab race where a referenced asset was reclaimed by another
+  // participant leaving without saving: re-upload from this user's in-memory
+  // buffer where possible, and drop the references whose bytes are truly gone
+  // (alerted below) so they don't fail the save on a dangling reference.
+  const { unrecoverable } = await reconcileMissingAssets(token, projectId);
+  if (unrecoverable > 0) {
+    showError(
+      `${unrecoverable} audio recording(s) could no longer be found and were removed from the saved project.`,
+    );
+  }
+
   // Final write with the up-to-date payload (post-upload assetIds included).
   const result = await studioProjectsApi.update(
     token,
@@ -253,14 +264,22 @@ export async function saveCurrentProjectToCloud(
     serializeSessionForCloud(nameOverride),
   );
 
+  // In a collab session, record that a save happened so the leave flow won't
+  // reclaim this project as an "unsaved draft" (see LeaveSavePrompt).
+  if (useStore.getState().isCollabActive) {
+    useStore.getState()._markSessionSaved();
+  }
+
   // Any clip still missing an assetId here is one whose audio bytes are no
   // longer in memory (e.g. recorded before this build, or an upload that kept
   // failing) — it was just dropped from the saved project. Don't let that pass
-  // silently as a clean save.
-  const unsavedAudioClips = useStore
-    .getState()
-    .tracks.flatMap((t) => t.audioClips)
-    .filter((c) => !c.assetId).length;
+  // silently as a clean save. Exclude the reclaimed-asset clips already alerted
+  // above so we don't double-report them.
+  const unsavedAudioClips =
+    useStore
+      .getState()
+      .tracks.flatMap((t) => t.audioClips)
+      .filter((c) => !c.assetId).length - unrecoverable;
   if (unsavedAudioClips > 0) {
     showWarning(
       `${unsavedAudioClips} audio clip(s) could not be uploaded and were left out of the saved project.`,

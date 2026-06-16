@@ -1,6 +1,6 @@
 import { getAudioBuffer, getOriginalAudio } from '@/daw/audio/AudioBufferStore';
 import { useStore } from '@/daw/store';
-import { uploadAndFinalizeAsset } from './api';
+import { studioAssetsApi, uploadAndFinalizeAsset } from './api';
 import { audioBufferToOpusWebm, isOpusEncodingSupported } from './encode-opus';
 import { audioBufferToWav } from './encode-wav';
 
@@ -269,4 +269,97 @@ export async function uploadPendingAudioClips(
   }
 
   throw new PartialUploadError(succeededCount, failures.length, failures);
+}
+
+/**
+ * Reconcile clips whose referenced asset has gone missing on the server before a
+ * save. Closes the collab race where another participant left a session
+ * "without saving" and reclaimed an asset this user's clip still points at
+ * (see delete-project / LeaveSavePrompt).
+ *
+ * For each clip referencing a missing asset:
+ *   - if its decoded audio is still in this user's in-memory buffer (collab
+ *     peers download it to play it), RE-UPLOAD as a fresh asset and re-stamp the
+ *     clip — the save then round-trips cleanly.
+ *   - otherwise the bytes are unrecoverable: clear the clip's assetId so the
+ *     save drops it instead of failing, and count it so the caller can alert
+ *     the user that the resource can no longer be found.
+ *
+ * Best-effort: a status-check failure leaves the references untouched and lets
+ * the save proceed (the server's assertAudioAssetsReady is the backstop).
+ */
+export async function reconcileMissingAssets(
+  token: string,
+  projectId: string,
+): Promise<{ reuploaded: number; unrecoverable: number }> {
+  const referenced: { trackId: string; clipId: string; assetId: string }[] = [];
+  for (const track of useStore.getState().tracks) {
+    for (const clip of track.audioClips) {
+      if (clip.assetId) {
+        referenced.push({
+          trackId: track.id,
+          clipId: clip.id,
+          assetId: clip.assetId,
+        });
+      }
+    }
+  }
+  if (referenced.length === 0) return { reuploaded: 0, unrecoverable: 0 };
+
+  const assetIds = Array.from(new Set(referenced.map((r) => r.assetId)));
+
+  let missing: string[];
+  try {
+    ({ missing } = await studioAssetsApi.checkStatus(token, assetIds));
+  } catch (err) {
+    console.warn(
+      '[studio-assets] asset status check failed; skipping reconcile',
+      err,
+    );
+    return { reuploaded: 0, unrecoverable: 0 };
+  }
+  if (missing.length === 0) return { reuploaded: 0, unrecoverable: 0 };
+
+  const missingSet = new Set(missing);
+  let reuploaded = 0;
+  let unrecoverable = 0;
+
+  for (const { trackId, clipId, assetId } of referenced) {
+    if (!missingSet.has(assetId)) continue;
+
+    const buffer = getAudioBuffer(clipId);
+    if (!buffer) {
+      // No local bytes to re-upload — drop the dangling reference so the save
+      // succeeds without it; the caller alerts the user.
+      useStore.getState().updateAudioClip(trackId, clipId, { assetId: null });
+      unrecoverable++;
+      continue;
+    }
+
+    try {
+      const payload = await pickUploadPayload(clipId, buffer);
+      const asset = await uploadAndFinalizeAsset(token, {
+        projectId,
+        bytes: payload.bytes,
+        contentType: payload.contentType,
+        source: 'upload',
+        durationSeconds: buffer.duration,
+        sampleRate: buffer.sampleRate,
+        channels: buffer.numberOfChannels,
+      });
+      useStore
+        .getState()
+        .updateAudioClip(trackId, clipId, { assetId: asset.id });
+      reuploaded++;
+    } catch (err) {
+      console.error(
+        `[studio-assets] re-upload of missing asset for clip ${clipId} failed`,
+        err,
+      );
+      useStore.getState().updateAudioClip(trackId, clipId, { assetId: null });
+      unrecoverable++;
+    }
+  }
+
+  return { reuploaded, unrecoverable };
 }

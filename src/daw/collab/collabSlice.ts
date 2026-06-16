@@ -39,6 +39,11 @@ export interface CollabSlice {
   /** When true, a join is retrying because the host hasn't created the room yet
    *  (a jam→studio joiner beat the host to it). Drives the waiting popup. */
   awaitingSessionCreation: boolean;
+  /** True once the local user has saved this collab session to their account.
+   *  Gates the "delete the unsaved draft project on leave" cleanup — we only
+   *  reclaim the auto-created draft + its assets when NO save was made. Reset on
+   *  each room join. */
+  sessionSaved: boolean;
 
   // ── Chat ──
   chatMessages: ChatMessage[];
@@ -61,6 +66,8 @@ export interface CollabSlice {
   _setKickedNotice: (kicked: boolean) => void;
   /** Show/hide the "waiting on session creation" popup while a join retries. */
   _setAwaitingSession: (waiting: boolean) => void;
+  /** Record that the local user has saved this session (see sessionSaved). */
+  _markSessionSaved: () => void;
   /** Append a chat message (from local send or remote receive). */
   _appendChatMessage: (msg: ChatMessage) => void;
   /** Reset unread count (user opened chat panel). */
@@ -86,6 +93,7 @@ export const createCollabSlice: StateCreator<
   roomError: null,
   kickedNotice: false,
   awaitingSessionCreation: false,
+  sessionSaved: false,
   chatMessages: [],
   unreadChatCount: 0,
 
@@ -103,6 +111,8 @@ export const createCollabSlice: StateCreator<
       localRole: role,
       collabRole: role,
       roomCode: roomCode ?? null,
+      // Fresh session — no save has happened yet.
+      sessionSaved: false,
     }),
 
   _clearCollab: () =>
@@ -118,6 +128,7 @@ export const createCollabSlice: StateCreator<
       roomError: null,
       kickedNotice: false,
       awaitingSessionCreation: false,
+      sessionSaved: false,
       chatMessages: [],
       unreadChatCount: 0,
     }),
@@ -131,6 +142,8 @@ export const createCollabSlice: StateCreator<
   _setKickedNotice: (kicked) => set({ kickedNotice: kicked }),
 
   _setAwaitingSession: (waiting) => set({ awaitingSessionCreation: waiting }),
+
+  _markSessionSaved: () => set({ sessionSaved: true }),
 
   _appendChatMessage: (msg) =>
     set((s) => ({

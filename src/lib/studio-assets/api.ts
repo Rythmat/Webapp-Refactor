@@ -137,6 +137,19 @@ export const studioAssetsApi = {
 
   getUrl: (token: string, assetId: string) =>
     request<AssetDownloadUrl>(assetsPath(`/${assetId}/url`), { token }),
+
+  /**
+   * Report which of the given asset ids are unusable for a save — `missing` (no
+   * live row, e.g. reclaimed when a collaborator left without saving) or
+   * `notReady` (not finalized). Used by the save flow to reconcile dangling
+   * references before they fail the save.
+   */
+  checkStatus: (token: string, assetIds: string[]) =>
+    request<{ missing: string[]; notReady: string[] }>(assetsPath('/status'), {
+      token,
+      method: 'POST',
+      body: { assetIds },
+    }),
 };
 
 // ── Upload helper ────────────────────────────────────────────────────────

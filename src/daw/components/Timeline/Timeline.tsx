@@ -1565,10 +1565,16 @@ export function Timeline() {
       }
       const hit = hitTestClip(x, y);
       if (hit) {
+        // Audio clips have no piano-roll representation, so don't open the
+        // editor for them — double-clicking an audio clip is a no-op.
+        const state = useStore.getState();
+        const track = state.tracks.find((t) => t.id === hit.trackId);
+        const isAudioClip = track?.audioClips.some((c) => c.id === hit.clipId);
+        if (isAudioClip) return;
         // Open the piano roll for any MIDI clip, including drum-machine tracks.
         // Drum hits are MIDI notes, so they edit in the roll just like any other
         // MIDI clip (the drum machine remains available in the track controls).
-        useStore.getState().setEditingClip(hit.clipId, hit.trackId);
+        state.setEditingClip(hit.clipId, hit.trackId);
       }
     },
     [getCanvasCoords, getScrollTop, hitTestClip],

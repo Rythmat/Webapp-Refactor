@@ -304,6 +304,14 @@ function diffAudioClips(
       yClip.set('fadeInTicks', nextClip.fadeInTicks);
     if (prevClip.fadeOutTicks !== nextClip.fadeOutTicks)
       yClip.set('fadeOutTicks', nextClip.fadeOutTicks);
+    // assetId is stamped onto the clip after the recording's bytes finish
+    // uploading to GCS. Without syncing it, peers never learn the clip has a
+    // real asset and can't download/decode it for playback.
+    if (prevClip.assetId !== nextClip.assetId)
+      yClip.set('assetId', nextClip.assetId ?? null);
+    if (prevClip.offsetSeconds !== nextClip.offsetSeconds)
+      yClip.set('offsetSeconds', nextClip.offsetSeconds ?? 0);
+    if (prevClip.gain !== nextClip.gain) yClip.set('gain', nextClip.gain ?? 1);
   }
 }
 

@@ -47,7 +47,9 @@ function GameShell({ children }: { children: React.ReactNode }) {
       <div className="mb-4 pt-6">
         <BackToArcade />
       </div>
-      <div className="mx-auto w-full max-w-5xl">{children}</div>
+      <div className="mx-auto flex w-full min-h-0 max-w-5xl flex-1 flex-col">
+        {children}
+      </div>
     </div>
   );
 }
@@ -57,7 +59,7 @@ export function ChromaPage() {
     useArcadeStreakReward('chroma');
   return (
     <GameShell>
-      <div className="relative">
+      <div className="relative flex-1 min-h-0">
         <StreakTracker count={streak} target={target} />
         <Chroma onCorrect={registerCorrect} onWrong={registerWrong} />
       </div>

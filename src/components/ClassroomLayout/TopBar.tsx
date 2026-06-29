@@ -1,6 +1,6 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import type { FC } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useUISound } from '@/hooks/useUISound';
 import {
   AtlasRoutes,
@@ -10,6 +10,13 @@ import {
 } from '@/constants/routes';
 import { useExperienceSummary } from '@/hooks/data/experience';
 import { UserWidget } from '@/layouts/DashboardLayout/UserWidget';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { cn } from '@/components/utilities';
 
 const Icon: FC<{ src: string; className?: string }> = ({
   src,
@@ -42,8 +49,17 @@ const NAV_ITEMS = [
 
 export const TopBar: FC = () => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { data: xpSummary } = useExperienceSummary();
   const { play } = useUISound();
+
+  // A nav item is active when the current URL is in its section. Home ('/') is
+  // an exact match; the others also match nested routes (e.g. '/arcade/jam'
+  // → Arcade, '/learn/major/scales' → Learn).
+  const isRouteActive = (route: string) =>
+    route === '/'
+      ? pathname === '/'
+      : pathname === route || pathname.startsWith(`${route}/`);
 
   const xp = xpSummary?.totalExperience ?? 0;
   const level = xpSummary?.level ?? 1;
@@ -53,24 +69,48 @@ export const TopBar: FC = () => {
   return (
     <header className="h-[100px] flex items-center justify-between px-4 sm:px-6 lg:px-8 flex-shrink-0 z-20 max-w-full overflow-hidden">
       {/* Left: 5 nav icons */}
-      <nav className="flex items-center gap-3">
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.label}
-            onClick={() => {
-              play('click');
-              navigate(item.route);
-            }}
-            aria-label={item.label}
-            className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center rounded-md transition-colors hover:bg-white/5"
-          >
-            <Icon
-              src={item.icon}
-              className="w-6 h-6 lg:w-8 lg:h-8 opacity-90"
-            />
-          </button>
-        ))}
-      </nav>
+      <TooltipProvider delayDuration={150}>
+        <nav className="flex items-center gap-3">
+          {NAV_ITEMS.map((item) => {
+            const active = isRouteActive(item.route);
+            return (
+              <Tooltip key={item.label}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => {
+                      play('click');
+                      navigate(item.route);
+                    }}
+                    aria-label={item.label}
+                    aria-current={active ? 'page' : undefined}
+                    className={cn(
+                      'w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center rounded-md transition-colors',
+                      active
+                        ? 'bg-white/10 ring-1 ring-white/15'
+                        : 'hover:bg-white/5',
+                    )}
+                  >
+                    <Icon
+                      src={item.icon}
+                      className={cn(
+                        'w-6 h-6 lg:w-8 lg:h-8',
+                        active ? 'opacity-100' : 'opacity-90',
+                      )}
+                    />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  sideOffset={8}
+                  className="bg-black/20 backdrop-blur-2xl border border-white/[0.08] text-white shadow-2xl"
+                >
+                  {item.label}
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </nav>
+      </TooltipProvider>
 
       {/* Right: stats + user */}
       <div

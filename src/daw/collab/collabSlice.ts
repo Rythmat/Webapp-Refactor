@@ -28,9 +28,22 @@ export interface CollabSlice {
   localRole: CollabRole;
   collabRole: CollabRole;
 
-  // ── Transport sync ──
-  /** When true, this client follows remote transport commands. */
-  transportLinked: boolean;
+  // ── Leave flow ──
+  /** When true, the "save project before leaving?" prompt is shown. Set when
+   *  the local user clicks Leave, or when the host disconnects. */
+  leavePromptPending: boolean;
+  /** Error shown when a Join-by-id attempt targets a room that does not exist. */
+  roomError: string | null;
+  /** When true, the "you were kicked" popup is shown. */
+  kickedNotice: boolean;
+  /** When true, a join is retrying because the host hasn't created the room yet
+   *  (a jam→studio joiner beat the host to it). Drives the waiting popup. */
+  awaitingSessionCreation: boolean;
+  /** True once the local user has saved this collab session to their account.
+   *  Gates the "delete the unsaved draft project on leave" cleanup — we only
+   *  reclaim the auto-created draft + its assets when NO save was made. Reset on
+   *  each room join. */
+  sessionSaved: boolean;
 
   // ── Chat ──
   chatMessages: ChatMessage[];
@@ -45,8 +58,16 @@ export interface CollabSlice {
   _clearCollab: () => void;
   /** Called by the presence observer when remote awareness changes. */
   _setRemoteUsers: (users: Map<number, UserPresence>) => void;
-  /** Toggle transport linking on/off. */
-  setTransportLinked: (linked: boolean) => void;
+  /** Open/close the save-before-leaving prompt. */
+  _setLeavePrompt: (pending: boolean) => void;
+  /** Set/clear the Join-room error message. */
+  _setRoomError: (error: string | null) => void;
+  /** Show/hide the "you were kicked from the session" popup. */
+  _setKickedNotice: (kicked: boolean) => void;
+  /** Show/hide the "waiting on session creation" popup while a join retries. */
+  _setAwaitingSession: (waiting: boolean) => void;
+  /** Record that the local user has saved this session (see sessionSaved). */
+  _markSessionSaved: () => void;
   /** Append a chat message (from local send or remote receive). */
   _appendChatMessage: (msg: ChatMessage) => void;
   /** Reset unread count (user opened chat panel). */
@@ -68,7 +89,11 @@ export const createCollabSlice: StateCreator<
   remoteUsers: new Map(),
   localRole: 'editor',
   collabRole: 'editor',
-  transportLinked: true,
+  leavePromptPending: false,
+  roomError: null,
+  kickedNotice: false,
+  awaitingSessionCreation: false,
+  sessionSaved: false,
   chatMessages: [],
   unreadChatCount: 0,
 
@@ -76,6 +101,8 @@ export const createCollabSlice: StateCreator<
     set({
       connectionStatus: status,
       isCollabActive: status === 'connected',
+      // A successful connect resolves any pending "waiting for host" retry.
+      ...(status === 'connected' ? { awaitingSessionCreation: false } : {}),
     }),
 
   _setRoomInfo: (roomId, role, roomCode) =>
@@ -84,6 +111,8 @@ export const createCollabSlice: StateCreator<
       localRole: role,
       collabRole: role,
       roomCode: roomCode ?? null,
+      // Fresh session — no save has happened yet.
+      sessionSaved: false,
     }),
 
   _clearCollab: () =>
@@ -95,13 +124,26 @@ export const createCollabSlice: StateCreator<
       remoteUsers: new Map(),
       localRole: 'editor',
       collabRole: 'editor',
+      leavePromptPending: false,
+      roomError: null,
+      kickedNotice: false,
+      awaitingSessionCreation: false,
+      sessionSaved: false,
       chatMessages: [],
       unreadChatCount: 0,
     }),
 
   _setRemoteUsers: (users) => set({ remoteUsers: users }),
 
-  setTransportLinked: (linked) => set({ transportLinked: linked }),
+  _setLeavePrompt: (pending) => set({ leavePromptPending: pending }),
+
+  _setRoomError: (error) => set({ roomError: error }),
+
+  _setKickedNotice: (kicked) => set({ kickedNotice: kicked }),
+
+  _setAwaitingSession: (waiting) => set({ awaitingSessionCreation: waiting }),
+
+  _markSessionSaved: () => set({ sessionSaved: true }),
 
   _appendChatMessage: (msg) =>
     set((s) => ({

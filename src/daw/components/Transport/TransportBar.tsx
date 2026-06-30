@@ -12,7 +12,6 @@ import {
   Repeat,
   Library,
   Magnet,
-  Palette,
   Lock,
   Unlock,
   Hash,
@@ -25,10 +24,13 @@ import { ALL_GRID_VALUES } from '@/daw/utils/quantize';
 import { FileMenu } from './FileMenu';
 import { CircleOfFifths } from '../Prism/CircleOfFifths';
 import { RainbowBorderButton } from '@/components/ui/rainbow-borders-button';
-import { THEME_ORDER, THEME_LABELS } from '@/daw/constants/themes';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
+import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
 import { InviteNotificationBell } from '@/daw/collab/ui/InviteNotificationBell';
-import { TransportLinkToggle } from '@/daw/collab/ui/TransportLinkToggle';
+import { LeaveSavePrompt } from '@/daw/collab/ui/LeaveSavePrompt';
+import { KickedModal } from '@/daw/collab/ui/KickedModal';
+import { WaitingForSessionModal } from '@/daw/collab/ui/WaitingForSessionModal';
 
 // ── View Switcher ───────────────────────────────────────────────────────
 
@@ -168,12 +170,14 @@ export const TransportBar = memo(function TransportBar({
   const toggleUserList = useStore((s) => s.toggleUserList);
   const chatPanelOpen = useStore((s) => s.chatPanelOpen);
   const toggleChatPanel = useStore((s) => s.toggleChatPanel);
-  const theme = useStore((s) => s.theme);
-  const setTheme = useStore((s) => s.setTheme);
   const settingsOpen = useStore((s) => s.settingsOpen);
   const setSettingsOpen = useStore((s) => s.setSettingsOpen);
   const projectName = useStore((s) => s.projectName);
   const setProjectName = useStore((s) => s.setProjectName);
+  // In a collab session only the host may rename the (shared) project.
+  const canEditName = useStore(
+    (s) => !s.isCollabActive || s.collabRole === 'owner',
+  );
 
   const withInit = useCallback(
     (action: () => void) => {
@@ -247,7 +251,23 @@ export const TransportBar = memo(function TransportBar({
     () => withInit(isPlaying ? pause : play),
     [withInit, isPlaying, pause, play],
   );
-  const handleRecord = useCallback(() => withInit(record), [withInit, record]);
+  // Recording onto an audio track that already has a take overwrites whatever
+  // the new take rolls over in time — warn before starting.
+  const [overwriteConfirmOpen, setOverwriteConfirmOpen] = useState(false);
+  const startRecording = useCallback(
+    () => withInit(record),
+    [withInit, record],
+  );
+  const handleRecord = useCallback(() => {
+    const armedAudio = useStore
+      .getState()
+      .tracks.find((t) => t.type === 'audio' && t.recordArmed);
+    if (armedAudio && armedAudio.audioClips.length > 0) {
+      setOverwriteConfirmOpen(true);
+      return;
+    }
+    startRecording();
+  }, [startRecording]);
 
   // Local state so the user can freely clear / type without the controlled
   // value snapping back on every keystroke.
@@ -336,7 +356,7 @@ export const TransportBar = memo(function TransportBar({
         {/* File menu */}
         <FileMenu />
 
-        {/* Project name */}
+        {/* Project name (read-only for non-host collaborators) */}
         <input
           type="text"
           value={projectNameInput}
@@ -348,9 +368,18 @@ export const TransportBar = memo(function TransportBar({
               (e.target as HTMLInputElement).blur();
             }
           }}
-          className="h-5 max-w-[140px] rounded border border-transparent bg-transparent px-1.5 text-[11px] font-medium outline-none transition-colors hover:border-white/10 focus:border-white/20 focus:ring-1"
+          readOnly={!canEditName}
+          className={`h-5 max-w-[140px] rounded border border-transparent bg-transparent px-1.5 text-[11px] font-medium outline-none transition-colors ${
+            canEditName
+              ? 'hover:border-white/10 focus:border-white/20 focus:ring-1'
+              : 'cursor-default'
+          }`}
           style={{ color: 'var(--color-text)' }}
-          title="Project name (click to edit)"
+          title={
+            canEditName
+              ? 'Project name (click to edit)'
+              : 'Only the host can rename the project'
+          }
         />
 
         {/* Root Note selector */}
@@ -379,7 +408,9 @@ export const TransportBar = memo(function TransportBar({
           }}
           title="Key"
         >
-          {rootNote !== null ? `Key: ${NOTES[rootNote]}` : 'Key'}
+          {rootNote !== null
+            ? `Key: ${displayAccidentals(NOTES[rootNote])}`
+            : 'Key'}
         </RainbowBorderButton>
         {keyOpen &&
           createPortal(
@@ -830,25 +861,8 @@ export const TransportBar = memo(function TransportBar({
             style={{ backgroundColor: 'var(--color-border)' }}
           />
 
-          {/* Theme cycle */}
-          <motion.button
-            onClick={() => {
-              const idx = THEME_ORDER.indexOf(theme);
-              setTheme(THEME_ORDER[(idx + 1) % THEME_ORDER.length]);
-            }}
-            whileTap={{ scale: 0.85 }}
-            className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5"
-            style={{ color: 'var(--color-accent)' }}
-            title={`Theme: ${THEME_LABELS[theme]}`}
-          >
-            <Palette size={13} strokeWidth={2} />
-          </motion.button>
-
           {/* Collab invite notifications */}
           <InviteNotificationBell />
-
-          {/* Transport link (collab only) */}
-          <TransportLinkToggle />
 
           {/* Collaboration */}
           <CollabToolbar
@@ -857,6 +871,15 @@ export const TransportBar = memo(function TransportBar({
             onToggleChatPanel={toggleChatPanel}
             chatPanelOpen={chatPanelOpen}
           />
+
+          {/* Save-before-leaving prompt (collab) */}
+          <LeaveSavePrompt />
+
+          {/* "You have been kicked" popup (collab) */}
+          <KickedModal />
+
+          {/* "Waiting on session creation" popup (jam→studio handoff) */}
+          <WaitingForSessionModal />
 
           {/* Library toggle */}
           <motion.button
@@ -893,30 +916,98 @@ export const TransportBar = memo(function TransportBar({
           </motion.button>
         </div>
       </div>
+
+      <ConfirmModal
+        open={overwriteConfirmOpen}
+        onOpenChange={setOverwriteConfirmOpen}
+        title="Overwrite existing recording?"
+        description="This track already has a recording. Starting a new recording will overwrite any audio it rolls over in time."
+        confirmLabel="Continue"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={startRecording}
+      />
     </div>
   );
 });
 
 // ── Inline SVG Components ────────────────────────────────────────────────
 
+// Tracks the current metronome beat index while a click sequence is sounding
+// (playback with the metronome on, or a count-in). The parity of the returned
+// index drives which circle the icon fills. Returns 0 (left) when idle.
+function useMetronomeBeat(animating: boolean): number {
+  const [beat, setBeat] = useState(0);
+  useEffect(() => {
+    if (!animating) {
+      setBeat(0);
+      return;
+    }
+    let raf = 0;
+    let countInStart: number | null = null;
+    let startBeat: number | null = null;
+    const tick = () => {
+      const s = useStore.getState();
+      const den = s.timeSignatureDenominator;
+      // Beat length matches the metronome/count-in scheduling: eighth-note
+      // meters click twice as fast, half-note meters half as fast.
+      const beatTicks = den === 8 ? 240 : den === 2 ? 960 : 480;
+      const beatMs = (60 / s.bpm) * (4 / den) * 1000;
+      let next: number;
+      if (s.isCountingIn) {
+        // Transport is paused during count-in — derive beats from elapsed time.
+        if (countInStart === null) countInStart = performance.now();
+        next = Math.floor((performance.now() - countInStart) / beatMs);
+      } else {
+        // Playing — derive from the audio-synced playhead, offset so the first
+        // beat after playback starts fills the left circle.
+        const absBeat = Math.floor(s.position / beatTicks);
+        if (startBeat === null) startBeat = absBeat;
+        next = absBeat - startBeat;
+      }
+      setBeat((prev) => (prev === next ? prev : next));
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [animating]);
+  return beat;
+}
+
 function MetronomeIcon({ active }: { active: boolean }) {
+  const isPlaying = useStore((s) => s.isPlaying);
+  const isCountingIn = useStore((s) => s.isCountingIn);
+  // A click sequence is sounding during a count-in, or during playback while
+  // the metronome is enabled.
+  const animating = isCountingIn || (isPlaying && active);
+  const beat = useMetronomeBeat(animating);
+
+  // Sounding → fill one circle, alternating each beat (left first). Idle + on →
+  // both filled. Off → both outlined.
+  const leftFilled = animating ? beat % 2 === 0 : active;
+  const rightFilled = animating ? beat % 2 !== 0 : active;
+
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
       <circle
         cx="4"
         cy="7"
         r="2.5"
-        fill={active ? 'currentColor' : 'none'}
+        fill="currentColor"
+        fillOpacity={leftFilled ? 1 : 0}
         stroke="currentColor"
         strokeWidth="1.5"
+        style={{ transition: 'fill-opacity 90ms ease-out' }}
       />
       <circle
         cx="10"
         cy="7"
         r="2.5"
         fill="currentColor"
+        fillOpacity={rightFilled ? 1 : 0}
         stroke="currentColor"
         strokeWidth="1.5"
+        style={{ transition: 'fill-opacity 90ms ease-out' }}
       />
     </svg>
   );

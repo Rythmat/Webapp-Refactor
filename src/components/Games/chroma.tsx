@@ -6,9 +6,12 @@ import {
   useCallback,
 } from 'react';
 import {
-  startPianoSampler,
-  triggerPianoAttackRelease,
-} from '@/audio/pianoSampler';
+  initJamSynth,
+  jamNoteOn,
+  jamNoteOff,
+  jamProgramChange,
+  getLocalChannel,
+} from '@/components/JamRoom/jamSoundFont';
 import { useStore } from '@/daw/store';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -91,20 +94,58 @@ function wait(ms: number) {
   return new Promise<void>((r) => setTimeout(r, ms));
 }
 
+// ── Crystal soundfont (shared Jam Room SpessaSynth) ──────────────────────────
+// Chroma always plays through the GM "Crystal" instrument. This is fixed — the
+// player cannot change it.
+const CRYSTAL_PROGRAM = 98; // GM program: "FX 3 (crystal)"
+const CRYSTAL_CHANNEL = getLocalChannel();
+const MIDI_C4 = 60; // CHROMATIC_NOTES[0] ('C') at octave 4
+
+/** Initialise the shared synth and lock its channel to the Crystal instrument. */
+async function ensureCrystalSynth() {
+  await initJamSynth();
+  // Re-assert Crystal on every start in case another feature touched the channel.
+  jamProgramChange(CRYSTAL_CHANNEL, CRYSTAL_PROGRAM);
+}
+
+/** Play one note `offset` semitones above C4 for `durationS` seconds. */
+function playCrystalNote(
+  offset: number,
+  durationS: number,
+  velocity01: number,
+) {
+  const midi = MIDI_C4 + offset;
+  const velocity = Math.round(Math.max(0, Math.min(1, velocity01)) * 127);
+  jamNoteOn(CRYSTAL_CHANNEL, midi, velocity);
+  window.setTimeout(
+    () => jamNoteOff(CRYSTAL_CHANNEL, midi),
+    Math.max(0, durationS) * 1000,
+  );
+}
+
+// Notes are stored as ABSOLUTE semitone offsets from C (root in 0–11, later
+// notes as root + interval, which may exceed 11 / span into higher octaves).
+// Use `% 12` whenever a pitch class is needed (note name, interval-from-root).
 function generateSequence(difficulty: Difficulty): number[] {
   const root = Math.floor(Math.random() * 12);
   const extra = DIFF[difficulty].extraNotes();
-  const notes = [root];
+
+  // Pick an interval (semitones above the root) for each extra note...
+  const intervals: number[] = [];
   for (let i = 0; i < extra; i++) {
-    const interval =
+    intervals.push(
       difficulty === 'easy'
         ? EASY_SEMITONE_SET[
             Math.floor(Math.random() * EASY_SEMITONE_SET.length)
           ]
-        : 1 + Math.floor(Math.random() * 11);
-    notes.push((root + interval) % 12);
+        : 1 + Math.floor(Math.random() * 11),
+    );
   }
-  return notes;
+
+  // ...then sort ascending and keep them as absolute offsets above the root so
+  // the sequence only ever rises in pitch through time (never wraps downward).
+  intervals.sort((a, b) => a - b);
+  return [root, ...intervals.map((interval) => root + interval)];
 }
 
 // ── Crystal SVG ───────────────────────────────────────────────────────────────
@@ -358,7 +399,12 @@ function IntervalButtons({
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function Chroma() {
+export type ChromaProps = {
+  onCorrect?: () => void;
+  onWrong?: () => void;
+};
+
+export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
   const setRootNote = useStore((s) => s.setRootNote);
 
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
@@ -391,14 +437,10 @@ export default function Chroma() {
   // ── Sequence playback ───────────────────────────────────────────────────
 
   const playSeq = useCallback(async (seq: number[]) => {
-    await startPianoSampler();
+    await ensureCrystalSynth();
     for (let i = 0; i < seq.length; i++) {
       setPlayingIdx(i);
-      await triggerPianoAttackRelease(
-        CHROMATIC_NOTES[seq[i]] + '4',
-        NOTE_DURATION_S,
-        0.85,
-      );
+      playCrystalNote(seq[i], NOTE_DURATION_S, 0.85);
       await wait(NOTE_GAP_MS);
     }
     setPlayingIdx(null);
@@ -417,15 +459,13 @@ export default function Chroma() {
       const targetNote = seq[idx];
       const expectedInterval = (((targetNote - root) % 12) + 12) % 12;
 
-      // Play audio for the chosen interval
-      const chosenNote = (root + chosenInterval) % 12;
-      triggerPianoAttackRelease(
-        CHROMATIC_NOTES[chosenNote] + '4',
-        NOTE_DURATION_S,
-        0.75,
-      );
+      // Play audio for the chosen interval (absolute offset above the root, so
+      // it sounds at the same octave as the sequence note it answers).
+      const chosenNote = root + chosenInterval;
+      playCrystalNote(chosenNote, NOTE_DURATION_S, 0.75);
 
       if (chosenInterval !== expectedInterval) {
+        onWrong?.();
         // Wrong interval — immediate feedback
         const remaining = attemptsRef.current - 1;
         attemptsRef.current = remaining;
@@ -448,6 +488,7 @@ export default function Chroma() {
         await playSeq(sequenceRef.current);
         sp('input');
       } else {
+        onCorrect?.();
         const newInput = [...userInputRef.current, chosenInterval];
         userInputRef.current = newInput;
         setUserInput([...newInput]);
@@ -459,7 +500,7 @@ export default function Chroma() {
         }
       }
     },
-    [sp, playSeq],
+    [sp, playSeq, onCorrect, onWrong],
   );
 
   // ── Start ───────────────────────────────────────────────────────────────
@@ -516,7 +557,9 @@ export default function Chroma() {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        height: '100%',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
         backgroundColor: 'var(--color-bg, #0f0f17)',
         color: 'var(--color-text, #e2e8f0)',
         display: 'flex',
@@ -629,7 +672,7 @@ export default function Chroma() {
                     phase === 'playing'
                       ? undefined
                       : isFilled
-                        ? CHROMATIC_NOTES[note]
+                        ? CHROMATIC_NOTES[note % 12]
                         : undefined
                   }
                   active={playingIdx === i + 1 || isNext}
@@ -803,7 +846,7 @@ export default function Chroma() {
                       letterSpacing: 0.5,
                     }}
                   >
-                    {CHROMATIC_NOTES[note]}
+                    {intervalLabel}
                   </span>
                   <span
                     style={{
@@ -811,7 +854,7 @@ export default function Chroma() {
                       color: 'rgba(252,165,165,0.7)',
                     }}
                   >
-                    {intervalLabel}
+                    in {CHROMATIC_NOTES[note % 12]}
                   </span>
                 </div>
               );

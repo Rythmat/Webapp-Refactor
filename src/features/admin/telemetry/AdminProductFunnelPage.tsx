@@ -22,13 +22,13 @@ import {
 import { useAdminProductFunnel } from '@/hooks/data/admin/useAdminTelemetry';
 import {
   TimeRangeSelect,
-  timeRangeToParams,
+  useTimeRangeParams,
   type TimeRange,
 } from './components/TimeRangeSelect';
 
 export const AdminProductFunnelPage = () => {
   const [range, setRange] = useState<TimeRange>('7d');
-  const params = timeRangeToParams(range);
+  const params = useTimeRangeParams(range);
   const { data, isLoading } = useAdminProductFunnel(params);
 
   const learningFunnelData = data

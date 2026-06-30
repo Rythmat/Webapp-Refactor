@@ -198,7 +198,11 @@ export function unpitchedChordName(unpitchedChord: number[]): string {
  * name like "1 major", "b3 dominant7", "#4 diminished".
  */
 export function steppedChord(pitchedChord: number[], root: number): string {
-  const diff = pitchedChord[0] - root;
+  // Wrap to a positive 0..11 semitone interval. Scale degrees are an
+  // octave-equivalent concept, so callers that pass MIDI notes anchored to
+  // a different octave than `root` (e.g. the Song Chart's chord-popup,
+  // which always voices chords in C4) still resolve to the right degree.
+  const diff = (((pitchedChord[0] - root) % 12) + 12) % 12;
   const degs = MODES.ionian;
   let degree = -1;
   let flat = false;

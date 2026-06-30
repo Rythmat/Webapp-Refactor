@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
-import { tickToPixel } from '@/daw/utils/timelineScale';
 
 // ── seekTo ──────────────────────────────────────────────────────────────
 // Seek playhead to a specific tick position. Syncs both Tone.Transport and
@@ -76,21 +75,10 @@ export function useTransport() {
         const state = useStore.getState();
         // Skip if position hasn't actually changed
         if (ticks !== state.position) {
+          // Advance the playhead only — the view intentionally does NOT follow
+          // it, so the user can scroll/navigate the timeline freely while audio
+          // is playing.
           setPosition(ticks);
-
-          // Auto-scroll: keep playhead visible during playback
-          const zoom = state.timelineZoom;
-          const sl = state.timelineScrollLeft;
-          const playheadPx = tickToPixel(ticks, zoom, sl);
-          // Estimate viewport width from scroll constraints
-          const viewportWidth = 800; // reasonable fallback
-          if (playheadPx > viewportWidth * 0.85) {
-            state.setTimelineScrollLeft(sl + viewportWidth * 0.7);
-          } else if (playheadPx < 0) {
-            // Playhead scrolled off left (e.g. loop jumped back)
-            const newSl = tickToPixel(ticks, zoom, 0) - viewportWidth * 0.15;
-            state.setTimelineScrollLeft(Math.max(0, newSl));
-          }
         }
         lastUpdate = now;
       }

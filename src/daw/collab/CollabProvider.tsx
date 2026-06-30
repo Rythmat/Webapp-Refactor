@@ -25,6 +25,7 @@ import {
   getOrCreateDoc,
   destroyDoc,
   hydrateDocFromStore,
+  getYChat,
 } from './YjsDocManager';
 import { ZustandYjsBridge } from './ZustandYjsBridge';
 import { setBridge } from './collabMiddleware';
@@ -34,21 +35,21 @@ import {
   type CollabRole,
   type UserPresence,
   type TransportCommand,
+  type ChatMessage,
 } from './types';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import {
-  createRoom as apiCreateRoom,
-  closeRoom as apiCloseRoom,
-  type RoomResponse,
-} from './roomManager';
+import { toast } from '@/hooks/use-toast';
+import { studioRealtime, isStudioMessage } from './studioRealtime';
 
 // ── Context ─────────────────────────────────────────────────────────────
 
 interface CollabContextValue {
-  /** Create a new room via the API and join it as owner. */
-  createAndJoinRoom: (projectName: string) => Promise<RoomResponse>;
+  /** Create an ephemeral room (client-generated id) and join it as host. */
+  createAndJoinRoom: () => void;
   /** Join an existing room by ID. */
   joinRoomById: (roomId: string, role?: CollabRole) => void;
+  /** Join by ID as an editor, retrying until the host creates the room. */
+  joinRoomAwaitingHost: (roomId: string) => void;
   /** Join using pre-fetched room info (partykitHost + partykitRoom). */
   joinRoom: (
     roomId: string,
@@ -63,16 +64,23 @@ interface CollabContextValue {
   sendTransportCommand: (
     cmd: Omit<TransportCommand, 'serverTimestamp' | 'userId'>,
   ) => void;
+  /** Send a chat message to the room (synced + persisted via the Yjs doc). */
+  sendChatMessage: (text: string) => void;
+  /** Host-only: remove a user from the room and block them from rejoining. */
+  kickUser: (userId: string) => void;
   /** The Yjs awareness instance (for presence). Null if not connected. */
   awareness: Awareness | null;
 }
 
 const CollabContext = createContext<CollabContextValue>({
-  createAndJoinRoom: () => Promise.reject(new Error('No CollabProvider')),
-  joinRoomById: () => Promise.reject(new Error('No CollabProvider')),
+  createAndJoinRoom: () => {},
+  joinRoomById: () => {},
+  joinRoomAwaitingHost: () => {},
   joinRoom: () => {},
   leaveRoom: () => {},
   sendTransportCommand: () => {},
+  sendChatMessage: () => {},
+  kickUser: () => {},
   awareness: null,
 });
 
@@ -84,6 +92,12 @@ export function useCollab() {
 
 const DEFAULT_PARTYKIT_HOST =
   Env.get('VITE_PARTYKIT_HOST', { nullable: true }) ?? 'localhost:1999';
+
+// When a jam→studio joiner arrives before the host has created the room, keep
+// retrying the join (the room appears the moment the host connects) for up to
+// this long before surfacing a "room not active" error.
+const AWAIT_HOST_TIMEOUT_MS = 20_000;
+const AWAIT_HOST_RETRY_MS = 1_000;
 
 interface CollabProviderProps {
   children: ReactNode;
@@ -97,6 +111,16 @@ export function CollabProvider({ children }: CollabProviderProps) {
   const awarenessRef = useRef<Awareness | null>(null);
   const docRef = useRef<Y.Doc | null>(null);
   const currentRoomIdRef = useRef<string | null>(null);
+  const chatUnobserveRef = useRef<(() => void) | null>(null);
+  // Points at leaveRoom so the (stable) message handler can tear down on kick.
+  const leaveRoomRef = useRef<() => void>(() => {});
+  // "Waiting for host" retry state: whether the current join should retry on
+  // room:not-found, the deadline to stop, the pending retry timer, and a
+  // closure that re-runs the same join.
+  const awaitHostRef = useRef(false);
+  const awaitDeadlineRef = useRef(0);
+  const retryTimerRef = useRef<number | null>(null);
+  const rejoinRef = useRef<() => void>(() => {});
 
   // ── Transport + room:closing message handler ──────────────────────────
 
@@ -106,32 +130,68 @@ export function CollabProvider({ children }: CollabProviderProps) {
       const data = JSON.parse(event.data);
 
       if (data.type === 'room:closing') {
-        // Host disconnected — tear down the session
-        useStore.getState()._setConnectionStatus('disconnected');
+        // Host disconnected. Remaining (non-owner) users are offered the chance
+        // to save the project to their own account before the session ends.
+        const store = useStore.getState();
+        store._setConnectionStatus('disconnected');
+        if (store.collabRole !== 'owner') store._setLeavePrompt(true);
         return;
       }
 
-      if (data.type === 'transport') {
-        const store = useStore.getState();
-        if (!store.transportLinked) return;
-
-        const cmd = data as TransportCommand;
-        switch (cmd.action) {
-          case 'play':
-            store.setPosition(cmd.tick ?? 0);
-            store.play();
-            break;
-          case 'pause':
-            store.pause();
-            break;
-          case 'stop':
-            store.stop();
-            break;
-          case 'seek':
-            if (cmd.tick !== undefined) store.setPosition(cmd.tick);
-            break;
+      if (data.type === 'room:not-found') {
+        // A jam→studio joiner can arrive before the host has registered the
+        // room. Keep retrying until the host shows up or the deadline passes.
+        if (awaitHostRef.current && Date.now() < awaitDeadlineRef.current) {
+          if (retryTimerRef.current !== null) {
+            clearTimeout(retryTimerRef.current);
+          }
+          retryTimerRef.current = window.setTimeout(() => {
+            retryTimerRef.current = null;
+            rejoinRef.current();
+          }, AWAIT_HOST_RETRY_MS);
+          return;
         }
+        // Join-by-id targeted a room with no active host, or a room the user
+        // has been kicked from (the server rejects banned users up front).
+        awaitHostRef.current = false;
+        useStore.getState()._setAwaitingSession(false);
+        useStore
+          .getState()
+          ._setRoomError(
+            'That room is not active. Check the room id and try again.',
+          );
+        return;
       }
+
+      if (data.type === 'room:full') {
+        // The room is at capacity (MAX_ROOM_USERS). Stop any await-host retry
+        // loop and surface a clear message; the project stays loaded locally.
+        awaitHostRef.current = false;
+        useStore.getState()._setAwaitingSession(false);
+        useStore
+          .getState()
+          ._setRoomError('This room is full (max 5 collaborators).');
+        return;
+      }
+
+      if (data.type === 'kicked') {
+        // The host removed us (or we tried to rejoin after being kicked). Tear
+        // down the session — the project stays loaded, so the user lands in a
+        // local studio — and show the "you were kicked" popup. The notice is set
+        // AFTER leaveRoom (which clears collab state) so it survives.
+        leaveRoomRef.current();
+        useStore.getState()._setKickedNotice(true);
+        return;
+      }
+
+      // Studio live monitoring: live MIDI notes + WebRTC signaling from peers.
+      if (isStudioMessage(data)) {
+        studioRealtime.dispatch(data);
+        return;
+      }
+
+      // Transport commands are intentionally ignored: in a collab session each
+      // user runs an independent transport and hears only their own playback.
     } catch {
       // Ignore non-JSON or malformed messages
     }
@@ -140,11 +200,21 @@ export function CollabProvider({ children }: CollabProviderProps) {
   // ── Teardown ─────────────────────────────────────────────────────────
 
   const teardown = useCallback(() => {
+    if (retryTimerRef.current !== null) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+
     bridgeRef.current?.destroy();
     bridgeRef.current = null;
     setBridge(null);
 
     destroyCollabUndo();
+
+    chatUnobserveRef.current?.();
+    chatUnobserveRef.current = null;
+
+    studioRealtime.setSender(null);
 
     providerRef.current?.destroy();
     providerRef.current = null;
@@ -157,6 +227,17 @@ export function CollabProvider({ children }: CollabProviderProps) {
     destroyDoc();
     docRef.current = null;
     currentRoomIdRef.current = null;
+
+    // Drop live-connection state — peers and status — so a torn-down session
+    // never shows a frozen "still in the room" snapshot. The room IDENTITY
+    // (roomId/roomCode/role) is left intact on purpose: when the studio route
+    // unmounts on an SPA back/forward, this lets the remount tell "we were in a
+    // room and got navigated away" apart from "we never joined" and rejoin. A
+    // real departure (leaveRoom / kick) follows teardown with _clearCollab,
+    // which wipes the identity too so no rejoin is attempted.
+    const store = useStore.getState();
+    store._setRemoteUsers(new Map());
+    store._setConnectionStatus('disconnected');
   }, []);
 
   // ── Core join (connects to PartyKit given host + room) ──────────────
@@ -173,19 +254,43 @@ export function CollabProvider({ children }: CollabProviderProps) {
       teardown();
 
       const host = partykitHost ?? DEFAULT_PARTYKIT_HOST;
-      const pkRoom = partykitRoom ?? roomId;
+      // Mirror the jam room's naming so every entry point lands on the same
+      // ephemeral PartyKit room: `studio-${id}`.
+      const pkRoom = partykitRoom ?? `studio-${roomId}`;
 
       const doc = getOrCreateDoc();
       docRef.current = doc;
       currentRoomIdRef.current = roomId;
 
-      // Hydrate the Yjs doc from the current Zustand state (first write)
-      const currentState = useStore.getState();
-      hydrateDocFromStore(doc, currentState);
+      // Only the room creator seeds the shared doc from their local project.
+      // Joiners must NOT hydrate — doing so would push their (often blank, since
+      // leaving reloads into an empty project) state into the shared doc and
+      // clobber the host's project. Joiners receive the project via the pull on
+      // initial sync below.
+      if (role === 'owner') {
+        hydrateDocFromStore(doc, useStore.getState());
+      }
+
+      // Chat: append every message in the shared chat array (local or remote,
+      // deduped by id) to the store. Attached before connecting so the initial
+      // sync's existing messages are captured too.
+      const yChat = getYChat(doc);
+      const onChat = () => {
+        const store = useStore.getState();
+        const seen = new Set(store.chatMessages.map((m) => m.id));
+        for (const msg of yChat.toArray()) {
+          if (!seen.has(msg.id)) store._appendChatMessage(msg);
+        }
+      };
+      yChat.observe(onChat);
+      chatUnobserveRef.current = () => yChat.unobserve(onChat);
 
       // Set up the bridge
-      const bridge = new ZustandYjsBridge(doc, (partial) =>
-        useStore.setState(partial),
+      const bridge = new ZustandYjsBridge(
+        doc,
+        (partial) => useStore.setState(partial),
+        () => useStore.getState(),
+        (listener) => useStore.subscribe(listener),
       );
       bridgeRef.current = bridge;
       setBridge(bridge);
@@ -204,6 +309,15 @@ export function CollabProvider({ children }: CollabProviderProps) {
       providerRef.current = provider;
       awarenessRef.current = provider.awareness;
 
+      // Wire the live-monitoring bus: peers are keyed by awareness clientID, and
+      // outgoing messages go over this provider's socket (read lazily so the
+      // sender survives brief socket churn).
+      studioRealtime.setLocalClientId(provider.awareness.clientID);
+      studioRealtime.setSender((json) => {
+        const ws = providerRef.current?.ws;
+        if (ws && ws.readyState === WebSocket.OPEN) ws.send(json);
+      });
+
       // Offline persistence
       const idb = new IndexeddbPersistence(`collab-${roomId}`, doc);
       idbRef.current = idb;
@@ -215,7 +329,18 @@ export function CollabProvider({ children }: CollabProviderProps) {
       // Listen for connection status
       provider.on('sync', (synced: boolean) => {
         if (synced) {
+          // The room exists — stop any "waiting for host" retry loop.
+          awaitHostRef.current = false;
+          if (retryTimerRef.current !== null) {
+            clearTimeout(retryTimerRef.current);
+            retryTimerRef.current = null;
+          }
           useStore.getState()._setConnectionStatus('connected');
+          // Seed the store from the synced document so a joiner sees the
+          // existing project. (The owner already has it locally — pulling would
+          // also reset their local-only input routing — so skip it for them.)
+          // Must run BEFORE startObserving so the one-time pull isn't a no-op.
+          if (role !== 'owner') bridge.pullFromYjs();
           // Start observing Yjs for remote changes AFTER initial sync
           bridge.startObserving();
         }
@@ -259,32 +384,85 @@ export function CollabProvider({ children }: CollabProviderProps) {
           }
         });
         useStore.getState()._setRemoteUsers(remoteUsers);
+        // Drives the MIDI-broadcast gate: don't send live notes to an empty room.
+        studioRealtime.setPeerCount(remoteUsers.size);
+
+        // Tiebreaker for simultaneous selection of the same free track: the
+        // exclusive lock is optimistic, so two users can briefly hold the same
+        // track. Both sides run the same comparison; whoever has the higher
+        // clientID yields, so exactly one releases.
+        const mySelected = useStore.getState().selectedTrackId;
+        if (mySelected) {
+          const myId = provider.awareness.clientID;
+          for (const [clientId, u] of remoteUsers) {
+            if (u.selectedTrackId === mySelected && clientId < myId) {
+              useStore.getState().setSelectedTrackId(null);
+              toast({
+                title: 'Track taken',
+                description: `${u.userName} selected this track first`,
+                variant: 'destructive',
+              });
+              break;
+            }
+          }
+        }
       };
       provider.awareness.on('change', onAwarenessChange);
 
-      // Listen for ephemeral messages (transport commands, room:closing)
-      provider.ws?.addEventListener('message', handleServerMessage);
+      // Listen for ephemeral server messages (room:closing, room:not-found,
+      // kicked). `provider.ws` may not exist on the very first tick, so retry
+      // until it does — otherwise these notifications are silently never
+      // received. Bail if the session was torn down while we waited.
+      const attachWs = () => {
+        if (providerRef.current !== provider) return;
+        const ws = provider.ws;
+        if (ws) {
+          ws.addEventListener('message', handleServerMessage);
+        } else {
+          setTimeout(attachWs, 100);
+        }
+      };
+      attachWs();
     },
     [userId, appUser, token, handleServerMessage, teardown],
   );
 
   // ── Create & join ────────────────────────────────────────────────────
 
-  const createAndJoinRoom = useCallback(
-    async (projectName: string): Promise<RoomResponse> => {
-      if (!token) throw new Error('Not authenticated');
-      const room = await apiCreateRoom({ projectName }, token);
-      joinRoom(room.roomId, 'owner');
-      return room;
-    },
-    [token, joinRoom],
-  );
+  const createAndJoinRoom = useCallback(() => {
+    // Ephemeral, jam-room style: short client-generated id, no backend record.
+    // The room lives only as long as the host's PartyKit connection.
+    awaitHostRef.current = false;
+    const newRoomId = crypto.randomUUID().slice(0, 8);
+    joinRoom(newRoomId, 'owner', undefined, `studio-${newRoomId}`, newRoomId);
+  }, [joinRoom]);
 
   // ── Join by ID ──────────────────────────────────────────────────────
 
   const joinRoomById = useCallback(
     (roomId: string, role: CollabRole = 'editor') => {
-      joinRoom(roomId, role);
+      awaitHostRef.current = false;
+      const id = roomId.trim().toLowerCase();
+      joinRoom(id, role, undefined, `studio-${id}`, id);
+    },
+    [joinRoom],
+  );
+
+  // ── Join, waiting for the host to create the room ────────────────────
+  // Used when a jam-room player accepts a "moved to studio" invite: they may
+  // beat the host to PartyKit, so retry the join until the room exists.
+
+  const joinRoomAwaitingHost = useCallback(
+    (roomId: string) => {
+      const id = roomId.trim().toLowerCase();
+      awaitHostRef.current = true;
+      awaitDeadlineRef.current = Date.now() + AWAIT_HOST_TIMEOUT_MS;
+      useStore.getState()._setRoomError(null);
+      useStore.getState()._setAwaitingSession(true);
+      // Re-run on retry without resetting the deadline.
+      rejoinRef.current = () =>
+        joinRoom(id, 'editor', undefined, `studio-${id}`, id);
+      rejoinRef.current();
     },
     [joinRoom],
   );
@@ -292,18 +470,13 @@ export function CollabProvider({ children }: CollabProviderProps) {
   // ── Leave ─────────────────────────────────────────────────────────────
 
   const leaveRoom = useCallback(() => {
-    // If we are the host, close the room via API
-    const roomId = currentRoomIdRef.current;
-    const store = useStore.getState();
-    if (roomId && token && store.collabRole === 'owner') {
-      apiCloseRoom(roomId, token).catch(() => {
-        // Best-effort — PartyKit onClose will also trigger the webhook
-      });
-    }
-
+    // Ephemeral rooms have no backend record to delete — the room dies when the
+    // host's PartyKit connection closes (mirrors the jam room). Just tear down.
+    awaitHostRef.current = false;
     teardown();
     useStore.getState()._clearCollab();
-  }, [teardown, token]);
+  }, [teardown]);
+  leaveRoomRef.current = leaveRoom;
 
   // Clean up on unmount
   useEffect(() => teardown, [teardown]);
@@ -325,12 +498,52 @@ export function CollabProvider({ children }: CollabProviderProps) {
     [userId],
   );
 
+  // ── Chat ──────────────────────────────────────────────────────────────
+
+  const sendChatMessage = useCallback(
+    (text: string) => {
+      const doc = docRef.current;
+      const trimmed = text.trim();
+      if (!doc || !trimmed) return;
+      const msg: ChatMessage = {
+        id: crypto.randomUUID(),
+        userId: userId ?? '',
+        userName: appUser?.nickname ?? appUser?.fullName ?? 'Anonymous',
+        text: trimmed,
+        timestamp: Date.now(),
+      };
+      // Append to the shared chat array — the observer (set up in joinRoom)
+      // mirrors it into the store for us and every peer.
+      getYChat(doc).push([msg]);
+    },
+    [userId, appUser],
+  );
+
+  // ── Kick (host only) ──────────────────────────────────────────────────
+
+  const kickUser = useCallback((targetUserId: string) => {
+    const ws = providerRef.current?.ws;
+    // DEBUG (temporary): trace the kick send path.
+    console.log('[kick] kickUser', {
+      targetUserId,
+      hasWs: !!ws,
+      readyState: ws?.readyState,
+      open: ws?.readyState === WebSocket.OPEN,
+    });
+    if (!ws || ws.readyState !== WebSocket.OPEN || !targetUserId) return;
+    // The server enforces that only the host may kick.
+    ws.send(JSON.stringify({ type: 'collab:kick', targetUserId }));
+    console.log('[kick] collab:kick SENT', targetUserId);
+  }, []);
+
   // ── Presence sync from Zustand UI state ───────────────────────────────
 
   useEffect(() => {
     return useStore.subscribe(
       (state) => ({
-        selectedTrackId: state.selectedClipTrackId,
+        // Broadcast the header-track selection (prismSlice) — this is what the
+        // exclusive lock and the rainbow-neon border key off of.
+        selectedTrackId: state.selectedTrackId,
         selectedClipId: state.selectedClipId,
         editingClipId: state.editingClipId,
       }),
@@ -356,17 +569,23 @@ export function CollabProvider({ children }: CollabProviderProps) {
     () => ({
       createAndJoinRoom,
       joinRoomById,
+      joinRoomAwaitingHost,
       joinRoom,
       leaveRoom,
       sendTransportCommand,
+      sendChatMessage,
+      kickUser,
       awareness: awarenessRef.current,
     }),
     [
       createAndJoinRoom,
       joinRoomById,
+      joinRoomAwaitingHost,
       joinRoom,
       leaveRoom,
       sendTransportCommand,
+      sendChatMessage,
+      kickUser,
     ],
   );
 

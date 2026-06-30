@@ -6,6 +6,7 @@ import { DEFAULT_EFFECTS, type EffectSlotType } from '@/daw/audio/EffectChain';
 import { GROOVES, type GrooveItem } from '@/daw/data/groovesLibrary';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
+import { toast } from '@/hooks/use-toast';
 import {
   StrumMode,
   VelocityTilt,
@@ -84,6 +85,14 @@ export interface PrismSlice {
   availableFirstChords: string[];
   availableNextChords: string[];
   chordRegions: ChordRegion[];
+  /** Measures per row in Lead Sheet view. Defaults to 4. */
+  measuresPerLine: number;
+  /** Custom row sizes from chord chart export. e.g. [4, 5, 4, 4] means row1=4bars, row2=5bars, etc. When set, overrides measuresPerLine. */
+  measureRowSizes: number[] | null;
+  /** Map of measure index → rest bar count. e.g. { 8: 2 } means measure 8 is a 2-bar rest. */
+  measureRestMap: Record<number, number> | null;
+  /** Measure indices that have a fermata. */
+  measureFermatas: number[] | null;
   filterPercent: number;
   selectedTrackId: string | null;
   rootTrackColor: string | null;
@@ -125,6 +134,9 @@ export interface PrismSlice {
   // Actions — chord regions
   setChordRegions: (regions: ChordRegion[], force?: boolean) => void;
   offsetChordRegions: (deltaTicks: number) => void;
+  setMeasureRowSizes: (sizes: number[] | null) => void;
+  setMeasureRestMap: (map: Record<number, number> | null) => void;
+  setMeasureFermatas: (fermatas: number[] | null) => void;
   refineWithMelody: (
     melodyTrackId: string,
     pitchRange: { low: number; high: number },
@@ -1296,6 +1308,10 @@ export const createPrismSlice: StateCreator<
   availableFirstChords: getFirstChords(),
   availableNextChords: [],
   chordRegions: [],
+  measuresPerLine: 4,
+  measureRowSizes: null,
+  measureRestMap: null,
+  measureFermatas: null,
   filterPercent: 1.0,
   selectedTrackId: 'demo-chords',
   rootTrackColor: null,
@@ -1447,6 +1463,10 @@ export const createPrismSlice: StateCreator<
       stringSeq: [],
       availableNextChords: [],
       chordRegions: [],
+      measuresPerLine: 4,
+      measureRowSizes: null,
+      measureRestMap: null,
+      measureFermatas: null,
     }),
 
   // ── Actions — generation (offloaded to Web Worker) ──
@@ -1703,7 +1723,23 @@ export const createPrismSlice: StateCreator<
 
   // ── Actions — track selection ──
 
-  setSelectedTrackId: (id) => set({ selectedTrackId: id }),
+  setSelectedTrackId: (id) => {
+    // Hard exclusive lock: during a collab session a track selected by another
+    // user cannot be selected here. Deselecting (id === null) is always allowed.
+    if (id) {
+      for (const u of get().remoteUsers.values()) {
+        if (u.selectedTrackId === id) {
+          toast({
+            title: 'Track locked',
+            description: `${u.userName} is editing this track`,
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+    }
+    set({ selectedTrackId: id });
+  },
 
   // ── Actions — chord regions ──
 
@@ -1738,6 +1774,10 @@ export const createPrismSlice: StateCreator<
         endTick: r.endTick + deltaTicks,
       })),
     })),
+
+  setMeasureRowSizes: (sizes) => set({ measureRowSizes: sizes }),
+  setMeasureRestMap: (map) => set({ measureRestMap: map }),
+  setMeasureFermatas: (fermatas) => set({ measureFermatas: fermatas }),
 
   refineWithMelody: (melodyTrackId, pitchRange) => {
     const state = get();

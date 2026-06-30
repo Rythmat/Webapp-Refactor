@@ -1,5 +1,5 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FileDown,
   FileUp,
@@ -13,6 +13,7 @@ import {
   Trash2,
   Sparkles,
 } from 'lucide-react';
+import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { useStore } from '@/daw/store';
 import {
   importMidiFile,
@@ -20,16 +21,16 @@ import {
   downloadMidiBlob,
 } from '@/daw/midi/MidiFileIO';
 import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
+import { deserializeCloudProject } from '@/daw/persistence/SessionSerializer';
 import {
-  serializeSession,
-  deserializeSession,
-} from '@/daw/persistence/SessionSerializer';
-import {
-  saveToLocalStorage,
-  loadFromLocalStorage,
-  listSessions,
-  deleteSession,
-} from '@/daw/persistence/SessionStorage';
+  saveCurrentProjectToCloud,
+  studioProjectsApi,
+  type StudioProjectSummary,
+} from '@/lib/studio-projects/api';
+import { resetToNewProject } from '@/lib/studio-projects/newProject';
+import { loadCloudProjectAudio } from '@/lib/studio-assets/load-audio';
+import { PartialUploadError } from '@/lib/studio-assets/upload-pending';
+import { showError, showSuccess } from '@/components/utils/toast';
 import type { MidiNoteEvent } from '@prism/engine';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -57,49 +58,203 @@ const separatorStyle = {
 
 export function FileMenu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const token = useAuthToken();
+  // During a collab session, New Project and Open are unavailable: New Project
+  // would reload and silently drop the user, and Open isn't supported in a
+  // shared session (each user saves to their own account instead).
+  const isCollabActive = useStore((s) => s.isCollabActive);
+
+  // Controlled state lets us close the "Open" submenu on mouse-leave and reset
+  // it whenever the root menu closes (e.g. after a selection is processed).
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [openSubmenu, setOpenSubmenu] = useState(false);
+
+  // Radix portals the menu content to document.body, which is outside the
+  // `.daw-root` element that the theme tokens (--color-surface-2, etc.) are
+  // scoped to — so `var(...)` references resolve to nothing and the menu
+  // renders transparent. Snapshot the active theme's custom properties from
+  // `.daw-root` whenever the menu opens and re-apply them inline on the
+  // portalled content, so every `var(...)` inside resolves and the surface
+  // stays fully opaque (and theme-accurate) without coupling to the store.
+  const [menuVars, setMenuVars] = useState<React.CSSProperties>({});
+  useEffect(() => {
+    if (!menuOpen) return;
+    const root = document.querySelector('.daw-root');
+    if (!root) return;
+    const computed = getComputedStyle(root);
+    const vars: Record<string, string> = {};
+    for (const name of [
+      '--color-surface-2',
+      '--color-text',
+      '--color-text-dim',
+      '--color-border',
+      '--color-bg',
+      '--color-accent',
+    ]) {
+      vars[name] = computed.getPropertyValue(name);
+    }
+    setMenuVars(vars as unknown as React.CSSProperties);
+  }, [menuOpen]);
+
+  // Cloud project list for the Open submenu. Re-fetched on save / delete.
+  const [cloudProjects, setCloudProjects] = useState<StudioProjectSummary[]>(
+    [],
+  );
+  const [cloudListError, setCloudListError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const refreshCloudProjects = useCallback(async () => {
+    if (!token) return;
+    try {
+      const list = await studioProjectsApi.list(token);
+      setCloudProjects(list);
+      setCloudListError(null);
+    } catch (err) {
+      console.error('Failed to list cloud projects', err);
+      setCloudListError(
+        err instanceof Error ? err.message : 'Failed to list projects',
+      );
+    }
+  }, [token]);
+
+  useEffect(() => {
+    void refreshCloudProjects();
+  }, [refreshCloudProjects]);
 
   // ── Project management ──
 
-  const handleNewProject = useCallback(() => {
-    // Reset to a fresh state by reloading the page without a saved session
-    // This is the simplest approach — the store initializes with defaults
+  const handleNewProject = useCallback(async () => {
     if (!window.confirm('Create a new project? Unsaved changes will be lost.'))
       return;
-    // Clear any auto-loaded session and reload
-    const state = useStore.getState();
-    state.setProjectName('Untitled Project');
-    window.location.reload();
-  }, []);
 
-  const handleSave = useCallback(() => {
-    const state = useStore.getState();
-    const session = serializeSession();
-    saveToLocalStorage(session, state.projectName);
-  }, []);
+    // If the user was working on a cloud project, eagerly clean up any failed-
+    // upload orphans for it before reloading. Best-effort — if the cleanup
+    // call fails, the hourly cron will still catch them within ~25h.
+    const previousProjectId = useStore.getState().projectId;
+    if (previousProjectId && token) {
+      try {
+        await studioProjectsApi.cleanupPendingAssets(token, previousProjectId);
+      } catch (err) {
+        console.warn(
+          'Failed to clean up pending assets for previous project',
+          err,
+        );
+      }
+    }
 
-  const handleSaveAs = useCallback(() => {
+    // Drop the local autosave (so the reload doesn't restore the session we're
+    // leaving) and reload into a blank project.
+    resetToNewProject();
+  }, [token]);
+
+  const handleSave = useCallback(async () => {
+    if (!token) {
+      showError('You must be signed in to save.');
+      return;
+    }
+    setSaving(true);
+    try {
+      await saveCurrentProjectToCloud(token);
+      await refreshCloudProjects();
+      showSuccess('Project saved');
+    } catch (err) {
+      console.error('Cloud save failed', err);
+      if (err instanceof PartialUploadError) {
+        // Partial success — succeeded clips kept their assetIds, retry will
+        // only re-upload the failed ones. Show the helper's own message.
+        showError(err.message);
+      } else {
+        showError(
+          `Save failed: ${err instanceof Error ? err.message : 'unknown error'}`,
+        );
+      }
+    } finally {
+      setSaving(false);
+    }
+  }, [token, refreshCloudProjects]);
+
+  const handleSaveAs = useCallback(async () => {
+    if (!token) {
+      showError('You must be signed in to save.');
+      return;
+    }
     const state = useStore.getState();
     const name = window.prompt('Project name:', state.projectName);
     if (!name || !name.trim()) return;
     const trimmed = name.trim();
+    // Apply as the session title only when allowed (no-op for a non-host in a
+    // collab session — the host owns the shared title). Either way the cloud
+    // copy is saved under `trimmed` via the name override below.
     state.setProjectName(trimmed);
-    const session = serializeSession();
-    saveToLocalStorage(session, trimmed);
-  }, []);
-
-  const handleOpenProject = useCallback((name: string) => {
-    const session = loadFromLocalStorage(name);
-    if (session) {
-      deserializeSession(session);
+    // Clear projectId so the helper POSTs (creates a new project) instead of
+    // overwriting the currently loaded one.
+    state.setProjectId(null);
+    setSaving(true);
+    try {
+      await saveCurrentProjectToCloud(token, trimmed);
+      await refreshCloudProjects();
+      showSuccess(`Saved as "${trimmed}"`);
+    } catch (err) {
+      console.error('Cloud save-as failed', err);
+      if (err instanceof PartialUploadError) {
+        showError(err.message);
+      } else {
+        showError(
+          `Save As failed: ${err instanceof Error ? err.message : 'unknown error'}`,
+        );
+      }
+    } finally {
+      setSaving(false);
     }
-  }, []);
+  }, [token, refreshCloudProjects]);
 
-  const handleDeleteProject = useCallback(() => {
+  const handleOpenProject = useCallback(
+    async (id: string) => {
+      if (!token) {
+        showError('You must be signed in to open a cloud project.');
+        return;
+      }
+      try {
+        const project = await studioProjectsApi.get(token, id);
+        deserializeCloudProject(project);
+        // Audio buffers download + decode in the background; clips appear in
+        // the timeline immediately and become playable as their bytes arrive.
+        void loadCloudProjectAudio(token).catch((err) => {
+          console.error('Audio asset load failed', err);
+        });
+      } catch (err) {
+        console.error('Cloud open failed', err);
+        showError(
+          `Open failed: ${err instanceof Error ? err.message : 'unknown error'}`,
+        );
+      }
+    },
+    [token],
+  );
+
+  const handleDeleteProject = useCallback(async () => {
+    if (!token) {
+      showError('You must be signed in to delete a cloud project.');
+      return;
+    }
     const state = useStore.getState();
-    const name = state.projectName;
-    if (!window.confirm(`Delete project "${name}"?`)) return;
-    deleteSession(name);
-  }, []);
+    if (!state.projectId) {
+      showError('This project has not been saved to the cloud yet.');
+      return;
+    }
+    if (!window.confirm(`Delete project "${state.projectName}"?`)) return;
+    try {
+      await studioProjectsApi.remove(token, state.projectId);
+      state.setProjectId(null);
+      await refreshCloudProjects();
+      showSuccess('Project deleted');
+    } catch (err) {
+      console.error('Cloud delete failed', err);
+      showError(
+        `Delete failed: ${err instanceof Error ? err.message : 'unknown error'}`,
+      );
+    }
+  }, [token, refreshCloudProjects]);
 
   // ── MIDI import/export ──
 
@@ -214,8 +369,6 @@ export function FileMenu() {
     useStore.getState().exportUnisonJSON();
   }, []);
 
-  const savedSessions = listSessions();
-
   return (
     <>
       <input
@@ -226,7 +379,15 @@ export function FileMenu() {
         onChange={handleFileChange}
       />
 
-      <DropdownMenu.Root>
+      <DropdownMenu.Root
+        open={menuOpen}
+        onOpenChange={(open) => {
+          setMenuOpen(open);
+          // Reset the submenu when the whole menu closes so it doesn't
+          // auto-reopen the next time the File menu is opened.
+          if (!open) setOpenSubmenu(false);
+        }}
+      >
         <DropdownMenu.Trigger asChild>
           <button
             className="flex h-7 cursor-pointer items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors hover:bg-white/5"
@@ -245,64 +406,92 @@ export function FileMenu() {
           <DropdownMenu.Content
             className="z-50 min-w-[180px] rounded-lg p-1 shadow-lg"
             style={{
+              ...menuVars,
               backgroundColor: 'var(--color-surface-2)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
             }}
             sideOffset={4}
           >
-            {/* Project management */}
+            {/* Project management — New Project is hidden during a collab
+                session (it reloads, which would drop the user from the room). */}
+            {!isCollabActive && (
+              <>
+                <DropdownMenu.Item
+                  className={itemClass}
+                  style={itemStyle}
+                  onSelect={() => void handleNewProject()}
+                >
+                  <FilePlus size={13} strokeWidth={2} />
+                  New Project
+                </DropdownMenu.Item>
+
+                <div style={separatorStyle} />
+              </>
+            )}
+
             <DropdownMenu.Item
               className={itemClass}
               style={itemStyle}
-              onSelect={handleNewProject}
-            >
-              <FilePlus size={13} strokeWidth={2} />
-              New Project
-            </DropdownMenu.Item>
-
-            <div style={separatorStyle} />
-
-            <DropdownMenu.Item
-              className={itemClass}
-              style={itemStyle}
-              onSelect={handleSave}
+              onSelect={() => void handleSave()}
+              disabled={saving}
             >
               <Save size={13} strokeWidth={2} />
-              Save
+              {saving ? 'Saving…' : 'Save'}
               <span
                 className="ml-auto text-[10px]"
                 style={{ color: 'var(--color-text-dim)' }}
               >
-                {'\u2318'}S
+                {'⌘'}S
               </span>
             </DropdownMenu.Item>
 
             <DropdownMenu.Item
               className={itemClass}
               style={itemStyle}
-              onSelect={handleSaveAs}
+              onSelect={() => void handleSaveAs()}
+              disabled={saving}
             >
               <SaveAll size={13} strokeWidth={2} />
               Save As…
             </DropdownMenu.Item>
 
-            {/* Open submenu */}
-            <DropdownMenu.Sub>
-              <DropdownMenu.SubTrigger className={itemClass} style={itemStyle}>
+            {/* Open submenu — disabled during a collab session (opening a
+                different project isn't supported in a shared session). */}
+            <DropdownMenu.Sub open={openSubmenu} onOpenChange={setOpenSubmenu}>
+              <DropdownMenu.SubTrigger
+                className={itemClass}
+                style={
+                  isCollabActive
+                    ? { color: 'var(--color-text-dim)' }
+                    : itemStyle
+                }
+                disabled={isCollabActive}
+              >
                 <FolderOpen size={13} strokeWidth={2} />
                 Open
                 <ChevronRight size={11} className="ml-auto" strokeWidth={2} />
               </DropdownMenu.SubTrigger>
               <DropdownMenu.Portal>
                 <DropdownMenu.SubContent
-                  className="z-50 min-w-[140px] rounded-lg p-1 shadow-lg"
+                  className="z-50 min-w-[200px] rounded-lg p-1 shadow-lg"
                   style={{
+                    ...menuVars,
                     backgroundColor: 'var(--color-surface-2)',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
                   }}
                   sideOffset={4}
+                  // Close the submenu as soon as the pointer leaves it.
+                  onPointerLeave={() => setOpenSubmenu(false)}
                 >
-                  {savedSessions.length === 0 ? (
+                  {cloudListError ? (
+                    <DropdownMenu.Item
+                      className={itemClass}
+                      style={{ color: 'var(--color-text-dim)' }}
+                      disabled
+                    >
+                      {cloudListError}
+                    </DropdownMenu.Item>
+                  ) : cloudProjects.length === 0 ? (
                     <DropdownMenu.Item
                       className={itemClass}
                       style={{ color: 'var(--color-text-dim)' }}
@@ -311,14 +500,14 @@ export function FileMenu() {
                       (No saved projects)
                     </DropdownMenu.Item>
                   ) : (
-                    savedSessions.map((name) => (
+                    cloudProjects.map((p) => (
                       <DropdownMenu.Item
-                        key={name}
+                        key={p.id}
                         className={itemClass}
                         style={itemStyle}
-                        onSelect={() => handleOpenProject(name)}
+                        onSelect={() => void handleOpenProject(p.id)}
                       >
-                        {name}
+                        {p.name}
                       </DropdownMenu.Item>
                     ))
                   )}
@@ -332,7 +521,7 @@ export function FileMenu() {
                 ...itemStyle,
                 color: 'var(--color-text-dim)',
               }}
-              onSelect={handleDeleteProject}
+              onSelect={() => void handleDeleteProject()}
             >
               <Trash2 size={13} strokeWidth={2} />
               Delete Project
@@ -381,7 +570,7 @@ export function FileMenu() {
                 className="ml-auto text-[10px]"
                 style={{ color: 'var(--color-text-dim)' }}
               >
-                {'\u21e7\u2318'}U
+                {'⇧⌘'}U
               </span>
             </DropdownMenu.Item>
 

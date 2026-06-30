@@ -19,8 +19,12 @@ import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { RttMeasurer } from '@/daw/collab/transportSync';
 import { PRESENCE_COLORS } from '@/daw/collab/types';
+import { jamRecorder } from './jamRecorder';
 import { useJamRoomStore } from './jamRoomStore';
 import type {
+  DrumGrid,
+  DrumMode,
+  DrumTransport,
   JamInstrument,
   JamNoteMessage,
   JamChatMessage,
@@ -49,6 +53,18 @@ interface JamRoomContextValue {
   leaveRoom: () => void;
   sendNote: (msg: Omit<JamNoteMessage, 'userId' | 'color'>) => void;
   sendChat: (text: string) => void;
+  /** True when the local user is the room host (connected as `owner`). */
+  isHost: boolean;
+  /** Broadcast the full shared drum grid to the room. */
+  sendDrumGrid: (grid: DrumGrid) => void;
+  /** Broadcast the drum-edit permission mode to the room (host only). */
+  sendDrumMode: (mode: DrumMode, drummerId: string | null) => void;
+  /** Broadcast the shared sequencer transport (play / stop / tempo). */
+  sendDrumTransport: (transport: DrumTransport) => void;
+  /** Host-only: invite the room to a collaborative Studio session by room code. */
+  sendStudioInvite: (roomCode: string) => void;
+  /** Best estimate of the server's current wall-clock time (ms). */
+  serverNow: () => number;
   localColor: string;
   setLocalInstrument: (inst: JamInstrument) => void;
   remotePlayers: JamPresence[];
@@ -68,6 +84,12 @@ const JamRoomContext = createContext<JamRoomContextValue>({
   leaveRoom: () => {},
   sendNote: () => {},
   sendChat: () => {},
+  isHost: false,
+  sendDrumGrid: () => {},
+  sendDrumMode: () => {},
+  sendDrumTransport: () => {},
+  sendStudioInvite: () => {},
+  serverNow: () => Date.now(),
   localColor: PRESENCE_COLORS[0],
   setLocalInstrument: () => {},
   remotePlayers: [],
@@ -99,12 +121,18 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     new Set(),
   );
   const currentRoomIdRef = useRef<string | null>(null);
+  // Keep the local user id available to the (stable) message handler.
+  const localUserIdRef = useRef('');
+  localUserIdRef.current = userId ?? '';
+  // Whether the local user is the room host — read inside the stable handler.
+  const isHostRef = useRef(false);
 
   // Reactive state (triggers re-renders for UI)
   const [isConnected, setIsConnected] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [roomCode, setRoomCode] = useState<string | null>(null);
   const [roomError, setRoomError] = useState<string | null>(null);
+  const [isHost, setIsHost] = useState(false);
   const [remotePlayers, setRemotePlayers] = useState<JamPresence[]>([]);
   const [latencyMs, setLatencyMs] = useState(0);
 
@@ -123,9 +151,21 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
       }
 
       if (data.type === 'room:closing') {
-        // Host disconnected — the room is closing
-        setRoomError('The host has left the room');
         setIsConnected(false);
+        // If the host moved the jam into the Studio, a `jam:studio-invite`
+        // arrived just before this close. Keep the join prompt up instead of
+        // bouncing the user to the lobby with a "host left" error.
+        if (useJamRoomStore.getState().studioInvite) return;
+        setRoomError('The host has left the room');
+        return;
+      }
+
+      // Host moved the jam into a collaborative Studio session — surface the
+      // join prompt (rendered by JamRoom) with the Studio room code.
+      if (data.type === 'jam:studio-invite' && data.roomCode) {
+        useJamRoomStore
+          .getState()
+          .setStudioInvite({ roomCode: String(data.roomCode) });
         return;
       }
 
@@ -133,6 +173,20 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
         const msg = data as JamNoteMessage;
         // Dispatch to audio listeners (low-latency path, no React re-render)
         noteListenersRef.current.forEach((handler) => handler(msg));
+        // Capture remote notes for the local recording. (Local notes are
+        // captured in sendNote; the server never echoes our own back, but
+        // guard against it just in case.)
+        if (msg.userId !== localUserIdRef.current) {
+          jamRecorder.record({
+            action: msg.action,
+            userId: msg.userId,
+            color: msg.color,
+            instrument: msg.instrument,
+            gmProgram: msg.gmProgram,
+            midi: msg.midi,
+            velocity: msg.velocity,
+          });
+        }
         // Update store for visualization
         const store = useJamRoomStore.getState();
         if (msg.action === 'on') {
@@ -151,8 +205,62 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
         useJamRoomStore.getState().addChatMessage(data as JamChatMessage);
       }
 
+      // Shared drum pattern — adopt the broadcast grid.
+      if (data.type === 'jam:drum-grid') {
+        useJamRoomStore.getState().setDrumGrid(data.grid);
+      }
+
+      // Drum-edit permission mode (host-controlled).
+      if (data.type === 'jam:drum-mode') {
+        useJamRoomStore
+          .getState()
+          .setDrumMode(data.mode, data.drummerId ?? null);
+      }
+
+      // Shared sequencer transport — adopt the room-wide play state. The
+      // `startedAt` epoch is in server time, so the local scheduler maps it
+      // onto this device's clock and plays in lock-step with everyone else.
+      if (data.type === 'jam:drum-transport') {
+        useJamRoomStore.getState().setDrumTransport({
+          playing: !!data.playing,
+          startedAt: data.startedAt ?? null,
+          bpm: data.bpm,
+        });
+      }
+
+      // A joining client asked for the current drum state — only the host
+      // answers, replaying the authoritative grid and mode to the room.
+      if (data.type === 'jam:drum-sync-request') {
+        if (!isHostRef.current) return;
+        const ws = providerRef.current?.ws;
+        if (!ws || ws.readyState !== WebSocket.OPEN) return;
+        const store = useJamRoomStore.getState();
+        ws.send(
+          JSON.stringify({
+            type: 'jam:drum-grid',
+            grid: store.drumGrid,
+            userId: localUserIdRef.current,
+          }),
+        );
+        ws.send(
+          JSON.stringify({
+            type: 'jam:drum-mode',
+            mode: store.drumMode,
+            drummerId: store.drummerId,
+            userId: localUserIdRef.current,
+          }),
+        );
+        ws.send(
+          JSON.stringify({
+            type: 'jam:drum-transport',
+            ...store.drumTransport,
+            userId: localUserIdRef.current,
+          }),
+        );
+      }
+
       if (data.type === 'pong') {
-        rttRef.current.handlePong(data.clientTimestamp);
+        rttRef.current.handlePong(data.clientTimestamp, data.serverTimestamp);
         setLatencyMs(Math.round(rttRef.current.rtt));
       }
     } catch {
@@ -172,10 +280,13 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     setRoomId(null);
     setRoomCode(null);
     setRoomError(null);
+    setIsHost(false);
     setRemotePlayers([]);
     setLatencyMs(0);
+    isHostRef.current = false;
     currentRoomIdRef.current = null;
     useJamRoomStore.getState().reset();
+    jamRecorder.reset();
   }, []);
 
   // ── Core join (connects to PartyKit given host + room) ─────────────────
@@ -189,6 +300,10 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     ) => {
       teardown();
       setRoomError(null);
+      setIsHost(role === 'owner');
+      isHostRef.current = role === 'owner';
+      // Arm a fresh local recording for this session.
+      jamRecorder.start();
 
       const host = partykitHost ?? DEFAULT_PARTYKIT_HOST;
       const pkRoom = partykitRoom ?? `jam-${newRoomId}`;
@@ -228,7 +343,22 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
       } satisfies JamPresence);
 
       // Connection status
-      provider.on('sync', () => setIsConnected(true));
+      provider.on('sync', () => {
+        setIsConnected(true);
+        // Non-host joiners ask the host to replay the current shared drum
+        // pattern and mode so late arrivals see the same beat.
+        if (role !== 'owner') {
+          const ws = provider.ws;
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(
+              JSON.stringify({
+                type: 'jam:drum-sync-request',
+                userId: userId ?? '',
+              }),
+            );
+          }
+        }
+      });
       provider.on('connection-close', () => setIsConnected(false));
 
       // Observe remote presence
@@ -306,6 +436,18 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
 
   const sendNote = useCallback(
     (msg: Omit<JamNoteMessage, 'userId' | 'color'>) => {
+      // Capture our own note in the local recording (the server doesn't echo
+      // it back to us). Recorded even if the socket is momentarily down so the
+      // recording matches what the player heard.
+      jamRecorder.record({
+        action: msg.action,
+        userId: userId ?? '',
+        color: colorRef.current,
+        instrument: msg.instrument,
+        gmProgram: msg.gmProgram,
+        midi: msg.midi,
+        velocity: msg.velocity,
+      });
       const ws = providerRef.current?.ws;
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
       ws.send(
@@ -338,6 +480,72 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
     },
     [userId, appUser],
   );
+
+  // ── Shared drum sync ─────────────────────────────────────────────────────
+
+  const sendDrumGrid = useCallback(
+    (grid: DrumGrid) => {
+      const ws = providerRef.current?.ws;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      ws.send(
+        JSON.stringify({
+          type: 'jam:drum-grid',
+          grid,
+          userId: userId ?? '',
+        }),
+      );
+    },
+    [userId],
+  );
+
+  const sendDrumMode = useCallback(
+    (mode: DrumMode, drummerId: string | null) => {
+      const ws = providerRef.current?.ws;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      ws.send(
+        JSON.stringify({
+          type: 'jam:drum-mode',
+          mode,
+          drummerId,
+          userId: userId ?? '',
+        }),
+      );
+    },
+    [userId],
+  );
+
+  const sendDrumTransport = useCallback(
+    (transport: DrumTransport) => {
+      const ws = providerRef.current?.ws;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      ws.send(
+        JSON.stringify({
+          type: 'jam:drum-transport',
+          ...transport,
+          userId: userId ?? '',
+        }),
+      );
+    },
+    [userId],
+  );
+
+  const sendStudioInvite = useCallback(
+    (roomCode: string) => {
+      const ws = providerRef.current?.ws;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      ws.send(
+        JSON.stringify({
+          type: 'jam:studio-invite',
+          roomCode,
+          userId: userId ?? '',
+        }),
+      );
+    },
+    [userId],
+  );
+
+  // Server wall-clock estimate — the shared timeline anchor for drum playback.
+  const serverNow = useCallback(() => rttRef.current.serverNow(), []);
 
   // ── Subscribe to note messages ─────────────────────────────────────────
 
@@ -382,6 +590,12 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
       leaveRoom,
       sendNote,
       sendChat,
+      isHost,
+      sendDrumGrid,
+      sendDrumMode,
+      sendDrumTransport,
+      sendStudioInvite,
+      serverNow,
       localColor: colorRef.current,
       setLocalInstrument,
       remotePlayers,
@@ -399,6 +613,12 @@ export function JamRoomProvider({ children }: JamRoomProviderProps) {
       leaveRoom,
       sendNote,
       sendChat,
+      isHost,
+      sendDrumGrid,
+      sendDrumMode,
+      sendDrumTransport,
+      sendStudioInvite,
+      serverNow,
       setLocalInstrument,
       remotePlayers,
       onNoteMessage,

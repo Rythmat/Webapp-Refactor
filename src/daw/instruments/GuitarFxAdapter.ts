@@ -51,6 +51,7 @@ export class GuitarFxAdapter implements InstrumentAdapter {
   private channelConfig: ChannelConfig = { mode: 'mono', channel: 0 };
   private monitoringEnabled = false;
   private muteGain: GainNode | null = null; // gates output for monitoring toggle
+  private monitorSend: GainNode | null = null; // always-on input send for collab monitoring
   private activator: ConstantSourceNode | null = null; // keeps wrapped outputNode active
   private recordDest: MediaStreamAudioDestinationNode | null = null;
 
@@ -72,6 +73,12 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     this.muteGain = this.nativeCtx!.createGain();
     this.muteGain.gain.value = this.monitoringEnabled ? 1 : 0;
     this.muteGain.connect(this.pedalChain.getInputNode()); // native → native ✓
+
+    // Always-on send tap for collaborative monitoring. Receives the raw input
+    // (independent of the local monitoring toggle) and is tapped by the
+    // AudioEngine monitor bus. Placed BEFORE the pedal chain so transport
+    // playback (which joins at the pedal-chain input) is never streamed.
+    this.monitorSend = this.nativeCtx!.createGain();
 
     // Cross-context bridge to wrapped outputNode (same pattern as SoundFontAdapter).
     // standardized-audio-context keeps wrapped nodes "passive" until they receive
@@ -115,6 +122,8 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     this.stopStream();
     this.pedalChain?.dispose();
     this.muteGain?.disconnect();
+    this.monitorSend?.disconnect();
+    this.monitorSend = null;
     this.analyserNode?.disconnect();
     this.chordAnalyserNode?.disconnect();
     if (this.activator) {
@@ -201,6 +210,7 @@ export class GuitarFxAdapter implements InstrumentAdapter {
       this.channelGain.connect(this.analyserNode!);
       this.channelGain.connect(this.chordAnalyserNode!);
       this.channelGain.connect(this.muteGain!);
+      this.channelGain.connect(this.monitorSend!);
     } catch (err) {
       console.warn('[GuitarFxAdapter] Failed to open audio input:', err);
       this.stopStream();
@@ -245,13 +255,18 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     }
   }
 
-  /** Create a MediaStream from the raw input (before pedal chain) for DRY recording. */
-  startRecordingStream(): MediaStream {
-    if (!this.recordDest && this.nativeCtx && this.channelGain) {
+  /**
+   * Create a MediaStream from the raw input (before pedal chain) for DRY recording.
+   * Returns null when no input device is attached (channelGain not yet created),
+   * so callers can fall back to a generic mic capture instead of crashing.
+   */
+  startRecordingStream(): MediaStream | null {
+    if (!this.nativeCtx || !this.channelGain) return null;
+    if (!this.recordDest) {
       this.recordDest = this.nativeCtx.createMediaStreamDestination();
       this.channelGain.connect(this.recordDest);
     }
-    return this.recordDest!.stream;
+    return this.recordDest.stream;
   }
 
   /** Disconnect the recording tap. */
@@ -271,6 +286,17 @@ export class GuitarFxAdapter implements InstrumentAdapter {
   /** Return the native pedal chain input node for routing playback audio. */
   getNativePedalInputNode(): AudioNode | null {
     return this.pedalChain?.getInputNode() ?? null;
+  }
+
+  /**
+   * Live-input tap for collaborative monitoring (streamed to peers). Carries the
+   * raw input REGARDLESS of the local monitoring toggle, taken BEFORE the pedal
+   * chain so it deliberately excludes this track's clip/transport playback
+   * (playback joins at the pedal-chain input, downstream of this node).
+   * Trade-off: peers hear the dry input, never the user's transport.
+   */
+  getMonitorOutputNode(): AudioNode | null {
+    return this.monitorSend ?? null;
   }
 
   getInputLevel(): number {

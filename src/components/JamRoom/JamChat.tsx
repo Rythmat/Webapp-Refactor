@@ -3,11 +3,13 @@
 
 import { Send } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useJamRoom } from './JamRoomProvider';
 import { useJamRoomStore } from './jamRoomStore';
 
 export function JamChat() {
   const { sendChat, remotePlayers, localColor } = useJamRoom();
+  const { userId } = useAuthContext();
   const chatMessages = useJamRoomStore((s) => s.chatMessages);
   const [text, setText] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -40,13 +42,15 @@ export function JamChat() {
         )}
         {chatMessages.map((msg) => {
           const color = colorMap.get(msg.userId) ?? localColor;
+          const isSelf = !!userId && msg.userId === userId;
           return (
             <div key={msg.id} className="flex gap-1.5 items-start">
               <span
                 className="text-[10px] font-medium shrink-0"
                 style={{ color }}
               >
-                {msg.userName}:
+                {msg.userName}
+                {isSelf && <span className="text-zinc-500"> (you)</span>}:
               </span>
               <span className="text-[11px] text-zinc-300">{msg.text}</span>
             </div>

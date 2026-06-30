@@ -4,13 +4,13 @@ import { useAdminTelemetryOverview } from '@/hooks/data/admin/useAdminTelemetry'
 import { StatCard } from './components/StatCard';
 import {
   TimeRangeSelect,
-  timeRangeToParams,
+  useTimeRangeParams,
   type TimeRange,
 } from './components/TimeRangeSelect';
 
 export const AdminTelemetryOverviewPage = () => {
   const [range, setRange] = useState<TimeRange>('24h');
-  const params = timeRangeToParams(range);
+  const params = useTimeRangeParams(range);
   const { data, isLoading } = useAdminTelemetryOverview(params);
 
   return (

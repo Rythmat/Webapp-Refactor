@@ -4,6 +4,7 @@ import { Reorder } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { TrackHeader } from '../TrackControls/TrackHeader';
+import { MasterTrackHeader } from '../TrackControls/MasterTrackHeader';
 import { AddTrackMenu } from '../Mixer/AddTrackMenu';
 import {
   Timeline,
@@ -13,7 +14,7 @@ import {
   TIME_RULER_HEIGHT,
 } from './Timeline';
 
-export function TimelineWithHeaders() {
+export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
   const tracks = useStore((s) => s.tracks);
   const reorderTrack = useStore((s) => s.reorderTrack);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -105,6 +106,11 @@ export function TimelineWithHeaders() {
             </Reorder.Item>
           ))}
         </Reorder.Group>
+
+        {/* Master bus — fixed row, not reorderable */}
+        <div style={{ height: TRACK_HEIGHT, minHeight: TRACK_HEIGHT }}>
+          <MasterTrackHeader isReady={isReady} />
+        </div>
 
         {/* Add Track button */}
         <button

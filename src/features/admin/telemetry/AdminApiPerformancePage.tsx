@@ -23,7 +23,7 @@ import {
 import { useAdminApiPerformance } from '@/hooks/data/admin/useAdminTelemetry';
 import {
   TimeRangeSelect,
-  timeRangeToParams,
+  useTimeRangeParams,
   type TimeRange,
 } from './components/TimeRangeSelect';
 
@@ -37,7 +37,7 @@ function formatBucketLabel(v: string): string {
 
 export const AdminApiPerformancePage = () => {
   const [range, setRange] = useState<TimeRange>('24h');
-  const params = timeRangeToParams(range);
+  const params = useTimeRangeParams(range);
   const { data, isLoading } = useAdminApiPerformance(params);
 
   return (

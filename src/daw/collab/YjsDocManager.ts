@@ -8,6 +8,7 @@ import type { Track, MidiClip, AudioClip } from '@/daw/store/tracksSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { Marker } from '@/daw/store/markersSlice';
 import type { MidiNoteEvent, MidiCCEvent } from '@prism/engine';
+import type { ChatMessage } from './types';
 
 // ── Document singleton ──────────────────────────────────────────────────
 
@@ -60,7 +61,9 @@ export function getYLeadSheet(doc: Y.Doc): Y.Map<unknown> {
   return doc.getMap('leadSheet');
 }
 
-export function getYChat(doc: Y.Doc): Y.Array<Y.Map<unknown>> {
+// Chat messages are stored as plain JSON objects (they're small and never
+// mutated in place — only appended).
+export function getYChat(doc: Y.Doc): Y.Array<ChatMessage> {
   return doc.getArray('chat');
 }
 
@@ -122,6 +125,12 @@ export function audioClipToYMap(clip: AudioClip): Y.Map<unknown> {
   m.set('duration', clip.duration);
   m.set('fadeInTicks', clip.fadeInTicks);
   m.set('fadeOutTicks', clip.fadeOutTicks);
+  // assetId is required for peers to download & decode the audio bytes for
+  // playback (without it they only get a placeholder waveform). offsetSeconds
+  // and gain affect how the clip is rendered/played, so sync them too.
+  m.set('assetId', clip.assetId ?? null);
+  m.set('offsetSeconds', clip.offsetSeconds ?? 0);
+  m.set('gain', clip.gain ?? 1);
   return m;
 }
 
@@ -135,12 +144,11 @@ export function trackToYMap(track: Track): Y.Map<unknown> {
   m.set('instrument', track.instrument);
   m.set('gmProgram', track.gmProgram ?? null);
   m.set('color', track.color);
-  m.set('mute', track.mute);
-  m.set('solo', track.solo);
+  // NOTE: `mute`/`solo`/`recordArmed`/`monitoring` are intentionally NOT
+  // written — they are per-user-local (personal monitoring/recording) and must
+  // never sync to peers.
   m.set('volume', track.volume);
   m.set('pan', track.pan);
-  m.set('recordArmed', track.recordArmed);
-  m.set('monitoring', track.monitoring);
   m.set('trackRole', track.trackRole);
 
   // Effects — store as a JSON string for simplicity (deeply nested params).
@@ -236,6 +244,9 @@ export function yMapToAudioClip(m: Y.Map<unknown>): AudioClip {
     duration: m.get('duration') as number,
     fadeInTicks: m.get('fadeInTicks') as number,
     fadeOutTicks: m.get('fadeOutTicks') as number,
+    assetId: (m.get('assetId') as string | null) ?? null,
+    offsetSeconds: (m.get('offsetSeconds') as number | undefined) ?? 0,
+    gain: (m.get('gain') as number | undefined) ?? 1,
   };
 }
 
@@ -257,12 +268,15 @@ export function yMapToTrack(m: Y.Map<unknown>): Track {
     instrument: m.get('instrument') as Track['instrument'],
     gmProgram: (m.get('gmProgram') as number | null) ?? undefined,
     color: m.get('color') as string,
-    mute: m.get('mute') as boolean,
-    solo: m.get('solo') as boolean,
+    // mute/solo/recordArmed/monitoring are per-user-local; never read from the
+    // shared doc. The Yjs→Zustand observer preserves the local user's values on
+    // remote updates.
+    mute: false,
+    solo: false,
+    recordArmed: false,
+    monitoring: false,
     volume: m.get('volume') as number,
     pan: m.get('pan') as number,
-    recordArmed: m.get('recordArmed') as boolean,
-    monitoring: m.get('monitoring') as boolean,
     trackRole: m.get('trackRole') as Track['trackRole'],
     midiInputId: null,
     audioInputId: null,
@@ -323,15 +337,12 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
     project.set('composerName', state.composerName);
     project.set('version', String(1));
 
-    // Transport (persistent settings only)
+    // Transport — only tempo + time signature are shared. Loop region and
+    // metronome are per-user-local, and play/position state is never synced.
     const transport = getYTransport(doc);
     transport.set('bpm', state.bpm);
     transport.set('timeSignatureNumerator', state.timeSignatureNumerator);
     transport.set('timeSignatureDenominator', state.timeSignatureDenominator);
-    transport.set('metronomeEnabled', state.metronomeEnabled);
-    transport.set('loopEnabled', state.loopEnabled);
-    transport.set('loopStart', state.loopStart);
-    transport.set('loopEnd', state.loopEnd);
 
     // Tracks
     const yTracks = getYTracks(doc);
@@ -369,6 +380,7 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
     mastering.set('deEsser', JSON.stringify(state.masteringDeEsser));
     mastering.set('fxChain', JSON.stringify(state.masteringFxChain));
     mastering.set('effects', JSON.stringify(state.masteringEffects));
+    mastering.set('masterVolume', state.masterVolume);
 
     // Lead sheet
     const leadSheet = getYLeadSheet(doc);

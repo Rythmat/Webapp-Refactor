@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
+import { studioRealtime } from '@/daw/collab/studioRealtime';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
 import { PianoRoll } from '../PianoRoll/PianoRoll';
@@ -67,8 +68,19 @@ export function KeyboardView({ trackId }: { trackId: string }) {
   const handleNoteOn = useCallback(
     (note: number, velocity: number = 0.8) => {
       const state = trackEngineRegistry.get(trackId);
-      if (state) state.trackEngine.noteOn(note, Math.round(velocity * 127));
+      const vel = Math.round(velocity * 127);
+      if (state) state.trackEngine.noteOn(note, vel);
       setActiveNotes((prev) => new Set(prev).add(note));
+      // Relay to collaborators monitoring this user's live playing.
+      if (studioRealtime.shouldBroadcast()) {
+        studioRealtime.send({
+          type: 'studio:note',
+          action: 'on',
+          note,
+          velocity: vel,
+          trackId,
+        });
+      }
     },
     [trackId],
   );
@@ -82,6 +94,15 @@ export function KeyboardView({ trackId }: { trackId: string }) {
         next.delete(note);
         return next;
       });
+      if (studioRealtime.shouldBroadcast()) {
+        studioRealtime.send({
+          type: 'studio:note',
+          action: 'off',
+          note,
+          velocity: 0,
+          trackId,
+        });
+      }
     },
     [trackId],
   );

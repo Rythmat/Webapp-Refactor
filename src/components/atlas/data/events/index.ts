@@ -14,9 +14,11 @@ import { POP_EVENTS } from './pop';
 import { REGGAE_EVENTS } from './reggae';
 import { RNBSOULFUNK_EVENTS } from './rnbSoulFunk';
 import { ROCK_EVENTS } from './rock';
+import { SONG_LIBRARY_EVENTS } from './songLibrary';
 import { WORLD_EVENTS } from './world';
 
 export const MUSIC_HISTORY: HistoricalEvent[] = [
+  ...SONG_LIBRARY_EVENTS,
   ...JAZZ_EVENTS,
   ...BLUES_EVENTS,
   ...ROCK_EVENTS,

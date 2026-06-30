@@ -24,3 +24,34 @@ export { estimateBpm } from './bpmEstimator';
 export type { BpmEstimate } from './bpmEstimator';
 export { analyzeTimbre } from './timbreAnalyzer';
 export { analyzeMix } from './mixAnalyzer';
+export {
+  renderVoicing,
+  applyVoicingsToTimeline,
+  listAvailableGenreLevels,
+} from './voicingRenderer';
+export type {
+  VoicingRenderResult,
+  RenderVoicingOptions,
+  ApplyVoicingsOptions,
+} from './voicingRenderer';
+export {
+  renderComping,
+  applyComping,
+  listCompingPatternsForGenre,
+} from './compingRenderer';
+export type { RenderCompingOptions } from './compingRenderer';
+export {
+  renderBass,
+  applyBass,
+  listBassContours,
+  listBassRhythmsForGenre,
+} from './bassRenderer';
+export type { RenderBassOptions } from './bassRenderer';
+export { renderDrums, applyDrums, listDrumGenres } from './drumRenderer';
+export type { RenderDrumsOptions } from './drumRenderer';
+export { renderMelody, applyMelody } from './melodyRenderer';
+export type { MelodyConfig, RenderMelodyOptions } from './melodyRenderer';
+export { parseStyle } from './styleParser';
+export type { ParsedStyle } from './styleParser';
+export { arrangeForStyle } from './arrangeForStyle';
+export type { ArrangeForStyleOptions, ArrangeResult } from './arrangeForStyle';

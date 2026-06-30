@@ -28,6 +28,8 @@ export interface MasteringSlice {
   masteringBypass: boolean;
   masteringFxChain: EffectSlotType[];
   masteringEffects: TrackEffectState;
+  // Master bus output volume (0–1), driving the audio engine's master gain.
+  masterVolume: number;
 
   // Actions
   setMasteringStyle: (style: MasteringStyle) => void;
@@ -50,6 +52,7 @@ export interface MasteringSlice {
   addMasteringFx: (effectType: EffectSlotType) => void;
   removeMasteringFx: (effectType: EffectSlotType) => void;
   updateMasteringEffects: (effects: Partial<TrackEffectState>) => void;
+  setMasterVolume: (value: number) => void;
 }
 
 // ── Slice ────────────────────────────────────────────────────────────────
@@ -71,6 +74,7 @@ export const createMasteringSlice: StateCreator<
   masteringBypass: false,
   masteringFxChain: [],
   masteringEffects: structuredClone(DEFAULT_EFFECTS),
+  masterVolume: 0.8,
 
   setMasteringStyle: (style) => set({ masteringStyle: style }),
 
@@ -159,4 +163,7 @@ export const createMasteringSlice: StateCreator<
     set((s) => ({
       masteringEffects: { ...s.masteringEffects, ...effects },
     })),
+
+  setMasterVolume: (value) =>
+    set({ masterVolume: Math.max(0, Math.min(1, value)) }),
 });

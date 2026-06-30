@@ -18,10 +18,18 @@ import { validateConnection } from './auth';
 // Track connection metadata (role, userId)
 const connectionMeta = new Map<string, { userId: string; role: string }>();
 
+// Maximum distinct users allowed in a room. Caps collaboration cost (PartyKit
+// message fan-out) and keeps the WebRTC audio mesh within a workable size.
+const MAX_ROOM_USERS = 5;
+
 export default class CollabServer implements Party.Server {
   // The connection ID of the room host (first 'owner' to connect)
   private hostConnectionId: string | null = null;
   private hostUserId: string | null = null;
+  // Users the host has kicked. Kept in memory for the life of the room (the
+  // Durable Object) — when the host leaves and the room is disposed, the bans
+  // go with it.
+  private bannedUserIds = new Set<string>();
 
   constructor(public room: Party.Room) {}
 
@@ -65,7 +73,34 @@ export default class CollabServer implements Party.Server {
   async onConnect(conn: Party.Connection) {
     // Validate auth token from connection URL (pass env for JWKS config)
     const auth = await validateConnection(conn.uri, this.room.env);
+    // DEBUG (temporary): what identity did this connection get?
+    console.log('[collab] onConnect', {
+      connId: conn.id,
+      userId: auth?.userId,
+      role: auth?.role,
+      hostConnectionId: this.hostConnectionId,
+    });
     if (auth) {
+      // Reject users the host has kicked from this room.
+      if (this.bannedUserIds.has(auth.userId)) {
+        conn.send(JSON.stringify({ type: 'kicked', reason: 'banned' }));
+        conn.close(4403, 'You have been removed from this room');
+        return;
+      }
+
+      // Enforce room capacity (distinct users). The host is always admitted —
+      // the room can't exist without them — and a reconnect / second tab from a
+      // user who is already present does not consume an additional slot.
+      if (auth.role !== 'owner') {
+        const users = new Set<string>();
+        for (const [, m] of connectionMeta) users.add(m.userId);
+        if (!users.has(auth.userId) && users.size >= MAX_ROOM_USERS) {
+          conn.send(JSON.stringify({ type: 'room:full', reason: 'capacity' }));
+          conn.close(4408, 'Room is full');
+          return;
+        }
+      }
+
       connectionMeta.set(conn.id, { userId: auth.userId, role: auth.role });
 
       // Tag viewer connections so we can filter Yjs updates
@@ -108,13 +143,13 @@ export default class CollabServer implements Party.Server {
    * Handle disconnect — clean up metadata.
    * If the host disconnects, notify all clients and close the room via API.
    */
-  async onClose(conn: Party.Connection) {
+  onClose(conn: Party.Connection) {
     const meta = connectionMeta.get(conn.id);
     connectionMeta.delete(conn.id);
 
     // Check if the disconnecting connection is the host
     if (conn.id === this.hostConnectionId) {
-      await this.handleHostDisconnect();
+      this.handleHostDisconnect();
     } else if (meta && meta.userId === this.hostUserId) {
       // Host may have reconnected with a different connection ID —
       // check if any remaining connection belongs to the host
@@ -126,16 +161,17 @@ export default class CollabServer implements Party.Server {
         }
       }
       if (!hostStillConnected) {
-        await this.handleHostDisconnect();
+        this.handleHostDisconnect();
       }
     }
   }
 
   /**
-   * Broadcast room:closing to all remaining clients and call the API
-   * webhook to mark the room as closed in the database.
+   * Broadcast room:closing to all remaining clients and kick them. Studio and
+   * jam rooms are ephemeral — there is no backend room record to mark closed —
+   * so when the host disconnects the room simply ceases to exist.
    */
-  private async handleHostDisconnect(): Promise<void> {
+  private handleHostDisconnect(): void {
     this.hostConnectionId = null;
 
     // Notify all remaining clients that the room is closing, then kick them
@@ -148,33 +184,6 @@ export default class CollabServer implements Party.Server {
       conn.close(4410, 'Host disconnected');
     }
     connectionMeta.clear();
-
-    // Call the API to mark the room as closed
-    // The room ID in PartyKit is the database room ID (or jam-{id})
-    const rawRoomId = this.room.id;
-    const roomId = rawRoomId.startsWith('jam-')
-      ? rawRoomId.slice(4)
-      : rawRoomId;
-
-    const apiUrl = this.room.env.MUSIC_ATLAS_API_URL as string | undefined;
-    const webhookSecret = this.room.env.PARTYKIT_WEBHOOK_SECRET as
-      | string
-      | undefined;
-
-    if (apiUrl && webhookSecret) {
-      try {
-        await fetch(`${apiUrl}/api/collab/rooms/webhook/host-disconnected`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${webhookSecret}`,
-          },
-          body: JSON.stringify({ roomId }),
-        });
-      } catch (err) {
-        console.error('Failed to notify API of host disconnect:', err);
-      }
-    }
   }
 
   /**
@@ -193,6 +202,37 @@ export default class CollabServer implements Party.Server {
     try {
       const data = JSON.parse(message);
 
+      if (data.type === 'collab:kick') {
+        // DEBUG (temporary): trace the kick on the server.
+        console.log('[kick] received', {
+          senderId: sender.id,
+          hostConnectionId: this.hostConnectionId,
+          isHost: sender.id === this.hostConnectionId,
+          targetUserId: data.targetUserId,
+          connections: [...this.room.getConnections()].map((c) => ({
+            id: c.id,
+            userId: connectionMeta.get(c.id)?.userId,
+          })),
+        });
+        // Only the host may kick, and the host can't kick themselves.
+        if (sender.id !== this.hostConnectionId) return;
+        const targetUserId = String(data.targetUserId ?? '');
+        if (!targetUserId || targetUserId === this.hostUserId) return;
+        this.bannedUserIds.add(targetUserId);
+        // Close every connection belonging to the kicked user.
+        let closed = 0;
+        for (const conn of this.room.getConnections()) {
+          if (connectionMeta.get(conn.id)?.userId === targetUserId) {
+            conn.send(JSON.stringify({ type: 'kicked', reason: 'kicked' }));
+            conn.close(4403, 'Kicked by host');
+            connectionMeta.delete(conn.id);
+            closed += 1;
+          }
+        }
+        console.log('[kick] closed connections:', closed);
+        return;
+      }
+
       if (data.type === 'transport') {
         // Add server timestamp for latency compensation
         const cmd: TransportCommand = {
@@ -207,8 +247,35 @@ export default class CollabServer implements Party.Server {
         }
       }
 
-      // Jam Room: relay note and chat messages to all other clients
-      if (data.type === 'jam:note' || data.type === 'jam:chat') {
+      // Jam Room: relay note, chat, and shared-drum messages to other clients.
+      // `jam:drum-sync-request` is relayed so the host can answer a late joiner;
+      // `jam:drum-grid` / `jam:drum-mode` carry the shared sequencer state;
+      // `jam:drum-transport` carries the room-wide play/stop/tempo timeline;
+      // `jam:studio-invite` hands the room a collaborative Studio room code.
+      if (
+        data.type === 'jam:note' ||
+        data.type === 'jam:chat' ||
+        data.type === 'jam:drum-grid' ||
+        data.type === 'jam:drum-mode' ||
+        data.type === 'jam:drum-sync-request' ||
+        data.type === 'jam:drum-transport' ||
+        data.type === 'jam:studio-invite'
+      ) {
+        for (const conn of this.room.getConnections()) {
+          if (conn.id !== sender.id) {
+            conn.send(JSON.stringify(data));
+          }
+        }
+      }
+
+      // Studio live monitoring: relay live MIDI notes and WebRTC signaling to
+      // other clients. These are ephemeral (never touch the Yjs doc) and let a
+      // user hear collaborators' live playing. Each client filters by the `to`
+      // field for directed (RTC) messages.
+      if (
+        typeof data.type === 'string' &&
+        (data.type as string).startsWith('studio:')
+      ) {
         for (const conn of this.room.getConnections()) {
           if (conn.id !== sender.id) {
             conn.send(JSON.stringify(data));

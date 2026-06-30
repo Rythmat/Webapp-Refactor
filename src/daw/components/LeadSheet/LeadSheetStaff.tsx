@@ -10,12 +10,13 @@ import {
   type ChordDragState,
 } from './LeadSheetMeasure';
 
-/** Number of measures in a full system (used to decide whether to stretch) */
-const FULL_SYSTEM_COUNT = 4;
+/** Default number of measures in a full system (used to decide whether to stretch) */
+const DEFAULT_FULL_SYSTEM_COUNT = 4;
 
 interface LeadSheetStaffProps {
   measures: Measure[];
   startIndex: number;
+  fullSystemCount?: number;
   chordFormat: ChordFormat;
   selectedChordId: string | null;
   sections: LeadSheetSection[];
@@ -40,6 +41,8 @@ interface LeadSheetStaffProps {
   ) => void;
   onMarkAsMelody?: (regionId: string) => void;
   onDeleteChord?: (regionId: string) => void;
+  measureRestMap?: Record<number, number> | null;
+  measureFermatas?: number[] | null;
 }
 
 /**
@@ -49,6 +52,7 @@ interface LeadSheetStaffProps {
 export const LeadSheetStaff = memo(function LeadSheetStaff({
   measures,
   startIndex,
+  fullSystemCount,
   chordFormat,
   selectedChordId,
   sections,
@@ -64,9 +68,12 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
   onChordDragStart,
   onMarkAsMelody,
   onDeleteChord,
+  measureRestMap,
+  measureFermatas,
 }: LeadSheetStaffProps) {
   const defaultWidth = measures.length * MEASURE_WIDTH;
-  const isFull = measures.length === FULL_SYSTEM_COUNT;
+  const isFull =
+    measures.length === (fullSystemCount ?? DEFAULT_FULL_SYSTEM_COUNT);
 
   // Stretch full systems to fill container; keep partial lines at natural size
   const svgWidth =
@@ -111,6 +118,8 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
             onChordDragStart={onChordDragStart}
             onMarkAsMelody={onMarkAsMelody}
             onDeleteChord={onDeleteChord}
+            restBars={measureRestMap?.[globalIdx]}
+            hasFermata={measureFermatas?.includes(globalIdx)}
           />
         );
       })}

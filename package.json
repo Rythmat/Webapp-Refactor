@@ -3,14 +3,18 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "analyze": "ANALYZE=1 vite build",
     "build": "tsc -b && vite build",
+    "coverage": "vitest run --coverage",
+    "depcheck": "depcheck --skip-missing=true",
     "dev": "vite",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "generate:api": "tsx -r dotenv/config .swagger/generate.ts",
+    "knip": "knip",
     "lint": "no-hats package.json && prettier . --check && eslint . --max-warnings 0 && tsc -b",
     "partykit:deploy": "partykit deploy --config src/daw/collab/server/partykit.json",
     "partykit:dev": "partykit dev --config src/daw/collab/server/partykit.json",
-    "predev": "stay-fresh check --install && yarn generate:api",
+    "predev": "stay-fresh check --install && npm run generate:api",
     "prepare": "node .husky/install.mjs",
     "preview": "vite preview",
     "test:unit": "vitest"
@@ -95,7 +99,7 @@
     "recharts": "3.8.1",
     "simplex-noise": "4.0.3",
     "sonner": "1.5.0",
-    "spessasynth_lib": "4.1.5",
+    "spessasynth_lib": "4.3.3",
     "stripe": "20.4.0",
     "superjson": "2.2.2",
     "tailwind-merge": "2.5.4",
@@ -104,6 +108,7 @@
     "tone": "15.0.4",
     "use-local-storage-state": "19.4.1",
     "uuid": "11.1.0",
+    "webm-muxer": "5.1.4",
     "webmidi": "3.1.14",
     "y-indexeddb": "9.0.12",
     "y-partykit": "0.0.33",
@@ -113,9 +118,11 @@
     "zustand": "5.0.11"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "0.95.0",
     "@flasd/no-hats": "1.0.3",
     "@flasd/pretty-package": "1.0.3",
     "@flasd/stay-fresh": "2.0.2",
+    "@tailwindcss/container-queries": "0.1.1",
     "@tailwindcss/typography": "0.5.15",
     "@types/geojson": "7946.0.16",
     "@types/jsonwebtoken": "9.0.10",
@@ -132,7 +139,10 @@
     "@vercel/node": "4.0.0",
     "@vitejs/plugin-react": "4.7.0",
     "@vitejs/plugin-react-swc": "3.11.0",
+    "@vitest/coverage-v8": "4.1.8",
     "autoprefixer": "10.4.19",
+    "depcheck": "1.4.7",
+    "dependency-cruiser": "17.4.3",
     "dotenv": "17.3.1",
     "eslint": "8.57.0",
     "eslint-import-resolver-typescript": "3.6.1",
@@ -145,19 +155,30 @@
     "globals": "15.9.0",
     "husky": "9.0.11",
     "jsdom": "24.1.0",
+    "knip": "6.16.1",
     "lint-staged": "15.2.7",
     "partykit": "0.0.115",
+    "pdf-parse": "2.4.5",
+    "pdfjs-dist": "5.7.284",
     "postcss": "8.4.39",
     "prettier": "3.5.3",
+    "rollup-plugin-visualizer": "6.0.11",
     "shadcn-theme-editor": "1.4.3",
+    "sharp": "0.34.5",
     "swagger-typescript-api": "13.0.22",
     "tailwindcss": "3.4.6",
+    "tesseract.js": "7.0.0",
     "tsx": "4.19.3",
     "typescript": "5.9.2",
     "typescript-eslint": "8.7.0",
     "vite": "8.0.2",
     "vite-tsconfig-paths": "4.3.2",
-    "vitest": "4.1.1"
+    "vitest": "4.1.1",
+    "youtube-search-api": "2.0.1"
+  },
+  "overrides": {
+    "prettier": "3.5.3",
+    "spessasynth_core": "4.3.3"
   },
   "engines": {
     "node": "20"
@@ -170,13 +191,10 @@
     ],
     "**/*.{ts,tsx}": [
       "eslint",
-      "prettier"
+      "prettier --write"
     ],
     "**/*.json": [
-      "prettier"
+      "prettier --write"
     ]
-  },
-  "resolutions": {
-    "prettier": "3.5.3"
   }
 }

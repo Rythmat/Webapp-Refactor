@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { RealTimeAnalytics } from '@/components/ui/real-time-analytics';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { AccountSettings } from '@/features/settings/sections/AccountSettings';
 import { AudioSettings } from '@/features/settings/sections/AudioSettings';
@@ -33,7 +34,6 @@ import { UserAvatarPattern } from '../ui/UserAvatarPattern';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Switch } from '../ui/switch';
 import { AvatarEditorModal } from './AvatarEditorModal';
-import { ExperienceWeekChart } from './ExperienceWeekChart';
 import { UserMatchCard } from './UserMatchCard';
 import '@/features/settings/settings.css';
 
@@ -68,6 +68,29 @@ export const ProfilePage: React.FC = () => {
   const { data: user } = useMe();
   const { data: xpSummary } = useExperienceSummary();
   const navigate = useNavigate();
+
+  const { xpThisWeek, xpLastWeek } = useMemo(() => {
+    const timelineMap = new Map(
+      (xpSummary?.timeline ?? []).map((row) => [row.date, row.totalExperience]),
+    );
+    const days: string[] = [];
+    const now = new Date();
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      days.push(d.toISOString().slice(0, 10));
+    }
+    const LABELS = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun'];
+    const toPoints = (dates: string[]) =>
+      dates.map((date, i) => ({
+        label: LABELS[i] ?? '',
+        value: timelineMap.get(date) ?? 0,
+      }));
+    return {
+      xpThisWeek: toPoints(days.slice(7, 14)),
+      xpLastWeek: toPoints(days.slice(0, 7)),
+    };
+  }, [xpSummary?.timeline]);
   const displayName = user?.nickname || user?.username || 'USER';
   const [activeTab, setActiveTab] = useState<Tab>('Profile');
   const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
@@ -352,13 +375,16 @@ export const ProfilePage: React.FC = () => {
                     </div>
                   </div>
                   <div
-                    className="glass-panel-sm relative h-64 w-full overflow-hidden rounded-3xl px-6 pt-2 pb-0"
+                    className="glass-panel-sm relative h-80 w-full rounded-3xl px-6 pt-4 pb-2"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
                       border: '1px solid var(--color-border)',
                     }}
                   >
-                    <ExperienceWeekChart />
+                    <RealTimeAnalytics
+                      thisWeek={xpThisWeek}
+                      lastWeek={xpLastWeek}
+                    />
                   </div>
                 </div>
                 <div className="mt-8 lg:col-span-4 lg:mt-0">

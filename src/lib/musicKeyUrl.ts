@@ -2,6 +2,7 @@ const normalizeAccidental = (value: string) =>
   value.replace('♭', 'b').replace('♯', '#').toLowerCase();
 
 export const keyLabelToUrlParam = (label: string): string => {
+  if (!label) return 'c';
   const raw = label.trim();
   const letter = raw[0]?.toLowerCase();
   const accidental = normalizeAccidental(raw.slice(1));

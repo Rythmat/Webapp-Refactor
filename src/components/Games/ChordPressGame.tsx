@@ -148,6 +148,8 @@ export type ChordPressGameProps = {
   targetLabel?: string;
   className?: string;
   onComplete?: () => void;
+  onCorrect?: () => void;
+  onWrong?: () => void;
 };
 
 export function ChordPressGame({
@@ -163,6 +165,8 @@ export function ChordPressGame({
   targetLabel,
   className,
   onComplete,
+  onCorrect,
+  onWrong,
 }: ChordPressGameProps) {
   const baseOctaveRoot = 60; // middle C
 
@@ -501,7 +505,11 @@ export function ChordPressGame({
         }}
       >
         <button
-          onClick={() => setChecked(true)}
+          onClick={() => {
+            if (isCorrect) onCorrect?.();
+            else onWrong?.();
+            setChecked(true);
+          }}
           disabled={!canCheck}
           style={{
             ...BTN,

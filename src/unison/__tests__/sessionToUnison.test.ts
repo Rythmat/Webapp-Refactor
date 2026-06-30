@@ -178,3 +178,115 @@ describe('sessionToUnison', () => {
     expect(doc.metadata.durationTicks).toBe(0);
   });
 });
+
+describe('sessionToUnison — drum track isolation', () => {
+  function melodyTrack(notes: Array<[number, number, number]>) {
+    return {
+      id: 'mel',
+      name: 'Lead Melody',
+      type: 'midi' as const,
+      instrument: 'oracle-synth',
+      midiClips: [
+        {
+          events: notes.map(([note, startTick, durationTicks]) => ({
+            note,
+            startTick,
+            durationTicks,
+            velocity: 100,
+            channel: 1,
+          })),
+        },
+      ],
+    };
+  }
+
+  function drumTrack(notes: Array<[number, number, number]>) {
+    return {
+      id: 'drm',
+      name: 'Drums',
+      type: 'midi' as const,
+      instrument: 'drum-machine',
+      midiClips: [
+        {
+          events: notes.map(([note, startTick, durationTicks]) => ({
+            note,
+            startTick,
+            durationTicks,
+            velocity: 100,
+            channel: 10,
+          })),
+        },
+      ],
+    };
+  }
+
+  it('excludes drum events from chord-voicing inversion detection', () => {
+    // Pitched track: C major triad 60-64-67 sustained for the whole bar.
+    // Drum track: kick at MIDI 24 — well below any plausible voicing.
+    // Without filtering, harmonicAnalyzer would see 24 as the lowest pitch
+    // overlapping the chord region and label the chord as having bassNote=24.
+    const snapshot = makeSnapshot({
+      tracks: [
+        melodyTrack([
+          [60, 0, 1920],
+          [64, 0, 1920],
+          [67, 0, 1920],
+        ]),
+        drumTrack([[24, 0, 240]]),
+      ],
+    });
+    const doc = sessionToUnison(snapshot);
+    expect(doc.analysis.chordTimeline.length).toBeGreaterThan(0);
+    const chord = doc.analysis.chordTimeline[0];
+    expect(chord.bassNote).not.toBe(24);
+  });
+
+  it('keeps the drum track in the output document', () => {
+    const snapshot = makeSnapshot({
+      tracks: [
+        melodyTrack([[60, 0, 480]]),
+        drumTrack([
+          [36, 0, 120],
+          [38, 480, 120],
+          [42, 240, 120],
+        ]),
+      ],
+    });
+    const doc = sessionToUnison(snapshot);
+    const drum = doc.tracks.find((t) => t.role === 'drums');
+    expect(drum).toBeDefined();
+    expect(drum!.events.length).toBe(3);
+  });
+
+  it('does not pick a drum track as the melody candidate', () => {
+    // Only a drum track — melody analyzer should refuse it rather than
+    // pick the kick/snare as a "melody".
+    const snapshot = makeSnapshot({
+      tracks: [
+        drumTrack([
+          [36, 0, 120],
+          [38, 480, 120],
+          [42, 240, 120],
+        ]),
+      ],
+      chordRegions: [],
+    });
+    const doc = sessionToUnison(snapshot);
+    expect(doc.melody).toBeNull();
+  });
+
+  it('still includes drum events when running rhythm analysis', () => {
+    // Snapshot with only drums on a regular 8th-note hat pattern. Rhythm
+    // analysis should still produce a populated, valid output — drums
+    // ARE the rhythmic content here.
+    const hatHits: Array<[number, number, number]> = [];
+    for (let i = 0; i < 16; i++) hatHits.push([42, i * 240, 120]);
+    const snapshot = makeSnapshot({
+      tracks: [drumTrack(hatHits)],
+      chordRegions: [],
+    });
+    const doc = sessionToUnison(snapshot);
+    expect(doc.rhythm.timeSignatureNumerator).toBe(4);
+    expect(doc.rhythm.subdivision).toBeDefined();
+  });
+});

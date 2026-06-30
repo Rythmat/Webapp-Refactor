@@ -87,11 +87,20 @@ export interface UiSlice {
   settingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
 
+  // ── Recording-limit modal ──
+  // Opened when an audio recording auto-stops at the per-track 5-minute cap.
+  recordingLimitModalOpen: boolean;
+  setRecordingLimitModalOpen: (open: boolean) => void;
+
   // ── Theme ──
   theme: ThemeId;
   setTheme: (theme: ThemeId) => void;
 
   // ── Project ──
+  // Set when the project has been saved to the cloud; null for unsaved or
+  // local-only projects. First save calls POST; subsequent saves call PUT.
+  projectId: string | null;
+  setProjectId: (id: string | null) => void;
   projectName: string;
   setProjectName: (name: string) => void;
   composerName: string;
@@ -119,7 +128,7 @@ export const createUiSlice: StateCreator<
   [['zustand/subscribeWithSelector', never]],
   [],
   UiSlice
-> = (set) => ({
+> = (set, get) => ({
   activeTool: 'cursor',
   selectedClipId: null,
   selectedClipTrackId: null,
@@ -217,13 +226,25 @@ export const createUiSlice: StateCreator<
   settingsOpen: false,
   setSettingsOpen: (open) => set({ settingsOpen: open }),
 
+  recordingLimitModalOpen: false,
+  setRecordingLimitModalOpen: (open) => set({ recordingLimitModalOpen: open }),
+
   // ── Theme ──
   theme: 'dark' as ThemeId,
   setTheme: (theme) => set({ theme }),
 
   // ── Project ──
+  projectId: null,
+  setProjectId: (id) => set({ projectId: id }),
   projectName: 'Untitled Project',
-  setProjectName: (name) => set({ projectName: name }),
+  setProjectName: (name) => {
+    // In a collab session only the host owns the (synced) project title. A
+    // non-host's change is ignored here; remote title updates arrive via the
+    // Yjs observer (setState), which bypasses this action.
+    const { isCollabActive, collabRole } = get();
+    if (isCollabActive && collabRole !== 'owner') return;
+    set({ projectName: name });
+  },
   composerName: '',
   setComposerName: (name) => set({ composerName: name }),
 

@@ -25,5 +25,6 @@
       "@prism/engine": ["./src/daw/prism-engine/index.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/curriculum/data/songs/_generated_index.ts"]
 }

@@ -1,4 +1,5 @@
 import SuperJSON from 'superjson';
+import { getCurrentAppSessionId } from '@/auth/app-session-store';
 import { Env } from '@/constants/env';
 import type {
   LessonProgressResponse,
@@ -67,11 +68,13 @@ async function apiRequest<T>(
     body?: unknown;
   },
 ): Promise<T> {
+  const appSessionId = getCurrentAppSessionId();
   const response = await fetch(`${normalizedApiBase()}${path}`, {
     method: params.method ?? 'GET',
     headers: {
       Authorization: `Bearer ${params.token}`,
       'Content-Type': 'application/json',
+      ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
     },
     body: params.body != null ? JSON.stringify(params.body) : undefined,
   });

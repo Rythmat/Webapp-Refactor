@@ -48,18 +48,17 @@ function findYMap(
 }
 
 // ── Track scalar keys that should be diffed individually ────────────────
+// NOTE: `mute`/`solo`/`recordArmed`/`monitoring` are intentionally excluded —
+// in collab sessions they are per-user-local (personal monitoring/recording),
+// so they must never sync to peers.
 const TRACK_SCALAR_KEYS: (keyof Track)[] = [
   'name',
   'type',
   'instrument',
   'gmProgram',
   'color',
-  'mute',
-  'solo',
   'volume',
   'pan',
-  'recordArmed',
-  'monitoring',
   'trackRole',
 ];
 
@@ -113,18 +112,15 @@ export function diffAndApply(
 // ── Transport diff ──────────────────────────────────────────────────────
 
 function diffTransport(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
+  // Only tempo + time signature are shared. Loop region and metronome are
+  // per-user-local (each collaborator runs an independent transport), and
+  // play/position/recording state is never written to the doc at all.
   const yT = getYTransport(doc);
   if (prev.bpm !== next.bpm) yT.set('bpm', next.bpm);
   if (prev.timeSignatureNumerator !== next.timeSignatureNumerator)
     yT.set('timeSignatureNumerator', next.timeSignatureNumerator);
   if (prev.timeSignatureDenominator !== next.timeSignatureDenominator)
     yT.set('timeSignatureDenominator', next.timeSignatureDenominator);
-  if (prev.metronomeEnabled !== next.metronomeEnabled)
-    yT.set('metronomeEnabled', next.metronomeEnabled);
-  if (prev.loopEnabled !== next.loopEnabled)
-    yT.set('loopEnabled', next.loopEnabled);
-  if (prev.loopStart !== next.loopStart) yT.set('loopStart', next.loopStart);
-  if (prev.loopEnd !== next.loopEnd) yT.set('loopEnd', next.loopEnd);
 }
 
 // ── Track diff ──────────────────────────────────────────────────────────
@@ -308,6 +304,14 @@ function diffAudioClips(
       yClip.set('fadeInTicks', nextClip.fadeInTicks);
     if (prevClip.fadeOutTicks !== nextClip.fadeOutTicks)
       yClip.set('fadeOutTicks', nextClip.fadeOutTicks);
+    // assetId is stamped onto the clip after the recording's bytes finish
+    // uploading to GCS. Without syncing it, peers never learn the clip has a
+    // real asset and can't download/decode it for playback.
+    if (prevClip.assetId !== nextClip.assetId)
+      yClip.set('assetId', nextClip.assetId ?? null);
+    if (prevClip.offsetSeconds !== nextClip.offsetSeconds)
+      yClip.set('offsetSeconds', nextClip.offsetSeconds ?? 0);
+    if (prevClip.gain !== nextClip.gain) yClip.set('gain', nextClip.gain ?? 1);
   }
 }
 
@@ -438,6 +442,8 @@ function diffMastering(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
     yM.set('fxChain', JSON.stringify(next.masteringFxChain));
   if (prev.masteringEffects !== next.masteringEffects)
     yM.set('effects', JSON.stringify(next.masteringEffects));
+  if (prev.masterVolume !== next.masterVolume)
+    yM.set('masterVolume', next.masterVolume);
 }
 
 // ── Lead sheet diff ─────────────────────────────────────────────────────

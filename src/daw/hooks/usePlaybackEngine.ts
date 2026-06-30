@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
+import { showError } from '@/components/utils/toast';
 import { useStore, type InstrumentType } from '@/daw/store';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { TrackEngine } from '@/daw/audio/TrackEngine';
@@ -7,13 +8,27 @@ import { MidiScheduler } from '@/daw/audio/MidiScheduler';
 import { AudioClipScheduler } from '@/daw/audio/AudioClipScheduler';
 import { MetronomeEngine } from '@/daw/audio/MetronomeEngine';
 import { AudioRecorder } from '@/daw/audio/AudioRecorder';
-import { setAudioBuffer, getAudioBuffer } from '@/daw/audio/AudioBufferStore';
+import {
+  setAudioBuffer,
+  setOriginalAudio,
+  getAudioBuffer,
+} from '@/daw/audio/AudioBufferStore';
+import {
+  audioClipIntervalsSeconds,
+  computeMaxRecordSeconds,
+  ticksToSeconds,
+} from '@/daw/audio/recordingLimit';
+import { overwriteAudioRegion } from '@/daw/audio/overwriteAudioRegion';
 import {
   renderPitchEdits,
   pitchEditCacheKey,
 } from '@/daw/audio/pitch-analysis/PitchRenderer';
 import { seekTo } from '@/daw/hooks/useTransport';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
+import {
+  getTrackSynthState,
+  applySynthStateToEngine,
+} from '@/daw/oracle-synth/synthTrackState';
 import { PianoSampler } from '@/daw/instruments/PianoSampler';
 import { SamplerInstrument } from '@/daw/instruments/SamplerInstrument';
 import {
@@ -150,7 +165,13 @@ function resolvePitchBuffer(
 // created/destroyed. When playback starts, all MIDI clips are scheduled
 // through Tone.Transport.
 
-export function usePlaybackEngine(isReady: boolean) {
+export function usePlaybackEngine(isReady: boolean, token: string | null) {
+  // Kept in a ref so the recording effect can read the latest token when a
+  // recording stops without re-subscribing (and re-creating the recorder)
+  // every time the token refreshes.
+  const tokenRef = useRef(token);
+  tokenRef.current = token;
+
   const trackAudioRef = useRef(trackEngineRegistry);
   const schedulerRef = useRef(new MidiScheduler());
   const audioClipSchedulerRef = useRef(new AudioClipScheduler());
@@ -159,6 +180,10 @@ export function usePlaybackEngine(isReady: boolean) {
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const recordStartTickRef = useRef<number>(0);
   const isActivelyRecordingRef = useRef(false);
+  // Auto-stop timer that enforces the per-track 5-minute audio recording cap.
+  const recordLimitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const liveAudioAnalyserRef = useRef<AnalyserNode | null>(null);
   const liveAudioSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const liveAudioRafRef = useRef<number>(0);
@@ -177,6 +202,7 @@ export function usePlaybackEngine(isReady: boolean) {
   const tsDen = useStore((s) => s.timeSignatureDenominator);
   const loopEnabled = useStore((s) => s.loopEnabled);
   const masteringEffects = useStore((s) => s.masteringEffects);
+  const masterVolume = useStore((s) => s.masterVolume);
 
   // ── Sync TrackEngine instances with store tracks ───────────────────────
   useEffect(() => {
@@ -244,6 +270,29 @@ export function usePlaybackEngine(isReady: boolean) {
           .then(() => {
             trackEngine.setInstrument(instrument);
             console.log(`[Audio] Instrument ready for track "${track.name}"`);
+            // Apply the track's saved Oracle Synth patch to its fresh engine so
+            // a loaded project plays with the right sound even before the synth
+            // panel (which would otherwise be the first thing to sync it) opens.
+            if (instrument instanceof OracleSynthAdapter) {
+              const synthState = getTrackSynthState(track.id);
+              const synthEngine = instrument.getEngine();
+              if (synthState && synthEngine) {
+                applySynthStateToEngine(synthEngine, synthState);
+              }
+            }
+            // Tap audio-input adapters into the live-monitor send bus so this
+            // user's mic / instrument FX can be streamed to collaborators.
+            const monitorBus = audioEngine.getMonitorBus();
+            const getTap = (
+              instrument as { getMonitorOutputNode?: () => AudioNode | null }
+            ).getMonitorOutputNode;
+            if (monitorBus && typeof getTap === 'function') {
+              try {
+                getTap.call(instrument)?.connect(monitorBus);
+              } catch (err) {
+                console.warn('[Audio] monitor tap connect failed:', err);
+              }
+            }
             engineReadyVersion++;
             engineReadyListeners.forEach((cb) => cb());
           })
@@ -281,6 +330,13 @@ export function usePlaybackEngine(isReady: boolean) {
     if (!isReady) return;
     audioEngine.updateMasteringEffects(masteringEffects);
   }, [isReady, masteringEffects]);
+
+  // ── Sync master output volume with audio engine ──────────────────────
+  useEffect(() => {
+    if (!isReady) return;
+    const gain = audioEngine.getMasterGain();
+    gain.gain.setTargetAtTime(masterVolume, gain.context.currentTime, 0.01);
+  }, [isReady, masterVolume]);
 
   // ── Schedule / cancel MIDI + audio clips on play/stop ───────────────────
   useEffect(() => {
@@ -351,6 +407,7 @@ export function usePlaybackEngine(isReady: boolean) {
             pedalInput,
             clip.fadeInTicks,
             clip.fadeOutTicks,
+            clip.offsetSeconds ?? 0,
           );
         }
       }
@@ -424,10 +481,11 @@ export function usePlaybackEngine(isReady: boolean) {
       synth.triggerAttackRelease(pitch, '32n', time);
     }
 
-    // After count-in completes, start transport + recording
+    // After count-in completes, start the transport (and recording, if this
+    // count-in was armed by Record rather than Play).
     const timer = setTimeout(
       () => {
-        useStore.getState()._startRecordingAfterCountIn();
+        useStore.getState()._startAfterCountIn();
       },
       totalBeats * beatDuration * 1000,
     );
@@ -525,16 +583,63 @@ export function usePlaybackEngine(isReady: boolean) {
       (t) => t.type === 'audio' && t.recordArmed,
     );
 
+    // Tear down all live-recording artifacts (waveform RAF, analyser nodes, the
+    // 5-minute cap timer, and the on-screen live peaks). Idempotent and safe to
+    // call on any effect run — this is what keeps a stale RAF/timer from
+    // surviving when the effect re-runs for unrelated reasons. In a collab
+    // session `tracks` changes constantly, re-running this effect mid-take, so
+    // cleanup must NOT be conditional on the recorder still "recording".
+    const cleanupLiveRecordingArtifacts = () => {
+      cancelAnimationFrame(liveAudioRafRef.current);
+      liveAudioSourceRef.current?.disconnect();
+      liveAudioAnalyserRef.current?.disconnect();
+      liveAudioSourceRef.current = null;
+      liveAudioAnalyserRef.current = null;
+      liveAudioPeaksRef.current = [];
+      if (recordLimitTimerRef.current !== null) {
+        clearTimeout(recordLimitTimerRef.current);
+        recordLimitTimerRef.current = null;
+      }
+      useStore.getState().clearLiveAudioRecording();
+    };
+
     if (isPlaying && isRecording && recordArmedAudioTrack) {
       // Guard: don't re-create recorder if already recording (effect re-runs
       // when `tracks` changes during recording, e.g. MIDI clips added)
       if (isActivelyRecordingRef.current) return;
+      // Clear anything a previous take left behind before starting fresh, so a
+      // leaked RAF/timer from a botched teardown can't keep running.
+      cleanupLiveRecordingArtifacts();
       isActivelyRecordingRef.current = true;
+
+      // Enforce the per-track 5-minute total-audio cap. Time the take may run
+      // is the remaining budget, walked forward from the playhead (time spent
+      // over existing audio is free — it just overwrites). If there's no budget
+      // and nothing to overwrite at the start, refuse to record.
+      const startTickForLimit = useStore.getState().position;
+      const bpmForLimit = useStore.getState().bpm;
+      const maxRecordSeconds = computeMaxRecordSeconds(
+        audioClipIntervalsSeconds(recordArmedAudioTrack, bpmForLimit),
+        ticksToSeconds(startTickForLimit, bpmForLimit),
+      );
+      if (maxRecordSeconds <= 0.05) {
+        isActivelyRecordingRef.current = false;
+        useStore.getState().stop();
+        useStore.getState().setRecordingLimitModalOpen(true);
+        return;
+      }
 
       // Start recording
       const recorder = new AudioRecorder();
       audioRecorderRef.current = recorder;
-      recordStartTickRef.current = useStore.getState().position;
+      recordStartTickRef.current = startTickForLimit;
+
+      recordLimitTimerRef.current = setTimeout(() => {
+        // stop() flips isRecording/isPlaying off, which re-runs this effect and
+        // finalizes the take below (capturing the first `maxRecordSeconds`).
+        useStore.getState().stop();
+        useStore.getState().setRecordingLimitModalOpen(true);
+      }, maxRecordSeconds * 1000);
 
       // For Guitar/Bass/Vocal tracks, tap the adapter's raw input signal
       // (DRY, before pedal chain) so playback re-applies effects in real time.
@@ -591,11 +696,15 @@ export function usePlaybackEngine(isReady: boolean) {
         }
       };
 
-      if (adapter) {
+      // Tap the adapter's raw input when one is attached AND it has a live
+      // input device. Without a device (e.g. armed but no mic selected in a
+      // collab session), startRecordingStream() returns null and we fall back
+      // to generic mic capture below instead of crashing.
+      const adapterStream = adapter?.startRecordingStream() ?? null;
+      if (adapterStream) {
         // Tap the pedal chain output (after amp model, before muteGain)
-        const stream = adapter.startRecordingStream();
-        recorder.startRecording(stream);
-        startLiveAnalyser(stream, recordArmedAudioTrack.id);
+        recorder.startRecording(adapterStream);
+        startLiveAnalyser(adapterStream, recordArmedAudioTrack.id);
       } else {
         const audioConstraints: MediaTrackConstraints = {
           echoCancellation: false,
@@ -612,22 +721,26 @@ export function usePlaybackEngine(isReady: boolean) {
             console.warn('Audio recording failed:', err);
             audioRecorderRef.current = null;
             isActivelyRecordingRef.current = false;
+            if (recordLimitTimerRef.current !== null) {
+              clearTimeout(recordLimitTimerRef.current);
+              recordLimitTimerRef.current = null;
+            }
           });
       }
-    } else if (audioRecorderRef.current?.isRecording()) {
-      // Stop recording and create audio clip
-      isActivelyRecordingRef.current = false;
-
-      // Stop live waveform analyser
-      cancelAnimationFrame(liveAudioRafRef.current);
-      liveAudioSourceRef.current?.disconnect();
-      liveAudioAnalyserRef.current?.disconnect();
-      liveAudioSourceRef.current = null;
-      liveAudioAnalyserRef.current = null;
-      liveAudioPeaksRef.current = [];
-      useStore.getState().clearLiveAudioRecording();
-
+    } else {
+      // Not in the recording state (stopped/paused, or never started). ALWAYS
+      // tear down live artifacts first so a stale waveform RAF or 5-minute cap
+      // timer can't survive a stop — robust to the effect re-running for
+      // unrelated reasons (e.g. collab track syncs). Then finalize the take if a
+      // recorder was actually running.
       const recorder = audioRecorderRef.current;
+      const wasRecording = recorder?.isRecording() ?? false;
+      isActivelyRecordingRef.current = false;
+      cleanupLiveRecordingArtifacts();
+      audioRecorderRef.current = null;
+
+      if (!wasRecording || !recorder) return;
+
       const armedTrack = tracks.find(
         (t) => t.type === 'audio' && t.recordArmed,
       );
@@ -649,9 +762,12 @@ export function usePlaybackEngine(isReady: boolean) {
       const ctx = audioEngine.getContext();
       recorder
         .stopRecording(ctx)
-        .then((audioBuffer) => {
+        .then(({ buffer: audioBuffer, originalBytes, originalContentType }) => {
           const clipId = `clip-audio-${crypto.randomUUID().slice(0, 8)}`;
           setAudioBuffer(clipId, audioBuffer);
+          // Stash the original Opus/WebM bytes so cloud save can upload them
+          // as-is instead of re-encoding to ~10x larger WAV.
+          setOriginalAudio(clipId, originalBytes, originalContentType);
 
           // Convert duration in seconds to ticks
           const bpm = useStore.getState().bpm;
@@ -666,17 +782,51 @@ export function usePlaybackEngine(isReady: boolean) {
               fadeInTicks: 0,
               fadeOutTicks: 0,
             });
+
+            // Overwrite whatever the take rolled over: trim/remove existing
+            // audio clips on this track within the recorded span so only the
+            // overlapping region is replaced (non-overlapping audio survives).
+            const rawCtx = Tone.getContext().rawContext;
+            const nativeCtx: AudioContext =
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (rawCtx as any)._nativeContext ?? (rawCtx as AudioContext);
+            overwriteAudioRegion(
+              trackId,
+              startTick,
+              startTick + durationTicks,
+              nativeCtx,
+              bpm,
+              clipId,
+            );
+
             // Auto-rewind playhead to clip start so next play replays the recording
             seekTo(startTick);
+
+            // Upload to GCS immediately so the bytes survive a page reload —
+            // the decoded buffer and original bytes live only in memory until
+            // now. Stamps the returned assetId onto the clip. Fire-and-forget:
+            // a failure leaves assetId=null so the next cloud Save retries.
+            const token = tokenRef.current;
+            if (token) {
+              void (async () => {
+                const { uploadRecordedClip } = await import(
+                  '@/lib/studio-assets/upload-pending'
+                );
+                await uploadRecordedClip(token, trackId, clipId);
+              })().catch((err) => {
+                console.error('[recording] immediate upload failed', err);
+                showError(
+                  `Recorded audio couldn't be saved to the cloud: ${
+                    err instanceof Error ? err.message : 'unknown error'
+                  }. It will retry on the next Save.`,
+                );
+              });
+            }
           }
         })
         .catch((err) => {
           console.warn('Failed to stop audio recording:', err);
         });
-
-      audioRecorderRef.current = null;
-    } else {
-      isActivelyRecordingRef.current = false;
     }
   }, [isReady, isPlaying, isRecording, tracks]);
 
@@ -692,6 +842,10 @@ export function usePlaybackEngine(isReady: boolean) {
       liveAudioAnalyserRef.current?.disconnect();
       liveAudioSourceRef.current = null;
       liveAudioAnalyserRef.current = null;
+      if (recordLimitTimerRef.current !== null) {
+        clearTimeout(recordLimitTimerRef.current);
+        recordLimitTimerRef.current = null;
+      }
 
       for (const [, state] of trackAudioRef.current) {
         state.trackEngine.allNotesOff();

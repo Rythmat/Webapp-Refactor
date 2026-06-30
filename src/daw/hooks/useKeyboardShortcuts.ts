@@ -1,14 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useStore } from '@/daw/store';
 import type { ToolType } from '@/daw/store/uiSlice';
-import {
-  serializeSession,
-  deserializeSession,
-} from '@/daw/persistence/SessionSerializer';
-import {
-  saveToLocalStorage,
-  loadFromLocalStorage,
-} from '@/daw/persistence/SessionStorage';
+import { saveCurrentProjectToCloud } from '@/lib/studio-projects/api';
 import { undo, redo } from '@/daw/store/undoMiddleware';
 import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
 import { exportMidiFile, downloadMidiBlob } from '@/daw/midi/MidiFileIO';
@@ -36,7 +29,12 @@ const OUR_PPQ = 480;
 // Shortcuts are suppressed when focus is inside an <input> or <textarea>
 // (except Cmd-prefixed shortcuts which always work).
 
-export function useKeyboardShortcuts() {
+export function useKeyboardShortcuts(token: string | null) {
+  // Hold token in a ref so the keydown closure always reads the latest value
+  // without re-binding the listener whenever auth state changes.
+  const tokenRef = useRef(token);
+  tokenRef.current = token;
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const state = useStore.getState();
@@ -44,11 +42,18 @@ export function useKeyboardShortcuts() {
 
       // ── Cmd shortcuts (always active, even in inputs) ───────────────
 
-      // Cmd+S: Save session to current project slot
+      // Cmd+S: Save current project to the cloud (POST or PUT depending on
+      // whether a projectId is already stamped on the store).
       if (e.code === 'KeyS' && isMod) {
         e.preventDefault();
-        const session = serializeSession();
-        saveToLocalStorage(session, state.projectName);
+        const currentToken = tokenRef.current;
+        if (!currentToken) {
+          console.warn('Cmd-S ignored: not authenticated');
+          return;
+        }
+        void saveCurrentProjectToCloud(currentToken).catch((err) => {
+          console.error('Cmd-S cloud save failed', err);
+        });
         return;
       }
 
@@ -254,7 +259,7 @@ export function useKeyboardShortcuts() {
         return;
       }
 
-      // Cmd+N: Add new MIDI track
+      // Cmd+N: Add new MIDI track (addTrack enforces the limit + notifies)
       if (e.code === 'KeyN' && isMod) {
         e.preventDefault();
         const colors = [
@@ -445,14 +450,4 @@ export function useKeyboardShortcuts() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-}
-
-// ── loadSessionOnStartup ────────────────────────────────────────────────
-// Call once at app init to restore the last saved session.
-
-export function loadSessionOnStartup(): void {
-  const session = loadFromLocalStorage();
-  if (session) {
-    deserializeSession(session);
-  }
 }

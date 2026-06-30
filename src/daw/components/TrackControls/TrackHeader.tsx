@@ -9,8 +9,14 @@ import {
 import { motion } from 'framer-motion';
 import * as Popover from '@radix-ui/react-popover';
 import * as Slider from '@radix-ui/react-slider';
-import { X, Circle, Headphones, Volume2 } from 'lucide-react';
+import { X, Circle, Headphones, Volume2, Ear, EarOff } from 'lucide-react';
 import { useStore, type Track } from '@/daw/store';
+import {
+  useListenMode,
+  useStudioListenStore,
+  useRemoteTrackAudible,
+  useRemoteTrackActivity,
+} from '@/daw/collab/studioListenStore';
 import {
   trackEngineRegistry,
   getTrackAudioState,
@@ -20,6 +26,7 @@ import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
 import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
 import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
+import { useTrackPresence } from '@/daw/collab/presence';
 
 // ── Props ────────────────────────────────────────────────────────────────
 interface TrackHeaderProps {
@@ -50,6 +57,25 @@ export const TrackHeader = memo(function TrackHeader({
   const selectedTrackId = useStore((s) => s.selectedTrackId);
   const setSelectedTrackId = useStore((s) => s.setSelectedTrackId);
   const isSelected = selectedTrackId === track.id;
+
+  // The remote collaborator (if any) who currently has this track selected.
+  // Their selection locks the track: it's bordered in their presence colour
+  // (matching their icon in the Connected list) and all of its controls become
+  // read-only (the store also blocks any change). Clicks fall through to the
+  // row, whose handler toasts "Track locked".
+  const lockOwner = useTrackPresence(track.id)[0] ?? null;
+  const lockedByRemote = lockOwner !== null;
+  const lockedStyle = lockedByRemote
+    ? ({ pointerEvents: 'none', opacity: 0.6 } as const)
+    : undefined;
+
+  // Collaborative listen state for a track another user is driving live.
+  const listenMode = useListenMode();
+  const remoteAudible = useRemoteTrackAudible(track.id);
+  const remoteActivity = useRemoteTrackActivity(track.id);
+  const toggleTrackAudible = useStudioListenStore((s) => s.toggleTrackAudible);
+  // Pulse the remote owner's border while their live signal is audibly flowing.
+  const pulsing = lockedByRemote && remoteAudible && remoteActivity > 0.08;
 
   // Live audio metering (same pattern as mixer ChannelStrip)
   const analyser =
@@ -141,26 +167,67 @@ export const TrackHeader = memo(function TrackHeader({
         borderLeft: `3px solid ${track.color}`,
       }}
     >
-      {/* Delete button — top-right corner */}
-      <motion.button
-        onClick={(e) => {
-          e.stopPropagation();
-          removeTrack(track.id);
-        }}
-        whileTap={{ scale: 0.85 }}
-        className="absolute right-1.5 top-1.5 z-10 flex size-4 cursor-pointer items-center justify-center rounded opacity-0 transition-opacity hover:bg-red-500/20 hover:text-red-400 group-hover:opacity-100"
-        style={{
-          color: 'var(--color-text-dim)',
-          background: 'none',
-          border: 'none',
-        }}
-        title="Delete Track"
-      >
-        <X size={10} strokeWidth={2.5} />
-      </motion.button>
+      {/* Selection highlight overlay — pointer-events-none so it never shifts
+          layout or steals clicks. A track locked by a remote collaborator is
+          bordered in that user's colour; your own selection gets a white
+          border. */}
+      {lockOwner ? (
+        <motion.div
+          className="pointer-events-none absolute inset-0 z-20"
+          style={{
+            border: `2px solid ${lockOwner.color}`,
+            borderRadius: 4,
+          }}
+          animate={
+            pulsing
+              ? {
+                  boxShadow: [
+                    `0 0 4px ${lockOwner.color}, inset 0 0 3px ${lockOwner.color}`,
+                    `0 0 16px ${lockOwner.color}, inset 0 0 9px ${lockOwner.color}`,
+                    `0 0 4px ${lockOwner.color}, inset 0 0 3px ${lockOwner.color}`,
+                  ],
+                }
+              : {
+                  boxShadow: `0 0 6px ${lockOwner.color}, inset 0 0 4px ${lockOwner.color}`,
+                }
+          }
+          transition={
+            pulsing
+              ? { duration: 0.7, repeat: Infinity, ease: 'easeInOut' }
+              : { duration: 0.2 }
+          }
+        />
+      ) : (
+        isSelected && (
+          <div
+            className="pointer-events-none absolute inset-0 z-20"
+            style={{ border: '2px solid #fff', borderRadius: 4 }}
+          />
+        )
+      )}
+
+      {/* Delete button — top-right corner (hidden while remote-locked) */}
+      {!lockedByRemote && (
+        <motion.button
+          onClick={(e) => {
+            e.stopPropagation();
+            removeTrack(track.id);
+          }}
+          whileTap={{ scale: 0.85 }}
+          className="absolute right-1.5 top-1.5 z-10 flex size-4 cursor-pointer items-center justify-center rounded opacity-0 transition-opacity hover:bg-red-500/20 hover:text-red-400 group-hover:opacity-100"
+          style={{
+            color: 'var(--color-text-dim)',
+            background: 'none',
+            border: 'none',
+          }}
+          title="Delete Track"
+        >
+          <X size={10} strokeWidth={2.5} />
+        </motion.button>
+      )}
 
       {/* Row 1: Colored dot (color picker trigger) + uppercase name */}
-      <div className="flex min-w-0 items-center gap-1.5">
+      <div className="flex min-w-0 items-center gap-1.5" style={lockedStyle}>
         <Popover.Root open={colorOpen} onOpenChange={setColorOpen}>
           <Popover.Trigger asChild>
             <button
@@ -239,43 +306,113 @@ export const TrackHeader = memo(function TrackHeader({
         </select>
       </div>
 
-      {/* Row 2: Monitor toggle + Test Sound */}
-      <div className="flex items-center gap-1">
-        <motion.button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleMonitoring(track.id);
-          }}
-          whileTap={{ scale: 0.85 }}
-          className="flex w-fit items-center gap-1 rounded px-1.5 py-0.5 transition-colors"
-          style={{
-            backgroundColor: track.monitoring ? track.color : 'transparent',
-            color: track.monitoring ? '#fff' : 'var(--color-text-dim)',
-            border: `1px solid ${track.monitoring ? track.color : 'var(--color-border)'}`,
-          }}
-          title="Monitor"
-        >
-          <Headphones size={10} strokeWidth={2} />
-          <span className="text-[9px] font-medium">MON</span>
-        </motion.button>
-        {track.type === 'midi' && (
+      {/* Row 2: Monitor toggle + Test Sound — OR, when another collaborator is
+          driving this track, the local Mute/Listen control for their live
+          signal. The control stays interactive despite the remote lock. */}
+      {lockedByRemote ? (
+        <div className="flex items-center gap-1">
           <motion.button
-            onClick={handleTestSound}
-            whileTap={{ scale: 0.85 }}
-            className="flex size-5 items-center justify-center rounded transition-colors"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleTrackAudible(track.id);
             }}
-            title="Test Sound (plays C4)"
+            whileTap={{ scale: 0.9 }}
+            className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors"
+            style={{
+              color: remoteAudible
+                ? (lockOwner?.color ?? 'var(--color-text)')
+                : 'var(--color-text-dim)',
+              border: `1px solid ${
+                remoteAudible
+                  ? (lockOwner?.color ?? 'var(--color-border)')
+                  : 'var(--color-border)'
+              }`,
+              background: 'none',
+            }}
+            title={
+              listenMode === 'all'
+                ? remoteAudible
+                  ? `Mute ${lockOwner?.userName ?? 'this user'}'s live audio`
+                  : `Unmute ${lockOwner?.userName ?? 'this user'}'s live audio`
+                : remoteAudible
+                  ? `Stop listening to ${lockOwner?.userName ?? 'this user'}`
+                  : `Listen to ${lockOwner?.userName ?? 'this user'}`
+            }
           >
-            <Volume2 size={10} strokeWidth={2} />
+            {remoteAudible ? (
+              <Ear size={10} strokeWidth={2} />
+            ) : (
+              <EarOff size={10} strokeWidth={2} />
+            )}
+            {listenMode === 'all'
+              ? remoteAudible
+                ? 'Mute'
+                : 'Unmute'
+              : remoteAudible
+                ? 'Unlisten'
+                : 'Listen'}
           </motion.button>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-1" style={lockedStyle}>
+          <motion.button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleMonitoring(track.id);
+            }}
+            whileTap={{ scale: 0.85 }}
+            className="flex w-fit items-center gap-1 rounded px-1.5 py-0.5 transition-colors"
+            style={{
+              backgroundColor: track.monitoring ? track.color : 'transparent',
+              color: track.monitoring ? '#fff' : 'var(--color-text-dim)',
+              border: `1px solid ${track.monitoring ? track.color : 'var(--color-border)'}`,
+            }}
+            title="Monitor"
+          >
+            <Headphones size={10} strokeWidth={2} />
+            <span className="text-[9px] font-medium">MON</span>
+          </motion.button>
+          {track.type === 'midi' && (
+            <motion.button
+              onClick={handleTestSound}
+              whileTap={{ scale: 0.85 }}
+              className="flex size-5 items-center justify-center rounded transition-colors"
+              style={{
+                color: 'var(--color-text-dim)',
+                background: 'none',
+                border: 'none',
+              }}
+              title="Test Sound (plays C4)"
+            >
+              <Volume2 size={10} strokeWidth={2} />
+            </motion.button>
+          )}
 
-      {/* Row 3: M / S buttons + level meter */}
+          {/* Release — deselect your own track (frees the lock for others) */}
+          {isSelected && (
+            <motion.button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedTrackId(null);
+              }}
+              whileTap={{ scale: 0.9 }}
+              className="ml-auto flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors hover:bg-white/10"
+              style={{
+                color: 'var(--color-text-dim)',
+                border: '1px solid var(--color-border)',
+                background: 'none',
+              }}
+              title="Release this track so others can select it"
+            >
+              Release
+            </motion.button>
+          )}
+        </div>
+      )}
+
+      {/* Row 3: M / S buttons + level meter. M/S are per-user-local settings,
+          so they stay interactive even when the track is remote-locked; the
+          remaining controls (record-arm, volume) keep the lock. */}
       <div className="flex items-center gap-1">
         <motion.button
           onClick={(e) => {
@@ -322,6 +459,7 @@ export const TrackHeader = memo(function TrackHeader({
               : 'transparent',
             color: track.recordArmed ? track.color : 'var(--color-text-dim)',
             border: `1px solid ${track.recordArmed ? track.color : 'var(--color-border)'}`,
+            ...lockedStyle,
           }}
           title="Record Arm"
         >
@@ -332,9 +470,11 @@ export const TrackHeader = memo(function TrackHeader({
           />
         </motion.button>
 
-        {/* Live level meter + volume slider */}
+        {/* Live level meter + volume slider. Volume syncs to collaborators, so
+            it stays lock-protected. */}
         <Slider.Root
           className="relative ml-1 flex h-3 flex-1 cursor-pointer touch-none select-none items-center"
+          style={lockedStyle}
           min={0}
           max={100}
           step={1}

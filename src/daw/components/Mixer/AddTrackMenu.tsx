@@ -123,7 +123,9 @@ export function AddTrackMenu({ onClose }: AddTrackMenuProps) {
 
   const handleSelect = useCallback(
     (t: TrackTemplate) => {
+      // addTrack returns '' (and toasts) when a track limit is hit.
       const id = addTrack(t.trackType, t.instrument, t.label, t.color);
+      if (!id) return;
       setSelectedTrackId(id);
       onClose();
     },

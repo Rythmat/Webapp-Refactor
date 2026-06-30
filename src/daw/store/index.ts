@@ -81,6 +81,11 @@ export function useTrackCount() {
 // ── Re-exports ──────────────────────────────────────────────────────────
 // Slice interfaces
 export type { TransportSlice } from './transportSlice';
+export {
+  MAX_AUDIO_TRACKS,
+  MAX_TOTAL_TRACKS,
+  getTrackLimitMessage,
+} from './tracksSlice';
 export type {
   TracksSlice,
   Track,

@@ -24,6 +24,7 @@ import {
 } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { getChordTheory } from './chordTheoryMap';
 import type { UnisonChordRegion } from '@/unison/types/schema';
 import {
@@ -60,7 +61,8 @@ export function InsightContent() {
     return hwActiveNotes;
   }, [audioActiveNotes, hwActiveNotes]);
 
-  const keyLetter = rootNote !== null ? NOTES[rootNote] : null;
+  const keyLetter =
+    rootNote !== null ? displayAccidentals(NOTES[rootNote]) : null;
 
   // UNISON analysis state
   const unisonDoc = useStore((s) => s.unisonDoc);
@@ -109,10 +111,11 @@ export function InsightContent() {
     if (!match) return null;
 
     const { quality, rootPc, inversion } = match;
-    const rootLetter =
+    const rootLetter = displayAccidentals(
       rootNote !== null
         ? noteNameInKey(rootPc, rootNote)
-        : noteNameLetter(rootPc + 48);
+        : noteNameLetter(rootPc + 48),
+    );
     const intervals = CHORDS[quality];
 
     const INVERSION_LABELS = [
@@ -200,7 +203,9 @@ export function InsightContent() {
 
         const isChordParent = !chordModeInfo || chordModeInfo.offset === 0;
         isSessionParent = isChordParent || chordParentRootPc === rootNote;
-        parentKeyLetter = noteNameInKey(chordParentRootPc, rootNote);
+        parentKeyLetter = displayAccidentals(
+          noteNameInKey(chordParentRootPc, rootNote),
+        );
         parentMode = FAMILY_MODES[chordParentFamily]?.[0] ?? chordRootMode;
 
         const allInterps = findAllInterpretations(degreeName);
@@ -214,7 +219,9 @@ export function InsightContent() {
       chordLabel,
       hybrid,
       rootLetter,
-      noteNames: sorted.map((n) => noteNameInKey(n % 12, rootNote ?? 0)),
+      noteNames: sorted.map((n) =>
+        displayAccidentals(noteNameInKey(n % 12, rootNote ?? 0)),
+      ),
       intervals: intervals ? intervalsToString(intervals) : '',
       color,
       sessionMode,
@@ -254,9 +261,11 @@ export function InsightContent() {
       const bassMidi = degreeMidi(parentRoot, degreeName);
       const pitchedNotes = generateChord(bassMidi, quality);
       const noteNames = pitchedNotes.map((n) =>
-        noteNameInKey(n % 12, rootNote),
+        displayAccidentals(noteNameInKey(n % 12, rootNote)),
       );
-      const rootLetter = noteNameInKey(bassMidi % 12, rootNote);
+      const rootLetter = displayAccidentals(
+        noteNameInKey(bassMidi % 12, rootNote),
+      );
       const intervals = CHORDS[quality];
 
       const [r, g, b] = getChordColor(degreeName, parentRoot);
@@ -281,7 +290,9 @@ export function InsightContent() {
 
       const isChordParent = !chordModeInfo || chordModeInfo.offset === 0;
       const isSessionParent = isChordParent || chordParentRootPc === rootNote;
-      const parentKeyLetter = noteNameInKey(chordParentRootPc, rootNote);
+      const parentKeyLetter = displayAccidentals(
+        noteNameInKey(chordParentRootPc, rootNote),
+      );
       const parentMode = FAMILY_MODES[chordParentFamily]?.[0] ?? chordRootMode;
 
       const allInterps = findAllInterpretations(degreeName);
@@ -521,9 +532,11 @@ export function InsightContent() {
                         {liveChord.rootLetter}{' '}
                         {MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}
                         {' \u00B7 '}
-                        {noteNameInKey(
-                          (rootNote! - alt.parentOffset + 12) % 12,
-                          rootNote!,
+                        {displayAccidentals(
+                          noteNameInKey(
+                            (rootNote! - alt.parentOffset + 12) % 12,
+                            rootNote!,
+                          ),
                         )}{' '}
                         {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ??
                           alt.family}

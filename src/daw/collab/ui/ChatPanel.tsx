@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MessageSquare, Send, X } from 'lucide-react';
 import { useStore } from '@/daw/store/index';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import { useCollab } from '../CollabProvider';
 import type { ChatMessage } from '../types';
 
 const SPRING = { type: 'spring' as const, stiffness: 350, damping: 30 };
@@ -17,8 +19,9 @@ interface ChatPanelProps {
 
 export function ChatPanel({ open, onClose }: ChatPanelProps) {
   const messages = useStore((s) => s.chatMessages);
-  const appendMessage = useStore((s) => s._appendChatMessage);
   const markRead = useStore((s) => s.markChatRead);
+  const { sendChatMessage } = useCollab();
+  const { userId } = useAuthContext();
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -37,17 +40,12 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   const handleSend = useCallback(() => {
     const text = input.trim();
     if (!text) return;
-
-    const msg: ChatMessage = {
-      id: crypto.randomUUID(),
-      userId: '',
-      userName: 'You',
-      text,
-      timestamp: Date.now(),
-    };
-    appendMessage(msg);
+    // Pushes to the shared Yjs chat array; the observer mirrors it back into
+    // the store for us and every other user in the room.
+    sendChatMessage(text);
+    markRead();
     setInput('');
-  }, [input, appendMessage]);
+  }, [input, sendChatMessage, markRead]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -122,7 +120,11 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
               </div>
             )}
             {messages.map((msg) => (
-              <MessageBubble key={msg.id} message={msg} />
+              <MessageBubble
+                key={msg.id}
+                message={msg}
+                isSelf={!!userId && msg.userId === userId}
+              />
             ))}
           </div>
 
@@ -164,7 +166,13 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   );
 }
 
-function MessageBubble({ message }: { message: ChatMessage }) {
+function MessageBubble({
+  message,
+  isSelf = false,
+}: {
+  message: ChatMessage;
+  isSelf?: boolean;
+}) {
   const time = new Date(message.timestamp);
   const timeStr = `${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}`;
 
@@ -175,7 +183,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
           className="text-[9px] font-semibold"
           style={{ color: 'var(--color-text)' }}
         >
-          {message.userName}
+          {isSelf ? 'You' : message.userName}
         </span>
         <span className="text-[7px]" style={{ color: 'var(--color-text-dim)' }}>
           {timeStr}

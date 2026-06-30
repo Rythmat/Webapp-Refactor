@@ -31,6 +31,7 @@ const initialState: AppState = {
   selectedEra: null,
   searchFlyTarget: null,
   aiInsight: initialAIInsight,
+  visibleArcDirections: new Set(),
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -100,7 +101,11 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_SEARCH_RESULTS':
       return { ...state, searchResults: action.payload, pinnedEvent: null };
     case 'PIN_EVENT':
-      return { ...state, pinnedEvent: action.payload };
+      return {
+        ...state,
+        pinnedEvent: action.payload,
+        visibleArcDirections: new Set(),
+      };
     case 'EXECUTE_SEARCH':
       return {
         ...state,
@@ -161,6 +166,12 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, selectedEra: action.payload, pinnedEvent: null };
     case 'AI_INSIGHT_CLEAR':
       return { ...state, aiInsight: initialAIInsight };
+    case 'TOGGLE_ARC_DIRECTION': {
+      const next = new Set(state.visibleArcDirections);
+      if (next.has(action.payload)) next.delete(action.payload);
+      else next.add(action.payload);
+      return { ...state, visibleArcDirections: next };
+    }
     default:
       return state;
   }

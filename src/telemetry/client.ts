@@ -38,6 +38,8 @@ function shouldSample(): boolean {
 
 async function flush(): Promise<void> {
   if (queue.length === 0) return;
+  // Don't flush until auth is ready — events stay queued and will be sent on the next cycle
+  if (!config.token || !config.appSessionId) return;
 
   const events = [...queue];
   queue = [];

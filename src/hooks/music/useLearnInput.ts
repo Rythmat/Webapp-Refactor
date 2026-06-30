@@ -1,13 +1,14 @@
 // ── useLearnInput ────────────────────────────────────────────────────────
-// Unified input hook for the Learn section. Auto-detects whether a MIDI
-// controller is connected and falls back to acoustic piano (microphone)
-// when no MIDI device is present.
+// Input hook for the Learn section. Listens for MIDI keyboard input only;
+// microphone-based pitch detection has been removed because stray ambient
+// audio was producing spurious notes and breaking activity feedback.
 //
-// Hot-plugging: listens for MIDI device connect/disconnect via the
-// Web MIDI API's statechange event and switches modes automatically.
+// Hot-plugging is supported via the Web MIDI API's statechange event so
+// devices can be connected/disconnected mid-lesson.
 //
-// Computer keyboard input (useMidiKeyboard) remains as a silent fallback
-// in both modes — not a user-facing option.
+// The audio refs and stop logic are preserved so the surrounding state
+// surface (capture, inputLevel, noteConfidences, isV2) stays compatible
+// with consumers — they just remain at default values.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { isV2Enabled } from '@/learn/audio/AudioSystemSelector';
@@ -29,8 +30,6 @@ export type InputSource = 'midi' | 'audio';
 export interface UseLearnInputOptions {
   /** Detection mode for audio input. Activities set this based on their type. */
   detectionMode?: DetectionMode;
-  /** Preferred audio device ID (from localStorage or user selection). */
-  audioDeviceId?: string;
   /** Called when a note starts. */
   onNoteOn?: (event: MidiNoteEvent) => void;
   /** Called when a note ends (with duration). */
@@ -72,37 +71,12 @@ export interface UseLearnInputReturn {
   noteConfidences: Map<number, number>;
 }
 
-// ── Storage key ──────────────────────────────────────────────────────────
-
-const AUDIO_DEVICE_KEY = 'learn-audio-device-id';
-
-function getSavedAudioDevice(): string | null {
-  try {
-    return localStorage.getItem(AUDIO_DEVICE_KEY);
-  } catch {
-    return null;
-  }
-}
-
-function saveAudioDevice(deviceId: string): void {
-  try {
-    localStorage.setItem(AUDIO_DEVICE_KEY, deviceId);
-  } catch {
-    // localStorage may be unavailable
-  }
-}
-
 // ── Hook ─────────────────────────────────────────────────────────────────
 
 export function useLearnInput(
   options: UseLearnInputOptions = {},
 ): UseLearnInputReturn {
-  const {
-    detectionMode = 'monophonic',
-    audioDeviceId,
-    onNoteOn,
-    onNoteOff,
-  } = options;
+  const { detectionMode = 'monophonic', onNoteOn, onNoteOff } = options;
 
   const [activeSource, setActiveSource] = useState<InputSource>('midi');
   const [isListening, setIsListening] = useState(false);
@@ -247,179 +221,6 @@ export function useLearnInput(
     setMidiDeviceName(null);
   }, []);
 
-  // ── Start audio capture ───────────────────────────────────────────────
-
-  const startAudio = useCallback(
-    async (deviceId?: string) => {
-      // Stop any existing audio capture first (re-entrancy guard)
-      if (captureRef.current) {
-        if (levelRafRef.current) {
-          cancelAnimationFrame(levelRafRef.current);
-          levelRafRef.current = 0;
-        }
-        adapterRef.current?.stop();
-        captureRef.current.stop();
-      }
-
-      const newCapture = new LearnAudioCapture();
-      captureRef.current = newCapture;
-      setCapture(newCapture);
-
-      const adapter = new AudioToMidiAdapter(newCapture, detectionMode);
-      adapterRef.current = adapter;
-
-      adapter.setCallbacks({
-        onNoteOn: (event) => {
-          const tagged = { ...event, source: 'audio' as const };
-          activeNotesRef.current.add(event.number);
-          updateActiveNotes();
-          onNoteOnRef.current?.(tagged);
-          for (const cb of noteOnSubscribersRef.current) cb(tagged);
-        },
-        onNoteOff: (event) => {
-          const tagged = { ...event, source: 'audio' as const };
-          activeNotesRef.current.delete(event.number);
-          updateActiveNotes();
-          onNoteOffRef.current?.(tagged);
-          for (const cb of noteOffSubscribersRef.current) cb(tagged);
-        },
-      });
-
-      newCapture.setOnDisconnect(() => {
-        setError('Microphone disconnected');
-        setIsListening(false);
-      });
-
-      // Determine which device to use
-      let targetDevice = deviceId ?? audioDeviceId ?? getSavedAudioDevice();
-
-      if (!targetDevice) {
-        // Use first available device
-        const devices = await LearnAudioCapture.getDevices();
-        if (devices.length > 0) {
-          targetDevice = devices[0].id;
-        }
-      }
-
-      if (!targetDevice) {
-        setError('No microphone available');
-        return;
-      }
-
-      saveAudioDevice(targetDevice);
-
-      await newCapture.start(targetDevice);
-
-      // Guard: if another start() ran while we were awaiting, bail out
-      if (captureRef.current !== newCapture) {
-        newCapture.stop();
-        return;
-      }
-
-      if (newCapture.isActive) {
-        adapter.start();
-        setActiveSource('audio');
-        setIsListening(true);
-        setError(null);
-
-        // Start level metering RAF
-        const meterLevel = () => {
-          if (!captureRef.current?.isActive) return;
-          const level = captureRef.current.updateLevel();
-          setInputLevel(level);
-          levelRafRef.current = requestAnimationFrame(meterLevel);
-        };
-        levelRafRef.current = requestAnimationFrame(meterLevel);
-      } else {
-        setError(
-          newCapture.getState().error ?? 'Could not start audio capture',
-        );
-      }
-    },
-    [audioDeviceId, detectionMode, updateActiveNotes],
-  );
-
-  // ── Start v2 audio capture ───────────────────────────────────────────
-
-  const startAudioV2 = useCallback(
-    async (deviceId?: string) => {
-      // Stop any existing v2 capture
-      if (v2CaptureRef.current) {
-        v2OrchestratorRef.current?.stop();
-        v2CaptureRef.current.stop();
-      }
-
-      const newCapture = new StreamingAudioCapture();
-      v2CaptureRef.current = newCapture;
-
-      const orchestrator = new ProbabilisticOrchestrator(
-        newCapture,
-        detectionMode,
-      );
-      v2OrchestratorRef.current = orchestrator;
-
-      orchestrator.setCallbacks({
-        onNoteOn: (event) => {
-          activeNotesRef.current.add(event.number);
-          updateActiveNotes();
-          onNoteOnRef.current?.(event);
-          for (const cb of noteOnSubscribersRef.current) cb(event);
-          setNoteConfidences(orchestrator.getNoteConfidences());
-        },
-        onNoteOff: (event) => {
-          activeNotesRef.current.delete(event.number);
-          updateActiveNotes();
-          onNoteOffRef.current?.(event);
-          for (const cb of noteOffSubscribersRef.current) cb(event);
-          setNoteConfidences(orchestrator.getNoteConfidences());
-        },
-      });
-
-      newCapture.setOnDisconnect(() => {
-        setError('Microphone disconnected');
-        setIsListening(false);
-      });
-
-      let targetDevice = deviceId ?? audioDeviceId ?? getSavedAudioDevice();
-      if (!targetDevice) {
-        const devices = await StreamingAudioCapture.getDevices();
-        if (devices.length > 0) targetDevice = devices[0].id;
-      }
-      if (!targetDevice) {
-        setError('No microphone available');
-        return;
-      }
-
-      saveAudioDevice(targetDevice);
-      await newCapture.start(targetDevice);
-
-      if (v2CaptureRef.current !== newCapture) {
-        newCapture.stop();
-        return;
-      }
-
-      if (newCapture.isActive) {
-        await orchestrator.start();
-        setActiveSource('audio');
-        setIsListening(true);
-        setError(null);
-
-        const meterLevel = () => {
-          if (!v2CaptureRef.current?.isActive) return;
-          const level = v2CaptureRef.current.updateLevel();
-          setInputLevel(level);
-          levelRafRef.current = requestAnimationFrame(meterLevel);
-        };
-        levelRafRef.current = requestAnimationFrame(meterLevel);
-      } else {
-        setError(
-          newCapture.getState().error ?? 'Could not start audio capture',
-        );
-      }
-    },
-    [audioDeviceId, detectionMode, updateActiveNotes],
-  );
-
   // ── Stop audio capture ────────────────────────────────────────────────
 
   const stopAudio = useCallback(() => {
@@ -450,15 +251,9 @@ export function useLearnInput(
   const start = useCallback(async () => {
     const generation = ++startGenerationRef.current;
 
-    // Always start audio capture — this enables acoustic piano input
-    // regardless of whether MIDI devices are present (e.g. virtual MIDI
-    // ports on macOS like IAC Driver).
-    if (v2Enabled.current) {
-      await startAudioV2();
-    } else {
-      await startAudio();
-    }
-    if (startGenerationRef.current !== generation) return;
+    // Microphone-based pitch detection is intentionally disabled for lessons:
+    // the mic was picking up extraneous sound and producing spurious notes
+    // that broke activity feedback. Lessons rely solely on MIDI input now.
 
     try {
       const midiAccess = await navigator.requestMIDIAccess();
@@ -467,27 +262,25 @@ export function useLearnInput(
       midiAccessRef.current = midiAccess;
 
       if (midiAccess.inputs.size > 0) {
-        // MIDI device available — listen on it alongside audio
         startMidi(midiAccess);
+      } else {
+        setIsListening(true);
       }
 
-      // Listen for hot-plug changes
       midiAccess.onstatechange = () => {
         const hasInputs = midiAccess.inputs.size > 0;
 
         if (hasInputs) {
-          // MIDI device connected — attach listeners
           startMidi(midiAccess);
         } else {
-          // All MIDI devices disconnected — clean up MIDI listeners
           stopMidi();
-          setActiveSource('audio');
         }
       };
     } catch {
-      // Web MIDI not supported — audio is already running
+      // Web MIDI not supported — no input available.
+      setError('Web MIDI is not supported in this browser');
     }
-  }, [startMidi, stopMidi, startAudio, startAudioV2]);
+  }, [startMidi, stopMidi]);
 
   const stop = useCallback(() => {
     // Invalidate any in-flight start()

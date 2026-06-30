@@ -2,8 +2,9 @@
 // Sidebar panel showing all online collaborators with their current
 // activity and presence state. Follows the LibraryPanel pattern.
 
+import { useCallback, useState, type MouseEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { Check, Copy, X } from 'lucide-react';
 import { useRemoteUsers } from '../presence';
 import { useStore } from '@/daw/store/index';
 import type { UserActivity } from '../types';
@@ -26,107 +27,166 @@ interface UserListProps {
 export function UserList({ open, onClose }: UserListProps) {
   const remoteUsers = useRemoteUsers();
   const connectionStatus = useStore((s) => s.connectionStatus);
+  const roomCode = useStore((s) => s.roomCode);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCode = useCallback(async () => {
+    if (!roomCode) return;
+    try {
+      await navigator.clipboard.writeText(roomCode);
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = roomCode;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [roomCode]);
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 200, opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={SPRING}
-          className="flex shrink-0 flex-col overflow-hidden border-l"
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-          }}
-        >
-          {/* Header */}
-          <div
-            className="flex shrink-0 items-center justify-between border-b px-3"
+    <>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 200, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={SPRING}
+            className="flex shrink-0 flex-col overflow-hidden border-l"
             style={{
-              height: 28,
+              backgroundColor: 'var(--color-surface)',
               borderColor: 'var(--color-border)',
             }}
           >
-            <span
-              className="text-[10px] font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-text-dim)' }}
-            >
-              Collaborators
-            </span>
-            <button
-              onClick={onClose}
-              className="flex size-4 items-center justify-center rounded transition-colors hover:bg-white/10"
-              style={{
-                color: 'var(--color-text-dim)',
-                background: 'none',
-                border: 'none',
-              }}
-            >
-              <X size={10} strokeWidth={2.5} />
-            </button>
-          </div>
-
-          {/* Connection status */}
-          <div
-            className="flex items-center gap-1.5 border-b px-3 py-1.5"
-            style={{ borderColor: 'var(--color-border)' }}
-          >
+            {/* Header */}
             <div
-              className="size-1.5 rounded-full"
+              className="flex shrink-0 items-center justify-between border-b px-3"
               style={{
-                backgroundColor:
-                  connectionStatus === 'connected'
-                    ? '#22c55e'
-                    : connectionStatus === 'connecting'
-                      ? '#f59e0b'
-                      : '#ef4444',
+                height: 28,
+                borderColor: 'var(--color-border)',
               }}
-            />
-            <span
-              className="text-[9px] capitalize"
-              style={{ color: 'var(--color-text-dim)' }}
             >
-              {connectionStatus}
-            </span>
-          </div>
-
-          {/* User list */}
-          <div
-            className="flex-1 overflow-y-auto"
-            style={{ scrollbarWidth: 'none' }}
-          >
-            {/* Self */}
-            <UserRow
-              name="You"
-              color="var(--color-accent)"
-              activity="idle"
-              isSelf
-            />
-
-            {/* Remote users */}
-            {remoteUsers.map((user) => (
-              <UserRow
-                key={user.userId}
-                name={user.userName}
-                color={user.color}
-                activity={user.activity}
-              />
-            ))}
-
-            {remoteUsers.length === 0 && (
-              <div
-                className="px-3 py-4 text-center text-[10px]"
+              <span
+                className="text-[10px] font-semibold uppercase tracking-wider"
                 style={{ color: 'var(--color-text-dim)' }}
               >
-                No other users online
+                Collaborators
+              </span>
+              <button
+                onClick={onClose}
+                className="flex size-4 items-center justify-center rounded transition-colors hover:bg-white/10"
+                style={{
+                  color: 'var(--color-text-dim)',
+                  background: 'none',
+                  border: 'none',
+                }}
+              >
+                <X size={10} strokeWidth={2.5} />
+              </button>
+            </div>
+
+            {/* Connection status */}
+            <div
+              className="flex items-center gap-1.5 border-b px-3 py-1.5"
+              style={{ borderColor: 'var(--color-border)' }}
+            >
+              <div
+                className="size-1.5 rounded-full"
+                style={{
+                  backgroundColor:
+                    connectionStatus === 'connected'
+                      ? '#22c55e'
+                      : connectionStatus === 'connecting'
+                        ? '#f59e0b'
+                        : '#ef4444',
+                }}
+              />
+              <span
+                className="text-[9px] capitalize"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                {connectionStatus}
+              </span>
+            </div>
+
+            {/* Room code — share so others can join via Join Room */}
+            {roomCode && (
+              <div
+                className="flex shrink-0 flex-col gap-1 border-b px-3 py-2"
+                style={{ borderColor: 'var(--color-border)' }}
+              >
+                <span
+                  className="text-[8px] font-semibold uppercase tracking-wider"
+                  style={{ color: 'var(--color-text-dim)' }}
+                >
+                  Room Code
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="flex-1 truncate font-mono text-xs font-semibold tracking-[0.2em]"
+                    style={{ color: 'var(--color-text)' }}
+                  >
+                    {roomCode}
+                  </span>
+                  <button
+                    onClick={handleCopyCode}
+                    className="flex size-5 shrink-0 items-center justify-center rounded transition-colors hover:bg-white/10"
+                    style={{
+                      color: copied ? '#22c55e' : 'var(--color-text-dim)',
+                      background: 'none',
+                      border: 'none',
+                    }}
+                    title="Copy room code"
+                  >
+                    {copied ? (
+                      <Check size={10} strokeWidth={2.5} />
+                    ) : (
+                      <Copy size={10} strokeWidth={2} />
+                    )}
+                  </button>
+                </div>
               </div>
             )}
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+
+            {/* User list */}
+            <div
+              className="flex-1 overflow-y-auto"
+              style={{ scrollbarWidth: 'none' }}
+            >
+              {/* Self */}
+              <UserRow
+                name="You"
+                color="var(--color-accent)"
+                activity="idle"
+                isSelf
+              />
+
+              {/* Remote users */}
+              {remoteUsers.map((user) => (
+                <UserRow
+                  key={user.userId}
+                  name={user.userName}
+                  color={user.color}
+                  activity={user.activity}
+                />
+              ))}
+
+              {remoteUsers.length === 0 && (
+                <div
+                  className="px-3 py-4 text-center text-[10px]"
+                  style={{ color: 'var(--color-text-dim)' }}
+                >
+                  No other users online
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -137,16 +197,23 @@ function UserRow({
   color,
   activity,
   isSelf = false,
+  onContextMenu,
 }: {
   name: string;
   color: string;
   activity: UserActivity;
   isSelf?: boolean;
+  onContextMenu?: (e: MouseEvent) => void;
 }) {
   return (
     <div
       className="flex items-center gap-2 px-3 py-1.5 transition-colors hover:bg-white/5"
-      style={{ borderBottom: '1px solid var(--color-border)' }}
+      style={{
+        borderBottom: '1px solid var(--color-border)',
+        cursor: onContextMenu ? 'context-menu' : undefined,
+      }}
+      onContextMenu={onContextMenu}
+      title={onContextMenu ? 'Right-click to remove from room' : undefined}
     >
       {/* Avatar dot */}
       <div

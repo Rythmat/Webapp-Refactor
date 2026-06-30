@@ -13,6 +13,17 @@ dist-ssr
 *.local
 .partykit/
 
+# Build caches / coverage / deploy metadata
+*.tsbuildinfo
+coverage/
+.vercel/
+
+# Other package managers (we use npm)
+yarn.lock
+bun.lock
+bun.lockb
+pnpm-lock.yaml
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -24,3 +35,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Secrets
+.env
+.env.*
+
+# Tesseract trained data (downloaded artifact, not source)
+*.traineddata
+
+# Generated scratch files / caches / audit dumps
+src/curriculum/data/songs/_generated_index.ts
+**/_*.json
+**/_vision_cache/

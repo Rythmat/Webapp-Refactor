@@ -6,9 +6,11 @@ import * as Tone from 'tone';
 import {
   getAudioBuffer,
   setAudioBuffer,
+  setOriginalAudio,
   removeAudioBuffer,
   computePeaks,
   sliceBuffer,
+  subscribeAudioBufferChanges,
 } from '@/daw/audio/AudioBufferStore';
 import {
   TICKS_PER_BEAT,
@@ -39,6 +41,40 @@ const TIME_RULER_HEIGHT = 22; // px for time ruler at bottom
 const RESIZE_EDGE_PX = 6; // px threshold for resize handle
 const PROJECT_MIN_BARS = 8; // minimum visible project length
 const PROJECT_PAD_BARS = 4; // extra bars of padding beyond content
+// Dragging vertically on the bar-number ruler zooms the timeline: this much
+// zoom delta is applied per pixel of vertical movement (up = zoom in).
+const RULER_ZOOM_SENSITIVITY = 0.006;
+// Vertical pixels of movement before a ruler press becomes a zoom drag rather
+// than a seek click.
+const RULER_ZOOM_DRAG_THRESHOLD = 3;
+// Horizontal pixels of movement before an empty-area press becomes a pan drag
+// rather than a seek click.
+const PAN_DRAG_THRESHOLD = 4;
+
+// ── MIME-type inference (for audio assets without a Content-Type header) ────
+
+const AUDIO_EXTENSION_MIME: Record<string, string> = {
+  wav: 'audio/wav',
+  mp3: 'audio/mpeg',
+  ogg: 'audio/ogg',
+  oga: 'audio/ogg',
+  opus: 'audio/ogg',
+  webm: 'audio/webm',
+  flac: 'audio/flac',
+  m4a: 'audio/mp4',
+  aac: 'audio/aac',
+};
+
+function inferContentTypeFromUrl(url: string): string | null {
+  try {
+    const path = new URL(url, window.location.origin).pathname;
+    const ext = path.split('.').pop()?.toLowerCase();
+    if (!ext) return null;
+    return AUDIO_EXTENSION_MIME[ext] ?? null;
+  } catch {
+    return null;
+  }
+}
 
 // ── Seeded PRNG (deterministic per clip) ────────────────────────────────
 
@@ -200,13 +236,23 @@ interface ClipRect {
 
 // ── Drag state ──────────────────────────────────────────────────────────
 
+type DragMode = 'move' | 'resize-left' | 'resize-right';
+
 interface DragState {
   clipId: string;
   trackId: string;
   originTrackIndex: number;
   offsetX: number; // px offset from clip left edge to mouse
   startTickOrigin: number;
-  mode: 'move' | 'resize';
+  // Clip's right edge (timeline ticks) at grab time — the fixed anchor when
+  // trimming the left edge.
+  endTickOrigin: number;
+  // Bounds the trimmed edges may travel to. For MIDI these are the content
+  // extent (shrink-only); for audio they extend to the underlying buffer so a
+  // previously trimmed head/tail can be revealed again.
+  minStartTick: number;
+  maxEndTick: number;
+  mode: DragMode;
 }
 
 // ── Project length computation ──────────────────────────────────────────
@@ -253,9 +299,27 @@ export function Timeline() {
   const clipRectsRef = useRef<ClipRect[]>([]);
   const dragRef = useRef<DragState | null>(null);
   const dragTickRef = useRef<number>(0);
+  const dragEndTickRef = useRef<number>(0);
   const dragTrackRef = useRef<number>(0);
   const loopDragRef = useRef<'start' | 'end' | null>(null);
   const markerDragRef = useRef<string | null>(null);
+  // Active vertical drag-to-zoom on the bar-number ruler. `seekTick` is applied
+  // on release if the press never crossed the drag threshold (i.e. a plain
+  // click), preserving the ruler's click-to-seek behavior.
+  const rulerZoomRef = useRef<{
+    startY: number;
+    lastY: number;
+    moved: boolean;
+    seekTick: number;
+  } | null>(null);
+  // Active hand/grab pan started on empty timeline space. `seekTick` is applied
+  // on release if the press never crossed the drag threshold (a plain click).
+  const panDragRef = useRef<{
+    startX: number;
+    lastX: number;
+    moved: boolean;
+    seekTick: number;
+  } | null>(null);
 
   // ── Context menu state ──
   const [ctxMenu, setCtxMenu] = useState<{
@@ -289,6 +353,18 @@ export function Timeline() {
   const liveAudioPeaks = useStore((s) => s.liveAudioPeaks);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const tsDen = useStore((s) => s.timeSignatureDenominator);
+
+  // Bumped whenever the AudioBufferStore mutates so the canvas redraws when a
+  // cloud-loaded audio buffer arrives (without it, "Loading…" overlays would
+  // sit forever even after the bytes decoded).
+  const [audioBufferVersion, setAudioBufferVersion] = useState(0);
+  useEffect(
+    () =>
+      subscribeAudioBufferChanges(() => {
+        setAudioBufferVersion((v) => v + 1);
+      }),
+    [],
+  );
 
   const [editingChord, setEditingChord] = useState<{
     id: string;
@@ -474,12 +550,9 @@ export function Timeline() {
       // ── MIDI clips ────────────────────────────────────────────────
       for (const clip of track.midiClips) {
         const drag = dragRef.current;
-        const isDragging =
-          drag && drag.clipId === clip.id && drag.mode === 'move';
-        const effectiveStartTick = isDragging
-          ? dragTickRef.current
-          : clip.startTick;
-        const effectiveTrackIndex = isDragging ? dragTrackRef.current : t;
+        const dmode = drag && drag.clipId === clip.id ? drag.mode : null;
+        const isMoving = dmode === 'move';
+        const effectiveTrackIndex = isMoving ? dragTrackRef.current : t;
         const effectiveY = effectiveTrackIndex * TRACK_HEIGHT + RULERS_HEIGHT;
 
         let clipDuration: number;
@@ -499,18 +572,38 @@ export function Timeline() {
         } else {
           clipDuration = 0;
         }
-        const clipEndTick = effectiveStartTick + clipDuration;
 
-        // Skip clips outside visible range
-        if (clipEndTick < visStart || effectiveStartTick > visEnd) continue;
-
-        const clipX = tickToPixel(
-          effectiveStartTick,
+        // Notes follow the clip when moving but stay anchored when trimming an
+        // edge — the box (below) clips them. Their pixel scale is constant
+        // (clipWidth / clipDuration === ppb / TPB) so positions don't squish.
+        const noteStartTick = isMoving ? dragTickRef.current : clip.startTick;
+        const noteX = tickToPixel(
+          noteStartTick,
           currentZoom,
           currentScrollLeft,
         );
-        const clipWidth = Math.max(
+        const noteWidth = Math.max(
           (clipDuration / TICKS_PER_BEAT) * currentPpb,
+          20,
+        );
+
+        // Box edges — live values while trimming, content extent otherwise.
+        let boxStartTick = noteStartTick;
+        let boxEndTick = noteStartTick + clipDuration;
+        if (dmode === 'resize-left') {
+          boxStartTick = dragTickRef.current;
+          boxEndTick = clip.startTick + clipDuration;
+        } else if (dmode === 'resize-right') {
+          boxStartTick = clip.startTick;
+          boxEndTick = dragEndTickRef.current;
+        }
+
+        // Skip clips outside visible range
+        if (boxEndTick < visStart || boxStartTick > visEnd) continue;
+
+        const clipX = tickToPixel(boxStartTick, currentZoom, currentScrollLeft);
+        const clipWidth = Math.max(
+          ((boxEndTick - boxStartTick) / TICKS_PER_BEAT) * currentPpb,
           20,
         );
 
@@ -525,7 +618,7 @@ export function Timeline() {
           y: effectiveY + 2,
           w: clipWidth,
           h: TRACK_HEIGHT - 4,
-          startTick: clip.startTick,
+          startTick: boxStartTick,
         });
 
         // Background — neutral white glass so chord ruler / MIDI notes show through
@@ -557,9 +650,9 @@ export function Timeline() {
             drawPianoRoll(
               ctx,
               clip.events,
-              clipX,
+              noteX,
               effectiveY + 2,
-              clipWidth,
+              noteWidth,
               TRACK_HEIGHT - 4,
               eventsMinTick,
               clipDuration,
@@ -667,23 +760,36 @@ export function Timeline() {
       // ── Audio clips ───────────────────────────────────────────────
       for (const clip of track.audioClips) {
         const drag = dragRef.current;
-        const isDragging =
-          drag && drag.clipId === clip.id && drag.mode === 'move';
-        const effectiveStartTick = isDragging
-          ? dragTickRef.current
-          : clip.startTick;
-        const effectiveTrackIndex = isDragging ? dragTrackRef.current : t;
+        const dmode = drag && drag.clipId === clip.id ? drag.mode : null;
+        const isMoving = dmode === 'move';
+        const effectiveTrackIndex = isMoving ? dragTrackRef.current : t;
         const effectiveY = effectiveTrackIndex * TRACK_HEIGHT + RULERS_HEIGHT;
 
-        const clipEndTick = effectiveStartTick + clip.duration;
-        if (clipEndTick < visStart || effectiveStartTick > visEnd) continue;
+        // Box edges — live values while trimming, content extent otherwise.
+        const baseStartTick = isMoving ? dragTickRef.current : clip.startTick;
+        let boxStartTick = baseStartTick;
+        let boxEndTick = baseStartTick + clip.duration;
+        if (dmode === 'resize-left') {
+          boxStartTick = dragTickRef.current;
+          boxEndTick = clip.startTick + clip.duration;
+        } else if (dmode === 'resize-right') {
+          boxStartTick = clip.startTick;
+          boxEndTick = dragEndTickRef.current;
+        }
 
-        const clipX = tickToPixel(
-          effectiveStartTick,
-          currentZoom,
-          currentScrollLeft,
-        );
-        const clipWidth = (clip.duration / TICKS_PER_BEAT) * currentPpb;
+        if (boxEndTick < visStart || boxStartTick > visEnd) continue;
+
+        const clipX = tickToPixel(boxStartTick, currentZoom, currentScrollLeft);
+        const clipWidth =
+          ((boxEndTick - boxStartTick) / TICKS_PER_BEAT) * currentPpb;
+
+        // Portion of the underlying asset the (previewed) box plays, so the
+        // waveform reflects front/back trims.
+        const ticksPerSec = (state.bpm * 480) / 60;
+        const previewOffsetSec =
+          (clip.offsetSeconds ?? 0) +
+          (boxStartTick - clip.startTick) / ticksPerSec;
+        const previewDurationSec = (boxEndTick - boxStartTick) / ticksPerSec;
 
         const isSelected = currentSelectedClipId === clip.id;
 
@@ -696,7 +802,7 @@ export function Timeline() {
           y: effectiveY + 2,
           w: clipWidth,
           h: TRACK_HEIGHT - 4,
-          startTick: effectiveStartTick,
+          startTick: boxStartTick,
         });
 
         ctx.fillStyle = isSelected
@@ -725,26 +831,59 @@ export function Timeline() {
           const maxH = (TRACK_HEIGHT - 8) * 0.42;
 
           const audioBuffer = getAudioBuffer(clip.id);
-          let amps: number[];
-          if (audioBuffer) {
-            amps = computePeaks(audioBuffer, sampleCount);
+          // A clip with an assetId but no buffer yet is mid-download from GCS
+          // (loadCloudProjectAudio in progress). Skip the placeholder waveform
+          // — which would mislead the user into thinking the audio is loaded
+          // — and overlay a "Loading…" label instead.
+          const isLoadingCloudAudio = !audioBuffer && Boolean(clip.assetId);
+
+          if (isLoadingCloudAudio) {
+            if (clipWidth > 60) {
+              ctx.fillStyle = 'rgba(255,255,255,0.55)';
+              ctx.font = '11px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText('Loading…', clipX + clipWidth / 2, centerY);
+            } else {
+              // Too narrow for text — draw a subtle dashed line so the user
+              // sees that something's pending.
+              ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+              ctx.lineWidth = 1;
+              ctx.setLineDash([4, 3]);
+              ctx.beginPath();
+              ctx.moveTo(clipX + 4, centerY);
+              ctx.lineTo(clipX + clipWidth - 4, centerY);
+              ctx.stroke();
+              ctx.setLineDash([]);
+            }
           } else {
-            const rand = seededRandom(hashStr(clip.id));
-            amps = Array.from(
-              { length: sampleCount },
-              () => rand() * 0.6 + 0.2,
+            let amps: number[];
+            if (audioBuffer) {
+              const sr = audioBuffer.sampleRate;
+              amps = computePeaks(
+                audioBuffer,
+                sampleCount,
+                Math.floor(previewOffsetSec * sr),
+                Math.floor((previewOffsetSec + previewDurationSec) * sr),
+              );
+            } else {
+              const rand = seededRandom(hashStr(clip.id));
+              amps = Array.from(
+                { length: sampleCount },
+                () => rand() * 0.6 + 0.2,
+              );
+            }
+
+            drawSmoothWaveform(
+              ctx,
+              amps,
+              clipX,
+              centerY,
+              clipWidth,
+              maxH,
+              track.color + 'AA',
             );
           }
-
-          drawSmoothWaveform(
-            ctx,
-            amps,
-            clipX,
-            centerY,
-            clipWidth,
-            maxH,
-            track.color + 'AA',
-          );
 
           // ── Fade overlays ──
           const clipH = TRACK_HEIGHT - 4;
@@ -828,10 +967,9 @@ export function Timeline() {
 
     // Scroll-offset positions so rulers stay pinned during vertical scroll
     const rulerY = scrollTop;
-    // Account for horizontal scrollbar (h-3 = 12px) when it's visible
-    const totalPx =
-      (projectLengthTicks / TICKS_PER_BEAT) * pixelsPerBeat(currentZoom);
-    const hScrollbarH = totalPx > cw ? 12 : 0;
+    // The horizontal scrollbar (h-3 = 12px) is always shown, so always reserve
+    // space for it beneath the time ruler.
+    const hScrollbarH = 12;
     const timeRulerY =
       viewportH > 0
         ? scrollTop + viewportH - TIME_RULER_HEIGHT - hScrollbarH
@@ -1062,6 +1200,7 @@ export function Timeline() {
     clipColorMode,
     liveRecordingNotes,
     liveAudioPeaks,
+    audioBufferVersion,
   ]);
 
   // ── Redraw on vertical scroll (sticky rulers) ────────────────────
@@ -1113,6 +1252,16 @@ export function Timeline() {
   const isNearRightEdge = useCallback(
     (x: number, clipRect: ClipRect): boolean => {
       return x >= clipRect.x + clipRect.w - RESIZE_EDGE_PX;
+    },
+    [],
+  );
+
+  const isNearLeftEdge = useCallback(
+    (x: number, clipRect: ClipRect): boolean => {
+      // Don't claim the left edge on a clip too narrow to also grab/move.
+      return (
+        clipRect.w > RESIZE_EDGE_PX * 3 && x <= clipRect.x + RESIZE_EDGE_PX
+      );
     },
     [],
   );
@@ -1185,9 +1334,15 @@ export function Timeline() {
             return;
           }
         }
+        // Bar-number ruler: begin a vertical drag-to-zoom. A plain click (no
+        // vertical movement past the threshold) still seeks on release.
         const tick = pixelToTick(x, currentZoom, currentScrollLeft);
-        seekTo(doSnap(tick));
-        state.setSelectedClip(null, null);
+        rulerZoomRef.current = {
+          startY: y,
+          lastY: y,
+          moved: false,
+          seekTick: doSnap(tick),
+        };
         return;
       }
 
@@ -1198,7 +1353,53 @@ export function Timeline() {
         if (hit) {
           state.setSelectedClip(hit.clipId, hit.trackId);
 
-          const mode = isNearRightEdge(x, hit) ? 'resize' : 'move';
+          const mode: DragMode = isNearLeftEdge(x, hit)
+            ? 'resize-left'
+            : isNearRightEdge(x, hit)
+              ? 'resize-right'
+              : 'move';
+
+          // Resolve the clip's content end + the bounds its edges may travel to.
+          const hitTrack = state.tracks.find((t) => t.id === hit.trackId);
+          const midiClip = hitTrack?.midiClips.find((c) => c.id === hit.clipId);
+          const audioClip = hitTrack?.audioClips.find(
+            (c) => c.id === hit.clipId,
+          );
+          let endTickOrigin = hit.startTick;
+          let minStartTick = hit.startTick;
+          let maxEndTick = hit.startTick;
+          if (midiClip) {
+            // MIDI trims are destructive — bound the edges to the content.
+            let dur = 0;
+            if (midiClip.durationTicks != null) {
+              dur = midiClip.durationTicks;
+            } else if (midiClip.events.length > 0) {
+              const minT = midiClip.events.reduce(
+                (m, e) => Math.min(m, e.startTick),
+                Infinity,
+              );
+              const maxT = midiClip.events.reduce(
+                (m, e) => Math.max(m, e.startTick + e.durationTicks),
+                -Infinity,
+              );
+              dur = maxT - minT;
+            }
+            endTickOrigin = midiClip.startTick + dur;
+            minStartTick = midiClip.startTick;
+            maxEndTick = endTickOrigin;
+          } else if (audioClip) {
+            // Audio trims are non-destructive — the buffer beyond the current
+            // edges can be revealed, so bounds span the whole underlying asset.
+            endTickOrigin = audioClip.startTick + audioClip.duration;
+            const ticksPerSec = (state.bpm * 480) / 60;
+            const offsetTicks = (audioClip.offsetSeconds ?? 0) * ticksPerSec;
+            const bufferTicks =
+              (getAudioBuffer(audioClip.id)?.duration ?? 0) * ticksPerSec;
+            const assetStart = audioClip.startTick - offsetTicks;
+            minStartTick = Math.max(0, assetStart);
+            maxEndTick =
+              bufferTicks > 0 ? assetStart + bufferTicks : endTickOrigin;
+          }
 
           dragRef.current = {
             clipId: hit.clipId,
@@ -1206,14 +1407,26 @@ export function Timeline() {
             originTrackIndex: hit.trackIndex,
             offsetX: x - hit.x,
             startTickOrigin: hit.startTick,
+            endTickOrigin,
+            minStartTick,
+            maxEndTick,
             mode,
           };
           dragTickRef.current = hit.startTick;
+          dragEndTickRef.current = endTickOrigin;
           dragTrackRef.current = hit.trackIndex;
         } else {
+          // Empty space: deselect now, then begin a hand/grab pan. A plain
+          // click (no horizontal movement past the threshold) still seeks on
+          // release.
           state.setSelectedClip(null, null);
           const tick = pixelToTick(x, currentZoom, currentScrollLeft);
-          seekTo(doSnap(tick));
+          panDragRef.current = {
+            startX: x,
+            lastX: x,
+            moved: false,
+            seekTick: doSnap(tick),
+          };
         }
       }
 
@@ -1319,7 +1532,14 @@ export function Timeline() {
         }
       }
     },
-    [getCanvasCoords, getScrollTop, hitTestClip, isNearRightEdge, doSnap],
+    [
+      getCanvasCoords,
+      getScrollTop,
+      hitTestClip,
+      isNearRightEdge,
+      isNearLeftEdge,
+      doSnap,
+    ],
   );
 
   // Double-click: ruler → add marker, clip → open Piano Roll
@@ -1345,12 +1565,16 @@ export function Timeline() {
       }
       const hit = hitTestClip(x, y);
       if (hit) {
-        const hitTrack = useStore
-          .getState()
-          .tracks.find((t) => t.id === hit.trackId);
-        if (hitTrack?.instrument !== 'drum-machine') {
-          useStore.getState().setEditingClip(hit.clipId, hit.trackId);
-        }
+        // Audio clips have no piano-roll representation, so don't open the
+        // editor for them — double-clicking an audio clip is a no-op.
+        const state = useStore.getState();
+        const track = state.tracks.find((t) => t.id === hit.trackId);
+        const isAudioClip = track?.audioClips.some((c) => c.id === hit.clipId);
+        if (isAudioClip) return;
+        // Open the piano roll for any MIDI clip, including drum-machine tracks.
+        // Drum hits are MIDI notes, so they edit in the roll just like any other
+        // MIDI clip (the drum machine remains available in the track controls).
+        state.setEditingClip(hit.clipId, hit.trackId);
       }
     },
     [getCanvasCoords, getScrollTop, hitTestClip],
@@ -1650,6 +1874,50 @@ export function Timeline() {
         return;
       }
 
+      // Bar-number ruler vertical drag → zoom (up = in, down = out), anchored
+      // at the cursor so the bar under it stays put.
+      if (rulerZoomRef.current) {
+        const r = rulerZoomRef.current;
+        if (!r.moved) {
+          if (Math.abs(y - r.startY) <= RULER_ZOOM_DRAG_THRESHOLD) return;
+          r.moved = true;
+          r.lastY = y;
+        }
+        const dy = r.lastY - y; // up (y decreases) → positive → zoom in
+        if (dy !== 0) {
+          state.zoomAtPoint(dy * RULER_ZOOM_SENSITIVITY, x + currentScrollLeft);
+          r.lastY = y;
+        }
+        canvas.style.cursor = 'ns-resize';
+        return;
+      }
+
+      // Hand/grab pan over empty timeline space. Dragging the mouse left scrolls
+      // toward the right of the timeline and vice-versa (content follows the
+      // cursor), clamped to the content extent.
+      if (panDragRef.current) {
+        const p = panDragRef.current;
+        if (!p.moved) {
+          if (Math.abs(x - p.startX) <= PAN_DRAG_THRESHOLD) return;
+          p.moved = true;
+          p.lastX = x;
+        }
+        const deltaX = x - p.lastX;
+        if (deltaX !== 0) {
+          const maxScrollNow = Math.max(
+            0,
+            (projectLengthTicks / TICKS_PER_BEAT) * pixelsPerBeat(currentZoom) -
+              (canvas.parentElement?.clientWidth ?? 800),
+          );
+          state.setTimelineScrollLeft(
+            Math.min(maxScrollNow, Math.max(0, currentScrollLeft - deltaX)),
+          );
+          p.lastX = x;
+        }
+        canvas.style.cursor = 'grabbing';
+        return;
+      }
+
       const drag = dragRef.current;
 
       if (drag) {
@@ -1668,9 +1936,28 @@ export function Timeline() {
           if (!state.isPlaying) {
             draw();
           }
+        } else if (drag.mode === 'resize-left') {
+          // Left edge can travel between its lower bound and one grid step
+          // short of the fixed right edge.
+          const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
+          const snapped = snapTick(rawTick, currentSnapTicks);
+          dragTickRef.current = Math.max(
+            drag.minStartTick,
+            Math.min(snapped, drag.endTickOrigin - currentSnapTicks),
+          );
+          if (!state.isPlaying) draw();
+        } else if (drag.mode === 'resize-right') {
+          // Right edge can travel between one grid step past the fixed left
+          // edge and its upper bound.
+          const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
+          const snapped = snapTick(rawTick, currentSnapTicks);
+          dragEndTickRef.current = Math.min(
+            drag.maxEndTick,
+            Math.max(snapped, drag.startTickOrigin + currentSnapTicks),
+          );
+          if (!state.isPlaying) draw();
         }
-        canvas.style.cursor =
-          drag.mode === 'resize' ? 'col-resize' : 'grabbing';
+        canvas.style.cursor = drag.mode === 'move' ? 'grabbing' : 'col-resize';
         return;
       }
 
@@ -1702,14 +1989,22 @@ export function Timeline() {
             return;
           }
         }
+        // Bar-number ruler: hint the vertical drag-to-zoom.
+        if (y < st + RULER_HEIGHT) {
+          canvas.style.cursor = 'ns-resize';
+          return;
+        }
       }
       if (y > st + RULERS_HEIGHT) {
         const hit = hitTestClip(x, y);
         if (state.activeTool === 'scissors' && hit) {
           canvas.style.cursor = 'crosshair';
-        } else if (hit && isNearRightEdge(x, hit)) {
+        } else if (hit && (isNearLeftEdge(x, hit) || isNearRightEdge(x, hit))) {
           canvas.style.cursor = 'col-resize';
         } else if (hit) {
+          canvas.style.cursor = 'grab';
+        } else if (state.activeTool === 'cursor') {
+          // Empty space is grab-pannable.
           canvas.style.cursor = 'grab';
         } else {
           canvas.style.cursor = 'default';
@@ -1723,14 +2018,35 @@ export function Timeline() {
       getScrollTop,
       hitTestClip,
       isNearRightEdge,
+      isNearLeftEdge,
       draw,
       tracks.length,
+      projectLengthTicks,
     ],
   );
 
   // ── Mouse up ───────────────────────────────────────────────────────
 
   const handleCanvasMouseUp = useCallback(() => {
+    if (rulerZoomRef.current) {
+      const r = rulerZoomRef.current;
+      rulerZoomRef.current = null;
+      // Never crossed the drag threshold → treat as a ruler click and seek.
+      if (!r.moved) {
+        seekTo(r.seekTick);
+        useStore.getState().setSelectedClip(null, null);
+      }
+      if (canvasRef.current) canvasRef.current.style.cursor = 'default';
+      return;
+    }
+    if (panDragRef.current) {
+      const p = panDragRef.current;
+      panDragRef.current = null;
+      // Didn't pan → treat as a click and seek (selection was already cleared).
+      if (!p.moved) seekTo(p.seekTick);
+      if (canvasRef.current) canvasRef.current.style.cursor = 'default';
+      return;
+    }
     if (markerDragRef.current) {
       markerDragRef.current = null;
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
@@ -1802,6 +2118,74 @@ export function Timeline() {
           }
         }
       }
+    } else if (drag.mode === 'resize-left' || drag.mode === 'resize-right') {
+      const track = state.tracks.find((tr) => tr.id === drag.trackId);
+      const midiClip = track?.midiClips.find((c) => c.id === drag.clipId);
+      const audioClip = track?.audioClips.find((c) => c.id === drag.clipId);
+
+      if (midiClip) {
+        // MIDI trims are destructive: drop events outside the new bounds,
+        // clamp those that straddle an edge, and leave durationTicks unset so
+        // the clip box tracks its (now trimmed) content.
+        if (drag.mode === 'resize-left') {
+          const shift = dragTickRef.current - midiClip.startTick; // ticks off front
+          if (shift > 0) {
+            const events = midiClip.events
+              .filter((e) => e.startTick + e.durationTicks > shift)
+              .map((e) => {
+                const rel = e.startTick - shift;
+                return rel < 0
+                  ? { ...e, startTick: 0, durationTicks: e.durationTicks + rel }
+                  : { ...e, startTick: rel };
+              });
+            const ccEvents = midiClip.ccEvents
+              ?.map((c) => ({ ...c, tick: c.tick - shift }))
+              .filter((c) => c.tick >= 0);
+            state.updateMidiClip(drag.trackId, drag.clipId, {
+              startTick: dragTickRef.current,
+              events,
+              ccEvents: ccEvents?.length ? ccEvents : undefined,
+              durationTicks: undefined,
+            });
+          }
+        } else {
+          const newLen = dragEndTickRef.current - midiClip.startTick;
+          const events = midiClip.events
+            .filter((e) => e.startTick < newLen)
+            .map((e) =>
+              e.startTick + e.durationTicks > newLen
+                ? { ...e, durationTicks: newLen - e.startTick }
+                : e,
+            );
+          const ccEvents = midiClip.ccEvents?.filter((c) => c.tick < newLen);
+          state.updateMidiClip(drag.trackId, drag.clipId, {
+            events,
+            ccEvents: ccEvents?.length ? ccEvents : undefined,
+            durationTicks: undefined,
+          });
+        }
+      } else if (audioClip) {
+        // Audio trims are non-destructive: shift the asset read offset and the
+        // played duration; the buffer itself is untouched.
+        const ticksPerSec = (state.bpm * 480) / 60;
+        if (drag.mode === 'resize-left') {
+          const shift = dragTickRef.current - audioClip.startTick;
+          if (shift !== 0) {
+            state.updateAudioClip(drag.trackId, drag.clipId, {
+              startTick: dragTickRef.current,
+              duration: audioClip.duration - shift,
+              offsetSeconds: Math.max(
+                0,
+                (audioClip.offsetSeconds ?? 0) + shift / ticksPerSec,
+              ),
+            });
+          }
+        } else {
+          state.updateAudioClip(drag.trackId, drag.clipId, {
+            duration: dragEndTickRef.current - audioClip.startTick,
+          });
+        }
+      }
     }
 
     dragRef.current = null;
@@ -1813,15 +2197,82 @@ export function Timeline() {
   }, [draw]);
 
   // Global mouseup listener for drag release outside canvas
+  // While a ruler zoom-drag or empty-area pan is active, keep processing mouse
+  // movement at the window level so the gesture continues even after the cursor
+  // leaves the canvas (e.g. dragging up into the transport bar to keep scaling
+  // the timeline — there's no ceiling on how far up the user can go). Both
+  // deltas are incremental and update their own `last` reference, so the
+  // canvas's own onMouseMove and this listener can't double-apply: whichever
+  // fires second for a given event sees a zero delta.
+  const handleWindowMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (rulerZoomRef.current) {
+        const { x, y } = getCanvasCoords(e);
+        const r = rulerZoomRef.current;
+        if (!r.moved) {
+          if (Math.abs(y - r.startY) <= RULER_ZOOM_DRAG_THRESHOLD) return;
+          r.moved = true;
+          r.lastY = y;
+        }
+        const dy = r.lastY - y; // up (y decreases) → positive → zoom in
+        if (dy !== 0) {
+          const state = useStore.getState();
+          state.zoomAtPoint(
+            dy * RULER_ZOOM_SENSITIVITY,
+            x + state.timelineScrollLeft,
+          );
+          r.lastY = y;
+        }
+        if (canvasRef.current) canvasRef.current.style.cursor = 'ns-resize';
+      } else if (panDragRef.current) {
+        const { x } = getCanvasCoords(e);
+        const p = panDragRef.current;
+        if (!p.moved) {
+          if (Math.abs(x - p.startX) <= PAN_DRAG_THRESHOLD) return;
+          p.moved = true;
+          p.lastX = x;
+        }
+        const deltaX = x - p.lastX;
+        if (deltaX !== 0) {
+          const state = useStore.getState();
+          const maxScrollNow = Math.max(
+            0,
+            (projectLengthTicks / TICKS_PER_BEAT) *
+              pixelsPerBeat(state.timelineZoom) -
+              (canvasRef.current?.parentElement?.clientWidth ?? 800),
+          );
+          state.setTimelineScrollLeft(
+            Math.min(
+              maxScrollNow,
+              Math.max(0, state.timelineScrollLeft - deltaX),
+            ),
+          );
+          p.lastX = x;
+        }
+        if (canvasRef.current) canvasRef.current.style.cursor = 'grabbing';
+      }
+    },
+    [getCanvasCoords, projectLengthTicks],
+  );
+
   useEffect(() => {
     const handleGlobalUp = () => {
-      if (dragRef.current || loopDragRef.current) {
+      if (
+        dragRef.current ||
+        loopDragRef.current ||
+        rulerZoomRef.current ||
+        panDragRef.current
+      ) {
         handleCanvasMouseUp();
       }
     };
     window.addEventListener('mouseup', handleGlobalUp);
-    return () => window.removeEventListener('mouseup', handleGlobalUp);
-  }, [handleCanvasMouseUp]);
+    window.addEventListener('mousemove', handleWindowMouseMove);
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalUp);
+      window.removeEventListener('mousemove', handleWindowMouseMove);
+    };
+  }, [handleCanvasMouseUp, handleWindowMouseMove]);
 
   // ── Wheel: zoom (Cmd/Ctrl) + horizontal scroll (Shift/trackpad) ────
 
@@ -1895,6 +2346,15 @@ export function Timeline() {
           if (!resp.ok)
             throw new Error(`Failed to fetch sample: ${resp.status}`);
           const arrayBuf = await resp.arrayBuffer();
+          // Clone the bytes before decodeAudioData — some browsers neuter the
+          // input. We need both: the decoded buffer for playback, and the
+          // original bytes for upload (already a compressed format on the
+          // server, so uploading as-is avoids a quality-losing re-encode).
+          const originalBytes = arrayBuf.slice(0);
+          const originalContentType =
+            resp.headers.get('content-type') ||
+            inferContentTypeFromUrl(payload.url) ||
+            'audio/wav';
           const ctx = new AudioContext();
           const audioBuf = await ctx.decodeAudioData(arrayBuf);
           const trackId = st.addTrack('audio', 'none', payload.name, '#f59e0b');
@@ -1904,6 +2364,7 @@ export function Timeline() {
             (audioBuf.duration / 60) * st.bpm * 480,
           );
           setAudioBuffer(clipId, audioBuf);
+          setOriginalAudio(clipId, originalBytes, originalContentType);
           st.addAudioClip(trackId, {
             id: clipId,
             startTick: 0,
@@ -2015,14 +2476,30 @@ export function Timeline() {
 
   // ── Scrollbar ──────────────────────────────────────────────────────
 
+  // Track the viewport width reactively so the always-visible scrollbar stays
+  // correctly sized as side panels open/close or the window resizes (a plain
+  // render-time read of clientWidth is stale on resize and can mis-hide it).
+  const [viewportWidth, setViewportWidth] = useState(800);
+  useEffect(() => {
+    const el = canvasRef.current?.parentElement;
+    if (!el) return;
+    const measure = () => setViewportWidth(el.clientWidth);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const totalContentWidth = (projectLengthTicks / TICKS_PER_BEAT) * ppb;
-  const containerWidth = canvasRef.current?.parentElement?.clientWidth ?? 800;
-  const showScrollbar = totalContentWidth > containerWidth;
-  const thumbWidth = showScrollbar
-    ? Math.max(30, (containerWidth / totalContentWidth) * containerWidth)
-    : 0;
+  const containerWidth = viewportWidth;
+  // The scrollbar is always visible; when the content fits, the thumb fills the
+  // whole track (and dragging is a no-op).
+  const scrollable = totalContentWidth > containerWidth;
   const maxScroll = Math.max(1, totalContentWidth - containerWidth);
-  const thumbLeft = showScrollbar
+  const thumbWidth = scrollable
+    ? Math.max(30, (containerWidth / totalContentWidth) * containerWidth)
+    : containerWidth;
+  const thumbLeft = scrollable
     ? (scrollLeft / maxScroll) * (containerWidth - thumbWidth)
     : 0;
 
@@ -2277,27 +2754,30 @@ export function Timeline() {
           </div>
         </>
       )}
-      {/* Horizontal scrollbar */}
-      {showScrollbar && (
+      {/* Horizontal scrollbar — always visible, pinned to the bottom of the
+          timeline just below the time ruler. It rides up with the timeline when
+          a bottom toolbar (e.g. the channel strip) expands. */}
+      <div
+        className="h-3 shrink-0"
+        style={{
+          backgroundColor: 'var(--color-grid-line)',
+          position: 'sticky',
+          bottom: 0,
+          zIndex: 30,
+        }}
+      >
         <div
-          className="h-3 shrink-0"
+          className="absolute top-0.5 h-2 rounded-full"
           style={{
-            backgroundColor: 'var(--color-grid-line)',
-            position: 'sticky',
-            bottom: 0,
+            width: thumbWidth,
+            left: thumbLeft,
+            backgroundColor: 'var(--color-scrollbar-thumb)',
+            cursor: scrollable ? 'pointer' : 'default',
+            opacity: scrollable ? 1 : 0.4,
           }}
-        >
-          <div
-            className="absolute top-0.5 h-2 cursor-pointer rounded-full"
-            style={{
-              width: thumbWidth,
-              left: thumbLeft,
-              backgroundColor: 'var(--color-scrollbar-thumb)',
-            }}
-            onMouseDown={handleScrollbarMouseDown}
-          />
-        </div>
-      )}
+          onMouseDown={scrollable ? handleScrollbarMouseDown : undefined}
+        />
+      </div>
     </div>
   );
 }

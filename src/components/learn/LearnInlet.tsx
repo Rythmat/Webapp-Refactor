@@ -1,12 +1,30 @@
-import { ChevronDown, ChevronRight } from 'lucide-react';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ChevronDown, ChevronRight, Heart } from 'lucide-react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FC,
+  type ReactNode,
+} from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { FilterDropdown } from '@/components/songLibrary/FilterDropdown';
+import { SearchInput } from '@/components/songLibrary/SearchInput';
+import {
+  ViewToggle,
+  type ViewMode,
+} from '@/components/songLibrary/SongLibraryPage';
 import { LearnRoutes, CurriculumRoutes } from '@/constants/routes';
 import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
+import {
+  useSavedItemsStore,
+  type SavedItemKind,
+} from '@/features/learn/useSavedItemsStore';
 import type { PrismModeSlug } from '@/hooks/data';
 import { useProgressSummary } from '@/hooks/data/progress/useProgressSummary';
 import { useIsPremium } from '@/hooks/useIsPremium';
@@ -14,10 +32,120 @@ import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ProgressSummaryResponse } from '@/lib/progress/types';
-import { HeaderBar } from '../ClassroomLayout/HeaderBar';
+import { SongLibraryBody } from '../songLibrary/SongLibraryPage';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
+import { LearnSubheader } from './LearnTabs';
+import {
+  COURSES_LEVEL_OPTIONS,
+  COURSES_SORT_OPTIONS,
+  MODE_FAMILY_OPTIONS,
+  TECHNIQUE_CATEGORY_OPTIONS,
+  TECHNIQUE_DIFFICULTY_OPTIONS,
+  TECHNIQUE_SORT_OPTIONS,
+  THEORY_SORT_OPTIONS,
+  type CoursesLevel,
+  type CoursesSort,
+  type ModeFamily,
+  type TechniqueCategory,
+  type TechniqueDifficulty,
+  type TechniqueSort,
+  type TheorySort,
+} from './learnFilterOptions';
 import './learn.css';
+
+/* ── Filter row + helpers ─────────────────────────────────────────── */
+
+const LearnFilterRow: FC<{ children: ReactNode }> = ({ children }) => (
+  <div
+    className="flex items-center flex-wrap"
+    style={{ gap: 10, marginBottom: 16 }}
+  >
+    {children}
+  </div>
+);
+
+interface TheoryFilters {
+  family: ModeFamily;
+  sort: TheorySort;
+  search: string;
+  saved: SavedFilter;
+}
+
+interface TechniqueFilters {
+  category: TechniqueCategory;
+  difficulty: TechniqueDifficulty;
+  sort: TechniqueSort;
+  search: string;
+  saved: SavedFilter;
+}
+
+interface CoursesFilters {
+  level: CoursesLevel;
+  sort: CoursesSort;
+  search: string;
+  saved: SavedFilter;
+}
+
+type SavedFilter = 'all' | 'saved' | 'unsaved';
+
+const SAVED_FILTER_OPTIONS: { value: SavedFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'saved', label: 'Saved only' },
+  { value: 'unsaved', label: 'Unsaved only' },
+];
+
+function applySearch(items: ContentItem[], q: string): ContentItem[] {
+  const needle = q.trim().toLowerCase();
+  if (!needle) return items;
+  return items.filter((i) => i.title.toLowerCase().includes(needle));
+}
+
+function applySavedFilter<T>(
+  items: T[],
+  mode: SavedFilter,
+  isItemSaved: (item: T) => boolean,
+): T[] {
+  if (mode === 'all') return items;
+  return items.filter((i) =>
+    mode === 'saved' ? isItemSaved(i) : !isItemSaved(i),
+  );
+}
+
+function applyTheorySort(
+  items: ContentItem[],
+  sort: TheorySort,
+): ContentItem[] {
+  if (sort === 'alphabetical') {
+    return [...items].sort((a, b) => a.title.localeCompare(b.title));
+  }
+  return items;
+}
+
+function applyTechniqueSort(
+  items: ContentItem[],
+  sort: TechniqueSort,
+): ContentItem[] {
+  const sorted = [...items].sort((a, b) => a.title.localeCompare(b.title));
+  return sort === 'alphabetical-desc' ? sorted.reverse() : sorted;
+}
+
+function applyCoursesFilters(
+  items: ContentItem[],
+  filters: CoursesFilters,
+): ContentItem[] {
+  let out = items;
+  if (filters.level !== 'all') {
+    out = out.filter((i) =>
+      i.subItems?.some((s) => String(s.level) === filters.level),
+    );
+  }
+  out = applySearch(out, filters.search);
+  if (filters.sort === 'alphabetical') {
+    out = [...out].sort((a, b) => a.title.localeCompare(b.title));
+  }
+  return out;
+}
 
 interface ContentSubItem {
   label: string;
@@ -760,6 +888,8 @@ interface CardItemProps {
   image?: string;
   progressPct?: number;
   locked?: boolean;
+  savedKind?: SavedItemKind;
+  savedId?: string;
 }
 
 const CardItem: React.FC<CardItemProps> = ({
@@ -775,8 +905,14 @@ const CardItem: React.FC<CardItemProps> = ({
   image,
   progressPct,
   locked,
+  savedKind,
+  savedId,
 }) => {
   const hasExpansion = !!(mode || subItems);
+  const isSaved = useSavedItemsStore((s) =>
+    savedKind && savedId ? Boolean(s.saved[`${savedKind}:${savedId}`]) : false,
+  );
+  const toggleSavedItem = useSavedItemsStore((s) => s.toggleSaved);
 
   return (
     <LockedFeatureOverlay locked={!!locked}>
@@ -811,6 +947,26 @@ const CardItem: React.FC<CardItemProps> = ({
             />
           )}
           <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
+          {savedKind && savedId && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleSavedItem(savedKind, savedId);
+              }}
+              aria-label={isSaved ? 'Remove from saved' : 'Save'}
+              aria-pressed={isSaved}
+              className="absolute top-2 right-2 z-10 rounded-full p-1.5 bg-black/30 hover:bg-black/50 transition-colors"
+            >
+              <Heart
+                size={16}
+                fill={isSaved ? 'currentColor' : 'none'}
+                style={{
+                  color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.85)',
+                }}
+              />
+            </button>
+          )}
         </div>
         <div className="flex items-start justify-between px-1">
           <h3
@@ -853,23 +1009,124 @@ const CardItem: React.FC<CardItemProps> = ({
   );
 };
 
+/* ── ListItem — list-view counterpart of CardItem ────────────────── */
+
+const ListItem: React.FC<CardItemProps> = ({
+  title,
+  mode,
+  subItems,
+  onSelect,
+  image,
+  progressPct,
+  locked,
+  savedKind,
+  savedId,
+}) => {
+  const hasExpansion = !!(mode || subItems);
+  const isSaved = useSavedItemsStore((s) =>
+    savedKind && savedId ? Boolean(s.saved[`${savedKind}:${savedId}`]) : false,
+  );
+  const toggleSavedItem = useSavedItemsStore((s) => s.toggleSaved);
+
+  return (
+    <LockedFeatureOverlay locked={!!locked}>
+      <button
+        type="button"
+        onClick={onSelect}
+        className="group flex w-full cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-white/[0.04]"
+        style={{
+          background: 'rgba(255,255,255,0.02)',
+          borderColor: 'var(--color-border)',
+        }}
+      >
+        <div
+          className="relative size-12 flex-shrink-0 overflow-hidden rounded-md"
+          style={{ background: 'rgba(255,255,255,0.03)' }}
+        >
+          {image ? (
+            <img
+              src={image}
+              alt=""
+              className="absolute inset-0 size-full object-cover"
+              draggable={false}
+            />
+          ) : (
+            <HexAvatarSVG
+              config={defaultAvatarConfig(title)}
+              circular={false}
+              className="absolute left-0 top-0 size-[120%]"
+            />
+          )}
+        </div>
+        <h3
+          className="flex-1 truncate text-base font-medium"
+          style={{ color: 'var(--color-text)' }}
+        >
+          {title}
+        </h3>
+        {progressPct != null && progressPct > 0 && (
+          <span
+            className="flex-shrink-0 text-xs tabular-nums"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
+            {progressPct}%
+          </span>
+        )}
+        {savedKind && savedId && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              toggleSavedItem(savedKind, savedId);
+            }}
+            aria-label={isSaved ? 'Remove from saved' : 'Save'}
+            aria-pressed={isSaved}
+            className="flex-shrink-0 rounded-full p-1.5 transition-colors hover:bg-white/10"
+          >
+            <Heart
+              size={16}
+              fill={isSaved ? 'currentColor' : 'none'}
+              style={{
+                color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.55)',
+              }}
+            />
+          </button>
+        )}
+        {hasExpansion && (
+          <ChevronRight
+            size={16}
+            className="flex-shrink-0"
+            style={{ color: 'var(--color-text-dim)' }}
+          />
+        )}
+      </button>
+    </LockedFeatureOverlay>
+  );
+};
+
 interface LearnInletProps {
   initialTab?: string;
   setSubTab?: (tab: string) => void;
 }
 
 export const LearnInlet: React.FC<LearnInletProps> = ({
-  initialTab = 'Courses',
+  initialTab,
   setSubTab: parentSetSubTab,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const genreParam = searchParams.get('genre');
+  const tabParam = searchParams.get('tab');
   const { isPremium } = useIsPremium();
-  const defaultTab = genreParam
-    ? 'Courses'
-    : isPremium
-      ? initialTab
-      : 'Technique';
+  const validTabs = ['Songs', 'Genre', 'Theory', 'Technique'];
+  const defaultTab =
+    tabParam && validTabs.includes(tabParam)
+      ? tabParam
+      : genreParam
+        ? 'Genre'
+        : initialTab && validTabs.includes(initialTab)
+          ? initialTab
+          : 'Songs';
   const [subTab, setSubTab] = useState(defaultTab);
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(
     genreParam,
@@ -885,6 +1142,118 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const listPanelRef = useRef<HTMLDivElement>(null);
   const [listPanelHeight, setListPanelHeight] = useState<number | undefined>(
     undefined,
+  );
+
+  const [theoryFilters, setTheoryFilters] = useState<TheoryFilters>({
+    family: 'all',
+    sort: 'brightness',
+    search: '',
+    saved: 'all',
+  });
+  const [techniqueFilters, setTechniqueFilters] = useState<TechniqueFilters>({
+    category: 'all',
+    difficulty: 'all',
+    sort: 'alphabetical',
+    search: '',
+    saved: 'all',
+  });
+  const [coursesFilters, setCoursesFilters] = useState<CoursesFilters>({
+    level: 'all',
+    sort: 'alphabetical',
+    search: '',
+    saved: 'all',
+  });
+  // Shared view-mode toggle (card vs list) for Theory / Technique / Genre tabs.
+  // The Songs tab has its own viewMode state inside SongLibraryBody.
+  const [learnViewMode, setLearnViewMode] = useState<ViewMode>('grid');
+  const learnViewToggle = (
+    <ViewToggle viewMode={learnViewMode} onChange={setLearnViewMode} />
+  );
+  const savedLearnItems = useSavedItemsStore((s) => s.saved);
+
+  const theorySections = useMemo(() => {
+    const all = [
+      {
+        family: 'diatonic' as ModeFamily,
+        title: 'Diatonic Modes',
+        items: THEORY_DATA,
+        defaultOpen: true,
+      },
+      {
+        family: 'relative' as ModeFamily,
+        title: 'Relative Modes',
+        items: RELATIVE_MODES_DATA,
+        defaultOpen: true,
+      },
+      {
+        family: 'parallel' as ModeFamily,
+        title: 'Parallel Modes',
+        items: PARALLEL_MODES_DATA,
+        defaultOpen: true,
+      },
+      {
+        family: 'harmonic-minor' as ModeFamily,
+        title: 'Harmonic Minor Modes',
+        items: HARMONIC_MINOR_DATA,
+        defaultOpen: true,
+      },
+      {
+        family: 'melodic-minor' as ModeFamily,
+        title: 'Melodic Minor Modes',
+        items: MELODIC_MINOR_DATA,
+        defaultOpen: true,
+      },
+      {
+        family: 'harmonic-major' as ModeFamily,
+        title: 'Harmonic Major Modes',
+        items: HARMONIC_MAJOR_DATA,
+        defaultOpen: true,
+      },
+      {
+        family: 'double-harmonic' as ModeFamily,
+        title: 'Double Harmonic Modes',
+        items: DOUBLE_HARMONIC_DATA,
+        defaultOpen: true,
+      },
+    ];
+    return all
+      .filter(
+        (s) =>
+          theoryFilters.family === 'all' || s.family === theoryFilters.family,
+      )
+      .map((s) => ({
+        ...s,
+        items: applyTheorySort(
+          applySavedFilter(
+            applySearch(s.items, theoryFilters.search),
+            theoryFilters.saved,
+            (i) => !!i.mode && Boolean(savedLearnItems[`mode:${i.mode}`]),
+          ),
+          theoryFilters.sort,
+        ),
+      }))
+      .filter((s) => s.items.length > 0);
+  }, [theoryFilters, savedLearnItems]);
+
+  const filteredTechnique = useMemo(() => {
+    const searched = applySearch(TECHNIQUE_DATA, techniqueFilters.search);
+    const savedFiltered = applySavedFilter(
+      searched,
+      techniqueFilters.saved,
+      (i) => Boolean(savedLearnItems[`technique:${i.title}`]),
+    );
+    // category + difficulty have no backing data today — wired but no-op
+    return applyTechniqueSort(savedFiltered, techniqueFilters.sort);
+  }, [techniqueFilters, savedLearnItems]);
+
+  const filteredCourses = useMemo(
+    () =>
+      applySavedFilter(
+        applyCoursesFilters(COURSES_DATA, coursesFilters),
+        coursesFilters.saved,
+        (i) => !!i.expandId && Boolean(savedLearnItems[`course:${i.expandId}`]),
+      ),
+    [coursesFilters, savedLearnItems],
   );
 
   useLayoutEffect(() => {
@@ -961,7 +1330,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   useEffect(() => {
     if (!expandedMode) return;
     const data =
-      subTab === 'Courses'
+      subTab === 'Genre'
         ? COURSES_DATA
         : subTab === 'Theory'
           ? THEORY_DATA
@@ -983,10 +1352,20 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     }
   }, [selectedSubItem]);
 
-  // Auto-select Courses tab and highlight the genre when arriving from Globe
+  // Auto-select tab from ?tab= param (and reset to Songs when param is cleared)
+  useEffect(() => {
+    if (tabParam && validTabs.includes(tabParam)) {
+      setSubTab(tabParam);
+    } else if (!tabParam) {
+      setSubTab('Songs');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabParam]);
+
+  // Auto-select Genre tab and highlight the genre when arriving from Globe
   useEffect(() => {
     if (genreParam) {
-      setSubTab('Courses');
+      setSubTab('Genre');
       setHighlightedGenre(genreParam);
       // Clear the query param from the URL without adding a history entry
       setSearchParams({}, { replace: true });
@@ -1009,14 +1388,19 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     if (parentSetSubTab) parentSetSubTab(subTab);
   }, [subTab, parentSetSubTab]);
 
-  const activeData =
-    subTab === 'Courses'
-      ? COURSES_DATA
-      : subTab === 'Theory'
-        ? THEORY_DATA
-        : TECHNIQUE_DATA;
-
   const renderContent = (data: ContentItem[], tab: string = subTab) => {
+    const savedPropsFor = (
+      item: ContentItem,
+    ): { savedKind?: SavedItemKind; savedId?: string } => {
+      if (tab === 'Theory' && item.mode)
+        return { savedKind: 'mode', savedId: item.mode };
+      if (tab === 'Technique')
+        return { savedKind: 'technique', savedId: item.title };
+      if (tab === 'Genre' && item.expandId)
+        return { savedKind: 'course', savedId: item.expandId };
+      return {};
+    };
+
     const expandedItem = expandedMode
       ? data.find((item) => (item.expandId ?? item.mode) === expandedMode)
       : null;
@@ -1032,6 +1416,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
             <div className="shrink-0">
               <CardItem
                 {...expandedItem}
+                {...savedPropsFor(expandedItem)}
                 expanded={true}
                 imageSize={listPanelHeight}
                 progressPct={getTileCompletion(progressSummary, expandedItem)}
@@ -1257,13 +1642,46 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           </div>
           {/* Remaining tiles below */}
           {remainingItems.length > 0 && (
-            <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div
+              className={
+                learnViewMode === 'list'
+                  ? 'mt-6 flex flex-col gap-2'
+                  : 'mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'
+              }
+            >
               {remainingItems.map((item, i) => {
                 const itemExpandKey = item.expandId ?? item.mode;
+                const handleSelect = () => {
+                  if (item.mode || item.subItems) {
+                    setExpandedMode(itemExpandKey ?? null);
+                    setSelectedSubItem(null);
+                    setTimeout(() => {
+                      expandedContentRef.current?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                      });
+                    }, 0);
+                  } else if (item.route) {
+                    navigate(item.route);
+                  }
+                };
+                if (learnViewMode === 'list') {
+                  return (
+                    <ListItem
+                      key={i}
+                      {...item}
+                      {...savedPropsFor(item)}
+                      progressPct={getTileCompletion(progressSummary, item)}
+                      locked={!isPremium && !isLearnItemFree(item, tab)}
+                      onSelect={handleSelect}
+                    />
+                  );
+                }
                 return (
                   <CardItem
                     key={i}
                     {...item}
+                    {...savedPropsFor(item)}
                     expanded={false}
                     progressPct={getTileCompletion(progressSummary, item)}
                     locked={!isPremium && !isLearnItemFree(item, tab)}
@@ -1281,26 +1699,45 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                           }
                         : undefined
                     }
-                    onSelect={() => {
-                      if (item.mode || item.subItems) {
-                        setExpandedMode(itemExpandKey ?? null);
-                        setSelectedSubItem(null);
-                        setTimeout(() => {
-                          expandedContentRef.current?.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start',
-                          });
-                        }, 0);
-                      } else if (item.route) {
-                        navigate(item.route);
-                      }
-                    }}
+                    onSelect={handleSelect}
                   />
                 );
               })}
             </div>
           )}
         </>
+      );
+    }
+
+    const onItemSelect = (item: ContentItem) => {
+      const itemExpandKey = item.expandId ?? item.mode;
+      if (item.mode || item.subItems) {
+        setExpandedMode(itemExpandKey ?? null);
+        setTimeout(() => {
+          expandedContentRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }, 0);
+      } else if (item.route) {
+        navigate(item.route);
+      }
+    };
+
+    if (learnViewMode === 'list') {
+      return (
+        <div className="flex flex-col gap-2">
+          {data.map((item, i) => (
+            <ListItem
+              key={i}
+              {...item}
+              {...savedPropsFor(item)}
+              progressPct={getTileCompletion(progressSummary, item)}
+              locked={!isPremium && !isLearnItemFree(item, tab)}
+              onSelect={() => onItemSelect(item)}
+            />
+          ))}
+        </div>
       );
     }
 
@@ -1314,6 +1751,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
             <CardItem
               key={i}
               {...item}
+              {...savedPropsFor(item)}
               highlighted={isHighlighted}
               highlightRef={isHighlighted ? highlightRef : undefined}
               expanded={false}
@@ -1332,19 +1770,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                     }
                   : undefined
               }
-              onSelect={() => {
-                if (item.mode || item.subItems) {
-                  setExpandedMode(itemExpandKey ?? null);
-                  setTimeout(() => {
-                    expandedContentRef.current?.scrollIntoView({
-                      behavior: 'smooth',
-                      block: 'start',
-                    });
-                  }, 0);
-                } else if (item.route) {
-                  navigate(item.route);
-                }
-              }}
+              onSelect={() => onItemSelect(item)}
             />
           );
         })}
@@ -1358,56 +1784,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
       <MeshGradientBg />
-      <HeaderBar title="Learn " />
-      <div className="relative flex flex-1 flex-col overflow-y-auto px-8 pb-12">
-        <div className="mb-8 flex flex-col gap-4">
-          <div
-            className="glass-panel-sm flex w-fit items-center gap-1 rounded-lg p-1"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid var(--color-border)',
-            }}
-          >
-            {(isPremium
-              ? ['Courses', 'Theory', 'Technique']
-              : ['Technique', 'Theory', 'Courses']
-            ).map((tab) => (
-              <button
-                key={tab}
-                className="rounded-md px-6 py-2 text-sm font-medium transition-colors duration-150"
-                style={
-                  subTab === tab
-                    ? {
-                        background: 'var(--color-surface-3)',
-                        color: 'var(--color-accent)',
-                        borderBottom: '2px solid var(--color-accent)',
-                      }
-                    : {
-                        color: 'var(--color-text-dim)',
-                        background: 'transparent',
-                        borderBottom: '2px solid transparent',
-                      }
-                }
-                onClick={() => setSubTab(tab)}
-                onMouseEnter={(e) => {
-                  if (subTab !== tab)
-                    e.currentTarget.style.color = 'var(--color-text)';
-                }}
-                onMouseLeave={(e) => {
-                  if (subTab !== tab)
-                    e.currentTarget.style.color = 'var(--color-text-dim)';
-                }}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          <div
-            className="pb-4"
-            style={{ borderBottom: '1px solid var(--color-border)' }}
-          />
-        </div>
-
+      <div className="relative flex flex-1 flex-col overflow-y-auto px-8 pb-6 pt-4">
         {/* {showFilter && (
           <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 absolute top-[150px] left-8 right-8 z-20 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex justify-between items-start mb-4 pb-2 border-b border-white/5">
@@ -1435,71 +1812,230 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           </div>
         )} */}
 
-        <div className="flex-1 overflow-y-auto">
-          {subTab === 'Theory' ? (
+        <div
+          className="flex-1 overflow-y-auto"
+          style={{ background: 'var(--color-surface-3)' }}
+        >
+          {subTab === 'Songs' ? (
+            <SongLibraryBody />
+          ) : subTab === 'Theory' ? (
             <>
-              <CollapsibleSection
-                defaultOpen
-                className="mt-4"
-                title="Diatonic Modes"
+              <div
+                className="sticky top-0 z-10 pt-1 pb-3"
+                style={{ background: 'var(--color-bg)' }}
               >
-                {renderContent(THEORY_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-8 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Relative Modes"
-              >
-                {renderContent(RELATIVE_MODES_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-4 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Parallel Modes"
-              >
-                {renderContent(PARALLEL_MODES_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-4 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Harmonic Minor Modes"
-              >
-                {renderContent(HARMONIC_MINOR_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-4 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Melodic Minor Modes"
-              >
-                {renderContent(MELODIC_MINOR_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-4 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Harmonic Major Modes"
-              >
-                {renderContent(HARMONIC_MAJOR_DATA)}
-              </CollapsibleSection>
-              <CollapsibleSection
-                className="mt-4 pt-4"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-                title="Double Harmonic Modes"
-              >
-                {renderContent(DOUBLE_HARMONIC_DATA)}
-              </CollapsibleSection>
+                <LearnSubheader title="Theory" right={learnViewToggle} />
+                <LearnFilterRow>
+                  <FilterDropdown
+                    label="Mode Family"
+                    value={theoryFilters.family}
+                    options={MODE_FAMILY_OPTIONS}
+                    onChange={(v) =>
+                      setTheoryFilters((f) => ({ ...f, family: v }))
+                    }
+                  />
+                  <FilterDropdown
+                    label="Sort"
+                    value={theoryFilters.sort}
+                    options={THEORY_SORT_OPTIONS}
+                    onChange={(v) =>
+                      setTheoryFilters((f) => ({ ...f, sort: v }))
+                    }
+                  />
+                  <FilterDropdown
+                    label="Saved"
+                    value={theoryFilters.saved}
+                    options={SAVED_FILTER_OPTIONS}
+                    onChange={(v) =>
+                      setTheoryFilters((f) => ({
+                        ...f,
+                        saved: v as SavedFilter,
+                      }))
+                    }
+                  />
+                  <SearchInput
+                    value={theoryFilters.search}
+                    onChange={(v) =>
+                      setTheoryFilters((f) => ({ ...f, search: v }))
+                    }
+                    onClear={() =>
+                      setTheoryFilters((f) => ({ ...f, search: '' }))
+                    }
+                    placeholder="Search modes"
+                  />
+                </LearnFilterRow>
+              </div>
+              {theorySections.length === 0 ? (
+                <p
+                  className="text-white/40"
+                  style={{
+                    fontSize: 13,
+                    padding: '48px 0',
+                    textAlign: 'center',
+                  }}
+                >
+                  No modes match these filters
+                </p>
+              ) : (
+                theorySections.map((section, i) => (
+                  <CollapsibleSection
+                    key={section.family}
+                    defaultOpen={
+                      section.defaultOpen || theoryFilters.search.length > 0
+                    }
+                    className={i === 0 ? 'mt-4' : 'mt-4 pt-4'}
+                    style={
+                      i === 0
+                        ? undefined
+                        : { borderTop: '1px solid var(--color-border)' }
+                    }
+                    title={section.title}
+                  >
+                    {renderContent(section.items)}
+                  </CollapsibleSection>
+                ))
+              )}
             </>
           ) : subTab === 'Technique' ? (
-            <CollapsibleSection
-              defaultOpen
-              className="mt-4"
-              title="Foundational"
-            >
-              {renderContent(TECHNIQUE_DATA)}
-            </CollapsibleSection>
+            <>
+              <div
+                className="sticky top-0 z-10 pt-1 pb-3"
+                style={{ background: 'var(--color-bg)' }}
+              >
+                <LearnSubheader title="Technique" right={learnViewToggle} />
+                <LearnFilterRow>
+                  <FilterDropdown
+                    label="Category"
+                    value={techniqueFilters.category}
+                    options={TECHNIQUE_CATEGORY_OPTIONS}
+                    onChange={(v) =>
+                      setTechniqueFilters((f) => ({ ...f, category: v }))
+                    }
+                  />
+                  <FilterDropdown
+                    label="Difficulty"
+                    value={techniqueFilters.difficulty}
+                    options={TECHNIQUE_DIFFICULTY_OPTIONS}
+                    onChange={(v) =>
+                      setTechniqueFilters((f) => ({ ...f, difficulty: v }))
+                    }
+                  />
+                  <FilterDropdown
+                    label="Sort"
+                    value={techniqueFilters.sort}
+                    options={TECHNIQUE_SORT_OPTIONS}
+                    onChange={(v) =>
+                      setTechniqueFilters((f) => ({ ...f, sort: v }))
+                    }
+                  />
+                  <FilterDropdown
+                    label="Saved"
+                    value={techniqueFilters.saved}
+                    options={SAVED_FILTER_OPTIONS}
+                    onChange={(v) =>
+                      setTechniqueFilters((f) => ({
+                        ...f,
+                        saved: v as SavedFilter,
+                      }))
+                    }
+                  />
+                  <SearchInput
+                    value={techniqueFilters.search}
+                    onChange={(v) =>
+                      setTechniqueFilters((f) => ({ ...f, search: v }))
+                    }
+                    onClear={() =>
+                      setTechniqueFilters((f) => ({ ...f, search: '' }))
+                    }
+                    placeholder="Search technique"
+                  />
+                </LearnFilterRow>
+              </div>
+              {filteredTechnique.length === 0 ? (
+                <p
+                  className="text-white/40"
+                  style={{
+                    fontSize: 13,
+                    padding: '48px 0',
+                    textAlign: 'center',
+                  }}
+                >
+                  No items match these filters
+                </p>
+              ) : (
+                <CollapsibleSection
+                  defaultOpen
+                  className="mt-4"
+                  title="Foundational"
+                >
+                  {renderContent(filteredTechnique)}
+                </CollapsibleSection>
+              )}
+            </>
           ) : (
-            <CollapsibleSection defaultOpen className="mt-4" title="Genres">
-              {renderContent(activeData)}
-            </CollapsibleSection>
+            <>
+              <div
+                className="sticky top-0 z-10 pt-1 pb-3"
+                style={{ background: 'var(--color-bg)' }}
+              >
+                <LearnSubheader title="Genre" right={learnViewToggle} />
+                <LearnFilterRow>
+                  <FilterDropdown
+                    label="Difficulty"
+                    value={coursesFilters.level}
+                    options={COURSES_LEVEL_OPTIONS}
+                    onChange={(v) =>
+                      setCoursesFilters((f) => ({ ...f, level: v }))
+                    }
+                  />
+                  <FilterDropdown
+                    label="Saved"
+                    value={coursesFilters.saved}
+                    options={SAVED_FILTER_OPTIONS}
+                    onChange={(v) =>
+                      setCoursesFilters((f) => ({
+                        ...f,
+                        saved: v as SavedFilter,
+                      }))
+                    }
+                  />
+                  <FilterDropdown
+                    label="Sort"
+                    value={coursesFilters.sort}
+                    options={COURSES_SORT_OPTIONS}
+                    onChange={(v) =>
+                      setCoursesFilters((f) => ({ ...f, sort: v }))
+                    }
+                  />
+                  <SearchInput
+                    value={coursesFilters.search}
+                    onChange={(v) =>
+                      setCoursesFilters((f) => ({ ...f, search: v }))
+                    }
+                    onClear={() =>
+                      setCoursesFilters((f) => ({ ...f, search: '' }))
+                    }
+                    placeholder="Search courses"
+                  />
+                </LearnFilterRow>
+              </div>
+              {filteredCourses.length === 0 ? (
+                <p
+                  className="text-white/40"
+                  style={{
+                    fontSize: 13,
+                    padding: '48px 0',
+                    textAlign: 'center',
+                  }}
+                >
+                  No courses match these filters
+                </p>
+              ) : (
+                <CollapsibleSection defaultOpen className="mt-4" title="Genres">
+                  {renderContent(filteredCourses)}
+                </CollapsibleSection>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -20,6 +20,8 @@ import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import DualStaffPianoRoll from '@/curriculum/components/DualStaffPianoRoll';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import { useLessonVolume } from '@/learn/audio/useLessonVolume';
+import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import {
   LearnInputProvider,
   useLearnInputStable,
@@ -618,11 +620,21 @@ function GenreLessonContainerV2Inner({
   const { startBacking, stopBacking, initSF2 } = useBackingTrack(tempo);
   const [instrumentsLoading, setInstrumentsLoading] = useState(false);
 
+  // Lesson volume — shared across every lesson surface so theory/technique
+  // activities and genre lessons stay in sync. The store applies the value
+  // to the piano sampler internally; we read volumeDb here to retune the
+  // metronome synth on top of that.
+  const { volumeDb: lessonVolumeDb } = useLessonVolume();
+
   const { setBpm, prepare: prepareMetronome } = useMetronome({
     bpm: tempo,
     // Disable metronome in Play Now (performance) mode when a backing track is running —
     // the drum track provides the pulse. Practice mode always gets the metronome.
     enabled: isActive && isIT && !(isPerforming && hasBackingParts),
+    // Track the dial directly. The synth's intrinsic level + the velocity
+    // attack values inside useMetronome already balance it relative to the
+    // piano sampler — adding extra attenuation here made the click inaudible.
+    volumeDb: lessonVolumeDb,
   });
 
   // ── Tick counter ──────────────────────────────────────────────────────────
@@ -1606,50 +1618,66 @@ function GenreLessonContainerV2Inner({
           )}
         </div>
 
-        {/* Piano Keyboard — fixed height, range matches piano roll */}
-        <div style={{ marginTop: '8px', height: '120px', flexShrink: 0 }}>
-          <PianoKeyboard
-            showOctaveStart
-            activeWhiteKeyColor={keyboardActiveColor ?? keyColor}
-            activeBlackKeyColor={keyboardActiveColor ?? keyColor}
-            endC={endOctave + 1}
-            startC={startOctave}
-            playingNotes={
-              // Priority: demo > user MIDI > practice Tone.Part > static preview
-              // When demo is playing, ONLY show demo highlights (gaps = empty keyboard)
-              demoHighlightMidis.size > 0
-                ? [...demoHighlightMidis].map((midi, i) => ({
-                    id: `demo_${i}`,
-                    type: 'note' as const,
-                    midi,
-                    time: 0,
-                    duration: 1,
-                    velocity: 80,
-                  }))
-                : isPlayingDemo
-                  ? [] // demo is playing but between notes — show nothing
-                  : isActive && activeMidis.length > 0
-                    ? activeMidis.map((midi, i) => ({
-                        id: `active_${i}`,
-                        type: 'note' as const,
-                        midi,
-                        time: 0,
-                        duration: 1,
-                        velocity: 80,
-                      }))
-                    : isPracticing && practiceHighlightMidis.size > 0
-                      ? [...practiceHighlightMidis].map((midi, i) => ({
-                          id: `practice_${i}`,
+        {/* Piano Keyboard — fixed height, range matches piano roll.
+            Volume dial sits alongside on the right so it's always within
+            reach during practice without crowding the header. */}
+        <div
+          style={{
+            marginTop: '8px',
+            height: '120px',
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'stretch',
+            gap: '12px',
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <PianoKeyboard
+              showOctaveStart
+              activeWhiteKeyColor={keyboardActiveColor ?? keyColor}
+              activeBlackKeyColor={keyboardActiveColor ?? keyColor}
+              endC={endOctave + 1}
+              startC={startOctave}
+              playingNotes={
+                // Priority: demo > user MIDI > practice Tone.Part > static preview
+                // When demo is playing, ONLY show demo highlights (gaps = empty keyboard)
+                demoHighlightMidis.size > 0
+                  ? [...demoHighlightMidis].map((midi, i) => ({
+                      id: `demo_${i}`,
+                      type: 'note' as const,
+                      midi,
+                      time: 0,
+                      duration: 1,
+                      velocity: 80,
+                    }))
+                  : isPlayingDemo
+                    ? [] // demo is playing but between notes — show nothing
+                    : isActive && activeMidis.length > 0
+                      ? activeMidis.map((midi, i) => ({
+                          id: `active_${i}`,
                           type: 'note' as const,
                           midi,
                           time: 0,
                           duration: 1,
                           velocity: 80,
                         }))
-                      : keyboardPlayingNotes
-            }
-            enableMidiInterface
-          />
+                      : isPracticing && practiceHighlightMidis.size > 0
+                        ? [...practiceHighlightMidis].map((midi, i) => ({
+                            id: `practice_${i}`,
+                            type: 'note' as const,
+                            midi,
+                            time: 0,
+                            duration: 1,
+                            velocity: 80,
+                          }))
+                        : keyboardPlayingNotes
+              }
+              enableMidiInterface
+            />
+          </div>
+
+          {/* Volume dial — controls metronome and piano sampler output */}
+          <LessonVolumeDial />
         </div>
 
         {/* Practice mode controls — below keyboard */}

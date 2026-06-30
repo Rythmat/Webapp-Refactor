@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import TubesCursor from '@/components/ui/tubes-cursor';
 import { GameRoutes } from '@/constants/routes';
+import { useAwardArcadeExperience } from '@/hooks/data/experience/useAwardExperience';
 import { LearnInputProvider } from '@/learn/context/LearnInputContext';
 import { BoardChoiceGame } from './BoardChoiceGame';
 import { ChordConnectionGame } from './ChordConnectionGame';
@@ -18,6 +19,8 @@ import { PlayAlong } from './PlayAlong';
 import SignalFlow from './SignalFlow/SignalFlow';
 import WaveSculptor from './WaveSculptor/WaveSculptor';
 import Chroma from './chroma';
+import { StreakTracker } from './scoring/StreakTracker';
+import { useArcadeStreakReward } from './scoring/useArcadeStreakReward';
 import '@/components/learn/learn.css';
 
 function BackToArcade() {
@@ -44,47 +47,87 @@ function GameShell({ children }: { children: React.ReactNode }) {
       <div className="mb-4 pt-6">
         <BackToArcade />
       </div>
-      <div className="mx-auto w-full max-w-5xl">{children}</div>
+      <div className="mx-auto flex w-full min-h-0 max-w-5xl flex-1 flex-col">
+        {children}
+      </div>
     </div>
   );
 }
 
 export function ChromaPage() {
+  const { streak, target, registerCorrect, registerWrong } =
+    useArcadeStreakReward('chroma');
   return (
     <GameShell>
-      <Chroma />
+      <div className="relative flex-1 min-h-0">
+        <StreakTracker count={streak} target={target} />
+        <Chroma onCorrect={registerCorrect} onWrong={registerWrong} />
+      </div>
     </GameShell>
   );
 }
 
 export function FoliPage() {
+  const { streak, target, registerCorrect, registerWrong } =
+    useArcadeStreakReward('foli');
   return (
     <GameShell>
-      <Foli />
+      <div className="relative">
+        <StreakTracker count={streak} target={target} />
+        <Foli onCorrect={registerCorrect} onWrong={registerWrong} />
+      </div>
     </GameShell>
   );
 }
 
 export function BoardChoicePage() {
+  const { streak, target, registerCorrect, registerWrong } =
+    useArcadeStreakReward('board_choice');
   return (
     <GameShell>
-      <BoardChoiceGame className="mx-auto max-w-5xl" />
+      <div className="relative">
+        <StreakTracker count={streak} target={target} />
+        <BoardChoiceGame
+          className="mx-auto max-w-5xl"
+          onCorrect={registerCorrect}
+          onWrong={registerWrong}
+        />
+      </div>
     </GameShell>
   );
 }
 
 export function ChordConnectionPage() {
+  const { streak, target, registerCorrect, registerWrong } =
+    useArcadeStreakReward('chord_connection');
   return (
     <GameShell>
-      <ChordConnectionGame className="mx-auto max-w-5xl" />
+      <div className="relative">
+        <StreakTracker count={streak} target={target} />
+        <ChordConnectionGame
+          className="mx-auto max-w-5xl"
+          onCorrect={registerCorrect}
+          onWrong={registerWrong}
+        />
+      </div>
     </GameShell>
   );
 }
 
 export function ChordPressPage() {
+  const { streak, target, registerCorrect, registerWrong } =
+    useArcadeStreakReward('chord_press');
   return (
     <GameShell>
-      <ChordPressGame className="mx-auto max-w-5xl" enableComputerKeyboard />
+      <div className="relative">
+        <StreakTracker count={streak} target={target} />
+        <ChordPressGame
+          className="mx-auto max-w-5xl"
+          enableComputerKeyboard
+          onCorrect={registerCorrect}
+          onWrong={registerWrong}
+        />
+      </div>
     </GameShell>
   );
 }
@@ -93,10 +136,17 @@ export function PlayAlongPage() {
   const navigate = useNavigate();
   const [done, setDone] = useState(false);
   const [key, setKey] = useState(0);
+  const awardXP = useAwardArcadeExperience();
 
-  const handleComplete = useCallback((isComplete: boolean) => {
-    if (isComplete) setDone(true);
-  }, []);
+  const handleComplete = useCallback(
+    async (isComplete: boolean) => {
+      if (isComplete) {
+        await awardXP.mutateAsync().catch(() => {});
+        setDone(true);
+      }
+    },
+    [awardXP],
+  );
 
   const handlePlayAgain = useCallback(() => {
     setDone(false);
@@ -178,10 +228,12 @@ export function ConstellationsPage() {
   const [done, setDone] = useState(false);
   const [key, setKey] = useState(0);
   const [roundKey, setRoundKey] = useState(0);
+  const awardXP = useAwardArcadeExperience();
 
-  const handleComplete = useCallback(() => {
+  const handleComplete = useCallback(async () => {
+    await awardXP.mutateAsync().catch(() => {});
     setDone(true);
-  }, []);
+  }, [awardXP]);
 
   const handlePlayAgain = useCallback(() => {
     setDone(false);
@@ -230,9 +282,14 @@ export function ConstellationsPage() {
 }
 
 export function GrooveLabPage() {
+  const { streak, target, registerCorrect, registerWrong } =
+    useArcadeStreakReward('groove_lab');
   return (
     <GameShell>
-      <GrooveLab />
+      <div className="relative">
+        <StreakTracker count={streak} target={target} />
+        <GrooveLab onCorrect={registerCorrect} onWrong={registerWrong} />
+      </div>
     </GameShell>
   );
 }
@@ -241,10 +298,12 @@ export function WaveSculptorPage() {
   const navigate = useNavigate();
   const [done, setDone] = useState(false);
   const [key, setKey] = useState(0);
+  const awardXP = useAwardArcadeExperience();
 
-  const handleComplete = useCallback(() => {
+  const handleComplete = useCallback(async () => {
+    await awardXP.mutateAsync().catch(() => {});
     setDone(true);
-  }, []);
+  }, [awardXP]);
 
   const handlePlayAgain = useCallback(() => {
     setDone(false);
@@ -282,10 +341,12 @@ export function HarmonicStringsPage() {
   const navigate = useNavigate();
   const [done, setDone] = useState(false);
   const [key, setKey] = useState(0);
+  const awardXP = useAwardArcadeExperience();
 
-  const handleComplete = useCallback(() => {
+  const handleComplete = useCallback(async () => {
+    await awardXP.mutateAsync().catch(() => {});
     setDone(true);
-  }, []);
+  }, [awardXP]);
 
   const handlePlayAgain = useCallback(() => {
     setDone(false);
@@ -323,10 +384,12 @@ export function SignalFlowPage() {
   const navigate = useNavigate();
   const [done, setDone] = useState(false);
   const [key, setKey] = useState(0);
+  const awardXP = useAwardArcadeExperience();
 
-  const handleComplete = useCallback(() => {
+  const handleComplete = useCallback(async () => {
+    await awardXP.mutateAsync().catch(() => {});
     setDone(true);
-  }, []);
+  }, [awardXP]);
 
   const handlePlayAgain = useCallback(() => {
     setDone(false);

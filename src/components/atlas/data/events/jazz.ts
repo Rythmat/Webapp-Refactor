@@ -22,6 +22,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'dixieland',
       'brass',
     ],
+    videoId: 'QW6YOUIcVlo',
   },
   {
     id: 'evt-bebop-nyc-1945',
@@ -46,6 +47,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'harlem',
       'bebop',
     ],
+    videoId: 'XIwhV-xGFAg',
   },
   {
     id: 'evt-cape-jazz-capetown-1974',
@@ -70,6 +72,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'township',
       'shebeen',
     ],
+    videoId: 'sGu_AvtlBLs',
   },
   {
     id: 'evt-swing-nyc-1938',
@@ -94,6 +97,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'integration',
       'jazz concert',
     ],
+    videoId: 'FS0JOTmiieo',
   },
   {
     id: 'evt-ethiojazz-addis-1970',
@@ -118,6 +122,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'berklee',
       'golden age',
     ],
+    videoId: '0ApwZaao0Q8',
   },
   {
     id: 'evt-kc-jazz-kansascity-1936',
@@ -142,6 +147,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'jam session',
       'riff',
     ],
+    videoId: 'oq7EPxMf-eo',
   },
   {
     id: 'evt-jazz-age-paris-1925',
@@ -160,6 +166,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'django reinhardt',
       'expatriate',
     ],
+    videoId: 'duZ9XdqHLrc',
   },
   {
     id: 'evt-waaberi-mogadishu-1972',
@@ -184,6 +191,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'golden age',
       'awesome tapes',
     ],
+    videoId: 'aTYUtGmvUsE',
   },
   {
     id: 'evt-jazz-copenhagen-1979',
@@ -250,6 +258,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'summer festival',
       'prairie jazz',
     ],
+    videoId: 'kHh6t9OWF-w',
   },
   {
     id: 'evt-sunra-birmingham-1914',
@@ -274,6 +283,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'free jazz',
       'pioneer',
     ],
+    videoId: 'H1ToFXHW5pg',
   },
   {
     id: 'evt-wesmontgomery-indianapolis-1955',
@@ -298,6 +308,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'octaves',
       'self-taught',
     ],
+    videoId: 'rmqatbUVr3c',
   },
   {
     id: 'evt-jazztouring-wichita-1936',
@@ -317,6 +328,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'great plains',
       'count basie',
     ],
+    videoId: 'VQxWSlDVtaA',
   },
   {
     id: 'evt-ratpack-lasvegas-1960',
@@ -341,6 +353,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'lounge',
       'residency',
     ],
+    videoId: '8in4UfwFmR8',
   },
   {
     id: 'evt-jazzheritage-newark-1967',
@@ -360,6 +373,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'new jersey',
       'jazz heritage',
     ],
+    videoId: '2yVRDNWtDhE',
   },
   {
     id: 'evt-charlestondance-charleston-1923',
@@ -384,6 +398,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'dance craze',
       'south carolina',
     ],
+    videoId: '4ajtCKLTOiM',
   },
   {
     id: 'evt-diaspora-nyc-afrocuban-jazz-1947',
@@ -410,6 +425,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'bebop',
       'diaspora',
     ],
+    videoId: 'KRAUJsITYLw',
   },
   {
     id: 'evt-diaspora-accra-armstrong-1956',
@@ -431,6 +447,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'return to africa',
       'congo square',
     ],
+    videoId: 'V2XrVX-pUJQ',
   },
   {
     id: 'evt-jazz-recording-nola-1917',
@@ -454,6 +471,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'jazz age',
       'storyville',
     ],
+    videoId: '5WojNaU4-kI',
   },
   {
     id: 'evt-jugband-memphis-1928',
@@ -474,6 +492,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'skiffle',
       'vaudeville',
     ],
+    videoId: 'JlfIEpdrUhI',
   },
   {
     id: 'evt-swing-nyc-1935',
@@ -498,6 +517,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'dance band',
       'integration',
     ],
+    videoId: 'WVx8qf8PVLI',
   },
   {
     id: 'evt-jazz-la-1942',
@@ -523,6 +543,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'wartime',
       'south la',
     ],
+    videoId: 'sjcAJUUS9Cw',
   },
 
   // ── Afro-Caribbean lineage ──────────────────────────────────────────
@@ -549,6 +570,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'roots',
       'diaspora',
     ],
+    videoId: 'UMbLUDee41E',
   },
   {
     id: 'evt-jazz-lil-hardin-chicago-1925',
@@ -598,6 +620,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'chicago jazz',
       'solo',
     ],
+    videoId: 'JtmS71FYvP8',
   },
   {
     id: 'evt-jazz-jelly-roll-morton-chicago-1926',
@@ -622,6 +645,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'arranger',
       'victor records',
     ],
+    videoId: 'lyoFaPZHeos',
   },
   {
     id: 'evt-jazz-ellington-cotton-club-1927',
@@ -646,6 +670,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'composer',
       'orchestra',
     ],
+    videoId: '7zU_Y3B-6WA',
   },
   {
     id: 'evt-jazz-billie-holiday-nyc-1939',
@@ -670,6 +695,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'vocal jazz',
       'civil rights',
     ],
+    videoId: 'KajYesrqm_s',
   },
   {
     id: 'evt-jazz-mary-lou-williams-nyc-1945',
@@ -694,6 +720,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'female pioneer',
       'mentor',
     ],
+    videoId: 'ktmyulf11sQ',
   },
   {
     id: 'evt-jazz-parker-savoy-nyc-1945',
@@ -718,6 +745,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'harmonic innovation',
       'bird',
     ],
+    videoId: '5zsLwXUraNE',
   },
   {
     id: 'evt-jazz-tito-puente-machito-nyc-1949',
@@ -743,6 +771,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'clave',
       'diaspora',
     ],
+    videoId: 'H4hwEtEpTX0',
   },
   {
     id: 'evt-jazz-chet-baker-la-1952',
@@ -767,6 +796,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'birth of the cool',
       'lyrical',
     ],
+    videoId: '3kFjz8YbaRU',
   },
   {
     id: 'evt-jazz-sarah-vaughan-clifford-brown-1954',
@@ -791,6 +821,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'trumpet',
       'jazz standard',
     ],
+    videoId: 'AUIhTB8fnYc',
   },
   {
     id: 'evt-jazz-art-blakey-messengers-nyc-1955',
@@ -815,6 +846,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'blues',
       'gospel',
     ],
+    videoId: 'Cv9NSR-2DwM',
   },
   {
     id: 'evt-jazz-ella-fitzgerald-songbooks-la-1956',
@@ -863,6 +895,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'composer',
       'pianist',
     ],
+    videoId: 'iOyf4R3lLKU',
   },
   {
     id: 'evt-jazz-sunra-arkestra-chicago-1956',
@@ -887,6 +920,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'free improvisation',
       'electronic',
     ],
+    videoId: 'YzxZPeYyE-k',
   },
   {
     id: 'evt-jazz-melba-liston-nyc-1958',
@@ -911,6 +945,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'quincy jones',
       'big band',
     ],
+    videoId: '-khsJ6L-Xbc',
   },
   {
     id: 'evt-jazz-ahmad-jamal-chicago-1958',
@@ -935,6 +970,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'miles davis influence',
       'restraint',
     ],
+    videoId: 'o0xv_Decyn8',
   },
   {
     id: 'evt-jazz-brubeck-time-out-1959',
@@ -959,6 +995,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'million seller',
       'cool jazz',
     ],
+    videoId: 'afuKcc65QwE',
   },
   {
     id: 'evt-jazz-miles-kind-of-blue-nyc-1959',
@@ -984,6 +1021,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'columbia records',
       '30th street studio',
     ],
+    videoId: 'zqNTltOGh5c',
   },
   {
     id: 'evt-jazz-ornette-coleman-shape-nyc-1959',
@@ -1008,6 +1046,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'alto saxophone',
       'controversy',
     ],
+    videoId: 'fRCyGJdec_k',
   },
   {
     id: 'evt-jazz-mingus-ah-um-nyc-1959',
@@ -1032,6 +1071,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'composer',
       'protest',
     ],
+    videoId: 'B2B8neeQZw4',
   },
   {
     id: 'evt-jazz-wes-montgomery-indianapolis-1960',
@@ -1056,6 +1096,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'jazz guitar',
       'influential',
     ],
+    videoId: 'Z0lUADbznCA',
   },
   {
     id: 'evt-jazz-bill-evans-vanguard-1961',
@@ -1080,6 +1121,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'interplay',
       'live recording',
     ],
+    videoId: 'ylm1osX60os',
   },
   {
     id: 'evt-jazz-shirley-scott-philly-1961',
@@ -1104,6 +1146,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'female pioneer',
       'eddie lockjaw davis',
     ],
+    videoId: '2ERIvJ0sBcQ',
   },
   {
     id: 'evt-jazz-nina-simone-mississippi-goddam-1964',
@@ -1128,6 +1171,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'medgar evers',
       'pianist',
     ],
+    videoId: 'WonQrmIGJTw',
   },
   {
     id: 'evt-jazz-stan-getz-bossa-nova-nyc-1964',
@@ -1152,6 +1196,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'brazilian jazz',
       'crossover',
     ],
+    videoId: 'sVdaFQhS86E',
   },
   {
     id: 'evt-jazz-coltrane-love-supreme-1965',
@@ -1176,6 +1221,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'devotional',
       'saxophone',
     ],
+    videoId: '-J9Dj1AFZvg',
   },
   {
     id: 'evt-jazz-wayne-shorter-speak-no-evil-1966',
@@ -1200,6 +1246,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'composer',
       'saxophone',
     ],
+    videoId: 'tu6WI67IlL4',
   },
   {
     id: 'evt-jazz-mccoy-tyner-real-mccoy-1967',
@@ -1248,6 +1295,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'double album',
       'columbia records',
     ],
+    videoId: 'PDjMAhzZP7w',
   },
   {
     id: 'evt-jazz-carla-bley-escalator-nyc-1971',
@@ -1272,6 +1320,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'composer',
       'triple album',
     ],
+    videoId: 'YzPmmqwZGSk',
   },
   {
     id: 'evt-jazz-chick-corea-return-to-forever-1972',
@@ -1297,6 +1346,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'latin jazz',
       'electric',
     ],
+    videoId: '5Y4dNtZ-hbA',
   },
   {
     id: 'evt-jazz-herbie-hancock-headhunters-la-1973',
@@ -1321,6 +1371,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'platinum',
       'groove',
     ],
+    videoId: 'iqomTAiRnVM',
   },
   {
     id: 'evt-jazz-keith-jarrett-koln-1975',
@@ -1345,6 +1396,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'bosendorfer',
       'best seller',
     ],
+    videoId: 'Pd_Kti6jvy8',
   },
   {
     id: 'evt-jazz-pat-metheny-bright-size-life-1976',
@@ -1369,6 +1421,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'chorus effect',
       'lyrical',
     ],
+    videoId: '3MENeaxUeuU',
   },
   {
     id: 'evt-jazz-weather-report-heavy-weather-la-1977',
@@ -1393,6 +1446,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'jazz fusion',
       'fretless bass',
     ],
+    videoId: 'HEU-m_KVuYI',
   },
   {
     id: 'evt-jazz-wynton-marsalis-black-codes-1985',
@@ -1417,6 +1471,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'acoustic jazz',
       'trumpet',
     ],
+    videoId: 'GLSsbZFukiE',
   },
   {
     id: 'evt-jazz-brad-mehldau-largo-la-2002',
@@ -1466,6 +1521,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'gil evans',
       'orchestral jazz',
     ],
+    videoId: 'x_1OLjZRORs',
   },
   {
     id: 'evt-jazz-terri-lyne-carrington-boston-2011',
@@ -1491,6 +1547,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'esperanza spalding',
       'women in jazz',
     ],
+    videoId: 'r44XGirmsMQ',
   },
   {
     id: 'evt-jazz-kamasi-washington-the-epic-la-2015',
@@ -1516,6 +1573,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'tenor saxophone',
       'new generation',
     ],
+    videoId: '6eU9N1caT54',
   },
   {
     id: 'evt-jazz-esperanza-spalding-portland-2016',
@@ -1540,6 +1598,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'berklee',
       'art pop',
     ],
+    videoId: '966ZswEDkyw',
   },
   {
     id: 'evt-jazz-artemis-nyc-2017',
@@ -1564,5 +1623,6 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'newport jazz festival',
       'female pioneer',
     ],
+    videoId: 'UwniiL80rNo',
   },
 ];

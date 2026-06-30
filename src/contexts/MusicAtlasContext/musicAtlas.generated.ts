@@ -11,6 +11,11 @@
 
 export type DeleteApiAdminFreeAccessByIdData = any;
 
+export interface DeleteApiStudioProjectsByIdData {
+  deletedAt: Date;
+  id: string;
+}
+
 export type DeleteAuthSessionData = any;
 
 export interface DeleteClassroomsByIdStudentsByStudentIdData {
@@ -49,6 +54,53 @@ export interface DeleteTeachersInvitationsByIdData {
 
 export type GetApiAdminFreeAccessData = any;
 
+export type GetApiAdminTelemetryApiPerformanceData = any;
+
+export interface GetApiAdminTelemetryApiPerformanceParams {
+  from?: string;
+  method?: string;
+  route?: string;
+  statusClass?: string;
+  to?: string;
+}
+
+export type GetApiAdminTelemetryAudioData = any;
+
+export interface GetApiAdminTelemetryAudioParams {
+  from?: string;
+  to?: string;
+}
+
+export type GetApiAdminTelemetryErrorsData = any;
+
+export interface GetApiAdminTelemetryErrorsParams {
+  category?: string;
+  from?: string;
+  limit?: string;
+  to?: string;
+}
+
+export type GetApiAdminTelemetryOverviewData = any;
+
+export interface GetApiAdminTelemetryOverviewParams {
+  from?: string;
+  to?: string;
+}
+
+export type GetApiAdminTelemetryProductFunnelData = any;
+
+export interface GetApiAdminTelemetryProductFunnelParams {
+  from?: string;
+  to?: string;
+}
+
+export type GetApiAdminTelemetryRoutingData = any;
+
+export interface GetApiAdminTelemetryRoutingParams {
+  from?: string;
+  to?: string;
+}
+
 export type GetApiAdminUsersData = any;
 
 export interface GetApiAdminUsersParams {
@@ -61,6 +113,8 @@ export type GetApiBillingConfigData = any;
 export type GetApiBillingCreditsBalanceData = any;
 
 export type GetApiBillingSubscriptionData = any;
+
+export type GetApiCronCleanupPendingAssetsData = any;
 
 export type GetApiExperienceSummaryData = any;
 
@@ -78,6 +132,79 @@ export interface GetApiProgressLessonParams {
 }
 
 export type GetApiProgressSummaryData = any;
+
+export interface GetApiStudioAssetsByIdUrlData {
+  expiresAt: Date;
+  url: string;
+}
+
+export interface GetApiStudioProjectsByIdData {
+  bpm: number;
+  composerName: string | null;
+  createdAt: Date;
+  id: string;
+  name: string;
+  prism: {
+    genre: string;
+    rhythmName: string;
+    rootNote: number | null;
+    swing: number;
+  };
+  tracks: {
+    activeEffects: string[];
+    audioClips: {
+      assetId: string;
+      duration: number;
+      fadeInTicks?: number;
+      fadeOutTicks?: number;
+      gain?: number;
+      offsetSeconds?: number;
+      startTick: number;
+    }[] &
+      {
+        assetId: string;
+        duration: number;
+        fadeInTicks: number;
+        fadeOutTicks: number;
+        gain: number;
+        id: string;
+        offsetSeconds: number;
+        startTick: number;
+      }[];
+    color: string;
+    id: string;
+    instrument: string;
+    midiClips: {
+      events: {
+        channels: number[];
+        durations: number[];
+        notes: number[];
+        startTickDeltas: number[];
+        velocities: number[];
+      };
+      id: string;
+      name?: string;
+      startTick: number;
+    }[];
+    mute: boolean;
+    name: string;
+    ordinal: number;
+    pan: number;
+    solo: boolean;
+    type: 'midi' | 'audio';
+    volume: number;
+  }[];
+  updatedAt: Date;
+}
+
+export type GetApiStudioProjectsData = {
+  bpm: number;
+  composerName: string | null;
+  createdAt: Date;
+  id: string;
+  name: string;
+  updatedAt: Date;
+}[];
 
 export type GetAtlasCitiesData = any;
 
@@ -498,6 +625,47 @@ export interface PostApiStudioAnalyzeVideoPayload {
   keyframes: any[];
 }
 
+export interface PostApiStudioAssetsByIdFinalizeData {
+  checksumSha256: string | null;
+  bucketKey: string;
+  channels: number | null;
+  contentType: string;
+  createdAt: Date;
+  durationSeconds: number;
+  id: string;
+  originalName: string | null;
+  projectId: string | null;
+  sampleRate: number | null;
+  sizeBytes: number;
+  source: 'recording' | 'upload' | 'ai_generated' | 'freesound';
+  sourceUrl: string | null;
+  uploadStatus: 'pending' | 'ready' | 'failed';
+}
+
+export interface PostApiStudioAssetsByIdFinalizePayload {
+  channels?: number;
+  durationSeconds: number;
+  sampleRate?: number;
+}
+
+export interface PostApiStudioAssetsData {
+  assetId: string;
+  bucketKey: string;
+  expiresAt: Date;
+  maxUploadBytes: number;
+  signedUploadUrl: string;
+}
+
+export interface PostApiStudioAssetsPayload {
+  checksumSha256?: string;
+  contentType: string;
+  originalName?: string;
+  projectId: string;
+  sizeBytes: number;
+  source: 'recording' | 'upload' | 'ai_generated' | 'freesound';
+  sourceUrl?: string;
+}
+
 export type PostApiStudioCurateSoundsData = any;
 
 export type PostApiStudioCurateSoundsPayload = any;
@@ -514,6 +682,114 @@ export interface PostApiStudioGenerateTrackPayload {
   trackType: 'audio' | 'midi';
 }
 
+export interface PostApiStudioProjectsByIdCleanupPendingAssetsData {
+  bucketDeleteFailures: number;
+  deletedRows: number;
+}
+
+export interface PostApiStudioProjectsData {
+  bpm: number;
+  composerName: string | null;
+  createdAt: Date;
+  id: string;
+  name: string;
+  prism: {
+    genre: string;
+    rhythmName: string;
+    rootNote: number | null;
+    swing: number;
+  };
+  tracks: {
+    activeEffects: string[];
+    audioClips: {
+      assetId: string;
+      duration: number;
+      fadeInTicks?: number;
+      fadeOutTicks?: number;
+      gain?: number;
+      offsetSeconds?: number;
+      startTick: number;
+    }[] &
+      {
+        assetId: string;
+        duration: number;
+        fadeInTicks: number;
+        fadeOutTicks: number;
+        gain: number;
+        id: string;
+        offsetSeconds: number;
+        startTick: number;
+      }[];
+    color: string;
+    id: string;
+    instrument: string;
+    midiClips: {
+      events: {
+        channels: number[];
+        durations: number[];
+        notes: number[];
+        startTickDeltas: number[];
+        velocities: number[];
+      };
+      id: string;
+      name?: string;
+      startTick: number;
+    }[];
+    mute: boolean;
+    name: string;
+    ordinal: number;
+    pan: number;
+    solo: boolean;
+    type: 'midi' | 'audio';
+    volume: number;
+  }[];
+  updatedAt: Date;
+}
+
+export interface PostApiStudioProjectsPayload {
+  bpm: number;
+  composerName?: string | null;
+  name: string;
+  prism: {
+    genre: string;
+    rhythmName: string;
+    rootNote: number | null;
+    swing: number;
+  };
+  tracks: {
+    activeEffects: string[];
+    audioClips: {
+      assetId: string;
+      duration: number;
+      fadeInTicks?: number;
+      fadeOutTicks?: number;
+      gain?: number;
+      offsetSeconds?: number;
+      startTick: number;
+    }[];
+    color: string;
+    instrument: string;
+    midiClips: {
+      events: {
+        channels: number[];
+        durations: number[];
+        notes: number[];
+        startTickDeltas: number[];
+        velocities: number[];
+      };
+      id: string;
+      name?: string;
+      startTick: number;
+    }[];
+    mute: boolean;
+    name: string;
+    pan: number;
+    solo: boolean;
+    type: 'midi' | 'audio';
+    volume: number;
+  }[];
+}
+
 export type PostApiStudioReplicateGenerateData = any;
 
 export type PostApiStudioReplicateGeneratePayload = any;
@@ -523,6 +799,35 @@ export type PostApiStudioSearchSfxData = any;
 export interface PostApiStudioSearchSfxPayload {
   limit?: number;
   query: string;
+}
+
+export type PostApiTelemetryIngestData = any;
+
+export interface PostApiTelemetryIngestPayload {
+  /** @maxItems 100 */
+  events: {
+    activityId?: string | null;
+    anonymousId?: string | null;
+    attributesJson?: object | null;
+    category: 'api' | 'audio' | 'routing' | 'product';
+    durationMs?: number | null;
+    errorMessage?: string | null;
+    errorName?: string | null;
+    /**
+     * @minLength 1
+     * @maxLength 200
+     */
+    eventName: string;
+    lessonId?: string | null;
+    method?: string | null;
+    route?: string | null;
+    sessionId?: string | null;
+    spanId?: string | null;
+    statusCode?: number | null;
+    success?: boolean | null;
+    timestamp?: string;
+    traceId?: string | null;
+  }[];
 }
 
 export type PostAtlasAiAnalyzeData = any;
@@ -617,16 +922,6 @@ export interface PostCollectionsPayload {
   name: string;
 }
 
-export interface PostMediaGetUploadUrlData {
-  filePath: string;
-  signedUrl: string;
-}
-
-export interface PostMediaGetUploadUrlParams {
-  contentType: string;
-  fileName: string;
-}
-
 export interface PostRoomsData {
   code: string;
   createdAt: Date;
@@ -693,6 +988,109 @@ export interface PostTeachersInvitationsData {
 
 export interface PostTeachersInvitationsPayload {
   email: string;
+}
+
+export interface PutApiStudioProjectsByIdData {
+  bpm: number;
+  composerName: string | null;
+  createdAt: Date;
+  id: string;
+  name: string;
+  prism: {
+    genre: string;
+    rhythmName: string;
+    rootNote: number | null;
+    swing: number;
+  };
+  tracks: {
+    activeEffects: string[];
+    audioClips: {
+      assetId: string;
+      duration: number;
+      fadeInTicks?: number;
+      fadeOutTicks?: number;
+      gain?: number;
+      offsetSeconds?: number;
+      startTick: number;
+    }[] &
+      {
+        assetId: string;
+        duration: number;
+        fadeInTicks: number;
+        fadeOutTicks: number;
+        gain: number;
+        id: string;
+        offsetSeconds: number;
+        startTick: number;
+      }[];
+    color: string;
+    id: string;
+    instrument: string;
+    midiClips: {
+      events: {
+        channels: number[];
+        durations: number[];
+        notes: number[];
+        startTickDeltas: number[];
+        velocities: number[];
+      };
+      id: string;
+      name?: string;
+      startTick: number;
+    }[];
+    mute: boolean;
+    name: string;
+    ordinal: number;
+    pan: number;
+    solo: boolean;
+    type: 'midi' | 'audio';
+    volume: number;
+  }[];
+  updatedAt: Date;
+}
+
+export interface PutApiStudioProjectsByIdPayload {
+  bpm: number;
+  composerName?: string | null;
+  name: string;
+  prism: {
+    genre: string;
+    rhythmName: string;
+    rootNote: number | null;
+    swing: number;
+  };
+  tracks: {
+    activeEffects: string[];
+    audioClips: {
+      assetId: string;
+      duration: number;
+      fadeInTicks?: number;
+      fadeOutTicks?: number;
+      gain?: number;
+      offsetSeconds?: number;
+      startTick: number;
+    }[];
+    color: string;
+    instrument: string;
+    midiClips: {
+      events: {
+        channels: number[];
+        durations: number[];
+        notes: number[];
+        startTickDeltas: number[];
+        velocities: number[];
+      };
+      id: string;
+      name?: string;
+      startTick: number;
+    }[];
+    mute: boolean;
+    name: string;
+    pan: number;
+    solo: boolean;
+    type: 'midi' | 'audio';
+    volume: number;
+  }[];
 }
 
 export interface PutAuthMeAvatarConfigData {
@@ -1137,6 +1535,119 @@ export namespace Admin {
 
   /**
    * No description
+   * @tags Admin, Telemetry
+   * @name GetApiAdminTelemetryApiPerformance
+   * @request GET:/api/admin/telemetry/api-performance
+   * @response `200` `GetApiAdminTelemetryApiPerformanceData`
+   */
+  export namespace GetApiAdminTelemetryApiPerformance {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      from?: string;
+      method?: string;
+      route?: string;
+      statusClass?: string;
+      to?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminTelemetryApiPerformanceData;
+  }
+
+  /**
+   * No description
+   * @tags Admin, Telemetry
+   * @name GetApiAdminTelemetryAudio
+   * @request GET:/api/admin/telemetry/audio
+   * @response `200` `GetApiAdminTelemetryAudioData`
+   */
+  export namespace GetApiAdminTelemetryAudio {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      from?: string;
+      to?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminTelemetryAudioData;
+  }
+
+  /**
+   * No description
+   * @tags Admin, Telemetry
+   * @name GetApiAdminTelemetryErrors
+   * @request GET:/api/admin/telemetry/errors
+   * @response `200` `GetApiAdminTelemetryErrorsData`
+   */
+  export namespace GetApiAdminTelemetryErrors {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      category?: string;
+      from?: string;
+      limit?: string;
+      to?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminTelemetryErrorsData;
+  }
+
+  /**
+   * No description
+   * @tags Admin, Telemetry
+   * @name GetApiAdminTelemetryOverview
+   * @request GET:/api/admin/telemetry/overview
+   * @response `200` `GetApiAdminTelemetryOverviewData`
+   */
+  export namespace GetApiAdminTelemetryOverview {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      from?: string;
+      to?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminTelemetryOverviewData;
+  }
+
+  /**
+   * No description
+   * @tags Admin, Telemetry
+   * @name GetApiAdminTelemetryProductFunnel
+   * @request GET:/api/admin/telemetry/product-funnel
+   * @response `200` `GetApiAdminTelemetryProductFunnelData`
+   */
+  export namespace GetApiAdminTelemetryProductFunnel {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      from?: string;
+      to?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminTelemetryProductFunnelData;
+  }
+
+  /**
+   * No description
+   * @tags Admin, Telemetry
+   * @name GetApiAdminTelemetryRouting
+   * @request GET:/api/admin/telemetry/routing
+   * @response `200` `GetApiAdminTelemetryRoutingData`
+   */
+  export namespace GetApiAdminTelemetryRouting {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      from?: string;
+      to?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminTelemetryRoutingData;
+  }
+
+  /**
+   * No description
    * @tags Admin
    * @name GetApiAdminUsers
    * @request GET:/api/admin/users
@@ -1183,6 +1694,23 @@ export namespace Admin {
     export type RequestBody = PostApiAdminFreeAccessPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostApiAdminFreeAccessData;
+  }
+}
+
+export namespace Telemetry {
+  /**
+   * No description
+   * @tags Telemetry
+   * @name PostApiTelemetryIngest
+   * @request POST:/api/telemetry/ingest
+   * @response `200` `PostApiTelemetryIngestData`
+   */
+  export namespace PostApiTelemetryIngest {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiTelemetryIngestPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiTelemetryIngestData;
   }
 }
 
@@ -1759,26 +2287,6 @@ export namespace Students {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = PatchStudentsByIdRestoreData;
-  }
-}
-
-export namespace Media {
-  /**
-   * No description
-   * @tags Media
-   * @name PostMediaGetUploadUrl
-   * @request POST:/media/get-upload-url
-   * @response `200` `PostMediaGetUploadUrlData`
-   */
-  export namespace PostMediaGetUploadUrl {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      contentType: string;
-      fileName: string;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostMediaGetUploadUrlData;
   }
 }
 
@@ -2389,6 +2897,157 @@ export namespace Studio {
   }
 }
 
+export namespace StudioProjects {
+  /**
+   * No description
+   * @tags Studio Projects
+   * @name DeleteApiStudioProjectsById
+   * @request DELETE:/api/studio/projects/{id}
+   * @response `200` `DeleteApiStudioProjectsByIdData`
+   */
+  export namespace DeleteApiStudioProjectsById {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = DeleteApiStudioProjectsByIdData;
+  }
+
+  /**
+   * No description
+   * @tags Studio Projects
+   * @name GetApiStudioProjects
+   * @request GET:/api/studio/projects
+   * @response `200` `GetApiStudioProjectsData`
+   */
+  export namespace GetApiStudioProjects {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiStudioProjectsData;
+  }
+
+  /**
+   * No description
+   * @tags Studio Projects
+   * @name GetApiStudioProjectsById
+   * @request GET:/api/studio/projects/{id}
+   * @response `200` `GetApiStudioProjectsByIdData`
+   */
+  export namespace GetApiStudioProjectsById {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiStudioProjectsByIdData;
+  }
+
+  /**
+   * No description
+   * @tags Studio Projects
+   * @name PostApiStudioProjects
+   * @request POST:/api/studio/projects
+   * @response `200` `PostApiStudioProjectsData`
+   */
+  export namespace PostApiStudioProjects {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStudioProjectsPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioProjectsData;
+  }
+
+  /**
+   * No description
+   * @tags Studio Projects
+   * @name PostApiStudioProjectsByIdCleanupPendingAssets
+   * @request POST:/api/studio/projects/{id}/cleanup-pending-assets
+   * @response `200` `PostApiStudioProjectsByIdCleanupPendingAssetsData`
+   */
+  export namespace PostApiStudioProjectsByIdCleanupPendingAssets {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioProjectsByIdCleanupPendingAssetsData;
+  }
+
+  /**
+   * No description
+   * @tags Studio Projects
+   * @name PutApiStudioProjectsById
+   * @request PUT:/api/studio/projects/{id}
+   * @response `200` `PutApiStudioProjectsByIdData`
+   */
+  export namespace PutApiStudioProjectsById {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PutApiStudioProjectsByIdPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PutApiStudioProjectsByIdData;
+  }
+}
+
+export namespace StudioAssets {
+  /**
+   * No description
+   * @tags Studio Assets
+   * @name GetApiStudioAssetsByIdUrl
+   * @request GET:/api/studio/assets/{id}/url
+   * @response `200` `GetApiStudioAssetsByIdUrlData`
+   */
+  export namespace GetApiStudioAssetsByIdUrl {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiStudioAssetsByIdUrlData;
+  }
+
+  /**
+   * No description
+   * @tags Studio Assets
+   * @name PostApiStudioAssets
+   * @request POST:/api/studio/assets
+   * @response `200` `PostApiStudioAssetsData`
+   */
+  export namespace PostApiStudioAssets {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStudioAssetsPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioAssetsData;
+  }
+
+  /**
+   * No description
+   * @tags Studio Assets
+   * @name PostApiStudioAssetsByIdFinalize
+   * @request POST:/api/studio/assets/{id}/finalize
+   * @response `200` `PostApiStudioAssetsByIdFinalizeData`
+   */
+  export namespace PostApiStudioAssetsByIdFinalize {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStudioAssetsByIdFinalizePayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioAssetsByIdFinalizeData;
+  }
+}
+
 export namespace Rooms {
   /**
    * No description
@@ -2485,6 +3144,23 @@ export namespace Rooms {
     export type RequestBody = PostRoomsWebhookHostDisconnectedPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostRoomsWebhookHostDisconnectedData;
+  }
+}
+
+export namespace Cron {
+  /**
+   * No description
+   * @tags Cron
+   * @name GetApiCronCleanupPendingAssets
+   * @request GET:/api/cron/cleanup-pending-assets
+   * @response `200` `GetApiCronCleanupPendingAssetsData`
+   */
+  export namespace GetApiCronCleanupPendingAssets {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiCronCleanupPendingAssetsData;
   }
 }
 
@@ -3051,6 +3727,102 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
+     * @tags Admin, Telemetry
+     * @name GetApiAdminTelemetryApiPerformance
+     * @request GET:/api/admin/telemetry/api-performance
+     * @response `200` `GetApiAdminTelemetryApiPerformanceData`
+     */
+    getApiAdminTelemetryApiPerformance: (query: GetApiAdminTelemetryApiPerformanceParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminTelemetryApiPerformanceData, any>({
+        path: `/api/admin/telemetry/api-performance`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Admin, Telemetry
+     * @name GetApiAdminTelemetryAudio
+     * @request GET:/api/admin/telemetry/audio
+     * @response `200` `GetApiAdminTelemetryAudioData`
+     */
+    getApiAdminTelemetryAudio: (query: GetApiAdminTelemetryAudioParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminTelemetryAudioData, any>({
+        path: `/api/admin/telemetry/audio`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Admin, Telemetry
+     * @name GetApiAdminTelemetryErrors
+     * @request GET:/api/admin/telemetry/errors
+     * @response `200` `GetApiAdminTelemetryErrorsData`
+     */
+    getApiAdminTelemetryErrors: (query: GetApiAdminTelemetryErrorsParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminTelemetryErrorsData, any>({
+        path: `/api/admin/telemetry/errors`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Admin, Telemetry
+     * @name GetApiAdminTelemetryOverview
+     * @request GET:/api/admin/telemetry/overview
+     * @response `200` `GetApiAdminTelemetryOverviewData`
+     */
+    getApiAdminTelemetryOverview: (query: GetApiAdminTelemetryOverviewParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminTelemetryOverviewData, any>({
+        path: `/api/admin/telemetry/overview`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Admin, Telemetry
+     * @name GetApiAdminTelemetryProductFunnel
+     * @request GET:/api/admin/telemetry/product-funnel
+     * @response `200` `GetApiAdminTelemetryProductFunnelData`
+     */
+    getApiAdminTelemetryProductFunnel: (query: GetApiAdminTelemetryProductFunnelParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminTelemetryProductFunnelData, any>({
+        path: `/api/admin/telemetry/product-funnel`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Admin, Telemetry
+     * @name GetApiAdminTelemetryRouting
+     * @request GET:/api/admin/telemetry/routing
+     * @response `200` `GetApiAdminTelemetryRoutingData`
+     */
+    getApiAdminTelemetryRouting: (query: GetApiAdminTelemetryRoutingParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminTelemetryRoutingData, any>({
+        path: `/api/admin/telemetry/routing`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags Admin
      * @name GetApiAdminUsers
      * @request GET:/api/admin/users
@@ -3092,6 +3864,24 @@ export class Api<SecurityDataType extends unknown> {
     postApiAdminFreeAccess: (data: PostApiAdminFreeAccessPayload, params: RequestParams = {}) =>
       this.http.request<PostApiAdminFreeAccessData, any>({
         path: `/api/admin/free-access`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+  };
+  telemetry = {
+    /**
+     * No description
+     *
+     * @tags Telemetry
+     * @name PostApiTelemetryIngest
+     * @request POST:/api/telemetry/ingest
+     * @response `200` `PostApiTelemetryIngestData`
+     */
+    postApiTelemetryIngest: (data: PostApiTelemetryIngestPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiTelemetryIngestData, any>({
+        path: `/api/telemetry/ingest`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
@@ -3665,24 +4455,6 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<PatchStudentsByIdRestoreData, any>({
         path: `/students/${id}/restore`,
         method: 'PATCH',
-        format: 'json',
-        ...params,
-      }),
-  };
-  media = {
-    /**
-     * No description
-     *
-     * @tags Media
-     * @name PostMediaGetUploadUrl
-     * @request POST:/media/get-upload-url
-     * @response `200` `PostMediaGetUploadUrlData`
-     */
-    postMediaGetUploadUrl: (query: PostMediaGetUploadUrlParams, params: RequestParams = {}) =>
-      this.http.request<PostMediaGetUploadUrlData, any>({
-        path: `/media/get-upload-url`,
-        method: 'POST',
-        query: query,
         format: 'json',
         ...params,
       }),
@@ -4325,6 +5097,164 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
+  studioProjects = {
+    /**
+     * No description
+     *
+     * @tags Studio Projects
+     * @name DeleteApiStudioProjectsById
+     * @request DELETE:/api/studio/projects/{id}
+     * @response `200` `DeleteApiStudioProjectsByIdData`
+     */
+    deleteApiStudioProjectsById: (id: string, params: RequestParams = {}) =>
+      this.http.request<DeleteApiStudioProjectsByIdData, any>({
+        path: `/api/studio/projects/${id}`,
+        method: 'DELETE',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio Projects
+     * @name GetApiStudioProjects
+     * @request GET:/api/studio/projects
+     * @response `200` `GetApiStudioProjectsData`
+     */
+    getApiStudioProjects: (params: RequestParams = {}) =>
+      this.http.request<GetApiStudioProjectsData, any>({
+        path: `/api/studio/projects`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio Projects
+     * @name GetApiStudioProjectsById
+     * @request GET:/api/studio/projects/{id}
+     * @response `200` `GetApiStudioProjectsByIdData`
+     */
+    getApiStudioProjectsById: (id: string, params: RequestParams = {}) =>
+      this.http.request<GetApiStudioProjectsByIdData, any>({
+        path: `/api/studio/projects/${id}`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio Projects
+     * @name PostApiStudioProjects
+     * @request POST:/api/studio/projects
+     * @response `200` `PostApiStudioProjectsData`
+     */
+    postApiStudioProjects: (data: PostApiStudioProjectsPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiStudioProjectsData, any>({
+        path: `/api/studio/projects`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio Projects
+     * @name PostApiStudioProjectsByIdCleanupPendingAssets
+     * @request POST:/api/studio/projects/{id}/cleanup-pending-assets
+     * @response `200` `PostApiStudioProjectsByIdCleanupPendingAssetsData`
+     */
+    postApiStudioProjectsByIdCleanupPendingAssets: (id: string, params: RequestParams = {}) =>
+      this.http.request<PostApiStudioProjectsByIdCleanupPendingAssetsData, any>({
+        path: `/api/studio/projects/${id}/cleanup-pending-assets`,
+        method: 'POST',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio Projects
+     * @name PutApiStudioProjectsById
+     * @request PUT:/api/studio/projects/{id}
+     * @response `200` `PutApiStudioProjectsByIdData`
+     */
+    putApiStudioProjectsById: (id: string, data: PutApiStudioProjectsByIdPayload, params: RequestParams = {}) =>
+      this.http.request<PutApiStudioProjectsByIdData, any>({
+        path: `/api/studio/projects/${id}`,
+        method: 'PUT',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+  };
+  studioAssets = {
+    /**
+     * No description
+     *
+     * @tags Studio Assets
+     * @name GetApiStudioAssetsByIdUrl
+     * @request GET:/api/studio/assets/{id}/url
+     * @response `200` `GetApiStudioAssetsByIdUrlData`
+     */
+    getApiStudioAssetsByIdUrl: (id: string, params: RequestParams = {}) =>
+      this.http.request<GetApiStudioAssetsByIdUrlData, any>({
+        path: `/api/studio/assets/${id}/url`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio Assets
+     * @name PostApiStudioAssets
+     * @request POST:/api/studio/assets
+     * @response `200` `PostApiStudioAssetsData`
+     */
+    postApiStudioAssets: (data: PostApiStudioAssetsPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiStudioAssetsData, any>({
+        path: `/api/studio/assets`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio Assets
+     * @name PostApiStudioAssetsByIdFinalize
+     * @request POST:/api/studio/assets/{id}/finalize
+     * @response `200` `PostApiStudioAssetsByIdFinalizeData`
+     */
+    postApiStudioAssetsByIdFinalize: (
+      id: string,
+      data: PostApiStudioAssetsByIdFinalizePayload,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PostApiStudioAssetsByIdFinalizeData, any>({
+        path: `/api/studio/assets/${id}/finalize`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+  };
   rooms = {
     /**
      * No description
@@ -4426,6 +5356,22 @@ export class Api<SecurityDataType extends unknown> {
         body: data,
         type: ContentType.Json,
         format: 'json',
+        ...params,
+      }),
+  };
+  cron = {
+    /**
+     * No description
+     *
+     * @tags Cron
+     * @name GetApiCronCleanupPendingAssets
+     * @request GET:/api/cron/cleanup-pending-assets
+     * @response `200` `GetApiCronCleanupPendingAssetsData`
+     */
+    getApiCronCleanupPendingAssets: (params: RequestParams = {}) =>
+      this.http.request<GetApiCronCleanupPendingAssetsData, any>({
+        path: `/api/cron/cleanup-pending-assets`,
+        method: 'GET',
         ...params,
       }),
   };

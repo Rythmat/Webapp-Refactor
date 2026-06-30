@@ -31,6 +31,16 @@ import {
   useUpdateActivityProgress,
   useUpdateLessonState,
 } from '@/hooks/data/progress';
+import {
+  useAwardLessonActivityExperience,
+  useAwardLessonCompletionExperience,
+} from '@/hooks/data/experience/useAwardExperience';
+import {
+  trackActivityCompleted,
+  trackActivityStarted,
+  trackLessonCompleted,
+  trackLessonStarted,
+} from '@/telemetry/hooks/useTelemetryProduct';
 type RhythmHit = [number, number];
 const chordRhythmFallbacks: Record<string, RhythmHit[]> = {
   'Jazz 1a': [
@@ -1157,9 +1167,14 @@ export const ActivityFlow = ({
   const lessonProgressQuery = useLessonProgress(lessonId, lessonVersion, true);
   const updateActivityProgress = useUpdateActivityProgress();
   const updateLessonState = useUpdateLessonState();
+  const awardLessonActivity = useAwardLessonActivityExperience();
+  const awardLessonCompletion = useAwardLessonCompletionExperience();
   const resumeAppliedScopeRef = useRef<string | null>(null);
   const explicitStartAppliedRef = useRef<string | null>(null);
   const completionReportedRef = useRef<Set<string>>(new Set());
+  const activityStartReportedRef = useRef<Set<string>>(new Set());
+  const lessonStartReportedRef = useRef<string | null>(null);
+  const lessonCompleteReportedRef = useRef<string | null>(null);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activityInstanceId, setActivityInstanceId] = useState(0);
@@ -1389,6 +1404,17 @@ export const ActivityFlow = ({
   }, [currentActivity, currentIndex, labelChange, flowDefinitions.length]);
 
   useEffect(() => {
+    if (!lessonId || !isTrackableActivity) return;
+    const key = `${lessonId}::${lessonVersion}`;
+    if (lessonStartReportedRef.current === key) return;
+    lessonStartReportedRef.current = key;
+    trackLessonStarted(lessonId, {
+      mode: modeLabel ?? undefined,
+      rootNote: rootKey ?? undefined,
+    });
+  }, [lessonId, lessonVersion, modeLabel, rootKey, isTrackableActivity]);
+
+  useEffect(() => {
     if (!currentActivity || lessonComplete) return;
     if (!isTrackableActivity) return;
     updateLessonState.mutate({
@@ -1423,6 +1449,16 @@ export const ActivityFlow = ({
         activityDefId: currentActivity.activityDefId,
       },
     });
+
+    if (
+      !activityStartReportedRef.current.has(currentActivity.activityInstanceId)
+    ) {
+      activityStartReportedRef.current.add(currentActivity.activityInstanceId);
+      trackActivityStarted(lessonId, currentActivity.activityDefId, {
+        mode: modeLabel ?? undefined,
+        rootNote: rootKey ?? undefined,
+      });
+    }
   }, [
     activityState,
     activityInstanceId,
@@ -1492,6 +1528,10 @@ export const ActivityFlow = ({
             completedVia: 'continue',
           },
         });
+        trackActivityCompleted(lessonId, currentActivity.activityDefId);
+        void awardLessonActivity
+          .mutateAsync(currentActivity.activityInstanceId)
+          .catch(() => {});
       }
     }
     // Track completed activity for section progress
@@ -1524,6 +1564,13 @@ export const ActivityFlow = ({
           lessonVersion,
           currentActivityInstanceId: null,
         });
+        const lessonKey = `${lessonId}::${lessonVersion}`;
+        if (lessonCompleteReportedRef.current !== lessonKey) {
+          lessonCompleteReportedRef.current = lessonKey;
+          trackLessonCompleted(lessonId);
+          // Award lesson completion experience (best-effort)
+          void awardLessonCompletion.mutateAsync(lessonId).catch(() => {});
+        }
         onComplete?.();
       }
       return idx;
@@ -1604,6 +1651,11 @@ export const ActivityFlow = ({
           activityDefId: currentActivity.activityDefId,
         },
       });
+      trackActivityCompleted(lessonId, currentActivity.activityDefId);
+      // Award activity experience (best-effort, backend dedup protects duplicates)
+      void awardLessonActivity
+        .mutateAsync(currentActivity.activityInstanceId)
+        .catch(() => {});
       updateLessonState.mutate({
         lessonId,
         lessonVersion,

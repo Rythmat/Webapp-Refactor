@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import {
-  startPianoSampler,
-  triggerPianoAttackRelease,
-} from '@/audio/pianoSampler';
+  initJamSynth,
+  jamNoteOn,
+  jamNoteOff,
+  jamProgramChange,
+  getLocalChannel,
+} from '@/components/JamRoom/jamSoundFont';
 import { StarsCanvas } from '@/components/ui/stars-canvas';
 import { usePrismStartContours } from '@/hooks/data/prism/usePrismStartContours';
 import {
@@ -30,11 +33,16 @@ const NOTE_NAMES = [
 ];
 const DEFAULT_SCALE = [48, 50, 52, 55, 57, 60, 62, 64, 67, 69]; // C major pentatonic, 2 octaves (C3–A4)
 const NOTE_DURATION = 0.5;
-const NOTE_VELOCITY = 0.7;
+const NOTE_VELOCITY = 90; // MIDI velocity (0–127) for triggered notes
+const SCIFI_FX_PROGRAM = 103; // GM 'FX 8 (sci-fi)' from the Jam Room soundfont
 const HIT_RADIUS = 30;
 const REVEAL_INTERVAL_MS = 250;
 const SCALE_SPEED = 0.012; // per frame, ~83 frames to reach full size (60% of prior speed)
 const TARGET_SPREAD = 0.4; // 0=all at center, 1=full spread
+// A star's speed is proportional to its target's distance from center. Compress
+// that distance toward the batch mean by this factor to shrink the speed range
+// to 2/3 (a 1/3 reduction) while keeping the average speed unchanged.
+const SPEED_RANGE_FACTOR = 2 / 3;
 
 // Staff position mapping: MIDI → staff position (0 = C3 bottom, 9 = A4 top)
 const MIDI_TO_STAFF_POS: Record<number, number> = {
@@ -388,6 +396,23 @@ export default function Constellations({
       });
     }
 
+    // Compress each star's target distance toward the batch mean so the
+    // spread of speeds narrows while the average speed is preserved.
+    if (newStars.length > 0) {
+      const radii = newStars.map((s) =>
+        Math.hypot(s.targetX - centerX, s.targetY - centerY),
+      );
+      const meanR = radii.reduce((a, b) => a + b, 0) / radii.length;
+      newStars.forEach((s, i) => {
+        const r = radii[i];
+        if (r < 1e-3) return; // avoid divide-by-zero for center-locked stars
+        const newR = meanR + SPEED_RANGE_FACTOR * (r - meanR);
+        const k = newR / r;
+        s.targetX = centerX + (s.targetX - centerX) * k;
+        s.targetY = centerY + (s.targetY - centerY) * k;
+      });
+    }
+
     const startIdx = starsRef.current.length;
     starsRef.current = [...starsRef.current, ...newStars];
     nextRevealIdx.current = startIdx;
@@ -426,7 +451,8 @@ export default function Constellations({
   // --- Start playing ---
   const startRound = useCallback(async () => {
     onRoundStart?.();
-    await startPianoSampler();
+    await initJamSynth();
+    jamProgramChange(getLocalChannel(), SCIFI_FX_PROGRAM);
 
     nextPairId = 0;
     starsRef.current = [];
@@ -453,7 +479,12 @@ export default function Constellations({
       star.hit = true;
       hitOrderRef.current.push(starIndex);
 
-      triggerPianoAttackRelease(star.noteName, NOTE_DURATION, NOTE_VELOCITY);
+      const channel = getLocalChannel();
+      jamNoteOn(channel, star.midi, NOTE_VELOCITY);
+      window.setTimeout(
+        () => jamNoteOff(channel, star.midi),
+        NOTE_DURATION * 1000,
+      );
 
       // Dismiss the partner star in the same pair
       for (let i = 0; i < stars.length; i++) {

@@ -76,10 +76,10 @@ export default function TubesCursor({ className, colorKey }: TubesCursorProps) {
       const app = TubesCursorFn(canvasRef.current, {
         tubes: {
           colors: ['#5e72e4', '#8965e0', '#f5365c'],
-          // Trail length ∝ (1 - lerp) / lerp. The library default lerp of 0.5
-          // gives a factor of 1.0; 0.667 gives 0.5 — halving the trail length
-          // so the effect hugs the cursor tighter and covers ~50% of the area.
-          lerp: 0.667,
+          // `noise` scales how far the tubes wander sideways from the cursor
+          // path. Halving the library default (0.05 → 0.025) tightens the
+          // width around the cursor, covering ~50% of the area.
+          noise: 0.025,
           lights: {
             intensity: 200,
             colors: ['#21d4fd', '#b721ff', '#f4d03f', '#11cdef'],

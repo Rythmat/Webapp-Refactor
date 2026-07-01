@@ -275,8 +275,9 @@ export default function Constellations({
       ctx.font = `bold ${fontSize}px sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      // Dark text reads clearly against the bright white star core.
-      ctx.fillStyle = `rgba(30, 27, 75, ${Math.min(1, 0.85 * vs + 0.15)})`;
+      // White text at near-full alpha — always brighter than the star's
+      // faded perimeter glow so the note stays easily readable.
+      ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.9 * vs + 0.1)})`;
       ctx.fillText(star.noteName, star.x, star.y);
       ctx.textBaseline = 'alphabetic';
     });
@@ -447,7 +448,7 @@ export default function Constellations({
       const stars = starsRef.current;
       const star = stars[starIndex];
       if (star.hit || !star.visible || star.dismissed) return;
-      if (star.scale < 0.5 || star.scale > 2.5) return; // only hittable mid-flight
+      if (star.scale < 0.5) return; // hittable once grown to full size (no upper cap)
 
       star.hit = true;
       hitOrderRef.current.push(starIndex);
@@ -503,9 +504,9 @@ export default function Constellations({
       const stars = starsRef.current;
       for (let i = 0; i < stars.length; i++) {
         if (stars[i].hit || !stars[i].visible || stars[i].dismissed) continue;
-        if (stars[i].scale < 0.5 || stars[i].scale > 2.5) continue;
+        if (stars[i].scale < 0.5) continue;
         const dist = Math.hypot(pos.x - stars[i].x, pos.y - stars[i].y);
-        if (dist < HIT_RADIUS * stars[i].scale) {
+        if (dist < HIT_RADIUS * Math.min(stars[i].scale, 1)) {
           handleStarHit(i);
           break;
         }

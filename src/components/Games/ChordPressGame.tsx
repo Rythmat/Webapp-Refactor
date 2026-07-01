@@ -3,10 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
-import { usePlayNote } from '@/contexts/PianoContext';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useOptionalLearnInputStable } from '@/learn/context/LearnInputContext';
+import { playGrandPianoNote } from './chordPressAudio';
 
 type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
 
@@ -170,7 +170,7 @@ export function ChordPressGame({
 }: ChordPressGameProps) {
   const baseOctaveRoot = 60; // middle C
 
-  const playNote = usePlayNote();
+  const playNote = playGrandPianoNote;
   const pressedKeysRef = useRef<Set<string>>(new Set());
 
   const [seed] = useState(uuidv4());

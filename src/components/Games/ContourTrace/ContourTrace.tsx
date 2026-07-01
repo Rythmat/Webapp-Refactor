@@ -33,7 +33,7 @@ const NOTE_DURATION = 0.5;
 const NOTE_VELOCITY = 0.7;
 const HIT_RADIUS = 30;
 const REVEAL_INTERVAL_MS = 250;
-const SCALE_SPEED = 0.02; // per frame, ~50 frames to reach full size
+const SCALE_SPEED = 0.012; // per frame, ~83 frames to reach full size (60% of prior speed)
 const TARGET_SPREAD = 0.4; // 0=all at center, 1=full spread
 
 // Staff position mapping: MIDI → staff position (0 = C3 bottom, 9 = A4 top)
@@ -269,13 +269,16 @@ export default function Constellations({
       ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
       ctx.fill();
 
-      // Note label (show on hit stars at sufficient scale)
-      if (isHit && star.scale > 0.5) {
-        ctx.fillStyle = '#fff';
-        ctx.font = '11px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(star.noteName, star.x, star.y + radius + 14);
-      }
+      // Note label — always shown at the center of the star so players
+      // can see which note it represents before hitting it.
+      const fontSize = Math.max(8, radius * 1.1);
+      ctx.font = `bold ${fontSize}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      // Dark text reads clearly against the bright white star core.
+      ctx.fillStyle = `rgba(30, 27, 75, ${Math.min(1, 0.85 * vs + 0.15)})`;
+      ctx.fillText(star.noteName, star.x, star.y);
+      ctx.textBaseline = 'alphabetic';
     });
   }, []);
 

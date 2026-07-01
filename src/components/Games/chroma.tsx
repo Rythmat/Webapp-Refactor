@@ -818,6 +818,39 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
               justifyContent: 'center',
             }}
           >
+            {/* Root tile — the starting note the intervals were measured from */}
+            <div
+              style={{
+                padding: '6px 12px',
+                borderRadius: 7,
+                border: '2px solid #a78bfa',
+                backgroundColor: 'rgba(167,139,250,0.12)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 2,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: '#ddd6fe',
+                  letterSpacing: 0.5,
+                }}
+              >
+                Root
+              </span>
+              <span
+                style={{
+                  fontSize: 8,
+                  color: 'rgba(221,214,254,0.7)',
+                }}
+              >
+                {CHROMATIC_NOTES[sequence[0] % 12]}
+              </span>
+            </div>
             {sequence.slice(1).map((note, i) => {
               const interval = (((note - sequence[0]) % 12) + 12) % 12;
               const intervalLabel =
@@ -854,7 +887,7 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
                       color: 'rgba(252,165,165,0.7)',
                     }}
                   >
-                    in {CHROMATIC_NOTES[note % 12]}
+                    {CHROMATIC_NOTES[note % 12]}
                   </span>
                 </div>
               );

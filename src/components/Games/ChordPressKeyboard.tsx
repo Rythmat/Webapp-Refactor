@@ -2,8 +2,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
-import { usePlayNote } from '@/contexts/PianoContext';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import { playGrandPianoNote } from './chordPressAudio';
 // import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 
 type KeyboardBinding = {
@@ -119,7 +119,7 @@ export function ChordPressKeyboard({
   requireExactNotes = false,
   requireTargetIntervalsFromRoot = false,
 }: ChordPressKeyboardProps) {
-  const playNote = usePlayNote();
+  const playNote = playGrandPianoNote;
   const pressedKeysRef = useRef<Set<string>>(new Set());
   const [seed] = useState(uuidv4());
   const [selected, setSelected] = useState<number[]>([]);

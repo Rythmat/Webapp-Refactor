@@ -36,21 +36,31 @@ const NOTE_DURATION = 0.5;
 const NOTE_VELOCITY = 90; // MIDI velocity (0–127) for triggered notes
 const SCIFI_FX_PROGRAM = 103;
 const HIT_RADIUS = 30;
-const SPAWN_INTERVAL_MS = 400; // how often we try to introduce a new pair
-const SCALE_SPEED = 0.003; // radial growth per frame (tuned for on-screen speed)
-const MAX_ACTIVE_STARS = 4; // cap on concurrent unresolved stars — keeps it sparse
+const SPAWN_INTERVAL_MS = 250; // how often we re-check whether to launch a ring
+const SCALE_SPEED = 0.003; // radial growth per frame
+
+// Stars are released in "generations" — a ring of 2–4 stars launched together at
+// nearly the same distance from center. Up to two generations share the screen:
+// an outer (older) ring and an inner (newer) one. When the outer ring is fully
+// resolved (or flies off-screen), the next generation launches near the center.
+const MIN_PAIRS_PER_GEN = 1;
+const MAX_PAIRS_PER_GEN = 2; // 1–2 pairs → 2–4 stars per generation
+const RING_JITTER = 18; // per-star distance wobble so a ring isn't perfectly even
+const MIN_RING_GAP = 84; // radial gap kept between the two generations
 
 // ── Non-overlap guarantee ────────────────────────────────────────────────
-// Every star flies straight out from center along a fixed angle. Two stars that
-// are both past D_APPEAR from center and at least MIN_ANGLE_GAP apart can never
-// touch: their minimum possible separation is 2*D_APPEAR*sin(gap/2), which we
-// size to exceed the largest star body. So we (a) only draw / allow hits once a
-// star has travelled D_APPEAR from center, and (b) never place two stars within
-// MIN_ANGLE_GAP of one another.
-const MIN_ANGLE_GAP = (50 * Math.PI) / 180; // 50°
+// Every star flies straight out from center along a fixed angle. Within a ring,
+// two stars past D_APPEAR and >= MIN_ANGLE_GAP apart can never touch (their min
+// separation is 2*D_APPEAR*sin(gap/2) = 2*STAR_OVERLAP_RADIUS, sized above the
+// largest star body). Across rings, generations stay radially separated by at
+// least MIN_RING_GAP. Stars are only drawn / hittable once past D_APPEAR, where
+// trajectories have fanned out.
+const MIN_ANGLE_GAP = (80 * Math.PI) / 180; // 80° → up to 4 stars per ring
 const STAR_OVERLAP_RADIUS = 34; // largest star body radius + small margin
-const D_APPEAR = STAR_OVERLAP_RADIUS / Math.sin(MIN_ANGLE_GAP / 2);
-const SAME_NOTE_MIN_DIST_DELTA = 24; // same note must differ in distance by this
+const D_APPEAR = STAR_OVERLAP_RADIUS / Math.sin(MIN_ANGLE_GAP / 2); // ~53px
+const SAME_NOTE_MIN_DIST_DELTA = 20; // same note must differ in distance by this
+// A new generation launches once the innermost active ring has cleared this far.
+const NEXT_GEN_TRIGGER_DIST = D_APPEAR + MIN_RING_GAP;
 
 // Staff lines are drawn as ambient decoration only (stars are placed radially,
 // not by pitch height). These indices/paddings position the faint lines.
@@ -74,6 +84,7 @@ interface StarNode {
   visible: boolean; // true once the star has travelled past D_APPEAR
   dismissed: boolean;
   pairId: number;
+  genId: number; // which generation (ring) this star belongs to
 }
 
 interface ConstellationsProps {
@@ -93,6 +104,7 @@ function pickDecoyMidi(correctMidi: number): number {
 }
 
 let nextPairId = 0;
+let nextGenId = 0;
 
 export default function Constellations({
   onComplete: _onComplete,
@@ -323,34 +335,22 @@ export default function Constellations({
     animFrameRef.current = requestAnimationFrame(tick);
   }, [drawCanvas]);
 
-  // --- Spawn a single correct+decoy pair, placed with guaranteed spacing ---
-  const spawnPair = useCallback(() => {
+  // --- Launch one generation: a ring of 2–4 stars at ~the same distance ---
+  const spawnGeneration = useCallback(() => {
     const { w, h } = canvasSize.current;
     if (w === 0 || h === 0) return;
     const centerX = w / 2;
     const centerY = h / 2;
     const half = Math.min(w, h) / 2;
-    // Distance range: slowest star must still travel past D_APPEAR while
-    // approaching, so keep rMin comfortably above it. Distances vary freely
-    // between rMin and rMax (this is what varies each star's speed).
-    const rMin = D_APPEAR * 1.5;
-    const rMax = Math.max(rMin + 40, Math.min(D_APPEAR * 2.9, half * 0.85));
+    // Every generation uses the same base distance (so the two rings keep a
+    // constant radial gap as they fly out); per-star RING_JITTER gives a ring
+    // "near the same" — but not identical — distances.
+    const baseDist = Math.max(NEXT_GEN_TRIGGER_DIST + 40, half * 0.8);
+    const genId = nextGenId++;
 
-    // Refill the note queue from a fresh contour when exhausted.
-    if (noteQueueRef.current.length === 0) {
-      const contour = pickRandomContour(availableContours) ?? [0, 2, 4, 2, 0];
-      noteQueueRef.current = contourToMidi(contour, DEFAULT_SCALE);
-    }
-    const correctMidi = noteQueueRef.current.shift();
-    if (correctMidi === undefined) return;
-    const decoyMidi = pickDecoyMidi(correctMidi);
-    const pairId = nextPairId++;
-
-    // Angles already occupied by on-screen stars (invisible-but-approaching
-    // stars count — they hold their angle until pruned).
-    const occupied = starsRef.current
-      .filter((s) => !s.dismissed)
-      .map((s) => s.angle);
+    const pairsThisGen =
+      MIN_PAIRS_PER_GEN +
+      Math.floor(Math.random() * (MAX_PAIRS_PER_GEN - MIN_PAIRS_PER_GEN + 1));
 
     const angularGapOk = (angle: number, others: number[]) =>
       others.every((o) => {
@@ -359,77 +359,102 @@ export default function Constellations({
       });
 
     const placed: StarNode[] = [];
-    for (const m of [correctMidi, decoyMidi]) {
-      const taken = [...occupied, ...placed.map((s) => s.angle)];
+    const genAngles: number[] = []; // angular slots used within THIS ring
 
-      // Find an angle at least MIN_ANGLE_GAP from every other star.
-      let angle: number | null = null;
-      for (let attempt = 0; attempt < 48; attempt++) {
-        const candidate = Math.random() * Math.PI * 2;
-        if (angularGapOk(candidate, taken)) {
-          angle = candidate;
-          break;
-        }
+    for (let p = 0; p < pairsThisGen; p++) {
+      if (noteQueueRef.current.length === 0) {
+        const contour = pickRandomContour(availableContours) ?? [0, 2, 4, 2, 0];
+        noteQueueRef.current = contourToMidi(contour, DEFAULT_SCALE);
       }
-      if (angle === null) break; // no room right now — bail out of this pair
+      const correctMidi = noteQueueRef.current.shift();
+      if (correctMidi === undefined) break;
+      const decoyMidi = pickDecoyMidi(correctMidi);
+      const pairId = nextPairId++;
 
-      // Pick a distance that differs from other on-screen stars of the SAME
-      // note, so no two same-note stars sit at the same distance from center.
-      const sameNoteDists = [...starsRef.current, ...placed]
-        .filter((s) => !s.dismissed && s.midi === m)
-        .map((s) => s.dist);
-      let dist = rMin + Math.random() * (rMax - rMin);
-      for (let attempt = 0; attempt < 12; attempt++) {
-        if (
-          sameNoteDists.every(
-            (d) => Math.abs(d - dist) >= SAME_NOTE_MIN_DIST_DELTA,
-          )
-        ) {
-          break;
+      for (const m of [correctMidi, decoyMidi]) {
+        // Angle: spaced from other stars in this ring (cross-ring overlap is
+        // prevented by the radial gap between generations instead).
+        let angle: number | null = null;
+        for (let attempt = 0; attempt < 60; attempt++) {
+          const candidate = Math.random() * Math.PI * 2;
+          if (angularGapOk(candidate, genAngles)) {
+            angle = candidate;
+            break;
+          }
         }
-        dist = rMin + Math.random() * (rMax - rMin);
-      }
+        if (angle === null) continue; // ring full — skip this star
 
-      const noteName = NOTE_NAMES[m % 12];
-      const octave = Math.floor(m / 12) - 1;
-      placed.push({
-        x: centerX,
-        y: centerY,
-        targetX: centerX + Math.cos(angle) * dist,
-        targetY: centerY + Math.sin(angle) * dist,
-        angle,
-        dist,
-        scale: 0,
-        midi: m,
-        noteName: `${noteName}${octave}`,
-        hit: false,
-        visible: false,
-        dismissed: false,
-        pairId,
-      });
+        // Distance: base ± jitter, nudged so same-note stars in this ring differ.
+        const sameNoteDists = placed
+          .filter((s) => s.midi === m)
+          .map((s) => s.dist);
+        let dist = baseDist + (Math.random() * 2 - 1) * RING_JITTER;
+        for (let attempt = 0; attempt < 12; attempt++) {
+          if (
+            sameNoteDists.every(
+              (d) => Math.abs(d - dist) >= SAME_NOTE_MIN_DIST_DELTA,
+            )
+          ) {
+            break;
+          }
+          dist = baseDist + (Math.random() * 2 - 1) * RING_JITTER;
+        }
+
+        genAngles.push(angle);
+        const noteName = NOTE_NAMES[m % 12];
+        const octave = Math.floor(m / 12) - 1;
+        placed.push({
+          x: centerX,
+          y: centerY,
+          targetX: centerX + Math.cos(angle) * dist,
+          targetY: centerY + Math.sin(angle) * dist,
+          angle,
+          dist,
+          scale: 0,
+          midi: m,
+          noteName: `${noteName}${octave}`,
+          hit: false,
+          visible: false,
+          dismissed: false,
+          pairId,
+          genId,
+        });
+      }
     }
 
-    // Only commit if both stars found room; otherwise return the note to the
-    // queue and try again on the next tick.
-    if (placed.length < 2) {
-      noteQueueRef.current.unshift(correctMidi);
-      return;
+    if (placed.length > 0) {
+      starsRef.current = [...starsRef.current, ...placed];
     }
-    starsRef.current = [...starsRef.current, ...placed];
   }, [availableContours]);
 
-  // --- Spawn timer: keep the field topped up to MAX_ACTIVE_STARS ---
+  // --- Spawn timer: keep two generations in play, launching the next once the
+  //     outer ring is resolved (or has flown far enough to make room). ---
   const startSpawnTimer = useCallback(() => {
     if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
 
     spawnTimerRef.current = setInterval(() => {
       if (!playingRef.current) return;
-      const unresolved = starsRef.current.filter(
-        (s) => !s.hit && !s.dismissed,
-      ).length;
-      if (unresolved < MAX_ACTIVE_STARS) spawnPair();
+
+      // Distance of the innermost star of each still-unresolved generation.
+      const genInnerDist = new Map<number, number>();
+      for (const s of starsRef.current) {
+        if (s.hit || s.dismissed) continue;
+        const d = s.dist * s.scale;
+        const cur = genInnerDist.get(s.genId);
+        if (cur === undefined || d < cur) genInnerDist.set(s.genId, d);
+      }
+
+      const activeGens = genInnerDist.size;
+      if (activeGens >= 2) return; // both rings present — wait
+
+      // Launch the first ring immediately; otherwise wait until the current
+      // (inner) ring has cleared enough room near the center.
+      const innermost = Math.min(...genInnerDist.values());
+      if (activeGens === 0 || innermost >= NEXT_GEN_TRIGGER_DIST) {
+        spawnGeneration();
+      }
     }, SPAWN_INTERVAL_MS);
-  }, [spawnPair]);
+  }, [spawnGeneration]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -447,18 +472,19 @@ export default function Constellations({
     jamProgramChange(getLocalChannel(), SCIFI_FX_PROGRAM);
 
     nextPairId = 0;
+    nextGenId = 0;
     starsRef.current = [];
     hitOrderRef.current = [];
     noteQueueRef.current = [];
     setScore(0);
 
-    spawnPair();
+    spawnGeneration();
 
     playingRef.current = true;
     setPhase('playing');
     startSpawnTimer();
     startAnimLoop();
-  }, [spawnPair, startSpawnTimer, startAnimLoop, onRoundStart]);
+  }, [spawnGeneration, startSpawnTimer, startAnimLoop, onRoundStart]);
 
   // --- Handle star hit — dismiss partner ---
   const handleStarHit = useCallback((starIndex: number) => {

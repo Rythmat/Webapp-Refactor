@@ -36,29 +36,25 @@ const NOTE_DURATION = 0.5;
 const NOTE_VELOCITY = 90; // MIDI velocity (0–127) for triggered notes
 const SCIFI_FX_PROGRAM = 103;
 const HIT_RADIUS = 30;
-const REVEAL_INTERVAL_MS = 250;
-const SCALE_SPEED = 0.007;
-const TARGET_SPREAD = 0.4; // 0=all at center, 1=full spread
-// A star's speed is proportional to its target's distance from center. Compress
-// that distance toward the batch mean by this factor to shrink the speed range
-// to 2/3 (a 1/3 reduction) while keeping the average speed unchanged.
-const SPEED_RANGE_FACTOR = 2 / 3;
+const SPAWN_INTERVAL_MS = 400; // how often we try to introduce a new pair
+const SCALE_SPEED = 0.003; // radial growth per frame (tuned for on-screen speed)
+const MAX_ACTIVE_STARS = 4; // cap on concurrent unresolved stars — keeps it sparse
 
-// Staff position mapping: MIDI → staff position (0 = C3 bottom, 9 = A4 top)
-const MIDI_TO_STAFF_POS: Record<number, number> = {
-  48: 0, // C3
-  50: 1, // D3
-  52: 2, // E3
-  55: 3, // G3
-  57: 4, // A3
-  60: 5, // C4
-  62: 6, // D4
-  64: 7, // E4
-  67: 8, // G4
-  69: 9, // A4
-};
+// ── Non-overlap guarantee ────────────────────────────────────────────────
+// Every star flies straight out from center along a fixed angle. Two stars that
+// are both past D_APPEAR from center and at least MIN_ANGLE_GAP apart can never
+// touch: their minimum possible separation is 2*D_APPEAR*sin(gap/2), which we
+// size to exceed the largest star body. So we (a) only draw / allow hits once a
+// star has travelled D_APPEAR from center, and (b) never place two stars within
+// MIN_ANGLE_GAP of one another.
+const MIN_ANGLE_GAP = (50 * Math.PI) / 180; // 50°
+const STAR_OVERLAP_RADIUS = 34; // largest star body radius + small margin
+const D_APPEAR = STAR_OVERLAP_RADIUS / Math.sin(MIN_ANGLE_GAP / 2);
+const SAME_NOTE_MIN_DIST_DELTA = 24; // same note must differ in distance by this
 
-const STAFF_LINE_INDICES = [2, 3, 7, 8]; // E3, G3, E4, G4
+// Staff lines are drawn as ambient decoration only (stars are placed radially,
+// not by pitch height). These indices/paddings position the faint lines.
+const STAFF_LINE_INDICES = [2, 3, 7, 8];
 const STAFF_PADDING_TOP = 80;
 const STAFF_PADDING_BOTTOM = 80;
 
@@ -67,13 +63,15 @@ type Phase = 'loading' | 'ready' | 'playing';
 interface StarNode {
   x: number;
   y: number;
-  targetX: number;
+  targetX: number; // position at scale = 1 (center + dist along angle)
   targetY: number;
+  angle: number; // fixed radial direction (radians)
+  dist: number; // target distance from center — sets both speed and trajectory
   scale: number;
   midi: number;
   noteName: string;
   hit: boolean;
-  visible: boolean;
+  visible: boolean; // true once the star has travelled past D_APPEAR
   dismissed: boolean;
   pairId: number;
 }
@@ -81,13 +79,6 @@ interface StarNode {
 interface ConstellationsProps {
   onComplete?: (result: { accuracy: number }) => void;
   onRoundStart?: () => void;
-}
-
-function midiToStaffY(midi: number, canvasHeight: number): number {
-  const staffPos = MIDI_TO_STAFF_POS[midi] ?? 0;
-  const usableHeight = canvasHeight - STAFF_PADDING_TOP - STAFF_PADDING_BOTTOM;
-  const step = usableHeight / 9;
-  return canvasHeight - STAFF_PADDING_BOTTOM - staffPos * step;
 }
 
 function staffLineY(staffIdx: number, canvasHeight: number): number {
@@ -115,9 +106,9 @@ export default function Constellations({
   const starsRef = useRef<StarNode[]>([]);
   const hitOrderRef = useRef<number[]>([]);
   const canvasSize = useRef({ w: 0, h: 0 });
-  const revealTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const spawnTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const animFrameRef = useRef<number | null>(null);
-  const nextRevealIdx = useRef(0);
+  const noteQueueRef = useRef<number[]>([]); // upcoming correct-note MIDIs
   const playingRef = useRef(false);
 
   // Load contours from Prism
@@ -214,22 +205,13 @@ export default function Constellations({
     // Draw each visible star
     stars.forEach((star) => {
       if (!star.visible || star.dismissed) return;
-      if (star.scale < 0.05) return;
 
       const isHit = star.hit;
       const vs = Math.min(star.scale, 1); // cap visual scale at 1
       const baseRadius = isHit ? 16 : 10;
-      const radius = baseRadius * vs;
-
-      // Ledger line for C4 (below staff)
-      if (star.midi === 60 && vs > 0.5) {
-        ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 * vs})`;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(star.x - 20 * vs, star.y);
-        ctx.lineTo(star.x + 20 * vs, star.y);
-        ctx.stroke();
-      }
+      // Offset by baseRadius so a star starts at the old maximum size and
+      // keeps the same growth factor, staying legible from the start.
+      const radius = baseRadius * (1 + vs);
 
       // Outer glow
       const glow = ctx.createRadialGradient(
@@ -303,10 +285,15 @@ export default function Constellations({
 
       const stars = starsRef.current;
       for (const star of stars) {
-        if (!star.visible || star.dismissed) continue;
+        if (star.dismissed) continue;
         star.scale += SCALE_SPEED;
         star.x = centerX + (star.targetX - centerX) * star.scale;
         star.y = centerY + (star.targetY - centerY) * star.scale;
+        // Reveal (and allow hits) only once the star has cleared the center,
+        // where all trajectories converge — this is what keeps them non-overlapping.
+        if (!star.visible && star.dist * star.scale >= D_APPEAR) {
+          star.visible = true;
+        }
       }
 
       // Prune stars that flew off-screen
@@ -314,8 +301,7 @@ export default function Constellations({
       starsRef.current = stars.filter(
         (s) => s.x > -50 && s.x < w + 50 && s.y > -50 && s.y < h + 50,
       );
-      const pruned = before - starsRef.current.length;
-      if (pruned > 0) {
+      if (before !== starsRef.current.length) {
         const indexMap = new Map<number, number>();
         let newIdx = 0;
         for (let oldIdx = 0; oldIdx < before; oldIdx++) {
@@ -328,7 +314,6 @@ export default function Constellations({
         hitOrderRef.current = hitOrderRef.current
           .map((i) => indexMap.get(i))
           .filter((i): i is number => i !== undefined);
-        nextRevealIdx.current = Math.max(0, nextRevealIdx.current - pruned);
       }
 
       drawCanvas();
@@ -338,32 +323,82 @@ export default function Constellations({
     animFrameRef.current = requestAnimationFrame(tick);
   }, [drawCanvas]);
 
-  // --- Spawn a new batch of star pairs from a new contour ---
-  const spawnBatch = useCallback(() => {
+  // --- Spawn a single correct+decoy pair, placed with guaranteed spacing ---
+  const spawnPair = useCallback(() => {
     const { w, h } = canvasSize.current;
-    const contour = pickRandomContour(availableContours) ?? [0, 2, 4, 2, 0];
-    const midi = contourToMidi(contour, DEFAULT_SCALE);
-
+    if (w === 0 || h === 0) return;
     const centerX = w / 2;
     const centerY = h / 2;
-    const newStars: StarNode[] = [];
+    const half = Math.min(w, h) / 2;
+    // Distance range: slowest star must still travel past D_APPEAR while
+    // approaching, so keep rMin comfortably above it. Distances vary freely
+    // between rMin and rMax (this is what varies each star's speed).
+    const rMin = D_APPEAR * 1.5;
+    const rMax = Math.max(rMin + 40, Math.min(D_APPEAR * 2.9, half * 0.85));
 
-    for (let i = 0; i < midi.length; i++) {
-      const m = midi[i];
-      const pairId = nextPairId++;
+    // Refill the note queue from a fresh contour when exhausted.
+    if (noteQueueRef.current.length === 0) {
+      const contour = pickRandomContour(availableContours) ?? [0, 2, 4, 2, 0];
+      noteQueueRef.current = contourToMidi(contour, DEFAULT_SCALE);
+    }
+    const correctMidi = noteQueueRef.current.shift();
+    if (correctMidi === undefined) return;
+    const decoyMidi = pickDecoyMidi(correctMidi);
+    const pairId = nextPairId++;
+
+    // Angles already occupied by on-screen stars (invisible-but-approaching
+    // stars count — they hold their angle until pruned).
+    const occupied = starsRef.current
+      .filter((s) => !s.dismissed)
+      .map((s) => s.angle);
+
+    const angularGapOk = (angle: number, others: number[]) =>
+      others.every((o) => {
+        const d = Math.abs(angle - o) % (Math.PI * 2);
+        return Math.min(d, Math.PI * 2 - d) >= MIN_ANGLE_GAP;
+      });
+
+    const placed: StarNode[] = [];
+    for (const m of [correctMidi, decoyMidi]) {
+      const taken = [...occupied, ...placed.map((s) => s.angle)];
+
+      // Find an angle at least MIN_ANGLE_GAP from every other star.
+      let angle: number | null = null;
+      for (let attempt = 0; attempt < 48; attempt++) {
+        const candidate = Math.random() * Math.PI * 2;
+        if (angularGapOk(candidate, taken)) {
+          angle = candidate;
+          break;
+        }
+      }
+      if (angle === null) break; // no room right now — bail out of this pair
+
+      // Pick a distance that differs from other on-screen stars of the SAME
+      // note, so no two same-note stars sit at the same distance from center.
+      const sameNoteDists = [...starsRef.current, ...placed]
+        .filter((s) => !s.dismissed && s.midi === m)
+        .map((s) => s.dist);
+      let dist = rMin + Math.random() * (rMax - rMin);
+      for (let attempt = 0; attempt < 12; attempt++) {
+        if (
+          sameNoteDists.every(
+            (d) => Math.abs(d - dist) >= SAME_NOTE_MIN_DIST_DELTA,
+          )
+        ) {
+          break;
+        }
+        dist = rMin + Math.random() * (rMax - rMin);
+      }
+
       const noteName = NOTE_NAMES[m % 12];
       const octave = Math.floor(m / 12) - 1;
-
-      const rawX = Math.random() * w;
-      const rawY = midiToStaffY(m, h);
-      const targetX = centerX + (rawX - centerX) * TARGET_SPREAD;
-      const targetY = centerY + (rawY - centerY) * TARGET_SPREAD;
-
-      newStars.push({
+      placed.push({
         x: centerX,
         y: centerY,
-        targetX,
-        targetY,
+        targetX: centerX + Math.cos(angle) * dist,
+        targetY: centerY + Math.sin(angle) * dist,
+        angle,
+        dist,
         scale: 0,
         midi: m,
         noteName: `${noteName}${octave}`,
@@ -372,78 +407,34 @@ export default function Constellations({
         dismissed: false,
         pairId,
       });
-
-      // Decoy star at a different staff position, nearby X
-      const decoyMidi = pickDecoyMidi(m);
-      const decoyNoteName = NOTE_NAMES[decoyMidi % 12];
-      const decoyOctave = Math.floor(decoyMidi / 12) - 1;
-      const decoyRawX = Math.random() * w;
-      const decoyRawY = midiToStaffY(decoyMidi, h);
-      const decoyTargetX = centerX + (decoyRawX - centerX) * TARGET_SPREAD;
-      const decoyTargetY = centerY + (decoyRawY - centerY) * TARGET_SPREAD;
-
-      newStars.push({
-        x: centerX,
-        y: centerY,
-        targetX: decoyTargetX,
-        targetY: decoyTargetY,
-        scale: 0,
-        midi: decoyMidi,
-        noteName: `${decoyNoteName}${decoyOctave}`,
-        hit: false,
-        visible: false,
-        dismissed: false,
-        pairId,
-      });
     }
 
-    // Compress each star's target distance toward the batch mean so the
-    // spread of speeds narrows while the average speed is preserved.
-    if (newStars.length > 0) {
-      const radii = newStars.map((s) =>
-        Math.hypot(s.targetX - centerX, s.targetY - centerY),
-      );
-      const meanR = radii.reduce((a, b) => a + b, 0) / radii.length;
-      newStars.forEach((s, i) => {
-        const r = radii[i];
-        if (r < 1e-3) return; // avoid divide-by-zero for center-locked stars
-        const newR = meanR + SPEED_RANGE_FACTOR * (r - meanR);
-        const k = newR / r;
-        s.targetX = centerX + (s.targetX - centerX) * k;
-        s.targetY = centerY + (s.targetY - centerY) * k;
-      });
+    // Only commit if both stars found room; otherwise return the note to the
+    // queue and try again on the next tick.
+    if (placed.length < 2) {
+      noteQueueRef.current.unshift(correctMidi);
+      return;
     }
-
-    const startIdx = starsRef.current.length;
-    starsRef.current = [...starsRef.current, ...newStars];
-    nextRevealIdx.current = startIdx;
+    starsRef.current = [...starsRef.current, ...placed];
   }, [availableContours]);
 
-  // --- Reveal next pair via interval ---
-  const startRevealTimer = useCallback(() => {
-    if (revealTimerRef.current) clearInterval(revealTimerRef.current);
+  // --- Spawn timer: keep the field topped up to MAX_ACTIVE_STARS ---
+  const startSpawnTimer = useCallback(() => {
+    if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
 
-    revealTimerRef.current = setInterval(() => {
-      const stars = starsRef.current;
-      const idx = nextRevealIdx.current;
-
-      if (idx < stars.length) {
-        stars[idx].visible = true;
-        if (idx + 1 < stars.length) {
-          stars[idx + 1].visible = true;
-        }
-        nextRevealIdx.current = idx + 2;
-      } else {
-        // All revealed — immediately spawn next batch for continuous flow
-        spawnBatch();
-      }
-    }, REVEAL_INTERVAL_MS);
-  }, [spawnBatch]);
+    spawnTimerRef.current = setInterval(() => {
+      if (!playingRef.current) return;
+      const unresolved = starsRef.current.filter(
+        (s) => !s.hit && !s.dismissed,
+      ).length;
+      if (unresolved < MAX_ACTIVE_STARS) spawnPair();
+    }, SPAWN_INTERVAL_MS);
+  }, [spawnPair]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (revealTimerRef.current) clearInterval(revealTimerRef.current);
+      if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       playingRef.current = false;
     };
@@ -458,56 +449,43 @@ export default function Constellations({
     nextPairId = 0;
     starsRef.current = [];
     hitOrderRef.current = [];
-    nextRevealIdx.current = 0;
+    noteQueueRef.current = [];
     setScore(0);
 
-    spawnBatch();
+    spawnPair();
 
     playingRef.current = true;
     setPhase('playing');
-    startRevealTimer();
+    startSpawnTimer();
     startAnimLoop();
-  }, [spawnBatch, startRevealTimer, startAnimLoop, onRoundStart]);
+  }, [spawnPair, startSpawnTimer, startAnimLoop, onRoundStart]);
 
   // --- Handle star hit — dismiss partner ---
-  const handleStarHit = useCallback(
-    (starIndex: number) => {
-      const stars = starsRef.current;
-      const star = stars[starIndex];
-      if (star.hit || !star.visible || star.dismissed) return;
-      if (star.scale < 0.5) return; // hittable once grown to full size (no upper cap)
+  const handleStarHit = useCallback((starIndex: number) => {
+    const stars = starsRef.current;
+    const star = stars[starIndex];
+    if (star.hit || !star.visible || star.dismissed) return;
 
-      star.hit = true;
-      hitOrderRef.current.push(starIndex);
+    star.hit = true;
+    hitOrderRef.current.push(starIndex);
 
-      const channel = getLocalChannel();
-      jamNoteOn(channel, star.midi, NOTE_VELOCITY);
-      window.setTimeout(
-        () => jamNoteOff(channel, star.midi),
-        NOTE_DURATION * 1000,
-      );
+    const channel = getLocalChannel();
+    jamNoteOn(channel, star.midi, NOTE_VELOCITY);
+    window.setTimeout(
+      () => jamNoteOff(channel, star.midi),
+      NOTE_DURATION * 1000,
+    );
 
-      // Dismiss the partner star in the same pair
-      for (let i = 0; i < stars.length; i++) {
-        if (
-          i !== starIndex &&
-          stars[i].pairId === star.pairId &&
-          !stars[i].hit
-        ) {
-          stars[i].dismissed = true;
-        }
+    // Dismiss the partner star in the same pair
+    for (let i = 0; i < stars.length; i++) {
+      if (i !== starIndex && stars[i].pairId === star.pairId && !stars[i].hit) {
+        stars[i].dismissed = true;
       }
+    }
 
-      setScore((s) => s + 1);
-
-      const allRevealed = nextRevealIdx.current >= stars.length;
-      const allDone = stars.every((s) => !s.visible || s.hit || s.dismissed);
-      if (allRevealed && allDone) {
-        spawnBatch();
-      }
-    },
-    [spawnBatch],
-  );
+    setScore((s) => s + 1);
+    // New pairs are introduced by the spawn timer as the field frees up.
+  }, []);
 
   // --- Mouse/Touch hover detection ---
   useEffect(() => {
@@ -536,7 +514,6 @@ export default function Constellations({
       const stars = starsRef.current;
       for (let i = 0; i < stars.length; i++) {
         if (stars[i].hit || !stars[i].visible || stars[i].dismissed) continue;
-        if (stars[i].scale < 0.5) continue;
         const dist = Math.hypot(pos.x - stars[i].x, pos.y - stars[i].y);
         if (dist < HIT_RADIUS * Math.min(stars[i].scale, 1)) {
           handleStarHit(i);

@@ -49,10 +49,11 @@ const MAX_PAIRS_PER_GEN = 2; // 1–2 pairs → 2–4 stars per generation
 const RING_JITTER = 18; // per-star distance wobble so a ring isn't perfectly even
 const MIN_ANGLE_GAP = (80 * Math.PI) / 180; // 80° → up to 4 stars fanned around a ring
 const SAME_NOTE_MIN_DIST_DELTA = 20; // same note must differ in distance by this
-// A new generation launches once the innermost active ring has cleared this far
-// from center; since a new ring starts at the center, this also sets the radial
-// gap kept between the two on-screen generations.
-const NEXT_GEN_TRIGGER_DIST = 130;
+// A new generation launches the moment the most-recently-spawned ring reaches
+// this fraction of the way from center to the nearest screen edge — giving a
+// steady, consistent cadence regardless of whether stars are hit.
+const NEXT_GEN_TRIGGER_FRACTION = 0.5; // halfway to the edge
+const RING_BASE_DIST_MIN = 180; // floor for a ring's target distance (small screens)
 
 // Staff lines are drawn as ambient decoration only (stars are placed radially,
 // not by pitch height). These indices/paddings position the faint lines.
@@ -330,7 +331,7 @@ export default function Constellations({
     // Every generation uses the same base distance (so the two rings keep a
     // constant radial gap as they fly out); per-star RING_JITTER gives a ring
     // "near the same" — but not identical — distances.
-    const baseDist = Math.max(NEXT_GEN_TRIGGER_DIST + 40, half * 0.8);
+    const baseDist = Math.max(RING_BASE_DIST_MIN, half * 0.8);
     const genId = nextGenId++;
 
     const pairsThisGen =
@@ -437,32 +438,37 @@ export default function Constellations({
     }
   }, [availableContours]);
 
-  // --- Spawn timer: keep two generations in play, launching the next once the
-  //     outer ring is resolved (or has flown far enough to make room). ---
+  // --- Spawn timer: launch the next ring the moment the most-recently-spawned
+  //     ring reaches halfway to the edge — a steady, consistent cadence. ---
   const startSpawnTimer = useCallback(() => {
     if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
 
     spawnTimerRef.current = setInterval(() => {
       if (!playingRef.current) return;
+      const { w, h } = canvasSize.current;
+      if (!w || !h) return;
 
-      // Distance of the innermost star of each still-unresolved generation.
-      const genInnerDist = new Map<number, number>();
-      for (const s of starsRef.current) {
-        if (s.hit || s.dismissed) continue;
-        const d = s.dist * s.scale;
-        const cur = genInnerDist.get(s.genId);
-        if (cur === undefined || d < cur) genInnerDist.set(s.genId, d);
+      const stars = starsRef.current;
+      if (stars.length === 0) {
+        spawnGeneration(); // nothing on screen — start the flow
+        return;
       }
 
-      const activeGens = genInnerDist.size;
-      if (activeGens >= 2) return; // both rings present — wait
-
-      // Launch the first ring immediately; otherwise wait until the current
-      // (inner) ring has cleared enough room near the center.
-      const innermost = Math.min(...genInnerDist.values());
-      if (activeGens === 0 || innermost >= NEXT_GEN_TRIGGER_DIST) {
-        spawnGeneration();
+      // Find the newest ring on screen and its average distance from center.
+      let newestGen = -1;
+      for (const s of stars) if (s.genId > newestGen) newestGen = s.genId;
+      let sum = 0;
+      let count = 0;
+      for (const s of stars) {
+        if (s.genId !== newestGen) continue;
+        sum += s.dist * s.scale;
+        count++;
       }
+      const newestDist = count > 0 ? sum / count : Infinity;
+
+      // Trigger once that ring is halfway from center to the nearest edge.
+      const triggerDist = (Math.min(w, h) / 2) * NEXT_GEN_TRIGGER_FRACTION;
+      if (newestDist >= triggerDist) spawnGeneration();
     }, SPAWN_INTERVAL_MS);
   }, [spawnGeneration]);
 

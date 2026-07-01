@@ -34,10 +34,10 @@ const NOTE_NAMES = [
 const DEFAULT_SCALE = [48, 50, 52, 55, 57, 60, 62, 64, 67, 69]; // C major pentatonic, 2 octaves (C3–A4)
 const NOTE_DURATION = 0.5;
 const NOTE_VELOCITY = 90; // MIDI velocity (0–127) for triggered notes
-const SCIFI_FX_PROGRAM = 103; // GM 'FX 8 (sci-fi)' from the Jam Room soundfont
+const SCIFI_FX_PROGRAM = 103;
 const HIT_RADIUS = 30;
 const REVEAL_INTERVAL_MS = 250;
-const SCALE_SPEED = 0.012; // per frame, ~83 frames to reach full size (60% of prior speed)
+const SCALE_SPEED = 0.007;
 const TARGET_SPREAD = 0.4; // 0=all at center, 1=full spread
 // A star's speed is proportional to its target's distance from center. Compress
 // that distance toward the batch mean by this factor to shrink the speed range
@@ -286,7 +286,8 @@ export default function Constellations({
       // White text at near-full alpha — always brighter than the star's
       // faded perimeter glow so the note stays easily readable.
       ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.9 * vs + 0.1)})`;
-      ctx.fillText(star.noteName, star.x, star.y);
+      // Show only the pitch class (e.g. "C", "Eb") — drop the octave number.
+      ctx.fillText(star.noteName.replace(/\d+$/, ''), star.x, star.y);
       ctx.textBaseline = 'alphabetic';
     });
   }, []);

@@ -37,6 +37,7 @@ const NOTE_VELOCITY = 90; // MIDI velocity (0–127) for triggered notes
 const SCIFI_FX_PROGRAM = 103;
 const HIT_RADIUS = 30;
 const SPAWN_INTERVAL_MS = 250; // how often we re-check whether to launch a ring
+const SCALE_SPEED = 0.003; // radial growth per frame
 
 // Stars are released in "generations" — a ring of 2–4 stars launched together at
 // nearly the same distance from center. Up to two generations share the screen:

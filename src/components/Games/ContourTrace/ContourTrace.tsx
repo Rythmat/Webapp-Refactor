@@ -346,11 +346,13 @@ export default function Constellations({
 
     const placed: StarNode[] = [];
     const genAngles: number[] = []; // angular slots used within THIS ring
-    const usedMidis = new Set<number>(); // a note is never repeated in a ring
+    // Track pitch classes (midi % 12), not raw MIDI: the scale spans two octaves
+    // and we display note names without an octave, so C3 and C4 both read "C".
+    const usedPitchClasses = new Set<number>();
 
     for (let p = 0; p < pairsThisGen; p++) {
-      // Primary note from the contour queue, skipping any note already shown in
-      // this generation so a ring never displays the same note twice.
+      // Primary note from the contour queue, skipping any note whose pitch class
+      // is already shown in this generation so a ring never repeats a note name.
       let correctMidi: number | undefined;
       for (let guard = 0; guard < 32; guard++) {
         if (noteQueueRef.current.length === 0) {
@@ -361,23 +363,25 @@ export default function Constellations({
         }
         const candidate = noteQueueRef.current.shift();
         if (candidate === undefined) break;
-        if (!usedMidis.has(candidate)) {
+        if (!usedPitchClasses.has(candidate % 12)) {
           correctMidi = candidate;
           break;
         }
       }
       if (correctMidi === undefined) break;
-      usedMidis.add(correctMidi);
+      usedPitchClasses.add(correctMidi % 12);
 
-      // Second note: a distinct scale note not already used in this generation.
-      const decoyOptions = DEFAULT_SCALE.filter((m) => !usedMidis.has(m));
+      // Second note: a scale note whose pitch class isn't already used this ring.
+      const decoyOptions = DEFAULT_SCALE.filter(
+        (m) => !usedPitchClasses.has(m % 12),
+      );
       const decoyMidi =
         decoyOptions.length > 0
           ? decoyOptions[Math.floor(Math.random() * decoyOptions.length)]
           : undefined;
       const midisToPlace = [correctMidi];
       if (decoyMidi !== undefined) {
-        usedMidis.add(decoyMidi);
+        usedPitchClasses.add(decoyMidi % 12);
         midisToPlace.push(decoyMidi);
       }
       const pairId = nextPairId++;

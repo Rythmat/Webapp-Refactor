@@ -39,28 +39,20 @@ const HIT_RADIUS = 30;
 const SPAWN_INTERVAL_MS = 250; // how often we re-check whether to launch a ring
 const SCALE_SPEED = 0.003; // radial growth per frame
 
-// Stars are released in "generations" — a ring of 2–4 stars launched together at
-// nearly the same distance from center. Up to two generations share the screen:
-// an outer (older) ring and an inner (newer) one. When the outer ring is fully
-// resolved (or flies off-screen), the next generation launches near the center.
+// Stars are released in "generations" — a ring of 2–4 stars launched together
+// from the center. Up to two generations share the screen: an outer (older) ring
+// and an inner (newer) one. Each ring appears right at the center (its stars
+// briefly overlap there, which is fine) and fans out to distinct angles as it
+// flies. When the outer ring is fully resolved (or flies off), the next launches.
 const MIN_PAIRS_PER_GEN = 1;
 const MAX_PAIRS_PER_GEN = 2; // 1–2 pairs → 2–4 stars per generation
 const RING_JITTER = 18; // per-star distance wobble so a ring isn't perfectly even
-const MIN_RING_GAP = 84; // radial gap kept between the two generations
-
-// ── Non-overlap guarantee ────────────────────────────────────────────────
-// Every star flies straight out from center along a fixed angle. Within a ring,
-// two stars past D_APPEAR and >= MIN_ANGLE_GAP apart can never touch (their min
-// separation is 2*D_APPEAR*sin(gap/2) = 2*STAR_OVERLAP_RADIUS, sized above the
-// largest star body). Across rings, generations stay radially separated by at
-// least MIN_RING_GAP. Stars are only drawn / hittable once past D_APPEAR, where
-// trajectories have fanned out.
-const MIN_ANGLE_GAP = (80 * Math.PI) / 180; // 80° → up to 4 stars per ring
-const STAR_OVERLAP_RADIUS = 34; // largest star body radius + small margin
-const D_APPEAR = STAR_OVERLAP_RADIUS / Math.sin(MIN_ANGLE_GAP / 2); // ~53px
+const MIN_ANGLE_GAP = (80 * Math.PI) / 180; // 80° → up to 4 stars fanned around a ring
 const SAME_NOTE_MIN_DIST_DELTA = 20; // same note must differ in distance by this
-// A new generation launches once the innermost active ring has cleared this far.
-const NEXT_GEN_TRIGGER_DIST = D_APPEAR + MIN_RING_GAP;
+// A new generation launches once the innermost active ring has cleared this far
+// from center; since a new ring starts at the center, this also sets the radial
+// gap kept between the two on-screen generations.
+const NEXT_GEN_TRIGGER_DIST = 130;
 
 // Staff lines are drawn as ambient decoration only (stars are placed radially,
 // not by pitch height). These indices/paddings position the faint lines.
@@ -81,7 +73,7 @@ interface StarNode {
   midi: number;
   noteName: string;
   hit: boolean;
-  visible: boolean; // true once the star has travelled past D_APPEAR
+  visible: boolean; // shown from spawn; kept for hit/prune bookkeeping
   dismissed: boolean;
   pairId: number;
   genId: number; // which generation (ring) this star belongs to
@@ -96,11 +88,6 @@ function staffLineY(staffIdx: number, canvasHeight: number): number {
   const usableHeight = canvasHeight - STAFF_PADDING_TOP - STAFF_PADDING_BOTTOM;
   const step = usableHeight / 9;
   return canvasHeight - STAFF_PADDING_BOTTOM - staffIdx * step;
-}
-
-function pickDecoyMidi(correctMidi: number): number {
-  const options = DEFAULT_SCALE.filter((m) => m !== correctMidi);
-  return options[Math.floor(Math.random() * options.length)];
 }
 
 let nextPairId = 0;
@@ -224,6 +211,9 @@ export default function Constellations({
       // Offset by baseRadius so a star starts at the old maximum size and
       // keeps the same growth factor, staying legible from the start.
       const radius = baseRadius * (1 + vs);
+      // Brightness is decoupled from the (slow) flight scale so stars are fully
+      // visible the moment they appear at the center, rather than fading in.
+      const brightness = Math.min(1, 0.45 + star.scale * 5);
 
       // Outer glow
       const glow = ctx.createRadialGradient(
@@ -235,12 +225,12 @@ export default function Constellations({
         radius * 2.5,
       );
       if (isHit) {
-        glow.addColorStop(0, `rgba(255, 255, 255, ${0.6 * vs})`);
-        glow.addColorStop(0.4, `rgba(167, 139, 250, ${0.3 * vs})`);
+        glow.addColorStop(0, `rgba(255, 255, 255, ${0.6 * brightness})`);
+        glow.addColorStop(0.4, `rgba(167, 139, 250, ${0.3 * brightness})`);
         glow.addColorStop(1, 'rgba(167, 139, 250, 0)');
       } else {
-        glow.addColorStop(0, `rgba(255, 255, 255, ${0.2 * vs})`);
-        glow.addColorStop(0.4, `rgba(200, 200, 255, ${0.08 * vs})`);
+        glow.addColorStop(0, `rgba(255, 255, 255, ${0.2 * brightness})`);
+        glow.addColorStop(0.4, `rgba(200, 200, 255, ${0.08 * brightness})`);
         glow.addColorStop(1, 'rgba(200, 200, 255, 0)');
       }
       ctx.fillStyle = glow;
@@ -262,8 +252,8 @@ export default function Constellations({
         core.addColorStop(0.3, '#c4b5fd');
         core.addColorStop(1, 'rgba(167, 139, 250, 0)');
       } else {
-        core.addColorStop(0, `rgba(255, 255, 255, ${0.7 * vs})`);
-        core.addColorStop(0.4, `rgba(200, 200, 255, ${0.3 * vs})`);
+        core.addColorStop(0, `rgba(255, 255, 255, ${0.7 * brightness})`);
+        core.addColorStop(0.4, `rgba(200, 200, 255, ${0.3 * brightness})`);
         core.addColorStop(1, 'rgba(200, 200, 255, 0)');
       }
       ctx.fillStyle = core;
@@ -279,7 +269,7 @@ export default function Constellations({
       ctx.textBaseline = 'middle';
       // White text at near-full alpha — always brighter than the star's
       // faded perimeter glow so the note stays easily readable.
-      ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.9 * vs + 0.1)})`;
+      ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.9 * brightness + 0.1)})`;
       // Show only the pitch class (e.g. "C", "Eb") — drop the octave number.
       ctx.fillText(star.noteName.replace(/\d+$/, ''), star.x, star.y);
       ctx.textBaseline = 'alphabetic';
@@ -301,11 +291,6 @@ export default function Constellations({
         star.scale += SCALE_SPEED;
         star.x = centerX + (star.targetX - centerX) * star.scale;
         star.y = centerY + (star.targetY - centerY) * star.scale;
-        // Reveal (and allow hits) only once the star has cleared the center,
-        // where all trajectories converge — this is what keeps them non-overlapping.
-        if (!star.visible && star.dist * star.scale >= D_APPEAR) {
-          star.visible = true;
-        }
       }
 
       // Prune stars that flew off-screen
@@ -360,18 +345,43 @@ export default function Constellations({
 
     const placed: StarNode[] = [];
     const genAngles: number[] = []; // angular slots used within THIS ring
+    const usedMidis = new Set<number>(); // a note is never repeated in a ring
 
     for (let p = 0; p < pairsThisGen; p++) {
-      if (noteQueueRef.current.length === 0) {
-        const contour = pickRandomContour(availableContours) ?? [0, 2, 4, 2, 0];
-        noteQueueRef.current = contourToMidi(contour, DEFAULT_SCALE);
+      // Primary note from the contour queue, skipping any note already shown in
+      // this generation so a ring never displays the same note twice.
+      let correctMidi: number | undefined;
+      for (let guard = 0; guard < 32; guard++) {
+        if (noteQueueRef.current.length === 0) {
+          const contour = pickRandomContour(availableContours) ?? [
+            0, 2, 4, 2, 0,
+          ];
+          noteQueueRef.current = contourToMidi(contour, DEFAULT_SCALE);
+        }
+        const candidate = noteQueueRef.current.shift();
+        if (candidate === undefined) break;
+        if (!usedMidis.has(candidate)) {
+          correctMidi = candidate;
+          break;
+        }
       }
-      const correctMidi = noteQueueRef.current.shift();
       if (correctMidi === undefined) break;
-      const decoyMidi = pickDecoyMidi(correctMidi);
+      usedMidis.add(correctMidi);
+
+      // Second note: a distinct scale note not already used in this generation.
+      const decoyOptions = DEFAULT_SCALE.filter((m) => !usedMidis.has(m));
+      const decoyMidi =
+        decoyOptions.length > 0
+          ? decoyOptions[Math.floor(Math.random() * decoyOptions.length)]
+          : undefined;
+      const midisToPlace = [correctMidi];
+      if (decoyMidi !== undefined) {
+        usedMidis.add(decoyMidi);
+        midisToPlace.push(decoyMidi);
+      }
       const pairId = nextPairId++;
 
-      for (const m of [correctMidi, decoyMidi]) {
+      for (const m of midisToPlace) {
         // Angle: spaced from other stars in this ring (cross-ring overlap is
         // prevented by the radial gap between generations instead).
         let angle: number | null = null;
@@ -414,7 +424,7 @@ export default function Constellations({
           midi: m,
           noteName: `${noteName}${octave}`,
           hit: false,
-          visible: false,
+          visible: true, // shown from the center immediately
           dismissed: false,
           pairId,
           genId,
@@ -486,7 +496,7 @@ export default function Constellations({
     startAnimLoop();
   }, [spawnGeneration, startSpawnTimer, startAnimLoop, onRoundStart]);
 
-  // --- Handle star hit — dismiss partner ---
+  // --- Handle star hit — all stars stay put ---
   const handleStarHit = useCallback((starIndex: number) => {
     const stars = starsRef.current;
     const star = stars[starIndex];
@@ -502,15 +512,10 @@ export default function Constellations({
       NOTE_DURATION * 1000,
     );
 
-    // Dismiss the partner star in the same pair
-    for (let i = 0; i < stars.length; i++) {
-      if (i !== starIndex && stars[i].pairId === star.pairId && !stars[i].hit) {
-        stars[i].dismissed = true;
-      }
-    }
-
+    // No partner is dismissed — every star in the ring remains after one is
+    // chosen. A generation resolves only once all its stars are hit (or have
+    // flown off-screen), at which point the spawn timer launches the next ring.
     setScore((s) => s + 1);
-    // New pairs are introduced by the spawn timer as the field frees up.
   }, []);
 
   // --- Mouse/Touch hover detection ---

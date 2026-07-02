@@ -246,7 +246,7 @@ export function ConstellationsPage() {
 
   return (
     <GameShell>
-      <div className="relative">
+      <div className="relative flex-1 min-h-0">
         {done ? (
           <div className="flex flex-col items-center gap-4 pt-12">
             <h2

@@ -580,7 +580,7 @@ export default function Constellations({
   }, [phase, handleStarHit]);
 
   return (
-    <div className="flex flex-col h-[600px] rounded-2xl overflow-hidden border border-zinc-800 relative">
+    <div className="flex flex-col h-full min-h-0 rounded-2xl overflow-hidden border border-zinc-800 relative">
       {/* Header */}
       <div className="h-14 bg-[#121214]/80 backdrop-blur-sm border-b border-zinc-800 flex items-center justify-between px-6 relative z-10">
         <div className="flex items-center gap-3">

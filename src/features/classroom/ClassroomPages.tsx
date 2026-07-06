@@ -66,7 +66,7 @@ const PresentationMode = lazy(() =>
   })),
 );
 
-const PlanPage = lazy(() =>
+const ClassroomPlanPage = lazy(() =>
   import('./plan/PlanPage').then(({ PlanPage }) => ({
     default: PlanPage,
   })),
@@ -215,7 +215,7 @@ export const classroomPages = () => {
       },
       {
         path: ClassroomRoutes.plan.definition,
-        element: <PlanPage />,
+        element: <ClassroomPlanPage />,
       },
       {
         path: ClassroomRoutes.dayEditor.definition,

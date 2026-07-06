@@ -98,12 +98,12 @@ export const useRecentActivity = (): ActivityItem[] => {
     });
 
   const songs: ActivityItem[] = Object.keys(savedIds)
-    .map((songId) => {
+    .map((songId): ActivityItem | null => {
       const song = getSong(songId);
       if (!song) return null;
       return {
         id: `song:${songId}`,
-        kind: 'song' as const,
+        kind: 'song',
         category: 'Saved Song',
         title: song.title,
         subtitle: song.artist,

@@ -245,10 +245,13 @@ export function ConstellationsPage() {
   }, []);
 
   return (
-    <GameShell>
+    <div
+      className="learn-root flex h-full w-full flex-col overflow-hidden"
+      style={{ backgroundColor: 'var(--color-bg)' }}
+    >
       <div className="relative flex-1 min-h-0">
         {done ? (
-          <div className="flex flex-col items-center gap-4 pt-12">
+          <div className="flex h-full flex-col items-center justify-center gap-4">
             <h2
               className="text-2xl font-semibold"
               style={{ color: 'var(--color-text)' }}
@@ -270,14 +273,15 @@ export function ConstellationsPage() {
             key={key}
             onComplete={handleComplete}
             onRoundStart={handleRoundStart}
+            onExit={() => navigate(GameRoutes.root())}
           />
         )}
         <TubesCursor
           colorKey={roundKey}
-          className="absolute inset-0 z-10 rounded-2xl overflow-hidden opacity-60 pointer-events-none"
+          className="absolute inset-0 z-10 opacity-60 pointer-events-none"
         />
       </div>
-    </GameShell>
+    </div>
   );
 }
 

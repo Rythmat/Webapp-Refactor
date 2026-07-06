@@ -1,5 +1,5 @@
 import { ArrowLeft } from 'lucide-react';
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   initJamSynth,
   jamNoteOn,
@@ -8,13 +8,7 @@ import {
   getLocalChannel,
 } from '@/components/JamRoom/jamSoundFont';
 import { StarsCanvas } from '@/components/ui/stars-canvas';
-import { usePrismStartContours } from '@/hooks/data/prism/usePrismStartContours';
-import {
-  extractContours,
-  filterContoursByLength,
-  pickRandomContour,
-  contourToMidi,
-} from '../content/contourSelector';
+import { usePrismMode } from '@/hooks/data/prism/usePrismMode';
 
 // --- Constants ---
 
@@ -32,11 +26,20 @@ const NOTE_NAMES = [
   'Bb',
   'B',
 ];
-const DEFAULT_SCALE = [48, 50, 52, 55, 57, 60, 62, 64, 67, 69]; // C major pentatonic, 2 octaves (C3–A4)
+// Pentatonic scale-step fallbacks (semitone offsets from the root), used if the
+// backend `/prism/modes/{mode}` dictionary hasn't loaded. These mirror the
+// backend `majorpentatonic` / `minorpentatonic` entries exactly.
+const MAJOR_PENTATONIC_FALLBACK = [0, 2, 4, 7, 9];
+const MINOR_PENTATONIC_FALLBACK = [0, 3, 5, 7, 10];
+// Every star's note is played in one octave (C4–B4); we only display pitch
+// class, so the octave choice affects audio pitch only.
+const PLAY_OCTAVE_BASE = 60; // MIDI C4
 const NOTE_DURATION = 0.5;
 const NOTE_VELOCITY = 90; // MIDI velocity (0–127) for triggered notes
 const SCIFI_FX_PROGRAM = 103;
-const HIT_RADIUS = 30;
+// Core radii (px, before flight-scale growth) of a star's drawn circle.
+const STAR_BASE_RADIUS = 10; // un-hit star
+const STAR_HIT_BASE_RADIUS = 16; // already-hit star
 const SPAWN_INTERVAL_MS = 250; // how often we re-check whether to launch a ring
 const SCALE_SPEED = 0.003; // radial growth per frame
 
@@ -45,11 +48,12 @@ const SCALE_SPEED = 0.003; // radial growth per frame
 // and an inner (newer) one. Each ring appears right at the center (its stars
 // briefly overlap there, which is fine) and fans out to distinct angles as it
 // flies. When the outer ring is fully resolved (or flies off), the next launches.
-const MIN_PAIRS_PER_GEN = 1;
-const MAX_PAIRS_PER_GEN = 2; // 1–2 pairs → 2–4 stars per generation
+// Exactly one star per generation carries a note from the active scale; the
+// rest carry pitch classes drawn from outside the scale.
+const MIN_STARS_PER_GEN = 2;
+const MAX_STARS_PER_GEN = 4;
 const RING_JITTER = 18; // per-star distance wobble so a ring isn't perfectly even
 const MIN_ANGLE_GAP = (80 * Math.PI) / 180; // 80° → up to 4 stars fanned around a ring
-const SAME_NOTE_MIN_DIST_DELTA = 20; // same note must differ in distance by this
 // A new generation launches the moment the most-recently-spawned ring reaches
 // this fraction of the way from center to the nearest screen edge — giving a
 // steady, consistent cadence regardless of whether stars are hit.
@@ -63,6 +67,18 @@ const STAFF_PADDING_TOP = 80;
 const STAFF_PADDING_BOTTOM = 80;
 
 type Phase = 'loading' | 'ready' | 'playing';
+type Difficulty = 'easy' | 'medium' | 'hard';
+
+// The scale in play for the current round: a randomly chosen root + major/minor
+// pentatonic quality, resolved to concrete pitch classes via the backend
+// modes dictionary.
+interface ActiveScale {
+  rootPc: number; // 0–11
+  quality: 'major' | 'minor';
+  pcs: number[]; // pitch classes (0–11) that belong to the scale, in scale order
+  title: string; // e.g. "C Major Pentatonic"
+  noteNames: string[]; // e.g. ["C", "D", "E", "G", "A"]
+}
 
 interface StarNode {
   x: number;
@@ -79,12 +95,38 @@ interface StarNode {
   dismissed: boolean;
   pairId: number;
   genId: number; // which generation (ring) this star belongs to
+  inScale: boolean; // whether this star's note belongs to the active scale
 }
 
 interface ConstellationsProps {
   onComplete?: (result: { accuracy: number }) => void;
   onRoundStart?: () => void;
   onExit?: () => void;
+}
+
+// Resolve a root pitch class + pentatonic quality (and the scale steps from the
+// backend dictionary) into the concrete pitch classes and display strings.
+function buildScale(
+  rootPc: number,
+  quality: 'major' | 'minor',
+  steps: number[],
+): ActiveScale {
+  const pcs = steps.map((s) => (rootPc + s) % 12);
+  return {
+    rootPc,
+    quality,
+    pcs,
+    title: `${NOTE_NAMES[rootPc]} ${quality === 'major' ? 'Major' : 'Minor'} Pentatonic`,
+    noteNames: pcs.map((pc) => NOTE_NAMES[pc]),
+  };
+}
+
+// Radius (px) of a star's drawn core circle at its current flight scale. The
+// visual scale is capped at 1 (same cap the renderer uses) and offset by the
+// base radius so a star starts legible and grows to 2× as it flies out.
+function starVisualRadius(star: StarNode): number {
+  const base = star.hit ? STAR_HIT_BASE_RADIUS : STAR_BASE_RADIUS;
+  return base * (1 + Math.min(star.scale, 1));
 }
 
 function staffLineY(staffIdx: number, canvasHeight: number): number {
@@ -105,41 +147,28 @@ export default function Constellations({
   const containerRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<Phase>('loading');
   const [score, setScore] = useState(0);
+  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
+  // The scale is mirrored in a ref so the animation/spawn callbacks can read it
+  // without being re-created; `activeScale` state drives the on-screen display.
+  const [activeScale, setActiveScale] = useState<ActiveScale | null>(null);
+  const scaleRef = useRef<ActiveScale | null>(null);
+  const difficultyRef = useRef<Difficulty>('easy');
 
   const starsRef = useRef<StarNode[]>([]);
   const hitOrderRef = useRef<number[]>([]);
   const canvasSize = useRef({ w: 0, h: 0 });
   const spawnTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const animFrameRef = useRef<number | null>(null);
-  const noteQueueRef = useRef<number[]>([]); // upcoming correct-note MIDIs
   const playingRef = useRef(false);
 
-  // Load contours from Prism
-  const { data: contourData, isPending } = usePrismStartContours();
-  const allContours = useMemo(
-    () => extractContours(contourData?.contours),
-    [contourData],
-  );
-
-  const gameContours = useMemo(
-    () => filterContoursByLength(allContours, 4, 8),
-    [allContours],
-  );
-
-  const FALLBACK_CONTOURS = useMemo(
-    () => [
-      [0, 2, 4, 2, 0],
-      [0, 1, 2, 3, 4],
-      [4, 3, 2, 1, 0],
-      [0, 2, 1, 3, 2, 4],
-      [0, 4, 2, 4, 0],
-      [2, 0, 4, 2, 0],
-    ],
-    [],
-  );
-
-  const availableContours =
-    gameContours.length > 0 ? gameContours : FALLBACK_CONTOURS;
+  // Pentatonic scale steps from the backend modes dictionary. Both are fetched
+  // up front so a round can pick major or minor at random with no extra latency.
+  const { data: majorPenta, isPending: majorPending } =
+    usePrismMode('majorpentatonic');
+  const { data: minorPenta, isPending: minorPending } =
+    usePrismMode('minorpentatonic');
+  const majorSteps = majorPenta?.steps ?? MAJOR_PENTATONIC_FALLBACK;
+  const minorSteps = minorPenta?.steps ?? MINOR_PENTATONIC_FALLBACK;
 
   // --- Canvas resize ---
   useEffect(() => {
@@ -156,12 +185,12 @@ export default function Constellations({
     return () => window.removeEventListener('resize', resize);
   }, []);
 
-  // Mark ready when contours are available
+  // Mark ready once the scale dictionaries have settled (fallbacks cover errors)
   useEffect(() => {
-    if (!isPending && phase === 'loading') {
+    if (!majorPending && !minorPending && phase === 'loading') {
       setPhase('ready');
     }
-  }, [isPending, phase]);
+  }, [majorPending, minorPending, phase]);
 
   // --- Draw staff lines and stars ---
   const drawCanvas = useCallback(() => {
@@ -210,11 +239,9 @@ export default function Constellations({
       if (!star.visible || star.dismissed) return;
 
       const isHit = star.hit;
-      const vs = Math.min(star.scale, 1); // cap visual scale at 1
-      const baseRadius = isHit ? 16 : 10;
       // Offset by baseRadius so a star starts at the old maximum size and
       // keeps the same growth factor, staying legible from the start.
-      const radius = baseRadius * (1 + vs);
+      const radius = starVisualRadius(star);
       // Brightness is decoupled from the (slow) flight scale so stars are fully
       // visible the moment they appear at the center, rather than fading in.
       const brightness = Math.min(1, 0.45 + star.scale * 5);
@@ -264,6 +291,20 @@ export default function Constellations({
       ctx.beginPath();
       ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
       ctx.fill();
+
+      // On easy, light up the perimeter of every in-scale star with a bright
+      // white ring so the player can see which notes to play.
+      if (difficultyRef.current === 'easy' && star.inScale && !isHit) {
+        ctx.save();
+        ctx.strokeStyle = `rgba(255, 255, 255, ${Math.min(1, 0.85 * brightness + 0.15)})`;
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
 
       // Note label — always shown at the center of the star so players
       // can see which note it represents before hitting it.
@@ -324,10 +365,14 @@ export default function Constellations({
     animFrameRef.current = requestAnimationFrame(tick);
   }, [drawCanvas]);
 
-  // --- Launch one generation: a ring of 2–4 stars at ~the same distance ---
+  // --- Launch one generation: a ring of 2–4 stars at ~the same distance.
+  //     Exactly one carries a note from the active scale; the rest carry pitch
+  //     classes chosen at random from outside the scale. ---
   const spawnGeneration = useCallback(() => {
     const { w, h } = canvasSize.current;
     if (w === 0 || h === 0) return;
+    const scale = scaleRef.current;
+    if (!scale) return;
     const centerX = w / 2;
     const centerY = h / 2;
     const half = Math.min(w, h) / 2;
@@ -337,9 +382,36 @@ export default function Constellations({
     const baseDist = Math.max(RING_BASE_DIST_MIN, half * 0.8);
     const genId = nextGenId++;
 
-    const pairsThisGen =
-      MIN_PAIRS_PER_GEN +
-      Math.floor(Math.random() * (MAX_PAIRS_PER_GEN - MIN_PAIRS_PER_GEN + 1));
+    const starsThisGen =
+      MIN_STARS_PER_GEN +
+      Math.floor(Math.random() * (MAX_STARS_PER_GEN - MIN_STARS_PER_GEN + 1));
+
+    // Pitch classes outside the scale, shuffled — the pool for decoy notes.
+    const scaleSet = new Set(scale.pcs);
+    const outOfScale: number[] = [];
+    for (let pc = 0; pc < 12; pc++) {
+      if (!scaleSet.has(pc)) outOfScale.push(pc);
+    }
+    for (let i = outOfScale.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [outOfScale[i], outOfScale[j]] = [outOfScale[j], outOfScale[i]];
+    }
+
+    // The note plan: one in-scale pitch class + unique out-of-scale decoys.
+    const plan: { pc: number; inScale: boolean }[] = [
+      {
+        pc: scale.pcs[Math.floor(Math.random() * scale.pcs.length)],
+        inScale: true,
+      },
+    ];
+    for (let i = 0; i < starsThisGen - 1 && i < outOfScale.length; i++) {
+      plan.push({ pc: outOfScale[i], inScale: false });
+    }
+    // Shuffle so the in-scale note doesn't always take the first angle/distance.
+    for (let i = plan.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [plan[i], plan[j]] = [plan[j], plan[i]];
+    }
 
     const angularGapOk = (angle: number, others: number[]) =>
       others.every((o) => {
@@ -349,101 +421,47 @@ export default function Constellations({
 
     const placed: StarNode[] = [];
     const genAngles: number[] = []; // angular slots used within THIS ring
-    // Track pitch classes (midi % 12), not raw MIDI: the scale spans two octaves
-    // and we display note names without an octave, so C3 and C4 both read "C".
-    const usedPitchClasses = new Set<number>();
 
-    for (let p = 0; p < pairsThisGen; p++) {
-      // Primary note from the contour queue, skipping any note whose pitch class
-      // is already shown in this generation so a ring never repeats a note name.
-      let correctMidi: number | undefined;
-      for (let guard = 0; guard < 32; guard++) {
-        if (noteQueueRef.current.length === 0) {
-          const contour = pickRandomContour(availableContours) ?? [
-            0, 2, 4, 2, 0,
-          ];
-          noteQueueRef.current = contourToMidi(contour, DEFAULT_SCALE);
-        }
-        const candidate = noteQueueRef.current.shift();
-        if (candidate === undefined) break;
-        if (!usedPitchClasses.has(candidate % 12)) {
-          correctMidi = candidate;
+    for (const spec of plan) {
+      // Angle: spaced from other stars in this ring (cross-ring overlap is
+      // prevented by the radial gap between generations instead).
+      let angle: number | null = null;
+      for (let attempt = 0; attempt < 60; attempt++) {
+        const candidate = Math.random() * Math.PI * 2;
+        if (angularGapOk(candidate, genAngles)) {
+          angle = candidate;
           break;
         }
       }
-      if (correctMidi === undefined) break;
-      usedPitchClasses.add(correctMidi % 12);
+      if (angle === null) continue; // ring full — skip this star
 
-      // Second note: a scale note whose pitch class isn't already used this ring.
-      const decoyOptions = DEFAULT_SCALE.filter(
-        (m) => !usedPitchClasses.has(m % 12),
-      );
-      const decoyMidi =
-        decoyOptions.length > 0
-          ? decoyOptions[Math.floor(Math.random() * decoyOptions.length)]
-          : undefined;
-      const midisToPlace = [correctMidi];
-      if (decoyMidi !== undefined) {
-        usedPitchClasses.add(decoyMidi % 12);
-        midisToPlace.push(decoyMidi);
-      }
-      const pairId = nextPairId++;
-
-      for (const m of midisToPlace) {
-        // Angle: spaced from other stars in this ring (cross-ring overlap is
-        // prevented by the radial gap between generations instead).
-        let angle: number | null = null;
-        for (let attempt = 0; attempt < 60; attempt++) {
-          const candidate = Math.random() * Math.PI * 2;
-          if (angularGapOk(candidate, genAngles)) {
-            angle = candidate;
-            break;
-          }
-        }
-        if (angle === null) continue; // ring full — skip this star
-
-        // Distance: base ± jitter, nudged so same-note stars in this ring differ.
-        const sameNoteDists = placed
-          .filter((s) => s.midi === m)
-          .map((s) => s.dist);
-        let dist = baseDist + (Math.random() * 2 - 1) * RING_JITTER;
-        for (let attempt = 0; attempt < 12; attempt++) {
-          if (
-            sameNoteDists.every(
-              (d) => Math.abs(d - dist) >= SAME_NOTE_MIN_DIST_DELTA,
-            )
-          ) {
-            break;
-          }
-          dist = baseDist + (Math.random() * 2 - 1) * RING_JITTER;
-        }
-
-        genAngles.push(angle);
-        const noteName = NOTE_NAMES[m % 12];
-        const octave = Math.floor(m / 12) - 1;
-        placed.push({
-          x: centerX,
-          y: centerY,
-          targetX: centerX + Math.cos(angle) * dist,
-          targetY: centerY + Math.sin(angle) * dist,
-          angle,
-          dist,
-          scale: 0,
-          midi: m,
-          noteName: `${noteName}${octave}`,
-          hit: false,
-          visible: true, // shown from the center immediately
-          dismissed: false,
-          pairId,
-          genId,
-        });
-      }
+      const dist = baseDist + (Math.random() * 2 - 1) * RING_JITTER;
+      genAngles.push(angle);
+      const midi = PLAY_OCTAVE_BASE + spec.pc;
+      const octave = Math.floor(midi / 12) - 1;
+      placed.push({
+        x: centerX,
+        y: centerY,
+        targetX: centerX + Math.cos(angle) * dist,
+        targetY: centerY + Math.sin(angle) * dist,
+        angle,
+        dist,
+        scale: 0,
+        midi,
+        noteName: `${NOTE_NAMES[spec.pc]}${octave}`,
+        hit: false,
+        visible: true, // shown from the center immediately
+        dismissed: false,
+        pairId: nextPairId++,
+        genId,
+        inScale: spec.inScale,
+      });
     }
 
     if (placed.length > 0) {
       starsRef.current = [...starsRef.current, ...placed];
     }
-  }, [availableContours]);
+  }, []);
 
   // --- Spawn timer: launch the next ring the moment the most-recently-spawned
   //     ring reaches halfway to the edge — a steady, consistent cadence. ---
@@ -498,8 +516,17 @@ export default function Constellations({
     nextGenId = 0;
     starsRef.current = [];
     hitOrderRef.current = [];
-    noteQueueRef.current = [];
     setScore(0);
+
+    // Randomly pick a root and major/minor pentatonic quality, then resolve it
+    // to concrete pitch classes via the backend modes dictionary.
+    const rootPc = Math.floor(Math.random() * 12);
+    const quality: 'major' | 'minor' = Math.random() < 0.5 ? 'major' : 'minor';
+    const steps = quality === 'major' ? majorSteps : minorSteps;
+    const scale = buildScale(rootPc, quality, steps);
+    scaleRef.current = scale;
+    setActiveScale(scale);
+    difficultyRef.current = difficulty;
 
     spawnGeneration();
 
@@ -507,7 +534,15 @@ export default function Constellations({
     setPhase('playing');
     startSpawnTimer();
     startAnimLoop();
-  }, [spawnGeneration, startSpawnTimer, startAnimLoop, onRoundStart]);
+  }, [
+    spawnGeneration,
+    startSpawnTimer,
+    startAnimLoop,
+    onRoundStart,
+    majorSteps,
+    minorSteps,
+    difficulty,
+  ]);
 
   // --- Handle star hit — all stars stay put ---
   const handleStarHit = useCallback((starIndex: number) => {
@@ -559,7 +594,11 @@ export default function Constellations({
       for (let i = 0; i < stars.length; i++) {
         if (stars[i].hit || !stars[i].visible || stars[i].dismissed) continue;
         const dist = Math.hypot(pos.x - stars[i].x, pos.y - stars[i].y);
-        if (dist < HIT_RADIUS * Math.min(stars[i].scale, 1)) {
+        // Model the cursor as a circle the same size as the star. The two
+        // circles touch — activating the star — once the gap between their
+        // centers closes to the sum of the radii (2× the star's radius).
+        const starRadius = starVisualRadius(stars[i]);
+        if (dist < 2 * starRadius) {
           handleStarHit(i);
           break;
         }
@@ -583,9 +622,10 @@ export default function Constellations({
   }, [phase, handleStarHit]);
 
   return (
-    <div className="flex flex-col h-full w-full min-h-0 overflow-hidden relative">
-      {/* Helper bar */}
-      <div className="h-14 bg-[#121214]/80 backdrop-blur-sm border-b border-zinc-800 flex items-center justify-between px-6 relative z-10">
+    <div className="relative h-full w-full min-h-0 overflow-hidden">
+      {/* Helper bar — floats over the canvas so it doesn't shift the play
+          field's center away from the true window center. */}
+      <div className="absolute inset-x-0 top-0 h-14 bg-[#121214]/80 backdrop-blur-sm border-b border-zinc-800 flex items-center justify-between px-6 z-10">
         <div className="flex items-center gap-3">
           {onExit && (
             <button
@@ -620,8 +660,9 @@ export default function Constellations({
         </div>
       </div>
 
-      {/* Canvas area with star background */}
-      <div ref={containerRef} className="flex-1 relative">
+      {/* Canvas area with star background — fills the whole window so its
+          center (where stars spawn) is the true window center. */}
+      <div ref={containerRef} className="absolute inset-0">
         <StarsCanvas
           transparent={false}
           maxStars={400}
@@ -637,6 +678,28 @@ export default function Constellations({
           className="block w-full h-full relative z-[1]"
         />
 
+        {/* Scale display — sits just below the helper bar, centered. */}
+        {phase === 'playing' && activeScale && (
+          <div className="pointer-events-none absolute inset-x-0 top-14 z-[2] flex flex-col items-center pt-4 text-center">
+            <div
+              className="text-xl font-semibold text-white"
+              style={{ fontFamily: '"Playfair Display", serif' }}
+            >
+              {activeScale.title}
+            </div>
+            {(difficulty === 'easy' || difficulty === 'medium') && (
+              <div className="mt-1 text-sm font-medium tracking-[0.3em] text-purple-200">
+                {activeScale.noteNames.join('  ')}
+              </div>
+            )}
+            {difficulty === 'easy' && (
+              <div className="mt-1 text-xs text-zinc-400">
+                Play the highlighted notes
+              </div>
+            )}
+          </div>
+        )}
+
         {phase === 'ready' && (
           <div className="absolute inset-0 z-[2] bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
             <h3 className="text-3xl font-serif italic text-white mb-2">
@@ -646,6 +709,21 @@ export default function Constellations({
               Stars fly toward you from the void. Hover over each star to play
               its note and connect the constellation — choose wisely!
             </p>
+            <div className="mb-6 flex items-center gap-2">
+              {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
+                <button
+                  key={d}
+                  onClick={() => setDifficulty(d)}
+                  className={`rounded-full px-5 py-1.5 text-sm font-medium capitalize transition-colors ${
+                    difficulty === d
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+                  }`}
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
             <button
               onClick={startRound}
               className="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-medium rounded transition-colors"

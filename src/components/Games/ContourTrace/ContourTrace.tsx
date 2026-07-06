@@ -1,3 +1,4 @@
+import { ArrowLeft } from 'lucide-react';
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import {
   initJamSynth,
@@ -83,6 +84,7 @@ interface StarNode {
 interface ConstellationsProps {
   onComplete?: (result: { accuracy: number }) => void;
   onRoundStart?: () => void;
+  onExit?: () => void;
 }
 
 function staffLineY(staffIdx: number, canvasHeight: number): number {
@@ -97,6 +99,7 @@ let nextGenId = 0;
 export default function Constellations({
   onComplete: _onComplete,
   onRoundStart,
+  onExit,
 }: ConstellationsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -580,10 +583,19 @@ export default function Constellations({
   }, [phase, handleStarHit]);
 
   return (
-    <div className="flex flex-col h-full min-h-0 rounded-2xl overflow-hidden border border-zinc-800 relative">
-      {/* Header */}
+    <div className="flex flex-col h-full w-full min-h-0 overflow-hidden relative">
+      {/* Helper bar */}
       <div className="h-14 bg-[#121214]/80 backdrop-blur-sm border-b border-zinc-800 flex items-center justify-between px-6 relative z-10">
         <div className="flex items-center gap-3">
+          {onExit && (
+            <button
+              onClick={onExit}
+              className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft size={16} />
+              Back to Arcade
+            </button>
+          )}
           <h2
             className="text-lg font-semibold text-white"
             style={{ fontFamily: '"Playfair Display", serif' }}

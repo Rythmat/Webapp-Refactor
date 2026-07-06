@@ -9,3 +9,4 @@ export * from './teachers';
 export * from './progress';
 export * from './credits';
 export * from './subscription';
+export * from './useRecentActivity';

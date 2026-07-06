@@ -189,6 +189,39 @@ export const ClassroomRoutes = {
   }>('/:classroomId/collections/:collectionId/lessons/:lessonId', {
     prefix: classroomPrefix,
   }),
+
+  /**
+   * Presentation Mode — the projected board for a specific Day.
+   * See src/features/classroom/presentation/PresentationMode.tsx.
+   */
+  present: createRouteDefinition<{
+    classroomId: string;
+    dayId: string;
+  }>('/:classroomId/present/:dayId', {
+    prefix: classroomPrefix,
+  }),
+
+  /**
+   * Plan overview for a classroom — lists the teacher's authored Days and
+   * exposes a "New Day" affordance. Days persist locally per the fresh-build
+   * brief; nothing hits the server in v1.
+   */
+  plan: createRouteDefinition<{
+    classroomId: string;
+  }>('/:classroomId/plan', {
+    prefix: classroomPrefix,
+  }),
+
+  /**
+   * Day editor — teacher-facing authoring surface for a single Day. Reads and
+   * writes through `useLocalPlan` (localStorage `ma-teacher:plan:v1`).
+   */
+  dayEditor: createRouteDefinition<{
+    classroomId: string;
+    dayId: string;
+  }>('/:classroomId/plan/:dayId', {
+    prefix: classroomPrefix,
+  }),
 };
 
 const legalPrefix = '/documents';
@@ -286,7 +319,28 @@ export const ProfileRoutes = {
 
   settings: createRouteDefinition('/user/settings', { prefix: homePrefix }),
 
+  settingsSection: createRouteDefinition<{ section: string }>(
+    '/user/settings/:section',
+    { prefix: homePrefix },
+  ),
+
   plan: createRouteDefinition('/user/plan', { prefix: homePrefix }),
+};
+
+const userPrefix = '/user';
+
+export const UserRoutes = {
+  root: createRouteDefinition(userPrefix),
+};
+
+const settingsPrefix = '/settings';
+
+export const SettingsRoutes = {
+  root: createRouteDefinition(settingsPrefix),
+
+  section: createRouteDefinition<{ section: string }>('/:section', {
+    prefix: settingsPrefix,
+  }),
 };
 
 const learnPrefix = '/learn';

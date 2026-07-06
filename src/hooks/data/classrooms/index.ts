@@ -6,7 +6,6 @@ export { useClassroomStudents } from './useClassroomStudents';
 export { useCreateClassroom } from './useCreateClassroom';
 export { useToggleClassroom } from './useToggleClassroom';
 export { useUpdateClassroom } from './useUpdateClassroom';
-export { useInviteStudent } from './useInviteStudent';
 export { useClassroomDetailsByCode } from './useClassroomDetailsByCode';
 export { useClassroom } from './useClassroom';
 export type { Classroom } from './useClassroom';

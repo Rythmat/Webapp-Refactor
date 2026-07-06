@@ -79,10 +79,10 @@ export const CreateClassroomDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="border-white/[0.06] bg-[#141416] text-white sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create New Classroom</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-white">Create New Classroom</DialogTitle>
+          <DialogDescription className="text-white/60">
             Add a new classroom for your students
           </DialogDescription>
         </DialogHeader>
@@ -96,9 +96,15 @@ export const CreateClassroomDialog = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Classroom Name</FormLabel>
+                  <FormLabel className="text-white/85">
+                    Classroom Name
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Piano Class A" {...field} />
+                    <Input
+                      placeholder="e.g. Piano Class A"
+                      className="border-white/10 bg-white/[0.02] text-white placeholder:text-white/40 focus-visible:border-white/25 focus-visible:ring-0"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -110,11 +116,15 @@ export const CreateClassroomDialog = ({
               name="year"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>School Year</FormLabel>
+                  <FormLabel className="text-white/85">School Year</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      className="border-white/10 bg-white/[0.02] text-white placeholder:text-white/40 focus-visible:border-white/25 focus-visible:ring-0"
+                      {...field}
+                    />
                   </FormControl>
-                  <FormDescription>
+                  <FormDescription className="text-white/50">
                     The academic year for this classroom
                   </FormDescription>
                   <FormMessage />
@@ -127,15 +137,15 @@ export const CreateClassroomDialog = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel className="text-white/85">Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      className="resize-none"
                       placeholder="Brief description of this classroom"
+                      className="resize-none border-white/10 bg-white/[0.02] text-white placeholder:text-white/40 focus-visible:border-white/25 focus-visible:ring-0"
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>
+                  <FormDescription className="text-white/50">
                     Optional details about this classroom
                   </FormDescription>
                   <FormMessage />
@@ -147,12 +157,17 @@ export const CreateClassroomDialog = ({
               <Button
                 type="button"
                 variant="outline"
+                className="rounded-full border-white/10 bg-transparent text-white/80 hover:bg-white/[0.04] hover:text-white"
                 onClick={() => onOpenChange(false)}
               >
                 Cancel
               </Button>
-              <Button disabled={createClassroom.isPending} type="submit">
-                {createClassroom.isPending ? 'Creating...' : 'Create Classroom'}
+              <Button
+                disabled={createClassroom.isPending}
+                type="submit"
+                className="rounded-full bg-white text-black hover:bg-white/85"
+              >
+                {createClassroom.isPending ? 'Creating…' : 'Create Classroom'}
               </Button>
             </DialogFooter>
           </form>

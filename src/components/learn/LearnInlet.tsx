@@ -33,8 +33,10 @@ import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ProgressSummaryResponse } from '@/lib/progress/types';
 import { SongLibraryBody } from '../songLibrary/SongLibraryPage';
+import { SongsMarquee } from '../songLibrary/SongsMarquee';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
+import { LearnNav } from './LearnNav';
 import { LearnSubheader } from './LearnTabs';
 import {
   COURSES_LEVEL_OPTIONS,
@@ -1780,12 +1782,26 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
 
   return (
     <div
-      className="learn-root relative flex h-full flex-col"
+      className="learn-root relative flex h-full"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
       <MeshGradientBg />
-      <div className="relative flex flex-1 flex-col overflow-y-auto px-8 pb-6 pt-4">
-        {/* {showFilter && (
+      <LearnNav />
+      {subTab === 'Songs' ? (
+        <div
+          className="relative flex min-w-0 flex-1 flex-col overflow-y-auto"
+          style={{ background: '#101012' }}
+        >
+          <div className="mb-4">
+            <SongsMarquee bleed={false} />
+          </div>
+          <div className="flex-1 px-6 md:px-10">
+            <SongLibraryBody />
+          </div>
+        </div>
+      ) : (
+        <div className="relative flex min-w-0 flex-1 flex-col overflow-y-auto px-8 pb-6 pt-4">
+          {/* {showFilter && (
           <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 absolute top-[150px] left-8 right-8 z-20 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex justify-between items-start mb-4 pb-2 border-b border-white/5">
               <h3 className="text-sm font-medium text-gray-200">Filter</h3>
@@ -1812,233 +1828,236 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           </div>
         )} */}
 
-        <div
-          className="flex-1 overflow-y-auto"
-          style={{ background: 'var(--color-surface-3)' }}
-        >
-          {subTab === 'Songs' ? (
-            <SongLibraryBody />
-          ) : subTab === 'Theory' ? (
-            <>
-              <div
-                className="sticky top-0 z-10 pt-1 pb-3"
-                style={{ background: 'var(--color-bg)' }}
-              >
-                <LearnSubheader title="Theory" right={learnViewToggle} />
-                <LearnFilterRow>
-                  <FilterDropdown
-                    label="Mode Family"
-                    value={theoryFilters.family}
-                    options={MODE_FAMILY_OPTIONS}
-                    onChange={(v) =>
-                      setTheoryFilters((f) => ({ ...f, family: v }))
-                    }
-                  />
-                  <FilterDropdown
-                    label="Sort"
-                    value={theoryFilters.sort}
-                    options={THEORY_SORT_OPTIONS}
-                    onChange={(v) =>
-                      setTheoryFilters((f) => ({ ...f, sort: v }))
-                    }
-                  />
-                  <FilterDropdown
-                    label="Saved"
-                    value={theoryFilters.saved}
-                    options={SAVED_FILTER_OPTIONS}
-                    onChange={(v) =>
-                      setTheoryFilters((f) => ({
-                        ...f,
-                        saved: v as SavedFilter,
-                      }))
-                    }
-                  />
-                  <SearchInput
-                    value={theoryFilters.search}
-                    onChange={(v) =>
-                      setTheoryFilters((f) => ({ ...f, search: v }))
-                    }
-                    onClear={() =>
-                      setTheoryFilters((f) => ({ ...f, search: '' }))
-                    }
-                    placeholder="Search modes"
-                  />
-                </LearnFilterRow>
-              </div>
-              {theorySections.length === 0 ? (
-                <p
-                  className="text-white/40"
-                  style={{
-                    fontSize: 13,
-                    padding: '48px 0',
-                    textAlign: 'center',
-                  }}
+          <div
+            className="flex-1 overflow-y-auto"
+            style={{ background: 'var(--color-surface-3)' }}
+          >
+            {subTab === 'Theory' ? (
+              <>
+                <div
+                  className="sticky top-0 z-10 pt-1 pb-3"
+                  style={{ background: 'var(--color-bg)' }}
                 >
-                  No modes match these filters
-                </p>
-              ) : (
-                theorySections.map((section, i) => (
-                  <CollapsibleSection
-                    key={section.family}
-                    defaultOpen={
-                      section.defaultOpen || theoryFilters.search.length > 0
-                    }
-                    className={i === 0 ? 'mt-4' : 'mt-4 pt-4'}
-                    style={
-                      i === 0
-                        ? undefined
-                        : { borderTop: '1px solid var(--color-border)' }
-                    }
-                    title={section.title}
+                  <LearnSubheader title="Theory" right={learnViewToggle} />
+                  <LearnFilterRow>
+                    <FilterDropdown
+                      label="Mode Family"
+                      value={theoryFilters.family}
+                      options={MODE_FAMILY_OPTIONS}
+                      onChange={(v) =>
+                        setTheoryFilters((f) => ({ ...f, family: v }))
+                      }
+                    />
+                    <FilterDropdown
+                      label="Sort"
+                      value={theoryFilters.sort}
+                      options={THEORY_SORT_OPTIONS}
+                      onChange={(v) =>
+                        setTheoryFilters((f) => ({ ...f, sort: v }))
+                      }
+                    />
+                    <FilterDropdown
+                      label="Saved"
+                      value={theoryFilters.saved}
+                      options={SAVED_FILTER_OPTIONS}
+                      onChange={(v) =>
+                        setTheoryFilters((f) => ({
+                          ...f,
+                          saved: v as SavedFilter,
+                        }))
+                      }
+                    />
+                    <SearchInput
+                      value={theoryFilters.search}
+                      onChange={(v) =>
+                        setTheoryFilters((f) => ({ ...f, search: v }))
+                      }
+                      onClear={() =>
+                        setTheoryFilters((f) => ({ ...f, search: '' }))
+                      }
+                      placeholder="Search modes"
+                    />
+                  </LearnFilterRow>
+                </div>
+                {theorySections.length === 0 ? (
+                  <p
+                    className="text-white/40"
+                    style={{
+                      fontSize: 13,
+                      padding: '48px 0',
+                      textAlign: 'center',
+                    }}
                   >
-                    {renderContent(section.items)}
+                    No modes match these filters
+                  </p>
+                ) : (
+                  theorySections.map((section, i) => (
+                    <CollapsibleSection
+                      key={section.family}
+                      defaultOpen={
+                        section.defaultOpen || theoryFilters.search.length > 0
+                      }
+                      className={i === 0 ? 'mt-4' : 'mt-4 pt-4'}
+                      style={
+                        i === 0
+                          ? undefined
+                          : { borderTop: '1px solid var(--color-border)' }
+                      }
+                      title={section.title}
+                    >
+                      {renderContent(section.items)}
+                    </CollapsibleSection>
+                  ))
+                )}
+              </>
+            ) : subTab === 'Technique' ? (
+              <>
+                <div
+                  className="sticky top-0 z-10 pt-1 pb-3"
+                  style={{ background: 'var(--color-bg)' }}
+                >
+                  <LearnSubheader title="Technique" right={learnViewToggle} />
+                  <LearnFilterRow>
+                    <FilterDropdown
+                      label="Category"
+                      value={techniqueFilters.category}
+                      options={TECHNIQUE_CATEGORY_OPTIONS}
+                      onChange={(v) =>
+                        setTechniqueFilters((f) => ({ ...f, category: v }))
+                      }
+                    />
+                    <FilterDropdown
+                      label="Difficulty"
+                      value={techniqueFilters.difficulty}
+                      options={TECHNIQUE_DIFFICULTY_OPTIONS}
+                      onChange={(v) =>
+                        setTechniqueFilters((f) => ({ ...f, difficulty: v }))
+                      }
+                    />
+                    <FilterDropdown
+                      label="Sort"
+                      value={techniqueFilters.sort}
+                      options={TECHNIQUE_SORT_OPTIONS}
+                      onChange={(v) =>
+                        setTechniqueFilters((f) => ({ ...f, sort: v }))
+                      }
+                    />
+                    <FilterDropdown
+                      label="Saved"
+                      value={techniqueFilters.saved}
+                      options={SAVED_FILTER_OPTIONS}
+                      onChange={(v) =>
+                        setTechniqueFilters((f) => ({
+                          ...f,
+                          saved: v as SavedFilter,
+                        }))
+                      }
+                    />
+                    <SearchInput
+                      value={techniqueFilters.search}
+                      onChange={(v) =>
+                        setTechniqueFilters((f) => ({ ...f, search: v }))
+                      }
+                      onClear={() =>
+                        setTechniqueFilters((f) => ({ ...f, search: '' }))
+                      }
+                      placeholder="Search technique"
+                    />
+                  </LearnFilterRow>
+                </div>
+                {filteredTechnique.length === 0 ? (
+                  <p
+                    className="text-white/40"
+                    style={{
+                      fontSize: 13,
+                      padding: '48px 0',
+                      textAlign: 'center',
+                    }}
+                  >
+                    No items match these filters
+                  </p>
+                ) : (
+                  <CollapsibleSection
+                    defaultOpen
+                    className="mt-4"
+                    title="Foundational"
+                  >
+                    {renderContent(filteredTechnique)}
                   </CollapsibleSection>
-                ))
-              )}
-            </>
-          ) : subTab === 'Technique' ? (
-            <>
-              <div
-                className="sticky top-0 z-10 pt-1 pb-3"
-                style={{ background: 'var(--color-bg)' }}
-              >
-                <LearnSubheader title="Technique" right={learnViewToggle} />
-                <LearnFilterRow>
-                  <FilterDropdown
-                    label="Category"
-                    value={techniqueFilters.category}
-                    options={TECHNIQUE_CATEGORY_OPTIONS}
-                    onChange={(v) =>
-                      setTechniqueFilters((f) => ({ ...f, category: v }))
-                    }
-                  />
-                  <FilterDropdown
-                    label="Difficulty"
-                    value={techniqueFilters.difficulty}
-                    options={TECHNIQUE_DIFFICULTY_OPTIONS}
-                    onChange={(v) =>
-                      setTechniqueFilters((f) => ({ ...f, difficulty: v }))
-                    }
-                  />
-                  <FilterDropdown
-                    label="Sort"
-                    value={techniqueFilters.sort}
-                    options={TECHNIQUE_SORT_OPTIONS}
-                    onChange={(v) =>
-                      setTechniqueFilters((f) => ({ ...f, sort: v }))
-                    }
-                  />
-                  <FilterDropdown
-                    label="Saved"
-                    value={techniqueFilters.saved}
-                    options={SAVED_FILTER_OPTIONS}
-                    onChange={(v) =>
-                      setTechniqueFilters((f) => ({
-                        ...f,
-                        saved: v as SavedFilter,
-                      }))
-                    }
-                  />
-                  <SearchInput
-                    value={techniqueFilters.search}
-                    onChange={(v) =>
-                      setTechniqueFilters((f) => ({ ...f, search: v }))
-                    }
-                    onClear={() =>
-                      setTechniqueFilters((f) => ({ ...f, search: '' }))
-                    }
-                    placeholder="Search technique"
-                  />
-                </LearnFilterRow>
-              </div>
-              {filteredTechnique.length === 0 ? (
-                <p
-                  className="text-white/40"
-                  style={{
-                    fontSize: 13,
-                    padding: '48px 0',
-                    textAlign: 'center',
-                  }}
+                )}
+              </>
+            ) : (
+              <>
+                <div
+                  className="sticky top-0 z-10 pt-1 pb-3"
+                  style={{ background: 'var(--color-bg)' }}
                 >
-                  No items match these filters
-                </p>
-              ) : (
-                <CollapsibleSection
-                  defaultOpen
-                  className="mt-4"
-                  title="Foundational"
-                >
-                  {renderContent(filteredTechnique)}
-                </CollapsibleSection>
-              )}
-            </>
-          ) : (
-            <>
-              <div
-                className="sticky top-0 z-10 pt-1 pb-3"
-                style={{ background: 'var(--color-bg)' }}
-              >
-                <LearnSubheader title="Genre" right={learnViewToggle} />
-                <LearnFilterRow>
-                  <FilterDropdown
-                    label="Difficulty"
-                    value={coursesFilters.level}
-                    options={COURSES_LEVEL_OPTIONS}
-                    onChange={(v) =>
-                      setCoursesFilters((f) => ({ ...f, level: v }))
-                    }
-                  />
-                  <FilterDropdown
-                    label="Saved"
-                    value={coursesFilters.saved}
-                    options={SAVED_FILTER_OPTIONS}
-                    onChange={(v) =>
-                      setCoursesFilters((f) => ({
-                        ...f,
-                        saved: v as SavedFilter,
-                      }))
-                    }
-                  />
-                  <FilterDropdown
-                    label="Sort"
-                    value={coursesFilters.sort}
-                    options={COURSES_SORT_OPTIONS}
-                    onChange={(v) =>
-                      setCoursesFilters((f) => ({ ...f, sort: v }))
-                    }
-                  />
-                  <SearchInput
-                    value={coursesFilters.search}
-                    onChange={(v) =>
-                      setCoursesFilters((f) => ({ ...f, search: v }))
-                    }
-                    onClear={() =>
-                      setCoursesFilters((f) => ({ ...f, search: '' }))
-                    }
-                    placeholder="Search courses"
-                  />
-                </LearnFilterRow>
-              </div>
-              {filteredCourses.length === 0 ? (
-                <p
-                  className="text-white/40"
-                  style={{
-                    fontSize: 13,
-                    padding: '48px 0',
-                    textAlign: 'center',
-                  }}
-                >
-                  No courses match these filters
-                </p>
-              ) : (
-                <CollapsibleSection defaultOpen className="mt-4" title="Genres">
-                  {renderContent(filteredCourses)}
-                </CollapsibleSection>
-              )}
-            </>
-          )}
+                  <LearnSubheader title="Genre" right={learnViewToggle} />
+                  <LearnFilterRow>
+                    <FilterDropdown
+                      label="Difficulty"
+                      value={coursesFilters.level}
+                      options={COURSES_LEVEL_OPTIONS}
+                      onChange={(v) =>
+                        setCoursesFilters((f) => ({ ...f, level: v }))
+                      }
+                    />
+                    <FilterDropdown
+                      label="Saved"
+                      value={coursesFilters.saved}
+                      options={SAVED_FILTER_OPTIONS}
+                      onChange={(v) =>
+                        setCoursesFilters((f) => ({
+                          ...f,
+                          saved: v as SavedFilter,
+                        }))
+                      }
+                    />
+                    <FilterDropdown
+                      label="Sort"
+                      value={coursesFilters.sort}
+                      options={COURSES_SORT_OPTIONS}
+                      onChange={(v) =>
+                        setCoursesFilters((f) => ({ ...f, sort: v }))
+                      }
+                    />
+                    <SearchInput
+                      value={coursesFilters.search}
+                      onChange={(v) =>
+                        setCoursesFilters((f) => ({ ...f, search: v }))
+                      }
+                      onClear={() =>
+                        setCoursesFilters((f) => ({ ...f, search: '' }))
+                      }
+                      placeholder="Search courses"
+                    />
+                  </LearnFilterRow>
+                </div>
+                {filteredCourses.length === 0 ? (
+                  <p
+                    className="text-white/40"
+                    style={{
+                      fontSize: 13,
+                      padding: '48px 0',
+                      textAlign: 'center',
+                    }}
+                  >
+                    No courses match these filters
+                  </p>
+                ) : (
+                  <CollapsibleSection
+                    defaultOpen
+                    className="mt-4"
+                    title="Genres"
+                  >
+                    {renderContent(filteredCourses)}
+                  </CollapsibleSection>
+                )}
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

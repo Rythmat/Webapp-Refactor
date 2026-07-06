@@ -3,6 +3,9 @@ import { persist } from 'zustand/middleware';
 
 interface SavedSongsState {
   savedIds: Record<string, true>;
+  /** Unix ms timestamp of the most recent save toggle for each id. Legacy IDs
+      without a stored timestamp fall back to 0 at read time. */
+  savedAt: Record<string, number>;
   isSaved: (songId: string) => boolean;
   toggleSaved: (songId: string) => void;
   setSaved: (songId: string, saved: boolean) => void;
@@ -12,29 +15,36 @@ export const useSavedSongsStore = create<SavedSongsState>()(
   persist(
     (set, get) => ({
       savedIds: {},
+      savedAt: {},
 
       isSaved: (songId) => Boolean(get().savedIds[songId]),
 
       toggleSaved: (songId) =>
         set((state) => {
-          const next = { ...state.savedIds };
-          if (next[songId]) {
-            delete next[songId];
+          const nextIds = { ...state.savedIds };
+          const nextAt = { ...state.savedAt };
+          if (nextIds[songId]) {
+            delete nextIds[songId];
+            delete nextAt[songId];
           } else {
-            next[songId] = true;
+            nextIds[songId] = true;
+            nextAt[songId] = Date.now();
           }
-          return { savedIds: next };
+          return { savedIds: nextIds, savedAt: nextAt };
         }),
 
       setSaved: (songId, saved) =>
         set((state) => {
-          const next = { ...state.savedIds };
+          const nextIds = { ...state.savedIds };
+          const nextAt = { ...state.savedAt };
           if (saved) {
-            next[songId] = true;
+            nextIds[songId] = true;
+            nextAt[songId] = Date.now();
           } else {
-            delete next[songId];
+            delete nextIds[songId];
+            delete nextAt[songId];
           }
-          return { savedIds: next };
+          return { savedIds: nextIds, savedAt: nextAt };
         }),
     }),
     {

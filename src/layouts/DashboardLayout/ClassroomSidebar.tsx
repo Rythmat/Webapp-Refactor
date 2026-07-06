@@ -1,182 +1,125 @@
-import {
-  BookOpen,
-  CircleHelp,
-  Earth,
-  FileText,
-  Gamepad2,
-  Home,
-  LifeBuoy,
-  Music,
-  Scale,
-  ScrollText,
-  Shield,
-} from 'lucide-react';
-import { useState } from 'react';
-import { CreditsBadge } from '@/components/CreditsBadge';
+import { CircleHelp, Home, Laptop, Search, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
-import { BetaHelp } from '@/components/ui/beta-help';
 import { cn } from '@/components/utilities';
 import {
   AtlasRoutes,
+  ClassroomRoutes,
+  CurriculumRoutes,
   GameRoutes,
   LearnRoutes,
   ProfileRoutes,
+  SettingsRoutes,
   StudioRoutes,
 } from '@/constants/routes';
-// import { ConnectRoutes, LibraryRoutes } from '@/constants/routes';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
-import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
-import { UserWidget } from './UserWidget';
-// import { Library, Users } from 'lucide-react';
+
 interface SidebarProps {
-  isCollapsed?: boolean;
   className?: string;
-  view?: 'home' | 'collection' | 'lesson';
-  ids?: {
-    classroomId?: string;
-    collectionId?: string;
-    lessonId?: string;
-  };
 }
 
-export const ClassroomSidebar = ({
-  className,
-  isCollapsed = false,
-  view,
-  ids,
-}: SidebarProps) => {
-  const [helpOpen, setHelpOpen] = useState(false);
-
-  if (view === 'collection' || view === 'lesson') {
-    ids;
-  }
-
+/**
+ * Persistent left-rail sidebar for the classroom dashboard.
+ * Always renders in the collapsed (icon-only) state — no expand affordance.
+ */
+export const ClassroomSidebar = ({ className }: SidebarProps) => {
   return (
     <aside
       className={cn(
-        'relative flex h-full animate-fade-in-bottom flex-col space-y-4 bg-black/20 backdrop-blur-2xl border-r border-white/[0.08]',
+        'relative flex h-full w-[72px] flex-col bg-[#101012] text-white',
+        'border-r border-white/[0.06]',
         className,
       )}
     >
-      <div className="relative z-10 flex flex-1 flex-col space-y-4 p-6 text-gray-800">
-        {/* Header */}
-        <div className="relative">
-          <div className="flex items-center justify-center">
-            <Logo className={cn('relative transition-all')} />
-          </div>
+      <div className="flex flex-1 flex-col p-2">
+        {/* 1. Logo */}
+        <div className="flex items-center justify-center py-2">
+          <Link
+            to={ProfileRoutes.root()}
+            aria-label="Music Atlas home"
+            className="rounded-md outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-white/40"
+          >
+            <Logo className="size-8" />
+          </Link>
         </div>
 
-        <ul className="flex flex-1 flex-col gap-y-1 pt-4">
+        {/* 2. Primary nav */}
+        <ul className="mt-2 flex flex-col gap-1">
           <SidebarMainNavItem
             icon={Home}
-            isCollapsed={isCollapsed}
             label="Home"
             to={ProfileRoutes.root()}
+            isCollapsed
           />
           <SidebarMainNavItem
-            icon={BookOpen}
-            isCollapsed={isCollapsed}
+            iconSrc="/icons/learn-icon.svg"
             label="Learn"
             to={LearnRoutes.root()}
+            isCollapsed
           />
           <SidebarMainNavItem
-            icon={Music}
-            isCollapsed={isCollapsed}
+            iconSrc="/icons/studio-icon.svg"
             label="Studio"
             to={StudioRoutes.root()}
+            isCollapsed
           />
           <SidebarMainNavItem
-            icon={Earth}
-            isCollapsed={isCollapsed}
+            iconSrc="/icons/globe-icon.svg"
             label="Globe"
             to={AtlasRoutes.root()}
+            isCollapsed
+            glyphClassName="h-6 w-6"
           />
-          {/* <SidebarMainNavItem
-                      icon={Library}
-                      isCollapsed={isCollapsed}
-                      label="Library"
-                      to={LibraryRoutes.root()}
-                    /> */}
           <SidebarMainNavItem
-            icon={Gamepad2}
-            isCollapsed={isCollapsed}
+            iconSrc="/icons/arcade-icon.svg"
             label="Arcade"
             to={GameRoutes.root()}
+            isCollapsed
+            glyphClassName="h-6 w-6"
           />
-          {/* <SidebarMainNavItem
-                      icon={Users}
-                      isCollapsed={isCollapsed}
-                      label="Connect"
-                      to={ConnectRoutes.root()}
-                    /> */}
         </ul>
 
-        {/* Help / Info toggle */}
-        <div className="border-t border-white/[0.06] pt-4">
-          <button
-            aria-label={helpOpen ? 'Hide help links' : 'Show help links'}
-            className={cn(
-              'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-foreground/60 transition-colors hover:text-white',
-              helpOpen && 'text-white',
-              isCollapsed && 'justify-center',
-            )}
-            onClick={() => setHelpOpen(!helpOpen)}
-          >
-            <CircleHelp className="h-5 w-5 shrink-0" />
-            {!isCollapsed && <span className="text-sm">Help & Info</span>}
-          </button>
+        {/* Divider between primary nav and secondary nav */}
+        <hr
+          className="mx-2 mt-6 border-0 border-t border-white/15"
+          role="separator"
+        />
 
-          {helpOpen && (
-            <ul
-              className={cn(
-                'flex flex-col space-y-1 text-sm',
-                !isCollapsed && 'mt-1',
-              )}
-            >
-              <SidebarSecondaryNavItem
-                external
-                icon={ScrollText}
-                isCollapsed={isCollapsed}
-                label="Changelog"
-                to="https://www.musicatlas.io/policies/change-log"
-              />
-              <SidebarSecondaryNavItem
-                external
-                icon={LifeBuoy}
-                isCollapsed={isCollapsed}
-                label="Support"
-                to="mailto:aaron@musicatlas.io"
-              />
-              <SidebarSecondaryNavItem
-                external
-                icon={Scale}
-                isCollapsed={isCollapsed}
-                label="Licensing"
-                to="https://www.musicatlas.io/policies/licensing"
-              />
-              <SidebarSecondaryNavItem
-                external
-                icon={Shield}
-                isCollapsed={isCollapsed}
-                label="Privacy Policy"
-                to="https://www.musicatlas.io/policies/privacy"
-              />
-              <SidebarSecondaryNavItem
-                external
-                icon={FileText}
-                isCollapsed={isCollapsed}
-                label="Terms of Use"
-                to="https://www.musicatlas.io/policies/terms"
-              />
-            </ul>
-          )}
-        </div>
+        {/* 3. Secondary nav */}
+        <ul className="mt-6 flex flex-col gap-1">
+          <SidebarMainNavItem
+            chip
+            icon={Search}
+            label="Search"
+            to={CurriculumRoutes.root()}
+            isCollapsed
+          />
+          <SidebarMainNavItem
+            icon={Laptop}
+            label="Classroom"
+            to={ClassroomRoutes.root()}
+            isCollapsed
+          />
+        </ul>
 
-        <CreditsBadge isCollapsed={isCollapsed} />
-
-        <UserWidget className="z-0 mt-2" isCollapsed={isCollapsed} />
-
-        {!isCollapsed && <BetaHelp />}
+        {/* 4. Flex spacer + system nav */}
+        <ul className="mt-auto flex flex-col gap-1 pt-6">
+          <SidebarMainNavItem
+            external
+            icon={CircleHelp}
+            label="Support"
+            to="mailto:aaron@musicatlas.io"
+            variant="dim"
+            isCollapsed
+          />
+          <SidebarMainNavItem
+            icon={Settings}
+            label="System"
+            to={SettingsRoutes.root()}
+            variant="dim"
+            isCollapsed
+          />
+        </ul>
       </div>
     </aside>
   );

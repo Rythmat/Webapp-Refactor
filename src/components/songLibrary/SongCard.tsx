@@ -1,6 +1,6 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import { memo, useMemo, useState } from 'react';
-import { BookOpen, Globe, Heart, Music, Play } from 'lucide-react';
+import { Heart, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
@@ -107,27 +107,45 @@ const SongCardImpl = ({ song }: SongCardProps) => {
               onClick={openInLesson}
               aria-label="Open in Lesson"
               title="Open in Lesson"
-              className="text-white/40 hover:text-white transition-colors"
+              className="opacity-70 transition-opacity hover:opacity-100"
             >
-              <BookOpen width={ICON_SIZE} height={ICON_SIZE} />
+              <img
+                src="/icons/learn-icon.svg"
+                alt=""
+                draggable={false}
+                width={ICON_SIZE}
+                height={ICON_SIZE}
+              />
             </button>
             <button
               type="button"
               onClick={openInStudio}
               aria-label="Open in Studio"
               title="Open in Studio"
-              className="text-white/40 hover:text-white transition-colors"
+              className="opacity-70 transition-opacity hover:opacity-100"
             >
-              <Music width={ICON_SIZE} height={ICON_SIZE} />
+              <img
+                src="/icons/studio-icon.svg"
+                alt=""
+                draggable={false}
+                width={ICON_SIZE}
+                height={ICON_SIZE}
+              />
             </button>
             <button
               type="button"
               onClick={openInGlobe}
               aria-label="Open in Globe"
               title="Open in Globe"
-              className="text-white/40 hover:text-white transition-colors"
+              className="opacity-70 transition-opacity hover:opacity-100"
             >
-              <Globe width={ICON_SIZE} height={ICON_SIZE} />
+              <img
+                src="/icons/globe-icon.svg"
+                alt=""
+                draggable={false}
+                width={ICON_SIZE}
+                height={ICON_SIZE}
+              />
             </button>
             <button
               type="button"

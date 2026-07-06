@@ -1,25 +1,21 @@
-import { differenceInSeconds, format } from 'date-fns';
-import { ChevronLeft, QrCode, User } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ChevronLeft, QrCode } from 'lucide-react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuthActions } from '@/contexts/AuthContext';
 import { InviteStudentDialog } from '@/features/teacher/components/InviteStudentDialog';
 import { useClassroom } from '@/hooks/data';
-import { useNow } from '@/hooks/useNow';
 import { FullScreenLoading } from '../FullScreenLoading';
-import { Logo } from '../Logo';
-import { LogoType } from '../LogoType';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
 
-const AUTO_HIDE_HEADER_DELAY_SECONDS = 4;
-
+/**
+ * Thin wrapper for `/classrooms` and `/classrooms/:id`. Provides:
+ *   - loading / not-found / empty state branches
+ *   - optional slim back link + invite pill (rendered only when useful)
+ *   - standard app page shell (`max-w-[1720px]` inset) around children
+ *
+ * The old auto-hiding top chrome (Logo, clock, avatar dropdown) and the
+ * nested rounded `bg-surface-box` box were redundant with the outer app
+ * chrome (`ClassroomSidebar` + `TopRail`) — they've been retired.
+ */
 export const ClassroomLayout = ({
   children,
   isLoading,
@@ -38,18 +34,8 @@ export const ClassroomLayout = ({
   isEmpty: boolean;
   classroomId?: string;
 }) => {
-  const [renderedAt] = useState<Date>(new Date());
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
-  const now = useNow({ live: true });
-
   const { data: classroom } = useClassroom(classroomId);
-  const { signOut } = useAuthActions();
-
-  const displayHeaderAnyway = useMemo(
-    () =>
-      differenceInSeconds(now, renderedAt) <= AUTO_HIDE_HEADER_DELAY_SECONDS,
-    [renderedAt, now],
-  );
 
   if (isLoading) {
     return <FullScreenLoading />;
@@ -57,14 +43,18 @@ export const ClassroomLayout = ({
 
   if (isNotFound) {
     return (
-      <div className="flex h-dvh w-full animate-fade-in-bottom flex-col items-center justify-center gap-4">
-        <LogoType className="mb-8 h-10" />
-        <div className="text-2xl font-bold">This lesson is not available</div>
-        <p className="relative bottom-2 text-muted-foreground">
-          Please check double-check the URL and try again.
+      <div className="flex h-full w-full animate-fade-in-bottom flex-col items-center justify-center gap-4 text-center">
+        <div className="text-2xl font-medium text-white">
+          This lesson is not available
+        </div>
+        <p className="text-sm text-white/60">
+          Please double-check the URL and try again.
         </p>
         {back && (
-          <Button asChild>
+          <Button
+            asChild
+            className="rounded-full bg-white text-black hover:bg-white/85"
+          >
             <Link to={back.to}>{back.label}</Link>
           </Button>
         )}
@@ -74,14 +64,18 @@ export const ClassroomLayout = ({
 
   if (isEmpty) {
     return (
-      <div className="flex h-dvh w-full animate-fade-in-bottom flex-col items-center justify-center gap-4">
-        <LogoType className="mb-8 h-10" />
-        <div className="text-2xl font-bold">This lesson has no content.</div>
-        <p className="relative bottom-2 text-muted-foreground">
+      <div className="flex h-full w-full animate-fade-in-bottom flex-col items-center justify-center gap-4 text-center">
+        <div className="text-2xl font-medium text-white">
+          This lesson has no content.
+        </div>
+        <p className="text-sm text-white/60">
           If this is unexpected, please contact our support team.
         </p>
         {back && (
-          <Button asChild>
+          <Button
+            asChild
+            className="rounded-full bg-white text-black hover:bg-white/85"
+          >
             <Link to={back.to}>{back.label}</Link>
           </Button>
         )}
@@ -90,59 +84,35 @@ export const ClassroomLayout = ({
   }
 
   return (
-    <div className="flex h-dvh w-full flex-col overflow-y-auto">
-      <header className="group/header container flex h-20 shrink-0 animate-fade-in-bottom items-center justify-between">
-        <div className="flex h-full items-center gap-4">
-          <Logo className="h-10" />
-          <div
-            className="opacity-0 transition-opacity group-hover/header:opacity-100"
-            style={{ opacity: displayHeaderAnyway ? 100 : undefined }}
-          >
-            {back && (
-              <Button asChild variant="link">
-                <Link to={back.to}>
-                  <ChevronLeft className="size-4" />
-                  {back.label}
-                </Link>
-              </Button>
-            )}
-          </div>
-        </div>
-        <div
-          className="flex items-center gap-4 text-muted-foreground opacity-0 transition-opacity group-hover/header:opacity-100"
-          style={{ opacity: displayHeaderAnyway ? 100 : undefined }}
-        >
-          <span>{format(now, 'hh:mm a')}</span>
-          {classroom && (
-            <Button
-              className="size-8 opacity-60 hover:opacity-100"
-              size="icon"
-              variant="ghost"
-              onClick={() => setIsInviteDialogOpen(true)}
+    <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-4 px-6 py-6 md:gap-6 md:px-10 md:py-10">
+      {(back || classroom) && (
+        <div className="flex items-center justify-between">
+          {back ? (
+            <Link
+              to={back.to}
+              className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
             >
-              <QrCode className="size-4" />
-            </Button>
+              <ChevronLeft className="h-4 w-4" />
+              {back.label}
+            </Link>
+          ) : (
+            <span />
           )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Avatar>
-                <AvatarImage src="" />
-                <AvatarFallback>
-                  <User className="size-4" />
-                </AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={signOut}>Sign out</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {classroom && (
+            <button
+              type="button"
+              onClick={() => setIsInviteDialogOpen(true)}
+              aria-label="Invite students"
+              className="inline-flex items-center gap-2.5 rounded-full border border-white/10 px-5 py-3 text-base font-medium text-white/80 transition-colors hover:border-white/25 hover:text-white md:px-6 md:py-3.5"
+            >
+              <QrCode className="h-5 w-5" />
+              Invite
+            </button>
+          )}
         </div>
-      </header>
-      <div className="container flex flex-1 flex-col">
-        <main className="container flex-1 animate-fade-in-bottom rounded-3xl bg-surface-box p-8 opacity-0 delay-500 fill-mode-forwards">
-          {children}
-        </main>
-      </div>
+      )}
+
+      {children}
 
       {classroom && classroomId && (
         <InviteStudentDialog

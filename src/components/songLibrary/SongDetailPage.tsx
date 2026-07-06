@@ -1,7 +1,7 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import { useState, useEffect, useRef, type FC } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { BookOpen, Music, Globe, ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import {
   KeyCenterBadge,
   prettyGenre,
@@ -244,16 +244,27 @@ export const SongDetailPage: FC = () => {
 
 const SongActionPills: FC<{ song: Song }> = ({ song }) => {
   const { openInLesson, openInStudio, openInGlobe } = useSongActions(song);
-  const pills: { label: string; icon: typeof BookOpen; onClick: () => void }[] =
-    [
-      { label: 'Open in Lesson', icon: BookOpen, onClick: openInLesson },
-      { label: 'Open in Studio', icon: Music, onClick: openInStudio },
-      { label: 'Open in Globe', icon: Globe, onClick: openInGlobe },
-    ];
+  const pills: { label: string; iconSrc: string; onClick: () => void }[] = [
+    {
+      label: 'Open in Lesson',
+      iconSrc: '/icons/learn-icon.svg',
+      onClick: openInLesson,
+    },
+    {
+      label: 'Open in Studio',
+      iconSrc: '/icons/studio-icon.svg',
+      onClick: openInStudio,
+    },
+    {
+      label: 'Open in Globe',
+      iconSrc: '/icons/globe-icon.svg',
+      onClick: openInGlobe,
+    },
+  ];
 
   return (
     <>
-      {pills.map(({ label, icon: Icon, onClick }) => (
+      {pills.map(({ label, iconSrc, onClick }) => (
         <button
           key={label}
           onClick={onClick}
@@ -263,7 +274,7 @@ const SongActionPills: FC<{ song: Song }> = ({ song }) => {
             background: 'transparent',
           }}
         >
-          <Icon size={13} />
+          <img src={iconSrc} alt="" draggable={false} width={13} height={13} />
           {label}
         </button>
       ))}

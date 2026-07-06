@@ -1,25 +1,15 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
-import {
-  useMemo,
-  useRef,
-  useState,
-  useEffect,
-  useCallback,
-  type FC,
-} from 'react';
-import { BookOpen, Globe, Heart, LayoutGrid, List, Music } from 'lucide-react';
+import { useMemo, useState, useEffect, useCallback, type FC } from 'react';
+import { Heart, LayoutGrid, List, Music } from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { FixedSizeGrid, type GridChildComponentProps } from 'react-window';
+import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { getAllSongs } from '@/curriculum/data/songs';
 import { useSavedSongsStore } from '@/features/songs/useSavedSongsStore';
 import { useSongActions } from '@/features/songs/useSongActions';
-import { useElementSize } from '@/hooks/useElementSize';
-import { useUISound } from '@/hooks/useUISound';
-import { LearnSubheader } from '@/components/learn/LearnTabs';
+import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { FilterDropdown } from './FilterDropdown';
 import { SearchInput } from './SearchInput';
-import { SongCard } from './SongCard';
 
 /* ── Types ───────────────────────────────────────────────────────────── */
 
@@ -138,7 +128,6 @@ const GENRE_OPTIONS = [
 
 export const SongLibraryBody: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { play } = useUISound();
   const allSongs = useMemo(() => getAllSongs(), []);
   const savedIds = useSavedSongsStore((s) => s.savedIds);
 
@@ -149,10 +138,6 @@ export const SongLibraryBody: FC = () => {
     saved: (searchParams.get('saved') as SavedFilter) || 'all',
     sort: (searchParams.get('sort') as SortMode) || 'title',
   }));
-
-  const [viewMode, setViewMode] = useState<ViewMode>(
-    (searchParams.get('view') as ViewMode) || 'grid',
-  );
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
@@ -168,10 +153,10 @@ export const SongLibraryBody: FC = () => {
     update('difficulty', filters.difficulty, 'all');
     update('saved', filters.saved, 'all');
     update('sort', filters.sort, 'title');
-    update('view', viewMode, 'grid');
+    // `view` param is intentionally not synced — Songs is list-only now.
     setSearchParams(params, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, viewMode]);
+  }, [filters]);
 
   const updateFilter = useCallback(
     <K extends keyof Filters>(key: K, value: Filters[K]) => {
@@ -198,22 +183,8 @@ export const SongLibraryBody: FC = () => {
     >
       <div
         className="sticky top-0 z-10 pt-1 pb-3"
-        style={{ background: 'var(--color-bg)' }}
+        style={{ background: '#101012' }}
       >
-        {/* ── Header row: title + tab pills + view toggle ── */}
-        <LearnSubheader
-          title="Song Library"
-          right={
-            <ViewToggle
-              viewMode={viewMode}
-              onChange={(m) => {
-                play('click');
-                setViewMode(m);
-              }}
-            />
-          }
-        />
-
         {/* ── Filter row ── */}
         <div
           className="flex items-center flex-wrap"
@@ -269,83 +240,8 @@ export const SongLibraryBody: FC = () => {
             No songs match these filters
           </p>
         </div>
-      ) : viewMode === 'grid' ? (
-        <VirtualizedSongGrid songs={results} />
       ) : (
         <SongListTable songs={results} />
-      )}
-    </div>
-  );
-};
-
-/* ── VirtualizedSongGrid (react-window, breakpoint-locked columns) ──── */
-
-const GRID_GAP = 24;
-const CARD_FOOTER_HEIGHT = 120;
-const BREAKPOINT_MD = 768;
-const BREAKPOINT_LG = 1024;
-
-function getColumnCount(width: number): number {
-  if (width >= BREAKPOINT_LG) return 4;
-  if (width >= BREAKPOINT_MD) return 2;
-  return 1;
-}
-
-const VirtualizedSongGrid: FC<{ songs: Song[] }> = ({ songs }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { width, height } = useElementSize(containerRef);
-
-  const columnCount = Math.max(1, getColumnCount(width));
-  const columnWidth = columnCount > 0 ? width / columnCount : width;
-  const tileVisualWidth = Math.max(0, columnWidth - GRID_GAP);
-  const rowHeight = tileVisualWidth + CARD_FOOTER_HEIGHT;
-  const rowCount = Math.ceil(songs.length / columnCount);
-
-  const Cell = useCallback(
-    ({ rowIndex, columnIndex, style }: GridChildComponentProps) => {
-      const idx = rowIndex * columnCount + columnIndex;
-      const song = songs[idx];
-      if (!song) return null;
-      return (
-        <div
-          style={{
-            ...style,
-            paddingRight: GRID_GAP,
-            paddingBottom: GRID_GAP,
-            boxSizing: 'border-box',
-          }}
-        >
-          <SongCard song={song} />
-        </div>
-      );
-    },
-    [songs, columnCount],
-  );
-
-  const itemKey = useCallback(
-    ({ rowIndex, columnIndex }: { rowIndex: number; columnIndex: number }) => {
-      const idx = rowIndex * columnCount + columnIndex;
-      return songs[idx]?.id ?? `__empty-${rowIndex}-${columnIndex}`;
-    },
-    [songs, columnCount],
-  );
-
-  return (
-    <div ref={containerRef} style={{ flex: 1, minHeight: 0 }}>
-      {width > 0 && height > 0 && (
-        <FixedSizeGrid
-          columnCount={columnCount}
-          rowCount={rowCount}
-          columnWidth={columnWidth}
-          rowHeight={rowHeight}
-          width={width}
-          height={height}
-          overscanRowCount={2}
-          itemKey={itemKey}
-          style={{ overflowX: 'hidden' }}
-        >
-          {Cell}
-        </FixedSizeGrid>
       )}
     </div>
   );
@@ -397,6 +293,42 @@ export const ViewToggle: FC<{
   );
 };
 
+/* ── SongThumbnail (small circular artist portrait for list rows) ────── */
+
+const THUMBNAIL_SIZE = 40;
+
+const SongThumbnail: FC<{ song: Song }> = ({ song }) => {
+  const [imageBroken, setImageBroken] = useState(false);
+  const hasArtistImage = !!song.artistImageRef && !imageBroken;
+  const avatarConfig = useMemo(
+    () => defaultAvatarConfig(song.genreTags[0] ?? song.artist),
+    [song.genreTags, song.artist],
+  );
+
+  return (
+    <div
+      className="overflow-hidden rounded-full"
+      style={{
+        width: THUMBNAIL_SIZE,
+        height: THUMBNAIL_SIZE,
+        background: 'rgba(255,255,255,0.04)',
+      }}
+    >
+      {hasArtistImage ? (
+        <img
+          src={song.artistImageRef}
+          alt=""
+          className="h-full w-full object-cover"
+          loading="lazy"
+          onError={() => setImageBroken(true)}
+        />
+      ) : (
+        <HexAvatarSVG config={avatarConfig} size={THUMBNAIL_SIZE} circular />
+      )}
+    </div>
+  );
+};
+
 /* ── SongListTable ──────────────────────────────────────────────────── */
 
 const LIST_FS = 12;
@@ -416,10 +348,10 @@ const SongListTable: FC<SongListTableProps> = ({ songs }) => {
     >
       <thead>
         <tr>
-          {['Artist', 'Title', 'Difficulty', 'Genre', 'Saved', 'Links'].map(
-            (col) => (
+          {['', 'Artist', 'Title', 'Difficulty', 'Genre', 'Saved', 'Links'].map(
+            (col, i) => (
               <th
-                key={col}
+                key={i}
                 className="text-left font-medium pb-2 px-3"
                 style={{
                   fontSize: LIST_FS_SMALL,
@@ -458,6 +390,9 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
         background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
       }}
     >
+      <td style={{ padding: LIST_CELL_PAD, width: 56 }}>
+        <SongThumbnail song={song} />
+      </td>
       <td style={{ padding: LIST_CELL_PAD }}>
         <Link
           to={`/songs/${song.id}`}
@@ -518,27 +453,45 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
             onClick={openInLesson}
             aria-label="Open in Lesson"
             title="Open in Lesson"
-            className="text-white/40 hover:text-white transition-colors"
+            className="opacity-70 transition-opacity hover:opacity-100"
           >
-            <BookOpen width={LIST_ICON_SIZE} height={LIST_ICON_SIZE} />
+            <img
+              src="/icons/learn-icon.svg"
+              alt=""
+              draggable={false}
+              width={LIST_ICON_SIZE}
+              height={LIST_ICON_SIZE}
+            />
           </button>
           <button
             type="button"
             onClick={openInStudio}
             aria-label="Open in Studio"
             title="Open in Studio"
-            className="text-white/40 hover:text-white transition-colors"
+            className="opacity-70 transition-opacity hover:opacity-100"
           >
-            <Music width={LIST_ICON_SIZE} height={LIST_ICON_SIZE} />
+            <img
+              src="/icons/studio-icon.svg"
+              alt=""
+              draggable={false}
+              width={LIST_ICON_SIZE}
+              height={LIST_ICON_SIZE}
+            />
           </button>
           <button
             type="button"
             onClick={openInGlobe}
             aria-label="Open in Globe"
             title="Open in Globe"
-            className="text-white/40 hover:text-white transition-colors"
+            className="opacity-70 transition-opacity hover:opacity-100"
           >
-            <Globe width={LIST_ICON_SIZE} height={LIST_ICON_SIZE} />
+            <img
+              src="/icons/globe-icon.svg"
+              alt=""
+              draggable={false}
+              width={LIST_ICON_SIZE}
+              height={LIST_ICON_SIZE}
+            />
           </button>
           <button
             type="button"

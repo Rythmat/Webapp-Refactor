@@ -1,14 +1,7 @@
+import { CalendarDays } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ClassroomLayout } from '@/components/ClassroomLayout/ClassroomLayout';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { ClassroomRoutes, TeacherRoutes } from '@/constants/routes';
 import { useClassroom, useCollections, useMe } from '@/hooks/data';
 
@@ -48,47 +41,56 @@ export const ClassroomHomePage = () => {
       isLoading={isLoading}
       isNotFound={!!isError}
     >
-      <h1 className="mb-1 text-4xl font-medium">{classroom?.name}</h1>
-      <p className="mb-8 text-sm text-muted-foreground">
-        {classroom?.description}
-      </p>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-4xl font-medium leading-tight text-white md:text-5xl">
+            {classroom?.name}
+          </h1>
+          {classroom?.description && (
+            <p className="text-base text-white/60">{classroom.description}</p>
+          )}
+        </div>
+        {user?.role === 'teacher' && classroomId && (
+          <Link
+            to={ClassroomRoutes.plan({ classroomId })}
+            className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
+          >
+            <CalendarDays className="h-4 w-4" />
+            Plan Days
+          </Link>
+        )}
+      </div>
+
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {collections?.map((collection) => (
-          <Card
+          <div
             key={collection.id}
-            className="flex flex-col justify-between overflow-hidden transition-all hover:shadow-md"
+            className="flex flex-col gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 transition-colors hover:border-white/15 hover:bg-white/[0.04]"
             style={{
               borderLeftColor: collection.color || undefined,
               borderLeftWidth: collection.color ? '4px' : undefined,
             }}
           >
-            <CardHeader className="pb-2">
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="line-clamp-1">
-                    {collection.name}
-                  </CardTitle>
-                  {collection.description && (
-                    <CardDescription className="line-clamp-3">
-                      {collection.description}
-                    </CardDescription>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardFooter>
-              <Button asChild className="w-full" variant="outline">
-                <Link
-                  to={ClassroomRoutes.collection({
-                    classroomId: classroomId!,
-                    collectionId: collection.id,
-                  })}
-                >
-                  View
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
+            <div className="flex flex-col gap-1">
+              <h2 className="line-clamp-1 text-lg font-medium text-white">
+                {collection.name}
+              </h2>
+              {collection.description && (
+                <p className="line-clamp-3 text-sm text-white/60">
+                  {collection.description}
+                </p>
+              )}
+            </div>
+            <Link
+              to={ClassroomRoutes.collection({
+                classroomId: classroomId!,
+                collectionId: collection.id,
+              })}
+              className="mt-auto inline-flex items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/25 hover:text-white"
+            >
+              View
+            </Link>
+          </div>
         ))}
       </div>
     </ClassroomLayout>

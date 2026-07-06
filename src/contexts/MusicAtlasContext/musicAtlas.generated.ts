@@ -190,6 +190,13 @@ export interface GetApiStudioProjectsByIdData {
     name: string;
     ordinal: number;
     pan: number;
+    settings?: {
+      drumPads?: any;
+      effects?: any;
+      gmProgram?: number;
+      guitarChain?: any;
+      vocalChain?: any;
+    };
     solo: boolean;
     type: 'midi' | 'audio';
     volume: number;
@@ -205,6 +212,15 @@ export type GetApiStudioProjectsData = {
   name: string;
   updatedAt: Date;
 }[];
+
+export interface GetApiStudioTurnCredentialsData {
+  expiresAt: Date;
+  iceServers: {
+    credential?: string;
+    urls: string | string[];
+    username?: string;
+  }[];
+}
 
 export type GetAtlasCitiesData = any;
 
@@ -666,6 +682,15 @@ export interface PostApiStudioAssetsPayload {
   sourceUrl?: string;
 }
 
+export interface PostApiStudioAssetsStatusData {
+  missing: string[];
+  notReady: string[];
+}
+
+export interface PostApiStudioAssetsStatusPayload {
+  assetIds: string[];
+}
+
 export type PostApiStudioCurateSoundsData = any;
 
 export type PostApiStudioCurateSoundsPayload = any;
@@ -739,6 +764,13 @@ export interface PostApiStudioProjectsData {
     name: string;
     ordinal: number;
     pan: number;
+    settings?: {
+      drumPads?: any;
+      effects?: any;
+      gmProgram?: number;
+      guitarChain?: any;
+      vocalChain?: any;
+    };
     solo: boolean;
     type: 'midi' | 'audio';
     volume: number;
@@ -784,6 +816,13 @@ export interface PostApiStudioProjectsPayload {
     mute: boolean;
     name: string;
     pan: number;
+    settings?: {
+      drumPads?: any;
+      effects?: any;
+      gmProgram?: number;
+      guitarChain?: any;
+      vocalChain?: any;
+    };
     solo: boolean;
     type: 'midi' | 'audio';
     volume: number;
@@ -1042,6 +1081,13 @@ export interface PutApiStudioProjectsByIdData {
     name: string;
     ordinal: number;
     pan: number;
+    settings?: {
+      drumPads?: any;
+      effects?: any;
+      gmProgram?: number;
+      guitarChain?: any;
+      vocalChain?: any;
+    };
     solo: boolean;
     type: 'midi' | 'audio';
     volume: number;
@@ -1087,6 +1133,13 @@ export interface PutApiStudioProjectsByIdPayload {
     mute: boolean;
     name: string;
     pan: number;
+    settings?: {
+      drumPads?: any;
+      effects?: any;
+      gmProgram?: number;
+      guitarChain?: any;
+      vocalChain?: any;
+    };
     solo: boolean;
     type: 'midi' | 'audio';
     volume: number;
@@ -2809,6 +2862,21 @@ export namespace Studio {
   /**
    * No description
    * @tags Studio
+   * @name GetApiStudioTurnCredentials
+   * @request GET:/api/studio/turn/credentials
+   * @response `200` `GetApiStudioTurnCredentialsData`
+   */
+  export namespace GetApiStudioTurnCredentials {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiStudioTurnCredentialsData;
+  }
+
+  /**
+   * No description
+   * @tags Studio
    * @name PostApiStudioAnalyzeVideo
    * @request POST:/api/studio/analyze-video
    * @response `200` `PostApiStudioAnalyzeVideoData`
@@ -3045,6 +3113,21 @@ export namespace StudioAssets {
     export type RequestBody = PostApiStudioAssetsByIdFinalizePayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostApiStudioAssetsByIdFinalizeData;
+  }
+
+  /**
+   * No description
+   * @tags Studio Assets
+   * @name PostApiStudioAssetsStatus
+   * @request POST:/api/studio/assets/status
+   * @response `200` `PostApiStudioAssetsStatusData`
+   */
+  export namespace PostApiStudioAssetsStatus {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStudioAssetsStatusPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioAssetsStatusData;
   }
 }
 
@@ -4999,6 +5082,22 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Studio
+     * @name GetApiStudioTurnCredentials
+     * @request GET:/api/studio/turn/credentials
+     * @response `200` `GetApiStudioTurnCredentialsData`
+     */
+    getApiStudioTurnCredentials: (params: RequestParams = {}) =>
+      this.http.request<GetApiStudioTurnCredentialsData, any>({
+        path: `/api/studio/turn/credentials`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio
      * @name PostApiStudioAnalyzeVideo
      * @request POST:/api/studio/analyze-video
      * @response `200` `PostApiStudioAnalyzeVideoData`
@@ -5248,6 +5347,24 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<PostApiStudioAssetsByIdFinalizeData, any>({
         path: `/api/studio/assets/${id}/finalize`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio Assets
+     * @name PostApiStudioAssetsStatus
+     * @request POST:/api/studio/assets/status
+     * @response `200` `PostApiStudioAssetsStatusData`
+     */
+    postApiStudioAssetsStatus: (data: PostApiStudioAssetsStatusPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiStudioAssetsStatusData, any>({
+        path: `/api/studio/assets/status`,
         method: 'POST',
         body: data,
         type: ContentType.Json,

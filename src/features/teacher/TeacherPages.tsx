@@ -33,15 +33,17 @@ export const teacherPages = () => {
       </AppContext>
     ),
     children: [
-      {
-        index: true,
-        element: <ClassroomSelectionPage />,
-      },
-      // Teacher management pages
+      // Both /teacher (index) and /teacher/classroom/:id/students share the
+      // same DashboardLayout chrome — persistent sidebar + TopRail — so the
+      // teacher landing feels like every other authenticated app surface.
       {
         path: TeacherRoutes.root.definition,
         element: <DashboardLayout fallback={<DashboardContentSkeleton />} />,
         children: [
+          {
+            index: true,
+            element: <ClassroomSelectionPage />,
+          },
           {
             path: TeacherRoutes.students.definition,
             element: <ClassroomStudentsPage />,

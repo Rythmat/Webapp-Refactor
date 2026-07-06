@@ -8,7 +8,6 @@ import {
   getLocalChannel,
 } from '@/components/JamRoom/jamSoundFont';
 import { StarsCanvas } from '@/components/ui/stars-canvas';
-import { usePrismMode } from '@/hooks/data/prism/usePrismMode';
 
 // --- Constants ---
 
@@ -26,11 +25,10 @@ const NOTE_NAMES = [
   'Bb',
   'B',
 ];
-// Pentatonic scale-step fallbacks (semitone offsets from the root), used if the
-// backend `/prism/modes/{mode}` dictionary hasn't loaded. These mirror the
-// backend `majorpentatonic` / `minorpentatonic` entries exactly.
-const MAJOR_PENTATONIC_FALLBACK = [0, 2, 4, 7, 9];
-const MINOR_PENTATONIC_FALLBACK = [0, 3, 5, 7, 10];
+// Pentatonic scale steps (semitone offsets from the root). These mirror the
+// backend `majorpentatonic` / `minorpentatonic` modes-dictionary entries.
+const MAJOR_PENTATONIC_STEPS = [0, 2, 4, 7, 9];
+const MINOR_PENTATONIC_STEPS = [0, 3, 5, 7, 10];
 // Every star's note is played in one octave (C4–B4); we only display pitch
 // class, so the octave choice affects audio pitch only.
 const PLAY_OCTAVE_BASE = 60; // MIDI C4
@@ -60,13 +58,23 @@ const MIN_ANGLE_GAP = (80 * Math.PI) / 180; // 80° → up to 4 stars fanned aro
 const NEXT_GEN_TRIGGER_FRACTION = 0.5; // halfway to the edge
 const RING_BASE_DIST_MIN = 180; // floor for a ring's target distance (small screens)
 
+// --- Streak reactivity (rainbow vortex + root-note drone) ---
+// A correct (in-scale) note grows the streak; a wrong note resets it. The
+// vortex and drone intensity both peak once the streak reaches STREAK_MAX.
+const STREAK_MAX = 7;
+const MAX_DRONE_GAIN = 0.1; // peak loudness of the root-octave-down drone
+const VORTEX_LERP = 0.06; // how fast the vortex eases toward its target
+const VORTEX_SPIN = 0.0009; // base rotation (turns/frame), faster with intensity
+const RED_FLASH_DECAY = 0.88; // per-frame falloff of the wrong-note red flash
+const HIT_PULSE_DECAY = 0.9; // per-frame falloff of the per-hit brightness pop
+
 // Staff lines are drawn as ambient decoration only (stars are placed radially,
 // not by pitch height). These indices/paddings position the faint lines.
 const STAFF_LINE_INDICES = [2, 3, 7, 8];
 const STAFF_PADDING_TOP = 80;
 const STAFF_PADDING_BOTTOM = 80;
 
-type Phase = 'loading' | 'ready' | 'playing';
+type Phase = 'ready' | 'playing';
 type Difficulty = 'easy' | 'medium' | 'hard';
 
 // The scale in play for the current round: a randomly chosen root + major/minor
@@ -102,6 +110,79 @@ interface ConstellationsProps {
   onComplete?: (result: { accuracy: number }) => void;
   onRoundStart?: () => void;
   onExit?: () => void;
+}
+
+// Continuous root-note drone built on the Web Audio graph, kept alive across a
+// round and swelled/dampened by the streak intensity.
+interface DroneNodes {
+  ctx: AudioContext;
+  osc: OscillatorNode; // triangle at the root, one octave down
+  sub: OscillatorNode; // sine at the same pitch for body
+  gain: GainNode;
+  filter: BiquadFilterNode;
+}
+
+// Paint the rainbow vortex/tunnel behind the stars. Intensity (0–1) scales the
+// whole effect's opacity; phase (0–1) drives rotation and the inward travel of
+// the rings; pulse (0–1) brightens the core briefly on each hit.
+function drawVortex(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  intensity: number,
+  phase: number,
+  pulse: number,
+): void {
+  if (intensity <= 0.01) return;
+  const cx = w / 2;
+  const cy = h / 2;
+  const maxR = Math.hypot(w, h) / 2;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  // Rotating rainbow swirl across the whole field (subtle; the rings + core
+  // give the sense of a tunnel converging on the centre).
+  if (typeof ctx.createConicGradient === 'function') {
+    const conic = ctx.createConicGradient(phase * Math.PI * 2, cx, cy);
+    for (let i = 0; i <= 6; i++) {
+      conic.addColorStop(i / 6, `hsl(${(i / 6) * 360}, 90%, 55%)`);
+    }
+    ctx.globalAlpha = intensity * 0.18;
+    ctx.fillStyle = conic;
+    ctx.fillRect(0, 0, w, h);
+    ctx.globalAlpha = 1;
+  }
+
+  // Concentric rainbow rings travelling inward — the "tunnel", softened by a
+  // shadow blur so they read as coloured clouds rather than hard rings.
+  const rings = 9;
+  ctx.lineWidth = Math.max(8, maxR * 0.06);
+  ctx.shadowBlur = maxR * 0.05;
+  for (let i = 0; i < rings; i++) {
+    const t = ((i / rings + phase) % 1) % 1; // 0..1, animates inward with phase
+    const r = maxR * (1 - t) + 4;
+    const hue = ((1 - t) * 300 + phase * 720) % 360;
+    const alpha = intensity * 0.4 * (0.25 + 0.75 * t);
+    const color = `hsla(${hue}, 95%, 62%, ${alpha})`;
+    ctx.strokeStyle = color;
+    ctx.shadowColor = color;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.shadowBlur = 0;
+
+  // Bright core — the light at the end of the tunnel; pops on each hit.
+  const coreAlpha = Math.min(1, intensity * 0.5 + pulse * 0.4);
+  const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 0.55);
+  core.addColorStop(0, `rgba(255, 255, 255, ${coreAlpha})`);
+  core.addColorStop(0.35, `rgba(190, 170, 255, ${coreAlpha * 0.35})`);
+  core.addColorStop(1, 'rgba(120, 90, 255, 0)');
+  ctx.fillStyle = core;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.restore();
 }
 
 // Resolve a root pitch class + pentatonic quality (and the scale steps from the
@@ -145,7 +226,8 @@ export default function Constellations({
 }: ConstellationsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [phase, setPhase] = useState<Phase>('loading');
+  // Scales are computed locally, so the game is ready to play immediately.
+  const [phase, setPhase] = useState<Phase>('ready');
   const [score, setScore] = useState(0);
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   // The scale is mirrored in a ref so the animation/spawn callbacks can read it
@@ -161,14 +243,15 @@ export default function Constellations({
   const animFrameRef = useRef<number | null>(null);
   const playingRef = useRef(false);
 
-  // Pentatonic scale steps from the backend modes dictionary. Both are fetched
-  // up front so a round can pick major or minor at random with no extra latency.
-  const { data: majorPenta, isPending: majorPending } =
-    usePrismMode('majorpentatonic');
-  const { data: minorPenta, isPending: minorPending } =
-    usePrismMode('minorpentatonic');
-  const majorSteps = majorPenta?.steps ?? MAJOR_PENTATONIC_FALLBACK;
-  const minorSteps = minorPenta?.steps ?? MINOR_PENTATONIC_FALLBACK;
+  // Streak reactivity: current run of correct notes, the eased vortex intensity
+  // and its target, the rotation phase, and the decaying red-flash / hit pulse.
+  const streakRef = useRef(0);
+  const vortexIntensityRef = useRef(0);
+  const vortexTargetRef = useRef(0);
+  const vortexPhaseRef = useRef(0);
+  const redFlashRef = useRef(0);
+  const hitPulseRef = useRef(0);
+  const droneRef = useRef<DroneNodes | null>(null);
 
   // --- Canvas resize ---
   useEffect(() => {
@@ -185,13 +268,6 @@ export default function Constellations({
     return () => window.removeEventListener('resize', resize);
   }, []);
 
-  // Mark ready once the scale dictionaries have settled (fallbacks cover errors)
-  useEffect(() => {
-    if (!majorPending && !minorPending && phase === 'loading') {
-      setPhase('ready');
-    }
-  }, [majorPending, minorPending, phase]);
-
   // --- Draw staff lines and stars ---
   const drawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -200,6 +276,16 @@ export default function Constellations({
     const { width, height } = canvas;
 
     ctx.clearRect(0, 0, width, height);
+
+    // Rainbow streak vortex, painted behind the staff/stars.
+    drawVortex(
+      ctx,
+      width,
+      height,
+      vortexIntensityRef.current,
+      vortexPhaseRef.current,
+      hitPulseRef.current,
+    );
 
     // Draw staff lines (E4, G4, B4)
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
@@ -319,6 +405,14 @@ export default function Constellations({
       ctx.fillText(star.noteName.replace(/\d+$/, ''), star.x, star.y);
       ctx.textBaseline = 'alphabetic';
     });
+
+    // Wrong-note flash — a muted red wash over everything, fading fast.
+    if (redFlashRef.current > 0.01) {
+      ctx.save();
+      ctx.fillStyle = `rgba(150, 40, 40, ${Math.min(0.45, redFlashRef.current * 0.45)})`;
+      ctx.fillRect(0, 0, width, height);
+      ctx.restore();
+    }
   }, []);
 
   // --- Animation loop: fly stars forward continuously from center ---
@@ -329,6 +423,17 @@ export default function Constellations({
       const { w, h } = canvasSize.current;
       const centerX = w / 2;
       const centerY = h / 2;
+
+      // Ease the vortex toward its streak-driven target, spin it (faster the
+      // more intense it is), and decay the transient flash/pulse effects.
+      vortexIntensityRef.current +=
+        (vortexTargetRef.current - vortexIntensityRef.current) * VORTEX_LERP;
+      vortexPhaseRef.current =
+        (vortexPhaseRef.current +
+          VORTEX_SPIN * (0.4 + vortexIntensityRef.current)) %
+        1;
+      redFlashRef.current *= RED_FLASH_DECAY;
+      hitPulseRef.current *= HIT_PULSE_DECAY;
 
       const stars = starsRef.current;
       for (const star of stars) {
@@ -503,6 +608,17 @@ export default function Constellations({
       if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       playingRef.current = false;
+      const drone = droneRef.current;
+      if (drone) {
+        try {
+          drone.osc.stop();
+          drone.sub.stop();
+        } catch {
+          // oscillators may already be stopped
+        }
+        void drone.ctx.close();
+        droneRef.current = null;
+      }
     };
   }, []);
 
@@ -522,11 +638,52 @@ export default function Constellations({
     // to concrete pitch classes via the backend modes dictionary.
     const rootPc = Math.floor(Math.random() * 12);
     const quality: 'major' | 'minor' = Math.random() < 0.5 ? 'major' : 'minor';
-    const steps = quality === 'major' ? majorSteps : minorSteps;
+    const steps =
+      quality === 'major' ? MAJOR_PENTATONIC_STEPS : MINOR_PENTATONIC_STEPS;
     const scale = buildScale(rootPc, quality, steps);
     scaleRef.current = scale;
     setActiveScale(scale);
     difficultyRef.current = difficulty;
+
+    // Reset streak reactivity for the new round.
+    streakRef.current = 0;
+    vortexIntensityRef.current = 0;
+    vortexTargetRef.current = 0;
+    vortexPhaseRef.current = 0;
+    redFlashRef.current = 0;
+    hitPulseRef.current = 0;
+
+    // Prepare the root-note drone, one octave below the play octave. It stays
+    // silent (gain 0) until the streak grows. The Start click satisfies the
+    // gesture requirement for creating/resuming the AudioContext.
+    const rootDownMidi = PLAY_OCTAVE_BASE + rootPc - 12;
+    const rootFreq = 440 * Math.pow(2, (rootDownMidi - 69) / 12);
+    let drone = droneRef.current;
+    if (!drone) {
+      const actx = new AudioContext();
+      const gain = actx.createGain();
+      gain.gain.value = 0;
+      const filter = actx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 700;
+      const osc = actx.createOscillator();
+      osc.type = 'triangle';
+      const sub = actx.createOscillator();
+      sub.type = 'sine';
+      osc.connect(filter);
+      sub.connect(filter);
+      filter.connect(gain);
+      gain.connect(actx.destination);
+      osc.start();
+      sub.start();
+      drone = { ctx: actx, osc, sub, gain, filter };
+      droneRef.current = drone;
+    }
+    if (drone.ctx.state === 'suspended') void drone.ctx.resume();
+    drone.osc.frequency.setValueAtTime(rootFreq, drone.ctx.currentTime);
+    drone.sub.frequency.setValueAtTime(rootFreq, drone.ctx.currentTime);
+    drone.gain.gain.cancelScheduledValues(drone.ctx.currentTime);
+    drone.gain.gain.setValueAtTime(0, drone.ctx.currentTime);
 
     spawnGeneration();
 
@@ -539,8 +696,6 @@ export default function Constellations({
     startSpawnTimer,
     startAnimLoop,
     onRoundStart,
-    majorSteps,
-    minorSteps,
     difficulty,
   ]);
 
@@ -560,10 +715,30 @@ export default function Constellations({
       NOTE_DURATION * 1000,
     );
 
-    // No partner is dismissed — every star in the ring remains after one is
-    // chosen. A generation resolves only once all its stars are hit (or have
-    // flown off-screen), at which point the spawn timer launches the next ring.
-    setScore((s) => s + 1);
+    const drone = droneRef.current;
+    if (star.inScale) {
+      // Correct note: grow the streak, swell the vortex and root-note drone.
+      streakRef.current += 1;
+      const intensity = Math.min(streakRef.current, STREAK_MAX) / STREAK_MAX;
+      vortexTargetRef.current = intensity;
+      hitPulseRef.current = 1;
+      if (drone) {
+        drone.gain.gain.setTargetAtTime(
+          intensity * MAX_DRONE_GAIN,
+          drone.ctx.currentTime,
+          0.1,
+        );
+      }
+      setScore((s) => s + 1);
+    } else {
+      // Wrong note: break the streak, flash red, and silence the drone/vortex.
+      streakRef.current = 0;
+      vortexTargetRef.current = 0;
+      redFlashRef.current = 1;
+      if (drone) {
+        drone.gain.gain.setTargetAtTime(0, drone.ctx.currentTime, 0.2);
+      }
+    }
   }, []);
 
   // --- Mouse/Touch hover detection ---
@@ -730,12 +905,6 @@ export default function Constellations({
             >
               Start
             </button>
-          </div>
-        )}
-
-        {phase === 'loading' && (
-          <div className="absolute inset-0 z-[2] bg-black/70 flex items-center justify-center">
-            <span className="text-zinc-400">Loading constellations...</span>
           </div>
         )}
       </div>

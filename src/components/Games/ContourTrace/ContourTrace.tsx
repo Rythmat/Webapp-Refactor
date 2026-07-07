@@ -152,12 +152,13 @@ function drawVortex(
   // Concentric rings emanating OUTWARD from the centre — as if the viewer is
   // flying toward them. Each ring is born small at the centre and grows; the
   // p*p mapping accelerates that growth so both the ring size and the gap
-  // between rings increase as they approach the screen. They're drawn as wavy,
-  // glowing, rainbow-along-the-line strokes echoing the cursor tubes rather
-  // than clean solid circles.
-  const rings = 10;
-  const segs = 64;
-  const segStep = (Math.PI * 2) / segs;
+  // between rings increase as they approach the screen. Rather than one solid
+  // ring, each is built from many short, tightly-rippling streams — echoing the
+  // multi-stream tubes that follow the cursor.
+  const rings = 9;
+  const streams = 16; // short arcs that together trace each ring
+  const subSegs = 5; // points per stream (enough for the tight ripple)
+  const streamFill = 0.6; // fraction of each angular slot drawn (rest is a gap)
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   for (let i = 0; i < rings; i++) {
@@ -168,43 +169,42 @@ function drawVortex(
     if (alpha <= 0.01) continue;
 
     const hueBase = (p * 320 + phase * 720) % 360;
-    const wobbleAmp = r * 0.035; // organic sideways wander, like the tubes
-    const lineWidth = Math.max(3, maxR * 0.012 + p * maxR * 0.05); // thicker as it nears
-
-    // Trace the wavy ring as a single path.
-    ctx.beginPath();
-    for (let s = 0; s <= segs; s++) {
-      const a = s * segStep;
-      const wob =
-        Math.sin(a * 3 + phase * 6.283 + i) * wobbleAmp +
-        Math.cos(a * 5 - phase * 8 + i * 1.7) * wobbleAmp * 0.5;
-      const rr = r + wob;
-      const x = cx + Math.cos(a) * rr;
-      const y = cy + Math.sin(a) * rr;
-      if (s === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
+    const wobbleAmp = r * 0.018; // small, tight ripple
+    const lineWidth = Math.max(2, maxR * 0.01 + p * maxR * 0.04); // thicker as it nears
+    // Streams flow around the ring; alternate direction per ring for variety.
+    const flow = phase * Math.PI * 2 * (i % 2 === 0 ? 1 : -1) * 0.6;
+    const slot = (Math.PI * 2) / streams;
+    const arcLen = slot * streamFill;
 
     ctx.lineWidth = lineWidth;
-    ctx.shadowBlur = lineWidth * 1.6;
-    ctx.shadowColor = `hsla(${hueBase}, 95%, 62%, ${alpha})`;
-    if (supportsConic) {
-      // A conic gradient centred on the vortex maps angle → hue, so the stroke
-      // cycles colour around the ring in one pass, like the multi-colour tubes.
-      const ringGrad = ctx.createConicGradient(
-        (phase * 2 + p) * Math.PI * 2,
-        cx,
-        cy,
-      );
-      for (let k = 0; k <= 6; k++) {
-        const hue = (hueBase + (k / 6) * 360) % 360;
-        ringGrad.addColorStop(k / 6, `hsla(${hue}, 95%, 62%, ${alpha})`);
+    ctx.shadowBlur = lineWidth * 1.4;
+
+    for (let s = 0; s < streams; s++) {
+      const a0 = s * slot + flow;
+      // Each stream rides at a slightly different radius so they shimmer like
+      // separate tubes rather than a single band.
+      const radialOffset =
+        Math.sin(s * 2.3 + i * 1.7 + phase * 6.283) * r * 0.03;
+      const hue = (hueBase + (s / streams) * 360) % 360;
+      const color = `hsla(${hue}, 95%, 63%, ${alpha})`;
+
+      ctx.strokeStyle = color;
+      ctx.shadowColor = color;
+      ctx.beginPath();
+      for (let k = 0; k <= subSegs; k++) {
+        const a = a0 + (k / subSegs) * arcLen;
+        // High angular frequencies → many small, tight fluctuations.
+        const wob =
+          Math.sin(a * 13 + phase * 10 + i * 2) * wobbleAmp +
+          Math.sin(a * 23 - phase * 14 + s) * wobbleAmp * 0.4;
+        const rr = r + radialOffset + wob;
+        const x = cx + Math.cos(a) * rr;
+        const y = cy + Math.sin(a) * rr;
+        if (k === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
-      ctx.strokeStyle = ringGrad;
-    } else {
-      ctx.strokeStyle = `hsla(${hueBase}, 95%, 62%, ${alpha})`;
+      ctx.stroke();
     }
-    ctx.stroke();
   }
   ctx.shadowBlur = 0;
 
@@ -454,8 +454,18 @@ export default function Constellations({
 
   // --- Animation loop: fly stars forward continuously from center ---
   const startAnimLoop = useCallback(() => {
-    const tick = () => {
+    let lastTime = 0;
+    const tick = (now: number) => {
       if (!playingRef.current) return;
+
+      // Frame-rate-independent step: scale per-frame motion by how long this
+      // frame actually took (relative to 60fps). This keeps the stars moving at
+      // a constant real-world speed even when the success animation lowers the
+      // frame rate. Clamped so a long pause (e.g. tab switch) can't teleport
+      // stars across the screen.
+      const dt = lastTime ? now - lastTime : 1000 / 60;
+      lastTime = now;
+      const frameScale = Math.min(4, dt / (1000 / 60));
 
       const { w, h } = canvasSize.current;
       const centerX = w / 2;
@@ -464,18 +474,20 @@ export default function Constellations({
       // Ease the vortex toward its streak-driven target, spin it (faster the
       // more intense it is), and decay the transient flash/pulse effects.
       vortexIntensityRef.current +=
-        (vortexTargetRef.current - vortexIntensityRef.current) * VORTEX_LERP;
+        (vortexTargetRef.current - vortexIntensityRef.current) *
+        VORTEX_LERP *
+        frameScale;
       vortexPhaseRef.current =
         (vortexPhaseRef.current +
-          VORTEX_SPIN * (0.4 + vortexIntensityRef.current)) %
+          VORTEX_SPIN * (0.4 + vortexIntensityRef.current) * frameScale) %
         1;
-      redFlashRef.current *= RED_FLASH_DECAY;
-      hitPulseRef.current *= HIT_PULSE_DECAY;
+      redFlashRef.current *= Math.pow(RED_FLASH_DECAY, frameScale);
+      hitPulseRef.current *= Math.pow(HIT_PULSE_DECAY, frameScale);
 
       const stars = starsRef.current;
       for (const star of stars) {
         if (star.dismissed) continue;
-        star.scale += SCALE_SPEED;
+        star.scale += SCALE_SPEED * frameScale;
         star.x = centerX + (star.targetX - centerX) * star.scale;
         star.y = centerY + (star.targetY - centerY) * star.scale;
       }

@@ -163,8 +163,9 @@ function drawVortex(
   const RING_GROWTH_EXP = 4; // was 2 → ~3× steeper size/spacing growth
   const rings = 11; // was 9 → ~1/3 the spacing near the start
   // The innermost (newest) ring appears at this radius rather than at the
-  // centre point — four times a freshly-spawned star's radius.
-  const RING_START_RADIUS = STAR_BASE_RADIUS * 4;
+  // centre point — 0.4× a freshly-spawned star's radius (one tenth of the
+  // former 4× start size); the outward growth scaling is unchanged.
+  const RING_START_RADIUS = STAR_BASE_RADIUS * 0.4;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   for (let i = 0; i < rings; i++) {
@@ -264,6 +265,9 @@ export default function Constellations({
   const [activeScale, setActiveScale] = useState<ActiveScale | null>(null);
   const scaleRef = useRef<ActiveScale | null>(null);
   const difficultyRef = useRef<Difficulty>('easy');
+  // Correct (in-scale) pitch class of the previous generation, so the next
+  // group never repeats it.
+  const lastCorrectPcRef = useRef<number | null>(null);
 
   const starsRef = useRef<StarNode[]>([]);
   const hitOrderRef = useRef<number[]>([]);
@@ -429,9 +433,9 @@ export default function Constellations({
       ctx.font = `bold ${fontSize}px sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      // White text at near-full alpha — always brighter than the star's
-      // faded perimeter glow so the note stays easily readable.
-      ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.9 * brightness + 0.1)})`;
+      // Fully opaque white so the note is always clearly visible, regardless
+      // of the star's flight-scale brightness.
+      ctx.fillStyle = 'rgba(255, 255, 255, 1)';
       // Show only the pitch class (e.g. "C", "Eb") — drop the octave number.
       ctx.fillText(star.noteName.replace(/\d+$/, ''), star.x, star.y);
       ctx.textBaseline = 'alphabetic';
@@ -545,20 +549,25 @@ export default function Constellations({
       [outOfScale[i], outOfScale[j]] = [outOfScale[j], outOfScale[i]];
     }
 
-    // The note plan: one in-scale pitch class + unique out-of-scale decoys.
+    // Choose the correct (in-scale) pitch class, never repeating the previous
+    // group's correct note so consecutive groups always differ.
+    let scaleChoices = scale.pcs;
+    if (lastCorrectPcRef.current !== null && scale.pcs.length > 1) {
+      scaleChoices = scale.pcs.filter((pc) => pc !== lastCorrectPcRef.current);
+    }
+    const correctPc =
+      scaleChoices[Math.floor(Math.random() * scaleChoices.length)];
+    lastCorrectPcRef.current = correctPc;
+
+    // The note plan: the correct note FIRST — so it always claims an angle and
+    // is guaranteed to appear even if the ring fills up — then unique
+    // out-of-scale decoys. (Every star's angle is random, so leading with the
+    // correct note gives no positional tell.)
     const plan: { pc: number; inScale: boolean }[] = [
-      {
-        pc: scale.pcs[Math.floor(Math.random() * scale.pcs.length)],
-        inScale: true,
-      },
+      { pc: correctPc, inScale: true },
     ];
     for (let i = 0; i < starsThisGen - 1 && i < outOfScale.length; i++) {
       plan.push({ pc: outOfScale[i], inScale: false });
-    }
-    // Shuffle so the in-scale note doesn't always take the first angle/distance.
-    for (let i = plan.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [plan[i], plan[j]] = [plan[j], plan[i]];
     }
 
     const angularGapOk = (angle: number, others: number[]) =>
@@ -682,6 +691,7 @@ export default function Constellations({
     scaleRef.current = scale;
     setActiveScale(scale);
     difficultyRef.current = difficulty;
+    lastCorrectPcRef.current = null;
 
     // Reset streak reactivity for the new round.
     streakRef.current = 0;
@@ -897,13 +907,8 @@ export default function Constellations({
               {activeScale.title}
             </div>
             {(difficulty === 'easy' || difficulty === 'medium') && (
-              <div className="mt-1 text-sm font-medium tracking-[0.3em] text-purple-200">
+              <div className="mt-1 text-sm font-medium tracking-[0.3em] text-white">
                 {activeScale.noteNames.join('  ')}
-              </div>
-            )}
-            {difficulty === 'easy' && (
-              <div className="mt-1 text-xs text-zinc-400">
-                Play the highlighted notes
               </div>
             )}
           </div>

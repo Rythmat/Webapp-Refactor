@@ -450,6 +450,7 @@ export const AuthContextProvider = ({
     sessionStorage.removeItem('auth0:interactive-login-callback');
 
     const welcomeAudio = new Audio('/welcome.mp3');
+    welcomeAudio.volume = 0.5;
     void welcomeAudio.play().catch(() => undefined);
   }, [appUser, isBootstrapLoading]);
 

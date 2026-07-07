@@ -5,7 +5,9 @@ import {
   jamNoteOn,
   jamNoteOff,
   jamProgramChange,
+  jamControllerChange,
   getLocalChannel,
+  getDroneChannel,
 } from '@/components/JamRoom/jamSoundFont';
 import { StarsCanvas } from '@/components/ui/stars-canvas';
 
@@ -62,7 +64,10 @@ const RING_BASE_DIST_MIN = 180; // floor for a ring's target distance (small scr
 // A correct (in-scale) note grows the streak; a wrong note resets it. The
 // vortex and drone intensity both peak once the streak reaches STREAK_MAX.
 const STREAK_MAX = 7;
-const MAX_DRONE_GAIN = 0.1; // peak loudness of the root-octave-down drone
+// The drone is a sustained soundfont note (same instrument as star hits) whose
+// loudness is driven by CC7 channel volume; it peaks at MAX_DRONE_CC.
+const DRONE_VELOCITY = 100; // note-on velocity for the sustained drone note
+const MAX_DRONE_CC = 63; // peak CC7 channel volume (0–127) at full streak
 const VORTEX_LERP = 0.06; // how fast the vortex eases toward its target
 const VORTEX_SPIN = 0.0009; // base rotation (turns/frame), faster with intensity
 const RED_FLASH_DECAY = 0.88; // per-frame falloff of the wrong-note red flash
@@ -112,19 +117,9 @@ interface ConstellationsProps {
   onExit?: () => void;
 }
 
-// Continuous root-note drone built on the Web Audio graph, kept alive across a
-// round and swelled/dampened by the streak intensity.
-interface DroneNodes {
-  ctx: AudioContext;
-  osc: OscillatorNode; // triangle at the root, one octave down
-  sub: OscillatorNode; // sine at the same pitch for body
-  gain: GainNode;
-  filter: BiquadFilterNode;
-}
-
-// Paint the rainbow vortex/tunnel behind the stars. Intensity (0–1) scales the
-// whole effect's opacity; phase (0–1) drives rotation and the inward travel of
-// the rings; pulse (0–1) brightens the core briefly on each hit.
+// Paint the rainbow vortex behind the stars. Intensity (0–1) scales the whole
+// effect's opacity; phase (0–1) drives rotation and the outward growth of the
+// rings; pulse (0–1) brightens the core briefly on each hit.
 function drawVortex(
   ctx: CanvasRenderingContext2D,
   w: number,
@@ -137,13 +132,13 @@ function drawVortex(
   const cx = w / 2;
   const cy = h / 2;
   const maxR = Math.hypot(w, h) / 2;
+  const supportsConic = typeof ctx.createConicGradient === 'function';
 
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
 
-  // Rotating rainbow swirl across the whole field (subtle; the rings + core
-  // give the sense of a tunnel converging on the centre).
-  if (typeof ctx.createConicGradient === 'function') {
+  // Rotating rainbow swirl across the whole field (subtle background wash).
+  if (supportsConic) {
     const conic = ctx.createConicGradient(phase * Math.PI * 2, cx, cy);
     for (let i = 0; i <= 6; i++) {
       conic.addColorStop(i / 6, `hsl(${(i / 6) * 360}, 90%, 55%)`);
@@ -154,21 +149,61 @@ function drawVortex(
     ctx.globalAlpha = 1;
   }
 
-  // Concentric rainbow rings travelling inward — the "tunnel", softened by a
-  // shadow blur so they read as coloured clouds rather than hard rings.
-  const rings = 9;
-  ctx.lineWidth = Math.max(8, maxR * 0.06);
-  ctx.shadowBlur = maxR * 0.05;
+  // Concentric rings emanating OUTWARD from the centre — as if the viewer is
+  // flying toward them. Each ring is born small at the centre and grows; the
+  // p*p mapping accelerates that growth so both the ring size and the gap
+  // between rings increase as they approach the screen. They're drawn as wavy,
+  // glowing, rainbow-along-the-line strokes echoing the cursor tubes rather
+  // than clean solid circles.
+  const rings = 10;
+  const segs = 64;
+  const segStep = (Math.PI * 2) / segs;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
   for (let i = 0; i < rings; i++) {
-    const t = ((i / rings + phase) % 1) % 1; // 0..1, animates inward with phase
-    const r = maxR * (1 - t) + 4;
-    const hue = ((1 - t) * 300 + phase * 720) % 360;
-    const alpha = intensity * 0.4 * (0.25 + 0.75 * t);
-    const color = `hsla(${hue}, 95%, 62%, ${alpha})`;
-    ctx.strokeStyle = color;
-    ctx.shadowColor = color;
+    const p = (((i / rings + phase) % 1) + 1) % 1; // 0 (centre) → 1 (off-screen)
+    const r = maxR * 1.5 * (p * p) + 2; // accelerating outward growth
+    const fade = Math.sin(p * Math.PI); // fade in at centre, out at the edge
+    const alpha = intensity * 0.6 * fade;
+    if (alpha <= 0.01) continue;
+
+    const hueBase = (p * 320 + phase * 720) % 360;
+    const wobbleAmp = r * 0.035; // organic sideways wander, like the tubes
+    const lineWidth = Math.max(3, maxR * 0.012 + p * maxR * 0.05); // thicker as it nears
+
+    // Trace the wavy ring as a single path.
     ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    for (let s = 0; s <= segs; s++) {
+      const a = s * segStep;
+      const wob =
+        Math.sin(a * 3 + phase * 6.283 + i) * wobbleAmp +
+        Math.cos(a * 5 - phase * 8 + i * 1.7) * wobbleAmp * 0.5;
+      const rr = r + wob;
+      const x = cx + Math.cos(a) * rr;
+      const y = cy + Math.sin(a) * rr;
+      if (s === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+
+    ctx.lineWidth = lineWidth;
+    ctx.shadowBlur = lineWidth * 1.6;
+    ctx.shadowColor = `hsla(${hueBase}, 95%, 62%, ${alpha})`;
+    if (supportsConic) {
+      // A conic gradient centred on the vortex maps angle → hue, so the stroke
+      // cycles colour around the ring in one pass, like the multi-colour tubes.
+      const ringGrad = ctx.createConicGradient(
+        (phase * 2 + p) * Math.PI * 2,
+        cx,
+        cy,
+      );
+      for (let k = 0; k <= 6; k++) {
+        const hue = (hueBase + (k / 6) * 360) % 360;
+        ringGrad.addColorStop(k / 6, `hsla(${hue}, 95%, 62%, ${alpha})`);
+      }
+      ctx.strokeStyle = ringGrad;
+    } else {
+      ctx.strokeStyle = `hsla(${hueBase}, 95%, 62%, ${alpha})`;
+    }
     ctx.stroke();
   }
   ctx.shadowBlur = 0;
@@ -251,7 +286,9 @@ export default function Constellations({
   const vortexPhaseRef = useRef(0);
   const redFlashRef = useRef(0);
   const hitPulseRef = useRef(0);
-  const droneRef = useRef<DroneNodes | null>(null);
+  // MIDI note of the currently-sounding drone (null when silent), so it can be
+  // released on the next round or on unmount.
+  const droneNoteRef = useRef<number | null>(null);
 
   // --- Canvas resize ---
   useEffect(() => {
@@ -608,16 +645,11 @@ export default function Constellations({
       if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       playingRef.current = false;
-      const drone = droneRef.current;
-      if (drone) {
-        try {
-          drone.osc.stop();
-          drone.sub.stop();
-        } catch {
-          // oscillators may already be stopped
-        }
-        void drone.ctx.close();
-        droneRef.current = null;
+      if (droneNoteRef.current !== null) {
+        const droneChannel = getDroneChannel();
+        jamNoteOff(droneChannel, droneNoteRef.current);
+        jamControllerChange(droneChannel, 7, 0);
+        droneNoteRef.current = null;
       }
     };
   }, []);
@@ -653,37 +685,18 @@ export default function Constellations({
     redFlashRef.current = 0;
     hitPulseRef.current = 0;
 
-    // Prepare the root-note drone, one octave below the play octave. It stays
-    // silent (gain 0) until the streak grows. The Start click satisfies the
-    // gesture requirement for creating/resuming the AudioContext.
-    const rootDownMidi = PLAY_OCTAVE_BASE + rootPc - 12;
-    const rootFreq = 440 * Math.pow(2, (rootDownMidi - 69) / 12);
-    let drone = droneRef.current;
-    if (!drone) {
-      const actx = new AudioContext();
-      const gain = actx.createGain();
-      gain.gain.value = 0;
-      const filter = actx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 700;
-      const osc = actx.createOscillator();
-      osc.type = 'triangle';
-      const sub = actx.createOscillator();
-      sub.type = 'sine';
-      osc.connect(filter);
-      sub.connect(filter);
-      filter.connect(gain);
-      gain.connect(actx.destination);
-      osc.start();
-      sub.start();
-      drone = { ctx: actx, osc, sub, gain, filter };
-      droneRef.current = drone;
+    // Prepare the root-note drone, two octaves below the play octave. It's a
+    // sustained note on the same soundfont instrument as star hits, held on a
+    // dedicated channel and left silent (CC7 volume 0) until the streak grows.
+    const droneChannel = getDroneChannel();
+    const rootDownMidi = PLAY_OCTAVE_BASE + rootPc - 24;
+    if (droneNoteRef.current !== null) {
+      jamNoteOff(droneChannel, droneNoteRef.current);
     }
-    if (drone.ctx.state === 'suspended') void drone.ctx.resume();
-    drone.osc.frequency.setValueAtTime(rootFreq, drone.ctx.currentTime);
-    drone.sub.frequency.setValueAtTime(rootFreq, drone.ctx.currentTime);
-    drone.gain.gain.cancelScheduledValues(drone.ctx.currentTime);
-    drone.gain.gain.setValueAtTime(0, drone.ctx.currentTime);
+    jamProgramChange(droneChannel, SCIFI_FX_PROGRAM);
+    jamControllerChange(droneChannel, 7, 0); // CC7 channel volume → silent
+    jamNoteOn(droneChannel, rootDownMidi, DRONE_VELOCITY);
+    droneNoteRef.current = rootDownMidi;
 
     spawnGeneration();
 
@@ -715,29 +728,25 @@ export default function Constellations({
       NOTE_DURATION * 1000,
     );
 
-    const drone = droneRef.current;
+    const droneChannel = getDroneChannel();
     if (star.inScale) {
       // Correct note: grow the streak, swell the vortex and root-note drone.
       streakRef.current += 1;
       const intensity = Math.min(streakRef.current, STREAK_MAX) / STREAK_MAX;
       vortexTargetRef.current = intensity;
       hitPulseRef.current = 1;
-      if (drone) {
-        drone.gain.gain.setTargetAtTime(
-          intensity * MAX_DRONE_GAIN,
-          drone.ctx.currentTime,
-          0.1,
-        );
-      }
+      jamControllerChange(
+        droneChannel,
+        7,
+        Math.round(intensity * MAX_DRONE_CC),
+      );
       setScore((s) => s + 1);
     } else {
       // Wrong note: break the streak, flash red, and silence the drone/vortex.
       streakRef.current = 0;
       vortexTargetRef.current = 0;
       redFlashRef.current = 1;
-      if (drone) {
-        drone.gain.gain.setTargetAtTime(0, drone.ctx.currentTime, 0.2);
-      }
+      jamControllerChange(droneChannel, 7, 0);
     }
   }, []);
 

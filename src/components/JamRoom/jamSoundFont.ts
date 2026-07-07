@@ -24,6 +24,7 @@ let nextRemoteChannel = 1;
 const LOCAL_CHANNEL = 0;
 const DRUM_CHANNEL = 9;
 const MAX_REMOTE_CHANNEL = 8;
+const DRONE_CHANNEL = 10; // dedicated channel for sustained drones/pads
 
 // ── Public API ───────────────────────────────────────────────────────────
 
@@ -57,6 +58,16 @@ export function jamProgramChange(channel: number, program: number): void {
   synth.programChange(channel, program);
 }
 
+/** Change a MIDI controller value on a channel (e.g. CC7 = channel volume). */
+export function jamControllerChange(
+  channel: number,
+  controller: number,
+  value: number,
+): void {
+  if (!synth || !synthReady) return;
+  synth.controllerChange(channel, controller, value);
+}
+
 /** Get the local player's channel (always 0). */
 export function getLocalChannel(): number {
   return LOCAL_CHANNEL;
@@ -65,6 +76,11 @@ export function getLocalChannel(): number {
 /** Get the GM drums channel (always 9). */
 export function getDrumChannel(): number {
   return DRUM_CHANNEL;
+}
+
+/** Get the dedicated drone/pad channel (always 10). */
+export function getDroneChannel(): number {
+  return DRONE_CHANNEL;
 }
 
 /**

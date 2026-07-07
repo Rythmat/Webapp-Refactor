@@ -172,7 +172,7 @@ function drawVortex(
     const p = (((i / rings + phase) % 1) + 1) % 1; // 0 (centre) → 1 (off-screen)
     const r = RING_START_RADIUS + maxR * 1.5 * Math.pow(p, RING_GROWTH_EXP); // accelerating growth
     const fade = Math.sin(p * Math.PI); // fade in at centre, out at the edge
-    const alpha = intensity * 0.6 * fade;
+    const alpha = intensity * 0.36 * fade; // peak alpha reduced 40% (was 0.6)
     if (alpha <= 0.01) continue;
 
     const hueBase = (p * 320 + phase * 720) % 360;
@@ -367,6 +367,12 @@ export default function Constellations({
       // visible the moment they appear at the center, rather than fading in.
       const brightness = Math.min(1, 0.45 + star.scale * 5);
 
+      // On easy, the correct (in-scale) star burns much brighter than the rest
+      // — its own colour is drawn at a far higher alpha so it reads as
+      // illuminated, without an extra outline.
+      const lit = difficultyRef.current === 'easy' && star.inScale && !isHit;
+      const litMul = lit ? 3 : 1;
+
       // Outer glow
       const glow = ctx.createRadialGradient(
         star.x,
@@ -381,8 +387,14 @@ export default function Constellations({
         glow.addColorStop(0.4, `rgba(167, 139, 250, ${0.3 * brightness})`);
         glow.addColorStop(1, 'rgba(167, 139, 250, 0)');
       } else {
-        glow.addColorStop(0, `rgba(255, 255, 255, ${0.2 * brightness})`);
-        glow.addColorStop(0.4, `rgba(200, 200, 255, ${0.08 * brightness})`);
+        glow.addColorStop(
+          0,
+          `rgba(255, 255, 255, ${Math.min(1, 0.2 * litMul * brightness)})`,
+        );
+        glow.addColorStop(
+          0.4,
+          `rgba(200, 200, 255, ${Math.min(1, 0.08 * litMul * brightness)})`,
+        );
         glow.addColorStop(1, 'rgba(200, 200, 255, 0)');
       }
       ctx.fillStyle = glow;
@@ -404,28 +416,20 @@ export default function Constellations({
         core.addColorStop(0.3, '#c4b5fd');
         core.addColorStop(1, 'rgba(167, 139, 250, 0)');
       } else {
-        core.addColorStop(0, `rgba(255, 255, 255, ${0.7 * brightness})`);
-        core.addColorStop(0.4, `rgba(200, 200, 255, ${0.3 * brightness})`);
+        core.addColorStop(
+          0,
+          `rgba(255, 255, 255, ${Math.min(1, 0.7 * litMul * brightness)})`,
+        );
+        core.addColorStop(
+          0.4,
+          `rgba(200, 200, 255, ${Math.min(1, 0.3 * litMul * brightness)})`,
+        );
         core.addColorStop(1, 'rgba(200, 200, 255, 0)');
       }
       ctx.fillStyle = core;
       ctx.beginPath();
       ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
       ctx.fill();
-
-      // On easy, light up the perimeter of every in-scale star with a bright
-      // white ring so the player can see which notes to play.
-      if (difficultyRef.current === 'easy' && star.inScale && !isHit) {
-        ctx.save();
-        ctx.strokeStyle = `rgba(255, 255, 255, ${Math.min(1, 0.85 * brightness + 0.15)})`;
-        ctx.lineWidth = 2.5;
-        ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
-        ctx.shadowBlur = 12;
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      }
 
       // Note label — always shown at the center of the star so players
       // can see which note it represents before hitting it.

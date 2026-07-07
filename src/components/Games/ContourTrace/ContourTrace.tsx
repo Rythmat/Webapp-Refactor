@@ -373,13 +373,6 @@ export default function Constellations({
       const lit = difficultyRef.current === 'easy' && star.inScale && !isHit;
       const litMul = lit ? 5 : 1;
 
-      // Dark backing disc so every star reads clearly over the bright, colourful
-      // rings behind it — each star sits inside a black circle.
-      ctx.fillStyle = '#000000';
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, radius * 1.4, 0, Math.PI * 2);
-      ctx.fill();
-
       // Outer glow — larger, brighter bloom for the illuminated easy star.
       const glowR = radius * 2.5 * (lit ? 1.7 : 1);
       const glow = ctx.createRadialGradient(

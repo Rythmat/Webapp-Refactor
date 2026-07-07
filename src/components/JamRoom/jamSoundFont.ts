@@ -65,7 +65,11 @@ export function jamControllerChange(
   value: number,
 ): void {
   if (!synth || !synthReady) return;
-  synth.controllerChange(channel, controller, value);
+  synth.controllerChange(
+    channel,
+    controller as Parameters<WorkletSynthesizer['controllerChange']>[1],
+    value,
+  );
 }
 
 /** Get the local player's channel (always 0). */

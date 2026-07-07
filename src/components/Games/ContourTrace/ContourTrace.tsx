@@ -8,6 +8,7 @@ import {
   jamControllerChange,
   getLocalChannel,
   getDroneChannel,
+  getAccentChannel,
 } from '@/components/JamRoom/jamSoundFont';
 import { StarsCanvas } from '@/components/ui/stars-canvas';
 
@@ -36,7 +37,9 @@ const MINOR_PENTATONIC_STEPS = [0, 3, 5, 7, 10];
 const PLAY_OCTAVE_BASE = 60; // MIDI C4
 const NOTE_DURATION = 0.5;
 const NOTE_VELOCITY = 90; // MIDI velocity (0–127) for triggered notes
-const SCIFI_FX_PROGRAM = 103;
+const SCIFI_FX_PROGRAM = 103; // GM "FX 8 (sci-fi)" — star-hit notes
+const ECHOES_FX_PROGRAM = 102; // GM "FX 7 (echoes)" — the success drone
+const BRIGHTNESS_FX_PROGRAM = 100; // GM "FX 5 (brightness)" — correct-note accent
 // Core radii (px, before flight-scale growth) of a star's drawn circle.
 const STAR_BASE_RADIUS = 10; // un-hit star
 const STAR_HIT_BASE_RADIUS = 16; // already-hit star
@@ -151,15 +154,22 @@ function drawVortex(
 
   // Concentric rings emanating OUTWARD from the centre — as if the viewer is
   // flying toward them. Each ring is born small at the centre and grows; the
-  // p*p mapping accelerates that growth so both the ring size and the gap
-  // between rings increase as they approach the screen. Each ring is a single,
-  // perfectly-round, glowing rainbow stroke.
-  const rings = 9;
+  // p^RING_GROWTH_EXP mapping accelerates that growth so both the ring size and
+  // the gap between rings increase as they approach the screen. A steeper
+  // exponent makes the rings start smaller and more tightly spaced, then ramp
+  // up their size/spacing faster on the way out (endpoint scale unchanged, so
+  // they still reach the edge). Each ring is a single, perfectly-round, glowing
+  // rainbow stroke.
+  const RING_GROWTH_EXP = 4; // was 2 → ~3× steeper size/spacing growth
+  const rings = 11; // was 9 → ~1/3 the spacing near the start
+  // The innermost (newest) ring appears at this radius rather than at the
+  // centre point — four times a freshly-spawned star's radius.
+  const RING_START_RADIUS = STAR_BASE_RADIUS * 4;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   for (let i = 0; i < rings; i++) {
     const p = (((i / rings + phase) % 1) + 1) % 1; // 0 (centre) → 1 (off-screen)
-    const r = maxR * 1.5 * (p * p) + 2; // accelerating outward growth
+    const r = RING_START_RADIUS + maxR * 1.5 * Math.pow(p, RING_GROWTH_EXP); // accelerating growth
     const fade = Math.sin(p * Math.PI); // fade in at centre, out at the edge
     const alpha = intensity * 0.6 * fade;
     if (alpha <= 0.01) continue;
@@ -689,10 +699,13 @@ export default function Constellations({
     if (droneNoteRef.current !== null) {
       jamNoteOff(droneChannel, droneNoteRef.current);
     }
-    jamProgramChange(droneChannel, SCIFI_FX_PROGRAM);
+    jamProgramChange(droneChannel, ECHOES_FX_PROGRAM);
     jamControllerChange(droneChannel, 7, 0); // CC7 channel volume → silent
     jamNoteOn(droneChannel, rootDownMidi, DRONE_VELOCITY);
     droneNoteRef.current = rootDownMidi;
+
+    // The accent channel plays a short high root note on each correct hit.
+    jamProgramChange(getAccentChannel(), BRIGHTNESS_FX_PROGRAM);
 
     spawnGeneration();
 
@@ -715,7 +728,6 @@ export default function Constellations({
     if (star.hit || !star.visible || star.dismissed) return;
 
     star.hit = true;
-    hitOrderRef.current.push(starIndex);
 
     const channel = getLocalChannel();
     jamNoteOn(channel, star.midi, NOTE_VELOCITY);
@@ -726,7 +738,10 @@ export default function Constellations({
 
     const droneChannel = getDroneChannel();
     if (star.inScale) {
-      // Correct note: grow the streak, swell the vortex and root-note drone.
+      // Correct note: connect it into the constellation, grow the streak, and
+      // swell the vortex and root-note drone. Wrong notes are never added to
+      // the hit order, so no connecting line is drawn to them.
+      hitOrderRef.current.push(starIndex);
       streakRef.current += 1;
       const intensity = Math.min(streakRef.current, STREAK_MAX) / STREAK_MAX;
       vortexTargetRef.current = intensity;
@@ -736,6 +751,20 @@ export default function Constellations({
         7,
         Math.round(intensity * MAX_DRONE_CC),
       );
+
+      // Sparkle: the scale root two octaves above the play octave, on the
+      // brightness soundfont, held for half the activation-note length.
+      const scale = scaleRef.current;
+      if (scale) {
+        const accentChannel = getAccentChannel();
+        const accentMidi = PLAY_OCTAVE_BASE + scale.rootPc + 24;
+        jamNoteOn(accentChannel, accentMidi, NOTE_VELOCITY);
+        window.setTimeout(
+          () => jamNoteOff(accentChannel, accentMidi),
+          (NOTE_DURATION / 2) * 1000,
+        );
+      }
+
       setScore((s) => s + 1);
     } else {
       // Wrong note: break the streak, flash red, and silence the drone/vortex.

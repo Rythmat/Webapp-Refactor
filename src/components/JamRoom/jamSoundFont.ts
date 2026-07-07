@@ -25,6 +25,7 @@ const LOCAL_CHANNEL = 0;
 const DRUM_CHANNEL = 9;
 const MAX_REMOTE_CHANNEL = 8;
 const DRONE_CHANNEL = 10; // dedicated channel for sustained drones/pads
+const ACCENT_CHANNEL = 11; // dedicated channel for short accent/sparkle notes
 
 // ── Public API ───────────────────────────────────────────────────────────
 
@@ -85,6 +86,11 @@ export function getDrumChannel(): number {
 /** Get the dedicated drone/pad channel (always 10). */
 export function getDroneChannel(): number {
   return DRONE_CHANNEL;
+}
+
+/** Get the dedicated accent/sparkle channel (always 11). */
+export function getAccentChannel(): number {
+  return ACCENT_CHANNEL;
 }
 
 /**

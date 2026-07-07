@@ -371,16 +371,24 @@ export default function Constellations({
       // — its own colour is drawn at a far higher alpha so it reads as
       // illuminated, without an extra outline.
       const lit = difficultyRef.current === 'easy' && star.inScale && !isHit;
-      const litMul = lit ? 3 : 1;
+      const litMul = lit ? 5 : 1;
 
-      // Outer glow
+      // Dark backing disc so every star reads clearly over the bright, colourful
+      // rings behind it — each star sits inside a black circle.
+      ctx.fillStyle = '#000000';
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, radius * 1.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer glow — larger, brighter bloom for the illuminated easy star.
+      const glowR = radius * 2.5 * (lit ? 1.7 : 1);
       const glow = ctx.createRadialGradient(
         star.x,
         star.y,
         0,
         star.x,
         star.y,
-        radius * 2.5,
+        glowR,
       );
       if (isHit) {
         glow.addColorStop(0, `rgba(255, 255, 255, ${0.6 * brightness})`);
@@ -399,7 +407,7 @@ export default function Constellations({
       }
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(star.x, star.y, radius * 2.5, 0, Math.PI * 2);
+      ctx.arc(star.x, star.y, glowR, 0, Math.PI * 2);
       ctx.fill();
 
       // Inner core
@@ -437,11 +445,16 @@ export default function Constellations({
       ctx.font = `bold ${fontSize}px sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      // Fully opaque white so the note is always clearly visible, regardless
-      // of the star's flight-scale brightness.
-      ctx.fillStyle = 'rgba(255, 255, 255, 1)';
       // Show only the pitch class (e.g. "C", "Eb") — drop the octave number.
-      ctx.fillText(star.noteName.replace(/\d+$/, ''), star.x, star.y);
+      const label = star.noteName.replace(/\d+$/, '');
+      // Black outline so the fully-opaque white text pops off the bright core.
+      ctx.lineWidth = Math.max(2, fontSize * 0.18);
+      ctx.lineJoin = 'round';
+      ctx.miterLimit = 2;
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.9)';
+      ctx.strokeText(label, star.x, star.y);
+      ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+      ctx.fillText(label, star.x, star.y);
       ctx.textBaseline = 'alphabetic';
     });
 

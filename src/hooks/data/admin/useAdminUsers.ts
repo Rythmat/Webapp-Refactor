@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import SuperJSON from 'superjson';
 import { getCurrentAppSessionId } from '@/auth/app-session-store';
 import { Env } from '@/constants/env';
@@ -27,13 +27,16 @@ function adminPath(path: string) {
 async function fetchWithAuth<T = unknown>(
   url: string,
   token: string,
+  options?: RequestInit,
 ): Promise<T> {
   const appSessionId = getCurrentAppSessionId();
   const res = await fetch(url, {
+    ...options,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
       ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
+      ...options?.headers,
     },
   });
 
@@ -67,5 +70,31 @@ export const useAdminUsers = (params?: {
         token!,
       ),
     enabled: !!token,
+  });
+};
+
+/**
+ * Change a user's role (student ↔ teacher). The server rejects the change with
+ * a 409 (surfaced as the thrown Error's message) when the user is still
+ * connected to any classes.
+ */
+export const useUpdateUserRole = () => {
+  const { token } = useAuthContext();
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { id: string; role: 'admin' | 'teacher' | 'student' },
+    Error,
+    { id: string; role: 'teacher' | 'student' }
+  >({
+    mutationFn: ({ id, role }) =>
+      fetchWithAuth<{ id: string; role: 'admin' | 'teacher' | 'student' }>(
+        adminPath(`/users/${id}/role`),
+        token!,
+        { method: 'PATCH', body: JSON.stringify({ role }) },
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+    },
   });
 };

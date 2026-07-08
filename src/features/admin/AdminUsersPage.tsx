@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -293,9 +294,14 @@ export const AdminUsersPage = () => {
                     roleBadge(user.role)
                   ) : (
                     <DropdownMenu>
-                      <DropdownMenuTrigger className="inline-flex items-center gap-1 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                        {roleBadge(user.role)}
-                        <ChevronDown className="size-3.5 text-muted-foreground" />
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-auto gap-1 px-2 py-1"
+                        >
+                          {roleBadge(user.role)}
+                          <ChevronDown className="size-3.5 text-muted-foreground" />
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
                         <DropdownMenuItem onSelect={() => setConfirmUser(user)}>

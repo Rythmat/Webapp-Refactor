@@ -14,6 +14,7 @@ import {
 } from '@/curriculum/songLibrary/timing';
 import { useBeatGrid } from '@/curriculum/songLibrary/useBeatGrid';
 import { useSongActions } from '@/features/songs/useSongActions';
+import { useViewedSongsStore } from '@/features/songs/useViewedSongsStore';
 import type { Song } from '@/curriculum/types/songLibrary';
 
 /** Extract YouTube video ID from a URL or URI */
@@ -43,6 +44,13 @@ export const SongDetailPage: FC = () => {
 
   // Lazy-load beat grid sidecar for this song (null until loaded or absent).
   const beatGrid = useBeatGrid(song?.id);
+
+  // Record that the user looked at this song (opened its detail page) so it can
+  // feed the Learn hub's "Continue" bar — saved or not.
+  const recordSongView = useViewedSongsStore((s) => s.recordView);
+  useEffect(() => {
+    if (song) recordSongView(song.id);
+  }, [song, recordSongView]);
 
   // Poll YouTube time only when section-loop is engaged. Cheap setInterval
   // is enough — there's no UI consumer of current time anymore.

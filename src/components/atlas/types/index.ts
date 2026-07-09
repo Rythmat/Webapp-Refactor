@@ -93,14 +93,6 @@ export interface ModuleProgress {
   currentStep: number; // 0-indexed
 }
 
-// --- AI Insight ---
-export interface AIInsight {
-  query: string;
-  content: string;
-  status: 'idle' | 'loading' | 'streaming' | 'done' | 'error';
-  error?: string;
-}
-
 // --- App State ---
 export interface AppState {
   currentYear: number;
@@ -119,7 +111,6 @@ export interface AppState {
   activeModule: ModuleProgress | null;
   selectedEra: string | null;
   searchFlyTarget: FlyTarget | null;
-  aiInsight: AIInsight;
   /** Which influence arc directions are visible on the globe */
   visibleArcDirections: Set<'upstream' | 'downstream'>;
 }
@@ -143,13 +134,9 @@ export type AppAction =
       payload: { year?: number; lat?: number; lng?: number; zoom?: number };
     }
   | { type: 'CLEAR_FLY_TARGET' }
-  | { type: 'AI_INSIGHT_START'; payload: string }
-  | { type: 'AI_INSIGHT_CHUNK'; payload: string }
-  | { type: 'AI_INSIGHT_DONE' }
-  | { type: 'AI_INSIGHT_ERROR'; payload: string }
   | { type: 'START_MODULE'; payload: { moduleId: string } }
   | { type: 'MODULE_STEP'; payload: number }
   | { type: 'EXIT_MODULE' }
-  | { type: 'AI_INSIGHT_CLEAR' }
   | { type: 'SET_ERA'; payload: string | null }
-  | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' };
+  | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' }
+  | { type: 'OPEN_INFLUENCE_ARCS' };

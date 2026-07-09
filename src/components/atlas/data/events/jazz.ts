@@ -72,7 +72,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'township',
       'shebeen',
     ],
-    videoId: 'sGu_AvtlBLs',
+    videoId: 'udBEC15_ALc',
   },
   {
     id: 'evt-swing-nyc-1938',
@@ -191,7 +191,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'golden age',
       'awesome tapes',
     ],
-    videoId: 'aTYUtGmvUsE',
+    videoId: 'd9sEVJpyoJI',
   },
   {
     id: 'evt-jazz-copenhagen-1979',
@@ -214,6 +214,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'kenny drew',
       'scandinavian jazz',
     ],
+    videoId: 'eZE2ZZ79Yos',
   },
   {
     id: 'evt-jazzfest-montreal-1980',
@@ -236,6 +237,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'summer festival',
       'quebec',
     ],
+    videoId: 'YR4Fe3N4Uzc',
   },
   {
     id: 'evt-sask-jazz-saskatoon-1987',
@@ -308,7 +310,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'octaves',
       'self-taught',
     ],
-    videoId: 'rmqatbUVr3c',
+    videoId: 'RLIgJ7t_O2k',
   },
   {
     id: 'evt-jazztouring-wichita-1936',
@@ -373,7 +375,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'new jersey',
       'jazz heritage',
     ],
-    videoId: '2yVRDNWtDhE',
+    videoId: 'sbQgp_apfUA',
   },
   {
     id: 'evt-charlestondance-charleston-1923',
@@ -543,7 +545,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'wartime',
       'south la',
     ],
-    videoId: 'sjcAJUUS9Cw',
+    videoId: 'S2FV91K6Ylw',
   },
 
   // ── Afro-Caribbean lineage ──────────────────────────────────────────
@@ -596,6 +598,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'female pioneer',
       'bandleader',
     ],
+    videoId: 'w5GjYVh3QTU',
   },
   {
     id: 'evt-jazz-armstrong-hotfive-chicago-1925',
@@ -620,7 +623,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'chicago jazz',
       'solo',
     ],
-    videoId: 'JtmS71FYvP8',
+    videoId: 'xO3k-S_pqK4',
   },
   {
     id: 'evt-jazz-jelly-roll-morton-chicago-1926',
@@ -695,7 +698,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'vocal jazz',
       'civil rights',
     ],
-    videoId: 'KajYesrqm_s',
+    videoId: '-0ltdvFtGxs',
   },
   {
     id: 'evt-jazz-mary-lou-williams-nyc-1945',
@@ -720,7 +723,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'female pioneer',
       'mentor',
     ],
-    videoId: 'ktmyulf11sQ',
+    videoId: 'JdljUTK8WUw',
   },
   {
     id: 'evt-jazz-parker-savoy-nyc-1945',
@@ -745,7 +748,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'harmonic innovation',
       'bird',
     ],
-    videoId: '5zsLwXUraNE',
+    videoId: 'x14Q-jrLafM',
   },
   {
     id: 'evt-jazz-tito-puente-machito-nyc-1949',
@@ -871,6 +874,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'vocal jazz',
       'standards',
     ],
+    videoId: 'EzNbt6Ufcv4',
   },
   {
     id: 'evt-jazz-monk-brilliant-corners-nyc-1956',
@@ -895,7 +899,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'composer',
       'pianist',
     ],
-    videoId: 'iOyf4R3lLKU',
+    videoId: 'AwlbjCzO9KU',
   },
   {
     id: 'evt-jazz-sunra-arkestra-chicago-1956',
@@ -1071,7 +1075,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'composer',
       'protest',
     ],
-    videoId: 'B2B8neeQZw4',
+    videoId: '4MXsJ9j23oo',
   },
   {
     id: 'evt-jazz-wes-montgomery-indianapolis-1960',
@@ -1146,7 +1150,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'female pioneer',
       'eddie lockjaw davis',
     ],
-    videoId: '2ERIvJ0sBcQ',
+    videoId: 'C7jqe1GHFE4',
   },
   {
     id: 'evt-jazz-nina-simone-mississippi-goddam-1964',
@@ -1171,7 +1175,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'medgar evers',
       'pianist',
     ],
-    videoId: 'WonQrmIGJTw',
+    videoId: 'teqWnF-HD1M',
   },
   {
     id: 'evt-jazz-stan-getz-bossa-nova-nyc-1964',
@@ -1246,7 +1250,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'composer',
       'saxophone',
     ],
-    videoId: 'tu6WI67IlL4',
+    videoId: 'Vdc3KJVopU4',
   },
   {
     id: 'evt-jazz-mccoy-tyner-real-mccoy-1967',
@@ -1271,6 +1275,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'elvin jones',
       'coltrane quartet',
     ],
+    videoId: '8p00o_7di_M',
   },
   {
     id: 'evt-jazz-miles-bitches-brew-1970',
@@ -1421,7 +1426,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'chorus effect',
       'lyrical',
     ],
-    videoId: '3MENeaxUeuU',
+    videoId: 'ObOVQvsHE2Y',
   },
   {
     id: 'evt-jazz-weather-report-heavy-weather-la-1977',
@@ -1471,7 +1476,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'acoustic jazz',
       'trumpet',
     ],
-    videoId: 'GLSsbZFukiE',
+    videoId: '8Rw9bgGPfPU',
   },
   {
     id: 'evt-jazz-brad-mehldau-largo-la-2002',
@@ -1497,6 +1502,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'crossover',
       'post-bop',
     ],
+    videoId: 'aXCFcXQ8src',
   },
   {
     id: 'evt-jazz-maria-schneider-concert-garden-nyc-2004',
@@ -1521,7 +1527,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'gil evans',
       'orchestral jazz',
     ],
-    videoId: 'x_1OLjZRORs',
+    videoId: '3Kcqo39814U',
   },
   {
     id: 'evt-jazz-terri-lyne-carrington-boston-2011',
@@ -1547,7 +1553,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'esperanza spalding',
       'women in jazz',
     ],
-    videoId: 'r44XGirmsMQ',
+    videoId: 'zRhG6RwLpEU',
   },
   {
     id: 'evt-jazz-kamasi-washington-the-epic-la-2015',
@@ -1573,7 +1579,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'tenor saxophone',
       'new generation',
     ],
-    videoId: '6eU9N1caT54',
+    videoId: '0YbPSIXQ4q4',
   },
   {
     id: 'evt-jazz-esperanza-spalding-portland-2016',
@@ -1598,7 +1604,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'berklee',
       'art pop',
     ],
-    videoId: '966ZswEDkyw',
+    videoId: 'uHLxn8MEjLA',
   },
   {
     id: 'evt-jazz-artemis-nyc-2017',

@@ -222,6 +222,101 @@ export const ClassroomRoutes = {
   }>('/:classroomId/plan/:dayId', {
     prefix: classroomPrefix,
   }),
+
+  /**
+   * Preview a Day as a student would see it. Runs the Day through
+   * `buildStudentView` + renders phase interactions inline via
+   * `InteractionInput` so the teacher can smoke-test authoring locally
+   * before publishing.
+   */
+  preview: createRouteDefinition<{
+    classroomId: string;
+    dayId: string;
+  }>('/:classroomId/plan/:dayId/preview', {
+    prefix: classroomPrefix,
+  }),
+
+  /**
+   * Student and teacher assignments list for a classroom. Backed by
+   * localStorage in Sprint 2; will read `GET /classrooms/:id/assignments`
+   * when the backend endpoints in `docs/classroom-v2/openapi.yaml` ship.
+   */
+  assignments: createRouteDefinition<{
+    classroomId: string;
+  }>('/:classroomId/assignments', {
+    prefix: classroomPrefix,
+  }),
+
+  /**
+   * Student-paced walk of an assignment whose kind is 'day' — renders the
+   * PublishedDay snapshot with `InteractionInput` bindings.
+   */
+  assignmentDayRun: createRouteDefinition<{
+    classroomId: string;
+    assignmentId: string;
+  }>('/:classroomId/assignments/:assignmentId/run', {
+    prefix: classroomPrefix,
+  }),
+
+  /**
+   * Read-only view for assignments whose kind is 'instructions' — student
+   * marks it done manually.
+   */
+  assignmentInstructions: createRouteDefinition<{
+    classroomId: string;
+    assignmentId: string;
+  }>('/:classroomId/assignments/:assignmentId/instructions', {
+    prefix: classroomPrefix,
+  }),
+
+  /**
+   * Teacher progress grid for a single assignment.
+   */
+  assignmentProgress: createRouteDefinition<{
+    classroomId: string;
+    assignmentId: string;
+  }>('/:classroomId/assignments/:assignmentId/progress', {
+    prefix: classroomPrefix,
+  }),
+
+  /** Student live-session view. */
+  live: createRouteDefinition<{
+    classroomId: string;
+    sessionId: string;
+  }>('/:classroomId/live/:sessionId', {
+    prefix: classroomPrefix,
+  }),
+
+  /** Teacher live-session dashboard. */
+  session: createRouteDefinition<{
+    classroomId: string;
+    sessionId: string;
+  }>('/:classroomId/sessions/:sessionId', {
+    prefix: classroomPrefix,
+  }),
+
+  /** Anonymized projector overlay. */
+  projector: createRouteDefinition<{
+    classroomId: string;
+    sessionId: string;
+  }>('/:classroomId/sessions/:sessionId/projector', {
+    prefix: classroomPrefix,
+  }),
+
+  /** Teacher-only post-session report. */
+  report: createRouteDefinition<{
+    classroomId: string;
+    sessionId: string;
+  }>('/:classroomId/sessions/:sessionId/report', {
+    prefix: classroomPrefix,
+  }),
+
+  /** Teacher-only index of ended-session reports. */
+  reports: createRouteDefinition<{
+    classroomId: string;
+  }>('/:classroomId/reports', {
+    prefix: classroomPrefix,
+  }),
 };
 
 const legalPrefix = '/documents';

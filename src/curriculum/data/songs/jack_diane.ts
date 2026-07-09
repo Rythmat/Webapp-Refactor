@@ -209,7 +209,7 @@ export const jack_diane: Song = {
   ],
 
   audioSources: [
-    { provider: 'youtube', uri: 'https://youtube.com/watch?v=6gy16cbFZbI' },
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=h04CH9YZcpI' },
   ],
   artistImageSource: 'manual',
 

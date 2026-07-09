@@ -388,7 +388,7 @@ export const footloose: Song = {
   ],
 
   audioSources: [
-    { provider: 'youtube', uri: 'https://youtube.com/watch?v=-iiNm0WxJ7Q' },
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=ltrMfT4Qz5Y' },
   ],
   artistImageSource: 'manual',
 

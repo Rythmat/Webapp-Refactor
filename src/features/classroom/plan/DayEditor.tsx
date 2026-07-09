@@ -1,14 +1,25 @@
-import { ArrowLeft, Check, Play } from 'lucide-react';
+import { ArrowLeft, Check, Eye, Play, Radio, Send, Upload } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ClassroomRoutes } from '@/constants/routes';
+import { AssignmentComposer } from '../assignments';
+import { useLocalSessionStore } from '../live/useLocalSessionStore';
 import {
   PHASE_FULL_NAMES,
   PHASES,
   STUDENT_PHASE_LABELS,
   type PhaseKey,
 } from '../phases';
-import type { Cell, Day, LocalizedText } from '../types';
+import { usePublishedDays } from '../publish/usePublishedDays';
+import type {
+  Cell,
+  CellRationale,
+  Day,
+  Interaction,
+  LocalizedText,
+} from '../types';
+import { InteractionEditor } from './InteractionEditor';
+import { RationaleEditor } from './RationaleEditor';
 import { useLocalPlan } from './useLocalPlan';
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
@@ -33,11 +44,19 @@ export const DayEditor = () => {
   const navigate = useNavigate();
   const { getDay, saveDay } = useLocalPlan();
   const cid = classroomId ?? '';
+  const { publishDayToClassroom } = usePublishedDays(cid);
+  const { startSession } = useLocalSessionStore();
 
   const [draft, setDraft] = useState<Day | undefined>(() =>
     dayId ? getDay(dayId) : undefined,
   );
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [publishedPill, setPublishedPill] = useState<{
+    publishedDayId: string;
+    at: number;
+  } | null>(null);
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
 
   // If the dayId isn't in the plan, kick the user back to the plan list.
   useEffect(() => {
@@ -87,11 +106,69 @@ export const DayEditor = () => {
     [],
   );
 
+  const updateInteractions = useCallback(
+    (phaseKey: PhaseKey, interactions: Interaction[]) => {
+      setDraft((prev) => {
+        if (!prev) return prev;
+        const cell = prev.cells[phaseKey];
+        const nextCell: Cell = {
+          ...cell,
+          presentation: {
+            ...cell.presentation,
+            interactions: interactions.length ? interactions : undefined,
+          },
+        };
+        return { ...prev, cells: { ...prev.cells, [phaseKey]: nextCell } };
+      });
+    },
+    [],
+  );
+
+  const updateRationale = useCallback(
+    (phaseKey: PhaseKey, rationale: CellRationale) => {
+      setDraft((prev) => {
+        if (!prev) return prev;
+        const cell = prev.cells[phaseKey];
+        const nextCell: Cell = { ...cell, rationale };
+        return { ...prev, cells: { ...prev.cells, [phaseKey]: nextCell } };
+      });
+    },
+    [],
+  );
+
   const savedLabel = useMemo(() => {
     if (savedAt === null) return null;
     const secondsAgo = Math.max(0, Math.floor((Date.now() - savedAt) / 1000));
     return secondsAgo < 5 ? 'Saved' : 'Saved a moment ago';
   }, [savedAt]);
+
+  const handlePublish = useCallback(async () => {
+    if (!draft) return;
+    setPublishError(null);
+    try {
+      const pd = await publishDayToClassroom({ classroomId: cid, day: draft });
+      setPublishedPill({ publishedDayId: pd.id, at: Date.now() });
+    } catch (err) {
+      setPublishError(err instanceof Error ? err.message : 'Publish failed');
+    }
+  }, [draft, cid, publishDayToClassroom]);
+
+  const handleStartSession = useCallback(async () => {
+    if (!draft) return;
+    setPublishError(null);
+    try {
+      const pd = await publishDayToClassroom({ classroomId: cid, day: draft });
+      setPublishedPill({ publishedDayId: pd.id, at: Date.now() });
+      const s = startSession({ classroomId: cid, publishedDayId: pd.id });
+      navigate(
+        ClassroomRoutes.session({ classroomId: cid, sessionId: s.sessionId }),
+      );
+    } catch (err) {
+      setPublishError(
+        err instanceof Error ? err.message : 'Start session failed',
+      );
+    }
+  }, [draft, cid, publishDayToClassroom, startSession, navigate]);
 
   if (!draft) {
     return null;
@@ -114,6 +191,50 @@ export const DayEditor = () => {
               {savedLabel}
             </span>
           )}
+          {publishedPill && (
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[0.06] px-3 py-1 text-xs text-emerald-300">
+              Published
+              <button
+                type="button"
+                onClick={() => setComposerOpen(true)}
+                className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-xs text-white hover:bg-white/20"
+              >
+                <Send className="h-3 w-3" />
+                Assign
+              </button>
+            </span>
+          )}
+          {publishError && (
+            <span className="text-xs text-red-300" role="alert">
+              {publishError}
+            </span>
+          )}
+          <Link
+            to={ClassroomRoutes.preview({
+              classroomId: cid,
+              dayId: draft.id,
+            })}
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/25 hover:text-white"
+          >
+            <Eye className="h-4 w-4" />
+            Preview
+          </Link>
+          <button
+            type="button"
+            onClick={handlePublish}
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/25 hover:text-white"
+          >
+            <Upload className="h-4 w-4" />
+            Publish
+          </button>
+          <button
+            type="button"
+            onClick={handleStartSession}
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/[0.06] px-4 py-2 text-sm text-emerald-200 transition-colors hover:border-emerald-400 hover:text-emerald-100"
+          >
+            <Radio className="h-4 w-4" />
+            Start Session
+          </button>
           <Link
             to={ClassroomRoutes.present({
               classroomId: cid,
@@ -126,6 +247,14 @@ export const DayEditor = () => {
           </Link>
         </div>
       </header>
+
+      {composerOpen && publishedPill && (
+        <AssignmentComposer
+          classroomId={cid}
+          presetPublishedDayId={publishedPill.publishedDayId}
+          onClose={() => setComposerOpen(false)}
+        />
+      )}
 
       <label className="flex flex-col gap-1.5">
         <span className="text-xs uppercase tracking-wide text-white/40">
@@ -147,6 +276,12 @@ export const DayEditor = () => {
             phaseKey={phaseKey}
             cell={draft.cells[phaseKey]}
             onFieldChange={updateCellField}
+            onInteractionsChange={(interactions) =>
+              updateInteractions(phaseKey, interactions)
+            }
+            onRationaleChange={(rationale) =>
+              updateRationale(phaseKey, rationale)
+            }
           />
         ))}
       </div>
@@ -163,9 +298,17 @@ interface PhaseEditorProps {
     language: 'en' | 'es',
     value: string,
   ) => void;
+  onInteractionsChange: (interactions: Interaction[]) => void;
+  onRationaleChange: (rationale: CellRationale) => void;
 }
 
-const PhaseEditor = ({ phaseKey, cell, onFieldChange }: PhaseEditorProps) => {
+const PhaseEditor = ({
+  phaseKey,
+  cell,
+  onFieldChange,
+  onInteractionsChange,
+  onRationaleChange,
+}: PhaseEditorProps) => {
   const studentLabel = STUDENT_PHASE_LABELS[phaseKey].en;
   const internalLabel = PHASE_FULL_NAMES[phaseKey];
 
@@ -214,6 +357,15 @@ const PhaseEditor = ({ phaseKey, cell, onFieldChange }: PhaseEditorProps) => {
           onChange={(v) => onFieldChange(phaseKey, 'prompt', 'es', v)}
         />
       </div>
+
+      <InteractionEditor
+        interactions={cell.presentation.interactions ?? []}
+        onChange={onInteractionsChange}
+      />
+      <RationaleEditor
+        rationale={cell.rationale}
+        onChange={onRationaleChange}
+      />
     </section>
   );
 };

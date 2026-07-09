@@ -1,6 +1,18 @@
-import { CalendarDays, Play, PlusCircle, Trash2 } from 'lucide-react';
+import {
+  CalendarDays,
+  Play,
+  PlusCircle,
+  Radio,
+  Send,
+  Trash2,
+} from 'lucide-react';
+import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ClassroomRoutes } from '@/constants/routes';
+import { AssignmentComposer } from '../assignments';
+import { useLocalSessionStore } from '../live/useLocalSessionStore';
+import { usePublishedDays } from '../publish/usePublishedDays';
+import type { Day } from '../types';
 import { newBlankDay } from './newBlankDay';
 import { useLocalPlan } from './useLocalPlan';
 
@@ -13,9 +25,14 @@ export const PlanPage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
   const navigate = useNavigate();
   const { listDays, saveDay, deleteDay } = useLocalPlan();
+  const cid = classroomId ?? '';
+  const { publishedDays, publishDayToClassroom } = usePublishedDays(cid);
+  const { startSession } = useLocalSessionStore();
 
   const days = listDays();
-  const cid = classroomId ?? '';
+  const [composerTarget, setComposerTarget] = useState<{
+    publishedDayId: string;
+  } | null>(null);
 
   const handleNew = () => {
     const day = newBlankDay();
@@ -26,6 +43,37 @@ export const PlanPage = () => {
   const handleDelete = (dayId: string, dayLabel: string) => {
     if (window.confirm(`Delete “${dayLabel}”? This cannot be undone.`)) {
       deleteDay(dayId);
+    }
+  };
+
+  const findPublishedFor = (day: Day) =>
+    publishedDays.find((pd) => pd.sourceRef === day.id);
+
+  const handleAssign = async (day: Day) => {
+    const existing = findPublishedFor(day);
+    if (existing) {
+      setComposerTarget({ publishedDayId: existing.id });
+      return;
+    }
+    try {
+      const pd = await publishDayToClassroom({ classroomId: cid, day });
+      setComposerTarget({ publishedDayId: pd.id });
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : 'Publish failed');
+    }
+  };
+
+  const handleStartSession = async (day: Day) => {
+    try {
+      const existing = findPublishedFor(day);
+      const pd =
+        existing ?? (await publishDayToClassroom({ classroomId: cid, day }));
+      const s = startSession({ classroomId: cid, publishedDayId: pd.id });
+      navigate(
+        ClassroomRoutes.session({ classroomId: cid, sessionId: s.sessionId }),
+      );
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : 'Start session failed');
     }
   };
 
@@ -105,10 +153,34 @@ export const PlanPage = () => {
                 >
                   Edit
                 </Link>
+                <button
+                  type="button"
+                  onClick={() => handleAssign(day)}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/25 hover:text-white"
+                >
+                  <Send className="h-4 w-4" />
+                  {findPublishedFor(day) ? 'Assign' : 'Publish & Assign'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStartSession(day)}
+                  className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/[0.06] px-4 py-2 text-sm text-emerald-200 transition-colors hover:border-emerald-400 hover:text-emerald-100"
+                >
+                  <Radio className="h-4 w-4" />
+                  Start Session
+                </button>
               </div>
             </li>
           ))}
         </ul>
+      )}
+
+      {composerTarget && (
+        <AssignmentComposer
+          classroomId={cid}
+          presetPublishedDayId={composerTarget.publishedDayId}
+          onClose={() => setComposerTarget(null)}
+        />
       )}
     </div>
   );
@@ -137,7 +209,7 @@ const EmptyState = ({ onNew }: EmptyStateProps) => (
   </div>
 );
 
-const countFilledPhases = (day: import('../types').Day): number => {
+const countFilledPhases = (day: Day): number => {
   let filled = 0;
   for (const cell of Object.values(day.cells)) {
     if (

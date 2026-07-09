@@ -1,7 +1,7 @@
+import { motion } from 'framer-motion';
 import { ChevronDown, ChevronRight, Heart } from 'lucide-react';
 import React, {
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -11,10 +11,7 @@ import React, {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FilterDropdown } from '@/components/songLibrary/FilterDropdown';
 import { SearchInput } from '@/components/songLibrary/SearchInput';
-import {
-  ViewToggle,
-  type ViewMode,
-} from '@/components/songLibrary/SongLibraryPage';
+import { type ViewMode } from '@/components/songLibrary/SongLibraryPage';
 import { LearnRoutes, CurriculumRoutes } from '@/constants/routes';
 import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
@@ -36,7 +33,9 @@ import { SongLibraryBody } from '../songLibrary/SongLibraryPage';
 import { SongsMarquee } from '../songLibrary/SongsMarquee';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
-import { LearnNav } from './LearnNav';
+import { HexWaveBackground } from '../ui/hex-wave-background';
+import { LearnHome } from './LearnHome';
+import { LearnMobileTabs } from './LearnRail';
 import { LearnSubheader } from './LearnTabs';
 import {
   COURSES_LEVEL_OPTIONS,
@@ -164,6 +163,9 @@ interface ContentItem {
   expandId?: string;
   subItems?: ContentSubItem[];
   image?: string;
+  /** When true (and `image` is a polygon honeycomb), the tile art is an
+   *  interactive hex canvas that paints on hover and drifts on its own. */
+  interactive?: boolean;
 }
 
 interface SelectedSubItem {
@@ -334,91 +336,112 @@ const COURSES_DATA: ContentItem[] = [
     route: CurriculumRoutes.genre({ genre: 'pop' }),
     expandId: 'course:pop',
     subItems: buildGenreLevels('pop'),
+    image: '/learn-tiles/pop.svg',
+    interactive: true,
   },
   {
     title: 'Rock',
     route: CurriculumRoutes.genre({ genre: 'rock' }),
     expandId: 'course:rock',
     subItems: buildGenreLevels('rock'),
-    image: '/learn-tiles/rock.svg',
+    image: '/learn-tiles/rock-hex.svg',
+    interactive: true,
   },
   {
     title: 'Hip Hop',
     route: CurriculumRoutes.genre({ genre: 'hip hop' }),
     expandId: 'course:hip hop',
     subItems: buildGenreLevels('hip hop'),
+    image: '/learn-tiles/hip-hop-hex.svg',
+    interactive: true,
   },
   {
     title: 'R&B',
     route: CurriculumRoutes.genre({ genre: 'rnb' }),
     expandId: 'course:rnb',
     subItems: buildGenreLevels('rnb'),
-    image: '/learn-tiles/r-and-b.svg',
+    image: '/learn-tiles/r-and-b-hex.svg',
+    interactive: true,
   },
   {
     title: 'Jazz',
     route: CurriculumRoutes.genre({ genre: 'jazz' }),
     expandId: 'course:jazz',
     subItems: buildGenreLevels('jazz'),
+    image: '/learn-tiles/jazz-hex.svg',
+    interactive: true,
   },
   {
     title: 'Blues',
     route: CurriculumRoutes.genre({ genre: 'blues' }),
     expandId: 'course:blues',
     subItems: buildGenreLevels('blues'),
+    image: '/learn-tiles/blues-hex.svg',
+    interactive: true,
   },
   {
     title: 'Folk',
     route: CurriculumRoutes.genre({ genre: 'folk' }),
     expandId: 'course:folk',
     subItems: buildGenreLevels('folk'),
+    image: '/learn-tiles/folk-hex.svg',
+    interactive: true,
   },
   {
     title: 'Funk',
     route: CurriculumRoutes.genre({ genre: 'funk' }),
     expandId: 'course:funk',
     subItems: buildGenreLevels('funk'),
-    image: '/learn-tiles/funk.svg',
+    image: '/learn-tiles/funk-hex.svg',
+    interactive: true,
   },
   {
     title: 'Neo Soul',
     route: CurriculumRoutes.genre({ genre: 'neo-soul' }),
     expandId: 'course:neo-soul',
     subItems: buildGenreLevels('neo-soul'),
-    image: '/learn-tiles/neo-soul.svg',
+    image: '/learn-tiles/neo-soul-hex.svg',
+    interactive: true,
   },
   {
     title: 'Electronic',
     route: CurriculumRoutes.genre({ genre: 'electronic' }),
     expandId: 'course:electronic',
     subItems: buildGenreLevels('electronic'),
-    image: '/learn-tiles/electronic.svg',
+    image: '/learn-tiles/electronic-hex.svg',
+    interactive: true,
   },
   {
     title: 'Latin',
     route: CurriculumRoutes.genre({ genre: 'latin' }),
     expandId: 'course:latin',
     subItems: buildGenreLevels('latin'),
+    image: '/learn-tiles/latin-hex.svg',
+    interactive: true,
   },
   {
     title: 'Reggae',
     route: CurriculumRoutes.genre({ genre: 'reggae' }),
     expandId: 'course:reggae',
     subItems: buildGenreLevels('reggae'),
+    image: '/learn-tiles/reggae-hex.svg',
+    interactive: true,
   },
   {
     title: 'Jam Band',
     route: CurriculumRoutes.genre({ genre: 'jam-band' }),
     expandId: 'course:jam-band',
     subItems: buildGenreLevels('jam-band'),
-    image: '/learn-tiles/jam-band.svg',
+    image: '/learn-tiles/jam-band-hex.svg',
+    interactive: true,
   },
   {
     title: 'African',
     route: CurriculumRoutes.genre({ genre: 'african' }),
     expandId: 'course:african',
     subItems: buildGenreLevels('african'),
-    image: '/learn-tiles/african.svg',
+    image: '/learn-tiles/african-hex.svg',
+    interactive: true,
   },
 ];
 
@@ -427,44 +450,59 @@ const THEORY_DATA: ContentItem[] = [
     title: 'Lydian',
     mode: 'lydian',
     route: LearnRoutes.overview({ mode: 'lydian' }),
-    image: '/learn-tiles/lydian.svg',
+    image: '/learn-tiles/theory/lydian.svg',
+    interactive: true,
   },
   {
     title: 'Ionian (Major)',
     mode: 'ionian',
     route: LearnRoutes.overview({ mode: 'ionian' }),
+    image: '/learn-tiles/theory/ionian.svg',
+    interactive: true,
   },
   {
     title: 'Mixolydian',
     mode: 'mixolydian',
     route: LearnRoutes.overview({ mode: 'mixolydian' }),
+    image: '/learn-tiles/theory/mixolydian.svg',
+    interactive: true,
   },
   {
     title: 'Dorian',
     mode: 'dorian',
     route: LearnRoutes.overview({ mode: 'dorian' }),
+    image: '/learn-tiles/theory/dorian.svg',
+    interactive: true,
   },
   {
     title: 'Aeolian (Minor)',
     mode: 'aeolian',
     route: LearnRoutes.overview({ mode: 'aeolian' }),
+    image: '/learn-tiles/theory/aeolian.svg',
+    interactive: true,
   },
   {
     title: 'Phrygian',
     mode: 'phrygian',
     route: LearnRoutes.overview({ mode: 'phrygian' }),
+    image: '/learn-tiles/theory/phrygian.svg',
+    interactive: true,
   },
   {
     title: 'Locrian',
     mode: 'locrian',
     route: LearnRoutes.overview({ mode: 'locrian' }),
+    image: '/learn-tiles/theory/locrian.svg',
+    interactive: true,
   },
 ];
 
 const TECHNIQUE_DATA: ContentItem[] = [
   {
-    title: 'Fundamentals',
+    title: 'Beginner',
     route: CurriculumRoutes.genre({ genre: 'piano-fundamentals' }),
+    image: '/learn-tiles/beginner-hex.svg',
+    interactive: true,
   },
 ];
 
@@ -474,72 +512,96 @@ const RELATIVE_MODES_DATA: ContentItem[] = [
     route: '/learn/relative/c',
     expandId: 'relative:c',
     subItems: buildRelativeSubItems('C'),
+    image: '/learn-tiles/theory/relative-c.svg',
+    interactive: true,
   },
   {
     title: 'Vermillion',
     route: '/learn/relative/g',
     expandId: 'relative:g',
     subItems: buildRelativeSubItems('G'),
+    image: '/learn-tiles/theory/relative-g.svg',
+    interactive: true,
   },
   {
     title: 'Orange',
     route: '/learn/relative/d',
     expandId: 'relative:d',
     subItems: buildRelativeSubItems('D'),
+    image: '/learn-tiles/theory/relative-d.svg',
+    interactive: true,
   },
   {
     title: 'Amber',
     route: '/learn/relative/a',
     expandId: 'relative:a',
     subItems: buildRelativeSubItems('A'),
+    image: '/learn-tiles/theory/relative-a.svg',
+    interactive: true,
   },
   {
     title: 'Green',
     route: '/learn/relative/e',
     expandId: 'relative:e',
     subItems: buildRelativeSubItems('E'),
+    image: '/learn-tiles/theory/relative-e.svg',
+    interactive: true,
   },
   {
     title: 'Sage',
     route: '/learn/relative/b',
     expandId: 'relative:b',
     subItems: buildRelativeSubItems('B'),
+    image: '/learn-tiles/theory/relative-b.svg',
+    interactive: true,
   },
   {
     title: 'Teal',
     route: '/learn/relative/fsharp',
     expandId: 'relative:fsharp',
     subItems: buildRelativeSubItems('F#'),
+    image: '/learn-tiles/theory/relative-fsharp.svg',
+    interactive: true,
   },
   {
     title: 'Blue',
     route: '/learn/relative/dflat',
     expandId: 'relative:dflat',
     subItems: buildRelativeSubItems('D♭'),
+    image: '/learn-tiles/theory/relative-dflat.svg',
+    interactive: true,
   },
   {
     title: 'Indigo',
     route: '/learn/relative/aflat',
     expandId: 'relative:aflat',
     subItems: buildRelativeSubItems('A♭'),
+    image: '/learn-tiles/theory/relative-aflat.svg',
+    interactive: true,
   },
   {
     title: 'Purple',
     route: '/learn/relative/eflat',
     expandId: 'relative:eflat',
     subItems: buildRelativeSubItems('E♭'),
+    image: '/learn-tiles/theory/relative-eflat.svg',
+    interactive: true,
   },
   {
     title: 'Magenta',
     route: '/learn/relative/bflat',
     expandId: 'relative:bflat',
     subItems: buildRelativeSubItems('B♭'),
+    image: '/learn-tiles/theory/relative-bflat.svg',
+    interactive: true,
   },
   {
     title: 'Pink',
     route: '/learn/relative/f',
     expandId: 'relative:f',
     subItems: buildRelativeSubItems('F'),
+    image: '/learn-tiles/theory/relative-f.svg',
+    interactive: true,
   },
 ];
 
@@ -549,72 +611,96 @@ const PARALLEL_MODES_DATA: ContentItem[] = [
     route: '/learn/parallel/c',
     expandId: 'parallel:c',
     subItems: buildParallelSubItems('C'),
+    image: '/learn-tiles/theory/parallel-c.svg',
+    interactive: true,
   },
   {
     title: 'G',
     route: '/learn/parallel/g',
     expandId: 'parallel:g',
     subItems: buildParallelSubItems('G'),
+    image: '/learn-tiles/theory/parallel-g.svg',
+    interactive: true,
   },
   {
     title: 'D',
     route: '/learn/parallel/d',
     expandId: 'parallel:d',
     subItems: buildParallelSubItems('D'),
+    image: '/learn-tiles/theory/parallel-d.svg',
+    interactive: true,
   },
   {
     title: 'A',
     route: '/learn/parallel/a',
     expandId: 'parallel:a',
     subItems: buildParallelSubItems('A'),
+    image: '/learn-tiles/theory/parallel-a.svg',
+    interactive: true,
   },
   {
     title: 'E',
     route: '/learn/parallel/e',
     expandId: 'parallel:e',
     subItems: buildParallelSubItems('E'),
+    image: '/learn-tiles/theory/parallel-e.svg',
+    interactive: true,
   },
   {
     title: 'B',
     route: '/learn/parallel/b',
     expandId: 'parallel:b',
     subItems: buildParallelSubItems('B'),
+    image: '/learn-tiles/theory/parallel-b.svg',
+    interactive: true,
   },
   {
     title: 'F#',
     route: '/learn/parallel/fsharp',
     expandId: 'parallel:fsharp',
     subItems: buildParallelSubItems('F#'),
+    image: '/learn-tiles/theory/parallel-fsharp.svg',
+    interactive: true,
   },
   {
     title: 'D♭',
     route: '/learn/parallel/dflat',
     expandId: 'parallel:dflat',
     subItems: buildParallelSubItems('D♭'),
+    image: '/learn-tiles/theory/parallel-dflat.svg',
+    interactive: true,
   },
   {
     title: 'A♭',
     route: '/learn/parallel/aflat',
     expandId: 'parallel:aflat',
     subItems: buildParallelSubItems('A♭'),
+    image: '/learn-tiles/theory/parallel-aflat.svg',
+    interactive: true,
   },
   {
     title: 'E♭',
     route: '/learn/parallel/eflat',
     expandId: 'parallel:eflat',
     subItems: buildParallelSubItems('E♭'),
+    image: '/learn-tiles/theory/parallel-eflat.svg',
+    interactive: true,
   },
   {
     title: 'B♭',
     route: '/learn/parallel/bflat',
     expandId: 'parallel:bflat',
     subItems: buildParallelSubItems('B♭'),
+    image: '/learn-tiles/theory/parallel-bflat.svg',
+    interactive: true,
   },
   {
     title: 'F',
     route: '/learn/parallel/f',
     expandId: 'parallel:f',
     subItems: buildParallelSubItems('F'),
+    image: '/learn-tiles/theory/parallel-f.svg',
+    interactive: true,
   },
 ];
 
@@ -623,37 +709,50 @@ const HARMONIC_MINOR_DATA: ContentItem[] = [
     title: 'Harmonic Minor',
     mode: 'harmonicminor',
     route: LearnRoutes.overview({ mode: 'harmonicminor' }),
+    image: '/learn-tiles/theory/harmonicminor.svg',
+    interactive: true,
   },
   {
     title: 'Locrian ♮6',
     mode: 'locriannat6',
     route: LearnRoutes.overview({ mode: 'locriannat6' }),
+    image: '/learn-tiles/theory/locrian-nat6.svg',
+    interactive: true,
   },
   {
     title: 'Ionian #5',
     mode: 'ionian#5',
     route: LearnRoutes.overview({ mode: 'ionian#5' }),
+    image: '/learn-tiles/theory/ionian-sharp5.svg',
+    interactive: true,
   },
   {
     title: 'Dorian #4',
     mode: 'dorian#4',
     route: LearnRoutes.overview({ mode: 'dorian#4' }),
+    image: '/learn-tiles/theory/dorian-sharp4.svg',
+    interactive: true,
   },
   {
     title: 'Phrygian Dominant',
     mode: 'phrygiandominant',
     route: LearnRoutes.overview({ mode: 'phrygiandominant' }),
+    image: '/learn-tiles/theory/phrygiandominant.svg',
+    interactive: true,
   },
   {
     title: 'Lydian #2',
     mode: 'lydian#2',
     route: LearnRoutes.overview({ mode: 'lydian#2' }),
-    image: '/learn-tiles/lydian-2.svg',
+    image: '/learn-tiles/theory/lydian-sharp2.svg',
+    interactive: true,
   },
   {
     title: 'Altered Diminished',
     mode: 'altereddiminished',
     route: LearnRoutes.overview({ mode: 'altereddiminished' }),
+    image: '/learn-tiles/theory/altereddiminished.svg',
+    interactive: true,
   },
 ];
 
@@ -662,38 +761,50 @@ const MELODIC_MINOR_DATA: ContentItem[] = [
     title: 'Melodic Minor',
     mode: 'melodicminor',
     route: LearnRoutes.overview({ mode: 'melodicminor' }),
+    image: '/learn-tiles/theory/melodicminor.svg',
+    interactive: true,
   },
   {
     title: 'Dorian ♭2',
     mode: 'dorian♭2',
     route: LearnRoutes.overview({ mode: 'dorian♭2' }),
+    image: '/learn-tiles/theory/dorian-flat2.svg',
+    interactive: true,
   },
   {
     title: 'Lydian Augmented',
     mode: 'lydianaugmented',
     route: LearnRoutes.overview({ mode: 'lydianaugmented' }),
-    image: '/learn-tiles/lydian-augmented.svg',
+    image: '/learn-tiles/theory/lydianaugmented.svg',
+    interactive: true,
   },
   {
     title: 'Lydian Dominant',
     mode: 'lydiandominant',
     route: LearnRoutes.overview({ mode: 'lydiandominant' }),
+    image: '/learn-tiles/theory/lydiandominant.svg',
+    interactive: true,
   },
   {
     title: 'Mixolydian ♭6',
     mode: 'mixolydiannat6',
     route: LearnRoutes.overview({ mode: 'mixolydiannat6' }),
+    image: '/learn-tiles/theory/mixolydian-flat6.svg',
+    interactive: true,
   },
   {
     title: 'Locrian ♮2',
     mode: 'locriannat2',
     route: LearnRoutes.overview({ mode: 'locriannat2' }),
+    image: '/learn-tiles/theory/locrian-nat2.svg',
+    interactive: true,
   },
   {
     title: 'Altered Dominant',
     mode: 'altereddominant',
     route: LearnRoutes.overview({ mode: 'altereddominant' }),
-    image: '/learn-tiles/altered-dominant.svg',
+    image: '/learn-tiles/theory/altereddominant.svg',
+    interactive: true,
   },
 ];
 
@@ -702,36 +813,50 @@ const HARMONIC_MAJOR_DATA: ContentItem[] = [
     title: 'Harmonic Major',
     mode: 'harmonicmajor',
     route: LearnRoutes.overview({ mode: 'harmonicmajor' }),
+    image: '/learn-tiles/theory/harmonicmajor.svg',
+    interactive: true,
   },
   {
     title: 'Dorian ♭5',
     mode: 'dorian♭5',
     route: LearnRoutes.overview({ mode: 'dorian♭5' }),
+    image: '/learn-tiles/theory/dorian-flat5.svg',
+    interactive: true,
   },
   {
     title: 'Altered Dominant ♮5',
     mode: 'altereddominantnat5',
     route: LearnRoutes.overview({ mode: 'altereddominantnat5' }),
+    image: '/learn-tiles/theory/altereddominant-nat5.svg',
+    interactive: true,
   },
   {
     title: 'Melodic Minor #4',
     mode: 'melodicminor#4',
     route: LearnRoutes.overview({ mode: 'melodicminor#4' }),
+    image: '/learn-tiles/theory/melodicminor-sharp4.svg',
+    interactive: true,
   },
   {
     title: 'Mixolydian ♭2',
     mode: 'mixolydian♭2',
     route: LearnRoutes.overview({ mode: 'mixolydian♭2' }),
+    image: '/learn-tiles/theory/mixolydian-flat2.svg',
+    interactive: true,
   },
   {
     title: 'Lydian Augmented #2',
     mode: 'lydianaugmented#2',
     route: LearnRoutes.overview({ mode: 'lydianaugmented#2' }),
+    image: '/learn-tiles/theory/lydianaugmented-sharp2.svg',
+    interactive: true,
   },
   {
     title: 'Locrian 𝄫7',
     mode: 'locrian𝄫7',
     route: LearnRoutes.overview({ mode: 'locrian𝄫7' }),
+    image: '/learn-tiles/theory/locrian-bb7.svg',
+    interactive: true,
   },
 ];
 
@@ -740,36 +865,50 @@ const DOUBLE_HARMONIC_DATA: ContentItem[] = [
     title: 'Double Harmonic Major',
     mode: 'doubleharmonicmajor',
     route: LearnRoutes.overview({ mode: 'doubleharmonicmajor' }),
+    image: '/learn-tiles/theory/doubleharmonicmajor.svg',
+    interactive: true,
   },
   {
     title: 'Lydian #2 #6',
     mode: 'lydian#2#6',
     route: LearnRoutes.overview({ mode: 'lydian#2#6' }),
+    image: '/learn-tiles/theory/lydian-sharp2-sharp6.svg',
+    interactive: true,
   },
   {
     title: 'Ultraphrygian',
     mode: 'ultraphrygian',
     route: LearnRoutes.overview({ mode: 'ultraphrygian' }),
+    image: '/learn-tiles/theory/ultraphrygian.svg',
+    interactive: true,
   },
   {
     title: 'Double Harmonic Minor',
     mode: 'doubleharmonicminor',
     route: LearnRoutes.overview({ mode: 'doubleharmonicminor' }),
+    image: '/learn-tiles/theory/doubleharmonicminor.svg',
+    interactive: true,
   },
   {
     title: 'Oriental',
     mode: 'oriental',
     route: LearnRoutes.overview({ mode: 'oriental' }),
+    image: '/learn-tiles/theory/oriental.svg',
+    interactive: true,
   },
   {
     title: 'Ionian #2 #5',
     mode: 'ionian#2#5',
     route: LearnRoutes.overview({ mode: 'ionian#2#5' }),
+    image: '/learn-tiles/theory/ionian-sharp2-sharp5.svg',
+    interactive: true,
   },
   {
     title: 'Locrian 𝄫3 𝄫7',
     mode: 'locrian𝄫3𝄫7',
     route: LearnRoutes.overview({ mode: 'locrian𝄫3𝄫7' }),
+    image: '/learn-tiles/theory/locrian-bb3-bb7.svg',
+    interactive: true,
   },
 ];
 
@@ -888,6 +1027,7 @@ interface CardItemProps {
   imageSize?: number;
   onToggleExpand?: () => void;
   image?: string;
+  interactive?: boolean;
   progressPct?: number;
   locked?: boolean;
   savedKind?: SavedItemKind;
@@ -905,6 +1045,7 @@ const CardItem: React.FC<CardItemProps> = ({
   imageSize,
   onToggleExpand,
   image,
+  interactive,
   progressPct,
   locked,
   savedKind,
@@ -923,7 +1064,7 @@ const CardItem: React.FC<CardItemProps> = ({
         className={`group flex cursor-pointer flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
       >
         <div
-          className={`glass-panel relative ${imageSize ? '' : 'aspect-square'} overflow-hidden rounded-2xl transition-colors duration-150`}
+          className={`glass-panel relative ${imageSize ? '' : interactive ? 'aspect-[3/4]' : 'aspect-square'} overflow-hidden rounded-2xl transition-colors duration-150`}
           style={{
             ...(imageSize ? { width: imageSize, height: imageSize } : {}),
             background: 'rgba(255,255,255,0.03)',
@@ -935,7 +1076,17 @@ const CardItem: React.FC<CardItemProps> = ({
           }}
           onClick={onSelect}
         >
-          {image ? (
+          {image && interactive ? (
+            <HexWaveBackground
+              src={image}
+              drain={false}
+              ambient
+              className="pointer-events-none absolute inset-0 transition-transform duration-500 group-hover:scale-105"
+              backgroundColor="#0D0B08"
+              colorThreshold={0.05}
+              brushRadius={70}
+            />
+          ) : image ? (
             <img
               src={image}
               alt={title}
@@ -1128,23 +1279,33 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         ? 'Genre'
         : initialTab && validTabs.includes(initialTab)
           ? initialTab
-          : 'Songs';
+          : 'Home';
   const [subTab, setSubTab] = useState(defaultTab);
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(
     genreParam,
   );
   const highlightRef = useRef<HTMLDivElement>(null);
-  const expandedContentRef = useRef<HTMLDivElement>(null);
   const [expandedMode, setExpandedMode] = useState<string | null>(null);
   const [selectedSubItem, setSelectedSubItem] =
     useState<SelectedSubItem | null>(null);
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(
     null,
   );
-  const listPanelRef = useRef<HTMLDivElement>(null);
-  const [listPanelHeight, setListPanelHeight] = useState<number | undefined>(
-    undefined,
+  // Responsive column count of the tile grid (grid-cols-2 → md:grid-cols-4);
+  // used to span the inline expansion panel across a row's remaining columns.
+  const [gridCols, setGridCols] = useState(() =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(min-width: 768px)').matches
+      ? 4
+      : 2,
   );
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const onChange = () => setGridCols(mq.matches ? 4 : 2);
+    onChange();
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   const [theoryFilters, setTheoryFilters] = useState<TheoryFilters>({
     family: 'all',
@@ -1167,10 +1328,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   });
   // Shared view-mode toggle (card vs list) for Theory / Technique / Genre tabs.
   // The Songs tab has its own viewMode state inside SongLibraryBody.
-  const [learnViewMode, setLearnViewMode] = useState<ViewMode>('grid');
-  const learnViewToggle = (
-    <ViewToggle viewMode={learnViewMode} onChange={setLearnViewMode} />
-  );
+  const [learnViewMode] = useState<ViewMode>('grid');
   const savedLearnItems = useSavedItemsStore((s) => s.saved);
 
   const theorySections = useMemo(() => {
@@ -1258,13 +1416,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     [coursesFilters, savedLearnItems],
   );
 
-  useLayoutEffect(() => {
-    if (listPanelRef.current) {
-      setListPanelHeight(listPanelRef.current.offsetHeight);
-    } else {
-      setListPanelHeight(undefined);
-    }
-  }, [expandedMode]);
   // const [showFilter, setShowFilter] = useState(false);
   const navigate = useNavigate();
   const { data: progressSummary } = useProgressSummary();
@@ -1359,7 +1510,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     if (tabParam && validTabs.includes(tabParam)) {
       setSubTab(tabParam);
     } else if (!tabParam) {
-      setSubTab('Songs');
+      setSubTab('Home');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabParam]);
@@ -1390,7 +1541,11 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     if (parentSetSubTab) parentSetSubTab(subTab);
   }, [subTab, parentSetSubTab]);
 
-  const renderContent = (data: ContentItem[], tab: string = subTab) => {
+  const renderContent = (
+    data: ContentItem[],
+    tab: string = subTab,
+    gridClassName = 'grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4',
+  ) => {
     const savedPropsFor = (
       item: ContentItem,
     ): { savedKind?: SavedItemKind; savedId?: string } => {
@@ -1403,328 +1558,213 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       return {};
     };
 
-    const expandedItem = expandedMode
-      ? data.find((item) => (item.expandId ?? item.mode) === expandedMode)
-      : null;
-
-    if (expandedItem) {
-      const remainingItems = data.filter(
-        (item) => (item.expandId ?? item.mode) !== expandedMode,
-      );
-      return (
-        <>
-          <div ref={expandedContentRef} className="flex items-start gap-6">
-            {/* Featured tile on the left — image sized to match list */}
-            <div className="shrink-0">
-              <CardItem
-                {...expandedItem}
-                {...savedPropsFor(expandedItem)}
-                expanded={true}
-                imageSize={listPanelHeight}
-                progressPct={getTileCompletion(progressSummary, expandedItem)}
-                locked={!isPremium && !isLearnItemFree(expandedItem, tab)}
-                onToggleExpand={() => {
-                  setExpandedMode(null);
-                  setSelectedSubItem(null);
-                }}
-                onSelect={() => {
-                  setExpandedMode(null);
-                  setSelectedSubItem(null);
-                }}
-              />
-            </div>
-            {/* Sub-item list on the right — always 12 rows tall */}
-            <div
-              ref={listPanelRef}
-              className="glass-panel-sm flex w-64 flex-col gap-0.5 rounded-xl p-4"
-              style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid var(--color-border)',
-              }}
-            >
-              <h4
-                className="mb-2 text-xs font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                {expandedItem.mode ? 'Keys' : 'Levels'}
-              </h4>
-              {(() => {
-                const items: React.ReactNode[] = [];
-                if (expandedItem.mode && !expandedItem.subItems) {
-                  KEY_LABELS.forEach((keyLabel) => {
-                    const keyColor = colorForKeyMode(
-                      keyLabel,
-                      expandedItem.mode as PrismModeSlug,
-                    );
-                    const isSelected =
-                      selectedSubItem?.label ===
-                      `${keyLabel} ${expandedItem.title}`;
-                    const keyPct = getLessonCompletion(
-                      progressSummary,
-                      'mode-lesson-flow',
-                      expandedItem.mode,
-                      keyLabelToUrlParam(keyLabel),
-                    );
-                    items.push(
-                      <div
-                        key={keyLabel}
-                        className="flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
-                        style={{
-                          color: keyColor,
-                          ...(isSelected
-                            ? { background: 'rgba(255,255,255,0.06)' }
-                            : {}),
-                        }}
-                        onClick={() =>
-                          handleKeySelect(
-                            expandedItem.mode!,
-                            keyLabel,
-                            expandedItem.title,
-                          )
-                        }
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background =
-                            'rgba(255,255,255,0.04)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = isSelected
-                            ? 'rgba(255,255,255,0.06)'
-                            : 'transparent';
-                        }}
-                      >
-                        <span>
-                          {keyLabel} {expandedItem.title}
-                        </span>
-                        {keyPct > 0 && (
-                          <span
-                            className="text-xs"
-                            style={{ color: 'var(--color-text-dim)' }}
-                          >
-                            {keyPct}%
-                          </span>
-                        )}
-                      </div>,
-                    );
-                  });
-                }
-                if (expandedItem.subItems) {
-                  expandedItem.subItems.forEach((sub) => {
-                    let levelPct = 0;
-                    if (sub.genre && sub.level) {
-                      const gId = SLUG_TO_CURRICULUM_GENRE[sub.genre];
-                      const lId = `L${sub.level}` as 'L1' | 'L2' | 'L3';
-                      const lsnId = gId
-                        ? buildCurriculumLessonId(gId, lId)
-                        : '';
-                      if (lsnId)
-                        levelPct = getLessonCompletion(progressSummary, lsnId);
-                    }
-                    const isLevelSelected =
-                      selectedSubItem?.label === `Level ${sub.level}`;
-                    items.push(
-                      <div
-                        key={sub.label}
-                        className="flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
-                        style={{
-                          color: sub.color,
-                          ...(isLevelSelected
-                            ? { background: 'rgba(255,255,255,0.06)' }
-                            : {}),
-                        }}
-                        onClick={() => {
-                          if (sub.genre && sub.level) {
-                            handleLevelSelect(sub);
-                          } else {
-                            navigate(sub.route);
-                          }
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background =
-                            'rgba(255,255,255,0.04)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = isLevelSelected
-                            ? 'rgba(255,255,255,0.06)'
-                            : 'transparent';
-                        }}
-                      >
-                        <span>{sub.label}</span>
-                        {levelPct > 0 && (
-                          <span
-                            className="text-xs"
-                            style={{ color: 'var(--color-text-dim)' }}
-                          >
-                            {levelPct}%
-                          </span>
-                        )}
-                      </div>,
-                    );
-                  });
-                }
-                // Pad to 12 rows so all tiles have consistent height
-                while (items.length < 12) {
-                  items.push(
-                    <div
-                      key={`spacer-${items.length}`}
-                      className="px-3 py-1.5 text-sm"
-                      aria-hidden="true"
-                    >
-                      &nbsp;
-                    </div>,
-                  );
-                }
-                return items;
-              })()}
-            </div>
-            {/* Chapter panel when a sub-item is selected */}
-            {selectedSubItem && (
-              <div
-                className="glass-panel-sm flex w-64 shrink-0 flex-col gap-1 self-start rounded-xl p-4"
-                style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid var(--color-border)',
-                }}
-              >
-                <h4
-                  className="mb-2 text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-dim)' }}
-                >
-                  {selectedSubItem.label} Chapters
-                  {selectedSubItem.completionPct > 0 && (
-                    <span
-                      className="ml-2 normal-case tracking-normal"
-                      style={{ color: 'var(--color-accent)' }}
-                    >
-                      — {selectedSubItem.completionPct}%
-                    </span>
-                  )}
-                </h4>
-                {selectedSubItem.sections.map((section) => {
-                  const isChapterSelected = selectedChapterId === section.id;
-                  return (
-                    <div
-                      key={section.id}
-                      className="cursor-pointer rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
-                      style={{
-                        color: isChapterSelected
-                          ? 'var(--color-accent)'
-                          : 'var(--color-text)',
-                        background: isChapterSelected
-                          ? 'rgba(255,255,255,0.06)'
-                          : 'transparent',
-                      }}
-                      onClick={() => {
-                        setSelectedChapterId(section.id);
-                        navigate(section.route ?? selectedSubItem.route);
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          'rgba(255,255,255,0.04)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = isChapterSelected
-                          ? 'rgba(255,255,255,0.06)'
-                          : 'transparent';
-                      }}
-                    >
-                      {section.name}
-                      {section.stepCount != null && (
-                        <span
-                          className="ml-2 text-xs"
-                          style={{ color: 'var(--color-text-dim)' }}
-                        >
-                          {section.stepCount} steps
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-          {/* Remaining tiles below */}
-          {remainingItems.length > 0 && (
-            <div
-              className={
-                learnViewMode === 'list'
-                  ? 'mt-6 flex flex-col gap-2'
-                  : 'mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'
-              }
-            >
-              {remainingItems.map((item, i) => {
-                const itemExpandKey = item.expandId ?? item.mode;
-                const handleSelect = () => {
-                  if (item.mode || item.subItems) {
-                    setExpandedMode(itemExpandKey ?? null);
-                    setSelectedSubItem(null);
-                    setTimeout(() => {
-                      expandedContentRef.current?.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start',
-                      });
-                    }, 0);
-                  } else if (item.route) {
-                    navigate(item.route);
-                  }
-                };
-                if (learnViewMode === 'list') {
-                  return (
-                    <ListItem
-                      key={i}
-                      {...item}
-                      {...savedPropsFor(item)}
-                      progressPct={getTileCompletion(progressSummary, item)}
-                      locked={!isPremium && !isLearnItemFree(item, tab)}
-                      onSelect={handleSelect}
-                    />
-                  );
-                }
-                return (
-                  <CardItem
-                    key={i}
-                    {...item}
-                    {...savedPropsFor(item)}
-                    expanded={false}
-                    progressPct={getTileCompletion(progressSummary, item)}
-                    locked={!isPremium && !isLearnItemFree(item, tab)}
-                    onToggleExpand={
-                      item.mode || item.subItems
-                        ? () => {
-                            setExpandedMode(itemExpandKey ?? null);
-                            setSelectedSubItem(null);
-                            setTimeout(() => {
-                              expandedContentRef.current?.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'start',
-                              });
-                            }, 0);
-                          }
-                        : undefined
-                    }
-                    onSelect={handleSelect}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </>
-      );
-    }
-
-    const onItemSelect = (item: ContentItem) => {
-      const itemExpandKey = item.expandId ?? item.mode;
+    // Click a tile: toggle its inline expansion (modes/genres) or navigate.
+    const toggleExpand = (item: ContentItem) => {
+      const key = item.expandId ?? item.mode;
       if (item.mode || item.subItems) {
-        setExpandedMode(itemExpandKey ?? null);
-        setTimeout(() => {
-          expandedContentRef.current?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
-          });
-        }, 0);
+        setSelectedSubItem(null);
+        setExpandedMode(key === expandedMode ? null : (key ?? null));
       } else if (item.route) {
         navigate(item.route);
       }
     };
+
+    // Keys/Levels + Chapter detail panels — shown inline beside the expanded
+    // tile (width-fluid so they fit the row's remaining columns).
+    const renderPanels = (expandedItem: ContentItem) => (
+      <div className="flex flex-wrap gap-4">
+        <div
+          className="glass-panel-sm flex w-64 max-w-full flex-col gap-0.5 rounded-xl p-4"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid var(--color-border)',
+          }}
+        >
+          <h4
+            className="mb-2 text-xs font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
+            {expandedItem.mode ? 'Keys' : 'Levels'}
+          </h4>
+          {(() => {
+            const items: React.ReactNode[] = [];
+            if (expandedItem.mode && !expandedItem.subItems) {
+              KEY_LABELS.forEach((keyLabel) => {
+                const keyColor = colorForKeyMode(
+                  keyLabel,
+                  expandedItem.mode as PrismModeSlug,
+                );
+                const isSelected =
+                  selectedSubItem?.label ===
+                  `${keyLabel} ${expandedItem.title}`;
+                const keyPct = getLessonCompletion(
+                  progressSummary,
+                  'mode-lesson-flow',
+                  expandedItem.mode,
+                  keyLabelToUrlParam(keyLabel),
+                );
+                items.push(
+                  <div
+                    key={keyLabel}
+                    className="flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
+                    style={{
+                      color: keyColor,
+                      ...(isSelected
+                        ? { background: 'rgba(255,255,255,0.06)' }
+                        : {}),
+                    }}
+                    onClick={() =>
+                      handleKeySelect(
+                        expandedItem.mode!,
+                        keyLabel,
+                        expandedItem.title,
+                      )
+                    }
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background =
+                        'rgba(255,255,255,0.04)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = isSelected
+                        ? 'rgba(255,255,255,0.06)'
+                        : 'transparent';
+                    }}
+                  >
+                    <span>
+                      {keyLabel} {expandedItem.title}
+                    </span>
+                    {keyPct > 0 && (
+                      <span
+                        className="text-xs"
+                        style={{ color: 'var(--color-text-dim)' }}
+                      >
+                        {keyPct}%
+                      </span>
+                    )}
+                  </div>,
+                );
+              });
+            }
+            if (expandedItem.subItems) {
+              expandedItem.subItems.forEach((sub) => {
+                let levelPct = 0;
+                if (sub.genre && sub.level) {
+                  const gId = SLUG_TO_CURRICULUM_GENRE[sub.genre];
+                  const lId = `L${sub.level}` as 'L1' | 'L2' | 'L3';
+                  const lsnId = gId ? buildCurriculumLessonId(gId, lId) : '';
+                  if (lsnId)
+                    levelPct = getLessonCompletion(progressSummary, lsnId);
+                }
+                const isLevelSelected =
+                  selectedSubItem?.label === `Level ${sub.level}`;
+                items.push(
+                  <div
+                    key={sub.label}
+                    className="flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
+                    style={{
+                      color: sub.color,
+                      ...(isLevelSelected
+                        ? { background: 'rgba(255,255,255,0.06)' }
+                        : {}),
+                    }}
+                    onClick={() => {
+                      if (sub.genre && sub.level) {
+                        handleLevelSelect(sub);
+                      } else {
+                        navigate(sub.route);
+                      }
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background =
+                        'rgba(255,255,255,0.04)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = isLevelSelected
+                        ? 'rgba(255,255,255,0.06)'
+                        : 'transparent';
+                    }}
+                  >
+                    <span>{sub.label}</span>
+                    {levelPct > 0 && (
+                      <span
+                        className="text-xs"
+                        style={{ color: 'var(--color-text-dim)' }}
+                      >
+                        {levelPct}%
+                      </span>
+                    )}
+                  </div>,
+                );
+              });
+            }
+            return items;
+          })()}
+        </div>
+        {selectedSubItem && (
+          <div
+            className="glass-panel-sm flex w-64 max-w-full flex-col gap-1 self-start rounded-xl p-4"
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid var(--color-border)',
+            }}
+          >
+            <h4
+              className="mb-2 text-xs font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              {selectedSubItem.label} Chapters
+              {selectedSubItem.completionPct > 0 && (
+                <span
+                  className="ml-2 normal-case tracking-normal"
+                  style={{ color: 'var(--color-accent)' }}
+                >
+                  — {selectedSubItem.completionPct}%
+                </span>
+              )}
+            </h4>
+            {selectedSubItem.sections.map((section) => {
+              const isChapterSelected = selectedChapterId === section.id;
+              return (
+                <div
+                  key={section.id}
+                  className="cursor-pointer rounded-md px-3 py-1.5 text-sm transition-colors duration-150"
+                  style={{
+                    color: isChapterSelected
+                      ? 'var(--color-accent)'
+                      : 'var(--color-text)',
+                    background: isChapterSelected
+                      ? 'rgba(255,255,255,0.06)'
+                      : 'transparent',
+                  }}
+                  onClick={() => {
+                    setSelectedChapterId(section.id);
+                    navigate(section.route ?? selectedSubItem.route);
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = isChapterSelected
+                      ? 'rgba(255,255,255,0.06)'
+                      : 'transparent';
+                  }}
+                >
+                  {section.name}
+                  {section.stepCount != null && (
+                    <span
+                      className="ml-2 text-xs"
+                      style={{ color: 'var(--color-text-dim)' }}
+                    >
+                      {section.stepCount} steps
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
 
     if (learnViewMode === 'list') {
       return (
@@ -1736,44 +1776,73 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               {...savedPropsFor(item)}
               progressPct={getTileCompletion(progressSummary, item)}
               locked={!isPremium && !isLearnItemFree(item, tab)}
-              onSelect={() => onItemSelect(item)}
+              onSelect={() => toggleExpand(item)}
             />
           ))}
         </div>
       );
     }
 
+    const expandedIndex =
+      expandedMode != null
+        ? data.findIndex((it) => (it.expandId ?? it.mode) === expandedMode)
+        : -1;
+
+    // Expanding moves the tile to the far-left of its row and fills the rest of
+    // that row with the panel; every other tile in the row (left and right)
+    // drops to the next row. Reorder the render list to reflect that — stable
+    // keys let framer-motion animate the tiles to their new positions.
+    const slots: { item: ContentItem; panel?: boolean }[] = [];
+    if (expandedIndex >= 0) {
+      const rowStart = Math.floor(expandedIndex / gridCols) * gridCols;
+      const rowEnd = Math.min(rowStart + gridCols, data.length);
+      data.slice(0, rowStart).forEach((it) => slots.push({ item: it }));
+      slots.push({ item: data[expandedIndex] });
+      slots.push({ item: data[expandedIndex], panel: true });
+      data.slice(rowStart, rowEnd).forEach((it, k) => {
+        if (rowStart + k !== expandedIndex) slots.push({ item: it });
+      });
+      data.slice(rowEnd).forEach((it) => slots.push({ item: it }));
+    } else {
+      data.forEach((it) => slots.push({ item: it }));
+    }
+
     return (
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {data.map((item, i) => {
+      <div className={gridClassName}>
+        {slots.map(({ item, panel }) => {
+          const itemKey = item.expandId ?? item.mode ?? item.title;
+          if (panel) {
+            return (
+              <div
+                key={`${itemKey}__panel`}
+                className="min-w-0"
+                style={{ gridColumn: `span ${Math.max(gridCols - 1, 1)}` }}
+              >
+                {renderPanels(item)}
+              </div>
+            );
+          }
+          const key = item.expandId ?? item.mode;
+          const isExpanded = !!key && key === expandedMode;
           const isHighlighted =
             highlightedGenre !== null && item.title === highlightedGenre;
-          const itemExpandKey = item.expandId ?? item.mode;
+          const hasExpansion = !!(item.mode || item.subItems);
           return (
-            <CardItem
-              key={i}
-              {...item}
-              {...savedPropsFor(item)}
-              highlighted={isHighlighted}
-              highlightRef={isHighlighted ? highlightRef : undefined}
-              expanded={false}
-              progressPct={getTileCompletion(progressSummary, item)}
-              locked={!isPremium && !isLearnItemFree(item, tab)}
-              onToggleExpand={
-                item.mode || item.subItems
-                  ? () => {
-                      setExpandedMode(itemExpandKey ?? null);
-                      setTimeout(() => {
-                        expandedContentRef.current?.scrollIntoView({
-                          behavior: 'smooth',
-                          block: 'start',
-                        });
-                      }, 0);
-                    }
-                  : undefined
-              }
-              onSelect={() => onItemSelect(item)}
-            />
+            <motion.div layout="position" key={itemKey}>
+              <CardItem
+                {...item}
+                {...savedPropsFor(item)}
+                highlighted={isHighlighted}
+                highlightRef={isHighlighted ? highlightRef : undefined}
+                expanded={isExpanded}
+                progressPct={getTileCompletion(progressSummary, item)}
+                locked={!isPremium && !isLearnItemFree(item, tab)}
+                onToggleExpand={
+                  hasExpansion ? () => toggleExpand(item) : undefined
+                }
+                onSelect={() => toggleExpand(item)}
+              />
+            </motion.div>
           );
         })}
       </div>
@@ -1783,25 +1852,30 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   return (
     <div
       className="learn-root relative flex h-full"
-      style={{ backgroundColor: 'var(--color-bg)' }}
+      style={{ backgroundColor: '#101012' }}
     >
       <MeshGradientBg />
-      <LearnNav />
-      {subTab === 'Songs' ? (
-        <div
-          className="relative flex min-w-0 flex-1 flex-col overflow-y-auto"
-          style={{ background: '#101012' }}
-        >
-          <div className="mb-4">
-            <SongsMarquee bleed={false} />
+      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+        <LearnMobileTabs />
+        {subTab === 'Home' ? (
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <LearnHome />
           </div>
-          <div className="flex-1 px-6 md:px-10">
-            <SongLibraryBody />
+        ) : subTab === 'Songs' ? (
+          <div
+            className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto"
+            style={{ background: '#101012' }}
+          >
+            <div className="mb-4">
+              <SongsMarquee bleed={false} />
+            </div>
+            <div className="flex-1 px-6 md:px-10">
+              <SongLibraryBody />
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="relative flex min-w-0 flex-1 flex-col overflow-y-auto px-8 pb-6 pt-4">
-          {/* {showFilter && (
+        ) : (
+          <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-8 pb-6 pt-4">
+            {/* {showFilter && (
           <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 absolute top-[150px] left-8 right-8 z-20 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex justify-between items-start mb-4 pb-2 border-b border-white/5">
               <h3 className="text-sm font-medium text-gray-200">Filter</h3>
@@ -1828,236 +1902,245 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           </div>
         )} */}
 
-          <div
-            className="flex-1 overflow-y-auto"
-            style={{ background: 'var(--color-surface-3)' }}
-          >
-            {subTab === 'Theory' ? (
-              <>
-                <div
-                  className="sticky top-0 z-10 pt-1 pb-3"
-                  style={{ background: 'var(--color-bg)' }}
-                >
-                  <LearnSubheader title="Theory" right={learnViewToggle} />
-                  <LearnFilterRow>
-                    <FilterDropdown
-                      label="Mode Family"
-                      value={theoryFilters.family}
-                      options={MODE_FAMILY_OPTIONS}
-                      onChange={(v) =>
-                        setTheoryFilters((f) => ({ ...f, family: v }))
-                      }
-                    />
-                    <FilterDropdown
-                      label="Sort"
-                      value={theoryFilters.sort}
-                      options={THEORY_SORT_OPTIONS}
-                      onChange={(v) =>
-                        setTheoryFilters((f) => ({ ...f, sort: v }))
-                      }
-                    />
-                    <FilterDropdown
-                      label="Saved"
-                      value={theoryFilters.saved}
-                      options={SAVED_FILTER_OPTIONS}
-                      onChange={(v) =>
-                        setTheoryFilters((f) => ({
-                          ...f,
-                          saved: v as SavedFilter,
-                        }))
-                      }
-                    />
-                    <SearchInput
-                      value={theoryFilters.search}
-                      onChange={(v) =>
-                        setTheoryFilters((f) => ({ ...f, search: v }))
-                      }
-                      onClear={() =>
-                        setTheoryFilters((f) => ({ ...f, search: '' }))
-                      }
-                      placeholder="Search modes"
-                    />
-                  </LearnFilterRow>
-                </div>
-                {theorySections.length === 0 ? (
-                  <p
-                    className="text-white/40"
-                    style={{
-                      fontSize: 13,
-                      padding: '48px 0',
-                      textAlign: 'center',
-                    }}
+            <div
+              className="flex-1 overflow-y-auto"
+              style={{ background: '#101012' }}
+            >
+              {subTab === 'Theory' ? (
+                <>
+                  <div
+                    className="sticky top-0 z-10 pt-1 pb-3"
+                    style={{ background: '#101012' }}
                   >
-                    No modes match these filters
-                  </p>
-                ) : (
-                  theorySections.map((section, i) => (
-                    <CollapsibleSection
-                      key={section.family}
-                      defaultOpen={
-                        section.defaultOpen || theoryFilters.search.length > 0
-                      }
-                      className={i === 0 ? 'mt-4' : 'mt-4 pt-4'}
-                      style={
-                        i === 0
-                          ? undefined
-                          : { borderTop: '1px solid var(--color-border)' }
-                      }
-                      title={section.title}
+                    <LearnSubheader title="Theory" />
+                    <LearnFilterRow>
+                      <FilterDropdown
+                        label="Mode Family"
+                        value={theoryFilters.family}
+                        options={MODE_FAMILY_OPTIONS}
+                        onChange={(v) =>
+                          setTheoryFilters((f) => ({ ...f, family: v }))
+                        }
+                      />
+                      <FilterDropdown
+                        label="Sort"
+                        value={theoryFilters.sort}
+                        options={THEORY_SORT_OPTIONS}
+                        onChange={(v) =>
+                          setTheoryFilters((f) => ({ ...f, sort: v }))
+                        }
+                      />
+                      <FilterDropdown
+                        label="Saved"
+                        value={theoryFilters.saved}
+                        options={SAVED_FILTER_OPTIONS}
+                        onChange={(v) =>
+                          setTheoryFilters((f) => ({
+                            ...f,
+                            saved: v as SavedFilter,
+                          }))
+                        }
+                      />
+                      <SearchInput
+                        value={theoryFilters.search}
+                        onChange={(v) =>
+                          setTheoryFilters((f) => ({ ...f, search: v }))
+                        }
+                        onClear={() =>
+                          setTheoryFilters((f) => ({ ...f, search: '' }))
+                        }
+                        placeholder="Search modes"
+                      />
+                    </LearnFilterRow>
+                  </div>
+                  {theorySections.length === 0 ? (
+                    <p
+                      className="text-white/40"
+                      style={{
+                        fontSize: 13,
+                        padding: '48px 0',
+                        textAlign: 'center',
+                      }}
                     >
-                      {renderContent(section.items)}
+                      No modes match these filters
+                    </p>
+                  ) : (
+                    theorySections.map((section, i) => (
+                      <CollapsibleSection
+                        key={section.family}
+                        defaultOpen={
+                          section.defaultOpen || theoryFilters.search.length > 0
+                        }
+                        className={i === 0 ? 'mt-4' : 'mt-4 pt-4'}
+                        style={
+                          i === 0
+                            ? undefined
+                            : { borderTop: '1px solid var(--color-border)' }
+                        }
+                        title={section.title}
+                      >
+                        {renderContent(
+                          section.items,
+                          'Theory',
+                          'grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5',
+                        )}
+                      </CollapsibleSection>
+                    ))
+                  )}
+                </>
+              ) : subTab === 'Technique' ? (
+                <>
+                  <div
+                    className="sticky top-0 z-10 pt-1 pb-3"
+                    style={{ background: '#101012' }}
+                  >
+                    <LearnSubheader title="Technique" />
+                    <LearnFilterRow>
+                      <FilterDropdown
+                        label="Category"
+                        value={techniqueFilters.category}
+                        options={TECHNIQUE_CATEGORY_OPTIONS}
+                        onChange={(v) =>
+                          setTechniqueFilters((f) => ({ ...f, category: v }))
+                        }
+                      />
+                      <FilterDropdown
+                        label="Difficulty"
+                        value={techniqueFilters.difficulty}
+                        options={TECHNIQUE_DIFFICULTY_OPTIONS}
+                        onChange={(v) =>
+                          setTechniqueFilters((f) => ({ ...f, difficulty: v }))
+                        }
+                      />
+                      <FilterDropdown
+                        label="Sort"
+                        value={techniqueFilters.sort}
+                        options={TECHNIQUE_SORT_OPTIONS}
+                        onChange={(v) =>
+                          setTechniqueFilters((f) => ({ ...f, sort: v }))
+                        }
+                      />
+                      <FilterDropdown
+                        label="Saved"
+                        value={techniqueFilters.saved}
+                        options={SAVED_FILTER_OPTIONS}
+                        onChange={(v) =>
+                          setTechniqueFilters((f) => ({
+                            ...f,
+                            saved: v as SavedFilter,
+                          }))
+                        }
+                      />
+                      <SearchInput
+                        value={techniqueFilters.search}
+                        onChange={(v) =>
+                          setTechniqueFilters((f) => ({ ...f, search: v }))
+                        }
+                        onClear={() =>
+                          setTechniqueFilters((f) => ({ ...f, search: '' }))
+                        }
+                        placeholder="Search technique"
+                      />
+                    </LearnFilterRow>
+                  </div>
+                  {filteredTechnique.length === 0 ? (
+                    <p
+                      className="text-white/40"
+                      style={{
+                        fontSize: 13,
+                        padding: '48px 0',
+                        textAlign: 'center',
+                      }}
+                    >
+                      No items match these filters
+                    </p>
+                  ) : (
+                    <CollapsibleSection
+                      defaultOpen
+                      className="mt-4"
+                      title="Foundational"
+                    >
+                      {renderContent(
+                        filteredTechnique,
+                        'Technique',
+                        'grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5',
+                      )}
                     </CollapsibleSection>
-                  ))
-                )}
-              </>
-            ) : subTab === 'Technique' ? (
-              <>
-                <div
-                  className="sticky top-0 z-10 pt-1 pb-3"
-                  style={{ background: 'var(--color-bg)' }}
-                >
-                  <LearnSubheader title="Technique" right={learnViewToggle} />
-                  <LearnFilterRow>
-                    <FilterDropdown
-                      label="Category"
-                      value={techniqueFilters.category}
-                      options={TECHNIQUE_CATEGORY_OPTIONS}
-                      onChange={(v) =>
-                        setTechniqueFilters((f) => ({ ...f, category: v }))
-                      }
-                    />
-                    <FilterDropdown
-                      label="Difficulty"
-                      value={techniqueFilters.difficulty}
-                      options={TECHNIQUE_DIFFICULTY_OPTIONS}
-                      onChange={(v) =>
-                        setTechniqueFilters((f) => ({ ...f, difficulty: v }))
-                      }
-                    />
-                    <FilterDropdown
-                      label="Sort"
-                      value={techniqueFilters.sort}
-                      options={TECHNIQUE_SORT_OPTIONS}
-                      onChange={(v) =>
-                        setTechniqueFilters((f) => ({ ...f, sort: v }))
-                      }
-                    />
-                    <FilterDropdown
-                      label="Saved"
-                      value={techniqueFilters.saved}
-                      options={SAVED_FILTER_OPTIONS}
-                      onChange={(v) =>
-                        setTechniqueFilters((f) => ({
-                          ...f,
-                          saved: v as SavedFilter,
-                        }))
-                      }
-                    />
-                    <SearchInput
-                      value={techniqueFilters.search}
-                      onChange={(v) =>
-                        setTechniqueFilters((f) => ({ ...f, search: v }))
-                      }
-                      onClear={() =>
-                        setTechniqueFilters((f) => ({ ...f, search: '' }))
-                      }
-                      placeholder="Search technique"
-                    />
-                  </LearnFilterRow>
-                </div>
-                {filteredTechnique.length === 0 ? (
-                  <p
-                    className="text-white/40"
-                    style={{
-                      fontSize: 13,
-                      padding: '48px 0',
-                      textAlign: 'center',
-                    }}
+                  )}
+                </>
+              ) : (
+                <>
+                  <div
+                    className="sticky top-0 z-10 pt-1 pb-3"
+                    style={{ background: '#101012' }}
                   >
-                    No items match these filters
-                  </p>
-                ) : (
-                  <CollapsibleSection
-                    defaultOpen
-                    className="mt-4"
-                    title="Foundational"
-                  >
-                    {renderContent(filteredTechnique)}
-                  </CollapsibleSection>
-                )}
-              </>
-            ) : (
-              <>
-                <div
-                  className="sticky top-0 z-10 pt-1 pb-3"
-                  style={{ background: 'var(--color-bg)' }}
-                >
-                  <LearnSubheader title="Genre" right={learnViewToggle} />
-                  <LearnFilterRow>
-                    <FilterDropdown
-                      label="Difficulty"
-                      value={coursesFilters.level}
-                      options={COURSES_LEVEL_OPTIONS}
-                      onChange={(v) =>
-                        setCoursesFilters((f) => ({ ...f, level: v }))
-                      }
-                    />
-                    <FilterDropdown
-                      label="Saved"
-                      value={coursesFilters.saved}
-                      options={SAVED_FILTER_OPTIONS}
-                      onChange={(v) =>
-                        setCoursesFilters((f) => ({
-                          ...f,
-                          saved: v as SavedFilter,
-                        }))
-                      }
-                    />
-                    <FilterDropdown
-                      label="Sort"
-                      value={coursesFilters.sort}
-                      options={COURSES_SORT_OPTIONS}
-                      onChange={(v) =>
-                        setCoursesFilters((f) => ({ ...f, sort: v }))
-                      }
-                    />
-                    <SearchInput
-                      value={coursesFilters.search}
-                      onChange={(v) =>
-                        setCoursesFilters((f) => ({ ...f, search: v }))
-                      }
-                      onClear={() =>
-                        setCoursesFilters((f) => ({ ...f, search: '' }))
-                      }
-                      placeholder="Search courses"
-                    />
-                  </LearnFilterRow>
-                </div>
-                {filteredCourses.length === 0 ? (
-                  <p
-                    className="text-white/40"
-                    style={{
-                      fontSize: 13,
-                      padding: '48px 0',
-                      textAlign: 'center',
-                    }}
-                  >
-                    No courses match these filters
-                  </p>
-                ) : (
-                  <CollapsibleSection
-                    defaultOpen
-                    className="mt-4"
-                    title="Genres"
-                  >
-                    {renderContent(filteredCourses)}
-                  </CollapsibleSection>
-                )}
-              </>
-            )}
+                    <LearnSubheader title="Genre" />
+                    <LearnFilterRow>
+                      <FilterDropdown
+                        label="Difficulty"
+                        value={coursesFilters.level}
+                        options={COURSES_LEVEL_OPTIONS}
+                        onChange={(v) =>
+                          setCoursesFilters((f) => ({ ...f, level: v }))
+                        }
+                      />
+                      <FilterDropdown
+                        label="Saved"
+                        value={coursesFilters.saved}
+                        options={SAVED_FILTER_OPTIONS}
+                        onChange={(v) =>
+                          setCoursesFilters((f) => ({
+                            ...f,
+                            saved: v as SavedFilter,
+                          }))
+                        }
+                      />
+                      <FilterDropdown
+                        label="Sort"
+                        value={coursesFilters.sort}
+                        options={COURSES_SORT_OPTIONS}
+                        onChange={(v) =>
+                          setCoursesFilters((f) => ({ ...f, sort: v }))
+                        }
+                      />
+                      <SearchInput
+                        value={coursesFilters.search}
+                        onChange={(v) =>
+                          setCoursesFilters((f) => ({ ...f, search: v }))
+                        }
+                        onClear={() =>
+                          setCoursesFilters((f) => ({ ...f, search: '' }))
+                        }
+                        placeholder="Search courses"
+                      />
+                    </LearnFilterRow>
+                  </div>
+                  {filteredCourses.length === 0 ? (
+                    <p
+                      className="text-white/40"
+                      style={{
+                        fontSize: 13,
+                        padding: '48px 0',
+                        textAlign: 'center',
+                      }}
+                    >
+                      No courses match these filters
+                    </p>
+                  ) : (
+                    <div className="mt-4">
+                      {renderContent(
+                        filteredCourses,
+                        'Genre',
+                        'grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5',
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

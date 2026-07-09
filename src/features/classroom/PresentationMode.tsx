@@ -18,10 +18,11 @@ import {
   X,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ClassroomRoutes } from '@/constants/routes';
 import { buildStudentView } from './buildStudentView';
 import { DEMO_DAY_ID, demoDay } from './fixtures/demoDay';
+import { useSessionSync } from './live/useSessionSync';
 import { PHASES, type PhaseKey } from './phases';
 import { useLocalPlan } from './plan/useLocalPlan';
 import { Board } from './presentation/Board';
@@ -50,6 +51,9 @@ export const PresentationMode = () => {
   }>();
   const navigate = useNavigate();
   const { getDay } = useLocalPlan();
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get('sessionId') ?? '';
+  const { state: sessionState, sendNav } = useSessionSync(sessionId, 'teacher');
 
   // Resolve the Day: locally-authored Days come from `useLocalPlan`; a
   // dedicated `DEMO_DAY_ID` still shows the fresh-build demo. Anything else
@@ -82,26 +86,40 @@ export const PresentationMode = () => {
     [view.phases, currentPhaseKey],
   );
 
-  const openFocus = useCallback((phaseKey: PhaseKey) => {
-    setCurrentPhaseKey(phaseKey);
-    setLevel('focus');
-  }, []);
+  const openFocus = useCallback(
+    (phaseKey: PhaseKey) => {
+      setCurrentPhaseKey(phaseKey);
+      setLevel('focus');
+      if (sessionId && sessionState) sendNav(phaseKey);
+    },
+    [sessionId, sessionState, sendNav],
+  );
 
   const closeFocus = useCallback(() => setLevel('board'), []);
 
+  const navigatePhase = useCallback(
+    (phaseKey: PhaseKey) => {
+      setCurrentPhaseKey(phaseKey);
+      if (sessionId && sessionState) sendNav(phaseKey);
+    },
+    [sessionId, sessionState, sendNav],
+  );
+
   const goPrev = useCallback(() => {
-    setCurrentPhaseKey((current) => {
-      const idx = PHASES.indexOf(current);
-      return PHASES[Math.max(0, idx - 1)];
-    });
-  }, []);
+    const idx = PHASES.indexOf(currentPhaseKey);
+    navigatePhase(PHASES[Math.max(0, idx - 1)]);
+  }, [currentPhaseKey, navigatePhase]);
 
   const goNext = useCallback(() => {
-    setCurrentPhaseKey((current) => {
-      const idx = PHASES.indexOf(current);
-      return PHASES[Math.min(PHASES.length - 1, idx + 1)];
-    });
-  }, []);
+    const idx = PHASES.indexOf(currentPhaseKey);
+    navigatePhase(PHASES[Math.min(PHASES.length - 1, idx + 1)]);
+  }, [currentPhaseKey, navigatePhase]);
+
+  useEffect(() => {
+    if (sessionId && sessionState) {
+      setCurrentPhaseKey(sessionState.currentPhase);
+    }
+  }, [sessionId, sessionState]);
 
   const toggleFullscreen = useCallback(() => {
     const el = rootRef.current;

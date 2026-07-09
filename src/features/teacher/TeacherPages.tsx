@@ -3,10 +3,8 @@ import { Outlet } from 'react-router';
 import { TeacherRoutes } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
-import {
-  DashboardContentSkeleton,
-  DashboardLayout,
-} from '@/layouts/DashboardLayout';
+import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
+import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 
 const ClassroomSelectionPage = lazy(() =>
   import('./ClassroomSelectionPage').then(({ ClassroomSelectionPage }) => ({
@@ -34,11 +32,11 @@ export const teacherPages = () => {
     ),
     children: [
       // Both /teacher (index) and /teacher/classroom/:id/students share the
-      // same DashboardLayout chrome — persistent sidebar + TopRail — so the
-      // teacher landing feels like every other authenticated app surface.
+      // ClassroomDashboard chrome (ClassroomSidebar + TopRail) so the teacher
+      // Manage page matches every other classroom surface.
       {
         path: TeacherRoutes.root.definition,
-        element: <DashboardLayout fallback={<DashboardContentSkeleton />} />,
+        element: <ClassroomDashboard fallback={<DashboardContentSkeleton />} />,
         children: [
           {
             index: true,

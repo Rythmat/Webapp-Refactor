@@ -21,6 +21,7 @@ export default defineConfig({
   ].filter(Boolean),
   server: {
     port: 5179,
+    strictPort: true,
   },
   resolve: {
     alias: {

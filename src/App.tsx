@@ -19,6 +19,7 @@ import {
   atlasPages,
   songsPages,
 } from './features/classroom/ClassroomPages';
+import { MockLearn } from './features/classroom/msp/__dev__/MockLearn';
 import { legalPages } from './features/legal';
 import { teacherPages } from './features/teacher/TeacherPages';
 
@@ -41,7 +42,10 @@ const routesArray = createBrowserRouter([
   curriculumPages(),
   { path: '/modal-sphere', element: <ModalSphereDemo /> },
   ...(import.meta.env.DEV
-    ? [{ path: '/__dashboard-qa', element: <DashboardResponsiveTest /> }]
+    ? [
+        { path: '/__dashboard-qa', element: <DashboardResponsiveTest /> },
+        { path: '/dev/msp/mock-learn', element: <MockLearn /> },
+      ]
     : []),
   {
     path: '*',

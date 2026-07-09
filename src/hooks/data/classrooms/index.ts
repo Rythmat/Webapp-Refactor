@@ -4,6 +4,7 @@ export { useClearCurrentClassroom } from './useClearCurrentClassroom';
 export { useClassrooms } from './useClassrooms';
 export { useClassroomStudents } from './useClassroomStudents';
 export { useCreateClassroom } from './useCreateClassroom';
+export { useDeleteClassroom } from './useDeleteClassroom';
 export { useToggleClassroom } from './useToggleClassroom';
 export { useUpdateClassroom } from './useUpdateClassroom';
 export { useClassroomDetailsByCode } from './useClassroomDetailsByCode';

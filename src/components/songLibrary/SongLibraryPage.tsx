@@ -295,7 +295,7 @@ export const ViewToggle: FC<{
 
 /* ── SongThumbnail (small circular artist portrait for list rows) ────── */
 
-const THUMBNAIL_SIZE = 40;
+const THUMBNAIL_SIZE = 56;
 
 const SongThumbnail: FC<{ song: Song }> = ({ song }) => {
   const [imageBroken, setImageBroken] = useState(false);
@@ -331,10 +331,10 @@ const SongThumbnail: FC<{ song: Song }> = ({ song }) => {
 
 /* ── SongListTable ──────────────────────────────────────────────────── */
 
-const LIST_FS = 12;
-const LIST_FS_SMALL = 11;
-const LIST_CELL_PAD = '8px 12px';
-const LIST_ICON_SIZE = 14;
+const LIST_FS = 15;
+const LIST_FS_SMALL = 13;
+const LIST_CELL_PAD = '10px 14px';
+const LIST_ICON_SIZE = 20;
 
 interface SongListTableProps {
   songs: Song[];
@@ -390,7 +390,7 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
         background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
       }}
     >
-      <td style={{ padding: LIST_CELL_PAD, width: 56 }}>
+      <td style={{ padding: LIST_CELL_PAD, width: 76 }}>
         <SongThumbnail song={song} />
       </td>
       <td style={{ padding: LIST_CELL_PAD }}>
@@ -447,7 +447,7 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
         </button>
       </td>
       <td style={{ padding: LIST_CELL_PAD }}>
-        <div className="flex items-center" style={{ gap: 8 }}>
+        <div className="flex items-center" style={{ gap: 12 }}>
           <button
             type="button"
             onClick={openInLesson}

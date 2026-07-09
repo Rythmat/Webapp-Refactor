@@ -27,6 +27,8 @@ export interface AvatarConfig {
   hueShift: number;
   saturationShift: number;
   lightnessShift: number;
+  /** Explicit hex-colour palette; overrides `paletteIndex` when provided. */
+  paletteOverride?: string[];
 }
 
 export type NoiseType = 'simplex' | 'diagonal' | 'circle' | 'sinCos' | 'line';
@@ -283,9 +285,10 @@ export function generateAvatarPolygons(
     hueShift,
     saturationShift,
     lightnessShift,
+    paletteOverride,
   } = config;
 
-  const paletteHex = getPaletteColors(paletteIndex);
+  const paletteHex = paletteOverride ?? getPaletteColors(paletteIndex);
   const { fns, rnd } = getNoises(String(seed));
   const noiseFn = fns[noiseType];
   const getColor = getColorPicker(paletteHex, isGradient);

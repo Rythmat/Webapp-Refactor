@@ -43,7 +43,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'southern rap',
       'dirty south',
     ],
-    videoId: '0yPagRrAgIU',
+    videoId: 'cthy007wxjY',
   },
   {
     id: 'evt-hiphop-nyc-1979',
@@ -192,7 +192,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'hip hop francais',
       'seine saint denis',
     ],
-    videoId: 'WkcWuV8RjWU',
+    videoId: '1R2etg__x1Y',
   },
   {
     id: 'evt-mahraganat-cairo-2012',
@@ -232,7 +232,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       '808',
       'south london',
     ],
-    videoId: 'd-_8ls1Tj88',
+    videoId: 'pSY3i5XHHXo',
   },
   {
     id: 'evt-baile-funk-saopaulo-2004',
@@ -257,7 +257,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'bass music',
       'tecnobrega',
     ],
-    videoId: 'VrbbU4yMZ5Y',
+    videoId: 'QnKu1S01vDA',
   },
   {
     id: 'evt-hipco-monrovia-2004',
@@ -282,7 +282,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'hip hop',
       'reconstruction',
     ],
-    videoId: 'uYORRPLjj8g',
+    videoId: 'GK4G3B4DKeo',
   },
   {
     id: 'evt-bongo-flava-dar-1990',
@@ -307,7 +307,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'taarab',
       'east africa',
     ],
-    videoId: 'Fdh7DEsWAuk',
+    videoId: 'gSqA6dz3-cs',
   },
   {
     id: 'evt-inanga-kigali-2010',
@@ -327,7 +327,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'healing',
       'kigaliup',
     ],
-    videoId: 'NanwegXTiSI',
+    videoId: 'z-raoyxX9os',
   },
   {
     id: 'evt-motswako-gaborone-2005',
@@ -352,7 +352,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'heavy metal',
       'kalahari',
     ],
-    videoId: 'lrT5FmIPoxc',
+    videoId: '3MXlG2RCCLE',
   },
   {
     id: 'evt-arabic-indie-amman-2015',
@@ -370,7 +370,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'arabic alternative',
       'jafra cafe',
     ],
-    videoId: 'cBRDFDQm7oA',
+    videoId: 'ylXrZxKYEL4',
   },
   {
     id: 'evt-palestinian-hiphop-ramallah-2007',
@@ -393,6 +393,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'min irhabi',
       'resistance music',
     ],
+    videoId: 'zIo6lyP9tTE',
   },
   {
     id: 'evt-arabic-hiphop-dubai-2017',
@@ -410,7 +411,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'spotify mena',
       'arab trap',
     ],
-    videoId: 'SS-yZo1j0Sg',
+    videoId: 'GFD_YomluSE',
   },
   {
     id: 'evt-drake-toronto-2015',
@@ -435,7 +436,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'r&b',
       'six',
     ],
-    videoId: 'IdxhLJtaqRo',
+    videoId: 'tfrWuiQ4QNc',
   },
   {
     id: 'evt-cadenceweapon-edmonton-2005',
@@ -483,7 +484,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'brother ali',
       'eyedea',
     ],
-    videoId: 'OztpZiIGcoE',
+    videoId: 'gbEwHJX95QE',
   },
   {
     id: 'evt-hiphop-pittsburgh-2010',
@@ -528,7 +529,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'new jersey',
       'afrocentric',
     ],
-    videoId: 'f8cHxydDb7o',
+    videoId: 'qaS4pGWQ7RE',
   },
   {
     id: 'evt-dababy-charlotte-2019',
@@ -548,7 +549,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'north carolina',
       'billboard',
     ],
-    videoId: 'zmrRybRoarA',
+    videoId: 'KvuQNNVrbtM',
   },
   {
     id: 'evt-diaspora-nyc-hip-hop-africa-1982',
@@ -646,7 +647,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'mtv',
       'hip hop',
     ],
-    videoId: 'l-O5IHVhWj0',
+    videoId: '4B_UYYPb-Gk',
   },
   {
     id: 'evt-hiphop-dakar-1991',
@@ -670,6 +671,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'african hip hop',
       'francophone',
     ],
+    videoId: 'tt9F_FOb5Rk',
   },
   {
     id: 'evt-hiphop-tokyo-1993',
@@ -735,6 +737,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'korean hip hop',
       'youth revolution',
     ],
+    videoId: 'IRFfPZQeJuo',
   },
   {
     id: 'evt-cuban-hiphop-havana-2001',
@@ -772,7 +775,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'twi',
       'afrobeats origin',
     ],
-    videoId: '_wKFSgVqw44',
+    videoId: '_IdXQP4pJ6Q',
   },
   {
     id: 'evt-latin-trap-medellin-2005',
@@ -817,7 +820,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'gully rap',
       'desi hip hop',
     ],
-    videoId: 'UkaFV9QzQ3I',
+    videoId: '1bK5dzwhu-I',
   },
   {
     id: 'evt-afroswing-london-2017',
@@ -933,7 +936,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'pop rap',
       'alter ego',
     ],
-    videoId: 'HkkYuS0zG9A',
+    videoId: '4JipHEz53sU',
   },
   {
     id: 'evt-hiphop-bronx-2018-cardib',
@@ -973,6 +976,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'southern hip hop',
       'texas',
     ],
+    videoId: 'AqaQsL-8I_M',
   },
   {
     id: 'evt-hiphop-tampa-2024-doechii',
@@ -1011,7 +1015,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'female rapper',
       'lyricist',
     ],
-    videoId: 'GRlzG7Splt0',
+    videoId: 'btYlWphnfbE',
   },
   {
     id: 'evt-hiphop-london-2021-littlesimz',
@@ -1031,6 +1035,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'nigerian diaspora',
       'north london',
     ],
+    videoId: 'YSVUozpD7HY',
   },
   {
     id: 'evt-hiphop-philly-2018-tierrawhack',
@@ -1055,7 +1060,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'conceptual',
       'one minute songs',
     ],
-    videoId: 'hn6OnmK1kFY',
+    videoId: 'uRG6IWYVazM',
   },
 
   // === Hispanic Hip Hop ===
@@ -1102,7 +1107,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'cuban american',
       'mexican american',
     ],
-    videoId: 'iZ_acjYpq20',
+    videoId: 'tUApO77uUUk',
   },
   {
     id: 'evt-hiphop-harlem-2003-immortaltechnique',
@@ -1142,7 +1147,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'latin hip hop',
       'east coast rap',
     ],
-    videoId: 'nEfvV3h0ME8',
+    videoId: 'sb-gh6hJr30',
   },
   {
     id: 'evt-hiphop-miami-2004-pitbull',
@@ -1162,7 +1167,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'little havana',
       'bilingual rap',
     ],
-    videoId: '6GYU2YG8cVs',
+    videoId: 'Cj1SCv5HkKE',
   },
 
   // === Conscious Rap ===
@@ -1184,7 +1189,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'brooklyn',
       'conscious rap',
     ],
-    videoId: 'WTQXVkz1kIE',
+    videoId: 'DcOxPVilxrg',
   },
   {
     id: 'evt-hiphop-brooklyn-1998-blackstar',
@@ -1224,7 +1229,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'neo soul',
       'questlove',
     ],
-    videoId: 'GbK-mTdgY1w',
+    videoId: '9cncKOGTCJk',
   },
   {
     id: 'evt-hiphop-philly-1999-theroots',
@@ -1337,7 +1342,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'through the wire',
       'producer-rapper',
     ],
-    videoId: 'SvKRw4iBKd0',
+    videoId: 'AE8y25CcE6s',
   },
   {
     id: 'evt-hiphop-compton-2012-kendricklamar',
@@ -1407,7 +1412,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'genre bending',
       'synth pop',
     ],
-    videoId: 'uLXPCPkQBh0',
+    videoId: '2TVXi_9Bvlg',
   },
   {
     id: 'evt-hiphop-fayetteville-2014-jcole',
@@ -1457,7 +1462,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'mixtape king',
       'young money',
     ],
-    videoId: 'xLP0u6yKebo',
+    videoId: 'sINGvrL61VY',
   },
   {
     id: 'evt-hiphop-detroit-2000-eminem',
@@ -1477,7 +1482,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'aftermath',
       'rap god',
     ],
-    videoId: 'nvg2dDGKgZI',
+    videoId: 'XGSrs0QIUAc',
   },
   {
     id: 'evt-hiphop-atlanta-1998-outkast',
@@ -1517,6 +1522,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'native tongues',
       'alternative hip hop',
     ],
+    videoId: 'P9oTCzWRuvQ',
   },
   {
     id: 'evt-hiphop-statenisland-1993-wutang',
@@ -1541,7 +1547,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'kung fu samples',
       'cream',
     ],
-    videoId: '3Lco5pPT8Zs',
+    videoId: 'pJk0p-98Xzc',
   },
   {
     id: 'evt-hiphop-houston-2018-travisscott',
@@ -1586,6 +1592,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'stones throw',
       'villain',
     ],
+    videoId: 'gSJeHDlhYls',
   },
   {
     id: 'evt-hiphop-chicago-2016-chancetherapper',
@@ -1605,5 +1612,6 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'grammy',
       'south side',
     ],
+    videoId: 'rDAkWJgTSOk',
   },
 ];

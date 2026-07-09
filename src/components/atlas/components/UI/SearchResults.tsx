@@ -1,16 +1,19 @@
-import { X, MapPin, Calendar, Sparkles, Loader2 } from 'lucide-react';
+import { X, MapPin, Calendar, Maximize2, Minimize2 } from 'lucide-react';
+import { useState } from 'react';
+import { AtlasVideo } from '@/components/atlas/components/UI/AtlasVideo';
+import { EventInfluence } from '@/components/atlas/components/UI/EventInfluence';
 import {
   useAppState,
   useAppDispatch,
 } from '@/components/atlas/context/AppContext';
-import { useAIAnalysis } from '@/components/atlas/hooks/useAIAnalysis';
-import { useMusicSearch } from '@/components/atlas/hooks/useMusicSearch';
+import { CITIES } from '@/components/atlas/data';
+import type { HistoricalEvent } from '@/components/atlas/types';
+import { sameCountry } from '@/components/atlas/utils/country';
 
 export function SearchResults() {
-  const { searchResults, searchQuery, pinnedEvent, aiInsight } = useAppState();
+  const { searchResults, searchQuery, pinnedEvent } = useAppState();
   const dispatch = useAppDispatch();
-  const { analyze } = useAIAnalysis();
-  const search = useMusicSearch();
+  const [enlarged, setEnlarged] = useState(false);
 
   if (searchResults.length === 0) return null;
 
@@ -18,82 +21,144 @@ export function SearchResults() {
     dispatch({ type: 'SET_SEARCH_RESULTS', payload: [] });
   };
 
-  const handleDeepDive = async () => {
-    const { parsed } = await search(searchQuery);
-    analyze(searchQuery, parsed, searchResults);
+  // Pin (and fly to) an event, or unpin it if it's already the pinned one.
+  const togglePin = (event: HistoricalEvent, isPinned: boolean) => {
+    if (isPinned) {
+      dispatch({ type: 'PIN_EVENT', payload: null });
+      return;
+    }
+    dispatch({ type: 'PIN_EVENT', payload: event });
+    dispatch({
+      type: 'EXECUTE_SEARCH',
+      payload: {
+        lat: event.location.lat,
+        lng: event.location.lng,
+        zoom: 8,
+        year: event.year,
+      },
+    });
   };
 
-  const aiActive = aiInsight.status !== 'idle';
+  // Enlarge the panel, focused on an event. If it's the event already playing,
+  // don't re-pin it (that would reset the arcs and stop the spin) — just grow
+  // the panel so the video keeps playing uninterrupted.
+  const enlargeEvent = (event: HistoricalEvent, isPinned: boolean) => {
+    if (!isPinned) {
+      dispatch({ type: 'PIN_EVENT', payload: event });
+      dispatch({
+        type: 'EXECUTE_SEARCH',
+        payload: {
+          lat: event.location.lat,
+          lng: event.location.lng,
+          zoom: 8,
+          year: event.year,
+        },
+      });
+    }
+    setEnlarged(true);
+  };
+
+  // Navigate to an event reached from an influence chain — select its city
+  // (country-aware), pin it, and fly.
+  const navigateToEvent = (event: HistoricalEvent) => {
+    const cityLower = event.location.city.toLowerCase();
+    const nameMatches = CITIES.filter(
+      (c) => c.name.toLowerCase() === cityLower,
+    );
+    const city =
+      nameMatches.find((c) => sameCountry(c.country, event.location.country)) ??
+      nameMatches[0];
+    if (city)
+      dispatch({
+        type: 'SELECT_LOCATION',
+        payload: { type: 'city', id: city.id },
+      });
+    dispatch({ type: 'PIN_EVENT', payload: event });
+    dispatch({
+      type: 'EXECUTE_SEARCH',
+      payload: { lat: event.location.lat, lng: event.location.lng, zoom: 10 },
+    });
+  };
 
   return (
-    <div className="absolute left-4 top-14 z-[1000] flex max-h-[calc(100%-6rem)] w-96 flex-col rounded-xl border border-zinc-700/50 bg-zinc-900/85 shadow-2xl backdrop-blur-xl">
+    <div
+      className="absolute left-4 top-14 z-[1000] flex max-h-[calc(100%-6rem)] w-[min(92vw,24rem)] flex-col rounded-2xl border border-white/10 bg-black/20 shadow-2xl backdrop-blur-md"
+      style={enlarged ? { width: 'min(66vw, 900px)' } : undefined}
+    >
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between border-b border-zinc-800/50 px-4 py-3">
-        <p className="text-sm text-zinc-300">
+      <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3">
+        <p className="text-sm text-white/70">
           <span className="font-medium text-white">{searchResults.length}</span>{' '}
           result{searchResults.length !== 1 && 's'} for{' '}
-          <span className="text-teal-400">"{searchQuery}"</span>
+          <span className="text-[#60a5fa]">"{searchQuery}"</span>
         </p>
-        <div className="flex items-center gap-2">
-          <button
-            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
-              aiActive
-                ? 'cursor-default bg-teal-600/20 text-teal-400'
-                : 'bg-teal-600/20 text-teal-300 hover:bg-teal-600/40'
-            }`}
-            disabled={aiActive}
-            onClick={handleDeepDive}
-          >
-            {aiActive ? (
-              <Loader2 className="size-3 animate-spin" />
-            ) : (
-              <Sparkles className="size-3" />
-            )}
-            Deep Dive
-          </button>
-          <button
-            className="text-zinc-500 transition-colors hover:text-white"
-            onClick={close}
-          >
-            <X className="size-4" />
-          </button>
-        </div>
+        <button
+          aria-label="Close search results"
+          className="text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+          onClick={close}
+        >
+          <X className="size-4" />
+        </button>
       </div>
 
       {/* Results list */}
       <div className="space-y-2 overflow-y-auto p-2">
         {searchResults.map((event) => {
           const isPinned = pinnedEvent?.id === event.id;
+          const focused = enlarged && isPinned;
+          // While enlarged only the focused card shows; hidden via CSS (not
+          // filtered) so the video's <iframe> is never reparented.
           return (
-            <button
+            <div
               key={event.id}
-              className={`w-full rounded-lg p-3 text-left transition-colors ${
+              className={`w-full rounded-xl p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
+                enlarged && !isPinned ? 'hidden' : ''
+              } ${enlarged ? 'cursor-default' : 'cursor-pointer'} ${
                 isPinned
-                  ? 'border border-teal-500/40 bg-teal-600/20'
-                  : 'border border-transparent bg-zinc-800/40 hover:bg-zinc-800/70'
+                  ? 'border border-[#60a5fa66] bg-[#60a5fa1a]'
+                  : 'border border-white/10 bg-white/5 hover:bg-white/10'
               }`}
+              role="button"
+              tabIndex={0}
               onClick={() => {
-                if (isPinned) {
-                  dispatch({ type: 'PIN_EVENT', payload: null });
-                } else {
-                  dispatch({ type: 'PIN_EVENT', payload: event });
-                  dispatch({
-                    type: 'EXECUTE_SEARCH',
-                    payload: {
-                      lat: event.location.lat,
-                      lng: event.location.lng,
-                      zoom: 8,
-                      year: event.year,
-                    },
-                  });
+                if (!enlarged) togglePin(event, isPinned);
+              }}
+              onKeyDown={(e) => {
+                if (
+                  !enlarged &&
+                  e.target === e.currentTarget &&
+                  (e.key === 'Enter' || e.key === ' ')
+                ) {
+                  e.preventDefault();
+                  togglePin(event, isPinned);
                 }
               }}
             >
-              <h4 className="text-sm font-semibold leading-snug text-white">
-                {event.title}
-              </h4>
+              <div className="flex items-start justify-between gap-2">
+                <h4
+                  className={`font-semibold leading-snug text-white ${focused ? 'text-lg' : 'text-sm'}`}
+                >
+                  {event.title}
+                </h4>
+                <button
+                  aria-label={focused ? 'Shrink' : 'Enlarge'}
+                  title={focused ? 'Shrink' : 'Enlarge'}
+                  className="shrink-0 rounded text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (focused) setEnlarged(false);
+                    else enlargeEvent(event, isPinned);
+                  }}
+                >
+                  {focused ? (
+                    <Minimize2 className="size-4" />
+                  ) : (
+                    <Maximize2 className="size-3.5" />
+                  )}
+                </button>
+              </div>
 
-              <div className="mt-1.5 flex items-center gap-3 text-xs text-zinc-400">
+              <div className="mt-1.5 flex items-center gap-3 text-xs text-white/60">
                 <span className="flex items-center gap-1">
                   <Calendar className="size-3" /> {event.year}
                 </span>
@@ -107,7 +172,7 @@ export function SearchResults() {
                 {event.genre.map((g) => (
                   <span
                     key={g}
-                    className="rounded-full bg-teal-600/30 px-1.5 py-0.5 text-[10px] text-teal-300"
+                    className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-white/70"
                   >
                     {g}
                   </span>
@@ -115,24 +180,30 @@ export function SearchResults() {
               </div>
 
               <p
-                className={`mt-2 text-xs text-zinc-400 ${isPinned ? '' : 'line-clamp-2'}`}
+                className={`mt-2 text-white/60 ${focused ? 'text-base leading-relaxed' : 'text-xs'} ${isPinned ? '' : 'line-clamp-2'}`}
               >
                 {event.description}
               </p>
               {isPinned && event.videoId && (
-                <div className="mt-2 rounded overflow-hidden border border-zinc-700/30">
-                  <iframe
-                    width="100%"
-                    style={{ aspectRatio: '16/9' }}
-                    src={`https://www.youtube.com/embed/${event.videoId}?modestbranding=1&rel=0`}
-                    title={event.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="rounded"
-                  />
-                </div>
+                <AtlasVideo
+                  videoId={event.videoId}
+                  title={event.title}
+                  onPlay={() => dispatch({ type: 'OPEN_INFLUENCE_ARCS' })}
+                  className={`rounded border border-white/10 ${focused ? 'mx-auto mt-4 max-w-2xl' : 'mt-2'}`}
+                />
               )}
-            </button>
+              {isPinned && (
+                <EventInfluence
+                  event={event}
+                  onNavigate={navigateToEvent}
+                  className={
+                    focused
+                      ? 'mt-4 grid gap-x-8 gap-y-3 border-t border-white/10 pt-4 sm:grid-cols-2 [&>div]:min-w-0'
+                      : undefined
+                  }
+                />
+              )}
+            </div>
           );
         })}
       </div>

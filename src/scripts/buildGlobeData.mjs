@@ -99,6 +99,18 @@ function extractStringField(content, fieldName) {
   return undefined;
 }
 
+// Word/DOCX-derived manifests store '&' as the XML entity '&amp;'; decode common
+// HTML entities so generated titles/artists render as plain text (not '&amp;').
+function decodeEntities(s) {
+  return (s || '')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&rsquo;|&apos;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&');
+}
+
 const events = [];
 let matched = 0;
 let unmatched = 0;
@@ -108,11 +120,14 @@ for (const slug of songFiles) {
   const content = fs.readFileSync(filePath, 'utf-8');
 
   // Extract data from the .ts file (tolerant of single/double/template quotes)
-  const title = extractStringField(content, 'title') || slug.replace(/_/g, ' ');
-  const artist =
+  const title = decodeEntities(
+    extractStringField(content, 'title') || slug.replace(/_/g, ' '),
+  );
+  const artist = decodeEntities(
     extractStringField(content, 'artist') ||
-    manifest.get(slug)?.artist ||
-    'Unknown Artist';
+      manifest.get(slug)?.artist ||
+      'Unknown Artist',
+  );
   const key = extractStringField(content, 'key') || '';
   const tempoMatch = content.match(/\btempo:\s*(\d+)/);
   const tempo = tempoMatch?.[1] || '';
@@ -125,9 +140,8 @@ for (const slug of songFiles) {
       .split(',')
       .map((g) => g.trim())
       .filter(Boolean) || [];
-  const historicalDescription = extractStringField(
-    content,
-    'historicalDescription',
+  const historicalDescription = decodeEntities(
+    extractStringField(content, 'historicalDescription'),
   );
 
   // Look up artist location

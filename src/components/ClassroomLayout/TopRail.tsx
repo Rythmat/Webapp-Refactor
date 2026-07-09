@@ -1,8 +1,12 @@
-import { Send, User } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/components/utilities';
 import { UserRoutes } from '@/constants/routes';
+import { useMe } from '@/hooks/data';
 import { useExperienceSummary } from '@/hooks/data/experience';
+import { useAvatarConfig } from '@/hooks/useAvatarConfig';
 
 const CREDITS_PLACEHOLDER = 12;
 const AWARDS_PLACEHOLDER = 60;
@@ -24,6 +28,13 @@ export const TopRail = ({ className }: TopRailProps) => {
   const totalXp = xp?.totalExperience ?? 0;
   const level = xp?.level ?? 1;
   const notificationCount = NOTIFICATION_COUNT;
+
+  const { data: user } = useMe();
+  const { config: avatarConfig } = useAvatarConfig(
+    user?.id,
+    (user as Record<string, unknown> | undefined)?.avatarConfig,
+  );
+  const userName = user?.nickname || user?.username || 'friend';
 
   return (
     <header
@@ -106,13 +117,21 @@ export const TopRail = ({ className }: TopRailProps) => {
           )}
         </button>
 
-        {/* User */}
+        {/* User avatar */}
         <Link
           to={UserRoutes.root()}
-          aria-label="User profile"
-          className="text-white/80 transition-colors hover:text-white"
+          aria-label={`Open ${userName}'s profile`}
+          className="transition-opacity hover:opacity-80"
         >
-          <User className="h-5 w-5" strokeWidth={1.75} />
+          <Avatar className="size-8 border border-white/10">
+            <AvatarFallback className="relative overflow-hidden p-0">
+              <UserAvatarPattern
+                className="size-full"
+                userName={userName}
+                config={avatarConfig}
+              />
+            </AvatarFallback>
+          </Avatar>
         </Link>
       </div>
     </header>

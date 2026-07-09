@@ -41,6 +41,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'donna summer',
       'bee gees',
     ],
+    videoId: 'RdfYSI5HkDU',
   },
   {
     id: 'evt-soul-memphis-1962',
@@ -59,6 +60,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'memphis soul',
       'southern soul',
     ],
+    videoId: 'kUk1WTAReyE',
   },
   {
     id: 'evt-funk-minneapolis-1979',
@@ -82,6 +84,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'purple rain',
       'the revolution',
     ],
+    videoId: 'q_sHFZWeOUo',
   },
   {
     id: 'evt-philly-soul-philadelphia-1972',
@@ -129,6 +132,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'dc music',
       'percussion break',
     ],
+    videoId: 'ywZayiYvAyw',
   },
   {
     id: 'evt-dallas-soul-dallas-2015',
@@ -147,6 +151,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'gospel roots',
       'neo-soul',
     ],
+    videoId: 'MTrKkqE9p1o',
   },
   {
     id: 'evt-voltaique-ouaga-1983',
@@ -195,6 +200,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'dinka',
       'new nation',
     ],
+    videoId: 'J4rpmcsKm-0',
   },
   {
     id: 'evt-meters-neworleans-1969',
@@ -219,6 +225,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'syncopation',
       'groove',
     ],
+    videoId: '0g3UJpUunaI',
   },
   {
     id: 'evt-gospel-jackson-1965',
@@ -238,6 +245,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'mississippi',
       'freedom songs',
     ],
+    videoId: 'TwomoSd-Q7I',
   },
   {
     id: 'evt-freedomsongs-birmingham-1963',
@@ -262,6 +270,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'we shall overcome',
       'mlk',
     ],
+    videoId: 'duvoETGVvYU',
   },
   {
     id: 'evt-rosettatharpe-littlerock-1950',
@@ -310,6 +319,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'ska',
       'formative years',
     ],
+    videoId: '58O8nUvjsLA',
   },
   {
     id: 'evt-diaspora-chicago-gospel-1932',
@@ -330,6 +340,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'south side',
       'sacred music',
     ],
+    videoId: 'RdE0NPimGFk',
   },
   {
     id: 'evt-diaspora-memphis-stax-soul-1967',
@@ -351,6 +362,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'spirituals',
       'memphis',
     ],
+    videoId: 'RlP_9HRi78Q',
   },
   {
     id: 'evt-motown-detroit-1963',
@@ -370,6 +382,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'supremes',
       'temptations',
     ],
+    videoId: 'L-ZvNIYLins',
   },
   {
     id: 'evt-southern-soul-memphis-1965',
@@ -388,6 +401,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'integrated',
       'horn driven',
     ],
+    videoId: 'OjBRyG8HouM',
   },
   {
     id: 'evt-funk-augusta-1970',
@@ -406,6 +420,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'augusta',
       'godfather of soul',
     ],
+    videoId: '7bZc-hs0l6k',
   },
   {
     id: 'evt-philly-soul-philadelphia-1974',
@@ -429,6 +444,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'ojays',
       'mfsb',
     ],
+    videoId: 'pUKblOmUMx0',
   },
   {
     id: 'evt-neosoul-richmond-1995-dangelo',
@@ -490,6 +506,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'new jersey',
       'grammy',
     ],
+    videoId: 'x8QP8S9d4Vk',
   },
   {
     id: 'evt-neosoul-columbia-1999-angiestone',
@@ -513,6 +530,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'the sequence',
       'hip-hop soul',
     ],
+    videoId: 'V9Zgp1WzwLk',
   },
   {
     id: 'evt-neosoul-nyc-2000-dangelo',
@@ -561,6 +579,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'poetry',
       'philly soul',
     ],
+    videoId: '5SK48Bk_RnI',
   },
   {
     id: 'evt-neosoul-philadelphia-2000-musiq',
@@ -603,6 +622,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'video',
       'folk soul',
     ],
+    videoId: 'dhygw-YlGyk',
   },
   {
     id: 'evt-neosoul-philadelphia-2001-bilal',
@@ -627,6 +647,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'jazz fusion',
       'vocal range',
     ],
+    videoId: 'AtFd5wtfUdw',
   },
   {
     id: 'evt-neosoul-houston-2012-glasper',
@@ -646,6 +667,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'erykah badu',
       'grammy',
     ],
+    videoId: 'H_hT61-E5kg',
   },
   {
     id: 'evt-neosoul-houston-2013-glasper-experiment',
@@ -665,6 +687,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'common',
       'genre-fluid',
     ],
+    videoId: 'e6NjqujEy1o',
   },
   {
     id: 'evt-neosoul-longbeach-2012-frankocean',
@@ -689,6 +712,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'odd future',
       'lgbtq',
     ],
+    videoId: '6JHu3b-pbh8',
   },
   {
     id: 'evt-neosoul-la-2014-jheneaiko',
@@ -713,6 +737,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'neo soul',
       'ambient',
     ],
+    videoId: 'IuD6G3bOrIs',
   },
   {
     id: 'evt-neosoul-la-2015-theinternet',
@@ -761,6 +786,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'nai palm',
       'australia',
     ],
+    videoId: 'KjihW7-l-rQ',
   },
   {
     id: 'evt-neosoul-oxnard-2016-andersonpaak',
@@ -799,6 +825,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'black identity',
       'art pop',
     ],
+    videoId: 'Njp2vaBzgto',
   },
   {
     id: 'evt-neosoul-montreal-2016-kaytranada',
@@ -823,6 +850,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'neo soul',
       'haitian-canadian',
     ],
+    videoId: 'bAX9envvbj4',
   },
   {
     id: 'evt-neosoul-la-2017-thundercat',
@@ -847,6 +875,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'neo soul',
       'flying lotus',
     ],
+    videoId: 'McA_CgwoG-w',
   },
   {
     id: 'evt-neosoul-oakland-2017-kehlani',
@@ -866,6 +895,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'bay area',
       'pop r&b',
     ],
+    videoId: 'HPHbeSGVKJo',
   },
   {
     id: 'evt-neosoul-maplewood-2017-sza',
@@ -890,6 +920,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'neo soul',
       'new jersey',
     ],
+    videoId: 'qJ7wOEz6OUE',
   },
   {
     id: 'evt-neosoul-vallejo-2017-her',
@@ -909,6 +940,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'r&b',
       'grammy',
     ],
+    videoId: 'hxxcEzM8r-4',
   },
   {
     id: 'evt-neosoul-toronto-2017-danielcaesar',
@@ -933,6 +965,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'get you',
       'canada',
     ],
+    videoId: 'hKgl5-lkT8U',
   },
   {
     id: 'evt-neosoul-stockholm-2017-snohaalegra',
@@ -957,6 +990,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'swedish',
       'iranian',
     ],
+    videoId: 'QxUiNeEAK5I',
   },
   {
     id: 'evt-neosoul-brisbane-2017-jordanrakei',
@@ -981,6 +1015,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'electronic soul',
       'new zealand',
     ],
+    videoId: 'a56GHV2R5dM',
   },
   {
     id: 'evt-neosoul-london-2017-sampha',
@@ -1000,6 +1035,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'neo soul',
       'electronic soul',
     ],
+    videoId: 'ZQXDVZf3akg',
   },
   {
     id: 'evt-neosoul-nyc-2017-macayres',
@@ -1024,6 +1060,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'diy',
       'self-produced',
     ],
+    videoId: 'oWrBSfpA6pI',
   },
   {
     id: 'evt-neosoul-london-2018-tommisch',
@@ -1043,6 +1080,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'jazz',
       'youtube',
     ],
+    videoId: 'l1A5mPLujuA',
   },
   {
     id: 'evt-neosoul-chicago-2018-noname',
@@ -1062,6 +1100,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'poetry',
       'south side',
     ],
+    videoId: 'uT3uK24vL6w',
   },
   {
     id: 'evt-neosoul-nola-2019-luckydaye',
@@ -1086,6 +1125,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       "d'mile",
       'grammy',
     ],
+    videoId: 'ifTCi87_VGw',
   },
   {
     id: 'evt-neosoul-atlanta-2019-summerwalker',
@@ -1105,6 +1145,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'london on da track',
       'streaming era',
     ],
+    videoId: '1A0CuoluUr0',
   },
   {
     id: 'evt-neosoul-chicago-2019-jamilawoods',
@@ -1124,6 +1165,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'black art',
       'poetry',
     ],
+    videoId: 'wYSywnYDQZ0',
   },
   {
     id: 'evt-neosoul-london-2020-cleosol',
@@ -1143,6 +1185,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'inflo',
       'sault',
     ],
+    videoId: 'dH8rsQQqg18',
   },
   {
     id: 'evt-neosoul-longbeach-2020-giveon',
@@ -1167,6 +1210,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'baritone',
       'heartbreak anniversary',
     ],
+    videoId: 'uWRlisQu4fo',
   },
   {
     id: 'evt-neosoul-la-2011-moonchild',
@@ -1191,6 +1235,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'electronic',
       'amber navran',
     ],
+    videoId: 'D2KfXJ5FASE',
   },
   {
     id: 'evt-neosoul-la-2021-terracemartin',
@@ -1215,6 +1260,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'neo soul',
       'west coast',
     ],
+    videoId: 'mgHmLnkeAHQ',
   },
   {
     id: 'evt-neosoul-philadelphia-2021-jazminesullivan',
@@ -1239,6 +1285,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'grammy',
       'empowerment',
     ],
+    videoId: 'g_msOBuocSo',
   },
   {
     id: 'evt-neosoul-chicago-2022-ravynlenae',
@@ -1277,6 +1324,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'bad habit',
       'the internet',
     ],
+    videoId: 'UGbDWUtqMsQ',
   },
   {
     id: 'evt-neosoul-london-2012-liannalahavas',
@@ -1320,6 +1368,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'live album',
       'king records',
     ],
+    videoId: 'oaUWv72c-Go',
   },
   {
     id: 'evt-funk-macon-1965-james-brown-papas',
@@ -1338,6 +1387,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'rhythm revolution',
       'king records',
     ],
+    videoId: 'f9uQDcp8PTY',
   },
   {
     id: 'evt-funk-la-1975-parliament-mothership',
@@ -1362,6 +1412,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'bootsy collins',
       'bernie worrell',
     ],
+    videoId: 'EAaMCh8Xy14',
   },
   {
     id: 'evt-funk-sf-1969-sly-stone-stand',
@@ -1386,6 +1437,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'woodstock',
       'everyday people',
     ],
+    videoId: 'Q49vjFN6Fsw',
   },
   {
     id: 'evt-funk-cincinnati-1977-bootsy-collins',
@@ -1432,6 +1484,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'september',
       'orchestral funk',
     ],
+    videoId: 'Gs069dndIYk',
   },
   {
     id: 'evt-funk-neworleans-1974-meters-rejuvenation',
@@ -1456,6 +1509,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'hey pocky a-way',
       'zigaboo',
     ],
+    videoId: 'eFz9GEYLq80',
   },
   {
     id: 'evt-funk-oakland-1973-tower-of-power',
@@ -1475,6 +1529,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'soul vaccination',
       'greg adams',
     ],
+    videoId: 'o1KCoX_dDBE',
   },
   {
     id: 'evt-funk-dayton-1974-ohio-players',
@@ -1494,6 +1549,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'horn funk',
       'midwest funk',
     ],
+    videoId: 'zqsYNc_M988',
   },
   {
     id: 'evt-funk-tuskegee-1974-commodores',
@@ -1518,6 +1574,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'instrumental funk',
       'wah-wah',
     ],
+    videoId: 'SiLvUOItXVI',
   },
   {
     id: 'evt-funk-buffalo-1981-rick-james',
@@ -1542,6 +1599,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'punk funk',
       'mc hammer',
     ],
+    videoId: 'wnKc4zi0MLA',
   },
   {
     id: 'evt-funk-nyc-1986-cameo-word-up',
@@ -1565,6 +1623,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'synth funk',
       '1980s funk',
     ],
+    videoId: 'MZjAantupsA',
   },
   {
     id: 'evt-funk-dayton-1980-zapp-roger',
@@ -1584,6 +1643,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'hip-hop sampling',
       'g-funk',
     ],
+    videoId: 'YgDPrhV8z5s',
   },
   {
     id: 'evt-funk-tulsa-1982-gap-band',
@@ -1603,6 +1663,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'total experience',
       'oklahoma funk',
     ],
+    videoId: 'QDhhMvdglCQ',
   },
   {
     id: 'evt-funk-chicago-1978-chaka-khan',
@@ -1622,6 +1683,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'feminist anthem',
       'solo debut',
     ],
+    videoId: 'ouUiT6b2UkE',
   },
   {
     id: 'evt-funk-chicago-1970-rufus-chaka-khan',
@@ -1641,6 +1703,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'grammy',
       'funk rock',
     ],
+    videoId: '7fgKhuqNtxw',
   },
   {
     id: 'evt-funk-dayton-1981-lakeside',
@@ -1659,6 +1722,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'midwest funk',
       'nine piece',
     ],
+    videoId: 'hP5WGVlIqOc',
   },
   {
     id: 'evt-funk-vallejo-1978-con-funk-shun',
@@ -1682,6 +1746,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'bay area funk',
       'smooth funk',
     ],
+    videoId: 'dHXSxAHZlqs',
   },
   {
     id: 'evt-funk-longbeach-1975-war-low-rider',
@@ -1706,6 +1771,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'chicano',
       'multiracial band',
     ],
+    videoId: 'BsrqKE1iqqo',
   },
   {
     id: 'evt-funk-dundee-1974-average-white-band',
@@ -1729,6 +1795,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'atlantic records',
       'crossover',
     ],
+    videoId: 'MfAJLGFWxYo',
   },
   {
     id: 'evt-funk-jerseycity-1980-kool-gang',
@@ -1753,6 +1820,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'robert bell',
       'jt taylor',
     ],
+    videoId: '3GwjfUFyY6M',
   },
   {
     id: 'evt-funk-memphis-1967-bar-kays',
@@ -1772,6 +1840,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'memphis funk',
       'stax funk',
     ],
+    videoId: '12A3U76TANw',
   },
   {
     id: 'evt-funk-cincinnati-1969-isley-brothers',
@@ -1815,6 +1884,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'multi-instrumentalist',
       'funk crossover',
     ],
+    videoId: 'egqv1mtos6A',
   },
   {
     id: 'evt-funk-pittsburgh-1974-betty-davis',
@@ -1863,6 +1933,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'bad boy',
       'prince influence',
     ],
+    videoId: 'SKz3hndIc94',
   },
   {
     id: 'evt-funk-nyc-1978-chic-le-freak',
@@ -1906,6 +1977,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'drum machine',
       'hip-hop influence',
     ],
+    videoId: 'ILyTSesn9Ag',
   },
   {
     id: 'evt-ray-charles-atlanta-1954',
@@ -1925,6 +1997,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'atlantic records',
       'pioneer',
     ],
+    videoId: '-fLl7Fj580E',
   },
   {
     id: 'evt-sam-cooke-la-1964',
@@ -1949,6 +2022,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'protest music',
       'anthem',
     ],
+    videoId: 'ACi5t2q6m3s',
   },
   {
     id: 'evt-otis-redding-memphis-1965',
@@ -1968,6 +2042,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'booker t',
       'mgs',
     ],
+    videoId: 'Q4otbaelnl0',
   },
   {
     id: 'evt-aretha-franklin-muscle-shoals-1967',
@@ -1992,6 +2067,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'gospel',
       'feminist anthem',
     ],
+    videoId: 'WgcM29CuLNs',
   },
   {
     id: 'evt-marvin-gaye-detroit-1971',
@@ -2011,6 +2087,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'social justice',
       'masterpiece',
     ],
+    videoId: 'o5TmORitlKk',
   },
   {
     id: 'evt-al-green-memphis-1972',
@@ -2030,6 +2107,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'falsetto',
       'southern soul',
     ],
+    videoId: 'uSu6tcbMOu0',
   },
   {
     id: 'evt-curtis-mayfield-chicago-1972',

@@ -1,5 +1,5 @@
 import { Copy } from 'lucide-react';
-import QRCode from 'react-qr-code';
+import QRCodeImport from 'react-qr-code';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,6 +12,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { AuthRoutes } from '@/constants/routes';
+
+// Vite's CJS interop hands back the module namespace instead of the default
+// export for react-qr-code 2.x — unwrap defensively so both shapes render.
+const QRCode = ((QRCodeImport as unknown as { default?: unknown }).default ??
+  QRCodeImport) as React.ComponentType<{ size?: number; value: string }>;
 
 interface InviteStudentDialogProps {
   classroomId: string;

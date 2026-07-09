@@ -199,7 +199,7 @@ export const hava_nagila: Song = {
   ],
 
   audioSources: [
-    { provider: 'youtube', uri: 'https://youtube.com/watch?v=vHSNZK4Je-Y' },
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=k2ZEsfteJ5g' },
   ],
   artistImageSource: 'manual',
 

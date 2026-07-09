@@ -18,6 +18,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'jeff mills',
       'juan atkins',
     ],
+    videoId: 'afE85PTuXPc',
   },
   {
     id: 'evt-krautrock-dusseldorf-1974',
@@ -41,7 +42,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'krautrock',
       'motorik',
     ],
-    videoId: '2571oPlCMzg',
+    videoId: '-ncwiAC2ACg',
   },
   {
     id: 'evt-house-chicago-1984',
@@ -141,7 +142,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'electronic',
       'dance',
     ],
-    videoId: '1h51sXA-v2A',
+    videoId: '4CkXhtw7UNk',
   },
   {
     id: 'evt-amapiano-joburg-2019',
@@ -185,7 +186,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'metroplex',
       'model 500',
     ],
-    videoId: '7fx0JvKeLrA',
+    videoId: 'X_-5Qcdretg',
   },
   {
     id: 'evt-baltimore-club-baltimore-1993',
@@ -230,7 +231,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'australian music',
       'psychedelic',
     ],
-    videoId: 'esdfjbZoZ_k',
+    videoId: 'd33C8IE7WnQ',
   },
   {
     id: 'evt-bjork-reykjavik-1993',
@@ -278,6 +279,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'gabber',
       'dutch edm',
     ],
+    videoId: 'DVAvlby1CwA',
   },
   {
     id: 'evt-new-beat-brussels-1988',
@@ -325,7 +327,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'romanian electronic',
       'black sea',
     ],
-    videoId: 'fIIDb9jMljE',
+    videoId: '7uB5OztCCWE',
   },
   {
     id: 'evt-sea-dance-podgorica-2014',
@@ -469,6 +471,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'machine music',
       'futurism',
     ],
+    videoId: '7Mz2UuLS6oM',
   },
   {
     id: 'evt-acid-house-london-1986',
@@ -488,7 +491,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'ecstasy',
       'second summer of love',
     ],
-    videoId: 'S-A90kfkgQA',
+    videoId: 'Voe50betJ74',
   },
   {
     id: 'evt-balearic-ibiza-1988',
@@ -526,7 +529,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'manchester',
       'factory records',
     ],
-    videoId: 'eaE60f5FCD4',
+    videoId: 'NcJ0Vdig91Y',
   },
   {
     id: 'evt-jungle-london-1993',
@@ -605,7 +608,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'electronic',
       'global bass',
     ],
-    videoId: '1h51sXA-v2A',
+    videoId: '-kVcD7cwKdc',
   },
   {
     id: 'evt-amapiano-johannesburg-2019',
@@ -631,7 +634,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'log drum',
       'soweto',
     ],
-    videoId: 'IK7T5dbGvKs',
+    videoId: 'SNqRp-L7oF0',
   },
   {
     id: 'evt-dubstep-burial-london-2007',
@@ -741,7 +744,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'minimalist',
       'r&b',
     ],
-    videoId: 'RbjdFqHeiDw',
+    videoId: 'cDohRTUpW_E',
   },
   {
     id: 'evt-flume-sydney-2012',
@@ -791,6 +794,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'trip',
       'berlin',
     ],
+    videoId: 'gduXC9vwieE',
   },
   {
     id: 'evt-disclosure-settle-london-2013',
@@ -871,6 +875,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'london',
       'steel drums',
     ],
+    videoId: 'hTGJfRPLe08',
   },
   {
     id: 'evt-bonobo-migration-2017',
@@ -916,6 +921,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'folktronica',
       'genre-fluid',
     ],
+    videoId: 'UDaDUWTZzuQ',
   },
   {
     id: 'evt-peggy-gou-seoul-2018',
@@ -940,6 +946,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'club culture',
       'representation',
     ],
+    videoId: 'PU2py1lsFCc',
   },
   {
     id: 'evt-sophie-oil-london-2018',
@@ -960,7 +967,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'grammy nominated',
       'avant-pop',
     ],
-    videoId: 'v_ofq5Lg8uE',
+    videoId: 'PB5tnokRFS0',
   },
   {
     id: 'evt-floating-points-manchester-2019',

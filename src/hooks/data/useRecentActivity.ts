@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { getChordScales } from '@/components/learn/chordScaleData';
-import { LearnRoutes, StudioRoutes } from '@/constants/routes';
+import { StudioRoutes } from '@/constants/routes';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
-import { getSong } from '@/curriculum/data/songs';
-import { useSavedSongsStore } from '@/features/songs/useSavedSongsStore';
-import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { studioProjectsApi } from '@/lib/studio-projects/api';
-import type { PrismModeSlug } from './prism';
-import { useProgressSummary } from './progress/useProgressSummary';
+import { studioTileAccent } from '@/lib/studioProjectTile';
+import {
+  useRecentLessons,
+  useSavedSongsActivity,
+  useViewedSongsActivity,
+} from './useLearnActivity';
 
 export type ActivityKind = 'lesson' | 'project' | 'song';
 
@@ -18,24 +18,27 @@ export interface ActivityItem {
   title: string;
   subtitle: string;
   thumbnail?: string;
+  /** Optional accent color (e.g. a Theory lesson's mode/key color). */
+  accentColor?: string;
+  /** Optional interactive hex-tile SVG path (a lesson's Genre/Theory tile art). */
+  image?: string;
   route: string;
   touchedAt: number;
 }
 
 const MAX_ITEMS = 10;
 
-const timeFromIso = (iso: string | null | undefined): number =>
-  iso ? new Date(iso).getTime() || 0 : 0;
-
 /**
- * Merged "Recent Activity" feed: recent lessons + recent Studio projects +
- * recently saved songs. No new backend — everything composes existing sources.
+ * Merged "Recent Activity" feed for the Home dashboard — ALL learn activity:
+ * recent lessons (theory + genre), recent Studio projects, and recently saved
+ * OR viewed songs. Composes the shared Learn activity hooks so lesson mapping,
+ * accent colors, and song tracking stay in one place.
  */
 export const useRecentActivity = (): ActivityItem[] => {
   const token = useAuthToken();
-  const { data: progress } = useProgressSummary(true);
-  const savedIds = useSavedSongsStore((s) => s.savedIds);
-  const savedAt = useSavedSongsStore((s) => s.savedAt);
+  const lessons = useRecentLessons(1);
+  const savedSongs = useSavedSongsActivity();
+  const viewedSongs = useViewedSongsActivity();
 
   const [projects, setProjects] = useState<ActivityItem[]>([]);
   useEffect(() => {
@@ -55,6 +58,8 @@ export const useRecentActivity = (): ActivityItem[] => {
             category: 'Studio Project',
             title: p.name || 'Untitled Project',
             subtitle: p.composerName || `${p.bpm ?? '—'} BPM`,
+            // Stripe colour from the same seed the tile SVG uses (item.id).
+            accentColor: studioTileAccent(`project:${p.id}`),
             route: `${StudioRoutes.root.definition}?project=${encodeURIComponent(p.id)}`,
             touchedAt:
               (p.updatedAt instanceof Date
@@ -71,50 +76,14 @@ export const useRecentActivity = (): ActivityItem[] => {
     };
   }, [token]);
 
-  const lessons: ActivityItem[] = (progress?.lessons ?? [])
-    .filter(
-      (l) =>
-        l.lessonId.startsWith('mode-lesson-flow') &&
-        !!l.mode &&
-        !!l.root &&
-        (l.completedCount ?? 0) > 0,
-    )
-    .map((l) => {
-      const mode = l.mode as PrismModeSlug;
-      const modeName = getChordScales(mode)?.modeName ?? mode;
-      const rootLabel = urlParamToKeyLabel(l.root!);
-      return {
-        id: `lesson:${l.lessonId}`,
-        kind: 'lesson' as const,
-        category: 'Lesson',
-        title: `${modeName} in ${rootLabel}`,
-        subtitle: `${l.completedCount}/${l.totalCount ?? '—'} activities`,
-        route: LearnRoutes.lesson({
-          mode,
-          key: keyLabelToUrlParam(l.root!),
-        }),
-        touchedAt: timeFromIso(l.updatedAt),
-      };
-    });
+  // Songs: merge saved + viewed, one entry per song (keep the more-recent touch).
+  const songMap = new Map<string, ActivityItem>();
+  for (const s of [...savedSongs, ...viewedSongs]) {
+    const prev = songMap.get(s.id);
+    if (!prev || s.touchedAt > prev.touchedAt) songMap.set(s.id, s);
+  }
 
-  const songs: ActivityItem[] = Object.keys(savedIds)
-    .map((songId): ActivityItem | null => {
-      const song = getSong(songId);
-      if (!song) return null;
-      return {
-        id: `song:${songId}`,
-        kind: 'song',
-        category: 'Saved Song',
-        title: song.title,
-        subtitle: song.artist,
-        thumbnail: song.artistImageRef,
-        route: `/songs/${song.id}`,
-        touchedAt: savedAt[songId] ?? 0,
-      };
-    })
-    .filter((item): item is ActivityItem => item !== null);
-
-  return [...lessons, ...projects, ...songs]
+  return [...lessons, ...projects, ...Array.from(songMap.values())]
     .sort((a, b) => b.touchedAt - a.touchedAt)
     .slice(0, MAX_ITEMS);
 };

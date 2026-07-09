@@ -248,13 +248,15 @@ export function useGeoData(): GeoData {
   useEffect(() => {
     const controller = new AbortController();
 
+    const fetchJson = async (url: string) => {
+      const r = await fetch(url, { signal: controller.signal });
+      if (!r.ok) throw new Error(`Map data request failed (HTTP ${r.status})`);
+      return r.json();
+    };
+
     Promise.all([
-      fetch(GEOJSON_URLS.countries, { signal: controller.signal }).then((r) =>
-        r.json(),
-      ),
-      fetch(GEOJSON_URLS.admin1, { signal: controller.signal }).then((r) =>
-        r.json(),
-      ),
+      fetchJson(GEOJSON_URLS.countries),
+      fetchJson(GEOJSON_URLS.admin1),
     ])
       .then(([countriesData, admin1Data]) => {
         const raw = countriesData as FeatureCollection;

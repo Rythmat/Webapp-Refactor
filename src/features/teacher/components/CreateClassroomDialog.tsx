@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import type { PostClassroomsData } from '@/contexts/MusicAtlasContext/musicAtlas.generated';
 import { useCreateClassroom } from '@/hooks/data';
 
 const currentYear = new Date().getFullYear();
@@ -45,11 +46,13 @@ const classroomFormSchema = z.object({
 interface CreateClassroomDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreated?: (classroom: PostClassroomsData) => void;
 }
 
 export const CreateClassroomDialog = ({
   isOpen,
   onOpenChange,
+  onCreated,
 }: CreateClassroomDialogProps) => {
   const createClassroom = useCreateClassroom();
 
@@ -64,7 +67,7 @@ export const CreateClassroomDialog = ({
 
   const handleSubmit = async (data: z.infer<typeof classroomFormSchema>) => {
     try {
-      await createClassroom.mutateAsync({
+      const created = await createClassroom.mutateAsync({
         name: data.name,
         year: data.year,
         description: data.description || undefined,
@@ -72,6 +75,7 @@ export const CreateClassroomDialog = ({
       toast.success('Classroom created successfully');
       form.reset();
       onOpenChange(false);
+      onCreated?.(created);
     } catch (error) {
       toast.error('Failed to create classroom');
     }

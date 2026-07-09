@@ -43,6 +43,7 @@ export const WORLD_EVENTS: HistoricalEvent[] = [
       'dembow',
       'reggaeton origins',
     ],
+    videoId: 'EMc0tq0HwVM',
   },
   {
     id: 'evt-nueva-cancion-santiago-1969',
@@ -68,5 +69,6 @@ export const WORLD_EVENTS: HistoricalEvent[] = [
       'protest music',
       'estadio chile',
     ],
+    videoId: 'uAi8hK6_2z4',
   },
 ];

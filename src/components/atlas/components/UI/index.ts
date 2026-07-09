@@ -3,7 +3,5 @@ export { TopBar } from './TopBar';
 export { Timeline } from './Timeline';
 export { DetailsCard } from './DetailsCard';
 export { SearchResults } from './SearchResults';
-export { AIInsightPanel } from './AIInsightPanel';
-export { MarkdownRenderer } from './MarkdownRenderer';
 export { ModulePicker } from './ModulePicker';
 export { ModuleProgressBar } from './ModuleProgressBar';

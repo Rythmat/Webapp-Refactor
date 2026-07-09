@@ -69,10 +69,80 @@ export interface CellPresentation {
   prompt: LocalizedText;
   launchTiles: LaunchTile[];
   /**
+   * v2 addition — a phase can carry interactive prompts. Each Interaction is
+   * projected on the Board / Focus view and answered by student devices in
+   * either a live Session or an async assignment run. See
+   * docs/classroom-v2/openapi.yaml `Interaction`.
+   */
+  interactions?: Interaction[];
+  /**
    * Reflect-phase-only: the reset checklist rendered as tickable boxes. State
    * is deliberately ephemeral — nothing persists across sessions.
    */
   resetChecklist?: LocalizedText[];
+}
+
+/**
+ * An interactive prompt attached to a Cell (Classroom v2). Answered by
+ * students in either a live Session or an async assignment run. Response
+ * payload shapes live at `InteractionResponse` below.
+ *
+ * `shareable` gates whether an answered response can be projected via the
+ * anonymized share overlay. **`check-in` is always hard-`false`**: the
+ * runtime `buildProjectorView` selector enforces Rule 2 of the firewall by
+ * refusing to emit check-in payloads to the projector view.
+ */
+export interface Interaction {
+  id: string;
+  type: InteractionType;
+  question: LocalizedText;
+  shareable: boolean;
+  choice?: { options: LocalizedText[]; multi: boolean };
+  number?: { min?: number; max?: number };
+  text?: { maxLen: number };
+  draw?: { background?: 'blank' | 'staff' | 'keyboard' | 'grid' };
+  checkIn?: { style: 'emoji' | 'scale' | 'word' };
+  atlas?: {
+    module: 'globe' | 'learn' | 'studio' | 'arcade';
+    activityRef: string;
+    expects: 'completion' | 'score' | 'artifact';
+  };
+}
+
+export type InteractionType =
+  | 'choice'
+  | 'text'
+  | 'number'
+  | 'draw'
+  | 'check-in'
+  | 'atlas';
+
+/**
+ * Discriminated payload for a single student response. Persistence is on the
+ * server via `POST /classrooms/:id/sessions/:sessionId/responses`; the same
+ * shape covers both live and async assignment paths.
+ */
+export type InteractionResponsePayload =
+  | { kind: 'choice'; choices: number[] }
+  | { kind: 'text'; text: string }
+  | { kind: 'number'; value: number }
+  | { kind: 'draw'; strokes: Array<Record<string, unknown>> }
+  | { kind: 'check-in'; value: string }
+  | {
+      kind: 'atlas';
+      module: Interaction['type'] extends 'atlas' ? string : string;
+      activityRef: string;
+      result: Record<string, unknown>;
+    };
+
+export interface InteractionResponse {
+  id: string;
+  interactionId: string;
+  enrollmentId: string;
+  sessionId?: string;
+  assignmentId?: string;
+  payload: InteractionResponsePayload;
+  createdAt: string;
 }
 
 /**

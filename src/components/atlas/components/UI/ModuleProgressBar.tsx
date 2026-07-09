@@ -61,21 +61,22 @@ export function ModuleProgressBar() {
 
   return (
     <div className="absolute bottom-4 left-1/2 z-[1000] w-[min(640px,calc(100%-2rem))] -translate-x-1/2">
-      <div className="rounded-xl border border-teal-500/30 bg-zinc-900/95 px-4 py-3 shadow-2xl backdrop-blur-xl">
+      <div className="rounded-2xl border border-[#60a5fa66] bg-black/20 px-4 py-3 shadow-2xl backdrop-blur-md">
         {/* Header row: module title + step info + exit */}
         <div className="mb-2 flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
             <span className="text-sm leading-none">{mod.emoji}</span>
-            <span className="truncate text-[10px] font-medium text-teal-400/70">
+            <span className="truncate text-[10px] font-medium text-[#60a5fa]/70">
               {mod.title}
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <span className="text-[10px] text-zinc-500">
+            <span className="text-[10px] text-white/40">
               Step {currentStep + 1} of {total}
             </span>
             <button
-              className="p-0.5 text-zinc-500 transition-colors hover:text-white"
+              aria-label="Exit journey"
+              className="p-0.5 text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
               title="Exit journey"
               onClick={exit}
             >
@@ -90,21 +91,23 @@ export function ModuleProgressBar() {
             <h4 className="truncate text-xs font-semibold text-white">
               {current.title}
             </h4>
-            <p className="mt-0.5 text-[10px] text-zinc-400">
+            <p className="mt-0.5 text-[10px] text-white/60">
               {current.location.city}, {current.location.country} &middot;{' '}
               {current.year}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <button
-              className="rounded-md p-1 text-zinc-400 transition-colors hover:bg-zinc-700/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+              aria-label="Previous stop"
+              className="rounded-md p-1 text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] disabled:cursor-not-allowed disabled:opacity-30"
               disabled={currentStep === 0}
               onClick={() => navigateToStep(currentStep - 1)}
             >
               <ChevronLeft className="size-4" />
             </button>
             <button
-              className="rounded-md p-1 text-zinc-400 transition-colors hover:bg-zinc-700/50 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+              aria-label="Next stop"
+              className="rounded-md p-1 text-white/60 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] disabled:cursor-not-allowed disabled:opacity-30"
               disabled={currentStep === total - 1}
               onClick={() => navigateToStep(currentStep + 1)}
             >
@@ -118,12 +121,13 @@ export function ModuleProgressBar() {
           {events.map((_, i) => (
             <button
               key={i}
-              className={`rounded-full transition-all ${
+              aria-label={`Go to stop ${i + 1}: ${events[i]?.title ?? ''}`}
+              className={`rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
                 i === currentStep
-                  ? 'size-2.5 bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.5)]'
+                  ? 'size-2.5 bg-[#60a5fa] shadow-[0_0_6px_rgba(96,165,250,0.5)]'
                   : i < currentStep
-                    ? 'size-2 bg-teal-600 hover:bg-teal-500'
-                    : 'size-2 bg-zinc-600 hover:bg-zinc-500'
+                    ? 'size-2 bg-[#60a5fa]/70 hover:bg-[#60a5fa]'
+                    : 'size-2 bg-white/20 hover:bg-white/30'
               }`}
               title={events[i]?.title}
               onClick={() => navigateToStep(i)}

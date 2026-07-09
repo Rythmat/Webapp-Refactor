@@ -23,7 +23,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'mouraria',
       'casas de fado',
     ],
-    videoId: 'YXGMSw1lRes',
+    videoId: 'NGn6XjgeBlM',
   },
   {
     id: 'evt-roots-nashville-1972',
@@ -82,7 +82,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'gitano',
       'guitar',
     ],
-    videoId: 'SYVUgvV4PdQ',
+    videoId: 'kAkniqn1YIY',
   },
   {
     id: 'evt-gnawa-marrakech-2000',
@@ -146,7 +146,6 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'radio',
       'music city',
     ],
-    videoId: '07apBBaBjb4',
   },
   {
     id: 'evt-arabesque-istanbul-1985',
@@ -196,7 +195,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'north africa',
       'algerian folk',
     ],
-    videoId: 'RZiyzUuM77w',
+    videoId: 'PX094eqlut4',
   },
   {
     id: 'evt-malouf-tunis-1934',
@@ -310,7 +309,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'malabo',
       'communal dance',
     ],
-    videoId: 'OcR16S2fIfI',
+    videoId: 'q2UxWyhm2PI',
   },
   {
     id: 'evt-sai-ndjamena-1995',
@@ -360,7 +359,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'asmara',
       'eritrea',
     ],
-    videoId: 'X2GP_5LMAU0',
+    videoId: 'CNkfhd6Nqx4',
   },
   {
     id: 'evt-djibouti-folk-1977',
@@ -385,7 +384,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'horn of africa',
       'somali poetry',
     ],
-    videoId: 'YH2kr8gfF3c',
+    videoId: 'W9vzi-VyKpM',
   },
   {
     id: 'evt-moutya-victoria-2011',
@@ -534,7 +533,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'mountain music',
       'microstate',
     ],
-    videoId: 'fIQFibYyvUA',
+    videoId: 'Fl7b6JKEdxY',
   },
   {
     id: 'evt-slovak-folk-bratislava-1960',
@@ -582,7 +581,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'belgrade nightlife',
       'serbian pop',
     ],
-    videoId: '-rexCKGvwo0',
+    videoId: 'T6_EQdtotg0',
   },
   {
     id: 'evt-roma-brass-skopje-1990',
@@ -606,7 +605,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'skopje',
       'wedding music',
     ],
-    videoId: 'geJZBAjxD6c',
+    videoId: 'R1WnnxRuUME',
   },
   {
     id: 'evt-dakhabrakha-kyiv-2004',
@@ -717,7 +716,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'arab classical',
       'levant',
     ],
-    videoId: 'Mi5Y1vWrHsM',
+    videoId: 'wk-OHKzHG-o',
   },
   {
     id: 'evt-sanani-song-sanaa-2003',
@@ -774,7 +773,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'persian gulf',
       'maritime music',
     ],
-    videoId: 'S2TrHr3bLDM',
+    videoId: 'HTlP7GcpKaQ',
   },
   {
     id: 'evt-sawt-manama-1940',
@@ -816,7 +815,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'gulf pop',
       'arabian peninsula',
     ],
-    videoId: 'offpDQTXx8Y',
+    videoId: 'JIl50HUEEDk',
   },
   {
     id: 'evt-duduk-yerevan-2005',
@@ -864,7 +863,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'kazakh music',
       'steppe folk',
     ],
-    videoId: 'PdciYHpEmvI',
+    videoId: 'gRjnHMZMqkk',
   },
   {
     id: 'evt-manas-epic-bishkek-1995',
@@ -1060,7 +1059,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'bhutanese pop',
       'television era',
     ],
-    videoId: 'J5gO5cmb_gk',
+    videoId: 'cW_JltDGUlg',
   },
   {
     id: 'evt-bodu-beru-male-1980',
@@ -1192,7 +1191,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'folk pop',
       'national theatre',
     ],
-    videoId: 'sLNbJ3BYfxQ',
+    videoId: 'EIRLDtCWPjE',
   },
   {
     id: 'evt-dangdut-jakarta-1975',
@@ -1238,7 +1237,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'tetum',
       'dili all stars',
     ],
-    videoId: 'HTOhDREuC_o',
+    videoId: 'ORQtG-qeFVI',
   },
   {
     id: 'evt-gulingtangan-brunei-1992',
@@ -1349,6 +1348,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'slit drum',
       'rom dance',
     ],
+    videoId: 'nsCJ0Mq_5GU',
   },
   {
     id: 'evt-choral-apia-1962',
@@ -1436,7 +1436,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'kosrae',
       'micronesian traditions',
     ],
-    videoId: 'aop1vTT1ONA',
+    videoId: 'MClVfuuPe-g',
   },
   {
     id: 'evt-jebwa-majuro-1979',
@@ -1549,6 +1549,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'alberta',
       'world music',
     ],
+    videoId: '4L3r5TrtpBI',
   },
   {
     id: 'evt-jonimitchell-saskatoon-1964',
@@ -1573,7 +1574,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'hejira',
       'prairie',
     ],
-    videoId: 'kMB8tIZcNj4',
+    videoId: 'jxiluPSmAF8',
   },
   {
     id: 'evt-celtic-halifax-1970',
@@ -1671,7 +1672,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'irish influence',
       'maritime',
     ],
-    videoId: 'pcafQODTTGY',
+    videoId: 'by_SoQ7CjF4',
   },
   {
     id: 'evt-ceilidh-charlottetown-1977',
@@ -1744,7 +1745,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'marimba de concierto',
       'quetzaltenango',
     ],
-    videoId: '0H4Ww8S7u-w',
+    videoId: 'vQl9Q7l3JkA',
   },
   {
     id: 'evt-andean-lapaz-1965',
@@ -1769,7 +1770,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'andean folk',
       'bolivian music',
     ],
-    videoId: 'n2a7KYJ7a40',
+    videoId: 'yt07vSOfkTs',
   },
   {
     id: 'evt-candombe-montevideo-1978',
@@ -1819,6 +1820,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'anchorage',
       'fiddlers',
     ],
+    videoId: 'T2l7ZCkvg3s',
   },
   {
     id: 'evt-pamyua-anchorage-2010',
@@ -1863,7 +1865,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'traditional',
       'slide guitar',
     ],
-    videoId: 'iy9XLM9XIXg',
+    videoId: 'VoLdYn5VCWw',
   },
   {
     id: 'evt-iz-honolulu-1993',
@@ -1903,7 +1905,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'storytelling',
       'maine',
     ],
-    videoId: '9UGISlgzg1E',
+    videoId: 'VXtE82-HPX0',
   },
   {
     id: 'evt-folkamericana-missoula-1999',
@@ -1968,7 +1970,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'north dakota',
       'immigrant music',
     ],
-    videoId: 'IviKBLjl0Hs',
+    videoId: 'TjKVKP-TanU',
   },
   {
     id: 'evt-shovelsrope-charleston-2010',
@@ -1993,7 +1995,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'charleston',
       'south carolina',
     ],
-    videoId: 'ZpEEHhCF8YI',
+    videoId: '39WK2cIYGEc',
   },
   {
     id: 'evt-lakotadrums-siouxfalls-1990',
@@ -2043,6 +2045,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'vermont',
       'church street',
     ],
+    videoId: '1R1VenIi944',
   },
   {
     id: 'evt-oldtimefiddle-charleston-1930',
@@ -2067,7 +2070,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'west virginia',
       'folk tradition',
     ],
-    videoId: 'g4R936oEuH4',
+    videoId: 'EVxjnXEEBnU',
   },
   {
     id: 'evt-hazeldickens-charleston-1968',
@@ -2213,7 +2216,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'diaspora',
       'capoeira',
     ],
-    videoId: '2UEBQACyL60',
+    videoId: 'jxnGsidu290',
   },
   {
     id: 'evt-diaspora-nola-mardi-gras-indians-1885',
@@ -2266,6 +2269,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'diaspora',
       'paul simon',
     ],
+    videoId: 'SJdrBBlNpr0',
   },
   {
     id: 'evt-flamenco-seville-1600',
@@ -2398,7 +2402,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'world music',
       'maghreb',
     ],
-    videoId: 'F_Prl5CyA74',
+    videoId: 'IG0KJ5wBuuU',
   },
   {
     id: 'evt-gnawa-marrakech-2005',
@@ -2471,7 +2475,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'israeli music',
       'oriental',
     ],
-    videoId: '5nKFsLYqf6Y',
+    videoId: 'otnhA6WFYg8',
   },
   {
     id: 'evt-dombra-almaty-1990',
@@ -2715,7 +2719,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'folk revival',
       'labor movement',
     ],
-    videoId: 'bixrypNQdk8',
+    videoId: 's1yQcIEFAFc',
   },
   {
     id: 'evt-woody-guthrie-this-land-nyc-1940',
@@ -2763,7 +2767,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'columbia records',
       'queens',
     ],
-    videoId: 'Ulgf7ujGdvA',
+    videoId: '4G-YQA_bsOU',
   },
   {
     id: 'evt-james-taylor-sweet-baby-chapel-hill-1970',
@@ -2811,6 +2815,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'island records',
       'british folk',
     ],
+    videoId: '070ecdv7vr0',
   },
   {
     id: 'evt-nick-drake-pink-moon-london-1972',
@@ -2835,6 +2840,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'acoustic guitar',
       'cult classic',
     ],
+    videoId: 'xqe6TF2y8i4',
   },
   {
     id: 'evt-tracy-chapman-debut-boston-1988',
@@ -2909,7 +2915,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'four-track',
       'home recording',
     ],
-    videoId: 'WPiCSsW-2as',
+    videoId: 'uTsbNMRQa1E',
   },
   {
     id: 'evt-fleet-foxes-debut-seattle-2008',
@@ -2959,7 +2965,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'falsetto',
       'indie folk',
     ],
-    videoId: 'UP1ppSV_u1E',
+    videoId: '4JjSyITsyIs',
   },
   {
     id: 'evt-sufjan-stevens-illinois-brooklyn-2005',
@@ -2984,6 +2990,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'orchestral',
       'chicago',
     ],
+    videoId: 'nA0UOiVM1u0',
   },
   {
     id: 'evt-phoebe-bridgers-punisher-la-2020',
@@ -3008,6 +3015,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'indie folk',
       'pandemic',
     ],
+    videoId: 'Tw0zYd0eIlk',
   },
   {
     id: 'evt-emmylou-harris-wrecking-ball-nashville-1995',
@@ -3032,7 +3040,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'nashville',
       'roots music',
     ],
-    videoId: 'OfHxY9Xrh90',
+    videoId: 'p3bzl8LbsC4',
   },
   {
     id: 'evt-odetta-folk-revival-sf-1956',
@@ -3083,7 +3091,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'fingerpicking',
       'seeger family',
     ],
-    videoId: 'voPJENW6i4c',
+    videoId: 'oI-LeIoG-XE',
   },
   {
     id: 'evt-phil-ochs-protest-nyc-1964',
@@ -3108,6 +3116,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'elektra records',
       'singing journalist',
     ],
+    videoId: '8bK2ygWQ6ag',
   },
   {
     id: 'evt-richie-havens-woodstock-1969',
@@ -3232,6 +3241,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'poppy records',
       'outlaw country',
     ],
+    videoId: 'VZUE7KTtUwE',
   },
   {
     id: 'evt-lucinda-williams-car-wheels-nashville-1998',
@@ -3256,7 +3266,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'mercury records',
       'lake charles',
     ],
-    videoId: 'b2zufZOdysE',
+    videoId: 'SsO04VzOW2c',
   },
   {
     id: 'evt-gillian-welch-revival-nashville-1996',
@@ -3331,7 +3341,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'americana',
       'dave cobb',
     ],
-    videoId: '8YeQj22Vw0M',
+    videoId: '5r6A2NexF88',
   },
   {
     id: 'evt-weavers-nyc-1950',

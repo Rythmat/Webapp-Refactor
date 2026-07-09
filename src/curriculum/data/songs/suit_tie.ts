@@ -485,7 +485,7 @@ export const suit_tie: Song = {
   ],
 
   audioSources: [
-    { provider: 'youtube', uri: 'https://youtube.com/watch?v=XKCiflNvDp4' },
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=IsUsVbTj2AY' },
   ],
   artistImageSource: 'manual',
 

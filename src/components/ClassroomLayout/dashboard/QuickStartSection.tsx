@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { HexWaveBackground } from '@/components/ui/hex-wave-background';
 import {
   AtlasRoutes,
   GameRoutes,
@@ -64,36 +65,35 @@ export const QuickStartSection = () => {
         <InstrumentSelector />
       </div>
 
-      <div
-        className="relative overflow-hidden rounded-2xl"
-        style={{
-          backgroundImage: "url('/backgrounds/learn-bg.svg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-4 md:gap-5 md:p-5">
+      <div className="relative isolate overflow-hidden rounded-2xl">
+        <HexWaveBackground
+          src="/backgrounds/learn-bg.svg"
+          drain={false}
+          ambient
+          className="pointer-events-none absolute inset-0 z-0"
+          backgroundColor="#0D0B08"
+          colorThreshold={0.32}
+          brushRadius={90}
+        />
+        <div className="relative z-10 grid grid-cols-2 gap-4 p-4 md:grid-cols-4 md:gap-5 md:p-5">
           {TILES.map(({ key, label, iconSrc, to }) => (
             <Link
               key={key}
               to={to}
               aria-label={`Open ${label}`}
-              className="group relative flex aspect-square flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/10 backdrop-blur-sm transition-transform hover:-translate-y-px hover:border-white/25"
+              className="group relative flex aspect-square flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/15 transition-transform hover:-translate-y-px hover:border-white/25"
             >
               <div className="pointer-events-none flex flex-1 items-center justify-center pt-8 md:pt-12">
                 <img
                   src={iconSrc}
                   alt=""
                   draggable={false}
-                  className="h-24 w-24 opacity-70 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-all group-hover:scale-105 group-hover:opacity-100 md:h-[120px] md:w-[120px]"
+                  className="h-16 w-16 opacity-70 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-all group-hover:scale-105 group-hover:opacity-100 md:h-20 md:w-20"
                 />
               </div>
               <div className="m-3 rounded-lg bg-black/70 px-4 py-3 backdrop-blur-sm md:m-4 md:rounded-xl">
-                <div className="text-lg font-semibold text-white md:text-xl">
+                <div className="text-center text-lg font-normal text-white md:text-xl">
                   {label}
-                </div>
-                <div className="text-sm text-white/60 md:text-base">
-                  Open {label}
                 </div>
               </div>
             </Link>

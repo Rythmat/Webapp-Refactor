@@ -5,10 +5,16 @@ import { useMe } from '@/hooks/data';
  * stats cluster that used to live on the right side of this row moved into
  * the app-wide TopRail chrome and is no longer rendered here.
  */
-export const WelcomeHeader = () => {
+interface WelcomeHeaderProps {
+  /** Build the heading from the resolved user name. Defaults to "Welcome, {name}". */
+  format?: (name: string) => string;
+}
+
+export const WelcomeHeader = ({ format }: WelcomeHeaderProps = {}) => {
   const { data: user } = useMe();
 
   const name = user?.nickname || user?.username || 'friend';
+  const heading = format ? format(name) : `Welcome, ${name}`;
 
   return (
     <header className="relative overflow-hidden rounded-2xl">
@@ -23,7 +29,7 @@ export const WelcomeHeader = () => {
       />
       <div className="flex flex-wrap items-end justify-between gap-4 p-5 md:p-6">
         <h1 className="text-4xl font-medium leading-tight text-white md:text-5xl lg:text-6xl">
-          Welcome, {name}
+          {heading}
         </h1>
       </div>
     </header>

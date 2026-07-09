@@ -78,6 +78,76 @@ const DayEditor = lazy(() =>
   })),
 );
 
+const PreviewPage = lazy(() =>
+  import('./plan/PreviewPage').then(({ PreviewPage }) => ({
+    default: PreviewPage,
+  })),
+);
+
+const AssignmentsPage = lazy(() =>
+  import('./assignments/AssignmentsPage').then(({ AssignmentsPage }) => ({
+    default: AssignmentsPage,
+  })),
+);
+
+const AssignmentDayRunner = lazy(() =>
+  import('./assignments/AssignmentDayRunner').then(
+    ({ AssignmentDayRunner }) => ({
+      default: AssignmentDayRunner,
+    }),
+  ),
+);
+
+const AssignmentInstructionsPage = lazy(() =>
+  import('./assignments/AssignmentInstructionsPage').then(
+    ({ AssignmentInstructionsPage }) => ({
+      default: AssignmentInstructionsPage,
+    }),
+  ),
+);
+
+const AssignmentProgressPage = lazy(() =>
+  import('./assignments/AssignmentProgressPage').then(
+    ({ AssignmentProgressPage }) => ({
+      default: AssignmentProgressPage,
+    }),
+  ),
+);
+
+const LiveSessionPage = lazy(() =>
+  import('./live/LiveSessionPage').then(({ LiveSessionPage }) => ({
+    default: LiveSessionPage,
+  })),
+);
+
+const TeacherSessionDashboard = lazy(() =>
+  import('./live/TeacherSessionDashboard').then(
+    ({ TeacherSessionDashboard }) => ({
+      default: TeacherSessionDashboard,
+    }),
+  ),
+);
+
+const ProjectorPage = lazy(() =>
+  import('./live/ProjectorPage').then(({ ProjectorPage }) => ({
+    default: ProjectorPage,
+  })),
+);
+
+const SessionReportPage = lazy(() =>
+  import('./live/SessionReportPage').then(({ SessionReportPage }) => ({
+    default: SessionReportPage,
+  })),
+);
+
+const SessionReportsListPage = lazy(() =>
+  import('./live/SessionReportsListPage').then(
+    ({ SessionReportsListPage }) => ({
+      default: SessionReportsListPage,
+    }),
+  ),
+);
+
 const ChromaPage = lazy(() =>
   import('@/components/Games/arcadePages').then(({ ChromaPage }) => ({
     default: ChromaPage,
@@ -220,6 +290,46 @@ export const classroomPages = () => {
       {
         path: ClassroomRoutes.dayEditor.definition,
         element: <DayEditor />,
+      },
+      {
+        path: ClassroomRoutes.preview.definition,
+        element: <PreviewPage />,
+      },
+      {
+        path: ClassroomRoutes.assignments.definition,
+        element: <AssignmentsPage />,
+      },
+      {
+        path: ClassroomRoutes.assignmentDayRun.definition,
+        element: <AssignmentDayRunner />,
+      },
+      {
+        path: ClassroomRoutes.assignmentInstructions.definition,
+        element: <AssignmentInstructionsPage />,
+      },
+      {
+        path: ClassroomRoutes.assignmentProgress.definition,
+        element: <AssignmentProgressPage />,
+      },
+      {
+        path: ClassroomRoutes.live.definition,
+        element: <LiveSessionPage />,
+      },
+      {
+        path: ClassroomRoutes.session.definition,
+        element: <TeacherSessionDashboard />,
+      },
+      {
+        path: ClassroomRoutes.projector.definition,
+        element: <ProjectorPage />,
+      },
+      {
+        path: ClassroomRoutes.report.definition,
+        element: <SessionReportPage />,
+      },
+      {
+        path: ClassroomRoutes.reports.definition,
+        element: <SessionReportsListPage />,
       },
       {
         path: '*',

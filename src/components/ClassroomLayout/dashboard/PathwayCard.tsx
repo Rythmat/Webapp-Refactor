@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
+import { HexWaveBackground } from '@/components/ui/hex-wave-background';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 
 interface PathwayCardProps {
@@ -8,6 +9,9 @@ interface PathwayCardProps {
   seed: string;
   paletteIndex?: number;
   image?: string;
+  /** When true (and `image` is a polygon honeycomb), the tile art is an
+   *  interactive hex canvas that paints on hover and drifts on its own. */
+  interactive?: boolean;
 }
 
 export const PathwayCard = ({
@@ -16,6 +20,7 @@ export const PathwayCard = ({
   seed,
   paletteIndex,
   image,
+  interactive,
 }: PathwayCardProps) => {
   const config = {
     ...defaultAvatarConfig(seed),
@@ -33,20 +38,30 @@ export const PathwayCard = ({
           {title}
         </div>
       </div>
-      <div className="pointer-events-none absolute inset-0 -z-0">
-        {image ? (
+      <div className="absolute inset-0 -z-0">
+        {image && interactive ? (
+          <HexWaveBackground
+            src={image}
+            drain={false}
+            ambient
+            className="pointer-events-none absolute inset-0"
+            backgroundColor="#0D0B08"
+            colorThreshold={0.05}
+            brushRadius={70}
+          />
+        ) : image ? (
           <img
             src={image}
             alt=""
             draggable={false}
-            className="h-full w-full object-cover"
+            className="pointer-events-none h-full w-full object-cover"
           />
         ) : (
           <HexAvatarSVG
             config={config}
             size={512}
             circular={false}
-            className="h-full w-full"
+            className="pointer-events-none h-full w-full"
           />
         )}
       </div>

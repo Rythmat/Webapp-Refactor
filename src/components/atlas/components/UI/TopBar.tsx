@@ -37,9 +37,9 @@ export function TopBar() {
     <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start px-4 pb-2 pt-4">
       <div className="pointer-events-auto">
         <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
+          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-white/40" />
           <input
-            className="w-64 rounded-lg border border-zinc-700/50 bg-zinc-900/80 py-1.5 pl-8 pr-3 text-sm text-white backdrop-blur-xl transition-colors placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none"
+            className="w-64 rounded-lg border border-white/10 bg-black/20 py-1.5 pl-8 pr-3 text-sm text-white backdrop-blur-md transition-colors placeholder:text-white/40 focus:border-white/25 focus:outline-none focus:ring-1 focus:ring-[#60a5fa]"
             placeholder="Search (e.g. Rock LA 1960s)"
             type="text"
             value={searchQuery}

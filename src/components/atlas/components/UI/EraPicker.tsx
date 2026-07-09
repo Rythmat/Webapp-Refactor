@@ -35,10 +35,12 @@ export function EraPicker() {
   return (
     <div ref={ref} className="relative">
       <button
-        className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+        aria-label="Filter by musical era"
+        aria-expanded={open}
+        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
           activeEra
             ? `${activeEra.activeBg} ${activeEra.activeText} ${activeEra.activeBorder}`
-            : 'border border-zinc-700/50 bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700/80'
+            : 'border border-white/10 bg-white/5 text-white/70 hover:bg-white/10'
         }`}
         onClick={() => setOpen(!open)}
       >
@@ -47,11 +49,12 @@ export function EraPicker() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl border border-zinc-700/50 bg-zinc-900/95 shadow-2xl backdrop-blur-xl">
-          <div className="flex items-center justify-between border-b border-zinc-700/50 p-3">
-            <h3 className="text-sm font-semibold text-white">Musical Era</h3>
+        <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-white/10 bg-black/20 shadow-2xl backdrop-blur-md">
+          <div className="flex items-center justify-between border-b border-white/10 p-3">
+            <h3 className="text-sm font-medium text-white">Musical Era</h3>
             <button
-              className="text-zinc-500 transition-colors hover:text-white"
+              aria-label="Close era filter"
+              className="text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
               onClick={() => setOpen(false)}
             >
               <X className="size-3.5" />
@@ -62,7 +65,7 @@ export function EraPicker() {
               className={`w-full rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors ${
                 !selectedEra
                   ? 'bg-white/10 text-white'
-                  : 'text-zinc-400 hover:bg-zinc-800/70 hover:text-zinc-200'
+                  : 'text-white/60 hover:bg-white/10 hover:text-white'
               }`}
               onClick={() => selectEra(null)}
             >
@@ -74,12 +77,12 @@ export function EraPicker() {
                 className={`w-full rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors ${
                   selectedEra === era.id
                     ? `${era.activeBg} ${era.activeText}`
-                    : 'text-zinc-400 hover:bg-zinc-800/70 hover:text-zinc-200'
+                    : 'text-white/60 hover:bg-white/10 hover:text-white'
                 }`}
                 onClick={() => selectEra(era.id)}
               >
                 <span>{era.label}</span>
-                <span className="ml-1.5 text-[10px] text-zinc-500">
+                <span className="ml-1.5 text-[10px] text-white/40">
                   {era.yearStart}–{era.yearEnd}
                 </span>
               </button>

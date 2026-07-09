@@ -127,8 +127,10 @@ export const RealTimeAnalytics: FC<XpTrackerProps> = ({
         </div>
       </div>
 
-      {/* Chart */}
-      <div className="flex-1 relative">
+      {/* Chart — min-h-0 lets this flex item shrink below the SVG's intrinsic
+          (width-driven) height, so on wide containers the chart scales to the
+          card height instead of overflowing it. */}
+      <div className="flex-1 relative min-h-0">
         <svg
           ref={svgRef}
           width="100%"

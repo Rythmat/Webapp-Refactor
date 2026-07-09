@@ -14,8 +14,8 @@ export function useGlobeLighting(
     const camera = globe.camera();
     const scene = globe.scene();
 
-    // Dim ambient so the night side isn't pure black
-    const ambient = new AmbientLight(0x404050, 0.4 * Math.PI);
+    // Warm dim ambient so the night side keeps its colour instead of a cold cast
+    const ambient = new AmbientLight(0x4a463c, 0.45 * Math.PI);
 
     // Warm directional "sun" light, attached to the camera so it's screen-relative
     const sunLight = new DirectionalLight(0xfff5e0, 1.2 * Math.PI);

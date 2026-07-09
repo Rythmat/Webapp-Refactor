@@ -1,4 +1,11 @@
-import { CircleHelp, Home, Laptop, Search, Settings } from 'lucide-react';
+import {
+  CircleHelp,
+  GraduationCap,
+  Home,
+  Laptop,
+  Search,
+  Settings,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
 import { cn } from '@/components/utilities';
@@ -7,11 +14,13 @@ import {
   ClassroomRoutes,
   CurriculumRoutes,
   GameRoutes,
-  LearnRoutes,
   ProfileRoutes,
   SettingsRoutes,
   StudioRoutes,
+  TeacherRoutes,
 } from '@/constants/routes';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import { SidebarLearnGroup } from './SidebarLearnGroup';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 
 interface SidebarProps {
@@ -23,6 +32,8 @@ interface SidebarProps {
  * Always renders in the collapsed (icon-only) state — no expand affordance.
  */
 export const ClassroomSidebar = ({ className }: SidebarProps) => {
+  const { role } = useAuthContext();
+  const canManage = role === 'teacher' || role === 'admin';
   return (
     <aside
       className={cn(
@@ -50,32 +61,29 @@ export const ClassroomSidebar = ({ className }: SidebarProps) => {
             label="Home"
             to={ProfileRoutes.root()}
             isCollapsed
+            glyphClassName="h-[23px] w-[23px]"
           />
-          <SidebarMainNavItem
-            iconSrc="/icons/learn-icon.svg"
-            label="Learn"
-            to={LearnRoutes.root()}
-            isCollapsed
-          />
+          <SidebarLearnGroup />
           <SidebarMainNavItem
             iconSrc="/icons/studio-icon.svg"
             label="Studio"
             to={StudioRoutes.root()}
             isCollapsed
+            glyphClassName="h-7 w-7"
           />
           <SidebarMainNavItem
             iconSrc="/icons/globe-icon.svg"
             label="Globe"
             to={AtlasRoutes.root()}
             isCollapsed
-            glyphClassName="h-6 w-6"
+            glyphClassName="h-7 w-7"
           />
           <SidebarMainNavItem
             iconSrc="/icons/arcade-icon.svg"
             label="Arcade"
             to={GameRoutes.root()}
             isCollapsed
-            glyphClassName="h-6 w-6"
+            glyphClassName="h-7 w-7"
           />
         </ul>
 
@@ -93,13 +101,24 @@ export const ClassroomSidebar = ({ className }: SidebarProps) => {
             label="Search"
             to={CurriculumRoutes.root()}
             isCollapsed
+            glyphClassName="h-5 w-5"
           />
           <SidebarMainNavItem
             icon={Laptop}
             label="Classroom"
             to={ClassroomRoutes.root()}
             isCollapsed
+            glyphClassName="h-7 w-7"
           />
+          {canManage && (
+            <SidebarMainNavItem
+              icon={GraduationCap}
+              label="Manage"
+              to={TeacherRoutes.root()}
+              isCollapsed
+              glyphClassName="h-6 w-6"
+            />
+          )}
         </ul>
 
         {/* 4. Flex spacer + system nav */}

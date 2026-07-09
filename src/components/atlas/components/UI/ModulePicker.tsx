@@ -59,10 +59,12 @@ export function ModulePicker() {
   return (
     <div ref={ref} className="relative">
       <button
-        className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+        aria-label="Historical journeys"
+        aria-expanded={open}
+        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
           activeModule
-            ? 'border border-teal-500/30 bg-teal-600/30 text-teal-300'
-            : 'border border-zinc-700/50 bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700/80'
+            ? 'border border-[#60a5fa66] bg-[#60a5fa1a] text-white'
+            : 'border border-white/10 bg-white/5 text-white/70 hover:bg-white/10'
         }`}
         onClick={() => setOpen(!open)}
       >
@@ -71,13 +73,14 @@ export function ModulePicker() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 max-h-96 w-80 overflow-y-auto rounded-xl border border-zinc-700/50 bg-zinc-900/95 shadow-2xl backdrop-blur-xl">
-          <div className="flex items-center justify-between border-b border-zinc-700/50 p-3">
-            <h3 className="text-sm font-semibold text-white">
+        <div className="absolute right-0 top-full z-50 mt-2 max-h-96 w-80 overflow-y-auto rounded-2xl border border-white/10 bg-black/20 shadow-2xl backdrop-blur-md">
+          <div className="flex items-center justify-between border-b border-white/10 p-3">
+            <h3 className="text-sm font-medium text-white">
               Historical Journeys
             </h3>
             <button
-              className="text-zinc-500 transition-colors hover:text-white"
+              aria-label="Close journeys"
+              className="text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
               onClick={() => setOpen(false)}
             >
               <X className="size-3.5" />
@@ -87,10 +90,10 @@ export function ModulePicker() {
             {HISTORICAL_MODULES.map((mod) => (
               <button
                 key={mod.id}
-                className={`w-full rounded-lg p-2.5 text-left transition-colors ${
+                className={`w-full rounded-xl p-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
                   activeModule?.moduleId === mod.id
-                    ? 'border border-teal-500/30 bg-teal-600/20'
-                    : 'border border-transparent hover:bg-zinc-800/70'
+                    ? 'border border-[#60a5fa66] bg-[#60a5fa1a]'
+                    : 'border border-transparent hover:bg-white/10'
                 }`}
                 onClick={() => startModule(mod.id)}
               >
@@ -102,10 +105,10 @@ export function ModulePicker() {
                     <h4 className="text-xs font-semibold text-white">
                       {mod.title}
                     </h4>
-                    <p className="mt-0.5 text-[10px] leading-snug text-zinc-400">
+                    <p className="mt-0.5 text-[10px] leading-snug text-white/60">
                       {mod.description}
                     </p>
-                    <p className="mt-1 text-[10px] text-zinc-500">
+                    <p className="mt-1 text-[10px] text-white/40">
                       {mod.eventIds.length} stops
                     </p>
                   </div>

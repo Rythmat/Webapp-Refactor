@@ -190,7 +190,7 @@ export const proud_mary: Song = {
   ],
 
   audioSources: [
-    { provider: 'youtube', uri: 'https://youtube.com/watch?v=hzQnPz6TpGc' },
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=2RF7Ya9YHEI' },
   ],
   artistImageSource: 'manual',
 

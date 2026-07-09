@@ -20,6 +20,7 @@
 import { PHASES, STUDENT_PHASE_LABELS, type PhaseKey } from './phases';
 import type {
   Day,
+  Interaction,
   LaunchTile,
   LocalizedText,
   StudentViewConfig,
@@ -31,9 +32,36 @@ export interface StudentPhaseView {
   title: LocalizedText;
   prompt: LocalizedText;
   launchTiles: LaunchTile[];
+  /** Interactive prompts a student can respond to during this phase. */
+  interactions?: Interaction[];
   /** Reflect-phase reset checklist. Absent for other phases. */
   resetChecklist?: LocalizedText[];
 }
+
+/**
+ * Whitelist-copy an Interaction so future extensions can't sneak a teacher-only
+ * field through. Mirrors `publishDay.projectInteraction` — both sides of the
+ * firewall keep the same shape.
+ */
+const projectInteractionForStudent = (
+  interaction: Interaction,
+): Interaction => {
+  const out: Interaction = {
+    id: interaction.id,
+    type: interaction.type,
+    question: interaction.question,
+    // Rule 2 belt: check-in responses are teacher-only, so the client emits
+    // shareable=false regardless of what the source Day claims.
+    shareable: interaction.type === 'check-in' ? false : interaction.shareable,
+  };
+  if (interaction.choice) out.choice = interaction.choice;
+  if (interaction.number) out.number = interaction.number;
+  if (interaction.text) out.text = interaction.text;
+  if (interaction.draw) out.draw = interaction.draw;
+  if (interaction.checkIn) out.checkIn = interaction.checkIn;
+  if (interaction.atlas) out.atlas = interaction.atlas;
+  return out;
+};
 
 export interface StudentDayView {
   dayId: string;
@@ -73,6 +101,11 @@ export const buildStudentView = (
         ...(tile.label !== undefined ? { label: tile.label } : {}),
       })),
     };
+    if (cell.presentation.interactions?.length) {
+      view.interactions = cell.presentation.interactions.map(
+        projectInteractionForStudent,
+      );
+    }
     if (
       phaseKey === 'respondReflectReset' &&
       cell.presentation.resetChecklist !== undefined

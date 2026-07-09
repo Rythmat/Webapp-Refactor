@@ -457,7 +457,7 @@ export const nothing_compares_2_u: Song = {
   ],
 
   audioSources: [
-    { provider: 'youtube', uri: 'https://youtube.com/watch?v=TBQrFXP3kaI' },
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=0-EF60neguk' },
   ],
   artistImageSource: 'manual',
 

@@ -256,7 +256,7 @@ function drawPiano(
   st: GameState,
   activeMidiNotes: Set<number>,
 ) {
-  ctx.fillStyle = '#09090b';
+  ctx.fillStyle = '#101012';
   ctx.fillRect(0, hitY, width, PIANO_HEIGHT);
 
   const currentKeys = st.gameMode === 'Harmony' ? HARMONY_KEYS : MELODY_KEYS;

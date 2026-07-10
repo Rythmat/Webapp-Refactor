@@ -14,13 +14,13 @@ import {
   ClassroomRoutes,
   CurriculumRoutes,
   GameRoutes,
+  LearnRoutes,
   ProfileRoutes,
   SettingsRoutes,
   StudioRoutes,
   TeacherRoutes,
 } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { SidebarLearnGroup } from './SidebarLearnGroup';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 
 interface SidebarProps {
@@ -63,7 +63,13 @@ export const ClassroomSidebar = ({ className }: SidebarProps) => {
             isCollapsed
             glyphClassName="h-[23px] w-[23px]"
           />
-          <SidebarLearnGroup />
+          <SidebarMainNavItem
+            iconSrc="/icons/learn-icon.svg"
+            label="Learn"
+            to={LearnRoutes.root()}
+            isCollapsed
+            glyphClassName="h-7 w-7"
+          />
           <SidebarMainNavItem
             iconSrc="/icons/studio-icon.svg"
             label="Studio"

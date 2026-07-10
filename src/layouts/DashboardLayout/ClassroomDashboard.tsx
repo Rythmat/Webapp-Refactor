@@ -3,6 +3,8 @@ import { Outlet, useLocation } from 'react-router';
 import { TopRail } from '@/components/ClassroomLayout/TopRail';
 import { cn } from '@/components/utilities';
 import { useProgressBootstrap } from '@/hooks/data';
+import { useStampEarnedAwards } from '@/hooks/data/useAwards';
+import { useStreakPing } from '@/hooks/data/useStreak';
 import { useChallengeWatcher } from '@/hooks/useChallengeWatcher';
 import { ClassroomSidebar } from './ClassroomSidebar';
 import '@/components/ClassroomLayout/dashboard/dashboard.css';
@@ -12,8 +14,12 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
   const { pathname } = useLocation();
   useProgressBootstrap();
   useChallengeWatcher();
+  useStreakPing();
+  useStampEarnedAwards();
 
-  const isStudio = pathname.startsWith('/studio');
+  // Only the DAW editor (`/studio/editor`) needs the full-viewport, no-scroll
+  // treatment; the `/studio` Studio Dashboard is a normal scrollable inlet.
+  const isStudioEditor = pathname.startsWith('/studio/editor');
 
   return (
     <div className="dashboard-root flex h-screen w-full overflow-hidden">
@@ -27,7 +33,7 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
         <div
           className={cn(
             'relative flex-1 min-w-0',
-            isStudio
+            isStudioEditor
               ? 'flex flex-col min-h-0 overflow-hidden'
               : 'overflow-y-auto overflow-x-hidden rounded-xl bg-[#101012] p-2',
           )}

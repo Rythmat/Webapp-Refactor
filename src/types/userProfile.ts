@@ -1,5 +1,7 @@
 // ── User Profile Types for Connect / Discovery ──────────────────────────
 
+import type { AvatarConfig } from '@/lib/avatarHexGrid';
+
 export const ALL_INSTRUMENTS = [
   'Vocals',
   'Piano',
@@ -49,13 +51,15 @@ export interface DiscoverableUser {
   id: string;
   nickname: string;
   avatarSeed: string;
-  avatarConfig?: Record<string, unknown>;
+  avatarConfig?: AvatarConfig;
   bio: UserBioPreferences;
 }
 
 export interface ConnectionMatch {
   user: DiscoverableUser;
   commonGenres: string[];
+  commonInstruments: string[];
+  commonFocus: string[];
   complementarySkills: { label: string; yours: string; theirs: string }[];
   matchScore: number;
 }

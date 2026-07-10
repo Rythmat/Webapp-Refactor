@@ -55,8 +55,8 @@ export function GameToolbar({
   onChangeVolume,
 }: GameToolbarProps) {
   return (
-    <div className="h-12 bg-[#121214] border-b border-zinc-800 flex items-center px-6 gap-4 shrink-0">
-      <div className="flex items-center gap-2 px-3 py-1 bg-zinc-900 rounded border border-zinc-800">
+    <div className="h-12 bg-[#101012] border-b border-white/10 flex items-center px-6 gap-4 shrink-0">
+      <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.03] rounded border border-white/10">
         <button
           onClick={() => onChangeBPM(-5)}
           className="text-zinc-400 hover:text-white px-2"
@@ -79,7 +79,7 @@ export function GameToolbar({
         className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-medium transition-colors border ${
           metronomeEnabled
             ? 'bg-emerald-900/30 border-emerald-800 text-emerald-400'
-            : 'bg-zinc-900 border-zinc-800 text-zinc-500'
+            : 'bg-white/[0.03] border-white/10 text-zinc-500'
         }`}
       >
         <div
@@ -92,12 +92,12 @@ export function GameToolbar({
 
       <button
         onClick={onToggleVolumePanel}
-        className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-colors border bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-white"
+        className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-colors border bg-white/[0.03] border-white/10 text-zinc-500 hover:text-white"
       >
         Volume
       </button>
       {showVolumePanel && (
-        <div className="flex items-center gap-4 pl-2 border-l border-zinc-800">
+        <div className="flex items-center gap-4 pl-2 border-l border-white/10">
           <VolumeSlider
             label="Keys"
             value={melodyVolume}

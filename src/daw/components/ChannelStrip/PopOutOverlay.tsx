@@ -37,10 +37,10 @@ export function PopOutOverlay({
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
         className="flex flex-col overflow-hidden rounded-lg"
         style={{
-          backgroundColor: '#191919',
+          backgroundColor: 'var(--color-surface)',
           width: '70vw',
           height: '70vh',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: 'var(--glass-border)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         }}
         onClick={(e) => e.stopPropagation()}

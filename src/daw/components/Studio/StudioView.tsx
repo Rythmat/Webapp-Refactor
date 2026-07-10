@@ -170,8 +170,8 @@ function SpectrumAnalyzer({ isReady }: { isReady: boolean }) {
       className="w-full shrink-0 rounded-lg"
       style={{
         height: 180,
-        backgroundColor: 'rgba(15, 20, 35, 0.6)',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
+        backgroundColor: 'var(--color-surface-2)',
+        border: 'var(--glass-border)',
         overflow: 'hidden',
       }}
     >
@@ -330,8 +330,8 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
         className="flex overflow-hidden rounded-lg"
         style={{
           marginTop: 12,
-          backgroundColor: 'rgba(0, 0, 0, 0.2)',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
+          backgroundColor: 'var(--color-surface-2)',
+          border: 'var(--glass-border)',
         }}
       >
         {/* Left: FxBrowser */}
@@ -611,8 +611,8 @@ const MixingStrip = React.memo(function MixingStrip({
       className="relative flex shrink-0 flex-col items-center gap-2 px-2 py-3"
       style={{
         width: STRIP_WIDTH,
-        borderRight: '1px solid rgba(255, 255, 255, 0.06)',
-        backgroundColor: 'rgba(0, 0, 0, 0.15)',
+        borderRight: 'var(--glass-border)',
+        backgroundColor: 'var(--color-surface-2)',
       }}
     >
       <DbReadout level={liveLevel} />
@@ -635,7 +635,7 @@ const MixingStrip = React.memo(function MixingStrip({
           className="h-6 cursor-pointer rounded px-2 text-[9px] font-bold uppercase transition-colors"
           style={{
             backgroundColor: track.solo
-              ? '#eab308'
+              ? 'var(--color-meter-yellow)'
               : 'rgba(255, 255, 255, 0.06)',
             color: track.solo ? '#000' : 'var(--color-text-dim)',
             border: 'none',
@@ -748,7 +748,7 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
       style={{
         width: MASTER_WIDTH,
         borderLeft: '2px solid rgba(255, 255, 255, 0.12)',
-        backgroundColor: 'rgba(0, 0, 0, 0.2)',
+        backgroundColor: 'var(--color-surface-2)',
       }}
     >
       <DbReadout level={avgLevel} />

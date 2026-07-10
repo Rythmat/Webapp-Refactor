@@ -255,6 +255,45 @@ export function randomizeConfig(): AvatarConfig {
   return defaultAvatarConfig(String(seed));
 }
 
+/** Narrow an unknown (e.g. a stored/remote blob) to a fully-usable AvatarConfig.
+ * Validates every field the renderer relies on, so a partial/corrupt blob can't
+ * reach generateAvatarPolygons and produce NaN / crashes. */
+export function isAvatarConfig(value: unknown): value is AvatarConfig {
+  if (!value || typeof value !== 'object') return false;
+  const v = value as Record<string, unknown>;
+  const num = (x: unknown): boolean =>
+    typeof x === 'number' && !Number.isNaN(x);
+  if (
+    !num(v.seed) ||
+    typeof v.noiseType !== 'string' ||
+    !NOISE_TYPES.includes(v.noiseType as NoiseType) ||
+    !num(v.paletteIndex) ||
+    !num(v.cellSize) ||
+    !num(v.zoom) ||
+    typeof v.isGradient !== 'boolean' ||
+    (v.orientation !== 'pointy' && v.orientation !== 'flat') ||
+    !num(v.hueShift) ||
+    !num(v.saturationShift) ||
+    !num(v.lightnessShift)
+  ) {
+    return false;
+  }
+  // Optional custom palette must be an array of strings when present.
+  return (
+    v.paletteOverride === undefined ||
+    (Array.isArray(v.paletteOverride) &&
+      v.paletteOverride.every((c) => typeof c === 'string'))
+  );
+}
+
+/** A valid AvatarConfig from `value`, or a deterministic default from `seed`. */
+export function avatarConfigOrDefault(
+  value: unknown,
+  seed: string,
+): AvatarConfig {
+  return isAvatarConfig(value) ? value : defaultAvatarConfig(seed);
+}
+
 // ---------------------------------------------------------------------------
 // Palette access
 // ---------------------------------------------------------------------------

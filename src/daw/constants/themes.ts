@@ -4,7 +4,10 @@ export interface ThemePalette {
 
 export const THEMES: { dark: ThemePalette } = {
   dark: {
-    '--color-bg': '#191919',
+    // Base matches the app chrome (#101012) so Studio reads as continuous with
+    // the rest of the app. Applied as inline styles on `.daw-root` by useTheme,
+    // which is the authoritative runtime source (overrides daw.css).
+    '--color-bg': '#101012',
     '--color-surface': '#1a1a1a',
     '--color-surface-2': '#1e1e1e',
     '--color-surface-3': '#222222',

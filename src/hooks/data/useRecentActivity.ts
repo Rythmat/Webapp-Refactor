@@ -60,7 +60,7 @@ export const useRecentActivity = (): ActivityItem[] => {
             subtitle: p.composerName || `${p.bpm ?? '—'} BPM`,
             // Stripe colour from the same seed the tile SVG uses (item.id).
             accentColor: studioTileAccent(`project:${p.id}`),
-            route: `${StudioRoutes.root.definition}?project=${encodeURIComponent(p.id)}`,
+            route: `${StudioRoutes.editor.definition}?project=${encodeURIComponent(p.id)}`,
             touchedAt:
               (p.updatedAt instanceof Date
                 ? p.updatedAt.getTime()

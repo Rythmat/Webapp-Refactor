@@ -212,7 +212,7 @@ export const FlowSelect = () => {
       <div
         className="learn-root min-h-screen w-full flex flex-col"
         style={{
-          backgroundColor: 'var(--color-bg)',
+          backgroundColor: '#101012',
           color: 'var(--color-text)',
         }}
       >
@@ -225,7 +225,7 @@ export const FlowSelect = () => {
   return (
     <div
       className="learn-root min-h-screen w-full flex flex-col"
-      style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}
+      style={{ backgroundColor: '#101012', color: 'var(--color-text)' }}
     >
       <HeaderBar title="Flow Select" />
       <div

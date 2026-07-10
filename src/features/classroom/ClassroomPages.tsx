@@ -60,30 +60,6 @@ const ClassroomHomePage = lazy(() =>
   })),
 );
 
-const PresentationMode = lazy(() =>
-  import('./PresentationMode').then(({ PresentationMode }) => ({
-    default: PresentationMode,
-  })),
-);
-
-const ClassroomPlanPage = lazy(() =>
-  import('./plan/PlanPage').then(({ PlanPage }) => ({
-    default: PlanPage,
-  })),
-);
-
-const DayEditor = lazy(() =>
-  import('./plan/DayEditor').then(({ DayEditor }) => ({
-    default: DayEditor,
-  })),
-);
-
-const PreviewPage = lazy(() =>
-  import('./plan/PreviewPage').then(({ PreviewPage }) => ({
-    default: PreviewPage,
-  })),
-);
-
 const AssignmentsPage = lazy(() =>
   import('./assignments/AssignmentsPage').then(({ AssignmentsPage }) => ({
     default: AssignmentsPage,
@@ -106,46 +82,10 @@ const AssignmentInstructionsPage = lazy(() =>
   ),
 );
 
-const AssignmentProgressPage = lazy(() =>
-  import('./assignments/AssignmentProgressPage').then(
-    ({ AssignmentProgressPage }) => ({
-      default: AssignmentProgressPage,
-    }),
-  ),
-);
-
 const LiveSessionPage = lazy(() =>
   import('./live/LiveSessionPage').then(({ LiveSessionPage }) => ({
     default: LiveSessionPage,
   })),
-);
-
-const TeacherSessionDashboard = lazy(() =>
-  import('./live/TeacherSessionDashboard').then(
-    ({ TeacherSessionDashboard }) => ({
-      default: TeacherSessionDashboard,
-    }),
-  ),
-);
-
-const ProjectorPage = lazy(() =>
-  import('./live/ProjectorPage').then(({ ProjectorPage }) => ({
-    default: ProjectorPage,
-  })),
-);
-
-const SessionReportPage = lazy(() =>
-  import('./live/SessionReportPage').then(({ SessionReportPage }) => ({
-    default: SessionReportPage,
-  })),
-);
-
-const SessionReportsListPage = lazy(() =>
-  import('./live/SessionReportsListPage').then(
-    ({ SessionReportsListPage }) => ({
-      default: SessionReportsListPage,
-    }),
-  ),
 );
 
 const ChromaPage = lazy(() =>
@@ -226,6 +166,14 @@ const DawApp = lazy(() =>
   })),
 );
 
+const StudioInlet = lazy(() =>
+  import('@/components/ClassroomLayout/studio/StudioInlet').then(
+    ({ StudioInlet }) => ({
+      default: StudioInlet,
+    }),
+  ),
+);
+
 const HomeInlet = lazy(() =>
   import('@/components/ClassroomLayout/HomeInlet').then(({ HomeInlet }) => ({
     default: HomeInlet,
@@ -280,22 +228,6 @@ export const classroomPages = () => {
         element: <ClassroomHomePage />,
       },
       {
-        path: ClassroomRoutes.present.definition,
-        element: <PresentationMode />,
-      },
-      {
-        path: ClassroomRoutes.plan.definition,
-        element: <ClassroomPlanPage />,
-      },
-      {
-        path: ClassroomRoutes.dayEditor.definition,
-        element: <DayEditor />,
-      },
-      {
-        path: ClassroomRoutes.preview.definition,
-        element: <PreviewPage />,
-      },
-      {
         path: ClassroomRoutes.assignments.definition,
         element: <AssignmentsPage />,
       },
@@ -308,28 +240,8 @@ export const classroomPages = () => {
         element: <AssignmentInstructionsPage />,
       },
       {
-        path: ClassroomRoutes.assignmentProgress.definition,
-        element: <AssignmentProgressPage />,
-      },
-      {
         path: ClassroomRoutes.live.definition,
         element: <LiveSessionPage />,
-      },
-      {
-        path: ClassroomRoutes.session.definition,
-        element: <TeacherSessionDashboard />,
-      },
-      {
-        path: ClassroomRoutes.projector.definition,
-        element: <ProjectorPage />,
-      },
-      {
-        path: ClassroomRoutes.report.definition,
-        element: <SessionReportPage />,
-      },
-      {
-        path: ClassroomRoutes.reports.definition,
-        element: <SessionReportsListPage />,
       },
       {
         path: '*',
@@ -473,9 +385,15 @@ export const studioPages = () => {
       </AppContext>
     ),
     children: [
+      // `/studio` now lands on the Studio Dashboard; the DAW editor moves to
+      // `/studio/editor` (opened with ?project=/?new=1/?template=/?demo=/?collab=).
       {
-        element: <DawApp />,
+        element: <StudioInlet />,
         index: true,
+      },
+      {
+        path: 'editor',
+        element: <DawApp />,
       },
     ],
   };

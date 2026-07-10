@@ -32,9 +32,20 @@ export function CollabToolbar({
   const setLeavePrompt = useStore((s) => s._setLeavePrompt);
   const collaboratorCount = useCollaboratorCount();
   const { createAndJoinRoom, joinRoomById } = useCollab();
+  const inviteRequested = useStore((s) => s.inviteRequested);
+  const setInviteRequested = useStore((s) => s._setInviteRequested);
   const [showCreatePopover, setShowCreatePopover] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [joinId, setJoinId] = useState('');
+
+  // An external flow (Studio Dashboard "Start a Session") can request the invite
+  // modal; open our single instance and clear the flag so it doesn't reopen.
+  useEffect(() => {
+    if (inviteRequested) {
+      setInviteOpen(true);
+      setInviteRequested(false);
+    }
+  }, [inviteRequested, setInviteRequested]);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -119,7 +130,7 @@ export function CollabToolbar({
         {connectionStatus === 'connecting' && (
           <div
             className="size-1.5 animate-pulse rounded-full"
-            style={{ backgroundColor: '#f59e0b' }}
+            style={{ backgroundColor: 'var(--color-meter-yellow)' }}
           />
         )}
       </motion.button>
@@ -191,7 +202,10 @@ export function CollabToolbar({
               </button>
             </div>
             {roomError && (
-              <span className="text-[9px]" style={{ color: '#ef4444' }}>
+              <span
+                className="text-[9px]"
+                style={{ color: 'var(--color-record)' }}
+              >
                 {roomError}
               </span>
             )}
@@ -247,7 +261,7 @@ export function CollabToolbar({
           whileTap={{ scale: 0.85 }}
           className="ml-0.5 flex h-5 items-center rounded px-1 text-[8px] font-medium transition-colors hover:bg-red-500/10"
           style={{
-            color: '#ef4444',
+            color: 'var(--color-record)',
             background: 'none',
             border: 'none',
           }}

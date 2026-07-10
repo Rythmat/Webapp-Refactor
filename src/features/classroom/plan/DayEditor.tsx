@@ -1,7 +1,7 @@
 import { ArrowLeft, Check, Eye, Play, Radio, Send, Upload } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ClassroomRoutes } from '@/constants/routes';
+import { TeacherRoutes } from '@/constants/routes';
 import { AssignmentComposer } from '../assignments';
 import { useLocalSessionStore } from '../live/useLocalSessionStore';
 import {
@@ -61,7 +61,7 @@ export const DayEditor = () => {
   // If the dayId isn't in the plan, kick the user back to the plan list.
   useEffect(() => {
     if (dayId && getDay(dayId) === undefined) {
-      navigate(ClassroomRoutes.plan({ classroomId: cid }));
+      navigate(TeacherRoutes.plan({ classroomId: cid }));
     }
   }, [dayId, getDay, navigate, cid]);
 
@@ -161,7 +161,7 @@ export const DayEditor = () => {
       setPublishedPill({ publishedDayId: pd.id, at: Date.now() });
       const s = startSession({ classroomId: cid, publishedDayId: pd.id });
       navigate(
-        ClassroomRoutes.session({ classroomId: cid, sessionId: s.sessionId }),
+        TeacherRoutes.session({ classroomId: cid, sessionId: s.sessionId }),
       );
     } catch (err) {
       setPublishError(
@@ -178,7 +178,7 @@ export const DayEditor = () => {
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
-          to={ClassroomRoutes.plan({ classroomId: cid })}
+          to={TeacherRoutes.plan({ classroomId: cid })}
           className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -210,7 +210,7 @@ export const DayEditor = () => {
             </span>
           )}
           <Link
-            to={ClassroomRoutes.preview({
+            to={TeacherRoutes.dayPreview({
               classroomId: cid,
               dayId: draft.id,
             })}
@@ -236,7 +236,7 @@ export const DayEditor = () => {
             Start Session
           </button>
           <Link
-            to={ClassroomRoutes.present({
+            to={TeacherRoutes.present({
               classroomId: cid,
               dayId: draft.id,
             })}

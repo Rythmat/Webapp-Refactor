@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { DashboardResponsiveTest } from './__qa/DashboardResponsiveTest';
 import ModalSphereDemo from './components/ui/3d-orb-demo';
+import { CustomCursor } from './components/ui/CustomCursor';
 import { AppContext } from './contexts/AppContext';
 import { curriculumPages } from './curriculum/routes';
 import { WildcardPage } from './features/WildcardPage';
@@ -58,5 +59,10 @@ const routesArray = createBrowserRouter([
 ]);
 
 export function App() {
-  return <RouterProvider router={routesArray} />;
+  return (
+    <>
+      <RouterProvider router={routesArray} />
+      <CustomCursor />
+    </>
+  );
 }

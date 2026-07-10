@@ -1,5 +1,6 @@
 import { ArrowRight, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { StreakGoalCard } from '@/components/ClassroomLayout/dashboard/StreakGoalCard';
 import { XpTrackerCard } from '@/components/ClassroomLayout/dashboard/XpTrackerCard';
 import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
 import { HexWaveBackground } from '@/components/ui/hex-wave-background';
@@ -52,17 +53,9 @@ const ContinueBar = ({ item }: { item: ActivityItem }) => (
     to={item.route}
     aria-label={`Resume ${item.title}`}
     className="group flex items-center gap-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-3 transition-colors hover:border-white/25 hover:bg-white/[0.05] md:gap-5 md:p-4"
-    style={
-      item.accentColor
-        ? { boxShadow: `inset 4px 0 0 0 ${item.accentColor}` }
-        : undefined
-    }
   >
     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl md:h-24 md:w-24">
       <Thumbnail item={item} />
-      <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/20">
-        <Play className="h-8 w-8 text-white drop-shadow" fill="currentColor" />
-      </div>
     </div>
     <div className="min-w-0 flex-1">
       <div className="text-xs uppercase tracking-wide text-white/50 md:text-sm">
@@ -113,7 +106,8 @@ const StartLearningBar = () => (
 /**
  * Learn Home hub — the landing view when no `?tab` is set. Leads with a
  * "Continue" resume banner, then the XP tracker, recent lessons, and saved
- * songs. Tab navigation now lives in the main sidebar (SidebarLearnGroup).
+ * songs. Tab navigation is the inline Learn tab bar (LearnTabBar) shown at the
+ * top of each Learn tab.
  */
 export const LearnHome = () => {
   const resume = useLastLearnActivity();
@@ -126,6 +120,10 @@ export const LearnHome = () => {
 
       <div className="px-6 md:px-10">
         {resume ? <ContinueBar item={resume} /> : <StartLearningBar />}
+      </div>
+
+      <div className="px-6 md:px-10">
+        <StreakGoalCard />
       </div>
 
       <div className="px-6 md:px-10">

@@ -1,7 +1,7 @@
 import { ArrowLeft, ClipboardCheck } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ClassroomRoutes } from '@/constants/routes';
+import { TeacherRoutes } from '@/constants/routes';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import { useLocalSessionStore } from './useLocalSessionStore';
 
@@ -27,11 +27,11 @@ export const SessionReportsListPage = () => {
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10 text-white">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
-          to={ClassroomRoutes.home({ classroomId: cid })}
+          to={TeacherRoutes.classroomDashboard({ classroomId: cid })}
           className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to classroom
+          Back to dashboard
         </Link>
       </header>
 
@@ -74,7 +74,7 @@ export const SessionReportsListPage = () => {
                 </span>
               </div>
               <Link
-                to={ClassroomRoutes.report({
+                to={TeacherRoutes.report({
                   classroomId: cid,
                   sessionId: session.sessionId,
                 })}

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ClassroomRoutes } from '@/constants/routes';
+import { TeacherRoutes } from '@/constants/routes';
 import { AssignmentComposer } from '../assignments';
 import { useLocalSessionStore } from '../live/useLocalSessionStore';
 import { usePublishedDays } from '../publish/usePublishedDays';
@@ -37,7 +37,7 @@ export const PlanPage = () => {
   const handleNew = () => {
     const day = newBlankDay();
     saveDay(day);
-    navigate(ClassroomRoutes.dayEditor({ classroomId: cid, dayId: day.id }));
+    navigate(TeacherRoutes.dayEditor({ classroomId: cid, dayId: day.id }));
   };
 
   const handleDelete = (dayId: string, dayLabel: string) => {
@@ -70,7 +70,7 @@ export const PlanPage = () => {
         existing ?? (await publishDayToClassroom({ classroomId: cid, day }));
       const s = startSession({ classroomId: cid, publishedDayId: pd.id });
       navigate(
-        ClassroomRoutes.session({ classroomId: cid, sessionId: s.sessionId }),
+        TeacherRoutes.session({ classroomId: cid, sessionId: s.sessionId }),
       );
     } catch (err) {
       window.alert(err instanceof Error ? err.message : 'Start session failed');
@@ -113,7 +113,7 @@ export const PlanPage = () => {
             >
               <div className="flex items-start justify-between gap-2">
                 <Link
-                  to={ClassroomRoutes.dayEditor({
+                  to={TeacherRoutes.dayEditor({
                     classroomId: cid,
                     dayId: day.id,
                   })}
@@ -135,7 +135,7 @@ export const PlanPage = () => {
               </p>
               <div className="mt-auto flex flex-wrap gap-2">
                 <Link
-                  to={ClassroomRoutes.present({
+                  to={TeacherRoutes.present({
                     classroomId: cid,
                     dayId: day.id,
                   })}
@@ -145,7 +145,7 @@ export const PlanPage = () => {
                   Present
                 </Link>
                 <Link
-                  to={ClassroomRoutes.dayEditor({
+                  to={TeacherRoutes.dayEditor({
                     classroomId: cid,
                     dayId: day.id,
                   })}

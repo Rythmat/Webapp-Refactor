@@ -37,7 +37,7 @@ export const LaunchTile = ({ tile, language, phaseLabel }: LaunchTileProps) => {
   if (!url) {
     return (
       <span
-        className="inline-flex items-center gap-2 rounded-full border border-dashed border-black/20 bg-transparent px-4 py-2 text-sm text-black/50"
+        className="inline-flex items-center gap-2 rounded-full border border-dashed border-white/15 bg-transparent px-4 py-2 text-sm text-white/40"
         aria-label={`${MODULE_LABEL[tile.module]} — configure in Settings`}
       >
         <Settings className="h-4 w-4" />
@@ -52,14 +52,14 @@ export const LaunchTile = ({ tile, language, phaseLabel }: LaunchTileProps) => {
       target="_blank"
       rel="noreferrer"
       aria-label={`${label} (${phaseLabel})`}
-      className="inline-flex items-center gap-2 rounded-full bg-black text-white px-4 py-2 text-sm font-medium transition-transform hover:-translate-y-px hover:bg-black/85"
+      className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-all hover:-translate-y-px hover:bg-white/85"
       style={{ padding: 'var(--pres-tile-pad)' }}
     >
-      <span className="uppercase text-[10px] tracking-widest opacity-70">
+      <span className="uppercase text-[10px] tracking-widest text-black/70">
         {MODULE_LABEL[tile.module]}
       </span>
       <span>{label}</span>
-      <ExternalLink className="h-4 w-4 opacity-70" />
+      <ExternalLink className="h-4 w-4 text-black/70" />
     </a>
   );
 };

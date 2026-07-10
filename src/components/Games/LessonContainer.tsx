@@ -123,7 +123,7 @@ const LessonContainerInner = ({
   return (
     <div
       className="learn-root flex min-h-screen w-full flex-col"
-      style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}
+      style={{ backgroundColor: '#101012', color: 'var(--color-text)' }}
     >
       <HeaderBar title="Lesson" onBack={() => navigate(-1)} />
       <div className="flex-1 p-3 sm:p-4">

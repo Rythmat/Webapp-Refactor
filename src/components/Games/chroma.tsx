@@ -560,7 +560,7 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
         height: '100%',
         boxSizing: 'border-box',
         overflow: 'hidden',
-        backgroundColor: 'var(--color-bg, #0f0f17)',
+        backgroundColor: '#101012',
         color: 'var(--color-text, #e2e8f0)',
         display: 'flex',
         flexDirection: 'column',

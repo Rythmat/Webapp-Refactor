@@ -107,7 +107,9 @@ export function MeshGradientBg() {
     <canvas
       ref={canvasRef}
       className="pointer-events-none absolute inset-0"
-      style={{ zIndex: -1 }}
+      // Single opacity lever: the orbs read a touch stronger against the darker
+      // #101012 base, so damp the whole wash to keep it subtle. Tune here.
+      style={{ zIndex: -1, opacity: 0.65 }}
     />
   );
 }

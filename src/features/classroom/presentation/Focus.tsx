@@ -39,26 +39,20 @@ export const Focus = ({ phase, language, onClose }: FocusProps) => {
   const labelPrimary = pickLocalized(phase.label, language);
 
   return (
-    <div
-      className="mx-auto flex w-full max-w-[1720px] flex-col gap-8 px-8 py-10"
-      style={{
-        ['--phase-accent' as string]: `var(--pres-accent-${phase.phaseKey})`,
-      }}
-    >
+    <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-8 px-8 py-10">
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-4 py-2 text-sm font-medium text-black hover:bg-black/5"
+          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-transparent px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:border-white/25 hover:text-white"
           aria-label="Back to Board"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Board
         </button>
         <span
-          className="inline-flex rounded-full font-semibold uppercase tracking-widest text-black"
+          className="inline-flex rounded-full bg-white/[0.06] font-semibold uppercase tracking-widest text-white/80"
           style={{
-            background: 'var(--phase-accent)',
             fontSize: 'var(--pres-label-fz)',
             padding: '0.375rem 1rem',
           }}
@@ -69,14 +63,14 @@ export const Focus = ({ phase, language, onClose }: FocusProps) => {
 
       <div className="flex flex-col gap-3">
         <h1
-          className="font-semibold leading-tight"
+          className="font-semibold leading-tight text-white"
           style={{ fontSize: 'var(--pres-focus-title-fz)' }}
         >
           {title}
         </h1>
         {titleAlt && (
           <p
-            className="text-black/60"
+            className="text-white/50"
             style={{ fontSize: 'calc(var(--pres-focus-title-fz) * 0.5)' }}
           >
             {titleAlt}
@@ -86,14 +80,14 @@ export const Focus = ({ phase, language, onClose }: FocusProps) => {
 
       <div className="flex flex-col gap-3">
         <p
-          className="text-black/85"
+          className="text-white/85"
           style={{ fontSize: 'var(--pres-focus-prompt-fz)', lineHeight: 1.4 }}
         >
           {prompt}
         </p>
         {promptAlt && (
           <p
-            className="text-black/60"
+            className="text-white/50"
             style={{ fontSize: 'calc(var(--pres-focus-prompt-fz) * 0.75)' }}
           >
             {promptAlt}
@@ -132,7 +126,7 @@ interface ResetChecklistProps {
  */
 const ResetChecklist = ({ items, language }: ResetChecklistProps) => {
   return (
-    <ul className="mt-2 flex flex-col gap-3 rounded-2xl bg-white p-6 shadow-[var(--pres-shadow)]">
+    <ul className="mt-2 flex flex-col gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
       {items.map((item, i) => (
         <ResetChecklistItem key={i} label={pickLocalized(item, language)} />
       ))}
@@ -143,8 +137,8 @@ const ResetChecklist = ({ items, language }: ResetChecklistProps) => {
 const ResetChecklistItem = ({ label }: { label: string }) => {
   return (
     <li>
-      <label className="flex cursor-pointer items-center gap-3 text-black/85">
-        <input type="checkbox" className="size-5 accent-black" />
+      <label className="flex cursor-pointer items-center gap-3 text-white/85">
+        <input type="checkbox" className="size-5 accent-white" />
         <span style={{ fontSize: 'var(--pres-prompt-fz)' }}>{label}</span>
       </label>
     </li>

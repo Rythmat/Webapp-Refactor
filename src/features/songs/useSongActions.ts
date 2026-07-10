@@ -81,7 +81,9 @@ export function useSongActions(song: Song): SongActions {
         store.setLoopRange(0, clip.durationTicks ?? 7680);
       }
       store.setCurrentView('arrange');
-      navigate(StudioRoutes.root.definition);
+      // `/studio` is now the Studio Dashboard; the DAW editor lives at
+      // `/studio/editor`. This opens the editor with the chords just seeded above.
+      navigate(StudioRoutes.editor.definition);
     },
     [navigate, play, song],
   );

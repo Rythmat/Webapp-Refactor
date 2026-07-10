@@ -2,14 +2,13 @@
 // Modal for inviting collaborators by username search, or by sharing the room
 // code that others type into "Join Room".
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Check, Search, Send, UserPlus, X } from 'lucide-react';
-import SuperJSON from 'superjson';
 import { useStore } from '@/daw/store/index';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { Env } from '@/constants/env';
+import { useStudents } from '@/hooks/data/students/useStudents';
 import { reportChallengeEvent } from '@/lib/challenges/eventBus';
 import { showSuccess, showError } from '@/util/toast';
 import type { CollabRole } from '../types';
@@ -31,64 +30,37 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
   const { token, appUser } = useAuthContext();
   const [selectedRole, setSelectedRole] = useState<CollabRole>('editor');
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [searching, setSearching] = useState(false);
+  const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
   const [sending, setSending] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Focus input on open
+  const { data: students } = useStudents({ status: 'active' });
+
+  // Focus input on open; reset transient state.
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 100);
       setQuery('');
-      setResults([]);
+      setInvitedIds(new Set());
     }
   }, [open]);
 
-  // Debounced user search
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (query.length < 2) {
-      setResults([]);
-      setSearching(false);
-      return;
-    }
-
-    setSearching(true);
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const apiBase =
-          Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
-        const res = await fetch(
-          `${apiBase}/users/search?q=${encodeURIComponent(query)}`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        if (res.ok) {
-          const data = SuperJSON.parse(await res.text()) as SearchResult[];
-          setResults(data);
-        } else {
-          console.error(`[InviteModal] Search failed: ${res.status}`);
-          showError(`Search failed (${res.status})`);
-        }
-      } catch (err) {
-        console.error('[InviteModal] Search error:', err);
-        showError('Search unavailable');
-      } finally {
-        setSearching(false);
-      }
-    }, 300);
-
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [query, token]);
+  // No dedicated user-search endpoint exists; filter the active-users list
+  // (getStudents) by name/username client-side. Excludes self + already-invited.
+  const results = useMemo<SearchResult[]>(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
+    return (students ?? [])
+      .filter(
+        (s) =>
+          s.id !== appUser?.id &&
+          !invitedIds.has(s.id) &&
+          (s.nickname.toLowerCase().includes(q) ||
+            (s.username ?? '').toLowerCase().includes(q)),
+      )
+      .slice(0, 20);
+  }, [students, query, appUser?.id, invitedIds]);
 
   // Send invite to a user
   const handleInvite = useCallback(
@@ -113,8 +85,8 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
         if (res.ok) {
           showSuccess(`Invited ${user.nickname} as ${selectedRole}`);
           reportChallengeEvent({ kind: 'studio_invite', roomId });
-          // Remove from results so they can't be invited again
-          setResults((prev) => prev.filter((r) => r.id !== user.id));
+          // Hide from results so they can't be invited again
+          setInvitedIds((prev) => new Set(prev).add(user.id));
         } else {
           const data = await res.json().catch(() => ({}));
           showError(
@@ -268,12 +240,13 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                 </div>
 
                 {/* Search results */}
-                {(results.length > 0 || searching) && (
+                {(results.length > 0 ||
+                  (query.trim().length >= 2 && students === undefined)) && (
                   <div
                     className="flex max-h-[160px] flex-col gap-0.5 overflow-y-auto rounded-md p-1"
                     style={{ backgroundColor: 'var(--color-surface)' }}
                   >
-                    {searching && results.length === 0 && (
+                    {students === undefined && results.length === 0 && (
                       <div
                         className="px-2 py-2 text-center text-[10px]"
                         style={{ color: 'var(--color-text-dim)' }}
@@ -321,14 +294,16 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                     ))}
                   </div>
                 )}
-                {query.length >= 2 && !searching && results.length === 0 && (
-                  <div
-                    className="px-2 py-2 text-center text-[10px]"
-                    style={{ color: 'var(--color-text-dim)' }}
-                  >
-                    No users found
-                  </div>
-                )}
+                {query.trim().length >= 2 &&
+                  students !== undefined &&
+                  results.length === 0 && (
+                    <div
+                      className="px-2 py-2 text-center text-[10px]"
+                      style={{ color: 'var(--color-text-dim)' }}
+                    >
+                      No users found
+                    </div>
+                  )}
               </div>
 
               {/* Divider */}
@@ -361,7 +336,9 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                     disabled={!roomCode}
                     className="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/5 disabled:opacity-40"
                     style={{
-                      color: copied ? '#22c55e' : 'var(--color-text-dim)',
+                      color: copied
+                        ? 'var(--color-play)'
+                        : 'var(--color-text-dim)',
                       background: 'none',
                       border: 'none',
                     }}

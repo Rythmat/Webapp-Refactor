@@ -45,6 +45,11 @@ export interface CollabSlice {
    *  each room join. */
   sessionSaved: boolean;
 
+  /** When true, an external flow (e.g. the Studio Dashboard "Start a Session")
+   *  has requested the Invite Collaborators modal be opened. CollabToolbar owns
+   *  the modal; it consumes + clears this flag. Avoids a second modal instance. */
+  inviteRequested: boolean;
+
   // ── Chat ──
   chatMessages: ChatMessage[];
   unreadChatCount: number;
@@ -72,6 +77,8 @@ export interface CollabSlice {
   _appendChatMessage: (msg: ChatMessage) => void;
   /** Reset unread count (user opened chat panel). */
   markChatRead: () => void;
+  /** Request (or clear) opening the Invite Collaborators modal. */
+  _setInviteRequested: (requested: boolean) => void;
 }
 
 // ── Slice creator ───────────────────────────────────────────────────────
@@ -94,6 +101,7 @@ export const createCollabSlice: StateCreator<
   kickedNotice: false,
   awaitingSessionCreation: false,
   sessionSaved: false,
+  inviteRequested: false,
   chatMessages: [],
   unreadChatCount: 0,
 
@@ -129,6 +137,7 @@ export const createCollabSlice: StateCreator<
       kickedNotice: false,
       awaitingSessionCreation: false,
       sessionSaved: false,
+      inviteRequested: false,
       chatMessages: [],
       unreadChatCount: 0,
     }),
@@ -152,4 +161,6 @@ export const createCollabSlice: StateCreator<
     })),
 
   markChatRead: () => set({ unreadChatCount: 0 }),
+
+  _setInviteRequested: (requested) => set({ inviteRequested: requested }),
 });

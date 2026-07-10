@@ -1,7 +1,7 @@
 import { ArrowLeft, Download, ExternalLink } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ClassroomRoutes } from '@/constants/routes';
+import { TeacherRoutes } from '@/constants/routes';
 import { InteractionResponseDashboard } from '../assignments/InteractionResponseDashboard';
 import { useEnrollments } from '../enrollments';
 import { PHASES } from '../phases';
@@ -95,7 +95,7 @@ export const SessionReportPage = () => {
       <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-6 py-10 text-white">
         <p className="text-sm text-white/60">Session not found.</p>
         <Link
-          to={ClassroomRoutes.plan({ classroomId: cid })}
+          to={TeacherRoutes.plan({ classroomId: cid })}
           className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -120,7 +120,7 @@ export const SessionReportPage = () => {
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10 text-white">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
-          to={ClassroomRoutes.reports({ classroomId: cid })}
+          to={TeacherRoutes.reports({ classroomId: cid })}
           className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -128,7 +128,7 @@ export const SessionReportPage = () => {
         </Link>
         <div className="flex flex-wrap items-center gap-2">
           <Link
-            to={ClassroomRoutes.projector({
+            to={TeacherRoutes.projector({
               classroomId: cid,
               sessionId: sid,
             })}

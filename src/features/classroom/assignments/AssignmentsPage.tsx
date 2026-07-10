@@ -20,7 +20,10 @@ export const AssignmentsPage = () => {
 
   const back =
     user?.role === 'teacher'
-      ? { label: 'All classrooms', to: TeacherRoutes.root() }
+      ? {
+          label: 'Dashboard',
+          to: TeacherRoutes.classroomDashboard({ classroomId: cid }),
+        }
       : { label: 'Classroom', to: ClassroomRoutes.home({ classroomId: cid }) };
 
   return (
@@ -130,7 +133,7 @@ const TeacherRow = ({
       </div>
       <div className="flex gap-2">
         <Link
-          to={ClassroomRoutes.assignmentProgress({
+          to={TeacherRoutes.assignmentProgress({
             classroomId,
             assignmentId: assignment.id,
           })}

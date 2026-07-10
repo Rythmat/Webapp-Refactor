@@ -13,7 +13,7 @@
 import { ArrowLeft, Pencil } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ClassroomRoutes } from '@/constants/routes';
+import { TeacherRoutes } from '@/constants/routes';
 import { buildStudentView, type StudentPhaseView } from '../buildStudentView';
 import { InteractionInput } from '../live/interactions';
 import type {
@@ -66,7 +66,7 @@ export const PreviewPage = () => {
         <p className="text-sm text-white/60">Day not found in local plan.</p>
         <button
           type="button"
-          onClick={() => navigate(ClassroomRoutes.plan({ classroomId: cid }))}
+          onClick={() => navigate(TeacherRoutes.plan({ classroomId: cid }))}
           className="w-fit rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
           Back to Plan
@@ -84,7 +84,7 @@ export const PreviewPage = () => {
     <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
-          to={ClassroomRoutes.dayEditor({ classroomId: cid, dayId: day.id })}
+          to={TeacherRoutes.dayEditor({ classroomId: cid, dayId: day.id })}
           className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -104,7 +104,7 @@ export const PreviewPage = () => {
             onChange={setAgePreset}
           />
           <Link
-            to={ClassroomRoutes.dayEditor({
+            to={TeacherRoutes.dayEditor({
               classroomId: cid,
               dayId: day.id,
             })}

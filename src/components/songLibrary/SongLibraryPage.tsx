@@ -1,5 +1,13 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
-import { useMemo, useState, useEffect, useCallback, type FC } from 'react';
+import {
+  useMemo,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  type FC,
+  type ReactNode,
+} from 'react';
 import { Heart, LayoutGrid, List, Music } from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
@@ -124,9 +132,18 @@ const GENRE_OPTIONS = [
   { value: 'african', label: 'African' },
 ];
 
+/** Genre slug → display label, so the list's Genre column reads exactly like the
+ *  filter dropdown (e.g. `rnb` → "R&B", `neo-soul` → "Neo Soul"). */
+const GENRE_LABELS: Record<string, string> = Object.fromEntries(
+  GENRE_OPTIONS.map((o) => [o.value, o.label]),
+);
+
 /* ── SongLibraryBody (used inside Learn) ─────────────────────────────── */
 
-export const SongLibraryBody: FC = () => {
+export const SongLibraryBody: FC<{
+  /** Given the filtered song set, render the marquee so it reflects the filter. */
+  marqueeSlot?: (songs: Song[]) => ReactNode;
+}> = ({ marqueeSlot }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const allSongs = useMemo(() => getAllSongs(), []);
   const savedIds = useSavedSongsStore((s) => s.savedIds);
@@ -170,18 +187,52 @@ export const SongLibraryBody: FC = () => {
     [allSongs, filters, savedIds],
   );
 
+  // The marquee mirrors the list's membership filter but not its sort order
+  // (the marquee shuffles), so changing Sort doesn't reshuffle the marquee.
+  // `filterSongs` ignores the `sort` field, so the literal below is inert.
+  const { search, genre, difficulty, saved } = filters;
+  const marqueeCandidates = useMemo(
+    () =>
+      filterSongs(
+        allSongs,
+        { search, genre, difficulty, saved, sort: 'title' },
+        savedIds,
+      ),
+    [allSongs, search, genre, difficulty, saved, savedIds],
+  );
+
   const [searchInput, setSearchInput] = useState(filters.search);
   useEffect(() => {
     const timer = setTimeout(() => updateFilter('search', searchInput), 200);
     return () => clearTimeout(timer);
   }, [searchInput, updateFilter]);
 
+  // Measure the pinned header (filter row + optional marquee) so the table's
+  // column-header row can pin directly beneath it — all three then stay stuck as
+  // the song list scrolls. Measured (not hard-coded) since the filter wraps and
+  // the marquee's height varies.
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const measure = () => setHeaderHeight(el.offsetHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <div
       className="flex flex-col"
-      style={{ paddingBottom: 24, height: '100%' }}
+      style={{ paddingBottom: 24, minHeight: '100%' }}
     >
+      {/* Pinned header: filter row + (optional) marquee stay stuck together at
+          the top; the Learn Songs tab passes its marquee here so it's always
+          visible instead of scrolling under (and being covered by) the filter. */}
       <div
+        ref={headerRef}
         className="sticky top-0 z-10 pt-1 pb-3"
         style={{ background: '#101012' }}
       >
@@ -223,6 +274,10 @@ export const SongLibraryBody: FC = () => {
             }}
           />
         </div>
+        {/* Marquee pins together with the filter (edge-to-edge via its own
+            `-mx-6 md:-mx-10` bleed); nothing scrolls under it, so no black bar.
+            Fed the filtered set so it narrows in step with the list. */}
+        {marqueeSlot?.(marqueeCandidates)}
       </div>
 
       {/* ── Content ── */}
@@ -236,12 +291,12 @@ export const SongLibraryBody: FC = () => {
             className="text-white/10"
             style={{ marginBottom: 12 }}
           />
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.4)' }}>
             No songs match these filters
           </p>
         </div>
       ) : (
-        <SongListTable songs={results} />
+        <SongListTable songs={results} stickyTop={headerHeight} />
       )}
     </div>
   );
@@ -307,11 +362,10 @@ const SongThumbnail: FC<{ song: Song }> = ({ song }) => {
 
   return (
     <div
-      className="overflow-hidden rounded-full"
+      className="relative overflow-hidden transition-transform duration-200 ease-out group-hover:z-[7] group-hover:scale-[2.2]"
       style={{
         width: THUMBNAIL_SIZE,
         height: THUMBNAIL_SIZE,
-        background: 'rgba(255,255,255,0.04)',
       }}
     >
       {hasArtistImage ? (
@@ -323,7 +377,7 @@ const SongThumbnail: FC<{ song: Song }> = ({ song }) => {
           onError={() => setImageBroken(true)}
         />
       ) : (
-        <HexAvatarSVG config={avatarConfig} size={THUMBNAIL_SIZE} circular />
+        <HexAvatarSVG config={avatarConfig} size={THUMBNAIL_SIZE} />
       )}
     </div>
   );
@@ -331,16 +385,23 @@ const SongThumbnail: FC<{ song: Song }> = ({ song }) => {
 
 /* ── SongListTable ──────────────────────────────────────────────────── */
 
-const LIST_FS = 15;
-const LIST_FS_SMALL = 13;
+const LIST_FS = 18;
+const LIST_FS_SMALL = 15;
 const LIST_CELL_PAD = '10px 14px';
-const LIST_ICON_SIZE = 20;
+// The learn/studio/globe glyphs only fill ~62–80% of their 375×375 viewBox, so
+// they need a larger box to read well.
+const LIST_LINK_ICON_SIZE = 35;
+// The Saved-column Heart nearly fills its own viewBox, so a smaller box reads at
+// a comparable visual size to the link icons.
+const LIST_HEART_ICON_SIZE = 29;
 
 interface SongListTableProps {
   songs: Song[];
+  /** Height (px) of the pinned filter row above; the header sticks below it. */
+  stickyTop: number;
 }
 
-const SongListTable: FC<SongListTableProps> = ({ songs }) => {
+const SongListTable: FC<SongListTableProps> = ({ songs, stickyTop }) => {
   return (
     <table
       className="w-full"
@@ -357,6 +418,14 @@ const SongListTable: FC<SongListTableProps> = ({ songs }) => {
                   fontSize: LIST_FS_SMALL,
                   color: 'rgba(255,255,255,0.4)',
                   borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  // Pin the column headers just under the sticky filter row so
+                  // both stay fixed while the list scrolls. The -1 overlaps the
+                  // filter (which sits at a higher z-index) to avoid a hairline
+                  // gap where a row could otherwise peek through.
+                  position: 'sticky',
+                  top: stickyTop > 0 ? stickyTop - 1 : 0,
+                  zIndex: 9,
+                  background: '#101012',
                 }}
               >
                 {col}
@@ -385,18 +454,20 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
 
   return (
     <tr
-      className="cursor-pointer transition-colors hover:bg-white/[0.04]"
+      className="group cursor-pointer transition-colors hover:bg-white/[0.04]"
       style={{
         background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
       }}
     >
-      <td style={{ padding: LIST_CELL_PAD, width: 76 }}>
+      {/* Wider than the 56px thumbnail so the artist column starts clear of the
+          hover-magnified image (which grows ~34px past the thumbnail on each side). */}
+      <td style={{ padding: LIST_CELL_PAD, width: 96 }}>
         <SongThumbnail song={song} />
       </td>
       <td style={{ padding: LIST_CELL_PAD }}>
         <Link
           to={`/songs/${song.id}`}
-          className="block"
+          className="relative block origin-left transition-transform duration-200 ease-out group-hover:z-[8] group-hover:scale-[1.2]"
           style={{ fontSize: LIST_FS, color: '#ffffff' }}
         >
           {song.artist}
@@ -405,7 +476,7 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
       <td style={{ padding: LIST_CELL_PAD }}>
         <Link
           to={`/songs/${song.id}`}
-          className="block"
+          className="relative block origin-left transition-transform duration-200 ease-out group-hover:z-[8] group-hover:scale-[1.2]"
           style={{ fontSize: LIST_FS, color: 'rgba(255,255,255,0.6)' }}
         >
           "{song.title}"
@@ -427,7 +498,9 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
           color: 'rgba(255,255,255,0.4)',
         }}
       >
-        {song.genreTags[0] ?? ''}
+        {song.genreTags[0]
+          ? (GENRE_LABELS[song.genreTags[0]] ?? song.genreTags[0])
+          : ''}
       </td>
       <td style={{ padding: LIST_CELL_PAD }}>
         <button
@@ -440,8 +513,8 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
           style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.3)' }}
         >
           <Heart
-            width={LIST_ICON_SIZE}
-            height={LIST_ICON_SIZE}
+            width={LIST_HEART_ICON_SIZE}
+            height={LIST_HEART_ICON_SIZE}
             fill={isSaved ? 'currentColor' : 'none'}
           />
         </button>
@@ -459,8 +532,8 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
               src="/icons/learn-icon.svg"
               alt=""
               draggable={false}
-              width={LIST_ICON_SIZE}
-              height={LIST_ICON_SIZE}
+              width={LIST_LINK_ICON_SIZE}
+              height={LIST_LINK_ICON_SIZE}
             />
           </button>
           <button
@@ -474,8 +547,8 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
               src="/icons/studio-icon.svg"
               alt=""
               draggable={false}
-              width={LIST_ICON_SIZE}
-              height={LIST_ICON_SIZE}
+              width={LIST_LINK_ICON_SIZE}
+              height={LIST_LINK_ICON_SIZE}
             />
           </button>
           <button
@@ -489,23 +562,8 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
               src="/icons/globe-icon.svg"
               alt=""
               draggable={false}
-              width={LIST_ICON_SIZE}
-              height={LIST_ICON_SIZE}
-            />
-          </button>
-          <button
-            type="button"
-            onClick={toggleSaved}
-            aria-label={isSaved ? 'Remove from saved' : 'Save song'}
-            aria-pressed={isSaved}
-            title={isSaved ? 'Remove from saved' : 'Save song'}
-            className="transition-colors hover:text-white"
-            style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.4)' }}
-          >
-            <Heart
-              width={LIST_ICON_SIZE}
-              height={LIST_ICON_SIZE}
-              fill={isSaved ? 'currentColor' : 'none'}
+              width={LIST_LINK_ICON_SIZE}
+              height={LIST_LINK_ICON_SIZE}
             />
           </button>
         </div>

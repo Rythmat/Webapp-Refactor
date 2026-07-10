@@ -9,7 +9,7 @@ import {
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { ClassroomRoutes } from '@/constants/routes';
+import { ClassroomRoutes, TeacherRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useClassrooms, useMe } from '@/hooks/data';
 import { CreateClassroomDialog } from './components/CreateClassroomDialog';
@@ -163,7 +163,9 @@ export const ClassroomSelectionPage = () => {
               </div>
               <div className="mt-auto flex flex-col gap-2 pt-2">
                 <Link
-                  to={ClassroomRoutes.home({ classroomId: classroom.id })}
+                  to={TeacherRoutes.classroomDashboard({
+                    classroomId: classroom.id,
+                  })}
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
                 >
                   Enter Classroom

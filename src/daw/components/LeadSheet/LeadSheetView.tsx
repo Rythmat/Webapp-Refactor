@@ -406,7 +406,7 @@ export function LeadSheetView() {
               style={{
                 background: 'var(--color-surface-2)',
                 color: 'var(--color-text)',
-                borderColor: 'var(--color-accent, #8b5cf6)',
+                borderColor: 'var(--color-accent, #7ecfcf)',
                 outline: 'none',
                 width: 200,
               }}

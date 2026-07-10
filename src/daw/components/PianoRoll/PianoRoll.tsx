@@ -78,7 +78,7 @@ function getThemeColors(el: HTMLElement) {
   const s = getComputedStyle(el);
   const get = (v: string, fb: string) => s.getPropertyValue(v).trim() || fb;
   return {
-    bg: get('--color-bg', '#363636'),
+    bg: get('--color-bg', '#101012'),
     border: get('--color-border', 'rgba(255,255,255,0.08)'),
     textDim: get('--color-text-dim', '#6b6b80'),
   };
@@ -240,7 +240,7 @@ export function PianoRoll({
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
-      : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
 
     const dpr = window.devicePixelRatio || 1;
     const w = KEYS_WIDTH;
@@ -273,10 +273,10 @@ export function PianoRoll({
         ctx.fillRect(0, rowY, w, rowH);
       } else {
         // Black key
-        ctx.fillStyle = '#1e1e24';
+        ctx.fillStyle = '#1e1e1e';
         ctx.fillRect(0, rowY, w * 0.65, rowH);
         // Right portion (gap)
-        ctx.fillStyle = '#2a2a32';
+        ctx.fillStyle = '#2a2a2a';
         ctx.fillRect(w * 0.65, rowY, w * 0.35, rowH);
       }
 
@@ -353,7 +353,7 @@ export function PianoRoll({
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
-      : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
 
     const dpr = window.devicePixelRatio || 1;
     const rulerContainer = rulerScrollRef.current;
@@ -423,7 +423,7 @@ export function PianoRoll({
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
-      : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
 
     const dpr = window.devicePixelRatio || 1;
     const w = Math.max(container.clientWidth, gridW);
@@ -594,7 +594,7 @@ export function PianoRoll({
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
-      : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
     const dpr = window.devicePixelRatio || 1;
     const velContainer = velScrollRef.current;
     const w = velContainer ? Math.max(velContainer.clientWidth, gridW) : gridW;

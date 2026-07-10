@@ -62,18 +62,13 @@ const BoardCard = ({
       onClick={onSelect}
       aria-current={isCurrent ? 'step' : undefined}
       aria-label={`Open ${labelPrimary} in focus mode`}
-      className={`presentation-card flex flex-col gap-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-black/40 ${
+      className={`presentation-card flex flex-col gap-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${
         isCurrent ? 'is-current' : ''
       }`}
-      style={{
-        // Consumed by .presentation-card for the top border color + here-marker
-        // background; falls back to the connect-phase accent by default.
-        ['--phase-accent' as string]: `var(--pres-accent-${phase.phaseKey})`,
-      }}
     >
       <div className="flex items-center justify-between">
         <span
-          className="inline-flex rounded-full bg-black/5 font-semibold uppercase tracking-widest text-black/70"
+          className="inline-flex rounded-full bg-white/[0.06] font-semibold uppercase tracking-widest text-white/80"
           style={{
             fontSize: 'calc(var(--pres-label-fz) * 0.75)',
             padding: '0.25rem 0.625rem',
@@ -97,7 +92,7 @@ const BoardCard = ({
         </h3>
         {titleAlt && (
           <p
-            className="text-black/60"
+            className="text-white/50"
             style={{ fontSize: 'calc(var(--pres-title-fz) * 0.6)' }}
           >
             {titleAlt}
@@ -106,14 +101,14 @@ const BoardCard = ({
       </div>
 
       <p
-        className="text-black/75"
+        className="text-white/85"
         style={{ fontSize: 'var(--pres-prompt-fz)' }}
       >
         {prompt}
       </p>
       {promptAlt && (
         <p
-          className="text-black/55"
+          className="text-white/50"
           style={{ fontSize: 'calc(var(--pres-prompt-fz) * 0.85)' }}
         >
           {promptAlt}

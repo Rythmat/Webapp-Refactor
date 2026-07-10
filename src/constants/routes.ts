@@ -130,9 +130,32 @@ const teacherPrefix = '/teacher';
 
 export const TeacherRoutes = {
   /**
-   * The root route for the teacher.
+   * The root route for the teacher — now the Teacher Dashboard.
    */
   root: createRouteDefinition(teacherPrefix),
+
+  /**
+   * Alias for the dashboard landing (same URL as `root`).
+   */
+  dashboard: createRouteDefinition(teacherPrefix),
+
+  /**
+   * Classroom picker + create/edit/delete/share (doubles as the "all
+   * classrooms" selector that a teacher with 2+ classrooms lands on).
+   */
+  classrooms: createRouteDefinition('/classrooms', {
+    prefix: teacherPrefix,
+  }),
+
+  /**
+   * Per-classroom teacher dashboard. Teachers navigate here from a card on
+   * the classrooms selector (or directly if they own exactly one classroom).
+   */
+  classroomDashboard: createRouteDefinition<{
+    classroomId: string;
+  }>('/classroom/:classroomId', {
+    prefix: teacherPrefix,
+  }),
 
   /**
    * The route to the student page.
@@ -140,6 +163,98 @@ export const TeacherRoutes = {
   students: createRouteDefinition<{
     classroomId: string;
   }>('/classroom/:classroomId/students', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Plan Days overview — the teacher's list of authored Days. */
+  plan: createRouteDefinition<{
+    classroomId: string;
+  }>('/classroom/:classroomId/plan', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Day editor — authoring surface for a single Day. */
+  dayEditor: createRouteDefinition<{
+    classroomId: string;
+    dayId: string;
+  }>('/classroom/:classroomId/plan/:dayId', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Preview a Day as a student would see it. */
+  dayPreview: createRouteDefinition<{
+    classroomId: string;
+    dayId: string;
+  }>('/classroom/:classroomId/plan/:dayId/preview', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Annual Plan — Kanban-style calendar of Units. */
+  annualPlan: createRouteDefinition<{
+    classroomId: string;
+  }>('/classroom/:classroomId/plan/annual', {
+    prefix: teacherPrefix,
+  }),
+
+  /** A single Unit inside the Annual Plan. */
+  annualUnit: createRouteDefinition<{
+    classroomId: string;
+    unitId: string;
+  }>('/classroom/:classroomId/plan/annual/unit/:unitId', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Presentation Mode — the projected board for a Day. */
+  present: createRouteDefinition<{
+    classroomId: string;
+    dayId: string;
+  }>('/classroom/:classroomId/present/:dayId', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Teacher's assignments list for a classroom. */
+  assignments: createRouteDefinition<{
+    classroomId: string;
+  }>('/classroom/:classroomId/assignments', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Teacher progress grid for a single assignment. */
+  assignmentProgress: createRouteDefinition<{
+    classroomId: string;
+    assignmentId: string;
+  }>('/classroom/:classroomId/assignments/:assignmentId/progress', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Teacher live-session dashboard. */
+  session: createRouteDefinition<{
+    classroomId: string;
+    sessionId: string;
+  }>('/classroom/:classroomId/sessions/:sessionId', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Anonymized projector overlay during a live session. */
+  projector: createRouteDefinition<{
+    classroomId: string;
+    sessionId: string;
+  }>('/classroom/:classroomId/sessions/:sessionId/projector', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Teacher-only post-session report. */
+  report: createRouteDefinition<{
+    classroomId: string;
+    sessionId: string;
+  }>('/classroom/:classroomId/sessions/:sessionId/report', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Teacher-only index of ended-session reports. */
+  reports: createRouteDefinition<{
+    classroomId: string;
+  }>('/classroom/:classroomId/reports', {
     prefix: teacherPrefix,
   }),
 };
@@ -191,55 +306,8 @@ export const ClassroomRoutes = {
   }),
 
   /**
-   * Presentation Mode — the projected board for a specific Day.
-   * See src/features/classroom/presentation/PresentationMode.tsx.
-   */
-  present: createRouteDefinition<{
-    classroomId: string;
-    dayId: string;
-  }>('/:classroomId/present/:dayId', {
-    prefix: classroomPrefix,
-  }),
-
-  /**
-   * Plan overview for a classroom — lists the teacher's authored Days and
-   * exposes a "New Day" affordance. Days persist locally per the fresh-build
-   * brief; nothing hits the server in v1.
-   */
-  plan: createRouteDefinition<{
-    classroomId: string;
-  }>('/:classroomId/plan', {
-    prefix: classroomPrefix,
-  }),
-
-  /**
-   * Day editor — teacher-facing authoring surface for a single Day. Reads and
-   * writes through `useLocalPlan` (localStorage `ma-teacher:plan:v1`).
-   */
-  dayEditor: createRouteDefinition<{
-    classroomId: string;
-    dayId: string;
-  }>('/:classroomId/plan/:dayId', {
-    prefix: classroomPrefix,
-  }),
-
-  /**
-   * Preview a Day as a student would see it. Runs the Day through
-   * `buildStudentView` + renders phase interactions inline via
-   * `InteractionInput` so the teacher can smoke-test authoring locally
-   * before publishing.
-   */
-  preview: createRouteDefinition<{
-    classroomId: string;
-    dayId: string;
-  }>('/:classroomId/plan/:dayId/preview', {
-    prefix: classroomPrefix,
-  }),
-
-  /**
-   * Student and teacher assignments list for a classroom. Backed by
-   * localStorage in Sprint 2; will read `GET /classrooms/:id/assignments`
-   * when the backend endpoints in `docs/classroom-v2/openapi.yaml` ship.
+   * Student and teacher assignments list for a classroom. This URL is the
+   * student's view; the teacher's mirror lives at `TeacherRoutes.assignments`.
    */
   assignments: createRouteDefinition<{
     classroomId: string;
@@ -269,52 +337,11 @@ export const ClassroomRoutes = {
     prefix: classroomPrefix,
   }),
 
-  /**
-   * Teacher progress grid for a single assignment.
-   */
-  assignmentProgress: createRouteDefinition<{
-    classroomId: string;
-    assignmentId: string;
-  }>('/:classroomId/assignments/:assignmentId/progress', {
-    prefix: classroomPrefix,
-  }),
-
   /** Student live-session view. */
   live: createRouteDefinition<{
     classroomId: string;
     sessionId: string;
   }>('/:classroomId/live/:sessionId', {
-    prefix: classroomPrefix,
-  }),
-
-  /** Teacher live-session dashboard. */
-  session: createRouteDefinition<{
-    classroomId: string;
-    sessionId: string;
-  }>('/:classroomId/sessions/:sessionId', {
-    prefix: classroomPrefix,
-  }),
-
-  /** Anonymized projector overlay. */
-  projector: createRouteDefinition<{
-    classroomId: string;
-    sessionId: string;
-  }>('/:classroomId/sessions/:sessionId/projector', {
-    prefix: classroomPrefix,
-  }),
-
-  /** Teacher-only post-session report. */
-  report: createRouteDefinition<{
-    classroomId: string;
-    sessionId: string;
-  }>('/:classroomId/sessions/:sessionId/report', {
-    prefix: classroomPrefix,
-  }),
-
-  /** Teacher-only index of ended-session reports. */
-  reports: createRouteDefinition<{
-    classroomId: string;
-  }>('/:classroomId/reports', {
     prefix: classroomPrefix,
   }),
 };
@@ -349,6 +376,9 @@ export const StudioRoutes = {
   root: createRouteDefinition(studioPrefix),
 
   picker: createRouteDefinition('/', { prefix: studioPrefix }),
+
+  /** The DAW editor. The `/studio` index now shows the Studio Dashboard. */
+  editor: createRouteDefinition('/editor', { prefix: studioPrefix }),
 };
 
 const gamesPrefix = '/arcade';

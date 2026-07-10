@@ -1,15 +1,16 @@
-import { Send } from 'lucide-react';
+import { Flame, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/components/utilities';
-import { UserRoutes } from '@/constants/routes';
+import { ProfileRoutes, UserRoutes } from '@/constants/routes';
 import { useMe } from '@/hooks/data';
 import { useExperienceSummary } from '@/hooks/data/experience';
+import { useAwards } from '@/hooks/data/useAwards';
+import { useStreak } from '@/hooks/data/useStreak';
 import { useAvatarConfig } from '@/hooks/useAvatarConfig';
 
 const CREDITS_PLACEHOLDER = 12;
-const AWARDS_PLACEHOLDER = 60;
 // Notifications count is not yet backed by a real feed — inline a zero here
 // so the badge dot stays hidden until a real notification stream ships.
 const NOTIFICATION_COUNT = 0;
@@ -27,6 +28,9 @@ export const TopRail = ({ className }: TopRailProps) => {
   const { data: xp } = useExperienceSummary();
   const totalXp = xp?.totalExperience ?? 0;
   const level = xp?.level ?? 1;
+  const { data: streak } = useStreak();
+  const streakDays = streak?.currentStreak ?? 0;
+  const { unlockedCount } = useAwards();
   const notificationCount = NOTIFICATION_COUNT;
 
   const { data: user } = useMe();
@@ -46,6 +50,20 @@ export const TopRail = ({ className }: TopRailProps) => {
       )}
     >
       <div className="flex items-center gap-6 text-white">
+        {/* Learning streak — appears once the user has one (gentle, no zero-state). */}
+        {streakDays > 0 && (
+          <div
+            className="flex items-center gap-1.5"
+            title={`${streakDays}-day learning streak`}
+            aria-label={`${streakDays}-day learning streak`}
+          >
+            <Flame className="h-5 w-5 text-orange-400" fill="currentColor" />
+            <span className="text-[20px] font-medium leading-none tabular-nums">
+              {streakDays}
+            </span>
+          </div>
+        )}
+
         {/* XP */}
         <div className="flex items-baseline gap-1.5">
           <span className="text-[20px] font-medium leading-none tabular-nums">
@@ -83,10 +101,10 @@ export const TopRail = ({ className }: TopRailProps) => {
           </span>
         </button>
 
-        {/* Awards */}
-        <button
-          type="button"
-          aria-label={`Awards: ${AWARDS_PLACEHOLDER}`}
+        {/* Awards — real earned count (hidden at 0); opens the Awards page. */}
+        <Link
+          to={ProfileRoutes.awards()}
+          aria-label={unlockedCount > 0 ? `Awards: ${unlockedCount}` : 'Awards'}
           className="flex items-center gap-1.5 text-white/90 transition-colors hover:text-white"
         >
           <img
@@ -95,10 +113,12 @@ export const TopRail = ({ className }: TopRailProps) => {
             draggable={false}
             className="h-6 w-6"
           />
-          <span className="text-[20px] font-medium tabular-nums">
-            {AWARDS_PLACEHOLDER}
-          </span>
-        </button>
+          {unlockedCount > 0 && (
+            <span className="text-[20px] font-medium tabular-nums">
+              {unlockedCount}
+            </span>
+          )}
+        </Link>
 
         {/* Notifications — dot only appears when count > 0. Real feed lands
             when Studio/jam/classroom invites ship. */}

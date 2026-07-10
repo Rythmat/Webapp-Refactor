@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ClassroomRoutes } from '@/constants/routes';
+import { TeacherRoutes } from '@/constants/routes';
 import { buildStudentView } from './buildStudentView';
 import { DEMO_DAY_ID, demoDay } from './fixtures/demoDay';
 import { useSessionSync } from './live/useSessionSync';
@@ -136,9 +136,9 @@ export const PresentationMode = () => {
       void document.exitFullscreen();
     }
     if (classroomId) {
-      navigate(ClassroomRoutes.home({ classroomId }));
+      navigate(TeacherRoutes.classroomDashboard({ classroomId }));
     } else {
-      navigate(ClassroomRoutes.picker());
+      navigate(TeacherRoutes.root());
     }
   }, [classroomId, navigate]);
 
@@ -223,23 +223,23 @@ const PresentationChrome = ({
 }: PresentationChromeProps) => {
   return (
     <header
-      className="flex items-center justify-between border-b border-black/[0.08] px-8 py-4"
-      style={{ background: 'var(--pres-bg-warm)' }}
+      className="flex items-center justify-between border-b border-white/[0.06] px-8 py-4"
+      style={{ background: 'var(--pres-bg-inset)' }}
     >
       <div className="flex items-center gap-4">
         <button
           type="button"
           onClick={onExit}
           aria-label="Exit Presentation Mode"
-          className="inline-flex items-center gap-1 rounded-full border border-black/15 bg-white px-3 py-1.5 text-sm font-medium text-black hover:bg-black/5"
+          className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-transparent px-3 py-1.5 text-sm font-medium text-white/80 transition-colors hover:border-white/25 hover:text-white"
         >
           <X className="h-4 w-4" />
           Exit
         </button>
-        <span className="text-sm text-black/60">{dayLabel}</span>
+        <span className="text-sm text-white/60">{dayLabel}</span>
       </div>
 
-      <div className="flex items-center gap-4 text-black/80">
+      <div className="flex items-center gap-4 text-white/80">
         <SegmentedControl
           label="Language"
           options={LANGUAGE_OPTIONS}
@@ -256,7 +256,7 @@ const PresentationChrome = ({
           type="button"
           onClick={onToggleFullscreen}
           aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-          className="inline-flex size-8 items-center justify-center rounded-full border border-black/15 bg-white text-black hover:bg-black/5"
+          className="inline-flex size-8 items-center justify-center rounded-full border border-white/10 bg-transparent text-white/80 transition-colors hover:border-white/25 hover:text-white"
         >
           {isFullscreen ? (
             <Minimize2 className="h-4 w-4" />
@@ -284,7 +284,7 @@ const SegmentedControl = <V extends string>({
 }: SegmentedControlProps<V>) => {
   return (
     <div
-      className="inline-flex items-center gap-1 rounded-full border border-black/15 bg-white p-0.5"
+      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-0.5"
       role="group"
       aria-label={label}
     >
@@ -296,8 +296,8 @@ const SegmentedControl = <V extends string>({
           aria-pressed={opt.value === value}
           className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
             opt.value === value
-              ? 'bg-black text-white'
-              : 'text-black/70 hover:text-black'
+              ? 'bg-white text-black'
+              : 'text-white/60 hover:text-white'
           }`}
         >
           {opt.label}
@@ -316,7 +316,7 @@ interface BoardNavProps {
 const BoardNav = ({ currentIndex, onPrev, onNext }: BoardNavProps) => {
   return (
     <div
-      className="sticky bottom-4 mx-auto mt-auto flex items-center gap-3 rounded-full bg-white/95 px-3 py-2 shadow-[var(--pres-shadow)] backdrop-blur"
+      className="sticky bottom-4 mx-auto mt-auto flex items-center gap-3 rounded-full border border-white/[0.06] bg-[#141416]/90 px-3 py-2 backdrop-blur"
       style={{ marginBottom: '1.5rem' }}
     >
       <button
@@ -324,11 +324,11 @@ const BoardNav = ({ currentIndex, onPrev, onNext }: BoardNavProps) => {
         onClick={onPrev}
         disabled={currentIndex <= 0}
         aria-label="Previous phase"
-        className="inline-flex size-9 items-center justify-center rounded-full text-black/80 hover:bg-black/5 disabled:opacity-30"
+        className="inline-flex size-9 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white disabled:opacity-30"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
-      <span className="text-sm text-black/60 tabular-nums">
+      <span className="text-sm text-white/50 tabular-nums">
         {currentIndex + 1} / {PHASES.length}
       </span>
       <button
@@ -336,7 +336,7 @@ const BoardNav = ({ currentIndex, onPrev, onNext }: BoardNavProps) => {
         onClick={onNext}
         disabled={currentIndex >= PHASES.length - 1}
         aria-label="Next phase"
-        className="inline-flex size-9 items-center justify-center rounded-full text-black/80 hover:bg-black/5 disabled:opacity-30"
+        className="inline-flex size-9 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white disabled:opacity-30"
       >
         <ChevronRight className="h-5 w-5" />
       </button>

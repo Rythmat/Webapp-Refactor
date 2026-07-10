@@ -438,9 +438,11 @@ export const TrackHeader = memo(function TrackHeader({
           whileTap={{ scale: 0.85 }}
           className="flex size-5 items-center justify-center rounded text-[10px] font-bold transition-colors"
           style={{
-            backgroundColor: track.solo ? '#eab308' : 'transparent',
+            backgroundColor: track.solo
+              ? 'var(--color-meter-yellow)'
+              : 'transparent',
             color: track.solo ? '#000' : 'var(--color-text-dim)',
-            border: `1px solid ${track.solo ? '#eab308' : 'var(--color-border)'}`,
+            border: `1px solid ${track.solo ? 'var(--color-meter-yellow)' : 'var(--color-border)'}`,
           }}
           title="Solo"
         >
@@ -493,10 +495,10 @@ export const TrackHeader = memo(function TrackHeader({
                 width: `${liveLevel}%`,
                 backgroundColor:
                   liveLevel > 90
-                    ? '#ef4444'
+                    ? 'var(--color-meter-red)'
                     : liveLevel > 75
-                      ? '#eab308'
-                      : '#22c55e',
+                      ? 'var(--color-meter-yellow)'
+                      : 'var(--color-meter-green)',
               }}
             />
             <Slider.Range

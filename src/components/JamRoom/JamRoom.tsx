@@ -299,14 +299,14 @@ function JamRoomInner() {
       return;
     }
     saveRecording();
-    navigate(`${StudioRoutes.root.definition}?jam=1`);
+    navigate(`${StudioRoutes.editor.definition}?jam=1`);
   };
 
   // Host → "Go Solo": local studio with the jam imported. Leaving closes the
   // room, kicking the other players back to the lobby as usual.
   const handleGoSolo = () => {
     saveRecording();
-    navigate(`${StudioRoutes.root.definition}?jam=1`);
+    navigate(`${StudioRoutes.editor.definition}?jam=1`);
   };
 
   // Host → "Invite Users": create a collaborative studio session, tell the room
@@ -316,7 +316,7 @@ function JamRoomInner() {
     sendStudioInvite(studioCode);
     saveRecording();
     navigate(
-      `${StudioRoutes.root.definition}?jam=1&collab=${studioCode}&host=1`,
+      `${StudioRoutes.editor.definition}?jam=1&collab=${studioCode}&host=1`,
     );
   };
 
@@ -325,7 +325,7 @@ function JamRoomInner() {
     if (!studioInvite) return;
     const code = studioInvite.roomCode;
     leaveRoom();
-    navigate(`${StudioRoutes.root.definition}?collab=${code}`);
+    navigate(`${StudioRoutes.editor.definition}?collab=${code}`);
   };
 
   // Invited player → "Don't Join": leave the (now-closed) room for the lobby.

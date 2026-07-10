@@ -1,30 +1,27 @@
 /* ── Presentation Mode ────────────────────────────────────────────────
-   Scoped tokens for the projected board. Cream palette per the
-   fresh-build brief so the surface reads visibly distinct from the
-   surrounding dark app chrome — students look here.
+   Scoped tokens for the projected board. Dark palette matched to the
+   surrounding classroom UI so Present reads as one continuous surface
+   with the teacher chrome (see docs / plans / Presentation UI refresh).
 
    Age presets (data-age) adjust the type scale and card density so
    middle/high/college classrooms each get appropriate mass. Language
-   modes and phase accents are handled at the component layer.
+   modes are handled at the component layer.
    ────────────────────────────────────────────────────────────────────── */
 
 .presentation-root {
-  /* Palette — cream surface, dark ink. */
-  --pres-bg: #faf6ee;
-  --pres-bg-warm: #f4efe3;
-  --pres-bg-card: #ffffff;
-  --pres-ink: #1a1a1a;
-  --pres-ink-dim: #6b6b7b;
-  --pres-hair: rgba(26, 26, 26, 0.08);
-  --pres-shadow: 0 6px 24px rgba(26, 26, 26, 0.08);
-  --pres-shadow-lift: 0 12px 40px rgba(26, 26, 26, 0.16);
-
-  /* Per-phase accents. Restrained, warm. */
-  --pres-accent-connectRegulate: #7ec9c9;
-  --pres-accent-groupPractice: #6d8fc3;
-  --pres-accent-creativeProjects: #e8955a;
-  --pres-accent-presentPerform: #c07dc5;
-  --pres-accent-respondReflectReset: #a89680;
+  /* Palette — dark surface, white ink. */
+  --pres-bg: #141416;
+  --pres-bg-inset: #101012;
+  --pres-bg-card: rgba(255, 255, 255, 0.02);
+  --pres-bg-card-hover: rgba(255, 255, 255, 0.04);
+  --pres-ink: #ffffff;
+  --pres-ink-dim: rgba(255, 255, 255, 0.6);
+  --pres-ink-mute: rgba(255, 255, 255, 0.4);
+  --pres-hair: rgba(255, 255, 255, 0.06);
+  --pres-hair-strong: rgba(255, 255, 255, 0.15);
+  --pres-accent: rgba(255, 255, 255, 0.3);
+  --pres-shadow: none;
+  --pres-shadow-lift: none;
 
   /* Type + density — defaults sized for the 'high' age preset. */
   --pres-title-fz: 2.5rem;
@@ -78,21 +75,26 @@
   letter-spacing: -0.01em;
 }
 
-/* Phase-card chrome shared across Board + Focus. */
+/* Phase-card chrome shared across Board + Focus. Dark surface, hairline
+   border, neutral accent on the current phase — no per-phase color. */
 .presentation-card {
   background: var(--pres-bg-card);
   border-radius: var(--pres-card-radius);
   padding: var(--pres-card-pad);
-  box-shadow: var(--pres-shadow);
-  border-top: 6px solid var(--phase-accent, var(--pres-accent-connectRegulate));
+  border: 1px solid var(--pres-hair);
   transition:
-    transform 180ms ease,
-    box-shadow 180ms ease;
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.presentation-card:hover {
+  background: var(--pres-bg-card-hover);
+  border-color: var(--pres-hair-strong);
 }
 
 .presentation-card.is-current {
-  box-shadow: var(--pres-shadow-lift);
-  transform: translateY(-2px);
+  background: var(--pres-bg-card-hover);
+  border-color: var(--pres-accent);
 }
 
 .presentation-here {
@@ -105,7 +107,7 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  background: var(--phase-accent, var(--pres-accent-connectRegulate));
+  background: rgba(255, 255, 255, 0.1);
   color: var(--pres-ink);
 }
 

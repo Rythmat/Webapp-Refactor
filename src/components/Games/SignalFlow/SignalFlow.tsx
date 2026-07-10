@@ -81,13 +81,13 @@ const LevelSelectScreen = ({
           <button
             key={level.id}
             onClick={() => onSelect(idx)}
-            className="group relative bg-zinc-900 border border-zinc-800 hover:border-indigo-500/50 rounded-2xl p-6 text-left transition-all hover:bg-zinc-800/80 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1"
+            className="group relative bg-white/[0.03] border border-white/10 hover:border-indigo-500/50 rounded-2xl p-6 text-left transition-all hover:bg-white/[0.05] hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1"
           >
             <div className="flex items-start justify-between mb-6">
-              <div className="w-12 h-12 rounded-xl bg-zinc-950 border border-zinc-800 group-hover:border-indigo-500/30 flex items-center justify-center text-zinc-500 group-hover:text-indigo-400 transition-colors font-mono font-bold text-lg">
+              <div className="w-12 h-12 rounded-xl bg-white/[0.02] border border-white/10 group-hover:border-indigo-500/30 flex items-center justify-center text-zinc-500 group-hover:text-indigo-400 transition-colors font-mono font-bold text-lg">
                 {level.id}
               </div>
-              <div className="p-2 rounded-full bg-zinc-950 text-zinc-600 group-hover:text-indigo-500 transition-colors">
+              <div className="p-2 rounded-full bg-white/[0.02] text-zinc-600 group-hover:text-indigo-500 transition-colors">
                 <Play size={20} fill="currentColor" />
               </div>
             </div>
@@ -299,7 +299,8 @@ const JackPoint: React.FC<JackPointProps> = ({
   onDrop,
   cableType,
 }) => {
-  const baseColor = status === 'connected' ? 'bg-zinc-800' : 'bg-zinc-900';
+  const baseColor =
+    status === 'connected' ? 'bg-white/[0.08]' : 'bg-white/[0.02]';
   let borderColorClass = 'bg-zinc-600';
   if (status === 'connected') {
     if (cableType === 'iec_cable') borderColorClass = 'bg-amber-500';
@@ -485,7 +486,7 @@ const ToolboxItem: React.FC<{
         ${
           isSelected
             ? 'bg-indigo-500/10 border-indigo-500/50 text-white ring-1 ring-indigo-500/30'
-            : 'bg-zinc-800/50 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
+            : 'bg-white/[0.03] border-white/10 text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-200'
         }
       `}
     >
@@ -516,13 +517,13 @@ const Modal: React.FC<{
   primaryLabel: string;
 }> = ({ title, icon, children, primaryAction, primaryLabel }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
+    <div className="bg-white/[0.03] border border-white/10 rounded-xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
       <div
         className="absolute top-0 right-0 -mr-12 -mt-12 w-32 h-32 bg-indigo-500/5"
         style={{ clipPath: HEX_CLIP_PATH }}
       />
       <div
-        className="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 bg-zinc-800/30"
+        className="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 bg-white/[0.03]"
         style={{ clipPath: HEX_CLIP_PATH }}
       />
       <div className="relative z-10 text-center">
@@ -789,7 +790,7 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
   // Level select screen
   if (levelIndex < 0) {
     return (
-      <div className="flex flex-col bg-zinc-950 text-zinc-100 font-sans select-none min-h-[600px]">
+      <div className="flex flex-col bg-[#101012] text-zinc-100 font-sans select-none min-h-[600px]">
         <LevelSelectScreen
           levels={LEVELS}
           onSelect={(idx) => {
@@ -803,9 +804,9 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
   }
 
   return (
-    <div className="flex flex-col min-h-[600px] bg-zinc-950 text-zinc-100 font-sans select-none rounded-xl overflow-hidden border border-zinc-800">
+    <div className="flex flex-col min-h-[600px] bg-[#101012] text-zinc-100 font-sans select-none rounded-xl overflow-hidden border border-white/10">
       {/* Level Header */}
-      <header className="h-12 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between px-6 shrink-0 z-30">
+      <header className="h-12 bg-white/[0.03] border-b border-white/10 flex items-center justify-between px-6 shrink-0 z-30">
         <div className="text-xs font-mono text-zinc-500 uppercase tracking-widest">
           Mission {levelIndex + 1} {/* // */} {currentLevel.title}
         </div>
@@ -823,7 +824,7 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
       {/* Board — fills available space, hex pattern tiles across entire area */}
       <div
         ref={boardWrapperRef}
-        className="flex-1 overflow-hidden relative bg-zinc-950"
+        className="flex-1 overflow-hidden relative bg-[#101012]"
       >
         {/* Error Toast */}
         {errorMsg && (
@@ -901,11 +902,11 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
       </div>
 
       {/* Horizontal Toolbox Strip */}
-      <div className="border-t border-zinc-800 bg-zinc-900 p-3">
+      <div className="border-t border-white/10 bg-white/[0.03] p-3">
         <div className="flex items-center gap-3 mb-2">
           <h2 className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2 shrink-0">
             Toolbox
-            <span className="bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded text-[10px]">
+            <span className="bg-white/[0.05] text-zinc-400 px-1.5 py-0.5 rounded text-[10px]">
               {currentLevel.toolbox.length}
             </span>
           </h2>

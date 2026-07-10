@@ -1,90 +1,104 @@
 /**
- * Deterministic honeycomb tile art for Studio Project cards.
+ * Deterministic honeycomb tile art for the interactive hex tiles (Arcade game
+ * cards, the Arcade hero, Studio project thumbnails). Each tile gets a curated,
+ * "coolors-trending"-style colour palette picked deterministically from its seed,
+ * painted onto the shared honeycomb engine (`generateAvatarPolygons`) and
+ * serialised to an inline SVG string that `HexWaveBackground` renders.
  *
- * Studio projects have no predefined Genre/Theory tile, so we synthesize one per
- * project: an aesthetic colour palette generated from the project id, painted
- * onto the shared honeycomb engine (`generateAvatarPolygons`) and serialised to
- * an inline SVG string that `HexWaveBackground` can render interactively.
- *
- * Palette algorithm: OKLCH + golden-angle (137.5°) hue stepping. OKLCH is
- * perceptually uniform — equal-lightness colours read as equally bright across
- * hues (HSL's core failing) — and the golden angle spreads hues evenly with no
- * clustering. OKLCH→sRGB uses Björn Ottosson's Oklab matrix
- * (https://bottosson.github.io/posts/oklab/); seeding reuses `alea`. No new deps.
+ * Palettes are hand-curated (not algorithmically generated): a fixed set of ~28
+ * five-colour palettes spanning trending aesthetics — warm-earthy, sunset,
+ * bold-vibrant, saturated-pastel, jewel, retro/vaporwave, cottagecore — every one
+ * vetted to pop on the dark #101012 tile base. This replaces the earlier OKLCH
+ * golden-angle generator, whose even lightness/chroma read muddy.
  */
 
-import Alea from 'alea';
 import { defaultAvatarConfig, generateAvatarPolygons } from './avatarHexGrid';
 
-const GOLDEN_ANGLE = 137.508; // ≈ 360 / φ — maximally-separated hue stepping
-
-const clamp01 = (n: number): number => Math.min(Math.max(n, 0), 1);
-
 /**
- * Convert an OKLCH colour (L 0–1, C ~0–0.4, H degrees) to an `#rrggbb` string.
- * Oklab → linear sRGB via Ottosson's matrix, then gamma-encode + gamut-clamp.
+ * Curated 5-colour palettes in the coolors-trending style, chosen to read well on
+ * the dark (#101012) tile base. Tweak freely — this is the single source of tile
+ * colour. Keep entries reasonably light/saturated so they don't vanish into the base.
  */
-function oklchToHex(l: number, c: number, hDeg: number): string {
-  const h = (hDeg * Math.PI) / 180;
-  const a = c * Math.cos(h);
-  const b = c * Math.sin(h);
+export const TRENDING_PALETTES: string[][] = [
+  ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d'], // warm rainbow
+  ['#ff68a8', '#64cff7', '#f7e752', '#ca7cd8', '#3968cb'], // 90s pop
+  ['#674ab3', '#a348a6', '#9f63c4', '#9075d8', '#cea2d7'], // lofi
+  ['#596854', '#7f803e', '#cc9a52', '#ad794b', '#fce4b4'], // cottagecore
+  ['#00b4d8', '#48cae4', '#90e0ef', '#0096c7', '#0077b6'], // ocean blue
+  ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6bed'], // tropical
+  ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff'], // candy pastel
+  ['#ff5d8f', '#ff97b7', '#ffacc5', '#c04cfd', '#7b2cbf'], // berry
+  ['#40916c', '#52b788', '#74c69d', '#95d5b2', '#b7e4c7'], // forest
+  ['#ffbe0b', '#fb5607', '#ff006e', '#8338ec', '#3a86ff'], // vivid classic
+  ['#ff9a8b', '#ff6a88', '#ff99ac', '#fcb69f', '#ffdde1'], // peach coral
+  ['#f72585', '#b5179e', '#7209b7', '#4361ee', '#4cc9f0'], // neon gradient
+  ['#e07a5f', '#f2cc8f', '#81b29a', '#f4a261', '#e76f51'], // warm earthy
+  ['#52ffb8', '#00f5d4', '#00bbf9', '#9b5de5', '#f15bb5'], // mint → pink
+  ['#e63946', '#a8dadc', '#457b9d', '#f4a261', '#f1faee'], // retro red/blue
+  ['#ff9ff3', '#feca57', '#ff6b6b', '#48dbfb', '#1dd1a1'], // bubblegum
+  ['#a06cd5', '#b298dc', '#c19ee0', '#845ec2', '#d65db1'], // grape
+  ['#ff9e00', '#ff8500', '#ff6d00', '#ff5400', '#ff0054'], // sunrise
+  ['#ccd5ae', '#e9edc9', '#faedcd', '#d4a373', '#e0c097'], // pistachio cream
+  ['#06ffa5', '#00e5ff', '#7b61ff', '#ff61a6', '#ffd166'], // electric
+  ['#d4a5a5', '#e8b4b8', '#eecbd0', '#c98da3', '#a76d8f'], // dusty rose
+  ['#2de2e6', '#ff3864', '#f6019d', '#a663cc', '#6a4c93'], // cyber
+  ['#ffd166', '#06d6a0', '#118ab2', '#ef476f', '#f78c6b'], // meadow
+  ['#f6bd60', '#f7ede2', '#f5cac3', '#84a59d', '#f28482'], // golden hour
+  ['#fe5d9f', '#ff8fab', '#ffb3c6', '#ffc2d1', '#8bd3dd'], // popsicle
+  ['#ffca3a', '#ff595e', '#8ac926', '#1982c4', '#6a4c93'], // jelly bold
+  ['#80ffdb', '#72efdd', '#64dfdf', '#56cfe1', '#48bfe3'], // aurora teal
+  ['#ffb7c3', '#ff8fab', '#fb6f92', '#ffc2d1', '#f9dcc4'], // cherry blossom
+];
 
-  const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
-  const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
-  const s_ = l - 0.0894841775 * a - 1.291485548 * b;
+/** FNV-1a hash → a stable non-negative int for deterministic per-seed picks. */
+function hashString(input: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
 
-  const l3 = l_ * l_ * l_;
-  const m3 = m_ * m_ * m_;
-  const s3 = s_ * s_ * s_;
+/** Deterministically pick one curated palette for a seed. */
+export function pickTrendingPalette(seed: string): string[] {
+  return TRENDING_PALETTES[hashString(seed) % TRENDING_PALETTES.length];
+}
 
-  const lr = 4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
-  const lg = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
-  const lb = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3;
+/** HSL saturation (0–1) of an `#rrggbb` colour — for choosing the accent. */
+function hexSaturation(hex: string): number {
+  const n = parseInt(hex.slice(1), 16);
+  const r = ((n >> 16) & 255) / 255;
+  const g = ((n >> 8) & 255) / 255;
+  const b = (n & 255) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  if (max === min) return 0;
+  const l = (max + min) / 2;
+  return (max - min) / (1 - Math.abs(2 * l - 1));
+}
 
-  const encode = (x: number): string => {
-    const srgb =
-      x <= 0.0031308
-        ? 12.92 * x
-        : 1.055 * Math.pow(clamp01(x), 1 / 2.4) - 0.055;
-    return Math.round(clamp01(srgb) * 255)
-      .toString(16)
-      .padStart(2, '0');
-  };
-
-  return `#${encode(lr)}${encode(lg)}${encode(lb)}`;
+/** The curated palette for a tile seed (used as the hex-fill palette). */
+export function generateAestheticPalette(seed: string): string[] {
+  return pickTrendingPalette(seed);
 }
 
 /**
- * Generate a deterministic, aesthetically-cohesive palette from a seed string.
- * Hues step by the golden angle from a seeded base; lightness ramps gently with
- * a little jitter; chroma alternates for subtle variety.
- */
-export function generateAestheticPalette(seed: string, size = 6): string[] {
-  const prng = Alea(seed);
-  const baseHue = prng() * 360;
-
-  return Array.from({ length: size }, (_, i) => {
-    const hue = (baseHue + i * GOLDEN_ANGLE) % 360;
-    const lightness = clamp01(0.55 + (i / size) * 0.17 + (prng() - 0.5) * 0.06);
-    const chroma = 0.15 + (i % 2) * 0.03; // 0.15 / 0.18
-    return oklchToHex(lightness, chroma, hue);
-  });
-}
-
-/**
- * A single vivid colour from the same seed/hue family as the tile — used for the
- * activity card's left accent stripe so stripe and tile stay in sync.
+ * A single vivid colour from the tile's own palette — the most-saturated entry —
+ * used for the Studio activity card's left accent stripe so stripe and tile match.
  */
 export function studioTileAccent(seed: string): string {
-  const baseHue = Alea(seed)() * 360; // same first draw as the palette's base hue
-  return oklchToHex(0.62, 0.19, baseHue);
+  const palette = pickTrendingPalette(seed);
+  return palette.reduce((best, c) =>
+    hexSaturation(c) > hexSaturation(best) ? c : best,
+  );
 }
 
 /**
- * Build an inline `<svg>` honeycomb tile for a project seed. Reuses the avatar
- * hex engine with the generated palette injected, keeping per-hex noise variety
- * modest so the palette stays coherent. Returned as a raw string (not a URL) —
- * `HexWaveBackground` parses inline SVG directly.
+ * Build an inline `<svg>` honeycomb tile for a seed. Reuses the avatar hex engine
+ * with the curated palette injected; per-hex hue is kept true (no hue shift) so the
+ * palette renders faithfully, with only small saturation/lightness variety for depth.
+ * Returned as a raw string — `HexWaveBackground` parses inline SVG directly.
  */
 export function generateStudioTileSvg(
   seed: string,
@@ -94,9 +108,9 @@ export function generateStudioTileSvg(
   const config = {
     ...defaultAvatarConfig(seed),
     paletteOverride: generateAestheticPalette(seed),
-    hueShift: 8,
-    saturationShift: 6,
-    lightnessShift: 10,
+    hueShift: 0,
+    saturationShift: 5,
+    lightnessShift: 8,
   };
 
   const { polygons } = generateAvatarPolygons(config, width, height);

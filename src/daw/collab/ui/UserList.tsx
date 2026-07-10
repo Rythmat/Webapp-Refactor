@@ -98,10 +98,10 @@ export function UserList({ open, onClose }: UserListProps) {
                 style={{
                   backgroundColor:
                     connectionStatus === 'connected'
-                      ? '#22c55e'
+                      ? 'var(--color-play)'
                       : connectionStatus === 'connecting'
-                        ? '#f59e0b'
-                        : '#ef4444',
+                        ? 'var(--color-meter-yellow)'
+                        : 'var(--color-record)',
                 }}
               />
               <span
@@ -135,7 +135,9 @@ export function UserList({ open, onClose }: UserListProps) {
                     onClick={handleCopyCode}
                     className="flex size-5 shrink-0 items-center justify-center rounded transition-colors hover:bg-white/10"
                     style={{
-                      color: copied ? '#22c55e' : 'var(--color-text-dim)',
+                      color: copied
+                        ? 'var(--color-play)'
+                        : 'var(--color-text-dim)',
                       background: 'none',
                       border: 'none',
                     }}

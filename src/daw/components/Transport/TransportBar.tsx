@@ -347,7 +347,9 @@ export const TransportBar = memo(function TransportBar({
     <div
       className="glass-panel relative flex h-12 shrink-0 select-none items-center border-b px-3"
       style={{
-        backgroundColor: 'var(--color-surface)',
+        // Base tint so the transport bar reads continuous with the TopRail; the
+        // border-b + glass shadow keep it separated from the timeline below.
+        backgroundColor: 'var(--color-bg)',
         borderColor: 'var(--color-border)',
       }}
     >
@@ -423,7 +425,7 @@ export const TransportBar = memo(function TransportBar({
                   8,
                 left: keyButtonRef.current?.getBoundingClientRect().left ?? 0,
                 backgroundColor: 'var(--color-surface-2)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                border: 'var(--glass-border)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
               }}
@@ -478,7 +480,7 @@ export const TransportBar = memo(function TransportBar({
                     left:
                       tsButtonRef.current?.getBoundingClientRect().left ?? 0,
                     backgroundColor: 'var(--color-surface-2)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    border: 'var(--glass-border)',
                     backdropFilter: 'blur(24px)',
                     WebkitBackdropFilter: 'blur(24px)',
                   }}
@@ -525,7 +527,7 @@ export const TransportBar = memo(function TransportBar({
                   {/* Custom time signature input */}
                   <div
                     className="mt-1.5 flex items-center gap-1 border-t pt-1.5"
-                    style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }}
+                    style={{ borderColor: 'var(--color-border)' }}
                   >
                     <input
                       type="number"

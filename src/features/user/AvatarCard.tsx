@@ -1,15 +1,41 @@
-/* eslint-disable react/jsx-sort-props */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AvatarEditor } from '@/components/Profile/AvatarEditor';
-import { UserAvatarPattern } from '@/components/ui/UserAvatarPattern';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { HexWaveBackground } from '@/components/ui/hex-wave-background';
 import { useMe } from '@/hooks/data';
 import { useAvatarConfig } from '@/hooks/useAvatarConfig';
-import { type AvatarConfig, defaultAvatarConfig } from '@/lib/avatarHexGrid';
+import {
+  type AvatarConfig,
+  defaultAvatarConfig,
+  generateAvatarPolygons,
+} from '@/lib/avatarHexGrid';
+
+const AVATAR_SVG_SIZE = 256;
 
 /**
- * Avatar card for the User page — preview circle + display-name pill + the
- * inline AvatarEditor. Edits auto-persist (~500 ms debounce) via useAvatarConfig.
+ * Serialise an avatar config into an inline `<svg>` honeycomb string so it can be
+ * painted onto the interactive `HexWaveBackground` canvas (same approach as the
+ * studio project tiles). Parsed inline by HexWaveBackground.
+ */
+function configToHexSvg(config: AvatarConfig): string {
+  const { width, height, polygons } = generateAvatarPolygons(
+    config,
+    AVATAR_SVG_SIZE,
+    AVATAR_SVG_SIZE,
+  );
+  const body = polygons
+    .map(
+      (p) =>
+        `<polygon points="${p.points}" fill="${p.fill}" opacity="${p.opacity}"/>`,
+    )
+    .join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${body}</svg>`;
+}
+
+/**
+ * Avatar card for the User page — an interactive honeycomb preview (the same
+ * paintable/ambient hex canvas used across the app) + display-name pill + the
+ * inline AvatarEditor. Edits auto-persist (~500 ms debounce) via useAvatarConfig
+ * and update the canvas live.
  */
 export const AvatarCard = () => {
   const { data: user } = useMe();
@@ -40,6 +66,13 @@ export const AvatarCard = () => {
     return () => clearTimeout(t);
   }, [editingConfig, saveAvatarConfig]);
 
+  const avatarSvg = useMemo(
+    () => configToHexSvg(activeConfig),
+    // Stable key across identical configs (activeConfig may be a fresh object).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(activeConfig)],
+  );
+
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-2xl font-medium text-white">Avatar</h2>
@@ -50,34 +83,25 @@ export const AvatarCard = () => {
           border: '1px solid var(--color-border)',
         }}
       >
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
+          {/* Left: interactive avatar preview — 50% of the card */}
           <div
-            className="size-40 overflow-hidden rounded-full shadow-2xl"
+            className="relative aspect-square w-1/2 max-w-64 shrink-0 self-center overflow-hidden rounded-full shadow-2xl"
             style={{ border: '4px solid var(--color-accent)' }}
           >
-            <Avatar className="size-full rounded-full">
-              <AvatarFallback className="relative overflow-hidden p-0">
-                <UserAvatarPattern
-                  className="size-full"
-                  userName={displayName}
-                  config={activeConfig}
-                />
-              </AvatarFallback>
-            </Avatar>
+            <HexWaveBackground
+              src={avatarSvg}
+              drain={false}
+              ambient
+              colorThreshold={0.05}
+              brushRadius={40}
+              className="pointer-events-none absolute inset-0 h-full w-full"
+            />
           </div>
-          <div
-            className="rounded-full px-4 py-2 text-lg backdrop-blur-sm"
-            style={{
-              background: 'rgba(0,0,0,0.35)',
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text)',
-            }}
-          >
-            {displayName}
+          {/* Right: edit controls */}
+          <div className="min-w-0 flex-1">
+            <AvatarEditor value={activeConfig} onChange={setEditingConfig} />
           </div>
-        </div>
-        <div className="mt-6">
-          <AvatarEditor value={activeConfig} onChange={setEditingConfig} />
         </div>
       </div>
     </section>

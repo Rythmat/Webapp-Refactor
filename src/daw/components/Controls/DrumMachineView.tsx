@@ -140,7 +140,7 @@ function getThemeColors(el: HTMLElement) {
   const s = getComputedStyle(el);
   const get = (v: string, fb: string) => s.getPropertyValue(v).trim() || fb;
   return {
-    bg: get('--color-bg', '#363636'),
+    bg: get('--color-bg', '#101012'),
     border: get('--color-border', 'rgba(255,255,255,0.08)'),
     textDim: get('--color-text-dim', '#6b6b80'),
   };
@@ -332,7 +332,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
-      : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
     const dpr = window.devicePixelRatio || 1;
     const rulerContainer = rulerScrollRef.current;
     const w = rulerContainer
@@ -397,7 +397,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
-      : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
     const dpr = window.devicePixelRatio || 1;
     const w = Math.max(container.clientWidth, gridW);
     const h = GRID_H;
@@ -551,7 +551,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
-      : { bg: '#363636', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
     const dpr = window.devicePixelRatio || 1;
     const velContainer = velScrollRef.current;
     const w = velContainer ? Math.max(velContainer.clientWidth, gridW) : gridW;

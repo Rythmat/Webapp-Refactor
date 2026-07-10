@@ -30,13 +30,11 @@ import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ProgressSummaryResponse } from '@/lib/progress/types';
 import { SongLibraryBody } from '../songLibrary/SongLibraryPage';
-import { SongsMarquee } from '../songLibrary/SongsMarquee';
 import { HexAvatarSVG } from '../ui/HexAvatarSVG';
 import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
 import { HexWaveBackground } from '../ui/hex-wave-background';
 import { LearnHome } from './LearnHome';
-import { LearnMobileTabs } from './LearnRail';
-import { LearnSubheader } from './LearnTabs';
+import { LearnTabBar } from './LearnTabBar';
 import {
   COURSES_LEVEL_OPTIONS,
   COURSES_SORT_OPTIONS,
@@ -1515,15 +1513,18 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabParam]);
 
-  // Auto-select Genre tab and highlight the genre when arriving from Globe
+  // Auto-select Genre tab and highlight the genre when arriving from Globe.
+  // Skip while the Songs tab is active: the Songs filter also writes ?genre=,
+  // and hijacking it here would clear the URL (dropping ?tab=Songs) and bounce
+  // the user to the Learn Home.
   useEffect(() => {
-    if (genreParam) {
+    if (genreParam && tabParam !== 'Songs') {
       setSubTab('Genre');
       setHighlightedGenre(genreParam);
       // Clear the query param from the URL without adding a history entry
       setSearchParams({}, { replace: true });
     }
-  }, [genreParam, setSearchParams]);
+  }, [genreParam, tabParam, setSearchParams]);
 
   // Auto-scroll to and fade out the highlighted card
   useEffect(() => {
@@ -1856,25 +1857,33 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     >
       <MeshGradientBg />
       <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
-        <LearnMobileTabs />
+        {/* Persistent Learn tab bar — rendered once at the top of the page so it
+            stays in the same place across every tab (Home included) and does
+            not scroll with the tab content below it. */}
+        <div className="shrink-0 px-6 pt-4 md:px-10">
+          <LearnTabBar />
+        </div>
         {subTab === 'Home' ? (
           <div className="min-h-0 flex-1 overflow-y-auto">
             <LearnHome />
           </div>
         ) : subTab === 'Songs' ? (
           <div
-            className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto"
+            className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto pt-4"
             style={{ background: '#101012' }}
           >
-            <div className="mb-4">
-              <SongsMarquee bleed={false} />
-            </div>
-            <div className="flex-1 px-6 md:px-10">
+            <div
+              className="flex-1 overflow-y-auto px-6 md:px-10"
+              style={{ background: '#101012' }}
+            >
+              {/* Filter row pins at the top with the column headers just below;
+                  the outer pt-4 + inner scroll wrapper mirror the Genre/Theory/
+                  Technique tabs so the filter lands at the same vertical position. */}
               <SongLibraryBody />
             </div>
           </div>
         ) : (
-          <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-8 pb-6 pt-4">
+          <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto pb-6 pl-6 pr-0 pt-4 md:pl-10">
             {/* {showFilter && (
           <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 absolute top-[150px] left-8 right-8 z-20 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex justify-between items-start mb-4 pb-2 border-b border-white/5">
@@ -1912,7 +1921,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                     className="sticky top-0 z-10 pt-1 pb-3"
                     style={{ background: '#101012' }}
                   >
-                    <LearnSubheader title="Theory" />
                     <LearnFilterRow>
                       <FilterDropdown
                         label="Mode Family"
@@ -1994,7 +2002,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                     className="sticky top-0 z-10 pt-1 pb-3"
                     style={{ background: '#101012' }}
                   >
-                    <LearnSubheader title="Technique" />
                     <LearnFilterRow>
                       <FilterDropdown
                         label="Category"
@@ -2074,7 +2081,6 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                     className="sticky top-0 z-10 pt-1 pb-3"
                     style={{ background: '#101012' }}
                   >
-                    <LearnSubheader title="Genre" />
                     <LearnFilterRow>
                       <FilterDropdown
                         label="Difficulty"

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import type { AvatarConfig } from '@/lib/avatarHexGrid';
+import {
+  avatarConfigApi,
+  useSelfAvatarConfig,
+} from '@/hooks/data/useAvatarConfigs';
+import { type AvatarConfig, isAvatarConfig } from '@/lib/avatarHexGrid';
 
 const STORAGE_PREFIX = 'avatar_config_';
 
@@ -23,59 +26,53 @@ function cacheLocalConfig(userId: string, config: AvatarConfig) {
   }
 }
 
-function isAvatarConfig(value: unknown): value is AvatarConfig {
-  if (!value || typeof value !== 'object') return false;
-  const v = value as Record<string, unknown>;
-  return typeof v.seed === 'number' && typeof v.noiseType === 'string';
-}
-
-async function persistToApi(token: string, config: AvatarConfig) {
-  const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
-
-  await fetch(`${apiBase}/auth/me/avatar-config`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    credentials: 'include',
-    body: JSON.stringify(config),
-  });
-}
-
+/**
+ * The current user's avatar config. Source of truth is our serverless store
+ * (loads on login, any device); localStorage is a first-paint cache. Saving
+ * persists to the store + cache. `serverConfig` (from /auth/me) is accepted as a
+ * legacy hint but is effectively null there.
+ */
 export function useAvatarConfig(
   userId: string | undefined,
   serverConfig?: unknown,
 ) {
   const { token } = useAuthContext();
+  const { data: storeConfig } = useSelfAvatarConfig();
   const didSyncRef = useRef(false);
 
   const [config, setConfig] = useState<AvatarConfig | null>(() => {
-    // Prefer server config, fall back to localStorage cache.
     if (isAvatarConfig(serverConfig)) return serverConfig;
     return userId ? loadLocalConfig(userId) : null;
   });
 
-  // When server config arrives (e.g. after /auth/me loads), adopt it if we
-  // don't already have a local override.
+  // Adopt the stored config once it arrives, unless the user already made a
+  // local edit (didSyncRef) that should win over a late server response. Does
+  // NOT write localStorage here — the cache is only ever written by an explicit
+  // save, so a mid-edit adopt can't leave a stale value on disk.
   useEffect(() => {
     if (didSyncRef.current) return;
-    if (isAvatarConfig(serverConfig)) {
+    const incoming = isAvatarConfig(storeConfig)
+      ? storeConfig
+      : isAvatarConfig(serverConfig)
+        ? serverConfig
+        : null;
+    if (incoming) {
       didSyncRef.current = true;
-      setConfig(serverConfig);
-      if (userId) cacheLocalConfig(userId, serverConfig);
+      setConfig(incoming);
     }
-  }, [serverConfig, userId]);
+  }, [storeConfig, serverConfig, userId]);
 
   const saveConfig = useCallback(
     (newConfig: AvatarConfig) => {
       if (!userId) return;
-
+      // A local edit is now authoritative; don't let a late GET overwrite it.
+      didSyncRef.current = true;
       setConfig(newConfig);
       cacheLocalConfig(userId, newConfig);
-
       if (token) {
-        void persistToApi(token, newConfig);
+        void avatarConfigApi.putSelf(token, newConfig).catch(() => {
+          // Persisted to localStorage regardless; ignore transient API errors.
+        });
       }
     },
     [userId, token],

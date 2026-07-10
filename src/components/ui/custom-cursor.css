@@ -1,0 +1,137 @@
+/* ── Custom hexagon cursor ────────────────────────────────────────────────
+   A white hexagon that follows the pointer; on hover over clickable elements
+   inner hexagons recede toward the center in a looping tunnel. Enabled only on
+   fine-pointer + hover devices, and only while <html> has `has-custom-cursor`
+   (the component removes it on excluded routes so native cursors return). */
+
+/* Hide the native cursor app-wide only when active. `!important` beats the many
+   element-level `cursor: pointer` rules; interactivity is detected in JS by
+   selector match, not computed cursor, so hiding doesn't break detection. */
+@media (hover: hover) and (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+.custom-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  will-change: transform;
+}
+
+.custom-cursor.is-visible {
+  opacity: 1;
+}
+
+.custom-cursor__svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 22px;
+  height: 22px;
+  overflow: visible;
+  /* translate centres on the pointer; scale is the hover/click pop. Rotation
+     lives on the inner group so it can't clash with these. */
+  translate: -50% -50%;
+  scale: 1;
+  transition: scale 0.18s ease;
+  /* Keep the white hexagon visible on light backgrounds (e.g. auth). */
+  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.55));
+}
+
+.custom-cursor.is-pointer .custom-cursor__svg {
+  scale: 1.2;
+}
+
+.custom-cursor.is-active .custom-cursor__svg {
+  scale: 0.82;
+}
+
+/* Rotation lives on a group so `transform: rotate` can't clash with the svg's
+   translate/scale. Spins only while hovering a clickable element. */
+.custom-cursor__spin {
+  transform-box: view-box;
+  transform-origin: center;
+}
+
+.custom-cursor.is-pointer .custom-cursor__spin {
+  animation: cursorSpin 4s linear infinite;
+}
+
+@keyframes cursorSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.custom-cursor__outer {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+/* Inner tunnel hexagons — hidden until hovering a clickable element. */
+.custom-cursor__inner polygon {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  opacity: 0;
+}
+
+.custom-cursor.is-pointer .custom-cursor__inner polygon {
+  animation: hexTravel 1.3s ease-in infinite;
+}
+
+.custom-cursor.is-pointer .custom-cursor__inner polygon:nth-child(2) {
+  animation-delay: 0.43s;
+}
+
+.custom-cursor.is-pointer .custom-cursor__inner polygon:nth-child(3) {
+  animation-delay: 0.86s;
+}
+
+@keyframes hexTravel {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  99% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* Respect reduced motion: keep the hexagon, drop the traveling loop + easing. */
+@media (prefers-reduced-motion: reduce) {
+  .custom-cursor,
+  .custom-cursor__svg {
+    transition: none;
+  }
+  .custom-cursor__spin {
+    animation: none;
+  }
+  .custom-cursor.is-pointer .custom-cursor__inner polygon {
+    animation: none;
+    transform: scale(0.55);
+    opacity: 0.5;
+  }
+  .custom-cursor.is-pointer .custom-cursor__inner polygon:nth-child(2),
+  .custom-cursor.is-pointer .custom-cursor__inner polygon:nth-child(3) {
+    opacity: 0;
+  }
+}

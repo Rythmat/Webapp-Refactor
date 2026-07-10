@@ -119,7 +119,7 @@ export type GetApiCronCleanupPendingAssetsData = any;
 export type GetApiExperienceSummaryData = any;
 
 export interface GetApiExperienceSummaryParams {
-  days?: string | (string | number);
+  days?: string | number;
 }
 
 export type GetApiMeSubscriptionData = any;
@@ -2737,7 +2737,7 @@ export namespace Experience {
   export namespace GetApiExperienceSummary {
     export type RequestParams = {};
     export type RequestQuery = {
-      days?: string | (string | number);
+      days?: string | number;
     };
     export type RequestBody = never;
     export type RequestHeaders = {};

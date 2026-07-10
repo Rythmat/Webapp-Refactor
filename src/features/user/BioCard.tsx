@@ -69,6 +69,7 @@ export const BioCard = () => {
             <Switch
               checked={visibility === 'public'}
               onCheckedChange={toggleVisibility}
+              className="data-[state=checked]:bg-white"
             />
           </div>
         </div>

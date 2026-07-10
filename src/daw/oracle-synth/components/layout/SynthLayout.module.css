@@ -2,7 +2,7 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: #111;
+  background: var(--color-bg, #101012);
 }
 
 .layout {
@@ -16,13 +16,9 @@
     'sources'
     'middle'
     'footer';
-  background: #1a1a1a;
-  color: #ccc;
-  font-family:
-    'Inter',
-    'SF Pro Display',
-    -apple-system,
-    sans-serif;
+  background: var(--color-bg, #101012);
+  color: var(--color-text, #e8e8f0);
+  /* Font inherited from .daw-root (Inter) — no redeclaration needed. */
   overflow: hidden;
   transform-origin: 0 0;
 }
@@ -33,8 +29,8 @@
   align-items: center;
   padding: 0 16px;
   gap: 16px;
-  background: #1e1e1e;
-  border-bottom: 1px solid #333;
+  background: var(--color-surface-2, #1e1e1e);
+  border-bottom: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
 }
 
 .logo {
@@ -46,7 +42,7 @@
 
 .presetName {
   font-size: 13px;
-  color: #888;
+  color: var(--color-text-dim, #6b6b80);
   letter-spacing: 1px;
   flex: 1;
   text-align: center;
@@ -62,7 +58,7 @@
 .sources {
   grid-area: sources;
   overflow-x: auto;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
 }
 
 .middle {
@@ -76,7 +72,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-right: 1px solid #333;
+  border-right: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
 }
 
 .middleCenter {
@@ -93,7 +89,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-left: 1px solid #333;
+  border-left: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
 }
 
 .footer {
@@ -101,8 +97,8 @@
   display: flex;
   gap: 12px;
   padding: 4px 8px;
-  background: #151515;
-  border-top: 1px solid #333;
+  background: var(--color-bg, #101012);
+  border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
   align-items: stretch;
 }
 

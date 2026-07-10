@@ -199,6 +199,12 @@ export interface Day {
   /** Human date (YYYY-MM-DD) or a teacher-authored label like "Day 1". */
   label: string;
   cells: DayCells;
+  /**
+   * YYYY-MM-DD or null. Set by the Annual Plan auto-scheduler (or by the
+   * teacher via the Unit page date picker). Null = unscheduled — the Day
+   * lives in Plan Days / a Unit but doesn't render on the calendar.
+   */
+  scheduledDate?: string | null;
 }
 
 export interface Week {
@@ -223,12 +229,31 @@ export interface Unit {
   monthIndex: number;
   theme: ThemeRef | null;
   weeks: Week[];
+  /**
+   * Optional `MM-DD` window for themes whose observance crosses month
+   * boundaries (e.g. Hispanic Heritage Month, Sept 15 – Oct 15). Cosmetic
+   * subtitle on the Unit card; no scheduler logic reads it.
+   */
+  dateWindow?: { start: string; end: string } | null;
+  /**
+   * Flat list of Day IDs authored under this Unit. The Day itself lives in
+   * `useLocalPlan`; this array is just cross-references so a Day can belong
+   * to a Unit without duplicating student-facing content into the tree.
+   */
+  dayIds?: string[];
 }
+
+/** Two-semester model for the Annual Plan. Autumn = Aug–Dec, Spring = Jan–May. */
+export type Semester = 'autumn' | 'spring';
 
 export interface Year {
   id: string;
   label: string;
-  units: Unit[];
+  /**
+   * @deprecated Kept for one migration cycle. New code reads `semesters`.
+   */
+  units?: Unit[];
+  semesters: Record<Semester, Unit[]>;
 }
 
 /**

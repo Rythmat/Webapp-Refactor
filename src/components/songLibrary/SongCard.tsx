@@ -15,6 +15,9 @@ interface SongCardProps {
   /** When true, the artist image bleeds out of (over) its rounded container on
    *  hover instead of being clipped. Defaults to false. */
   bleedOnHover?: boolean;
+  /** When true, renders just the square artwork (no title/artist/actions row) —
+   *  used by the compact, pinned Songs-tab marquee. Defaults to false. */
+  compact?: boolean;
 }
 
 const ICON_SIZE = 20;
@@ -23,6 +26,7 @@ const SongCardImpl = ({
   song,
   hoverScrim = true,
   bleedOnHover = false,
+  compact = false,
 }: SongCardProps) => {
   const { openInLesson, openInStudio, openInGlobe, toggleSaved, isSaved } =
     useSongActions(song);
@@ -102,87 +106,89 @@ const SongCardImpl = ({
         </div>
       </div>
 
-      <div className="px-1">
-        <h3
-          className="text-lg font-semibold truncate"
-          style={{ color: 'var(--color-text)' }}
-        >
-          {song.title}
-        </h3>
-        <p
-          className="truncate text-sm"
-          style={{ color: 'rgba(255,255,255,0.55)' }}
-        >
-          {song.artist}
-        </p>
-        <div className="mt-2 flex items-center justify-between">
-          <span style={{ fontSize: 15, color: 'var(--color-text-dim)' }}>
-            Lvl. {song.difficulty}
-          </span>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={openInLesson}
-              aria-label="Open in Lesson"
-              title="Open in Lesson"
-              className="opacity-70 transition-opacity hover:opacity-100"
-            >
-              <img
-                src="/icons/learn-icon.svg"
-                alt=""
-                draggable={false}
-                width={ICON_SIZE}
-                height={ICON_SIZE}
-              />
-            </button>
-            <button
-              type="button"
-              onClick={openInStudio}
-              aria-label="Open in Studio"
-              title="Open in Studio"
-              className="opacity-70 transition-opacity hover:opacity-100"
-            >
-              <img
-                src="/icons/studio-icon.svg"
-                alt=""
-                draggable={false}
-                width={ICON_SIZE}
-                height={ICON_SIZE}
-              />
-            </button>
-            <button
-              type="button"
-              onClick={openInGlobe}
-              aria-label="Open in Globe"
-              title="Open in Globe"
-              className="opacity-70 transition-opacity hover:opacity-100"
-            >
-              <img
-                src="/icons/globe-icon.svg"
-                alt=""
-                draggable={false}
-                width={ICON_SIZE}
-                height={ICON_SIZE}
-              />
-            </button>
-            <button
-              type="button"
-              onClick={toggleSaved}
-              aria-label={isSaved ? 'Remove from saved' : 'Save song'}
-              aria-pressed={isSaved}
-              title={isSaved ? 'Remove from saved' : 'Save song'}
-              className="transition-colors hover:text-white"
-              style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.4)' }}
-            >
-              <Heart
-                width={ICON_SIZE}
-                height={ICON_SIZE}
-                fill={isSaved ? 'currentColor' : 'none'}
-              />
-            </button>
+      {!compact && (
+        <div className="px-1">
+          <h3
+            className="text-lg font-semibold truncate"
+            style={{ color: 'var(--color-text)' }}
+          >
+            {song.title}
+          </h3>
+          <p
+            className="truncate text-sm"
+            style={{ color: 'rgba(255,255,255,0.55)' }}
+          >
+            {song.artist}
+          </p>
+          <div className="mt-2 flex items-center justify-between">
+            <span style={{ fontSize: 15, color: 'var(--color-text-dim)' }}>
+              Lvl. {song.difficulty}
+            </span>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={openInLesson}
+                aria-label="Open in Lesson"
+                title="Open in Lesson"
+                className="opacity-70 transition-opacity hover:opacity-100"
+              >
+                <img
+                  src="/icons/learn-icon.svg"
+                  alt=""
+                  draggable={false}
+                  width={ICON_SIZE}
+                  height={ICON_SIZE}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={openInStudio}
+                aria-label="Open in Studio"
+                title="Open in Studio"
+                className="opacity-70 transition-opacity hover:opacity-100"
+              >
+                <img
+                  src="/icons/studio-icon.svg"
+                  alt=""
+                  draggable={false}
+                  width={ICON_SIZE}
+                  height={ICON_SIZE}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={openInGlobe}
+                aria-label="Open in Globe"
+                title="Open in Globe"
+                className="opacity-70 transition-opacity hover:opacity-100"
+              >
+                <img
+                  src="/icons/globe-icon.svg"
+                  alt=""
+                  draggable={false}
+                  width={ICON_SIZE}
+                  height={ICON_SIZE}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={toggleSaved}
+                aria-label={isSaved ? 'Remove from saved' : 'Save song'}
+                aria-pressed={isSaved}
+                title={isSaved ? 'Remove from saved' : 'Save song'}
+                className="transition-colors hover:text-white"
+                style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.4)' }}
+              >
+                <Heart
+                  width={ICON_SIZE}
+                  height={ICON_SIZE}
+                  fill={isSaved ? 'currentColor' : 'none'}
+                />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </Link>
   );
 };

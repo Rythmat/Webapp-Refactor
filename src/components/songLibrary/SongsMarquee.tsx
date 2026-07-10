@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { SongCard } from '@/components/songLibrary/SongCard';
 import { cn } from '@/components/utilities';
 import { getAllSongs, getSong } from '@/curriculum/data/songs';
+import type { Song } from '@/curriculum/types/songLibrary';
 import './songs-marquee.css';
 
 /**
@@ -25,18 +26,29 @@ const shuffleInPlace = <T,>(items: T[]): T[] => {
   return items;
 };
 
-/** Every marquee-eligible song, one per unique artist, in stable roster order. */
-const getEligibleIds = (): string[] => {
+const hasArtistPortrait = (song: Song): boolean =>
+  Boolean(song.artistImageRef?.startsWith('/artists/svg/'));
+
+/**
+ * One song per unique artist (in the given list's order), keeping only artists
+ * with an SVG portrait — the marquee's display requirement. Shared by both the
+ * default shuffle-bag draw and the controlled (externally-filtered) mode.
+ */
+const dedupeByArtist = (songs: Song[]): Song[] => {
   const seen = new Set<string>();
-  const ids: string[] = [];
-  for (const song of getAllSongs()) {
-    if (!song.artistImageRef?.startsWith('/artists/svg/')) continue;
+  const out: Song[] = [];
+  for (const song of songs) {
+    if (!hasArtistPortrait(song)) continue;
     if (seen.has(song.artist)) continue;
     seen.add(song.artist);
-    ids.push(song.id);
+    out.push(song);
   }
-  return ids;
+  return out;
 };
+
+/** Every marquee-eligible song id, one per unique artist, in stable roster order. */
+const getEligibleIds = (): string[] =>
+  dedupeByArtist(getAllSongs()).map((s) => s.id);
 
 /** Reads the persisted bag, dropping any IDs that are no longer eligible. */
 const readBag = (eligible: Set<string>): string[] => {
@@ -90,6 +102,21 @@ interface SongsMarqueeProps {
    * the marquee past its container's edges.
    */
   bleed?: boolean;
+  /**
+   * When provided, the marquee shows only these songs (already filtered by the
+   * caller) — one card per unique SVG-portrait artist, in a random order — so it
+   * reflects an external filter (the Learn Songs tab passes its filtered set).
+   * When omitted, the marquee cycles through all artists via the persisted
+   * shuffle-bag (its default, e.g. on the Home dashboard). An empty array is a
+   * valid controlled value and renders nothing.
+   */
+  songs?: Song[];
+  /**
+   * Compact strip: small artwork-only thumbnails and tighter padding, so the
+   * marquee stays short when pinned (the Learn Songs tab). Defaults to false
+   * (full cards, e.g. the Home dashboard section).
+   */
+  compact?: boolean;
 }
 
 /**
@@ -97,28 +124,48 @@ interface SongsMarqueeProps {
  * The parent owns the section header (icon + title + "View All" link, if any);
  * this component only renders the carousel body.
  */
-export const SongsMarquee = ({ bleed = true }: SongsMarqueeProps = {}) => {
-  // Draw a fresh batch on mount; persist the remaining bag so the next load
-  // continues through the roster (see drawMarqueeBatch).
-  const [{ batch, nextBag }] = useState(drawMarqueeBatch);
+export const SongsMarquee = ({
+  bleed = true,
+  songs: controlledSongs,
+  compact = false,
+}: SongsMarqueeProps = {}) => {
+  const isControlled = controlledSongs !== undefined;
+
+  // Uncontrolled: draw a fresh shuffle-bag batch on mount and persist the
+  // remainder so the next load continues through the roster (see
+  // drawMarqueeBatch). Controlled mode derives its batch from the passed list
+  // below and leaves the shared bag untouched.
+  const [{ batch, nextBag }] = useState(() =>
+    isControlled
+      ? { batch: [] as string[], nextBag: [] as string[] }
+      : drawMarqueeBatch(),
+  );
 
   useEffect(() => {
+    if (isControlled) return;
     try {
       localStorage.setItem(BAG_STORAGE_KEY, JSON.stringify(nextBag));
     } catch {
       // localStorage unavailable — this load still shows a fresh random batch.
     }
-  }, [nextBag]);
+  }, [isControlled, nextBag]);
 
-  const songs = useMemo(
-    () =>
-      batch
-        .map((id) => getSong(id))
-        .filter((song): song is NonNullable<ReturnType<typeof getSong>> =>
-          Boolean(song),
-        ),
-    [batch],
-  );
+  const songs = useMemo<Song[]>(() => {
+    if (controlledSongs !== undefined) {
+      // Reflect the caller's filter: one card per eligible artist, random batch.
+      return shuffleInPlace(dedupeByArtist(controlledSongs)).slice(
+        0,
+        MARQUEE_BATCH_SIZE,
+      );
+    }
+    return batch
+      .map((id) => getSong(id))
+      .filter((song): song is Song => Boolean(song));
+  }, [controlledSongs, batch]);
+
+  // Nothing to show (e.g. a filter that matches no SVG-portrait artists) →
+  // render nothing so the strip collapses instead of leaving an empty bar.
+  if (songs.length === 0) return null;
 
   // Doubled for the seamless-loop pattern — see songs-marquee.css.
   const marqueeSongs = [...songs, ...songs];
@@ -126,14 +173,31 @@ export const SongsMarquee = ({ bleed = true }: SongsMarqueeProps = {}) => {
   return (
     <div
       className={cn(
-        'song-marquee overflow-hidden py-4',
+        'song-marquee overflow-hidden',
+        compact ? 'py-2' : 'py-4',
         bleed && '-mx-6 md:-mx-10',
       )}
     >
-      <div className="song-marquee-track flex w-max gap-4 px-6 md:gap-5 md:px-10">
+      <div
+        className={cn(
+          'song-marquee-track flex w-max px-6 md:px-10',
+          compact ? 'gap-3' : 'gap-4 md:gap-5',
+        )}
+      >
         {marqueeSongs.map((song, i) => (
-          <div key={i} className="w-[260px] flex-shrink-0 md:w-[300px]">
-            <SongCard song={song} hoverScrim={false} bleedOnHover />
+          <div
+            key={i}
+            className={cn(
+              'flex-shrink-0',
+              compact ? 'w-[120px] md:w-[132px]' : 'w-[260px] md:w-[300px]',
+            )}
+          >
+            <SongCard
+              song={song}
+              hoverScrim={false}
+              bleedOnHover
+              compact={compact}
+            />
           </div>
         ))}
       </div>

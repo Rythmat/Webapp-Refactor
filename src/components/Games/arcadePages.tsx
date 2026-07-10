@@ -18,6 +18,7 @@ import MajorArcanum from './MajorArcanum/MajorArcanum';
 import { PlayAlong } from './PlayAlong';
 import SignalFlow from './SignalFlow/SignalFlow';
 import WaveSculptor from './WaveSculptor/WaveSculptor';
+import { ARCADE_ROOT } from './arcadeChrome';
 import Chroma from './chroma';
 import { StreakTracker } from './scoring/StreakTracker';
 import { useArcadeStreakReward } from './scoring/useArcadeStreakReward';
@@ -41,8 +42,7 @@ function BackToArcade() {
 function GameShell({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="learn-root flex flex-col h-full overflow-y-auto px-8 pb-12"
-      style={{ backgroundColor: 'var(--color-bg)' }}
+      className={`learn-root flex flex-col h-full overflow-y-auto px-8 pb-12 ${ARCADE_ROOT}`}
     >
       <div className="mb-4 pt-6">
         <BackToArcade />
@@ -246,8 +246,7 @@ export function ConstellationsPage() {
 
   return (
     <div
-      className="learn-root flex h-full w-full flex-col overflow-hidden"
-      style={{ backgroundColor: 'var(--color-bg)' }}
+      className={`learn-root flex h-full w-full flex-col overflow-hidden ${ARCADE_ROOT}`}
     >
       <div className="relative flex-1 min-h-0">
         {done ? (

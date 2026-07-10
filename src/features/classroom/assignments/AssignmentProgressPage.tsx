@@ -1,7 +1,7 @@
 import { ArrowLeft, Download } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ClassroomRoutes } from '@/constants/routes';
+import { TeacherRoutes } from '@/constants/routes';
 import { useEnrollments } from '../enrollments';
 import { buildSessionCsv, downloadCsv } from '../live/exportCsv';
 import { PHASES } from '../phases';
@@ -88,7 +88,7 @@ export const AssignmentProgressPage = () => {
         <button
           type="button"
           onClick={() =>
-            navigate(ClassroomRoutes.assignments({ classroomId: cid }))
+            navigate(TeacherRoutes.assignments({ classroomId: cid }))
           }
           className="w-fit rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
@@ -102,7 +102,7 @@ export const AssignmentProgressPage = () => {
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link
-          to={ClassroomRoutes.assignments({ classroomId: cid })}
+          to={TeacherRoutes.assignments({ classroomId: cid })}
           className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />

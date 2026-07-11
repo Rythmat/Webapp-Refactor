@@ -178,9 +178,6 @@ function drawVortex(
     const hueBase = (p * 320 + phase * 720) % 360;
     const lineWidth = Math.max(2, maxR * 0.01 + p * maxR * 0.05); // thicker as it nears
 
-    ctx.lineWidth = lineWidth;
-    ctx.shadowBlur = lineWidth * 1.6;
-    ctx.shadowColor = `hsla(${hueBase}, 95%, 62%, ${alpha})`;
     if (supportsConic) {
       // A conic gradient centred on the vortex maps angle → hue, so the stroke
       // cycles colour around the ring in one pass.
@@ -197,11 +194,22 @@ function drawVortex(
     } else {
       ctx.strokeStyle = `hsla(${hueBase}, 95%, 62%, ${alpha})`;
     }
+
+    // The ring's soft bloom used to come from ctx.shadowBlur, but blurring a
+    // near-fullscreen stroke ~11×/frame stalled the main thread — which
+    // dropped the frame rate and made the overlaid cursor trail lag. We get an
+    // equivalent glow far more cheaply by stroking the same path twice under
+    // the 'lighter' compositing already in effect: once wide and dim (the
+    // bloom), once at the true width (the crisp ring).
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.globalAlpha = 0.5;
+    ctx.lineWidth = lineWidth * 2.4;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = lineWidth;
     ctx.stroke();
   }
-  ctx.shadowBlur = 0;
 
   // Bright core — the light at the end of the tunnel; pops on each hit.
   const coreAlpha = Math.min(1, intensity * 0.5 + pulse * 0.4);

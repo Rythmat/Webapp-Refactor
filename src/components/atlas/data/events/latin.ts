@@ -2,6 +2,53 @@ import type { HistoricalEvent } from '@/components/atlas/types';
 
 export const LATIN_EVENTS: HistoricalEvent[] = [
   {
+    id: 'evt-andean-indigenous-cusco-1500',
+    year: 1500,
+    location: {
+      lat: -13.532,
+      lng: -71.9675,
+      city: 'Cusco',
+      country: 'Peru',
+    },
+    genre: ['Andean', 'Folk'],
+    title: 'Andean highland music of the Quechua and Aymara',
+    description:
+      'Across the high Andes, Quechua and Aymara peoples carry a musical tradition centred on the siku (panpipes), the notched quena flute and the huayno song-dance. Rooted in pre-Columbian and Inca practice around the old imperial capital of Cusco, these breathy pentatonic melodies survive the Spanish conquest to remain the enduring voice of the highlands.',
+    tags: [
+      'andean',
+      'siku',
+      'panpipes',
+      'quena',
+      'huayno',
+      'quechua',
+      'aymara',
+      'inca',
+    ],
+  },
+  {
+    id: 'evt-andean-folk-revival-lapaz-1965',
+    year: 1965,
+    location: {
+      lat: -16.4897,
+      lng: -68.1193,
+      city: 'La Paz',
+      country: 'Bolivia',
+    },
+    genre: ['Andean', 'Folk'],
+    title: 'The Andean folk revival fills the city peñas',
+    description:
+      'In La Paz and Lima a folklore revival brings highland music into urban peñas (folk clubs). Ensembles built on the charango, quena, siku and bombo — groups like Los Jairas — recast Quechua and Aymara song for city audiences and the concert stage, giving Andean music a modern voice that soon feeds the nueva canción movement.',
+    tags: [
+      'andean',
+      'charango',
+      'pena',
+      'los jairas',
+      'folklore revival',
+      'bolivia',
+      'quena',
+    ],
+  },
+  {
     id: 'evt-bossanova-rio-1962',
     year: 1962,
     location: {

@@ -13,12 +13,14 @@ const TABS: Tab[] = [
   { slug: 'Genre', label: 'Genre' },
   { slug: 'Theory', label: 'Theory' },
   { slug: 'Technique', label: 'Technique' },
+  { slug: 'WorldHarmony', label: 'World Harmony' },
 ];
 
 /**
  * The Learn hub's tab bar — one inline row shown at the top of every Learn tab:
- * the "Learn" heading (which links back to the Learn Home), the four sub-tab
- * links (Songs / Genre / Theory / Technique), and the InstrumentSelector. The
+ * the "Learn" heading (which links back to the Learn Home), the five sub-tab
+ * links (Songs / Genre / Theory / Technique / World Harmony), and the
+ * InstrumentSelector. The
  * sub-tabs are plain text at the same size as the "Learn" heading (no pill
  * chrome or highlight) and navigate via the `?tab=` param LearnInlet reads.
  */

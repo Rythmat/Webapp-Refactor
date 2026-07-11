@@ -1,0 +1,53 @@
+/* ── City locator (city-tile thumbnails) ───────────────────────────────────
+   A pointy-top hex pin marking the city point on the region-cities thumbnails,
+   echoing the app's custom hex cursor (see custom-cursor.css): a static white
+   core hex plus expanding hex "pings" that loop. Drop-shadow keeps it
+   legible over light land; reduced-motion leaves just the static core.
+   ──────────────────────────────────────────────────────────────────────── */
+.city-locator {
+  filter: drop-shadow(0 0.6px 1px rgba(0, 0, 0, 0.6));
+}
+
+.city-locator polygon {
+  stroke: #ffffff;
+  stroke-linejoin: round;
+}
+
+.city-locator__core {
+  fill: rgba(255, 255, 255, 0.95);
+  stroke-width: 1.2;
+}
+
+.city-locator__ping {
+  fill: none;
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cityLocatorPing 1.9s ease-out infinite;
+}
+
+.city-locator__ping--2 {
+  animation-delay: 0.95s;
+}
+
+@keyframes cityLocatorPing {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.85;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .city-locator__ping {
+    animation: none;
+    opacity: 0; /* leave just the static core hex */
+  }
+}

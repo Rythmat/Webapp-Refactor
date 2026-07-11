@@ -382,7 +382,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'supremes',
       'temptations',
     ],
-    videoId: 'L-ZvNIYLins',
+    videoId: '4NeVppowGF8',
   },
   {
     id: 'evt-southern-soul-memphis-1965',

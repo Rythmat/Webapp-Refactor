@@ -1,7 +1,6 @@
+import { APP_VERSION } from '@/constants/version';
 import { SettingsCard } from '../../SettingsCard';
 import { SettingsSectionHeader } from '../../SettingsSectionHeader';
-
-const APP_VERSION = '1.0.0';
 
 const LABEL: React.CSSProperties = {
   fontSize: '11px',

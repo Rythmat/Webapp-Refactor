@@ -16,7 +16,8 @@ import type { LaunchTile } from '../types';
 const MODULE_FALLBACKS: Record<LaunchTile['module'], string> = {
   learn: '/learn',
   studio: '/studio',
-  globe: '/atlas',
+  // The Globe *dashboard* is at /atlas; the full interactive globe is the sub-route.
+  globe: '/atlas/globe',
   arcade: '/arcade',
 };
 

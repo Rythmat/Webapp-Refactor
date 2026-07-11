@@ -35,6 +35,7 @@ import { LockedFeatureOverlay } from '../ui/LockedFeatureOverlay';
 import { HexWaveBackground } from '../ui/hex-wave-background';
 import { LearnHome } from './LearnHome';
 import { LearnTabBar } from './LearnTabBar';
+import { WorldHarmony } from './WorldHarmony';
 import {
   COURSES_LEVEL_OPTIONS,
   COURSES_SORT_OPTIONS,
@@ -1269,7 +1270,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const genreParam = searchParams.get('genre');
   const tabParam = searchParams.get('tab');
   const { isPremium } = useIsPremium();
-  const validTabs = ['Songs', 'Genre', 'Theory', 'Technique'];
+  const validTabs = ['Songs', 'Genre', 'Theory', 'Technique', 'WorldHarmony'];
   const defaultTab =
     tabParam && validTabs.includes(tabParam)
       ? tabParam
@@ -2075,6 +2076,8 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                     </CollapsibleSection>
                   )}
                 </>
+              ) : subTab === 'WorldHarmony' ? (
+                <WorldHarmony />
               ) : (
                 <>
                   <div

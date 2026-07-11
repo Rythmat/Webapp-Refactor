@@ -7,11 +7,16 @@ import {
 } from '@/features/arcade/useArcadeActivityStore';
 import { useExperienceSummary } from '@/hooks/data/experience';
 
-const Stat: FC<{ icon: ReactNode; children: ReactNode }> = ({
-  icon,
-  children,
-}) => (
-  <div className="flex items-center gap-1.5 text-[20px] font-medium leading-none tabular-nums text-white">
+const Stat: FC<{
+  icon: ReactNode;
+  children: ReactNode;
+  className?: string;
+}> = ({ icon, children, className }) => (
+  <div
+    className={`flex items-center gap-1.5 text-[20px] font-medium leading-none tabular-nums text-white${
+      className ? ` ${className}` : ''
+    }`}
+  >
     {icon}
     <span>{children}</span>
   </div>
@@ -36,6 +41,7 @@ export const ArcadeStatsStrip: FC = () => {
       className="flex flex-wrap items-center gap-x-6 gap-y-2"
     >
       <Stat
+        className="md:hidden"
         icon={<Flame className="h-5 w-5 text-orange-400" fill="currentColor" />}
       >
         {streak}
@@ -44,12 +50,14 @@ export const ArcadeStatsStrip: FC = () => {
         </span>
       </Stat>
       <Stat
+        className="md:hidden"
         icon={<Zap className="h-5 w-5 text-white/60" fill="currentColor" />}
       >
         {totalXp.toLocaleString()}
         <span className="ml-1 text-white/70">XP</span>
       </Stat>
       <Stat
+        className="md:hidden"
         icon={<Star className="h-5 w-5 text-white/60" fill="currentColor" />}
       >
         <span className="text-white/70">Level</span> {level}

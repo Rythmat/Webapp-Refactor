@@ -1,13 +1,13 @@
 import { ArrowRight, Target } from 'lucide-react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
-import { CardShell, HeaderRow } from '@/components/ui/CardShell';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useChallenges } from '@/hooks/data/challenges';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useUISound } from '@/hooks/useUISound';
 import { formatTimeRemaining } from '@/lib/challenges/formatRemaining';
 import type { Challenge } from '@/lib/challenges/types';
+import { ChallengeBoostBadge } from './ChallengeBoostBadge';
 
 const DAY_MS = 86_400_000;
 
@@ -145,8 +145,19 @@ export const ChallengesCard: FC = () => {
   };
 
   return (
-    <CardShell header={<HeaderRow icon={Target} title="Challenges" />}>
-      <div style={{ marginTop: 'clamp(0.75rem, 1vw, 1rem)' }}>
+    <section aria-label="Challenges" className="flex flex-col gap-4 md:gap-5">
+      {/* Home section heading — matches Recent Activity / Pathways / Songs. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
+          <Target className="h-6 w-6 text-white/85 md:h-7 md:w-7" />
+          <h2 className="text-xl font-medium text-white md:text-2xl">
+            Challenges
+          </h2>
+        </div>
+        <ChallengeBoostBadge />
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:p-5">
         {isLoading ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -154,10 +165,7 @@ export const ChallengesCard: FC = () => {
             ))}
           </div>
         ) : challenges.length === 0 ? (
-          <p
-            className="text-white/50"
-            style={{ fontSize: 'clamp(0.7rem, 0.95vw, 0.9rem)' }}
-          >
+          <p className="text-base text-white/50 md:text-lg">
             No challenges yet.
           </p>
         ) : (
@@ -167,6 +175,6 @@ export const ChallengesCard: FC = () => {
           </div>
         )}
       </div>
-    </CardShell>
+    </section>
   );
 };

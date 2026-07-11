@@ -29,3 +29,13 @@ export type {
 } from './eventConnections';
 export { HISTORICAL_MODULES } from './historicalModules';
 export { MUSICAL_ERAS, type MusicalEra } from './musicalEras';
+export {
+  GUIDED_TOURS,
+  getTour,
+  resolveTourStops,
+  regionTourId,
+  cityTourId,
+  type GuidedTour,
+  type TourStop,
+  type ResolvedTourStop,
+} from './guidedTours';

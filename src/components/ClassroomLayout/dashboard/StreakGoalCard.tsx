@@ -16,10 +16,10 @@ export const StreakGoalCard: FC = () => {
 
   const subtitle =
     days === 0
-      ? 'Complete a lesson today to start your streak.'
+      ? 'Complete an activity to start your streak.'
       : activeToday
         ? "You've kept your streak going today — nice work!"
-        : 'Do one lesson today to keep your streak going.';
+        : 'Complete an activity today to keep your streak going.';
 
   return (
     <section

@@ -15,7 +15,7 @@ export const LearnQuickStart = () => {
         fontFamily: "'Glacial Indifference', 'Haskoy', system-ui, sans-serif",
       }}
     >
-      <WelcomeHeader format={(name) => `${name}'s Learning Dashboard`} />
+      <WelcomeHeader format={(name) => `${name}'s Compass`} />
     </div>
   );
 };

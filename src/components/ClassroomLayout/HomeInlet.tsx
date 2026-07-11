@@ -3,6 +3,8 @@
  * Vertical stack of six sections; the left rail lives in ClassroomSidebar.
  */
 import { Suspense, lazy } from 'react';
+import { AnnouncementsRow } from './dashboard/AnnouncementsRow';
+import { ChallengesCard } from './dashboard/ChallengesCard';
 import { DashboardFooter } from './dashboard/DashboardFooter';
 import { PathwaysSection } from './dashboard/PathwaysSection';
 import { QuickStartSection } from './dashboard/QuickStartSection';
@@ -18,10 +20,14 @@ const GlobeSection = lazy(() =>
 
 export const HomeInlet = () => {
   return (
-    <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-8 px-6 py-6 md:gap-12 md:px-10 md:py-10">
+    <div className="flex w-full flex-col gap-8 px-6 pt-4 pb-6 md:gap-10 md:px-10 md:pb-10">
+      {/* Announcements top row — self-hides when there's nothing to show. */}
+      <AnnouncementsRow />
       <WelcomeHeader />
       <QuickStartSection />
       <RecentActivitySection />
+      <hr className="border-0 border-t border-white/15" role="separator" />
+      <ChallengesCard />
       <hr className="border-0 border-t border-white/15" role="separator" />
       <PathwaysSection />
       <hr className="border-0 border-t border-white/15" role="separator" />

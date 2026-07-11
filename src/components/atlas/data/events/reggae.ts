@@ -2,6 +2,52 @@ import type { HistoricalEvent } from '@/components/atlas/types';
 
 export const REGGAE_EVENTS: HistoricalEvent[] = [
   {
+    id: 'evt-mento-kingston-1947',
+    year: 1947,
+    location: {
+      lat: 18.0179,
+      lng: -76.8099,
+      city: 'Kingston',
+      country: 'Jamaica',
+    },
+    genre: ['Mento', 'Folk'],
+    title: 'Mento — rural Jamaican folk song takes the stage',
+    description:
+      "By the late 1940s mento — Jamaica's rural acoustic folk music, built on banjo, acoustic guitar, hand drums and the deep-plucked bass rhumba box — is a staple of country dances and Kingston stage shows. A cousin to Trinidadian calypso, its cheeky storytelling and syncopated lilt lay the rhythmic groundwork for the ska and reggae still to come.",
+    tags: [
+      'mento',
+      'folk',
+      'rhumba box',
+      'banjo',
+      'calypso',
+      'jamaica',
+      'country dance',
+    ],
+  },
+  {
+    id: 'evt-ska-kingston-1962',
+    year: 1962,
+    location: {
+      lat: 18.0179,
+      lng: -76.8099,
+      city: 'Kingston',
+      country: 'Jamaica',
+    },
+    genre: ['Ska'],
+    title: 'Ska erupts as Jamaica gains independence',
+    description:
+      "As Jamaica wins its independence in 1962, Kingston's sound-system operators and studio bands fuse mento with American R&B into ska — a jumping music of walking basslines, chopped offbeat guitar 'skank' and jazzy horn lines. Coxsone Dodd's Studio One and the players who will form the Skatalites make it the sound of a new nation.",
+    tags: [
+      'ska',
+      'skatalites',
+      'studio one',
+      'coxsone dodd',
+      'offbeat',
+      'independence',
+      'kingston',
+    ],
+  },
+  {
     id: 'evt-reggae-kingston-1977',
     year: 1977,
     location: {

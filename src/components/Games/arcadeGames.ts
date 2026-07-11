@@ -1,8 +1,8 @@
 import {
   AudioLines,
-  BookOpen,
   Ear,
   Hand,
+  Puzzle,
   Users,
   Waves,
   type LucideIcon,
@@ -12,8 +12,8 @@ import type { GameRoutes } from '@/constants/routes';
 export type ArcadeCategory =
   | 'Multiplayer'
   | 'Ear Training'
-  | 'Technique'
-  | 'Theory'
+  | 'Skill'
+  | 'Puzzles'
   | 'Rhythm'
   | 'Sound Lab';
 
@@ -29,8 +29,8 @@ export interface ArcadeGame {
 export const CATEGORY_ORDER: ArcadeCategory[] = [
   'Multiplayer',
   'Ear Training',
-  'Technique',
-  'Theory',
+  'Skill',
+  'Puzzles',
   'Rhythm',
   'Sound Lab',
 ];
@@ -39,8 +39,8 @@ export const CATEGORY_ORDER: ArcadeCategory[] = [
 export const CATEGORY_ICON: Record<ArcadeCategory, LucideIcon> = {
   Multiplayer: Users,
   'Ear Training': Ear,
-  Technique: Hand,
-  Theory: BookOpen,
+  Skill: Hand,
+  Puzzles: Puzzle,
   Rhythm: AudioLines,
   'Sound Lab': Waves,
 };
@@ -67,25 +67,25 @@ export const ARCADE_GAMES: ArcadeGame[] = [
   },
   {
     title: 'Major Arcanum',
-    category: 'Technique',
+    category: 'Skill',
     blurb: 'Master every scale and mode across the keyboard.',
     route: 'majorArcanum',
   },
   {
     title: 'Chord Press',
-    category: 'Technique',
+    category: 'Skill',
     blurb: 'Sharpen your voicings under the clock.',
     route: 'chordPress',
   },
   {
     title: 'Board Choice',
-    category: 'Theory',
+    category: 'Puzzles',
     blurb: 'Name the chord before the board resets.',
     route: 'boardChoice',
   },
   {
     title: 'Chord Connection',
-    category: 'Theory',
+    category: 'Puzzles',
     blurb: 'Build the progression, connection by connection.',
     route: 'chordConnection',
   },

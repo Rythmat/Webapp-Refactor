@@ -28,11 +28,18 @@ export function GlobeController({ globeRef, ready }: Props) {
     searchFlyTarget,
     pinnedEvent,
     visibleArcDirections,
+    rotationPaused,
   } = useAppState();
   const prevLength = useRef(selectedRegions.length);
   const prevReady = useRef(false);
   const rotateRaf = useRef<number | null>(null);
   const prevShowingArcs = useRef(false);
+  // Read live inside the rAF spin loop so pausing takes effect without
+  // restarting the animation.
+  const pausedRef = useRef(rotationPaused);
+  useEffect(() => {
+    pausedRef.current = rotationPaused;
+  }, [rotationPaused]);
 
   // Fly to region when a new region is toggled on
   useEffect(() => {
@@ -102,6 +109,11 @@ export function GlobeController({ globeRef, ready }: Props) {
     const spin = () => {
       const globe = globeRef.current;
       if (!globe) return;
+      if (pausedRef.current) {
+        // Held while the user paused rotation; resumes on unpause.
+        rotateRaf.current = requestAnimationFrame(spin);
+        return;
+      }
       const pov = globe.pointOfView();
       let altitude = pov.altitude;
       if (!reachedZoom) {

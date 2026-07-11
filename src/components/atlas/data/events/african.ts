@@ -674,7 +674,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'oral tradition',
       'west africa',
     ],
-    videoId: '9xyZ6orN-Uk',
+    videoId: 'QdrPmZwsXiM',
   },
   {
     id: 'evt-rumba-kinshasa-1950',

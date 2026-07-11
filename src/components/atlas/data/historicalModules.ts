@@ -252,4 +252,90 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
       'evt-kpop-global-2020',
     ],
   },
+
+  // ── Roots & Routes ────────────────────────────────────────────────────
+  // Genre-genealogy lineages mirrored from the dashboard "Roots & Routes"
+  // shelf (ClassroomLayout/globe/data/rootsAndRoutes.ts). The ids match one to
+  // one so a dashboard card deep-links straight into the tour via ?pathway=<id>.
+  {
+    id: 'griot-to-hiphop',
+    title: 'From Griot to Hip-Hop',
+    description:
+      'How West African oral tradition, carried across the Atlantic, became the through-line of Black American music.',
+    emoji: '🎙️',
+    eventIds: [
+      'evt-griot-timbuktu-1500',
+      'evt-spiritual-nashville-1867',
+      'evt-blues-clarksdale-1903',
+      'evt-jazz-nola-1923',
+      'evt-motown-detroit-1963',
+      'evt-hiphop-nyc-1973',
+    ],
+  },
+  {
+    id: 'roots-of-reggae',
+    title: 'The Roots of Reggae',
+    description:
+      'Jamaica’s fast evolution from African-rooted folk drumming to a global sound of resistance.',
+    emoji: '🌿',
+    eventIds: [
+      'evt-diaspora-kingston-kumina-1950',
+      'evt-mento-kingston-1947',
+      'evt-ska-kingston-1962',
+      'evt-rocksteady-kingston-1966',
+      'evt-reggae-kingston-1971',
+      'evt-dub-kingston-1972-tubby',
+    ],
+  },
+  {
+    id: 'blues-family-tree',
+    title: 'The Blues Family Tree',
+    description:
+      'A single Delta tradition seeds most of 20th-century popular music.',
+    emoji: '🌳',
+    eventIds: [
+      'evt-spiritual-nashville-1867',
+      'evt-blues-clarksdale-1903',
+      'evt-blues-chicago-1958',
+      'evt-elvis-memphis-1954',
+      'evt-british-blues-london-1962',
+    ],
+  },
+  {
+    id: 'afro-cuban-currents',
+    title: 'Afro-Cuban Currents',
+    description:
+      'Yoruba and Bantu rhythms preserved in Cuba spread the clave across the Americas.',
+    emoji: '🪘',
+    eventIds: [
+      'evt-diaspora-havana-rumba-1886',
+      'evt-son-havana-1930',
+      'evt-mambo-havana-1948',
+      'evt-salsa-nyc-1971',
+    ],
+  },
+  {
+    id: 'sacred-to-soul',
+    title: 'Sacred to Soul',
+    description: 'The path from the Black church to the secular dance floor.',
+    emoji: '🙌',
+    eventIds: [
+      'evt-spiritual-nashville-1867',
+      'evt-diaspora-chicago-gospel-1932',
+      'evt-soul-memphis-1962',
+      'evt-funk-augusta-1970',
+    ],
+  },
+  {
+    id: 'andean-voices',
+    title: 'Andean Voices',
+    description:
+      'Indigenous highland music becomes a continental voice of protest.',
+    emoji: '🏔️',
+    eventIds: [
+      'evt-andean-indigenous-cusco-1500',
+      'evt-andean-folk-revival-lapaz-1965',
+      'evt-nueva-cancion-santiago-1969',
+    ],
+  },
 ];

@@ -22,9 +22,12 @@ const initialState: AppState = {
   searchResults: [],
   pinnedEvent: null,
   activeModule: null,
+  activeTour: null,
   selectedEra: null,
   searchFlyTarget: null,
   visibleArcDirections: new Set(),
+  detailsPanelWidth: null,
+  rotationPaused: false,
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -85,6 +88,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, selectedLocation: action.payload, pinnedEvent: null };
     case 'SET_ALTITUDE':
       return { ...state, globeAltitude: action.payload };
+    case 'SET_DETAILS_PANEL_WIDTH':
+      return { ...state, detailsPanelWidth: action.payload };
+    case 'SET_ROTATION_PAUSED':
+      return { ...state, rotationPaused: action.payload };
     case 'SET_TAB':
       return { ...state, activeTab: action.payload };
     case 'SET_SEARCH':
@@ -127,6 +134,21 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
     case 'EXIT_MODULE':
       return { ...state, activeModule: null };
+    case 'START_TOUR':
+      return {
+        ...state,
+        activeTour: { tourId: action.payload.tourId, currentStep: 0 },
+        // A tour and a module are mutually exclusive.
+        activeModule: null,
+      };
+    case 'TOUR_STEP':
+      if (!state.activeTour) return state;
+      return {
+        ...state,
+        activeTour: { ...state.activeTour, currentStep: action.payload },
+      };
+    case 'EXIT_TOUR':
+      return { ...state, activeTour: null };
     case 'SET_ERA':
       return { ...state, selectedEra: action.payload, pinnedEvent: null };
     case 'TOGGLE_ARC_DIRECTION': {

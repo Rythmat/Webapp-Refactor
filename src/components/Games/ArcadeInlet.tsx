@@ -1,6 +1,6 @@
 import { RotateCcw, Sparkles } from 'lucide-react';
-import { type FC, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { type FC, Fragment, useCallback, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { WelcomeHeader } from '@/components/ClassroomLayout/dashboard/WelcomeHeader';
 import { GameRoutes, ProfileRoutes } from '@/constants/routes';
 import { useArcadeActivityStore } from '@/features/arcade/useArcadeActivityStore';
@@ -15,8 +15,13 @@ import {
 } from './arcadeGames';
 import { ArcadeHero } from './dashboard/ArcadeHero';
 import { ArcadeShelf } from './dashboard/ArcadeShelf';
-import { ArcadeStatsStrip } from './dashboard/ArcadeStatsStrip';
+import { ARCADE_TABS, ArcadeTabBar } from './dashboard/ArcadeTabBar';
 import '@/components/learn/learn.css';
+
+// Same section divider as the Home/Studio/Globe dashboards.
+const Divider = () => (
+  <hr className="border-0 border-t border-white/15" role="separator" />
+);
 
 /**
  * The Arcade hub — a game-launcher dashboard: a featured-game hero spotlight, a
@@ -31,6 +36,11 @@ export const ArcadeInlet: FC = () => {
   // Subscribe to the stable `playedAt` object (not a fresh-array selector, which
   // would trip useSyncExternalStore's cached-snapshot check) and derive from it.
   const playedAt = useArcadeActivityStore((s) => s.playedAt);
+
+  const [params] = useSearchParams();
+  const tab = params.get('tab') ?? '';
+  const activeCategory =
+    ARCADE_TABS.find((t) => t.slug === tab)?.category ?? null;
 
   const launch = useCallback(
     (game: ArcadeGame) => {
@@ -85,48 +95,65 @@ export const ArcadeInlet: FC = () => {
           fontFamily: "'Glacial Indifference', 'Haskoy', system-ui, sans-serif",
         }}
       >
-        <div className="mx-auto flex max-w-[1240px] flex-col gap-10 px-6 pb-16 pt-6 md:px-10">
-          <ArcadeStatsStrip />
+        <div className="flex w-full flex-col gap-8 px-6 pt-4 pb-6 md:gap-10 md:px-10 md:pb-10">
+          <ArcadeTabBar />
 
-          <WelcomeHeader format={(name) => `${name}'s Arcade`} />
-
-          <ArcadeHero
-            game={FEATURED_GAME}
-            locked={featuredLocked}
-            onPlay={() => launch(FEATURED_GAME)}
-          />
-
-          {recentGames.length > 0 ? (
+          {activeCategory ? (
             <ArcadeShelf
-              title="Jump back in"
-              games={recentGames}
+              title={activeCategory}
+              games={
+                gamesByCategory.find((c) => c.category === activeCategory)
+                  ?.games ?? []
+              }
               isPremium={isPremium}
               onLaunch={launch}
-              eyebrowIcon={RotateCcw}
-              recency={playedAt}
               variant="dashboard"
             />
           ) : (
-            <ArcadeShelf
-              title="Start here"
-              games={startHere}
-              isPremium={isPremium}
-              onLaunch={launch}
-              eyebrowIcon={Sparkles}
-              variant="dashboard"
-            />
-          )}
+            <>
+              <WelcomeHeader format={(name) => `${name}'s Arcade`} />
 
-          {shelves.map(({ category, games }) => (
-            <ArcadeShelf
-              key={category}
-              title={category}
-              games={games}
-              isPremium={isPremium}
-              onLaunch={launch}
-              variant="dashboard"
-            />
-          ))}
+              <ArcadeHero
+                game={FEATURED_GAME}
+                locked={featuredLocked}
+                onPlay={() => launch(FEATURED_GAME)}
+              />
+
+              {recentGames.length > 0 ? (
+                <ArcadeShelf
+                  title="Jump back in"
+                  games={recentGames}
+                  isPremium={isPremium}
+                  onLaunch={launch}
+                  eyebrowIcon={RotateCcw}
+                  recency={playedAt}
+                  variant="dashboard"
+                />
+              ) : (
+                <ArcadeShelf
+                  title="Start here"
+                  games={startHere}
+                  isPremium={isPremium}
+                  onLaunch={launch}
+                  eyebrowIcon={Sparkles}
+                  variant="dashboard"
+                />
+              )}
+
+              {shelves.map(({ category, games }) => (
+                <Fragment key={category}>
+                  <Divider />
+                  <ArcadeShelf
+                    title={category}
+                    games={games}
+                    isPremium={isPremium}
+                    onLaunch={launch}
+                    variant="dashboard"
+                  />
+                </Fragment>
+              ))}
+            </>
+          )}
         </div>
       </div>
     </div>

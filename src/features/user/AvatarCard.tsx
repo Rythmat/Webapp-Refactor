@@ -8,6 +8,7 @@ import {
   defaultAvatarConfig,
   generateAvatarPolygons,
 } from '@/lib/avatarHexGrid';
+import { showError, showSuccess } from '@/util/toast';
 
 const AVATAR_SVG_SIZE = 256;
 
@@ -60,11 +61,28 @@ export const AvatarCard = () => {
   const activeConfig =
     editingConfig ?? savedAvatarConfig ?? defaultAvatarConfig(displayName);
 
+  // Explicit save (no more silent debounce). The button enables only when the
+  // live config differs from what's saved, and briefly shows "Saved ✓".
+  const [justSaved, setJustSaved] = useState(false);
   useEffect(() => {
-    if (!editingConfig) return;
-    const t = setTimeout(() => saveAvatarConfig(editingConfig), 500);
+    if (!justSaved) return;
+    const t = setTimeout(() => setJustSaved(false), 2000);
     return () => clearTimeout(t);
-  }, [editingConfig, saveAvatarConfig]);
+  }, [justSaved]);
+
+  const hasUnsavedChanges =
+    JSON.stringify(activeConfig) !== JSON.stringify(savedAvatarConfig);
+
+  const handleSave = () => {
+    if (saveAvatarConfig(activeConfig)) {
+      setJustSaved(true);
+      showSuccess('Avatar saved');
+    } else {
+      // saveConfig no-ops without a resolved user id — surface it instead of
+      // claiming success (which is what made this look like it "saved" then reverted).
+      showError('Could not save your avatar — please try again.');
+    }
+  };
 
   const avatarSvg = useMemo(
     () => configToHexSvg(activeConfig),
@@ -98,9 +116,18 @@ export const AvatarCard = () => {
               className="pointer-events-none absolute inset-0 h-full w-full"
             />
           </div>
-          {/* Right: edit controls */}
-          <div className="min-w-0 flex-1">
+          {/* Right: edit controls + explicit save */}
+          <div className="flex min-w-0 flex-1 flex-col gap-4">
             <AvatarEditor value={activeConfig} onChange={setEditingConfig} />
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={!hasUnsavedChanges || !user?.id}
+              className="self-start rounded-full px-6 py-2 text-sm font-semibold transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+              style={{ background: 'var(--color-accent)', color: '#06201f' }}
+            >
+              {justSaved && !hasUnsavedChanges ? 'Saved ✓' : 'Save'}
+            </button>
           </div>
         </div>
       </div>

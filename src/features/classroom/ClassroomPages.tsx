@@ -174,6 +174,14 @@ const StudioInlet = lazy(() =>
   ),
 );
 
+const GlobeInlet = lazy(() =>
+  import('@/components/ClassroomLayout/globe/GlobeInlet').then(
+    ({ GlobeInlet }) => ({
+      default: GlobeInlet,
+    }),
+  ),
+);
+
 const HomeInlet = lazy(() =>
   import('@/components/ClassroomLayout/HomeInlet').then(({ HomeInlet }) => ({
     default: HomeInlet,
@@ -594,8 +602,14 @@ export const atlasPages = () => {
       </AppContext>
     ),
     children: [
+      // `/atlas` now lands on the Globe Dashboard; the full interactive globe
+      // moves to `/atlas/globe` (opened from the dashboard's Explore tab).
       {
         index: true,
+        element: <GlobeInlet />,
+      },
+      {
+        path: 'globe',
         element: <Atlas />,
       },
     ],

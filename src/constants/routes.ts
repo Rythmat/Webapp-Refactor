@@ -507,6 +507,9 @@ const atlasPrefix = '/atlas';
 
 export const AtlasRoutes = {
   root: createRouteDefinition(atlasPrefix),
+
+  /** The full interactive 3D globe. The `/atlas` index now shows the Globe Dashboard. */
+  globe: createRouteDefinition('/globe', { prefix: atlasPrefix }),
 };
 
 const songsPrefix = '/songs';

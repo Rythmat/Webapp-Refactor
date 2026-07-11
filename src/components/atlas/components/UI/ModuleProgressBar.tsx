@@ -42,11 +42,8 @@ export function ModuleProgressBar() {
     const event = events[step];
     if (!event) return;
     dispatch({ type: 'MODULE_STEP', payload: step });
-    dispatch({ type: 'PIN_EVENT', payload: event });
-    dispatch({
-      type: 'EXECUTE_SEARCH',
-      payload: { lat: event.location.lat, lng: event.location.lng, zoom: 10 },
-    });
+    // SELECT_LOCATION resets pinnedEvent, so select the city BEFORE pinning —
+    // otherwise the pin (and the focused card + camera offset) is wiped.
     const city = CITIES.find(
       (c) => c.name.toLowerCase() === event.location.city.toLowerCase(),
     );
@@ -55,6 +52,11 @@ export function ModuleProgressBar() {
         type: 'SELECT_LOCATION',
         payload: { type: 'city', id: city.id },
       });
+    dispatch({ type: 'PIN_EVENT', payload: event });
+    dispatch({
+      type: 'EXECUTE_SEARCH',
+      payload: { lat: event.location.lat, lng: event.location.lng, zoom: 10 },
+    });
   };
 
   const exit = () => dispatch({ type: 'EXIT_MODULE' });
@@ -75,9 +77,9 @@ export function ModuleProgressBar() {
               Step {currentStep + 1} of {total}
             </span>
             <button
-              aria-label="Exit journey"
+              aria-label="Exit pathway"
               className="p-0.5 text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
-              title="Exit journey"
+              title="Exit pathway"
               onClick={exit}
             >
               <X className="size-3.5" />

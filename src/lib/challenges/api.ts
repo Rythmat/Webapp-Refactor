@@ -1,71 +1,47 @@
-import SuperJSON from 'superjson';
-import { Env } from '@/constants/env';
-import type { Challenge, ChallengesListResponse } from './types';
+// Client for our serverless challenge generator (api/challenges/*, Upstash
+// Redis). Same-origin `/api/challenges` (like avatar-config), not the external
+// backend — generation + completion + boost scheduling are ours.
+import type {
+  Challenge,
+  ChallengesListResponse,
+  InterestProfile,
+} from './types';
 
-function normalizedApiBase() {
-  return Env.get('VITE_MUSIC_ATLAS_API_URL').replace(/\/+$/, '');
-}
-
-function challengesPath(path: string) {
-  const base = normalizedApiBase();
-  const prefix = base.endsWith('/api') ? '/challenges' : '/api/challenges';
-  return `${prefix}${path}`;
-}
-
-function parseApiResponse(text: string): unknown {
-  if (!text) return undefined;
-  try {
-    return SuperJSON.parse(text);
-  } catch {
-    try {
-      return JSON.parse(text);
-    } catch {
-      return { raw: text };
-    }
-  }
-}
-
-async function apiRequest<T>(
+async function request<T>(
   path: string,
-  params: {
-    method?: 'GET' | 'POST';
-    token: string;
-    body?: unknown;
-  },
+  token: string,
+  init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`${normalizedApiBase()}${path}`, {
-    method: params.method ?? 'GET',
+  const res = await fetch(path, {
+    ...init,
     headers: {
-      Authorization: `Bearer ${params.token}`,
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...init?.headers,
     },
-    body: params.body != null ? JSON.stringify(params.body) : undefined,
   });
-
-  const text = await response.text();
-  const parsed = parseApiResponse(text);
-
-  if (!response.ok) {
-    const parsedObj =
-      typeof parsed === 'object' && parsed !== null
-        ? (parsed as { message?: string; error?: string })
-        : undefined;
-    const message =
-      parsedObj?.message ?? parsedObj?.error ?? 'Challenges request failed';
-    throw new Error(
-      `${params.method ?? 'GET'} ${path} failed (${response.status}): ${message}`,
-    );
-  }
-
-  return parsed as T;
+  if (!res.ok) throw new Error(`${path} failed (${res.status})`);
+  return (await res.json()) as T;
 }
 
 export const challengesApi = {
-  fetchList: (token: string) =>
-    apiRequest<ChallengesListResponse>(challengesPath('/list'), { token }),
+  fetchList: (token: string, profile: InterestProfile) =>
+    request<ChallengesListResponse>('/api/challenges/list', token, {
+      method: 'POST',
+      body: JSON.stringify({ profile }),
+    }),
+
   complete: (token: string, id: string, evidence?: Record<string, unknown>) =>
-    apiRequest<{ challenge: Challenge }>(
-      challengesPath(`/${encodeURIComponent(id)}/complete`),
-      { method: 'POST', token, body: { evidence } },
+    request<{ challenge: Challenge; boostEarned?: boolean }>(
+      `/api/challenges/${encodeURIComponent(id)}/complete`,
+      token,
+      { method: 'POST', body: JSON.stringify({ evidence }) },
+    ),
+
+  claimBoost: (token: string) =>
+    request<{ multiplier: number; durationMs: number }>(
+      '/api/challenges/boost/claim',
+      token,
+      { method: 'POST' },
     ),
 };

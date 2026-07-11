@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
   avatarConfigApi,
@@ -37,45 +38,46 @@ export function useAvatarConfig(
   serverConfig?: unknown,
 ) {
   const { token } = useAuthContext();
+  const queryClient = useQueryClient();
   const { data: storeConfig } = useSelfAvatarConfig();
-  const didSyncRef = useRef(false);
 
-  const [config, setConfig] = useState<AvatarConfig | null>(() => {
-    if (isAvatarConfig(serverConfig)) return serverConfig;
-    return userId ? loadLocalConfig(userId) : null;
-  });
+  // No-flash first paint when userId is already known; otherwise the resolve
+  // effect below fills it in once userId / the store GET arrive.
+  const [config, setConfig] = useState<AvatarConfig | null>(() =>
+    userId ? loadLocalConfig(userId) : null,
+  );
 
-  // Adopt the stored config once it arrives, unless the user already made a
-  // local edit (didSyncRef) that should win over a late server response. Does
-  // NOT write localStorage here — the cache is only ever written by an explicit
-  // save, so a mid-edit adopt can't leave a stale value on disk.
+  // Resolve reactively (userId from useMe and the store GET both settle async).
+  // localStorage is authoritative for THIS device — it's written on every save,
+  // so it wins over the server; the server store only fills in when the cache is
+  // empty (a fresh device). This can't clobber a locally-saved config, and it
+  // restores the cache as soon as userId resolves (fixes reload → default).
   useEffect(() => {
-    if (didSyncRef.current) return;
-    const incoming = isAvatarConfig(storeConfig)
-      ? storeConfig
-      : isAvatarConfig(serverConfig)
-        ? serverConfig
-        : null;
-    if (incoming) {
-      didSyncRef.current = true;
-      setConfig(incoming);
-    }
-  }, [storeConfig, serverConfig, userId]);
+    const local = userId ? loadLocalConfig(userId) : null;
+    if (local) setConfig(local);
+    else if (isAvatarConfig(storeConfig)) setConfig(storeConfig);
+    else if (isAvatarConfig(serverConfig)) setConfig(serverConfig);
+  }, [userId, storeConfig, serverConfig]);
 
+  // Returns whether it persisted — false means no userId yet, so the caller can
+  // avoid claiming success. Writes localStorage now; the serverless PUT is
+  // best-effort (works once /api is reachable; ignored otherwise).
   const saveConfig = useCallback(
-    (newConfig: AvatarConfig) => {
-      if (!userId) return;
-      // A local edit is now authoritative; don't let a late GET overwrite it.
-      didSyncRef.current = true;
+    (newConfig: AvatarConfig): boolean => {
+      if (!userId) return false;
       setConfig(newConfig);
       cacheLocalConfig(userId, newConfig);
+      // Push into the shared self-avatar query so every OTHER useAvatarConfig
+      // consumer (TopRail icon, UserWidget, …) re-resolves and updates instantly.
+      queryClient.setQueryData(['avatar-config', 'self', userId], newConfig);
       if (token) {
         void avatarConfigApi.putSelf(token, newConfig).catch(() => {
           // Persisted to localStorage regardless; ignore transient API errors.
         });
       }
+      return true;
     },
-    [userId, token],
+    [userId, token, queryClient],
   );
 
   return { config, saveConfig };

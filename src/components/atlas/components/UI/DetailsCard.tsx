@@ -6,6 +6,8 @@ import {
   MapPin,
   Maximize2,
   Minimize2,
+  Pause,
+  Play,
   GripVertical,
 } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -25,20 +27,30 @@ function EventList({
   events,
   expandedEvents,
   enlarged,
+  pinnedEventId,
+  sequenceActive,
+  rotationEngaged,
+  rotationPaused,
   onToggle,
   onEnlarge,
   onShrink,
   onNavigateToEvent,
   onVideoPlay,
+  onToggleRotation,
 }: {
   events: HistoricalEvent[];
   expandedEvents: Set<string>;
   enlarged: boolean;
+  pinnedEventId?: string;
+  sequenceActive: boolean;
+  rotationEngaged: boolean;
+  rotationPaused: boolean;
   onToggle: (id: string) => void;
   onEnlarge: (event: HistoricalEvent) => void;
   onShrink: () => void;
   onNavigateToEvent: (event: HistoricalEvent) => void;
   onVideoPlay: () => void;
+  onToggleRotation: () => void;
 }) {
   if (events.length === 0) {
     return (
@@ -59,11 +71,16 @@ function EventList({
         {events.map((event) => {
           const isExpanded = expandedEvents.has(event.id);
           const focused = enlarged && isExpanded;
+          // The pinned event of an active sequence (Pathway / tour step) shows
+          // its influence chains inline + open, decoupled from the globe arcs
+          // (so the simplified globe stays clean).
+          const isPinnedStep = sequenceActive && event.id === pinnedEventId;
           // While enlarged, only the focused card is shown. NB: hidden via CSS
           // (not filtered/reordered) so the video's <iframe> is never reparented.
           return (
             <div
               key={event.id}
+              data-event-id={event.id}
               className={`group w-full rounded-xl text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
                 enlarged && !isExpanded ? 'hidden' : ''
               } ${focused ? 'p-4' : 'p-2.5'} ${
@@ -96,6 +113,29 @@ function EventList({
                   {event.title}
                 </h4>
                 <div className="flex shrink-0 items-center gap-1.5">
+                  {rotationEngaged && event.id === pinnedEventId && (
+                    <button
+                      aria-label={
+                        rotationPaused
+                          ? 'Resume globe rotation'
+                          : 'Pause globe rotation'
+                      }
+                      title={
+                        rotationPaused ? 'Resume rotation' : 'Pause rotation'
+                      }
+                      className="rounded text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleRotation();
+                      }}
+                    >
+                      {rotationPaused ? (
+                        <Play className="size-3.5" />
+                      ) : (
+                        <Pause className="size-3.5" />
+                      )}
+                    </button>
+                  )}
                   <button
                     aria-label={focused ? 'Shrink' : 'Enlarge'}
                     title={focused ? 'Shrink' : 'Enlarge'}
@@ -151,6 +191,8 @@ function EventList({
                   <EventInfluence
                     event={event}
                     onNavigate={onNavigateToEvent}
+                    defaultOpen={isPinnedStep}
+                    affectsGlobe={!isPinnedStep}
                     className={
                       focused
                         ? 'mt-4 grid gap-x-8 gap-y-3 border-t border-white/10 pt-4 sm:grid-cols-2 [&>div]:min-w-0'
@@ -168,13 +210,26 @@ function EventList({
 }
 
 export function DetailsCard() {
-  const { selectedLocation, pinnedEvent } = useAppState();
+  const {
+    selectedLocation,
+    pinnedEvent,
+    activeModule,
+    activeTour,
+    visibleArcDirections,
+    rotationPaused,
+  } = useAppState();
   const dispatch = useAppDispatch();
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
   const [collapsed, setCollapsed] = useState(false);
   const [enlarged, setEnlarged] = useState(false);
   const [width, setWidth] = useState(480);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const sequenceActive = !!(activeModule || activeTour);
+  // The globe auto-rotates while a pinned event's influence arcs are open.
+  const rotationEngaged = !!pinnedEvent && visibleArcDirections.size > 0;
+  const toggleRotation = () =>
+    dispatch({ type: 'SET_ROTATION_PAUSED', payload: !rotationPaused });
 
   const onDragStart = useCallback(
     (e: React.MouseEvent) => {
@@ -216,12 +271,43 @@ export function DetailsCard() {
     }
   }, [selectedLocation, events]);
 
-  // Expand only the pinned event (from timeline click / deep-link), collapse others
+  // Expand only the pinned event (timeline click / deep-link / sequence step),
+  // un-collapse the card, and scroll that event into view so it reads fully.
   useEffect(() => {
-    if (pinnedEvent) {
-      setExpandedEvents(new Set([pinnedEvent.id]));
-    }
+    if (!pinnedEvent) return;
+    setExpandedEvents(new Set([pinnedEvent.id]));
+    setCollapsed(false);
+    const id = pinnedEvent.id;
+    const raf = requestAnimationFrame(() => {
+      cardRef.current
+        ?.querySelector(`[data-event-id="${id}"]`)
+        ?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+    return () => cancelAnimationFrame(raf);
   }, [pinnedEvent]);
+
+  // Report the card's occluding width to the globe while an event is expanded so
+  // it can shift the region clear of the card. The ResizeObserver tracks drag-
+  // resize + enlarge; cleanup clears it (unmount / nothing pinned).
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el || !pinnedEvent) {
+      dispatch({ type: 'SET_DETAILS_PANEL_WIDTH', payload: null });
+      return;
+    }
+    const report = () =>
+      dispatch({
+        type: 'SET_DETAILS_PANEL_WIDTH',
+        payload: el.getBoundingClientRect().width,
+      });
+    report();
+    const ro = new ResizeObserver(report);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      dispatch({ type: 'SET_DETAILS_PANEL_WIDTH', payload: null });
+    };
+  }, [dispatch, pinnedEvent, selectedLocation]);
 
   if (!selectedLocation) return null;
 
@@ -273,14 +359,15 @@ export function DetailsCard() {
 
   return (
     <div
-      className="absolute left-4 top-16 z-[1000] flex flex-col rounded-2xl border border-white/10 bg-black/20 shadow-2xl backdrop-blur-md"
+      ref={cardRef}
+      className="absolute left-4 top-4 z-[1000] flex flex-col rounded-2xl border border-white/10 bg-black/20 shadow-2xl backdrop-blur-md"
       style={{
         width: enlarged ? 'min(66vw, 900px)' : width,
         maxHeight: collapsed
           ? undefined
           : enlarged
-            ? 'calc(100% - 6rem)'
-            : 'calc(100% - 14rem)',
+            ? 'calc(100% - 4rem)'
+            : 'calc(100% - 11rem)',
       }}
     >
       {/* Drag-resize handle on right edge (disabled while enlarged) */}
@@ -294,8 +381,26 @@ export function DetailsCard() {
       )}
 
       <div className="shrink-0 p-4">
-        {/* Collapse + Close buttons */}
+        {/* Pause rotation + Collapse + Close buttons */}
         <div className="absolute right-3 top-3 flex items-center gap-1">
+          {rotationEngaged && (
+            <button
+              aria-label={
+                rotationPaused
+                  ? 'Resume globe rotation'
+                  : 'Pause globe rotation'
+              }
+              title={rotationPaused ? 'Resume rotation' : 'Pause rotation'}
+              className="text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+              onClick={toggleRotation}
+            >
+              {rotationPaused ? (
+                <Play className="size-4" />
+              ) : (
+                <Pause className="size-4" />
+              )}
+            </button>
+          )}
           {!enlarged && (
             <button
               aria-label={collapsed ? 'Expand details' : 'Collapse details'}
@@ -376,11 +481,16 @@ export function DetailsCard() {
           events={events}
           expandedEvents={expandedEvents}
           enlarged={enlarged}
+          pinnedEventId={pinnedEvent?.id}
+          sequenceActive={sequenceActive}
+          rotationEngaged={rotationEngaged}
+          rotationPaused={rotationPaused}
           onToggle={toggleEvent}
           onEnlarge={enlargeEvent}
           onShrink={() => setEnlarged(false)}
           onNavigateToEvent={navigateToEvent}
           onVideoPlay={() => dispatch({ type: 'OPEN_INFLUENCE_ARCS' })}
+          onToggleRotation={toggleRotation}
         />
       )}
     </div>

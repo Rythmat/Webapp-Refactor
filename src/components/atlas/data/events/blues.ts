@@ -162,7 +162,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'clarksdale',
       'crossroads',
     ],
-    videoId: 'U7zAqgL0KgA',
+    videoId: 'cSuTTSOctGw',
   },
   {
     id: 'evt-blues-recording-nyc-1920',

@@ -27,7 +27,7 @@ export const StudioInlet = () => {
   const tab = params.get('tab') ?? '';
 
   return (
-    <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-8 px-6 py-6 md:gap-12 md:px-10 md:py-10">
+    <div className="flex w-full flex-col gap-8 px-6 pt-4 pb-6 md:gap-10 md:px-10 md:pb-10">
       <StudioTabBar />
 
       {tab === 'Library' ? (

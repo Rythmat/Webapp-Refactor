@@ -58,7 +58,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'south side',
       'maxwell street',
     ],
-    videoId: 'cXKMt3dPGgI',
+    videoId: 'bSfqNEvykv0',
   },
   {
     id: 'evt-handy-memphis-1912',
@@ -78,26 +78,6 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'tutwiler',
     ],
     videoId: 'WWfMKFQjonY',
-  },
-  {
-    id: 'evt-desert-blues-bamako-1994',
-    year: 1994,
-    location: { lat: 12.6392, lng: -8.0029, city: 'Bamako', country: 'Mali' },
-    genre: ['Desert Blues', 'World Music'],
-    title: 'Ali Farka Touré and Ry Cooder record "Talking Timbuktu"',
-    description:
-      'Malian guitarist Ali Farka Touré collaborates with American slide guitarist Ry Cooder on "Talking Timbuktu," recorded between Bamako and Los Angeles. The album wins a Grammy and reveals the deep connections between West African string traditions and American blues, forever changing world music.',
-    tags: [
-      'ali farka toure',
-      'ry cooder',
-      'talking timbuktu',
-      'grammy',
-      'desert blues',
-      'mali',
-      'niafunke',
-      'world music',
-    ],
-    videoId: 'FnC_kFsV7a0',
   },
   {
     id: 'evt-mdou-moctar-niamey-2019',
@@ -137,7 +117,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'delta blues',
       'jackson',
     ],
-    videoId: 'NcQn2Dtr5Ak',
+    videoId: 'WIUuB2xLDK8',
   },
   {
     id: 'evt-piedmontblues-charlotte-1940',
@@ -182,7 +162,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'clarksdale',
       'crossroads',
     ],
-    videoId: 'U7zAqgL0KgA',
+    videoId: 'cSuTTSOctGw',
   },
   {
     id: 'evt-blues-recording-nyc-1920',
@@ -224,7 +204,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'british invasion',
       'transatlantic',
     ],
-    videoId: 'F-F_oHOvBsM',
+    videoId: 'OT8ES0wHPH8',
   },
   {
     id: 'evt-desert-blues-bamako-1980',
@@ -244,6 +224,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'transatlantic',
       'guitar',
     ],
+    videoId: '4mnAUe4c08o',
   },
   {
     id: 'evt-blues-chicago-1958',
@@ -261,7 +242,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'compilation',
       'hoochie coochie man',
     ],
-    videoId: 'cXKMt3dPGgI',
+    videoId: 'w9bXPxMTKl4',
   },
   {
     id: 'evt-blues-chicago-1965-bking',
@@ -315,7 +296,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'one chord',
       'hypnotic',
     ],
-    videoId: '-U_I6QPgXsI',
+    videoId: 'DEFseT_UuoA',
   },
   {
     id: 'evt-blues-chicago-1968-buddy',
@@ -333,7 +314,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'vanguard records',
       'influence',
     ],
-    videoId: 'l0RMjKbqU_E',
+    videoId: '4bBQzRgsNeg',
   },
   {
     id: 'evt-blues-memphis-1967-albert',
@@ -451,7 +432,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'grammy',
       'contemporary blues',
     ],
-    videoId: 'WOJzDLaGe9w',
+    videoId: 'pBtmZJFJGck',
   },
   {
     id: 'evt-blues-austin-2012',
@@ -505,7 +486,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'female vocalist',
       'grammy nominated',
     ],
-    videoId: 'oOLKqpVwwr8',
+    videoId: 'jIrqRGXqsdc',
   },
   {
     id: 'evt-blues-statesboro-1928',
@@ -589,7 +570,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'classic blues',
       'vaudeville',
     ],
-    videoId: 'XsHiWhj5Wo4',
+    videoId: 'DZv0-L099eE',
   },
   {
     id: 'evt-blues-nola-1968',
@@ -613,7 +594,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'night tripper',
       'mac rebennack',
     ],
-    videoId: '1CWH3-CZcqE',
+    videoId: 'c3vI-K4pIgg',
   },
   {
     id: 'evt-blues-memphis-1929-minnie',
@@ -631,7 +612,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'beale street',
       'prewar blues',
     ],
-    videoId: 'WSlt8-fmvas',
+    videoId: 'jGnnR_kzfZk',
   },
   {
     id: 'evt-blues-la-1952-thornton',
@@ -672,7 +653,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'queen of the blues',
       'chicago',
     ],
-    videoId: 'dLgsC0YVXnk',
+    videoId: 'X4xum7FVPh8',
   },
   {
     id: 'evt-blues-atlanta-1923-rainey',
@@ -691,7 +672,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'atlanta',
       'bessie smith',
     ],
-    videoId: 'h4R42yHQTbg',
+    videoId: 'qNUy5q2StPY',
   },
   {
     id: 'evt-blues-clarksdale-1929-patton',
@@ -734,7 +715,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'minor key blues',
       'folk revival',
     ],
-    videoId: 'MTDQrgb7nhE',
+    videoId: 'lo3vEehd-dE',
   },
   {
     id: 'evt-blues-como-1959',
@@ -777,6 +758,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'punk blues',
       'juke joint',
     ],
+    videoId: 'OR2U8FxdizU',
   },
   {
     id: 'evt-blues-hollysprings-1992',
@@ -819,7 +801,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'chicago',
       'vocal performance',
     ],
-    videoId: '5jrmBjxdz5s',
+    videoId: '1qJU8G7gR_g',
   },
   {
     id: 'evt-blues-canton-1951',
@@ -838,7 +820,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'mississippi',
       'electric blues',
     ],
-    videoId: '3FIhtRvvbkY',
+    videoId: '5jcGY7NbaQw',
   },
   {
     id: 'evt-blues-chicago-1952-walter',
@@ -875,6 +857,5 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'acoustic blues',
       'third ward',
     ],
-    videoId: 'tjE_o3NmS_U',
   },
 ];

@@ -56,9 +56,13 @@ export function computeMatch(
 ): ConnectionMatch {
   const otherBio = other.bio;
 
-  // Common genres
+  // Shared selections (intersections) across all three categories.
   const myGenres = new Set(currentUser.genres);
   const commonGenres = otherBio.genres.filter((g) => myGenres.has(g));
+  const myInstruments = new Set(currentUser.instruments);
+  const commonInstruments = otherBio.instruments.filter((i) =>
+    myInstruments.has(i),
+  );
 
   // Complementary skills
   const instrumentComplements = findComplements(
@@ -75,7 +79,8 @@ export function computeMatch(
 
   // Shared focus
   const myFocus = new Set(currentUser.focus);
-  const sharedFocusCount = otherBio.focus.filter((f) => myFocus.has(f)).length;
+  const commonFocus = otherBio.focus.filter((f) => myFocus.has(f));
+  const sharedFocusCount = commonFocus.length;
 
   // Score (0–100)
   const genreScore = Math.min(commonGenres.length * 30, 60);
@@ -91,6 +96,8 @@ export function computeMatch(
   return {
     user: other,
     commonGenres,
+    commonInstruments,
+    commonFocus,
     complementarySkills,
     matchScore,
   };

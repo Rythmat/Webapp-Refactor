@@ -67,7 +67,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'verismo',
       'romanticism',
     ],
-    videoId: 'ukIiDzaF5hQ',
+    videoId: 'zxljpUmasgQ',
   },
   {
     id: 'evt-media-turin-1896-boheme',
@@ -108,7 +108,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'comic opera',
       'victorian era',
     ],
-    videoId: '4FPwhJhBJ-A',
+    videoId: 'qVAScymkGsY',
   },
   {
     id: 'evt-media-nyc-1911-treemonisha',
@@ -132,7 +132,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'african american',
       'pulitzer',
     ],
-    videoId: 'w1PYexzFn1Y',
+    videoId: 'OLyh2jCvzG0',
   },
   {
     id: 'evt-media-nyc-1935-porgy',
@@ -180,7 +180,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'agnes de mille',
       'golden age',
     ],
-    videoId: 'sziEAnkpa48',
+    videoId: 'O5APc0z49wg',
   },
   {
     id: 'evt-media-nyc-1957-westsidestory',
@@ -204,7 +204,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'latin jazz',
       'romeo and juliet',
     ],
-    videoId: 'Gt2zubHcER4',
+    videoId: 'ZC8OmyywAWM',
   },
   {
     id: 'evt-media-nyc-1970-company',
@@ -252,7 +252,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'sung through',
       'concept album',
     ],
-    videoId: 'mdBVJbzkoqo',
+    videoId: 'KJDgUoAQC8Y',
   },
   {
     id: 'evt-media-nyc-1996-rent',
@@ -353,6 +353,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'vitaphone',
       'hollywood',
     ],
+    videoId: 'qfWvRESbveM',
   },
   {
     id: 'evt-media-la-1933-kingkong',
@@ -423,7 +424,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'shower scene',
       'paramount',
     ],
-    videoId: 'ApdNzbaFEnc',
+    videoId: 'yRsOp-g4MTE',
   },
   {
     id: 'evt-media-la-1961-moonriver',
@@ -447,7 +448,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'jazz score',
       'cool jazz',
     ],
-    videoId: 'evly0OnAtPk',
+    videoId: 'CYcSiHRPYKA',
   },
   {
     id: 'evt-media-london-1962-bond',
@@ -496,7 +497,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'cbs',
       'spy music',
     ],
-    videoId: 'hlN7ruQuFJY',
+    videoId: 'O07WucFwdq8',
   },
   {
     id: 'evt-media-rome-1966-morricone',
@@ -521,7 +522,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'cinecitta',
       'italian cinema',
     ],
-    videoId: 'lzd8zDPQ2Y0',
+    videoId: 'mfRFET2UZok',
   },
   {
     id: 'evt-media-la-1967-quincyjones',
@@ -669,7 +670,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'munich',
       'moog',
     ],
-    videoId: 'cH2guTTyX8s',
+    videoId: 'tYGnxGYqYFI',
   },
   {
     id: 'evt-media-london-1981-chariots',
@@ -718,7 +719,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'bernardo bertolucci',
       'east meets west',
     ],
-    videoId: 'pWI5aVKvkCg',
+    videoId: '2lbi8o_i7Bs',
   },
   {
     id: 'evt-media-la-1989-elfman',
@@ -766,6 +767,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'african choral',
       'media ventures',
     ],
+    videoId: 'Waa3PgUyapw',
   },
   {
     id: 'evt-media-tokyo-1984-ghibli',
@@ -815,7 +817,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'oscar',
       'tolkien',
     ],
-    videoId: 'sqe7rpkpm2c',
+    videoId: 'IzQh2Lhv4vQ',
   },
   {
     id: 'evt-media-la-2005-santaolalla-bbm',
@@ -839,6 +841,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'minimalist score',
       'guitar',
     ],
+    videoId: 'uqatoAp3abE',
   },
   {
     id: 'evt-media-london-2007-greenwood',
@@ -863,7 +866,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'penderecki',
       'strings',
     ],
-    videoId: 'ktkE5IIK9XU',
+    videoId: 'TQEov7T9Zz8',
   },
   {
     id: 'evt-media-chennai-2008-rahman',
@@ -889,7 +892,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'chennai',
       'indian cinema',
     ],
-    videoId: '6E51wmh9f9g',
+    videoId: 'aYXsE1dJdiw',
   },
   {
     id: 'evt-media-la-2010-socialnetwork',
@@ -1014,6 +1017,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'ambient',
       'prestige tv',
     ],
+    videoId: 'jtGL2Tqfdws',
   },
   {
     id: 'evt-media-la-2011-gameofthrones',
@@ -1062,6 +1066,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'prestige tv',
       'hip hop classical',
     ],
+    videoId: 'LlgWqcHXD8w',
   },
   {
     id: 'evt-media-la-2019-mandalorian',
@@ -1086,6 +1091,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'childish gambino',
       'spaghetti western',
     ],
+    videoId: 'rXJa1YcV6OQ',
   },
   {
     id: 'evt-media-la-2021-whitelotus',
@@ -1183,6 +1189,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'prestige tv',
       'licensed music',
     ],
+    videoId: 'vD12mZiFPtM',
   },
 
   // =============================================
@@ -1211,7 +1218,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       '8-bit',
       'kyoto',
     ],
-    videoId: 'dBNJ5cAxcQ8',
+    videoId: 'NTa6Xbzfq1U',
   },
   {
     id: 'evt-media-kyoto-1986-zelda',
@@ -1308,6 +1315,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'interactive',
       'leicestershire',
     ],
+    videoId: '-J4F4w7E_N0',
   },
   {
     id: 'evt-media-seattle-2001-halo',
@@ -1608,6 +1616,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'oscar',
       'ryan gosling',
     ],
+    videoId: '0pdqf4P9MB8',
   },
   {
     id: 'evt-media-la-2018-blackpanther',
@@ -1681,6 +1690,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'broadway',
       'musical film',
     ],
+    videoId: 'YJserno8tyU',
   },
 
   // =============================================
@@ -1707,6 +1717,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'advertising',
       'barbershop quartet',
     ],
+    videoId: '1ckB1_uyKGQ',
   },
   {
     id: 'evt-media-nyc-1970-manilow',
@@ -1731,6 +1742,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'advertising',
       'commercial',
     ],
+    videoId: 'KTZTEZvvAxg',
   },
   {
     id: 'evt-media-london-1971-coke',
@@ -1754,6 +1766,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'crossover hit',
       'anthem',
     ],
+    videoId: '1VM2eLhvsSM',
   },
   {
     id: 'evt-media-vienna-1994-intel',
@@ -1777,6 +1790,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'edelweiss',
       'corporate sound',
     ],
+    videoId: 'sVafplZCsjU',
   },
   {
     id: 'evt-media-nyc-1999-moby',
@@ -1824,6 +1838,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'white earbuds',
       'tech culture',
     ],
+    videoId: 'mpM5nzSEyXE',
   },
   {
     id: 'evt-media-pasadena-1993-superbowl',
@@ -1848,6 +1863,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'spectacle',
       'cultural event',
     ],
+    videoId: '61E40Yv0C-U',
   },
   {
     id: 'evt-media-la-2017-tiktok',
@@ -1871,6 +1887,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'music discovery',
       'short form video',
     ],
+    videoId: 'S1m-KgEpoow',
   },
 
   // =============================================
@@ -1899,6 +1916,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'riaa',
       'p2p',
     ],
+    videoId: '6kIEtk8uQ3Q',
   },
   {
     id: 'evt-media-cupertino-2003-itunes',
@@ -1922,6 +1940,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'legal music',
       'single track',
     ],
+    videoId: 'NF9o46zK5Jo',
   },
   {
     id: 'evt-media-sanbruno-2005-youtube',
@@ -1968,6 +1987,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'democratization',
       'xxxtentacion',
     ],
+    videoId: '7nD6GgjHRb4',
   },
   {
     id: 'evt-media-oakland-2008-bandcamp',
@@ -2014,6 +2034,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'freemium',
       'swedish tech',
     ],
+    videoId: 'cwGB95OtgxA',
   },
   {
     id: 'evt-media-la-2022-renaissance',

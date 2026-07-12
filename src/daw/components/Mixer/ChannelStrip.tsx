@@ -243,7 +243,7 @@ export const ChannelStrip = memo(function ChannelStrip({
           className="h-5 w-5 rounded text-[10px] font-bold transition-colors cursor-pointer"
           style={{
             backgroundColor: track.solo
-              ? '#eab308'
+              ? 'var(--color-meter-yellow)'
               : 'rgba(255, 255, 255, 0.06)',
             color: track.solo ? '#000' : 'var(--color-text-dim)',
             border: 'none',

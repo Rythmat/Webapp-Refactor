@@ -1,41 +1,9 @@
-import { Search, UserPlus, MoreHorizontal, X } from 'lucide-react';
+import { Search, UserPlus, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { useClassroom, useClassroomStudents } from '@/hooks/data';
+import { useClassroom } from '@/hooks/data';
 import { InviteStudentDialog } from './components/InviteStudentDialog';
+import { RosterTabs } from './components/RosterTabs';
 
 export const ClassroomStudentsPage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
@@ -43,186 +11,67 @@ export const ClassroomStudentsPage = () => {
   const { data: classroom } = useClassroom(classroomId);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<
-    'all' | 'active' | 'removed'
-  >('active');
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
-  const {
-    data: students = [],
-    isLoading,
-    isError,
-  } = useClassroomStudents(classroomId, { status: statusFilter });
-
-  // Filter students based on search query
-  const filteredStudents = students.filter(
-    (student) =>
-      student.nickname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.username?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Students</h1>
-          <p className="text-muted-foreground">
-            Manage students in your classroom
+    <div className="mx-auto flex w-full max-w-[1720px] flex-col gap-6 px-6 py-6 md:gap-10 md:px-10 md:py-10">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 md:gap-3">
+            <Users className="h-6 w-6 text-white/85 md:h-7 md:w-7" />
+            <h1 className="text-xl font-medium text-white md:text-2xl">
+              Students
+            </h1>
+          </div>
+          <p className="text-sm text-white/60">
+            {classroom?.name
+              ? `Roster for ${classroom.name}`
+              : 'Manage students in your classroom'}
           </p>
         </div>
-        <Button onClick={() => setIsInviteDialogOpen(true)}>
-          <UserPlus className="mr-2 size-4" />
+        <button
+          type="button"
+          onClick={() => setIsInviteDialogOpen(true)}
+          className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
+        >
+          <UserPlus className="h-4 w-4" />
           Invite Student
-        </Button>
-      </div>
+        </button>
+      </header>
 
-      <div>
-        <CardHeader className="px-0 pb-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Class Roster</CardTitle>
-              <CardDescription>
-                {filteredStudents.length} students in {classroom?.name}
-              </CardDescription>
-            </div>
-            <div className="flex space-x-2">
-              <div className="relative w-64">
-                <Search className="absolute left-2.5 top-4 size-4 text-muted-foreground" />
-                <Input
-                  className="pl-8"
-                  placeholder="Search students..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                {searchQuery && (
-                  <Button
-                    className="absolute right-0.5 top-0.5 size-8 p-0"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setSearchQuery('')}
-                  >
-                    <X className="size-4" />
-                  </Button>
-                )}
-              </div>
-              <Select
-                value={statusFilter}
-                onValueChange={(value: 'all' | 'active' | 'removed') =>
-                  setStatusFilter(value)
-                }
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="removed">Removed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="px-0">
-          {isLoading ? (
-            <div className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center space-x-4 py-2">
-                  <Skeleton className="size-10 rounded-full" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-40" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : isError ? (
-            <div className="py-8 text-center">
-              <p className="text-muted-foreground">
-                There was an error loading students. Please try again.
+      {classroomId && (
+        <div className="flex flex-col gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 md:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-base font-medium text-white">Class Roster</h2>
+              <p className="text-xs text-white/50">
+                {classroom?.name ? `Roster for ${classroom.name}` : ''}
               </p>
-              <Button className="mt-4" variant="outline">
-                Retry
-              </Button>
             </div>
-          ) : filteredStudents.length === 0 ? (
-            <div className="py-8 text-center">
-              <p className="text-muted-foreground">
-                {searchQuery
-                  ? 'No students match your search criteria.'
-                  : 'No students in this classroom yet.'}
-              </p>
-              {!searchQuery && (
-                <Button
-                  className="mt-4"
-                  variant="outline"
-                  onClick={() => setIsInviteDialogOpen(true)}
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+              <input
+                className="w-full rounded-full border border-white/10 bg-white/[0.02] px-9 py-2 text-sm text-white placeholder:text-white/40 focus:border-white/25 focus:outline-none"
+                placeholder="Search students…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  aria-label="Clear search"
+                  className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-white/50 hover:bg-white/5 hover:text-white"
                 >
-                  <UserPlus className="mr-2 size-4" />
-                  Invite Your First Student
-                </Button>
+                  <X className="h-3.5 w-3.5" />
+                </button>
               )}
             </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-[70px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredStudents.map((student) => (
-                  <TableRow key={student.id}>
-                    <TableCell className="font-medium">
-                      {student.nickname}
-                    </TableCell>
-                    <TableCell>{student.username}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={student.removedAt ? 'secondary' : 'default'}
-                      >
-                        {student.removedAt ? 'Removed' : 'Active'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            className="size-8 p-0"
-                            size="sm"
-                            variant="ghost"
-                          >
-                            <MoreHorizontal className="size-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>View Profile</DropdownMenuItem>
-                          <DropdownMenuItem>View Progress</DropdownMenuItem>
-                          <DropdownMenuItem>Send Message</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          {!student.removedAt ? (
-                            <DropdownMenuItem className="text-destructive">
-                              Remove from Class
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem>
-                              Reactivate Student
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </div>
+          </div>
+
+          <RosterTabs classroomId={classroomId} searchQuery={searchQuery} />
+        </div>
+      )}
 
       {classroom?.code && classroomId && (
         <InviteStudentDialog

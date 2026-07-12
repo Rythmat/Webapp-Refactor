@@ -1,0 +1,19 @@
+/* ── Songs marquee animation ───────────────────────────────────────────────
+   Shared by Home's SongsSection and Learn's Songs tab. Rules are unscoped so
+   the animation works under both `.dashboard-root` and `.learn-root`.
+   Animation drifts translateX from 0 → -50% so the seamless-loop pattern
+   (songs array duplicated) reads as an endless right-to-left ticker.
+   ──────────────────────────────────────────────────────────────────────── */
+.song-marquee-track {
+  animation: song-marquee-drift 180s linear infinite;
+  will-change: transform;
+}
+
+@keyframes song-marquee-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

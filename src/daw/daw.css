@@ -1,7 +1,9 @@
 /* ── DAW Design Tokens (scoped to .daw-root) ──────────────────────────── */
 
 .daw-root {
-  --color-bg: #191919;
+  /* Base matches the app chrome (TopRail / dashboard wrapper) so Studio reads as
+     continuous with the rest of the app — see plan Step 1. */
+  --color-bg: #101012;
   --color-surface: #1a1a1a;
   --color-surface-2: #1e1e1e;
   --color-surface-3: #222222;
@@ -11,6 +13,12 @@
   --color-text-dim: #6b6b80;
 
   --color-accent: #7ecfcf;
+  /* Loop-region / range-selection accent — one lever for the hardcoded blues
+     that used to be #3b82f6. Teal keeps it in the app/DAW accent family. The
+     -rgb triplet lets the Timeline canvas build rgba() overlays (mirrors
+     --color-grid-rgb below). */
+  --color-selection: #7ecfcf;
+  --color-selection-rgb: 126, 207, 207;
 
   --color-record: #ef4444;
   --color-play: #22c55e;

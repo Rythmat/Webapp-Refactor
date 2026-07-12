@@ -30,9 +30,9 @@
 
   /* Responsive dashboard layout tokens — see docs/dashboard-responsive.md.
      Used by HomeInlet's grid template areas and per-card density. */
-  --dash-card-pad: clamp(0.85rem, 1.3vw, 1.5rem);
+  --dash-card-pad: clamp(0.55rem, 1.3vw, 1.5rem);
   --dash-card-gap: clamp(0.75rem, 1.3vw, 1.5rem);
-  --dash-banner-h: clamp(200px, 32vh, 380px);
+  --dash-banner-h: clamp(140px, 22vh, 380px);
   --dash-card-min-h: 280px;
   --dash-icon-sz: clamp(0.95rem, 1.25vw, 1.15rem);
   --dash-label-fz: clamp(0.75rem, 1.05vw, 1rem);
@@ -258,6 +258,11 @@
 }
 
 @media (min-width: 768px) {
+  /* At tablet+ widths, restore the desktop-leaning banner height; the lower
+     mobile floor (140px / 22vh) only applies below 768px. */
+  .dashboard-root {
+    --dash-banner-h: clamp(200px, 32vh, 380px);
+  }
   .dashboard-root .home-grid {
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
@@ -272,7 +277,7 @@
   .dashboard-root .home-grid {
     height: 100%;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: minmax(420px, 3fr) minmax(280px, 2fr);
+    grid-template-rows: minmax(360px, 3fr) minmax(240px, 2fr);
     grid-template-areas:
       'banner banner banner'
       'calendar recent challenges';
@@ -329,3 +334,7 @@
   background: var(--color-scrollbar-thumb);
   border-radius: 3px;
 }
+
+/* Songs marquee animation moved to
+   src/components/songLibrary/songs-marquee.css so it applies under both
+   .dashboard-root (Home) and .learn-root (Learn). */

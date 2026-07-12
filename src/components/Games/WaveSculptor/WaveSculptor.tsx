@@ -406,14 +406,11 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
         : '#ef4444';
 
   return (
-    <div className="flex flex-col bg-[#09090b] rounded-2xl overflow-hidden border border-zinc-800">
+    <div className="flex flex-col bg-[#101012] rounded-2xl overflow-hidden border border-white/10">
       {/* Header */}
-      <div className="h-14 bg-[#121214] border-b border-zinc-800 flex items-center justify-between px-6">
+      <div className="h-14 bg-white/[0.03] border-b border-white/10 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <h2
-            className="text-lg font-semibold text-white"
-            style={{ fontFamily: '"Playfair Display", serif' }}
-          >
+          <h2 className="text-lg font-semibold text-white font-serif">
             Wave Sculptor
           </h2>
           <span className="text-xs text-zinc-500 font-mono">
@@ -431,7 +428,7 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
 
       {/* Challenge info */}
       {challenge && (
-        <div className="h-10 bg-[#0f0f11] border-b border-zinc-800 flex items-center px-6 gap-4">
+        <div className="h-10 bg-white/[0.02] border-b border-white/10 flex items-center px-6 gap-4">
           <span className="text-xs text-zinc-500 uppercase tracking-wider">
             Target:
           </span>
@@ -454,7 +451,7 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
           <div className="text-xs text-zinc-500 mb-1 uppercase tracking-wider">
             Target
           </div>
-          <div className="rounded-lg border border-zinc-800 bg-[#0a0a0c] overflow-hidden">
+          <div className="rounded-lg border border-white/10 bg-white/[0.02] overflow-hidden">
             <canvas
               ref={targetCanvasRef}
               width={512}
@@ -475,7 +472,7 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
               Preview
             </button>
           </div>
-          <div className="rounded-lg border border-zinc-800 bg-[#0a0a0c] overflow-hidden">
+          <div className="rounded-lg border border-white/10 bg-white/[0.02] overflow-hidden">
             <canvas
               ref={playerCanvasRef}
               width={512}
@@ -492,7 +489,7 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
           <span className="text-xs text-zinc-500 uppercase tracking-wider w-20">
             Similarity
           </span>
-          <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="flex-1 h-2 bg-white/[0.05] rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{
@@ -522,7 +519,7 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
           {playerSlots.map((slot, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-3 p-3 rounded-lg bg-[#0f0f11] border border-zinc-800"
+              className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/10"
             >
               <span className="text-xs text-zinc-500 w-8 shrink-0">
                 #{idx + 1}
@@ -615,14 +612,14 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
       </div>
 
       {/* Controls / Result */}
-      <div className="h-14 bg-[#121214] border-t border-zinc-800 flex items-center justify-between px-6">
+      <div className="h-14 bg-white/[0.03] border-t border-white/10 flex items-center justify-between px-6">
         <div className="flex gap-2">
           <button
             onClick={() => {
               setPlayerSlots([{ frequency: 100, amplitude: 1, type: 'sine' }]);
               setSimilarity(0);
             }}
-            className="px-4 py-1.5 rounded text-sm font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
+            className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-300 transition-colors"
           >
             Reset
           </button>

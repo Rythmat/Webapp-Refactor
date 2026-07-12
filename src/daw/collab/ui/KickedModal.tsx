@@ -40,7 +40,11 @@ export function KickedModal() {
               }}
             >
               <div className="flex items-center gap-2">
-                <UserX size={14} strokeWidth={2} style={{ color: '#ef4444' }} />
+                <UserX
+                  size={14}
+                  strokeWidth={2}
+                  style={{ color: 'var(--color-record)' }}
+                />
                 <span
                   className="text-sm font-semibold"
                   style={{ color: 'var(--color-text)' }}

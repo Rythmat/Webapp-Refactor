@@ -285,7 +285,7 @@ export const lady_marmalade_aguilera: Song = {
   ],
 
   audioSources: [
-    { provider: 'youtube', uri: 'https://youtube.com/watch?v=OFCyhzUr6Yw' },
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=RQa7SvVCdZk' },
   ],
   artistImageSource: 'manual',
 

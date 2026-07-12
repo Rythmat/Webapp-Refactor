@@ -2,6 +2,9 @@
   "$schema": "https://www.partykit.io/schema.json",
   "name": "music-atlas-collab",
   "main": "party.ts",
+  "parties": {
+    "classroom-session": "classroom-session/party.ts"
+  },
   "compatibilityDate": "2024-09-01",
   "vars": {
     "MUSIC_ATLAS_API_URL": "",

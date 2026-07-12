@@ -97,7 +97,10 @@ export function StarsCanvas({
         stars[count] = this;
       }
 
-      draw() {
+      // `frameScale` is this frame's duration relative to 60fps, so the field
+      // advances at a constant real-world rate regardless of the display's
+      // refresh rate or whatever else is competing for the main thread.
+      draw(frameScale: number) {
         const x = Math.sin(this.timePassed) * this.orbitRadius + this.orbitX;
         const y = Math.cos(this.timePassed) * this.orbitRadius + this.orbitY;
         const twinkle = random(twinkleIntensity);
@@ -116,15 +119,22 @@ export function StarsCanvas({
           this.radius,
           this.radius,
         );
-        this.timePassed += this.speed;
+        this.timePassed += this.speed * frameScale;
       }
     }
 
     for (let i = 0; i < maxStars; i++) new Star();
 
     // --- Animation loop ---
-    const animate = () => {
+    let lastTime = 0;
+    const animate = (now: number) => {
       if (paused) return; // Skip if paused
+
+      // Delta-time step (relative to 60fps), clamped so a backgrounded tab or
+      // long stall can't fast-forward the whole field on the next frame.
+      const dt = lastTime ? now - lastTime : 1000 / 60;
+      lastTime = now;
+      const frameScale = Math.min(4, dt / (1000 / 60));
 
       ctx.globalCompositeOperation = 'source-over';
       ctx.globalAlpha = 0.8;
@@ -135,7 +145,7 @@ export function StarsCanvas({
 
       ctx.globalCompositeOperation = 'lighter';
       for (let i = 1; i < stars.length; i++) {
-        stars[i].draw();
+        stars[i].draw(frameScale);
       }
 
       animationRef.current = requestAnimationFrame(animate);

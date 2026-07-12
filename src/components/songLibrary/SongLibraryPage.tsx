@@ -1,25 +1,23 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import {
   useMemo,
-  useRef,
   useState,
   useEffect,
   useCallback,
+  useRef,
   type FC,
+  type ReactNode,
 } from 'react';
-import { BookOpen, Globe, Heart, LayoutGrid, List, Music } from 'lucide-react';
+import { Heart, LayoutGrid, List, Music } from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { FixedSizeGrid, type GridChildComponentProps } from 'react-window';
+import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { getAllSongs } from '@/curriculum/data/songs';
 import { useSavedSongsStore } from '@/features/songs/useSavedSongsStore';
 import { useSongActions } from '@/features/songs/useSongActions';
-import { useElementSize } from '@/hooks/useElementSize';
-import { useUISound } from '@/hooks/useUISound';
-import { LearnSubheader } from '@/components/learn/LearnTabs';
+import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { FilterDropdown } from './FilterDropdown';
 import { SearchInput } from './SearchInput';
-import { SongCard } from './SongCard';
 
 /* ── Types ───────────────────────────────────────────────────────────── */
 
@@ -134,11 +132,19 @@ const GENRE_OPTIONS = [
   { value: 'african', label: 'African' },
 ];
 
+/** Genre slug → display label, so the list's Genre column reads exactly like the
+ *  filter dropdown (e.g. `rnb` → "R&B", `neo-soul` → "Neo Soul"). */
+const GENRE_LABELS: Record<string, string> = Object.fromEntries(
+  GENRE_OPTIONS.map((o) => [o.value, o.label]),
+);
+
 /* ── SongLibraryBody (used inside Learn) ─────────────────────────────── */
 
-export const SongLibraryBody: FC = () => {
+export const SongLibraryBody: FC<{
+  /** Given the filtered song set, render the marquee so it reflects the filter. */
+  marqueeSlot?: (songs: Song[]) => ReactNode;
+}> = ({ marqueeSlot }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { play } = useUISound();
   const allSongs = useMemo(() => getAllSongs(), []);
   const savedIds = useSavedSongsStore((s) => s.savedIds);
 
@@ -149,10 +155,6 @@ export const SongLibraryBody: FC = () => {
     saved: (searchParams.get('saved') as SavedFilter) || 'all',
     sort: (searchParams.get('sort') as SortMode) || 'title',
   }));
-
-  const [viewMode, setViewMode] = useState<ViewMode>(
-    (searchParams.get('view') as ViewMode) || 'grid',
-  );
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
@@ -168,10 +170,10 @@ export const SongLibraryBody: FC = () => {
     update('difficulty', filters.difficulty, 'all');
     update('saved', filters.saved, 'all');
     update('sort', filters.sort, 'title');
-    update('view', viewMode, 'grid');
+    // `view` param is intentionally not synced — Songs is list-only now.
     setSearchParams(params, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, viewMode]);
+  }, [filters]);
 
   const updateFilter = useCallback(
     <K extends keyof Filters>(key: K, value: Filters[K]) => {
@@ -185,35 +187,55 @@ export const SongLibraryBody: FC = () => {
     [allSongs, filters, savedIds],
   );
 
+  // The marquee mirrors the list's membership filter but not its sort order
+  // (the marquee shuffles), so changing Sort doesn't reshuffle the marquee.
+  // `filterSongs` ignores the `sort` field, so the literal below is inert.
+  const { search, genre, difficulty, saved } = filters;
+  const marqueeCandidates = useMemo(
+    () =>
+      filterSongs(
+        allSongs,
+        { search, genre, difficulty, saved, sort: 'title' },
+        savedIds,
+      ),
+    [allSongs, search, genre, difficulty, saved, savedIds],
+  );
+
   const [searchInput, setSearchInput] = useState(filters.search);
   useEffect(() => {
     const timer = setTimeout(() => updateFilter('search', searchInput), 200);
     return () => clearTimeout(timer);
   }, [searchInput, updateFilter]);
 
+  // Measure the pinned header (filter row + optional marquee) so the table's
+  // column-header row can pin directly beneath it — all three then stay stuck as
+  // the song list scrolls. Measured (not hard-coded) since the filter wraps and
+  // the marquee's height varies.
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const measure = () => setHeaderHeight(el.offsetHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <div
       className="flex flex-col"
-      style={{ paddingBottom: 24, height: '100%' }}
+      style={{ paddingBottom: 24, minHeight: '100%' }}
     >
+      {/* Pinned header: filter row + (optional) marquee stay stuck together at
+          the top; the Learn Songs tab passes its marquee here so it's always
+          visible instead of scrolling under (and being covered by) the filter. */}
       <div
+        ref={headerRef}
         className="sticky top-0 z-10 pt-1 pb-3"
-        style={{ background: 'var(--color-bg)' }}
+        style={{ background: '#101012' }}
       >
-        {/* ── Header row: title + tab pills + view toggle ── */}
-        <LearnSubheader
-          title="Song Library"
-          right={
-            <ViewToggle
-              viewMode={viewMode}
-              onChange={(m) => {
-                play('click');
-                setViewMode(m);
-              }}
-            />
-          }
-        />
-
         {/* ── Filter row ── */}
         <div
           className="flex items-center flex-wrap"
@@ -252,6 +274,10 @@ export const SongLibraryBody: FC = () => {
             }}
           />
         </div>
+        {/* Marquee pins together with the filter (edge-to-edge via its own
+            `-mx-6 md:-mx-10` bleed); nothing scrolls under it, so no black bar.
+            Fed the filtered set so it narrows in step with the list. */}
+        {marqueeSlot?.(marqueeCandidates)}
       </div>
 
       {/* ── Content ── */}
@@ -265,87 +291,12 @@ export const SongLibraryBody: FC = () => {
             className="text-white/10"
             style={{ marginBottom: 12 }}
           />
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.4)' }}>
             No songs match these filters
           </p>
         </div>
-      ) : viewMode === 'grid' ? (
-        <VirtualizedSongGrid songs={results} />
       ) : (
-        <SongListTable songs={results} />
-      )}
-    </div>
-  );
-};
-
-/* ── VirtualizedSongGrid (react-window, breakpoint-locked columns) ──── */
-
-const GRID_GAP = 24;
-const CARD_FOOTER_HEIGHT = 120;
-const BREAKPOINT_MD = 768;
-const BREAKPOINT_LG = 1024;
-
-function getColumnCount(width: number): number {
-  if (width >= BREAKPOINT_LG) return 4;
-  if (width >= BREAKPOINT_MD) return 2;
-  return 1;
-}
-
-const VirtualizedSongGrid: FC<{ songs: Song[] }> = ({ songs }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { width, height } = useElementSize(containerRef);
-
-  const columnCount = Math.max(1, getColumnCount(width));
-  const columnWidth = columnCount > 0 ? width / columnCount : width;
-  const tileVisualWidth = Math.max(0, columnWidth - GRID_GAP);
-  const rowHeight = tileVisualWidth + CARD_FOOTER_HEIGHT;
-  const rowCount = Math.ceil(songs.length / columnCount);
-
-  const Cell = useCallback(
-    ({ rowIndex, columnIndex, style }: GridChildComponentProps) => {
-      const idx = rowIndex * columnCount + columnIndex;
-      const song = songs[idx];
-      if (!song) return null;
-      return (
-        <div
-          style={{
-            ...style,
-            paddingRight: GRID_GAP,
-            paddingBottom: GRID_GAP,
-            boxSizing: 'border-box',
-          }}
-        >
-          <SongCard song={song} />
-        </div>
-      );
-    },
-    [songs, columnCount],
-  );
-
-  const itemKey = useCallback(
-    ({ rowIndex, columnIndex }: { rowIndex: number; columnIndex: number }) => {
-      const idx = rowIndex * columnCount + columnIndex;
-      return songs[idx]?.id ?? `__empty-${rowIndex}-${columnIndex}`;
-    },
-    [songs, columnCount],
-  );
-
-  return (
-    <div ref={containerRef} style={{ flex: 1, minHeight: 0 }}>
-      {width > 0 && height > 0 && (
-        <FixedSizeGrid
-          columnCount={columnCount}
-          rowCount={rowCount}
-          columnWidth={columnWidth}
-          rowHeight={rowHeight}
-          width={width}
-          height={height}
-          overscanRowCount={2}
-          itemKey={itemKey}
-          style={{ overflowX: 'hidden' }}
-        >
-          {Cell}
-        </FixedSizeGrid>
+        <SongListTable songs={results} stickyTop={headerHeight} />
       )}
     </div>
   );
@@ -397,18 +348,60 @@ export const ViewToggle: FC<{
   );
 };
 
+/* ── SongThumbnail (small circular artist portrait for list rows) ────── */
+
+const THUMBNAIL_SIZE = 56;
+
+const SongThumbnail: FC<{ song: Song }> = ({ song }) => {
+  const [imageBroken, setImageBroken] = useState(false);
+  const hasArtistImage = !!song.artistImageRef && !imageBroken;
+  const avatarConfig = useMemo(
+    () => defaultAvatarConfig(song.genreTags[0] ?? song.artist),
+    [song.genreTags, song.artist],
+  );
+
+  return (
+    <div
+      className="relative overflow-hidden transition-transform duration-200 ease-out group-hover:z-[7] group-hover:scale-[2.2]"
+      style={{
+        width: THUMBNAIL_SIZE,
+        height: THUMBNAIL_SIZE,
+      }}
+    >
+      {hasArtistImage ? (
+        <img
+          src={song.artistImageRef}
+          alt=""
+          className="h-full w-full object-cover"
+          loading="lazy"
+          onError={() => setImageBroken(true)}
+        />
+      ) : (
+        <HexAvatarSVG config={avatarConfig} size={THUMBNAIL_SIZE} />
+      )}
+    </div>
+  );
+};
+
 /* ── SongListTable ──────────────────────────────────────────────────── */
 
-const LIST_FS = 12;
-const LIST_FS_SMALL = 11;
-const LIST_CELL_PAD = '8px 12px';
-const LIST_ICON_SIZE = 14;
+const LIST_FS = 18;
+const LIST_FS_SMALL = 15;
+const LIST_CELL_PAD = '10px 14px';
+// The learn/studio/globe glyphs only fill ~62–80% of their 375×375 viewBox, so
+// they need a larger box to read well.
+const LIST_LINK_ICON_SIZE = 35;
+// The Saved-column Heart nearly fills its own viewBox, so a smaller box reads at
+// a comparable visual size to the link icons.
+const LIST_HEART_ICON_SIZE = 29;
 
 interface SongListTableProps {
   songs: Song[];
+  /** Height (px) of the pinned filter row above; the header sticks below it. */
+  stickyTop: number;
 }
 
-const SongListTable: FC<SongListTableProps> = ({ songs }) => {
+const SongListTable: FC<SongListTableProps> = ({ songs, stickyTop }) => {
   return (
     <table
       className="w-full"
@@ -416,15 +409,23 @@ const SongListTable: FC<SongListTableProps> = ({ songs }) => {
     >
       <thead>
         <tr>
-          {['Artist', 'Title', 'Difficulty', 'Genre', 'Saved', 'Links'].map(
-            (col) => (
+          {['', 'Artist', 'Title', 'Difficulty', 'Genre', 'Saved', 'Links'].map(
+            (col, i) => (
               <th
-                key={col}
+                key={i}
                 className="text-left font-medium pb-2 px-3"
                 style={{
                   fontSize: LIST_FS_SMALL,
                   color: 'rgba(255,255,255,0.4)',
                   borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  // Pin the column headers just under the sticky filter row so
+                  // both stay fixed while the list scrolls. The -1 overlaps the
+                  // filter (which sits at a higher z-index) to avoid a hairline
+                  // gap where a row could otherwise peek through.
+                  position: 'sticky',
+                  top: stickyTop > 0 ? stickyTop - 1 : 0,
+                  zIndex: 9,
+                  background: '#101012',
                 }}
               >
                 {col}
@@ -453,15 +454,20 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
 
   return (
     <tr
-      className="cursor-pointer transition-colors hover:bg-white/[0.04]"
+      className="group cursor-pointer transition-colors hover:bg-white/[0.04]"
       style={{
         background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
       }}
     >
+      {/* Wider than the 56px thumbnail so the artist column starts clear of the
+          hover-magnified image (which grows ~34px past the thumbnail on each side). */}
+      <td style={{ padding: LIST_CELL_PAD, width: 96 }}>
+        <SongThumbnail song={song} />
+      </td>
       <td style={{ padding: LIST_CELL_PAD }}>
         <Link
           to={`/songs/${song.id}`}
-          className="block"
+          className="relative block origin-left transition-transform duration-200 ease-out group-hover:z-[8] group-hover:scale-[1.2]"
           style={{ fontSize: LIST_FS, color: '#ffffff' }}
         >
           {song.artist}
@@ -470,7 +476,7 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
       <td style={{ padding: LIST_CELL_PAD }}>
         <Link
           to={`/songs/${song.id}`}
-          className="block"
+          className="relative block origin-left transition-transform duration-200 ease-out group-hover:z-[8] group-hover:scale-[1.2]"
           style={{ fontSize: LIST_FS, color: 'rgba(255,255,255,0.6)' }}
         >
           "{song.title}"
@@ -492,7 +498,9 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
           color: 'rgba(255,255,255,0.4)',
         }}
       >
-        {song.genreTags[0] ?? ''}
+        {song.genreTags[0]
+          ? (GENRE_LABELS[song.genreTags[0]] ?? song.genreTags[0])
+          : ''}
       </td>
       <td style={{ padding: LIST_CELL_PAD }}>
         <button
@@ -505,54 +513,57 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
           style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.3)' }}
         >
           <Heart
-            width={LIST_ICON_SIZE}
-            height={LIST_ICON_SIZE}
+            width={LIST_HEART_ICON_SIZE}
+            height={LIST_HEART_ICON_SIZE}
             fill={isSaved ? 'currentColor' : 'none'}
           />
         </button>
       </td>
       <td style={{ padding: LIST_CELL_PAD }}>
-        <div className="flex items-center" style={{ gap: 8 }}>
+        <div className="flex items-center" style={{ gap: 12 }}>
           <button
             type="button"
             onClick={openInLesson}
             aria-label="Open in Lesson"
             title="Open in Lesson"
-            className="text-white/40 hover:text-white transition-colors"
+            className="opacity-70 transition-opacity hover:opacity-100"
           >
-            <BookOpen width={LIST_ICON_SIZE} height={LIST_ICON_SIZE} />
+            <img
+              src="/icons/learn-icon.svg"
+              alt=""
+              draggable={false}
+              width={LIST_LINK_ICON_SIZE}
+              height={LIST_LINK_ICON_SIZE}
+            />
           </button>
           <button
             type="button"
             onClick={openInStudio}
             aria-label="Open in Studio"
             title="Open in Studio"
-            className="text-white/40 hover:text-white transition-colors"
+            className="opacity-70 transition-opacity hover:opacity-100"
           >
-            <Music width={LIST_ICON_SIZE} height={LIST_ICON_SIZE} />
+            <img
+              src="/icons/studio-icon.svg"
+              alt=""
+              draggable={false}
+              width={LIST_LINK_ICON_SIZE}
+              height={LIST_LINK_ICON_SIZE}
+            />
           </button>
           <button
             type="button"
             onClick={openInGlobe}
             aria-label="Open in Globe"
             title="Open in Globe"
-            className="text-white/40 hover:text-white transition-colors"
+            className="opacity-70 transition-opacity hover:opacity-100"
           >
-            <Globe width={LIST_ICON_SIZE} height={LIST_ICON_SIZE} />
-          </button>
-          <button
-            type="button"
-            onClick={toggleSaved}
-            aria-label={isSaved ? 'Remove from saved' : 'Save song'}
-            aria-pressed={isSaved}
-            title={isSaved ? 'Remove from saved' : 'Save song'}
-            className="transition-colors hover:text-white"
-            style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.4)' }}
-          >
-            <Heart
-              width={LIST_ICON_SIZE}
-              height={LIST_ICON_SIZE}
-              fill={isSaved ? 'currentColor' : 'none'}
+            <img
+              src="/icons/globe-icon.svg"
+              alt=""
+              draggable={false}
+              width={LIST_LINK_ICON_SIZE}
+              height={LIST_LINK_ICON_SIZE}
             />
           </button>
         </div>

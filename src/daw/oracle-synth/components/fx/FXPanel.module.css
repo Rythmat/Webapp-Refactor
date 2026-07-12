@@ -18,15 +18,15 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 1px;
-  color: #7885cb;
+  color: var(--color-accent);
   text-transform: uppercase;
 }
 
 .addBtn {
-  background: #2a2a2a;
-  border: 1px solid #333;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
   border-radius: 3px;
-  color: #7885cb;
+  color: var(--color-accent);
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -35,7 +35,7 @@
 }
 
 .addBtn:hover {
-  background: #333;
+  background: var(--color-surface-3);
 }
 
 .routes {
@@ -47,7 +47,7 @@
 }
 
 .empty {
-  color: #444;
+  color: var(--color-text-dim);
   font-size: 10px;
   text-align: center;
   padding: 20px 8px;

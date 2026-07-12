@@ -12,6 +12,8 @@ import {
   LibraryRoutes,
   AtlasRoutes,
   SongRoutes,
+  UserRoutes,
+  SettingsRoutes,
 } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
@@ -19,9 +21,17 @@ import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnInlet } from '@/components/learn/LearnInlet';
-import { ProfilePage } from '@/components/Profile/ProfilePage';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
+import { SettingsHub } from '@/features/settings/SettingsHub';
+import { AboutSection } from '@/features/settings/sections/hub/AboutSection';
+import { AccountSection } from '@/features/settings/sections/hub/AccountSection';
+import { AudioSection } from '@/features/settings/sections/hub/AudioSection';
+import { BillingSection } from '@/features/settings/sections/hub/BillingSection';
+import { HelpSection } from '@/features/settings/sections/hub/HelpSection';
+import { LookAndFeelSection } from '@/features/settings/sections/hub/LookAndFeelSection';
+import { MidiSection } from '@/features/settings/sections/hub/MidiSection';
+import { UserPage } from '@/features/user/UserPage';
 import { RequirePremium } from '@/components/ui/RequirePremium';
 
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -38,18 +48,6 @@ import { ModeOverview } from '@/components/learn/ModeOverview';
 import { RelativeModesOverview } from '@/components/learn/RelativeModesOverview';
 import { ParallelModesOverview } from '@/components/learn/ParallelModesOverview';
 
-const ClassroomCollectionPage = lazy(() =>
-  import('./ClassroomCollectionPage').then(({ ClassroomCollectionPage }) => ({
-    default: ClassroomCollectionPage,
-  })),
-);
-
-const ClassroomLessonPage = lazy(() =>
-  import('./ClassroomLessonPage').then(({ ClassroomLessonPage }) => ({
-    default: ClassroomLessonPage,
-  })),
-);
-
 const ClassroomPickerPage = lazy(() =>
   import('./ClassroomPickerPage').then(({ ClassroomPickerPage }) => ({
     default: ClassroomPickerPage,
@@ -59,6 +57,34 @@ const ClassroomPickerPage = lazy(() =>
 const ClassroomHomePage = lazy(() =>
   import('./ClassroomHomePage').then(({ ClassroomHomePage }) => ({
     default: ClassroomHomePage,
+  })),
+);
+
+const AssignmentsPage = lazy(() =>
+  import('./assignments/AssignmentsPage').then(({ AssignmentsPage }) => ({
+    default: AssignmentsPage,
+  })),
+);
+
+const AssignmentDayRunner = lazy(() =>
+  import('./assignments/AssignmentDayRunner').then(
+    ({ AssignmentDayRunner }) => ({
+      default: AssignmentDayRunner,
+    }),
+  ),
+);
+
+const AssignmentInstructionsPage = lazy(() =>
+  import('./assignments/AssignmentInstructionsPage').then(
+    ({ AssignmentInstructionsPage }) => ({
+      default: AssignmentInstructionsPage,
+    }),
+  ),
+);
+
+const LiveSessionPage = lazy(() =>
+  import('./live/LiveSessionPage').then(({ LiveSessionPage }) => ({
+    default: LiveSessionPage,
   })),
 );
 
@@ -140,6 +166,22 @@ const DawApp = lazy(() =>
   })),
 );
 
+const StudioInlet = lazy(() =>
+  import('@/components/ClassroomLayout/studio/StudioInlet').then(
+    ({ StudioInlet }) => ({
+      default: StudioInlet,
+    }),
+  ),
+);
+
+const GlobeInlet = lazy(() =>
+  import('@/components/ClassroomLayout/globe/GlobeInlet').then(
+    ({ GlobeInlet }) => ({
+      default: GlobeInlet,
+    }),
+  ),
+);
+
 const HomeInlet = lazy(() =>
   import('@/components/ClassroomLayout/HomeInlet').then(({ HomeInlet }) => ({
     default: HomeInlet,
@@ -194,12 +236,20 @@ export const classroomPages = () => {
         element: <ClassroomHomePage />,
       },
       {
-        path: ClassroomRoutes.collection.definition,
-        element: <ClassroomCollectionPage />,
+        path: ClassroomRoutes.assignments.definition,
+        element: <AssignmentsPage />,
       },
       {
-        path: ClassroomRoutes.lesson.definition,
-        element: <ClassroomLessonPage />,
+        path: ClassroomRoutes.assignmentDayRun.definition,
+        element: <AssignmentDayRunner />,
+      },
+      {
+        path: ClassroomRoutes.assignmentInstructions.definition,
+        element: <AssignmentInstructionsPage />,
+      },
+      {
+        path: ClassroomRoutes.live.definition,
+        element: <LiveSessionPage />,
       },
       {
         path: '*',
@@ -343,9 +393,15 @@ export const studioPages = () => {
       </AppContext>
     ),
     children: [
+      // `/studio` now lands on the Studio Dashboard; the DAW editor moves to
+      // `/studio/editor` (opened with ?project=/?new=1/?template=/?demo=/?collab=).
       {
-        element: <DawApp />,
+        element: <StudioInlet />,
         index: true,
+      },
+      {
+        path: 'editor',
+        element: <DawApp />,
       },
     ],
   };
@@ -363,12 +419,61 @@ export const studentPages = () => {
     ),
     children: [
       { index: true, element: <HomeInlet /> },
-      { path: ProfileRoutes.profile.definition, element: <ProfilePage /> },
+      {
+        path: ProfileRoutes.profile.definition,
+        element: <Navigate to={UserRoutes.root()} replace />,
+      },
       { path: ProfileRoutes.awards.definition, element: <AwardsInlet /> },
       { path: ProfileRoutes.plan.definition, element: <PlanPage /> },
       {
         path: ProfileRoutes.settings.definition,
-        element: <Navigate to={ProfileRoutes.profile()} />,
+        element: <Navigate to={SettingsRoutes.root()} replace />,
+      },
+    ],
+  };
+};
+
+export const userPages = () => {
+  return {
+    path: UserRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage>
+          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [{ index: true, element: <UserPage /> }],
+  };
+};
+
+export const settingsPages = () => {
+  return {
+    path: SettingsRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage>
+          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [
+      {
+        element: <SettingsHub />,
+        children: [
+          { index: true, element: <Navigate to="account" replace /> },
+          {
+            path: 'profile',
+            element: <Navigate to={UserRoutes.root()} replace />,
+          },
+          { path: 'account', element: <AccountSection /> },
+          { path: 'billing', element: <BillingSection /> },
+          { path: 'audio', element: <AudioSection /> },
+          { path: 'look-and-feel', element: <LookAndFeelSection /> },
+          { path: 'midi', element: <MidiSection /> },
+          { path: 'help', element: <HelpSection /> },
+          { path: 'about', element: <AboutSection /> },
+        ],
       },
     ],
   };
@@ -497,8 +602,14 @@ export const atlasPages = () => {
       </AppContext>
     ),
     children: [
+      // `/atlas` now lands on the Globe Dashboard; the full interactive globe
+      // moves to `/atlas/globe` (opened from the dashboard's Explore tab).
       {
         index: true,
+        element: <GlobeInlet />,
+      },
+      {
+        path: 'globe',
         element: <Atlas />,
       },
     ],

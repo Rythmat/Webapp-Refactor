@@ -73,12 +73,11 @@ interface LearnSubheaderProps {
 }
 
 export const LearnSubheader: FC<LearnSubheaderProps> = ({ title, right }) => (
-  // 3-track grid with equal 1fr outer columns keeps the LearnTabs pills
-  // anchored to the row's visual midline regardless of title length or the
-  // width of whatever sits in the `right` slot.
+  // Title on the left, optional view-toggle on the right. The pill bar that
+  // used to sit in the middle column moved to `LearnNav` (secondary sidebar).
   <div
-    className="grid items-center"
-    style={{ gridTemplateColumns: '1fr auto 1fr', marginBottom: 14 }}
+    className="flex items-center justify-between"
+    style={{ marginBottom: 14 }}
   >
     <h1
       style={{
@@ -90,7 +89,6 @@ export const LearnSubheader: FC<LearnSubheaderProps> = ({ title, right }) => (
     >
       {title}
     </h1>
-    <LearnTabs />
     <div className="flex justify-end">{right}</div>
   </div>
 );

@@ -22,9 +22,12 @@ export const DECADES = [
   2020, 2010, 2000, 1990, 1980, 1970, 1960, 1950, 1940, 1930, 1920, 1910, 1900,
 ];
 
+// Served via jsDelivr (CDN, CORS-friendly, aggressively cached) instead of
+// raw.githubusercontent.com, which rate-limits and returns non-JSON error
+// bodies under load — the source of "Failed to load globe: Unexpected ... JSON".
 export const GEOJSON_URLS = {
   countries:
-    'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson',
+    'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_admin_0_countries.geojson',
   admin1:
-    'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_1_states_provinces.geojson',
+    'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_50m_admin_1_states_provinces.geojson',
 } as const;

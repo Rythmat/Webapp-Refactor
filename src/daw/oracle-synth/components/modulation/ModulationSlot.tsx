@@ -115,7 +115,7 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
             min={0}
             max={1}
             defaultValue={0}
-            accent="#62b4f7"
+            accent="#7ecfcf"
             size={28}
             formatValue={(v) => `${Math.round(v * 100)}%`}
             onChange={(v) => onUpdate(route.id, { depthMin: v })}
@@ -126,7 +126,7 @@ export const ModulationSlot: React.FC<ModulationSlotProps> = React.memo(
             min={0}
             max={1}
             defaultValue={0.5}
-            accent="#62b4f7"
+            accent="#7ecfcf"
             size={28}
             formatValue={(v) => `${Math.round(v * 100)}%`}
             onChange={(v) => onUpdate(route.id, { depthMax: v })}

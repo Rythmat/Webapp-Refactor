@@ -1,0 +1,48 @@
+/* ── Announcements marquee ─────────────────────────────────────────────────
+   Two right-to-left tickers for the Home announcements row (AnnouncementsRow):
+   - `.announcements-marquee-track`: HIGH priority — a seamless infinite loop
+     over a duplicated content track (translateX 0 → -50%), like the songs /
+     regions marquees. Duration is set inline (scaled to content width).
+   - `.announcements-marquee-pass`: LOW priority — a single right-to-left pass
+     over a non-duplicated block. `--mq-from`/`--mq-to` (px) and the duration are
+     set inline so the content fully enters from the right and exits left at a
+     constant, readable speed. `both` fill keeps it off-screen-left after the
+     pass until React collapses the row to its reserved gap.
+   Rules are unscoped so they work under `.dashboard-root`; the component also
+   skips the marquee entirely under reduced motion (crossfade fallback).
+   ──────────────────────────────────────────────────────────────────────── */
+
+.announcements-marquee-track {
+  animation: announcements-marquee-drift 40s linear infinite;
+  will-change: transform;
+}
+
+@keyframes announcements-marquee-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.announcements-marquee-pass {
+  animation: announcements-marquee-pass 12s linear 1 both;
+  will-change: transform;
+}
+
+@keyframes announcements-marquee-pass {
+  from {
+    transform: translateX(var(--mq-from, 100%));
+  }
+  to {
+    transform: translateX(var(--mq-to, -100%));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .announcements-marquee-track,
+  .announcements-marquee-pass {
+    animation: none;
+  }
+}

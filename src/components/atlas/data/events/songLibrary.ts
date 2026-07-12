@@ -199,32 +199,16 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Rock'],
-    title: 'Against The Wind — Bob Seger &amp; The Silver Bullet Band',
+    title: 'Against The Wind — Bob Seger & The Silver Bullet Band',
     description:
       "Bob Seger & The Silver Bullet Band release 'Against The Wind', a reflective anthem about the passage of time, freedom, and the cost of living life on the road. The song captures the worn wisdom of a working-class rock and roller — the kind of heartland voice Seger had been honing for over a decade. It becomes one of his signature recordings, resonating deeply with an audience who had grown up alongside him.",
     tags: [
-      'bob seger &amp; the silver bullet band',
+      'bob seger & the silver bullet band',
       'against the wind',
       'rock',
       'detroit',
     ],
     videoId: '2vRsEC65NTA',
-  },
-  {
-    id: 'song-ain_t_no_sunshine',
-    year: 1971,
-    location: {
-      lat: 37.73,
-      lng: -81.38,
-      city: 'Slab Fork',
-      country: 'US',
-    },
-    genre: ['Soul', 'R And B'],
-    title: 'Ain’t No Sunshine — Bill Withers',
-    description:
-      "Bill Withers releases 'Ain't No Sunshine' in 1971, a spare, aching soul ballad built around a repeated plea so raw it barely needs words. Withers, a factory worker who came to music late, captures a vulnerability that connects immediately — the song wins a Grammy and announces one of the most distinctive voices in soul. Its minimalism becomes a masterclass in restraint.",
-    tags: ['bill withers', 'ain’t no sunshine', 'soul', 'r_and_b', 'slab fork'],
-    videoId: 'YuKfiH0Scao',
   },
   {
     id: 'song-aint_it_fun',
@@ -596,38 +580,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     description:
       "Paul McCartney releases 'Another Day' in 1971, his first solo single following the Beatles' bitter dissolution. A gentle, melancholic portrait of urban loneliness — a working woman trapped in routine — it signals McCartney's instinct for melodic storytelling outside the Fab Four. The song reaches the top five on both sides of the Atlantic, affirming his solo commercial footing.",
     tags: ['paul mccartney', 'another day', 'pop', 'liverpool'],
-    videoId: 'hhoiwDLVTnE',
-  },
-  {
-    id: 'song-another_day_lidell',
-    year: 1971,
-    location: {
-      lat: 53.41,
-      lng: -2.98,
-      city: 'Liverpool',
-      country: 'GB',
-    },
-    genre: ['Funky Groove'],
-    title: 'Another Day — Paul McCartney',
-    description:
-      "Paul McCartney releases 'Another Day' in 1971, his first solo single following the Beatles' bitter dissolution. A deceptively breezy portrait of a lonely woman's daily routine, the song signals McCartney's instinct for melodic storytelling outside the band — and proves he doesn't need Lennon, Harrison, or Starr to craft a hook that lodges itself permanently in the public consciousness.",
-    tags: ['paul mccartney', 'another day', 'funky_groove', 'liverpool'],
-    videoId: 'hhoiwDLVTnE',
-  },
-  {
-    id: 'song-another_day_mccartney',
-    year: 1971,
-    location: {
-      lat: 53.41,
-      lng: -2.98,
-      city: 'Liverpool',
-      country: 'GB',
-    },
-    genre: ['Classic Rock'],
-    title: 'Another Day — Paul McCartney',
-    description:
-      "Paul McCartney releases 'Another Day' in 1971, his first solo single following the bitter dissolution of The Beatles. The song's gentle melodic storytelling — depicting the quiet routine of a lonely woman's daily life — signals McCartney's shift toward intimate, narrative-driven pop and establishes his voice as a solo force independent of the Fab Four's shadow.",
-    tags: ['paul mccartney', 'another day', 'classic_rock', 'liverpool'],
     videoId: 'hhoiwDLVTnE',
   },
   {
@@ -1143,22 +1095,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'w6T_X7MXg40',
   },
   {
-    id: 'song-born_under_punches_the_heat_goes_on',
-    year: 1980,
-    location: {
-      lat: 40.71,
-      lng: -74.01,
-      city: 'New York',
-      country: 'US',
-    },
-    genre: ['Rock'],
-    title: 'Born Under Punches — Talking Heads',
-    description:
-      "Talking Heads open 'Remain in Light' with 'Born Under Punches', a hypnotic collision of funk, African polyrhythms, and David Byrne's fractured, paranoid lyrics. Recorded in 1980, the track signals a radical leap from the band's art-punk origins — layering loops and interlocking grooves under the influence of Brian Eno and Fela Kuti. It redefines what a rock band can be.",
-    tags: ['talking heads', 'born under punches', 'rock', 'new york'],
-    videoId: 'w6T_X7MXg40',
-  },
-  {
     id: 'song-brick_house',
     year: 1977,
     location: {
@@ -1479,43 +1415,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       'can’t take my eyes off you',
       'hip_hop',
       'neo_soul',
-      'newark',
-    ],
-    videoId: 'wVzvXW9bo5U',
-  },
-  {
-    id: 'song-cant_take_my_eyes_off_you_hill',
-    year: 1998,
-    location: {
-      lat: 40.74,
-      lng: -74.17,
-      city: 'Newark',
-      country: 'US',
-    },
-    genre: ['Hip Hop'],
-    title: 'Can’t Take My Eyes Off You — Lauryn Hill',
-    description:
-      "Lauryn Hill reimagines Frankie Valli's 1967 classic 'Can't Take My Eyes Off You' for the 'The Miseducation of Lauryn Hill', wrapping the beloved melody in warm neo-soul and hip-hop production. Her deeply personal interpretation — blending raw vocal power with devotional tenderness — becomes one of the standout moments of an album that redefines what a solo debut can be.",
-    tags: ['lauryn hill', 'can’t take my eyes off you', 'hip_hop', 'newark'],
-    videoId: 'wVzvXW9bo5U',
-  },
-  {
-    id: 'song-cant_take_my_eyes_off_you_valli',
-    year: 1998,
-    location: {
-      lat: 40.74,
-      lng: -74.17,
-      city: 'Newark',
-      country: 'US',
-    },
-    genre: ['Classic Pop Rock'],
-    title: 'Can’t Take My Eyes Off You — Lauryn Hill',
-    description:
-      "Lauryn Hill reimagines Frankie Valli's 1967 classic 'Can't Take My Eyes Off You' for the Fugees-era generation, weaving her soulful vocal phrasing into the beloved standard. Released during the peak of her cultural moment, the cover showcases her singular ability to honor pop history while making it unmistakably her own — a bridge between the golden age of pop and the neo-soul movement reshaping the late 1990s.",
-    tags: [
-      'lauryn hill',
-      'can’t take my eyes off you',
-      'classic_pop_rock',
       'newark',
     ],
     videoId: 'wVzvXW9bo5U',
@@ -2332,6 +2231,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     description:
       "Journey releases 'Don't Stop Believin'' from their album Escape, anchoring the anthem in the working-class romanticism of small-town dreamers heading to the city. Steve Perry's soaring vocals and Jonathan Cain's opening piano riff become the defining sound of arena rock — massive, earnest, and impossible to ignore. Decades later, the song resurges through film, television, and stadiums, cementing its place as one of the best-selling digital singles in history.",
     tags: ['journey', "don't stop believin'", 'rock', 'pop', 'san francisco'],
+    videoId: '1k8craCGpgs',
   },
   {
     id: 'song-dont_stop_me_now',
@@ -2915,7 +2815,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       'classic_rock',
       'seattle',
     ],
-    videoId: '-iiNm0WxJ7Q',
+    videoId: 'ltrMfT4Qz5Y',
   },
   {
     id: 'song-forever_young',
@@ -2931,38 +2831,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     description:
       "Rod Stewart releases 'Forever Young' in 1988, a heartfelt anthem addressed to his young son that captures the tender side of a rock star known for swagger and excess. The song becomes one of Stewart's most enduring ballads, resonating across generations as a parental blessing and a meditation on time — and later finding new life as a staple of graduations and emotional montages worldwide.",
     tags: ['rod stewart', 'forever young', 'funk', 'latin', 'london'],
-    videoId: 'mwG6g5boyF4',
-  },
-  {
-    id: 'song-forever_young_dylan',
-    year: 1988,
-    location: {
-      lat: 51.51,
-      lng: -0.13,
-      city: 'London',
-      country: 'GB',
-    },
-    genre: ['Classic Rock'],
-    title: 'Forever Young — Rod Stewart',
-    description:
-      "Rod Stewart releases 'Forever Young' in 1988, a tender ballad that marks a striking departure from his ragged rock and roll roots. Written as a blessing to his children, the song captures a softer, more reflective Stewart — and becomes one of his most enduring hits, bridging his classic rock legacy with the polished pop sensibilities of the late 1980s.",
-    tags: ['rod stewart', 'forever young', 'classic_rock', 'london'],
-    videoId: 'mwG6g5boyF4',
-  },
-  {
-    id: 'song-forever_young_stewart',
-    year: 1988,
-    location: {
-      lat: 51.51,
-      lng: -0.13,
-      city: 'London',
-      country: 'GB',
-    },
-    genre: ['Pop Rock'],
-    title: 'Forever Young — Rod Stewart',
-    description:
-      "Rod Stewart releases 'Forever Young' in 1988, a tender anthem of parental hope and the passage of time that becomes one of his most emotionally resonant recordings. The song transcends his hard-rocking roots, revealing a softer, reflective side that connects with a generation of parents and their children. It endures as a staple at graduations and milestone moments for decades to come.",
-    tags: ['rod stewart', 'forever young', 'pop_rock', 'london'],
     videoId: 'mwG6g5boyF4',
   },
   {
@@ -3202,7 +3070,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       'funk',
       'augusta',
     ],
-    videoId: 'ZNaXb3uuekk',
+    videoId: 'ow4ecyCQeRM',
   },
   {
     id: 'song-get_up_offa_that_thing',
@@ -3551,22 +3419,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'BRcs_OzQb14',
   },
   {
-    id: 'song-hard_to_handle_black_crowes',
-    year: 1990,
-    location: {
-      lat: 33.75,
-      lng: -84.39,
-      city: 'Atlanta',
-      country: 'US',
-    },
-    genre: ['Rock'],
-    title: 'Hard To Handle — The Black Crowes',
-    description:
-      "The Black Crowes release their debut album 'Shake Your Money Maker', featuring a raw, swaggering cover of Otis Redding's 'Hard To Handle'. At a moment when rock radio is dominated by polished hair metal and the first stirrings of grunge, the Atlanta band's unapologetic embrace of classic soul and Southern rock feels like a revelation — and a rebuke.",
-    tags: ['the black crowes', 'hard to handle', 'rock', 'atlanta'],
-    videoId: 'BRcs_OzQb14',
-  },
-  {
     id: 'song-harvest_moon',
     year: 1992,
     location: {
@@ -3596,7 +3448,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     description:
       "A 1996 pop recording of 'Hava Nagila' carries one of the world's most recognizable melodies into a new era. Originally rooted in Hasidic Jewish folk tradition and first popularized in the early 20th century, the song has become a global symbol of celebration — sung and danced at weddings, gatherings, and joyful occasions across cultures far beyond its origins.",
     tags: ['traditional', 'hava nagila', 'pop', 'london'],
-    videoId: 'vHSNZK4Je-Y',
+    videoId: 'sdNJ6djL1c4',
   },
   {
     id: 'song-havana',
@@ -4035,27 +3887,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: '-ez-rivUZgc',
   },
   {
-    id: 'song-how_come_you_dont_call_me_timberlake',
-    year: 2000,
-    location: {
-      lat: 40.71,
-      lng: -74.01,
-      city: 'New York',
-      country: 'US',
-    },
-    genre: ['Pop Rock'],
-    title: 'How Come You Don’t Call Me — Alicia Keys and Justin Timberlake',
-    description:
-      "Alicia Keys and Justin Timberlake reimagine Prince's classic 'How Come U Don't Call Me Anymore', a track Keys first made her own on her landmark debut 'Songs in A Minor'. The pairing of two of pop's most gifted vocalists breathes new tension into Prince's raw plea — a testament to how deeply his catalog continues to resonate across generations.",
-    tags: [
-      'alicia keys and justin timberlake',
-      'how come you don’t call me',
-      'pop_rock',
-      'new york',
-    ],
-    videoId: '-ez-rivUZgc',
-  },
-  {
     id: 'song-how_sweet_it_is_to_be_loved_by_you',
     year: 1975,
     location: {
@@ -4330,11 +4161,11 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Classic Rock'],
-    title: 'I Love Rock ‘N’ Roll — Joan Jett &amp; The Blackhearts',
+    title: 'I Love Rock ‘N’ Roll — Joan Jett & The Blackhearts',
     description:
       "Joan Jett & The Blackhearts release 'I Love Rock 'N' Roll', a stomping declaration of pure rock devotion that becomes one of the defining anthems of the early 1980s. Originally recorded by The Arrows in 1975, Jett's ferocious reinvention makes it entirely her own — spending seven weeks at #1 and cementing her status as one of rock's most unapologetic voices.",
     tags: [
-      'joan jett &amp; the blackhearts',
+      'joan jett & the blackhearts',
       'i love rock ‘n’ roll',
       'classic_rock',
       'new york',
@@ -5000,22 +4831,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'Tqc_EhmL8-E',
   },
   {
-    id: 'song-jack_amp_diane',
-    year: 2000,
-    location: {
-      lat: 38.96,
-      lng: -85.89,
-      city: 'Seymour',
-      country: 'US',
-    },
-    genre: ['Pop'],
-    title: 'Jack &amp; Diane — John Cougar Mellencamp',
-    description:
-      "John Cougar Mellencamp releases 'Jack & Diane', a bittersweet snapshot of small-town American teenage life that resonates across the heartland and beyond. Its simple, indelible chorus — 'Oh yeah, life goes on, long after the thrill of living is gone' — captures a generation's quiet disillusionment with the American dream, cementing Mellencamp as the poet laureate of middle America.",
-    tags: ['john cougar mellencamp', 'jack &amp; diane', 'pop', 'seymour'],
-    videoId: '6gy16cbFZbI',
-  },
-  {
     id: 'song-jack_diane',
     year: 2000,
     location: {
@@ -5394,38 +5209,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'oKOtzIo-uYw',
   },
   {
-    id: 'song-killing_me_softly_flack',
-    year: 1996,
-    location: {
-      lat: 40.75,
-      lng: -74.26,
-      city: 'South Orange',
-      country: 'US',
-    },
-    genre: ['Funky Soul'],
-    title: 'Killing Me Softly — The Fugees',
-    description:
-      "The Fugees release their soulful cover of 'Killing Me Softly' in 1996, transforming Roberta Flack's 1973 classic into a hip hop landmark. Lauryn Hill's commanding vocals carry the track while Wyclef Jean's production weaves in reggae-inflected rhythms and rap verses, bridging generations of Black music. The song becomes a global phenomenon, introducing millions to the Fugees and cementing Hill as one of the most powerful voices of her era.",
-    tags: ['the fugees', 'killing me softly', 'funky_soul', 'south orange'],
-    videoId: 'oKOtzIo-uYw',
-  },
-  {
-    id: 'song-killing_me_softly_fugees',
-    year: 1996,
-    location: {
-      lat: 40.75,
-      lng: -74.26,
-      city: 'South Orange',
-      country: 'US',
-    },
-    genre: ['Hip Hop'],
-    title: 'Killing Me Softly — The Fugees',
-    description:
-      "The Fugees release their landmark cover of 'Killing Me Softly' from their album 'The Score', transforming Roberta Flack's 1973 soul classic into a genre-defying fusion of hip hop, R&B, and reggae. Lauryn Hill's soaring vocals and Wyclef Jean's laid-back production introduce the song to a new generation, becoming one of the best-selling singles of 1996. The track cements the Fugees as one of the most innovative acts of the decade.",
-    tags: ['the fugees', 'killing me softly', 'hip_hop', 'south orange'],
-    videoId: 'oKOtzIo-uYw',
-  },
-  {
     id: 'song-kiss',
     year: 1986,
     location: {
@@ -5541,48 +5324,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       'doylestown',
     ],
     videoId: 'RQa7SvVCdZk',
-  },
-  {
-    id: 'song-lady_marmalade_aguilera',
-    year: 2000,
-    location: {
-      lat: 40.31,
-      lng: -75.13,
-      city: 'Doylestown',
-      country: 'US',
-    },
-    genre: ['Funky Pop'],
-    title: 'Lady Marmalade — Christina, Aguilera, Lil’ Kim, Mya, Pink',
-    description:
-      "Christina Aguilera, Lil' Kim, Mya, and Pink unite for 'Lady Marmalade', a supergroup collaboration recorded for the Moulin Rouge! soundtrack. The track reimagines LaBelle's 1975 funk classic as a brash, era-defining pop anthem, crashing to the top of charts worldwide and proving that female artists from radically different genres — R&B, hip hop, pop, and rock — could share a stage and steal it entirely.",
-    tags: [
-      'christina, aguilera, lil’ kim, mya, pink',
-      'lady marmalade',
-      'funky_pop',
-      'doylestown',
-    ],
-    videoId: 'OFCyhzUr6Yw',
-  },
-  {
-    id: 'song-lady_marmalade_moulin_rouge',
-    year: 2000,
-    location: {
-      lat: 40.31,
-      lng: -75.13,
-      city: 'Doylestown',
-      country: 'US',
-    },
-    genre: ['Funky Pop'],
-    title: 'Lady Marmalade — Christina, Aguilera, Lil’ Kim, Mya, Pink',
-    description:
-      "Christina Aguilera, Lil' Kim, Mya, and Pink unite for a supergroup remake of 'Lady Marmalade' for the Moulin Rouge! soundtrack, turning a 1975 LaBelle classic into a 2001 pop event. The collaboration — four of music's most distinct female voices in one track — becomes an anthem of female power and raw sexuality, topping charts worldwide and winning a Grammy for Best Pop Collaboration with Vocals.",
-    tags: [
-      'christina, aguilera, lil’ kim, mya, pink',
-      'lady marmalade',
-      'funky_pop',
-      'doylestown',
-    ],
-    videoId: '6DDgAhLGgHQ',
   },
   {
     id: 'song-landslide',
@@ -6854,38 +6595,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'z4EvQOpgp9o',
   },
   {
-    id: 'song-no_diggity_blackstreet',
-    year: 2012,
-    location: {
-      lat: -37.81,
-      lng: 144.96,
-      city: 'Melbourne',
-      country: 'AU',
-    },
-    genre: ['Hip Hop'],
-    title: 'No Diggity — Chet Faker',
-    description:
-      "Australian musician Chet Faker releases a haunting, stripped-back cover of Blackstreet's 1996 R&B classic 'No Diggity', reframing the hip hop anthem as a moody, minimalist bedroom recording. The cover spreads virally online, introducing Faker to a global audience and establishing his signature approach — dissolving genre boundaries between soul, R&B, and electronic music. It becomes one of the most celebrated reinterpretations of the era.",
-    tags: ['chet faker', 'no diggity', 'hip_hop', 'melbourne'],
-    videoId: '3KL9mRus19o',
-  },
-  {
-    id: 'song-no_diggity_chet_faker',
-    year: 2012,
-    location: {
-      lat: -37.81,
-      lng: 144.96,
-      city: 'Melbourne',
-      country: 'AU',
-    },
-    genre: ['R&B'],
-    title: 'No Diggity — Chet Faker',
-    description:
-      "Australian artist Chet Faker releases a brooding, stripped-back cover of Blackstreet's 1996 R&B classic 'No Diggity', transforming the slick hip-hop production into something sparse and intimate. The cover spreads rapidly online, introducing Faker to a global audience and establishing his signature style — soulful vocals draped over minimalist electronic arrangements. It becomes one of the most celebrated cover versions of the internet era.",
-    tags: ['chet faker', 'no diggity', 'R&B', 'melbourne'],
-    videoId: 'z4EvQOpgp9o',
-  },
-  {
     id: 'song-no_easy_way_down',
     year: 1969,
     location: {
@@ -6931,7 +6640,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     description:
       "Sinead O'Connor releases her devastating cover of Prince's 'Nothing Compares 2 U', transforming it into one of the most emotionally raw ballads of its era. Her shaved head and a single tear in the iconic music video become inseparable from the song itself — an image that defines a moment in pop culture. The track catapults O'Connor to global stardom and stands as a landmark of early 1990s music.",
     tags: ["sinead o'connor", 'nothing compares 2 u', 'pop_ballad', 'dublin'],
-    videoId: 'TBQrFXP3kaI',
+    videoId: '0-EF60neguk',
   },
   {
     id: 'song-nowhere_man',
@@ -7014,22 +6723,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'W1LsRShUPtY',
   },
   {
-    id: 'song-on_amp_on',
-    year: 2000,
-    location: {
-      lat: 32.78,
-      lng: -96.8,
-      city: 'Dallas',
-      country: 'US',
-    },
-    genre: ['Neo Soul'],
-    title: 'On &amp; On — Erykah Badu',
-    description:
-      "Erykah Badu releases 'On & On', the debut single from her landmark album Baduizm, announcing the arrival of neo-soul as a fully formed movement. Her smoky, jazz-inflected voice and deeply spiritual lyrics position her as the genre's defining voice — a Southern-fried fusion of soul, hip hop, and consciousness that Dallas never quite sounded like before. The song wins the Grammy for Best R&B Song and reshapes what Black music can say.",
-    tags: ['erykah badu', 'on &amp; on', 'neo_soul', 'dallas'],
-    videoId: 'NyTQOQLy8Us',
-  },
-  {
     id: 'song-on_on',
     year: 1997,
     location: {
@@ -7043,7 +6736,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     description:
       "Erykah Badu releases 'On & On' as the lead single from her debut album 'Baduizm', announcing the arrival of a singular new voice in R&B. The track's spare, hypnotic groove and Badu's spiritual, stream-of-consciousness lyrics help define the neo-soul movement — a soulful, jazz-inflected alternative to the polished sheen dominating mainstream R&B in the late 1990s.",
     tags: ['erykah badu', 'on & on', 'R&B', 'dallas'],
-    videoId: 'VUlamYFdCH0',
+    videoId: '-CPCs7vVz6s',
   },
   {
     id: 'song-once_in_a_lifetime',
@@ -7474,7 +7167,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     description:
       "Ike and Tina Turner transform John Fogerty's swampy Creedence Clearwater Revival hit into something altogether wilder — a slow-burning soul sermon that erupts into a frenzy. Tina's raw, electrifying vocal performance turns 'Proud Mary' into a showcase for one of the most powerful voices in R&B history. Their version becomes the definitive reading of the song, earning them their first Grammy.",
     tags: ['ike and tina turner', 'proud mary', 'R&B', 'st. louis'],
-    videoId: 'hzQnPz6TpGc',
+    videoId: 'Gciy9oG5678',
   },
   {
     id: 'song-psycho_killer',
@@ -8005,48 +7698,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: '8MPbR6Cbwi4',
   },
   {
-    id: 'song-say_something_timberlake',
-    year: 2000,
-    location: {
-      lat: 35.15,
-      lng: -90.05,
-      city: 'Memphis',
-      country: 'US',
-    },
-    genre: ['Pop Ballad'],
-    title: 'Say Something — Justin Timberlake, Chris Stapleton',
-    description:
-      "Justin Timberlake and Chris Stapleton bridge two worlds — polished pop and raw country-soul — on 'Say Something', a sparse, aching ballad that strips both artists down to their essentials. Stapleton's weathered baritone against Timberlake's falsetto creates a contrast that feels like two Americas in conversation. The collaboration signals a broader moment of genre-blurring in mainstream music.",
-    tags: [
-      'justin timberlake, chris stapleton',
-      'say something',
-      'pop_ballad',
-      'memphis',
-    ],
-    videoId: 'VVgixOjGhVU',
-  },
-  {
-    id: 'song-say_something_timberlake',
-    year: 2000,
-    location: {
-      lat: 35.15,
-      lng: -90.05,
-      city: 'Memphis',
-      country: 'US',
-    },
-    genre: ['Pop'],
-    title: 'Say Something — Justin Timberlake, Chris Stapleton',
-    description:
-      "Justin Timberlake and Chris Stapleton join forces on 'Say Something', a soulful collision of pop polish and raw country grit. The collaboration bridges two worlds rarely occupying the same space, with Stapleton's weathered voice grounding Timberlake's sleek R&B instincts in something earthier and more urgent.",
-    tags: [
-      'justin timberlake, chris stapleton',
-      'say something',
-      'pop',
-      'memphis',
-    ],
-    videoId: '8MPbR6Cbwi4',
-  },
-  {
     id: 'song-seen_and_not_seen',
     year: 1980,
     location: {
@@ -8156,7 +7807,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     description:
       "Ray Charles records 'Shake A Tail Feather', injecting his signature soul and gospel-drenched energy into the classic R&B party anthem. Originally a hit for The Five Du-Tones in the early 1960s, the song finds new life through Charles's unmistakable voice — a reminder that his genius can electrify any material he touches.",
     tags: ['ray charles', 'shake a tail feather', 'blues', 'albany'],
-    videoId: 'qdbrIrFxas0',
+    videoId: 'mm0mmkAYwPc',
   },
   {
     id: 'song-shake_it_off',
@@ -8887,22 +8538,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: '09R8_2nJtjg',
   },
   {
-    id: 'song-suit_amp_tie',
-    year: 2000,
-    location: {
-      lat: 35.15,
-      lng: -90.05,
-      city: 'Memphis',
-      country: 'US',
-    },
-    genre: ['Pop', 'R And B'],
-    title: 'Suit &amp; Tie — Justin Timberlake',
-    description:
-      "Justin Timberlake releases 'Suit & Tie', a sleek R&B slow-jam featuring Jay-Z that signals his return to music after a six-year recording hiatus. Produced by Timbaland, the track channels classic soul and big-band sophistication into a modern pop framework, announcing that Timberlake's absence has only sharpened his command of the genre.",
-    tags: ['justin timberlake', 'suit &amp; tie', 'pop', 'r_and_b', 'memphis'],
-    videoId: '4fb4GyOylK8',
-  },
-  {
     id: 'song-suit_tie',
     year: 2013,
     location: {
@@ -9215,11 +8850,11 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Motown'],
-    title: 'Tears Of A Clown — Smokey Robinson &amp; The Miracles',
+    title: 'Tears Of A Clown — Smokey Robinson & The Miracles',
     description:
       "Smokey Robinson & The Miracles release 'Tears Of A Clown', a song built on a Stevie Wonder melody that had sat unreleased for years before Robinson added his bittersweet lyrics about heartbreak hidden behind a smile. The track becomes a landmark of the Motown sound — lush, orchestrated soul wrapped around Robinson's achingly tender falsetto. Its unlikely resurrection as a UK single sparks a transatlantic hit and cements Robinson's reputation as one of pop's most gifted songwriters.",
     tags: [
-      'smokey robinson &amp; the miracles',
+      'smokey robinson & the miracles',
       'tears of a clown',
       'motown',
       'detroit',
@@ -11157,38 +10792,6 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       'singer_songwriter',
       'boston',
     ],
-    videoId: 'nKaWQxlTsRM',
-  },
-  {
-    id: 'song-youve_got_a_friend_king',
-    year: 1971,
-    location: {
-      lat: 42.36,
-      lng: -71.06,
-      city: 'Boston',
-      country: 'US',
-    },
-    genre: ['Pop Ballad'],
-    title: 'You’ve Got A Friend — James Taylor',
-    description:
-      "James Taylor releases 'You've Got A Friend', a cover of Carole King's song from her landmark Tapestry album, and takes it to #1 on the Billboard Hot 100. The recording becomes one of the defining moments of the early 1970s singer-songwriter movement, capturing an intimate, confessional warmth that resonates deeply with a generation seeking solace after the turbulence of the 1960s. Taylor's gentle acoustic style and earnest delivery turn a friend's gift of a song into a timeless anthem of human connection.",
-    tags: ['james taylor', 'you’ve got a friend', 'pop_ballad', 'boston'],
-    videoId: '2ZI3kLrHK80',
-  },
-  {
-    id: 'song-youve_got_a_friend_taylor',
-    year: 1971,
-    location: {
-      lat: 42.36,
-      lng: -71.06,
-      city: 'Boston',
-      country: 'US',
-    },
-    genre: ['Classic Rock'],
-    title: 'You’ve Got A Friend — James Taylor',
-    description:
-      "James Taylor releases 'You've Got A Friend', a cover of Carole King's song from her landmark Muddy Water album — with King herself playing piano on the recording. Taylor's gentle, reassuring delivery turns the song into a defining moment of the early 1970s singer-songwriter movement, earning him his first and only number one hit and a Grammy for Best Male Pop Vocal Performance.",
-    tags: ['james taylor', 'you’ve got a friend', 'classic_rock', 'boston'],
     videoId: 'nKaWQxlTsRM',
   },
   {

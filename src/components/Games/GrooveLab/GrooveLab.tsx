@@ -463,19 +463,16 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
   const accuracyPct = Math.round(matchAccuracy * 100);
 
   return (
-    <div className="flex flex-col bg-[#09090b] rounded-2xl overflow-hidden border border-zinc-800">
+    <div className="flex flex-col bg-[#101012] rounded-2xl overflow-hidden border border-white/10">
       {/* Header */}
-      <div className="h-14 bg-[#121214] border-b border-zinc-800 flex items-center justify-between px-6">
+      <div className="h-14 bg-white/[0.03] border-b border-white/10 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <h2
-            className="text-lg font-semibold text-white"
-            style={{ fontFamily: '"Playfair Display", serif' }}
-          >
+          <h2 className="text-lg font-semibold text-white font-serif">
             Groove Lab
           </h2>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1 bg-zinc-900 rounded border border-zinc-800">
+          <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.02] rounded border border-white/10">
             <button
               onClick={() => setBpm((b) => Math.max(60, b - 5))}
               className="text-zinc-400 hover:text-white px-1"
@@ -497,7 +494,7 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
       </div>
 
       {/* Target info */}
-      <div className="h-10 bg-[#0f0f11] border-b border-zinc-800 flex items-center px-6 gap-4">
+      <div className="h-10 bg-white/[0.02] border-b border-white/10 flex items-center px-6 gap-4">
         <span className="text-xs text-zinc-500 uppercase tracking-wider">
           Target:
         </span>
@@ -577,7 +574,7 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
       </div>
 
       {/* Controls */}
-      <div className="h-14 bg-[#121214] border-t border-zinc-800 flex items-center justify-between px-6">
+      <div className="h-14 bg-white/[0.03] border-t border-white/10 flex items-center justify-between px-6">
         <div className="flex gap-2">
           <button
             onClick={startPlayback}
@@ -591,7 +588,7 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
           </button>
           <button
             onClick={clearGrid}
-            className="px-4 py-1.5 rounded text-sm font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
+            className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-300 transition-colors"
           >
             Clear
           </button>
@@ -606,7 +603,7 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
 
       {/* Result overlay */}
       {showResult && (
-        <div className="p-6 bg-[#0f0f11] border-t border-zinc-800 flex items-center justify-center gap-6">
+        <div className="p-6 bg-white/[0.02] border-t border-white/10 flex items-center justify-center gap-6">
           <div className="text-center">
             <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
               Match Accuracy
@@ -627,7 +624,7 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
           </div>
           <button
             onClick={newTarget}
-            className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm rounded transition-colors"
+            className="px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-white text-sm rounded transition-colors"
           >
             Next Groove
           </button>

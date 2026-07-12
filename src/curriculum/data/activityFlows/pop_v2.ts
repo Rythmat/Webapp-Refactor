@@ -1525,7 +1525,22 @@ const popL1SectionC: ActivitySectionV2 = {
         engine_generates: ['drums', 'chords'],
         student_plays: ['bass'],
       },
-      targetNotes: [],
+      targetNotes: [
+        // Bar 1 — C (I): root + 5th on beats 1 & 3
+        { midi: 36, onset: 0, duration: 460 }, // C2 beat 1 (root)
+        { midi: 43, onset: 960, duration: 460 }, // G2 beat 3 (5th)
+        // Bar 2 — G (V)
+        { midi: 43, onset: 1920, duration: 460 }, // G2 beat 1 (root)
+        { midi: 50, onset: 2880, duration: 460 }, // D3 beat 3 (5th)
+        // Bar 3 — Am (vi)
+        { midi: 45, onset: 3840, duration: 460 }, // A2 beat 1 (root)
+        { midi: 52, onset: 4800, duration: 460 }, // E3 beat 3 (5th)
+        // Bar 4 — F (IV)
+        { midi: 41, onset: 5760, duration: 460 }, // F2 beat 1 (root)
+        { midi: 48, onset: 6720, duration: 460 }, // C3 beat 3 (5th)
+        // Final downbeat — resolve to I
+        { midi: 36, onset: 7680, duration: 120 },
+      ],
     },
   ],
 };
@@ -2919,29 +2934,30 @@ const popL2SectionB: ActivitySectionV2 = {
       module: 'pop_l2',
       section: 'B',
       subsection: 'B5: POP Progressions',
-      activity: 'B5.1: I–V–V–I (G–D–D–G) 1st Inversion (Out of Time)',
+      activity: 'B5.1: I–ii–ii–I (G–Am–Am–G) 1st Inversion (Out of Time)',
       direction:
-        'Play the I–V–V–I progression using 1st inversion voicings. LH plays the root of each chord.',
+        'Play the I–ii–ii–I progression using 1st inversion voicings. LH plays the root of each chord. G to Am is just a step apart, so the voicing barely moves.',
       assessment: 'pitch_order',
-      tag: 'pop:progression_1551_oot | pop',
+      tag: 'pop:progression_1221_oot | pop',
       styleRef: 'l2a',
-      successFeedback: 'I–V loop — two chords, infinite pop songs.',
-      chordSymbols: ['G', 'D', 'D', 'G'],
+      successFeedback:
+        'I–ii loop — a stepwise move that keeps the voicing smooth and close.',
+      chordSymbols: ['G', 'Am', 'Am', 'G'],
       targetNotes: [
         // G 1st inv: LH G2(43), RH B3+D4+G4
         { midi: 43, onset: 0, duration: 1920 },
         { midi: 59, onset: 0, duration: 1920 },
         { midi: 62, onset: 0, duration: 1920 },
         { midi: 67, onset: 0, duration: 1920 },
-        // D 1st inv: LH D3(50), RH F#4+A4+D5
-        { midi: 50, onset: 1920, duration: 1920 },
-        { midi: 66, onset: 1920, duration: 1920 },
+        // Am 1st inv: LH A2(45), RH C4+E4+A4
+        { midi: 45, onset: 1920, duration: 1920 },
+        { midi: 60, onset: 1920, duration: 1920 },
+        { midi: 64, onset: 1920, duration: 1920 },
         { midi: 69, onset: 1920, duration: 1920 },
-        { midi: 74, onset: 1920, duration: 1920 },
-        { midi: 50, onset: 3840, duration: 1920 },
-        { midi: 66, onset: 3840, duration: 1920 },
+        { midi: 45, onset: 3840, duration: 1920 },
+        { midi: 60, onset: 3840, duration: 1920 },
+        { midi: 64, onset: 3840, duration: 1920 },
         { midi: 69, onset: 3840, duration: 1920 },
-        { midi: 74, onset: 3840, duration: 1920 },
         // G 1st inv again
         { midi: 43, onset: 5760, duration: 1920 },
         { midi: 59, onset: 5760, duration: 1920 },
@@ -2959,21 +2975,22 @@ const popL2SectionB: ActivitySectionV2 = {
       module: 'pop_l2',
       section: 'B',
       subsection: 'B5: POP Progressions',
-      activity: 'B5.2: vi–IV–IV–vi (Em–C–C–Em) 1st Inversion (Out of Time)',
+      activity: 'B5.2: vi–IV–IV–vi (Em–C–C–Em) Closest-Position Voice Leading (Out of Time)',
       direction:
-        'Play the vi–IV–IV–vi progression using 1st inversion voicings.',
+        'Play the vi–IV–IV–vi progression: Em in root position, C in 1st inversion. Em and C share two notes (E and G) — hold those steady and let only one voice move to get from one chord to the next.',
       assessment: 'pitch_order',
       tag: 'pop:progression_6446_oot | pop',
       styleRef: 'l2a',
-      successFeedback: 'vi–IV loop — the emotional spine of countless ballads.',
+      successFeedback:
+        'vi–IV with closest-position voice leading — two notes held, one note moves.',
       chordSymbols: ['Em', 'C', 'C', 'Em'],
       targetNotes: [
-        // Em 1st inv: LH E3(52), RH G4+B4+E5
+        // Em root position: LH E3(52), RH E4+G4+B4
         { midi: 52, onset: 0, duration: 1920 },
+        { midi: 64, onset: 0, duration: 1920 },
         { midi: 67, onset: 0, duration: 1920 },
         { midi: 71, onset: 0, duration: 1920 },
-        { midi: 76, onset: 0, duration: 1920 },
-        // C 1st inv: LH C3(48), RH E4+G4+C5
+        // C 1st inv: LH C3(48), RH E4+G4+C5 — E and G are common tones held over from Em
         { midi: 48, onset: 1920, duration: 1920 },
         { midi: 64, onset: 1920, duration: 1920 },
         { midi: 67, onset: 1920, duration: 1920 },
@@ -2982,16 +2999,16 @@ const popL2SectionB: ActivitySectionV2 = {
         { midi: 64, onset: 3840, duration: 1920 },
         { midi: 67, onset: 3840, duration: 1920 },
         { midi: 72, onset: 3840, duration: 1920 },
-        // Em 1st inv again
+        // Em root position again
         { midi: 52, onset: 5760, duration: 1920 },
+        { midi: 64, onset: 5760, duration: 1920 },
         { midi: 67, onset: 5760, duration: 1920 },
         { midi: 71, onset: 5760, duration: 1920 },
-        { midi: 76, onset: 5760, duration: 1920 },
         // Final
         { midi: 52, onset: 7680, duration: 120 },
+        { midi: 64, onset: 7680, duration: 120 },
         { midi: 67, onset: 7680, duration: 120 },
         { midi: 71, onset: 7680, duration: 120 },
-        { midi: 76, onset: 7680, duration: 120 },
       ],
     },
     {
@@ -4062,7 +4079,7 @@ const popL2SectionD: ActivitySectionV2 = {
       activity:
         'D3.3: Full POP Performance with Play-Along — LH Chords + Melody',
       direction:
-        'Play along with the full band. Left hand comps the chord voicings while the melody plays above.',
+        'Play along with the full band. Left hand comps the chord voicings while right hand plays the melody above.',
       assessment: 'pitch_order_timing_duration',
       tag: 'pop:lh_chords_melody_playalong_l2 | pop',
       styleRef: 'l2b',
@@ -4078,11 +4095,11 @@ const popL2SectionD: ActivitySectionV2 = {
         style_ref: 'l2b',
       },
       backing_parts: {
-        engine_generates: ['drums', 'bass', 'melody'],
-        student_plays: ['chords'],
+        engine_generates: ['drums', 'bass'],
+        student_plays: ['chords', 'melody'],
       },
       targetNotes: [
-        // LH: quarter-note 1st inv comping
+        // Bar 1 G: LH quarter-note 1st inv comping, RH D5–E5–D5 (same melody as D3.1/D3.2)
         { midi: 47, onset: 0, duration: 480, hand: 'lh' },
         { midi: 50, onset: 0, duration: 480, hand: 'lh' },
         { midi: 55, onset: 0, duration: 480, hand: 'lh' },
@@ -4095,6 +4112,10 @@ const popL2SectionD: ActivitySectionV2 = {
         { midi: 47, onset: 1440, duration: 480, hand: 'lh' },
         { midi: 50, onset: 1440, duration: 480, hand: 'lh' },
         { midi: 55, onset: 1440, duration: 480, hand: 'lh' },
+        { midi: 74, onset: 0, duration: 480, hand: 'rh' },
+        { midi: 76, onset: 480, duration: 480, hand: 'rh' },
+        { midi: 74, onset: 960, duration: 960, hand: 'rh' },
+        // Bar 2 Am: LH comping, RH C5–B4–A4
         { midi: 48, onset: 1920, duration: 480, hand: 'lh' },
         { midi: 52, onset: 1920, duration: 480, hand: 'lh' },
         { midi: 57, onset: 1920, duration: 480, hand: 'lh' },
@@ -4107,6 +4128,10 @@ const popL2SectionD: ActivitySectionV2 = {
         { midi: 48, onset: 3360, duration: 480, hand: 'lh' },
         { midi: 52, onset: 3360, duration: 480, hand: 'lh' },
         { midi: 57, onset: 3360, duration: 480, hand: 'lh' },
+        { midi: 72, onset: 1920, duration: 480, hand: 'rh' },
+        { midi: 71, onset: 2400, duration: 480, hand: 'rh' },
+        { midi: 69, onset: 2880, duration: 960, hand: 'rh' },
+        // Bar 3 Bm: LH comping, RH B4–D5–B4
         { midi: 50, onset: 3840, duration: 480, hand: 'lh' },
         { midi: 54, onset: 3840, duration: 480, hand: 'lh' },
         { midi: 59, onset: 3840, duration: 480, hand: 'lh' },
@@ -4119,6 +4144,10 @@ const popL2SectionD: ActivitySectionV2 = {
         { midi: 50, onset: 5280, duration: 480, hand: 'lh' },
         { midi: 54, onset: 5280, duration: 480, hand: 'lh' },
         { midi: 59, onset: 5280, duration: 480, hand: 'lh' },
+        { midi: 71, onset: 3840, duration: 480, hand: 'rh' },
+        { midi: 74, onset: 4320, duration: 480, hand: 'rh' },
+        { midi: 71, onset: 4800, duration: 960, hand: 'rh' },
+        // Bar 4 C: LH comping, RH A4–G4–G4
         { midi: 52, onset: 5760, duration: 480, hand: 'lh' },
         { midi: 55, onset: 5760, duration: 480, hand: 'lh' },
         { midi: 60, onset: 5760, duration: 480, hand: 'lh' },
@@ -4131,10 +4160,14 @@ const popL2SectionD: ActivitySectionV2 = {
         { midi: 52, onset: 7200, duration: 480, hand: 'lh' },
         { midi: 55, onset: 7200, duration: 480, hand: 'lh' },
         { midi: 60, onset: 7200, duration: 480, hand: 'lh' },
+        { midi: 69, onset: 5760, duration: 480, hand: 'rh' },
+        { midi: 67, onset: 6240, duration: 480, hand: 'rh' },
+        { midi: 67, onset: 6720, duration: 960, hand: 'rh' },
         // Final
         { midi: 47, onset: 7680, duration: 120, hand: 'lh' },
         { midi: 50, onset: 7680, duration: 120, hand: 'lh' },
         { midi: 55, onset: 7680, duration: 120, hand: 'lh' },
+        { midi: 67, onset: 7680, duration: 120, hand: 'rh' },
       ],
     },
   ],

@@ -11,6 +11,7 @@ export type HandConfig =
   | 'lh_bass_rh_melody'
   | 'lh_chords_rh_melody'
   | 'two_hand_comping'
+  | 'two_hand_comping_genre_pop'
   | 'lh_rootless_rh_melody'
   | 'open';
 

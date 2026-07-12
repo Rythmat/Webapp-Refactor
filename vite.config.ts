@@ -29,7 +29,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ['@ffmpeg/ffmpeg', 'ffmpeg'],
+    exclude: ['@ffmpeg/ffmpeg', 'ffmpeg', 'date-fns'],
   },
   define: {
     __COMMIT_SHA__: JSON.stringify(process.env.VERCEL_GIT_COMMIT_SHA || 'dev'),

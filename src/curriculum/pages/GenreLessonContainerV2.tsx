@@ -1152,6 +1152,7 @@ function GenreLessonContainerV2Inner({
         (resolvedStep as ActivityStepV2).styleRef ?? 'l1a',
         targetNotes,
         undefined, // no metronome in Play Now with backing track — drums provide the pulse
+        flow.genre,
       );
 
       // Wait for Transport start offset + Web Audio latency
@@ -1187,6 +1188,7 @@ function GenreLessonContainerV2Inner({
     currentStep,
     keyRoot,
     requiredBars,
+    flow,
   ]);
 
   // ── Render ────────────────────────────────────────────────────────────────

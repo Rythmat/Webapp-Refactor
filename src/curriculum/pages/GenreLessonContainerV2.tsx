@@ -350,6 +350,14 @@ function GenreLessonContainerV2Inner({
   // Static piano roll height for dual stave — computed once on mount at 90% of available space.
   // Not reactive to resize: avoids layout thrashing and prevents the preview modal from
   // covering the keyboard demo during playback.
+  //
+  // The 1.5x multiplier is deliberate, not decorative: DualStaffPianoRoll scales its lane
+  // height up to TARGET_LANE_HEIGHT (18px) and no further — below that ceiling, note rows
+  // are cramped and hard to read; at or above it, they're not. Without the multiplier, a
+  // typical two-hand chord+melody step (~30 chromatic lanes across both staves) lands
+  // around 12px/lane. 1.5x lands it at exactly 18px/lane — legible, not oversized. The
+  // container scrolls (Main content area is overflow-y: auto), so on shorter viewports this
+  // trades some scrolling for a piano roll that's actually usable, which is the right trade.
   const pianoRollMaxHeight = useMemo(() => {
     const HEADER = 82; // breadcrumb + title + step counter
     const SECTION_TABS = 48; // A/B/C/D tabs row
@@ -366,7 +374,8 @@ function GenreLessonContainerV2Inner({
       SECTION_PADDING +
       KEYBOARD +
       PRACTICE_CONTROLS;
-    return Math.max(200, Math.floor((window.innerHeight - overhead) * 0.9));
+    const base = Math.max(200, Math.floor((window.innerHeight - overhead) * 0.9));
+    return Math.floor(base * 1.5);
   }, []); // empty deps — computed once at mount
 
   // Keyboard highlights

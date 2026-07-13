@@ -197,9 +197,12 @@ export function MajorArcanumPage() {
   }, []);
 
   return (
-    <GameShell>
+    <div
+      className="learn-root flex h-full w-full flex-col overflow-hidden"
+      style={{ backgroundColor: 'var(--color-bg)' }}
+    >
       {done ? (
-        <div className="flex flex-col items-center gap-4 pt-12">
+        <div className="flex h-full flex-col items-center justify-center gap-4">
           <h2
             className="text-2xl font-semibold"
             style={{ color: 'var(--color-text)' }}
@@ -219,7 +222,7 @@ export function MajorArcanumPage() {
       ) : (
         <MajorArcanum key={key} onComplete={handleComplete} />
       )}
-    </GameShell>
+    </div>
   );
 }
 

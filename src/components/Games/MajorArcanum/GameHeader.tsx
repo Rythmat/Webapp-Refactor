@@ -54,18 +54,18 @@ export function GameHeader({
   onOpenKeySelector,
 }: GameHeaderProps) {
   return (
-    <div className="h-28 relative w-full flex items-center px-8 justify-between shrink-0 overflow-hidden border-b border-zinc-800">
+    <div className="h-28 relative w-full flex items-center px-8 justify-center shrink-0 overflow-hidden border-b border-zinc-800">
       <div className="absolute inset-0 bg-[#18181b]">
         <HexagonPattern />
       </div>
-      <div className="relative z-10 flex flex-col">
+      <div className="relative z-10 flex flex-col items-center text-center">
         <h1
           className="text-5xl font-serif italic text-white tracking-wide"
           style={{ fontFamily: '"Playfair Display", serif' }}
         >
           Major Arcanum
         </h1>
-        <div className="mt-2 flex items-center gap-2">
+        <div className="mt-2 flex items-center justify-center gap-2">
           <button
             onClick={() => onToggleMode('Melody')}
             className={`px-3 py-1 rounded text-xs font-medium uppercase tracking-wider transition-all ${
@@ -100,7 +100,7 @@ export function GameHeader({
         </div>
       </div>
 
-      <div className="relative z-10 flex items-center gap-8 bg-black/20 backdrop-blur-sm px-6 py-3 rounded-xl border border-white/5">
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 z-10 flex items-center gap-8 bg-black/20 backdrop-blur-sm px-6 py-3 rounded-xl border border-white/5">
         <div className="flex flex-col items-end">
           <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">
             Score

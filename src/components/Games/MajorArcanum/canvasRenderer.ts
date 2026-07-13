@@ -6,6 +6,7 @@ import {
   MELODY_LABELS,
   HARMONY_KEYS,
   HARMONY_LABELS,
+  TOTAL_COLUMNS,
 } from './constants';
 import { getKeyGeometry } from './keyMapping';
 import type { Note, Particle, GameState } from './types';
@@ -152,11 +153,10 @@ export function drawGameFrame(
     ctx.stroke();
   }
 
-  // Vertical lane lines
+  // Vertical lane lines (spans all columns, including the side buffers)
   ctx.strokeStyle = '#27272a';
-  const numWhiteKeys = 15;
-  const whiteKeyWidth = width / numWhiteKeys;
-  for (let i = 0; i <= numWhiteKeys; i++) {
+  const whiteKeyWidth = width / TOTAL_COLUMNS;
+  for (let i = 0; i <= TOTAL_COLUMNS; i++) {
     ctx.beginPath();
     ctx.moveTo(i * whiteKeyWidth, 0);
     ctx.lineTo(i * whiteKeyWidth, hitY);

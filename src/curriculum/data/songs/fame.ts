@@ -131,8 +131,8 @@ export const fame: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Ypgq0qdgVZA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/david-bowie.webp',
+  artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
 };

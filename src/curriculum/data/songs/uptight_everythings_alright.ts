@@ -57,8 +57,8 @@ export const uptight_everythings_alright: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kZf3Byq8oLA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

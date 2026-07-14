@@ -267,8 +267,8 @@ export const like_a_prayer: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=79fzeNUqQbQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/madonna.webp',
+  artistImageRef: '/artists/svg/madonna.webp',
   popularity: 50,
 };

@@ -359,8 +359,8 @@ export const all_about_that_bass: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=7PCkvCPvDXk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/meghan-trainor.webp',
+  artistImageRef: '/artists/svg/meghan-trainor.webp',
   popularity: 50,
 };

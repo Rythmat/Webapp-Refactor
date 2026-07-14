@@ -192,8 +192,8 @@ export const aint_no_sunshine: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=YuKfiH0Scao' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bill-withers.webp',
+  artistImageRef: '/artists/svg/bill-withers.webp',
   popularity: 50,
 };

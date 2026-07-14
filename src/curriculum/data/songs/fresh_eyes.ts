@@ -54,8 +54,8 @@ export const fresh_eyes: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5bgemCaaQkU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/andy-grammer.webp',
+  artistImageRef: '/artists/svg/andy-grammer.webp',
   popularity: 50,
 };

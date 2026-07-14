@@ -141,8 +141,8 @@ export const ophelia: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=xe7y7ByOrwQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-band.webp',
+  artistImageRef: '/artists/svg/the-band.webp',
   popularity: 50,
 };

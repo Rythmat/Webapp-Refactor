@@ -380,8 +380,8 @@ export const come_together: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=45cYwDMibGo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-beatles.webp',
+  artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
 };

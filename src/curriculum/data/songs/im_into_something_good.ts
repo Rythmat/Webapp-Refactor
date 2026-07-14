@@ -393,8 +393,8 @@ export const im_into_something_good: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=n0J6q42zLH0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/herman-s-hermits.webp',
+  artistImageRef: '/artists/svg/herman-s-hermits.webp',
   popularity: 50,
 };

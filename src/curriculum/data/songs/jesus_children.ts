@@ -460,8 +460,8 @@ export const jesus_children: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ebZdRmYId_c' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/soulive.webp',
+  artistImageRef: '/artists/svg/soulive.webp',
   popularity: 50,
 };

@@ -302,8 +302,8 @@ export const i_and_love_and_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=T0eSpAgqrWo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-avett-brothers.webp',
+  artistImageRef: '/artists/svg/the-avett-brothers.webp',
   popularity: 50,
 };

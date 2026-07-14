@@ -274,8 +274,8 @@ export const i_think_were_alone_now: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=w6Q3mHyzn78' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tiffany.webp',
+  artistImageRef: '/artists/svg/tiffany.webp',
   popularity: 50,
 };

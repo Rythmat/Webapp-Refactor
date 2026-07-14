@@ -235,8 +235,8 @@ export const redneck_woman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=82dDnv9zeLs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/gretchen-wilson.webp',
+  artistImageRef: '/artists/svg/gretchen-wilson.webp',
   popularity: 50,
 };

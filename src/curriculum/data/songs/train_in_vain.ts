@@ -227,8 +227,8 @@ export const train_in_vain: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aUzBgeI5dpc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-clash.webp',
+  artistImageRef: '/artists/svg/the-clash.webp',
   popularity: 50,
 };

@@ -4,65 +4,14 @@ import {
   useAppState,
   useAppDispatch,
 } from '@/components/atlas/context/AppContext';
-import { CITIES, MUSIC_HISTORY, MUSICAL_ERAS } from '@/components/atlas/data';
+import { CITIES, MUSICAL_ERAS } from '@/components/atlas/data';
 import type { MusicalEra } from '@/components/atlas/data/musicalEras';
 import type {
   HistoricalEvent,
   SelectedLocation,
 } from '@/components/atlas/types';
-
-const COUNTRY_ALIASES: Record<string, string> = {
-  'United States of America': 'US',
-  'United Kingdom': 'UK',
-  'Republic of Korea': 'South Korea',
-  Korea: 'South Korea',
-  'Dem. Rep. Korea': 'North Korea',
-  'Czech Republic': 'Czechia',
-  "Côte d'Ivoire": 'Ivory Coast',
-};
-
-function getEventsForLocation(
-  selectedLocation: SelectedLocation | null,
-): HistoricalEvent[] {
-  if (!selectedLocation) return [];
-
-  if (selectedLocation.type === 'country') {
-    const resolved =
-      COUNTRY_ALIASES[selectedLocation.name] ?? selectedLocation.name;
-    const cityNames = new Set(
-      CITIES.filter((c) => c.country === resolved).map((c) =>
-        c.name.toLowerCase(),
-      ),
-    );
-    const resolvedLower = resolved.toLowerCase();
-    return MUSIC_HISTORY.filter(
-      (e) =>
-        cityNames.has(e.location.city.toLowerCase()) ||
-        e.location.country.toLowerCase() === resolvedLower,
-    ).sort((a, b) => a.year - b.year);
-  }
-
-  if (selectedLocation.type === 'state') {
-    const cityNames = new Set(
-      CITIES.filter((c) => c.subdivision === selectedLocation.name).map((c) =>
-        c.name.toLowerCase(),
-      ),
-    );
-    return MUSIC_HISTORY.filter((e) =>
-      cityNames.has(e.location.city.toLowerCase()),
-    ).sort((a, b) => a.year - b.year);
-  }
-
-  if (selectedLocation.type === 'city') {
-    const city = CITIES.find((c) => c.id === selectedLocation.id);
-    if (!city) return [];
-    return MUSIC_HISTORY.filter(
-      (e) => e.location.city.toLowerCase() === city.name.toLowerCase(),
-    ).sort((a, b) => a.year - b.year);
-  }
-
-  return [];
-}
+import { sameCountry } from '@/components/atlas/utils/country';
+import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
 
 function filterByEra(
   events: HistoricalEvent[],
@@ -228,9 +177,13 @@ export function RegionTimeline() {
   }, [fullStart, fullEnd]);
 
   const handleSelect = (event: HistoricalEvent) => {
-    const city = CITIES.find(
-      (c) => c.name.toLowerCase() === event.location.city.toLowerCase(),
+    const cityLower = event.location.city.toLowerCase();
+    const nameMatches = CITIES.filter(
+      (c) => c.name.toLowerCase() === cityLower,
     );
+    const city =
+      nameMatches.find((c) => sameCountry(c.country, event.location.country)) ??
+      nameMatches[0];
     if (city) {
       dispatch({
         type: 'SELECT_LOCATION',
@@ -246,14 +199,14 @@ export function RegionTimeline() {
 
   return (
     <div className="absolute bottom-6 left-1/2 z-[1000] w-[min(90vw,800px)] -translate-x-1/2">
-      <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/80 px-6 py-4 shadow-2xl backdrop-blur-xl">
+      <div className="rounded-2xl border border-white/10 bg-black/20 px-6 py-4 shadow-2xl backdrop-blur-md">
         {/* Region header */}
         <div className="mb-2 text-center">
-          <h3 className="text-sm font-semibold tracking-wide text-white">
+          <h3 className="text-sm font-medium tracking-wide text-white">
             {country}
           </h3>
           {subtitle && (
-            <p className="mt-0.5 text-xs text-zinc-400">{subtitle}</p>
+            <p className="mt-0.5 text-xs text-white/60">{subtitle}</p>
           )}
         </div>
 
@@ -271,10 +224,11 @@ export function RegionTimeline() {
           <div className="flex items-center gap-2">
             {/* Zoom out */}
             <button
-              className={`shrink-0 rounded p-1 transition-colors ${
+              aria-label="Zoom out timeline"
+              className={`flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
                 canZoomOut
-                  ? 'text-zinc-400 hover:bg-zinc-700/50 hover:text-white'
-                  : 'cursor-default text-zinc-700'
+                  ? 'text-white/60 hover:bg-white/10 hover:text-white'
+                  : 'cursor-default text-white/20'
               }`}
               disabled={!canZoomOut}
               onClick={handleZoomOut}
@@ -289,7 +243,7 @@ export function RegionTimeline() {
                 {ticks.map((year) => (
                   <span
                     key={year}
-                    className="absolute -translate-x-1/2 text-[10px] text-zinc-500"
+                    className="absolute -translate-x-1/2 text-[10px] text-white/40"
                     style={{ left: `${pct(year)}%` }}
                   >
                     {year}
@@ -298,7 +252,7 @@ export function RegionTimeline() {
               </div>
 
               {/* Track line */}
-              <div className="absolute inset-x-0 top-[22px] h-[2px] rounded-full bg-zinc-700" />
+              <div className="absolute inset-x-0 top-[22px] h-[2px] rounded-full bg-white/10" />
 
               {/* Event dots */}
               {visibleEvents.map((event) => {
@@ -306,10 +260,11 @@ export function RegionTimeline() {
                 return (
                   <button
                     key={event.id}
-                    className={`absolute top-[16px] -translate-x-1/2 rounded-full border-2 transition-all ${
+                    aria-label={`${event.title} (${event.year})`}
+                    className={`absolute top-[16px] -translate-x-1/2 rounded-full border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
                       isPinned
-                        ? 'size-3.5 border-teal-300 bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.6)]'
-                        : 'size-2.5 border-zinc-600 bg-white/80 hover:border-teal-300 hover:bg-teal-400 hover:shadow-[0_0_6px_rgba(45,212,191,0.4)]'
+                        ? 'size-3.5 border-[#93c5fd] bg-[#60a5fa] shadow-[0_0_8px_rgba(96,165,250,0.6)]'
+                        : 'size-2.5 border-white/30 bg-white/80 hover:border-[#93c5fd] hover:bg-[#60a5fa] hover:shadow-[0_0_6px_rgba(96,165,250,0.4)]'
                     }`}
                     style={{ left: `${pct(event.year)}%` }}
                     onClick={() => handleSelect(event)}
@@ -320,10 +275,11 @@ export function RegionTimeline() {
 
             {/* Zoom in */}
             <button
-              className={`shrink-0 rounded p-1 transition-colors ${
+              aria-label="Zoom in timeline"
+              className={`flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa] ${
                 canZoomIn
-                  ? 'text-zinc-400 hover:bg-zinc-700/50 hover:text-white'
-                  : 'cursor-default text-zinc-700'
+                  ? 'text-white/60 hover:bg-white/10 hover:text-white'
+                  : 'cursor-default text-white/20'
               }`}
               disabled={!canZoomIn}
               onClick={handleZoomIn}
@@ -332,7 +288,7 @@ export function RegionTimeline() {
             </button>
           </div>
         ) : (
-          <p className="py-2 text-center text-xs text-zinc-500">
+          <p className="py-2 text-center text-xs text-white/50">
             No events{selectedLocation ? ` in ${country}` : ''} for this era
           </p>
         )}

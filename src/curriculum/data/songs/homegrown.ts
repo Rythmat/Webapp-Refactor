@@ -363,8 +363,8 @@ export const homegrown: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8N8_CRpL6wk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/zac-brown-band.webp',
+  artistImageRef: '/artists/svg/zac-brown-band.webp',
   popularity: 50,
 };

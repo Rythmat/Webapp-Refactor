@@ -373,8 +373,8 @@ export const hey_soul_sister: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kVpv8-5XWOI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/train.webp',
+  artistImageRef: '/artists/svg/train.webp',
   popularity: 50,
 };

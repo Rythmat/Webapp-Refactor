@@ -157,8 +157,8 @@ export const let_me_clear_my_throat: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gnsqvz9iIlA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/dj-kool.webp',
+  artistImageRef: '/artists/svg/dj-kool.webp',
   popularity: 50,
 };

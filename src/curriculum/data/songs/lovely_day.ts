@@ -183,8 +183,8 @@ export const lovely_day: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bEeaS6fuUoA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bill-withers.webp',
+  artistImageRef: '/artists/svg/bill-withers.webp',
   popularity: 50,
 };

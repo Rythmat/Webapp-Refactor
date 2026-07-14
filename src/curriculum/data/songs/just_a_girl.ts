@@ -473,8 +473,8 @@ export const just_a_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PHzOOQfhPFg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/no-doubt.webp',
+  artistImageRef: '/artists/svg/no-doubt.webp',
   popularity: 50,
 };

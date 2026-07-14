@@ -426,8 +426,8 @@ export const man_i_feel_like_a_woman: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZJL4UGSbeFg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/shania-twain.webp',
+  artistImageRef: '/artists/svg/shania-twain.webp',
   popularity: 50,
 };

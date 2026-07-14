@@ -183,8 +183,8 @@ export const magic_carpet_ride: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=HPE9a_epmWw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/steppenwolf.webp',
+  artistImageRef: '/artists/svg/steppenwolf.webp',
   popularity: 50,
 };

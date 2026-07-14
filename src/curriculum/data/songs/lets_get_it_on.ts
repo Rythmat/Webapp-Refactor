@@ -159,8 +159,8 @@ export const lets_get_it_on: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=AqPBfbLoF_M' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/marvin-gaye.webp',
+  artistImageRef: '/artists/svg/marvin-gaye.webp',
   popularity: 50,
 };

@@ -95,4 +95,30 @@ export const experienceApi = {
       { token },
     );
   },
+
+  // ── Challenge rewards (external contract — see docs/challenges-rewards-
+  // contract.md). These endpoints don't exist yet; callers degrade gracefully
+  // (challenge completion is still tracked; the real XP/boost just no-op). ──
+
+  /** Grant a flat XP reward (× any active boost). Dedupe by `source`. */
+  awardChallenge: (token: string, amount: number, source: string) =>
+    apiRequest<ExperienceAwardResponse>(experiencePath('/award'), {
+      token,
+      method: 'POST',
+      body: { amount, source },
+    }),
+
+  /** Current active XP boost (multiplier applied to all awards while active). */
+  getBoost: (token: string) =>
+    apiRequest<{ multiplier: number; expiresAt: string | null }>(
+      experiencePath('/boost'),
+      { token },
+    ),
+
+  /** Start a boost window now. */
+  startBoost: (token: string, multiplier: number, durationMs: number) =>
+    apiRequest<{ multiplier: number; expiresAt: string | null }>(
+      experiencePath('/boost'),
+      { token, method: 'POST', body: { multiplier, durationMs } },
+    ),
 };

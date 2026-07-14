@@ -453,8 +453,8 @@ export const ants_marching: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MNgJBIx-hK8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/dave-matthews-band.webp',
+  artistImageRef: '/artists/svg/dave-matthews-band.webp',
   popularity: 50,
 };

@@ -484,8 +484,8 @@ export const easy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=9nBSd1U18vM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-commodores.webp',
+  artistImageRef: '/artists/svg/the-commodores.webp',
   popularity: 50,
 };

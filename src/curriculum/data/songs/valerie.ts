@@ -257,8 +257,8 @@ export const valerie: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NowjRIm6eqY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/amy-winehouse.webp',
+  artistImageRef: '/artists/svg/amy-winehouse.webp',
   popularity: 50,
 };

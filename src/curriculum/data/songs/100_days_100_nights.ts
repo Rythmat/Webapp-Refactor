@@ -509,8 +509,8 @@ export const _100_days_100_nights: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8ouI5KcyHfE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sharon-jones-and-the-dap-kings.webp',
+  artistImageRef: '/artists/svg/sharon-jones-and-the-dap-kings.webp',
   popularity: 50,
 };

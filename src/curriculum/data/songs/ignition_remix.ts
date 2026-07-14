@@ -104,8 +104,8 @@ export const ignition_remix: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MKvqpnB0SxE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/r-kelly.webp',
+  artistImageRef: '/artists/svg/r-kelly.webp',
   popularity: 50,
 };

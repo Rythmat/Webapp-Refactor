@@ -190,6 +190,13 @@ export interface GetApiStudioProjectsByIdData {
     name: string;
     ordinal: number;
     pan: number;
+    settings?: {
+      drumPads?: any;
+      effects?: any;
+      gmProgram?: number;
+      guitarChain?: any;
+      vocalChain?: any;
+    };
     solo: boolean;
     type: 'midi' | 'audio';
     volume: number;
@@ -205,6 +212,15 @@ export type GetApiStudioProjectsData = {
   name: string;
   updatedAt: Date;
 }[];
+
+export interface GetApiStudioTurnCredentialsData {
+  expiresAt: Date;
+  iceServers: {
+    credential?: string;
+    urls: string | string[];
+    username?: string;
+  }[];
+}
 
 export type GetAtlasCitiesData = any;
 
@@ -258,6 +274,27 @@ export interface GetAuthMeData {
 
 export type GetAuthSessionEventsData = any;
 
+export type GetClassroomsByIdAssignmentsByAssignmentIdProgressData = {
+  artifactRef: null;
+  assignmentId: string;
+  enrollmentId: string;
+  status: 'not_started' | 'in_progress' | 'done';
+  updatedAt: Date;
+}[];
+
+export type GetClassroomsByIdAssignmentsData = {
+  atlasRef: null;
+  classroomId: string;
+  createdAt: Date;
+  dueAt: (Date) | null;
+  id: string;
+  instructions: string | null;
+  kind: 'day' | 'atlas' | 'instructions';
+  publishedDayId: string | null;
+  status: 'open' | 'closed';
+  title: string;
+}[];
+
 export interface GetClassroomsByIdData {
   code: string;
   description?: string | null;
@@ -265,6 +302,34 @@ export interface GetClassroomsByIdData {
   name: string;
   teacherName: string;
   year: number;
+}
+
+export type GetClassroomsByIdEnrollmentsData = {
+  accountId: string;
+  approvedAt: (Date) | null;
+  classroomId: string;
+  displayName: string;
+  id: string;
+  joinedAt: Date;
+  removedAt: (Date) | null;
+  status: 'pending' | 'active' | 'removed';
+}[];
+
+export interface GetClassroomsByIdEnrollmentsParams {
+  id: string;
+  status?: 'all' | 'pending' | 'active' | 'removed';
+}
+
+export interface GetClassroomsByIdSessionsBySessionIdData {
+  classroomId: string;
+  code: string;
+  endedAt: (Date) | null;
+  id: string;
+  publishedDayId: string;
+  startedAt: Date;
+  state: any;
+  status: 'live' | 'ended';
+  teacherId: string;
 }
 
 export type GetClassroomsData = {
@@ -497,6 +562,12 @@ export interface PatchApiAdminFreeAccessByIdPayload {
   expiresAt?: string | null;
 }
 
+export type PatchApiAdminUsersByIdRoleData = any;
+
+export interface PatchApiAdminUsersByIdRolePayload {
+  role: 'teacher' | 'student';
+}
+
 export type PatchApiProgressActivityData = any;
 
 export interface PatchApiProgressActivityPayload {
@@ -520,6 +591,27 @@ export interface PatchApiProgressLessonStatePayload {
   lessonVersion: number;
 }
 
+export interface PatchClassroomsByIdAssignmentsByAssignmentIdData {
+  atlasRef: null;
+  classroomId: string;
+  createdAt: Date;
+  dueAt: (Date) | null;
+  id: string;
+  instructions: string | null;
+  kind: 'day' | 'atlas' | 'instructions';
+  publishedDayId: string | null;
+  status: 'open' | 'closed';
+  title: string;
+}
+
+export interface PatchClassroomsByIdAssignmentsByAssignmentIdPayload {
+  dueAt?: string | null;
+  instructions?: string | null;
+  status?: 'open' | 'closed';
+  /** @minLength 1 */
+  title?: string;
+}
+
 export interface PatchClassroomsByIdData {
   code: string;
   description: string | null;
@@ -530,10 +622,53 @@ export interface PatchClassroomsByIdData {
   year: number;
 }
 
+export interface PatchClassroomsByIdEnrollmentsByEnrollmentIdData {
+  accountId: string;
+  approvedAt: (Date) | null;
+  classroomId: string;
+  displayName: string;
+  id: string;
+  joinedAt: Date;
+  removedAt: (Date) | null;
+  status: 'pending' | 'active' | 'removed';
+}
+
+export interface PatchClassroomsByIdEnrollmentsByEnrollmentIdPayload {
+  displayName?: string;
+  status: 'active' | 'removed';
+}
+
 export interface PatchClassroomsByIdPayload {
   description?: string | null;
   name?: string;
   year?: number;
+}
+
+export interface PatchClassroomsByIdSessionsBySessionIdData {
+  classroomId: string;
+  code: string;
+  endedAt: (Date) | null;
+  id: string;
+  publishedDayId: string;
+  startedAt: Date;
+  state: any;
+  status: 'live' | 'ended';
+  teacherId: string;
+}
+
+export interface PatchClassroomsByIdSessionsBySessionIdPayload {
+  state?: {
+    /** @min -1 */
+    interactionIndex?: string | number;
+    locked?: boolean;
+    mode?: 'teacher_paced' | 'student_paced';
+    phase?: 'connectRegulate' | 'groupPractice' | 'creativeProjects' | 'presentPerform' | 'respondReflectReset';
+    share?: {
+      interactionId: string;
+      on: boolean;
+    } | null;
+  };
+  status?: 'live' | 'ended';
 }
 
 export interface PatchClassroomsByIdStudentsByStudentIdRestoreData {
@@ -666,6 +801,15 @@ export interface PostApiStudioAssetsPayload {
   sourceUrl?: string;
 }
 
+export interface PostApiStudioAssetsStatusData {
+  missing: string[];
+  notReady: string[];
+}
+
+export interface PostApiStudioAssetsStatusPayload {
+  assetIds: string[];
+}
+
 export type PostApiStudioCurateSoundsData = any;
 
 export type PostApiStudioCurateSoundsPayload = any;
@@ -739,6 +883,13 @@ export interface PostApiStudioProjectsData {
     name: string;
     ordinal: number;
     pan: number;
+    settings?: {
+      drumPads?: any;
+      effects?: any;
+      gmProgram?: number;
+      guitarChain?: any;
+      vocalChain?: any;
+    };
     solo: boolean;
     type: 'midi' | 'audio';
     volume: number;
@@ -784,6 +935,13 @@ export interface PostApiStudioProjectsPayload {
     mute: boolean;
     name: string;
     pan: number;
+    settings?: {
+      drumPads?: any;
+      effects?: any;
+      gmProgram?: number;
+      guitarChain?: any;
+      vocalChain?: any;
+    };
     solo: boolean;
     type: 'midi' | 'audio';
     volume: number;
@@ -880,6 +1038,122 @@ export interface PostAuthSessionPayload {
   token: string;
 }
 
+export interface PostClassroomsByIdAssignmentsByAssignmentIdProgressData {
+  artifactRef: null;
+  assignmentId: string;
+  enrollmentId: string;
+  status: 'not_started' | 'in_progress' | 'done';
+  updatedAt: Date;
+}
+
+export interface PostClassroomsByIdAssignmentsByAssignmentIdProgressPayload {
+  artifactRef?: {
+    deepLink: string;
+    module: 'learn' | 'studio' | 'globe' | 'arcade';
+    preview?: string | null;
+  } | null;
+  status: 'not_started' | 'in_progress' | 'done';
+}
+
+export interface PostClassroomsByIdAssignmentsData {
+  atlasRef: null;
+  classroomId: string;
+  createdAt: Date;
+  dueAt: (Date) | null;
+  id: string;
+  instructions: string | null;
+  kind: 'day' | 'atlas' | 'instructions';
+  publishedDayId: string | null;
+  status: 'open' | 'closed';
+  title: string;
+}
+
+export interface PostClassroomsByIdAssignmentsPayload {
+  atlasRef?: {
+    activityRef: string;
+    expects: 'completion' | 'score' | 'artifact';
+    module: 'learn' | 'studio' | 'globe' | 'arcade';
+  } | null;
+  dueAt?: string | null;
+  instructions?: string | null;
+  kind: 'day' | 'atlas' | 'instructions';
+  publishedDayId?: string | null;
+  /** @minLength 1 */
+  title: string;
+}
+
+export interface PostClassroomsByIdPublishData {
+  classroomId: string;
+  id: string;
+  publishedAt: Date;
+  snapshot: any;
+  sourceRef: string | null;
+  teacherId: string;
+}
+
+export interface PostClassroomsByIdPublishPayload {
+  agePreset?: string;
+  languages?: string[];
+  snapshot: any;
+  sourceRef?: string | null;
+}
+
+export interface PostClassroomsByIdSessionsBySessionIdAuthorizeData {
+  displayName: string | null;
+  enrollmentId: string | null;
+  role: 'teacher' | 'student' | 'projector';
+  session: {
+    classroomId: string;
+    code: string;
+    endedAt: (Date) | null;
+    id: string;
+    publishedDayId: string;
+    startedAt: Date;
+    state: any;
+    status: 'live' | 'ended';
+    teacherId: string;
+  };
+  userId: string;
+}
+
+export interface PostClassroomsByIdSessionsBySessionIdAuthorizePayload {
+  role?: 'teacher' | 'student' | 'projector';
+  token: string;
+}
+
+export interface PostClassroomsByIdSessionsBySessionIdResponsesData {
+  assignmentId: string | null;
+  createdAt: Date;
+  enrollmentId: string;
+  id: string;
+  interactionId: string;
+  payload: any;
+  sessionId: string | null;
+}
+
+export interface PostClassroomsByIdSessionsBySessionIdResponsesPayload {
+  assignmentId?: string | null;
+  interactionId: string;
+  payload: any;
+}
+
+export interface PostClassroomsByIdSessionsData {
+  classroomId: string;
+  code: string;
+  endedAt: (Date) | null;
+  id: string;
+  publishedDayId: string;
+  startedAt: Date;
+  state: any;
+  status: 'live' | 'ended';
+  teacherId: string;
+}
+
+export interface PostClassroomsByIdSessionsPayload {
+  mode?: 'teacher_paced' | 'student_paced';
+  publishedDayId: string;
+}
+
 export interface PostClassroomsData {
   code: string;
   createdAt: Date;
@@ -920,6 +1194,28 @@ export interface PostCollectionsPayload {
   color?: string;
   description?: string | null;
   name: string;
+}
+
+export type PostMspResponseData = any;
+
+export interface PostMspResponsePayload {
+  interactionId?: string;
+  payload: any;
+}
+
+export interface PostMspTokenData {
+  msp: string;
+}
+
+export interface PostMspTokenPayload {
+  ctx: {
+    assignmentId?: string | null;
+    interactionId?: string | null;
+    sessionId?: string | null;
+  };
+  expects: 'completion' | 'score' | 'artifact';
+  return?: string;
+  student: string;
 }
 
 export interface PostRoomsData {
@@ -1042,6 +1338,13 @@ export interface PutApiStudioProjectsByIdData {
     name: string;
     ordinal: number;
     pan: number;
+    settings?: {
+      drumPads?: any;
+      effects?: any;
+      gmProgram?: number;
+      guitarChain?: any;
+      vocalChain?: any;
+    };
     solo: boolean;
     type: 'midi' | 'audio';
     volume: number;
@@ -1087,6 +1390,13 @@ export interface PutApiStudioProjectsByIdPayload {
     mute: boolean;
     name: string;
     pan: number;
+    settings?: {
+      drumPads?: any;
+      effects?: any;
+      gmProgram?: number;
+      guitarChain?: any;
+      vocalChain?: any;
+    };
     solo: boolean;
     type: 'midi' | 'audio';
     volume: number;
@@ -1684,6 +1994,23 @@ export namespace Admin {
   /**
    * No description
    * @tags Admin
+   * @name PatchApiAdminUsersByIdRole
+   * @request PATCH:/api/admin/users/{id}/role
+   * @response `200` `PatchApiAdminUsersByIdRoleData`
+   */
+  export namespace PatchApiAdminUsersByIdRole {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PatchApiAdminUsersByIdRolePayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PatchApiAdminUsersByIdRoleData;
+  }
+
+  /**
+   * No description
+   * @tags Admin
    * @name PostApiAdminFreeAccess
    * @request POST:/api/admin/free-access
    * @response `200` `PostApiAdminFreeAccessData`
@@ -1770,6 +2097,78 @@ export namespace Classrooms {
   /**
    * No description
    * @tags Classrooms
+   * @name GetClassroomsByIdAssignments
+   * @request GET:/classrooms/{id}/assignments
+   * @response `200` `GetClassroomsByIdAssignmentsData`
+   */
+  export namespace GetClassroomsByIdAssignments {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetClassroomsByIdAssignmentsData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name GetClassroomsByIdAssignmentsByAssignmentIdProgress
+   * @request GET:/classrooms/{id}/assignments/{assignmentId}/progress
+   * @response `200` `GetClassroomsByIdAssignmentsByAssignmentIdProgressData`
+   */
+  export namespace GetClassroomsByIdAssignmentsByAssignmentIdProgress {
+    export type RequestParams = {
+      assignmentId: string;
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetClassroomsByIdAssignmentsByAssignmentIdProgressData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name GetClassroomsByIdEnrollments
+   * @request GET:/classrooms/{id}/enrollments
+   * @response `200` `GetClassroomsByIdEnrollmentsData`
+   */
+  export namespace GetClassroomsByIdEnrollments {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {
+      status?: 'all' | 'pending' | 'active' | 'removed';
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetClassroomsByIdEnrollmentsData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name GetClassroomsByIdSessionsBySessionId
+   * @request GET:/classrooms/{id}/sessions/{sessionId}
+   * @response `200` `GetClassroomsByIdSessionsBySessionIdData`
+   */
+  export namespace GetClassroomsByIdSessionsBySessionId {
+    export type RequestParams = {
+      id: string;
+      sessionId: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetClassroomsByIdSessionsBySessionIdData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
    * @name GetClassroomsDetailsByCode
    * @request GET:/classrooms/details/{code}
    * @response `200` `GetClassroomsDetailsByCodeData`
@@ -1799,6 +2198,60 @@ export namespace Classrooms {
     export type RequestBody = PatchClassroomsByIdPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PatchClassroomsByIdData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name PatchClassroomsByIdAssignmentsByAssignmentId
+   * @request PATCH:/classrooms/{id}/assignments/{assignmentId}
+   * @response `200` `PatchClassroomsByIdAssignmentsByAssignmentIdData`
+   */
+  export namespace PatchClassroomsByIdAssignmentsByAssignmentId {
+    export type RequestParams = {
+      assignmentId: string;
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PatchClassroomsByIdAssignmentsByAssignmentIdPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PatchClassroomsByIdAssignmentsByAssignmentIdData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name PatchClassroomsByIdEnrollmentsByEnrollmentId
+   * @request PATCH:/classrooms/{id}/enrollments/{enrollmentId}
+   * @response `200` `PatchClassroomsByIdEnrollmentsByEnrollmentIdData`
+   */
+  export namespace PatchClassroomsByIdEnrollmentsByEnrollmentId {
+    export type RequestParams = {
+      enrollmentId: string;
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PatchClassroomsByIdEnrollmentsByEnrollmentIdPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PatchClassroomsByIdEnrollmentsByEnrollmentIdData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name PatchClassroomsByIdSessionsBySessionId
+   * @request PATCH:/classrooms/{id}/sessions/{sessionId}
+   * @response `200` `PatchClassroomsByIdSessionsBySessionIdData`
+   */
+  export namespace PatchClassroomsByIdSessionsBySessionId {
+    export type RequestParams = {
+      id: string;
+      sessionId: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PatchClassroomsByIdSessionsBySessionIdPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PatchClassroomsByIdSessionsBySessionIdData;
   }
 
   /**
@@ -1837,6 +2290,111 @@ export namespace Classrooms {
   /**
    * No description
    * @tags Classrooms
+   * @name PostClassroomsByIdAssignments
+   * @request POST:/classrooms/{id}/assignments
+   * @response `200` `PostClassroomsByIdAssignmentsData`
+   */
+  export namespace PostClassroomsByIdAssignments {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PostClassroomsByIdAssignmentsPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostClassroomsByIdAssignmentsData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name PostClassroomsByIdAssignmentsByAssignmentIdProgress
+   * @request POST:/classrooms/{id}/assignments/{assignmentId}/progress
+   * @response `200` `PostClassroomsByIdAssignmentsByAssignmentIdProgressData`
+   */
+  export namespace PostClassroomsByIdAssignmentsByAssignmentIdProgress {
+    export type RequestParams = {
+      assignmentId: string;
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PostClassroomsByIdAssignmentsByAssignmentIdProgressPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostClassroomsByIdAssignmentsByAssignmentIdProgressData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name PostClassroomsByIdPublish
+   * @request POST:/classrooms/{id}/publish
+   * @response `200` `PostClassroomsByIdPublishData`
+   */
+  export namespace PostClassroomsByIdPublish {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PostClassroomsByIdPublishPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostClassroomsByIdPublishData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name PostClassroomsByIdSessions
+   * @request POST:/classrooms/{id}/sessions
+   * @response `200` `PostClassroomsByIdSessionsData`
+   */
+  export namespace PostClassroomsByIdSessions {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PostClassroomsByIdSessionsPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostClassroomsByIdSessionsData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name PostClassroomsByIdSessionsBySessionIdAuthorize
+   * @request POST:/classrooms/{id}/sessions/{sessionId}/authorize
+   * @response `200` `PostClassroomsByIdSessionsBySessionIdAuthorizeData`
+   */
+  export namespace PostClassroomsByIdSessionsBySessionIdAuthorize {
+    export type RequestParams = {
+      id: string;
+      sessionId: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PostClassroomsByIdSessionsBySessionIdAuthorizePayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostClassroomsByIdSessionsBySessionIdAuthorizeData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name PostClassroomsByIdSessionsBySessionIdResponses
+   * @request POST:/classrooms/{id}/sessions/{sessionId}/responses
+   * @response `200` `PostClassroomsByIdSessionsBySessionIdResponsesData`
+   */
+  export namespace PostClassroomsByIdSessionsBySessionIdResponses {
+    export type RequestParams = {
+      id: string;
+      sessionId: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PostClassroomsByIdSessionsBySessionIdResponsesPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostClassroomsByIdSessionsBySessionIdResponsesData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
    * @name PostClassroomsJoin
    * @request POST:/classrooms/join
    * @response `200` `PostClassroomsJoinData`
@@ -1847,6 +2405,38 @@ export namespace Classrooms {
     export type RequestBody = PostClassroomsJoinPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostClassroomsJoinData;
+  }
+}
+
+export namespace Msp {
+  /**
+   * No description
+   * @tags MSP
+   * @name PostMspResponse
+   * @request POST:/msp/response
+   * @response `200` `PostMspResponseData`
+   */
+  export namespace PostMspResponse {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostMspResponsePayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostMspResponseData;
+  }
+
+  /**
+   * No description
+   * @tags MSP
+   * @name PostMspToken
+   * @request POST:/msp/token
+   * @response `200` `PostMspTokenData`
+   */
+  export namespace PostMspToken {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostMspTokenPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostMspTokenData;
   }
 }
 
@@ -2809,6 +3399,21 @@ export namespace Studio {
   /**
    * No description
    * @tags Studio
+   * @name GetApiStudioTurnCredentials
+   * @request GET:/api/studio/turn/credentials
+   * @response `200` `GetApiStudioTurnCredentialsData`
+   */
+  export namespace GetApiStudioTurnCredentials {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiStudioTurnCredentialsData;
+  }
+
+  /**
+   * No description
+   * @tags Studio
    * @name PostApiStudioAnalyzeVideo
    * @request POST:/api/studio/analyze-video
    * @response `200` `PostApiStudioAnalyzeVideoData`
@@ -3045,6 +3650,21 @@ export namespace StudioAssets {
     export type RequestBody = PostApiStudioAssetsByIdFinalizePayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostApiStudioAssetsByIdFinalizeData;
+  }
+
+  /**
+   * No description
+   * @tags Studio Assets
+   * @name PostApiStudioAssetsStatus
+   * @request POST:/api/studio/assets/status
+   * @response `200` `PostApiStudioAssetsStatusData`
+   */
+  export namespace PostApiStudioAssetsStatus {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiStudioAssetsStatusPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiStudioAssetsStatusData;
   }
 }
 
@@ -3857,6 +4477,23 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Admin
+     * @name PatchApiAdminUsersByIdRole
+     * @request PATCH:/api/admin/users/{id}/role
+     * @response `200` `PatchApiAdminUsersByIdRoleData`
+     */
+    patchApiAdminUsersByIdRole: (id: string, data: PatchApiAdminUsersByIdRolePayload, params: RequestParams = {}) =>
+      this.http.request<PatchApiAdminUsersByIdRoleData, any>({
+        path: `/api/admin/users/${id}/role`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Admin
      * @name PostApiAdminFreeAccess
      * @request POST:/api/admin/free-access
      * @response `200` `PostApiAdminFreeAccessData`
@@ -3942,6 +4579,75 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Classrooms
+     * @name GetClassroomsByIdAssignments
+     * @request GET:/classrooms/{id}/assignments
+     * @response `200` `GetClassroomsByIdAssignmentsData`
+     */
+    getClassroomsByIdAssignments: (id: string, params: RequestParams = {}) =>
+      this.http.request<GetClassroomsByIdAssignmentsData, any>({
+        path: `/classrooms/${id}/assignments`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name GetClassroomsByIdAssignmentsByAssignmentIdProgress
+     * @request GET:/classrooms/{id}/assignments/{assignmentId}/progress
+     * @response `200` `GetClassroomsByIdAssignmentsByAssignmentIdProgressData`
+     */
+    getClassroomsByIdAssignmentsByAssignmentIdProgress: (
+      id: string,
+      assignmentId: string,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetClassroomsByIdAssignmentsByAssignmentIdProgressData, any>({
+        path: `/classrooms/${id}/assignments/${assignmentId}/progress`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name GetClassroomsByIdEnrollments
+     * @request GET:/classrooms/{id}/enrollments
+     * @response `200` `GetClassroomsByIdEnrollmentsData`
+     */
+    getClassroomsByIdEnrollments: ({ id, ...query }: GetClassroomsByIdEnrollmentsParams, params: RequestParams = {}) =>
+      this.http.request<GetClassroomsByIdEnrollmentsData, any>({
+        path: `/classrooms/${id}/enrollments`,
+        method: 'GET',
+        query: query,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name GetClassroomsByIdSessionsBySessionId
+     * @request GET:/classrooms/{id}/sessions/{sessionId}
+     * @response `200` `GetClassroomsByIdSessionsBySessionIdData`
+     */
+    getClassroomsByIdSessionsBySessionId: (id: string, sessionId: string, params: RequestParams = {}) =>
+      this.http.request<GetClassroomsByIdSessionsBySessionIdData, any>({
+        path: `/classrooms/${id}/sessions/${sessionId}`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
      * @name GetClassroomsDetailsByCode
      * @request GET:/classrooms/details/{code}
      * @response `200` `GetClassroomsDetailsByCodeData`
@@ -3965,6 +4671,75 @@ export class Api<SecurityDataType extends unknown> {
     patchClassroomsById: (id: string, data: PatchClassroomsByIdPayload, params: RequestParams = {}) =>
       this.http.request<PatchClassroomsByIdData, any>({
         path: `/classrooms/${id}`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name PatchClassroomsByIdAssignmentsByAssignmentId
+     * @request PATCH:/classrooms/{id}/assignments/{assignmentId}
+     * @response `200` `PatchClassroomsByIdAssignmentsByAssignmentIdData`
+     */
+    patchClassroomsByIdAssignmentsByAssignmentId: (
+      id: string,
+      assignmentId: string,
+      data: PatchClassroomsByIdAssignmentsByAssignmentIdPayload,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PatchClassroomsByIdAssignmentsByAssignmentIdData, any>({
+        path: `/classrooms/${id}/assignments/${assignmentId}`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name PatchClassroomsByIdEnrollmentsByEnrollmentId
+     * @request PATCH:/classrooms/{id}/enrollments/{enrollmentId}
+     * @response `200` `PatchClassroomsByIdEnrollmentsByEnrollmentIdData`
+     */
+    patchClassroomsByIdEnrollmentsByEnrollmentId: (
+      id: string,
+      enrollmentId: string,
+      data: PatchClassroomsByIdEnrollmentsByEnrollmentIdPayload,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PatchClassroomsByIdEnrollmentsByEnrollmentIdData, any>({
+        path: `/classrooms/${id}/enrollments/${enrollmentId}`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name PatchClassroomsByIdSessionsBySessionId
+     * @request PATCH:/classrooms/{id}/sessions/{sessionId}
+     * @response `200` `PatchClassroomsByIdSessionsBySessionIdData`
+     */
+    patchClassroomsByIdSessionsBySessionId: (
+      id: string,
+      sessionId: string,
+      data: PatchClassroomsByIdSessionsBySessionIdPayload,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PatchClassroomsByIdSessionsBySessionIdData, any>({
+        path: `/classrooms/${id}/sessions/${sessionId}`,
         method: 'PATCH',
         body: data,
         type: ContentType.Json,
@@ -4010,6 +4785,133 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Classrooms
+     * @name PostClassroomsByIdAssignments
+     * @request POST:/classrooms/{id}/assignments
+     * @response `200` `PostClassroomsByIdAssignmentsData`
+     */
+    postClassroomsByIdAssignments: (
+      id: string,
+      data: PostClassroomsByIdAssignmentsPayload,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PostClassroomsByIdAssignmentsData, any>({
+        path: `/classrooms/${id}/assignments`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name PostClassroomsByIdAssignmentsByAssignmentIdProgress
+     * @request POST:/classrooms/{id}/assignments/{assignmentId}/progress
+     * @response `200` `PostClassroomsByIdAssignmentsByAssignmentIdProgressData`
+     */
+    postClassroomsByIdAssignmentsByAssignmentIdProgress: (
+      id: string,
+      assignmentId: string,
+      data: PostClassroomsByIdAssignmentsByAssignmentIdProgressPayload,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PostClassroomsByIdAssignmentsByAssignmentIdProgressData, any>({
+        path: `/classrooms/${id}/assignments/${assignmentId}/progress`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name PostClassroomsByIdPublish
+     * @request POST:/classrooms/{id}/publish
+     * @response `200` `PostClassroomsByIdPublishData`
+     */
+    postClassroomsByIdPublish: (id: string, data: PostClassroomsByIdPublishPayload, params: RequestParams = {}) =>
+      this.http.request<PostClassroomsByIdPublishData, any>({
+        path: `/classrooms/${id}/publish`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name PostClassroomsByIdSessions
+     * @request POST:/classrooms/{id}/sessions
+     * @response `200` `PostClassroomsByIdSessionsData`
+     */
+    postClassroomsByIdSessions: (id: string, data: PostClassroomsByIdSessionsPayload, params: RequestParams = {}) =>
+      this.http.request<PostClassroomsByIdSessionsData, any>({
+        path: `/classrooms/${id}/sessions`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name PostClassroomsByIdSessionsBySessionIdAuthorize
+     * @request POST:/classrooms/{id}/sessions/{sessionId}/authorize
+     * @response `200` `PostClassroomsByIdSessionsBySessionIdAuthorizeData`
+     */
+    postClassroomsByIdSessionsBySessionIdAuthorize: (
+      id: string,
+      sessionId: string,
+      data: PostClassroomsByIdSessionsBySessionIdAuthorizePayload,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PostClassroomsByIdSessionsBySessionIdAuthorizeData, any>({
+        path: `/classrooms/${id}/sessions/${sessionId}/authorize`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name PostClassroomsByIdSessionsBySessionIdResponses
+     * @request POST:/classrooms/{id}/sessions/{sessionId}/responses
+     * @response `200` `PostClassroomsByIdSessionsBySessionIdResponsesData`
+     */
+    postClassroomsByIdSessionsBySessionIdResponses: (
+      id: string,
+      sessionId: string,
+      data: PostClassroomsByIdSessionsBySessionIdResponsesPayload,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PostClassroomsByIdSessionsBySessionIdResponsesData, any>({
+        path: `/classrooms/${id}/sessions/${sessionId}/responses`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
      * @name PostClassroomsJoin
      * @request POST:/classrooms/join
      * @response `200` `PostClassroomsJoinData`
@@ -4017,6 +4919,42 @@ export class Api<SecurityDataType extends unknown> {
     postClassroomsJoin: (data: PostClassroomsJoinPayload, params: RequestParams = {}) =>
       this.http.request<PostClassroomsJoinData, any>({
         path: `/classrooms/join`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+  };
+  msp = {
+    /**
+     * No description
+     *
+     * @tags MSP
+     * @name PostMspResponse
+     * @request POST:/msp/response
+     * @response `200` `PostMspResponseData`
+     */
+    postMspResponse: (data: PostMspResponsePayload, params: RequestParams = {}) =>
+      this.http.request<PostMspResponseData, any>({
+        path: `/msp/response`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags MSP
+     * @name PostMspToken
+     * @request POST:/msp/token
+     * @response `200` `PostMspTokenData`
+     */
+    postMspToken: (data: PostMspTokenPayload, params: RequestParams = {}) =>
+      this.http.request<PostMspTokenData, any>({
+        path: `/msp/token`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
@@ -4999,6 +5937,22 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Studio
+     * @name GetApiStudioTurnCredentials
+     * @request GET:/api/studio/turn/credentials
+     * @response `200` `GetApiStudioTurnCredentialsData`
+     */
+    getApiStudioTurnCredentials: (params: RequestParams = {}) =>
+      this.http.request<GetApiStudioTurnCredentialsData, any>({
+        path: `/api/studio/turn/credentials`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio
      * @name PostApiStudioAnalyzeVideo
      * @request POST:/api/studio/analyze-video
      * @response `200` `PostApiStudioAnalyzeVideoData`
@@ -5248,6 +6202,24 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<PostApiStudioAssetsByIdFinalizeData, any>({
         path: `/api/studio/assets/${id}/finalize`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio Assets
+     * @name PostApiStudioAssetsStatus
+     * @request POST:/api/studio/assets/status
+     * @response `200` `PostApiStudioAssetsStatusData`
+     */
+    postApiStudioAssetsStatus: (data: PostApiStudioAssetsStatusPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiStudioAssetsStatusData, any>({
+        path: `/api/studio/assets/status`,
         method: 'POST',
         body: data,
         type: ContentType.Json,

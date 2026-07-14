@@ -176,8 +176,8 @@ export const my_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=y3KJ7d2qBoA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-temptations.webp',
+  artistImageRef: '/artists/svg/the-temptations.webp',
   popularity: 50,
 };

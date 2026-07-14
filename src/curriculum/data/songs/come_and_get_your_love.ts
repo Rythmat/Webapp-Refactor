@@ -269,8 +269,8 @@ export const come_and_get_your_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=OnJqFrVD3uE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/redbone.webp',
+  artistImageRef: '/artists/svg/redbone.webp',
   popularity: 50,
 };

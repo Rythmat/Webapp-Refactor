@@ -242,8 +242,8 @@ export const ebony_eyes: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sqKyPQUReys' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

@@ -107,8 +107,8 @@ export const give_me_one_reason: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=V6hQ9HSKlIE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tracy-chapman.webp',
+  artistImageRef: '/artists/svg/tracy-chapman.webp',
   popularity: 50,
 };

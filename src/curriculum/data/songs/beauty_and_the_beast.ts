@@ -316,8 +316,8 @@ export const beauty_and_the_beast: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZJNL8vVGlAM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/david-bowie.webp',
+  artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
 };

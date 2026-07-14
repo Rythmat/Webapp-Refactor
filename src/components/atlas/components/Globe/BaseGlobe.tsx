@@ -1,7 +1,7 @@
 import type { Feature } from 'geojson';
 import { useRef, useMemo, useState, useCallback, useEffect } from 'react';
 import type { GlobeMethods } from 'react-globe.gl';
-import { MeshPhongMaterial, MeshLambertMaterial, DoubleSide } from 'three';
+import { MeshLambertMaterial } from 'three';
 import {
   useAppState,
   useAppDispatch,
@@ -18,20 +18,12 @@ import {
   getContrastColor,
 } from '@/components/atlas/data/continentColors';
 import { useGeoData, useGlobeLighting } from '@/components/atlas/hooks';
+import { resolveFocusCities } from '@/components/atlas/utils/resolveFocusCities';
 import { GlobeController } from './GlobeController';
-
-const ICE_COUNTRIES = new Set(['ATA', 'GRL']);
-
-// Natural Earth uses -99 for some countries (France, Norway, disputed territories).
-// Prefer ISO_A3_EH, then ADM0_A3, then ISO_A3.
-function resolveIso(feat: Feature): string {
-  const p = feat.properties;
-  const a3 = p?.ISO_A3 ?? p?.iso_a3 ?? '';
-  if (a3 !== '-99') return a3;
-  return p?.ISO_A3_EH !== '-99' && p?.ISO_A3_EH
-    ? p.ISO_A3_EH
-    : (p?.ADM0_A3 ?? '');
-}
+import {
+  createOceanMaterial,
+  makePolygonMaterialAccessors,
+} from './globeVisuals';
 
 interface HexPoint {
   lat: number;
@@ -47,320 +39,6 @@ interface PinnedPoint {
   name: string;
   color: string;
   size: number;
-}
-
-// 12 zodiac constellations — star positions in a 2000×1400 coordinate space
-interface ZStar {
-  x: number;
-  y: number;
-  mag: 1 | 2 | 3;
-}
-interface ZConstellation {
-  stars: ZStar[];
-  lines: [number, number][];
-}
-
-// 12 zodiac constellations — star positions relative to constellation center (0,0)
-const ZODIAC: ZConstellation[] = [
-  // Aries — curved arc
-  {
-    stars: [
-      { x: -55, y: 20, mag: 2 },
-      { x: -20, y: -5, mag: 1 },
-      { x: 20, y: -20, mag: 1 },
-      { x: 55, y: -5, mag: 2 },
-    ],
-    lines: [
-      [0, 1],
-      [1, 2],
-      [2, 3],
-    ],
-  },
-
-  // Taurus — V-shape (Hyades) + Aldebaran + Pleiades
-  {
-    stars: [
-      { x: 5, y: 80, mag: 1 }, // Aldebaran
-      { x: -25, y: 45, mag: 2 },
-      { x: -50, y: 15, mag: 2 }, // V left
-      { x: 35, y: 45, mag: 2 },
-      { x: 60, y: 15, mag: 2 }, // V right
-      { x: -65, y: -25, mag: 2 },
-      { x: 75, y: -25, mag: 2 }, // horn tips
-      { x: -75, y: -70, mag: 3 },
-      { x: -65, y: -60, mag: 3 },
-      { x: -55, y: -75, mag: 3 },
-      { x: -60, y: -65, mag: 3 },
-      { x: -70, y: -80, mag: 3 }, // Pleiades
-    ],
-    lines: [
-      [0, 1],
-      [1, 2],
-      [2, 5],
-      [0, 3],
-      [3, 4],
-      [4, 6],
-    ],
-  },
-
-  // Gemini — two parallel chains from Castor & Pollux
-  {
-    stars: [
-      { x: -10, y: -80, mag: 1 }, // Castor
-      { x: 40, y: -70, mag: 1 }, // Pollux
-      { x: -20, y: -30, mag: 2 },
-      { x: -30, y: 20, mag: 2 },
-      { x: -40, y: 70, mag: 3 },
-      { x: 30, y: -20, mag: 2 },
-      { x: 20, y: 30, mag: 2 },
-      { x: 10, y: 80, mag: 3 },
-    ],
-    lines: [
-      [0, 1],
-      [0, 2],
-      [2, 3],
-      [3, 4],
-      [1, 5],
-      [5, 6],
-      [6, 7],
-    ],
-  },
-
-  // Cancer — small inverted Y
-  {
-    stars: [
-      { x: 0, y: -40, mag: 3 },
-      { x: -20, y: 0, mag: 2 },
-      { x: 20, y: 0, mag: 2 },
-      { x: -30, y: 40, mag: 3 },
-      { x: 30, y: 40, mag: 3 },
-    ],
-    lines: [
-      [0, 1],
-      [0, 2],
-      [1, 3],
-      [2, 4],
-    ],
-  },
-
-  // Leo — sickle + triangle body
-  {
-    stars: [
-      { x: -75, y: 35, mag: 1 }, // Regulus
-      { x: -65, y: -5, mag: 2 },
-      { x: -45, y: -35, mag: 2 },
-      { x: -15, y: -50, mag: 2 },
-      { x: 15, y: -35, mag: 2 },
-      { x: 45, y: -5, mag: 2 },
-      { x: 75, y: 25, mag: 2 },
-      { x: 45, y: 50, mag: 2 },
-    ],
-    lines: [
-      [0, 1],
-      [1, 2],
-      [2, 3],
-      [3, 4],
-      [4, 5],
-      [5, 6],
-      [6, 7],
-      [7, 0],
-    ],
-  },
-
-  // Virgo — Y-shape with Spica
-  {
-    stars: [
-      { x: -22, y: 70, mag: 1 }, // Spica
-      { x: -22, y: 30, mag: 2 },
-      { x: -2, y: -10, mag: 2 },
-      { x: 28, y: -40, mag: 2 },
-      { x: 58, y: -70, mag: 2 },
-      { x: -32, y: -40, mag: 2 },
-      { x: -57, y: -70, mag: 3 },
-      { x: 58, y: -10, mag: 3 },
-    ],
-    lines: [
-      [0, 1],
-      [1, 2],
-      [2, 3],
-      [3, 4],
-      [2, 5],
-      [5, 6],
-      [3, 7],
-    ],
-  },
-
-  // Libra — scales
-  {
-    stars: [
-      { x: -30, y: -50, mag: 2 },
-      { x: 30, y: -50, mag: 2 },
-      { x: 0, y: 0, mag: 2 },
-      { x: -40, y: 40, mag: 3 },
-      { x: 0, y: 50, mag: 2 },
-      { x: 40, y: 40, mag: 3 },
-    ],
-    lines: [
-      [0, 2],
-      [1, 2],
-      [2, 4],
-      [3, 4],
-      [4, 5],
-    ],
-  },
-
-  // Scorpius — long S-curve with stinger
-  {
-    stars: [
-      { x: -80, y: -67, mag: 2 },
-      { x: -60, y: -87, mag: 2 },
-      { x: -40, y: -77, mag: 2 },
-      { x: -20, y: -47, mag: 2 },
-      { x: -10, y: -7, mag: 1 }, // Antares
-      { x: -5, y: 33, mag: 2 },
-      { x: 10, y: 63, mag: 2 },
-      { x: 30, y: 83, mag: 2 },
-      { x: 55, y: 88, mag: 2 },
-      { x: 75, y: 73, mag: 2 },
-      { x: 80, y: 48, mag: 3 },
-    ],
-    lines: [
-      [0, 1],
-      [1, 2],
-      [2, 3],
-      [3, 4],
-      [4, 5],
-      [5, 6],
-      [6, 7],
-      [7, 8],
-      [8, 9],
-      [9, 10],
-    ],
-  },
-
-  // Sagittarius — teapot
-  {
-    stars: [
-      { x: -22, y: 53, mag: 2 },
-      { x: 48, y: 53, mag: 2 },
-      { x: -22, y: -7, mag: 2 },
-      { x: 48, y: -7, mag: 2 },
-      { x: 3, y: -32, mag: 2 },
-      { x: 28, y: -32, mag: 2 },
-      { x: 16, y: -52, mag: 3 },
-      { x: -47, y: 23, mag: 3 },
-    ],
-    lines: [
-      [0, 1],
-      [0, 2],
-      [1, 3],
-      [2, 3],
-      [2, 4],
-      [3, 5],
-      [4, 5],
-      [4, 6],
-      [5, 6],
-      [2, 7],
-    ],
-  },
-
-  // Capricornus — triangle
-  {
-    stars: [
-      { x: -45, y: -37, mag: 2 },
-      { x: -5, y: -47, mag: 2 },
-      { x: 35, y: -27, mag: 2 },
-      { x: -35, y: 8, mag: 3 },
-      { x: 5, y: 18, mag: 2 },
-      { x: 45, y: 28, mag: 3 },
-      { x: -15, y: 48, mag: 3 },
-    ],
-    lines: [
-      [0, 1],
-      [1, 2],
-      [0, 3],
-      [3, 4],
-      [4, 5],
-      [2, 5],
-      [3, 6],
-      [4, 6],
-    ],
-  },
-
-  // Aquarius — body + water stream zigzag
-  {
-    stars: [
-      { x: -27, y: -77, mag: 2 },
-      { x: 3, y: -67, mag: 2 },
-      { x: 28, y: -47, mag: 2 },
-      { x: 3, y: -27, mag: 2 },
-      { x: -17, y: -2, mag: 3 },
-      { x: 3, y: 18, mag: 3 },
-      { x: -17, y: 38, mag: 3 },
-      { x: 3, y: 58, mag: 3 },
-      { x: -17, y: 78, mag: 3 },
-    ],
-    lines: [
-      [0, 1],
-      [1, 2],
-      [2, 3],
-      [3, 0],
-      [3, 4],
-      [4, 5],
-      [5, 6],
-      [6, 7],
-      [7, 8],
-    ],
-  },
-
-  // Pisces — two fish connected by cord
-  {
-    stars: [
-      { x: -57, y: -7, mag: 3 },
-      { x: -47, y: -27, mag: 2 },
-      { x: -27, y: -27, mag: 2 },
-      { x: -17, y: -7, mag: 3 },
-      { x: -37, y: 3, mag: 2 },
-      { x: -7, y: 23, mag: 3 },
-      { x: 23, y: 28, mag: 3 },
-      { x: 43, y: 13, mag: 2 },
-      { x: 58, y: -7, mag: 2 },
-      { x: 43, y: -22, mag: 3 },
-    ],
-    lines: [
-      [0, 1],
-      [1, 2],
-      [2, 3],
-      [3, 4],
-      [4, 0],
-      [4, 5],
-      [5, 6],
-      [6, 7],
-      [7, 8],
-      [8, 9],
-      [9, 7],
-    ],
-  },
-];
-
-// Position 12 constellations in a circle around the globe center
-const ZODIAC_POSITIONS: { x: number; y: number }[] = [];
-for (let i = 0; i < 12; i++) {
-  const angle = ((-90 + i * 30) * Math.PI) / 180;
-  ZODIAC_POSITIONS.push({
-    x: Math.round(1000 + 1000 * Math.cos(angle)),
-    y: Math.round(700 + 1000 * Math.sin(angle)),
-  });
-}
-
-// Random dim background stars (generated once at module level)
-const BACKGROUND_STARS: { x: number; y: number; r: number }[] = [];
-for (let i = 0; i < 400; i++) {
-  BACKGROUND_STARS.push({
-    x: Math.floor(Math.random() * 2000),
-    y: Math.floor(Math.random() * 1400),
-    r: Math.random() < 0.15 ? 1.2 : Math.random() < 0.4 ? 0.9 : 0.6,
-  });
 }
 
 // Rough centroid from GeoJSON feature coordinates
@@ -390,33 +68,28 @@ export function BaseGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const { countries, adminRegions, loading, error } = useGeoData();
-  const { globeAltitude, pinnedEvent, selectedLocation, visibleArcDirections } =
-    useAppState();
+  const {
+    globeAltitude,
+    pinnedEvent,
+    selectedLocation,
+    visibleArcDirections,
+    activeModule,
+    activeTour,
+    detailsPanelWidth,
+  } = useAppState();
   const dispatch = useAppDispatch();
   const [GlobeModule, setGlobeModule] = useState<
     typeof import('react-globe.gl').default | null
   >(null);
   const [globeError, setGlobeError] = useState<string | null>(null);
-  // Ocean material — low emissive so night side darkens
-  const globeMaterial = useMemo(
-    () =>
-      new MeshPhongMaterial({
-        color: 0x89cff0,
-        emissive: 0x112233,
-        shininess: 15,
-      }),
-    [],
-  );
+  // True once react-globe.gl has fully initialised; gates the camera fly so a
+  // deep-link fly target set before the globe loads is still applied.
+  const [globeReady, setGlobeReady] = useState(false);
+  // Ocean material — matte black so continents float on a dark sphere
+  const globeMaterial = useMemo(() => createOceanMaterial(), []);
 
   // Day/night lighting (camera-attached directional light)
   useGlobeLighting(globeRef);
-
-  // Constellations scale in sync with the globe's apparent size on screen.
-  // Globe apparent size ∝ 1/(1+altitude), so we normalize to the default altitude.
-  const constellationScale = useMemo(() => {
-    const baseAlt = 2.5;
-    return (1 + baseAlt) / (1 + globeAltitude);
-  }, [globeAltitude]);
 
   // Measure container with ResizeObserver
   useEffect(() => {
@@ -468,9 +141,19 @@ export function BaseGlobe() {
     return [...countryFeatures, ...regionFeatures];
   }, [countries, adminRegions, showStates]);
 
-  // City hex data — always show all cities that have events
+  // While a guided sequence (Pathway / Region tour / City tour) is active, the
+  // globe is simplified to just that selection's cities; otherwise all cities.
+  const focusCities = useMemo(
+    () => resolveFocusCities(activeModule, activeTour),
+    [activeModule, activeTour],
+  );
+
+  // City hex data — all cities, or only the focus set during a sequence.
   const hexPoints: HexPoint[] = useMemo(() => {
-    return CITIES.map((city) => {
+    const source = focusCities
+      ? CITIES.filter((c) => focusCities.has(c.id))
+      : CITIES;
+    return source.map((city) => {
       const iso = CITY_COUNTRY_TO_ISO[city.country];
       return {
         lat: city.coordinates[0],
@@ -480,21 +163,10 @@ export function BaseGlobe() {
         color: iso ? getCountryColor(iso) : '#ffffff',
       };
     });
-  }, []);
+  }, [focusCities]);
 
-  // Pinned event as a single point marker
-  const pinnedPointData: PinnedPoint[] = useMemo(() => {
-    if (!pinnedEvent) return [];
-    return [
-      {
-        lat: pinnedEvent.location.lat,
-        lng: pinnedEvent.location.lng,
-        name: pinnedEvent.title,
-        color: '#d63031',
-        size: 0.2,
-      },
-    ];
-  }, [pinnedEvent]);
+  // Pinned marker removed — the pinned city is shown via its highlighted hex.
+  const pinnedPointData: PinnedPoint[] = useMemo(() => [], []);
 
   // Influence arcs for pinned event — filtered by which dropdowns are open
   const allArcs = useMemo(() => {
@@ -609,65 +281,20 @@ export function BaseGlobe() {
     };
   }, [globeMaterial]);
 
-  // Polygon cap materials — light-responsive for day/night shading
-  const polygonCapMaterial = useCallback((polygon: object) => {
-    const feat = polygon as Feature;
-    let colorHex: string;
-    if (feat.properties?._layer === 'state') {
-      const parentIso = feat.properties?.iso_a2 === 'CA' ? 'CAN' : 'USA';
-      colorHex = getCountryColor(parentIso);
-    } else {
-      const iso = resolveIso(feat);
-      colorHex = ICE_COUNTRIES.has(iso) ? '#ffffff' : getCountryColor(iso);
-    }
-    let mat = capMatCache.current.get(colorHex);
-    if (!mat) {
-      mat = new MeshLambertMaterial({
-        color: colorHex,
-        emissive: 0x0a0a12,
-        transparent: true,
-        opacity: 0.92,
-        side: DoubleSide,
-        depthWrite: true,
-      });
-      capMatCache.current.set(colorHex, mat);
-    }
-    return mat;
-  }, []);
-
-  // Polygon side materials
-  const polygonSideMaterial = useCallback((polygon: object) => {
-    const feat = polygon as Feature;
-    let colorHex: string;
-    if (feat.properties?._layer === 'state') {
-      const parentIso = feat.properties?.iso_a2 === 'CA' ? 'CAN' : 'USA';
-      colorHex = getCountryColor(parentIso);
-    } else {
-      const iso = resolveIso(feat);
-      colorHex = ICE_COUNTRIES.has(iso) ? '#dcdcdc' : getCountryColor(iso);
-    }
-    const key = colorHex + '_s';
-    let mat = sideMatCache.current.get(key);
-    if (!mat) {
-      mat = new MeshLambertMaterial({
-        color: colorHex,
-        transparent: true,
-        opacity: 0.3,
-        side: DoubleSide,
-        depthWrite: true,
-      });
-      sideMatCache.current.set(key, mat);
-    }
-    return mat;
-  }, []);
+  // Polygon cap/side materials (light-responsive for day/night shading), bound
+  // to the per-instance caches above and shared with HeroGlobe via globeVisuals.
+  const { polygonCapMaterial, polygonSideMaterial } = useMemo(
+    () =>
+      makePolygonMaterialAccessors(capMatCache.current, sideMatCache.current),
+    [],
+  );
 
   const polygonStrokeColor = useCallback(
     (polygon: object) => {
       const feat = polygon as Feature;
-      if (isSelected(feat)) return 'rgba(255, 255, 255, 0.9)';
-      if (feat.properties?._layer === 'state')
-        return 'rgba(120, 120, 120, 0.6)';
-      return 'rgba(60, 60, 60, 0.9)';
+      if (isSelected(feat)) return 'rgba(255, 210, 140, 0.95)';
+      if (feat.properties?._layer === 'state') return 'rgba(130, 110, 80, 0.6)';
+      return 'rgba(90, 78, 58, 0.85)';
     },
     [isSelected],
   );
@@ -687,6 +314,48 @@ export function BaseGlobe() {
   const ready =
     !loading && !hasError && size.width > 0 && size.height > 0 && Globe;
 
+  // When an event card is expanded it overlays the left; slide the globe right
+  // by half the card's occluding width so the centred region clears the card.
+  const targetShiftX = detailsPanelWidth
+    ? Math.round((16 + detailsPanelWidth) / 2)
+    : 0;
+
+  // Animate the lens-shift so the region glides into view instead of jumping
+  // when a card opens / closes / resizes. Tweens the offset over ~500ms via rAF;
+  // a new target mid-tween eases from the current value (no snap).
+  const [shiftX, setShiftX] = useState(0);
+  const shiftRef = useRef(0);
+  const shiftRaf = useRef<number | null>(null);
+  useEffect(() => {
+    const from = shiftRef.current;
+    const to = targetShiftX;
+    if (Math.abs(from - to) < 0.5) {
+      shiftRef.current = to;
+      setShiftX(to);
+      return;
+    }
+    const duration = 500;
+    let startTs: number | null = null;
+    const tick = (ts: number) => {
+      startTs ??= ts;
+      const p = Math.min(1, (ts - startTs) / duration);
+      const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      const value = from + (to - from) * eased;
+      shiftRef.current = value;
+      setShiftX(value);
+      shiftRaf.current = p < 1 ? requestAnimationFrame(tick) : null;
+    };
+    if (shiftRaf.current) cancelAnimationFrame(shiftRaf.current);
+    shiftRaf.current = requestAnimationFrame(tick);
+    return () => {
+      if (shiftRaf.current) cancelAnimationFrame(shiftRaf.current);
+    };
+  }, [targetShiftX]);
+
+  // Off-axis lens-shift via react-globe.gl's globeOffset (px): positive x frames
+  // the region to the right while the canvas keeps rendering the full viewport.
+  const globeOffset = useMemo<[number, number]>(() => [shiftX, 0], [shiftX]);
+
   return (
     <div
       ref={containerRef}
@@ -700,78 +369,6 @@ export function BaseGlobe() {
         overflow: 'hidden',
       }}
     >
-      {/* Zodiac constellation star field */}
-      <svg
-        preserveAspectRatio="xMidYMid slice"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-        }}
-        viewBox="0 0 2000 1400"
-      >
-        <style>{`
-          @keyframes twinkle-bright { 0%,100%{opacity:.85} 50%{opacity:1} }
-          @keyframes twinkle-med   { 0%,100%{opacity:.55} 50%{opacity:.85} }
-          @keyframes twinkle-dim   { 0%,100%{opacity:.3}  50%{opacity:.55} }
-          .star-1 { animation: twinkle-bright 4s ease-in-out infinite; }
-          .star-2 { animation: twinkle-med 5s ease-in-out infinite 1s; }
-          .star-3 { animation: twinkle-dim 6s ease-in-out infinite 2s; }
-          .bg-star { animation: twinkle-dim 7s ease-in-out infinite; }
-        `}</style>
-
-        {/* Background scatter */}
-        {BACKGROUND_STARS.map((s, i) => (
-          <circle
-            key={`bg${i}`}
-            className="bg-star"
-            cx={s.x}
-            cy={s.y}
-            fill="#fff"
-            r={s.r}
-            style={{ animationDelay: `${(i * 0.37) % 7}s` }}
-          />
-        ))}
-
-        {/* Constellation lines + stars — scale from SVG center for parallax */}
-        <g
-          transform={`translate(1000,700) scale(${constellationScale}) translate(-1000,-700)`}
-        >
-          {ZODIAC.map((c, ci) => (
-            <g
-              key={ci}
-              transform={`translate(${ZODIAC_POSITIONS[ci].x},${ZODIAC_POSITIONS[ci].y})`}
-            >
-              {c.lines.map(([a, b], li) => (
-                <line
-                  key={`l${ci}-${li}`}
-                  opacity={0.35}
-                  stroke="#fff"
-                  strokeWidth={0.8}
-                  x1={c.stars[a].x}
-                  x2={c.stars[b].x}
-                  y1={c.stars[a].y}
-                  y2={c.stars[b].y}
-                />
-              ))}
-              {c.stars.map((s, si) => (
-                <circle
-                  key={`s${ci}-${si}`}
-                  className={`star-${s.mag}`}
-                  cx={s.x}
-                  cy={s.y}
-                  fill="#fff"
-                  r={s.mag === 1 ? 2.5 : s.mag === 2 ? 1.8 : 1.2}
-                  style={{ animationDelay: `${(ci * 0.7 + si * 0.4) % 6}s` }}
-                />
-              ))}
-            </g>
-          ))}
-        </g>
-      </svg>
-
       {hasError && (
         <div
           style={{
@@ -782,7 +379,7 @@ export function BaseGlobe() {
             justifyContent: 'center',
           }}
         >
-          <p style={{ color: '#f87171', fontSize: '14px' }}>
+          <p style={{ color: '#f26255', fontSize: '14px' }}>
             Failed to load globe: {error || globeError}
           </p>
         </div>
@@ -810,7 +407,7 @@ export function BaseGlobe() {
               style={{
                 width: '40px',
                 height: '40px',
-                border: '3px solid #4da6ff',
+                border: '3px solid #60a5fa',
                 borderTopColor: 'transparent',
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite',
@@ -826,6 +423,7 @@ export function BaseGlobe() {
       {ready && (
         <Globe
           ref={globeRef}
+          globeOffset={globeOffset}
           arcAltitudeAutoScale={0.4}
           arcColor={(d: object) => {
             const arc = d as ArcDatum;
@@ -849,8 +447,8 @@ export function BaseGlobe() {
           arcStartLng="startLng"
           arcsTransitionDuration={800}
           arcStroke={0.5}
-          atmosphereAltitude={0.25}
-          atmosphereColor="#4da6ff"
+          atmosphereAltitude={0.18}
+          atmosphereColor="#ffffff"
           polygonLabel={(polygon: object) => {
             const feat = polygon as Feature;
             const isState = feat.properties?._layer === 'state';
@@ -894,7 +492,7 @@ export function BaseGlobe() {
             if (isCitySelected || isPinnedCity)
               return 'rgba(255, 255, 255, 0.8)';
             const base = hex.points[0]?.color ?? '#ffffff';
-            return `${getContrastColor(base)}99`;
+            return `${getContrastColor(base)}cc`;
           }}
           hexTopColor={(d: object) => {
             const hex = d as { points: HexPoint[] };
@@ -913,7 +511,7 @@ export function BaseGlobe() {
             return getContrastColor(base);
           }}
           hexTransitionDuration={800}
-          pointAltitude={0.01}
+          pointAltitude={0.03}
           pointLabel={(d: object) => {
             const p = d as PinnedPoint;
             return `<span style="color:#fff;font-size:12px;font-weight:600">${p.name}</span>`;
@@ -948,7 +546,11 @@ export function BaseGlobe() {
             }
           }}
           // Controls
-          animateIn={true}
+          // No mount intro animation — a deep-link fly would otherwise animate
+          // to the default view first (disorienting). GlobeController positions
+          // the camera directly over the target instead.
+          animateIn={false}
+          onGlobeReady={() => setGlobeReady(true)}
           // Country + state polygons (vector landmasses)
           polygonsData={polygonFeatures}
           onHexClick={handleHexClick}
@@ -957,7 +559,7 @@ export function BaseGlobe() {
         />
       )}
 
-      <GlobeController globeRef={globeRef} />
+      <GlobeController globeRef={globeRef} ready={globeReady} />
     </div>
   );
 }

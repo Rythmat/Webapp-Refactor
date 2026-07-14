@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const tell_me_something_good: Song = {
   id: 'tell_me_something_good',
   title: 'Tell Me Something Good',
-  artist: 'Stevie Wonder/Chaka Khan',
+  artist: 'Chaka Khan',
   year: undefined,
 
   historicalDescription:
@@ -251,6 +251,6 @@ export const tell_me_something_good: Song = {
   ],
   artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chaka-khan.webp',
+  artistImageRef: '/artists/svg/chaka-khan.webp',
   popularity: 50,
 };

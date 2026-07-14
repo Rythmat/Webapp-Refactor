@@ -452,8 +452,8 @@ export const perfect: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2Vv-BfVoq4g' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/ed-sheeran.webp',
+  artistImageRef: '/artists/svg/ed-sheeran.webp',
   popularity: 50,
 };

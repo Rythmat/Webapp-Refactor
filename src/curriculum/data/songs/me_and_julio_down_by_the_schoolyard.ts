@@ -294,8 +294,8 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Z6VrKro8djw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/paul-simon.webp',
+  artistImageRef: '/artists/svg/paul-simon.webp',
   popularity: 50,
 };

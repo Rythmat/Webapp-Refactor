@@ -152,8 +152,8 @@ export const loving_cup: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Nryc7h6TCIE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-rolling-stones.webp',
+  artistImageRef: '/artists/svg/the-rolling-stones.webp',
   popularity: 50,
 };

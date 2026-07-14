@@ -35,8 +35,8 @@ export const sweet_home_alabama: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=-p8GXZcdrIk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/lynyrd-skynyrd.webp',
+  artistImageRef: '/artists/svg/lynyrd-skynyrd.webp',
   popularity: 50,
 };

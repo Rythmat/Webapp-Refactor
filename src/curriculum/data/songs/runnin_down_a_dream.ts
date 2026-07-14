@@ -225,8 +225,8 @@ export const runnin_down_a_dream: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Y1D3a5eDJIs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tom-petty.webp',
+  artistImageRef: '/artists/svg/tom-petty.webp',
   popularity: 50,
 };

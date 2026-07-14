@@ -1,5 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { DashboardResponsiveTest } from './__qa/DashboardResponsiveTest';
 import ModalSphereDemo from './components/ui/3d-orb-demo';
+import { CustomCursor } from './components/ui/CustomCursor';
 import { AppContext } from './contexts/AppContext';
 import { curriculumPages } from './curriculum/routes';
 import { WildcardPage } from './features/WildcardPage';
@@ -10,12 +12,15 @@ import {
   gamesPages,
   studioPages,
   studentPages,
+  userPages,
+  settingsPages,
   learnPages,
   connectPages,
   libraryPages,
   atlasPages,
   songsPages,
 } from './features/classroom/ClassroomPages';
+import { MockLearn } from './features/classroom/msp/__dev__/MockLearn';
 import { legalPages } from './features/legal';
 import { teacherPages } from './features/teacher/TeacherPages';
 
@@ -28,6 +33,8 @@ const routesArray = createBrowserRouter([
   studioPages(),
   gamesPages(),
   studentPages(),
+  userPages(),
+  settingsPages(),
   learnPages(),
   connectPages(),
   libraryPages(),
@@ -35,6 +42,12 @@ const routesArray = createBrowserRouter([
   songsPages(),
   curriculumPages(),
   { path: '/modal-sphere', element: <ModalSphereDemo /> },
+  ...(import.meta.env.DEV
+    ? [
+        { path: '/__dashboard-qa', element: <DashboardResponsiveTest /> },
+        { path: '/dev/msp/mock-learn', element: <MockLearn /> },
+      ]
+    : []),
   {
     path: '*',
     element: (
@@ -46,5 +59,10 @@ const routesArray = createBrowserRouter([
 ]);
 
 export function App() {
-  return <RouterProvider router={routesArray} />;
+  return (
+    <>
+      <RouterProvider router={routesArray} />
+      <CustomCursor />
+    </>
+  );
 }

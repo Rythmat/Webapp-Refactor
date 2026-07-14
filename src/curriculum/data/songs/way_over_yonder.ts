@@ -546,8 +546,8 @@ export const way_over_yonder: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=G8se6T5d3K0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

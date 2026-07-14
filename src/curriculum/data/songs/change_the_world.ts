@@ -434,8 +434,8 @@ export const change_the_world: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kntzQiaFzOQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/eric-clapton.webp',
+  artistImageRef: '/artists/svg/eric-clapton.webp',
   popularity: 50,
 };

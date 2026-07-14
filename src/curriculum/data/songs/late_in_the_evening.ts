@@ -387,8 +387,8 @@ export const late_in_the_evening: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ilzvuie7Bks' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/paul-simon.webp',
+  artistImageRef: '/artists/svg/paul-simon.webp',
   popularity: 50,
 };

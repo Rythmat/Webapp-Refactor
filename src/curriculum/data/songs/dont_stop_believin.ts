@@ -266,8 +266,8 @@ export const dontStopBelievin: Song = {
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1k8craCGpgs' },
   ],
 
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/journey.webp',
+  artistImageRef: '/artists/svg/journey.webp',
   popularity: 95,
 };

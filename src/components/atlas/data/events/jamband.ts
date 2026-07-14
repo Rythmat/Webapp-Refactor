@@ -72,7 +72,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'jerry garcia',
       'studio album',
     ],
-    videoId: '1ZS40R1vKY8',
+    videoId: 'tuc6Jgwteak',
   },
   {
     id: 'evt-jamband-nyc-1971-allman-brothers',
@@ -96,7 +96,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'dickey betts',
       'improvisation',
     ],
-    videoId: '4JJ9lnUBBDU',
+    videoId: 'o640esugJXg',
   },
   {
     id: 'evt-jamband-macon-1969-allman-brothers',
@@ -240,6 +240,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'funk',
       'improvisation',
     ],
+    videoId: 'VCalkGgumTo',
   },
   {
     id: 'evt-jamband-nyc-1994-govt-mule',
@@ -263,7 +264,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'blues rock',
       'southern rock',
     ],
-    videoId: 'PSCdq1s5ekI',
+    videoId: 'PBP8FnFOqak',
   },
   {
     id: 'evt-jamband-southbend-1997-umphreys',
@@ -311,7 +312,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'festival',
       'formation',
     ],
-    videoId: 't6tquHNztL0',
+    videoId: 'YHwHcNfSbcU',
   },
   {
     id: 'evt-jamband-philadelphia-1999-lotus',
@@ -383,7 +384,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'grammy',
       'michael league',
     ],
-    videoId: 'kCGfDLeAc64',
+    videoId: 'L_XJ_s5IsQc',
   },
   {
     id: 'evt-jamband-norwalk-2016-goose',
@@ -431,7 +432,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'michigan',
       'psychedelic bluegrass',
     ],
-    videoId: 'U5NJeNNz_iY',
+    videoId: '2kGBYIILs58',
   },
   {
     id: 'evt-jamband-baltimore-2009-pppp',
@@ -551,7 +552,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'rnb',
       'formation',
     ],
-    videoId: '_fbu8od5Big',
+    videoId: '5BDZNO1mvBA',
   },
   {
     id: 'evt-jamband-neworleans-2003-dumpstaphunk',
@@ -623,6 +624,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'solo career',
       'prince influence',
     ],
+    videoId: 'C5XPSwZefs4',
   },
   {
     id: 'evt-jamband-nashville-1988-flecktones',

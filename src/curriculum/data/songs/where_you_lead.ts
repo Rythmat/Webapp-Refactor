@@ -301,8 +301,8 @@ export const where_you_lead: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pFfOsY40SSo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/carole-king.webp',
+  artistImageRef: '/artists/svg/carole-king.webp',
   popularity: 50,
 };

@@ -315,8 +315,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wVzvXW9bo5U' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/lauryn-hill.webp',
+  artistImageRef: '/artists/svg/lauryn-hill.webp',
   popularity: 50,
 };

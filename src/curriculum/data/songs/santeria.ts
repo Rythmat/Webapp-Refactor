@@ -461,8 +461,8 @@ export const santeria: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=AEYN5w4T_aM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sublime.webp',
+  artistImageRef: '/artists/svg/sublime.webp',
   popularity: 50,
 };

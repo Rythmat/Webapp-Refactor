@@ -415,8 +415,8 @@ export const landslide: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WM7-PYtXtJM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/fleetwood-mac.webp',
+  artistImageRef: '/artists/svg/fleetwood-mac.webp',
   popularity: 50,
 };

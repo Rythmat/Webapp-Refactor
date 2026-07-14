@@ -211,8 +211,8 @@ export const walking_on_sunshine: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iPUmE-tne5U' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/katrina-and-the-waves.webp',
+  artistImageRef: '/artists/svg/katrina-and-the-waves.webp',
   popularity: 50,
 };

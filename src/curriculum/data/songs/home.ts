@@ -187,8 +187,8 @@ export const home: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=DHEOF_rcND8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/edward-sharpe-and-the-magnetic-zeros.webp',
+  artistImageRef: '/artists/svg/edward-sharpe-and-the-magnetic-zeros.webp',
   popularity: 50,
 };

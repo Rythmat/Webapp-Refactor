@@ -7,12 +7,6 @@ import {
 } from 'react';
 import type { AppState, AppAction } from '@/components/atlas/types';
 
-const initialAIInsight: AppState['aiInsight'] = {
-  query: '',
-  content: '',
-  status: 'idle',
-};
-
 const initialState: AppState = {
   currentYear: 2025,
   selectedDecades: [],
@@ -28,10 +22,12 @@ const initialState: AppState = {
   searchResults: [],
   pinnedEvent: null,
   activeModule: null,
+  activeTour: null,
   selectedEra: null,
   searchFlyTarget: null,
-  aiInsight: initialAIInsight,
   visibleArcDirections: new Set(),
+  detailsPanelWidth: null,
+  rotationPaused: false,
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -92,6 +88,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, selectedLocation: action.payload, pinnedEvent: null };
     case 'SET_ALTITUDE':
       return { ...state, globeAltitude: action.payload };
+    case 'SET_DETAILS_PANEL_WIDTH':
+      return { ...state, detailsPanelWidth: action.payload };
+    case 'SET_ROTATION_PAUSED':
+      return { ...state, rotationPaused: action.payload };
     case 'SET_TAB':
       return { ...state, activeTab: action.payload };
     case 'SET_SEARCH':
@@ -134,44 +134,34 @@ function appReducer(state: AppState, action: AppAction): AppState {
       };
     case 'EXIT_MODULE':
       return { ...state, activeModule: null };
-    case 'AI_INSIGHT_START':
+    case 'START_TOUR':
       return {
         ...state,
-        aiInsight: { query: action.payload, content: '', status: 'loading' },
+        activeTour: { tourId: action.payload.tourId, currentStep: 0 },
+        // A tour and a module are mutually exclusive.
+        activeModule: null,
       };
-    case 'AI_INSIGHT_CHUNK':
+    case 'TOUR_STEP':
+      if (!state.activeTour) return state;
       return {
         ...state,
-        aiInsight: {
-          ...state.aiInsight,
-          content: state.aiInsight.content + action.payload,
-          status: 'streaming',
-        },
+        activeTour: { ...state.activeTour, currentStep: action.payload },
       };
-    case 'AI_INSIGHT_DONE':
-      return {
-        ...state,
-        aiInsight: { ...state.aiInsight, status: 'done' },
-      };
-    case 'AI_INSIGHT_ERROR':
-      return {
-        ...state,
-        aiInsight: {
-          ...state.aiInsight,
-          status: 'error',
-          error: action.payload,
-        },
-      };
+    case 'EXIT_TOUR':
+      return { ...state, activeTour: null };
     case 'SET_ERA':
       return { ...state, selectedEra: action.payload, pinnedEvent: null };
-    case 'AI_INSIGHT_CLEAR':
-      return { ...state, aiInsight: initialAIInsight };
     case 'TOGGLE_ARC_DIRECTION': {
       const next = new Set(state.visibleArcDirections);
       if (next.has(action.payload)) next.delete(action.payload);
       else next.add(action.payload);
       return { ...state, visibleArcDirections: next };
     }
+    case 'OPEN_INFLUENCE_ARCS':
+      return {
+        ...state,
+        visibleArcDirections: new Set(['upstream', 'downstream']),
+      };
     default:
       return state;
   }

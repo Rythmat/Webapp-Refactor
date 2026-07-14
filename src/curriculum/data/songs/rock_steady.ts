@@ -249,8 +249,8 @@ export const rock_steady: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fGavl_m41LE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/aretha-franklin.webp',
+  artistImageRef: '/artists/svg/aretha-franklin.webp',
   popularity: 50,
 };

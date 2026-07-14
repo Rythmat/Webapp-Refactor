@@ -250,8 +250,8 @@ export const take_it_easy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5igDtWadYms' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-eagles.webp',
+  artistImageRef: '/artists/svg/the-eagles.webp',
   popularity: 50,
 };

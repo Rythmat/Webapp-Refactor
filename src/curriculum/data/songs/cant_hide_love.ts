@@ -337,8 +337,8 @@ export const cant_hide_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1TxgfbPl9Qg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/earth-wind-and-fire.webp',
+  artistImageRef: '/artists/svg/earth-wind-and-fire.webp',
   popularity: 50,
 };

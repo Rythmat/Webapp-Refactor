@@ -43,8 +43,8 @@ export const shotgun: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6FgO2Hs4t_4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jr-walker-and-the-allstars.webp',
+  artistImageRef: '/artists/svg/jr-walker-and-the-allstars.webp',
   popularity: 50,
 };

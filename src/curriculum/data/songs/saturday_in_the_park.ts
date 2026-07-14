@@ -461,8 +461,8 @@ export const saturday_in_the_park: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=HjylD7esXDo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chicago.webp',
+  artistImageRef: '/artists/svg/chicago.webp',
   popularity: 50,
 };

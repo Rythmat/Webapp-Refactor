@@ -144,8 +144,8 @@ export const angel_from_montgomery: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=U6cagWYTGCY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/john-prine.webp',
+  artistImageRef: '/artists/svg/john-prine.webp',
   popularity: 50,
 };

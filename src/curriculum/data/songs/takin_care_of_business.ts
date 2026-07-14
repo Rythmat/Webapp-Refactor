@@ -126,8 +126,8 @@ export const takin_care_of_business: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0y-_WGjZgD8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bachman-turner-overdrive.webp',
+  artistImageRef: '/artists/svg/bachman-turner-overdrive.webp',
   popularity: 50,
 };

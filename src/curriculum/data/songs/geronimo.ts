@@ -237,8 +237,8 @@ export const geronimo: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=UL_EXAyGCkw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sheppard.webp',
+  artistImageRef: '/artists/svg/sheppard.webp',
   popularity: 50,
 };

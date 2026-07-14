@@ -629,8 +629,8 @@ export const rainy_days_and_mondays: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PjFoQxjgbrs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-carpenters.webp',
+  artistImageRef: '/artists/svg/the-carpenters.webp',
   popularity: 50,
 };

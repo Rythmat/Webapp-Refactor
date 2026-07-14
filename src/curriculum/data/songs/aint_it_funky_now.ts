@@ -191,8 +191,8 @@ export const aint_it_funky_now: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GLBTSrD42QY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/grant-green.webp',
+  artistImageRef: '/artists/svg/grant-green.webp',
   popularity: 50,
 };

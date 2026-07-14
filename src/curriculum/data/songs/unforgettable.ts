@@ -326,8 +326,8 @@ export const unforgettable: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iF7kOq0peAU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/nat-king-cole.webp',
+  artistImageRef: '/artists/svg/nat-king-cole.webp',
   popularity: 50,
 };

@@ -156,8 +156,8 @@ export const cruisin_dangelo: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=JAfuUZRou7g' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/d-angelo.webp',
+  artistImageRef: '/artists/svg/d-angelo.webp',
   popularity: 50,
 };

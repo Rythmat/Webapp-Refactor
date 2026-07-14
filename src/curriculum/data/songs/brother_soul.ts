@@ -209,8 +209,8 @@ export const brother_soul: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2fRrb0h_HjU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/lou-donaldson-soulive.webp',
+  artistImageRef: '/artists/svg/lou-donaldson.webp',
   popularity: 50,
 };

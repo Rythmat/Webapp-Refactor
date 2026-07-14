@@ -346,8 +346,8 @@ export const hit_me_with_your_best_shot: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aU5aDqLUvug' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/pat-benatar.webp',
+  artistImageRef: '/artists/svg/pat-benatar.webp',
   popularity: 50,
 };

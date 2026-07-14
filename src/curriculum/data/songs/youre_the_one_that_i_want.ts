@@ -411,8 +411,8 @@ export const youre_the_one_that_i_want: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=e__Pp4FxsjU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/grease.webp',
+  artistImageRef: '/artists/svg/grease.webp',
   popularity: 50,
 };

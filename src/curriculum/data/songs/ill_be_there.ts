@@ -234,8 +234,8 @@ export const ill_be_there: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PPTSvPVf6Pg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/michael-jackson.webp',
+  artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
 };

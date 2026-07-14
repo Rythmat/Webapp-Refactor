@@ -174,8 +174,8 @@ export const bad_fish: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rmadSGJCzo8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sublime.webp',
+  artistImageRef: '/artists/svg/sublime.webp',
   popularity: 50,
 };

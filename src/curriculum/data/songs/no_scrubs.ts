@@ -166,8 +166,8 @@ export const no_scrubs: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FrLequ6dUdM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tlc.webp',
+  artistImageRef: '/artists/svg/tlc.webp',
   popularity: 50,
 };

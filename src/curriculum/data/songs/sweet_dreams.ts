@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const sweet_dreams: Song = {
   id: 'sweet_dreams',
   title: 'Sweet Dreams',
-  artist: 'Eurhythmics',
+  artist: 'Eurythmics',
   year: undefined,
 
   historicalDescription:
@@ -394,8 +394,8 @@ export const sweet_dreams: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=qeMFqkcPYcg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/eurhythmics.webp',
+  artistImageRef: '/artists/svg/eurythmics.webp',
   popularity: 50,
 };

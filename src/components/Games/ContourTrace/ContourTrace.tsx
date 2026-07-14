@@ -862,7 +862,7 @@ export default function Constellations({
     <div className="relative h-full w-full min-h-0 overflow-hidden">
       {/* Helper bar — floats over the canvas so it doesn't shift the play
           field's center away from the true window center. */}
-      <div className="absolute inset-x-0 top-0 h-14 bg-[#121214]/80 backdrop-blur-sm border-b border-zinc-800 flex items-center justify-between px-6 z-10">
+      <div className="absolute inset-x-0 top-0 h-14 bg-[#101012]/80 backdrop-blur-sm border-b border-white/10 flex items-center justify-between px-6 z-10">
         <div className="flex items-center gap-3">
           {onExit && (
             <button
@@ -873,10 +873,7 @@ export default function Constellations({
               Back to Arcade
             </button>
           )}
-          <h2
-            className="text-lg font-semibold text-white"
-            style={{ fontFamily: '"Playfair Display", serif' }}
-          >
+          <h2 className="text-lg font-semibold text-white font-serif">
             Constellations
           </h2>
           <span className="text-xs text-zinc-500 uppercase tracking-wider">
@@ -918,10 +915,7 @@ export default function Constellations({
         {/* Scale display — sits just below the helper bar, centered. */}
         {phase === 'playing' && activeScale && (
           <div className="pointer-events-none absolute inset-x-0 top-14 z-[2] flex flex-col items-center pt-4 text-center">
-            <div
-              className="text-xl font-semibold text-white"
-              style={{ fontFamily: '"Playfair Display", serif' }}
-            >
+            <div className="text-xl font-semibold text-white font-serif">
               {activeScale.title}
             </div>
             {(difficulty === 'easy' || difficulty === 'medium') && (
@@ -949,7 +943,7 @@ export default function Constellations({
                   className={`rounded-full px-5 py-1.5 text-sm font-medium capitalize transition-colors ${
                     difficulty === d
                       ? 'bg-purple-600 text-white'
-                      : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+                      : 'bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
                   {d}

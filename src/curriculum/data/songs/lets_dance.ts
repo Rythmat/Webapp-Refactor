@@ -228,8 +228,8 @@ export const lets_dance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=VbD_kBJc_gI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/david-bowie.webp',
+  artistImageRef: '/artists/svg/david-bowie.webp',
   popularity: 50,
 };

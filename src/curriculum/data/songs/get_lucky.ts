@@ -530,6 +530,6 @@ export const get_lucky: Song = {
   ],
   artistImageSource: 'manual',
 
-  artistImageRef: '/artists/daft-punk.webp',
+  artistImageRef: '/artists/svg/daft-punk.webp',
   popularity: 50,
 };

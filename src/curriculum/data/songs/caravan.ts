@@ -410,8 +410,8 @@ export const caravan: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=44wDwMQVqCc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/van-morrison.webp',
+  artistImageRef: '/artists/svg/van-morrison.webp',
   popularity: 50,
 };

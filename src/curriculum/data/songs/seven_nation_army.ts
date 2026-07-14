@@ -235,8 +235,8 @@ export const seven_nation_army: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0J2QdDbelmY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/white-stripes.webp',
+  artistImageRef: '/artists/svg/white-stripes.webp',
   popularity: 50,
 };

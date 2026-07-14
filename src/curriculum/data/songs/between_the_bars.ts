@@ -286,8 +286,8 @@ export const between_the_bars: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=p4cJv6s_Yjw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/elliott-smith.webp',
+  artistImageRef: '/artists/svg/elliott-smith.webp',
   popularity: 50,
 };

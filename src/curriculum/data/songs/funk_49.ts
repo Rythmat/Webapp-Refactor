@@ -183,10 +183,10 @@ export const funk_49: Song = {
   ],
 
   audioSources: [
-    { provider: 'youtube', uri: 'https://youtube.com/watch?v=ex7JTWDbH1A' },
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=FEaSjbMWrHs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-james-gang.webp',
+  artistImageRef: '/artists/svg/the-james-gang.webp',
   popularity: 50,
 };

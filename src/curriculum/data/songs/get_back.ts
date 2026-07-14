@@ -130,8 +130,8 @@ export const get_back: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IKJqecxswCA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-beatles.webp',
+  artistImageRef: '/artists/svg/the-beatles.webp',
   popularity: 50,
 };

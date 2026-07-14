@@ -205,8 +205,8 @@ export const lean_on_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fOZ-MySzAac' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bill-withers.webp',
+  artistImageRef: '/artists/svg/bill-withers.webp',
   popularity: 50,
 };

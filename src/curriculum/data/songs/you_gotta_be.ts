@@ -176,8 +176,8 @@ export const you_gotta_be: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WRUwSk9UTrA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/des-ree.webp',
+  artistImageRef: '/artists/svg/des-ree.webp',
   popularity: 50,
 };

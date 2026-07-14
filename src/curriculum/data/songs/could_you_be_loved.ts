@@ -362,8 +362,8 @@ export const could_you_be_loved: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1ti2YCFgCoI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bob-marley.webp',
+  artistImageRef: '/artists/svg/bob-marley.webp',
   popularity: 50,
 };

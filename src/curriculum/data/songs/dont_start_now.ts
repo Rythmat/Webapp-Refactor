@@ -254,8 +254,8 @@ export const dont_start_now: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oygrmJFKYZY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/dua-lipa.webp',
+  artistImageRef: '/artists/svg/dua-lipa.webp',
   popularity: 50,
 };

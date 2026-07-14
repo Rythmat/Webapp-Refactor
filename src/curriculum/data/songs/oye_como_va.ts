@@ -307,8 +307,8 @@ export const oye_como_va: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=J7ATTjg7tpE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/santana.webp',
+  artistImageRef: '/artists/svg/santana.webp',
   popularity: 50,
 };

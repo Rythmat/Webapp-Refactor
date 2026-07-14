@@ -148,8 +148,8 @@ export const go_your_own_way: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oiosqtFLBBA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/fleetwood-mac.webp',
+  artistImageRef: '/artists/svg/fleetwood-mac.webp',
   popularity: 50,
 };

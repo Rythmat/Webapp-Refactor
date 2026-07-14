@@ -571,8 +571,8 @@ export const dont_stop_me_now: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=HgzGwKwLmgM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/queen.webp',
+  artistImageRef: '/artists/svg/queen.webp',
   popularity: 50,
 };

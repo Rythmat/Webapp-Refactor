@@ -37,8 +37,8 @@ export const tennessee_whiskey: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4zAThXFOy2c' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chris-stapleton.webp',
+  artistImageRef: '/artists/svg/chris-stapleton.webp',
   popularity: 50,
 };

@@ -342,8 +342,8 @@ export const moondance: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6lFxGBB4UGU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/van-morrison.webp',
+  artistImageRef: '/artists/svg/van-morrison.webp',
   popularity: 50,
 };

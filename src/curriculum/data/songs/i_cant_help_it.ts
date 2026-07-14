@@ -327,8 +327,8 @@ export const i_cant_help_it: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=re3MOe1SBOs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/michael-jackson.webp',
+  artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
 };

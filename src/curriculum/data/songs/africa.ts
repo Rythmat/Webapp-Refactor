@@ -589,8 +589,8 @@ export const africa: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FTQbiNvZqaY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/toto.webp',
+  artistImageRef: '/artists/svg/toto.webp',
   popularity: 50,
 };

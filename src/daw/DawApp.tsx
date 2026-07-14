@@ -40,11 +40,16 @@ import { initUndoTracking } from '@/daw/store/undoMiddleware';
 import { CollabProvider, useCollab } from '@/daw/collab/CollabProvider';
 import { UserList } from '@/daw/collab/ui/UserList';
 import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import { getDemoProject } from '@/daw/data/demoProjects';
+import { showSuccess, showError } from '@/util/toast';
 
 function DawAppInner() {
   const { isReady, initEngine } = useAudioEngine();
   const authToken = useAuthToken();
-  const { joinRoom, joinRoomById, joinRoomAwaitingHost } = useCollab();
+  const { appUser } = useAuthContext();
+  const { joinRoom, joinRoomById, joinRoomAwaitingHost, createAndJoinRoom } =
+    useCollab();
   useTransport();
   usePlaybackEngine(isReady, authToken);
   useKeyboardShortcuts(authToken);
@@ -60,6 +65,15 @@ function DawAppInner() {
   const chatPanelOpen = useStore((s) => s.chatPanelOpen);
   const toggleChatPanel = useStore((s) => s.toggleChatPanel);
   const isCollabActive = useStore((s) => s.isCollabActive);
+  const connectionStatus = useStore((s) => s.connectionStatus);
+  const roomId = useStore((s) => s.roomId);
+  const projectName = useStore((s) => s.projectName);
+
+  // Dashboard-initiated collaboration (`?collab=new`): collaborators the user
+  // picked on the Studio Dashboard are auto-invited once the freshly-minted room
+  // connects, and the Invite modal (owned by CollabToolbar) opens for the code.
+  const pendingInviteIdsRef = useRef<string[] | null>(null);
+  const invitesSentRef = useRef(false);
 
   useEffect(() => {
     initUndoTracking();
@@ -80,9 +94,10 @@ function DawAppInner() {
     const isJamImport = params.get('jam') === '1';
 
     // Strip the boot intent from the URL so a later refresh just restores the
-    // (now-current) local session instead of re-running this.
+    // (now-current) local session instead of re-running this. Stays on the
+    // editor route (`/studio/editor`) — `/studio` is now the Studio Dashboard.
     const clearQuery = () =>
-      window.history.replaceState({}, '', StudioRoutes.root.definition);
+      window.history.replaceState({}, '', StudioRoutes.editor.definition);
 
     if (projectParam) {
       // Opening a cloud project needs a token; wait for it to resolve rather
@@ -109,14 +124,68 @@ function DawAppInner() {
       return;
     }
 
+    // Studio Dashboard "Project Templates" tile: start a fresh session preloaded
+    // with a genre template's tracks/BPM. Leaves projectId null so the first Save
+    // mints a brand-new cloud project.
+    const templateParam = params.get('template');
+    if (templateParam) {
+      bootedRef.current = true;
+      clearLocalSession();
+      resetSessionToEmpty();
+      useStore.getState().loadProjectTemplate(templateParam);
+      clearQuery();
+      return;
+    }
+
+    // Studio Dashboard "Demo Projects" tile: open a curated demo as an editable
+    // copy — hydrate from the bundled project, then null the projectId + retitle
+    // so Save writes a new project and the demo original is never overwritten.
+    const demoParam = params.get('demo');
+    if (demoParam) {
+      bootedRef.current = true;
+      clearLocalSession();
+      resetSessionToEmpty();
+      const demo = getDemoProject(demoParam);
+      if (demo) {
+        deserializeCloudProject(demo.bundle);
+        useStore.getState().setProjectId(null);
+        useStore.getState().setProjectName(demo.label);
+      } else {
+        showError('That demo could not be found.');
+      }
+      clearQuery();
+      return;
+    }
+
     // Handed off from a jam room into a collaborative Studio session. The host
     // arrives with `?jam=1&collab=<code>&host=1` (carries the jam tracks in and
     // creates the room); invited players arrive with `?collab=<code>` and join.
+    // The Studio Dashboard "Start a Session" flow arrives with `?collab=new`
+    // (optionally `&invite=<id,id>`): mint a fresh room and auto-invite.
     // Connecting to PartyKit needs an auth token, so wait for it like a project.
     const collabCode = params.get('collab');
     if (collabCode) {
       if (!authToken) return;
       bootedRef.current = true;
+
+      if (collabCode === 'new') {
+        clearLocalSession();
+        resetSessionToEmpty();
+        const inviteParam = params.get('invite');
+        pendingInviteIdsRef.current = inviteParam
+          ? inviteParam
+              .split(',')
+              .map((s) => decodeURIComponent(s.trim()))
+              .filter(Boolean)
+          : [];
+        createAndJoinRoom();
+        // Surface the room code + let the host invite more people (the single
+        // Invite modal is owned by CollabToolbar).
+        useStore.getState()._setInviteRequested(true);
+        clearQuery();
+        return;
+      }
+
       const isCollabHost = params.get('host') === '1';
       clearLocalSession();
       resetSessionToEmpty();
@@ -178,7 +247,69 @@ function DawAppInner() {
     // Cloud remains the source of truth for explicit saves; this is crash
     // recovery.
     restoreLocalSessionIfPresent();
-  }, [authToken, joinRoom, joinRoomById, joinRoomAwaitingHost]);
+  }, [
+    authToken,
+    joinRoom,
+    joinRoomById,
+    joinRoomAwaitingHost,
+    createAndJoinRoom,
+  ]);
+
+  // Once a dashboard-initiated collab room (`?collab=new`) is connected, send the
+  // invites the user queued on the Studio Dashboard. Runs once (invitesSentRef).
+  useEffect(() => {
+    const ids = pendingInviteIdsRef.current;
+    if (!ids || invitesSentRef.current) return;
+    if (
+      !isCollabActive ||
+      connectionStatus !== 'connected' ||
+      !roomId ||
+      !authToken
+    ) {
+      return;
+    }
+    invitesSentRef.current = true;
+    pendingInviteIdsRef.current = null;
+    if (ids.length === 0) return;
+    void (async () => {
+      let sent = 0;
+      for (const targetUserId of ids) {
+        try {
+          const res = await fetch(`/api/collab/rooms/${roomId}/invite-user`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              targetUserId,
+              targetUserName: appUser?.nickname ?? 'Someone',
+              role: 'editor',
+              projectName,
+            }),
+          });
+          if (res.ok) sent += 1;
+        } catch {
+          // Per-invite failure is non-fatal; the summary toast reflects the count.
+        }
+      }
+      if (sent > 0) {
+        showSuccess(`Invited ${sent} collaborator${sent > 1 ? 's' : ''}`);
+      }
+      if (sent < ids.length) {
+        showError(
+          `${ids.length - sent} invite${ids.length - sent > 1 ? 's' : ''} could not be sent`,
+        );
+      }
+    })();
+  }, [
+    isCollabActive,
+    connectionStatus,
+    roomId,
+    authToken,
+    appUser,
+    projectName,
+  ]);
 
   useEffect(() => {
     if (isReady) return;

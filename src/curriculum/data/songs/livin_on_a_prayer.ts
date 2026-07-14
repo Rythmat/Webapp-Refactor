@@ -374,8 +374,8 @@ export const livin_on_a_prayer: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lDK9QqIzhwk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jon-bon-jovi.webp',
+  artistImageRef: '/artists/svg/jon-bon-jovi.webp',
   popularity: 50,
 };

@@ -202,8 +202,8 @@ export const you_are_the_sunshine_of_my_life: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sp6hzycBsTI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

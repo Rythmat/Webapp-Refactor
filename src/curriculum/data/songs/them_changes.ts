@@ -137,8 +137,8 @@ export const them_changes: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_DDbjm_fId8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/buddy-miles.webp',
+  artistImageRef: '/artists/svg/buddy-miles.webp',
   popularity: 50,
 };

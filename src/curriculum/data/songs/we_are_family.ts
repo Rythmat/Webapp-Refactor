@@ -111,8 +111,8 @@ export const we_are_family: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uyGY2NfYpeE' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sister-sledge.webp',
+  artistImageRef: '/artists/svg/sister-sledge.webp',
   popularity: 50,
 };

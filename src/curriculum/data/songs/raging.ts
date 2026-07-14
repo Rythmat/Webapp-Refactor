@@ -183,8 +183,8 @@ export const raging: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZWyktWYW3ZM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/kygo.webp',
+  artistImageRef: '/artists/svg/kygo.webp',
   popularity: 50,
 };

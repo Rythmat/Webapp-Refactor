@@ -383,8 +383,8 @@ export const life_is_a_highway: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5tXh_MfrMe0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/rascal-flatts.webp',
+  artistImageRef: '/artists/svg/rascal-flatts.webp',
   popularity: 50,
 };

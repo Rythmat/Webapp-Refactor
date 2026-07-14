@@ -45,8 +45,8 @@ export const shake_your_body_down_to_the_ground: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kldVOhKe4rg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/michael-jackson.webp',
+  artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
 };

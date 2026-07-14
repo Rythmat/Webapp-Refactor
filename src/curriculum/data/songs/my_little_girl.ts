@@ -271,8 +271,8 @@ export const my_little_girl: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3cznXIXDlM4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tim-mcgraw.webp',
+  artistImageRef: '/artists/svg/tim-mcgraw.webp',
   popularity: 50,
 };

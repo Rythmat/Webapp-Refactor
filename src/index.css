@@ -1,6 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Haskoy:wght@400&display=swap');
 
+@font-face {
+  font-family: 'Glacial Indifference';
+  src: url('/fonts/GlacialIndifference-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Glacial Indifference';
+  src: url('/fonts/GlacialIndifference-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -86,7 +102,7 @@
   body {
     @apply bg-background text-foreground;
     font-weight: 400;
-    font-family: 'Haskoy', sans-serif;
+    font-family: 'Glacial Indifference', 'Haskoy', system-ui, sans-serif;
   }
 
   h1,
@@ -95,7 +111,7 @@
   h4,
   h5,
   h6 {
-    font-family: 'Fraunces', serif;
+    font-family: 'Glacial Indifference', 'Fraunces', system-ui, sans-serif;
   }
 
   :-webkit-autofill {
@@ -180,4 +196,20 @@
   background: var(--border-gradient);
   background-size: 400%;
   animation: rainbow 30s linear infinite;
+}
+
+/* Songs marquee animation (also lives in songs-marquee.css — duplicated here
+   as a diagnostic to verify the rule reaches the DOM when loaded from the
+   guaranteed-loaded global stylesheet). */
+.song-marquee-track {
+  animation: song-marquee-drift 180s linear infinite;
+  will-change: transform;
+}
+@keyframes song-marquee-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }

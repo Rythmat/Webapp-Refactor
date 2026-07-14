@@ -240,8 +240,8 @@ export const jungle_boogie: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=QGKiC2suCHQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/kool-and-the-gang.webp',
+  artistImageRef: '/artists/svg/kool-and-the-gang.webp',
   popularity: 50,
 };

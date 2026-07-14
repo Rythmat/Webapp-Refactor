@@ -541,8 +541,8 @@ export const aint_no_other_man: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8x7Ta89QLo4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/christina-aguilera.webp',
+  artistImageRef: '/artists/svg/christina-aguilera.webp',
   popularity: 50,
 };

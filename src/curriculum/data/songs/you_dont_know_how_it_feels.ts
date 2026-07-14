@@ -435,8 +435,8 @@ export const you_dont_know_how_it_feels: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ygfA1A45tn8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tom-petty.webp',
+  artistImageRef: '/artists/svg/tom-petty.webp',
   popularity: 50,
 };

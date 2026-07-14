@@ -312,8 +312,8 @@ export const all_of_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=450p7goxZqg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/john-legend.webp',
+  artistImageRef: '/artists/svg/john-legend.webp',
   popularity: 50,
 };

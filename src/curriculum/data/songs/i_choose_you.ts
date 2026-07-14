@@ -248,8 +248,8 @@ export const i_choose_you: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=xjE5D9cHiOk' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/sara-bareilles.webp',
+  artistImageRef: '/artists/svg/sara-bareilles.webp',
   popularity: 50,
 };

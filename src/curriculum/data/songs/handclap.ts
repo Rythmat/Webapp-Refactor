@@ -631,8 +631,8 @@ export const handclap: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Y2V6yjjPbX0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/fitz-and-the-tantrums.webp',
+  artistImageRef: '/artists/svg/fitz-and-the-tantrums.webp',
   popularity: 50,
 };

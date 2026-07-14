@@ -276,8 +276,8 @@ export const killing_me_softly_flack: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oKOtzIo-uYw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-fugees.webp',
+  artistImageRef: '/artists/svg/the-fugees.webp',
   popularity: 50,
 };

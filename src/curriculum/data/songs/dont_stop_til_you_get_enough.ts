@@ -113,8 +113,8 @@ export const dont_stop_til_you_get_enough: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yURRmWtbTbo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/michael-jackson.webp',
+  artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
 };

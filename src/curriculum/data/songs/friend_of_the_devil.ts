@@ -314,8 +314,8 @@ export const friend_of_the_devil: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XacvydVrhuI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/grateful-dead.webp',
+  artistImageRef: '/artists/svg/grateful-dead.webp',
   popularity: 50,
 };

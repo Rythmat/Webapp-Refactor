@@ -135,8 +135,8 @@ export const hard_to_handle: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BRcs_OzQb14' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-black-crowes.webp',
+  artistImageRef: '/artists/svg/the-black-crowes.webp',
   popularity: 50,
 };

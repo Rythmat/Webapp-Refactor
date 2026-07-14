@@ -139,8 +139,8 @@ export const shake_it_off: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nfWlot6h_JM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/taylor-swift.webp',
+  artistImageRef: '/artists/svg/taylor-swift.webp',
   popularity: 50,
 };

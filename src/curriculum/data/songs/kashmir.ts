@@ -129,8 +129,8 @@ export const kashmir: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PD-MdiUm1_Y' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/led-zeppelin.webp',
+  artistImageRef: '/artists/svg/led-zeppelin.webp',
   popularity: 50,
 };

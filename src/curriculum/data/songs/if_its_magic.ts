@@ -242,8 +242,8 @@ export const if_its_magic: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fX36mGEqfw4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-wonder.webp',
+  artistImageRef: '/artists/svg/stevie-wonder.webp',
   popularity: 50,
 };

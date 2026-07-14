@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const pride_and_joy: Song = {
   id: 'pride_and_joy',
   title: 'Pride And Joy',
-  artist: 'Stevie Ray Vaughn',
+  artist: 'Stevie Ray Vaughan',
   year: undefined,
 
   historicalDescription:
@@ -65,8 +65,8 @@ export const pride_and_joy: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kfjXp4KTTY8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/stevie-ray-vaughn.webp',
+  artistImageRef: '/artists/svg/stevie-ray-vaughan.webp',
   popularity: 50,
 };

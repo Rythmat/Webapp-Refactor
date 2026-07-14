@@ -126,8 +126,8 @@ export const tupelo_honey: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3DbTIKHYwog' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/van-morrison.webp',
+  artistImageRef: '/artists/svg/van-morrison.webp',
   popularity: 50,
 };

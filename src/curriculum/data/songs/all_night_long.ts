@@ -308,8 +308,8 @@ export const all_night_long: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nqAvFx3NxUM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/lionel-richie.webp',
+  artistImageRef: '/artists/svg/lionel-richie.webp',
   popularity: 50,
 };

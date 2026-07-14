@@ -345,8 +345,8 @@ export const reach_out_ill_be_there: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2EaflX0MWRo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/four-tops.webp',
+  artistImageRef: '/artists/svg/four-tops.webp',
   popularity: 50,
 };

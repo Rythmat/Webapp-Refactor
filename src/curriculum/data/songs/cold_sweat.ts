@@ -165,8 +165,8 @@ export const cold_sweat: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tvltTXEg5kI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/james-brown.webp',
+  artistImageRef: '/artists/svg/james-brown.webp',
   popularity: 50,
 };

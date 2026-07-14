@@ -304,8 +304,8 @@ export const wish_you_were_here: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=K6qj09OHvjw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/pink-floyd.webp',
+  artistImageRef: '/artists/svg/pink-floyd.webp',
   popularity: 50,
 };

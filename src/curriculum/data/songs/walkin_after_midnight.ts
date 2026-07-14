@@ -156,8 +156,8 @@ export const walkin_after_midnight: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bsRNCvHXHHU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/patsy-cline.webp',
+  artistImageRef: '/artists/svg/patsy-cline.webp',
   popularity: 50,
 };

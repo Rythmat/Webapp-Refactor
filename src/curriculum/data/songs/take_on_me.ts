@@ -459,8 +459,8 @@ export const take_on_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=djV11Xbc914' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/a-ha.webp',
+  artistImageRef: '/artists/svg/a-ha.webp',
   popularity: 50,
 };

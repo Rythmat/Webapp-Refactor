@@ -91,8 +91,8 @@ export const seen_and_not_seen: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PH5JvU19_YQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/talking-heads.webp',
+  artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
 };

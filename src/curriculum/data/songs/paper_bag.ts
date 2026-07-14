@@ -310,8 +310,8 @@ export const paper_bag: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BK30r_SIZ-g' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/fiona-apple.webp',
+  artistImageRef: '/artists/svg/fiona-apple.webp',
   popularity: 50,
 };

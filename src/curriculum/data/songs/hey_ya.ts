@@ -44,8 +44,8 @@ export const hey_ya: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PWgvGjAhvIw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/outkast.webp',
+  artistImageRef: '/artists/svg/outkast.webp',
   popularity: 50,
 };

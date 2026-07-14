@@ -179,8 +179,8 @@ export const where_is_the_love: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WpYeekQkAdc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/black-eyed-peas.webp',
+  artistImageRef: '/artists/svg/black-eyed-peas.webp',
   popularity: 50,
 };

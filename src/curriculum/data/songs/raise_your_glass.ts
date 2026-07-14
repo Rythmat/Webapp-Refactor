@@ -118,8 +118,8 @@ export const raise_your_glass: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XjVNlG5cZyQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/pink.webp',
+  artistImageRef: '/artists/svg/pink.webp',
   popularity: 50,
 };

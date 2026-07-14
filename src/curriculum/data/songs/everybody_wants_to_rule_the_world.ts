@@ -384,8 +384,8 @@ export const everybody_wants_to_rule_the_world: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aGCdLKXNF3w' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tears-for-fears.webp',
+  artistImageRef: '/artists/svg/tears-for-fears.webp',
   popularity: 50,
 };

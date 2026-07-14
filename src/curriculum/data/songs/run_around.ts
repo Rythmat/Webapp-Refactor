@@ -53,8 +53,8 @@ export const run_around: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ousaiByU1ko' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/blues-traveler.webp',
+  artistImageRef: '/artists/svg/blues-traveler.webp',
   popularity: 50,
 };

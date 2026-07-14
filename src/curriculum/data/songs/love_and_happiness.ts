@@ -342,8 +342,8 @@ export const love_and_happiness: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=cPkXeWww0U8' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/al-green.webp',
+  artistImageRef: '/artists/svg/al-green.webp',
   popularity: 50,
 };

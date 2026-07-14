@@ -379,8 +379,8 @@ export const jesus_etc: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=v4_O4Sj-XTs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/wilco.webp',
+  artistImageRef: '/artists/svg/wilco.webp',
   popularity: 50,
 };

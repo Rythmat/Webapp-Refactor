@@ -462,8 +462,8 @@ export const i_want_you_back: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=y2bVIBwpCTA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-jackson-5.webp',
+  artistImageRef: '/artists/svg/the-jackson-5.webp',
   popularity: 50,
 };

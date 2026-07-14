@@ -168,8 +168,8 @@ export const man_of_constant_sorrow: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sRnxr4XF9yA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-soggy-bottom-boys.webp',
+  artistImageRef: '/artists/svg/the-soggy-bottom-boys.webp',
   popularity: 50,
 };

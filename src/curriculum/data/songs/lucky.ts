@@ -317,8 +317,8 @@ export const lucky: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=acvIVA9-FMQ' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jason-mraz.webp',
+  artistImageRef: '/artists/svg/jason-mraz.webp',
   popularity: 50,
 };

@@ -445,8 +445,8 @@ export const doo_wop_that_thing: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=T6QKqFPRZSA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/lauryn-hill.webp',
+  artistImageRef: '/artists/svg/lauryn-hill.webp',
   popularity: 50,
 };

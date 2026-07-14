@@ -401,8 +401,8 @@ export const feeling_alright: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FoAO0851FwA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/joe-cocker.webp',
+  artistImageRef: '/artists/svg/joe-cocker.webp',
   popularity: 50,
 };

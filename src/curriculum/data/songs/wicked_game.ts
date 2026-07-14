@@ -61,8 +61,8 @@ export const wicked_game: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=jd-qI62gNJM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chris-isaak.webp',
+  artistImageRef: '/artists/svg/chris-isaak.webp',
   popularity: 50,
 };

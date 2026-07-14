@@ -165,8 +165,8 @@ export const bare_necessities: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6BH-Rxd-NBo' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/jungle-book.webp',
+  artistImageRef: '/artists/svg/jungle-book.webp',
   popularity: 50,
 };

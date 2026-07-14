@@ -292,8 +292,8 @@ export const juice: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XaCrQL_8eMY' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/lizzo.webp',
+  artistImageRef: '/artists/svg/lizzo.webp',
   popularity: 50,
 };

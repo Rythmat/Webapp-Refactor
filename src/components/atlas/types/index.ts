@@ -79,13 +79,13 @@ export interface FlyTarget {
   zoom: number;
 }
 
-// --- Historical Journey Modules ---
+// --- Historical Pathway Modules ---
 export interface HistoricalModule {
   id: string;
   title: string;
   description: string;
   emoji: string;
-  eventIds: string[]; // ordered event IDs forming the journey
+  eventIds: string[]; // ordered event IDs forming the pathway
 }
 
 export interface ModuleProgress {
@@ -93,12 +93,10 @@ export interface ModuleProgress {
   currentStep: number; // 0-indexed
 }
 
-// --- AI Insight ---
-export interface AIInsight {
-  query: string;
-  content: string;
-  status: 'idle' | 'loading' | 'streaming' | 'done' | 'error';
-  error?: string;
+// --- Guided Tours (place-based region/city tours) ---
+export interface TourProgress {
+  tourId: string;
+  currentStep: number; // 0-indexed
 }
 
 // --- App State ---
@@ -117,11 +115,18 @@ export interface AppState {
   searchResults: HistoricalEvent[];
   pinnedEvent: HistoricalEvent | null;
   activeModule: ModuleProgress | null;
+  activeTour: TourProgress | null;
   selectedEra: string | null;
   searchFlyTarget: FlyTarget | null;
-  aiInsight: AIInsight;
   /** Which influence arc directions are visible on the globe */
   visibleArcDirections: Set<'upstream' | 'downstream'>;
+  /**
+   * Rendered width (px) of the DetailsCard while it shows an expanded event, or
+   * null. The globe shifts right by half of this so the region clears the card.
+   */
+  detailsPanelWidth: number | null;
+  /** True while the user has paused the influence-arc globe auto-rotation. */
+  rotationPaused: boolean;
 }
 
 export type AppAction =
@@ -143,13 +148,14 @@ export type AppAction =
       payload: { year?: number; lat?: number; lng?: number; zoom?: number };
     }
   | { type: 'CLEAR_FLY_TARGET' }
-  | { type: 'AI_INSIGHT_START'; payload: string }
-  | { type: 'AI_INSIGHT_CHUNK'; payload: string }
-  | { type: 'AI_INSIGHT_DONE' }
-  | { type: 'AI_INSIGHT_ERROR'; payload: string }
+  | { type: 'SET_ROTATION_PAUSED'; payload: boolean }
   | { type: 'START_MODULE'; payload: { moduleId: string } }
   | { type: 'MODULE_STEP'; payload: number }
   | { type: 'EXIT_MODULE' }
-  | { type: 'AI_INSIGHT_CLEAR' }
+  | { type: 'START_TOUR'; payload: { tourId: string } }
+  | { type: 'TOUR_STEP'; payload: number }
+  | { type: 'EXIT_TOUR' }
   | { type: 'SET_ERA'; payload: string | null }
-  | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' };
+  | { type: 'SET_DETAILS_PANEL_WIDTH'; payload: number | null }
+  | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' }
+  | { type: 'OPEN_INFLUENCE_ARCS' };

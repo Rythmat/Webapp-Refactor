@@ -390,8 +390,8 @@ export const god_only_knows: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NADx3-qRxek' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-beach-boys.webp',
+  artistImageRef: '/artists/svg/the-beach-boys.webp',
   popularity: 50,
 };

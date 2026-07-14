@@ -497,8 +497,8 @@ export const luck_be_a_lady: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=X69P_Vce9vw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/frank-sinatra.webp',
+  artistImageRef: '/artists/svg/frank-sinatra.webp',
   popularity: 50,
 };

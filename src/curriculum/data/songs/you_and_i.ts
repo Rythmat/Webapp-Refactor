@@ -611,8 +611,8 @@ export const you_and_i: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=F6cJ1u6O-0Q' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/wilco.webp',
+  artistImageRef: '/artists/svg/wilco.webp',
   popularity: 50,
 };

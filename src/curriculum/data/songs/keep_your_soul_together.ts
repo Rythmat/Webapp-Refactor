@@ -191,8 +191,8 @@ export const keep_your_soul_together: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8mgtk460AhI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/freddie-hubbard.webp',
+  artistImageRef: '/artists/svg/freddie-hubbard.webp',
   popularity: 50,
 };

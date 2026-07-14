@@ -319,8 +319,8 @@ export const good_times: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Er9xGRolrT4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chic.webp',
+  artistImageRef: '/artists/svg/chic.webp',
   popularity: 50,
 };

@@ -536,8 +536,8 @@ export const cigarettes_and_chocolate_milk: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hll_pO59ksc' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/rufus-wainwright.webp',
+  artistImageRef: '/artists/svg/rufus-wainwright.webp',
   popularity: 50,
 };

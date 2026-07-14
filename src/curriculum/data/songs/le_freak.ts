@@ -280,8 +280,8 @@ export const le_freak: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aXgSHL7efKg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/chic.webp',
+  artistImageRef: '/artists/svg/chic.webp',
   popularity: 50,
 };

@@ -161,8 +161,8 @@ export const sweet_pea: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=DR7CMndEuAg' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/amos-lee.webp',
+  artistImageRef: '/artists/svg/amos-lee.webp',
   popularity: 50,
 };

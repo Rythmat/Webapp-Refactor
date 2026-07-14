@@ -282,8 +282,8 @@ export const somethin_for_ya: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=KDtbimiwhO0' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/pigeons-playing-ping-pong.webp',
+  artistImageRef: '/artists/svg/pigeons-playing-ping-pong.webp',
   popularity: 50,
 };

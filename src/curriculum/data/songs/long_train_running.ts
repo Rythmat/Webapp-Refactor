@@ -378,8 +378,8 @@ export const long_train_running: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=qKlvXKUCguI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/doobie-brothers.webp',
+  artistImageRef: '/artists/svg/the-doobie-brothers.webp',
   popularity: 50,
 };

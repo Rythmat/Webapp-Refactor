@@ -110,8 +110,8 @@ export const lovesong: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ks_qOI0lzho' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-cure.webp',
+  artistImageRef: '/artists/svg/the-cure.webp',
   popularity: 50,
 };

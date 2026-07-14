@@ -422,6 +422,6 @@ export const love_never_felt_so_good: Song = {
   ],
   artistImageSource: 'manual',
 
-  artistImageRef: '/artists/michael-jackson.webp',
+  artistImageRef: '/artists/svg/michael-jackson.webp',
   popularity: 50,
 };

@@ -175,8 +175,8 @@ export const against_the_wind: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2vRsEC65NTA' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/bob-seger-amp-the-silver-bullet-band.webp',
+  artistImageRef: '/artists/svg/bob-seger.webp',
   popularity: 50,
 };

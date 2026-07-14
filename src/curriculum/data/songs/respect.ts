@@ -154,8 +154,8 @@ export const respect: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=A134hShx_gw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/aretha-franklin.webp',
+  artistImageRef: '/artists/svg/aretha-franklin.webp',
   popularity: 50,
 };

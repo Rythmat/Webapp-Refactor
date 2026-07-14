@@ -200,8 +200,8 @@ export const life_during_wartime: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8al5cSQNmME' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/talking-heads.webp',
+  artistImageRef: '/artists/svg/talking-heads.webp',
   popularity: 50,
 };

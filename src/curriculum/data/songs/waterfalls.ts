@@ -66,8 +66,8 @@ export const waterfalls: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8WEtxJ4-sh4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/tlc.webp',
+  artistImageRef: '/artists/svg/tlc.webp',
   popularity: 50,
 };

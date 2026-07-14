@@ -358,8 +358,8 @@ export const mony_mony: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sYYAv-QW38Q' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/billy-idol.webp',
+  artistImageRef: '/artists/svg/billy-idol.webp',
   popularity: 50,
 };

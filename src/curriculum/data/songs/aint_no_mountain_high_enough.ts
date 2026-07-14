@@ -521,8 +521,8 @@ export const aint_no_mountain_high_enough: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IC5PL0XImjw' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/marvin-gaye.webp',
+  artistImageRef: '/artists/svg/marvin-gaye.webp',
   popularity: 50,
 };

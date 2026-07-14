@@ -62,8 +62,8 @@ export const cake_by_the_ocean: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=vWaRiD5ym74' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/dnce.webp',
+  artistImageRef: '/artists/svg/dnce.webp',
   popularity: 50,
 };

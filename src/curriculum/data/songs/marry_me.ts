@@ -243,8 +243,8 @@ export const marry_me: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ghZt2cILcCU' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/train.webp',
+  artistImageRef: '/artists/svg/train.webp',
   popularity: 50,
 };

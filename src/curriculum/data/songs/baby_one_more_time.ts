@@ -296,8 +296,8 @@ export const baby_one_more_time: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=C-u5WLJ9Yk4' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/britney-spears.webp',
+  artistImageRef: '/artists/svg/britney-spears.webp',
   popularity: 50,
 };

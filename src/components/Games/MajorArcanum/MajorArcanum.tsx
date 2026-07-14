@@ -715,7 +715,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
 
   // --- Render ---
   return (
-    <div className="flex w-full h-full bg-[#09090b] text-zinc-100 overflow-hidden font-sans">
+    <div className="flex w-full h-full bg-[#101012] text-zinc-100 overflow-hidden font-sans">
       {uiState.showKeySelector && (
         <CircleOfFifthsSelector
           onSelect={changeKey}
@@ -724,7 +724,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         />
       )}
 
-      <div className="flex-1 flex flex-col relative bg-[#09090b]">
+      <div className="flex-1 flex flex-col relative bg-[#101012]">
         <GameHeader
           gameMode={uiState.gameMode}
           keyName={uiState.keyName}
@@ -758,16 +758,15 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         />
 
         {/* Canvas */}
-        <div ref={containerRef} className="flex-1 relative bg-[#09090b]">
+        <div ref={containerRef} className="flex-1 relative bg-[#101012]">
           <canvas ref={canvasRef} className="block w-full h-full" />
 
           {/* Feedback overlay */}
           <div
-            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-bold tracking-tight transition-opacity duration-200 pointer-events-none"
+            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-bold tracking-tight transition-opacity duration-200 pointer-events-none font-serif"
             style={{
               opacity: uiState.feedbackVisible ? 1 : 0,
               color: uiState.feedbackColor,
-              fontFamily: '"Playfair Display", serif',
               fontStyle: 'italic',
               textShadow: '0 4px 20px rgba(0,0,0,0.5)',
               transform: uiState.feedbackVisible

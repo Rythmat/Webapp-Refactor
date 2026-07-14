@@ -4,6 +4,8 @@ interface HoneycombCarouselProps {
   slides: string[];
   intervalMs?: number;
   className?: string;
+  /** Fires when the carousel advances to a new slide (after the crossfade settles). */
+  onSlideChange?: (index: number) => void;
 }
 
 const prefersReducedMotion = () =>
@@ -14,6 +16,7 @@ export const HoneycombCarousel: FC<HoneycombCarouselProps> = ({
   slides,
   intervalMs = 8000,
   className = '',
+  onSlideChange,
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState<number | null>(null);
@@ -27,7 +30,10 @@ export const HoneycombCarousel: FC<HoneycombCarouselProps> = ({
       const preload = new Image();
       preload.src = slides[next];
       preload.onload = () => {
+        // Fire onSlideChange at the START of the crossfade so subscribers
+        // (e.g., FeaturedSongCard) can begin their own crossfade in lockstep.
         setNextIndex(next);
+        onSlideChange?.(next);
         timerRef.current = setTimeout(() => {
           setActiveIndex(next);
           setNextIndex(null);
@@ -39,10 +45,11 @@ export const HoneycombCarousel: FC<HoneycombCarouselProps> = ({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [activeIndex, slides, intervalMs]);
+  }, [activeIndex, slides, intervalMs, onSlideChange]);
 
   const containerStyle: React.CSSProperties = {
     height: '100%',
+    minHeight: '140px',
     background:
       'linear-gradient(135deg, rgba(214,90,101,0.15), rgba(157,92,99,0.12) 40%, rgba(42,42,42,0.4))',
   };

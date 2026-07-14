@@ -467,8 +467,8 @@ export const tiny_dancer: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yYcyacLRPNs' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/elton-john.webp',
+  artistImageRef: '/artists/svg/elton-john.webp',
   popularity: 50,
 };

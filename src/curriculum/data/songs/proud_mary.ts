@@ -190,10 +190,10 @@ export const proud_mary: Song = {
   ],
 
   audioSources: [
-    { provider: 'youtube', uri: 'https://youtube.com/watch?v=hzQnPz6TpGc' },
+    { provider: 'youtube', uri: 'https://youtube.com/watch?v=2RF7Ya9YHEI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/ike-and-tina-turner.webp',
+  artistImageRef: '/artists/svg/ike-and-tina-turner.webp',
   popularity: 50,
 };

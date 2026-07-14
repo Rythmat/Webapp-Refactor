@@ -145,8 +145,8 @@ export const fire_and_rain: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_1nKGVDhQ60' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/james-taylor.webp',
+  artistImageRef: '/artists/svg/james-taylor.webp',
   popularity: 50,
 };

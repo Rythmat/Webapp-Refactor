@@ -324,8 +324,8 @@ export const lets_stay_together: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XXx6RDzR6eM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/al-green.webp',
+  artistImageRef: '/artists/svg/al-green.webp',
   popularity: 50,
 };

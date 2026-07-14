@@ -420,8 +420,8 @@ export const motownphilly: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Rciee-oQLoI' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/boyz-2-men.webp',
+  artistImageRef: '/artists/svg/boyz-ii-men.webp',
   popularity: 50,
 };

@@ -312,8 +312,8 @@ export const december_1963_oh_what_a_night: Song = {
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mTUhnIY3oRM' },
   ],
-  artistImageSource: 'commissioned',
+  artistImageSource: 'manual',
 
-  artistImageRef: '/artists/the-four-seasons.webp',
+  artistImageRef: '/artists/svg/the-four-seasons.webp',
   popularity: 50,
 };

@@ -21,33 +21,59 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const auth = verifyAuthToken(req.headers.authorization ?? null);
+  const auth = await verifyAuthToken(req.headers.authorization ?? null);
   if (!auth) {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
 
-  const roomId = req.query.id as string;
-  if (!roomId) {
-    res.status(400).json({ error: 'Missing room ID' });
+  const roomId = typeof req.query.id === 'string' ? req.query.id : '';
+  if (!roomId || roomId.length > 128) {
+    res.status(400).json({ error: 'Missing or invalid room ID' });
     return;
   }
 
-  const { targetUserId, targetUserName, role, projectName } = req.body ?? {};
-  if (!targetUserId || !role || !['editor', 'viewer'].includes(role)) {
+  const body = (req.body ?? {}) as Record<string, unknown>;
+  const { targetUserId, role } = body;
+  if (
+    typeof targetUserId !== 'string' ||
+    targetUserId.length < 1 ||
+    targetUserId.length > 128 ||
+    (role !== 'editor' && role !== 'viewer')
+  ) {
     res.status(400).json({
-      error: 'Invalid body: need targetUserId and role (editor|viewer)',
+      error:
+        'Invalid body: need targetUserId (string) and role (editor|viewer)',
     });
     return;
   }
 
+  // Bound the caller-supplied display strings that get stored and shown in the
+  // target's invite list. React escapes them (no XSS), but cap length to keep a
+  // hostile caller from storing huge / abusive text.
+  const capString = (v: unknown, max: number): string =>
+    typeof v === 'string' ? v.slice(0, max) : '';
+  const projectName = capString(body.projectName, 100);
+  const inviterName = capString(body.targetUserName, 60) || 'Someone';
+
   const redis = getRedis();
-  // Studio/jam rooms are ephemeral and have no stored record. When there's no
-  // room record we skip the membership-based permission and duplicate checks
-  // and trust the caller's auth token; the room name comes from the request.
+
+  // Rate-limit invite creation per caller to curb invite spam / phishing.
+  const rlKey = `ratelimit:invite:${auth.sub}`;
+  const count = await redis.incr(rlKey);
+  if (count === 1) await redis.expire(rlKey, 3600);
+  if (count > 30) {
+    res.status(429).json({ error: 'Too many invites; please try again later' });
+    return;
+  }
+
+  // When a room record exists, enforce that only an owner/editor may invite.
+  // NOTE: studio/jam rooms are ephemeral and have NO server-side ownership
+  // record, so this check cannot run for them — room access is instead gated by
+  // the room code. Full server-enforced authorization requires moving room
+  // membership into the backend (music-atlas-api).
   const room = await getStoredRoom(redis, roomId);
   if (room) {
-    // Only owner or editor can invite
     const callerMember = room.members[auth.sub];
     if (!callerMember || callerMember.role === 'viewer') {
       res
@@ -65,9 +91,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   await storePendingInvite(redis, targetUserId, {
     roomId,
-    roomName: room?.projectName ?? String(projectName ?? 'Studio Session'),
+    roomName: room?.projectName ?? (projectName || 'Studio Session'),
     invitedBy: auth.sub,
-    inviterName: targetUserName ? String(targetUserName) : 'Someone',
+    inviterName,
     role,
     createdAt: Date.now(),
   });

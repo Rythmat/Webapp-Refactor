@@ -24,11 +24,20 @@ function getJWKS(domain: string) {
 }
 
 /**
- * Validate the auth token passed via WebSocket connection URL params.
- * Returns the user's identity and role, or null if invalid.
+ * Validate the auth token passed via the WebSocket connection URL and return the
+ * user's identity + requested collab role, or null if invalid.
  *
- * In production (AUTH0_DOMAIN set), verifies the JWT using JWKS.
- * In development, falls back to decoding without full verification.
+ * The token is the Auth0 access token (audience = the API audience) carrying a
+ * custom `user_id` claim = the app User.id. We verify its signature against
+ * Auth0's JWKS (RS256) and check issuer + audience, then read the VERIFIED
+ * `user_id`. Fails CLOSED: a missing / invalid / expired token, or an
+ * unconfigured environment, returns null so the connection is rejected. It never
+ * decodes an unverified token — doing so would let a caller forge any `user_id`
+ * and `role` and connect as (or host as) any user.
+ *
+ * REQUIRES `AUTH0_DOMAIN` + `AUTH0_AUDIENCE` in the PartyKit environment,
+ * matching the client's `VITE_AUTH0_DOMAIN` / `VITE_AUTH0_AUDIENCE`. Local
+ * `partykit dev` must set them too, or collab connections are rejected.
  */
 export async function validateConnection(
   url: string,
@@ -45,47 +54,25 @@ export async function validateConnection(
       (env?.AUTH0_AUDIENCE as string) ??
       globalThis.process?.env?.AUTH0_AUDIENCE;
 
-    if (!token) {
-      // No token — allow connection in dev mode, deny in production
-      const isDev = !auth0Domain;
-      if (isDev) {
-        return { userId: `anon-${Date.now()}`, role };
-      }
-      return null;
-    }
+    // Fail closed — we cannot verify without a token and Auth0 config.
+    if (!token || !auth0Domain || !auth0Audience) return null;
 
-    // Prefer a verified Auth0 JWT when configured, but the Music Atlas web
-    // client connects with its own session JWT (signed by the app, carrying a
-    // `user_id` claim — NOT an Auth0 `sub`), which won't verify against Auth0's
-    // JWKS. So fall through to an unverified decode below on failure.
-    if (auth0Domain && auth0Audience) {
-      try {
-        const JWKS = getJWKS(auth0Domain);
-        const { payload } = await jwtVerify(token, JWKS, {
-          issuer: `https://${auth0Domain}/`,
-          audience: auth0Audience,
-        });
-        const uid = (payload.user_id as string | undefined) ?? payload.sub;
-        if (uid) return { userId: uid, role };
-      } catch {
-        // Not an Auth0-signed token — handled by the decode below.
-      }
-    }
+    const JWKS = getJWKS(auth0Domain);
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: `https://${auth0Domain}/`,
+      audience: auth0Audience,
+    });
 
-    // Decode the session JWT without verification and read `user_id`. This MUST
-    // match the identity the web client uses (decodeToken → `user_id`, broadcast
-    // in awareness presence) or host tracking / kick / ban can't line up the
-    // connection with the presence the host is acting on.
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
+    // The app User.id travels in a custom `user_id` claim (fallback: `sub`).
+    // This MUST match the identity the web client broadcasts in awareness
+    // presence, or host tracking / kick / ban can't line up the connection with
+    // the presence the host is acting on.
+    const uid =
+      (payload.user_id as string | undefined) ??
+      (payload.sub as string | undefined);
+    if (!uid) return null;
 
-    const payload = JSON.parse(
-      atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')),
-    );
-    const userId = (payload.user_id ?? payload.sub) as string | undefined;
-    if (!userId) return null;
-
-    return { userId: String(userId), role };
+    return { userId: String(uid), role };
   } catch {
     return null;
   }

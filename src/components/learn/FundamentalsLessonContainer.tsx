@@ -5,7 +5,7 @@
  * and success feedback. Follows the GenreLessonContainer UI patterns.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { CurriculumRoutes } from '@/constants/routes';
@@ -104,6 +104,7 @@ function FundamentalsLessonContainerInner({
     quizState,
     onNoteReceived,
     advance,
+    goToStep,
     resetStep,
   } = useFundamentalsFlow(section);
 
@@ -113,16 +114,43 @@ function FundamentalsLessonContainerInner({
     stop: stopInput,
   } = useLearnInputStable();
 
+  // Preview / Practice / Performance gating — mirrors the Demo/Practice/
+  // Performance pattern used by genre lessons, adapted for Fundamentals'
+  // single-note (non-timeline) steps.
+  const [activityState, setActivityState] = useState<
+    'preview' | 'practice' | 'performance'
+  >('preview');
+  const [isPlayingDemo, setIsPlayingDemo] = useState(false);
+  const [demoHighlightMidis, setDemoHighlightMidis] = useState<Set<number>>(
+    new Set(),
+  );
+  const demoTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const stopDemo = useCallback(() => {
+    demoTimeoutsRef.current.forEach(clearTimeout);
+    demoTimeoutsRef.current = [];
+    setIsPlayingDemo(false);
+    setDemoHighlightMidis(new Set());
+  }, []);
+
+  // Reset to the preview gate whenever the step changes (advance, retry, or dot click)
+  useEffect(() => {
+    stopDemo();
+    setActivityState('preview');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStepIndex]);
+
   // MIDI input handling — play sound and evaluate
   const handleNoteOn = useCallback(
     (event: { number: number; source?: 'midi' | 'audio' }) => {
+      if (activityState === 'preview') return;
       // Only play sampler sound for MIDI input — acoustic piano already produces sound
       if (event.source !== 'audio') {
         playNote(event.number);
       }
       onNoteReceived(event.number);
     },
-    [playNote, onNoteReceived],
+    [playNote, onNoteReceived, activityState],
   );
 
   useEffect(() => {
@@ -137,10 +165,11 @@ function FundamentalsLessonContainerInner({
   // Keyboard click handler (fallback for users without MIDI controller)
   const handleKeyClick = useCallback(
     (midi: number) => {
+      if (activityState === 'preview') return;
       playNote(midi);
       onNoteReceived(midi);
     },
-    [playNote, onNoteReceived],
+    [playNote, onNoteReceived, activityState],
   );
 
   // Back to overview
@@ -215,6 +244,48 @@ function FundamentalsLessonContainerInner({
         return [];
     }
   }, [currentStep, isPassed]);
+
+  // Target MIDI notes this step expects — used by the preview modal's Demo
+  // button. Only defined for the step types highlightNotes already covers
+  // (exact_midi, simultaneous, octave-aware sequence); quiz/range/multi_zone
+  // steps have no single "answer" to demo.
+  const demoTargetMidis = useMemo(
+    () => highlightNotes.map((n) => n.midi),
+    [highlightNotes],
+  );
+  const canDemo = demoTargetMidis.length > 0;
+
+  const playDemo = useCallback(async () => {
+    if (demoTargetMidis.length === 0) return;
+    stopDemo();
+    setIsPlayingDemo(true);
+
+    const NOTE_GAP_MS = 500;
+    demoTargetMidis.forEach((midi, i) => {
+      const t = setTimeout(() => {
+        playNote(midi);
+        setDemoHighlightMidis((prev) => new Set(prev).add(midi));
+      }, i * NOTE_GAP_MS);
+      demoTimeoutsRef.current.push(t);
+    });
+
+    const totalMs = demoTargetMidis.length * NOTE_GAP_MS + 400;
+    const endTimeout = setTimeout(() => {
+      setIsPlayingDemo(false);
+      setDemoHighlightMidis(new Set());
+    }, totalMs);
+    demoTimeoutsRef.current.push(endTimeout);
+  }, [demoTargetMidis, playNote, stopDemo]);
+
+  const handleStartPractice = useCallback(() => {
+    stopDemo();
+    setActivityState('practice');
+  }, [stopDemo]);
+
+  const handleStartPerformance = useCallback(() => {
+    stopDemo();
+    setActivityState('performance');
+  }, [stopDemo]);
 
   // Quiz display note
   const quizDisplayNote = useMemo(() => {
@@ -363,12 +434,18 @@ function FundamentalsLessonContainerInner({
           const isCompleted = completedSteps.has(i);
           const isCurrent = i === currentStepIndex;
           return (
-            <div
+            <button
               key={i}
+              type="button"
+              onClick={() => goToStep(i)}
+              aria-label={`Go to step ${i + 1}`}
               style={{
                 width: isCurrent ? '24px' : '16px',
                 height: '6px',
                 borderRadius: '3px',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
                 background: isCompleted
                   ? '#4aff4a'
                   : isCurrent
@@ -417,63 +494,187 @@ function FundamentalsLessonContainerInner({
           </div>
         )}
 
-        {/* Quiz display */}
-        {quizDisplayNote && (
-          <div
-            className="flex flex-col items-center gap-2 rounded-xl px-8 py-6"
-            style={{
-              background: 'rgba(126, 207, 207, 0.08)',
-              border: `1px solid ${accentColor}`,
-            }}
-          >
-            <span
-              className="text-xs font-medium uppercase tracking-wider"
-              style={{ color: 'var(--color-text-dim)' }}
+        {/* Interactive area — preview modal overlays this until a mode is chosen */}
+        <div
+          className="flex w-full max-w-3xl flex-col items-center gap-6"
+          style={{ position: 'relative' }}
+        >
+          {/* Preview modal — Demo / Practice / Performance gate */}
+          {activityState === 'preview' && currentStep && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(17,17,17,0.88)',
+                borderRadius: '16px',
+                zIndex: 40,
+              }}
             >
-              Play this note
-            </span>
-            <span className="text-4xl font-bold" style={{ color: accentColor }}>
-              {quizDisplayNote}
-            </span>
-            {quizState && (
+              <div
+                style={{
+                  maxWidth: '420px',
+                  width: '100%',
+                  padding: '28px',
+                  borderRadius: '16px',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid #444',
+                  textAlign: 'center',
+                }}
+              >
+                <h2
+                  style={{
+                    fontSize: '20px',
+                    fontWeight: 600,
+                    marginBottom: '10px',
+                    color: '#fff',
+                  }}
+                >
+                  Ready to start?
+                </h2>
+                <p
+                  style={{
+                    fontSize: '13px',
+                    color: '#aaa',
+                    marginBottom: '20px',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {currentStep.direction}
+                </p>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '10px',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {canDemo && (
+                    <button
+                      type="button"
+                      onClick={() => void playDemo()}
+                      disabled={isPlayingDemo}
+                      style={{
+                        padding: '10px 18px',
+                        borderRadius: '24px',
+                        border: '1px solid #444',
+                        background: isPlayingDemo ? '#1a1a1a' : '#2a2a2a',
+                        color: isPlayingDemo ? '#666' : '#fff',
+                        fontSize: '13px',
+                        cursor: isPlayingDemo ? 'default' : 'pointer',
+                      }}
+                    >
+                      {isPlayingDemo ? '◼ Playing...' : '▶ Demo'}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleStartPractice}
+                    style={{
+                      padding: '10px 20px',
+                      borderRadius: '24px',
+                      border: '1px solid #555',
+                      background: 'transparent',
+                      color: '#eee',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Practice
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleStartPerformance}
+                    style={{
+                      padding: '10px 20px',
+                      borderRadius: '24px',
+                      border: 'none',
+                      background: accentColor,
+                      color: '#111',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Play Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Quiz display */}
+          {quizDisplayNote && (
+            <div
+              className="flex flex-col items-center gap-2 rounded-xl px-8 py-6"
+              style={{
+                background: 'rgba(126, 207, 207, 0.08)',
+                border: `1px solid ${accentColor}`,
+              }}
+            >
               <span
-                className="text-xs"
+                className="text-xs font-medium uppercase tracking-wider"
                 style={{ color: 'var(--color-text-dim)' }}
               >
-                {quizState.currentIndex + 1} of {quizState.queue.length}
-                {' — '}
-                {quizState.correct} correct
+                Play this note
               </span>
-            )}
-          </div>
-        )}
+              <span
+                className="text-4xl font-bold"
+                style={{ color: accentColor }}
+              >
+                {quizDisplayNote}
+              </span>
+              {quizState && (
+                <span
+                  className="text-xs"
+                  style={{ color: 'var(--color-text-dim)' }}
+                >
+                  {quizState.currentIndex + 1} of {quizState.queue.length}
+                  {' — '}
+                  {quizState.correct} correct
+                </span>
+              )}
+            </div>
+          )}
 
-        {/* Progress indicator */}
-        {evalResult && !isPassed && currentStep?.midiEval.type !== 'quiz' && (
-          <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
-            {evalResult.progress}
-          </div>
-        )}
+          {/* Progress indicator */}
+          {evalResult && !isPassed && currentStep?.midiEval.type !== 'quiz' && (
+            <div className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
+              {evalResult.progress}
+            </div>
+          )}
 
-        {/* Piano keyboard with volume dial alongside */}
-        <div
-          className="flex w-full max-w-3xl items-stretch gap-3"
-          style={{ alignItems: 'stretch' }}
-        >
-          <div className="flex-1 min-w-0">
-            <PianoKeyboard
-              startC={startC}
-              endC={endC}
-              enableClick
-              enableMidiInterface={false}
-              onKeyClick={handleKeyClick}
-              playingNotes={highlightNotes}
-              activeWhiteKeyColor={accentColor}
-              activeBlackKeyColor={accentColor}
-              gaming
-            />
+          {/* Piano keyboard with volume dial alongside */}
+          <div
+            className="flex w-full items-stretch gap-3"
+            style={{ alignItems: 'stretch' }}
+          >
+            <div className="flex-1 min-w-0">
+              <PianoKeyboard
+                startC={startC}
+                endC={endC}
+                enableClick
+                enableMidiInterface={false}
+                onKeyClick={handleKeyClick}
+                playingNotes={
+                  isPlayingDemo
+                    ? highlightNotes.filter((n) =>
+                        demoHighlightMidis.has(n.midi),
+                      )
+                    : activityState === 'performance'
+                      ? []
+                      : highlightNotes
+                }
+                activeWhiteKeyColor={accentColor}
+                activeBlackKeyColor={accentColor}
+                gaming
+              />
+            </div>
+            <LessonVolumeDial />
           </div>
-          <LessonVolumeDial />
         </div>
 
         {/* Success overlay */}

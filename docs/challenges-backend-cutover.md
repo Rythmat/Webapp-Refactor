@@ -7,13 +7,14 @@ live. Nothing is deployed to the running API yet, and **the old serverless still
 works** — so the client keeps functioning until you cut over.
 
 ## What changed and why
+
 Per Aaron's call, challenge **definitions, values, and statuses moved to the
 backend** (killing the two-repo reward-table sync). The backend generates the
 same deterministic per-(user, period) set your `_generate.ts` did — I ported it
 verbatim — persists it in Postgres, tracks completion, grants XP on completion,
 and owns the boost lifecycle.
 
-**One thing did NOT move:** completion *detection*. The `challengeEventBus` +
+**One thing did NOT move:** completion _detection_. The `challengeEventBus` +
 `matchCriteria` + `useChallengeWatcher` fire on live SPA events that only exist in
 the browser. So the split is: **backend owns generate / store / status / XP; the
 client still detects a criteria match and POSTs "complete challenge :id".** Keep
@@ -25,31 +26,43 @@ Base path is `/api/challenges` on the experience backend, **not same-origin**.
 Auth is the same Bearer JWT as `/experience/*`.
 
 ### `POST /api/challenges/list`
+
 Body: `{ profile?: { genres: InterestGenre[]; focus: string[] } }`
 Returns (**same `ChallengesListResponse` shape you already render**):
+
 ```ts
 { challenges: Challenge[],   // each with status + completedAt resolved server-side
   boost: { pending: boolean; multiplier: number; claimableAt: number } | null }
 ```
+
 Regenerates on day/week rollover; deterministic, so a user's set matches what the
 old serverless produced for the same period.
 
 ### `POST /api/challenges/:id/complete`
+
 Body: `{ evidence?: any }` (accepted for compat, **ignored** — completion is
 trusted, same as the old serverless). Returns:
+
 ```ts
 { challenge: Challenge,           // status/completedAt resolved
   boostEarned: boolean,           // true when this completes all of today's dailies
   experience: ExperienceSummary } // ← NEW: XP was granted here; refresh from this
 ```
+
 **XP is granted in this call now.** Idempotent by `challenge:<id>` — retries and
 already-completed challenges don't double-grant.
 
 ### `POST /api/challenges/boost/claim`
+
 No body. Returns the **active** window (claim now activates directly):
+
 ```ts
-{ multiplier: number; expiresAt: string | null }
+{
+  multiplier: number;
+  expiresAt: string | null;
+}
 ```
+
 ⚠️ This **replaces** the old `{ multiplier, durationMs }` return. The old flow was
 claim → then call `/experience/boost` to activate; that second call is gone.
 
@@ -88,6 +101,7 @@ Keep: `matchCriteria.ts`, `eventBus.ts`, `useChallengeWatcher.ts`,
 `types.ts`.
 
 ## Cutover ordering & safety
+
 - **Do it in one PR.** Backend deploys first (endpoints sit unused until you flip);
   then your PR repoints + deletes serverless + drops the award/startBoost calls
   atomically. Don't half-flip — a client hitting both stores split-brains.
@@ -95,11 +109,12 @@ Keep: `matchCriteria.ts`, `eventBus.ts`, `useChallengeWatcher.ts`,
   key the old `/award` used, so even overlapping paths can't grant twice.
 - **One-time transition artifact:** the old completion map lived in Redis; the new
   one is a fresh Postgres row. Because generation is deterministic, a user sees the
-  *same* challenges for the current period, but a challenge they completed pre-flip
+  _same_ challenges for the current period, but a challenge they completed pre-flip
   may show `active` again post-flip (their Postgres row starts empty). Re-completing
   is harmless — XP won't re-grant (idempotent). Acceptable for a one-time cutover.
 
 ## Notes
+
 - Generation, rewards (u-lesson 20, u-arcade 15, u-invite 30, u-lesson-week 20,
   genre 25 daily / 35 weekly), COUNT=3, and the seeded shuffle are ported 1:1 from
   `_generate.ts`. New users with no interest genres still get 2 daily challenges

@@ -11,6 +11,7 @@ import {
   getAccentChannel,
 } from '@/components/JamRoom/jamSoundFont';
 import { StarsCanvas } from '@/components/ui/stars-canvas';
+import { ArcadeGameHeader } from '../ArcadeGameHeader';
 
 // --- Constants ---
 
@@ -859,12 +860,11 @@ export default function Constellations({
   }, [phase, handleStarHit]);
 
   return (
-    <div className="relative h-full w-full min-h-0 overflow-hidden">
-      {/* Helper bar — floats over the canvas so it doesn't shift the play
-          field's center away from the true window center. */}
-      <div className="absolute inset-x-0 top-0 h-14 bg-[#101012]/80 backdrop-blur-sm border-b border-white/10 flex items-center justify-between px-6 z-10">
-        <div className="flex items-center gap-3">
-          {onExit && (
+    <div className="relative flex h-full w-full min-h-0 flex-col overflow-hidden">
+      <ArcadeGameHeader
+        title="Constellations"
+        left={
+          onExit && (
             <button
               onClick={onExit}
               className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors"
@@ -872,92 +872,82 @@ export default function Constellations({
               <ArrowLeft size={16} />
               Back to Arcade
             </button>
-          )}
-          <h2 className="text-lg font-semibold text-white font-serif">
-            Constellations
-          </h2>
-          <span className="text-xs text-zinc-500 uppercase tracking-wider">
-            Ear Training
-          </span>
-        </div>
-        <div className="flex items-center gap-4 text-sm text-zinc-400">
-          {phase === 'playing' && (
-            <>
-              <span className="text-purple-300 font-medium">
-                Stars: {score}
-              </span>
-              <span className="text-purple-400 animate-pulse">
-                Hover over the stars...
-              </span>
-            </>
-          )}
-        </div>
-      </div>
+          )
+        }
+        stats={
+          phase === 'playing' ? [{ label: 'Stars', value: score }] : undefined
+        }
+      />
 
-      {/* Canvas area with star background — fills the whole window so its
-          center (where stars spawn) is the true window center. */}
-      <div ref={containerRef} className="absolute inset-0">
-        <StarsCanvas
-          transparent={false}
-          maxStars={400}
-          hue={250}
-          brightness={0.8}
-          speedMultiplier={0.3}
-          twinkleIntensity={30}
-          className="!absolute inset-0 w-full h-full"
-          paused={false}
-        />
-        <canvas
-          ref={canvasRef}
-          className="block w-full h-full relative z-[1]"
-        />
+      {/* Body — fills the space below the header. The canvas area is absolutely
+          positioned within it so its center (where stars spawn) is the true
+          body center. */}
+      <div className="relative flex-1 min-h-0">
+        {/* Canvas area with star background — fills the whole body so its
+            center (where stars spawn) is the true center. */}
+        <div ref={containerRef} className="absolute inset-0">
+          <StarsCanvas
+            transparent={false}
+            maxStars={400}
+            hue={250}
+            brightness={0.8}
+            speedMultiplier={0.3}
+            twinkleIntensity={30}
+            className="!absolute inset-0 w-full h-full"
+            paused={false}
+          />
+          <canvas
+            ref={canvasRef}
+            className="block w-full h-full relative z-[1]"
+          />
 
-        {/* Scale display — sits just below the helper bar, centered. */}
-        {phase === 'playing' && activeScale && (
-          <div className="pointer-events-none absolute inset-x-0 top-14 z-[2] flex flex-col items-center pt-4 text-center">
-            <div className="text-xl font-semibold text-white font-serif">
-              {activeScale.title}
-            </div>
-            {(difficulty === 'easy' || difficulty === 'medium') && (
-              <div className="mt-1 text-sm font-medium tracking-[0.3em] text-white">
-                {activeScale.noteNames.join('  ')}
+          {/* Scale display — sits near the top of the play field, centered. */}
+          {phase === 'playing' && activeScale && (
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-[2] flex flex-col items-center pt-4 text-center">
+              <div className="text-xl font-semibold text-white font-serif">
+                {activeScale.title}
               </div>
-            )}
-          </div>
-        )}
-
-        {phase === 'ready' && (
-          <div className="absolute inset-0 z-[2] bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
-            <h3 className="text-3xl font-serif italic text-white mb-2">
-              Connect the Stars
-            </h3>
-            <p className="text-zinc-400 mb-6 max-w-sm text-center">
-              Stars fly toward you from the void. Hover over each star to play
-              its note and connect the constellation — choose wisely!
-            </p>
-            <div className="mb-6 flex items-center gap-2">
-              {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setDifficulty(d)}
-                  className={`rounded-full px-5 py-1.5 text-sm font-medium capitalize transition-colors ${
-                    difficulty === d
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-400 hover:text-zinc-200'
-                  }`}
-                >
-                  {d}
-                </button>
-              ))}
+              {(difficulty === 'easy' || difficulty === 'medium') && (
+                <div className="mt-1 text-sm font-medium tracking-[0.3em] text-white">
+                  {activeScale.noteNames.join('  ')}
+                </div>
+              )}
             </div>
-            <button
-              onClick={startRound}
-              className="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-medium rounded transition-colors"
-            >
-              Start
-            </button>
-          </div>
-        )}
+          )}
+
+          {phase === 'ready' && (
+            <div className="absolute inset-0 z-[2] bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
+              <h3 className="text-3xl font-serif italic text-white mb-2">
+                Connect the Stars
+              </h3>
+              <p className="text-zinc-400 mb-6 max-w-sm text-center">
+                Stars fly toward you from the void. Hover over each star to play
+                its note and connect the constellation — choose wisely!
+              </p>
+              <div className="mb-6 flex items-center gap-2">
+                {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setDifficulty(d)}
+                    className={`rounded-full px-5 py-1.5 text-sm font-medium capitalize transition-colors ${
+                      difficulty === d
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-400 hover:text-zinc-200'
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={startRound}
+                className="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-medium rounded transition-colors"
+              >
+                Start
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

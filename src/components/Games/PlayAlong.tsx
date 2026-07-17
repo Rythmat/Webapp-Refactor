@@ -12,6 +12,7 @@ import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
+import { ArcadeGameHeader } from './ArcadeGameHeader';
 import PianoRoll, { NoteEvent, pitchNameToMidi } from './PianoRollPlay';
 
 const DEFAULT_EVENTS: NoteEvent[] = [
@@ -484,44 +485,37 @@ export const PlayAlong = ({
   }, [releaseActiveNotes]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="relative">
-        <div
-          className="glass-panel rounded-xl p-4 transition duration-300"
-          style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          <PianoRoll
-            key={playSessionId}
-            inTime
-            activeMidis={activeMidis}
-            bars={requiredBars}
-            beatsPerBar={4}
-            events={resolvedEvents}
-            isPlaying={isPlaying}
-            performanceMeta={performanceMeta}
-            playSpeed={80}
-            rowHeight={28 * 18}
-            subdivision={1}
-            onPlayingChange={setIsPlaying}
-            onTickChange={setCurrentTick}
-          />
-          <div className="flex items-stretch gap-3">
-            <div className="flex-1 min-w-0">
-              <PianoKeyboard
-                showOctaveStart
-                activeBlackKeyColor={activityColor}
-                activeWhiteKeyColor={activityColor}
-                className="mx-auto"
-                endC={6}
-                playingNotes={keyboardPlayingNotes}
-                startC={2}
-              />
-            </div>
-            <LessonVolumeDial />
+    <div className="flex h-full w-full flex-col">
+      <ArcadeGameHeader title="Play Along" />
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 p-4">
+        <PianoRoll
+          key={playSessionId}
+          inTime
+          activeMidis={activeMidis}
+          bars={requiredBars}
+          beatsPerBar={4}
+          events={resolvedEvents}
+          isPlaying={isPlaying}
+          performanceMeta={performanceMeta}
+          playSpeed={80}
+          rowHeight={28 * 18}
+          subdivision={1}
+          onPlayingChange={setIsPlaying}
+          onTickChange={setCurrentTick}
+        />
+        <div className="flex items-stretch gap-3">
+          <div className="flex-1 min-w-0">
+            <PianoKeyboard
+              showOctaveStart
+              activeBlackKeyColor={activityColor}
+              activeWhiteKeyColor={activityColor}
+              className="mx-auto"
+              endC={6}
+              playingNotes={keyboardPlayingNotes}
+              startC={2}
+            />
           </div>
+          <LessonVolumeDial />
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@ import {
   Play,
 } from 'lucide-react';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ArcadeGameHeader } from '../ArcadeGameHeader';
 import { ITEMS, LEVELS } from './data';
 import {
   HEX_WIDTH,
@@ -790,36 +791,45 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
   // Level select screen
   if (levelIndex < 0) {
     return (
-      <div className="flex flex-col bg-[#101012] text-zinc-100 font-sans select-none min-h-[600px]">
-        <LevelSelectScreen
-          levels={LEVELS}
-          onSelect={(idx) => {
-            setLevelIndex(idx);
-            resetLevel();
-            setGameState('intro');
-          }}
-        />
+      <div className="flex flex-col h-full w-full bg-[#101012] text-zinc-100 font-sans select-none overflow-hidden">
+        <ArcadeGameHeader title="Signal Flow" />
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <LevelSelectScreen
+            levels={LEVELS}
+            onSelect={(idx) => {
+              setLevelIndex(idx);
+              resetLevel();
+              setGameState('intro');
+            }}
+          />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-[600px] bg-[#101012] text-zinc-100 font-sans select-none rounded-xl overflow-hidden border border-white/10">
+    <div className="flex flex-col h-full w-full bg-[#101012] text-zinc-100 font-sans select-none overflow-hidden">
       {/* Level Header */}
-      <header className="h-12 bg-white/[0.03] border-b border-white/10 flex items-center justify-between px-6 shrink-0 z-30">
-        <div className="text-xs font-mono text-zinc-500 uppercase tracking-widest">
-          Mission {levelIndex + 1} {/* // */} {currentLevel.title}
-        </div>
-        <button
-          onClick={() => {
-            resetLevel();
-            setLevelIndex(-1);
-          }}
-          className="text-xs font-bold uppercase text-zinc-400 hover:text-white transition-colors"
-        >
-          Levels
-        </button>
-      </header>
+      <ArcadeGameHeader
+        title="Signal Flow"
+        stats={[
+          {
+            label: 'Mission',
+            value: `${levelIndex + 1} — ${currentLevel.title}`,
+          },
+        ]}
+        controls={
+          <button
+            onClick={() => {
+              resetLevel();
+              setLevelIndex(-1);
+            }}
+            className="text-xs font-bold uppercase text-zinc-400 hover:text-white transition-colors"
+          >
+            Levels
+          </button>
+        }
+      />
 
       {/* Board — fills available space, hex pattern tiles across entire area */}
       <div

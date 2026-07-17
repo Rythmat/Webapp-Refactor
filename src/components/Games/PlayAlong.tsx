@@ -48,6 +48,7 @@ type PlayAlongProps = {
   isActive?: boolean;
   startSignal?: number;
   startMessage?: string;
+  arcade?: boolean;
 };
 
 type NotePerformance = {
@@ -61,6 +62,7 @@ export const PlayAlong = ({
   activityColor = '#60a5fa',
   isActive = true,
   startSignal = 0,
+  arcade = false,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const maxEventEndTick = useMemo(
@@ -484,38 +486,62 @@ export const PlayAlong = ({
     };
   }, [releaseActiveNotes]);
 
+  const gameplayContent = (
+    <>
+      <PianoRoll
+        key={playSessionId}
+        inTime
+        activeMidis={activeMidis}
+        bars={requiredBars}
+        beatsPerBar={4}
+        events={resolvedEvents}
+        isPlaying={isPlaying}
+        performanceMeta={performanceMeta}
+        playSpeed={80}
+        rowHeight={28 * 18}
+        subdivision={1}
+        onPlayingChange={setIsPlaying}
+        onTickChange={setCurrentTick}
+      />
+      <div className="flex items-stretch gap-3">
+        <div className="flex-1 min-w-0">
+          <PianoKeyboard
+            showOctaveStart
+            activeBlackKeyColor={activityColor}
+            activeWhiteKeyColor={activityColor}
+            className="mx-auto"
+            endC={6}
+            playingNotes={keyboardPlayingNotes}
+            startC={2}
+          />
+        </div>
+        <LessonVolumeDial />
+      </div>
+    </>
+  );
+
+  if (arcade) {
+    return (
+      <div className="flex h-full w-full flex-col">
+        <ArcadeGameHeader title="Play Along" />
+        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 p-4">
+          {gameplayContent}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-full w-full flex-col">
-      <ArcadeGameHeader title="Play Along" />
-      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 p-4">
-        <PianoRoll
-          key={playSessionId}
-          inTime
-          activeMidis={activeMidis}
-          bars={requiredBars}
-          beatsPerBar={4}
-          events={resolvedEvents}
-          isPlaying={isPlaying}
-          performanceMeta={performanceMeta}
-          playSpeed={80}
-          rowHeight={28 * 18}
-          subdivision={1}
-          onPlayingChange={setIsPlaying}
-          onTickChange={setCurrentTick}
-        />
-        <div className="flex items-stretch gap-3">
-          <div className="flex-1 min-w-0">
-            <PianoKeyboard
-              showOctaveStart
-              activeBlackKeyColor={activityColor}
-              activeWhiteKeyColor={activityColor}
-              className="mx-auto"
-              endC={6}
-              playingNotes={keyboardPlayingNotes}
-              startC={2}
-            />
-          </div>
-          <LessonVolumeDial />
+    <div className="flex flex-col gap-4">
+      <div className="relative">
+        <div
+          className="glass-panel rounded-xl p-4 transition duration-300"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid var(--color-border)',
+          }}
+        >
+          {gameplayContent}
         </div>
       </div>
     </div>

@@ -1,4 +1,7 @@
+import { ArrowLeft } from 'lucide-react';
 import { Fragment, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { GameRoutes } from '@/constants/routes';
 
 /**
  * Decorative hexagon + colour-wash pattern painted behind every arcade game
@@ -57,7 +60,10 @@ interface ArcadeGameHeaderProps {
   stats?: HeaderStat[];
   /** Fully custom right-side content; overrides `stats` when provided. */
   right?: ReactNode;
-  /** Optional custom left-side content (e.g. a Back button). */
+  /**
+   * Custom left-side content. Defaults to a standard "Back to Arcade" button
+   * so every arcade game gets the same navigation affordance on the bar.
+   */
   left?: ReactNode;
 }
 
@@ -74,17 +80,24 @@ export function ArcadeGameHeader({
   right,
   left,
 }: ArcadeGameHeaderProps) {
+  const navigate = useNavigate();
   return (
     <div className="relative flex h-28 w-full shrink-0 items-center justify-center overflow-hidden border-b border-zinc-800 px-8">
       <div className="absolute inset-0 bg-[#18181b]">
         <ArcadeHeaderPattern />
       </div>
 
-      {left && (
-        <div className="absolute left-8 top-1/2 z-10 -translate-y-1/2">
-          {left}
-        </div>
-      )}
+      <div className="absolute left-8 top-1/2 z-10 -translate-y-1/2">
+        {left ?? (
+          <button
+            onClick={() => navigate(GameRoutes.root())}
+            className="flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white"
+          >
+            <ArrowLeft size={16} />
+            Back to Arcade
+          </button>
+        )}
+      </div>
 
       <div className="relative z-10 flex flex-col items-center text-center">
         <h1

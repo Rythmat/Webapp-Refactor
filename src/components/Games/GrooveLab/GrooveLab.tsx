@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { ArcadeGameHeader } from '../ArcadeGameHeader';
 import { DrumEngine } from './DrumEngine';
 
 // --- Constants ---
@@ -463,173 +464,160 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
   const accuracyPct = Math.round(matchAccuracy * 100);
 
   return (
-    <div className="flex flex-col bg-[#101012] rounded-2xl overflow-hidden border border-white/10">
-      {/* Header */}
-      <div className="h-14 bg-white/[0.03] border-b border-white/10 flex items-center justify-between px-6">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-white font-serif">
-            Groove Lab
-          </h2>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.02] rounded border border-white/10">
-            <button
-              onClick={() => setBpm((b) => Math.max(60, b - 5))}
-              className="text-zinc-400 hover:text-white px-1"
-            >
-              -
-            </button>
-            <span className="text-xs text-zinc-500 font-mono">BPM</span>
-            <span className="text-sm text-zinc-200 font-mono w-8 text-center">
-              {bpm}
-            </span>
-            <button
-              onClick={() => setBpm((b) => Math.min(200, b + 5))}
-              className="text-zinc-400 hover:text-white px-1"
-            >
-              +
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Target info */}
-      <div className="h-10 bg-white/[0.02] border-b border-white/10 flex items-center px-6 gap-4">
-        <span className="text-xs text-zinc-500 uppercase tracking-wider">
-          Target:
-        </span>
-        <span className="text-sm text-white font-medium">{targetGroove}</span>
-        <button
-          onClick={playTarget}
-          className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
-        >
-          Listen
-        </button>
-        <button
-          onClick={newTarget}
-          className="text-xs text-zinc-500 hover:text-white transition-colors ml-auto"
-        >
-          New Target
-        </button>
-      </div>
-
-      {/* Step sequencer grid */}
-      <div className="p-4">
-        <div className="flex flex-col gap-1">
-          {INSTRUMENTS.map((inst) => (
-            <div key={inst} className="flex items-center gap-2">
-              <div className="w-16 text-right text-xs text-zinc-500 font-medium shrink-0">
-                {INSTRUMENT_LABELS[inst]}
-              </div>
-              <div className="flex gap-0.5 flex-1">
-                {Array.from({ length: STEPS }, (_, step) => {
-                  const isActive = grid[inst][step];
-                  const isCurrent = step === currentStep && isPlaying;
-                  const isBeatStart = step % 4 === 0;
-                  const color = INSTRUMENT_COLORS[inst];
-
-                  return (
-                    <button
-                      key={step}
-                      onClick={() => toggleCell(inst, step)}
-                      className={`flex-1 aspect-square rounded-sm transition-all ${
-                        isBeatStart ? 'ml-1' : ''
-                      }`}
-                      style={{
-                        background: isActive
-                          ? color
-                          : isCurrent
-                            ? 'rgba(255,255,255,0.08)'
-                            : 'rgba(255,255,255,0.03)',
-                        border: isCurrent
-                          ? '1px solid rgba(255,255,255,0.3)'
-                          : '1px solid rgba(255,255,255,0.05)',
-                        opacity: isActive ? 1 : 0.7,
-                        boxShadow: isActive ? `0 0 8px ${color}40` : 'none',
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Beat numbers */}
-        <div className="flex items-center gap-2 mt-2">
-          <div className="w-16 shrink-0" />
-          <div className="flex gap-0.5 flex-1">
-            {Array.from({ length: STEPS }, (_, step) => (
-              <div
-                key={step}
-                className={`flex-1 text-center text-[10px] font-mono ${
-                  step % 4 === 0 ? 'text-zinc-400 ml-1' : 'text-zinc-600'
-                }`}
+    <div className="flex flex-col h-full w-full bg-[#101012] overflow-hidden">
+      <ArcadeGameHeader
+        title="Groove Lab"
+        controls={
+          <>
+            <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.02] rounded border border-white/10">
+              <button
+                onClick={() => setBpm((b) => Math.max(60, b - 5))}
+                className="text-zinc-400 hover:text-white px-1"
               >
-                {step % 4 === 0 ? step / 4 + 1 : '·'}
+                -
+              </button>
+              <span className="text-xs text-zinc-500 font-mono">BPM</span>
+              <span className="text-sm text-zinc-200 font-mono w-8 text-center">
+                {bpm}
+              </span>
+              <button
+                onClick={() => setBpm((b) => Math.min(200, b + 5))}
+                className="text-zinc-400 hover:text-white px-1"
+              >
+                +
+              </button>
+            </div>
+            <button
+              onClick={playTarget}
+              className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+            >
+              Listen
+            </button>
+            <button
+              onClick={newTarget}
+              className="text-xs text-zinc-500 hover:text-white transition-colors"
+            >
+              New Target
+            </button>
+            <button
+              onClick={startPlayback}
+              className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
+                isPlaying
+                  ? 'bg-red-600 hover:bg-red-500 text-white'
+                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+              }`}
+            >
+              {isPlaying ? 'Stop' : 'Play'}
+            </button>
+            <button
+              onClick={clearGrid}
+              className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-300 transition-colors"
+            >
+              Clear
+            </button>
+            <button
+              onClick={checkMatch}
+              className="px-4 py-1.5 rounded text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white transition-colors"
+            >
+              Check Match
+            </button>
+          </>
+        }
+        stats={[{ label: 'Target', value: targetGroove }]}
+      />
+
+      {/* Body */}
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        {/* Step sequencer grid */}
+        <div className="p-4">
+          <div className="flex flex-col gap-1">
+            {INSTRUMENTS.map((inst) => (
+              <div key={inst} className="flex items-center gap-2">
+                <div className="w-16 text-right text-xs text-zinc-500 font-medium shrink-0">
+                  {INSTRUMENT_LABELS[inst]}
+                </div>
+                <div className="flex gap-0.5 flex-1">
+                  {Array.from({ length: STEPS }, (_, step) => {
+                    const isActive = grid[inst][step];
+                    const isCurrent = step === currentStep && isPlaying;
+                    const isBeatStart = step % 4 === 0;
+                    const color = INSTRUMENT_COLORS[inst];
+
+                    return (
+                      <button
+                        key={step}
+                        onClick={() => toggleCell(inst, step)}
+                        className={`flex-1 aspect-square rounded-sm transition-all ${
+                          isBeatStart ? 'ml-1' : ''
+                        }`}
+                        style={{
+                          background: isActive
+                            ? color
+                            : isCurrent
+                              ? 'rgba(255,255,255,0.08)'
+                              : 'rgba(255,255,255,0.03)',
+                          border: isCurrent
+                            ? '1px solid rgba(255,255,255,0.3)'
+                            : '1px solid rgba(255,255,255,0.05)',
+                          opacity: isActive ? 1 : 0.7,
+                          boxShadow: isActive ? `0 0 8px ${color}40` : 'none',
+                        }}
+                      />
+                    );
+                  })}
+                </div>
               </div>
             ))}
           </div>
-        </div>
-      </div>
 
-      {/* Controls */}
-      <div className="h-14 bg-white/[0.03] border-t border-white/10 flex items-center justify-between px-6">
-        <div className="flex gap-2">
-          <button
-            onClick={startPlayback}
-            className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
-              isPlaying
-                ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-            }`}
-          >
-            {isPlaying ? 'Stop' : 'Play'}
-          </button>
-          <button
-            onClick={clearGrid}
-            className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-300 transition-colors"
-          >
-            Clear
-          </button>
-        </div>
-        <button
-          onClick={checkMatch}
-          className="px-4 py-1.5 rounded text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white transition-colors"
-        >
-          Check Match
-        </button>
-      </div>
-
-      {/* Result overlay */}
-      {showResult && (
-        <div className="p-6 bg-white/[0.02] border-t border-white/10 flex items-center justify-center gap-6">
-          <div className="text-center">
-            <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
-              Match Accuracy
-            </div>
-            <div
-              className="text-4xl font-light"
-              style={{
-                color:
-                  accuracyPct >= 90
-                    ? '#34d399'
-                    : accuracyPct >= 70
-                      ? '#fbbf24'
-                      : '#ef4444',
-              }}
-            >
-              {accuracyPct}%
+          {/* Beat numbers */}
+          <div className="flex items-center gap-2 mt-2">
+            <div className="w-16 shrink-0" />
+            <div className="flex gap-0.5 flex-1">
+              {Array.from({ length: STEPS }, (_, step) => (
+                <div
+                  key={step}
+                  className={`flex-1 text-center text-[10px] font-mono ${
+                    step % 4 === 0 ? 'text-zinc-400 ml-1' : 'text-zinc-600'
+                  }`}
+                >
+                  {step % 4 === 0 ? step / 4 + 1 : '·'}
+                </div>
+              ))}
             </div>
           </div>
-          <button
-            onClick={newTarget}
-            className="px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-white text-sm rounded transition-colors"
-          >
-            Next Groove
-          </button>
         </div>
-      )}
+
+        {/* Result overlay */}
+        {showResult && (
+          <div className="p-6 bg-white/[0.02] border-t border-white/10 flex items-center justify-center gap-6">
+            <div className="text-center">
+              <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
+                Match Accuracy
+              </div>
+              <div
+                className="text-4xl font-light"
+                style={{
+                  color:
+                    accuracyPct >= 90
+                      ? '#34d399'
+                      : accuracyPct >= 70
+                        ? '#fbbf24'
+                        : '#ef4444',
+                }}
+              >
+                {accuracyPct}%
+              </div>
+            </div>
+            <button
+              onClick={newTarget}
+              className="px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-white text-sm rounded transition-colors"
+            >
+              Next Groove
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

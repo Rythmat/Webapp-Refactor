@@ -72,7 +72,7 @@ export function FoliPage() {
     useArcadeStreakReward('foli');
   return (
     <GameShell>
-      <div className="relative">
+      <div className="relative flex-1 min-h-0">
         <StreakTracker count={streak} target={target} />
         <Foli onCorrect={registerCorrect} onWrong={registerWrong} />
       </div>
@@ -85,7 +85,7 @@ export function BoardChoicePage() {
     useArcadeStreakReward('board_choice');
   return (
     <GameShell>
-      <div className="relative">
+      <div className="relative flex-1 min-h-0">
         <StreakTracker count={streak} target={target} />
         <BoardChoiceGame
           className="mx-auto max-w-5xl"
@@ -102,7 +102,7 @@ export function ChordConnectionPage() {
     useArcadeStreakReward('chord_connection');
   return (
     <GameShell>
-      <div className="relative">
+      <div className="relative flex-1 min-h-0">
         <StreakTracker count={streak} target={target} />
         <ChordConnectionGame
           className="mx-auto max-w-5xl"
@@ -119,7 +119,7 @@ export function ChordPressPage() {
     useArcadeStreakReward('chord_press');
   return (
     <GameShell>
-      <div className="relative">
+      <div className="relative flex-1 min-h-0">
         <StreakTracker count={streak} target={target} />
         <ChordPressGame
           className="mx-auto max-w-5xl"
@@ -133,115 +133,42 @@ export function ChordPressPage() {
 }
 
 export function PlayAlongPage() {
-  const navigate = useNavigate();
-  const [done, setDone] = useState(false);
-  const [key, setKey] = useState(0);
   const awardXP = useAwardArcadeExperience();
 
   const handleComplete = useCallback(
     async (isComplete: boolean) => {
       if (isComplete) {
         await awardXP.mutateAsync().catch(() => {});
-        setDone(true);
       }
     },
     [awardXP],
   );
 
-  const handlePlayAgain = useCallback(() => {
-    setDone(false);
-    setKey((k) => k + 1);
-  }, []);
-
   return (
     <LearnInputProvider detectionMode="polyphonic">
       <GameShell>
-        {done ? (
-          <div className="flex flex-col items-center gap-4 pt-12">
-            <h2
-              className="text-2xl font-semibold"
-              style={{ color: 'var(--color-text)' }}
-            >
-              Round Complete!
-            </h2>
-            <div className="flex gap-3">
-              <Button onClick={handlePlayAgain}>Play Again</Button>
-              <Button
-                variant="outline"
-                onClick={() => navigate(GameRoutes.root())}
-              >
-                Back to Arcade
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <PlayAlong key={key} onActivityCompleteChange={handleComplete} />
-        )}
+        <PlayAlong onActivityCompleteChange={handleComplete} />
       </GameShell>
     </LearnInputProvider>
   );
 }
 
 export function MajorArcanumPage() {
-  const navigate = useNavigate();
-  const [done, setDone] = useState(false);
-  const [key, setKey] = useState(0);
-
-  const handleComplete = useCallback(() => {
-    setDone(true);
-  }, []);
-
-  const handlePlayAgain = useCallback(() => {
-    setDone(false);
-    setKey((k) => k + 1);
-  }, []);
-
+  // Major Arcanum shows its own in-window score screen (accuracy + Play Again)
+  // when a round ends, so no page-level completion screen is needed here.
   return (
     <div
       className="learn-root flex h-full w-full flex-col overflow-hidden"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
-      {done ? (
-        <div className="flex h-full flex-col items-center justify-center gap-4">
-          <h2
-            className="text-2xl font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            Session Complete
-          </h2>
-          <div className="flex gap-3">
-            <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate(GameRoutes.root())}
-            >
-              Back to Arcade
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <MajorArcanum key={key} onComplete={handleComplete} />
-      )}
+      <MajorArcanum />
     </div>
   );
 }
 
 export function ConstellationsPage() {
   const navigate = useNavigate();
-  const [done, setDone] = useState(false);
-  const [key, setKey] = useState(0);
   const [roundKey, setRoundKey] = useState(0);
-  const awardXP = useAwardArcadeExperience();
-
-  const handleComplete = useCallback(async () => {
-    await awardXP.mutateAsync().catch(() => {});
-    setDone(true);
-  }, [awardXP]);
-
-  const handlePlayAgain = useCallback(() => {
-    setDone(false);
-    setKey((k) => k + 1);
-  }, []);
 
   const handleRoundStart = useCallback(() => {
     setRoundKey((k) => k + 1);
@@ -252,32 +179,10 @@ export function ConstellationsPage() {
       className={`learn-root flex h-full w-full flex-col overflow-hidden ${ARCADE_ROOT}`}
     >
       <div className="relative flex-1 min-h-0">
-        {done ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4">
-            <h2
-              className="text-2xl font-semibold"
-              style={{ color: 'var(--color-text)' }}
-            >
-              Round Complete!
-            </h2>
-            <div className="flex gap-3">
-              <Button onClick={handlePlayAgain}>Play Again</Button>
-              <Button
-                variant="outline"
-                onClick={() => navigate(GameRoutes.root())}
-              >
-                Back to Arcade
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <Constellations
-            key={key}
-            onComplete={handleComplete}
-            onRoundStart={handleRoundStart}
-            onExit={() => navigate(GameRoutes.root())}
-          />
-        )}
+        <Constellations
+          onRoundStart={handleRoundStart}
+          onExit={() => navigate(GameRoutes.root())}
+        />
         <TubesCursor
           colorKey={roundKey}
           className="absolute inset-0 z-10 opacity-60 pointer-events-none"
@@ -292,7 +197,7 @@ export function GrooveLabPage() {
     useArcadeStreakReward('groove_lab');
   return (
     <GameShell>
-      <div className="relative">
+      <div className="relative flex-1 min-h-0">
         <StreakTracker count={streak} target={target} />
         <GrooveLab onCorrect={registerCorrect} onWrong={registerWrong} />
       </div>
@@ -301,130 +206,43 @@ export function GrooveLabPage() {
 }
 
 export function WaveSculptorPage() {
-  const navigate = useNavigate();
-  const [done, setDone] = useState(false);
-  const [key, setKey] = useState(0);
   const awardXP = useAwardArcadeExperience();
 
   const handleComplete = useCallback(async () => {
     await awardXP.mutateAsync().catch(() => {});
-    setDone(true);
   }, [awardXP]);
-
-  const handlePlayAgain = useCallback(() => {
-    setDone(false);
-    setKey((k) => k + 1);
-  }, []);
 
   return (
     <GameShell>
-      {done ? (
-        <div className="flex flex-col items-center gap-4 pt-12">
-          <h2
-            className="text-2xl font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            All Waves Sculpted!
-          </h2>
-          <div className="flex gap-3">
-            <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate(GameRoutes.root())}
-            >
-              Back to Arcade
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <WaveSculptor key={key} onComplete={handleComplete} />
-      )}
+      <WaveSculptor onComplete={handleComplete} />
     </GameShell>
   );
 }
 
 export function HarmonicStringsPage() {
-  const navigate = useNavigate();
-  const [done, setDone] = useState(false);
-  const [key, setKey] = useState(0);
   const awardXP = useAwardArcadeExperience();
 
   const handleComplete = useCallback(async () => {
     await awardXP.mutateAsync().catch(() => {});
-    setDone(true);
   }, [awardXP]);
-
-  const handlePlayAgain = useCallback(() => {
-    setDone(false);
-    setKey((k) => k + 1);
-  }, []);
 
   return (
     <GameShell>
-      {done ? (
-        <div className="flex flex-col items-center gap-4 pt-12">
-          <h2
-            className="text-2xl font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            Quiz Complete!
-          </h2>
-          <div className="flex gap-3">
-            <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate(GameRoutes.root())}
-            >
-              Back to Arcade
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <HarmonicStrings key={key} onComplete={handleComplete} />
-      )}
+      <HarmonicStrings onComplete={handleComplete} />
     </GameShell>
   );
 }
 
 export function SignalFlowPage() {
-  const navigate = useNavigate();
-  const [done, setDone] = useState(false);
-  const [key, setKey] = useState(0);
   const awardXP = useAwardArcadeExperience();
 
   const handleComplete = useCallback(async () => {
     await awardXP.mutateAsync().catch(() => {});
-    setDone(true);
   }, [awardXP]);
-
-  const handlePlayAgain = useCallback(() => {
-    setDone(false);
-    setKey((k) => k + 1);
-  }, []);
 
   return (
     <GameShell>
-      {done ? (
-        <div className="flex flex-col items-center gap-4 pt-12">
-          <h2
-            className="text-2xl font-semibold"
-            style={{ color: 'var(--color-text)' }}
-          >
-            All Signals Routed!
-          </h2>
-          <div className="flex gap-3">
-            <Button onClick={handlePlayAgain}>Play Again</Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate(GameRoutes.root())}
-            >
-              Back to Arcade
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <SignalFlow key={key} onComplete={handleComplete} />
-      )}
+      <SignalFlow onComplete={handleComplete} />
     </GameShell>
   );
 }

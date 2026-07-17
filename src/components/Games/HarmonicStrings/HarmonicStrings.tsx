@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { ArcadeGameHeader } from '../ArcadeGameHeader';
 
 // --- Constants ---
 
@@ -399,14 +400,11 @@ export default function HarmonicStrings({ onComplete }: HarmonicStringsProps) {
   const info = HARMONIC_DATA[selectedHarmonic - 1];
 
   return (
-    <div className="flex flex-col bg-[#101012] rounded-2xl overflow-hidden border border-white/10">
-      {/* Header */}
-      <div className="h-14 bg-white/[0.03] border-b border-white/10 flex items-center justify-between px-6">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-white font-serif">
-            Harmonic Strings
-          </h2>
-          <div className="flex gap-1">
+    <div className="flex flex-col h-full w-full bg-[#101012] overflow-hidden">
+      <ArcadeGameHeader
+        title="Harmonic Strings"
+        controls={
+          <>
             {(['explore', 'quiz'] as GameMode[]).map((m) => (
               <button
                 key={m}
@@ -424,202 +422,202 @@ export default function HarmonicStrings({ onComplete }: HarmonicStringsProps) {
                 {m.charAt(0).toUpperCase() + m.slice(1)}
               </button>
             ))}
-          </div>
+          </>
+        }
+        stats={
+          mode === 'quiz'
+            ? [{ label: 'Score', value: `${score}/${rounds}` }]
+            : undefined
+        }
+      />
+
+      {/* Body */}
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col">
+        {/* String visualization */}
+        <div ref={svgContainerRef} className="px-4 pt-6 pb-2">
+          <StringVisualization
+            harmonic={selectedHarmonic}
+            width={svgWidth}
+            height={120}
+            isAnimating={isPlaying}
+            showNodes={true}
+          />
         </div>
-        {mode === 'quiz' && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500">Score:</span>
-            <span className="text-sm text-emerald-400 font-mono">
-              {score}/{rounds}
-            </span>
-          </div>
-        )}
-      </div>
 
-      {/* String visualization */}
-      <div ref={svgContainerRef} className="px-4 pt-6 pb-2">
-        <StringVisualization
-          harmonic={selectedHarmonic}
-          width={svgWidth}
-          height={120}
-          isAnimating={isPlaying}
-          showNodes={true}
-        />
-      </div>
-
-      {/* Harmonic info (explore mode) */}
-      {mode === 'explore' && info && (
-        <div className="px-6 pb-2 flex items-center gap-6">
-          <div>
-            <span className="text-[10px] text-zinc-600 uppercase tracking-wider">
-              Harmonic
-            </span>
-            <div className="text-xl font-light text-white">{info.number}</div>
-          </div>
-          <div>
-            <span className="text-[10px] text-zinc-600 uppercase tracking-wider">
-              Frequency
-            </span>
-            <div className="text-sm text-zinc-300 font-mono">
-              {info.frequency.toFixed(1)} Hz
-            </div>
-          </div>
-          <div>
-            <span className="text-[10px] text-zinc-600 uppercase tracking-wider">
-              Interval
-            </span>
-            <div className="text-sm text-zinc-300">{info.interval}</div>
-          </div>
-          {info.cents !== 0 && (
+        {/* Harmonic info (explore mode) */}
+        {mode === 'explore' && info && (
+          <div className="px-6 pb-2 flex items-center gap-6">
             <div>
               <span className="text-[10px] text-zinc-600 uppercase tracking-wider">
-                ET Deviation
+                Harmonic
+              </span>
+              <div className="text-xl font-light text-white">{info.number}</div>
+            </div>
+            <div>
+              <span className="text-[10px] text-zinc-600 uppercase tracking-wider">
+                Frequency
               </span>
               <div className="text-sm text-zinc-300 font-mono">
-                {info.cents > 0 ? '+' : ''}
-                {info.cents}¢
+                {info.frequency.toFixed(1)} Hz
               </div>
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Harmonic selector (explore mode) */}
-      {mode === 'explore' && (
-        <div className="px-4 pb-4">
-          <div className="flex items-end gap-0.5 h-16">
-            {HARMONIC_DATA.map((h) => {
-              const relAmplitude = 1 / h.number;
-              const color =
-                HARMONIC_COLORS[(h.number - 1) % HARMONIC_COLORS.length];
-              const active = selectedHarmonic === h.number;
-              return (
-                <div
-                  key={h.number}
-                  className="flex-1 rounded-t transition-all cursor-pointer"
-                  style={{
-                    height: `${relAmplitude * 100}%`,
-                    backgroundColor: active ? color : color + '30',
-                    opacity: active ? 1 : 0.5,
-                    boxShadow: active ? `0 0 8px ${color}60` : 'none',
-                  }}
-                  onClick={() => playHarmonic(h.number)}
-                />
-              );
-            })}
+            <div>
+              <span className="text-[10px] text-zinc-600 uppercase tracking-wider">
+                Interval
+              </span>
+              <div className="text-sm text-zinc-300">{info.interval}</div>
+            </div>
+            {info.cents !== 0 && (
+              <div>
+                <span className="text-[10px] text-zinc-600 uppercase tracking-wider">
+                  ET Deviation
+                </span>
+                <div className="text-sm text-zinc-300 font-mono">
+                  {info.cents > 0 ? '+' : ''}
+                  {info.cents}¢
+                </div>
+              </div>
+            )}
           </div>
-          <div className="flex gap-0.5">
-            {HARMONIC_DATA.map((h) => {
-              const color =
-                HARMONIC_COLORS[(h.number - 1) % HARMONIC_COLORS.length];
-              const active = selectedHarmonic === h.number;
-              return (
+        )}
+
+        {/* Harmonic selector (explore mode) */}
+        {mode === 'explore' && (
+          <div className="px-4 pb-4">
+            <div className="flex items-end gap-0.5 h-16">
+              {HARMONIC_DATA.map((h) => {
+                const relAmplitude = 1 / h.number;
+                const color =
+                  HARMONIC_COLORS[(h.number - 1) % HARMONIC_COLORS.length];
+                const active = selectedHarmonic === h.number;
+                return (
+                  <div
+                    key={h.number}
+                    className="flex-1 rounded-t transition-all cursor-pointer"
+                    style={{
+                      height: `${relAmplitude * 100}%`,
+                      backgroundColor: active ? color : color + '30',
+                      opacity: active ? 1 : 0.5,
+                      boxShadow: active ? `0 0 8px ${color}60` : 'none',
+                    }}
+                    onClick={() => playHarmonic(h.number)}
+                  />
+                );
+              })}
+            </div>
+            <div className="flex gap-0.5">
+              {HARMONIC_DATA.map((h) => {
+                const color =
+                  HARMONIC_COLORS[(h.number - 1) % HARMONIC_COLORS.length];
+                const active = selectedHarmonic === h.number;
+                return (
+                  <button
+                    key={h.number}
+                    onClick={() => playHarmonic(h.number)}
+                    className={`flex-1 py-1.5 rounded-b text-xs font-mono transition-all ${
+                      active ? 'text-white' : 'text-zinc-500 hover:text-white'
+                    }`}
+                    style={{
+                      backgroundColor: active
+                        ? color + '30'
+                        : 'rgba(255,255,255,0.03)',
+                      borderLeft: active
+                        ? `1px solid ${color}`
+                        : '1px solid rgba(255,255,255,0.05)',
+                      borderRight: active
+                        ? `1px solid ${color}`
+                        : '1px solid rgba(255,255,255,0.05)',
+                      borderBottom: active
+                        ? `1px solid ${color}`
+                        : '1px solid rgba(255,255,255,0.05)',
+                    }}
+                  >
+                    {h.number}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Quiz mode */}
+        {mode === 'quiz' && (
+          <div className="px-6 pb-4">
+            {quizQuestion === null ? (
+              <div className="flex flex-col items-center gap-4 py-4">
+                <p className="text-sm text-zinc-400">
+                  Hear a fundamental, then a harmonic. Name the interval.
+                </p>
                 <button
-                  key={h.number}
-                  onClick={() => playHarmonic(h.number)}
-                  className={`flex-1 py-1.5 rounded-b text-xs font-mono transition-all ${
-                    active ? 'text-white' : 'text-zinc-500 hover:text-white'
-                  }`}
+                  onClick={newQuiz}
+                  className="px-4 py-2 rounded text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                >
+                  Start Quiz
+                </button>
+              </div>
+            ) : quizResult === null ? (
+              <div className="flex flex-col items-center gap-4">
+                <p className="text-sm text-zinc-400">
+                  What interval is harmonic #{quizQuestion.number} above the
+                  fundamental?
+                </p>
+                <div className="flex gap-2 flex-wrap justify-center">
+                  {quizOptions.map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => submitQuizAnswer(opt)}
+                      className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.08] text-zinc-300 text-sm transition-colors border border-white/10"
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-3">
+                <div
+                  className="text-lg font-medium"
                   style={{
-                    backgroundColor: active
-                      ? color + '30'
-                      : 'rgba(255,255,255,0.03)',
-                    borderLeft: active
-                      ? `1px solid ${color}`
-                      : '1px solid rgba(255,255,255,0.05)',
-                    borderRight: active
-                      ? `1px solid ${color}`
-                      : '1px solid rgba(255,255,255,0.05)',
-                    borderBottom: active
-                      ? `1px solid ${color}`
-                      : '1px solid rgba(255,255,255,0.05)',
+                    color: quizResult === 'correct' ? '#34d399' : '#ef4444',
                   }}
                 >
-                  {h.number}
+                  {quizResult === 'correct'
+                    ? 'Correct!'
+                    : `Wrong — it was ${quizQuestion.interval}`}
+                </div>
+                <p className="text-xs text-zinc-500">
+                  Harmonic {quizQuestion.number}:{' '}
+                  {quizQuestion.frequency.toFixed(1)} Hz
+                  {quizQuestion.cents !== 0 &&
+                    ` (${quizQuestion.cents > 0 ? '+' : ''}${quizQuestion.cents}¢ from ET)`}
+                </p>
+                <button
+                  onClick={newQuiz}
+                  className="px-4 py-1.5 rounded text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white transition-colors"
+                >
+                  Next Question
                 </button>
-              );
-            })}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Quiz mode */}
-      {mode === 'quiz' && (
-        <div className="px-6 pb-4">
-          {quizQuestion === null ? (
-            <div className="flex flex-col items-center gap-4 py-4">
-              <p className="text-sm text-zinc-400">
-                Hear a fundamental, then a harmonic. Name the interval.
-              </p>
+        {/* Footer controls */}
+        <div className="h-12 bg-white/[0.03] border-t border-white/10 flex items-center px-6">
+          {mode === 'explore' &&
+            (isPlaying ? (
               <button
-                onClick={newQuiz}
-                className="px-4 py-2 rounded text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                onClick={stopHarmonic}
+                className="px-4 py-1.5 rounded text-sm font-medium bg-red-600 hover:bg-red-500 text-white transition-colors"
               >
-                Start Quiz
+                Stop
               </button>
-            </div>
-          ) : quizResult === null ? (
-            <div className="flex flex-col items-center gap-4">
-              <p className="text-sm text-zinc-400">
-                What interval is harmonic #{quizQuestion.number} above the
-                fundamental?
-              </p>
-              <div className="flex gap-2 flex-wrap justify-center">
-                {quizOptions.map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => submitQuizAnswer(opt)}
-                    className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.08] text-zinc-300 text-sm transition-colors border border-white/10"
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <div
-                className="text-lg font-medium"
-                style={{
-                  color: quizResult === 'correct' ? '#34d399' : '#ef4444',
-                }}
-              >
-                {quizResult === 'correct'
-                  ? 'Correct!'
-                  : `Wrong — it was ${quizQuestion.interval}`}
-              </div>
-              <p className="text-xs text-zinc-500">
-                Harmonic {quizQuestion.number}:{' '}
-                {quizQuestion.frequency.toFixed(1)} Hz
-                {quizQuestion.cents !== 0 &&
-                  ` (${quizQuestion.cents > 0 ? '+' : ''}${quizQuestion.cents}¢ from ET)`}
-              </p>
-              <button
-                onClick={newQuiz}
-                className="px-4 py-1.5 rounded text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white transition-colors"
-              >
-                Next Question
-              </button>
-            </div>
-          )}
+            ) : (
+              <span className="text-xs text-zinc-600">
+                Click a number to hear and see its standing wave pattern
+              </span>
+            ))}
         </div>
-      )}
-
-      {/* Footer controls */}
-      <div className="h-12 bg-white/[0.03] border-t border-white/10 flex items-center px-6">
-        {mode === 'explore' &&
-          (isPlaying ? (
-            <button
-              onClick={stopHarmonic}
-              className="px-4 py-1.5 rounded text-sm font-medium bg-red-600 hover:bg-red-500 text-white transition-colors"
-            >
-              Stop
-            </button>
-          ) : (
-            <span className="text-xs text-zinc-600">
-              Click a number to hear and see its standing wave pattern
-            </span>
-          ))}
       </div>
     </div>
   );

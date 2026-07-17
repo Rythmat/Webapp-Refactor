@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import { ionianChordColor } from '@/lib/ionianChordColor';
+import { ArcadeGameHeader } from './ArcadeGameHeader';
 
 const MAX_BEATS = 16;
 const BEAT_REWARD = 4;
@@ -599,385 +600,395 @@ export function BoardChoiceGame({
       style={{
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
-        height: '100dvh',
+        height: '100%',
+        width: '100%',
         boxSizing: 'border-box',
-        padding: '12px 0',
         overflow: 'hidden',
       }}
     >
-      {/* Beat indicator */}
+      <ArcadeGameHeader
+        title="Board Choice"
+        stats={[
+          { label: 'Score', value: score },
+          { label: 'Multiplier', value: `x${multiplier}` },
+        ]}
+      />
+
       <div
         style={{
+          position: 'relative',
+          flex: '1 1 0%',
+          minHeight: 0,
           display: 'flex',
+          flexDirection: 'column',
           justifyContent: 'center',
-          alignItems: 'center',
-          gap: 3,
-          marginBottom: 6,
+          padding: '12px 0',
         }}
       >
-        {Array.from({ length: MAX_BEATS }, (_, i) => (
-          <div
-            key={i}
-            style={{
-              width: 14,
-              height: 14,
-              borderRadius: '50%',
-              backgroundColor:
-                i < beatsLeft
-                  ? 'rgba(255,255,255,0.7)'
-                  : 'rgba(255,255,255,0.08)',
-              marginRight: (i + 1) % 4 === 0 && i < MAX_BEATS - 1 ? 8 : 0,
-              transition: 'all 0.15s ease',
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Chord name + multiplier */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: 12,
-          marginBottom: 10,
-        }}
-      >
-        {showChordName && !countingIn && (
-          <span
-            style={{
-              fontSize: 18,
-              fontWeight: 700,
-              color: '#e8e8f0',
-              letterSpacing: 2,
-              textTransform: 'uppercase',
-            }}
-          >
-            {resolvedTargetLabel}
-          </span>
-        )}
-        {multiplier > 1 && (
-          <span
-            style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: '#22c55e',
-            }}
-          >
-            x{multiplier}
-          </span>
-        )}
-      </div>
-
-      {!gameStarted ? (
-        /* Start screen — level & BPM selection */
+        {/* Beat indicator */}
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
             justifyContent: 'center',
-            flex: 1,
-            gap: 24,
+            alignItems: 'center',
+            gap: 3,
+            marginBottom: 6,
           }}
         >
-          {/* Level selector */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 8,
-              alignItems: 'center',
-            }}
-          >
+          {Array.from({ length: MAX_BEATS }, (_, i) => (
+            <div
+              key={i}
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: '50%',
+                backgroundColor:
+                  i < beatsLeft
+                    ? 'rgba(255,255,255,0.7)'
+                    : 'rgba(255,255,255,0.08)',
+                marginRight: (i + 1) % 4 === 0 && i < MAX_BEATS - 1 ? 8 : 0,
+                transition: 'all 0.15s ease',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Chord name + multiplier */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 12,
+            marginBottom: 10,
+          }}
+        >
+          {showChordName && !countingIn && (
             <span
               style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: 'rgba(255,255,255,0.45)',
+                fontSize: 18,
+                fontWeight: 700,
+                color: '#e8e8f0',
                 letterSpacing: 2,
                 textTransform: 'uppercase',
               }}
             >
-              Level
+              {resolvedTargetLabel}
             </span>
-            <div
-              style={{
-                display: 'flex',
-                gap: 8,
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-              }}
-            >
-              {([1, 2, 3, 4] as GameLevel[]).map((lvl) => (
-                <button
-                  key={lvl}
-                  type="button"
-                  onClick={() => setLevel(lvl)}
-                  style={{
-                    ...BTN,
-                    fontSize: 11,
-                    padding: '8px 14px',
-                    backgroundColor:
-                      lvl === level
-                        ? 'rgba(255,255,255,0.12)'
-                        : 'rgba(255,255,255,0.05)',
-                    borderColor:
-                      lvl === level
-                        ? 'rgba(255,255,255,0.25)'
-                        : 'rgba(255,255,255,0.10)',
-                  }}
-                >
-                  {lvl}. {LEVEL_CONFIG[lvl].label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* BPM selector */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 8,
-              alignItems: 'center',
-            }}
-          >
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: 'rgba(255,255,255,0.45)',
-                letterSpacing: 2,
-                textTransform: 'uppercase',
-              }}
-            >
-              Tempo — {bpm} pts per correct
-            </span>
-            <div
-              style={{
-                display: 'flex',
-                gap: 6,
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-              }}
-            >
-              {BPM_OPTIONS.map((b) => (
-                <button
-                  key={b}
-                  type="button"
-                  onClick={() => setBpm(b)}
-                  style={{
-                    ...BTN,
-                    fontSize: 11,
-                    padding: '6px 12px',
-                    minWidth: 48,
-                    backgroundColor:
-                      b === bpm
-                        ? 'rgba(255,255,255,0.12)'
-                        : 'rgba(255,255,255,0.05)',
-                    borderColor:
-                      b === bpm
-                        ? 'rgba(255,255,255,0.25)'
-                        : 'rgba(255,255,255,0.10)',
-                  }}
-                >
-                  {b}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleStart}
-            style={{ ...BTN, padding: '12px 40px', fontSize: 14 }}
-          >
-            Start
-          </button>
-        </div>
-      ) : countingIn ? (
-        /* Count-in overlay */
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flex: 1,
-          }}
-        >
-          <p
-            style={{
-              fontSize: 64,
-              fontWeight: 800,
-              color: '#e8e8f0',
-              margin: 0,
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {countInBeat || ''}
-          </p>
-        </div>
-      ) : gameOver ? (
-        /* Game Over screen */
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 20,
-            flex: 1,
-          }}
-        >
-          <p
-            style={{
-              fontSize: 24,
-              fontWeight: 800,
-              color: '#e8e8f0',
-              letterSpacing: 3,
-              textTransform: 'uppercase',
-              margin: 0,
-            }}
-          >
-            Time&apos;s Up
-          </p>
-          <p
-            style={{
-              fontSize: 28,
-              fontWeight: 800,
-              color: '#e8e8f0',
-              margin: 0,
-            }}
-          >
-            {multiplier > 1
-              ? `${score} × ${multiplier} = ${score * multiplier}`
-              : score}
-            <span
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                marginLeft: 6,
-                color: 'rgba(255,255,255,0.5)',
-              }}
-            >
-              pts
-            </span>
-          </p>
-          <p
-            style={{
-              fontSize: 13,
-              color: 'rgba(255,255,255,0.5)',
-              margin: 0,
-            }}
-          >
-            {sessionTotal} rounds • Level {level} • {bpm} BPM
-          </p>
-          <button type="button" onClick={handleRestart} style={BTN}>
-            Play Again
-          </button>
-          {level < 4 && sessionTotal >= 5 && score > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                setLevel((prev) => Math.min(prev + 1, 4) as GameLevel);
-                handleRestart();
-              }}
-              style={{
-                ...BTN,
-                borderColor: 'rgba(34,197,94,0.4)',
-                color: '#22c55e',
-                backgroundColor: 'rgba(34,197,94,0.08)',
-              }}
-            >
-              Next Level
-            </button>
           )}
         </div>
-      ) : (
-        /* Options grid — 2×2 */
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 12,
-            maxWidth: 820,
-            width: '100%',
-            margin: '0 auto',
-          }}
-        >
-          {round.options.map((option) => {
-            const isSelected = option.id === selectedOptionId;
-            const isCorrect = option.isCorrect;
-            const showResult = Boolean(selectedOptionId);
 
-            const ionianColor = round.optionColors.get(option.id) ?? '#60a5fa';
-            const color = showResult
-              ? isCorrect
-                ? '#22c55e'
-                : isSelected
-                  ? '#ef4444'
-                  : '#94a3b8'
-              : ionianColor;
-
-            const playingNotes = toPlaybackEvents(
-              option.midi,
-              color,
-              option.id,
-            );
-
-            const borderColor = showResult
-              ? isCorrect
-                ? 'rgba(34,197,94,0.5)'
-                : isSelected
-                  ? 'rgba(248,113,113,0.5)'
-                  : 'rgba(255,255,255,0.06)'
-              : 'rgba(255,255,255,0.08)';
-
-            const bg = showResult
-              ? isCorrect
-                ? 'rgba(34,197,94,0.06)'
-                : isSelected
-                  ? 'rgba(248,113,113,0.06)'
-                  : 'rgba(255,255,255,0.02)'
-              : 'rgba(255,255,255,0.03)';
-
-            return (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => handleOptionSelect(option.id)}
-                disabled={Boolean(selectedOptionId) || gameOver}
+        {!gameStarted ? (
+          /* Start screen — level & BPM selection */
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flex: 1,
+              gap: 24,
+            }}
+          >
+            {/* Level selector */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                alignItems: 'center',
+              }}
+            >
+              <span
                 style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  borderRadius: 12,
-                  border: `1px solid ${borderColor}`,
-                  backgroundColor: bg,
-                  backdropFilter: 'blur(10px)',
-                  WebkitBackdropFilter: 'blur(10px)',
-                  boxShadow:
-                    'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 24px rgba(0,0,0,0.3)',
-                  padding: '6px 10px',
-                  cursor: selectedOptionId || gameOver ? 'default' : 'pointer',
-                  transition: 'all 0.18s ease',
-                  width: '100%',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.45)',
+                  letterSpacing: 2,
+                  textTransform: 'uppercase',
                 }}
               >
-                <div style={{ pointerEvents: 'none' }}>
-                  <PianoKeyboard
-                    startC={startC}
-                    endC={endC}
-                    playingNotes={playingNotes}
-                  />
-                </div>
+                Level
+              </span>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 8,
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                }}
+              >
+                {([1, 2, 3, 4] as GameLevel[]).map((lvl) => (
+                  <button
+                    key={lvl}
+                    type="button"
+                    onClick={() => setLevel(lvl)}
+                    style={{
+                      ...BTN,
+                      fontSize: 11,
+                      padding: '8px 14px',
+                      backgroundColor:
+                        lvl === level
+                          ? 'rgba(255,255,255,0.12)'
+                          : 'rgba(255,255,255,0.05)',
+                      borderColor:
+                        lvl === level
+                          ? 'rgba(255,255,255,0.25)'
+                          : 'rgba(255,255,255,0.10)',
+                    }}
+                  >
+                    {lvl}. {LEVEL_CONFIG[lvl].label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* BPM selector */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                alignItems: 'center',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.45)',
+                  letterSpacing: 2,
+                  textTransform: 'uppercase',
+                }}
+              >
+                Tempo — {bpm} pts per correct
+              </span>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 6,
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                }}
+              >
+                {BPM_OPTIONS.map((b) => (
+                  <button
+                    key={b}
+                    type="button"
+                    onClick={() => setBpm(b)}
+                    style={{
+                      ...BTN,
+                      fontSize: 11,
+                      padding: '6px 12px',
+                      minWidth: 48,
+                      backgroundColor:
+                        b === bpm
+                          ? 'rgba(255,255,255,0.12)'
+                          : 'rgba(255,255,255,0.05)',
+                      borderColor:
+                        b === bpm
+                          ? 'rgba(255,255,255,0.25)'
+                          : 'rgba(255,255,255,0.10)',
+                    }}
+                  >
+                    {b}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleStart}
+              style={{ ...BTN, padding: '12px 40px', fontSize: 14 }}
+            >
+              Start
+            </button>
+          </div>
+        ) : countingIn ? (
+          /* Count-in overlay */
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flex: 1,
+            }}
+          >
+            <p
+              style={{
+                fontSize: 64,
+                fontWeight: 800,
+                color: '#e8e8f0',
+                margin: 0,
+                fontVariantNumeric: 'tabular-nums',
+              }}
+            >
+              {countInBeat || ''}
+            </p>
+          </div>
+        ) : gameOver ? (
+          /* Game Over screen */
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 20,
+              flex: 1,
+            }}
+          >
+            <p
+              style={{
+                fontSize: 24,
+                fontWeight: 800,
+                color: '#e8e8f0',
+                letterSpacing: 3,
+                textTransform: 'uppercase',
+                margin: 0,
+              }}
+            >
+              Time&apos;s Up
+            </p>
+            <p
+              style={{
+                fontSize: 28,
+                fontWeight: 800,
+                color: '#e8e8f0',
+                margin: 0,
+              }}
+            >
+              {multiplier > 1
+                ? `${score} × ${multiplier} = ${score * multiplier}`
+                : score}
+              <span
+                style={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  marginLeft: 6,
+                  color: 'rgba(255,255,255,0.5)',
+                }}
+              >
+                pts
+              </span>
+            </p>
+            <p
+              style={{
+                fontSize: 13,
+                color: 'rgba(255,255,255,0.5)',
+                margin: 0,
+              }}
+            >
+              {sessionTotal} rounds • Level {level} • {bpm} BPM
+            </p>
+            <button type="button" onClick={handleRestart} style={BTN}>
+              Play Again
+            </button>
+            {level < 4 && sessionTotal >= 5 && score > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setLevel((prev) => Math.min(prev + 1, 4) as GameLevel);
+                  handleRestart();
+                }}
+                style={{
+                  ...BTN,
+                  borderColor: 'rgba(34,197,94,0.4)',
+                  color: '#22c55e',
+                  backgroundColor: 'rgba(34,197,94,0.08)',
+                }}
+              >
+                Next Level
               </button>
-            );
-          })}
-        </div>
-      )}
+            )}
+          </div>
+        ) : (
+          /* Options grid — 2×2 */
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 12,
+              maxWidth: 820,
+              width: '100%',
+              margin: '0 auto',
+            }}
+          >
+            {round.options.map((option) => {
+              const isSelected = option.id === selectedOptionId;
+              const isCorrect = option.isCorrect;
+              const showResult = Boolean(selectedOptionId);
+
+              const ionianColor =
+                round.optionColors.get(option.id) ?? '#60a5fa';
+              const color = showResult
+                ? isCorrect
+                  ? '#22c55e'
+                  : isSelected
+                    ? '#ef4444'
+                    : '#94a3b8'
+                : ionianColor;
+
+              const playingNotes = toPlaybackEvents(
+                option.midi,
+                color,
+                option.id,
+              );
+
+              const borderColor = showResult
+                ? isCorrect
+                  ? 'rgba(34,197,94,0.5)'
+                  : isSelected
+                    ? 'rgba(248,113,113,0.5)'
+                    : 'rgba(255,255,255,0.06)'
+                : 'rgba(255,255,255,0.08)';
+
+              const bg = showResult
+                ? isCorrect
+                  ? 'rgba(34,197,94,0.06)'
+                  : isSelected
+                    ? 'rgba(248,113,113,0.06)'
+                    : 'rgba(255,255,255,0.02)'
+                : 'rgba(255,255,255,0.03)';
+
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => handleOptionSelect(option.id)}
+                  disabled={Boolean(selectedOptionId) || gameOver}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRadius: 12,
+                    border: `1px solid ${borderColor}`,
+                    backgroundColor: bg,
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)',
+                    boxShadow:
+                      'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 24px rgba(0,0,0,0.3)',
+                    padding: '6px 10px',
+                    cursor:
+                      selectedOptionId || gameOver ? 'default' : 'pointer',
+                    transition: 'all 0.18s ease',
+                    width: '100%',
+                  }}
+                >
+                  <div style={{ pointerEvents: 'none' }}>
+                    <PianoKeyboard
+                      startC={startC}
+                      endC={endC}
+                      playingNotes={playingNotes}
+                    />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

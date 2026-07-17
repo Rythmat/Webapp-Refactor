@@ -6,6 +6,7 @@ import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useOptionalLearnInputStable } from '@/learn/context/LearnInputContext';
+import { ArcadeGameHeader } from './ArcadeGameHeader';
 import { playGrandPianoNote } from './chordPressAudio';
 
 type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
@@ -408,151 +409,148 @@ export function ChordPressGame({
   const canClear = selected.length > 0 && !(checked && isCorrect);
 
   return (
-    <div className={className}>
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: 24 }}>
-        <h1
-          style={{
-            fontSize: 20,
-            fontWeight: 800,
-            letterSpacing: 5,
-            color: '#a78bfa',
-            margin: 0,
-            textTransform: 'uppercase',
-          }}
-        >
-          Chord Press
-        </h1>
-        <p
-          style={{
-            fontSize: 11,
-            color: 'var(--color-text-dim, #6b7280)',
-            marginTop: 6,
-            letterSpacing: 1.5,
-            textTransform: 'uppercase',
-          }}
-        >
-          Play the chord tones on the keyboard
-        </p>
-      </div>
-
-      {/* Target chord */}
-      {showChordName && (
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>
-          <span
-            style={{
-              fontSize: 18,
-              fontWeight: 700,
-              color: '#ddd6fe',
-              letterSpacing: 1,
-            }}
-          >
-            {title}
-          </span>
-        </div>
-      )}
-
-      {/* Piano keyboard */}
+    <div
+      className={className}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        width: '100%',
+        minHeight: 0,
+      }}
+    >
+      <ArcadeGameHeader title="Chord Press" />
       <div
         style={{
-          borderRadius: 12,
-          border: '1.5px solid rgba(255,255,255,0.08)',
-          backgroundColor: 'rgba(255,255,255,0.02)',
-          padding: 10,
-          marginBottom: 16,
-        }}
-      >
-        <PianoKeyboard
-          key={keyboardId}
-          startC={3}
-          endC={6}
-          gaming={true}
-          onKeyClick={toggleNote}
-          onMidiInput={
-            hasLearnContext ? undefined : enableMIDI ? onMidiInput : undefined
-          }
-          enableMidiInterface={hasLearnContext ? false : enableMIDI}
-          playingNotes={selectedEvents}
-          activeWhiteKeyColor={undefined}
-          activeBlackKeyColor={undefined}
-          showOctaveStart
-        />
-      </div>
-
-      {/* Target notes hint */}
-      <div
-        style={{
-          textAlign: 'right',
-          fontSize: 10,
-          color: 'var(--color-text-dim, #6b7280)',
-          letterSpacing: 0.5,
-          marginBottom: 16,
-        }}
-      >
-        Target:{' '}
-        {targetMidi
-          .map((value) => Tone.Frequency(value, 'midi').toNote())
-          .join(' ')}
-      </div>
-
-      {/* Action buttons */}
-      <div
-        style={{
+          flex: '1 1 0%',
+          minHeight: 0,
+          overflowY: 'auto',
           display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           justifyContent: 'center',
-          gap: 10,
-          marginBottom: 16,
         }}
       >
-        <button
-          onClick={() => {
-            if (isCorrect) onCorrect?.();
-            else onWrong?.();
-            setChecked(true);
-          }}
-          disabled={!canCheck}
+        {/* Target chord */}
+        {showChordName && (
+          <div style={{ textAlign: 'center', marginBottom: 16 }}>
+            <span
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                color: '#ddd6fe',
+                letterSpacing: 1,
+              }}
+            >
+              {title}
+            </span>
+          </div>
+        )}
+
+        {/* Piano keyboard */}
+        <div
           style={{
-            ...BTN,
-            opacity: canCheck ? 1 : 0.4,
-            pointerEvents: canCheck ? 'auto' : 'none',
+            borderRadius: 12,
+            border: '1.5px solid rgba(255,255,255,0.08)',
+            backgroundColor: 'rgba(255,255,255,0.02)',
+            padding: 10,
+            marginBottom: 16,
           }}
         >
-          Check Answer
-        </button>
-        <button
-          onClick={resetSelection}
-          disabled={!canClear}
+          <PianoKeyboard
+            key={keyboardId}
+            startC={3}
+            endC={6}
+            gaming={true}
+            onKeyClick={toggleNote}
+            onMidiInput={
+              hasLearnContext ? undefined : enableMIDI ? onMidiInput : undefined
+            }
+            enableMidiInterface={hasLearnContext ? false : enableMIDI}
+            playingNotes={selectedEvents}
+            activeWhiteKeyColor={undefined}
+            activeBlackKeyColor={undefined}
+            showOctaveStart
+          />
+        </div>
+
+        {/* Target notes hint */}
+        <div
           style={{
-            ...BTN_OUTLINE,
-            opacity: canClear ? 1 : 0.4,
-            pointerEvents: canClear ? 'auto' : 'none',
+            textAlign: 'right',
+            fontSize: 10,
+            color: 'var(--color-text-dim, #6b7280)',
+            letterSpacing: 0.5,
+            marginBottom: 16,
           }}
         >
-          Clear Selection
-        </button>
-      </div>
+          Target:{' '}
+          {targetMidi
+            .map((value) => Tone.Frequency(value, 'midi').toNote())
+            .join(' ')}
+        </div>
 
-      {/* Feedback */}
-      {feedback && (
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>{feedback}</div>
-      )}
-
-      {/* Continue */}
-      {checked && (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {/* Action buttons */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 10,
+            marginBottom: 16,
+          }}
+        >
           <button
-            onClick={handleContinue}
-            disabled={submitted}
+            onClick={() => {
+              if (isCorrect) onCorrect?.();
+              else onWrong?.();
+              setChecked(true);
+            }}
+            disabled={!canCheck}
             style={{
               ...BTN,
-              opacity: submitted ? 0.4 : 1,
-              pointerEvents: submitted ? 'none' : 'auto',
+              opacity: canCheck ? 1 : 0.4,
+              pointerEvents: canCheck ? 'auto' : 'none',
             }}
           >
-            Continue
+            Check Answer
+          </button>
+          <button
+            onClick={resetSelection}
+            disabled={!canClear}
+            style={{
+              ...BTN_OUTLINE,
+              opacity: canClear ? 1 : 0.4,
+              pointerEvents: canClear ? 'auto' : 'none',
+            }}
+          >
+            Clear Selection
           </button>
         </div>
-      )}
+
+        {/* Feedback */}
+        {feedback && (
+          <div style={{ textAlign: 'center', marginBottom: 16 }}>
+            {feedback}
+          </div>
+        )}
+
+        {/* Continue */}
+        {checked && (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button
+              onClick={handleContinue}
+              disabled={submitted}
+              style={{
+                ...BTN,
+                opacity: submitted ? 0.4 : 1,
+                pointerEvents: submitted ? 'none' : 'auto',
+              }}
+            >
+              Continue
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

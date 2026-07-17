@@ -652,6 +652,22 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     initGame();
   }, [initGame]);
 
+  // Dismiss the score screen and return to the initial Start screen.
+  const returnToStart = useCallback(() => {
+    const st = gameState.current;
+    st.isPlaying = false;
+    st.isCountingIn = false;
+    st.isPaused = false;
+    if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    audioRef.current?.suspend();
+    setUiState((prev) => ({
+      ...prev,
+      gameOver: false,
+      gameStarted: false,
+      isPaused: false,
+    }));
+  }, []);
+
   // --- Effects (mount-only — all callbacks accessed via stable refs) ---
   useEffect(() => {
     const handleDown = (e: KeyboardEvent) => {
@@ -809,7 +825,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
             <GameOverScreen
               score={uiState.score}
               gameState={gameState.current}
-              onRestart={initGame}
+              onPlayAgain={returnToStart}
             />
           )}
         </div>

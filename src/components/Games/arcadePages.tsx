@@ -1,8 +1,6 @@
 /* eslint-disable react/jsx-sort-props */
-import { ArrowLeft } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import TubesCursor from '@/components/ui/tubes-cursor';
 import { GameRoutes } from '@/constants/routes';
 import { useAwardArcadeExperience } from '@/hooks/data/experience/useAwardExperience';
@@ -24,32 +22,15 @@ import { StreakTracker } from './scoring/StreakTracker';
 import { useArcadeStreakReward } from './scoring/useArcadeStreakReward';
 import '@/components/learn/learn.css';
 
-function BackToArcade() {
-  const navigate = useNavigate();
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => navigate(GameRoutes.root())}
-      className="gap-2 text-muted-foreground"
-    >
-      <ArrowLeft size={16} />
-      Back to Arcade
-    </Button>
-  );
-}
-
+// Full-bleed arcade shell: the game fills the whole window it's given so its
+// header bar spans the full width (matching Major Arcanum). Navigation back to
+// the arcade lives on each game's ArcadeGameHeader, not here.
 function GameShell({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className={`learn-root flex flex-col h-full overflow-y-auto px-8 pb-12 ${ARCADE_ROOT}`}
+      className={`learn-root flex h-full w-full flex-col overflow-hidden ${ARCADE_ROOT}`}
     >
-      <div className="mb-4 pt-6">
-        <BackToArcade />
-      </div>
-      <div className="mx-auto flex w-full min-h-0 max-w-5xl flex-1 flex-col">
-        {children}
-      </div>
+      {children}
     </div>
   );
 }
@@ -88,7 +69,7 @@ export function BoardChoicePage() {
       <div className="relative flex-1 min-h-0">
         <StreakTracker count={streak} target={target} />
         <BoardChoiceGame
-          className="mx-auto max-w-5xl"
+          arcade
           onCorrect={registerCorrect}
           onWrong={registerWrong}
         />
@@ -105,7 +86,7 @@ export function ChordConnectionPage() {
       <div className="relative flex-1 min-h-0">
         <StreakTracker count={streak} target={target} />
         <ChordConnectionGame
-          className="mx-auto max-w-5xl"
+          arcade
           onCorrect={registerCorrect}
           onWrong={registerWrong}
         />
@@ -122,7 +103,7 @@ export function ChordPressPage() {
       <div className="relative flex-1 min-h-0">
         <StreakTracker count={streak} target={target} />
         <ChordPressGame
-          className="mx-auto max-w-5xl"
+          arcade
           enableComputerKeyboard
           onCorrect={registerCorrect}
           onWrong={registerWrong}
@@ -147,7 +128,7 @@ export function PlayAlongPage() {
   return (
     <LearnInputProvider detectionMode="polyphonic">
       <GameShell>
-        <PlayAlong onActivityCompleteChange={handleComplete} />
+        <PlayAlong arcade onActivityCompleteChange={handleComplete} />
       </GameShell>
     </LearnInputProvider>
   );

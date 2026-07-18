@@ -4,12 +4,14 @@ import {
   SCALE_TRADITIONS,
   WORLD_SCALES,
   type ScaleTradition,
+  type WorldScale,
 } from '@/components/ClassroomLayout/globe/data/scales';
 import {
   FilterDropdown,
   type FilterOption,
 } from '@/components/songLibrary/FilterDropdown';
 import { SearchInput } from '@/components/songLibrary/SearchInput';
+import { ScaleDetailDialog } from './ScaleDetailDialog';
 
 type TraditionFilter = ScaleTradition | 'all';
 
@@ -39,6 +41,7 @@ export const WorldHarmony = () => {
   const [tradition, setTradition] = useState<TraditionFilter>('all');
   const [region, setRegion] = useState<string>('all');
   const [search, setSearch] = useState('');
+  const [selectedScale, setSelectedScale] = useState<WorldScale | null>(null);
 
   const groups = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -105,6 +108,8 @@ export const WorldHarmony = () => {
                   title={scale.name}
                   subtitle={scale.character}
                   seed={`scale:${scale.id}`}
+                  onClick={() => setSelectedScale(scale)}
+                  ariaLabel={`View details for ${scale.name}`}
                 />
               ))}
             </div>
@@ -117,6 +122,17 @@ export const WorldHarmony = () => {
           </p>
         )}
       </div>
+
+      <ScaleDetailDialog
+        scale={selectedScale}
+        traditionBlurb={
+          SCALE_TRADITIONS.find((t) => t.tradition === selectedScale?.tradition)
+            ?.blurb
+        }
+        onOpenChange={(open) => {
+          if (!open) setSelectedScale(null);
+        }}
+      />
     </>
   );
 };

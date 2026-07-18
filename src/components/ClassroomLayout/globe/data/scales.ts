@@ -20,6 +20,12 @@ export interface WorldScale {
   region: string;
   /** Short character/interval note used as the card subtitle. */
   character: string;
+  /** Longer prose blurb for the detail view (optional; backfill later). */
+  description?: string;
+  /** YouTube id of the creator-wiki source video that teaches this scale. */
+  sourceVideoId?: string;
+  /** Attribution for the source video, e.g. "Farzad Milani". */
+  sourceCreator?: string;
 }
 
 /** Tradition → one-line context, in display order. */
@@ -196,6 +202,8 @@ export const WORLD_SCALES: WorldScale[] = [
     region: 'West Asia',
     character:
       'Two Mahur tetrachords around a shahed pivot; upper genus swaps mid-melody',
+    sourceVideoId: 'PIlHb5GgjMI',
+    sourceCreator: 'Farzad Milani',
   },
   // source: wiki/topics/persian-music.md · Farzad Milani — https://youtu.be/_QN_DG-OJ_4
   {
@@ -205,6 +213,8 @@ export const WORLD_SCALES: WorldScale[] = [
     region: 'West Asia',
     character:
       'Off-piano genus built on the 17-tone neutral (koron) quarter-tones',
+    sourceVideoId: '_QN_DG-OJ_4',
+    sourceCreator: 'Farzad Milani',
   },
   // source: wiki/topics/persian-music.md · Farzad Milani — https://youtu.be/_QN_DG-OJ_4
   {
@@ -213,6 +223,8 @@ export const WORLD_SCALES: WorldScale[] = [
     tradition: 'Persian',
     region: 'West Asia',
     character: 'Nava/Homayoun genus — minor-leaning, beyond the 12-tone piano',
+    sourceVideoId: '_QN_DG-OJ_4',
+    sourceCreator: 'Farzad Milani',
   },
   // source: wiki/topics/persian-music.md · Farzad Milani — https://youtu.be/_QN_DG-OJ_4
   {
@@ -221,6 +233,8 @@ export const WORLD_SCALES: WorldScale[] = [
     tradition: 'Persian',
     region: 'West Asia',
     character: 'Bold augmented-second step; a Hijaz-like Persian genus',
+    sourceVideoId: '_QN_DG-OJ_4',
+    sourceCreator: 'Farzad Milani',
   },
   // Xenharmonic
   // source: wiki/topics/31-edo.md · Zheanna Erose — https://youtu.be/uH3ahBzDSrs
@@ -231,6 +245,8 @@ export const WORLD_SCALES: WorldScale[] = [
     region: 'Global',
     character:
       'Six stacked super-major (~8:7) seconds; a fuzzy, dreamy major-seven',
+    sourceVideoId: 'uH3ahBzDSrs',
+    sourceCreator: 'Zheanna Erose',
   },
   // source: wiki/topics/31-edo.md · Zheanna Erose — https://youtu.be/unuVHCZ2snE
   {
@@ -240,5 +256,7 @@ export const WORLD_SCALES: WorldScale[] = [
     region: 'Global',
     character:
       'Approximates harmonics 8-16; buzzy, metallic, near-just intonation',
+    sourceVideoId: 'unuVHCZ2snE',
+    sourceCreator: 'Zheanna Erose',
   },
 ];

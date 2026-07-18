@@ -9,7 +9,9 @@ export type ScaleTradition =
   | 'Gamelan'
   | 'Pentatonic'
   | 'Western Modes'
-  | 'Other Traditions';
+  | 'Other Traditions'
+  | 'Persian'
+  | 'Xenharmonic';
 
 export interface WorldScale {
   id: string;
@@ -35,6 +37,14 @@ export const SCALE_TRADITIONS: { tradition: ScaleTradition; blurb: string }[] =
     },
     { tradition: 'Western Modes', blurb: 'The European church modes' },
     { tradition: 'Other Traditions', blurb: 'Distinctive regional colours' },
+    {
+      tradition: 'Persian',
+      blurb: 'Persian dastgah — 17 tones with neutral intervals',
+    },
+    {
+      tradition: 'Xenharmonic',
+      blurb: 'Equal-division tunings beyond 12-TET (e.g. 31-EDO)',
+    },
   ];
 
 export const WORLD_SCALES: WorldScale[] = [
@@ -176,5 +186,59 @@ export const WORLD_SCALES: WorldScale[] = [
     tradition: 'Other Traditions',
     region: 'Eastern Europe',
     character: 'Minor with two dramatic augmented steps',
+  },
+  // Persian
+  // source: wiki/topics/persian-music.md · Farzad Milani — https://youtu.be/PIlHb5GgjMI
+  {
+    id: 'mahur',
+    name: 'Mahur',
+    tradition: 'Persian',
+    region: 'West Asia',
+    character:
+      'Two Mahur tetrachords around a shahed pivot; upper genus swaps mid-melody',
+  },
+  // source: wiki/topics/persian-music.md · Farzad Milani — https://youtu.be/_QN_DG-OJ_4
+  {
+    id: 'segah',
+    name: 'Segah',
+    tradition: 'Persian',
+    region: 'West Asia',
+    character:
+      'Off-piano genus built on the 17-tone neutral (koron) quarter-tones',
+  },
+  // source: wiki/topics/persian-music.md · Farzad Milani — https://youtu.be/_QN_DG-OJ_4
+  {
+    id: 'homayoun',
+    name: 'Homayoun',
+    tradition: 'Persian',
+    region: 'West Asia',
+    character: 'Nava/Homayoun genus — minor-leaning, beyond the 12-tone piano',
+  },
+  // source: wiki/topics/persian-music.md · Farzad Milani — https://youtu.be/_QN_DG-OJ_4
+  {
+    id: 'chahargah',
+    name: 'Chahargah',
+    tradition: 'Persian',
+    region: 'West Asia',
+    character: 'Bold augmented-second step; a Hijaz-like Persian genus',
+  },
+  // Xenharmonic
+  // source: wiki/topics/31-edo.md · Zheanna Erose — https://youtu.be/uH3ahBzDSrs
+  {
+    id: '31edo-supermajor-hexatonic',
+    name: '31-EDO Supermajor Hexatonic',
+    tradition: 'Xenharmonic',
+    region: 'Global',
+    character:
+      'Six stacked super-major (~8:7) seconds; a fuzzy, dreamy major-seven',
+  },
+  // source: wiki/topics/31-edo.md · Zheanna Erose — https://youtu.be/unuVHCZ2snE
+  {
+    id: '31edo-overtone',
+    name: '31-EDO Overtone Scale',
+    tradition: 'Xenharmonic',
+    region: 'Global',
+    character:
+      'Approximates harmonics 8-16; buzzy, metallic, near-just intonation',
   },
 ];

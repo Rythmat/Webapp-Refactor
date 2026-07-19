@@ -10,6 +10,10 @@ import {
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
+import {
+  OCTAVE_HEIGHT,
+  OCTAVE_WIDTH,
+} from '@/components/PianoKeyboard/useExpandedRange';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
 
@@ -233,6 +237,12 @@ const BTN_OUTLINE: React.CSSProperties = {
   backgroundColor: 'rgba(255,255,255,0.03)',
   color: 'var(--color-text-dim, #6b7280)',
 };
+
+// Every keyboard renders exactly two octaves, so its footprint is fixed. The
+// chord-name buttons are sized to match this so both columns line up 1:1.
+const KEYBOARD_OCTAVES = 2;
+const KEYBOARD_WIDTH = OCTAVE_WIDTH * KEYBOARD_OCTAVES;
+const KEYBOARD_HEIGHT = OCTAVE_HEIGHT;
 
 // ── Component ──────────────────────────────────────────────────────────────
 
@@ -549,20 +559,20 @@ export function ChordConnectionGame({
         onClick={() => handleChordClick(item.id)}
         disabled={isComplete}
         style={{
-          width: '60%',
+          width: KEYBOARD_WIDTH,
+          height: KEYBOARD_HEIGHT,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 6,
-          padding: '20px 16px',
+          padding: '12px 16px',
           borderRadius: 10,
           border: `1.5px solid ${borderColor}`,
           backgroundColor: bg,
           color: textColor,
           cursor: isComplete ? 'default' : 'pointer',
           transition: 'all 0.18s ease',
-          minHeight: 80,
           textAlign: 'center',
         }}
       >
@@ -597,21 +607,19 @@ export function ChordConnectionGame({
       : CONNECTION_COLORS.idle;
     const playingNotes = toPlaybackEvents(item.midi, color, item.id);
 
-    const borderColor = isComplete
+    // Always show two octaves: start at the octave of the lowest note and, when
+    // the chord fits within a single octave, include the next one up as well.
+    // The fit-content wrapper stops PianoKeyboard from auto-expanding wider.
+    const startOctave = Math.floor(Math.min(...item.midi) / 12);
+    let endOctave = Math.floor(Math.max(...item.midi) / 12);
+    if (endOctave === startOctave) endOctave += 1;
+
+    // The keyboard itself is the button — a selection ring (not a box) shows state.
+    const ringColor = isComplete
       ? '#22c55e'
       : isActive
         ? '#a78bfa'
-        : 'rgba(255,255,255,0.1)';
-    const bg = isComplete
-      ? 'rgba(34,197,94,0.08)'
-      : isActive
-        ? 'rgba(167,139,250,0.12)'
-        : 'rgba(255,255,255,0.03)';
-
-    // Show only the octave(s) that actually contain this chord's notes. The
-    // fit-content wrapper keeps PianoKeyboard from auto-expanding to fill width.
-    const startOctave = Math.floor(Math.min(...item.midi) / 12);
-    const endOctave = Math.floor(Math.max(...item.midi) / 12);
+        : 'transparent';
 
     return (
       <button
@@ -623,27 +631,19 @@ export function ChordConnectionGame({
         onClick={() => handleKeyboardClick(item.id)}
         disabled={isComplete}
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 6,
-          padding: 14,
-          borderRadius: 10,
-          border: `1.5px solid ${borderColor}`,
-          backgroundColor: bg,
+          display: 'inline-flex',
+          padding: 0,
+          border: 'none',
+          background: 'transparent',
+          borderRadius: 8,
+          outline: `2px solid ${ringColor}`,
+          outlineOffset: 4,
           cursor: isComplete ? 'default' : 'pointer',
-          transition: 'all 0.18s ease',
-          minHeight: 80,
+          transition: 'outline-color 0.18s ease',
+          width: 'fit-content',
         }}
       >
-        <div
-          style={{
-            pointerEvents: 'none',
-            width: 'fit-content',
-            transform: 'scale(0.9)',
-            transformOrigin: 'top center',
-          }}
-        >
+        <div style={{ pointerEvents: 'none' }}>
           <PianoKeyboard
             startC={startOctave}
             endC={endOctave}
@@ -689,15 +689,17 @@ export function ChordConnectionGame({
       </svg>
 
       {/* Both columns share one grid so each chord row lines up with its
-          keyboard row, vertically centered for straight connector lines. */}
+          keyboard row, vertically centered for straight connector lines. The
+          two content-width columns are centered as a group so they sit an
+          equal distance either side of the middle. */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          columnGap: 32,
-          rowGap: 10,
+          gridTemplateColumns: 'auto auto',
+          justifyContent: 'center',
+          columnGap: 56,
+          rowGap: 12,
           alignItems: 'center',
-          maxWidth: '100%',
           padding: '0 8px',
         }}
       >

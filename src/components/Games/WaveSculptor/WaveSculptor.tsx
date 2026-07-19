@@ -268,9 +268,14 @@ class WavePreview {
 
 interface WaveSculptorProps {
   onComplete?: () => void;
+  /** Fired once each time a challenge is matched (drives the streak counter). */
+  onRoundWon?: () => void;
 }
 
-export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
+export default function WaveSculptor({
+  onComplete,
+  onRoundWon,
+}: WaveSculptorProps) {
   const [level, setLevel] = useState(0);
   const [challengeIndex, setChallengeIndex] = useState(0);
   // Start each challenge from randomized dials that are verified NOT to already
@@ -306,8 +311,9 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
     if (currentSimilarity >= MATCH_THRESHOLD && !roundComplete) {
       setRoundComplete(true);
       setRoundsWon((w) => w + 1);
+      onRoundWon?.();
     }
-  }, [currentSimilarity, roundComplete]);
+  }, [currentSimilarity, roundComplete, onRoundWon]);
 
   // Draw waveforms
   useEffect(() => {

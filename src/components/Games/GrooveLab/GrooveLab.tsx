@@ -499,28 +499,6 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
             >
               New Target
             </button>
-            <button
-              onClick={startPlayback}
-              className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
-                isPlaying
-                  ? 'bg-red-600 hover:bg-red-500 text-white'
-                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-              }`}
-            >
-              {isPlaying ? 'Stop' : 'Play'}
-            </button>
-            <button
-              onClick={clearGrid}
-              className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-300 transition-colors"
-            >
-              Clear
-            </button>
-            <button
-              onClick={checkMatch}
-              className="px-4 py-1.5 rounded text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white transition-colors"
-            >
-              Check Match
-            </button>
           </>
         }
         stats={[{ label: 'Target', value: targetGroove }]}
@@ -528,62 +506,64 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
 
       {/* Body */}
       <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-        {/* Step sequencer grid */}
-        <div className="p-4">
-          <div className="flex flex-col gap-1">
-            {INSTRUMENTS.map((inst) => (
-              <div key={inst} className="flex items-center gap-2">
-                <div className="w-16 text-right text-xs text-zinc-500 font-medium shrink-0">
-                  {INSTRUMENT_LABELS[inst]}
-                </div>
-                <div className="flex gap-0.5 flex-1">
-                  {Array.from({ length: STEPS }, (_, step) => {
-                    const isActive = grid[inst][step];
-                    const isCurrent = step === currentStep && isPlaying;
-                    const isBeatStart = step % 4 === 0;
-                    const color = INSTRUMENT_COLORS[inst];
+        {/* Step sequencer grid — vertically centered in the available space */}
+        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col justify-center">
+          <div className="p-4">
+            <div className="flex flex-col gap-1">
+              {INSTRUMENTS.map((inst) => (
+                <div key={inst} className="flex items-center gap-2">
+                  <div className="w-16 text-right text-xs text-zinc-500 font-medium shrink-0">
+                    {INSTRUMENT_LABELS[inst]}
+                  </div>
+                  <div className="flex gap-0.5 flex-1">
+                    {Array.from({ length: STEPS }, (_, step) => {
+                      const isActive = grid[inst][step];
+                      const isCurrent = step === currentStep && isPlaying;
+                      const isBeatStart = step % 4 === 0;
+                      const color = INSTRUMENT_COLORS[inst];
 
-                    return (
-                      <button
-                        key={step}
-                        onClick={() => toggleCell(inst, step)}
-                        className={`flex-1 aspect-square rounded-sm transition-all ${
-                          isBeatStart ? 'ml-1' : ''
-                        }`}
-                        style={{
-                          background: isActive
-                            ? color
-                            : isCurrent
-                              ? 'rgba(255,255,255,0.08)'
-                              : 'rgba(255,255,255,0.03)',
-                          border: isCurrent
-                            ? '1px solid rgba(255,255,255,0.3)'
-                            : '1px solid rgba(255,255,255,0.05)',
-                          opacity: isActive ? 1 : 0.7,
-                          boxShadow: isActive ? `0 0 8px ${color}40` : 'none',
-                        }}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Beat numbers */}
-          <div className="flex items-center gap-2 mt-2">
-            <div className="w-16 shrink-0" />
-            <div className="flex gap-0.5 flex-1">
-              {Array.from({ length: STEPS }, (_, step) => (
-                <div
-                  key={step}
-                  className={`flex-1 text-center text-[10px] font-mono ${
-                    step % 4 === 0 ? 'text-zinc-400 ml-1' : 'text-zinc-600'
-                  }`}
-                >
-                  {step % 4 === 0 ? step / 4 + 1 : '·'}
+                      return (
+                        <button
+                          key={step}
+                          onClick={() => toggleCell(inst, step)}
+                          className={`flex-1 aspect-square rounded-sm transition-all ${
+                            isBeatStart ? 'ml-1' : ''
+                          }`}
+                          style={{
+                            background: isActive
+                              ? color
+                              : isCurrent
+                                ? 'rgba(255,255,255,0.08)'
+                                : 'rgba(255,255,255,0.03)',
+                            border: isCurrent
+                              ? '1px solid rgba(255,255,255,0.3)'
+                              : '1px solid rgba(255,255,255,0.05)',
+                            opacity: isActive ? 1 : 0.7,
+                            boxShadow: isActive ? `0 0 8px ${color}40` : 'none',
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
               ))}
+            </div>
+
+            {/* Beat numbers */}
+            <div className="flex items-center gap-2 mt-2">
+              <div className="w-16 shrink-0" />
+              <div className="flex gap-0.5 flex-1">
+                {Array.from({ length: STEPS }, (_, step) => (
+                  <div
+                    key={step}
+                    className={`flex-1 text-center text-[10px] font-mono ${
+                      step % 4 === 0 ? 'text-zinc-400 ml-1' : 'text-zinc-600'
+                    }`}
+                  >
+                    {step % 4 === 0 ? step / 4 + 1 : '·'}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -617,6 +597,32 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
             </button>
           </div>
         )}
+
+        {/* Footer controls — Play, Clear, Check Match */}
+        <div className="border-t border-white/10 bg-white/[0.03] p-3 flex items-center justify-center gap-2">
+          <button
+            onClick={startPlayback}
+            className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
+              isPlaying
+                ? 'bg-red-600 hover:bg-red-500 text-white'
+                : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+            }`}
+          >
+            {isPlaying ? 'Stop' : 'Play'}
+          </button>
+          <button
+            onClick={clearGrid}
+            className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-300 transition-colors"
+          >
+            Clear
+          </button>
+          <button
+            onClick={checkMatch}
+            className="px-4 py-1.5 rounded text-sm font-medium bg-purple-600 hover:bg-purple-500 text-white transition-colors"
+          >
+            Check Match
+          </button>
+        </div>
       </div>
     </div>
   );

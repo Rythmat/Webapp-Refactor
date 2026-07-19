@@ -423,7 +423,7 @@ export function ChordPressGame({
               letterSpacing: 1,
             }}
           >
-            {title}
+            Select the notes from {title}
           </span>
         </div>
       )}

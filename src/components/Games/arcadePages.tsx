@@ -188,6 +188,8 @@ export function GrooveLabPage() {
 
 export function WaveSculptorPage() {
   const awardXP = useAwardArcadeExperience();
+  const { streak, target, registerCorrect } =
+    useArcadeStreakReward('wave_sculptor');
 
   const handleComplete = useCallback(async () => {
     await awardXP.mutateAsync().catch(() => {});
@@ -195,7 +197,13 @@ export function WaveSculptorPage() {
 
   return (
     <GameShell>
-      <WaveSculptor onComplete={handleComplete} />
+      <div className="relative flex-1 min-h-0">
+        <StreakTracker count={streak} target={target} />
+        <WaveSculptor
+          onComplete={handleComplete}
+          onRoundWon={registerCorrect}
+        />
+      </div>
     </GameShell>
   );
 }

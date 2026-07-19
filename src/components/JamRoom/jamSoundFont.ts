@@ -16,6 +16,10 @@ let synth: WorkletSynthesizer | null = null;
 let synthReady = false;
 let initPromise: Promise<void> | null = null;
 let audioCtx: AudioContext | null = null;
+// Master gain sits between the synth and the speakers so callers can set an
+// overall output level (0–1) without touching per-channel MIDI volumes.
+let masterGain: GainNode | null = null;
+let masterVolume = 1;
 
 // Channel management
 const channelMap = new Map<string, number>(); // userId → channel
@@ -71,6 +75,22 @@ export function jamControllerChange(
     controller as Parameters<WorkletSynthesizer['controllerChange']>[1],
     value,
   );
+}
+
+/**
+ * Set the master output level (0–1) for the whole jam synth. Persists across
+ * (re)initialization, and applies immediately if the synth is already running.
+ */
+export function setJamMasterVolume(v: number): void {
+  masterVolume = Math.max(0, Math.min(1, v));
+  if (masterGain && audioCtx) {
+    masterGain.gain.setTargetAtTime(masterVolume, audioCtx.currentTime, 0.01);
+  }
+}
+
+/** Get the current master output level (0–1). */
+export function getJamMasterVolume(): number {
+  return masterVolume;
 }
 
 /** Get the local player's channel (always 0). */
@@ -138,6 +158,8 @@ export function disposeJamSynth(): void {
     }
     synth.disconnect();
   }
+  masterGain?.disconnect();
+  masterGain = null;
   synth = null;
   synthReady = false;
   initPromise = null;
@@ -175,8 +197,12 @@ async function doInit(): Promise<void> {
   const sfData = await sfResponse.arrayBuffer();
   await (synth as any).soundBankManager.addSoundBank(sfData, 'gm');
 
-  // Connect synth output to speakers
-  synth.connect(audioCtx.destination);
+  // Connect synth output to speakers through a master gain node so callers can
+  // control overall loudness (see setJamMasterVolume).
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = masterVolume;
+  masterGain.connect(audioCtx.destination);
+  synth.connect(masterGain);
 
   // Default: Acoustic Grand Piano on local channel
   synth.programChange(LOCAL_CHANNEL, 0);

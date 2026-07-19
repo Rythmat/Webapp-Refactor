@@ -9,9 +9,12 @@ import {
   getLocalChannel,
   getDroneChannel,
   getAccentChannel,
+  setJamMasterVolume,
+  getJamMasterVolume,
 } from '@/components/JamRoom/jamSoundFont';
 import { StarsCanvas } from '@/components/ui/stars-canvas';
 import { ArcadeGameHeader } from '../ArcadeGameHeader';
+import { VolumeDial } from '../VolumeDial';
 
 // --- Constants ---
 
@@ -269,6 +272,8 @@ export default function Constellations({
   const [phase, setPhase] = useState<Phase>('ready');
   const [score, setScore] = useState(0);
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
+  // Master output level (0–1) for the shared jam synth, driven by the header dial.
+  const [volume, setVolume] = useState(() => getJamMasterVolume());
   // The scale is mirrored in a ref so the animation/spawn callbacks can read it
   // without being re-created; `activeScale` state drives the on-screen display.
   const [activeScale, setActiveScale] = useState<ActiveScale | null>(null);
@@ -296,6 +301,12 @@ export default function Constellations({
   // MIDI note of the currently-sounding drone (null when silent), so it can be
   // released on the next round or on unmount.
   const droneNoteRef = useRef<number | null>(null);
+
+  // Keep the shared jam synth's master level in sync with the dial. This persists
+  // even before the synth is initialized, so the first note already respects it.
+  useEffect(() => {
+    setJamMasterVolume(volume);
+  }, [volume]);
 
   // --- Canvas resize ---
   useEffect(() => {
@@ -874,8 +885,23 @@ export default function Constellations({
             </button>
           )
         }
-        stats={
-          phase === 'playing' ? [{ label: 'Stars', value: score }] : undefined
+        right={
+          <div className="flex items-center gap-6 rounded-xl border border-white/5 bg-black/20 px-5 py-3 backdrop-blur-sm">
+            {phase === 'playing' && (
+              <>
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                    Stars
+                  </span>
+                  <span className="text-xl font-medium tabular-nums text-white">
+                    {score}
+                  </span>
+                </div>
+                <div className="h-8 w-px bg-white/10" />
+              </>
+            )}
+            <VolumeDial value={volume} onChange={setVolume} />
+          </div>
         }
       />
 

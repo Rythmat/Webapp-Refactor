@@ -77,7 +77,10 @@ const LevelSelectScreen = ({
           from source to destination.
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        style={{ zoom: 0.8 }}
+      >
         {levels.map((level, idx) => (
           <button
             key={level.id}

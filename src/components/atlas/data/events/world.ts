@@ -71,4 +71,52 @@ export const WORLD_EVENTS: HistoricalEvent[] = [
     ],
     videoId: 'uAi8hK6_2z4',
   },
+  // source: wiki/topics/andalusian-music.md · Filip Holm — https://youtu.be/_RoV2A4_FK4
+  {
+    id: 'evt-ziryab-cordoba-822',
+    year: 822,
+    location: {
+      lat: 37.8882,
+      lng: -4.7794,
+      city: 'C\u00f3rdoba',
+      country: 'Spain',
+    },
+    genre: ['Andalusian Classical', 'Arabic Classical'],
+    title: 'Ziryab founds the Andalusian classical tradition in C\u00f3rdoba',
+    description:
+      'The 9th-century musician Ziryab, trained in the Baghdad court school under Ishaq al-Mawsili, emigrates west to Umayyad C\u00f3rdoba and establishes what may be the first true school of music in European history. He popularizes the oud \u2014 ancestor of the European lute and guitar \u2014 and grafts the Baghdad court style onto al-Andalus, founding the Andalusian classical tradition and making C\u00f3rdoba one of the three great centers of music in the Islamic world alongside Baghdad and Medina.',
+    tags: [
+      'ziryab',
+      'andalusian',
+      'oud',
+      'cordoba',
+      'al-andalus',
+      'baghdad court',
+      'lute',
+      'arabic classical',
+    ],
+    videoId: '_RoV2A4_FK4',
+  },
+  // source: wiki/topics/middle-eastern-music.md · Filip Holm — https://youtu.be/JIEmnNiXBCk
+  {
+    id: 'evt-urmawi-baghdad-1250',
+    year: 1250,
+    location: { lat: 33.3152, lng: 44.3661, city: 'Baghdad', country: 'Iraq' },
+    genre: ['Maqam', 'Arabic Classical'],
+    title:
+      'Safi al-Din al-Urmawi systematizes the 17-tone maqam system in Baghdad',
+    description:
+      'In 13th-century Baghdad, musicologist Safi al-Din al-Urmawi systematizes the existing maqam modal system \u2014 inherited from al-Kindi, al-Farabi, and Ibn Sina \u2014 into a unified theory in his Kitab al-Adwar (Book of Modes). He divides the octave into 17 unequal intervals, formalizing the quarter-tones of Middle Eastern music, and writes the first known music notation in the Islamic world using letters and numbers. His framework proved so foundational that the tradition is split into pre- and post-Urmawi, shaping Arabic, Persian, Ottoman, and Hindustani music for centuries.',
+    tags: [
+      'safi al-din al-urmawi',
+      'maqam',
+      'kitab al-adwar',
+      '17-tone',
+      'quarter tones',
+      'baghdad',
+      'microtonal',
+      'music notation',
+    ],
+    videoId: 'JIEmnNiXBCk',
+  },
 ];

@@ -31,25 +31,25 @@ Treble register (RH melody & chords):
 
 ### Root Position (RH)
 
-| Chord | Roman | RH notes  | MIDI     | LH bass | MIDI |
-| ----- | ----- | --------- | -------- | ------- | ---- |
-| G maj | I     | G4–B4–D5  | 67–71–74 | G2      | 43   |
-| A min | ii    | A4–C5–E5  | 69–72–76 | A2      | 45   |
-| B min | iii   | B4–D5–F#5 | 71–74–78 | B2      | 47   |
-| C maj | IV    | C4–E4–G4  | 60–64–67 | C3      | 48   |
-| D maj | V     | D4–F#4–A4 | 62–66–69 | D3      | 50   |
-| E min | vi    | E4–G4–B4  | 64–67–71 | E3      | 52   |
+| Chord | Degree | RH notes  | MIDI     | LH bass | MIDI |
+| ----- | ------ | --------- | -------- | ------- | ---- |
+| G maj | 1 maj  | G4–B4–D5  | 67–71–74 | G2      | 43   |
+| A min | 2 min  | A4–C5–E5  | 69–72–76 | A2      | 45   |
+| B min | 3 min  | B4–D5–F#5 | 71–74–78 | B2      | 47   |
+| C maj | 4 maj  | C4–E4–G4  | 60–64–67 | C3      | 48   |
+| D maj | 5 maj  | D4–F#4–A4 | 62–66–69 | D3      | 50   |
+| E min | 6 min  | E4–G4–B4  | 64–67–71 | E3      | 52   |
 
 ### 1st Inversion (RH) — new at L2
 
-| Chord | Symbol | RH notes  | MIDI     | LH bass | MIDI |
-| ----- | ------ | --------- | -------- | ------- | ---- |
-| G/B   | I/3    | B3–D4–G4  | 59–62–67 | G2      | 43   |
-| Am/C  | ii/b3  | C4–E4–A4  | 60–64–69 | A2      | 45   |
-| Bm/D  | iii/b3 | D4–F#4–B4 | 62–66–71 | B2      | 47   |
-| C/E   | IV/3   | E4–G4–C5  | 64–67–72 | C3      | 48   |
-| D/F#  | V/3    | F#4–A4–D5 | 66–69–74 | D3      | 50   |
-| Em/G  | vi/b3  | G4–B4–E5  | 67–71–76 | E3      | 52   |
+| Chord | Symbol      | RH notes  | MIDI     | LH bass | MIDI |
+| ----- | ----------- | --------- | -------- | ------- | ---- |
+| G/B   | 1 maj/3     | B3–D4–G4  | 59–62–67 | G2      | 43   |
+| Am/C  | 2 min/b3    | C4–E4–A4  | 60–64–69 | A2      | 45   |
+| Bm/D  | 3 min/b3    | D4–F#4–B4 | 62–66–71 | B2      | 47   |
+| C/E   | 4 maj/3     | E4–G4–C5  | 64–67–72 | C3      | 48   |
+| D/F#  | 5 maj/3     | F#4–A4–D5 | 66–69–74 | D3      | 50   |
+| Em/G  | 6 min/b3    | G4–B4–E5  | 67–71–76 | E3      | 52   |
 
 > **Octave note:** The 1st inversion voicings (B3–D4–G4 range) are one octave below the root-position voicings (G4–B4–D5 range). This keeps the 1st inversions in a comfortable mid-register and makes the voice leading visually clear.
 
@@ -57,28 +57,28 @@ Treble register (RH melody & chords):
 
 ## Voice Leading — The Three Core Transitions
 
-### Transition 1 — 1maj 1st inv → 4maj root pos
+### Transition 1 — 1 maj 1st inv → 4 maj root pos
 
 ```
-I/3 (G/B)        →    IV (C)
+1 maj/3 (G/B)    →    4 maj (C)
 RH: B3–D4–G4    →   C4–E4–G4    G4 stays, B→C (+1), D→E (+2)
 LH: G2 (43)     →   C3 (48)
 MIDI: [59,62,67] →  [60,64,67]
 ```
 
-### Transition 2 — 5maj 1st inv → 1maj root pos
+### Transition 2 — 5 maj 1st inv → 1 maj root pos
 
 ```
-V/3 (D/F#)       →    I (G)
+5 maj/3 (D/F#)   →    1 maj (G)
 RH: F#4–A4–D5   →   G4–B4–D5    D5 stays, F#→G (+1), A→B (+2)
 LH: D3 (50)     →   G2 (43)
 MIDI: [66,69,74] →  [67,71,74]
 ```
 
-### Transition 3 — 1maj root pos → 6min 1st inv
+### Transition 3 — 1 maj root pos → 6 min 1st inv
 
 ```
-I (G)            →   vi/b3 (Em/G)
+1 maj (G)        →   6 min/b3 (Em/G)
 RH: G4–B4–D5    →   G4–B4–E5    G4 stays, B4 stays, D→E (+2)
 LH: G2 (43)     →   E3 (52)
 MIDI: [67,71,74] →  [67,71,76]   ← only ONE note changes
@@ -296,7 +296,7 @@ LH: 52 | RH: 67 + 71 + 76
 
 > Each activity: two chords in sequence. One bar each (whole note hold). OOT uses duration 1860; IT uses 1920.
 
-### B4.1/2 — 1maj 1st inv → 4maj root pos
+### B4.1/2 — 1 maj 1st inv → 4 maj root pos
 
 **Direction (B4.1):** "Move from a 1st inversion G chord to a root position C chord."  
 **Smooth move:** G4 stays, B3→C4, D4→E4
@@ -327,7 +327,7 @@ LH: 52 | RH: 67 + 71 + 76
 > G4(67) → G4(67)   stays
 > ```
 
-### B4.3/4 — 5maj 1st inv → 1maj root pos
+### B4.3/4 — 5 maj 1st inv → 1 maj root pos
 
 **Direction (B4.3):** "Resolve from a 1st inversion D chord to a root position G chord."  
 **Smooth move:** D5 stays, F#4→G4, A4→B4
@@ -358,7 +358,7 @@ LH: 52 | RH: 67 + 71 + 76
 > D5(74)  → D5(74)   stays
 > ```
 
-### B4.5/6 — 1maj root pos → 6min 1st inv
+### B4.5/6 — 1 maj root pos → 6 min 1st inv
 
 **Direction (B4.5):** "Move from a root position G chord to a 1st inversion E minor chord — only one note changes."  
 **Smooth move:** G4 stays, B4 stays, D5→E5 (+2)
@@ -393,16 +393,16 @@ LH: 52 | RH: 67 + 71 + 76
 
 ## B5: POP Progressions
 
-> **Primary progression: I–ii–iii–IV (G–Am–Bm–C), "Lean on Me"**  
+> **Primary progression: 1 maj - 2 min - 3 min - 4 maj (G–Am–Bm–C), "Lean on Me"**  
 > 1 bar per chord. Using 1st inversion voicings throughout.
 
 ### 1st Inversion Voicings for Lean on Me
 
 ```
-Bar 1 — G/B (I/3):    LH G2(43), RH B3(59)–D4(62)–G4(67)
-Bar 2 — Am/C (ii/b3): LH A2(45), RH C4(60)–E4(64)–A4(69)
-Bar 3 — Bm/D (iii/b3):LH B2(47), RH D4(62)–F#4(66)–B4(71)
-Bar 4 — C/E (IV/3):   LH C3(48), RH E4(64)–G4(67)–C5(72)
+Bar 1 — G/B (1 maj/3):    LH G2(43), RH B3(59)–D4(62)–G4(67)
+Bar 2 — Am/C (2 min/b3):  LH A2(45), RH C4(60)–E4(64)–A4(69)
+Bar 3 — Bm/D (3 min/b3):  LH B2(47), RH D4(62)–F#4(66)–B4(71)
+Bar 4 — C/E (4 maj/3):    LH C3(48), RH E4(64)–G4(67)–C5(72)
 ```
 
 > **Voice leading across the progression (each RH voice moves stepwise up):**
@@ -591,8 +591,8 @@ C/E:   E3(52)–G3(55)–C4(60)
 
 ```
 Bar 1 (G):   D5(74) q — E5(76) q — D5(74) h       "question" phrase
-Bar 2 (Am):  C5(72) q — B4(71) q — A4(69) h       descend to tonic of ii
-Bar 3 (Bm):  B4(71) q — D5(74) q — B4(71) h       outline iii chord
+Bar 2 (Am):  C5(72) q — B4(71) q — A4(69) h       descend to tonic of 2 min
+Bar 3 (Bm):  B4(71) q — D5(74) q — B4(71) h       outline 3 min chord
 Bar 4 (C):   A4(69) q — G4(67) q — G4(67) h       resolve to G
 ```
 
@@ -642,6 +642,6 @@ Bar 4 (C):   A4(69) q — G4(67) q — G4(67) h       resolve to G
 
 4. **D3 melody:** The RH melody above is a placeholder (functional but simple). Do you want a specific melody, or is a generated one (per the content generation spec) fine? If generated, the `targetNotes` array can be left empty like `C3.1` in L1 and filled by the engine.
 
-5. **Progression variety in B5:** Currently showing only Lean on Me (I–ii–iii–IV). Should B5 include additional progressions (e.g., I–V–vi–IV in 1st inversions, or vi–IV–I–V)? Or keep B5 focused on a single progression at this level?
+5. **Progression variety in B5:** Currently showing only Lean on Me (1 maj - 2 min - 3 min - 4 maj). Should B5 include additional progressions (e.g., 1 maj - 5 maj - 6 min - 4 maj in 1st inversions, or 6 min - 4 maj - 1 maj - 5 maj)? Or keep B5 focused on a single progression at this level?
 
-6. **F#3 in bass:** B2 = 47, but in some chords we need F#3 = 54 for the 5th of Bm bass pattern in C2. Confirm this is expected (it differs from L1 which used the chromatic bass note F2=41 for the IV chord, which was just below G2).
+6. **F#3 in bass:** B2 = 47, but in some chords we need F#3 = 54 for the 5th of Bm bass pattern in C2. Confirm this is expected (it differs from L1 which used the chromatic bass note F2=41 for the 4 maj chord, which was just below G2).

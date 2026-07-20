@@ -4,72 +4,121 @@ export const popProfile: GenreProfile = {
   id: 'pop',
   displayName: 'Pop',
   accentColor: '#E91E8C',
-  tagline: 'The hook. The chorus. The four chords everyone knows.',
+  tagline: 'The hook. The story. The soundtrack of your life.',
 
-  history: `Pop piano traces back to the Brill Building songwriters of the 1960s, who built entire careers on the verse-chorus song and the diatonic triad — Carole King and her peers proved that a great hook needed nothing more than I, IV, V, and vi. The Beatles took that same simple harmonic vocabulary worldwide, and piano-vocalists like Elton John and Billy Joel turned it into a solo instrument tradition of its own. Where jazz and funk chase extended harmony and rhythmic complexity, pop keeps the chords close to home — the craft is in the melody, the hook, and the feel.
-
-By the 2010s, artists like Adele and Bruno Mars had distilled pop piano to its most iconic form: the vi–IV–I–V loop, played in close, singable voicings, built to support a vocal rather than compete with it. That's the tradition this course teaches — root-position and closest-position triads, steady quarter-note "chunking," and the handful of chord progressions that power most of the songs on the radio.`,
+  history: `Pop is the music people sing back to themselves on the drive home. Born from the post-war collision of rock 'n' roll, R&B, and Tin Pan Alley songcraft, it became the genre that absorbs everything — soul, country, disco, electronic — and returns it as a melody you can't forget. The Beatles built the modern verse-chorus form. The Beach Boys layered harmony into something cinematic. ABBA proved a melody could carry across any language. Elton John, Mariah Carey, and Sara Bareilles wrote the piano ballad as a vehicle for the voice. Whitney Houston redefined what that voice could do. Michael Jackson became the King of Pop by making the world dance. Prince made it strange and Beyoncé made it monumental. Bruno Mars rebuilt funk and soul as #1 pop hits. Today, Taylor Swift writes confessional pop the way novelists write chapters; Coldplay builds stadium-sized hooks; Billie Eilish whispers her way into the vulnerable emotional territory. The era and instrumentation change. The hook stays the centerpiece.`,
 
   primaryArtists: [
     {
       name: 'The Beatles',
       era: '1960s',
       styleRef: 'l1a',
-      role: 'Songwriting Duo (Lennon–McCartney)',
-      tracks: ['Let It Be', 'Hey Jude'],
+      role: 'Band',
+      tracks: ['Let It Be', 'Hey Jude', 'Yesterday'],
     },
     {
-      name: 'Carole King',
-      era: '1960s–70s',
+      name: 'The Beach Boys',
+      era: '1960s',
       styleRef: 'l1a',
-      role: 'Singer-Songwriter',
-      tracks: ["You've Got a Friend", "It's Too Late"],
+      role: 'Band',
+      tracks: ['God Only Knows', "Wouldn't It Be Nice"],
+    },
+    {
+      name: 'ABBA',
+      era: '1970s–80s',
+      styleRef: 'l1a',
+      role: 'Band',
+      tracks: ['Dancing Queen', 'Mamma Mia', 'The Winner Takes It All'],
     },
     {
       name: 'Elton John',
-      era: '1970s',
+      era: '1970s–present',
       styleRef: 'l2a',
-      role: 'Piano Vocalist',
-      tracks: ['Your Song', 'Rocket Man'],
+      role: 'Pianist / Songwriter',
+      tracks: ['Tiny Dancer', 'Your Song', 'Rocket Man'],
     },
     {
-      name: 'Billy Joel',
-      era: '1970s–80s',
+      name: 'Michael Jackson',
+      era: '1980s–90s',
+      styleRef: 'l2a',
+      role: 'Vocalist / Songwriter',
+      tracks: ['Billie Jean', 'Man in the Mirror', 'Thriller'],
+    },
+    {
+      name: 'Whitney Houston',
+      era: '1980s–2000s',
       styleRef: 'l2b',
-      role: 'Piano Vocalist',
-      tracks: ['Piano Man', 'Just the Way You Are'],
+      role: 'Vocalist',
+      tracks: ['I Will Always Love You', 'How Will I Know'],
     },
     {
-      name: 'Adele',
-      era: '2010s',
+      name: 'Prince',
+      era: '1980s–2000s',
+      styleRef: 'l2b',
+      role: 'Multi-instrumentalist',
+      tracks: ['Purple Rain', 'When Doves Cry', 'Kiss'],
+    },
+    {
+      name: 'Mariah Carey',
+      era: '1990s–present',
+      styleRef: 'l2b',
+      role: 'Vocalist / Songwriter',
+      tracks: ['Vision of Love', 'We Belong Together'],
+    },
+    {
+      name: 'Beyoncé',
+      era: '2000s–present',
       styleRef: 'l3a',
-      role: 'Vocalist',
-      tracks: ['Someone Like You', 'Rolling in the Deep'],
+      role: 'Vocalist / Songwriter',
+      tracks: ['Halo', 'Single Ladies', 'Love On Top'],
+    },
+    {
+      name: 'Coldplay',
+      era: '2000s–present',
+      styleRef: 'l3a',
+      role: 'Band',
+      tracks: ['Clocks', 'Viva la Vida', 'Fix You'],
+    },
+    {
+      name: 'Sara Bareilles',
+      era: '2000s–present',
+      styleRef: 'l3a',
+      role: 'Pianist / Songwriter',
+      tracks: ['Love Song', 'Brave', 'Gravity'],
     },
     {
       name: 'Bruno Mars',
       era: '2010s–present',
       styleRef: 'l3b',
       role: 'Vocalist / Multi-instrumentalist',
-      tracks: ['When I Was Your Man', 'Marry You'],
+      tracks: ['Uptown Funk', 'Just the Way You Are', '24K Magic'],
+    },
+    {
+      name: 'Taylor Swift',
+      era: '2010s–present',
+      styleRef: 'l3b',
+      role: 'Vocalist / Songwriter',
+      tracks: ['All Too Well', 'Cruel Summer', 'Anti-Hero'],
+    },
+    {
+      name: 'Billie Eilish',
+      era: '2010s–present',
+      styleRef: 'l3b',
+      role: 'Vocalist / Songwriter',
+      tracks: ['Bad Guy', 'Happier Than Ever'],
     },
   ],
 
-  subGenres: [
-    'Singer-Songwriter Pop',
-    'Piano Pop',
-    'Synth Pop',
-    'Pop Rock',
-    'Contemporary Pop Ballad',
-  ],
-  crossoverGenres: ['Rock', 'R&B', 'Folk', 'Soul', 'Electronic'],
+  subGenres: ['Soft Rock', 'Synthpop', 'Indie Pop', 'Dance Pop', 'Alt Pop'],
+  crossoverGenres: ['R&B', 'Rock', 'Folk', 'Hip Hop', 'Electronic'],
 
   characteristics: [
-    'The hook — a short, singable melodic idea repeated and remembered',
-    'Verse-chorus song form built on diatonic triads, not extended jazz harmony',
-    'The "four-chord" progression (I–V–vi–IV or vi–IV–I–V) is pop’s most common harmonic engine',
-    'Straight, steady quarter-note comping — "chunking" the chord in the pocket, not syncopated stabs',
-    'Stepwise or small-interval voice leading between chords keeps inversions smooth and singable',
+    'The hook is everything — melody you remember after one listen',
+    'Diatonic harmony built from the four pillar chords (1 maj, 4 maj, 5 maj, 6 min)',
+    'Verse-chorus song form with a clear emotional arc',
+    'Vocal-forward mix; instruments support the singer',
+    'Four-on-the-floor or backbeat drum feel — the body knows where beat 1 is',
+    'Production polish: every element has its place in the frequency spectrum',
   ],
 
   levels: {
@@ -82,53 +131,51 @@ By the 2010s, artists like Adele and Bruno Mars had distilled pop piano to its m
       tempoRange: '70–110 BPM',
       primaryVoicings: [
         {
-          label: 'C major, root position',
+          label: '1 major triad, root position',
           symbol: 'C',
           midis: [48, 60, 64, 67], // C3+C4+E4+G4
           description:
-            'Root position triad — LH plays the bass root, RH stacks root-3rd-5th. The default pop chord shape.',
+            'C–E–G — the bedrock pop chord. LH plays the bass root, RH stacks root-3rd-5th.',
         },
         {
-          label: 'G major, root position',
-          symbol: 'G',
-          midis: [55, 67, 71, 74], // G3+G4+B4+D5
+          label: 'Power chord of 1',
+          symbol: 'C5',
+          midis: [48, 55, 60, 67], // C3+G3+C4+G4
           description:
-            'Root position again on the V chord — same hand shape, just moved. Pop rarely strays from root-position triads at Level 1.',
+            'C+G — open and key-agnostic, the gateway to moving-bass jams.',
         },
       ],
       technique: {
         melody: {
-          summary:
-            'C major pentatonic phrases built around short, repeatable hooks.',
+          summary: 'Major pentatonic phrases that sing the chord changes.',
           details: [
-            'Scale: C major pentatonic [C D E G A] — no half-steps, nothing to resolve, everything sounds "right"',
-            '1–2 bar motifs repeated and slightly varied — the hook, not the epic solo',
-            'Phrases land on chord tones (root, 3rd, 5th) on strong beats',
+            'Scale: C Major Pentatonic [C D E G A] — primary',
+            '3-note and 6-note phrases on a 4-bar grid',
+            'Anchor on chord tones (1, 3, 5) on strong beats',
           ],
         },
         chords: {
-          summary: 'Root position triads, quarter-note chunking.',
+          summary: 'Root-position triads with quarter-note chunking.',
           details: [
-            'Voicing: root-3rd-5th, LH doubles the root an octave below',
-            'comp_pop_01 — even quarter-note chunks, the defining pop comping feel (no syncopation, no funk stabs)',
-            'Progressions stay diatonic: I–V–vi–IV, I–vi–IV–V, I–IV–V–I — the "four chord song" family',
+            'Vocabulary: 1 maj, 4 maj, 5 maj, 6 min — the four pillars',
+            'Comping: quarter-note chunking (comp_pop_quarter_chunk)',
+            'LH plays root, RH plays the triad — clean separation',
           ],
         },
         bass: {
-          summary: 'Root-focused bass, then root-5th for movement.',
+          summary: 'Root pulse — kick-locked, one note per chord.',
           details: [
-            'Notes: chord roots only at first, then root+5th',
-            'Rhythm: whole notes → beats 1 & 3 → dotted-quarter/eighth push',
-            'Locked to the downbeat — pop bass supports the chord, it doesn’t improvise around it',
+            'Notes: chord roots only (Tier 1)',
+            'Rhythm: quarter-note pulse, locked to kick',
+            'Same-octave landing on beat 1 of every bar',
           ],
         },
         performance: {
-          summary:
-            'Two-hand coordination: LH root-position chords, RH simple melody.',
+          summary: 'Two-hand coordination — LH bass, RH chord.',
           details: [
-            'LH: root position triad, held or chunked in quarter notes',
-            'RH: major pentatonic melody phrases',
-            'Everything reinforces the I–V–vi–IV backbone',
+            'LH: chord root on beats 1+3',
+            'RH: triad chunked in quarter notes',
+            'Five L1 progressions: 1 maj - 4 maj - 1 maj - 4 maj / 1 maj - 5 maj - 4 maj - 5 maj - 1 maj / 1 maj - 6 min - 4 maj - 5 maj - 1 maj / 1 maj - 5 maj - 6 min - 4 maj / 6 min - 4 maj - 1 maj - 5 maj',
           ],
         },
       },
@@ -142,69 +189,60 @@ By the 2010s, artists like Adele and Bruno Mars had distilled pop piano to its m
       keyMidi: 67,
       scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
       scaleNotes: ['G', 'A', 'B', 'C', 'D', 'E', 'F♯'],
-      tempoRange: '80–130 BPM',
+      tempoRange: '75–120 BPM',
       primaryVoicings: [
         {
-          label: 'G major, 1st inversion shape',
+          label: '1 maj, close-position (1st inversion)',
           symbol: 'G',
           midis: [43, 59, 62, 67], // G2+B3+D4+G4
           description:
-            'LH plays the plain root, RH voices 3rd-5th-root+octave — the "1st inversion" shape used throughout Level 2 comping.',
+            'Inversions move smoothly from chord to chord — top voice barely changes.',
         },
         {
-          label: 'A minor, 1st inversion shape',
-          symbol: 'Am',
-          midis: [45, 60, 64, 69], // A2+C4+E4+A4
-          description:
-            'A step above G — moving a 1st-inversion shape by a 2nd keeps the voicing close and smooth (I–ii).',
-        },
-        {
-          label: 'E minor, root position',
-          symbol: 'Em',
-          midis: [52, 64, 67, 71], // E3+E4+G4+B4
-          description:
-            'Root position, not inverted — chosen so it shares two common tones (E, G) with the C 1st-inversion voicing that follows, for the smoothest possible voice leading.',
-        },
-        {
-          label: 'C major, 1st inversion shape',
+          label: 'Pedal triad (1+3+5 of 4 maj)',
           symbol: 'C',
-          midis: [48, 64, 67, 72], // C3+E4+G4+C5
+          midis: [48, 60, 64, 67], // C3+C4+E4+G4
           description:
-            'E-G-C — shares E and G with the Em root position above. Only the top voice (B→C) moves.',
+            'Hold the 4 maj-chord triad, let the bass paint the changes — the "How to Save a Life" sound.',
+        },
+        {
+          label: '4 maj add 9 (open)',
+          symbol: 'Cadd9',
+          midis: [48, 55, 64, 74], // C3+G3+E4+D5
+          description: 'Adds air and lift — the L2 ballad signature.',
         },
       ],
       technique: {
         melody: {
-          summary:
-            'G major (Ionian) melodies with wider range and inversion-aware phrasing.',
+          summary: 'Diatonic phrases using passing tones and scale color.',
           details: [
-            'Scale: G major [G A B C D E F♯] — full diatonic scale, not just pentatonic',
-            'Melodies move by step or small leap to match the close-position chord voicings underneath',
-            'vi–IV–I–V (Em–C–G–D) is pop’s most iconic 4-chord loop — nearly every hook in this level sits on it',
+            'Scale: G Major Ionian [G A B C D E F♯] — adds the 4th (C) and 7th (F♯) color',
+            "4-bar motivic phrases with A-A' call-and-answer shape",
+            'Approach tones land on chord tones at chord changes',
           ],
         },
         chords: {
-          summary: '1st-inversion voicings with closest-position voice leading.',
+          summary: 'Voice-led triads with pedal-tone textures.',
           details: [
-            'LH always plays the plain root in the bass; RH voices the "1st inversion" shape (3rd-5th-root+octave)',
-            'Chords move by step or small interval (2nd, maybe a 3rd/4th) to keep voice leading smooth — never leap a 1st-inversion shape in parallel by a 4th or 5th',
-            'Where a leap is unavoidable (e.g. Em→C, a 3rd apart), drop one chord to root position so common tones can hold',
+            'Inversions chosen to minimize voice motion (close-position voice leading)',
+            'Pedal-triad technique: hold a fixed triad while the bass moves',
+            'Comping rhythms expand: eighth-chunk, broken-chord, Alberti',
           ],
         },
         bass: {
-          summary: 'Root-5th patterns and syncopated pushes.',
+          summary: 'Slash-bass and chord-arpeggio motion.',
           details: [
-            'Root + 5th per bar, beats 1 & 3',
-            'Dotted-quarter/eighth "push" rhythm — the forward lean of contemporary pop bass',
-            'Still locked to the kick/downbeat, never wandering far from the root',
+            'Bass moves independently from chord roots (slash-bass technique)',
+            "Chord-arpeggio bass — the bass line outlines each chord's notes",
+            'Eighth-note pulse with passing tones between chord changes',
           ],
         },
         performance: {
-          summary: 'LH chords, RH melody — full two-hand independence.',
+          summary: 'LH sustained voicing, RH melodic or arpeggiated.',
           details: [
-            'LH: 1st-inversion (or closest-position) comping',
-            'RH: diatonic melody over the vi–IV–I–V / I–ii–ii–I families',
-            'Play-along adds drums + bass so the student focuses purely on the two-hand piano part',
+            'LH holds full triad or pedal-triad voicing for the bar',
+            'RH plays melody or Alberti pattern over the held LH chord',
+            'Two L2 sub-styles: ballad-Alberti (l2a) and neo-soul-arpeggio (l2b)',
           ],
         },
       },
@@ -228,7 +266,7 @@ By the 2010s, artists like Adele and Bruno Mars had distilled pop piano to its m
             'The tonic — same shape as Level 1, now the anchor for longer 8-bar phrases.',
         },
         {
-          label: 'E major, root position (secondary dominant, V/vi)',
+          label: 'E major, root position (secondary dominant, 5 maj/6 min)',
           symbol: 'E',
           midis: [52, 64, 68, 71], // E3+E4+G#4+B4
           description:
@@ -240,8 +278,8 @@ By the 2010s, artists like Adele and Bruno Mars had distilled pop piano to its m
           summary:
             '8-bar phrases across the full diatonic scale, with room for a secondary-dominant color tone.',
           details: [
-            'Builds directly on the I–V–vi–IV / vi–IV–I–V vocabulary from Level 2, extended across full 8-bar verse/chorus shapes',
-            'Introduces the raised 7th of vi (G♯ over Am, via E major) as a passing color tone — a taste of pop’s "surprise chord" without leaving the major-key sound',
+            'Builds directly on the 1 maj - 5 maj - 6 min - 4 maj / 6 min - 4 maj - 1 maj - 5 maj vocabulary from Level 2, extended across full 8-bar verse/chorus shapes',
+            'Introduces the raised 7th of 6 min (G♯ over Am, via E major) as a passing color tone — a taste of pop’s "surprise chord" without leaving the major-key sound',
             'Melodic phrasing mirrors real verse → pre-chorus → chorus shape, not just a repeated riff',
           ],
         },
@@ -264,7 +302,8 @@ By the 2010s, artists like Adele and Bruno Mars had distilled pop piano to its m
           ],
         },
         performance: {
-          summary: 'Full two-hand play-along performance — the complete pop piano part.',
+          summary:
+            'Full two-hand play-along performance — the complete pop piano part.',
           details: [
             'LH: closest-position chord comping across the full progression',
             'RH: 8-bar melody with verse/chorus shape',

@@ -8,13 +8,14 @@ import {
 } from '@/audio/pianoSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
-import PianoRoll, {
-  NoteEvent,
-  NoteHoldMeta,
+import {
   pitchNameToMidi,
+  type NoteEvent,
+  type NoteHoldMeta,
 } from './PianoRollPlay';
 
 const DEFAULT_EVENTS: NoteEvent[] = [
@@ -413,7 +414,7 @@ export const NoteHold = ({
             border: '1px solid var(--color-border)',
           }}
         >
-          <PianoRoll
+          <GenrePianoRoll
             activeMidis={activeMidis}
             bars={requiredBars}
             beatsPerBar={4}
@@ -424,6 +425,7 @@ export const NoteHold = ({
             playSpeed={80}
             rowHeight={28 * 18}
             subdivision={1}
+            keyColor={activityColor}
             onPlayingChange={setIsPlaying}
           />
           <div className="flex items-stretch gap-3">

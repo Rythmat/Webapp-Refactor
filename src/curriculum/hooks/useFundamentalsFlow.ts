@@ -46,8 +46,13 @@ export interface FundamentalsFlowState {
   isSectionComplete: boolean;
   evalResult: EvalResult | null;
   quizState: QuizState | null;
-  /** Feed a MIDI note into the evaluator. */
-  onNoteReceived: (midi: number) => void;
+  /**
+   * Feed a MIDI note into the evaluator.
+   * `graded` marks the attempt as a Play Now (Performance) run — only a
+   * graded pass marks the step complete and checks off its progress dot.
+   * Practice runs still evaluate for live feedback but don't count.
+   */
+  onNoteReceived: (midi: number, graded: boolean) => void;
   /** Advance to the next step. */
   advance: () => void;
   /** Go back to a specific step. */
@@ -109,7 +114,7 @@ export function useFundamentalsFlow(
 
   // Feed a note into the evaluator
   const onNoteReceived = useCallback(
-    (midi: number) => {
+    (midi: number, graded: boolean) => {
       if (!currentStep || isPassed) return;
 
       const record: NoteRecord = { midi, timestamp: Date.now() };
@@ -148,7 +153,7 @@ export function useFundamentalsFlow(
               passed,
               progress: `${newCorrect} of ${prev.queue.length} correct`,
             });
-            if (passed) {
+            if (passed && graded) {
               setIsPassed(true);
               setCompletedSteps((s) => new Set(s).add(currentStepIndex));
             }
@@ -169,7 +174,7 @@ export function useFundamentalsFlow(
       const result = evaluateStep(currentStep.midiEval, notesRef.current);
       setEvalResult(result);
 
-      if (result.passed && !isPassed) {
+      if (result.passed && graded && !isPassed) {
         setIsPassed(true);
         setCompletedSteps((s) => new Set(s).add(currentStepIndex));
       }

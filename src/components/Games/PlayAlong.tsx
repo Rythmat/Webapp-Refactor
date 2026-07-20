@@ -8,11 +8,12 @@ import {
 } from '@/audio/pianoSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
-import PianoRoll, { NoteEvent, pitchNameToMidi } from './PianoRollPlay';
+import { pitchNameToMidi, type NoteEvent } from './PianoRollPlay';
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: 'e1', pitchName: 'C3', startTicks: 0, durationTicks: 1920 },
@@ -493,7 +494,7 @@ export const PlayAlong = ({
             border: '1px solid var(--color-border)',
           }}
         >
-          <PianoRoll
+          <GenrePianoRoll
             key={playSessionId}
             inTime
             activeMidis={activeMidis}
@@ -505,6 +506,7 @@ export const PlayAlong = ({
             playSpeed={80}
             rowHeight={28 * 18}
             subdivision={1}
+            keyColor={activityColor}
             onPlayingChange={setIsPlaying}
             onTickChange={setCurrentTick}
           />

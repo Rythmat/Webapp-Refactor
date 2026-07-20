@@ -8,6 +8,7 @@ import {
 } from '@/audio/pianoSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
@@ -541,7 +542,36 @@ export const PlayAlong = ({
             border: '1px solid var(--color-border)',
           }}
         >
-          {gameplayContent}
+          <GenrePianoRoll
+            key={playSessionId}
+            inTime
+            activeMidis={activeMidis}
+            bars={requiredBars}
+            beatsPerBar={4}
+            events={resolvedEvents}
+            isPlaying={isPlaying}
+            performanceMeta={performanceMeta}
+            playSpeed={80}
+            rowHeight={28 * 18}
+            subdivision={1}
+            keyColor={activityColor}
+            onPlayingChange={setIsPlaying}
+            onTickChange={setCurrentTick}
+          />
+          <div className="flex items-stretch gap-3">
+            <div className="flex-1 min-w-0">
+              <PianoKeyboard
+                showOctaveStart
+                activeBlackKeyColor={activityColor}
+                activeWhiteKeyColor={activityColor}
+                className="mx-auto"
+                endC={6}
+                playingNotes={keyboardPlayingNotes}
+                startC={2}
+              />
+            </div>
+            <LessonVolumeDial />
+          </div>
         </div>
       </div>
     </div>

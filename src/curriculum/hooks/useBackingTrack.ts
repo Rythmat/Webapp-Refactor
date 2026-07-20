@@ -624,6 +624,111 @@ function buildDrumPattern_06(bars: number): BackingNote[] {
   return notes;
 }
 
+// ── Pop grooves — steady backbeat, straight 8ths, no funk syncopation ──────
+// Pop drumming stays out of the way of the vocal/melody: steady kick on 1 & 3
+// (or with a light "and of 2" push), strict backbeat snare on 2 & 4, no ghost
+// notes, no 16th-grid density, no flams. groove_pop_01 covers the up-tempo
+// pop/rock feel; groove_ballad_01 is sparser for slower, spacious sections.
+
+function buildPopDrumPattern_01(bars: number): BackingNote[] {
+  const notes: BackingNote[] = [];
+  const BAR = 1920;
+  for (let bar = 0; bar < bars; bar++) {
+    const o = bar * BAR;
+    // Straight 8th hats — steady, not syncopated
+    for (let i = 0; i < 8; i++) {
+      const isLast = i === 7;
+      notes.push({
+        note: isLast ? HH_OP : HH_CL,
+        onset: o + i * 240 + jitter(0, 3),
+        duration: isLast ? 150 : 60,
+        velocity: i % 2 === 0 ? 78 : 58,
+        part: 'drums',
+      });
+    }
+    // Kick — beat 1, and a light push on the "and" of 2, beat 3
+    notes.push({
+      note: KICK,
+      onset: o + jitter(0, 3),
+      duration: 100,
+      velocity: 100,
+      part: 'drums',
+    });
+    notes.push({
+      note: KICK,
+      onset: o + 720 + jitter(0, 3),
+      duration: 100,
+      velocity: 80,
+      part: 'drums',
+    });
+    notes.push({
+      note: KICK,
+      onset: o + 960 + jitter(0, 3),
+      duration: 100,
+      velocity: 92,
+      part: 'drums',
+    });
+    // Snare — strict backbeat, 2 & 4, no ghosts
+    notes.push({
+      note: SNARE,
+      onset: o + 480 + jitter(0, 3),
+      duration: 90,
+      velocity: 100,
+      part: 'drums',
+    });
+    notes.push({
+      note: SNARE,
+      onset: o + 1440 + jitter(0, 3),
+      duration: 90,
+      velocity: 100,
+      part: 'drums',
+    });
+  }
+  return notes;
+}
+
+function buildPopBalladDrumPattern(bars: number): BackingNote[] {
+  const notes: BackingNote[] = [];
+  const BAR = 1920;
+  for (let bar = 0; bar < bars; bar++) {
+    const o = bar * BAR;
+    // Soft quarter-note hats — sparse, spacious
+    [0, 480, 960, 1440].forEach((t0, i) => {
+      notes.push({
+        note: HH_CL,
+        onset: o + t0 + jitter(0, 3),
+        duration: 80,
+        velocity: i % 2 === 0 ? 50 : 40,
+        part: 'drums',
+      });
+    });
+    // Kick — beat 1 only, soft
+    notes.push({
+      note: KICK,
+      onset: o + jitter(0, 3),
+      duration: 120,
+      velocity: 85,
+      part: 'drums',
+    });
+    // Snare — soft backbeat, 2 & 4
+    notes.push({
+      note: SNARE,
+      onset: o + 480 + jitter(0, 3),
+      duration: 100,
+      velocity: 78,
+      part: 'drums',
+    });
+    notes.push({
+      note: SNARE,
+      onset: o + 1440 + jitter(0, 3),
+      duration: 100,
+      velocity: 78,
+      part: 'drums',
+    });
+  }
+  return notes;
+}
+
 // ── Groove dispatcher ───────────────────────────────────────────────────────
 
 type GrooveId =
@@ -632,9 +737,27 @@ type GrooveId =
   | 'groove_funk_03'
   | 'groove_funk_04'
   | 'groove_funk_05'
-  | 'groove_funk_06';
+  | 'groove_funk_06'
+  | 'groove_pop_01'
+  | 'groove_pop_02'
+  | 'groove_pop_03'
+  | 'groove_rock_01'
+  | 'groove_rock_02'
+  | 'groove_ballad_01';
 
-function getGrooveForStyleRef(styleRef?: string): GrooveId {
+function getGrooveForStyleRef(
+  styleRef: string | undefined,
+  genre: string,
+): GrooveId {
+  if (genre === 'pop') {
+    switch (styleRef) {
+      case 'l2b':
+      case 'l3a':
+        return 'groove_ballad_01';
+      default:
+        return 'groove_pop_01';
+    }
+  }
   switch (styleRef) {
     case 'l1a':
       return 'groove_funk_01';
@@ -668,6 +791,14 @@ function buildDrumPatternForGroove(
       return buildDrumPattern_05(bars);
     case 'groove_funk_06':
       return buildDrumPattern_06(bars);
+    case 'groove_pop_01':
+    case 'groove_pop_02':
+    case 'groove_pop_03':
+    case 'groove_rock_01':
+    case 'groove_rock_02':
+      return buildPopDrumPattern_01(bars);
+    case 'groove_ballad_01':
+      return buildPopBalladDrumPattern(bars);
     case 'groove_funk_01':
     default:
       return buildDrumPattern(bars);
@@ -681,6 +812,7 @@ function buildBassPattern(
   keyRoot: number,
   level: number,
   chordSymbols: string[] | undefined,
+  genre: string,
 ): BackingNote[] {
   const bassNotes = deriveBassNotes(chordSymbols, keyRoot, bars);
   console.log(
@@ -706,6 +838,22 @@ function buildBassPattern(
         velocity: vel,
         part: 'bass',
       });
+
+    if (genre === 'pop') {
+      // Pop bass locks to root + 5th on the beat — no chromatic approach
+      // walks (that's a funk/jazz device). L1: root-5th on beats 1 & 3.
+      // L2/L3: same root-5th harmony, dotted-quarter+eighth "push" rhythm.
+      if (level === 1) {
+        push(root, 0, 460, 95); // root, beat 1
+        push(fifth, 960, 460, 88); // 5th, beat 3
+      } else {
+        push(root, 0, 700, 95); // root, dotted quarter
+        push(root, 720, 220, 82); // root, eighth
+        push(fifth, 960, 700, 88); // 5th, dotted quarter
+        push(fifth, 1680, 220, 78); // 5th, eighth
+      }
+      continue;
+    }
 
     if (level === 1) {
       // "boom ... ba-doom" — beat 1, 16th pickup into beat 3
@@ -981,6 +1129,57 @@ function buildChordPattern(
   return removeChordStutters(notes);
 }
 
+// ── Pop chord comping — plain major triad, quarter-note chunking ───────────
+// No approach-cell stabs, no rootless 7th voicings — pop comping is a plain
+// root-3-5 triad, either "chunked" in even quarter notes (L1/L2, the
+// defining pop comping feel) or held as sustained whole notes (L3).
+
+function buildPopVoicing(keyRoot: number): number[] {
+  const root = keyRoot % 12;
+  let base = 48 + root;
+  while (base > 55) base -= 12;
+  while (base < 44) base += 12;
+  return [base, base + 4, base + 7]; // root-3-5 major triad
+}
+
+function buildPopChordPattern(
+  bars: number,
+  level: number,
+  keyRoot: number,
+): BackingNote[] {
+  const notes: BackingNote[] = [];
+  const v = buildPopVoicing(keyRoot);
+
+  for (let bar = 0; bar < bars; bar++) {
+    const o = bar * 1920;
+    if (level === 3) {
+      v.forEach((p) =>
+        notes.push({
+          note: p,
+          onset: o,
+          duration: 1800,
+          velocity: 65,
+          part: 'chords',
+        }),
+      );
+    } else {
+      [0, 480, 960, 1440].forEach((t0) => {
+        const t = o + t0 + jitter(-4, 4);
+        v.forEach((p) =>
+          notes.push({
+            note: p,
+            onset: Math.max(0, t),
+            duration: 440,
+            velocity: 66 + jitter(0, 8),
+            part: 'chords',
+          }),
+        );
+      });
+    }
+  }
+  return removeChordStutters(notes);
+}
+
 // ── Hook ────────────────────────────────────────────────────────────────────
 
 export function useBackingTrack(tempo: number) {
@@ -1001,6 +1200,11 @@ export function useBackingTrack(tempo: number) {
   const sf2Ready = useRef(false);
   const sf2LoadingRef = useRef(false);
   const sf2NoteOffTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // Pop chord voice — a warm detuned-saw pad/strings synth, used instead of
+  // the electric piano sampler for any Pop backing. Plain Tone.js (not the
+  // SF2/spessasynth path) — sample-accurate scheduling, no extra assets.
+  const popPadSynthRef = useRef<Tone.PolySynth | null>(null);
 
   // Tone.js last resort
   const kickSynthRef = useRef<Tone.MembraneSynth | null>(null);
@@ -1138,6 +1342,19 @@ export function useBackingTrack(tempo: number) {
     }
   }, [ensureFallbackSynths]);
 
+  // ── Pop pad/strings voice ────────────────────────────────────────────────
+
+  const ensurePopPad = useCallback((): boolean => {
+    if (!popPadSynthRef.current) {
+      popPadSynthRef.current = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'fatsawtooth', count: 3, spread: 20 },
+        envelope: { attack: 0.4, decay: 0.3, sustain: 0.85, release: 1.4 },
+        volume: -16,
+      }).toDestination();
+    }
+    return true;
+  }, []);
+
   // ── Cleanup ───────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -1153,6 +1370,7 @@ export function useBackingTrack(tempo: number) {
       chordSynthRef.current?.dispose();
       sf2BassRef.current?.dispose();
       sf2ChordsRef.current?.dispose();
+      popPadSynthRef.current?.dispose();
       drumEngineRef.current = null;
       bassSamplerRef.current = null;
       drumBridgeRef.current = null;
@@ -1164,6 +1382,7 @@ export function useBackingTrack(tempo: number) {
       chordSynthRef.current = null;
       sf2BassRef.current = null;
       sf2ChordsRef.current = null;
+      popPadSynthRef.current = null;
     };
   }, []);
 
@@ -1185,6 +1404,7 @@ export function useBackingTrack(tempo: number) {
     bassSamplerRef.current?.releaseAll();
     sf2BassRef.current?.allNotesOff();
     sf2ChordsRef.current?.allNotesOff();
+    popPadSynthRef.current?.releaseAll();
   }, []);
 
   const stopBacking = useCallback(() => {
@@ -1205,12 +1425,14 @@ export function useBackingTrack(tempo: number) {
       styleRef: string = 'l1a',
       targetNotes: GenreNoteEvent[] = [],
       preStartCallback?: () => Promise<void>,
+      genre: string = 'funk',
     ) => {
       Tone.getTransport().stop();
       Tone.getTransport().cancel();
       disposeAll();
       await Tone.start();
       ensureFallbackSynths();
+      const usePopPad = genre === 'pop' && ensurePopPad();
 
       Tone.getTransport().bpm.value = tempo;
       Tone.getTransport().loop = false;
@@ -1224,16 +1446,24 @@ export function useBackingTrack(tempo: number) {
       const allNotes: BackingNote[] = [];
       if (engineGenerates.includes('drums')) {
         const grooveId = (step.grooveId ??
-          getGrooveForStyleRef(styleRef)) as GrooveId;
+          getGrooveForStyleRef(styleRef, genre)) as GrooveId;
         allNotes.push(...buildDrumPatternForGroove(BACKING_BARS, grooveId));
       }
       if (engineGenerates.includes('bass'))
         allNotes.push(
-          ...buildBassPattern(BACKING_BARS, keyRoot, level, step.chordSymbols),
+          ...buildBassPattern(
+            BACKING_BARS,
+            keyRoot,
+            level,
+            step.chordSymbols,
+            genre,
+          ),
         );
       if (engineGenerates.includes('chords'))
         allNotes.push(
-          ...buildChordPattern(BACKING_BARS, level, chordsByBar, keyRoot),
+          ...(genre === 'pop'
+            ? buildPopChordPattern(BACKING_BARS, level, keyRoot)
+            : buildChordPattern(BACKING_BARS, level, chordsByBar, keyRoot)),
         );
 
       // ── Ending: replay beat 1 content on the downbeat after the last bar ──
@@ -1409,7 +1639,15 @@ export function useBackingTrack(tempo: number) {
               durationMs: number;
             },
           ) => {
-            if (useReal) {
+            if (usePopPad && popPadSynthRef.current) {
+              // Pop chords use a pad/strings synth, never the electric piano
+              popPadSynthRef.current.triggerAttackRelease(
+                Tone.Frequency(value.note, 'midi').toNote(),
+                value.durationSec,
+                time,
+                value.velocity / 127,
+              );
+            } else if (useReal) {
               // epSamplerV2 — FluidR3 EP1, sample-accurate with time param
               void triggerEpAttackRelease(
                 Tone.Frequency(value.note, 'midi').toNote(),

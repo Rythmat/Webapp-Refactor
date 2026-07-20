@@ -11,11 +11,13 @@ import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { CurriculumRoutes } from '@/constants/routes';
 import { usePlayNote } from '@/contexts/PianoContext';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import { loadPianoFundamentals } from '@/curriculum/data/activityFlows';
 import {
   pitchClassName,
   noteName,
 } from '@/curriculum/engine/fundamentalsEvaluator';
+import { midiToPitchName } from '@/curriculum/engine/genreGeneration/resolveStepContent';
 import { useFundamentalsFlow } from '@/curriculum/hooks/useFundamentalsFlow';
 import type {
   FundamentalsFlow,
@@ -76,6 +78,7 @@ function FundamentalsLessonContainerInner({
   const navigate = useNavigate();
   const playNote = usePlayNote();
   const [flow, setFlow] = useState<FundamentalsFlow | null>(null);
+  const accentColor = '#7ecfcf';
 
   // Load fundamentals data
   useEffect(() => {
@@ -148,7 +151,7 @@ function FundamentalsLessonContainerInner({
       if (event.source !== 'audio') {
         playNote(event.number);
       }
-      onNoteReceived(event.number);
+      onNoteReceived(event.number, activityState === 'performance');
     },
     [playNote, onNoteReceived, activityState],
   );
@@ -167,7 +170,7 @@ function FundamentalsLessonContainerInner({
     (midi: number) => {
       if (activityState === 'preview') return;
       playNote(midi);
-      onNoteReceived(midi);
+      onNoteReceived(midi, activityState === 'performance');
     },
     [playNote, onNoteReceived, activityState],
   );
@@ -255,6 +258,35 @@ function FundamentalsLessonContainerInner({
   );
   const canDemo = demoTargetMidis.length > 0;
 
+  // Piano Roll — reuses the genre lesson's roll to preview the target note(s)
+  // for this step. Fundamentals has no note-timeline/tempo data, so this is a
+  // static (non-scrolling) rendering, not a live playhead like genre lessons.
+  // Only steps with a fixed target (the same ones highlightNotes covers) have
+  // anything meaningful to show; other step types render no roll.
+  const pianoRollEvents = useMemo(() => {
+    if (demoTargetMidis.length === 0) return [];
+    const isSimultaneous = currentStep?.midiEval.type === 'simultaneous';
+    const NOTE_GAP_TICKS = 480; // 1 beat between notes, matches Demo's staggered playback
+    const NOTE_DURATION_TICKS = 400;
+    return demoTargetMidis.map((midi, i) => ({
+      id: `fundamentals_target_${i}`,
+      pitchName: midiToPitchName(midi),
+      midi,
+      startTicks: isSimultaneous ? 0 : i * NOTE_GAP_TICKS,
+      durationTicks: NOTE_DURATION_TICKS,
+      velocity: 80,
+      color: `${accentColor}b3`,
+    }));
+  }, [demoTargetMidis, currentStep, accentColor]);
+
+  const pianoRollBars = useMemo(() => {
+    if (pianoRollEvents.length === 0) return 1;
+    const lastEndTick = Math.max(
+      ...pianoRollEvents.map((e) => e.startTicks + e.durationTicks),
+    );
+    return Math.max(1, Math.ceil(lastEndTick / 1920));
+  }, [pianoRollEvents]);
+
   const playDemo = useCallback(async () => {
     if (demoTargetMidis.length === 0) return;
     stopDemo();
@@ -279,13 +311,27 @@ function FundamentalsLessonContainerInner({
 
   const handleStartPractice = useCallback(() => {
     stopDemo();
+    resetStep();
     setActivityState('practice');
-  }, [stopDemo]);
+  }, [stopDemo, resetStep]);
 
   const handleStartPerformance = useCallback(() => {
     stopDemo();
+    resetStep();
     setActivityState('performance');
-  }, [stopDemo]);
+  }, [stopDemo, resetStep]);
+
+  // Practice runs evaluate for live feedback but don't count toward the
+  // step's checkmark — only a Play Now (Performance) pass does. When a
+  // practice attempt meets the step criteria, prompt the user to try it
+  // for real instead of silently marking it complete.
+  const practiceComplete = useMemo(() => {
+    if (activityState !== 'practice' || isPassed || !currentStep) return false;
+    if (currentStep.midiEval.type === 'quiz') {
+      return quizState?.done ?? false;
+    }
+    return evalResult?.passed ?? false;
+  }, [activityState, isPassed, currentStep, quizState, evalResult]);
 
   // Quiz display note
   const quizDisplayNote = useMemo(() => {
@@ -304,8 +350,6 @@ function FundamentalsLessonContainerInner({
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
-
-  const accentColor = '#7ecfcf';
 
   // Loading
   if (!flow) {
@@ -430,9 +474,41 @@ function FundamentalsLessonContainerInner({
 
       {/* Step progress dots */}
       <div className="flex items-center gap-1.5 px-4 py-3">
-        {section.steps.map((_, i) => {
+        {section.steps.map((step, i) => {
           const isCompleted = completedSteps.has(i);
           const isCurrent = i === currentStepIndex;
+
+          if (isCompleted) {
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => goToStep(i)}
+                aria-label={`Go to step ${i + 1} — completed`}
+                title={`${step.activity} ✓ Passed`}
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  border: `1.5px solid ${accentColor}`,
+                  background: `${accentColor}22`,
+                  color: accentColor,
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  flexShrink: 0,
+                  lineHeight: 1,
+                }}
+              >
+                &#10003;
+              </button>
+            );
+          }
+
           return (
             <button
               key={i}
@@ -446,12 +522,9 @@ function FundamentalsLessonContainerInner({
                 border: 'none',
                 padding: 0,
                 cursor: 'pointer',
-                background: isCompleted
-                  ? '#4aff4a'
-                  : isCurrent
-                    ? accentColor
-                    : 'rgba(255,255,255,0.1)',
+                background: isCurrent ? accentColor : 'rgba(255,255,255,0.1)',
                 transition: 'all 0.2s',
+                flexShrink: 0,
               }}
             />
           );
@@ -647,6 +720,28 @@ function FundamentalsLessonContainerInner({
             </div>
           )}
 
+          {/* Piano Roll — static preview of the step's target note(s).
+              Fundamentals has no timeline/tempo data, so this doesn't scroll
+              like genre lessons' roll; it just shows the shape of the target. */}
+          {pianoRollEvents.length > 0 && (
+            <div className="w-full" style={{ height: '140px', flexShrink: 0 }}>
+              <GenrePianoRoll
+                key={`fundamentals-roll-${currentStepIndex}`}
+                events={pianoRollEvents}
+                bars={pianoRollBars}
+                beatsPerBar={4}
+                subdivision={1}
+                rowHeight={140}
+                midiRangeMin={startC * 12}
+                midiRangeMax={(endC + 1) * 12 - 1}
+                inTime={false}
+                isPlaying={false}
+                keyColor={accentColor}
+                targetMidiSet={new Set(demoTargetMidis)}
+              />
+            </div>
+          )}
+
           {/* Piano keyboard with volume dial alongside */}
           <div
             className="flex w-full items-stretch gap-3"
@@ -729,8 +824,54 @@ function FundamentalsLessonContainerInner({
           </div>
         )}
 
-        {/* Retry for failed quiz */}
-        {currentStep?.midiEval.type === 'quiz' &&
+        {/* Practice attempt met the criteria — doesn't count until Play Now */}
+        {practiceComplete && (
+          <div
+            className="glass-panel w-full max-w-2xl rounded-xl p-6"
+            style={{
+              background: 'rgba(126, 207, 207, 0.06)',
+              border: `1px solid ${accentColor}`,
+            }}
+          >
+            <div className="flex flex-col items-center gap-4 text-center">
+              <p className="text-sm" style={{ color: 'var(--color-text)' }}>
+                Nice practicing! Try it in Play Now to complete this step.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleStartPractice}
+                  className="glass-panel-sm rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors duration-150"
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Practice Again
+                </button>
+                <button
+                  type="button"
+                  onClick={handleStartPerformance}
+                  className="glass-panel-sm rounded-lg px-6 py-2.5 text-sm font-semibold transition-colors duration-150"
+                  style={{
+                    background: accentColor,
+                    border: `1px solid ${accentColor}`,
+                    color: '#111',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Play Now
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Retry for failed graded quiz */}
+        {activityState === 'performance' &&
+          currentStep?.midiEval.type === 'quiz' &&
           quizState?.done &&
           !isPassed && (
             <div

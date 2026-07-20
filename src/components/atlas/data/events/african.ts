@@ -38,7 +38,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'dance band',
       'palm wine music',
     ],
-    videoId: '64TVyM-EZus',
+    videoId: 'OUMbrs4aEsA',
   },
   {
     id: 'evt-afrobeat-lagos-1971',
@@ -198,7 +198,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'lusophone',
       'revolution',
     ],
-    videoId: 'N2YH4VL4ScQ',
+    videoId: 'eHy-2eDLXwo',
   },
   {
     id: 'evt-palmwine-freetown-1952',
@@ -243,6 +243,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'african diva',
       'afro-pop',
     ],
+    videoId: 'uZJnaYB-wmo',
   },
   {
     id: 'evt-dimi-mint-abba-nouakchott-1977',
@@ -312,7 +313,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'lusophone',
       'atlantic',
     ],
-    videoId: 'XMU4rRND7As',
+    videoId: 'Mo4dmYifj0U',
   },
   {
     id: 'evt-rumba-kinshasa-1956',
@@ -362,7 +363,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'independence',
       'soukous',
     ],
-    videoId: '0LYnkaLUiKQ',
+    videoId: 'SOgM-BH2mAE',
   },
   {
     id: 'evt-makossa-douala-1972',
@@ -382,7 +383,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'michael jackson',
       'afro-funk',
     ],
-    videoId: '59xZ2pEC6KQ',
+    videoId: '653lgBLCJ3Q',
   },
   {
     id: 'evt-ussua-saotome-1975',
@@ -452,7 +453,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'bujumbura',
       'world percussion',
     ],
-    videoId: 'V0l0wBEx0HY',
+    videoId: 'yY_qh6W4BIU',
   },
   {
     id: 'evt-salegy-antananarivo-1992',
@@ -502,7 +503,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'wedding music',
       'indian ocean',
     ],
-    videoId: 'd1AnGTpk7fE',
+    videoId: 'Vat8uhE3oOI',
   },
   {
     id: 'evt-sega-portlouis-1964',
@@ -527,7 +528,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'kaya',
       'seggae',
     ],
-    videoId: 'eR6CufnbtKk',
+    videoId: 'Wv6u8GNivr8',
   },
   {
     id: 'evt-marrabenta-maputo-1955',
@@ -552,6 +553,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'tin can',
       'colonial resistance',
     ],
+    videoId: 'mdqG6BZO8QM',
   },
   {
     id: 'evt-chimurenga-harare-1977',
@@ -623,7 +625,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'diaspora',
       'matanzas',
     ],
-    videoId: 'UydrzSVVwc4',
+    videoId: 'gJVT_5swkhA',
   },
   {
     id: 'evt-diaspora-dakar-blues-roots-1960',
@@ -651,7 +653,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'diaspora',
       'senegambia',
     ],
-    videoId: 'PRwEXyyBixE',
+    videoId: 'Ig91Z0-rBfo',
   },
   {
     id: 'evt-griot-timbuktu-1500',
@@ -698,7 +700,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'guitar',
       'african pop',
     ],
-    videoId: 'F24f0i3W9fA',
+    videoId: 'AbK4P1uOpYA',
   },
   {
     id: 'evt-highlife-lagos-1952',
@@ -720,7 +722,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'west african',
       'decolonization',
     ],
-    videoId: 'P3p82Bx25C4',
+    videoId: '5IyRIEVTAis',
   },
   {
     id: 'evt-highlife-accra-1958',
@@ -740,7 +742,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'jazz fusion',
       'accra',
     ],
-    videoId: 'dSmfT72YsZk',
+    videoId: 'qsUHpmJSBbs',
   },
   {
     id: 'evt-township-jive-johannesburg-1981',
@@ -765,7 +767,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'kwaito',
       'south african',
     ],
-    videoId: 'pmKRKfArkhc',
+    videoId: 'djuGqfara9E',
   },
   {
     id: 'evt-juju-lagos-1978',
@@ -785,7 +787,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'lagos',
       'nigerian',
     ],
-    videoId: 'ZNfsht8Zscs',
+    videoId: 'gaV7G9nxOfI',
   },
   {
     id: 'evt-afrofusion-accra-2019',
@@ -831,7 +833,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'kinshasa',
       'full circle',
     ],
-    videoId: 'EkYtSVos0xg',
+    videoId: 'j9XGkGWdg4M',
   },
   {
     id: 'evt-one-dance-lagos-2016',
@@ -851,7 +853,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'crossover',
       'nigerian pop',
     ],
-    videoId: 'LmbC_aqI4no',
+    videoId: 'FOqKN-ouAUE',
   },
   {
     id: 'evt-burna-boy-lagos-2020',
@@ -870,7 +872,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'afro-fusion',
       'fela legacy',
     ],
-    videoId: 'Inhs4b8Fm04',
+    videoId: 'Kx68g1rLbbU',
   },
 
   // ── Ghanaian drumming — Agbeli family lineage ──────────────────────
@@ -911,7 +913,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'ghana',
       'diaspora',
     ],
-    videoId: 'ivCOrc1HWxI',
+    videoId: '6CyV7aQe7F4',
   },
   {
     id: 'evt-ewe-tradition-volta-1900',
@@ -963,7 +965,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'diabate family',
       'bamako',
     ],
-    videoId: 'VVMxAsyFiTY',
+    videoId: 'mEXSJWVWnT4',
   },
   {
     id: 'evt-kora-bamako-2009-sissoko',
@@ -1012,7 +1014,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'mande',
       'bamako',
     ],
-    videoId: '-cLAwAOi-hA',
+    videoId: 'fnNcNjRuCCk',
   },
 
   // ── Ethiopian jazz / Éthiopiques ───────────────────────────────────
@@ -1087,7 +1089,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'the ex',
       'addis ababa',
     ],
-    videoId: 'lL6yrNikj7w',
+    videoId: '4p3AerJJdoo',
   },
   {
     id: 'evt-ethiopian-addis-1975-mahmoud',
@@ -1111,6 +1113,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'addis nightlife',
       'derg',
     ],
+    videoId: '6UbITQT4ZFE',
   },
   {
     id: 'evt-ethiopiques-paris-1997',
@@ -1135,7 +1138,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'paris',
       'golden age',
     ],
-    videoId: 'ZHnobTF3bD0',
+    videoId: 'mHT2xztxRuU',
   },
 
   // ── East African ───────────────────────────────────────────────────
@@ -1184,7 +1187,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'swahili pop',
       'east africa',
     ],
-    videoId: 'n8DlycEQfWo',
+    videoId: 'mFBJtuQ1Llc',
   },
 
   // ── South African ──────────────────────────────────────────────────
@@ -1211,7 +1214,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'multiracial',
       'south africa',
     ],
-    videoId: 'BGS7SpI7obY',
+    videoId: 'Q8xvaAHSsEk',
   },
   {
     id: 'evt-mbaqanga-johannesburg-1964-mahotella',
@@ -1259,7 +1262,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'south africa',
       'crossover hit',
     ],
-    videoId: 'JB-OGtSEc64',
+    videoId: 'VjQD--fgCFM',
   },
   {
     id: 'evt-jazz-johannesburg-1968-masekela',
@@ -1355,7 +1358,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'niafunke',
       'blues roots',
     ],
-    videoId: 'mpnIVa7QK4A',
+    videoId: '6juTl3rtKKI',
   },
   {
     id: 'evt-mande-pop-bamako-1987-keita',
@@ -1456,7 +1459,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'senegal river',
       'acoustic',
     ],
-    videoId: 'YbUmksCxiK0',
+    videoId: 'wBbPtd-TKoo',
   },
   {
     id: 'evt-afrocuban-dakar-1970-baobab',
@@ -1481,6 +1484,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'son montuno',
       'cosmopolitan',
     ],
+    videoId: 'pXK8zRb-bAs',
   },
 
   // ── Modern Afrobeats / Contemporary ────────────────────────────────
@@ -1545,7 +1549,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'nigerian pop',
       'dmw',
     ],
-    videoId: 'oiHh2-6jmnU',
+    videoId: '5jL5qFhsawQ',
   },
   {
     id: 'evt-afrobeats-lagos-2021-tems',
@@ -1628,7 +1632,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'nigeria',
       'afrobeats',
     ],
-    videoId: 'JhnGY1TDCio',
+    videoId: '_Cextt7xWpk',
   },
 
   // ── Saharan / Tuareg ───────────────────────────────────────────────
@@ -1704,7 +1708,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'desert rock',
       'guitar',
     ],
-    videoId: 'W_2OSQyjnOg',
+    videoId: 'K5yT7ZNhnlc',
   },
   {
     id: 'evt-mande-bamako-2011-diawara',
@@ -1729,6 +1733,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'bamako',
       'empowerment',
     ],
+    videoId: 'hFzItUctMf8',
   },
   {
     id: 'evt-tuareg-agadez-2021-moctar',

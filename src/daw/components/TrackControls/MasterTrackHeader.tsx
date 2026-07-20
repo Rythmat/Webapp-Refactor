@@ -143,10 +143,10 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
                 width: `${liveLevel}%`,
                 backgroundColor:
                   liveLevel > 90
-                    ? '#ef4444'
+                    ? 'var(--color-meter-red)'
                     : liveLevel > 75
-                      ? '#eab308'
-                      : '#22c55e',
+                      ? 'var(--color-meter-yellow)'
+                      : 'var(--color-meter-green)',
               }}
             />
             <Slider.Range

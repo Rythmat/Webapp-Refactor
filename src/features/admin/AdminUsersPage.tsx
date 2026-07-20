@@ -1,7 +1,24 @@
 import { format } from 'date-fns';
-import { Search } from 'lucide-react';
+import { ChevronDown, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -21,8 +38,10 @@ import {
 } from '@/components/ui/table';
 import {
   useAdminUsers,
+  useUpdateUserRole,
   type AdminUser,
 } from '@/hooks/data/admin/useAdminUsers';
+import { toast } from '@/hooks/use-toast';
 
 const DATE_FORMAT = 'MMM d, yyyy';
 const DEBOUNCE_MS = 300;
@@ -105,6 +124,40 @@ export const AdminUsersPage = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [subscriptionFilter, setSubscriptionFilter] = useState<string>('all');
+  const [confirmUser, setConfirmUser] = useState<AdminUser | null>(null);
+
+  const updateRole = useUpdateUserRole();
+
+  const targetRole = (user: AdminUser): 'teacher' | 'student' =>
+    user.role === 'student' ? 'teacher' : 'student';
+  const changeLabel = (user: AdminUser) =>
+    user.role === 'student' ? 'Change to Teacher' : 'Revert to Student';
+  const displayName = (user: AdminUser) => user.username ?? user.nickname;
+
+  const handleConfirmRoleChange = () => {
+    if (!confirmUser) return;
+    const user = confirmUser;
+    updateRole.mutate(
+      { id: user.id, role: targetRole(user) },
+      {
+        onSuccess: () => {
+          toast({
+            title: 'Role updated',
+            description: `${displayName(user)} is now a ${targetRole(user)}.`,
+          });
+          setConfirmUser(null);
+        },
+        onError: (err) => {
+          toast({
+            variant: 'destructive',
+            title: 'Could not change role',
+            description: err.message,
+          });
+          setConfirmUser(null);
+        },
+      },
+    );
+  };
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -236,7 +289,28 @@ export const AdminUsersPage = () => {
                 <TableCell className="text-muted-foreground">
                   {user.email || '-'}
                 </TableCell>
-                <TableCell>{roleBadge(user.role)}</TableCell>
+                <TableCell>
+                  {user.role === 'admin' ? (
+                    roleBadge(user.role)
+                  ) : (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-auto gap-1 px-2 py-1"
+                        >
+                          {roleBadge(user.role)}
+                          <ChevronDown className="size-3.5 text-muted-foreground" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start">
+                        <DropdownMenuItem onSelect={() => setConfirmUser(user)}>
+                          {changeLabel(user)}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </TableCell>
                 <TableCell>{subscriptionBadge(user)}</TableCell>
                 <TableCell className="capitalize">
                   {user.subscriptionTier}
@@ -253,6 +327,38 @@ export const AdminUsersPage = () => {
       <div className="text-xs text-muted-foreground">
         {users.length} user{users.length !== 1 ? 's' : ''}
       </div>
+
+      <AlertDialog
+        open={!!confirmUser}
+        onOpenChange={(open) => {
+          if (!open) setConfirmUser(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Change user role</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmUser
+                ? `Are you sure you want to change ${displayName(confirmUser)}'s role?`
+                : ''}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={updateRole.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleConfirmRoleChange();
+              }}
+              disabled={updateRole.isPending}
+            >
+              {updateRole.isPending ? 'Changing…' : 'Yes'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -399,14 +399,11 @@ export default function HarmonicStrings({ onComplete }: HarmonicStringsProps) {
   const info = HARMONIC_DATA[selectedHarmonic - 1];
 
   return (
-    <div className="flex flex-col bg-[#09090b] rounded-2xl overflow-hidden border border-zinc-800">
+    <div className="flex flex-col bg-[#101012] rounded-2xl overflow-hidden border border-white/10">
       {/* Header */}
-      <div className="h-14 bg-[#121214] border-b border-zinc-800 flex items-center justify-between px-6">
+      <div className="h-14 bg-white/[0.03] border-b border-white/10 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <h2
-            className="text-lg font-semibold text-white"
-            style={{ fontFamily: '"Playfair Display", serif' }}
-          >
+          <h2 className="text-lg font-semibold text-white font-serif">
             Harmonic Strings
           </h2>
           <div className="flex gap-1">
@@ -572,7 +569,7 @@ export default function HarmonicStrings({ onComplete }: HarmonicStringsProps) {
                   <button
                     key={opt}
                     onClick={() => submitQuizAnswer(opt)}
-                    className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm transition-colors border border-zinc-700"
+                    className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.08] text-zinc-300 text-sm transition-colors border border-white/10"
                   >
                     {opt}
                   </button>
@@ -609,7 +606,7 @@ export default function HarmonicStrings({ onComplete }: HarmonicStringsProps) {
       )}
 
       {/* Footer controls */}
-      <div className="h-12 bg-[#121214] border-t border-zinc-800 flex items-center px-6">
+      <div className="h-12 bg-white/[0.03] border-t border-white/10 flex items-center px-6">
         {mode === 'explore' &&
           (isPlaying ? (
             <button

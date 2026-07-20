@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, Globe, Heart, Music } from 'lucide-react';
+import { ArrowRight, Heart } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Song } from '@/curriculum/types/songLibrary';
@@ -82,10 +82,16 @@ export const FeaturedSongCard = ({ song }: FeaturedSongCardProps) => {
             'linear-gradient(to top, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 0))',
         }}
       >
-        <span className="truncate text-base font-semibold text-white">
+        <span
+          className="truncate font-semibold text-white"
+          style={{ fontSize: 'var(--dash-label-fz, 1rem)' }}
+        >
           {visibleSong.artist}
         </span>
-        <span className="truncate text-sm text-white/60">
+        <span
+          className="truncate text-white/60"
+          style={{ fontSize: 'var(--dash-label-fz, 0.875rem)' }}
+        >
           {visibleSong.title}
         </span>
         <div className="mt-2 flex items-center gap-2 sm:gap-3 md:gap-4">
@@ -94,27 +100,51 @@ export const FeaturedSongCard = ({ song }: FeaturedSongCardProps) => {
             onClick={openInLesson}
             aria-label="Open in Lesson"
             title="Open in Lesson"
-            className="text-white/60 transition-colors hover:text-white"
+            className="opacity-70 transition-opacity hover:opacity-100"
           >
-            <BookOpen size={18} />
+            <img
+              src="/icons/learn-icon.svg"
+              alt=""
+              draggable={false}
+              style={{
+                width: 'var(--dash-icon-sz, 1.15rem)',
+                height: 'var(--dash-icon-sz, 1.15rem)',
+              }}
+            />
           </button>
           <button
             type="button"
             onClick={openInStudio}
             aria-label="Open in Studio"
             title="Open in Studio"
-            className="text-white/60 transition-colors hover:text-white"
+            className="opacity-70 transition-opacity hover:opacity-100"
           >
-            <Music size={18} />
+            <img
+              src="/icons/studio-icon.svg"
+              alt=""
+              draggable={false}
+              style={{
+                width: 'var(--dash-icon-sz, 1.15rem)',
+                height: 'var(--dash-icon-sz, 1.15rem)',
+              }}
+            />
           </button>
           <button
             type="button"
             onClick={openInGlobe}
             aria-label="Open in Globe"
             title="Open in Globe"
-            className="text-white/60 transition-colors hover:text-white"
+            className="opacity-70 transition-opacity hover:opacity-100"
           >
-            <Globe size={18} />
+            <img
+              src="/icons/globe-icon.svg"
+              alt=""
+              draggable={false}
+              style={{
+                width: 'var(--dash-icon-sz, 1.15rem)',
+                height: 'var(--dash-icon-sz, 1.15rem)',
+              }}
+            />
           </button>
           <button
             type="button"
@@ -125,14 +155,28 @@ export const FeaturedSongCard = ({ song }: FeaturedSongCardProps) => {
             className="transition-colors hover:text-white"
             style={{ color: isSaved ? '#ffffff' : 'rgba(255,255,255,0.6)' }}
           >
-            <Heart size={18} fill={isSaved ? 'currentColor' : 'none'} />
+            <Heart
+              fill={isSaved ? 'currentColor' : 'none'}
+              style={{
+                width: 'var(--dash-icon-sz, 1.15rem)',
+                height: 'var(--dash-icon-sz, 1.15rem)',
+              }}
+            />
           </button>
         </div>
         <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2">
-          <span className="text-sm text-white/80">Open Song</span>
+          <span
+            className="text-white/80"
+            style={{ fontSize: 'var(--dash-label-fz, 0.875rem)' }}
+          >
+            Open Song
+          </span>
           <ArrowRight
-            size={16}
             className="text-white/80 transition-transform group-hover:translate-x-0.5"
+            style={{
+              width: 'var(--dash-icon-sz, 1rem)',
+              height: 'var(--dash-icon-sz, 1rem)',
+            }}
           />
         </div>
       </div>

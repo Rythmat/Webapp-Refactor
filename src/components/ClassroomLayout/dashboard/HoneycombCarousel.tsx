@@ -49,6 +49,7 @@ export const HoneycombCarousel: FC<HoneycombCarouselProps> = ({
 
   const containerStyle: React.CSSProperties = {
     height: '100%',
+    minHeight: '140px',
     background:
       'linear-gradient(135deg, rgba(214,90,101,0.15), rgba(157,92,99,0.12) 40%, rgba(42,42,42,0.4))',
   };

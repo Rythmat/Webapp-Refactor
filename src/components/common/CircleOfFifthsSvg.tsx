@@ -201,6 +201,26 @@ export const KeyCenterBadge: FC<KeyCenterBadgeProps> = ({
   );
 };
 
+/**
+ * The song key's Studio color as an [r, g, b] tuple — the exact mapping the
+ * CircleOfFifthsSvg badge uses (minor keys borrow the relative major's color).
+ * Exposed so UI can tint with a song's key color without rendering the full
+ * wheel.
+ */
+export function getKeyColor(
+  song: Pick<Song, 'keyRoot' | 'mode'>,
+): [number, number, number] {
+  const pitch = ((song.keyRoot % 12) + 12) % 12;
+  const isMinor = song.mode === 'minor' || song.mode === 'aeolian';
+  const idx = (
+    isMinor
+      ? SEMI_TO_IDX[(pitch - AEOLIAN_OFFSET + 12) % 12]
+      : SEMI_TO_IDX[pitch]
+  ) as ColorIndex;
+  const [r, g, b] = KEY_COLORS[idx];
+  return [r, g, b];
+}
+
 /** Display label for a canonical genre slug. */
 export const GENRE_DISPLAY_LABELS: Record<string, string> = {
   pop: 'Pop',

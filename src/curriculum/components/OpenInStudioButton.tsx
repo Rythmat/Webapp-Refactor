@@ -8,6 +8,7 @@
 
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { StudioRoutes } from '@/constants/routes';
 import { curriculumToDaw } from '../bridge/dawBridge';
 import type { GeneratedActivity } from '../engine/contentOrchestrator';
 
@@ -33,8 +34,9 @@ export const OpenInStudioButton: React.FC<OpenInStudioButtonProps> = ({
     // Let parent handle DAW state loading
     onLoadToDaw?.(payload);
 
-    // Navigate to studio
-    navigate('/studio');
+    // Open the DAW editor (the seeded state lives in the store). `/studio` is
+    // now the Studio Dashboard, so navigate to the editor route directly.
+    navigate(StudioRoutes.editor.definition);
   }, [activity, onLoadToDaw, navigate]);
 
   return (

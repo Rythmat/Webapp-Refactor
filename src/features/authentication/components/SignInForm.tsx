@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { ErrorBox } from '@/components/ErrorBox';
 import { Button } from '@/components/ui/button';
 import {
@@ -7,6 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { triggerHexDrain } from '@/components/ui/hex-wave-background';
+import { cn } from '@/components/utilities';
 import {
   EmailMelody,
   SuccessProgression,
@@ -18,6 +20,10 @@ import { useMusicalForm } from '@/hooks/useMusicalForm';
 export const SignInForm = () => {
   const { signInWithEmailAndPassword, signInWithProvider, signUp, error } =
     useAuthActions();
+
+  // Flipped when a sign-in option is chosen (same moment the hexes drain), so
+  // the title darkens to stay legible as the background fades to cream.
+  const [drained, setDrained] = useState(false);
 
   const actionForm = useMusicalForm({
     typingMelody: EmailMelody,
@@ -32,6 +38,8 @@ export const SignInForm = () => {
   });
 
   const onSignIn = useCallback(async () => {
+    triggerHexDrain();
+    setDrained(true);
     try {
       await signInWithEmailAndPassword('ui', 'ui');
     } catch (err) {
@@ -51,6 +59,8 @@ export const SignInForm = () => {
 
   const onProviderSignIn = useCallback(
     async (provider: 'google') => {
+      triggerHexDrain();
+      setDrained(true);
       try {
         await signInWithProvider(provider);
       } catch (err) {
@@ -64,13 +74,20 @@ export const SignInForm = () => {
   return (
     <div className="animate-fade-in-bottom">
       <CardHeader>
-        <CardTitle className="text-2xl">Music Atlas</CardTitle>
-        <CardDescription>Sign in to your account</CardDescription>
+        <CardTitle
+          className={cn(
+            'text-4xl font-normal transition-colors duration-700',
+            drained && 'text-black',
+          )}
+        >
+          Music Atlas
+        </CardTitle>
+        {!drained && <CardDescription>Sign in to your account</CardDescription>}
       </CardHeader>
       <CardContent className="flex flex-col space-y-4">
         {/* OAuth buttons */}
         <Button
-          className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#3a3535] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#726969] hover:text-white"
           onClick={() => {
             void onProviderSignIn('google');
           }}
@@ -98,24 +115,19 @@ export const SignInForm = () => {
           Continue with Google
         </Button>
 
-        {/* Divider */}
-        <div className="relative my-2">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-surface-box px-2 text-muted-foreground">
-              Or
-            </span>
-          </div>
-        </div>
+        {/* Divider line */}
+        <div className="my-2 border-t" />
 
-        <Button className="w-full" onClick={onSignIn} type="button">
+        <Button
+          className="w-full bg-[#4d3a49] text-white hover:bg-[#5c4657]"
+          onClick={onSignIn}
+          type="button"
+        >
           Continue with email
         </Button>
 
         <Button
-          className="w-full"
+          className="w-full border-0 bg-[#3a3535] text-white hover:bg-[#726969]"
           variant="outline"
           onClick={onSignUp}
           type="button"

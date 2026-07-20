@@ -10,7 +10,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { ProfileRoutes } from '@/constants/routes';
+import { cn } from '@/components/utilities';
+import { UserRoutes } from '@/constants/routes';
 import { useAuthActions } from '@/contexts/AuthContext';
 import { useMe } from '@/hooks/data';
 import { useAvatarConfig } from '@/hooks/useAvatarConfig';
@@ -20,11 +21,14 @@ export function UserWidget({
   isCollapsed,
   variant = 'sidebar',
   nameOverride,
+  hideLabel,
 }: {
   className?: string;
   isCollapsed?: boolean;
-  variant?: 'sidebar' | 'header';
+  variant?: 'sidebar' | 'header' | 'stacked';
   nameOverride?: string;
+  /** For the 'stacked' variant: hide the name label under the avatar. */
+  hideLabel?: boolean;
 }) {
   const { data: user, isLoading } = useMe();
   const { signOut } = useAuthActions();
@@ -36,12 +40,44 @@ export function UserWidget({
 
   const name = nameOverride || user?.nickname || user?.username || 'USER';
 
+  if (variant === 'stacked') {
+    return (
+      <button
+        className={`group flex flex-col items-center gap-2 ${className || ''}`}
+        type="button"
+        onClick={() => navigate(UserRoutes.root())}
+        aria-label={hideLabel ? name : undefined}
+      >
+        <Avatar
+          className={cn(
+            'select-none border-2 border-white/10 transition-all group-hover:border-white/40',
+            hideLabel ? 'size-10' : 'size-[76px]',
+          )}
+        >
+          <AvatarFallback className="relative overflow-hidden p-0">
+            <UserAvatarPattern
+              className="size-full"
+              userName={name}
+              config={avatarConfig}
+            />
+          </AvatarFallback>
+        </Avatar>
+        {!hideLabel &&
+          (isLoading ? (
+            <Skeleton className="h-3 w-20" />
+          ) : (
+            <span className="text-[15px] font-medium text-white">{name}</span>
+          ))}
+      </button>
+    );
+  }
+
   if (variant === 'header') {
     return (
       <button
         className={`flex items-center gap-3 cursor-pointer group ${className || ''}`}
         type="button"
-        onClick={() => navigate(ProfileRoutes.profile())}
+        onClick={() => navigate(UserRoutes.root())}
       >
         <div className="text-right hidden md:block text-sm">
           {isLoading ? (

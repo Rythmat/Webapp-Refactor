@@ -103,7 +103,7 @@ export const DawSynthLayout: FC<DawSynthLayoutProps> = ({
         position: 'absolute',
         inset: 0,
         overflow: 'hidden',
-        background: '#111',
+        background: 'var(--color-bg)',
       }}
     >
       <div

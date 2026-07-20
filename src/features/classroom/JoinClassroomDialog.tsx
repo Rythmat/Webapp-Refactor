@@ -7,12 +7,6 @@ import { z } from 'zod';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -128,24 +122,21 @@ export const JoinClassroomDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="border-white/[0.06] bg-[#141416] text-white sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Join a Classroom</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-white">Join a Classroom</DialogTitle>
+          <DialogDescription className="text-white/60">
             Enter the 8-character code provided by your teacher.
           </DialogDescription>
         </DialogHeader>
         <Form {...codeForm}>
-          <form
-            className="space-y-4"
-            onSubmit={(e) => e.preventDefault()} // Prevent default form submission
-          >
+          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
             <FormField
               control={codeForm.control}
               name="classroomCode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Class Code</FormLabel>
+                  <FormLabel className="text-white/85">Class Code</FormLabel>
                   <FormControl>
                     <InputOTP
                       maxLength={8}
@@ -176,28 +167,22 @@ export const JoinClassroomDialog = ({
         </Form>
 
         {isFetchingClassroom && (
-          <div className="mt-4 flex items-center justify-center text-muted-foreground">
-            <Loader2 className="mr-2 size-4 animate-spin" /> Verifying code...
+          <div className="mt-4 flex items-center justify-center text-white/60">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verifying code…
           </div>
         )}
 
         {showDetails && (
-          <Card className="mt-4 border-primary/20 bg-primary/5">
-            <CardHeader>
-              <CardTitle className="text-lg">Join {classroom.name}?</CardTitle>
-              <CardDescription>
-                Teacher: {classroom.teacherName}
-                <br />
-                Year: {classroom.year}
-                {classroom.description && (
-                  <>
-                    <br />
-                    {classroom.description}
-                  </>
-                )}
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          <div className="mt-4 flex flex-col gap-2 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-5">
+            <h3 className="text-lg font-medium text-white">
+              Join {classroom.name}?
+            </h3>
+            <div className="flex flex-col gap-1 text-sm text-white/70">
+              <span>Teacher: {classroom.teacherName}</span>
+              <span>Year: {classroom.year}</span>
+              {classroom.description && <span>{classroom.description}</span>}
+            </div>
+          </div>
         )}
 
         {showError && (
@@ -207,7 +192,7 @@ export const JoinClassroomDialog = ({
               {classroomError
                 ? 'Invalid or expired classroom code.'
                 : joinError
-                  ? `Failed to join classroom. ${joinError.message || ''}` // Display specific API error if available
+                  ? `Failed to join classroom. ${joinError.message || ''}`
                   : 'An error occurred.'}
             </AlertDescription>
           </Alert>
@@ -217,6 +202,7 @@ export const JoinClassroomDialog = ({
           <Button
             disabled={isJoining}
             variant="outline"
+            className="rounded-full border-white/10 bg-transparent text-white/80 hover:bg-white/[0.04] hover:text-white"
             onClick={() => handleOpenChange(false)}
           >
             Cancel
@@ -224,11 +210,12 @@ export const JoinClassroomDialog = ({
           <Button
             disabled={!showDetails || isJoining || !!joinError}
             type="button"
+            className="rounded-full bg-white text-black hover:bg-white/85"
             onClick={handleJoin}
           >
             {isJoining ? (
               <>
-                <Loader2 className="mr-2 size-4 animate-spin" /> Joining...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Joining…
               </>
             ) : (
               'Join Classroom'

@@ -30,7 +30,7 @@ const TARGET_OPTIONS = [
   { value: 'flt2', label: 'FILTER 2' },
 ];
 
-const ACCENT = '#7885cb';
+const ACCENT = '#7ecfcf'; // teal — matches --color-accent
 
 export const FXSlot: React.FC<FXSlotProps> = React.memo(
   ({ route, fx, usedTypes, onUpdate, onRemove, onParamChange }) => {

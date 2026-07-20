@@ -32,7 +32,7 @@ export function StartScreen({
               className={`px-4 py-2 rounded text-sm font-medium transition-all border ${
                 difficulty === diff
                   ? 'bg-white text-black border-white'
-                  : 'border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500'
+                  : 'border-white/10 text-zinc-400 hover:text-white hover:border-zinc-500'
               }`}
             >
               <div>{preset.label}</div>
@@ -132,7 +132,7 @@ export function GameOverScreen({
 
       <button
         onClick={onRestart}
-        className="px-8 py-3 border border-zinc-700 hover:bg-zinc-800 text-white font-medium rounded transition-all"
+        className="px-8 py-3 border border-white/10 bg-white/[0.05] hover:bg-white/[0.08] text-white font-medium rounded transition-all"
       >
         Restart
       </button>

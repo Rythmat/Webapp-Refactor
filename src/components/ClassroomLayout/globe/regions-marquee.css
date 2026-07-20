@@ -1,0 +1,28 @@
+/* ── Regions marquee animation ─────────────────────────────────────────────
+   A horizontal drifting ticker of the 18 region cards (see RegionsMarquee).
+   The track holds the cards duplicated, and the drift translateX 0 → -50% makes
+   the seamless loop read as an endless right-to-left ticker. Drifts continuously
+   (no pause on hover — cards stay clickable while moving) and stops entirely when
+   the user prefers reduced motion. (Mirrors the songs marquee pattern.)
+   ──────────────────────────────────────────────────────────────────────── */
+.regions-marquee-track {
+  /* Slower than the original 80s so the larger (grid-sized) cards still drift by
+     at a readable pace, since the wider track would otherwise scroll ~2x faster. */
+  animation: regions-marquee-drift 150s linear infinite;
+  will-change: transform;
+}
+
+@keyframes regions-marquee-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .regions-marquee-track {
+    animation: none;
+  }
+}

@@ -427,15 +427,21 @@ export function Timeline() {
     const currentPpb = pixelsPerBeat(currentZoom);
     const newClipRects: ClipRect[] = [];
 
-    // Theme-aware canvas colors (read from CSS variables once per frame)
-    const rootStyle = getComputedStyle(document.documentElement);
+    // Theme-aware canvas colors (read from CSS variables once per frame).
+    // Read from the canvas itself: the DAW tokens live on `.daw-root`, not
+    // `:root`, and custom properties inherit — so the canvas (a `.daw-root`
+    // descendant) resolves them, whereas document.documentElement would not.
+    const rootStyle = getComputedStyle(canvas);
     const colorBg =
-      rootStyle.getPropertyValue('--color-bg').trim() || '#191919';
+      rootStyle.getPropertyValue('--color-bg').trim() || '#101012';
     const colorBorder =
       rootStyle.getPropertyValue('--color-border').trim() ||
       'rgba(255, 255, 255, 0.08)';
     const colorGridRgb =
       rootStyle.getPropertyValue('--color-grid-rgb').trim() || '255, 255, 255';
+    const colorSelRgb =
+      rootStyle.getPropertyValue('--color-selection-rgb').trim() ||
+      '126, 207, 207';
 
     // Visible tick range (with 1 bar buffer on each side)
     const { startTick: visStartRaw, endTick: visEndRaw } = visibleTickRange(
@@ -924,7 +930,7 @@ export function Timeline() {
       const lw = lx2 - lx1;
 
       // Tinted overlay on track area (loop ruler elements drawn in sticky section)
-      ctx.fillStyle = 'rgba(59, 130, 246, 0.04)';
+      ctx.fillStyle = `rgba(${colorSelRgb}, 0.04)`;
       ctx.fillRect(
         lx1,
         RULERS_HEIGHT,
@@ -933,7 +939,7 @@ export function Timeline() {
       );
 
       // Vertical lines at loop boundaries
-      ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
+      ctx.strokeStyle = `rgba(${colorSelRgb}, 0.4)`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(lx1, RULERS_HEIGHT);
@@ -987,10 +993,10 @@ export function Timeline() {
       const lx2r = tickToPixel(state.loopEnd, currentZoom, currentScrollLeft);
       const lwr = lx2r - lx1r;
 
-      ctx.fillStyle = 'rgba(59, 130, 246, 0.25)';
+      ctx.fillStyle = `rgba(${colorSelRgb}, 0.25)`;
       ctx.fillRect(lx1r, rulerY, lwr, RULER_HEIGHT);
 
-      ctx.fillStyle = '#3b82f6';
+      ctx.fillStyle = `rgb(${colorSelRgb})`;
       ctx.beginPath();
       ctx.moveTo(lx1r, rulerY);
       ctx.lineTo(lx1r + 8, rulerY);
@@ -1039,7 +1045,7 @@ export function Timeline() {
 
     // Time display at primary marks (when zoomed in enough)
     if (currentPpb >= 30) {
-      ctx.fillStyle = 'rgba(122, 122, 144, 0.3)';
+      ctx.fillStyle = 'rgba(107, 107, 128, 0.3)';
       ctx.font = '8px Inter, sans-serif';
       ctx.textBaseline = 'bottom';
       const primaryLevelInterval = levels[0].tickInterval;
@@ -1161,7 +1167,7 @@ export function Timeline() {
 
     if (timeLevels.length > 1) {
       const secondaryInterval = timeLevels[1].tickInterval;
-      ctx.fillStyle = 'rgba(122, 122, 144, 0.3)';
+      ctx.fillStyle = 'rgba(107, 107, 128, 0.3)';
       ctx.font = '8px Inter, sans-serif';
       const trSecStart =
         Math.floor(visStart / secondaryInterval) * secondaryInterval;
@@ -2576,7 +2582,7 @@ export function Timeline() {
                 fontFamily: 'Inter, sans-serif',
                 background: 'var(--color-surface-2)',
                 color: 'var(--color-text)',
-                border: '1px solid var(--color-accent, #8b5cf6)',
+                border: '1px solid var(--color-accent, #7ecfcf)',
                 borderRadius: 3,
                 padding: '0 4px',
                 outline: 'none',

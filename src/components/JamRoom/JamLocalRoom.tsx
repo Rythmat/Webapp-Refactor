@@ -38,9 +38,19 @@ export function JamLocalRoom() {
 
   // Initialize SoundFont engine
   useEffect(() => {
-    initJamSynth().catch((err) =>
-      console.warn('[JamLocalRoom] SoundFont init failed:', err),
-    );
+    initJamSynth()
+      .then(() => {
+        // A previously played game (e.g. Constellations) may have left the
+        // shared synth's local channel on its own program. Reset it to the
+        // instrument shown in the picker so the sound matches the label.
+        jamProgramChange(
+          getLocalChannel(),
+          useJamRoomStore.getState().localGmProgram,
+        );
+      })
+      .catch((err) =>
+        console.warn('[JamLocalRoom] SoundFont init failed:', err),
+      );
     return () => {
       disposeJamSynth();
       useJamRoomStore.getState().reset();

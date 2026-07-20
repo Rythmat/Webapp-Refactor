@@ -4,6 +4,8 @@ import {
   SCALE_DEFS,
   ROOTS,
   KEY_COLORS,
+  BUFFER_COLUMNS,
+  TOTAL_COLUMNS,
 } from './constants';
 import type { KeyGeometry } from './types';
 
@@ -15,9 +17,10 @@ export function getKeyGeometry(
   midi: number,
   canvasWidth: number,
 ): KeyGeometry | null {
-  const numWhiteKeys = 15;
   const startKey = 48;
-  const whiteKeyWidth = canvasWidth / numWhiteKeys;
+  // Divide the full width across all columns (playable + buffers) so the
+  // playable lanes shrink and sit centered between the side buffers.
+  const whiteKeyWidth = canvasWidth / TOTAL_COLUMNS;
   const blackKeyWidth = whiteKeyWidth * 0.65;
 
   const offset = midi - startKey;
@@ -44,10 +47,10 @@ export function getKeyGeometry(
   };
 
   if (whiteIndexMap[semitone] !== undefined) {
-    const wIndex = octaves * 7 + whiteIndexMap[semitone];
+    const wIndex = octaves * 7 + whiteIndexMap[semitone] + BUFFER_COLUMNS;
     return { x: wIndex * whiteKeyWidth, width: whiteKeyWidth, isBlack: false };
   } else if (blackIndexMap[semitone] !== undefined) {
-    const wIndex = octaves * 7 + blackIndexMap[semitone];
+    const wIndex = octaves * 7 + blackIndexMap[semitone] + BUFFER_COLUMNS;
     return {
       x: wIndex * whiteKeyWidth + (whiteKeyWidth - blackKeyWidth / 2),
       width: blackKeyWidth,

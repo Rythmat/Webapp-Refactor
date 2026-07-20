@@ -12,7 +12,7 @@
 import type * as Party from 'partykit/server';
 import { onConnect } from 'y-partykit';
 
-import type { TransportCommand } from '../types';
+import type { CollabRole, TransportCommand } from '../types';
 import { validateConnection } from './auth';
 
 // Track connection metadata (role, userId)
@@ -30,6 +30,12 @@ export default class CollabServer implements Party.Server {
   // Durable Object) — when the host leaves and the room is disposed, the bans
   // go with it.
   private bannedUserIds = new Set<string>();
+
+  // The collab_room record id for this room, set when the host registers it with
+  // the Music Atlas API on connect and used to close it on host disconnect.
+  // Best-effort — the live session works regardless of backend tracking.
+  private backendRoomId: string | null = null;
+  private roomRegistered = false;
 
   constructor(public room: Party.Room) {}
 
@@ -88,10 +94,25 @@ export default class CollabServer implements Party.Server {
         return;
       }
 
+      // Authoritative role — the client's requested role is NOT trusted for
+      // 'owner'. Only the room host is owner: the user who already owns the
+      // room, or (before any host exists) the first connection claiming owner,
+      // which is the room's creator. Everyone else is clamped to editor/viewer
+      // so a joiner can't self-assign owner. (Fine-grained editor-vs-viewer
+      // enforcement per invite needs backend membership records — a follow-up.)
+      const isHost =
+        auth.userId === this.hostUserId ||
+        (!this.hostConnectionId && auth.role === 'owner');
+      const role: CollabRole = isHost
+        ? 'owner'
+        : auth.role === 'viewer'
+          ? 'viewer'
+          : 'editor';
+
       // Enforce room capacity (distinct users). The host is always admitted —
       // the room can't exist without them — and a reconnect / second tab from a
       // user who is already present does not consume an additional slot.
-      if (auth.role !== 'owner') {
+      if (role !== 'owner') {
         const users = new Set<string>();
         for (const [, m] of connectionMeta) users.add(m.userId);
         if (!users.has(auth.userId) && users.size >= MAX_ROOM_USERS) {
@@ -101,21 +122,23 @@ export default class CollabServer implements Party.Server {
         }
       }
 
-      connectionMeta.set(conn.id, { userId: auth.userId, role: auth.role });
+      connectionMeta.set(conn.id, { userId: auth.userId, role });
 
       // Tag viewer connections so we can filter Yjs updates
-      if (auth.role === 'viewer') {
+      if (role === 'viewer') {
         conn.setState({ readOnly: true });
       }
 
       // Track the host connection (first owner to connect)
-      if (auth.role === 'owner' && !this.hostConnectionId) {
+      if (role === 'owner' && !this.hostConnectionId) {
         this.hostConnectionId = conn.id;
         this.hostUserId = auth.userId;
+        // Record this running room (+ host) in the backend, best-effort.
+        void this.registerBackendRoom(auth.userId);
       }
 
       // Reject non-owner connections when there is no host
-      if (auth.role !== 'owner' && !this.hostConnectionId) {
+      if (role !== 'owner' && !this.hostConnectionId) {
         conn.send(
           JSON.stringify({ type: 'room:not-found', reason: 'no_host' }),
         );
@@ -174,6 +197,9 @@ export default class CollabServer implements Party.Server {
   private handleHostDisconnect(): void {
     this.hostConnectionId = null;
 
+    // Mark the backend room record closed (best-effort).
+    void this.closeBackendRoom();
+
     // Notify all remaining clients that the room is closing, then kick them
     const closingMsg = JSON.stringify({
       type: 'room:closing',
@@ -184,6 +210,68 @@ export default class CollabServer implements Party.Server {
       conn.close(4410, 'Host disconnected');
     }
     connectionMeta.clear();
+  }
+
+  /**
+   * Record this running room (+ its host) in the Music Atlas API so active
+   * collab rooms and their hosts are tracked server-side. Server-to-server
+   * (PARTYKIT_WEBHOOK_SECRET) and best-effort — never blocks or fails the live
+   * session. The returned collab_room id is kept to close the room on disconnect.
+   */
+  private async registerBackendRoom(hostId: string): Promise<void> {
+    if (this.roomRegistered) return;
+    this.roomRegistered = true;
+
+    const apiUrl = this.room.env.MUSIC_ATLAS_API_URL as string | undefined;
+    const secret = this.room.env.PARTYKIT_WEBHOOK_SECRET as string | undefined;
+    if (!apiUrl || !secret) return;
+
+    const type = this.room.id.startsWith('jam-') ? 'jam' : 'daw';
+
+    try {
+      const res = await fetch(`${apiUrl}/rooms/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${secret}`,
+        },
+        body: JSON.stringify({ roomKey: this.room.id, hostId, type }),
+      });
+      if (res.ok) {
+        // API responses are SuperJSON-wrapped ({ json, meta }).
+        const body = (await res.json()) as {
+          json?: { id?: string };
+          id?: string;
+        };
+        this.backendRoomId = body.json?.id ?? body.id ?? null;
+      }
+    } catch {
+      // Best-effort: backend tracking is non-critical to the live session.
+    }
+  }
+
+  /** Mark this room's backend record closed on host disconnect (best-effort). */
+  private async closeBackendRoom(): Promise<void> {
+    const roomId = this.backendRoomId;
+    if (!roomId) return;
+    this.backendRoomId = null;
+
+    const apiUrl = this.room.env.MUSIC_ATLAS_API_URL as string | undefined;
+    const secret = this.room.env.PARTYKIT_WEBHOOK_SECRET as string | undefined;
+    if (!apiUrl || !secret) return;
+
+    try {
+      await fetch(`${apiUrl}/rooms/webhook/host-disconnected`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${secret}`,
+        },
+        body: JSON.stringify({ roomId }),
+      });
+    } catch {
+      // Best-effort.
+    }
   }
 
   /**

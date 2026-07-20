@@ -6,6 +6,7 @@ import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useOptionalLearnInputStable } from '@/learn/context/LearnInputContext';
+import { ArcadeGameHeader } from './ArcadeGameHeader';
 import { playGrandPianoNote } from './chordPressAudio';
 
 type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
@@ -136,6 +137,7 @@ const BTN_OUTLINE: React.CSSProperties = {
 // ── Component ──────────────────────────────────────────────────────────────
 
 export type ChordPressGameProps = {
+  arcade?: boolean;
   startC?: number;
   endC?: number;
   chordPool?: ChordType[];
@@ -153,6 +155,7 @@ export type ChordPressGameProps = {
 };
 
 export function ChordPressGame({
+  arcade,
   startC = 3,
   endC = 5,
   chordPool = DEFAULT_CHORD_POOL,
@@ -407,35 +410,8 @@ export function ChordPressGame({
   const canCheck = selected.length > 0 && !(checked && isCorrect);
   const canClear = selected.length > 0 && !(checked && isCorrect);
 
-  return (
-    <div className={className}>
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: 24 }}>
-        <h1
-          style={{
-            fontSize: 20,
-            fontWeight: 800,
-            letterSpacing: 5,
-            color: '#a78bfa',
-            margin: 0,
-            textTransform: 'uppercase',
-          }}
-        >
-          Chord Press
-        </h1>
-        <p
-          style={{
-            fontSize: 11,
-            color: 'var(--color-text-dim, #6b7280)',
-            marginTop: 6,
-            letterSpacing: 1.5,
-            textTransform: 'uppercase',
-          }}
-        >
-          Play the chord tones on the keyboard
-        </p>
-      </div>
-
+  const body = (
+    <>
       {/* Target chord */}
       {showChordName && (
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
@@ -447,7 +423,7 @@ export function ChordPressGame({
               letterSpacing: 1,
             }}
           >
-            {title}
+            Select the notes from {title}
           </span>
         </div>
       )}
@@ -553,6 +529,67 @@ export function ChordPressGame({
           </button>
         </div>
       )}
+    </>
+  );
+
+  if (arcade) {
+    return (
+      <div
+        className={className}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          width: '100%',
+          minHeight: 0,
+        }}
+      >
+        <ArcadeGameHeader title="Chord Press" />
+        <div
+          style={{
+            flex: '1 1 0%',
+            minHeight: 0,
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {body}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={className}>
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <h1
+          style={{
+            fontSize: 20,
+            fontWeight: 800,
+            letterSpacing: 5,
+            color: '#a78bfa',
+            textTransform: 'uppercase',
+            margin: 0,
+          }}
+        >
+          Chord Press
+        </h1>
+        <p
+          style={{
+            fontSize: 12,
+            letterSpacing: 2,
+            textTransform: 'uppercase',
+            color: '#71717a',
+            marginTop: 6,
+          }}
+        >
+          Play the chord tones on the keyboard
+        </p>
+      </div>
+      {body}
     </div>
   );
 }

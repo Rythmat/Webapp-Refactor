@@ -14,7 +14,7 @@ import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
-import PianoRoll, { NoteEvent, pitchNameToMidi } from './PianoRollPlay';
+import { NoteEvent, pitchNameToMidi } from './PianoRollPlay';
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: 'e1', pitchName: 'C3', startTicks: 0, durationTicks: 1920 },
@@ -489,7 +489,7 @@ export const PlayAlong = ({
 
   const gameplayContent = (
     <>
-      <PianoRoll
+      <GenrePianoRoll
         key={playSessionId}
         inTime
         activeMidis={activeMidis}
@@ -501,6 +501,7 @@ export const PlayAlong = ({
         playSpeed={80}
         rowHeight={28 * 18}
         subdivision={1}
+        keyColor={activityColor}
         onPlayingChange={setIsPlaying}
         onTickChange={setCurrentTick}
       />
@@ -542,36 +543,7 @@ export const PlayAlong = ({
             border: '1px solid var(--color-border)',
           }}
         >
-          <GenrePianoRoll
-            key={playSessionId}
-            inTime
-            activeMidis={activeMidis}
-            bars={requiredBars}
-            beatsPerBar={4}
-            events={resolvedEvents}
-            isPlaying={isPlaying}
-            performanceMeta={performanceMeta}
-            playSpeed={80}
-            rowHeight={28 * 18}
-            subdivision={1}
-            keyColor={activityColor}
-            onPlayingChange={setIsPlaying}
-            onTickChange={setCurrentTick}
-          />
-          <div className="flex items-stretch gap-3">
-            <div className="flex-1 min-w-0">
-              <PianoKeyboard
-                showOctaveStart
-                activeBlackKeyColor={activityColor}
-                activeWhiteKeyColor={activityColor}
-                className="mx-auto"
-                endC={6}
-                playingNotes={keyboardPlayingNotes}
-                startC={2}
-              />
-            </div>
-            <LessonVolumeDial />
-          </div>
+          {gameplayContent}
         </div>
       </div>
     </div>

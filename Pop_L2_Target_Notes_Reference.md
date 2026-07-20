@@ -42,14 +42,14 @@ Treble register (RH melody & chords):
 
 ### 1st Inversion (RH) — new at L2
 
-| Chord | Symbol      | RH notes  | MIDI     | LH bass | MIDI |
-| ----- | ----------- | --------- | -------- | ------- | ---- |
-| G/B   | 1 maj/3     | B3–D4–G4  | 59–62–67 | G2      | 43   |
-| Am/C  | 2 min/b3    | C4–E4–A4  | 60–64–69 | A2      | 45   |
-| Bm/D  | 3 min/b3    | D4–F#4–B4 | 62–66–71 | B2      | 47   |
-| C/E   | 4 maj/3     | E4–G4–C5  | 64–67–72 | C3      | 48   |
-| D/F#  | 5 maj/3     | F#4–A4–D5 | 66–69–74 | D3      | 50   |
-| Em/G  | 6 min/b3    | G4–B4–E5  | 67–71–76 | E3      | 52   |
+| Chord | Symbol   | RH notes  | MIDI     | LH bass | MIDI |
+| ----- | -------- | --------- | -------- | ------- | ---- |
+| G/B   | 1 maj/3  | B3–D4–G4  | 59–62–67 | G2      | 43   |
+| Am/C  | 2 min/b3 | C4–E4–A4  | 60–64–69 | A2      | 45   |
+| Bm/D  | 3 min/b3 | D4–F#4–B4 | 62–66–71 | B2      | 47   |
+| C/E   | 4 maj/3  | E4–G4–C5  | 64–67–72 | C3      | 48   |
+| D/F#  | 5 maj/3  | F#4–A4–D5 | 66–69–74 | D3      | 50   |
+| Em/G  | 6 min/b3 | G4–B4–E5  | 67–71–76 | E3      | 52   |
 
 > **Octave note:** The 1st inversion voicings (B3–D4–G4 range) are one octave below the root-position voicings (G4–B4–D5 range). This keeps the 1st inversions in a comfortable mid-register and makes the voice leading visually clear.
 

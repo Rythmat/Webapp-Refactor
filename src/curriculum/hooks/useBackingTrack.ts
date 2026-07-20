@@ -745,7 +745,10 @@ type GrooveId =
   | 'groove_rock_02'
   | 'groove_ballad_01';
 
-function getGrooveForStyleRef(styleRef: string | undefined, genre: string): GrooveId {
+function getGrooveForStyleRef(
+  styleRef: string | undefined,
+  genre: string,
+): GrooveId {
   if (genre === 'pop') {
     switch (styleRef) {
       case 'l2b':

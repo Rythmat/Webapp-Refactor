@@ -374,7 +374,10 @@ function GenreLessonContainerV2Inner({
       SECTION_PADDING +
       KEYBOARD +
       PRACTICE_CONTROLS;
-    const base = Math.max(200, Math.floor((window.innerHeight - overhead) * 0.9));
+    const base = Math.max(
+      200,
+      Math.floor((window.innerHeight - overhead) * 0.9),
+    );
     return Math.floor(base * 1.5);
   }, []); // empty deps — computed once at mount
 

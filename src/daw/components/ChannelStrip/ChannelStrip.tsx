@@ -1,5 +1,5 @@
 /* eslint-disable tailwindcss/classnames-order, tailwindcss/enforces-shorthand */
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Zap,
@@ -10,6 +10,7 @@ import {
   Disc3,
 } from 'lucide-react';
 import { useStore } from '@/daw/store';
+import type { ChannelStripTabId } from '@/daw/store/uiSlice';
 import { useIsPremium } from '@/hooks/useIsPremium';
 import { LockedFeatureOverlay } from '@/components/ui/LockedFeatureOverlay';
 import { TrackControlsPanel } from '@/daw/components/Controls/TrackControlsPanel';
@@ -39,7 +40,7 @@ function PrismLogo({ size = 14 }: { size?: number }) {
 
 // ── Types ────────────────────────────────────────────────────────────────
 
-type TabId = 'controls' | 'fx' | 'prism' | 'piano-roll' | 'grooves';
+type TabId = ChannelStripTabId;
 
 interface TabDef {
   id: TabId;
@@ -85,6 +86,8 @@ function instrumentLabel(instrument: string): string {
       return 'SF';
     case 'drum-machine':
       return 'Drums';
+    case 'sampler':
+      return 'Chops';
     case 'guitar-fx':
       return 'Guitar';
     case 'bass-fx':
@@ -99,7 +102,9 @@ function instrumentLabel(instrument: string): string {
 // ── ChannelStrip ─────────────────────────────────────────────────────────
 
 export function ChannelStrip() {
-  const [activeTab, setActiveTab] = useState<TabId | null>(null);
+  // Active tab lives in the store (uiSlice) so tutorials can open it.
+  const activeTab = useStore((s) => s.channelStripTab);
+  const setActiveTab = useStore((s) => s.setChannelStripTab);
   const prevTrackCount = useRef(0);
   const { isPremium } = useIsPremium();
 
@@ -120,7 +125,7 @@ export function ChannelStrip() {
       setActiveTab('controls');
     }
     prevTrackCount.current = tracks.length;
-  }, [tracks.length]);
+  }, [tracks.length, setActiveTab]);
   const track = tracks.find((t) => t.id === selectedTrackId);
 
   // Piano roll: find selected clip
@@ -164,9 +169,12 @@ export function ChannelStrip() {
     ],
   );
 
-  const handleTabClick = useCallback((id: TabId) => {
-    setActiveTab((prev) => (prev === id ? null : id));
-  }, []);
+  const handleTabClick = useCallback(
+    (id: TabId) => {
+      setActiveTab(activeTab === id ? null : id);
+    },
+    [activeTab, setActiveTab],
+  );
 
   const visibleTabs = TABS.filter((tab) => {
     return !(
@@ -176,16 +184,16 @@ export function ChannelStrip() {
     );
   });
 
-  // Reset to controls if active tab is hidden for this track type
-  if (!isDrumMachine && activeTab === 'grooves') {
-    setActiveTab('controls');
-  }
-  if ((isAudioInput || isDrumMachine) && activeTab === 'prism') {
-    setActiveTab('controls');
-  }
-  if ((!isMidiInstrument || isDrumMachine) && activeTab === 'piano-roll') {
-    setActiveTab('controls');
-  }
+  // Reset to controls if the active tab is hidden for this track type.
+  useEffect(() => {
+    if (
+      (!isDrumMachine && activeTab === 'grooves') ||
+      ((isAudioInput || isDrumMachine) && activeTab === 'prism') ||
+      ((!isMidiInstrument || isDrumMachine) && activeTab === 'piano-roll')
+    ) {
+      setActiveTab('controls');
+    }
+  }, [activeTab, isDrumMachine, isAudioInput, isMidiInstrument, setActiveTab]);
 
   const isOpen = activeTab !== null;
 
@@ -206,6 +214,7 @@ export function ChannelStrip() {
             return (
               <button
                 key={tab.id}
+                data-tutorial-id={`chanstrip-tab-${tab.id}`}
                 onClick={() => handleTabClick(tab.id)}
                 className="flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider cursor-pointer"
                 style={{
@@ -261,9 +270,7 @@ export function ChannelStrip() {
 
         {/* Collapse toggle */}
         <button
-          onClick={() =>
-            setActiveTab((prev) => (prev === null ? 'controls' : null))
-          }
+          onClick={() => setActiveTab(activeTab === null ? 'controls' : null)}
           className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
           style={{
             color: 'var(--color-text-dim)',

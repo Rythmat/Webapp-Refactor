@@ -50,6 +50,12 @@ const DayEditor = lazy(() =>
   })),
 );
 
+const DeckWizardPage = lazy(() =>
+  import('@/features/classroom/slides/wizard/DeckWizardPage').then(
+    ({ DeckWizardPage }) => ({ default: DeckWizardPage }),
+  ),
+);
+
 const PreviewPage = lazy(() =>
   import('@/features/classroom/plan/PreviewPage').then(({ PreviewPage }) => ({
     default: PreviewPage,
@@ -140,6 +146,10 @@ export const teacherPages = () => {
           {
             path: TeacherRoutes.plan.definition,
             element: <PlanPage />,
+          },
+          {
+            path: TeacherRoutes.deckWizard.definition,
+            element: <DeckWizardPage />,
           },
           {
             path: TeacherRoutes.annualPlan.definition,

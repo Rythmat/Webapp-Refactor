@@ -11,6 +11,10 @@ export class VoiceManager {
   private spread: number = 0;
   private activeNotes: Map<number, Voice> = new Map();
 
+  /** Invoked whenever a voice is lazily created — lets the engine attach
+   *  vibrato, analysers, and modulation-matrix teardown to every voice. */
+  onVoiceCreated: ((voice: Voice) => void) | null = null;
+
   // Stored for lazy voice allocation
   private ctx: AudioContext;
   private wavetableBank: WavetableBank;
@@ -98,6 +102,8 @@ export class VoiceManager {
         this.destination,
       );
       this.voices.push(voice);
+      this.onVoiceCreated?.(voice);
+      this.applySpread(); // give the freshly-added voice its spread-pan slot
       return voice;
     }
 

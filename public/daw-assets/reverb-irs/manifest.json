@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "_warning": "CONTAINS PLACEHOLDER assets derived from reference (non-redistributable) IRs for local verification ONLY. Replace with licensed sources in pack-list.json and re-run `pack` before shipping.",
+  "irs": [
+    {
+      "id": "hall-concert",
+      "type": "hall",
+      "name": "Concert Hall",
+      "file": "hall-concert.wav",
+      "decaySeconds": 3.46,
+      "gain": 2.759,
+      "license": "PLACEHOLDER-DO-NOT-SHIP",
+      "sourceName": "Logic Space Designer — Fine Hall (reference)",
+      "attribution": ""
+    },
+    {
+      "id": "room-studio",
+      "type": "room",
+      "name": "Studio Room",
+      "file": "room-studio.wav",
+      "decaySeconds": 1.06,
+      "gain": 5.53,
+      "license": "PLACEHOLDER-DO-NOT-SHIP",
+      "sourceName": "Logic Space Designer — Multi Vocals room (reference)",
+      "attribution": ""
+    },
+    {
+      "id": "chamber-stone",
+      "type": "chamber",
+      "name": "Stone Chamber",
+      "file": "chamber-stone.wav",
+      "decaySeconds": 2.65,
+      "gain": 3.455,
+      "license": "PLACEHOLDER-DO-NOT-SHIP",
+      "sourceName": "Logic Space Designer — Big Chamber (reference)",
+      "attribution": ""
+    },
+    {
+      "id": "plate-emt",
+      "type": "plate",
+      "name": "Bright Plate",
+      "file": "plate-emt.wav",
+      "decaySeconds": 3.74,
+      "gain": 2.392,
+      "license": "PLACEHOLDER-DO-NOT-SHIP",
+      "sourceName": "Logic Space Designer — Big Plate (reference)",
+      "attribution": ""
+    },
+    {
+      "id": "spring-tank",
+      "type": "spring",
+      "name": "Spring Tank",
+      "file": "spring-tank.wav",
+      "decaySeconds": 2.91,
+      "gain": 2.65,
+      "license": "PLACEHOLDER-DO-NOT-SHIP",
+      "sourceName": "Logic Space Designer — Long Spring (reference)",
+      "attribution": ""
+    }
+  ]
+}

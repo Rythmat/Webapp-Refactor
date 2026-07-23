@@ -3,7 +3,7 @@
   "name": "music-atlas-collab",
   "main": "party.ts",
   "parties": {
-    "classroom_session": "classroom-session/party.ts"
+    "classroom_session": "classroom_session/party.ts"
   },
   "compatibilityDate": "2024-09-01"
 }

@@ -1,65 +1,66 @@
 // @vitest-environment jsdom
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   STORAGE_KEY,
-  decodeMockMspToken,
-  mintTokenForUser,
-  readMspClaimsForUser,
+  nowSec,
+  readCachedTokenForInteraction,
   readMspTokenStoreForUser,
+  writeCachedTokenForInteraction,
+  type MspTokenRecord,
 } from './mspTokenStore';
 
 const USER_ID = 'test-user';
 
-const baseInput = () => ({
-  interactionId: 'ix-1',
-  enrollmentId: 'enr-1',
-  module: 'learn' as const,
-  activityRef: 'lesson-1',
-  expects: 'score' as const,
-});
+const baseRecord = (): MspTokenRecord => {
+  const iat = nowSec();
+  return {
+    token: 'server.issued.jwt',
+    iat,
+    exp: iat + 1800,
+    claims: {
+      sub: USER_ID,
+      ctx: {
+        interactionId: 'ix-1',
+        enrollmentId: 'enr-1',
+      },
+      module: 'learn',
+      activityRef: 'lesson-1',
+      expects: 'score',
+      return: 'https://app.example/msp/return',
+      exp: iat + 1800,
+    },
+  };
+};
 
 beforeEach(() => {
   window.localStorage.clear();
-  vi.useRealTimers();
 });
 
-describe('mintTokenForUser', () => {
-  it('mints a mock JWT with 5-minute expiry and firewall-safe claims', () => {
-    const { token, claims } = mintTokenForUser(USER_ID, baseInput());
-    expect(token.endsWith('.mock')).toBe(true);
-    expect(claims.sub).toBe(USER_ID);
-    expect(claims.module).toBe('learn');
-    expect(claims.exp).toBeGreaterThan(Math.floor(Date.now() / 1000));
-    expect(claims.exp).toBeLessThan(Math.floor(Date.now() / 1000) + 301);
-    expect(claims.ctx.interactionId).toBe('ix-1');
-    expect(claims.ctx.enrollmentId).toBe('enr-1');
+describe('mspTokenStore cache', () => {
+  it('read/write round-trips a token record keyed by interactionId', () => {
+    const rec = baseRecord();
+    writeCachedTokenForInteraction(USER_ID, 'ix-1', rec);
+    const back = readCachedTokenForInteraction(USER_ID, 'ix-1');
+    expect(back?.token).toBe(rec.token);
+    expect(back?.claims.ctx.interactionId).toBe('ix-1');
+    expect(back?.claims.return).toBe(rec.claims.return);
   });
 
-  it('token body is base64url-decodable back to claims', () => {
-    const { token, claims } = mintTokenForUser(USER_ID, baseInput());
-    const decoded = decodeMockMspToken(token);
-    expect(decoded?.sub).toBe(claims.sub);
-    expect(decoded?.module).toBe('learn');
-    expect(decoded?.activityRef).toBe('lesson-1');
-  });
-
-  it('upserts per interactionId (second mint overwrites)', () => {
-    const first = mintTokenForUser(USER_ID, baseInput()).token;
-    const second = mintTokenForUser(USER_ID, baseInput()).token;
+  it('overwrites the entry when the same interactionId is written twice', () => {
+    writeCachedTokenForInteraction(USER_ID, 'ix-1', baseRecord());
+    const second: MspTokenRecord = { ...baseRecord(), token: 'newer.jwt' };
+    writeCachedTokenForInteraction(USER_ID, 'ix-1', second);
     const store = readMspTokenStoreForUser(USER_ID);
     expect(Object.keys(store.tokens)).toEqual(['ix-1']);
-    expect(store.tokens['ix-1'].token === second).toBe(true);
-    expect(first === second).toBe(true); // same iat → same base64 body
+    expect(store.tokens['ix-1'].token).toBe('newer.jwt');
   });
 
-  it('readMspClaimsForUser resolves back to claims for a given token', () => {
-    const { token, claims } = mintTokenForUser(USER_ID, baseInput());
-    const back = readMspClaimsForUser(USER_ID, token);
-    expect(back?.activityRef).toBe(claims.activityRef);
+  it('returns undefined for an unknown interactionId', () => {
+    expect(readCachedTokenForInteraction(USER_ID, 'missing')).toBeUndefined();
   });
 
   it('expired tokens are pruned on the next read', () => {
-    mintTokenForUser(USER_ID, baseInput());
+    writeCachedTokenForInteraction(USER_ID, 'ix-1', baseRecord());
     const raw = window.localStorage.getItem(`${STORAGE_KEY}:${USER_ID}`);
     if (!raw) throw new Error('token not written');
     const parsed = JSON.parse(raw);
@@ -70,11 +71,24 @@ describe('mintTokenForUser', () => {
     );
     const store = readMspTokenStoreForUser(USER_ID);
     expect(store.tokens).toEqual({});
+    expect(readCachedTokenForInteraction(USER_ID, 'ix-1')).toBeUndefined();
   });
 
   it('userId scoping — other user never sees the token', () => {
-    mintTokenForUser(USER_ID, baseInput());
+    writeCachedTokenForInteraction(USER_ID, 'ix-1', baseRecord());
     const other = readMspTokenStoreForUser('other-user');
     expect(other.tokens).toEqual({});
+  });
+
+  it('schema-version mismatch backs up the old data + returns empty', () => {
+    window.localStorage.setItem(
+      `${STORAGE_KEY}:${USER_ID}`,
+      JSON.stringify({ schemaVersion: 999, tokens: {} }),
+    );
+    const store = readMspTokenStoreForUser(USER_ID);
+    expect(store.tokens).toEqual({});
+    expect(
+      window.localStorage.getItem(`${STORAGE_KEY}:${USER_ID}.bak`),
+    ).toContain('999');
   });
 });

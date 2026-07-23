@@ -24,6 +24,7 @@ const EMPTY_STORE: SessionStore = {
   schemaVersion: SCHEMA_VERSION,
   sessions: {},
   responses: {},
+  positions: {},
   seq: {},
 };
 

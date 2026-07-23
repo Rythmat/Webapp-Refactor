@@ -1,7 +1,9 @@
 import { useState, useEffect, type RefObject } from 'react';
 
+// Keep in sync with .layout in oracle-synth SynthLayout.module.css
+// (and useViewportScale.ts for the standalone app).
 const DESIGN_WIDTH = 1440;
-const DESIGN_HEIGHT = 900;
+const DESIGN_HEIGHT = 932;
 
 interface ContainerTransform {
   scale: number;

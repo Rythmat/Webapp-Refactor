@@ -13,6 +13,7 @@
  * `postPublishedDay(classroomId, snapshot)` wrapper will POST this shape.
  * For now, `publishDay` is a pure transform.
  */
+import { stripLegacySongSlug } from '../legacySongSlug';
 import { PHASES, type PhaseKey } from '../phases';
 import type {
   Cell,
@@ -21,6 +22,7 @@ import type {
   LaunchTile,
   LocalizedText,
 } from '../types';
+import type { Slide, SlideDeck, SlideMedia } from '../slides/types';
 
 export interface CellSnapshot {
   presentation: {
@@ -36,6 +38,8 @@ export interface DaySnapshot {
   dayId: string;
   label: string;
   cells: Record<PhaseKey, CellSnapshot>;
+  /** Interactive-slides deck; absent on legacy Days. Student-safe by construction. */
+  deck?: SlideDeck;
 }
 
 const projectLaunchTile = (tile: LaunchTile): LaunchTile => ({
@@ -65,12 +69,132 @@ const projectInteraction = (interaction: Interaction): Interaction => {
   return out;
 };
 
+const projectSlideMedia = (media: SlideMedia): SlideMedia => {
+  switch (media.type) {
+    case 'youtube':
+      return {
+        type: 'youtube',
+        videoId: media.videoId,
+        ...(media.startSec !== undefined ? { startSec: media.startSec } : {}),
+        ...(media.loop !== undefined ? { loop: media.loop } : {}),
+      };
+    case 'artistImage':
+      return { type: 'artistImage', songId: media.songId };
+    case 'globePreview':
+      return {
+        type: 'globePreview',
+        ...(media.markers !== undefined
+          ? {
+              markers: media.markers.map((m) => ({
+                location: m.location,
+                ...(m.size !== undefined ? { size: m.size } : {}),
+              })),
+            }
+          : {}),
+        ...(media.arcs !== undefined
+          ? { arcs: media.arcs.map((a) => ({ from: a.from, to: a.to })) }
+          : {}),
+      };
+    case 'chordChart':
+      return { type: 'chordChart', songId: media.songId };
+  }
+};
+
+const projectSlide = (slide: Slide): Slide => {
+  // Whitelist copy — do NOT spread `slide`. Same discipline as
+  // projectInteraction: every field that reaches the snapshot is named here,
+  // so future teacher-only extensions to Slide can't leak through publish.
+  const common = {
+    id: slide.id,
+    phase: slide.phase,
+    title: slide.title,
+    ...(slide.prompt !== undefined ? { prompt: slide.prompt } : {}),
+    ...(slide.timerSec !== undefined ? { timerSec: slide.timerSec } : {}),
+  };
+  switch (slide.kind) {
+    case 'content':
+      return {
+        ...common,
+        kind: 'content',
+        ...(slide.variant !== undefined ? { variant: slide.variant } : {}),
+        ...(slide.body !== undefined ? { body: slide.body } : {}),
+        ...(slide.media !== undefined
+          ? { media: projectSlideMedia(slide.media) }
+          : {}),
+      };
+    case 'media':
+      return {
+        ...common,
+        kind: 'media',
+        media: projectSlideMedia(slide.media),
+        ...(slide.sideMedia !== undefined
+          ? { sideMedia: projectSlideMedia(slide.sideMedia) }
+          : {}),
+      };
+    case 'interaction':
+      return {
+        ...common,
+        kind: 'interaction',
+        interactionIds: [...slide.interactionIds],
+        ...(slide.media !== undefined
+          ? { media: projectSlideMedia(slide.media) }
+          : {}),
+        ...(slide.reveal !== undefined ? { reveal: slide.reveal } : {}),
+      };
+    case 'app-route':
+      return { ...common, kind: 'app-route', interactionId: slide.interactionId };
+    case 'studio-collab':
+      return { ...common, kind: 'studio-collab', grouping: slide.grouping };
+    case 'showcase':
+      return { ...common, kind: 'showcase', interactionId: slide.interactionId };
+  }
+};
+
+/**
+ * Whitelist-copy a deck. Exported so `buildStudentView` uses the same single
+ * choke point — one place to audit what slide data can reach any student or
+ * projector surface.
+ */
+export const projectDeck = (deck: SlideDeck): SlideDeck => ({
+  id: deck.id,
+  title: deck.title,
+  slides: deck.slides.map(projectSlide),
+  ...(deck.templateRef !== undefined
+    ? {
+        templateRef: {
+          templateId: deck.templateRef.templateId,
+          ...(deck.templateRef.songId !== undefined
+            ? { songId: deck.templateRef.songId }
+            : {}),
+          ...(deck.templateRef.pathwayId !== undefined
+            ? { pathwayId: deck.templateRef.pathwayId }
+            : {}),
+          ...(deck.templateRef.unitSlug !== undefined
+            ? { unitSlug: deck.templateRef.unitSlug }
+            : {}),
+          ...(deck.templateRef.dayStubSlug !== undefined
+            ? { dayStubSlug: deck.templateRef.dayStubSlug }
+            : {}),
+          ...(deck.templateRef.gcmKey !== undefined
+            ? { gcmKey: deck.templateRef.gcmKey }
+            : {}),
+          ...(deck.templateRef.themeId !== undefined
+            ? { themeId: deck.templateRef.themeId }
+            : {}),
+        },
+      }
+    : {}),
+});
+
 const projectCell = (cell: Cell): CellSnapshot => {
   const { presentation } = cell;
   const snapshot: CellSnapshot = {
     presentation: {
       title: presentation.title,
-      prompt: presentation.prompt,
+      // Strip any legacy "Song of the day: /songs/<id>" slug so the published
+      // student/deck surfaces never render the raw slug (matches the
+      // Presentation-Mode buildStudentView path). No-op on new Days.
+      prompt: stripLegacySongSlug(presentation.prompt).prompt,
       launchTiles: presentation.launchTiles.map(projectLaunchTile),
     },
   };
@@ -95,11 +219,22 @@ export const publishDay = (day: Day): DaySnapshot => {
   for (const phaseKey of PHASES) {
     cells[phaseKey] = projectCell(day.cells[phaseKey]);
   }
-  return {
+  const snapshot: DaySnapshot = {
     dayId: day.id,
     label: day.label,
     cells,
   };
+  // Only attach a deck that actually has slides. An empty-but-present deck
+  // (teacher clicked "Add interactive slides" then added none, or deleted them
+  // all) must NOT flip the session into deck-mode — LiveSessionPage/ProjectorPage
+  // branch to deck-mode on `snapshot.deck` truthiness alone, and an empty deck
+  // would strand every surface on the "waiting for slides" screen with no
+  // escape (clampSlideIndex is always -1). Falling through leaves the legacy
+  // phase-based lesson intact.
+  if (day.deck && day.deck.slides.length > 0) {
+    snapshot.deck = projectDeck(day.deck);
+  }
+  return snapshot;
 };
 
 export const FORBIDDEN_SUBSTRINGS = [

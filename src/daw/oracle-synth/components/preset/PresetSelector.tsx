@@ -1,6 +1,35 @@
 import React, { useState, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useSynthStore } from '../../store';
 import styles from './PresetSelector.module.css';
+
+/**
+ * Flip-aware fixed placement for the dropdown/save dialog, anchored to the
+ * selector row. Rendered through a body portal because the selector lives
+ * inside scroll containers (the DAW Controls strip) and transform-scaled
+ * layouts (the pop-out) — an absolutely-positioned child would be clipped
+ * by the former and a `position:fixed` child mis-anchored by the latter.
+ * getBoundingClientRect returns post-transform screen coords, so anchoring
+ * from it works in every host context.
+ */
+function computeMenuPlacement(anchor: DOMRect): React.CSSProperties {
+  const spaceBelow = window.innerHeight - anchor.bottom;
+  const spaceAbove = anchor.top;
+  const openDown = spaceBelow >= 320 || spaceBelow >= spaceAbove;
+  const maxHeight = Math.max(
+    120,
+    Math.min(360, (openDown ? spaceBelow : spaceAbove) - 8),
+  );
+  const left = Math.max(8, Math.min(anchor.left, window.innerWidth - 248));
+  return openDown
+    ? { position: 'fixed', left, top: anchor.bottom + 4, maxHeight }
+    : {
+        position: 'fixed',
+        left,
+        bottom: window.innerHeight - anchor.top + 4,
+        maxHeight,
+      };
+}
 
 export const PresetSelector: React.FC = React.memo(() => {
   const presetName = useSynthStore((s) => s.presetName);
@@ -12,12 +41,39 @@ export const PresetSelector: React.FC = React.memo(() => {
   const getPresetList = useSynthStore((s) => s.getPresetList);
   const initPreset = useSynthStore((s) => s.initPreset);
 
+  const packDisplayName = useSynthStore((s) => s.packDisplayName);
+  // Subscribe so the list refreshes when a pack registers after mount
+  useSynthStore((s) => s.packPresets);
+
   const [isOpen, setIsOpen] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [saveName, setSaveName] = useState('');
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+  const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const presets = getPresetList();
+  const factoryPresets = presets.filter((p) => p.isFactory && !p.isPack);
+  const packPresets = presets.filter((p) => p.isPack);
+  const userPresets = presets.filter((p) => !p.isFactory);
+
+  const placeMenu = useCallback(() => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (rect) setMenuStyle(computeMenuPlacement(rect));
+  }, []);
+
+  const toggleOpen = useCallback(() => {
+    setIsOpen((open) => {
+      if (!open) placeMenu();
+      return !open;
+    });
+  }, [placeMenu]);
+
+  const openSaveDialog = useCallback(() => {
+    placeMenu();
+    setShowSaveDialog(true);
+    setSaveName(presetName);
+  }, [placeMenu, presetName]);
 
   const handleSelect = useCallback(
     (name: string) => {
@@ -68,25 +124,23 @@ export const PresetSelector: React.FC = React.memo(() => {
   );
 
   return (
-    <div className={styles.container}>
+    <div
+      data-tutorial-id="synth-preset-selector"
+      className={styles.container}
+      ref={containerRef}
+    >
       {/* Preset name button */}
-      <button
-        className={styles.presetButton}
-        onClick={() => setIsOpen(!isOpen)}
-      >
+      <button className={styles.presetButton} onClick={toggleOpen}>
         <span className={styles.presetName}>
           {isDirty ? `${presetName} *` : presetName}
         </span>
-        <span className={styles.arrow}>{isOpen ? '\u25B2' : '\u25BC'}</span>
+        <span className={styles.arrow}>{isOpen ? '▲' : '▼'}</span>
       </button>
 
       {/* Action buttons */}
       <button
         className={styles.actionButton}
-        onClick={() => {
-          setShowSaveDialog(true);
-          setSaveName(presetName);
-        }}
+        onClick={openSaveDialog}
         title="Save preset"
       >
         SAVE
@@ -99,91 +153,106 @@ export const PresetSelector: React.FC = React.memo(() => {
         INIT
       </button>
 
-      {/* Dropdown menu */}
-      {isOpen && (
-        <div className={styles.dropdown}>
-          <div className={styles.sectionLabel}>FACTORY</div>
-          {presets
-            .filter((p) => p.isFactory)
-            .map((p) => (
-              <button
-                key={p.name}
-                className={`${styles.presetItem} ${p.name === presetName ? styles.active : ''}`}
-                onClick={() => handleSelect(p.name)}
-              >
-                {p.name}
+      {/* Dropdown menu — body portal (see computeMenuPlacement) */}
+      {isOpen &&
+        createPortal(
+          <>
+            <div className={styles.backdrop} onClick={() => setIsOpen(false)} />
+            <div className={styles.dropdown} style={menuStyle}>
+              <div className={styles.sectionLabel}>FACTORY</div>
+              {factoryPresets.map((p) => (
+                <button
+                  key={p.name}
+                  className={`${styles.presetItem} ${p.name === presetName ? styles.active : ''}`}
+                  onClick={() => handleSelect(p.name)}
+                >
+                  {p.name}
+                </button>
+              ))}
+
+              {packPresets.length > 0 && (
+                <>
+                  <div className={styles.sectionLabel}>
+                    {packDisplayName ?? 'PACK'}
+                  </div>
+                  {packPresets.map((p) => (
+                    <button
+                      key={p.name}
+                      className={`${styles.presetItem} ${p.name === presetName ? styles.active : ''}`}
+                      onClick={() => handleSelect(p.name)}
+                    >
+                      {p.name}
+                    </button>
+                  ))}
+                </>
+              )}
+
+              {userPresets.length > 0 && (
+                <>
+                  <div className={styles.sectionLabel}>USER</div>
+                  {userPresets.map((p) => (
+                    <button
+                      key={p.name}
+                      className={`${styles.presetItem} ${p.name === presetName ? styles.active : ''}`}
+                      onClick={() => handleSelect(p.name)}
+                    >
+                      {p.name}
+                    </button>
+                  ))}
+                </>
+              )}
+
+              <div className={styles.divider} />
+              <button className={styles.presetItem} onClick={handleExport}>
+                EXPORT...
               </button>
-            ))}
-
-          {presets.some((p) => !p.isFactory) && (
-            <>
-              <div className={styles.sectionLabel}>USER</div>
-              {presets
-                .filter((p) => !p.isFactory)
-                .map((p) => (
-                  <button
-                    key={p.name}
-                    className={`${styles.presetItem} ${p.name === presetName ? styles.active : ''}`}
-                    onClick={() => handleSelect(p.name)}
-                  >
-                    {p.name}
-                  </button>
-                ))}
-            </>
-          )}
-
-          <div className={styles.divider} />
-          <button className={styles.presetItem} onClick={handleExport}>
-            EXPORT...
-          </button>
-          <button className={styles.presetItem} onClick={handleImport}>
-            IMPORT...
-          </button>
-        </div>
-      )}
-
-      {/* Backdrop to close dropdown */}
-      {isOpen && (
-        <div className={styles.backdrop} onClick={() => setIsOpen(false)} />
-      )}
-
-      {/* Save dialog */}
-      {showSaveDialog && (
-        <>
-          <div
-            className={styles.backdrop}
-            onClick={() => setShowSaveDialog(false)}
-          />
-          <div className={styles.saveDialog}>
-            <span className={styles.sectionLabel}>SAVE PRESET</span>
-            <input
-              className={styles.saveInput}
-              value={saveName}
-              onChange={(e) => setSaveName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSave();
-                if (e.key === 'Escape') setShowSaveDialog(false);
-              }}
-              placeholder="Preset name..."
-              autoFocus
-            />
-            <div className={styles.saveActions}>
-              <button
-                className={styles.actionButton}
-                onClick={() => setShowSaveDialog(false)}
-              >
-                CANCEL
-              </button>
-              <button
-                className={`${styles.actionButton} ${styles.primary}`}
-                onClick={handleSave}
-              >
-                SAVE
+              <button className={styles.presetItem} onClick={handleImport}>
+                IMPORT...
               </button>
             </div>
-          </div>
-        </>
-      )}
+          </>,
+          document.body,
+        )}
+
+      {/* Save dialog — body portal */}
+      {showSaveDialog &&
+        createPortal(
+          <>
+            <div
+              className={styles.backdrop}
+              onClick={() => setShowSaveDialog(false)}
+            />
+            <div className={styles.saveDialog} style={menuStyle}>
+              <span className={styles.sectionLabel}>SAVE PRESET</span>
+              <input
+                className={styles.saveInput}
+                value={saveName}
+                onChange={(e) => setSaveName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave();
+                  if (e.key === 'Escape') setShowSaveDialog(false);
+                }}
+                placeholder="Preset name..."
+                autoFocus
+              />
+              <div className={styles.saveActions}>
+                <button
+                  className={styles.actionButton}
+                  onClick={() => setShowSaveDialog(false)}
+                >
+                  CANCEL
+                </button>
+                <button
+                  className={`${styles.actionButton} ${styles.primary}`}
+                  onClick={handleSave}
+                >
+                  SAVE
+                </button>
+              </div>
+            </div>
+          </>,
+          document.body,
+        )}
 
       {/* Hidden file input for import */}
       <input

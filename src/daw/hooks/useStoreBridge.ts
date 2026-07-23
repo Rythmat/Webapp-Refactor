@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { CHORDS } from '@prism/engine';
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { useSyncStoreToEngine } from '@/daw/oracle-synth/hooks/useSyncStoreToEngine';
 import {
@@ -7,6 +8,7 @@ import {
   cacheSynthState,
   setActiveSynthTrack,
 } from '@/daw/oracle-synth/synthTrackState';
+import { useSynthStore } from '@/daw/oracle-synth/store';
 import { useStore } from '@/daw/store';
 
 // ── Hook ─────────────────────────────────────────────────────────────────
@@ -67,4 +69,54 @@ export function useStoreBridge(
     if (!engine) return;
     engine.setBPM(dawBpm);
   }, [engine, dawBpm]);
+
+  // ── Music-intelligence bus → Oracle ──────────────────────────────────────
+
+  // Follow-project-key: when enabled, mirror the project's detected key into
+  // the synth's Key/Scale (the store→engine sync hook pushes it onward).
+  const detectedKeyRootPc = useStore((s) => s.detectedKeyRootPc);
+  const detectedMode = useStore((s) => s.detectedMode);
+  const followProjectKey = useSynthStore((s) => s.keyScale.followProjectKey);
+
+  useEffect(() => {
+    if (!followProjectKey || detectedKeyRootPc == null || !detectedMode) return;
+    const { keyScale, isDirty, setKeyScale } = useSynthStore.getState();
+    if (
+      keyScale.rootPc !== detectedKeyRootPc ||
+      keyScale.mode !== detectedMode
+    ) {
+      setKeyScale({ rootPc: detectedKeyRootPc, mode: detectedMode });
+      // Machine-driven mirror, not a user edit — don't leave the preset
+      // marked dirty just because key detection resolved.
+      if (!isDirty) {
+        useSynthStore.setState({ isDirty: false });
+      }
+    }
+  }, [followProjectKey, detectedKeyRootPc, detectedMode]);
+
+  // Chord-aware arp: feed the live-detected chord's pitch classes to the
+  // arpeggiator. Held notes remain the seed, so a lagging bus only delays
+  // the constraint, never the arp itself.
+  const liveChordStream = useStore((s) => s.liveChordStream);
+  const arpChordAware = useSynthStore((s) => s.arp.chordAware ?? false);
+
+  useEffect(() => {
+    if (!engine) return;
+    if (!arpChordAware) {
+      engine.setArpChordContext(null);
+      return;
+    }
+    const lastChord = liveChordStream[liveChordStream.length - 1];
+    const intervals = lastChord ? CHORDS[lastChord.quality] : undefined;
+    engine.setArpChordContext(
+      lastChord && intervals
+        ? intervals.map((iv) => (lastChord.rootPc + iv) % 12)
+        : null,
+    );
+    // On unmount/engine change, clear the mask — a deselected track's
+    // engine would otherwise snap its arp to a frozen chord forever.
+    return () => {
+      engine.setArpChordContext(null);
+    };
+  }, [engine, arpChordAware, liveChordStream]);
 }

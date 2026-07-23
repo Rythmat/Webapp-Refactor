@@ -1,7 +1,8 @@
 import React from 'react';
 import { useSynthStore } from '../../store';
 import { Filter } from '../../audio/Filter';
-import { Knob } from '../controls/Knob';
+import { useModIndicator } from '../../hooks/useModIndicator';
+import { Knob, KnobModArc } from '../controls/Knob';
 import { Dropdown } from '../controls/Dropdown';
 import { Toggle } from '../controls/Toggle';
 import { FilterResponseVisualizer } from '../visualizers/FilterResponseVisualizer';
@@ -48,6 +49,42 @@ export const FilterModule: React.FC<FilterModuleProps> = React.memo(
     const setParam = useSynthStore((s) => s.setFilterParam);
 
     const label = index === 0 ? 'FILTER 1' : 'FILTER 2';
+    const fltId = index === 0 ? 'flt1' : 'flt2';
+
+    // Modulation rings: cutoff offsets are cents (2^(c/1200) on the Hz
+    // value, then into the knob's normalized log space); resonance is Q.
+    const cutoffMod = useModIndicator(fltId, 'cutoff');
+    const resMod = useModIndicator(fltId, 'resonance');
+
+    const centsToNorm = (cents: number) =>
+      hzToNorm(
+        Math.min(
+          MAX_FREQ,
+          Math.max(MIN_FREQ, filter.cutoff * Math.pow(2, cents / 1200)),
+        ),
+      );
+
+    const cutoffArc: KnobModArc | null = cutoffMod
+      ? {
+          lo: centsToNorm(cutoffMod.loOffset),
+          hi: centsToNorm(cutoffMod.hiOffset),
+          live:
+            cutoffMod.liveOffset != null
+              ? centsToNorm(cutoffMod.liveOffset)
+              : null,
+        }
+      : null;
+
+    const resArc: KnobModArc | null = resMod
+      ? {
+          lo: filter.resonance + resMod.loOffset,
+          hi: filter.resonance + resMod.hiOffset,
+          live:
+            resMod.liveOffset != null
+              ? filter.resonance + resMod.liveOffset
+              : null,
+        }
+      : null;
 
     return (
       <div className={styles.module}>
@@ -81,6 +118,7 @@ export const FilterModule: React.FC<FilterModuleProps> = React.memo(
             max={1}
             defaultValue={1}
             accent={accent}
+            modArc={cutoffArc}
             formatValue={(v) => formatFreq(normToHz(v))}
             onChange={(v) => setParam(index, 'cutoff', normToHz(v))}
           />
@@ -91,6 +129,7 @@ export const FilterModule: React.FC<FilterModuleProps> = React.memo(
             max={30}
             defaultValue={0}
             accent={accent}
+            modArc={resArc}
             formatValue={(v) => v.toFixed(1)}
             onChange={(v) => setParam(index, 'resonance', v)}
           />

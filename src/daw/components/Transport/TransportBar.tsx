@@ -54,6 +54,7 @@ function ViewSwitcher() {
         return (
           <button
             key={v.id}
+            data-tutorial-id={`view-switch-${v.id}`}
             onClick={() => setCurrentView(v.id)}
             className="h-5 cursor-pointer px-2 text-[10px] font-semibold uppercase tracking-wider transition-colors"
             style={{
@@ -597,7 +598,10 @@ export const TransportBar = memo(function TransportBar({
           </div>
 
           {/* BPM */}
-          <div className="flex items-center gap-1">
+          <div
+            data-tutorial-id="transport-bpm"
+            className="flex items-center gap-1"
+          >
             <label
               className="text-[10px] font-medium uppercase"
               style={{ color: 'var(--color-text-dim)' }}

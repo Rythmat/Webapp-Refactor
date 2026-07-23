@@ -5,12 +5,13 @@ import {
   Radio,
   Send,
   Trash2,
+  Zap,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { AssignmentComposer } from '../assignments';
-import { useLocalSessionStore } from '../live/useLocalSessionStore';
+import { useStartClassroomSession } from '../live/useStartClassroomSession';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import type { Day } from '../types';
 import { newBlankDay } from './newBlankDay';
@@ -27,7 +28,7 @@ export const PlanPage = () => {
   const { listDays, saveDay, deleteDay } = useLocalPlan();
   const cid = classroomId ?? '';
   const { publishedDays, publishDayToClassroom } = usePublishedDays(cid);
-  const { startSession } = useLocalSessionStore();
+  const startClassroomSession = useStartClassroomSession();
 
   const days = listDays();
   const [composerTarget, setComposerTarget] = useState<{
@@ -68,9 +69,12 @@ export const PlanPage = () => {
       const existing = findPublishedFor(day);
       const pd =
         existing ?? (await publishDayToClassroom({ classroomId: cid, day }));
-      const s = startSession({ classroomId: cid, publishedDayId: pd.id });
+      const started = await startClassroomSession({
+        classroomId: cid,
+        publishedDayId: pd.id,
+      });
       navigate(
-        TeacherRoutes.session({ classroomId: cid, sessionId: s.sessionId }),
+        TeacherRoutes.session({ classroomId: cid, sessionId: started.sessionId }),
       );
     } catch (err) {
       window.alert(err instanceof Error ? err.message : 'Start session failed');
@@ -92,14 +96,23 @@ export const PlanPage = () => {
             your browser.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleNew}
-          className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
-        >
-          <PlusCircle className="h-4 w-4" />
-          New Day
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            to={TeacherRoutes.deckWizard({ classroomId: cid })}
+            className="inline-flex items-center gap-2 rounded-full border border-[#7ecfcf]/40 bg-[#7ecfcf]/[0.08] px-4 py-2 text-sm font-medium text-[#7ecfcf] transition-colors hover:border-[#7ecfcf]/70"
+          >
+            <Zap className="h-4 w-4" />
+            Interactive Session
+          </Link>
+          <button
+            type="button"
+            onClick={handleNew}
+            className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
+          >
+            <PlusCircle className="h-4 w-4" />
+            New Day
+          </button>
+        </div>
       </header>
 
       {days.length === 0 ? (

@@ -16,8 +16,13 @@ export class SubOscillator {
   private vibratoSource: AudioNode | null = null;
   private pitchBendCents: number = 0;
 
+  // Modulation-matrix detune input (reconnected each start())
+  private detuneModBus: GainNode;
+
   constructor(ctx: AudioContext, destination: AudioNode) {
     this.ctx = ctx;
+    this.detuneModBus = ctx.createGain();
+    this.detuneModBus.gain.value = 1;
 
     this.params = {
       waveform: 'sine',
@@ -49,6 +54,7 @@ export class SubOscillator {
     if (this.vibratoSource) {
       this.vibratoSource.connect(this.osc.detune);
     }
+    this.detuneModBus.connect(this.osc.detune);
     this.osc.start();
     this.updateFrequency();
   }
@@ -63,6 +69,20 @@ export class SubOscillator {
         // Already stopped
       }
       this.osc.disconnect();
+      // Sever incoming edges into osc.detune so the persistent buses don't
+      // pin the destroyed oscillator (one leaked node per note otherwise)
+      try {
+        this.detuneModBus.disconnect(this.osc.detune);
+      } catch {
+        /* already disconnected */
+      }
+      if (this.vibratoSource) {
+        try {
+          this.vibratoSource.disconnect(this.osc.detune);
+        } catch {
+          /* already disconnected */
+        }
+      }
       this.osc = null;
     }
   }
@@ -161,5 +181,14 @@ export class SubOscillator {
 
   getGainParam(): AudioParam {
     return this.gainNode.gain;
+  }
+
+  getPanParam(): AudioParam {
+    return this.panNode.pan;
+  }
+
+  /** Modulation-matrix detune input: connect a scaler here (cents). */
+  getDetuneModInput(): GainNode {
+    return this.detuneModBus;
   }
 }

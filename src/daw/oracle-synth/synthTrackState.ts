@@ -1,5 +1,9 @@
 import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
+import { scaleMask } from '@/daw/oracle-synth/audio/ScaleQuantizer';
+import { migrateModRoute } from '@/daw/oracle-synth/audio/modMath';
 import { useSynthStore } from '@/daw/oracle-synth/store';
+import { defaultMacros } from '@/daw/oracle-synth/store/slices/macroSlice';
+import { DEFAULT_KEYSCALE } from '@/daw/oracle-synth/store/slices/keyScaleSlice';
 import type { SynthStore } from '@/daw/oracle-synth/store/storeTypes';
 
 // ── Per-track Oracle Synth state ───────────────────────────────────────────
@@ -36,6 +40,8 @@ export type SynthTrackState = Pick<
   | 'fxRoutes'
   | 'routing'
   | 'arp'
+  | 'macros'
+  | 'keyScale'
   | 'presetName'
   | 'pitchBendRange'
   | 'bpm'
@@ -58,6 +64,8 @@ const SYNTH_STATE_KEYS: (keyof SynthTrackState)[] = [
   'fxRoutes',
   'routing',
   'arp',
+  'macros',
+  'keyScale',
   'presetName',
   'pitchBendRange',
   'bpm',
@@ -77,9 +85,31 @@ export function captureSynthState(): SynthTrackState {
   return snap as SynthTrackState;
 }
 
+/**
+ * Fill fields older saved projects lack (pre-v2 snapshots have no macros/
+ * keyScale and v1-shaped modRoutes). Without this, loading an old project
+ * would crash on `macros` and leak the previous track's values into the
+ * restored patch.
+ */
+export function normalizeSynthTrackState(
+  snap: SynthTrackState,
+): SynthTrackState {
+  return {
+    ...snap,
+    modRoutes: (snap.modRoutes ?? []).map(migrateModRoute),
+    macros: snap.macros ?? defaultMacros(),
+    keyScale: snap.keyScale ?? structuredClone(DEFAULT_KEYSCALE),
+  };
+}
+
 /** Push a patch snapshot back into the shared synth store. */
 export function restoreSynthState(snap: SynthTrackState): void {
-  useSynthStore.setState(snap as unknown as Partial<SynthStore>);
+  useSynthStore.setState(
+    normalizeSynthTrackState(snap) as unknown as Partial<SynthStore>,
+  );
+  // Restoring a snapshot is not a user edit — the dirty watcher fires on
+  // the new object references above, so explicitly clear the flag after.
+  useSynthStore.setState({ isDirty: false });
 }
 
 // ── Per-track cache ────────────────────────────────────────────────────────
@@ -141,10 +171,15 @@ export function setTrackSynthState(
  */
 export function applySynthStateToEngine(
   engine: SynthEngine,
-  s: SynthTrackState,
+  snap: SynthTrackState,
 ): void {
+  const s = normalizeSynthTrackState(snap);
   engine.setOscillatorParams(0, s.oscillators[0]);
   engine.setOscillatorParams(1, s.oscillators[1]);
+  void engine.ensureWavetables([
+    s.oscillators[0].wavetable,
+    s.oscillators[1].wavetable,
+  ]);
   engine.setSubOscillatorParams(s.subOscillator);
   engine.setNoiseParams(s.noise);
   engine.setFilterParams(0, s.filters[0]);
@@ -165,6 +200,14 @@ export function applySynthStateToEngine(
     }
   }
   engine.setModRoutes(s.modRoutes);
+  for (let i = 0; i < s.macros.length; i++) {
+    engine.setMacro(i, s.macros[i].value);
+  }
+  engine.setKeyScale(
+    scaleMask(s.keyScale.rootPc, s.keyScale.mode),
+    s.keyScale.snapMode,
+    s.keyScale.enabled,
+  );
   engine.setDriveParams(s.fx.drive);
   engine.setChorusParams(s.fx.chorus);
   engine.setPhaserParams(s.fx.phaser);

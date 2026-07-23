@@ -1,15 +1,18 @@
 /**
  * useEnrollments — production hook is REST-backed via React Query.
  *
- * Sprint 7 swap: `useEnrollments(classroomId)` hits Ryan's endpoints
- * (`GET /classrooms/:cid/enrollments?status=all` + `PATCH .../enrollments/:eid`).
- * The four verbs (approve / deny / kick / reactivate) all collapse to a single
- * PATCH with { status: 'active' | 'removed' } — RosterTabs still calls the
- * four verbs, they just resolve the same way under the hood.
+ * Hits the classroom API's endpoints
+ * (`GET /classrooms/:cid/enrollments?status=all` +
+ *  `PATCH .../enrollments/:eid`). The four callbacks (approve / deny / kick /
+ * reactivate) all collapse to a single PATCH with
+ * `{ status: 'active' | 'removed' }` — the verb names survive because
+ * `RosterTabs` still calls them, but they resolve to the same mutation.
+ * Timestamps returned: `joinedAt`, `approvedAt`, `removedAt` (three mutable
+ * stamps; the Sprint 3 `deniedAt`/`reactivatedAt` fields were retired).
  *
- * The `*ForUser` helpers below (approveEnrollmentForUser, etc.) are kept as
- * a **dev-only** localStorage fallback consumed by the simulation harness.
- * Production code paths must NOT call them — they never touch the API.
+ * The `*ForUser` helpers below (approveEnrollmentForUser, etc.) are the
+ * dev-only localStorage fallback consumed by the simulation harness and its
+ * tests. Production code paths must NOT call them — they never touch the API.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
@@ -259,6 +262,9 @@ export interface UseEnrollments {
   kick: (enrollmentId: string) => Promise<Enrollment>;
   reactivate: (enrollmentId: string) => Promise<Enrollment>;
   isLoading: boolean;
+  /** True once the enrollments query has fetched successfully (not merely
+   *  stopped loading — an errored query is `!isLoading` but NOT `isSuccess`). */
+  isSuccess: boolean;
 }
 
 const dateToIso = (v: Date | string | null | undefined): string | null =>
@@ -292,7 +298,7 @@ export const useEnrollments = (classroomId: string): UseEnrollments => {
 
   const queryKey = ['classroom', classroomId, 'enrollments', 'all'] as const;
 
-  const { data = [], isLoading } = useQuery({
+  const { data = [], isLoading, isSuccess } = useQuery({
     queryKey,
     queryFn: async () => {
       const raw = await musicAtlas.classrooms.getClassroomsByIdEnrollments({
@@ -375,5 +381,6 @@ export const useEnrollments = (classroomId: string): UseEnrollments => {
     kick,
     reactivate,
     isLoading,
+    isSuccess,
   };
 };

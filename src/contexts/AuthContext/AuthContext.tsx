@@ -15,6 +15,7 @@ import {
   getCurrentAppSessionId,
   setCurrentAppSessionId,
 } from '@/auth/app-session-store';
+import { DEV_AUTH_BYPASS, DEV_BYPASS_AUTH_DATA } from '@/auth/devBypass';
 import {
   onSessionError,
   type SessionErrorPayload,
@@ -680,5 +681,20 @@ export const AuthContextProvider = ({
     signUpAsStudent,
   ]);
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  // DEV-only: when the bypass flag is set, force an authenticated premium
+  // session (keeping the real action callbacks). No-op in production — the
+  // guard folds to false and this branch is eliminated (see devBypass).
+  const providedValue = useMemo(
+    () =>
+      DEV_AUTH_BYPASS && DEV_BYPASS_AUTH_DATA
+        ? { ...value, ...DEV_BYPASS_AUTH_DATA }
+        : value,
+    [value],
+  );
+
+  return (
+    <AuthContext.Provider value={providedValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

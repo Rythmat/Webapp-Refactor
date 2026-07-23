@@ -15,6 +15,7 @@ export const FXPanel: React.FC = React.memo(() => {
   const setChorusParam = useSynthStore((s) => s.setChorusParam);
   const setPhaserParam = useSynthStore((s) => s.setPhaserParam);
   const setDelayParam = useSynthStore((s) => s.setDelayParam);
+  const setReverbParam = useSynthStore((s) => s.setReverbParam);
   const setCompressorParam = useSynthStore((s) => s.setCompressorParam);
 
   const usedTypes = useMemo(
@@ -37,6 +38,9 @@ export const FXPanel: React.FC = React.memo(() => {
         case 'delay':
           setDelayParam(key as keyof typeof fx.delay, value as never);
           break;
+        case 'reverb':
+          setReverbParam(key as keyof typeof fx.reverb, value as never);
+          break;
         case 'compressor':
           setCompressorParam(key as keyof typeof fx.compressor, value as never);
           break;
@@ -47,6 +51,7 @@ export const FXPanel: React.FC = React.memo(() => {
       setChorusParam,
       setPhaserParam,
       setDelayParam,
+      setReverbParam,
       setCompressorParam,
     ],
   );
@@ -55,7 +60,7 @@ export const FXPanel: React.FC = React.memo(() => {
     <div className={styles.panel}>
       <div className={styles.header}>
         <span className={styles.title}>FX</span>
-        {fxRoutes.length < 5 && (
+        {fxRoutes.length < 6 && (
           <button className={styles.addBtn} onClick={addFXRoute}>
             + ADD
           </button>

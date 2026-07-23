@@ -64,7 +64,8 @@ const emptyInteraction = (type: InteractionType): Interaction => {
     id: uid(),
     type,
     question: { en: '' },
-    shareable: type !== 'check-in',
+    // check-in + showcase are teacher-only (never projected).
+    shareable: type !== 'check-in' && type !== 'showcase',
   };
   switch (type) {
     case 'choice':
@@ -85,6 +86,8 @@ const emptyInteraction = (type: InteractionType): Interaction => {
         ...base,
         atlas: { module: 'learn', activityRef: '', expects: 'completion' },
       };
+    case 'showcase':
+      return base;
   }
 };
 

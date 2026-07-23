@@ -10,6 +10,7 @@ import { isAllowedMspOrigin, type AtlasModule } from './capabilities';
 import {
   INBOX_EVENT,
   consumeMspEntryForUser,
+  mspInboxStorageKey,
   readMspInboxForUser,
   type MspResponseEntry,
   type MspResultPayload,
@@ -84,13 +85,23 @@ export const useMspReport = (
       drainInbox();
     };
 
+    // Cross-tab: a module launched in a NEW TAB writes shared localStorage but
+    // fires its CustomEvent in its own window. The `storage` event is the only
+    // signal that reaches this (the live-session) tab.
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== mspInboxStorageKey(userId)) return;
+      drainInbox();
+    };
+
     window.addEventListener('message', onMessage);
     window.addEventListener(INBOX_EVENT, onInboxEvent);
+    window.addEventListener('storage', onStorage);
     drainInbox();
 
     return () => {
       window.removeEventListener('message', onMessage);
       window.removeEventListener(INBOX_EVENT, onInboxEvent);
+      window.removeEventListener('storage', onStorage);
     };
   }, [interactionId, module, onResult, userId]);
 };

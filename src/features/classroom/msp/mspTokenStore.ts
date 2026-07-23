@@ -1,26 +1,41 @@
 /**
- * mspTokenStore — pure store for MSP tokens minted client-side while Ryan's
- * real /msp/token endpoint is pending. Ryan swaps mintTokenForUser to a POST
- * in Sprint 5; the store becomes a dedup cache and this file's public
- * signature is unchanged.
+ * mspTokenStore — local cache for MSP tokens minted via
+ * `POST ${VITE_MUSIC_ATLAS_API_URL}/msp/token`. The token itself is opaque
+ * (server-signed HS256 JWT) and NEVER decoded client-side; the cache is
+ * keyed by `interactionId` so opening the same interaction twice reuses one
+ * mint. Cache also carries the input-side context (module, activityRef,
+ * enrollmentId, etc.) so consumers that need to reason about a token
+ * without a fresh input can look it up.
+ *
+ * Entries auto-prune on read once `exp` is in the past. TTL matches the
+ * backend's 30 min token lifetime.
  */
 import type { AtlasExpects, AtlasModule } from './capabilities';
 
 export const STORAGE_KEY = 'ma-teacher:msp-tokens:v1';
 export const SCHEMA_VERSION = 1;
 
+/**
+ * Local echo of a mint request + the server-issued token. The server's real
+ * JWT claims live inside `token` and are opaque to the client. Everything
+ * here except `expects` / `ctx.interactionId` is optional because we may
+ * cache tokens we didn't mint (edge case) — the fields are just bookkeeping
+ * for consumers that want extra context without re-mint.
+ */
 export interface MspClaims {
-  sub: string;
+  sub?: string;
   ctx: {
     interactionId: string;
-    enrollmentId: string;
+    enrollmentId?: string;
     sessionId?: string;
     assignmentId?: string;
   };
-  module: AtlasModule;
-  activityRef: string;
+  module?: AtlasModule;
+  activityRef?: string;
   expects: AtlasExpects;
-  returnUrl: string;
+  /** Return URL passed to the backend. Corresponds to the payload's `return` field. */
+  return?: string;
+  /** Local expiry estimate (unix-seconds) — server-authoritative window is inside the JWT. */
   exp: number;
 }
 
@@ -46,12 +61,7 @@ const isBrowser = typeof window !== 'undefined';
 const keyFor = (userId: string | null | undefined): string =>
   `${STORAGE_KEY}:${userId || 'anon'}`;
 
-const base64url = (input: string): string => {
-  if (typeof btoa === 'undefined') return input;
-  return btoa(input).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-};
-
-const nowSec = (): number => Math.floor(Date.now() / 1000);
+export const nowSec = (): number => Math.floor(Date.now() / 1000);
 
 const readStore = (userId: string | null | undefined): MspTokenStore => {
   if (!isBrowser) return EMPTY_STORE;
@@ -97,74 +107,35 @@ export interface MintTokenInput {
   assignmentId?: string;
 }
 
-export interface MintTokenResult {
-  token: string;
-  claims: MspClaims;
-}
-
-export const mintTokenForUser = (
+/**
+ * Look up a cached mint record by interactionId. Returns undefined if none
+ * or if the cached record is past its local TTL (the read prunes automatically).
+ */
+export const readCachedTokenForInteraction = (
   userId: string | null,
-  input: MintTokenInput,
-): MintTokenResult => {
-  const iat = nowSec();
-  const exp = iat + 300;
-  const returnUrl = isBrowser
-    ? `${window.location.origin}/msp/return`
-    : 'https://musicatlas.io/msp/return';
-  const claims: MspClaims = {
-    sub: userId ?? 'anon',
-    ctx: {
-      interactionId: input.interactionId,
-      enrollmentId: input.enrollmentId,
-      sessionId: input.sessionId,
-      assignmentId: input.assignmentId,
-    },
-    module: input.module,
-    activityRef: input.activityRef,
-    expects: input.expects,
-    returnUrl,
-    exp,
-  };
-  const header = base64url(JSON.stringify({ alg: 'MOCK', typ: 'JWT' }));
-  const body = base64url(JSON.stringify(claims));
-  const token = `${header}.${body}.mock`;
-  const record: MspTokenRecord = { token, iat, exp, claims };
+  interactionId: string,
+): MspTokenRecord | undefined => {
+  const store = readStore(userId);
+  return store.tokens[interactionId];
+};
+
+/**
+ * Cache a freshly-minted token record keyed by `interactionId`. Overwrites
+ * any existing entry (per-interaction upsert). No-op on non-browser.
+ */
+export const writeCachedTokenForInteraction = (
+  userId: string | null,
+  interactionId: string,
+  record: MspTokenRecord,
+): void => {
   const current = readStore(userId);
   const next: MspTokenStore = {
     ...current,
-    tokens: { ...current.tokens, [input.interactionId]: record },
+    tokens: { ...current.tokens, [interactionId]: record },
   };
   writeStore(userId, next);
-  return { token, claims };
 };
 
 export const readMspTokenStoreForUser = (
   userId: string | null,
 ): MspTokenStore => readStore(userId);
-
-export const readMspClaimsForUser = (
-  userId: string | null,
-  token: string,
-): MspClaims | undefined => {
-  const store = readStore(userId);
-  for (const rec of Object.values(store.tokens)) {
-    if (rec.token === token) return rec.claims;
-  }
-  return undefined;
-};
-
-/** Decode base64url body of a mock token — no signature verification. */
-export const decodeMockMspToken = (token: string): MspClaims | null => {
-  try {
-    const parts = token.split('.');
-    if (parts.length < 2) return null;
-    const body = parts[1]
-      .replace(/-/g, '+')
-      .replace(/_/g, '/')
-      .padEnd(Math.ceil(parts[1].length / 4) * 4, '=');
-    if (typeof atob === 'undefined') return null;
-    return JSON.parse(atob(body)) as MspClaims;
-  } catch {
-    return null;
-  }
-};

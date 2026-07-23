@@ -157,3 +157,79 @@ describe('buildStudentView firewall', () => {
     }
   });
 });
+
+describe('buildStudentView deck', () => {
+  const config: StudentViewConfig = { language: 'both', agePreset: 'middle' };
+
+  it('projects the deck into the student view, whitelist-copied', () => {
+    const day = makeDay();
+    day.deck = {
+      id: 'deck-sv',
+      title: { en: 'Session deck' },
+      slides: [
+        {
+          id: 'sl-1',
+          kind: 'content',
+          phase: 'connectRegulate',
+          variant: 'welcome',
+          title: { en: 'Welcome' },
+        },
+      ],
+    };
+    (day.deck.slides[0] as unknown as Record<string, unknown>).teacherGuide =
+      'SECRET: pacing';
+    const view = buildStudentView(day, config);
+    expect(view.deck?.slides).toHaveLength(1);
+    expect(view.deck?.slides[0].id).toBe('sl-1');
+    const serialized = JSON.stringify(view);
+    expect(serialized).not.toContain('SECRET');
+    for (const forbidden of FORBIDDEN_SUBSTRINGS) {
+      expect(serialized.toLowerCase().includes(forbidden)).toBe(false);
+    }
+  });
+
+  it('omits deck for legacy Days', () => {
+    const view = buildStudentView(makeDay(), config);
+    expect('deck' in view).toBe(false);
+  });
+});
+
+describe('buildStudentView song reference', () => {
+  it('carries a structured presentation.song onto the phase view', () => {
+    const day = makeDay();
+    day.cells.connectRegulate.presentation.song = { id: 'lovely_day' };
+    const view = buildStudentView(day, config);
+    const connect = view.phases[0];
+    expect(connect.song).toEqual({ id: 'lovely_day' });
+    // Phases without a song reference stay clean.
+    expect(view.phases[1].song).toBeUndefined();
+  });
+
+  it('migrates a legacy "/songs/<id>" slug out of the prompt and back-fills song', () => {
+    const day = makeDay();
+    // Simulate a Day materialized before the structured field existed.
+    day.cells.connectRegulate.presentation.prompt = {
+      en: 'Class Playlist Shuffle.\n\nSong of the day: /songs/lovely_day',
+      es: 'Mezcla de la lista.\n\nCanción del día: /songs/lovely_day',
+    };
+    const view = buildStudentView(day, config);
+    const connect = view.phases[0];
+    // Slug stripped from the display prompt…
+    expect(connect.prompt.en).toBe('Class Playlist Shuffle.');
+    expect(connect.prompt.en).not.toContain('/songs/');
+    expect(connect.prompt.es).not.toContain('/songs/');
+    // …and recovered into the structured reference.
+    expect(connect.song).toEqual({ id: 'lovely_day' });
+  });
+
+  it('prefers the structured song over a legacy slug when both are present', () => {
+    const day = makeDay();
+    day.cells.connectRegulate.presentation.song = { id: 'new_id' };
+    day.cells.connectRegulate.presentation.prompt = {
+      en: 'Intro.\n\nSong of the day: /songs/old_id',
+    };
+    const view = buildStudentView(day, config);
+    expect(view.phases[0].song).toEqual({ id: 'new_id' });
+    expect(view.phases[0].prompt.en).toBe('Intro.');
+  });
+});

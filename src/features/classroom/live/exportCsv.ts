@@ -56,6 +56,10 @@ const serializePayload = (payload: InteractionResponsePayload): string => {
       return `TEACHER_ONLY:${payload.value}`;
     case 'atlas':
       return `${payload.activityRef}|${JSON.stringify(payload.result)}`;
+    case 'showcase':
+      return `OFFER:${payload.artifact.name}${
+        payload.artifact.roomId ? ` (room ${payload.artifact.roomId})` : ''
+      }`;
   }
 };
 

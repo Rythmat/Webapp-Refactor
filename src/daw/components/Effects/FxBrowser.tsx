@@ -26,17 +26,27 @@ export function FxBrowser({
   hideMidi,
 }: FxBrowserProps) {
   const atMax = activeEffects.length >= MAX_EFFECTS;
+  // The sidechain ducker keys off another TRACK; only per-track racks get a
+  // key-source resolver wired, so hide it on the master + return racks where it
+  // could never function (a dead control otherwise).
+  const isBusRack = trackId === 'master' || trackId.startsWith('return-');
 
   const categories = useMemo(() => {
     const map = new Map<LibraryCategory, LibraryItem[]>();
     for (const item of FX_CATALOG) {
       if (hideMidi && item.category === 'MIDI Effects') continue;
+      if (
+        isBusRack &&
+        item.dragPayload.kind === 'audio-effect' &&
+        item.dragPayload.effectType === 'ducker'
+      )
+        continue;
       const list = map.get(item.category) ?? [];
       list.push(item);
       map.set(item.category, list);
     }
     return Array.from(map.entries());
-  }, [hideMidi]);
+  }, [hideMidi, isBusRack]);
 
   return (
     <div
@@ -122,6 +132,11 @@ function FxRow({
 
   return (
     <button
+      data-tutorial-id={
+        item.dragPayload.kind === 'audio-effect'
+          ? `fx-add-${item.dragPayload.effectType}`
+          : undefined
+      }
       onClick={handleClick}
       draggable={!disabled && !isActive}
       onDragStart={handleDragStart}

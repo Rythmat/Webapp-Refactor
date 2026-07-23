@@ -1,47 +1,48 @@
-// Client for our serverless challenge generator (api/challenges/*, Upstash
-// Redis). Same-origin `/api/challenges` (like avatar-config), not the external
-// backend — generation + completion + boost scheduling are ours.
+// Client for the backend-owned challenge system in music-atlas-api. Generation,
+// storage, statuses, and XP now all live server-side (deterministic per-period
+// generator ported from our old serverless api/challenges/*, persisted in
+// user_challenge_state). Completion grants XP directly; claiming a boost
+// activates it directly. See docs/challenges-rewards-contract.md.
+import { apiRequest, apiSectionPath } from '../experience/api';
+import type { ExperienceSummaryResponse } from '../experience/types';
 import type {
   Challenge,
   ChallengesListResponse,
   InterestProfile,
 } from './types';
 
-async function request<T>(
-  path: string,
-  token: string,
-  init?: RequestInit,
-): Promise<T> {
-  const res = await fetch(path, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      ...init?.headers,
-    },
-  });
-  if (!res.ok) throw new Error(`${path} failed (${res.status})`);
-  return (await res.json()) as T;
+function challengesPath(path: string) {
+  return apiSectionPath('challenges', path);
 }
 
 export const challengesApi = {
   fetchList: (token: string, profile: InterestProfile) =>
-    request<ChallengesListResponse>('/api/challenges/list', token, {
+    apiRequest<ChallengesListResponse>(challengesPath('/list'), {
+      token,
       method: 'POST',
-      body: JSON.stringify({ profile }),
+      body: { profile },
     }),
 
   complete: (token: string, id: string, evidence?: Record<string, unknown>) =>
-    request<{ challenge: Challenge; boostEarned?: boolean }>(
-      `/api/challenges/${encodeURIComponent(id)}/complete`,
+    apiRequest<{
+      challenge: Challenge;
+      boostEarned?: boolean;
+      experience?: ExperienceSummaryResponse;
+    }>(challengesPath(`/${encodeURIComponent(id)}/complete`), {
       token,
-      { method: 'POST', body: JSON.stringify({ evidence }) },
-    ),
+      method: 'POST',
+      body: { evidence },
+    }),
 
+  /**
+   * Claim the earned Double-XP boost — activates it directly on the backend
+   * and returns the active window `{ multiplier, expiresAt }`. (Pre-cutover
+   * this returned `{ multiplier, durationMs }` and required a follow-up
+   * `startBoost` call; that dance is now server-side.)
+   */
   claimBoost: (token: string) =>
-    request<{ multiplier: number; durationMs: number }>(
-      '/api/challenges/boost/claim',
-      token,
-      { method: 'POST' },
+    apiRequest<{ multiplier: number; expiresAt: string | null }>(
+      challengesPath('/boost/claim'),
+      { token, method: 'POST' },
     ),
 };

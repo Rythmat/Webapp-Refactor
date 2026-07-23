@@ -7,6 +7,7 @@ import type { Announcement, AnnouncementSource } from './types';
  * announcements instead scroll once and then the box auto-closes.
  */
 export const HIGH_PRIORITY_SOURCES: ReadonlySet<AnnouncementSource> = new Set([
+  'live_session',
   'teacher',
   'app_update',
 ]);

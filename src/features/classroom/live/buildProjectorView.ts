@@ -31,7 +31,7 @@ export interface ProjectorAnonymizedResponse {
 export interface ProjectorView {
   emit: boolean;
   interactionId: string;
-  reason?: 'not_shareable' | 'check_in';
+  reason?: 'not_shareable' | 'check_in' | 'showcase';
   responses: ProjectorAnonymizedResponse[];
 }
 
@@ -65,6 +65,18 @@ export const buildProjectorView = (
       emit: false,
       interactionId: interaction.id,
       reason: 'check_in',
+      responses: [],
+    };
+  }
+
+  // Rule 2b: showcase offers carry a student's project + identity — the raw
+  // offer stream is teacher-only. Featuring is a separate, deliberate
+  // `state.showcase` broadcast, never this anonymized reveal path.
+  if (interaction.type === 'showcase') {
+    return {
+      emit: false,
+      interactionId: interaction.id,
+      reason: 'showcase',
       responses: [],
     };
   }

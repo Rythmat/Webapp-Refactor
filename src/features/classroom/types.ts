@@ -14,6 +14,7 @@
  * `buildStudentView.test.ts` exists to prevent.
  */
 import type { PhaseKey } from './phases';
+import type { SlideDeck } from './slides/types';
 
 /**
  * Bilingual text with a required English string and an optional Spanish
@@ -80,6 +81,13 @@ export interface CellPresentation {
    * is deliberately ephemeral — nothing persists across sessions.
    */
   resetChecklist?: LocalizedText[];
+  /**
+   * Optional "song of the day" reference (typically the Connect phase). The
+   * annual-plan materializer sets this from the day stub's `songId`; the
+   * presentation surface resolves it to artwork via `getSong(id)`. Structured
+   * so the id never has to be scraped out of prompt prose. Student-safe.
+   */
+  song?: { id: string };
 }
 
 /**
@@ -115,7 +123,8 @@ export type InteractionType =
   | 'number'
   | 'draw'
   | 'check-in'
-  | 'atlas';
+  | 'atlas'
+  | 'showcase';
 
 /**
  * Discriminated payload for a single student response. Persistence is on the
@@ -133,6 +142,12 @@ export type InteractionResponsePayload =
       module: Interaction['type'] extends 'atlas' ? string : string;
       activityRef: string;
       result: Record<string, unknown>;
+    }
+  | {
+      // Phase 3 — a student's offer to share their Studio project. Teacher-only
+      // (Rule 2: hard-refused from the projector like check-ins).
+      kind: 'showcase';
+      artifact: { projectId: string; roomId?: string; name: string };
     };
 
 export interface InteractionResponse {
@@ -205,6 +220,13 @@ export interface Day {
    * lives in Plan Days / a Unit but doesn't render on the calendar.
    */
   scheduledDate?: string | null;
+  /**
+   * Interactive-slides deck (live sessions). An ordered, student-safe
+   * presentation projection over this Day's cells — interaction-bearing
+   * slides reference `cells[phase].presentation.interactions` by id. Absent
+   * on legacy Days; sessions fall back to phase-granular navigation.
+   */
+  deck?: SlideDeck;
 }
 
 export interface Week {

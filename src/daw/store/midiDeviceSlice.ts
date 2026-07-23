@@ -27,6 +27,10 @@ export interface MidiDeviceSlice {
   setMidiStatus: (status: MidiStatus) => void;
   hwNoteOn: (note: number) => void;
   hwNoteOff: (note: number) => void;
+  /** Apply many note add/removes in a single store update (one re-render).
+   *  Used by throttled sources (e.g. Guitar-to-MIDI) to avoid a per-edge
+   *  re-render storm. Merges with existing notes (does not clobber). */
+  hwNotesBatch: (add: number[], remove: number[]) => void;
   setAudioActiveNotes: (notes: number[]) => void;
 }
 
@@ -76,6 +80,20 @@ export const createMidiDeviceSlice: StateCreator<
       const next = new Set(state.hwActiveNotes);
       next.delete(note);
       return { hwActiveNotes: next };
+    }),
+
+  hwNotesBatch: (add, remove) =>
+    set((state) => {
+      if (add.length === 0 && remove.length === 0) return state;
+      const next = new Set(state.hwActiveNotes);
+      let changed = false;
+      for (const n of remove) if (next.delete(n)) changed = true;
+      for (const n of add)
+        if (!next.has(n)) {
+          next.add(n);
+          changed = true;
+        }
+      return changed ? { hwActiveNotes: next } : state;
     }),
 
   setAudioActiveNotes: (notes) =>

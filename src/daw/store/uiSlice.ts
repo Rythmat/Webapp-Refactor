@@ -9,6 +9,14 @@ import type { ThemeId } from '@/daw/constants/themes';
 
 export type ToolType = 'cursor' | 'pencil' | 'scissors' | 'layout';
 export type ViewType = 'arrange' | 'studio' | 'leadsheet';
+/** Tabs of the bottom Channel Strip. Kept here (not in ChannelStrip.tsx) so
+ *  the tutorial system can read/open a specific tab from the store. */
+export type ChannelStripTabId =
+  | 'controls'
+  | 'fx'
+  | 'prism'
+  | 'piano-roll'
+  | 'grooves';
 export type LeadSheetChordFormat = 'jazz' | 'hybrid' | 'numbers';
 
 export interface LeadSheetSection {
@@ -73,6 +81,12 @@ export interface UiSlice {
   toggleLibrary: () => void;
   setLibraryOpen: (open: boolean) => void;
 
+  // ── Channel strip (bottom panel) active tab ──
+  // Lifted out of ChannelStrip's local state so tutorials can open a tab
+  // (e.g. Prism) programmatically. null = strip collapsed.
+  channelStripTab: ChannelStripTabId | null;
+  setChannelStripTab: (tab: ChannelStripTabId | null) => void;
+
   // ── Collab panels ──
   userListOpen: boolean;
   toggleUserList: () => void;
@@ -105,6 +119,18 @@ export interface UiSlice {
   setProjectName: (name: string) => void;
   composerName: string;
   setComposerName: (name: string) => void;
+  // Timestamp (ms) of the last successful audio export/bounce. Session-only:
+  // deliberately NOT persisted or collab-synced — it's a local UI event used by
+  // the tutorial engine to detect that the learner completed a mixdown.
+  lastAudioExportAt: number | null;
+  markAudioExported: () => void;
+  // Which track's automation lane is disclosed in the arrange timeline (null =
+  // none), and which paramId that lane is editing. Session-only view state, like
+  // channelStripTab — NOT persisted or collab-synced.
+  automationOpenTrackId: string | null;
+  automationParamId: string;
+  setAutomationOpenTrackId: (trackId: string | null) => void;
+  setAutomationParamId: (paramId: string) => void;
 
   // ── Lead sheet ──
   leadSheetChordFormat: LeadSheetChordFormat;
@@ -212,6 +238,10 @@ export const createUiSlice: StateCreator<
   toggleLibrary: () => set((s) => ({ libraryOpen: !s.libraryOpen })),
   setLibraryOpen: (open) => set({ libraryOpen: open }),
 
+  // ── Channel strip active tab ──
+  channelStripTab: null,
+  setChannelStripTab: (tab) => set({ channelStripTab: tab }),
+
   // ── Collab panels ──
   userListOpen: false,
   toggleUserList: () => set((s) => ({ userListOpen: !s.userListOpen })),
@@ -247,6 +277,13 @@ export const createUiSlice: StateCreator<
   },
   composerName: '',
   setComposerName: (name) => set({ composerName: name }),
+  lastAudioExportAt: null,
+  markAudioExported: () => set({ lastAudioExportAt: Date.now() }),
+  automationOpenTrackId: null,
+  automationParamId: 'volume',
+  setAutomationOpenTrackId: (trackId) =>
+    set({ automationOpenTrackId: trackId }),
+  setAutomationParamId: (paramId) => set({ automationParamId: paramId }),
 
   // ── Lead sheet ──
   leadSheetChordFormat: 'hybrid' as LeadSheetChordFormat,

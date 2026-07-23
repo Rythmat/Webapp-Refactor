@@ -12,10 +12,10 @@ import { cn } from '@/components/utilities';
 import {
   AtlasRoutes,
   ClassroomRoutes,
-  CurriculumRoutes,
   GameRoutes,
   LearnRoutes,
   ProfileRoutes,
+  SearchRoutes,
   SettingsRoutes,
   StudioRoutes,
   TeacherRoutes,
@@ -105,7 +105,7 @@ export const ClassroomSidebar = ({ className }: SidebarProps) => {
             chip
             icon={Search}
             label="Search"
-            to={CurriculumRoutes.root()}
+            to={SearchRoutes.root()}
             isCollapsed
             glyphClassName="h-5 w-5"
           />

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useCallback, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import { Sliders } from 'lucide-react';
 import { useStore, useTrackIds, useTrack, useTrackCount } from '@/daw/store';
+import { useShallow } from 'zustand/react/shallow';
 import type { EffectSlotType, TrackEffectState } from '@/daw/audio/EffectChain';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { getTrackAudioState } from '@/daw/hooks/usePlaybackEngine';
@@ -12,6 +13,7 @@ import {
   FxControlsPanel,
 } from '@/daw/components/Effects/EffectsPanel';
 import { FxBrowser } from '@/daw/components/Effects/FxBrowser';
+import { RotaryKnob } from '@/daw/components/Controls/RotaryKnob';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MASTERING SECTION — Matches reference: Mastering View.png
@@ -283,6 +285,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
 
   return (
     <div
+      data-tutorial-id="mastering-section"
       className="flex shrink-0 flex-col"
       style={{
         borderBottom: '1px solid var(--color-border)',
@@ -597,6 +600,17 @@ const MixingStrip = React.memo(function MixingStrip({
   const toggleMute = useStore((s) => s.toggleMute);
   const toggleSolo = useStore((s) => s.toggleSolo);
   const updateTrack = useStore((s) => s.updateTrack);
+  // Select only the stable send targets (id + label as flat primitives) so a
+  // return fader/FX tweak — which rebuilds the returns array — doesn't
+  // re-render every track strip and its send knobs.
+  const returnMeta = useStore(
+    useShallow((s) => s.returns.flatMap((r) => [r.id, r.label])),
+  );
+  const setSend = useStore((s) => s.setSend);
+  const returns: Array<{ id: string; label: string }> = [];
+  for (let i = 0; i < returnMeta.length; i += 2) {
+    returns.push({ id: returnMeta[i], label: returnMeta[i + 1] });
+  }
 
   const analyser =
     getTrackAudioState(trackId)?.trackEngine.getAnalyserNode() ?? null;
@@ -692,6 +706,30 @@ const MixingStrip = React.memo(function MixingStrip({
         onChange={(v) => updateTrack(track.id, { pan: v })}
       />
 
+      {/* Aux sends — one knob per return bus */}
+      {returns.length > 0 && (
+        <div className="flex w-full items-center justify-center gap-1.5">
+          {returns.map((ret) => (
+            <div
+              key={ret.id}
+              data-tutorial-id={`mixer-sends-${ret.id}`}
+              className="flex flex-col items-center"
+              title={`Send to ${ret.label}`}
+            >
+              <RotaryKnob
+                label={ret.id}
+                value={track.sends?.[ret.id] ?? 0}
+                min={0}
+                max={1}
+                size={26}
+                formatValue={(v) => `${Math.round(v * 100)}`}
+                onChange={(v) => setSend(track.id, ret.id, v)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="flex w-full items-center justify-center gap-1">
         <div
           className="size-2 shrink-0 rounded-full"
@@ -744,6 +782,7 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
 
   return (
     <div
+      data-tutorial-id="master-strip"
       className="flex shrink-0 flex-col items-center gap-2 px-2 py-3"
       style={{
         width: MASTER_WIDTH,
@@ -823,14 +862,228 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
   );
 }
 
+// ── ReturnStrip ─────────────────────────────────────────────────────────
+// A non-track mixer strip for a global aux return bus (fader + label). Clicking
+// selects it so its FX rack shows in the ReturnFxRack panel below the mixer.
+
+const RETURN_WIDTH = 92;
+
+function ReturnStrip({
+  returnId,
+  selected,
+  onSelect,
+}: {
+  returnId: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const ret = useStore((s) => s.returns.find((r) => r.id === returnId));
+  const setReturnVolume = useStore((s) => s.setReturnVolume);
+  if (!ret) return null;
+  const volumePct = Math.round(ret.volume * 100);
+
+  return (
+    <div
+      data-tutorial-id={`return-strip-${returnId}`}
+      onClick={onSelect}
+      className="flex shrink-0 cursor-pointer flex-col items-center gap-2 px-2 py-3"
+      style={{
+        width: RETURN_WIDTH,
+        borderRight: 'var(--glass-border)',
+        backgroundColor: selected
+          ? 'var(--color-surface-3)'
+          : 'var(--color-surface-2)',
+        boxShadow: selected ? 'inset 0 0 0 1px var(--color-accent)' : 'none',
+      }}
+    >
+      <span
+        className="text-[9px] font-bold uppercase tracking-wider"
+        style={{ color: 'var(--color-accent)' }}
+      >
+        Return {returnId}
+      </span>
+
+      <div
+        className="flex w-full flex-1 items-center justify-center"
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <Slider.Root
+          className="relative flex w-4 touch-none select-none flex-col items-center"
+          style={{ height: '100%' }}
+          orientation="vertical"
+          min={0}
+          max={100}
+          step={1}
+          value={[volumePct]}
+          onValueChange={([v]) => setReturnVolume(returnId, v / 100)}
+        >
+          <Slider.Track
+            className="relative h-full w-1.5 rounded-full"
+            style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+          >
+            <Slider.Range
+              className="absolute w-full rounded-full"
+              style={{ backgroundColor: 'rgba(126, 207, 207, 0.4)' }}
+            />
+          </Slider.Track>
+          <Slider.Thumb
+            className="block h-4 w-5 rounded-sm shadow-sm focus:outline-none focus:ring-1"
+            style={
+              {
+                backgroundColor: 'var(--color-accent)',
+                '--tw-ring-color': 'var(--color-accent)',
+              } as React.CSSProperties
+            }
+            aria-label={`Return ${returnId} volume`}
+          />
+        </Slider.Root>
+      </div>
+
+      <div className="flex w-full items-center justify-center gap-1">
+        <span
+          className="truncate text-center text-[10px] font-medium"
+          style={{ color: 'var(--color-text)' }}
+        >
+          {ret.label}
+        </span>
+      </div>
+      <span className="text-[9px]" style={{ color: 'var(--color-text-dim)' }}>
+        {ret.fxChain.length} FX
+      </span>
+    </div>
+  );
+}
+
+// ── ReturnFxRack ────────────────────────────────────────────────────────
+// The selected return's effect rack, reusing the mastering FX-rack pattern
+// (FxBrowser + FxChainRow + FxControlsPanel) against the return's own state.
+// Reverb/delay returns have no compressor, so the meter props are inert.
+
+function ReturnFxRack({ returnId }: { returnId: string }) {
+  const ret = useStore((s) => s.returns.find((r) => r.id === returnId));
+  const addReturnFx = useStore((s) => s.addReturnFx);
+  const removeReturnFx = useStore((s) => s.removeReturnFx);
+  const updateReturnEffects = useStore((s) => s.updateReturnEffects);
+
+  const [selectedEffect, setSelectedEffect] = useState<EffectSlotType | null>(
+    null,
+  );
+  const [popOutOpen, setPopOutOpen] = useState(false);
+
+  const fxChain = ret?.fxChain ?? [];
+  useEffect(() => {
+    if (selectedEffect && !fxChain.includes(selectedEffect)) {
+      setSelectedEffect(fxChain[0] ?? null);
+    }
+    if (!selectedEffect && fxChain.length > 0) setSelectedEffect(fxChain[0]);
+  }, [fxChain, selectedEffect]);
+
+  const wrappedAdd = useCallback(
+    (_id: string, effectType: EffectSlotType) =>
+      addReturnFx(returnId, effectType),
+    [addReturnFx, returnId],
+  );
+  const wrappedUpdate = useCallback(
+    (_id: string, fx: Partial<TrackEffectState>) =>
+      updateReturnEffects(returnId, fx),
+    [updateReturnEffects, returnId],
+  );
+
+  if (!ret) return null;
+  const rfx = ret.effects;
+
+  return (
+    <div
+      data-tutorial-id={`return-fx-${returnId}`}
+      className="flex shrink-0 flex-col"
+      style={{
+        borderTop: '1px solid var(--color-border)',
+        padding: '8px 16px',
+      }}
+    >
+      <div className="mb-2 flex items-center gap-2">
+        <span
+          className="text-[11px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--color-text)' }}
+        >
+          Return {returnId} — {ret.label}
+        </span>
+      </div>
+      <div
+        className="flex overflow-hidden rounded-lg"
+        style={{
+          backgroundColor: 'var(--color-surface-2)',
+          border: 'var(--glass-border)',
+        }}
+      >
+        <FxBrowser
+          trackId={`return-${returnId}`}
+          activeEffects={fxChain}
+          onAddEffect={wrappedAdd}
+          hideMidi
+        />
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <FxChainRow
+            activeEffects={fxChain}
+            effects={rfx}
+            selectedEffect={selectedEffect}
+            onSelect={setSelectedEffect}
+            onToggle={(slot) => {
+              const current = rfx[slot as keyof TrackEffectState] as {
+                enabled: boolean;
+              };
+              updateReturnEffects(returnId, {
+                [slot]: {
+                  ...rfx[slot as keyof TrackEffectState],
+                  enabled: !current.enabled,
+                },
+              });
+            }}
+          />
+          {selectedEffect ? (
+            <FxControlsPanel
+              trackId={`return-${returnId}`}
+              selectedEffect={selectedEffect}
+              effects={rfx}
+              onUpdate={wrappedUpdate}
+              onRemove={(slot) => removeReturnFx(returnId, slot)}
+              popOutOpen={popOutOpen}
+              onTogglePopOut={() => setPopOutOpen((v) => !v)}
+              gr={0}
+              inLevel={0}
+              outLevel={0}
+              analyserNode={null}
+            />
+          ) : (
+            <div
+              className="flex flex-1 items-center justify-center py-5 text-[11px]"
+              style={{ color: 'var(--color-text-dim)' }}
+            >
+              {fxChain.length === 0
+                ? 'Add effects from the list'
+                : 'Select a block to edit'}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── MixingSection ───────────────────────────────────────────────────────
 
 function MixingSection({ isReady }: { isReady: boolean }) {
   const trackIds = useTrackIds();
   const trackCount = useTrackCount();
+  const returnIds = useStore(useShallow((s) => s.returns.map((r) => r.id)));
+  const [selectedReturnId, setSelectedReturnId] = useState<string | null>(null);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div
+      data-tutorial-id="mixer-section"
+      className="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
       {/* Section header */}
       <div className="flex shrink-0 items-center gap-2 px-3 py-1.5">
         <span
@@ -866,10 +1119,27 @@ function MixingSection({ isReady }: { isReady: boolean }) {
             {trackIds.map((id) => (
               <MixingStrip key={id} trackId={id} />
             ))}
+            {returnIds.map((id) => (
+              <ReturnStrip
+                key={id}
+                returnId={id}
+                selected={selectedReturnId === id}
+                onSelect={() =>
+                  setSelectedReturnId((cur) => (cur === id ? null : id))
+                }
+              />
+            ))}
             <MasterStrip isReady={isReady} />
           </div>
         )}
       </div>
+
+      {/* Selected return's FX rack. key remounts it on a return switch so its
+          local effect selection never bleeds across returns; hidden with the
+          strips when there are no tracks. */}
+      {trackCount > 0 && selectedReturnId && (
+        <ReturnFxRack key={selectedReturnId} returnId={selectedReturnId} />
+      )}
     </div>
   );
 }

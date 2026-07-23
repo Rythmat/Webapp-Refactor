@@ -116,6 +116,10 @@ export type GetApiBillingSubscriptionData = any;
 
 export type GetApiCronCleanupPendingAssetsData = any;
 
+export type GetApiCronCloseStaleRoomsData = any;
+
+export type GetApiExperienceBoostData = any;
+
 export type GetApiExperienceSummaryData = any;
 
 export interface GetApiExperienceSummaryParams {
@@ -736,7 +740,43 @@ export type PostApiBillingCreatePortalSessionData = any;
 
 export type PostApiBillingCreditsConsumeData = any;
 
+export type PostApiChallengesBoostClaimData = any;
+
+export type PostApiChallengesByIdCompleteData = any;
+
+export interface PostApiChallengesByIdCompletePayload {
+  evidence?: any;
+}
+
+export type PostApiChallengesListData = any;
+
+export interface PostApiChallengesListPayload {
+  profile?: {
+    focus?: string[];
+    genres?: {
+      display: string;
+      key: string;
+      slug: string;
+    }[];
+  };
+}
+
 export type PostApiExperienceArcadeData = any;
+
+export type PostApiExperienceAwardData = any;
+
+export interface PostApiExperienceAwardPayload {
+  amount?: string | number;
+  /** @minLength 1 */
+  source: string;
+}
+
+export type PostApiExperienceBoostData = any;
+
+export interface PostApiExperienceBoostPayload {
+  durationMs: string | number;
+  multiplier: string | number;
+}
 
 export type PostApiExperienceLessonActivityData = any;
 
@@ -1261,6 +1301,20 @@ export interface PostRoomsPayload {
    * @maxLength 120
    */
   name: string;
+  type: 'daw' | 'jam';
+}
+
+export interface PostRoomsRegisterData {
+  id: string;
+}
+
+export interface PostRoomsRegisterPayload {
+  hostId: string;
+  /**
+   * @minLength 1
+   * @maxLength 200
+   */
+  roomKey: string;
   type: 'daw' | 'jam';
 }
 
@@ -2730,6 +2784,21 @@ export namespace Experience {
   /**
    * No description
    * @tags Experience
+   * @name GetApiExperienceBoost
+   * @request GET:/api/experience/boost
+   * @response `200` `GetApiExperienceBoostData`
+   */
+  export namespace GetApiExperienceBoost {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiExperienceBoostData;
+  }
+
+  /**
+   * No description
+   * @tags Experience
    * @name GetApiExperienceSummary
    * @request GET:/api/experience/summary
    * @response `200` `GetApiExperienceSummaryData`
@@ -2762,6 +2831,36 @@ export namespace Experience {
   /**
    * No description
    * @tags Experience
+   * @name PostApiExperienceAward
+   * @request POST:/api/experience/award
+   * @response `200` `PostApiExperienceAwardData`
+   */
+  export namespace PostApiExperienceAward {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiExperienceAwardPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiExperienceAwardData;
+  }
+
+  /**
+   * No description
+   * @tags Experience
+   * @name PostApiExperienceBoost
+   * @request POST:/api/experience/boost
+   * @response `200` `PostApiExperienceBoostData`
+   */
+  export namespace PostApiExperienceBoost {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiExperienceBoostPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiExperienceBoostData;
+  }
+
+  /**
+   * No description
+   * @tags Experience
    * @name PostApiExperienceLesson
    * @request POST:/api/experience/lesson
    * @response `200` `PostApiExperienceLessonData`
@@ -2787,6 +2886,55 @@ export namespace Experience {
     export type RequestBody = PostApiExperienceLessonActivityPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostApiExperienceLessonActivityData;
+  }
+}
+
+export namespace Challenges {
+  /**
+   * No description
+   * @tags Challenges
+   * @name PostApiChallengesBoostClaim
+   * @request POST:/api/challenges/boost/claim
+   * @response `200` `PostApiChallengesBoostClaimData`
+   */
+  export namespace PostApiChallengesBoostClaim {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiChallengesBoostClaimData;
+  }
+
+  /**
+   * No description
+   * @tags Challenges
+   * @name PostApiChallengesByIdComplete
+   * @request POST:/api/challenges/{id}/complete
+   * @response `200` `PostApiChallengesByIdCompleteData`
+   */
+  export namespace PostApiChallengesByIdComplete {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PostApiChallengesByIdCompletePayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiChallengesByIdCompleteData;
+  }
+
+  /**
+   * No description
+   * @tags Challenges
+   * @name PostApiChallengesList
+   * @request POST:/api/challenges/list
+   * @response `200` `PostApiChallengesListData`
+   */
+  export namespace PostApiChallengesList {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiChallengesListPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiChallengesListData;
   }
 }
 
@@ -3754,6 +3902,21 @@ export namespace Rooms {
   /**
    * No description
    * @tags Rooms
+   * @name PostRoomsRegister
+   * @request POST:/rooms/register
+   * @response `200` `PostRoomsRegisterData`
+   */
+  export namespace PostRoomsRegister {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostRoomsRegisterPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostRoomsRegisterData;
+  }
+
+  /**
+   * No description
+   * @tags Rooms
    * @name PostRoomsWebhookHostDisconnected
    * @request POST:/rooms/webhook/host-disconnected
    * @response `200` `PostRoomsWebhookHostDisconnectedData`
@@ -3781,6 +3944,21 @@ export namespace Cron {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = GetApiCronCleanupPendingAssetsData;
+  }
+
+  /**
+   * No description
+   * @tags Cron
+   * @name GetApiCronCloseStaleRooms
+   * @request GET:/api/cron/close-stale-rooms
+   * @response `200` `GetApiCronCloseStaleRoomsData`
+   */
+  export namespace GetApiCronCloseStaleRooms {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiCronCloseStaleRoomsData;
   }
 }
 
@@ -5252,6 +5430,21 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Experience
+     * @name GetApiExperienceBoost
+     * @request GET:/api/experience/boost
+     * @response `200` `GetApiExperienceBoostData`
+     */
+    getApiExperienceBoost: (params: RequestParams = {}) =>
+      this.http.request<GetApiExperienceBoostData, any>({
+        path: `/api/experience/boost`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Experience
      * @name GetApiExperienceSummary
      * @request GET:/api/experience/summary
      * @response `200` `GetApiExperienceSummaryData`
@@ -5283,6 +5476,40 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Experience
+     * @name PostApiExperienceAward
+     * @request POST:/api/experience/award
+     * @response `200` `PostApiExperienceAwardData`
+     */
+    postApiExperienceAward: (data: PostApiExperienceAwardPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiExperienceAwardData, any>({
+        path: `/api/experience/award`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Experience
+     * @name PostApiExperienceBoost
+     * @request POST:/api/experience/boost
+     * @response `200` `PostApiExperienceBoostData`
+     */
+    postApiExperienceBoost: (data: PostApiExperienceBoostPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiExperienceBoostData, any>({
+        path: `/api/experience/boost`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Experience
      * @name PostApiExperienceLesson
      * @request POST:/api/experience/lesson
      * @response `200` `PostApiExperienceLessonData`
@@ -5307,6 +5534,60 @@ export class Api<SecurityDataType extends unknown> {
     postApiExperienceLessonActivity: (data: PostApiExperienceLessonActivityPayload, params: RequestParams = {}) =>
       this.http.request<PostApiExperienceLessonActivityData, any>({
         path: `/api/experience/lesson-activity`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+  };
+  challenges = {
+    /**
+     * No description
+     *
+     * @tags Challenges
+     * @name PostApiChallengesBoostClaim
+     * @request POST:/api/challenges/boost/claim
+     * @response `200` `PostApiChallengesBoostClaimData`
+     */
+    postApiChallengesBoostClaim: (params: RequestParams = {}) =>
+      this.http.request<PostApiChallengesBoostClaimData, any>({
+        path: `/api/challenges/boost/claim`,
+        method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Challenges
+     * @name PostApiChallengesByIdComplete
+     * @request POST:/api/challenges/{id}/complete
+     * @response `200` `PostApiChallengesByIdCompleteData`
+     */
+    postApiChallengesByIdComplete: (
+      id: string,
+      data: PostApiChallengesByIdCompletePayload,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PostApiChallengesByIdCompleteData, any>({
+        path: `/api/challenges/${id}/complete`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Challenges
+     * @name PostApiChallengesList
+     * @request POST:/api/challenges/list
+     * @response `200` `PostApiChallengesListData`
+     */
+    postApiChallengesList: (data: PostApiChallengesListPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiChallengesListData, any>({
+        path: `/api/challenges/list`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
@@ -6317,6 +6598,24 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Rooms
+     * @name PostRoomsRegister
+     * @request POST:/rooms/register
+     * @response `200` `PostRoomsRegisterData`
+     */
+    postRoomsRegister: (data: PostRoomsRegisterPayload, params: RequestParams = {}) =>
+      this.http.request<PostRoomsRegisterData, any>({
+        path: `/rooms/register`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Rooms
      * @name PostRoomsWebhookHostDisconnected
      * @request POST:/rooms/webhook/host-disconnected
      * @response `200` `PostRoomsWebhookHostDisconnectedData`
@@ -6343,6 +6642,21 @@ export class Api<SecurityDataType extends unknown> {
     getApiCronCleanupPendingAssets: (params: RequestParams = {}) =>
       this.http.request<GetApiCronCleanupPendingAssetsData, any>({
         path: `/api/cron/cleanup-pending-assets`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Cron
+     * @name GetApiCronCloseStaleRooms
+     * @request GET:/api/cron/close-stale-rooms
+     * @response `200` `GetApiCronCloseStaleRoomsData`
+     */
+    getApiCronCloseStaleRooms: (params: RequestParams = {}) =>
+      this.http.request<GetApiCronCloseStaleRoomsData, any>({
+        path: `/api/cron/close-stale-rooms`,
         method: 'GET',
         ...params,
       }),

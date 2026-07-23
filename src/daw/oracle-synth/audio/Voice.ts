@@ -39,6 +39,8 @@ const DEFAULT_ROUTING: RoutingConfig = {
  *
  * postFilterBus → OutputGain → Panner → destination
  */
+export type VoiceModSourceKind = 'velocity' | 'keytrack' | 'env1' | 'env2';
+
 export class Voice {
   readonly id: number;
   state: VoiceState = 'free';
@@ -46,7 +48,18 @@ export class Voice {
   currentVelocity: number = 0;
   assignedAt: number = 0;
 
+  /** Invoked when the voice returns to 'free' — used by the modulation
+   *  matrix to tear down this voice's connections. */
+  onEnd: (() => void) | null = null;
+
   private ctx: AudioContext;
+
+  // Per-voice modulation sources (always-running ConstantSources whose
+  // offset carries the value/contour; the matrix connects scalers to them)
+  private velocitySource: ConstantSourceNode;
+  private keytrackSource: ConstantSourceNode;
+  private env1ModSource: ConstantSourceNode;
+  private env2ModSource: ConstantSourceNode;
 
   // Sources
   private osc1: Oscillator;
@@ -150,6 +163,25 @@ export class Voice {
       sustain: 0.5,
       release: 0.5,
     });
+
+    // Per-voice modulation sources — started once, live for the voice's
+    // lifetime. Their offsets are driven at note events; they output
+    // nothing audible (only connected via matrix scalers).
+    this.velocitySource = ctx.createConstantSource();
+    this.velocitySource.offset.value = 0;
+    this.velocitySource.start();
+
+    this.keytrackSource = ctx.createConstantSource();
+    this.keytrackSource.offset.value = 0;
+    this.keytrackSource.start();
+
+    this.env1ModSource = ctx.createConstantSource();
+    this.env1ModSource.offset.value = 0;
+    this.env1ModSource.start();
+
+    this.env2ModSource = ctx.createConstantSource();
+    this.env2ModSource.offset.value = 0;
+    this.env2ModSource.start();
   }
 
   private getEnvGainForSource(sourceId: SourceId): GainNode {
@@ -262,6 +294,16 @@ export class Voice {
         envGain.gain.setValueAtTime(velocity, now);
       }
     }
+
+    // Drive per-voice modulation sources
+    const startTime = time ?? this.ctx.currentTime;
+    this.velocitySource.offset.cancelScheduledValues(startTime);
+    this.velocitySource.offset.setValueAtTime(velocity, startTime);
+    this.keytrackSource.offset.cancelScheduledValues(startTime);
+    this.keytrackSource.offset.setValueAtTime(note / 127, startTime);
+    // Envelope contours at peak 1 (velocity is its own source)
+    this.ampEnvelope.trigger(this.env1ModSource.offset, 1, this.ctx, time);
+    this.modEnvelope.trigger(this.env2ModSource.offset, 1, this.ctx, time);
   }
 
   noteOff(time?: number): void {
@@ -297,6 +339,10 @@ export class Voice {
       }
     }
 
+    // Release the per-voice envelope mod sources
+    this.ampEnvelope.release(this.env1ModSource.offset, this.ctx, time);
+    this.modEnvelope.release(this.env2ModSource.offset, this.ctx, time);
+
     this.releaseTimer = setTimeout(
       () => {
         this.freeVoice();
@@ -329,12 +375,17 @@ export class Voice {
       envGain.gain.linearRampToValueAtTime(0, now + ANTI_CLICK_TIME);
     }
 
+    // Silence the envelope mod sources
+    this.ampEnvelope.forceStop(this.env1ModSource.offset, this.ctx);
+    this.modEnvelope.forceStop(this.env2ModSource.offset, this.ctx);
+
     this.forceStopTimer = setTimeout(
       () => {
         this.forceStopTimer = null;
         this.stopAllSources();
         this.state = 'free';
         this.currentNote = -1;
+        this.onEnd?.();
       },
       ANTI_CLICK_TIME * 1000 + 10,
     );
@@ -346,6 +397,7 @@ export class Voice {
     this.currentNote = -1;
     this.currentVelocity = 0;
     this.releaseTimer = null;
+    this.onEnd?.();
   }
 
   private startActiveSources(): void {
@@ -439,6 +491,57 @@ export class Voice {
 
   getOsc2(): Oscillator {
     return this.osc2;
+  }
+
+  getSub(): SubOscillator {
+    return this.sub;
+  }
+
+  /** Swap sounding oscillators onto freshly-loaded imported wavetables. */
+  refreshWavetables(): void {
+    this.osc1.reapplyWavetable();
+    this.osc2.reapplyWavetable();
+  }
+
+  getNoise(): NoiseGenerator {
+    return this.noise;
+  }
+
+  /** Per-voice modulation source node for the matrix. */
+  getModSourceNode(kind: VoiceModSourceKind): AudioNode {
+    switch (kind) {
+      case 'velocity':
+        return this.velocitySource;
+      case 'keytrack':
+        return this.keytrackSource;
+      case 'env1':
+        return this.env1ModSource;
+      case 'env2':
+        return this.env2ModSource;
+    }
+  }
+
+  /**
+   * Final teardown: stops the always-running per-voice mod sources.
+   * Started source nodes are protected from GC, so skipping this leaks
+   * four ConstantSources per voice on engine teardown.
+   */
+  dispose(): void {
+    this.forceStop();
+    const sources = [
+      this.velocitySource,
+      this.keytrackSource,
+      this.env1ModSource,
+      this.env2ModSource,
+    ];
+    for (const src of sources) {
+      try {
+        src.stop();
+        src.disconnect();
+      } catch {
+        /* already stopped */
+      }
+    }
   }
 
   setSpreadPan(pan: number): void {

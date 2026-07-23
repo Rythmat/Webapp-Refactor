@@ -157,6 +157,22 @@ export const FX_CATALOG: LibraryItem[] = [
     color: '#7ecfcf',
     dragPayload: { kind: 'audio-effect', effectType: 'saturator' },
   },
+  {
+    id: 'fx-multiband',
+    label: 'OTT',
+    category: 'Audio Effects',
+    icon: 'BarChart3',
+    color: '#7ecfcf',
+    dragPayload: { kind: 'audio-effect', effectType: 'multiband' },
+  },
+  {
+    id: 'fx-ducker',
+    label: 'Sidechain',
+    category: 'Audio Effects',
+    icon: 'Activity',
+    color: '#7ecfcf',
+    dragPayload: { kind: 'audio-effect', effectType: 'ducker' },
+  },
   // MIDI Effects
   {
     id: 'midi-arp',

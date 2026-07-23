@@ -1,4 +1,5 @@
 import { getAudioBuffer, getOriginalAudio } from '@/daw/audio/AudioBufferStore';
+import { samplerBufferKey } from '@/daw/instruments/samplerChops';
 import { useStore } from '@/daw/store';
 import { studioAssetsApi, uploadAndFinalizeAsset } from './api';
 import { audioBufferToOpusWebm, isOpusEncodingSupported } from './encode-opus';
@@ -97,7 +98,7 @@ export class PartialUploadError extends Error {
     super(
       `Uploaded ${succeededCount} of ${
         succeededCount + failedCount
-      } audio clip(s); ${failedCount} failed. Click Save again to retry the failed clips.`,
+      } audio item(s); ${failedCount} failed. Click Save again to retry the failed uploads.`,
     );
   }
 }
@@ -168,11 +169,80 @@ export async function uploadRecordedClip(
   }
 }
 
+// Sampler one-shots currently uploading, keyed by `${trackId}:${sampleId}` —
+// same dedupe role as recordingUploadsInFlight, shared with the save-time
+// sweep below. Keyed by sample identity so replacing a sample mid-upload
+// starts a fresh upload for the new bytes instead of reusing the old one.
+const samplerUploadsInFlight = new Map<string, Promise<void>>();
+
+/**
+ * Upload a Chops track's dropped one-shot to GCS immediately and stamp the
+ * returned assetId onto Track.samplerSample — the drop-time twin of
+ * uploadRecordedClip. Bundled samples (sourceUrl set) and already-uploaded
+ * samples are no-ops. On failure the sample keeps assetId=null and the
+ * save-time sweep in uploadPendingAudioClips retries it.
+ */
+export async function uploadSamplerSample(
+  token: string,
+  trackId: string,
+): Promise<void> {
+  const startSample = useStore
+    .getState()
+    .tracks.find((t) => t.id === trackId)?.samplerSample;
+  if (!startSample || startSample.assetId || startSample.sourceUrl) return;
+
+  const inFlightKey = `${trackId}:${startSample.sampleId}`;
+  const existing = samplerUploadsInFlight.get(inFlightKey);
+  if (existing) return existing;
+
+  const bufferKey = samplerBufferKey(startSample.sampleId);
+  const upload = (async () => {
+    const buffer = getAudioBuffer(bufferKey);
+    if (!buffer) {
+      throw new Error(`No AudioBuffer in store for sampler track ${trackId}`);
+    }
+
+    const { ensureProjectId } = await import('@/lib/studio-projects/api');
+    const projectId = await ensureProjectId(token);
+
+    const payload = await pickUploadPayload(bufferKey, buffer);
+    const asset = await uploadAndFinalizeAsset(token, {
+      projectId,
+      bytes: payload.bytes,
+      contentType: payload.contentType,
+      source: 'upload',
+      originalName: startSample.name,
+      durationSeconds: buffer.duration,
+      sampleRate: buffer.sampleRate,
+      channels: buffer.numberOfChannels,
+    });
+
+    // Only stamp the sample these bytes belong to — a replace mid-upload
+    // mints a new sampleId, so the stale stamp is refused exactly.
+    const current = useStore
+      .getState()
+      .tracks.find((t) => t.id === trackId)?.samplerSample;
+    if (current?.sampleId === startSample.sampleId && !current.assetId) {
+      useStore
+        .getState()
+        .setSamplerSample(trackId, { ...current, assetId: asset.id });
+    }
+  })();
+
+  samplerUploadsInFlight.set(inFlightKey, upload);
+  try {
+    await upload;
+  } finally {
+    samplerUploadsInFlight.delete(inFlightKey);
+  }
+}
+
 /**
  * Find every audio clip in the store whose `assetId` is still null, encode its
  * in-memory AudioBuffer as WAV, upload to GCS, and stamp the returned asset id
- * onto the clip. Runs uploads in parallel via Promise.allSettled so a single
- * failure doesn't strand the other in-flight uploads.
+ * onto the clip. Also sweeps Chops tracks whose samplerSample is still pending
+ * (assetId null, not bundled). Runs uploads in parallel via Promise.allSettled
+ * so a single failure doesn't strand the other in-flight uploads.
  *
  * Throws:
  *   - PartialUploadError when at least one upload succeeded and at least one
@@ -189,11 +259,14 @@ export async function uploadPendingAudioClips(
   token: string,
   projectId: string,
 ): Promise<void> {
-  // Let any in-progress immediate-on-record uploads finish first; they stamp
-  // their own assetIds, so awaiting them keeps us from re-uploading the same
-  // clip (a duplicate orphan asset). Failures are ignored here — the clip just
-  // stays pending and gets picked up below.
-  const inFlight = Array.from(recordingUploadsInFlight.values());
+  // Let any in-progress immediate uploads (recording stop, sampler drop)
+  // finish first; they stamp their own assetIds, so awaiting them keeps us
+  // from re-uploading the same bytes (a duplicate orphan asset). Failures are
+  // ignored here — the item just stays pending and gets picked up below.
+  const inFlight = [
+    ...recordingUploadsInFlight.values(),
+    ...samplerUploadsInFlight.values(),
+  ];
   if (inFlight.length > 0) {
     await Promise.allSettled(inFlight);
   }
@@ -213,10 +286,38 @@ export async function uploadPendingAudioClips(
     }
   }
 
-  if (pending.length === 0) return;
+  // Pending sampler one-shots (never bundled sourceUrl samples — those
+  // rehydrate from the public URL and are deliberately not uploaded).
+  const pendingSamplers: Array<{
+    trackId: string;
+    sampleId: string;
+    buffer: AudioBuffer;
+  }> = [];
+  for (const track of useStore.getState().tracks) {
+    const sample = track.samplerSample;
+    if (!sample || sample.assetId || sample.sourceUrl) continue;
+    const buffer = getAudioBuffer(samplerBufferKey(sample.sampleId));
+    if (!buffer) {
+      console.warn(
+        `[studio-assets] Skipping sampler sample on track ${track.id} on save — no AudioBuffer in store`,
+      );
+      continue;
+    }
+    pendingSamplers.push({
+      trackId: track.id,
+      sampleId: sample.sampleId,
+      buffer,
+    });
+  }
 
-  const results = await Promise.allSettled(
-    pending.map(async ({ trackId, clipId, buffer }) => {
+  if (pending.length === 0 && pendingSamplers.length === 0) return;
+
+  const jobLabels = [
+    ...pending.map((p) => p.clipId),
+    ...pendingSamplers.map((p) => samplerBufferKey(p.sampleId)),
+  ];
+  const results = await Promise.allSettled([
+    ...pending.map(async ({ trackId, clipId, buffer }) => {
       const payload = await pickUploadPayload(clipId, buffer);
       const asset = await uploadAndFinalizeAsset(token, {
         projectId,
@@ -236,7 +337,32 @@ export async function uploadPendingAudioClips(
         assetId: asset.id,
       });
     }),
-  );
+    ...pendingSamplers.map(async ({ trackId, sampleId, buffer }) => {
+      const bufferKey = samplerBufferKey(sampleId);
+      const payload = await pickUploadPayload(bufferKey, buffer);
+      const asset = await uploadAndFinalizeAsset(token, {
+        projectId,
+        bytes: payload.bytes,
+        contentType: payload.contentType,
+        source: 'upload',
+        durationSeconds: buffer.duration,
+        sampleRate: buffer.sampleRate,
+        channels: buffer.numberOfChannels,
+      });
+
+      // Stamp only the sample these bytes belong to — a replace mid-save
+      // mints a new sampleId, and stamping the old asset onto the new sample
+      // would permanently point it at the wrong audio.
+      const current = useStore
+        .getState()
+        .tracks.find((t) => t.id === trackId)?.samplerSample;
+      if (current?.sampleId === sampleId && !current.assetId) {
+        useStore
+          .getState()
+          .setSamplerSample(trackId, { ...current, assetId: asset.id });
+      }
+    }),
+  ]);
 
   const failures: Array<{ clipId: string; error: string }> = [];
   let succeededCount = 0;
@@ -246,7 +372,7 @@ export async function uploadPendingAudioClips(
       succeededCount++;
     } else {
       failures.push({
-        clipId: pending[i].clipId,
+        clipId: jobLabels[i],
         error:
           result.reason instanceof Error
             ? result.reason.message
@@ -258,7 +384,7 @@ export async function uploadPendingAudioClips(
   if (failures.length === 0) return;
 
   console.error(
-    `[studio-assets] ${failures.length} of ${pending.length} audio uploads failed`,
+    `[studio-assets] ${failures.length} of ${jobLabels.length} audio uploads failed`,
     failures,
   );
 
@@ -293,6 +419,12 @@ export async function reconcileMissingAssets(
   projectId: string,
 ): Promise<{ reuploaded: number; unrecoverable: number }> {
   const referenced: { trackId: string; clipId: string; assetId: string }[] = [];
+  // Sampler samples referencing an asset (buffer keyed by samplerBufferKey).
+  const referencedSamplers: {
+    trackId: string;
+    sampleId: string;
+    assetId: string;
+  }[] = [];
   for (const track of useStore.getState().tracks) {
     for (const clip of track.audioClips) {
       if (clip.assetId) {
@@ -303,10 +435,24 @@ export async function reconcileMissingAssets(
         });
       }
     }
+    if (track.samplerSample?.assetId) {
+      referencedSamplers.push({
+        trackId: track.id,
+        sampleId: track.samplerSample.sampleId,
+        assetId: track.samplerSample.assetId,
+      });
+    }
   }
-  if (referenced.length === 0) return { reuploaded: 0, unrecoverable: 0 };
+  if (referenced.length === 0 && referencedSamplers.length === 0) {
+    return { reuploaded: 0, unrecoverable: 0 };
+  }
 
-  const assetIds = Array.from(new Set(referenced.map((r) => r.assetId)));
+  const assetIds = Array.from(
+    new Set([
+      ...referenced.map((r) => r.assetId),
+      ...referencedSamplers.map((r) => r.assetId),
+    ]),
+  );
 
   let missing: string[];
   try {
@@ -357,6 +503,58 @@ export async function reconcileMissingAssets(
         err,
       );
       useStore.getState().updateAudioClip(trackId, clipId, { assetId: null });
+      unrecoverable++;
+    }
+  }
+
+  for (const { trackId, sampleId, assetId } of referencedSamplers) {
+    if (!missingSet.has(assetId)) continue;
+
+    const clearAssetId = () => {
+      const current = useStore
+        .getState()
+        .tracks.find((t) => t.id === trackId)?.samplerSample;
+      if (current?.assetId === assetId) {
+        useStore
+          .getState()
+          .setSamplerSample(trackId, { ...current, assetId: null });
+      }
+    };
+
+    const buffer = getAudioBuffer(samplerBufferKey(sampleId));
+    if (!buffer) {
+      clearAssetId();
+      unrecoverable++;
+      continue;
+    }
+
+    try {
+      const bufferKey = samplerBufferKey(sampleId);
+      const payload = await pickUploadPayload(bufferKey, buffer);
+      const asset = await uploadAndFinalizeAsset(token, {
+        projectId,
+        bytes: payload.bytes,
+        contentType: payload.contentType,
+        source: 'upload',
+        durationSeconds: buffer.duration,
+        sampleRate: buffer.sampleRate,
+        channels: buffer.numberOfChannels,
+      });
+      const current = useStore
+        .getState()
+        .tracks.find((t) => t.id === trackId)?.samplerSample;
+      if (current?.assetId === assetId) {
+        useStore
+          .getState()
+          .setSamplerSample(trackId, { ...current, assetId: asset.id });
+      }
+      reuploaded++;
+    } catch (err) {
+      console.error(
+        `[studio-assets] re-upload of missing sampler asset on track ${trackId} failed`,
+        err,
+      );
+      clearAssetId();
       unrecoverable++;
     }
   }

@@ -67,7 +67,7 @@ describe('seededDayFromStub', () => {
     }
   });
 
-  it('appends a Song of the day line to the Connect prompt when songId is set', () => {
+  it('sets a structured song reference on Connect when songId is set (never a raw slug in the prompt)', () => {
     const stub = {
       slug: 'test-song',
       label: 'Test',
@@ -81,11 +81,17 @@ describe('seededDayFromStub', () => {
       },
     };
     const day = seededDayFromStub(stub);
-    expect(day.cells.connectRegulate.presentation.prompt.en).toContain(
-      '/songs/lean_on_me',
+    // Structured reference — resolved to artwork by the presentation surface.
+    expect(day.cells.connectRegulate.presentation.song).toEqual({
+      id: 'lean_on_me',
+    });
+    // The raw slug must NOT leak into the student-facing prompt prose.
+    expect(day.cells.connectRegulate.presentation.prompt.en).toBe('Start');
+    expect(day.cells.connectRegulate.presentation.prompt.en).not.toContain(
+      '/songs/',
     );
-    expect(day.cells.connectRegulate.presentation.prompt.es).toContain(
-      '/songs/lean_on_me',
+    expect(day.cells.connectRegulate.presentation.prompt.es).not.toContain(
+      '/songs/',
     );
   });
 

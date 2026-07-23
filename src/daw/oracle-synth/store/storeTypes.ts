@@ -12,6 +12,8 @@ import type { UISlice } from './slices/uiSlice';
 import type { FXSlice } from './slices/fxSlice';
 import type { RoutingSlice } from './slices/routingSlice';
 import type { ArpSlice } from './slices/arpSlice';
+import type { MacroSlice } from './slices/macroSlice';
+import type { KeyScaleSlice } from './slices/keyScaleSlice';
 
 export type SynthStore = OscillatorSlice &
   SubOscillatorSlice &
@@ -26,4 +28,6 @@ export type SynthStore = OscillatorSlice &
   UISlice &
   FXSlice &
   RoutingSlice &
-  ArpSlice;
+  ArpSlice &
+  MacroSlice &
+  KeyScaleSlice;

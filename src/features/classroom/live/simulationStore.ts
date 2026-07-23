@@ -121,6 +121,15 @@ export const generatePlausibleResponse = (
         activityRef: interaction.atlas?.activityRef ?? 'sim',
         result: { completion: true },
       };
+    case 'showcase':
+      return {
+        kind: 'showcase',
+        artifact: {
+          projectId: `sim-project-${seed}`,
+          roomId: `sim${(((seed % 1000) + 1000) % 1000).toString().padStart(3, '0')}`,
+          name: `Sim Project ${seed}`,
+        },
+      };
   }
 };
 

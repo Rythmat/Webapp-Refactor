@@ -4,8 +4,56 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Music Atlas - Learning Music can be Simple</title>
-    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#0b0a09" />
+
+    <!--
+      The public landing page (served at `/`) is indexable. App routes are kept
+      out of search via /robots.txt (Disallow) rather than a blanket exclusion,
+      so the marketing home can be crawled and shared. These static tags are what
+      no-JS social scrapers (Slack/Twitter/Facebook) read; react-helmet enhances
+      them for JS-rendering crawlers. Keep them in sync with LandingPage's <Helmet>.
+    -->
+    <title>Music Atlas — Understand music. Make music. Teach it.</title>
+    <meta
+      name="description"
+      content="Music Atlas pairs a real music-theory engine with a full browser studio — go from understanding harmony to making your first real track, right in your browser."
+    />
+    <link rel="canonical" href="https://music-atlas.io/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Music Atlas" />
+    <meta
+      property="og:title"
+      content="Music Atlas — Understand music. Make music. Teach it."
+    />
+    <meta
+      property="og:description"
+      content="A real music-theory engine + a full browser studio. Learn, create, and teach music in one place."
+    />
+    <meta property="og:url" content="https://music-atlas.io/" />
+    <!-- TODO(launch): add a 1200×630 share image at public/og-image.png -->
+    <meta property="og:image" content="https://music-atlas.io/og-image.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Music Atlas — Understand music. Make music. Teach it."
+    />
+    <meta
+      name="twitter:description"
+      content="A real music-theory engine + a full browser studio. Learn, create, and teach music in one place."
+    />
+    <meta name="twitter:image" content="https://music-atlas.io/og-image.png" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Music Atlas",
+        "url": "https://music-atlas.io/",
+        "description": "Learn, create, and teach music in one place — a music-theory engine plus a full browser studio."
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

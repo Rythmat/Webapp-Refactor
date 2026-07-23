@@ -12,6 +12,9 @@ interface PopOutOverlayProps {
   onClose: () => void;
   title?: string;
   trackColor?: string;
+  /** Fill (nearly) the whole window — for fixed-canvas views like the
+   *  Oracle synth that benefit from maximum area. Default 70vw×70vh. */
+  fullScreen?: boolean;
   children: React.ReactNode;
 }
 
@@ -20,6 +23,7 @@ export function PopOutOverlay({
   onClose,
   title,
   trackColor,
+  fullScreen = false,
   children,
 }: PopOutOverlayProps) {
   if (!isOpen) return null;
@@ -38,8 +42,8 @@ export function PopOutOverlay({
         className="flex flex-col overflow-hidden rounded-lg"
         style={{
           backgroundColor: 'var(--color-surface)',
-          width: '70vw',
-          height: '70vh',
+          width: fullScreen ? 'calc(100vw - 24px)' : '70vw',
+          height: fullScreen ? 'calc(100vh - 24px)' : '70vh',
           border: 'var(--glass-border)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         }}

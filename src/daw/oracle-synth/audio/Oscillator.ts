@@ -2,6 +2,7 @@ import { OscillatorParams } from './types';
 import { midiToFrequency, smoothParam } from './constants';
 import { UnisonEngine } from './UnisonEngine';
 import { WavetableBank } from './WavetableBank';
+import { buildWarpCurve, isPhaseWarp } from './wavetableWarp';
 
 /**
  * Wavetable oscillator with position morphing and unison.
@@ -20,9 +21,20 @@ export class Oscillator {
   private gainA: GainNode;
   private gainB: GainNode;
 
+  // Distortion-family warp: a WaveShaper spliced onto the post-crossfade sum
+  // ONLY while a distortion warp is engaged (see applyWarpCurve). When idle the
+  // crossfade gains feed levelGain directly — identical to a plain oscillator
+  // (a WaveShaper with a null curve does not reliably pass audio, so it must
+  // not sit in the signal path unless it's actually shaping).
+  private warpNode: WaveShaperNode;
+  private warpActive = false;
+
   // Output chain
   private levelGain: GainNode;
   private panNode: StereoPannerNode;
+
+  // Modulation-matrix detune input (fanned into every unison osc.detune)
+  private detuneModBus: GainNode;
 
   private params: OscillatorParams;
   private currentNote: number = 60;
@@ -52,6 +64,8 @@ export class Oscillator {
       unisonVoices: 1,
       unisonDetune: 0,
       unisonBlend: 0.1,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     };
 
@@ -65,7 +79,13 @@ export class Oscillator {
     this.levelGain.connect(this.panNode);
     this.panNode.connect(destination);
 
-    // Crossfade gains for wavetable morphing
+    // Warp shaper: output pre-wired to levelGain, but no input until a
+    // distortion warp is engaged. Idle, it contributes nothing.
+    this.warpNode = ctx.createWaveShaper();
+    this.warpNode.connect(this.levelGain);
+
+    // Crossfade gains for wavetable morphing → levelGain directly (dry path,
+    // rerouted through warpNode by applyWarpCurve only while warping).
     this.gainA = ctx.createGain();
     this.gainA.gain.value = 1;
     this.gainA.connect(this.levelGain);
@@ -77,6 +97,12 @@ export class Oscillator {
     // Unison engines
     this.unisonA = new UnisonEngine(ctx, this.gainA);
     this.unisonB = new UnisonEngine(ctx, this.gainB);
+
+    // Persistent detune mod bus — engines rewire it on oscillator rebuild
+    this.detuneModBus = ctx.createGain();
+    this.detuneModBus.gain.value = 1;
+    this.unisonA.connectDetuneModSource(this.detuneModBus);
+    this.unisonB.connectDetuneModSource(this.detuneModBus);
   }
 
   start(): void {
@@ -119,6 +145,7 @@ export class Oscillator {
   setParams(params: Partial<OscillatorParams>): void {
     let needsFreqUpdate = false;
     let needsWavetableUpdate = false;
+    let needsWarpCurve = false;
 
     if (params.waveform !== undefined) {
       this.params.waveform = params.waveform;
@@ -184,8 +211,35 @@ export class Oscillator {
       this.unisonA.setBlend(params.unisonBlend);
       this.unisonB.setBlend(params.unisonBlend);
     }
+    if (
+      params.warpMode !== undefined &&
+      params.warpMode !== this.params.warpMode
+    ) {
+      const phaseAffected =
+        isPhaseWarp(this.params.warpMode) || isPhaseWarp(params.warpMode);
+      this.params.warpMode = params.warpMode;
+      needsWarpCurve = true;
+      if (phaseAffected) {
+        needsWavetableUpdate = true;
+        this.currentSlotA = -1;
+        this.currentSlotB = -1;
+      }
+    }
+    if (
+      params.warpAmount !== undefined &&
+      params.warpAmount !== this.params.warpAmount
+    ) {
+      this.params.warpAmount = params.warpAmount;
+      needsWarpCurve = true;
+      if (isPhaseWarp(this.params.warpMode)) {
+        needsWavetableUpdate = true;
+        this.currentSlotA = -1;
+        this.currentSlotB = -1;
+      }
+    }
     if (params.enabled !== undefined) this.params.enabled = params.enabled;
 
+    if (needsWarpCurve) this.applyWarpCurve();
     if (needsFreqUpdate && this.currentNote >= 0) {
       this.setFrequency(this.currentNote);
     }
@@ -194,21 +248,73 @@ export class Oscillator {
     }
   }
 
+  /**
+   * Splices the distortion-warp shaper into the signal path when a distortion
+   * warp is active, and removes it (restoring the direct dry path) otherwise.
+   * `buildWarpCurve` returns non-null only for a distortion mode with a
+   * non-zero amount; phase warps and 'none' return null (shaper stays out).
+   */
+  private applyWarpCurve(): void {
+    const curve = buildWarpCurve(this.params.warpMode, this.params.warpAmount);
+    if (curve) {
+      this.warpNode.curve = curve as Float32Array<ArrayBuffer>;
+      this.warpNode.oversample = '4x';
+      if (!this.warpActive) {
+        // Insert: reroute the crossfade sum through the shaper.
+        this.gainA.disconnect(this.levelGain);
+        this.gainB.disconnect(this.levelGain);
+        this.gainA.connect(this.warpNode);
+        this.gainB.connect(this.warpNode);
+        this.warpActive = true;
+      }
+    } else if (this.warpActive) {
+      // Remove: restore the direct dry path.
+      this.gainA.disconnect(this.warpNode);
+      this.gainB.disconnect(this.warpNode);
+      this.gainA.connect(this.levelGain);
+      this.gainB.connect(this.levelGain);
+      this.warpActive = false;
+    }
+  }
+
+  /** Base table, or a lazily-built phase-warped variant when active. */
+  private effectiveTableName(): string {
+    if (this.params.warpAmount > 0.001 && isPhaseWarp(this.params.warpMode)) {
+      return this.wavetableBank.resolveWarpedTable(
+        this.params.wavetable,
+        this.params.warpMode,
+        this.params.warpAmount,
+      );
+    }
+    return this.params.wavetable;
+  }
+
   private applyWavetablePosition(): void {
+    const table = this.effectiveTableName();
     const pair = this.wavetableBank.getInterpolationPair(
-      this.params.wavetable,
+      table,
       this.params.wtPosition,
     );
 
     if (!pair) {
-      // Fallback: use basic oscillator type
+      // Fallback: basic oscillator type while an imported table is still
+      // loading. Reset the slot cache and crossfade so that once the table
+      // resolves, the NEXT call is forced to re-apply the real frames to BOTH
+      // unison engines — otherwise a coinciding frame index skips one engine
+      // via the slot-equality guard below and leaves it stuck on this
+      // fallback sawtooth, layered under the loaded preset's wavetable.
       this.unisonA.setOscType(this.params.waveform as OscillatorType);
       this.unisonB.setOscType(this.params.waveform as OscillatorType);
+      this.currentSlotA = -1;
+      this.currentSlotB = -1;
+      const now = this.ctx.currentTime;
+      this.gainA.gain.setTargetAtTime(1, now, 0.005);
+      this.gainB.gain.setTargetAtTime(0, now, 0.005);
       return;
     }
 
     // Only update waveforms when the frame index actually changes
-    const tableSize = this.wavetableBank.getTableSize(this.params.wavetable);
+    const tableSize = this.wavetableBank.getTableSize(table);
     const scaledPos = this.params.wtPosition * (tableSize - 1);
     const slotA = Math.floor(scaledPos);
     const slotB = Math.min(slotA + 1, tableSize - 1);
@@ -238,6 +344,25 @@ export class Oscillator {
 
   getGainParam(): AudioParam {
     return this.levelGain.gain;
+  }
+
+  getPanParam(): AudioParam {
+    return this.panNode.pan;
+  }
+
+  /** Re-resolves the current wavetable — called after an imported table
+   *  finishes loading so a sounding oscillator swaps off the fallback. */
+  reapplyWavetable(): void {
+    this.currentSlotA = -1;
+    this.currentSlotB = -1;
+    if (this.isStarted) {
+      this.applyWavetablePosition();
+    }
+  }
+
+  /** Modulation-matrix detune input: connect a scaler here (cents). */
+  getDetuneModInput(): GainNode {
+    return this.detuneModBus;
   }
 
   setPitchBendCents(cents: number): void {

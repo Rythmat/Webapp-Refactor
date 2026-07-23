@@ -68,7 +68,33 @@ const AggregateBody = ({ aggregate }: { aggregate: ResponseAggregate }) => {
       return <CheckInBody aggregate={aggregate} />;
     case 'atlas':
       return <AtlasBody aggregate={aggregate} />;
+    case 'showcase':
+      return <ShowcaseBody aggregate={aggregate} />;
   }
+};
+
+const ShowcaseBody = ({
+  aggregate,
+}: {
+  aggregate: Extract<ResponseAggregate, { kind: 'showcase' }>;
+}) => {
+  if (aggregate.offers.length === 0)
+    return <EmptyRow label="No projects offered yet." />;
+  return (
+    <ul className="flex flex-col gap-2">
+      {aggregate.offers.map((o) => (
+        <li
+          key={o.enrollmentId}
+          className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-sm text-white/80"
+        >
+          <span className="truncate">{o.displayName}</span>
+          <span className="truncate text-xs text-white/50">
+            {o.artifact.name}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
 };
 
 const EmptyRow = ({ label }: { label: string }) => (

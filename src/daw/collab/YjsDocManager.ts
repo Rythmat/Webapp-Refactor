@@ -3,6 +3,8 @@
 // Each synced slice maps to a top-level Y.Map or Y.Array on the document.
 
 import * as Y from 'yjs';
+import { DEFAULT_EFFECTS } from '@/daw/audio/EffectChain';
+import { ensureSamplerSampleId } from '@/daw/instruments/samplerChops';
 import type { AllSlices } from '@/daw/store/index';
 import type { Track, MidiClip, AudioClip } from '@/daw/store/tracksSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -150,6 +152,7 @@ export function trackToYMap(track: Track): Y.Map<unknown> {
   m.set('volume', track.volume);
   m.set('pan', track.pan);
   m.set('trackRole', track.trackRole);
+  m.set('drumKit', track.drumKit ?? null);
 
   // Effects — store as a JSON string for simplicity (deeply nested params).
   // Individual effect toggling is via activeEffects array.
@@ -171,6 +174,10 @@ export function trackToYMap(track: Track): Y.Map<unknown> {
   if (track.guitarChain)
     m.set('guitarChain', JSON.stringify(track.guitarChain));
   if (track.drumPads) m.set('drumPads', JSON.stringify(track.drumPads));
+  if (track.samplerSample)
+    m.set('samplerSample', JSON.stringify(track.samplerSample));
+  if (track.sends) m.set('sends', JSON.stringify(track.sends));
+  if (track.automation) m.set('automation', JSON.stringify(track.automation));
 
   return m;
 }
@@ -278,10 +285,16 @@ export function yMapToTrack(m: Y.Map<unknown>): Track {
     volume: m.get('volume') as number,
     pan: m.get('pan') as number,
     trackRole: m.get('trackRole') as Track['trackRole'],
+    drumKit: (m.get('drumKit') as string | null) ?? undefined,
     midiInputId: null,
     audioInputId: null,
     audioInputChannel: null,
-    effects: effectsStr ? JSON.parse(effectsStr) : {},
+    // Merge over defaults so an older peer's doc (missing newer effect slots
+    // like multiband) still yields a complete TrackEffectState.
+    effects: {
+      ...structuredClone(DEFAULT_EFFECTS),
+      ...(effectsStr ? JSON.parse(effectsStr) : {}),
+    },
     activeEffects: activeEffectsStr ? JSON.parse(activeEffectsStr) : [],
     midiClips: midiClipsArr ? midiClipsArr.toArray().map(yMapToMidiClip) : [],
     audioClips: audioClipsArr
@@ -296,6 +309,21 @@ export function yMapToTrack(m: Y.Map<unknown>): Track {
     drumPads: m.has('drumPads')
       ? JSON.parse(m.get('drumPads') as string)
       : undefined,
+    // ensureSamplerSampleId: docs written before sampleId existed get a
+    // deterministic identity (never random — repeated remote reads must not
+    // churn the track object).
+    samplerSample:
+      m.has('samplerSample') && m.get('samplerSample') !== null
+        ? ensureSamplerSampleId(JSON.parse(m.get('samplerSample') as string))
+        : undefined,
+    sends:
+      m.has('sends') && m.get('sends') !== null
+        ? JSON.parse(m.get('sends') as string)
+        : undefined,
+    automation:
+      m.has('automation') && m.get('automation') !== null
+        ? JSON.parse(m.get('automation') as string)
+        : undefined,
   };
 }
 
@@ -381,6 +409,7 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
     mastering.set('fxChain', JSON.stringify(state.masteringFxChain));
     mastering.set('effects', JSON.stringify(state.masteringEffects));
     mastering.set('masterVolume', state.masterVolume);
+    mastering.set('returns', JSON.stringify(state.returns));
 
     // Lead sheet
     const leadSheet = getYLeadSheet(doc);

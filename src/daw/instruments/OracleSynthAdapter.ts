@@ -38,6 +38,16 @@ export class OracleSynthAdapter implements InstrumentAdapter {
     this.engine?.noteOff(note, time);
   }
 
+  /**
+   * Sequenced/live CC automation from the DAW (values 0-127, normalized to
+   * 0-1 for the engine). The scheduled `time` is forwarded so automation
+   * lands sample-aligned with notes instead of a lookahead (~100ms) early.
+   * Map: CC1 mod wheel · CC7 volume · CC20-27 macros 1-8.
+   */
+  cc(controller: number, value: number, time?: number): void {
+    this.engine?.handleCC(controller, value / 127, time);
+  }
+
   allNotesOff(): void {
     this.engine?.allNotesOff();
   }
@@ -53,9 +63,11 @@ export class OracleSynthAdapter implements InstrumentAdapter {
 
   dispose(): void {
     // Don't call engine.dispose() — it closes the shared AudioContext.
-    // Instead, just silence all notes and release our reference.
+    // releaseResources() stops every engine-owned source node (vibrato,
+    // LFOs, macro sources, …) so deleting/recreating tracks doesn't
+    // accumulate running nodes on the shared context.
     if (this.engine) {
-      this.engine.allNotesOff();
+      this.engine.releaseResources();
     }
     this.engine = null;
   }

@@ -9,7 +9,15 @@ import {
 import { motion } from 'framer-motion';
 import * as Popover from '@radix-ui/react-popover';
 import * as Slider from '@radix-ui/react-slider';
-import { X, Circle, Headphones, Volume2, Ear, EarOff } from 'lucide-react';
+import {
+  X,
+  Circle,
+  Headphones,
+  Volume2,
+  Ear,
+  EarOff,
+  Activity,
+} from 'lucide-react';
 import { useStore, type Track } from '@/daw/store';
 import {
   useListenMode,
@@ -53,6 +61,8 @@ export const TrackHeader = memo(function TrackHeader({
   const toggleRecordArm = useStore((s) => s.toggleRecordArm);
   const toggleMonitoring = useStore((s) => s.toggleMonitoring);
   const removeTrack = useStore((s) => s.removeTrack);
+  const automationOpen = useStore((s) => s.automationOpenTrackId === track.id);
+  const setAutomationOpen = useStore((s) => s.setAutomationOpenTrackId);
 
   const selectedTrackId = useStore((s) => s.selectedTrackId);
   const setSelectedTrackId = useStore((s) => s.setSelectedTrackId);
@@ -470,6 +480,25 @@ export const TrackHeader = memo(function TrackHeader({
             fill={track.recordArmed ? 'currentColor' : 'none'}
             strokeWidth={track.recordArmed ? 0 : 2}
           />
+        </motion.button>
+        <motion.button
+          data-tutorial-id="automation-toggle"
+          onClick={(e) => {
+            e.stopPropagation();
+            setAutomationOpen(automationOpen ? null : track.id);
+          }}
+          whileTap={{ scale: 0.85 }}
+          className="flex size-5 items-center justify-center rounded transition-colors"
+          style={{
+            backgroundColor: automationOpen
+              ? 'var(--color-accent)'
+              : 'transparent',
+            color: automationOpen ? '#000' : 'var(--color-text-dim)',
+            border: `1px solid ${automationOpen ? 'var(--color-accent)' : 'var(--color-border)'}`,
+          }}
+          title="Automation"
+        >
+          <Activity size={11} strokeWidth={2} />
         </motion.button>
 
         {/* Live level meter + volume slider. Volume syncs to collaborators, so

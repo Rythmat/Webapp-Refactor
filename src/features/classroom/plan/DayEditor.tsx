@@ -3,13 +3,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { AssignmentComposer } from '../assignments';
-import { useLocalSessionStore } from '../live/useLocalSessionStore';
+import { useStartClassroomSession } from '../live/useStartClassroomSession';
 import {
   PHASE_FULL_NAMES,
   PHASES,
   STUDENT_PHASE_LABELS,
   type PhaseKey,
 } from '../phases';
+import { findDanglingInteractionIds } from '../slides/deck';
+import { emptyDeck } from '../slides/deckEdit';
+import type { Slide } from '../slides/types';
+import { publishDay } from '../publish/publishDay';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import type {
   Cell,
@@ -18,6 +22,7 @@ import type {
   Interaction,
   LocalizedText,
 } from '../types';
+import { DeckEditor } from './DeckEditor';
 import { InteractionEditor } from './InteractionEditor';
 import { RationaleEditor } from './RationaleEditor';
 import { useLocalPlan } from './useLocalPlan';
@@ -45,7 +50,7 @@ export const DayEditor = () => {
   const { getDay, saveDay } = useLocalPlan();
   const cid = classroomId ?? '';
   const { publishDayToClassroom } = usePublishedDays(cid);
-  const { startSession } = useLocalSessionStore();
+  const startClassroomSession = useStartClassroomSession();
 
   const [draft, setDraft] = useState<Day | undefined>(() =>
     dayId ? getDay(dayId) : undefined,
@@ -124,6 +129,20 @@ export const DayEditor = () => {
     [],
   );
 
+  const updateDeckSlides = useCallback((slides: Slide[]) => {
+    setDraft((prev) => {
+      if (!prev) return prev;
+      const deck = prev.deck ?? emptyDeck(prev);
+      return { ...prev, deck: { ...deck, slides } };
+    });
+  }, []);
+
+  const createDeck = useCallback(() => {
+    setDraft((prev) =>
+      prev && !prev.deck ? { ...prev, deck: emptyDeck(prev) } : prev,
+    );
+  }, []);
+
   const updateRationale = useCallback(
     (phaseKey: PhaseKey, rationale: CellRationale) => {
       setDraft((prev) => {
@@ -142,33 +161,62 @@ export const DayEditor = () => {
     return secondsAgo < 5 ? 'Saved' : 'Saved a moment ago';
   }, [savedAt]);
 
+  // A deck that references a missing interaction id can't go live — gate at
+  // publish (never on the debounced autosave, which must not drop edits).
+  const danglingRefs = useMemo(
+    () => (draft ? findDanglingInteractionIds(publishDay(draft)) : []),
+    [draft],
+  );
+
   const handlePublish = useCallback(async () => {
     if (!draft) return;
     setPublishError(null);
+    if (danglingRefs.length > 0) {
+      setPublishError(
+        `Slides reference missing interactions: ${danglingRefs.join(', ')}`,
+      );
+      return;
+    }
     try {
       const pd = await publishDayToClassroom({ classroomId: cid, day: draft });
       setPublishedPill({ publishedDayId: pd.id, at: Date.now() });
     } catch (err) {
       setPublishError(err instanceof Error ? err.message : 'Publish failed');
     }
-  }, [draft, cid, publishDayToClassroom]);
+  }, [draft, cid, publishDayToClassroom, danglingRefs]);
 
   const handleStartSession = useCallback(async () => {
     if (!draft) return;
     setPublishError(null);
+    if (danglingRefs.length > 0) {
+      setPublishError(
+        `Slides reference missing interactions: ${danglingRefs.join(', ')}`,
+      );
+      return;
+    }
     try {
       const pd = await publishDayToClassroom({ classroomId: cid, day: draft });
       setPublishedPill({ publishedDayId: pd.id, at: Date.now() });
-      const s = startSession({ classroomId: cid, publishedDayId: pd.id });
+      const started = await startClassroomSession({
+        classroomId: cid,
+        publishedDayId: pd.id,
+      });
       navigate(
-        TeacherRoutes.session({ classroomId: cid, sessionId: s.sessionId }),
+        TeacherRoutes.session({ classroomId: cid, sessionId: started.sessionId }),
       );
     } catch (err) {
       setPublishError(
         err instanceof Error ? err.message : 'Start session failed',
       );
     }
-  }, [draft, cid, publishDayToClassroom, startSession, navigate]);
+  }, [
+    draft,
+    cid,
+    publishDayToClassroom,
+    startClassroomSession,
+    navigate,
+    danglingRefs,
+  ]);
 
   if (!draft) {
     return null;
@@ -268,6 +316,18 @@ export const DayEditor = () => {
           className="w-full rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 text-2xl font-medium text-white placeholder:text-white/30 focus:border-white/25 focus:outline-none md:text-3xl"
         />
       </label>
+
+      <section className="flex flex-col gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 md:p-5">
+        <h2 className="text-xs uppercase tracking-wider text-white/40">
+          Interactive slides
+        </h2>
+        <DeckEditor
+          deck={draft.deck}
+          cells={draft.cells}
+          onChangeSlides={updateDeckSlides}
+          onCreateDeck={createDeck}
+        />
+      </section>
 
       <div className="flex flex-col gap-4 md:gap-5">
         {PHASES.map((phaseKey) => (

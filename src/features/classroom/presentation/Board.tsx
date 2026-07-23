@@ -3,6 +3,7 @@ import type { PhaseKey } from '../phases';
 import type { StudentLanguage } from '../types';
 import { LaunchTile } from './LaunchTile';
 import { pickLocalized, secondaryLine } from './localized';
+import { PHASE_ACCENT_HEX } from './phaseAccent';
 
 interface BoardProps {
   view: StudentDayView;
@@ -55,6 +56,7 @@ const BoardCard = ({
   const titleAlt = secondaryLine(phase.title, language);
   const promptAlt = secondaryLine(phase.prompt, language);
   const labelPrimary = pickLocalized(phase.label, language);
+  const accent = PHASE_ACCENT_HEX[phase.phaseKey];
 
   return (
     <button
@@ -65,15 +67,25 @@ const BoardCard = ({
       className={`presentation-card flex flex-col gap-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${
         isCurrent ? 'is-current' : ''
       }`}
+      style={{
+        borderLeftWidth: '3px',
+        borderLeftColor: accent,
+        ...(isCurrent ? { boxShadow: `0 0 0 1px ${accent}` } : {}),
+      }}
     >
       <div className="flex items-center justify-between">
         <span
-          className="inline-flex rounded-full bg-white/[0.06] font-semibold uppercase tracking-widest text-white/80"
+          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] font-semibold uppercase tracking-widest text-white/80"
           style={{
             fontSize: 'calc(var(--pres-label-fz) * 0.75)',
-            padding: '0.25rem 0.625rem',
+            padding: '0.25rem 0.75rem',
           }}
         >
+          <span
+            aria-hidden
+            className="inline-block h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: accent }}
+          />
           {labelPrimary}
         </span>
         {isCurrent && (

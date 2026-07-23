@@ -1296,7 +1296,7 @@ export const createPrismSlice: StateCreator<
 
   mode: 'ionian',
 
-  rhythmName: 'Quarters',
+  rhythmName: 'Whole Notes',
   genre: 'Pop',
   swing: 0,
 

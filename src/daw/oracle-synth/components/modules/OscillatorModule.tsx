@@ -1,11 +1,29 @@
-import React from 'react';
+import React, { useMemo, useSyncExternalStore } from 'react';
 import { useSynthStore } from '../../store';
-import { Knob } from '../controls/Knob';
+import { useModIndicator } from '../../hooks/useModIndicator';
+import type { OscWarpMode } from '../../audio/types';
+import {
+  getRegisteredTableNames,
+  subscribeTableRegistry,
+} from '../../audio/wavetableImport';
+import { Knob, KnobModArc } from '../controls/Knob';
 import { Dropdown } from '../controls/Dropdown';
 import { Toggle } from '../controls/Toggle';
 import { NumberStepper } from '../controls/NumberStepper';
 import { WaveformVisualizer } from '../visualizers/WaveformVisualizer';
 import styles from './OscillatorModule.module.css';
+
+function offsetArc(
+  mod: { loOffset: number; hiOffset: number; liveOffset: number | null } | null,
+  base: number,
+): KnobModArc | null {
+  if (!mod) return null;
+  return {
+    lo: base + mod.loOffset,
+    hi: base + mod.hiOffset,
+    live: mod.liveOffset != null ? base + mod.liveOffset : null,
+  };
+}
 
 interface OscillatorModuleProps {
   index: 0 | 1;
@@ -13,7 +31,7 @@ interface OscillatorModuleProps {
   analyser?: AnalyserNode | null;
 }
 
-const WAVETABLE_OPTIONS = [
+const BUILT_IN_TABLES = [
   { value: 'SINE WAVE', label: 'SINE WAVE' },
   { value: 'SAWTOOTH', label: 'SAWTOOTH' },
   { value: 'TRIANGLE', label: 'TRIANGLE' },
@@ -24,12 +42,54 @@ const WAVETABLE_OPTIONS = [
   { value: 'HARMONIC', label: 'HARMONIC' },
 ];
 
+// Warp modes. Distortion family (live waveshapers) then phase family
+// (pre-baked into the wavetable frames). See audio/wavetableWarp.ts.
+const WARP_OPTIONS: { value: OscWarpMode; label: string }[] = [
+  { value: 'none', label: 'NO WARP' },
+  { value: 'hardclip', label: 'HARD CLIP' },
+  { value: 'softclip', label: 'SOFT CLIP' },
+  { value: 'tube', label: 'TUBE' },
+  { value: 'tapesat', label: 'TAPE SAT' },
+  { value: 'rectify', label: 'RECTIFY' },
+  { value: 'sineshaper', label: 'SINE SHAPE' },
+  { value: 'diode', label: 'DIODE' },
+  { value: 'fold', label: 'FOLD' },
+  { value: 'crush', label: 'CRUSH' },
+  { value: 'sync', label: 'SYNC' },
+  { value: 'pwm', label: 'PWM WARP' },
+  { value: 'bend', label: 'BEND' },
+  { value: 'squeeze', label: 'SQUEEZE' },
+  { value: 'quantize', label: 'QUANTIZE' },
+  { value: 'flip', label: 'FLIP' },
+];
+
 export const OscillatorModule: React.FC<OscillatorModuleProps> = React.memo(
   ({ index, accent = '#e87070', analyser }) => {
     const osc = useSynthStore((s) => s.oscillators[index]);
     const setParam = useSynthStore((s) => s.setOscParam);
 
     const label = index === 0 ? 'OSC 1' : 'OSC 2';
+    const oscId = index === 0 ? 'osc1' : 'osc2';
+
+    // Modulation rings on the matrix's osc destinations
+    const panArc = offsetArc(useModIndicator(oscId, 'pan'), osc.pan);
+    const levelArc = offsetArc(useModIndicator(oscId, 'level'), osc.level);
+
+    // Built-in tables + registered pack tables (e.g. the Serum pack)
+    const packTables = useSyncExternalStore(
+      subscribeTableRegistry,
+      getRegisteredTableNames,
+    );
+    const wavetableOptions = useMemo(
+      () => [
+        ...BUILT_IN_TABLES,
+        ...packTables.map((name) => ({
+          value: name,
+          label: name.replace(/^S2\//, '').toUpperCase(),
+        })),
+      ],
+      [packTables],
+    );
 
     return (
       <div className={styles.module}>
@@ -46,7 +106,7 @@ export const OscillatorModule: React.FC<OscillatorModuleProps> = React.memo(
 
         <Dropdown
           value={osc.wavetable}
-          options={WAVETABLE_OPTIONS}
+          options={wavetableOptions}
           onChange={(v) => setParam(index, 'wavetable', v)}
         />
 
@@ -98,6 +158,7 @@ export const OscillatorModule: React.FC<OscillatorModuleProps> = React.memo(
             max={1}
             defaultValue={0}
             accent={accent}
+            modArc={panArc}
             formatValue={(v) =>
               v === 0
                 ? 'C'
@@ -114,6 +175,7 @@ export const OscillatorModule: React.FC<OscillatorModuleProps> = React.memo(
             max={1}
             defaultValue={0.7}
             accent={accent}
+            modArc={levelArc}
             formatValue={(v) => `${Math.round(v * 100)}%`}
             onChange={(v) => setParam(index, 'level', v)}
           />
@@ -153,6 +215,27 @@ export const OscillatorModule: React.FC<OscillatorModuleProps> = React.memo(
             size={28}
             formatValue={(v) => `${Math.round(v * 100)}%`}
             onChange={(v) => setParam(index, 'unisonBlend', v)}
+          />
+        </div>
+
+        <div className={styles.unisonRow}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <Dropdown
+              value={osc.warpMode}
+              options={WARP_OPTIONS}
+              onChange={(v) => setParam(index, 'warpMode', v as OscWarpMode)}
+            />
+          </div>
+          <Knob
+            label="WARP"
+            value={osc.warpAmount}
+            min={0}
+            max={1}
+            defaultValue={0}
+            accent={accent}
+            size={28}
+            formatValue={(v) => `${Math.round(v * 100)}%`}
+            onChange={(v) => setParam(index, 'warpAmount', v)}
           />
         </div>
       </div>

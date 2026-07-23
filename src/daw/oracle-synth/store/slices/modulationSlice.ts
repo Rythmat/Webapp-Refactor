@@ -24,12 +24,13 @@ export const createModulationSlice: StateCreator<
         ...state.modRoutes,
         {
           id: `route-${++routeCounter}`,
-          lfoIndex: 0,
+          source: { type: 'lfo', index: 0 },
           target: { source: 'flt1', param: 'cutoff' } as ModTarget,
-          depthMin: 0,
-          depthMax: 0.5,
+          amount: 0.5,
+          polarity: 'unipolar',
+          curve: 'linear',
           enabled: true,
-        },
+        } satisfies ModRoute,
       ],
     })),
 

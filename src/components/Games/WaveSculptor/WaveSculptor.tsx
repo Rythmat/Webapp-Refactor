@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { ArcadeGameHeader } from '../ArcadeGameHeader';
 
 // --- Types ---
 
@@ -179,6 +180,31 @@ function emptySlot(): OscillatorSlot {
   return { frequency: 100, amplitude: 0, type: 'sine' };
 }
 
+// A single oscillator with randomized dials. Frequency snaps to the slider's
+// 50–500 Hz / 10 Hz grid and amplitude to its 20–100% / 5% grid (kept above 0
+// so the starting wave is audible and visible).
+function randomSlot(): OscillatorSlot {
+  const frequency = 50 + Math.floor(Math.random() * 46) * 10; // 50…500
+  const amplitude = (20 + Math.floor(Math.random() * 17) * 5) / 100; // 0.20…1.00
+  const type =
+    WAVEFORM_TYPES[Math.floor(Math.random() * WAVEFORM_TYPES.length)];
+  return { frequency, amplitude, type };
+}
+
+// Produce a randomized single-oscillator starting position for a challenge that
+// does NOT already clear the match threshold — otherwise the round would be won
+// on its opening values. Re-rolls until the similarity is safely below the bar
+// (with a defensive cap, falling back to a deliberately mismatched slot).
+function randomizeStartingSlots(challenge: Challenge): OscillatorSlot[] {
+  const target = renderWaveform(challenge.slots, SAMPLE_RATE);
+  for (let attempt = 0; attempt < 50; attempt++) {
+    const slots = [randomSlot()];
+    const player = renderWaveform(slots, SAMPLE_RATE);
+    if (computeSimilarity(target, player) < MATCH_THRESHOLD) return slots;
+  }
+  return [{ frequency: 330, amplitude: 0.2, type: 'sine' }];
+}
+
 // --- Audio preview ---
 
 class WavePreview {
@@ -242,14 +268,21 @@ class WavePreview {
 
 interface WaveSculptorProps {
   onComplete?: () => void;
+  /** Fired once each time a challenge is matched (drives the streak counter). */
+  onRoundWon?: () => void;
 }
 
-export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
+export default function WaveSculptor({
+  onComplete,
+  onRoundWon,
+}: WaveSculptorProps) {
   const [level, setLevel] = useState(0);
   const [challengeIndex, setChallengeIndex] = useState(0);
-  const [playerSlots, setPlayerSlots] = useState<OscillatorSlot[]>([
-    { frequency: 100, amplitude: 1, type: 'sine' },
-  ]);
+  // Start each challenge from randomized dials that are verified NOT to already
+  // match the target, so a round can never be won on its opening values.
+  const [playerSlots, setPlayerSlots] = useState<OscillatorSlot[]>(() =>
+    randomizeStartingSlots(CHALLENGES[0][0]),
+  );
   const [similarity, setSimilarity] = useState(0);
   const [roundComplete, setRoundComplete] = useState(false);
   const [roundsWon, setRoundsWon] = useState(0);
@@ -278,8 +311,9 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
     if (currentSimilarity >= MATCH_THRESHOLD && !roundComplete) {
       setRoundComplete(true);
       setRoundsWon((w) => w + 1);
+      onRoundWon?.();
     }
-  }, [currentSimilarity, roundComplete]);
+  }, [currentSimilarity, roundComplete, onRoundWon]);
 
   // Draw waveforms
   useEffect(() => {
@@ -382,18 +416,22 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
   }, [playerSlots]);
 
   const nextChallenge = useCallback(() => {
-    const levelChallenges = CHALLENGES[level];
-    if (challengeIndex + 1 < levelChallenges.length) {
-      setChallengeIndex((i) => i + 1);
-    } else if (level + 1 < CHALLENGES.length) {
-      setLevel((l) => l + 1);
-      setChallengeIndex(0);
-    } else {
+    // Resolve the upcoming (level, index) so we can seed randomized dials
+    // against the correct next target.
+    let nextLevel = level;
+    let nextIndex = challengeIndex + 1;
+    if (nextIndex >= CHALLENGES[level].length) {
+      nextLevel = level + 1;
+      nextIndex = 0;
+    }
+    if (nextLevel >= CHALLENGES.length) {
       onComplete?.();
       return;
     }
+    setLevel(nextLevel);
+    setChallengeIndex(nextIndex);
     setRoundComplete(false);
-    setPlayerSlots([{ frequency: 100, amplitude: 1, type: 'sine' }]);
+    setPlayerSlots(randomizeStartingSlots(CHALLENGES[nextLevel][nextIndex]));
     setSimilarity(0);
   }, [level, challengeIndex, onComplete]);
 
@@ -406,232 +444,238 @@ export default function WaveSculptor({ onComplete }: WaveSculptorProps) {
         : '#ef4444';
 
   return (
-    <div className="flex flex-col bg-[#101012] rounded-2xl overflow-hidden border border-white/10">
-      {/* Header */}
-      <div className="h-14 bg-white/[0.03] border-b border-white/10 flex items-center justify-between px-6">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-white font-serif">
-            Wave Sculptor
-          </h2>
-          <span className="text-xs text-zinc-500 font-mono">
-            Level {level + 1} · {challengeIndex + 1}/
-            {CHALLENGES[level]?.length ?? 0}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-zinc-500">Rounds won:</span>
-          <span className="text-sm text-emerald-400 font-mono">
-            {roundsWon}
-          </span>
-        </div>
-      </div>
-
-      {/* Challenge info */}
-      {challenge && (
-        <div className="h-10 bg-white/[0.02] border-b border-white/10 flex items-center px-6 gap-4">
-          <span className="text-xs text-zinc-500 uppercase tracking-wider">
-            Target:
-          </span>
-          <span className="text-sm text-white font-medium">
-            {challenge.label}
-          </span>
-          <span className="text-xs text-zinc-500">{challenge.description}</span>
-          <button
-            onClick={previewTarget}
-            className="text-xs text-purple-400 hover:text-purple-300 transition-colors ml-auto"
-          >
-            {isPreviewing ? 'Stop' : 'Listen'}
-          </button>
-        </div>
-      )}
-
-      {/* Waveform displays */}
-      <div className="p-4 grid grid-cols-2 gap-4">
-        <div>
-          <div className="text-xs text-zinc-500 mb-1 uppercase tracking-wider">
-            Target
-          </div>
-          <div className="rounded-lg border border-white/10 bg-white/[0.02] overflow-hidden">
-            <canvas
-              ref={targetCanvasRef}
-              width={512}
-              height={120}
-              className="w-full"
-            />
-          </div>
-        </div>
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-zinc-500 uppercase tracking-wider">
-              Your Wave
-            </span>
+    <div className="flex flex-col h-full w-full bg-[#101012] overflow-hidden">
+      <ArcadeGameHeader
+        title="Wave Sculptor"
+        controls={
+          <>
             <button
-              onClick={previewPlayer}
-              className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+              onClick={previewTarget}
+              className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-purple-300 transition-colors"
             >
-              Preview
+              {isPreviewing ? 'Stop' : 'Listen'}
             </button>
-          </div>
-          <div className="rounded-lg border border-white/10 bg-white/[0.02] overflow-hidden">
-            <canvas
-              ref={playerCanvasRef}
-              width={512}
-              height={120}
-              className="w-full"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Similarity meter */}
-      <div className="px-6 pb-2">
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-zinc-500 uppercase tracking-wider w-20">
-            Similarity
-          </span>
-          <div className="flex-1 h-2 bg-white/[0.05] rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-300"
-              style={{
-                width: `${similarityPct}%`,
-                backgroundColor: similarityColor,
-                boxShadow: `0 0 8px ${similarityColor}60`,
+            <button
+              onClick={() => {
+                if (challenge)
+                  setPlayerSlots(randomizeStartingSlots(challenge));
+                setSimilarity(0);
               }}
-            />
-          </div>
-          <span
-            className="text-sm font-mono w-12 text-right"
-            style={{ color: similarityColor }}
-          >
-            {similarityPct}%
-          </span>
-        </div>
-        {similarityPct >= 90 && (
-          <div className="text-xs text-zinc-400 mt-1">
-            {similarityPct >= 90 ? '90%+ threshold reached!' : ''}
-          </div>
-        )}
-      </div>
-
-      {/* Oscillator controls */}
-      <div className="px-4 pb-4">
-        <div className="flex flex-col gap-3">
-          {playerSlots.map((slot, idx) => (
-            <div
-              key={idx}
-              className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/10"
+              className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-300 transition-colors"
             >
-              <span className="text-xs text-zinc-500 w-8 shrink-0">
-                #{idx + 1}
+              Reset
+            </button>
+          </>
+        }
+        stats={[
+          {
+            label: 'Level',
+            value: `${level + 1} · ${challengeIndex + 1}/${CHALLENGES[level]?.length ?? 0}`,
+          },
+          { label: 'Rounds Won', value: roundsWon },
+        ]}
+      />
+
+      {/* Body — game components vertically centered, scrolling when they overflow */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="flex min-h-full flex-col justify-center">
+          {/* Challenge info */}
+          {challenge && (
+            <div className="flex items-center px-6 pt-3 gap-3">
+              <span className="text-xs text-zinc-500 uppercase tracking-wider">
+                Target:
               </span>
-
-              {/* Waveform type selector */}
-              <div className="flex gap-1">
-                {WAVEFORM_TYPES.map((wt) => (
-                  <button
-                    key={wt}
-                    onClick={() => updateSlot(idx, 'type', wt)}
-                    className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
-                      slot.type === wt
-                        ? 'text-white'
-                        : 'text-zinc-600 hover:text-zinc-300'
-                    }`}
-                    style={
-                      slot.type === wt
-                        ? {
-                            backgroundColor: WAVEFORM_COLORS[wt] + '40',
-                            color: WAVEFORM_COLORS[wt],
-                          }
-                        : undefined
-                    }
-                  >
-                    {wt}
-                  </button>
-                ))}
-              </div>
-
-              {/* Frequency slider */}
-              <div className="flex items-center gap-1.5 flex-1">
-                <span className="text-[10px] text-zinc-600 w-8">Freq</span>
-                <input
-                  type="range"
-                  min={50}
-                  max={500}
-                  step={10}
-                  value={slot.frequency}
-                  onChange={(e) =>
-                    updateSlot(idx, 'frequency', Number(e.target.value))
-                  }
-                  className="flex-1 accent-purple-500 h-1"
-                />
-                <span className="text-[10px] text-zinc-400 font-mono w-10 text-right">
-                  {slot.frequency}Hz
-                </span>
-              </div>
-
-              {/* Amplitude slider */}
-              <div className="flex items-center gap-1.5 flex-1">
-                <span className="text-[10px] text-zinc-600 w-8">Amp</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={5}
-                  value={Math.round(slot.amplitude * 100)}
-                  onChange={(e) =>
-                    updateSlot(idx, 'amplitude', Number(e.target.value) / 100)
-                  }
-                  className="flex-1 accent-cyan-500 h-1"
-                />
-                <span className="text-[10px] text-zinc-400 font-mono w-10 text-right">
-                  {Math.round(slot.amplitude * 100)}%
-                </span>
-              </div>
-
-              {/* Remove button */}
-              {playerSlots.length > 1 && (
-                <button
-                  onClick={() => removeSlot(idx)}
-                  className="text-zinc-600 hover:text-red-400 text-xs px-1 transition-colors"
-                >
-                  ×
-                </button>
-              )}
+              <span className="text-sm text-white font-medium">
+                {challenge.label}
+              </span>
+              <span className="text-xs text-zinc-500">
+                {challenge.description}
+              </span>
             </div>
-          ))}
-        </div>
+          )}
 
-        {playerSlots.length < maxSlots && (
-          <button
-            onClick={addSlot}
-            className="mt-2 text-xs text-zinc-500 hover:text-white transition-colors"
-          >
-            + Add Oscillator
-          </button>
-        )}
-      </div>
+          {/* Waveform displays */}
+          <div className="p-4 grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-xs text-zinc-500 mb-1 uppercase tracking-wider">
+                Target
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] overflow-hidden">
+                <canvas
+                  ref={targetCanvasRef}
+                  width={512}
+                  height={120}
+                  className="w-full"
+                />
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-zinc-500 uppercase tracking-wider">
+                  Your Wave
+                </span>
+                <button
+                  onClick={previewPlayer}
+                  className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+                >
+                  Preview
+                </button>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] overflow-hidden">
+                <canvas
+                  ref={playerCanvasRef}
+                  width={512}
+                  height={120}
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </div>
 
-      {/* Controls / Result */}
-      <div className="h-14 bg-white/[0.03] border-t border-white/10 flex items-center justify-between px-6">
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              setPlayerSlots([{ frequency: 100, amplitude: 1, type: 'sine' }]);
-              setSimilarity(0);
-            }}
-            className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-300 transition-colors"
-          >
-            Reset
-          </button>
+          {/* Similarity meter */}
+          <div className="px-6 pb-2">
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-zinc-500 uppercase tracking-wider w-20">
+                Similarity
+              </span>
+              <div className="flex-1 h-2 bg-white/[0.05] rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${similarityPct}%`,
+                    backgroundColor: similarityColor,
+                    boxShadow: `0 0 8px ${similarityColor}60`,
+                  }}
+                />
+              </div>
+              <span
+                className="text-sm font-mono w-12 text-right"
+                style={{ color: similarityColor }}
+              >
+                {similarityPct}%
+              </span>
+            </div>
+            {similarityPct >= 90 && (
+              <div className="text-xs text-zinc-400 mt-1">
+                {similarityPct >= 90 ? '90%+ threshold reached!' : ''}
+              </div>
+            )}
+          </div>
+
+          {/* Oscillator controls */}
+          <div className="px-4 pb-4">
+            <div className="flex flex-col gap-3">
+              {playerSlots.map((slot, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/10"
+                >
+                  <span className="text-xs text-zinc-500 w-8 shrink-0">
+                    #{idx + 1}
+                  </span>
+
+                  {/* Waveform type selector */}
+                  <div className="flex gap-1">
+                    {WAVEFORM_TYPES.map((wt) => (
+                      <button
+                        key={wt}
+                        onClick={() => updateSlot(idx, 'type', wt)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                          slot.type === wt
+                            ? 'text-white'
+                            : 'text-zinc-600 hover:text-zinc-300'
+                        }`}
+                        style={
+                          slot.type === wt
+                            ? {
+                                backgroundColor: WAVEFORM_COLORS[wt] + '40',
+                                color: WAVEFORM_COLORS[wt],
+                              }
+                            : undefined
+                        }
+                      >
+                        {wt}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Frequency slider */}
+                  <div className="flex items-center gap-1.5 flex-1">
+                    <span className="text-[10px] text-zinc-600 w-8">Freq</span>
+                    <input
+                      type="range"
+                      min={50}
+                      max={500}
+                      step={10}
+                      value={slot.frequency}
+                      onChange={(e) =>
+                        updateSlot(idx, 'frequency', Number(e.target.value))
+                      }
+                      className="flex-1 accent-purple-500 h-1"
+                    />
+                    <span className="text-[10px] text-zinc-400 font-mono w-10 text-right">
+                      {slot.frequency}Hz
+                    </span>
+                  </div>
+
+                  {/* Amplitude slider */}
+                  <div className="flex items-center gap-1.5 flex-1">
+                    <span className="text-[10px] text-zinc-600 w-8">Amp</span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={5}
+                      value={Math.round(slot.amplitude * 100)}
+                      onChange={(e) =>
+                        updateSlot(
+                          idx,
+                          'amplitude',
+                          Number(e.target.value) / 100,
+                        )
+                      }
+                      className="flex-1 accent-cyan-500 h-1"
+                    />
+                    <span className="text-[10px] text-zinc-400 font-mono w-10 text-right">
+                      {Math.round(slot.amplitude * 100)}%
+                    </span>
+                  </div>
+
+                  {/* Remove button */}
+                  {playerSlots.length > 1 && (
+                    <button
+                      onClick={() => removeSlot(idx)}
+                      className="text-zinc-600 hover:text-red-400 text-xs px-1 transition-colors"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {playerSlots.length < maxSlots && (
+              <button
+                onClick={addSlot}
+                className="mt-2 text-xs text-zinc-500 hover:text-white transition-colors"
+              >
+                + Add Oscillator
+              </button>
+            )}
+          </div>
+
+          {/* Next challenge */}
+          {roundComplete && (
+            <div className="flex justify-end px-6 pb-4">
+              <button
+                onClick={nextChallenge}
+                className="px-4 py-1.5 rounded text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+              >
+                Next Challenge →
+              </button>
+            </div>
+          )}
         </div>
-        {roundComplete && (
-          <button
-            onClick={nextChallenge}
-            className="px-4 py-1.5 rounded text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
-          >
-            Next Challenge →
-          </button>
-        )}
       </div>
     </div>
   );

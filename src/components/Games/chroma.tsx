@@ -13,6 +13,7 @@ import {
   getLocalChannel,
 } from '@/components/JamRoom/jamSoundFont';
 import { useStore } from '@/daw/store';
+import { ArcadeGameHeader } from './ArcadeGameHeader';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -557,18 +558,14 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
   return (
     <div
       style={{
-        height: '100%',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
-        backgroundColor: '#101012',
-        color: 'var(--color-text, #e2e8f0)',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 20,
-        padding: '24px 16px',
+        height: '100%',
+        width: '100%',
+        backgroundColor: '#101012',
+        color: 'var(--color-text, #e2e8f0)',
         position: 'relative',
+        overflow: 'hidden',
       }}
     >
       {/* ── Red flash overlay ── */}
@@ -586,340 +583,332 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
         }}
       />
 
-      {/* ── Title ── */}
-      <div style={{ textAlign: 'center' }}>
-        <h1
-          style={{
-            fontSize: 20,
-            fontWeight: 800,
-            letterSpacing: 5,
-            color: '#a78bfa',
-            margin: 0,
-            textTransform: 'uppercase',
-          }}
-        >
-          Chroma
-        </h1>
-        <p
-          style={{
-            fontSize: 10,
-            color: 'var(--color-text-dim, #6b7280)',
-            marginTop: 3,
-            letterSpacing: 1.5,
-            textTransform: 'uppercase',
-          }}
-        >
-          Pitch sequence recall
-        </p>
-      </div>
+      <ArcadeGameHeader title="Chroma" />
 
-      {/* ── Crystal ── */}
+      {/* ── Body ── */}
       <div
         style={{
+          position: 'relative',
+          flex: '1 1 0%',
+          minHeight: 0,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 10,
+          justifyContent: 'center',
+          gap: 20,
+          padding: '24px 16px',
         }}
       >
-        <Crystal lit={crystalLit} />
-        <div
-          style={{
-            fontSize: 11,
-            color:
-              phase === 'success'
-                ? '#a78bfa'
-                : phase === 'wrong'
-                  ? '#f87171'
-                  : 'var(--color-text-dim, #6b7280)',
-            fontWeight: 500,
-            minHeight: 16,
-            textAlign: 'center',
-            transition: 'color 0.3s',
-          }}
-        >
-          {statusLabel[phase]}
-        </div>
-      </div>
-
-      {/* ── Note slots ── */}
-      {showSlots && sequence.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            gap: 6,
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          {/* Root note — always revealed */}
-          <NoteSlot label="Root" active={playingIdx === 0} reveal />
-          {/* Remaining slots — one per interval to identify */}
-          {sequence.slice(1).map((note, i) => {
-            const isFilled = userInput[i] !== undefined;
-            const isNext = i === userInput.length && phase === 'input';
-            return (
-              <span
-                key={i}
-                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
-              >
-                <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>
-                  →
-                </span>
-                <NoteSlot
-                  label={
-                    phase === 'playing'
-                      ? undefined
-                      : isFilled
-                        ? CHROMATIC_NOTES[note % 12]
-                        : undefined
-                  }
-                  active={playingIdx === i + 1 || isNext}
-                  filled={isFilled}
-                />
-              </span>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ── Attempt pips ── */}
-      {showPips && (
-        <AttemptPips total={diffCfg.attempts} remaining={attemptsLeft} />
-      )}
-
-      {/* ── Difficulty select + Start button ── */}
-      {phase === 'select' && (
+        {/* ── Crystal ── */}
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 14,
+            gap: 10,
           }}
         >
-          {/* Difficulty buttons */}
-          <div style={{ display: 'flex', gap: 8 }}>
-            {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => {
-              const cfg = DIFF[d];
-              const selected = difficulty === d;
-              return (
-                <button
-                  key={d}
-                  onClick={() => setDifficulty(d)}
-                  style={{
-                    padding: '6px 16px',
-                    borderRadius: 8,
-                    border: `1.5px solid ${selected ? cfg.color : 'rgba(255,255,255,0.1)'}`,
-                    backgroundColor: selected
-                      ? `${cfg.color}1a`
-                      : 'transparent',
-                    color: selected ? cfg.color : 'rgba(255,255,255,0.45)',
-                    fontSize: 11,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.18s ease',
-                    letterSpacing: 0.5,
-                  }}
-                >
-                  {cfg.label}
-                </button>
-              );
-            })}
+          <Crystal lit={crystalLit} />
+          <div
+            style={{
+              fontSize: 11,
+              color:
+                phase === 'success'
+                  ? '#a78bfa'
+                  : phase === 'wrong'
+                    ? '#f87171'
+                    : 'var(--color-text-dim, #6b7280)',
+              fontWeight: 500,
+              minHeight: 16,
+              textAlign: 'center',
+              transition: 'color 0.3s',
+            }}
+          >
+            {statusLabel[phase]}
           </div>
-
-          {/* Start button */}
-          <button
-            onClick={handleStart}
-            style={{
-              padding: '9px 36px',
-              borderRadius: 10,
-              border: '1.5px solid #a78bfa',
-              backgroundColor: 'rgba(167,139,250,0.14)',
-              color: '#ddd6fe',
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
-              letterSpacing: 2,
-              textTransform: 'uppercase',
-              transition: 'all 0.18s ease',
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                'rgba(167,139,250,0.25)';
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                'rgba(167,139,250,0.14)';
-            }}
-          >
-            Start
-          </button>
         </div>
-      )}
 
-      {/* ── Success screen ── */}
-      {phase === 'success' && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 12,
-          }}
-        >
-          <button
-            onClick={handleReset}
-            style={{
-              padding: '9px 28px',
-              borderRadius: 10,
-              border: '1.5px solid #a78bfa',
-              backgroundColor: 'rgba(167,139,250,0.14)',
-              color: '#ddd6fe',
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: 'pointer',
-              letterSpacing: 2,
-              textTransform: 'uppercase',
-            }}
-          >
-            Play Again
-          </button>
-        </div>
-      )}
-
-      {/* ── Game over screen ── */}
-      {phase === 'game-over' && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 12,
-            textAlign: 'center',
-          }}
-        >
-          <p
-            style={{
-              fontSize: 12,
-              color: '#f87171',
-              fontWeight: 600,
-              margin: 0,
-            }}
-          >
-            The intervals were:
-          </p>
+        {/* ── Note slots ── */}
+        {showSlots && sequence.length > 0 && (
           <div
             style={{
               display: 'flex',
               gap: 6,
               flexWrap: 'wrap',
               justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
-            {/* Root tile — the starting note the intervals were measured from */}
-            <div
-              style={{
-                padding: '6px 12px',
-                borderRadius: 7,
-                border: '2px solid #a78bfa',
-                backgroundColor: 'rgba(167,139,250,0.12)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 2,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: '#ddd6fe',
-                  letterSpacing: 0.5,
-                }}
-              >
-                Root
-              </span>
-              <span
-                style={{
-                  fontSize: 8,
-                  color: 'rgba(221,214,254,0.7)',
-                }}
-              >
-                {CHROMATIC_NOTES[sequence[0] % 12]}
-              </span>
-            </div>
+            {/* Root note — always revealed */}
+            <NoteSlot label="Root" active={playingIdx === 0} reveal />
+            {/* Remaining slots — one per interval to identify */}
             {sequence.slice(1).map((note, i) => {
-              const interval = (((note - sequence[0]) % 12) + 12) % 12;
-              const intervalLabel =
-                ALL_INTERVALS.find((iv) => iv.semitones === interval)?.label ??
-                `${interval} st`;
+              const isFilled = userInput[i] !== undefined;
+              const isNext = i === userInput.length && phase === 'input';
               return (
-                <div
+                <span
                   key={i}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: 7,
-                    border: '2px solid #f87171',
-                    backgroundColor: 'rgba(248,113,113,0.1)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 2,
-                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6 }}
                 >
                   <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      color: '#fca5a5',
-                      letterSpacing: 0.5,
-                    }}
+                    style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}
                   >
-                    {intervalLabel}
+                    →
                   </span>
-                  <span
-                    style={{
-                      fontSize: 8,
-                      color: 'rgba(252,165,165,0.7)',
-                    }}
-                  >
-                    {CHROMATIC_NOTES[note % 12]}
-                  </span>
-                </div>
+                  <NoteSlot
+                    label={
+                      phase === 'playing'
+                        ? undefined
+                        : isFilled
+                          ? CHROMATIC_NOTES[note % 12]
+                          : undefined
+                    }
+                    active={playingIdx === i + 1 || isNext}
+                    filled={isFilled}
+                  />
+                </span>
               );
             })}
           </div>
-          <button
-            onClick={handleReset}
+        )}
+
+        {/* ── Attempt pips ── */}
+        {showPips && (
+          <AttemptPips total={diffCfg.attempts} remaining={attemptsLeft} />
+        )}
+
+        {/* ── Difficulty select + Start button ── */}
+        {phase === 'select' && (
+          <div
             style={{
-              marginTop: 4,
-              padding: '9px 28px',
-              borderRadius: 10,
-              border: '1.5px solid #f87171',
-              backgroundColor: 'rgba(248,113,113,0.1)',
-              color: '#fca5a5',
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: 'pointer',
-              letterSpacing: 2,
-              textTransform: 'uppercase',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 14,
             }}
           >
-            Try Again
-          </button>
-        </div>
-      )}
+            {/* Difficulty buttons */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => {
+                const cfg = DIFF[d];
+                const selected = difficulty === d;
+                return (
+                  <button
+                    key={d}
+                    onClick={() => setDifficulty(d)}
+                    style={{
+                      padding: '6px 16px',
+                      borderRadius: 8,
+                      border: `1.5px solid ${selected ? cfg.color : 'rgba(255,255,255,0.1)'}`,
+                      backgroundColor: selected
+                        ? `${cfg.color}1a`
+                        : 'transparent',
+                      color: selected ? cfg.color : 'rgba(255,255,255,0.45)',
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.18s ease',
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    {cfg.label}
+                  </button>
+                );
+              })}
+            </div>
 
-      {/* ── Interval buttons ── */}
-      <IntervalButtons
-        intervals={difficulty === 'easy' ? EASY_INTERVALS : ALL_INTERVALS}
-        onSelect={handleIntervalInput}
-        disabled={!isInputActive}
-      />
+            {/* Start button */}
+            <button
+              onClick={handleStart}
+              style={{
+                padding: '9px 36px',
+                borderRadius: 10,
+                border: '1.5px solid #a78bfa',
+                backgroundColor: 'rgba(167,139,250,0.14)',
+                color: '#ddd6fe',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+                transition: 'all 0.18s ease',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  'rgba(167,139,250,0.25)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  'rgba(167,139,250,0.14)';
+              }}
+            >
+              Start
+            </button>
+          </div>
+        )}
+
+        {/* ── Success screen ── */}
+        {phase === 'success' && (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 12,
+            }}
+          >
+            <button
+              onClick={handleReset}
+              style={{
+                padding: '9px 28px',
+                borderRadius: 10,
+                border: '1.5px solid #a78bfa',
+                backgroundColor: 'rgba(167,139,250,0.14)',
+                color: '#ddd6fe',
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: 'pointer',
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+              }}
+            >
+              Play Again
+            </button>
+          </div>
+        )}
+
+        {/* ── Game over screen ── */}
+        {phase === 'game-over' && (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 12,
+              textAlign: 'center',
+            }}
+          >
+            <p
+              style={{
+                fontSize: 12,
+                color: '#f87171',
+                fontWeight: 600,
+                margin: 0,
+              }}
+            >
+              The intervals were:
+            </p>
+            <div
+              style={{
+                display: 'flex',
+                gap: 6,
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+              }}
+            >
+              {/* Root tile — the starting note the intervals were measured from */}
+              <div
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: 7,
+                  border: '2px solid #a78bfa',
+                  backgroundColor: 'rgba(167,139,250,0.12)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 2,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: '#ddd6fe',
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  Root
+                </span>
+                <span
+                  style={{
+                    fontSize: 8,
+                    color: 'rgba(221,214,254,0.7)',
+                  }}
+                >
+                  {CHROMATIC_NOTES[sequence[0] % 12]}
+                </span>
+              </div>
+              {sequence.slice(1).map((note, i) => {
+                const interval = (((note - sequence[0]) % 12) + 12) % 12;
+                const intervalLabel =
+                  ALL_INTERVALS.find((iv) => iv.semitones === interval)
+                    ?.label ?? `${interval} st`;
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: 7,
+                      border: '2px solid #f87171',
+                      backgroundColor: 'rgba(248,113,113,0.1)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 2,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        color: '#fca5a5',
+                        letterSpacing: 0.5,
+                      }}
+                    >
+                      {intervalLabel}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 8,
+                        color: 'rgba(252,165,165,0.7)',
+                      }}
+                    >
+                      {CHROMATIC_NOTES[note % 12]}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <button
+              onClick={handleReset}
+              style={{
+                marginTop: 4,
+                padding: '9px 28px',
+                borderRadius: 10,
+                border: '1.5px solid #f87171',
+                backgroundColor: 'rgba(248,113,113,0.1)',
+                color: '#fca5a5',
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: 'pointer',
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+              }}
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {/* ── Interval buttons ── */}
+        <IntervalButtons
+          intervals={difficulty === 'easy' ? EASY_INTERVALS : ALL_INTERVALS}
+          onSelect={handleIntervalInput}
+          disabled={!isInputActive}
+        />
+      </div>
     </div>
   );
 }

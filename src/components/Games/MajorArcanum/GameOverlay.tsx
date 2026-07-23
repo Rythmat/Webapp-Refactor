@@ -57,13 +57,13 @@ export function StartScreen({
 interface GameOverScreenProps {
   score: number;
   gameState: GameState;
-  onRestart: () => void;
+  onPlayAgain: () => void;
 }
 
 export function GameOverScreen({
   score,
   gameState: st,
-  onRestart,
+  onPlayAgain,
 }: GameOverScreenProps) {
   const totalAttempted = st.hits + st.misses;
   const accuracy =
@@ -131,10 +131,10 @@ export function GameOverScreen({
       </div>
 
       <button
-        onClick={onRestart}
+        onClick={onPlayAgain}
         className="px-8 py-3 border border-white/10 bg-white/[0.05] hover:bg-white/[0.08] text-white font-medium rounded transition-all"
       >
-        Restart
+        Play Again
       </button>
     </div>
   );

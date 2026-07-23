@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import { ionianChordColor } from '@/lib/ionianChordColor';
+import { ArcadeGameHeader } from './ArcadeGameHeader';
 
 const MAX_BEATS = 16;
 const BEAT_REWARD = 4;
@@ -334,6 +335,8 @@ export type BoardChoiceGameProps = {
   targetNotes?: number[];
   targetLabel?: string;
   className?: string;
+  /** Render the full arcade layout (big header + fill sizing). Off in lessons. */
+  arcade?: boolean;
   onComplete?: () => void;
   onCorrect?: () => void;
   onWrong?: () => void;
@@ -348,6 +351,7 @@ export function BoardChoiceGame({
   targetNotes,
   targetLabel,
   className,
+  arcade = false,
   onComplete,
   onCorrect,
   onWrong,
@@ -593,19 +597,8 @@ export function BoardChoiceGame({
     beatCountRef.current = 0;
   }, []);
 
-  return (
-    <div
-      className={className}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        height: '100dvh',
-        boxSizing: 'border-box',
-        padding: '12px 0',
-        overflow: 'hidden',
-      }}
-    >
+  const gameplay = (
+    <>
       {/* Beat indicator */}
       <div
         style={{
@@ -657,12 +650,17 @@ export function BoardChoiceGame({
             {resolvedTargetLabel}
           </span>
         )}
-        {multiplier > 1 && (
+        {!arcade && (
           <span
             style={{
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: 700,
-              color: '#22c55e',
+              color: '#e8e8f0',
+              letterSpacing: 1,
+              padding: '2px 10px',
+              borderRadius: 8,
+              backgroundColor: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.12)',
             }}
           >
             x{multiplier}
@@ -978,6 +976,61 @@ export function BoardChoiceGame({
           })}
         </div>
       )}
+    </>
+  );
+
+  if (arcade) {
+    return (
+      <div
+        className={className}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          width: '100%',
+          boxSizing: 'border-box',
+          overflow: 'hidden',
+        }}
+      >
+        <ArcadeGameHeader
+          title="Board Choice"
+          stats={[
+            { label: 'Score', value: score },
+            { label: 'Multiplier', value: `x${multiplier}` },
+          ]}
+        />
+
+        <div
+          style={{
+            position: 'relative',
+            flex: '1 1 0%',
+            minHeight: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            padding: '12px 0',
+          }}
+        >
+          {gameplay}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={className}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        height: '100dvh',
+        boxSizing: 'border-box',
+        padding: '12px 0',
+        overflow: 'hidden',
+      }}
+    >
+      {gameplay}
     </div>
   );
 }

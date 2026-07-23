@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-sort-props */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePrismRhythms } from '@/hooks/data/prism/usePrismRhythms';
+import { ArcadeGameHeader } from './ArcadeGameHeader';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -1113,209 +1114,187 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 20,
-        padding: '24px 16px',
-        minHeight: '70vh',
+        height: '100%',
+        width: '100%',
+        position: 'relative',
       }}
     >
-      {/* Title + Score + Lives */}
-      <div style={{ textAlign: 'center' }}>
-        <h1
-          style={{
-            fontSize: 20,
-            fontWeight: 800,
-            letterSpacing: 5,
-            color: '#a78bfa',
-            margin: 0,
-            textTransform: 'uppercase',
-          }}
-        >
-          Foli
-        </h1>
-        <p
-          style={{
-            fontSize: 10,
-            color: 'var(--color-text-dim, #6b7280)',
-            marginTop: 3,
-            letterSpacing: 1.5,
-            textTransform: 'uppercase',
-          }}
-        >
-          Rhythmic recall
-        </p>
-      </div>
-
-      {/* Lives and Score bar */}
-      {phase !== 'loading' && phase !== 'ready' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          {/* Lives as hex icons */}
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-            {Array.from({ length: MAX_LIVES }).map((_, i) => (
-              <svg key={i} width={14} height={14} viewBox="-7 -7 14 14">
-                <polygon
-                  points={hexPts}
-                  fill={i < lives ? '#a78bfa' : 'rgba(255,255,255,0.08)'}
-                  stroke={i < lives ? '#c4b5fd' : 'rgba(255,255,255,0.06)'}
-                  strokeWidth={1}
-                  style={{ transition: 'fill 0.3s, stroke 0.3s' }}
-                />
-              </svg>
-            ))}
-          </div>
-
-          {/* Score */}
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              fontFamily: 'monospace',
-              color: '#ddd6fe',
-              letterSpacing: 1,
-            }}
-          >
-            {score}
-          </span>
-        </div>
-      )}
-
-      {/* Foil drums */}
-      <FoilDrums
-        leftGlow={leftGlow}
-        rightGlow={rightGlow}
-        disabled={!isInputActive}
-        onPressLeft={() => handleHit('left')}
-        onPressRight={() => handleHit('right')}
+      <ArcadeGameHeader
+        title="Foli"
+        stats={[
+          {
+            label: 'Lives',
+            value: (
+              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                {Array.from({ length: MAX_LIVES }).map((_, i) => (
+                  <svg key={i} width={14} height={14} viewBox="-7 -7 14 14">
+                    <polygon
+                      points={hexPts}
+                      fill={i < lives ? '#a78bfa' : 'rgba(255,255,255,0.08)'}
+                      stroke={i < lives ? '#c4b5fd' : 'rgba(255,255,255,0.06)'}
+                      strokeWidth={1}
+                      style={{ transition: 'fill 0.3s, stroke 0.3s' }}
+                    />
+                  </svg>
+                ))}
+              </div>
+            ),
+          },
+          { label: 'Score', value: score },
+        ]}
       />
 
-      {/* Status */}
-      {phase !== 'gameover' && (
-        <div
-          style={{
-            fontSize: 11,
-            fontWeight: 500,
-            minHeight: 16,
-            textAlign: 'center',
-            transition: 'color 0.3s',
-            color:
-              phase === 'success'
-                ? '#22c55e'
-                : phase === 'fail'
-                  ? '#f87171'
-                  : 'var(--color-text-dim, #6b7280)',
-          }}
-        >
-          {statusLabel[phase]}
-        </div>
-      )}
-
-      {/* Rhythm notation */}
-      {(phase === 'listening' || phase === 'input') && sequence.length > 0 && (
-        <RhythmNotation
-          sequence={sequence}
-          matched={matched}
-          barStartTime={barStartTime}
+      <div
+        style={{
+          position: 'relative',
+          flex: '1 1 0%',
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 20,
+          padding: '24px 16px',
+        }}
+      >
+        {/* Foil drums */}
+        <FoilDrums
+          leftGlow={leftGlow}
+          rightGlow={rightGlow}
+          disabled={!isInputActive}
+          onPressLeft={() => handleHit('left')}
+          onPressRight={() => handleHit('right')}
         />
-      )}
 
-      {/* Game Over screen */}
-      {phase === 'gameover' && (
-        <div
-          style={{
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 12,
-            alignItems: 'center',
-          }}
-        >
+        {/* Status */}
+        {phase !== 'gameover' && (
           <div
             style={{
-              fontSize: 16,
-              fontWeight: 800,
-              letterSpacing: 3,
-              color: '#f87171',
-              textTransform: 'uppercase',
+              fontSize: 11,
+              fontWeight: 500,
+              minHeight: 16,
+              textAlign: 'center',
+              transition: 'color 0.3s',
+              color:
+                phase === 'success'
+                  ? '#22c55e'
+                  : phase === 'fail'
+                    ? '#f87171'
+                    : 'var(--color-text-dim, #6b7280)',
             }}
           >
-            Game Over
+            {statusLabel[phase]}
           </div>
+        )}
+
+        {/* Rhythm notation */}
+        {(phase === 'listening' || phase === 'input') &&
+          sequence.length > 0 && (
+            <RhythmNotation
+              sequence={sequence}
+              matched={matched}
+              barStartTime={barStartTime}
+            />
+          )}
+
+        {/* Game Over screen */}
+        {phase === 'gameover' && (
+          <div
+            style={{
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+              alignItems: 'center',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: 800,
+                letterSpacing: 3,
+                color: '#f87171',
+                textTransform: 'uppercase',
+              }}
+            >
+              Game Over
+            </div>
+            <div
+              style={{
+                fontSize: 11,
+                color: 'var(--color-text-dim, #6b7280)',
+              }}
+            >
+              Final Score:{' '}
+              <span
+                style={{
+                  color: '#ddd6fe',
+                  fontWeight: 700,
+                  fontFamily: 'monospace',
+                }}
+              >
+                {score}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Start / Play Again */}
+        {(phase === 'ready' || phase === 'gameover') && (
+          <button
+            onClick={
+              phase === 'ready'
+                ? startGame
+                : () => {
+                    handleReset();
+                  }
+            }
+            style={{
+              padding: '9px 36px',
+              borderRadius: 10,
+              border: `1.5px solid ${phase === 'gameover' ? '#f87171' : '#a78bfa'}`,
+              backgroundColor:
+                phase === 'gameover'
+                  ? 'rgba(248,113,113,0.1)'
+                  : 'rgba(167,139,250,0.14)',
+              color: phase === 'gameover' ? '#fca5a5' : '#ddd6fe',
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: 'pointer',
+              letterSpacing: 2,
+              textTransform: 'uppercase',
+              transition: 'all 0.18s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor =
+                phase === 'gameover'
+                  ? 'rgba(248,113,113,0.2)'
+                  : 'rgba(167,139,250,0.25)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor =
+                phase === 'gameover'
+                  ? 'rgba(248,113,113,0.1)'
+                  : 'rgba(167,139,250,0.14)';
+            }}
+          >
+            {phase === 'ready' ? 'Start' : 'Play Again'}
+          </button>
+        )}
+
+        {/* Loading state */}
+        {phase === 'loading' && (
           <div
             style={{
               fontSize: 11,
               color: 'var(--color-text-dim, #6b7280)',
+              letterSpacing: 1,
             }}
           >
-            Final Score:{' '}
-            <span
-              style={{
-                color: '#ddd6fe',
-                fontWeight: 700,
-                fontFamily: 'monospace',
-              }}
-            >
-              {score}
-            </span>
+            Loading rhythms…
           </div>
-        </div>
-      )}
-
-      {/* Start / Play Again */}
-      {(phase === 'ready' || phase === 'gameover') && (
-        <button
-          onClick={
-            phase === 'ready'
-              ? startGame
-              : () => {
-                  handleReset();
-                }
-          }
-          style={{
-            padding: '9px 36px',
-            borderRadius: 10,
-            border: `1.5px solid ${phase === 'gameover' ? '#f87171' : '#a78bfa'}`,
-            backgroundColor:
-              phase === 'gameover'
-                ? 'rgba(248,113,113,0.1)'
-                : 'rgba(167,139,250,0.14)',
-            color: phase === 'gameover' ? '#fca5a5' : '#ddd6fe',
-            fontSize: 13,
-            fontWeight: 700,
-            cursor: 'pointer',
-            letterSpacing: 2,
-            textTransform: 'uppercase',
-            transition: 'all 0.18s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor =
-              phase === 'gameover'
-                ? 'rgba(248,113,113,0.2)'
-                : 'rgba(167,139,250,0.25)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor =
-              phase === 'gameover'
-                ? 'rgba(248,113,113,0.1)'
-                : 'rgba(167,139,250,0.14)';
-          }}
-        >
-          {phase === 'ready' ? 'Start' : 'Play Again'}
-        </button>
-      )}
-
-      {/* Loading state */}
-      {phase === 'loading' && (
-        <div
-          style={{
-            fontSize: 11,
-            color: 'var(--color-text-dim, #6b7280)',
-            letterSpacing: 1,
-          }}
-        >
-          Loading rhythms…
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

@@ -152,3 +152,43 @@ describe('Reset', () => {
     expect(dist).not.toBeNull();
   });
 });
+
+describe('Decimation (Studio skip factor)', () => {
+  it('computes on the first tick, then reuses the last result on skipped ticks', () => {
+    const s = new HiResPitchStream(SR, FFT);
+    s.setSkipFactor(3);
+    const analyser = createMockAnalyser({
+      sampleRate: SR,
+      fftSize: FFT,
+      timeDomainData: makeSine(440, SR, FFT),
+    });
+
+    const d1 = s.process(analyser as unknown as AnalyserNode); // tick 1 → compute
+    expect(d1).not.toBeNull();
+
+    // Ticks 2 & 3 skip the CMNDF and return the exact same object (even though
+    // the buffer changed — the analyser is never read on skipped ticks).
+    analyser.setTimeDomainData(makeSine(660, SR, FFT));
+    expect(s.process(analyser as unknown as AnalyserNode)).toBe(d1); // tick 2
+    expect(s.process(analyser as unknown as AnalyserNode)).toBe(d1); // tick 3
+
+    const d4 = s.process(analyser as unknown as AnalyserNode); // tick 4 → compute
+    expect(d4).not.toBeNull();
+    expect(d4).not.toBe(d1);
+  });
+
+  it('skipFactor=1 (default) computes every tick — Learn behavior unchanged', () => {
+    const s = new HiResPitchStream(SR, FFT); // default skip = 1
+    const analyser = createMockAnalyser({
+      sampleRate: SR,
+      fftSize: FFT,
+      timeDomainData: makeSine(440, SR, FFT),
+    });
+    const d1 = s.process(analyser as unknown as AnalyserNode);
+    analyser.setTimeDomainData(makeSine(660, SR, FFT));
+    const d2 = s.process(analyser as unknown as AnalyserNode);
+    expect(d1).not.toBeNull();
+    expect(d2).not.toBeNull();
+    expect(d2).not.toBe(d1); // recomputed each tick (distinct object)
+  });
+});

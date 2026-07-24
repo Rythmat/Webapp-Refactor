@@ -30,6 +30,10 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['@ffmpeg/ffmpeg', 'ffmpeg', 'date-fns'],
+    // react-qr-code is only reachable behind lazy classroom/teacher routes, so
+    // Vite discovers it mid-session and re-optimizes — stranding already-loaded
+    // pages on stale dep chunks. Pre-bundle it at startup to avoid that churn.
+    include: ['react-qr-code'],
   },
   define: {
     __COMMIT_SHA__: JSON.stringify(process.env.VERCEL_GIT_COMMIT_SHA || 'dev'),

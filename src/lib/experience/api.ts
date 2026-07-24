@@ -7,14 +7,24 @@ import type {
   ExperienceSummaryResponse,
 } from './types';
 
-function normalizedApiBase() {
+export function normalizedApiBase() {
   return Env.get('VITE_MUSIC_ATLAS_API_URL').replace(/\/+$/, '');
 }
 
-function experiencePath(path: string) {
+/**
+ * Route path for a section of `music-atlas-api`. When the base URL already
+ * ends in `/api` (some proxy setups) we drop the redundant prefix; otherwise
+ * we prepend `/api`. Kept as one helper so both experience/challenges paths
+ * agree on the convention.
+ */
+export function apiSectionPath(section: string, path: string) {
   const base = normalizedApiBase();
-  const prefix = base.endsWith('/api') ? '/experience' : '/api/experience';
+  const prefix = base.endsWith('/api') ? `/${section}` : `/api/${section}`;
   return `${prefix}${path}`;
+}
+
+function experiencePath(path: string) {
+  return apiSectionPath('experience', path);
 }
 
 function parseApiResponse(text: string): unknown {
@@ -30,7 +40,7 @@ function parseApiResponse(text: string): unknown {
   }
 }
 
-async function apiRequest<T>(
+export async function apiRequest<T>(
   path: string,
   params: {
     method?: 'GET' | 'POST';
@@ -58,7 +68,7 @@ async function apiRequest<T>(
         ? (parsed as { message?: string; error?: string })
         : undefined;
     const message =
-      parsedObj?.message ?? parsedObj?.error ?? 'Experience request failed';
+      parsedObj?.message ?? parsedObj?.error ?? 'API request failed';
     throw new Error(
       `${params.method ?? 'GET'} ${path} failed (${response.status}): ${message}`,
     );
@@ -96,29 +106,15 @@ export const experienceApi = {
     );
   },
 
-  // ── Challenge rewards (external contract — see docs/challenges-rewards-
-  // contract.md). These endpoints don't exist yet; callers degrade gracefully
-  // (challenge completion is still tracked; the real XP/boost just no-op). ──
-
-  /** Grant a flat XP reward (× any active boost). Dedupe by `source`. */
-  awardChallenge: (token: string, amount: number, source: string) =>
-    apiRequest<ExperienceAwardResponse>(experiencePath('/award'), {
-      token,
-      method: 'POST',
-      body: { amount, source },
-    }),
+  // ── Boost badge feed. Challenge XP + boost activation now happen on the
+  // backend directly via /api/challenges/:id/complete and
+  // /api/challenges/boost/claim (see src/lib/challenges/api.ts); the
+  // frontend only READS the active window here. ──
 
   /** Current active XP boost (multiplier applied to all awards while active). */
   getBoost: (token: string) =>
     apiRequest<{ multiplier: number; expiresAt: string | null }>(
       experiencePath('/boost'),
       { token },
-    ),
-
-  /** Start a boost window now. */
-  startBoost: (token: string, multiplier: number, durationMs: number) =>
-    apiRequest<{ multiplier: number; expiresAt: string | null }>(
-      experiencePath('/boost'),
-      { token, method: 'POST', body: { multiplier, durationMs } },
     ),
 };

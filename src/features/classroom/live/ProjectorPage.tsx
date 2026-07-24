@@ -5,6 +5,7 @@ import { usePublishedDays } from '../publish/usePublishedDays';
 import type { Interaction, InteractionResponse } from '../types';
 import { AnonymousShareOverlay } from './AnonymousShareOverlay';
 import { buildProjectorView } from './buildProjectorView';
+import { ProjectorDeckView } from './slides/ProjectorDeckView';
 import { useLiveResponses } from './useLiveResponses';
 import { useSessionSync } from './useSessionSync';
 
@@ -16,7 +17,7 @@ export const ProjectorPage = () => {
   const cid = classroomId ?? '';
   const sid = sessionId ?? '';
 
-  const { state } = useSessionSync(sid, 'projector');
+  const { state } = useSessionSync(sid, 'projector', cid);
   const { responsesByEnrollment } = useLiveResponses(sid);
   const { getPublishedDay } = usePublishedDays(cid);
 
@@ -60,6 +61,21 @@ export const ProjectorPage = () => {
     }
     return out;
   }, [sharedInteraction, responsesByEnrollment, sid, state]);
+
+  // Deck sessions get the full-slide projected surface; legacy sessions
+  // keep the cream anonymous-share overlay below. Guard on slides.length so an
+  // empty deck (publishDay drops it; defensive here) falls through to the
+  // legacy overlay instead of stranding the projector on "Get ready…".
+  if (state && publishedDay?.snapshot.deck && publishedDay.snapshot.deck.slides.length > 0) {
+    return (
+      <ProjectorDeckView
+        snapshot={publishedDay.snapshot}
+        state={state}
+        sessionId={sid}
+        responsesByEnrollment={responsesByEnrollment}
+      />
+    );
+  }
 
   if (!state || !sharedInteraction) {
     return (

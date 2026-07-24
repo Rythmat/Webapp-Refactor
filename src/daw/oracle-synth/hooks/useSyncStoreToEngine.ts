@@ -1,11 +1,28 @@
 import { useEffect } from 'react';
 import { SynthEngine } from '../audio/SynthEngine';
+import { scaleMask } from '../audio/ScaleQuantizer';
 import { useSynthStore } from '../store';
+import { loadOraclePacks } from '../store/presets/packLoader';
 import { shallow } from 'zustand/shallow';
+import {
+  acquireModIndicatorEngine,
+  releaseModIndicatorEngine,
+} from './useModIndicator';
+import type { KeyScaleParams } from '../store/slices/keyScaleSlice';
+
+function pushKeyScale(engine: SynthEngine, ks: KeyScaleParams): void {
+  engine.setKeyScale(scaleMask(ks.rootPc, ks.mode), ks.snapMode, ks.enabled);
+}
 
 export function useSyncStoreToEngine(engine: SynthEngine | null) {
   useEffect(() => {
     if (!engine) return;
+
+    // Expose the live engine to the modulation-ring indicator hook
+    acquireModIndicatorEngine(engine);
+
+    // Load factory extension packs (idempotent; silent when none installed)
+    void loadOraclePacks();
 
     const unsubs: (() => void)[] = [];
 
@@ -13,7 +30,10 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.oscillators[0],
-        (osc) => engine.setOscillatorParams(0, osc),
+        (osc) => {
+          engine.setOscillatorParams(0, osc);
+          void engine.ensureWavetables([osc.wavetable]);
+        },
         { equalityFn: shallow },
       ),
     );
@@ -22,7 +42,10 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
     unsubs.push(
       useSynthStore.subscribe(
         (state) => state.oscillators[1],
-        (osc) => engine.setOscillatorParams(1, osc),
+        (osc) => {
+          engine.setOscillatorParams(1, osc);
+          void engine.ensureWavetables([osc.wavetable]);
+        },
         { equalityFn: shallow },
       ),
     );
@@ -217,6 +240,15 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       ),
     );
 
+    // FX: Reverb
+    unsubs.push(
+      useSynthStore.subscribe(
+        (state) => state.fx.reverb,
+        (reverb) => engine.setReverbParams(reverb),
+        { equalityFn: shallow },
+      ),
+    );
+
     // FX: Compressor
     unsubs.push(
       useSynthStore.subscribe(
@@ -244,11 +276,38 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
       ),
     );
 
+    // Macros
+    unsubs.push(
+      useSynthStore.subscribe(
+        (state) => state.macros,
+        (macros, prev) => {
+          for (let i = 0; i < macros.length; i++) {
+            if (!prev || macros[i].value !== prev[i]?.value) {
+              engine.setMacro(i, macros[i].value);
+            }
+          }
+        },
+      ),
+    );
+
+    // Key/Scale lock
+    unsubs.push(
+      useSynthStore.subscribe(
+        (state) => state.keyScale,
+        (ks) => pushKeyScale(engine, ks),
+        { equalityFn: shallow },
+      ),
+    );
+
     // Initial sync — subscriptions only fire on changes, not initial values.
     // Push the current store state to the engine so defaults are applied.
     const s = useSynthStore.getState();
     engine.setOscillatorParams(0, s.oscillators[0]);
     engine.setOscillatorParams(1, s.oscillators[1]);
+    void engine.ensureWavetables([
+      s.oscillators[0].wavetable,
+      s.oscillators[1].wavetable,
+    ]);
     engine.setSubOscillatorParams(s.subOscillator);
     engine.setNoiseParams(s.noise);
     engine.setFilterParams(0, s.filters[0]);
@@ -273,10 +332,18 @@ export function useSyncStoreToEngine(engine: SynthEngine | null) {
     engine.setChorusParams(s.fx.chorus);
     engine.setPhaserParams(s.fx.phaser);
     engine.setDelayParams(s.fx.delay);
+    engine.setReverbParams(s.fx.reverb);
     engine.setCompressorParams(s.fx.compressor);
     engine.setRouting(s.routing);
     engine.setArpParams(s.arp);
+    for (let i = 0; i < s.macros.length; i++) {
+      engine.setMacro(i, s.macros[i].value);
+    }
+    pushKeyScale(engine, s.keyScale);
 
-    return () => unsubs.forEach((fn) => fn());
+    return () => {
+      releaseModIndicatorEngine(engine);
+      unsubs.forEach((fn) => fn());
+    };
   }, [engine]);
 }

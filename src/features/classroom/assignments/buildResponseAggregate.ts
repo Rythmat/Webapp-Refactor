@@ -79,13 +79,23 @@ export interface AtlasAggregate extends AggregateBase {
   }>;
 }
 
+export interface ShowcaseAggregate extends AggregateBase {
+  kind: 'showcase';
+  offers: Array<{
+    enrollmentId: string;
+    displayName: string;
+    artifact: { projectId: string; roomId?: string; name: string };
+  }>;
+}
+
 export type ResponseAggregate =
   | ChoiceAggregate
   | TextAggregate
   | NumberAggregate
   | DrawAggregate
   | CheckInAggregate
-  | AtlasAggregate;
+  | AtlasAggregate
+  | ShowcaseAggregate;
 
 const MAX_DRAW_STROKES = 500;
 const MAX_DRAW_BYTES = 200 * 1024;
@@ -285,6 +295,29 @@ export const buildResponseAggregate = (
             } => Boolean(r),
           );
         return { ...base, kind: 'atlas', results };
+      }
+
+      case 'showcase': {
+        const offers = matched
+          .map(({ enrollmentId, payload }) =>
+            payload.kind === 'showcase'
+              ? {
+                  enrollmentId,
+                  displayName: resolveName(getDisplayName, enrollmentId),
+                  artifact: payload.artifact,
+                }
+              : null,
+          )
+          .filter(
+            (
+              r,
+            ): r is {
+              enrollmentId: string;
+              displayName: string;
+              artifact: { projectId: string; roomId?: string; name: string };
+            } => Boolean(r),
+          );
+        return { ...base, kind: 'showcase', offers };
       }
     }
   });

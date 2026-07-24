@@ -200,6 +200,14 @@ export interface HexWaveBackgroundProps {
    *  colorThreshold — a hex paints iff its fill is in this list (case-insensitive).
    *  Lets low-saturation pastels be interactive. Use a stable reference. */
   paintColors?: string[];
+  /** Occasional accent colours a painted hex can take instead of another shade
+   *  from the artwork's palette. Drawn in a reshuffled, no-repeat cycle — every
+   *  colour shows once before any repeats. Use a stable reference. */
+  accentColors?: string[];
+  /** Probability (0..1) that a repaint uses an accent colour instead of shifting
+   *  to another artwork shade. 0 (default) = never, so existing callers are
+   *  unchanged. */
+  accentChance?: number;
   /** Cursor brush radius, in screen px. */
   brushRadius?: number;
   /** Drift random hexes to new palette colours while idle. */
@@ -215,6 +223,8 @@ export function HexWaveBackground({
   backgroundColor = '#b8b6b6',
   colorThreshold = 0.1,
   paintColors,
+  accentColors,
+  accentChance = 0,
   brushRadius = 140,
   ambient = false,
   ambientIntervalMs = 450,
@@ -295,6 +305,23 @@ export function HexWaveBackground({
       };
     }
 
+    // Accent colours drawn in a reshuffled, no-repeat cycle: every colour appears
+    // once before any repeats (Fisher–Yates over an index bag).
+    const accentRGB = (accentColors ?? []).map((c) => toRgb(c));
+    let accentBag: number[] = [];
+    function nextAccent(): [number, number, number] {
+      if (accentBag.length === 0) {
+        accentBag = accentRGB.map((_, i) => i);
+        for (let i = accentBag.length - 1; i > 0; i--) {
+          const j = (Math.random() * (i + 1)) | 0;
+          const t = accentBag[i];
+          accentBag[i] = accentBag[j];
+          accentBag[j] = t;
+        }
+      }
+      return accentRGB[accentBag.pop() as number];
+    }
+
     // Commit a fresh palette colour on hex i, easing from whatever is shown now.
     function recolour(i: number) {
       const { fromRGB, toRGB, prog, palette } = scene!;
@@ -307,7 +334,11 @@ export function HexWaveBackground({
         (from[2] + (to[2] - from[2]) * p) | 0,
       ];
       fromRGB[i] = shown;
-      toRGB[i] = pickColour(palette, shown);
+      // Mostly shift to another grey shade; occasionally bloom into an accent colour.
+      toRGB[i] =
+        accentRGB.length > 0 && Math.random() < accentChance
+          ? nextAccent()
+          : pickColour(palette, shown);
       prog[i] = 0;
     }
 
@@ -567,6 +598,8 @@ export function HexWaveBackground({
     backgroundColor,
     colorThreshold,
     paintColors,
+    accentColors,
+    accentChance,
     brushRadius,
     ambient,
     ambientIntervalMs,

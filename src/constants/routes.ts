@@ -8,6 +8,30 @@ export const WildcardRoute = {
   root: createRouteDefinition('*'),
 };
 
+/**
+ * The public marketing landing page, served at the site root for logged-out
+ * visitors (authenticated users are redirected to their home surface).
+ */
+export const LandingRoutes = {
+  root: createRouteDefinition('/'),
+};
+
+const marketingPrefix = '/features';
+
+/**
+ * Public marketing pages (renders for logged-out and logged-in visitors). Module
+ * pages live under `/features/*` because `/studio`, `/learn`, `/arcade`, `/atlas`
+ * are taken by the authenticated app; `/blog` and `/for-teachers` are top-level.
+ */
+export const MarketingRoutes = {
+  studio: createRouteDefinition('/studio', { prefix: marketingPrefix }),
+  learn: createRouteDefinition('/learn', { prefix: marketingPrefix }),
+  arcade: createRouteDefinition('/arcade', { prefix: marketingPrefix }),
+  globe: createRouteDefinition('/globe', { prefix: marketingPrefix }),
+  blog: createRouteDefinition('/blog'),
+  teachers: createRouteDefinition('/for-teachers'),
+};
+
 const authPrefix = '/auth';
 
 /**
@@ -170,6 +194,14 @@ export const TeacherRoutes = {
   plan: createRouteDefinition<{
     classroomId: string;
   }>('/classroom/:classroomId/plan', {
+    prefix: teacherPrefix,
+  }),
+
+  /** Interactive-session deck wizard — template-first slide deck setup.
+   *  Static segment outranks dayEditor's `:dayId` param in route matching. */
+  deckWizard: createRouteDefinition<{
+    classroomId: string;
+  }>('/classroom/:classroomId/plan/live-deck', {
     prefix: teacherPrefix,
   }),
 
@@ -519,6 +551,15 @@ export const SongRoutes = {
   song: createRouteDefinition<{ songId: string }>('/:songId', {
     prefix: songsPrefix,
   }),
+};
+
+const searchPrefix = '/search';
+
+/**
+ * Global content search page. `q` deep-links a query (e.g. `/search?q=redbone`).
+ */
+export const SearchRoutes = {
+  root: createRouteDefinition<void, { q?: string }>(searchPrefix),
 };
 
 const curriculumPrefix = '/curriculum';

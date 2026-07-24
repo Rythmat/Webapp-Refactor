@@ -69,6 +69,13 @@ export class NMFDetector {
   /** Working buffer for WᵀWH product. */
   private WtWH: Float64Array;
 
+  /** CSR sparse index of nonzero Wᵀ bins per key (templates are ~95% zero, so
+   *  the WᵀV dot product only needs the harmonic bins). nzIndex holds the bin
+   *  indices, nzStart[k]..nzStart[k+1] delimits key k. Skipped bins are exactly
+   *  0, so the sum is bit-identical to the dense loop. */
+  private nzIndex!: Int32Array;
+  private nzStart!: Int32Array;
+
   /** Frame counter. */
   private frameId = 0;
 
@@ -88,6 +95,9 @@ export class NMFDetector {
     this.Wt = new Float64Array(NUM_KEYS * this.numBins);
     this.computeWt();
 
+    // Pre-compute the sparse nonzero-bin index over the (now fixed) Wᵀ.
+    this.buildSparseIndex();
+
     // Pre-compute WᵀW
     this.WtW = new Float64Array(NUM_KEYS * NUM_KEYS);
     this.computeWtW();
@@ -95,6 +105,30 @@ export class NMFDetector {
     // Working buffers
     this.WtV = new Float64Array(NUM_KEYS);
     this.WtWH = new Float64Array(NUM_KEYS);
+  }
+
+  /** Build the CSR nonzero-bin index of Wᵀ. Called once after computeWt(); Wᵀ is
+   *  fixed for the detector's lifetime (templates never change), so this never
+   *  needs rebuilding. */
+  private buildSparseIndex(): void {
+    const Wt = this.Wt;
+    const numBins = this.numBins;
+    const starts = new Int32Array(NUM_KEYS + 1);
+    let total = 0;
+    for (let k = 0; k < NUM_KEYS; k++) {
+      const off = k * numBins;
+      for (let b = 0; b < numBins; b++) if (Wt[off + b] !== 0) total++;
+    }
+    const idx = new Int32Array(total);
+    let p = 0;
+    for (let k = 0; k < NUM_KEYS; k++) {
+      starts[k] = p;
+      const off = k * numBins;
+      for (let b = 0; b < numBins; b++) if (Wt[off + b] !== 0) idx[p++] = b;
+    }
+    starts[NUM_KEYS] = p;
+    this.nzStart = starts;
+    this.nzIndex = idx;
   }
 
   // ── Public API ──────────────────────────────────────────────────────────
@@ -193,22 +227,29 @@ export class NMFDetector {
     const WtWH = this.WtWH;
     const numBins = this.numBins;
     const mask = this.activeKeyMask;
+    const nzIndex = this.nzIndex;
+    const nzStart = this.nzStart;
+
+    // Compute WᵀV once — it depends only on the fixed template matrix and this
+    // frame's spectrum V (NOT on H), so it is loop-invariant and was previously
+    // recomputed on all 10 iterations. Iterate only nonzero template bins; the
+    // skipped bins are exactly 0, so the sum is bit-identical to the dense loop.
+    for (let k = 0; k < NUM_KEYS; k++) {
+      if (!mask[k]) {
+        WtV[k] = 0;
+        continue;
+      }
+      let sum = 0;
+      const wtOffset = k * numBins;
+      const end = nzStart[k + 1];
+      for (let p = nzStart[k]; p < end; p++) {
+        const b = nzIndex[p];
+        if (b < vLen) sum += Wt[wtOffset + b] * V[b];
+      }
+      WtV[k] = sum;
+    }
 
     for (let iter = 0; iter < NUM_ITERATIONS; iter++) {
-      // Compute WᵀV (numKeys × 1)
-      for (let k = 0; k < NUM_KEYS; k++) {
-        if (!mask[k]) {
-          WtV[k] = 0;
-          continue;
-        }
-        let sum = 0;
-        const wtOffset = k * numBins;
-        for (let b = 0; b < vLen; b++) {
-          sum += Wt[wtOffset + b] * V[b];
-        }
-        WtV[k] = sum;
-      }
-
       // Compute WᵀWH (numKeys × 1)
       for (let k = 0; k < NUM_KEYS; k++) {
         if (!mask[k]) {

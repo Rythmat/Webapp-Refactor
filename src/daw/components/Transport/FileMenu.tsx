@@ -12,6 +12,7 @@ import {
   FolderOpen,
   Trash2,
   Sparkles,
+  AudioWaveform,
 } from 'lucide-react';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { useStore } from '@/daw/store';
@@ -31,6 +32,7 @@ import { resetToNewProject } from '@/lib/studio-projects/newProject';
 import { loadCloudProjectAudio } from '@/lib/studio-assets/load-audio';
 import { PartialUploadError } from '@/lib/studio-assets/upload-pending';
 import { showError, showSuccess } from '@/components/utils/toast';
+import { ExportAudioDialog } from './ExportAudioDialog';
 import type { MidiNoteEvent } from '@prism/engine';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -102,6 +104,7 @@ export function FileMenu() {
   );
   const [cloudListError, setCloudListError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [exportAudioOpen, setExportAudioOpen] = useState(false);
 
   const refreshCloudProjects = useCallback(async () => {
     if (!token) return;
@@ -390,6 +393,7 @@ export function FileMenu() {
       >
         <DropdownMenu.Trigger asChild>
           <button
+            data-tutorial-id="file-menu"
             className="flex h-7 cursor-pointer items-center gap-1 rounded-md px-2 text-[11px] font-medium transition-colors hover:bg-white/5"
             style={{
               color: 'var(--color-text)',
@@ -549,6 +553,16 @@ export function FileMenu() {
             </DropdownMenu.Item>
 
             <DropdownMenu.Item
+              data-tutorial-id="file-export-audio"
+              className={itemClass}
+              style={itemStyle}
+              onSelect={() => setExportAudioOpen(true)}
+            >
+              <AudioWaveform size={13} strokeWidth={2} />
+              Export Audio…
+            </DropdownMenu.Item>
+
+            <DropdownMenu.Item
               className={itemClass}
               style={itemStyle}
               onSelect={handleExportLeadSheet}
@@ -585,6 +599,11 @@ export function FileMenu() {
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
+
+      <ExportAudioDialog
+        open={exportAudioOpen}
+        onOpenChange={setExportAudioOpen}
+      />
     </>
   );
 }

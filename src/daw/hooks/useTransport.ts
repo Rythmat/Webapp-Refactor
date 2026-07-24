@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
+import { audioEngine } from '@/daw/audio/AudioEngine';
 
 // ── seekTo ──────────────────────────────────────────────────────────────
 // Seek playhead to a specific tick position. Syncs both Tone.Transport and
@@ -52,6 +53,10 @@ export function useTransport() {
   useEffect(() => {
     const transport = Tone.getTransport();
     if (isPlaying) {
+      // Ensure the shared context is running before starting playback — if it
+      // was suspended/interrupted (sleep, tab background, iOS), transport.start
+      // would silently produce no audio until the context resumes.
+      void audioEngine.resumeIfNeeded();
       transport.ticks = useStore.getState().position;
       transport.start();
     } else {

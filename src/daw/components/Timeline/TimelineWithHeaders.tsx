@@ -13,6 +13,7 @@ import {
   CHORD_RULER_HEIGHT,
   TIME_RULER_HEIGHT,
 } from './Timeline';
+import { AutomationLaneEditor } from './AutomationLaneEditor';
 
 export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
   const tracks = useStore((s) => s.tracks);
@@ -61,117 +62,124 @@ export function TimelineWithHeaders({ isReady }: { isReady: boolean }) {
   );
 
   return (
-    <div className="flex flex-1 overflow-hidden">
-      {/* Track headers column */}
-      <div
-        ref={headersRef}
-        onScroll={handleHeadersScroll}
-        className="glass-panel-sm flex w-[200px] shrink-0 flex-col overflow-y-auto border-r"
-        style={{
-          backgroundColor: 'var(--color-surface)',
-          borderColor: 'var(--color-border)',
-          scrollbarWidth: 'none',
-        }}
-      >
-        {/* Ruler spacer (sticky to match canvas ruler) */}
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
+        {/* Track headers column */}
         <div
+          ref={headersRef}
+          onScroll={handleHeadersScroll}
+          className="glass-panel-sm flex w-[200px] shrink-0 flex-col overflow-y-auto border-r"
           style={{
-            height: RULER_HEIGHT + CHORD_RULER_HEIGHT,
-            minHeight: RULER_HEIGHT + CHORD_RULER_HEIGHT,
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
             backgroundColor: 'var(--color-surface)',
+            borderColor: 'var(--color-border)',
+            scrollbarWidth: 'none',
           }}
-          className="shrink-0 border-b"
-          aria-hidden
-        />
-
-        <Reorder.Group
-          axis="y"
-          values={tracks.map((t) => t.id)}
-          onReorder={handleReorder}
-          className="flex flex-col"
-          style={{ listStyle: 'none', margin: 0, padding: 0 }}
         >
-          {tracks.map((track, i) => (
-            <Reorder.Item
-              key={track.id}
-              value={track.id}
-              style={{ height: TRACK_HEIGHT, minHeight: TRACK_HEIGHT }}
-              dragListener={true}
-              className="cursor-grab active:cursor-grabbing"
-            >
-              <TrackHeader track={track} index={i} />
-            </Reorder.Item>
-          ))}
-        </Reorder.Group>
+          {/* Ruler spacer (sticky to match canvas ruler) */}
+          <div
+            style={{
+              height: RULER_HEIGHT + CHORD_RULER_HEIGHT,
+              minHeight: RULER_HEIGHT + CHORD_RULER_HEIGHT,
+              position: 'sticky',
+              top: 0,
+              zIndex: 10,
+              backgroundColor: 'var(--color-surface)',
+            }}
+            className="shrink-0 border-b"
+            aria-hidden
+          />
 
-        {/* Master bus — fixed row, not reorderable */}
-        <div style={{ height: TRACK_HEIGHT, minHeight: TRACK_HEIGHT }}>
-          <MasterTrackHeader isReady={isReady} />
+          <Reorder.Group
+            axis="y"
+            values={tracks.map((t) => t.id)}
+            onReorder={handleReorder}
+            className="flex flex-col"
+            style={{ listStyle: 'none', margin: 0, padding: 0 }}
+          >
+            {tracks.map((track, i) => (
+              <Reorder.Item
+                key={track.id}
+                value={track.id}
+                style={{ height: TRACK_HEIGHT, minHeight: TRACK_HEIGHT }}
+                dragListener={true}
+                className="cursor-grab active:cursor-grabbing"
+              >
+                <TrackHeader track={track} index={i} />
+              </Reorder.Item>
+            ))}
+          </Reorder.Group>
+
+          {/* Master bus — fixed row, not reorderable */}
+          <div style={{ height: TRACK_HEIGHT, minHeight: TRACK_HEIGHT }}>
+            <MasterTrackHeader isReady={isReady} />
+          </div>
+
+          {/* Add Track button */}
+          <button
+            data-tutorial-id="add-track-button"
+            onClick={() => setMenuOpen((o) => !o)}
+            className="mx-3 my-2 flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-[10px] font-medium"
+            style={{
+              color: 'var(--color-text-dim)',
+              backgroundColor: 'transparent',
+              border: '1px dashed rgba(255,255,255,0.1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+            }}
+          >
+            <Plus size={12} strokeWidth={1.5} />
+            Add Track
+          </button>
+
+          {/* Time ruler spacer (sticky to match canvas time ruler) */}
+          <div
+            style={{
+              height: TIME_RULER_HEIGHT,
+              minHeight: TIME_RULER_HEIGHT,
+              position: 'sticky',
+              bottom: 0,
+              zIndex: 10,
+              backgroundColor: 'var(--color-surface)',
+            }}
+            className="shrink-0 border-t"
+            aria-hidden
+          />
+
+          {menuOpen &&
+            createPortal(
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center"
+                style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+                onClick={() => setMenuOpen(false)}
+              >
+                <div onClick={(e) => e.stopPropagation()}>
+                  <AddTrackMenu onClose={() => setMenuOpen(false)} />
+                </div>
+              </div>,
+              document.body,
+            )}
         </div>
 
-        {/* Add Track button */}
-        <button
-          onClick={() => setMenuOpen((o) => !o)}
-          className="mx-3 my-2 flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-[10px] font-medium"
-          style={{
-            color: 'var(--color-text-dim)',
-            backgroundColor: 'transparent',
-            border: '1px dashed rgba(255,255,255,0.1)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-          }}
-        >
-          <Plus size={12} strokeWidth={1.5} />
-          Add Track
-        </button>
-
-        {/* Time ruler spacer (sticky to match canvas time ruler) */}
+        {/* Timeline canvas */}
         <div
-          style={{
-            height: TIME_RULER_HEIGHT,
-            minHeight: TIME_RULER_HEIGHT,
-            position: 'sticky',
-            bottom: 0,
-            zIndex: 10,
-            backgroundColor: 'var(--color-surface)',
-          }}
-          className="shrink-0 border-t"
-          aria-hidden
-        />
-
-        {menuOpen &&
-          createPortal(
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center"
-              style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-              onClick={() => setMenuOpen(false)}
-            >
-              <div onClick={(e) => e.stopPropagation()}>
-                <AddTrackMenu onClose={() => setMenuOpen(false)} />
-              </div>
-            </div>,
-            document.body,
-          )}
+          ref={timelineRef}
+          onScroll={handleTimelineScroll}
+          className="flex-1 overflow-auto"
+          style={{ backgroundColor: 'var(--color-bg)' }}
+        >
+          <Timeline />
+        </div>
       </div>
 
-      {/* Timeline canvas */}
-      <div
-        ref={timelineRef}
-        onScroll={handleTimelineScroll}
-        className="flex-1 overflow-auto"
-        style={{ backgroundColor: 'var(--color-bg)' }}
-      >
-        <Timeline />
-      </div>
+      {/* Automation lane editor — docks below the timeline when a track's lane
+          is open (avoids the per-row height refactor). */}
+      <AutomationLaneEditor />
     </div>
   );
 }

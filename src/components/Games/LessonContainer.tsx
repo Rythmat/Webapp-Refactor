@@ -6,6 +6,7 @@ import {
   LearnInputProvider,
   useLearnInputStable,
 } from '@/learn/context/LearnInputContext';
+import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { getLocalModeSteps } from '@/lib/modeStepsFallback';
 import { urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
@@ -107,6 +108,10 @@ const LessonContainerInner = ({
 
   const { start: startInput, stop: stopInput } = useLearnInputStable();
 
+  // Classroom app-route bridge: inert unless this lesson was opened from a live
+  // slide (MSP launch params present). Fires once when the lesson completes.
+  const { reportCompletion } = useMspModuleCompletion();
+
   useEffect(() => {
     startInput();
     return () => stopInput();
@@ -133,6 +138,7 @@ const LessonContainerInner = ({
           rootMidi={keyOption.midi}
           scaleMidis={scaleMidis}
           startAtActivityKey={startAtActivityKey}
+          onComplete={reportCompletion}
         />
       </div>
     </div>

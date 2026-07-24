@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import SuperJSON from 'superjson';
 import { getCurrentAppSessionId } from '@/auth/app-session-store';
+import { DEV_AUTH_BYPASS, DEV_BYPASS_SUBSCRIPTION } from '@/auth/devBypass';
 import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import type { SubscriptionStatus } from '@/features/settings/subscription/subscriptionUtils';
@@ -17,6 +18,11 @@ function apiPath(path: string) {
 export async function fetchSubscriptionStatus(
   token: string,
 ): Promise<SubscriptionStatus> {
+  // DEV-only: return a mock active subscription so local verification runs as a
+  // premium user with no backend. Folded out of production builds (see devBypass).
+  if (DEV_AUTH_BYPASS && DEV_BYPASS_SUBSCRIPTION)
+    return DEV_BYPASS_SUBSCRIPTION;
+
   const appSessionId = getCurrentAppSessionId();
   const res = await fetch(apiPath('/api/me/subscription'), {
     headers: {

@@ -1,20 +1,19 @@
 /**
- * useAssignmentProgress / useMyAssignmentProgress — production hooks hit
- * Ryan's REST progress endpoints.
+ * useAssignmentProgress / useMyAssignmentProgress — production hooks hit the
+ * REST progress endpoints.
  *
- * Sprint 7 partial swap:
  *   - useAssignmentProgress(classroomId, assignmentId)
  *       list  → GET  /classrooms/:cid/assignments/:aid/progress
- *       Ryan doesn't ship `not_started` materialization; consumers backfill
- *       against the roster (`useEnrollments.active`).
+ *       Backend doesn't ship `not_started` materialization; consumers
+ *       backfill against the roster (`useEnrollments.active`).
  *   - useMyAssignmentProgress(classroomId, assignmentId, enrollmentId)
  *       setMyProgress  → POST /classrooms/:cid/assignments/:aid/progress
  *
- * PENDING (waits on Ryan's async response endpoint):
- *   - recordMyResponse (student writes) — still localStorage-only.
- *   - getResponsesByEnrollment / countResponses (teacher aggregate) — still
- *     reads localStorage. Once Ryan ships GET /assignments/:aid/responses
- *     this file splits the aggregate into a new useAssignmentResponses hook.
+ * NOTE: per the classroom-v2 contract audit, `/responses`, `/progress/me`,
+ * session list, CSV export, and purge are NOT backend endpoints and will
+ * not ship. `recordMyResponse` and the teacher-side response aggregation
+ * therefore stay client-side (localStorage) — CSV exports build from
+ * that local state via `exportCsv.ts`.
  *
  * `*ForUser` helpers remain as the dev-only localStorage fallback used by
  * the simulation harness.
@@ -395,8 +394,8 @@ export const useMyAssignmentProgress = (
 
   const recordMyResponse = useCallback(
     (input: RecordMyResponseInput) => {
-      // Sprint 8: swap to POST /:cid/assignments/:aid/responses/:iid once
-      // Ryan ships the async response endpoint.
+      // Responses stay client-side — no async response endpoint on the
+      // backend (per the classroom-v2 contract audit).
       recordMyResponseForUser(userId, {
         ...input,
         assignmentId,

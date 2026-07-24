@@ -1,0 +1,631 @@
+{
+ "name": "OR - HARMONIC SUB VIBES",
+ "version": 3,
+ "oscillators": [
+  {
+   "waveform": "sawtooth",
+   "wavetable": "S2/Subby Roller",
+   "octave": 0,
+   "semitone": 0,
+   "fine": 0,
+   "wtPosition": 0.5795340370386839,
+   "pan": 0,
+   "level": 0.6766561605165613,
+   "unisonVoices": 2,
+   "unisonDetune": 0.030820794767480786,
+   "unisonBlend": 0,
+   "warpMode": "none",
+   "warpAmount": 0,
+   "enabled": true
+  },
+  {
+   "waveform": "sawtooth",
+   "wavetable": "S2/Warm Sub",
+   "octave": -1,
+   "semitone": 0,
+   "fine": 0,
+   "wtPosition": 0.6139556774869561,
+   "pan": 0,
+   "level": 0.6701888102742402,
+   "unisonVoices": 1,
+   "unisonDetune": 0.25,
+   "unisonBlend": 0.5,
+   "warpMode": "none",
+   "warpAmount": 0,
+   "enabled": true
+  }
+ ],
+ "subOscillator": {
+  "waveform": "sine",
+  "octave": -1,
+  "semitone": 0,
+  "fine": 0,
+  "level": 1,
+  "pan": 0,
+  "enabled": true
+ },
+ "noise": {
+  "type": "white",
+  "level": 0,
+  "pan": 0,
+  "enabled": true
+ },
+ "filters": [
+  {
+   "type": "lowpass",
+   "cutoff": 20,
+   "resonance": 3.359986298198322,
+   "pan": 0,
+   "gain": 0,
+   "mix": 1,
+   "enabled": true
+  },
+  {
+   "type": "lowpass",
+   "cutoff": 20000,
+   "resonance": 0,
+   "pan": 0,
+   "gain": 0,
+   "mix": 1,
+   "enabled": false
+  }
+ ],
+ "envelopes": [
+  {
+   "attack": 0.009278670797870278,
+   "decay": 0.6557162170758998,
+   "sustain": 0.5569565296173096,
+   "release": 0.16642766400125913
+  },
+  {
+   "attack": 0.01,
+   "decay": 0.5,
+   "sustain": 0.5,
+   "release": 0.5
+  }
+ ],
+ "lfos": [
+  {
+   "rateDivs": [
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ]
+   ],
+   "rateModifiers": [
+    "normal",
+    "normal",
+    "normal",
+    "normal"
+   ],
+   "smooths": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "sync": true,
+   "bars": [
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ]
+   ]
+  },
+  {
+   "rateDivs": [
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ]
+   ],
+   "rateModifiers": [
+    "normal",
+    "normal",
+    "normal",
+    "normal"
+   ],
+   "smooths": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "sync": true,
+   "bars": [
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ]
+   ]
+  },
+  {
+   "rateDivs": [
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ]
+   ],
+   "rateModifiers": [
+    "normal",
+    "normal",
+    "normal",
+    "normal"
+   ],
+   "smooths": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "sync": true,
+   "bars": [
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ]
+   ]
+  },
+  {
+   "rateDivs": [
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ],
+    [
+     "1/4",
+     "1/4",
+     "1/4",
+     "1/4"
+    ]
+   ],
+   "rateModifiers": [
+    "normal",
+    "normal",
+    "normal",
+    "normal"
+   ],
+   "smooths": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "sync": true,
+   "bars": [
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ],
+    [
+     {
+      "time": 0,
+      "value": 0
+     },
+     {
+      "time": 0.5,
+      "value": 1
+     },
+     {
+      "time": 1,
+      "value": 0
+     }
+    ]
+   ]
+  }
+ ],
+ "modRoutes": [
+  {
+   "id": "serum-1",
+   "source": {
+    "type": "macro",
+    "index": 0
+   },
+   "target": {
+    "source": "noise",
+    "param": "level"
+   },
+   "amount": 1,
+   "polarity": "unipolar",
+   "curve": "linear",
+   "enabled": true
+  },
+  {
+   "id": "serum-2",
+   "source": {
+    "type": "macro",
+    "index": 3
+   },
+   "target": {
+    "source": "flt1",
+    "param": "cutoff"
+   },
+   "amount": 1,
+   "polarity": "unipolar",
+   "curve": "linear",
+   "enabled": true
+  }
+ ],
+ "voiceMode": "mono",
+ "voiceCount": 8,
+ "glide": 0.00004399929072497368,
+ "spread": 0,
+ "masterVolume": 0.5946662759238318,
+ "fx": {
+  "chorus": {
+   "enabled": false,
+   "rate": 0.8,
+   "depth": 0.3,
+   "mix": 0.5
+  },
+  "delay": {
+   "enabled": false,
+   "time": 0.3,
+   "feedback": 0.35,
+   "mix": 0.25
+  },
+  "phaser": {
+   "enabled": false,
+   "rate": 0.5,
+   "depth": 0.5,
+   "mix": 0.5
+  },
+  "compressor": {
+   "enabled": false,
+   "threshold": -18,
+   "ratio": 4,
+   "attack": 0.01,
+   "release": 0.2
+  },
+  "drive": {
+   "enabled": true,
+   "amount": 0.3,
+   "mix": 1
+  },
+  "reverb": {
+   "enabled": false,
+   "size": 0.5,
+   "decay": 0.5,
+   "damping": 0.3,
+   "mix": 0.3
+  }
+ },
+ "fxRoutes": [],
+ "routing": {
+  "filterRouting": {
+   "filter1Sources": [
+    "osc1",
+    "osc2",
+    "noise",
+    "sub"
+   ],
+   "filter2Sources": []
+  },
+  "envelopeRouting": {
+   "env1Sources": [
+    "osc1",
+    "osc2",
+    "sub",
+    "noise"
+   ],
+   "env2Sources": []
+  }
+ },
+ "arp": {
+  "enabled": false,
+  "rate": "1/8",
+  "style": "up",
+  "distance": 12,
+  "step": 1,
+  "chordAware": false
+ },
+ "macros": [
+  {
+   "name": "NOISE",
+   "value": 0
+  },
+  {
+   "name": "DRIVE",
+   "value": 0.2156318873167038
+  },
+  {
+   "name": "HYPER",
+   "value": 0
+  },
+  {
+   "name": "CUTOFF",
+   "value": 0.5667146444320679
+  },
+  {
+   "name": "FATTER FLTR",
+   "value": 0.5505757331848145
+  },
+  {
+   "name": "DELAY",
+   "value": 0.15518781542778015
+  },
+  {
+   "name": "CHORUS",
+   "value": 0
+  },
+  {
+   "name": "MACRO 8",
+   "value": 0
+  }
+ ],
+ "keyScale": {
+  "enabled": false,
+  "followProjectKey": true,
+  "rootPc": 0,
+  "mode": "ionian",
+  "snapMode": "nearest"
+ }
+}

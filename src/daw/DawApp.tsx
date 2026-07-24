@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { DEV_AUTH_BYPASS } from '@/auth/devBypass';
 import './daw.css';
 import { ChannelStrip } from '@/daw/components/ChannelStrip/ChannelStrip';
 import { LibraryPanel } from '@/daw/components/Library/LibraryPanel';
@@ -11,6 +12,7 @@ import { TimelineWithHeaders } from '@/daw/components/Timeline/TimelineWithHeade
 import { PrismSuggestionModal } from '@/daw/components/Prism/PrismSuggestionModal';
 import { SettingsModal } from '@/daw/components/Transport/SettingsModal';
 import { RecordingLimitModal } from '@/daw/components/Transport/RecordingLimitModal';
+import { TutorialLayer } from '@/daw/components/Tutorial/TutorialLayer';
 import { TransportBar } from '@/daw/components/Transport/TransportBar';
 import { useAudioEngine } from '@/daw/hooks/useAudioEngine';
 import { useAutosave } from '@/daw/hooks/useAutosave';
@@ -29,6 +31,7 @@ import { loadCloudProjectAudio } from '@/lib/studio-assets/load-audio';
 import { importPendingJamSession } from '@/daw/jam-import/importJamSession';
 import { StudioRoutes } from '@/constants/routes';
 import { useAudioChordDetection } from '@/daw/hooks/useAudioChordDetection';
+import { useGuitarMidiDetection } from '@/daw/hooks/useGuitarMidiDetection';
 import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
 import { useStudioMonitor } from '@/daw/hooks/useStudioMonitor';
 import { useCollabAudioLoader } from '@/daw/hooks/useCollabAudioLoader';
@@ -36,12 +39,15 @@ import { usePlaybackEngine } from '@/daw/hooks/usePlaybackEngine';
 import { useTheme } from '@/daw/hooks/useTheme';
 import { useTransport } from '@/daw/hooks/useTransport';
 import { useStore } from '@/daw/store';
+import { useSynthStore } from '@/daw/oracle-synth/store';
 import { initUndoTracking } from '@/daw/store/undoMiddleware';
 import { CollabProvider, useCollab } from '@/daw/collab/CollabProvider';
 import { UserList } from '@/daw/collab/ui/UserList';
 import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { getDemoProject } from '@/daw/data/demoProjects';
+import { getSong } from '@/curriculum/data/songs';
+import { seedStudioFromSong } from '@/features/songs/seedStudioFromSong';
 import { showSuccess, showError } from '@/util/toast';
 
 function DawAppInner() {
@@ -58,6 +64,7 @@ function DawAppInner() {
   useStudioMonitor(isReady, authToken);
   useCollabAudioLoader(authToken);
   useAudioChordDetection();
+  useGuitarMidiDetection();
   useTheme();
   const currentView = useStore((s) => s.currentView);
   const userListOpen = useStore((s) => s.userListOpen);
@@ -152,6 +159,24 @@ function DawAppInner() {
         useStore.getState().setProjectName(demo.label);
       } else {
         showError('That demo could not be found.');
+      }
+      clearQuery();
+      return;
+    }
+
+    // Handed off from a classroom app-route slide (`studio:song:<id>`) or a Song
+    // page: seed the editor with a specific song's chart in a fresh session, no
+    // cloud project — the first Save mints a new one.
+    const songParam = params.get('song');
+    if (songParam) {
+      bootedRef.current = true;
+      clearLocalSession();
+      resetSessionToEmpty();
+      const song = getSong(songParam);
+      if (song) {
+        seedStudioFromSong(song);
+      } else {
+        showError('That song could not be found.');
       }
       clearQuery();
       return;
@@ -343,6 +368,18 @@ function DawAppInner() {
     };
   }, []);
 
+  // DEV-only: expose the stores for automated verification (e.g. Playwright).
+  // Gated on the bypass flag so it folds out of production builds (see devBypass).
+  useEffect(() => {
+    if (!DEV_AUTH_BYPASS) return;
+    const w = window as unknown as {
+      __MA_STORE__?: unknown;
+      __MA_SYNTH_STORE__?: unknown;
+    };
+    w.__MA_STORE__ = useStore;
+    w.__MA_SYNTH_STORE__ = useSynthStore;
+  }, []);
+
   return (
     <div
       className="daw-root flex-1 min-h-0 w-full flex flex-col overflow-hidden"
@@ -385,6 +422,7 @@ function DawAppInner() {
       <SettingsModal />
       <PrismSuggestionModal />
       <RecordingLimitModal />
+      <TutorialLayer />
     </div>
   );
 }

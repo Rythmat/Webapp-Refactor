@@ -53,8 +53,9 @@ export const findStubsForUnitId = (unitId: string): DayStub[] => {
  * bilingual `phaseSeeds` entry (missing phases stay blank).
  *
  * Song + Globe integration on the Connect cell:
- *   - `songId`: appends `Song of the day: /songs/<id>` (EN + ES) to the
- *     Connect prompt so the teacher has a clickable link.
+ *   - `songId`: sets `presentation.song = { id }` on the Connect cell (a
+ *     structured reference the presentation surface resolves to artwork) —
+ *     NOT appended into the prompt prose.
  *   - `globeEventIds`: each id becomes a `LaunchTile { module: 'globe',
  *     activityRef: <id> }` on the Connect cell — students click and land
  *     on the Globe with the pin already selected.
@@ -80,12 +81,6 @@ export const seededDayFromStub = (stub: DayStub): Day => {
   // Enrich Connect with song reference + globe launch tiles.
   const connect = cells.connectRegulate;
   const connectPresentation = connect.presentation;
-  const enrichedPrompt = stub.songId
-    ? {
-        en: `${connectPresentation.prompt.en}\n\nSong of the day: /songs/${stub.songId}`,
-        es: `${connectPresentation.prompt.es ?? connectPresentation.prompt.en}\n\nCanción del día: /songs/${stub.songId}`,
-      }
-    : connectPresentation.prompt;
 
   const globeTiles = (stub.globeEventIds ?? []).map((eventId, i) => ({
     id: `${day.id}-globe-${i}`,
@@ -98,7 +93,9 @@ export const seededDayFromStub = (stub: DayStub): Day => {
     ...connect,
     presentation: {
       ...connectPresentation,
-      prompt: enrichedPrompt,
+      // Structured song reference — resolved to artwork by the presentation
+      // surface. Never appended to the prompt (that produced a raw slug).
+      ...(stub.songId ? { song: { id: stub.songId } } : {}),
       launchTiles: [...connectPresentation.launchTiles, ...globeTiles],
     },
   };

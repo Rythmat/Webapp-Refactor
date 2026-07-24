@@ -64,6 +64,7 @@ const defaultFX = (): FXParams => ({
     release: 0.25,
   },
   drive: { enabled: false, amount: 0.3, mix: 0.5 },
+  reverb: { enabled: false, size: 0.5, decay: 0.5, damping: 0.3, mix: 0.3 },
 });
 
 const defaultRouting = (): RoutingConfig => ({
@@ -123,7 +124,7 @@ const gateNodes8 = (): LFONode[] => {
 // ─── INITIALIZE ────────────────────────────────────────
 export const INITIALIZE: PresetData = {
   name: 'INITIALIZE',
-  version: 1,
+  version: 2,
   oscillators: [
     {
       waveform: 'sawtooth',
@@ -137,6 +138,8 @@ export const INITIALIZE: PresetData = {
       unisonVoices: 1,
       unisonDetune: 0,
       unisonBlend: 0.1,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
     {
@@ -151,6 +154,8 @@ export const INITIALIZE: PresetData = {
       unisonVoices: 1,
       unisonDetune: 0,
       unisonBlend: 0.1,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: false,
     },
   ],
@@ -210,7 +215,7 @@ export const INITIALIZE: PresetData = {
 // Lush evolving pad: two detuned saw oscillators with slow attack, filter modulation
 export const PAD: PresetData = {
   name: 'PAD',
-  version: 1,
+  version: 2,
   oscillators: [
     {
       waveform: 'sawtooth',
@@ -224,6 +229,8 @@ export const PAD: PresetData = {
       unisonVoices: 4,
       unisonDetune: 0.25,
       unisonBlend: 0.6,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
     {
@@ -238,6 +245,8 @@ export const PAD: PresetData = {
       unisonVoices: 4,
       unisonDetune: 0.3,
       unisonBlend: 0.6,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
   ],
@@ -321,19 +330,23 @@ export const PAD: PresetData = {
   modRoutes: [
     {
       id: 'pad-mod-1',
-      lfoIndex: 0,
+      source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      depthMin: 0,
-      depthMax: 0.3,
+      amount: 0.3,
+      polarity: 'unipolar',
+      curve: 'linear',
       enabled: true,
     },
     {
       id: 'pad-mod-2',
-      lfoIndex: 1,
+      source: { type: 'lfo', index: 1 },
       target: { source: 'osc1', param: 'pan' },
-      depthMin: 0.3,
-      depthMax: 0.7,
-      enabled: true,
+      amount: 0.7,
+      polarity: 'unipolar',
+      curve: 'linear',
+      // Inert (silent) in the v1 engine — shipped disabled so the
+      // preset keeps its original sound; enable deliberately to use
+      enabled: false,
     },
   ],
   voiceMode: 'poly',
@@ -354,7 +367,7 @@ export const PAD: PresetData = {
 // Deep mono bass: square sub + saw with filter envelope
 export const BASS: PresetData = {
   name: 'BASS',
-  version: 1,
+  version: 2,
   oscillators: [
     {
       waveform: 'sawtooth',
@@ -368,6 +381,8 @@ export const BASS: PresetData = {
       unisonVoices: 2,
       unisonDetune: 0.1,
       unisonBlend: 0.3,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
     {
@@ -382,6 +397,8 @@ export const BASS: PresetData = {
       unisonVoices: 1,
       unisonDetune: 0,
       unisonBlend: 0.1,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
   ],
@@ -454,7 +471,7 @@ export const BASS: PresetData = {
 // Mono lead: bright saw with vibrato LFO
 export const LEAD: PresetData = {
   name: 'LEAD',
-  version: 1,
+  version: 2,
   oscillators: [
     {
       waveform: 'sawtooth',
@@ -468,6 +485,8 @@ export const LEAD: PresetData = {
       unisonVoices: 3,
       unisonDetune: 0.15,
       unisonBlend: 0.4,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
     {
@@ -482,6 +501,8 @@ export const LEAD: PresetData = {
       unisonVoices: 1,
       unisonDetune: 0,
       unisonBlend: 0.1,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
   ],
@@ -544,11 +565,14 @@ export const LEAD: PresetData = {
   modRoutes: [
     {
       id: 'lead-mod-1',
-      lfoIndex: 0,
+      source: { type: 'lfo', index: 0 },
       target: { source: 'osc1', param: 'detune' },
-      depthMin: 0.45,
-      depthMax: 0.55,
-      enabled: true,
+      amount: 0.55,
+      polarity: 'unipolar',
+      curve: 'linear',
+      // Inert (silent) in the v1 engine — shipped disabled so the
+      // preset keeps its original sound; enable deliberately to use
+      enabled: false,
     },
   ],
   voiceMode: 'legato',
@@ -573,7 +597,7 @@ export const LEAD: PresetData = {
 // Short percussive pluck: fast attack, quick decay, no sustain
 export const PLUCK: PresetData = {
   name: 'PLUCK',
-  version: 1,
+  version: 2,
   oscillators: [
     {
       waveform: 'triangle',
@@ -587,6 +611,8 @@ export const PLUCK: PresetData = {
       unisonVoices: 2,
       unisonDetune: 0.08,
       unisonBlend: 0.2,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
     {
@@ -601,6 +627,8 @@ export const PLUCK: PresetData = {
       unisonVoices: 1,
       unisonDetune: 0,
       unisonBlend: 0.1,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
   ],
@@ -673,7 +701,7 @@ export const PLUCK: PresetData = {
 // Dubstep-style wobble bass: aggressive LFO on filter cutoff with curved attack/decay
 export const WOBBLE: PresetData = {
   name: 'WOBBLE',
-  version: 1,
+  version: 2,
   oscillators: [
     {
       waveform: 'sawtooth',
@@ -687,6 +715,8 @@ export const WOBBLE: PresetData = {
       unisonVoices: 2,
       unisonDetune: 0.12,
       unisonBlend: 0.3,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
     {
@@ -701,6 +731,8 @@ export const WOBBLE: PresetData = {
       unisonVoices: 1,
       unisonDetune: 0,
       unisonBlend: 0.1,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
   ],
@@ -779,18 +811,20 @@ export const WOBBLE: PresetData = {
   modRoutes: [
     {
       id: 'wobble-mod-1',
-      lfoIndex: 0,
+      source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      depthMin: 0,
-      depthMax: 0.8,
+      amount: 0.8,
+      polarity: 'unipolar',
+      curve: 'linear',
       enabled: true,
     },
     {
       id: 'wobble-mod-2',
-      lfoIndex: 1,
+      source: { type: 'lfo', index: 1 },
       target: { source: 'flt1', param: 'resonance' },
-      depthMin: 0.2,
-      depthMax: 0.5,
+      amount: 0.5,
+      polarity: 'unipolar',
+      curve: 'linear',
       enabled: true,
     },
   ],
@@ -822,7 +856,7 @@ export const WOBBLE: PresetData = {
 // Ambient evolving texture: multiple slow LFOs with curves for organic movement
 export const DRIFT: PresetData = {
   name: 'DRIFT',
-  version: 1,
+  version: 2,
   oscillators: [
     {
       waveform: 'sawtooth',
@@ -836,6 +870,8 @@ export const DRIFT: PresetData = {
       unisonVoices: 4,
       unisonDetune: 0.35,
       unisonBlend: 0.7,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
     {
@@ -850,6 +886,8 @@ export const DRIFT: PresetData = {
       unisonVoices: 3,
       unisonDetune: 0.2,
       unisonBlend: 0.5,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
   ],
@@ -949,34 +987,42 @@ export const DRIFT: PresetData = {
   modRoutes: [
     {
       id: 'drift-mod-1',
-      lfoIndex: 0,
+      source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      depthMin: 0.1,
-      depthMax: 0.5,
+      amount: 0.5,
+      polarity: 'unipolar',
+      curve: 'linear',
       enabled: true,
     },
     {
       id: 'drift-mod-2',
-      lfoIndex: 1,
+      source: { type: 'lfo', index: 1 },
       target: { source: 'osc1', param: 'pan' },
-      depthMin: 0.2,
-      depthMax: 0.8,
-      enabled: true,
+      amount: 0.8,
+      polarity: 'unipolar',
+      curve: 'linear',
+      // Inert (silent) in the v1 engine — shipped disabled so the
+      // preset keeps its original sound; enable deliberately to use
+      enabled: false,
     },
     {
       id: 'drift-mod-3',
-      lfoIndex: 2,
+      source: { type: 'lfo', index: 2 },
       target: { source: 'osc2', param: 'pan' },
-      depthMin: 0.8,
-      depthMax: 0.2,
-      enabled: true,
+      amount: 0.2,
+      polarity: 'unipolar',
+      curve: 'linear',
+      // Inert (silent) in the v1 engine — shipped disabled so the
+      // preset keeps its original sound; enable deliberately to use
+      enabled: false,
     },
     {
       id: 'drift-mod-4',
-      lfoIndex: 0,
+      source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'resonance' },
-      depthMin: 0.3,
-      depthMax: 0.6,
+      amount: 0.6,
+      polarity: 'unipolar',
+      curve: 'linear',
       enabled: true,
     },
   ],
@@ -1002,7 +1048,7 @@ export const DRIFT: PresetData = {
 // Rhythmic gated pad: LFO gate on filter + level for pumping trance feel
 export const TRANCE: PresetData = {
   name: 'TRANCE',
-  version: 1,
+  version: 2,
   oscillators: [
     {
       waveform: 'sawtooth',
@@ -1016,6 +1062,8 @@ export const TRANCE: PresetData = {
       unisonVoices: 4,
       unisonDetune: 0.2,
       unisonBlend: 0.5,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
     {
@@ -1030,6 +1078,8 @@ export const TRANCE: PresetData = {
       unisonVoices: 4,
       unisonDetune: 0.2,
       unisonBlend: 0.5,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
   ],
@@ -1113,26 +1163,29 @@ export const TRANCE: PresetData = {
   modRoutes: [
     {
       id: 'trance-mod-1',
-      lfoIndex: 0,
+      source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      depthMin: 0.05,
-      depthMax: 0.7,
+      amount: 0.7,
+      polarity: 'unipolar',
+      curve: 'linear',
       enabled: true,
     },
     {
       id: 'trance-mod-2',
-      lfoIndex: 1,
+      source: { type: 'lfo', index: 1 },
       target: { source: 'osc1', param: 'level' },
-      depthMin: 0.3,
-      depthMax: 0.9,
+      amount: 0.9,
+      polarity: 'unipolar',
+      curve: 'linear',
       enabled: true,
     },
     {
       id: 'trance-mod-3',
-      lfoIndex: 1,
+      source: { type: 'lfo', index: 1 },
       target: { source: 'osc2', param: 'level' },
-      depthMin: 0.3,
-      depthMax: 0.9,
+      amount: 0.9,
+      polarity: 'unipolar',
+      curve: 'linear',
       enabled: true,
     },
   ],
@@ -1164,7 +1217,7 @@ export const TRANCE: PresetData = {
 // Classic synth sequence: fast 1/16 arp climbing 2 octaves with filter sweep
 export const SEQUENCE: PresetData = {
   name: 'SEQUENCE',
-  version: 1,
+  version: 2,
   oscillators: [
     {
       waveform: 'sawtooth',
@@ -1178,6 +1231,8 @@ export const SEQUENCE: PresetData = {
       unisonVoices: 2,
       unisonDetune: 0.1,
       unisonBlend: 0.3,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
     {
@@ -1192,6 +1247,8 @@ export const SEQUENCE: PresetData = {
       unisonVoices: 1,
       unisonDetune: 0,
       unisonBlend: 0.1,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
   ],
@@ -1254,10 +1311,11 @@ export const SEQUENCE: PresetData = {
   modRoutes: [
     {
       id: 'seq-mod-1',
-      lfoIndex: 0,
+      source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      depthMin: 0.1,
-      depthMax: 0.5,
+      amount: 0.5,
+      polarity: 'unipolar',
+      curve: 'linear',
       enabled: true,
     },
   ],
@@ -1289,7 +1347,7 @@ export const SEQUENCE: PresetData = {
 // Rolling arpeggiated chords: upDown style with warm pad sound
 export const CHORDS: PresetData = {
   name: 'CHORDS',
-  version: 1,
+  version: 2,
   oscillators: [
     {
       waveform: 'sawtooth',
@@ -1303,6 +1361,8 @@ export const CHORDS: PresetData = {
       unisonVoices: 3,
       unisonDetune: 0.18,
       unisonBlend: 0.5,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
     {
@@ -1317,6 +1377,8 @@ export const CHORDS: PresetData = {
       unisonVoices: 2,
       unisonDetune: 0.1,
       unisonBlend: 0.3,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
   ],
@@ -1379,10 +1441,11 @@ export const CHORDS: PresetData = {
   modRoutes: [
     {
       id: 'chords-mod-1',
-      lfoIndex: 0,
+      source: { type: 'lfo', index: 0 },
       target: { source: 'flt1', param: 'cutoff' },
-      depthMin: 0.15,
-      depthMax: 0.4,
+      amount: 0.4,
+      polarity: 'unipolar',
+      curve: 'linear',
       enabled: true,
     },
   ],
@@ -1408,7 +1471,7 @@ export const CHORDS: PresetData = {
 // Rhythmic triplet stabs: short percussive arp with drive
 export const STAB: PresetData = {
   name: 'STAB',
-  version: 1,
+  version: 2,
   oscillators: [
     {
       waveform: 'sawtooth',
@@ -1422,6 +1485,8 @@ export const STAB: PresetData = {
       unisonVoices: 4,
       unisonDetune: 0.15,
       unisonBlend: 0.4,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
     {
@@ -1436,6 +1501,8 @@ export const STAB: PresetData = {
       unisonVoices: 1,
       unisonDetune: 0,
       unisonBlend: 0.1,
+      warpMode: 'none',
+      warpAmount: 0,
       enabled: true,
     },
   ],

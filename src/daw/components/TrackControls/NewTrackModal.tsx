@@ -88,6 +88,16 @@ const TRACK_TEMPLATES: TrackTemplate[] = [
     instrument: 'drum-machine',
   },
   {
+    label: 'Chops',
+    description: 'Flip a sample',
+    animationId: 'pulseWaveBreathingGrid',
+    color: '#9FD8D8',
+    borderGradient:
+      'linear-gradient(45deg, #28A69A, #62B4F7, #7885CB, #9D7FCE, #C785D3, #F8A8C5, #D2404A, #FF7348, #FEA92A, #FFCB30, #AED580, #7FC783, #28A69A)',
+    trackType: 'midi',
+    instrument: 'sampler',
+  },
+  {
     label: 'Guitar',
     description: 'Audio via interface',
     animationId: 'pulseWaveStretched',

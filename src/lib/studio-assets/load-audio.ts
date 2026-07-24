@@ -1,5 +1,6 @@
 import { getAudioBuffer, setAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import { audioEngine } from '@/daw/audio/AudioEngine';
+import { samplerBufferKey } from '@/daw/instruments/samplerChops';
 import { useStore } from '@/daw/store';
 import { studioAssetsApi } from './api';
 
@@ -81,6 +82,64 @@ export async function loadPendingClipAudio(token: string): Promise<void> {
   await Promise.all(
     targets.map(({ clipId, assetId }) => loadClipAudio(token, clipId, assetId)),
   );
+}
+
+/**
+ * Fetch a bundled (public-URL) sampler sample — no auth involved. Shares the
+ * in-flight guard and decode context with the asset path.
+ */
+async function loadSamplerSampleFromUrl(
+  bufferKey: string,
+  url: string,
+): Promise<void> {
+  if (getAudioBuffer(bufferKey) || downloadsInFlight.has(bufferKey)) return;
+  downloadsInFlight.add(bufferKey);
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`download ${response.status}`);
+    }
+    const bytes = await response.arrayBuffer();
+    const buffer = await getDecodeContext().decodeAudioData(bytes);
+    setAudioBuffer(bufferKey, buffer);
+  } catch (err) {
+    console.error(
+      `[studio-assets] Failed to load sampler sample from ${url}`,
+      err,
+    );
+  } finally {
+    downloadsInFlight.delete(bufferKey);
+  }
+}
+
+/**
+ * Rehydrate the one-shot for every Chops track whose buffer is missing —
+ * bundled samples (sourceUrl) by plain fetch, uploaded ones by assetId (needs
+ * a token; skipped silently without one). Same incremental/self-guarding
+ * contract as loadPendingClipAudio.
+ */
+export async function loadPendingSamplerSamples(
+  token: string | null,
+): Promise<void> {
+  const state = useStore.getState();
+
+  const jobs: Array<Promise<void>> = [];
+  for (const track of state.tracks) {
+    const sample = track.samplerSample;
+    if (!sample) continue;
+    // Keyed by the sample's identity (not the track), so a replace — local or
+    // from a collab peer — always misses the cache and refetches.
+    const key = samplerBufferKey(sample.sampleId);
+    if (getAudioBuffer(key)) continue;
+    if (sample.sourceUrl) {
+      jobs.push(loadSamplerSampleFromUrl(key, sample.sourceUrl));
+    } else if (sample.assetId && token) {
+      jobs.push(loadClipAudio(token, key, sample.assetId));
+    }
+  }
+
+  if (jobs.length === 0) return;
+  await Promise.all(jobs);
 }
 
 /**

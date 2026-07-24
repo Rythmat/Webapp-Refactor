@@ -21,6 +21,7 @@ export class UnisonEngine {
   private currentWave: PeriodicWave | null = null;
   private isStarted: boolean = false;
   private vibratoSource: AudioNode | null = null;
+  private detuneModSource: AudioNode | null = null;
 
   constructor(ctx: AudioContext, destination: AudioNode) {
     this.ctx = ctx;
@@ -42,6 +43,9 @@ export class UnisonEngine {
   }
 
   setFrequency(freq: number, glideTime?: number): void {
+    // A non-finite frequency (bad pitch mod / detune) throws on
+    // setValueAtTime and can poison the shared master to silence — ignore it.
+    if (!Number.isFinite(freq)) return;
     this.currentFreq = freq;
     for (const osc of this.oscillators) {
       if (glideTime && glideTime > 0) {
@@ -114,6 +118,18 @@ export class UnisonEngine {
     }
   }
 
+  /**
+   * Second detune input for the modulation matrix. Same fan-out/rewire
+   * behavior as the vibrato source, kept as a separate slot so vibrato
+   * and matrix modulation can coexist.
+   */
+  connectDetuneModSource(source: AudioNode): void {
+    this.detuneModSource = source;
+    for (const osc of this.oscillators) {
+      source.connect(osc.detune);
+    }
+  }
+
   disconnectVibratoSource(): void {
     if (this.vibratoSource) {
       for (const osc of this.oscillators) {
@@ -164,6 +180,11 @@ export class UnisonEngine {
         this.vibratoSource.connect(osc.detune);
       }
     }
+    if (this.detuneModSource) {
+      for (const osc of this.oscillators) {
+        this.detuneModSource.connect(osc.detune);
+      }
+    }
   }
 
   private destroyOscillators(): void {
@@ -174,6 +195,23 @@ export class UnisonEngine {
         // Already stopped
       }
       osc.disconnect();
+      // Also sever INCOMING edges into osc.detune — without this, the
+      // persistent vibrato/detune-mod buses pin every destroyed oscillator
+      // (a connected node cannot be GC'd), leaking nodes on every note-on.
+      if (this.vibratoSource) {
+        try {
+          this.vibratoSource.disconnect(osc.detune);
+        } catch {
+          /* already disconnected */
+        }
+      }
+      if (this.detuneModSource) {
+        try {
+          this.detuneModSource.disconnect(osc.detune);
+        } catch {
+          /* already disconnected */
+        }
+      }
     }
     for (const gain of this.gains) gain.disconnect();
     for (const pan of this.panners) pan.disconnect();

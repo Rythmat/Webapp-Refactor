@@ -1,5 +1,6 @@
 export { HIGH_PRIORITY_SOURCES, isHighPriority } from './priority';
 export { useAnnouncements } from './useAnnouncements';
+export { useLiveSessionAnnouncements } from './useLiveSessionAnnouncements';
 export { useDismissedAnnouncementsStore } from './useDismissedAnnouncementsStore';
 export type {
   Announcement,

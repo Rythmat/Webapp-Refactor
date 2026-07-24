@@ -177,3 +177,125 @@ describe('publishDay firewall (Rule 1)', () => {
     }
   });
 });
+
+// ─── Interactive-slides deck ────────────────────────────────────────────────
+
+const makeDeckDay = (): Day => {
+  const day = makeDay();
+  day.deck = {
+    id: 'deck-1',
+    title: { en: 'Song Session', es: 'Sesión de canción' },
+    slides: [
+      {
+        id: 'sl-welcome',
+        kind: 'content',
+        phase: 'connectRegulate',
+        variant: 'welcome',
+        title: { en: 'Welcome', es: 'Bienvenidos' },
+      },
+      {
+        id: 'sl-checkin',
+        kind: 'interaction',
+        phase: 'respondReflectReset',
+        title: { en: 'How are you feeling?' },
+        interactionIds: ['ix-reflect-checkin'],
+      },
+      {
+        id: 'sl-media',
+        kind: 'media',
+        phase: 'groupPractice',
+        title: { en: 'Listen' },
+        prompt: { en: 'Which instrument do you hear?' },
+        media: { type: 'youtube', videoId: 'dQw4w9WgXcQ', startSec: 12 },
+        sideMedia: { type: 'artistImage', songId: 'test_song' },
+      },
+      {
+        id: 'sl-question',
+        kind: 'interaction',
+        phase: 'groupPractice',
+        title: { en: 'Your answer' },
+        interactionIds: ['ix-practice-1'],
+        reveal: 'bars',
+      },
+    ],
+    templateRef: { templateId: 'song-session-v1', songId: 'test_song' },
+  };
+  return day;
+};
+
+describe('publishDay deck projection', () => {
+  it('deck output passes the forbidden-substring firewall check', () => {
+    const snapshot = publishDay(makeDeckDay());
+    expect(findForbiddenSubstring(snapshot)).toBeNull();
+  });
+
+  it('whitelist-copies slides — unknown extra fields do not survive publish', () => {
+    const day = makeDeckDay();
+    // Simulate a future teacher-only field sneaking onto a slide object.
+    (day.deck!.slides[0] as unknown as Record<string, unknown>).teacherGuide =
+      'SECRET: teacher-only pacing guide';
+    const snapshot = publishDay(day);
+    const serialized = JSON.stringify(snapshot);
+    expect(serialized).not.toContain('SECRET');
+    expect(serialized).not.toContain('teacherGuide');
+  });
+
+  it('preserves slide order, kinds, phases, and interaction references', () => {
+    const snapshot = publishDay(makeDeckDay());
+    expect(snapshot.deck).toBeDefined();
+    const slides = snapshot.deck!.slides;
+    expect(slides.map((s) => s.id)).toEqual([
+      'sl-welcome',
+      'sl-checkin',
+      'sl-media',
+      'sl-question',
+    ]);
+    expect(slides[1]).toMatchObject({
+      kind: 'interaction',
+      phase: 'respondReflectReset',
+      interactionIds: ['ix-reflect-checkin'],
+    });
+    expect(slides[2]).toMatchObject({
+      kind: 'media',
+      media: { type: 'youtube', videoId: 'dQw4w9WgXcQ', startSec: 12 },
+      sideMedia: { type: 'artistImage', songId: 'test_song' },
+    });
+    expect(snapshot.deck!.templateRef).toEqual({
+      templateId: 'song-session-v1',
+      songId: 'test_song',
+    });
+  });
+
+  it('omits deck entirely for legacy Days', () => {
+    const snapshot = publishDay(makeDay());
+    expect('deck' in snapshot).toBe(false);
+  });
+
+  it('omits an empty-but-attached deck so the session does not brick into deck-mode', () => {
+    // A teacher who clicks "Add interactive slides" then adds none (or deletes
+    // them all) leaves an attached deck with zero slides. Publishing it would
+    // flip the live session into deck-mode with no slides — every surface
+    // stranded on "waiting for slides". The gate must drop it and fall back to
+    // the legacy phase-based lesson.
+    const day = makeDeckDay();
+    day.deck!.slides = [];
+    const snapshot = publishDay(day);
+    expect('deck' in snapshot).toBe(false);
+  });
+
+  it('strips a legacy "/songs/<id>" slug from published prompts (no raw slug on student devices)', () => {
+    // Days materialized before the structured song field carried the slug in
+    // the Connect prompt. The published student/deck path must strip it too,
+    // matching the Presentation-Mode (buildStudentView) path.
+    const day = makeDay();
+    day.cells.connectRegulate.presentation.prompt = {
+      en: 'Class Playlist Shuffle.\n\nSong of the day: /songs/lovely_day',
+      es: 'Mezcla de la lista.\n\nCanción del día: /songs/lovely_day',
+    };
+    const snapshot = publishDay(day);
+    const prompt = snapshot.cells.connectRegulate.presentation.prompt;
+    expect(prompt.en).toBe('Class Playlist Shuffle.');
+    expect(prompt.en).not.toContain('/songs/');
+    expect(prompt.es).not.toContain('/songs/');
+  });
+});

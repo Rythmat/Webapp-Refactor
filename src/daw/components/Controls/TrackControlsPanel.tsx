@@ -4,12 +4,14 @@ import { useStore } from '@/daw/store';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { KeyboardView } from './KeyboardView';
 import { GuitarBassView } from './GuitarBassView';
+import { AudioMidiSourcePanel } from './AudioMidiSourcePanel';
 import { OracleSynthView } from './OracleSynthView';
 import { OracleSynthInline } from './OracleSynthInline';
 import { DrumMachineView } from './DrumMachineView';
 import { SoundFontView } from './SoundFontView';
 import { VocalView } from './VocalView';
 import { OrganView } from './OrganView';
+import { SamplerChopsView } from './SamplerChopsView';
 
 // ── Instrument label for overlay title ───────────────────────────────────
 
@@ -31,6 +33,8 @@ function instrumentTitle(instrument: string): string {
       return 'SoundFont (GM)';
     case 'drum-machine':
       return 'Drum Machine';
+    case 'sampler':
+      return 'Chops';
     case 'guitar-fx':
       return 'Guitar FX';
     case 'bass-fx':
@@ -70,30 +74,35 @@ export function TrackControlsPanel() {
     <div className="relative flex h-full flex-col overflow-hidden">
       {track ? (
         <React.Fragment key={track.id}>
-          {renderView(track)}
+          {/* Guitar/Bass-to-MIDI binding — MIDI/synth tracks only */}
+          {track.type === 'midi' && <AudioMidiSourcePanel trackId={track.id} />}
 
-          {/* Pop-out button for oversized instruments */}
-          {showPopOutButton && (
-            <button
-              onClick={openPopOut}
-              className="absolute right-2 top-2 flex size-6 cursor-pointer items-center justify-center rounded-md transition-colors"
-              style={{
-                color: 'var(--color-text-dim)',
-                border: 'none',
-                background: 'rgba(0,0,0,0.3)',
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  'rgba(255,255,255,0.12)')
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.3)')
-              }
-              title="Open in full screen"
-            >
-              <Maximize2 size={13} strokeWidth={1.8} />
-            </button>
-          )}
+          <div className="relative min-h-0 flex-1">
+            {renderView(track)}
+
+            {/* Pop-out button for oversized instruments */}
+            {showPopOutButton && (
+              <button
+                onClick={openPopOut}
+                className="absolute right-2 top-2 flex size-6 cursor-pointer items-center justify-center rounded-md transition-colors"
+                style={{
+                  color: 'var(--color-text-dim)',
+                  border: 'none',
+                  background: 'rgba(0,0,0,0.3)',
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor =
+                    'rgba(255,255,255,0.12)')
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.3)')
+                }
+                title="Open in full screen"
+              >
+                <Maximize2 size={13} strokeWidth={1.8} />
+              </button>
+            )}
+          </div>
 
           {/* Full-screen overlay */}
           <PopOutOverlay
@@ -101,6 +110,7 @@ export function TrackControlsPanel() {
             onClose={closePopOut}
             title={instrumentTitle(track.instrument)}
             trackColor={track.color}
+            fullScreen={track.instrument === 'oracle-synth'}
           >
             {track.instrument === 'oracle-synth' ? (
               <OracleSynthView />
@@ -141,6 +151,8 @@ function renderView(track: { id: string; instrument: string }) {
       return <SoundFontView trackId={track.id} />;
     case 'drum-machine':
       return <DrumMachineView trackId={track.id} />;
+    case 'sampler':
+      return <SamplerChopsView trackId={track.id} />;
     case 'vocal-fx':
       return <VocalView trackId={track.id} />;
     default:

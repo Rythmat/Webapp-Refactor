@@ -46,6 +46,7 @@ import {
   type ArcadeDongleData,
   type BackendDongleData,
 } from '../hooks/useGenreProgress';
+import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { useMetronome } from '../hooks/useMetronome';
 import type { ActivitySectionId } from '../types/activity';
 import type {
@@ -226,6 +227,10 @@ function GenreLessonContainerV2Inner({
       onArcadeUpdate,
       onBackendSync,
     });
+
+  // Classroom app-route bridge: inert unless this lesson was opened from a live
+  // slide. Fires once when the launched section completes.
+  const { reportCompletion } = useMspModuleCompletion();
 
   // Variant rotation — cycle through variants by attempt count
   const attemptCount = progress.completedSteps[currentStep.tag]?.attempts ?? 0;
@@ -819,6 +824,8 @@ function GenreLessonContainerV2Inner({
         flow.params.defaultKey,
         currentStep.styleRef as StyleSubProfile,
       );
+      // Classroom app-route completion (no-op unless launched from a slide).
+      reportCompletion();
       // Move to next section if available
       const currentSectionIdx = flow.sections.findIndex(
         (s) => s.id === activeSection,
@@ -839,6 +846,7 @@ function GenreLessonContainerV2Inner({
     flow,
     currentStep,
     recordSectionComplete,
+    reportCompletion,
     setActivityState,
     stopTickCounter,
   ]);

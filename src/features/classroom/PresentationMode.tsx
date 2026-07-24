@@ -49,11 +49,16 @@ export const PresentationMode = () => {
     classroomId: string;
     dayId: string;
   }>();
+  const cid = classroomId ?? '';
   const navigate = useNavigate();
   const { getDay } = useLocalPlan();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('sessionId') ?? '';
-  const { state: sessionState, sendNav } = useSessionSync(sessionId, 'teacher');
+  const { state: sessionState, sendNav } = useSessionSync(
+    sessionId,
+    'teacher',
+    cid,
+  );
 
   // Resolve the Day: locally-authored Days come from `useLocalPlan`; a
   // dedicated `DEMO_DAY_ID` still shows the fresh-build demo. Anything else

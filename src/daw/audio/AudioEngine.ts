@@ -7,6 +7,12 @@ export class AudioEngine {
   private analyserL: AnalyserNode | null = null;
   private analyserR: AnalyserNode | null = null;
   private masteringChain: EffectChain | null = null;
+  // Global aux return buses (Phase 4): each is its own EffectChain →
+  // returnGain (fader) → masterGain. Tracks tap them via post-fader sends.
+  // Fixed id set for now ('A' reverb, 'B' delay); returns are not per-track
+  // creatable. Mirrors the masteringChain wiring.
+  private returnBuses = new Map<string, EffectChain>();
+  private returnGains = new Map<string, GainNode>();
   // Live-monitor send bus: a parallel tap that captures this user's LIVE input
   // monitoring (mic / instrument FX) for streaming to collaborators. It is NOT
   // connected to the speakers (the user already hears their own monitor through
@@ -27,6 +33,20 @@ export class AudioEngine {
     this.masterGain.connect(this.masteringChain.getInputNode());
     this.masteringChain.getOutputNode().connect(this.ctx.destination);
     this.masteringChain.startGateLoop();
+
+    // Return buses: returnChain → returnGain → masterGain. Track sends feed
+    // the chain input. Effect state + volume are applied from the store by
+    // usePlaybackEngine (like tracks + mastering).
+    for (const id of ['A', 'B']) {
+      const chain = new EffectChain(this.ctx);
+      const gain = this.ctx.createGain();
+      gain.gain.value = 0.8;
+      chain.getOutputNode().connect(gain);
+      gain.connect(this.masterGain);
+      chain.startGateLoop();
+      this.returnBuses.set(id, chain);
+      this.returnGains.set(id, gain);
+    }
 
     // Stereo master metering — parallel dead-end tap after mastering chain
     const splitter = this.ctx.createChannelSplitter(2);
@@ -62,7 +82,38 @@ export class AudioEngine {
     // Sync Tone.js Transport PPQ with our engine's 480 ticks per quarter note
     Tone.getTransport().PPQ = 480;
 
+    // Auto-resume watchdog: the shared context can be suspended (OS sleep, tab
+    // backgrounding, Chrome inactivity) or 'interrupted' (iOS — call, other-app
+    // audio, headphone/Bluetooth route change), which freezes the clock and
+    // drops ALL Studio audio with no recovery but reload. Re-resume on state
+    // change and when the tab becomes visible again. Nothing in the app ever
+    // intentionally suspends, so unconditional resume is safe.
+    this.ctx.onstatechange = () => {
+      if (this.ctx && this.ctx.state !== 'running') {
+        void this.ctx.resume().catch(() => {});
+      }
+    };
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', this.handleVisibility);
+    }
+
     this.isInitialized = true;
+  }
+
+  private handleVisibility = (): void => {
+    if (document.visibilityState === 'visible') void this.resumeIfNeeded();
+  };
+
+  /** Resume the shared context if it's not running (call on transport play and
+   *  any live note entry point). No-op when already running. */
+  async resumeIfNeeded(): Promise<void> {
+    if (this.ctx && this.ctx.state !== 'running') {
+      try {
+        await this.ctx.resume();
+      } catch {
+        /* resume can reject if there's no user gesture yet — ignore */
+      }
+    }
   }
 
   getContext(): AudioContext {
@@ -101,6 +152,31 @@ export class AudioEngine {
     this.masteringChain?.update(state);
   }
 
+  /** The return bus's EffectChain input node — track sends connect here. */
+  getReturnBusInput(id: string): AudioNode | null {
+    return this.returnBuses.get(id)?.getInputNode() ?? null;
+  }
+
+  getReturnIds(): string[] {
+    return Array.from(this.returnBuses.keys());
+  }
+
+  updateReturnEffects(id: string, state: TrackEffectState): void {
+    this.returnBuses.get(id)?.update(state);
+  }
+
+  setReturnVolume(id: string, volume: number): void {
+    const gain = this.returnGains.get(id);
+    if (gain) {
+      // Ramp like the master fader to avoid zipper noise on drags.
+      gain.gain.setTargetAtTime(
+        Math.max(0, Math.min(1, volume)),
+        gain.context.currentTime,
+        0.01,
+      );
+    }
+  }
+
   getIsInitialized(): boolean {
     return this.isInitialized;
   }
@@ -133,8 +209,19 @@ export class AudioEngine {
   }
 
   dispose(): void {
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', this.handleVisibility);
+    }
+    if (this.ctx) this.ctx.onstatechange = null;
     this.masteringChain?.stopGateLoop();
     this.masteringChain?.dispose();
+    for (const chain of this.returnBuses.values()) {
+      chain.stopGateLoop();
+      chain.dispose();
+    }
+    for (const gain of this.returnGains.values()) gain.disconnect();
+    this.returnBuses.clear();
+    this.returnGains.clear();
     this.masterGain?.disconnect();
     this.analyserL?.disconnect();
     this.analyserR?.disconnect();

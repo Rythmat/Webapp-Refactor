@@ -23,6 +23,8 @@ const defaultOsc = (enabled: boolean): OscillatorParams => ({
   unisonVoices: 1,
   unisonDetune: 0,
   unisonBlend: 0.1,
+  warpMode: 'none',
+  warpAmount: 0,
   enabled,
 });
 

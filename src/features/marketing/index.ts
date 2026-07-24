@@ -1,0 +1,1 @@
+export { marketingPages } from './MarketingPages';

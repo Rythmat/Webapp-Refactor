@@ -1,129 +1,90 @@
-# Backend brief — Challenge XP rewards & the Double-XP boost
+# Challenges + XP boost — post-cutover contract
 
-**For:** the backend developer on the Music Atlas **experience API**
-(`VITE_MUSIC_ATLAS_API_URL`, e.g. `https://api-refactor.vercel.app`).
-**Status:** the web client is already built to call everything below and **no-ops
-gracefully until these endpoints exist** — shipping them "lights up" the feature with
-no further frontend work.
+**As of:** 2026-07-15 — challenges are fully **backend-owned** in
+`music-atlas-api` (`VITE_MUSIC_ATLAS_API_URL`). The old same-origin serverless
+`api/challenges/*` is deleted; the challenge event bus + completion detection
+stays client-side, but generation, storage, statuses, and XP now all live
+server-side (deterministic per-period generator, persisted in
+`user_challenge_state`).
 
-## Context — what we need and why
-
-The web app now **generates personalized daily/weekly challenges itself** (our own
-serverless `api/challenges/*` + Upstash Redis) and tracks completion via an in-app
-event bus. What it **cannot** do is grant real XP or apply an XP multiplier — **XP is
-owned by your experience backend**, which today only exposes _action-specific_ award
-endpoints (`/experience/lesson`, `/experience/lesson-activity`, `/experience/arcade`),
-with **no generic award and no boost**.
-
-We need **3 endpoints** so that (a) completing a challenge grants its XP reward, and
-(b) a **"Double-XP boost"** — earned by finishing a day's challenges, claimable the next
-day — actually multiplies the XP a user earns.
+**Frontend client:** [src/lib/challenges/api.ts](../src/lib/challenges/api.ts)
+routes through `apiRequest` from
+[src/lib/experience/api.ts](../src/lib/experience/api.ts) — same auth header,
+same SuperJSON `{ json, meta }` unwrapping, same error handling.
 
 ## Auth
 
-Identical to the existing `/experience/*` endpoints: `Authorization: Bearer <JWT>`; the
-token's `sub` is the user id. Everything is per-authenticated-user.
+`Authorization: Bearer <JWT>`. The token's `sub` is the user id. Same auth as
+`/api/experience/*`.
 
----
+## Endpoints
 
-## 1) `POST /api/experience/award` — grant a flat XP reward
+All responses are SuperJSON-wrapped and unwrapped by `parseApiResponse`.
 
-**Body:** `{ "amount": number, "source": string }`
+### `POST /api/challenges/list`
 
-- `amount` — integer XP to grant. **Validate `1 ≤ amount ≤ 1000`.**
-- `source` — **idempotency key**, e.g. `"challenge:d:2026-07-10:g-JAZZ"`.
+**Body:** `{ "profile": InterestProfile }`
+**Response `200`:** `ChallengesListResponse` — `{ challenges, boost }`.
 
-**Behavior:**
+### `POST /api/challenges/:id/complete`
 
-- Grant `amount × activeMultiplier` XP (see §multiplier; multiplier = 1 when no boost).
-- **Idempotent by `(userId, source)`** — if that `source` was already processed, do
-  **not** grant again; just return the current summary. (Completion can retry.)
+**Body:** `{ "evidence"?: Record<string, unknown> }`
+**Response `200`:** `{ challenge, boostEarned?, experience? }`.
 
-**Response `200`:** the updated `ExperienceSummaryResponse` (same shape as
-`GET /experience/summary`) so the client refreshes XP/level.
-**Errors:** `400` invalid amount/source · `401` unauth.
+- Grants the challenge's XP reward **directly** — no follow-up `/experience/award`
+  call from the client. Any active boost multiplier is applied server-side.
+- `experience` echoes the fresh `ExperienceSummaryResponse` so the client can
+  invalidate its local summary query.
+- Idempotent by `(userId, challengeId)`; re-completing does not double-grant.
 
-## 2) `GET /api/experience/boost` — read the active boost
+### `POST /api/challenges/boost/claim`
 
 **Response `200`:** `{ "multiplier": number, "expiresAt": string | null }`
 
-- Active → `multiplier` (e.g. `2`) + ISO `expiresAt`. None → `{ "multiplier": 1, "expiresAt": null }`.
+- Activates the pending Double-XP boost **directly** on the backend and
+  returns the active window. Pre-cutover this returned
+  `{ multiplier, durationMs }` and required a separate `POST /experience/boost`
+  follow-up; that dance is now server-side.
 
-## 3) `POST /api/experience/boost` — start a boost window
+### `GET /api/experience/boost`
 
-**Body:** `{ "multiplier": number, "durationMs": number }`
+**Response `200`:** `{ "multiplier": number, "expiresAt": string | null }` —
+active window, or `{ 1, null }` when no boost. Still lives under the
+experience API (frontend feed for the boost badge / XP tile).
 
-- **Validate:** `multiplier` in an allowed set (currently only `2`); `durationMs ≤ 48h`.
+## The multiplier applies to ALL awards
 
-**Behavior:** set the user's active boost to `{ multiplier, expiresAt: now + durationMs }`
-(replaces any existing window). **Response `200`:** `{ "multiplier", "expiresAt" }`.
+While a user has an active boost (`now < expiresAt`), **every** XP award —
+lesson, lesson-activity, arcade, and challenge — is multiplied by
+`multiplier`. Implemented centrally in the backend's XP-granting path so all
+award types honor it automatically.
 
----
+**Arcade cap change:** the daily cap applies to *base* round XP only; the
+boost bonus is allowed to exceed it (a 2× player can earn up to 1000 arcade
+XP/day).
 
-## ⭐ THE KEY REQUIREMENT: the multiplier applies to **all** awards
+## Award security
 
-While a user has an active boost (`now < expiresAt`), **every** XP award must be
-multiplied by `multiplier` — not only `/experience/award`, but also the existing
-`/experience/lesson`, `/lesson-activity`, and `/arcade` awards. That is the whole point
-of "Double XP." Implement the multiplier **centrally in your XP-granting path** so all
-award types honor it.
+`POST /api/experience/award` still exists (temporarily deprecated pending
+callers finishing their cutover) but **derives the amount server-side** from
+the `source` — the client-sent `amount` is ignored. An unknown `source`
+returns `400`. Real client flows on the challenge path don't call `/award`
+anymore; use `POST /api/challenges/:id/complete`.
 
-## ⚠️ Security & trust — please make a conscious call
+## Client integration reference
 
-`POST /experience/award` lets the client request an arbitrary XP grant for a `source`.
-Because challenges are generated by _our_ serverless (not your backend), your backend
-can't independently verify the `amount` against a known challenge. Pick a mitigation:
+- `challengesApi.fetchList(token, profile)` — react-query key `['challenges']`.
+- `challengesApi.complete(token, id, evidence?)` — called from
+  `useCompleteChallenge`; on success invalidates `['challenges']` +
+  `['experienceSummary']`.
+- `challengesApi.claimBoost(token)` — called from `useXpBoost`; returns
+  `{ multiplier, expiresAt }`. No separate follow-up.
+- `experienceApi.getBoost(token)` — react-query key `['xpBoost']`; drives the
+  boost badge.
 
-1. **Minimum:** cap `amount` (≤ 1000) + strict idempotency by `source` + a per-user
-   daily rate limit on awards. (Pragmatic; matches how the existing action-awards trust
-   the client.)
-2. **More secure:** have your backend verify the challenge/amount with our challenge
-   serverless (cross-service call).
-3. **Most robust:** move challenge _definitions_ to your backend and derive `amount`
-   server-side from the `source`/challenge id (client passes only the id).
-   Flagging so this is a decision, not an oversight.
+## Deploy state
 
-## Data model (suggested)
-
-- **Boost:** per user, `{ multiplier, expiresAt }` (nullable).
-- **Award idempotency:** a per-user set/table of processed `source` keys, or an XP
-  ledger keyed by `(userId, source)`.
-
-## Out of scope for the backend
-
-Generating challenges, tracking completion, and challenge criteria are all handled by
-our serverless (`api/challenges/*`). Your backend owns **only** XP + the multiplier.
-
-## How the client uses these (reference)
-
-- On completion → `POST /experience/award { amount: <xpReward>, source: "challenge:<id>" }`.
-- Boost badge reads `GET /experience/boost`; "Claim" →
-  `POST /experience/boost { multiplier: 2, durationMs: 86400000 }`.
-- Client code: `src/lib/experience/api.ts` (`awardChallenge`, `getBoost`, `startBoost`),
-  `src/hooks/data/challenges/{useCompleteChallenge,useXpBoost}.ts`.
-
-## Acceptance criteria
-
-1. `award {amount:20, source:"x"}` grants 20; a 2nd call with `source:"x"` grants 0
-   (idempotent); summary reflects the total.
-2. With an active 2× boost: `award {amount:20}` grants **40**, and a normal
-   `/experience/lesson` award **also doubles**.
-3. `GET /boost` returns the active window; after `expiresAt`, awards return to 1×.
-4. `POST /boost {multiplier:2, durationMs:86400000}` starts a 24h 2× window.
-5. Invalid amount/multiplier/duration → `400`; missing/invalid token → `401`.
-
-## Examples
-
-```bash
-# Grant challenge XP (idempotent by source)
-curl -X POST "$API/api/experience/award" -H "Authorization: Bearer $JWT" \
-  -H 'Content-Type: application/json' \
-  -d '{"amount":25,"source":"challenge:d:2026-07-10:g-JAZZ"}'
-
-# Read current boost
-curl "$API/api/experience/boost" -H "Authorization: Bearer $JWT"
-
-# Start a 24h 2× boost
-curl -X POST "$API/api/experience/boost" -H "Authorization: Bearer $JWT" \
-  -H 'Content-Type: application/json' -d '{"multiplier":2,"durationMs":86400000}'
-```
+- Backend: **deployed** (2 migrations + backend-owned challenges live).
+- Frontend: this cutover PR flips the client atomically. Deterministic
+  generation means the same period yields the same challenges server-side, so
+  there's no split-brain across the flip.

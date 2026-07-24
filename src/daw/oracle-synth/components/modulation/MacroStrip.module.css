@@ -1,0 +1,23 @@
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 8px;
+  border-top: 1px solid var(--color-border, #333);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #b8a4e3;
+  text-transform: uppercase;
+}
+
+.knobs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  justify-items: center;
+}

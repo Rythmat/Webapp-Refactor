@@ -14,6 +14,8 @@ import { createUISlice } from './slices/uiSlice';
 import { createFXSlice } from './slices/fxSlice';
 import { createRoutingSlice } from './slices/routingSlice';
 import { createArpSlice } from './slices/arpSlice';
+import { createMacroSlice } from './slices/macroSlice';
+import { createKeyScaleSlice } from './slices/keyScaleSlice';
 import type { SynthStore } from './storeTypes';
 
 export type { SynthStore };
@@ -34,6 +36,8 @@ export const useSynthStore = create<SynthStore>()(
     ...createFXSlice(...args),
     ...createRoutingSlice(...args),
     ...createArpSlice(...args),
+    ...createMacroSlice(...args),
+    ...createKeyScaleSlice(...args),
   })),
 );
 
@@ -56,6 +60,8 @@ useSynthStore.subscribe(
     s.fxRoutes,
     s.routing,
     s.arp,
+    s.macros,
+    s.keyScale,
   ],
   () => {
     const { isDirty, markDirty } = useSynthStore.getState();

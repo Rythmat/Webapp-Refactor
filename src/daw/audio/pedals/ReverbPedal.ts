@@ -1,6 +1,12 @@
 // ── ReverbPedal ───────────────────────────────────────────────────────────
 // Convolution reverb with type-specific impulse response, pre-delay,
 // high-pass/low-pass filters, and wet/dry mix.
+//
+// NOTE: currently orphaned — not wired into GuitarPedalChain's createProcessor
+// factory. It still uses the synthetic `generateIR` below. When this pedal is
+// revived, switch it to the shared real-IR loader in ../reverbIR.ts
+// (getProcessedIr / ensureProcessedIr) so it matches EffectChain's reverb
+// instead of diverging with its own synthetic generator.
 
 import type { PedalProcessor } from './PedalProcessor';
 import type { ReverbType } from '../EffectChain';

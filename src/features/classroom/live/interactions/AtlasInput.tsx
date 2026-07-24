@@ -75,9 +75,18 @@ export const AtlasInput = ({
         sessionId,
         assignmentId,
       });
-      const url =
-        resolveMspModuleBaseUrl(atlas.module) +
-        `?msp=${encodeURIComponent(token)}`;
+      // Query params beyond `?msp=` are for the dev-only MockLearn harness
+      // (real Atlas modules only need the token — server-side inspection
+      // recovers everything else). Real modules ignore unknown params.
+      const params = new URLSearchParams({
+        msp: token,
+        module: atlas.module,
+        activityRef: atlas.activityRef,
+        interactionId: interaction.id,
+        enrollmentId: effectiveEnrollment,
+        expects: atlas.expects,
+      });
+      const url = `${resolveMspModuleBaseUrl(atlas.module)}?${params.toString()}`;
       if (embeddable) {
         setEmbedUrl(url);
       } else {

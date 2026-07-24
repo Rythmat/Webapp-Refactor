@@ -1,6 +1,11 @@
-import { DEFAULT_EFFECTS } from '@/daw/audio/EffectChain';
+import {
+  DEFAULT_EFFECTS,
+  type TrackEffectState,
+} from '@/daw/audio/EffectChain';
+import { ensureSamplerSampleId } from '@/daw/instruments/samplerChops';
 import { useStore } from '@/daw/store';
 import type { Track } from '@/daw/store/tracksSlice';
+import { defaultReturns, type ReturnBus } from '@/daw/store/returnsSlice';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import { guessTrackRole } from '@/daw/utils/trackRole';
 import {
@@ -19,6 +24,14 @@ export interface SerializedTrackSettings {
   vocalChain?: Track['vocalChain'];
   guitarChain?: Track['guitarChain'];
   drumPads?: Track['drumPads'];
+  automation?: Track['automation'];
+  drumKit?: Track['drumKit'];
+  samplerSample?: Track['samplerSample'];
+  sends?: Track['sends'];
+  // The track's own id at save time, so cross-track references inside effects
+  // (the ducker's keyTrackId) can be remapped when deserialize remints ids
+  // (cloud load). Local load keeps ids, so this is a no-op there.
+  sourceTrackId?: string;
   // Full Oracle Synth patch for oracle-synth tracks. The synth params live in a
   // shared store + per-track cache (see synthTrackState.ts), not on the Track,
   // so this is pulled from there at save time and seeded back on load.
@@ -33,6 +46,11 @@ function trackSettings(t: Track): SerializedTrackSettings {
     vocalChain: t.vocalChain,
     guitarChain: t.guitarChain,
     drumPads: t.drumPads,
+    automation: t.automation,
+    drumKit: t.drumKit,
+    samplerSample: t.samplerSample,
+    sends: t.sends,
+    sourceTrackId: t.id,
     oracleSynth:
       t.instrument === 'oracle-synth' ? getTrackSynthState(t.id) : undefined,
   };
@@ -43,14 +61,34 @@ function applyTrackSettings(
   settings: SerializedTrackSettings | undefined,
 ): Pick<
   Track,
-  'gmProgram' | 'effects' | 'vocalChain' | 'guitarChain' | 'drumPads'
+  | 'gmProgram'
+  | 'effects'
+  | 'vocalChain'
+  | 'guitarChain'
+  | 'drumPads'
+  | 'drumKit'
+  | 'samplerSample'
+  | 'sends'
+  | 'automation'
 > {
   return {
     gmProgram: settings?.gmProgram,
-    effects: settings?.effects ?? structuredClone(DEFAULT_EFFECTS),
+    // Merge over defaults so effect slots added after a save was written
+    // (e.g. multiband) are backfilled instead of arriving `undefined` and
+    // crashing EffectChain.update / lesson checks on the first access.
+    effects: settings?.effects
+      ? { ...structuredClone(DEFAULT_EFFECTS), ...settings.effects }
+      : structuredClone(DEFAULT_EFFECTS),
     vocalChain: settings?.vocalChain,
     guitarChain: settings?.guitarChain,
     drumPads: settings?.drumPads,
+    automation: settings?.automation,
+    drumKit: settings?.drumKit,
+    // ensure: saves written before sampleId existed get a deterministic one.
+    samplerSample: settings?.samplerSample
+      ? ensureSamplerSampleId(settings.samplerSample)
+      : undefined,
+    sends: settings?.sends,
   };
 }
 
@@ -177,6 +215,9 @@ export interface SessionData {
       genre: string;
       swing: number;
     };
+    // Global aux return buses (Phase 4). Optional — older saves predate it and
+    // fall back to defaultReturns() on load.
+    returns?: ReturnBus[];
   };
 }
 
@@ -261,8 +302,44 @@ export function serializeSession(): SessionData {
         genre: state.genre,
         swing: state.swing,
       },
+      returns: state.returns,
     },
   };
+}
+
+/**
+ * Rewrite each track's ducker `keyTrackId` to point at the correct track after
+ * deserialize. `oldToNew` maps a saved track's `sourceTrackId` to its live id.
+ * A key that maps nowhere (deleted track, or a cloud load where the source is
+ * absent) is nulled so the ducker fails silent and the UI shows "None".
+ * Mutates the freshly-built track objects in place (pre-setState).
+ */
+function remapDuckerKeys(
+  tracks: Array<{ effects?: TrackEffectState }>,
+  oldToNew: Map<string, string>,
+): void {
+  for (const track of tracks) {
+    const ducker = track.effects?.ducker;
+    if (ducker?.keyTrackId) {
+      // Replace the ducker object rather than mutate in place: the shallow
+      // effects merge in applyTrackSettings aliases this from the input blob,
+      // so mutating it would corrupt the caller's project argument.
+      track.effects!.ducker = {
+        ...ducker,
+        keyTrackId: oldToNew.get(ducker.keyTrackId) ?? null,
+      };
+    }
+  }
+}
+
+/** Restore returns from a save, backfilling effect slots and falling back to
+ *  the defaults when a save predates the feature. */
+export function restoreReturns(saved: ReturnBus[] | undefined): ReturnBus[] {
+  if (!saved || saved.length === 0) return defaultReturns();
+  return saved.map((r) => ({
+    ...r,
+    effects: { ...structuredClone(DEFAULT_EFFECTS), ...r.effects },
+  }));
 }
 
 // ── Cloud serialize / deserialize ────────────────────────────────────────
@@ -294,6 +371,7 @@ export interface CloudProjectInput {
     genre: string;
     swing: number;
   };
+  returns?: ReturnBus[];
   tracks: Array<{
     name: string;
     type: 'midi' | 'audio';
@@ -382,13 +460,18 @@ export function serializeSessionForCloud(
       genre: state.genre,
       swing: state.swing,
     },
+    returns: state.returns,
     tracks,
   };
 }
 
 export function deserializeCloudProject(project: CloudProjectDetail): void {
+  // Cloud load remints track ids, so build a saved-id → new-id map to remap
+  // cross-track references (ducker keyTrackId) below.
+  const cloudMap = new Map<string, string>();
   const tracks = project.tracks.map((t) => {
     const id = crypto.randomUUID();
+    if (t.settings?.sourceTrackId) cloudMap.set(t.settings.sourceTrackId, id);
     // Seed the per-track synth patch so the panel restores it on open and the
     // engine is configured at instrument init (keyed by the freshly minted id).
     if (t.instrument === 'oracle-synth' && t.settings?.oracleSynth) {
@@ -444,6 +527,9 @@ export function deserializeCloudProject(project: CloudProjectDetail): void {
     firstMidi.recordArmed = true;
   }
 
+  // Remap ducker key references onto the freshly minted track ids.
+  remapDuckerKeys(tracks, cloudMap);
+
   useStore.setState({
     projectId: project.id,
     projectName: project.name,
@@ -456,6 +542,7 @@ export function deserializeCloudProject(project: CloudProjectDetail): void {
     rhythmName: project.prism.rhythmName,
     genre: project.prism.genre,
     swing: project.prism.swing,
+    returns: restoreReturns(project.returns),
   });
 }
 
@@ -538,8 +625,13 @@ export function deserializeSession(session: SessionData): void {
       setTrackSynthState(t.id, t.settings.oracleSynth);
     }
 
+    // Drop the raw settings blob so it doesn't leak onto the store Track (it's
+    // re-derived from applyTrackSettings; a stray `settings` would bloat the
+    // store and carry internal fields like sourceTrackId).
+    const trackFields = { ...t };
+    delete (trackFields as { settings?: unknown }).settings;
     return {
-      ...t,
+      ...trackFields,
       // Restore the instrument voice + effect config (effects re-default when a
       // save predates this field).
       ...applyTrackSettings(t.settings),
@@ -562,6 +654,14 @@ export function deserializeSession(session: SessionData): void {
       firstMidi.recordArmed = true;
     }
   }
+
+  // Remap ducker key references. Local load keeps ids, so this is an identity
+  // map (only nulls a key pointing at a track that no longer exists).
+  const localMap = new Map<string, string>();
+  d.tracks.forEach((t, i) => {
+    localMap.set(t.settings?.sourceTrackId ?? t.id, tracks[i].id);
+  });
+  remapDuckerKeys(tracks, localMap);
 
   useStore.setState({
     // Project
@@ -587,5 +687,8 @@ export function deserializeSession(session: SessionData): void {
     rhythmName: d.prism.rhythmName,
     genre: d.prism.genre,
     swing: d.prism.swing,
+
+    // Aux return buses
+    returns: restoreReturns(d.returns),
   });
 }

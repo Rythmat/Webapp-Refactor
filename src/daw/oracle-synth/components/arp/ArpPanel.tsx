@@ -84,6 +84,15 @@ export const ArpPanel: React.FC = React.memo(() => {
           onChange={(v) => setArpParam('step', Number(v))}
         />
       </div>
+
+      <div className={styles.row}>
+        <span className={styles.label}>CHORD</span>
+        <Toggle
+          value={arp.chordAware ?? false}
+          accent="#8fd694"
+          onChange={(v) => setArpParam('chordAware', v)}
+        />
+      </div>
     </div>
   );
 });

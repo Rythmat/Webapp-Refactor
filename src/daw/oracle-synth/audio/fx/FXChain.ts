@@ -4,16 +4,20 @@ import {
   PhaserParams,
   CompressorParams,
   DriveParams,
+  ReverbParams,
 } from '../types';
 import { DriveEffect } from './DriveEffect';
 import { ChorusEffect } from './ChorusEffect';
 import { PhaserEffect } from './PhaserEffect';
 import { DelayEffect } from './DelayEffect';
+import { ReverbEffect } from './ReverbEffect';
 import { CompressorEffect } from './CompressorEffect';
 
 /**
- * Master FX chain. Connects 5 effects in series:
- * input → Drive → Chorus → Phaser → Delay → Compressor → output
+ * Master FX chain. Connects 6 effects in series:
+ * input → Drive → Chorus → Phaser → Delay → Reverb → Compressor → output
+ * (Reverb sits after delay and before the compressor so the tank is glued
+ * by the compressor rather than smearing it.)
  */
 export class FXChain {
   readonly input: GainNode;
@@ -23,6 +27,7 @@ export class FXChain {
   readonly chorus: ChorusEffect;
   readonly phaser: PhaserEffect;
   readonly delay: DelayEffect;
+  readonly reverb: ReverbEffect;
   readonly compressor: CompressorEffect;
 
   constructor(ctx: AudioContext) {
@@ -33,14 +38,16 @@ export class FXChain {
     this.chorus = new ChorusEffect(ctx);
     this.phaser = new PhaserEffect(ctx);
     this.delay = new DelayEffect(ctx);
+    this.reverb = new ReverbEffect(ctx);
     this.compressor = new CompressorEffect(ctx);
 
-    // Chain: input → drive → chorus → phaser → delay → compressor → output
+    // Chain: input → drive → chorus → phaser → delay → reverb → compressor → out
     this.input.connect(this.drive.input);
     this.drive.output.connect(this.chorus.input);
     this.chorus.output.connect(this.phaser.input);
     this.phaser.output.connect(this.delay.input);
-    this.delay.output.connect(this.compressor.input);
+    this.delay.output.connect(this.reverb.input);
+    this.reverb.output.connect(this.compressor.input);
     this.compressor.output.connect(this.output);
   }
 
@@ -60,6 +67,10 @@ export class FXChain {
     this.delay.updateParams(params);
   }
 
+  setReverbParams(params: Partial<ReverbParams>): void {
+    this.reverb.updateParams(params);
+  }
+
   setCompressorParams(params: Partial<CompressorParams>): void {
     this.compressor.updateParams(params);
   }
@@ -71,6 +82,7 @@ export class FXChain {
     this.chorus.dispose();
     this.phaser.dispose();
     this.delay.dispose();
+    this.reverb.dispose();
     this.compressor.dispose();
   }
 }

@@ -1,0 +1,157 @@
+/* ── Interactive Slides ───────────────────────────────────────────────
+   Per-surface type-scale tokens for the SlideRenderer, layered on the
+   conventions established in presentation.css (near-black field, white
+   ink, hairline borders). `data-surface` on .slide-frame selects the
+   scale: projector is sized for the back row, student for a phone,
+   teacher for a compact dashboard panel.
+   ────────────────────────────────────────────────────────────────────── */
+
+.slide-frame {
+  --slide-accent: #7ecfcf;
+  --slide-title-fz: 2.5rem;
+  --slide-prompt-fz: 1.25rem;
+  --slide-question-fz: 1.75rem;
+  --slide-body-fz: 1.125rem;
+  --slide-label-fz: 0.8125rem;
+
+  background: #141416;
+  color: #ffffff;
+  font-family: 'Glacial Indifference', 'Haskoy', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.slide-frame[data-surface='projector'] {
+  --slide-title-fz: 4.25rem;
+  --slide-prompt-fz: 2rem;
+  --slide-question-fz: 3rem;
+  --slide-body-fz: 1.5rem;
+  --slide-label-fz: 1.125rem;
+}
+
+.slide-frame[data-surface='student'] {
+  --slide-title-fz: 1.5rem;
+  --slide-prompt-fz: 1.0625rem;
+  --slide-question-fz: 1.25rem;
+  --slide-body-fz: 1rem;
+  --slide-label-fz: 0.6875rem;
+}
+
+.slide-frame[data-surface='teacher'] {
+  --slide-title-fz: 1.375rem;
+  --slide-prompt-fz: 1rem;
+  --slide-question-fz: 1.125rem;
+  --slide-body-fz: 0.9375rem;
+  --slide-label-fz: 0.625rem;
+}
+
+/* Presentation Mode board (legacy phase cells converged onto this shell).
+   Projected like the projector, but the grade-band control (data-age on the
+   ancestor .presentation-root) drives the scale. Defaults to the 'high' preset;
+   values mirror the --pres-focus-* scale in presentation.css. */
+.slide-frame[data-surface='present'] {
+  --slide-title-fz: 4rem;
+  --slide-prompt-fz: 2rem;
+  --slide-question-fz: 3rem;
+  --slide-body-fz: 1.5rem;
+  --slide-label-fz: 1.125rem;
+}
+
+.presentation-root[data-age='middle'] .slide-frame[data-surface='present'] {
+  --slide-title-fz: 3.25rem;
+  --slide-prompt-fz: 1.625rem;
+  --slide-body-fz: 1.375rem;
+}
+
+.presentation-root[data-age='college'] .slide-frame[data-surface='present'] {
+  --slide-title-fz: 4.75rem;
+  --slide-prompt-fz: 2.25rem;
+  --slide-body-fz: 1.625rem;
+}
+
+/* Welcome variant — the biggest type and a stronger glow. */
+.slide-frame--welcome[data-surface='projector'] {
+  --slide-title-fz: 5.5rem;
+  --slide-prompt-fz: 2.25rem;
+}
+
+.slide-frame--welcome[data-surface='student'] {
+  --slide-title-fz: 2rem;
+}
+
+.slide-frame--welcome[data-surface='teacher'] {
+  --slide-title-fz: 1.75rem;
+}
+
+/* Soft radial glow behind the focal area, tinted by --slide-accent. Deck
+   surfaces resolve the accent to teal (#7ecfcf) — visually identical to the
+   prior hardcoded value; the Presentation surface overrides --slide-accent
+   per phase so the glow + chip recolor together (no half-applied look). */
+.slide-frame__glow {
+  /* Fallback for browsers without color-mix(): the deck default teal, matching
+     the prior hardcoded value so no glow is lost. Overridden just below where
+     color-mix is supported (per-phase accent on the Presentation surface). */
+  background: radial-gradient(
+    ellipse 62% 48% at 50% 40%,
+    rgba(126, 207, 207, 0.09),
+    transparent 70%
+  );
+  background: radial-gradient(
+    ellipse 62% 48% at 50% 40%,
+    color-mix(in srgb, var(--slide-accent) 9%, transparent),
+    transparent 70%
+  );
+}
+
+.slide-frame--welcome .slide-frame__glow {
+  background: radial-gradient(
+    ellipse 70% 55% at 50% 42%,
+    rgba(126, 207, 207, 0.16),
+    transparent 72%
+  );
+  background: radial-gradient(
+    ellipse 70% 55% at 50% 42%,
+    color-mix(in srgb, var(--slide-accent) 16%, transparent),
+    transparent 72%
+  );
+}
+
+/* Phase-chip live dot. */
+.slide-frame__chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--slide-accent);
+  animation: slide-chip-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes slide-chip-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Lazy-media loading shimmer. */
+.slide-media__skeleton {
+  animation: slide-media-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes slide-media-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide-frame__chip-dot,
+  .slide-media__skeleton {
+    animation: none;
+  }
+}

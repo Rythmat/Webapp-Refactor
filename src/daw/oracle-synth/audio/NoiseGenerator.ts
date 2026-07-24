@@ -93,6 +93,10 @@ export class NoiseGenerator {
     return this.gainNode.gain;
   }
 
+  getPanParam(): AudioParam {
+    return this.panNode.pan;
+  }
+
   connectToAnalyser(dest: AudioNode): void {
     this.gainNode.connect(dest);
   }

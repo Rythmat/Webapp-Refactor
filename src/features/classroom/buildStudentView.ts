@@ -17,7 +17,10 @@
  * See docs/classroom-vision.md (forthcoming) and the fresh-build brief §7 for
  * the pedagogical rationale.
  */
+import { stripLegacySongSlug } from './legacySongSlug';
 import { PHASES, STUDENT_PHASE_LABELS, type PhaseKey } from './phases';
+import { projectDeck } from './publish/publishDay';
+import type { SlideDeck } from './slides/types';
 import type {
   Day,
   Interaction,
@@ -36,6 +39,9 @@ export interface StudentPhaseView {
   interactions?: Interaction[];
   /** Reflect-phase reset checklist. Absent for other phases. */
   resetChecklist?: LocalizedText[];
+  /** "Song of the day" reference (typically Connect), resolved to artwork by
+   *  the presentation surface. Absent when the phase has no song. */
+  song?: { id: string };
 }
 
 /**
@@ -68,6 +74,8 @@ export interface StudentDayView {
   language: StudentViewConfig['language'];
   agePreset: StudentViewConfig['agePreset'];
   phases: StudentPhaseView[];
+  /** Interactive-slides deck (whitelist-projected); absent on legacy Days. */
+  deck?: SlideDeck;
 }
 
 /**
@@ -89,11 +97,18 @@ export const buildStudentView = (
 ): StudentDayView => {
   const phases: StudentPhaseView[] = PHASES.map((phaseKey) => {
     const cell = day.cells[phaseKey];
+    const { prompt, songId: legacySongId } = stripLegacySongSlug(
+      cell.presentation.prompt,
+    );
+    // Prefer the structured field; fall back to a legacy slug recovered above.
+    const song =
+      cell.presentation.song ??
+      (legacySongId ? { id: legacySongId } : undefined);
     const view: StudentPhaseView = {
       phaseKey,
       label: STUDENT_PHASE_LABELS[phaseKey],
       title: cell.presentation.title,
-      prompt: cell.presentation.prompt,
+      prompt,
       launchTiles: cell.presentation.launchTiles.map((tile) => ({
         id: tile.id,
         module: tile.module,
@@ -101,6 +116,7 @@ export const buildStudentView = (
         ...(tile.label !== undefined ? { label: tile.label } : {}),
       })),
     };
+    if (song) view.song = song;
     if (cell.presentation.interactions?.length) {
       view.interactions = cell.presentation.interactions.map(
         projectInteractionForStudent,
@@ -115,10 +131,12 @@ export const buildStudentView = (
     return view;
   });
 
-  return {
+  const view: StudentDayView = {
     dayId: day.id,
     language: config.language,
     agePreset: config.agePreset,
     phases,
   };
+  if (day.deck) view.deck = projectDeck(day.deck);
+  return view;
 };

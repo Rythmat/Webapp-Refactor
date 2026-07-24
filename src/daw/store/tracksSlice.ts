@@ -9,6 +9,14 @@ import {
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import { getProjectTemplate } from '@/daw/data/projectTemplates';
 import { guessTrackRole, type DawTrackRole } from '@/daw/utils/trackRole';
+import type { DrumKitId } from '@/daw/instruments/drumKits';
+import {
+  insertPoint,
+  removePoint,
+  type AutomationPoint,
+  type AutomationLanes,
+} from '@/daw/audio/automation';
+import type { SamplerSampleRef } from '@/daw/instruments/samplerChops';
 import type { PitchSegment } from '@/daw/audio/pitch-analysis/PitchAnalyzer';
 import { toast } from '@/hooks/use-toast';
 
@@ -91,6 +99,7 @@ export type InstrumentType =
   | 'tonewheel-organ'
   | 'soundfont'
   | 'drum-machine'
+  | 'sampler'
   | 'guitar-fx'
   | 'bass-fx'
   | 'vocal-fx'
@@ -99,6 +108,19 @@ export type InstrumentType =
 export type AudioInputChannel =
   | { mode: 'mono'; channel: number }
   | { mode: 'stereo'; left: number; right: number };
+
+/**
+ * Guitar/Bass-to-MIDI binding on a MIDI (synth) track: turns a live guitar or
+ * bass audio track into a MIDI controller that drives this track's instrument.
+ * Session-only (deliberately not persisted/synced — it references a sibling
+ * track by id and is a local monitoring preference).
+ */
+export interface AudioMidiSource {
+  enabled: boolean;
+  /** Source guitar-fx/bass-fx track id, or null to auto-pick the first one. */
+  sourceTrackId: string | null;
+  mode: 'mono' | 'poly';
+}
 
 export interface MidiClip {
   id: string;
@@ -144,6 +166,8 @@ export interface Track {
   midiInputId: string | null;
   audioInputId: string | null;
   audioInputChannel: AudioInputChannel | null;
+  /** Guitar/Bass-to-MIDI binding (MIDI tracks only). Session-only. */
+  audioMidiSource?: AudioMidiSource;
   effects: TrackEffectState;
   activeEffects: EffectSlotType[];
   midiClips: MidiClip[];
@@ -163,6 +187,15 @@ export interface Track {
   }[];
   /** Per-pad volume/pan for drum-machine tracks, keyed by MIDI note. */
   drumPads?: Record<number, { volume: number; pan: number }>;
+  /** Selected drum kit for drum-machine tracks ('natural' when unset). */
+  drumKit?: DrumKitId;
+  /** Loaded one-shot for 'sampler' (Chops) tracks; unset until a sample lands. */
+  samplerSample?: SamplerSampleRef;
+  /** Post-fader aux send levels keyed by return bus id (0–1); absent = 0. */
+  sends?: Record<string, number>;
+  /** Parameter-automation lanes keyed by paramId (volume/pan/send.X/effect.*).
+   *  Each lane is a tick-sorted breakpoint list; absent until the first point. */
+  automation?: AutomationLanes;
   /** Harmonic role for chord detection (auto = infer from name/instrument). */
   trackRole: DawTrackRole;
 }
@@ -258,6 +291,28 @@ export interface TracksSlice {
     note: number,
     params: { volume?: number; pan?: number },
   ) => void;
+  setDrumKit: (trackId: string, kitId: DrumKitId) => void;
+  setSamplerSample: (
+    trackId: string,
+    sample: SamplerSampleRef | undefined,
+  ) => void;
+  setSend: (trackId: string, returnId: string, level: number) => void;
+  // ── Parameter automation (Phase 7) ──
+  /** Insert or replace a breakpoint at its tick on a param lane (keeps sorted). */
+  upsertAutomationPoint: (
+    trackId: string,
+    paramId: string,
+    point: AutomationPoint,
+  ) => void;
+  /** Remove the breakpoint at exactly `tick` from a param lane (drops the lane
+   *  entirely when it becomes empty). */
+  removeAutomationPoint: (
+    trackId: string,
+    paramId: string,
+    tick: number,
+  ) => void;
+  /** Remove a whole param lane. */
+  clearAutomationLane: (trackId: string, paramId: string) => void;
   loadProjectTemplate: (templateId: string) => void;
 }
 
@@ -774,6 +829,87 @@ export const createTracksSlice: StateCreator<
               [note]: { ...prev, ...params },
             },
           };
+        }),
+      })),
+    ),
+
+  setDrumKit: (trackId, kitId) =>
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId ? { ...t, drumKit: kitId } : t,
+        ),
+      })),
+    ),
+
+  setSamplerSample: (trackId, sample) =>
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId ? { ...t, samplerSample: sample } : t,
+        ),
+      })),
+    ),
+
+  setSend: (trackId, returnId, level) =>
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) =>
+          t.id === trackId
+            ? {
+                ...t,
+                sends: {
+                  ...t.sends,
+                  [returnId]: Math.max(0, Math.min(1, level)),
+                },
+              }
+            : t,
+        ),
+      })),
+    ),
+
+  // ── Parameter automation ──
+  // Every edit mints a fresh `automation` object + track (like drumPads) — the
+  // collab diff and undo both change-detect by reference, so in-place mutation
+  // would silently break sync/undo.
+  upsertAutomationPoint: (trackId, paramId, point) =>
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) => {
+          if (t.id !== trackId) return t;
+          return {
+            ...t,
+            automation: {
+              ...t.automation,
+              [paramId]: insertPoint(t.automation?.[paramId], point),
+            },
+          };
+        }),
+      })),
+    ),
+
+  removeAutomationPoint: (trackId, paramId, tick) =>
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) => {
+          if (t.id !== trackId || !t.automation?.[paramId]) return t;
+          const next = removePoint(t.automation[paramId], tick);
+          const automation: AutomationLanes = { ...t.automation };
+          if (next.length === 0) delete automation[paramId];
+          else automation[paramId] = next;
+          return { ...t, automation };
+        }),
+      })),
+    ),
+
+  clearAutomationLane: (trackId, paramId) =>
+    set(
+      guardTrack(trackId, (state) => ({
+        tracks: state.tracks.map((t) => {
+          if (t.id !== trackId || !t.automation?.[paramId]) return t;
+          const automation: AutomationLanes = { ...t.automation };
+          delete automation[paramId];
+          return { ...t, automation };
         }),
       })),
     ),

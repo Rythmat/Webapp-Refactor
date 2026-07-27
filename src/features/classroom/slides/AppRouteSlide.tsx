@@ -10,11 +10,14 @@
 import { getSong } from '@/curriculum/data/songs';
 import { pickLocalized, secondaryLine } from '../presentation/localized';
 import type { Interaction, LocalizedText, StudentLanguage } from '../types';
+import type { SlideSlots } from './SlideRenderer';
 import { SlideFrame } from './parts/SlideFrame';
 import { SlideHeading } from './parts/SlideHeading';
 import { resolveActivityRefHref } from './resolveContentHref';
-import type { SlideSlots } from './SlideRenderer';
-import type { AppRouteSlide as AppRouteSlideModel, SlideSurface } from './types';
+import type {
+  AppRouteSlide as AppRouteSlideModel,
+  SlideSurface,
+} from './types';
 
 const ON_YOUR_DEVICE: LocalizedText = {
   en: 'Open the activity on your own device.',
@@ -119,16 +122,26 @@ export const AppRouteSlide = ({
   return (
     <SlideFrame slide={slide} surface={surface} language={language}>
       <div className="flex min-h-0 flex-1 flex-col gap-4">
-        <SlideHeading title={slide.title} prompt={slide.prompt} language={language} />
+        <SlideHeading
+          title={slide.title}
+          prompt={slide.prompt}
+          language={language}
+        />
         <div className="flex flex-col gap-2">
-          <BiLine text={COME_BACK} language={language} className="text-white/55" />
+          <BiLine
+            text={COME_BACK}
+            language={language}
+            className="text-white/55"
+          />
           {interaction?.atlas && (
             <span
               className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-white/70"
               style={{ fontSize: 'var(--slide-body-fz)' }}
             >
               <span className="text-[#7ecfcf]">{interaction.atlas.module}</span>
-              <span className="text-white/40">{href ?? interaction.atlas.activityRef}</span>
+              <span className="text-white/40">
+                {href ?? interaction.atlas.activityRef}
+              </span>
             </span>
           )}
         </div>

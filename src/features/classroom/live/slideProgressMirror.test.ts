@@ -1,16 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import type { Interaction, InteractionResponsePayload } from '../types';
-import {
-  buildSlideProgressPatch,
-  slidesLessonId,
-} from './slideProgressMirror';
+import { buildSlideProgressPatch, slidesLessonId } from './slideProgressMirror';
 
 const atlasIx: Interaction = {
   id: 'ix-1',
   type: 'atlas',
   question: { en: 'q', es: 'q' },
   shareable: false,
-  atlas: { module: 'learn', activityRef: 'learn:ionian:c', expects: 'completion' },
+  atlas: {
+    module: 'learn',
+    activityRef: 'learn:ionian:c',
+    expects: 'completion',
+  },
 };
 
 const atlasPayload = (
@@ -25,7 +26,11 @@ const atlasPayload = (
 describe('buildSlideProgressPatch', () => {
   it('returns null for the launch marker (prevents false COMPLETED)', () => {
     expect(
-      buildSlideProgressPatch('deck-1', atlasIx, atlasPayload({ status: 'launched' })),
+      buildSlideProgressPatch(
+        'deck-1',
+        atlasIx,
+        atlasPayload({ status: 'launched' }),
+      ),
     ).toBeNull();
   });
 
@@ -46,7 +51,11 @@ describe('buildSlideProgressPatch', () => {
       shareable: true,
     };
     expect(
-      buildSlideProgressPatch('deck-1', nonAtlas, atlasPayload({ completion: true })),
+      buildSlideProgressPatch(
+        'deck-1',
+        nonAtlas,
+        atlasPayload({ completion: true }),
+      ),
     ).toBeNull();
   });
 

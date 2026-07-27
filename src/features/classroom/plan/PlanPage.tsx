@@ -74,7 +74,10 @@ export const PlanPage = () => {
         publishedDayId: pd.id,
       });
       navigate(
-        TeacherRoutes.session({ classroomId: cid, sessionId: started.sessionId }),
+        TeacherRoutes.session({
+          classroomId: cid,
+          sessionId: started.sessionId,
+        }),
       );
     } catch (err) {
       window.alert(err instanceof Error ? err.message : 'Start session failed');

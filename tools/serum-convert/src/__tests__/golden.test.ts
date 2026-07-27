@@ -2,10 +2,10 @@
 // (local machines); skipped in CI. The golden JSON pins the full mapping —
 // regenerate deliberately with UPDATE_GOLDEN=1 when mappings change.
 
-import { describe, it, expect } from 'vitest';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { describe, it, expect } from 'vitest';
 import { convertPreset } from '../convert.ts';
 
 const LIBRARY =

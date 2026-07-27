@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { findForbiddenSubstring, publishDay } from '../publish/publishDay';
+import { PHASES } from '../phases';
 import { newBlankDay } from '../plan/newBlankDay';
-import type { SlideKind } from './types';
+import { findForbiddenSubstring, publishDay } from '../publish/publishDay';
 import {
   deleteSlideAt,
   emptyDeck,
@@ -11,7 +11,7 @@ import {
   slidesArePhaseOrdered,
   updateSlideAt,
 } from './deckEdit';
-import { PHASES } from '../phases';
+import type { SlideKind } from './types';
 
 const KINDS: SlideKind[] = [
   'content',
@@ -82,7 +82,11 @@ describe('slide list mutations', () => {
   });
 
   it('insertSlideAt / deleteSlideAt', () => {
-    const inserted = insertSlideAt(slides, newSlide('showcase', 'presentPerform'), 1);
+    const inserted = insertSlideAt(
+      slides,
+      newSlide('showcase', 'presentPerform'),
+      1,
+    );
     expect(inserted).toHaveLength(4);
     expect(inserted[1].kind).toBe('showcase');
     expect(deleteSlideAt(slides, 1)).toHaveLength(2);

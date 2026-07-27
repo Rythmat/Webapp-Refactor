@@ -1,884 +1,755 @@
 {
- "name": "BA - DISCONNECT",
- "version": 3,
- "oscillators": [
-  {
-   "waveform": "sawtooth",
-   "wavetable": "S2/PolySaw II",
-   "octave": -2,
-   "semitone": 0,
-   "fine": 0,
-   "wtPosition": 0,
-   "pan": 0,
-   "level": 0.05280830060772623,
-   "unisonVoices": 1,
-   "unisonDetune": 0.036106930254678815,
-   "unisonBlend": 0.5,
-   "warpMode": "none",
-   "warpAmount": 0,
-   "enabled": true
+  "name": "BA - DISCONNECT",
+  "version": 3,
+  "oscillators": [
+    {
+      "waveform": "sawtooth",
+      "wavetable": "S2/PolySaw II",
+      "octave": -2,
+      "semitone": 0,
+      "fine": 0,
+      "wtPosition": 0,
+      "pan": 0,
+      "level": 0.05280830060772623,
+      "unisonVoices": 1,
+      "unisonDetune": 0.036106930254678815,
+      "unisonBlend": 0.5,
+      "warpMode": "none",
+      "warpAmount": 0,
+      "enabled": true
+    },
+    {
+      "waveform": "sawtooth",
+      "wavetable": "SAWTOOTH",
+      "octave": -1,
+      "semitone": 0,
+      "fine": 0,
+      "wtPosition": 0,
+      "pan": 0,
+      "level": 0,
+      "unisonVoices": 1,
+      "unisonDetune": 0.25,
+      "unisonBlend": 0.5,
+      "warpMode": "none",
+      "warpAmount": 0,
+      "enabled": true
+    }
+  ],
+  "subOscillator": {
+    "waveform": "sine",
+    "octave": -2,
+    "semitone": 0,
+    "fine": 0,
+    "level": 0.8354063630104066,
+    "pan": 0,
+    "enabled": true
   },
-  {
-   "waveform": "sawtooth",
-   "wavetable": "SAWTOOTH",
-   "octave": -1,
-   "semitone": 0,
-   "fine": 0,
-   "wtPosition": 0,
-   "pan": 0,
-   "level": 0,
-   "unisonVoices": 1,
-   "unisonDetune": 0.25,
-   "unisonBlend": 0.5,
-   "warpMode": "none",
-   "warpAmount": 0,
-   "enabled": true
+  "noise": {
+    "type": "white",
+    "level": 0,
+    "pan": 0,
+    "enabled": true
+  },
+  "filters": [
+    {
+      "type": "lowpass",
+      "cutoff": 106.4005215538337,
+      "resonance": 0.7950000087916852,
+      "pan": 0,
+      "gain": 0,
+      "mix": 1,
+      "enabled": true
+    },
+    {
+      "type": "lowpass",
+      "cutoff": 20000,
+      "resonance": 0,
+      "pan": 0,
+      "gain": 0,
+      "mix": 1,
+      "enabled": false
+    }
+  ],
+  "envelopes": [
+    {
+      "attack": 0.001,
+      "decay": 1,
+      "sustain": 1,
+      "release": 0.17290962132627438
+    },
+    {
+      "attack": 0.01,
+      "decay": 0.5,
+      "sustain": 0.5,
+      "release": 0.5
+    }
+  ],
+  "lfos": [
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.2475830078125,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.4975830078125,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.7475830078125,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.9975830078125,
+            "value": 0
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.2475830078125,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.4975830078125,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.7475830078125,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.9975830078125,
+            "value": 0
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.2475830078125,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.4975830078125,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.7475830078125,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.9975830078125,
+            "value": 0
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.2475830078125,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.4975830078125,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.7475830078125,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 1,
+            "curve": 0.137177891591016
+          },
+          {
+            "time": 0.9975830078125,
+            "value": 0
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    }
+  ],
+  "modRoutes": [
+    {
+      "id": "serum-1",
+      "source": {
+        "type": "macro",
+        "index": 0
+      },
+      "target": {
+        "source": "osc1",
+        "param": "wtPos"
+      },
+      "amount": 1,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-2",
+      "source": {
+        "type": "lfo",
+        "index": 0
+      },
+      "target": {
+        "source": "flt1",
+        "param": "cutoff"
+      },
+      "amount": 1,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-3",
+      "source": {
+        "type": "macro",
+        "index": 1
+      },
+      "target": {
+        "source": "flt1",
+        "param": "cutoff"
+      },
+      "amount": -0.5851349234580994,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-4",
+      "source": {
+        "type": "lfo",
+        "index": 0
+      },
+      "target": {
+        "source": "noise",
+        "param": "level"
+      },
+      "amount": 0.06746852397918701,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    }
+  ],
+  "voiceMode": "legato",
+  "voiceCount": 8,
+  "glide": 0.13533321029906775,
+  "spread": 0,
+  "masterVolume": 0.09312109176851303,
+  "fx": {
+    "chorus": {
+      "enabled": false,
+      "rate": 0.8,
+      "depth": 0.3,
+      "mix": 0.5
+    },
+    "delay": {
+      "enabled": false,
+      "time": 0.3,
+      "feedback": 0.35,
+      "mix": 0.25
+    },
+    "phaser": {
+      "enabled": false,
+      "rate": 0.5,
+      "depth": 0.5,
+      "mix": 0.5
+    },
+    "compressor": {
+      "enabled": true,
+      "threshold": -18,
+      "ratio": 4,
+      "attack": 0.01,
+      "release": 0.2
+    },
+    "drive": {
+      "enabled": true,
+      "amount": 1,
+      "mix": 1
+    },
+    "reverb": {
+      "enabled": false,
+      "size": 0.5,
+      "decay": 0.5,
+      "damping": 0.3,
+      "mix": 0.3
+    }
+  },
+  "fxRoutes": [],
+  "routing": {
+    "filterRouting": {
+      "filter1Sources": ["osc1", "osc2", "noise"],
+      "filter2Sources": []
+    },
+    "envelopeRouting": {
+      "env1Sources": ["osc1", "osc2", "sub", "noise"],
+      "env2Sources": []
+    }
+  },
+  "arp": {
+    "enabled": false,
+    "rate": "1/8",
+    "style": "up",
+    "distance": 12,
+    "step": 1,
+    "chordAware": false
+  },
+  "macros": [
+    {
+      "name": "WT",
+      "value": 0.5973333716392517
+    },
+    {
+      "name": "LP",
+      "value": 0.8479132056236267
+    },
+    {
+      "name": "SPEED",
+      "value": 0.25093042850494385
+    },
+    {
+      "name": "PD",
+      "value": 0
+    },
+    {
+      "name": "DIMENSION",
+      "value": 0.010000000707805157
+    },
+    {
+      "name": "7TH",
+      "value": 0.010000000707805157
+    },
+    {
+      "name": "SHAPE",
+      "value": 0.5016447305679321
+    },
+    {
+      "name": "FADE",
+      "value": 0
+    }
+  ],
+  "keyScale": {
+    "enabled": false,
+    "followProjectKey": true,
+    "rootPc": 0,
+    "mode": "ionian",
+    "snapMode": "nearest"
   }
- ],
- "subOscillator": {
-  "waveform": "sine",
-  "octave": -2,
-  "semitone": 0,
-  "fine": 0,
-  "level": 0.8354063630104066,
-  "pan": 0,
-  "enabled": true
- },
- "noise": {
-  "type": "white",
-  "level": 0,
-  "pan": 0,
-  "enabled": true
- },
- "filters": [
-  {
-   "type": "lowpass",
-   "cutoff": 106.4005215538337,
-   "resonance": 0.7950000087916852,
-   "pan": 0,
-   "gain": 0,
-   "mix": 1,
-   "enabled": true
-  },
-  {
-   "type": "lowpass",
-   "cutoff": 20000,
-   "resonance": 0,
-   "pan": 0,
-   "gain": 0,
-   "mix": 1,
-   "enabled": false
-  }
- ],
- "envelopes": [
-  {
-   "attack": 0.001,
-   "decay": 1,
-   "sustain": 1,
-   "release": 0.17290962132627438
-  },
-  {
-   "attack": 0.01,
-   "decay": 0.5,
-   "sustain": 0.5,
-   "release": 0.5
-  }
- ],
- "lfos": [
-  {
-   "rateDivs": [
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ]
-   ],
-   "rateModifiers": [
-    "normal",
-    "normal",
-    "normal",
-    "normal"
-   ],
-   "smooths": [
-    0,
-    0,
-    0,
-    0
-   ],
-   "sync": true,
-   "bars": [
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.2475830078125,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.4975830078125,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.7475830078125,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.9975830078125,
-      "value": 0
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.2475830078125,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.4975830078125,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.7475830078125,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.9975830078125,
-      "value": 0
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.2475830078125,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.4975830078125,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.7475830078125,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.9975830078125,
-      "value": 0
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.2475830078125,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 0
-     },
-     {
-      "time": 0.25,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.4975830078125,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.7475830078125,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 0
-     },
-     {
-      "time": 0.75,
-      "value": 1,
-      "curve": 0.137177891591016
-     },
-     {
-      "time": 0.9975830078125,
-      "value": 0
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ]
-   ]
-  },
-  {
-   "rateDivs": [
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ]
-   ],
-   "rateModifiers": [
-    "normal",
-    "normal",
-    "normal",
-    "normal"
-   ],
-   "smooths": [
-    0,
-    0,
-    0,
-    0
-   ],
-   "sync": true,
-   "bars": [
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ]
-   ]
-  },
-  {
-   "rateDivs": [
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ]
-   ],
-   "rateModifiers": [
-    "normal",
-    "normal",
-    "normal",
-    "normal"
-   ],
-   "smooths": [
-    0,
-    0,
-    0,
-    0
-   ],
-   "sync": true,
-   "bars": [
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ]
-   ]
-  },
-  {
-   "rateDivs": [
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ],
-    [
-     "1/4",
-     "1/4",
-     "1/4",
-     "1/4"
-    ]
-   ],
-   "rateModifiers": [
-    "normal",
-    "normal",
-    "normal",
-    "normal"
-   ],
-   "smooths": [
-    0,
-    0,
-    0,
-    0
-   ],
-   "sync": true,
-   "bars": [
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ],
-    [
-     {
-      "time": 0,
-      "value": 0
-     },
-     {
-      "time": 0.5,
-      "value": 1
-     },
-     {
-      "time": 1,
-      "value": 0
-     }
-    ]
-   ]
-  }
- ],
- "modRoutes": [
-  {
-   "id": "serum-1",
-   "source": {
-    "type": "macro",
-    "index": 0
-   },
-   "target": {
-    "source": "osc1",
-    "param": "wtPos"
-   },
-   "amount": 1,
-   "polarity": "unipolar",
-   "curve": "linear",
-   "enabled": true
-  },
-  {
-   "id": "serum-2",
-   "source": {
-    "type": "lfo",
-    "index": 0
-   },
-   "target": {
-    "source": "flt1",
-    "param": "cutoff"
-   },
-   "amount": 1,
-   "polarity": "unipolar",
-   "curve": "linear",
-   "enabled": true
-  },
-  {
-   "id": "serum-3",
-   "source": {
-    "type": "macro",
-    "index": 1
-   },
-   "target": {
-    "source": "flt1",
-    "param": "cutoff"
-   },
-   "amount": -0.5851349234580994,
-   "polarity": "unipolar",
-   "curve": "linear",
-   "enabled": true
-  },
-  {
-   "id": "serum-4",
-   "source": {
-    "type": "lfo",
-    "index": 0
-   },
-   "target": {
-    "source": "noise",
-    "param": "level"
-   },
-   "amount": 0.06746852397918701,
-   "polarity": "unipolar",
-   "curve": "linear",
-   "enabled": true
-  }
- ],
- "voiceMode": "legato",
- "voiceCount": 8,
- "glide": 0.13533321029906775,
- "spread": 0,
- "masterVolume": 0.09312109176851303,
- "fx": {
-  "chorus": {
-   "enabled": false,
-   "rate": 0.8,
-   "depth": 0.3,
-   "mix": 0.5
-  },
-  "delay": {
-   "enabled": false,
-   "time": 0.3,
-   "feedback": 0.35,
-   "mix": 0.25
-  },
-  "phaser": {
-   "enabled": false,
-   "rate": 0.5,
-   "depth": 0.5,
-   "mix": 0.5
-  },
-  "compressor": {
-   "enabled": true,
-   "threshold": -18,
-   "ratio": 4,
-   "attack": 0.01,
-   "release": 0.2
-  },
-  "drive": {
-   "enabled": true,
-   "amount": 1,
-   "mix": 1
-  },
-  "reverb": {
-   "enabled": false,
-   "size": 0.5,
-   "decay": 0.5,
-   "damping": 0.3,
-   "mix": 0.3
-  }
- },
- "fxRoutes": [],
- "routing": {
-  "filterRouting": {
-   "filter1Sources": [
-    "osc1",
-    "osc2",
-    "noise"
-   ],
-   "filter2Sources": []
-  },
-  "envelopeRouting": {
-   "env1Sources": [
-    "osc1",
-    "osc2",
-    "sub",
-    "noise"
-   ],
-   "env2Sources": []
-  }
- },
- "arp": {
-  "enabled": false,
-  "rate": "1/8",
-  "style": "up",
-  "distance": 12,
-  "step": 1,
-  "chordAware": false
- },
- "macros": [
-  {
-   "name": "WT",
-   "value": 0.5973333716392517
-  },
-  {
-   "name": "LP",
-   "value": 0.8479132056236267
-  },
-  {
-   "name": "SPEED",
-   "value": 0.25093042850494385
-  },
-  {
-   "name": "PD",
-   "value": 0
-  },
-  {
-   "name": "DIMENSION",
-   "value": 0.010000000707805157
-  },
-  {
-   "name": "7TH",
-   "value": 0.010000000707805157
-  },
-  {
-   "name": "SHAPE",
-   "value": 0.5016447305679321
-  },
-  {
-   "name": "FADE",
-   "value": 0
-  }
- ],
- "keyScale": {
-  "enabled": false,
-  "followProjectKey": true,
-  "rootPc": 0,
-  "mode": "ionian",
-  "snapMode": "nearest"
- }
 }

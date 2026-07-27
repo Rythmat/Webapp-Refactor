@@ -20,9 +20,9 @@ import type {
   StudentLanguage,
 } from '../types';
 import { LockScreen } from './LockScreen';
+import { InteractionInput } from './interactions';
 import { isSlideComplete } from './slideGating';
 import { buildSlideProgressPatch } from './slideProgressMirror';
-import { InteractionInput } from './interactions';
 import { StudentSlideView } from './slides/StudentSlideView';
 import { TimerCountdown } from './slides/TimerCountdown';
 import { useSessionSync } from './useSessionSync';
@@ -220,7 +220,10 @@ export const LiveSessionPage = () => {
       // buildSlideProgressPatch gate returns null for the launch marker.
       const snapshotDeck = publishedDay?.snapshot.deck;
       if (snapshotDeck && token) {
-        const interaction = findInteraction(publishedDay.snapshot, interactionId);
+        const interaction = findInteraction(
+          publishedDay.snapshot,
+          interactionId,
+        );
         if (interaction) {
           const patch = buildSlideProgressPatch(
             snapshotDeck.id,
@@ -246,7 +249,10 @@ export const LiveSessionPage = () => {
   // empty deck (should never persist — publishDay drops it — but defensive
   // against a hand-crafted snapshot) falls through to the legacy surface
   // instead of stranding the student on the "waiting for slides" screen.
-  if (publishedDay?.snapshot.deck && publishedDay.snapshot.deck.slides.length > 0) {
+  if (
+    publishedDay?.snapshot.deck &&
+    publishedDay.snapshot.deck.slides.length > 0
+  ) {
     return (
       <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-6 px-4 py-4 text-white md:gap-8 md:px-10 md:py-8">
         <header className="sticky top-0 z-10 -mx-4 flex flex-wrap items-center justify-between gap-3 bg-black/40 px-4 py-2 backdrop-blur md:mx-0 md:px-0">

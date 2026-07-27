@@ -15,6 +15,7 @@
  */
 import { stripLegacySongSlug } from '../legacySongSlug';
 import { PHASES, type PhaseKey } from '../phases';
+import type { Slide, SlideDeck, SlideMedia } from '../slides/types';
 import type {
   Cell,
   Day,
@@ -22,7 +23,6 @@ import type {
   LaunchTile,
   LocalizedText,
 } from '../types';
-import type { Slide, SlideDeck, SlideMedia } from '../slides/types';
 
 export interface CellSnapshot {
   presentation: {
@@ -142,11 +142,19 @@ const projectSlide = (slide: Slide): Slide => {
         ...(slide.reveal !== undefined ? { reveal: slide.reveal } : {}),
       };
     case 'app-route':
-      return { ...common, kind: 'app-route', interactionId: slide.interactionId };
+      return {
+        ...common,
+        kind: 'app-route',
+        interactionId: slide.interactionId,
+      };
     case 'studio-collab':
       return { ...common, kind: 'studio-collab', grouping: slide.grouping };
     case 'showcase':
-      return { ...common, kind: 'showcase', interactionId: slide.interactionId };
+      return {
+        ...common,
+        kind: 'showcase',
+        interactionId: slide.interactionId,
+      };
   }
 };
 

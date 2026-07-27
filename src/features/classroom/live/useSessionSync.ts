@@ -323,7 +323,12 @@ export const useSessionSync = (
           sessionId,
           from: 'student',
           fromEnrollmentId: enrollmentId ?? 'local-student',
-          body: { kind: 'response', interactionId, enrollmentId: enrollmentId ?? 'local-student', payload },
+          body: {
+            kind: 'response',
+            interactionId,
+            enrollmentId: enrollmentId ?? 'local-student',
+            payload,
+          },
         });
         return;
       }

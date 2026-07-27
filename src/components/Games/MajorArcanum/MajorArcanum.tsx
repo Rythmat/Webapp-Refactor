@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useGameScore } from '../scoring/useGameScore';
+import { useGameAudio, type GameAudioEngine } from '../useGameAudio';
 import { AudioEngine } from './AudioEngine';
 import { CircleOfFifthsSelector } from './CircleOfFifthsSelector';
 import { GameHeader } from './GameHeader';
@@ -25,11 +26,19 @@ import type { Note, Particle, GameState, NavigatorWithMIDI } from './types';
 
 // --- Main Component ---
 
+// Hoisted so the warm-up effect isn't restarted by a new array each render.
+const JAM_SYNTH_ONLY: GameAudioEngine[] = ['jam-synth'];
+
 interface MajorArcanumProps {
   onComplete?: (result: { score: number; maxStreak: number }) => void;
 }
 
 export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
+  // Warm the shared soundfont from the first render instead of waiting for the
+  // AudioEngine that `initGame` builds. Not gated on: the engine's oscillator
+  // fallback covers the gap, so the game is never silent while it loads.
+  useGameAudio(JAM_SYNTH_ONLY);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<AudioEngine | null>(null);

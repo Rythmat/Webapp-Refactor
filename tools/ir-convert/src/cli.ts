@@ -12,6 +12,7 @@
 // Requires ffmpeg + ffprobe on PATH (brew install ffmpeg). `.SDIR` is AIFF
 // underneath, so ffmpeg reads it directly.
 
+import { spawnSync } from 'node:child_process';
 import {
   mkdirSync,
   writeFileSync,
@@ -22,7 +23,6 @@ import {
 } from 'node:fs';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
 
 const TOOL_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const REPO_ROOT = join(TOOL_ROOT, '..', '..');

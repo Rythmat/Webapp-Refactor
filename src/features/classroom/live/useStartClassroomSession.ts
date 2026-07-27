@@ -11,14 +11,11 @@
  * state before the socket connects.
  */
 import { useCallback } from 'react';
-import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
+import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
 import { useMe } from '@/hooks/data';
 import type { PhaseKey } from '../phases';
-import {
-  applySocketMessageForUser,
-  type SessionMode,
-} from './sessionsStore';
+import { applySocketMessageForUser, type SessionMode } from './sessionsStore';
 import { useLocalSessionStore } from './useLocalSessionStore';
 
 export interface StartClassroomSessionInput {
@@ -54,14 +51,13 @@ export const useStartClassroomSession = () => {
     ): Promise<StartedClassroomSession> => {
       if (token) {
         try {
-          const server =
-            await musicAtlas.classrooms.postClassroomsByIdSessions(
-              input.classroomId,
-              {
-                publishedDayId: input.publishedDayId,
-                mode: input.mode ?? 'teacher_paced',
-              },
-            );
+          const server = await musicAtlas.classrooms.postClassroomsByIdSessions(
+            input.classroomId,
+            {
+              publishedDayId: input.publishedDayId,
+              mode: input.mode ?? 'teacher_paced',
+            },
+          );
           if (server?.id) {
             // Seed the local mirror so the teacher dashboard renders state
             // immediately; the socket `hello` reconciles once connected.

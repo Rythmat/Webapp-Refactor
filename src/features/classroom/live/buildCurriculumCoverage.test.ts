@@ -60,8 +60,20 @@ describe('collectDeckLessonRefs', () => {
         id: 'd',
         title: { en: 'd' },
         slides: [
-          { id: 's-a', kind: 'app-route', phase: 'groupPractice', title: { en: 't' }, interactionId: 'ix-a' },
-          { id: 's-t', kind: 'app-route', phase: 'groupPractice', title: { en: 't' }, interactionId: 'ix-t' },
+          {
+            id: 's-a',
+            kind: 'app-route',
+            phase: 'groupPractice',
+            title: { en: 't' },
+            interactionId: 'ix-a',
+          },
+          {
+            id: 's-t',
+            kind: 'app-route',
+            phase: 'groupPractice',
+            title: { en: 't' },
+            interactionId: 'ix-t',
+          },
         ],
         templateRef: { templateId: 'genre-lesson-v1', gcmKey: 'JAZZ:L1' },
       },
@@ -75,24 +87,62 @@ describe('collectDeckLessonRefs', () => {
   });
 
   it('returns [] for a deckless snapshot', () => {
-    expect(collectDeckLessonRefs({ cells: {} } as unknown as DaySnapshot)).toEqual([]);
+    expect(
+      collectDeckLessonRefs({ cells: {} } as unknown as DaySnapshot),
+    ).toEqual([]);
   });
 });
 
 describe('buildCurriculumCoverage', () => {
   const refs = [
-    { lessonId: 'curriculum:JAZZ:L1', version: 1, label: 'JAZZ:L1', source: 'genre' as const },
-    { lessonId: 'mode-lesson-flow', mode: 'dorian', root: 'g', version: 1, label: 'Theory dorian / g', source: 'theory' as const },
+    {
+      lessonId: 'curriculum:JAZZ:L1',
+      version: 1,
+      label: 'JAZZ:L1',
+      source: 'genre' as const,
+    },
+    {
+      lessonId: 'mode-lesson-flow',
+      mode: 'dorian',
+      root: 'g',
+      version: 1,
+      label: 'Theory dorian / g',
+      source: 'theory' as const,
+    },
   ];
 
   it('matches curriculum exact + mode-lesson-flow by prefix/mode/root and computes pct', () => {
     const summary: ProgressSummaryLesson[] = [
-      { lessonId: 'curriculum:JAZZ:L1', lessonVersion: 1, currentActivityInstanceId: null, completedCount: 3, totalCount: 4, updatedAt: '' },
-      { lessonId: 'mode-lesson-flow__g__dorian', lessonVersion: 1, mode: 'dorian', root: 'g', currentActivityInstanceId: null, completedCount: 1, totalCount: 2, updatedAt: '' },
+      {
+        lessonId: 'curriculum:JAZZ:L1',
+        lessonVersion: 1,
+        currentActivityInstanceId: null,
+        completedCount: 3,
+        totalCount: 4,
+        updatedAt: '',
+      },
+      {
+        lessonId: 'mode-lesson-flow__g__dorian',
+        lessonVersion: 1,
+        mode: 'dorian',
+        root: 'g',
+        currentActivityInstanceId: null,
+        completedCount: 1,
+        totalCount: 2,
+        updatedAt: '',
+      },
     ];
     const rows = buildCurriculumCoverage(refs, summary);
-    expect(rows[0]).toMatchObject({ completedCount: 3, totalCount: 4, pct: 75 });
-    expect(rows[1]).toMatchObject({ completedCount: 1, totalCount: 2, pct: 50 });
+    expect(rows[0]).toMatchObject({
+      completedCount: 3,
+      totalCount: 4,
+      pct: 75,
+    });
+    expect(rows[1]).toMatchObject({
+      completedCount: 1,
+      totalCount: 2,
+      pct: 50,
+    });
   });
 
   it('treats an unmatched lesson as 0/unknown', () => {

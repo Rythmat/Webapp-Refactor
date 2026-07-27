@@ -7,10 +7,7 @@ import type { Interaction } from '../../types';
 import { findDanglingInteractionIds } from '../deck';
 import { songGlobeRoute, songLessonRoute } from '../songDeepLinks';
 import { enrichDayWithSongSessionDeck } from './fromPlannedDay';
-import {
-  SONG_SESSION_TEMPLATE_ID,
-  buildSongSessionDay,
-} from './songSession';
+import { SONG_SESSION_TEMPLATE_ID, buildSongSessionDay } from './songSession';
 
 /** Minimal hand-built Song fixture — never import the 650-song library here. */
 const makeSong = (overrides: Partial<Song> = {}): Song => ({
@@ -176,9 +173,7 @@ describe('buildSongSessionDay', () => {
     expect(
       day.cells.creativeProjects.presentation.interactions,
     ).toBeUndefined();
-    expect(
-      day.cells.presentPerform.presentation.interactions,
-    ).toBeUndefined();
+    expect(day.cells.presentPerform.presentation.interactions).toBeUndefined();
   });
 
   it('uses the artist image as the featured visual when the song has one', () => {
@@ -246,7 +241,8 @@ describe('enrichDayWithSongSessionDeck', () => {
     expect(enriched).not.toBe(base);
 
     // Existing interaction survives in place; the template question is appended.
-    const groupPractice = enriched.cells.groupPractice.presentation.interactions;
+    const groupPractice =
+      enriched.cells.groupPractice.presentation.interactions;
     expect(groupPractice?.[0]).toEqual(existing);
     expect(groupPractice).toHaveLength(2);
     expect(groupPractice?.[1]?.type).toBe('choice');

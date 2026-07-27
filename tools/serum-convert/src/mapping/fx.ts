@@ -3,6 +3,10 @@
 // 6 Reverb, 7 EQ, 8 Filter, 9 HyperDim, 10 Bode, 11 Convolve, 12 Utils,
 // 13/14 Split. Only 0/2/3/4/5 have Oracle equivalents.
 
+import type { CborValue } from '../cbor.ts';
+import type { FidelityCollector } from '../fidelity.ts';
+import type { PresetDataOut } from '../oracleTypes.ts';
+import { pctToUnit, clamp } from '../serumDefaults.ts';
 import {
   plainParams,
   num,
@@ -10,10 +14,6 @@ import {
   section,
   type SerumDoc,
 } from '../serumPreset.ts';
-import { pctToUnit, clamp } from '../serumDefaults.ts';
-import type { CborValue } from '../cbor.ts';
-import type { FidelityCollector } from '../fidelity.ts';
-import type { PresetDataOut } from '../oracleTypes.ts';
 
 const FX_NAMES: Record<number, string> = {
   0: 'Distortion',

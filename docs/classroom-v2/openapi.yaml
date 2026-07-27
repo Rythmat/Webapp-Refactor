@@ -246,7 +246,8 @@ components:
         id: { type: string }
         kind:
           type: string
-          enum: [content, media, interaction, app-route, studio-collab, showcase]
+          enum:
+            [content, media, interaction, app-route, studio-collab, showcase]
         phase: { $ref: '#/components/schemas/PhaseKey' }
         title: { $ref: '#/components/schemas/LocalizedText' }
         prompt: { $ref: '#/components/schemas/LocalizedText' }
@@ -385,7 +386,7 @@ components:
             type: integer,
             minimum: -1,
             default: -1,
-            description: 'Index into the published Day''s deck.slides. -1 = legacy phase-granular nav (no deck). Server persists opaquely and echoes on the `nav` broadcast.',
+            description: "Index into the published Day's deck.slides. -1 = legacy phase-granular nav (no deck). Server persists opaquely and echoes on the `nav` broadcast.",
           }
         mode:
           type: string

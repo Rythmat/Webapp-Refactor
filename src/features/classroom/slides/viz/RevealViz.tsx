@@ -5,10 +5,10 @@
  */
 import type { StudentLanguage } from '../../types';
 import { AnimatedChoiceBars } from './AnimatedChoiceBars';
-import { toWordCloud, type VizAggregate } from './buildVizAggregate';
 import { ResponseCardWall } from './ResponseCardWall';
 import { ScaleReveal } from './ScaleReveal';
 import { WordCloudReveal } from './WordCloudReveal';
+import { toWordCloud, type VizAggregate } from './buildVizAggregate';
 
 export interface RevealVizProps {
   viz: VizAggregate;

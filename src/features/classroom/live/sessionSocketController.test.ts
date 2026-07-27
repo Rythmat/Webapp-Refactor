@@ -209,9 +209,7 @@ describe('createSessionSocketController — mount + hello wiring', () => {
   it('opens the socket and fires onStatusChange("connecting") then "connected" on open', async () => {
     const { harness, controller } = makeHarness();
     controller.open();
-    const calls = harness.onStatusChange.mock.calls.map(
-      ([c]: [unknown]) => c,
-    );
+    const calls = harness.onStatusChange.mock.calls.map(([c]: [unknown]) => c);
     expect(calls[0]).toBe('connecting');
     harness.socket.fireOpen();
     expect(harness.onStatusChange).toHaveBeenLastCalledWith('connected');
@@ -291,7 +289,9 @@ describe('createSessionSocketController — socket message routing', () => {
       }
     ).emit?.('message', { type: 'message', data: 'not json' });
     // No throw → we're good; no state written for this session.
-    expect(readSessionsStoreForUser(USER_ID).sessions[SESSION_ID]).toBeUndefined();
+    expect(
+      readSessionsStoreForUser(USER_ID).sessions[SESSION_ID],
+    ).toBeUndefined();
   });
 });
 
@@ -381,7 +381,8 @@ describe('createSessionSocketController — teacher REST sends', () => {
     controller.sendTimer(null);
     await flushPromises();
     const calls = harness.restClient.patch.mock.calls.map(
-      ([p]: [unknown]) => (p as { state?: { slideIndex?: number; timer?: unknown } }).state,
+      ([p]: [unknown]) =>
+        (p as { state?: { slideIndex?: number; timer?: unknown } }).state,
     );
     // Second PATCH (timer clear) must NOT revert slideIndex to -1.
     expect(calls[1]?.slideIndex).toBe(4);
@@ -447,9 +448,9 @@ describe('createSessionSocketController — teacher REST sends', () => {
     });
 
     // Assert local session was NOT ended yet.
-    expect(
-      readSessionsStoreForUser(USER_ID).sessions[SESSION_ID]?.status,
-    ).toBe('live');
+    expect(readSessionsStoreForUser(USER_ID).sessions[SESSION_ID]?.status).toBe(
+      'live',
+    );
 
     const pending = controller.sendEnd();
 
@@ -457,9 +458,9 @@ describe('createSessionSocketController — teacher REST sends', () => {
     // PATCH. This is the invariant that keeps SessionReportPage from
     // rendering a stale "still open" session when the teacher navigates
     // away before the socket echo arrives.
-    expect(
-      readSessionsStoreForUser(USER_ID).sessions[SESSION_ID]?.status,
-    ).toBe('ended');
+    expect(readSessionsStoreForUser(USER_ID).sessions[SESSION_ID]?.status).toBe(
+      'ended',
+    );
 
     const result = await pending;
     expect(result).toEqual({ ok: true });
@@ -515,9 +516,9 @@ describe('createSessionSocketController — teacher REST sends', () => {
     expect(harness.onEndFailed).toHaveBeenCalledWith(boom);
     // Optimistic local end SURVIVES failure — teacher chose to end; the
     // caller decides how to recover (via onEndFailed → toast → manual retry).
-    expect(
-      readSessionsStoreForUser(USER_ID).sessions[SESSION_ID]?.status,
-    ).toBe('ended');
+    expect(readSessionsStoreForUser(USER_ID).sessions[SESSION_ID]?.status).toBe(
+      'ended',
+    );
   });
 
   it('sendEnd honors endRetryDelaysMs=[] (single attempt, no retries)', async () => {
@@ -571,7 +572,7 @@ describe('createSessionSocketController — teacher REST sends', () => {
     expect(arg.state?.share).toEqual({ interactionId: 'ix-A', on: true });
   });
 
-  it("sendShare(id, false) is a NO-OP when the currently-shared interaction is a different id", async () => {
+  it('sendShare(id, false) is a NO-OP when the currently-shared interaction is a different id', async () => {
     // Share A is currently active.
     const snap: ServerSessionSnapshot = {
       ...SNAPSHOT,
@@ -582,7 +583,11 @@ describe('createSessionSocketController — teacher REST sends', () => {
     };
     const { harness, controller } = makeHarness();
     controller.open();
-    harness.socket.fireMessage({ type: 'hello', session: snap, role: 'teacher' });
+    harness.socket.fireMessage({
+      type: 'hello',
+      session: snap,
+      role: 'teacher',
+    });
     // Sanity: baseline reflects share=A.
     expect(
       readSessionsStoreForUser(USER_ID).sessions[SESSION_ID]
@@ -605,7 +610,11 @@ describe('createSessionSocketController — teacher REST sends', () => {
     };
     const { harness, controller } = makeHarness();
     controller.open();
-    harness.socket.fireMessage({ type: 'hello', session: snap, role: 'teacher' });
+    harness.socket.fireMessage({
+      type: 'hello',
+      session: snap,
+      role: 'teacher',
+    });
 
     controller.sendShare('ix-A', false);
     await flushPromises();

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import * as Tone from 'tone';
+import { ensureToneUsesSharedContext } from '@/audio/core/toneBridge';
 
 interface AnalyserData {
   waveform: Float32Array;
@@ -22,6 +23,8 @@ export function useAnalyser(source?: Tone.ToneAudioNode | null, fftSize = 256) {
   const rafRef = useRef<number>();
 
   useEffect(() => {
+    // Analysers are built on mount, before any playback starts them.
+    ensureToneUsesSharedContext();
     const waveA = new Tone.Analyser('waveform', fftSize);
     const fftA = new Tone.Analyser('fft', fftSize / 2);
     waveformAnalyser.current = waveA;

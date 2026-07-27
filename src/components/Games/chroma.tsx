@@ -14,8 +14,12 @@ import {
 } from '@/components/JamRoom/jamSoundFont';
 import { useStore } from '@/daw/store';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
+import { useGameAudio, type GameAudioEngine } from './useGameAudio';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
+
+// Hoisted so the warm-up effect isn't restarted by a new array each render.
+const JAM_SYNTH_ONLY: GameAudioEngine[] = ['jam-synth'];
 
 const CHROMATIC_NOTES = [
   'C',
@@ -408,6 +412,11 @@ export type ChromaProps = {
 export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
   const setRootNote = useStore((s) => s.setRootNote);
 
+  // The Crystal soundfont starts loading with the first render, and Start stays
+  // held until it can actually play — the sequence is the whole puzzle, so a
+  // silent round is an unplayable one.
+  const { ready: audioReady } = useGameAudio(JAM_SYNTH_ONLY);
+
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [phase, setPhase] = useState<Phase>('select');
   const [sequence, setSequence] = useState<number[]>([]);
@@ -717,9 +726,10 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
               })}
             </div>
 
-            {/* Start button */}
+            {/* Start button — held until the soundfont can play the sequence */}
             <button
               onClick={handleStart}
+              disabled={!audioReady}
               style={{
                 padding: '9px 36px',
                 borderRadius: 10,
@@ -728,12 +738,14 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
                 color: '#ddd6fe',
                 fontSize: 13,
                 fontWeight: 700,
-                cursor: 'pointer',
+                cursor: audioReady ? 'pointer' : 'progress',
+                opacity: audioReady ? 1 : 0.55,
                 letterSpacing: 2,
                 textTransform: 'uppercase',
                 transition: 'all 0.18s ease',
               }}
               onMouseEnter={(e) => {
+                if (!audioReady) return;
                 (e.currentTarget as HTMLButtonElement).style.backgroundColor =
                   'rgba(167,139,250,0.25)';
               }}
@@ -742,7 +754,7 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
                   'rgba(167,139,250,0.14)';
               }}
             >
-              Start
+              {audioReady ? 'Start' : 'Loading sounds…'}
             </button>
           </div>
         )}

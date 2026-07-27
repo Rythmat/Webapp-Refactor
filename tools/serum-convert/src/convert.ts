@@ -2,9 +2,11 @@
 // Order matters: the mod-slot census drives which oscillators/LFOs/envelope
 // win Oracle's smaller slot budget, and mod-route mapping needs those picks.
 
-import { parseSerumPreset, type SerumDoc } from './serumPreset.ts';
-import { defaultPreset, type PresetDataOut } from './oracleTypes.ts';
 import { createCollector, type FidelityReport } from './fidelity.ts';
+import { applyEnvelopes } from './mapping/envelopes.ts';
+import { applyFilters } from './mapping/filters.ts';
+import { applyFx } from './mapping/fx.ts';
+import { selectLfos, applyLfos } from './mapping/lfos.ts';
 import {
   analyzeModSlots,
   lfoUsage,
@@ -17,11 +19,9 @@ import {
   selectOscillators,
   applyOscillators,
 } from './mapping/oscillators.ts';
-import { applyFilters } from './mapping/filters.ts';
-import { applyEnvelopes } from './mapping/envelopes.ts';
-import { selectLfos, applyLfos } from './mapping/lfos.ts';
-import { applyFx } from './mapping/fx.ts';
 import { applyVoicing } from './mapping/voicing.ts';
+import { defaultPreset, type PresetDataOut } from './oracleTypes.ts';
+import { parseSerumPreset, type SerumDoc } from './serumPreset.ts';
 
 export interface ConversionResult {
   preset: PresetDataOut;

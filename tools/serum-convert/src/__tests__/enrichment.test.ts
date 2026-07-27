@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { mapWarp } from '../mapping/oscillators.ts';
-import { detuneModeScale } from '../serumDefaults.ts';
-import { applyFx } from '../mapping/fx.ts';
 import { createCollector } from '../fidelity.ts';
+import { applyFx } from '../mapping/fx.ts';
+import { mapWarp } from '../mapping/oscillators.ts';
 import { defaultPreset } from '../oracleTypes.ts';
+import { detuneModeScale } from '../serumDefaults.ts';
 import type { SerumDoc } from '../serumPreset.ts';
 
 describe('warp menu mapping', () => {

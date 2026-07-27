@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { ArcadeGameHeader } from '../ArcadeGameHeader';
+import { VolumeDial } from '../VolumeDial';
 import { DrumEngine } from './DrumEngine';
 
 // --- Constants ---
@@ -23,6 +24,8 @@ const INSTRUMENT_LABELS: Record<Instrument, string> = {
 
 const STEPS = 16;
 const DEFAULT_BPM = 100;
+// Dial default — matches the DrumEngine master gain used before the dial.
+const DEFAULT_VOLUME = 0.5;
 
 // Preset grooves for match mode
 const PRESET_GROOVES: Record<string, Record<Instrument, boolean[]>> = {
@@ -334,15 +337,27 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
   const [targetGroove, setTargetGroove] = useState<string>('Basic Rock');
   const [showResult, setShowResult] = useState(false);
   const [matchAccuracy, setMatchAccuracy] = useState(0);
+  const [volume, setVolume] = useState(DEFAULT_VOLUME);
 
   // Grid ref for playback loop (avoids stale closure)
   const gridRef = useRef(grid);
   gridRef.current = grid;
 
+  // Mirrors `volume` so a lazily-created DrumEngine starts at the dial's
+  // current setting rather than the default.
+  const volumeRef = useRef(volume);
+
   const initAudio = useCallback(() => {
-    if (!drumRef.current) drumRef.current = new DrumEngine();
+    if (!drumRef.current) drumRef.current = new DrumEngine(volumeRef.current);
     drumRef.current.resume();
   }, []);
+
+  // Push dial changes at the live engine so turning the knob mid-groove is
+  // heard on the next hit.
+  useEffect(() => {
+    volumeRef.current = volume;
+    drumRef.current?.setVolume(volume);
+  }, [volume]);
 
   const toggleCell = useCallback((instrument: Instrument, step: number) => {
     setGrid((prev) => {
@@ -489,19 +504,32 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
             </div>
             <button
               onClick={playTarget}
-              className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+              className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-purple-300 transition-colors"
             >
               Listen
             </button>
             <button
               onClick={newTarget}
-              className="text-xs text-zinc-500 hover:text-white transition-colors"
+              className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-purple-300 transition-colors"
             >
               New Target
             </button>
           </>
         }
-        stats={[{ label: 'Target', value: targetGroove }]}
+        right={
+          <div className="flex items-center gap-6 rounded-xl border border-white/5 bg-black/20 px-5 py-3 backdrop-blur-sm">
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                Target
+              </span>
+              <span className="text-xl font-medium text-white">
+                {targetGroove}
+              </span>
+            </div>
+            <div className="h-8 w-px bg-white/10" />
+            <VolumeDial value={volume} onChange={setVolume} />
+          </div>
+        }
       />
 
       {/* Body */}
@@ -598,8 +626,9 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
           </div>
         )}
 
-        {/* Footer controls — Play, Clear, Check Match */}
-        <div className="border-t border-white/10 bg-white/[0.03] p-3 flex items-center justify-center gap-2">
+        {/* Footer controls — Play, Clear, Check Match. Left unfilled so the bar
+            reads as the same surface as the sequencer grid above it. */}
+        <div className="border-t border-white/10 p-3 flex items-center justify-center gap-2">
           <button
             onClick={startPlayback}
             className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${

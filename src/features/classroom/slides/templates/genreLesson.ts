@@ -13,13 +13,13 @@
  * authored bilingual (`GenreLevelProfile` copy is English-only) and must avoid
  * `FORBIDDEN_SUBSTRINGS` (en AND es).
  */
+import type { CurriculumGenreId } from '@/curriculum/bridge/genreIdMap';
 import type {
   ActivityFlow,
   ActivitySectionId,
 } from '@/curriculum/types/activity';
 import type { GCMKey } from '@/curriculum/types/curriculum';
 import type { GenreProfile } from '@/curriculum/types/genreProfile';
-import type { CurriculumGenreId } from '@/curriculum/bridge/genreIdMap';
 import { PHASES, type PhaseKey } from '../../phases';
 import { newBlankDay } from '../../plan/newBlankDay';
 import type { Day, Interaction, LocalizedText } from '../../types';
@@ -139,9 +139,7 @@ export const buildGenreLessonContent = (
     interactionIds: [checkIn.id],
   });
 
-  const presentSections = input.flow.sections.filter(
-    (s) => s.steps.length > 0,
-  );
+  const presentSections = input.flow.sections.filter((s) => s.steps.length > 0);
   const stationChain = presentSections
     .map((s) => STATION_LABELS[s.id])
     .filter(Boolean);

@@ -234,10 +234,13 @@ describe('applySessionSocketMessage (Sprint 5+ pure reducer)', () => {
     expect(next?.status).toBe('live');
   });
 
-  it("hello with share: {on: true} seeds sharedInteractionIds", () => {
+  it('hello with share: {on: true} seeds sharedInteractionIds', () => {
     const snap: ServerSessionSnapshot = {
       ...baseSnapshot,
-      state: { ...(baseSnapshot.state as Record<string, unknown>), share: { interactionId: 'ix-9', on: true } },
+      state: {
+        ...(baseSnapshot.state as Record<string, unknown>),
+        share: { interactionId: 'ix-9', on: true },
+      },
     };
     const next = applySessionSocketMessage(null, {
       type: 'hello',
@@ -327,9 +330,9 @@ describe('applySessionSocketMessage (Sprint 5+ pure reducer)', () => {
         delta: [],
       }),
     ).toBe(s);
-    expect(
-      applySessionSocketMessage(s, { type: 'pong', t: 1, at: '' }),
-    ).toBe(s);
+    expect(applySessionSocketMessage(s, { type: 'pong', t: 1, at: '' })).toBe(
+      s,
+    );
   });
 
   it('non-hello messages against null state return null (no seed to fold into)', () => {
@@ -396,7 +399,8 @@ describe('applySocketMessageForUser (writes state + responses to the store)', ()
       payload: { kind: 'text', text: 'second' },
     });
     const bag =
-      readSessionsStoreForUser(USER_ID).responses['sess-store']?.['enr-1'] ?? {};
+      readSessionsStoreForUser(USER_ID).responses['sess-store']?.['enr-1'] ??
+      {};
     expect(bag['ix-1']).toEqual({ kind: 'text', text: 'second' });
   });
 
@@ -582,7 +586,12 @@ describe('Phase 4 — timer / media / position protocol', () => {
       from: 'teacher',
       body: {
         kind: 'timer',
-        timer: { slideId: 'sl-1', endsAt: 123456, durationSec: 60, autoAdvance: true },
+        timer: {
+          slideId: 'sl-1',
+          endsAt: 123456,
+          durationSec: 60,
+          autoAdvance: true,
+        },
       },
     });
     let state = readSessionsStoreForUser(USER_ID).sessions[s.sessionId];
@@ -610,9 +619,11 @@ describe('Phase 4 — timer / media / position protocol', () => {
         body: { kind: 'media', slideId: 'sl-1', action: 'play' },
       });
     fire();
-    const first = readSessionsStoreForUser(USER_ID).sessions[s.sessionId]?.media;
+    const first =
+      readSessionsStoreForUser(USER_ID).sessions[s.sessionId]?.media;
     fire();
-    const second = readSessionsStoreForUser(USER_ID).sessions[s.sessionId]?.media;
+    const second =
+      readSessionsStoreForUser(USER_ID).sessions[s.sessionId]?.media;
     expect(first?.cmdId).toBe(1);
     expect(second?.cmdId).toBe(2);
     expect(second?.action).toBe('play');

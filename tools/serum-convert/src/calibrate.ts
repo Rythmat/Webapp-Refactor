@@ -13,12 +13,12 @@
 
 import { readdirSync, writeFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
-import { parseSerumPreset, plainParams, num, section } from './serumPreset.ts';
 import {
   DEFAULT_CALIBRATION,
   calibrationPath,
   type Calibration,
 } from './calibration.ts';
+import { parseSerumPreset, plainParams, num, section } from './serumPreset.ts';
 
 const DIVISION_CYCLES: Record<string, number> = {
   // cycles per 4/4 bar

@@ -32,12 +32,14 @@ const YouTubeSlidePlayer = ({
   className,
   command,
 }: YouTubeSlidePlayerProps) => {
-  const { containerRef, isReady, play, pause, seekTo } = useYouTubeIframePlayer({
-    videoId,
-    startSec,
-    endSec,
-    loop,
-  });
+  const { containerRef, isReady, play, pause, seekTo } = useYouTubeIframePlayer(
+    {
+      videoId,
+      startSec,
+      endSec,
+      loop,
+    },
+  );
 
   // Apply a remote command once the player is ready (early calls no-op against
   // an un-ready player, so the effect re-runs when isReady flips).

@@ -298,7 +298,11 @@ export const useEnrollments = (classroomId: string): UseEnrollments => {
 
   const queryKey = ['classroom', classroomId, 'enrollments', 'all'] as const;
 
-  const { data = [], isLoading, isSuccess } = useQuery({
+  const {
+    data = [],
+    isLoading,
+    isSuccess,
+  } = useQuery({
     queryKey,
     queryFn: async () => {
       const raw = await musicAtlas.classrooms.getClassroomsByIdEnrollments({

@@ -5,7 +5,7 @@
  */
 
 import { useCallback, useRef, useState } from 'react';
-import * as Tone from 'tone';
+import { startTone } from '@/audio/core/toneBridge';
 import {
   triggerPianoAttackRelease,
   startPianoSampler,
@@ -35,7 +35,7 @@ export function useDemoPlayback(keyRoot: number, tempo: number) {
       stopDemo();
 
       // Unlock Web Audio + load sampler on user gesture
-      await Tone.start();
+      await startTone();
       await startPianoSampler();
 
       setIsPlayingDemo(true);

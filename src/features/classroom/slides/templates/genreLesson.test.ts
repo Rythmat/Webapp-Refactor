@@ -3,10 +3,7 @@ import type { ActivityFlow } from '@/curriculum/types/activity';
 import type { GenreProfile } from '@/curriculum/types/genreProfile';
 import { findForbiddenSubstring, publishDay } from '../../publish/publishDay';
 import { findDanglingInteractionIds } from '../deck';
-import {
-  GENRE_LESSON_TEMPLATE_ID,
-  buildGenreLessonDay,
-} from './genreLesson';
+import { GENRE_LESSON_TEMPLATE_ID, buildGenreLessonDay } from './genreLesson';
 
 /** Tiny hand-built fixtures — never import the real 42-flow / profile datasets. */
 const makeFlow = (
@@ -136,9 +133,9 @@ describe('buildGenreLessonDay', () => {
       flow: makeFlow(),
     });
     // 3 content/interaction lead-in + 4 stations + question + exit = 9 (no theory)
-    expect(
-      day.deck?.slides.filter((s) => s.kind === 'app-route'),
-    ).toHaveLength(4);
+    expect(day.deck?.slides.filter((s) => s.kind === 'app-route')).toHaveLength(
+      4,
+    );
   });
 
   it('skips a 0-step section (no slide, no interaction)', () => {

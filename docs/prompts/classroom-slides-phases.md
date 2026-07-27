@@ -60,9 +60,9 @@ Vite + React 18 + TypeScript app. Classroom v2 lives in
   paths in strict parity (`SessionMessageBody` + `SessionSocketMessage`).
 - **Rendering.** One `SlideRenderer` (`slides/SlideRenderer.tsx`) with
   `surface: 'projector'|'student'|'teacher'` + `slots {input, reveal,
-  statusChip}`. Surfaces: `slides/student/StudentSlideView.tsx` (mounted by
+statusChip}`. Surfaces: `slides/student/StudentSlideView.tsx` (mounted by
   `live/LiveSessionPage.tsx` when a deck exists), `slides/projector/
-  ProjectorDeckView.tsx` (`live/ProjectorPage.tsx`), teacher strip + panel in
+ProjectorDeckView.tsx` (`live/ProjectorPage.tsx`), teacher strip + panel in
   `slides/teacher/` (`live/TeacherSessionDashboard.tsx`). Legacy slide-less
   sessions keep the old UI — never regress them.
 - **Templates.** `slides/templates/songSession.ts`
@@ -71,7 +71,7 @@ Vite + React 18 + TypeScript app. Classroom v2 lives in
   (`slides/wizard/DeckWizardPage.tsx`, route `TeacherRoutes.deckWizard`) runs
   the EXACT PlanPage go-live path: `useLocalPlan.saveDay` →
   `usePublishedDays.publishDayToClassroom` → `useLocalSessionStore
-  .startSession({..., initialSlideIndex: 0})` → `TeacherRoutes.session`.
+.startSession({..., initialSlideIndex: 0})` → `TeacherRoutes.session`.
 - **Announcements.** Home banner source `'live_session'`
   (`src/features/announcements/useLiveSessionAnnouncements.ts`): server
   `GET /classrooms/:id/sessions?status=live` (degrades to []) merged with the
@@ -155,6 +155,7 @@ meta); contracts (openapi.yaml + ws-protocol.md).
 progress on the teacher dashboard — Nearpod activities are toys by comparison.
 
 **Tasks.**
+
 1. `slides/resolveContentHref.ts` — ONE shared resolver from
    `{module, activityRef}` + song `ContentRef` to real routes. activityRef
    conventions: `song:<id>:lesson|chart`, `learn:<mode>:<key>[:activity]`,
@@ -167,8 +168,8 @@ progress on the teacher dashboard — Nearpod activities are toys by comparison.
    otherwise) + "come back when you're done"; teacher = live progress strip;
    projector = instructions only.
 3. Pure `live/buildSlideProgress.ts`: `(roster, responsesByEnrollment,
-   mspInboxEntries, slide) → { perStudent: Record<enrollmentId,
-   'not_started'|'in_module'|'done'>, counts }` (+ tests). Feed the teacher
+mspInboxEntries, slide) → { perStudent: Record<enrollmentId,
+'not_started'|'in_module'|'done'>, counts }` (+ tests). Feed the teacher
    panel + RosterPanel dots.
 4. "Genre lesson" wizard source: pick `GCMKey` → `GenreProfile.levels[n]`
    overview slides + `ActivityFlowV2` steps as app-route slides +
@@ -204,11 +205,12 @@ new sync code) — then offer to share, and the teacher features projects on the
 projector.
 
 **Tasks.**
+
 1. Protocol (additive; spec in openapi.yaml + ws-protocol.md first):
    `SessionState.pairs: [{id, enrollmentIds, hostEnrollmentId}] | null` +
    `pairs` fan-out (teacher+student, NOT projector);
    `SessionState.showcase: {slideId, enrollmentId, displayName, artifact
-   {projectId, roomId?, name}} | null` + `showcase` fan-out (all roles — a
+{projectId, roomId?, name}} | null` + `showcase` fan-out (all roles — a
    deliberate, teacher-approved share, not a Rule 2 leak). Carry both through
    `buildStatePatch`, both reducers, and the local-mock envelope.
 2. New `Interaction.type: 'showcase'` + response payload
@@ -242,8 +244,9 @@ projector or other students; report lists offers; legacy sessions unaffected.
 ## Phase 4 — Timers, freeform deck editing, student-paced + coverage panel
 
 **Tasks.**
+
 1. `timer` protocol: `SessionState.timer: {slideId, endsAt, durationSec,
-   autoAdvance} | null` + fan-out to all roles; countdown UI on all three
+autoAdvance} | null` + fan-out to all roles; countdown UI on all three
    surfaces; the TEACHER CLIENT fires the advancing `nav` PATCH at zero (the
    server never schedules). `Slide.timerSec` (already in the model) seeds the
    teacher's timer control; wizard exposes per-stage timer params.
@@ -255,7 +258,7 @@ projector or other students; report lists offers; legacy sessions unaffected.
    Kajabi pattern), teacher sees per-student position.
 4. Classroom-wide curriculum coverage panel (teacher dashboard):
    `useProgressSummary` over the lessonIds referenced by the classroom's decks
-   + assignments — closes the "teachers can't see curriculum progress" gap.
+   - assignments — closes the "teachers can't see curriculum progress" gap.
 5. Viz polish: word-cloud + scale/Likert reveals; remote play/pause `media`
    message for the projector video.
 

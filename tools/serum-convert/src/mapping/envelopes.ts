@@ -1,10 +1,10 @@
 // Env0..3 → Oracle's two ADSRs. Env0 is Serum's amp envelope → envelopes[0];
 // the most-modulation-used of Env1..3 becomes Oracle's mod envelope.
 
-import { plainParams, num, section, type SerumDoc } from '../serumPreset.ts';
-import { ENV_DEFAULTS, clamp } from '../serumDefaults.ts';
 import type { FidelityCollector } from '../fidelity.ts';
 import type { EnvelopeParamsOut, PresetDataOut } from '../oracleTypes.ts';
+import { ENV_DEFAULTS, clamp } from '../serumDefaults.ts';
+import { plainParams, num, section, type SerumDoc } from '../serumPreset.ts';
 
 function readEnv(
   doc: SerumDoc,

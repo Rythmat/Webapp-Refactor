@@ -9,7 +9,7 @@
 > (P1 → P8, then the Capstone). Phases are dependency-ordered but individually
 > self-contained — you may cherry-pick, except where a phase names a prerequisite.
 > For every session: paste **§Shared Context** plus the single phase prompt.
-> Every phase ships *teachable* — the Definition of Done includes tutorial
+> Every phase ships _teachable_ — the Definition of Done includes tutorial
 > instrumentation, a lesson, and E2E verification, not just the feature.
 
 ---
@@ -30,7 +30,7 @@ React 18 + TypeScript app. The Studio (web DAW) lives in `src/daw/`, mounted by
 - **Audio graph**: per track, `TrackEngine` (`src/daw/audio/TrackEngine.ts`) wires
   `instrument → gainNode → EffectChain → pannerNode → masterGain`. `AudioEngine`
   (`src/daw/audio/AudioEngine.ts`) wires `masterGain → mastering EffectChain →
-  ctx.destination`. A module-level `trackEngineRegistry: Map<trackId, TrackAudioState>`
+ctx.destination`. A module-level `trackEngineRegistry: Map<trackId, TrackAudioState>`
   lives in `src/daw/hooks/usePlaybackEngine.ts` (≈line 58, accessor `getTrackAudioState`)
   — reach any track's engine by id.
 - **Effects**: `src/daw/audio/EffectChain.ts` — `EffectSlotType` union of 8 single-band
@@ -68,7 +68,7 @@ React 18 + TypeScript app. The Studio (web DAW) lives in `src/daw/`, mounted by
   auto-applied on step entry), and a validation predicate:
   `check(s: AllSlices, armed: AllSlices)` for main-store state, or
   `synthCheck(synth, armedSynth)` for Oracle-Synth store state (never both). `armed` is
-  the snapshot when the step arms — use it to require a *change*, not an absolute value.
+  the snapshot when the step arms — use it to require a _change_, not an absolute value.
   Steps with no predicate are free-form (user clicks Next).
 - **Anchors**: add `data-tutorial-id` attributes to any region a lesson highlights.
   Existing conventions: `chanstrip-tab-<id>`, `add-track-<instrument>` (oracle-synth
@@ -149,9 +149,10 @@ electronic genres need electronic timbres. Kit choice is also the canonical "pic
 teaching beat, and today it is invisible to the tutorial engine.
 
 **Current state.**
+
 - `src/daw/instruments/DrumMachineEngine.ts`: `DRUM_KIT_CONFIGS` (≈line 15) has exactly one
   kit `'natural'`. Schema `DrumKitConfig = { id, label, baseUrl, samples:
-  Record<midiNote, filename>, ext, defaultPan? }`; samples resolve as
+Record<midiNote, filename>, ext, defaultPan? }`; samples resolve as
   `${baseUrl}${filename}${ext}` under `/public/daw-assets/samples/drums/<kitId>/`;
   fixed 11-pad GM layout (`DRUM_PADS`); `setKit(kitId)` already reloads samples.
 - Kit selection is **local** `useState` in
@@ -160,6 +161,7 @@ teaching beat, and today it is invisible to the tutorial engine.
   nothing synced.
 
 **Build.**
+
 1. Source/author royalty-free one-shots for the two kits (11 pads each, WAV, short);
    place under `/public/daw-assets/samples/drums/<kitId>/`. Keep file sizes lean.
 2. Append two `DrumKitConfig` entries; the kit dropdown and `getDefaultPan` pick them up
@@ -189,6 +191,7 @@ and plays it chromatically from MIDI — the vocal-chop / sample-flip workflow.
 (and modern pop/EDM broadly); today `vocal-fx` is live-input-only and MIDI-inert.
 
 **Current state.**
+
 - `src/daw/instruments/SamplerInstrument.ts` wraps `Tone.Sampler` — chromatic
   pitch-shifting from a sparse sample map ALREADY works; MIDI + sustain pedal handled.
   Limitation: `SamplerConfig` takes URL maps only (CDN configs in `sampleConfigs.ts`).
@@ -200,6 +203,7 @@ and plays it chromatically from MIDI — the vocal-chop / sample-flip workflow.
   `assetId` via `@/lib/studio-assets/upload-pending`.
 
 **Build.**
+
 1. Extend `SamplerInstrument` (or add a subclass) to accept
    `{ buffer: AudioBuffer, rootNote: string }`.
 2. Add `'sampler'` to `InstrumentType`; `case 'sampler'` in `createInstrument`; a
@@ -241,6 +245,7 @@ slap" lesson.
 `EffectChain`, so ONE implementation serves both. No band-splitting exists anywhere.
 
 **Build — the complete 12-site registry touch-list (all verified):**
+
 1. `EffectSlotType` union — `src/daw/audio/EffectChain.ts` ≈94.
 2. `TrackEffectState` — add `multiband: MultibandParams` (≈104).
 3. `DEFAULT_EFFECTS` (≈115) — sensible OTT-ish defaults, `enabled: false`.
@@ -260,7 +265,7 @@ slap" lesson.
 8. `FxKnobs` switch — ≈585 (depth, time, 3 band-gain knobs, crossovers).
 9. Optional but recommended: `FxVisualizer` (≈1182) + `HAS_VIZ` (≈31) — 3-band
    gain-reduction meters make a great teaching visual.
-10–12. `tracksSlice` / `masteringSlice` / `store/index.ts` — generic over the union;
+   10–12. `tracksSlice` / `masteringSlice` / `store/index.ts` — generic over the union;
    compile-check only.
 
 **Anchors.** Free: `fx-add-multiband` + `fx-slot-multiband` come from the existing
@@ -292,6 +297,7 @@ mixing curriculum — currently unteachable because every track hard-wires to ma
 `src/daw/components/Studio/StudioView.tsx` (studio view).
 
 **Build.**
+
 1. **Model**: a `sendsSlice` (or extend masteringSlice) holding return definitions
    (id, label, effect chain state) + per-track `Track.sends: Record<returnId, number>`
    (0–1, default 0). Track sends follow the 6-site touch-list (object → JSON diff branch
@@ -331,6 +337,7 @@ coach card currently apologizes for its absence
 (`tutorials.ts`: "sidechain pumping [is] Ableton territory").
 
 **Current state (verified).**
+
 - Web Audio's `DynamicsCompressorNode` has **no external key input** — do NOT try to reuse
   the compressor slot. Build an **envelope-follower ducker**: tap the key track, rectify +
   smooth (AudioWorklet preferred; `WaveShaper`+lowpass acceptable), map to a `GainNode.gain`
@@ -343,6 +350,7 @@ coach card currently apologizes for its absence
   yours is cross-track.
 
 **Build.**
+
 1. New `ducker` effect slot via the same 12-site registry list as Phase 3. Params:
    `keyTrackId: string | null`, threshold, amount (max GR dB), attack, release.
 2. Cross-track wiring: EffectChain can't see other tracks — inject a key-source resolver
@@ -384,6 +392,7 @@ production course: "bounce your track."
 (`src/lib/studio-assets/encode-opus.ts` ≈113). There is no project mixdown.
 
 **Build.**
+
 1. **Offline render engine** (`src/daw/audio/renderProject.ts` or similar): construct an
    `OfflineAudioContext` and rebuild the FULL graph — per-track instruments scheduling
    `midiClips` events (reuse the scheduling math from `usePlaybackEngine`; factor shared
@@ -399,7 +408,7 @@ production course: "bounce your track."
 3. **UI**: FileMenu entry + a small export dialog (range: whole project / loop region;
    format; bit depth), progress + toast on completion, browser download. Anchors:
    `file-menu` (if absent), `export-audio-item`, `export-audio-confirm`.
-4. Store: an `exportState` slice or transient UI state; the *completed* export should be
+4. Store: an `exportState` slice or transient UI state; the _completed_ export should be
    observable for lesson detection (e.g. `lastAudioExportAt: number` in the store —
    deliberately NOT persisted).
 
@@ -418,18 +427,20 @@ event fires and `lastAudioExportAt` updates.
 
 **Goal.** Time-indexed automation for, at minimum: track **volume**, **pan**, and one FX
 parameter per effect worth riding (start with filter/EQ-relevant params + `ducker.amount`
-+ send levels if P4/P5 landed). Editable as breakpoint lanes under each track in the
-timeline; applied during playback AND in the offline render (P6 parity).
+
+- send levels if P4/P5 landed). Editable as breakpoint lanes under each track in the
+  timeline; applied during playback AND in the offline render (P6 parity).
 
 **Why (lessons).** Automation is the single biggest absent pillar of a production
 curriculum (mix movement, filter sweeps, build-ups). Nothing time-indexed exists on
 tracks today (`MidiClip.ccEvents` exists but is unsurfaced).
 
 **Build (scope-controlled MVP).**
+
 1. **Model**: `Track.automation?: Record<paramId, AutomationPoint[]>` where
    `AutomationPoint = { tick, value }`, linear interpolation; `paramId` is a
    closed union to start (`'volume' | 'pan' | 'send.A' | 'send.B' |
-   'effect.<slot>.<param>'` for an allow-listed param set). 6-site touch-list (JSON
+'effect.<slot>.<param>'` for an allow-listed param set). 6-site touch-list (JSON
    branch in diffEngine, like `drumPads`).
 2. **Playback**: in `usePlaybackEngine`'s scheduling loop, sample each automated param
    per tick window and apply via `AudioParam.linearRampToValueAtTime` (volume/pan/sends)
@@ -472,6 +483,7 @@ plus a `GROWL` factory preset and lesson.
 FM (not key-tracked, no ratio, exponential cents not linear frequency).
 
 **Current state (verified against the v2 working tree).**
+
 - Seams exist and the matrix core does NOT need editing:
   `SynthEngine.registerModSource/registerModTarget/registerModTransform` (≈507–529);
   `ModulationMatrix.extraTargets` consulted first (≈75–80, 202–203).
@@ -484,6 +496,7 @@ FM (not key-tracked, no ratio, exponential cents not linear frequency).
   with migration in `applyPresetData`; defaults in `factoryPresets.ts`.
 
 **Build.**
+
 1. Per-oscillator modulator: key-tracked `OscillatorNode` at `carrierFreq × fmRatio`,
    output → `fmDepth` scaler → carrier frequency input (new `getFrequencyModInput()`).
    Ratio presets (0.5, 1, 2, 3.5…) + free mode.
@@ -491,7 +504,7 @@ FM (not key-tracked, no ratio, exponential cents not linear frequency).
    module (inline + pop-out layouts); `PRESET_VERSION` 3 + migration (old presets get
    `fmEnabled: false`).
 3. Register an `'fm-depth'` mod target so envelopes/LFOs can ride the growl (this is
-   what makes it *talk*).
+   what makes it _talk_).
 4. New factory preset `GROWL` (FM + LFO on depth + drive), and keep `WOBBLE` untouched.
 5. Anchors: the oscillator FM knob cluster `synth-fm-controls` (both layouts).
 

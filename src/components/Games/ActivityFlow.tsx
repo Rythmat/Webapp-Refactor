@@ -16,6 +16,7 @@ import { useMidiInput } from '@/hooks/music/useMidiInput';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import { usePlayNote } from '@/contexts/PianoContext';
 import { pitchNameToMidi, type NoteEvent } from './PianoRollPlay';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { getChordScales } from '@/components/learn/chordScaleData';
@@ -396,6 +397,7 @@ export const ActivityFlow = ({
 }: ActivityFlowProps) => {
   const navigate = useNavigate();
   const authToken = useAuthToken();
+  const playNote = usePlayNote();
   const modeLabel = mode ?? 'mode';
   const activityColor = useMemo(
     () => colorForKeyMode(rootKey, mode),
@@ -1182,6 +1184,14 @@ export const ActivityFlow = ({
   const [startSignal, setStartSignal] = useState(0);
   const [startOverlayStep, setStartOverlayStep] = useState(0);
   const [lessonComplete, setLessonComplete] = useState(false);
+  // Practice runs give live feedback but don't count toward completion —
+  // only a Play Now (graded) pass marks the step done. See handleStartAttempt
+  // / handleActivityCompleteChange / the two progress-reporting effects below,
+  // all of which check attemptMode before writing backend progress or XP.
+  const [attemptMode, setAttemptMode] = useState<'practice' | 'graded' | null>(
+    null,
+  );
+  const [practiceComplete, setPracticeComplete] = useState(false);
 
   // Section state
   const [currentSectionId, setCurrentSectionId] = useState<SectionId>('O');
@@ -1259,6 +1269,26 @@ export const ActivityFlow = ({
         setStartSignal(0);
         setStartOverlayStep(0);
       }
+    },
+    [flowDefinitions],
+  );
+
+  // Jump directly to a step within the current section — used by the
+  // clickable step-progress dots. Mirrors goToSection's eager reset so
+  // there's no one-frame flash before the currentActivity-keyed effect
+  // above catches up.
+  const goToStepInSection = useCallback(
+    (activity: ActivityDefinition) => {
+      const idx = flowDefinitions.findIndex((d) => d.key === activity.key);
+      if (idx < 0) return;
+      setCurrentIndex(idx);
+      const requiresStartOverlay =
+        activity.Component === PlayAlong || activity.Component === NoteHold;
+      setActivityState(requiresStartOverlay ? 'pending' : 'active');
+      setStartSignal(0);
+      setStartOverlayStep(0);
+      setAttemptMode(null);
+      setPracticeComplete(false);
     },
     [flowDefinitions],
   );
@@ -1359,6 +1389,8 @@ export const ActivityFlow = ({
 
   useEffect(() => {
     setActivityState('active');
+    setAttemptMode(null);
+    setPracticeComplete(false);
     if (!currentActivity) {
       setStartSignal(0);
       return;
@@ -1434,6 +1466,9 @@ export const ActivityFlow = ({
     if (!currentActivity || lessonComplete) return;
     if (activityState !== 'active') return;
     if (!isTrackableActivity) return;
+    // Practice attempts don't report real backend progress — only Play Now
+    // (graded) attempts do. See attemptMode in handleStartAttempt.
+    if (attemptMode === 'practice') return;
 
     updateActivityProgress.mutate({
       activityInstanceId: currentActivity.activityInstanceId,
@@ -1461,6 +1496,7 @@ export const ActivityFlow = ({
     }
   }, [
     activityState,
+    attemptMode,
     activityInstanceId,
     startSignal,
     currentActivity?.activityInstanceId,
@@ -1477,6 +1513,7 @@ export const ActivityFlow = ({
     if (!currentActivity || lessonComplete) return;
     if (activityState !== 'active') return;
     if (!isTrackableActivity) return;
+    if (attemptMode === 'practice') return;
 
     const intervalId = window.setInterval(() => {
       updateActivityProgress.mutate({
@@ -1498,6 +1535,7 @@ export const ActivityFlow = ({
     return () => window.clearInterval(intervalId);
   }, [
     activityState,
+    attemptMode,
     currentActivity?.activityInstanceId,
     currentIndex,
     lessonComplete,
@@ -1629,6 +1667,12 @@ export const ActivityFlow = ({
       const isCompletionOverlayActivity =
         currentComponent === PlayAlong || currentComponent === NoteHold;
       if (!isComplete || !isCompletionOverlayActivity) return;
+      // A Practice pass gives the "nice work, try Play Now" prompt but never
+      // counts as done — only a graded (Play Now) pass reaches the code below.
+      if (attemptMode === 'practice') {
+        setPracticeComplete(true);
+        return;
+      }
       setActivityState('completed');
       if (!currentActivity) return;
       setCompletedActivityKeys(
@@ -1670,11 +1714,14 @@ export const ActivityFlow = ({
       modeLabel,
       rootKey,
       isTrackableActivity,
+      attemptMode,
     ],
   );
 
   const handleRestartActivity = () => {
     setStartSignal(0);
+    setAttemptMode(null);
+    setPracticeComplete(false);
     if (usesActivityStartOverlay) {
       setActivityState('pending');
     } else {
@@ -1852,6 +1899,26 @@ export const ActivityFlow = ({
     ];
   }, [startOverlaySequence, startOverlayStep]);
 
+  // Demo — audibly plays back the step's target note sequence with a
+  // synced keyboard highlight, mirroring the genre/Fundamentals lesson gate.
+  const [isPlayingDemo, setIsPlayingDemo] = useState(false);
+  const [demoHighlightMidis, setDemoHighlightMidis] = useState<Set<number>>(
+    new Set(),
+  );
+  const demoTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const demoPlayingNotes = useMemo<PlaybackEvent[]>(() => {
+    const now = Date.now();
+    return [...demoHighlightMidis].map((midi, i) => ({
+      id: `demo-${midi}-${i}`,
+      type: 'note',
+      midi,
+      time: now,
+      duration: START_OVERLAY_NOTE_DURATION_SECONDS,
+      velocity: 1,
+    }));
+  }, [demoHighlightMidis]);
+
   const { startC: startOverlayStartC, endC: startOverlayEndC } = useMemo(() => {
     if (startOverlaySequence.length === 0) {
       return { startC: 3, endC: 4 };
@@ -1866,9 +1933,54 @@ export const ActivityFlow = ({
     return { startC: minOctave, endC };
   }, [startOverlaySequence]);
 
-  const handleStartActivity = () => {
+  const stopDemo = () => {
+    demoTimeoutsRef.current.forEach(clearTimeout);
+    demoTimeoutsRef.current = [];
+    setIsPlayingDemo(false);
+    setDemoHighlightMidis(new Set());
+  };
+
+  const playDemo = () => {
+    if (startOverlaySequence.length === 0) return;
+    stopDemo();
+    setIsPlayingDemo(true);
+    const NOTE_GAP_MS = 500;
+    startOverlaySequence.forEach((item, i) => {
+      const t = setTimeout(() => {
+        playNote(item.midi);
+        setDemoHighlightMidis((prev) => new Set(prev).add(item.midi));
+      }, i * NOTE_GAP_MS);
+      demoTimeoutsRef.current.push(t);
+    });
+    const totalMs = startOverlaySequence.length * NOTE_GAP_MS + 400;
+    const endTimeout = setTimeout(() => {
+      setIsPlayingDemo(false);
+      setDemoHighlightMidis(new Set());
+    }, totalMs);
+    demoTimeoutsRef.current.push(endTimeout);
+  };
+
+  // Practice gives live feedback but doesn't count; only Play Now (graded)
+  // marks the step done. See attemptMode / handleActivityCompleteChange /
+  // the two progress-reporting effects above.
+  const handleStartAttempt = (mode: 'practice' | 'graded') => {
+    stopDemo();
+    setAttemptMode(mode);
+    setPracticeComplete(false);
     setActivityState('active');
     setStartSignal((value) => value + 1);
+  };
+
+  // Used from the "practice doesn't count" prompt to jump straight into a
+  // fresh attempt (skipping the gate) — bumps activityInstanceId to force a
+  // clean remount of the Component, same mechanism handleRestartActivity uses.
+  const beginFreshAttempt = (mode: 'practice' | 'graded') => {
+    stopDemo();
+    setAttemptMode(mode);
+    setPracticeComplete(false);
+    setActivityState('active');
+    setStartSignal((value) => value + 1);
+    setActivityInstanceId((id) => id + 1);
   };
 
   if (lessonComplete) {
@@ -2080,19 +2192,57 @@ export const ActivityFlow = ({
           {sectionActivities.map((activity, i) => {
             const isStepDone = completedActivityKeys.has(activity.key);
             const isCurrent = i === currentStepInSection;
+
+            if (isStepDone) {
+              return (
+                <button
+                  key={activity.key}
+                  type="button"
+                  onClick={() => goToStepInSection(activity)}
+                  aria-label={`Go to ${activity.label} — completed`}
+                  title={`${activity.label} ✓ Passed`}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    border: '1.5px solid var(--color-accent)',
+                    background: 'rgba(126, 207, 207, 0.13)',
+                    color: 'var(--color-accent)',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 0,
+                    flexShrink: 0,
+                    lineHeight: 1,
+                  }}
+                >
+                  &#10003;
+                </button>
+              );
+            }
+
             return (
-              <div
+              <button
                 key={activity.key}
+                type="button"
+                onClick={() => goToStepInSection(activity)}
+                aria-label={`Go to ${activity.label}`}
+                title={activity.label}
                 style={{
                   width: isCurrent ? '24px' : '16px',
                   height: '6px',
                   borderRadius: '3px',
-                  background: isStepDone
-                    ? '#4aff4a'
-                    : isCurrent
-                      ? 'var(--color-accent)'
-                      : 'rgba(255,255,255,0.1)',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  background: isCurrent
+                    ? 'var(--color-accent)'
+                    : 'rgba(255,255,255,0.1)',
                   transition: 'all 0.2s',
+                  flexShrink: 0,
                 }}
               />
             );
@@ -2109,7 +2259,9 @@ export const ActivityFlow = ({
       <div className="relative">
         <div
           className={
-            showActivityCompletionOverlay || showStartOverlay
+            showActivityCompletionOverlay ||
+            showStartOverlay ||
+            practiceComplete
               ? 'pointer-events-none opacity-30 blur-sm transition duration-300'
               : 'transition duration-300'
           }
@@ -2163,7 +2315,9 @@ export const ActivityFlow = ({
                     className="mx-auto"
                     startC={startOverlayStartC}
                     endC={startOverlayEndC}
-                    playingNotes={startOverlayNotes}
+                    playingNotes={
+                      isPlayingDemo ? demoPlayingNotes : startOverlayNotes
+                    }
                     activeWhiteKeyColor={activityColor}
                     activeBlackKeyColor={activityColor}
                     enableClick={false}
@@ -2171,17 +2325,94 @@ export const ActivityFlow = ({
                   />
                 </div>
               )}
-              <div className="mt-6 flex justify-center">
+              <div className="mt-6 flex justify-center gap-3">
+                {startOverlaySequence.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={playDemo}
+                    disabled={isPlayingDemo}
+                    className="rounded-full px-5 py-2 text-sm font-semibold transition-colors duration-150"
+                    style={{
+                      border: '1px solid var(--color-border)',
+                      background: isPlayingDemo
+                        ? 'rgba(255,255,255,0.02)'
+                        : 'transparent',
+                      color: isPlayingDemo
+                        ? 'var(--color-text-dim)'
+                        : 'var(--color-text)',
+                      cursor: isPlayingDemo ? 'default' : 'pointer',
+                    }}
+                  >
+                    {isPlayingDemo ? '◼ Playing...' : '▶ Demo'}
+                  </button>
+                )}
                 <button
                   type="button"
-                  onClick={handleStartActivity}
+                  onClick={() => handleStartAttempt('practice')}
+                  className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
+                  style={{
+                    border: '1px solid var(--color-border)',
+                    background: 'transparent',
+                    color: 'var(--color-text)',
+                  }}
+                >
+                  Practice
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStartAttempt('graded')}
                   className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
                   style={{
                     background: 'var(--color-accent)',
                     color: '#191919',
                   }}
                 >
-                  Start
+                  Play Now
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {practiceComplete && (
+          <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center px-4">
+            <div
+              className="w-full max-w-lg rounded-2xl px-8 py-6 text-center glass-panel"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--color-accent)',
+                color: 'var(--color-text)',
+              }}
+            >
+              <h3 className="text-2xl font-semibold">Nice practicing!</h3>
+              <p
+                className="mt-2 text-sm"
+                style={{ color: 'var(--color-text-dim)' }}
+              >
+                Try it in Play Now to complete this step.
+              </p>
+              <div className="mt-6 flex justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => beginFreshAttempt('practice')}
+                  className="rounded-full px-5 py-2 text-sm font-semibold transition-colors duration-150"
+                  style={{
+                    border: '1px solid var(--color-border)',
+                    background: 'transparent',
+                    color: 'var(--color-text)',
+                  }}
+                >
+                  Practice Again
+                </button>
+                <button
+                  type="button"
+                  onClick={() => beginFreshAttempt('graded')}
+                  className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
+                  style={{
+                    background: 'var(--color-accent)',
+                    color: '#191919',
+                  }}
+                >
+                  Play Now
                 </button>
               </div>
             </div>

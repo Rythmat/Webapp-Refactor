@@ -1,0 +1,993 @@
+{
+  "name": "PL - CAMP FIRE 1",
+  "version": 3,
+  "oscillators": [
+    {
+      "waveform": "sawtooth",
+      "wavetable": "S2/PWM Genji",
+      "octave": 0,
+      "semitone": 0,
+      "fine": 0,
+      "wtPosition": 0,
+      "pan": 0,
+      "level": 0.75,
+      "unisonVoices": 2,
+      "unisonDetune": 0.06032625513100265,
+      "unisonBlend": 0.5,
+      "warpMode": "none",
+      "warpAmount": 0,
+      "enabled": true
+    },
+    {
+      "waveform": "sawtooth",
+      "wavetable": "SAWTOOTH",
+      "octave": 0,
+      "semitone": 0,
+      "fine": 0,
+      "wtPosition": 0,
+      "pan": 0,
+      "level": 0.7,
+      "unisonVoices": 1,
+      "unisonDetune": 0,
+      "unisonBlend": 0.1,
+      "warpMode": "none",
+      "warpAmount": 0,
+      "enabled": false
+    }
+  ],
+  "subOscillator": {
+    "waveform": "sine",
+    "octave": -1,
+    "semitone": 0,
+    "fine": 0,
+    "level": 0.5,
+    "pan": 0,
+    "enabled": false
+  },
+  "noise": {
+    "type": "white",
+    "level": 0.3,
+    "pan": 0,
+    "enabled": false
+  },
+  "filters": [
+    {
+      "type": "lowpass",
+      "cutoff": 20,
+      "resonance": 2.4444704117536276,
+      "pan": 0,
+      "gain": 0,
+      "mix": 1,
+      "enabled": true
+    },
+    {
+      "type": "lowpass",
+      "cutoff": 532.0786541359668,
+      "resonance": 1.4694457791889266,
+      "pan": 0,
+      "gain": 0,
+      "mix": 1,
+      "enabled": true
+    }
+  ],
+  "envelopes": [
+    {
+      "attack": 0.001,
+      "decay": 1,
+      "sustain": 1,
+      "release": 2.005227332763895
+    },
+    {
+      "attack": 0.001,
+      "decay": 1.584988165040026,
+      "sustain": 0.32017552852630615,
+      "release": 0.22316316744971665
+    }
+  ],
+  "lfos": [
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.05,
+            "value": 1
+          },
+          {
+            "time": 0.1,
+            "value": 0
+          },
+          {
+            "time": 0.1,
+            "value": 0
+          },
+          {
+            "time": 0.15,
+            "value": 1
+          },
+          {
+            "time": 0.2,
+            "value": 0
+          },
+          {
+            "time": 0.2,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 1
+          },
+          {
+            "time": 0.3,
+            "value": 0
+          },
+          {
+            "time": 0.3,
+            "value": 0
+          },
+          {
+            "time": 0.35,
+            "value": 1
+          },
+          {
+            "time": 0.4,
+            "value": 0
+          },
+          {
+            "time": 0.4,
+            "value": 0
+          },
+          {
+            "time": 0.45,
+            "value": 1
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.55,
+            "value": 1
+          },
+          {
+            "time": 0.6,
+            "value": 0
+          },
+          {
+            "time": 0.6,
+            "value": 0
+          },
+          {
+            "time": 0.65,
+            "value": 1
+          },
+          {
+            "time": 0.7,
+            "value": 0
+          },
+          {
+            "time": 0.7,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 1
+          },
+          {
+            "time": 0.8,
+            "value": 0
+          },
+          {
+            "time": 0.8,
+            "value": 0
+          },
+          {
+            "time": 0.85,
+            "value": 1
+          },
+          {
+            "time": 0.9,
+            "value": 0
+          },
+          {
+            "time": 0.9,
+            "value": 0
+          },
+          {
+            "time": 0.95,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.05,
+            "value": 1
+          },
+          {
+            "time": 0.1,
+            "value": 0
+          },
+          {
+            "time": 0.1,
+            "value": 0
+          },
+          {
+            "time": 0.15,
+            "value": 1
+          },
+          {
+            "time": 0.2,
+            "value": 0
+          },
+          {
+            "time": 0.2,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 1
+          },
+          {
+            "time": 0.3,
+            "value": 0
+          },
+          {
+            "time": 0.3,
+            "value": 0
+          },
+          {
+            "time": 0.35,
+            "value": 1
+          },
+          {
+            "time": 0.4,
+            "value": 0
+          },
+          {
+            "time": 0.4,
+            "value": 0
+          },
+          {
+            "time": 0.45,
+            "value": 1
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.55,
+            "value": 1
+          },
+          {
+            "time": 0.6,
+            "value": 0
+          },
+          {
+            "time": 0.6,
+            "value": 0
+          },
+          {
+            "time": 0.65,
+            "value": 1
+          },
+          {
+            "time": 0.7,
+            "value": 0
+          },
+          {
+            "time": 0.7,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 1
+          },
+          {
+            "time": 0.8,
+            "value": 0
+          },
+          {
+            "time": 0.8,
+            "value": 0
+          },
+          {
+            "time": 0.85,
+            "value": 1
+          },
+          {
+            "time": 0.9,
+            "value": 0
+          },
+          {
+            "time": 0.9,
+            "value": 0
+          },
+          {
+            "time": 0.95,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.05,
+            "value": 1
+          },
+          {
+            "time": 0.1,
+            "value": 0
+          },
+          {
+            "time": 0.1,
+            "value": 0
+          },
+          {
+            "time": 0.15,
+            "value": 1
+          },
+          {
+            "time": 0.2,
+            "value": 0
+          },
+          {
+            "time": 0.2,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 1
+          },
+          {
+            "time": 0.3,
+            "value": 0
+          },
+          {
+            "time": 0.3,
+            "value": 0
+          },
+          {
+            "time": 0.35,
+            "value": 1
+          },
+          {
+            "time": 0.4,
+            "value": 0
+          },
+          {
+            "time": 0.4,
+            "value": 0
+          },
+          {
+            "time": 0.45,
+            "value": 1
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.55,
+            "value": 1
+          },
+          {
+            "time": 0.6,
+            "value": 0
+          },
+          {
+            "time": 0.6,
+            "value": 0
+          },
+          {
+            "time": 0.65,
+            "value": 1
+          },
+          {
+            "time": 0.7,
+            "value": 0
+          },
+          {
+            "time": 0.7,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 1
+          },
+          {
+            "time": 0.8,
+            "value": 0
+          },
+          {
+            "time": 0.8,
+            "value": 0
+          },
+          {
+            "time": 0.85,
+            "value": 1
+          },
+          {
+            "time": 0.9,
+            "value": 0
+          },
+          {
+            "time": 0.9,
+            "value": 0
+          },
+          {
+            "time": 0.95,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.05,
+            "value": 1
+          },
+          {
+            "time": 0.1,
+            "value": 0
+          },
+          {
+            "time": 0.1,
+            "value": 0
+          },
+          {
+            "time": 0.15,
+            "value": 1
+          },
+          {
+            "time": 0.2,
+            "value": 0
+          },
+          {
+            "time": 0.2,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 1
+          },
+          {
+            "time": 0.3,
+            "value": 0
+          },
+          {
+            "time": 0.3,
+            "value": 0
+          },
+          {
+            "time": 0.35,
+            "value": 1
+          },
+          {
+            "time": 0.4,
+            "value": 0
+          },
+          {
+            "time": 0.4,
+            "value": 0
+          },
+          {
+            "time": 0.45,
+            "value": 1
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.55,
+            "value": 1
+          },
+          {
+            "time": 0.6,
+            "value": 0
+          },
+          {
+            "time": 0.6,
+            "value": 0
+          },
+          {
+            "time": 0.65,
+            "value": 1
+          },
+          {
+            "time": 0.7,
+            "value": 0
+          },
+          {
+            "time": 0.7,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 1
+          },
+          {
+            "time": 0.8,
+            "value": 0
+          },
+          {
+            "time": 0.8,
+            "value": 0
+          },
+          {
+            "time": 0.85,
+            "value": 1
+          },
+          {
+            "time": 0.9,
+            "value": 0
+          },
+          {
+            "time": 0.9,
+            "value": 0
+          },
+          {
+            "time": 0.95,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    }
+  ],
+  "modRoutes": [
+    {
+      "id": "serum-1",
+      "source": {
+        "type": "lfo",
+        "index": 0
+      },
+      "target": {
+        "source": "osc1",
+        "param": "detune"
+      },
+      "amount": 0.27734375,
+      "polarity": "bipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-2",
+      "source": {
+        "type": "envelope",
+        "index": 1
+      },
+      "target": {
+        "source": "flt1",
+        "param": "cutoff"
+      },
+      "amount": 0.9649121761322021,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-3",
+      "source": {
+        "type": "modwheel",
+        "index": 0
+      },
+      "target": {
+        "source": "flt2",
+        "param": "cutoff"
+      },
+      "amount": 0.30767178535461426,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-4",
+      "source": {
+        "type": "macro",
+        "index": 0
+      },
+      "target": {
+        "source": "osc1",
+        "param": "wtPos"
+      },
+      "amount": 1,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-5",
+      "source": {
+        "type": "macro",
+        "index": 4
+      },
+      "target": {
+        "source": "osc1",
+        "param": "wtPos"
+      },
+      "amount": 1,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-6",
+      "source": {
+        "type": "macro",
+        "index": 7
+      },
+      "target": {
+        "source": "flt1",
+        "param": "resonance"
+      },
+      "amount": 0.7432622909545898,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    }
+  ],
+  "voiceMode": "poly",
+  "voiceCount": 8,
+  "glide": 0,
+  "spread": 0,
+  "masterVolume": 0.8,
+  "fx": {
+    "chorus": {
+      "enabled": false,
+      "rate": 0.8,
+      "depth": 0.3,
+      "mix": 0.5
+    },
+    "delay": {
+      "enabled": false,
+      "time": 0.3,
+      "feedback": 0.35,
+      "mix": 0.25
+    },
+    "phaser": {
+      "enabled": false,
+      "rate": 0.5,
+      "depth": 0.5,
+      "mix": 0.5
+    },
+    "compressor": {
+      "enabled": true,
+      "threshold": 0,
+      "ratio": 4,
+      "attack": 1,
+      "release": 1
+    },
+    "drive": {
+      "enabled": true,
+      "amount": 0.3,
+      "mix": 0.5
+    },
+    "reverb": {
+      "enabled": false,
+      "size": 0.5,
+      "decay": 0.5,
+      "damping": 0.3,
+      "mix": 0.3
+    }
+  },
+  "fxRoutes": [],
+  "routing": {
+    "filterRouting": {
+      "filter1Sources": ["osc1", "noise", "sub"],
+      "filter2Sources": []
+    },
+    "envelopeRouting": {
+      "env1Sources": ["osc1", "osc2", "sub", "noise"],
+      "env2Sources": []
+    }
+  },
+  "arp": {
+    "enabled": false,
+    "rate": "1/8",
+    "style": "up",
+    "distance": 12,
+    "step": 1,
+    "chordAware": false
+  },
+  "macros": [
+    {
+      "name": "TONE",
+      "value": 0.886579155921936
+    },
+    {
+      "name": "LOW CUT",
+      "value": 0
+    },
+    {
+      "name": "HIGH CUT",
+      "value": 1
+    },
+    {
+      "name": "DELAY REVERB",
+      "value": 0.39548102021217346
+    },
+    {
+      "name": "THINNER",
+      "value": 0
+    },
+    {
+      "name": "DECAY",
+      "value": 0
+    },
+    {
+      "name": "RELEASE",
+      "value": 0
+    },
+    {
+      "name": "RESONANCE",
+      "value": 0
+    }
+  ],
+  "keyScale": {
+    "enabled": false,
+    "followProjectKey": true,
+    "rootPc": 0,
+    "mode": "ionian",
+    "snapMode": "nearest"
+  }
+}

@@ -19,6 +19,7 @@ const FX_TYPE_OPTIONS: { value: FXType; label: string }[] = [
   { value: 'chorus', label: 'CHORUS' },
   { value: 'phaser', label: 'PHASER' },
   { value: 'delay', label: 'DELAY' },
+  { value: 'reverb', label: 'REVERB' },
   { value: 'compressor', label: 'COMP' },
 ];
 
@@ -216,6 +217,61 @@ export const FXSlot: React.FC<FXSlotProps> = React.memo(
             <Knob
               label="MIX"
               value={(params as typeof fx.delay).mix}
+              min={0}
+              max={1}
+              defaultValue={0.3}
+              accent={ACCENT}
+              size={26}
+              formatValue={(v) => `${Math.round(v * 100)}%`}
+              onChange={(v) => onParamChange(route.type, 'mix', v)}
+            />
+            <button
+              className={styles.removeBtn}
+              onClick={() => onRemove(route.id)}
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {route.type === 'reverb' && (
+          <div className={styles.row}>
+            <Knob
+              label="SIZE"
+              value={(params as typeof fx.reverb).size}
+              min={0}
+              max={1}
+              defaultValue={0.5}
+              accent={ACCENT}
+              size={26}
+              formatValue={(v) => `${Math.round(v * 100)}%`}
+              onChange={(v) => onParamChange(route.type, 'size', v)}
+            />
+            <Knob
+              label="DECAY"
+              value={(params as typeof fx.reverb).decay}
+              min={0}
+              max={1}
+              defaultValue={0.5}
+              accent={ACCENT}
+              size={26}
+              formatValue={(v) => `${Math.round(v * 100)}%`}
+              onChange={(v) => onParamChange(route.type, 'decay', v)}
+            />
+            <Knob
+              label="DAMP"
+              value={(params as typeof fx.reverb).damping}
+              min={0}
+              max={1}
+              defaultValue={0.3}
+              accent={ACCENT}
+              size={26}
+              formatValue={(v) => `${Math.round(v * 100)}%`}
+              onChange={(v) => onParamChange(route.type, 'damping', v)}
+            />
+            <Knob
+              label="MIX"
+              value={(params as typeof fx.reverb).mix}
               min={0}
               max={1}
               defaultValue={0.3}

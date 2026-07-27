@@ -297,6 +297,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
 
   return (
     <div
+      data-tutorial-id="grooves-browser"
       className="relative flex flex-col h-full"
       style={{ backgroundColor: 'var(--color-surface)' }}
     >

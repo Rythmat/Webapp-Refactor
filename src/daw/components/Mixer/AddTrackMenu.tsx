@@ -77,6 +77,15 @@ const TRACK_TEMPLATES: TrackTemplate[] = [
     instrument: 'drum-machine',
   },
   {
+    label: 'Chops',
+    animationId: 'pulseWaveBreathingGrid',
+    color: '#9FD8D8',
+    borderGradient:
+      'linear-gradient(45deg, #28A69A, #62B4F7, #7885CB, #9D7FCE, #C785D3, #F8A8C5, #D2404A, #FF7348, #FEA92A, #FFCB30, #AED580, #7FC783, #28A69A)',
+    trackType: 'midi',
+    instrument: 'sampler',
+  },
+  {
     label: 'Guitar',
     animationId: 'pulseWaveStretched',
     color: '#A3C9F7',
@@ -153,7 +162,14 @@ export function AddTrackMenu({ onClose }: AddTrackMenuProps) {
             } as React.CSSProperties
           }
         >
+          {/* Tutorial anchor per card; oracle-synth keeps its original
+              'add-track-synth' id (existing lesson data targets it). */}
           <button
+            data-tutorial-id={
+              t.instrument === 'oracle-synth'
+                ? 'add-track-synth'
+                : `add-track-${t.instrument}`
+            }
             onClick={() => handleSelect(t)}
             className="flex flex-col items-center gap-1.5 rounded-xl px-4 py-3 transition-colors hover:bg-white/[0.06] active:scale-95 cursor-pointer"
             style={{ minWidth: 100 }}

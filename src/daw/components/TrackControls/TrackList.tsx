@@ -13,6 +13,7 @@ export function TrackList() {
 
   return (
     <div
+      data-tutorial-id="track-headers"
       className="flex w-64 shrink-0 flex-col overflow-y-auto"
       style={{ backgroundColor: 'var(--color-surface)' }}
     >

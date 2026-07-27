@@ -67,12 +67,18 @@ subscribers get the fast broadcast via the socket. Belt-and-suspenders.
   "type": "nav",
   "phase": "connectRegulate",
   "interactionIndex": 0,
-  "focusOpen": false
+  "focusOpen": false,
+  "slideIndex": 3
 }
 ```
 
 - `interactionIndex = -1` means the phase card is focused with no interaction open.
 - `focusOpen = true` maps to Presentation Mode Focus level; `false` maps to Board level.
+- `slideIndex` (optional) — index into the published Day's `deck.slides` for
+  interactive-slides sessions. Absent or `-1` = legacy phase-granular nav.
+  When present, `phase` MUST equal `deck.slides[slideIndex].phase` (clients
+  derive the current phase from the slide). The party fans it out verbatim;
+  the API persists it inside `SessionState` like every other state field.
 
 ### `lock` — freeze student screens
 
@@ -137,6 +143,54 @@ server emits:
 `displayName`, or any other identifier when broadcasting **to the projector
 view socket** (see §Projector sockets below). The teacher dashboard socket
 DOES receive them.
+
+**app-route slides (Phase 2)**: an atlas interaction legitimately emits the
+same `(enrollmentId, interactionId)` more than once — first a
+`{status:'launched'}` marker, then a completion — so the server MUST upsert
+per pair (matching the client store's single-payload overwrite). These
+interactions are authored `shareable:false`, so their payloads never reach the
+projector socket (Rule 2 unchanged). The optional progress-ledger mirror
+(`PATCH /api/progress/activity`, lessonId `slides:<deckId>`) is a REST
+side-effect on the student device — **not** a socket message.
+
+**Studio pairing + showcase (Phase 3)**: two additive `SessionState` fields,
+carried through the same merged `state` PATCH + echoed as state updates:
+
+- `pairs` (`SessionState.pairs`) — Studio collaboration groups. Fan-out to
+  **teacher + student sockets, NEVER the projector**: pairs carry enrollment
+  ids, so projecting them would leak identifiers (Rule 2). The
+  `hostEnrollmentId` client mints the collab room (`/studio/editor?collab=new&invite=…`).
+- `showcase` (`SessionState.showcase`) — the single teacher-featured project.
+  Fan-out to **all roles including the projector** — a deliberate,
+  teacher-approved share (first name + project name only). Not a Rule 2 leak.
+
+Student `showcase` OFFERS ride the normal `response` event with
+`payload.kind:'showcase'`, authored `shareable:false`, so the raw offer stream
+is teacher-only (buildProjectorView hard-refuses `showcase` like `check-in`).
+Featuring is the separate `showcase` state broadcast, never the anonymized
+reveal path.
+
+**Timers, media control, student position (Phase 4)**: three additive
+mechanisms.
+
+- `timer` (`SessionState.timer`) — the running slide countdown. All-role
+  fan-out. `endsAt` is an epoch-ms deadline; the TEACHER client fires the
+  advancing `nav` at zero — the server never schedules.
+- `media` (`SessionState.media`) — remote play/pause for a media slide's video.
+  All-role fan-out (the projector's iframe player reacts). `cmdId` nonce makes
+  repeated identical commands re-fire.
+- `position` — a student's local slide index in a student-paced deck. Sent by
+  the student over the SOCKET as `{type:'position', slideIndex}` (an ephemeral,
+  presence-like signal, NOT a state PATCH); the server stamps the enrollmentId
+  from the socket auth and fans out to **the teacher only** (Rule 2 — position
+  is identified). It is stored in a `positions` side-map, never SessionState,
+  so it never rides the state broadcast and never reaches the projector.
+
+Timer + media are carried through the merged state PATCH (`buildStatePatch`)
+like every other SessionState field. The PartyKit party relays `pairs`
+(teacher+student), `showcase`/`timer`/`media` (all roles), and `position`
+(teacher only); the Music Atlas API must POST these to the party's onRequest
+for the socket path (the local-mock dev loop already routes them end-to-end).
 
 ### `presence` — see §Presence above
 

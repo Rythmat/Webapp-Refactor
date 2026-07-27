@@ -12,6 +12,7 @@ import { ModulationPanel } from '@/daw/oracle-synth/components/modulation/Modula
 import { FXPanel } from '@/daw/oracle-synth/components/fx/FXPanel';
 import { ArpPanel } from '@/daw/oracle-synth/components/arp/ArpPanel';
 import { RoutingPanel } from '@/daw/oracle-synth/components/routing/RoutingPanel';
+import { PresetSelector } from '@/daw/oracle-synth/components/preset/PresetSelector';
 
 // ── OracleSynthInline ────────────────────────────────────────────────────
 // Compact horizontal layout of all Oracle Synth sections for the 33vh
@@ -49,12 +50,15 @@ export function OracleSynthInline() {
     );
   }
 
-  // Fixed widths prevent modules with CSS `flex:1` from growing/drifting
+  // Fixed widths prevent modules with CSS `flex:1` from growing/drifting.
+  // overflow:hidden contains each module — content can never spill across
+  // the gap onto a neighbor (widths below are sized to fit min-content).
   const slot = (w: number): React.CSSProperties => ({
     width: w,
     minWidth: w,
     maxWidth: w,
     flexShrink: 0,
+    overflow: 'hidden',
   });
   const panelSlot = (w: number): React.CSSProperties => ({
     ...slot(w),
@@ -73,31 +77,52 @@ export function OracleSynthInline() {
         scrollbarColor: 'rgba(255,255,255,0.15) transparent',
       }}
     >
+      {/* Patch picker — the same PresetSelector as the pop-out layout, so
+          presets are reachable without expanding (and the tutorial can
+          spotlight it via its data-tutorial-id). */}
+      <div
+        className="flex flex-col justify-center gap-1.5 px-2"
+        style={panelSlot(280)}
+      >
+        <span
+          style={{
+            fontSize: 9,
+            fontWeight: 600,
+            letterSpacing: 1,
+            textTransform: 'uppercase',
+            color: 'var(--color-text-dim)',
+          }}
+        >
+          Patch
+        </span>
+        <PresetSelector />
+      </div>
+
       <div className="[&>*]:h-full" style={slot(130)}>
         <SubOscillatorModule />
       </div>
-      <div className="[&>*]:h-full" style={slot(170)}>
+      <div className="[&>*]:h-full" style={slot(240)}>
         <OscillatorModule
           index={0}
           accent="#e87070"
           analyser={analysers.osc1}
         />
       </div>
-      <div className="[&>*]:h-full" style={slot(170)}>
+      <div className="[&>*]:h-full" style={slot(240)}>
         <OscillatorModule
           index={1}
           accent="#d05050"
           analyser={analysers.osc2}
         />
       </div>
-      <div className="[&>*]:h-full" style={slot(160)}>
+      <div className="[&>*]:h-full" style={slot(170)}>
         <FilterModule
           index={0}
           accent="#e8a040"
           liveFilter={analysers.filter1}
         />
       </div>
-      <div className="[&>*]:h-full" style={slot(160)}>
+      <div className="[&>*]:h-full" style={slot(170)}>
         <FilterModule
           index={1}
           accent="#d08830"
@@ -113,19 +138,19 @@ export function OracleSynthInline() {
       <div className="[&>*]:h-full" style={slot(130)}>
         <NoiseModule analyser={analysers.noise} />
       </div>
-      <div style={panelSlot(640)}>
+      <div style={panelSlot(660)}>
         <LFOArea />
       </div>
-      <div style={panelSlot(220)}>
+      <div style={panelSlot(260)}>
         <ModulationPanel />
       </div>
-      <div style={panelSlot(220)}>
+      <div style={panelSlot(250)}>
         <FXPanel />
       </div>
-      <div style={panelSlot(140)}>
+      <div style={panelSlot(155)}>
         <ArpPanel />
       </div>
-      <div style={panelSlot(160)}>
+      <div style={panelSlot(170)}>
         <RoutingPanel />
       </div>
     </div>

@@ -93,7 +93,7 @@ components:
         id: { type: string }
         type:
           type: string
-          enum: [choice, text, number, draw, check-in, atlas]
+          enum: [choice, text, number, draw, check-in, atlas, showcase]
         question: { $ref: '#/components/schemas/LocalizedText' }
         shareable:
           type: boolean
@@ -132,7 +132,16 @@ components:
           type: object
           properties:
             module: { $ref: '#/components/schemas/Module' }
-            activityRef: { type: string }
+            activityRef:
+              type: string
+              description: >-
+                Namespaced deep-link key resolved client-side by
+                `slides/resolveContentHref.ts`: `song:<id>:lesson|chart`,
+                `learn:<mode>:<key>[:activity]`,
+                `curriculum:<GENRE>:<L#>[:A|B|C|D]`,
+                `globe:event:<id>|pathway:<id>`,
+                `studio:song:<id>|template:<id>`. Legacy Launch tiles may carry
+                a bare id (interpreted via `module`).
             expects:
               type: string
               enum: [completion, score, artifact]
@@ -181,6 +190,122 @@ components:
           type: object
           description: Keyed by PhaseKey; all five keys required.
           additionalProperties: { $ref: '#/components/schemas/CellSnapshot' }
+        deck:
+          $ref: '#/components/schemas/SlideDeck'
+          description: Interactive-slides deck; absent on legacy Days.
+
+    SlideDeck:
+      type: object
+      description: |
+        Ordered slide deck for interactive live sessions. Student-safe by
+        construction — the client publish transform whitelist-copies it, and
+        the server runs the same Rule 1 forbidden-substring check over it.
+        Interaction-bearing slides reference `cells[phase].presentation
+        .interactions` entries BY ID; the deck carries no response data.
+      required: [id, title, slides]
+      properties:
+        id: { type: string }
+        title: { $ref: '#/components/schemas/LocalizedText' }
+        slides:
+          type: array
+          items: { $ref: '#/components/schemas/Slide' }
+        templateRef:
+          type: object
+          nullable: true
+          description: |
+            Provenance (template + curriculum anchors) for regenerate/coverage.
+            Known `templateId` values: `song-session-v1`, `genre-lesson-v1`.
+          required: [templateId]
+          properties:
+            templateId: { type: string }
+            songId: { type: string }
+            pathwayId: { type: string }
+            unitSlug: { type: string }
+            dayStubSlug: { type: string }
+            gcmKey:
+              type: string
+              description: >-
+                GCM genre×level key `<GENRE>:<L#>` (e.g. `FUNK:L1`, `HIP HOP:L2`,
+                `R&B:L1`). Set by the genre-lesson template.
+            themeId: { type: string }
+
+    Slide:
+      type: object
+      description: |
+        Discriminated by `kind`. `content` (title/body/media), `media`
+        (video + side visual + prompt), `interaction` (references 1..n
+        interaction ids; the exit poll stacks two), `app-route` (Phase 2 —
+        launches the student into a real module via the referenced atlas
+        Interaction; progress is derived from that interaction's atlas
+        response lifecycle: a `{status:'launched'}` marker → a completion),
+        `studio-collab` / `showcase` (Phase 3). Every slide is anchored to a
+        PhaseKey — the session's current phase is derived from the current
+        slide.
+      required: [id, kind, phase, title]
+      properties:
+        id: { type: string }
+        kind:
+          type: string
+          enum:
+            [content, media, interaction, app-route, studio-collab, showcase]
+        phase: { $ref: '#/components/schemas/PhaseKey' }
+        title: { $ref: '#/components/schemas/LocalizedText' }
+        prompt: { $ref: '#/components/schemas/LocalizedText' }
+        timerSec: { type: integer, minimum: 1 }
+        variant: { type: string, enum: [welcome, section, plain] }
+        body: { $ref: '#/components/schemas/LocalizedText' }
+        media: { $ref: '#/components/schemas/SlideMedia' }
+        sideMedia: { $ref: '#/components/schemas/SlideMedia' }
+        interactionIds:
+          type: array
+          items: { type: string }
+        interactionId: { type: string }
+        # Projector aggregate style: choice→bars, text→wall or 'words' (word
+        # cloud), number→scale. NB: 'words' NOT 'cloud' — 'cloud' contains the
+        # Rule 1 forbidden substring 'clo' and would fail the publish firewall.
+        reveal: { type: string, enum: [bars, wall, words, scale] }
+        grouping: { type: string, enum: [pairs, solo] }
+
+    SlideMedia:
+      type: object
+      description: Discriminated by `type`.
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [youtube, artistImage, globePreview, chordChart]
+        videoId: { type: string }
+        startSec: { type: integer, minimum: 0 }
+        loop: { type: boolean }
+        songId: { type: string }
+        markers:
+          type: array
+          items:
+            type: object
+            required: [location]
+            properties:
+              location:
+                type: array
+                items: { type: number }
+                minItems: 2
+                maxItems: 2
+              size: { type: number }
+        arcs:
+          type: array
+          items:
+            type: object
+            required: [from, to]
+            properties:
+              from:
+                type: array
+                items: { type: number }
+                minItems: 2
+                maxItems: 2
+              to:
+                type: array
+                items: { type: number }
+                minItems: 2
+                maxItems: 2
 
     PublishedDay:
       type: object
@@ -256,6 +381,13 @@ components:
             minimum: -1,
             description: '-1 = phase-level (no interaction focused)',
           }
+        slideIndex:
+          {
+            type: integer,
+            minimum: -1,
+            default: -1,
+            description: "Index into the published Day's deck.slides. -1 = legacy phase-granular nav (no deck). Server persists opaquely and echoes on the `nav` broadcast.",
+          }
         mode:
           type: string
           enum: [teacher_paced, student_paced]
@@ -266,6 +398,65 @@ components:
           properties:
             interactionId: { type: string }
             on: { type: boolean }
+        pairs:
+          type: array
+          nullable: true
+          description: >-
+            Phase 3 — Studio collaboration groups. Fans out to teacher + student
+            sockets, NEVER the projector (carries enrollment ids — Rule 2). The
+            `hostEnrollmentId` client mints the collab room + invites the others.
+          items:
+            type: object
+            required: [id, enrollmentIds, hostEnrollmentId]
+            properties:
+              id: { type: string }
+              enrollmentIds: { type: array, items: { type: string } }
+              hostEnrollmentId: { type: string }
+        showcase:
+          type: object
+          nullable: true
+          description: >-
+            Phase 3 — the teacher-featured project. Fans out to ALL roles (a
+            deliberate, teacher-approved share, not a Rule 2 leak).
+          required: [slideId, enrollmentId, displayName, artifact]
+          properties:
+            slideId: { type: string }
+            enrollmentId: { type: string }
+            displayName: { type: string }
+            artifact:
+              type: object
+              required: [projectId, name]
+              properties:
+                projectId: { type: string }
+                roomId: { type: string }
+                name: { type: string }
+        timer:
+          type: object
+          nullable: true
+          description: >-
+            Phase 4 — the running slide timer. Fans out to ALL roles for a shared
+            countdown. `endsAt` is an epoch-ms deadline; the TEACHER client fires
+            the advancing nav at zero — the server never schedules.
+          required: [slideId, endsAt, durationSec, autoAdvance]
+          properties:
+            slideId: { type: string }
+            endsAt: { type: integer, description: Date.now() epoch-ms deadline }
+            durationSec: { type: integer }
+            autoAdvance: { type: boolean }
+        media:
+          type: object
+          nullable: true
+          description: >-
+            Phase 4 — remote play/pause for a media slide's video, projected.
+            Fans out to ALL roles. `cmdId` is a monotonic nonce so a re-applied
+            state still re-fires the projector player (repeated commands aren't
+            swallowed).
+          required: [slideId, action, cmdId]
+          properties:
+            slideId: { type: string }
+            action: { type: string, enum: [play, pause] }
+            atSec: { type: number }
+            cmdId: { type: integer }
 
     Session:
       type: object
@@ -342,8 +533,31 @@ components:
             activityRef: { type: string }
             result:
               type: object
-              description: Shape depends on Interaction.atlas.expects
+              description: >-
+                Shape depends on Interaction.atlas.expects. app-route slides use
+                the atlas response lifecycle: an immediate `{status:'launched'}`
+                marker (teacher sees "in module"), later REPLACED for the same
+                (enrollmentId, interactionId) by a completion —
+                `{completion:true, source:'student'|'module'}`, `{score, max}`,
+                or `{artifactRef}`. Servers MUST upsert per (enrollmentId,
+                interactionId) so the marker is overwritten.
               additionalProperties: true
+              example: { completion: true, source: module }
+        - type: object
+          required: [kind, artifact]
+          description: >-
+            Phase 3 — a student's offer to share their Studio project. Teacher-only
+            (Rule 2: hard-refused from the projector like check-ins). The teacher
+            promotes one offer to `SessionState.showcase` to feature it.
+          properties:
+            kind: { const: showcase }
+            artifact:
+              type: object
+              required: [projectId, name]
+              properties:
+                projectId: { type: string }
+                roomId: { type: string }
+                name: { type: string }
 
     Response:
       type: object
@@ -609,6 +823,32 @@ paths:
               schema: { $ref: '#/components/schemas/AssignmentProgress' }
 
   /classrooms/{classroomId}/sessions:
+    get:
+      summary: List sessions (student or teacher)
+      description: |
+        Students may call this for classrooms they're enrolled in — it powers
+        the Home dashboard's "Your class is live" announcement. The client
+        degrades to an empty list on any error, so shipping this endpoint
+        lights the banner up without a client release.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: classroomId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: status
+          in: query
+          required: false
+          schema: { type: string, enum: [live, ended], default: live }
+      responses:
+        '200':
+          description: Sessions matching the filter
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Session' }
     post:
       summary: Create a live session (P3, teacher)
       description: |

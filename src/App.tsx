@@ -21,10 +21,15 @@ import {
   songsPages,
 } from './features/classroom/ClassroomPages';
 import { MockLearn } from './features/classroom/msp/__dev__/MockLearn';
+import { landingPages } from './features/landing';
 import { legalPages } from './features/legal';
+import { marketingPages } from './features/marketing';
+import { searchPages } from './features/search/routes';
 import { teacherPages } from './features/teacher/TeacherPages';
 
 const routesArray = createBrowserRouter([
+  landingPages(),
+  marketingPages(),
   authPages(),
   adminPages(),
   classroomPages(),
@@ -41,6 +46,7 @@ const routesArray = createBrowserRouter([
   atlasPages(),
   songsPages(),
   curriculumPages(),
+  searchPages(),
   { path: '/modal-sphere', element: <ModalSphereDemo /> },
   ...(import.meta.env.DEV
     ? [

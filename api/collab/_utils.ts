@@ -2,7 +2,7 @@
 // Auth0 JWT verification + Upstash Redis helpers.
 
 import { Redis } from '@upstash/redis';
-import jwt from 'jsonwebtoken';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 // ── Redis ───────────────────────────────────────────────────────────────
 
@@ -13,69 +13,76 @@ export function getRedis(): Redis {
   });
 }
 
-// ── Auth0 JWT Verification ──────────────────────────────────────────────
+// ── Auth0 JWT Verification (RS256 via JWKS) ─────────────────────────────
+// Signatures are verified against Auth0's published JWKS. This fails CLOSED: a
+// missing / expired / tampered token, or an unconfigured environment, yields
+// null (→ 401). It NEVER decodes without verifying — doing so would let any
+// caller forge an arbitrary `sub` and impersonate any user across every
+// endpoint that shares this helper.
 
 interface TokenPayload {
   sub: string;
   [key: string]: unknown;
 }
 
+function auth0Config(): {
+  issuer: string;
+  audience: string;
+  jwksUrl: URL;
+} | null {
+  const domain = process.env.AUTH0_DOMAIN ?? process.env.VITE_AUTH0_DOMAIN;
+  const audience =
+    process.env.AUTH0_AUDIENCE ?? process.env.VITE_AUTH0_AUDIENCE;
+  if (!domain || !audience) return null;
+  const issuer = process.env.AUTH0_ISSUER_BASE_URL ?? `https://${domain}/`;
+  return {
+    issuer,
+    audience,
+    jwksUrl: new URL(`https://${domain}/.well-known/jwks.json`),
+  };
+}
+
+// Cache the JWKS across warm invocations (module scope survives on Vercel).
+let jwksCache: {
+  url: string;
+  set: ReturnType<typeof createRemoteJWKSet>;
+} | null = null;
+
+function getJwks(url: URL): ReturnType<typeof createRemoteJWKSet> {
+  const key = url.toString();
+  if (!jwksCache || jwksCache.url !== key) {
+    jwksCache = { url: key, set: createRemoteJWKSet(url) };
+  }
+  return jwksCache.set;
+}
+
 /**
- * Verify the Authorization header and return the user's sub claim.
- * Returns null if invalid / missing.
+ * Verify the Authorization header's Auth0 access token and return its payload
+ * (with `sub`), or null if the token is missing, malformed, expired, has the
+ * wrong issuer/audience, or fails signature verification.
  */
-export function verifyAuthToken(
+export async function verifyAuthToken(
   authHeader: string | null,
-): TokenPayload | null {
+): Promise<TokenPayload | null> {
   if (!authHeader?.startsWith('Bearer ')) return null;
   const token = authHeader.slice(7);
 
-  try {
-    // In production, use Auth0's JWKS endpoint for RS256 verification.
-    // For now, we verify with the shared secret or pass-through if
-    // the API is behind an Auth0-protected gateway.
-    const secret = process.env.AUTH0_CLIENT_SECRET ?? process.env.JWT_SECRET;
-    if (!secret) {
-      // If no secret is configured, decode without verification
-      // (assumes request is authenticated upstream by Auth0 gateway)
-      const decoded = jwt.decode(token) as TokenPayload | null;
-      return decoded?.sub ? decoded : null;
-    }
-    return jwt.verify(token, secret) as TokenPayload;
-  } catch {
+  const config = auth0Config();
+  if (!config) {
+    console.error(
+      '[auth] AUTH0_DOMAIN / AUTH0_AUDIENCE not configured — rejecting request',
+    );
     return null;
   }
-}
 
-// ── Invite Token ────────────────────────────────────────────────────────
-
-const INVITE_SECRET =
-  process.env.COLLAB_INVITE_SECRET ??
-  process.env.JWT_SECRET ??
-  'collab-invite-dev-secret';
-
-export interface InviteTokenPayload {
-  roomId: string;
-  role: 'editor' | 'viewer';
-  iat: number;
-  exp: number;
-}
-
-export function signInviteToken(
-  roomId: string,
-  role: 'editor' | 'viewer',
-  expiresInDays = 7,
-): { token: string; expiresAt: number } {
-  const expiresAt = Math.floor(Date.now() / 1000) + expiresInDays * 86400;
-  const token = jwt.sign({ roomId, role }, INVITE_SECRET, {
-    expiresIn: `${expiresInDays}d`,
-  });
-  return { token, expiresAt: expiresAt * 1000 };
-}
-
-export function verifyInviteToken(token: string): InviteTokenPayload | null {
   try {
-    return jwt.verify(token, INVITE_SECRET) as InviteTokenPayload;
+    const { payload } = await jwtVerify(token, getJwks(config.jwksUrl), {
+      issuer: config.issuer,
+      audience: config.audience,
+      algorithms: ['RS256'],
+    });
+    if (typeof payload.sub !== 'string' || !payload.sub) return null;
+    return payload as TokenPayload;
   } catch {
     return null;
   }

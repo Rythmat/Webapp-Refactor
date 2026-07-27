@@ -1,0 +1,1107 @@
+{
+  "name": "LD - DARKNESS",
+  "version": 3,
+  "oscillators": [
+    {
+      "waveform": "sawtooth",
+      "wavetable": "S2/No Fundamental Saw",
+      "octave": -2,
+      "semitone": 0,
+      "fine": 0,
+      "wtPosition": 0,
+      "pan": 0,
+      "level": 0.75,
+      "unisonVoices": 1,
+      "unisonDetune": 0.25,
+      "unisonBlend": 0.5,
+      "warpMode": "none",
+      "warpAmount": 0,
+      "enabled": true
+    },
+    {
+      "waveform": "sawtooth",
+      "wavetable": "S2/Monster 2 [SL]",
+      "octave": -1,
+      "semitone": 0,
+      "fine": 0,
+      "wtPosition": 0.44952710065990686,
+      "pan": 0,
+      "level": 0.038954296415037115,
+      "unisonVoices": 1,
+      "unisonDetune": 0.25,
+      "unisonBlend": 0.5,
+      "warpMode": "none",
+      "warpAmount": 0,
+      "enabled": true
+    }
+  ],
+  "subOscillator": {
+    "waveform": "sine",
+    "octave": -1,
+    "semitone": 0,
+    "fine": 0,
+    "level": 0.5,
+    "pan": 0,
+    "enabled": false
+  },
+  "noise": {
+    "type": "white",
+    "level": 0,
+    "pan": 0,
+    "enabled": true
+  },
+  "filters": [
+    {
+      "type": "notch",
+      "cutoff": 112.1663751298142,
+      "resonance": 14.810449008664696,
+      "pan": 0,
+      "gain": 0,
+      "mix": 1,
+      "enabled": true
+    },
+    {
+      "type": "lowpass",
+      "cutoff": 20000,
+      "resonance": 0,
+      "pan": 0,
+      "gain": 0,
+      "mix": 1,
+      "enabled": false
+    }
+  ],
+  "envelopes": [
+    {
+      "attack": 0.001,
+      "decay": 1,
+      "sustain": 1,
+      "release": 0.014700845522658452
+    },
+    {
+      "attack": 0.01,
+      "decay": 0.5,
+      "sustain": 0.5,
+      "release": 0.5
+    }
+  ],
+  "lfos": [
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.125,
+            "value": 1
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.375,
+            "value": 1
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.625,
+            "value": 1
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.875,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.125,
+            "value": 1
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.375,
+            "value": 1
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.625,
+            "value": 1
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.875,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.125,
+            "value": 1
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.375,
+            "value": 1
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.625,
+            "value": 1
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.875,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.125,
+            "value": 1
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.375,
+            "value": 1
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.625,
+            "value": 1
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.875,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.007638888888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.25763888888888886,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.5076388888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.7576388888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.007638888888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.25763888888888886,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.5076388888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.7576388888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.007638888888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.25763888888888886,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.5076388888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.7576388888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.007638888888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.25,
+            "value": 0
+          },
+          {
+            "time": 0.25,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.25763888888888886,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.5,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.5076388888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 0.75,
+            "value": 0
+          },
+          {
+            "time": 0.75,
+            "value": 0,
+            "curve": -0.5441177206880906
+          },
+          {
+            "time": 0.7576388888888889,
+            "value": 1,
+            "curve": -0.16176512311486635
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0.547,
+            "curve": 1
+          },
+          {
+            "time": 0.124,
+            "value": 0.547
+          },
+          {
+            "time": 0.125,
+            "value": 0.396,
+            "curve": 1
+          },
+          {
+            "time": 0.249,
+            "value": 0.396
+          },
+          {
+            "time": 0.25,
+            "value": 0.245,
+            "curve": 1
+          },
+          {
+            "time": 0.374,
+            "value": 0.245
+          },
+          {
+            "time": 0.375,
+            "value": 0.094,
+            "curve": 1
+          },
+          {
+            "time": 0.499,
+            "value": 0.094
+          },
+          {
+            "time": 0.5,
+            "value": 0.943,
+            "curve": 1
+          },
+          {
+            "time": 0.624,
+            "value": 0.943
+          },
+          {
+            "time": 0.625,
+            "value": 0.792,
+            "curve": 1
+          },
+          {
+            "time": 0.749,
+            "value": 0.792
+          },
+          {
+            "time": 0.75,
+            "value": 0.641,
+            "curve": 1
+          },
+          {
+            "time": 0.874,
+            "value": 0.641
+          },
+          {
+            "time": 0.875,
+            "value": 0.49,
+            "curve": 1
+          },
+          {
+            "time": 0.999,
+            "value": 0.49
+          },
+          {
+            "time": 1,
+            "value": 0.547
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0.547,
+            "curve": 1
+          },
+          {
+            "time": 0.124,
+            "value": 0.547
+          },
+          {
+            "time": 0.125,
+            "value": 0.396,
+            "curve": 1
+          },
+          {
+            "time": 0.249,
+            "value": 0.396
+          },
+          {
+            "time": 0.25,
+            "value": 0.245,
+            "curve": 1
+          },
+          {
+            "time": 0.374,
+            "value": 0.245
+          },
+          {
+            "time": 0.375,
+            "value": 0.094,
+            "curve": 1
+          },
+          {
+            "time": 0.499,
+            "value": 0.094
+          },
+          {
+            "time": 0.5,
+            "value": 0.943,
+            "curve": 1
+          },
+          {
+            "time": 0.624,
+            "value": 0.943
+          },
+          {
+            "time": 0.625,
+            "value": 0.792,
+            "curve": 1
+          },
+          {
+            "time": 0.749,
+            "value": 0.792
+          },
+          {
+            "time": 0.75,
+            "value": 0.641,
+            "curve": 1
+          },
+          {
+            "time": 0.874,
+            "value": 0.641
+          },
+          {
+            "time": 0.875,
+            "value": 0.49,
+            "curve": 1
+          },
+          {
+            "time": 0.999,
+            "value": 0.49
+          },
+          {
+            "time": 1,
+            "value": 0.547
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0.547,
+            "curve": 1
+          },
+          {
+            "time": 0.124,
+            "value": 0.547
+          },
+          {
+            "time": 0.125,
+            "value": 0.396,
+            "curve": 1
+          },
+          {
+            "time": 0.249,
+            "value": 0.396
+          },
+          {
+            "time": 0.25,
+            "value": 0.245,
+            "curve": 1
+          },
+          {
+            "time": 0.374,
+            "value": 0.245
+          },
+          {
+            "time": 0.375,
+            "value": 0.094,
+            "curve": 1
+          },
+          {
+            "time": 0.499,
+            "value": 0.094
+          },
+          {
+            "time": 0.5,
+            "value": 0.943,
+            "curve": 1
+          },
+          {
+            "time": 0.624,
+            "value": 0.943
+          },
+          {
+            "time": 0.625,
+            "value": 0.792,
+            "curve": 1
+          },
+          {
+            "time": 0.749,
+            "value": 0.792
+          },
+          {
+            "time": 0.75,
+            "value": 0.641,
+            "curve": 1
+          },
+          {
+            "time": 0.874,
+            "value": 0.641
+          },
+          {
+            "time": 0.875,
+            "value": 0.49,
+            "curve": 1
+          },
+          {
+            "time": 0.999,
+            "value": 0.49
+          },
+          {
+            "time": 1,
+            "value": 0.547
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0.547,
+            "curve": 1
+          },
+          {
+            "time": 0.124,
+            "value": 0.547
+          },
+          {
+            "time": 0.125,
+            "value": 0.396,
+            "curve": 1
+          },
+          {
+            "time": 0.249,
+            "value": 0.396
+          },
+          {
+            "time": 0.25,
+            "value": 0.245,
+            "curve": 1
+          },
+          {
+            "time": 0.374,
+            "value": 0.245
+          },
+          {
+            "time": 0.375,
+            "value": 0.094,
+            "curve": 1
+          },
+          {
+            "time": 0.499,
+            "value": 0.094
+          },
+          {
+            "time": 0.5,
+            "value": 0.943,
+            "curve": 1
+          },
+          {
+            "time": 0.624,
+            "value": 0.943
+          },
+          {
+            "time": 0.625,
+            "value": 0.792,
+            "curve": 1
+          },
+          {
+            "time": 0.749,
+            "value": 0.792
+          },
+          {
+            "time": 0.75,
+            "value": 0.641,
+            "curve": 1
+          },
+          {
+            "time": 0.874,
+            "value": 0.641
+          },
+          {
+            "time": 0.875,
+            "value": 0.49,
+            "curve": 1
+          },
+          {
+            "time": 0.999,
+            "value": 0.49
+          },
+          {
+            "time": 1,
+            "value": 0.547
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    }
+  ],
+  "modRoutes": [
+    {
+      "id": "serum-1",
+      "source": {
+        "type": "keytrack",
+        "index": 0
+      },
+      "target": {
+        "source": "flt1",
+        "param": "resonance"
+      },
+      "amount": -0.19649124145507812,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-2",
+      "source": {
+        "type": "lfo",
+        "index": 0
+      },
+      "target": {
+        "source": "osc1",
+        "param": "detune"
+      },
+      "amount": 0.5,
+      "polarity": "bipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-3",
+      "source": {
+        "type": "macro",
+        "index": 0
+      },
+      "target": {
+        "source": "osc2",
+        "param": "detune"
+      },
+      "amount": 0.5,
+      "polarity": "bipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-4",
+      "source": {
+        "type": "macro",
+        "index": 2
+      },
+      "target": {
+        "source": "flt1",
+        "param": "cutoff"
+      },
+      "amount": 0.09649121761322021,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    }
+  ],
+  "voiceMode": "legato",
+  "voiceCount": 8,
+  "glide": 0.020307724450054847,
+  "spread": 0,
+  "masterVolume": 0.2176874986266777,
+  "fx": {
+    "chorus": {
+      "enabled": false,
+      "rate": 0.8,
+      "depth": 0.3,
+      "mix": 0.5
+    },
+    "delay": {
+      "enabled": false,
+      "time": 0.3,
+      "feedback": 0.35,
+      "mix": 0.25
+    },
+    "phaser": {
+      "enabled": true,
+      "rate": 0.1,
+      "depth": 0.5,
+      "mix": 0.5
+    },
+    "compressor": {
+      "enabled": true,
+      "threshold": -18,
+      "ratio": 4,
+      "attack": 1,
+      "release": 1
+    },
+    "drive": {
+      "enabled": true,
+      "amount": 0.3,
+      "mix": 1
+    },
+    "reverb": {
+      "enabled": false,
+      "size": 0.5,
+      "decay": 0.5,
+      "damping": 0.3,
+      "mix": 0.3
+    }
+  },
+  "fxRoutes": [],
+  "routing": {
+    "filterRouting": {
+      "filter1Sources": ["osc1", "osc2", "noise", "sub"],
+      "filter2Sources": []
+    },
+    "envelopeRouting": {
+      "env1Sources": ["osc1", "osc2", "sub", "noise"],
+      "env2Sources": []
+    }
+  },
+  "arp": {
+    "enabled": false,
+    "rate": "1/8",
+    "style": "up",
+    "distance": 12,
+    "step": 1,
+    "chordAware": false
+  },
+  "macros": [
+    {
+      "name": "VIBRATO",
+      "value": 0
+    },
+    {
+      "name": "CHARACTER",
+      "value": 1
+    },
+    {
+      "name": "TONE",
+      "value": 0
+    },
+    {
+      "name": "GRIT",
+      "value": 0
+    },
+    {
+      "name": "BITCRUSH",
+      "value": 0
+    },
+    {
+      "name": "ACID",
+      "value": 0
+    },
+    {
+      "name": "TONE 2",
+      "value": 0
+    },
+    {
+      "name": "MOVEMENT",
+      "value": 0
+    }
+  ],
+  "keyScale": {
+    "enabled": false,
+    "followProjectKey": true,
+    "rootPc": 0,
+    "mode": "ionian",
+    "snapMode": "nearest"
+  }
+}

@@ -1,5 +1,34 @@
 export type BasicWaveform = 'sine' | 'triangle' | 'sawtooth' | 'square';
 
+/**
+ * Oscillator warp/distortion modes (Serum-inspired). Two families:
+ *  - Distortion (memoryless waveshapers, live + modulatable): applied by a
+ *    WaveShaperNode on the oscillator's post-crossfade output.
+ *  - Phase (phase-domain remaps, pre-baked into wavetable frames): applied by
+ *    transforming the time-domain frames before the FFT→PeriodicWave build.
+ *    These are static per (table, mode, amount) — not audio-rate smooth.
+ * See audio/wavetableWarp.ts for the classification + DSP.
+ */
+export type OscWarpMode =
+  | 'none'
+  // distortion family
+  | 'hardclip'
+  | 'softclip'
+  | 'tube'
+  | 'tapesat'
+  | 'rectify'
+  | 'sineshaper'
+  | 'diode'
+  | 'fold'
+  | 'crush'
+  // phase family
+  | 'sync'
+  | 'pwm'
+  | 'bend'
+  | 'squeeze'
+  | 'quantize'
+  | 'flip';
+
 export type FilterType =
   | 'lowpass'
   | 'highpass'
@@ -34,13 +63,56 @@ export interface ModTarget {
     | 'gain';
 }
 
+/**
+ * Modulation source types. Open by design: the engine keeps a registry
+ * keyed by string so features (e.g. the scale-quantized pitch source)
+ * can register new types without touching the matrix.
+ */
+export type ModSourceType =
+  | 'lfo'
+  | 'envelope'
+  | 'velocity'
+  | 'keytrack'
+  | 'modwheel'
+  | 'macro'
+  | 'audio'
+  | (string & Record<never, never>);
+
+export interface ModSourceRef {
+  type: ModSourceType;
+  /** lfo 0-3 / envelope 0-1 / macro 0-7 / audio 0..n; 0 for scalar sources */
+  index: number;
+}
+
+export type ModCurve = 'linear' | 'exp' | 'log' | 'scurve';
+
+export type ModPolarity = 'unipolar' | 'bipolar';
+
 export interface ModRoute {
   id: string;
-  lfoIndex: number; // 0-3
+  source: ModSourceRef;
   target: ModTarget;
-  depthMin: number; // 0..1
-  depthMax: number; // 0..1
+  amount: number; // -1..1 signed depth
+  polarity: ModPolarity;
+  curve?: ModCurve; // default 'linear'
+  /**
+   * Optional registered per-voice transform (e.g. 'scale-quantize').
+   * When set, a custom WaveShaper curve from the registered provider
+   * replaces the standard curve shaper for this route.
+   */
+  transform?: string;
   enabled: boolean;
+  // Legacy v1 fields — present only on not-yet-migrated data, never written back
+  lfoIndex?: number;
+  depthMin?: number;
+  depthMax?: number;
+}
+
+export const MACRO_COUNT = 8;
+
+export interface MacroParams {
+  name: string;
+  value: number; // 0..1
 }
 
 export interface NoteEvent {
@@ -61,6 +133,8 @@ export interface OscillatorParams {
   unisonVoices: number; // 1..16
   unisonDetune: number; // 0..1 → mapped to cents
   unisonBlend: number; // 0..1
+  warpMode: OscWarpMode; // 'none' = bypass
+  warpAmount: number; // 0..1
   enabled: boolean;
 }
 
@@ -166,15 +240,30 @@ export interface DriveParams {
   mix: number; // 0..1
 }
 
+export interface ReverbParams {
+  enabled: boolean;
+  size: number; // 0..1 room size (IR length)
+  decay: number; // 0..1 tail length
+  damping: number; // 0..1 high-frequency damping
+  mix: number; // 0..1
+}
+
 export interface FXParams {
   chorus: ChorusParams;
   delay: DelayParams;
   phaser: PhaserParams;
   compressor: CompressorParams;
   drive: DriveParams;
+  reverb: ReverbParams;
 }
 
-export type FXType = 'drive' | 'chorus' | 'phaser' | 'delay' | 'compressor';
+export type FXType =
+  | 'drive'
+  | 'chorus'
+  | 'phaser'
+  | 'delay'
+  | 'compressor'
+  | 'reverb';
 
 export interface FXRoute {
   id: string;
@@ -207,4 +296,6 @@ export interface ArpParams {
   style: ArpStyle;
   distance: number; // semitones: 12, 24, -12, -24
   step: number; // semitone interval: 1, 2, 3
+  /** Snap arp notes to the project's live-detected chord (UNISON bus). */
+  chordAware?: boolean;
 }

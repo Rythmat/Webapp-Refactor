@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 
+// Keep in sync with .layout in SynthLayout.module.css
+// (and useContainerScale.ts for the DAW pop-out).
 const DESIGN_WIDTH = 1440;
-const DESIGN_HEIGHT = 900;
+const DESIGN_HEIGHT = 932;
 
 interface ViewportTransform {
   scale: number;

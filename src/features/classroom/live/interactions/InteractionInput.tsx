@@ -7,6 +7,7 @@ import { CheckInInput } from './CheckInInput';
 import { ChoiceInput } from './ChoiceInput';
 import { DrawInput } from './DrawInput';
 import { NumberInput } from './NumberInput';
+import { ShowcaseInput } from './ShowcaseInput';
 import { TextInput } from './TextInput';
 import type { InteractionInputProps } from './types';
 
@@ -82,6 +83,16 @@ export const InteractionInput = ({
           enrollmentId={enrollmentId}
           sessionId={sessionId}
           assignmentId={assignmentId}
+        />
+      );
+    case 'showcase':
+      return (
+        <ShowcaseInput
+          interaction={interaction}
+          language={language}
+          onSubmit={onSubmit}
+          submittedPayload={submittedPayload}
+          disabled={disabled}
         />
       );
     default:

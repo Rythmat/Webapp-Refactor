@@ -28,6 +28,23 @@ export interface StreamingCaptureState {
   error: string | null;
 }
 
+/**
+ * Minimal capture surface the ProbabilisticOrchestrator consumes. Both
+ * StreamingAudioCapture (Learn's own-mic capture) and NodeTapCapture (the
+ * Studio's tap over an existing GuitarFxAdapter node) satisfy this
+ * structurally, so the orchestrator is decoupled from how audio is sourced.
+ */
+export interface StreamingCaptureLike {
+  getAudioContext(): AudioContext | null;
+  getSourceNode(): AudioNode | null;
+  getOnsetAnalyser(): AnalyserNode | null;
+  getFastPitchAnalyser(): AnalyserNode | null;
+  getHiResAnalyser(): AnalyserNode | null;
+  getState(): { rmsLevel: number };
+  updateLevel(): number;
+  readonly isActive: boolean;
+}
+
 // ── Class ────────────────────────────────────────────────────────────────
 
 export class StreamingAudioCapture {

@@ -1,16 +1,19 @@
 /**
- * usePublishedDays — production hook hits Ryan's `POST /classrooms/:cid/publish`.
+ * usePublishedDays — production hook hits `POST /classrooms/:cid/publish`.
  *
- * Sprint 7 swap: `publishDayToClassroom` is async and POSTs to REST. The
- * response is normalized + cached in localStorage so `getPublishedDay(pdid)`
- * survives page refresh (Ryan doesn't ship a get-one endpoint yet). Rule 1
- * firewall runs client-side as a pre-flight before the round trip; the server
- * runs the authoritative version. Republish idempotency depends on Ryan's
- * upsert fix landing — until then, republishing mints a fresh id (tracked as
- * a known bug in Sprint 7 notes; assignments FK'd to old ids may dangle).
+ * `publishDayToClassroom` POSTs to REST and normalizes the response into a
+ * localStorage cache so `getPublishedDay(pdid)` survives page refresh (there
+ * is no GET-one endpoint on the backend). Rule 1 firewall runs client-side
+ * as a pre-flight before the round trip; the server runs the authoritative
+ * version.
  *
- * `unpublish` is deferred — Ryan has no DELETE endpoint. `unpublishForUser`
- * stays as a dev-only helper for the sim harness only.
+ * Republish is **idempotent by `(classroomId, sourceRef)`** — republishing
+ * the same Day updates in place and returns the SAME id, so assignments
+ * FK'd to the earlier id remain valid.
+ *
+ * `unpublishForUser` stays as a dev-only helper for the sim harness — the
+ * backend has no DELETE endpoint (nor a list-one, nor a purge; per the
+ * classroom-v2 contract audit these will not ship).
  */
 import { useCallback, useEffect, useState } from 'react';
 import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
@@ -188,29 +191,48 @@ const dateToIso = (v: Date | string | null | undefined): string =>
       ? v
       : v.toISOString();
 
-const parseFirewallError = (err: unknown): { forbidden: string } | null => {
-  if (!(err instanceof Error)) return null;
-  // Try both parseable JSON body and Ryan's current JSON.stringify-in-message
-  // form; either way we pluck the forbidden term.
-  const msg = err.message;
-  try {
-    const body = JSON.parse(msg) as {
-      code?: string;
-      forbidden?: string;
-      match?: string;
-    };
-    if (
-      body.code === 'rule_1_firewall_violation' ||
-      body.code === 'firewall_violation'
-    ) {
-      return { forbidden: body.forbidden ?? body.match ?? 'unknown' };
+/**
+ * Detects the Rule-1 firewall error from the classroom API. The API's global
+ * onError normalizes every error to `{ error: <message> }`, so a violation
+ * comes back as `{ error: 'rule_1_firewall_violation' }` inside the response
+ * body. The generated musicAtlas client is axios-based, so we check both
+ * shapes: an `AxiosError` with the JSON body on `err.response.data`, and the
+ * fallback where the error's own message carries the marker (fetch-style or
+ * unwrapped rethrow).
+ */
+const isFirewallError = (err: unknown): boolean => {
+  if (!err || typeof err !== 'object') return false;
+  const anyErr = err as {
+    message?: unknown;
+    response?: { data?: unknown };
+  };
+
+  // Axios path: the body sits on err.response.data. It may already be the
+  // parsed object, or (in some client configs) a raw JSON string.
+  const data = anyErr.response?.data;
+  if (data && typeof data === 'object') {
+    const body = data as { error?: unknown };
+    if (body.error === 'rule_1_firewall_violation') return true;
+  } else if (typeof data === 'string') {
+    try {
+      const body = JSON.parse(data) as { error?: unknown };
+      if (body.error === 'rule_1_firewall_violation') return true;
+    } catch {
+      // Not JSON — fall through to the message check.
     }
-  } catch {
-    // Not JSON — try to find the sub inside the message text.
-    const m = msg.match(/"(match|forbidden)":\s*"([^"]+)"/);
-    if (m) return { forbidden: m[2] };
   }
-  return null;
+
+  // Fallback: the marker may have been folded into the error message (e.g.
+  // when a caller wraps the axios error). Match either the bare token or a
+  // stringified `{ error: 'rule_1_firewall_violation' }` body.
+  const msg = typeof anyErr.message === 'string' ? anyErr.message : '';
+  if (msg.includes('rule_1_firewall_violation')) return true;
+  try {
+    const body = JSON.parse(msg) as { error?: unknown };
+    return body.error === 'rule_1_firewall_violation';
+  } catch {
+    return false;
+  }
 };
 
 export interface UsePublishedDays {
@@ -268,9 +290,22 @@ export const usePublishedDays = (classroomId: string): UsePublishedDays => {
           },
         );
       } catch (err) {
-        const parsed = parseFirewallError(err);
-        if (parsed) {
-          throw new Error(`Rule 1 firewall violation: "${parsed.forbidden}"`);
+        if (isFirewallError(err)) {
+          // The server-normalized error only carries the canonical code, not
+          // the offending term. The client pre-flight above (lines 254–257)
+          // already caught anything in our local FORBIDDEN_SUBSTRINGS list,
+          // so any error surfacing here is a server-only rule the client
+          // can't identify — throw the generic message.
+          throw new Error('Rule 1 firewall violation');
+        }
+        // DEV-only: no backend available (offline dev / auth bypass) — fall
+        // back to the local publish store so the Plan → Go Live loop and the
+        // deck wizard work end-to-end against the local session mock. Vite
+        // folds this branch out of production builds.
+        if (import.meta.env.DEV) {
+          const local = publishDayForUser(userId, input);
+          setStore(readStore(userId));
+          return local;
         }
         throw err;
       }

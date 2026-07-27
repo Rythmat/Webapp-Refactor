@@ -107,7 +107,7 @@ export function PrismStudio() {
       }}
     >
       {/* ── Key (Circle of Fifths) ──────────────────────────── */}
-      <div style={moduleCard(160)}>
+      <div data-tutorial-id="prism-key" style={moduleCard(160)}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <span style={titleStyle}>Key</span>
@@ -151,6 +151,7 @@ export function PrismStudio() {
 
       {/* ── Chord Selection ────────────────────────────────── */}
       <div
+        data-tutorial-id="prism-chord-selection"
         style={{
           ...moduleCard(220),
           overflowY: 'auto',
@@ -179,7 +180,7 @@ export function PrismStudio() {
       </div>
 
       {/* ── Harmony (Color Spectrum) ───────────────────────── */}
-      <div style={moduleCard('flex-1')}>
+      <div data-tutorial-id="prism-harmony" style={moduleCard('flex-1')}>
         <span style={titleStyle}>Harmony</span>
 
         <div className="flex flex-1">
@@ -192,6 +193,7 @@ export function PrismStudio() {
         </div>
 
         <button
+          data-tutorial-id="prism-create"
           onClick={handleGenerate}
           disabled={!canGenerate}
           className="h-8 rounded-lg text-xs font-semibold transition-colors"
@@ -212,6 +214,7 @@ export function PrismStudio() {
 
       {/* ── Rhythm & Expression ────────────────────────────── */}
       <div
+        data-tutorial-id="prism-rhythm"
         style={{
           ...moduleCard(200),
           overflowY: 'auto',
@@ -223,7 +226,7 @@ export function PrismStudio() {
       </div>
 
       {/* ── Style (Genre) ──────────────────────────────────── */}
-      <div style={moduleCard(180)}>
+      <div data-tutorial-id="prism-style" style={moduleCard(180)}>
         <span style={titleStyle}>Style</span>
 
         <div className="flex flex-wrap gap-1">

@@ -1,3 +1,9 @@
+import {
+  createBus,
+  getAudioContext,
+  resumeAudio,
+} from '@/audio/engine/AudioBus';
+
 /**
  * Synthesized drum engine using Web Audio API.
  * Provides kick, snare, hi-hat, rim, and clap sounds.
@@ -7,16 +13,17 @@ export class DrumEngine {
   private masterGain: GainNode;
   private noiseBuffer: AudioBuffer;
 
-  constructor() {
-    const AudioContextClass =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext;
-    this.ctx = new AudioContextClass();
-    this.masterGain = this.ctx.createGain();
-    this.masterGain.gain.value = 0.5;
-    this.masterGain.connect(this.ctx.destination);
+  /** @param volume 0–1 master volume (see `setVolume`). */
+  constructor(volume = 0.5) {
+    // Shared context + this instance's own bus, rather than a context each.
+    this.ctx = getAudioContext();
+    this.masterGain = createBus(volume);
     this.noiseBuffer = this.createNoiseBuffer();
+  }
+
+  /** Set the 0–1 master volume, taking effect on the next drum hit. */
+  setVolume(volume: number) {
+    this.masterGain.gain.setTargetAtTime(volume, this.ctx.currentTime, 0.01);
   }
 
   private createNoiseBuffer(): AudioBuffer {
@@ -28,11 +35,12 @@ export class DrumEngine {
   }
 
   resume() {
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    resumeAudio();
   }
 
+  /** Release this engine's bus. The context is shared — never close it. */
   close() {
-    this.ctx.close();
+    this.masterGain.disconnect();
   }
 
   get currentTime() {

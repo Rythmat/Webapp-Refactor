@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useGameScore } from '../scoring/useGameScore';
+import { useGameAudio, type GameAudioEngine } from '../useGameAudio';
 import { AudioEngine } from './AudioEngine';
 import { CircleOfFifthsSelector } from './CircleOfFifthsSelector';
 import { GameHeader } from './GameHeader';
@@ -25,11 +26,19 @@ import type { Note, Particle, GameState, NavigatorWithMIDI } from './types';
 
 // --- Main Component ---
 
+// Hoisted so the warm-up effect isn't restarted by a new array each render.
+const JAM_SYNTH_ONLY: GameAudioEngine[] = ['jam-synth'];
+
 interface MajorArcanumProps {
   onComplete?: (result: { score: number; maxStreak: number }) => void;
 }
 
 export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
+  // Warm the shared soundfont from the first render instead of waiting for the
+  // AudioEngine that `initGame` builds. Not gated on: the engine's oscillator
+  // fallback covers the gap, so the game is never silent while it loads.
+  useGameAudio(JAM_SYNTH_ONLY);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<AudioEngine | null>(null);
@@ -652,6 +661,22 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     initGame();
   }, [initGame]);
 
+  // Dismiss the score screen and return to the initial Start screen.
+  const returnToStart = useCallback(() => {
+    const st = gameState.current;
+    st.isPlaying = false;
+    st.isCountingIn = false;
+    st.isPaused = false;
+    if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    audioRef.current?.suspend();
+    setUiState((prev) => ({
+      ...prev,
+      gameOver: false,
+      gameStarted: false,
+      isPaused: false,
+    }));
+  }, []);
+
   // --- Effects (mount-only — all callbacks accessed via stable refs) ---
   useEffect(() => {
     const handleDown = (e: KeyboardEvent) => {
@@ -685,18 +710,34 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     };
 
     const onResize = () => {
-      if (containerRef.current && canvasRef.current) {
-        const { width, height } = containerRef.current.getBoundingClientRect();
-        canvasRef.current.width = width;
-        canvasRef.current.height = height;
-        gameState.current.canvasWidth = width;
-        gameState.current.canvasHeight = height;
+      if (!containerRef.current || !canvasRef.current) return;
+      const { width, height } = containerRef.current.getBoundingClientRect();
+      const w = Math.round(width);
+      const h = Math.round(height);
+      if (w <= 0 || h <= 0) return;
+      // Setting width/height clears the canvas, so avoid redundant resizes.
+      if (canvasRef.current.width === w && canvasRef.current.height === h)
+        return;
+      canvasRef.current.width = w;
+      canvasRef.current.height = h;
+      gameState.current.canvasWidth = w;
+      gameState.current.canvasHeight = h;
+      // The resize wiped the canvas; while paused nothing redraws it, so
+      // repaint the pause overlay to keep it visible.
+      if (gameState.current.isPaused) {
+        const ctx = canvasRef.current.getContext('2d');
+        if (ctx) drawPauseOverlay(ctx, w, h);
       }
     };
 
     window.addEventListener('keydown', handleDown);
     window.addEventListener('keyup', handleUp);
-    window.addEventListener('resize', onResize);
+
+    // Track the container's actual rendered size so the canvas buffer always
+    // matches its box exactly — a single mount-time measure can run before
+    // layout settles, leaving the game mis-sized and shifted.
+    const resizeObserver = new ResizeObserver(onResize);
+    if (containerRef.current) resizeObserver.observe(containerRef.current);
     onResize();
 
     // Initialize with random key
@@ -706,7 +747,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
     return () => {
       window.removeEventListener('keydown', handleDown);
       window.removeEventListener('keyup', handleUp);
-      window.removeEventListener('resize', onResize);
+      resizeObserver.disconnect();
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       audioRef.current?.close();
     };
@@ -724,7 +765,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         />
       )}
 
-      <div className="flex-1 flex flex-col relative bg-[#101012]">
+      <div className="flex-1 min-h-0 min-w-0 flex flex-col relative bg-[#101012]">
         <GameHeader
           gameMode={uiState.gameMode}
           keyName={uiState.keyName}
@@ -758,8 +799,11 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
         />
 
         {/* Canvas */}
-        <div ref={containerRef} className="flex-1 relative bg-[#101012]">
-          <canvas ref={canvasRef} className="block w-full h-full" />
+        <div
+          ref={containerRef}
+          className="flex-1 min-h-0 relative bg-[#101012]"
+        >
+          <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
 
           {/* Feedback overlay */}
           <div
@@ -790,7 +834,7 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
             <GameOverScreen
               score={uiState.score}
               gameState={gameState.current}
-              onRestart={initGame}
+              onPlayAgain={returnToStart}
             />
           )}
         </div>

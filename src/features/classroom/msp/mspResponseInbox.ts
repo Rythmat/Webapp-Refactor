@@ -1,9 +1,14 @@
 /**
- * mspResponseInbox — pure store for module → parent MSP responses delivered
- * via the new-tab path (embedded iframe uses postMessage instead). Ryan swaps
- * recordMspResponseForUser to POST /msp/response in Sprint 5; the drain
- * listener flips from CustomEvent to socket messages but keeps the same
- * event name so AtlasInput doesn't change.
+ * mspResponseInbox — pure store for module → parent MSP responses. The
+ * canonical write path is `recordMspResponseForUser`, called from two
+ * places:
+ *   1. The classroom-session PartyKit socket (`useSessionSync`) on
+ *      incoming `{ type: 'response', ... }` messages.
+ *   2. The `postMessage` handler in `useMspReport` for embedded modules.
+ *
+ * Both routes dispatch the same `INBOX_EVENT` (`msp:inbox`) window
+ * CustomEvent so `useMspReport` subscribers receive the entry regardless
+ * of which channel delivered it.
  */
 import type { ArtifactRef } from '../assignments/useAssignmentProgress';
 import type { AtlasModule } from './capabilities';
@@ -26,8 +31,10 @@ export interface MspResponseEntry {
   token: string;
   interactionId: string;
   participant: MspParticipant;
-  module: AtlasModule;
-  activityRef: string;
+  /** Optional: real-backend socket messages don't carry these; local writers
+   * (MockLearn dev harness, cached-mint-scoped fanout) still populate them. */
+  module?: AtlasModule;
+  activityRef?: string;
   payload: MspResultPayload;
   createdAt: string;
 }
@@ -46,6 +53,13 @@ const isBrowser = typeof window !== 'undefined';
 
 const keyFor = (userId: string | null | undefined): string =>
   `${STORAGE_KEY}:${userId || 'anon'}`;
+
+/**
+ * The localStorage key holding a user's inbox — exported so cross-tab `storage`
+ * listeners (new-tab module launches) can filter on it.
+ */
+export const mspInboxStorageKey = (userId: string | null | undefined): string =>
+  keyFor(userId);
 
 const readStore = (userId: string | null | undefined): MspInboxStore => {
   if (!isBrowser) return EMPTY_STORE;
@@ -89,8 +103,10 @@ export interface RecordMspResponseInput {
   token: string;
   interactionId: string;
   participant: MspParticipant;
-  module: AtlasModule;
-  activityRef: string;
+  /** Optional: real-backend socket messages omit these; local writers
+   * (MockLearn dev harness, cached-mint-scoped fanout) still populate them. */
+  module?: AtlasModule;
+  activityRef?: string;
   payload: MspResultPayload;
 }
 

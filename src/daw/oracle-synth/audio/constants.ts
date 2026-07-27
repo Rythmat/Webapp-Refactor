@@ -8,15 +8,24 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-// Smooth parameter update to avoid clicks
+// Smooth parameter update to avoid clicks. Pass `at` to anchor the change
+// at a scheduled time (sequenced automation) instead of "now".
 export function smoothParam(
   param: AudioParam,
   value: number,
   ctx: AudioContext,
   timeConstant: number = 0.01,
+  at?: number,
 ): void {
-  param.cancelScheduledValues(ctx.currentTime);
-  param.setTargetAtTime(value, ctx.currentTime, timeConstant);
+  // Guard against non-finite targets: setTargetAtTime throws on NaN/Infinity,
+  // and a NaN that reaches an AudioParam poisons the node — which, because
+  // every voice sums into the shared DAW master (a NaN-latching compressor/
+  // convolver chain), silences the ENTIRE Studio until reload. Drop it here,
+  // the choke point most Oracle param writes flow through.
+  if (!Number.isFinite(value)) return;
+  const t = at ?? ctx.currentTime;
+  param.cancelScheduledValues(t);
+  param.setTargetAtTime(value, t, timeConstant);
 }
 
 // Default voice count

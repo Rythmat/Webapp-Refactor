@@ -14,11 +14,13 @@ import { SourceRow } from '@/daw/oracle-synth/components/layout/SourceRow';
 import { LFOArea } from '@/daw/oracle-synth/components/layout/LFOArea';
 import { RightSidebar } from '@/daw/oracle-synth/components/layout/RightSidebar';
 import { ModulationPanel } from '@/daw/oracle-synth/components/modulation/ModulationPanel';
+import { MacroStrip } from '@/daw/oracle-synth/components/modulation/MacroStrip';
 import { RoutingPanel } from '@/daw/oracle-synth/components/routing/RoutingPanel';
 import { FXPanel } from '@/daw/oracle-synth/components/fx/FXPanel';
 import { ArpPanel } from '@/daw/oracle-synth/components/arp/ArpPanel';
 import { PresetSelector } from '@/daw/oracle-synth/components/preset/PresetSelector';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
+import { KeyScaleBar } from '@/daw/oracle-synth/components/keyboard/KeyScaleBar';
 import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
 import { WheelControl } from '@/daw/oracle-synth/components/controls/WheelControl';
 import { Knob } from '@/daw/oracle-synth/components/controls/Knob';
@@ -50,6 +52,18 @@ export const DawSynthLayout: FC<DawSynthLayoutProps> = ({
     [activeNotes, hwActiveNotes],
   );
   const chordColor = useLiveChordColor(mergedNotes);
+
+  // Project key from the music-intelligence bus → "snap to song key"
+  const detectedKeyRootPc = useStore((s) => s.detectedKeyRootPc);
+  const detectedMode = useStore((s) => s.detectedMode);
+  const analyzeSession = useStore((s) => s.analyzeSession);
+  const songKey = useMemo(
+    () =>
+      detectedKeyRootPc != null && detectedMode
+        ? { rootPc: detectedKeyRootPc, mode: detectedMode }
+        : null,
+    [detectedKeyRootPc, detectedMode],
+  );
 
   // Store reads
   const masterVolume = useSynthStore((s) => s.masterVolume);
@@ -149,6 +163,7 @@ export const DawSynthLayout: FC<DawSynthLayoutProps> = ({
         <div className={styles.middle}>
           <div className={styles.middleLeft}>
             <ModulationPanel />
+            <MacroStrip />
             <RoutingPanel />
           </div>
           <div className={styles.middleCenter}>
@@ -192,6 +207,7 @@ export const DawSynthLayout: FC<DawSynthLayoutProps> = ({
             />
           </div>
           <div className={styles.keyboardWrapper}>
+            <KeyScaleBar songKey={songKey} onRequestAnalyze={analyzeSession} />
             <PianoKeyboard
               startNote={36}
               endNote={96}

@@ -8,6 +8,7 @@
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import * as Tone from 'tone';
+import { startTone } from '@/audio/core/toneBridge';
 import type { PlayAlongTrack } from '../engine/playAlongGenerator';
 
 // ---------------------------------------------------------------------------
@@ -277,7 +278,7 @@ export function usePlayAlong(
   const start = useCallback(async () => {
     if (!track || isPlayingRef.current) return;
 
-    await Tone.start();
+    await startTone();
     Tone.getTransport().bpm.value = tempo;
 
     // Count-in

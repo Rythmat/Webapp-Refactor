@@ -8,9 +8,11 @@
 .layout {
   display: grid;
   width: 1440px;
-  height: 900px;
+  /* Keep in sync with DESIGN_WIDTH/DESIGN_HEIGHT in useContainerScale.ts
+     and useViewportScale.ts. Footer grew 140→172px for the KeyScaleBar. */
+  height: 932px;
   grid-template-columns: 1fr;
-  grid-template-rows: 48px auto 1fr 140px;
+  grid-template-rows: 48px auto 1fr 172px;
   grid-template-areas:
     'header'
     'sources'
@@ -118,4 +120,15 @@
 .keyboardWrapper {
   flex: 1;
   min-width: 0;
+  /* Column: KeyScaleBar (fixed) above the keyboard (fills the rest).
+     Without this the keyboard's height:100% stacks below the bar and
+     overflows the footer row — cropping the bottom of the keys. */
+  display: flex;
+  flex-direction: column;
+}
+
+.keyboardWrapper > *:last-child {
+  /* PianoKeyboard root: flex-basis 0 overrides its height:100% */
+  flex: 1;
+  min-height: 0;
 }

@@ -4,10 +4,12 @@ import { useAppUpdateAnnouncements } from './useAppUpdateAnnouncements';
 import { useChallengeAnnouncements } from './useChallengeAnnouncements';
 import { useDismissedAnnouncementsStore } from './useDismissedAnnouncementsStore';
 import { useFallbackAnnouncements } from './useFallbackAnnouncements';
+import { useLiveSessionAnnouncements } from './useLiveSessionAnnouncements';
 import { useTeacherAnnouncements } from './useTeacherAnnouncements';
 
 /** Default ordering weight when an announcement doesn't set its own priority. */
 const SOURCE_PRIORITY: Record<AnnouncementSource, number> = {
+  live_session: 200,
   teacher: 100,
   challenge: 50,
   app_update: 10,
@@ -23,6 +25,7 @@ const MAX = 6;
  * user has dismissed; sorts by priority then recency; caps the total.
  */
 export function useAnnouncements(): Announcement[] {
+  const liveSession = useLiveSessionAnnouncements();
   const teacher = useTeacherAnnouncements();
   const challenge = useChallengeAnnouncements();
   const appUpdate = useAppUpdateAnnouncements();
@@ -30,7 +33,7 @@ export function useAnnouncements(): Announcement[] {
   const dismissedAt = useDismissedAnnouncementsStore((s) => s.dismissedAt);
 
   return useMemo(() => {
-    const real = [...teacher, ...challenge, ...appUpdate]
+    const real = [...liveSession, ...teacher, ...challenge, ...appUpdate]
       .filter((a) => dismissedAt[a.id] == null)
       .sort((a, b) => {
         const pa = a.priority ?? SOURCE_PRIORITY[a.source];
@@ -43,5 +46,5 @@ export function useAnnouncements(): Announcement[] {
     // Nothing real to show → the welcome + challenges resting state (still
     // dismissible; dismissing both returns the row to its reserved empty gap).
     return fallback.filter((a) => dismissedAt[a.id] == null);
-  }, [teacher, challenge, appUpdate, fallback, dismissedAt]);
+  }, [liveSession, teacher, challenge, appUpdate, fallback, dismissedAt]);
 }

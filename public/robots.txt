@@ -1,14 +1,80 @@
-User-agent: Googlebot
-Allow: /
+# Music Atlas — the public landing page (/) is crawlable; the app is not.
 
-User-agent: Bingbot
-Allow: /
-
+# Social scrapers need to fetch shared URLs for link previews.
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
+# Search crawlers: index the landing + legal pages, keep the app out of search.
+User-agent: Googlebot
+Allow: /$
+Allow: /documents/
+Allow: /features/
+Allow: /blog
+Allow: /for-teachers
+Disallow: /home
+Disallow: /auth
+Disallow: /studio
+Disallow: /arcade
+Disallow: /learn
+Disallow: /atlas
+Disallow: /classrooms
+Disallow: /teacher
+Disallow: /console
+Disallow: /settings
+Disallow: /connect
+Disallow: /library
+Disallow: /songs
+Disallow: /curriculum
+Disallow: /user
+Disallow: /modal-sphere
+
+User-agent: Bingbot
+Allow: /$
+Allow: /documents/
+Allow: /features/
+Allow: /blog
+Allow: /for-teachers
+Disallow: /home
+Disallow: /auth
+Disallow: /studio
+Disallow: /arcade
+Disallow: /learn
+Disallow: /atlas
+Disallow: /classrooms
+Disallow: /teacher
+Disallow: /console
+Disallow: /settings
+Disallow: /connect
+Disallow: /library
+Disallow: /songs
+Disallow: /curriculum
+Disallow: /user
+Disallow: /modal-sphere
+
 User-agent: *
-Allow: /
+Allow: /$
+Allow: /documents/
+Allow: /features/
+Allow: /blog
+Allow: /for-teachers
+Disallow: /home
+Disallow: /auth
+Disallow: /studio
+Disallow: /arcade
+Disallow: /learn
+Disallow: /atlas
+Disallow: /classrooms
+Disallow: /teacher
+Disallow: /console
+Disallow: /settings
+Disallow: /connect
+Disallow: /library
+Disallow: /songs
+Disallow: /curriculum
+Disallow: /user
+Disallow: /modal-sphere
+
+Sitemap: https://music-atlas.io/sitemap.xml

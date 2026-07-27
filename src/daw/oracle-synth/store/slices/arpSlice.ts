@@ -7,6 +7,7 @@ export const DEFAULT_ARP: ArpParams = {
   style: 'up',
   distance: 12,
   step: 1,
+  chordAware: false,
 };
 
 export interface ArpSlice {

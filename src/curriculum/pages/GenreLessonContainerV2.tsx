@@ -8,6 +8,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import * as Tone from 'tone';
+import { startTone } from '@/audio/core/toneBridge';
 import {
   triggerPianoAttack,
   triggerPianoRelease,
@@ -19,6 +20,7 @@ import { CurriculumRoutes } from '@/constants/routes';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import DualStaffPianoRoll from '@/curriculum/components/DualStaffPianoRoll';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
+import { useMspModuleCompletion } from '@/features/classroom/msp';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
@@ -227,6 +229,10 @@ function GenreLessonContainerV2Inner({
       onBackendSync,
     });
 
+  // Classroom app-route bridge: inert unless this lesson was opened from a live
+  // slide. Fires once when the launched section completes.
+  const { reportCompletion } = useMspModuleCompletion();
+
   // Variant rotation — cycle through variants by attempt count
   const attemptCount = progress.completedSteps[currentStep.tag]?.attempts ?? 0;
   const activeVariant = currentStep.variants
@@ -350,6 +356,14 @@ function GenreLessonContainerV2Inner({
   // Static piano roll height for dual stave — computed once on mount at 90% of available space.
   // Not reactive to resize: avoids layout thrashing and prevents the preview modal from
   // covering the keyboard demo during playback.
+  //
+  // The 1.5x multiplier is deliberate, not decorative: DualStaffPianoRoll scales its lane
+  // height up to TARGET_LANE_HEIGHT (18px) and no further — below that ceiling, note rows
+  // are cramped and hard to read; at or above it, they're not. Without the multiplier, a
+  // typical two-hand chord+melody step (~30 chromatic lanes across both staves) lands
+  // around 12px/lane. 1.5x lands it at exactly 18px/lane — legible, not oversized. The
+  // container scrolls (Main content area is overflow-y: auto), so on shorter viewports this
+  // trades some scrolling for a piano roll that's actually usable, which is the right trade.
   const pianoRollMaxHeight = useMemo(() => {
     const HEADER = 82; // breadcrumb + title + step counter
     const SECTION_TABS = 48; // A/B/C/D tabs row
@@ -366,7 +380,11 @@ function GenreLessonContainerV2Inner({
       SECTION_PADDING +
       KEYBOARD +
       PRACTICE_CONTROLS;
-    return Math.max(200, Math.floor((window.innerHeight - overhead) * 0.9));
+    const base = Math.max(
+      200,
+      Math.floor((window.innerHeight - overhead) * 0.9),
+    );
+    return Math.floor(base * 1.5);
   }, []); // empty deps — computed once at mount
 
   // Keyboard highlights
@@ -807,6 +825,8 @@ function GenreLessonContainerV2Inner({
         flow.params.defaultKey,
         currentStep.styleRef as StyleSubProfile,
       );
+      // Classroom app-route completion (no-op unless launched from a slide).
+      reportCompletion();
       // Move to next section if available
       const currentSectionIdx = flow.sections.findIndex(
         (s) => s.id === activeSection,
@@ -827,6 +847,7 @@ function GenreLessonContainerV2Inner({
     flow,
     currentStep,
     recordSectionComplete,
+    reportCompletion,
     setActivityState,
     stopTickCounter,
   ]);
@@ -1018,7 +1039,7 @@ function GenreLessonContainerV2Inner({
     Tone.getTransport().stop();
     Tone.getTransport().cancel();
 
-    await Tone.start();
+    await startTone();
     await startPianoSampler();
 
     // Reset state before starting — but don't activate yet for IT
@@ -1152,6 +1173,7 @@ function GenreLessonContainerV2Inner({
         (resolvedStep as ActivityStepV2).styleRef ?? 'l1a',
         targetNotes,
         undefined, // no metronome in Play Now with backing track — drums provide the pulse
+        flow.genre,
       );
 
       // Wait for Transport start offset + Web Audio latency
@@ -1187,6 +1209,7 @@ function GenreLessonContainerV2Inner({
     currentStep,
     keyRoot,
     requiredBars,
+    flow,
   ]);
 
   // ── Render ────────────────────────────────────────────────────────────────

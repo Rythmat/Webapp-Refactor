@@ -16,6 +16,10 @@ export abstract class FXProcessor {
   protected wetGain: GainNode;
   protected enabled = false;
   protected mixValue = 0.5;
+  // The effect's last (wet) node, detached from wetGain while disabled so the
+  // whole wet sub-graph is dropped from the pull graph and stops processing.
+  private wetOutput: AudioNode | null = null;
+  private wetAttached = false;
 
   constructor(ctx: AudioContext) {
     this.ctx = ctx;
@@ -38,12 +42,39 @@ export abstract class FXProcessor {
 
   /** Subclasses call this to connect their effect output to the wet path */
   protected connectWetPath(effectOutput: AudioNode): void {
+    this.wetOutput = effectOutput;
     effectOutput.connect(this.wetGain);
+    this.wetAttached = true;
   }
 
   setEnabled(enabled: boolean): void {
     this.enabled = enabled;
     this.applyMix();
+    this.updateWetAttachment();
+  }
+
+  /**
+   * Attaches/detaches the wet sub-graph from wetGain to match `enabled`.
+   * Detaching leaves the effect's nodes (ConvolverNode, oversampled
+   * WaveShaper, DynamicsCompressor, delay lines) with no pulled consumer, so
+   * they stop consuming CPU entirely while disabled — a big saving when many
+   * tracks each carry a disabled reverb/drive/compressor. Idempotent, so it
+   * also bypasses effects that START disabled (they no longer sit processing
+   * until first toggled).
+   */
+  private updateWetAttachment(): void {
+    if (!this.wetOutput) return;
+    if (this.enabled && !this.wetAttached) {
+      this.wetOutput.connect(this.wetGain);
+      this.wetAttached = true;
+    } else if (!this.enabled && this.wetAttached) {
+      try {
+        this.wetOutput.disconnect(this.wetGain);
+      } catch {
+        /* already disconnected */
+      }
+      this.wetAttached = false;
+    }
   }
 
   setMix(mix: number): void {

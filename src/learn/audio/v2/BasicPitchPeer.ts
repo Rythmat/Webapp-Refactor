@@ -56,6 +56,11 @@ const ML_SILENCE_FLOOR = 0.05;
 /** Worklet URL (relative to public directory). */
 const WORKLET_URL = '/daw-assets/basic-pitch-worklet.js';
 
+/** Max age of the raw note set returned by getLatestNotes() before it self-expires
+ *  to null (a stalled worker must not hold a released note forever). Kept above
+ *  the ~256ms re-inference cadence so a healthy worker never expires between runs. */
+const NOTES_EXPIRY_MS = 600;
+
 // ── Class ─────────────────────────────────────────────────────────────────
 
 export class BasicPitchPeer {
@@ -66,6 +71,13 @@ export class BasicPitchPeer {
 
   /** Latest ML prediction as a PitchDistribution. */
   private latestDistribution: PitchDistribution | null = null;
+
+  /** Latest raw polyphonic note set (for the Studio's poly note tracker). */
+  private latestNotes: {
+    activeKeys: number[];
+    onsets: number[];
+    timestamp: number;
+  } | null = null;
 
   /** Frame counter for distributions. */
   private frameId = 0;
@@ -149,6 +161,7 @@ export class BasicPitchPeer {
 
     this._isReady = false;
     this.latestDistribution = null;
+    this.latestNotes = null;
   }
 
   /**
@@ -157,6 +170,28 @@ export class BasicPitchPeer {
    */
   getLatestDistribution(): PitchDistribution | null {
     return this.latestDistribution;
+  }
+
+  /**
+   * Latest raw polyphonic note set from the ML model (MIDI note numbers).
+   * `activeKeys` are all sounding notes, `onsets` are notes that just started.
+   * Used by PolyphonicNoteTracker for per-note on/off in the Studio. Returns
+   * null if no prediction yet, or if the last prediction is older than
+   * NOTES_EXPIRY_MS — a self-expiry so a stalled/dead worker can't keep a
+   * released note "held" forever (defence-in-depth alongside the orchestrator's
+   * own staleness gate). Only the Studio poly path reads this; Learn uses
+   * getLatestDistribution().
+   */
+  getLatestNotes(): {
+    activeKeys: number[];
+    onsets: number[];
+    timestamp: number;
+  } | null {
+    if (!this.latestNotes) return null;
+    if (performance.now() - this.latestNotes.timestamp > NOTES_EXPIRY_MS) {
+      return null;
+    }
+    return this.latestNotes;
   }
 
   /** Whether the ML model is loaded and ready. */
@@ -184,6 +219,11 @@ export class BasicPitchPeer {
           msg.activeKeys,
           msg.onsets,
         );
+        this.latestNotes = {
+          activeKeys: msg.activeKeys,
+          onsets: msg.onsets,
+          timestamp: performance.now(),
+        };
         break;
 
       case 'error':

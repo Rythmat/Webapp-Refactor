@@ -1,6 +1,8 @@
 /* eslint-disable react/jsx-sort-props */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { audioEngine } from '@/audio/AudioEngine';
 import { usePrismRhythms } from '@/hooks/data/prism/usePrismRhythms';
+import { ArcadeGameHeader } from './ArcadeGameHeader';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -23,9 +25,6 @@ const SHAKER_URLS = [
   '/samples/bongo/shaker2.wav',
   '/samples/bongo/shaker3.wav',
 ];
-
-const METRO_FIRST_URL = '/sound/firstMetronomeClick.mp3';
-const METRO_URL = '/sound/metronomeClick.mp3';
 
 const MAX_LIVES = 5;
 
@@ -62,34 +61,35 @@ function pickRandom<T>(items: T[]): T {
 
 class BongoEngine {
   private ctx: AudioContext | null = null;
+  /** This game's channel on the shared mixer; replaces a private context. */
+  private out: GainNode | null = null;
   private bufferLeft: AudioBuffer | null = null;
   private bufferRight: AudioBuffer | null = null;
   private shakerBuffers: AudioBuffer[] = [];
-  private metroFirst: AudioBuffer | null = null;
-  private metroClick: AudioBuffer | null = null;
   private activeShaker: AudioBufferSourceNode | null = null;
   private shakerGain: GainNode | null = null;
-  private metroTimer: ReturnType<typeof setTimeout> | null = null;
-  private metroBeatCount = 0;
-  private metroNextTime = 0;
   private loaded = false;
   private shakersLoaded = false;
   private metroLoaded = false;
 
+  /** Shared context + this game's mixer channel, rather than a private graph. */
+  private attach() {
+    if (!this.out) {
+      this.ctx = audioEngine.context;
+      this.out = audioEngine.channel('games');
+    }
+    return this.out;
+  }
+
   async init() {
     if (this.loaded) return;
-    const AC =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext;
-    this.ctx = new AC();
+    this.attach();
+    // Buffers come from the shared SampleManager: decoded once, on the one
+    // context, and reused by anything else that needs the same file (the
+    // metronome clicks below are also used by Board Choice).
     const [leftBuf, rightBuf] = await Promise.all([
-      fetch(BONGO_LEFT_URL)
-        .then((r) => r.arrayBuffer())
-        .then((b) => this.ctx!.decodeAudioData(b)),
-      fetch(BONGO_RIGHT_URL)
-        .then((r) => r.arrayBuffer())
-        .then((b) => this.ctx!.decodeAudioData(b)),
+      audioEngine.samples.load(BONGO_LEFT_URL),
+      audioEngine.samples.load(BONGO_RIGHT_URL),
     ]);
     this.bufferLeft = leftBuf;
     this.bufferRight = rightBuf;
@@ -97,47 +97,32 @@ class BongoEngine {
   }
 
   async loadShakers() {
-    if (this.shakersLoaded || !this.ctx) return;
+    if (this.shakersLoaded) return;
     this.shakerBuffers = await Promise.all(
-      SHAKER_URLS.map((url) =>
-        fetch(url)
-          .then((r) => r.arrayBuffer())
-          .then((b) => this.ctx!.decodeAudioData(b)),
-      ),
+      SHAKER_URLS.map((url) => audioEngine.samples.load(url)),
     );
     this.shakersLoaded = true;
   }
 
+  /** Decode the shared metronome clicks ahead of the count-in. */
   async loadMetronome() {
-    if (this.metroLoaded || !this.ctx) return;
-    const [first, click] = await Promise.all([
-      fetch(METRO_FIRST_URL)
-        .then((r) => r.arrayBuffer())
-        .then((b) => this.ctx!.decodeAudioData(b)),
-      fetch(METRO_URL)
-        .then((r) => r.arrayBuffer())
-        .then((b) => this.ctx!.decodeAudioData(b)),
-    ]);
-    this.metroFirst = first;
-    this.metroClick = click;
+    if (this.metroLoaded) return;
+    await audioEngine.metronome.preload();
     this.metroLoaded = true;
   }
 
   private playBuffer(buffer: AudioBuffer | null) {
-    if (!this.ctx || !buffer) return;
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-    const source = this.ctx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(this.ctx.destination);
-    source.start();
+    this.playBufferAt(buffer, 0);
   }
 
   private playBufferAt(buffer: AudioBuffer | null, when: number) {
-    if (!this.ctx || !buffer) return;
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-    const source = this.ctx.createBufferSource();
+    if (!buffer) return;
+    const out = this.attach();
+    audioEngine.resume();
+    const source = out.context.createBufferSource();
     source.buffer = buffer;
-    source.connect(this.ctx.destination);
+    source.connect(out);
+    source.onended = () => source.disconnect();
     source.start(when);
   }
 
@@ -153,27 +138,24 @@ class BongoEngine {
   }
 
   playClick(isFirst: boolean) {
-    this.playBuffer(isFirst ? this.metroFirst : this.metroClick);
-  }
-
-  private playClickAt(isFirst: boolean, when: number) {
-    this.playBufferAt(isFirst ? this.metroFirst : this.metroClick, when);
+    audioEngine.metronome.click(undefined, isFirst);
   }
 
   getCtxTime() {
-    return this.ctx?.currentTime ?? 0;
+    return audioEngine.context.currentTime;
   }
 
   playShaker(index: number) {
-    if (!this.ctx || !this.shakersLoaded) return;
+    if (!this.shakersLoaded) return;
     this.stopShaker();
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    const out = this.attach();
+    audioEngine.resume();
     const buffer = this.shakerBuffers[index];
     if (!buffer) return;
-    const gain = this.ctx.createGain();
+    const gain = out.context.createGain();
     gain.gain.value = 0.4;
-    gain.connect(this.ctx.destination);
-    const source = this.ctx.createBufferSource();
+    gain.connect(out);
+    const source = out.context.createBufferSource();
     source.buffer = buffer;
     source.loop = true;
     source.connect(gain);
@@ -182,33 +164,15 @@ class BongoEngine {
     this.shakerGain = gain;
   }
 
+  // The lookahead loop this class used to run is now the engine's — same
+  // two-clock technique, one implementation, shared with every other feature.
   startMetronome() {
-    this.stopMetronome();
-    if (!this.ctx) return;
-    this.metroBeatCount = 0;
-    this.metroNextTime = this.ctx.currentTime;
-    this.scheduleMetro();
-  }
-
-  private scheduleMetro() {
-    if (!this.ctx) return;
-    const LOOKAHEAD_S = 0.1;
-    const INTERVAL_MS = 50;
-    const beatS = 60 / BPM;
-
-    while (this.metroNextTime < this.ctx.currentTime + LOOKAHEAD_S) {
-      this.playClickAt(this.metroBeatCount % 4 === 0, this.metroNextTime);
-      this.metroBeatCount++;
-      this.metroNextTime += beatS;
-    }
-    this.metroTimer = setTimeout(() => this.scheduleMetro(), INTERVAL_MS);
+    this.attach();
+    audioEngine.metronome.start({ bpm: BPM, beatsPerBar: 4 });
   }
 
   stopMetronome() {
-    if (this.metroTimer !== null) {
-      clearTimeout(this.metroTimer);
-      this.metroTimer = null;
-    }
+    audioEngine.metronome.stop();
   }
 
   stopShaker() {
@@ -230,10 +194,12 @@ class BongoEngine {
     }
   }
 
+  /** Release this game's channel. The context is shared — never close it. */
   close() {
     this.stopMetronome();
     this.stopShaker();
-    this.ctx?.close();
+    this.out?.disconnect();
+    this.out = null;
   }
 }
 
@@ -1113,209 +1079,187 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 20,
-        padding: '24px 16px',
-        minHeight: '70vh',
+        height: '100%',
+        width: '100%',
+        position: 'relative',
       }}
     >
-      {/* Title + Score + Lives */}
-      <div style={{ textAlign: 'center' }}>
-        <h1
-          style={{
-            fontSize: 20,
-            fontWeight: 800,
-            letterSpacing: 5,
-            color: '#a78bfa',
-            margin: 0,
-            textTransform: 'uppercase',
-          }}
-        >
-          Foli
-        </h1>
-        <p
-          style={{
-            fontSize: 10,
-            color: 'var(--color-text-dim, #6b7280)',
-            marginTop: 3,
-            letterSpacing: 1.5,
-            textTransform: 'uppercase',
-          }}
-        >
-          Rhythmic recall
-        </p>
-      </div>
-
-      {/* Lives and Score bar */}
-      {phase !== 'loading' && phase !== 'ready' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          {/* Lives as hex icons */}
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-            {Array.from({ length: MAX_LIVES }).map((_, i) => (
-              <svg key={i} width={14} height={14} viewBox="-7 -7 14 14">
-                <polygon
-                  points={hexPts}
-                  fill={i < lives ? '#a78bfa' : 'rgba(255,255,255,0.08)'}
-                  stroke={i < lives ? '#c4b5fd' : 'rgba(255,255,255,0.06)'}
-                  strokeWidth={1}
-                  style={{ transition: 'fill 0.3s, stroke 0.3s' }}
-                />
-              </svg>
-            ))}
-          </div>
-
-          {/* Score */}
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              fontFamily: 'monospace',
-              color: '#ddd6fe',
-              letterSpacing: 1,
-            }}
-          >
-            {score}
-          </span>
-        </div>
-      )}
-
-      {/* Foil drums */}
-      <FoilDrums
-        leftGlow={leftGlow}
-        rightGlow={rightGlow}
-        disabled={!isInputActive}
-        onPressLeft={() => handleHit('left')}
-        onPressRight={() => handleHit('right')}
+      <ArcadeGameHeader
+        title="Foli"
+        stats={[
+          {
+            label: 'Lives',
+            value: (
+              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                {Array.from({ length: MAX_LIVES }).map((_, i) => (
+                  <svg key={i} width={14} height={14} viewBox="-7 -7 14 14">
+                    <polygon
+                      points={hexPts}
+                      fill={i < lives ? '#a78bfa' : 'rgba(255,255,255,0.08)'}
+                      stroke={i < lives ? '#c4b5fd' : 'rgba(255,255,255,0.06)'}
+                      strokeWidth={1}
+                      style={{ transition: 'fill 0.3s, stroke 0.3s' }}
+                    />
+                  </svg>
+                ))}
+              </div>
+            ),
+          },
+          { label: 'Score', value: score },
+        ]}
       />
 
-      {/* Status */}
-      {phase !== 'gameover' && (
-        <div
-          style={{
-            fontSize: 11,
-            fontWeight: 500,
-            minHeight: 16,
-            textAlign: 'center',
-            transition: 'color 0.3s',
-            color:
-              phase === 'success'
-                ? '#22c55e'
-                : phase === 'fail'
-                  ? '#f87171'
-                  : 'var(--color-text-dim, #6b7280)',
-          }}
-        >
-          {statusLabel[phase]}
-        </div>
-      )}
-
-      {/* Rhythm notation */}
-      {(phase === 'listening' || phase === 'input') && sequence.length > 0 && (
-        <RhythmNotation
-          sequence={sequence}
-          matched={matched}
-          barStartTime={barStartTime}
+      <div
+        style={{
+          position: 'relative',
+          flex: '1 1 0%',
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 20,
+          padding: '24px 16px',
+        }}
+      >
+        {/* Foil drums */}
+        <FoilDrums
+          leftGlow={leftGlow}
+          rightGlow={rightGlow}
+          disabled={!isInputActive}
+          onPressLeft={() => handleHit('left')}
+          onPressRight={() => handleHit('right')}
         />
-      )}
 
-      {/* Game Over screen */}
-      {phase === 'gameover' && (
-        <div
-          style={{
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 12,
-            alignItems: 'center',
-          }}
-        >
+        {/* Status */}
+        {phase !== 'gameover' && (
           <div
             style={{
-              fontSize: 16,
-              fontWeight: 800,
-              letterSpacing: 3,
-              color: '#f87171',
-              textTransform: 'uppercase',
+              fontSize: 11,
+              fontWeight: 500,
+              minHeight: 16,
+              textAlign: 'center',
+              transition: 'color 0.3s',
+              color:
+                phase === 'success'
+                  ? '#22c55e'
+                  : phase === 'fail'
+                    ? '#f87171'
+                    : 'var(--color-text-dim, #6b7280)',
             }}
           >
-            Game Over
+            {statusLabel[phase]}
           </div>
+        )}
+
+        {/* Rhythm notation */}
+        {(phase === 'listening' || phase === 'input') &&
+          sequence.length > 0 && (
+            <RhythmNotation
+              sequence={sequence}
+              matched={matched}
+              barStartTime={barStartTime}
+            />
+          )}
+
+        {/* Game Over screen */}
+        {phase === 'gameover' && (
+          <div
+            style={{
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+              alignItems: 'center',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: 800,
+                letterSpacing: 3,
+                color: '#f87171',
+                textTransform: 'uppercase',
+              }}
+            >
+              Game Over
+            </div>
+            <div
+              style={{
+                fontSize: 11,
+                color: 'var(--color-text-dim, #6b7280)',
+              }}
+            >
+              Final Score:{' '}
+              <span
+                style={{
+                  color: '#ddd6fe',
+                  fontWeight: 700,
+                  fontFamily: 'monospace',
+                }}
+              >
+                {score}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Start / Play Again */}
+        {(phase === 'ready' || phase === 'gameover') && (
+          <button
+            onClick={
+              phase === 'ready'
+                ? startGame
+                : () => {
+                    handleReset();
+                  }
+            }
+            style={{
+              padding: '9px 36px',
+              borderRadius: 10,
+              border: `1.5px solid ${phase === 'gameover' ? '#f87171' : '#a78bfa'}`,
+              backgroundColor:
+                phase === 'gameover'
+                  ? 'rgba(248,113,113,0.1)'
+                  : 'rgba(167,139,250,0.14)',
+              color: phase === 'gameover' ? '#fca5a5' : '#ddd6fe',
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: 'pointer',
+              letterSpacing: 2,
+              textTransform: 'uppercase',
+              transition: 'all 0.18s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor =
+                phase === 'gameover'
+                  ? 'rgba(248,113,113,0.2)'
+                  : 'rgba(167,139,250,0.25)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor =
+                phase === 'gameover'
+                  ? 'rgba(248,113,113,0.1)'
+                  : 'rgba(167,139,250,0.14)';
+            }}
+          >
+            {phase === 'ready' ? 'Start' : 'Play Again'}
+          </button>
+        )}
+
+        {/* Loading state */}
+        {phase === 'loading' && (
           <div
             style={{
               fontSize: 11,
               color: 'var(--color-text-dim, #6b7280)',
+              letterSpacing: 1,
             }}
           >
-            Final Score:{' '}
-            <span
-              style={{
-                color: '#ddd6fe',
-                fontWeight: 700,
-                fontFamily: 'monospace',
-              }}
-            >
-              {score}
-            </span>
+            Loading rhythms…
           </div>
-        </div>
-      )}
-
-      {/* Start / Play Again */}
-      {(phase === 'ready' || phase === 'gameover') && (
-        <button
-          onClick={
-            phase === 'ready'
-              ? startGame
-              : () => {
-                  handleReset();
-                }
-          }
-          style={{
-            padding: '9px 36px',
-            borderRadius: 10,
-            border: `1.5px solid ${phase === 'gameover' ? '#f87171' : '#a78bfa'}`,
-            backgroundColor:
-              phase === 'gameover'
-                ? 'rgba(248,113,113,0.1)'
-                : 'rgba(167,139,250,0.14)',
-            color: phase === 'gameover' ? '#fca5a5' : '#ddd6fe',
-            fontSize: 13,
-            fontWeight: 700,
-            cursor: 'pointer',
-            letterSpacing: 2,
-            textTransform: 'uppercase',
-            transition: 'all 0.18s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor =
-              phase === 'gameover'
-                ? 'rgba(248,113,113,0.2)'
-                : 'rgba(167,139,250,0.25)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor =
-              phase === 'gameover'
-                ? 'rgba(248,113,113,0.1)'
-                : 'rgba(167,139,250,0.14)';
-          }}
-        >
-          {phase === 'ready' ? 'Start' : 'Play Again'}
-        </button>
-      )}
-
-      {/* Loading state */}
-      {phase === 'loading' && (
-        <div
-          style={{
-            fontSize: 11,
-            color: 'var(--color-text-dim, #6b7280)',
-            letterSpacing: 1,
-          }}
-        >
-          Loading rhythms…
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

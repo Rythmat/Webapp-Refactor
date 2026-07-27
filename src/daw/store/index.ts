@@ -8,6 +8,7 @@ import { createMidiDeviceSlice, type MidiDeviceSlice } from './midiDeviceSlice';
 import { createPrismSlice, type PrismSlice } from './prismSlice';
 import { createUiSlice, type UiSlice } from './uiSlice';
 import { createMasteringSlice, type MasteringSlice } from './masteringSlice';
+import { createReturnsSlice, type ReturnsSlice } from './returnsSlice';
 import { createMarkersSlice, type MarkersSlice } from './markersSlice';
 import { createAudioIOSlice, type AudioIOSlice } from './audioIOSlice';
 import {
@@ -15,6 +16,7 @@ import {
   type PrismSuggestionSlice,
 } from './prismSuggestionSlice';
 import { createUnisonSlice, type UnisonSlice } from './unisonSlice';
+import { createTutorialSlice, type TutorialSlice } from './tutorialSlice';
 import {
   createMusicIntelligenceSlice,
   type MusicIntelligenceSlice,
@@ -34,11 +36,13 @@ export type AllSlices = TransportSlice &
   PrismSlice &
   UiSlice &
   MasteringSlice &
+  ReturnsSlice &
   MarkersSlice &
   AudioIOSlice &
   PrismSuggestionSlice &
   UnisonSlice &
   MusicIntelligenceSlice &
+  TutorialSlice &
   CollabSlice;
 
 export const useStore = create<AllSlices>()(
@@ -51,11 +55,13 @@ export const useStore = create<AllSlices>()(
       ...createPrismSlice(set, get, api),
       ...createUiSlice(set, get, api),
       ...createMasteringSlice(set, get, api),
+      ...createReturnsSlice(set, get, api),
       ...createMarkersSlice(set, get, api),
       ...createAudioIOSlice(set, get, api),
       ...createPrismSuggestionSlice(set, get, api),
       ...createUnisonSlice(set, get, api),
       ...createMusicIntelligenceSlice(set, get, api),
+      ...createTutorialSlice(set, get, api),
       ...createCollabSlice(set, get, api),
     })),
   ),
@@ -96,6 +102,7 @@ export type {
   PitchEdit,
   AudioClipPitchData,
   AudioInputChannel,
+  AudioMidiSource,
 } from './tracksSlice';
 export type { EffectSlotType } from '@/daw/audio/EffectChain';
 export type {
@@ -117,6 +124,7 @@ export type {
   MasteringStyle,
   StereoFieldMode,
 } from './masteringSlice';
+export type { ReturnsSlice, ReturnBus } from './returnsSlice';
 export type { MarkersSlice, Marker } from './markersSlice';
 export type { AudioIOSlice } from './audioIOSlice';
 export type { PrismSuggestionSlice } from './prismSuggestionSlice';

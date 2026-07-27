@@ -1,10 +1,12 @@
 import { useState, useMemo, useEffect } from 'react';
 import { X, Maximize2, Zap } from 'lucide-react';
 import { useStore } from '@/daw/store';
+import { useShallow } from 'zustand/react/shallow';
 import type {
   TrackEffectState,
   EffectSlotType,
   ReverbType,
+  DuckerParams,
 } from '@/daw/audio/EffectChain';
 import { FX_COLOR, FX_CATEGORY, FX_LABEL } from '@/daw/data/libraryItems';
 import { GraphicEQ } from './GraphicEQ';
@@ -19,6 +21,7 @@ import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { FxMeter } from './FxMeter';
 import { useCompressorMeters } from '@/daw/hooks/useCompressorMeters';
 import { getTrackAudioState } from '@/daw/hooks/usePlaybackEngine';
+import { getReverbManifest, getReverbIrMeta } from '@/daw/audio/reverbIR';
 import {
   BAND_COLORS,
   AutoCheckbox,
@@ -28,6 +31,8 @@ import {
 import { FxBrowser } from './FxBrowser';
 
 // Effects that have a visualizer component
+// The ducker's GR meter is inline in its FxKnobs controls (DuckerControls), so
+// it does not need a pop-out FxVisualizer entry here.
 export const HAS_VIZ = new Set<EffectSlotType>([
   'compressor',
   'gate',
@@ -141,6 +146,26 @@ export function FxBlockIcon({
       return (
         <svg {...props}>
           <polyline points="2,16 6,16 9,8 12,18 15,6 18,16 22,16" />
+        </svg>
+      );
+    case 'multiband':
+      return (
+        <svg {...props}>
+          {/* Three bands, each squeezed from top and bottom (up+down comp) */}
+          <line x1="6" y1="7" x2="6" y2="17" />
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="18" y1="9" x2="18" y2="15" />
+          <polyline points="3,4 6,7 9,4" />
+          <polyline points="3,20 6,17 9,20" />
+          <polyline points="15,4 18,9 21,4" />
+          <polyline points="15,20 18,15 21,20" />
+        </svg>
+      );
+    case 'ducker':
+      return (
+        <svg {...props}>
+          {/* A pumping envelope: level dips on each trigger, then recovers */}
+          <path d="M2,8 L5,8 L6,17 L9,9 L10,17 L13,9 L14,17 L17,9 L18,8 L22,8" />
         </svg>
       );
   }
@@ -336,7 +361,11 @@ export function FxChainRow({
           };
           const enabled = effectState?.enabled ?? false;
           return (
-            <div key={slot} className="flex shrink-0 flex-col items-center">
+            <div
+              key={slot}
+              data-tutorial-id={`fx-slot-${slot}`}
+              className="flex shrink-0 flex-col items-center"
+            >
               <div
                 onClick={() => onSelect(slot)}
                 className="relative flex shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl"
@@ -577,6 +606,23 @@ export function FxKnobs({
   const pres = effects.presence;
   const deess = effects['de-esser'];
   const sat = effects.saturator;
+  const mb = effects.multiband;
+
+  // Load the reverb IR manifest once so the DECAY knob can cap itself at the
+  // active IR's native length (real IRs can only be shortened, not lengthened).
+  const [irManifestReady, setIrManifestReady] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void getReverbManifest().then(() => {
+      if (alive) setIrManifestReady(true);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const reverbDecayMax =
+    (irManifestReady && getReverbIrMeta(effects.reverb.type)?.decaySeconds) ||
+    10;
 
   switch (slot) {
     case 'compressor':
@@ -898,7 +944,7 @@ export function FxKnobs({
             label="DECAY"
             value={effects.reverb.decay}
             min={0.1}
-            max={10}
+            max={reverbDecayMax}
             step={0.1}
             size={ks}
             arcColor={color}
@@ -1149,7 +1195,260 @@ export function FxKnobs({
           />
         </>
       );
+
+    case 'multiband':
+      return (
+        <>
+          <RotaryKnob
+            label="DEPTH"
+            value={mb.depth}
+            min={0}
+            max={1}
+            step={0.01}
+            size={ks}
+            arcColor={color}
+            formatValue={(v) => `${Math.round(v * 100)}%`}
+            onChange={(v) =>
+              onUpdate(trackId, { multiband: { ...mb, depth: v } })
+            }
+          />
+          <RotaryKnob
+            label="TIME"
+            value={mb.time}
+            min={0}
+            max={1}
+            step={0.01}
+            size={ks}
+            arcColor={color}
+            formatValue={(v) => `${Math.round(v * 100)}%`}
+            onChange={(v) =>
+              onUpdate(trackId, { multiband: { ...mb, time: v } })
+            }
+          />
+          <RotaryKnob
+            label="LOW"
+            value={mb.lowGain}
+            min={-12}
+            max={12}
+            step={0.5}
+            size={ks}
+            arcColor={color}
+            formatValue={(v) => `${v > 0 ? '+' : ''}${v.toFixed(1)}dB`}
+            onChange={(v) =>
+              onUpdate(trackId, { multiband: { ...mb, lowGain: v } })
+            }
+          />
+          <RotaryKnob
+            label="MID"
+            value={mb.midGain}
+            min={-12}
+            max={12}
+            step={0.5}
+            size={ks}
+            arcColor={color}
+            formatValue={(v) => `${v > 0 ? '+' : ''}${v.toFixed(1)}dB`}
+            onChange={(v) =>
+              onUpdate(trackId, { multiband: { ...mb, midGain: v } })
+            }
+          />
+          <RotaryKnob
+            label="HIGH"
+            value={mb.highGain}
+            min={-12}
+            max={12}
+            step={0.5}
+            size={ks}
+            arcColor={color}
+            formatValue={(v) => `${v > 0 ? '+' : ''}${v.toFixed(1)}dB`}
+            onChange={(v) =>
+              onUpdate(trackId, { multiband: { ...mb, highGain: v } })
+            }
+          />
+          <RotaryKnob
+            label="LO XOVER"
+            value={mb.crossoverLow}
+            min={40}
+            max={500}
+            step={5}
+            size={ks}
+            arcColor={color}
+            formatValue={(v) => `${Math.round(v)}Hz`}
+            onChange={(v) =>
+              onUpdate(trackId, { multiband: { ...mb, crossoverLow: v } })
+            }
+          />
+          <RotaryKnob
+            label="HI XOVER"
+            value={mb.crossoverHigh}
+            min={800}
+            max={8000}
+            step={50}
+            size={ks}
+            arcColor={color}
+            formatValue={(v) =>
+              v >= 1000 ? `${(v / 1000).toFixed(1)}kHz` : `${Math.round(v)}Hz`
+            }
+            onChange={(v) =>
+              onUpdate(trackId, { multiband: { ...mb, crossoverHigh: v } })
+            }
+          />
+        </>
+      );
+
+    case 'ducker':
+      return (
+        <DuckerControls
+          trackId={trackId}
+          ducker={effects.ducker}
+          onUpdate={onUpdate}
+          color={color}
+          knobSize={ks}
+        />
+      );
   }
+}
+
+// ── Ducker (sidechain) controls: key-source dropdown + knobs + live GR meter ──
+
+function useDuckReduction(trackId: string): number {
+  const [gr, setGr] = useState(0);
+  useEffect(() => {
+    // Not a real track (mastering/return racks) → no live reduction to read.
+    if (trackId === 'master' || trackId.startsWith('return-')) return;
+    let raf = 0;
+    let last = 0;
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      const now = performance.now();
+      if (now - last < 50) return; // ~20fps
+      last = now;
+      const engine = getTrackAudioState(trackId)?.trackEngine;
+      // reduction is ≤ 0 dB; map |dB| over 0–24 to 0–100 for the meter.
+      const db = engine ? Math.abs(engine.getDuckReduction()) : 0;
+      setGr((prev) => {
+        const inst = Math.min(100, (db / 24) * 100);
+        return inst > prev ? inst : prev * 0.9; // peak-hold decay
+      });
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [trackId]);
+  return gr;
+}
+
+function DuckerControls({
+  trackId,
+  ducker,
+  onUpdate,
+  color,
+  knobSize,
+}: {
+  trackId: string;
+  ducker: DuckerParams;
+  onUpdate: (trackId: string, effects: Partial<TrackEffectState>) => void;
+  color: string;
+  knobSize: number;
+}) {
+  // Candidate key tracks = every OTHER track (no self-sidechain). Select flat
+  // PRIMITIVES (id, name interleaved) so useShallow stays stable — an array of
+  // fresh {id,name} objects fails shallow equality every render and infinite-
+  // loops.
+  const keyMeta = useStore(
+    useShallow((s) =>
+      s.tracks.filter((t) => t.id !== trackId).flatMap((t) => [t.id, t.name]),
+    ),
+  );
+  const keyTracks: Array<{ id: string; name: string }> = [];
+  for (let i = 0; i < keyMeta.length; i += 2) {
+    keyTracks.push({ id: keyMeta[i], name: keyMeta[i + 1] });
+  }
+  const gr = useDuckReduction(trackId);
+  const set = (patch: Partial<DuckerParams>) =>
+    onUpdate(trackId, { ducker: { ...ducker, ...patch } });
+
+  return (
+    <div className="flex items-center gap-4">
+      <div className="flex flex-col items-center gap-1">
+        <span
+          className="text-[8px] uppercase tracking-wider"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
+          Key
+        </span>
+        <select
+          data-tutorial-id="ducker-key-select"
+          // Fall back to "None" if the key points at a track that is gone (e.g.
+          // deleted mid-session) so the control never renders blank/uncontrolled.
+          value={
+            keyTracks.some((t) => t.id === ducker.keyTrackId)
+              ? ducker.keyTrackId!
+              : ''
+          }
+          onChange={(e) => set({ keyTrackId: e.target.value || null })}
+          className="cursor-pointer rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] outline-none"
+          style={{ color: 'var(--color-text)', maxWidth: 110 }}
+        >
+          <option value="" style={{ backgroundColor: 'var(--color-bg)' }}>
+            None
+          </option>
+          {keyTracks.map((t) => (
+            <option
+              key={t.id}
+              value={t.id}
+              style={{ backgroundColor: 'var(--color-bg)' }}
+            >
+              {t.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <RotaryKnob
+        label="THRESHOLD"
+        value={ducker.threshold}
+        min={-60}
+        max={0}
+        step={1}
+        size={knobSize}
+        arcColor={color}
+        formatValue={(v) => `${Math.round(v)}dB`}
+        onChange={(v) => set({ threshold: v })}
+      />
+      <RotaryKnob
+        label="AMOUNT"
+        value={ducker.amount}
+        min={0}
+        max={1}
+        step={0.01}
+        size={knobSize}
+        arcColor={color}
+        formatValue={(v) => `${Math.round(v * 100)}%`}
+        onChange={(v) => set({ amount: v })}
+      />
+      <RotaryKnob
+        label="ATTACK"
+        value={ducker.attack}
+        min={0.001}
+        max={0.2}
+        step={0.001}
+        size={knobSize}
+        arcColor={color}
+        formatValue={(v) => `${Math.round(v * 1000)}ms`}
+        onChange={(v) => set({ attack: v })}
+      />
+      <RotaryKnob
+        label="RELEASE"
+        value={ducker.release}
+        min={0.02}
+        max={1}
+        step={0.01}
+        size={knobSize}
+        arcColor={color}
+        formatValue={(v) => `${Math.round(v * 1000)}ms`}
+        onChange={(v) => set({ release: v })}
+      />
+      <FxMeter level={gr} label="GR" color="var(--color-accent)" height={72} />
+    </div>
+  );
 }
 
 // ── Visualizer ──────────────────────────────────────────────────────────

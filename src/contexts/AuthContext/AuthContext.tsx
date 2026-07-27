@@ -11,10 +11,13 @@ import {
 import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import SuperJSON from 'superjson';
+import { audioEngine } from '@/audio/AudioEngine';
+import { APP_CLIPS } from '@/audio/samples/appClips';
 import {
   getCurrentAppSessionId,
   setCurrentAppSessionId,
 } from '@/auth/app-session-store';
+import { DEV_AUTH_BYPASS, DEV_BYPASS_AUTH_DATA } from '@/auth/devBypass';
 import {
   onSessionError,
   type SessionErrorPayload,
@@ -449,9 +452,10 @@ export const AuthContextProvider = ({
     didPlayLoginJingleRef.current = true;
     sessionStorage.removeItem('auth0:interactive-login-callback');
 
-    const welcomeAudio = new Audio('/welcome.mp3');
-    welcomeAudio.volume = 0.5;
-    void welcomeAudio.play().catch(() => undefined);
+    audioEngine.playAudioClip(APP_CLIPS.welcome, {
+      gain: 0.5,
+      waitForLoad: true,
+    });
   }, [appUser, isBootstrapLoading]);
 
   useEffect(() => {
@@ -680,5 +684,20 @@ export const AuthContextProvider = ({
     signUpAsStudent,
   ]);
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  // DEV-only: when the bypass flag is set, force an authenticated premium
+  // session (keeping the real action callbacks). No-op in production — the
+  // guard folds to false and this branch is eliminated (see devBypass).
+  const providedValue = useMemo(
+    () =>
+      DEV_AUTH_BYPASS && DEV_BYPASS_AUTH_DATA
+        ? { ...value, ...DEV_BYPASS_AUTH_DATA }
+        : value,
+    [value],
+  );
+
+  return (
+    <AuthContext.Provider value={providedValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

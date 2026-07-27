@@ -1,3 +1,4 @@
+import { AudioEngineProvider } from '@/audio/react/AudioEngineProvider';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -14,19 +15,23 @@ export const AppContext = ({ children }: { children: React.ReactNode }) => {
     <>
       <NavigationContextProvider>
         <GlobalMusicAtlasContext>
-          <AuthContextProvider>
-            <TelemetryProvider>
-              <MusicAtlasContextProvider>
-                <PlaybackProvider>
-                  <PianoProvider>
-                    <SidebarProvider>
-                      <TooltipProvider>{children}</TooltipProvider>
-                    </SidebarProvider>
-                  </PianoProvider>
-                </PlaybackProvider>
-              </MusicAtlasContextProvider>
-            </TelemetryProvider>
-          </AuthContextProvider>
+          {/* The engine itself is a module singleton (see AudioEngine.ts), so
+              it survives this provider remounting on cross-branch navigation. */}
+          <AudioEngineProvider>
+            <AuthContextProvider>
+              <TelemetryProvider>
+                <MusicAtlasContextProvider>
+                  <PlaybackProvider>
+                    <PianoProvider>
+                      <SidebarProvider>
+                        <TooltipProvider>{children}</TooltipProvider>
+                      </SidebarProvider>
+                    </PianoProvider>
+                  </PlaybackProvider>
+                </MusicAtlasContextProvider>
+              </TelemetryProvider>
+            </AuthContextProvider>
+          </AudioEngineProvider>
         </GlobalMusicAtlasContext>
       </NavigationContextProvider>
       <Toaster />

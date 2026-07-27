@@ -1,5 +1,6 @@
 /** Where an announcement originates. Drives the icon + accent in the UI. */
 export type AnnouncementSource =
+  | 'live_session'
   | 'teacher'
   | 'challenge'
   | 'app_update'

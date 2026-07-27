@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router';
+import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { PrismModeSlug } from '@/hooks/data';
 import { usePrismMode } from '@/hooks/data/prism/usePrismMode';
 import {
@@ -107,6 +108,10 @@ const LessonContainerInner = ({
 
   const { start: startInput, stop: stopInput } = useLearnInputStable();
 
+  // Classroom app-route bridge: inert unless this lesson was opened from a live
+  // slide (MSP launch params present). Fires once when the lesson completes.
+  const { reportCompletion } = useMspModuleCompletion();
+
   useEffect(() => {
     startInput();
     return () => stopInput();
@@ -133,6 +138,7 @@ const LessonContainerInner = ({
           rootMidi={keyOption.midi}
           scaleMidis={scaleMidis}
           startAtActivityKey={startAtActivityKey}
+          onComplete={reportCompletion}
         />
       </div>
     </div>

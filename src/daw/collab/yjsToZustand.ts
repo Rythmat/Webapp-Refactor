@@ -22,6 +22,8 @@ import {
   yMapToMarker,
 } from './YjsDocManager';
 import { ORIGIN_LOCAL } from './types';
+import { DEFAULT_EFFECTS } from '@/daw/audio/EffectChain';
+import { restoreReturns } from '@/daw/persistence/SessionSerializer';
 
 /** Callback type for pushing state into the Zustand store. */
 type SetState = (partial: Partial<AllSlices>) => void;
@@ -255,12 +257,21 @@ export function observeYjsAndPushToStore(
               );
               break;
             case 'effects':
-              (patch as Record<string, unknown>).masteringEffects = JSON.parse(
-                value as string,
-              );
+              // Merge over defaults so an older peer's mastering doc missing a
+              // newer effect slot (e.g. multiband) still yields a complete
+              // TrackEffectState — else EffectChain.update crashes on it.
+              (patch as Record<string, unknown>).masteringEffects = {
+                ...structuredClone(DEFAULT_EFFECTS),
+                ...JSON.parse(value as string),
+              };
               break;
             case 'masterVolume':
               (patch as Record<string, unknown>).masterVolume = value;
+              break;
+            case 'returns':
+              (patch as Record<string, unknown>).returns = restoreReturns(
+                JSON.parse(value as string),
+              );
               break;
           }
         }
@@ -390,11 +401,23 @@ export function pullDocIntoStore(
     fxChain: ['masteringFxChain', true],
     effects: ['masteringEffects', true],
     masterVolume: ['masterVolume', false],
+    returns: ['returns', true],
   };
   for (const [docKey, [storeKey, isJson]] of Object.entries(masteringMap)) {
     if (!yMastering.has(docKey)) continue;
     const value = yMastering.get(docKey);
-    patch[storeKey] = isJson ? JSON.parse(value as string) : value;
+    const parsed = isJson ? JSON.parse(value as string) : value;
+    // Backfill effect slots a cross-version peer may omit (see observer above).
+    if (storeKey === 'masteringEffects') {
+      patch[storeKey] = {
+        ...structuredClone(DEFAULT_EFFECTS),
+        ...(parsed as object),
+      };
+    } else if (storeKey === 'returns') {
+      patch[storeKey] = restoreReturns(parsed as never);
+    } else {
+      patch[storeKey] = parsed;
+    }
   }
 
   // ── Lead sheet ──

@@ -1,40 +1,44 @@
-// ── Jam SoundFont Engine ──────────────────────────────────────────────────
-// Self-contained SpessaSynth instance for the Jam Room.
-// Independent from the DAW's SoundFontAdapter — connects directly to
-// AudioContext.destination with simple channel-based note routing.
+// ── Jam SoundFont (compatibility layer) ──────────────────────────────────────
+// This module used to own a SpessaSynth instance, an AudioContext, a master
+// gain and a channel allocator. All of that now lives in the shared engine's
+// SoundFontInstrument — one GM voice for the whole application.
 //
-// Channel allocation:
-//   0     = local player (melodic)
-//   1-8   = remote players (allocated on demand)
-//   9     = GM drums (shared)
+// The exported API is unchanged so the five features built on it (Jam Room,
+// Chroma, Constellations, Chord Press, Major Arcanum) migrated in one step
+// without touching a single call site. What remains here is the Jam Room's
+// channel *policy* — which participant gets which channel — which is domain
+// knowledge, not audio infrastructure.
+//
+// New code should prefer the engine directly:
+//   audioEngine.loadInstrument('gm-soundfont')
+//   audioEngine.playNote('gm-soundfont', note, velocity, { channel })
 
-import type { WorkletSynthesizer } from 'spessasynth_lib';
+import { audioEngine } from '@/audio/AudioEngine';
+import { instrumentManager } from '@/audio/instruments/InstrumentManager';
+import {
+  SOUNDFONT_CHANNELS,
+  type SoundFontInstrument,
+} from '@/audio/instruments/SoundFontInstrument';
 
-// ── Singleton state ──────────────────────────────────────────────────────
+const INSTRUMENT_ID = 'gm-soundfont' as const;
 
-let synth: WorkletSynthesizer | null = null;
-let synthReady = false;
-let initPromise: Promise<void> | null = null;
-let audioCtx: AudioContext | null = null;
+/** The instrument instance — constructed on demand, never null after this. */
+function synth(): SoundFontInstrument {
+  return instrumentManager.instance(INSTRUMENT_ID) as SoundFontInstrument;
+}
 
-// Channel management
-const channelMap = new Map<string, number>(); // userId → channel
-let nextRemoteChannel = 1;
+/** The instance only if it can sound right now; undefined while loading. */
+function readySynth(): SoundFontInstrument | undefined {
+  return instrumentManager.peek(INSTRUMENT_ID) as
+    | SoundFontInstrument
+    | undefined;
+}
 
-const LOCAL_CHANNEL = 0;
-const DRUM_CHANNEL = 9;
-const MAX_REMOTE_CHANNEL = 8;
-const DRONE_CHANNEL = 10; // dedicated channel for sustained drones/pads
-const ACCENT_CHANNEL = 11; // dedicated channel for short accent/sparkle notes
+// ── Public API ───────────────────────────────────────────────────────────────
 
-// ── Public API ───────────────────────────────────────────────────────────
-
-/** Initialize the shared SpessaSynth worklet and load the GM soundfont. */
+/** Initialize the shared GM synth. Idempotent; safe to call from anywhere. */
 export async function initJamSynth(): Promise<void> {
-  if (!initPromise) {
-    initPromise = doInit();
-  }
-  return initPromise;
+  await audioEngine.loadInstrument(INSTRUMENT_ID);
 }
 
 /** Play a note on a channel. */
@@ -43,20 +47,17 @@ export function jamNoteOn(
   note: number,
   velocity: number,
 ): void {
-  if (!synth || !synthReady) return;
-  synth.noteOn(channel, note, velocity);
+  audioEngine.playNote(INSTRUMENT_ID, note, velocity, { channel });
 }
 
 /** Release a note on a channel. */
 export function jamNoteOff(channel: number, note: number): void {
-  if (!synth || !synthReady) return;
-  synth.noteOff(channel, note);
+  audioEngine.stopNote(INSTRUMENT_ID, note, { channel });
 }
 
 /** Change the GM program (instrument) on a channel. */
 export function jamProgramChange(channel: number, program: number): void {
-  if (!synth || !synthReady) return;
-  synth.programChange(channel, program);
+  readySynth()?.programChange(channel, program);
 }
 
 /** Change a MIDI controller value on a channel (e.g. CC7 = channel volume). */
@@ -65,121 +66,70 @@ export function jamControllerChange(
   controller: number,
   value: number,
 ): void {
-  if (!synth || !synthReady) return;
-  synth.controllerChange(
-    channel,
-    controller as Parameters<WorkletSynthesizer['controllerChange']>[1],
-    value,
-  );
-}
-
-/** Get the local player's channel (always 0). */
-export function getLocalChannel(): number {
-  return LOCAL_CHANNEL;
-}
-
-/** Get the GM drums channel (always 9). */
-export function getDrumChannel(): number {
-  return DRUM_CHANNEL;
-}
-
-/** Get the dedicated drone/pad channel (always 10). */
-export function getDroneChannel(): number {
-  return DRONE_CHANNEL;
-}
-
-/** Get the dedicated accent/sparkle channel (always 11). */
-export function getAccentChannel(): number {
-  return ACCENT_CHANNEL;
+  readySynth()?.controllerChange(channel, controller, value);
 }
 
 /**
- * Allocate (or retrieve) a channel for a remote player.
- * Returns the assigned channel number.
+ * Set the output level (0–1) of the GM synth. Persists across (re)loads and
+ * applies immediately when it is already running.
  */
+export function setJamMasterVolume(v: number): void {
+  synth().setVolume(v);
+}
+
+/** Get the current output level (0–1). */
+export function getJamMasterVolume(): number {
+  return synth().getVolume();
+}
+
+/** Resume the audio context (call from a user gesture). */
+export function resumeJamSynth(): void {
+  audioEngine.resume();
+}
+
+/** The local player's channel (always 0). */
+export function getLocalChannel(): number {
+  return SOUNDFONT_CHANNELS.local;
+}
+
+/** The GM drums channel (always 9). */
+export function getDrumChannel(): number {
+  return SOUNDFONT_CHANNELS.drums;
+}
+
+/** The dedicated drone/pad channel (always 10). */
+export function getDroneChannel(): number {
+  return SOUNDFONT_CHANNELS.drone;
+}
+
+/** The dedicated accent/sparkle channel (always 11). */
+export function getAccentChannel(): number {
+  return SOUNDFONT_CHANNELS.accent;
+}
+
+/** Allocate (or retrieve) a channel for a remote player. */
 export function allocateChannel(userId: string): number {
-  const existing = channelMap.get(userId);
-  if (existing !== undefined) return existing;
-
-  // Wrap around if we run out of channels (skip 9 = drums)
-  let ch = nextRemoteChannel;
-  if (ch === DRUM_CHANNEL) ch = nextRemoteChannel = DRUM_CHANNEL + 1;
-  if (ch > MAX_REMOTE_CHANNEL && ch < DRUM_CHANNEL) {
-    // All 1-8 used, wrap around (oldest remote gets overwritten)
-    ch = 1;
-    nextRemoteChannel = 2;
-  } else {
-    nextRemoteChannel = ch + 1;
-  }
-
-  channelMap.set(userId, ch);
-  return ch;
+  return synth().leaseChannel(userId);
 }
 
-/** Release a remote player's channel. */
+/** Release a remote player's channel, silencing anything it still holds. */
 export function releaseChannel(userId: string): void {
-  const ch = channelMap.get(userId);
-  if (ch !== undefined && synth && synthReady) {
-    synth.controllerChange(ch, 123, 0); // all notes off
-  }
-  channelMap.delete(userId);
+  synth().releaseChannel(userId);
 }
 
-/** Whether the synth is initialized and ready. */
+/** Whether the synth is loaded and ready. */
 export function isJamSynthReady(): boolean {
-  return synthReady;
+  return instrumentManager.isReady(INSTRUMENT_ID);
 }
 
-/** Tear down the synth (on unmount). */
+/**
+ * Tear down the synth.
+ *
+ * Note: the instrument is now shared application-wide, so this silences it for
+ * every feature, not just the Jam Room. Nothing calls it today; it is kept for
+ * API compatibility and should be treated as a panic button rather than an
+ * unmount hook.
+ */
 export function disposeJamSynth(): void {
-  if (synth) {
-    for (let ch = 0; ch < 16; ch++) {
-      synth.controllerChange(ch, 123, 0);
-    }
-    synth.disconnect();
-  }
-  synth = null;
-  synthReady = false;
-  initPromise = null;
-  audioCtx = null;
-  channelMap.clear();
-  nextRemoteChannel = 1;
-}
-
-// ── Init logic ───────────────────────────────────────────────────────────
-
-async function doInit(): Promise<void> {
-  // Create or reuse a native AudioContext
-  audioCtx = new AudioContext();
-  if (audioCtx.state === 'suspended') {
-    await audioCtx.resume();
-  }
-
-  // Load AudioWorklet processor
-  await audioCtx.audioWorklet.addModule(
-    '/daw-assets/spessasynth_processor.min.js',
-  );
-
-  // Create synth
-  const { WorkletSynthesizer } = await import('spessasynth_lib');
-  synth = new WorkletSynthesizer(audioCtx);
-
-  // Wait for synth to be ready
-  await (synth as any).isReady;
-
-  // Fetch and load the GM soundfont
-  const sfResponse = await fetch('/daw-assets/GeneralUser_GS.sf2');
-  if (!sfResponse.ok) {
-    throw new Error(`[JamSoundFont] SF2 fetch failed: ${sfResponse.status}`);
-  }
-  const sfData = await sfResponse.arrayBuffer();
-  await (synth as any).soundBankManager.addSoundBank(sfData, 'gm');
-
-  // Connect synth output to speakers
-  synth.connect(audioCtx.destination);
-
-  // Default: Acoustic Grand Piano on local channel
-  synth.programChange(LOCAL_CHANNEL, 0);
-
-  synthReady = true;
+  synth().dispose();
 }

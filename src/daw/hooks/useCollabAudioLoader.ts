@@ -15,17 +15,28 @@
 
 import { useEffect } from 'react';
 import { useStore } from '@/daw/store';
-import { loadPendingClipAudio } from '@/lib/studio-assets/load-audio';
+import {
+  loadPendingClipAudio,
+  loadPendingSamplerSamples,
+} from '@/lib/studio-assets/load-audio';
 
 export function useCollabAudioLoader(token: string | null): void {
   const tracks = useStore((s) => s.tracks);
 
   useEffect(() => {
-    if (!token) return;
-    // Only walk + download when something is actually missing; loadPendingClipAudio
-    // itself re-checks and guards, this just avoids a needless microtask otherwise.
-    const hasPending = tracks.some((t) => t.audioClips.some((c) => c.assetId));
-    if (!hasPending) return;
-    void loadPendingClipAudio(token);
+    // Only walk + download when something is actually missing; the loaders
+    // re-check and guard themselves, this just avoids a needless microtask.
+    if (token) {
+      const hasPending = tracks.some((t) =>
+        t.audioClips.some((c) => c.assetId),
+      );
+      if (hasPending) void loadPendingClipAudio(token);
+    }
+    // Sampler one-shots: bundled (sourceUrl) samples load without a token,
+    // uploaded ones need it — the loader sorts that out per track.
+    const hasPendingSample = tracks.some(
+      (t) => t.samplerSample && (t.samplerSample.sourceUrl || token),
+    );
+    if (hasPendingSample) void loadPendingSamplerSamples(token);
   }, [tracks, token]);
 }

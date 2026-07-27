@@ -117,6 +117,18 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     return this.chordAnalyserNode;
   }
 
+  /**
+   * Clean instrument signal for pitch/MIDI detection: the post-channel-select
+   * gain node, tapped BEFORE the pedal chain (overdrive/amp sim destroy pitch
+   * tracking). Returns null until an input device is attached via setDevice().
+   * Used by the Guitar/Bass-to-MIDI pipeline (NodeTapCapture) — this is the same
+   * signal the chord analyser reads, but the raw node so detectors can build
+   * their own multi-resolution analysers off it.
+   */
+  getPitchDetectSourceNode(): AudioNode | null {
+    return this.channelGain;
+  }
+
   dispose(): void {
     this.stopRecordingStream();
     this.stopStream();

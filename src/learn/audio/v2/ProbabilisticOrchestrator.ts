@@ -25,15 +25,71 @@ import { NoteHMM } from './NoteHMM';
 import { ObservationModel } from './ObservationModel';
 import { OnsetStream } from './OnsetStream';
 import { PianoTemplates } from './PianoTemplates';
-import { StreamingAudioCapture } from './StreamingAudioCapture';
+import { PolyphonicNoteTracker } from './PolyphonicNoteTracker';
+import type { StreamingCaptureLike } from './StreamingAudioCapture';
 import { TransitionMatrix } from './TransitionMatrix';
-import { SILENCE_STATE, type DetectionMode, type TrackedNote } from './types';
+import {
+  PIANO_MIN_FREQ,
+  PIANO_MAX_FREQ,
+  freqToMidi,
+  SILENCE_STATE,
+  type DetectionMode,
+  type TrackedNote,
+  type OnsetEvent,
+} from './types';
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
 export interface OrchestratorCallbacks {
   onNoteOn?: (event: MidiNoteEvent) => void;
   onNoteOff?: (event: MidiNoteEvent) => void;
+}
+
+/**
+ * Per-instrument tuning for the detection engine. Defaults reproduce the
+ * piano behavior Learn relies on (so omitting options is a no-op change);
+ * the Studio's Guitar/Bass-to-MIDI feature passes guitar/bass ranges + FFT
+ * sizes here.
+ */
+export interface OrchestratorOptions {
+  minFreq?: number;
+  maxFreq?: number;
+  fastFftSize?: number;
+  hiResFftSize?: number;
+  /** Skip the basic-pitch ML peer (saves CPU/latency for mono instruments). */
+  disableMl?: boolean;
+  /**
+   * Use the set-valued PolyphonicNoteTracker for polyphonic mode (Studio
+   * guitar chords → multiple simultaneous MIDI notes). When false (default),
+   * polyphonic mode keeps the original NMF→HMM single-note path so the Learn
+   * section's behavior is unchanged.
+   */
+  usePolyTracker?: boolean;
+  /**
+   * Monophonic path only: re-fire a held note (noteOff+noteOn) when a fresh
+   * spectral-flux onset arrives while the same pitch continues, so repeated
+   * same-pitch articulations (basslines/riffs) aren't silently dropped. Default
+   * false → the shared NoteHMM/Learn path is byte-identical.
+   */
+  retriggerOnOnset?: boolean;
+  /**
+   * Decimate the hi-res YIN stream: recompute CMNDF only every Nth tick and
+   * reuse the last distribution otherwise. Default 1 (every tick) keeps Learn
+   * bit-for-bit; the Studio mono path raises it (the 171ms window can't update
+   * faster than a few Hz, so this is free accuracy-wise and a big CPU win).
+   */
+  hiResSkipFactor?: number;
+}
+
+interface ResolvedOptions {
+  minFreq: number;
+  maxFreq: number;
+  fastFftSize: number;
+  hiResFftSize: number;
+  disableMl: boolean;
+  usePolyTracker: boolean;
+  retriggerOnOnset: boolean;
+  hiResSkipFactor: number;
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────
@@ -44,11 +100,27 @@ const THROTTLE_MS = 25;
 /** Minimum confidence for profiling (only observe high-quality detections). */
 const PROFILING_CONFIDENCE = 0.8;
 
+/**
+ * How long a basic-pitch ML note set stays usable in the Studio poly path.
+ * The ML re-infers roughly every ~256ms, so this must stay above that (or ML
+ * is nulled every frame), but well below the old 1500ms — a released string
+ * lingers in ML's activeKeys until the next inference, so a large window let
+ * chords hang up to ~1.5s. ~450ms caps the hang at ~1/3 while keeping ML.
+ * Studio-only (this path is gated behind usePolyTracker).
+ */
+const POLY_ML_STALENESS_MS = 450;
+
+/** Mono re-articulation: min gap (ms) between accepted spectral-flux onsets, so
+ *  one pluck = one re-fire (a transient can exceed the flux threshold for a few
+ *  frames). Only used when retriggerOnOnset is enabled (Studio mono). */
+const MONO_REARTICULATION_MS = 70;
+
 // ── Class ─────────────────────────────────────────────────────────────────
 
 export class ProbabilisticOrchestrator {
-  private capture: StreamingAudioCapture;
+  private capture: StreamingCaptureLike;
   private mode: DetectionMode;
+  private opts: ResolvedOptions;
 
   // Layer 1: Multi-resolution input
   private onsetStream: OnsetStream;
@@ -57,10 +129,16 @@ export class ProbabilisticOrchestrator {
   private nmfDetector: NMFDetector;
   private pianoTemplates: PianoTemplates;
 
-  // Layer 2: Bayesian tracker
+  // Layer 2: Bayesian tracker (monophonic path)
   private observationModel: ObservationModel;
   private noteHMM: NoteHMM;
   private transitionMatrix: TransitionMatrix;
+
+  // Polyphonic path (set-valued note tracker)
+  private polyTracker: PolyphonicNoteTracker;
+
+  // performance.now() of the last accepted mono re-articulation onset.
+  private lastArticulationTs = 0;
 
   // Layer 4: ML peer
   private mlPeer: BasicPitchPeer;
@@ -89,20 +167,47 @@ export class ProbabilisticOrchestrator {
   private lastNote: number | null = null;
 
   constructor(
-    capture: StreamingAudioCapture,
+    capture: StreamingCaptureLike,
     mode: DetectionMode = 'monophonic',
+    options: OrchestratorOptions = {},
   ) {
     this.capture = capture;
     this.mode = mode;
+    this.opts = {
+      minFreq: options.minFreq ?? PIANO_MIN_FREQ,
+      maxFreq: options.maxFreq ?? PIANO_MAX_FREQ,
+      fastFftSize: options.fastFftSize ?? 2048,
+      hiResFftSize: options.hiResFftSize ?? 8192,
+      disableMl: options.disableMl ?? false,
+      usePolyTracker: options.usePolyTracker ?? false,
+      retriggerOnOnset: options.retriggerOnOnset ?? false,
+      hiResSkipFactor: options.hiResSkipFactor ?? 1,
+    };
 
-    // Initialize Layer 1
+    // Initialize Layer 1 (assume 48kHz for now — reconfigured on start()).
     this.onsetStream = new OnsetStream(512);
-    this.fastPitchStream = new FastPitchStream(48000, 2048);
-    this.hiResPitchStream = new HiResPitchStream(48000, 8192);
+    this.fastPitchStream = new FastPitchStream(
+      48000,
+      this.opts.fastFftSize,
+      this.opts.minFreq,
+      this.opts.maxFreq,
+    );
+    this.hiResPitchStream = new HiResPitchStream(
+      48000,
+      this.opts.hiResFftSize,
+      this.opts.minFreq,
+      this.opts.maxFreq,
+    );
 
-    // Templates + NMF (assume 48kHz, 8192 FFT for now — will reconfigure on start)
-    this.pianoTemplates = new PianoTemplates(48000, 8192);
+    // Templates + NMF (reconfigured for the real sample rate on start()).
+    this.pianoTemplates = new PianoTemplates(48000, this.opts.hiResFftSize);
     this.nmfDetector = new NMFDetector(this.pianoTemplates);
+
+    // Polyphonic tracker gated to this instrument's MIDI range.
+    this.polyTracker = new PolyphonicNoteTracker(
+      freqToMidi(this.opts.minFreq),
+      freqToMidi(this.opts.maxFreq),
+    );
 
     // Initialize Layer 2
     this.transitionMatrix = new TransitionMatrix();
@@ -143,6 +248,7 @@ export class ProbabilisticOrchestrator {
 
     this.noteHMM.reset();
     this.nmfDetector.reset();
+    this.polyTracker.reset();
   }
 
   /** Set key context for diatonic priors in the HMM. */
@@ -170,19 +276,31 @@ export class ProbabilisticOrchestrator {
     if (this.rafId) return;
     this.lastTickTime = 0;
 
-    // Reconfigure templates for actual sample rate
+    // Reconfigure templates + streams for the actual sample rate.
     const ctx = this.capture.getAudioContext();
     if (ctx) {
       const sr = ctx.sampleRate;
-      this.pianoTemplates = new PianoTemplates(sr, 8192);
+      this.pianoTemplates = new PianoTemplates(sr, this.opts.hiResFftSize);
       this.nmfDetector = new NMFDetector(this.pianoTemplates);
-      this.fastPitchStream = new FastPitchStream(sr, 2048);
-      this.hiResPitchStream = new HiResPitchStream(sr, 8192);
+      this.fastPitchStream = new FastPitchStream(
+        sr,
+        this.opts.fastFftSize,
+        this.opts.minFreq,
+        this.opts.maxFreq,
+      );
+      this.hiResPitchStream = new HiResPitchStream(
+        sr,
+        this.opts.hiResFftSize,
+        this.opts.minFreq,
+        this.opts.maxFreq,
+      );
     }
+    this.hiResPitchStream.setSkipFactor(this.opts.hiResSkipFactor);
+    this.polyTracker.reset();
 
-    // Start ML peer
+    // Start ML peer (skipped for mono instruments that opt out to save CPU).
     const source = this.capture.getSourceNode();
-    if (ctx && source) {
+    if (ctx && source && !this.opts.disableMl) {
       await this.mlPeer.start(ctx, source);
     }
 
@@ -216,6 +334,7 @@ export class ProbabilisticOrchestrator {
     this.hiResPitchStream.reset();
     this.nmfDetector.reset();
     this.noiseFloor.reset();
+    this.polyTracker.reset();
   }
 
   /** Get currently active MIDI notes. */
@@ -246,6 +365,13 @@ export class ProbabilisticOrchestrator {
 
   /** Process one tick of the RAF loop. */
   private processTick(): void {
+    // Studio guitar-poly uses the set-valued tracker; Learn's poly keeps the
+    // original NMF→HMM path below.
+    if (this.mode === 'polyphonic' && this.opts.usePolyTracker) {
+      this.processPolyTick();
+      return;
+    }
+
     const onsetAnalyser = this.capture.getOnsetAnalyser();
     const fastAnalyser = this.capture.getFastPitchAnalyser();
     const hiResAnalyser = this.capture.getHiResAnalyser();
@@ -265,7 +391,9 @@ export class ProbabilisticOrchestrator {
       ? this.hiResPitchStream.process(hiResAnalyser)
       : null;
 
-    // 4. NMF activation (polyphonic mode only)
+    // 4. NMF activation (polyphonic mode only). Studio guitar-poly is handled
+    //    by processPolyTick() and never reaches here; this preserves Learn's
+    //    existing NMF→HMM polyphonic path unchanged.
     const nmfActivation =
       this.mode === 'polyphonic' && hiResAnalyser
         ? this.nmfDetector.process(hiResAnalyser)
@@ -327,8 +455,11 @@ export class ProbabilisticOrchestrator {
     // 9. HMM update → TrackedNote
     const tracked = this.noteHMM.update(fused, onset, rms);
 
-    // 10. Emit note events on state change
-    this.handleTrackedNote(tracked);
+    // 10. Emit note events on state change. When retriggerOnOnset is enabled
+    //     (Studio mono), a fresh onset re-articulates a held same-pitch note.
+    const articulation =
+      this.opts.retriggerOnOnset && this.isNewArticulation(onset);
+    this.handleTrackedNote(tracked, articulation);
 
     // 11. Instrument profiling (when confident)
     if (
@@ -357,11 +488,135 @@ export class ProbabilisticOrchestrator {
     this.capture.updateLevel();
   }
 
-  /** Handle tracked note state changes → emit MidiNoteEvent callbacks. */
-  private handleTrackedNote(tracked: TrackedNote | null): void {
+  /**
+   * Polyphonic tick: onset + noise-floor gating + NMF + ML note set → the
+   * set-valued PolyphonicNoteTracker, which emits per-note on/off. Skips the
+   * mono YIN streams and the single-note HMM entirely.
+   */
+  private processPolyTick(): void {
+    const onsetAnalyser = this.capture.getOnsetAnalyser();
+    const hiResAnalyser = this.capture.getHiResAnalyser();
+
+    // 1. Onset (drives immediate attack + velocity boost).
+    const onset = onsetAnalyser
+      ? this.onsetStream.process(onsetAnalyser)
+      : null;
+
+    // 2. Noise-floor update + signal-present gate (false-positive killer).
+    let signalPresent = true;
+    if (hiResAnalyser) {
+      if (!this.freqBuffer) {
+        this.freqBuffer = new Float32Array(hiResAnalyser.frequencyBinCount);
+      }
+      hiResAnalyser.getFloatFrequencyData(
+        this.freqBuffer as Float32Array<ArrayBuffer>,
+      );
+      const sr = hiResAnalyser.context.sampleRate;
+      this.noiseFloor.update(this.freqBuffer, sr);
+      if (this.noiseFloor.isCalibrated) {
+        signalPresent = this.noiseFloor.isSignalPresent(this.freqBuffer, sr);
+      }
+    }
+
+    // 3. NMF activation (fast, DSP-based polyphony).
+    const nmf = hiResAnalyser ? this.nmfDetector.process(hiResAnalyser) : null;
+
+    // 4. ML note set (accurate polyphony; discard if stale).
+    const rawMl = this.opts.disableMl ? null : this.mlPeer.getLatestNotes();
+    const ml =
+      rawMl && performance.now() - rawMl.timestamp < POLY_ML_STALENESS_MS
+        ? rawMl
+        : null;
+
+    // 5. RMS (velocity + hard silence gate). Fold in the signal-present gate.
+    const rms = signalPresent ? this.capture.getState().rmsLevel : 0;
+
+    // 6. Track note set → per-note on/off events.
+    const { noteOns, noteOffs } = this.polyTracker.update(
+      {
+        nmf: nmf?.weights ?? null,
+        mlActiveKeys: ml?.activeKeys ?? null,
+        mlOnsets: ml?.onsets ?? null,
+        rms,
+      },
+      onset,
+    );
+
+    const now = performance.now() / 1000;
+
+    // Emit note-offs first (frees voices before re-triggering).
+    for (const note of noteOffs) {
+      const start = this.noteStartTimes.get(note);
+      this.noteStartTimes.delete(note);
+      this.callbacks.onNoteOff?.({
+        number: note,
+        duration: start ? now - start.time : 0,
+        velocity: start?.velocity ?? 0,
+        source: 'audio',
+      });
+    }
+
+    for (const { note, velocity } of noteOns) {
+      this.noteStartTimes.set(note, { time: now, velocity, confidence: 1 });
+      this.callbacks.onNoteOn?.({
+        number: note,
+        duration: 0,
+        velocity,
+        source: 'audio',
+      });
+    }
+
+    // 7. Update input level for UI.
+    this.capture.updateLevel();
+  }
+
+  /**
+   * Return true at most once per ~MONO_REARTICULATION_MS when a spectral-flux
+   * onset arrives — the debounced "new pluck" edge used for mono re-articulation.
+   */
+  private isNewArticulation(onset: OnsetEvent | null): boolean {
+    if (!onset) return false;
+    if (onset.timestamp - this.lastArticulationTs >= MONO_REARTICULATION_MS) {
+      this.lastArticulationTs = onset.timestamp;
+      return true;
+    }
+    return false;
+  }
+
+  /** Handle tracked note state changes → emit MidiNoteEvent callbacks.
+   *  `articulation` (Studio mono, retriggerOnOnset) re-fires a held same-pitch
+   *  note on a fresh pluck so repeated notes aren't dropped. */
+  private handleTrackedNote(
+    tracked: TrackedNote | null,
+    articulation = false,
+  ): void {
     const newNote = tracked?.midiNumber ?? null;
 
-    if (newNote === this.lastNote) return; // No change
+    if (newNote === this.lastNote) {
+      // Same pitch held — re-articulate on a fresh onset when enabled.
+      if (articulation && newNote !== null && tracked) {
+        const now = performance.now() / 1000;
+        const start = this.noteStartTimes.get(newNote);
+        this.callbacks.onNoteOff?.({
+          number: newNote,
+          duration: start ? now - start.time : 0,
+          velocity: start?.velocity ?? 0,
+          source: 'audio',
+        });
+        this.noteStartTimes.set(newNote, {
+          time: now,
+          velocity: tracked.velocity,
+          confidence: tracked.confidence,
+        });
+        this.callbacks.onNoteOn?.({
+          number: newNote,
+          duration: 0,
+          velocity: tracked.velocity,
+          source: 'audio',
+        });
+      }
+      return; // No pitch change
+    }
 
     // Note-off for previous note
     if (this.lastNote !== null) {

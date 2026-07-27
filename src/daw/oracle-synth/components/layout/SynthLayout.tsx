@@ -3,12 +3,15 @@ import { SynthEngine } from '../../audio/SynthEngine';
 import { useSynthStore } from '../../store';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { useSyncStoreToEngine } from '../../hooks/useSyncStoreToEngine';
+import { useWtPosModulation } from '../../hooks/useWtPosModulation';
 import { useViewportScale } from '../../hooks/useViewportScale';
 import { SourceRow } from './SourceRow';
 import { LFOArea } from './LFOArea';
 import { ModulationPanel } from '../modulation/ModulationPanel';
+import { MacroStrip } from '../modulation/MacroStrip';
 import { RightSidebar } from './RightSidebar';
 import { PianoKeyboard } from '../keyboard/PianoKeyboard';
+import { KeyScaleBar } from '../keyboard/KeyScaleBar';
 import { WheelControl } from '../controls/WheelControl';
 import { Knob } from '../controls/Knob';
 import { NumberStepper } from '../controls/NumberStepper';
@@ -41,6 +44,8 @@ export const SynthLayout: React.FC<SynthLayoutProps> = ({
 
   // Sync store to engine
   useSyncStoreToEngine(engine);
+  // Control-rate WT-position / unison-blend modulation (macro/LFO/mod-wheel)
+  useWtPosModulation(engine);
 
   const handleNoteOn = useCallback(
     (note: number, velocity: number = 0.8) => {
@@ -121,6 +126,7 @@ export const SynthLayout: React.FC<SynthLayoutProps> = ({
         <div className={styles.middle}>
           <div className={styles.middleLeft}>
             <ModulationPanel />
+            <MacroStrip />
             <RoutingPanel />
           </div>
           <div className={styles.middleCenter}>
@@ -164,6 +170,7 @@ export const SynthLayout: React.FC<SynthLayoutProps> = ({
             />
           </div>
           <div className={styles.keyboardWrapper}>
+            <KeyScaleBar />
             <PianoKeyboard
               startNote={36}
               endNote={96}

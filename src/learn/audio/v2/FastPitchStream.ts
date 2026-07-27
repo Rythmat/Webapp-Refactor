@@ -51,13 +51,22 @@ export class FastPitchStream {
   private yinDetector: YinDetector | null = null;
   private sampleRate: number;
   private fftSize: number;
+  private minFreq: number;
+  private maxFreq: number;
   private timeDomainBuffer: Float32Array;
   private frameId = 0;
   private adaptiveSilenceRms: number | null = null;
 
-  constructor(sampleRate: number, fftSize: number = 2048) {
+  constructor(
+    sampleRate: number,
+    fftSize: number = 2048,
+    minFreq: number = PIANO_MIN_FREQ,
+    maxFreq: number = PIANO_MAX_FREQ,
+  ) {
     this.sampleRate = sampleRate;
     this.fftSize = fftSize;
+    this.minFreq = minFreq;
+    this.maxFreq = maxFreq;
     this.timeDomainBuffer = new Float32Array(fftSize);
   }
 
@@ -77,8 +86,8 @@ export class FastPitchStream {
         frameLength: this.fftSize,
         sampleRate,
         threshold: YIN_THRESHOLD,
-        minFreq: PIANO_MIN_FREQ,
-        maxFreq: PIANO_MAX_FREQ,
+        minFreq: this.minFreq,
+        maxFreq: this.maxFreq,
         maxCandidates: MAX_CANDIDATES,
       });
     }
@@ -144,7 +153,7 @@ export class FastPitchStream {
     // sub-octave to correct likely octave-up errors from short FFT.
     for (const cp of candidateProbs) {
       const halfFreq = cp.candidate.frequency / 2;
-      if (halfFreq < PIANO_MIN_FREQ) continue;
+      if (halfFreq < this.minFreq) continue;
       const subOctave = candidateProbs.find((other) => {
         const ratio = other.candidate.frequency / halfFreq;
         return ratio > 0.95 && ratio < 1.05;

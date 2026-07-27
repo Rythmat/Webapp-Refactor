@@ -1,6 +1,20 @@
 import React, { useRef, useCallback } from 'react';
 import styles from './Knob.module.css';
 
+/**
+ * Live modulation indicator: the range the parameter is being swept over by
+ * the modulation matrix, in the knob's own value units, plus an optional
+ * live source position. Rendered as a translucent arc over the track with a
+ * moving dot — modulation is visible on the destination itself.
+ */
+export interface KnobModArc {
+  lo: number;
+  hi: number;
+  /** Current modulated value (moves the dot); null hides the dot. */
+  live?: number | null;
+  color?: string;
+}
+
 interface KnobProps {
   value: number;
   min: number;
@@ -13,6 +27,7 @@ interface KnobProps {
   showValue?: boolean;
   horizontal?: boolean;
   labelLeft?: boolean;
+  modArc?: KnobModArc | null;
   formatValue?: (value: number) => string;
   onChange: (value: number) => void;
 }
@@ -61,6 +76,7 @@ export const Knob: React.FC<KnobProps> = React.memo(
     showValue = true,
     horizontal = false,
     labelLeft = false,
+    modArc = null,
     formatValue,
     onChange,
   }) => {
@@ -79,6 +95,33 @@ export const Knob: React.FC<KnobProps> = React.memo(
       normalized > 0.001 ? describeArc(cx, cy, r, START_ANGLE, angle) : '';
 
     const indicator = polarToCartesian(cx, cy, r - 6, angle);
+
+    // Modulation range arc + live dot (drawn over the track)
+    let modArcPath = '';
+    let modLiveDot: { x: number; y: number } | null = null;
+    const modColor = modArc?.color ?? accent;
+    if (modArc) {
+      const loNorm = clamp((modArc.lo - min) / (max - min), 0, 1);
+      const hiNorm = clamp((modArc.hi - min) / (max - min), 0, 1);
+      if (hiNorm - loNorm > 0.001) {
+        modArcPath = describeArc(
+          cx,
+          cy,
+          r,
+          START_ANGLE + loNorm * SWEEP,
+          START_ANGLE + hiNorm * SWEEP,
+        );
+      }
+      if (modArc.live != null) {
+        const liveNorm = clamp((modArc.live - min) / (max - min), 0, 1);
+        modLiveDot = polarToCartesian(
+          cx,
+          cy,
+          r,
+          START_ANGLE + liveNorm * SWEEP,
+        );
+      }
+    }
 
     const handlePointerDown = useCallback(
       (e: React.PointerEvent) => {
@@ -196,6 +239,27 @@ export const Knob: React.FC<KnobProps> = React.memo(
           r={2.5}
           fill={accent}
         />
+        {/* Modulation range arc + live dot */}
+        {modArcPath && (
+          <path
+            d={modArcPath}
+            fill="none"
+            stroke={modColor}
+            strokeOpacity={0.4}
+            strokeWidth={3}
+            strokeLinecap="round"
+            pointerEvents="none"
+          />
+        )}
+        {modLiveDot && (
+          <circle
+            cx={modLiveDot.x}
+            cy={modLiveDot.y}
+            r={2}
+            fill={modColor}
+            pointerEvents="none"
+          />
+        )}
       </svg>
     );
 

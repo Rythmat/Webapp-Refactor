@@ -239,9 +239,17 @@ export async function saveCurrentProjectToCloud(
 
   const projectId = await ensureProjectId(token, nameOverride);
 
+  // Pending = never-uploaded bytes: audio clips without an assetId, and
+  // sampler one-shots that are neither uploaded nor bundled (sourceUrl).
   const hasPendingAudio = useStore
     .getState()
-    .tracks.some((t) => t.audioClips.some((c) => !c.assetId));
+    .tracks.some(
+      (t) =>
+        t.audioClips.some((c) => !c.assetId) ||
+        (t.samplerSample &&
+          !t.samplerSample.assetId &&
+          !t.samplerSample.sourceUrl),
+    );
   if (hasPendingAudio) {
     await uploadPendingAudioClips(token, projectId);
   }
@@ -283,6 +291,23 @@ export async function saveCurrentProjectToCloud(
   if (unsavedAudioClips > 0) {
     showWarning(
       `${unsavedAudioClips} audio clip(s) could not be uploaded and were left out of the saved project.`,
+    );
+  }
+
+  // Same honesty for sampler one-shots: a sample that still has no assetId
+  // (and isn't a bundled sourceUrl sample) saved only its metadata — the
+  // audio won't restore on reload or on other devices.
+  const unsavedSamplerSamples = useStore
+    .getState()
+    .tracks.filter(
+      (t) =>
+        t.samplerSample &&
+        !t.samplerSample.assetId &&
+        !t.samplerSample.sourceUrl,
+    ).length;
+  if (unsavedSamplerSamples > 0) {
+    showWarning(
+      `${unsavedSamplerSamples} sampler sample(s) could not be uploaded — they will play locally but won't restore after a reload.`,
     );
   }
 

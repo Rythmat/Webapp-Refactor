@@ -1,0 +1,832 @@
+{
+  "name": "BA - GOA PEPPER",
+  "version": 3,
+  "oscillators": [
+    {
+      "waveform": "sawtooth",
+      "wavetable": "S2/Default Shapes",
+      "octave": -1,
+      "semitone": 0,
+      "fine": 0,
+      "wtPosition": 0,
+      "pan": 0,
+      "level": 0.75,
+      "unisonVoices": 1,
+      "unisonDetune": 0.25,
+      "unisonBlend": 0.5,
+      "warpMode": "none",
+      "warpAmount": 0,
+      "enabled": true
+    },
+    {
+      "waveform": "sawtooth",
+      "wavetable": "S2/Default Shapes",
+      "octave": -2,
+      "semitone": 0,
+      "fine": 0,
+      "wtPosition": 0.15548425778979436,
+      "pan": 0,
+      "level": 0.75,
+      "unisonVoices": 1,
+      "unisonDetune": 0.25,
+      "unisonBlend": 0.5,
+      "warpMode": "none",
+      "warpAmount": 0,
+      "enabled": true
+    }
+  ],
+  "subOscillator": {
+    "waveform": "sine",
+    "octave": -1,
+    "semitone": 0,
+    "fine": 0,
+    "level": 0.5,
+    "pan": 0,
+    "enabled": false
+  },
+  "noise": {
+    "type": "white",
+    "level": 0.3,
+    "pan": 0,
+    "enabled": false
+  },
+  "filters": [
+    {
+      "type": "bandpass",
+      "cutoff": 40.89678270112521,
+      "resonance": 6.366522143446524,
+      "pan": 0,
+      "gain": 0,
+      "mix": 1,
+      "enabled": true
+    },
+    {
+      "type": "lowpass",
+      "cutoff": 20,
+      "resonance": 0.5,
+      "pan": 0,
+      "gain": 0,
+      "mix": 1,
+      "enabled": true
+    }
+  ],
+  "envelopes": [
+    {
+      "attack": 0.001,
+      "decay": 1,
+      "sustain": 1,
+      "release": 0.10206039477158753
+    },
+    {
+      "attack": 0.001,
+      "decay": 0.5646945314261628,
+      "sustain": 0,
+      "release": 0.3172825773912493
+    }
+  ],
+  "lfos": [
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0.283,
+            "curve": 1
+          },
+          {
+            "time": 0.124,
+            "value": 0.283
+          },
+          {
+            "time": 0.125,
+            "value": 0.044,
+            "curve": 1
+          },
+          {
+            "time": 0.249,
+            "value": 0.044
+          },
+          {
+            "time": 0.25,
+            "value": 0.805,
+            "curve": 1
+          },
+          {
+            "time": 0.374,
+            "value": 0.805
+          },
+          {
+            "time": 0.375,
+            "value": 0.566,
+            "curve": 1
+          },
+          {
+            "time": 0.499,
+            "value": 0.566
+          },
+          {
+            "time": 0.5,
+            "value": 0.327,
+            "curve": 1
+          },
+          {
+            "time": 0.624,
+            "value": 0.327
+          },
+          {
+            "time": 0.625,
+            "value": 0.088,
+            "curve": 1
+          },
+          {
+            "time": 0.749,
+            "value": 0.088
+          },
+          {
+            "time": 0.75,
+            "value": 0.849,
+            "curve": 1
+          },
+          {
+            "time": 0.874,
+            "value": 0.849
+          },
+          {
+            "time": 0.875,
+            "value": 0.61,
+            "curve": 1
+          },
+          {
+            "time": 0.999,
+            "value": 0.61
+          },
+          {
+            "time": 1,
+            "value": 0.283
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0.283,
+            "curve": 1
+          },
+          {
+            "time": 0.124,
+            "value": 0.283
+          },
+          {
+            "time": 0.125,
+            "value": 0.044,
+            "curve": 1
+          },
+          {
+            "time": 0.249,
+            "value": 0.044
+          },
+          {
+            "time": 0.25,
+            "value": 0.805,
+            "curve": 1
+          },
+          {
+            "time": 0.374,
+            "value": 0.805
+          },
+          {
+            "time": 0.375,
+            "value": 0.566,
+            "curve": 1
+          },
+          {
+            "time": 0.499,
+            "value": 0.566
+          },
+          {
+            "time": 0.5,
+            "value": 0.327,
+            "curve": 1
+          },
+          {
+            "time": 0.624,
+            "value": 0.327
+          },
+          {
+            "time": 0.625,
+            "value": 0.088,
+            "curve": 1
+          },
+          {
+            "time": 0.749,
+            "value": 0.088
+          },
+          {
+            "time": 0.75,
+            "value": 0.849,
+            "curve": 1
+          },
+          {
+            "time": 0.874,
+            "value": 0.849
+          },
+          {
+            "time": 0.875,
+            "value": 0.61,
+            "curve": 1
+          },
+          {
+            "time": 0.999,
+            "value": 0.61
+          },
+          {
+            "time": 1,
+            "value": 0.283
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0.283,
+            "curve": 1
+          },
+          {
+            "time": 0.124,
+            "value": 0.283
+          },
+          {
+            "time": 0.125,
+            "value": 0.044,
+            "curve": 1
+          },
+          {
+            "time": 0.249,
+            "value": 0.044
+          },
+          {
+            "time": 0.25,
+            "value": 0.805,
+            "curve": 1
+          },
+          {
+            "time": 0.374,
+            "value": 0.805
+          },
+          {
+            "time": 0.375,
+            "value": 0.566,
+            "curve": 1
+          },
+          {
+            "time": 0.499,
+            "value": 0.566
+          },
+          {
+            "time": 0.5,
+            "value": 0.327,
+            "curve": 1
+          },
+          {
+            "time": 0.624,
+            "value": 0.327
+          },
+          {
+            "time": 0.625,
+            "value": 0.088,
+            "curve": 1
+          },
+          {
+            "time": 0.749,
+            "value": 0.088
+          },
+          {
+            "time": 0.75,
+            "value": 0.849,
+            "curve": 1
+          },
+          {
+            "time": 0.874,
+            "value": 0.849
+          },
+          {
+            "time": 0.875,
+            "value": 0.61,
+            "curve": 1
+          },
+          {
+            "time": 0.999,
+            "value": 0.61
+          },
+          {
+            "time": 1,
+            "value": 0.283
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0.283,
+            "curve": 1
+          },
+          {
+            "time": 0.124,
+            "value": 0.283
+          },
+          {
+            "time": 0.125,
+            "value": 0.044,
+            "curve": 1
+          },
+          {
+            "time": 0.249,
+            "value": 0.044
+          },
+          {
+            "time": 0.25,
+            "value": 0.805,
+            "curve": 1
+          },
+          {
+            "time": 0.374,
+            "value": 0.805
+          },
+          {
+            "time": 0.375,
+            "value": 0.566,
+            "curve": 1
+          },
+          {
+            "time": 0.499,
+            "value": 0.566
+          },
+          {
+            "time": 0.5,
+            "value": 0.327,
+            "curve": 1
+          },
+          {
+            "time": 0.624,
+            "value": 0.327
+          },
+          {
+            "time": 0.625,
+            "value": 0.088,
+            "curve": 1
+          },
+          {
+            "time": 0.749,
+            "value": 0.088
+          },
+          {
+            "time": 0.75,
+            "value": 0.849,
+            "curve": 1
+          },
+          {
+            "time": 0.874,
+            "value": 0.849
+          },
+          {
+            "time": 0.875,
+            "value": 0.61,
+            "curve": 1
+          },
+          {
+            "time": 0.999,
+            "value": 0.61
+          },
+          {
+            "time": 1,
+            "value": 0.283
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    },
+    {
+      "rateDivs": [
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"],
+        ["1/4", "1/4", "1/4", "1/4"]
+      ],
+      "rateModifiers": ["normal", "normal", "normal", "normal"],
+      "smooths": [0, 0, 0, 0],
+      "sync": true,
+      "bars": [
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ],
+        [
+          {
+            "time": 0,
+            "value": 0
+          },
+          {
+            "time": 0.5,
+            "value": 1
+          },
+          {
+            "time": 1,
+            "value": 0
+          }
+        ]
+      ]
+    }
+  ],
+  "modRoutes": [
+    {
+      "id": "serum-1",
+      "source": {
+        "type": "envelope",
+        "index": 1
+      },
+      "target": {
+        "source": "flt2",
+        "param": "cutoff"
+      },
+      "amount": 0.7076822519302368,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-2",
+      "source": {
+        "type": "keytrack",
+        "index": 0
+      },
+      "target": {
+        "source": "osc1",
+        "param": "level"
+      },
+      "amount": -0.39579910039901733,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-3",
+      "source": {
+        "type": "keytrack",
+        "index": 0
+      },
+      "target": {
+        "source": "osc2",
+        "param": "level"
+      },
+      "amount": -0.534745067358017,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-4",
+      "source": {
+        "type": "modwheel",
+        "index": 0
+      },
+      "target": {
+        "source": "flt2",
+        "param": "cutoff"
+      },
+      "amount": 0.8665535897016525,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-5",
+      "source": {
+        "type": "macro",
+        "index": 2
+      },
+      "target": {
+        "source": "flt1",
+        "param": "cutoff"
+      },
+      "amount": 0.5217241048812866,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-6",
+      "source": {
+        "type": "lfo",
+        "index": 0
+      },
+      "target": {
+        "source": "flt1",
+        "param": "cutoff"
+      },
+      "amount": 0.4164609909057617,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    },
+    {
+      "id": "serum-7",
+      "source": {
+        "type": "velocity",
+        "index": 0
+      },
+      "target": {
+        "source": "flt2",
+        "param": "cutoff"
+      },
+      "amount": 0.17896795272827148,
+      "polarity": "unipolar",
+      "curve": "linear",
+      "enabled": true
+    }
+  ],
+  "voiceMode": "poly",
+  "voiceCount": 3,
+  "glide": 0,
+  "spread": 0,
+  "masterVolume": 0.15665237499891874,
+  "fx": {
+    "chorus": {
+      "enabled": false,
+      "rate": 0.8,
+      "depth": 0.3,
+      "mix": 0.5
+    },
+    "delay": {
+      "enabled": false,
+      "time": 0.3,
+      "feedback": 0.35,
+      "mix": 0.25
+    },
+    "phaser": {
+      "enabled": false,
+      "rate": 0.5,
+      "depth": 0.5,
+      "mix": 0.5
+    },
+    "compressor": {
+      "enabled": true,
+      "threshold": 0,
+      "ratio": 2.4759445971074308,
+      "attack": 1,
+      "release": 1
+    },
+    "drive": {
+      "enabled": true,
+      "amount": 0.6638740301132202,
+      "mix": 0.5
+    },
+    "reverb": {
+      "enabled": false,
+      "size": 0.5,
+      "decay": 0.5,
+      "damping": 0.3,
+      "mix": 0.3
+    }
+  },
+  "fxRoutes": [],
+  "routing": {
+    "filterRouting": {
+      "filter1Sources": ["osc1", "osc2", "noise", "sub"],
+      "filter2Sources": []
+    },
+    "envelopeRouting": {
+      "env1Sources": ["osc1", "osc2", "sub", "noise"],
+      "env2Sources": []
+    }
+  },
+  "arp": {
+    "enabled": false,
+    "rate": "1/8",
+    "style": "up",
+    "distance": 12,
+    "step": 1,
+    "chordAware": false
+  },
+  "macros": [
+    {
+      "name": "SOFT ATTACK",
+      "value": 0
+    },
+    {
+      "name": "LONGER DECAY",
+      "value": 0
+    },
+    {
+      "name": "DIFFUSE FILT",
+      "value": 0.9583953373015872
+    },
+    {
+      "name": "FM",
+      "value": 0.0078125
+    },
+    {
+      "name": "HARDER EDGE",
+      "value": 0.0078125
+    },
+    {
+      "name": "SUSTAIN",
+      "value": 0.015625
+    },
+    {
+      "name": "WOOZY",
+      "value": 0.0078125
+    },
+    {
+      "name": "HPF",
+      "value": 0.0078125
+    }
+  ],
+  "keyScale": {
+    "enabled": false,
+    "followProjectKey": true,
+    "rootPc": 0,
+    "mode": "ionian",
+    "snapMode": "nearest"
+  }
+}

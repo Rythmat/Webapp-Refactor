@@ -4,6 +4,7 @@ import {
   Hand,
   type LucideIcon,
   Megaphone,
+  Radio,
   Sparkles,
   Trophy,
   X,
@@ -57,6 +58,11 @@ const SOURCE_META: Record<
   AnnouncementSource,
   { Icon: LucideIcon; accent: string; badge: string }
 > = {
+  live_session: {
+    Icon: Radio,
+    accent: 'text-emerald-300',
+    badge: 'bg-emerald-400/15',
+  },
   teacher: {
     Icon: GraduationCap,
     accent: 'text-sky-300',
@@ -102,9 +108,15 @@ const AnnouncementItem: FC<{
   const inner = (
     <span className="inline-flex items-center gap-2 md:gap-2.5">
       <span
-        className={`grid h-6 w-6 shrink-0 place-items-center rounded-lg ${meta.badge}`}
+        className={`relative grid h-6 w-6 shrink-0 place-items-center rounded-lg ${meta.badge}`}
       >
         <Icon className={`h-4 w-4 ${meta.accent}`} />
+        {item.source === 'live_session' && (
+          <span
+            aria-hidden="true"
+            className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-emerald-400 motion-safe:animate-pulse"
+          />
+        )}
       </span>
       <span className="text-sm font-medium text-white md:text-base">
         {item.title}

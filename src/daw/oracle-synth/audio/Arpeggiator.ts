@@ -1,4 +1,5 @@
 import { ArpParams, ArpStyle, RateDiv } from './types';
+import { quantizePitch } from './ScaleQuantizer';
 
 /** Convert a RateDiv to a number of beats (quarter notes). */
 function rateDivToBeats(div: RateDiv): number {
@@ -91,12 +92,15 @@ export class Arpeggiator {
   private currentNote: number | null = null;
   private velocity = 0.8;
   private bpm = 120;
+  // 12-bit pitch-class mask of the live-detected chord (0 = no context)
+  private chordMask = 0;
   private params: ArpParams = {
     enabled: false,
     rate: '1/8',
     style: 'up',
     distance: 12,
     step: 1,
+    chordAware: false,
   };
 
   constructor(
@@ -122,6 +126,30 @@ export class Arpeggiator {
     this.bpm = bpm;
     if (this.intervalId !== null && this.params.enabled) {
       this.restartTimer();
+    }
+  }
+
+  /**
+   * Live chord context from the DAW's music-intelligence bus. When
+   * `chordAware` is on, held notes snap to these chord tones. The pattern
+   * is rebuilt in place (no timer restart) so the arp transitions smoothly
+   * as the progression moves.
+   */
+  setChordContext(chordPcs: number[] | null): void {
+    this.chordMask =
+      chordPcs && chordPcs.length > 0
+        ? chordPcs.reduce((mask, pc) => mask | (1 << ((pc % 12) + 12) % 12), 0)
+        : 0;
+
+    if (
+      this.params.enabled &&
+      this.params.chordAware &&
+      this.heldNotes.size > 0
+    ) {
+      this.rebuildPattern();
+      if (this.patternIndex >= this.pattern.length) {
+        this.patternIndex = 0;
+      }
     }
   }
 
@@ -171,7 +199,19 @@ export class Arpeggiator {
       return;
     }
 
-    const notes = [...this.heldNotes.keys()].sort((a, b) => a - b);
+    let notes = [...this.heldNotes.keys()].sort((a, b) => a - b);
+
+    // Chord-aware: constrain held notes to the live-detected chord tones,
+    // preserving register. Held notes stay the seed, so the arp responds
+    // instantly even when the bus chord lags the progression.
+    if (this.params.chordAware && this.chordMask !== 0) {
+      notes = [
+        ...new Set(
+          notes.map((n) => quantizePitch(n, this.chordMask, 'nearest')),
+        ),
+      ].sort((a, b) => a - b);
+    }
+
     this.pattern = buildPattern(
       notes,
       this.params.distance,

@@ -10,7 +10,7 @@ export function StreakTracker({ count, target = 5, className }: Props) {
   return (
     <div
       className={cn(
-        'absolute right-4 top-4 z-20 flex flex-col items-end gap-1 select-none pointer-events-none',
+        'absolute bottom-4 right-4 z-20 flex flex-col items-end gap-1 select-none pointer-events-none',
         className,
       )}
     >

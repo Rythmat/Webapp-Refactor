@@ -14,7 +14,7 @@ import { ClassroomRoutes, TeacherRoutes } from '@/constants/routes';
 import { useClassroom, useClassrooms, useMe } from '@/hooks/data';
 import { useAssignments } from './assignments/useAssignments';
 import { useEnrollments } from './enrollments';
-import { useLocalSessionStore } from './live/useLocalSessionStore';
+import { useClassroomLiveSession } from './live/useClassroomLiveSession';
 
 export const ClassroomHomePage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
@@ -30,10 +30,7 @@ export const ClassroomHomePage = () => {
   const { myEnrollment } = useEnrollments(classroomId ?? '');
   const myStatus = myEnrollment?.status;
   const { assignments } = useAssignments(classroomId ?? '');
-  const { getActiveSessionForClassroom } = useLocalSessionStore();
-  const activeSession = classroomId
-    ? getActiveSessionForClassroom(classroomId)
-    : undefined;
+  const liveSession = useClassroomLiveSession(classroomId);
   const [searchParams] = useSearchParams();
   const previewAsStudent = searchParams.get('viewAs') === 'student';
 
@@ -75,6 +72,31 @@ export const ClassroomHomePage = () => {
           assignments will unlock once your teacher approves you.
         </div>
       )}
+      {classroomId && liveSession && (
+        <div
+          role="status"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-400/40 bg-emerald-400/[0.08] px-5 py-4"
+        >
+          <span className="inline-flex items-center gap-2.5 text-sm font-medium text-emerald-100">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
+            </span>
+            Your class is live right now
+          </span>
+          <Link
+            to={ClassroomRoutes.live({
+              classroomId,
+              sessionId: liveSession.sessionId,
+            })}
+            className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-2 text-sm font-medium text-black transition-colors hover:bg-emerald-300"
+          >
+            <Radio className="h-4 w-4" />
+            Join now
+          </Link>
+        </div>
+      )}
+
       {previewAsStudent && isOwner && (
         <div
           role="status"
@@ -102,11 +124,11 @@ export const ClassroomHomePage = () => {
             <p className="text-base text-white/60">{classroom.description}</p>
           )}
         </div>
-        {classroomId && activeSession && (
+        {classroomId && liveSession && (
           <Link
             to={ClassroomRoutes.live({
               classroomId,
-              sessionId: activeSession.sessionId,
+              sessionId: liveSession.sessionId,
             })}
             className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/[0.08] px-4 py-2 text-sm text-emerald-200 transition-colors hover:border-emerald-400 hover:text-emerald-100"
           >

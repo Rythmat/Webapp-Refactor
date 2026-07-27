@@ -7,6 +7,7 @@ import { useEnrollments } from '../enrollments';
 import { PHASES } from '../phases';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import type { Interaction, InteractionResponsePayload } from '../types';
+import { buildSessionCoverage } from './buildSessionCoverage';
 import { buildSessionCsv, downloadCsv } from './exportCsv';
 import { useLiveResponses } from './useLiveResponses';
 import { useLocalSessionStore } from './useLocalSessionStore';
@@ -88,6 +89,17 @@ export const SessionReportPage = () => {
     return out;
   }, [responsesByEnrollment, getEnrollment]);
 
+  const coverage = useMemo(
+    () =>
+      buildSessionCoverage({
+        deck: publishedDay?.snapshot.deck,
+        interactions,
+        responsesByEnrollment,
+        participantCount: participants.length,
+      }),
+    [publishedDay, interactions, responsesByEnrollment, participants.length],
+  );
+
   const publishedDayTitle = publishedDay?.snapshot.label ?? 'Untitled Day';
 
   if (!session) {
@@ -167,6 +179,35 @@ export const SessionReportPage = () => {
           {participants.length} participant(s)
         </p>
       </div>
+
+      {coverage.items.length > 0 && (
+        <section className="flex flex-col gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
+          <h2 className="text-base font-medium">Curriculum covered</h2>
+          <div className="flex flex-wrap gap-2">
+            {coverage.items.map((item) => (
+              <span
+                key={item.label}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/80"
+              >
+                {item.label}
+                {item.countable && (
+                  <span
+                    className={
+                      'rounded-full px-2 py-0.5 text-[11px] ' +
+                      (item.completedCount >= item.totalCount &&
+                      item.totalCount > 0
+                        ? 'bg-[#7ecfcf]/20 text-[#7ecfcf]'
+                        : 'bg-white/[0.06] text-white/60')
+                    }
+                  >
+                    {item.completedCount}/{item.totalCount}
+                  </span>
+                )}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
 
       <ParticipationMatrix
         participants={participants}

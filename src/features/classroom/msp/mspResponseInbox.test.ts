@@ -9,12 +9,13 @@ import {
 
 const USER_ID = 'test-user';
 
+// Minimal shape matching the real backend socket message
+// (module + activityRef optional; real PartyKit `type:'response'` fan-out
+// doesn't carry them).
 const baseEntry = () => ({
   token: 'mock-token-1',
   interactionId: 'ix-1',
   participant: { enrollmentId: 'enr-1' },
-  module: 'learn' as const,
-  activityRef: 'lesson-1',
   payload: { kind: 'score' as const, score: 8, max: 10 },
 });
 

@@ -60,6 +60,7 @@ const TRACK_SCALAR_KEYS: (keyof Track)[] = [
   'volume',
   'pan',
   'trackRole',
+  'drumKit',
 ];
 
 // ── Main diff function ──────────────────────────────────────────────────
@@ -199,6 +200,26 @@ function diffTracks(
       yTrack.set(
         'drumPads',
         nextTrack.drumPads ? JSON.stringify(nextTrack.drumPads) : null,
+      );
+    }
+    if (prevTrack.samplerSample !== nextTrack.samplerSample) {
+      yTrack.set(
+        'samplerSample',
+        nextTrack.samplerSample
+          ? JSON.stringify(nextTrack.samplerSample)
+          : null,
+      );
+    }
+    if (prevTrack.sends !== nextTrack.sends) {
+      yTrack.set(
+        'sends',
+        nextTrack.sends ? JSON.stringify(nextTrack.sends) : null,
+      );
+    }
+    if (prevTrack.automation !== nextTrack.automation) {
+      yTrack.set(
+        'automation',
+        nextTrack.automation ? JSON.stringify(nextTrack.automation) : null,
       );
     }
   }
@@ -444,6 +465,9 @@ function diffMastering(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
     yM.set('effects', JSON.stringify(next.masteringEffects));
   if (prev.masterVolume !== next.masterVolume)
     yM.set('masterVolume', next.masterVolume);
+  // Aux return buses ride the mastering doc map (mixer-global like mastering).
+  if (prev.returns !== next.returns)
+    yM.set('returns', JSON.stringify(next.returns));
 }
 
 // ── Lead sheet diff ─────────────────────────────────────────────────────

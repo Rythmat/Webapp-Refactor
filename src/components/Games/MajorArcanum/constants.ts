@@ -2,6 +2,11 @@ import type { KeyRoot } from './types';
 
 export const PIANO_HEIGHT = 140;
 export const FALL_SPEED = 300;
+
+// --- Timeroll column layout ---
+export const NUM_WHITE_KEYS = 15; // playable white-key columns (C3–C5)
+export const BUFFER_COLUMNS = 2; // empty buffer columns on each side of the timeroll
+export const TOTAL_COLUMNS = NUM_WHITE_KEYS + BUFFER_COLUMNS * 2; // 19
 export const INPUT_WINDOW = 0.15;
 export const HOLD_SCORE_INTERVAL = 0.25; // Award 1 point per 0.25s of hold
 

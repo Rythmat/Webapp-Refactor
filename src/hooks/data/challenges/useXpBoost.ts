@@ -7,8 +7,9 @@ import { useChallenges } from './useChallenges';
 /**
  * The challenge XP-boost state: a 2× boost is earned by completing all of a
  * day's challenges and becomes claimable the next day. Reads the pending state
- * from our challenge store and the active window from the external experience
- * backend (graceful: until that backend ships, the boost is display-only).
+ * from `useChallenges` (backend-owned) and the active window from
+ * `experienceApi.getBoost`. Claiming activates the boost directly on the
+ * backend (no separate follow-up call).
  */
 export function useXpBoost() {
   const token = useAuthToken();
@@ -27,12 +28,11 @@ export function useXpBoost() {
   const claim = useMutation({
     mutationFn: async () => {
       if (!token) throw new Error('Not authenticated');
-      const { multiplier, durationMs } = await challengesApi.claimBoost(token);
-      // Activate the real multiplier on the external backend (graceful no-op
-      // until that endpoint exists).
-      await experienceApi
-        .startBoost(token, multiplier, durationMs)
-        .catch(() => {});
+      // claimBoost now activates the window directly on the backend and
+      // returns the active `{ multiplier, expiresAt }`. React-query refetch
+      // below reads the same shape from GET /experience/boost so the two
+      // stay in sync automatically.
+      return challengesApi.claimBoost(token);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['challenges'] });
@@ -46,7 +46,14 @@ export function useXpBoost() {
   const pendingSoon = !!pending?.pending && now < pending.claimableAt;
   const activeUntil = active?.expiresAt ? Date.parse(active.expiresAt) : null;
   const isActive = !!activeUntil && activeUntil > now;
-  const multiplier = active?.multiplier ?? pending?.multiplier ?? 2;
+  // Show the ACTIVE window's multiplier only when a boost is actually active.
+  // When there's no active window, GET /experience/boost returns the no-boost
+  // sentinel `{ multiplier: 1, expiresAt: null }`, so gating on `isActive`
+  // is required — a nullish-coalescing chain would incorrectly latch onto
+  // the `1` and render "Claim your 1× XP" for pending/claimable states.
+  const multiplier = isActive
+    ? (active?.multiplier ?? 2)
+    : (pending?.multiplier ?? 2);
 
   return { isActive, claimable, pendingSoon, multiplier, claim };
 }

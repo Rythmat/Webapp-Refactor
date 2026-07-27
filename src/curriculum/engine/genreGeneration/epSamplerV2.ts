@@ -8,6 +8,10 @@
  */
 
 import * as Tone from 'tone';
+import {
+  ensureToneUsesSharedContext,
+  startTone,
+} from '@/audio/core/toneBridge';
 
 const EP_SAMPLE_MAP: Record<string, string> = {
   A0: 'A0.mp3',
@@ -76,7 +80,7 @@ const ensureSamplerLoaded = async () => {
 
 export const startEpSampler = async () => {
   if (Tone.getContext().state !== 'running') {
-    await Tone.start();
+    await startTone();
   }
   await resumeContextIfNeeded();
   await ensureSamplerLoaded();
@@ -85,6 +89,8 @@ export const startEpSampler = async () => {
 const getEpSampler = async (): Promise<Tone.Sampler> => {
   if (samplerInstance) return samplerInstance;
   if (!samplerPromise) {
+    // Bind the sampler to the shared context, not Tone's private one.
+    ensureToneUsesSharedContext();
     samplerPromise = (async () => {
       const sampler = new Tone.Sampler({
         urls: EP_SAMPLE_MAP,

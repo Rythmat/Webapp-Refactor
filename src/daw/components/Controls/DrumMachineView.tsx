@@ -156,6 +156,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   // ── Store ─────────────────────────────────────────────────────────────
   const track = useStore((s) => s.tracks.find((t) => t.id === trackId));
   const updateDrumPad = useStore((s) => s.updateDrumPad);
+  const setDrumKit = useStore((s) => s.setDrumKit);
   const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
   const addMidiClip = useStore((s) => s.addMidiClip);
   const position = useStore((s) => s.position);
@@ -171,8 +172,10 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const eventsRef = useRef(events);
   eventsRef.current = events;
 
+  // Kit selection lives in the store (persisted + collab-synced)
+  const currentKit: DrumKitId = track?.drumKit ?? 'natural';
+
   // ── Local state ───────────────────────────────────────────────────────
-  const [currentKit, setCurrentKit] = useState<DrumKitId>('natural');
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedPad, setSelectedPad] = useState<number>(36);
@@ -269,13 +272,6 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   // ── Kit management ────────────────────────────────────────────────────
   useEffect(() => {
     const state = trackEngineRegistry.get(trackId);
-    if (state?.instrument instanceof DrumMachineEngine) {
-      setCurrentKit(state.instrument.getKit());
-    }
-  }, [trackId]);
-
-  useEffect(() => {
-    const state = trackEngineRegistry.get(trackId);
     if (!(state?.instrument instanceof DrumMachineEngine)) return;
     const engine = state.instrument;
     for (const pad of DRUM_PADS) {
@@ -290,20 +286,27 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
   const handleKitChange = useCallback(
     async (kitId: DrumKitId) => {
+      setDropdownOpen(false);
+      setDrumKit(trackId, kitId);
+      // setDrumKit no-ops while a collaborator holds the track lock
+      const took =
+        useStore.getState().tracks.find((t) => t.id === trackId)?.drumKit ===
+        kitId;
+      if (!took) return;
+      // Apply to the engine directly for immediate feedback; the playback
+      // engine's store sync also calls setKit, which dedupes in-flight loads.
       const state = trackEngineRegistry.get(trackId);
       if (!(state?.instrument instanceof DrumMachineEngine)) return;
       setLoading(true);
-      setDropdownOpen(false);
       try {
         await state.instrument.setKit(kitId);
-        setCurrentKit(kitId);
       } catch (err) {
         console.error('[DrumMachineView] Failed to load kit:', err);
       } finally {
         setLoading(false);
       }
     },
-    [trackId],
+    [trackId, setDrumKit],
   );
 
   const handleClear = useCallback(() => {
@@ -1296,6 +1299,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   return (
     <div
       ref={containerRef}
+      data-tutorial-id="drum-machine-view"
       className="flex flex-col h-full overflow-hidden"
       tabIndex={0}
       onKeyDown={handleKeyDown}
@@ -1316,7 +1320,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           Drums
         </span>
 
-        <div className="relative">
+        <div className="relative" data-tutorial-id="drum-kit-selector">
           <button
             onClick={() => setDropdownOpen((o) => !o)}
             className="flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-[11px] font-medium cursor-pointer transition-colors"

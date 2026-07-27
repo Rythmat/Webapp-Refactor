@@ -33,14 +33,31 @@ export class HiResPitchStream {
   private yinDetector: YinDetector | null = null;
   private sampleRate: number;
   private fftSize: number;
+  private minFreq: number;
+  private maxFreq: number;
   private timeDomainBuffer: Float32Array;
   private frameId = 0;
   private lastBufferHash = 0;
   private adaptiveSilenceRms: number | null = null;
+  // Decimation: run the (expensive) hi-res CMNDF only every `skipFactor` ticks
+  // and reuse the last result otherwise. Default 1 = compute every tick (Learn
+  // behavior unchanged). The 171ms hi-res window can't update meaningfully
+  // faster than a few Hz anyway, so decimation is free accuracy-wise but a large
+  // CPU win. Studio-gated via ProbabilisticOrchestrator.
+  private skipFactor = 1;
+  private tickCount = 0;
+  private lastResult: PitchDistribution | null = null;
 
-  constructor(sampleRate: number, fftSize: number = 8192) {
+  constructor(
+    sampleRate: number,
+    fftSize: number = 8192,
+    minFreq: number = PIANO_MIN_FREQ,
+    maxFreq: number = PIANO_MAX_FREQ,
+  ) {
     this.sampleRate = sampleRate;
     this.fftSize = fftSize;
+    this.minFreq = minFreq;
+    this.maxFreq = maxFreq;
     this.timeDomainBuffer = new Float32Array(fftSize);
   }
 
@@ -51,9 +68,23 @@ export class HiResPitchStream {
    * The hi-res analyser updates slower than the RAF rate, so we check
    * whether the buffer has changed by comparing time-domain data.
    */
+  /** Set the CMNDF decimation factor (1 = every tick). Studio-only tuning. */
+  setSkipFactor(n: number): void {
+    this.skipFactor = Math.max(1, Math.floor(n));
+  }
+
   process(analyser: AnalyserNode): PitchDistribution | null {
     const sampleRate = analyser.context.sampleRate;
     const now = performance.now();
+
+    // Decimation gate: on skipped ticks, reuse the last distribution and skip
+    // the expensive CMNDF entirely. Computes on the first tick then every
+    // skipFactor-th tick (so there's no startup delay). skipFactor=1 never
+    // skips (Learn unchanged).
+    this.tickCount++;
+    if (this.skipFactor > 1 && (this.tickCount - 1) % this.skipFactor !== 0) {
+      return this.lastResult;
+    }
 
     // Ensure YIN detector matches current sample rate
     if (!this.yinDetector || this.sampleRate !== sampleRate) {
@@ -62,8 +93,8 @@ export class HiResPitchStream {
         frameLength: this.fftSize,
         sampleRate,
         threshold: YIN_THRESHOLD,
-        minFreq: PIANO_MIN_FREQ,
-        maxFreq: PIANO_MAX_FREQ,
+        minFreq: this.minFreq,
+        maxFreq: this.maxFreq,
         maxCandidates: MAX_CANDIDATES,
       });
     }
@@ -96,7 +127,8 @@ export class HiResPitchStream {
     if (rms < silenceThreshold) {
       const probs = new Float64Array(NUM_STATES);
       probs[SILENCE_STATE] = 1;
-      return { probs, timestamp: now, frameId: id };
+      this.lastResult = { probs, timestamp: now, frameId: id };
+      return this.lastResult;
     }
 
     // Run YIN multi-candidate
@@ -107,7 +139,8 @@ export class HiResPitchStream {
       probs[SILENCE_STATE] = 0.85;
       const uniform = 0.15 / 88;
       for (let i = 0; i < 88; i++) probs[i] = uniform;
-      return { probs, timestamp: now, frameId: id };
+      this.lastResult = { probs, timestamp: now, frameId: id };
+      return this.lastResult;
     }
 
     // Convert candidates to probability distribution (same as FastPitchStream
@@ -134,7 +167,7 @@ export class HiResPitchStream {
     // HPS-style octave correction: boost sub-octave when upper dominates
     for (const cp of candidateProbs) {
       const halfFreq = cp.candidate.frequency / 2;
-      if (halfFreq < PIANO_MIN_FREQ) continue;
+      if (halfFreq < this.minFreq) continue;
       const subOctave = candidateProbs.find((other) => {
         const ratio = other.candidate.frequency / halfFreq;
         return ratio > 0.95 && ratio < 1.05;
@@ -167,7 +200,8 @@ export class HiResPitchStream {
 
     normalizeDistribution(probs);
 
-    return { probs, timestamp: now, frameId: id };
+    this.lastResult = { probs, timestamp: now, frameId: id };
+    return this.lastResult;
   }
 
   /** Set adaptive silence threshold from calibrated noise floor. */
@@ -181,5 +215,7 @@ export class HiResPitchStream {
     this.frameId = 0;
     this.lastBufferHash = 0;
     this.adaptiveSilenceRms = null;
+    this.tickCount = 0;
+    this.lastResult = null;
   }
 }

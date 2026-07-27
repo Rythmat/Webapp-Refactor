@@ -204,4 +204,38 @@ export const ROOTS_AND_ROUTES: RootsRoute[] = [
       },
     ],
   },
+  // source: wiki/topics/andalusian-music.md · Filip Holm — https://youtu.be/_RoV2A4_FK4
+  {
+    id: 'baghdad-to-al-andalus',
+    title: 'The Andalusian Road',
+    overview:
+      'How the Baghdad court school travelled west with Ziryab to Córdoba, founding the Andalusian tradition — and carrying the oud that became the European lute and guitar.',
+    steps: [
+      {
+        label: 'Baghdad Court School',
+        region: 'Baghdad',
+        note: 'Ziryab trains under Ibrahim and Ishaq al-Mawsili in the Abbasid court — one of the three great centres of Islamic-world music, alongside Medina.',
+      },
+      {
+        label: 'Ziryab Heads West',
+        region: 'Syria & Tunisia',
+        note: 'Leaving the Abbasid court, the 9th-century musician carries the Baghdad court style westward, via Syria and Tunisia.',
+      },
+      {
+        label: 'The School of Córdoba',
+        region: 'Córdoba, al-Andalus',
+        note: 'He founds what may be the first true school of music in European history, seeding the Andalusian classical tradition and making Córdoba a great music centre.',
+      },
+      {
+        label: 'Music of the Maghreb',
+        region: 'North African Maghreb',
+        note: 'The Andalusian classical tradition lives on across the Maghreb, still descended from the Baghdad court school.',
+      },
+      {
+        label: 'From Oud to Lute to Guitar',
+        region: 'Spain & Europe',
+        note: 'Ziryab popularises the oud in Spain (adding a fifth string); its spread into Europe becomes the lute and, eventually, the guitar.',
+      },
+    ],
+  },
 ];

@@ -110,6 +110,22 @@ export class Filter {
     return this.output.gain;
   }
 
+  dispose(): void {
+    for (const node of [
+      this.input,
+      this.biquad,
+      this.dryGain,
+      this.wetGain,
+      this.output,
+    ]) {
+      try {
+        node.disconnect();
+      } catch {
+        /* already disconnected */
+      }
+    }
+  }
+
   getFrequencyResponse(frequencies: Float32Array): {
     magnitude: Float32Array;
     phase: Float32Array;

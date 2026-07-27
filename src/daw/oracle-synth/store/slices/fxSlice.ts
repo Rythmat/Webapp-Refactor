@@ -8,6 +8,7 @@ import type {
   PhaserParams,
   CompressorParams,
   DriveParams,
+  ReverbParams,
 } from '../../audio/types';
 
 export interface FXSlice {
@@ -33,6 +34,10 @@ export interface FXSlice {
     key: K,
     value: DriveParams[K],
   ) => void;
+  setReverbParam: <K extends keyof ReverbParams>(
+    key: K,
+    value: ReverbParams[K],
+  ) => void;
   setFXParams: (fx: FXParams) => void;
   addFXRoute: () => void;
   removeFXRoute: (id: string) => void;
@@ -52,9 +57,17 @@ export const DEFAULT_FX: FXParams = {
     release: 0.25,
   },
   drive: { enabled: false, amount: 0.3, mix: 0.5 },
+  reverb: { enabled: false, size: 0.5, decay: 0.5, damping: 0.3, mix: 0.3 },
 };
 
-const FX_TYPES: FXType[] = ['drive', 'chorus', 'phaser', 'delay', 'compressor'];
+const FX_TYPES: FXType[] = [
+  'drive',
+  'chorus',
+  'phaser',
+  'delay',
+  'reverb',
+  'compressor',
+];
 
 let fxRouteId = 0;
 
@@ -90,13 +103,18 @@ export const createFXSlice: StateCreator<FXSlice, [], [], FXSlice> = (
       fx: { ...state.fx, drive: { ...state.fx.drive, [key]: value } },
     })),
 
+  setReverbParam: (key, value) =>
+    set((state) => ({
+      fx: { ...state.fx, reverb: { ...state.fx.reverb, [key]: value } },
+    })),
+
   setFXParams: (fx) => set({ fx: structuredClone(fx) }),
 
   addFXRoute: () => {
     const state = get();
     const usedTypes = new Set(state.fxRoutes.map((r) => r.type));
     const availableType = FX_TYPES.find((t) => !usedTypes.has(t));
-    if (!availableType) return; // all 5 types in use
+    if (!availableType) return; // all 6 types in use
     const id = `fx-${++fxRouteId}`;
     const newRoute: FXRoute = { id, type: availableType, target: 'master' };
     set((s) => ({

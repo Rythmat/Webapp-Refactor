@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
+import { ensureToneUsesSharedContext } from '@/audio/core/toneBridge';
 import {
   releaseAllPianoNotes,
   startPianoSampler,
@@ -8,11 +9,13 @@ import {
 } from '@/audio/pianoSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
-import PianoRoll, { NoteEvent, pitchNameToMidi } from './PianoRollPlay';
+import { ArcadeGameHeader } from './ArcadeGameHeader';
+import { NoteEvent, pitchNameToMidi } from './PianoRollPlay';
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: 'e1', pitchName: 'C3', startTicks: 0, durationTicks: 1920 },
@@ -47,6 +50,7 @@ type PlayAlongProps = {
   isActive?: boolean;
   startSignal?: number;
   startMessage?: string;
+  arcade?: boolean;
 };
 
 type NotePerformance = {
@@ -60,6 +64,7 @@ export const PlayAlong = ({
   activityColor = '#60a5fa',
   isActive = true,
   startSignal = 0,
+  arcade = false,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const maxEventEndTick = useMemo(
@@ -92,15 +97,16 @@ export const PlayAlong = ({
   // genre/courses lessons (curriculum/hooks/useMetronome.ts). Switched away
   // from pre-rendered mp3 Tone.Players because the player buffers were
   // failing to play reliably in theory activities.
-  const metronomeSynth = useMemo(
-    () =>
-      new Tone.MembraneSynth({
-        pitchDecay: 0.008,
-        octaves: 2,
-        envelope: { attack: 0.001, decay: 0.04, sustain: 0, release: 0.05 },
-      }).toDestination(),
-    [],
-  );
+  const metronomeSynth = useMemo(() => {
+    // Built at render, before anything calls startTone() — bridge first so
+    // the synth binds to the shared context.
+    ensureToneUsesSharedContext();
+    return new Tone.MembraneSynth({
+      pitchDecay: 0.008,
+      octaves: 2,
+      envelope: { attack: 0.001, decay: 0.04, sustain: 0, release: 0.05 },
+    }).toDestination();
+  }, []);
 
   // Mirror the lesson volume dial onto the metronome synth so the dial in
   // theory lessons actually controls the click level.
@@ -483,6 +489,52 @@ export const PlayAlong = ({
     };
   }, [releaseActiveNotes]);
 
+  const gameplayContent = (
+    <>
+      <GenrePianoRoll
+        key={playSessionId}
+        inTime
+        activeMidis={activeMidis}
+        bars={requiredBars}
+        beatsPerBar={4}
+        events={resolvedEvents}
+        isPlaying={isPlaying}
+        performanceMeta={performanceMeta}
+        playSpeed={80}
+        rowHeight={28 * 18}
+        subdivision={1}
+        keyColor={activityColor}
+        onPlayingChange={setIsPlaying}
+        onTickChange={setCurrentTick}
+      />
+      <div className="flex items-stretch gap-3">
+        <div className="flex-1 min-w-0">
+          <PianoKeyboard
+            showOctaveStart
+            activeBlackKeyColor={activityColor}
+            activeWhiteKeyColor={activityColor}
+            className="mx-auto"
+            endC={6}
+            playingNotes={keyboardPlayingNotes}
+            startC={2}
+          />
+        </div>
+        <LessonVolumeDial />
+      </div>
+    </>
+  );
+
+  if (arcade) {
+    return (
+      <div className="flex h-full w-full flex-col">
+        <ArcadeGameHeader title="Play Along" />
+        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 p-4">
+          {gameplayContent}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="relative">
@@ -493,35 +545,7 @@ export const PlayAlong = ({
             border: '1px solid var(--color-border)',
           }}
         >
-          <PianoRoll
-            key={playSessionId}
-            inTime
-            activeMidis={activeMidis}
-            bars={requiredBars}
-            beatsPerBar={4}
-            events={resolvedEvents}
-            isPlaying={isPlaying}
-            performanceMeta={performanceMeta}
-            playSpeed={80}
-            rowHeight={28 * 18}
-            subdivision={1}
-            onPlayingChange={setIsPlaying}
-            onTickChange={setCurrentTick}
-          />
-          <div className="flex items-stretch gap-3">
-            <div className="flex-1 min-w-0">
-              <PianoKeyboard
-                showOctaveStart
-                activeBlackKeyColor={activityColor}
-                activeWhiteKeyColor={activityColor}
-                className="mx-auto"
-                endC={6}
-                playingNotes={keyboardPlayingNotes}
-                startC={2}
-              />
-            </div>
-            <LessonVolumeDial />
-          </div>
+          {gameplayContent}
         </div>
       </div>
     </div>

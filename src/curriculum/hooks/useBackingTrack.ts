@@ -18,6 +18,7 @@
 
 import { useRef, useCallback, useEffect } from 'react';
 import * as Tone from 'tone';
+import { startTone } from '@/audio/core/toneBridge';
 import { DrumMachineEngine } from '../../daw/instruments/DrumMachineEngine';
 // Bass uses direct Tone.Sampler for triggerAttackRelease (self-contained per note)
 import { SoundFontAdapter } from '../../daw/instruments/SoundFontAdapter';
@@ -1268,7 +1269,7 @@ export function useBackingTrack(tempo: number) {
     enginesLoading.current = true;
 
     try {
-      await Tone.start();
+      await startTone();
       const ctx = Tone.getContext().rawContext as AudioContext;
 
       // Bridge Tone.js Gain nodes route through standardized-audio-context
@@ -1318,7 +1319,7 @@ export function useBackingTrack(tempo: number) {
         if (sf2Ready.current) return true;
         if (sf2LoadingRef.current) return false;
         sf2LoadingRef.current = true;
-        await Tone.start();
+        await startTone();
         const ctx = Tone.getContext().rawContext as AudioContext;
         const out = ctx.destination;
         sf2BassRef.current = new SoundFontAdapter(33);
@@ -1430,7 +1431,7 @@ export function useBackingTrack(tempo: number) {
       Tone.getTransport().stop();
       Tone.getTransport().cancel();
       disposeAll();
-      await Tone.start();
+      await startTone();
       ensureFallbackSynths();
       const usePopPad = genre === 'pop' && ensurePopPad();
 

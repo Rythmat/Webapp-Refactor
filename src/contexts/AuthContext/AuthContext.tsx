@@ -11,6 +11,8 @@ import {
 import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import SuperJSON from 'superjson';
+import { audioEngine } from '@/audio/AudioEngine';
+import { APP_CLIPS } from '@/audio/samples/appClips';
 import {
   getCurrentAppSessionId,
   setCurrentAppSessionId,
@@ -450,9 +452,10 @@ export const AuthContextProvider = ({
     didPlayLoginJingleRef.current = true;
     sessionStorage.removeItem('auth0:interactive-login-callback');
 
-    const welcomeAudio = new Audio('/welcome.mp3');
-    welcomeAudio.volume = 0.5;
-    void welcomeAudio.play().catch(() => undefined);
+    audioEngine.playAudioClip(APP_CLIPS.welcome, {
+      gain: 0.5,
+      waitForLoad: true,
+    });
   }, [appUser, isBootstrapLoading]);
 
   useEffect(() => {

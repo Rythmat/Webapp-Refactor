@@ -149,6 +149,8 @@ export function MajorArcanumPage() {
 
 export function ConstellationsPage() {
   const navigate = useNavigate();
+  // Bumped on every round start: 0 means the player hasn't pressed Start yet,
+  // and each later value re-randomizes the tube colours.
   const [roundKey, setRoundKey] = useState(0);
 
   const handleRoundStart = useCallback(() => {
@@ -163,10 +165,17 @@ export function ConstellationsPage() {
         <Constellations
           onRoundStart={handleRoundStart}
           onExit={() => navigate(GameRoutes.root())}
-        />
-        <TubesCursor
-          colorKey={roundKey}
-          className="absolute inset-0 z-10 opacity-60 pointer-events-none"
+          // Mounted only once the round is under way, so neither the tubes'
+          // load-in sweep nor the cursor trail shows on the ready screen, and
+          // passed as a body overlay so it stays below the header bar.
+          bodyOverlay={
+            roundKey > 0 ? (
+              <TubesCursor
+                colorKey={roundKey}
+                className="absolute inset-0 z-[3] opacity-60 pointer-events-none"
+              />
+            ) : null
+          }
         />
       </div>
     </div>

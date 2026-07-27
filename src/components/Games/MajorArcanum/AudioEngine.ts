@@ -1,11 +1,39 @@
-import type { WorkletSynthesizer } from 'spessasynth_lib';
+import {
+  createBus,
+  getAudioContext,
+  resumeAudio,
+} from '@/audio/engine/AudioBus';
+import { metronome } from '@/audio/transport/Metronome';
+import {
+  getLocalChannel,
+  initJamSynth,
+  jamControllerChange,
+  jamNoteOff,
+  jamNoteOn,
+  jamProgramChange,
+} from '@/components/JamRoom/jamSoundFont';
 import type { OscillatorEntry } from './types';
+
+const CC_CHANNEL_VOLUME = 7; // MIDI CC7
+const GRAND_PIANO_PROGRAM = 0; // GM program: "Acoustic Grand Piano"
+
+// Melody used to run synth → melodyGain(1.0) → masterGain(0.4) → speakers. It
+// now runs through the shared synth's own bus, so that 0.4 is folded into the
+// channel volume instead to keep melody at the same level against the drums.
+const MELODY_LEVEL_SCALAR = 0.4;
 
 /**
  * Audio engine for Major Arcanum.
- * Melody tones use SpessaSynth (GM soundfont) with an oscillator fallback.
- * Metronome clicks and drum sounds are synthesized via Web Audio.
- * Supports per-category volume controls (melody, drums, metronome).
+ *
+ * Melody tones play through the *shared* SpessaSynth (see JamRoom/jamSoundFont)
+ * on this game's MIDI channel, parameterized by program + channel volume — it
+ * used to construct a second synth and fetch its own copy of the 31 MB GM
+ * soundfont, so playing two games downloaded and parsed it twice. The
+ * oscillator fallback still covers the window before the soundfont is ready.
+ *
+ * Metronome clicks and drum sounds stay synthesized here, on this game's own
+ * buses off the shared master. Supports per-category volume controls (melody,
+ * drums, metronome).
  */
 export class AudioEngine {
   ctx: AudioContext;
@@ -18,18 +46,18 @@ export class AudioEngine {
   activeOscillators: Map<number, OscillatorEntry>;
   private noiseBuffer: AudioBuffer | null = null;
 
-  // SpessaSynth soundfont
-  private synth: WorkletSynthesizer | null = null;
+  // Shared SpessaSynth soundfont, addressed by channel
+  private readonly channel = getLocalChannel();
   private synthReady = false;
   private activeNotes = new Set<number>();
+  // Mixer positions (0–1), combined into this channel's MIDI volume.
+  private masterVolume = 1;
+  private melodyVolume = 1;
 
   constructor() {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    this.ctx = new AudioContextClass();
-
-    this.masterGain = this.ctx.createGain();
-    this.masterGain.gain.value = 0.4;
-    this.masterGain.connect(this.ctx.destination);
+    // Shared context + this game's own buses, rather than a context per game.
+    this.ctx = getAudioContext();
+    this.masterGain = createBus(0.4);
 
     this.melodyGain = this.ctx.createGain();
     this.melodyGain.gain.value = 1.0;
@@ -60,30 +88,26 @@ export class AudioEngine {
 
   private async initSoundFont() {
     try {
-      await this.ctx.audioWorklet.addModule(
-        '/daw-assets/spessasynth_processor.min.js',
-      );
-      const { WorkletSynthesizer } = await import('spessasynth_lib');
-      this.synth = new WorkletSynthesizer(this.ctx);
-      await (this.synth as any).isReady;
-
-      const sfResponse = await fetch('/daw-assets/GeneralUser_GS.sf2');
-      if (!sfResponse.ok)
-        throw new Error(`SF2 fetch failed: ${sfResponse.status}`);
-      const sfData = await sfResponse.arrayBuffer();
-      await (this.synth as any).soundBankManager.addSoundBank(sfData, 'gm');
-
-      // Route through melodyGain for volume control
-      this.synth.connect(this.melodyGain);
-
-      // Default: Acoustic Grand Piano on channel 0
-      this.synth.programChange(0, 0);
-
+      // Shared load: whichever game got here first paid for the soundfont.
+      await initJamSynth();
+      jamProgramChange(this.channel, GRAND_PIANO_PROGRAM);
       this.synthReady = true;
+      this.applyMelodyVolume();
     } catch {
       // Soundfont failed to load — oscillator fallback will be used
       this.synthReady = false;
     }
+  }
+
+  /** Push the melody mixer position at the shared synth as MIDI channel volume. */
+  private applyMelodyVolume() {
+    if (!this.synthReady) return;
+    const level = this.masterVolume * this.melodyVolume * MELODY_LEVEL_SCALAR;
+    jamControllerChange(
+      this.channel,
+      CC_CHANNEL_VOLUME,
+      Math.round(Math.max(0, Math.min(1, level)) * 127),
+    );
   }
 
   setVolume(
@@ -93,42 +117,50 @@ export class AudioEngine {
     const clamped = Math.max(0, Math.min(1, value));
     switch (category) {
       case 'master':
+        this.masterVolume = clamped;
         this.masterGain.gain.value = clamped * 0.4;
+        this.applyMelodyVolume();
         break;
       case 'melody':
+        this.melodyVolume = clamped;
+        // Also drives the oscillator fallback, which still runs through here.
         this.melodyGain.gain.value = clamped;
+        this.applyMelodyVolume();
         break;
       case 'drums':
         this.drumGain.gain.value = clamped;
         break;
       case 'metronome':
+        // The click now plays on the shared metronome bus, so this game's
+        // slider drives that bus. Acceptable while Major Arcanum is the only
+        // metronome running; it moves to a per-feature send if that changes.
         this.metronomeGain.gain.value = clamped;
+        metronome.setVolume(clamped);
         break;
     }
   }
 
   resume() {
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    resumeAudio();
   }
 
-  suspend() {
-    if (this.ctx.state === 'running') this.ctx.suspend();
-  }
-
+  /**
+   * Release this game's nodes and silence its synth channel. The context and
+   * the synth are shared — neither is closed here.
+   */
   close() {
-    if (this.synth) {
-      this.synth.controllerChange(0, 123, 0); // all notes off
-      this.synth.disconnect();
+    if (this.synthReady) {
+      for (const midi of this.activeNotes) jamNoteOff(this.channel, midi);
     }
     this.activeOscillators.forEach((_, midi) => this.stopTone(midi));
     this.activeNotes.clear();
-    this.ctx.close();
+    this.masterGain.disconnect();
   }
 
   startTone(midi: number) {
-    if (this.synth && this.synthReady) {
+    if (this.synthReady) {
       this.stopTone(midi);
-      this.synth.noteOn(0, midi, 100);
+      jamNoteOn(this.channel, midi, 100);
       this.activeNotes.add(midi);
       return;
     }
@@ -167,8 +199,8 @@ export class AudioEngine {
 
   stopTone(midi: number) {
     // SpessaSynth path
-    if (this.activeNotes.has(midi) && this.synth && this.synthReady) {
-      this.synth.noteOff(0, midi);
+    if (this.activeNotes.has(midi) && this.synthReady) {
+      jamNoteOff(this.channel, midi);
       this.activeNotes.delete(midi);
       return;
     }
@@ -192,18 +224,12 @@ export class AudioEngine {
     }
   }
 
+  /**
+   * The game schedules its own beat grid, so it asks the shared metronome for
+   * the click sound at a precise time rather than handing over the timing.
+   */
   playClick(time: number, isDownbeat: boolean) {
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.connect(gain);
-    gain.connect(this.metronomeGain);
-    osc.frequency.setValueAtTime(isDownbeat ? 1200 : 800, time);
-    osc.type = 'sine';
-    gain.gain.setValueAtTime(0, time);
-    gain.gain.linearRampToValueAtTime(0.5, time + 0.001);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
-    osc.start(time);
-    osc.stop(time + 0.03);
+    metronome.click(time, isDownbeat);
   }
 
   playDrum(type: 'kick' | 'snare' | 'hat', time: number) {

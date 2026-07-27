@@ -1,5 +1,9 @@
 import * as Tone from 'tone';
 import {
+  ensureToneUsesSharedContext,
+  startTone,
+} from '@/audio/core/toneBridge';
+import {
   trackAudioTrigger,
   trackAudioRelease,
 } from '@/telemetry/hooks/useTelemetryAudio';
@@ -64,7 +68,7 @@ const ensureSamplerLoaded = async () => {
 
 export const startPianoSampler = async () => {
   if (Tone.getContext().state !== 'running') {
-    await Tone.start();
+    await startTone();
   }
   await resumeContextIfNeeded();
   await ensureSamplerLoaded();
@@ -75,6 +79,10 @@ export const getPianoSampler = async (): Promise<Tone.Sampler> => {
     return samplerInstance;
   }
   if (!samplerPromise) {
+    // A Tone node is bound to whichever context is current when it is built,
+    // so the context must be bridged before the sampler exists — this is
+    // reachable directly (preloading), not only via startPianoSampler.
+    ensureToneUsesSharedContext();
     samplerPromise = (async () => {
       const sampler = new Tone.Sampler({
         urls: buildPianoSampleUrls(),

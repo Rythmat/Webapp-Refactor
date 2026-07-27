@@ -1,4 +1,5 @@
 import { KeyboardEvent, useCallback, useEffect, useRef } from 'react';
+import { audioEngine, type ClipHandle } from '@/audio/AudioEngine';
 import { usePlayNote } from '@/contexts/PianoContext';
 
 type ChordProgression = number[][];
@@ -48,12 +49,14 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
   const noteIndex = useRef<number | null>(null);
   const previousValue = useRef<string>('');
   const playNote = usePlayNote();
-  const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const activeClipRef = useRef<ClipHandle | null>(null);
   const autofillActive = useRef(false);
   const suppressTypingUntil = useRef<number>(0);
 
   const nowMs = () => Date.now();
 
+  // One clip at a time, as the single <audio> element used to enforce: a new
+  // file interrupts whatever this hook is currently playing.
   const playAudioFile = useCallback((filePath: string) => {
     if (!filePath || typeof window === 'undefined') {
       return;
@@ -68,26 +71,11 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
           ? rawBasePath.slice(0, -1)
           : rawBasePath;
     const targetSrc = `${basePath}${normalizedPath}`;
-    const absoluteSrc = new URL(targetSrc, window.location.origin).href;
 
-    const audioElement = audioElementRef.current ?? new Audio();
-
-    audioElement.pause();
-
-    if (audioElement.src !== absoluteSrc) {
-      audioElement.src = absoluteSrc;
-    }
-
-    audioElement.currentTime = 0;
-
-    const playPromise = audioElement.play();
-    if (playPromise && typeof playPromise.catch === 'function') {
-      playPromise.catch((error) => {
-        console.warn(`Unable to play audio file: ${absoluteSrc}`, error);
-      });
-    }
-
-    audioElementRef.current = audioElement;
+    activeClipRef.current?.stop();
+    activeClipRef.current = audioEngine.playAudioUrl(targetSrc, {
+      waitForLoad: true,
+    });
   }, []);
 
   const playAcceptedAudio = useCallback(() => {
@@ -180,13 +168,8 @@ export const useMusicalForm = (config: MusicalFormConfig = {}) => {
 
   useEffect(() => {
     return () => {
-      if (!audioElementRef.current) {
-        return;
-      }
-
-      audioElementRef.current.pause();
-      audioElementRef.current.src = '';
-      audioElementRef.current = null;
+      activeClipRef.current?.stop();
+      activeClipRef.current = null;
     };
   }, []);
 

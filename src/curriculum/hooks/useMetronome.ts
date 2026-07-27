@@ -1,5 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import * as Tone from 'tone';
+import { audioEngine } from '@/audio/AudioEngine';
+import { startTone } from '@/audio/core/toneBridge';
 
 interface UseMetronomeOptions {
   bpm: number;
@@ -62,7 +64,7 @@ export function useMetronome({
   // Transport.cancel() or prior stop() calls leave no stale state that would cause
   // beat 1 to be dropped when Transport next starts from position 0.
   const prepare = useCallback(async () => {
-    await Tone.start();
+    await startTone();
     ensureSynth();
     // Always dispose the old sequence — Transport.cancel() clears its internal events
     // and a stopped sequence may not re-register cleanly via start(0).
@@ -109,6 +111,12 @@ export function useMetronome({
 
   const setBpm = useCallback((newBpm: number) => {
     Tone.getTransport().bpm.value = newBpm;
+    // Mirror onto the engine transport so the app has one answer for "what
+    // tempo are we at". The clicks themselves stay on Tone's transport: they
+    // are phase-locked to the lesson's backing-track Parts and must follow its
+    // pause/seek, which the engine scheduler won't own until transport
+    // ownership moves (see audio/transport/Transport.ts).
+    audioEngine.setTempo(newBpm);
   }, []);
 
   // React-driven start/stop. The runningRef guard prevents the useEffect

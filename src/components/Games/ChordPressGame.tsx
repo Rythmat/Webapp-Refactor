@@ -8,6 +8,13 @@ import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useOptionalLearnInputStable } from '@/learn/context/LearnInputContext';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
 import { playGrandPianoNote } from './chordPressAudio';
+import { useGameAudio, type GameAudioEngine } from './useGameAudio';
+
+// Clicking a key sounds through the shared PianoKeyboard's Tone sampler, while
+// the computer-keyboard bindings play the jam synth — so both have to be up
+// before the keyboard is worth touching. Hoisted so the warm-up effect isn't
+// restarted by a new array each render.
+const CHORD_PRESS_ENGINES: GameAudioEngine[] = ['piano-sampler', 'jam-synth'];
 
 type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
 
@@ -173,6 +180,10 @@ export function ChordPressGame({
 }: ChordPressGameProps) {
   const baseOctaveRoot = 60; // middle C
 
+  // Both engines start loading with the first render; the keyboard stays
+  // covered until they can sound, so a player never presses keys in silence.
+  const { ready: audioReady } = useGameAudio(CHORD_PRESS_ENGINES);
+
   const playNote = playGrandPianoNote;
   const pressedKeysRef = useRef<Set<string>>(new Set());
 
@@ -299,6 +310,8 @@ export function ChordPressGame({
 
   useEffect(() => {
     if (!enableComputerKeyboard) return;
+    // Matches the overlay on the keyboard: no input until it can be heard.
+    if (!audioReady) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
@@ -327,7 +340,7 @@ export function ChordPressGame({
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [enableComputerKeyboard, keyboardMap, playNote, toggleNote]);
+  }, [audioReady, enableComputerKeyboard, keyboardMap, playNote, toggleNote]);
 
   const selectedEvents: PlaybackEvent[] = useMemo(() => {
     const color = !checked ? '#a78bfa' : isCorrect ? '#22c55e' : '#f87171';
@@ -418,12 +431,13 @@ export function ChordPressGame({
           <span
             style={{
               fontSize: 18,
-              fontWeight: 700,
+              fontWeight: 400,
               color: '#ddd6fe',
               letterSpacing: 1,
             }}
           >
-            Select the notes from {title}
+            Select the notes from{' '}
+            <span style={{ fontWeight: 700 }}>{title}</span>
           </span>
         </div>
       )}
@@ -431,6 +445,7 @@ export function ChordPressGame({
       {/* Piano keyboard */}
       <div
         style={{
+          position: 'relative',
           borderRadius: 12,
           border: '1.5px solid rgba(255,255,255,0.08)',
           backgroundColor: 'rgba(255,255,255,0.02)',
@@ -438,6 +453,29 @@ export function ChordPressGame({
           marginBottom: 16,
         }}
       >
+        {/* Covers the keys (and swallows clicks) until the samples are up. */}
+        {!audioReady && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 2,
+              borderRadius: 12,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(9,9,11,0.62)',
+              backdropFilter: 'blur(2px)',
+              color: '#ddd6fe',
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: 2,
+              textTransform: 'uppercase',
+            }}
+          >
+            Loading sounds…
+          </div>
+        )}
         <PianoKeyboard
           key={keyboardId}
           startC={3}

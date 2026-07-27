@@ -1,10 +1,13 @@
 /**
- * UI Sound Engine — lightweight Web Audio API singleton for UI feedback sounds.
+ * UI feedback sounds.
  *
- * Lazy-initializes AudioContext on first play (respects browser autoplay policy).
- * Pre-fetches and caches decoded AudioBuffers for instant playback.
- * Respects a global mute setting persisted in localStorage.
+ * A thin, named layer over the shared AudioEngine's clip player — it used to
+ * own an AudioContext, a gain node and a buffer cache of its own. Behaviour is
+ * unchanged: buffers preload on first play, playback is synchronous and
+ * no-ops when muted or not yet decoded, and mute persists in localStorage.
  */
+
+import { audioEngine } from '@/audio/AudioEngine';
 
 export type SoundName =
   | 'click'
@@ -30,43 +33,24 @@ const SOUND_MAP: Record<SoundName, string> = {
 };
 
 const MUTE_KEY = 'ui_sounds_muted';
+/** Namespaced so UI clips can't collide with lesson or game clip ids. */
+const clipId = (name: SoundName) => `ui:${name}`;
 
-let ctx: AudioContext | null = null;
-let gainNode: GainNode | null = null;
-const bufferCache = new Map<SoundName, AudioBuffer>();
-let preloaded = false;
+// Default UI level, matching the gain this module used to apply itself.
+const DEFAULT_UI_VOLUME = 0.5;
 
-function getContext(): AudioContext {
-  if (!ctx) {
-    ctx = new AudioContext();
-    gainNode = ctx.createGain();
-    gainNode.gain.value = 0.5; // default UI sound volume
-    gainNode.connect(ctx.destination);
+let registered = false;
+let preloadStarted = false;
+
+function ensureRegistered(): void {
+  if (registered) return;
+  registered = true;
+  const clips: Record<string, string> = {};
+  for (const [name, url] of Object.entries(SOUND_MAP)) {
+    clips[clipId(name as SoundName)] = url;
   }
-  if (ctx.state === 'suspended') {
-    ctx.resume();
-  }
-  return ctx;
-}
-
-async function preload(): Promise<void> {
-  if (preloaded) return;
-  preloaded = true;
-  const audioCtx = getContext();
-
-  const entries = Object.entries(SOUND_MAP) as [SoundName, string][];
-  await Promise.all(
-    entries.map(async ([name, url]) => {
-      try {
-        const response = await fetch(url);
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-        bufferCache.set(name, audioBuffer);
-      } catch {
-        // Silently skip failed loads — UI sounds are non-critical
-      }
-    }),
-  );
+  audioEngine.registerAudioClips(clips);
+  audioEngine.setBusVolume('ui', DEFAULT_UI_VOLUME);
 }
 
 /** Check if UI sounds are globally muted. */
@@ -81,32 +65,25 @@ export function setUISoundMuted(muted: boolean): void {
 
 /**
  * Play a UI sound by name.
- * Safe to call anytime — will no-op if muted, context unavailable, or buffer not loaded.
+ * Safe to call anytime — no-ops if muted or the buffer isn't loaded yet.
  */
 export function playSound(name: SoundName): void {
   if (isUISoundMuted()) return;
+  ensureRegistered();
 
-  const audioCtx = getContext();
-
-  // Trigger preload on first interaction
-  if (!preloaded) {
-    preload();
+  // Warm the whole set on the first interaction, as before.
+  if (!preloadStarted) {
+    preloadStarted = true;
+    void audioEngine.preload({
+      clips: Object.keys(SOUND_MAP).map((n) => clipId(n as SoundName)),
+    });
   }
 
-  const buffer = bufferCache.get(name);
-  if (!buffer || !gainNode) return;
-
-  const source = audioCtx.createBufferSource();
-  source.buffer = buffer;
-  source.connect(gainNode);
-  source.start(0);
+  audioEngine.playAudioClip(clipId(name));
 }
 
-/**
- * Set the volume for UI sounds (0 to 1).
- */
+/** Set the volume for UI sounds (0 to 1). */
 export function setUISoundVolume(vol: number): void {
-  if (gainNode) {
-    gainNode.gain.value = Math.max(0, Math.min(1, vol));
-  }
+  ensureRegistered();
+  audioEngine.setBusVolume('ui', vol);
 }

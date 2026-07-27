@@ -146,7 +146,13 @@ export const fromResponseAggregate = (
         count: b.count,
         percent: toPercent(b.count, total),
       }));
-      return { kind: 'scale', points, min: aggregate.min, max: aggregate.max, total };
+      return {
+        kind: 'scale',
+        points,
+        min: aggregate.min,
+        max: aggregate.max,
+        total,
+      };
     }
     default:
       // draw / check-in / atlas / showcase have no projector-grade viz.

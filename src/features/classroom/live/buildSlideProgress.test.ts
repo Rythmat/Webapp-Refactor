@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 import type { MspResponseEntry } from '../msp/mspResponseInbox';
 import type { Slide } from '../slides/types';
 import type { InteractionResponsePayload } from '../types';
-import { buildSlideProgress, isAtlasResultComplete } from './buildSlideProgress';
+import {
+  buildSlideProgress,
+  isAtlasResultComplete,
+} from './buildSlideProgress';
 
 const appRouteSlide = (interactionId: string): Slide => ({
   id: 'slide-1',

@@ -145,15 +145,24 @@ export class AudioEngine {
   }
 
   /**
-   * Release this game's nodes and silence its synth channel. The context and
-   * the synth are shared — neither is closed here.
+   * Go silent for a pause. The context is shared app-wide, so this stops only
+   * this game's sounding notes and leaves the clock running — the caller
+   * compensates for elapsed pause time against its own start time.
    */
-  close() {
+  suspend() {
     if (this.synthReady) {
       for (const midi of this.activeNotes) jamNoteOff(this.channel, midi);
     }
     this.activeOscillators.forEach((_, midi) => this.stopTone(midi));
     this.activeNotes.clear();
+  }
+
+  /**
+   * Release this game's nodes and silence its synth channel. The context and
+   * the synth are shared — neither is closed here.
+   */
+  close() {
+    this.suspend();
     this.masterGain.disconnect();
   }
 

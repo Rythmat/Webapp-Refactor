@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
+import { createCollector } from '../fidelity.ts';
 import {
   mapModRoutes,
   type ModSlotInfo,
   type Selections,
 } from '../mapping/modMatrix.ts';
-import { createCollector } from '../fidelity.ts';
 
 function slot(over: Partial<ModSlotInfo>): ModSlotInfo {
   return {

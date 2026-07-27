@@ -10,11 +10,11 @@ import {
   STUDENT_PHASE_LABELS,
   type PhaseKey,
 } from '../phases';
+import { publishDay } from '../publish/publishDay';
+import { usePublishedDays } from '../publish/usePublishedDays';
 import { findDanglingInteractionIds } from '../slides/deck';
 import { emptyDeck } from '../slides/deckEdit';
 import type { Slide } from '../slides/types';
-import { publishDay } from '../publish/publishDay';
-import { usePublishedDays } from '../publish/usePublishedDays';
 import type {
   Cell,
   CellRationale,
@@ -202,7 +202,10 @@ export const DayEditor = () => {
         publishedDayId: pd.id,
       });
       navigate(
-        TeacherRoutes.session({ classroomId: cid, sessionId: started.sessionId }),
+        TeacherRoutes.session({
+          classroomId: cid,
+          sessionId: started.sessionId,
+        }),
       );
     } catch (err) {
       setPublishError(

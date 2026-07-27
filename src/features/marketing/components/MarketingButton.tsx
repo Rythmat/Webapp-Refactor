@@ -27,7 +27,8 @@ export const MarketingButton = ({
       : 'text-white hover:bg-white/10 hover:text-white';
   const variant = tone === 'primary' ? 'outline' : 'ghost';
 
-  return <Button
+  return (
+    <Button
       asChild
       variant={variant}
       size={size}
@@ -44,5 +45,6 @@ export const MarketingButton = ({
           {children}
         </a>
       )}
-    </Button>;
+    </Button>
+  );
 };

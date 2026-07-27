@@ -3,22 +3,22 @@ import { useEffect, useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { InteractionResponseDashboard } from '../assignments/InteractionResponseDashboard';
-import { CurriculumCoveragePanel } from './CurriculumCoveragePanel';
 import { useEnrollments } from '../enrollments';
 import { useMspInboxEntries } from '../msp';
 import { PHASES } from '../phases';
 import { usePublishedDays } from '../publish/usePublishedDays';
-import type { Interaction } from '../types';
-import { buildSlideProgress } from './buildSlideProgress';
 import {
   deckFromSnapshot,
   interactionsForSlide,
   slideAt,
   slideInteractionIds,
 } from '../slides/deck';
+import type { Interaction } from '../types';
+import { CurriculumCoveragePanel } from './CurriculumCoveragePanel';
 import { PhaseNavigator } from './PhaseNavigator';
 import { RosterPanel } from './RosterPanel';
 import { SessionSimulationPanel } from './SessionSimulationPanel';
+import { buildSlideProgress } from './buildSlideProgress';
 import { CurrentSlidePanel } from './slides/CurrentSlidePanel';
 import { MediaRemote } from './slides/MediaRemote';
 import { PairingPanel } from './slides/PairingPanel';
@@ -279,17 +279,15 @@ export const TeacherSessionDashboard = () => {
           ) : currentSlide && currentSlide.kind === 'showcase' ? (
             <ShowcasePanel
               slideId={currentSlide.id}
-              offers={
-                aggregateRows
-                  .filter(
-                    (r) =>
-                      r.kind === 'showcase' &&
-                      currentSlideInteractions.some(
-                        (i) => i.id === r.interactionId,
-                      ),
-                  )
-                  .flatMap((r) => (r.kind === 'showcase' ? r.offers : []))
-              }
+              offers={aggregateRows
+                .filter(
+                  (r) =>
+                    r.kind === 'showcase' &&
+                    currentSlideInteractions.some(
+                      (i) => i.id === r.interactionId,
+                    ),
+                )
+                .flatMap((r) => (r.kind === 'showcase' ? r.offers : []))}
               showcase={state.showcase}
               onFeature={sendShowcase}
               onClear={() => sendShowcase(null)}

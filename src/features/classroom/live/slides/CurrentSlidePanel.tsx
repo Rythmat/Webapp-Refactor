@@ -1,11 +1,11 @@
 import { Eye, EyeOff } from 'lucide-react';
-import type { ResponseAggregate } from '../../assignments/buildResponseAggregate';
-import { fromResponseAggregate } from '../../slides/viz/buildVizAggregate';
-import { RevealViz } from '../../slides/viz/RevealViz';
-import { ResponseRateRing } from '../../slides/viz/ResponseRateRing';
-import type { Interaction } from '../../types';
 import { InteractionResponseDashboard } from '../../assignments/InteractionResponseDashboard';
+import type { ResponseAggregate } from '../../assignments/buildResponseAggregate';
 import type { Slide } from '../../slides/types';
+import { ResponseRateRing } from '../../slides/viz/ResponseRateRing';
+import { RevealViz } from '../../slides/viz/RevealViz';
+import { fromResponseAggregate } from '../../slides/viz/buildVizAggregate';
+import type { Interaction } from '../../types';
 import type { SlideProgress, SlideProgressState } from '../buildSlideProgress';
 import { AppRouteProgressStrip } from './AppRouteProgressStrip';
 
@@ -87,7 +87,9 @@ export const CurrentSlidePanel = ({
                 </span>
                 <button
                   type="button"
-                  onClick={() => canShare && onToggleShare(interaction.id, !shared)}
+                  onClick={() =>
+                    canShare && onToggleShare(interaction.id, !shared)
+                  }
                   disabled={!canShare}
                   title={
                     canShare

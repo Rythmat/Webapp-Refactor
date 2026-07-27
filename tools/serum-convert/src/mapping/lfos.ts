@@ -2,6 +2,10 @@
 // Serum LFOs win slots; each LFO's single-cycle curveData becomes an
 // Oracle bar shape, replicated to approximate the Serum rate at 120 BPM.
 
+import type { CborValue } from '../cbor.ts';
+import type { FidelityCollector } from '../fidelity.ts';
+import type { LFONodeOut, PresetDataOut } from '../oracleTypes.ts';
+import { clamp, lfoSyncCyclesPerBar } from '../serumDefaults.ts';
 import {
   plainParams,
   num,
@@ -9,10 +13,6 @@ import {
   section,
   type SerumDoc,
 } from '../serumPreset.ts';
-import { clamp, lfoSyncCyclesPerBar } from '../serumDefaults.ts';
-import type { FidelityCollector } from '../fidelity.ts';
-import type { CborValue } from '../cbor.ts';
-import type { LFONodeOut, PresetDataOut } from '../oracleTypes.ts';
 
 interface SerumLfoCurve {
   x: number[];

@@ -1,12 +1,12 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router';
+import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { PrismModeSlug } from '@/hooks/data';
 import { usePrismMode } from '@/hooks/data/prism/usePrismMode';
 import {
   LearnInputProvider,
   useLearnInputStable,
 } from '@/learn/context/LearnInputContext';
-import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { getLocalModeSteps } from '@/lib/modeStepsFallback';
 import { urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';

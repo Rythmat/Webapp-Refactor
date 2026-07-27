@@ -8,8 +8,8 @@
  * Phase 2 app-route slides; they're exported now for API stability.
  */
 import { AtlasRoutes, LearnRoutes } from '@/constants/routes';
-import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { Song, SongMode } from '@/curriculum/types/songLibrary';
+import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { SlideMedia } from './types';
 
 /** Extract a YouTube video id from a watch / share / embed URL. Ported from `SongDetailPage`. */

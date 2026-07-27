@@ -58,9 +58,8 @@ const keyFor = (userId: string | null | undefined): string =>
  * The localStorage key holding a user's inbox — exported so cross-tab `storage`
  * listeners (new-tab module launches) can filter on it.
  */
-export const mspInboxStorageKey = (
-  userId: string | null | undefined,
-): string => keyFor(userId);
+export const mspInboxStorageKey = (userId: string | null | undefined): string =>
+  keyFor(userId);
 
 const readStore = (userId: string | null | undefined): MspInboxStore => {
   if (!isBrowser) return EMPTY_STORE;

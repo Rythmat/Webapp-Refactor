@@ -19,8 +19,8 @@ import { SlideMediaPanel } from '../slides/parts/SlideMediaPanel';
 import type { LocalizedText, StudentLanguage } from '../types';
 import { LaunchTile } from './LaunchTile';
 import { pickLocalized } from './localized';
-import { phaseCellToSlide } from './phaseCellToSlide';
 import { PHASE_ACCENT_HEX } from './phaseAccent';
+import { phaseCellToSlide } from './phaseCellToSlide';
 
 interface PresentSlideProps {
   phase: StudentPhaseView;

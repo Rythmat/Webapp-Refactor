@@ -1,1056 +1,837 @@
 {
- "packId": "serum2",
- "displayName": "SERUM",
- "version": 1,
- "presets": [
-  {
-   "name": "BA - 303 REALITY",
-   "file": "BA - 303 REALITY.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/BA - 303 Reality A"
-   ]
-  },
-  {
-   "name": "BA - ANALOG CLASSICS 7",
-   "file": "BA - ANALOG CLASSICS 7.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/PWM MG",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "BA - MORPHEUS",
-   "file": "BA - MORPHEUS.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Basic Shapes",
-    "S2/Basic Shapes"
-   ]
-  },
-  {
-   "name": "BA - DISCONNECT",
-   "file": "BA - DISCONNECT.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/PolySaw II"
-   ]
-  },
-  {
-   "name": "BA - STANDARD ACID",
-   "file": "BA - STANDARD ACID.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "BA - QUASI ORGAN",
-   "file": "BA - QUASI ORGAN.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Harmonic Series Smooth",
-    "S2/HarmonicSeries"
-   ]
-  },
-  {
-   "name": "BA - OTT SAW WAVE",
-   "file": "BA - OTT SAW WAVE.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/BA - OTT Saw Wave B"
-   ]
-  },
-  {
-   "name": "BA - PUNCH YA",
-   "file": "BA - PUNCH YA.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Basic Shapes"
-   ]
-  },
-  {
-   "name": "BA - SUB AMPLITUDE",
-   "file": "BA - SUB AMPLITUDE.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Basic_McB",
-    "S2/Analog_BD_Sin"
-   ]
-  },
-  {
-   "name": "BA - GOA PEPPER",
-   "file": "BA - GOA PEPPER.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "BA - PULSAR",
-   "file": "BA - PULSAR.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "BA - DONK",
-   "file": "BA - DONK.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Basic Shapes",
-    "S2/Basic Mini"
-   ]
-  },
-  {
-   "name": "BA - DUAL MG BASS",
-   "file": "BA - DUAL MG BASS.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Debussy",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "BA - HARD GRIZLY",
-   "file": "BA - HARD GRIZLY.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/DM FMOD 01",
-    "S2/DM FMOD 01"
-   ]
-  },
-  {
-   "name": "BA - LATELY BASS 2025",
-   "file": "BA - LATELY BASS 2025.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Basic Shapes",
-    "S2/BS2 - Subby Saw"
-   ]
-  },
-  {
-   "name": "BA - EIGHTY",
-   "file": "BA - EIGHTY.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/SawRounded",
-    "S2/SQR_SAW_Wrd"
-   ]
-  },
-  {
-   "name": "BA - MCSPLATTY BASS",
-   "file": "BA - MCSPLATTY BASS.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Acid",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "BA - RENEGADE",
-   "file": "BA - RENEGADE.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Renegade",
-    "S2/Renegade"
-   ]
-  },
-  {
-   "name": "BA - CITRUS",
-   "file": "BA - CITRUS.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Basic Shapes",
-    "S2/Analog_BD_Sin"
-   ]
-  },
-  {
-   "name": "BA - REESE SQUARE",
-   "file": "BA - REESE SQUARE.json",
-   "category": "Bass",
-   "wavetables": [
-    "S2/Basic Shapes",
-    "S2/Basic Shapes"
-   ]
-  },
-  {
-   "name": "LD - MODULAR",
-   "file": "LD - MODULAR.json",
-   "category": "Lead",
-   "wavetables": [
-    "S2/DM FMOD 02",
-    "S2/Saw Square"
-   ]
-  },
-  {
-   "name": "LD - ARTFORM",
-   "file": "LD - ARTFORM.json",
-   "category": "Lead",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "LD - SHARP BRASSY KEYS",
-   "file": "LD - SHARP BRASSY KEYS.json",
-   "category": "Lead",
-   "wavetables": [
-    "S2/Saw Drift PR1",
-    "S2/Saw Drift PR1"
-   ]
-  },
-  {
-   "name": "LD - SLIDE",
-   "file": "LD - SLIDE.json",
-   "category": "Lead",
-   "wavetables": [
-    "S2/Basic Mini",
-    "S2/Saw Drift"
-   ]
-  },
-  {
-   "name": "LD - DARKNESS",
-   "file": "LD - DARKNESS.json",
-   "category": "Lead",
-   "wavetables": [
-    "S2/No Fundamental Saw",
-    "S2/Monster 2 [SL]"
-   ]
-  },
-  {
-   "name": "LD - IRIDIUM",
-   "file": "LD - IRIDIUM.json",
-   "category": "Lead",
-   "wavetables": [
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "LD - DAS EDM",
-   "file": "LD - DAS EDM.json",
-   "category": "Lead",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "LD - DRIFT PLUCK",
-   "file": "LD - DRIFT PLUCK.json",
-   "category": "Lead",
-   "wavetables": [
-    "S2/Hardware Waveforms"
-   ]
-  },
-  {
-   "name": "LD - DEEP ACID",
-   "file": "LD - DEEP ACID.json",
-   "category": "Lead",
-   "wavetables": [
-    "S2/Basic Mini"
-   ]
-  },
-  {
-   "name": "LD - HYPA SAW",
-   "file": "LD - HYPA SAW.json",
-   "category": "Lead",
-   "wavetables": [
-    "S2/Hypa"
-   ]
-  },
-  {
-   "name": "PD - SAFARI",
-   "file": "PD - SAFARI.json",
-   "category": "Pad",
-   "wavetables": [
-    "S2/MWoog"
-   ]
-  },
-  {
-   "name": "PD - CLASSIC ANALOG",
-   "file": "PD - CLASSIC ANALOG.json",
-   "category": "Pad",
-   "wavetables": [
-    "S2/Dying Saw",
-    "S2/PWM Juno"
-   ]
-  },
-  {
-   "name": "PD - ILLUMINOUS",
-   "file": "PD - ILLUMINOUS.json",
-   "category": "Pad",
-   "wavetables": [
-    "S2/MB Saw",
-    "S2/SawRounded"
-   ]
-  },
-  {
-   "name": "PD - BEACH BUTTERFLY",
-   "file": "PD - BEACH BUTTERFLY.json",
-   "category": "Pad",
-   "wavetables": [
-    "S2/Shep. Oct+Fifths",
-    "S2/Modular18"
-   ]
-  },
-  {
-   "name": "PD - EMOTIONS",
-   "file": "PD - EMOTIONS.json",
-   "category": "Pad",
-   "wavetables": [
-    "S2/Mellow But Instable"
-   ]
-  },
-  {
-   "name": "PD - MIDNIGHT",
-   "file": "PD - MIDNIGHT.json",
-   "category": "Pad",
-   "wavetables": [
-    "S2/Bass Pluck",
-    "S2/RCM Bass 1"
-   ]
-  },
-  {
-   "name": "PD - OCTAVIAN",
-   "file": "PD - OCTAVIAN.json",
-   "category": "Pad",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/DM - OSCAR"
-   ]
-  },
-  {
-   "name": "PD - LUSH BAND-PASS SWEEP",
-   "file": "PD - LUSH BAND-PASS SWEEP.json",
-   "category": "Pad",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "SY - ROLLING PLAINS",
-   "file": "SY - ROLLING PLAINS.json",
-   "category": "Synth",
-   "wavetables": [
-    "S2/JF Flute"
-   ]
-  },
-  {
-   "name": "SY - SMOOTH DUBS",
-   "file": "SY - SMOOTH DUBS.json",
-   "category": "Synth",
-   "wavetables": [
-    "S2/Warm Sub",
-    "S2/Solina Viola"
-   ]
-  },
-  {
-   "name": "SY - OVER THE DUNE",
-   "file": "SY - OVER THE DUNE.json",
-   "category": "Synth",
-   "wavetables": [
-    "S2/Acid",
-    "S2/Basic Shapes"
-   ]
-  },
-  {
-   "name": "SY - EMS POLY",
-   "file": "SY - EMS POLY.json",
-   "category": "Synth",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "SY - ENV LPF SEQ",
-   "file": "SY - ENV LPF SEQ.json",
-   "category": "Synth",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/DM - OSCAR"
-   ]
-  },
-  {
-   "name": "SY - MAGNETIC",
-   "file": "SY - MAGNETIC.json",
-   "category": "Synth",
-   "wavetables": [
-    "S2/Basic Shapes"
-   ]
-  },
-  {
-   "name": "SY - WARM SYNTH KEYS",
-   "file": "SY - WARM SYNTH KEYS.json",
-   "category": "Synth",
-   "wavetables": [
-    "S2/DM - OSCAR",
-    "S2/DM FMOD 02"
-   ]
-  },
-  {
-   "name": "SY - SQUARE WAVE SYNTH KEYS",
-   "file": "SY - SQUARE WAVE SYNTH KEYS.json",
-   "category": "Synth",
-   "wavetables": [
-    "S2/DM - OSCAR",
-    "S2/PWM Juno"
-   ]
-  },
-  {
-   "name": "PL - HIGH DRIVE",
-   "file": "PL - HIGH DRIVE.json",
-   "category": "Pluck",
-   "wavetables": [
-    "S2/Softest Growl",
-    "S2/Evolution"
-   ]
-  },
-  {
-   "name": "PL - CAMP FIRE 1",
-   "file": "PL - CAMP FIRE 1.json",
-   "category": "Pluck",
-   "wavetables": [
-    "S2/PWM Genji"
-   ]
-  },
-  {
-   "name": "PL - JUNE",
-   "file": "PL - JUNE.json",
-   "category": "Pluck",
-   "wavetables": [
-    "S2/Jno",
-    "S2/Jno"
-   ]
-  },
-  {
-   "name": "PL - BROKEN LIGHT",
-   "file": "PL - BROKEN LIGHT.json",
-   "category": "Pluck",
-   "wavetables": [
-    "S2/Analog_BD_Sin",
-    "S2/Analog_BD_Sin"
-   ]
-  },
-  {
-   "name": "PL - ALIVE",
-   "file": "PL - ALIVE.json",
-   "category": "Pluck",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "PL - XYLO PLUCK",
-   "file": "PL - XYLO PLUCK.json",
-   "category": "Pluck",
-   "wavetables": [
-    "S2/Basic Shapes",
-    "S2/Xylo Pluck"
-   ]
-  },
-  {
-   "name": "PL - HARP",
-   "file": "PL - HARP.json",
-   "category": "Pluck",
-   "wavetables": [
-    "S2/Braids Bell Pluck",
-    "S2/Basic OPL"
-   ]
-  },
-  {
-   "name": "PL - SINES RULE",
-   "file": "PL - SINES RULE.json",
-   "category": "Pluck",
-   "wavetables": [
-    "S2/Basic Shapes"
-   ]
-  },
-  {
-   "name": "FX - OFFICE TELEPHONE",
-   "file": "FX - OFFICE TELEPHONE.json",
-   "category": "SFX",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Dying Sine"
-   ]
-  },
-  {
-   "name": "FX - RISE SWEEP - DIGI",
-   "file": "FX - RISE SWEEP - DIGI.json",
-   "category": "SFX",
-   "wavetables": [
-    "S2/Fish flips and morphs into Swordfish",
-    "S2/AM Sine Harmonics"
-   ]
-  },
-  {
-   "name": "FX - DROP SWEEP - SQUARE",
-   "file": "FX - DROP SWEEP - SQUARE.json",
-   "category": "SFX",
-   "wavetables": [
-    "S2/Dinosaurs",
-    "S2/Harm Octave"
-   ]
-  },
-  {
-   "name": "FX - FM BUBBLE SWEEP",
-   "file": "FX - FM BUBBLE SWEEP.json",
-   "category": "SFX",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "FX - DROP SWEEP - SHAKER",
-   "file": "FX - DROP SWEEP - SHAKER.json",
-   "category": "SFX",
-   "wavetables": [
-    "S2/Sine SuperChirp",
-    "S2/Harsh Harm"
-   ]
-  },
-  {
-   "name": "FX - DROP SWEEP - ALIEN",
-   "file": "FX - DROP SWEEP - ALIEN.json",
-   "category": "SFX",
-   "wavetables": [
-    "S2/Fish flips and morphs into Swordfish",
-    "S2/AM Sine Harmonics"
-   ]
-  },
-  {
-   "name": "FX - TECHNO SIREN",
-   "file": "FX - TECHNO SIREN.json",
-   "category": "SFX",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Monster 1 [SL]"
-   ]
-  },
-  {
-   "name": "FX - RISE SWEEP - SUBSIZZLA",
-   "file": "FX - RISE SWEEP - SUBSIZZLA.json",
-   "category": "SFX",
-   "wavetables": [
-    "S2/FM Dirty Square",
-    "S2/Additive Talk"
-   ]
-  },
-  {
-   "name": "FX - LASER GENERATOR",
-   "file": "FX - LASER GENERATOR.json",
-   "category": "SFX",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "FX - BHOUSE GLIDE - 04",
-   "file": "FX - BHOUSE GLIDE - 04.json",
-   "category": "SFX",
-   "wavetables": [
-    "S2/Monster 7 [SL]",
-    "S2/4088"
-   ]
-  },
-  {
-   "name": "KY - VINCENT",
-   "file": "KY - VINCENT.json",
-   "category": "Keyboard",
-   "wavetables": [
-    "S2/FFT_Add_2nds"
-   ]
-  },
-  {
-   "name": "KY - SONDER",
-   "file": "KY - SONDER.json",
-   "category": "Keyboard",
-   "wavetables": [
-    "S2/Basic_Cjw"
-   ]
-  },
-  {
-   "name": "KY - RETROGRADE",
-   "file": "KY - RETROGRADE.json",
-   "category": "Keyboard",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "KY - SMART FUTURE",
-   "file": "KY - SMART FUTURE.json",
-   "category": "Keyboard",
-   "wavetables": [
-    "S2/MB Saw",
-    "S2/Basic OPL"
-   ]
-  },
-  {
-   "name": "KY - DELICACY",
-   "file": "KY - DELICACY.json",
-   "category": "Keyboard",
-   "wavetables": [
-    "S2/KY - Delicacy A",
-    "S2/KY - Delicacy C"
-   ]
-  },
-  {
-   "name": "OR - HARMONIC SUB VIBES",
-   "file": "OR - HARMONIC SUB VIBES.json",
-   "category": "Organ",
-   "wavetables": [
-    "S2/Subby Roller",
-    "S2/Warm Sub"
-   ]
-  },
-  {
-   "name": "OR - ORGAN ALSO",
-   "file": "OR - ORGAN ALSO.json",
-   "category": "Organ",
-   "wavetables": [
-    "S2/Basic Shapes",
-    "S2/Basic Shapes"
-   ]
-  },
-  {
-   "name": "OR - MEMORY ORGAN ",
-   "file": "OR - MEMORY ORGAN.json",
-   "category": "Organ",
-   "wavetables": [
-    "S2/Memory Organ",
-    "S2/Memory Organ"
-   ]
-  },
-  {
-   "name": "OR - PIPE DREAM",
-   "file": "OR - PIPE DREAM.json",
-   "category": "Organ",
-   "wavetables": [
-    "S2/Harmonic Series Smooth",
-    "S2/Harmonic Series Smooth"
-   ]
-  },
-  {
-   "name": "OR - HOUSE ORGAN",
-   "file": "OR - HOUSE ORGAN.json",
-   "category": "Organ",
-   "wavetables": [
-    "S2/Memory Organ",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "DR - TOM SIMM",
-   "file": "DR - TOM SIMM.json",
-   "category": "Drum",
-   "wavetables": [
-    "S2/Basic Shapes"
-   ]
-  },
-  {
-   "name": "DR - KICK SYNTH 1",
-   "file": "DR - KICK SYNTH 1.json",
-   "category": "Drum",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "DR - KICK MINIMAL",
-   "file": "DR - KICK MINIMAL.json",
-   "category": "Drum",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "DR - KICK HYPE",
-   "file": "DR - KICK HYPE.json",
-   "category": "Drum",
-   "wavetables": [
-    "S2/Default Shapes",
-    "S2/Default Shapes"
-   ]
-  },
-  {
-   "name": "SEQ - LOW FREQZ",
-   "file": "SEQ - LOW FREQZ.json",
-   "category": "Seq",
-   "wavetables": [
-    "S2/BS2 - Acid",
-    "S2/Basic_Wrd"
-   ]
-  },
-  {
-   "name": "SEQ - TRANCE IN THE PANCE",
-   "file": "SEQ - TRANCE IN THE PANCE.json",
-   "category": "Seq",
-   "wavetables": [
-    "S2/Saw Square"
-   ]
-  },
-  {
-   "name": "SEQ - ALMOST A GUITAR",
-   "file": "SEQ - ALMOST A GUITAR.json",
-   "category": "Seq",
-   "wavetables": []
-  },
-  {
-   "name": "SEQ - TRONS ECHOLOT",
-   "file": "SEQ - TRONS ECHOLOT.json",
-   "category": "Seq",
-   "wavetables": [
-    "S2/Basic_Cjw",
-    "S2/AM Sine Harmonics"
-   ]
-  }
- ],
- "wavetables": [
-  {
-   "name": "S2/BA - 303 Reality A",
-   "file": "BA - 303 Reality A.wav",
-   "frames": 2
-  },
-  {
-   "name": "S2/PWM MG",
-   "file": "PWM MG.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Default Shapes",
-   "file": "Default Shapes.wav",
-   "frames": 9
-  },
-  {
-   "name": "S2/Basic Shapes",
-   "file": "Basic Shapes.wav",
-   "frames": 7
-  },
-  {
-   "name": "S2/PolySaw II",
-   "file": "PolySaw II.wav",
-   "frames": 5
-  },
-  {
-   "name": "S2/Harmonic Series Smooth",
-   "file": "Harmonic Series Smooth.wav",
-   "frames": 24
-  },
-  {
-   "name": "S2/HarmonicSeries",
-   "file": "HarmonicSeries.wav",
-   "frames": 24
-  },
-  {
-   "name": "S2/BA - OTT Saw Wave B",
-   "file": "BA - OTT Saw Wave B.wav",
-   "frames": 9
-  },
-  {
-   "name": "S2/Basic_McB",
-   "file": "Basic_McB.wav",
-   "frames": 4
-  },
-  {
-   "name": "S2/Analog_BD_Sin",
-   "file": "Analog_BD_Sin.wav",
-   "frames": 6
-  },
-  {
-   "name": "S2/Basic Mini",
-   "file": "Basic Mini.wav",
-   "frames": 4
-  },
-  {
-   "name": "S2/Debussy",
-   "file": "Debussy.wav",
-   "frames": 21
-  },
-  {
-   "name": "S2/DM FMOD 01",
-   "file": "DM FMOD 01.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/BS2 - Subby Saw",
-   "file": "BS2 - Subby Saw.wav",
-   "frames": 8
-  },
-  {
-   "name": "S2/SawRounded",
-   "file": "SawRounded.wav",
-   "frames": 26
-  },
-  {
-   "name": "S2/SQR_SAW_Wrd",
-   "file": "SQR_SAW_Wrd.wav",
-   "frames": 2
-  },
-  {
-   "name": "S2/Acid",
-   "file": "Acid.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Renegade",
-   "file": "Renegade.wav",
-   "frames": 14
-  },
-  {
-   "name": "S2/DM FMOD 02",
-   "file": "DM FMOD 02.wav",
-   "frames": 4
-  },
-  {
-   "name": "S2/Saw Square",
-   "file": "Saw Square.wav",
-   "frames": 2
-  },
-  {
-   "name": "S2/Saw Drift PR1",
-   "file": "Saw Drift PR1.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Saw Drift",
-   "file": "Saw Drift.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/No Fundamental Saw",
-   "file": "No Fundamental Saw.wav",
-   "frames": 9
-  },
-  {
-   "name": "S2/Monster 2 [SL]",
-   "file": "Monster 2 SL.wav",
-   "frames": 11
-  },
-  {
-   "name": "S2/Hardware Waveforms",
-   "file": "Hardware Waveforms.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Hypa",
-   "file": "Hypa.wav",
-   "frames": 1
-  },
-  {
-   "name": "S2/MWoog",
-   "file": "MWoog.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Dying Saw",
-   "file": "Dying Saw.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/PWM Juno",
-   "file": "PWM Juno.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/MB Saw",
-   "file": "MB Saw.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Shep. Oct+Fifths",
-   "file": "Shep OctFifths.wav",
-   "frames": 10
-  },
-  {
-   "name": "S2/Modular18",
-   "file": "Modular18.wav",
-   "frames": 17
-  },
-  {
-   "name": "S2/Mellow But Instable",
-   "file": "Mellow But Instable.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Bass Pluck",
-   "file": "Bass Pluck.wav",
-   "frames": 10
-  },
-  {
-   "name": "S2/RCM Bass 1",
-   "file": "RCM Bass 1.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/DM - OSCAR",
-   "file": "DM - OSCAR.wav",
-   "frames": 4
-  },
-  {
-   "name": "S2/JF Flute",
-   "file": "JF Flute.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Warm Sub",
-   "file": "Warm Sub.wav",
-   "frames": 2
-  },
-  {
-   "name": "S2/Solina Viola",
-   "file": "Solina Viola.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Softest Growl",
-   "file": "Softest Growl.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Evolution",
-   "file": "Evolution.wav",
-   "frames": 6
-  },
-  {
-   "name": "S2/PWM Genji",
-   "file": "PWM Genji.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Jno",
-   "file": "Jno.wav",
-   "frames": 10
-  },
-  {
-   "name": "S2/Xylo Pluck",
-   "file": "Xylo Pluck.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Braids Bell Pluck",
-   "file": "Braids Bell Pluck.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Basic OPL",
-   "file": "Basic OPL.wav",
-   "frames": 8
-  },
-  {
-   "name": "S2/Dying Sine",
-   "file": "Dying Sine.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Fish flips and morphs into Swordfish",
-   "file": "Fish flips and morphs into Swordfish.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/AM Sine Harmonics",
-   "file": "AM Sine Harmonics.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Dinosaurs",
-   "file": "Dinosaurs.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Harm Octave",
-   "file": "Harm Octave.wav",
-   "frames": 2
-  },
-  {
-   "name": "S2/Sine SuperChirp",
-   "file": "Sine SuperChirp.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Harsh Harm",
-   "file": "Harsh Harm.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Monster 1 [SL]",
-   "file": "Monster 1 SL.wav",
-   "frames": 12
-  },
-  {
-   "name": "S2/FM Dirty Square",
-   "file": "FM Dirty Square.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Additive Talk",
-   "file": "Additive Talk.wav",
-   "frames": 11
-  },
-  {
-   "name": "S2/Monster 7 [SL]",
-   "file": "Monster 7 SL.wav",
-   "frames": 17
-  },
-  {
-   "name": "S2/4088",
-   "file": "4088.wav",
-   "frames": 16
-  },
-  {
-   "name": "S2/FFT_Add_2nds",
-   "file": "FFT_Add_2nds.wav",
-   "frames": 16
-  },
-  {
-   "name": "S2/Basic_Cjw",
-   "file": "Basic_Cjw.wav",
-   "frames": 6
-  },
-  {
-   "name": "S2/KY - Delicacy A",
-   "file": "KY - Delicacy A.wav",
-   "frames": 4
-  },
-  {
-   "name": "S2/KY - Delicacy C",
-   "file": "KY - Delicacy C.wav",
-   "frames": 1
-  },
-  {
-   "name": "S2/Subby Roller",
-   "file": "Subby Roller.wav",
-   "frames": 6
-  },
-  {
-   "name": "S2/Memory Organ",
-   "file": "Memory Organ.wav",
-   "frames": 8
-  },
-  {
-   "name": "S2/BS2 - Acid",
-   "file": "BS2 - Acid.wav",
-   "frames": 32
-  },
-  {
-   "name": "S2/Basic_Wrd",
-   "file": "Basic_Wrd.wav",
-   "frames": 7
-  }
- ]
+  "packId": "serum2",
+  "displayName": "SERUM",
+  "version": 1,
+  "presets": [
+    {
+      "name": "BA - 303 REALITY",
+      "file": "BA - 303 REALITY.json",
+      "category": "Bass",
+      "wavetables": ["S2/BA - 303 Reality A"]
+    },
+    {
+      "name": "BA - ANALOG CLASSICS 7",
+      "file": "BA - ANALOG CLASSICS 7.json",
+      "category": "Bass",
+      "wavetables": ["S2/PWM MG", "S2/Default Shapes"]
+    },
+    {
+      "name": "BA - MORPHEUS",
+      "file": "BA - MORPHEUS.json",
+      "category": "Bass",
+      "wavetables": ["S2/Basic Shapes", "S2/Basic Shapes"]
+    },
+    {
+      "name": "BA - DISCONNECT",
+      "file": "BA - DISCONNECT.json",
+      "category": "Bass",
+      "wavetables": ["S2/PolySaw II"]
+    },
+    {
+      "name": "BA - STANDARD ACID",
+      "file": "BA - STANDARD ACID.json",
+      "category": "Bass",
+      "wavetables": ["S2/Default Shapes"]
+    },
+    {
+      "name": "BA - QUASI ORGAN",
+      "file": "BA - QUASI ORGAN.json",
+      "category": "Bass",
+      "wavetables": ["S2/Harmonic Series Smooth", "S2/HarmonicSeries"]
+    },
+    {
+      "name": "BA - OTT SAW WAVE",
+      "file": "BA - OTT SAW WAVE.json",
+      "category": "Bass",
+      "wavetables": ["S2/Default Shapes", "S2/BA - OTT Saw Wave B"]
+    },
+    {
+      "name": "BA - PUNCH YA",
+      "file": "BA - PUNCH YA.json",
+      "category": "Bass",
+      "wavetables": ["S2/Basic Shapes"]
+    },
+    {
+      "name": "BA - SUB AMPLITUDE",
+      "file": "BA - SUB AMPLITUDE.json",
+      "category": "Bass",
+      "wavetables": ["S2/Basic_McB", "S2/Analog_BD_Sin"]
+    },
+    {
+      "name": "BA - GOA PEPPER",
+      "file": "BA - GOA PEPPER.json",
+      "category": "Bass",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "BA - PULSAR",
+      "file": "BA - PULSAR.json",
+      "category": "Bass",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "BA - DONK",
+      "file": "BA - DONK.json",
+      "category": "Bass",
+      "wavetables": ["S2/Basic Shapes", "S2/Basic Mini"]
+    },
+    {
+      "name": "BA - DUAL MG BASS",
+      "file": "BA - DUAL MG BASS.json",
+      "category": "Bass",
+      "wavetables": ["S2/Debussy", "S2/Default Shapes"]
+    },
+    {
+      "name": "BA - HARD GRIZLY",
+      "file": "BA - HARD GRIZLY.json",
+      "category": "Bass",
+      "wavetables": ["S2/DM FMOD 01", "S2/DM FMOD 01"]
+    },
+    {
+      "name": "BA - LATELY BASS 2025",
+      "file": "BA - LATELY BASS 2025.json",
+      "category": "Bass",
+      "wavetables": ["S2/Basic Shapes", "S2/BS2 - Subby Saw"]
+    },
+    {
+      "name": "BA - EIGHTY",
+      "file": "BA - EIGHTY.json",
+      "category": "Bass",
+      "wavetables": ["S2/SawRounded", "S2/SQR_SAW_Wrd"]
+    },
+    {
+      "name": "BA - MCSPLATTY BASS",
+      "file": "BA - MCSPLATTY BASS.json",
+      "category": "Bass",
+      "wavetables": ["S2/Acid", "S2/Default Shapes"]
+    },
+    {
+      "name": "BA - RENEGADE",
+      "file": "BA - RENEGADE.json",
+      "category": "Bass",
+      "wavetables": ["S2/Renegade", "S2/Renegade"]
+    },
+    {
+      "name": "BA - CITRUS",
+      "file": "BA - CITRUS.json",
+      "category": "Bass",
+      "wavetables": ["S2/Basic Shapes", "S2/Analog_BD_Sin"]
+    },
+    {
+      "name": "BA - REESE SQUARE",
+      "file": "BA - REESE SQUARE.json",
+      "category": "Bass",
+      "wavetables": ["S2/Basic Shapes", "S2/Basic Shapes"]
+    },
+    {
+      "name": "LD - MODULAR",
+      "file": "LD - MODULAR.json",
+      "category": "Lead",
+      "wavetables": ["S2/DM FMOD 02", "S2/Saw Square"]
+    },
+    {
+      "name": "LD - ARTFORM",
+      "file": "LD - ARTFORM.json",
+      "category": "Lead",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "LD - SHARP BRASSY KEYS",
+      "file": "LD - SHARP BRASSY KEYS.json",
+      "category": "Lead",
+      "wavetables": ["S2/Saw Drift PR1", "S2/Saw Drift PR1"]
+    },
+    {
+      "name": "LD - SLIDE",
+      "file": "LD - SLIDE.json",
+      "category": "Lead",
+      "wavetables": ["S2/Basic Mini", "S2/Saw Drift"]
+    },
+    {
+      "name": "LD - DARKNESS",
+      "file": "LD - DARKNESS.json",
+      "category": "Lead",
+      "wavetables": ["S2/No Fundamental Saw", "S2/Monster 2 [SL]"]
+    },
+    {
+      "name": "LD - IRIDIUM",
+      "file": "LD - IRIDIUM.json",
+      "category": "Lead",
+      "wavetables": ["S2/Default Shapes"]
+    },
+    {
+      "name": "LD - DAS EDM",
+      "file": "LD - DAS EDM.json",
+      "category": "Lead",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "LD - DRIFT PLUCK",
+      "file": "LD - DRIFT PLUCK.json",
+      "category": "Lead",
+      "wavetables": ["S2/Hardware Waveforms"]
+    },
+    {
+      "name": "LD - DEEP ACID",
+      "file": "LD - DEEP ACID.json",
+      "category": "Lead",
+      "wavetables": ["S2/Basic Mini"]
+    },
+    {
+      "name": "LD - HYPA SAW",
+      "file": "LD - HYPA SAW.json",
+      "category": "Lead",
+      "wavetables": ["S2/Hypa"]
+    },
+    {
+      "name": "PD - SAFARI",
+      "file": "PD - SAFARI.json",
+      "category": "Pad",
+      "wavetables": ["S2/MWoog"]
+    },
+    {
+      "name": "PD - CLASSIC ANALOG",
+      "file": "PD - CLASSIC ANALOG.json",
+      "category": "Pad",
+      "wavetables": ["S2/Dying Saw", "S2/PWM Juno"]
+    },
+    {
+      "name": "PD - ILLUMINOUS",
+      "file": "PD - ILLUMINOUS.json",
+      "category": "Pad",
+      "wavetables": ["S2/MB Saw", "S2/SawRounded"]
+    },
+    {
+      "name": "PD - BEACH BUTTERFLY",
+      "file": "PD - BEACH BUTTERFLY.json",
+      "category": "Pad",
+      "wavetables": ["S2/Shep. Oct+Fifths", "S2/Modular18"]
+    },
+    {
+      "name": "PD - EMOTIONS",
+      "file": "PD - EMOTIONS.json",
+      "category": "Pad",
+      "wavetables": ["S2/Mellow But Instable"]
+    },
+    {
+      "name": "PD - MIDNIGHT",
+      "file": "PD - MIDNIGHT.json",
+      "category": "Pad",
+      "wavetables": ["S2/Bass Pluck", "S2/RCM Bass 1"]
+    },
+    {
+      "name": "PD - OCTAVIAN",
+      "file": "PD - OCTAVIAN.json",
+      "category": "Pad",
+      "wavetables": ["S2/Default Shapes", "S2/DM - OSCAR"]
+    },
+    {
+      "name": "PD - LUSH BAND-PASS SWEEP",
+      "file": "PD - LUSH BAND-PASS SWEEP.json",
+      "category": "Pad",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "SY - ROLLING PLAINS",
+      "file": "SY - ROLLING PLAINS.json",
+      "category": "Synth",
+      "wavetables": ["S2/JF Flute"]
+    },
+    {
+      "name": "SY - SMOOTH DUBS",
+      "file": "SY - SMOOTH DUBS.json",
+      "category": "Synth",
+      "wavetables": ["S2/Warm Sub", "S2/Solina Viola"]
+    },
+    {
+      "name": "SY - OVER THE DUNE",
+      "file": "SY - OVER THE DUNE.json",
+      "category": "Synth",
+      "wavetables": ["S2/Acid", "S2/Basic Shapes"]
+    },
+    {
+      "name": "SY - EMS POLY",
+      "file": "SY - EMS POLY.json",
+      "category": "Synth",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "SY - ENV LPF SEQ",
+      "file": "SY - ENV LPF SEQ.json",
+      "category": "Synth",
+      "wavetables": ["S2/Default Shapes", "S2/DM - OSCAR"]
+    },
+    {
+      "name": "SY - MAGNETIC",
+      "file": "SY - MAGNETIC.json",
+      "category": "Synth",
+      "wavetables": ["S2/Basic Shapes"]
+    },
+    {
+      "name": "SY - WARM SYNTH KEYS",
+      "file": "SY - WARM SYNTH KEYS.json",
+      "category": "Synth",
+      "wavetables": ["S2/DM - OSCAR", "S2/DM FMOD 02"]
+    },
+    {
+      "name": "SY - SQUARE WAVE SYNTH KEYS",
+      "file": "SY - SQUARE WAVE SYNTH KEYS.json",
+      "category": "Synth",
+      "wavetables": ["S2/DM - OSCAR", "S2/PWM Juno"]
+    },
+    {
+      "name": "PL - HIGH DRIVE",
+      "file": "PL - HIGH DRIVE.json",
+      "category": "Pluck",
+      "wavetables": ["S2/Softest Growl", "S2/Evolution"]
+    },
+    {
+      "name": "PL - CAMP FIRE 1",
+      "file": "PL - CAMP FIRE 1.json",
+      "category": "Pluck",
+      "wavetables": ["S2/PWM Genji"]
+    },
+    {
+      "name": "PL - JUNE",
+      "file": "PL - JUNE.json",
+      "category": "Pluck",
+      "wavetables": ["S2/Jno", "S2/Jno"]
+    },
+    {
+      "name": "PL - BROKEN LIGHT",
+      "file": "PL - BROKEN LIGHT.json",
+      "category": "Pluck",
+      "wavetables": ["S2/Analog_BD_Sin", "S2/Analog_BD_Sin"]
+    },
+    {
+      "name": "PL - ALIVE",
+      "file": "PL - ALIVE.json",
+      "category": "Pluck",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "PL - XYLO PLUCK",
+      "file": "PL - XYLO PLUCK.json",
+      "category": "Pluck",
+      "wavetables": ["S2/Basic Shapes", "S2/Xylo Pluck"]
+    },
+    {
+      "name": "PL - HARP",
+      "file": "PL - HARP.json",
+      "category": "Pluck",
+      "wavetables": ["S2/Braids Bell Pluck", "S2/Basic OPL"]
+    },
+    {
+      "name": "PL - SINES RULE",
+      "file": "PL - SINES RULE.json",
+      "category": "Pluck",
+      "wavetables": ["S2/Basic Shapes"]
+    },
+    {
+      "name": "FX - OFFICE TELEPHONE",
+      "file": "FX - OFFICE TELEPHONE.json",
+      "category": "SFX",
+      "wavetables": ["S2/Default Shapes", "S2/Dying Sine"]
+    },
+    {
+      "name": "FX - RISE SWEEP - DIGI",
+      "file": "FX - RISE SWEEP - DIGI.json",
+      "category": "SFX",
+      "wavetables": [
+        "S2/Fish flips and morphs into Swordfish",
+        "S2/AM Sine Harmonics"
+      ]
+    },
+    {
+      "name": "FX - DROP SWEEP - SQUARE",
+      "file": "FX - DROP SWEEP - SQUARE.json",
+      "category": "SFX",
+      "wavetables": ["S2/Dinosaurs", "S2/Harm Octave"]
+    },
+    {
+      "name": "FX - FM BUBBLE SWEEP",
+      "file": "FX - FM BUBBLE SWEEP.json",
+      "category": "SFX",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "FX - DROP SWEEP - SHAKER",
+      "file": "FX - DROP SWEEP - SHAKER.json",
+      "category": "SFX",
+      "wavetables": ["S2/Sine SuperChirp", "S2/Harsh Harm"]
+    },
+    {
+      "name": "FX - DROP SWEEP - ALIEN",
+      "file": "FX - DROP SWEEP - ALIEN.json",
+      "category": "SFX",
+      "wavetables": [
+        "S2/Fish flips and morphs into Swordfish",
+        "S2/AM Sine Harmonics"
+      ]
+    },
+    {
+      "name": "FX - TECHNO SIREN",
+      "file": "FX - TECHNO SIREN.json",
+      "category": "SFX",
+      "wavetables": ["S2/Default Shapes", "S2/Monster 1 [SL]"]
+    },
+    {
+      "name": "FX - RISE SWEEP - SUBSIZZLA",
+      "file": "FX - RISE SWEEP - SUBSIZZLA.json",
+      "category": "SFX",
+      "wavetables": ["S2/FM Dirty Square", "S2/Additive Talk"]
+    },
+    {
+      "name": "FX - LASER GENERATOR",
+      "file": "FX - LASER GENERATOR.json",
+      "category": "SFX",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "FX - BHOUSE GLIDE - 04",
+      "file": "FX - BHOUSE GLIDE - 04.json",
+      "category": "SFX",
+      "wavetables": ["S2/Monster 7 [SL]", "S2/4088"]
+    },
+    {
+      "name": "KY - VINCENT",
+      "file": "KY - VINCENT.json",
+      "category": "Keyboard",
+      "wavetables": ["S2/FFT_Add_2nds"]
+    },
+    {
+      "name": "KY - SONDER",
+      "file": "KY - SONDER.json",
+      "category": "Keyboard",
+      "wavetables": ["S2/Basic_Cjw"]
+    },
+    {
+      "name": "KY - RETROGRADE",
+      "file": "KY - RETROGRADE.json",
+      "category": "Keyboard",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "KY - SMART FUTURE",
+      "file": "KY - SMART FUTURE.json",
+      "category": "Keyboard",
+      "wavetables": ["S2/MB Saw", "S2/Basic OPL"]
+    },
+    {
+      "name": "KY - DELICACY",
+      "file": "KY - DELICACY.json",
+      "category": "Keyboard",
+      "wavetables": ["S2/KY - Delicacy A", "S2/KY - Delicacy C"]
+    },
+    {
+      "name": "OR - HARMONIC SUB VIBES",
+      "file": "OR - HARMONIC SUB VIBES.json",
+      "category": "Organ",
+      "wavetables": ["S2/Subby Roller", "S2/Warm Sub"]
+    },
+    {
+      "name": "OR - ORGAN ALSO",
+      "file": "OR - ORGAN ALSO.json",
+      "category": "Organ",
+      "wavetables": ["S2/Basic Shapes", "S2/Basic Shapes"]
+    },
+    {
+      "name": "OR - MEMORY ORGAN ",
+      "file": "OR - MEMORY ORGAN.json",
+      "category": "Organ",
+      "wavetables": ["S2/Memory Organ", "S2/Memory Organ"]
+    },
+    {
+      "name": "OR - PIPE DREAM",
+      "file": "OR - PIPE DREAM.json",
+      "category": "Organ",
+      "wavetables": ["S2/Harmonic Series Smooth", "S2/Harmonic Series Smooth"]
+    },
+    {
+      "name": "OR - HOUSE ORGAN",
+      "file": "OR - HOUSE ORGAN.json",
+      "category": "Organ",
+      "wavetables": ["S2/Memory Organ", "S2/Default Shapes"]
+    },
+    {
+      "name": "DR - TOM SIMM",
+      "file": "DR - TOM SIMM.json",
+      "category": "Drum",
+      "wavetables": ["S2/Basic Shapes"]
+    },
+    {
+      "name": "DR - KICK SYNTH 1",
+      "file": "DR - KICK SYNTH 1.json",
+      "category": "Drum",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "DR - KICK MINIMAL",
+      "file": "DR - KICK MINIMAL.json",
+      "category": "Drum",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "DR - KICK HYPE",
+      "file": "DR - KICK HYPE.json",
+      "category": "Drum",
+      "wavetables": ["S2/Default Shapes", "S2/Default Shapes"]
+    },
+    {
+      "name": "SEQ - LOW FREQZ",
+      "file": "SEQ - LOW FREQZ.json",
+      "category": "Seq",
+      "wavetables": ["S2/BS2 - Acid", "S2/Basic_Wrd"]
+    },
+    {
+      "name": "SEQ - TRANCE IN THE PANCE",
+      "file": "SEQ - TRANCE IN THE PANCE.json",
+      "category": "Seq",
+      "wavetables": ["S2/Saw Square"]
+    },
+    {
+      "name": "SEQ - ALMOST A GUITAR",
+      "file": "SEQ - ALMOST A GUITAR.json",
+      "category": "Seq",
+      "wavetables": []
+    },
+    {
+      "name": "SEQ - TRONS ECHOLOT",
+      "file": "SEQ - TRONS ECHOLOT.json",
+      "category": "Seq",
+      "wavetables": ["S2/Basic_Cjw", "S2/AM Sine Harmonics"]
+    }
+  ],
+  "wavetables": [
+    {
+      "name": "S2/BA - 303 Reality A",
+      "file": "BA - 303 Reality A.wav",
+      "frames": 2
+    },
+    {
+      "name": "S2/PWM MG",
+      "file": "PWM MG.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Default Shapes",
+      "file": "Default Shapes.wav",
+      "frames": 9
+    },
+    {
+      "name": "S2/Basic Shapes",
+      "file": "Basic Shapes.wav",
+      "frames": 7
+    },
+    {
+      "name": "S2/PolySaw II",
+      "file": "PolySaw II.wav",
+      "frames": 5
+    },
+    {
+      "name": "S2/Harmonic Series Smooth",
+      "file": "Harmonic Series Smooth.wav",
+      "frames": 24
+    },
+    {
+      "name": "S2/HarmonicSeries",
+      "file": "HarmonicSeries.wav",
+      "frames": 24
+    },
+    {
+      "name": "S2/BA - OTT Saw Wave B",
+      "file": "BA - OTT Saw Wave B.wav",
+      "frames": 9
+    },
+    {
+      "name": "S2/Basic_McB",
+      "file": "Basic_McB.wav",
+      "frames": 4
+    },
+    {
+      "name": "S2/Analog_BD_Sin",
+      "file": "Analog_BD_Sin.wav",
+      "frames": 6
+    },
+    {
+      "name": "S2/Basic Mini",
+      "file": "Basic Mini.wav",
+      "frames": 4
+    },
+    {
+      "name": "S2/Debussy",
+      "file": "Debussy.wav",
+      "frames": 21
+    },
+    {
+      "name": "S2/DM FMOD 01",
+      "file": "DM FMOD 01.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/BS2 - Subby Saw",
+      "file": "BS2 - Subby Saw.wav",
+      "frames": 8
+    },
+    {
+      "name": "S2/SawRounded",
+      "file": "SawRounded.wav",
+      "frames": 26
+    },
+    {
+      "name": "S2/SQR_SAW_Wrd",
+      "file": "SQR_SAW_Wrd.wav",
+      "frames": 2
+    },
+    {
+      "name": "S2/Acid",
+      "file": "Acid.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Renegade",
+      "file": "Renegade.wav",
+      "frames": 14
+    },
+    {
+      "name": "S2/DM FMOD 02",
+      "file": "DM FMOD 02.wav",
+      "frames": 4
+    },
+    {
+      "name": "S2/Saw Square",
+      "file": "Saw Square.wav",
+      "frames": 2
+    },
+    {
+      "name": "S2/Saw Drift PR1",
+      "file": "Saw Drift PR1.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Saw Drift",
+      "file": "Saw Drift.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/No Fundamental Saw",
+      "file": "No Fundamental Saw.wav",
+      "frames": 9
+    },
+    {
+      "name": "S2/Monster 2 [SL]",
+      "file": "Monster 2 SL.wav",
+      "frames": 11
+    },
+    {
+      "name": "S2/Hardware Waveforms",
+      "file": "Hardware Waveforms.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Hypa",
+      "file": "Hypa.wav",
+      "frames": 1
+    },
+    {
+      "name": "S2/MWoog",
+      "file": "MWoog.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Dying Saw",
+      "file": "Dying Saw.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/PWM Juno",
+      "file": "PWM Juno.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/MB Saw",
+      "file": "MB Saw.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Shep. Oct+Fifths",
+      "file": "Shep OctFifths.wav",
+      "frames": 10
+    },
+    {
+      "name": "S2/Modular18",
+      "file": "Modular18.wav",
+      "frames": 17
+    },
+    {
+      "name": "S2/Mellow But Instable",
+      "file": "Mellow But Instable.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Bass Pluck",
+      "file": "Bass Pluck.wav",
+      "frames": 10
+    },
+    {
+      "name": "S2/RCM Bass 1",
+      "file": "RCM Bass 1.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/DM - OSCAR",
+      "file": "DM - OSCAR.wav",
+      "frames": 4
+    },
+    {
+      "name": "S2/JF Flute",
+      "file": "JF Flute.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Warm Sub",
+      "file": "Warm Sub.wav",
+      "frames": 2
+    },
+    {
+      "name": "S2/Solina Viola",
+      "file": "Solina Viola.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Softest Growl",
+      "file": "Softest Growl.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Evolution",
+      "file": "Evolution.wav",
+      "frames": 6
+    },
+    {
+      "name": "S2/PWM Genji",
+      "file": "PWM Genji.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Jno",
+      "file": "Jno.wav",
+      "frames": 10
+    },
+    {
+      "name": "S2/Xylo Pluck",
+      "file": "Xylo Pluck.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Braids Bell Pluck",
+      "file": "Braids Bell Pluck.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Basic OPL",
+      "file": "Basic OPL.wav",
+      "frames": 8
+    },
+    {
+      "name": "S2/Dying Sine",
+      "file": "Dying Sine.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Fish flips and morphs into Swordfish",
+      "file": "Fish flips and morphs into Swordfish.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/AM Sine Harmonics",
+      "file": "AM Sine Harmonics.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Dinosaurs",
+      "file": "Dinosaurs.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Harm Octave",
+      "file": "Harm Octave.wav",
+      "frames": 2
+    },
+    {
+      "name": "S2/Sine SuperChirp",
+      "file": "Sine SuperChirp.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Harsh Harm",
+      "file": "Harsh Harm.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Monster 1 [SL]",
+      "file": "Monster 1 SL.wav",
+      "frames": 12
+    },
+    {
+      "name": "S2/FM Dirty Square",
+      "file": "FM Dirty Square.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Additive Talk",
+      "file": "Additive Talk.wav",
+      "frames": 11
+    },
+    {
+      "name": "S2/Monster 7 [SL]",
+      "file": "Monster 7 SL.wav",
+      "frames": 17
+    },
+    {
+      "name": "S2/4088",
+      "file": "4088.wav",
+      "frames": 16
+    },
+    {
+      "name": "S2/FFT_Add_2nds",
+      "file": "FFT_Add_2nds.wav",
+      "frames": 16
+    },
+    {
+      "name": "S2/Basic_Cjw",
+      "file": "Basic_Cjw.wav",
+      "frames": 6
+    },
+    {
+      "name": "S2/KY - Delicacy A",
+      "file": "KY - Delicacy A.wav",
+      "frames": 4
+    },
+    {
+      "name": "S2/KY - Delicacy C",
+      "file": "KY - Delicacy C.wav",
+      "frames": 1
+    },
+    {
+      "name": "S2/Subby Roller",
+      "file": "Subby Roller.wav",
+      "frames": 6
+    },
+    {
+      "name": "S2/Memory Organ",
+      "file": "Memory Organ.wav",
+      "frames": 8
+    },
+    {
+      "name": "S2/BS2 - Acid",
+      "file": "BS2 - Acid.wav",
+      "frames": 32
+    },
+    {
+      "name": "S2/Basic_Wrd",
+      "file": "Basic_Wrd.wav",
+      "frames": 7
+    }
+  ]
 }

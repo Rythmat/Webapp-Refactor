@@ -11,11 +11,8 @@
  *  - `chordChart`   → placeholder card (Phase 2).
  */
 import { Suspense, lazy, useMemo, useState } from 'react';
-import type {
-  GlobeArc,
-  GlobeMarker,
-} from '@/components/ui/cobe-globe-cdn';
 import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
+import type { GlobeArc, GlobeMarker } from '@/components/ui/cobe-globe-cdn';
 import { getSong } from '@/curriculum/data/songs';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { pickLocalized, secondaryLine } from '../../presentation/localized';
@@ -152,15 +149,11 @@ const ArtistImageCard = ({
   const song = getSong(songId);
   const [imageBroken, setImageBroken] = useState(false);
   const hasArtistImage =
-    !!song?.artistImageRef &&
-    song.artistImageSource !== 'none' &&
-    !imageBroken;
+    !!song?.artistImageRef && song.artistImageSource !== 'none' && !imageBroken;
 
   const avatarConfig = useMemo(
     () =>
-      defaultAvatarConfig(
-        song ? (song.genreTags[0] ?? song.artist) : songId,
-      ),
+      defaultAvatarConfig(song ? (song.genreTags[0] ?? song.artist) : songId),
     [song, songId],
   );
 

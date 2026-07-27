@@ -47,7 +47,9 @@ describe('phaseCellToSlide', () => {
   });
 
   it('falls back to the phase label only when both title and prompt are empty', () => {
-    const slide = phaseCellToSlide(base({ title: { en: '' }, prompt: { en: '' } }));
+    const slide = phaseCellToSlide(
+      base({ title: { en: '' }, prompt: { en: '' } }),
+    );
     expect(slide.title).toEqual(STUDENT_PHASE_LABELS.connectRegulate);
     expect(slide.prompt).toBeUndefined();
   });
@@ -67,7 +69,11 @@ describe('phaseCellToSlide', () => {
   it('produces a slide for every phase', () => {
     for (const phaseKey of PHASES) {
       const slide = phaseCellToSlide(
-        base({ phaseKey, label: STUDENT_PHASE_LABELS[phaseKey], title: { en: 't' } }),
+        base({
+          phaseKey,
+          label: STUDENT_PHASE_LABELS[phaseKey],
+          title: { en: 't' },
+        }),
       );
       expect(slide.phase).toBe(phaseKey);
       expect(slide.id).toBe(`present-${phaseKey}`);

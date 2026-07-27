@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { ClassroomRoutes } from '@/constants/routes';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
+import { useLocalSessionStore } from '@/features/classroom/live/useLocalSessionStore';
 import { useClassrooms } from '@/hooks/data/classrooms';
 import { classroomSessionsApi } from '@/lib/classroom-sessions/api';
-import { useLocalSessionStore } from '@/features/classroom/live/useLocalSessionStore';
 import type { Announcement } from './types';
 
 /** Poll cadence for the server path — a session banner may lag by up to this. */

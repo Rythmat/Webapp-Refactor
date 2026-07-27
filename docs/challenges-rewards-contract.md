@@ -59,7 +59,7 @@ lesson, lesson-activity, arcade, and challenge — is multiplied by
 `multiplier`. Implemented centrally in the backend's XP-granting path so all
 award types honor it automatically.
 
-**Arcade cap change:** the daily cap applies to *base* round XP only; the
+**Arcade cap change:** the daily cap applies to _base_ round XP only; the
 boost bonus is allowed to exceed it (a 2× player can earn up to 1000 arcade
 XP/day).
 

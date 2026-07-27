@@ -42,7 +42,9 @@ export const WatchTheScreen = ({
         <motion.span
           className="flex size-16 items-center justify-center rounded-full bg-[#7ecfcf]/10 text-[#7ecfcf]"
           animate={
-            reduce ? undefined : { scale: [1, 1.06, 1], opacity: [0.85, 1, 0.85] }
+            reduce
+              ? undefined
+              : { scale: [1, 1.06, 1], opacity: [0.85, 1, 0.85] }
           }
           transition={
             reduce

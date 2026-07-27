@@ -8,8 +8,13 @@
  * `onYouTubeIframeAPIReady` callback, so this hook coexists with other
  * consumers of the IFrame API (e.g. SongDetailPage) on the same page.
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { RefObject } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from 'react';
 
 /** Extract a YouTube video ID from a URL or URI. */
 export const extractYouTubeId = (uri: string): string | null => {

@@ -9,11 +9,11 @@
  */
 import { pickLocalized, secondaryLine } from '../presentation/localized';
 import type { Interaction, LocalizedText, StudentLanguage } from '../types';
+import type { SlideSlots } from './SlideRenderer';
 import { SlideFrame } from './parts/SlideFrame';
 import { SlideHeading } from './parts/SlideHeading';
 import { SlideMediaPanel } from './parts/SlideMediaPanel';
 import { WatchTheScreen } from './parts/WatchTheScreen';
-import type { SlideSlots } from './SlideRenderer';
 import type { MediaSlide as MediaSlideModel, SlideSurface } from './types';
 
 const PLAYS_ON_PROJECTOR: LocalizedText = {
@@ -83,7 +83,9 @@ export const MediaSlide = ({
   }
 
   // Projector — two-zone ~62/38 layout, prompt in large type below.
-  const promptText = slide.prompt ? pickLocalized(slide.prompt, language) : null;
+  const promptText = slide.prompt
+    ? pickLocalized(slide.prompt, language)
+    : null;
   const promptAlt = slide.prompt ? secondaryLine(slide.prompt, language) : null;
 
   return (

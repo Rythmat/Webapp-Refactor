@@ -105,7 +105,9 @@ export const DeckEditor = ({
                   {STUDENT_PHASE_LABELS[slide.phase].en}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-sm text-white/80">
-                  {slide.title.en || <em className="text-white/30">Untitled</em>}
+                  {slide.title.en || (
+                    <em className="text-white/30">Untitled</em>
+                  )}
                 </span>
                 {dangling.length > 0 && (
                   <span
@@ -233,7 +235,11 @@ export const DeckEditor = ({
                 const inheritedPhase =
                   slides[slides.length - 1]?.phase ?? 'connectRegulate';
                 onChangeSlides(
-                  insertSlideAt(slides, newSlide(kind, inheritedPhase), slides.length),
+                  insertSlideAt(
+                    slides,
+                    newSlide(kind, inheritedPhase),
+                    slides.length,
+                  ),
                 );
                 setAdding(false);
               }}
@@ -297,9 +303,7 @@ const KindFields = ({
         <Row label="YouTube">
           <input
             className={INPUT}
-            value={
-              slide.media.type === 'youtube' ? slide.media.videoId : ''
-            }
+            value={slide.media.type === 'youtube' ? slide.media.videoId : ''}
             placeholder="Video id"
             onChange={(e) =>
               onPatch({ media: { type: 'youtube', videoId: e.target.value } })

@@ -29,8 +29,8 @@ import {
   SLUG_TO_CURRICULUM_GENRE,
   type CurriculumGenreId,
 } from '@/curriculum/bridge/genreIdMap';
-import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ContentRef, Song } from '@/curriculum/types/songLibrary';
+import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { songLessonRoute } from './songDeepLinks';
 
 export interface ResolveContentDeps {
@@ -71,7 +71,9 @@ const levelDigits = (segment: string): string | null => {
   return m ? m[1] : null;
 };
 
-const isSection = (segment: string | undefined): segment is 'A' | 'B' | 'C' | 'D' =>
+const isSection = (
+  segment: string | undefined,
+): segment is 'A' | 'B' | 'C' | 'D' =>
   segment === 'A' || segment === 'B' || segment === 'C' || segment === 'D';
 
 /**
@@ -91,7 +93,8 @@ export const resolveActivityRefHref = (
 
   // Legacy / bare refs: no recognized namespace → interpret via module.
   if (!KNOWN_NAMESPACES.has(ns) || parts.length < 2) {
-    if (module === 'globe') return `${AtlasRoutes.globe()}?event=${encodeURIComponent(ref)}`;
+    if (module === 'globe')
+      return `${AtlasRoutes.globe()}?event=${encodeURIComponent(ref)}`;
     return null;
   }
 
@@ -128,15 +131,19 @@ export const resolveActivityRefHref = (
     case 'globe': {
       const sub = parts[1];
       const id = parts.slice(2).join(':');
-      if (sub === 'pathway' && id) return `${AtlasRoutes.globe()}?pathway=${encodeURIComponent(id)}`;
-      if (sub === 'event' && id) return `${AtlasRoutes.globe()}?event=${encodeURIComponent(id)}`;
+      if (sub === 'pathway' && id)
+        return `${AtlasRoutes.globe()}?pathway=${encodeURIComponent(id)}`;
+      if (sub === 'event' && id)
+        return `${AtlasRoutes.globe()}?event=${encodeURIComponent(id)}`;
       return AtlasRoutes.globe();
     }
     case 'studio': {
       const sub = parts[1];
       const id = parts.slice(2).join(':');
-      if (sub === 'song' && id) return `${StudioRoutes.editor()}?song=${encodeURIComponent(id)}`;
-      if (sub === 'template' && id) return `${StudioRoutes.editor()}?template=${encodeURIComponent(id)}`;
+      if (sub === 'song' && id)
+        return `${StudioRoutes.editor()}?song=${encodeURIComponent(id)}`;
+      if (sub === 'template' && id)
+        return `${StudioRoutes.editor()}?template=${encodeURIComponent(id)}`;
       return StudioRoutes.editor();
     }
     default:

@@ -15,12 +15,12 @@ import {
   CURRICULUM_GENRE_SLUGS,
   type CurriculumGenreId,
 } from '@/curriculum/bridge/genreIdMap';
+import { getModesForGenreLevel } from '@/curriculum/bridge/learnCurriculumLinks';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import { getSong } from '@/curriculum/data/songs';
-import { getModesForGenreLevel } from '@/curriculum/bridge/learnCurriculumLinks';
-import type { GCMKey, CurriculumLevelId } from '@/curriculum/types/curriculum';
 import type { ActivityFlow } from '@/curriculum/types/activity';
+import type { GCMKey, CurriculumLevelId } from '@/curriculum/types/curriculum';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { useStartClassroomSession } from '../../live/useStartClassroomSession';
 import { useLocalPlan } from '../../plan/useLocalPlan';
@@ -98,7 +98,7 @@ export const DeckWizardPage = () => {
 
   const days = listDays();
   const plannedDay = plannedDayId
-    ? days.find((d) => d.id === plannedDayId) ?? null
+    ? (days.find((d) => d.id === plannedDayId) ?? null)
     : null;
 
   const contentReady =
@@ -187,7 +187,10 @@ export const DeckWizardPage = () => {
         initialSlideIndex: 0,
       });
       navigate(
-        TeacherRoutes.session({ classroomId: cid, sessionId: started.sessionId }),
+        TeacherRoutes.session({
+          classroomId: cid,
+          sessionId: started.sessionId,
+        }),
       );
     } catch (err) {
       window.alert(err instanceof Error ? err.message : 'Could not start');
@@ -235,8 +238,8 @@ export const DeckWizardPage = () => {
               )}
             </span>
             <span className="text-xs text-white/60">
-              Welcome + emotional check-in → listen to a song → respond →
-              exit reflection. Polls live on student devices, reveal on the
+              Welcome + emotional check-in → listen to a song → respond → exit
+              reflection. Polls live on student devices, reveal on the
               projector.
             </span>
           </button>
@@ -420,7 +423,8 @@ const Stepper = ({
 }) => (
   <ol className="flex flex-wrap items-center gap-2">
     {STEPS.map((label, i) => {
-      const reachable = i <= step || (i === step + 1 && (i !== 3 || contentReady));
+      const reachable =
+        i <= step || (i === step + 1 && (i !== 3 || contentReady));
       return (
         <li key={label} className="flex items-center gap-2">
           {i > 0 && <span className="h-px w-4 bg-white/15" />}

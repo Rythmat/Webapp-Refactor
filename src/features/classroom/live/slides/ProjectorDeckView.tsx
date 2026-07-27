@@ -1,11 +1,15 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useMemo } from 'react';
 import type { DaySnapshot } from '../../publish/publishDay';
-import { deckFromSnapshot, interactionsForSlide, slideAt } from '../../slides/deck';
 import { SlideRenderer } from '../../slides/SlideRenderer';
-import { fromProjectorView } from '../../slides/viz/buildVizAggregate';
+import {
+  deckFromSnapshot,
+  interactionsForSlide,
+  slideAt,
+} from '../../slides/deck';
 import { ParticipationPulse } from '../../slides/viz/ParticipationPulse';
 import { RevealViz } from '../../slides/viz/RevealViz';
+import { fromProjectorView } from '../../slides/viz/buildVizAggregate';
 import type {
   Interaction,
   InteractionResponse,
@@ -88,7 +92,12 @@ export const ProjectorDeckView = ({
     if (!viz) return null;
     const revealHint = slide.kind === 'interaction' ? slide.reveal : undefined;
     return (
-      <RevealViz viz={viz} reveal={revealHint} size="projector" language="both" />
+      <RevealViz
+        viz={viz}
+        reveal={revealHint}
+        size="projector"
+        language="both"
+      />
     );
   };
 

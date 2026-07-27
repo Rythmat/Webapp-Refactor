@@ -143,9 +143,7 @@ export interface SessionSocketControllerConfig {
   endRetryDelaysMs?: number[];
 }
 
-export type SendEndResult =
-  | { ok: true }
-  | { ok: false; error: unknown };
+export type SendEndResult = { ok: true } | { ok: false; error: unknown };
 
 export interface SessionSocketController {
   open(): void;
@@ -197,15 +195,15 @@ const buildStatePatch = (
   mode: change.mode ?? base.mode,
   share:
     'share' in change
-      ? change.share ?? null
+      ? (change.share ?? null)
       : base.sharedInteractionIds.length > 0
         ? { interactionId: base.sharedInteractionIds[0], on: true }
         : null,
-  pairs: 'pairs' in change ? change.pairs ?? null : base.pairs ?? null,
+  pairs: 'pairs' in change ? (change.pairs ?? null) : (base.pairs ?? null),
   showcase:
-    'showcase' in change ? change.showcase ?? null : base.showcase ?? null,
-  timer: 'timer' in change ? change.timer ?? null : base.timer ?? null,
-  media: 'media' in change ? change.media ?? null : base.media ?? null,
+    'showcase' in change ? (change.showcase ?? null) : (base.showcase ?? null),
+  timer: 'timer' in change ? (change.timer ?? null) : (base.timer ?? null),
+  media: 'media' in change ? (change.media ?? null) : (base.media ?? null),
 });
 
 /**

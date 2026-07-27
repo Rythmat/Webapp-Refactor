@@ -2,6 +2,20 @@
 // Noise) → Oracle's 2 wavetable oscs + sub + noise.
 
 import { basename } from 'node:path';
+import type { FidelityCollector } from '../fidelity.ts';
+import type {
+  PresetDataOut,
+  BasicWaveform,
+  OscWarpMode,
+} from '../oracleTypes.ts';
+import {
+  OSC_DEFAULTS,
+  panToUnit,
+  tablePosToUnit,
+  foldPitch,
+  detuneModeScale,
+  clamp,
+} from '../serumDefaults.ts';
 import {
   plainParams,
   num,
@@ -10,21 +24,6 @@ import {
   type SerumDoc,
   type Params,
 } from '../serumPreset.ts';
-import {
-  OSC_DEFAULTS,
-  panToUnit,
-  pctToUnit,
-  tablePosToUnit,
-  foldPitch,
-  detuneModeScale,
-  clamp,
-} from '../serumDefaults.ts';
-import type { FidelityCollector } from '../fidelity.ts';
-import type {
-  PresetDataOut,
-  BasicWaveform,
-  OscWarpMode,
-} from '../oracleTypes.ts';
 
 const WT_FRAME_SIZE = 2048;
 

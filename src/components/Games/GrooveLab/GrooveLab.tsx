@@ -518,6 +518,8 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
         }
         right={
           <div className="flex items-center gap-6 rounded-xl border border-white/5 bg-black/20 px-5 py-3 backdrop-blur-sm">
+            <VolumeDial value={volume} onChange={setVolume} />
+            <div className="h-8 w-px bg-white/10" />
             <div className="flex flex-col items-end">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
                 Target
@@ -526,8 +528,6 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
                 {targetGroove}
               </span>
             </div>
-            <div className="h-8 w-px bg-white/10" />
-            <VolumeDial value={volume} onChange={setVolume} />
           </div>
         }
       />

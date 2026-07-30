@@ -453,13 +453,16 @@ export function ChordPressGame({
           marginBottom: 16,
         }}
       >
-        {/* Covers the keys (and swallows clicks) until the samples are up. */}
+        {/* Covers the keys (and swallows clicks) until the samples are up.
+            The z-index has to clear the keyboard's own layering — black keys
+            are pinned at `!z-10` — and any game chrome drawn over the board,
+            so the veil is never painted through. */}
         {!audioReady && (
           <div
             style={{
               position: 'absolute',
               inset: 0,
-              zIndex: 2,
+              zIndex: 9999,
               borderRadius: 12,
               display: 'flex',
               alignItems: 'center',

@@ -5,6 +5,7 @@ import { useGameOptions } from '@/hooks/data/gameOptions/useGameOptions';
 import { useSaveGameOptions } from '@/hooks/data/gameOptions/useSaveGameOptions';
 import { usePrismRhythms } from '@/hooks/data/prism/usePrismRhythms';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
+import { VolumeDial } from './VolumeDial';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -136,14 +137,33 @@ class BongoEngine {
   private loaded = false;
   private shakersLoaded = false;
   private metroLoaded = false;
+  private volume = 1;
 
   /** Shared context + this game's mixer channel, rather than a private graph. */
   private attach() {
     if (!this.out) {
       this.ctx = audioEngine.context;
-      this.out = audioEngine.channel('games');
+      this.out = audioEngine.channel('games', this.volume);
     }
     return this.out;
+  }
+
+  /**
+   * Level for everything this game makes: bongos and shaker on its own channel,
+   * plus the count-in clicks. The clicks play on the shared metronome bus, so
+   * this drives that bus too — fine while Foli is the only metronome running,
+   * the same trade-off Major Arcanum's mixer makes.
+   */
+  setVolume(volume: number) {
+    this.volume = Math.max(0, Math.min(1, volume));
+    if (this.out) {
+      this.out.gain.setTargetAtTime(
+        this.volume,
+        this.out.context.currentTime,
+        0.01,
+      );
+    }
+    audioEngine.metronome.setVolume(this.volume);
   }
 
   async init() {
@@ -665,13 +685,22 @@ function KeyBox({
   label,
   color,
   selected,
+  onSelect,
 }: {
   label: string;
   color: string;
   selected: boolean;
+  /** Set while rebinding: clicking the box selects its drum, like the drum does. */
+  onSelect?: () => void;
 }) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onSelect}
+      // Don't take focus on click: a focused box would swallow the next Space
+      // or Enter as a button activation instead of a key to bind.
+      onMouseDown={(e) => e.preventDefault()}
+      disabled={!onSelect}
       style={{
         minWidth: 38,
         height: 26,
@@ -690,11 +719,12 @@ function KeyBox({
         letterSpacing: 2,
         color,
         fontFamily: 'monospace',
+        cursor: onSelect ? 'pointer' : 'default',
         transition: 'color 0.15s ease, border-color 0.15s ease',
       }}
     >
       {label}
-    </div>
+    </button>
   );
 }
 
@@ -709,6 +739,7 @@ function FoilDrums({
   leftKeyLabel,
   rightKeyLabel,
   selectedSide = null,
+  bindingMode = false,
 }: {
   leftGlow: BongoGlow;
   rightGlow: BongoGlow;
@@ -719,6 +750,8 @@ function FoilDrums({
   rightKeyLabel: string;
   /** Drum awaiting a key press while rebinding — lit, with its key box ringed. */
   selectedSide?: Side | null;
+  /** Rebinding: the whole half — and its key box — selects that drum. */
+  bindingMode?: boolean;
 }) {
   const [pressedLeft, setPressedLeft] = useState(false);
   const [pressedRight, setPressedRight] = useState(false);
@@ -810,6 +843,24 @@ function FoilDrums({
           onTouchStart={handleLeftDown}
           onTouchEnd={() => setPressedLeft(false)}
         >
+          {/* Rebinding: the drum's whole half is the target, not just the
+              painted shape. Clipped to this side, so the two never overlap. */}
+          {bindingMode && (
+            <rect
+              x={2}
+              y={2}
+              width={165 - 4}
+              height={146}
+              rx={4}
+              fill="transparent"
+              pointerEvents="all"
+              stroke={
+                selectedSide === 'left' ? leftFill : 'rgba(255,255,255,0.12)'
+              }
+              strokeWidth={1}
+              strokeDasharray="4 4"
+            />
+          )}
           <path
             d={FOIL_PATH}
             fill={leftFill}
@@ -832,6 +883,22 @@ function FoilDrums({
           onTouchStart={handleRightDown}
           onTouchEnd={() => setPressedRight(false)}
         >
+          {bindingMode && (
+            <rect
+              x={2}
+              y={2}
+              width={165 - 4}
+              height={146}
+              rx={4}
+              fill="transparent"
+              pointerEvents="all"
+              stroke={
+                selectedSide === 'right' ? rightFill : 'rgba(255,255,255,0.12)'
+              }
+              strokeWidth={1}
+              strokeDasharray="4 4"
+            />
+          )}
           <path
             d={FOIL_PATH}
             fill={rightFill}
@@ -847,11 +914,13 @@ function FoilDrums({
           label={leftKeyLabel}
           color={leftFill}
           selected={selectedSide === 'left'}
+          onSelect={bindingMode ? onPressLeft : undefined}
         />
         <KeyBox
           label={rightKeyLabel}
           color={rightFill}
           selected={selectedSide === 'right'}
+          onSelect={bindingMode ? onPressRight : undefined}
         />
       </div>
     </div>
@@ -919,6 +988,20 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
     if (!engineRef.current) engineRef.current = new BongoEngine();
     return engineRef.current;
   }, []);
+
+  // ── Volume ──────────────────────────────────────────────────────────
+
+  const [volume, setVolume] = useState(1);
+
+  const handleVolumeChange = useCallback(
+    (next: number) => {
+      setVolume(next);
+      // Applies immediately if the engine exists, and is remembered for the
+      // channel it opens on first play if it doesn't.
+      getEngine().setVolume(next);
+    },
+    [getEngine],
+  );
 
   const sp = useCallback((p: Phase) => {
     phaseRef.current = p;
@@ -1168,6 +1251,9 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
   }, []);
 
   const enterBindingMode = useCallback(() => {
+    // Drop focus from the button that opened the mode, so binding Space or
+    // Enter to a drum doesn't also activate Save Keys.
+    (document.activeElement as HTMLElement | null)?.blur?.();
     setKeysSavedNote(null);
     bindingModeRef.current = true;
     bindingSideRef.current = null;
@@ -1315,6 +1401,21 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
           padding: '24px 16px',
         }}
       >
+        {/* Volume — tucked inside the left edge of the play area */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 16,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 2,
+          }}
+        >
+          <div className="rounded-xl border border-white/5 bg-black/20 px-3 py-2 backdrop-blur-sm">
+            <VolumeDial value={volume} onChange={handleVolumeChange} />
+          </div>
+        </div>
+
         {/* Foil drums — clickable to select a drum while rebinding */}
         <FoilDrums
           leftGlow={leftGlow}
@@ -1329,6 +1430,7 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
           leftKeyLabel={keyLabel(keyBindings.left)}
           rightKeyLabel={keyLabel(keyBindings.right)}
           selectedSide={bindingMode ? bindingSide : null}
+          bindingMode={bindingMode}
         />
 
         {/* Status */}

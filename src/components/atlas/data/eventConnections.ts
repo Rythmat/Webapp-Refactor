@@ -1,8 +1,8 @@
 import type { HistoricalEvent } from '@/components/atlas/types';
+import { contentGeneration, MUSIC_HISTORY } from '@/content/contentStore';
 import { CITIES } from './cities';
 import { getCountryColor } from './continentColors';
 import { CITY_COUNTRY_TO_ISO } from './flagColors';
-import { MUSIC_HISTORY } from './musicHistory';
 
 // Directed pair: `from` influenced `to` (chronological flow)
 interface EventConnection {
@@ -5516,35 +5516,60 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   // ── END auto-generated song connections
 ];
 
-// Build event lookup map once at module scope
-const EVENT_MAP = new Map<string, HistoricalEvent>();
-for (const event of MUSIC_HISTORY) {
-  EVENT_MAP.set(event.id, event);
-}
+// ── Derived lookup maps ─────────────────────────────────────────────────────
+//
+// These were built in top-level loops. They cannot be any more: MUSIC_HISTORY
+// is now hydrated asynchronously from the published CDN bundle, so a
+// module-scope build would capture an empty array and every arc on the globe
+// would silently disappear.
+//
+// The maps keep their identity and are filled in place by ensureMaps(), which
+// every exported accessor below calls first. `builtGeneration` tracks which
+// hydration the contents came from, so a rollback or a re-hydrate rebuilds them
+// instead of serving a stale event set.
 
-// Adjacency maps for O(1) connection lookups (replaces linear scans)
+const EVENT_MAP = new Map<string, HistoricalEvent>();
 const UPSTREAM_MAP = new Map<string, string[]>(); // to → [from, from, ...]
 const DOWNSTREAM_MAP = new Map<string, string[]>(); // from → [to, to, ...]
-for (const conn of EVENT_CONNECTIONS) {
-  const ups = UPSTREAM_MAP.get(conn.to);
-  if (ups) ups.push(conn.from);
-  else UPSTREAM_MAP.set(conn.to, [conn.from]);
-
-  const downs = DOWNSTREAM_MAP.get(conn.from);
-  if (downs) downs.push(conn.to);
-  else DOWNSTREAM_MAP.set(conn.from, [conn.to]);
-}
-
-// City name → country color lookup for arc/pill coloring
 const CITY_COUNTRY_COLOR_MAP = new Map<string, string>();
-for (const city of CITIES) {
-  const iso = CITY_COUNTRY_TO_ISO[city.country];
-  if (iso) {
-    CITY_COUNTRY_COLOR_MAP.set(city.name.toLowerCase(), getCountryColor(iso));
+
+let builtGeneration = -1;
+
+function ensureMaps(): void {
+  if (builtGeneration === contentGeneration) return;
+  builtGeneration = contentGeneration;
+
+  EVENT_MAP.clear();
+  for (const event of MUSIC_HISTORY) {
+    EVENT_MAP.set(event.id, event);
+  }
+
+  // EVENT_CONNECTIONS and CITIES are still static bundled data, so these two
+  // only need building once — but rebuilding them costs microseconds and keeps
+  // the invalidation rule to a single generation check.
+  UPSTREAM_MAP.clear();
+  DOWNSTREAM_MAP.clear();
+  for (const conn of EVENT_CONNECTIONS) {
+    const ups = UPSTREAM_MAP.get(conn.to);
+    if (ups) ups.push(conn.from);
+    else UPSTREAM_MAP.set(conn.to, [conn.from]);
+
+    const downs = DOWNSTREAM_MAP.get(conn.from);
+    if (downs) downs.push(conn.to);
+    else DOWNSTREAM_MAP.set(conn.from, [conn.to]);
+  }
+
+  CITY_COUNTRY_COLOR_MAP.clear();
+  for (const city of CITIES) {
+    const iso = CITY_COUNTRY_TO_ISO[city.country];
+    if (iso) {
+      CITY_COUNTRY_COLOR_MAP.set(city.name.toLowerCase(), getCountryColor(iso));
+    }
   }
 }
 
 export function getEventCountryColor(event: HistoricalEvent): string {
+  ensureMaps();
   return (
     CITY_COUNTRY_COLOR_MAP.get(event.location.city.toLowerCase()) ?? '#a1a1aa'
   );
@@ -5556,6 +5581,7 @@ export interface EventConnectionInfo {
 }
 
 export function getConnectionsForEvent(eventId: string): EventConnectionInfo[] {
+  ensureMaps();
   const connections: EventConnectionInfo[] = [];
   for (const fromId of UPSTREAM_MAP.get(eventId) ?? []) {
     const other = EVENT_MAP.get(fromId);
@@ -5580,6 +5606,7 @@ export function getUpstreamChain(
   eventId: string,
   maxDepth = 10,
 ): UpstreamChainNode[] {
+  ensureMaps();
   const visited = new Set<string>();
 
   function walk(id: string, depth: number): UpstreamChainNode[] {
@@ -5608,6 +5635,7 @@ export function getDownstreamChain(
   eventId: string,
   maxDepth = 10,
 ): UpstreamChainNode[] {
+  ensureMaps();
   const visited = new Set<string>();
 
   function walk(id: string, depth: number): UpstreamChainNode[] {
@@ -5633,6 +5661,7 @@ export function getDownstreamChain(
 }
 
 export function getArcsForEvent(eventId: string): ArcDatum[] {
+  ensureMaps();
   const pinned = EVENT_MAP.get(eventId);
   if (!pinned) return [];
 
@@ -5677,6 +5706,7 @@ export function getRecursiveArcsForEvent(
   eventId: string,
   maxDepth = 10,
 ): ArcDatum[] {
+  ensureMaps();
   const arcs: ArcDatum[] = [];
   const visited = new Set<string>();
 

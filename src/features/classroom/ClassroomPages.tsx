@@ -15,6 +15,7 @@ import {
   UserRoutes,
   SettingsRoutes,
 } from '@/constants/routes';
+import { ContentGate } from '@/content/ContentGate';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
@@ -37,7 +38,10 @@ import { RequirePremium } from '@/components/ui/RequirePremium';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { LessonContainer } from '@/components/Games/LessonContainer';
 import { ArcadeInlet } from '@/components/Games/ArcadeInlet';
-import Atlas from '@/components/atlas/atlas';
+// Lazy on purpose. This was a static import while its sibling GlobeInlet was
+// already lazy(), which put the whole atlas chunk on the eager boot graph for
+// every user on every route.
+const Atlas = lazy(() => import('@/components/atlas/atlas'));
 const SongDetailPage = lazy(() =>
   import('@/components/songLibrary/SongDetailPage').then((m) => ({
     default: m.SongDetailPage,
@@ -215,10 +219,16 @@ const JamLocalRoom = lazy(() =>
 export const classroomPages = () => {
   return {
     path: ClassroomRoutes.root.definition,
+    // Gated at the group shell rather than per route: slide decks resolve songs
+    // for artwork and titles from several components deep in this tree
+    // (SlideMediaPanel, AppRouteSlide, DeckWizardPage), and missing one of them
+    // would show a teacher a deck with blank media rather than an error.
     element: (
       <AppContext>
         <ProtectedPage>
-          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+          <ContentGate needs={['songs']}>
+            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+          </ContentGate>
         </ProtectedPage>
       </AppContext>
     ),
@@ -401,7 +411,12 @@ export const studioPages = () => {
       },
       {
         path: 'editor',
-        element: <DawApp />,
+        // DawApp resolves a song by id when opened with ?song=.
+        element: (
+          <ContentGate needs={['songs']}>
+            <DawApp />
+          </ContentGate>
+        ),
       },
     ],
   };
@@ -513,10 +528,13 @@ const OverviewRoute = () => {
 export const learnPages = () => {
   return {
     path: LearnRoutes.root.definition,
+    // LearnHome, useLearnActivity and useInterestProfile all resolve songs.
     element: (
       <AppContext>
         <ProtectedPage>
-          <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+          <ContentGate needs={['songs']}>
+            <ClassroomDashboard fallback={<DashboardContentSkeleton />} />
+          </ContentGate>
         </ProtectedPage>
       </AppContext>
     ),
@@ -604,13 +622,23 @@ export const atlasPages = () => {
     children: [
       // `/atlas` now lands on the Globe Dashboard; the full interactive globe
       // moves to `/atlas/globe` (opened from the dashboard's Explore tab).
+      // Both children read MUSIC_HISTORY, which is hydrated from the published
+      // CDN bundle — ContentGate holds the render until it has landed.
       {
         index: true,
-        element: <GlobeInlet />,
+        element: (
+          <ContentGate>
+            <GlobeInlet />
+          </ContentGate>
+        ),
       },
       {
         path: 'globe',
-        element: <Atlas />,
+        element: (
+          <ContentGate>
+            <Atlas />
+          </ContentGate>
+        ),
       },
     ],
   };
@@ -633,7 +661,11 @@ export const songsPages = () => {
       },
       {
         path: ':songId',
-        element: <SongDetailPage />,
+        element: (
+          <ContentGate needs={['songs']}>
+            <SongDetailPage />
+          </ContentGate>
+        ),
       },
     ],
   };

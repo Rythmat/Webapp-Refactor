@@ -1,3 +1,15 @@
+/**
+ * The bundled globe-event dataset.
+ *
+ * This is no longer the runtime source of truth — published content is fetched
+ * from the CDN by src/content/contentStore.ts, which imports this module
+ * DYNAMICALLY as its fallback. Keep that dynamic: a static import from anywhere
+ * would pull ~1.3MB of event data back onto the eager bundle graph, which is
+ * exactly what moving to CDN-served content removed.
+ *
+ * Retained deliberately as the Level-1 rollback path (and for local dev and
+ * tests, where no CDN is configured). Behind `await import()` it costs nothing.
+ */
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { CITIES } from '../cities';
 import { AFRICAN_EVENTS } from './african';
@@ -17,7 +29,7 @@ import { ROCK_EVENTS } from './rock';
 import { SONG_LIBRARY_EVENTS } from './songLibrary';
 import { WORLD_EVENTS } from './world';
 
-export const MUSIC_HISTORY: HistoricalEvent[] = [
+export const BUNDLED_MUSIC_HISTORY: HistoricalEvent[] = [
   ...SONG_LIBRARY_EVENTS,
   ...JAZZ_EVENTS,
   ...BLUES_EVENTS,
@@ -36,9 +48,17 @@ export const MUSIC_HISTORY: HistoricalEvent[] = [
   ...MUSICFORMEDIA_EVENTS,
 ];
 
-// Deduplicated list of all genres across cities + events for search matching
-export const ALL_GENRES: string[] = (() => {
+/**
+ * Deduplicated genres across cities + events, for search matching.
+ *
+ * Was a module-scope IIFE, which cannot work now that events arrive
+ * asynchronously. Made a function rather than deleted outright even though it
+ * currently has no callers — the atlas copy was only ever re-exported through
+ * the data barrels, while every real `ALL_GENRES` consumer imports the unrelated
+ * list from `@/types/userProfile`.
+ */
+export const getBundledGenres = (): string[] => {
   const cityGenres = CITIES.flatMap((c) => c.genres);
-  const eventGenres = MUSIC_HISTORY.flatMap((e) => e.genre);
+  const eventGenres = BUNDLED_MUSIC_HISTORY.flatMap((e) => e.genre);
   return [...new Set([...cityGenres, ...eventGenres])].sort();
-})();
+};

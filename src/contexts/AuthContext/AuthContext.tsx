@@ -25,6 +25,7 @@ import {
 import { connectSessionSSE } from '@/auth/session-sse';
 import { Env } from '@/constants/env';
 import { ProfileRoutes } from '@/constants/routes';
+import { meQueryKey } from '@/hooks/data/auth/meQueryKey';
 import {
   SUBSCRIPTION_QUERY_KEY,
   fetchSubscriptionStatus,
@@ -360,10 +361,12 @@ export const AuthContextProvider = ({
     [isAuth0Loading, loginWithRedirect, returnTo],
   );
 
+  // Same key and staleTime as `useMe`, so this and the 43 `useMe()` call sites
+  // share one request instead of each issuing their own.
   const meQuery = useQuery({
-    queryKey: ['me', token],
+    queryKey: meQueryKey(token),
     enabled: Boolean(token) && isAuth0Authenticated,
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
     queryFn: async () => {
       return musicAtlas.auth.getAuthMe();
     },

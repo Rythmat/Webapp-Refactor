@@ -7,6 +7,7 @@ const tabs = [
   { label: 'Audio', path: '/console/telemetry/audio' },
   { label: 'Product Funnel', path: '/console/telemetry/product' },
   { label: 'Errors', path: '/console/telemetry/errors' },
+  { label: 'Database', path: '/console/telemetry/database' },
 ];
 
 export const AdminTelemetryLayout = () => {

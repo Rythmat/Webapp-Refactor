@@ -1,5 +1,5 @@
 import SuperJSON from 'superjson';
-import { getCurrentAppSessionId } from '@/auth/app-session-store';
+import { authFetch } from '@/auth/authFetch';
 import { Env } from '@/constants/env';
 
 /**
@@ -38,16 +38,15 @@ async function apiRequest<T>(
   path: string,
   params: { method?: 'GET' | 'PATCH'; token: string; body?: unknown },
 ): Promise<T> {
-  const appSessionId = getCurrentAppSessionId();
-  const response = await fetch(`${normalizedApiBase()}${path}`, {
-    method: params.method ?? 'GET',
-    headers: {
-      Authorization: `Bearer ${params.token}`,
-      'Content-Type': 'application/json',
-      ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
+  const response = await authFetch(
+    `${normalizedApiBase()}${path}`,
+    params.token,
+    {
+      method: params.method ?? 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: params.body != null ? JSON.stringify(params.body) : undefined,
     },
-    body: params.body != null ? JSON.stringify(params.body) : undefined,
-  });
+  );
 
   const parsed = parseApiResponse(await response.text());
 

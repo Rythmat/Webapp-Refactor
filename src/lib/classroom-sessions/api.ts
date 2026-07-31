@@ -1,4 +1,4 @@
-import { getCurrentAppSessionId } from '@/auth/app-session-store';
+import { authFetch } from '@/auth/authFetch';
 import { Env } from '@/constants/env';
 
 /**
@@ -23,15 +23,9 @@ async function listLiveForClassroom(
   token: string,
   classroomId: string,
 ): Promise<LiveSessionDTO[]> {
-  const appSessionId = getCurrentAppSessionId();
-  const res = await fetch(
+  const res = await authFetch(
     `${apiBase()}/classrooms/${encodeURIComponent(classroomId)}/sessions?status=live`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
-      },
-    },
+    token,
   );
   if (!res.ok) throw new Error(`sessions GET ${res.status}`);
   const data = (await res.json()) as unknown;

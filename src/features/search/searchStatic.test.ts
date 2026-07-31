@@ -1,7 +1,18 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { ensureAtlasContent } from '@/content/contentStore';
+import { ensureSongContent } from '@/content/songStore';
 import { scoreKeywords, scoreText } from './match';
 import { browseStatic, searchStatic } from './searchStatic';
 import { getStaticIndex } from './sources/staticIndex';
+
+// The static index spans songs and globe events, neither of which is eagerly
+// bundled any more — both hydrate asynchronously from the published content
+// bundles (or, here, from the bundled fallback). Without this the 'songs' and
+// 'globe' categories would simply be absent, which is exactly what
+// <ContentGate> prevents at runtime.
+beforeAll(async () => {
+  await Promise.all([ensureAtlasContent(), ensureSongContent()]);
+});
 
 describe('scoreText', () => {
   it('is case-insensitive and ranks exact > prefix > interior', () => {
@@ -21,7 +32,12 @@ describe('scoreText', () => {
 });
 
 describe('static index', () => {
-  const index = getStaticIndex();
+  // Built inside beforeAll, not at describe scope: describe bodies run during
+  // collection, before the hydration above has happened.
+  let index: ReturnType<typeof getStaticIndex>;
+  beforeAll(() => {
+    index = getStaticIndex();
+  });
 
   it('is large (songs dominate) and cached across calls', () => {
     expect(index.length).toBeGreaterThan(600);
@@ -91,7 +107,12 @@ describe('searchStatic', () => {
 });
 
 describe('browseStatic (default, no-query view)', () => {
-  const groups = browseStatic();
+  // Same reason as the static-index block above: describe bodies run at
+  // collection time, before globe events have hydrated.
+  let groups: ReturnType<typeof browseStatic>;
+  beforeAll(() => {
+    groups = browseStatic();
+  });
 
   it('returns a preview group for every static category', () => {
     const cats = new Set(groups.map((g) => g.category));

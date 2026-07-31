@@ -6,7 +6,6 @@ import {
   getEventCountryColor,
   getRecursiveArcsForEvent,
 } from '@/components/atlas/data/eventConnections';
-import { MUSIC_HISTORY } from '@/components/atlas/data/events';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import {
   GlobeCdn,
@@ -14,6 +13,8 @@ import {
   type GlobeMarker,
 } from '@/components/ui/cobe-globe-cdn';
 import { AtlasRoutes } from '@/constants/routes';
+import { ContentGate } from '@/content/ContentGate';
+import { MUSIC_HISTORY } from '@/content/contentStore';
 
 /** Convert an Atlas hex colour to cobe's 0–1 RGB triple. */
 const rgb = (hex: string): [number, number, number] => {
@@ -74,10 +75,20 @@ const FEATURED_EVENT_IDS = [
   'evt-techno-detroit-1985',
 ];
 
-const EVENT_BY_ID = new Map(MUSIC_HISTORY.map((e) => [e.id, e]));
-const FEATURED_EVENTS = FEATURED_EVENT_IDS.map((id) =>
-  EVENT_BY_ID.get(id),
-).filter((e): e is HistoricalEvent => Boolean(e));
+/**
+ * Resolve the featured ids against the event set.
+ *
+ * Must stay a function. MUSIC_HISTORY is hydrated asynchronously from the
+ * published CDN bundle, so building this at module scope would capture an empty
+ * array and the dashboard globe would render with no events at all. Called from
+ * the useState initialiser below, which runs at mount — after <ContentGate>.
+ */
+const featuredEvents = (): HistoricalEvent[] => {
+  const byId = new Map(MUSIC_HISTORY.map((e) => [e.id, e]));
+  return FEATURED_EVENT_IDS.map((id) => byId.get(id)).filter(
+    (e): e is HistoricalEvent => Boolean(e),
+  );
+};
 
 // Match the main globe's pinned-event web, but cap dense hubs for legibility.
 const MAX_ARCS = 40;
@@ -188,9 +199,9 @@ const shuffle = <T,>(arr: T[]): T[] => {
  * event advances once per full globe rotation; the globe draws that event's real
  * influence flight paths (matching the main globe). Home dashboard only.
  */
-export const GlobeSection = () => {
+const GlobeSectionInner = () => {
   // Shuffle once per page load so the events (and their order) vary each visit.
-  const [events] = useState(() => shuffle(FEATURED_EVENTS));
+  const [events] = useState(() => shuffle(featuredEvents()));
   const [index, setIndex] = useState(0);
 
   // Advance to the next event each time the globe completes a full rotation.
@@ -293,3 +304,17 @@ export const GlobeSection = () => {
     </section>
   );
 };
+
+/**
+ * Gated wrapper. GlobeSection resolves featured events out of MUSIC_HISTORY at
+ * mount, so it must not render before the published content bundle hydrates —
+ * otherwise the home dashboard shows an empty globe on a cold load.
+ *
+ * Gated here rather than at the route, because this component is mounted from
+ * two unrelated places (HomeInlet and the landing page).
+ */
+export const GlobeSection = () => (
+  <ContentGate fallback={null}>
+    <GlobeSectionInner />
+  </ContentGate>
+);

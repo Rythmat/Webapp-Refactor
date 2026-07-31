@@ -1,8 +1,11 @@
 import path from 'path';
 import react from '@vitejs/plugin-react-swc';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
+// From vitest/config, not vite: the `test` block below is not part of vite's
+// own UserConfig, and importing defineConfig from 'vite' makes `tsc -b` (and
+// therefore `npm run build`) fail on it.
+import { defineConfig } from 'vitest/config';
 
 const analyze = process.env.ANALYZE === '1';
 
@@ -37,5 +40,16 @@ export default defineConfig({
   },
   define: {
     __COMMIT_SHA__: JSON.stringify(process.env.VERCEL_GIT_COMMIT_SHA || 'dev'),
+  },
+  test: {
+    // `src/constants/env.ts` throws on a missing key at import time, so any test
+    // whose module graph reaches AuthContext (several classroom suites do) fails
+    // to collect without this. Placeholder only — nothing here is called.
+    env: {
+      VITE_MUSIC_ATLAS_API_URL:
+        process.env.VITE_MUSIC_ATLAS_API_URL ?? 'http://localhost:3000',
+      // Left unset on purpose: the content loader treats a missing CDN URL as
+      // "use the bundled .ts data", which is the behaviour tests should see.
+    },
   },
 });

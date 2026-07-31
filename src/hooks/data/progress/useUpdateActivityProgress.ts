@@ -142,7 +142,21 @@ export const useUpdateActivityProgress = () => {
         queryClient.setQueryData(ctx.summaryKey, ctx.prevSummary);
       }
     },
-    onSettled: (_data, _error, body) => {
+    onSettled: (_data, error, body) => {
+      // `onMutate` above already writes a complete optimistic model — activity
+      // row, recomputed summary totals, and the local cache — so re-fetching
+      // after every success threw that work away and did it again over the
+      // network. Worse, `invalidateQueries` refetches ACTIVE observers
+      // regardless of staleTime, so it defeated the 5min/10min staleTimes on
+      // useLessonProgress and useProgressSummary (the latter is mounted app-wide
+      // by ClassroomDashboard). With the 3s checkpoint loop that was three
+      // requests every three seconds per student.
+      //
+      // Re-sync only when the optimistic model might actually be wrong: on
+      // failure (we rolled back) or on the terminal COMPLETED transition, which
+      // is what awards XP and unlocks the next activity.
+      if (!error && body.status !== 'COMPLETED') return;
+
       queryClient.invalidateQueries({
         queryKey: ['lessonProgress', body.lessonId, body.lessonVersion],
       });

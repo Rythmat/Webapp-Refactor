@@ -155,11 +155,19 @@ const projectSlide = (slide: Slide): Slide => {
         ...(slide.reveal !== undefined ? { reveal: slide.reveal } : {}),
       };
     case 'app-route':
-      return { ...common, kind: 'app-route', interactionId: slide.interactionId };
+      return {
+        ...common,
+        kind: 'app-route',
+        interactionId: slide.interactionId,
+      };
     case 'studio-collab':
       return { ...common, kind: 'studio-collab', grouping: slide.grouping };
     case 'showcase':
-      return { ...common, kind: 'showcase', interactionId: slide.interactionId };
+      return {
+        ...common,
+        kind: 'showcase',
+        interactionId: slide.interactionId,
+      };
   }
 };
 

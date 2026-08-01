@@ -3,8 +3,8 @@
  * resolution over a published `DaySnapshot`. No React, unit-tested.
  */
 import type { PhaseKey } from '../phases';
-import type { Interaction } from '../types';
 import type { DaySnapshot } from '../publish/publishDay';
+import type { Interaction } from '../types';
 import type { Slide, SlideDeck } from './types';
 
 /** The deck attached to a snapshot, or null for legacy slide-less Days. */
@@ -76,9 +76,7 @@ export const interactionsForSlide = (
  * snapshot. Returns the list of dangling ids (empty = valid). Templates and
  * tests use this; the wizard refuses to publish a deck that fails it.
  */
-export const findDanglingInteractionIds = (
-  snapshot: DaySnapshot,
-): string[] => {
+export const findDanglingInteractionIds = (snapshot: DaySnapshot): string[] => {
   const deck = deckFromSnapshot(snapshot);
   if (!deck) return [];
   const dangling: string[] = [];

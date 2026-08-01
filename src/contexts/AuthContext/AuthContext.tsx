@@ -11,6 +11,8 @@ import {
 import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import SuperJSON from 'superjson';
+import { audioEngine } from '@/audio/AudioEngine';
+import { APP_CLIPS } from '@/audio/samples/appClips';
 import {
   getCurrentAppSessionId,
   setCurrentAppSessionId,
@@ -23,6 +25,7 @@ import {
 import { connectSessionSSE } from '@/auth/session-sse';
 import { Env } from '@/constants/env';
 import { ProfileRoutes } from '@/constants/routes';
+import { meQueryKey } from '@/hooks/data/auth/meQueryKey';
 import {
   SUBSCRIPTION_QUERY_KEY,
   fetchSubscriptionStatus,
@@ -358,10 +361,12 @@ export const AuthContextProvider = ({
     [isAuth0Loading, loginWithRedirect, returnTo],
   );
 
+  // Same key and staleTime as `useMe`, so this and the 43 `useMe()` call sites
+  // share one request instead of each issuing their own.
   const meQuery = useQuery({
-    queryKey: ['me', token],
+    queryKey: meQueryKey(token),
     enabled: Boolean(token) && isAuth0Authenticated,
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
     queryFn: async () => {
       return musicAtlas.auth.getAuthMe();
     },
@@ -450,9 +455,10 @@ export const AuthContextProvider = ({
     didPlayLoginJingleRef.current = true;
     sessionStorage.removeItem('auth0:interactive-login-callback');
 
-    const welcomeAudio = new Audio('/welcome.mp3');
-    welcomeAudio.volume = 0.5;
-    void welcomeAudio.play().catch(() => undefined);
+    audioEngine.playAudioClip(APP_CLIPS.welcome, {
+      gain: 0.5,
+      waitForLoad: true,
+    });
   }, [appUser, isBootstrapLoading]);
 
   useEffect(() => {

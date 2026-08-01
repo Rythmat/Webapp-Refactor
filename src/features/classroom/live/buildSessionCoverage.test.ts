@@ -19,10 +19,7 @@ const appRouteSlide = (id: string, interactionId: string) => ({
   interactionId,
 });
 
-const deckOf = (
-  slides: SlideDeck['slides'],
-  unitSlug?: string,
-): SlideDeck => ({
+const deckOf = (slides: SlideDeck['slides'], unitSlug?: string): SlideDeck => ({
   id: 'deck',
   title: { en: 'd', es: 'd' },
   slides,
@@ -54,8 +51,14 @@ describe('buildSessionCoverage', () => {
       'nov-jazz',
     );
     const responses = {
-      'en-1': { 'ix-theory': done('learn:dorian:g'), 'ix-a': done('curriculum:JAZZ:L1:A') },
-      'en-2': { 'ix-theory': done('learn:dorian:g'), 'ix-a': launched('curriculum:JAZZ:L1:A') },
+      'en-1': {
+        'ix-theory': done('learn:dorian:g'),
+        'ix-a': done('curriculum:JAZZ:L1:A'),
+      },
+      'en-2': {
+        'ix-theory': done('learn:dorian:g'),
+        'ix-a': launched('curriculum:JAZZ:L1:A'),
+      },
       'en-3': { 'ix-a': done('curriculum:JAZZ:L1:A') },
     };
     const coverage = buildSessionCoverage({

@@ -1,8 +1,9 @@
 // Read-only access to Serum 2's presets.db (SQLite). Opened immutable —
 // the DB ships with live -wal/-shm companions we must not touch.
 
-import { DatabaseSync } from 'node:sqlite';
 import { join, dirname } from 'node:path';
+// eslint-disable-next-line import/no-unresolved -- Node >=22 builtin; the resolver's core-module list predates it
+import { DatabaseSync } from 'node:sqlite';
 
 export interface CandidateRow {
   name: string;

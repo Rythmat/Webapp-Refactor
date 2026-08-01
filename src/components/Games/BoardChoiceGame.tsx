@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Tone from 'tone';
 import { v4 as uuidv4 } from 'uuid';
+import { audioEngine } from '@/audio/AudioEngine';
+import { startTone } from '@/audio/core/toneBridge';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import { ionianChordColor } from '@/lib/ionianChordColor';
@@ -375,8 +377,6 @@ export function BoardChoiceGame({
   const [countInBeat, setCountInBeat] = useState(0);
   const [, setCurrentBeatIndex] = useState(0);
   const beatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const metronomePlayerRef = useRef<Tone.Player | null>(null);
-  const downbeatPlayerRef = useRef<Tone.Player | null>(null);
   const beatCountRef = useRef(0);
 
   const [round, setRound] = useState<RoundState>(() => {
@@ -437,39 +437,15 @@ export function BoardChoiceGame({
     startNewRound(initialChord);
   }, [initialChordKey, initialChord, startNewRound, customNotesKey]);
 
-  // Initialize metronome audio players
+  // Decode the click samples up front so the first beat isn't a synth
+  // fallback. This game drives its own beat loop (the grid is gameplay), so it
+  // asks the shared metronome for the sound only — not for the timing.
   useEffect(() => {
-    const metro = new Tone.Player('/sound/metronomeClick.mp3').toDestination();
-    const downbeat = new Tone.Player(
-      '/sound/firstMetronomeClick.mp3',
-    ).toDestination();
-    metronomePlayerRef.current = metro;
-    downbeatPlayerRef.current = downbeat;
-    return () => {
-      metro.dispose();
-      downbeat.dispose();
-    };
+    void audioEngine.metronome.preload();
   }, []);
 
   const playClick = useCallback((isDownbeat: boolean) => {
-    const player = isDownbeat
-      ? downbeatPlayerRef.current
-      : metronomePlayerRef.current;
-    if (!player?.loaded) return;
-    if (Tone.getContext().state !== 'running') return;
-    const now = Tone.now();
-    try {
-      if ((player as unknown as { state: string }).state === 'started') {
-        player.stop(now);
-      }
-    } catch {
-      /* ignore */
-    }
-    try {
-      player.start(now);
-    } catch {
-      /* ignore */
-    }
+    audioEngine.metronome.click(undefined, isDownbeat);
   }, []);
 
   // Beat loop — handles count-in and gameplay beats
@@ -524,7 +500,7 @@ export function BoardChoiceGame({
 
   const handleStart = useCallback(async () => {
     if (Tone.getContext().state !== 'running') {
-      await Tone.start();
+      await startTone();
     }
     startNewRound(initialChord);
     setGameStarted(true);

@@ -1,4 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import {
+  createBus,
+  getAudioContext,
+  resumeAudio,
+} from '@/audio/engine/AudioBus';
 import { ArcadeGameHeader } from '../ArcadeGameHeader';
 import { VolumeDial } from '../VolumeDial';
 
@@ -75,18 +80,13 @@ class HarmonicEngine {
   private activeGain: GainNode | null = null;
 
   constructor() {
-    const AC =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext;
-    this.ctx = new AC();
-    this.master = this.ctx.createGain();
-    this.master.gain.value = 0.3;
-    this.master.connect(this.ctx.destination);
+    // Shared context + this game's own bus, rather than a context per game.
+    this.ctx = getAudioContext();
+    this.master = createBus(0.3);
   }
 
   resume() {
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    resumeAudio();
   }
 
   setVolume(v: number) {
@@ -134,9 +134,10 @@ class HarmonicEngine {
     }
   }
 
+  /** Release this engine's nodes. The context is shared — never close it. */
   close() {
     this.stop();
-    this.ctx.close();
+    this.master.disconnect();
   }
 }
 

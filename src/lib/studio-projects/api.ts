@@ -1,5 +1,5 @@
 import SuperJSON from 'superjson';
-import { getCurrentAppSessionId } from '@/auth/app-session-store';
+import { authFetch } from '@/auth/authFetch';
 import { showError, showWarning } from '@/components/utils/toast';
 import { Env } from '@/constants/env';
 import {
@@ -98,14 +98,9 @@ async function request<T>(
     body?: unknown;
   },
 ): Promise<T> {
-  const appSessionId = getCurrentAppSessionId();
-  const response = await fetch(`${apiBase()}${path}`, {
+  const response = await authFetch(`${apiBase()}${path}`, params.token, {
     method: params.method ?? 'GET',
-    headers: {
-      Authorization: `Bearer ${params.token}`,
-      'Content-Type': 'application/json',
-      ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: params.body != null ? JSON.stringify(params.body) : undefined,
   });
 

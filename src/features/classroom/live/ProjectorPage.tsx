@@ -66,7 +66,11 @@ export const ProjectorPage = () => {
   // keep the cream anonymous-share overlay below. Guard on slides.length so an
   // empty deck (publishDay drops it; defensive here) falls through to the
   // legacy overlay instead of stranding the projector on "Get ready…".
-  if (state && publishedDay?.snapshot.deck && publishedDay.snapshot.deck.slides.length > 0) {
+  if (
+    state &&
+    publishedDay?.snapshot.deck &&
+    publishedDay.snapshot.deck.slides.length > 0
+  ) {
     return (
       <ProjectorDeckView
         snapshot={publishedDay.snapshot}

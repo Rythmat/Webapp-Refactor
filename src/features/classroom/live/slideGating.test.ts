@@ -5,11 +5,36 @@ import { isSlideComplete, slideRequiresCompletion } from './slideGating';
 
 const base = { phase: 'groupPractice' as const, title: { en: 't', es: 't' } };
 const content: Slide = { ...base, id: 'c', kind: 'content' };
-const media: Slide = { ...base, id: 'm', kind: 'media', media: { type: 'youtube', videoId: 'x' } };
-const studio: Slide = { ...base, id: 's', kind: 'studio-collab', grouping: 'pairs' };
-const showcase: Slide = { ...base, id: 'sh', kind: 'showcase', interactionId: 'ix-sh' };
-const question: Slide = { ...base, id: 'q', kind: 'interaction', interactionIds: ['ix-q'] };
-const appRoute: Slide = { ...base, id: 'ar', kind: 'app-route', interactionId: 'ix-ar' };
+const media: Slide = {
+  ...base,
+  id: 'm',
+  kind: 'media',
+  media: { type: 'youtube', videoId: 'x' },
+};
+const studio: Slide = {
+  ...base,
+  id: 's',
+  kind: 'studio-collab',
+  grouping: 'pairs',
+};
+const showcase: Slide = {
+  ...base,
+  id: 'sh',
+  kind: 'showcase',
+  interactionId: 'ix-sh',
+};
+const question: Slide = {
+  ...base,
+  id: 'q',
+  kind: 'interaction',
+  interactionIds: ['ix-q'],
+};
+const appRoute: Slide = {
+  ...base,
+  id: 'ar',
+  kind: 'app-route',
+  interactionId: 'ix-ar',
+};
 
 describe('slideRequiresCompletion', () => {
   it('is false for interaction-less + showcase slides, true for interaction/app-route', () => {

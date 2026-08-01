@@ -7,8 +7,10 @@
  */
 import { describe, expect, it } from 'vitest';
 import { buildResponseAggregate } from '../../assignments/buildResponseAggregate';
-import { buildProjectorView } from '../../live/buildProjectorView';
-import type { ProjectorView } from '../../live/buildProjectorView';
+import {
+  buildProjectorView,
+  type ProjectorView,
+} from '../../live/buildProjectorView';
 import type { Interaction, InteractionResponse } from '../../types';
 import {
   fromProjectorView,

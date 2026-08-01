@@ -1,6 +1,14 @@
 // VoiceFilter0/1 → Oracle's two biquad filters. Serum has 45+ filter models;
 // Oracle has 8 biquad types — bucket by dominant behavior, report approximations.
 
+import type { FidelityCollector } from '../fidelity.ts';
+import type { FilterType, PresetDataOut } from '../oracleTypes.ts';
+import {
+  FILTER_DEFAULTS,
+  filterFreqToHz,
+  resoToQ,
+  pctToUnit,
+} from '../serumDefaults.ts';
 import {
   plainParams,
   num,
@@ -8,14 +16,6 @@ import {
   section,
   type SerumDoc,
 } from '../serumPreset.ts';
-import {
-  FILTER_DEFAULTS,
-  filterFreqToHz,
-  resoToQ,
-  pctToUnit,
-} from '../serumDefaults.ts';
-import type { FidelityCollector } from '../fidelity.ts';
-import type { FilterType, PresetDataOut } from '../oracleTypes.ts';
 
 interface TypeBucket {
   type: FilterType;

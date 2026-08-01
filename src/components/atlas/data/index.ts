@@ -6,7 +6,7 @@ export {
   DECADES,
   GEOJSON_URLS,
 } from './menuItems';
-export { MUSIC_HISTORY, ALL_GENRES } from './musicHistory';
+export { MUSIC_HISTORY } from './musicHistory';
 export {
   COUNTRY_FLAG_COLORS,
   STATE_FLAG_COLORS,

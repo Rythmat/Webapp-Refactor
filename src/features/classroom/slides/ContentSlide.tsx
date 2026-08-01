@@ -5,10 +5,10 @@
  */
 import { pickLocalized, secondaryLine } from '../presentation/localized';
 import type { Interaction, StudentLanguage } from '../types';
+import type { SlideSlots } from './SlideRenderer';
 import { SlideFrame } from './parts/SlideFrame';
 import { SlideHeading } from './parts/SlideHeading';
 import { SlideMediaPanel } from './parts/SlideMediaPanel';
-import type { SlideSlots } from './SlideRenderer';
 import type { ContentSlide as ContentSlideModel, SlideSurface } from './types';
 
 export interface ContentSlideProps {
@@ -75,7 +75,9 @@ export const ContentSlide = ({
               media={slide.media}
               language={language}
               interactive={surface === 'projector'}
-              command={surface === 'projector' ? slots?.mediaCommand : undefined}
+              command={
+                surface === 'projector' ? slots?.mediaCommand : undefined
+              }
             />
           </div>
         )}

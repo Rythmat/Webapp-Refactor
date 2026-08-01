@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import {
+  createBus,
+  getAudioContext,
+  resumeAudio,
+} from '@/audio/engine/AudioBus';
 import { ArcadeGameHeader } from '../ArcadeGameHeader';
+import { VolumeDial } from '../VolumeDial';
 
 // --- Types ---
 
@@ -21,6 +27,11 @@ interface Challenge {
 
 const SAMPLE_RATE = 512;
 const MATCH_THRESHOLD = 0.9;
+
+// Master gain at a full-turn volume dial. The dial defaults to 50%, which lands
+// on the 0.15 master gain previews used before the dial existed.
+const MAX_MASTER_GAIN = 0.3;
+const DEFAULT_VOLUME = 0.5;
 
 const WAVEFORM_TYPES: WaveformType[] = [
   'sine',
@@ -213,19 +224,23 @@ class WavePreview {
   private gains: GainNode[] = [];
   private master: GainNode;
 
-  constructor() {
-    const AC =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext;
-    this.ctx = new AC();
-    this.master = this.ctx.createGain();
-    this.master.gain.value = 0.15;
-    this.master.connect(this.ctx.destination);
+  constructor(volume: number) {
+    // Shared context + this game's own bus, rather than a context per game.
+    this.ctx = getAudioContext();
+    this.master = createBus(volume * MAX_MASTER_GAIN);
   }
 
   resume() {
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    resumeAudio();
+  }
+
+  /** Set the 0–1 dial volume, taking effect mid-note as the knob is turned. */
+  setVolume(volume: number) {
+    this.master.gain.setTargetAtTime(
+      volume * MAX_MASTER_GAIN,
+      this.ctx.currentTime,
+      0.01,
+    );
   }
 
   play(slots: OscillatorSlot[]) {
@@ -258,9 +273,10 @@ class WavePreview {
     this.gains = [];
   }
 
+  /** Release this preview's nodes. The context is shared — never close it. */
   close() {
     this.stop();
-    this.ctx.close();
+    this.master.disconnect();
   }
 }
 
@@ -287,11 +303,15 @@ export default function WaveSculptor({
   const [roundComplete, setRoundComplete] = useState(false);
   const [roundsWon, setRoundsWon] = useState(0);
   const [isPreviewing, setIsPreviewing] = useState(false);
+  const [volume, setVolume] = useState(DEFAULT_VOLUME);
 
   const targetCanvasRef = useRef<HTMLCanvasElement>(null);
   const playerCanvasRef = useRef<HTMLCanvasElement>(null);
   const previewRef = useRef<WavePreview | null>(null);
   const rafRef = useRef<number>();
+  // Mirrors `volume` so a lazily-created WavePreview starts at the dial's
+  // current setting rather than the default.
+  const volumeRef = useRef(volume);
 
   const challenge = CHALLENGES[level]?.[challengeIndex];
   const maxSlots = level + 1; // L1=1 slot, L2=2, L3=3
@@ -364,6 +384,20 @@ export default function WaveSculptor({
     };
   }, []);
 
+  // Push dial changes at the live preview so turning the knob during a Listen
+  // is heard immediately.
+  useEffect(() => {
+    volumeRef.current = volume;
+    previewRef.current?.setVolume(volume);
+  }, [volume]);
+
+  const ensurePreview = useCallback(() => {
+    if (!previewRef.current) {
+      previewRef.current = new WavePreview(volumeRef.current);
+    }
+    return previewRef.current;
+  }, []);
+
   const updateSlot = useCallback(
     (
       index: number,
@@ -394,26 +428,25 @@ export default function WaveSculptor({
   }, []);
 
   const previewTarget = useCallback(() => {
-    if (!previewRef.current) previewRef.current = new WavePreview();
+    const preview = ensurePreview();
     if (!challenge) return;
     if (isPreviewing) {
-      previewRef.current.stop();
+      preview.stop();
       setIsPreviewing(false);
     } else {
-      previewRef.current.play(challenge.slots);
+      preview.play(challenge.slots);
       setIsPreviewing(true);
       setTimeout(() => {
         previewRef.current?.stop();
         setIsPreviewing(false);
       }, 2000);
     }
-  }, [challenge, isPreviewing]);
+  }, [challenge, isPreviewing, ensurePreview]);
 
   const previewPlayer = useCallback(() => {
-    if (!previewRef.current) previewRef.current = new WavePreview();
-    previewRef.current.play(playerSlots);
+    ensurePreview().play(playerSlots);
     setTimeout(() => previewRef.current?.stop(), 2000);
-  }, [playerSlots]);
+  }, [playerSlots, ensurePreview]);
 
   const nextChallenge = useCallback(() => {
     // Resolve the upcoming (level, index) so we can seed randomized dials
@@ -448,32 +481,37 @@ export default function WaveSculptor({
       <ArcadeGameHeader
         title="Wave Sculptor"
         controls={
-          <>
-            <button
-              onClick={previewTarget}
-              className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-purple-300 transition-colors"
-            >
-              {isPreviewing ? 'Stop' : 'Listen'}
-            </button>
-            <button
-              onClick={() => {
-                if (challenge)
-                  setPlayerSlots(randomizeStartingSlots(challenge));
-                setSimilarity(0);
-              }}
-              className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-zinc-300 transition-colors"
-            >
-              Reset
-            </button>
-          </>
+          <button
+            onClick={previewTarget}
+            className="px-4 py-1.5 rounded text-sm font-medium bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 text-purple-300 transition-colors"
+          >
+            {isPreviewing ? 'Stop' : 'Listen'}
+          </button>
         }
-        stats={[
-          {
-            label: 'Level',
-            value: `${level + 1} · ${challengeIndex + 1}/${CHALLENGES[level]?.length ?? 0}`,
-          },
-          { label: 'Rounds Won', value: roundsWon },
-        ]}
+        right={
+          <div className="flex items-center gap-6 rounded-xl border border-white/5 bg-black/20 px-5 py-3 backdrop-blur-sm">
+            <VolumeDial value={volume} onChange={setVolume} />
+            <div className="h-8 w-px bg-white/10" />
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                Level
+              </span>
+              <span className="text-xl font-medium tabular-nums text-white">
+                {level + 1} · {challengeIndex + 1}/
+                {CHALLENGES[level]?.length ?? 0}
+              </span>
+            </div>
+            <div className="h-8 w-px bg-white/10" />
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                Rounds Won
+              </span>
+              <span className="text-xl font-medium tabular-nums text-white">
+                {roundsWon}
+              </span>
+            </div>
+          </div>
+        }
       />
 
       {/* Body — game components vertically centered, scrolling when they overflow */}
@@ -530,36 +568,6 @@ export default function WaveSculptor({
                 />
               </div>
             </div>
-          </div>
-
-          {/* Similarity meter */}
-          <div className="px-6 pb-2">
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-zinc-500 uppercase tracking-wider w-20">
-                Similarity
-              </span>
-              <div className="flex-1 h-2 bg-white/[0.05] rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-300"
-                  style={{
-                    width: `${similarityPct}%`,
-                    backgroundColor: similarityColor,
-                    boxShadow: `0 0 8px ${similarityColor}60`,
-                  }}
-                />
-              </div>
-              <span
-                className="text-sm font-mono w-12 text-right"
-                style={{ color: similarityColor }}
-              >
-                {similarityPct}%
-              </span>
-            </div>
-            {similarityPct >= 90 && (
-              <div className="text-xs text-zinc-400 mt-1">
-                {similarityPct >= 90 ? '90%+ threshold reached!' : ''}
-              </div>
-            )}
           </div>
 
           {/* Oscillator controls */}
@@ -664,9 +672,40 @@ export default function WaveSculptor({
             )}
           </div>
 
+          {/* Similarity meter — sits under the oscillator dials so the score
+              reads directly beneath the controls that move it. */}
+          <div className="px-6 pb-2">
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-zinc-500 uppercase tracking-wider w-20">
+                Similarity
+              </span>
+              <div className="flex-1 h-2 bg-white/[0.05] rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${similarityPct}%`,
+                    backgroundColor: similarityColor,
+                    boxShadow: `0 0 8px ${similarityColor}60`,
+                  }}
+                />
+              </div>
+              <span
+                className="text-sm font-mono w-12 text-right"
+                style={{ color: similarityColor }}
+              >
+                {similarityPct}%
+              </span>
+            </div>
+            {similarityPct >= 90 && (
+              <div className="text-xs text-zinc-400 mt-1">
+                90%+ threshold reached!
+              </div>
+            )}
+          </div>
+
           {/* Next challenge */}
           {roundComplete && (
-            <div className="flex justify-end px-6 pb-4">
+            <div className="flex justify-center px-6 pb-4">
               <button
                 onClick={nextChallenge}
                 className="px-4 py-1.5 rounded text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"

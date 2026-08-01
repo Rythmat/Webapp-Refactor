@@ -8,6 +8,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import * as Tone from 'tone';
+import { startTone } from '@/audio/core/toneBridge';
 import {
   triggerPianoAttack,
   triggerPianoRelease,
@@ -19,6 +20,7 @@ import { CurriculumRoutes } from '@/constants/routes';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import DualStaffPianoRoll from '@/curriculum/components/DualStaffPianoRoll';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
+import { useMspModuleCompletion } from '@/features/classroom/msp';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
@@ -46,7 +48,6 @@ import {
   type ArcadeDongleData,
   type BackendDongleData,
 } from '../hooks/useGenreProgress';
-import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { useMetronome } from '../hooks/useMetronome';
 import type { ActivitySectionId } from '../types/activity';
 import type {
@@ -1038,7 +1039,7 @@ function GenreLessonContainerV2Inner({
     Tone.getTransport().stop();
     Tone.getTransport().cancel();
 
-    await Tone.start();
+    await startTone();
     await startPianoSampler();
 
     // Reset state before starting — but don't activate yet for IT

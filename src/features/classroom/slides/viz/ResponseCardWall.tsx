@@ -44,7 +44,9 @@ export const ResponseCardWall = ({
     <div className="w-full">
       <div
         className={`grid grid-cols-1 ${
-          projector ? 'gap-4 sm:grid-cols-2 lg:grid-cols-3' : 'gap-2 sm:grid-cols-2'
+          projector
+            ? 'gap-4 sm:grid-cols-2 lg:grid-cols-3'
+            : 'gap-2 sm:grid-cols-2'
         }`}
       >
         <AnimatePresence>
@@ -63,7 +65,9 @@ export const ResponseCardWall = ({
                     }
               }
               className={`break-words rounded-2xl border border-white/10 bg-white/[0.03] text-white/90 ${
-                projector ? 'px-5 py-4 text-xl md:text-2xl' : 'px-3 py-2.5 text-sm'
+                projector
+                  ? 'px-5 py-4 text-xl md:text-2xl'
+                  : 'px-3 py-2.5 text-sm'
               }`}
             >
               {answer}
@@ -72,7 +76,11 @@ export const ResponseCardWall = ({
         </AnimatePresence>
       </div>
       {overflow > 0 && (
-        <div className={projector ? 'mt-5 flex justify-center' : 'mt-3 flex justify-center'}>
+        <div
+          className={
+            projector ? 'mt-5 flex justify-center' : 'mt-3 flex justify-center'
+          }
+        >
           <span
             className={`inline-flex items-center rounded-full border border-white/10 bg-white/[0.06] tabular-nums text-white/70 ${
               projector ? 'px-4 py-1.5 text-lg' : 'px-3 py-1 text-xs'

@@ -1,7 +1,11 @@
 /* eslint-disable react/jsx-sort-props */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { audioEngine } from '@/audio/AudioEngine';
+import { useGameOptions } from '@/hooks/data/gameOptions/useGameOptions';
+import { useSaveGameOptions } from '@/hooks/data/gameOptions/useSaveGameOptions';
 import { usePrismRhythms } from '@/hooks/data/prism/usePrismRhythms';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
+import { VolumeDial } from './VolumeDial';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -25,14 +29,19 @@ const SHAKER_URLS = [
   '/samples/bongo/shaker3.wav',
 ];
 
-const METRO_FIRST_URL = '/sound/firstMetronomeClick.mp3';
-const METRO_URL = '/sound/metronomeClick.mp3';
-
 const MAX_LIVES = 5;
+
+/** Game id this component's options are stored under in user_game_options. */
+const FOLI_GAME_ID = 'foli';
+
+/** Start/Play Again button height; Change Keys sits above it at exactly half. */
+const START_BUTTON_HEIGHT = 38;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type Side = 'left' | 'right';
+/** KeyboardEvent.code per drum — layout-independent, so it survives non-QWERTY. */
+type KeyBindings = Record<Side, string>;
 type RhythmHit = [start: number, duration: number];
 type SequenceNote = { startTick: number; durationTick: number; side: Side };
 type Phase =
@@ -59,38 +68,113 @@ function pickRandom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)]!;
 }
 
+const DEFAULT_KEY_BINDINGS: KeyBindings = { left: 'KeyA', right: 'KeyD' };
+
+/** Keys that can't be bound to a drum — they'd trap the user in rebind mode. */
+const UNBINDABLE_CODES = new Set([
+  'Escape',
+  'Tab',
+  'ShiftLeft',
+  'ShiftRight',
+  'ControlLeft',
+  'ControlRight',
+  'AltLeft',
+  'AltRight',
+  'MetaLeft',
+  'MetaRight',
+  'CapsLock',
+]);
+
+const KEY_LABEL_OVERRIDES: Record<string, string> = {
+  Space: 'SPC',
+  Enter: 'ENTER',
+  Backspace: 'BKSP',
+  ArrowLeft: '←',
+  ArrowRight: '→',
+  ArrowUp: '↑',
+  ArrowDown: '↓',
+  Comma: ',',
+  Period: '.',
+  Slash: '/',
+  Semicolon: ';',
+  Quote: "'",
+  BracketLeft: '[',
+  BracketRight: ']',
+  Backslash: '\\',
+  Minus: '-',
+  Equal: '=',
+  Backquote: '`',
+};
+
+/** Short display label for a KeyboardEvent.code ('KeyA' → 'A'). */
+function keyLabel(code: string): string {
+  if (KEY_LABEL_OVERRIDES[code]) return KEY_LABEL_OVERRIDES[code];
+  if (code.startsWith('Key')) return code.slice(3);
+  if (code.startsWith('Digit')) return code.slice(5);
+  if (code.startsWith('Numpad')) return code.slice(6);
+  return code;
+}
+
+function normalizeBindings(value: unknown): KeyBindings | null {
+  if (!value || typeof value !== 'object') return null;
+  const { left, right } = value as { left?: unknown; right?: unknown };
+  if (typeof left !== 'string' || typeof right !== 'string') return null;
+  if (!left || !right || left === right) return null;
+  return { left, right };
+}
+
 // ── Bongo Audio Engine ───────────────────────────────────────────────────────
 
 class BongoEngine {
   private ctx: AudioContext | null = null;
+  /** This game's channel on the shared mixer; replaces a private context. */
+  private out: GainNode | null = null;
   private bufferLeft: AudioBuffer | null = null;
   private bufferRight: AudioBuffer | null = null;
   private shakerBuffers: AudioBuffer[] = [];
-  private metroFirst: AudioBuffer | null = null;
-  private metroClick: AudioBuffer | null = null;
   private activeShaker: AudioBufferSourceNode | null = null;
   private shakerGain: GainNode | null = null;
-  private metroTimer: ReturnType<typeof setTimeout> | null = null;
-  private metroBeatCount = 0;
-  private metroNextTime = 0;
   private loaded = false;
   private shakersLoaded = false;
   private metroLoaded = false;
+  private volume = 1;
+
+  /** Shared context + this game's mixer channel, rather than a private graph. */
+  private attach() {
+    if (!this.out) {
+      this.ctx = audioEngine.context;
+      this.out = audioEngine.channel('games', this.volume);
+    }
+    return this.out;
+  }
+
+  /**
+   * Level for everything this game makes: bongos and shaker on its own channel,
+   * plus the count-in clicks. The clicks play on the shared metronome bus, so
+   * this drives that bus too — fine while Foli is the only metronome running,
+   * the same trade-off Major Arcanum's mixer makes.
+   */
+  setVolume(volume: number) {
+    this.volume = Math.max(0, Math.min(1, volume));
+    if (this.out) {
+      this.out.gain.setTargetAtTime(
+        this.volume,
+        this.out.context.currentTime,
+        0.01,
+      );
+    }
+    audioEngine.metronome.setVolume(this.volume);
+  }
 
   async init() {
     if (this.loaded) return;
-    const AC =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext;
-    this.ctx = new AC();
+    this.attach();
+    // Buffers come from the shared SampleManager: decoded once, on the one
+    // context, and reused by anything else that needs the same file (the
+    // metronome clicks below are also used by Board Choice).
     const [leftBuf, rightBuf] = await Promise.all([
-      fetch(BONGO_LEFT_URL)
-        .then((r) => r.arrayBuffer())
-        .then((b) => this.ctx!.decodeAudioData(b)),
-      fetch(BONGO_RIGHT_URL)
-        .then((r) => r.arrayBuffer())
-        .then((b) => this.ctx!.decodeAudioData(b)),
+      audioEngine.samples.load(BONGO_LEFT_URL),
+      audioEngine.samples.load(BONGO_RIGHT_URL),
     ]);
     this.bufferLeft = leftBuf;
     this.bufferRight = rightBuf;
@@ -98,47 +182,32 @@ class BongoEngine {
   }
 
   async loadShakers() {
-    if (this.shakersLoaded || !this.ctx) return;
+    if (this.shakersLoaded) return;
     this.shakerBuffers = await Promise.all(
-      SHAKER_URLS.map((url) =>
-        fetch(url)
-          .then((r) => r.arrayBuffer())
-          .then((b) => this.ctx!.decodeAudioData(b)),
-      ),
+      SHAKER_URLS.map((url) => audioEngine.samples.load(url)),
     );
     this.shakersLoaded = true;
   }
 
+  /** Decode the shared metronome clicks ahead of the count-in. */
   async loadMetronome() {
-    if (this.metroLoaded || !this.ctx) return;
-    const [first, click] = await Promise.all([
-      fetch(METRO_FIRST_URL)
-        .then((r) => r.arrayBuffer())
-        .then((b) => this.ctx!.decodeAudioData(b)),
-      fetch(METRO_URL)
-        .then((r) => r.arrayBuffer())
-        .then((b) => this.ctx!.decodeAudioData(b)),
-    ]);
-    this.metroFirst = first;
-    this.metroClick = click;
+    if (this.metroLoaded) return;
+    await audioEngine.metronome.preload();
     this.metroLoaded = true;
   }
 
   private playBuffer(buffer: AudioBuffer | null) {
-    if (!this.ctx || !buffer) return;
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-    const source = this.ctx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(this.ctx.destination);
-    source.start();
+    this.playBufferAt(buffer, 0);
   }
 
   private playBufferAt(buffer: AudioBuffer | null, when: number) {
-    if (!this.ctx || !buffer) return;
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-    const source = this.ctx.createBufferSource();
+    if (!buffer) return;
+    const out = this.attach();
+    audioEngine.resume();
+    const source = out.context.createBufferSource();
     source.buffer = buffer;
-    source.connect(this.ctx.destination);
+    source.connect(out);
+    source.onended = () => source.disconnect();
     source.start(when);
   }
 
@@ -154,27 +223,24 @@ class BongoEngine {
   }
 
   playClick(isFirst: boolean) {
-    this.playBuffer(isFirst ? this.metroFirst : this.metroClick);
-  }
-
-  private playClickAt(isFirst: boolean, when: number) {
-    this.playBufferAt(isFirst ? this.metroFirst : this.metroClick, when);
+    audioEngine.metronome.click(undefined, isFirst);
   }
 
   getCtxTime() {
-    return this.ctx?.currentTime ?? 0;
+    return audioEngine.context.currentTime;
   }
 
   playShaker(index: number) {
-    if (!this.ctx || !this.shakersLoaded) return;
+    if (!this.shakersLoaded) return;
     this.stopShaker();
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    const out = this.attach();
+    audioEngine.resume();
     const buffer = this.shakerBuffers[index];
     if (!buffer) return;
-    const gain = this.ctx.createGain();
+    const gain = out.context.createGain();
     gain.gain.value = 0.4;
-    gain.connect(this.ctx.destination);
-    const source = this.ctx.createBufferSource();
+    gain.connect(out);
+    const source = out.context.createBufferSource();
     source.buffer = buffer;
     source.loop = true;
     source.connect(gain);
@@ -183,33 +249,15 @@ class BongoEngine {
     this.shakerGain = gain;
   }
 
+  // The lookahead loop this class used to run is now the engine's — same
+  // two-clock technique, one implementation, shared with every other feature.
   startMetronome() {
-    this.stopMetronome();
-    if (!this.ctx) return;
-    this.metroBeatCount = 0;
-    this.metroNextTime = this.ctx.currentTime;
-    this.scheduleMetro();
-  }
-
-  private scheduleMetro() {
-    if (!this.ctx) return;
-    const LOOKAHEAD_S = 0.1;
-    const INTERVAL_MS = 50;
-    const beatS = 60 / BPM;
-
-    while (this.metroNextTime < this.ctx.currentTime + LOOKAHEAD_S) {
-      this.playClickAt(this.metroBeatCount % 4 === 0, this.metroNextTime);
-      this.metroBeatCount++;
-      this.metroNextTime += beatS;
-    }
-    this.metroTimer = setTimeout(() => this.scheduleMetro(), INTERVAL_MS);
+    this.attach();
+    audioEngine.metronome.start({ bpm: BPM, beatsPerBar: 4 });
   }
 
   stopMetronome() {
-    if (this.metroTimer !== null) {
-      clearTimeout(this.metroTimer);
-      this.metroTimer = null;
-    }
+    audioEngine.metronome.stop();
   }
 
   stopShaker() {
@@ -231,10 +279,12 @@ class BongoEngine {
     }
   }
 
+  /** Release this game's channel. The context is shared — never close it. */
   close() {
     this.stopMetronome();
     this.stopShaker();
-    this.ctx?.close();
+    this.out?.disconnect();
+    this.out = null;
   }
 }
 
@@ -627,6 +677,57 @@ function RhythmNotation({
   );
 }
 
+// ── Key Box ──────────────────────────────────────────────────────────────────
+
+/** The key currently bound to a drum. Rings in that drum's colour when the drum
+ *  is selected during rebinding, so it's obvious which box the next key fills. */
+function KeyBox({
+  label,
+  color,
+  selected,
+  onSelect,
+}: {
+  label: string;
+  color: string;
+  selected: boolean;
+  /** Set while rebinding: clicking the box selects its drum, like the drum does. */
+  onSelect?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      // Don't take focus on click: a focused box would swallow the next Space
+      // or Enter as a button activation instead of a key to bind.
+      onMouseDown={(e) => e.preventDefault()}
+      disabled={!onSelect}
+      style={{
+        minWidth: 38,
+        height: 26,
+        padding: '0 8px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 6,
+        border: `1.5px solid ${selected ? color : 'rgba(255,255,255,0.12)'}`,
+        backgroundColor: selected
+          ? 'rgba(255,255,255,0.08)'
+          : 'rgba(255,255,255,0.03)',
+        boxShadow: selected ? `0 0 12px ${color}66` : 'none',
+        fontSize: 12,
+        fontWeight: 700,
+        letterSpacing: 2,
+        color,
+        fontFamily: 'monospace',
+        cursor: onSelect ? 'pointer' : 'default',
+        transition: 'color 0.15s ease, border-color 0.15s ease',
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
 // ── Foil Drums Component ─────────────────────────────────────────────────────
 
 function FoilDrums({
@@ -635,12 +736,22 @@ function FoilDrums({
   disabled,
   onPressLeft,
   onPressRight,
+  leftKeyLabel,
+  rightKeyLabel,
+  selectedSide = null,
+  bindingMode = false,
 }: {
   leftGlow: BongoGlow;
   rightGlow: BongoGlow;
   disabled: boolean;
   onPressLeft: () => void;
   onPressRight: () => void;
+  leftKeyLabel: string;
+  rightKeyLabel: string;
+  /** Drum awaiting a key press while rebinding — lit, with its key box ringed. */
+  selectedSide?: Side | null;
+  /** Rebinding: the whole half — and its key box — selects that drum. */
+  bindingMode?: boolean;
 }) {
   const [pressedLeft, setPressedLeft] = useState(false);
   const [pressedRight, setPressedRight] = useState(false);
@@ -667,10 +778,14 @@ function FoilDrums({
     return 'none';
   };
 
-  const leftFill = getFill(leftGlow, pressedLeft, 'left');
-  const rightFill = getFill(rightGlow, pressedRight, 'right');
-  const leftFilter = getFilter(leftGlow, pressedLeft, 'left');
-  const rightFilter = getFilter(rightGlow, pressedRight, 'right');
+  // A drum selected for rebinding lights up exactly like a held press.
+  const leftLit = pressedLeft || selectedSide === 'left';
+  const rightLit = pressedRight || selectedSide === 'right';
+
+  const leftFill = getFill(leftGlow, leftLit, 'left');
+  const rightFill = getFill(rightGlow, rightLit, 'right');
+  const leftFilter = getFilter(leftGlow, leftLit, 'left');
+  const rightFilter = getFilter(rightGlow, rightLit, 'right');
 
   const handleLeftDown = () => {
     if (!disabled) {
@@ -728,6 +843,24 @@ function FoilDrums({
           onTouchStart={handleLeftDown}
           onTouchEnd={() => setPressedLeft(false)}
         >
+          {/* Rebinding: the drum's whole half is the target, not just the
+              painted shape. Clipped to this side, so the two never overlap. */}
+          {bindingMode && (
+            <rect
+              x={2}
+              y={2}
+              width={165 - 4}
+              height={146}
+              rx={4}
+              fill="transparent"
+              pointerEvents="all"
+              stroke={
+                selectedSide === 'left' ? leftFill : 'rgba(255,255,255,0.12)'
+              }
+              strokeWidth={1}
+              strokeDasharray="4 4"
+            />
+          )}
           <path
             d={FOIL_PATH}
             fill={leftFill}
@@ -750,6 +883,22 @@ function FoilDrums({
           onTouchStart={handleRightDown}
           onTouchEnd={() => setPressedRight(false)}
         >
+          {bindingMode && (
+            <rect
+              x={2}
+              y={2}
+              width={165 - 4}
+              height={146}
+              rx={4}
+              fill="transparent"
+              pointerEvents="all"
+              stroke={
+                selectedSide === 'right' ? rightFill : 'rgba(255,255,255,0.12)'
+              }
+              strokeWidth={1}
+              strokeDasharray="4 4"
+            />
+          )}
           <path
             d={FOIL_PATH}
             fill={rightFill}
@@ -759,32 +908,20 @@ function FoilDrums({
         </g>
       </svg>
 
-      {/* Key hints */}
-      <div style={{ display: 'flex', gap: 80, justifyContent: 'center' }}>
-        <span
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: 2,
-            color: leftFill,
-            fontFamily: 'monospace',
-            transition: 'color 0.15s ease',
-          }}
-        >
-          A
-        </span>
-        <span
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: 2,
-            color: rightFill,
-            fontFamily: 'monospace',
-            transition: 'color 0.15s ease',
-          }}
-        >
-          D
-        </span>
+      {/* Key boxes — one per drum, ringed while that drum awaits a new key */}
+      <div style={{ display: 'flex', gap: 68, justifyContent: 'center' }}>
+        <KeyBox
+          label={leftKeyLabel}
+          color={leftFill}
+          selected={selectedSide === 'left'}
+          onSelect={bindingMode ? onPressLeft : undefined}
+        />
+        <KeyBox
+          label={rightKeyLabel}
+          color={rightFill}
+          selected={selectedSide === 'right'}
+          onSelect={bindingMode ? onPressRight : undefined}
+        />
       </div>
     </div>
   );
@@ -809,6 +946,34 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
   const [score, setScore] = useState(0);
   const [barStartTime, setBarStartTime] = useState<number | null>(null);
 
+  // ── Key bindings ────────────────────────────────────────────────────
+  // Rebinding is a start-screen mode: pick a drum, then press the key that
+  // should trigger it. Saving writes them to the user's profile.
+  const [keyBindings, setKeyBindings] =
+    useState<KeyBindings>(DEFAULT_KEY_BINDINGS);
+  const [bindingMode, setBindingMode] = useState(false);
+  const [bindingSide, setBindingSide] = useState<Side | null>(null);
+  const [keysSavedNote, setKeysSavedNote] = useState<string | null>(null);
+
+  const keyBindingsRef = useRef<KeyBindings>(DEFAULT_KEY_BINDINGS);
+  const bindingModeRef = useRef(false);
+  const bindingSideRef = useRef<Side | null>(null);
+  const savedBindingsAppliedRef = useRef(false);
+
+  const savedOptions = useGameOptions<{ keyBindings?: unknown }>(FOLI_GAME_ID);
+  const saveGameOptions = useSaveGameOptions(FOLI_GAME_ID);
+
+  // Apply the profile's saved bindings once, so a mid-session rebind isn't
+  // clobbered by a later refetch.
+  useEffect(() => {
+    if (savedBindingsAppliedRef.current) return;
+    const saved = normalizeBindings(savedOptions.data?.keyBindings);
+    if (!saved) return;
+    savedBindingsAppliedRef.current = true;
+    keyBindingsRef.current = saved;
+    setKeyBindings(saved);
+  }, [savedOptions.data]);
+
   const phaseRef = useRef<Phase>('loading');
   const sequenceRef = useRef<SequenceNote[]>([]);
   const inputStartRef = useRef<number>(0);
@@ -823,6 +988,20 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
     if (!engineRef.current) engineRef.current = new BongoEngine();
     return engineRef.current;
   }, []);
+
+  // ── Volume ──────────────────────────────────────────────────────────
+
+  const [volume, setVolume] = useState(1);
+
+  const handleVolumeChange = useCallback(
+    (next: number) => {
+      setVolume(next);
+      // Applies immediately if the engine exists, and is remembered for the
+      // channel it opens on first play if it doesn't.
+      getEngine().setVolume(next);
+    },
+    [getEngine],
+  );
 
   const sp = useCallback((p: Phase) => {
     phaseRef.current = p;
@@ -1050,16 +1229,81 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
     [getEngine, flashSide],
   );
 
-  // ── Keyboard support: A = left, D = right, Space/Enter = start ──────
+  // ── Rebinding drum keys ─────────────────────────────────────────────
+
+  const selectSide = useCallback((side: Side) => {
+    bindingSideRef.current = side;
+    setBindingSide(side);
+  }, []);
+
+  /** Bind `code` to `side`. If the other drum already used it, the two swap so
+   *  the drums never end up sharing one key. */
+  const assignKey = useCallback((side: Side, code: string) => {
+    const prev = keyBindingsRef.current;
+    const other: Side = side === 'left' ? 'right' : 'left';
+    const next: KeyBindings = { ...prev, [side]: code };
+    if (prev[other] === code) next[other] = prev[side];
+
+    keyBindingsRef.current = next;
+    setKeyBindings(next);
+    bindingSideRef.current = null;
+    setBindingSide(null);
+  }, []);
+
+  const enterBindingMode = useCallback(() => {
+    // Drop focus from the button that opened the mode, so binding Space or
+    // Enter to a drum doesn't also activate Save Keys.
+    (document.activeElement as HTMLElement | null)?.blur?.();
+    setKeysSavedNote(null);
+    bindingModeRef.current = true;
+    bindingSideRef.current = null;
+    setBindingMode(true);
+    setBindingSide(null);
+  }, []);
+
+  const saveKeys = useCallback(async () => {
+    bindingModeRef.current = false;
+    bindingSideRef.current = null;
+    setBindingMode(false);
+    setBindingSide(null);
+
+    try {
+      await saveGameOptions.mutateAsync({
+        keyBindings: keyBindingsRef.current,
+      });
+      setKeysSavedNote('Keys saved to your profile');
+    } catch (error) {
+      // Signed-out arcade play still gets the new keys for this session.
+      console.error('Failed to save Foli key bindings', error);
+      setKeysSavedNote('Keys saved for this session only');
+    }
+  }, [saveGameOptions]);
+
+  // ── Keyboard support: bound drum keys, Space/Enter = start ──────────
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.repeat) return;
 
-      if (e.code === 'KeyA') {
+      // While rebinding, the next key press lands in the selected drum's box.
+      if (bindingModeRef.current) {
+        if (e.code === 'Escape') {
+          bindingSideRef.current = null;
+          setBindingSide(null);
+          return;
+        }
+        if (!bindingSideRef.current || UNBINDABLE_CODES.has(e.code)) return;
+        e.preventDefault();
+        assignKey(bindingSideRef.current, e.code);
+        return;
+      }
+
+      const bindings = keyBindingsRef.current;
+
+      if (e.code === bindings.left) {
         e.preventDefault();
         if (phaseRef.current === 'input') handleHit('left');
-      } else if (e.code === 'KeyD') {
+      } else if (e.code === bindings.right) {
         e.preventDefault();
         if (phaseRef.current === 'input') handleHit('right');
       } else if (e.code === 'Space' || e.code === 'Enter') {
@@ -1071,7 +1315,7 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [handleHit, startGame]);
+  }, [handleHit, startGame, assignKey]);
 
   // ── Reset after result ────────────────────────────────────────────────
 
@@ -1157,13 +1401,36 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
           padding: '24px 16px',
         }}
       >
-        {/* Foil drums */}
+        {/* Volume — tucked inside the left edge of the play area */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 16,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 2,
+          }}
+        >
+          <div className="rounded-xl border border-white/5 bg-black/20 px-3 py-2 backdrop-blur-sm">
+            <VolumeDial value={volume} onChange={handleVolumeChange} />
+          </div>
+        </div>
+
+        {/* Foil drums — clickable to select a drum while rebinding */}
         <FoilDrums
           leftGlow={leftGlow}
           rightGlow={rightGlow}
-          disabled={!isInputActive}
-          onPressLeft={() => handleHit('left')}
-          onPressRight={() => handleHit('right')}
+          disabled={!isInputActive && !bindingMode}
+          onPressLeft={() =>
+            bindingMode ? selectSide('left') : handleHit('left')
+          }
+          onPressRight={() =>
+            bindingMode ? selectSide('right') : handleHit('right')
+          }
+          leftKeyLabel={keyLabel(keyBindings.left)}
+          rightKeyLabel={keyLabel(keyBindings.right)}
+          selectedSide={bindingMode ? bindingSide : null}
+          bindingMode={bindingMode}
         />
 
         {/* Status */}
@@ -1239,47 +1506,119 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
           </div>
         )}
 
-        {/* Start / Play Again */}
+        {/* Start screen: instructions → Change Keys → Start */}
         {(phase === 'ready' || phase === 'gameover') && (
-          <button
-            onClick={
-              phase === 'ready'
-                ? startGame
-                : () => {
-                    handleReset();
-                  }
-            }
+          <div
             style={{
-              padding: '9px 36px',
-              borderRadius: 10,
-              border: `1.5px solid ${phase === 'gameover' ? '#f87171' : '#a78bfa'}`,
-              backgroundColor:
-                phase === 'gameover'
-                  ? 'rgba(248,113,113,0.1)'
-                  : 'rgba(167,139,250,0.14)',
-              color: phase === 'gameover' ? '#fca5a5' : '#ddd6fe',
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: 'pointer',
-              letterSpacing: 2,
-              textTransform: 'uppercase',
-              transition: 'all 0.18s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor =
-                phase === 'gameover'
-                  ? 'rgba(248,113,113,0.2)'
-                  : 'rgba(167,139,250,0.25)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor =
-                phase === 'gameover'
-                  ? 'rgba(248,113,113,0.1)'
-                  : 'rgba(167,139,250,0.14)';
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 10,
             }}
           >
-            {phase === 'ready' ? 'Start' : 'Play Again'}
-          </button>
+            {phase === 'ready' && (
+              <div
+                style={{
+                  fontSize: 11,
+                  maxWidth: 300,
+                  textAlign: 'center',
+                  lineHeight: 1.5,
+                  color: bindingMode
+                    ? '#ddd6fe'
+                    : 'var(--color-text-dim, #6b7280)',
+                }}
+              >
+                {bindingMode
+                  ? 'Click a drum and then press the key you would like to use'
+                  : 'Press the keys on your keyboard to match the drum pattern'}
+              </div>
+            )}
+
+            {phase === 'ready' && keysSavedNote && !bindingMode && (
+              <div style={{ fontSize: 10, color: '#22c55e' }}>
+                {keysSavedNote}
+              </div>
+            )}
+
+            {/* Half the height of the Start button below it */}
+            {phase === 'ready' && (
+              <button
+                onClick={bindingMode ? saveKeys : enterBindingMode}
+                style={{
+                  height: START_BUTTON_HEIGHT / 2,
+                  padding: '0 18px',
+                  borderRadius: 6,
+                  border: '1px solid rgba(167,139,250,0.5)',
+                  backgroundColor: bindingMode
+                    ? 'rgba(167,139,250,0.22)'
+                    : 'rgba(167,139,250,0.06)',
+                  color: '#ddd6fe',
+                  fontSize: 9,
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  cursor: 'pointer',
+                  letterSpacing: 1.5,
+                  textTransform: 'uppercase',
+                  transition: 'all 0.18s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    'rgba(167,139,250,0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = bindingMode
+                    ? 'rgba(167,139,250,0.22)'
+                    : 'rgba(167,139,250,0.06)';
+                }}
+              >
+                {bindingMode ? 'Save Keys' : 'Change Keys'}
+              </button>
+            )}
+
+            {/* Hidden while rebinding, so Save Keys is the only next step */}
+            {!bindingMode && (
+              <button
+                onClick={
+                  phase === 'ready'
+                    ? startGame
+                    : () => {
+                        handleReset();
+                      }
+                }
+                style={{
+                  height: START_BUTTON_HEIGHT,
+                  padding: '0 36px',
+                  borderRadius: 10,
+                  border: `1.5px solid ${phase === 'gameover' ? '#f87171' : '#a78bfa'}`,
+                  backgroundColor:
+                    phase === 'gameover'
+                      ? 'rgba(248,113,113,0.1)'
+                      : 'rgba(167,139,250,0.14)',
+                  color: phase === 'gameover' ? '#fca5a5' : '#ddd6fe',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  letterSpacing: 2,
+                  textTransform: 'uppercase',
+                  transition: 'all 0.18s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    phase === 'gameover'
+                      ? 'rgba(248,113,113,0.2)'
+                      : 'rgba(167,139,250,0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    phase === 'gameover'
+                      ? 'rgba(248,113,113,0.1)'
+                      : 'rgba(167,139,250,0.14)';
+                }}
+              >
+                {phase === 'ready' ? 'Start' : 'Play Again'}
+              </button>
+            )}
+          </div>
         )}
 
         {/* Loading state */}

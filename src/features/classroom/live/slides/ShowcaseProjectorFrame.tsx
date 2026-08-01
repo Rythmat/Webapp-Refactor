@@ -8,8 +8,7 @@
 import { PlayCircle } from 'lucide-react';
 import type { SessionShowcase } from '../sessionsStore';
 
-const firstName = (name: string): string =>
-  name.trim().split(/\s+/)[0] || name;
+const firstName = (name: string): string => name.trim().split(/\s+/)[0] || name;
 
 export const ShowcaseProjectorFrame = ({
   showcase,

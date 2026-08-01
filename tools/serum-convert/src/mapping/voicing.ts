@@ -1,5 +1,13 @@
 // Global0 + RoutingSlots + Macros → Oracle voicing, routing, macros, master.
 
+import type { FidelityCollector } from '../fidelity.ts';
+import type { PresetDataOut } from '../oracleTypes.ts';
+import {
+  GLOBAL_DEFAULTS,
+  masterVolumeToUnit,
+  pctToUnit,
+  clamp,
+} from '../serumDefaults.ts';
 import {
   plainParams,
   num,
@@ -7,14 +15,6 @@ import {
   section,
   type SerumDoc,
 } from '../serumPreset.ts';
-import {
-  GLOBAL_DEFAULTS,
-  masterVolumeToUnit,
-  pctToUnit,
-  clamp,
-} from '../serumDefaults.ts';
-import type { FidelityCollector } from '../fidelity.ts';
-import type { PresetDataOut } from '../oracleTypes.ts';
 
 export function applyVoicing(
   preset: PresetDataOut,

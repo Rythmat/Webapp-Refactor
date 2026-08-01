@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { SERVER_CLASSROOM_ANNOUNCEMENTS_ENABLED } from '@/constants/serverEndpoints';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { useClassrooms } from '@/hooks/data/classrooms';
 import { announcementsApi } from '@/lib/announcements/api';
@@ -22,7 +23,10 @@ export function useTeacherAnnouncements(): Announcement[] {
 
   const { data } = useQuery({
     queryKey: ['classroom-announcements', classroomIds],
-    enabled: !!token && classroomIds.length > 0,
+    enabled:
+      SERVER_CLASSROOM_ANNOUNCEMENTS_ENABLED &&
+      !!token &&
+      classroomIds.length > 0,
     staleTime: 1000 * 60 * 5,
     retry: false,
     queryFn: () => announcementsApi.listForClassrooms(token!, classroomIds),

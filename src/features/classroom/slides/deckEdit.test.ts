@@ -86,7 +86,11 @@ describe('slide list mutations', () => {
   });
 
   it('insertSlideAt / deleteSlideAt', () => {
-    const inserted = insertSlideAt(slides, newSlide('showcase', 'presentPerform'), 1);
+    const inserted = insertSlideAt(
+      slides,
+      newSlide('showcase', 'presentPerform'),
+      1,
+    );
     expect(inserted).toHaveLength(4);
     expect(inserted[1].kind).toBe('showcase');
     expect(deleteSlideAt(slides, 1)).toHaveLength(2);

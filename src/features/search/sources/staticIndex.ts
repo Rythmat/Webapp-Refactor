@@ -1,4 +1,3 @@
-import { MUSIC_HISTORY } from '@/components/atlas/data/events';
 import { COURSES_GENRE_OPTIONS } from '@/components/learn/learnFilterOptions';
 import {
   AtlasRoutes,
@@ -11,6 +10,7 @@ import {
   SongRoutes,
   StudioRoutes,
 } from '@/constants/routes';
+import { contentGeneration, MUSIC_HISTORY } from '@/content/contentStore';
 import {
   getGenreTileImage,
   getTheoryTileImage,
@@ -368,9 +368,15 @@ function buildPages(): IndexEntry[] {
 
 /* ── Lazily-built, cached index (search route is itself lazy-loaded) ──── */
 let cache: IndexEntry[] | null = null;
+let cachedGeneration = -1;
 
 export function getStaticIndex(): IndexEntry[] {
-  if (!cache) {
+  // Rebuild when the globe dataset re-hydrates. Without the generation check, a
+  // search performed before hydration finishes — or a content rollback during
+  // the session — would pin an index built from an empty MUSIC_HISTORY and no
+  // globe result would ever appear again.
+  if (!cache || cachedGeneration !== contentGeneration) {
+    cachedGeneration = contentGeneration;
     cache = [
       ...buildSongs(),
       ...buildArtists(),

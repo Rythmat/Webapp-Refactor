@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { decodeCbor } from '../cbor.ts';
+import { bucketFilterType } from '../mapping/filters.ts';
+import { cycleToBar } from '../mapping/lfos.ts';
+import { packTableName } from '../mapping/oscillators.ts';
 import {
   filterFreqToHz,
   resoToQ,
@@ -7,9 +10,6 @@ import {
   tablePosToUnit,
   foldPitch,
 } from '../serumDefaults.ts';
-import { bucketFilterType } from '../mapping/filters.ts';
-import { cycleToBar } from '../mapping/lfos.ts';
-import { packTableName } from '../mapping/oscillators.ts';
 import { downsampleFrames, FRAME_SIZE } from '../wavetable.ts';
 
 describe('cbor decoder', () => {

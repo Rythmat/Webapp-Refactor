@@ -31,7 +31,8 @@ export const MockLearn = () => {
   const activityRef = params.get('activityRef') ?? null;
   const interactionId = params.get('interactionId') ?? null;
   const enrollmentId = params.get('enrollmentId') ?? null;
-  const expects = (params.get('expects') as AtlasExpects | null) ?? 'completion';
+  const expects =
+    (params.get('expects') as AtlasExpects | null) ?? 'completion';
   const sub = params.get('sub');
   const embedded = isEmbedded();
   const [notice, setNotice] = useState<string | null>(null);
@@ -41,8 +42,11 @@ export const MockLearn = () => {
       <div className="p-8 text-white">
         <h1 className="text-xl">MockLearn — missing required query params.</h1>
         <p className="mt-2 text-sm text-white/60">
-          Need: <code>?msp=&lt;token&gt;&amp;module=learn&amp;activityRef=...</code>
-          <code>&amp;interactionId=...&amp;enrollmentId=...&amp;expects=completion</code>
+          Need:{' '}
+          <code>?msp=&lt;token&gt;&amp;module=learn&amp;activityRef=...</code>
+          <code>
+            &amp;interactionId=...&amp;enrollmentId=...&amp;expects=completion
+          </code>
         </p>
       </div>
     );
@@ -76,8 +80,8 @@ export const MockLearn = () => {
     <div className="mx-auto flex max-w-2xl flex-col gap-4 p-8 text-white">
       <h1 className="text-xl font-medium">MockLearn (dev)</h1>
       <p className="text-sm text-white/60">
-        Activity: <span className="text-white">{activityRef}</span> ·
-        Module: <span className="text-white">{module}</span> · Expects:{' '}
+        Activity: <span className="text-white">{activityRef}</span> · Module:{' '}
+        <span className="text-white">{module}</span> · Expects:{' '}
         <span className="text-white">{expects}</span> ·{' '}
         {embedded ? 'iframe' : 'new-tab'} mode
       </p>

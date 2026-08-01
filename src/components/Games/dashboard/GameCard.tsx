@@ -17,7 +17,9 @@ const relativeTime = (ts: number): string => {
 
 interface GameCardProps {
   game: ArcadeGame;
-  free: boolean;
+  /** Show the "Free" badge — only meaningful to free users, so premium users
+   *  never see it (every game is unlocked for them). */
+  showFreeBadge: boolean;
   locked: boolean;
   onLaunch: () => void;
   /** Wider layout used by the "Jump back in" row. */
@@ -38,7 +40,7 @@ interface GameCardProps {
  */
 export const GameCard: FC<GameCardProps> = ({
   game,
-  free,
+  showFreeBadge,
   locked,
   onLaunch,
   wide = false,
@@ -93,7 +95,7 @@ export const GameCard: FC<GameCardProps> = ({
           <span className="absolute bottom-3 left-3 z-10 inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/45 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-white/70 backdrop-blur-sm">
             <Lock className="h-3 w-3" /> Premium
           </span>
-        ) : free ? (
+        ) : showFreeBadge ? (
           <span className="absolute bottom-3 left-3 z-10 rounded-full border border-emerald-400/40 bg-emerald-400/15 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-sm">
             Free
           </span>
@@ -140,7 +142,7 @@ export const GameCard: FC<GameCardProps> = ({
           <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/45 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-white/70 backdrop-blur-sm">
             <Lock className="h-3 w-3" /> Premium
           </span>
-        ) : free ? (
+        ) : showFreeBadge ? (
           <span className="absolute left-3 top-3 z-10 rounded-full border border-emerald-400/40 bg-emerald-400/15 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-sm">
             Free
           </span>

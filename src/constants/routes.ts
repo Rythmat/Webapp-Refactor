@@ -145,6 +145,38 @@ export const AdminRoutes = {
   telemetryErrors: createRouteDefinition('/telemetry/errors', {
     prefix: adminPrefix,
   }),
+
+  /**
+   * Database query attribution (pg_stat_statements) dashboard.
+   */
+  telemetryDatabase: createRouteDefinition('/telemetry/database', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Content back office — list view for a content kind.
+   */
+  content: createRouteDefinition('/content', { prefix: adminPrefix }),
+
+  /**
+   * Content back office — list filtered to one kind (globe_event, song, …).
+   */
+  contentKind: createRouteDefinition<{ kind: string }>('/content/:kind', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Content back office — editor for one item. `id` is 'new' when creating.
+   */
+  contentItem: createRouteDefinition<{ kind: string; id: string }>(
+    '/content/:kind/:id',
+    { prefix: adminPrefix },
+  ),
+
+  /**
+   * Publish pipeline — release history, publish, and rollback.
+   */
+  releases: createRouteDefinition('/releases', { prefix: adminPrefix }),
 };
 
 /**

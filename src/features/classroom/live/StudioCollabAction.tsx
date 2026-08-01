@@ -11,10 +11,10 @@
 import { Rocket, Users } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { pickLocalized, secondaryLine } from '../presentation/localized';
 import { useEnrollments } from '../enrollments';
-import type { SessionPair } from './sessionsStore';
+import { pickLocalized, secondaryLine } from '../presentation/localized';
 import type { LocalizedText, StudentLanguage } from '../types';
+import type { SessionPair } from './sessionsStore';
 
 export interface StudioCollabActionProps {
   grouping: 'pairs' | 'solo';

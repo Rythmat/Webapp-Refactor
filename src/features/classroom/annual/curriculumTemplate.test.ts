@@ -10,8 +10,14 @@
  *   - Missing themes — every `themeId` must resolve inside the theme bank.
  */
 import { describe, expect, it } from 'vitest';
-import { MUSIC_HISTORY } from '@/components/atlas/data/events';
-import { getSong } from '@/curriculum/data/songs';
+// The BUNDLED set on purpose, not the hydrated MUSIC_HISTORY: this asserts the
+// integrity of the authored source data, which is also the CDN fallback. The
+// equivalent check against PUBLISHED content is the API's publish firewall in
+// services/content/validate-release.ts.
+import { BUNDLED_MUSIC_HISTORY } from '@/components/atlas/data/events';
+// The BUNDLED library, matching BUNDLED_MUSIC_HISTORY above: this asserts the
+// integrity of the authored source data, which is also the CDN fallback.
+import { BUNDLED_SONGS } from '@/curriculum/data/songs/bundled';
 import { THEMES } from '../content/themes';
 import {
   CANONICAL_ANNUAL_TEMPLATE,
@@ -105,7 +111,7 @@ describe('curriculum template — song references resolve', () => {
     const missing: string[] = [];
     for (const s of ALL_STUBS) {
       if (!s.songId) continue;
-      if (!getSong(s.songId)) missing.push(`${s.slug} → ${s.songId}`);
+      if (!BUNDLED_SONGS[s.songId]) missing.push(`${s.slug} → ${s.songId}`);
     }
     // Log the failing ones so authors can fix the ids.
     if (missing.length > 0) {
@@ -120,7 +126,7 @@ describe('curriculum template — song references resolve', () => {
 });
 
 describe('curriculum template — globe event references resolve', () => {
-  const knownEventIds = new Set(MUSIC_HISTORY.map((e) => e.id));
+  const knownEventIds = new Set(BUNDLED_MUSIC_HISTORY.map((e) => e.id));
 
   it('every globeEventId (when present) exists in MUSIC_HISTORY', () => {
     const missing: string[] = [];

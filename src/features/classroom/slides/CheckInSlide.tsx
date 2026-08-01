@@ -9,9 +9,9 @@
  */
 import { pickLocalized, secondaryLine } from '../presentation/localized';
 import type { Interaction, LocalizedText, StudentLanguage } from '../types';
+import type { SlideSlots } from './SlideRenderer';
 import { SlideFrame } from './parts/SlideFrame';
 import { SlideHeading } from './parts/SlideHeading';
-import type { SlideSlots } from './SlideRenderer';
 import type {
   InteractionSlide as InteractionSlideModel,
   SlideSurface,

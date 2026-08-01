@@ -2,8 +2,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { publishDay } from '../../publish/publishDay';
 import type { Day, StudentLanguage } from '../../types';
-import { interactionsForSlide } from '../deck';
 import { SlideRenderer } from '../SlideRenderer';
+import { interactionsForSlide } from '../deck';
 
 /** Logical projector canvas the preview scales down from. */
 const CANVAS_W = 1280;
@@ -100,7 +100,9 @@ export const DeckPreview = ({ day, language = 'both' }: DeckPreviewProps) => {
         </div>
         <button
           type="button"
-          onClick={() => setIndex(Math.min(deck.slides.length - 1, clamped + 1))}
+          onClick={() =>
+            setIndex(Math.min(deck.slides.length - 1, clamped + 1))
+          }
           disabled={clamped === deck.slides.length - 1}
           className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/70 transition-colors hover:border-white/25 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
         >

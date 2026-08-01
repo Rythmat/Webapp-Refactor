@@ -24,9 +24,7 @@ export const MarketingSection = ({
       {bleed ? (
         children
       ) : (
-        <div className={cn('w-full', containerClassName)}>
-          {children}
-        </div>
+        <div className={cn('w-full', containerClassName)}>{children}</div>
       )}
     </section>
   );

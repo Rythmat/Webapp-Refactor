@@ -33,13 +33,13 @@ beforeEach(() => {
 });
 
 describe('mintTokenViaBackend', () => {
-  it("maps enrollmentId → student and returnUrl → return in the payload", async () => {
+  it('maps enrollmentId → student and returnUrl → return in the payload', async () => {
     const client = clientOk('server.issued.jwt.1');
     await mintTokenViaBackend(USER_ID, baseInput(), client, RETURN_URL);
     expect(client.postMspToken).toHaveBeenCalledTimes(1);
-    const payload: PostMspTokenPayload = (client.postMspToken as ReturnType<
-      typeof vi.fn
-    >).mock.calls[0][0];
+    const payload: PostMspTokenPayload = (
+      client.postMspToken as ReturnType<typeof vi.fn>
+    ).mock.calls[0][0];
     expect(payload.student).toBe('enr-1');
     expect(payload.return).toBe(RETURN_URL);
     expect(payload.ctx.interactionId).toBe('ix-1');

@@ -10,10 +10,13 @@
  */
 import { pickLocalized, secondaryLine } from '../presentation/localized';
 import type { Interaction, LocalizedText, StudentLanguage } from '../types';
+import type { SlideSlots } from './SlideRenderer';
 import { SlideFrame } from './parts/SlideFrame';
 import { SlideHeading } from './parts/SlideHeading';
-import type { SlideSlots } from './SlideRenderer';
-import type { ShowcaseSlide as ShowcaseSlideModel, SlideSurface } from './types';
+import type {
+  ShowcaseSlide as ShowcaseSlideModel,
+  SlideSurface,
+} from './types';
 
 const WAITING: LocalizedText = {
   en: 'Waiting for the teacher to feature a project…',
@@ -92,7 +95,11 @@ export const ShowcaseSlide = ({
   return (
     <SlideFrame slide={slide} surface={surface} language={language}>
       <div className="flex min-h-0 flex-1 flex-col gap-4">
-        <SlideHeading title={slide.title} prompt={slide.prompt} language={language} />
+        <SlideHeading
+          title={slide.title}
+          prompt={slide.prompt}
+          language={language}
+        />
         <span
           className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-white/60"
           style={{ fontSize: 'var(--slide-body-fz)' }}

@@ -36,7 +36,8 @@ describe('appendMspLaunchParams', () => {
   });
 
   it('omits msp when launched tokenless (offline)', () => {
-    const { token: _token, ...tokenless } = PARAMS;
+    const tokenless: MspLaunchParams = { ...PARAMS };
+    delete tokenless.token;
     const url = appendMspLaunchParams('/learn/ionian/c', tokenless);
     expect(new URLSearchParams(queryOf(url)).get('msp')).toBeNull();
     expect(new URLSearchParams(queryOf(url)).get('enrollmentId')).toBe('en-1');

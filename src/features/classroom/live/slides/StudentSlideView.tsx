@@ -1,16 +1,20 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { DaySnapshot } from '../../publish/publishDay';
-import { deckFromSnapshot, interactionsForSlide, slideAt } from '../../slides/deck';
 import { SlideRenderer } from '../../slides/SlideRenderer';
+import {
+  deckFromSnapshot,
+  interactionsForSlide,
+  slideAt,
+} from '../../slides/deck';
 import type {
   Interaction,
   InteractionResponsePayload,
   StudentLanguage,
 } from '../../types';
-import { AppRouteLaunch } from '../interactions/AppRouteLaunch';
 import { StudioCollabAction } from '../StudioCollabAction';
 import { InteractionInput } from '../interactions';
+import { AppRouteLaunch } from '../interactions/AppRouteLaunch';
 import type { SessionState } from '../sessionsStore';
 
 interface StudentSlideViewProps {
@@ -68,8 +72,7 @@ export const StudentSlideView = ({
           You're in! · ¡Ya estás dentro!
         </span>
         <span className="text-sm text-white/55">
-          Waiting for your teacher to start the slides · Esperando a tu
-          maestro
+          Waiting for your teacher to start the slides · Esperando a tu maestro
         </span>
       </div>
     );

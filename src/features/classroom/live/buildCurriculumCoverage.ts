@@ -122,11 +122,14 @@ const matchLesson = (
       ref.lessonId === 'mode-lesson-flow' &&
       l.lessonId.startsWith('mode-lesson-flow');
     if (!exact && !prefixed) return false;
-    if (ref.mode !== undefined && l.mode?.toLowerCase() !== ref.mode.toLowerCase())
+    if (
+      ref.mode !== undefined &&
+      l.mode?.toLowerCase() !== ref.mode.toLowerCase()
+    )
       return false;
-    if (ref.root !== undefined && l.root?.toLowerCase() !== ref.root.toLowerCase())
-      return false;
-    return true;
+    return (
+      ref.root === undefined || l.root?.toLowerCase() === ref.root.toLowerCase()
+    );
   });
 
 export const buildCurriculumCoverage = (

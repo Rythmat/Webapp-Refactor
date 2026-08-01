@@ -77,7 +77,7 @@ export const ArcadeShelf: FC<ArcadeShelfProps> = ({
           const card = (
             <GameCard
               game={game}
-              free={free}
+              showFreeBadge={free && !isPremium}
               locked={locked}
               onLaunch={() => onLaunch(game)}
               wide={wide}

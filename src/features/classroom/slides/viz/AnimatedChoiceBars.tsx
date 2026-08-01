@@ -36,8 +36,7 @@ export const AnimatedChoiceBars = ({
       {aggregate.options.map((option, index) => {
         const leading = maxCount > 0 && option.count === maxCount;
         // Keep a sliver of bar visible for any non-zero count.
-        const widthPercent =
-          option.count > 0 ? Math.max(option.percent, 3) : 0;
+        const widthPercent = option.count > 0 ? Math.max(option.percent, 3) : 0;
         return (
           <div key={index} className="flex flex-col gap-1.5">
             <div
@@ -46,9 +45,7 @@ export const AnimatedChoiceBars = ({
               }`}
             >
               <span
-                className={
-                  leading ? 'font-medium text-white' : 'text-white/80'
-                }
+                className={leading ? 'font-medium text-white' : 'text-white/80'}
               >
                 {option.label}
               </span>

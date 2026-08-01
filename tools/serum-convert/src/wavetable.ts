@@ -3,8 +3,7 @@
 // and 16-bit PCM output for the Oracle pack (with `clm ` preserved so the
 // runtime knows the frame size).
 
-import { readFileSync, writeFileSync } from 'node:fs';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const FRAME_SIZE = 2048;

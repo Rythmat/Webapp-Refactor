@@ -4,10 +4,10 @@
 // see plan "Verified format facts"): 1=ModWheel, 2..5=Env1..4, 6..15=LFO1..10,
 // 16=Velocity (probable), 17=Note (probable), 25..32=Macro1..8.
 
-import { plainParams, num, section, type SerumDoc } from '../serumPreset.ts';
-import { amountToUnit } from '../serumDefaults.ts';
 import type { FidelityCollector } from '../fidelity.ts';
 import type { ModRouteOut } from '../oracleTypes.ts';
+import { amountToUnit } from '../serumDefaults.ts';
+import { plainParams, num, section, type SerumDoc } from '../serumPreset.ts';
 
 export interface ModSlotInfo {
   slot: number;

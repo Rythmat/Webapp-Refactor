@@ -1,5 +1,11 @@
 import { ArrowLeft } from 'lucide-react';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  type ReactNode,
+} from 'react';
 import {
   initJamSynth,
   jamNoteOn,
@@ -15,6 +21,7 @@ import {
 import { StarsCanvas } from '@/components/ui/stars-canvas';
 import { ArcadeGameHeader } from '../ArcadeGameHeader';
 import { VolumeDial } from '../VolumeDial';
+import { useGameAudio, type GameAudioEngine } from '../useGameAudio';
 
 // --- Constants ---
 
@@ -82,6 +89,9 @@ const HIT_PULSE_DECAY = 0.9; // per-frame falloff of the per-hit brightness pop
 
 // Staff lines are drawn as ambient decoration only (stars are placed radially,
 // not by pitch height). These indices/paddings position the faint lines.
+// Hoisted so the warm-up effect isn't restarted by a new array each render.
+const JAM_SYNTH_ONLY: GameAudioEngine[] = ['jam-synth'];
+
 const STAFF_LINE_INDICES = [2, 3, 7, 8];
 const STAFF_PADDING_TOP = 80;
 const STAFF_PADDING_BOTTOM = 80;
@@ -122,6 +132,12 @@ interface ConstellationsProps {
   onComplete?: (result: { accuracy: number }) => void;
   onRoundStart?: () => void;
   onExit?: () => void;
+  /**
+   * Decorative overlay (the tubes cursor) rendered inside the play field only —
+   * the caller passes it here rather than layering it over the whole game so it
+   * can never paint across the header bar.
+   */
+  bodyOverlay?: ReactNode;
 }
 
 // Paint the rainbow vortex behind the stars. Intensity (0–1) scales the whole
@@ -265,9 +281,15 @@ export default function Constellations({
   onComplete: _onComplete,
   onRoundStart,
   onExit,
+  bodyOverlay,
 }: ConstellationsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  // The soundfont starts loading with the first render and Start stays held
+  // until it can play — the star notes ARE the game, so a silent round is a
+  // pointless one. (startRound also awaits init, so this is the visible half of
+  // the same guarantee.)
+  const { ready: audioReady } = useGameAudio(JAM_SYNTH_ONLY);
   // Scales are computed locally, so the game is ready to play immediately.
   const [phase, setPhase] = useState<Phase>('ready');
   const [score, setScore] = useState(0);
@@ -967,12 +989,16 @@ export default function Constellations({
               </div>
               <button
                 onClick={startRound}
-                className="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-medium rounded transition-colors"
+                disabled={!audioReady}
+                className="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-medium rounded transition-colors disabled:cursor-progress disabled:bg-purple-600/50 disabled:hover:bg-purple-600/50"
               >
-                Start
+                {audioReady ? 'Start' : 'Loading sounds…'}
               </button>
             </div>
           )}
+
+          {/* Caller-supplied decoration, confined to the play field. */}
+          {bodyOverlay}
         </div>
       </div>
     </div>

@@ -39,7 +39,10 @@ const labelForActivityRef = (
     const [, genre, level, section] = parts;
     if (section) {
       const station = STATION_NAME[section] ?? section;
-      return { kind: 'gcm-section', label: `${genre}:${level} §${section} ${station}` };
+      return {
+        kind: 'gcm-section',
+        label: `${genre}:${level} §${section} ${station}`,
+      };
     }
     return { kind: 'gcm-section', label: `${genre}:${level}` };
   }
@@ -85,7 +88,10 @@ export const buildSessionCoverage = (input: {
       let completed = 0;
       for (const bag of Object.values(responsesByEnrollment)) {
         const payload = bag[ix.id];
-        if (payload?.kind === 'atlas' && isAtlasResultComplete(payload.result)) {
+        if (
+          payload?.kind === 'atlas' &&
+          isAtlasResultComplete(payload.result)
+        ) {
           completed += 1;
         }
       }

@@ -17,13 +17,13 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { CheckCircle2, ExternalLink, Rocket } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { getSong } from '@/curriculum/data/songs';
-import { pickLocalized, secondaryLine } from '../../presentation/localized';
-import { resolveActivityRefHref } from '../../slides/resolveContentHref';
-import type { LocalizedText } from '../../types';
 import { appendMspLaunchParams } from '../../msp/mspLaunchParams';
 import type { MspResultPayload } from '../../msp/mspResponseInbox';
 import { useMspReport } from '../../msp/useMspReport';
 import { useMspTokenMint } from '../../msp/useMspTokenMint';
+import { pickLocalized, secondaryLine } from '../../presentation/localized';
+import { resolveActivityRefHref } from '../../slides/resolveContentHref';
+import type { LocalizedText } from '../../types';
 import type { InteractionInputProps } from './types';
 
 const LOCAL_ENROLLMENT_ID = 'local-preview';
@@ -206,7 +206,9 @@ export const AppRouteLaunch = ({
           </p>
           <button
             type="button"
-            onClick={() => submitResult({ completion: true, source: 'student' })}
+            onClick={() =>
+              submitResult({ completion: true, source: 'student' })
+            }
             disabled={disabled}
             className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-4 py-2 text-sm text-white/80 hover:border-white/30 hover:text-white disabled:opacity-50"
           >

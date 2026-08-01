@@ -55,7 +55,11 @@ export const newSlide = (kind: SlideKind, phase: PhaseKey): Slide => {
     case 'content':
       return { ...common, kind: 'content', variant: 'plain' };
     case 'media':
-      return { ...common, kind: 'media', media: { type: 'youtube', videoId: '' } };
+      return {
+        ...common,
+        kind: 'media',
+        media: { type: 'youtube', videoId: '' },
+      };
     case 'interaction':
       return { ...common, kind: 'interaction', interactionIds: [] };
     case 'app-route':

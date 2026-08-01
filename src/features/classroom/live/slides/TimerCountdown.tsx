@@ -18,7 +18,10 @@ export interface TimerCountdownProps {
   size?: 'chip' | 'projector';
 }
 
-export const TimerCountdown = ({ endsAt, size = 'chip' }: TimerCountdownProps) => {
+export const TimerCountdown = ({
+  endsAt,
+  size = 'chip',
+}: TimerCountdownProps) => {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 250);

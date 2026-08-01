@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
+import { ensureToneUsesSharedContext } from '@/audio/core/toneBridge';
 import {
   releaseAllPianoNotes,
   startPianoSampler,
@@ -96,15 +97,16 @@ export const PlayAlong = ({
   // genre/courses lessons (curriculum/hooks/useMetronome.ts). Switched away
   // from pre-rendered mp3 Tone.Players because the player buffers were
   // failing to play reliably in theory activities.
-  const metronomeSynth = useMemo(
-    () =>
-      new Tone.MembraneSynth({
-        pitchDecay: 0.008,
-        octaves: 2,
-        envelope: { attack: 0.001, decay: 0.04, sustain: 0, release: 0.05 },
-      }).toDestination(),
-    [],
-  );
+  const metronomeSynth = useMemo(() => {
+    // Built at render, before anything calls startTone() — bridge first so
+    // the synth binds to the shared context.
+    ensureToneUsesSharedContext();
+    return new Tone.MembraneSynth({
+      pitchDecay: 0.008,
+      octaves: 2,
+      envelope: { attack: 0.001, decay: 0.04, sustain: 0, release: 0.05 },
+    }).toDestination();
+  }, []);
 
   // Mirror the lesson volume dial onto the metronome synth so the dial in
   // theory lessons actually controls the click level.

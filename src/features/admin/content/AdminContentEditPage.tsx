@@ -1,4 +1,4 @@
-import { ArrowLeft, Loader2, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, Info, Loader2, Save, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,38 +16,36 @@ import { Textarea } from '@/components/ui/textarea';
 import { AdminRoutes } from '@/constants/routes';
 import {
   useContentItem,
+  useContentTemplate,
   useDeleteContentItem,
   useSaveContentItem,
   type ContentKind,
   type ContentStatus,
 } from '@/hooks/data/admin/useAdminContent';
+import {
+  CONTENT_KINDS,
+  getPath,
+  isContentKind,
+  jsonRemainder,
+  setPath,
+  type FieldSpec,
+} from './kinds';
 
 /**
- * Editor for one content item.
+ * One editor for every content kind.
  *
- * Globe events get a real typed form — the shape is seven flat fields. Every
- * other kind falls back to a JSON editor over `body`, which is deliberate for
- * v1: a song's sections → bars → chord-hits structure needs a purpose-built
- * chart editor, and shipping a bad one is worse than shipping none. The API
- * validates per-kind with zod on both write and publish either way, so an
- * invalid body is rejected with a specific message rather than silently stored.
+ * Driven by the per-kind field spec in kinds.ts: the scalar fields an author
+ * actually edits get a typed form, and whatever the spec does not claim —
+ * a song's chart, a lesson's steps — stays in a JSON pane beside it. That split
+ * is deliberate. A chord-chart or step-sequence builder is a real product
+ * surface, and shipping a bad one is worse than shipping none; meanwhile the
+ * JSON half means nothing is un-editable in the meantime.
+ *
+ * Creating from scratch works for every kind because the API hands back a valid
+ * skeleton (see new-item-template.ts) rather than an empty object.
  */
 
-const EMPTY_EVENT = {
-  id: '',
-  year: new Date().getFullYear(),
-  location: { lat: 0, lng: 0, city: '', country: '' },
-  genre: [] as string[],
-  title: '',
-  description: '',
-  tags: [] as string[],
-  videoId: undefined as string | undefined,
-};
-
-type EventBody = typeof EMPTY_EVENT;
-
-const csv = (values: string[]) => values.join(', ');
-const parseCsv = (value: string) =>
+const csvToArray = (value: string) =>
   value
     .split(',')
     .map((part) => part.trim())
@@ -56,56 +54,71 @@ const parseCsv = (value: string) =>
 export const AdminContentEditPage = () => {
   const params = useParams();
   const navigate = useNavigate();
-  const kind = (params.kind ?? 'globe_event') as ContentKind;
+  const kind: ContentKind = isContentKind(params.kind)
+    ? params.kind
+    : 'globe_event';
+  const spec = CONTENT_KINDS[kind];
   const isNew = params.id === 'new';
 
-  const { data, isLoading } = useContentItem(isNew ? undefined : params.id);
+  const existing = useContentItem(isNew ? undefined : params.id);
+  const template = useContentTemplate(isNew ? kind : undefined);
   const save = useSaveContentItem();
   const remove = useDeleteContentItem();
 
   const [status, setStatus] = useState<ContentStatus>('draft');
-  const [event, setEvent] = useState<EventBody>(EMPTY_EVENT);
+  const [body, setBody] = useState<Record<string, unknown> | null>(null);
   const [json, setJson] = useState('{}');
   const [jsonError, setJsonError] = useState<string | null>(null);
 
+  // Seed from the loaded item, or from the API's template when creating.
+  const seed = isNew ? template.data?.body : existing.data?.body;
   useEffect(() => {
-    if (!data) return;
-    setStatus(data.status);
-    setJson(JSON.stringify(data.body, null, 2));
-    if (kind === 'globe_event') {
-      setEvent({ ...EMPTY_EVENT, ...(data.body as unknown as EventBody) });
-    }
-  }, [data, kind]);
+    if (!seed) return;
+    setBody(seed as Record<string, unknown>);
+    setJson(
+      JSON.stringify(
+        jsonRemainder(seed as Record<string, unknown>, spec.formKeys),
+        null,
+        2,
+      ),
+    );
+    if (!isNew && existing.data) setStatus(existing.data.status);
+  }, [seed, spec.formKeys, isNew, existing.data]);
 
-  const body = useMemo(() => {
-    if (kind === 'globe_event') return event;
-    try {
-      const parsed = JSON.parse(json);
-      return parsed as Record<string, unknown>;
-    } catch {
-      return null;
-    }
-  }, [kind, event, json]);
+  const remainderKeys = useMemo(
+    () => (body ? Object.keys(jsonRemainder(body, spec.formKeys)) : []),
+    [body, spec.formKeys],
+  );
 
   const onSave = async () => {
-    if (!body) {
-      setJsonError('Body is not valid JSON.');
-      return;
+    if (!body) return;
+
+    let merged: Record<string, unknown> = body;
+    if (remainderKeys.length > 0 || json.trim() !== '{}') {
+      try {
+        const parsed = JSON.parse(json) as Record<string, unknown>;
+        // The typed form owns formKeys; the JSON pane owns the rest. Merging in
+        // this order means the two halves can never fight over a field.
+        merged = { ...parsed, ...pickKeys(body, spec.formKeys) };
+      } catch {
+        setJsonError('The JSON pane is not valid JSON.');
+        return;
+      }
     }
     setJsonError(null);
 
-    const slug =
-      kind === 'globe_event' ? event.id : ((body as { id?: string }).id ?? '');
+    const slug = String(merged.id ?? '').trim();
     if (!slug) {
-      setJsonError('The body needs an "id" — it becomes the item slug.');
+      setJsonError('This item needs an "id" — it becomes the slug.');
       return;
     }
 
-    await save.mutateAsync({ kind, slug, body, status });
+    await save.mutateAsync({ kind, slug, body: merged, status });
     navigate(AdminRoutes.contentKind({ kind }));
   };
 
-  if (!isNew && isLoading) {
+  const loading = isNew ? template.isLoading : existing.isLoading;
+  if (loading || !body) {
     return (
       <div className="space-y-3 p-6">
         <Skeleton className="h-10 w-64" />
@@ -116,7 +129,7 @@ export const AdminContentEditPage = () => {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button asChild size="icon" variant="ghost">
             <Link
@@ -127,7 +140,9 @@ export const AdminContentEditPage = () => {
             </Link>
           </Button>
           <h1 className="text-2xl font-semibold">
-            {isNew ? 'New item' : (data?.title ?? 'Edit item')}
+            {isNew
+              ? `New ${spec.singular}`
+              : (existing.data?.title ?? `Edit ${spec.singular}`)}
           </h1>
         </div>
         <div className="flex items-center gap-2">
@@ -144,13 +159,13 @@ export const AdminContentEditPage = () => {
               <SelectItem value="archived">Archived</SelectItem>
             </SelectContent>
           </Select>
-          {!isNew && data && (
+          {!isNew && existing.data && (
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Delete item"
+              aria-label={`Delete ${spec.singular}`}
               onClick={async () => {
-                await remove.mutateAsync(data.id);
+                await remove.mutateAsync(existing.data!.id);
                 navigate(AdminRoutes.contentKind({ kind }));
               }}
             >
@@ -168,143 +183,51 @@ export const AdminContentEditPage = () => {
         </div>
       </div>
 
+      {isNew && template.data && (
+        <div className="flex gap-2 rounded-lg border border-blue-600/30 bg-blue-600/10 p-3 text-sm text-blue-200/90">
+          <Info className="mt-0.5 size-4 shrink-0" />
+          <span>{template.data.hint}</span>
+        </div>
+      )}
+
       {(save.error || jsonError) && (
         <div className="rounded-lg border border-red-600/30 bg-red-600/10 p-3 text-sm text-red-300">
           {jsonError ?? save.error?.message}
         </div>
       )}
 
-      {kind === 'globe_event' ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Id / slug">
-            <Input
-              value={event.id}
-              disabled={!isNew}
-              onChange={(e) => setEvent({ ...event, id: e.target.value })}
-              placeholder="evt-jazz-nola-1923"
-            />
-          </Field>
-          <Field label="Year">
-            <Input
-              type="number"
-              value={event.year}
-              onChange={(e) =>
-                setEvent({ ...event, year: Number(e.target.value) })
-              }
-            />
-          </Field>
-          <Field label="Title" className="md:col-span-2">
-            <Input
-              value={event.title}
-              onChange={(e) => setEvent({ ...event, title: e.target.value })}
-            />
-          </Field>
-          <Field label="City">
-            <Input
-              value={event.location.city}
-              onChange={(e) =>
-                setEvent({
-                  ...event,
-                  location: { ...event.location, city: e.target.value },
-                })
-              }
-            />
-          </Field>
-          <Field label="Country">
-            <Input
-              value={event.location.country}
-              onChange={(e) =>
-                setEvent({
-                  ...event,
-                  location: { ...event.location, country: e.target.value },
-                })
-              }
-            />
-          </Field>
-          <Field label="Latitude">
-            <Input
-              type="number"
-              step="any"
-              value={event.location.lat}
-              onChange={(e) =>
-                setEvent({
-                  ...event,
-                  location: {
-                    ...event.location,
-                    lat: Number(e.target.value),
-                  },
-                })
-              }
-            />
-          </Field>
-          <Field label="Longitude">
-            <Input
-              type="number"
-              step="any"
-              value={event.location.lng}
-              onChange={(e) =>
-                setEvent({
-                  ...event,
-                  location: {
-                    ...event.location,
-                    lng: Number(e.target.value),
-                  },
-                })
-              }
-            />
-          </Field>
-          <Field label="Genres (comma separated)">
-            <Input
-              value={csv(event.genre)}
-              onChange={(e) =>
-                setEvent({ ...event, genre: parseCsv(e.target.value) })
-              }
-            />
-          </Field>
-          <Field label="YouTube video id">
-            <Input
-              value={event.videoId ?? ''}
-              onChange={(e) =>
-                setEvent({ ...event, videoId: e.target.value || undefined })
-              }
-            />
-          </Field>
-          <Field label="Tags (comma separated)" className="md:col-span-2">
-            <Input
-              value={csv(event.tags)}
-              onChange={(e) =>
-                setEvent({ ...event, tags: parseCsv(e.target.value) })
-              }
-            />
-          </Field>
-          <Field label="Description" className="md:col-span-2">
-            <Textarea
-              rows={6}
-              value={event.description}
-              onChange={(e) =>
-                setEvent({ ...event, description: e.target.value })
-              }
-            />
-          </Field>
-        </div>
-      ) : (
-        <Field label="Body (JSON)">
+      <div className="grid gap-4 md:grid-cols-2">
+        {spec.fields.map((field) => (
+          <Field
+            key={field.path}
+            field={field}
+            value={getPath(body, field.path)}
+            onChange={(value) => setBody(setPath(body, field.path, value))}
+          />
+        ))}
+      </div>
+
+      {remainderKeys.length > 0 && (
+        <div>
+          <Label className="mb-1.5 block text-xs text-muted-foreground">
+            {spec.jsonLabel ?? 'Remaining fields'} ({remainderKeys.join(', ')})
+          </Label>
           <Textarea
-            rows={28}
+            rows={24}
             className="font-mono text-xs"
             value={json}
-            onChange={(e) => setJson(e.target.value)}
+            onChange={(event) => setJson(event.target.value)}
           />
-        </Field>
+        </div>
       )}
 
-      {!isNew && data && data.Revisions.length > 0 && (
+      {!isNew && existing.data && existing.data.Revisions.length > 0 && (
         <div>
           <h2 className="mb-2 text-sm font-medium text-muted-foreground">
             Recent revisions
           </h2>
           <ul className="space-y-1 text-sm text-muted-foreground">
-            {data.Revisions.map((revision) => (
+            {existing.data.Revisions.map((revision) => (
               <li key={revision.id}>
                 r{revision.revision} — {revision.title}
                 {revision.note ? ` (${revision.note})` : ''}
@@ -317,19 +240,88 @@ export const AdminContentEditPage = () => {
   );
 };
 
+const pickKeys = (body: Record<string, unknown>, keys: string[]) =>
+  Object.fromEntries(
+    Object.entries(body).filter(([key]) => keys.includes(key)),
+  );
+
 const Field = ({
-  label,
-  className,
-  children,
+  field,
+  value,
+  onChange,
 }: {
-  label: string;
-  className?: string;
-  children: React.ReactNode;
-}) => (
-  <div className={className}>
-    <Label className="mb-1.5 block text-xs text-muted-foreground">
-      {label}
-    </Label>
-    {children}
-  </div>
-);
+  field: FieldSpec;
+  value: unknown;
+  onChange: (value: unknown) => void;
+}) => {
+  const control = () => {
+    switch (field.type) {
+      case 'textarea':
+        return (
+          <Textarea
+            rows={5}
+            value={typeof value === 'string' ? value : ''}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        );
+      case 'number':
+        return (
+          <Input
+            type="number"
+            step="any"
+            value={typeof value === 'number' ? value : ''}
+            onChange={(e) =>
+              // Empty clears an optional numeric field rather than writing NaN.
+              onChange(
+                e.target.value === '' ? undefined : Number(e.target.value),
+              )
+            }
+          />
+        );
+      case 'csv':
+        return (
+          <Input
+            value={Array.isArray(value) ? value.join(', ') : ''}
+            onChange={(e) => onChange(csvToArray(e.target.value))}
+          />
+        );
+      case 'select':
+        return (
+          <Select
+            value={typeof value === 'string' ? value : ''}
+            onValueChange={onChange}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(field.options ?? []).map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      default:
+        return (
+          <Input
+            value={typeof value === 'string' ? value : ''}
+            onChange={(e) => onChange(e.target.value || undefined)}
+          />
+        );
+    }
+  };
+
+  return (
+    <div className={field.wide ? 'md:col-span-2' : undefined}>
+      <Label className="mb-1.5 block text-xs text-muted-foreground">
+        {field.label}
+      </Label>
+      {control()}
+      {field.help && (
+        <p className="mt-1 text-xs text-muted-foreground/70">{field.help}</p>
+      )}
+    </div>
+  );
+};

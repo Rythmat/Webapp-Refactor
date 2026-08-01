@@ -154,7 +154,7 @@ export const adminPages = () => {
       {
         path: AdminRoutes.content.definition,
         element: (
-          <Navigate to={AdminRoutes.contentKind({ kind: 'globe_event' })} />
+          <Navigate to={AdminRoutes.contentKind({ kind: 'activity_flow' })} />
         ),
       },
       {

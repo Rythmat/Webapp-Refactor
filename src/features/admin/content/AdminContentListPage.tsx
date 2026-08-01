@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { AlertTriangle, Link2, Pencil, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, NavLink, useParams } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
 import {
   useContentItems,
@@ -28,13 +29,7 @@ import {
   type ContentKind,
   type ContentStatus,
 } from '@/hooks/data/admin/useAdminContent';
-
-const KIND_LABELS: Record<ContentKind, string> = {
-  globe_event: 'Globe events',
-  globe_city: 'Globe cities',
-  song: 'Songs',
-  artist_location: 'Artist locations',
-};
+import { CONTENT_KINDS, isContentKind, KIND_ORDER } from './kinds';
 
 const STATUS_STYLES: Record<ContentStatus, string> = {
   published: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/30',
@@ -42,14 +37,12 @@ const STATUS_STYLES: Record<ContentStatus, string> = {
   archived: 'bg-zinc-600/20 text-zinc-400 border-zinc-600/30',
 };
 
-const isContentKind = (value: string | undefined): value is ContentKind =>
-  value !== undefined && value in KIND_LABELS;
-
 export const AdminContentListPage = () => {
   const params = useParams();
   const kind: ContentKind = isContentKind(params.kind)
     ? params.kind
-    : 'globe_event';
+    : 'activity_flow';
+  const spec = CONTENT_KINDS[kind];
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<ContentStatus | 'all'>('all');
@@ -65,18 +58,38 @@ export const AdminContentListPage = () => {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">{KIND_LABELS[kind]}</h1>
-          <p className="text-sm text-muted-foreground">
-            Edits are saved to the database immediately, but only reach students
-            when you publish from the Releases page.
+      <nav className="flex flex-wrap gap-1 border-b border-white/[0.08] pb-3">
+        {KIND_ORDER.map((entry) => (
+          <NavLink
+            key={entry}
+            to={AdminRoutes.contentKind({ kind: entry })}
+            className={({ isActive }) =>
+              cn(
+                'rounded-md px-3 py-1.5 text-sm transition-colors',
+                isActive
+                  ? 'bg-white/10 text-white'
+                  : 'text-muted-foreground hover:bg-white/5 hover:text-white',
+              )
+            }
+          >
+            {CONTENT_KINDS[entry].label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="max-w-3xl">
+          <h1 className="text-2xl font-semibold">{spec.label}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{spec.blurb}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Edits save to the database immediately, but only reach students when
+            you publish from the Publishing page.
           </p>
         </div>
         <Button asChild>
           <Link to={AdminRoutes.contentItem({ kind, id: 'new' })}>
             <Plus className="mr-2 size-4" />
-            New {KIND_LABELS[kind].replace(/s$/, '').toLowerCase()}
+            New {spec.singular}
           </Link>
         </Button>
       </div>
@@ -141,7 +154,7 @@ export const AdminContentListPage = () => {
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead>Slug</TableHead>
-              <TableHead>Where / when</TableHead>
+              <TableHead>Details</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Updated</TableHead>
               <TableHead className="w-16" />
@@ -194,7 +207,8 @@ export const AdminContentListPage = () => {
                   colSpan={6}
                   className="py-10 text-center text-muted-foreground"
                 >
-                  No items match.
+                  No {spec.label.toLowerCase()} match. Create one with “New{' '}
+                  {spec.singular}”.
                 </TableCell>
               </TableRow>
             )}

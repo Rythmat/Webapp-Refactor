@@ -16,7 +16,9 @@ export type ContentKind =
   | 'globe_event'
   | 'globe_city'
   | 'song'
-  | 'artist_location';
+  | 'artist_location'
+  | 'activity_flow'
+  | 'fundamentals_flow';
 
 export type ContentStatus = 'draft' | 'published' | 'archived';
 
@@ -132,6 +134,32 @@ export const useContentOverview = () => {
   });
 };
 
+export interface DerivationHealth {
+  totalSongs: number;
+  matched: number;
+  defaultedToNewYork: number;
+  artistLocationCount: number;
+  unmatchedArtists: { artist: string; songCount: number; songs: string[] }[];
+}
+
+/**
+ * Which artists have no globe location and are therefore silently placed in
+ * New York. Never previously visible — the generator counted them and threw the
+ * number away.
+ */
+export const useDerivationHealth = () => {
+  const { token } = useAuthContext();
+  return useQuery<DerivationHealth>({
+    queryKey: [...CONTENT_KEY, 'derivation-health'],
+    queryFn: () =>
+      fetchWithAuth<DerivationHealth>(
+        contentPath('/derivation-health'),
+        token!,
+      ),
+    enabled: !!token,
+  });
+};
+
 export const useContentItems = (params: {
   kind: ContentKind;
   status?: ContentStatus;
@@ -146,6 +174,32 @@ export const useContentItems = (params: {
     queryKey: [...CONTENT_KEY, 'items', params],
     queryFn: () => fetchWithAuth(contentPath(`/items?${query}`), token!),
     enabled: !!token,
+  });
+};
+
+export interface NewItemTemplate {
+  kind: ContentKind;
+  slug: string;
+  body: Record<string, unknown>;
+  hint: string;
+}
+
+/**
+ * A valid skeleton to start a new item from.
+ *
+ * Comes from the API rather than being hardcoded here so the starting body is
+ * validated by the same zod schema that will accept the save — an editor-side
+ * template would silently drift from it.
+ */
+export const useContentTemplate = (kind: ContentKind | undefined) => {
+  const { token } = useAuthContext();
+  return useQuery<NewItemTemplate>({
+    queryKey: [...CONTENT_KEY, 'template', kind],
+    queryFn: () =>
+      fetchWithAuth<NewItemTemplate>(contentPath(`/template/${kind}`), token!),
+    enabled: !!token && !!kind,
+    // Templates are static per deploy.
+    staleTime: Infinity,
   });
 };
 

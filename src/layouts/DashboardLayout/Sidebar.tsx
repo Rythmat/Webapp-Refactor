@@ -60,7 +60,7 @@ export const Sidebar = ({
             icon={FileText}
             isCollapsed={isCollapsed}
             label="Content"
-            to={AdminRoutes.contentKind({ kind: 'globe_event' })}
+            to={AdminRoutes.contentKind({ kind: 'activity_flow' })}
           />
           <SidebarMainNavItem
             icon={CloudUpload}

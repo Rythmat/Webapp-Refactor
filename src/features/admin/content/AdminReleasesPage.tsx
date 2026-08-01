@@ -1,5 +1,11 @@
 import { format } from 'date-fns';
-import { CloudUpload, Loader2, RotateCcw, XCircle } from 'lucide-react';
+import {
+  CloudUpload,
+  Loader2,
+  MapPinOff,
+  RotateCcw,
+  XCircle,
+} from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,18 +22,19 @@ import {
   useCancelRelease,
   useContentOverview,
   useContentReleases,
+  useDerivationHealth,
   usePublishContent,
   useRollbackContent,
   type ContentKind,
   type ContentReleaseStatus,
 } from '@/hooks/data/admin/useAdminContent';
+import { CONTENT_KINDS } from './kinds';
 
-const KIND_LABELS: Record<ContentKind, string> = {
-  globe_event: 'Globe events',
-  globe_city: 'Globe cities',
-  song: 'Songs',
-  artist_location: 'Artist locations',
-};
+// Labels come from the shared kind spec so the Publishing page cannot drift
+// from the Content pages when a kind is added.
+const KIND_LABELS = Object.fromEntries(
+  Object.entries(CONTENT_KINDS).map(([kind, spec]) => [kind, spec.label]),
+) as Record<ContentKind, string>;
 
 const RELEASE_STATUS_STYLES: Record<ContentReleaseStatus, string> = {
   live: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/30',
@@ -162,6 +169,8 @@ export const AdminReleasesPage = () => {
         )}
       </section>
 
+      <DerivationHealthSection />
+
       <section>
         <h2 className="mb-3 text-sm font-medium text-muted-foreground">
           Release history
@@ -253,5 +262,60 @@ export const AdminReleasesPage = () => {
         )}
       </section>
     </div>
+  );
+};
+
+/**
+ * Artists with no globe location.
+ *
+ * These songs are silently pinned to New York on the globe. The generator that
+ * produced the original data counted them and discarded the number, so this
+ * list has never been visible to anyone — each row is a concrete fix.
+ */
+const DerivationHealthSection = () => {
+  const health = useDerivationHealth();
+
+  if (health.isLoading) return <Skeleton className="h-32 w-full" />;
+  if (!health.data) return null;
+
+  const { defaultedToNewYork, totalSongs, unmatchedArtists } = health.data;
+
+  return (
+    <section>
+      <h2 className="mb-3 text-sm font-medium text-muted-foreground">
+        Globe placement
+      </h2>
+      {defaultedToNewYork === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          All {totalSongs} songs resolve to a real artist location.
+        </p>
+      ) : (
+        <div className="rounded-lg border border-amber-600/30 bg-amber-600/10 p-4">
+          <div className="flex items-center gap-2 font-medium text-amber-400">
+            <MapPinOff className="size-4" />
+            {defaultedToNewYork} of {totalSongs} songs default to New York
+          </div>
+          <p className="mt-1 text-sm text-amber-200/70">
+            These artists have no entry in the location map, so their songs are
+            pinned to New York on the globe. Add an artist location to fix.
+          </p>
+          <ul className="mt-3 grid gap-1 text-sm text-amber-200/80 sm:grid-cols-2">
+            {unmatchedArtists.slice(0, 20).map((entry) => (
+              <li key={entry.artist} className="flex justify-between gap-3">
+                <span className="truncate">{entry.artist}</span>
+                <span className="shrink-0 text-amber-200/50">
+                  {entry.songCount} song{entry.songCount === 1 ? '' : 's'}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {unmatchedArtists.length > 20 && (
+            <p className="mt-2 text-xs text-amber-200/60">
+              …and {unmatchedArtists.length - 20} more artists
+            </p>
+          )}
+        </div>
+      )}
+    </section>
   );
 };

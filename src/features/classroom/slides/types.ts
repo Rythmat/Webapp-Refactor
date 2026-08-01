@@ -16,7 +16,7 @@
  * test runs over deck content too.
  */
 import type { PhaseKey } from '../phases';
-import type { LocalizedText } from '../types';
+import type { LaunchTile, LocalizedText } from '../types';
 
 /** Visual media block usable on content / media / interaction slides. */
 export type SlideMedia =
@@ -48,6 +48,18 @@ export interface ContentSlide extends SlideCommon {
   variant?: 'welcome' | 'section' | 'plain';
   body?: LocalizedText;
   media?: SlideMedia;
+  /**
+   * Atlas launch tiles surfaced on this slide (migrated off
+   * `cell.presentation.launchTiles`, which the phase board used to render).
+   * Student-safe: `{id, module, activityRef, label?}` refs only — resolved to
+   * module deep-links at render time, no URLs baked in.
+   */
+  launchTiles?: LaunchTile[];
+  /**
+   * Reflect-phase reset checklist — ephemeral tick boxes rendered under the
+   * slide body. Student-safe LocalizedText only.
+   */
+  resetChecklist?: LocalizedText[];
 }
 
 /** Step 3 — YouTube + featured visual + displayed prompt. Video plays on the projector only. */

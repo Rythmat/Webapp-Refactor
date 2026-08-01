@@ -15,6 +15,7 @@
  */
 import { stripLegacySongSlug } from '../legacySongSlug';
 import { PHASES, type PhaseKey } from '../phases';
+import type { Slide, SlideDeck, SlideMedia } from '../slides/types';
 import type {
   Cell,
   Day,
@@ -22,7 +23,6 @@ import type {
   LaunchTile,
   LocalizedText,
 } from '../types';
-import type { Slide, SlideDeck, SlideMedia } from '../slides/types';
 
 export interface CellSnapshot {
   presentation: {
@@ -120,6 +120,19 @@ const projectSlide = (slide: Slide): Slide => {
         ...(slide.body !== undefined ? { body: slide.body } : {}),
         ...(slide.media !== undefined
           ? { media: projectSlideMedia(slide.media) }
+          : {}),
+        // Named whitelist copies — tiles through projectLaunchTile (drops any
+        // stray key), checklist items rebuilt as {en,es?}. Never spread.
+        ...(slide.launchTiles !== undefined
+          ? { launchTiles: slide.launchTiles.map(projectLaunchTile) }
+          : {}),
+        ...(slide.resetChecklist !== undefined
+          ? {
+              resetChecklist: slide.resetChecklist.map((t) => ({
+                en: t.en,
+                ...(t.es !== undefined ? { es: t.es } : {}),
+              })),
+            }
           : {}),
       };
     case 'media':

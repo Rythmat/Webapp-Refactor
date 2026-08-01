@@ -18,8 +18,14 @@ const MODULE_FALLBACKS: Record<LaunchTile['module'], string> = {
   arcade: '/arcade',
 };
 
-export const resolveModuleUrl = (tile: LaunchTile): string | null => {
-  const base = MODULE_FALLBACKS[tile.module];
+export const resolveModuleUrl = (
+  tile: LaunchTile,
+  moduleUrls?: Partial<Record<LaunchTile['module'], string>>,
+): string | null => {
+  // A teacher-configured module URL (Settings) overrides the built-in default
+  // base; a specific activityRef still resolves in-SPA.
+  const override = moduleUrls?.[tile.module]?.trim();
+  const base = override || MODULE_FALLBACKS[tile.module];
   if (!base) return null;
   return resolveActivityRefHref(tile.module, tile.activityRef) ?? base;
 };

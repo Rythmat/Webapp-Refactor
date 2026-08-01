@@ -4,13 +4,44 @@
  * whitelist (publish/publishDay.ts) so nothing silently drops at publish.
  */
 import type { PhaseKey } from '../phases';
-import type { Day, LocalizedText } from '../types';
+import type { Cell, Day, Interaction, LocalizedText } from '../types';
+import { slideInteractionIds } from './deck';
 import type { Slide, SlideDeck, SlideKind } from './types';
 
 const slideUid = (): string =>
   `slide-${Math.random().toString(36).slice(2, 8)}-${Date.now()
     .toString(36)
     .slice(-4)}`;
+
+const interactionUid = (): string =>
+  `ix-${Math.random().toString(36).slice(2, 8)}-${Date.now()
+    .toString(36)
+    .slice(-4)}`;
+
+/** Point a slide's interaction reference(s) at a new id list (kind-aware). */
+const setSlideInteractionIds = (slide: Slide, ids: string[]): Slide => {
+  switch (slide.kind) {
+    case 'interaction':
+      return { ...slide, interactionIds: ids };
+    case 'app-route':
+    case 'showcase':
+      return { ...slide, interactionId: ids[0] ?? '' };
+    case 'content':
+    case 'media':
+    case 'studio-collab':
+      return slide;
+  }
+};
+
+/** Rewrite a slide's interaction references through an old→new id map. */
+const remapSlideInteractions = (
+  slide: Slide,
+  idMap: Map<string, string>,
+): Slide =>
+  setSlideInteractionIds(
+    slide,
+    slideInteractionIds(slide).map((id) => idMap.get(id) ?? id),
+  );
 
 /** A blank slide of the given kind, anchored to a phase. Fields match the
  *  templates' canonical shapes + the projectSlide whitelist. */
@@ -112,3 +143,108 @@ export const slidesArePhaseOrdered = (
   }
   return true;
 };
+
+// ─── Day-level helpers (touch deck slides + the interaction backing store) ───
+//
+// Interactions live in `cells[phase].presentation.interactions`, referenced by
+// a slide's `interactionIds`/`interactionId`. These helpers keep both sides in
+// sync so the dangling-ref publish gate (findDanglingInteractionIds) never
+// trips, and so a duplicated slide gets its OWN interactions rather than
+// sharing ids with the original.
+
+/**
+ * Duplicate the slide at `index`, inserting the copy right after it. If the
+ * slide references interactions, they are deep-copied into the phase cell with
+ * fresh ids and the copy is repointed at them, so editing the copy's questions
+ * never mutates the original's.
+ */
+export const duplicateSlideAt = (day: Day, index: number): Day => {
+  const deck = day.deck;
+  if (!deck || index < 0 || index >= deck.slides.length) return day;
+  const original = deck.slides[index];
+  const phase = original.phase;
+  const cell = day.cells[phase];
+
+  const oldIds = slideInteractionIds(original);
+  const idMap = new Map<string, string>();
+  const clonedInteractions: Interaction[] = [];
+  const cellInteractions = cell.presentation.interactions ?? [];
+  for (const oldId of oldIds) {
+    const src = cellInteractions.find((i) => i.id === oldId);
+    if (!src) continue;
+    const newId = interactionUid();
+    idMap.set(oldId, newId);
+    clonedInteractions.push({ ...structuredClone(src), id: newId });
+  }
+
+  const clone = remapSlideInteractions(
+    { ...structuredClone(original), id: slideUid() },
+    idMap,
+  );
+
+  const nextCell: Cell = clonedInteractions.length
+    ? {
+        ...cell,
+        presentation: {
+          ...cell.presentation,
+          interactions: [...cellInteractions, ...clonedInteractions],
+        },
+      }
+    : cell;
+
+  return {
+    ...day,
+    deck: { ...deck, slides: insertSlideAt(deck.slides, clone, index + 1) },
+    cells: { ...day.cells, [phase]: nextCell },
+  };
+};
+
+/**
+ * Replace the interactions a single slide owns. Writes the interaction objects
+ * into the slide's phase cell AND repoints the slide's id list — one
+ * transaction, so no dangling ref is ever produced. Other slides' interactions
+ * in the same phase are preserved.
+ */
+export const setSlideInteractions = (
+  day: Day,
+  slideId: string,
+  interactions: Interaction[],
+): Day => {
+  const deck = day.deck;
+  if (!deck) return day;
+  const slide = deck.slides.find((s) => s.id === slideId);
+  if (!slide) return day;
+  const phase = slide.phase;
+  const cell = day.cells[phase];
+
+  const oldIds = slideInteractionIds(slide);
+  const newIds = interactions.map((i) => i.id);
+  // Keep interactions owned by OTHER slides; drop this slide's previous set and
+  // this slide's incoming set from the "others" bucket before re-appending.
+  const others = (cell.presentation.interactions ?? []).filter(
+    (i) => !oldIds.includes(i.id) && !newIds.includes(i.id),
+  );
+  const nextInteractions = [...others, ...interactions];
+
+  const nextCell: Cell = {
+    ...cell,
+    presentation: {
+      ...cell.presentation,
+      interactions: nextInteractions.length ? nextInteractions : undefined,
+    },
+  };
+
+  return {
+    ...day,
+    deck: {
+      ...deck,
+      slides: deck.slides.map((s) =>
+        s.id === slideId ? setSlideInteractionIds(s, newIds) : s,
+      ),
+    },
+    cells: { ...day.cells, [phase]: nextCell },
+  };
+};
+
+/** Fresh interaction id for editor-authored interactions. */
+export const newInteractionId = interactionUid;

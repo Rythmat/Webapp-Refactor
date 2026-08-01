@@ -8,18 +8,18 @@
  * colored Unit bars that deep-link into the existing `UnitPage`.
  */
 import {
-  ArrowLeft,
   BookOpen,
   CalendarClock,
   RotateCcw,
+  Settings,
   Sparkles,
 } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { TeacherRoutes } from '@/constants/routes';
 import { useClassroom } from '@/hooks/data';
 import { useLocalPlan } from '../plan/useLocalPlan';
+import { ClassroomSettingsDialog } from '../settings/ClassroomSettingsDialog';
 import type { StudentLanguage } from '../types';
 import { CalendarView } from './CalendarView';
 import { SchoolCalendarDialog } from './SchoolCalendarDialog';
@@ -44,6 +44,7 @@ export const AnnualPlanPage = () => {
   const [language, setLanguage] = useState<StudentLanguage>('en');
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [showingSchoolCalendar, setShowingSchoolCalendar] = useState(false);
+  const [showingSettings, setShowingSettings] = useState(false);
 
   // Read the scheduled ISO dates from Units that already have Days so the
   // chained-sequential auto-populate can skip past them without overlap. On
@@ -89,15 +90,7 @@ export const AnnualPlanPage = () => {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 px-6 py-6 md:gap-10 md:px-10 md:py-10">
-      <Link
-        to={TeacherRoutes.classroomDashboard({ classroomId: cid })}
-        className="inline-flex w-fit items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to {classroom?.name ?? 'classroom'}
-      </Link>
-
+    <div className="flex w-full flex-col gap-8 md:gap-10">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 md:gap-3">
@@ -112,12 +105,22 @@ export const AnnualPlanPage = () => {
           </p>
         </div>
 
-        {plan && (
-          <div className="flex items-center gap-2">
-            <LanguageToggle value={language} onChange={setLanguage} />
-            <button
-              type="button"
-              onClick={() => setShowingSchoolCalendar(true)}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowingSettings(true)}
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/70 transition-colors hover:border-white/25 hover:text-white"
+            title="Classroom settings"
+          >
+            <Settings className="h-3.5 w-3.5" />
+            Settings
+          </button>
+          {plan && (
+            <>
+              <LanguageToggle value={language} onChange={setLanguage} />
+              <button
+                type="button"
+                onClick={() => setShowingSchoolCalendar(true)}
               className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/70 transition-colors hover:border-white/25 hover:text-white"
               title="Edit school calendar (holidays + breaks)"
             >
@@ -130,11 +133,12 @@ export const AnnualPlanPage = () => {
               className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/60 transition-colors hover:border-red-400/40 hover:text-red-200"
               title="Reset to canonical template"
             >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Reset to template
-            </button>
-          </div>
-        )}
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset to template
+              </button>
+            </>
+          )}
+        </div>
       </header>
 
       {!plan ? (
@@ -163,6 +167,10 @@ export const AnnualPlanPage = () => {
           onRestore={restoreDefaultNonSchoolDate}
           onClose={() => setShowingSchoolCalendar(false)}
         />
+      )}
+
+      {showingSettings && (
+        <ClassroomSettingsDialog onClose={() => setShowingSettings(false)} />
       )}
     </div>
   );

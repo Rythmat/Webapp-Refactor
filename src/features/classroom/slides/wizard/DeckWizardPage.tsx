@@ -9,18 +9,23 @@ import {
   Zap,
 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import {
   CURRICULUM_GENRE_SLUGS,
   type CurriculumGenreId,
 } from '@/curriculum/bridge/genreIdMap';
+import { getModesForGenreLevel } from '@/curriculum/bridge/learnCurriculumLinks';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import { getSong } from '@/curriculum/data/songs';
-import { getModesForGenreLevel } from '@/curriculum/bridge/learnCurriculumLinks';
-import type { GCMKey, CurriculumLevelId } from '@/curriculum/types/curriculum';
 import type { ActivityFlow } from '@/curriculum/types/activity';
+import type { GCMKey, CurriculumLevelId } from '@/curriculum/types/curriculum';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { useStartClassroomSession } from '../../live/useStartClassroomSession';
 import { useLocalPlan } from '../../plan/useLocalPlan';
@@ -78,8 +83,16 @@ export const DeckWizardPage = () => {
   const { publishDayToClassroom } = usePublishedDays(cid);
   const startClassroomSession = useStartClassroomSession();
 
-  const [step, setStep] = useState(0);
-  const [source, setSource] = useState<DeckSource>('song');
+  // "New Lesson → Song/Genre" deep-links here preselected to a template; skip the
+  // Template step and land on the matching Content picker.
+  const [searchParams] = useSearchParams();
+  const preTemplate = searchParams.get('template');
+  const [step, setStep] = useState(() =>
+    preTemplate === 'song' || preTemplate === 'genre' ? 1 : 0,
+  );
+  const [source, setSource] = useState<DeckSource>(
+    preTemplate === 'genre' ? 'genre' : 'song',
+  );
   const [song, setSong] = useState<Song | null>(null);
   const [plannedDayId, setPlannedDayId] = useState<string | null>(null);
   const [params, setParams] = useState<SongSessionParams>(
@@ -98,7 +111,7 @@ export const DeckWizardPage = () => {
 
   const days = listDays();
   const plannedDay = plannedDayId
-    ? days.find((d) => d.id === plannedDayId) ?? null
+    ? (days.find((d) => d.id === plannedDayId) ?? null)
     : null;
 
   const contentReady =
@@ -187,7 +200,10 @@ export const DeckWizardPage = () => {
         initialSlideIndex: 0,
       });
       navigate(
-        TeacherRoutes.session({ classroomId: cid, sessionId: started.sessionId }),
+        TeacherRoutes.session({
+          classroomId: cid,
+          sessionId: started.sessionId,
+        }),
       );
     } catch (err) {
       window.alert(err instanceof Error ? err.message : 'Could not start');
@@ -204,7 +220,7 @@ export const DeckWizardPage = () => {
           className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Plan
+          Back to Lessons
         </Link>
         <div className="flex items-center gap-2">
           <Zap className="h-5 w-5 text-[#7ecfcf]" />
@@ -235,8 +251,8 @@ export const DeckWizardPage = () => {
               )}
             </span>
             <span className="text-xs text-white/60">
-              Welcome + emotional check-in → listen to a song → respond →
-              exit reflection. Polls live on student devices, reveal on the
+              Welcome + emotional check-in → listen to a song → respond → exit
+              reflection. Polls live on student devices, reveal on the
               projector.
             </span>
           </button>
@@ -420,7 +436,8 @@ const Stepper = ({
 }) => (
   <ol className="flex flex-wrap items-center gap-2">
     {STEPS.map((label, i) => {
-      const reachable = i <= step || (i === step + 1 && (i !== 3 || contentReady));
+      const reachable =
+        i <= step || (i === step + 1 && (i !== 3 || contentReady));
       return (
         <li key={label} className="flex items-center gap-2">
           {i > 0 && <span className="h-px w-4 bg-white/15" />}

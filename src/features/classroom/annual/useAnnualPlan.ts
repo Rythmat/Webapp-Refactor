@@ -158,6 +158,12 @@ export interface UseAnnualPlan {
   removeDayFromUnit: (unitId: string, dayId: string) => void;
   addCustomUnit: (semester: Semester, unit: Unit) => void;
   renameUnit: (unitId: string, label: string) => void;
+  /** "Use this theme for the unit" — copies the theme's focus / essential
+   *  questions into editable unit-level metadata. Teacher-facing. */
+  setUnitMeta: (
+    unitId: string,
+    meta: { overview?: string; essentialQuestions?: string[] },
+  ) => void;
   deleteUnit: (unitId: string) => void;
   getUnit: (unitId: string) => { unit: Unit; semester: Semester } | null;
   /** Returns a suggested YYYY-MM-DD for the next Day in a unit, or null. */
@@ -327,6 +333,16 @@ export const useAnnualPlan = (classroomId: string): UseAnnualPlan => {
     [mutateUnit],
   );
 
+  const setUnitMeta = useCallback(
+    (
+      unitId: string,
+      meta: { overview?: string; essentialQuestions?: string[] },
+    ): void => {
+      mutateUnit(unitId, (u) => ({ ...u, ...meta }));
+    },
+    [mutateUnit],
+  );
+
   const deleteUnit = useCallback(
     (unitId: string): void => {
       const current = readAnnualPlanStore();
@@ -478,6 +494,7 @@ export const useAnnualPlan = (classroomId: string): UseAnnualPlan => {
     removeDayFromUnit,
     addCustomUnit,
     renameUnit,
+    setUnitMeta,
     deleteUnit,
     getUnit,
     suggestDayScheduleInUnit,

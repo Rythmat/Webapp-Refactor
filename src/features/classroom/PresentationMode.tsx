@@ -27,6 +27,11 @@ import { PHASES, type PhaseKey } from './phases';
 import { useLocalPlan } from './plan/useLocalPlan';
 import { Board } from './presentation/Board';
 import { Focus } from './presentation/Focus';
+import { SegmentedControl } from './presentation/SegmentedControl';
+import { slideToPresentContent } from './presentation/SlidePresentBody';
+import { projectDeck } from './publish/publishDay';
+import { slideAt } from './slides/deck';
+import { deckFromCells } from './slides/deckFromCells';
 import type { AgePreset, StudentLanguage, StudentViewConfig } from './types';
 import './presentation.css';
 
@@ -34,12 +39,6 @@ const LANGUAGE_OPTIONS: { value: StudentLanguage; label: string }[] = [
   { value: 'en', label: 'EN' },
   { value: 'es', label: 'ES' },
   { value: 'both', label: 'EN / ES' },
-];
-
-const AGE_OPTIONS: { value: AgePreset; label: string }[] = [
-  { value: 'middle', label: 'Middle' },
-  { value: 'high', label: 'High' },
-  { value: 'college', label: 'College' },
 ];
 
 type Level = 'board' | 'focus';
@@ -72,8 +71,10 @@ export const PresentationMode = () => {
   }, [dayId, getDay]);
 
   const [language, setLanguage] = useState<StudentLanguage>('en');
-  const [agePreset, setAgePreset] = useState<AgePreset>('high');
+  // Age preset pinned to 'high' (the type-scale baseline); picker removed.
+  const agePreset: AgePreset = 'high';
   const [currentPhaseKey, setCurrentPhaseKey] = useState<PhaseKey>(PHASES[0]);
+  const [focusIndex, setFocusIndex] = useState(0);
   const [level, setLevel] = useState<Level>('board');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -85,20 +86,20 @@ export const PresentationMode = () => {
 
   const view = useMemo(() => buildStudentView(day, config), [day, config]);
 
-  const focusedPhase = useMemo(
+  // Present renders the DECK (single source of truth), so "what you edit is
+  // what you present." A Day that carries a persisted deck uses it; a legacy
+  // deckless Day falls back to an ephemeral deck derived from its cells (the
+  // same content the board used to show).
+  const presentDeck = useMemo(
     () =>
-      view.phases.find((p) => p.phaseKey === currentPhaseKey) ?? view.phases[0],
-    [view.phases, currentPhaseKey],
+      view.deck && view.deck.slides.length > 0
+        ? view.deck
+        : projectDeck(deckFromCells(day)),
+    [view.deck, day],
   );
 
-  const openFocus = useCallback(
-    (phaseKey: PhaseKey) => {
-      setCurrentPhaseKey(phaseKey);
-      setLevel('focus');
-      if (sessionId && sessionState) sendNav(phaseKey);
-    },
-    [sessionId, sessionState, sendNav],
-  );
+  const currentSlide =
+    slideAt(presentDeck, focusIndex) ?? presentDeck.slides[0];
 
   const closeFocus = useCallback(() => setLevel('board'), []);
 
@@ -108,6 +109,45 @@ export const PresentationMode = () => {
       if (sessionId && sessionState) sendNav(phaseKey);
     },
     [sessionId, sessionState, sendNav],
+  );
+
+  // Open Focus at the first slide belonging to the tapped phase; the session
+  // still navigates by phase (derived from the slide), so the live protocol is
+  // unchanged.
+  const openFocus = useCallback(
+    (phaseKey: PhaseKey) => {
+      const idx = presentDeck.slides.findIndex((s) => s.phase === phaseKey);
+      setFocusIndex(idx >= 0 ? idx : 0);
+      setCurrentPhaseKey(phaseKey);
+      setLevel('focus');
+      if (sessionId && sessionState) sendNav(phaseKey);
+    },
+    [presentDeck, sessionId, sessionState, sendNav],
+  );
+
+  // Walk the deck slide-by-slide in Focus; derive the phase from the landed
+  // slide so the Board highlight + session nav stay in step.
+  const goToSlide = useCallback(
+    (index: number) => {
+      const clamped = Math.max(
+        0,
+        Math.min(index, presentDeck.slides.length - 1),
+      );
+      setFocusIndex(clamped);
+      const phase = presentDeck.slides[clamped]?.phase ?? PHASES[0];
+      setCurrentPhaseKey(phase);
+      if (sessionId && sessionState) sendNav(phase);
+    },
+    [presentDeck, sessionId, sessionState, sendNav],
+  );
+
+  const goPrevSlide = useCallback(
+    () => goToSlide(focusIndex - 1),
+    [goToSlide, focusIndex],
+  );
+  const goNextSlide = useCallback(
+    () => goToSlide(focusIndex + 1),
+    [goToSlide, focusIndex],
   );
 
   const goPrev = useCallback(() => {
@@ -175,8 +215,6 @@ export const PresentationMode = () => {
       <PresentationChrome
         language={language}
         onLanguageChange={setLanguage}
-        agePreset={agePreset}
-        onAgeChange={setAgePreset}
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
         onExit={exitToClassroom}
@@ -198,8 +236,17 @@ export const PresentationMode = () => {
         </>
       )}
 
-      {level === 'focus' && focusedPhase && (
-        <Focus phase={focusedPhase} language={language} onClose={closeFocus} />
+      {level === 'focus' && currentSlide && (
+        <Focus
+          slide={slideToPresentContent(currentSlide)}
+          language={language}
+          onClose={closeFocus}
+          onPrev={goPrevSlide}
+          onNext={goNextSlide}
+          hasPrev={focusIndex > 0}
+          hasNext={focusIndex < presentDeck.slides.length - 1}
+          position={`${focusIndex + 1} / ${presentDeck.slides.length}`}
+        />
       )}
     </div>
   );
@@ -208,8 +255,6 @@ export const PresentationMode = () => {
 interface PresentationChromeProps {
   language: StudentLanguage;
   onLanguageChange: (v: StudentLanguage) => void;
-  agePreset: AgePreset;
-  onAgeChange: (v: AgePreset) => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   onExit: () => void;
@@ -219,8 +264,6 @@ interface PresentationChromeProps {
 const PresentationChrome = ({
   language,
   onLanguageChange,
-  agePreset,
-  onAgeChange,
   isFullscreen,
   onToggleFullscreen,
   onExit,
@@ -251,12 +294,6 @@ const PresentationChrome = ({
           value={language}
           onChange={onLanguageChange}
         />
-        <SegmentedControl
-          label="Age"
-          options={AGE_OPTIONS}
-          value={agePreset}
-          onChange={onAgeChange}
-        />
         <button
           type="button"
           onClick={onToggleFullscreen}
@@ -271,44 +308,6 @@ const PresentationChrome = ({
         </button>
       </div>
     </header>
-  );
-};
-
-interface SegmentedControlProps<V extends string> {
-  label: string;
-  options: { value: V; label: string }[];
-  value: V;
-  onChange: (v: V) => void;
-}
-
-const SegmentedControl = <V extends string>({
-  label,
-  options,
-  value,
-  onChange,
-}: SegmentedControlProps<V>) => {
-  return (
-    <div
-      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-0.5"
-      role="group"
-      aria-label={label}
-    >
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => onChange(opt.value)}
-          aria-pressed={opt.value === value}
-          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-            opt.value === value
-              ? 'bg-white text-black'
-              : 'text-white/60 hover:text-white'
-          }`}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
   );
 };
 

@@ -3,22 +3,22 @@ import { useEffect, useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { InteractionResponseDashboard } from '../assignments/InteractionResponseDashboard';
-import { CurriculumCoveragePanel } from './CurriculumCoveragePanel';
 import { useEnrollments } from '../enrollments';
 import { useMspInboxEntries } from '../msp';
 import { PHASES } from '../phases';
 import { usePublishedDays } from '../publish/usePublishedDays';
-import type { Interaction } from '../types';
-import { buildSlideProgress } from './buildSlideProgress';
 import {
   deckFromSnapshot,
   interactionsForSlide,
   slideAt,
   slideInteractionIds,
 } from '../slides/deck';
+import type { Interaction } from '../types';
+import { CurriculumCoveragePanel } from './CurriculumCoveragePanel';
 import { PhaseNavigator } from './PhaseNavigator';
 import { RosterPanel } from './RosterPanel';
 import { SessionSimulationPanel } from './SessionSimulationPanel';
+import { buildSlideProgress } from './buildSlideProgress';
 import { CurrentSlidePanel } from './slides/CurrentSlidePanel';
 import { MediaRemote } from './slides/MediaRemote';
 import { PairingPanel } from './slides/PairingPanel';
@@ -160,7 +160,7 @@ export const TeacherSessionDashboard = () => {
           className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Plan
+          Back to Lessons
         </Link>
       </div>
     );
@@ -179,7 +179,7 @@ export const TeacherSessionDashboard = () => {
           className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Plan
+          Back to Lessons
         </Link>
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-emerald-400/30 bg-emerald-400/[0.08] px-3 py-1 text-xs text-emerald-200">
@@ -279,17 +279,15 @@ export const TeacherSessionDashboard = () => {
           ) : currentSlide && currentSlide.kind === 'showcase' ? (
             <ShowcasePanel
               slideId={currentSlide.id}
-              offers={
-                aggregateRows
-                  .filter(
-                    (r) =>
-                      r.kind === 'showcase' &&
-                      currentSlideInteractions.some(
-                        (i) => i.id === r.interactionId,
-                      ),
-                  )
-                  .flatMap((r) => (r.kind === 'showcase' ? r.offers : []))
-              }
+              offers={aggregateRows
+                .filter(
+                  (r) =>
+                    r.kind === 'showcase' &&
+                    currentSlideInteractions.some(
+                      (i) => i.id === r.interactionId,
+                    ),
+                )
+                .flatMap((r) => (r.kind === 'showcase' ? r.offers : []))}
               showcase={state.showcase}
               onFeature={sendShowcase}
               onClear={() => sendShowcase(null)}

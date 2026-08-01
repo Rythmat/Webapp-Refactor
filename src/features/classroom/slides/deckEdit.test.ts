@@ -1,17 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { findForbiddenSubstring, publishDay } from '../publish/publishDay';
+import { PHASES } from '../phases';
 import { newBlankDay } from '../plan/newBlankDay';
-import type { SlideKind } from './types';
+import { findForbiddenSubstring, publishDay } from '../publish/publishDay';
+import type { Day, Interaction } from '../types';
+import { findDanglingInteractionIds, slideInteractionIds } from './deck';
 import {
   deleteSlideAt,
+  duplicateSlideAt,
   emptyDeck,
   insertSlideAt,
   moveSlide,
   newSlide,
+  setSlideInteractions,
   slidesArePhaseOrdered,
   updateSlideAt,
 } from './deckEdit';
-import { PHASES } from '../phases';
+import type { SlideKind } from './types';
 
 const KINDS: SlideKind[] = [
   'content',
@@ -114,5 +118,71 @@ describe('slidesArePhaseOrdered', () => {
       newSlide('interaction', 'connectRegulate'),
     ];
     expect(slidesArePhaseOrdered(bad, PHASES)).toBe(false);
+  });
+});
+
+/** A Day with one empty interaction slide in the Connect phase. */
+const dayWithInteractionSlide = (): { day: Day; slideId: string } => {
+  const day = newBlankDay('IX Day');
+  day.deck = emptyDeck(day);
+  const slide = newSlide('interaction', 'connectRegulate');
+  day.deck.slides = [slide];
+  return { day, slideId: slide.id };
+};
+
+const textInteraction = (id: string): Interaction => ({
+  id,
+  type: 'text',
+  question: { en: 'One word for today' },
+  shareable: false,
+});
+
+describe('setSlideInteractions (write-path)', () => {
+  it('writes the interaction into the cell + slide, with no dangling ref', () => {
+    const { day, slideId } = dayWithInteractionSlide();
+    const next = setSlideInteractions(day, slideId, [textInteraction('ix-a')]);
+
+    // Slide references the id…
+    const slide = next.deck!.slides.find((s) => s.id === slideId)!;
+    expect(slideInteractionIds(slide)).toEqual(['ix-a']);
+    // …and the cell holds the interaction object.
+    expect(
+      next.cells.connectRegulate.presentation.interactions?.map((i) => i.id),
+    ).toEqual(['ix-a']);
+    // The publish gate sees zero dangling references.
+    expect(findDanglingInteractionIds(publishDay(next))).toEqual([]);
+  });
+
+  it('removing an interaction strips it from both sides', () => {
+    const { day, slideId } = dayWithInteractionSlide();
+    const withIx = setSlideInteractions(day, slideId, [textInteraction('ix-a')]);
+    const cleared = setSlideInteractions(withIx, slideId, []);
+    const slide = cleared.deck!.slides.find((s) => s.id === slideId)!;
+    expect(slideInteractionIds(slide)).toEqual([]);
+    expect(
+      cleared.cells.connectRegulate.presentation.interactions,
+    ).toBeUndefined();
+    expect(findDanglingInteractionIds(publishDay(cleared))).toEqual([]);
+  });
+});
+
+describe('duplicateSlideAt', () => {
+  it('clones a slide with independent interactions (fresh ids, no dangling)', () => {
+    const { day, slideId } = dayWithInteractionSlide();
+    const withIx = setSlideInteractions(day, slideId, [textInteraction('ix-a')]);
+    const dup = duplicateSlideAt(withIx, 0);
+
+    expect(dup.deck!.slides).toHaveLength(2);
+    const originalIds = slideInteractionIds(dup.deck!.slides[0]);
+    const cloneIds = slideInteractionIds(dup.deck!.slides[1]);
+    expect(originalIds).toEqual(['ix-a']);
+    // Clone points at a DIFFERENT interaction id…
+    expect(cloneIds).toHaveLength(1);
+    expect(cloneIds[0]).not.toBe('ix-a');
+    // …and the cell now holds both interactions; nothing dangles.
+    expect(
+      dup.cells.connectRegulate.presentation.interactions,
+    ).toHaveLength(2);
+    expect(findDanglingInteractionIds(publishDay(dup))).toEqual([]);
   });
 });

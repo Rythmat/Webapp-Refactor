@@ -8,6 +8,7 @@
  * to publish time."
  */
 import { describe, expect, it } from 'vitest';
+import type { Slide } from '../slides/types';
 import type { Cell, Day, Interaction } from '../types';
 import {
   FORBIDDEN_SUBSTRINGS,
@@ -238,6 +239,54 @@ describe('publishDay deck projection', () => {
     const serialized = JSON.stringify(snapshot);
     expect(serialized).not.toContain('SECRET');
     expect(serialized).not.toContain('teacherGuide');
+  });
+
+  it('whitelist-copies a content slide launchTiles + resetChecklist (stray keys dropped, firewall clean)', () => {
+    const day = makeDeckDay();
+    // A content slide carrying launch tiles + a reset checklist, each seeded
+    // with a stray teacher-only key that must be dropped by the whitelist copy.
+    const dirtySlide = {
+      id: 'sl-connect-tiles',
+      kind: 'content',
+      phase: 'respondReflectReset',
+      title: { en: 'Reset' },
+      launchTiles: [
+        {
+          id: 'lt-1',
+          module: 'globe',
+          activityRef: 'event-123',
+          label: { en: 'Explore', es: 'Explora' },
+          scaffoldNote: 'SECRET: teacher pacing',
+        },
+      ],
+      resetChecklist: [{ en: 'Chairs pushed in', es: 'Sillas acomodadas' }],
+      teacherGuide: 'SECRET: pacing',
+    } as unknown as Slide;
+    day.deck!.slides.push(dirtySlide);
+
+    const snapshot = publishDay(day);
+    const serialized = JSON.stringify(snapshot);
+
+    // New fields survive projection…
+    const projected = snapshot.deck!.slides.find(
+      (s) => s.id === 'sl-connect-tiles',
+    ) as Extract<Slide, { kind: 'content' }>;
+    expect(projected.launchTiles).toEqual([
+      {
+        id: 'lt-1',
+        module: 'globe',
+        activityRef: 'event-123',
+        label: { en: 'Explore', es: 'Explora' },
+      },
+    ]);
+    expect(projected.resetChecklist).toEqual([
+      { en: 'Chairs pushed in', es: 'Sillas acomodadas' },
+    ]);
+    // …but stray keys are dropped and the forbidden-substring scan stays clean.
+    expect(serialized).not.toContain('SECRET');
+    expect(serialized).not.toContain('scaffoldNote');
+    expect(serialized).not.toContain('teacherGuide');
+    expect(findForbiddenSubstring(snapshot)).toBeNull();
   });
 
   it('preserves slide order, kinds, phases, and interaction references', () => {

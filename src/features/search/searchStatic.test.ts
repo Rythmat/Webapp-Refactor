@@ -10,9 +10,14 @@ import { getStaticIndex } from './sources/staticIndex';
 // bundles (or, here, from the bundled fallback). Without this the 'songs' and
 // 'globe' categories would simply be absent, which is exactly what
 // <ContentGate> prevents at runtime.
+//
+// The generous timeout is test-setup cost, not product cost: the bundled
+// fallback pulls in 640 song modules and 1,722 events through dynamic imports,
+// which exceeds vitest's 5s default when the whole suite is competing for CPU.
+// In production this is two gzipped CDN fetches.
 beforeAll(async () => {
   await Promise.all([ensureAtlasContent(), ensureSongContent()]);
-});
+}, 60_000);
 
 describe('scoreText', () => {
   it('is case-insensitive and ranks exact > prefix > interior', () => {

@@ -1,9 +1,35 @@
 /**
- * Build Globe Data for Song Library
+ * ⚠️ RETIRED — DO NOT RUN. Kept for reference only.
  *
- * Creates HistoricalEvent entries for each song and updates song files with GlobeOrigin.
+ * This generated the 639 song-derived entries in
+ * src/components/atlas/data/events/songLibrary.ts. That job now belongs to the
+ * content pipeline in the API:
  *
- * Usage: node src/scripts/buildGlobeData.mjs
+ *   music-atlas-api/src/services/content/derive/song-to-globe-event.ts
+ *
+ * Derivation is live there — editing a song in the admin console updates its
+ * globe event on the next publish, with per-field overrides for anything an
+ * admin has pinned by hand.
+ *
+ * Why it was retired rather than fixed:
+ *   - it hardcodes three absolute paths under /Users/marfizo/;
+ *   - it shells out to `unzip` against a .docx in someone's Downloads folder to
+ *     recover an artist manifest that song.artist already provides;
+ *   - it reads _youtube_links.json, which no longer exists (audioSources
+ *     carries the same ids);
+ *   - it REWRITES songLibrary.ts in place.
+ *
+ * Running it today would regenerate that file from a partly-missing input set
+ * and overwrite the committed data.
+ *
+ * Note also that songLibrary.ts is stale relative to the song files — genreTags
+ * were normalised to 10 canonical ids and many artist names were corrected
+ * afterwards. `npm run verify-derivation` in music-atlas-api reports the drift.
+ *
+ * artistLocations.json in this directory is still the seed input, via
+ * music-atlas-api/src/scripts/importArtistLocations.ts.
+ *
+ * Original usage: node src/scripts/buildGlobeData.mjs
  */
 
 import fs from 'fs';

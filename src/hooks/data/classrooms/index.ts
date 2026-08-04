@@ -11,3 +11,10 @@ export { useClassroomDetailsByCode } from './useClassroomDetailsByCode';
 export { useClassroom } from './useClassroom';
 export type { Classroom } from './useClassroom';
 export { useJoinClassroom } from './useJoinClassroom';
+export { useClassroomInvitations } from './useClassroomInvitations';
+export { useCreateClassroomInvitation } from './useCreateClassroomInvitation';
+export { useCancelClassroomInvitation } from './useCancelClassroomInvitation';
+export type {
+  ClassroomInvitation,
+  ClassroomInvitationListItem,
+} from './classroomInvitations.types';

@@ -176,6 +176,12 @@ export interface CellRationale {
   impactTags: string[];
   /** Content Learning Objectives — student-voice ("I can…"). */
   cloRefs: string[];
+  /**
+   * Activity Bank ids inserted into this cell (via apply-seed or the activity
+   * picker). Provenance only — teacher-facing, feeds the Standards summary and
+   * the picker's "already added" state. Optional so legacy cells stay valid.
+   */
+  activityRefs?: string[];
   /** Free-form teacher notes. */
   notes: string;
   /** How a Group Practice or Creative Projects activity is initiated. */
@@ -220,6 +226,8 @@ export interface Day {
    * lives in Plan Days / a Unit but doesn't render on the calendar.
    */
   scheduledDate?: string | null;
+  /** Provenance: the LessonSeed id this Day was last populated from (if any). */
+  sourceSeedId?: string;
   /**
    * Interactive-slides deck (live sessions). An ordered, student-safe
    * presentation projection over this Day's cells — interaction-bearing
@@ -250,6 +258,10 @@ export interface Unit {
   /** Month index 0-11, matching Date.getMonth(). */
   monthIndex: number;
   theme: ThemeRef | null;
+  /** Editable unit-level copy, seeded by "Use this theme for the unit" from the
+   *  adopted Theme's focus / essential questions. Teacher-facing metadata. */
+  overview?: string;
+  essentialQuestions?: string[];
   weeks: Week[];
   /**
    * Optional `MM-DD` window for themes whose observance crosses month

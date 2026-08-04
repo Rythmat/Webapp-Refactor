@@ -26,6 +26,7 @@ import {
 import { Env } from '@/constants/env';
 import { buildActivityInstanceId } from '@/lib/progress/activityInstanceId';
 import { selectResumeActivityIndex } from '@/lib/progress/resume';
+import type { ProgressActivityPatch } from '@/lib/progress/types';
 import {
   useLessonProgress,
   useUpdateActivityProgress,
@@ -116,6 +117,13 @@ const DIATONIC_MODE_SLUGS = new Set([
   'phrygian',
   'locrian',
 ]);
+
+/**
+ * Liveness heartbeat for lesson resume. Was 3s; see the checkpoint effect for
+ * why that was pure overhead. Real checkpoints happen on activity start, on
+ * completion, and on tab hide / unload.
+ */
+const CHECKPOINT_INTERVAL_MS = 60_000;
 
 const ChordLoadingStep: (props: FlowActivityProps) => JSX.Element = ({
   startMessage,
@@ -1272,30 +1280,76 @@ export const ActivityFlow = ({
     isTrackableActivity,
   ]);
 
+  /**
+   * Resume checkpoint.
+   *
+   * This used to fire every 3 seconds. The payload is byte-identical on every
+   * tick except `checkpointAt` — `activityIndex` and `activityDefId` cannot
+   * change while the interval is alive, because a change to either tears the
+   * effect down and rebuilds it. So it is a pure liveness ping whose only job
+   * is to keep `updatedAt` fresh for "continue where you left off" and
+   * cross-device resume. Activity start and completion are already reported
+   * separately, and `progressLocalCache` persists synchronously to
+   * localStorage in `onMutate`.
+   *
+   * At 3s (and with the invalidation that used to accompany it) that was about
+   * one request per second per student for the whole of a graded activity. A
+   * 60s heartbeat plus explicit flushes on hide/unload gives the same recovery
+   * behaviour: the worst case is losing up to 60s of `updatedAt` freshness on
+   * a hard crash, and `resumePayloadJson` is unchanged anyway.
+   */
+  const checkpointRef = useRef<ProgressActivityPatch | null>(null);
+  checkpointRef.current =
+    currentActivity &&
+    isTrackableActivity &&
+    !lessonComplete &&
+    activityState === 'active' &&
+    attemptMode !== 'practice'
+      ? {
+          activityInstanceId: currentActivity.activityInstanceId,
+          lessonId,
+          lessonVersion,
+          activityDefId: currentActivity.activityDefId,
+          mode: modeLabel,
+          root: rootKey,
+          status: 'IN_PROGRESS',
+          resumePayloadJson: {
+            activityIndex: currentIndex,
+            activityDefId: currentActivity.activityDefId,
+          },
+        }
+      : null;
+
+  const sendCheckpoint = useCallback(() => {
+    const body = checkpointRef.current;
+    if (body) updateActivityProgress.mutate(body);
+    // updateActivityProgress is a stable mutation object from react-query.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
-    if (!currentActivity || lessonComplete) return;
-    if (activityState !== 'active') return;
-    if (!isTrackableActivity) return;
-    if (attemptMode === 'practice') return;
+    if (!checkpointRef.current) return;
 
     const intervalId = window.setInterval(() => {
-      updateActivityProgress.mutate({
-        activityInstanceId: currentActivity.activityInstanceId,
-        lessonId,
-        lessonVersion,
-        activityDefId: currentActivity.activityDefId,
-        mode: modeLabel,
-        root: rootKey,
-        status: 'IN_PROGRESS',
-        resumePayloadJson: {
-          activityIndex: currentIndex,
-          activityDefId: currentActivity.activityDefId,
-          checkpointAt: Date.now(),
-        },
-      });
-    }, 3000);
+      // A backgrounded tab is not making progress worth recording, and mobile
+      // browsers throttle timers there anyway.
+      if (document.visibilityState === 'visible') sendCheckpoint();
+    }, CHECKPOINT_INTERVAL_MS);
 
-    return () => window.clearInterval(intervalId);
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') sendCheckpoint();
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener('pagehide', sendCheckpoint);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener('pagehide', sendCheckpoint);
+      // Final flush when the activity changes or the component unmounts.
+      sendCheckpoint();
+    };
   }, [
     activityState,
     attemptMode,
@@ -1307,6 +1361,7 @@ export const ActivityFlow = ({
     modeLabel,
     rootKey,
     isTrackableActivity,
+    sendCheckpoint,
   ]);
 
   const handleContinue = useCallback(() => {

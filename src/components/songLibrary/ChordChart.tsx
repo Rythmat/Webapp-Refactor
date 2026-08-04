@@ -1,6 +1,13 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
-import { useMemo, useState, type FC } from 'react';
-import { Repeat } from 'lucide-react';
+import { useMemo, useRef, useState, type FC } from 'react';
+import {
+  ChevronDown,
+  ChevronUp,
+  Minus,
+  Plus,
+  Repeat,
+  Trash2,
+} from 'lucide-react';
 import { getChordColorFromNotes } from '@prism/engine';
 import type {
   Song,
@@ -16,10 +23,46 @@ import type { PlaybackEvent } from '@/contexts/PlaybackContext';
 
 /* ── Types ───────────────────────────────────────────────────────────── */
 type DisplayMode = 'hybrid' | 'chordName';
+
+/** Address of one chord within a song, used by the back-office editor. */
+export interface ChordChartLoc {
+  sectionIdx: number;
+  barIdx: number;
+  chordIdx: number;
+}
+
+/**
+ * Back-office editing hooks. When `editable` is provided the chart becomes a
+ * direct-manipulation surface: click an empty beat to add a chord, drag a chord
+ * to another beat, +/- above each bar, and inline section controls. Entirely
+ * absent for students, so their chart is unchanged.
+ */
+export interface ChordChartEditable {
+  onAddChordAtBeat: (sectionIdx: number, barIdx: number, beat: number) => void;
+  onMoveChord: (loc: ChordChartLoc, toBeat: number) => void;
+  onInsertBar: (sectionIdx: number, atIdx: number) => void;
+  onRemoveBar: (sectionIdx: number, barIdx: number) => void;
+  onRenameSection: (sectionIdx: number, label: string) => void;
+  onSetRepeat: (sectionIdx: number, repeatCount: number) => void;
+  onRemoveSection: (sectionIdx: number) => void;
+  onMoveSection: (sectionIdx: number, dir: -1 | 1) => void;
+  onAddSection: () => void;
+  sectionCount: number;
+}
+
 interface ChordChartProps {
   song: Song;
   loopSection?: number | null;
   onToggleLoop?: (sectionIdx: number) => void;
+  /**
+   * Editor hook (back office only). When set, clicking a chord selects it
+   * (calling this) instead of opening the read-only diagram popup, and the
+   * chord at `selection` is highlighted. Unset in the student-facing chart, so
+   * that path is unchanged.
+   */
+  onSelectChord?: (loc: ChordChartLoc) => void;
+  selection?: ChordChartLoc | null;
+  editable?: ChordChartEditable;
 }
 
 /* ── Staff layout constants (matching LeadSheetMeasure) ──────────────── */
@@ -73,6 +116,10 @@ const StaffMeasure: FC<{
   hasRepeatStart?: boolean;
   hasRepeatEnd?: boolean;
   onChordClick?: (hit: ChordHit) => void;
+  sectionIdx: number;
+  onSelectChord?: (loc: ChordChartLoc) => void;
+  selection?: ChordChartLoc | null;
+  editable?: ChordChartEditable;
 }> = ({
   bar,
   barIndex,
@@ -83,11 +130,36 @@ const StaffMeasure: FC<{
   hasRepeatStart,
   hasRepeatEnd,
   onChordClick,
+  sectionIdx,
+  onSelectChord,
+  selection,
+  editable,
 }) => {
   const staffTop = CHORD_AREA_HEIGHT;
   const beatsPerBar = 4;
+  const cellW = width / beatsPerBar;
 
   const isMultiBarRest = bar.restBars != null && bar.restBars > 0;
+
+  // Which beat (1–4) a pointer is over, from its client x within this bar.
+  const drag = useRef<{
+    chordIdx: number;
+    startX: number;
+    moved: boolean;
+  } | null>(null);
+  const beatFromEvent = (e: React.PointerEvent): number => {
+    const svg = (e.currentTarget as SVGElement).ownerSVGElement;
+    if (!svg) return 1;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return 1;
+    const local = pt.matrixTransform(ctm.inverse()).x - x;
+    return Math.max(1, Math.min(beatsPerBar, Math.floor(local / cellW) + 1));
+  };
+
+  const occupied = new Set(bar.chords.map((h) => Math.floor(h.beat)));
 
   return (
     <g transform={`translate(${x}, 0)`}>
@@ -96,27 +168,89 @@ const StaffMeasure: FC<{
         {barIndex + 1}
       </text>
 
+      {/* Click-an-empty-beat-to-add targets (editor only) */}
+      {editable &&
+        !isMultiBarRest &&
+        Array.from({ length: beatsPerBar }, (_, c) =>
+          occupied.has(c + 1) ? null : (
+            <rect
+              key={`add-${c}`}
+              x={c * cellW}
+              y={16}
+              width={cellW}
+              height={staffTop - 16}
+              fill="transparent"
+              style={{ cursor: 'pointer' }}
+              onClick={() =>
+                editable.onAddChordAtBeat(sectionIdx, barIndex, c + 1)
+              }
+            >
+              <title>Add chord on beat {c + 1}</title>
+            </rect>
+          ),
+        )}
+
       {/* Chord names above staff (skip for multi-bar rests) */}
       {!isMultiBarRest &&
         bar.chords.map((hit, i) => {
           const beatPos = hit.beat - 1;
           const cx = (beatPos / beatsPerBar) * width + 4;
           const label = formatChord(hit, displayMode);
+          const loc = { sectionIdx, barIdx: barIndex, chordIdx: i };
+          const isSelected =
+            selection != null &&
+            selection.sectionIdx === sectionIdx &&
+            selection.barIdx === barIndex &&
+            selection.chordIdx === i;
+          const pointerProps = editable
+            ? {
+                onPointerDown: (e: React.PointerEvent) => {
+                  (e.currentTarget as Element).setPointerCapture(e.pointerId);
+                  drag.current = {
+                    chordIdx: i,
+                    startX: e.clientX,
+                    moved: false,
+                  };
+                },
+                onPointerMove: (e: React.PointerEvent) => {
+                  if (
+                    drag.current &&
+                    Math.abs(e.clientX - drag.current.startX) > 3
+                  )
+                    drag.current.moved = true;
+                },
+                onPointerUp: (e: React.PointerEvent) => {
+                  const d = drag.current;
+                  drag.current = null;
+                  if (d?.moved) {
+                    const beat = beatFromEvent(e);
+                    if (beat !== Math.floor(hit.beat))
+                      editable.onMoveChord(loc, beat);
+                    else onSelectChord?.(loc);
+                  } else {
+                    onSelectChord?.(loc);
+                  }
+                },
+              }
+            : {
+                onClick: () =>
+                  onSelectChord ? onSelectChord(loc) : onChordClick?.(hit),
+              };
           return (
             <text
               key={`chord-${i}`}
               x={cx}
               y={staffTop - 4}
-              fill="currentColor"
+              fill={isSelected ? '#7ecfcf' : 'currentColor'}
               fontSize={14}
               fontWeight="bold"
               fontFamily="serif"
-              opacity={0.85}
+              opacity={isSelected ? 1 : 0.85}
               tabIndex={0}
               role="button"
               aria-label={chordAriaLabel(hit)}
-              style={{ cursor: 'pointer' }}
-              onClick={() => onChordClick?.(hit)}
+              style={{ cursor: editable ? 'grab' : 'pointer' }}
+              {...pointerProps}
             >
               {label}
             </text>
@@ -292,6 +426,66 @@ const StaffMeasure: FC<{
           />
         </>
       )}
+
+      {/* Add / remove bar controls (editor only) */}
+      {editable && (
+        <g>
+          <circle
+            cx={width / 2 - 11}
+            cy={9}
+            r={7}
+            fill="rgba(255,255,255,0.08)"
+            stroke="currentColor"
+            strokeOpacity={0.25}
+            style={{ cursor: 'pointer' }}
+            onClick={() => editable.onRemoveBar(sectionIdx, barIndex)}
+          >
+            <title>Remove this bar</title>
+          </circle>
+          <line
+            x1={width / 2 - 14}
+            y1={9}
+            x2={width / 2 - 8}
+            y2={9}
+            stroke="currentColor"
+            strokeWidth={1.5}
+            opacity={0.7}
+            pointerEvents="none"
+          />
+          <circle
+            cx={width / 2 + 11}
+            cy={9}
+            r={7}
+            fill="rgba(255,255,255,0.08)"
+            stroke="currentColor"
+            strokeOpacity={0.25}
+            style={{ cursor: 'pointer' }}
+            onClick={() => editable.onInsertBar(sectionIdx, barIndex + 1)}
+          >
+            <title>Insert a bar after this one</title>
+          </circle>
+          <line
+            x1={width / 2 + 8}
+            y1={9}
+            x2={width / 2 + 14}
+            y2={9}
+            stroke="currentColor"
+            strokeWidth={1.5}
+            opacity={0.7}
+            pointerEvents="none"
+          />
+          <line
+            x1={width / 2 + 11}
+            y1={6}
+            x2={width / 2 + 11}
+            y2={12}
+            stroke="currentColor"
+            strokeWidth={1.5}
+            opacity={0.7}
+            pointerEvents="none"
+          />
+        </g>
+      )}
     </g>
   );
 };
@@ -304,6 +498,9 @@ const SectionStaff: FC<{
   isLooping?: boolean;
   onChordClick?: (hit: ChordHit) => void;
   onToggleLoop?: (sectionIdx: number) => void;
+  onSelectChord?: (loc: ChordChartLoc) => void;
+  selection?: ChordChartLoc | null;
+  editable?: ChordChartEditable;
 }> = ({
   section,
   sectionIdx,
@@ -311,6 +508,9 @@ const SectionStaff: FC<{
   isLooping,
   onChordClick,
   onToggleLoop,
+  onSelectChord,
+  selection,
+  editable,
 }) => {
   const bars = section.bars;
   const perRow = section.measuresPerRow ?? MEASURES_PER_ROW;
@@ -323,8 +523,80 @@ const SectionStaff: FC<{
 
   return (
     <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
-      {/* Section label — clickable for looping */}
-      {section.label ? (
+      {/* Section header — inline-editable controls in the editor */}
+      {editable ? (
+        <div
+          className="flex flex-wrap items-center gap-1.5"
+          style={{ marginBottom: 'clamp(0.3rem, 0.5vw, 0.4rem)' }}
+        >
+          <input
+            value={section.label}
+            onChange={(e) =>
+              editable.onRenameSection(sectionIdx, e.target.value)
+            }
+            placeholder="Section label"
+            className="rounded border border-white/10 bg-transparent px-2 py-0.5 font-bold text-white/70 outline-none placeholder:text-white/25"
+            style={{
+              fontFamily: 'serif',
+              fontSize: 'clamp(0.7rem, 1vw, 0.85rem)',
+            }}
+          />
+          <div className="flex items-center gap-1 text-xs text-white/40">
+            <button
+              type="button"
+              aria-label="Fewer repeats"
+              className="rounded px-1 hover:bg-white/10"
+              onClick={() =>
+                editable.onSetRepeat(
+                  sectionIdx,
+                  Math.max(1, (section.repeatCount ?? 1) - 1),
+                )
+              }
+            >
+              <Minus size={12} />
+            </button>
+            <span className="inline-flex items-center gap-0.5">
+              <Repeat size={10} />×{section.repeatCount ?? 1}
+            </span>
+            <button
+              type="button"
+              aria-label="More repeats"
+              className="rounded px-1 hover:bg-white/10"
+              onClick={() =>
+                editable.onSetRepeat(sectionIdx, (section.repeatCount ?? 1) + 1)
+              }
+            >
+              <Plus size={12} />
+            </button>
+          </div>
+          <button
+            type="button"
+            aria-label="Move section up"
+            disabled={sectionIdx === 0}
+            className="rounded px-1 text-white/40 hover:bg-white/10 disabled:opacity-30"
+            onClick={() => editable.onMoveSection(sectionIdx, -1)}
+          >
+            <ChevronUp size={14} />
+          </button>
+          <button
+            type="button"
+            aria-label="Move section down"
+            disabled={sectionIdx === editable.sectionCount - 1}
+            className="rounded px-1 text-white/40 hover:bg-white/10 disabled:opacity-30"
+            onClick={() => editable.onMoveSection(sectionIdx, 1)}
+          >
+            <ChevronDown size={14} />
+          </button>
+          <button
+            type="button"
+            aria-label="Delete section"
+            className="rounded px-1 text-red-400/70 hover:bg-white/10 hover:text-red-400"
+            onClick={() => editable.onRemoveSection(sectionIdx)}
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      ) : section.label ? (
         <div
           className="flex items-center gap-2"
           style={{ marginBottom: 'clamp(0.3rem, 0.5vw, 0.4rem)' }}
@@ -395,6 +667,10 @@ const SectionStaff: FC<{
                     hasRepeatStart={bi === 0 && ri === 0 && hasRepeat}
                     hasRepeatEnd={isLast && hasRepeat}
                     onChordClick={onChordClick}
+                    sectionIdx={sectionIdx}
+                    onSelectChord={onSelectChord}
+                    selection={selection}
+                    editable={editable}
                   />
                 );
               })}
@@ -421,6 +697,9 @@ export const ChordChart: FC<ChordChartProps> = ({
   song,
   loopSection,
   onToggleLoop,
+  onSelectChord,
+  selection,
+  editable,
 }) => {
   const displayMode: DisplayMode = 'chordName';
   const [selectedChord, setSelectedChord] = useState<{
@@ -478,12 +757,26 @@ export const ChordChart: FC<ChordChartProps> = ({
             isLooping={loopSection === si}
             onChordClick={handleChordClick}
             onToggleLoop={onToggleLoop}
+            onSelectChord={onSelectChord}
+            selection={selection}
+            editable={editable}
           />
         ))}
+
+        {editable && (
+          <button
+            type="button"
+            onClick={editable.onAddSection}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-white/15 py-2 text-sm text-white/50 transition-colors hover:border-white/30 hover:text-white"
+          >
+            <Plus size={16} /> Add section
+          </button>
+        )}
       </div>
 
-      {/* ── Chord Diagram Popup ── */}
-      {selectedChord &&
+      {/* ── Chord Diagram Popup (student view only; editor suppresses it) ── */}
+      {!onSelectChord &&
+        selectedChord &&
         (() => {
           const [r, g, b] = selectedChord.rgb ?? FALLBACK_RGB;
           const keyColor = `rgb(${r}, ${g}, ${b})`;

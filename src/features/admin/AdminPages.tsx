@@ -70,6 +70,30 @@ const AdminErrorsPage = lazy(() =>
   })),
 );
 
+const AdminDatabasePage = lazy(() =>
+  import('./telemetry/AdminDatabasePage').then(({ AdminDatabasePage }) => ({
+    default: AdminDatabasePage,
+  })),
+);
+
+const AdminContentListPage = lazy(() =>
+  import('./content/AdminContentListPage').then(({ AdminContentListPage }) => ({
+    default: AdminContentListPage,
+  })),
+);
+
+const AdminContentEditPage = lazy(() =>
+  import('./content/AdminContentEditPage').then(({ AdminContentEditPage }) => ({
+    default: AdminContentEditPage,
+  })),
+);
+
+const AdminReleasesPage = lazy(() =>
+  import('./content/AdminReleasesPage').then(({ AdminReleasesPage }) => ({
+    default: AdminReleasesPage,
+  })),
+);
+
 export const adminPages = () => {
   return {
     path: AdminRoutes.root.definition,
@@ -121,7 +145,29 @@ export const adminPages = () => {
             path: 'errors',
             element: <AdminErrorsPage />,
           },
+          {
+            path: 'database',
+            element: <AdminDatabasePage />,
+          },
         ],
+      },
+      {
+        path: AdminRoutes.content.definition,
+        element: (
+          <Navigate to={AdminRoutes.contentKind({ kind: 'activity_flow' })} />
+        ),
+      },
+      {
+        path: AdminRoutes.contentKind.definition,
+        element: <AdminContentListPage />,
+      },
+      {
+        path: AdminRoutes.contentItem.definition,
+        element: <AdminContentEditPage />,
+      },
+      {
+        path: AdminRoutes.releases.definition,
+        element: <AdminReleasesPage />,
       },
       {
         path: '*',

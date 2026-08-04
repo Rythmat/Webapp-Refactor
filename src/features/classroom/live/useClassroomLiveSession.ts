@@ -7,6 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { SERVER_LIVE_SESSIONS_ENABLED } from '@/constants/serverEndpoints';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { classroomSessionsApi } from '@/lib/classroom-sessions/api';
 import { useLocalSessionStore } from './useLocalSessionStore';
@@ -27,8 +28,8 @@ export function useClassroomLiveSession(
 
   const { data: serverSessions } = useQuery({
     queryKey: ['classroom-live-session', classroomId],
-    enabled: !!token && !!classroomId,
-    refetchInterval: REFETCH_MS,
+    enabled: SERVER_LIVE_SESSIONS_ENABLED && !!token && !!classroomId,
+    refetchInterval: SERVER_LIVE_SESSIONS_ENABLED ? REFETCH_MS : false,
     staleTime: REFETCH_MS,
     retry: false,
     queryFn: () =>

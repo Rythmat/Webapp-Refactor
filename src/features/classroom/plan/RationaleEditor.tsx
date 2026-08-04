@@ -1,6 +1,8 @@
-import { ChevronDown, Lock } from 'lucide-react';
+import { ChevronDown, Lock, Tag } from 'lucide-react';
 import { useState } from 'react';
+import { useCloBank } from '../content/hooks';
 import type { CellRationale, LocalizedText } from '../types';
+import { cloLabel, LearningGoalPicker } from './LearningGoalPicker';
 
 const INITIATION_STYLES = [
   'learn-to-apply',
@@ -36,9 +38,22 @@ export const RationaleEditor = ({
   onChange,
 }: RationaleEditorProps) => {
   const [open, setOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const { byId } = useCloBank();
 
   const patch = (patchObj: Partial<CellRationale>) => {
     onChange({ ...rationale, ...patchObj });
+  };
+
+  const addClo = (id: string) => {
+    if (!rationale.cloRefs.includes(id)) {
+      patch({ cloRefs: [...rationale.cloRefs, id] });
+    }
+  };
+  const addStandard = (code: string) => {
+    if (!rationale.standards.includes(code)) {
+      patch({ standards: [...rationale.standards, code] });
+    }
   };
 
   const patchAssessment = (field: 'en' | 'es', value: string) => {
@@ -141,6 +156,48 @@ export const RationaleEditor = ({
             />
           </div>
 
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase tracking-wide text-white/40">
+                Tagged objectives
+              </span>
+              <button
+                type="button"
+                onClick={() => setPickerOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-2.5 py-0.5 text-[11px] text-white/70 hover:border-white/25 hover:text-white"
+              >
+                <Tag className="h-3 w-3" />
+                Browse learning goals
+              </button>
+            </div>
+            {rationale.cloRefs.length === 0 ? (
+              <p className="text-[11px] text-white/30">
+                No objectives tagged yet.
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-1">
+                {rationale.cloRefs.map((id) => {
+                  const clo = byId(id);
+                  return (
+                    <li
+                      key={id}
+                      className="flex items-start gap-2 text-[11px] text-white/60"
+                    >
+                      <span className="text-white/25">•</span>
+                      {clo ? (
+                        <span>{cloLabel(clo)}</span>
+                      ) : (
+                        <span className="text-amber-300/70">
+                          {id} (unresolved)
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <TinyField
               label="Assessment (EN)"
@@ -163,6 +220,16 @@ export const RationaleEditor = ({
             onChange={(v) => patch({ localContext: v || null })}
           />
         </div>
+      )}
+
+      {pickerOpen && (
+        <LearningGoalPicker
+          cloRefs={rationale.cloRefs}
+          standards={rationale.standards}
+          onAddClo={addClo}
+          onAddStandard={addStandard}
+          onClose={() => setPickerOpen(false)}
+        />
       )}
     </section>
   );

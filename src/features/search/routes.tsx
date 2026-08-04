@@ -8,6 +8,7 @@
  */
 import { lazy } from 'react';
 import { SearchRoutes } from '@/constants/routes';
+import { ContentGate } from '@/content/ContentGate';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
@@ -27,6 +28,17 @@ export function searchPages() {
         </ProtectedPage>
       </AppContext>
     ),
-    children: [{ index: true, element: <SearchPage /> }],
+    // The static index spans both songs and globe events, so neither may be
+    // missing when it is built — see sources/staticIndex.ts.
+    children: [
+      {
+        index: true,
+        element: (
+          <ContentGate needs={['events', 'songs']}>
+            <SearchPage />
+          </ContentGate>
+        ),
+      },
+    ],
   };
 }

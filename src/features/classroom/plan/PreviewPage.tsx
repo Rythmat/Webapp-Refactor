@@ -31,12 +31,6 @@ const LANGUAGE_OPTIONS: { value: StudentLanguage; label: string }[] = [
   { value: 'both', label: 'EN + ES' },
 ];
 
-const AGE_OPTIONS: { value: AgePreset; label: string }[] = [
-  { value: 'middle', label: 'Middle' },
-  { value: 'high', label: 'High' },
-  { value: 'college', label: 'College' },
-];
-
 export const PreviewPage = () => {
   const { classroomId, dayId } = useParams<{
     classroomId: string;
@@ -49,7 +43,8 @@ export const PreviewPage = () => {
   const day = dayId ? getDay(dayId) : undefined;
 
   const [language, setLanguage] = useState<StudentLanguage>('en');
-  const [agePreset, setAgePreset] = useState<AgePreset>('high');
+  // Age preset pinned to 'high' (the type-scale baseline); picker removed.
+  const agePreset: AgePreset = 'high';
   const [submissions, setSubmissions] = useState<
     Record<string, InteractionResponsePayload>
   >({});
@@ -69,7 +64,7 @@ export const PreviewPage = () => {
           onClick={() => navigate(TeacherRoutes.plan({ classroomId: cid }))}
           className="w-fit rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
-          Back to Plan
+          Back to Lessons
         </button>
       </div>
     );
@@ -96,12 +91,6 @@ export const PreviewPage = () => {
             value={language}
             options={LANGUAGE_OPTIONS}
             onChange={setLanguage}
-          />
-          <SegmentedToggle
-            label="Age"
-            value={agePreset}
-            options={AGE_OPTIONS}
-            onChange={setAgePreset}
           />
           <Link
             to={TeacherRoutes.dayEditor({

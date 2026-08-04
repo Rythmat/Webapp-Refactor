@@ -7,19 +7,12 @@
  * calendar (`CalendarView`) with month navigation, semester quick-jumps, and
  * colored Unit bars that deep-link into the existing `UnitPage`.
  */
-import {
-  ArrowLeft,
-  BookOpen,
-  CalendarClock,
-  RotateCcw,
-  Sparkles,
-} from 'lucide-react';
+import { Settings, Sparkles } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { TeacherRoutes } from '@/constants/routes';
-import { useClassroom } from '@/hooks/data';
 import { useLocalPlan } from '../plan/useLocalPlan';
+import { ClassroomSettingsDialog } from '../settings/ClassroomSettingsDialog';
 import type { StudentLanguage } from '../types';
 import { CalendarView } from './CalendarView';
 import { SchoolCalendarDialog } from './SchoolCalendarDialog';
@@ -29,7 +22,6 @@ import { useAnnualPlan } from './useAnnualPlan';
 export const AnnualPlanPage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
   const cid = classroomId ?? '';
-  const { data: classroom } = useClassroom(cid);
   const {
     plan,
     seedFromTemplate,
@@ -44,6 +36,7 @@ export const AnnualPlanPage = () => {
   const [language, setLanguage] = useState<StudentLanguage>('en');
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [showingSchoolCalendar, setShowingSchoolCalendar] = useState(false);
+  const [showingSettings, setShowingSettings] = useState(false);
 
   // Read the scheduled ISO dates from Units that already have Days so the
   // chained-sequential auto-populate can skip past them without overlap. On
@@ -88,63 +81,46 @@ export const AnnualPlanPage = () => {
     );
   };
 
+  // Fill the canonical curriculum's day-stubs into the (already-seeded) Units
+  // WITHOUT re-cloning — autoPopulate skips Units that already hold your Lessons,
+  // so your own Lessons are preserved ("add alongside").
+  const handlePopulate = () => {
+    if (!plan) return;
+    const result = autoPopulateFromTemplate(plan, {
+      saveDay,
+      addDayToUnit,
+      getExistingUnitDates,
+    });
+    toast.success(
+      `Canonical curriculum added — ${result.daysCreated} lesson days filled in.`,
+    );
+  };
+
   return (
-    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 px-6 py-6 md:gap-10 md:px-10 md:py-10">
-      <Link
-        to={TeacherRoutes.classroomDashboard({ classroomId: cid })}
-        className="inline-flex w-fit items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to {classroom?.name ?? 'classroom'}
-      </Link>
-
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 md:gap-3">
-            <BookOpen className="h-6 w-6 text-white/85 md:h-7 md:w-7" />
-            <h1 className="text-xl font-medium text-white md:text-2xl">
-              Annual Plan
-            </h1>
-          </div>
-          <p className="text-sm text-white/60">
-            A year of lessons for {classroom?.name ?? 'your classroom'} — two
-            semesters, monthly units, themes to anchor each stretch.
-          </p>
-        </div>
-
-        {plan && (
-          <div className="flex items-center gap-2">
-            <LanguageToggle value={language} onChange={setLanguage} />
-            <button
-              type="button"
-              onClick={() => setShowingSchoolCalendar(true)}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/70 transition-colors hover:border-white/25 hover:text-white"
-              title="Edit school calendar (holidays + breaks)"
-            >
-              <CalendarClock className="h-3.5 w-3.5" />
-              School calendar
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirmingReset(true)}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/60 transition-colors hover:border-red-400/40 hover:text-red-200"
-              title="Reset to canonical template"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Reset to template
-            </button>
-          </div>
-        )}
-      </header>
-
+    <div className="flex w-full flex-col gap-8 md:gap-10">
       {!plan ? (
-        <EmptyState onSeed={handleSeed} />
+        <>
+          {/* No calendar toolbar yet, so keep Settings reachable in a header. */}
+          <header className="flex items-center justify-end">
+            <button
+              type="button"
+              onClick={() => setShowingSettings(true)}
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/70 transition-colors hover:border-white/25 hover:text-white"
+              title="Classroom settings"
+            >
+              <Settings className="h-3.5 w-3.5" />
+              Settings
+            </button>
+          </header>
+          <EmptyState onSeed={handleSeed} />
+        </>
       ) : (
         <CalendarView
           classroomId={cid}
           plan={plan}
           language={language}
           nonSchoolMap={nonSchoolMap}
+          onOpenSettings={() => setShowingSettings(true)}
         />
       )}
 
@@ -162,6 +138,27 @@ export const AnnualPlanPage = () => {
           onRemove={removeNonSchoolDate}
           onRestore={restoreDefaultNonSchoolDate}
           onClose={() => setShowingSchoolCalendar(false)}
+        />
+      )}
+
+      {showingSettings && (
+        <ClassroomSettingsDialog
+          onClose={() => setShowingSettings(false)}
+          planSeeded={Boolean(plan)}
+          language={language}
+          onLanguageChange={setLanguage}
+          onOpenSchoolCalendar={() => {
+            setShowingSettings(false);
+            setShowingSchoolCalendar(true);
+          }}
+          onUseCanonical={() => {
+            setShowingSettings(false);
+            handlePopulate();
+          }}
+          onReset={() => {
+            setShowingSettings(false);
+            setConfirmingReset(true);
+          }}
         />
       )}
     </div>
@@ -196,42 +193,6 @@ const EmptyState = ({ onSeed }: EmptyStateProps) => (
     </button>
   </div>
 );
-
-interface LanguageToggleProps {
-  value: StudentLanguage;
-  onChange: (v: StudentLanguage) => void;
-}
-
-const LanguageToggle = ({ value, onChange }: LanguageToggleProps) => {
-  const options: { value: StudentLanguage; label: string }[] = [
-    { value: 'en', label: 'EN' },
-    { value: 'es', label: 'ES' },
-    { value: 'both', label: 'EN / ES' },
-  ];
-  return (
-    <div
-      role="group"
-      aria-label="Language"
-      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-0.5"
-    >
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => onChange(opt.value)}
-          aria-pressed={opt.value === value}
-          className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
-            opt.value === value
-              ? 'bg-white text-black'
-              : 'text-white/60 hover:text-white'
-          }`}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  );
-};
 
 interface ResetConfirmProps {
   onConfirm: () => void;

@@ -87,6 +87,9 @@ const AUG_WELCOME: UnitTemplate = {
   label: 'Welcome & Class Culture',
   monthIndex: 8,
   themeId: 'theme-august',
+  // School starts Aug 24 — anchor the first unit (and lesson Day 1) there
+  // instead of the first weekday of August. Its 10 school days run to ~Sep 4.
+  dateWindow: { start: '08-24', end: '09-04' },
   kind: 'heritage',
   dayStubs: [
     {

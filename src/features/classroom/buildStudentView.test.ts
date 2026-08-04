@@ -12,6 +12,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { buildStudentView } from './buildStudentView';
+import type { Slide } from './slides/types';
 import type { Cell, Day, StudentViewConfig } from './types';
 
 const FORBIDDEN_SUBSTRINGS = [
@@ -188,6 +189,46 @@ describe('buildStudentView deck', () => {
     }
   });
 
+  it('carries content-slide launchTiles + resetChecklist through, whitelist-copied', () => {
+    const day = makeDay();
+    const dirtySlide = {
+      id: 'sl-reset',
+      kind: 'content',
+      phase: 'respondReflectReset',
+      title: { en: 'Reset' },
+      launchTiles: [
+        {
+          id: 'lt-1',
+          module: 'globe',
+          activityRef: 'event-9',
+          scaffoldNote: 'SECRET: teacher pacing',
+        },
+      ],
+      resetChecklist: [{ en: 'Chairs in', es: 'Sillas' }],
+      teacherGuide: 'SECRET: pacing',
+    } as unknown as Slide;
+    day.deck = {
+      id: 'deck-sv2',
+      title: { en: 'Session deck' },
+      slides: [dirtySlide],
+    };
+    const view = buildStudentView(day, config);
+    const projected = view.deck?.slides.find((s) => s.id === 'sl-reset') as
+      | Extract<Slide, { kind: 'content' }>
+      | undefined;
+    expect(projected?.launchTiles).toEqual([
+      { id: 'lt-1', module: 'globe', activityRef: 'event-9' },
+    ]);
+    expect(projected?.resetChecklist).toEqual([{ en: 'Chairs in', es: 'Sillas' }]);
+    const serialized = JSON.stringify(view);
+    expect(serialized).not.toContain('SECRET');
+    expect(serialized).not.toContain('scaffoldNote');
+    expect(serialized).not.toContain('teacherGuide');
+    for (const forbidden of FORBIDDEN_SUBSTRINGS) {
+      expect(serialized.toLowerCase().includes(forbidden)).toBe(false);
+    }
+  });
+
   it('omits deck for legacy Days', () => {
     const view = buildStudentView(makeDay(), config);
     expect('deck' in view).toBe(false);
@@ -231,5 +272,60 @@ describe('buildStudentView song reference', () => {
     const view = buildStudentView(day, config);
     expect(view.phases[0].song).toEqual({ id: 'new_id' });
     expect(view.phases[0].prompt.en).toBe('Intro.');
+  });
+});
+
+describe('buildStudentView firewall — applied seed', () => {
+  it('a Day populated by applySeedToDay leaks no forbidden substrings', async () => {
+    const { applySeedToDay } = await import('./content/applySeed');
+    const { newBlankDay } = await import('./plan/newBlankDay');
+    const { PHASES } = await import('./phases');
+    type PhaseKey = (typeof PHASES)[number];
+
+    // Marker seed: forbidden words live ONLY in rationale-bound fields;
+    // presentation copy is neutral. Proves apply-seed routing keeps the board
+    // clean even when a seed carries heavy pedagogy.
+    const markerPhase = () => ({
+      presentation: { title: { en: 'Warm up' }, prompt: { en: 'Play a groove' } },
+      activitySuggestions: ['unresolved-suggestion'],
+      atlasResources: [],
+      cloText: { awarenessOfFeeling: 'ASSESSMENT CLO IMPACT marker' },
+      rationaleHints: {
+        standards: ['STANDARD-MARK'],
+        assessment: { en: 'ASSESSMENT marker' },
+        notes: 'NOTES marker',
+      },
+    });
+    const markerSeed = {
+      id: 'seed-marker',
+      kind: 'day' as const,
+      title: { en: 'Marker' },
+      themeId: 'theme-january',
+      monthHint: 1,
+      tags: [],
+      standards: [],
+      description: 'desc',
+      template: Object.fromEntries(
+        PHASES.map((p) => [p, markerPhase()]),
+      ) as Record<PhaseKey, ReturnType<typeof markerPhase>>,
+      songs: ['SONG-STANDARD'],
+      localContext: { en: 'LOCALCONTEXT INITIATION marker' },
+      source: 'canonical' as const,
+      createdBy: null,
+      createdAt: '',
+    };
+
+    const applied = applySeedToDay(markerSeed, newBlankDay(), {
+      mode: 'replace',
+      resolveActivityId: () => undefined,
+    });
+    const view = buildStudentView(applied, config);
+    const serialized = JSON.stringify(view).toLowerCase();
+    for (const forbidden of FORBIDDEN_SUBSTRINGS) {
+      expect(
+        serialized.includes(forbidden),
+        `applied-seed student view contains "${forbidden}"`,
+      ).toBe(false);
+    }
   });
 });

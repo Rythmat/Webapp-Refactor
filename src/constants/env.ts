@@ -11,6 +11,11 @@ const ENV_KEYS = [
   'VITE_TELEMETRY_AUDIO_ENABLED',
   'VITE_TELEMETRY_ROUTING_ENABLED',
   'VITE_TELEMETRY_SAMPLING_RATE',
+  // Base URL of the public content bucket / CDN holding published content
+  // bundles. Always read with { nullable: true }: when it is unset the content
+  // loader falls back to the bundled .ts data, which is what keeps local dev
+  // and the rollback path working.
+  'VITE_CONTENT_CDN_URL',
 ] as const;
 
 type EnvKey = (typeof ENV_KEYS)[number];
@@ -30,6 +35,7 @@ const BUILD_TIME_ENV_VALUES: EnvValues = {
   VITE_TELEMETRY_ROUTING_ENABLED: import.meta.env
     .VITE_TELEMETRY_ROUTING_ENABLED,
   VITE_TELEMETRY_SAMPLING_RATE: import.meta.env.VITE_TELEMETRY_SAMPLING_RATE,
+  VITE_CONTENT_CDN_URL: import.meta.env.VITE_CONTENT_CDN_URL,
 };
 
 export class Env {

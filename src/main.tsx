@@ -2,6 +2,7 @@ import { Auth0Provider } from '@auth0/auth0-react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.tsx';
+import { ResilientAuth0Cache } from './auth/resilientAuth0Cache.ts';
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx';
 import { Env } from './constants/env.ts';
 import { AuthRoutes } from './constants/routes.ts';
@@ -51,7 +52,9 @@ createRoot(document.getElementById('root')!).render(
       <Auth0Provider
         domain={auth0Config.domain}
         clientId={auth0Config.clientId}
-        cacheLocation="localstorage"
+        // Resilient localStorage cache: never lets a full localStorage break
+        // sign-in (falls back to in-memory instead). See resilientAuth0Cache.ts.
+        cache={new ResilientAuth0Cache()}
         useCookiesForTransactions
         authorizationParams={{
           redirect_uri: auth0Config.redirectUri,

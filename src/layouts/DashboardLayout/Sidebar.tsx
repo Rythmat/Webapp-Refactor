@@ -1,4 +1,12 @@
-import { Activity, CircleHelp, Ratio, Shield, Users } from 'lucide-react';
+import {
+  Activity,
+  CircleHelp,
+  CloudUpload,
+  FileText,
+  Ratio,
+  Shield,
+  Users,
+} from 'lucide-react';
 import { useState } from 'react';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { CreditsBadge } from '@/components/CreditsBadge';
@@ -47,6 +55,18 @@ export const Sidebar = ({
             isCollapsed={isCollapsed}
             label="Telemetry"
             to={AdminRoutes.telemetry()}
+          />
+          <SidebarMainNavItem
+            icon={FileText}
+            isCollapsed={isCollapsed}
+            label="Content"
+            to={AdminRoutes.contentKind({ kind: 'activity_flow' })}
+          />
+          <SidebarMainNavItem
+            icon={CloudUpload}
+            isCollapsed={isCollapsed}
+            label="Publishing"
+            to={AdminRoutes.releases()}
           />
         </ul>
       );

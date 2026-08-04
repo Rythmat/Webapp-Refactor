@@ -75,7 +75,11 @@ export const useUpdateLessonState = () => {
         queryClient.setQueryData(ctx.summaryKey, ctx.prevSummary);
       }
     },
-    onSettled: (_data, _error, body) => {
+    onSettled: (_data, error, body) => {
+      // `onMutate` writes the optimistic model; only re-sync when it may be
+      // wrong. See the equivalent note in useUpdateActivityProgress.
+      if (!error) return;
+
       queryClient.invalidateQueries({
         queryKey: ['lessonProgress', body.lessonId, body.lessonVersion],
       });

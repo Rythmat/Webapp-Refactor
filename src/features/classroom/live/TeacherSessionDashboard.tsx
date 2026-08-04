@@ -1,5 +1,12 @@
-import { ArrowLeft, Lock, Share2, StopCircle, Unlock } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
+import {
+  ArrowLeft,
+  Lock,
+  Play,
+  Share2,
+  StopCircle,
+  Unlock,
+} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { InteractionResponseDashboard } from '../assignments/InteractionResponseDashboard';
@@ -7,6 +14,7 @@ import { useEnrollments } from '../enrollments';
 import { useMspInboxEntries } from '../msp';
 import { PHASES } from '../phases';
 import { usePublishedDays } from '../publish/usePublishedDays';
+import { SlideRenderer } from '../slides/SlideRenderer';
 import {
   deckFromSnapshot,
   interactionsForSlide,
@@ -17,7 +25,7 @@ import type { Interaction } from '../types';
 import { CurriculumCoveragePanel } from './CurriculumCoveragePanel';
 import { PhaseNavigator } from './PhaseNavigator';
 import { RosterPanel } from './RosterPanel';
-import { SessionSimulationPanel } from './SessionSimulationPanel';
+import { SessionPresentView } from './SessionPresentView';
 import { buildSlideProgress } from './buildSlideProgress';
 import { CurrentSlidePanel } from './slides/CurrentSlidePanel';
 import { MediaRemote } from './slides/MediaRemote';
@@ -55,6 +63,8 @@ export const TeacherSessionDashboard = () => {
   const positions = useSessionPositions(sid);
   const { getPublishedDay } = usePublishedDays(cid);
   const { getEnrollment, active: activeEnrollments } = useEnrollments(cid);
+
+  const [presenting, setPresenting] = useState(false);
 
   const publishedDay = state?.publishedDayId
     ? getPublishedDay(state.publishedDayId)
@@ -160,7 +170,7 @@ export const TeacherSessionDashboard = () => {
           className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Plan
+          Back to Lessons
         </Link>
       </div>
     );
@@ -171,6 +181,24 @@ export const TeacherSessionDashboard = () => {
     navigate(TeacherRoutes.report({ classroomId: cid, sessionId: sid }));
   };
 
+  // Full-screen Present mode — the same Preview slide view, driven by the live
+  // session (prev/next go through sendNav so students/projector follow).
+  if (presenting && deck && currentSlide) {
+    return (
+      <SessionPresentView
+        currentSlide={currentSlide}
+        slideIndex={slideIndex}
+        slideCount={deck.slides.length}
+        dayLabel={snapshot?.label ?? ''}
+        onNavigate={(i) => {
+          const s = deck.slides[i];
+          if (s) sendNav(s.phase, i);
+        }}
+        onExit={() => setPresenting(false)}
+      />
+    );
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-6 py-6 md:gap-8 md:px-10 md:py-10 text-white">
       <header className="flex flex-wrap items-center justify-between gap-4">
@@ -179,7 +207,7 @@ export const TeacherSessionDashboard = () => {
           className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Plan
+          Back to Lessons
         </Link>
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-emerald-400/30 bg-emerald-400/[0.08] px-3 py-1 text-xs text-emerald-200">
@@ -242,6 +270,21 @@ export const TeacherSessionDashboard = () => {
             )}
             {state.locked ? 'Unlock devices' : 'Lock devices'}
           </button>
+          {deck && (
+            <button
+              type="button"
+              onClick={() => {
+                if (slideIndex < 0 && deck.slides[0]) {
+                  sendNav(deck.slides[0].phase, 0);
+                }
+                setPresenting(true);
+              }}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-white/85"
+            >
+              <Play className="h-3.5 w-3.5" />
+              Present
+            </button>
+          )}
           <button
             type="button"
             onClick={handleEnd}
@@ -269,6 +312,16 @@ export const TeacherSessionDashboard = () => {
             }}
             onNavigate={(index, phase) => sendNav(phase, index)}
           />
+          {currentSlide && (
+            <div className="aspect-[16/9] w-full overflow-hidden rounded-2xl border border-white/10">
+              <SlideRenderer
+                slide={currentSlide}
+                surface="teacher"
+                language="both"
+                interactions={currentSlideInteractions}
+              />
+            </div>
+          )}
           {currentSlide && currentSlide.kind === 'studio-collab' ? (
             <PairingPanel
               grouping={currentSlide.grouping}
@@ -366,15 +419,6 @@ export const TeacherSessionDashboard = () => {
             <InteractionResponseDashboard aggregate={aggregateRows} />
           </div>
         </>
-      )}
-
-      {import.meta.env.DEV && (
-        <SessionSimulationPanel
-          classroomId={cid}
-          sessionId={sid}
-          publishedDay={publishedDay}
-          currentPhase={state.currentPhase}
-        />
       )}
     </div>
   );

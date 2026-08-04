@@ -690,14 +690,17 @@ export function ChordConnectionGame({
 
       {/* Both columns share one grid so each chord row lines up with its
           keyboard row, vertically centered for straight connector lines. The
-          two content-width columns are centered as a group so they sit an
-          equal distance either side of the middle. */}
+          two content-width columns are spread across the full width with
+          space-evenly, so the outer margins and the gap between the columns
+          are all the same size. columnGap stays 0 — any gap here would be
+          added on top of the even spacing and make the middle wider. */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: 'auto auto',
-          justifyContent: 'center',
-          columnGap: 56,
+          justifyContent: 'space-evenly',
+          width: '100%',
+          columnGap: 0,
           rowGap: 12,
           alignItems: 'center',
           padding: '0 8px',

@@ -1,5 +1,5 @@
 import SuperJSON from 'superjson';
-import { getCurrentAppSessionId } from '@/auth/app-session-store';
+import { authFetch } from '@/auth/authFetch';
 import { Env } from '@/constants/env';
 import type {
   LessonProgressResponse,
@@ -68,16 +68,21 @@ async function apiRequest<T>(
     body?: unknown;
   },
 ): Promise<T> {
-  const appSessionId = getCurrentAppSessionId();
-  const response = await fetch(`${normalizedApiBase()}${path}`, {
-    method: params.method ?? 'GET',
-    headers: {
-      Authorization: `Bearer ${params.token}`,
-      'Content-Type': 'application/json',
-      ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
+  const response = await authFetch(
+    `${normalizedApiBase()}${path}`,
+    params.token,
+    {
+      method: params.method ?? 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: params.body != null ? JSON.stringify(params.body) : undefined,
+      // ActivityFlow flushes a final resume checkpoint on `pagehide` and on
+      // unmount. Without keepalive the browser cancels that request as the page
+      // goes away and the checkpoint is lost. `sendBeacon` is not usable here —
+      // it cannot set the Authorization header. Bodies are far below the 64KB
+      // keepalive limit.
+      keepalive: true,
     },
-    body: params.body != null ? JSON.stringify(params.body) : undefined,
-  });
+  );
 
   const text = await response.text();
   const parsed = parseApiResponse(text);

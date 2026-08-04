@@ -16,20 +16,25 @@
 import {
   ArrowLeft,
   BookOpen,
+  Lightbulb,
   Pencil,
   Plus,
   Sparkles,
   Trash2,
 } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { TeacherRoutes } from '@/constants/routes';
-import { useThemeBank } from '../content/hooks';
+import { useLessonSeedBank, useThemeBank } from '../content/hooks';
+import type { LessonSeed } from '../content/types';
 import { PHASES, STUDENT_PHASE_LABELS } from '../phases';
 import { newBlankDay } from '../plan/newBlankDay';
 import { useLocalPlan } from '../plan/useLocalPlan';
 import type { Day } from '../types';
+import { IdeaBankDrawer } from './IdeaBankDrawer';
+import { SeedApplyDialog } from './SeedApplyDialog';
+import { UnitAlignmentSummary } from './UnitAlignmentSummary';
 import { CANONICAL_ANNUAL_TEMPLATE, type DayStub } from './curriculumTemplate';
 import { findStubsForUnitId, seededDayFromStub } from './stubMaterialization';
 import { useAnnualPlan } from './useAnnualPlan';
@@ -63,14 +68,23 @@ export const UnitPage = () => {
     getUnit,
     addDayToUnit,
     removeDayFromUnit,
+    setUnitMeta,
     suggestDayScheduleInUnit,
   } = useAnnualPlan(cid);
   const { getDay, saveDay, deleteDay } = useLocalPlan();
   const { byId } = useThemeBank();
+  const { byThemeId } = useLessonSeedBank();
+
+  const [seedToApply, setSeedToApply] = useState<LessonSeed | null>(null);
+  const [ideaBankOpen, setIdeaBankOpen] = useState(false);
 
   const located = getUnit(uid);
   const unit = located?.unit;
   const theme = unit?.theme ? byId(unit.theme.themeId) : undefined;
+  const monthSeeds = useMemo(
+    () => (theme ? byThemeId(theme.id) : []),
+    [theme, byThemeId],
+  );
 
   const stubs = useMemo(() => findStubsForUnitId(uid), [uid]);
 
@@ -129,6 +143,22 @@ export const UnitPage = () => {
       TeacherRoutes.dayEditor({ classroomId: cid, dayId: scheduledDay.id }),
     );
   };
+
+  const handleUseTheme = () => {
+    if (!theme) return;
+    setUnitMeta(uid, {
+      overview: theme.focus,
+      essentialQuestions: theme.essentialQuestions,
+    });
+    toast.success('Adopted this theme into the unit.');
+  };
+
+  const suggestScheduleForNewDay = () =>
+    suggestDayScheduleInUnit(
+      uid,
+      scheduledDates,
+      Math.max(stubs.length, daysInUnit.length + 1),
+    );
 
   const handleChangeDayDate = (day: Day, newDate: string) => {
     saveDay({ ...day, scheduledDate: newDate || null });
@@ -269,21 +299,106 @@ export const UnitPage = () => {
             ))}
           </div>
         )}
+        {theme?.enduringUnderstandings &&
+          theme.enduringUnderstandings.length > 0 && (
+            <div className="mt-2 flex flex-col gap-1">
+              <span className="text-[10px] uppercase tracking-wide text-white/40">
+                Enduring understandings
+              </span>
+              <ul className="flex flex-col gap-1 text-sm text-white/60">
+                {theme.enduringUnderstandings.map((u) => (
+                  <li key={u} className="flex gap-2">
+                    <span className="text-white/30">—</span>
+                    <span>{u}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        {theme && (
+          <button
+            type="button"
+            onClick={handleUseTheme}
+            className="mt-1 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/80 transition-colors hover:border-white/25 hover:text-white"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            Use this theme for the unit
+          </button>
+        )}
+        {unit.overview && (
+          <p className="mt-1 max-w-3xl rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-xs text-white/50">
+            Adopted: {unit.overview}
+          </p>
+        )}
       </header>
+
+      {monthSeeds.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <Lightbulb className="h-3.5 w-3.5 text-white/40" />
+            <h2 className="text-sm uppercase tracking-wide text-white/50">
+              This month's lesson seeds
+            </h2>
+          </div>
+          <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            {monthSeeds.map((seed) => (
+              <li
+                key={seed.id}
+                className="flex flex-col gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <span className="text-sm font-medium text-white">
+                    {seed.title.en}
+                  </span>
+                  <span className="shrink-0 rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/50">
+                    {seed.kind}
+                  </span>
+                </div>
+                <p className="line-clamp-2 text-xs text-white/60">
+                  {seed.description}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setSeedToApply(seed)}
+                  className="mt-auto inline-flex w-fit items-center gap-2 rounded-full border border-white/15 px-4 py-1.5 text-xs text-white/80 hover:border-white/30 hover:text-white"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Apply to a day…
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <UnitAlignmentSummary
+        unitLabel={theme?.title.en ?? unit.label}
+        days={daysInUnit}
+      />
 
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-sm uppercase tracking-wide text-white/50">
             Days in this unit
           </h2>
-          <button
-            type="button"
-            onClick={handleAddCustom}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/80 hover:border-white/25 hover:text-white"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Add custom Day
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIdeaBankOpen(true)}
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/80 hover:border-white/25 hover:text-white"
+            >
+              <Lightbulb className="h-3.5 w-3.5" />
+              Idea Bank
+            </button>
+            <button
+              type="button"
+              onClick={handleAddCustom}
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/80 hover:border-white/25 hover:text-white"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add custom Day
+            </button>
+          </div>
         </div>
 
         {daysInUnit.length === 0 && remainingStubs.length === 0 ? (
@@ -394,6 +509,17 @@ export const UnitPage = () => {
           </ul>
         )}
       </section>
+
+      {seedToApply && (
+        <SeedApplyDialog
+          seed={seedToApply}
+          unitDays={daysInUnit}
+          onNewDay={(dayId) => addDayToUnit(uid, dayId)}
+          suggestSchedule={suggestScheduleForNewDay}
+          onClose={() => setSeedToApply(null)}
+        />
+      )}
+      {ideaBankOpen && <IdeaBankDrawer onClose={() => setIdeaBankOpen(false)} />}
     </div>
   );
 };

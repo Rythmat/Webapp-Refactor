@@ -1,4 +1,4 @@
-import { getCurrentAppSessionId } from '@/auth/app-session-store';
+import { authFetch } from '@/auth/authFetch';
 import { Env } from '@/constants/env';
 
 /**
@@ -28,17 +28,11 @@ async function listForClassroom(
   token: string,
   classroomId: string,
 ): Promise<TeacherAnnouncementDTO[]> {
-  const appSessionId = getCurrentAppSessionId();
   // Same host + path convention as the generated classroom endpoints
   // (`${base}/classrooms/:id/...`), same Bearer auth as experienceApi.
-  const res = await fetch(
+  const res = await authFetch(
     `${apiBase()}/classrooms/${encodeURIComponent(classroomId)}/announcements`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
-      },
-    },
+    token,
   );
   if (!res.ok) throw new Error(`announcements GET ${res.status}`);
   const data = (await res.json()) as unknown;

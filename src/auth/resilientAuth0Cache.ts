@@ -3,8 +3,11 @@ import {
   LocalStorageCache,
   type Cacheable,
   type ICache,
-  type MaybePromise,
 } from '@auth0/auth0-react';
+
+// `@auth0/auth0-react` does not re-export spa-js's `MaybePromise`; define it
+// locally (identical shape) so the class still structurally satisfies `ICache`.
+type MaybePromise<T> = Promise<T> | T;
 
 const isQuotaExceeded = (err: unknown): boolean =>
   err instanceof DOMException &&

@@ -48,6 +48,9 @@ import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { getDemoProject } from '@/daw/data/demoProjects';
 import { getSong } from '@/curriculum/data/songs';
 import { seedStudioFromSong } from '@/features/songs/seedStudioFromSong';
+import { seedStudioFromPracticeTrack } from '@/features/practiceTracks/seedStudioFromPracticeTrack';
+import type { DiatonicMode } from '@/features/practiceTracks/generatePracticeTrack';
+import { isDiatonicMode } from '@prism/engine';
 import { showSuccess, showError } from '@/util/toast';
 
 function DawAppInner() {
@@ -179,6 +182,46 @@ function DawAppInner() {
         showError('That song could not be found.');
       }
       clearQuery();
+      return;
+    }
+
+    // Graduated from a Theory mode/lesson (Learn > Theory) into a pre-seeded
+    // Practice Track: generated chords/bass/beat plus one open track (melody
+    // or chords, whichever the student didn't just practice) for them to fill
+    // in themselves. `practiceOpen` defaults to `melody` when missing/invalid
+    // (e.g. the evergreen sidebar entry, which can't know which section the
+    // student most recently finished).
+    const practiceModeParam = params.get('practiceMode');
+    if (practiceModeParam) {
+      bootedRef.current = true;
+      clearLocalSession();
+      resetSessionToEmpty();
+      if (isDiatonicMode(practiceModeParam)) {
+        const rootParam = Number(params.get('practiceRoot'));
+        const root = Number.isFinite(rootParam)
+          ? Math.max(0, Math.min(11, Math.round(rootParam)))
+          : 0;
+        const openParam = params.get('practiceOpen');
+        const openTrack: 'melody' | 'chords' =
+          openParam === 'chords' ? 'chords' : 'melody';
+        // seedStudioFromPracticeTrack fetches + parses the fixed Drums
+        // groove's .mid file, so it's async — await it the same way the
+        // `project` branch above awaits its cloud fetch.
+        void (async () => {
+          try {
+            await seedStudioFromPracticeTrack(
+              practiceModeParam as DiatonicMode,
+              root,
+              openTrack,
+            );
+          } finally {
+            clearQuery();
+          }
+        })();
+      } else {
+        showError('That practice track mode could not be found.');
+        clearQuery();
+      }
       return;
     }
 

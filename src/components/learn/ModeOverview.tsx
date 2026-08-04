@@ -264,7 +264,10 @@ export function ModeOverview({ mode }: ModeOverviewProps) {
 
     progressSummary?.lessons.forEach((lesson) => {
       if (!lesson.lessonId.startsWith('mode-lesson-flow')) return;
-      if (lesson.lessonVersion !== 1) return;
+      // v1 = pre Bass/Play-Along removal, v2 = current (Overview/Melody/Chords
+      // only, see ACTIVITY_FLOW_LESSON_VERSION in ActivityFlow.tsx). Both are
+      // "resume where you left off"-eligible; older/unknown versions are not.
+      if (lesson.lessonVersion !== 1 && lesson.lessonVersion !== 2) return;
       const parsedIdentity = parseSummaryLessonIdentity(lesson);
       if ((parsedIdentity.mode ?? '') !== mode.toLowerCase()) return;
       const lessonRoot = parsedIdentity.root ?? '';

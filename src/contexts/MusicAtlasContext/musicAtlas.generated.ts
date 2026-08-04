@@ -24,6 +24,11 @@ export interface DeleteClassroomsByIdStudentsByStudentIdData {
   removedAt: Date;
 }
 
+export interface DeleteClassroomsByIdTeachersByTeacherIdData {
+  removed: true;
+  teacherId: string;
+}
+
 export interface DeleteCollectionsByIdData {
   deletedCollectionId: string;
   success: boolean;
@@ -334,6 +339,25 @@ export interface GetClassroomsByIdSessionsBySessionIdData {
   state: any;
   status: 'live' | 'ended';
   teacherId: string;
+}
+
+export interface GetClassroomsByIdTeachersData {
+  owner: {
+    email: string | null;
+    fullName: string | null;
+    nickname: string;
+    teacherId: string;
+  };
+  teachers: {
+    createdAt: Date;
+    email: string | null;
+    fullName: string | null;
+    id: string;
+    nickname: string;
+    role: 'viewer' | 'editor';
+    teacherId: string;
+    username: string | null;
+  }[];
 }
 
 export type GetClassroomsData = {
@@ -678,6 +702,21 @@ export interface PatchClassroomsByIdSessionsBySessionIdPayload {
 export interface PatchClassroomsByIdStudentsByStudentIdRestoreData {
   id: string;
   restored: boolean;
+}
+
+export interface PatchClassroomsByIdTeachersByTeacherIdData {
+  createdAt: Date;
+  email: string | null;
+  fullName: string | null;
+  id: string;
+  nickname: string;
+  role: 'viewer' | 'editor';
+  teacherId: string;
+  username: string | null;
+}
+
+export interface PatchClassroomsByIdTeachersByTeacherIdPayload {
+  role: 'viewer' | 'editor';
 }
 
 export interface PatchCollectionsByIdData {
@@ -1192,6 +1231,22 @@ export interface PostClassroomsByIdSessionsData {
 export interface PostClassroomsByIdSessionsPayload {
   mode?: 'teacher_paced' | 'student_paced';
   publishedDayId: string;
+}
+
+export interface PostClassroomsByIdTeachersData {
+  createdAt: Date;
+  email: string | null;
+  fullName: string | null;
+  id: string;
+  nickname: string;
+  role: 'viewer' | 'editor';
+  teacherId: string;
+  username: string | null;
+}
+
+export interface PostClassroomsByIdTeachersPayload {
+  email: string;
+  role?: 'viewer' | 'editor';
 }
 
 export interface PostClassroomsData {
@@ -2117,6 +2172,24 @@ export namespace Classrooms {
   /**
    * No description
    * @tags Classrooms
+   * @name DeleteClassroomsByIdTeachersByTeacherId
+   * @request DELETE:/classrooms/{id}/teachers/{teacherId}
+   * @response `200` `DeleteClassroomsByIdTeachersByTeacherIdData`
+   */
+  export namespace DeleteClassroomsByIdTeachersByTeacherId {
+    export type RequestParams = {
+      id: string;
+      teacherId: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = DeleteClassroomsByIdTeachersByTeacherIdData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
    * @name GetClassrooms
    * @request GET:/classrooms
    * @response `200` `GetClassroomsData`
@@ -2223,6 +2296,23 @@ export namespace Classrooms {
   /**
    * No description
    * @tags Classrooms
+   * @name GetClassroomsByIdTeachers
+   * @request GET:/classrooms/{id}/teachers
+   * @response `200` `GetClassroomsByIdTeachersData`
+   */
+  export namespace GetClassroomsByIdTeachers {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetClassroomsByIdTeachersData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
    * @name GetClassroomsDetailsByCode
    * @request GET:/classrooms/details/{code}
    * @response `200` `GetClassroomsDetailsByCodeData`
@@ -2324,6 +2414,24 @@ export namespace Classrooms {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = PatchClassroomsByIdStudentsByStudentIdRestoreData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name PatchClassroomsByIdTeachersByTeacherId
+   * @request PATCH:/classrooms/{id}/teachers/{teacherId}
+   * @response `200` `PatchClassroomsByIdTeachersByTeacherIdData`
+   */
+  export namespace PatchClassroomsByIdTeachersByTeacherId {
+    export type RequestParams = {
+      id: string;
+      teacherId: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PatchClassroomsByIdTeachersByTeacherIdPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PatchClassroomsByIdTeachersByTeacherIdData;
   }
 
   /**
@@ -2444,6 +2552,23 @@ export namespace Classrooms {
     export type RequestBody = PostClassroomsByIdSessionsBySessionIdResponsesPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostClassroomsByIdSessionsBySessionIdResponsesData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name PostClassroomsByIdTeachers
+   * @request POST:/classrooms/{id}/teachers
+   * @response `200` `PostClassroomsByIdTeachersData`
+   */
+  export namespace PostClassroomsByIdTeachers {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PostClassroomsByIdTeachersPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostClassroomsByIdTeachersData;
   }
 
   /**
@@ -4724,6 +4849,22 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Classrooms
+     * @name DeleteClassroomsByIdTeachersByTeacherId
+     * @request DELETE:/classrooms/{id}/teachers/{teacherId}
+     * @response `200` `DeleteClassroomsByIdTeachersByTeacherIdData`
+     */
+    deleteClassroomsByIdTeachersByTeacherId: (id: string, teacherId: string, params: RequestParams = {}) =>
+      this.http.request<DeleteClassroomsByIdTeachersByTeacherIdData, any>({
+        path: `/classrooms/${id}/teachers/${teacherId}`,
+        method: 'DELETE',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
      * @name GetClassrooms
      * @request GET:/classrooms
      * @response `200` `GetClassroomsData`
@@ -4817,6 +4958,22 @@ export class Api<SecurityDataType extends unknown> {
     getClassroomsByIdSessionsBySessionId: (id: string, sessionId: string, params: RequestParams = {}) =>
       this.http.request<GetClassroomsByIdSessionsBySessionIdData, any>({
         path: `/classrooms/${id}/sessions/${sessionId}`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name GetClassroomsByIdTeachers
+     * @request GET:/classrooms/{id}/teachers
+     * @response `200` `GetClassroomsByIdTeachersData`
+     */
+    getClassroomsByIdTeachers: (id: string, params: RequestParams = {}) =>
+      this.http.request<GetClassroomsByIdTeachersData, any>({
+        path: `/classrooms/${id}/teachers`,
         method: 'GET',
         format: 'json',
         ...params,
@@ -4937,6 +5094,29 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<PatchClassroomsByIdStudentsByStudentIdRestoreData, any>({
         path: `/classrooms/${id}/students/${studentId}/restore`,
         method: 'PATCH',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name PatchClassroomsByIdTeachersByTeacherId
+     * @request PATCH:/classrooms/{id}/teachers/{teacherId}
+     * @response `200` `PatchClassroomsByIdTeachersByTeacherIdData`
+     */
+    patchClassroomsByIdTeachersByTeacherId: (
+      id: string,
+      teacherId: string,
+      data: PatchClassroomsByIdTeachersByTeacherIdPayload,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PatchClassroomsByIdTeachersByTeacherIdData, any>({
+        path: `/classrooms/${id}/teachers/${teacherId}`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
         format: 'json',
         ...params,
       }),
@@ -5079,6 +5259,24 @@ export class Api<SecurityDataType extends unknown> {
     ) =>
       this.http.request<PostClassroomsByIdSessionsBySessionIdResponsesData, any>({
         path: `/classrooms/${id}/sessions/${sessionId}/responses`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Classrooms
+     * @name PostClassroomsByIdTeachers
+     * @request POST:/classrooms/{id}/teachers
+     * @response `200` `PostClassroomsByIdTeachersData`
+     */
+    postClassroomsByIdTeachers: (id: string, data: PostClassroomsByIdTeachersPayload, params: RequestParams = {}) =>
+      this.http.request<PostClassroomsByIdTeachersData, any>({
+        path: `/classrooms/${id}/teachers`,
         method: 'POST',
         body: data,
         type: ContentType.Json,

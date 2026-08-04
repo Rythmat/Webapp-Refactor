@@ -8,7 +8,6 @@ import { PlayAlong } from './PlayAlong';
 // import { ChordPressGame } from "./ChordPressGame";
 import { LessonOverview } from '@/components/learn/LessonOverview';
 import { PrismModeSlug, usePrismModeChordsData } from '@/hooks/data';
-import { usePrismRhythms } from '@/hooks/data/prism/usePrismRhythms';
 import { useNavigate } from 'react-router';
 import { LearnRoutes, StudioRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
@@ -42,22 +41,6 @@ import {
   trackLessonCompleted,
   trackLessonStarted,
 } from '@/telemetry/hooks/useTelemetryProduct';
-type RhythmHit = [number, number];
-const chordRhythmFallbacks: Record<string, RhythmHit[]> = {
-  'Jazz 1a': [
-    [0, 480],
-    [720, 240],
-    [1440, 480],
-  ],
-  'Jazz 5': [
-    [0, 240],
-    [480, 120],
-    [600, 120],
-    [720, 120],
-    [840, 120],
-    [1320, 120],
-  ],
-};
 
 type FlowActivityProps = {
   events?: NoteEvent[];
@@ -98,7 +81,7 @@ const CHROMATIC_KEYS = [
 ] as const;
 const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;
 
-type SectionId = 'O' | 'A' | 'B' | 'C' | 'D';
+type SectionId = 'O' | 'A' | 'B';
 
 type ActivityDefinition = {
   activityDefId: string;
@@ -115,12 +98,24 @@ const SECTION_LABELS: Record<string, string> = {
   O: 'Overview',
   A: 'Melody',
   B: 'Chords',
-  C: 'Bass',
-  D: 'Play-Along',
 };
 
 const ACTIVITY_FLOW_LESSON_ID = 'mode-lesson-flow';
-const ACTIVITY_FLOW_LESSON_VERSION = 1;
+const ACTIVITY_FLOW_LESSON_VERSION = 2;
+
+// The 7 diatonic mode slugs (from src/daw/prism-engine/data/modes.ts MODE_NAMES).
+// Practice Track generation is diatonic-only for now, so Studio hand-off CTAs
+// (Melody-complete interstitial, end-of-lesson "Open Practice Track" button)
+// are gated on this.
+const DIATONIC_MODE_SLUGS = new Set([
+  'lydian',
+  'ionian',
+  'mixolydian',
+  'dorian',
+  'aeolian',
+  'phrygian',
+  'locrian',
+]);
 
 const ChordLoadingStep: (props: FlowActivityProps) => JSX.Element = ({
   startMessage,
@@ -399,6 +394,11 @@ export const ActivityFlow = ({
   const authToken = useAuthToken();
   const playNote = usePlayNote();
   const modeLabel = mode ?? 'mode';
+  // Practice Tracks (Studio hand-off CTAs) are only available for the 7
+  // diatonic modes for now — see DIATONIC_MODE_SLUGS.
+  const isDiatonicMode = DIATONIC_MODE_SLUGS.has(
+    (modeLabel ?? '').toLowerCase(),
+  );
   const activityColor = useMemo(
     () => colorForKeyMode(rootKey, mode),
     [rootKey, mode],
@@ -434,94 +434,9 @@ export const ActivityFlow = ({
     return raw.map((arr) => arr.map((i) => i + rootMidi));
   }, [chordResponse, rootMidi]);
 
-  type RhythmHit = [number, number];
-  type RhythmRecord = Record<string, RhythmHit[]>;
-  const rhythmsQuery = usePrismRhythms();
-
-  const melodyRhythms: RhythmRecord = rhythmsQuery.data?.melodies ?? {};
-  const chordRhythms: RhythmRecord = useMemo(
-    () => ({
-      ...chordRhythmFallbacks,
-      ...(rhythmsQuery.data?.chords ?? {}),
-    }),
-    [rhythmsQuery.data?.chords],
-  );
-
-  const pickFallbackChordRhythm = (
-    lengthOf?: number,
-  ): RhythmHit[] | undefined => {
-    const entries = Object.entries(chordRhythmFallbacks);
-    if (entries.length === 0) return undefined;
-    if (lengthOf) {
-      const matching = entries.filter(([, hits]) => hits.length === lengthOf);
-      if (matching.length > 0) {
-        const pick = matching[Math.floor(Math.random() * matching.length)];
-        return pick[1];
-      }
-    }
-    return (
-      chordRhythmFallbacks['Jazz 5'] ??
-      chordRhythmFallbacks['Jazz 1a'] ??
-      entries[0][1]
-    );
-  };
-
-  const getRhythm = (
-    melOrChord: 'melody' | 'chord',
-    name?: string,
-    lengthOf?: number,
-  ): RhythmHit[] | undefined => {
-    const rhythms = melOrChord === 'chord' ? chordRhythms : melodyRhythms;
-
-    if (name) {
-      const named = rhythms[name];
-      if (named && named.length > 0) return named;
-      return melOrChord === 'chord'
-        ? pickFallbackChordRhythm(lengthOf)
-        : undefined;
-    }
-
-    const keys = lengthOf
-      ? Object.entries(rhythms)
-          .filter(([, hits]) => hits.length === lengthOf)
-          .map(([k]) => k)
-      : Object.keys(rhythms);
-
-    if (keys.length === 0) {
-      return melOrChord === 'chord'
-        ? pickFallbackChordRhythm(lengthOf)
-        : undefined;
-    }
-
-    const pick = keys[Math.floor(Math.random() * keys.length)];
-    return rhythms[pick];
-  };
-
   const generateStepTriad = (step: number) => {
     const baseChord = triads[step - 1];
     return baseChord ? baseChord : undefined;
-  };
-
-  const rhythmicMidiSequenceEvents = (
-    sequence: number[],
-    prefix: string,
-    rhythmName?: string,
-  ): NoteEvent[] => {
-    const rhythm = getRhythm('chord', rhythmName, sequence.length);
-    const resolvedRhythm = rhythm ?? pickFallbackChordRhythm(sequence.length);
-    if (resolvedRhythm == undefined) {
-      return [];
-    }
-    const hits =
-      resolvedRhythm.length >= sequence.length
-        ? resolvedRhythm
-        : sequence.map((_, idx) => resolvedRhythm[idx % resolvedRhythm.length]);
-    return sequence.map((midi, idx) => ({
-      id: `${prefix}-${idx}-${midi}`,
-      pitchName: Tone.Frequency(midi, 'midi').toNote(),
-      startTicks: hits[idx][0],
-      durationTicks: hits[idx][1],
-    }));
   };
 
   const buildFlowDefinitions = (
@@ -724,36 +639,6 @@ export const ActivityFlow = ({
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”). `,
           section: 'A' as SectionId,
-        },
-        {
-          key: `contour-2-mix-pa`,
-          label: `${rootKey} ${modeTitle} Melodic Phrase (Mixed Articulation) • Play Along`,
-          Component: PlayAlong,
-          seq: applyActivityColor(
-            midiSequenceToMixedArticulation(combined, `contour-2-mix-pa`),
-          ),
-          direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”).`,
-          section: 'D' as SectionId,
-        },
-        {
-          key: `contour-1-rhythm-pa`,
-          label: `${rootKey} ${modeTitle} Musical Contour (Styled) • Play Along`,
-          Component: PlayAlong,
-          seq: applyActivityColor(
-            rhythmicMidiSequenceEvents(contourSeqs[0], `contour-1-rhythm-pa`),
-          ),
-          direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} in a rhythmic style. `,
-          section: 'D' as SectionId,
-        },
-        {
-          key: `contour-2-rhythm-pa`,
-          label: `${rootKey} ${modeTitle} Melodic Phrase (Styled) • Play Along`,
-          Component: PlayAlong,
-          seq: applyActivityColor(
-            rhythmicMidiSequenceEvents(combined, `contour-2-rhythm-pa`),
-          ),
-          direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle} in a rhythmic style.`,
-          section: 'D' as SectionId,
         },
       );
     }
@@ -973,137 +858,6 @@ export const ActivityFlow = ({
       });
     }
 
-    // =========== SECTION C: BASS ===========
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const bassRoot = rootMidi - 12; // One octave lower
-    const bassScale = scale.map((m) => m - 12);
-    const bassDescending = [...bassScale].reverse();
-    const bassRootFifth = [bassScale[0], bassScale[4] ?? bassScale[0] + 7];
-
-    sequences.push(
-      {
-        key: 'bass-asc-nh',
-        label: `${rootKey} ${modeTitle} Bass Ascend • Hold`,
-        Component: NoteHold,
-        seq: applyActivityColor(midiSequenceToEvents(bassScale, 'bass-asc-nh')),
-        direction: `Hold the bass notes of the ${rootKey} ${modeTitle} scale (one octave lower).`,
-        section: 'C' as SectionId,
-      },
-      {
-        key: 'bass-asc-pa',
-        label: `${rootKey} ${modeTitle} Bass Ascend • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(midiSequenceToEvents(bassScale, 'bass-asc-pa')),
-        direction: `In a steady tempo, play the bass notes of the scale going up.`,
-        section: 'C' as SectionId,
-      },
-      {
-        key: 'bass-desc-nh',
-        label: `${rootKey} ${modeTitle} Bass Descend • Hold`,
-        Component: NoteHold,
-        seq: applyActivityColor(
-          midiSequenceToEvents(bassDescending, 'bass-desc-nh'),
-        ),
-        direction: `Hold the bass notes of the scale going down.`,
-        section: 'C' as SectionId,
-      },
-      {
-        key: 'bass-desc-pa',
-        label: `${rootKey} ${modeTitle} Bass Descend • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToEvents(bassDescending, 'bass-desc-pa'),
-        ),
-        direction: `In a steady tempo, play the bass notes of the scale going down.`,
-        section: 'C' as SectionId,
-      },
-      {
-        key: 'bass-root5-nh',
-        label: `${rootKey} ${modeTitle} Bass Root-Fifth • Hold`,
-        Component: NoteHold,
-        seq: applyActivityColor(
-          midiSequenceToEvents(bassRootFifth, 'bass-root5-nh'),
-        ),
-        direction: `Play the root and fifth in the bass register.`,
-        section: 'C' as SectionId,
-      },
-      {
-        key: 'bass-root5-pa',
-        label: `${rootKey} ${modeTitle} Bass Root-Fifth • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToHalfNotes(bassRootFifth, 'bass-root5-pa'),
-        ),
-        direction: `In a steady tempo, alternate between the root and fifth in the bass register.`,
-        section: 'C' as SectionId,
-      },
-      {
-        key: 'bass-whole-pa',
-        label: `${rootKey} ${modeTitle} Bass Scale (Whole Notes) • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToWholeNotes(bassScale, 'bass-whole-pa'),
-        ),
-        direction: `In a steady tempo, play the bass scale in whole notes.`,
-        section: 'C' as SectionId,
-      },
-      {
-        key: 'bass-quarter-pa',
-        label: `${rootKey} ${modeTitle} Bass Scale (Quarter Notes) • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToQuarterNotes(bassScale, 'bass-quarter-pa'),
-        ),
-        direction: `In a steady tempo, play the bass scale in quarter notes.`,
-        section: 'C' as SectionId,
-      },
-    );
-
-    // =========== SECTION D: PLAY-ALONG (additional) ===========
-    // Full scale rhythmic variations
-    sequences.push(
-      {
-        key: 'pa-scale-half',
-        label: `${rootKey} ${modeTitle} Scale (Half Notes) • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToHalfNotes(ascending, 'pa-scale-half'),
-        ),
-        direction: `In a steady tempo, play the ${rootKey} ${modeTitle} scale in half notes.`,
-        section: 'D' as SectionId,
-      },
-      {
-        key: 'pa-scale-quarter',
-        label: `${rootKey} ${modeTitle} Scale (Quarter Notes) • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToQuarterNotes(ascending, 'pa-scale-quarter'),
-        ),
-        direction: `In a steady tempo, play the ${rootKey} ${modeTitle} scale in quarter notes.`,
-        section: 'D' as SectionId,
-      },
-      {
-        key: 'pa-scale-eighth',
-        label: `${rootKey} ${modeTitle} Scale (Eighth Notes) • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToEighthNotes(ascending, 'pa-scale-eighth'),
-        ),
-        direction: `In a steady tempo, play the ${rootKey} ${modeTitle} scale in eighth notes.`,
-        section: 'D' as SectionId,
-      },
-      {
-        key: 'pa-ascdesc-half',
-        label: `${rootKey} ${modeTitle} Ascend + Descend (Half Notes) • Play Along`,
-        Component: PlayAlong,
-        seq: applyActivityColor(
-          midiSequenceToHalfNotes(ascendDescend, 'pa-ascdesc-half'),
-        ),
-        direction: `In a steady tempo, play the scale up and down in half notes.`,
-        section: 'D' as SectionId,
-      },
-    );
-
     if (includeChordPlaceholder && chordTriads.length === 0) {
       sequences.push({
         key: 'chords-loading',
@@ -1184,6 +938,15 @@ export const ActivityFlow = ({
   const [startSignal, setStartSignal] = useState(0);
   const [startOverlayStep, setStartOverlayStep] = useState(0);
   const [lessonComplete, setLessonComplete] = useState(false);
+  // Shown once when the student finishes every Melody (section 'A') activity
+  // while Chords (section 'B') activities still remain — offers a Practice
+  // Track (generated Chords, open Melody) in Studio, or the existing silent
+  // auto-advance into Chords.
+  const [
+    showMelodySectionCompleteInterstitial,
+    setShowMelodySectionCompleteInterstitial,
+  ] = useState(false);
+  const pendingSectionAdvanceIndexRef = useRef<number | null>(null);
   // Practice runs give live feedback but don't count toward completion —
   // only a Play Now (graded) pass marks the step done. See handleStartAttempt
   // / handleActivityCompleteChange / the two progress-reporting effects below,
@@ -1591,6 +1354,18 @@ export const ActivityFlow = ({
         const nextActivity = flowDefinitions[nextIdx];
         // Auto-advance section when moving to next section's activity
         if (nextActivity && nextActivity.section !== currentSectionId) {
+          // Melody -> Chords is a teachable moment: offer a Practice Track
+          // (generated Chords, open Melody) before silently continuing.
+          // Diatonic-only for now (Practice Track generation is diatonic-only).
+          if (
+            currentSectionId === 'A' &&
+            nextActivity.section === 'B' &&
+            isDiatonicMode
+          ) {
+            pendingSectionAdvanceIndexRef.current = nextIdx;
+            setShowMelodySectionCompleteInterstitial(true);
+            return idx;
+          }
           setCurrentSectionId(nextActivity.section);
         }
         return nextIdx;
@@ -1619,6 +1394,7 @@ export const ActivityFlow = ({
     currentIndex,
     currentSectionId,
     flowDefinitions,
+    isDiatonicMode,
     lessonId,
     lessonVersion,
     modeLabel,
@@ -1626,6 +1402,33 @@ export const ActivityFlow = ({
     rootKey,
     isTrackableActivity,
   ]);
+
+  // "Continue to Chords" — proceeds with the previously-silent auto-advance
+  // behavior after the Melody-complete interstitial is dismissed.
+  const handleContinueToChordsSection = useCallback(() => {
+    const nextIdx = pendingSectionAdvanceIndexRef.current;
+    setShowMelodySectionCompleteInterstitial(false);
+    pendingSectionAdvanceIndexRef.current = null;
+    if (nextIdx == null) return;
+    setCurrentSectionId('B');
+    setCurrentIndex(nextIdx);
+    setActivityState('active');
+    setStartSignal(0);
+    setStartOverlayStep(0);
+  }, []);
+
+  // Practice Track CTAs (Studio hand-off) — diatonic-only, see isDiatonicMode.
+  const openMelodyPracticeTrack = useCallback(() => {
+    navigate(
+      `${StudioRoutes.editor.definition}?practiceMode=${modeLabel}&practiceRoot=${keyLabelToUrlParam(rootKey)}&practiceOpen=melody`,
+    );
+  }, [modeLabel, navigate, rootKey]);
+
+  const openChordsPracticeTrack = useCallback(() => {
+    navigate(
+      `${StudioRoutes.editor.definition}?practiceMode=${modeLabel}&practiceRoot=${keyLabelToUrlParam(rootKey)}&practiceOpen=chords`,
+    );
+  }, [modeLabel, navigate, rootKey]);
 
   const handleMidiActivity = useCallback(() => {
     if (lessonComplete) {
@@ -1983,6 +1786,58 @@ export const ActivityFlow = ({
     setActivityInstanceId((id) => id + 1);
   };
 
+  if (showMelodySectionCompleteInterstitial) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center p-4">
+        <div
+          className="w-full max-w-2xl rounded-2xl p-6 text-center glass-panel"
+          style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid var(--color-accent)',
+            boxShadow: 'var(--glass-shadow)',
+          }}
+        >
+          <h1
+            className="text-2xl font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
+            Melody complete!
+          </h1>
+          <p
+            className="mt-2 text-sm"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
+            Try composing your own melody over generated chords in Studio.
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              onClick={openMelodyPracticeTrack}
+              className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
+              style={{
+                background: 'var(--color-accent)',
+                color: '#191919',
+              }}
+            >
+              Open Practice Track
+            </button>
+            <button
+              type="button"
+              onClick={handleContinueToChordsSection}
+              className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
+              style={{
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text)',
+              }}
+            >
+              Continue to Chords
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (lessonComplete) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-4">
@@ -2019,6 +1874,28 @@ export const ActivityFlow = ({
             >
               Go to Studio
             </button>
+
+            {isDiatonicMode && (
+              <button
+                type="button"
+                onClick={openChordsPracticeTrack}
+                className="rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors duration-150 glass-panel-sm"
+                style={{
+                  background: 'rgba(126, 207, 207, 0.1)',
+                  border: '1px solid var(--color-accent)',
+                  color: 'var(--color-text)',
+                }}
+              >
+                Open Practice Track
+                <span
+                  className="block text-xs font-normal"
+                  style={{ color: 'var(--color-text-dim)' }}
+                >
+                  Apply the chords you just learned over a generated melody,
+                  bass, and beat.
+                </span>
+              </button>
+            )}
 
             <div
               className="rounded-xl px-4 py-3 glass-panel-sm"

@@ -20,8 +20,21 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* Keep the slide font authoritative for ALL slide text, the title included. A
+   bare slide-title <h1>/<h2>/<h3> would otherwise resolve to the app-wide
+   heading stack (index.css `h1,h2,h3 …`) rather than this frame's font — so
+   restate the slide stack here (higher specificity) to guarantee every slide
+   defaults to Glacial Indifference. */
+.slide-frame h1,
+.slide-frame h2,
+.slide-frame h3 {
+  font-family: 'Glacial Indifference', 'Haskoy', system-ui, sans-serif;
+}
+
 .slide-frame[data-surface='projector'] {
-  --slide-title-fz: 4.25rem;
+  /* Title matches the 'present' authoring scale (4rem) so a freeform layout
+     authored in the editor lands pixel-for-pixel on the projector. */
+  --slide-title-fz: 4rem;
   --slide-prompt-fz: 2rem;
   --slide-question-fz: 3rem;
   --slide-body-fz: 1.5rem;

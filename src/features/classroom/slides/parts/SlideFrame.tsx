@@ -34,10 +34,15 @@ export const SlideFrame = ({
   const label = pickLocalized(phaseLabel, language);
   const labelAlt = secondaryLine(phaseLabel, language);
 
+  // Per-slide accent override (drives the glow + chip dot); else the phase/CSS default.
+  const frameStyle: CSSProperties | undefined = slide.accent
+    ? ({ ...(style ?? {}), '--slide-accent': slide.accent } as CSSProperties)
+    : style;
+
   return (
     <div
       data-surface={surface}
-      style={style}
+      style={frameStyle}
       className={`slide-frame relative flex h-full w-full flex-col overflow-hidden ${className ?? ''}`}
     >
       <div
@@ -45,18 +50,20 @@ export const SlideFrame = ({
         className="slide-frame__glow pointer-events-none absolute inset-0"
       />
 
-      <div className="relative z-10 flex items-center px-[4%] pt-[3%]">
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
-          <span aria-hidden className="slide-frame__chip-dot" />
-          <span
-            className="font-semibold uppercase tracking-widest text-white/80"
-            style={{ fontSize: 'var(--slide-label-fz)' }}
-          >
-            {label}
-            {labelAlt && <span className="text-white/40"> · {labelAlt}</span>}
+      {slide.hidePhaseLabel === false && (
+        <div className="relative z-10 flex items-center px-[4%] pt-[3%]">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
+            <span aria-hidden className="slide-frame__chip-dot" />
+            <span
+              className="font-semibold uppercase tracking-widest text-white/80"
+              style={{ fontSize: 'var(--slide-label-fz)' }}
+            >
+              {label}
+              {labelAlt && <span className="text-white/40"> · {labelAlt}</span>}
+            </span>
           </span>
-        </span>
-      </div>
+        </div>
+      )}
 
       <div className="relative z-10 flex min-h-0 flex-1 flex-col px-[4%] pb-[4%] pt-[2%]">
         {children}

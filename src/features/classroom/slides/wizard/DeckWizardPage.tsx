@@ -9,7 +9,12 @@ import {
   Zap,
 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import {
   CURRICULUM_GENRE_SLUGS,
@@ -22,7 +27,9 @@ import { getSong } from '@/curriculum/data/songs';
 import type { ActivityFlow } from '@/curriculum/types/activity';
 import type { GCMKey, CurriculumLevelId } from '@/curriculum/types/curriculum';
 import type { Song } from '@/curriculum/types/songLibrary';
+import { useAnnualPlan } from '../../annual/useAnnualPlan';
 import { useStartClassroomSession } from '../../live/useStartClassroomSession';
+import { defaultUnitIdFor } from '../../plan/useEnsureLessonUnits';
 import { useLocalPlan } from '../../plan/useLocalPlan';
 import { usePublishedDays } from '../../publish/usePublishedDays';
 import type { Day } from '../../types';
@@ -77,9 +84,20 @@ export const DeckWizardPage = () => {
   const { listDays, saveDay } = useLocalPlan();
   const { publishDayToClassroom } = usePublishedDays(cid);
   const startClassroomSession = useStartClassroomSession();
+  const { plan, seedFromTemplate, addDayToUnit, suggestDayScheduleInUnit } =
+    useAnnualPlan(cid);
 
-  const [step, setStep] = useState(0);
-  const [source, setSource] = useState<DeckSource>('song');
+  // "New Lesson → Song/Genre" deep-links here preselected to a template + Unit;
+  // skip the Template step and land on the matching Content picker.
+  const [searchParams] = useSearchParams();
+  const preTemplate = searchParams.get('template');
+  const preUnit = searchParams.get('unit');
+  const [step, setStep] = useState(() =>
+    preTemplate === 'song' || preTemplate === 'genre' ? 1 : 0,
+  );
+  const [source, setSource] = useState<DeckSource>(
+    preTemplate === 'genre' ? 'genre' : 'song',
+  );
   const [song, setSong] = useState<Song | null>(null);
   const [plannedDayId, setPlannedDayId] = useState<string | null>(null);
   const [params, setParams] = useState<SongSessionParams>(
@@ -165,11 +183,35 @@ export const DeckWizardPage = () => {
     }
   };
 
+  // Assign the built Day to a Unit (from ?unit, else the current-month Unit),
+  // seeding the canonical Units first if this classroom has none — so every
+  // Lesson the wizard produces belongs to a Unit.
+  const assignToUnit = (day: Day) => {
+    const activePlan = plan ?? seedFromTemplate();
+    const units = [
+      ...activePlan.year.semesters.autumn,
+      ...activePlan.year.semesters.spring,
+    ];
+    const uid =
+      preUnit && units.some((u) => u.id === preUnit)
+        ? preUnit
+        : defaultUnitIdFor(units);
+    if (!uid) return;
+    addDayToUnit(uid, day.id);
+    const unit = units.find((u) => u.id === uid);
+    const existing = (unit?.dayIds ?? [])
+      .map((id) => days.find((d) => d.id === id)?.scheduledDate)
+      .filter((d): d is string => Boolean(d));
+    const date = suggestDayScheduleInUnit(uid, existing, existing.length);
+    if (date) saveDay({ ...day, scheduledDate: date });
+  };
+
   const launch = async (mode: 'save' | 'live') => {
     if (!builtDay || busy) return;
     setBusy(true);
     try {
       saveDay(builtDay);
+      assignToUnit(builtDay);
       if (mode === 'save') {
         navigate(TeacherRoutes.plan({ classroomId: cid }));
         return;
@@ -207,7 +249,7 @@ export const DeckWizardPage = () => {
           className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Plan
+          Back to Lessons
         </Link>
         <div className="flex items-center gap-2">
           <Zap className="h-5 w-5 text-[#7ecfcf]" />

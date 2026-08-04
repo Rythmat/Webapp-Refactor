@@ -1,4 +1,5 @@
 import { ExternalLink, Settings } from 'lucide-react';
+import { useTeacherConfig } from '../settings/useTeacherConfig';
 import type { LaunchTile as LaunchTileData, StudentLanguage } from '../types';
 import { pickLocalized } from './localized';
 import { resolveModuleUrl } from './resolveModuleUrl';
@@ -29,7 +30,8 @@ const MODULE_LABEL: Record<LaunchTileData['module'], string> = {
  * fresh-build brief's launch-tile contract.
  */
 export const LaunchTile = ({ tile, language, phaseLabel }: LaunchTileProps) => {
-  const url = resolveModuleUrl(tile);
+  const { config } = useTeacherConfig();
+  const url = resolveModuleUrl(tile, config.moduleUrls);
   const label = tile.label
     ? pickLocalized(tile.label, language)
     : `Open ${MODULE_LABEL[tile.module]}`;

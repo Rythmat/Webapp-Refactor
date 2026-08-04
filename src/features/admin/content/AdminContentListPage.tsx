@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
   useContentItems,
   useValidateContent,
@@ -47,7 +48,8 @@ export const AdminContentListPage = () => {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<ContentStatus | 'all'>('all');
 
-  const { data, isLoading } = useContentItems({
+  const { token } = useAuthContext();
+  const { data, isLoading, isError, error } = useContentItems({
     kind,
     status: status === 'all' ? undefined : status,
     search: search.trim() || undefined,
@@ -142,7 +144,29 @@ export const AdminContentListPage = () => {
         </Select>
       </div>
 
-      {isLoading ? (
+      {!token ? (
+        <div className="rounded-lg border border-white/10 bg-white/5 p-6 text-center text-sm text-muted-foreground">
+          Sign in as an admin to load content. This page reads from the content
+          database — a blank list here means either you’re not authenticated or
+          the database has no {spec.label.toLowerCase()} yet.
+        </div>
+      ) : isError ? (
+        <div className="rounded-lg border border-red-600/30 bg-red-600/10 p-4">
+          <div className="flex items-center gap-2 font-medium text-red-400">
+            <AlertTriangle className="size-4" />
+            Couldn’t load {spec.label.toLowerCase()}
+          </div>
+          <p className="mt-1 text-sm text-red-200/80">
+            {error instanceof Error
+              ? error.message
+              : 'The content API request failed.'}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            This is a backend/connectivity issue — the list can’t be populated
+            from the app.
+          </p>
+        </div>
+      ) : isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 8 }, (_, i) => (
             <Skeleton key={i} className="h-12 w-full" />

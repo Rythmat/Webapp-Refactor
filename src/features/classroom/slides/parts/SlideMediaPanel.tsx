@@ -18,6 +18,8 @@ import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { pickLocalized, secondaryLine } from '../../presentation/localized';
 import type { LocalizedText, StudentLanguage } from '../../types';
 import type { SlideMedia } from '../types';
+import { PathwayGlobePreview } from './PathwayGlobePreview';
+import { ScaleKeyboardCard } from './ScaleKeyboardCard';
 
 const YouTubeSlidePlayer = lazy(() => import('./YouTubeSlidePlayer'));
 type MediaSlideCommand = import('./YouTubeSlidePlayer').MediaSlideCommand;
@@ -99,6 +101,23 @@ export const SlideMediaPanel = ({
         <GlobePreviewCard
           markers={media.markers}
           arcs={media.arcs}
+          className={className}
+        />
+      );
+
+    case 'globePathway':
+      return (
+        <PathwayGlobePreview
+          pathwayId={media.pathwayId}
+          className={className}
+        />
+      );
+
+    case 'scaleKeyboard':
+      return (
+        <ScaleKeyboardCard
+          mode={media.mode}
+          keyToken={media.key}
           className={className}
         />
       );

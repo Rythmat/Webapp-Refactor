@@ -291,6 +291,13 @@ export const TeacherRoutes = {
     prefix: teacherPrefix,
   }),
 
+  /** Grades tab of the classroom workspace — thin gradebook over assignments. */
+  grades: createRouteDefinition<{
+    classroomId: string;
+  }>('/classroom/:classroomId/grades', {
+    prefix: teacherPrefix,
+  }),
+
   /** Teacher live-session dashboard. */
   session: createRouteDefinition<{
     classroomId: string;

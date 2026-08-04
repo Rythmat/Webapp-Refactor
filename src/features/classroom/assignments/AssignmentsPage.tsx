@@ -18,13 +18,17 @@ export const AssignmentsPage = () => {
   const cid = classroomId ?? '';
   const { data: user } = useMe();
 
-  const back =
-    user?.role === 'teacher'
-      ? {
-          label: 'Dashboard',
-          to: TeacherRoutes.classroomDashboard({ classroomId: cid }),
-        }
-      : { label: 'Classroom', to: ClassroomRoutes.home({ classroomId: cid }) };
+  // Teachers reach this as a workspace TAB — the workspace shell already
+  // supplies the page chrome + full-width padding, so render flush (no
+  // ClassroomLayout, no back link, no width cap). Invite lives on the People tab.
+  if (user?.role === 'teacher') {
+    return <TeacherAssignmentsPage classroomId={cid} />;
+  }
+
+  const back = {
+    label: 'Classroom',
+    to: ClassroomRoutes.home({ classroomId: cid }),
+  };
 
   return (
     <ClassroomLayout
@@ -34,11 +38,7 @@ export const AssignmentsPage = () => {
       isLoading={false}
       isNotFound={false}
     >
-      {user?.role === 'teacher' ? (
-        <TeacherAssignmentsPage classroomId={cid} />
-      ) : (
-        <StudentAssignmentsPage classroomId={cid} />
-      )}
+      <StudentAssignmentsPage classroomId={cid} />
     </ClassroomLayout>
   );
 };

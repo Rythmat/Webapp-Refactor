@@ -1,16 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import type { Unit } from '../types';
 import {
+  assignUnitLanes,
   datesBetween,
   distributeAcrossSchoolDays,
+  firstWeekdayWeekAnchor,
   getMonthCalendar,
   getNextNSchoolDays,
   getSchoolDaysInRange,
+  getWeekCalendar,
+  getWeekDays,
   resolveInitialMonth,
+  resolveInitialWeek,
   resolveSchoolYear,
   resolveUnitDateRange,
+  segmentUnitIntoWeek,
   segmentUnitIntoWeeks,
   stepMonth,
+  stepWeek,
 } from './calendarMath';
 
 const makeUnit = (overrides: Partial<Unit> = {}): Unit => ({
@@ -412,5 +419,255 @@ describe('getNextNSchoolDays', () => {
     const before = anchor.getTime();
     getNextNSchoolDays(anchor, 5, new Map());
     expect(anchor.getTime()).toBe(before);
+  });
+});
+
+describe('assignUnitLanes', () => {
+  it('puts non-overlapping units all in lane 0', () => {
+    const lanes = assignUnitLanes([
+      { id: 'a', start: 0, end: 10 },
+      { id: 'b', start: 20, end: 30 },
+      { id: 'c', start: 40, end: 50 },
+    ]);
+    expect(lanes.get('a')).toBe(0);
+    expect(lanes.get('b')).toBe(0);
+    expect(lanes.get('c')).toBe(0);
+  });
+
+  it('splits two overlapping units into lanes 0 and 1', () => {
+    const lanes = assignUnitLanes([
+      { id: 'a', start: 0, end: 20 },
+      { id: 'b', start: 10, end: 30 },
+    ]);
+    expect(lanes.get('a')).toBe(0);
+    expect(lanes.get('b')).toBe(1);
+  });
+
+  it('gives three mutually-overlapping units lanes 0/1/2', () => {
+    const lanes = assignUnitLanes([
+      { id: 'a', start: 0, end: 30 },
+      { id: 'b', start: 10, end: 40 },
+      { id: 'c', start: 20, end: 50 },
+    ]);
+    expect([lanes.get('a'), lanes.get('b'), lanes.get('c')]).toEqual([0, 1, 2]);
+  });
+
+  it('reuses lane 0 once an earlier unit has ended', () => {
+    // a (0-10) and b (20-30) don't overlap → both lane 0; c (5-25) overlaps
+    // both, so it takes lane 1.
+    const lanes = assignUnitLanes([
+      { id: 'a', start: 0, end: 10 },
+      { id: 'b', start: 20, end: 30 },
+      { id: 'c', start: 5, end: 25 },
+    ]);
+    expect(lanes.get('a')).toBe(0);
+    expect(lanes.get('b')).toBe(0);
+    expect(lanes.get('c')).toBe(1);
+  });
+
+  it('treats touching ranges (a.end === b.start) as overlapping', () => {
+    const lanes = assignUnitLanes([
+      { id: 'a', start: 0, end: 10 },
+      { id: 'b', start: 10, end: 20 },
+    ]);
+    expect(lanes.get('a')).toBe(0);
+    expect(lanes.get('b')).toBe(1);
+  });
+
+  it('handles an empty input', () => {
+    expect(assignUnitLanes([]).size).toBe(0);
+  });
+});
+
+describe('getWeekDays', () => {
+  it('returns the 7 Sunday-first dates of the containing week', () => {
+    // Oct 1, 2025 is a Wednesday; its week runs Sun Sep 28 → Sat Oct 4.
+    const days = getWeekDays(new Date(2025, 9, 1));
+    expect(days).toHaveLength(7);
+    expect(days[0].getDay()).toBe(0); // Sunday
+    expect(days[0].getMonth()).toBe(8); // September
+    expect(days[0].getDate()).toBe(28);
+    expect(days[6].getMonth()).toBe(9); // October
+    expect(days[6].getDate()).toBe(4);
+  });
+
+  it('returns the same week for any day within it', () => {
+    const fromSun = getWeekDays(new Date(2025, 8, 28));
+    const fromSat = getWeekDays(new Date(2025, 9, 4));
+    expect(fromSun.map((d) => d.getTime())).toEqual(
+      fromSat.map((d) => d.getTime()),
+    );
+  });
+
+  it('does not mutate the anchor', () => {
+    const anchor = new Date(2025, 9, 1);
+    const before = anchor.getTime();
+    getWeekDays(anchor);
+    expect(anchor.getTime()).toBe(before);
+  });
+});
+
+describe('getWeekCalendar', () => {
+  it('labels a single-month week', () => {
+    const wk = getWeekCalendar(new Date(2025, 9, 8)); // Wed Oct 8
+    expect(wk.start.getDate()).toBe(5);
+    expect(wk.end.getDate()).toBe(11);
+    expect(wk.label).toBe('Oct 5 – 11, 2025');
+  });
+
+  it('labels a month-straddling week with both months', () => {
+    const wk = getWeekCalendar(new Date(2025, 9, 1)); // Sep 28 → Oct 4
+    expect(wk.label).toBe('Sep 28 – Oct 4, 2025');
+  });
+
+  it('labels a year-straddling week with both years', () => {
+    // Dec 31, 2025 is a Wednesday; week runs Sun Dec 28 → Sat Jan 3, 2026.
+    const wk = getWeekCalendar(new Date(2025, 11, 31));
+    expect(wk.start.getFullYear()).toBe(2025);
+    expect(wk.end.getFullYear()).toBe(2026);
+    expect(wk.label).toBe('Dec 28, 2025 – Jan 3, 2026');
+  });
+});
+
+describe('stepWeek', () => {
+  it('advances/rewinds a full week, returning the containing Sunday', () => {
+    const base = new Date(2025, 9, 1); // Wed Oct 1 → week starts Sun Sep 28
+    const next = stepWeek(base, 1);
+    expect(next.getDay()).toBe(0);
+    expect(next.getMonth()).toBe(9); // October
+    expect(next.getDate()).toBe(5); // Sun Oct 5
+    const prev = stepWeek(base, -1);
+    expect(prev.getMonth()).toBe(8); // September
+    expect(prev.getDate()).toBe(21); // Sun Sep 21
+  });
+
+  it('rolls across a month/year boundary', () => {
+    // Sun Dec 28, 2025 + 1 week → Sun Jan 4, 2026.
+    const next = stepWeek(new Date(2025, 11, 28), 1);
+    expect(next.getFullYear()).toBe(2026);
+    expect(next.getMonth()).toBe(0);
+    expect(next.getDate()).toBe(4);
+  });
+
+  it('does not mutate the anchor', () => {
+    const anchor = new Date(2025, 9, 1);
+    const before = anchor.getTime();
+    stepWeek(anchor, 1);
+    expect(anchor.getTime()).toBe(before);
+  });
+});
+
+describe('resolveInitialWeek', () => {
+  it('returns the containing Sunday for an in-school-year date', () => {
+    const wk = resolveInitialWeek(new Date(2025, 9, 1)); // Wed Oct 1
+    expect(wk.getDay()).toBe(0);
+    expect(wk.getMonth()).toBe(8); // September
+    expect(wk.getDate()).toBe(28);
+  });
+
+  it('jumps to the first week of the upcoming August for Jun/Jul', () => {
+    // Aug 1, 2025 is a Friday → its week starts Sun Jul 27, 2025.
+    const wk = resolveInitialWeek(new Date(2025, 5, 15)); // Jun 15
+    expect(wk.getDay()).toBe(0);
+    expect(wk.getFullYear()).toBe(2025);
+    expect(wk.getMonth()).toBe(6); // July
+    expect(wk.getDate()).toBe(27);
+  });
+});
+
+describe('segmentUnitIntoWeek', () => {
+  it('spans Mon–Fri (cols 2–6) for a full-week unit', () => {
+    const week = getWeekDays(new Date(2025, 9, 8)); // Sun Oct 5 → Sat Oct 11
+    const seg = segmentUnitIntoWeek(
+      { start: new Date(2025, 9, 6), end: new Date(2025, 9, 10) }, // Mon–Fri
+      week,
+    );
+    expect(seg).not.toBeNull();
+    expect(seg?.startColumn).toBe(2);
+    expect(seg?.spanColumns).toBe(5);
+    expect(seg?.isFirstSegment).toBe(true);
+  });
+
+  it('returns null when the unit does not touch the week', () => {
+    const week = getWeekDays(new Date(2025, 9, 8));
+    const seg = segmentUnitIntoWeek(
+      { start: new Date(2025, 10, 3), end: new Date(2025, 10, 7) }, // November
+      week,
+    );
+    expect(seg).toBeNull();
+  });
+
+  it('clamps to a single Fri column for a weekend-spanning unit start', () => {
+    const week = getWeekDays(new Date(2025, 9, 8)); // week of Oct 5
+    // Fri Oct 10 → Mon Oct 13.
+    const range = { start: new Date(2025, 9, 10), end: new Date(2025, 9, 13) };
+    const seg = segmentUnitIntoWeek(range, week);
+    expect(seg?.startColumn).toBe(6); // Friday
+    expect(seg?.spanColumns).toBe(1);
+    expect(seg?.isFirstSegment).toBe(true);
+  });
+
+  it('marks the continuation week as not-first', () => {
+    const week = getWeekDays(new Date(2025, 9, 15)); // week of Oct 12
+    const range = { start: new Date(2025, 9, 10), end: new Date(2025, 9, 13) };
+    const seg = segmentUnitIntoWeek(range, week);
+    expect(seg?.startColumn).toBe(2); // Monday Oct 13
+    expect(seg?.spanColumns).toBe(1);
+    expect(seg?.isFirstSegment).toBe(false);
+  });
+
+  it('flags a Saturday-start unit as first in the following week', () => {
+    // Range starts Sat Oct 11 → Wed Oct 15. The week of Oct 5 returns null
+    // (Sat > Fri); the following week (Oct 12) is the first to render it.
+    const range = { start: new Date(2025, 9, 11), end: new Date(2025, 9, 15) };
+    expect(segmentUnitIntoWeek(range, getWeekDays(new Date(2025, 9, 8)))).toBeNull();
+    const seg = segmentUnitIntoWeek(range, getWeekDays(new Date(2025, 9, 15)));
+    expect(seg?.startColumn).toBe(2); // clamped to Monday Oct 13
+    expect(seg?.isFirstSegment).toBe(true);
+  });
+
+  it('flags a Sunday-start unit as first in its own week', () => {
+    // Range starts Sun Oct 12 → Wed Oct 15, all inside the week of Oct 12.
+    const range = { start: new Date(2025, 9, 12), end: new Date(2025, 9, 15) };
+    const seg = segmentUnitIntoWeek(range, getWeekDays(new Date(2025, 9, 15)));
+    expect(seg?.startColumn).toBe(2); // clamped to Monday Oct 13
+    expect(seg?.isFirstSegment).toBe(true);
+  });
+
+  it('stays consistent with segmentUnitIntoWeeks across a month', () => {
+    const cal = getMonthCalendar(2025, 10);
+    const range = { start: new Date(2025, 9, 6), end: new Date(2025, 9, 17) };
+    const viaMonth = segmentUnitIntoWeeks(range, cal);
+    const viaWeek = cal.weeks
+      .map((week, weekIndex) => {
+        const seg = segmentUnitIntoWeek(range, week);
+        return seg ? { ...seg, weekIndex } : null;
+      })
+      .filter((s): s is NonNullable<typeof s> => s !== null);
+    expect(viaWeek).toEqual(viaMonth);
+  });
+});
+
+describe('firstWeekdayWeekAnchor', () => {
+  it('skips a weekend 1st so the anchored week has in-month weekdays', () => {
+    // Aug 1, 2026 is a Saturday → first weekday is Mon Aug 3, whose week
+    // starts Sun Aug 2; its Wednesday (Aug 5) is in August.
+    const anchor = firstWeekdayWeekAnchor(2026, 8);
+    expect(anchor.getDay()).toBe(0); // Sunday
+    expect(anchor.getFullYear()).toBe(2026);
+    expect(anchor.getMonth()).toBe(7); // August
+    expect(anchor.getDate()).toBe(2);
+    expect(getWeekDays(anchor)[3].getMonth()).toBe(7); // Wednesday in August
+  });
+
+  it('returns the containing week when the 1st is a weekday', () => {
+    // Dec 1, 2026 is a Tuesday; its week runs Sun Nov 29 → Sat Dec 5.
+    const anchor = firstWeekdayWeekAnchor(2026, 12);
+    expect(anchor.getDay()).toBe(0); // Sunday
+    const week = getWeekDays(anchor);
+    expect(
+      week.some((d) => d.getMonth() === 11 && d.getDate() === 1),
+    ).toBe(true);
+    expect(week[3].getMonth()).toBe(11); // Wednesday in December
   });
 });

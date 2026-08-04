@@ -87,6 +87,17 @@ describe('resolveActivityRefHref — globe', () => {
       '/atlas/globe?pathway=p1',
     );
   });
+  it('resolves region/city to their guided tours and era to the timeline', () => {
+    expect(resolveActivityRefHref('globe', 'globe:region:west-africa')).toBe(
+      '/atlas/globe?tour=region-west-africa',
+    );
+    expect(resolveActivityRefHref('globe', 'globe:city:new-orleans')).toBe(
+      '/atlas/globe?tour=city-new-orleans',
+    );
+    expect(resolveActivityRefHref('globe', 'globe:era:postwar')).toBe(
+      '/atlas/globe?era=postwar',
+    );
+  });
   it('treats a legacy bare globe ref as an event id', () => {
     expect(resolveActivityRefHref('globe', 'evt-funk-la-1975')).toBe(
       '/atlas/globe?event=evt-funk-la-1975',

@@ -62,6 +62,16 @@ export interface MonthCalendar {
   month: number; // 1-indexed
 }
 
+export interface WeekCalendar {
+  /** The 7 Dates of the week, Sunday-first (0 = Sunday … 6 = Saturday). */
+  days: Date[];
+  /** Sunday (start) and Saturday (end) of the week. */
+  start: Date;
+  end: Date;
+  /** e.g. "Aug 18 – 24, 2025" (spans month/year boundaries when needed). */
+  label: string;
+}
+
 export interface UnitDateRange {
   start: Date;
   end: Date;
@@ -167,6 +177,78 @@ export const getMonthCalendar = (
   };
 };
 
+/** Short month names (Jan, Feb, …) for compact week-range labels. */
+const MONTH_ABBR = MONTH_NAMES.map((m) => m.slice(0, 3));
+
+/** Compact "Aug 18 – 24, 2025" label, widening to include the month and/or
+ *  year on both ends only when the week straddles that boundary. */
+const formatWeekRange = (start: Date, end: Date): string => {
+  const sMon = MONTH_ABBR[start.getMonth()];
+  const eMon = MONTH_ABBR[end.getMonth()];
+  const sY = start.getFullYear();
+  const eY = end.getFullYear();
+  if (sY !== eY) {
+    return `${sMon} ${start.getDate()}, ${sY} – ${eMon} ${end.getDate()}, ${eY}`;
+  }
+  if (start.getMonth() !== end.getMonth()) {
+    return `${sMon} ${start.getDate()} – ${eMon} ${end.getDate()}, ${eY}`;
+  }
+  return `${sMon} ${start.getDate()} – ${end.getDate()}, ${eY}`;
+};
+
+/** The 7 Dates (Sunday-first) of the week containing `anchor`. */
+export const getWeekDays = (anchor: Date): Date[] => {
+  const sunday = startOfDay(anchor);
+  sunday.setDate(sunday.getDate() - sunday.getDay()); // back up to Sunday
+  const days: Date[] = [];
+  const cursor = new Date(sunday);
+  for (let i = 0; i < 7; i++) {
+    days.push(startOfDay(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return days;
+};
+
+/** Builds the single visible week (Sunday-first) that contains `anchor`. */
+export const getWeekCalendar = (anchor: Date): WeekCalendar => {
+  const days = getWeekDays(anchor);
+  const start = days[0];
+  const end = days[6];
+  return { days, start, end, label: formatWeekRange(start, end) };
+};
+
+/** Advance/rewind a week anchor by ±7 days (returns the containing Sunday). */
+export const stepWeek = (anchor: Date, delta: -1 | 1): Date => {
+  const next = startOfDay(anchor);
+  next.setDate(next.getDate() + delta * 7);
+  return getWeekDays(next)[0];
+};
+
+/** Landing week for the calendar: this week if we're inside the school year
+ *  (Aug–May), else the first week of the upcoming August (mirrors
+ *  `resolveInitialMonth`'s Jun/Jul jump). */
+export const resolveInitialWeek = (today: Date): Date => {
+  const m0 = today.getMonth();
+  if (m0 === 5 || m0 === 6) {
+    // Jun/Jul → first week of the upcoming autumn's August.
+    const schoolYear = resolveSchoolYear(today);
+    return getWeekDays(new Date(schoolYear.autumn, 7, 1))[0];
+  }
+  return getWeekDays(today)[0];
+};
+
+/** Sunday anchor of the week containing the first weekday (Mon–Fri) of the
+ *  given month. Used to jump the Week view to a semester's start without
+ *  landing on a mostly-prior-month week when the 1st is a Sat/Sun. `month`
+ *  is 1-indexed (1 = January). */
+export const firstWeekdayWeekAnchor = (year: number, month: number): Date => {
+  const d = new Date(year, month - 1, 1);
+  while (d.getDay() === 0 || d.getDay() === 6) {
+    d.setDate(d.getDate() + 1);
+  }
+  return getWeekDays(d)[0];
+};
+
 /** Resolves the [start, end] date range for a Unit, given the school year. */
 export const resolveUnitDateRange = (
   unit: Unit,
@@ -231,45 +313,57 @@ export const rangeFromScheduledDates = (
  *  Saturday or Sunday cells. A Unit that spans Fri → Mon of the next week
  *  produces one 1-column Friday segment plus one 1-column Monday segment;
  *  the weekend cells between them stay empty. */
+/** Segments a unit's date range across ONE Sunday-first week (`week` = 7
+ *  Dates). Returns a single segment clamped to Monday–Friday (columns 2–6),
+ *  or null when the unit has no weekday overlap with this week. `weekIndex`
+ *  is always 0 (single-week context); `segmentUnitIntoWeeks` overrides it.
+ *  `isFirstSegment` is true when this week holds the unit's very first day. */
+export const segmentUnitIntoWeek = (
+  range: UnitDateRange,
+  week: Date[],
+): UnitWeekSegment | null => {
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const rangeStart = startOfDay(range.start).getTime();
+  const rangeEnd = startOfDay(range.end).getTime();
+
+  // Clamp to this week's Mon (index 1) — Fri (index 5) cells. Sat + Sun are
+  // excluded so Units render only across weekday cells.
+  const weekStartTime = startOfDay(week[0]).getTime();
+  const weekMonTime = startOfDay(week[1]).getTime();
+  const weekFriTime = startOfDay(week[5]).getTime();
+
+  // No weekday-overlap with this week?
+  if (rangeEnd < weekMonTime || rangeStart > weekFriTime) return null;
+
+  const overlapStart = Math.max(rangeStart, weekMonTime);
+  const overlapEnd = Math.min(rangeEnd, weekFriTime);
+
+  return {
+    weekIndex: 0,
+    // Column counts round rather than floor: a spring-forward week has a
+    // 23-hour Sunday, so an ms ÷ DAY_MS division under-counts the day index by
+    // ~1h — rounding restores the exact integer (the DST error is ≤1h of 24h).
+    startColumn: Math.round((overlapStart - weekStartTime) / DAY_MS) + 1,
+    spanColumns: Math.round((overlapEnd - overlapStart) / DAY_MS) + 1,
+    // First segment = the unit starts on/after the Saturday just before this
+    // week's Monday. `overlapStart` is clamped forward to Monday, so a plain
+    // `=== rangeStart` would never flag a unit whose earliest day is a weekend
+    // (it would render forever as a "(cont.)" continuation). This threshold
+    // flags a Sat start in the following week, a Sun start in its own week, and
+    // leaves Mon–Fri starts unchanged.
+    isFirstSegment: rangeStart >= weekMonTime - 2 * DAY_MS,
+  };
+};
+
 export const segmentUnitIntoWeeks = (
   range: UnitDateRange,
   calendar: MonthCalendar,
 ): UnitWeekSegment[] => {
   const segments: UnitWeekSegment[] = [];
-  const rangeStart = startOfDay(range.start).getTime();
-  const rangeEnd = startOfDay(range.end).getTime();
-  const DAY_MS = 24 * 60 * 60 * 1000;
-
-  // The unit's absolute first-day is the same across all weeks — track it so
-  // we can flag the first segment relative to the unit's own timeline, not
-  // relative to what happens to be visible in the current month.
-  const unitFirstDayTime = rangeStart;
-
   calendar.weeks.forEach((week, weekIndex) => {
-    // Clamp each week to its Mon (index 1) — Fri (index 5) cells. Sat + Sun
-    // are excluded so Units render only across weekday cells.
-    const weekStartTime = startOfDay(week[0]).getTime();
-    const weekMonTime = startOfDay(week[1]).getTime();
-    const weekFriTime = startOfDay(week[5]).getTime();
-
-    // No weekday-overlap with this week?
-    if (rangeEnd < weekMonTime || rangeStart > weekFriTime) return;
-
-    const overlapStart = Math.max(rangeStart, weekMonTime);
-    const overlapEnd = Math.min(rangeEnd, weekFriTime);
-
-    // Days from the (Sun-first) start of the week to the overlap start.
-    const startColumn = Math.floor((overlapStart - weekStartTime) / DAY_MS) + 1;
-    const spanColumns = Math.floor((overlapEnd - overlapStart) / DAY_MS) + 1;
-
-    segments.push({
-      weekIndex,
-      startColumn,
-      spanColumns,
-      isFirstSegment: overlapStart === unitFirstDayTime,
-    });
+    const seg = segmentUnitIntoWeek(range, week);
+    if (seg) segments.push({ ...seg, weekIndex });
   });
-
   return segments;
 };
 
@@ -347,6 +441,35 @@ export const distributeAcrossSchoolDays = (
   );
   const clamped = Math.min(targetIndex, schoolDays.length - 1);
   return schoolDays[clamped];
+};
+
+/**
+ * Assign each Unit a "lane" so overlapping Units render in distinct vertical
+ * bands (a Unit's bar + its Day pills share a lane). Greedy interval-partition:
+ * sort by start, place each Unit in the lowest lane whose previous Unit ended
+ * strictly before this one starts (touching dates count as overlapping), else
+ * open a new lane. Non-overlapping Units all reuse lane 0; N mutually
+ * overlapping Units use lanes 0…N-1. Deterministic given the input.
+ *
+ * `start`/`end` are millisecond timestamps of the Unit's [min, max] day dates.
+ */
+export const assignUnitLanes = (
+  units: { id: string; start: number; end: number }[],
+): Map<string, number> => {
+  const sorted = [...units].sort((a, b) => a.start - b.start || a.end - b.end);
+  const laneEnd: number[] = []; // laneEnd[lane] = end of the last Unit in that lane
+  const lanes = new Map<string, number>();
+  for (const u of sorted) {
+    let lane = laneEnd.findIndex((end) => end < u.start);
+    if (lane === -1) {
+      lane = laneEnd.length;
+      laneEnd.push(u.end);
+    } else {
+      laneEnd[lane] = u.end;
+    }
+    lanes.set(u.id, lane);
+  }
+  return lanes;
 };
 
 /** Utility: advance/rewind a ViewMonth by ±1 month, correctly rolling the year. */

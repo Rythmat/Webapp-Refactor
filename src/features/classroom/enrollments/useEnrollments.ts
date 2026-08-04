@@ -169,54 +169,6 @@ export const readEnrollmentStoreForUser = (
   userId: string | null,
 ): EnrollmentStore => readStore(userId);
 
-/** DEV-ONLY. Bulk-write N active enrollments — used by the simulation harness. */
-export const seedActiveEnrollmentsForUser = (
-  userId: string | null,
-  records: Array<
-    Pick<Enrollment, 'id' | 'classroomId' | 'accountId' | 'displayName'>
-  >,
-): Enrollment[] => {
-  const current = readStore(userId);
-  const nowIso = new Date().toISOString();
-  const nextEntries = { ...current.entries };
-  const created: Enrollment[] = [];
-  for (const r of records) {
-    const e: Enrollment = {
-      id: r.id,
-      classroomId: r.classroomId,
-      accountId: r.accountId,
-      displayName: r.displayName,
-      status: 'active',
-      joinedAt: nowIso,
-      approvedAt: nowIso,
-      removedAt: null,
-    };
-    nextEntries[e.id] = e;
-    created.push(e);
-  }
-  const next: EnrollmentStore = { ...current, entries: nextEntries };
-  writeStore(userId, next);
-  return created;
-};
-
-/** DEV-ONLY. Hard-delete enrollments by id — bypasses transitions. */
-export const removeEnrollmentsHardForUser = (
-  userId: string | null,
-  ids: string[],
-): void => {
-  const current = readStore(userId);
-  let changed = false;
-  const nextEntries = { ...current.entries };
-  for (const id of ids) {
-    if (id in nextEntries) {
-      delete nextEntries[id];
-      changed = true;
-    }
-  }
-  if (!changed) return;
-  writeStore(userId, { ...current, entries: nextEntries });
-};
-
 /** DEV-ONLY. Creates a pending row so the student banner is demonstrable pre-swap. */
 export const seedPreviewPendingEnrollmentForUser = (
   userId: string | null,

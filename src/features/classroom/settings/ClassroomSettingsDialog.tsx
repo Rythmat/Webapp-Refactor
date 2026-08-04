@@ -1,12 +1,23 @@
 /**
  * ClassroomSettingsDialog — teacher/tenant config for the Classroom feature:
- * the four Atlas module URLs, IMPACT-values visibility, localContext mode +
- * tenant text, the default age preset, and plan export/restore ("Download my
- * plan"). Reachable from the Annual Plan header.
+ * the Annual-Plan controls (calendar language, school calendar, seed/reset the
+ * canonical curriculum), the four Atlas module URLs, IMPACT-values visibility,
+ * localContext mode + tenant text, the default age preset, and plan
+ * export/restore ("Download my plan"). Reachable from the Annual Plan header;
+ * the plan-specific controls are threaded in as props and only render once a
+ * plan has been seeded.
  */
-import { Download, Upload, X } from 'lucide-react';
+import {
+  CalendarClock,
+  Download,
+  RotateCcw,
+  Sparkles,
+  Upload,
+  X,
+} from 'lucide-react';
 import { useRef } from 'react';
 import { toast } from 'sonner';
+import type { StudentLanguage } from '../types';
 import {
   useTeacherConfig,
   type AtlasModule,
@@ -76,10 +87,26 @@ const LOCAL_MODES: LocalContextMode[] = ['show', 'hide', 'replace'];
 
 interface ClassroomSettingsDialogProps {
   onClose: () => void;
+  /** Whether an annual plan exists — gates the Annual-plan control section. */
+  planSeeded: boolean;
+  language: StudentLanguage;
+  onLanguageChange: (v: StudentLanguage) => void;
+  /** Open the school-calendar editor (holidays + breaks). */
+  onOpenSchoolCalendar: () => void;
+  /** Fill the canonical curriculum's lesson days into the units. */
+  onUseCanonical: () => void;
+  /** Reset the unit tree to the canonical template. */
+  onReset: () => void;
 }
 
 export const ClassroomSettingsDialog = ({
   onClose,
+  planSeeded,
+  language,
+  onLanguageChange,
+  onOpenSchoolCalendar,
+  onUseCanonical,
+  onReset,
 }: ClassroomSettingsDialogProps) => {
   const { config, setConfig } = useTeacherConfig();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -108,6 +135,49 @@ export const ClassroomSettingsDialog = ({
             <X className="h-4 w-4" />
           </button>
         </div>
+
+        {/* Annual plan — controls moved out of the calendar header. Only the
+            language toggle + curriculum actions that need a seeded plan. */}
+        {planSeeded && (
+          <section className="flex flex-col gap-3">
+            <span className="text-xs uppercase tracking-wider text-white/40">
+              Annual plan
+            </span>
+            <div className="flex items-center justify-between gap-2 text-sm text-white/70">
+              Calendar language
+              <LanguageToggle value={language} onChange={onLanguageChange} />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={onOpenSchoolCalendar}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/70 transition-colors hover:border-white/25 hover:text-white"
+                title="Edit school calendar (holidays + breaks)"
+              >
+                <CalendarClock className="h-3.5 w-3.5" />
+                School calendar
+              </button>
+              <button
+                type="button"
+                onClick={onUseCanonical}
+                className="inline-flex items-center gap-2 rounded-full border border-[#7ecfcf]/40 bg-[#7ecfcf]/[0.08] px-3 py-1.5 text-xs font-medium text-[#7ecfcf] transition-colors hover:border-[#7ecfcf]/70"
+                title="Fill the canonical curriculum's lesson days into your units (keeps your own lessons)"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                Use canonical curriculum
+              </button>
+              <button
+                type="button"
+                onClick={onReset}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/60 transition-colors hover:border-red-400/40 hover:text-red-200"
+                title="Reset to canonical template"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset to template
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* Module URLs */}
         <section className="flex flex-col gap-2">
@@ -232,6 +302,42 @@ export const ClassroomSettingsDialog = ({
           </div>
         </section>
       </div>
+    </div>
+  );
+};
+
+interface LanguageToggleProps {
+  value: StudentLanguage;
+  onChange: (v: StudentLanguage) => void;
+}
+
+const LanguageToggle = ({ value, onChange }: LanguageToggleProps) => {
+  const options: { value: StudentLanguage; label: string }[] = [
+    { value: 'en', label: 'EN' },
+    { value: 'es', label: 'ES' },
+    { value: 'both', label: 'EN / ES' },
+  ];
+  return (
+    <div
+      role="group"
+      aria-label="Language"
+      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-0.5"
+    >
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onChange(opt.value)}
+          aria-pressed={opt.value === value}
+          className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
+            opt.value === value
+              ? 'bg-white text-black'
+              : 'text-white/60 hover:text-white'
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
     </div>
   );
 };

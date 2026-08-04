@@ -7,9 +7,13 @@
 import { ArrowLeftRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PHASES } from '../../phases';
 import type { DaySnapshot } from '../../publish/publishDay';
-import { findDanglingInteractionIds, slideInteractionIds } from '../../slides/deck';
+import {
+  findDanglingInteractionIds,
+  slideInteractionIds,
+} from '../../slides/deck';
 import { slidesArePhaseOrdered } from '../../slides/deckEdit';
-import type { Slide, SlideKind } from '../../slides/types';
+import type { SlideTemplateId } from '../../slides/templates/slideTemplates';
+import type { Slide } from '../../slides/types';
 import { AddSlideMenu } from './AddSlideMenu';
 import { SlideThumbnail } from './SlideThumbnail';
 
@@ -19,7 +23,7 @@ interface FilmstripProps {
   /** Published snapshot for the current draft — used to flag dangling refs. */
   snapshot: DaySnapshot;
   onSelect: (index: number) => void;
-  onAdd: (kind: SlideKind) => void;
+  onAdd: (templateId: SlideTemplateId) => void;
   onDuplicate: (index: number) => void;
   onDelete: (index: number) => void;
   onMove: (index: number, delta: number) => void;
@@ -56,7 +60,7 @@ export const Filmstrip = ({
         </div>
       )}
 
-      <div className="flex items-end gap-3 overflow-x-auto pb-1">
+      <div className="flex items-start gap-3 overflow-x-auto pb-1">
         {slides.map((slide, index) => (
           <div key={slide.id} className="flex flex-col gap-1">
             <SlideThumbnail

@@ -7,6 +7,7 @@
  * (or when the tile carries no ref). Legacy annual-plan globe tiles carry a
  * bare event id as `activityRef` — the shared resolver handles those.
  */
+import { getSong } from '@/curriculum/data/songs';
 import { resolveActivityRefHref } from '../slides/resolveContentHref';
 import type { LaunchTile } from '../types';
 
@@ -27,5 +28,9 @@ export const resolveModuleUrl = (
   const override = moduleUrls?.[tile.module]?.trim();
   const base = override || MODULE_FALLBACKS[tile.module];
   if (!base) return null;
-  return resolveActivityRefHref(tile.module, tile.activityRef) ?? base;
+  // Inject `getSong` so `song:<id>:lesson` tiles resolve to the song's Theory
+  // lesson (the resolver returns null without it → we'd fall back to the base).
+  return (
+    resolveActivityRefHref(tile.module, tile.activityRef, { getSong }) ?? base
+  );
 };

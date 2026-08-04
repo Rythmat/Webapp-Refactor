@@ -6,9 +6,10 @@
 import type { PhaseKey } from '../phases';
 import type { Cell, Day, Interaction, LocalizedText } from '../types';
 import { slideInteractionIds } from './deck';
+import { preserveLayoutOnKindChange } from './slideLayout';
 import type { Slide, SlideDeck, SlideKind } from './types';
 
-const slideUid = (): string =>
+export const slideUid = (): string =>
   `slide-${Math.random().toString(36).slice(2, 8)}-${Date.now()
     .toString(36)
     .slice(-4)}`;
@@ -119,12 +120,19 @@ export const updateSlideAt = (
   let nextSlide: Slide;
   if (patch.kind && patch.kind !== current.kind) {
     const rebuilt = newSlide(patch.kind, current.phase);
+    const phase = patch.phase ?? current.phase;
+    const layout = preserveLayoutOnKindChange(
+      current.layout,
+      patch.kind,
+      phase,
+    );
     nextSlide = {
       ...rebuilt,
       id: current.id,
       title: current.title,
       ...(current.prompt !== undefined ? { prompt: current.prompt } : {}),
       ...(patch.phase ? { phase: patch.phase } : {}),
+      ...(layout ? { layout } : {}),
     };
   } else {
     nextSlide = { ...current, ...patch } as Slide;

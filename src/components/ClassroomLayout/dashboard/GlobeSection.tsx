@@ -1,4 +1,3 @@
-import { colord } from 'colord';
 import { ArrowRight, Calendar, MapPin } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -12,15 +11,14 @@ import {
   type GlobeArc,
   type GlobeMarker,
 } from '@/components/ui/cobe-globe-cdn';
+import {
+  arcHeightForAngle,
+  centralAngle,
+  rgb,
+} from '@/components/ui/globeMath';
 import { AtlasRoutes } from '@/constants/routes';
 import { ContentGate } from '@/content/ContentGate';
 import { MUSIC_HISTORY } from '@/content/contentStore';
-
-/** Convert an Atlas hex colour to cobe's 0–1 RGB triple. */
-const rgb = (hex: string): [number, number, number] => {
-  const { r, g, b } = colord(hex).toRgb();
-  return [r / 255, g / 255, b / 255];
-};
 
 // Curated, landmark events — each verified to have influence flight paths.
 const FEATURED_EVENT_IDS = [
@@ -95,27 +93,6 @@ const MAX_ARCS = 40;
 
 const coordKey = (lat: number, lng: number) =>
   `${lat.toFixed(3)},${lng.toFixed(3)}`;
-
-const DEG = Math.PI / 180;
-
-/** Great-circle central angle (radians) between two [lat, lng] points. */
-const centralAngle = (
-  [lat1, lng1]: [number, number],
-  [lat2, lng2]: [number, number],
-): number => {
-  const p1 = lat1 * DEG;
-  const p2 = lat2 * DEG;
-  const dl = (lng2 - lng1) * DEG;
-  const c =
-    Math.sin(p1) * Math.sin(p2) + Math.cos(p1) * Math.cos(p2) * Math.cos(dl);
-  return Math.acos(Math.min(1, Math.max(-1, c)));
-};
-
-/** Pick a global arc altitude so the event's LONGEST arc peaks well above the
- * globe (cobe has no per-arc height). Regional-only events stay low (~0.28);
- * far, intercontinental arcs get a high arch instead of clipping through. */
-const arcHeightForAngle = (maxAngle: number): number =>
-  Math.min(0.72, Math.max(0.28, 1.09 - 0.81 * Math.cos(maxAngle / 2)));
 
 /** Build the globe's markers + arcs for one event — same arcs the main globe
  * draws when this event is pinned (`getRecursiveArcsForEvent`). */

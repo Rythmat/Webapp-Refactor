@@ -1,6 +1,18 @@
-import { Bookmark, BookOpen, Play, PlusCircle, Radio, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Bookmark,
+  BookOpen,
+  Play,
+  PlusCircle,
+  Radio,
+  Trash2,
+} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import {
   FilterDropdown,
   type FilterOption,
@@ -15,8 +27,8 @@ import { useLocalSessionStore } from '../live/useLocalSessionStore';
 import { useStartClassroomSession } from '../live/useStartClassroomSession';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import type { Day, Unit } from '../types';
-import { NewLessonMenu } from './NewLessonMenu';
-import { newBlankDay } from './newBlankDay';
+import { NewLessonDialog } from './NewLessonDialog';
+import { useEnsureLessonUnits } from './useEnsureLessonUnits';
 import { useLocalPlan } from './useLocalPlan';
 import { useSavedLessons } from './useSavedLessons';
 
@@ -74,7 +86,8 @@ interface LessonSection {
 export const PlanPage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
   const navigate = useNavigate();
-  const { listDays, saveDay, deleteDay } = useLocalPlan();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { listDays, deleteDay } = useLocalPlan();
   const cid = classroomId ?? '';
   const { publishedDays, publishDayToClassroom } = usePublishedDays(cid);
   const { assignments } = useAssignments(cid);
@@ -82,13 +95,31 @@ export const PlanPage = () => {
   const startClassroomSession = useStartClassroomSession();
   const { plan } = useAnnualPlan(cid);
   const { byId } = useThemeBank();
-  const { saved: savedSet, toggle: toggleSaved, remove: removeSaved } =
-    useSavedLessons();
+  const {
+    saved: savedSet,
+    toggle: toggleSaved,
+    remove: removeSaved,
+  } = useSavedLessons();
+
+  // Guarantee the canonical Units exist + adopt any orphan Lessons into a Unit.
+  useEnsureLessonUnits(cid);
 
   const [status, setStatus] = useState<LessonStatus | 'all'>('all');
   const [topic, setTopic] = useState<ThemeTopic | 'all'>('all');
   const [saved, setSaved] = useState<SavedFilter>('all');
   const [search, setSearch] = useState('');
+  const [newOpen, setNewOpen] = useState(false);
+
+  // The Overview "Create" tile links here with ?new=1 to open the New Lesson
+  // dialog; consume the param so a refresh/back doesn't re-open it.
+  useEffect(() => {
+    if (searchParams.get('new') === '1') {
+      setNewOpen(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete('new');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const days = listDays();
   const activeSession = getActiveSessionForClassroom(cid);
@@ -98,7 +129,9 @@ export const PlanPage = () => {
   const entryFor = (day: Day): LessonEntry => {
     const pd = publishedDays.find((p) => p.sourceRef === day.id);
     const assignment = pd
-      ? assignments.find((a) => a.publishedDayId === pd.id && a.status === 'open')
+      ? assignments.find(
+          (a) => a.publishedDayId === pd.id && a.status === 'open',
+        )
       : undefined;
     const status: LessonStatus =
       pd && activeSession && activeSession.publishedDayId === pd.id
@@ -109,12 +142,6 @@ export const PlanPage = () => {
             ? 'published'
             : 'draft';
     return { day, assignment, status };
-  };
-
-  const handleNew = () => {
-    const day = newBlankDay();
-    saveDay(day);
-    navigate(TeacherRoutes.dayEditor({ classroomId: cid, dayId: day.id }));
   };
 
   const handleDelete = (dayId: string, dayLabel: string) => {
@@ -155,7 +182,8 @@ export const PlanPage = () => {
   // Reverse-lookup: dayId → owning unit id (see CalendarView).
   const unitByDayId = useMemo(() => {
     const map = new Map<string, string>();
-    for (const u of allUnits) for (const id of u.dayIds ?? []) map.set(id, u.id);
+    for (const u of allUnits)
+      for (const id of u.dayIds ?? []) map.set(id, u.id);
     return map;
   }, [allUnits]);
   const unitTitle = (u: Unit): string =>
@@ -206,13 +234,22 @@ export const PlanPage = () => {
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2 md:gap-3">
           <BookOpen className="h-6 w-6 text-white/85 md:h-7 md:w-7" />
-          <h1 className="text-xl font-medium text-white md:text-2xl">Lessons</h1>
+          <h1 className="text-xl font-medium text-white md:text-2xl">
+            Lessons
+          </h1>
         </div>
-        <NewLessonMenu classroomId={cid} />
+        <button
+          type="button"
+          onClick={() => setNewOpen(true)}
+          className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
+        >
+          <PlusCircle className="h-4 w-4" />
+          New Lesson
+        </button>
       </header>
 
       {days.length === 0 ? (
-        <EmptyState onNew={handleNew} />
+        <EmptyState onNew={() => setNewOpen(true)} />
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-2.5">
@@ -287,6 +324,12 @@ export const PlanPage = () => {
           )}
         </>
       )}
+
+      <NewLessonDialog
+        classroomId={cid}
+        isOpen={newOpen}
+        onOpenChange={setNewOpen}
+      />
     </div>
   );
 };
@@ -359,7 +402,7 @@ const LessonCard = ({
         className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
       >
         <Play className="h-4 w-4" />
-        Present
+        Preview
       </Link>
       <Link
         to={TeacherRoutes.dayEditor({ classroomId: cid, dayId: day.id })}
@@ -384,7 +427,7 @@ const LessonCard = ({
         className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/[0.06] px-4 py-2 text-sm text-emerald-200 transition-colors hover:border-emerald-400 hover:text-emerald-100"
       >
         <Radio className="h-4 w-4" />
-        Start Session
+        Present
       </button>
     </div>
   </li>

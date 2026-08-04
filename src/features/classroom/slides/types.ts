@@ -29,8 +29,89 @@ export type SlideMedia =
       markers?: Array<{ location: [number, number]; size?: number }>;
       arcs?: Array<{ from: [number, number]; to: [number, number] }>;
     }
+  /**
+   * A specific globe *pathway* embedded as the dashboard-style preview: the
+   * globe traces the pathway's stops beside a card that steps through them.
+   * Only the (static, student-safe) pathway id is stored — the events, arcs and
+   * card text are resolved at render, mirroring how `artistImage` resolves its
+   * `songId`. `pathwayId` is a `HISTORICAL_MODULES` id.
+   */
+  | { type: 'globePathway'; pathwayId: string }
   /** Phase 2 — ChordChart embed for Song Chart slides. */
-  | { type: 'chordChart'; songId: string };
+  | { type: 'chordChart'; songId: string }
+  /**
+   * The Learn Overview "Scale" keyboard for a mode in a key — a highlighted
+   * piano + interval/notes text + Play Scale. Only the (static, student-safe)
+   * mode slug + key URL token are stored (e.g. `ionian` + `c`); the scale is
+   * computed at render. Used by the Theory Add-slide template.
+   */
+  | { type: 'scaleKeyboard'; mode: string; key: string };
+
+/**
+ * Freeform layout (Phase 4+). A slide's positionable "blocks" — teachers can
+ * move / resize / hide each on the 16:9 canvas. Persisted per slide in
+ * `SlideCommon.layout`; absent ⇒ the kind's default (flow) arrangement.
+ *
+ * Firewall note: this is student-safe by construction — the keys are a fixed
+ * identifier set and every value is a number/boolean, so it carries no free
+ * text and can't contain a Rule-1 forbidden substring. It is whitelist-copied
+ * in `publishDay.projectSlideLayout` (never spread).
+ */
+export type SlideBlockKey =
+  | 'title'
+  | 'prompt'
+  | 'body'
+  | 'media'
+  | 'sideMedia'
+  | 'launchTiles'
+  | 'resetChecklist'
+  | 'interaction';
+
+/** Rect in design space — px within a fixed 1280×720 canvas, origin top-left. */
+export interface SlideBlockRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  /** Paint order; higher is on top. Defaults derive from key order. */
+  z?: number;
+  /** Teacher hid this block — removed on every surface (how title is removed). */
+  hidden?: boolean;
+}
+
+/** Sparse per-slide arrangement. Absent keys fall back to the kind default. */
+export type SlideLayout = Partial<Record<SlideBlockKey, SlideBlockRect>>;
+
+/**
+ * Per-block text formatting (font scale / bold / alignment).
+ *
+ * Firewall note: student-safe by construction — every value is a number, a
+ * boolean, or an enum token (`left`/`center`/`right`, none of which contain a
+ * Rule-1 forbidden substring), so it carries no free text. Whitelist-copied in
+ * `publishDay.projectTextStyle` (never spread), exactly like `SlideLayout`.
+ */
+export interface SlideBlockStyle {
+  /** Multiplier on the block's resolved `--slide-<block>-fz` token (clamp 0.5–2). */
+  fontScale?: number;
+  bold?: boolean;
+  align?: 'left' | 'center' | 'right';
+}
+
+/** Sparse per-block text style. Absent keys ⇒ the block's default styling. */
+export type SlideTextStyle = Partial<Record<SlideBlockKey, SlideBlockStyle>>;
+
+/** Canonical allow-list of block keys — the publish projector iterates THIS
+ *  (never `Object.keys`) so a stray/forbidden key can never ride through. */
+export const SLIDE_BLOCK_KEYS: readonly SlideBlockKey[] = [
+  'title',
+  'prompt',
+  'body',
+  'media',
+  'sideMedia',
+  'launchTiles',
+  'resetChecklist',
+  'interaction',
+] as const;
 
 interface SlideCommon {
   id: string;
@@ -40,6 +121,25 @@ interface SlideCommon {
   prompt?: LocalizedText;
   /** Teacher-set countdown seconds (Phase 4 UI; parameterized by templates now). */
   timerSec?: number;
+  /**
+   * Freeform arrangement of this slide's blocks. Undefined ⇒ the kind's default
+   * flow layout (existing decks render unchanged). Only touched blocks are
+   * stored; the rest resolve from `defaultLayoutForKind` at render.
+   */
+  layout?: SlideLayout;
+  /**
+   * Per-slide accent override (a `#RRGGBB` hex) driving the radial glow + phase
+   * chip dot. Undefined ⇒ the phase default (`PHASE_ACCENT_HEX`). Student-safe:
+   * a hex string only (the UI never emits free text).
+   */
+  accent?: string;
+  /**
+   * Per-block text formatting (font scale / bold / alignment). Undefined ⇒ each
+   * block's default styling. Student-safe: numeric/boolean/enum values only.
+   */
+  textStyle?: SlideTextStyle;
+  /** Hide the phase-label chip ("Connect"/"Practice"/…) on this slide. */
+  hidePhaseLabel?: boolean;
 }
 
 /** Title card / section header / closing frame. */
@@ -48,6 +148,11 @@ export interface ContentSlide extends SlideCommon {
   variant?: 'welcome' | 'section' | 'plain';
   body?: LocalizedText;
   media?: SlideMedia;
+  /**
+   * Optional second visual, positioned as its own freeform block — e.g. a
+   * song's artist image beside its YouTube video. Same `SlideMedia` union.
+   */
+  sideMedia?: SlideMedia;
   /**
    * Atlas launch tiles surfaced on this slide (migrated off
    * `cell.presentation.launchTiles`, which the phase board used to render).

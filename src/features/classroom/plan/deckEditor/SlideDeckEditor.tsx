@@ -15,25 +15,24 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { insertActivityIntoCell } from '../../content/applySeed';
 import type { Activity } from '../../content/types';
-import { useStartClassroomSession } from '../../live/useStartClassroomSession';
 import { PHASE_FULL_NAMES, PHASES } from '../../phases';
 import { publishDay } from '../../publish/publishDay';
-import { usePublishedDays } from '../../publish/usePublishedDays';
-import {
-  findDanglingInteractionIds,
-  slideInteractionIds,
-} from '../../slides/deck';
+import { slideInteractionIds } from '../../slides/deck';
 import {
   deleteSlideAt,
   duplicateSlideAt,
   insertSlideAt,
   moveSlide,
-  newSlide,
   setSlideInteractions,
   updateSlideAt,
 } from '../../slides/deckEdit';
 import { deckFromCells } from '../../slides/deckFromCells';
-import type { Slide, SlideKind } from '../../slides/types';
+import {
+  SLIDE_TEMPLATES,
+  buildTemplateSlide,
+  type SlideTemplateId,
+} from '../../slides/templates/slideTemplates';
+import type { Slide, SlideBlockKey } from '../../slides/types';
 import type {
   AgePreset,
   Cell,
@@ -43,11 +42,14 @@ import type {
   StudentLanguage,
 } from '../../types';
 import { useLocalPlan } from '../useLocalPlan';
-import { AssignPanel } from './AssignPanel';
+import { ChooseContentButton } from './ChooseContentButton';
 import { EditorTopBar } from './EditorTopBar';
 import { Filmstrip } from './Filmstrip';
 import { RationaleSidePanel } from './RationaleSidePanel';
 import { SlideCanvas } from './SlideCanvas';
+import { TextFormatMenu } from './TextFormatMenu';
+import { ContentPickerDialog } from './contentPicker/ContentPickerDialog';
+import type { PickedTile, SlideMediaEmbed } from './contentPicker/catalog';
 import '../../presentation.css';
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
@@ -66,22 +68,24 @@ export const SlideDeckEditor = () => {
   const navigate = useNavigate();
   const { getDay, saveDay } = useLocalPlan();
   const cid = classroomId ?? '';
-  const { publishDayToClassroom } = usePublishedDays(cid);
-  const startClassroomSession = useStartClassroomSession();
 
   const [draft, setDraft] = useState<Day | undefined>(() => {
     const d = dayId ? getDay(dayId) : undefined;
     return d ? withDeck(d) : undefined;
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedBlock, setSelectedBlock] = useState<SlideBlockKey | null>(
+    null,
+  );
   const [language, setLanguage] = useState<StudentLanguage>('en');
   // Age preset is pinned to 'high' (the canvas/present type-scale baseline); the
   // Middle/High/College picker was removed from the editor chrome.
   const agePreset: AgePreset = 'high';
   const [rationaleCollapsed, setRationaleCollapsed] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
-  const [assignOpen, setAssignOpen] = useState(false);
-  const [publishError, setPublishError] = useState<string | null>(null);
+  // The Add-slide template awaiting a content pick (opens a scoped picker).
+  const [pendingTemplate, setPendingTemplate] =
+    useState<SlideTemplateId | null>(null);
 
   // Bounce back to the plan list if the dayId isn't in the plan.
   useEffect(() => {
@@ -103,6 +107,13 @@ export const SlideDeckEditor = () => {
   const slides = draft?.deck?.slides ?? [];
   const clampedIndex = Math.min(selectedIndex, Math.max(0, slides.length - 1));
   const selected: Slide | undefined = slides[clampedIndex];
+
+  // Selection is lifted here so the toolbar's text-format tool can target it;
+  // clear it when the active slide changes (the SlideCanvas key-remount used to
+  // reset this when the state lived inside the canvas).
+  useEffect(() => {
+    setSelectedBlock(null);
+  }, [clampedIndex]);
 
   const updateSlides = useCallback((next: Slide[]) => {
     setDraft((prev) =>
@@ -127,15 +138,23 @@ export const SlideDeckEditor = () => {
     [clampedIndex],
   );
 
-  const addSlide = useCallback(
-    (kind: SlideKind) => {
+  // Add-slide opens the template's content picker; the slide is seeded on pick.
+  const addSlide = useCallback((templateId: SlideTemplateId) => {
+    setPendingTemplate(templateId);
+  }, []);
+
+  // Seed a template slide from the picked content and insert it after the
+  // current slide (inheriting its phase). Cancelling the picker inserts nothing.
+  const seedFromTemplate = useCallback(
+    (tile: PickedTile, embed?: SlideMediaEmbed) => {
+      if (!pendingTemplate) return;
       const phase = slides[clampedIndex]?.phase ?? PHASES[0];
-      updateSlides(
-        insertSlideAt(slides, newSlide(kind, phase), clampedIndex + 1),
-      );
+      const slide = buildTemplateSlide(pendingTemplate, phase, { tile, embed });
+      updateSlides(insertSlideAt(slides, slide, clampedIndex + 1));
       setSelectedIndex(clampedIndex + 1);
+      setPendingTemplate(null);
     },
-    [slides, clampedIndex, updateSlides],
+    [pendingTemplate, slides, clampedIndex, updateSlides],
   );
 
   const duplicateSlide = useCallback((index: number) => {
@@ -224,62 +243,6 @@ export const SlideDeckEditor = () => {
     return secondsAgo < 5 ? 'Saved' : 'Saved a moment ago';
   }, [savedAt]);
 
-  const danglingRefs = useMemo(
-    () => (draft ? findDanglingInteractionIds(publishDay(draft)) : []),
-    [draft],
-  );
-
-  const handlePublish = useCallback(async () => {
-    if (!draft) return;
-    setPublishError(null);
-    if (danglingRefs.length > 0) {
-      setPublishError(
-        `Slides reference missing interactions: ${danglingRefs.join(', ')}`,
-      );
-      return;
-    }
-    try {
-      await publishDayToClassroom({ classroomId: cid, day: draft });
-    } catch (err) {
-      setPublishError(err instanceof Error ? err.message : 'Publish failed');
-    }
-  }, [draft, cid, publishDayToClassroom, danglingRefs]);
-
-  const handleStartSession = useCallback(async () => {
-    if (!draft) return;
-    setPublishError(null);
-    if (danglingRefs.length > 0) {
-      setPublishError(
-        `Slides reference missing interactions: ${danglingRefs.join(', ')}`,
-      );
-      return;
-    }
-    try {
-      const pd = await publishDayToClassroom({ classroomId: cid, day: draft });
-      const started = await startClassroomSession({
-        classroomId: cid,
-        publishedDayId: pd.id,
-      });
-      navigate(
-        TeacherRoutes.session({
-          classroomId: cid,
-          sessionId: started.sessionId,
-        }),
-      );
-    } catch (err) {
-      setPublishError(
-        err instanceof Error ? err.message : 'Start session failed',
-      );
-    }
-  }, [
-    draft,
-    cid,
-    publishDayToClassroom,
-    startClassroomSession,
-    navigate,
-    danglingRefs,
-  ]);
-
   if (!draft || !selected) return null;
 
   const snapshot = publishDay(draft);
@@ -289,30 +252,54 @@ export const SlideDeckEditor = () => {
     .map((id) => cellInteractions.find((i) => i.id === id))
     .filter((i): i is Interaction => i !== undefined);
 
+  // The text-format tool only targets text blocks (title / prompt / body).
+  const textBlock: SlideBlockKey | null =
+    selectedBlock === 'title' ||
+    selectedBlock === 'prompt' ||
+    selectedBlock === 'body'
+      ? selectedBlock
+      : null;
+
+  // The "+ Choose content" pill shows on EVERY slide's toolbar. Launch tiles
+  // only render on content slides, so non-content slides start from an empty
+  // set (the pill stays available but its tiles are a content-slide feature).
+  const contentTiles =
+    selected.kind === 'content' ? (selected.launchTiles ?? []) : [];
+
   return (
     <div className="flex w-full flex-col">
       <EditorTopBar
         classroomId={cid}
-        dayId={draft.id}
         label={draft.label}
         onLabelChange={updateLabel}
         savedLabel={savedLabel}
         language={language}
         onLanguageChange={setLanguage}
-        publishError={publishError}
-        assignActive={assignOpen}
-        onAssign={() => setAssignOpen((v) => !v)}
-        onPublish={handlePublish}
-        onStartSession={handleStartSession}
+        chooseContent={
+          <ChooseContentButton
+            tiles={contentTiles}
+            onChange={(tiles) =>
+              patchSelected({
+                launchTiles: tiles.length ? tiles : undefined,
+              })
+            }
+            onEmbedMedia={(embed) => patchSelected(embed)}
+          />
+        }
+        textTool={
+          <TextFormatMenu
+            blockKey={textBlock}
+            style={textBlock ? selected.textStyle?.[textBlock] : undefined}
+            onChange={(next) => {
+              if (textBlock) {
+                patchSelected({
+                  textStyle: { ...selected.textStyle, [textBlock]: next },
+                });
+              }
+            }}
+          />
+        }
       />
-
-      {assignOpen && (
-        <AssignPanel
-          classroomId={cid}
-          day={draft}
-          onClose={() => setAssignOpen(false)}
-        />
-      )}
 
       <div className="flex min-h-0 flex-1 gap-4 p-4">
         <div className="flex min-w-0 flex-1 flex-col gap-4">
@@ -323,6 +310,8 @@ export const SlideDeckEditor = () => {
               language={language}
               agePreset={agePreset}
               onPatch={patchSelected}
+              selectedBlock={selectedBlock}
+              onSelectBlock={setSelectedBlock}
             />
           </div>
           <Filmstrip
@@ -351,6 +340,25 @@ export const SlideDeckEditor = () => {
           onToggleCollapsed={() => setRationaleCollapsed((v) => !v)}
         />
       </div>
+
+      {/* Add-slide template flow: a content picker scoped to the template's one
+          domain; on pick, the seeded slide is inserted. */}
+      {pendingTemplate &&
+        (() => {
+          const domain = SLIDE_TEMPLATES.find(
+            (t) => t.id === pendingTemplate,
+          )?.pickerDomain;
+          return domain ? (
+            <ContentPickerDialog
+              open
+              domains={[domain]}
+              onSelect={seedFromTemplate}
+              onOpenChange={(o) => {
+                if (!o) setPendingTemplate(null);
+              }}
+            />
+          ) : null;
+        })()}
     </div>
   );
 };

@@ -10,8 +10,8 @@
  * container/max-width/back-link below the tabs. Full-screen projected surfaces
  * (Presentation Mode, Projector) are intentionally NOT wrapped by this layout.
  *
- * Mirrors the workspace layout's ownership guard + `hasMany` derivation so the
- * tab bar renders identically and the deep pages are protected too.
+ * Mirrors the workspace layout's ownership guard so the tab bar renders
+ * identically and the deep pages are protected too.
  */
 import { Suspense } from 'react';
 import { Navigate, Outlet, useParams } from 'react-router-dom';
@@ -30,7 +30,6 @@ export const ClassroomDeepPageLayout = () => {
   const owned = me?.id
     ? allClassrooms.filter((c) => c.teacherId === me.id)
     : [];
-  const hasMany = owned.length > 1;
   const ownsThisClassroom = owned.some((c) => c.id === cid);
 
   // Same guard as ClassroomWorkspaceLayout: bounce URL tampering / a classroom
@@ -42,7 +41,7 @@ export const ClassroomDeepPageLayout = () => {
   return (
     <div className="flex w-full flex-col">
       <div className="px-6 pt-4 md:px-10">
-        <ClassroomTabBar classroomId={cid} hasMany={hasMany} />
+        <ClassroomTabBar classroomId={cid} />
       </div>
 
       <Suspense fallback={<DashboardContentSkeleton />}>

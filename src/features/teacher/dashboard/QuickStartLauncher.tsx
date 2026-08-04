@@ -11,15 +11,17 @@ import {
   GraduationCap,
   PlusCircle,
   Radio,
+  UserPlus,
   type LucideIcon,
 } from 'lucide-react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { HexWaveBackground } from '@/components/ui/hex-wave-background';
 import { cn } from '@/components/utilities';
 import { TeacherRoutes } from '@/constants/routes';
 import { useLocalSessionStore } from '@/features/classroom/live/useLocalSessionStore';
-import { newBlankDay } from '@/features/classroom/plan/newBlankDay';
-import { useLocalPlan } from '@/features/classroom/plan/useLocalPlan';
+import { useClassroom } from '@/hooks/data';
+import { InviteStudentDialog } from '../components/InviteStudentDialog';
 
 interface QuickStartLauncherProps {
   classroomId: string;
@@ -88,28 +90,44 @@ export const QuickStartLauncher = ({
   classroomId,
 }: QuickStartLauncherProps) => {
   const navigate = useNavigate();
-  const { saveDay } = useLocalPlan();
   const { getActiveSessionForClassroom } = useLocalSessionStore();
   const active = getActiveSessionForClassroom(classroomId);
+  const { data: classroom } = useClassroom(classroomId);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
+  // Route to the Lessons tab's New Lesson dialog (which assigns a Unit) rather
+  // than minting an orphan Day here.
   const handleCreate = () => {
-    const day = newBlankDay();
-    saveDay(day);
-    navigate(TeacherRoutes.dayEditor({ classroomId, dayId: day.id }));
+    navigate(`${TeacherRoutes.plan({ classroomId })}?new=1`);
   };
 
   return (
-    <section aria-label="Quick Actions" className="flex flex-col gap-4 md:gap-5">
-      <div className="flex items-center gap-2 text-white/85 md:gap-3">
-        <img
-          src="/icons/quick-start-icon.svg"
-          alt=""
-          draggable={false}
-          className="h-8 w-8 md:h-10 md:w-10"
-        />
-        <h2 className="text-xl font-medium text-white md:text-2xl">
-          Quick Actions
-        </h2>
+    <section
+      aria-label="Quick Actions"
+      className="flex flex-col gap-4 md:gap-5"
+    >
+      {/* Header row mirrors the Home Dashboard's Quick Start section: title on
+          the left, an action on the right (where Home puts its InstrumentSelector). */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-white/85 md:gap-3">
+          <img
+            src="/icons/quick-start-icon.svg"
+            alt=""
+            draggable={false}
+            className="h-8 w-8 md:h-10 md:w-10"
+          />
+          <h2 className="text-xl font-medium text-white md:text-2xl">
+            Quick Actions
+          </h2>
+        </div>
+        <button
+          type="button"
+          onClick={() => setInviteOpen(true)}
+          className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-base font-medium text-black transition-colors hover:bg-white/85"
+        >
+          <UserPlus className="h-4 w-4" />
+          Invite Students
+        </button>
       </div>
 
       <div className="relative isolate overflow-hidden rounded-2xl">
@@ -154,6 +172,15 @@ export const QuickStartLauncher = ({
           />
         </div>
       </div>
+
+      {classroom?.code && (
+        <InviteStudentDialog
+          classroomId={classroomId}
+          classroomCode={classroom.code}
+          isOpen={inviteOpen}
+          onOpenChange={setInviteOpen}
+        />
+      )}
     </section>
   );
 };

@@ -15,7 +15,16 @@
  */
 import { stripLegacySongSlug } from '../legacySongSlug';
 import { PHASES, type PhaseKey } from '../phases';
-import type { Slide, SlideDeck, SlideMedia } from '../slides/types';
+import {
+  SLIDE_BLOCK_KEYS,
+  type Slide,
+  type SlideBlockRect,
+  type SlideBlockStyle,
+  type SlideDeck,
+  type SlideLayout,
+  type SlideMedia,
+  type SlideTextStyle,
+} from '../slides/types';
 import type {
   Cell,
   Day,
@@ -95,9 +104,50 @@ const projectSlideMedia = (media: SlideMedia): SlideMedia => {
           ? { arcs: media.arcs.map((a) => ({ from: a.from, to: a.to })) }
           : {}),
       };
+    case 'globePathway':
+      return { type: 'globePathway', pathwayId: media.pathwayId };
     case 'chordChart':
       return { type: 'chordChart', songId: media.songId };
+    case 'scaleKeyboard':
+      return { type: 'scaleKeyboard', mode: media.mode, key: media.key };
   }
+};
+
+/** Whitelist-copy a layout rect — numbers/booleans only, never spread. */
+const projectBlockRect = (r: SlideBlockRect): SlideBlockRect => ({
+  x: r.x,
+  y: r.y,
+  w: r.w,
+  h: r.h,
+  ...(r.z !== undefined ? { z: r.z } : {}),
+  ...(r.hidden !== undefined ? { hidden: r.hidden } : {}),
+});
+
+/** Whitelist-copy a slide layout, iterating the fixed key allow-list. */
+const projectSlideLayout = (layout: SlideLayout): SlideLayout => {
+  const out: SlideLayout = {};
+  for (const key of SLIDE_BLOCK_KEYS) {
+    const rect = layout[key];
+    if (rect) out[key] = projectBlockRect(rect);
+  }
+  return out;
+};
+
+/** Whitelist-copy a block text style — number/boolean/enum only, never spread. */
+const projectBlockStyle = (s: SlideBlockStyle): SlideBlockStyle => ({
+  ...(s.fontScale !== undefined ? { fontScale: s.fontScale } : {}),
+  ...(s.bold !== undefined ? { bold: s.bold } : {}),
+  ...(s.align !== undefined ? { align: s.align } : {}),
+});
+
+/** Whitelist-copy per-block text style, iterating the fixed key allow-list. */
+const projectTextStyle = (textStyle: SlideTextStyle): SlideTextStyle => {
+  const out: SlideTextStyle = {};
+  for (const key of SLIDE_BLOCK_KEYS) {
+    const style = textStyle[key];
+    if (style) out[key] = projectBlockStyle(style);
+  }
+  return out;
 };
 
 const projectSlide = (slide: Slide): Slide => {
@@ -110,6 +160,16 @@ const projectSlide = (slide: Slide): Slide => {
     title: slide.title,
     ...(slide.prompt !== undefined ? { prompt: slide.prompt } : {}),
     ...(slide.timerSec !== undefined ? { timerSec: slide.timerSec } : {}),
+    ...(slide.layout !== undefined
+      ? { layout: projectSlideLayout(slide.layout) }
+      : {}),
+    ...(slide.accent !== undefined ? { accent: slide.accent } : {}),
+    ...(slide.textStyle !== undefined
+      ? { textStyle: projectTextStyle(slide.textStyle) }
+      : {}),
+    ...(slide.hidePhaseLabel !== undefined
+      ? { hidePhaseLabel: slide.hidePhaseLabel }
+      : {}),
   };
   switch (slide.kind) {
     case 'content':
@@ -120,6 +180,9 @@ const projectSlide = (slide: Slide): Slide => {
         ...(slide.body !== undefined ? { body: slide.body } : {}),
         ...(slide.media !== undefined
           ? { media: projectSlideMedia(slide.media) }
+          : {}),
+        ...(slide.sideMedia !== undefined
+          ? { sideMedia: projectSlideMedia(slide.sideMedia) }
           : {}),
         // Named whitelist copies — tiles through projectLaunchTile (drops any
         // stray key), checklist items rebuilt as {en,es?}. Never spread.

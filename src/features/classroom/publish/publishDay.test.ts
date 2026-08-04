@@ -289,6 +289,44 @@ describe('publishDay deck projection', () => {
     expect(findForbiddenSubstring(snapshot)).toBeNull();
   });
 
+  it('carries per-slide accent + hidePhaseLabel through publish (firewall clean)', () => {
+    const day = makeDeckDay();
+    const s0 = day.deck!.slides[0] as unknown as Record<string, unknown>;
+    s0.accent = '#a78bfa';
+    s0.hidePhaseLabel = true;
+    const snapshot = publishDay(day);
+    const projected = snapshot.deck!.slides[0] as unknown as Record<
+      string,
+      unknown
+    >;
+    expect(projected.accent).toBe('#a78bfa');
+    expect(projected.hidePhaseLabel).toBe(true);
+    expect(findForbiddenSubstring(snapshot)).toBeNull();
+  });
+
+  it('carries per-block textStyle through publish (whitelisted keys only, firewall clean)', () => {
+    const day = makeDeckDay();
+    const s0 = day.deck!.slides[0] as unknown as Record<string, unknown>;
+    // A per-block style map with a stray teacher-only key that must be dropped.
+    s0.textStyle = {
+      title: { fontScale: 1.4, bold: true, align: 'center', secret: 'SECRET' },
+      prompt: { align: 'right' },
+    };
+    const snapshot = publishDay(day);
+    const serialized = JSON.stringify(snapshot);
+    const projected = snapshot.deck!.slides[0] as unknown as Record<
+      string,
+      unknown
+    >;
+    expect(projected.textStyle).toEqual({
+      title: { fontScale: 1.4, bold: true, align: 'center' },
+      prompt: { align: 'right' },
+    });
+    expect(serialized).not.toContain('SECRET');
+    expect(serialized).not.toContain('secret');
+    expect(findForbiddenSubstring(snapshot)).toBeNull();
+  });
+
   it('preserves slide order, kinds, phases, and interaction references', () => {
     const snapshot = publishDay(makeDeckDay());
     expect(snapshot.deck).toBeDefined();

@@ -1,35 +1,59 @@
 /**
  * ClassroomStudentsPage — the People tab of the classroom workspace.
  *
- * Two GC-style sections: Teachers (the classroom owner — the app has no
- * per-classroom co-teacher model yet, so we degrade to the owner) and Students
- * (the existing search + RosterTabs + invite flow). The class title/header now
- * lives in the workspace hero, so this page is header-free.
+ * Two GC-style sections: Teachers (the classroom owner, plus an Invite Teachers
+ * action that invites another Teacher User to co-teach this classroom — the
+ * accepted-co-teacher membership lands once the backend contract ships) and
+ * Students (the existing search + RosterTabs + invite flow). The class
+ * title/header now lives in the workspace hero, so this page is header-free.
  */
-import { Search, UserPlus, X } from 'lucide-react';
+import { Search, UserPlus, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useClassroom, useMe } from '@/hooks/data';
+import { useClassroom, useClassrooms, useMe } from '@/hooks/data';
 import { InviteStudentDialog } from './components/InviteStudentDialog';
+import { InviteTeacherDialog } from './components/InviteTeacherDialog';
 import { RosterTabs } from './components/RosterTabs';
 
 export const ClassroomStudentsPage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
   const { data: classroom } = useClassroom(classroomId);
   const { data: me } = useMe();
+  const { data: allClassrooms = [] } = useClassrooms();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [isInviteTeacherOpen, setIsInviteTeacherOpen] = useState(false);
 
   const ownerName = me?.nickname || me?.username || 'You';
   const ownerInitial = ownerName.charAt(0).toUpperCase() || 'T';
 
+  // Only the classroom owner may invite co-teachers. `useClassroom` returns
+  // `teacherName` (not `teacherId`), so we derive ownership from the owned-list
+  // the workspace guard already loads — mirrors ClassroomWorkspaceLayout.
+  const isOwner = Boolean(
+    me?.id &&
+      allClassrooms.some((c) => c.id === classroomId && c.teacherId === me.id),
+  );
+
   return (
     <div className="flex flex-col gap-6 md:gap-8">
       <section className="flex flex-col gap-3">
-        <span className="text-sm uppercase tracking-wider text-white/60">
-          Teachers
-        </span>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span className="text-sm uppercase tracking-wider text-white/60">
+            Teachers
+          </span>
+          {isOwner && (
+            <button
+              type="button"
+              onClick={() => setIsInviteTeacherOpen(true)}
+              className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-base font-medium text-black transition-colors hover:bg-white/85"
+            >
+              <Users className="h-4 w-4" />
+              Invite Teachers
+            </button>
+          )}
+        </div>
         <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 md:p-5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-base font-medium text-white">
@@ -93,6 +117,15 @@ export const ClassroomStudentsPage = () => {
           classroomId={classroomId}
           isOpen={isInviteDialogOpen}
           onOpenChange={setIsInviteDialogOpen}
+        />
+      )}
+
+      {isOwner && classroomId && (
+        <InviteTeacherDialog
+          classroomId={classroomId}
+          classroomName={classroom?.name}
+          isOpen={isInviteTeacherOpen}
+          onOpenChange={setIsInviteTeacherOpen}
         />
       )}
     </div>

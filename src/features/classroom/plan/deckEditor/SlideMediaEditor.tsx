@@ -28,9 +28,13 @@ export const SlideMediaEditor = ({
 
   if (media && !picking) {
     return (
-      <div className="w-full max-w-[min(38%,22rem)] shrink-0 self-center">
+      <div className="w-full">
         <div className="group relative">
-          <SlideMediaPanel media={media} language={language} interactive={false} />
+          <SlideMediaPanel
+            media={media}
+            language={language}
+            interactive={false}
+          />
           <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             <button
               type="button"
@@ -54,7 +58,7 @@ export const SlideMediaEditor = ({
   }
 
   return (
-    <div className="w-full max-w-[min(38%,22rem)] shrink-0 self-center">
+    <div className="w-full">
       <div className="flex flex-col gap-2 rounded-3xl border border-dashed border-white/15 bg-white/[0.02] p-4">
         <div className="flex items-center gap-2">
           <Youtube className="h-4 w-4 shrink-0 text-white/40" />

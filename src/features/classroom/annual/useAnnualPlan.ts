@@ -164,6 +164,15 @@ export interface UseAnnualPlan {
     unitId: string,
     meta: { overview?: string; essentialQuestions?: string[] },
   ) => void;
+  /** Re-anchor a Unit's schedule (its fallback range + auto-populate ordering).
+   *  `monthIndex` is 1-12. Used when a Unit is dragged to a new calendar date. */
+  setUnitSchedule: (
+    unitId: string,
+    schedule: {
+      monthIndex?: number;
+      dateWindow?: { start: string; end: string } | null;
+    },
+  ) => void;
   deleteUnit: (unitId: string) => void;
   getUnit: (unitId: string) => { unit: Unit; semester: Semester } | null;
   /** Returns a suggested YYYY-MM-DD for the next Day in a unit, or null. */
@@ -343,6 +352,19 @@ export const useAnnualPlan = (classroomId: string): UseAnnualPlan => {
     [mutateUnit],
   );
 
+  const setUnitSchedule = useCallback(
+    (
+      unitId: string,
+      schedule: {
+        monthIndex?: number;
+        dateWindow?: { start: string; end: string } | null;
+      },
+    ): void => {
+      mutateUnit(unitId, (u) => ({ ...u, ...schedule }));
+    },
+    [mutateUnit],
+  );
+
   const deleteUnit = useCallback(
     (unitId: string): void => {
       const current = readAnnualPlanStore();
@@ -495,6 +517,7 @@ export const useAnnualPlan = (classroomId: string): UseAnnualPlan => {
     addCustomUnit,
     renameUnit,
     setUnitMeta,
+    setUnitSchedule,
     deleteUnit,
     getUnit,
     suggestDayScheduleInUnit,

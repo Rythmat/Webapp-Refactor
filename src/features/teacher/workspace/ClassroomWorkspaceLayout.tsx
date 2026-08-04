@@ -28,7 +28,6 @@ export const ClassroomWorkspaceLayout = () => {
   const owned = me?.id
     ? allClassrooms.filter((c) => c.teacherId === me.id)
     : [];
-  const hasMany = owned.length > 1;
   const ownsThisClassroom = owned.some((c) => c.id === cid);
 
   // Guard: URL tampering or a classroom the teacher no longer owns. Bounce back
@@ -40,7 +39,7 @@ export const ClassroomWorkspaceLayout = () => {
 
   return (
     <div className="flex w-full flex-col gap-8 px-6 pt-4 pb-6 md:gap-10 md:px-10 md:pb-10">
-      <ClassroomTabBar classroomId={cid} hasMany={hasMany} />
+      <ClassroomTabBar classroomId={cid} />
 
       <Suspense fallback={<DashboardContentSkeleton />}>
         <Outlet />

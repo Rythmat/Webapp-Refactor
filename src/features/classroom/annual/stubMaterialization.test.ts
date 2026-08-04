@@ -255,6 +255,21 @@ describe('autoPopulateFromTemplate', () => {
     expect(firstUnitId!).toMatch(/^unit-aug-welcome-/);
   });
 
+  it('anchors the first lesson (Aug Welcome Day 1) to Aug 24 — first day of school', () => {
+    const plan = cloneTemplate(CLASSROOM_ID, CANONICAL_ANNUAL_TEMPLATE);
+    const { ops, savedDays } = makeOps();
+    autoPopulateFromTemplate(plan, ops);
+    const schoolYear = resolveSchoolYear(new Date());
+    // savedDays[0] is Aug Welcome Day 1 (see the chronological-order test).
+    expect(savedDays[0].scheduledDate).toBeDefined();
+    const [y, m, d] = savedDays[0].scheduledDate!.split('-').map(Number);
+    expect(y).toBe(schoolYear.autumn);
+    expect(m).toBe(8); // August
+    // On/after the 24th — exactly Aug 24 when it's a weekday, else the next
+    // school day (the dateWindow start is '08-24').
+    expect(d).toBeGreaterThanOrEqual(24);
+  });
+
   it('every scheduled Day lands Mon–Fri (weekends are skipped)', () => {
     // Units cover only M/T/W/Th/F — Sat and Sun never get lessons.
     const plan = cloneTemplate(CLASSROOM_ID, CANONICAL_ANNUAL_TEMPLATE);

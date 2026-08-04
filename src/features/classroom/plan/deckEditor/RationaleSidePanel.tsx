@@ -12,6 +12,7 @@ import type { Slide } from '../../slides/types';
 import type { CellRationale, Interaction } from '../../types';
 import { ActivityBankPicker } from '../ActivityBankPicker';
 import { RationaleEditor } from '../RationaleEditor';
+import { AppRoutePanel } from './AppRoutePanel';
 import { SlideInteractionPanel } from './SlideInteractionPanel';
 
 interface RationaleSidePanelProps {
@@ -79,6 +80,13 @@ export const RationaleSidePanel = ({
 
       {slide.kind === 'interaction' && (
         <SlideInteractionPanel
+          interactions={slideInteractions}
+          onChange={onInteractionsChange}
+        />
+      )}
+
+      {slide.kind === 'app-route' && (
+        <AppRoutePanel
           interactions={slideInteractions}
           onChange={onInteractionsChange}
         />

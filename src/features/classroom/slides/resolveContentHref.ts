@@ -135,6 +135,16 @@ export const resolveActivityRefHref = (
         return `${AtlasRoutes.globe()}?pathway=${encodeURIComponent(id)}`;
       if (sub === 'event' && id)
         return `${AtlasRoutes.globe()}?event=${encodeURIComponent(id)}`;
+      // Regions & cities deep-link via guided tours. The atlas reads the FULL
+      // tour id (`region-<id>` / `city-<id>`); synthesize the prefix inline so
+      // this resolver stays pure (no `guidedTours`/`cities` import). A city
+      // without a curated tour gracefully no-ops to the bare globe.
+      if (sub === 'region' && id)
+        return `${AtlasRoutes.globe()}?tour=${encodeURIComponent(`region-${id}`)}`;
+      if (sub === 'city' && id)
+        return `${AtlasRoutes.globe()}?tour=${encodeURIComponent(`city-${id}`)}`;
+      if (sub === 'era' && id)
+        return `${AtlasRoutes.globe()}?era=${encodeURIComponent(id)}`;
       return AtlasRoutes.globe();
     }
     case 'studio': {

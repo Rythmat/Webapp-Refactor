@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
 import type { ContentSlide } from '../slides/types';
 import type { StudentLanguage } from '../types';
@@ -8,7 +8,7 @@ interface FocusProps {
   /** The current deck slide, already adapted for the static present board. */
   slide: ContentSlide;
   language: StudentLanguage;
-  onClose: () => void;
+  onExit: () => void;
   onPrev: () => void;
   onNext: () => void;
   hasPrev: boolean;
@@ -18,16 +18,15 @@ interface FocusProps {
 }
 
 /**
- * Level 2 — Focus. One deck slide, full-bleed, rendered through the shared
- * present body (`SlidePresentBody` → `SlideFrame`) so Presentation Mode matches
- * the editor + the deck surfaces. "Back to Board" floats top-right so it clears
- * the frame's top-left phase chip; a bottom bar walks the deck slide-by-slide.
- * Esc closes; ←/→ move between slides.
+ * Focus — one deck slide, full-bleed, rendered through the shared present body
+ * (`SlidePresentBody` → `SlideFrame`) so Presentation Mode matches the editor +
+ * the deck surfaces. A bottom bar walks the deck slide-by-slide; Esc exits the
+ * presentation, ←/→ move between slides.
  */
 export const Focus = ({
   slide,
   language,
-  onClose,
+  onExit,
   onPrev,
   onNext,
   hasPrev,
@@ -36,27 +35,17 @@ export const Focus = ({
 }: FocusProps) => {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onExit();
       if (e.key === 'ArrowLeft' && hasPrev) onPrev();
       if (e.key === 'ArrowRight' && hasNext) onNext();
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [onClose, onPrev, onNext, hasPrev, hasNext]);
+  }, [onExit, onPrev, onNext, hasPrev, hasNext]);
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
-      <button
-        type="button"
-        onClick={onClose}
-        className="absolute right-6 top-4 z-20 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm font-medium text-white/80 backdrop-blur transition-colors hover:border-white/25 hover:text-white"
-        aria-label="Back to Board"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Board
-      </button>
-
-      <SlidePresentBody slide={slide} language={language} />
+      <SlidePresentBody slide={slide} language={language} playableMedia />
 
       <div
         className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center"

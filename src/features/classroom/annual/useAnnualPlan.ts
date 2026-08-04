@@ -15,6 +15,7 @@
  * `useAssignments`; the public API of this hook stays stable.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getIdbMirror } from '@/lib/local-store/idbMirror';
 import type { Semester, Unit, Year } from '../types';
 import {
   getNextNSchoolDays,
@@ -67,7 +68,7 @@ const normalizePlan = (p: ClassroomAnnualPlan): ClassroomAnnualPlan => ({
   },
 });
 
-export const readAnnualPlanStore = (): AnnualPlanStore => {
+const readLegacyAnnualPlanStore = (): AnnualPlanStore => {
   if (!isBrowser) return EMPTY_STORE;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -91,7 +92,7 @@ export const readAnnualPlanStore = (): AnnualPlanStore => {
   }
 };
 
-export const writeAnnualPlanStore = (store: AnnualPlanStore): void => {
+const writeLegacyAnnualPlanStore = (store: AnnualPlanStore): void => {
   if (!isBrowser) return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
@@ -100,6 +101,32 @@ export const writeAnnualPlanStore = (store: AnnualPlanStore): void => {
     // Quota / privacy mode — silently no-op.
   }
 };
+
+/**
+ * IndexedDB-backed (browser) with a synchronous in-memory mirror, falling back
+ * to the legacy localStorage path above where IDB is absent (SSR / tests). The
+ * public read/write API stays synchronous. See `@/lib/local-store/idbMirror`.
+ */
+const annualPlanMirror = getIdbMirror<AnnualPlanStore>({
+  key: STORAGE_KEY,
+  readLegacy: readLegacyAnnualPlanStore,
+  writeLegacy: writeLegacyAnnualPlanStore,
+  clearLegacy: () => {
+    if (!isBrowser) return;
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+      window.localStorage.removeItem(`${STORAGE_KEY}.bak`);
+    } catch {
+      // ignore
+    }
+  },
+});
+
+export const readAnnualPlanStore = (): AnnualPlanStore =>
+  annualPlanMirror.read();
+
+export const writeAnnualPlanStore = (store: AnnualPlanStore): void =>
+  annualPlanMirror.write(store);
 
 const generateUnitId = (slug: string): string => {
   const rand = Math.floor(Math.random() * 1e6)
@@ -205,15 +232,10 @@ export const useAnnualPlan = (classroomId: string): UseAnnualPlan => {
   useEffect(() => {
     if (!isBrowser) return;
     const onChange = () => setStore(readAnnualPlanStore());
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) onChange();
-    };
-    window.addEventListener(`${STORAGE_KEY}:changed`, onChange);
-    window.addEventListener('storage', onStorage);
-    return () => {
-      window.removeEventListener(`${STORAGE_KEY}:changed`, onChange);
-      window.removeEventListener('storage', onStorage);
-    };
+    // Refresh once IDB hydration/migration lands, then on every same-tab and
+    // cross-tab change (the mirror bridges tabs via BroadcastChannel).
+    void annualPlanMirror.ready.then(onChange);
+    return annualPlanMirror.subscribe(onChange);
   }, []);
 
   const plan = classroomId ? (store.plans[classroomId] ?? null) : null;

@@ -12,7 +12,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FilterDropdown } from '@/components/songLibrary/FilterDropdown';
 import { SearchInput } from '@/components/songLibrary/SearchInput';
 import { type ViewMode } from '@/components/songLibrary/SongLibraryPage';
-import { LearnRoutes, CurriculumRoutes } from '@/constants/routes';
+import {
+  LearnRoutes,
+  CurriculumRoutes,
+  StudioRoutes,
+} from '@/constants/routes';
 import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
@@ -237,8 +241,7 @@ const THEORY_SECTIONS = [
   { id: 'O', name: 'Overview' },
   { id: 'A', name: 'Melody' },
   { id: 'B', name: 'Chords' },
-  { id: 'C', name: 'Bass' },
-  { id: 'D', name: 'Play-Along' },
+  { id: 'D', name: 'Practice Track' },
 ];
 
 const DIATONIC_MODES = [
@@ -1470,11 +1473,24 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       mode,
       keyLabelToUrlParam(keyLabel),
     );
+    // Practice Track is only offered for the 7 diatonic modes (DIATONIC_MODES
+    // above already enumerates exactly those slugs).
+    const isDiatonicMode = DIATONIC_MODES.some((m) => m.slug === mode);
+    const sections = isDiatonicMode
+      ? THEORY_SECTIONS.map((section) =>
+          section.id === 'D'
+            ? {
+                ...section,
+                route: `${StudioRoutes.editor.definition}?practiceMode=${mode}&practiceRoot=${keyLabelToUrlParam(keyLabel)}&practiceOpen=melody`,
+              }
+            : section,
+        )
+      : THEORY_SECTIONS.filter((section) => section.id !== 'D');
     setSelectedSubItem({
       label: `${keyLabel} ${modeTitle}`,
       route: LearnRoutes.lesson({ mode, key: keyLabelToUrlParam(keyLabel) }),
       completionPct: pct,
-      sections: THEORY_SECTIONS,
+      sections,
     });
   };
 

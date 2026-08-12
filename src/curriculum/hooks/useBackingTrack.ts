@@ -31,9 +31,14 @@ import {
   triggerEpAttackRelease,
 } from '../engine/genreGeneration/epSamplerV2';
 import type { GenreNoteEvent } from '../engine/genreGeneration/resolveStepContent';
+import {
+  buildPopDrums,
+  buildPopBass,
+  buildPopAux,
+  buildPopComping,
+  type PopGrooveId,
+} from '../engine/pop/popBackingEngine';
 import type { ActivityStepV2 } from '../types/activity.v2';
-
-const BACKING_BARS = 16;
 
 // ── Bass sampler config (public/samples/bass-electric/) ─────────────────────
 
@@ -81,11 +86,12 @@ function getBackingVoicing(keyRoot: number): number[] {
 function deriveChordsByBar(
   _targetNotes: GenreNoteEvent[],
   keyRoot: number,
+  bars: number,
 ): number[][] {
   // targetNotes are MELODY notes, not chord voicings.
   // Bass and chord patterns should always derive from keyRoot.
   const defaultVoicing = getBackingVoicing(keyRoot);
-  return Array(BACKING_BARS).fill(defaultVoicing);
+  return Array(bars).fill(defaultVoicing);
 }
 
 // ── Micro-timing jitter ─────────────────────────────────────────────────────
@@ -632,7 +638,8 @@ type GrooveId =
   | 'groove_funk_03'
   | 'groove_funk_04'
   | 'groove_funk_05'
-  | 'groove_funk_06';
+  | 'groove_funk_06'
+  | PopGrooveId;
 
 function getGrooveForStyleRef(styleRef?: string): GrooveId {
   switch (styleRef) {
@@ -668,6 +675,15 @@ function buildDrumPatternForGroove(
       return buildDrumPattern_05(bars);
     case 'groove_funk_06':
       return buildDrumPattern_06(bars);
+    case 'groove_pop_01':
+    case 'groove_pop_02':
+    case 'groove_pop_03':
+    case 'groove_pop_04':
+    case 'groove_pop_05':
+    case 'groove_pop_06':
+    case 'groove_pop_07':
+    case 'groove_pop_08':
+      return buildPopDrums(bars, grooveId) as BackingNote[];
     case 'groove_funk_01':
     default:
       return buildDrumPattern(bars);
@@ -1205,6 +1221,7 @@ export function useBackingTrack(tempo: number) {
       styleRef: string = 'l1a',
       targetNotes: GenreNoteEvent[] = [],
       preStartCallback?: () => Promise<void>,
+      countInTicks: number = 0,
     ) => {
       Tone.getTransport().stop();
       Tone.getTransport().cancel();
@@ -1218,29 +1235,100 @@ export function useBackingTrack(tempo: number) {
       const useReal = enginesReady.current;
       const useSF2 = sf2Ready.current;
       const engineGenerates = step.backing_parts?.engine_generates ?? [];
-      const chordsByBar = deriveChordsByBar(targetNotes, keyRoot);
       const spt = 60 / (tempo * 480); // seconds per tick
 
+      const grooveId = (step.grooveId ??
+        getGrooveForStyleRef(styleRef)) as GrooveId;
+      const isPopGroove = grooveId.startsWith('groove_pop_');
+      const lhNotes = targetNotes.filter((n) => n.hand === 'lh');
+      const chordSymbols = step.chordSymbols ?? [];
+
+      const maxTargetTick =
+        targetNotes.length > 0
+          ? Math.max(...targetNotes.map((n) => n.onset + n.duration))
+          : 1920;
+      const contentBars =
+        chordSymbols.length > 0
+          ? chordSymbols.length
+          : Math.max(4, Math.ceil(maxTargetTick / 1920));
+      const backingBars = Math.max(4, contentBars * 2);
+      const chordsByBar = deriveChordsByBar(targetNotes, keyRoot, backingBars);
+
       const allNotes: BackingNote[] = [];
+
+      // ── Drums ────────────────────────────────────────────────────────────────
       if (engineGenerates.includes('drums')) {
-        const grooveId = (step.grooveId ??
-          getGrooveForStyleRef(styleRef)) as GrooveId;
-        allNotes.push(...buildDrumPatternForGroove(BACKING_BARS, grooveId));
+        allNotes.push(...buildDrumPatternForGroove(backingBars, grooveId));
       }
-      if (engineGenerates.includes('bass'))
+
+      // ── Bass ─────────────────────────────────────────────────────────────────
+      // Pop grooves always generate bass (mirroring LH if present, else chord-derived).
+      // Non-pop grooves only generate bass when explicitly in engine_generates.
+      if (engineGenerates.includes('bass') || isPopGroove) {
+        if (lhNotes.length > 0) {
+          allNotes.push(
+            ...lhNotes.map((n) => ({
+              note: n.midi,
+              onset: n.onset,
+              duration: n.duration,
+              velocity: n.velocity ?? (isPopGroove ? 75 : 85),
+              part: (isPopGroove ? 'chords' : 'bass') as 'chords' | 'bass',
+            })),
+          );
+        } else if (isPopGroove) {
+          allNotes.push(
+            ...buildPopBass(
+              backingBars,
+              grooveId as PopGrooveId,
+              chordSymbols,
+              keyRoot,
+            ),
+          );
+        } else {
+          allNotes.push(
+            ...buildBassPattern(backingBars, keyRoot, level, step.chordSymbols),
+          );
+        }
+      }
+
+      // ── Pop aux (strings + pad) ───────────────────────────────────────────────
+      // Always added for pop play-alongs that have chord context. Additive buildup:
+      // strings from bar 0, pad enters at contentBars (second repetition start).
+      if (isPopGroove && chordSymbols.length > 0) {
         allNotes.push(
-          ...buildBassPattern(BACKING_BARS, keyRoot, level, step.chordSymbols),
+          ...buildPopAux(
+            backingBars,
+            grooveId as PopGrooveId,
+            chordSymbols,
+            keyRoot,
+            contentBars,
+          ),
         );
-      if (engineGenerates.includes('chords'))
-        allNotes.push(
-          ...buildChordPattern(BACKING_BARS, level, chordsByBar, keyRoot),
-        );
+      }
+
+      // ── Chords / comping ──────────────────────────────────────────────────────
+      if (engineGenerates.includes('chords')) {
+        if (isPopGroove && chordSymbols.length > 0) {
+          allNotes.push(
+            ...buildPopComping(
+              backingBars,
+              grooveId as PopGrooveId,
+              chordSymbols,
+              keyRoot,
+            ),
+          );
+        } else {
+          allNotes.push(
+            ...buildChordPattern(backingBars, level, chordsByBar, keyRoot),
+          );
+        }
+      }
 
       // ── Ending: replay beat 1 content on the downbeat after the last bar ──
       // Collects bass + chord notes from beat 1 of bar 1 and places a copy
       // at the final downbeat. Drums excluded — avoids kick-run violations
       // when the last bar has a fill pattern ending near the bar line.
-      const endingTick = BACKING_BARS * 1920;
+      const endingTick = backingBars * 1920;
       const beat1Notes = allNotes.filter(
         (n) => n.onset < 120 && n.part !== 'drums',
       );
@@ -1273,7 +1361,7 @@ export function useBackingTrack(tempo: number) {
       const drumEvents = allNotes
         .filter((n) => n.part === 'drums')
         .map((n) => ({
-          time: n.onset * spt,
+          time: (n.onset + countInTicks) * spt,
           note: n.note,
           velocity: n.velocity,
         }));
@@ -1335,7 +1423,7 @@ export function useBackingTrack(tempo: number) {
         // Normal note: use written duration
         const soundDur = isPickup ? next!.onset - n.onset : n.duration;
         return {
-          time: n.onset * spt,
+          time: (n.onset + countInTicks) * spt,
           note: n.note,
           velocity: n.velocity,
           durationSec: soundDur * spt,
@@ -1391,7 +1479,7 @@ export function useBackingTrack(tempo: number) {
       const chordEvents = allNotes
         .filter((n) => n.part === 'chords')
         .map((n) => ({
-          time: n.onset * spt,
+          time: (n.onset + countInTicks) * spt,
           note: n.note,
           velocity: n.velocity,
           durationSec: n.duration * spt,

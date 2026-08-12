@@ -139,5 +139,5 @@ export function useMetronome({
     };
   }, []);
 
-  return { setBpm, start, prepare };
+  return { setBpm, start, prepare, stop };
 }

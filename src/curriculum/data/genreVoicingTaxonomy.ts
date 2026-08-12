@@ -42,6 +42,19 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
   },
   {
     genre: 'pop',
+    level: 1,
+    qualityId: 'power',
+    algorithmId: 'va_3n_root_pos',
+    voicingDisplayName: 'Power chord (root + 5th)',
+    rhOverride: [0, 7],
+    lhAssignment: 'root_bass',
+    notes: '1-5 (no 3rd)',
+    teachingContext:
+      'Open, versatile — RH holds power chord while LH moves the bass.',
+    tier: 1,
+  },
+  {
+    genre: 'pop',
     level: 2,
     qualityId: 'maj',
     algorithmId: 'va_3n_inv_1st',

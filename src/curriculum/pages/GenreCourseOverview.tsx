@@ -664,8 +664,13 @@ export function GenreCourseOverview({ genreSlug }: GenreCourseOverviewProps) {
     if (!levelProfile) return profile?.accentColor ?? '#888';
     const root = levelProfile.keyCenter.split(' ')[0];
     const rawMode = levelProfile.mode.toLowerCase();
-    // Minor Pentatonic → treat as Dorian for color (same relative-major relationship)
-    const modeSlug = rawMode.includes('pentatonic') ? 'dorian' : rawMode;
+    // Pentatonic → map to diatonic equivalent for circle-of-fifths color
+    // Minor Pentatonic shares a key signature with Dorian; Major Pentatonic with Ionian
+    const modeSlug = rawMode.includes('pentatonic')
+      ? rawMode.includes('minor')
+        ? 'dorian'
+        : 'ionian'
+      : rawMode;
     return colorForKeyMode(
       root,
       modeSlug as Parameters<typeof colorForKeyMode>[1],

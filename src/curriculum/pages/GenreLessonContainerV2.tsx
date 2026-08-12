@@ -6,6 +6,7 @@
  */
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { useNavigate } from 'react-router';
 import * as Tone from 'tone';
 import {
@@ -71,7 +72,12 @@ interface GenreLessonContainerV2Props {
 
 // ── Activity state machine ───────────────────────────────────────────────────
 
-type ActivityState = 'preview' | 'practice' | 'performance' | 'complete';
+type ActivityState =
+  | 'preview'
+  | 'counting-in'
+  | 'practice'
+  | 'performance'
+  | 'complete';
 
 // ── Scale → mode slug mapping (for key center color) ────────────────────────
 
@@ -279,25 +285,20 @@ function GenreLessonContainerV2Inner({
   // For IT activities, offset all notes by 1 bar to create a genuine count-in
   const COUNT_IN_OFFSET = 1920; // one bar at 4/4
 
-  // Convert to PianoRoll format (with IT count-in offset)
-  const pianoRollEvents = useMemo(() => {
-    const events = toPianoRollEvents(targetNotes, keyColor, keyRoot);
-    if (!isIT) return events;
-    // Shift all note onsets forward by one bar for count-in space
-    return events.map((e) => ({
-      ...e,
-      startTicks: e.startTicks + COUNT_IN_OFFSET,
-    }));
-  }, [targetNotes, isIT, keyColor, keyRoot]);
+  // Convert to PianoRoll format — notes at their natural tick positions (bar 1 = tick 0).
+  // The 2-bar metronome count-in happens before the piano roll activates; no offset needed.
+  const pianoRollEvents = useMemo(
+    () => toPianoRollEvents(targetNotes, keyColor, keyRoot),
+    [targetNotes, keyColor, keyRoot],
+  );
 
   // Compute bars needed for PianoRoll
   const requiredBars = useMemo(() => {
     if (targetNotes.length === 0) return 2;
     const maxTick = Math.max(...targetNotes.map((n) => n.onset + n.duration));
     const contentBars = Math.ceil(maxTick / 1920);
-    // IT gets +1 bar for the count-in offset
-    return Math.max(2, contentBars + (isIT ? 1 : 0));
-  }, [targetNotes, isIT]);
+    return Math.max(2, contentBars);
+  }, [targetNotes]);
 
   // Auto-fit note range from target notes
   const noteRange = useMemo(() => {
@@ -626,7 +627,11 @@ function GenreLessonContainerV2Inner({
   // metronome synth on top of that.
   const { volumeDb: lessonVolumeDb } = useLessonVolume();
 
-  const { setBpm, prepare: prepareMetronome } = useMetronome({
+  const {
+    setBpm,
+    prepare: prepareMetronome,
+    stop: stopMetronome,
+  } = useMetronome({
     bpm: tempo,
     // Disable metronome in Play Now (performance) mode when a backing track is running —
     // the drum track provides the pulse. Practice mode always gets the metronome.
@@ -739,10 +744,8 @@ function GenreLessonContainerV2Inner({
       stopBacking();
       Tone.getTransport().stop();
       Tone.getTransport().cancel();
-      // For IT, shift user note onsets back by COUNT_IN_OFFSET to align with target onsets
-      const adjustedUserNotes = isIT
-        ? userNotes.map((n) => ({ ...n, onset: n.onset - COUNT_IN_OFFSET }))
-        : userNotes;
+      // Piano roll notes and user notes both start at tick 0 — no adjustment needed.
+      const adjustedUserNotes = userNotes;
       const result = assess(
         targetNotes,
         adjustedUserNotes,
@@ -770,7 +773,6 @@ function GenreLessonContainerV2Inner({
     currentStep,
     activeSection,
     flow,
-    isIT,
     currentSection,
     assess,
     recordResult,
@@ -779,12 +781,11 @@ function GenreLessonContainerV2Inner({
     stopBacking,
   ]);
 
-  // Max tick = end of last note (with COUNT_IN_OFFSET for IT)
+  // Max tick = end of last note
   const maxContentTick = useMemo(() => {
     if (!targetNotes.length) return 1920;
-    const maxRaw = Math.max(...targetNotes.map((n) => n.onset + n.duration));
-    return isIT ? maxRaw + COUNT_IN_OFFSET : maxRaw;
-  }, [targetNotes, isIT]);
+    return Math.max(...targetNotes.map((n) => n.onset + n.duration));
+  }, [targetNotes]);
 
   // Simple tick sync — no completion logic here
   const handleTickChange = useCallback((tick: number) => {
@@ -1035,6 +1036,9 @@ function GenreLessonContainerV2Inner({
       return;
     }
 
+    // Close the popup immediately — piano roll stays static until count-in starts
+    setActivityState('counting-in');
+
     // IT: start Transport BEFORE activating piano roll playhead
     Tone.getTransport().stop();
     Tone.getTransport().position = 0;
@@ -1059,7 +1063,7 @@ function GenreLessonContainerV2Inner({
     if (targetNotes.length > 0) {
       const spt = 60 / (tempo * 480); // seconds per tick
       const noteEvents = targetNotes.map((n) => ({
-        time: (n.onset + COUNT_IN_OFFSET * 2) * spt,
+        time: (n.onset + 2 * COUNT_IN_OFFSET) * spt,
         midi: n.midi,
         durationSec: n.duration * spt,
       }));
@@ -1085,11 +1089,15 @@ function GenreLessonContainerV2Inner({
       practiceNotePartRef.current = part;
     }
 
+    // Activate piano roll at 1m — piano roll's built-in 1-bar count-in then elapses
+    // during the second metronome bar, so the playhead reaches tick 0 exactly at 2m
+    // when the audio guide fires.
+    Tone.getTransport().scheduleOnce((audioTime: number) => {
+      Tone.getDraw().schedule(() => {
+        setActivityState('practice');
+      }, audioTime);
+    }, '1m');
     Tone.getTransport().start();
-
-    // Match audio latency before starting piano roll playhead
-    await new Promise((r) => setTimeout(r, 150));
-    setActivityState('practice');
   }, [
     tempo,
     isIT,
@@ -1123,6 +1131,9 @@ function GenreLessonContainerV2Inner({
     Tone.getTransport().cancel();
     Tone.getTransport().position = 0;
 
+    // Close the popup immediately — piano roll stays static until count-in starts
+    setActivityState('counting-in');
+
     // Reset state BEFORE starting — but don't set 'performance' yet
     // (that triggers the piano roll playhead, which must wait for audio)
     setActivityInstanceId((id) => id + 1);
@@ -1141,9 +1152,17 @@ function GenreLessonContainerV2Inner({
       ((currentStep as ActivityStepV2).backing_parts?.engine_generates
         ?.length ?? 0) > 0;
     if (hasBackingParts) {
-      setInstrumentsLoading(true);
+      flushSync(() => setInstrumentsLoading(true));
       await initSF2();
       setInstrumentsLoading(false);
+
+      // IT backing steps: 2-bar metronome count-in, then band + piano roll enter together.
+      // Band notes are offset by 2 bars (3840 ticks) so they start exactly at
+      // Transport position '2m'. The piano roll activates at that same moment
+      // using Tone's audio clock (scheduleOnce + getDraw) for frame-accurate sync.
+      // Piano roll notes are at their natural tick positions (no offset), so they
+      // appear at bar 1 of the piano roll — simultaneous with the band's first beat.
+      const countInTicks = isIT ? 2 * COUNT_IN_OFFSET : 0;
 
       await startBacking(
         resolvedStep as ActivityStepV2,
@@ -1151,25 +1170,50 @@ function GenreLessonContainerV2Inner({
         flow.level,
         (resolvedStep as ActivityStepV2).styleRef ?? 'l1a',
         targetNotes,
-        undefined, // no metronome in Play Now with backing track — drums provide the pulse
+        undefined,
+        countInTicks,
       );
+      // Transport is now running. Band notes fire at exactly Transport position '2m'.
 
-      // Wait for Transport start offset + Web Audio latency
-      await new Promise((r) => setTimeout(r, 150));
-      playStartedAtRef.current = Date.now();
-      setActivityState('performance');
+      if (isIT) {
+        // prepareMetronome() must come AFTER startBacking() — startBacking() calls
+        // Transport.cancel() internally, which would wipe the metronome sequence.
+        await prepareMetronome();
+
+        // At '1m': piano roll activates. Its built-in 1-bar count-in elapses from
+        // '1m' to '2m', so the playhead reaches tick 0 exactly when the band enters.
+        Tone.getTransport().scheduleOnce((audioTime1: number) => {
+          Tone.getDraw().schedule(() => {
+            playStartedAtRef.current = Date.now();
+            setActivityState('performance');
+          }, audioTime1);
+        }, '1m');
+
+        // At '2m': band enters (offset by 2*COUNT_IN_OFFSET), metronome stops.
+        Tone.getTransport().scheduleOnce((audioTime2: number) => {
+          Tone.getDraw().schedule(() => {
+            stopMetronome();
+          }, audioTime2);
+        }, '2m');
+      } else {
+        await new Promise((r) => setTimeout(r, 150));
+        playStartedAtRef.current = Date.now();
+        setActivityState('performance');
+      }
     } else if (isIT) {
-      // Non-backing-track IT path (metronome only):
-      // prepare() sets up synth + sequence + loop.start(0) WITHOUT touching Transport.
-      // Transport was already stopped + cancelled at the top of this function.
-      // Starting Transport AFTER prepare() means beat 1 fires cleanly at position 0
-      // with no double-scheduling (the stop/restart that caused the double-click).
+      // Non-backing-track IT path (metronome only): 2-bar count-in, then piano roll.
+      // prepare() sets up synth + sequence at position 0 WITHOUT touching Transport.
+      // Transport starts AFTER prepare() so beat 1 fires cleanly.
+      // Piano roll activates at '1m' — its built-in 1-bar count-in elapses from
+      // '1m' to '2m', so the playhead reaches tick 0 at '2m' = after 2 metronome bars.
       await prepareMetronome();
+      Tone.getTransport().scheduleOnce((audioTime: number) => {
+        Tone.getDraw().schedule(() => {
+          playStartedAtRef.current = Date.now();
+          setActivityState('performance');
+        }, audioTime);
+      }, '1m');
       Tone.getTransport().start('+0.05');
-      // Wait for Transport to start before activating the piano roll playhead.
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      playStartedAtRef.current = Date.now();
-      setActivityState('performance');
     } else {
       // Non-IT, non-backing-track (OOT steps): no metronome needed.
       playStartedAtRef.current = Date.now();
@@ -1183,9 +1227,11 @@ function GenreLessonContainerV2Inner({
     startBacking,
     initSF2,
     prepareMetronome,
+    stopMetronome,
     isIT,
     currentStep,
     keyRoot,
+    tempo,
     requiredBars,
   ]);
 

@@ -1779,35 +1779,36 @@ export const ActivityFlow = ({
   const showStartOverlay =
     usesActivityStartOverlay && activityState === 'pending';
 
-  const startOverlaySequence = useMemo(
-    () =>
-      [...events]
-        .sort((a, b) => {
-          if (a.startTicks !== b.startTicks) {
-            return a.startTicks - b.startTicks;
-          }
-          const aMidi =
-            typeof a.midi === 'number' ? a.midi : pitchNameToMidi(a.pitchName);
-          const bMidi =
-            typeof b.midi === 'number' ? b.midi : pitchNameToMidi(b.pitchName);
-          if (aMidi == null || bMidi == null) {
-            return 0;
-          }
-          return aMidi - bMidi;
-        })
-        .map((event) => ({
-          event,
-          midi:
-            typeof event.midi === 'number'
-              ? event.midi
-              : pitchNameToMidi(event.pitchName),
-        }))
-        .filter(
-          (item): item is { event: NoteEvent; midi: number } =>
-            typeof item.midi === 'number',
-        ),
-    [events],
-  );
+  // Groups notes sharing a startTicks value together so simultaneous chord
+  // tones preview as one step instead of getting arpeggiated a second time.
+  const startOverlaySequence = useMemo(() => {
+    const withMidi = events
+      .map((event) => ({
+        event,
+        midi:
+          typeof event.midi === 'number'
+            ? event.midi
+            : pitchNameToMidi(event.pitchName),
+      }))
+      .filter(
+        (item): item is { event: NoteEvent; midi: number } =>
+          typeof item.midi === 'number',
+      );
+
+    const grouped = new Map<number, { event: NoteEvent; midi: number }[]>();
+    withMidi.forEach((item) => {
+      const collection = grouped.get(item.event.startTicks);
+      if (collection) {
+        collection.push(item);
+      } else {
+        grouped.set(item.event.startTicks, [item]);
+      }
+    });
+
+    return Array.from(grouped.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([, items]) => [...items].sort((a, b) => a.midi - b.midi));
+  }, [events]);
 
   useEffect(() => {
     if (!showStartOverlay || startOverlaySequence.length === 0) {
@@ -1838,25 +1839,28 @@ export const ActivityFlow = ({
       startOverlayStep,
       startOverlaySequence.length - 1,
     );
-    const item = startOverlaySequence[cappedIndex];
-    return [
-      {
-        id: `start-${item.event.id}-${cappedIndex}`,
-        type: 'note',
-        midi: item.midi,
-        time: now,
-        duration: START_OVERLAY_NOTE_DURATION_SECONDS,
-        velocity: 1,
-        color: item.event.color,
-      } satisfies PlaybackEvent,
-    ];
+    const group = startOverlaySequence[cappedIndex];
+    return group.map(
+      (item) =>
+        ({
+          id: `start-${item.event.id}-${cappedIndex}`,
+          type: 'note',
+          midi: item.midi,
+          time: now,
+          duration: START_OVERLAY_NOTE_DURATION_SECONDS,
+          velocity: 1,
+          color: item.event.color,
+        }) satisfies PlaybackEvent,
+    );
   }, [startOverlaySequence, startOverlayStep]);
 
   const { startC: startOverlayStartC, endC: startOverlayEndC } = useMemo(() => {
     if (startOverlaySequence.length === 0) {
       return { startC: 3, endC: 4 };
     }
-    const midiValues = startOverlaySequence.map((item) => item.midi);
+    const midiValues = startOverlaySequence.flatMap((group) =>
+      group.map((item) => item.midi),
+    );
     const minMidi = Math.min(...midiValues);
     const maxMidi = Math.max(...midiValues);
     // PianoKeyboard maps octave N to MIDI [N*12 .. N*12+11].

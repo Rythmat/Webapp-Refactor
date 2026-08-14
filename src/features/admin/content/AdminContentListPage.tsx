@@ -121,7 +121,7 @@ export const AdminContentListPage = () => {
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search title or slug…"
+            placeholder="Search title, slug or details…"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />

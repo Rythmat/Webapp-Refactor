@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { AlertTriangle, Link2, Pencil, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
-import { Link, NavLink, useParams } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useParams } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,15 +37,30 @@ const STATUS_STYLES: Record<ContentStatus, string> = {
   archived: 'bg-zinc-600/20 text-zinc-400 border-zinc-600/30',
 };
 
+/**
+ * A lesson item's slug is `<genre>-l<level>`, and lessons are edited a whole
+ * course at a time rather than a level at a time — so a lesson row links to the
+ * course page for its genre with that level selected.
+ */
+const lessonCourseLink = (slug: string) => {
+  const match = slug.match(/^(.*)-l(\d+)$/);
+  return match
+    ? AdminRoutes.lessonCourse({ genre: match[1] }, { level: match[2] })
+    : null;
+};
+
 export const AdminContentListPage = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const kind: ContentKind = isContentKind(params.kind)
     ? params.kind
     : 'activity_flow';
   const spec = CONTENT_KINDS[kind];
+  const isLessons = kind === 'activity_flow';
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<ContentStatus | 'all'>('all');
+  const [newGenre, setNewGenre] = useState('');
 
   const { data, isLoading } = useContentItems({
     kind,
@@ -86,12 +101,48 @@ export const AdminContentListPage = () => {
             you publish from the Publishing page.
           </p>
         </div>
-        <Button asChild>
-          <Link to={AdminRoutes.contentItem({ kind, id: 'new' })}>
-            <Plus className="mr-2 size-4" />
-            New {spec.singular}
-          </Link>
-        </Button>
+        {isLessons ? (
+          // A course is addressed by genre, not by item id, so creating one
+          // starts with the genre rather than with a blank item.
+          <form
+            className="flex items-end gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const genre = newGenre
+                .trim()
+                .toLowerCase()
+                .replace(/[\s_-]/g, '');
+              if (genre) navigate(AdminRoutes.lessonCourse({ genre }));
+            }}
+          >
+            <div>
+              <label
+                className="mb-1 block text-xs text-muted-foreground"
+                htmlFor="new-course-genre"
+              >
+                New course
+              </label>
+              <Input
+                id="new-course-genre"
+                className="w-44"
+                placeholder="Genre, e.g. funk"
+                value={newGenre}
+                onChange={(event) => setNewGenre(event.target.value)}
+              />
+            </div>
+            <Button type="submit" disabled={!newGenre.trim()}>
+              <Plus className="mr-2 size-4" />
+              Open
+            </Button>
+          </form>
+        ) : (
+          <Button asChild>
+            <Link to={AdminRoutes.contentItem({ kind, id: 'new' })}>
+              <Plus className="mr-2 size-4" />
+              New {spec.singular}
+            </Link>
+          </Button>
+        )}
       </div>
 
       {validation.data && !validation.data.ok && (
@@ -192,7 +243,10 @@ export const AdminContentListPage = () => {
                 <TableCell>
                   <Button asChild size="icon" variant="ghost">
                     <Link
-                      to={AdminRoutes.contentItem({ kind, id: item.id })}
+                      to={
+                        (isLessons ? lessonCourseLink(item.slug) : null) ??
+                        AdminRoutes.contentItem({ kind, id: item.id })
+                      }
                       aria-label={`Edit ${item.title}`}
                     >
                       <Pencil className="size-4" />
@@ -207,8 +261,10 @@ export const AdminContentListPage = () => {
                   colSpan={6}
                   className="py-10 text-center text-muted-foreground"
                 >
-                  No {spec.label.toLowerCase()} match. Create one with “New{' '}
-                  {spec.singular}”.
+                  No {spec.label.toLowerCase()} match.{' '}
+                  {isLessons
+                    ? 'Start a course by typing its genre above.'
+                    : `Create one with “New ${spec.singular}”.`}
                 </TableCell>
               </TableRow>
             )}

@@ -88,6 +88,14 @@ const AdminContentEditPage = lazy(() =>
   })),
 );
 
+const AdminLessonCoursePage = lazy(() =>
+  import('./content/lessons/AdminLessonCoursePage').then(
+    ({ AdminLessonCoursePage }) => ({
+      default: AdminLessonCoursePage,
+    }),
+  ),
+);
+
 const AdminReleasesPage = lazy(() =>
   import('./content/AdminReleasesPage').then(({ AdminReleasesPage }) => ({
     default: AdminReleasesPage,
@@ -164,6 +172,10 @@ export const adminPages = () => {
       {
         path: AdminRoutes.contentItem.definition,
         element: <AdminContentEditPage />,
+      },
+      {
+        path: AdminRoutes.lessonCourse.definition,
+        element: <AdminLessonCoursePage />,
       },
       {
         path: AdminRoutes.releases.definition,

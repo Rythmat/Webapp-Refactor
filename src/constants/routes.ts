@@ -174,6 +174,17 @@ export const AdminRoutes = {
   ),
 
   /**
+   * Content back office — the visual lesson editor for one genre's course.
+   *
+   * Separate from `contentItem` because a course spans several content items
+   * (one per level) and is addressed by genre rather than by item id.
+   */
+  lessonCourse: createRouteDefinition<{ genre: string }, { level?: string }>(
+    '/lessons/:genre',
+    { prefix: adminPrefix },
+  ),
+
+  /**
    * Publish pipeline — release history, publish, and rollback.
    */
   releases: createRouteDefinition('/releases', { prefix: adminPrefix }),

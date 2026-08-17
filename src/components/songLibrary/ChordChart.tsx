@@ -1,18 +1,19 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import { useMemo, useState, type FC } from 'react';
 import { Repeat } from 'lucide-react';
-import { getChordColorFromNotes } from '@prism/engine';
 import type {
   Song,
-  SongMode,
   SongSection,
   ChordBar,
   ChordHit,
 } from '@/curriculum/types/songLibrary';
 import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
 import { useUISound } from '@/hooks/useUISound';
-import { PianoKeyboard } from '@/components/PianoKeyboard/PianoKeyboard';
-import type { PlaybackEvent } from '@/contexts/PlaybackContext';
+import {
+  ChordDiagramCard,
+  chordRgbFor,
+  type ChordRgb,
+} from './ChordDiagramCard';
 
 /* ── Types ───────────────────────────────────────────────────────────── */
 type DisplayMode = 'hybrid' | 'chordName';
@@ -23,12 +24,13 @@ interface ChordChartProps {
 }
 
 /* ── Staff layout constants (matching LeadSheetMeasure) ──────────────── */
-const MEASURE_WIDTH = 240;
-const STAFF_HEIGHT = 40;
-const CHORD_AREA_HEIGHT = 45;
-const LINE_SPACING = STAFF_HEIGHT / 4;
-const TOTAL_HEIGHT = CHORD_AREA_HEIGHT + STAFF_HEIGHT + 16;
-const MEASURES_PER_ROW = 4;
+/** Exported: the admin chart editor lays its measures out on the same grid. */
+export const MEASURE_WIDTH = 240;
+export const STAFF_HEIGHT = 40;
+export const CHORD_AREA_HEIGHT = 45;
+export const LINE_SPACING = STAFF_HEIGHT / 4;
+export const TOTAL_HEIGHT = CHORD_AREA_HEIGHT + STAFF_HEIGHT + 16;
+export const MEASURES_PER_ROW = 4;
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 function formatChord(hit: ChordHit, mode: DisplayMode): string {
@@ -39,31 +41,12 @@ function chordAriaLabel(hit: ChordHit): string {
   return `${hit.degree} chord, beat ${hit.beat}, ${hit.duration} beat${hit.duration !== 1 ? 's' : ''}`;
 }
 
-/** Map Song's SongMode to the Prism engine's parent-Ionian mode keys. */
-function normalizeMode(m: SongMode): string {
-  if (m === 'major') return 'ionian';
-  if (m === 'minor') return 'aeolian';
-  return m;
-}
-
-type ChordRgb = readonly [number, number, number];
-
-const FALLBACK_RGB: ChordRgb = [126, 207, 207]; // teal, matches former hard-coded #7ecfcf
-
-/* ── Chord name → MIDI resolution ────────────────────────────────────── */
-function midiToPlaybackEvents(midis: number[]): PlaybackEvent[] {
-  return midis.map((midi, i) => ({
-    id: `chord-${midi}-${i}`,
-    type: 'note' as const,
-    midi,
-    time: 0,
-    duration: 1,
-    velocity: 0.8,
-  }));
-}
-
 /* ── SVG Staff Measure ───────────────────────────────────────────────── */
-const StaffMeasure: FC<{
+/**
+ * One measure of the lead sheet. Exported so the content back office renders
+ * bars with the identical notation instead of an approximation of it.
+ */
+export const StaffMeasure: FC<{
   bar: ChordBar;
   barIndex: number;
   x: number;
@@ -435,19 +418,12 @@ export const ChordChart: FC<ChordChartProps> = ({
   // song's degree strings (`'1 maj'`, `'♭7 maj'`) into Studio's format.
   const chordColorCache = useMemo(() => {
     const cache = new Map<string, ChordRgb>();
-    const studioMode = normalizeMode(song.mode);
     for (const section of song.sections) {
       for (const bar of section.bars) {
         for (const hit of bar.chords) {
           if (cache.has(hit.chordName)) continue;
-          const midis = chordNameToMidi(hit.chordName);
-          if (midis.length === 0) continue;
-          const [r, g, b] = getChordColorFromNotes(
-            midis,
-            song.keyRoot,
-            studioMode,
-          );
-          cache.set(hit.chordName, [r, g, b] as const);
+          const rgb = chordRgbFor(hit.chordName, song.keyRoot, song.mode);
+          if (rgb) cache.set(hit.chordName, rgb);
         }
       }
     }
@@ -483,26 +459,17 @@ export const ChordChart: FC<ChordChartProps> = ({
       </div>
 
       {/* ── Chord Diagram Popup ── */}
-      {selectedChord &&
-        (() => {
-          const [r, g, b] = selectedChord.rgb ?? FALLBACK_RGB;
-          const keyColor = `rgb(${r}, ${g}, ${b})`;
-          const pillBg = `rgba(${r}, ${g}, ${b}, 0.18)`;
-          return (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-              onClick={() => setSelectedChord(null)}
-            >
-              <div
-                className="rounded-2xl max-w-md w-full overflow-hidden"
-                style={{
-                  background: 'var(--color-surface, #1a1a1a)',
-                  border:
-                    '1px solid var(--color-border, rgba(255,255,255,0.08))',
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="px-5 pt-5 pb-3">
+      {selectedChord && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => setSelectedChord(null)}
+        >
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md">
+            <ChordDiagramCard
+              midi={selectedChord.midi}
+              rgb={selectedChord.rgb}
+              header={
+                <>
                   <h3
                     className="text-white font-bold text-xl"
                     style={{ fontFamily: 'serif' }}
@@ -515,49 +482,12 @@ export const ChordChart: FC<ChordChartProps> = ({
                   >
                     {selectedChord.hit.degree}
                   </p>
-                </div>
-                <div className="px-3 pb-5" style={{ height: 120 }}>
-                  <PianoKeyboard
-                    startC={4}
-                    endC={6}
-                    playingNotes={midiToPlaybackEvents(selectedChord.midi)}
-                    activeWhiteKeyColor={keyColor}
-                    activeBlackKeyColor={keyColor}
-                    enableClick={false}
-                  />
-                </div>
-                <div className="px-5 pb-4 flex gap-2 flex-wrap">
-                  {selectedChord.midi.map((m) => {
-                    const noteNames = [
-                      'C',
-                      'C♯',
-                      'D',
-                      'E♭',
-                      'E',
-                      'F',
-                      'F♯',
-                      'G',
-                      'A♭',
-                      'A',
-                      'B♭',
-                      'B',
-                    ];
-                    return (
-                      <span
-                        key={m}
-                        className="rounded-full text-xs px-2 py-0.5"
-                        style={{ background: pillBg, color: keyColor }}
-                      >
-                        {noteNames[m % 12]}
-                        {Math.floor(m / 12) - 1}
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          );
-        })()}
+                </>
+              }
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

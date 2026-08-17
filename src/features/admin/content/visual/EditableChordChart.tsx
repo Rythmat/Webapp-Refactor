@@ -245,6 +245,7 @@ export const EditableChordChart: FC<{
                 <BarCell
                   key={barIdx}
                   bar={bar}
+                  sectionIdx={sectionIdx}
                   barIdx={barIdx}
                   isFirst={barIdx === 0}
                   isLast={barIdx === section.bars.length - 1}
@@ -392,6 +393,7 @@ export const EditableChordChart: FC<{
 /** One measure, drawn by the student's renderer, with a hover toolbar. */
 const BarCell: FC<{
   bar: ChordBar;
+  sectionIdx: number;
   barIdx: number;
   isFirst: boolean;
   isLast: boolean;
@@ -403,6 +405,7 @@ const BarCell: FC<{
   onDelete: () => void;
 }> = ({
   bar,
+  sectionIdx,
   barIdx,
   isFirst,
   isLast,
@@ -422,6 +425,7 @@ const BarCell: FC<{
     >
       <StaffMeasure
         bar={bar}
+        sectionIdx={sectionIdx}
         barIndex={barIdx}
         x={0}
         width={MEASURE_WIDTH}

@@ -23,7 +23,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
-import type { Song } from '@/curriculum/types/songLibrary';
 import {
   useContentItem,
   useContentTemplate,
@@ -44,7 +43,6 @@ import {
   GlobeEventVisualEditor,
   type GlobeEventBody,
 } from './visual/GlobeEventVisualEditor';
-import { SongVisualEditor } from './visual/SongVisualEditor';
 
 /**
  * One editor for every content kind, in two views.
@@ -86,7 +84,6 @@ export const AdminContentEditPage = () => {
   const hasVisual = VISUAL_KINDS.includes(kind);
   // A "full editor" owns the whole body and replaces the form + JSON pane.
   const FullEditor = spec.FullEditor;
-  const isFull = !!FullEditor;
 
   const existing = useContentItem(isNew ? undefined : params.id);
   const template = useContentTemplate(isNew ? kind : undefined);
@@ -130,16 +127,10 @@ export const AdminContentEditPage = () => {
   useEffect(() => {
     if (!seed) return;
     setBody(seed as Record<string, unknown>);
-    setJson(
-      JSON.stringify(
-        jsonRemainder(seed as Record<string, unknown>, ownedKeys),
-        null,
-        2,
-      ),
-    );
+    setJsonSeed((value) => value + 1);
     if (!isNew && existing.data) setStatus(existing.data.status);
     setDirty(false);
-  }, [seed, ownedKeys, isNew, existing.data]);
+  }, [seed, isNew, existing.data]);
 
   // Warn before losing unsaved edits on a hard navigation / tab close.
   useEffect(() => {
@@ -167,30 +158,16 @@ export const AdminContentEditPage = () => {
   const onSave = async () => {
     if (!body) return;
 
-    let merged: Record<string, unknown> = body;
-    // Full editors own the whole body; only the form+JSON kinds merge panes.
-    if (!isFull && (remainderKeys.length > 0 || json.trim() !== '{}')) {
-      try {
-        const parsed = JSON.parse(json) as Record<string, unknown>;
-        // The typed form and the visual editor own their keys; the JSON pane
-        // owns the rest. Overlaying the owned keys last means the panes can
-        // never fight over a field.
-        merged = { ...parsed, ...pickKeys(body, ownedKeys) };
-      } catch {
-        setJsonError('The JSON pane is not valid JSON.');
-        return;
-      }
-    }
     setJsonError(null);
 
-    const slug = String(merged.id ?? '').trim();
+    const slug = String(body.id ?? '').trim();
     if (!slug) {
       setJsonError('This item needs an "id" — it becomes the slug.');
       return;
     }
     setJsonError(null);
 
-    await save.mutateAsync({ kind, slug, body: merged, status });
+    await save.mutateAsync({ kind, slug, body, status });
     setDirty(false);
     navigate(AdminRoutes.contentKind({ kind }));
   };
@@ -384,17 +361,6 @@ export const AdminContentEditPage = () => {
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {spec.fields.map((field) => (
-          <Field
-            key={field.path}
-            field={field}
-            value={getPath(body, field.path)}
-            onChange={(value) => applyBody(setPath(body, field.path, value))}
-          />
-        ))}
-      </div>
-
       {StructuredEditor && (
         <div className="border-t border-white/[0.08] pt-6">
           <StructuredEditor body={body} onChange={applyBody} />
@@ -407,28 +373,11 @@ export const AdminContentEditPage = () => {
         </div>
       )}
 
-      {remainderKeys.length > 0 && (
-        <div>
-          <Label className="mb-1.5 block text-xs text-muted-foreground">
-            {spec.jsonLabel ?? 'Remaining fields'} ({remainderKeys.join(', ')})
-          </Label>
-          <Textarea
-            rows={24}
-            className="font-mono text-xs"
-            value={json}
-            onChange={(event) => {
-              setJson(event.target.value);
-              setDirty(true);
-            }}
-          />
-        </div>
-      )}
-
       {view === 'visual' && kind === 'globe_event' && (
         <GlobeEventVisualEditor
           event={body as unknown as GlobeEventBody}
           onChange={(next) =>
-            setBody(next as unknown as Record<string, unknown>)
+            applyBody(next as unknown as Record<string, unknown>)
           }
         />
       )}
@@ -441,7 +390,9 @@ export const AdminContentEditPage = () => {
                 key={field.path}
                 field={field}
                 value={getPath(body, field.path)}
-                onChange={(value) => setBody(setPath(body, field.path, value))}
+                onChange={(value) =>
+                  applyBody(setPath(body, field.path, value))
+                }
               />
             ))}
           </div>
@@ -468,7 +419,7 @@ export const AdminContentEditPage = () => {
                       unknown
                     >;
                     // The typed form owns formKeys; the pane owns the rest.
-                    setBody({ ...parsed, ...pickKeys(body, spec.formKeys) });
+                    applyBody({ ...parsed, ...pickKeys(body, spec.formKeys) });
                     setJsonError(null);
                   } catch {
                     setJsonError('The JSON pane is not valid JSON.');

@@ -8,7 +8,6 @@ import {
   Repeat,
   Trash2,
 } from 'lucide-react';
-import { getChordColorFromNotes } from '@prism/engine';
 import type {
   Song,
   SongSection,
@@ -752,27 +751,17 @@ export const ChordChart: FC<ChordChartProps> = ({
       </div>
 
       {/* ── Chord Diagram Popup (student view only; editor suppresses it) ── */}
-      {!onSelectChord &&
-        selectedChord &&
-        (() => {
-          const [r, g, b] = selectedChord.rgb ?? FALLBACK_RGB;
-          const keyColor = `rgb(${r}, ${g}, ${b})`;
-          const pillBg = `rgba(${r}, ${g}, ${b}, 0.18)`;
-          return (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-              onClick={() => setSelectedChord(null)}
-            >
-              <div
-                className="rounded-2xl max-w-md w-full overflow-hidden"
-                style={{
-                  background: 'var(--color-surface, #1a1a1a)',
-                  border:
-                    '1px solid var(--color-border, rgba(255,255,255,0.08))',
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="px-5 pt-5 pb-3">
+      {!onSelectChord && selectedChord && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => setSelectedChord(null)}
+        >
+          <div className="w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <ChordDiagramCard
+              midi={selectedChord.midi}
+              rgb={selectedChord.rgb}
+              header={
+                <>
                   <h3
                     className="text-white font-bold text-xl"
                     style={{ fontFamily: 'serif' }}

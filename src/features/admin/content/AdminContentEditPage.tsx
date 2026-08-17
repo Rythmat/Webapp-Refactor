@@ -84,6 +84,9 @@ export const AdminContentEditPage = () => {
   const spec = CONTENT_KINDS[kind];
   const isNew = params.id === 'new';
   const hasVisual = VISUAL_KINDS.includes(kind);
+  // A "full editor" owns the whole body and replaces the form + JSON pane.
+  const FullEditor = spec.FullEditor;
+  const isFull = !!FullEditor;
 
   const existing = useContentItem(isNew ? undefined : params.id);
   const template = useContentTemplate(isNew ? kind : undefined);
@@ -96,32 +99,62 @@ export const AdminContentEditPage = () => {
   // Bumped to re-seed the uncontrolled JSON textarea from the current body.
   const [jsonSeed, setJsonSeed] = useState(0);
   const [jsonError, setJsonError] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
 
-  // Lessons live on the course page — one genre, all its levels. Deep links to
-  // the generic editor land here, so forward them rather than 404-ing.
-  const lessonSlug = existing.data?.slug;
-  useEffect(() => {
-    if (kind !== 'activity_flow' || !lessonSlug) return;
-    const match = lessonSlug.match(/^(.*)-l(\d+)$/);
-    if (!match) return;
-    navigate(
-      AdminRoutes.lessonCourse({ genre: match[1] }, { level: match[2] }),
-      { replace: true },
-    );
-  }, [kind, lessonSlug, navigate]);
+  // The typed form and the visual editor each own a slice of the body; the JSON
+  // pane owns whatever is left. Splitting on the union keeps all three from ever
+  // claiming the same key.
+  const ownedKeys = useMemo(
+    () => [...spec.formKeys, ...(spec.structuralKeys ?? [])],
+    [spec],
+  );
 
-  // Seed from the loaded item, or from the API's template when creating.
-  const seed = isNew ? template.data?.body : existing.data?.body;
+  /** Edit the in-memory body and flag unsaved changes. */
+  const applyBody = (next: Record<string, unknown>) => {
+    setBody(next);
+    setDirty(true);
+  };
+
+  // For "New …", prefer the kind's local default (e.g. a song's 4-bar starter)
+  // over the backend template, so new items are deterministic and don't depend
+  // on the remote skeleton. Memoized (keyed only on isNew/spec) so its identity
+  // is stable and the seeding effect runs once. Kinds without a local default
+  // still seed from the template.
+  const defaultBody = useMemo(
+    () => (isNew ? (spec.makeDefault?.() ?? null) : null),
+    [isNew, spec],
+  );
+  const seed = isNew
+    ? (defaultBody ?? template.data?.body)
+    : existing.data?.body;
   useEffect(() => {
     if (!seed) return;
     setBody(seed as Record<string, unknown>);
-    setJsonSeed((value) => value + 1);
+    setJson(
+      JSON.stringify(
+        jsonRemainder(seed as Record<string, unknown>, ownedKeys),
+        null,
+        2,
+      ),
+    );
     if (!isNew && existing.data) setStatus(existing.data.status);
-  }, [seed, isNew, existing.data]);
+    setDirty(false);
+  }, [seed, ownedKeys, isNew, existing.data]);
+
+  // Warn before losing unsaved edits on a hard navigation / tab close.
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [dirty]);
 
   const remainderKeys = useMemo(
-    () => (body ? Object.keys(jsonRemainder(body, spec.formKeys)) : []),
-    [body, spec.formKeys],
+    () => (body ? Object.keys(jsonRemainder(body, ownedKeys)) : []),
+    [body, ownedKeys],
   );
 
   const showView = (next: View) => {
@@ -134,23 +167,131 @@ export const AdminContentEditPage = () => {
   const onSave = async () => {
     if (!body) return;
 
-    const slug = String(body.id ?? '').trim();
+    let merged: Record<string, unknown> = body;
+    // Full editors own the whole body; only the form+JSON kinds merge panes.
+    if (!isFull && (remainderKeys.length > 0 || json.trim() !== '{}')) {
+      try {
+        const parsed = JSON.parse(json) as Record<string, unknown>;
+        // The typed form and the visual editor own their keys; the JSON pane
+        // owns the rest. Overlaying the owned keys last means the panes can
+        // never fight over a field.
+        merged = { ...parsed, ...pickKeys(body, ownedKeys) };
+      } catch {
+        setJsonError('The JSON pane is not valid JSON.');
+        return;
+      }
+    }
+    setJsonError(null);
+
+    const slug = String(merged.id ?? '').trim();
     if (!slug) {
       setJsonError('This item needs an "id" — it becomes the slug.');
       return;
     }
     setJsonError(null);
 
-    await save.mutateAsync({ kind, slug, body, status });
+    await save.mutateAsync({ kind, slug, body: merged, status });
+    setDirty(false);
     navigate(AdminRoutes.contentKind({ kind }));
   };
 
-  const loading = isNew ? template.isLoading : existing.isLoading;
+  const loading = isNew
+    ? defaultBody
+      ? false
+      : template.isLoading
+    : existing.isLoading;
   if (loading || !body) {
     return (
       <div className="space-y-3 p-6">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  // Capitalized locals so the per-kind components can be used as JSX elements.
+  const StructuredEditor = spec.StructuredEditor;
+  const Preview = spec.Preview;
+
+  const statusSelect = (
+    <Select
+      value={status}
+      onValueChange={(value) => {
+        setStatus(value as ContentStatus);
+        setDirty(true);
+      }}
+    >
+      <SelectTrigger className="w-32">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="draft">Draft</SelectItem>
+        <SelectItem value="published">Published</SelectItem>
+        <SelectItem value="archived">Archived</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+
+  // Full-editor kinds (e.g. Song) render only their editor under a slim bar —
+  // no scalar form, no JSON pane.
+  if (FullEditor) {
+    return (
+      <div className="flex flex-col">
+        <div
+          className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-2"
+          style={{ background: '#101012' }}
+        >
+          <div className="flex items-center gap-2">
+            <Button asChild size="icon" variant="ghost">
+              <Link
+                to={AdminRoutes.contentKind({ kind })}
+                aria-label="Back to list"
+              >
+                <ArrowLeft className="size-4" />
+              </Link>
+            </Button>
+            <h1 className="text-sm font-semibold">
+              {isNew
+                ? `New ${spec.singular}`
+                : (existing.data?.title ?? `Edit ${spec.singular}`)}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            {(save.error || jsonError) && (
+              <span className="max-w-64 truncate text-xs text-red-400">
+                {jsonError ?? save.error?.message}
+              </span>
+            )}
+            {dirty && (
+              <span className="text-xs font-medium text-amber-400">
+                Unsaved
+              </span>
+            )}
+            {statusSelect}
+            {!isNew && existing.data && (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={`Delete ${spec.singular}`}
+                onClick={async () => {
+                  await remove.mutateAsync(existing.data!.id);
+                  navigate(AdminRoutes.contentKind({ kind }));
+                }}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            )}
+            <Button onClick={onSave} disabled={save.isPending}>
+              {save.isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 size-4" />
+              )}
+              Save
+            </Button>
+          </div>
+        </div>
+        <FullEditor body={body} onChange={applyBody} />
       </div>
     );
   }
@@ -192,7 +333,10 @@ export const AdminContentEditPage = () => {
           )}
           <Select
             value={status}
-            onValueChange={(value) => setStatus(value as ContentStatus)}
+            onValueChange={(value) => {
+              setStatus(value as ContentStatus);
+              setDirty(true);
+            }}
           >
             <SelectTrigger className="w-40">
               <SelectValue />
@@ -240,13 +384,42 @@ export const AdminContentEditPage = () => {
         </div>
       )}
 
-      {view === 'visual' && kind === 'song' && (
-        <div className="-mx-6 overflow-hidden border-y border-white/[0.06]">
-          <SongVisualEditor
-            song={body as unknown as Song}
-            onChange={(next) =>
-              setBody(next as unknown as Record<string, unknown>)
-            }
+      <div className="grid gap-4 md:grid-cols-2">
+        {spec.fields.map((field) => (
+          <Field
+            key={field.path}
+            field={field}
+            value={getPath(body, field.path)}
+            onChange={(value) => applyBody(setPath(body, field.path, value))}
+          />
+        ))}
+      </div>
+
+      {StructuredEditor && (
+        <div className="border-t border-white/[0.08] pt-6">
+          <StructuredEditor body={body} onChange={applyBody} />
+        </div>
+      )}
+
+      {Preview && (
+        <div className="border-t border-white/[0.08] pt-6">
+          <Preview body={body} />
+        </div>
+      )}
+
+      {remainderKeys.length > 0 && (
+        <div>
+          <Label className="mb-1.5 block text-xs text-muted-foreground">
+            {spec.jsonLabel ?? 'Remaining fields'} ({remainderKeys.join(', ')})
+          </Label>
+          <Textarea
+            rows={24}
+            className="font-mono text-xs"
+            value={json}
+            onChange={(event) => {
+              setJson(event.target.value);
+              setDirty(true);
+            }}
           />
         </div>
       )}

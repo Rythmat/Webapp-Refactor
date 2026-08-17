@@ -1,8 +1,19 @@
 export type {
   Activity,
+  ActivityLessonSeed,
   Anthem,
+  AtlasModule,
+  AtlasResource,
   Clo,
+  CloAxes,
+  ContentLanguageClo,
   ContentSource,
+  DayLessonSeed,
+  DaySeedPhase,
+  IdeaBank,
+  IdeaBankFormat,
+  InitiationStyle,
+  LearningClo,
   LessonSeed,
   Theme,
 } from './types';
@@ -11,6 +22,7 @@ export { ANTHEMS } from './anthems';
 export { CLOS } from './clos';
 export { LESSON_SEEDS } from './seeds';
 export { THEMES } from './themes';
+export { IDEA_BANK } from './ideaBank';
 export {
   useActivityBank,
   useAnthemBank,

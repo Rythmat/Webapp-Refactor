@@ -17,6 +17,7 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
+import { getIdbMirror } from '@/lib/local-store/idbMirror';
 import { useMe } from '@/hooks/data';
 import {
   STORAGE_KEY as ASSIGNMENTS_KEY,
@@ -59,7 +60,9 @@ const isBrowser = typeof window !== 'undefined';
 const keyFor = (userId: string | null | undefined): string =>
   `${STORAGE_KEY}:${userId || 'anon'}`;
 
-const readStore = (userId: string | null | undefined): PublishedStore => {
+const readLegacyStore = (
+  userId: string | null | undefined,
+): PublishedStore => {
   if (!isBrowser) return EMPTY_STORE;
   try {
     const raw = window.localStorage.getItem(keyFor(userId));
@@ -78,7 +81,7 @@ const readStore = (userId: string | null | undefined): PublishedStore => {
   }
 };
 
-const writeStore = (
+const writeLegacyStore = (
   userId: string | null | undefined,
   store: PublishedStore,
 ): void => {
@@ -90,6 +93,36 @@ const writeStore = (
     // Quota / privacy mode — silently no-op.
   }
 };
+
+/**
+ * Per-user IndexedDB-backed mirror (browser) over the published-days store,
+ * falling back to the synchronous legacy localStorage path above where IDB is
+ * absent (SSR / tests). `getIdbMirror` caches one instance per key, so repeated
+ * calls for the same user return the same store. See `@/lib/local-store/idbMirror`.
+ */
+const mirrorFor = (userId: string | null | undefined) =>
+  getIdbMirror<PublishedStore>({
+    key: keyFor(userId),
+    readLegacy: () => readLegacyStore(userId),
+    writeLegacy: (store) => writeLegacyStore(userId, store),
+    clearLegacy: () => {
+      if (!isBrowser) return;
+      try {
+        window.localStorage.removeItem(keyFor(userId));
+        window.localStorage.removeItem(`${keyFor(userId)}.bak`);
+      } catch {
+        // ignore
+      }
+    },
+  });
+
+const readStore = (userId: string | null | undefined): PublishedStore =>
+  mirrorFor(userId).read();
+
+const writeStore = (
+  userId: string | null | undefined,
+  store: PublishedStore,
+): void => mirrorFor(userId).write(store);
 
 const generatePublishedDayId = (): string => {
   const rand = Math.floor(Math.random() * 1e6)
@@ -250,18 +283,13 @@ export const usePublishedDays = (classroomId: string): UsePublishedDays => {
 
   useEffect(() => {
     if (!isBrowser) return;
-    const onChange = () => setStore(readStore(userId));
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === keyFor(userId)) onChange();
-    };
+    const mirror = mirrorFor(userId);
+    const onChange = () => setStore(mirror.read());
     onChange();
-    const scopedEvent = `${keyFor(userId)}:changed`;
-    window.addEventListener(scopedEvent, onChange);
-    window.addEventListener('storage', onStorage);
-    return () => {
-      window.removeEventListener(scopedEvent, onChange);
-      window.removeEventListener('storage', onStorage);
-    };
+    // Refresh once IDB hydration/migration lands, then on every same-tab and
+    // cross-tab change (the mirror bridges tabs via BroadcastChannel).
+    void mirror.ready.then(onChange);
+    return mirror.subscribe(onChange);
   }, [userId]);
 
   const publishedDays = Object.values(store.entries).filter(

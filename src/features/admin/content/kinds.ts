@@ -1,4 +1,7 @@
 import type { ContentKind } from '@/hooks/data/admin/useAdminContent';
+import type { ContentPreview, StructuredEditor } from './editorTypes';
+import { SongEditor } from './songEditor/SongEditor';
+import { makeEmptySong } from './songEditor/songDefaults';
 
 /**
  * The console's view of each content kind: what to call it, and which fields to
@@ -33,6 +36,24 @@ export type KindSpec = {
   formKeys: string[];
   /** Shown when the JSON half is non-empty. */
   jsonLabel?: string;
+  /**
+   * Optional WYSIWYG editor for the structural part of the body. When set, it
+   * replaces the raw-JSON pane for the keys in `structuralKeys`; kinds without
+   * one keep the JSON pane, so nothing regresses.
+   */
+  StructuredEditor?: StructuredEditor;
+  /** Body keys the StructuredEditor owns — removed from the JSON pane. */
+  structuralKeys?: string[];
+  /** Optional read-only preview rendering the app's real component. */
+  Preview?: ContentPreview;
+  /**
+   * A full-page editor that owns the ENTIRE body and replaces the scalar form
+   * and JSON pane outright (e.g. the Song editor's in-place published-page
+   * replica). Mutually exclusive with the form/StructuredEditor path.
+   */
+  FullEditor?: StructuredEditor;
+  /** Local fallback body for "New …" when the API template is unavailable. */
+  makeDefault?: () => Record<string, unknown>;
 };
 
 export const CONTENT_KINDS: Record<ContentKind, KindSpec> = {
@@ -158,7 +179,11 @@ export const CONTENT_KINDS: Record<ContentKind, KindSpec> = {
       'artistImageRef',
       'historicalDescription',
     ],
-    jsonLabel: 'Chart, audio sources and cross-references',
+    // The song kind is edited entirely through an in-place replica of the
+    // published song page — no scalar form, no JSON pane.
+    FullEditor: SongEditor,
+    makeDefault: () => makeEmptySong() as unknown as Record<string, unknown>,
+    jsonLabel: 'Audio sources, time signature and cross-references',
   },
 
   activity_flow: {

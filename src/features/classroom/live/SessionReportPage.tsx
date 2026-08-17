@@ -111,7 +111,7 @@ export const SessionReportPage = () => {
           className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Plan
+          Back to Lessons
         </Link>
       </div>
     );

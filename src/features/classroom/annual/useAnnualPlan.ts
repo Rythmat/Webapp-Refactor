@@ -15,6 +15,7 @@
  * `useAssignments`; the public API of this hook stays stable.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getIdbMirror } from '@/lib/local-store/idbMirror';
 import type { Semester, Unit, Year } from '../types';
 import {
   getNextNSchoolDays,
@@ -67,7 +68,7 @@ const normalizePlan = (p: ClassroomAnnualPlan): ClassroomAnnualPlan => ({
   },
 });
 
-export const readAnnualPlanStore = (): AnnualPlanStore => {
+const readLegacyAnnualPlanStore = (): AnnualPlanStore => {
   if (!isBrowser) return EMPTY_STORE;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -91,7 +92,7 @@ export const readAnnualPlanStore = (): AnnualPlanStore => {
   }
 };
 
-export const writeAnnualPlanStore = (store: AnnualPlanStore): void => {
+const writeLegacyAnnualPlanStore = (store: AnnualPlanStore): void => {
   if (!isBrowser) return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
@@ -100,6 +101,32 @@ export const writeAnnualPlanStore = (store: AnnualPlanStore): void => {
     // Quota / privacy mode — silently no-op.
   }
 };
+
+/**
+ * IndexedDB-backed (browser) with a synchronous in-memory mirror, falling back
+ * to the legacy localStorage path above where IDB is absent (SSR / tests). The
+ * public read/write API stays synchronous. See `@/lib/local-store/idbMirror`.
+ */
+const annualPlanMirror = getIdbMirror<AnnualPlanStore>({
+  key: STORAGE_KEY,
+  readLegacy: readLegacyAnnualPlanStore,
+  writeLegacy: writeLegacyAnnualPlanStore,
+  clearLegacy: () => {
+    if (!isBrowser) return;
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+      window.localStorage.removeItem(`${STORAGE_KEY}.bak`);
+    } catch {
+      // ignore
+    }
+  },
+});
+
+export const readAnnualPlanStore = (): AnnualPlanStore =>
+  annualPlanMirror.read();
+
+export const writeAnnualPlanStore = (store: AnnualPlanStore): void =>
+  annualPlanMirror.write(store);
 
 const generateUnitId = (slug: string): string => {
   const rand = Math.floor(Math.random() * 1e6)
@@ -158,6 +185,21 @@ export interface UseAnnualPlan {
   removeDayFromUnit: (unitId: string, dayId: string) => void;
   addCustomUnit: (semester: Semester, unit: Unit) => void;
   renameUnit: (unitId: string, label: string) => void;
+  /** "Use this theme for the unit" — copies the theme's focus / essential
+   *  questions into editable unit-level metadata. Teacher-facing. */
+  setUnitMeta: (
+    unitId: string,
+    meta: { overview?: string; essentialQuestions?: string[] },
+  ) => void;
+  /** Re-anchor a Unit's schedule (its fallback range + auto-populate ordering).
+   *  `monthIndex` is 1-12. Used when a Unit is dragged to a new calendar date. */
+  setUnitSchedule: (
+    unitId: string,
+    schedule: {
+      monthIndex?: number;
+      dateWindow?: { start: string; end: string } | null;
+    },
+  ) => void;
   deleteUnit: (unitId: string) => void;
   getUnit: (unitId: string) => { unit: Unit; semester: Semester } | null;
   /** Returns a suggested YYYY-MM-DD for the next Day in a unit, or null. */
@@ -190,15 +232,10 @@ export const useAnnualPlan = (classroomId: string): UseAnnualPlan => {
   useEffect(() => {
     if (!isBrowser) return;
     const onChange = () => setStore(readAnnualPlanStore());
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) onChange();
-    };
-    window.addEventListener(`${STORAGE_KEY}:changed`, onChange);
-    window.addEventListener('storage', onStorage);
-    return () => {
-      window.removeEventListener(`${STORAGE_KEY}:changed`, onChange);
-      window.removeEventListener('storage', onStorage);
-    };
+    // Refresh once IDB hydration/migration lands, then on every same-tab and
+    // cross-tab change (the mirror bridges tabs via BroadcastChannel).
+    void annualPlanMirror.ready.then(onChange);
+    return annualPlanMirror.subscribe(onChange);
   }, []);
 
   const plan = classroomId ? (store.plans[classroomId] ?? null) : null;
@@ -323,6 +360,29 @@ export const useAnnualPlan = (classroomId: string): UseAnnualPlan => {
   const renameUnit = useCallback(
     (unitId: string, label: string): void => {
       mutateUnit(unitId, (u) => ({ ...u, label }));
+    },
+    [mutateUnit],
+  );
+
+  const setUnitMeta = useCallback(
+    (
+      unitId: string,
+      meta: { overview?: string; essentialQuestions?: string[] },
+    ): void => {
+      mutateUnit(unitId, (u) => ({ ...u, ...meta }));
+    },
+    [mutateUnit],
+  );
+
+  const setUnitSchedule = useCallback(
+    (
+      unitId: string,
+      schedule: {
+        monthIndex?: number;
+        dateWindow?: { start: string; end: string } | null;
+      },
+    ): void => {
+      mutateUnit(unitId, (u) => ({ ...u, ...schedule }));
     },
     [mutateUnit],
   );
@@ -478,6 +538,8 @@ export const useAnnualPlan = (classroomId: string): UseAnnualPlan => {
     removeDayFromUnit,
     addCustomUnit,
     renameUnit,
+    setUnitMeta,
+    setUnitSchedule,
     deleteUnit,
     getUnit,
     suggestDayScheduleInUnit,

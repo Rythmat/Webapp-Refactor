@@ -10,7 +10,7 @@ export interface AdminUser {
   nickname: string;
   fullName: string | null;
   username: string | null;
-  role: 'admin' | 'teacher' | 'student';
+  role: 'admin' | 'teacher' | 'student' | 'editor';
   subscriptionTier: 'free' | 'pro';
   subscriptionStatus: string | null;
   hasPaidAccess: boolean;
@@ -53,7 +53,7 @@ async function fetchWithAuth<T = unknown>(
 
 export const useAdminUsers = (params?: {
   search?: string;
-  role?: 'admin' | 'teacher' | 'student';
+  role?: AdminUser['role'];
 }) => {
   const { token } = useAuthContext();
 
@@ -74,21 +74,28 @@ export const useAdminUsers = (params?: {
 };
 
 /**
- * Change a user's role (student ↔ teacher). The server rejects the change with
- * a 409 (surfaced as the thrown Error's message) when the user is still
- * connected to any classes.
+ * Change a user's role between student, teacher and content editor. Admin
+ * accounts are not reassignable — the server rejects that with a 400.
+ *
+ * It also rejects with a 409 (surfaced as the thrown Error's message) when the
+ * user is still connected to any classes, since a teacher who still owns
+ * classrooms would strand them.
+ *
+ * The new role reaches the affected user's own browser only once their cached
+ * session and profile expire — tell them to sign out and back in if it needs to
+ * be immediate.
  */
 export const useUpdateUserRole = () => {
   const { token } = useAuthContext();
   const queryClient = useQueryClient();
 
   return useMutation<
-    { id: string; role: 'admin' | 'teacher' | 'student' },
+    { id: string; role: AdminUser['role'] },
     Error,
-    { id: string; role: 'teacher' | 'student' }
+    { id: string; role: 'teacher' | 'student' | 'editor' }
   >({
     mutationFn: ({ id, role }) =>
-      fetchWithAuth<{ id: string; role: 'admin' | 'teacher' | 'student' }>(
+      fetchWithAuth<{ id: string; role: AdminUser['role'] }>(
         adminPath(`/users/${id}/role`),
         token!,
         { method: 'PATCH', body: JSON.stringify({ role }) },

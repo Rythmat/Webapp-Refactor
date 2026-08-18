@@ -3,10 +3,12 @@ import { Navigate } from 'react-router-dom';
 import { AdminRoutes } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
   DashboardLayout,
   DashboardContentSkeleton,
 } from '@/layouts/DashboardLayout';
+import { consoleHomeRoute, isConsoleAdmin } from './consoleRoles';
 
 const AdminUsersPage = lazy(() =>
   import('./AdminUsersPage').then(({ AdminUsersPage }) => ({
@@ -102,11 +104,38 @@ const AdminReleasesPage = lazy(() =>
   })),
 );
 
+/**
+ * Send a console user to the landing page their role can actually open.
+ *
+ * Both the /console index and the in-console catch-all used to point at the
+ * Users page unconditionally, which for an editor is a redirect into a page
+ * AdminOnly bounces them out of — i.e. a loop out of the console entirely.
+ */
+const ConsoleHome = () => {
+  const { role } = useAuthContext();
+  return <Navigate replace to={consoleHomeRoute(role)} />;
+};
+
+/**
+ * Wrap an admin-only page inside the console.
+ *
+ * The outer ProtectedPage admits editors, because the Content tab lives on the
+ * same route tree. Everything an editor must not reach is wrapped here instead
+ * of relying on the nav simply not linking to it — a typed URL has to fail too.
+ */
+const AdminOnly = ({ children }: { children: React.ReactNode }) => {
+  const { role } = useAuthContext();
+  if (!isConsoleAdmin(role))
+    return <Navigate replace to={consoleHomeRoute(role)} />;
+  return <>{children}</>;
+};
+
 export const adminPages = () => {
   return {
     path: AdminRoutes.root.definition,
     element: (
       <AppContext>
+        {/* Admits admins and content editors; the routes below narrow it. */}
         <ProtectedPage adminOnly>
           <DashboardLayout fallback={<DashboardContentSkeleton />} />
         </ProtectedPage>
@@ -115,19 +144,31 @@ export const adminPages = () => {
     children: [
       {
         path: AdminRoutes.root.definition,
-        element: <Navigate to={AdminRoutes.users()} />,
+        element: <ConsoleHome />,
       },
       {
         path: AdminRoutes.users.definition,
-        element: <AdminUsersPage />,
+        element: (
+          <AdminOnly>
+            <AdminUsersPage />
+          </AdminOnly>
+        ),
       },
       {
         path: AdminRoutes.freeAccess.definition,
-        element: <AdminFreeAccessPage />,
+        element: (
+          <AdminOnly>
+            <AdminFreeAccessPage />
+          </AdminOnly>
+        ),
       },
       {
         path: AdminRoutes.telemetry.definition,
-        element: <AdminTelemetryLayout />,
+        element: (
+          <AdminOnly>
+            <AdminTelemetryLayout />
+          </AdminOnly>
+        ),
         children: [
           {
             index: true,
@@ -179,11 +220,15 @@ export const adminPages = () => {
       },
       {
         path: AdminRoutes.releases.definition,
-        element: <AdminReleasesPage />,
+        element: (
+          <AdminOnly>
+            <AdminReleasesPage />
+          </AdminOnly>
+        ),
       },
       {
         path: '*',
-        element: <Navigate to={AdminRoutes.users()} />,
+        element: <ConsoleHome />,
       },
     ],
   };

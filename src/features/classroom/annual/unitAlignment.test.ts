@@ -51,8 +51,8 @@ describe('buildUnitAlignment', () => {
   });
 
   it('reports empty for blank days', () => {
-    expect(alignmentIsEmpty(buildUnitAlignment([newBlankDay()], resolvers))).toBe(
-      true,
-    );
+    expect(
+      alignmentIsEmpty(buildUnitAlignment([newBlankDay()], resolvers)),
+    ).toBe(true);
   });
 });

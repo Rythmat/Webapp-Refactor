@@ -22,7 +22,9 @@ import { RAW_ACTIVITY_SEEDS, RAW_DAY_SEEDS } from './raw/lessonSeeds';
 import { RAW_THEMES } from './raw/themes';
 import { validateContent } from './validate';
 
-const daySeeds = (RAW_DAY_SEEDS as unknown as RawDaySeed[]).map(normalizeDaySeed);
+const daySeeds = (RAW_DAY_SEEDS as unknown as RawDaySeed[]).map(
+  normalizeDaySeed,
+);
 const activitySeeds = (RAW_ACTIVITY_SEEDS as unknown as RawActivitySeed[]).map(
   normalizeActivitySeed,
 );

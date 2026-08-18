@@ -74,7 +74,9 @@ const restorePlan = (file: File) => {
         window.dispatchEvent(new Event(`${key}:changed`));
         n += 1;
       }
-      toast.success(`Restored ${n} store${n === 1 ? '' : 's'} — reload to refresh`);
+      toast.success(
+        `Restored ${n} store${n === 1 ? '' : 's'} — reload to refresh`,
+      );
     } catch {
       toast.error('Could not read that file');
     }
@@ -186,7 +188,9 @@ export const ClassroomSettingsDialog = ({
           </span>
           {MODULES.map((m) => (
             <label key={m} className="flex items-center gap-2 text-xs">
-              <span className="w-16 shrink-0 capitalize text-white/60">{m}</span>
+              <span className="w-16 shrink-0 capitalize text-white/60">
+                {m}
+              </span>
               <input
                 value={config.moduleUrls[m]}
                 onChange={(e) =>

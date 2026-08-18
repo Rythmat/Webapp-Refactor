@@ -14,7 +14,6 @@
  */
 
 const ideaBank = {
-
   /* Recurring lesson formats — reusable structures usable in any month. */
   recurringFormats: [
     {
@@ -65,13 +64,42 @@ const ideaBank = {
   slideDeckTemplate: {
     title: 'Artist / Theme Spotlight',
     slides: [
-      { slide: 1, title: 'Title', content: 'Artist, theme, date, and essential question.' },
-      { slide: 2, title: 'Quick Context', content: 'Who, where, when, and why this matters.' },
-      { slide: 3, title: 'Listen Closely', content: 'Song or clip with 2\u20133 listening questions.' },
-      { slide: 4, title: 'Musical Elements', content: 'Rhythm, melody, harmony, texture, production, lyrics, form.' },
-      { slide: 5, title: 'Cultural / Historical Connection', content: 'What was happening in the world, community, genre, or artist\u2019s life?' },
-      { slide: 6, title: 'Create Prompt', content: 'Lyric, beat, soundscape, visual, or performance task.' },
-      { slide: 7, title: 'Share / Reflect', content: 'Performance or discussion prompts.' },
+      {
+        slide: 1,
+        title: 'Title',
+        content: 'Artist, theme, date, and essential question.',
+      },
+      {
+        slide: 2,
+        title: 'Quick Context',
+        content: 'Who, where, when, and why this matters.',
+      },
+      {
+        slide: 3,
+        title: 'Listen Closely',
+        content: 'Song or clip with 2\u20133 listening questions.',
+      },
+      {
+        slide: 4,
+        title: 'Musical Elements',
+        content: 'Rhythm, melody, harmony, texture, production, lyrics, form.',
+      },
+      {
+        slide: 5,
+        title: 'Cultural / Historical Connection',
+        content:
+          'What was happening in the world, community, genre, or artist\u2019s life?',
+      },
+      {
+        slide: 6,
+        title: 'Create Prompt',
+        content: 'Lyric, beat, soundscape, visual, or performance task.',
+      },
+      {
+        slide: 7,
+        title: 'Share / Reflect',
+        content: 'Performance or discussion prompts.',
+      },
     ],
   },
 
@@ -80,23 +108,55 @@ const ideaBank = {
   crossCuttingThemes: [
     {
       category: 'Identity and Inner Life',
-      items: ['Who am I?', 'Nature and nurture', 'Hurt and healing', 'Love: romance, heartbreak, family', 'Spirituality and religion', 'Peace: outer and inner', 'Life and death'],
+      items: [
+        'Who am I?',
+        'Nature and nurture',
+        'Hurt and healing',
+        'Love: romance, heartbreak, family',
+        'Spirituality and religion',
+        'Peace: outer and inner',
+        'Life and death',
+      ],
     },
     {
       category: 'Society and Power',
-      items: ['Democracy and government', 'Hypocrisy', 'Making money', 'Economic models and capitalism', 'Ethnicity, race, and culture', 'Threat level and fear', 'Technology'],
+      items: [
+        'Democracy and government',
+        'Hypocrisy',
+        'Making money',
+        'Economic models and capitalism',
+        'Ethnicity, race, and culture',
+        'Threat level and fear',
+        'Technology',
+      ],
     },
     {
       category: 'Community and Relationships',
-      items: ['Friendship', 'Family', 'Neighborhood and community', 'Lineages and ancestors', 'Distance, proximity, travel, and migration'],
+      items: [
+        'Friendship',
+        'Family',
+        'Neighborhood and community',
+        'Lineages and ancestors',
+        'Distance, proximity, travel, and migration',
+      ],
     },
     {
       category: 'Culture and Expression',
-      items: ['Stardom and fame', 'Clothing, fashion, and bling', 'Dance and movement', 'Fun, leisure, and entertainment', 'Music in TV, movies, and gaming'],
+      items: [
+        'Stardom and fame',
+        'Clothing, fashion, and bling',
+        'Dance and movement',
+        'Fun, leisure, and entertainment',
+        'Music in TV, movies, and gaming',
+      ],
     },
     {
       category: 'Environment and Place',
-      items: ['Nature, city, home, toxins, elements', 'The earth and the universe', 'Weather, darkness, endings, and renewal'],
+      items: [
+        'Nature, city, home, toxins, elements',
+        'The earth and the universe',
+        'Weather, darkness, endings, and renewal',
+      ],
     },
   ],
 
@@ -114,14 +174,46 @@ const ideaBank = {
 
   /* Activity types — modes of engagement to mix into any lesson. */
   activityTypes: [
-    { name: 'Questions', description: 'Use essential questions to invite reflection and personal connection.' },
-    { name: 'Discussions', description: 'Use listening-based discussion to connect emotion, technique, and context.' },
-    { name: 'Listening', description: 'Use intentional listening, mood mapping, lyric analysis, and stylistic identification.' },
-    { name: 'Writing Assignments', description: 'Use hooks, 4-bar verses, spoken word, reflections, captions, letters, and playlist notes.' },
-    { name: 'Musical Group Practice', description: 'Use body percussion, call-and-response, groove building, chord progressions, blues, clave, and cyphers.' },
-    { name: 'Individual and Collaborative Projects', description: 'Use beatmaking, cover art, playlist slides, posters, soundscapes, lyrics, and short performances.' },
-    { name: 'Teacher-Led Production', description: 'The teacher builds a beat live from student ideas, historical samples, or stylistic references.' },
-    { name: 'Musical Analysis', description: 'Analyze rhythm, harmony, melody, texture, form, production, lyric content, and cultural context.' },
+    {
+      name: 'Questions',
+      description:
+        'Use essential questions to invite reflection and personal connection.',
+    },
+    {
+      name: 'Discussions',
+      description:
+        'Use listening-based discussion to connect emotion, technique, and context.',
+    },
+    {
+      name: 'Listening',
+      description:
+        'Use intentional listening, mood mapping, lyric analysis, and stylistic identification.',
+    },
+    {
+      name: 'Writing Assignments',
+      description:
+        'Use hooks, 4-bar verses, spoken word, reflections, captions, letters, and playlist notes.',
+    },
+    {
+      name: 'Musical Group Practice',
+      description:
+        'Use body percussion, call-and-response, groove building, chord progressions, blues, clave, and cyphers.',
+    },
+    {
+      name: 'Individual and Collaborative Projects',
+      description:
+        'Use beatmaking, cover art, playlist slides, posters, soundscapes, lyrics, and short performances.',
+    },
+    {
+      name: 'Teacher-Led Production',
+      description:
+        'The teacher builds a beat live from student ideas, historical samples, or stylistic references.',
+    },
+    {
+      name: 'Musical Analysis',
+      description:
+        'Analyze rhythm, harmony, melody, texture, form, production, lyric content, and cultural context.',
+    },
   ],
 
   /* Anthem Bank — songs supporting resilience, unity, hustle, identity, joy,
@@ -151,7 +243,6 @@ const ideaBank = {
       'Anthems connect to identity, movement, community, and culture.',
     ],
   },
-
 };
 
 export const RAW_IDEA_BANK = ideaBank;

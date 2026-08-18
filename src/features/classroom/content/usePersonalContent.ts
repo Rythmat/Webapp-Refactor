@@ -26,7 +26,10 @@ const hasLtTitle = (x: Record<string, unknown>): boolean =>
   isObj(x.title) && typeof (x.title as Record<string, unknown>).en === 'string';
 
 const isActivity = (x: unknown): x is Activity =>
-  isObj(x) && typeof x.id === 'string' && hasLtTitle(x) && Array.isArray(x.cloIds);
+  isObj(x) &&
+  typeof x.id === 'string' &&
+  hasLtTitle(x) &&
+  Array.isArray(x.cloIds);
 const isClo = (x: unknown): x is Clo =>
   isObj(x) &&
   typeof x.id === 'string' &&
@@ -92,7 +95,8 @@ export const usePersonalContent = (): UsePersonalContent => {
     const changeEvents = Object.values(KEYS).map((k) => `${k}:changed`);
     changeEvents.forEach((e) => window.addEventListener(e, onChange));
     const onStorage = (e: StorageEvent) => {
-      if (e.key && (Object.values(KEYS) as string[]).includes(e.key)) onChange();
+      if (e.key && (Object.values(KEYS) as string[]).includes(e.key))
+        onChange();
     };
     window.addEventListener('storage', onStorage);
     return () => {

@@ -110,7 +110,9 @@ export const validateContent = (banks: ContentBanks): string[] => {
       for (const phase of PHASES) {
         for (const r of s.template[phase].atlasResources) {
           if (!VALID_MODULES.has(r.module)) {
-            errors.push(`seed ${s.id}/${phase} has non-canonical module "${r.module}"`);
+            errors.push(
+              `seed ${s.id}/${phase} has non-canonical module "${r.module}"`,
+            );
           }
         }
       }

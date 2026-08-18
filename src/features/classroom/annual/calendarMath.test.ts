@@ -620,7 +620,9 @@ describe('segmentUnitIntoWeek', () => {
     // Range starts Sat Oct 11 → Wed Oct 15. The week of Oct 5 returns null
     // (Sat > Fri); the following week (Oct 12) is the first to render it.
     const range = { start: new Date(2025, 9, 11), end: new Date(2025, 9, 15) };
-    expect(segmentUnitIntoWeek(range, getWeekDays(new Date(2025, 9, 8)))).toBeNull();
+    expect(
+      segmentUnitIntoWeek(range, getWeekDays(new Date(2025, 9, 8))),
+    ).toBeNull();
     const seg = segmentUnitIntoWeek(range, getWeekDays(new Date(2025, 9, 15)));
     expect(seg?.startColumn).toBe(2); // clamped to Monday Oct 13
     expect(seg?.isFirstSegment).toBe(true);
@@ -665,9 +667,9 @@ describe('firstWeekdayWeekAnchor', () => {
     const anchor = firstWeekdayWeekAnchor(2026, 12);
     expect(anchor.getDay()).toBe(0); // Sunday
     const week = getWeekDays(anchor);
-    expect(
-      week.some((d) => d.getMonth() === 11 && d.getDate() === 1),
-    ).toBe(true);
+    expect(week.some((d) => d.getMonth() === 11 && d.getDate() === 1)).toBe(
+      true,
+    );
     expect(week[3].getMonth()).toBe(11); // Wednesday in December
   });
 });

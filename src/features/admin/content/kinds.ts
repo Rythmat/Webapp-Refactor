@@ -190,7 +190,7 @@ export const CONTENT_KINDS: Record<ContentKind, KindSpec> = {
     label: 'Lessons',
     singular: 'lesson',
     blurb:
-      'One genre at one level. Sections are fixed: A Melody, B Chords, C Bass, D Play-Along. The slug must stay "<genre>-l<level>" — that is how the app looks a lesson up.',
+      'One genre at one level. Editing opens the whole course — all of that genre’s levels — because a level is its own item and the slug must stay "<genre>-l<level>", which is how the app looks a lesson up.',
     fields: [
       {
         path: 'id',

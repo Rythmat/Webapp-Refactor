@@ -30,7 +30,11 @@ export const ResetChecklistEditor = ({
     <ul className="flex flex-col gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
       {items.map((item, i) => (
         <li key={i} className="flex items-center gap-3">
-          <input type="checkbox" disabled className="size-5 accent-white opacity-60" />
+          <input
+            type="checkbox"
+            disabled
+            className="size-5 accent-white opacity-60"
+          />
           <input
             value={item.en}
             onChange={(e) => patchItem(i, e.target.value)}

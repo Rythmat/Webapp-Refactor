@@ -22,6 +22,15 @@ export type ContentKind =
 
 export type ContentStatus = 'draft' | 'published' | 'archived';
 
+/**
+ * Where an editor's proposed edit sits in review. Null when nothing is pending.
+ *
+ * Deliberately separate from ContentStatus: `status` decides what a publish
+ * compiles, so a proposal must not be able to move it — an edit to a live item
+ * that flipped its status would pull it out of the next bundle.
+ */
+export type ContentEditState = 'pending' | 'rejected' | null;
+
 export type ContentReleaseStatus =
   | 'building'
   | 'live'
@@ -42,11 +51,20 @@ export interface ContentListItem {
   derivedFromSlug: string | null;
   updatedAt: Date;
   updatedById: string | null;
+  editState: ContentEditState;
+  pendingAt: Date | null;
+  pendingById: string | null;
+  reviewNote: string | null;
 }
 
 export interface ContentItemDetail extends ContentListItem {
   body: Record<string, unknown>;
   overrides: Record<string, unknown> | null;
+  /** The proposed body, when an edit is awaiting or was sent back from review. */
+  pendingBody: Record<string, unknown> | null;
+  pendingOverrides: Record<string, unknown> | null;
+  pendingNote: string | null;
+  reviewedAt: Date | null;
   createdAt: Date;
   Revisions: {
     id: string;
@@ -63,8 +81,23 @@ export interface ContentOverviewRow {
   total: number;
   published: number;
   changedSincePublish: number;
+  /** Editors' proposals waiting on an admin. */
+  pendingReview: number;
   liveVersion: number | null;
   livePublishedAt: Date | null;
+}
+
+/** One row of the admin's review queue. Never carries a body. */
+export interface PendingEdit {
+  id: string;
+  kind: ContentKind;
+  slug: string;
+  title: string;
+  subtitle: string | null;
+  isNew: boolean;
+  note: string | null;
+  submittedAt: Date | null;
+  submittedBy: { id: string; name: string } | null;
 }
 
 export interface ContentRelease {
@@ -245,6 +278,72 @@ export const useDeleteContentItem = () => {
   return useMutation<unknown, Error, string>({
     mutationFn: (id) =>
       fetchWithAuth(contentPath(`/items/${id}`), token!, { method: 'DELETE' }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: CONTENT_KEY });
+    },
+  });
+};
+
+// ── Review queue ───────────────────────────────────────────────────────────
+//
+// An editor's save lands as a proposal beside the live body rather than
+// replacing it (the API decides that from the session role, not from anything
+// the client sends). These are the admin's side of that: the queue, and the two
+// verdicts. Approving applies the proposal and marks the item published —
+// pressing Publish for the kind is still what moves the CDN bundle.
+
+/** Admin only; an editor calling this gets a 403. */
+export const usePendingEdits = (enabled = true) => {
+  const { token } = useAuthContext();
+  return useQuery<PendingEdit[]>({
+    queryKey: [...CONTENT_KEY, 'pending'],
+    queryFn: () =>
+      fetchWithAuth<PendingEdit[]>(contentPath('/pending'), token!),
+    enabled: !!token && enabled,
+  });
+};
+
+export const useApproveContentEdit = () => {
+  const { token } = useAuthContext();
+  const queryClient = useQueryClient();
+
+  return useMutation<ContentItemDetail, Error, string>({
+    mutationFn: (id) =>
+      fetchWithAuth(contentPath(`/items/${id}/approve`), token!, {
+        method: 'POST',
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: CONTENT_KEY });
+    },
+  });
+};
+
+export const useRejectContentEdit = () => {
+  const { token } = useAuthContext();
+  const queryClient = useQueryClient();
+
+  return useMutation<ContentItemDetail, Error, { id: string; note: string }>({
+    mutationFn: ({ id, note }) =>
+      fetchWithAuth(contentPath(`/items/${id}/reject`), token!, {
+        method: 'POST',
+        body: JSON.stringify({ note }),
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: CONTENT_KEY });
+    },
+  });
+};
+
+/** Withdraw a proposal, leaving the live body untouched. Open to both roles. */
+export const useDiscardContentEdit = () => {
+  const { token } = useAuthContext();
+  const queryClient = useQueryClient();
+
+  return useMutation<ContentItemDetail, Error, string>({
+    mutationFn: (id) =>
+      fetchWithAuth(contentPath(`/items/${id}/discard-edit`), token!, {
+        method: 'POST',
+      }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: CONTENT_KEY });
     },

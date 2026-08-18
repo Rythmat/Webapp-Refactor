@@ -56,8 +56,8 @@ describe('planOrphanAdoptions', () => {
   });
 
   it('returns nothing when there are no units', () => {
-    expect(
-      planOrphanAdoptions([], [mkDay('d1', 'X', '2025-10-06')]),
-    ).toEqual([]);
+    expect(planOrphanAdoptions([], [mkDay('d1', 'X', '2025-10-06')])).toEqual(
+      [],
+    );
   });
 });

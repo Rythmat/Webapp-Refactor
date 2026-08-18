@@ -519,7 +519,9 @@ export const UnitPage = () => {
           onClose={() => setSeedToApply(null)}
         />
       )}
-      {ideaBankOpen && <IdeaBankDrawer onClose={() => setIdeaBankOpen(false)} />}
+      {ideaBankOpen && (
+        <IdeaBankDrawer onClose={() => setIdeaBankOpen(false)} />
+      )}
     </div>
   );
 };

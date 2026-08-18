@@ -38,9 +38,7 @@ export const SeedApplyDialog = ({
   const populated = targetDay ? isDayPopulated(targetDay) : false;
 
   const apply = (mode: 'merge' | 'replace') => {
-    const before = targetDay
-      ? (structuredClone(targetDay) as Day)
-      : null;
+    const before = targetDay ? (structuredClone(targetDay) as Day) : null;
     const base: Day = targetDay ?? {
       ...newBlankDay(),
       scheduledDate: suggestSchedule(),

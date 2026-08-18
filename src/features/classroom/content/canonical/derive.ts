@@ -14,11 +14,7 @@ import type {
   CloAxes,
   DayLessonSeed,
 } from '../types';
-import {
-  normalizeActivity,
-  withCloIds,
-  type RawActivity,
-} from './normalize';
+import { normalizeActivity, withCloIds, type RawActivity } from './normalize';
 
 export const deriveActivityBank = (
   rawActivities: RawActivity[],
@@ -30,7 +26,9 @@ export const deriveActivityBank = (
 };
 
 const hasAnyAxis = (c: CloAxes): boolean =>
-  Boolean(c.awarenessOfFeeling || c.awarenessOfTechnique || c.awarenessOfContext);
+  Boolean(
+    c.awarenessOfFeeling || c.awarenessOfTechnique || c.awarenessOfContext,
+  );
 
 export const deriveCanonicalCLOs = (
   activities: Activity[],

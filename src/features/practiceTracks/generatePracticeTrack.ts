@@ -9,11 +9,11 @@ import {
   noteNameLetter,
   abbreviateSequence,
 } from '@prism/engine';
-import { nextChordId, type ChordRegion } from '@/daw/store/prismSlice';
-import type { MidiClip } from '@/daw/store/tracksSlice';
+import { chordRegionsToMidiClip } from '@/curriculum/songLibrary/exportToStudio';
 import { GROOVES } from '@/daw/data/groovesLibrary';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
-import { chordRegionsToMidiClip } from '@/curriculum/songLibrary/exportToStudio';
+import { nextChordId, type ChordRegion } from '@/daw/store/prismSlice';
+import type { MidiClip } from '@/daw/store/tracksSlice';
 
 /**
  * The 7 diatonic modes this generator supports. Non-diatonic mode families
@@ -96,9 +96,14 @@ interface BarChord {
 }
 
 /** Build one chord (absolute-from-tonic semitone offsets) per scale degree in the sequence. */
-function buildBarChords(mode: DiatonicMode, degreeSequence: number[]): BarChord[] {
+function buildBarChords(
+  mode: DiatonicMode,
+  degreeSequence: number[],
+): BarChord[] {
   const useTetrads = TETRAD_MODES.has(mode);
-  const chordTable = useTetrads ? findSeventhChords(mode) : findTriadChords(mode);
+  const chordTable = useTetrads
+    ? findSeventhChords(mode)
+    : findTriadChords(mode);
   const qualityTable = useTetrads ? TETRADS[mode] : TRIADS[mode];
   const scaleSteps = MODES[mode];
 

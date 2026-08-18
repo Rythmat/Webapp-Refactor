@@ -57,7 +57,9 @@ export const ActivityBankPicker = ({
 
   const saveActivity = () => {
     if (!draftTitle.trim()) return;
-    addActivity(newPersonalActivity(phase, draftTitle.trim(), draftDesc.trim()));
+    addActivity(
+      newPersonalActivity(phase, draftTitle.trim(), draftDesc.trim()),
+    );
     setDraftTitle('');
     setDraftDesc('');
     setAuthoring(false);

@@ -38,7 +38,9 @@ export interface ApplySeedOptions {
 }
 
 const hasAnyAxis = (c: CloAxes): boolean =>
-  Boolean(c.awarenessOfFeeling || c.awarenessOfTechnique || c.awarenessOfContext);
+  Boolean(
+    c.awarenessOfFeeling || c.awarenessOfTechnique || c.awarenessOfContext,
+  );
 
 const uniq = (...lists: Array<string[] | undefined>): string[] => [
   ...new Set(lists.flatMap((l) => l ?? [])),
@@ -87,13 +89,19 @@ const resolveLocalContext = (
  * Phase-3 Activity Bank picker). Actionable text → presentation; structured
  * pedagogy → rationale.
  */
-export const insertActivityIntoCell = (activity: Activity, cell: Cell): Cell => {
+export const insertActivityIntoCell = (
+  activity: Activity,
+  cell: Cell,
+): Cell => {
   const title = cell.presentation.title.en.trim()
     ? cell.presentation.title
     : activity.title;
   const prevPrompt = cell.presentation.prompt.en.trim();
   const prompt = prevPrompt
-    ? { ...cell.presentation.prompt, en: `${prevPrompt}\n\n${activity.description}` }
+    ? {
+        ...cell.presentation.prompt,
+        en: `${prevPrompt}\n\n${activity.description}`,
+      }
     : { en: activity.description };
 
   const notes = dedupeLines([
@@ -175,7 +183,11 @@ const buildDayPhaseCell = (
 
   const rationale: CellRationale = {
     ...existing.rationale,
-    standards: uniq(defaults.standards, hints.standards, existing.rationale.standards),
+    standards: uniq(
+      defaults.standards,
+      hints.standards,
+      existing.rationale.standards,
+    ),
     commonAnchors: uniq(
       defaults.commonAnchors,
       hints.commonAnchors,

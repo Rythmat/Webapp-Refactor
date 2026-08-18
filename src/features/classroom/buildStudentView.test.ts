@@ -219,7 +219,9 @@ describe('buildStudentView deck', () => {
     expect(projected?.launchTiles).toEqual([
       { id: 'lt-1', module: 'globe', activityRef: 'event-9' },
     ]);
-    expect(projected?.resetChecklist).toEqual([{ en: 'Chairs in', es: 'Sillas' }]);
+    expect(projected?.resetChecklist).toEqual([
+      { en: 'Chairs in', es: 'Sillas' },
+    ]);
     const serialized = JSON.stringify(view);
     expect(serialized).not.toContain('SECRET');
     expect(serialized).not.toContain('scaffoldNote');
@@ -286,7 +288,10 @@ describe('buildStudentView firewall — applied seed', () => {
     // presentation copy is neutral. Proves apply-seed routing keeps the board
     // clean even when a seed carries heavy pedagogy.
     const markerPhase = () => ({
-      presentation: { title: { en: 'Warm up' }, prompt: { en: 'Play a groove' } },
+      presentation: {
+        title: { en: 'Warm up' },
+        prompt: { en: 'Play a groove' },
+      },
       activitySuggestions: ['unresolved-suggestion'],
       atlasResources: [],
       cloText: { awarenessOfFeeling: 'ASSESSMENT CLO IMPACT marker' },

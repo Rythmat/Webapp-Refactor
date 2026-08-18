@@ -159,7 +159,9 @@ describe('setSlideInteractions (write-path)', () => {
 
   it('removing an interaction strips it from both sides', () => {
     const { day, slideId } = dayWithInteractionSlide();
-    const withIx = setSlideInteractions(day, slideId, [textInteraction('ix-a')]);
+    const withIx = setSlideInteractions(day, slideId, [
+      textInteraction('ix-a'),
+    ]);
     const cleared = setSlideInteractions(withIx, slideId, []);
     const slide = cleared.deck!.slides.find((s) => s.id === slideId)!;
     expect(slideInteractionIds(slide)).toEqual([]);
@@ -173,7 +175,9 @@ describe('setSlideInteractions (write-path)', () => {
 describe('duplicateSlideAt', () => {
   it('clones a slide with independent interactions (fresh ids, no dangling)', () => {
     const { day, slideId } = dayWithInteractionSlide();
-    const withIx = setSlideInteractions(day, slideId, [textInteraction('ix-a')]);
+    const withIx = setSlideInteractions(day, slideId, [
+      textInteraction('ix-a'),
+    ]);
     const dup = duplicateSlideAt(withIx, 0);
 
     expect(dup.deck!.slides).toHaveLength(2);
@@ -184,9 +188,7 @@ describe('duplicateSlideAt', () => {
     expect(cloneIds).toHaveLength(1);
     expect(cloneIds[0]).not.toBe('ix-a');
     // …and the cell now holds both interactions; nothing dangles.
-    expect(
-      dup.cells.connectRegulate.presentation.interactions,
-    ).toHaveLength(2);
+    expect(dup.cells.connectRegulate.presentation.interactions).toHaveLength(2);
     expect(findDanglingInteractionIds(publishDay(dup))).toEqual([]);
   });
 });

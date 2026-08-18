@@ -108,21 +108,35 @@ export class SoundFontAdapter implements InstrumentAdapter {
     return this.channel;
   }
 
-  noteOn(note: number, velocity: number, _time?: number): void {
+  noteOn(note: number, velocity: number, time?: number): void {
     if (!sharedSynth || !synthReady) {
       return;
     }
-    sharedSynth.noteOn(this.channel, note, velocity);
+    sharedSynth.noteOn(
+      this.channel,
+      note,
+      velocity,
+      time !== undefined ? { time } : undefined,
+    );
   }
 
-  noteOff(note: number, _time?: number): void {
+  noteOff(note: number, time?: number): void {
     if (!sharedSynth || !synthReady) return;
-    sharedSynth.noteOff(this.channel, note);
+    sharedSynth.noteOff(
+      this.channel,
+      note,
+      time !== undefined ? { time } : undefined,
+    );
   }
 
-  cc(controller: number, value: number, _time?: number): void {
+  cc(controller: number, value: number, time?: number): void {
     if (!sharedSynth || !synthReady) return;
-    sharedSynth.controllerChange(this.channel, controller as any, value);
+    sharedSynth.controllerChange(
+      this.channel,
+      controller as any,
+      value,
+      time !== undefined ? { time } : undefined,
+    );
   }
 
   allNotesOff(): void {

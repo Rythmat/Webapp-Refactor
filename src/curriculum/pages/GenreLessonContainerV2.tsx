@@ -64,6 +64,11 @@ interface GenreLessonContainerV2Props {
   genre: string;
   level: number;
   initialSection?: ActivitySectionId;
+  // Overrides for non-genre flows (e.g. Applied Theory Fundamentals) that
+  // don't have a real entry in CurriculumRoutes.genre's overview/registry —
+  // default behavior (derived from `genre`) is unchanged when omitted.
+  overviewRoute?: string;
+  displayName?: string;
   // Dongle callbacks — wire these when Globe/Studio/Arcade are ready
   onGlobeUpdate?: (data: GlobeDongleData) => void;
   onStudioUpdate?: (data: StudioDongleData) => void;
@@ -127,13 +132,16 @@ function GenreLessonContainerV2Inner({
   genre,
   level,
   initialSection,
+  overviewRoute,
+  displayName,
   onGlobeUpdate,
   onStudioUpdate,
   onArcadeUpdate,
   onBackendSync,
 }: GenreLessonContainerV2Props) {
   const navigate = useNavigate();
-  const genreDisplayName = genre.charAt(0).toUpperCase() + genre.slice(1);
+  const genreDisplayName =
+    displayName ?? genre.charAt(0).toUpperCase() + genre.slice(1);
 
   // ── State ────────────────────────────────────────────────────────────────
   const [activeSection, setActiveSection] = useState<ActivitySectionId>(
@@ -748,9 +756,14 @@ function GenreLessonContainerV2Inner({
   // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleComplete = useCallback(() => {
-    // Guard: don't complete if no meaningful time has elapsed
+    // Guard: don't complete if no meaningful time has elapsed. IT-only —
+    // OOT completion is already gated by actually satisfying each note's
+    // hold-duration requirement (completedEventIdsRef), so a fast pentatonic
+    // run or short arpeggio can legitimately finish in under a second. Blocking
+    // that here silently ate the completion with no retry path, leaving the
+    // activity stuck in 'performance' with no popup (see bug report).
     const elapsed = Date.now() - playStartedAtRef.current;
-    if (elapsed < 1000) return;
+    if (isIT && elapsed < 1000) return;
 
     const doComplete = () => {
       stopTickCounter();
@@ -767,6 +780,7 @@ function GenreLessonContainerV2Inner({
         currentStep.assessment ?? 'pitch_only',
         [currentStep.tag],
         currentStep.successFeedback,
+        tempo,
       );
       setLastResult(result);
       setActivityState('complete');
@@ -795,6 +809,7 @@ function GenreLessonContainerV2Inner({
     setActivityState,
     stopTickCounter,
     stopBacking,
+    tempo,
   ]);
 
   // Max tick = end of last note (with COUNT_IN_OFFSET for IT)
@@ -1271,7 +1286,9 @@ function GenreLessonContainerV2Inner({
             </span>
             <button
               type="button"
-              onClick={() => navigate(CurriculumRoutes.genre({ genre }))}
+              onClick={() =>
+                navigate(overviewRoute ?? CurriculumRoutes.genre({ genre }))
+              }
               style={{
                 background: 'none',
                 border: 'none',

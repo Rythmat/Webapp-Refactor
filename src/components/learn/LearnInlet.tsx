@@ -501,8 +501,14 @@ const THEORY_DATA: ContentItem[] = [
 
 const TECHNIQUE_DATA: ContentItem[] = [
   {
-    title: 'Beginner',
+    title: 'Piano Fundamentals',
     route: CurriculumRoutes.genre({ genre: 'piano-fundamentals' }),
+    image: '/learn-tiles/beginner-hex.svg',
+    interactive: true,
+  },
+  {
+    title: 'Applied Theory Fundamentals',
+    route: CurriculumRoutes.appliedTheoryFundamentals(),
     image: '/learn-tiles/beginner-hex.svg',
     interactive: true,
   },

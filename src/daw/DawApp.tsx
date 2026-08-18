@@ -49,7 +49,11 @@ import { getDemoProject } from '@/daw/data/demoProjects';
 import { getSong } from '@/curriculum/data/songs';
 import { seedStudioFromSong } from '@/features/songs/seedStudioFromSong';
 import { seedStudioFromPracticeTrack } from '@/features/practiceTracks/seedStudioFromPracticeTrack';
-import type { DiatonicMode } from '@/features/practiceTracks/generatePracticeTrack';
+import { urlParamToSemitone } from '@/lib/musicKeyUrl';
+import type {
+  DiatonicMode,
+  PracticeLevel,
+} from '@/features/practiceTracks/generatePracticeTrack';
 import { isDiatonicMode } from '@prism/engine';
 import { showSuccess, showError } from '@/util/toast';
 
@@ -197,13 +201,18 @@ function DawAppInner() {
       clearLocalSession();
       resetSessionToEmpty();
       if (isDiatonicMode(practiceModeParam)) {
-        const rootParam = Number(params.get('practiceRoot'));
-        const root = Number.isFinite(rootParam)
-          ? Math.max(0, Math.min(11, Math.round(rootParam)))
-          : 0;
+        // `practiceRoot` is a letter-based key param (e.g. "d", "dsharp"),
+        // written by `keyLabelToUrlParam` — decode it back to a 0-11
+        // semitone-from-C the same way `LessonContainer` resolves `key`.
+        const root = urlParamToSemitone(
+          params.get('practiceRoot') ?? undefined,
+        );
         const openParam = params.get('practiceOpen');
         const openTrack: 'melody' | 'chords' =
           openParam === 'chords' ? 'chords' : 'melody';
+        const levelParam = Number(params.get('practiceLevel'));
+        const level: PracticeLevel =
+          levelParam === 2 || levelParam === 3 ? levelParam : 1;
         // seedStudioFromPracticeTrack fetches + parses the fixed Drums
         // groove's .mid file, so it's async — await it the same way the
         // `project` branch above awaits its cloud fetch.
@@ -213,6 +222,7 @@ function DawAppInner() {
               practiceModeParam as DiatonicMode,
               root,
               openTrack,
+              level,
             );
           } finally {
             clearQuery();

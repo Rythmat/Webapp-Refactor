@@ -1,10 +1,6 @@
 import {
-  MODES,
-  TRIADS,
-  TETRADS,
+  CHORDS,
   DEGREES,
-  findTriadChords,
-  findSeventhChords,
   getChordColor,
   noteNameLetter,
   abbreviateSequence,
@@ -31,6 +27,9 @@ export type DiatonicMode =
 
 export type PracticeOpenTrack = 'melody' | 'chords';
 
+/** Difficulty tier — the student picks one on the Practice Track hand-off screen. */
+export type PracticeLevel = 1 | 2 | 3;
+
 export interface PracticeTrackResult {
   rootNote: number;
   mode: DiatonicMode;
@@ -53,22 +52,193 @@ const HALF_NOTE_TICKS = 2 * PPQ;
 const QUARTER_NOTE_TICKS = PPQ;
 const BPM = 96;
 
-/** Scale degrees (1-indexed) used per mode to build the 4/5-bar progression. */
-const DEGREE_SEQUENCES: Record<DiatonicMode, number[]> = {
-  lydian: [1, 4, 5, 1],
-  ionian: [1, 4, 5, 1],
-  mixolydian: [1, 4, 5, 1],
-  dorian: [1, 4, 5, 1],
-  aeolian: [1, 4, 5, 1],
-  // Degree-1 triad is diminished/unresolved in Locrian — use tetrads instead.
-  locrian: [1, 4, 3, 7],
-  // Also uses tetrads; 5 bars (not 4) — everything downstream must follow
-  // this mode's actual bar count.
-  phrygian: [1, 2, 6, 4, 7],
-};
+/** Chord quality names used below — all present in the shared `CHORDS` table. */
+type ChordQuality =
+  | 'major'
+  | 'major7'
+  | 'minor'
+  | 'minor7'
+  | 'dominant7'
+  | 'minor7b5'
+  | 'sus4';
 
-/** Modes whose progression is built from tetrads (TETRADS) instead of triads. */
-const TETRAD_MODES = new Set<DiatonicMode>(['locrian', 'phrygian']);
+/**
+ * One chord in a practice-track progression. Degrees are 1-7, always relative
+ * to the *parent major (Ionian) scale* — the standard modal-harmony
+ * convention (e.g. Dorian is 1-2-b3-4-5-6-b7, so Dorian's "bVII" chord is
+ * `{ degree: 7, accidental: -1 }`). This is independent of which mode the
+ * progression belongs to; every chord below happens to land on that mode's
+ * own natural diatonic scale degree, but is authored directly against the
+ * parent-major numbering rather than looked up from TRIADS/TETRADS.
+ */
+interface ChordSpec {
+  degree: number;
+  accidental: -1 | 0 | 1;
+  quality: ChordQuality;
+  /** Slash chords only: bass note plays this degree instead of the chord root. */
+  bassDegree?: number;
+  bassAccidental?: -1 | 0 | 1;
+}
+
+const IONIAN_STEPS = [0, 2, 4, 5, 7, 9, 11];
+
+function chord(
+  degree: number,
+  accidental: -1 | 0 | 1,
+  quality: ChordQuality,
+  bassDegree?: number,
+  bassAccidental: -1 | 0 | 1 = 0,
+): ChordSpec {
+  return { degree, accidental, quality, bassDegree, bassAccidental };
+}
+
+/**
+ * Per-mode, per-level chord progressions (Level 1 = simplest). Locrian uses
+ * the same progression for all three levels — its tonic triad is
+ * diminished/unresolved, so there isn't a simpler/harder variant to offer.
+ */
+const PROGRESSIONS: Record<DiatonicMode, Record<PracticeLevel, ChordSpec[]>> = {
+  ionian: {
+    1: [
+      chord(1, 0, 'major'),
+      chord(4, 0, 'major'),
+      chord(5, 0, 'major'),
+      chord(1, 0, 'major'),
+    ],
+    2: [
+      chord(4, 0, 'major7'),
+      chord(1, 0, 'major'),
+      chord(5, 0, 'sus4'),
+      chord(6, 0, 'minor'),
+    ],
+    3: [
+      chord(3, 0, 'minor7'),
+      chord(2, 0, 'minor7'),
+      chord(5, 0, 'dominant7'),
+      chord(1, 0, 'major7'),
+    ],
+  },
+  dorian: {
+    1: [
+      chord(1, 0, 'minor'),
+      chord(4, 0, 'major'),
+      chord(7, -1, 'major'),
+      chord(1, 0, 'minor'),
+    ],
+    2: [
+      chord(1, 0, 'minor7'),
+      chord(2, 0, 'minor7'),
+      chord(1, 0, 'minor7'),
+      chord(2, 0, 'minor7'),
+    ],
+    3: [
+      chord(1, 0, 'minor7'),
+      chord(7, -1, 'major7'),
+      chord(5, 0, 'minor7'),
+      chord(4, 0, 'dominant7'),
+    ],
+  },
+  phrygian: {
+    1: [
+      chord(1, 0, 'minor'),
+      chord(3, -1, 'major'),
+      chord(2, -1, 'major'),
+      chord(1, 0, 'minor'),
+    ],
+    2: [
+      chord(1, 0, 'minor7'),
+      chord(2, -1, 'major7'),
+      chord(1, 0, 'minor7'),
+      chord(2, -1, 'major7'),
+    ],
+    3: [
+      chord(4, 0, 'minor7'),
+      chord(6, -1, 'major7'),
+      chord(2, -1, 'major7'),
+      chord(1, 0, 'minor'),
+    ],
+  },
+  lydian: {
+    1: [
+      chord(1, 0, 'major'),
+      chord(2, 0, 'major'),
+      chord(2, 0, 'major'),
+      chord(1, 0, 'major'),
+    ],
+    2: [
+      chord(2, 0, 'major', 1, 0),
+      chord(1, 0, 'major7'),
+      chord(7, 0, 'minor7'),
+      chord(1, 0, 'major7'),
+    ],
+    3: [
+      chord(6, 0, 'minor7'),
+      chord(7, 0, 'minor7'),
+      chord(1, 0, 'major7'),
+      chord(2, 0, 'major'),
+    ],
+  },
+  mixolydian: {
+    1: [
+      chord(1, 0, 'major'),
+      chord(5, 0, 'minor'),
+      chord(4, 0, 'major'),
+      chord(1, 0, 'major'),
+    ],
+    2: [
+      chord(1, 0, 'major'),
+      chord(5, 0, 'minor7'),
+      chord(1, 0, 'major'),
+      chord(5, 0, 'minor7'),
+    ],
+    3: [
+      chord(7, -1, 'major'),
+      chord(4, 0, 'major'),
+      chord(1, 0, 'dominant7'),
+      chord(1, 0, 'dominant7'),
+    ],
+  },
+  aeolian: {
+    1: [
+      chord(1, 0, 'minor'),
+      chord(6, -1, 'major'),
+      chord(7, -1, 'major'),
+      chord(1, 0, 'minor'),
+    ],
+    2: [
+      chord(1, 0, 'minor7'),
+      chord(6, -1, 'major7'),
+      chord(5, 0, 'minor7'),
+      chord(6, -1, 'major7'),
+    ],
+    3: [
+      chord(3, -1, 'major7'),
+      chord(7, -1, 'major'),
+      chord(4, 0, 'minor7'),
+      chord(1, 0, 'minor7'),
+    ],
+  },
+  locrian: {
+    1: [
+      chord(1, 0, 'minor7b5'),
+      chord(7, -1, 'minor7'),
+      chord(2, -1, 'major7'),
+      chord(1, 0, 'minor7b5'),
+    ],
+    2: [
+      chord(1, 0, 'minor7b5'),
+      chord(7, -1, 'minor7'),
+      chord(2, -1, 'major7'),
+      chord(1, 0, 'minor7b5'),
+    ],
+    3: [
+      chord(1, 0, 'minor7b5'),
+      chord(7, -1, 'minor7'),
+      chord(2, -1, 'major7'),
+      chord(1, 0, 'minor7b5'),
+    ],
+  },
+};
 
 /**
  * One fixed, neutral, real groove — same for every mode. This is one of
@@ -93,32 +263,34 @@ interface BarChord {
   endTick: number;
   /** Long-form degree-qualified label, e.g. "4 dominant7" — for coloring/regions. */
   degreeLabel: string;
+  /** Slash chords only: semitone offset from tonic for the bass note. */
+  bassOffset?: number;
 }
 
-/** Build one chord (absolute-from-tonic semitone offsets) per scale degree in the sequence. */
-function buildBarChords(
-  mode: DiatonicMode,
-  degreeSequence: number[],
-): BarChord[] {
-  const useTetrads = TETRAD_MODES.has(mode);
-  const chordTable = useTetrads
-    ? findSeventhChords(mode)
-    : findTriadChords(mode);
-  const qualityTable = useTetrads ? TETRADS[mode] : TRIADS[mode];
-  const scaleSteps = MODES[mode];
+/** Ionian-relative degree+accidental → semitone offset from tonic (0-11). */
+function degreeOffset(degree: number, accidental: -1 | 0 | 1): number {
+  return (IONIAN_STEPS[degree - 1] + accidental + 12) % 12;
+}
 
-  return degreeSequence.map((degree, barIndex) => {
-    const degreeIndex = degree - 1;
-    const intervals = chordTable[degreeIndex];
-    const quality = qualityTable[degreeIndex];
-    const degreeStep = scaleSteps[degreeIndex];
-    const degreeLabel = `${DEGREES[degreeStep]} ${quality}`;
+/** Build one chord (absolute-from-tonic semitone offsets) per spec in the progression. */
+function buildBarChords(mode: DiatonicMode, level: PracticeLevel): BarChord[] {
+  const progression = PROGRESSIONS[mode][level];
+
+  return progression.map((spec, barIndex) => {
+    const offset = degreeOffset(spec.degree, spec.accidental);
+    const intervals = CHORDS[spec.quality].map((iv) => iv + offset);
+    const degreeLabel = `${DEGREES[offset]} ${spec.quality}`;
+    const bassOffset =
+      spec.bassDegree != null
+        ? degreeOffset(spec.bassDegree, spec.bassAccidental ?? 0)
+        : undefined;
 
     return {
       intervals,
       startTick: barIndex * TICKS_PER_BAR,
       endTick: (barIndex + 1) * TICKS_PER_BAR,
       degreeLabel,
+      bassOffset,
     };
   });
 }
@@ -137,13 +309,20 @@ function buildChordRegions(
     // getChordColor expects `mode` explicitly — omitting it silently defaults
     // to Ionian coloring (a known bug elsewhere in dawBridge.ts); don't repeat that.
     const color = getChordColor(bar.degreeLabel, rootMidi, mode);
+    // Slash chords (e.g. Lydian's "2/1"): append the bass degree so the
+    // label reads correctly in the Chords lane.
+    const slashSuffix =
+      bar.bassOffset != null && bar.bassOffset !== bar.intervals[0] % 12
+        ? `/${DEGREES[bar.bassOffset]}`
+        : '';
 
     return {
       id: nextChordId(),
       startTick: bar.startTick,
       endTick: bar.endTick,
-      name: abbreviateSequence(bar.degreeLabel),
-      noteName: abbreviateSequence(`${chordRootLetter} ${quality}`),
+      name: abbreviateSequence(bar.degreeLabel) + slashSuffix,
+      noteName:
+        abbreviateSequence(`${chordRootLetter} ${quality}`) + slashSuffix,
       color,
       degreeKey: bar.degreeLabel,
       midis,
@@ -156,7 +335,9 @@ function buildChordRegions(
 function buildBassClip(barChords: BarChord[], rootMidi: number): MidiClip {
   const bassRegister = rootMidi - 24; // 2 octaves below the chord root
   const events = barChords.flatMap((bar) => {
-    const chordRoot = bassRegister + bar.intervals[0];
+    // Slash chords (e.g. Lydian's "2/1") play the specified bass degree
+    // instead of the chord root; every other bar's bass root is the chord root.
+    const chordRoot = bassRegister + (bar.bassOffset ?? bar.intervals[0]);
     // "5th-equivalent" tone read directly off the built chord (index 2 is
     // always the 5th/b5 position for both triads and tetrads in CHORDS) —
     // this stays correct even for Locrian's built-in ♭5, unlike a naive +7.
@@ -297,11 +478,11 @@ export async function generatePracticeTrack(
   mode: DiatonicMode,
   root: number,
   openTrack: PracticeOpenTrack,
+  level: PracticeLevel = 1,
 ): Promise<PracticeTrackResult> {
   const clampedRoot = Math.max(0, Math.min(11, Math.round(root)));
   const rootMidi = 60 + clampedRoot;
-  const degreeSequence = DEGREE_SEQUENCES[mode];
-  const barChords = buildBarChords(mode, degreeSequence);
+  const barChords = buildBarChords(mode, level);
   const barCount = barChords.length;
 
   const chordRegions = buildChordRegions(barChords, rootMidi, mode);

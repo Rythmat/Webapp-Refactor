@@ -15,6 +15,7 @@ import { BetaHelp } from '@/components/ui/beta-help';
 import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import { isContentEditor } from '@/features/admin/consoleRoles';
 import { ClassroomSwitcher } from '@/features/teacher/components/ClassroomSwitcher';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
 import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
@@ -34,6 +35,23 @@ export const Sidebar = ({
   const [helpOpen, setHelpOpen] = useState(false);
 
   const renderNavigation = () => {
+    // Content editors get the Content tab and nothing else — their work is
+    // proposals an admin approves, so Users, Telemetry, Insider Access and
+    // Publishing are all out of scope. AdminPages enforces the same split for
+    // typed URLs; this only decides what is offered.
+    if (isContentEditor(role)) {
+      return (
+        <ul className="flex flex-1 flex-col gap-y-1 pt-4">
+          <SidebarMainNavItem
+            icon={FileText}
+            isCollapsed={isCollapsed}
+            label="Content"
+            to={AdminRoutes.contentKind({ kind: 'activity_flow' })}
+          />
+        </ul>
+      );
+    }
+
     // Admin navigation
     if (role === 'admin') {
       return (

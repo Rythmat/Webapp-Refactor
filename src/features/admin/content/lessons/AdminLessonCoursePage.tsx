@@ -13,14 +13,20 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { AdminRoutes } from '@/constants/routes';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { SCALES } from '@/curriculum/engine/genreGeneration/scaleRegistry';
 import {
+  useApproveContentEdit,
   useContentItem,
   useContentItems,
   useDeleteContentItem,
+  useDiscardContentEdit,
+  useRejectContentEdit,
   useSaveContentItem,
   type ContentStatus,
 } from '@/hooks/data/admin/useAdminContent';
+import { isContentEditor } from '../../consoleRoles';
+import { EditReviewBanner } from '../review/EditReview';
 import {
   LessonLevelEditor,
   type LessonFlowBody,
@@ -86,9 +92,16 @@ export const AdminLessonCoursePage = () => {
   const [search, setSearch] = useSearchParams();
   const genre = params.genre ?? '';
 
+  const { role } = useAuthContext();
+  const isEditor = isContentEditor(role);
+
   const list = useContentItems({ kind: 'activity_flow' });
   const save = useSaveContentItem();
   const remove = useDeleteContentItem();
+  const approve = useApproveContentEdit();
+  const reject = useRejectContentEdit();
+  const discard = useDiscardContentEdit();
+  const reviewBusy = approve.isPending || reject.isPending || discard.isPending;
 
   // Every item whose slug belongs to this genre, ordered by level.
   const levels = useMemo(() => {
@@ -114,20 +127,41 @@ export const AdminLessonCoursePage = () => {
   const [dirty, setDirty] = useState(false);
   const [showJson, setShowJson] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Editors only: abandon a sent-back draft and start again from the live body.
+  const [restartFromLive, setRestartFromLive] = useState(false);
 
-  // Seed the draft when a different level is loaded, and only then — a
-  // background refetch landing mid-edit must not silently replace what the
-  // author has typed.
-  const seededId = useRef<string | null>(null);
+  /**
+   * Re-seed when the level in front of you changes, or when the server's copy
+   * of it moves — and not otherwise.
+   *
+   * Keyed on updatedAt/editState rather than the query result's identity (which
+   * changes on every refetch, so a background invalidation would wipe unsaved
+   * work) and rather than the id alone (which would leave the pane showing the
+   * pre-approval body after an approve, one "Save level" away from reverting
+   * it).
+   *
+   * An editor picks up their own submitted version rather than the live one:
+   * resubmitting from the live body would silently discard whatever is already
+   * sitting in the review queue.
+   */
+  const seededKey = useRef<string | null>(null);
   useEffect(() => {
     const loaded = detail.data;
-    if (!loaded || seededId.current === loaded.id) return;
-    seededId.current = loaded.id;
-    setDraft(loaded.body as unknown as LessonFlowBody);
+    if (!loaded) return;
+    const key = `${loaded.id}:${new Date(loaded.updatedAt).getTime()}:${
+      loaded.editState ?? ''
+    }:${restartFromLive ? 'live' : ''}`;
+    if (seededKey.current === key) return;
+    seededKey.current = key;
+    const source =
+      isEditor && loaded.pendingBody && !restartFromLive
+        ? loaded.pendingBody
+        : loaded.body;
+    setDraft(source as unknown as LessonFlowBody);
     setStatus(loaded.status);
     setDirty(false);
     setError(null);
-  }, [detail.data]);
+  }, [detail.data, isEditor, restartFromLive]);
 
   const edit = (next: LessonFlowBody) => {
     setDraft(next);
@@ -151,7 +185,8 @@ export const AdminLessonCoursePage = () => {
         kind: 'activity_flow',
         slug: levelSlug(draft.genre || genre, draft.level),
         body: draft,
-        status,
+        // An editor's save is a proposal; status is the admin's to set.
+        status: isEditor ? undefined : status,
       });
       setDirty(false);
     } catch (cause) {
@@ -229,23 +264,27 @@ export const AdminLessonCoursePage = () => {
             <Braces className="mr-2 size-4" />
             {showJson ? 'Hide JSON' : 'JSON'}
           </Button>
-          <Select
-            value={status}
-            onValueChange={(value) => {
-              setStatus(value as ContentStatus);
-              setDirty(true);
-            }}
-          >
-            <SelectTrigger className="w-36">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="archived">Archived</SelectItem>
-            </SelectContent>
-          </Select>
-          {activeEntry && (
+          {/* Publishing status and deletion are admin calls — an editor's work
+              becomes live through approval, not through either of these. */}
+          {!isEditor && (
+            <Select
+              value={status}
+              onValueChange={(value) => {
+                setStatus(value as ContentStatus);
+                setDirty(true);
+              }}
+            >
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="published">Published</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+          {activeEntry && !isEditor && (
             <Button
               variant="ghost"
               size="icon"
@@ -261,7 +300,8 @@ export const AdminLessonCoursePage = () => {
             ) : (
               <Save className="mr-2 size-4" />
             )}
-            Save level{dirty ? ' •' : ''}
+            {isEditor ? 'Submit level' : 'Save level'}
+            {dirty ? ' •' : ''}
           </Button>
         </div>
       </div>
@@ -270,6 +310,33 @@ export const AdminLessonCoursePage = () => {
         <div className="rounded-lg border border-red-600/30 bg-red-600/10 p-3 text-sm text-red-300">
           {error ?? save.error?.message}
         </div>
+      )}
+
+      {detail.data?.editState && (
+        <EditReviewBanner
+          state={detail.data.editState}
+          pendingNote={detail.data.pendingNote}
+          reviewNote={detail.data.reviewNote}
+          submittedAt={detail.data.pendingAt}
+          isEditor={isEditor}
+          liveBody={detail.data.body}
+          pendingBody={detail.data.pendingBody}
+          busy={reviewBusy}
+          onApprove={
+            isEditor
+              ? undefined
+              : () => void approve.mutateAsync(detail.data!.id)
+          }
+          onReject={
+            isEditor
+              ? undefined
+              : (note) => void reject.mutateAsync({ id: detail.data!.id, note })
+          }
+          onDiscard={() => void discard.mutateAsync(detail.data!.id)}
+          onRestartFromLive={
+            isEditor ? () => setRestartFromLive(true) : undefined
+          }
+        />
       )}
 
       {/* ── Level tabs ── */}
@@ -288,13 +355,26 @@ export const AdminLessonCoursePage = () => {
               onClick={() => selectLevel(level)}
             >
               Level {level}
+              {/* Three states, not two: a level with an unreviewed proposal
+                  would otherwise be indistinguishable from an untouched
+                  draft. */}
               <span
                 className={`ml-2 inline-block size-1.5 rounded-full ${
-                  item.status === 'published'
-                    ? 'bg-emerald-400'
-                    : 'bg-amber-400'
+                  item.editState === 'pending'
+                    ? 'bg-sky-400'
+                    : item.editState === 'rejected'
+                      ? 'bg-orange-400'
+                      : item.status === 'published'
+                        ? 'bg-emerald-400'
+                        : 'bg-amber-400'
                 }`}
-                title={item.status}
+                title={
+                  item.editState === 'pending'
+                    ? 'In review'
+                    : item.editState === 'rejected'
+                      ? 'Changes requested'
+                      : item.status
+                }
               />
             </button>
           );

@@ -116,36 +116,57 @@ function roleBadge(role: AdminUser['role']) {
           Student
         </Badge>
       );
+    case 'editor':
+      return (
+        <Badge className="bg-teal-600/20 text-teal-300 border-teal-600/30">
+          Content editor
+        </Badge>
+      );
   }
 }
+
+/**
+ * Roles an admin can assign. `admin` is not among them — the API refuses to
+ * reassign an admin account, and there is no promotion path to one here.
+ */
+const ASSIGNABLE_ROLES = ['student', 'teacher', 'editor'] as const;
+type AssignableRole = (typeof ASSIGNABLE_ROLES)[number];
+
+const ROLE_LABELS: Record<AssignableRole, string> = {
+  student: 'Student',
+  teacher: 'Teacher',
+  editor: 'Content editor',
+};
 
 export const AdminUsersPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [subscriptionFilter, setSubscriptionFilter] = useState<string>('all');
-  const [confirmUser, setConfirmUser] = useState<AdminUser | null>(null);
+  // The role change is now an explicit destination rather than a toggle. With a
+  // single "Revert to Student" item, an editor's row read as one click away
+  // from demotion and the dialog never said which role it was moving them to.
+  const [confirmChange, setConfirmChange] = useState<{
+    user: AdminUser;
+    role: AssignableRole;
+  } | null>(null);
 
   const updateRole = useUpdateUserRole();
 
-  const targetRole = (user: AdminUser): 'teacher' | 'student' =>
-    user.role === 'student' ? 'teacher' : 'student';
-  const changeLabel = (user: AdminUser) =>
-    user.role === 'student' ? 'Change to Teacher' : 'Revert to Student';
   const displayName = (user: AdminUser) => user.username ?? user.nickname;
 
   const handleConfirmRoleChange = () => {
-    if (!confirmUser) return;
-    const user = confirmUser;
+    if (!confirmChange) return;
+    const { user, role } = confirmChange;
     updateRole.mutate(
-      { id: user.id, role: targetRole(user) },
+      { id: user.id, role },
       {
         onSuccess: () => {
           toast({
             title: 'Role updated',
-            description: `${displayName(user)} is now a ${targetRole(user)}.`,
+            description: `${displayName(user)} is now a ${ROLE_LABELS[role].toLowerCase()}. They may need to sign out and back in for it to take effect.`,
           });
-          setConfirmUser(null);
+          setConfirmChange(null);
         },
         onError: (err) => {
           toast({
@@ -153,7 +174,7 @@ export const AdminUsersPage = () => {
             title: 'Could not change role',
             description: err.message,
           });
-          setConfirmUser(null);
+          setConfirmChange(null);
         },
       },
     );
@@ -168,10 +189,7 @@ export const AdminUsersPage = () => {
 
   const { data: allUsers = [], isLoading } = useAdminUsers({
     search: debouncedSearch || undefined,
-    role:
-      roleFilter !== 'all'
-        ? (roleFilter as 'admin' | 'teacher' | 'student')
-        : undefined,
+    role: roleFilter !== 'all' ? (roleFilter as AdminUser['role']) : undefined,
   });
 
   const users =
@@ -227,6 +245,7 @@ export const AdminUsersPage = () => {
           <SelectContent>
             <SelectItem value="all">All roles</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="editor">Content editor</SelectItem>
             <SelectItem value="teacher">Teacher</SelectItem>
             <SelectItem value="student">Student</SelectItem>
           </SelectContent>
@@ -304,9 +323,16 @@ export const AdminUsersPage = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
-                        <DropdownMenuItem onSelect={() => setConfirmUser(user)}>
-                          {changeLabel(user)}
-                        </DropdownMenuItem>
+                        {ASSIGNABLE_ROLES.filter(
+                          (role) => role !== user.role,
+                        ).map((role) => (
+                          <DropdownMenuItem
+                            key={role}
+                            onSelect={() => setConfirmChange({ user, role })}
+                          >
+                            Make {ROLE_LABELS[role].toLowerCase()}
+                          </DropdownMenuItem>
+                        ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
@@ -329,17 +355,24 @@ export const AdminUsersPage = () => {
       </div>
 
       <AlertDialog
-        open={!!confirmUser}
+        open={!!confirmChange}
         onOpenChange={(open) => {
-          if (!open) setConfirmUser(null);
+          if (!open) setConfirmChange(null);
         }}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Change user role</AlertDialogTitle>
             <AlertDialogDescription>
-              {confirmUser
-                ? `Are you sure you want to change ${displayName(confirmUser)}'s role?`
+              {confirmChange
+                ? `Change ${displayName(confirmChange.user)} from ${
+                    ROLE_LABELS[confirmChange.user.role as AssignableRole] ??
+                    confirmChange.user.role
+                  } to ${ROLE_LABELS[confirmChange.role]}?${
+                    confirmChange.role === 'editor'
+                      ? ' A content editor sees only the Content tab of this console, and their saves wait for an admin to approve them.'
+                      : ''
+                  } The change may take a few minutes to reach them, or take effect immediately if they sign out and back in.`
                 : ''}
             </AlertDialogDescription>
           </AlertDialogHeader>

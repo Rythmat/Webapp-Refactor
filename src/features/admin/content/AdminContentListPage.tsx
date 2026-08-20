@@ -30,7 +30,9 @@ import {
   type ContentKind,
   type ContentStatus,
 } from '@/hooks/data/admin/useAdminContent';
+import { isContentEditor } from '../consoleRoles';
 import { CONTENT_KINDS, isContentKind, KIND_ORDER } from './kinds';
+import { EditStateBadge } from './review/EditReview';
 
 const STATUS_STYLES: Record<ContentStatus, string> = {
   published: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/30',
@@ -58,6 +60,8 @@ export const AdminContentListPage = () => {
     : 'activity_flow';
   const spec = CONTENT_KINDS[kind];
   const isLessons = kind === 'activity_flow';
+  const { role } = useAuthContext();
+  const isEditor = isContentEditor(role);
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<ContentStatus | 'all'>('all');
@@ -99,8 +103,9 @@ export const AdminContentListPage = () => {
           <h1 className="text-2xl font-semibold">{spec.label}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{spec.blurb}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Edits save to the database immediately, but only reach students when
-            you publish from the Publishing page.
+            {isEditor
+              ? 'Your edits are submitted for review. The live version is unchanged until an admin approves them, and reaches students at the next publish.'
+              : 'Edits save to the database immediately, but only reach students when you publish from the Publishing page.'}
           </p>
         </div>
         {isLessons ? (
@@ -257,9 +262,14 @@ export const AdminContentListPage = () => {
                   {[item.subtitle, item.sortYear].filter(Boolean).join(' · ')}
                 </TableCell>
                 <TableCell>
-                  <Badge className={STATUS_STYLES[item.status]}>
-                    {item.status}
-                  </Badge>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <Badge className={STATUS_STYLES[item.status]}>
+                      {item.status}
+                    </Badge>
+                    {/* An unreviewed proposal sits beside the live body, so the
+                        status alone would say nothing about it. */}
+                    <EditStateBadge state={item.editState} />
+                  </div>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
                   {format(new Date(item.updatedAt), 'MMM d, yyyy')}

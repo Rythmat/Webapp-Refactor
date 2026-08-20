@@ -1,12 +1,16 @@
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import {
+  Check,
   CloudUpload,
+  Eye,
   Loader2,
   MapPinOff,
   RotateCcw,
+  X,
   XCircle,
 } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,17 +22,22 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { AdminRoutes } from '@/constants/routes';
 import {
+  useApproveContentEdit,
   useCancelRelease,
   useContentOverview,
   useContentReleases,
   useDerivationHealth,
+  usePendingEdits,
   usePublishContent,
+  useRejectContentEdit,
   useRollbackContent,
   type ContentKind,
   type ContentReleaseStatus,
 } from '@/hooks/data/admin/useAdminContent';
 import { CONTENT_KINDS } from './kinds';
+import { RejectNoteForm } from './review/EditReview';
 
 // Labels come from the shared kind spec so the Publishing page cannot drift
 // from the Content pages when a kind is added.
@@ -91,6 +100,8 @@ export const AdminReleasesPage = () => {
         </div>
       )}
 
+      <PendingReviewSection />
+
       <section>
         <h2 className="mb-3 text-sm font-medium text-muted-foreground">
           Content kinds
@@ -122,13 +133,25 @@ export const AdminReleasesPage = () => {
                     </span>
                   </TableCell>
                   <TableCell>
-                    {row.changedSincePublish > 0 ? (
-                      <Badge className="bg-amber-600/20 text-amber-400 border-amber-600/30">
-                        {row.changedSincePublish} pending
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">Up to date</span>
-                    )}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {row.changedSincePublish > 0 ? (
+                        <Badge className="bg-amber-600/20 text-amber-400 border-amber-600/30">
+                          {row.changedSincePublish} pending
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">
+                          Up to date
+                        </span>
+                      )}
+                      {/* Proposals are NOT part of that count — they have not
+                          touched the live body, so publishing would not ship
+                          them. Shown separately so the two never read as one. */}
+                      {row.pendingReview > 0 && (
+                        <Badge className="border-sky-600/30 bg-sky-600/20 text-sky-300">
+                          {row.pendingReview} in review
+                        </Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {row.liveVersion ? (
@@ -262,6 +285,130 @@ export const AdminReleasesPage = () => {
         )}
       </section>
     </div>
+  );
+};
+
+/**
+ * Editors' proposed edits, waiting on a verdict.
+ *
+ * It lives on this page rather than in Content because approving is the step
+ * that decides what the next release contains — the queue and the Publish
+ * buttons are two halves of the same decision, and splitting them across pages
+ * would let an admin publish while unreviewed work sat somewhere else.
+ *
+ * Approving applies the proposal and marks the item published; it does NOT
+ * publish by itself, so a batch of approvals still ships as one release.
+ */
+const PendingReviewSection = () => {
+  const pending = usePendingEdits();
+  const approve = useApproveContentEdit();
+  const reject = useRejectContentEdit();
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+
+  const rows = pending.data ?? [];
+  const busy = approve.isPending || reject.isPending;
+
+  if (pending.isLoading) return <Skeleton className="h-24 w-full" />;
+
+  return (
+    <section>
+      <h2 className="mb-3 text-sm font-medium text-muted-foreground">
+        Awaiting review{rows.length > 0 && ` (${rows.length})`}
+      </h2>
+
+      {(approve.error || reject.error) && (
+        <div className="mb-3 rounded-lg border border-red-600/30 bg-red-600/10 p-3 text-sm text-red-300">
+          {approve.error?.message ?? reject.error?.message}
+        </div>
+      )}
+
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          Nothing submitted by an editor is waiting. Editors&rsquo; saves land
+          here instead of changing live content.
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {rows.map((row) => (
+            <li
+              key={row.id}
+              className="rounded-lg border border-sky-600/20 bg-sky-600/[0.06] p-3"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium">{row.title}</span>
+                    {row.isNew && (
+                      <Badge className="border-emerald-600/30 bg-emerald-600/20 text-emerald-300">
+                        New
+                      </Badge>
+                    )}
+                    <span className="text-xs text-muted-foreground">
+                      {KIND_LABELS[row.kind]} ·{' '}
+                      <span className="font-mono">{row.slug}</span>
+                    </span>
+                  </div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {row.submittedBy?.name ?? 'Unknown editor'}
+                    {row.submittedAt &&
+                      ` · ${formatDistanceToNow(new Date(row.submittedAt))} ago`}
+                  </div>
+                  {row.note && (
+                    <p className="mt-1 text-sm text-sky-100/80">
+                      &ldquo;{row.note}&rdquo;
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex shrink-0 items-center gap-2">
+                  <Button asChild size="sm" variant="ghost">
+                    <Link
+                      to={AdminRoutes.contentItem({
+                        kind: row.kind,
+                        id: row.id,
+                      })}
+                    >
+                      <Eye className="mr-1 size-3.5" />
+                      Review
+                    </Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={busy}
+                    onClick={() => approve.mutate(row.id)}
+                  >
+                    <Check className="mr-1 size-3.5" />
+                    Approve
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={busy}
+                    onClick={() =>
+                      setRejectingId(rejectingId === row.id ? null : row.id)
+                    }
+                  >
+                    <X className="mr-1 size-3.5" />
+                    Request changes
+                  </Button>
+                </div>
+              </div>
+
+              {rejectingId === row.id && (
+                <RejectNoteForm
+                  busy={busy}
+                  onCancel={() => setRejectingId(null)}
+                  onSubmit={(value) => {
+                    reject.mutate({ id: row.id, note: value });
+                    setRejectingId(null);
+                  }}
+                />
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 };
 

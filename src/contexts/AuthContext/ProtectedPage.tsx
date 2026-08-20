@@ -3,10 +3,16 @@ import { ErrorBox } from '@/components/ErrorBox';
 import { FullScreenLoading } from '@/components/FullScreenLoading';
 import { Button } from '@/components/ui/button';
 import { AdminRoutes, AuthRoutes } from '@/constants/routes';
+import { isConsoleRole } from '@/features/admin/consoleRoles';
 import { useAuthContext } from './hooks/useAuthContext';
 
 interface ProtectedPageProps {
   children: React.ReactNode;
+  /**
+   * Gate on the console. Named for the role that had it first; it now admits
+   * content editors too, and the routes inside AdminPages narrow further —
+   * an editor reaches only the Content tab.
+   */
   adminOnly?: boolean;
   teacherOnly?: boolean;
   studentOnly?: boolean;
@@ -66,7 +72,7 @@ export const ProtectedPage = ({
     return <FullScreenLoading />;
   }
 
-  if (adminOnly && role !== 'admin') {
+  if (adminOnly && !isConsoleRole(role)) {
     return <Navigate replace to={AuthRoutes.root()} />;
   }
 
@@ -78,8 +84,10 @@ export const ProtectedPage = ({
     return <Navigate replace to={AuthRoutes.root()} />;
   }
 
-  // Admin users should only access admin pages — redirect them to the admin console
-  if (!adminOnly && role === 'admin') {
+  // Console users have no business in the student/teacher app — send them home.
+  // This covers editors as well as admins; an editor with no branch here would
+  // be able to wander into a teacher surface their role does not cover.
+  if (!adminOnly && isConsoleRole(role)) {
     return <Navigate replace to={AdminRoutes.root()} />;
   }
 

@@ -7,7 +7,7 @@ import {
   SlidersHorizontal,
   Trash2,
 } from 'lucide-react';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,14 +23,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
+  useApproveContentEdit,
   useContentItem,
   useContentTemplate,
   useDeleteContentItem,
+  useDiscardContentEdit,
+  useRejectContentEdit,
   useSaveContentItem,
   type ContentKind,
   type ContentStatus,
 } from '@/hooks/data/admin/useAdminContent';
+import { isContentEditor } from '../consoleRoles';
 import {
   CONTENT_KINDS,
   getPath,
@@ -39,6 +44,7 @@ import {
   setPath,
   type FieldSpec,
 } from './kinds';
+import { EditReviewBanner } from './review/EditReview';
 import {
   GlobeEventVisualEditor,
   type GlobeEventBody,
@@ -85,10 +91,19 @@ export const AdminContentEditPage = () => {
   // A "full editor" owns the whole body and replaces the form + JSON pane.
   const FullEditor = spec.FullEditor;
 
+  const { role } = useAuthContext();
+  // An editor's save is a proposal: the API decides that from the session, so
+  // this only changes what the page offers and what it calls things.
+  const isEditor = isContentEditor(role);
+
   const existing = useContentItem(isNew ? undefined : params.id);
   const template = useContentTemplate(isNew ? kind : undefined);
   const save = useSaveContentItem();
   const remove = useDeleteContentItem();
+  const approve = useApproveContentEdit();
+  const reject = useRejectContentEdit();
+  const discard = useDiscardContentEdit();
+  const reviewBusy = approve.isPending || reject.isPending || discard.isPending;
 
   const [status, setStatus] = useState<ContentStatus>('draft');
   const [body, setBody] = useState<Record<string, unknown> | null>(null);
@@ -97,6 +112,10 @@ export const AdminContentEditPage = () => {
   const [jsonSeed, setJsonSeed] = useState(0);
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
+  // Editors only: a one-line "what I changed", shown to whoever reviews it.
+  const [submitNote, setSubmitNote] = useState('');
+  // Editors only: abandon a sent-back draft and start again from the live body.
+  const [restartFromLive, setRestartFromLive] = useState(false);
 
   // The typed form and the visual editor each own a slice of the body; the JSON
   // pane owns whatever is left. Splitting on the union keeps all three from ever
@@ -121,16 +140,44 @@ export const AdminContentEditPage = () => {
     () => (isNew ? (spec.makeDefault?.() ?? null) : null),
     [isNew, spec],
   );
+  // An editor opening an item they have already submitted must pick up THEIR
+  // proposed version, not the live one — otherwise resubmitting would silently
+  // throw away the work sitting in the queue. An admin always sees the live
+  // body; the proposal is something they act on through the banner instead.
   const seed = isNew
     ? (defaultBody ?? template.data?.body)
-    : existing.data?.body;
+    : isEditor && existing.data?.pendingBody && !restartFromLive
+      ? existing.data.pendingBody
+      : existing.data?.body;
+
+  /**
+   * Re-seed only when the server's version of this item actually moved.
+   *
+   * Keyed on updatedAt/editState rather than on the query result's identity,
+   * which changes on every refetch: react-query hands back a fresh object each
+   * time (SuperJSON revives Dates, so structural sharing cannot dedupe it), and
+   * an effect keyed on that would wipe unsaved edits whenever anything
+   * invalidated the content queries. Keying on the id ALONE has the opposite
+   * failure — approving an edit rewrites the body server-side and the pane
+   * would keep showing the pre-approval version, one Save away from reverting
+   * it. The version key covers both.
+   */
+  const seedKey = isNew
+    ? 'new'
+    : `${existing.data?.id ?? ''}:${
+        existing.data?.updatedAt
+          ? new Date(existing.data.updatedAt).getTime()
+          : ''
+      }:${existing.data?.editState ?? ''}:${restartFromLive ? 'live' : ''}`;
+  const seededKey = useRef<string | null>(null);
   useEffect(() => {
-    if (!seed) return;
+    if (!seed || seededKey.current === seedKey) return;
+    seededKey.current = seedKey;
     setBody(seed as Record<string, unknown>);
     setJsonSeed((value) => value + 1);
     if (!isNew && existing.data) setStatus(existing.data.status);
     setDirty(false);
-  }, [seed, isNew, existing.data]);
+  }, [seed, seedKey, isNew, existing.data]);
 
   // Warn before losing unsaved edits on a hard navigation / tab close.
   useEffect(() => {
@@ -167,10 +214,42 @@ export const AdminContentEditPage = () => {
     }
     setJsonError(null);
 
-    await save.mutateAsync({ kind, slug, body, status });
+    await save.mutateAsync({
+      kind,
+      slug,
+      body,
+      // An editor never sets status — the API ignores it for them, and sending
+      // one would only make the button lie about what it does.
+      status: isEditor ? undefined : status,
+      note: isEditor ? submitNote.trim() || undefined : undefined,
+    });
     setDirty(false);
     navigate(AdminRoutes.contentKind({ kind }));
   };
+
+  /** The review banner's props, shared by both layouts below. */
+  const reviewBanner = !isNew && existing.data?.editState && (
+    <EditReviewBanner
+      state={existing.data.editState}
+      pendingNote={existing.data.pendingNote}
+      reviewNote={existing.data.reviewNote}
+      submittedAt={existing.data.pendingAt}
+      isEditor={isEditor}
+      liveBody={existing.data.body}
+      pendingBody={existing.data.pendingBody}
+      busy={reviewBusy}
+      onRestartFromLive={isEditor ? () => setRestartFromLive(true) : undefined}
+      onApprove={
+        isEditor ? undefined : () => void approve.mutateAsync(existing.data!.id)
+      }
+      onReject={
+        isEditor
+          ? undefined
+          : (note) => void reject.mutateAsync({ id: existing.data!.id, note })
+      }
+      onDiscard={() => void discard.mutateAsync(existing.data!.id)}
+    />
+  );
 
   const loading = isNew
     ? defaultBody
@@ -190,7 +269,10 @@ export const AdminContentEditPage = () => {
   const StructuredEditor = spec.StructuredEditor;
   const Preview = spec.Preview;
 
-  const statusSelect = (
+  // Publishing status is an admin's call. An editor proposes content; whether
+  // it goes live is decided by the approval, so showing them a control that
+  // cannot take effect would only mislead.
+  const statusSelect = isEditor ? null : (
     <Select
       value={status}
       onValueChange={(value) => {
@@ -207,6 +289,51 @@ export const AdminContentEditPage = () => {
         <SelectItem value="archived">Archived</SelectItem>
       </SelectContent>
     </Select>
+  );
+
+  const noteField = isEditor && (
+    <Input
+      className="w-56"
+      aria-label="What changed"
+      placeholder="What changed? (optional)"
+      value={submitNote}
+      onChange={(event) => setSubmitNote(event.target.value)}
+    />
+  );
+
+  const saveButton = (
+    <Button onClick={onSave} disabled={save.isPending}>
+      {save.isPending ? (
+        <Loader2 className="mr-2 size-4 animate-spin" />
+      ) : (
+        <Save className="mr-2 size-4" />
+      )}
+      {isEditor ? 'Submit for review' : 'Save'}
+    </Button>
+  );
+
+  // Deleting is admin-only and unreviewable — a soft delete drops a published
+  // item out of the next release with no proposal shape to review first, which
+  // is exactly what the editor role exists to prevent. The confirm is here
+  // because this button used to fire on a single click.
+  const deleteButton = !isNew && !isEditor && existing.data && (
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label={`Delete ${spec.singular}`}
+      onClick={async () => {
+        if (
+          !window.confirm(
+            `Delete “${existing.data!.title}”? It drops out of the next publish for this kind.`,
+          )
+        )
+          return;
+        await remove.mutateAsync(existing.data!.id);
+        navigate(AdminRoutes.contentKind({ kind }));
+      }}
+    >
+      <Trash2 className="size-4" />
+    </Button>
   );
 
   // Full-editor kinds (e.g. Song) render only their editor under a slim bar —
@@ -244,30 +371,13 @@ export const AdminContentEditPage = () => {
                 Unsaved
               </span>
             )}
+            {noteField}
             {statusSelect}
-            {!isNew && existing.data && (
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={`Delete ${spec.singular}`}
-                onClick={async () => {
-                  await remove.mutateAsync(existing.data!.id);
-                  navigate(AdminRoutes.contentKind({ kind }));
-                }}
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            )}
-            <Button onClick={onSave} disabled={save.isPending}>
-              {save.isPending ? (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              ) : (
-                <Save className="mr-2 size-4" />
-              )}
-              Save
-            </Button>
+            {deleteButton}
+            {saveButton}
           </div>
         </div>
+        {reviewBanner && <div className="px-4 pt-3">{reviewBanner}</div>}
         <FullEditor body={body} onChange={applyBody} />
       </div>
     );
@@ -308,45 +418,14 @@ export const AdminContentEditPage = () => {
               />
             </div>
           )}
-          <Select
-            value={status}
-            onValueChange={(value) => {
-              setStatus(value as ContentStatus);
-              setDirty(true);
-            }}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="archived">Archived</SelectItem>
-            </SelectContent>
-          </Select>
-          {!isNew && existing.data && (
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={`Delete ${spec.singular}`}
-              onClick={async () => {
-                await remove.mutateAsync(existing.data!.id);
-                navigate(AdminRoutes.contentKind({ kind }));
-              }}
-            >
-              <Trash2 className="size-4" />
-            </Button>
-          )}
-          <Button onClick={onSave} disabled={save.isPending}>
-            {save.isPending ? (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 size-4" />
-            )}
-            Save
-          </Button>
+          {noteField}
+          {statusSelect}
+          {deleteButton}
+          {saveButton}
         </div>
       </div>
+
+      {reviewBanner}
 
       {isNew && template.data && (
         <div className="flex gap-2 rounded-lg border border-blue-600/30 bg-blue-600/10 p-3 text-sm text-blue-200/90">

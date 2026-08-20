@@ -11,6 +11,7 @@ import { PrismModeSlug, usePrismModeChordsData } from '@/hooks/data';
 import { useNavigate } from 'react-router';
 import { LearnRoutes, StudioRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
+import type { PracticeLevel } from '@/features/practiceTracks/generatePracticeTrack';
 import { useMidiInput } from '@/hooks/music/useMidiInput';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
@@ -81,6 +82,44 @@ const CHROMATIC_KEYS = [
   'B',
 ] as const;
 const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;
+
+const PRACTICE_LEVELS: PracticeLevel[] = [1, 2, 3];
+
+/** Level 1/2/3 segmented picker for the Practice Track chord progression difficulty. */
+function PracticeLevelPicker({
+  level,
+  onChange,
+}: {
+  level: PracticeLevel;
+  onChange: (level: PracticeLevel) => void;
+}) {
+  return (
+    <div className="flex items-center justify-center gap-1.5">
+      {PRACTICE_LEVELS.map((l) => {
+        const active = l === level;
+        return (
+          <button
+            key={l}
+            type="button"
+            onClick={() => onChange(l)}
+            className="rounded-full px-3 py-1 text-xs font-semibold transition-colors duration-150"
+            style={{
+              background: active
+                ? 'var(--color-accent)'
+                : 'rgba(255,255,255,0.04)',
+              color: active ? '#191919' : 'var(--color-text-dim)',
+              border: active
+                ? '1px solid var(--color-accent)'
+                : '1px solid var(--color-border)',
+            }}
+          >
+            Level {l}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 type SectionId = 'O' | 'A' | 'B';
 
@@ -1015,6 +1054,9 @@ export const ActivityFlow = ({
     return CHROMATIC_KEYS[nextIndex];
   }, [currentChromaticIndex]);
   const [nextKeyChoice, setNextKeyChoice] = useState<string>(nextCurriculumKey);
+  // Difficulty tier for the generated Practice Track chord progression —
+  // picked by the student on the hand-off screens below.
+  const [practiceLevel, setPracticeLevel] = useState<PracticeLevel>(1);
   const midiTriggeredRef = useRef(false);
   const isTrackableActivity =
     currentActivity?.activityDefId !== 'lesson-overview';
@@ -1475,15 +1517,15 @@ export const ActivityFlow = ({
   // Practice Track CTAs (Studio hand-off) — diatonic-only, see isDiatonicMode.
   const openMelodyPracticeTrack = useCallback(() => {
     navigate(
-      `${StudioRoutes.editor.definition}?practiceMode=${modeLabel}&practiceRoot=${keyLabelToUrlParam(rootKey)}&practiceOpen=melody`,
+      `${StudioRoutes.editor.definition}?practiceMode=${modeLabel}&practiceRoot=${keyLabelToUrlParam(rootKey)}&practiceOpen=melody&practiceLevel=${practiceLevel}`,
     );
-  }, [modeLabel, navigate, rootKey]);
+  }, [modeLabel, navigate, practiceLevel, rootKey]);
 
   const openChordsPracticeTrack = useCallback(() => {
     navigate(
-      `${StudioRoutes.editor.definition}?practiceMode=${modeLabel}&practiceRoot=${keyLabelToUrlParam(rootKey)}&practiceOpen=chords`,
+      `${StudioRoutes.editor.definition}?practiceMode=${modeLabel}&practiceRoot=${keyLabelToUrlParam(rootKey)}&practiceOpen=chords&practiceLevel=${practiceLevel}`,
     );
-  }, [modeLabel, navigate, rootKey]);
+  }, [modeLabel, navigate, practiceLevel, rootKey]);
 
   const handleMidiActivity = useCallback(() => {
     if (lessonComplete) {
@@ -1764,6 +1806,10 @@ export const ActivityFlow = ({
     new Set(),
   );
   const demoTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  // Ref-counts concurrent events per MIDI note so overlapping/repeated notes
+  // (e.g. a held note under a moving line) don't get released early when one
+  // of their occurrences ends while another is still sounding.
+  const demoNoteRefCountsRef = useRef<Map<number, number>>(new Map());
 
   const demoPlayingNotes = useMemo<PlaybackEvent[]>(() => {
     const now = Date.now();
@@ -1794,6 +1840,7 @@ export const ActivityFlow = ({
   const stopDemo = () => {
     demoTimeoutsRef.current.forEach(clearTimeout);
     demoTimeoutsRef.current = [];
+    demoNoteRefCountsRef.current = new Map();
     setIsPlayingDemo(false);
     setDemoHighlightMidis(new Set());
   };
@@ -1802,19 +1849,54 @@ export const ActivityFlow = ({
     if (startOverlaySequence.length === 0) return;
     stopDemo();
     setIsPlayingDemo(true);
-    const NOTE_GAP_MS = 500;
-    startOverlaySequence.forEach((item, i) => {
-      const t = setTimeout(() => {
+
+    // Mirrors the piano roll exactly: each note is scheduled by its own
+    // startTicks/durationTicks, so notes sharing an onset (chords) fire
+    // together, and each note releases at its own end time instead of
+    // everything sustaining until the whole demo finishes.
+    const DEMO_MS_PER_BEAT = 600;
+    const DEMO_MS_PER_TICK = DEMO_MS_PER_BEAT / NOTE_DURATION_TICKS;
+    const MIN_HOLD_MS = 120;
+
+    let maxEndMs = 0;
+    startOverlaySequence.forEach((item) => {
+      const onsetMs = item.event.startTicks * DEMO_MS_PER_TICK;
+      const holdMs = Math.max(
+        MIN_HOLD_MS,
+        item.event.durationTicks * DEMO_MS_PER_TICK,
+      );
+      maxEndMs = Math.max(maxEndMs, onsetMs + holdMs);
+
+      const onTimeout = setTimeout(() => {
         playNote(item.midi);
+        const counts = demoNoteRefCountsRef.current;
+        counts.set(item.midi, (counts.get(item.midi) ?? 0) + 1);
         setDemoHighlightMidis((prev) => new Set(prev).add(item.midi));
-      }, i * NOTE_GAP_MS);
-      demoTimeoutsRef.current.push(t);
+      }, onsetMs);
+      demoTimeoutsRef.current.push(onTimeout);
+
+      const offTimeout = setTimeout(() => {
+        const counts = demoNoteRefCountsRef.current;
+        const remaining = (counts.get(item.midi) ?? 1) - 1;
+        if (remaining <= 0) {
+          counts.delete(item.midi);
+          setDemoHighlightMidis((prev) => {
+            const next = new Set(prev);
+            next.delete(item.midi);
+            return next;
+          });
+        } else {
+          counts.set(item.midi, remaining);
+        }
+      }, onsetMs + holdMs);
+      demoTimeoutsRef.current.push(offTimeout);
     });
-    const totalMs = startOverlaySequence.length * NOTE_GAP_MS + 400;
+
     const endTimeout = setTimeout(() => {
       setIsPlayingDemo(false);
       setDemoHighlightMidis(new Set());
-    }, totalMs);
+      demoNoteRefCountsRef.current = new Map();
+    }, maxEndMs + 200);
     demoTimeoutsRef.current.push(endTimeout);
   };
 
@@ -1864,6 +1946,12 @@ export const ActivityFlow = ({
           >
             Try composing your own melody over generated chords in Studio.
           </p>
+          <div className="mt-4">
+            <PracticeLevelPicker
+              level={practiceLevel}
+              onChange={setPracticeLevel}
+            />
+          </div>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <button
               type="button"
@@ -1931,25 +2019,44 @@ export const ActivityFlow = ({
             </button>
 
             {isDiatonicMode && (
-              <button
-                type="button"
-                onClick={openChordsPracticeTrack}
-                className="rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors duration-150 glass-panel-sm"
+              <div
+                className="rounded-xl px-4 py-3 glass-panel-sm"
                 style={{
                   background: 'rgba(126, 207, 207, 0.1)',
                   border: '1px solid var(--color-accent)',
-                  color: 'var(--color-text)',
                 }}
               >
-                Open Practice Track
-                <span
-                  className="block text-xs font-normal"
+                <div
+                  className="text-sm font-semibold"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  Practice Track
+                </div>
+                <p
+                  className="mt-1 text-xs"
                   style={{ color: 'var(--color-text-dim)' }}
                 >
                   Apply the chords you just learned over a generated melody,
                   bass, and beat.
-                </span>
-              </button>
+                </p>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                  <PracticeLevelPicker
+                    level={practiceLevel}
+                    onChange={setPracticeLevel}
+                  />
+                  <button
+                    type="button"
+                    onClick={openChordsPracticeTrack}
+                    className="rounded-full px-4 py-1.5 text-sm font-semibold transition-colors duration-150"
+                    style={{
+                      background: 'var(--color-accent)',
+                      color: '#191919',
+                    }}
+                  >
+                    Open Practice Track
+                  </button>
+                </div>
+              </div>
             )}
 
             <div

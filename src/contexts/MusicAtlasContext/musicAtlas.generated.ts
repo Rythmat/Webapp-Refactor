@@ -9,6 +9,8 @@
  * ---------------------------------------------------------------
  */
 
+export type DeleteApiAdminContentItemsByIdData = any;
+
 export type DeleteApiAdminFreeAccessByIdData = any;
 
 export interface DeleteApiStudioProjectsByIdData {
@@ -55,6 +57,51 @@ export interface DeleteTeachersByIdData {
 export interface DeleteTeachersInvitationsByIdData {
   id: string;
   revoked: boolean;
+}
+
+export type GetApiAdminContentDerivationHealthData = any;
+
+export type GetApiAdminContentItemsByIdData = any;
+
+export type GetApiAdminContentItemsData = any;
+
+export interface GetApiAdminContentItemsParams {
+  cursor?: string;
+  kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+  limit?: string;
+  search?: string;
+  status?: 'draft' | 'published' | 'archived';
+}
+
+export type GetApiAdminContentOverviewData = any;
+
+export type GetApiAdminContentReleasesData = any;
+
+export interface GetApiAdminContentReleasesParams {
+  kind?: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+}
+
+export type GetApiAdminContentTemplateByKindData = any;
+
+export interface GetApiAdminContentTemplateByKindParams {
+  kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+  slug?: string;
+}
+
+export type GetApiAdminContentValidateByKindData = any;
+
+export type GetApiAdminDatabaseQueryDeltaData = any;
+
+export interface GetApiAdminDatabaseQueryDeltaParams {
+  includeInternal?: string;
+  limit?: string;
+}
+
+export type GetApiAdminDatabaseQueryStatsData = any;
+
+export interface GetApiAdminDatabaseQueryStatsParams {
+  includeInternal?: string;
+  limit?: string;
 }
 
 export type GetApiAdminFreeAccessData = any;
@@ -119,7 +166,11 @@ export type GetApiBillingCreditsBalanceData = any;
 
 export type GetApiBillingSubscriptionData = any;
 
+export type GetApiCronCleanupContentBundlesData = any;
+
 export type GetApiCronCleanupPendingAssetsData = any;
+
+export type GetApiCronCleanupTelemetryData = any;
 
 export type GetApiCronCloseStaleRoomsData = any;
 
@@ -130,6 +181,8 @@ export type GetApiExperienceSummaryData = any;
 export interface GetApiExperienceSummaryParams {
   days?: string | number;
 }
+
+export type GetApiGameOptionsData = any;
 
 export type GetApiMeSubscriptionData = any;
 
@@ -596,6 +649,12 @@ export interface PatchApiAdminUsersByIdRolePayload {
   role: 'teacher' | 'student';
 }
 
+export type PatchApiGameOptionsByGameData = any;
+
+export interface PatchApiGameOptionsByGamePayload {
+  options: object;
+}
+
 export type PatchApiProgressActivityData = any;
 
 export interface PatchApiProgressActivityPayload {
@@ -762,6 +821,27 @@ export interface PatchTeachersByIdRestoreData {
   id: string;
   restored: boolean;
 }
+
+export type PostApiAdminContentReleasesByIdActivateData = any;
+
+export type PostApiAdminContentReleasesByIdCancelData = any;
+
+export type PostApiAdminContentReleasesByIdPartsByPartData = any;
+
+export type PostApiAdminContentReleasesData = any;
+
+export interface PostApiAdminContentReleasesPayload {
+  kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+}
+
+export type PostApiAdminContentRollbackData = any;
+
+export interface PostApiAdminContentRollbackPayload {
+  kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+  version: number;
+}
+
+export type PostApiAdminDatabaseSnapshotData = any;
 
 export type PostApiAdminFreeAccessData = any;
 
@@ -1395,6 +1475,18 @@ export interface PostTeachersInvitationsPayload {
   email: string;
 }
 
+export type PutApiAdminContentItemsData = any;
+
+export interface PutApiAdminContentItemsPayload {
+  body: any;
+  kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+  note?: string;
+  overrides?: any;
+  /** @minLength 1 */
+  slug: string;
+  status?: 'draft' | 'published' | 'archived';
+}
+
 export interface PutApiStudioProjectsByIdData {
   bpm: number;
   composerName: string | null;
@@ -1939,6 +2031,42 @@ export namespace Admin {
 
   /**
    * No description
+   * @tags Admin, Database
+   * @name GetApiAdminDatabaseQueryDelta
+   * @request GET:/api/admin/database/query-delta
+   * @response `200` `GetApiAdminDatabaseQueryDeltaData`
+   */
+  export namespace GetApiAdminDatabaseQueryDelta {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      includeInternal?: string;
+      limit?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminDatabaseQueryDeltaData;
+  }
+
+  /**
+   * No description
+   * @tags Admin, Database
+   * @name GetApiAdminDatabaseQueryStats
+   * @request GET:/api/admin/database/query-stats
+   * @response `200` `GetApiAdminDatabaseQueryStatsData`
+   */
+  export namespace GetApiAdminDatabaseQueryStats {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      includeInternal?: string;
+      limit?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminDatabaseQueryStatsData;
+  }
+
+  /**
+   * No description
    * @tags Admin
    * @name GetApiAdminFreeAccess
    * @request GET:/api/admin/free-access
@@ -2119,6 +2247,21 @@ export namespace Admin {
 
   /**
    * No description
+   * @tags Admin, Database
+   * @name PostApiAdminDatabaseSnapshot
+   * @request POST:/api/admin/database/snapshot
+   * @response `200` `PostApiAdminDatabaseSnapshotData`
+   */
+  export namespace PostApiAdminDatabaseSnapshot {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiAdminDatabaseSnapshotData;
+  }
+
+  /**
+   * No description
    * @tags Admin
    * @name PostApiAdminFreeAccess
    * @request POST:/api/admin/free-access
@@ -2130,6 +2273,243 @@ export namespace Admin {
     export type RequestBody = PostApiAdminFreeAccessPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostApiAdminFreeAccessData;
+  }
+}
+
+export namespace Content {
+  /**
+   * No description
+   * @tags Content
+   * @name DeleteApiAdminContentItemsById
+   * @request DELETE:/api/admin/content/items/{id}
+   * @response `200` `DeleteApiAdminContentItemsByIdData`
+   */
+  export namespace DeleteApiAdminContentItemsById {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = DeleteApiAdminContentItemsByIdData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentDerivationHealth
+   * @request GET:/api/admin/content/derivation-health
+   * @response `200` `GetApiAdminContentDerivationHealthData`
+   */
+  export namespace GetApiAdminContentDerivationHealth {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentDerivationHealthData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentItems
+   * @request GET:/api/admin/content/items
+   * @response `200` `GetApiAdminContentItemsData`
+   */
+  export namespace GetApiAdminContentItems {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      cursor?: string;
+      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+      limit?: string;
+      search?: string;
+      status?: 'draft' | 'published' | 'archived';
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentItemsData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentItemsById
+   * @request GET:/api/admin/content/items/{id}
+   * @response `200` `GetApiAdminContentItemsByIdData`
+   */
+  export namespace GetApiAdminContentItemsById {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentItemsByIdData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentOverview
+   * @request GET:/api/admin/content/overview
+   * @response `200` `GetApiAdminContentOverviewData`
+   */
+  export namespace GetApiAdminContentOverview {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentOverviewData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentReleases
+   * @request GET:/api/admin/content/releases
+   * @response `200` `GetApiAdminContentReleasesData`
+   */
+  export namespace GetApiAdminContentReleases {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      kind?: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentReleasesData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentTemplateByKind
+   * @request GET:/api/admin/content/template/{kind}
+   * @response `200` `GetApiAdminContentTemplateByKindData`
+   */
+  export namespace GetApiAdminContentTemplateByKind {
+    export type RequestParams = {
+      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+    };
+    export type RequestQuery = {
+      slug?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentTemplateByKindData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentValidateByKind
+   * @request GET:/api/admin/content/validate/{kind}
+   * @response `200` `GetApiAdminContentValidateByKindData`
+   */
+  export namespace GetApiAdminContentValidateByKind {
+    export type RequestParams = {
+      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentValidateByKindData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PostApiAdminContentReleases
+   * @request POST:/api/admin/content/releases
+   * @response `200` `PostApiAdminContentReleasesData`
+   */
+  export namespace PostApiAdminContentReleases {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiAdminContentReleasesPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiAdminContentReleasesData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PostApiAdminContentReleasesByIdActivate
+   * @request POST:/api/admin/content/releases/{id}/activate
+   * @response `200` `PostApiAdminContentReleasesByIdActivateData`
+   */
+  export namespace PostApiAdminContentReleasesByIdActivate {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiAdminContentReleasesByIdActivateData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PostApiAdminContentReleasesByIdCancel
+   * @request POST:/api/admin/content/releases/{id}/cancel
+   * @response `200` `PostApiAdminContentReleasesByIdCancelData`
+   */
+  export namespace PostApiAdminContentReleasesByIdCancel {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiAdminContentReleasesByIdCancelData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PostApiAdminContentReleasesByIdPartsByPart
+   * @request POST:/api/admin/content/releases/{id}/parts/{part}
+   * @response `200` `PostApiAdminContentReleasesByIdPartsByPartData`
+   */
+  export namespace PostApiAdminContentReleasesByIdPartsByPart {
+    export type RequestParams = {
+      id: string;
+      part: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiAdminContentReleasesByIdPartsByPartData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PostApiAdminContentRollback
+   * @request POST:/api/admin/content/rollback
+   * @response `200` `PostApiAdminContentRollbackData`
+   */
+  export namespace PostApiAdminContentRollback {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiAdminContentRollbackPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiAdminContentRollbackData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PutApiAdminContentItems
+   * @request PUT:/api/admin/content/items
+   * @response `200` `PutApiAdminContentItemsData`
+   */
+  export namespace PutApiAdminContentItems {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PutApiAdminContentItemsPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PutApiAdminContentItemsData;
   }
 }
 
@@ -3060,6 +3440,40 @@ export namespace Challenges {
     export type RequestBody = PostApiChallengesListPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostApiChallengesListData;
+  }
+}
+
+export namespace GameOptions {
+  /**
+   * No description
+   * @tags Game Options
+   * @name GetApiGameOptions
+   * @request GET:/api/game-options
+   * @response `200` `GetApiGameOptionsData`
+   */
+  export namespace GetApiGameOptions {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiGameOptionsData;
+  }
+
+  /**
+   * No description
+   * @tags Game Options
+   * @name PatchApiGameOptionsByGame
+   * @request PATCH:/api/game-options/{game}
+   * @response `200` `PatchApiGameOptionsByGameData`
+   */
+  export namespace PatchApiGameOptionsByGame {
+    export type RequestParams = {
+      game: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PatchApiGameOptionsByGamePayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PatchApiGameOptionsByGameData;
   }
 }
 
@@ -4059,6 +4473,21 @@ export namespace Cron {
   /**
    * No description
    * @tags Cron
+   * @name GetApiCronCleanupContentBundles
+   * @request GET:/api/cron/cleanup-content-bundles
+   * @response `200` `GetApiCronCleanupContentBundlesData`
+   */
+  export namespace GetApiCronCleanupContentBundles {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiCronCleanupContentBundlesData;
+  }
+
+  /**
+   * No description
+   * @tags Cron
    * @name GetApiCronCleanupPendingAssets
    * @request GET:/api/cron/cleanup-pending-assets
    * @response `200` `GetApiCronCleanupPendingAssetsData`
@@ -4069,6 +4498,21 @@ export namespace Cron {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = GetApiCronCleanupPendingAssetsData;
+  }
+
+  /**
+   * No description
+   * @tags Cron
+   * @name GetApiCronCleanupTelemetry
+   * @request GET:/api/cron/cleanup-telemetry
+   * @response `200` `GetApiCronCleanupTelemetryData`
+   */
+  export namespace GetApiCronCleanupTelemetry {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiCronCleanupTelemetryData;
   }
 
   /**
@@ -4635,6 +5079,38 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
+     * @tags Admin, Database
+     * @name GetApiAdminDatabaseQueryDelta
+     * @request GET:/api/admin/database/query-delta
+     * @response `200` `GetApiAdminDatabaseQueryDeltaData`
+     */
+    getApiAdminDatabaseQueryDelta: (query: GetApiAdminDatabaseQueryDeltaParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminDatabaseQueryDeltaData, any>({
+        path: `/api/admin/database/query-delta`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Admin, Database
+     * @name GetApiAdminDatabaseQueryStats
+     * @request GET:/api/admin/database/query-stats
+     * @response `200` `GetApiAdminDatabaseQueryStatsData`
+     */
+    getApiAdminDatabaseQueryStats: (query: GetApiAdminDatabaseQueryStatsParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminDatabaseQueryStatsData, any>({
+        path: `/api/admin/database/query-stats`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags Admin
      * @name GetApiAdminFreeAccess
      * @request GET:/api/admin/free-access
@@ -4796,6 +5272,21 @@ export class Api<SecurityDataType extends unknown> {
     /**
      * No description
      *
+     * @tags Admin, Database
+     * @name PostApiAdminDatabaseSnapshot
+     * @request POST:/api/admin/database/snapshot
+     * @response `200` `PostApiAdminDatabaseSnapshotData`
+     */
+    postApiAdminDatabaseSnapshot: (params: RequestParams = {}) =>
+      this.http.request<PostApiAdminDatabaseSnapshotData, any>({
+        path: `/api/admin/database/snapshot`,
+        method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags Admin
      * @name PostApiAdminFreeAccess
      * @request POST:/api/admin/free-access
@@ -4805,6 +5296,232 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<PostApiAdminFreeAccessData, any>({
         path: `/api/admin/free-access`,
         method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+  };
+  content = {
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name DeleteApiAdminContentItemsById
+     * @request DELETE:/api/admin/content/items/{id}
+     * @response `200` `DeleteApiAdminContentItemsByIdData`
+     */
+    deleteApiAdminContentItemsById: (id: string, params: RequestParams = {}) =>
+      this.http.request<DeleteApiAdminContentItemsByIdData, any>({
+        path: `/api/admin/content/items/${id}`,
+        method: 'DELETE',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name GetApiAdminContentDerivationHealth
+     * @request GET:/api/admin/content/derivation-health
+     * @response `200` `GetApiAdminContentDerivationHealthData`
+     */
+    getApiAdminContentDerivationHealth: (params: RequestParams = {}) =>
+      this.http.request<GetApiAdminContentDerivationHealthData, any>({
+        path: `/api/admin/content/derivation-health`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name GetApiAdminContentItems
+     * @request GET:/api/admin/content/items
+     * @response `200` `GetApiAdminContentItemsData`
+     */
+    getApiAdminContentItems: (query: GetApiAdminContentItemsParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminContentItemsData, any>({
+        path: `/api/admin/content/items`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name GetApiAdminContentItemsById
+     * @request GET:/api/admin/content/items/{id}
+     * @response `200` `GetApiAdminContentItemsByIdData`
+     */
+    getApiAdminContentItemsById: (id: string, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminContentItemsByIdData, any>({
+        path: `/api/admin/content/items/${id}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name GetApiAdminContentOverview
+     * @request GET:/api/admin/content/overview
+     * @response `200` `GetApiAdminContentOverviewData`
+     */
+    getApiAdminContentOverview: (params: RequestParams = {}) =>
+      this.http.request<GetApiAdminContentOverviewData, any>({
+        path: `/api/admin/content/overview`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name GetApiAdminContentReleases
+     * @request GET:/api/admin/content/releases
+     * @response `200` `GetApiAdminContentReleasesData`
+     */
+    getApiAdminContentReleases: (query: GetApiAdminContentReleasesParams, params: RequestParams = {}) =>
+      this.http.request<GetApiAdminContentReleasesData, any>({
+        path: `/api/admin/content/releases`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name GetApiAdminContentTemplateByKind
+     * @request GET:/api/admin/content/template/{kind}
+     * @response `200` `GetApiAdminContentTemplateByKindData`
+     */
+    getApiAdminContentTemplateByKind: (
+      { kind, ...query }: GetApiAdminContentTemplateByKindParams,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetApiAdminContentTemplateByKindData, any>({
+        path: `/api/admin/content/template/${kind}`,
+        method: 'GET',
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name GetApiAdminContentValidateByKind
+     * @request GET:/api/admin/content/validate/{kind}
+     * @response `200` `GetApiAdminContentValidateByKindData`
+     */
+    getApiAdminContentValidateByKind: (
+      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow',
+      params: RequestParams = {},
+    ) =>
+      this.http.request<GetApiAdminContentValidateByKindData, any>({
+        path: `/api/admin/content/validate/${kind}`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name PostApiAdminContentReleases
+     * @request POST:/api/admin/content/releases
+     * @response `200` `PostApiAdminContentReleasesData`
+     */
+    postApiAdminContentReleases: (data: PostApiAdminContentReleasesPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiAdminContentReleasesData, any>({
+        path: `/api/admin/content/releases`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name PostApiAdminContentReleasesByIdActivate
+     * @request POST:/api/admin/content/releases/{id}/activate
+     * @response `200` `PostApiAdminContentReleasesByIdActivateData`
+     */
+    postApiAdminContentReleasesByIdActivate: (id: string, params: RequestParams = {}) =>
+      this.http.request<PostApiAdminContentReleasesByIdActivateData, any>({
+        path: `/api/admin/content/releases/${id}/activate`,
+        method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name PostApiAdminContentReleasesByIdCancel
+     * @request POST:/api/admin/content/releases/{id}/cancel
+     * @response `200` `PostApiAdminContentReleasesByIdCancelData`
+     */
+    postApiAdminContentReleasesByIdCancel: (id: string, params: RequestParams = {}) =>
+      this.http.request<PostApiAdminContentReleasesByIdCancelData, any>({
+        path: `/api/admin/content/releases/${id}/cancel`,
+        method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name PostApiAdminContentReleasesByIdPartsByPart
+     * @request POST:/api/admin/content/releases/{id}/parts/{part}
+     * @response `200` `PostApiAdminContentReleasesByIdPartsByPartData`
+     */
+    postApiAdminContentReleasesByIdPartsByPart: (id: string, part: string, params: RequestParams = {}) =>
+      this.http.request<PostApiAdminContentReleasesByIdPartsByPartData, any>({
+        path: `/api/admin/content/releases/${id}/parts/${part}`,
+        method: 'POST',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name PostApiAdminContentRollback
+     * @request POST:/api/admin/content/rollback
+     * @response `200` `PostApiAdminContentRollbackData`
+     */
+    postApiAdminContentRollback: (data: PostApiAdminContentRollbackPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiAdminContentRollbackData, any>({
+        path: `/api/admin/content/rollback`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Content
+     * @name PutApiAdminContentItems
+     * @request PUT:/api/admin/content/items
+     * @response `200` `PutApiAdminContentItemsData`
+     */
+    putApiAdminContentItems: (data: PutApiAdminContentItemsPayload, params: RequestParams = {}) =>
+      this.http.request<PutApiAdminContentItemsData, any>({
+        path: `/api/admin/content/items`,
+        method: 'PUT',
         body: data,
         type: ContentType.Json,
         ...params,
@@ -5787,6 +6504,39 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<PostApiChallengesListData, any>({
         path: `/api/challenges/list`,
         method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+  };
+  gameOptions = {
+    /**
+     * No description
+     *
+     * @tags Game Options
+     * @name GetApiGameOptions
+     * @request GET:/api/game-options
+     * @response `200` `GetApiGameOptionsData`
+     */
+    getApiGameOptions: (params: RequestParams = {}) =>
+      this.http.request<GetApiGameOptionsData, any>({
+        path: `/api/game-options`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Game Options
+     * @name PatchApiGameOptionsByGame
+     * @request PATCH:/api/game-options/{game}
+     * @response `200` `PatchApiGameOptionsByGameData`
+     */
+    patchApiGameOptionsByGame: (game: string, data: PatchApiGameOptionsByGamePayload, params: RequestParams = {}) =>
+      this.http.request<PatchApiGameOptionsByGameData, any>({
+        path: `/api/game-options/${game}`,
+        method: 'PATCH',
         body: data,
         type: ContentType.Json,
         ...params,
@@ -6833,6 +7583,21 @@ export class Api<SecurityDataType extends unknown> {
      * No description
      *
      * @tags Cron
+     * @name GetApiCronCleanupContentBundles
+     * @request GET:/api/cron/cleanup-content-bundles
+     * @response `200` `GetApiCronCleanupContentBundlesData`
+     */
+    getApiCronCleanupContentBundles: (params: RequestParams = {}) =>
+      this.http.request<GetApiCronCleanupContentBundlesData, any>({
+        path: `/api/cron/cleanup-content-bundles`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Cron
      * @name GetApiCronCleanupPendingAssets
      * @request GET:/api/cron/cleanup-pending-assets
      * @response `200` `GetApiCronCleanupPendingAssetsData`
@@ -6840,6 +7605,21 @@ export class Api<SecurityDataType extends unknown> {
     getApiCronCleanupPendingAssets: (params: RequestParams = {}) =>
       this.http.request<GetApiCronCleanupPendingAssetsData, any>({
         path: `/api/cron/cleanup-pending-assets`,
+        method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Cron
+     * @name GetApiCronCleanupTelemetry
+     * @request GET:/api/cron/cleanup-telemetry
+     * @response `200` `GetApiCronCleanupTelemetryData`
+     */
+    getApiCronCleanupTelemetry: (params: RequestParams = {}) =>
+      this.http.request<GetApiCronCleanupTelemetryData, any>({
+        path: `/api/cron/cleanup-telemetry`,
         method: 'GET',
         ...params,
       }),

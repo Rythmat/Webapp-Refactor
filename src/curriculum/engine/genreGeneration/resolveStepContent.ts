@@ -97,13 +97,20 @@ function generateScale(
     ctx.defaultScale ?? [0, 2, 3, 5, 7, 9, 10];
   const tag = step.tag.toLowerCase();
   const descending = tag.includes('descending');
+  // A tag naming both directions (e.g. "..._ascending_descending_...") means
+  // play up to the octave, then back down — distinct from descending-only.
+  const ascendingThenDescending = tag.includes('ascending') && descending;
   const register = ctx.section === 'C' ? ctx.keyRoot - 24 : ctx.keyRoot; // bass = 2 octaves down
 
   // Build scale MIDI notes
   let notes = intervals.map((i) => register + i);
   // Add octave top note
   notes = [...notes, register + 12];
-  if (descending) notes = notes.reverse();
+  if (ascendingThenDescending) {
+    notes = [...notes, ...notes.slice(0, -1).reverse()];
+  } else if (descending) {
+    notes = notes.reverse();
+  }
 
   // One note per beat, quarter note duration
   return notes.map((midi, i) => ({

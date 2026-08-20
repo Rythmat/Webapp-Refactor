@@ -3,6 +3,7 @@ import { useStore } from '@/daw/store';
 import {
   generatePracticeTrack,
   type DiatonicMode,
+  type PracticeLevel,
   type PracticeOpenTrack,
 } from './generatePracticeTrack';
 
@@ -24,14 +25,17 @@ export const seedStudioFromPracticeTrack = async (
   mode: DiatonicMode,
   root: number,
   openTrack: PracticeOpenTrack,
+  level: PracticeLevel = 1,
 ): Promise<void> => {
-  const result = await generatePracticeTrack(mode, root, openTrack);
+  const result = await generatePracticeTrack(mode, root, openTrack, level);
   const store = useStore.getState();
 
   const rootLabel = noteNameLetter(60 + result.rootNote);
   const modeLabel = MODE_DISPLAY[result.mode] ?? result.mode;
 
-  store.setProjectName(`${rootLabel} ${modeLabel} Practice Track`);
+  store.setProjectName(
+    `${rootLabel} ${modeLabel} Practice Track — Level ${level}`,
+  );
   store.setRootNote(result.rootNote);
   store.setMode(result.mode);
   store.setBpm(result.bpm);

@@ -626,6 +626,16 @@ export const CurriculumRoutes = {
     { prefix: curriculumPrefix },
   ),
 
+  appliedTheoryFundamentals: createRouteDefinition(
+    '/applied-theory-fundamentals',
+    { prefix: curriculumPrefix },
+  ),
+
+  appliedTheoryFundamentalsLesson: createRouteDefinition<{ key: string }>(
+    '/applied-theory-fundamentals/:key',
+    { prefix: curriculumPrefix },
+  ),
+
   genreLevel: createRouteDefinition<{ genre: string; level: string }>(
     '/:genre/:level',
     { prefix: curriculumPrefix },

@@ -5,7 +5,7 @@
  * so curriculum pages get sidebar, auth protection, and identical UI.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { FundamentalsLessonContainer } from '@/components/learn/FundamentalsLessonContainer';
 import { FundamentalsOverview } from '@/components/learn/FundamentalsOverview';
@@ -15,7 +15,9 @@ import { RequirePremium } from '@/components/ui/RequirePremium';
 import { CurriculumRoutes } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
+import { AppliedTheoryFundamentalsKeyPicker } from '@/curriculum/components/AppliedTheoryFundamentalsKeyPicker';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
+import { buildAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/appliedTheoryFundamentals';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import { GenreCourseOverview } from '@/curriculum/pages/GenreCourseOverview';
 import { GenreLessonContainerV2 } from '@/curriculum/pages/GenreLessonContainerV2';
@@ -23,6 +25,7 @@ import type { ActivityFlow } from '@/curriculum/types/activity';
 import type { ActivityFlowV2 } from '@/curriculum/types/activity.v2';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
+import { urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 
 const GenreOverviewRoute = () => {
   const { genre } = useParams<{ genre: string }>();
@@ -44,6 +47,29 @@ const GenreOverviewRoute = () => {
     <RequirePremium>
       <GenreOverview genreSlug={genre ?? ''} />
     </RequirePremium>
+  );
+};
+
+const AppliedTheoryFundamentalsLessonRoute = () => {
+  const { key } = useParams<{ key: string }>();
+  // urlParamToKeyLabel gives a unicode-accidental label (e.g. "F♯", "D♭") for
+  // display; the flow builder expects the ASCII form GenreLessonContainerV2's
+  // KEY_MAP uses ("F#", "Db"), so convert here rather than in the builder.
+  const keyName = urlParamToKeyLabel(key).replace('♯', '#').replace('♭', 'b');
+  const flow = useMemo(
+    () => buildAppliedTheoryFundamentalsFlow(keyName),
+    [keyName],
+  );
+
+  // Free — no RequirePremium, matching Piano Fundamentals.
+  return (
+    <GenreLessonContainerV2
+      flow={flow}
+      genre="applied-theory-fundamentals"
+      level={1}
+      displayName="Applied Theory Fundamentals"
+      overviewRoute={CurriculumRoutes.appliedTheoryFundamentals()}
+    />
   );
 };
 
@@ -109,6 +135,14 @@ export function curriculumPages() {
       {
         path: CurriculumRoutes.fundamentalsSection.definition,
         element: <FundamentalsLessonRoute />,
+      },
+      {
+        path: CurriculumRoutes.appliedTheoryFundamentals.definition,
+        element: <AppliedTheoryFundamentalsKeyPicker />,
+      },
+      {
+        path: CurriculumRoutes.appliedTheoryFundamentalsLesson.definition,
+        element: <AppliedTheoryFundamentalsLessonRoute />,
       },
       {
         path: CurriculumRoutes.genre.definition,

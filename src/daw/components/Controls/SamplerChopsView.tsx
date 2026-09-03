@@ -176,7 +176,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
         const decoded = await decodeContext().decodeAudioData(bytes);
         if (decoded.duration > SAMPLER_MAX_DURATION_SECONDS) {
           showError(
-            `That file is ${decoded.duration.toFixed(1)}s long — chops work best under ${SAMPLER_MAX_DURATION_SECONDS}s. Trim it and try again.`,
+            `That file is ${decoded.duration.toFixed(1)}s long — samples work best under ${SAMPLER_MAX_DURATION_SECONDS}s. Trim it and try again.`,
           );
           return;
         }
@@ -300,7 +300,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
           className="text-[10px] font-semibold uppercase tracking-wider"
           style={{ color: 'var(--color-text-dim)' }}
         >
-          Chops
+          Sampler
         </span>
         {sample && (
           <span

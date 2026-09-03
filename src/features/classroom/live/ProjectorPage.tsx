@@ -62,6 +62,17 @@ export const ProjectorPage = () => {
     return out;
   }, [sharedInteraction, responsesByEnrollment, sid, state]);
 
+  // The teacher ended the session — clear the class screen instead of freezing
+  // on the last slide (mirrors the student "Session ended" screen).
+  if (state?.status === 'ended') {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-2 bg-[#0d0d0f] text-center text-white">
+        <span className="text-3xl font-medium">Session ended</span>
+        <span className="text-lg text-white/55">Sesión terminada</span>
+      </div>
+    );
+  }
+
   // Deck sessions get the full-slide projected surface; legacy sessions
   // keep the cream anonymous-share overlay below. Guard on slides.length so an
   // empty deck (publishDay drops it; defensive here) falls through to the

@@ -88,7 +88,7 @@ const TRACK_TEMPLATES: TrackTemplate[] = [
     instrument: 'drum-machine',
   },
   {
-    label: 'Chops',
+    label: 'Sampler',
     description: 'Flip a sample',
     animationId: 'pulseWaveBreathingGrid',
     color: '#9FD8D8',

@@ -87,7 +87,7 @@ function instrumentLabel(instrument: string): string {
     case 'drum-machine':
       return 'Drums';
     case 'sampler':
-      return 'Chops';
+      return 'Sampler';
     case 'guitar-fx':
       return 'Guitar';
     case 'bass-fx':

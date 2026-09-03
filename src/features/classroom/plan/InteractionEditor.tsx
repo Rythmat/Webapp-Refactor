@@ -18,7 +18,7 @@ import {
 } from '../msp/capabilities';
 import type { Interaction, InteractionType } from '../types';
 
-const TYPES: {
+export const INTERACTION_TYPES: {
   value: InteractionType;
   label: string;
   Icon: typeof MessageSquare;
@@ -59,7 +59,7 @@ const TYPES: {
 const uid = (): string =>
   `ix-${Math.random().toString(36).slice(2, 8)}-${Date.now().toString(36).slice(-4)}`;
 
-const emptyInteraction = (type: InteractionType): Interaction => {
+export const emptyInteraction = (type: InteractionType): Interaction => {
   const base: Interaction = {
     id: uid(),
     type,
@@ -157,7 +157,7 @@ export const InteractionEditor = ({
 
       {openTypePicker && (
         <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 md:grid-cols-3">
-          {TYPES.map(({ value, label, Icon, description }) => (
+          {INTERACTION_TYPES.map(({ value, label, Icon, description }) => (
             <button
               key={value}
               type="button"
@@ -224,7 +224,9 @@ const InteractionRow = ({
   onMoveUp,
   onMoveDown,
 }: InteractionRowProps) => {
-  const TypeIcon = TYPES.find((t) => t.value === interaction.type)?.Icon;
+  const TypeIcon = INTERACTION_TYPES.find(
+    (t) => t.value === interaction.type,
+  )?.Icon;
 
   return (
     <div className="flex flex-col gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">

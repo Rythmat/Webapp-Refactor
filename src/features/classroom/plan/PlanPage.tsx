@@ -1,3 +1,4 @@
+import type { Feature } from 'geojson';
 import {
   Bookmark,
   BookOpen,
@@ -13,6 +14,7 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
+import { useCountryFeatures } from '@/components/ClassroomLayout/globe/RegionPolygonThumb';
 import {
   FilterDropdown,
   type FilterOption,
@@ -27,13 +29,17 @@ import { useLocalSessionStore } from '../live/useLocalSessionStore';
 import { useStartClassroomSession } from '../live/useStartClassroomSession';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import type { Day, Unit } from '../types';
+import { LessonThumb } from './LessonThumb';
 import { NewLessonDialog } from './NewLessonDialog';
+import {
+  deriveLessonStatus,
+  StatusChip,
+  type LessonStatus,
+} from './lessonStatus';
 import { useEnsureLessonUnits } from './useEnsureLessonUnits';
 import { useLocalPlan } from './useLocalPlan';
 import { useSavedLessons } from './useSavedLessons';
-
-/** A lesson's single derived state, shared by the status chip and the filter. */
-type LessonStatus = 'draft' | 'published' | 'assigned' | 'live';
+import { useSongsReady } from './useSongsReady';
 
 type SavedFilter = 'all' | 'saved' | 'unsaved';
 
@@ -104,6 +110,11 @@ export const PlanPage = () => {
   // Guarantee the canonical Units exist + adopt any orphan Lessons into a Unit.
   useEnsureLessonUnits(cid);
 
+  // Card thumbnails: shared globe country features (one fetch for the whole list,
+  // fed to every location polygon) + song-library readiness for artist images.
+  const countryFeatures = useCountryFeatures();
+  const songsReady = useSongsReady();
+
   const [status, setStatus] = useState<LessonStatus | 'all'>('all');
   const [topic, setTopic] = useState<ThemeTopic | 'all'>('all');
   const [saved, setSaved] = useState<SavedFilter>('all');
@@ -127,20 +138,11 @@ export const PlanPage = () => {
   // Resolve a Day's published record → open assignment → live state into a
   // single entry, so the chip, the filter, and the Progress link all agree.
   const entryFor = (day: Day): LessonEntry => {
-    const pd = publishedDays.find((p) => p.sourceRef === day.id);
-    const assignment = pd
-      ? assignments.find(
-          (a) => a.publishedDayId === pd.id && a.status === 'open',
-        )
-      : undefined;
-    const status: LessonStatus =
-      pd && activeSession && activeSession.publishedDayId === pd.id
-        ? 'live'
-        : assignment
-          ? 'assigned'
-          : pd
-            ? 'published'
-            : 'draft';
+    const { status, assignment } = deriveLessonStatus(day, {
+      publishedDays,
+      assignments,
+      activeSession,
+    });
     return { day, assignment, status };
   };
 
@@ -315,6 +317,8 @@ export const PlanPage = () => {
                         onToggleSaved={() => toggleSaved(entry.day.id)}
                         onDelete={handleDelete}
                         onStartSession={handleStartSession}
+                        countryFeatures={countryFeatures}
+                        songsReady={songsReady}
                       />
                     ))}
                   </ul>
@@ -343,6 +347,8 @@ interface LessonCardProps {
   onToggleSaved: () => void;
   onDelete: (dayId: string, dayLabel: string) => void;
   onStartSession: (day: Day) => void;
+  countryFeatures: Feature[] | null;
+  songsReady: boolean;
 }
 
 const LessonCard = ({
@@ -354,8 +360,15 @@ const LessonCard = ({
   onToggleSaved,
   onDelete,
   onStartSession,
+  countryFeatures,
+  songsReady,
 }: LessonCardProps) => (
   <li className="flex flex-col gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 transition-colors hover:border-white/15 hover:bg-white/[0.04]">
+    <LessonThumb
+      day={day}
+      countryFeatures={countryFeatures}
+      songsReady={songsReady}
+    />
     <div className="flex items-start justify-between gap-2">
       <Link
         to={TeacherRoutes.dayEditor({ classroomId: cid, dayId: day.id })}
@@ -432,48 +445,6 @@ const LessonCard = ({
     </div>
   </li>
 );
-
-const formatDue = (iso: string): string =>
-  new Date(iso).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-  });
-
-interface StatusChipProps {
-  status: LessonStatus;
-  dueAt?: string | null;
-}
-
-const StatusChip = ({ status, dueAt }: StatusChipProps) => {
-  if (status === 'live') {
-    return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-400/30 bg-rose-400/[0.08] px-2.5 py-0.5 text-xs font-medium text-rose-200">
-        <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
-        Live now
-      </span>
-    );
-  }
-  if (status === 'assigned') {
-    return (
-      <span className="rounded-full border border-emerald-400/30 bg-emerald-400/[0.08] px-2.5 py-0.5 text-xs font-medium text-emerald-200">
-        Assigned
-        {dueAt ? ` · due ${formatDue(dueAt)}` : ''}
-      </span>
-    );
-  }
-  if (status === 'published') {
-    return (
-      <span className="rounded-full border border-sky-400/30 bg-sky-400/[0.08] px-2.5 py-0.5 text-xs font-medium text-sky-200">
-        Published
-      </span>
-    );
-  }
-  return (
-    <span className="rounded-full border border-white/10 px-2.5 py-0.5 text-xs text-white/50">
-      Draft
-    </span>
-  );
-};
 
 interface EmptyStateProps {
   onNew: () => void;

@@ -7,6 +7,7 @@
  */
 import PartySocket from 'partysocket';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Env } from '@/constants/env';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
@@ -24,7 +25,7 @@ import {
 } from './sessionSocketController';
 import {
   applyMessageForUser,
-  endSessionForUser,
+  endClassroomLiveSessionsForUser,
   type ServerSessionSnapshot,
   type SessionMessageBody,
   type SessionMode,
@@ -176,6 +177,12 @@ export const useSessionSync = (
           }),
         ),
       onStatusChange: setConnectionStatus,
+      // The teacher's local mirror is ended optimistically; if the server end
+      // never lands, tell them the class may not have been notified.
+      onEndFailed: () =>
+        toast.error(
+          'Ended for you, but the class may not have been notified — check your connection.',
+        ),
       onResponse: (msg) =>
         recordMspResponseForUser(userId, {
           token: `session:${sessionId}:${msg.enrollmentId}:${msg.interactionId}`,
@@ -307,15 +314,19 @@ export const useSessionSync = (
     [local, dispatchLocal],
   );
   const sendEnd = useCallback((): Promise<SendEndResult> => {
-    if (local) {
-      endSessionForUser(userId, sessionId);
-      return Promise.resolve({ ok: true });
-    }
+    // End the WHOLE classroom's live state, not just this one session — the
+    // is-live resolver returns the newest `live` record, so a stale leftover
+    // would keep the class showing as live everywhere. This ends the current
+    // session too, works with no open controller (offline/local/dropped
+    // socket), and self-heals a store that accumulated duplicate live sessions.
+    // Server sessions additionally PATCH this session via the controller.
+    endClassroomLiveSessionsForUser(userId, classroomId);
+    if (local) return Promise.resolve({ ok: true });
     return (
       controllerRef.current?.sendEnd() ??
       Promise.resolve({ ok: false, error: new Error('controller not open') })
     );
-  }, [local, userId, sessionId]);
+  }, [local, userId, sessionId, classroomId]);
   const sendResponse = useCallback(
     (interactionId: string, payload: InteractionResponsePayload) => {
       if (local) {

@@ -47,7 +47,10 @@ export const NewLessonDialog = ({
   const [unitId, setUnitId] = useState('');
   const [type, setType] = useState<LessonType>('blank');
 
-  const effectiveUnitId = unitId || defaultUnitIdFor(units) || '';
+  // `defaultUnitIdFor` returns undefined when no Unit covers today's month; the
+  // interactive create-flow still needs a default, so fall back to the first Unit.
+  const effectiveUnitId =
+    unitId || defaultUnitIdFor(units) || units[0]?.id || '';
   const unitLabel = (u: Unit) =>
     byId(u.theme?.themeId ?? '')?.title.en ?? u.label;
 

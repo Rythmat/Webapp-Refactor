@@ -34,7 +34,7 @@ function instrumentTitle(instrument: string): string {
     case 'drum-machine':
       return 'Drum Machine';
     case 'sampler':
-      return 'Chops';
+      return 'Sampler';
     case 'guitar-fx':
       return 'Guitar FX';
     case 'bass-fx':

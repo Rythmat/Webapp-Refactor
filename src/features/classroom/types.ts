@@ -255,7 +255,8 @@ export interface ThemeRef {
 export interface Unit {
   id: string;
   label: string;
-  /** Month index 0-11, matching Date.getMonth(). */
+  /** Month index 1-12 (1 = January … 12 = December), matching the month
+   *  convention in calendarMath and curriculumTemplate. NOT Date.getMonth(). */
   monthIndex: number;
   theme: ThemeRef | null;
   /** Editable unit-level copy, seeded by "Use this theme for the unit" from the

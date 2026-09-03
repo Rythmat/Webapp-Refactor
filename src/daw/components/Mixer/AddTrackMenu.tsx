@@ -77,7 +77,7 @@ const TRACK_TEMPLATES: TrackTemplate[] = [
     instrument: 'drum-machine',
   },
   {
-    label: 'Chops',
+    label: 'Sampler',
     animationId: 'pulseWaveBreathingGrid',
     color: '#9FD8D8',
     borderGradient:

@@ -32,7 +32,7 @@ export const AnnualPlanPage = () => {
     removeNonSchoolDate,
     restoreDefaultNonSchoolDate,
   } = useAnnualPlan(cid);
-  const { saveDay, getDay } = useLocalPlan();
+  const { saveDay, getDay, clearAllDays } = useLocalPlan();
   const [language, setLanguage] = useState<StudentLanguage>('en');
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [showingSchoolCalendar, setShowingSchoolCalendar] = useState(false);
@@ -69,7 +69,13 @@ export const AnnualPlanPage = () => {
   };
 
   const handleReset = () => {
+    // Full restore: swap in a fresh canonical Unit tree, WIPE every authored Day
+    // (clearing any corrupted/duplicated backlog), then re-materialize the
+    // canonical curriculum. Order matters: the wipe must run before autoPopulate
+    // so the fresh lesson days it creates aren't cleared. Published snapshots +
+    // live sessions live in a separate store and are unaffected.
     const reseeded = resetToTemplate();
+    clearAllDays();
     const result = autoPopulateFromTemplate(reseeded, {
       saveDay,
       addDayToUnit,
@@ -210,12 +216,15 @@ const ResetConfirmDialog = ({ onConfirm, onCancel }: ResetConfirmProps) => (
       className="flex max-w-md flex-col gap-4 rounded-2xl border border-white/10 bg-[#141416] p-6 text-white shadow-xl"
       onClick={(e) => e.stopPropagation()}
     >
-      <h3 className="text-lg font-medium">Reset to canonical template?</h3>
+      <h3 className="text-lg font-medium">
+        Reset to the canonical curriculum?
+      </h3>
       <p className="text-sm text-white/70">
-        The Unit tree will revert to the Music Atlas starter curriculum, and a
-        fresh set of lesson Days will be auto-populated across the school days.
-        Any Days you authored before stay in Plan Days but become unlinked from
-        the tree.
+        This removes <strong>every lesson</strong> currently in this classroom
+        and restores the Music Atlas starter curriculum — a fresh set of unit
+        lessons auto-populated across your school days. This cannot be undone.
+        To keep your current lessons, cancel and use Settings → “Download my
+        plan” first.
       </p>
       <div className="flex justify-end gap-2">
         <button

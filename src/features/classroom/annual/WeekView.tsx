@@ -9,10 +9,13 @@
  * scheduled Days (rare — only reachable by a Month-view drag) surface in a
  * strip below the grid so nothing is hidden.
  */
+import type { Feature } from 'geojson';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { useThemeBank } from '../content/hooks';
+import { LessonThumb } from '../plan/LessonThumb';
+import { StatusChip, type LessonStatusInfo } from '../plan/lessonStatus';
 import type { Day, StudentLanguage, Unit } from '../types';
 import { UnitBar } from './UnitBar';
 import {
@@ -61,6 +64,22 @@ interface WeekViewProps {
   dropIso: string | null;
   onCellDragOver: (iso: string) => void;
   onCellDrop: (iso: string, item: CalendarDragItem) => void;
+  /** Shared globe country GeoJSON for lesson-card location polygons. */
+  countryFeatures: Feature[] | null;
+  /** Whether the song library has hydrated (artist images). */
+  songsReady: boolean;
+  /** Resolve a Day's status + open assignment for the card's status chip. */
+  statusFor: (day: Day) => LessonStatusInfo;
+  /** Whether lesson cards can be dragged to reschedule. Off for read-only
+   *  embeds (e.g. the Overview "This Week" card). Defaults to true. */
+  draggableCards?: boolean;
+  /** Override the per-column min-height (CSS length). Embeds pass a taller
+   *  value so an empty week reserves a populated week's height. Defaults to
+   *  `CAL_WEEK.columnMinHeight`. */
+  columnMinHeight?: string;
+  /** Keep the unit-band row's vertical footprint even when no unit touches the
+   *  week, so empty weeks stay the same height as populated ones. Default false. */
+  reserveBandRow?: boolean;
 }
 
 export const WeekView = ({
@@ -77,6 +96,12 @@ export const WeekView = ({
   dropIso,
   onCellDragOver,
   onCellDrop,
+  countryFeatures,
+  songsReady,
+  statusFor,
+  draggableCards = true,
+  columnMinHeight = CAL_WEEK.columnMinHeight,
+  reserveBandRow = false,
 }: WeekViewProps) => {
   const week = useMemo(() => getWeekCalendar(weekAnchor), [weekAnchor]);
   const monFri = useMemo(() => week.days.slice(1, 6), [week.days]); // Mon…Fri
@@ -144,13 +169,16 @@ export const WeekView = ({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Unit-span band (multi-week context, like an "all-day" row). */}
-      {band.laneCount > 0 && (
+      {/* Unit-span band (multi-week context, like an "all-day" row). When
+          `reserveBandRow` is set, the row is kept even with no units so an
+          empty week stays the same height as a populated one. */}
+      {(reserveBandRow || band.laneCount > 0) && (
         <div
           className="grid gap-1.5"
           style={{
             gridTemplateColumns: FIVE_COLS,
             gridAutoRows: `minmax(${CAL_WEEK.bandRowMin}, auto)`,
+            minHeight: CAL_WEEK.bandRowMin,
           }}
         >
           {band.visible.map(({ unit, seg }) => {
@@ -204,7 +232,7 @@ export const WeekView = ({
                 if (item) onCellDrop(iso, item);
               }}
               style={{
-                minHeight: CAL_WEEK.columnMinHeight,
+                minHeight: columnMinHeight,
                 backgroundImage: holidayLike ? HATCH_HOLIDAY : undefined,
               }}
               className={`flex flex-col gap-2 rounded-xl border p-2 transition-colors ${
@@ -262,6 +290,10 @@ export const WeekView = ({
                     day={day}
                     parentUnit={unitById.get(parentUnitId) ?? null}
                     language={language}
+                    countryFeatures={countryFeatures}
+                    songsReady={songsReady}
+                    statusFor={statusFor}
+                    draggable={draggableCards}
                   />
                 ))
               ) : !holidayLike ? (
@@ -300,6 +332,10 @@ export const WeekView = ({
                 parentUnit={unitById.get(parentUnitId) ?? null}
                 language={language}
                 tag={WEEKDAY_LABELS[date.getDay()]}
+                countryFeatures={countryFeatures}
+                songsReady={songsReady}
+                statusFor={statusFor}
+                draggable={draggableCards}
               />
             ))}
           </div>
@@ -316,16 +352,26 @@ interface WeekDayCardProps {
   language: StudentLanguage;
   /** Optional weekday chip (used by the weekend overflow strip). */
   tag?: string;
+  countryFeatures: Feature[] | null;
+  songsReady: boolean;
+  statusFor: (day: Day) => LessonStatusInfo;
+  /** Whether the card is a reschedule drag source. Defaults to true. */
+  draggable?: boolean;
 }
 
-/** A large, readable lesson card — the Week view's "event". Accent-striped in
- *  its parent Unit's color, deep-links to the DayEditor, drag source. */
+/** A large, readable lesson card — the Week view's "event". Mirrors the
+ *  Lessons-page card (`LessonThumb` image banner + status chip), accent-striped
+ *  in its parent Unit's color, deep-links to the DayEditor, drag source. */
 const WeekDayCard = ({
   classroomId,
   day,
   parentUnit,
   language,
   tag,
+  countryFeatures,
+  songsReady,
+  statusFor,
+  draggable = true,
 }: WeekDayCardProps) => {
   const [dragging, setDragging] = useState(false);
   const { byId } = useThemeBank();
@@ -344,18 +390,24 @@ const WeekDayCard = ({
         ? `${titleEn} · ${titleEs}`
         : titleEn;
 
+  const { status, assignment } = statusFor(day);
+
   return (
     <Link
       to={TeacherRoutes.dayEditor({ classroomId, dayId: day.id })}
-      draggable
-      onDragStart={(e) => {
-        setDragItem(e.dataTransfer, { kind: 'day', id: day.id });
-        setDragging(true);
-      }}
-      onDragEnd={() => setDragging(false)}
-      className={`group flex cursor-grab overflow-hidden rounded-lg border ${bgClass} ${borderClass} transition hover:brightness-125 active:cursor-grabbing ${
-        dragging ? 'opacity-50' : ''
-      }`}
+      draggable={draggable}
+      onDragStart={
+        draggable
+          ? (e) => {
+              setDragItem(e.dataTransfer, { kind: 'day', id: day.id });
+              setDragging(true);
+            }
+          : undefined
+      }
+      onDragEnd={draggable ? () => setDragging(false) : undefined}
+      className={`group flex overflow-hidden rounded-lg border ${bgClass} ${borderClass} transition hover:brightness-125 ${
+        draggable ? 'cursor-grab active:cursor-grabbing' : ''
+      } ${dragging ? 'opacity-50' : ''}`}
       title={day.label}
     >
       <span
@@ -363,31 +415,41 @@ const WeekDayCard = ({
         className="w-1.5 shrink-0 self-stretch"
         style={{ background: stripe }}
       />
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5 px-2.5 py-2">
-        <span className="flex items-center gap-1.5">
-          {tag && (
+      <span className="flex min-w-0 flex-1 flex-col gap-1.5 px-2 py-2">
+        <LessonThumb
+          day={day}
+          countryFeatures={countryFeatures}
+          songsReady={songsReady}
+        />
+        <span className="flex min-w-0 flex-col gap-1 px-0.5">
+          <span className="flex items-center gap-1.5">
+            {tag && (
+              <span
+                style={{ fontSize: CAL_FONT.coverage }}
+                className="shrink-0 rounded-full border border-white/15 px-1.5 py-px font-medium uppercase tracking-wide text-white/50"
+              >
+                {tag}
+              </span>
+            )}
             <span
-              style={{ fontSize: CAL_FONT.coverage }}
-              className="shrink-0 rounded-full border border-white/15 px-1.5 py-px font-medium uppercase tracking-wide text-white/50"
+              style={{ fontSize: CAL_WEEK.cardTitle }}
+              className="truncate font-medium leading-tight text-white/90"
             >
-              {tag}
+              {day.label}
+            </span>
+          </span>
+          {subtitle && (
+            <span
+              style={{ fontSize: CAL_WEEK.cardSubtitle }}
+              className="truncate leading-tight text-white/55"
+            >
+              {subtitle}
             </span>
           )}
-          <span
-            style={{ fontSize: CAL_WEEK.cardTitle }}
-            className="truncate font-medium leading-tight text-white/90"
-          >
-            {day.label}
+          <span className="flex flex-wrap items-center gap-1">
+            <StatusChip status={status} dueAt={assignment?.dueAt} />
           </span>
         </span>
-        {subtitle && (
-          <span
-            style={{ fontSize: CAL_WEEK.cardSubtitle }}
-            className="truncate leading-tight text-white/55"
-          >
-            {subtitle}
-          </span>
-        )}
       </span>
     </Link>
   );

@@ -22,6 +22,7 @@ import type {
 } from '../../slides/types';
 import type {
   AgePreset,
+  Interaction,
   LaunchTile,
   LocalizedText,
   StudentLanguage,
@@ -43,6 +44,8 @@ interface SlideCanvasProps {
   /** Lifted to the parent so the toolbar's text-format tool can target it. */
   selectedBlock: SlideBlockKey | null;
   onSelectBlock: (key: SlideBlockKey | null) => void;
+  /** The slide's resolved student responses, shown read-only on the canvas. */
+  interactions?: Interaction[];
 }
 
 const withLang = (
@@ -74,6 +77,7 @@ export const SlideCanvas = ({
   onPatch,
   selectedBlock,
   onSelectBlock,
+  interactions,
 }: SlideCanvasProps) => {
   const editLang: EditLanguage | null = language === 'both' ? null : language;
   const editable = editLang !== null;
@@ -190,6 +194,7 @@ export const SlideCanvas = ({
         selectedBlock={selectedBlock}
         onSelectBlock={onSelectBlock}
         onLayoutChange={(layout: SlideLayout) => onPatch({ layout })}
+        interactions={interactions}
       />
       {editable && <SlideAppearanceMenu slide={slide} onPatch={onPatch} />}
       {editable && (

@@ -7,7 +7,7 @@
  * shell (`fixed inset-0`); the fullscreen toggle then fills the physical screen
  * for the classroom projector.
  */
-import { Maximize2, Minimize2, X } from 'lucide-react';
+import { Maximize2, Minimize2, StopCircle, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Focus } from '../presentation/Focus';
 import { SegmentedControl } from '../presentation/SegmentedControl';
@@ -30,6 +30,8 @@ interface SessionPresentViewProps {
   /** Move the live session to a slide (students/projector follow). */
   onNavigate: (index: number) => void;
   onExit: () => void;
+  /** End the live session for the whole class (confirmed by the caller). */
+  onEnd: () => void;
 }
 
 export const SessionPresentView = ({
@@ -39,6 +41,7 @@ export const SessionPresentView = ({
   dayLabel,
   onNavigate,
   onExit,
+  onEnd,
 }: SessionPresentViewProps) => {
   const [language, setLanguage] = useState<StudentLanguage>('en');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -85,6 +88,14 @@ export const SessionPresentView = ({
         </div>
 
         <div className="flex items-center gap-4 text-white/80">
+          <button
+            type="button"
+            onClick={onEnd}
+            className="inline-flex items-center gap-1.5 rounded-full border border-red-400/40 px-3 py-1.5 text-sm text-red-200 transition-colors hover:border-red-400 hover:text-red-100"
+          >
+            <StopCircle className="h-4 w-4" />
+            End
+          </button>
           <SegmentedControl
             label="Language"
             options={LANGUAGE_OPTIONS}

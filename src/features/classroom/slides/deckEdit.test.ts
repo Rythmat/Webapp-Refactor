@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { PHASES } from '../phases';
 import { newBlankDay } from '../plan/newBlankDay';
-import { findForbiddenSubstring, publishDay } from '../publish/publishDay';
+import {
+  findForbiddenSubstring,
+  publishDay,
+  type DaySnapshot,
+} from '../publish/publishDay';
 import type { Day, Interaction } from '../types';
 import { findDanglingInteractionIds, slideInteractionIds } from './deck';
 import {
@@ -44,27 +48,41 @@ describe('newSlide', () => {
   });
 });
 
-describe('word-cloud reveal is publish-safe (Rule 1 firewall)', () => {
-  // NB: the day label must itself be free of forbidden substrings — 'Cloud'
-  // contains 'clo' — so the reveal token is the only variable under test.
+describe('Rule 1 firewall — scans keys (field-name leaks), not content values', () => {
   it("an interaction slide with reveal:'words' publishes without tripping FORBIDDEN_SUBSTRINGS", () => {
     const day = newBlankDay('Reveal Day');
     day.deck = emptyDeck(day);
     const slide = newSlide('interaction', 'connectRegulate');
     day.deck.slides = [{ ...slide, reveal: 'words' } as typeof slide];
-    // The published snapshot carries reveal verbatim; 'words' must be clean.
     expect(findForbiddenSubstring(publishDay(day))).toBeNull();
   });
 
-  it("regression guard: the old 'cloud' token WOULD have tripped 'clo'", () => {
-    const day = newBlankDay('Reveal Day');
+  it('legitimate content values ("IMPACT Roles" label, a "Cloud"/"Close" title) do NOT trip the firewall', () => {
+    // The scan is keys-only, so these visible-copy values are student-safe:
+    // 'impact' (label) and 'clo' (title) are content, not leaked field names.
+    const day = newBlankDay('Day 2 — IMPACT Roles');
     day.deck = emptyDeck(day);
-    const slide = newSlide('interaction', 'connectRegulate');
-    // Cast through unknown — 'cloud' is no longer assignable, which is the point.
+    const slide = newSlide('content', 'connectRegulate');
     day.deck.slides = [
-      { ...slide, reveal: 'cloud' as unknown as 'words' } as typeof slide,
+      { ...slide, title: { en: 'Cloud Nine — Close To You' } } as typeof slide,
     ];
-    expect(findForbiddenSubstring(publishDay(day))).toBe('clo');
+    expect(findForbiddenSubstring(publishDay(day))).toBeNull();
+  });
+
+  it('still catches a leaked teacher-only field KEY (belt-and-suspenders)', () => {
+    // Simulate a future transform bug letting a rationale field ride through —
+    // the key 'impactTags' contains the forbidden substring 'impact'.
+    const dirty = {
+      dayId: 'd',
+      label: 'Clean label',
+      cells: {},
+      deck: {
+        id: 'x',
+        title: { en: 'Clean' },
+        slides: [{ id: 's', title: { en: 'Clean' }, impactTags: ['leak'] }],
+      },
+    } as unknown as DaySnapshot;
+    expect(findForbiddenSubstring(dirty)).toBe('impact');
   });
 });
 
@@ -159,7 +177,9 @@ describe('setSlideInteractions (write-path)', () => {
 
   it('removing an interaction strips it from both sides', () => {
     const { day, slideId } = dayWithInteractionSlide();
-    const withIx = setSlideInteractions(day, slideId, [textInteraction('ix-a')]);
+    const withIx = setSlideInteractions(day, slideId, [
+      textInteraction('ix-a'),
+    ]);
     const cleared = setSlideInteractions(withIx, slideId, []);
     const slide = cleared.deck!.slides.find((s) => s.id === slideId)!;
     expect(slideInteractionIds(slide)).toEqual([]);
@@ -173,7 +193,9 @@ describe('setSlideInteractions (write-path)', () => {
 describe('duplicateSlideAt', () => {
   it('clones a slide with independent interactions (fresh ids, no dangling)', () => {
     const { day, slideId } = dayWithInteractionSlide();
-    const withIx = setSlideInteractions(day, slideId, [textInteraction('ix-a')]);
+    const withIx = setSlideInteractions(day, slideId, [
+      textInteraction('ix-a'),
+    ]);
     const dup = duplicateSlideAt(withIx, 0);
 
     expect(dup.deck!.slides).toHaveLength(2);
@@ -184,9 +206,7 @@ describe('duplicateSlideAt', () => {
     expect(cloneIds).toHaveLength(1);
     expect(cloneIds[0]).not.toBe('ix-a');
     // …and the cell now holds both interactions; nothing dangles.
-    expect(
-      dup.cells.connectRegulate.presentation.interactions,
-    ).toHaveLength(2);
+    expect(dup.cells.connectRegulate.presentation.interactions).toHaveLength(2);
     expect(findDanglingInteractionIds(publishDay(dup))).toEqual([]);
   });
 });

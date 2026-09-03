@@ -20,12 +20,7 @@
 import { stripLegacySongSlug } from '../legacySongSlug';
 import { PHASES, STUDENT_PHASE_LABELS, type PhaseKey } from '../phases';
 import type { Cell, Day, Interaction, LocalizedText } from '../types';
-import type {
-  ContentSlide,
-  InteractionSlide,
-  Slide,
-  SlideDeck,
-} from './types';
+import type { ContentSlide, InteractionSlide, Slide, SlideDeck } from './types';
 
 const hasText = (t: LocalizedText | undefined): boolean =>
   Boolean(t?.en?.trim());
@@ -36,7 +31,7 @@ const hasText = (t: LocalizedText | undefined): boolean =>
  * no reveal viz, so `reveal` is omitted. Never emits 'cloud' (the Rule 1
  * forbidden substring 'clo').
  */
-const revealForInteraction = (
+export const revealForInteraction = (
   interaction: Interaction,
 ): InteractionSlide['reveal'] => {
   switch (interaction.type) {
@@ -93,7 +88,8 @@ const contentSlideForPhase = (
       ? { launchTiles: [...presentation.launchTiles] }
       : {}),
     // Reflect-phase only, matching CellPresentation's contract.
-    ...(phaseKey === 'respondReflectReset' && presentation.resetChecklist?.length
+    ...(phaseKey === 'respondReflectReset' &&
+    presentation.resetChecklist?.length
       ? { resetChecklist: [...presentation.resetChecklist] }
       : {}),
   };

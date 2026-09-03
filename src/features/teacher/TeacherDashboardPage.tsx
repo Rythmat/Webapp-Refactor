@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom';
 import { DueThisWeekSection } from './dashboard/DueThisWeekSection';
 import { QuickStartLauncher } from './dashboard/QuickStartLauncher';
 import { RecentSessionsSection } from './dashboard/RecentSessionsSection';
+import { ThisWeekSection } from './dashboard/ThisWeekSection';
 
 export const TeacherDashboardPage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
@@ -19,6 +20,8 @@ export const TeacherDashboardPage = () => {
   return (
     <div className="flex w-full flex-col gap-8 md:gap-10">
       <QuickStartLauncher classroomId={cid} />
+      <hr className="border-0 border-t border-white/15" role="separator" />
+      <ThisWeekSection classroomId={cid} />
       <hr className="border-0 border-t border-white/15" role="separator" />
       <DueThisWeekSection classroomId={cid} />
       <hr className="border-0 border-t border-white/15" role="separator" />

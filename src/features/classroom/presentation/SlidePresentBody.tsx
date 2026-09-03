@@ -22,7 +22,8 @@ import type {
   SlideBlockKey,
   SlideLayout,
 } from '../slides/types';
-import type { StudentLanguage } from '../types';
+import type { Interaction, StudentLanguage } from '../types';
+import { InteractionPreview } from './InteractionPreview';
 import { LaunchTile } from './LaunchTile';
 import { ResetChecklist } from './ResetChecklist';
 import { pickLocalized } from './localized';
@@ -72,6 +73,13 @@ interface SlidePresentBodyProps {
    * static thumbnail. Presentation Mode passes this; thumbnails/editor don't.
    */
   playableMedia?: boolean;
+  /**
+   * The slide's resolved student responses. When present, they render as a
+   * read-only `interaction` block (question + answer shape) so the authoring
+   * surfaces show the question instead of a blank slide. `slideToPresentContent`
+   * drops the interaction ids, so the resolved objects must be passed in.
+   */
+  interactions?: Interaction[];
 }
 
 export const SlidePresentBody = ({
@@ -83,6 +91,7 @@ export const SlidePresentBody = ({
   onSelectBlock,
   onLayoutChange,
   playableMedia = false,
+  interactions,
 }: SlidePresentBodyProps) => {
   const labelPrimary = pickLocalized(
     STUDENT_PHASE_LABELS[slide.phase],
@@ -150,6 +159,16 @@ export const SlidePresentBody = ({
       ? {
           resetChecklist: (
             <ResetChecklist items={slide.resetChecklist} language={language} />
+          ),
+        }
+      : {}),
+    ...(interactions && interactions.length > 0
+      ? {
+          interaction: (
+            <InteractionPreview
+              interactions={interactions}
+              language={language}
+            />
           ),
         }
       : {}),

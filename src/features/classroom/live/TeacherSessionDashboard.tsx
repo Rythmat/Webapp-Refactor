@@ -65,6 +65,7 @@ export const TeacherSessionDashboard = () => {
   const { getEnrollment, active: activeEnrollments } = useEnrollments(cid);
 
   const [presenting, setPresenting] = useState(false);
+  const [confirmingEnd, setConfirmingEnd] = useState(false);
 
   const publishedDay = state?.publishedDayId
     ? getPublishedDay(state.publishedDayId)
@@ -176,26 +177,38 @@ export const TeacherSessionDashboard = () => {
     );
   }
 
-  const handleEnd = () => {
-    sendEnd();
+  // End confirms first (ending drops the whole class out of the live view).
+  const confirmEnd = () => {
+    setConfirmingEnd(false);
+    sendEnd(); // ends the local mirror immediately; server sync + toast run in bg
     navigate(TeacherRoutes.report({ classroomId: cid, sessionId: sid }));
   };
+  const endDialog = confirmingEnd ? (
+    <EndSessionConfirm
+      onConfirm={confirmEnd}
+      onCancel={() => setConfirmingEnd(false)}
+    />
+  ) : null;
 
   // Full-screen Present mode — the same Preview slide view, driven by the live
   // session (prev/next go through sendNav so students/projector follow).
   if (presenting && deck && currentSlide) {
     return (
-      <SessionPresentView
-        currentSlide={currentSlide}
-        slideIndex={slideIndex}
-        slideCount={deck.slides.length}
-        dayLabel={snapshot?.label ?? ''}
-        onNavigate={(i) => {
-          const s = deck.slides[i];
-          if (s) sendNav(s.phase, i);
-        }}
-        onExit={() => setPresenting(false)}
-      />
+      <>
+        <SessionPresentView
+          currentSlide={currentSlide}
+          slideIndex={slideIndex}
+          slideCount={deck.slides.length}
+          dayLabel={snapshot?.label ?? ''}
+          onNavigate={(i) => {
+            const s = deck.slides[i];
+            if (s) sendNav(s.phase, i);
+          }}
+          onExit={() => setPresenting(false)}
+          onEnd={() => setConfirmingEnd(true)}
+        />
+        {endDialog}
+      </>
     );
   }
 
@@ -287,7 +300,7 @@ export const TeacherSessionDashboard = () => {
           )}
           <button
             type="button"
-            onClick={handleEnd}
+            onClick={() => setConfirmingEnd(true)}
             className="inline-flex items-center gap-1.5 rounded-full border border-red-400/40 px-3 py-1.5 text-xs text-red-200 hover:border-red-400 hover:text-red-100"
           >
             <StopCircle className="h-3.5 w-3.5" />
@@ -295,6 +308,8 @@ export const TeacherSessionDashboard = () => {
           </button>
         </div>
       </header>
+
+      {endDialog}
 
       {deck && snapshot ? (
         <>
@@ -467,3 +482,46 @@ const ShareRow = ({ interaction, shared, onToggle }: ShareRowProps) => {
     </div>
   );
 };
+
+interface EndSessionConfirmProps {
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+/** Confirm before ending — ending drops the whole class out of the live view. */
+const EndSessionConfirm = ({ onConfirm, onCancel }: EndSessionConfirmProps) => (
+  <div
+    role="dialog"
+    aria-modal="true"
+    className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
+    onClick={onCancel}
+  >
+    <div
+      className="flex max-w-md flex-col gap-4 rounded-2xl border border-white/10 bg-[#141416] p-6 text-white shadow-xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h3 className="text-lg font-medium">End the session for the class?</h3>
+      <p className="text-sm text-white/70">
+        Every student will drop out of the live view and their devices will stop
+        following along. You’ll be taken to the session report.
+      </p>
+      <div className="flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={onConfirm}
+          className="inline-flex items-center gap-1.5 rounded-full bg-red-500/80 px-4 py-2 text-sm font-medium text-white hover:bg-red-500"
+        >
+          <StopCircle className="h-4 w-4" />
+          End session
+        </button>
+      </div>
+    </div>
+  </div>
+);

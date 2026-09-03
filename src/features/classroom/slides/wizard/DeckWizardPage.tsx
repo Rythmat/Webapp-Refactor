@@ -192,10 +192,12 @@ export const DeckWizardPage = () => {
       ...activePlan.year.semesters.autumn,
       ...activePlan.year.semesters.spring,
     ];
+    // Every wizard-produced Lesson must belong to a Unit; `defaultUnitIdFor` can
+    // return undefined (no Unit for today's month), so fall back to the first Unit.
     const uid =
       preUnit && units.some((u) => u.id === preUnit)
         ? preUnit
-        : defaultUnitIdFor(units);
+        : (defaultUnitIdFor(units) ?? units[0]?.id);
     if (!uid) return;
     addDayToUnit(uid, day.id);
     const unit = units.find((u) => u.id === uid);

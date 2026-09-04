@@ -11,7 +11,7 @@ import {
   setProjectMeta,
   deleteProjectMeta,
   type StoredProjectMeta,
-} from './_utils';
+} from './_utils.js';
 
 // Kept in sync with PROJECT_STATUSES on the frontend (src/daw/data/projectMeta).
 const PROJECT_STATUSES = ['Idea', 'In progress', 'Mixing', 'Done', 'Archived'];

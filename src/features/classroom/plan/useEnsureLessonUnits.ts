@@ -19,19 +19,26 @@ import { useLocalPlan } from './useLocalPlan';
 
 /**
  * The Unit a Lesson should default to: the Unit for the given date's month (or
- * today's month when unscheduled), falling back to the first Unit. Pure — shared
- * by the orphan sweep and the New Lesson picker.
+ * today's month when unscheduled), or `undefined` when no Unit covers that month
+ * (the caller then leaves it in the "No unit" bucket, or applies its own
+ * first-unit default for interactive create-flows). Pure — shared by the orphan
+ * sweep and the New Lesson / deck-wizard pickers.
  */
 export const defaultUnitIdFor = (
   units: Unit[],
   scheduledDate?: string | null,
 ): string | undefined => {
   if (units.length === 0) return undefined;
+  // 1-indexed month (1 = Jan … 12 = Dec), matching Unit.monthIndex and
+  // calendarMath. For an ISO YYYY-MM-DD read the month field directly rather
+  // than `new Date(string)` (which parses as UTC and can drift a month in
+  // negative-offset timezones). Unscheduled Days use today's LOCAL month.
   const month = scheduledDate
-    ? new Date(scheduledDate).getMonth()
-    : new Date().getMonth();
-  // First Unit for that month (heritage precedes genre/location), else first.
-  return units.find((u) => u.monthIndex === month)?.id ?? units[0].id;
+    ? Number(scheduledDate.slice(5, 7))
+    : new Date().getMonth() + 1;
+  // The Unit for that month (heritage precedes genre/location in template
+  // order); no blanket first-unit fallback — an unmatched Day stays orphaned.
+  return units.find((u) => u.monthIndex === month)?.id;
 };
 
 /**

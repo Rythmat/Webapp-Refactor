@@ -4,7 +4,7 @@
 // (awaiting their accept) requests.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getRedis, verifyAuthToken, getConnectionSets } from './_utils';
+import { getRedis, verifyAuthToken, getConnectionSets } from './_utils.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') {

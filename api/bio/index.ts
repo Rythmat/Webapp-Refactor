@@ -9,7 +9,7 @@ import {
   getBio,
   setBio,
   sanitizeBio,
-} from './_utils';
+} from './_utils.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') {

@@ -385,7 +385,7 @@ export const TUTORIALS: Tutorial[] = [
         id: 'add-chops',
         stage: 'STAGE 1 — SETUP',
         instruction:
-          'Modern pop is built on flipped samples. Click **+ Add Track** and pick **Chops**.',
+          'Modern pop is built on flipped samples. Click **+ Add Track** and pick **Sampler**.',
         target: ['add-track-sampler', 'add-track-button'],
         requires: { view: 'arrange', libraryOpen: false },
         check: (s) => selectedTrack(s)?.instrument === 'sampler',

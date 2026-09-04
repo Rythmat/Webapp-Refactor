@@ -73,7 +73,9 @@ export const defaultLayoutForKind = (slide: Slide): SlideLayout => {
     body: { x: M, y: 414, w: CONTENT_W, h: 176 },
     media: { x: M, y: 292, w: 560, h: 300 },
     sideMedia: { x: 656, y: 292, w: 300, h: 230 },
-    interaction: { x: M, y: 292, w: CONTENT_W, h: 320 },
+    // Below the prompt (which ends at y≈402) so the question preview never
+    // overlaps the prompt placeholder on the authoring canvas.
+    interaction: { x: M, y: 414, w: CONTENT_W, h: 264 },
     launchTiles: { x: M, y: 604, w: CONTENT_W, h: 96 },
     resetChecklist: { x: M, y: 560, w: CONTENT_W, h: 130 },
   };

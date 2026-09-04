@@ -7,7 +7,7 @@ import {
   verifyAuthToken,
   getStoredRoom,
   storePendingInvite,
-} from '../../_utils';
+} from '../../_utils.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS preflight

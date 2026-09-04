@@ -9,6 +9,7 @@ import { PHASES } from '../../phases';
 import type { DaySnapshot } from '../../publish/publishDay';
 import {
   findDanglingInteractionIds,
+  interactionsForSlide,
   slideInteractionIds,
 } from '../../slides/deck';
 import { slidesArePhaseOrdered } from '../../slides/deckEdit';
@@ -67,6 +68,7 @@ export const Filmstrip = ({
               slide={slide}
               index={index}
               selected={index === selectedIndex}
+              interactions={interactionsForSlide(snapshot, slide)}
               dangling={slideInteractionIds(slide).some((id) =>
                 danglingIds.has(id),
               )}

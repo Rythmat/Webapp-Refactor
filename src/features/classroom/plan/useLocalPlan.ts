@@ -63,6 +63,9 @@ export interface UseLocalPlan {
   getDay: (dayId: string) => Day | undefined;
   saveDay: (day: Day) => void;
   deleteDay: (dayId: string) => void;
+  /** Remove EVERY authored Day (e.g. "Reset to canonical template"). Published
+   *  snapshots + live sessions are a separate store and are unaffected. */
+  clearAllDays: () => void;
   listDays: () => Day[];
 }
 
@@ -106,7 +109,13 @@ export const useLocalPlan = (): UseLocalPlan => {
     setPlan(next);
   }, []);
 
+  const clearAllDays = useCallback(() => {
+    const next: Plan = { schemaVersion: SCHEMA_VERSION, days: {} };
+    writePlan(next);
+    setPlan(next);
+  }, []);
+
   const listDays = useCallback(() => Object.values(plan.days), [plan.days]);
 
-  return { plan, getDay, saveDay, deleteDay, listDays };
+  return { plan, getDay, saveDay, deleteDay, clearAllDays, listDays };
 };

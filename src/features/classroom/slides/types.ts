@@ -186,9 +186,10 @@ export interface InteractionSlide extends SlideCommon {
   media?: SlideMedia;
   /**
    * Projector aggregate style on reveal: choice → bars, text → wall or 'words'
-   * (word cloud), number → scale. NB: the word-cloud token is 'words', NOT
-   * 'cloud' — 'cloud' contains the Rule 1 forbidden substring 'clo' and would
-   * make any deck using it un-publishable (see publishDay.ts FORBIDDEN_SUBSTRINGS).
+   * (word cloud), number → scale. The word-cloud token is 'words' (a value token,
+   * chosen for clarity). NB: the Rule 1 firewall now scans object KEYS only (see
+   * publishDay.ts findForbiddenSubstring), so a content value like 'cloud' no
+   * longer trips it — the token stays 'words' for its own sake, not the firewall.
    */
   reveal?: 'bars' | 'wall' | 'words' | 'scale';
 }

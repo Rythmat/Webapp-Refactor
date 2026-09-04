@@ -11,11 +11,14 @@ import {
 } from '../../presentation/SlidePresentBody';
 import { PHASE_ACCENT_HEX } from '../../presentation/phaseAccent';
 import type { Slide } from '../../slides/types';
+import type { Interaction } from '../../types';
 
 interface SlideThumbnailProps {
   slide: Slide;
   index: number;
   selected: boolean;
+  /** The slide's resolved student responses, shown read-only on the thumbnail. */
+  interactions?: Interaction[];
   dangling: boolean;
   canDelete: boolean;
   onSelect: () => void;
@@ -27,6 +30,7 @@ export const SlideThumbnail = ({
   slide,
   index,
   selected,
+  interactions,
   dangling,
   canDelete,
   onSelect,
@@ -57,6 +61,7 @@ export const SlideThumbnail = ({
           <SlidePresentBody
             slide={slideToPresentContent(slide)}
             language="en"
+            interactions={interactions}
           />
         </div>
         <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 text-[10px] font-medium text-white/80 backdrop-blur">

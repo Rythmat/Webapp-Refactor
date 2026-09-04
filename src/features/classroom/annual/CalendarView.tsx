@@ -28,23 +28,19 @@ import {
   firstWeekdayWeekAnchor,
   getMonthCalendar,
   getWeekCalendar,
-  rangeFromScheduledDates,
   resolveInitialMonth,
   resolveInitialWeek,
-  resolveSchoolYear,
-  resolveUnitDateRange,
   segmentUnitIntoWeeks,
   stepMonth,
   stepWeek,
-  type UnitDateRange,
   type UnitWeekSegment,
   type ViewMonth,
 } from './calendarMath';
 import { CAL_FONT, CAL_METRIC } from './calendarSizing';
-import { duplicateDayIds } from './dedupeDays';
 import { toIsoDate, type NonSchoolDay } from './schoolCalendar';
 import { suggestedCountFor } from './unitCoverage';
 import { useAnnualPlan, type ClassroomAnnualPlan } from './useAnnualPlan';
+import { useWeekGridData } from './useWeekGridData';
 
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -74,16 +70,28 @@ export const CalendarView = ({
   nonSchoolMap,
   onOpenSettings,
 }: CalendarViewProps) => {
-  const today = useMemo(() => new Date(), []);
-  const todayIso = useMemo(() => toIsoDate(today), [today]);
-  const schoolYear = useMemo(() => resolveSchoolYear(today), [today]);
+  // Shared derivation for the week grid (also feeds the month grid). Single
+  // source of truth with the Overview "This Week" card — see useWeekGridData.
+  const {
+    today,
+    todayIso,
+    schoolYear,
+    getDay,
+    allUnits,
+    unitByDayId,
+    hiddenDayIds,
+    unitRanges,
+    countryFeatures,
+    songsReady,
+    statusFor,
+  } = useWeekGridData(classroomId, plan);
+  const { saveDay } = useLocalPlan();
+  const { setUnitSchedule } = useAnnualPlan(classroomId);
   const [mode, setMode] = useState<CalendarMode>('month');
   const [view, setView] = useState<ViewMonth>(() => resolveInitialMonth(today));
   const [weekAnchor, setWeekAnchor] = useState<Date>(() =>
     resolveInitialWeek(today),
   );
-  const { getDay, saveDay } = useLocalPlan();
-  const { setUnitSchedule } = useAnnualPlan(classroomId);
   const [dropIso, setDropIso] = useState<string | null>(null);
 
   const calendar = useMemo(
@@ -91,66 +99,6 @@ export const CalendarView = ({
     [view.year, view.month],
   );
   const weekCal = useMemo(() => getWeekCalendar(weekAnchor), [weekAnchor]);
-
-  const allUnits = useMemo(
-    () => [...plan.year.semesters.autumn, ...plan.year.semesters.spring],
-    [plan.year.semesters.autumn, plan.year.semesters.spring],
-  );
-
-  /** Reverse-lookup: dayId → parent unit id. */
-  const unitByDayId = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const u of allUnits) {
-      for (const dayId of u.dayIds ?? []) {
-        map.set(dayId, u.id);
-      }
-    }
-    return map;
-  }, [allUnits]);
-
-  /** Ids of Lessons that duplicate an earlier one (same date + label) — hidden
-   *  from the calendar so accidental duplicate records (e.g. Days re-adopted
-   *  after a "Reset to template") render, and count, only once. */
-  const hiddenDayIds = useMemo(() => {
-    const entries: Array<{
-      id: string;
-      scheduledDate?: string | null;
-      label: string;
-    }> = [];
-    for (const dayId of unitByDayId.keys()) {
-      const d = getDay(dayId);
-      if (d) {
-        entries.push({
-          id: d.id,
-          scheduledDate: d.scheduledDate,
-          label: d.label,
-        });
-      }
-    }
-    return duplicateDayIds(entries);
-  }, [unitByDayId, getDay]);
-
-  /** Each Unit's visible [start, end] range — min/max of its scheduled Day
-   *  dates, or its declared window when it has none yet. Shared by the bar
-   *  segments and the lane assignment so they always agree. */
-  const unitRanges = useMemo(() => {
-    const map = new Map<string, UnitDateRange>();
-    for (const unit of allUnits) {
-      const scheduledIsos = (unit.dayIds ?? [])
-        .map((id) => getDay(id))
-        .filter((d): d is Day => Boolean(d))
-        .map((d) => d.scheduledDate)
-        .filter((iso): iso is string => Boolean(iso));
-      map.set(
-        unit.id,
-        rangeFromScheduledDates(
-          scheduledIsos,
-          resolveUnitDateRange(unit, schoolYear),
-        ),
-      );
-    }
-    return map;
-  }, [allUnits, getDay, schoolYear]);
 
   /** Unit → lane, so overlapping Units render in distinct vertical bands
    *  (each Unit's bar + its Day pills share a lane) instead of piling up. */
@@ -459,6 +407,9 @@ export const CalendarView = ({
             dropIso={dropIso}
             onCellDragOver={setDropIso}
             onCellDrop={handleCellDrop}
+            countryFeatures={countryFeatures}
+            songsReady={songsReady}
+            statusFor={statusFor}
           />
         )}
       </div>

@@ -30,6 +30,11 @@ import {
   SUBSCRIPTION_QUERY_KEY,
   fetchSubscriptionStatus,
 } from '@/hooks/data/subscription/useMySubscription';
+import {
+  getLoginSoundEnabled,
+  hasPlayedLoginSound,
+  markLoginSoundPlayed,
+} from '@/hooks/useLoginSoundEnabled';
 import { showError } from '@/util/toast';
 import { useGlobalMusicAtlas } from '../MusicAtlasContext/api';
 import {
@@ -452,8 +457,18 @@ export const AuthContextProvider = ({
       return;
     }
 
+    // This sign-in is handled either way — consume the one-shot flag now so a
+    // preference change later in the same session can't replay the jingle.
     didPlayLoginJingleRef.current = true;
     sessionStorage.removeItem('auth0:interactive-login-callback');
+
+    // The jingle is a first-run welcome: opt-out via the user-page toggle, and
+    // once per account otherwise. Re-enabling the toggle clears the played flag.
+    if (!getLoginSoundEnabled() || hasPlayedLoginSound(appUser.id)) {
+      return;
+    }
+
+    markLoginSoundPlayed(appUser.id);
 
     audioEngine.playAudioClip(APP_CLIPS.welcome, {
       gain: 0.5,

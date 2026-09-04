@@ -23,10 +23,14 @@ import {
   duplicateSlideAt,
   insertSlideAt,
   moveSlide,
+  newSlide,
   setSlideInteractions,
   updateSlideAt,
 } from '../../slides/deckEdit';
-import { deckFromCells } from '../../slides/deckFromCells';
+import {
+  deckFromCells,
+  revealForInteraction,
+} from '../../slides/deckFromCells';
 import {
   SLIDE_TEMPLATES,
   buildTemplateSlide,
@@ -39,8 +43,10 @@ import type {
   CellRationale,
   Day,
   Interaction,
+  InteractionType,
   StudentLanguage,
 } from '../../types';
+import { emptyInteraction } from '../InteractionEditor';
 import { useLocalPlan } from '../useLocalPlan';
 import { ChooseContentButton } from './ChooseContentButton';
 import { EditorTopBar } from './EditorTopBar';
@@ -155,6 +161,36 @@ export const SlideDeckEditor = () => {
       setPendingTemplate(null);
     },
     [pendingTemplate, slides, clampedIndex, updateSlides],
+  );
+
+  // Adding a student-response component inserts a NEW question slide (interaction
+  // kind) after the current one, seeded with an empty interaction of that type;
+  // the teacher fills in the question/options in the side-panel editor, and
+  // students answer it live. Content slides can't hold interactions, so this is
+  // a dedicated slide (one transaction: insert slide + write the interaction).
+  const insertResponseSlide = useCallback(
+    (type: InteractionType) => {
+      const phase = slides[clampedIndex]?.phase ?? PHASES[0];
+      const interaction = emptyInteraction(type);
+      const reveal = revealForInteraction(interaction);
+      const base = newSlide('interaction', phase);
+      const slide = reveal ? ({ ...base, reveal } as typeof base) : base;
+      setDraft((prev) => {
+        if (!prev?.deck) return prev;
+        const nextSlides = insertSlideAt(
+          prev.deck.slides,
+          slide,
+          clampedIndex + 1,
+        );
+        const withSlide = {
+          ...prev,
+          deck: { ...prev.deck, slides: nextSlides },
+        };
+        return setSlideInteractions(withSlide, slide.id, [interaction]);
+      });
+      setSelectedIndex(clampedIndex + 1);
+    },
+    [slides, clampedIndex],
   );
 
   const duplicateSlide = useCallback((index: number) => {
@@ -284,6 +320,7 @@ export const SlideDeckEditor = () => {
               })
             }
             onEmbedMedia={(embed) => patchSelected(embed)}
+            onAddResponse={insertResponseSlide}
           />
         }
         textTool={
@@ -312,6 +349,7 @@ export const SlideDeckEditor = () => {
               onPatch={patchSelected}
               selectedBlock={selectedBlock}
               onSelectBlock={setSelectedBlock}
+              interactions={slideInteractions}
             />
           </div>
           <Filmstrip

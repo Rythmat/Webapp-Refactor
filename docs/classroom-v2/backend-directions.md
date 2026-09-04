@@ -196,18 +196,23 @@ Full request/response shapes are in `openapi.yaml`. Below is only the
 - **RBAC**: teacher must own the classroom (existing `classrooms.teacher_id`
   check).
 - **Server-side firewall (Rule 1 belt-and-suspenders)**: after parsing the
-  request body, run `runFirewallTest(snapshot)` — the same forbidden-substring
-  regex the client uses at `buildStudentView.test.ts`. Reject with **400 +
-  `{ code: 'firewall_violation', match: '<substring>' }`** if any of these
-  appear lowercased in `JSON.stringify(snapshot)`:
+  request body, run the same key-scan the client uses — `findForbiddenSubstring`
+  in `src/features/classroom/publish/publishDay.ts` is the reference impl. It
+  recursively walks the snapshot's object **KEYS** (not values) and rejects with
+  **400 + `{ code: 'firewall_violation', match: '<substring>' }`** if any lowercased
+  key contains one of these teacher-only field-name markers:
 
   ```
   assessment | rationale | clo | impact | scaffold | standard |
   initiation | createdby | notes | localcontext
   ```
 
-  The client already scrubs, so this is defense-in-depth. Log the violation
-  with the classroom + teacher IDs so we can trace client bugs.
+  Scan KEYS ONLY — these markers are substrings of `CellRationale` field names
+  (impact→impactTags, clo→cloRefs, …), so a leaked rationale field is caught while
+  legitimate student-facing content values ("IMPACT Roles", "Tears of a Clown")
+  are not. Do NOT scan `JSON.stringify(snapshot)` — that false-positives on real
+  copy. The whitelist transform is the primary guarantee; this is defense-in-depth.
+  Log the violation with the classroom + teacher IDs so we can trace client bugs.
 
 - **Idempotency**: not idempotent. Publishing the same Day twice creates two
   `published_days` rows. Client tracks the latest per local `dayId` via
@@ -491,9 +496,12 @@ Client-side firewall test lives at
 `src/features/classroom/publish/publishDay.test.ts` (currently
 `describe.skip`, activated in P2).
 
-**Server**: on `POST /classrooms/:id/publish`, run the same forbidden-substring
-regex against `LOWER(request.body.snapshot::text)`. Match → 400 with
-`firewall_violation`. Log the classroom / teacher / matched substring.
+**Server**: on `POST /classrooms/:id/publish`, run the same **keys-only** scan —
+recursively check every object KEY in the snapshot for the forbidden field-name
+markers (do NOT scan `LOWER(snapshot::text)`, which false-positives on legitimate
+content like "IMPACT Roles"). Match → 400 with `firewall_violation`. Log the
+classroom / teacher / matched substring. See `findForbiddenSubstring` in
+`publishDay.ts` for the reference implementation.
 
 Recommend: extract the substring list into a shared config so client + server
 never drift.

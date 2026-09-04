@@ -5,6 +5,7 @@ import {
   applyMessageForUser,
   applySessionSocketMessage,
   applySocketMessageForUser,
+  endClassroomLiveSessionsForUser,
   endSessionForUser,
   getActiveSessionForClassroomForUser,
   readSessionsStoreForUser,
@@ -70,6 +71,172 @@ describe('sessionsStore start/end', () => {
     expect(
       getActiveSessionForClassroomForUser(USER_ID, CLASSROOM_ID),
     ).toBeUndefined();
+  });
+
+  it('starting a session ends any prior live session in the same classroom', () => {
+    const a = startFixture();
+    const b = startFixture(); // same classroom → A is ended, B is live
+    const store = readSessionsStoreForUser(USER_ID);
+    expect(store.sessions[a.sessionId].status).toBe('ended');
+    expect(store.sessions[a.sessionId].locked).toBe(false);
+    expect(store.sessions[b.sessionId].status).toBe('live');
+    // Discovery resolves the fresh session, so a joining student can't land on
+    // the stale (possibly locked) one.
+    expect(
+      getActiveSessionForClassroomForUser(USER_ID, CLASSROOM_ID)?.sessionId,
+    ).toBe(b.sessionId);
+  });
+
+  it("starting a session leaves a different classroom's live session untouched", () => {
+    const a = startFixture(); // CLASSROOM_ID
+    startSessionForUser(USER_ID, {
+      classroomId: 'classroom-other',
+      publishedDayId: PUBLISHED_DAY_ID,
+    });
+    expect(readSessionsStoreForUser(USER_ID).sessions[a.sessionId].status).toBe(
+      'live',
+    );
+  });
+
+  it('getActiveSessionForClassroom returns the NEWEST live session (max startedAt)', () => {
+    const a = startFixture(); // live, startedAt = now
+    // Inject a second live session directly (the normal path can't create two).
+    const key = `${STORAGE_KEY}:${USER_ID}`;
+    const store = JSON.parse(window.localStorage.getItem(key) ?? '{}');
+    const newer: SessionState = {
+      ...store.sessions[a.sessionId],
+      sessionId: 'local-sess-newer',
+      startedAt: '2999-01-01T00:00:00.000Z',
+    };
+    store.sessions[newer.sessionId] = newer;
+    store.seq[newer.sessionId] = 0;
+    window.localStorage.setItem(key, JSON.stringify(store));
+    expect(
+      getActiveSessionForClassroomForUser(USER_ID, CLASSROOM_ID)?.sessionId,
+    ).toBe('local-sess-newer');
+  });
+
+  it('endSession is idempotent on an already-ended session', () => {
+    const s = startFixture();
+    endSessionForUser(USER_ID, s.sessionId);
+    const first = readSessionsStoreForUser(USER_ID).sessions[s.sessionId];
+    endSessionForUser(USER_ID, s.sessionId);
+    const second = readSessionsStoreForUser(USER_ID).sessions[s.sessionId];
+    expect(second.status).toBe('ended');
+    expect(second.endedAt).toBe(first.endedAt); // unchanged (no-op guard)
+  });
+
+  it('endSessionForUser clears a running timer', () => {
+    const s = startFixture();
+    const key = `${STORAGE_KEY}:${USER_ID}`;
+    const store = JSON.parse(window.localStorage.getItem(key) ?? '{}');
+    store.sessions[s.sessionId].timer = {
+      slideId: 'x',
+      endsAt: 999,
+      durationSec: 60,
+      autoAdvance: true,
+    };
+    window.localStorage.setItem(key, JSON.stringify(store));
+    endSessionForUser(USER_ID, s.sessionId);
+    expect(
+      readSessionsStoreForUser(USER_ID).sessions[s.sessionId].timer,
+    ).toBeNull();
+  });
+});
+
+describe('endClassroomLiveSessionsForUser — ends the whole classroom', () => {
+  const seedLive = (
+    fromSessionId: string,
+    id: string,
+    overrides: Partial<SessionState>,
+  ) => {
+    const key = `${STORAGE_KEY}:${USER_ID}`;
+    const store = JSON.parse(window.localStorage.getItem(key) ?? '{}');
+    store.sessions[id] = {
+      ...store.sessions[fromSessionId],
+      sessionId: id,
+      ...overrides,
+    };
+    store.seq[id] = 0;
+    window.localStorage.setItem(key, JSON.stringify(store));
+  };
+
+  it('ends EVERY live session for the classroom (and clears locked/timer)', () => {
+    const a = startFixture(); // live in CLASSROOM_ID
+    // Two more stale live sessions for the SAME classroom (one locked + timed).
+    seedLive(a.sessionId, 'live-2', {
+      startedAt: '2026-02-01T00:00:00.000Z',
+      locked: true,
+      timer: { slideId: 'x', endsAt: 1, durationSec: 60, autoAdvance: true },
+    });
+    seedLive(a.sessionId, 'live-3', { startedAt: '2026-03-01T00:00:00.000Z' });
+    // A DIFFERENT classroom's live session must survive.
+    seedLive(a.sessionId, 'other', {
+      classroomId: 'other-classroom',
+      startedAt: '2026-01-01T00:00:00.000Z',
+    });
+
+    endClassroomLiveSessionsForUser(USER_ID, CLASSROOM_ID);
+
+    const after = readSessionsStoreForUser(USER_ID);
+    for (const id of [a.sessionId, 'live-2', 'live-3']) {
+      expect(after.sessions[id].status).toBe('ended');
+      expect(after.sessions[id].locked).toBe(false);
+      expect(after.sessions[id].timer).toBeNull();
+    }
+    // The classroom is now definitively NOT live…
+    expect(
+      getActiveSessionForClassroomForUser(USER_ID, CLASSROOM_ID),
+    ).toBeUndefined();
+    // …but the other classroom is untouched.
+    expect(after.sessions['other'].status).toBe('live');
+    expect(
+      getActiveSessionForClassroomForUser(USER_ID, 'other-classroom')
+        ?.sessionId,
+    ).toBe('other');
+  });
+
+  it('an ended session is not resurrected by a stale socket hello or a late nav', () => {
+    const s = startFixture();
+    endClassroomLiveSessionsForUser(USER_ID, CLASSROOM_ID);
+    // A reconnect `hello` reporting the server session as still `live`.
+    applySocketMessageForUser(USER_ID, s.sessionId, {
+      type: 'hello',
+      role: 'teacher',
+      session: {
+        id: s.sessionId,
+        classroomId: CLASSROOM_ID,
+        teacherId: 'teacher-1',
+        publishedDayId: PUBLISHED_DAY_ID,
+        code: 'ABCD',
+        status: 'live',
+        state: {
+          phase: 'connectRegulate',
+          interactionIndex: 0,
+          locked: false,
+          mode: 'teacher_paced',
+          share: null,
+        },
+        startedAt: s.startedAt,
+        endedAt: null,
+      },
+    });
+    expect(readSessionsStoreForUser(USER_ID).sessions[s.sessionId].status).toBe(
+      'ended',
+    );
+    // A late nav must not re-live it either (pure reducer).
+    expect(
+      applySessionSocketMessage(
+        readSessionsStoreForUser(USER_ID).sessions[s.sessionId],
+        {
+          type: 'nav',
+          phase: 'groupPractice',
+          interactionIndex: 0,
+          focusOpen: false,
+          slideIndex: 1,
+        },
+      )?.status,
+    ).toBe('ended');
   });
 });
 

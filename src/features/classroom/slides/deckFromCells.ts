@@ -31,7 +31,7 @@ const hasText = (t: LocalizedText | undefined): boolean =>
  * no reveal viz, so `reveal` is omitted. Never emits 'cloud' (the Rule 1
  * forbidden substring 'clo').
  */
-const revealForInteraction = (
+export const revealForInteraction = (
   interaction: Interaction,
 ): InteractionSlide['reveal'] => {
   switch (interaction.type) {

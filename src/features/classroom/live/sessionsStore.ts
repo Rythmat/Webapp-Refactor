@@ -271,10 +271,17 @@ export const getActiveSessionForClassroomForUser = (
   classroomId: string,
 ): SessionState | undefined => {
   const store = readStore(userId);
+  // Return the NEWEST live session (max startedAt; ISO-8601 compares lexically
+  // in chronological order). `startSessionForUser` keeps at most one live per
+  // classroom, but a legacy store may already hold several — always resolve to
+  // the one the teacher is driving, never the oldest (which could be a stale,
+  // still-locked session that would strand a joining student on the lock screen).
+  let newest: SessionState | undefined;
   for (const s of Object.values(store.sessions)) {
-    if (s.classroomId === classroomId && s.status === 'live') return s;
+    if (s.classroomId !== classroomId || s.status !== 'live') continue;
+    if (!newest || s.startedAt > newest.startedAt) newest = s;
   }
-  return undefined;
+  return newest;
 };
 
 export interface StartSessionInput {
@@ -292,6 +299,27 @@ export const startSessionForUser = (
 ): SessionState => {
   const current = readStore(userId);
   const nowIso = new Date().toISOString();
+
+  // One live session per classroom: end every existing `live` session for this
+  // classroom before inserting the new one, so a stale record can't be resolved
+  // by getActiveSessionForClassroomForUser (student/projector discovery). Mirror
+  // endSessionForUser's cascade (locked:false, shares cleared) so an old locked
+  // session can never strand a student on the lock screen. A single writeStore
+  // below fires the `:changed` + `storage` events once — all readers converge.
+  const sessions: Record<string, SessionState> = { ...current.sessions };
+  for (const [id, s] of Object.entries(sessions)) {
+    if (s.classroomId === input.classroomId && s.status === 'live') {
+      sessions[id] = {
+        ...s,
+        status: 'ended',
+        locked: false,
+        sharedInteractionIds: [],
+        endedAt: nowIso,
+        updatedAt: nowIso,
+      };
+    }
+  }
+
   const state: SessionState = {
     sessionId: generateSessionId(),
     classroomId: input.classroomId,
@@ -306,9 +334,11 @@ export const startSessionForUser = (
     startedAt: nowIso,
     updatedAt: nowIso,
   };
+  sessions[state.sessionId] = state;
+
   const next: SessionStore = {
     ...current,
-    sessions: { ...current.sessions, [state.sessionId]: state },
+    sessions,
     seq: { ...current.seq, [state.sessionId]: 0 },
   };
   writeStore(userId, next);
@@ -328,6 +358,9 @@ export const endSessionForUser = (
     status: 'ended',
     locked: false,
     sharedInteractionIds: [],
+    // Clear any running timer so the teacher's auto-advance effect can't fire a
+    // late nav after the session has ended.
+    timer: null,
     endedAt: nowIso,
     updatedAt: nowIso,
   };
@@ -336,6 +369,41 @@ export const endSessionForUser = (
     sessions: { ...current.sessions, [sessionId]: state },
   };
   writeStore(userId, next);
+};
+
+/**
+ * End EVERY `live` session for a classroom (not just one) — the teacher's "End"
+ * makes the whole class not-live. Because `getActiveSessionForClassroomForUser`
+ * resolves the newest `live` record, ending a single session would let a stale
+ * leftover keep the class showing as live everywhere; ending them all also
+ * self-heals a store that accumulated duplicate live sessions. Mirrors the
+ * cascade in `startSessionForUser` (locked:false, shares + timer cleared).
+ */
+export const endClassroomLiveSessionsForUser = (
+  userId: string | null,
+  classroomId: string,
+): void => {
+  const current = readStore(userId);
+  const nowIso = new Date().toISOString();
+  let changed = false;
+  const sessions: Record<string, SessionState> = { ...current.sessions };
+  for (const [id, s] of Object.entries(sessions)) {
+    if (s.classroomId === classroomId && s.status === 'live') {
+      sessions[id] = {
+        ...s,
+        status: 'ended',
+        locked: false,
+        sharedInteractionIds: [],
+        timer: null,
+        endedAt: nowIso,
+        updatedAt: nowIso,
+      };
+      changed = true;
+    }
+  }
+  // One write fires the `:changed` + `storage` events once → all reader tabs
+  // (dashboard / projector / is-live signals) converge to not-live.
+  if (changed) writeStore(userId, { ...current, sessions });
 };
 
 const applyBodyToState = (
@@ -423,6 +491,9 @@ export const applyMessageForUser = (
   const current = readStore(userId);
   const existing = current.sessions[input.sessionId];
   if (!existing) return null;
+  // An ended session accepts nothing but a (re-)end — a late nav/lock/timer or a
+  // straggling response must not resurrect or mutate it.
+  if (existing.status === 'ended' && input.body.kind !== 'end') return null;
   const nowIso = new Date().toISOString();
   const seq = nextSeq(current, input.sessionId);
 
@@ -573,6 +644,11 @@ export const applySessionSocketMessage = (
   msg: SessionSocketMessage,
 ): SessionState | null => {
   const nowIso = new Date().toISOString();
+  // An ended session is terminal locally — never let a straggling socket message
+  // resurrect it (a reconnect `hello` still `live` on the server, a late nav,
+  // etc.). Returning the same reference makes `applySocketMessageForUser` skip
+  // the state write while still recording response/position side-maps.
+  if (state?.status === 'ended' && msg.type !== 'end') return state;
   switch (msg.type) {
     case 'hello': {
       const snap = msg.session;

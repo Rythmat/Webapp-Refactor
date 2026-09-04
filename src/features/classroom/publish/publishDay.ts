@@ -335,16 +335,37 @@ export const FORBIDDEN_SUBSTRINGS = [
 ] as const;
 
 /**
- * Belt-and-suspenders regex check on the stringified snapshot. Client uses
- * this only in tests; the server runs the same check inside `POST /publish`
- * per `docs/classroom-v2/backend-directions.md` §5 Rule 1.
+ * Belt-and-suspenders backstop for the whitelist transform: recursively scan the
+ * snapshot's object KEYS for a teacher-only field name. Each FORBIDDEN_SUBSTRING
+ * is a substring of a `CellRationale` key (impact→impactTags, clo→cloRefs,
+ * scaffold→scaffoldLaneIds, standard→standards, …), so a leaked rationale field
+ * is caught while legitimate content VALUES are not — a lesson titled "IMPACT
+ * Roles" or a song "Tears of a Clown" is student-safe copy, never a leak. (The
+ * primary guarantee is the whitelist copy above; this catches structural leaks.)
+ *
+ * Client uses this as a publish pre-flight; the server runs the same key-check
+ * inside `POST /publish` per `docs/classroom-v2/backend-directions.md` §5 Rule 1.
  */
-export const findForbiddenSubstring = (
-  snapshot: DaySnapshot,
-): string | null => {
-  const serialized = JSON.stringify(snapshot).toLowerCase();
-  for (const forbidden of FORBIDDEN_SUBSTRINGS) {
-    if (serialized.includes(forbidden)) return forbidden;
+const findForbiddenKey = (value: unknown): string | null => {
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const hit = findForbiddenKey(item);
+      if (hit) return hit;
+    }
+    return null;
+  }
+  if (value && typeof value === 'object') {
+    for (const key of Object.keys(value)) {
+      const lower = key.toLowerCase();
+      for (const forbidden of FORBIDDEN_SUBSTRINGS) {
+        if (lower.includes(forbidden)) return forbidden;
+      }
+      const hit = findForbiddenKey((value as Record<string, unknown>)[key]);
+      if (hit) return hit;
+    }
   }
   return null;
 };
+
+export const findForbiddenSubstring = (snapshot: DaySnapshot): string | null =>
+  findForbiddenKey(snapshot);

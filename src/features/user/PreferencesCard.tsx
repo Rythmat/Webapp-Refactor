@@ -1,18 +1,25 @@
-import { MousePointer2 } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
+import { SlidersHorizontal } from 'lucide-react';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useCustomCursorEnabled } from '@/hooks/useCustomCursorEnabled';
+import { useLoginSoundEnabled } from '@/hooks/useLoginSoundEnabled';
+import { PreferenceToggleRow } from './PreferenceToggleRow';
 
 /**
- * User-page preferences card. Currently exposes the custom hexagon cursor toggle
- * (off by default; only takes effect on desktop/mouse devices).
+ * User-page preferences card. Exposes the custom hexagon cursor toggle (off by
+ * default; desktop/mouse devices only) and the login sound toggle (on by
+ * default; the jingle is a first-run welcome, and switching this back on
+ * re-arms it for the next sign-in).
  */
 export const PreferencesCard = () => {
+  const { userId } = useAuthContext();
   const [cursorEnabled, setCursorEnabled] = useCustomCursorEnabled();
+  const [loginSoundEnabled, setLoginSoundEnabled] =
+    useLoginSoundEnabled(userId);
 
   return (
     <section className="flex flex-col gap-4">
       <div className="flex items-center gap-2 text-white">
-        <MousePointer2 size={20} />
+        <SlidersHorizontal size={20} />
         <h2 className="text-2xl font-medium">Preferences</h2>
       </div>
       <div
@@ -22,23 +29,19 @@ export const PreferencesCard = () => {
           border: '1px solid var(--color-border)',
         }}
       >
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex min-w-0 flex-col">
-            <span className="text-sm text-white">Custom cursor</span>
-            <span className="text-xs text-white/50">
-              A white hexagon cursor with a hover animation. Desktop only.
-            </span>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <span className="text-xs font-medium text-white/60">
-              {cursorEnabled ? 'On' : 'Off'}
-            </span>
-            <Switch
-              checked={cursorEnabled}
-              onCheckedChange={setCursorEnabled}
-              className="data-[state=checked]:bg-white"
-            />
-          </div>
+        <div className="flex flex-col divide-y divide-white/10">
+          <PreferenceToggleRow
+            label="Custom cursor"
+            description="A white hexagon cursor with a hover animation. Desktop only."
+            checked={cursorEnabled}
+            onCheckedChange={setCursorEnabled}
+          />
+          <PreferenceToggleRow
+            label="Login sound"
+            description="A short welcome jingle the first time you sign in. Turn this back on to hear it once more next time."
+            checked={loginSoundEnabled}
+            onCheckedChange={setLoginSoundEnabled}
+          />
         </div>
       </div>
     </section>

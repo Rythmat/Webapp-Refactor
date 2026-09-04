@@ -18,11 +18,13 @@ import {
 } from '@/components/ui/dialog';
 import { ContentGate, type ContentNeed } from '@/content/ContentGate';
 import { refFirewallCollision } from '../../../slides/contentRefs';
+import type { InteractionType } from '../../../types';
 import { ErasTab } from './ErasTab';
 import { EventsTab } from './EventsTab';
 import { GenreTab } from './GenreTab';
 import { GlobeTab } from './GlobeTab';
 import { RegionsCitiesTab } from './RegionsCitiesTab';
+import { ResponsesTab } from './ResponsesTab';
 import { SongsTab } from './SongsTab';
 import { StudioTab } from './StudioTab';
 import { TheoryTab } from './TheoryTab';
@@ -36,7 +38,8 @@ export type PickerDomain =
   | 'events'
   | 'regionsCities'
   | 'globe'
-  | 'eras';
+  | 'eras'
+  | 'responses';
 
 interface ContentPickerDialogProps {
   open: boolean;
@@ -50,6 +53,9 @@ interface ContentPickerDialogProps {
   initialTab?: PickerDomain;
   /** When set, only these tabs are shown (template flow scopes to one). */
   domains?: PickerDomain[];
+  /** When provided, the "Responses" tab is shown; picking a type adds a student
+   *  response component (a new question slide). Omit to hide the tab. */
+  onAddResponse?: (type: InteractionType) => void;
 }
 
 const TABS: { id: PickerDomain; label: string }[] = [
@@ -61,6 +67,7 @@ const TABS: { id: PickerDomain; label: string }[] = [
   { id: 'regionsCities', label: 'Regions & Cities' },
   { id: 'globe', label: 'Pathways' },
   { id: 'eras', label: 'Eras' },
+  { id: 'responses', label: 'Responses' },
 ];
 
 /** ContentGate needs for the visible domains (static tabs need nothing). */
@@ -78,8 +85,13 @@ export const ContentPickerDialog = ({
   onSelect,
   initialTab,
   domains,
+  onAddResponse,
 }: ContentPickerDialogProps) => {
-  const shownTabs = domains ? TABS.filter((t) => domains.includes(t.id)) : TABS;
+  // The "Responses" tab only appears when a response handler is wired (the
+  // "Choose content" button), never in the Add-slide template flow.
+  const shownTabs = (
+    domains ? TABS.filter((t) => domains.includes(t.id)) : TABS
+  ).filter((t) => t.id !== 'responses' || onAddResponse);
   const [tab, setTab] = useState<PickerDomain>(
     () => initialTab ?? shownTabs[0]?.id ?? 'songs',
   );
@@ -139,6 +151,14 @@ export const ContentPickerDialog = ({
           {tab === 'regionsCities' && <RegionsCitiesTab onSelect={commit} />}
           {tab === 'globe' && <GlobeTab onSelect={commit} />}
           {tab === 'eras' && <ErasTab onSelect={commit} />}
+          {tab === 'responses' && (
+            <ResponsesTab
+              onPick={(type) => {
+                onAddResponse?.(type);
+                onOpenChange(false);
+              }}
+            />
+          )}
         </ContentGate>
       </DialogContent>
     </Dialog>

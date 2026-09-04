@@ -8,7 +8,7 @@
  */
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import type { LaunchTile } from '../../types';
+import type { InteractionType, LaunchTile } from '../../types';
 import { ContentPickerDialog } from './contentPicker/ContentPickerDialog';
 import type { SlideMediaEmbed } from './contentPicker/catalog';
 
@@ -21,12 +21,15 @@ interface ChooseContentButtonProps {
   /** Optional: some picks embed media alongside the tile (content slides only) —
    *  a pathway → globe preview; a song → its YouTube video + artist image. */
   onEmbedMedia?: (embed: SlideMediaEmbed) => void;
+  /** Optional: picking a student-response component adds a new question slide. */
+  onAddResponse?: (type: InteractionType) => void;
 }
 
 export const ChooseContentButton = ({
   tiles,
   onChange,
   onEmbedMedia,
+  onAddResponse,
 }: ChooseContentButtonProps) => {
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -48,6 +51,7 @@ export const ChooseContentButton = ({
           onChange([...tiles, { id: tileUid(), ...tile }]);
           if (embed) onEmbedMedia?.(embed);
         }}
+        onAddResponse={onAddResponse}
       />
     </>
   );

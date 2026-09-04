@@ -1,11 +1,21 @@
 import {
   CHORDS,
   DEGREES,
+  MODES,
   getChordColor,
   noteNameLetter,
   abbreviateSequence,
 } from '@prism/engine';
+import { getGCMEntry } from '@/curriculum/data/gcmHelpers';
+import {
+  generateCurriculumMelody,
+  type MidiNoteEvent,
+} from '@/curriculum/engine/melodyPipeline';
 import { chordRegionsToMidiClip } from '@/curriculum/songLibrary/exportToStudio';
+import type {
+  CurriculumLevelId,
+  GenreCurriculumEntry,
+} from '@/curriculum/types/curriculum';
 import { GROOVES } from '@/daw/data/groovesLibrary';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import { nextChordId, type ChordRegion } from '@/daw/store/prismSlice';
@@ -48,8 +58,11 @@ export interface PracticeTrackResult {
 
 const PPQ = 480;
 const TICKS_PER_BAR = 4 * PPQ; // 1920, 4/4 time
-const HALF_NOTE_TICKS = 2 * PPQ;
 const QUARTER_NOTE_TICKS = PPQ;
+const DOTTED_QUARTER_TICKS = PPQ + PPQ / 2; // 720
+const EIGHTH_NOTE_TICKS = PPQ / 2; // 240
+/** One dotted-quarter + eighth cell = 960 ticks, i.e. half a 4/4 bar. */
+const BASS_CELL_TICKS = DOTTED_QUARTER_TICKS + EIGHTH_NOTE_TICKS;
 const BPM = 96;
 
 /** Chord quality names used below — all present in the shared `CHORDS` table. */
@@ -335,30 +348,32 @@ function buildChordRegions(
 function buildBassClip(barChords: BarChord[], rootMidi: number): MidiClip {
   const bassRegister = rootMidi - 24; // 2 octaves below the chord root
   const events = barChords.flatMap((bar) => {
-    // Slash chords (e.g. Lydian's "2/1") play the specified bass degree
-    // instead of the chord root; every other bar's bass root is the chord root.
+    // Root-only bass line: slash chords (e.g. Lydian's "2/1") play the
+    // specified bass degree instead of the chord root; every other bar's
+    // bass root is the chord root.
     const chordRoot = bassRegister + (bar.bassOffset ?? bar.intervals[0]);
-    // "5th-equivalent" tone read directly off the built chord (index 2 is
-    // always the 5th/b5 position for both triads and tetrads in CHORDS) —
-    // this stays correct even for Locrian's built-in ♭5, unlike a naive +7.
-    const fifthEquivalent = bassRegister + bar.intervals[2];
+    // Dotted quarter + eighth, repeating — two cells fill each 4/4 bar.
+    const cellCount = TICKS_PER_BAR / BASS_CELL_TICKS; // 2
 
-    return [
-      {
-        note: chordRoot,
-        velocity: 90,
-        startTick: bar.startTick,
-        durationTicks: HALF_NOTE_TICKS,
-        channel: 0,
-      },
-      {
-        note: fifthEquivalent,
-        velocity: 85,
-        startTick: bar.startTick + HALF_NOTE_TICKS,
-        durationTicks: HALF_NOTE_TICKS,
-        channel: 0,
-      },
-    ];
+    return Array.from({ length: cellCount }, (_, cell) => {
+      const cellStart = bar.startTick + cell * BASS_CELL_TICKS;
+      return [
+        {
+          note: chordRoot,
+          velocity: 90,
+          startTick: cellStart,
+          durationTicks: DOTTED_QUARTER_TICKS,
+          channel: 0,
+        },
+        {
+          note: chordRoot,
+          velocity: 85,
+          startTick: cellStart + DOTTED_QUARTER_TICKS,
+          durationTicks: EIGHTH_NOTE_TICKS,
+          channel: 0,
+        },
+      ];
+    }).flat();
   });
 
   const durationTicks = barChords.length * TICKS_PER_BAR;
@@ -439,13 +454,104 @@ async function buildBeatClip(barCount: number): Promise<MidiClip> {
 // ── Melody (only when openTrack === 'chords') ──────────────────────────
 
 /**
- * Simple chord-tone-outlining melody: per bar, arpeggiate root-3rd-5th-3rd
- * as quarter notes, one octave above the chord register, so the generated
- * line is audibly tied to the (invisible) underlying harmony.
+ * **The 2 Bar Melody Phrase Rule.** Every melody generated for a Practice
+ * Track is a musical 2-bar phrase, with its rhythmic and intervallic
+ * complexity correlating to the exercise's level. The phrase is then tiled
+ * across the progression (see `buildMelodyClip`).
  */
-function buildMelodyClip(barChords: BarChord[], rootMidi: number): MidiClip {
-  const melodyRegister = rootMidi + 12;
-  const events = barChords.flatMap((bar) => {
+const PHRASE_BARS = 2;
+const PHRASE_TICKS = PHRASE_BARS * TICKS_PER_BAR;
+
+/** Practice level → the GCM level whose melody rules define its complexity. */
+const LEVEL_TO_GCM_LEVEL: Record<PracticeLevel, CurriculumLevelId> = {
+  1: 'L1',
+  2: 'L2',
+  3: 'L3',
+};
+
+/**
+ * The melody rules for one Practice Track, handed to the curriculum melody
+ * engine (`curriculum/engine/melodyPipeline.ts`) — the same pipeline that
+ * generates melodies for genre activities, so all the phrase-generation
+ * rules (contour library, phrase rhythm library, scale resolution) come
+ * from one place.
+ *
+ * We start from POP's L1/L2/L3 melody params because those already encode
+ * the complexity ladder we want: note counts per cell (L1 3 → L2 3-4 → L3
+ * 4-5, which is the rhythmic density lever, since phrase rhythms are
+ * selected by note count), contour tiers (L1 1-2 → L2 1-3 → L3 2-4, the
+ * intervallic lever), and zero points (L1 [0] → L3 [0,2,4,6]).
+ *
+ * Two Practice-Track overrides on top:
+ *  - `scale` becomes the track's own mode, not POP's genre scale, so every
+ *    note lands inside the key center and mode the student is practicing.
+ *  - `phraseRhythmBars: 1` + `contourConcat: 2` is what enforces the 2 Bar
+ *    Melody Phrase Rule. Asking the pipeline for a 2-bar rhythm directly
+ *    does NOT work: the rhythm library's 2-bar entries are dense 6-23 note
+ *    licks with nothing at our 3-5 note counts, so selection falls back to
+ *    a 1-bar rhythm and the pipeline then skips concatenation (it only
+ *    concatenates when `bars === 1`) — yielding a 1-bar melody. Requesting
+ *    1-bar cells and chaining two of them always spans a full 2 bars.
+ */
+function practiceMelodyRules(
+  mode: DiatonicMode,
+  level: PracticeLevel,
+): GenreCurriculumEntry {
+  const base = getGCMEntry('POP', LEVEL_TO_GCM_LEVEL[level]);
+
+  return {
+    ...base,
+    melody: {
+      ...base.melody,
+      scale: { name: mode, intervals: MODES[mode] },
+      scaleAlts: undefined,
+      phraseRhythmBars: 1,
+      contourConcat: PHRASE_BARS,
+    },
+  };
+}
+
+/**
+ * Snap `note` to the nearest pitch sharing a pitch class with one of
+ * `chordMidis`, searching both directions from the note's own register so
+ * the resolution never leaps out of the phrase's range. Ties resolve
+ * downward, which reads as the more settled of the two options.
+ */
+function nearestChordTone(note: number, chordMidis: number[]): number {
+  let best = note;
+  let bestDistance = Infinity;
+
+  for (const chordMidi of chordMidis) {
+    const pitchClass = ((chordMidi % 12) + 12) % 12;
+    // Highest pitch <= note carrying this pitch class, and the one above it.
+    const below = note - (((note % 12) - pitchClass + 12) % 12);
+
+    for (const candidate of [below, below + 12]) {
+      const distance = Math.abs(candidate - note);
+      if (
+        distance < bestDistance ||
+        (distance === bestDistance && candidate < best)
+      ) {
+        bestDistance = distance;
+        best = candidate;
+      }
+    }
+  }
+
+  return best;
+}
+
+/**
+ * Fallback used only if the melody engine can't produce a phrase (no
+ * contour or phrase rhythm matched): arpeggiate root-3rd-5th-3rd as quarter
+ * notes per bar, the shape Practice Tracks used before they were wired to
+ * the engine.
+ */
+function buildFallbackMelodyEvents(
+  barChords: BarChord[],
+  melodyRegister: number,
+): MidiClip['events'] {
+  return barChords.flatMap((bar) => {
     const [root, third, fifth] = bar.intervals;
     const pattern = [root, third, fifth, third];
     return pattern.map((offset, i) => ({
@@ -456,8 +562,38 @@ function buildMelodyClip(barChords: BarChord[], rootMidi: number): MidiClip {
       channel: 0,
     }));
   });
+}
 
+/**
+ * Generate the Melody clip: one 2-bar phrase from the curriculum melody
+ * engine, repeated to fill the progression, with one Practice-Track
+ * override — the very last note is snapped to a chord tone of the
+ * progression's final chord, so the line resolves instead of leaving the
+ * student hanging on a passing tone.
+ */
+function buildMelodyClip(
+  barChords: BarChord[],
+  rootMidi: number,
+  mode: DiatonicMode,
+  level: PracticeLevel,
+): MidiClip {
+  const melodyRegister = rootMidi + 12; // one octave above the chord register
   const durationTicks = barChords.length * TICKS_PER_BAR;
+
+  // Practice tracks run on a straight rock groove, so no swing displacement.
+  const phrase: MidiNoteEvent[] = generateCurriculumMelody(
+    practiceMelodyRules(mode, level),
+    melodyRegister,
+    0,
+  );
+
+  const events: MidiClip['events'] =
+    phrase.length === 0
+      ? buildFallbackMelodyEvents(barChords, melodyRegister)
+      : tilePhrase(phrase, durationTicks);
+
+  resolveFinalNote(events, barChords, rootMidi);
+
   return {
     id: crypto.randomUUID(),
     name: 'Melody',
@@ -465,6 +601,51 @@ function buildMelodyClip(barChords: BarChord[], rootMidi: number): MidiClip {
     durationTicks,
     events,
   };
+}
+
+/** Repeat the 2-bar phrase across the progression, trimming at the end. */
+function tilePhrase(
+  phrase: MidiNoteEvent[],
+  durationTicks: number,
+): MidiClip['events'] {
+  const events: MidiClip['events'] = [];
+
+  for (let offset = 0; offset < durationTicks; offset += PHRASE_TICKS) {
+    for (const note of phrase) {
+      const startTick = offset + note.onset;
+      if (startTick >= durationTicks) continue;
+      events.push({
+        note: note.note,
+        velocity: 75,
+        startTick,
+        // Never let the last repeat's tail run past the progression.
+        durationTicks: Math.min(note.duration, durationTicks - startTick),
+        channel: 0,
+      });
+    }
+  }
+
+  return events;
+}
+
+/**
+ * Resolution override: retune the melody's final note (in place) to the
+ * nearest chord tone of the progression's last chord.
+ */
+function resolveFinalNote(
+  events: MidiClip['events'],
+  barChords: BarChord[],
+  rootMidi: number,
+): void {
+  if (events.length === 0) return;
+
+  const finalNote = events.reduce((latest, e) =>
+    e.startTick >= latest.startTick ? e : latest,
+  );
+  const lastChord = barChords[barChords.length - 1];
+  const chordMidis = lastChord.intervals.map((offset) => rootMidi + offset);
+
+  finalNote.note = nearestChordTone(finalNote.note, chordMidis);
 }
 
 // ── Main entry point ────────────────────────────────────────────────────
@@ -491,7 +672,9 @@ export async function generatePracticeTrack(
   const bassClip = buildBassClip(barChords, rootMidi);
   const beatClip = await buildBeatClip(barCount);
   const melodyClip =
-    openTrack === 'chords' ? buildMelodyClip(barChords, rootMidi) : null;
+    openTrack === 'chords'
+      ? buildMelodyClip(barChords, rootMidi, mode, level)
+      : null;
 
   return {
     rootNote: clampedRoot,

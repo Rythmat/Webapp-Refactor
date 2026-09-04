@@ -13,7 +13,8 @@ verbatim into `Song.artistImageRef` (like `/artists/svg/stevie-wonder.webp`),
 **not** inline base64. This repo has no blob/CDN storage and `public/` is
 read-only at runtime, so the store must live on the backend.
 
-**Endpoint** (admin-gated, same auth as `/api/admin/content/*`):
+**Endpoint** (same auth as the rest of `/api/admin/content/*` — i.e. the
+`contentAuthorOnly` gate, which admits **admins and content editors**):
 
 ```
 POST /api/admin/content/asset
@@ -28,7 +29,11 @@ Body: field "file" = the image (JPEG/PNG/WebP, already center-cropped square, ~3
   writes the returned `url` into `artistImageRef` (with `artistImageSource: 'manual'`).
 - Store wherever the current `/artists/...` assets are served from (or the content
   CDN). Return a stable, cache-friendly public URL. Re-encoding to WebP is welcome.
-- Recommended guards: max ~2 MB, image mime allowlist, admin-only.
+- Recommended guards: max ~2 MB, image mime allowlist, and `contentAuthorOnly`
+  rather than `adminOnly`. Build it admin-only and content editors cannot set an
+  artist image at all — the field is part of the song editor they own. An
+  uploaded asset is inert until the song body referencing it is approved and
+  published, so it needs no review of its own.
 - Until this ships, the editor degrades gracefully: the upload fails, a warning
   shows, and the admin can paste a URL/path into the same field.
 

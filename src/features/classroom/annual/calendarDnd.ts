@@ -23,10 +23,7 @@ export interface CalendarDragItem {
 }
 
 /** Serialize a drag item onto the drag event's dataTransfer. */
-export const setDragItem = (
-  dt: DataTransfer,
-  item: CalendarDragItem,
-): void => {
+export const setDragItem = (dt: DataTransfer, item: CalendarDragItem): void => {
   dt.setData(DRAG_MIME, JSON.stringify(item));
   dt.effectAllowed = 'move';
 };

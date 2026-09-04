@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FullScreenLoading } from '@/components/FullScreenLoading';
 import { AdminRoutes, ProfileRoutes } from '@/constants/routes';
+import { isConsoleRole } from '@/features/admin/consoleRoles';
 import { useAuthContext } from './hooks/useAuthContext';
 
 export const AuthPage = ({ children }: { children: React.ReactNode }) => {
@@ -17,7 +18,9 @@ export const AuthPage = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    if (role === 'admin') {
+    // Admins and content editors both live in the console; /console then routes
+    // each of them to the landing page their role can actually open.
+    if (isConsoleRole(role)) {
       navigate(AdminRoutes.root());
       return;
     }

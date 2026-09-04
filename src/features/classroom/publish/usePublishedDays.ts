@@ -17,8 +17,8 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
-import { getIdbMirror } from '@/lib/local-store/idbMirror';
 import { useMe } from '@/hooks/data';
+import { getIdbMirror } from '@/lib/local-store/idbMirror';
 import {
   STORAGE_KEY as ASSIGNMENTS_KEY,
   type AssignmentStore,
@@ -60,9 +60,7 @@ const isBrowser = typeof window !== 'undefined';
 const keyFor = (userId: string | null | undefined): string =>
   `${STORAGE_KEY}:${userId || 'anon'}`;
 
-const readLegacyStore = (
-  userId: string | null | undefined,
-): PublishedStore => {
+const readLegacyStore = (userId: string | null | undefined): PublishedStore => {
   if (!isBrowser) return EMPTY_STORE;
   try {
     const raw = window.localStorage.getItem(keyFor(userId));

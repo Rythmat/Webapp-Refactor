@@ -32,7 +32,13 @@ const coverageColor = (count: number, max: number): string => {
   return '#f87171'; // red — light
 };
 
-const Group = ({ title, items }: { title: string; items: AlignmentCount[] }) => {
+const Group = ({
+  title,
+  items,
+}: {
+  title: string;
+  items: AlignmentCount[];
+}) => {
   if (items.length === 0) return null;
   const max = items[0]?.count ?? 0;
   return (
@@ -131,8 +137,8 @@ export const UnitAlignmentSummary = ({
           <BarChart3 className="h-4 w-4" />
           Standards Alignment
           <span className="text-white/40">
-            ({alignment.standards.length} standards ·{' '}
-            {alignment.clos.length} objectives)
+            ({alignment.standards.length} standards · {alignment.clos.length}{' '}
+            objectives)
           </span>
           <ChevronDown
             className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`}

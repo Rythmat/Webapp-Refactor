@@ -30,7 +30,6 @@
 const CREATED_AT = '2026-05-18';
 
 const activities = [
-
   /* ============================================================
      PHASE 1: CONNECT / REGULATE
      ============================================================ */
@@ -58,8 +57,18 @@ const activities = [
     standards: ['Performing', 'Responding', 'Connecting'],
     impactValues: ['Therapeutic', 'Community-Responsive', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: steady-tempo play-along tracks', contextNote: 'Use Studio percussion tracks at 60–80 bpm as the entrainment anchor.' },
-      { module: 'arcade', label: 'Atlas Arcade: rhythm precision games', contextNote: 'Light gamified version of the same skill — useful as a closing reinforcement.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: steady-tempo play-along tracks',
+        contextNote:
+          'Use Studio percussion tracks at 60–80 bpm as the entrainment anchor.',
+      },
+      {
+        module: 'arcade',
+        label: 'Atlas Arcade: rhythm precision games',
+        contextNote:
+          'Light gamified version of the same skill — useful as a closing reinforcement.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -89,7 +98,12 @@ const activities = [
     standards: ['Responding', 'Connecting'],
     impactValues: ['Community-Responsive', 'Therapeutic', 'Accessible'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: explore the artist or style', contextNote: 'After listening, students use Globe to research where this music comes from.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: explore the artist or style',
+        contextNote:
+          'After listening, students use Globe to research where this music comes from.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -119,7 +133,12 @@ const activities = [
     standards: ['Connecting', 'Responding'],
     impactValues: ['Therapeutic', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: 60bpm play-along', contextNote: 'Use Studio backing tracks for breath entrainment — start with simple percussion.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: 60bpm play-along',
+        contextNote:
+          'Use Studio backing tracks for breath entrainment — start with simple percussion.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -149,8 +168,17 @@ const activities = [
     standards: ['Creating', 'Responding'],
     impactValues: ['Therapeutic', 'Modern', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: binaural panning experiment', contextNote: 'Use two oscillators with hard L/R panning and a 3–15 Hz frequency offset.' },
-      { module: 'theory-lesson', label: 'Atlas Theory: psychoacoustics and brainwave entrainment', contextNote: 'Foundational reading on why binaural beats work.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: binaural panning experiment',
+        contextNote:
+          'Use two oscillators with hard L/R panning and a 3–15 Hz frequency offset.',
+      },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: psychoacoustics and brainwave entrainment',
+        contextNote: 'Foundational reading on why binaural beats work.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -180,7 +208,12 @@ const activities = [
     standards: ['Performing', 'Responding', 'Connecting'],
     impactValues: ['Inclusive', 'Therapeutic', 'Community-Responsive'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: dance traditions of the world', contextNote: 'Explore how dance and music co-evolve in specific cultural contexts.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: dance traditions of the world',
+        contextNote:
+          'Explore how dance and music co-evolve in specific cultural contexts.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -224,8 +257,8 @@ const activities = [
     description:
       'Variation 1: Students go around the room saying "My name is ____" and the class says back "Hi ______." Variation 2: Students say their name, then the next person says their name plus the previous student\'s name; the third adds theirs to the list, and so on. The list gets longer; tension builds. Best in the first weeks of a new class.',
     learningOutcome:
-      'Students learn each other\'s names and build the foundation of recognition that makes a classroom feel like a community.',
-    assessment: 'Participation: Did student say their name and others\' names?',
+      "Students learn each other's names and build the foundation of recognition that makes a classroom feel like a community.",
+    assessment: "Participation: Did student say their name and others' names?",
     clos: {
       awarenessOfFeeling:
         'Knowing the names of my peers in class helps me feel connected, not alone, curious about others, and less inhibited.',
@@ -249,22 +282,28 @@ const activities = [
     purpose: 'Rituals',
     initiationStyle: 'learn-to-apply',
     description:
-      'Music plays as students enter the space, related to the theme of the lesson. No discussion required; the music primes the room. Choose tracks that match the energy you\'re trying to set — calming for a regulating day, energizing for a creative push, contextually relevant for a unit theme.',
+      "Music plays as students enter the space, related to the theme of the lesson. No discussion required; the music primes the room. Choose tracks that match the energy you're trying to set — calming for a regulating day, energizing for a creative push, contextually relevant for a unit theme.",
     learningOutcome:
       'Students learn that the sonic environment is itself a teaching tool, and that being immersed in music — even passively — builds intuition and reference.',
-    assessment: 'Implicit: did students arrive into the prepared sonic environment?',
+    assessment:
+      'Implicit: did students arrive into the prepared sonic environment?',
     clos: {
       awarenessOfFeeling:
         'When I walk into a classroom with music already playing, I feel oriented, welcomed, and ready to engage.',
       awarenessOfTechnique:
-        'I can listen passively while preparing my materials and let the music inform my sense of the day\'s theme.',
+        "I can listen passively while preparing my materials and let the music inform my sense of the day's theme.",
       awarenessOfContext:
         'Many cultures use ambient music to mark transitions — from cafés to religious services to film scores. Music sets the scene.',
     },
     standards: ['Connecting', 'Responding'],
     impactValues: ['Therapeutic', 'Community-Responsive', 'Accessible'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: curated theme playlists', contextNote: 'Use Globe playlists to source thematically-aligned music for the day or unit.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: curated theme playlists',
+        contextNote:
+          'Use Globe playlists to source thematically-aligned music for the day or unit.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -294,8 +333,18 @@ const activities = [
     standards: ['Responding', 'Connecting'],
     impactValues: ['Accessible', 'Modern', 'Community-Responsive'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: stem-isolated listening', contextNote: 'When available, Globe can present a song with stems separated so students hear each instrument alone.' },
-      { module: 'studio', label: 'Atlas Studio: examine the multitrack', contextNote: 'Open a multitrack in Studio and mute/solo tracks to reveal the parts.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: stem-isolated listening',
+        contextNote:
+          'When available, Globe can present a song with stems separated so students hear each instrument alone.',
+      },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: examine the multitrack',
+        contextNote:
+          'Open a multitrack in Studio and mute/solo tracks to reveal the parts.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -316,7 +365,7 @@ const activities = [
       'Participation: Did student contribute? Written work: Did student complete the worksheet (counting bars, labeling sections)?',
     clos: {
       awarenessOfFeeling:
-        'When I notice patterns in music, I feel like I\'m hearing the music more honestly — not just experiencing it, but understanding it.',
+        "When I notice patterns in music, I feel like I'm hearing the music more honestly — not just experiencing it, but understanding it.",
       awarenessOfTechnique:
         'When I listen intently, I can count beats and identify a 1-bar, 2-bar, or 4-bar loop.',
       awarenessOfContext:
@@ -325,8 +374,17 @@ const activities = [
     standards: ['Responding', 'Connecting'],
     impactValues: ['Accessible', 'Modern'],
     atlasResources: [
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: song form across styles', contextNote: 'Compare 12-bar blues, 32-bar AABA, verse-chorus pop, and through-composed forms.' },
-      { module: 'theory-lesson', label: 'Atlas Theory: musical form', contextNote: 'The theory backing for what students are hearing.' },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: song form across styles',
+        contextNote:
+          'Compare 12-bar blues, 32-bar AABA, verse-chorus pop, and through-composed forms.',
+      },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: musical form',
+        contextNote: 'The theory backing for what students are hearing.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -347,17 +405,27 @@ const activities = [
       'Participation: Did student contribute? Written work: Did student complete the worksheet?',
     clos: {
       awarenessOfFeeling:
-        'When I can name the style of a piece I\'m hearing, I feel less lost and more curious — I have a foothold to explore from.',
+        "When I can name the style of a piece I'm hearing, I feel less lost and more curious — I have a foothold to explore from.",
       awarenessOfTechnique:
-        'When I hear an arpeggiated part with a mix of downbeats and anticipations, I know it\'s probably a montuno. I can clap or speak the clave rhythm along with it and identify 2-3 or 3-2.',
+        "When I hear an arpeggiated part with a mix of downbeats and anticipations, I know it's probably a montuno. I can clap or speak the clave rhythm along with it and identify 2-3 or 3-2.",
       awarenessOfContext:
         'When I hear a stylistic technique, I am aware of its historical and cultural connections — the artists, regions, eras, and record labels it traces back to.',
     },
     standards: ['Responding', 'Connecting'],
     impactValues: ['Community-Responsive', 'Modern', 'Inclusive'],
     atlasResources: [
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: stylistic signatures', contextNote: 'Each genre lesson covers the techniques and rhythms that signal that style.' },
-      { module: 'globe', label: 'Atlas Globe: stylistic origins', contextNote: 'Trace styles back to their cultural and geographic origins.' },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: stylistic signatures',
+        contextNote:
+          'Each genre lesson covers the techniques and rhythms that signal that style.',
+      },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: stylistic origins',
+        contextNote:
+          'Trace styles back to their cultural and geographic origins.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -378,7 +446,7 @@ const activities = [
       'Participation: Did student contribute? Written work: Did student complete the worksheet?',
     clos: {
       awarenessOfFeeling:
-        'I can listen to music and identify the feeling the composer intended, as well as articulate the feeling I get from the music — even if it\'s different.',
+        "I can listen to music and identify the feeling the composer intended, as well as articulate the feeling I get from the music — even if it's different.",
       awarenessOfTechnique:
         'I can describe the emotional content of a piece using specific musical observations — slow tempo, minor key, sparse texture, falling melodic line.',
       awarenessOfContext:
@@ -387,7 +455,12 @@ const activities = [
     standards: ['Responding', 'Connecting'],
     impactValues: ['Therapeutic', 'Inclusive', 'Community-Responsive'],
     atlasResources: [
-      { module: 'theory-lesson', label: 'Atlas Theory: emotion and harmony', contextNote: 'How major/minor, consonance/dissonance, tempo, and articulation shape feeling.' },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: emotion and harmony',
+        contextNote:
+          'How major/minor, consonance/dissonance, tempo, and articulation shape feeling.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -412,12 +485,17 @@ const activities = [
       awarenessOfTechnique:
         'I can articulate what techniques — instrumentation, harmony, effects, motif — a composer uses to tell a story with their music. A composer can use half-step intervals to create tension and fear, like in the Jaws theme or the Psycho shower scene.',
       awarenessOfContext:
-        'Programmatic music has a long tradition — Vivaldi\'s Four Seasons, Berlioz\'s Symphonie Fantastique, film scores. The story is always there if you know to listen for it.',
+        "Programmatic music has a long tradition — Vivaldi's Four Seasons, Berlioz's Symphonie Fantastique, film scores. The story is always there if you know to listen for it.",
     },
     standards: ['Responding', 'Connecting'],
     impactValues: ['Community-Responsive', 'Inclusive'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: programmatic music traditions', contextNote: 'Explore how different cultures use music to tell stories — from raga to film scoring.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: programmatic music traditions',
+        contextNote:
+          'Explore how different cultures use music to tell stories — from raga to film scoring.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -462,10 +540,11 @@ const activities = [
       'Teacher plays a recording of evocative music — Bossa Nova, Big Band swing, Afro-Cuban salsa, Blues, Gypsy Jazz, Mongolian throat singing, Gamelan ensemble, Balkan odd-meter groove, Ghanaian percussion. Students close their eyes and listen. Prompts: "Imagine where this music is taking place. Who is playing it? What are they feeling? What are you feeling as you listen?"',
     learningOutcome:
       'Students engage their imagination as a listening tool — building visual, emotional, and contextual associations with music from traditions they may not know firsthand.',
-    assessment: 'Participation: Did student listen attentively and share their imagery in discussion or writing?',
+    assessment:
+      'Participation: Did student listen attentively and share their imagery in discussion or writing?',
     clos: {
       awarenessOfFeeling:
-        'When I close my eyes and listen, I can picture a scene and feel what the music feels — even if I\'ve never been to where this music is from.',
+        "When I close my eyes and listen, I can picture a scene and feel what the music feels — even if I've never been to where this music is from.",
       awarenessOfTechnique:
         'I can describe what I imagined using specific musical details — what the rhythm did, what the texture felt like, where the energy went.',
       awarenessOfContext:
@@ -474,7 +553,12 @@ const activities = [
     standards: ['Responding', 'Connecting'],
     impactValues: ['Community-Responsive', 'Inclusive', 'Therapeutic'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: music from around the world', contextNote: 'After listening, students can locate the tradition on Globe and learn more.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: music from around the world',
+        contextNote:
+          'After listening, students can locate the tradition on Globe and learn more.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -491,7 +575,8 @@ const activities = [
       'Teacher plays a recording from a specific tradition — Bossa Nova, Salsa, Blues, Gamelan, etc. — and asks students to listen for specific elements: "What instruments do you hear? Voice, guitar, drums?" Then teacher identifies specific parts and invites students to tap, clap, mime playing, or sing along with each. Optional: show a video of the performance or pictures of the instruments.',
     learningOutcome:
       'Students learn to listen for and embody specific stylistic elements, building stylistic vocabulary kinesthetically.',
-    assessment: 'Participation: Did student attempt to tap, clap, or sing along with the identified parts?',
+    assessment:
+      'Participation: Did student attempt to tap, clap, or sing along with the identified parts?',
     clos: {
       awarenessOfFeeling:
         'When I clap along with a clave or mime a stride bass line, I feel the style in my body, not just my head.',
@@ -503,8 +588,18 @@ const activities = [
     standards: ['Performing', 'Responding', 'Connecting'],
     impactValues: ['Community-Responsive', 'Accessible', 'Inclusive'],
     atlasResources: [
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: stylistic deep-dives', contextNote: 'Each genre lesson covers the signature elements of that style.' },
-      { module: 'globe', label: 'Atlas Globe: where the style comes from', contextNote: 'Place the style on the world map and explore its history.' },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: stylistic deep-dives',
+        contextNote:
+          'Each genre lesson covers the signature elements of that style.',
+      },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: where the style comes from',
+        contextNote:
+          'Place the style on the world map and explore its history.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -518,10 +613,11 @@ const activities = [
     purpose: 'Artist Spotlight',
     initiationStyle: 'try-it-first',
     description:
-      'Students are asked about music they hear at home — what plays at family gatherings, what their parents/grandparents listen to, what reminds them of where they\'re from. Teacher builds a class playlist from their contributions and uses it through the unit for listening, analysis, and performance.',
+      "Students are asked about music they hear at home — what plays at family gatherings, what their parents/grandparents listen to, what reminds them of where they're from. Teacher builds a class playlist from their contributions and uses it through the unit for listening, analysis, and performance.",
     learningOutcome:
-      'Students see their home culture reflected in classroom curriculum, and the class playlist becomes a collective portrait of who\'s in the room.',
-    assessment: 'Participation: Did student contribute musical examples or preferences to the class playlist?',
+      "Students see their home culture reflected in classroom curriculum, and the class playlist becomes a collective portrait of who's in the room.",
+    assessment:
+      'Participation: Did student contribute musical examples or preferences to the class playlist?',
     clos: {
       awarenessOfFeeling:
         'When the music I grew up with shows up in class, I feel seen — like the class belongs to me too.',
@@ -533,7 +629,12 @@ const activities = [
     standards: ['Connecting', 'Responding'],
     impactValues: ['Community-Responsive', 'Inclusive', 'Therapeutic'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: build a class playlist', contextNote: 'Use Globe to collect students\' home music and place each piece in its cultural context.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: build a class playlist',
+        contextNote:
+          "Use Globe to collect students' home music and place each piece in its cultural context.",
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -550,7 +651,8 @@ const activities = [
       'Teacher presents the historical background of a modern music example or technology, showing students the influences, roots, or previous iterations — alongside diverse historical innovators. Students then do their own historical research on a musical artist, style, song, or technology, citing influences, roots, previous iterations, and innovators.',
     learningOutcome:
       'Students learn that no music exists in isolation — every modern style has a deep lineage, and tracing that lineage often surfaces voices the canon overlooks.',
-    assessment: 'Written work or presentation: Did student complete the research and cite their sources?',
+    assessment:
+      'Written work or presentation: Did student complete the research and cite their sources?',
     clos: {
       awarenessOfFeeling:
         'When I trace a song I love back through its influences, I feel connected to a long line of musicians I never knew about — and curious to hear more.',
@@ -562,8 +664,18 @@ const activities = [
     standards: ['Connecting', 'Responding'],
     impactValues: ['Community-Responsive', 'Inclusive', 'Modern'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: trace musical lineages', contextNote: 'Globe surfaces the lineage relationships between styles, eras, and artists.' },
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: how styles evolved', contextNote: 'Each genre lesson includes its lineage and key innovators.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: trace musical lineages',
+        contextNote:
+          'Globe surfaces the lineage relationships between styles, eras, and artists.',
+      },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: how styles evolved',
+        contextNote:
+          'Each genre lesson includes its lineage and key innovators.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -577,10 +689,11 @@ const activities = [
     purpose: 'Active Listening',
     initiationStyle: 'try-it-first',
     description:
-      'Teacher plays a melody in a major key, then the same or similar melody in minor; asks students to comment on the different emotion. Repeats with cadential chord progressions in major and minor. Then students create melodies or progressions intended to convey specific emotions; the class guesses or votes on the intended emotion for each student\'s piece.',
+      "Teacher plays a melody in a major key, then the same or similar melody in minor; asks students to comment on the different emotion. Repeats with cadential chord progressions in major and minor. Then students create melodies or progressions intended to convey specific emotions; the class guesses or votes on the intended emotion for each student's piece.",
     learningOutcome:
       'Students learn that emotional meaning in music is something composers actively construct, not something that just happens — and they get to be the composer.',
-    assessment: 'Participation in discussion + creative output (their own emotion-targeted melody or progression).',
+    assessment:
+      'Participation in discussion + creative output (their own emotion-targeted melody or progression).',
     clos: {
       awarenessOfFeeling:
         'When I write a melody to convey a feeling, I notice how much control I have over what listeners feel — and how much of music is choice.',
@@ -592,14 +705,22 @@ const activities = [
     standards: ['Creating', 'Responding'],
     impactValues: ['Inclusive', 'Therapeutic', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: write an emotion-targeted melody', contextNote: 'Quick melody sketches in Studio.' },
-      { module: 'theory-lesson', label: 'Atlas Theory: emotion and harmonic language', contextNote: 'The theoretical underpinning for why major sounds happy and minor sounds sad — and why those generalizations break down.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: write an emotion-targeted melody',
+        contextNote: 'Quick melody sketches in Studio.',
+      },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: emotion and harmonic language',
+        contextNote:
+          'The theoretical underpinning for why major sounds happy and minor sounds sad — and why those generalizations break down.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
     createdAt: CREATED_AT,
   },
-
 
   /* ============================================================
      PHASE 2: GROUP PRACTICE
@@ -619,7 +740,7 @@ const activities = [
       'Performance: Did student perform an approximate or complete rendition of the technique? Written work: Did student complete a technique worksheet?',
     clos: {
       awarenessOfFeeling:
-        'When I can play a stylistic technique I\'ve been hearing for years, I feel a kind of recognition — like I just unlocked something that was always there.',
+        "When I can play a stylistic technique I've been hearing for years, I feel a kind of recognition — like I just unlocked something that was always there.",
       awarenessOfTechnique:
         'I can play a montuno by arpeggiating chords in a 2-bar repeating rhythm that accents the downbeat in one bar and anticipates the downbeat in the other. I can improvise over a blues by playing melodic phrases using notes from a blues scale.',
       awarenessOfContext:
@@ -628,8 +749,18 @@ const activities = [
     standards: ['Performing', 'Responding', 'Connecting'],
     impactValues: ['Inclusive', 'Accessible', 'Community-Responsive'],
     atlasResources: [
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: technique deep-dives', contextNote: 'Each genre lesson includes core techniques with notation and audio.' },
-      { module: 'studio', label: 'Atlas Studio: practice the technique with a backing track', contextNote: 'Loop the relevant style track and practice the technique over it.' },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: technique deep-dives',
+        contextNote:
+          'Each genre lesson includes core techniques with notation and audio.',
+      },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: practice the technique with a backing track',
+        contextNote:
+          'Loop the relevant style track and practice the technique over it.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -659,8 +790,18 @@ const activities = [
     standards: ['Performing'],
     impactValues: ['Accessible', 'Empowerment'],
     atlasResources: [
-      { module: 'theory-lesson', label: 'Atlas Theory: scales, chords, intervals', contextNote: 'Theoretical foundations for what students are practicing.' },
-      { module: 'arcade', label: 'Atlas Arcade: technique drilling games', contextNote: 'Make the boring parts a game — scale runs, chord recognition, interval ear-training.' },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: scales, chords, intervals',
+        contextNote:
+          'Theoretical foundations for what students are practicing.',
+      },
+      {
+        module: 'arcade',
+        label: 'Atlas Arcade: technique drilling games',
+        contextNote:
+          'Make the boring parts a game — scale runs, chord recognition, interval ear-training.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -677,19 +818,25 @@ const activities = [
       'Students practice specific musical skills together with teacher-facilitated scaffolding. Repeated reps with a goal of consistent, skillful execution. Works for any skill — a stylistic technique, a passage from a piece, a chord progression in multiple keys.',
     learningOutcome:
       'Students develop the discipline and patience of practice — and the community of practicing alongside others.',
-    assessment: 'Participation: Did student participate in the directed practice?',
+    assessment:
+      'Participation: Did student participate in the directed practice?',
     clos: {
       awarenessOfFeeling:
         'When I practice in a group, the work feels less lonely — and I get inspired by what others are figuring out.',
       awarenessOfTechnique:
         'I can execute a specific skill by implementing the right technique. For example, I can chunk minor chords on "Still Dre" by playing Bbmin in 1st inversion 8 times, then 2nd inversion Fmin sus4 3 times, then Fmin 4 times.',
       awarenessOfContext:
-        'Group practice is how most music gets made. Ensembles rehearse, bands jam, sectionals sharpen specific parts. It\'s the rule, not the exception.',
+        "Group practice is how most music gets made. Ensembles rehearse, bands jam, sectionals sharpen specific parts. It's the rule, not the exception.",
     },
     standards: ['Performing'],
     impactValues: ['Community-Responsive', 'Accessible', 'Prosocial'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: shared practice space', contextNote: 'Use Studio as a group practice environment with backing tracks and shared visual reference.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: shared practice space',
+        contextNote:
+          'Use Studio as a group practice environment with backing tracks and shared visual reference.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -711,14 +858,18 @@ const activities = [
       awarenessOfFeeling:
         'I can muster the courage I need to participate in a group performance despite anxiety, fear, or resistance. I can practice a skill and competently perform it for my peers.',
       awarenessOfTechnique:
-        'I can integrate my part into a group performance — adjusting my volume, timing, and confidence based on what\'s around me.',
+        "I can integrate my part into a group performance — adjusting my volume, timing, and confidence based on what's around me.",
       awarenessOfContext:
         'My performance is part of what makes a group performance more or less effective. An effective group performance integrates weaker and stronger individual performances into a cohesive whole.',
     },
     standards: ['Performing', 'Presenting'],
     impactValues: ['Inclusive', 'Prosocial', 'Empowerment'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: ensemble recording', contextNote: 'Record the group performance for review.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: ensemble recording',
+        contextNote: 'Record the group performance for review.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -732,10 +883,11 @@ const activities = [
     purpose: 'Community Creativity',
     initiationStyle: 'join-the-expert',
     description:
-      'The whole class writes a song together, with teacher facilitation. The teacher offers frameworks (a key center, a chord progression, a tempo, a topic) and students contribute musical and lyrical choices. Everyone gets a say. The end product is a class artifact, not any individual\'s.',
+      "The whole class writes a song together, with teacher facilitation. The teacher offers frameworks (a key center, a chord progression, a tempo, a topic) and students contribute musical and lyrical choices. Everyone gets a say. The end product is a class artifact, not any individual's.",
     learningOutcome:
       'Students experience songwriting as a collaborative, choice-driven process — and see how musical elements function like interchangeable building blocks.',
-    assessment: 'Participation: Did student contribute their preferences or attention to the songwriting process?',
+    assessment:
+      'Participation: Did student contribute their preferences or attention to the songwriting process?',
     clos: {
       awarenessOfFeeling:
         'When I work with my classmates to create a piece, I feel excited, curious, able to enjoy and just have fun, less self-conscious.',
@@ -747,7 +899,12 @@ const activities = [
     standards: ['Creating', 'Performing', 'Connecting'],
     impactValues: ['Inclusive', 'Community-Responsive', 'Prosocial'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: class songwriting session', contextNote: 'Use Studio as the shared canvas for collecting class contributions.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: class songwriting session',
+        contextNote:
+          'Use Studio as the shared canvas for collecting class contributions.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -764,7 +921,8 @@ const activities = [
       'Students score a scene — a film clip, commercial, TV theme, video game cutscene, or sports highlight. Teacher facilitates listening to model scores, identifying functional elements (suspense, triumph, sadness, surprise), and executing the technical and creative work in Atlas Studio. Can be done individually or collectively.',
     learningOutcome:
       'Students apply musical techniques to a concrete, real-world purpose — and see how composers shape audience emotion second by second.',
-    assessment: 'Participation and product: Did student engage consistently and contribute appropriate skills and ideas to the score?',
+    assessment:
+      'Participation and product: Did student engage consistently and contribute appropriate skills and ideas to the score?',
     clos: {
       awarenessOfFeeling:
         'When I match music to picture, I feel like a real composer — the music and the image are doing something neither could do alone.',
@@ -776,8 +934,18 @@ const activities = [
     standards: ['Creating', 'Producing', 'Presenting'],
     impactValues: ['Modern', 'Accessible', 'Empowerment'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: video-sync scoring', contextNote: 'Studio supports scoring against a video clip — students see picture and write to it.' },
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: film score conventions', contextNote: 'Hero themes, suspense cues, romantic underscores — the genre conventions of film scoring.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: video-sync scoring',
+        contextNote:
+          'Studio supports scoring against a video clip — students see picture and write to it.',
+      },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: film score conventions',
+        contextNote:
+          'Hero themes, suspense cues, romantic underscores — the genre conventions of film scoring.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -793,11 +961,12 @@ const activities = [
     description:
       'Students learn about Musique Concrète and contemporary sound art. Teacher facilitates recording sounds from nature, daily life, and voices, then layering them in Atlas Studio with stereo panning and ambient effects to create a soundscape piece. The output is more sonic environment than song — but still music.',
     learningOutcome:
-      'Students learn that music doesn\'t require traditional pitched instruments — and that the boundary between sound and music is a choice, not a rule.',
-    assessment: 'Participation and product: Did student engage consistently with instruction and transfer skills and ideas to the project?',
+      "Students learn that music doesn't require traditional pitched instruments — and that the boundary between sound and music is a choice, not a rule.",
+    assessment:
+      'Participation and product: Did student engage consistently with instruction and transfer skills and ideas to the project?',
     clos: {
       awarenessOfFeeling:
-        'When I make music from sounds that weren\'t supposed to be music, I feel like I\'m breaking a rule I didn\'t know I was following.',
+        "When I make music from sounds that weren't supposed to be music, I feel like I'm breaking a rule I didn't know I was following.",
       awarenessOfTechnique:
         'I can use recording, production, and arranging techniques — layering, stereo panning, ambient effects — to turn non-musical sounds into a meaningful musical product.',
       awarenessOfContext:
@@ -806,7 +975,12 @@ const activities = [
     standards: ['Creating', 'Producing'],
     impactValues: ['Modern', 'Accessible', 'Inclusive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: layered soundscape composition', contextNote: 'Studio\'s multitrack environment is ideal for layering recorded environmental sounds.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: layered soundscape composition',
+        contextNote:
+          "Studio's multitrack environment is ideal for layering recorded environmental sounds.",
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -823,10 +997,11 @@ const activities = [
       'Students learn about electronic music production from found sounds. Teacher facilitates recording everyday objects, nature, voices — then chopping, pitching, time-stretching, panning, and reversing in Atlas Studio to create electronic music tracks built from raw recorded material.',
     learningOutcome:
       'Students discover that any sound is a potential instrument, and learn the core techniques of modern electronic music production.',
-    assessment: 'Participation and product: Did student engage with instruction and transfer techniques into a track?',
+    assessment:
+      'Participation and product: Did student engage with instruction and transfer techniques into a track?',
     clos: {
       awarenessOfFeeling:
-        'When I turn an everyday sound — a door closing, my voice, a coin spinning — into music, I feel like I\'m hearing the world differently than I did before.',
+        "When I turn an everyday sound — a door closing, my voice, a coin spinning — into music, I feel like I'm hearing the world differently than I did before.",
       awarenessOfTechnique:
         'I can use recording and production techniques — chopping, pitching, time-stretching, ambient effects, stereo panning, reversing — to make non-musical sounds part of musical pieces.',
       awarenessOfContext:
@@ -835,7 +1010,12 @@ const activities = [
     standards: ['Creating', 'Producing'],
     impactValues: ['Modern', 'Accessible', 'Inclusive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: found-sound production environment', contextNote: 'Studio supports importing field recordings and applying production techniques to them.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: found-sound production environment',
+        contextNote:
+          'Studio supports importing field recordings and applying production techniques to them.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -852,10 +1032,11 @@ const activities = [
       'Students learn the history of sampling and choose recordings to sample for their own creative projects. Teacher facilitates students using Atlas Studio to chop, pitch, and adjust the tempo of samples to create loops, then add other musical or lyrical layers on top.',
     learningOutcome:
       'Students learn one of the foundational techniques of modern music — and the cultural lineage that runs through Hip Hop, electronic, pop, and R&B.',
-    assessment: 'Participation and product: Did student engage with instruction and transfer techniques into a sample-based track?',
+    assessment:
+      'Participation and product: Did student engage with instruction and transfer techniques into a sample-based track?',
     clos: {
       awarenessOfFeeling:
-        'When I find a perfect sample and turn it into something new, I feel like I\'m in conversation with the artist who made the original.',
+        "When I find a perfect sample and turn it into something new, I feel like I'm in conversation with the artist who made the original.",
       awarenessOfTechnique:
         'I can use sampling and production techniques — chopping, pitching, time-stretching, ambient effects, stereo panning, reversing — to make new musical works from existing recordings.',
       awarenessOfContext:
@@ -864,8 +1045,18 @@ const activities = [
     standards: ['Creating', 'Producing', 'Connecting'],
     impactValues: ['Modern', 'Inclusive', 'Community-Responsive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: sampling workflow', contextNote: 'Studio\'s sampler supports chop / pitch / time-stretch on imported audio.' },
-      { module: 'globe', label: 'Atlas Globe: the lineage of sampled music', contextNote: 'Trace samples back to their originals — and the originals back to their sources.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: sampling workflow',
+        contextNote:
+          "Studio's sampler supports chop / pitch / time-stretch on imported audio.",
+      },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: the lineage of sampled music',
+        contextNote:
+          'Trace samples back to their originals — and the originals back to their sources.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -894,8 +1085,17 @@ const activities = [
     standards: ['Performing', 'Responding', 'Connecting'],
     impactValues: ['Accessible', 'Inclusive', 'Community-Responsive'],
     atlasResources: [
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: stylistic loops', contextNote: 'Each genre lesson includes its signature loop with notation.' },
-      { module: 'studio', label: 'Atlas Studio: lock in with a backing track', contextNote: 'Loop a style track and play along.' },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: stylistic loops',
+        contextNote:
+          'Each genre lesson includes its signature loop with notation.',
+      },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: lock in with a backing track',
+        contextNote: 'Loop a style track and play along.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -915,17 +1115,26 @@ const activities = [
     assessment: 'Output: Did student produce a 1- or 2-bar original melody?',
     clos: {
       awarenessOfFeeling:
-        'When I write a hook that I actually want to hum to myself, I feel like a real songwriter — even if it\'s only two bars long.',
+        "When I write a hook that I actually want to hum to myself, I feel like a real songwriter — even if it's only two bars long.",
       awarenessOfTechnique:
         'I can write a 1- or 2-bar melody by choosing a key center and selecting notes from the major or pentatonic scale to shape into a memorable phrase.',
       awarenessOfContext:
-        'Pop music lives and dies by the hook. Songwriters from Max Martin to Mariah Carey have built careers on the ability to write a melody you can\'t forget.',
+        "Pop music lives and dies by the hook. Songwriters from Max Martin to Mariah Carey have built careers on the ability to write a melody you can't forget.",
     },
     standards: ['Creating', 'Performing'],
     impactValues: ['Modern', 'Accessible', 'Empowerment'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: hook writing template', contextNote: 'Quick 4-bar template with a chord progression underneath; students drop their hook on top.' },
-      { module: 'theory-lesson', label: 'Atlas Theory: scales for melody writing', contextNote: 'Major and pentatonic scales as melodic resources.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: hook writing template',
+        contextNote:
+          'Quick 4-bar template with a chord progression underneath; students drop their hook on top.',
+      },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: scales for melody writing',
+        contextNote: 'Major and pentatonic scales as melodic resources.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -942,7 +1151,8 @@ const activities = [
       'Students come up with a word or short phrase and put it to rhythm — speak it, then clap it, then play it. They perform one chord in that rhythm. Then expand to 2 chords over 4 bars, then 4 chords over 4 bars, and eventually an 8-bar structure. Rhythmic invention from spoken language.',
     learningOutcome:
       'Students discover that rhythm comes from speech, and that they can generate musical rhythms from any word or phrase that matters to them.',
-    assessment: 'Output: Did student create and perform a rhythmic chord pattern derived from a phrase?',
+    assessment:
+      'Output: Did student create and perform a rhythmic chord pattern derived from a phrase?',
     clos: {
       awarenessOfFeeling:
         'When I turn a phrase I made up into a rhythm, the rhythm feels personal — like my voice is hiding inside the chord.',
@@ -954,7 +1164,11 @@ const activities = [
     standards: ['Creating', 'Performing'],
     impactValues: ['Inclusive', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: rhythmic chord sketches', contextNote: 'Record the rhythmic pattern and loop it.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: rhythmic chord sketches',
+        contextNote: 'Record the rhythmic pattern and loop it.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -971,7 +1185,8 @@ const activities = [
       'Students learn an existing bass line from a relevant song or style on the low/left side of the keyboard, or the bottom strings of bass or guitar. Then they create their own bass line within a key center or over a given chord progression. Students take turns jamming with a play-along or instructor and collaborate with peers who are creating chords, melodies, or rhythms.',
     learningOutcome:
       'Students learn that the bass line is the engine of a song, and that writing a good one is a discipline of restraint and rhythmic feel.',
-    assessment: 'Output: Did student create and perform a bass line that locks into a given context?',
+    assessment:
+      'Output: Did student create and perform a bass line that locks into a given context?',
     clos: {
       awarenessOfFeeling:
         'When my bass line locks in with the drums, I feel the song lift off the ground.',
@@ -983,8 +1198,18 @@ const activities = [
     standards: ['Creating', 'Performing'],
     impactValues: ['Accessible', 'Modern'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: bass-line sketchpad', contextNote: 'Loop a drum and chord track and write a bass line over it.' },
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: bass line conventions per style', contextNote: 'Walking bass in jazz, root-fifth in country, syncopated in funk, etc.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: bass-line sketchpad',
+        contextNote:
+          'Loop a drum and chord track and write a bass line over it.',
+      },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: bass line conventions per style',
+        contextNote:
+          'Walking bass in jazz, root-fifth in country, syncopated in funk, etc.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1001,7 +1226,8 @@ const activities = [
       'Students explore common chord progressions (I–V–vi–IV, ii–V–I, 12-bar blues, doo-wop changes) and then craft their own. Start with diatonic options in a chosen key, then introduce borrowed chords or modal interchange for color. Pair with a melody or rhythm pattern from earlier activities.',
     learningOutcome:
       'Students understand that chord progressions are recipes — there are common ones for good reasons, and they can author their own.',
-    assessment: 'Output: Did student create a chord progression they can perform or program?',
+    assessment:
+      'Output: Did student create a chord progression they can perform or program?',
     clos: {
       awarenessOfFeeling:
         'When I find the right chord progression, the emotion of the song comes into focus — the chords are doing as much work as the lyrics.',
@@ -1013,8 +1239,16 @@ const activities = [
     standards: ['Creating', 'Performing'],
     impactValues: ['Accessible', 'Modern'],
     atlasResources: [
-      { module: 'theory-lesson', label: 'Atlas Theory: chord progression library', contextNote: 'Common progressions across styles, with examples.' },
-      { module: 'studio', label: 'Atlas Studio: chord progression sketchpad', contextNote: 'Lay down chord changes and loop them.' },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: chord progression library',
+        contextNote: 'Common progressions across styles, with examples.',
+      },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: chord progression sketchpad',
+        contextNote: 'Lay down chord changes and loop them.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1031,19 +1265,24 @@ const activities = [
       'Students pair up to work on a short piece — one writes a melody, the other writes a bass line; one chords, the other improvises; one beats, the other raps. The duo format makes collaboration intimate, low-stakes, and high-feedback.',
     learningOutcome:
       'Students experience musical collaboration at its smallest scale — and learn to negotiate, listen, and combine ideas.',
-    assessment: 'Output and participation: Did the duo produce something they can play or record together?',
+    assessment:
+      'Output and participation: Did the duo produce something they can play or record together?',
     clos: {
       awarenessOfFeeling:
         'When I collaborate with a partner who has different strengths than me, I feel like the music is bigger than either of us could have made alone.',
       awarenessOfTechnique:
-        'I can coordinate my musical part with a partner\'s — adjusting rhythm, register, dynamics, and timing so we sound good together.',
+        "I can coordinate my musical part with a partner's — adjusting rhythm, register, dynamics, and timing so we sound good together.",
       awarenessOfContext:
         'Duos are everywhere — Lennon-McCartney, Daft Punk, Outkast, Simon and Garfunkel. Two-person creative partnerships have produced some of the most enduring music.',
     },
     standards: ['Creating', 'Performing'],
     impactValues: ['Prosocial', 'Community-Responsive', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: duo session template', contextNote: 'A 2-track template designed for two collaborators.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: duo session template',
+        contextNote: 'A 2-track template designed for two collaborators.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1060,19 +1299,24 @@ const activities = [
       'Students form small groups (3–5) and work on a short piece together. Roles can be assigned (performer, producer, lyricist, marketer) or emergent. Each group makes choices, divides labor, and produces an artifact in the time given.',
     learningOutcome:
       'Students learn to navigate the dynamics of a small creative team — listening, advocating, compromising, and finishing.',
-    assessment: 'Output and participation: Did the group produce a shared artifact? Did each member contribute?',
+    assessment:
+      'Output and participation: Did the group produce a shared artifact? Did each member contribute?',
     clos: {
       awarenessOfFeeling:
-        'When a small group I\'m in finishes something together, I feel proud in a different way than when I make something alone — there are layers I couldn\'t have added myself.',
+        "When a small group I'm in finishes something together, I feel proud in a different way than when I make something alone — there are layers I couldn't have added myself.",
       awarenessOfTechnique:
-        'I can contribute a specific skill or role to a small creative team — playing my part, voicing my opinion, supporting someone else\'s idea.',
+        "I can contribute a specific skill or role to a small creative team — playing my part, voicing my opinion, supporting someone else's idea.",
       awarenessOfContext:
         'Most working bands and creative teams are 3–5 people. Learning to make music in a small group is learning to make music in the real world.',
     },
     standards: ['Creating', 'Performing', 'Presenting'],
     impactValues: ['Prosocial', 'Community-Responsive', 'Inclusive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: small-group project space', contextNote: 'Shared multitrack project with role assignments.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: small-group project space',
+        contextNote: 'Shared multitrack project with role assignments.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1086,22 +1330,28 @@ const activities = [
     purpose: 'Skill Building',
     initiationStyle: 'try-it-first',
     description:
-      'A student who knows a technique, song, or concept teaches it to two or three classmates. The teacher\'s job is to set up the structure and step back. Teaching what you know is one of the fastest ways to know it deeply.',
+      "A student who knows a technique, song, or concept teaches it to two or three classmates. The teacher's job is to set up the structure and step back. Teaching what you know is one of the fastest ways to know it deeply.",
     learningOutcome:
       'Students consolidate their own learning by teaching it — and develop the meta-skill of breaking a concept down for someone else.',
-    assessment: 'Output: Did the teaching student produce a peer who can do or recognize the thing? Did the peers improve?',
+    assessment:
+      'Output: Did the teaching student produce a peer who can do or recognize the thing? Did the peers improve?',
     clos: {
       awarenessOfFeeling:
         'When I teach something I know to a classmate, I feel my own understanding click into place in a new way — and I get to be the expert for a minute.',
       awarenessOfTechnique:
-        'I can explain a technique or concept clearly enough that a peer can do it themselves. I can break it into steps and adjust based on what they\'re struggling with.',
+        "I can explain a technique or concept clearly enough that a peer can do it themselves. I can break it into steps and adjust based on what they're struggling with.",
       awarenessOfContext:
         'Peer teaching is one of the most effective learning methods we know of. Many musicians learn primarily from each other, not from formal instruction.',
     },
     standards: ['Performing', 'Connecting'],
     impactValues: ['Prosocial', 'Inclusive', 'Empowerment'],
     atlasResources: [
-      { module: 'theory-lesson', label: 'Atlas Theory: source material for peer teaching', contextNote: 'Students can reference Atlas Theory while teaching peers a concept.' },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: source material for peer teaching',
+        contextNote:
+          'Students can reference Atlas Theory while teaching peers a concept.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1118,7 +1368,8 @@ const activities = [
       'Students learn to recognize and construct 2-bar loops, 4-bar loops, and 8-bar sections — the building blocks of most popular music. Teacher demonstrates each scale and has students count along, then build their own loops at each length using Atlas Studio.',
     learningOutcome:
       'Students develop an architectural sense of musical time — knowing where they are in a 2-bar loop vs. an 8-bar section, and what each scale is good for.',
-    assessment: 'Output: Did student build and play loops at each of the three lengths?',
+    assessment:
+      'Output: Did student build and play loops at each of the three lengths?',
     clos: {
       awarenessOfFeeling:
         'When I can feel where I am in a loop, music stops feeling like a wash and starts feeling like a place I can move around in.',
@@ -1130,8 +1381,16 @@ const activities = [
     standards: ['Performing', 'Creating', 'Responding'],
     impactValues: ['Accessible', 'Modern'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: loop construction', contextNote: 'Build loops at different lengths and see them visually.' },
-      { module: 'theory-lesson', label: 'Atlas Theory: musical phrase lengths', contextNote: 'Why 4- and 8-bar phrases are so common.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: loop construction',
+        contextNote: 'Build loops at different lengths and see them visually.',
+      },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: musical phrase lengths',
+        contextNote: 'Why 4- and 8-bar phrases are so common.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1148,10 +1407,11 @@ const activities = [
       'Students learn to map and construct full song forms — verse-chorus, verse-chorus-bridge, AABA, 12-bar blues, through-composed. Teacher plays examples and students label sections in real time; then students build their own form in Atlas Studio.',
     learningOutcome:
       'Students see the song as an architecture — understanding why bridges feel like bridges and why a chorus that returns feels like home.',
-    assessment: 'Output: Did student correctly label sections in a recording? Did they build their own song form?',
+    assessment:
+      'Output: Did student correctly label sections in a recording? Did they build their own song form?',
     clos: {
       awarenessOfFeeling:
-        'When I notice the form of a song — the chorus coming back, the bridge taking us somewhere new — I feel like I\'m hearing the architecture of the song, not just the surface.',
+        "When I notice the form of a song — the chorus coming back, the bridge taking us somewhere new — I feel like I'm hearing the architecture of the song, not just the surface.",
       awarenessOfTechnique:
         'I can identify and construct standard song forms: verse-chorus, verse-chorus-bridge, AABA, 12-bar blues. I can label sections in a recording in real time.',
       awarenessOfContext:
@@ -1160,9 +1420,21 @@ const activities = [
     standards: ['Creating', 'Responding', 'Connecting'],
     impactValues: ['Accessible', 'Community-Responsive', 'Modern'],
     atlasResources: [
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: song forms by style', contextNote: 'Each genre lesson covers its typical song forms.' },
-      { module: 'studio', label: 'Atlas Studio: section-aware composition', contextNote: 'Studio supports building a song by section.' },
-      { module: 'theory-lesson', label: 'Atlas Theory: song forms in history', contextNote: 'Where these forms come from.' },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: song forms by style',
+        contextNote: 'Each genre lesson covers its typical song forms.',
+      },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: section-aware composition',
+        contextNote: 'Studio supports building a song by section.',
+      },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: song forms in history',
+        contextNote: 'Where these forms come from.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1179,7 +1451,8 @@ const activities = [
       'Big goal: the class produces an album together over a semester or year. Across the project, students apply music fundamentals (rhythm, harmony, melody, song form, lyrics), learn cover songs, write original songs, record them, mix and master in Atlas Studio, create artwork, and perform the result. Roles can rotate across songs.',
     learningOutcome:
       'Students execute a complete music industry workflow — from initial idea through performance — as part of a community of artists.',
-    assessment: 'Output and process: Did the album get made? Did each student contribute meaningful work? Did the project teach what it was supposed to teach?',
+    assessment:
+      'Output and process: Did the album get made? Did each student contribute meaningful work? Did the project teach what it was supposed to teach?',
     clos: {
       awarenessOfFeeling:
         'When my class finishes an album together, I feel like part of something bigger than just my own work — I helped make this real thing exist.',
@@ -1188,11 +1461,31 @@ const activities = [
       awarenessOfContext:
         'A class album is a microcosm of how music actually gets made — with deadlines, division of labor, creative disagreements, and a finished artifact at the end.',
     },
-    standards: ['Creating', 'Performing', 'Producing', 'Presenting', 'Connecting'],
-    impactValues: ['Inclusive', 'Modern', 'Community-Responsive', 'Empowerment'],
+    standards: [
+      'Creating',
+      'Performing',
+      'Producing',
+      'Presenting',
+      'Connecting',
+    ],
+    impactValues: [
+      'Inclusive',
+      'Modern',
+      'Community-Responsive',
+      'Empowerment',
+    ],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: shared album project', contextNote: 'A multitrack project that holds the whole class album.' },
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: production conventions', contextNote: 'Reference for how albums in different styles are produced.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: shared album project',
+        contextNote: 'A multitrack project that holds the whole class album.',
+      },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: production conventions',
+        contextNote:
+          'Reference for how albums in different styles are produced.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1209,10 +1502,11 @@ const activities = [
       'Find a story or a few stories to choose from with the class, and make music from it. Either: (1) create a backing track, soundscape, or instrumental soundtrack in Atlas Studio; or (2) use the story as a springboard for songwriting. Can be done as a class, in groups, or with short poems assigned to small groups.',
     learningOutcome:
       'Students translate narrative into music — building on the listening work where they learned how composers tell stories.',
-    assessment: 'Output: Did the class produce a soundtrack that responds to the story?',
+    assessment:
+      'Output: Did the class produce a soundtrack that responds to the story?',
     clos: {
       awarenessOfFeeling:
-        'When I write music to a story, I feel like I\'m collaborating with the writer — adding something the words couldn\'t say.',
+        "When I write music to a story, I feel like I'm collaborating with the writer — adding something the words couldn't say.",
       awarenessOfTechnique:
         'I can match musical choices — tempo, instrumentation, dynamics, mode — to specific moments in a narrative.',
       awarenessOfContext:
@@ -1221,7 +1515,11 @@ const activities = [
     standards: ['Creating', 'Producing'],
     impactValues: ['Modern', 'Accessible', 'Inclusive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: narrative scoring template', contextNote: 'Match musical sections to story beats.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: narrative scoring template',
+        contextNote: 'Match musical sections to story beats.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1239,8 +1537,9 @@ const activities = [
     description:
       'A community composition project: participants contribute individual musical elements that are woven together into a single cohesive piece. Each student brings one fragment — a 2-bar melody, a chord, a lyric, a percussion pattern. The class assembles them into a song in Atlas Studio.',
     learningOutcome:
-      'Students experience how small individual contributions become a collective whole — and that everyone\'s voice has a place in the mosaic.',
-    assessment: 'Output: Did the class produce a finished mosaic? Did every student\'s contribution appear in the final?',
+      "Students experience how small individual contributions become a collective whole — and that everyone's voice has a place in the mosaic.",
+    assessment:
+      "Output: Did the class produce a finished mosaic? Did every student's contribution appear in the final?",
     clos: {
       awarenessOfFeeling:
         'When my one small fragment becomes part of a finished class song, I feel my contribution mattered — even if it was tiny.',
@@ -1252,7 +1551,11 @@ const activities = [
     standards: ['Creating', 'Performing', 'Connecting'],
     impactValues: ['Inclusive', 'Community-Responsive', 'Prosocial'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: collaborative project', contextNote: 'Shared canvas for the mosaic.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: collaborative project',
+        contextNote: 'Shared canvas for the mosaic.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1269,7 +1572,8 @@ const activities = [
       'Students weave notes together to create a new melodic phrase. Each student plays one note or one small motif, in turn, building a longer melodic line cooperatively. Encourages listening, decision-making, and surrender to the group.',
     learningOutcome:
       'Students learn that melody is a sequence of intentional choices — and that good melodies emerge from listening to what came just before.',
-    assessment: 'Participation: Did student play their note or phrase in turn, listening to the group?',
+    assessment:
+      'Participation: Did student play their note or phrase in turn, listening to the group?',
     clos: {
       awarenessOfFeeling:
         'When I add my note to a melody other students are building, I feel both responsible and freed — the melody is bigger than any of us.',
@@ -1296,7 +1600,8 @@ const activities = [
       'Students use audio samples to create new ideas — combining them in unexpected ways. Each student selects 2–3 samples from a shared pool (or records their own); the class assembles a collage in Atlas Studio that combines all contributions into a single sonic landscape.',
     learningOutcome:
       'Students experiment with the boundaries of music vs. noise, and learn that juxtaposition is itself a creative act.',
-    assessment: 'Output: Did the class produce a collage that combines diverse contributions?',
+    assessment:
+      'Output: Did the class produce a collage that combines diverse contributions?',
     clos: {
       awarenessOfFeeling:
         'When unrelated sounds end up next to each other in a collage, I sometimes hear connections nobody intended — the work surprises us.',
@@ -1308,7 +1613,11 @@ const activities = [
     standards: ['Creating', 'Producing'],
     impactValues: ['Modern', 'Accessible', 'Inclusive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: collage canvas', contextNote: 'Multitrack environment for sample layering.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: collage canvas',
+        contextNote: 'Multitrack environment for sample layering.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1325,10 +1634,11 @@ const activities = [
       'A therapeutic drum circle that creates a safe, inclusive space for participants to connect with themselves and each other through rhythm. The steady beat provides a grounding effect; the group rhythm provides connection. Use frame drums, djembes, hand drums, or even body percussion. No music-reading required.',
     learningOutcome:
       'Students experience drumming as a regulating, community-building practice — and discover that they don\'t need to "be a musician" to participate.',
-    assessment: 'Participation: Did student join the circle and play in some form?',
+    assessment:
+      'Participation: Did student join the circle and play in some form?',
     clos: {
       awarenessOfFeeling:
-        'When I\'m in a drum circle, I feel calmer and more connected — like the rhythm is doing something for my body that I couldn\'t do alone.',
+        "When I'm in a drum circle, I feel calmer and more connected — like the rhythm is doing something for my body that I couldn't do alone.",
       awarenessOfTechnique:
         'I can find a simple steady pulse and contribute to a group rhythm without needing to read music.',
       awarenessOfContext:
@@ -1337,7 +1647,12 @@ const activities = [
     standards: ['Performing', 'Connecting'],
     impactValues: ['Therapeutic', 'Inclusive', 'Community-Responsive'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: drum traditions of the world', contextNote: 'After the circle, explore the traditions that drum circles emerged from.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: drum traditions of the world',
+        contextNote:
+          'After the circle, explore the traditions that drum circles emerged from.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1357,7 +1672,7 @@ const activities = [
     assessment: 'Participation: Did student attempt to align breath and beat?',
     clos: {
       awarenessOfFeeling:
-        'When I align my breath with the beat, I feel my whole body settle into the music in a way that doesn\'t happen with breath or music alone.',
+        "When I align my breath with the beat, I feel my whole body settle into the music in a way that doesn't happen with breath or music alone.",
       awarenessOfTechnique:
         'I can synchronize a 4-count breath cycle with a 4/4 musical pulse at slow tempo.',
       awarenessOfContext:
@@ -1366,7 +1681,11 @@ const activities = [
     standards: ['Performing', 'Connecting'],
     impactValues: ['Therapeutic', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: slow-tempo backing track', contextNote: 'Use a 60-bpm Studio track as the breath/rhythm anchor.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: slow-tempo backing track',
+        contextNote: 'Use a 60-bpm Studio track as the breath/rhythm anchor.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1382,11 +1701,12 @@ const activities = [
     description:
       'One student is secretly tapped to play a melody over a backing track. The rest of the class listens and tries to guess who played. Develops listening, improvisation, and musical memory.',
     learningOutcome:
-      'Students learn to listen for individual character in performance — and to play with confidence even when they\'re not sure who\'s watching.',
-    assessment: 'Participation: Did student play their phrase when tapped, and listen attentively otherwise?',
+      "Students learn to listen for individual character in performance — and to play with confidence even when they're not sure who's watching.",
+    assessment:
+      'Participation: Did student play their phrase when tapped, and listen attentively otherwise?',
     clos: {
       awarenessOfFeeling:
-        'When I\'m the secret player, I feel braver than I expected — and when I\'m the listener, I notice details about my classmates\' playing I never noticed before.',
+        "When I'm the secret player, I feel braver than I expected — and when I'm the listener, I notice details about my classmates' playing I never noticed before.",
       awarenessOfTechnique:
         'I can improvise a short melody over a backing track. I can listen for individual character — touch, timing, note choice — in a performance.',
       awarenessOfContext:
@@ -1395,7 +1715,11 @@ const activities = [
     standards: ['Performing', 'Responding'],
     impactValues: ['Prosocial', 'Inclusive', 'Empowerment'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: backing tracks for the game', contextNote: 'Loop a Studio track as the bed.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: backing tracks for the game',
+        contextNote: 'Loop a Studio track as the bed.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1412,20 +1736,31 @@ const activities = [
       'Class divides in two — one group creates chord progressions for a verse, the other group creates pentatonic-scale melodies. Then students switch partners and groups, playing their chords and melodies together to form a complete composition. Several rotations build a class library of mix-and-match musical material.',
     learningOutcome:
       'Students experience how melody and harmony combine modularly — that many melodies can fit one chord progression, and many progressions can support one melody.',
-    assessment: 'Output and participation: Did each student produce chords or melody, and did pairs combine them?',
+    assessment:
+      'Output and participation: Did each student produce chords or melody, and did pairs combine them?',
     clos: {
       awarenessOfFeeling:
-        'When my melody works over a chord progression I\'ve never heard before, I feel like the music is happening to me, not from me.',
+        "When my melody works over a chord progression I've never heard before, I feel like the music is happening to me, not from me.",
       awarenessOfTechnique:
-        'I can write a chord progression in a key, or a pentatonic melody in a key, and combine them with a partner\'s work.',
+        "I can write a chord progression in a key, or a pentatonic melody in a key, and combine them with a partner's work.",
       awarenessOfContext:
         'Most popular music is modular — the same chord progressions support many melodies, the same melodies sit over many chord progressions. Recognizing this is recognizing how songs get built.',
     },
     standards: ['Creating', 'Performing'],
     impactValues: ['Prosocial', 'Accessible', 'Modern'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: chord + melody combiner', contextNote: 'Two tracks — chords and melody — that any pair can populate.' },
-      { module: 'theory-lesson', label: 'Atlas Theory: pentatonic scales', contextNote: 'The pentatonic scale and why it works over so many chord changes.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: chord + melody combiner',
+        contextNote:
+          'Two tracks — chords and melody — that any pair can populate.',
+      },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: pentatonic scales',
+        contextNote:
+          'The pentatonic scale and why it works over so many chord changes.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1442,14 +1777,15 @@ const activities = [
       'A musical hot-and-cold game. One student leaves the room; another hides an object. When the seeker returns, the class plays music to guide them — louder as they approach the object, softer as they move away. Teaches dynamics as a communicative tool.',
     learningOutcome:
       'Students experience dynamics as expressive information — and learn to control their volume responsively to a real-time situation.',
-    assessment: 'Participation: Did student participate as seeker and/or class musician?',
+    assessment:
+      'Participation: Did student participate as seeker and/or class musician?',
     clos: {
       awarenessOfFeeling:
-        'When I\'m the seeker following the volume of the music, I feel like the class is guiding me with sound — like the dynamics are speaking.',
+        "When I'm the seeker following the volume of the music, I feel like the class is guiding me with sound — like the dynamics are speaking.",
       awarenessOfTechnique:
         'I can control my dynamics — loud, soft, and gradients between — responsively in real time.',
       awarenessOfContext:
-        'Dynamics are one of music\'s most powerful expressive tools. A whisper followed by a shout can move an audience more than any note choice.',
+        "Dynamics are one of music's most powerful expressive tools. A whisper followed by a shout can move an audience more than any note choice.",
     },
     standards: ['Performing', 'Responding'],
     impactValues: ['Inclusive', 'Prosocial', 'Accessible'],
@@ -1469,10 +1805,11 @@ const activities = [
       'A music-driven version of tag. Students must move their bodies to a quarter-note pulse — and tag other students — while the instructor adjusts the tempo unpredictably. Sudden slowdowns and accelerations force students to recalibrate their movement in real time.',
     learningOutcome:
       'Students embody changing tempo with their whole body — building rhythmic flexibility and physical timing awareness.',
-    assessment: 'Participation: Did student move with the pulse and adjust to tempo changes?',
+    assessment:
+      'Participation: Did student move with the pulse and adjust to tempo changes?',
     clos: {
       awarenessOfFeeling:
-        'When the tempo changes and I have to adjust, I feel my body and the music having to negotiate — it\'s funny, it\'s focused, it\'s alive.',
+        "When the tempo changes and I have to adjust, I feel my body and the music having to negotiate — it's funny, it's focused, it's alive.",
       awarenessOfTechnique:
         'I can move my body in time to a pulse, and adjust my movement when the tempo changes.',
       awarenessOfContext:
@@ -1481,7 +1818,12 @@ const activities = [
     standards: ['Performing'],
     impactValues: ['Inclusive', 'Accessible', 'Prosocial'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: tempo control', contextNote: 'Studio can change tempo in real time — useful for running this game.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: tempo control',
+        contextNote:
+          'Studio can change tempo in real time — useful for running this game.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1498,14 +1840,15 @@ const activities = [
       'An ear-training game. One student is blindfolded at one end of a marked maze; classmates spread out through the maze, each playing a unique sound (bell, shaker, drum). The blindfolded student must navigate by sound alone. Variations: switch sounds mid-game, add time limits, change positions.',
     learningOutcome:
       'Students develop spatial listening — the ability to locate and track sounds in three-dimensional space.',
-    assessment: 'Participation: Did student attempt to navigate by sound, or hold a sound for a navigator?',
+    assessment:
+      'Participation: Did student attempt to navigate by sound, or hold a sound for a navigator?',
     clos: {
       awarenessOfFeeling:
         'When I navigate the maze with only my ears, I feel my sense of hearing become primary in a way it almost never is.',
       awarenessOfTechnique:
         'I can identify the direction a sound is coming from, and track its source as I move.',
       awarenessOfContext:
-        'Spatial hearing is one of the brain\'s oldest skills — and it\'s why stereo and surround production matter so much in modern music.',
+        "Spatial hearing is one of the brain's oldest skills — and it's why stereo and surround production matter so much in modern music.",
     },
     standards: ['Responding', 'Performing'],
     impactValues: ['Accessible', 'Inclusive', 'Prosocial'],
@@ -1525,7 +1868,8 @@ const activities = [
       'Teacher (or student) plays a chord, then acts out the emotion that chord conveys — happiness, sadness, excitement, tranquility, mystery. Class guesses the emotion. Starts with major and minor triads, advances to 7th chords, suspensions, and modal chords.',
     learningOutcome:
       'Students train their ear to identify chord quality by emotional fingerprint — and learn the affective language of harmony.',
-    assessment: 'Participation: Did student guess the emotion or play a chord-with-emotion themselves?',
+    assessment:
+      'Participation: Did student guess the emotion or play a chord-with-emotion themselves?',
     clos: {
       awarenessOfFeeling:
         'When I learn that a specific chord quality has a specific feel, I start hearing those colors in every song I listen to.',
@@ -1537,8 +1881,16 @@ const activities = [
     standards: ['Responding', 'Performing'],
     impactValues: ['Accessible', 'Inclusive', 'Prosocial'],
     atlasResources: [
-      { module: 'theory-lesson', label: 'Atlas Theory: chord qualities and their emotional fingerprints', contextNote: 'Reference material for the game.' },
-      { module: 'arcade', label: 'Atlas Arcade: chord ear-training games', contextNote: 'Solo practice version of the same skill.' },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: chord qualities and their emotional fingerprints',
+        contextNote: 'Reference material for the game.',
+      },
+      {
+        module: 'arcade',
+        label: 'Atlas Arcade: chord ear-training games',
+        contextNote: 'Solo practice version of the same skill.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1552,13 +1904,14 @@ const activities = [
     purpose: 'Community Creativity',
     initiationStyle: 'try-it-first',
     description:
-      'Students look at visual artwork and write lyrics inspired by it. Teacher provides paintings, photographs, sculptures, or other visual art. Students reflect on the artwork\'s themes, mood, and details, then write lyrics that capture or respond to it. Share and discuss at the end.',
+      "Students look at visual artwork and write lyrics inspired by it. Teacher provides paintings, photographs, sculptures, or other visual art. Students reflect on the artwork's themes, mood, and details, then write lyrics that capture or respond to it. Share and discuss at the end.",
     learningOutcome:
       'Students cross-train between visual and lyrical art — using one medium to access the other, and discovering that they share emotional vocabulary.',
-    assessment: 'Output: Did student produce lyrics in response to the artwork?',
+    assessment:
+      'Output: Did student produce lyrics in response to the artwork?',
     clos: {
       awarenessOfFeeling:
-        'When I write lyrics in response to a painting, I find words I wouldn\'t have found from looking at a blank page — the image is doing some of the work.',
+        "When I write lyrics in response to a painting, I find words I wouldn't have found from looking at a blank page — the image is doing some of the work.",
       awarenessOfTechnique:
         'I can study a piece of visual art and translate what I see into lyrics that capture its mood, story, or theme.',
       awarenessOfContext:
@@ -1567,13 +1920,16 @@ const activities = [
     standards: ['Creating', 'Connecting'],
     impactValues: ['Inclusive', 'Community-Responsive', 'Accessible'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: cross-disciplinary art collections', contextNote: 'Curated visual art available for lyric prompts.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: cross-disciplinary art collections',
+        contextNote: 'Curated visual art available for lyric prompts.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
     createdAt: CREATED_AT,
   },
-
 
   /* ============================================================
      PHASE 3: CREATIVE PROJECTS
@@ -1589,10 +1945,11 @@ const activities = [
       'Students developing two-hand independence on the keyboard learn to play a chord with their left hand while playing a melody with their right hand. Start with one chord and a 4-note melody, then expand. Slow practice with steady pulse is essential.',
     learningOutcome:
       'Students achieve the foundational coordination of playing harmony and melody together — the basis of most keyboard music.',
-    assessment: 'Performance: Did student play LH chord + RH melody at a steady tempo with reasonable accuracy?',
+    assessment:
+      'Performance: Did student play LH chord + RH melody at a steady tempo with reasonable accuracy?',
     clos: {
       awarenessOfFeeling:
-        'When my hands first stop fighting each other and play together, I feel like I unlocked something my brain didn\'t know it could do.',
+        "When my hands first stop fighting each other and play together, I feel like I unlocked something my brain didn't know it could do.",
       awarenessOfTechnique:
         'I can play a sustained or repeated chord in my left hand while playing an independent melody in my right hand at a steady tempo.',
       awarenessOfContext:
@@ -1601,8 +1958,16 @@ const activities = [
     standards: ['Performing'],
     impactValues: ['Accessible', 'Empowerment'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: practice with a metronome', contextNote: 'Slow practice with click is essential.' },
-      { module: 'theory-lesson', label: 'Atlas Theory: chord voicings for the left hand', contextNote: 'Common left-hand chord voicings.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: practice with a metronome',
+        contextNote: 'Slow practice with click is essential.',
+      },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: chord voicings for the left hand',
+        contextNote: 'Common left-hand chord voicings.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1619,7 +1984,8 @@ const activities = [
       'Students play a moving bass line with their left hand while playing a melody with their right hand. Requires real two-hand independence since both hands have rhythmic motion. Start simple — root-fifth bass line, simple melody — and build.',
     learningOutcome:
       'Students develop independence of moving lines in both hands — the next step beyond static chord support.',
-    assessment: 'Performance: Did student play moving LH bass + RH melody at a steady tempo?',
+    assessment:
+      'Performance: Did student play moving LH bass + RH melody at a steady tempo?',
     clos: {
       awarenessOfFeeling:
         'When I can play a walking bass line under my own melody, I feel like a one-person band.',
@@ -1631,7 +1997,11 @@ const activities = [
     standards: ['Performing'],
     impactValues: ['Accessible', 'Empowerment'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: practice with backing track', contextNote: 'Play LH + RH against a drum track to lock in rhythm.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: practice with backing track',
+        contextNote: 'Play LH + RH against a drum track to lock in rhythm.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1648,20 +2018,29 @@ const activities = [
       'Students play a bass line in their left hand while playing chords in their right hand. The classic rhythm-section keyboard texture. Start with simple root-fifth bass and triadic chords; build to walking bass with extended chord voicings.',
     learningOutcome:
       'Students develop the rhythm-section keyboard role — bass and chords in two hands, the way most professional comping is structured.',
-    assessment: 'Performance: Did student play LH bass + RH chords at a steady tempo?',
+    assessment:
+      'Performance: Did student play LH bass + RH chords at a steady tempo?',
     clos: {
       awarenessOfFeeling:
-        'When I can comp bass and chords at the same time, I feel like I can accompany any singer or instrumentalist — I\'m a whole rhythm section by myself.',
+        "When I can comp bass and chords at the same time, I feel like I can accompany any singer or instrumentalist — I'm a whole rhythm section by myself.",
       awarenessOfTechnique:
         'I can play an independent bass line with my left hand and rhythmically articulated chords with my right hand.',
       awarenessOfContext:
-        'This is the core skill of a comping keyboard player in jazz, R&B, gospel, soul, and rock. It\'s also how solo pianists support themselves.',
+        "This is the core skill of a comping keyboard player in jazz, R&B, gospel, soul, and rock. It's also how solo pianists support themselves.",
     },
     standards: ['Performing'],
     impactValues: ['Accessible', 'Empowerment'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: comping practice', contextNote: 'Play LH + RH along with a melody track.' },
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: comping styles', contextNote: 'How comping varies across jazz, gospel, R&B, etc.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: comping practice',
+        contextNote: 'Play LH + RH along with a melody track.',
+      },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: comping styles',
+        contextNote: 'How comping varies across jazz, gospel, R&B, etc.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1678,7 +2057,8 @@ const activities = [
       'Students play a bass line with their left hand while playing a stylistic technique (montuno, gospel chord-melody, salsa tumbao, jazz comping) with their right hand. Combines technical independence with stylistic vocabulary.',
     learningOutcome:
       'Students integrate stylistic technique into a real two-hand context — the way professional players actually play.',
-    assessment: 'Performance: Did student execute LH bass + RH stylistic technique with reasonable accuracy?',
+    assessment:
+      'Performance: Did student execute LH bass + RH stylistic technique with reasonable accuracy?',
     clos: {
       awarenessOfFeeling:
         'When I can play a montuno in my right hand and a tumbao in my left, I feel the style come alive under my hands.',
@@ -1690,8 +2070,17 @@ const activities = [
     standards: ['Performing', 'Connecting'],
     impactValues: ['Accessible', 'Community-Responsive', 'Empowerment'],
     atlasResources: [
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: full two-hand examples', contextNote: 'Each genre lesson shows the two-hand context for its techniques.' },
-      { module: 'studio', label: 'Atlas Studio: practice with rhythm section', contextNote: 'Play along with drums to lock in.' },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: full two-hand examples',
+        contextNote:
+          'Each genre lesson shows the two-hand context for its techniques.',
+      },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: practice with rhythm section',
+        contextNote: 'Play along with drums to lock in.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1708,10 +2097,11 @@ const activities = [
       'Students identify one note from a key center and improvise short rhythmic phrases using only that one note while the teacher or backing track plays a groove underneath. The constraint of one note unlocks rhythmic creativity and removes the fear of "wrong notes."',
     learningOutcome:
       'Students discover that improvisation is fundamentally about rhythm and phrasing — and that they can improvise with very little pitch material.',
-    assessment: 'Performance: Did student improvise rhythmic phrases on the assigned note over the groove?',
+    assessment:
+      'Performance: Did student improvise rhythmic phrases on the assigned note over the groove?',
     clos: {
       awarenessOfFeeling:
-        'When I improvise with just one note, I feel freed — there\'s nothing to be wrong about, so I can pay attention to how the phrase feels.',
+        "When I improvise with just one note, I feel freed — there's nothing to be wrong about, so I can pay attention to how the phrase feels.",
       awarenessOfTechnique:
         'I can improvise short rhythmic phrases on a single note over a groove, varying duration, accent, and placement within the beat.',
       awarenessOfContext:
@@ -1720,7 +2110,11 @@ const activities = [
     standards: ['Creating', 'Performing'],
     impactValues: ['Accessible', 'Inclusive', 'Empowerment'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: groove backing tracks', contextNote: 'Loop a Studio groove for solo practice.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: groove backing tracks',
+        contextNote: 'Loop a Studio groove for solo practice.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1737,19 +2131,24 @@ const activities = [
       'Two students trade improvised phrases back and forth within a simple structure while a backing track plays. The rule: each phrase should respond to the one before it. Develops listening, call-and-response, and musical dialogue.',
     learningOutcome:
       'Students experience improvisation as conversation — and learn that good soloing is responsive, not just self-expressive.',
-    assessment: 'Performance: Did student trade phrases that responded to their partner\'s phrases?',
+    assessment:
+      "Performance: Did student trade phrases that responded to their partner's phrases?",
     clos: {
       awarenessOfFeeling:
-        'When I trade phrases with someone and they really respond to what I just played, I feel like we\'re actually talking — through music.',
+        "When I trade phrases with someone and they really respond to what I just played, I feel like we're actually talking — through music.",
       awarenessOfTechnique:
-        'I can improvise a short phrase, listen to a partner\'s response, and shape my next phrase based on theirs.',
+        "I can improvise a short phrase, listen to a partner's response, and shape my next phrase based on theirs.",
       awarenessOfContext:
         'Call-and-response is foundational to jazz, blues, gospel, hip hop, and West African music. The "trade fours" of a jazz solo is a direct descendant of African oral tradition.',
     },
     standards: ['Creating', 'Performing', 'Responding'],
     impactValues: ['Prosocial', 'Community-Responsive', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: trading backing tracks', contextNote: 'Loop a section that gives clear "trade" markers.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: trading backing tracks',
+        contextNote: 'Loop a section that gives clear "trade" markers.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1766,14 +2165,15 @@ const activities = [
       'A student improvises a short phrase within agreed parameters (one note, two notes, a starting note within a scale, blues scale, etc.). Like the children\'s game "telephone," each subsequent student around the circle tries to play the same phrase. The phrase mutates as it travels. Great for developing musical memory and ear.',
     learningOutcome:
       'Students train their musical ear by attempting to reproduce what they just heard — and they laugh at how phrases evolve.',
-    assessment: 'Performance: Did student attempt to reproduce the phrase they heard?',
+    assessment:
+      'Performance: Did student attempt to reproduce the phrase they heard?',
     clos: {
       awarenessOfFeeling:
         'When I have to reproduce a phrase by ear, I notice how much of what I "heard" was actually me filling in gaps. The game is funny because we\'re all doing it.',
       awarenessOfTechnique:
         'I can listen to a short improvised phrase and reproduce it on my instrument with reasonable accuracy.',
       awarenessOfContext:
-        'Most music is learned by ear before it\'s learned by notation. The telephone game compresses generations of oral tradition into 30 seconds.',
+        "Most music is learned by ear before it's learned by notation. The telephone game compresses generations of oral tradition into 30 seconds.",
     },
     standards: ['Performing', 'Responding'],
     impactValues: ['Prosocial', 'Inclusive', 'Accessible'],
@@ -1793,10 +2193,11 @@ const activities = [
       'Students improvise short phrases using notes from a specific chord while a backing track plays. Variation: students "approach" a target note in a chord from above, below, or both (enclosure). Builds harmonic awareness in improvisation.',
     learningOutcome:
       'Students learn to improvise with harmonic intention — choosing notes that connect to the underlying chords rather than just running scales.',
-    assessment: 'Performance: Did student improvise phrases that landed on or approached chord tones?',
+    assessment:
+      'Performance: Did student improvise phrases that landed on or approached chord tones?',
     clos: {
       awarenessOfFeeling:
-        'When I land on a chord tone after approaching it from above and below, I feel a satisfaction that\'s different from just running a scale — the line went somewhere.',
+        "When I land on a chord tone after approaching it from above and below, I feel a satisfaction that's different from just running a scale — the line went somewhere.",
       awarenessOfTechnique:
         'I can improvise phrases that target chord tones, using approach notes (chromatic, scalar, enclosures) to add motion and direction.',
       awarenessOfContext:
@@ -1805,8 +2206,16 @@ const activities = [
     standards: ['Creating', 'Performing'],
     impactValues: ['Modern', 'Accessible', 'Empowerment'],
     atlasResources: [
-      { module: 'theory-lesson', label: 'Atlas Theory: chord tones and approach notes', contextNote: 'The theory behind targeting and approaching.' },
-      { module: 'studio', label: 'Atlas Studio: chord-cycling backing tracks', contextNote: 'Loop chord changes for solo practice.' },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: chord tones and approach notes',
+        contextNote: 'The theory behind targeting and approaching.',
+      },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: chord-cycling backing tracks',
+        contextNote: 'Loop chord changes for solo practice.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1823,20 +2232,29 @@ const activities = [
       'Students work individually on specific skills or projects, with intermittent teacher oversight, feedback, and advising. Teacher provides a framework for practice strategy — slow practice, isolated problem spots, looping with the metronome, and reflection.',
     learningOutcome:
       'Students develop the independent practice skills that determine long-term musical growth — far more than any single lesson.',
-    assessment: 'Participation: Did student practice with focus? Written work: Did student log progress in a practice journal?',
+    assessment:
+      'Participation: Did student practice with focus? Written work: Did student log progress in a practice journal?',
     clos: {
       awarenessOfFeeling:
         'When I set a goal and work toward it on my own, I feel my own progress in a way nothing else gives me.',
       awarenessOfTechnique:
-        'I can set a practice goal, work toward it with focused attention, and reflect on what worked and what didn\'t.',
+        "I can set a practice goal, work toward it with focused attention, and reflect on what worked and what didn't.",
       awarenessOfContext:
         'When I run into a specific challenge, I apply a specific strategy — slow practice, looping, isolating problem spots — so my practice is effective, not just long.',
     },
     standards: ['Performing'],
     impactValues: ['Empowerment', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: personal practice environment', contextNote: 'Backing tracks, metronome, recording for self-review.' },
-      { module: 'arcade', label: 'Atlas Arcade: skill-specific drills', contextNote: 'Gamified solo practice for technique work.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: personal practice environment',
+        contextNote: 'Backing tracks, metronome, recording for self-review.',
+      },
+      {
+        module: 'arcade',
+        label: 'Atlas Arcade: skill-specific drills',
+        contextNote: 'Gamified solo practice for technique work.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1853,19 +2271,24 @@ const activities = [
       'Students work in pairs or small groups to write a piece together — practicing complementary roles. One writes melody, another writes chords; one writes lyrics, another writes a beat; etc. The pair coordinates and produces a shared song.',
     learningOutcome:
       'Students learn to write songs collaboratively — a core skill in modern songwriting and production.',
-    assessment: 'Output and participation: Did the team produce a co-written piece?',
+    assessment:
+      'Output and participation: Did the team produce a co-written piece?',
     clos: {
       awarenessOfFeeling:
         'When I co-write with someone whose strengths are different from mine, I feel like the song is bigger than either of us could have made alone.',
       awarenessOfTechnique:
-        'I can coordinate my musical role with a partner\'s — complementing rather than duplicating their work, listening to where my contribution should fit.',
+        "I can coordinate my musical role with a partner's — complementing rather than duplicating their work, listening to where my contribution should fit.",
       awarenessOfContext:
         'Most modern songwriting is collaborative. Pop, hip hop, and country all rely heavily on co-writing teams. Learning to co-write is learning the actual job.',
     },
     standards: ['Creating', 'Connecting'],
     impactValues: ['Prosocial', 'Modern', 'Community-Responsive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: co-write project space', contextNote: 'Shared multitrack for the collaboration.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: co-write project space',
+        contextNote: 'Shared multitrack for the collaboration.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1882,19 +2305,25 @@ const activities = [
       'Students identify music they actually listen to and enjoy — songs, film and video game music, current pop, regional traditions. Teacher uses those choices as the basis for individual and group activities and projects. Repertoire choice becomes an act of student agency.',
     learningOutcome:
       'Students see themselves reflected in the curriculum and develop a working relationship with music they actually care about.',
-    assessment: 'Participation: Did student contribute meaningful musical examples to the curriculum?',
+    assessment:
+      'Participation: Did student contribute meaningful musical examples to the curriculum?',
     clos: {
       awarenessOfFeeling:
         'When the music I love shows up in class, I feel respected — and I work harder because the work matters to me.',
       awarenessOfTechnique:
         'I can analyze what makes my favorite music work — the chord progressions, the rhythms, the production choices — and use those insights to learn or create.',
       awarenessOfContext:
-        'Music isn\'t random or constantly-curated — I have the ability to be an informed listener, consumer, and creator. The more I understand, the more I can choose what I love and explore what\'s new.',
+        "Music isn't random or constantly-curated — I have the ability to be an informed listener, consumer, and creator. The more I understand, the more I can choose what I love and explore what's new.",
     },
     standards: ['Connecting', 'Responding'],
     impactValues: ['Community-Responsive', 'Inclusive', 'Empowerment'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: explore student-chosen music', contextNote: 'Use Globe to dig into the lineage of students\' favorite tracks.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: explore student-chosen music',
+        contextNote:
+          "Use Globe to dig into the lineage of students' favorite tracks.",
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1911,21 +2340,35 @@ const activities = [
       'Students use instruments and Atlas tools independently — with minimal prompts or directives — to explore on their own creative imagination. Teacher may set a goal for sharing afterward, or not. The point is unstructured, curiosity-driven engagement.',
     learningOutcome:
       'Students discover that music is inherently interesting and that they can drive their own exploration without explicit instruction.',
-    assessment: 'Participation: Did student immerse themselves in exploring over the allotted time?',
+    assessment:
+      'Participation: Did student immerse themselves in exploring over the allotted time?',
     clos: {
       awarenessOfFeeling:
         'When I get unstructured time to explore an instrument or Studio, I feel curious and free — not performing for anyone, just finding things out.',
       awarenessOfTechnique:
         'When I discover something I want to learn how to do, I can find or research a way to do it without explicit instruction from a teacher.',
       awarenessOfContext:
-        'Music is inherently interesting. I don\'t need an external goal to enjoy exploring — and many of the best musical discoveries come from undirected play.',
+        "Music is inherently interesting. I don't need an external goal to enjoy exploring — and many of the best musical discoveries come from undirected play.",
     },
     standards: ['Creating', 'Performing', 'Connecting'],
     impactValues: ['Empowerment', 'Accessible', 'Inclusive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: open exploration', contextNote: 'No prescribed task — students sketch, layer, try things.' },
-      { module: 'arcade', label: 'Atlas Arcade: free play', contextNote: 'Games as exploration, not assessment.' },
-      { module: 'globe', label: 'Atlas Globe: free exploration', contextNote: 'Follow curiosity through Globe with no specific assignment.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: open exploration',
+        contextNote: 'No prescribed task — students sketch, layer, try things.',
+      },
+      {
+        module: 'arcade',
+        label: 'Atlas Arcade: free play',
+        contextNote: 'Games as exploration, not assessment.',
+      },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: free exploration',
+        contextNote:
+          'Follow curiosity through Globe with no specific assignment.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1942,10 +2385,11 @@ const activities = [
       'Students create small original projects — a 2-bar looping chord progression, a bass line, a melody, or a single verse or chorus. Low-stakes, high-frequency. Many small completions build the muscle of finishing.',
     learningOutcome:
       'Students learn that composition is accessible and that they can complete a small piece in a single sitting.',
-    assessment: 'Output: Did student complete a small original work? Notation, audio, or written form.',
+    assessment:
+      'Output: Did student complete a small original work? Notation, audio, or written form.',
     clos: {
       awarenessOfFeeling:
-        'When I complete even a 2-bar idea, I feel like a composer. The act of finishing something — anything — changes what I think I\'m capable of.',
+        "When I complete even a 2-bar idea, I feel like a composer. The act of finishing something — anything — changes what I think I'm capable of.",
       awarenessOfTechnique:
         'I can create a 1- or 2-bar rhythm and put chords, bass notes, or melody to it. I can use a lyric, melodic hook, or chord progression as the seed of an original song.',
       awarenessOfContext:
@@ -1954,7 +2398,11 @@ const activities = [
     standards: ['Creating'],
     impactValues: ['Accessible', 'Empowerment', 'Inclusive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: mini-composition templates', contextNote: 'Short-form templates for quick sketches.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: mini-composition templates',
+        contextNote: 'Short-form templates for quick sketches.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -1971,10 +2419,11 @@ const activities = [
       'Students create original music at an individually appropriate scale — from a complete instrumental piece, to a song, to a multi-section work. Open-ended; the goal is a complete, finished piece that the student can call their own.',
     learningOutcome:
       'Students experience the full arc of composing a complete piece — making decisions, revising, finishing, and signing their name.',
-    assessment: 'Notation, recording, or written output: Did student complete a composition within the agreed parameters?',
+    assessment:
+      'Notation, recording, or written output: Did student complete a composition within the agreed parameters?',
     clos: {
       awarenessOfFeeling:
-        'When I finish a complete piece I wrote, I feel proud in a way nothing else gives me. It\'s mine.',
+        "When I finish a complete piece I wrote, I feel proud in a way nothing else gives me. It's mine.",
       awarenessOfTechnique:
         'I can use whatever techniques I have at my disposal to create music. I can apply my creative imagination to vary and develop techniques and musical ideas.',
       awarenessOfContext:
@@ -1983,8 +2432,16 @@ const activities = [
     standards: ['Creating', 'Performing'],
     impactValues: ['Empowerment', 'Accessible', 'Inclusive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: composition environment', contextNote: 'Full multitrack for composing longer works.' },
-      { module: 'theory-lesson', label: 'Atlas Theory: composition techniques', contextNote: 'Reference material for developing musical ideas.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: composition environment',
+        contextNote: 'Full multitrack for composing longer works.',
+      },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: composition techniques',
+        contextNote: 'Reference material for developing musical ideas.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2001,10 +2458,11 @@ const activities = [
       'Students dive into a music-related topic to gain and present information, draw informed conclusions, articulate educated opinions, and engage in intelligent discussion. Topics can range from a specific artist or style to a technology, an instrument, a movement, or an unresolved question in music history.',
     learningOutcome:
       'Students develop the discipline of research and critical thinking applied to music — and produce a substantial intellectual artifact.',
-    assessment: 'Presentation and/or written work or video: Did student complete the research project per the assigned rubric?',
+    assessment:
+      'Presentation and/or written work or video: Did student complete the research project per the assigned rubric?',
     clos: {
       awarenessOfFeeling:
-        'When I research a music topic I\'m genuinely interested in, I feel more informed, intelligent, curious, inspired, and motivated to keep learning.',
+        "When I research a music topic I'm genuinely interested in, I feel more informed, intelligent, curious, inspired, and motivated to keep learning.",
       awarenessOfTechnique:
         'I can write a coherent article, essay, or presentation using appropriate jargon, grammar, and structure that presents and supports a compelling main idea.',
       awarenessOfContext:
@@ -2013,8 +2471,17 @@ const activities = [
     standards: ['Connecting', 'Responding'],
     impactValues: ['Community-Responsive', 'Inclusive', 'Empowerment'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: research source material', contextNote: 'Globe is the primary research environment — artists, styles, lineages, cultures.' },
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: depth on specific styles', contextNote: 'For research projects focused on a particular genre.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: research source material',
+        contextNote:
+          'Globe is the primary research environment — artists, styles, lineages, cultures.',
+      },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: depth on specific styles',
+        contextNote: 'For research projects focused on a particular genre.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2031,10 +2498,11 @@ const activities = [
       'Students notate and/or record a full song or piece of music — a complete artifact with all sections (intro, verse, pre-chorus, chorus, bridge, breakdown, interlude, outro) in place. Longer-form than a mini-composition; the goal is a release-ready or performance-ready work.',
     learningOutcome:
       'Students complete a fully-realized musical work — and learn what it takes to finish at full scope.',
-    assessment: 'Recording and notation: Did student complete a written chart and/or record a complete composition within the assigned parameters?',
+    assessment:
+      'Recording and notation: Did student complete a written chart and/or record a complete composition within the assigned parameters?',
     clos: {
       awarenessOfFeeling:
-        'When I create a fully realized song, I feel competent, elated, proud, pleasantly surprised — like I just did something I wasn\'t sure I could do.',
+        "When I create a fully realized song, I feel competent, elated, proud, pleasantly surprised — like I just did something I wasn't sure I could do.",
       awarenessOfTechnique:
         'I can write a piece of music by defining my song form and crafting multiple sections — intro, verse, pre-chorus, chorus, bridge, breakdown, interlude, outro.',
       awarenessOfContext:
@@ -2043,8 +2511,16 @@ const activities = [
     standards: ['Creating', 'Producing', 'Presenting'],
     impactValues: ['Empowerment', 'Modern', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: full-song recording', contextNote: 'Complete multitrack with section markers.' },
-      { module: 'theory-lesson', label: 'Atlas Theory: song form deep-dive', contextNote: 'Reference for building a full song architecture.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: full-song recording',
+        contextNote: 'Complete multitrack with section markers.',
+      },
+      {
+        module: 'theory-lesson',
+        label: 'Atlas Theory: song form deep-dive',
+        contextNote: 'Reference for building a full song architecture.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2058,10 +2534,11 @@ const activities = [
     purpose: 'Production',
     initiationStyle: 'try-it-first',
     description:
-      'Students use Atlas Studio to mix tracks — balancing volume, panning, EQ, and effects to shape the final sound. Can be applied to their own recordings, others\' work, or stems provided as practice material.',
+      "Students use Atlas Studio to mix tracks — balancing volume, panning, EQ, and effects to shape the final sound. Can be applied to their own recordings, others' work, or stems provided as practice material.",
     learningOutcome:
       'Students learn the craft of production — turning a collection of recorded parts into a finished, polished track.',
-    assessment: 'Recording: Did student complete a production project per the assigned parameters?',
+    assessment:
+      'Recording: Did student complete a production project per the assigned parameters?',
     clos: {
       awarenessOfFeeling:
         'When I produce music and make it sound better than the raw recording, I feel competent, elated, proud — like I gave the song what it needed.',
@@ -2073,8 +2550,16 @@ const activities = [
     standards: ['Creating', 'Producing'],
     impactValues: ['Modern', 'Empowerment', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: mixing environment', contextNote: 'Studio\'s mixer for volume, panning, EQ, and effects.' },
-      { module: 'genre-lesson', label: 'Atlas Genre Lessons: production conventions', contextNote: 'How different styles are produced.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: mixing environment',
+        contextNote: "Studio's mixer for volume, panning, EQ, and effects.",
+      },
+      {
+        module: 'genre-lesson',
+        label: 'Atlas Genre Lessons: production conventions',
+        contextNote: 'How different styles are produced.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2090,11 +2575,12 @@ const activities = [
     description:
       'Students contribute non-instrumental skills to a project — lyric writing, video production, graphic design, marketing, social media, event planning, photography. Recognizes that real music projects require many roles, not just performers.',
     learningOutcome:
-      'Students see themselves as valuable contributors to musical projects even if performance isn\'t their strongest area.',
-    assessment: 'Participation and product: Did student contribute specific skills, ideas, and deliverables to the group project?',
+      "Students see themselves as valuable contributors to musical projects even if performance isn't their strongest area.",
+    assessment:
+      'Participation and product: Did student contribute specific skills, ideas, and deliverables to the group project?',
     clos: {
       awarenessOfFeeling:
-        'I am valuable in a group project and have the ability to contribute meaningful skills to a musical project even if I\'m not the strongest musician.',
+        "I am valuable in a group project and have the ability to contribute meaningful skills to a musical project even if I'm not the strongest musician.",
       awarenessOfTechnique:
         'I can contribute specific non-performance skills — writing, design, marketing, organization, video — that real music projects require.',
       awarenessOfContext:
@@ -2103,7 +2589,12 @@ const activities = [
     standards: ['Creating', 'Presenting', 'Connecting'],
     impactValues: ['Inclusive', 'Modern', 'Empowerment'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: project workspace with roles', contextNote: 'Studio supports non-performance contributions in a shared project.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: project workspace with roles',
+        contextNote:
+          'Studio supports non-performance contributions in a shared project.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2120,10 +2611,11 @@ const activities = [
       'Students write lyrics inspired by visual artwork. Prompts: What is the story? Describe the sensory experience — what does it feel like, sound like, taste like? Visual prompts can be sourced from any art tradition.',
     learningOutcome:
       'Students cross-train between visual and lyrical art and discover that one medium can unlock another.',
-    assessment: 'Output: Did student produce lyrics in response to the artwork?',
+    assessment:
+      'Output: Did student produce lyrics in response to the artwork?',
     clos: {
       awarenessOfFeeling:
-        'When I write lyrics in response to a painting, I find words I wouldn\'t have found from looking at a blank page — the image is doing some of the work.',
+        "When I write lyrics in response to a painting, I find words I wouldn't have found from looking at a blank page — the image is doing some of the work.",
       awarenessOfTechnique:
         'I can study a piece of visual art and translate what I see into lyrics that capture its mood, story, or sensory experience.',
       awarenessOfContext:
@@ -2132,7 +2624,11 @@ const activities = [
     standards: ['Creating', 'Connecting'],
     impactValues: ['Inclusive', 'Community-Responsive', 'Accessible'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: visual art collections', contextNote: 'Curated art for lyric prompts.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: visual art collections',
+        contextNote: 'Curated art for lyric prompts.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2146,28 +2642,32 @@ const activities = [
     purpose: 'Composition',
     initiationStyle: 'try-it-first',
     description:
-      'Students pick one theme to write lyrics about: (1) what would you tell yourself in the past? (2) a letter to someone you can\'t talk to. (3) love or heartbreak. (4) success or failure. (5) life philosophy or a major life event. Sensory prompts also work: if [theme] were a smell, what would it smell like? A taste?',
+      "Students pick one theme to write lyrics about: (1) what would you tell yourself in the past? (2) a letter to someone you can't talk to. (3) love or heartbreak. (4) success or failure. (5) life philosophy or a major life event. Sensory prompts also work: if [theme] were a smell, what would it smell like? A taste?",
     learningOutcome:
       'Students access the personal source material that great songwriting comes from — and learn to translate experience into lyric.',
     assessment: 'Output: Did student produce lyrics on the chosen theme?',
     clos: {
       awarenessOfFeeling:
-        'When I write about something I actually care about, the lyric writes itself in a way it doesn\'t when I\'m trying to be clever.',
+        "When I write about something I actually care about, the lyric writes itself in a way it doesn't when I'm trying to be clever.",
       awarenessOfTechnique:
         'I can take a personal theme and develop it into lyric content using imagery, specificity, sensory detail, and emotional honesty.',
       awarenessOfContext:
-        'Most great songwriting comes from a specific, personal source — Taylor Swift\'s diary, Joni Mitchell\'s relationships, Kendrick\'s neighborhood. The personal is universal.',
+        "Most great songwriting comes from a specific, personal source — Taylor Swift's diary, Joni Mitchell's relationships, Kendrick's neighborhood. The personal is universal.",
     },
     standards: ['Creating', 'Connecting'],
     impactValues: ['Therapeutic', 'Inclusive', 'Empowerment'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: lyric writing canvas', contextNote: 'Studio supports lyric drafting alongside the musical sketch.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: lyric writing canvas',
+        contextNote:
+          'Studio supports lyric drafting alongside the musical sketch.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
     createdAt: CREATED_AT,
   },
-
 
   /* ============================================================
      PHASE 4: PRESENT / PERFORM
@@ -2180,22 +2680,27 @@ const activities = [
     purpose: 'Public Performance',
     initiationStyle: 'learn-to-apply',
     description:
-      'Students perform a complete piece for an audience beyond their classmates — a recital, a school showcase, an open mic, a parents\' night, a community event. Real audience, real stakes, real preparation.',
+      "Students perform a complete piece for an audience beyond their classmates — a recital, a school showcase, an open mic, a parents' night, a community event. Real audience, real stakes, real preparation.",
     learningOutcome:
       'Students experience the difference between practicing for themselves and playing for others — and the courage that grows from doing it.',
-    assessment: 'Performance: Did student perform competently in front of an audience?',
+    assessment:
+      'Performance: Did student perform competently in front of an audience?',
     clos: {
       awarenessOfFeeling:
-        'When I perform a piece I\'ve prepared for, I feel competent, elated, proud, pleasantly surprised — and aware that the audience wants me to succeed.',
+        "When I perform a piece I've prepared for, I feel competent, elated, proud, pleasantly surprised — and aware that the audience wants me to succeed.",
       awarenessOfTechnique:
-        'When I feel performance anxiety, I can use strategies — box breathing, stretching, drumming on my legs — to self-regulate. When I\'ve practiced enough, I can perform with confidence and courage.',
+        "When I feel performance anxiety, I can use strategies — box breathing, stretching, drumming on my legs — to self-regulate. When I've practiced enough, I can perform with confidence and courage.",
       awarenessOfContext:
         'When I perform, I am aware that the audience wants me to succeed. So I put my best effort and sincere emotion into the performance.',
     },
     standards: ['Performing', 'Presenting', 'Connecting'],
     impactValues: ['Empowerment', 'Prosocial', 'Community-Responsive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: recording the performance', contextNote: 'Capture the performance for later review.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: recording the performance',
+        contextNote: 'Capture the performance for later review.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2212,10 +2717,11 @@ const activities = [
       'Students perform an exercise, excerpt, or complete piece by themselves for the class — approximating the experience of expertise. Lower-stakes than a public performance but still a real moment.',
     learningOutcome:
       'Students experience solo performance in a supportive setting — building the courage and habits that public performance later requires.',
-    assessment: 'Performance: Did student participate in the directed performance?',
+    assessment:
+      'Performance: Did student participate in the directed performance?',
     clos: {
       awarenessOfFeeling:
-        'When I have mastery over a technique, I feel confident that I can perform it. When I don\'t, I learn what to practice next.',
+        "When I have mastery over a technique, I feel confident that I can perform it. When I don't, I learn what to practice next.",
       awarenessOfTechnique:
         'I can prepare a piece or technique to a level of consistency and perform it as a solo for my classmates.',
       awarenessOfContext:
@@ -2224,7 +2730,11 @@ const activities = [
     standards: ['Performing', 'Presenting'],
     impactValues: ['Empowerment', 'Prosocial'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: recording solo performance', contextNote: 'Capture for self-review.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: recording solo performance',
+        contextNote: 'Capture for self-review.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2238,22 +2748,28 @@ const activities = [
     purpose: 'Listening Session',
     initiationStyle: 'try-it-first',
     description:
-      'Student producers share tracks they\'ve made — finished or in progress — and receive feedback from peers and teacher. A regular ritual normalizes the process of putting work in front of listeners and absorbing response.',
+      "Student producers share tracks they've made — finished or in progress — and receive feedback from peers and teacher. A regular ritual normalizes the process of putting work in front of listeners and absorbing response.",
     learningOutcome:
       'Students learn to share work-in-progress and to give and receive useful feedback — the core practice of any creative discipline.',
-    assessment: 'Participation: Did student share a track and engage with feedback?',
+    assessment:
+      'Participation: Did student share a track and engage with feedback?',
     clos: {
       awarenessOfFeeling:
         'When I share something unfinished and people respond with care, I feel braver about finishing it and braver about sharing the next one.',
       awarenessOfTechnique:
-        'I can present a track I\'m working on, articulate what I\'m trying to do, and listen to feedback without becoming defensive.',
+        "I can present a track I'm working on, articulate what I'm trying to do, and listen to feedback without becoming defensive.",
       awarenessOfContext:
-        'Listening sessions are a real industry practice — labels host them, producers run them, songwriters use them. It\'s where music gets sharpened.',
+        "Listening sessions are a real industry practice — labels host them, producers run them, songwriters use them. It's where music gets sharpened.",
     },
     standards: ['Presenting', 'Producing', 'Responding'],
     impactValues: ['Prosocial', 'Community-Responsive', 'Modern'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: shared playback environment', contextNote: 'Play tracks for the class with good sound and timing markers.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: shared playback environment',
+        contextNote:
+          'Play tracks for the class with good sound and timing markers.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2270,10 +2786,11 @@ const activities = [
       'The class — or a subset — performs together as an ensemble for an audience. Could be the full class on a single piece, or small groups taking turns. Builds on group practice and arrives at public sharing.',
     learningOutcome:
       'Students experience ensemble performance — where individual contributions integrate into something larger.',
-    assessment: 'Performance: Did student participate fully in the ensemble performance?',
+    assessment:
+      'Performance: Did student participate fully in the ensemble performance?',
     clos: {
       awarenessOfFeeling:
-        'When I perform with an ensemble, I feel held by the group — like I don\'t have to carry the whole thing on my own.',
+        "When I perform with an ensemble, I feel held by the group — like I don't have to carry the whole thing on my own.",
       awarenessOfTechnique:
         'I can perform my part in an ensemble — adjusting my dynamics, timing, and confidence based on what the group needs.',
       awarenessOfContext:
@@ -2282,7 +2799,11 @@ const activities = [
     standards: ['Performing', 'Presenting'],
     impactValues: ['Prosocial', 'Inclusive', 'Community-Responsive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: ensemble recording', contextNote: 'Capture the ensemble performance for archive.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: ensemble recording',
+        contextNote: 'Capture the ensemble performance for archive.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2299,10 +2820,11 @@ const activities = [
       'Student presents the results of a research project to the class — either as a talk, a video, a written report shared aloud, or a multimedia presentation. The audience asks questions; the student defends their conclusions.',
     learningOutcome:
       'Students learn to present and defend musical ideas — a foundational skill for any career in music, education, or related fields.',
-    assessment: 'Presentation and/or written work: Did student present their research per the assigned rubric? Did they answer audience questions thoughtfully?',
+    assessment:
+      'Presentation and/or written work: Did student present their research per the assigned rubric? Did they answer audience questions thoughtfully?',
     clos: {
       awarenessOfFeeling:
-        'When I present research I\'m proud of, I feel like a real authority on something — even if I\'m only 14.',
+        "When I present research I'm proud of, I feel like a real authority on something — even if I'm only 14.",
       awarenessOfTechnique:
         'I can present musical ideas clearly using appropriate vocabulary, examples, and supporting evidence — and answer questions about my conclusions.',
       awarenessOfContext:
@@ -2311,13 +2833,16 @@ const activities = [
     standards: ['Presenting', 'Connecting', 'Responding'],
     impactValues: ['Empowerment', 'Inclusive', 'Community-Responsive'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: presentation source material', contextNote: 'Reference Globe content during the presentation.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: presentation source material',
+        contextNote: 'Reference Globe content during the presentation.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
     createdAt: CREATED_AT,
   },
-
 
   /* ============================================================
      PHASE 5: RESPOND / REFLECT / RESET
@@ -2333,19 +2858,25 @@ const activities = [
       'Students have public and/or private means to offer feedback on each other\'s creative projects. Common protocols: "Two Stars and a Wish" (two things working, one thing to try), "Glow and Grow" (what shines, what could develop). Feedback is specific, generous, and actionable.',
     learningOutcome:
       'Students learn to give and receive constructive feedback — one of the most useful career-and-life skills music education can build.',
-    assessment: 'Participation: Did student give thoughtful feedback to peers and engage with feedback received?',
+    assessment:
+      'Participation: Did student give thoughtful feedback to peers and engage with feedback received?',
     clos: {
       awarenessOfFeeling:
-        'When a peer gives me specific, kind feedback, I feel seen — and the work gets better. When I give it well, I feel like I\'m part of building something with them.',
+        "When a peer gives me specific, kind feedback, I feel seen — and the work gets better. When I give it well, I feel like I'm part of building something with them.",
       awarenessOfTechnique:
-        'I can give feedback that\'s specific (referencing actual moments in the work), generous (assuming the maker\'s good intentions), and actionable (something they can try).',
+        "I can give feedback that's specific (referencing actual moments in the work), generous (assuming the maker's good intentions), and actionable (something they can try).",
       awarenessOfContext:
         'Constructive feedback is the lifeblood of any creative discipline. Songwriters circle each other in rooms; producers send mixes to peers; bands argue their way to better takes.',
     },
     standards: ['Responding', 'Connecting'],
     impactValues: ['Prosocial', 'Community-Responsive', 'Inclusive'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: feedback comments on tracks', contextNote: 'When Atlas Studio supports timestamped comments, feedback can attach to specific moments.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: feedback comments on tracks',
+        contextNote:
+          'When Atlas Studio supports timestamped comments, feedback can attach to specific moments.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2362,7 +2893,8 @@ const activities = [
       'Students submit artist spotlight suggestions — paper, digital form, or shared list. Teacher uses student requests to plan upcoming Connect/Regulate openers. Student agency over what the class learns next.',
     learningOutcome:
       'Students see their voice directly shape the curriculum — and learn to advocate for the music that matters to them.',
-    assessment: 'Participation: Did student submit at least one artist suggestion?',
+    assessment:
+      'Participation: Did student submit at least one artist suggestion?',
     clos: {
       awarenessOfFeeling:
         'When my suggested artist shows up in class, I feel like my voice mattered — and I see my classmates respond to music I love.',
@@ -2374,7 +2906,12 @@ const activities = [
     standards: ['Connecting', 'Responding'],
     impactValues: ['Community-Responsive', 'Inclusive', 'Empowerment'],
     atlasResources: [
-      { module: 'globe', label: 'Atlas Globe: artist request library', contextNote: 'Students can submit artist requests directly through Globe.' },
+      {
+        module: 'globe',
+        label: 'Atlas Globe: artist request library',
+        contextNote:
+          'Students can submit artist requests directly through Globe.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2388,7 +2925,7 @@ const activities = [
     purpose: 'Self-Reflection',
     initiationStyle: 'self-guided',
     description:
-      'Students have public or private means to articulate self-reflection and plan next steps. Journaling, surveys, voice memos, or a shared class form. Prompts: What worked today? What do I want to try next? What\'s the next concrete step?',
+      "Students have public or private means to articulate self-reflection and plan next steps. Journaling, surveys, voice memos, or a shared class form. Prompts: What worked today? What do I want to try next? What's the next concrete step?",
     learningOutcome:
       'Students build the habit of reflecting on their own work and setting their own direction — the foundation of lifelong musicianship.',
     assessment: 'Participation: Did student complete a self-reflection entry?',
@@ -2396,14 +2933,18 @@ const activities = [
       awarenessOfFeeling:
         'When I take a few minutes to reflect honestly, I notice things about my work and my process that I would have missed otherwise.',
       awarenessOfTechnique:
-        'I can articulate what worked, what didn\'t, and what I want to do next. I can name a concrete next step.',
+        "I can articulate what worked, what didn't, and what I want to do next. I can name a concrete next step.",
       awarenessOfContext:
         'Every working musician has some form of reflective practice — journaling, voice memos, end-of-session debriefs. The habit is what compounds over time.',
     },
     standards: ['Responding', 'Connecting'],
     impactValues: ['Therapeutic', 'Empowerment', 'Accessible'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: practice journal alongside the session', contextNote: 'Reflection captured next to the work.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: practice journal alongside the session',
+        contextNote: 'Reflection captured next to the work.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
@@ -2432,13 +2973,16 @@ const activities = [
     standards: ['Connecting'],
     impactValues: ['Prosocial', 'Community-Responsive', 'Therapeutic'],
     atlasResources: [
-      { module: 'studio', label: 'Atlas Studio: save and sign out', contextNote: 'End-of-class save routine in Studio.' },
+      {
+        module: 'studio',
+        label: 'Atlas Studio: save and sign out',
+        contextNote: 'End-of-class save routine in Studio.',
+      },
     ],
     source: 'canonical',
     createdBy: null,
     createdAt: CREATED_AT,
   },
-
 ];
 
 export const RAW_ACTIVITIES = activities;

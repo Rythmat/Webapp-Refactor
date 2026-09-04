@@ -29,7 +29,10 @@ describe('topicOf', () => {
     for (const theme of THEMES) {
       if (theme.source !== 'canonical') continue;
       const topic = topicOf(theme.id);
-      expect(topic, `canonical theme ${theme.id} should classify`).not.toBeNull();
+      expect(
+        topic,
+        `canonical theme ${theme.id} should classify`,
+      ).not.toBeNull();
       if (topic) counts[topic] += 1;
     }
     expect(counts).toEqual({ seasonal: 12, genre: 10, location: 4 });

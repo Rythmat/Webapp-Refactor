@@ -56,7 +56,9 @@ export function getIdbMirror<T>(config: IdbMirrorConfig<T>): IdbMirror<T> {
   let hydrated = false;
 
   const channel =
-    hasBroadcastChannel && hasIndexedDb ? new BroadcastChannel(CHANNEL_NAME) : null;
+    hasBroadcastChannel && hasIndexedDb
+      ? new BroadcastChannel(CHANNEL_NAME)
+      : null;
 
   const refreshFromIdb = async (): Promise<void> => {
     const fromIdb = (await idbGet<T>(config.key)) ?? null;

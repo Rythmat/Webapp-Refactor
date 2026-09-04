@@ -16,7 +16,9 @@ const opts = (mode: 'merge' | 'replace'): ApplySeedOptions => ({
   resolveActivityId: byId,
 });
 
-const aDaySeed = LESSON_SEEDS.find((s): s is DayLessonSeed => s.kind === 'day')!;
+const aDaySeed = LESSON_SEEDS.find(
+  (s): s is DayLessonSeed => s.kind === 'day',
+)!;
 const anActivitySeed = LESSON_SEEDS.find(
   (s): s is ActivityLessonSeed => s.kind === 'activity',
 )!;
@@ -87,14 +89,18 @@ describe('applySeedToDay — activity seed', () => {
       anActivitySeed.anchor.activity.id,
     );
     const others = PHASES.filter((p) => p !== phase);
-    for (const p of others) expect(isCellPopulated(result.cells[p])).toBe(false);
+    for (const p of others)
+      expect(isCellPopulated(result.cells[p])).toBe(false);
   });
 });
 
 describe('insertActivityIntoCell', () => {
   it('puts description on the prompt and pedagogy on rationale', () => {
     const activity = ACTIVITIES[0];
-    const cell = insertActivityIntoCell(activity, newBlankDay().cells[activity.phase]);
+    const cell = insertActivityIntoCell(
+      activity,
+      newBlankDay().cells[activity.phase],
+    );
     expect(cell.presentation.prompt.en).toContain(activity.description);
     expect(cell.rationale.activityRefs).toContain(activity.id);
     for (const cid of activity.cloIds) {
@@ -108,7 +114,10 @@ describe('applySeedToDay firewall (routing, not prose scan)', () => {
     // A marker seed: forbidden words live only in rationale-bound fields;
     // presentation copy is neutral. Proves routing.
     const phase = (): DaySeedPhase => ({
-      presentation: { title: { en: 'Warm up together' }, prompt: { en: 'Play a groove' } },
+      presentation: {
+        title: { en: 'Warm up together' },
+        prompt: { en: 'Play a groove' },
+      },
       activitySuggestions: ['nonexistent-suggestion'],
       atlasResources: [],
       cloText: { awarenessOfFeeling: 'ASSESSMENT CLO IMPACT marker text' },
@@ -127,9 +136,10 @@ describe('applySeedToDay firewall (routing, not prose scan)', () => {
       tags: [],
       standards: [],
       description: 'desc',
-      template: Object.fromEntries(
-        PHASES.map((p) => [p, phase()]),
-      ) as Record<PhaseKey, DaySeedPhase>,
+      template: Object.fromEntries(PHASES.map((p) => [p, phase()])) as Record<
+        PhaseKey,
+        DaySeedPhase
+      >,
       songs: ['SONG-STANDARD-MARK'],
       localContext: { en: 'LOCALCONTEXT INITIATION marker' },
       source: 'canonical',

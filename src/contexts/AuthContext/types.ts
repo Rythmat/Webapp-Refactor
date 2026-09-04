@@ -1,6 +1,14 @@
 import { GetAuthMeData } from '../MusicAtlasContext/musicAtlas.generated';
 
-export type UserRole = 'admin' | 'teacher' | 'student';
+/**
+ * An ACCOUNT role. Not to be confused with the several scoped `editor` roles
+ * elsewhere in the app — a classroom co-teacher (ClassroomTeacherRole) and a
+ * collab-room member (CollabRole) both use that word for something unrelated.
+ * Compare against this union through the helpers in features/admin/consoleRoles
+ * rather than by writing `role === 'editor'` inline, so the account meaning
+ * stays greppable.
+ */
+export type UserRole = 'admin' | 'teacher' | 'student' | 'editor';
 
 export type AuthOrganization = {
   id: string;

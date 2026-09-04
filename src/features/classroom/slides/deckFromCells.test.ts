@@ -20,10 +20,14 @@ const makePopulatedDay = (): Day => {
   connect.title = { en: 'Warm Up', es: 'Calentamiento' };
   connect.prompt = { en: 'How do you feel today?' };
   connect.song = { id: 'lovely_day' };
-  connect.launchTiles = [{ id: 'lt-1', module: 'globe', activityRef: 'event-1' }];
+  connect.launchTiles = [
+    { id: 'lt-1', module: 'globe', activityRef: 'event-1' },
+  ];
 
   const reflect = day.cells.respondReflectReset.presentation;
-  reflect.resetChecklist = [{ en: 'Chairs pushed in', es: 'Sillas acomodadas' }];
+  reflect.resetChecklist = [
+    { en: 'Chairs pushed in', es: 'Sillas acomodadas' },
+  ];
   reflect.interactions = [
     {
       id: 'ix-oneword',
@@ -108,7 +112,9 @@ describe('deckFromCells', () => {
   it('promotes a blank title to the prompt as the headline', () => {
     const day = newBlankDay('Promote');
     day.cells.groupPractice.presentation.title = { en: '' };
-    day.cells.groupPractice.presentation.prompt = { en: 'Clap the rhythm back' };
+    day.cells.groupPractice.presentation.prompt = {
+      en: 'Clap the rhythm back',
+    };
     const deck = deckFromCells(day);
     const practice = deck.slides.find((s) => s.phase === 'groupPractice');
     expect(practice?.title).toEqual({ en: 'Clap the rhythm back' });

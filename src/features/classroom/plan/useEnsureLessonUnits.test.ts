@@ -65,7 +65,7 @@ describe('planOrphanAdoptions', () => {
   it('does NOT dump an unmatched orphan into the first unit (no fallback)', () => {
     // Only an August unit; an October day has no month match → stays orphaned.
     expect(
-      planOrphanAdoptions([mkUnit('aug', 8)], [mkDay('d1', 'X', '2025-10-06')]),
+      planOrphanAdoptions([mkUnit('aug', 24)], [mkDay('d1', 'X', '2025-10-06')]),
     ).toEqual([]);
   });
 

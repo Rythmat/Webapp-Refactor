@@ -661,6 +661,12 @@ export interface PatchApiGameOptionsByGamePayload {
   options: object;
 }
 
+export type PatchApiGameOptionsByGameData = any;
+
+export interface PatchApiGameOptionsByGamePayload {
+  options: object;
+}
+
 export type PatchApiProgressActivityData = any;
 
 export interface PatchApiProgressActivityPayload {
@@ -2382,6 +2388,261 @@ export namespace Content {
   /**
    * No description
    * @tags Content
+   * @name GetApiAdminContentReleases
+   * @request GET:/api/admin/content/releases
+   * @response `200` `GetApiAdminContentReleasesData`
+   */
+  export namespace GetApiAdminContentReleases {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      kind?: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentReleasesData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentTemplateByKind
+   * @request GET:/api/admin/content/template/{kind}
+   * @response `200` `GetApiAdminContentTemplateByKindData`
+   */
+  export namespace GetApiAdminContentTemplateByKind {
+    export type RequestParams = {
+      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+    };
+    export type RequestQuery = {
+      slug?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentTemplateByKindData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentValidateByKind
+   * @request GET:/api/admin/content/validate/{kind}
+   * @response `200` `GetApiAdminContentValidateByKindData`
+   */
+  export namespace GetApiAdminContentValidateByKind {
+    export type RequestParams = {
+      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentValidateByKindData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PostApiAdminContentReleases
+   * @request POST:/api/admin/content/releases
+   * @response `200` `PostApiAdminContentReleasesData`
+   */
+  export namespace PostApiAdminContentReleases {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiAdminContentReleasesPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiAdminContentReleasesData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PostApiAdminContentReleasesByIdActivate
+   * @request POST:/api/admin/content/releases/{id}/activate
+   * @response `200` `PostApiAdminContentReleasesByIdActivateData`
+   */
+  export namespace PostApiAdminContentReleasesByIdActivate {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiAdminContentReleasesByIdActivateData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PostApiAdminContentReleasesByIdCancel
+   * @request POST:/api/admin/content/releases/{id}/cancel
+   * @response `200` `PostApiAdminContentReleasesByIdCancelData`
+   */
+  export namespace PostApiAdminContentReleasesByIdCancel {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiAdminContentReleasesByIdCancelData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PostApiAdminContentReleasesByIdPartsByPart
+   * @request POST:/api/admin/content/releases/{id}/parts/{part}
+   * @response `200` `PostApiAdminContentReleasesByIdPartsByPartData`
+   */
+  export namespace PostApiAdminContentReleasesByIdPartsByPart {
+    export type RequestParams = {
+      id: string;
+      part: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiAdminContentReleasesByIdPartsByPartData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PostApiAdminContentRollback
+   * @request POST:/api/admin/content/rollback
+   * @response `200` `PostApiAdminContentRollbackData`
+   */
+  export namespace PostApiAdminContentRollback {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiAdminContentRollbackPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiAdminContentRollbackData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name PutApiAdminContentItems
+   * @request PUT:/api/admin/content/items
+   * @response `200` `PutApiAdminContentItemsData`
+   */
+  export namespace PutApiAdminContentItems {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PutApiAdminContentItemsPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PutApiAdminContentItemsData;
+  }
+}
+
+export namespace Telemetry {
+  /**
+   * No description
+   * @tags Content
+   * @name DeleteApiAdminContentItemsById
+   * @request DELETE:/api/admin/content/items/{id}
+   * @response `200` `DeleteApiAdminContentItemsByIdData`
+   */
+  export namespace DeleteApiAdminContentItemsById {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = DeleteApiAdminContentItemsByIdData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentDerivationHealth
+   * @request GET:/api/admin/content/derivation-health
+   * @response `200` `GetApiAdminContentDerivationHealthData`
+   */
+  export namespace GetApiAdminContentDerivationHealth {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentDerivationHealthData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name DeleteClassroomsByIdTeachersByTeacherId
+   * @request DELETE:/classrooms/{id}/teachers/{teacherId}
+   * @response `200` `DeleteClassroomsByIdTeachersByTeacherIdData`
+   */
+  export namespace DeleteClassroomsByIdTeachersByTeacherId {
+    export type RequestParams = {
+      id: string;
+      teacherId: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = DeleteClassroomsByIdTeachersByTeacherIdData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name GetClassrooms
+   * @request GET:/classrooms
+   * @response `200` `GetClassroomsData`
+   */
+  export namespace GetApiAdminContentItems {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      cursor?: string;
+      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
+      limit?: string;
+      search?: string;
+      status?: 'draft' | 'published' | 'archived';
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentItemsData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentItemsById
+   * @request GET:/api/admin/content/items/{id}
+   * @response `200` `GetApiAdminContentItemsByIdData`
+   */
+  export namespace GetApiAdminContentItemsById {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentItemsByIdData;
+  }
+
+  /**
+   * No description
+   * @tags Content
+   * @name GetApiAdminContentOverview
+   * @request GET:/api/admin/content/overview
+   * @response `200` `GetApiAdminContentOverviewData`
+   */
+  export namespace GetApiAdminContentOverview {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiAdminContentOverviewData;
+  }
+
+  /**
+   * No description
+   * @tags Content
    * @name GetApiAdminContentPending
    * @request GET:/api/admin/content/pending
    * @response `200` `GetApiAdminContentPendingData`
@@ -2434,10 +2695,27 @@ export namespace Content {
 
   /**
    * No description
-   * @tags Content
-   * @name GetApiAdminContentValidateByKind
-   * @request GET:/api/admin/content/validate/{kind}
-   * @response `200` `GetApiAdminContentValidateByKindData`
+   * @tags Classrooms
+   * @name GetClassroomsByIdTeachers
+   * @request GET:/classrooms/{id}/teachers
+   * @response `200` `GetClassroomsByIdTeachersData`
+   */
+  export namespace GetClassroomsByIdTeachers {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetClassroomsByIdTeachersData;
+  }
+
+  /**
+   * No description
+   * @tags Classrooms
+   * @name GetClassroomsDetailsByCode
+   * @request GET:/classrooms/details/{code}
+   * @response `200` `GetClassroomsDetailsByCodeData`
    */
   export namespace GetApiAdminContentValidateByKind {
     export type RequestParams = {
@@ -3525,6 +3803,40 @@ export namespace Challenges {
     export type RequestBody = PostApiChallengesListPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostApiChallengesListData;
+  }
+}
+
+export namespace GameOptions {
+  /**
+   * No description
+   * @tags Game Options
+   * @name GetApiGameOptions
+   * @request GET:/api/game-options
+   * @response `200` `GetApiGameOptionsData`
+   */
+  export namespace GetApiGameOptions {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiGameOptionsData;
+  }
+
+  /**
+   * No description
+   * @tags Game Options
+   * @name PatchApiGameOptionsByGame
+   * @request PATCH:/api/game-options/{game}
+   * @response `200` `PatchApiGameOptionsByGameData`
+   */
+  export namespace PatchApiGameOptionsByGame {
+    export type RequestParams = {
+      game: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PatchApiGameOptionsByGamePayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PatchApiGameOptionsByGameData;
   }
 }
 

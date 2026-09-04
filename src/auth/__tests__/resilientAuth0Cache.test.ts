@@ -39,7 +39,10 @@ describe('ResilientAuth0Cache', () => {
   });
 
   it('evicts only *.bak keys and retries when quota is hit once', async () => {
-    window.localStorage.setItem('ma-teacher:published:v1:me.bak', 'x'.repeat(50));
+    window.localStorage.setItem(
+      'ma-teacher:published:v1:me.bak',
+      'x'.repeat(50),
+    );
     window.localStorage.setItem('ma-teacher:published:v1:me', 'keep-me');
 
     const originalSet = Storage.prototype.setItem;
@@ -58,7 +61,9 @@ describe('ResilientAuth0Cache', () => {
     await resolve(cache.set(KEY, makeEntry('after-evict')));
 
     // Dropped the regenerable backup, kept real user data, persisted the token.
-    expect(window.localStorage.getItem('ma-teacher:published:v1:me.bak')).toBeNull();
+    expect(
+      window.localStorage.getItem('ma-teacher:published:v1:me.bak'),
+    ).toBeNull();
     expect(window.localStorage.getItem('ma-teacher:published:v1:me')).toBe(
       'keep-me',
     );

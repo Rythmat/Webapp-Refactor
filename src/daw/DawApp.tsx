@@ -48,6 +48,13 @@ import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { getDemoProject } from '@/daw/data/demoProjects';
 import { getSong } from '@/curriculum/data/songs';
 import { seedStudioFromSong } from '@/features/songs/seedStudioFromSong';
+import { seedStudioFromPracticeTrack } from '@/features/practiceTracks/seedStudioFromPracticeTrack';
+import { urlParamToSemitone } from '@/lib/musicKeyUrl';
+import type {
+  DiatonicMode,
+  PracticeLevel,
+} from '@/features/practiceTracks/generatePracticeTrack';
+import { isDiatonicMode } from '@prism/engine';
 import { showSuccess, showError } from '@/util/toast';
 
 function DawAppInner() {
@@ -179,6 +186,52 @@ function DawAppInner() {
         showError('That song could not be found.');
       }
       clearQuery();
+      return;
+    }
+
+    // Graduated from a Theory mode/lesson (Learn > Theory) into a pre-seeded
+    // Practice Track: generated chords/bass/beat plus one open track (melody
+    // or chords, whichever the student didn't just practice) for them to fill
+    // in themselves. `practiceOpen` defaults to `melody` when missing/invalid
+    // (e.g. the evergreen sidebar entry, which can't know which section the
+    // student most recently finished).
+    const practiceModeParam = params.get('practiceMode');
+    if (practiceModeParam) {
+      bootedRef.current = true;
+      clearLocalSession();
+      resetSessionToEmpty();
+      if (isDiatonicMode(practiceModeParam)) {
+        // `practiceRoot` is a letter-based key param (e.g. "d", "dsharp"),
+        // written by `keyLabelToUrlParam` — decode it back to a 0-11
+        // semitone-from-C the same way `LessonContainer` resolves `key`.
+        const root = urlParamToSemitone(
+          params.get('practiceRoot') ?? undefined,
+        );
+        const openParam = params.get('practiceOpen');
+        const openTrack: 'melody' | 'chords' =
+          openParam === 'chords' ? 'chords' : 'melody';
+        const levelParam = Number(params.get('practiceLevel'));
+        const level: PracticeLevel =
+          levelParam === 2 || levelParam === 3 ? levelParam : 1;
+        // seedStudioFromPracticeTrack fetches + parses the fixed Drums
+        // groove's .mid file, so it's async — await it the same way the
+        // `project` branch above awaits its cloud fetch.
+        void (async () => {
+          try {
+            await seedStudioFromPracticeTrack(
+              practiceModeParam as DiatonicMode,
+              root,
+              openTrack,
+              level,
+            );
+          } finally {
+            clearQuery();
+          }
+        })();
+      } else {
+        showError('That practice track mode could not be found.');
+        clearQuery();
+      }
       return;
     }
 

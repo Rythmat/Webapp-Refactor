@@ -130,7 +130,9 @@ const toLT = (t: string | LocalizedText): LocalizedText =>
   typeof t === 'string' ? { en: t } : t;
 
 /** Normalize a raw activity — WITHOUT `cloIds` (derived downstream). */
-export const normalizeActivity = (a: RawActivity): Omit<Activity, 'cloIds'> => ({
+export const normalizeActivity = (
+  a: RawActivity,
+): Omit<Activity, 'cloIds'> => ({
   id: a.id,
   title: toLT(a.title),
   phase: a.phase as PhaseKey,

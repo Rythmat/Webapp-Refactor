@@ -1,8 +1,6 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
-  avatarConfigApi,
+  useSaveAvatarConfig,
   useSelfAvatarConfig,
 } from '@/hooks/data/useAvatarConfigs';
 import { type AvatarConfig, isAvatarConfig } from '@/lib/avatarHexGrid';
@@ -28,30 +26,32 @@ function cacheLocalConfig(userId: string, config: AvatarConfig) {
 }
 
 /**
- * The current user's avatar config. Source of truth is our serverless store
- * (loads on login, any device); localStorage is a first-paint cache. Saving
- * persists to the store + cache. `serverConfig` (from /auth/me) is accepted as a
- * legacy hint but is effectively null there.
+ * The current user's avatar config. Source of truth is the `avatar_config`
+ * column on `user` (read through `/auth/me`, written through
+ * `PUT /auth/me/avatar-config`); localStorage is a first-paint cache. Saving
+ * persists to both.
+ *
+ * `serverConfig` is still accepted so existing callers that pass `me.avatarConfig`
+ * keep working — it is now the same value `useSelfAvatarConfig` reads.
  */
 export function useAvatarConfig(
   userId: string | undefined,
   serverConfig?: unknown,
 ) {
-  const { token } = useAuthContext();
-  const queryClient = useQueryClient();
   const { data: storeConfig } = useSelfAvatarConfig();
+  const saveMutation = useSaveAvatarConfig();
 
   // No-flash first paint when userId is already known; otherwise the resolve
-  // effect below fills it in once userId / the store GET arrive.
+  // effect below fills it in once userId / the /auth/me query arrive.
   const [config, setConfig] = useState<AvatarConfig | null>(() =>
     userId ? loadLocalConfig(userId) : null,
   );
 
-  // Resolve reactively (userId from useMe and the store GET both settle async).
-  // localStorage is authoritative for THIS device — it's written on every save,
-  // so it wins over the server; the server store only fills in when the cache is
-  // empty (a fresh device). This can't clobber a locally-saved config, and it
-  // restores the cache as soon as userId resolves (fixes reload → default).
+  // Resolve reactively (userId from useMe and the profile query both settle
+  // async). localStorage is authoritative for THIS device — it's written on
+  // every save, so it wins over the server; the server value only fills in when
+  // the cache is empty (a fresh device). This can't clobber a locally-saved
+  // config, and it restores the cache as soon as userId resolves.
   useEffect(() => {
     const local = userId ? loadLocalConfig(userId) : null;
     if (local) setConfig(local);
@@ -60,24 +60,23 @@ export function useAvatarConfig(
   }, [userId, storeConfig, serverConfig]);
 
   // Returns whether it persisted — false means no userId yet, so the caller can
-  // avoid claiming success. Writes localStorage now; the serverless PUT is
-  // best-effort (works once /api is reachable; ignored otherwise).
+  // avoid claiming success. Writes localStorage now; the PUT is best-effort.
+  const { mutate: saveToServer } = saveMutation;
   const saveConfig = useCallback(
     (newConfig: AvatarConfig): boolean => {
       if (!userId) return false;
       setConfig(newConfig);
       cacheLocalConfig(userId, newConfig);
-      // Push into the shared self-avatar query so every OTHER useAvatarConfig
-      // consumer (TopRail icon, UserWidget, …) re-resolves and updates instantly.
-      queryClient.setQueryData(['avatar-config', 'self', userId], newConfig);
-      if (token) {
-        void avatarConfigApi.putSelf(token, newConfig).catch(() => {
+      // Patches the shared /auth/me cache on success, so every OTHER
+      // useAvatarConfig consumer (TopRail icon, UserWidget, …) re-resolves.
+      saveToServer(newConfig, {
+        onError: () => {
           // Persisted to localStorage regardless; ignore transient API errors.
-        });
-      }
+        },
+      });
       return true;
     },
-    [userId, token, queryClient],
+    [userId, saveToServer],
   );
 
   return { config, saveConfig };

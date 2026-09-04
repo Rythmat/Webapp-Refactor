@@ -18,5 +18,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  /* Every Node-side source tree. (`api/` used to be listed here too, for the
+     Upstash-backed serverless functions — all of that moved into
+     music-atlas-api and the directory is gone.) */
+  "include": ["vite.config.ts", "scripts", ".swagger"]
 }

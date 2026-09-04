@@ -1,66 +1,23 @@
-import { Search, UserPlus, Users } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { UserMatchCard } from '@/components/Profile/UserMatchCard';
-import { StudioRoutes, UserRoutes } from '@/constants/routes';
-import {
-  useConnectionUsers,
-  type ConnectionUser,
-} from '@/hooks/data/useConnections';
-import type { ConnectionMatch } from '@/types/userProfile';
+import { UserPlus, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { StudioRoutes } from '@/constants/routes';
 import '@/features/settings/settings.css';
 
-/** Minimal ConnectionMatch so a connection reuses UserMatchCard (name+avatar). */
-function toMatch(u: ConnectionUser): ConnectionMatch {
-  return {
-    user: {
-      id: u.id,
-      nickname: u.nickname,
-      avatarSeed: u.nickname,
-      avatarConfig: u.avatarConfig,
-      bio: { instruments: [], genres: [], focus: [] },
-    },
-    commonGenres: [],
-    commonInstruments: [],
-    commonFocus: [],
-    complementarySkills: [],
-    matchScore: 0,
-  };
-}
-
 /**
- * Connect + Collaborate — lists the user's accepted connections (built on the
- * User page) as suggested collaborators, with a search bar to filter them.
- * Selecting people and "Start a Session" opens the DAW in a fresh collaborative
- * room and auto-invites them (/studio/editor?collab=new&invite=<ids>).
+ * Connect + Collaborate — starts a live collaborative Studio session.
+ *
+ * This card used to list your accepted connections and auto-invite the ones you
+ * picked (`?collab=new&invite=<ids>`). Both halves of that are gone: the
+ * connection graph never produced a mutual connection, and the invite inbox it
+ * fed (`api/collab/invites`) stored invites under an id the recipient never read
+ * from, so no invite was ever delivered. Sharing the room code — which is how
+ * every working session has actually been joined — is what remains.
  */
 export const StudioCollaborate = () => {
   const navigate = useNavigate();
-  const { connections, isLoading } = useConnectionUsers();
-  const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return connections;
-    return connections.filter((c) => c.nickname.toLowerCase().includes(q));
-  }, [connections, query]);
-
-  const toggle = (id: string) =>
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-
-  const startSession = () => {
-    const ids = [...selected];
-    const q = ids.length
-      ? `?collab=new&invite=${ids.map(encodeURIComponent).join(',')}`
-      : '?collab=new';
-    navigate(`${StudioRoutes.editor.definition}${q}`);
-  };
+  const startSession = () =>
+    navigate(`${StudioRoutes.editor.definition}?collab=new`);
 
   return (
     <section
@@ -80,9 +37,7 @@ export const StudioCollaborate = () => {
           className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-black transition-colors hover:bg-gray-200"
         >
           <UserPlus className="size-4" />
-          {selected.size > 0
-            ? `Start Session & Invite ${selected.size}`
-            : 'Start a Session'}
+          Start a Session
         </button>
       </div>
 
@@ -93,67 +48,12 @@ export const StudioCollaborate = () => {
           borderColor: 'var(--color-border)',
         }}
       >
-        <p className="mb-4 text-sm text-white/60">
-          Start a live collaborative session and invite the musicians you're
-          connected with.
+        <p className="text-sm text-white/60">
+          Start a live collaborative session, then share the room code from the
+          Studio toolbar. Anyone with the code can join from{' '}
+          <span className="text-white/80">Start Collaboration → Join Room</span>
+          .
         </p>
-
-        {/* Search bar — filters your connections */}
-        {connections.length > 0 && (
-          <div
-            className="mb-4 flex items-center gap-2 rounded-xl px-3 py-2"
-            style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid var(--color-border)',
-            }}
-          >
-            <Search size={16} className="shrink-0 text-white/40" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search your connections…"
-              className="flex-1 border-none bg-transparent text-sm text-white outline-none placeholder:text-white/40"
-            />
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="space-y-3">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-20 animate-pulse rounded-xl border border-white/5 bg-[#151515]"
-              />
-            ))}
-          </div>
-        ) : connections.length === 0 ? (
-          <div className="py-4 text-center text-sm text-white/60">
-            No connections yet — connect with musicians on your{' '}
-            <Link to={UserRoutes.root()} className="text-white underline">
-              profile
-            </Link>{' '}
-            to see them here.
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="py-4 text-center text-sm text-white/60">
-            No connections match “{query}”.
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filtered.map((c) => {
-              const isSelected = selected.has(c.id);
-              return (
-                <UserMatchCard
-                  key={c.id}
-                  match={toMatch(c)}
-                  compact
-                  actionLabel={isSelected ? 'Added ✓' : 'Invite'}
-                  onConnect={() => toggle(c.id)}
-                />
-              );
-            })}
-          </div>
-        )}
       </div>
     </section>
   );

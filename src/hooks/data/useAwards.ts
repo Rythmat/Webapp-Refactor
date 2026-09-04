@@ -6,7 +6,6 @@ import {
 import { useAwardEarnedStore } from '@/features/awards/useAwardEarnedStore';
 import { useExperienceSummary } from '@/hooks/data/experience';
 import { useProgressSummary } from '@/hooks/data/progress/useProgressSummary';
-import { useConnections } from '@/hooks/data/useConnections';
 import { useStreak } from '@/hooks/data/useStreak';
 import {
   AWARDS_CATALOG,
@@ -28,15 +27,14 @@ export interface AwardsResult {
 
 /**
  * Real achievement badges evaluated from the user's live progress — XP/level,
- * learning streak, lessons completed, Arcade plays, and connections. Fully
- * client-derived (no awards backend); all sub-queries are react-query-cached.
+ * learning streak, lessons completed and Arcade plays. Fully client-derived (no
+ * awards backend); all sub-queries are react-query-cached.
  */
 export function useAwards(): AwardsResult {
   const { data: xp } = useExperienceSummary();
   const { data: streak } = useStreak();
   const { data: progress } = useProgressSummary(true);
   const arcadePlays = useArcadeActivityStore(selectTotalPlays);
-  const { data: connectionSets } = useConnections();
 
   return useMemo(() => {
     const stats: AwardStats = {
@@ -49,7 +47,6 @@ export function useAwards(): AwardsResult {
         0,
       ),
       arcadePlays,
-      connections: connectionSets?.connections.length ?? 0,
     };
 
     const awards: EvaluatedAward[] = AWARDS_CATALOG.map(({ value, ...def }) => {
@@ -67,7 +64,7 @@ export function useAwards(): AwardsResult {
       unlockedCount: awards.filter((a) => a.unlocked).length,
       total: awards.length,
     };
-  }, [xp, streak, progress, arcadePlays, connectionSets]);
+  }, [xp, streak, progress, arcadePlays]);
 }
 
 /**

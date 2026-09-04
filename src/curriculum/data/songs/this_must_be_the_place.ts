@@ -56,7 +56,5 @@ export const this_must_be_the_place: Song = {
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Fb2q141rMNE' },
   ],
   artistImageSource: 'commissioned',
-
-  artistImageRef: '/artists/unknown-artist.webp',
   popularity: 50,
 };

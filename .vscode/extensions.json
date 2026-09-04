@@ -1,9 +1,0 @@
-{
-  "recommendations": [
-    "streetsidesoftware.code-spell-checker",
-    "dbaeumer.vscode-eslint",
-    "prisma.prisma",
-    "bradlc.vscode-tailwindcss",
-    "shardulm94.trailing-spaces"
-  ]
-}

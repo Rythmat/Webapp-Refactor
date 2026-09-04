@@ -19,7 +19,8 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
+    /* No `baseUrl`: it is deprecated (removed in TS 7). Since TS 4.4 `paths`
+       entries resolve relative to this config file, so these are unchanged. */
     "paths": {
       "@/*": ["./src/*"],
       "@prism/engine": ["./src/daw/prism-engine/index.ts"]

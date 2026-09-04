@@ -55,7 +55,20 @@ export interface StudioProjectInput {
   tracks: StudioProjectTrackInput[];
 }
 
-export interface StudioProjectSummary {
+/**
+ * How the user files a project in the Studio Library. Stored as columns on
+ * `studio_project` and returned with every summary, so the Library needs no
+ * second request. Written only via `patchMeta` — never by `update`, which is a
+ * full replace of the project's track tree.
+ */
+export interface StudioProjectLibraryMeta {
+  libraryGenre: string | null;
+  libraryStatus: string | null;
+  libraryInstruments: string[];
+  collaborators: string[];
+}
+
+export interface StudioProjectSummary extends StudioProjectLibraryMeta {
   id: string;
   name: string;
   composerName: string | null;
@@ -93,7 +106,7 @@ function projectsPath(suffix = '') {
 async function request<T>(
   path: string,
   params: {
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
     token: string;
     body?: unknown;
   },
@@ -148,6 +161,22 @@ export const studioProjectsApi = {
       token,
       method: 'PUT',
       body,
+    }),
+
+  /**
+   * Update only the Library filing tags. Touches four scalar columns and no
+   * track rows, so it is safe to call from the Library — which holds a project
+   * summary with no track data and could not safely use `update`.
+   */
+  patchMeta: (
+    token: string,
+    id: string,
+    meta: Partial<StudioProjectLibraryMeta>,
+  ) =>
+    request<StudioProjectLibraryMeta>(projectsPath(`/${id}/meta`), {
+      token,
+      method: 'PATCH',
+      body: meta,
     }),
 
   remove: (token: string, id: string) =>

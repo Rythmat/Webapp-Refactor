@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
+import { bioApi, EMPTY_BIO } from '@/lib/bio/api';
 import type {
   ProfileVisibility,
   UserBioPreferences,
@@ -8,13 +9,6 @@ import type {
 
 const STORAGE_PREFIX = 'user_bio_';
 const SAVE_DEBOUNCE_MS = 600;
-
-const EMPTY_BIO: UserBioPreferences = {
-  instruments: [],
-  genres: [],
-  focus: [],
-  visibility: 'public',
-};
 
 // ── localStorage mirror (instant + offline/dev fallback) ──────────────────
 
@@ -37,27 +31,23 @@ function saveBio(userId: string, bio: UserBioPreferences) {
 }
 
 /**
- * Read any user's bio from localStorage — a dev/offline fallback for discovery
- * when the /api/bio serverless route isn't reachable (see useDiscoverUsers).
+ * Read any user's bio from localStorage — a dev/offline fallback for the current
+ * user when the API isn't reachable. Only ever holds bios this device wrote.
  */
 export function readBioForUser(userId: string): UserBioPreferences {
   return loadBio(userId);
 }
 
-// ── Server (Upstash-backed serverless /api/bio) ───────────────────────────
+// ── Server (music-atlas-api, `user_bio` table) ────────────────────────────
 
 async function fetchMyBio(
   token: string | null,
   userId: string,
 ): Promise<UserBioPreferences> {
-  // No token or no serverless route (e.g. plain Vite dev) → localStorage.
+  // No token or no reachable API (e.g. offline) → localStorage.
   if (!token) return loadBio(userId);
   try {
-    const res = await fetch('/api/bio', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error(`bio GET ${res.status}`);
-    const bio = (await res.json()) as UserBioPreferences;
+    const bio = await bioApi.fetchSelf(token);
     saveBio(userId, bio); // refresh the local mirror
     return bio;
   } catch {
@@ -66,19 +56,12 @@ async function fetchMyBio(
 }
 
 async function putMyBio(token: string, bio: UserBioPreferences): Promise<void> {
-  await fetch('/api/bio', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(bio),
-  });
+  await bioApi.putSelf(token, bio);
 }
 
 /**
- * The current user's bio preferences, backed by the `/api/bio` serverless route
- * (Upstash Redis) with a react-query cache as the single source of truth.
+ * The current user's bio preferences, backed by `user_bio` in Postgres (through
+ * music-atlas-api) with a react-query cache as the single source of truth.
  *
  * Edits are applied optimistically to the `['bio', userId]` cache (instant, and
  * shared across every mounted instance) + mirrored to localStorage, then written

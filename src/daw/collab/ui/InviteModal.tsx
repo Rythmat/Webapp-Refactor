@@ -1,23 +1,18 @@
 // ── InviteModal ──────────────────────────────────────────────────────────
-// Modal for inviting collaborators by username search, or by sharing the room
+// Modal for bringing collaborators into the current session: share the room
 // code that others type into "Join Room".
+//
+// This used to also search users by name and send them an in-app invite via
+// `POST /api/collab/rooms/:id/invite-user`. That path has been removed — it
+// stored the invite under the recipient's `User.id` UUID while the invite inbox
+// read from a key built out of the recipient's Auth0 `sub`, so no invite was
+// ever delivered. The room code is how sessions are actually joined.
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Check, Search, Send, UserPlus, X } from 'lucide-react';
+import { Copy, Check, UserPlus, X } from 'lucide-react';
 import { useStore } from '@/daw/store/index';
-import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { useStudents } from '@/hooks/data/students/useStudents';
-import { reportChallengeEvent } from '@/lib/challenges/eventBus';
-import { showSuccess, showError } from '@/util/toast';
-import type { CollabRole } from '../types';
-
-interface SearchResult {
-  id: string;
-  nickname: string;
-  username: string | null;
-}
 
 interface InviteModalProps {
   open: boolean;
@@ -25,85 +20,15 @@ interface InviteModalProps {
 }
 
 export function InviteModal({ open, onClose }: InviteModalProps) {
-  const roomId = useStore((s) => s.roomId);
-  const projectName = useStore((s) => s.projectName);
-  const { token, appUser } = useAuthContext();
-  const [selectedRole, setSelectedRole] = useState<CollabRole>('editor');
-  const [query, setQuery] = useState('');
-  const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
-  const [sending, setSending] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const { data: students } = useStudents({ status: 'active' });
-
-  // Focus input on open; reset transient state.
-  useEffect(() => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-      setQuery('');
-      setInvitedIds(new Set());
-    }
-  }, [open]);
-
-  // No dedicated user-search endpoint exists; filter the active-users list
-  // (getStudents) by name/username client-side. Excludes self + already-invited.
-  const results = useMemo<SearchResult[]>(() => {
-    const q = query.trim().toLowerCase();
-    if (q.length < 2) return [];
-    return (students ?? [])
-      .filter(
-        (s) =>
-          s.id !== appUser?.id &&
-          !invitedIds.has(s.id) &&
-          (s.nickname.toLowerCase().includes(q) ||
-            (s.username ?? '').toLowerCase().includes(q)),
-      )
-      .slice(0, 20);
-  }, [students, query, appUser?.id, invitedIds]);
-
-  // Send invite to a user
-  const handleInvite = useCallback(
-    async (user: SearchResult) => {
-      if (!roomId || !token || sending) return;
-      setSending(user.id);
-      try {
-        const res = await fetch(`/api/collab/rooms/${roomId}/invite-user`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            targetUserId: user.id,
-            targetUserName: appUser?.nickname ?? 'Someone',
-            role: selectedRole,
-            projectName,
-          }),
-        });
-
-        if (res.ok) {
-          showSuccess(`Invited ${user.nickname} as ${selectedRole}`);
-          reportChallengeEvent({ kind: 'studio_invite', roomId });
-          // Hide from results so they can't be invited again
-          setInvitedIds((prev) => new Set(prev).add(user.id));
-        } else {
-          const data = await res.json().catch(() => ({}));
-          showError(
-            (data as { error?: string }).error ?? 'Failed to send invite',
-          );
-        }
-      } catch {
-        showError('Failed to send invite');
-      } finally {
-        setSending(null);
-      }
-    },
-    [roomId, token, selectedRole, sending, appUser, projectName],
-  );
 
   // The room code another user types into "Join Room" to join this session.
   const roomCode = useStore((s) => s.roomCode);
+
+  // Reset transient state on open.
+  useEffect(() => {
+    if (open) setCopied(false);
+  }, [open]);
 
   const handleCopyCode = useCallback(async () => {
     if (!roomCode) return;
@@ -181,144 +106,13 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                 </button>
               </div>
 
-              {/* Role selector */}
-              <div className="flex flex-col gap-1.5">
-                <span
-                  className="text-[10px] font-medium uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-dim)' }}
-                >
-                  Permission
-                </span>
-                <div className="flex gap-1.5">
-                  {(['editor', 'viewer'] as const).map((role) => (
-                    <button
-                      key={role}
-                      onClick={() => setSelectedRole(role)}
-                      className="flex-1 rounded-md py-1.5 text-[10px] font-medium capitalize transition-colors"
-                      style={{
-                        backgroundColor:
-                          selectedRole === role
-                            ? 'var(--color-accent)'
-                            : 'var(--color-surface)',
-                        color:
-                          selectedRole === role
-                            ? '#fff'
-                            : 'var(--color-text-dim)',
-                        border: 'none',
-                      }}
-                    >
-                      {role}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* User search */}
-              <div className="flex flex-col gap-1.5">
-                <span
-                  className="text-[10px] font-medium uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-dim)' }}
-                >
-                  Search by name
-                </span>
-                <div
-                  className="flex items-center gap-2 rounded-md px-2.5 py-1.5"
-                  style={{ backgroundColor: 'var(--color-surface)' }}
-                >
-                  <Search
-                    size={12}
-                    style={{ color: 'var(--color-text-dim)', flexShrink: 0 }}
-                  />
-                  <input
-                    ref={inputRef}
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Type a username or nickname..."
-                    className="flex-1 border-none bg-transparent text-[11px] outline-none"
-                    style={{ color: 'var(--color-text)' }}
-                  />
-                </div>
-
-                {/* Search results */}
-                {(results.length > 0 ||
-                  (query.trim().length >= 2 && students === undefined)) && (
-                  <div
-                    className="flex max-h-[160px] flex-col gap-0.5 overflow-y-auto rounded-md p-1"
-                    style={{ backgroundColor: 'var(--color-surface)' }}
-                  >
-                    {students === undefined && results.length === 0 && (
-                      <div
-                        className="px-2 py-2 text-center text-[10px]"
-                        style={{ color: 'var(--color-text-dim)' }}
-                      >
-                        Searching...
-                      </div>
-                    )}
-                    {results.map((user) => (
-                      <div
-                        key={user.id}
-                        className="flex items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-white/5"
-                      >
-                        <div className="flex flex-col">
-                          <span
-                            className="text-[11px] font-medium"
-                            style={{ color: 'var(--color-text)' }}
-                          >
-                            {user.nickname}
-                          </span>
-                          {user.username && (
-                            <span
-                              className="text-[9px]"
-                              style={{ color: 'var(--color-text-dim)' }}
-                            >
-                              @{user.username}
-                            </span>
-                          )}
-                        </div>
-                        <motion.button
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleInvite(user)}
-                          disabled={sending === user.id}
-                          className="flex items-center gap-1 rounded-md px-2 py-1 text-[9px] font-medium transition-colors"
-                          style={{
-                            backgroundColor: 'var(--color-accent)',
-                            color: '#fff',
-                            border: 'none',
-                            opacity: sending === user.id ? 0.5 : 1,
-                          }}
-                        >
-                          <Send size={9} />
-                          {sending === user.id ? 'Sending...' : 'Invite'}
-                        </motion.button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {query.trim().length >= 2 &&
-                  students !== undefined &&
-                  results.length === 0 && (
-                    <div
-                      className="px-2 py-2 text-center text-[10px]"
-                      style={{ color: 'var(--color-text-dim)' }}
-                    >
-                      No users found
-                    </div>
-                  )}
-              </div>
-
-              {/* Divider */}
-              <div
-                className="h-px w-full"
-                style={{ backgroundColor: 'var(--color-border)' }}
-              />
-
               {/* Room code — share so others can join via Join Room */}
               <div className="flex flex-col gap-1.5">
                 <span
                   className="text-[10px] font-medium uppercase tracking-wider"
                   style={{ color: 'var(--color-text-dim)' }}
                 >
-                  Or share this room code
+                  Share this room code
                 </span>
                 <div className="flex items-center gap-1.5">
                   <div

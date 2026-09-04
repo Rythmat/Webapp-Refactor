@@ -1,7 +1,8 @@
 // ── Studio Library tag vocabularies ──────────────────────────────────────
 // Fixed option sets for the per-project library metadata (genre / status /
-// instruments) edited in the Studio Library and persisted via
-// api/project-meta/*. PROJECT_STATUSES is mirrored in api/project-meta/[id].ts.
+// instruments) edited in the Studio Library and persisted as columns on
+// `studio_project`. All three lists are mirrored — and enforced — in
+// music-atlas-api/src/services/studio-projects/update-project-meta.ts.
 
 export const PROJECT_STATUSES = [
   'Idea',

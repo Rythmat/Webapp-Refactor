@@ -1,84 +1,58 @@
-import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
+import { useMusicAtlas } from '@/contexts/MusicAtlasContext';
 import { useMe } from '@/hooks/data';
+import { meQueryKey } from '@/hooks/data/auth/meQueryKey';
 import { type AvatarConfig, isAvatarConfig } from '@/lib/avatarHexGrid';
 
 /**
- * Client for our serverless avatar-config store (api/avatar-config/*, backed by
- * Upstash Redis). Persists the full AvatarConfig (incl. custom palette colours)
- * per user, loadable on login and readable for other users (Connect avatars).
+ * The current user's avatar config, from the canonical store: the `avatar_config`
+ * column on `user`, read via `GET /auth/me` and written via
+ * `PUT /auth/me/avatar-config`.
+ *
+ * This replaces the old serverless `api/avatar-config/*` (Upstash Redis) store,
+ * which keyed records by the Auth0 `sub` while every id the frontend held was
+ * the `User.id` UUID — so its batch endpoint could never resolve another user.
+ * Other users' avatars now come from the same list that names them: the students
+ * API returns `avatarConfig` per user (see `useStudents`).
  */
-async function avatarFetch(
-  path: string,
-  token: string,
-  init?: RequestInit,
-): Promise<Response> {
-  const res = await fetch(path, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      ...init?.headers,
-    },
-  });
-  if (!res.ok) throw new Error(`${path} failed (${res.status})`);
-  return res;
+
+/**
+ * The generated client types `avatarConfig` as `null` — an artifact of the API
+ * describing the column as `t.Nullable(t.Unknown())`, which swagger-typescript-api
+ * narrows to `null`. The value is really an opaque JSON blob, so read it through
+ * `unknown` and validate at runtime. Tightening the API response schema would
+ * remove the cast, but it would also start rejecting any stored blob that no
+ * longer matches — not worth it against live data.
+ */
+export function readAvatarConfig(value: unknown): AvatarConfig | null {
+  return isAvatarConfig(value) ? value : null;
 }
 
-export const avatarConfigApi = {
-  getSelf: async (token: string): Promise<AvatarConfig | null> => {
-    const res = await avatarFetch('/api/avatar-config', token);
-    const data = (await res.json()) as { config: unknown };
-    return isAvatarConfig(data.config) ? data.config : null;
-  },
-
-  putSelf: async (token: string, config: AvatarConfig): Promise<void> => {
-    await avatarFetch('/api/avatar-config', token, {
-      method: 'PUT',
-      body: JSON.stringify(config),
-    });
-  },
-
-  batch: async (
-    token: string,
-    ids: string[],
-  ): Promise<Record<string, AvatarConfig>> => {
-    if (ids.length === 0) return {};
-    const res = await avatarFetch('/api/avatar-config/batch', token, {
-      method: 'POST',
-      body: JSON.stringify({ ids }),
-    });
-    const data = (await res.json()) as { configs?: Record<string, unknown> };
-    const out: Record<string, AvatarConfig> = {};
-    for (const [id, cfg] of Object.entries(data.configs ?? {})) {
-      if (isAvatarConfig(cfg)) out[id] = cfg;
-    }
-    return out;
-  },
-};
-
-/** The current user's saved avatar config from the store (load-on-login). */
-export function useSelfAvatarConfig() {
-  const token = useAuthToken();
+/** The current user's saved avatar config (from the shared `/auth/me` query). */
+export function useSelfAvatarConfig(): { data: AvatarConfig | null } {
   const { data: me } = useMe();
-  return useQuery({
-    queryKey: ['avatar-config', 'self', me?.id],
-    enabled: !!token && !!me?.id,
-    queryFn: () => avatarConfigApi.getSelf(token!),
-    staleTime: 60_000,
-  });
+  return { data: readAvatarConfig(me?.avatarConfig as unknown) };
 }
 
-/** Resolve many users' avatar configs → `{ [userId]: AvatarConfig }`. */
-export function useAvatarConfigs(ids: string[]) {
+/**
+ * Persist the current user's avatar config. Patches the shared `/auth/me` cache
+ * on success so every consumer re-renders without an extra round trip.
+ */
+export function useSaveAvatarConfig() {
+  const musicAtlas = useMusicAtlas();
+  const queryClient = useQueryClient();
   const token = useAuthToken();
-  // Stable, deduped key so identical id sets share one request.
-  const key = useMemo(() => [...new Set(ids)].sort(), [ids]);
-  return useQuery({
-    queryKey: ['avatar-config', 'batch', key],
-    enabled: !!token && key.length > 0,
-    queryFn: () => avatarConfigApi.batch(token!, key),
-    staleTime: 60_000,
+
+  return useMutation({
+    mutationFn: (config: AvatarConfig) =>
+      musicAtlas.auth.putAuthMeAvatarConfig(config),
+    onSuccess: (_data, config) => {
+      queryClient.setQueryData(meQueryKey(token), (prev: unknown) =>
+        prev && typeof prev === 'object'
+          ? { ...prev, avatarConfig: config }
+          : prev,
+      );
+    },
   });
 }

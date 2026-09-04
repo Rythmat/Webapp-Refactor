@@ -579,9 +579,6 @@ export const SongLibraryPage: FC = () => {
     <div
       className="flex flex-col h-full"
       style={{
-        backgroundImage: 'url(/backgrounds/dashboard-bg.svg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
         padding: '0 32px',
       }}
     >

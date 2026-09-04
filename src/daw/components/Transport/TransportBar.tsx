@@ -27,7 +27,6 @@ import { RainbowBorderButton } from '@/components/ui/rainbow-borders-button';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
 import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
-import { InviteNotificationBell } from '@/daw/collab/ui/InviteNotificationBell';
 import { LeaveSavePrompt } from '@/daw/collab/ui/LeaveSavePrompt';
 import { KickedModal } from '@/daw/collab/ui/KickedModal';
 import { WaitingForSessionModal } from '@/daw/collab/ui/WaitingForSessionModal';
@@ -866,9 +865,6 @@ export const TransportBar = memo(function TransportBar({
             className="h-4 w-px"
             style={{ backgroundColor: 'var(--color-border)' }}
           />
-
-          {/* Collab invite notifications */}
-          <InviteNotificationBell />
 
           {/* Collaboration */}
           <CollabToolbar

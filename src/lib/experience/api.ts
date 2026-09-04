@@ -43,7 +43,7 @@ function parseApiResponse(text: string): unknown {
 export async function apiRequest<T>(
   path: string,
   params: {
-    method?: 'GET' | 'POST';
+    method?: 'GET' | 'POST' | 'PUT';
     token: string;
     body?: unknown;
   },

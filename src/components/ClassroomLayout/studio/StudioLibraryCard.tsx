@@ -11,14 +11,12 @@ import {
   PROJECT_INSTRUMENTS,
   PROJECT_STATUSES,
 } from '@/daw/data/projectMeta';
-import { useConnectionUsers } from '@/hooks/data/useConnections';
-import {
-  useProjectMetaMutations,
-  type ProjectMeta,
-} from '@/hooks/data/useProjectMeta';
+import { useStudents } from '@/hooks/data/students/useStudents';
+import { readAvatarConfig } from '@/hooks/data/useAvatarConfigs';
 import { avatarConfigOrDefault } from '@/lib/avatarHexGrid';
 import {
   studioProjectsApi,
+  type StudioProjectLibraryMeta,
   type StudioProjectSummary,
 } from '@/lib/studio-projects/api';
 import { generateStudioTileSvg } from '@/lib/studioProjectTile';
@@ -26,7 +24,8 @@ import { showError } from '@/util/toast';
 
 interface StudioLibraryCardProps {
   project: StudioProjectSummary;
-  meta: ProjectMeta;
+  /** Called after this project's tags change, with the saved values. */
+  onUpdated: (meta: StudioProjectLibraryMeta) => void;
   /** Called after this project is deleted so the parent can refresh the list. */
   onDeleted: () => void;
 }
@@ -56,30 +55,57 @@ const chipClass = (active: boolean) =>
 /**
  * One project in the Studio Library: the project tile + name/bpm, its library
  * tags (genre / status / instruments) and collaborator avatars, and a Manage
- * panel to edit those tags, add collaborators (from your connections), or delete
- * the project. Tags/collaborators persist in our project-meta store; delete hits
- * the real projects backend.
+ * panel to edit those tags, credit collaborators, or delete the project.
+ *
+ * The tags arrive on the project summary itself and are saved with
+ * `studioProjectsApi.patchMeta`, which writes four scalar columns and no track
+ * rows — so editing a tag here cannot disturb the project's music, and a
+ * project save from the DAW cannot reset the tags.
+ *
+ * Collaborator candidates come from the active-users list — the same directory
+ * the rest of the app searches. They used to come from your accepted
+ * connections, but that graph never produced one, so the picker was always
+ * empty. Crediting someone here is a label on your own project; it grants no
+ * access, so drawing from the full directory is safe.
  */
 export const StudioLibraryCard = ({
   project,
-  meta,
+  onUpdated,
   onDeleted,
 }: StudioLibraryCardProps) => {
   const navigate = useNavigate();
   const token = useAuthToken();
-  const { connections } = useConnectionUsers();
-  const { put } = useProjectMetaMutations();
+  const { data: students } = useStudents({ status: 'active' });
+
+  const meta: StudioProjectLibraryMeta = {
+    libraryGenre: project.libraryGenre,
+    libraryStatus: project.libraryStatus,
+    libraryInstruments: project.libraryInstruments,
+    collaborators: project.collaborators,
+  };
 
   const [managing, setManaging] = useState(false);
-  const [draft, setDraft] = useState<ProjectMeta>(meta);
+  const [draft, setDraft] = useState<StudioProjectLibraryMeta>(meta);
   const [busy, setBusy] = useState(false);
 
   const title = project.name || 'Untitled Project';
 
-  // Resolve collaborator ids → display info (name + avatar) via connections.
+  const collaboratorOptions = useMemo(
+    () =>
+      (students ?? [])
+        .filter((s) => s.removedAt == null)
+        .map((s) => ({
+          id: s.id,
+          nickname: s.nickname,
+          avatarConfig: readAvatarConfig(s.avatarConfig) ?? undefined,
+        })),
+    [students],
+  );
+
+  // Resolve saved collaborator ids → display info (name + avatar).
   const usersById = useMemo(
-    () => new Map(connections.map((c) => [c.id, c])),
-    [connections],
+    () => new Map(collaboratorOptions.map((c) => [c.id, c])),
+    [collaboratorOptions],
   );
 
   const openProject = () =>
@@ -93,10 +119,16 @@ export const StudioLibraryCard = ({
   };
 
   const save = async () => {
+    if (!token) return;
     setBusy(true);
     try {
-      await put.mutateAsync({ id: project.id, meta: draft });
+      const saved = await studioProjectsApi.patchMeta(token, project.id, draft);
+      onUpdated(saved);
       setManaging(false);
+    } catch (err) {
+      showError(
+        `Save failed: ${err instanceof Error ? err.message : 'unknown error'}`,
+      );
     } finally {
       setBusy(false);
     }
@@ -108,12 +140,8 @@ export const StudioLibraryCard = ({
       return;
     setBusy(true);
     try {
+      // Tags live on the project row now, so they go with it — no cleanup call.
       await studioProjectsApi.remove(token, project.id);
-      // Best-effort meta cleanup; the project is already gone either way.
-      void fetch(`/api/project-meta/${encodeURIComponent(project.id)}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      }).catch(() => {});
       onDeleted();
     } catch (err) {
       showError(
@@ -124,7 +152,10 @@ export const StudioLibraryCard = ({
     }
   };
 
-  const toggleInArray = (key: 'instruments' | 'collaborators', value: string) =>
+  const toggleInArray = (
+    key: 'libraryInstruments' | 'collaborators',
+    value: string,
+  ) =>
     setDraft((d) => {
       const has = d[key].includes(value);
       return {
@@ -158,19 +189,21 @@ export const StudioLibraryCard = ({
               {project.composerName || `${project.bpm ?? '—'} BPM`}
             </span>
             {/* Saved tags */}
-            {(meta.genre || meta.status || meta.instruments.length > 0) && (
+            {(meta.libraryGenre ||
+              meta.libraryStatus ||
+              meta.libraryInstruments.length > 0) && (
               <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                {meta.genre && (
+                {meta.libraryGenre && (
                   <span className="rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] text-white/70">
-                    {meta.genre}
+                    {meta.libraryGenre}
                   </span>
                 )}
-                {meta.status && (
+                {meta.libraryStatus && (
                   <span className="rounded-full bg-white/[0.08] px-2 py-0.5 text-[11px] text-white/70">
-                    {meta.status}
+                    {meta.libraryStatus}
                   </span>
                 )}
-                {meta.instruments.slice(0, 4).map((i) => (
+                {meta.libraryInstruments.slice(0, 4).map((i) => (
                   <span
                     key={i}
                     className="rounded-full bg-white/[0.05] px-2 py-0.5 text-[11px] text-white/55"
@@ -232,9 +265,12 @@ export const StudioLibraryCard = ({
                   key={g}
                   type="button"
                   onClick={() =>
-                    setDraft((d) => ({ ...d, genre: d.genre === g ? '' : g }))
+                    setDraft((d) => ({
+                      ...d,
+                      libraryGenre: d.libraryGenre === g ? null : g,
+                    }))
                   }
-                  className={chipClass(draft.genre === g)}
+                  className={chipClass(draft.libraryGenre === g)}
                 >
                   {g}
                 </button>
@@ -252,9 +288,12 @@ export const StudioLibraryCard = ({
                   key={s}
                   type="button"
                   onClick={() =>
-                    setDraft((d) => ({ ...d, status: d.status === s ? '' : s }))
+                    setDraft((d) => ({
+                      ...d,
+                      libraryStatus: d.libraryStatus === s ? null : s,
+                    }))
                   }
-                  className={chipClass(draft.status === s)}
+                  className={chipClass(draft.libraryStatus === s)}
                 >
                   {s}
                 </button>
@@ -271,8 +310,8 @@ export const StudioLibraryCard = ({
                 <button
                   key={i}
                   type="button"
-                  onClick={() => toggleInArray('instruments', i)}
-                  className={chipClass(draft.instruments.includes(i))}
+                  onClick={() => toggleInArray('libraryInstruments', i)}
+                  className={chipClass(draft.libraryInstruments.includes(i))}
                 >
                   {i}
                 </button>
@@ -284,13 +323,13 @@ export const StudioLibraryCard = ({
             <span className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-white/50">
               <Users className="size-3.5" /> Collaborators
             </span>
-            {connections.length === 0 ? (
+            {collaboratorOptions.length === 0 ? (
               <p className="text-sm text-white/50">
-                Connect with musicians on your profile to add them here.
+                No other musicians to credit yet.
               </p>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {connections.map((c) => {
+                {collaboratorOptions.map((c) => {
                   const selected = draft.collaborators.includes(c.id);
                   return (
                     <button

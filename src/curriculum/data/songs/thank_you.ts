@@ -57,7 +57,5 @@ export const thank_you: Song = {
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=jXScXVYEON4' },
   ],
   artistImageSource: 'commissioned',
-
-  artistImageRef: '/artists/unknown-artist.webp',
   popularity: 50,
 };

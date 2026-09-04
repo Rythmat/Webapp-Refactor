@@ -323,6 +323,10 @@ export const AdminUsersPage = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start">
+                        {/* The role name alone. The dropdown hangs off the
+                            user's current role badge, so "change this to X" is
+                            already what it means — spelling that out made every
+                            option longer without saying anything. */}
                         {ASSIGNABLE_ROLES.filter(
                           (role) => role !== user.role,
                         ).map((role) => (
@@ -330,7 +334,7 @@ export const AdminUsersPage = () => {
                             key={role}
                             onSelect={() => setConfirmChange({ user, role })}
                           >
-                            Make {ROLE_LABELS[role].toLowerCase()}
+                            {ROLE_LABELS[role]}
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>

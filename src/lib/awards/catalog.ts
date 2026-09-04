@@ -5,19 +5,13 @@
 // XP, lessons, plays only go up; streak uses the historical longest) so a badge
 // never un-earns. Titles/descriptions are celebratory (no pressure).
 
-export type AwardCategory =
-  | 'Streak'
-  | 'Level'
-  | 'Lessons'
-  | 'Arcade'
-  | 'Social';
+export type AwardCategory = 'Streak' | 'Level' | 'Lessons' | 'Arcade';
 
 export const AWARD_CATEGORY_ORDER: AwardCategory[] = [
   'Streak',
   'Level',
   'Lessons',
   'Arcade',
-  'Social',
 ];
 
 export interface AwardStats {
@@ -26,7 +20,6 @@ export interface AwardStats {
   longestStreak: number;
   lessonsCompleted: number;
   arcadePlays: number;
-  connections: number;
 }
 
 export interface AwardDef {
@@ -164,29 +157,7 @@ export const AWARDS_CATALOG: AwardDef[] = [
     target: 50,
     value: (s) => s.arcadePlays,
   },
-  // ── Social ──
-  {
-    id: 'social-1',
-    title: 'First Connection',
-    description: 'Connect with a musician',
-    category: 'Social',
-    target: 1,
-    value: (s) => s.connections,
-  },
-  {
-    id: 'social-5',
-    title: 'Bandmate',
-    description: 'Connect with 5 musicians',
-    category: 'Social',
-    target: 5,
-    value: (s) => s.connections,
-  },
-  {
-    id: 'social-10',
-    title: 'Networker',
-    description: 'Connect with 10 musicians',
-    category: 'Social',
-    target: 10,
-    value: (s) => s.connections,
-  },
+  // NOTE: the Social awards (First Connection / Bandmate / Networker) were
+  // removed with the user-connection graph — it had no working backing store,
+  // so they could never be earned. Reinstate them if connections return.
 ];

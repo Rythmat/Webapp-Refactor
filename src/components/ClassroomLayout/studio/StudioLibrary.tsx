@@ -1,10 +1,6 @@
 import { Library } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
-import {
-  EMPTY_PROJECT_META,
-  useProjectMetaBatch,
-} from '@/hooks/data/useProjectMeta';
 import {
   studioProjectsApi,
   type StudioProjectSummary,
@@ -14,8 +10,11 @@ import { StudioLibraryCard } from './StudioLibraryCard';
 /**
  * Project Library view — the user's saved cloud projects (all of them, via
  * `studioProjectsApi.list`) as a managed list. Each row can be opened, tagged
- * (genre / status / instruments), given collaborators, or deleted. Tags +
- * collaborators come from the project-meta store (`useProjectMetaBatch`).
+ * (genre / status / instruments), given collaborators, or deleted.
+ *
+ * The tags come back on the project summary itself, so this is a single
+ * request. It used to be two: the list, plus a batch read against a separate
+ * Redis-backed metadata store keyed by project id.
  */
 export const StudioLibrary = () => {
   const token = useAuthToken();
@@ -35,9 +34,6 @@ export const StudioLibrary = () => {
   useEffect(() => {
     void load();
   }, [load]);
-
-  const ids = useMemo(() => (projects ?? []).map((p) => p.id), [projects]);
-  const { data: metas } = useProjectMetaBatch(ids);
 
   return (
     <section
@@ -70,7 +66,13 @@ export const StudioLibrary = () => {
             <StudioLibraryCard
               key={p.id}
               project={p}
-              meta={metas?.[p.id] ?? EMPTY_PROJECT_META}
+              onUpdated={(meta) =>
+                setProjects((prev) =>
+                  prev
+                    ? prev.map((x) => (x.id === p.id ? { ...x, ...meta } : x))
+                    : prev,
+                )
+              }
               onDeleted={() => {
                 setProjects((prev) =>
                   prev ? prev.filter((x) => x.id !== p.id) : prev,

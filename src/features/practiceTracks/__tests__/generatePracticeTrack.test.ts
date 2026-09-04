@@ -157,8 +157,11 @@ describe('generatePracticeTrack melody', () => {
         const events = result.melodyClip!.events;
         const finalNote = events[events.length - 1];
         const lastChord = result.chordRegions[result.chordRegions.length - 1];
+        // `midis` is optional on ChordRegion — assert rather than silently
+        // comparing against an empty chord-tone set.
+        expect(lastChord.midis).toBeDefined();
         const chordTones = new Set(
-          lastChord.midis.map((m) => ((m % 12) + 12) % 12),
+          (lastChord.midis ?? []).map((m) => ((m % 12) + 12) % 12),
         );
         expect(chordTones.has(((finalNote.note % 12) + 12) % 12)).toBe(true);
       }

@@ -155,7 +155,11 @@ describe('generatePracticeTrack melody', () => {
           level,
         );
         const events = result.melodyClip!.events;
-        const finalNote = events[events.length - 1];
+        // Match how the generator picks the note it retunes: latest onset,
+        // not last array slot.
+        const finalNote = events.reduce((latest, e) =>
+          e.startTick >= latest.startTick ? e : latest,
+        );
         const lastChord = result.chordRegions[result.chordRegions.length - 1];
         // `midis` is optional on ChordRegion — assert rather than silently
         // comparing against an empty chord-tone set.
@@ -165,9 +169,14 @@ describe('generatePracticeTrack melody', () => {
         if (!midis) {
           throw new Error('Expected last chord to have MIDI notes');
         }
-        const chordTones = new Set(
-          midis.map((m) => ((m % 12) + 12) % 12),
-        );
+        const chordTones = new Set(midis.map((m) => ((m % 12) + 12) % 12));
+
+        expect({
+          mode,
+          level,
+          pitchClass: ((finalNote.note % 12) + 12) % 12,
+          isChordTone: chordTones.has(((finalNote.note % 12) + 12) % 12),
+        }).toMatchObject({ isChordTone: true });
       }
     }
   });

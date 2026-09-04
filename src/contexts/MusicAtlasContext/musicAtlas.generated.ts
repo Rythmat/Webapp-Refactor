@@ -661,12 +661,6 @@ export interface PatchApiGameOptionsByGamePayload {
   options: object;
 }
 
-export type PatchApiGameOptionsByGameData = any;
-
-export interface PatchApiGameOptionsByGamePayload {
-  options: object;
-}
-
 export type PatchApiProgressActivityData = any;
 
 export interface PatchApiProgressActivityPayload {
@@ -3803,40 +3797,6 @@ export namespace Challenges {
     export type RequestBody = PostApiChallengesListPayload;
     export type RequestHeaders = {};
     export type ResponseBody = PostApiChallengesListData;
-  }
-}
-
-export namespace GameOptions {
-  /**
-   * No description
-   * @tags Game Options
-   * @name GetApiGameOptions
-   * @request GET:/api/game-options
-   * @response `200` `GetApiGameOptionsData`
-   */
-  export namespace GetApiGameOptions {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetApiGameOptionsData;
-  }
-
-  /**
-   * No description
-   * @tags Game Options
-   * @name PatchApiGameOptionsByGame
-   * @request PATCH:/api/game-options/{game}
-   * @response `200` `PatchApiGameOptionsByGameData`
-   */
-  export namespace PatchApiGameOptionsByGame {
-    export type RequestParams = {
-      game: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = PatchApiGameOptionsByGamePayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PatchApiGameOptionsByGameData;
   }
 }
 

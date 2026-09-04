@@ -3,7 +3,7 @@
 // (either direction) with the given user. Applied atomically (Lua).
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getRedis, verifyAuthToken, removeConnectionTx } from './_utils';
+import { getRedis, verifyAuthToken, removeConnectionTx } from './_utils.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') {

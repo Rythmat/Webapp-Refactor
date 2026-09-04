@@ -6,7 +6,7 @@
 
 import type { Redis } from '@upstash/redis';
 
-export { getRedis, verifyAuthToken } from '../collab/_utils';
+export { getRedis, verifyAuthToken } from '../collab/_utils.js';
 
 const STREAK_PREFIX = 'streak:';
 export const streakKey = (userId: string): string =>

@@ -5,7 +5,7 @@
 
 import type { Redis } from '@upstash/redis';
 
-export { getRedis, verifyAuthToken } from '../collab/_utils';
+export { getRedis, verifyAuthToken } from '../collab/_utils.js';
 
 export type ProfileVisibility = 'public' | 'private';
 

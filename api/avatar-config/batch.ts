@@ -4,7 +4,7 @@
 // ids without a stored config are omitted.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getRedis, verifyAuthToken, getAvatarConfigs } from './_utils';
+import { getRedis, verifyAuthToken, getAvatarConfigs } from './_utils.js';
 
 const MAX_IDS = 500;
 

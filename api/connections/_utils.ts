@@ -10,7 +10,7 @@
 
 import type { Redis } from '@upstash/redis';
 
-export { getRedis, verifyAuthToken } from '../collab/_utils';
+export { getRedis, verifyAuthToken } from '../collab/_utils.js';
 
 // Redis sets, keyed by user id:
 //   conn:accepted:<id> — connected user ids (mutual)

@@ -8,7 +8,7 @@ import {
   verifyAuthToken,
   getAvatarConfig,
   setAvatarConfig,
-} from './_utils';
+} from './_utils.js';
 
 const NOISE_TYPES = ['simplex', 'diagonal', 'circle', 'sinCos', 'line'];
 

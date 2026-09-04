@@ -4,7 +4,7 @@
 // without stored meta are omitted.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getRedis, verifyAuthToken, getProjectMetas } from './_utils';
+import { getRedis, verifyAuthToken, getProjectMetas } from './_utils.js';
 
 const MAX_IDS = 500;
 

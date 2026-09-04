@@ -5,7 +5,7 @@
 
 import type { Redis } from '@upstash/redis';
 
-export { getRedis, verifyAuthToken } from '../collab/_utils';
+export { getRedis, verifyAuthToken } from '../collab/_utils.js';
 
 const PREFIX = 'avatar:config:';
 export const avatarKey = (userId: string): string => `${PREFIX}${userId}`;

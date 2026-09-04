@@ -4,7 +4,7 @@
 // state change is applied atomically (Lua) so the graph stays symmetric.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getRedis, verifyAuthToken, requestConnectionTx } from './_utils';
+import { getRedis, verifyAuthToken, requestConnectionTx } from './_utils.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') {

@@ -4,7 +4,7 @@
 // clears both pendings — never a half-applied state.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getRedis, verifyAuthToken, respondConnectionTx } from './_utils';
+import { getRedis, verifyAuthToken, respondConnectionTx } from './_utils.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') {

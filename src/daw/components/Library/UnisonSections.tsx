@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useStore } from '@/daw/store';
 import { midiToNoteName } from './insightConstants';
 import type { UnisonDocument } from '@/unison/types/schema';
 
@@ -8,6 +9,8 @@ interface UnisonSectionsProps {
 
 export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
   const [expandedMatches, setExpandedMatches] = useState(false);
+  const rootNote = useStore((s) => s.rootNote);
+  const mode = useStore((s) => s.mode);
 
   return (
     <>
@@ -262,8 +265,17 @@ export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
                 className="text-[10px] font-medium"
                 style={{ color: 'var(--color-text)' }}
               >
-                {midiToNoteName(unisonDoc.melody.pitchRange.low)} —{' '}
-                {midiToNoteName(unisonDoc.melody.pitchRange.high)}
+                {midiToNoteName(
+                  unisonDoc.melody.pitchRange.low,
+                  rootNote,
+                  mode,
+                )}{' '}
+                —{' '}
+                {midiToNoteName(
+                  unisonDoc.melody.pitchRange.high,
+                  rootNote,
+                  mode,
+                )}
               </span>
             </div>
             <div className="flex flex-col">

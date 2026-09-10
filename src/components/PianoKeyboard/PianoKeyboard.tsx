@@ -31,6 +31,10 @@ type PianoKeyboardProps = {
   showOctaveStart?: boolean;
   activeWhiteKeyColor?: string | null;
   activeBlackKeyColor?: string | null;
+  /** Keys tinted with the given color (MIDI note -> color) while they aren't
+   *  being played, e.g. a practice run's target notes. A played key still
+   *  takes its full active color, so presses stay visible over the hint. */
+  hintNotes?: ReadonlyMap<number, string>;
   onKeyClick?: (midiNumber: number) => void;
   onMidiInput?: (event: MidiNoteEvent) => void;
   enableMidiInterface?: boolean;
@@ -52,6 +56,7 @@ export function PianoKeyboard({
   showOctaveStart = false,
   activeWhiteKeyColor,
   activeBlackKeyColor,
+  hintNotes,
   onMidiInput,
   enableMidiInterface = false,
 }: PianoKeyboardProps) {
@@ -191,6 +196,7 @@ export function PianoKeyboard({
 
   const renderWhiteKey = (note: number) => {
     const activeNote = getActiveNote(note);
+    const hintColor = hintNotes?.get(note);
     const isLastWhiteInOctave = note % 12 === 11;
 
     return (
@@ -207,7 +213,9 @@ export function PianoKeyboard({
         style={{
           backgroundColor: activeNote
             ? activeNote?.color || activeWhiteKeyColor || undefined
-            : undefined,
+            : hintColor
+              ? `color-mix(in srgb, ${hintColor} 60%, white)`
+              : undefined,
         }}
         onClick={() => handleKeyClick(note)}
       >
@@ -220,6 +228,7 @@ export function PianoKeyboard({
 
   const renderBlackKey = (note: number) => {
     const activeNote = getActiveNote(note);
+    const hintColor = hintNotes?.get(note);
     const hasCustomColor = activeNote?.color || activeBlackKeyColor;
 
     return (
@@ -236,7 +245,9 @@ export function PianoKeyboard({
           style={{
             backgroundColor: activeNote
               ? activeNote?.color || activeBlackKeyColor || undefined
-              : undefined,
+              : hintColor
+                ? `color-mix(in srgb, ${hintColor} 60%, #18181b)`
+                : undefined,
             borderColor: activeNote
               ? activeNote?.color || activeWhiteKeyColor || undefined
               : undefined,

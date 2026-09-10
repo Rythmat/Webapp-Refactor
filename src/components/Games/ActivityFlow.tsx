@@ -16,8 +16,16 @@ import { useMidiInput } from '@/hooks/music/useMidiInput';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
-import { usePlayNote } from '@/contexts/PianoContext';
-import { pitchNameToMidi, type NoteEvent } from './PianoRollPlay';
+import {
+  releaseAllPianoNotes,
+  startPianoSampler,
+  triggerPianoAttackRelease,
+} from '@/audio/pianoSampler';
+import {
+  pitchNameToMidi,
+  THEORY_ACTIVITY_BPM,
+  type NoteEvent,
+} from './PianoRollPlay';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { getChordScales } from '@/components/learn/chordScaleData';
 import {
@@ -52,6 +60,10 @@ type FlowActivityProps = {
   isActive?: boolean;
   startSignal?: number;
   startMessage?: string;
+  /** Practice-mode scaffolding: show every target note on the keyboard. */
+  showTargetKeys?: boolean;
+  /** Lesson spelling map (noteSpellingLookup) for piano-roll lane labels. */
+  noteSpelling?: Map<number, string>;
 };
 
 type ActivityFlowProps = {
@@ -439,7 +451,6 @@ export const ActivityFlow = ({
 }: ActivityFlowProps) => {
   const navigate = useNavigate();
   const authToken = useAuthToken();
-  const playNote = usePlayNote();
   const modeLabel = mode ?? 'mode';
   // Practice Tracks (Studio hand-off CTAs) are only available for the 7
   // diatonic modes for now — see DIATONIC_MODE_SLUGS.
@@ -983,7 +994,6 @@ export const ActivityFlow = ({
   const [activityInstanceId, setActivityInstanceId] = useState(0);
   const [activityState, setActivityState] = useState<ActivityState>('active');
   const [startSignal, setStartSignal] = useState(0);
-  const [startOverlayStep, setStartOverlayStep] = useState(0);
   const [lessonComplete, setLessonComplete] = useState(false);
   // Shown once when the student finishes every Melody (section 'A') activity
   // while Chords (section 'B') activities still remain — offers a Practice
@@ -1080,7 +1090,6 @@ export const ActivityFlow = ({
         setCurrentIndex(firstInSection);
         setActivityState('active');
         setStartSignal(0);
-        setStartOverlayStep(0);
       }
     },
     [flowDefinitions],
@@ -1099,7 +1108,6 @@ export const ActivityFlow = ({
         activity.Component === PlayAlong || activity.Component === NoteHold;
       setActivityState(requiresStartOverlay ? 'pending' : 'active');
       setStartSignal(0);
-      setStartOverlayStep(0);
       setAttemptMode(null);
       setPracticeComplete(false);
     },
@@ -1147,21 +1155,21 @@ export const ActivityFlow = ({
       ? `${lessonProgressScope}:${startAtActivityKey}`
       : null;
 
+    // Chord activities only exist once the mode's chord data loads, so a deep
+    // link into Chords waits for it instead of falling through to resume.
+    if (startAtActivityKey && explicitStartIndex < 0 && chordsQuery.isPending) {
+      return;
+    }
+
     if (
       explicitStartIndex >= 0 &&
       explicitStartScopeKey &&
       explicitStartAppliedRef.current !== explicitStartScopeKey
     ) {
-      if (!introChordHoldCompleted && lessonOverviewIndex >= 0) {
-        explicitStartAppliedRef.current = explicitStartScopeKey;
-        resumeAppliedScopeRef.current = lessonProgressScope;
-        setLessonComplete(false);
-        setCurrentIndex(lessonOverviewIndex);
-        return;
-      }
       explicitStartAppliedRef.current = explicitStartScopeKey;
       resumeAppliedScopeRef.current = lessonProgressScope;
       setLessonComplete(false);
+      setCurrentSectionId(flowDefinitions[explicitStartIndex].section);
       setCurrentIndex(explicitStartIndex);
       return;
     }
@@ -1194,6 +1202,7 @@ export const ActivityFlow = ({
     setLessonComplete(false);
     setCurrentIndex(resumeIndex);
   }, [
+    chordsQuery.isPending,
     flowDefinitions,
     lessonProgressQuery.data,
     lessonProgressScope,
@@ -1212,7 +1221,6 @@ export const ActivityFlow = ({
       currentActivity.Component === PlayAlong ||
       currentActivity.Component === NoteHold;
     setActivityState(requiresStartOverlay ? 'pending' : 'active');
-    setStartOverlayStep(0);
     setStartSignal(0);
   }, [currentActivity?.key]);
 
@@ -1511,7 +1519,6 @@ export const ActivityFlow = ({
     setCurrentIndex(nextIdx);
     setActivityState('active');
     setStartSignal(0);
-    setStartOverlayStep(0);
   }, []);
 
   // Practice Track CTAs (Studio hand-off) — diatonic-only, see isDiatonicMode.
@@ -1756,72 +1763,88 @@ export const ActivityFlow = ({
     [events],
   );
 
-  useEffect(() => {
-    if (!showStartOverlay || startOverlaySequence.length === 0) {
-      setStartOverlayStep(0);
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setStartOverlayStep((prev) => {
-        const next = prev + 1;
-        if (next >= startOverlaySequence.length) {
-          return 0;
-        }
-        return next;
-      });
-    }, 600);
-
-    return () => window.clearInterval(intervalId);
-  }, [showStartOverlay, startOverlaySequence]);
-
-  const startOverlayNotes = useMemo(() => {
-    if (startOverlaySequence.length === 0) {
-      return [];
-    }
-
-    const now = Date.now();
-    const cappedIndex = Math.min(
-      startOverlayStep,
-      startOverlaySequence.length - 1,
-    );
-    const item = startOverlaySequence[cappedIndex];
-    return [
-      {
-        id: `start-${item.event.id}-${cappedIndex}`,
-        type: 'note',
-        midi: item.midi,
-        time: now,
-        duration: START_OVERLAY_NOTE_DURATION_SECONDS,
-        velocity: 1,
-        color: item.event.color,
-      } satisfies PlaybackEvent,
-    ];
-  }, [startOverlaySequence, startOverlayStep]);
-
   // Demo — audibly plays back the step's target note sequence with a
   // synced keyboard highlight, mirroring the genre/Fundamentals lesson gate.
   const [isPlayingDemo, setIsPlayingDemo] = useState(false);
-  const [demoHighlightMidis, setDemoHighlightMidis] = useState<Set<number>>(
-    new Set(),
+  // MIDI note -> id of the event currently sounding it. Keying the keyboard
+  // highlight by event id makes a repeated pitch visibly re-strike instead of
+  // reading as one long held note.
+  const [demoHighlights, setDemoHighlights] = useState<Map<number, string>>(
+    () => new Map(),
   );
   const demoTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   // Ref-counts concurrent events per MIDI note so overlapping/repeated notes
   // (e.g. a held note under a moving line) don't get released early when one
   // of their occurrences ends while another is still sounding.
   const demoNoteRefCountsRef = useRef<Map<number, number>>(new Map());
+  // Bumped whenever a demo starts or stops, so a demo still waiting on the
+  // sampler to load can't schedule its notes after being cancelled.
+  const demoRunIdRef = useRef(0);
 
   const demoPlayingNotes = useMemo<PlaybackEvent[]>(() => {
     const now = Date.now();
-    return [...demoHighlightMidis].map((midi, i) => ({
-      id: `demo-${midi}-${i}`,
+    return [...demoHighlights].map(([midi, eventId]) => ({
+      id: `demo-${eventId}`,
       type: 'note',
       midi,
       time: now,
       duration: START_OVERLAY_NOTE_DURATION_SECONDS,
       velocity: 1,
     }));
-  }, [demoHighlightMidis]);
+  }, [demoHighlights]);
+
+  // Idle "Note sequence" preview: silently loops the step exactly as written —
+  // each note lit for its own duration at the roll's tempo, chord tones
+  // together — with a one-beat rest before repeating. Yields to the Demo.
+  const [startOverlayNotes, setStartOverlayNotes] = useState<PlaybackEvent[]>(
+    [],
+  );
+  useEffect(() => {
+    setStartOverlayNotes([]);
+    if (
+      !showStartOverlay ||
+      isPlayingDemo ||
+      startOverlaySequence.length === 0
+    ) {
+      return;
+    }
+
+    const msPerTick = 60_000 / THEORY_ACTIVITY_BPM / NOTE_DURATION_TICKS;
+    const endTicks = Math.max(
+      ...startOverlaySequence.map(
+        ({ event }) => event.startTicks + event.durationTicks,
+      ),
+    );
+    const loopMs = (endTicks + NOTE_DURATION_TICKS) * msPerTick;
+    const loopStart = performance.now();
+    let lastSignature = '';
+
+    const intervalId = window.setInterval(() => {
+      const tick = ((performance.now() - loopStart) % loopMs) / msPerTick;
+      const sounding = startOverlaySequence.filter(
+        ({ event }) =>
+          tick >= event.startTicks &&
+          tick < event.startTicks + event.durationTicks,
+      );
+      const signature = sounding.map(({ event }) => event.id).join('|');
+      if (signature === lastSignature) return;
+      lastSignature = signature;
+      const now = Date.now();
+      setStartOverlayNotes(
+        sounding.map(({ event, midi }) => ({
+          id: `preview-${event.id}`,
+          type: 'note',
+          midi,
+          time: now,
+          duration: START_OVERLAY_NOTE_DURATION_SECONDS,
+          velocity: 1,
+          color: event.color,
+        })),
+      );
+    }, 16);
+
+    return () => window.clearInterval(intervalId);
+  }, [showStartOverlay, isPlayingDemo, startOverlaySequence]);
 
   const { startC: startOverlayStartC, endC: startOverlayEndC } = useMemo(() => {
     if (startOverlaySequence.length === 0) {
@@ -1837,41 +1860,58 @@ export const ActivityFlow = ({
     return { startC: minOctave, endC };
   }, [startOverlaySequence]);
 
-  const stopDemo = () => {
+  const stopDemo = useCallback(() => {
+    demoRunIdRef.current += 1;
     demoTimeoutsRef.current.forEach(clearTimeout);
     demoTimeoutsRef.current = [];
     demoNoteRefCountsRef.current = new Map();
     setIsPlayingDemo(false);
-    setDemoHighlightMidis(new Set());
-  };
+    setDemoHighlights(new Map());
+    void releaseAllPianoNotes();
+  }, []);
 
-  const playDemo = () => {
+  // A demo left running must not carry on into the next step's gate.
+  useEffect(() => stopDemo, [currentActivity.key, stopDemo]);
+
+  const playDemo = async () => {
     if (startOverlaySequence.length === 0) return;
     stopDemo();
+    const runId = demoRunIdRef.current;
+    const sequence = startOverlaySequence;
     setIsPlayingDemo(true);
 
-    // Mirrors the piano roll exactly: each note is scheduled by its own
-    // startTicks/durationTicks, so notes sharing an onset (chords) fire
-    // together, and each note releases at its own end time instead of
-    // everything sustaining until the whole demo finishes.
-    const DEMO_MS_PER_BEAT = 600;
-    const DEMO_MS_PER_TICK = DEMO_MS_PER_BEAT / NOTE_DURATION_TICKS;
-    const MIN_HOLD_MS = 120;
+    // Load the sampler before scheduling anything: otherwise every note that
+    // comes due while samples are still loading sounds at once when they land.
+    try {
+      await startPianoSampler();
+    } catch (error) {
+      console.warn('Demo audio unavailable', error);
+    }
+    if (demoRunIdRef.current !== runId) return;
+
+    // Mirrors the piano roll exactly: it plays at the roll's own tempo and
+    // each note is scheduled by its own startTicks/durationTicks, so it sounds
+    // and lights up for precisely the span drawn on the roll, and notes
+    // sharing an onset (chords) fire together.
+    const msPerTick = 60_000 / THEORY_ACTIVITY_BPM / NOTE_DURATION_TICKS;
 
     let maxEndMs = 0;
-    startOverlaySequence.forEach((item) => {
-      const onsetMs = item.event.startTicks * DEMO_MS_PER_TICK;
-      const holdMs = Math.max(
-        MIN_HOLD_MS,
-        item.event.durationTicks * DEMO_MS_PER_TICK,
-      );
+    sequence.forEach((item) => {
+      const onsetMs = item.event.startTicks * msPerTick;
+      const holdMs = item.event.durationTicks * msPerTick;
       maxEndMs = Math.max(maxEndMs, onsetMs + holdMs);
 
       const onTimeout = setTimeout(() => {
-        playNote(item.midi);
+        void triggerPianoAttackRelease(
+          Tone.Frequency(item.midi, 'midi').toNote(),
+          holdMs / 1000,
+          item.event.velocity,
+        );
         const counts = demoNoteRefCountsRef.current;
         counts.set(item.midi, (counts.get(item.midi) ?? 0) + 1);
-        setDemoHighlightMidis((prev) => new Set(prev).add(item.midi));
+        setDemoHighlights((prev) =>
+          new Map(prev).set(item.midi, item.event.id),
+        );
       }, onsetMs);
       demoTimeoutsRef.current.push(onTimeout);
 
@@ -1880,8 +1920,8 @@ export const ActivityFlow = ({
         const remaining = (counts.get(item.midi) ?? 1) - 1;
         if (remaining <= 0) {
           counts.delete(item.midi);
-          setDemoHighlightMidis((prev) => {
-            const next = new Set(prev);
+          setDemoHighlights((prev) => {
+            const next = new Map(prev);
             next.delete(item.midi);
             return next;
           });
@@ -1894,7 +1934,7 @@ export const ActivityFlow = ({
 
     const endTimeout = setTimeout(() => {
       setIsPlayingDemo(false);
-      setDemoHighlightMidis(new Set());
+      setDemoHighlights(new Map());
       demoNoteRefCountsRef.current = new Map();
     }, maxEndMs + 200);
     demoTimeoutsRef.current.push(endTimeout);
@@ -1921,6 +1961,13 @@ export const ActivityFlow = ({
     setActivityState('active');
     setStartSignal((value) => value + 1);
     setActivityInstanceId((id) => id + 1);
+  };
+
+  // Demo from the persistent mode bar above the roll: back to the gate popup
+  // (fresh remount, like Restart) with the demo already playing.
+  const handleReplayDemo = () => {
+    handleRestartActivity();
+    void playDemo();
   };
 
   if (showMelodySectionCompleteInterstitial) {
@@ -2305,6 +2352,54 @@ export const ActivityFlow = ({
               : 'transition duration-300'
           }
         >
+          {usesActivityStartOverlay && (
+            <div
+              aria-label="Activity mode"
+              className="mb-3 flex justify-center gap-2"
+              role="group"
+            >
+              {(
+                [
+                  { label: '▶ Demo', mode: null, onClick: handleReplayDemo },
+                  {
+                    label: 'Practice',
+                    mode: 'practice',
+                    onClick: () => beginFreshAttempt('practice'),
+                  },
+                  {
+                    label: 'Play Now',
+                    mode: 'graded',
+                    onClick: () => beginFreshAttempt('graded'),
+                  },
+                ] as const
+              ).map(({ label, mode, onClick }) => {
+                const isCurrent = mode !== null && attemptMode === mode;
+                return (
+                  <button
+                    key={label}
+                    aria-pressed={mode === null ? undefined : isCurrent}
+                    className="glass-panel-sm rounded-full px-5 py-1.5 text-sm font-semibold transition-colors duration-150"
+                    style={{
+                      background: isCurrent
+                        ? 'rgba(126, 207, 207, 0.12)'
+                        : 'rgba(255,255,255,0.03)',
+                      border: isCurrent
+                        ? '1px solid var(--color-accent)'
+                        : '1px solid var(--color-border)',
+                      color: isCurrent
+                        ? 'var(--color-accent)'
+                        : 'var(--color-text)',
+                      cursor: 'pointer',
+                    }}
+                    type="button"
+                    onClick={onClick}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
           <Component
             key={`${currentActivity.key}-${activityInstanceId}`}
             activityColor={activityColor}
@@ -2312,8 +2407,10 @@ export const ActivityFlow = ({
             isActive={activityState === 'active'}
             onContinue={handleContinue}
             onActivityCompleteChange={handleActivityCompleteChange}
+            showTargetKeys={attemptMode === 'practice'}
             startSignal={startSignal}
             startMessage={direction}
+            noteSpelling={pcSpellingMap}
           />
         </div>
         {showStartOverlay && (
@@ -2339,7 +2436,7 @@ export const ActivityFlow = ({
               >
                 {direction}
               </p>
-              {startOverlayNotes.length > 0 && (
+              {startOverlaySequence.length > 0 && (
                 <div className="mt-4">
                   <p
                     className="mb-2 text-xs uppercase tracking-wide"
@@ -2368,7 +2465,7 @@ export const ActivityFlow = ({
                 {startOverlaySequence.length > 0 && (
                   <button
                     type="button"
-                    onClick={playDemo}
+                    onClick={() => void playDemo()}
                     disabled={isPlayingDemo}
                     className="rounded-full px-5 py-2 text-sm font-semibold transition-colors duration-150"
                     style={{

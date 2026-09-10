@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { WRONG_NOTE_KEY_COLOR } from '@/components/Games/PianoRollPlay';
 import { PlayNote } from '@/components/Games/PlayNote';
-import { midiToPitchName } from '@/curriculum/engine/genreGeneration/resolveStepContent';
+import {
+  midiToPitchName,
+  pitchNameToMidi,
+  spellMidi,
+} from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidentals';
 
 export type Midi = number; // 0..127
@@ -52,78 +57,31 @@ export interface PianoRollProps {
   /** When true, renders one lane per unique pitch only (no gap-filling between notes).
    *  Ensures large note bubbles even when notes span a wide MIDI range. Used by DualStaffPianoRoll. */
   noteOnlyLanes?: boolean;
+  /** Pitch class → spelled name for the lesson's key and mode (enharmonicEngine).
+   *  Names lanes that have no event; without it they use keyRoot's KEY_NOTE_NAMES row. */
+  noteSpelling?: Map<number, string>;
+  /** Tint held-note lane labels by targetMidiSet — key color for a target
+   *  pitch, gray for a wrong one — instead of the default blue, so the roll
+   *  reads the same as the keyboard beneath it. */
+  colorActiveLanesByTarget?: boolean;
 }
 
 // ===== Helpers =====
 
 const beatTicks = 480;
 
-// Sort lane names in musical order (C8..C0). If format not recognized, keep as is.
-const ACCIDENTAL_MAP: Record<string, string> = {
-  '': '',
-  '#': '#',
-  b: 'b',
-  '♯': '#',
-  '♭': 'b',
-};
-const NOTE_OFFSETS: Record<string, number> = {
-  C: 0,
-  'B#': 0,
-  'C#': 1,
-  Db: 1,
-  D: 2,
-  'D#': 3,
-  Eb: 3,
-  E: 4,
-  Fb: 4,
-  'E#': 5,
-  F: 5,
-  'F#': 6,
-  Gb: 6,
-  G: 7,
-  'G#': 8,
-  Ab: 8,
-  A: 9,
-  'A#': 10,
-  Bb: 10,
-  B: 11,
-  Cb: 11,
-};
-
-type PitchInfo = {
-  octave: number;
-  semitone: number;
-  midi: number;
-};
-
-// Given a string of a note (i.e. A#4, B3, C4 etc), returns a PitchInfo object containing the octave number, the semitone(scale degree) number, and the midi number
-const parsePitchName = (name: string): PitchInfo | null => {
-  const m = name.match(/^([A-Ga-g])([#b♯♭]?)(-?\d+)$/);
-  if (!m) return null;
-  const [, rawLetter, rawAccidental, octStr] = m;
-  const letter = rawLetter.toUpperCase();
-  const accidental =
-    ACCIDENTAL_MAP[rawAccidental as keyof typeof ACCIDENTAL_MAP] ??
-    rawAccidental;
-  const noteKey = `${letter}${accidental}`;
-  const semitone = NOTE_OFFSETS[noteKey];
-  if (semitone === undefined) return null;
-  const octave = parseInt(octStr, 10);
-  const midi = (octave + 1) * 12 + semitone;
-  return { octave, semitone, midi };
-};
-
-// Extracts simply the midi value from parsePitchName
-export const pitchNameToMidi = (name: string): number | null => {
-  const info = parsePitchName(name);
-  return info ? info.midi : null;
-};
+// Note names (A#4, B♭4, C♭5, E𝄫4 …) → MIDI via the enharmonic engine, so every
+// spelling it emits maps back to the right key.
+export { pitchNameToMidi };
 
 //Given a midi number, returns the string of the note name with the appropriate accidental and octave number
-// Uses key-context-aware enharmonic spelling when keyRoot is provided
-const midiToNoteName = (midi: number, keyRoot?: number): string => {
-  return midiToPitchName(midi, keyRoot);
-};
+// Uses the lesson's spelling map when given, else key-context-aware spelling from keyRoot
+const midiToNoteName = (
+  midi: number,
+  keyRoot?: number,
+  noteSpelling?: Map<number, string>,
+): string =>
+  noteSpelling ? spellMidi(midi, noteSpelling) : midiToPitchName(midi, keyRoot);
 
 //Produces the list of lanes that span the entirety of the notes given in the event sequence.
 // noteOnlyLanes=true: only one lane per unique pitch in events (no gap-filling). Used by
@@ -134,6 +92,7 @@ function buildLaneList(
   midiRangeMin?: number,
   midiRangeMax?: number,
   noteOnlyLanes?: boolean,
+  noteSpelling?: Map<number, string>,
 ): string[] {
   // Build MIDI→name map from events so lanes match event pitchNames
   const eventNameByMidi = new Map<number, string>();
@@ -161,7 +120,9 @@ function buildLaneList(
   if (noteOnlyLanes) {
     const uniqueSorted = [...new Set(midiValues)].sort((a, b) => b - a);
     return uniqueSorted.map(
-      (midi) => eventNameByMidi.get(midi) ?? midiToNoteName(midi, keyRoot),
+      (midi) =>
+        eventNameByMidi.get(midi) ??
+        midiToNoteName(midi, keyRoot, noteSpelling),
     );
   }
 
@@ -180,7 +141,9 @@ function buildLaneList(
 
   const laneNames: string[] = [];
   for (let midi = maxLaneMidi; midi >= minLaneMidi; midi--) {
-    laneNames.push(eventNameByMidi.get(midi) ?? midiToNoteName(midi, keyRoot));
+    laneNames.push(
+      eventNameByMidi.get(midi) ?? midiToNoteName(midi, keyRoot, noteSpelling),
+    );
   }
 
   return laneNames;
@@ -285,6 +248,8 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   midiRangeMin,
   midiRangeMax,
   noteOnlyLanes,
+  noteSpelling,
+  colorActiveLanesByTarget = false,
 }) => {
   const laneList = buildLaneList(
     events,
@@ -292,6 +257,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
     midiRangeMin,
     midiRangeMax,
     noteOnlyLanes,
+    noteSpelling,
   );
   const effectiveRowHeight =
     laneList.length > 0 ? rowHeight / laneList.length : rowHeight;
@@ -532,8 +498,16 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
               );
               const isActiveLane =
                 typeof laneMidi === 'number' && activeMidiSet.has(laneMidi);
+              const targetLaneColor =
+                colorActiveLanesByTarget && typeof laneMidi === 'number'
+                  ? targetMidiSet?.has(laneMidi)
+                    ? (keyColor ?? '#4ecdc4')
+                    : WRONG_NOTE_KEY_COLOR
+                  : null;
               const background = isActiveLane
-                ? 'linear-gradient(90deg, rgba(59,130,246,0.65), rgba(37,99,235,0.35))'
+                ? targetLaneColor
+                  ? `linear-gradient(90deg, ${targetLaneColor}a6, ${targetLaneColor}59)`
+                  : 'linear-gradient(90deg, rgba(59,130,246,0.65), rgba(37,99,235,0.35))'
                 : baseBackground;
               const color = isActiveLane ? '#f8fafc' : '#d4d4d8';
               return (
@@ -775,8 +749,10 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
               <div className="absolute inset-0 z-[15] pointer-events-none">
                 {userNotes.map((note, i) => {
                   // Find which lane this note belongs to
-                  const noteName = midiToPitchName(note.midi, keyRoot);
-                  const row = laneList.indexOf(noteName);
+                  // Match by pitch, not name: lanes carry each event's own spelling.
+                  const row = laneList.findIndex(
+                    (name) => pitchNameToMidi(name) === note.midi,
+                  );
                   if (row === -1) return null;
 
                   const isCorrect = targetMidiSet?.has(note.midi) ?? false;

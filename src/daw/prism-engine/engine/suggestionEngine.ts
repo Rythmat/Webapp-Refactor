@@ -244,12 +244,12 @@ function abbreviateQuality(quality: string): string {
 function degreeToNoteName(
   degreeName: string,
   rootMidi: number,
-  _mode: string,
+  mode: string,
 ): string {
   const quality = unstepChord(degreeName);
   const midi = degreeMidi(rootMidi, degreeName);
   const pc = ((midi % 12) + 12) % 12;
-  const noteLetter = noteNameInKey(pc, rootMidi % 12);
+  const noteLetter = noteNameInKey(pc, rootMidi % 12, mode);
   return `${noteLetter} ${abbreviateQuality(quality)}`;
 }
 

@@ -6,6 +6,8 @@ import {
   noteNameInKey,
 } from '@prism/engine';
 import type { ModalInterchangeAnnotation } from '@/unison/types/schema';
+import { midiNameInKey } from '@/daw/prism-engine/data/notes';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
 // ── Quality display abbreviations ────────────────────────────────────────
 
@@ -140,23 +142,15 @@ export function rgbString(r: number, g: number, b: number): string {
   return `rgb(${r},${g},${b})`;
 }
 
-const MIDI_NOTE_NAMES = [
-  'C',
-  'C#',
-  'D',
-  'Eb',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'Ab',
-  'A',
-  'Bb',
-  'B',
-];
-
-export function midiToNoteName(midi: number): string {
-  return `${MIDI_NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`;
+/** MIDI → "B♭4" spelled for the session key (C's names when there is none). */
+export function midiToNoteName(
+  midi: number,
+  rootNote: number | null = null,
+  mode?: string,
+): string {
+  return displayAccidentals(
+    midiNameInKey(midi, rootNote ?? 0, rootNote !== null ? mode : undefined),
+  );
 }
 
 // ── Scale / Mode lookup tables ───────────────────────────────────────────

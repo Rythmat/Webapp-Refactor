@@ -172,6 +172,16 @@ export type GetApiBillingCreditsBalanceData = any;
 
 export type GetApiBillingSubscriptionData = any;
 
+export interface GetApiBioData {
+  /** @maxItems 64 */
+  focus: string[];
+  /** @maxItems 64 */
+  genres: string[];
+  /** @maxItems 64 */
+  instruments: string[];
+  visibility: 'public' | 'private';
+}
+
 export type GetApiCronCleanupContentBundlesData = any;
 
 export type GetApiCronCleanupPendingAssetsData = any;
@@ -208,9 +218,13 @@ export interface GetApiStudioAssetsByIdUrlData {
 
 export interface GetApiStudioProjectsByIdData {
   bpm: number;
+  collaborators: string[];
   composerName: string | null;
   createdAt: Date;
   id: string;
+  libraryGenre: string | null;
+  libraryInstruments: string[];
+  libraryStatus: string | null;
   name: string;
   prism: {
     genre: string;
@@ -274,9 +288,13 @@ export interface GetApiStudioProjectsByIdData {
 
 export type GetApiStudioProjectsData = {
   bpm: number;
+  collaborators: string[];
   composerName: string | null;
   createdAt: Date;
   id: string;
+  libraryGenre: string | null;
+  libraryInstruments: string[];
+  libraryStatus: string | null;
   name: string;
   updatedAt: Date;
 }[];
@@ -684,6 +702,22 @@ export interface PatchApiProgressLessonStatePayload {
   lessonVersion: number;
 }
 
+export interface PatchApiStudioProjectsByIdMetaData {
+  collaborators: string[];
+  libraryGenre: string | null;
+  libraryInstruments: string[];
+  libraryStatus: string | null;
+}
+
+export interface PatchApiStudioProjectsByIdMetaPayload {
+  /** @maxItems 64 */
+  collaborators?: string[];
+  libraryGenre?: string | null;
+  /** @maxItems 10 */
+  libraryInstruments?: string[];
+  libraryStatus?: string | null;
+}
+
 export interface PatchClassroomsByIdAssignmentsByAssignmentIdData {
   atlasRef: null;
   classroomId: string;
@@ -876,6 +910,13 @@ export type PostApiBillingCreatePortalSessionData = any;
 
 export type PostApiBillingCreditsConsumeData = any;
 
+export type PostApiBioListData = object;
+
+export interface PostApiBioListPayload {
+  /** @maxItems 500 */
+  ids: string[];
+}
+
 export type PostApiChallengesBoostClaimData = any;
 
 export type PostApiChallengesByIdCompleteData = any;
@@ -1009,9 +1050,13 @@ export interface PostApiStudioProjectsByIdCleanupPendingAssetsData {
 
 export interface PostApiStudioProjectsData {
   bpm: number;
+  collaborators: string[];
   composerName: string | null;
   createdAt: Date;
   id: string;
+  libraryGenre: string | null;
+  libraryInstruments: string[];
+  libraryStatus: string | null;
   name: string;
   prism: {
     genre: string;
@@ -1504,11 +1549,35 @@ export interface PutApiAdminContentItemsPayload {
   status?: 'draft' | 'published' | 'archived';
 }
 
+export interface PutApiBioData {
+  /** @maxItems 64 */
+  focus: string[];
+  /** @maxItems 64 */
+  genres: string[];
+  /** @maxItems 64 */
+  instruments: string[];
+  visibility: 'public' | 'private';
+}
+
+export interface PutApiBioPayload {
+  /** @maxItems 64 */
+  focus: string[];
+  /** @maxItems 64 */
+  genres: string[];
+  /** @maxItems 64 */
+  instruments: string[];
+  visibility: 'public' | 'private';
+}
+
 export interface PutApiStudioProjectsByIdData {
   bpm: number;
+  collaborators: string[];
   composerName: string | null;
   createdAt: Date;
   id: string;
+  libraryGenre: string | null;
+  libraryInstruments: string[];
+  libraryStatus: string | null;
   name: string;
   prism: {
     genre: string;
@@ -1649,6 +1718,7 @@ export interface PutAuthMeAvatarConfigPayload {
    * @max 199
    */
   paletteIndex: number;
+  paletteOverride?: string[];
   /**
    * @min -20
    * @max 20
@@ -2382,261 +2452,6 @@ export namespace Content {
   /**
    * No description
    * @tags Content
-   * @name GetApiAdminContentReleases
-   * @request GET:/api/admin/content/releases
-   * @response `200` `GetApiAdminContentReleasesData`
-   */
-  export namespace GetApiAdminContentReleases {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      kind?: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetApiAdminContentReleasesData;
-  }
-
-  /**
-   * No description
-   * @tags Content
-   * @name GetApiAdminContentTemplateByKind
-   * @request GET:/api/admin/content/template/{kind}
-   * @response `200` `GetApiAdminContentTemplateByKindData`
-   */
-  export namespace GetApiAdminContentTemplateByKind {
-    export type RequestParams = {
-      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
-    };
-    export type RequestQuery = {
-      slug?: string;
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetApiAdminContentTemplateByKindData;
-  }
-
-  /**
-   * No description
-   * @tags Content
-   * @name GetApiAdminContentValidateByKind
-   * @request GET:/api/admin/content/validate/{kind}
-   * @response `200` `GetApiAdminContentValidateByKindData`
-   */
-  export namespace GetApiAdminContentValidateByKind {
-    export type RequestParams = {
-      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetApiAdminContentValidateByKindData;
-  }
-
-  /**
-   * No description
-   * @tags Content
-   * @name PostApiAdminContentReleases
-   * @request POST:/api/admin/content/releases
-   * @response `200` `PostApiAdminContentReleasesData`
-   */
-  export namespace PostApiAdminContentReleases {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostApiAdminContentReleasesPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiAdminContentReleasesData;
-  }
-
-  /**
-   * No description
-   * @tags Content
-   * @name PostApiAdminContentReleasesByIdActivate
-   * @request POST:/api/admin/content/releases/{id}/activate
-   * @response `200` `PostApiAdminContentReleasesByIdActivateData`
-   */
-  export namespace PostApiAdminContentReleasesByIdActivate {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiAdminContentReleasesByIdActivateData;
-  }
-
-  /**
-   * No description
-   * @tags Content
-   * @name PostApiAdminContentReleasesByIdCancel
-   * @request POST:/api/admin/content/releases/{id}/cancel
-   * @response `200` `PostApiAdminContentReleasesByIdCancelData`
-   */
-  export namespace PostApiAdminContentReleasesByIdCancel {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiAdminContentReleasesByIdCancelData;
-  }
-
-  /**
-   * No description
-   * @tags Content
-   * @name PostApiAdminContentReleasesByIdPartsByPart
-   * @request POST:/api/admin/content/releases/{id}/parts/{part}
-   * @response `200` `PostApiAdminContentReleasesByIdPartsByPartData`
-   */
-  export namespace PostApiAdminContentReleasesByIdPartsByPart {
-    export type RequestParams = {
-      id: string;
-      part: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiAdminContentReleasesByIdPartsByPartData;
-  }
-
-  /**
-   * No description
-   * @tags Content
-   * @name PostApiAdminContentRollback
-   * @request POST:/api/admin/content/rollback
-   * @response `200` `PostApiAdminContentRollbackData`
-   */
-  export namespace PostApiAdminContentRollback {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PostApiAdminContentRollbackPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PostApiAdminContentRollbackData;
-  }
-
-  /**
-   * No description
-   * @tags Content
-   * @name PutApiAdminContentItems
-   * @request PUT:/api/admin/content/items
-   * @response `200` `PutApiAdminContentItemsData`
-   */
-  export namespace PutApiAdminContentItems {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = PutApiAdminContentItemsPayload;
-    export type RequestHeaders = {};
-    export type ResponseBody = PutApiAdminContentItemsData;
-  }
-}
-
-export namespace Telemetry {
-  /**
-   * No description
-   * @tags Content
-   * @name DeleteApiAdminContentItemsById
-   * @request DELETE:/api/admin/content/items/{id}
-   * @response `200` `DeleteApiAdminContentItemsByIdData`
-   */
-  export namespace DeleteApiAdminContentItemsById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = DeleteApiAdminContentItemsByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Content
-   * @name GetApiAdminContentDerivationHealth
-   * @request GET:/api/admin/content/derivation-health
-   * @response `200` `GetApiAdminContentDerivationHealthData`
-   */
-  export namespace GetApiAdminContentDerivationHealth {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetApiAdminContentDerivationHealthData;
-  }
-
-  /**
-   * No description
-   * @tags Classrooms
-   * @name DeleteClassroomsByIdTeachersByTeacherId
-   * @request DELETE:/classrooms/{id}/teachers/{teacherId}
-   * @response `200` `DeleteClassroomsByIdTeachersByTeacherIdData`
-   */
-  export namespace DeleteClassroomsByIdTeachersByTeacherId {
-    export type RequestParams = {
-      id: string;
-      teacherId: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = DeleteClassroomsByIdTeachersByTeacherIdData;
-  }
-
-  /**
-   * No description
-   * @tags Classrooms
-   * @name GetClassrooms
-   * @request GET:/classrooms
-   * @response `200` `GetClassroomsData`
-   */
-  export namespace GetApiAdminContentItems {
-    export type RequestParams = {};
-    export type RequestQuery = {
-      cursor?: string;
-      kind: 'globe_event' | 'globe_city' | 'song' | 'artist_location' | 'activity_flow' | 'fundamentals_flow';
-      limit?: string;
-      search?: string;
-      status?: 'draft' | 'published' | 'archived';
-    };
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetApiAdminContentItemsData;
-  }
-
-  /**
-   * No description
-   * @tags Content
-   * @name GetApiAdminContentItemsById
-   * @request GET:/api/admin/content/items/{id}
-   * @response `200` `GetApiAdminContentItemsByIdData`
-   */
-  export namespace GetApiAdminContentItemsById {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetApiAdminContentItemsByIdData;
-  }
-
-  /**
-   * No description
-   * @tags Content
-   * @name GetApiAdminContentOverview
-   * @request GET:/api/admin/content/overview
-   * @response `200` `GetApiAdminContentOverviewData`
-   */
-  export namespace GetApiAdminContentOverview {
-    export type RequestParams = {};
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetApiAdminContentOverviewData;
-  }
-
-  /**
-   * No description
-   * @tags Content
    * @name GetApiAdminContentPending
    * @request GET:/api/admin/content/pending
    * @response `200` `GetApiAdminContentPendingData`
@@ -2689,27 +2504,10 @@ export namespace Telemetry {
 
   /**
    * No description
-   * @tags Classrooms
-   * @name GetClassroomsByIdTeachers
-   * @request GET:/classrooms/{id}/teachers
-   * @response `200` `GetClassroomsByIdTeachersData`
-   */
-  export namespace GetClassroomsByIdTeachers {
-    export type RequestParams = {
-      id: string;
-    };
-    export type RequestQuery = {};
-    export type RequestBody = never;
-    export type RequestHeaders = {};
-    export type ResponseBody = GetClassroomsByIdTeachersData;
-  }
-
-  /**
-   * No description
-   * @tags Classrooms
-   * @name GetClassroomsDetailsByCode
-   * @request GET:/classrooms/details/{code}
-   * @response `200` `GetClassroomsDetailsByCodeData`
+   * @tags Content
+   * @name GetApiAdminContentValidateByKind
+   * @request GET:/api/admin/content/validate/{kind}
+   * @response `200` `GetApiAdminContentValidateByKindData`
    */
   export namespace GetApiAdminContentValidateByKind {
     export type RequestParams = {
@@ -3834,6 +3632,53 @@ export namespace GameOptions {
   }
 }
 
+export namespace Bio {
+  /**
+   * No description
+   * @tags Bio
+   * @name GetApiBio
+   * @request GET:/api/bio
+   * @response `200` `GetApiBioData`
+   */
+  export namespace GetApiBio {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = GetApiBioData;
+  }
+
+  /**
+   * No description
+   * @tags Bio
+   * @name PostApiBioList
+   * @request POST:/api/bio/list
+   * @response `200` `PostApiBioListData`
+   */
+  export namespace PostApiBioList {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PostApiBioListPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PostApiBioListData;
+  }
+
+  /**
+   * No description
+   * @tags Bio
+   * @name PutApiBio
+   * @request PUT:/api/bio
+   * @response `200` `PutApiBioData`
+   */
+  export namespace PutApiBio {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = PutApiBioPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PutApiBioData;
+  }
+}
+
 export namespace Students {
   /**
    * No description
@@ -4594,6 +4439,23 @@ export namespace StudioProjects {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = GetApiStudioProjectsByIdData;
+  }
+
+  /**
+   * No description
+   * @tags Studio Projects
+   * @name PatchApiStudioProjectsByIdMeta
+   * @request PATCH:/api/studio/projects/{id}/meta
+   * @response `200` `PatchApiStudioProjectsByIdMetaData`
+   */
+  export namespace PatchApiStudioProjectsByIdMeta {
+    export type RequestParams = {
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = PatchApiStudioProjectsByIdMetaPayload;
+    export type RequestHeaders = {};
+    export type ResponseBody = PatchApiStudioProjectsByIdMetaData;
   }
 
   /**
@@ -6966,6 +6828,59 @@ export class Api<SecurityDataType extends unknown> {
         ...params,
       }),
   };
+  bio = {
+    /**
+     * No description
+     *
+     * @tags Bio
+     * @name GetApiBio
+     * @request GET:/api/bio
+     * @response `200` `GetApiBioData`
+     */
+    getApiBio: (params: RequestParams = {}) =>
+      this.http.request<GetApiBioData, any>({
+        path: `/api/bio`,
+        method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Bio
+     * @name PostApiBioList
+     * @request POST:/api/bio/list
+     * @response `200` `PostApiBioListData`
+     */
+    postApiBioList: (data: PostApiBioListPayload, params: RequestParams = {}) =>
+      this.http.request<PostApiBioListData, any>({
+        path: `/api/bio/list`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Bio
+     * @name PutApiBio
+     * @request PUT:/api/bio
+     * @response `200` `PutApiBioData`
+     */
+    putApiBio: (data: PutApiBioPayload, params: RequestParams = {}) =>
+      this.http.request<PutApiBioData, any>({
+        path: `/api/bio`,
+        method: 'PUT',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+  };
   students = {
     /**
      * No description
@@ -7749,6 +7664,28 @@ export class Api<SecurityDataType extends unknown> {
       this.http.request<GetApiStudioProjectsByIdData, any>({
         path: `/api/studio/projects/${id}`,
         method: 'GET',
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Studio Projects
+     * @name PatchApiStudioProjectsByIdMeta
+     * @request PATCH:/api/studio/projects/{id}/meta
+     * @response `200` `PatchApiStudioProjectsByIdMetaData`
+     */
+    patchApiStudioProjectsByIdMeta: (
+      id: string,
+      data: PatchApiStudioProjectsByIdMetaPayload,
+      params: RequestParams = {},
+    ) =>
+      this.http.request<PatchApiStudioProjectsByIdMetaData, any>({
+        path: `/api/studio/projects/${id}/meta`,
+        method: 'PATCH',
+        body: data,
+        type: ContentType.Json,
         format: 'json',
         ...params,
       }),

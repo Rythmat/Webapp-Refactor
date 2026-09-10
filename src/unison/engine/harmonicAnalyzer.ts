@@ -4,6 +4,7 @@
  * from the existing prismSlice chord derivation pipeline.
  */
 
+import { noteNameToPitchClass } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { detectChordWithInversion } from '@/daw/prism-engine';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -187,36 +188,11 @@ function expandAbbreviation(abbrev: string): string {
 
 // ── Note name → pitch class ────────────────────────────────────────────────
 
-const NOTE_PC: Record<string, number> = {
-  C: 0,
-  'C#': 1,
-  Db: 1,
-  D: 2,
-  'D#': 3,
-  Eb: 3,
-  E: 4,
-  F: 5,
-  'F#': 6,
-  Gb: 6,
-  G: 7,
-  'G#': 8,
-  Ab: 8,
-  A: 9,
-  'A#': 10,
-  Bb: 10,
-  B: 11,
-};
-
 function extractRootPc(noteName: string): number {
   if (!noteName) return 0;
-  const trimmed = noteName.trim();
-  // Try two-char note name first (e.g., "Bb", "F#")
-  const twoChar = trimmed.slice(0, 2);
-  if (NOTE_PC[twoChar] !== undefined) return NOTE_PC[twoChar];
-  // Try one-char note name
-  const oneChar = trimmed[0];
-  if (NOTE_PC[oneChar] !== undefined) return NOTE_PC[oneChar];
-  return 0;
+  // Leading note name of a chord label: "Bb maj", "F# dom7", "Cb min", "Ebb dim".
+  const root = noteName.trim().match(/^[A-G](?:bb|##|b|#|𝄫|𝄪|♭|♯)?/u)?.[0];
+  return root ? (noteNameToPitchClass(root) ?? 0) : 0;
 }
 
 // ── Roman Numeral ──────────────────────────────────────────────────────────

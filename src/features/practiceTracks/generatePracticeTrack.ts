@@ -3,7 +3,7 @@ import {
   DEGREES,
   MODES,
   getChordColor,
-  noteNameLetter,
+  noteNameInKey,
   abbreviateSequence,
 } from '@prism/engine';
 import { getGCMEntry } from '@/curriculum/data/gcmHelpers';
@@ -317,7 +317,11 @@ function buildChordRegions(
 ): ChordRegion[] {
   return barChords.map((bar) => {
     const midis = bar.intervals.map((offset) => rootMidi + offset);
-    const chordRootLetter = noteNameLetter(rootMidi + bar.intervals[0]);
+    const chordRootLetter = noteNameInKey(
+      rootMidi + bar.intervals[0],
+      rootMidi % 12,
+      mode,
+    );
     const quality = bar.degreeLabel.slice(bar.degreeLabel.indexOf(' ') + 1);
     // getChordColor expects `mode` explicitly — omitting it silently defaults
     // to Ionian coloring (a known bug elsewhere in dawBridge.ts); don't repeat that.

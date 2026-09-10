@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useStore } from '@/daw/store';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { seekTo } from '@/daw/hooks/useTransport';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import * as Tone from 'tone';
@@ -1120,7 +1121,11 @@ export function Timeline() {
       ctx.font = '10px Inter, sans-serif';
       ctx.textBaseline = 'middle';
       const label = chordRulerShowNotes ? region.name : region.noteName;
-      ctx.fillText(label, x1 + 6, chordRulerY + CHORD_RULER_HEIGHT / 2);
+      ctx.fillText(
+        displayAccidentals(label),
+        x1 + 6,
+        chordRulerY + CHORD_RULER_HEIGHT / 2,
+      );
 
       // Right separator
       ctx.strokeStyle = `rgba(${colorGridRgb}, 0.06)`;

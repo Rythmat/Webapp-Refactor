@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { pitchNameToMidi } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { PlayNote } from './PlayNote';
 
 export type Midi = number; // 0..127
@@ -12,6 +13,14 @@ export interface NoteEvent {
   velocity?: number;
   color?: string;
 }
+
+/** Tempo (BPM) the theory lesson activities run their piano roll at. The
+ *  pre-activity Demo plays back at this rate so it matches what's drawn. */
+export const THEORY_ACTIVITY_BPM = 80;
+
+/** Keyboard color for a played pitch that isn't one of the step's target
+ *  notes — the keyboard counterpart of the piano roll's gray wrong notes. */
+export const WRONG_NOTE_KEY_COLOR = '#c4c4c8';
 
 export interface NoteHoldMeta {
   isCompleted: boolean;
@@ -42,37 +51,6 @@ export interface PianoRollProps {
 
 const beatTicks = 480;
 
-// Sort lane names in musical order (C8..C0). If format not recognized, keep as is.
-const ACCIDENTAL_MAP: Record<string, string> = {
-  '': '',
-  '#': '#',
-  b: 'b',
-  '♯': '#',
-  '♭': 'b',
-};
-const NOTE_OFFSETS: Record<string, number> = {
-  C: 0,
-  'B#': 0,
-  'C#': 1,
-  Db: 1,
-  D: 2,
-  'D#': 3,
-  Eb: 3,
-  E: 4,
-  Fb: 4,
-  'E#': 5,
-  F: 5,
-  'F#': 6,
-  Gb: 6,
-  G: 7,
-  'G#': 8,
-  Ab: 8,
-  A: 9,
-  'A#': 10,
-  Bb: 10,
-  B: 11,
-  Cb: 11,
-};
 const MIDI_NOTE_NAMES = [
   'C',
   'C#',
@@ -88,34 +66,9 @@ const MIDI_NOTE_NAMES = [
   'B',
 ];
 
-type PitchInfo = {
-  octave: number;
-  semitone: number;
-  midi: number;
-};
-
-// Given a string of a note (i.e. A#4, B3, C4 etc), returns a PitchInfo object containing the octave number, the semitone(scale degree) number, and the midi number
-const parsePitchName = (name: string): PitchInfo | null => {
-  const m = name.match(/^([A-Ga-g])([#b♯♭]?)(-?\d+)$/);
-  if (!m) return null;
-  const [, rawLetter, rawAccidental, octStr] = m;
-  const letter = rawLetter.toUpperCase();
-  const accidental =
-    ACCIDENTAL_MAP[rawAccidental as keyof typeof ACCIDENTAL_MAP] ??
-    rawAccidental;
-  const noteKey = `${letter}${accidental}`;
-  const semitone = NOTE_OFFSETS[noteKey];
-  if (semitone === undefined) return null;
-  const octave = parseInt(octStr, 10);
-  const midi = (octave + 1) * 12 + semitone;
-  return { octave, semitone, midi };
-};
-
-// Extracts simply the midi value from parsePitchName
-export const pitchNameToMidi = (name: string): number | null => {
-  const info = parsePitchName(name);
-  return info ? info.midi : null;
-};
+// Note names (A#4, B♭4, C♭5, E𝄫4 …) → MIDI via the enharmonic engine, so every
+// spelling it emits maps back to the right key.
+export { pitchNameToMidi };
 
 //Given a midi number, returns the string of the note name with the appropriate acciental and octave number
 const midiToNoteName = (midi: number): string => {

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import {
   noteNameInKey,
-  getScaleSpellings,
+  midiNameInKey,
   type MidiNoteEvent,
 } from '@prism/engine';
 import { useStore } from '@/daw/store';
@@ -89,17 +89,8 @@ const PENCIL_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/200
 const ERASER_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21'/><path d='M22 21H7'/><path d='m5 11 9 9'/></svg>") 2 18, pointer`;
 
 // ── Note helpers ────────────────────────────────────────────────────────────
-function noteName(
-  midi: number,
-  keyPc: number,
-  spellings: Map<number, string> | null,
-): string {
-  const pc = midi % 12;
-  const octave = Math.floor(midi / 12) - 1;
-  const raw = spellings?.has(pc)
-    ? `${spellings.get(pc)}${octave}`
-    : `${noteNameInKey(pc, keyPc)}${octave}`;
-  return displayAccidentals(raw);
+function noteName(midi: number, keyPc: number, mode?: string): string {
+  return displayAccidentals(midiNameInKey(midi, keyPc, mode));
 }
 function isBlackKey(midi: number): boolean {
   const n = midi % 12;
@@ -258,9 +249,6 @@ export function PianoRoll({
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, w, h);
 
-    const spellings =
-      rootNote !== null ? getScaleSpellings(rootNote, mode) : null;
-
     for (let i = 0; i < VIEW_RANGE; i++) {
       const midiNote = VIEW_MAX - i;
       const rowY = i * rowH;
@@ -327,7 +315,11 @@ export function PianoRoll({
           ctx.textBaseline = 'middle';
           ctx.textAlign = 'right';
           ctx.fillText(
-            noteName(midiNote, rootNote ?? 0, spellings),
+            noteName(
+              midiNote,
+              rootNote ?? 0,
+              rootNote !== null ? mode : undefined,
+            ),
             w - 4,
             rowY + rowH / 2,
           );
@@ -542,7 +534,11 @@ export function PianoRoll({
       // Show note name when zoomed in enough
       if (rowH >= 14 && noteW >= 24) {
         const noteName = displayAccidentals(
-          noteNameInKey(ev.note, rootNote ?? 0),
+          noteNameInKey(
+            ev.note,
+            rootNote ?? 0,
+            rootNote !== null ? mode : undefined,
+          ),
         );
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.font = `${Math.min(rowH - 4, 11)}px Inter, sans-serif`;
@@ -575,6 +571,7 @@ export function PianoRoll({
     chordRegions,
     clipColorMode,
     rootNote,
+    mode,
     gridSize,
     selectedIndices,
     marqueeRect,

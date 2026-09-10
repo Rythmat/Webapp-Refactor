@@ -15,6 +15,7 @@ import {
   generateChord,
   noteNameLetter,
   noteNameInKey,
+  chordToneNamesInKey,
   detectChordWithInversion,
   KEY_COLORS,
   CHORD_COLORS,
@@ -113,10 +114,17 @@ export function InsightContent() {
     const { quality, rootPc, inversion } = match;
     const rootLetter = displayAccidentals(
       rootNote !== null
-        ? noteNameInKey(rootPc, rootNote)
+        ? noteNameInKey(rootPc, rootNote, mode)
         : noteNameLetter(rootPc + 48),
     );
     const intervals = CHORDS[quality];
+    // Chord tones as one unit from the root (Rule 3): D major in G minor is D F# A.
+    const chordTones = chordToneNamesInKey(
+      rootPc,
+      intervals ?? [],
+      rootNote ?? 0,
+      rootNote !== null ? mode : undefined,
+    );
 
     const INVERSION_LABELS = [
       '',
@@ -204,7 +212,7 @@ export function InsightContent() {
         const isChordParent = !chordModeInfo || chordModeInfo.offset === 0;
         isSessionParent = isChordParent || chordParentRootPc === rootNote;
         parentKeyLetter = displayAccidentals(
-          noteNameInKey(chordParentRootPc, rootNote),
+          noteNameInKey(chordParentRootPc, rootNote, mode),
         );
         parentMode = FAMILY_MODES[chordParentFamily]?.[0] ?? chordRootMode;
 
@@ -220,7 +228,14 @@ export function InsightContent() {
       hybrid,
       rootLetter,
       noteNames: sorted.map((n) =>
-        displayAccidentals(noteNameInKey(n % 12, rootNote ?? 0)),
+        displayAccidentals(
+          chordTones.get(n % 12) ??
+            noteNameInKey(
+              n % 12,
+              rootNote ?? 0,
+              rootNote !== null ? mode : undefined,
+            ),
+        ),
       ),
       intervals: intervals ? intervalsToString(intervals) : '',
       color,
@@ -260,11 +275,19 @@ export function InsightContent() {
       const parentRoot = rootMidi - getModeOffset(mode);
       const bassMidi = degreeMidi(parentRoot, degreeName);
       const pitchedNotes = generateChord(bassMidi, quality);
+      const chordTones = chordToneNamesInKey(
+        bassMidi % 12,
+        CHORDS[quality] ?? [],
+        rootNote,
+        mode,
+      );
       const noteNames = pitchedNotes.map((n) =>
-        displayAccidentals(noteNameInKey(n % 12, rootNote)),
+        displayAccidentals(
+          chordTones.get(n % 12) ?? noteNameInKey(n % 12, rootNote, mode),
+        ),
       );
       const rootLetter = displayAccidentals(
-        noteNameInKey(bassMidi % 12, rootNote),
+        noteNameInKey(bassMidi % 12, rootNote, mode),
       );
       const intervals = CHORDS[quality];
 
@@ -291,7 +314,7 @@ export function InsightContent() {
       const isChordParent = !chordModeInfo || chordModeInfo.offset === 0;
       const isSessionParent = isChordParent || chordParentRootPc === rootNote;
       const parentKeyLetter = displayAccidentals(
-        noteNameInKey(chordParentRootPc, rootNote),
+        noteNameInKey(chordParentRootPc, rootNote, mode),
       );
       const parentMode = FAMILY_MODES[chordParentFamily]?.[0] ?? chordRootMode;
 
@@ -536,6 +559,7 @@ export function InsightContent() {
                           noteNameInKey(
                             (rootNote! - alt.parentOffset + 12) % 12,
                             rootNote!,
+                            mode,
                           ),
                         )}{' '}
                         {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ??
@@ -600,6 +624,7 @@ export function InsightContent() {
               chord={chord}
               keyLetter={keyLetter}
               rootNote={rootNote}
+              mode={mode}
               expanded={expandedCards.has(chord.degreeName)}
               onToggleExpand={() =>
                 setExpandedCards((prev) => {

@@ -32,6 +32,8 @@ export {
   noteName,
   noteNameLetter,
   noteNameInKey,
+  midiNameInKey,
+  chordToneNamesInKey,
   getScaleSpellings,
   BEAT_VAL,
 } from './data/notes';

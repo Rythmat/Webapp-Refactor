@@ -16,6 +16,8 @@ interface ChordCardProps {
   chord: ChordInsight;
   keyLetter: string | null;
   rootNote: number | null;
+  /** Session mode (ALL_MODES key), for spelling note names. */
+  mode?: string;
   expanded: boolean;
   onToggleExpand: () => void;
 }
@@ -24,6 +26,7 @@ export function ChordCard({
   chord,
   keyLetter,
   rootNote,
+  mode,
   expanded,
   onToggleExpand,
 }: ChordCardProps) {
@@ -266,6 +269,7 @@ export function ChordCard({
                       noteNameInKey(
                         (rootNote! - alt.parentOffset + 12) % 12,
                         rootNote!,
+                        mode,
                       ),
                     )}{' '}
                     {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ?? alt.family}

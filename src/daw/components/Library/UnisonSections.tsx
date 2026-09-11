@@ -5,9 +5,15 @@ import type { UnisonDocument } from '@/unison/types/schema';
 
 interface UnisonSectionsProps {
   unisonDoc: UnisonDocument;
+  /** Only the harmony sections (progression matches, vibes & styles) — for
+   *  a chord selection, where session-wide rhythm and melody don't apply. */
+  harmonyOnly?: boolean;
 }
 
-export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
+export function UnisonSections({
+  unisonDoc,
+  harmonyOnly = false,
+}: UnisonSectionsProps) {
   const [expandedMatches, setExpandedMatches] = useState(false);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
@@ -155,6 +161,28 @@ export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
         </div>
       )}
 
+      {harmonyOnly ? null : (
+        <SessionSections
+          unisonDoc={unisonDoc}
+          rootNote={rootNote}
+          mode={mode}
+        />
+      )}
+    </>
+  );
+}
+
+function SessionSections({
+  unisonDoc,
+  rootNote,
+  mode,
+}: {
+  unisonDoc: UnisonDocument;
+  rootNote: number | null;
+  mode: string;
+}) {
+  return (
+    <>
       {/* Rhythm */}
       <div
         className="flex flex-col gap-1.5 px-3 py-2.5 border-b"

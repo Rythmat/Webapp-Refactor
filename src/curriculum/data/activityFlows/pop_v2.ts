@@ -5052,7 +5052,7 @@ const popL3SectionB: ActivitySectionV2 = {
       assessment: 'pitch_order_timing',
       tag: 'pop:arpeggiate_min6_it | pop',
       styleRef: 'l3a',
-      successFeedback: 'Ebm6 — the borrowed-iv sound.',
+      successFeedback: 'Ebm6 — the borrowed 4 min sound.',
       contentGeneration:
         'Query Chord_Quality_Library.csv for chord tones [0,3,7,9] → get root_position array → arpeggiate in key (Bb major), root=75.',
       scaleIntervals: [0, 3, 7, 9],
@@ -5352,7 +5352,7 @@ const popL3SectionB: ActivitySectionV2 = {
       assessment: 'pitch_order_timing',
       tag: 'pop:min6_it | pop',
       styleRef: 'l3a',
-      successFeedback: 'Broken-chord Ebm6 — the borrowed-iv color.',
+      successFeedback: 'Broken-chord Ebm6 — the borrowed 4 min color.',
       contentGeneration:
         "Genre_Voicing_Taxonomy → rh_override=[0,3,7,9]. LH=root_bass. Resolve in key. Technique: 'Broken Chord' — RH eighth-note [3,7,9], eighth-note [0], repeating; LH whole-note bass.",
       chordSymbols: ['Ebm6'],

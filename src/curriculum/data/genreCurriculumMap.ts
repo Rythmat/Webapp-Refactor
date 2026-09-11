@@ -198,7 +198,7 @@ const POP_L3: GenreCurriculumEntry = {
       'comp_neo_01',
     ],
     newTechniques:
-      '7-3-5 voicings, "drop the sizzle" ii-V formula, voicing the melody with 7th chord inversions, walking bass comping',
+      '7-3-5 voicings, "drop the sizzle" 2-5 formula, voicing the melody with 7th chord inversions, walking bass comping',
   },
   bass: {
     bassScale: s('mixolydian = [0, 2, 4, 5, 7, 9, 10]'),
@@ -1838,7 +1838,7 @@ const LATIN_L2: GenreCurriculumEntry = {
     ],
     compingPatterns: ['comp_latin_01', 'comp_latin_02', 'comp_latin_03'],
     newTechniques:
-      '"Drop the sizzle" ii-V in Latin context, bossa voicings with LH shells',
+      '"Drop the sizzle" 2-5 in Latin context, bossa voicings with LH shells',
   },
   bass: {
     bassContours: ['bass_c_r5_07', 'bass_c_r5_08', 'bass_c_r5_05'],

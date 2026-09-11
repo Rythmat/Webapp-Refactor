@@ -16,6 +16,7 @@ import { LockedFeatureOverlay } from '@/components/ui/LockedFeatureOverlay';
 import { TrackControlsPanel } from '@/daw/components/Controls/TrackControlsPanel';
 import { EffectsPanel } from '@/daw/components/Effects/EffectsPanel';
 import { PrismPanel } from '@/daw/components/Prism/PrismPanel';
+import { auditionNote } from '@/daw/audio/auditionNote';
 import { PianoRoll } from '@/daw/components/PianoRoll/PianoRoll';
 import { GroovesBrowser } from '@/daw/components/Controls/GroovesBrowser';
 import type { MidiNoteEvent } from '@prism/engine';
@@ -141,6 +142,18 @@ export function ChannelStrip() {
   const isDrumMachine = track?.instrument === 'drum-machine';
   const isMidiInstrument =
     !!track && !isAudioInput && track.instrument !== 'none';
+
+  // Piano roll notes audition on the track being edited: the selected clip's
+  // track, or the selected track while drawing into a blank roll.
+  const auditionTrackId = selectedClip
+    ? selectedClipTrackId
+    : (track?.id ?? null);
+  const handleAuditionNote = useCallback(
+    (note: number, velocity: number) => {
+      if (auditionTrackId) auditionNote(auditionTrackId, note, velocity);
+    },
+    [auditionTrackId],
+  );
 
   const handlePianoRollChange = useCallback(
     (newEvents: MidiNoteEvent[]) => {
@@ -317,10 +330,12 @@ export function ChannelStrip() {
                   <PianoRoll
                     events={selectedClip?.events ?? []}
                     clipStartTick={selectedClip?.startTick ?? 0}
+                    timelineStartTick={selectedClip?.startTick ?? 0}
                     clipColor={
                       selectedClipTrack?.color ?? track?.color ?? '#888'
                     }
                     onChange={handlePianoRollChange}
+                    onAuditionNote={handleAuditionNote}
                   />
                 ) : (
                   <div

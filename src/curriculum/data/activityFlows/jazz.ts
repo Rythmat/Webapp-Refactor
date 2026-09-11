@@ -11,7 +11,7 @@ export const jazzL1: ActivityFlow = {
   level: 1,
   title: 'Swing & Shell',
   params: {
-    defaultKey: 'C major (for ii-V-I), F major (for blues)',
+    defaultKey: 'C major (for 2-5-1), F major (for blues)',
     tempoRange: [100, 140],
     swing: 6,
     grooves: ['groove_jazz_01', 'groove_jazz_02'],

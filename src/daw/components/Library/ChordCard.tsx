@@ -53,18 +53,6 @@ export function ChordCard({
         >
           {chord.chordLabel}
         </span>
-        {/* Roman numeral badge (UNISON enrichment) */}
-        {chord.romanNumeral && (
-          <span
-            className="text-[9px] font-mono px-1 py-0.5 rounded ml-auto"
-            style={{
-              backgroundColor: 'var(--color-surface-2)',
-              color: 'var(--color-text)',
-            }}
-          >
-            {chord.romanNumeral}
-          </span>
-        )}
       </div>
 
       {/* Diatonic / Borrowed indicator (UNISON enrichment) */}

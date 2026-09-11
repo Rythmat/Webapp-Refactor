@@ -20,6 +20,7 @@ import {
 import { getAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import { CHORDS, ALL_MODES } from '@prism/engine';
 import { deriveChordRegionsFromAudioSnapshots } from '@/daw/store/prismSlice';
+import { audioChordAnalysis } from '@/daw/utils/chordAnalysis';
 import type { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import type { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 
@@ -208,11 +209,13 @@ export function useAudioChordDetection(): void {
       }
 
       if (wasRecordingRef.current && !currentlyRecording) {
-        // Recording just stopped — derive chord regions from live snapshots (instant)
+        // Recording just stopped — propose chord symbols from the live
+        // snapshots (instant). Insight offers them; the chord lane only takes
+        // them on "Use Chord Symbols".
         const {
           rootNote,
           mode,
-          setChordRegions,
+          proposeChordSymbols,
           tracks: storeTracks,
           bpm,
         } = useStore.getState();
@@ -222,10 +225,10 @@ export function useAudioChordDetection(): void {
             (rootNote ?? 0) + 48,
             mode,
           );
-          setChordRegions(regions);
+          proposeChordSymbols(audioChordAnalysis(regions, rootNote ?? 0, mode));
         }
 
-        // Schedule offline refinement — runs async, overwrites with more accurate results
+        // Schedule offline refinement — runs async, replaces the proposal with more accurate results
         const capturedTrackId = recordingTrackIdRef.current;
         const capturedStartTick = recordingStartTickRef.current;
         const capturedBpm = bpm;
@@ -259,7 +262,11 @@ export function useAudioChordDetection(): void {
                 m,
               );
               if (refinedRegions.length > 0) {
-                useStore.getState().setChordRegions(refinedRegions, true);
+                useStore
+                  .getState()
+                  .proposeChordSymbols(
+                    audioChordAnalysis(refinedRegions, effectiveRoot, m),
+                  );
               }
 
               // Run full UNISON analysis only if user has already activated it

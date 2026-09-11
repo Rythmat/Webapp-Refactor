@@ -42,7 +42,7 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
   });
 
   // ── All diatonic progressions ──────────────────────────────────────────
-  it('marks all chords as diatonic in I-IV-V-I (C major)', () => {
+  it('marks all chords as diatonic in 1-4-5-1 (C major)', () => {
     const regions: ChordRegion[] = [
       region({
         name: '1 major',
@@ -81,7 +81,7 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
     }
   });
 
-  it('marks all chords as diatonic in i-iv-v-i (A minor)', () => {
+  it('marks all chords as diatonic in 1-4-5-1 (A minor)', () => {
     const regions: ChordRegion[] = [
       region({
         name: '1 minor',
@@ -119,7 +119,7 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
   });
 
   // ── Borrowed chords from aeolian ───────────────────────────────────────
-  it('detects bVI and bVII as borrowed from aeolian in C major', () => {
+  it('detects ♭6 maj and ♭7 maj as borrowed from aeolian in C major', () => {
     const regions: ChordRegion[] = [
       region({
         name: '1 major',
@@ -152,24 +152,24 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
     ];
     const result = analyzeHarmony(regions, cMajor);
 
-    // I and I are diatonic
+    // Both 1 chords are diatonic
     expect(result[0].isDiatonic).toBe(true);
     expect(result[3].isDiatonic).toBe(true);
 
-    // bVI = Ab major → borrowed
+    // ♭6 = Ab major → borrowed
     expect(result[1].isDiatonic).toBe(false);
     expect(result[1].modalInterchange).not.toBeNull();
     expect(result[1].modalInterchange!.type).toBe('borrowed');
     expect(result[1].sourceMode).toBeDefined();
 
-    // bVII = Bb major → borrowed
+    // ♭7 = Bb major → borrowed
     expect(result[2].isDiatonic).toBe(false);
     expect(result[2].modalInterchange).not.toBeNull();
     expect(result[2].modalInterchange!.type).toBe('borrowed');
   });
 
-  // ── iv minor (minor plagal) ────────────────────────────────────────────
-  it('detects iv minor as borrowed in C major', () => {
+  // ── 4 min (minor plagal) ────────────────────────────────────────────
+  it('detects 4 min as borrowed in C major', () => {
     const regions: ChordRegion[] = [
       region({
         name: '1 major',
@@ -197,12 +197,12 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
 
     expect(result[1].isDiatonic).toBe(false);
     expect(result[1].modalInterchange!.type).toBe('borrowed');
-    // iv comes from aeolian
+    // 4 min comes from aeolian
     expect(result[1].modalInterchange!.sourceMode).toBe('aeolian');
   });
 
   // ── Secondary dominants ────────────────────────────────────────────────
-  it('detects V7/vi (E7 → Am) as secondary dominant in C major', () => {
+  it('detects 5 of 6 (E7 → Am) as secondary dominant in C major', () => {
     const regions: ChordRegion[] = [
       region({
         name: '1 major',
@@ -228,15 +228,15 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
     ];
     const result = analyzeHarmony(regions, cMajor);
 
-    // E7 is not diatonic to C major (iii should be Em, not E7)
+    // E7 is not diatonic to C major (its 3 chord is Em, not E7)
     expect(result[1].isDiatonic).toBe(false);
     expect(result[1].modalInterchange).not.toBeNull();
     expect(result[1].modalInterchange!.type).toBe('secondary-dominant');
-    expect(result[1].modalInterchange!.secondaryTarget).toBe('V7/vi');
+    expect(result[1].modalInterchange!.secondaryTarget).toBe('5 of 6');
     expect(result[1].modalInterchange!.resolved).toBe(true);
   });
 
-  it('detects V7/V (D7 → G) as secondary dominant in C major', () => {
+  it('detects 5 of 5 (D7 → G) as secondary dominant in C major', () => {
     const regions: ChordRegion[] = [
       region({
         name: '2 dominant7',
@@ -257,11 +257,11 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
 
     expect(result[0].isDiatonic).toBe(false);
     expect(result[0].modalInterchange!.type).toBe('secondary-dominant');
-    expect(result[0].modalInterchange!.secondaryTarget).toBe('V7/V');
+    expect(result[0].modalInterchange!.secondaryTarget).toBe('5 of 5');
     expect(result[0].modalInterchange!.resolved).toBe(true);
   });
 
-  it('detects V7/ii (A7 → Dm) as secondary dominant in C major', () => {
+  it('detects 5 of 2 (A7 → Dm) as secondary dominant in C major', () => {
     const regions: ChordRegion[] = [
       region({
         name: '6 dominant7',
@@ -282,11 +282,11 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
 
     expect(result[0].isDiatonic).toBe(false);
     expect(result[0].modalInterchange!.type).toBe('secondary-dominant');
-    expect(result[0].modalInterchange!.secondaryTarget).toBe('V7/ii');
+    expect(result[0].modalInterchange!.secondaryTarget).toBe('5 of 2');
   });
 
   // ── Multiple secondary dominants in sequence ───────────────────────────
-  it('detects chain: I - V7/vi - vi - V7/ii - ii - V - I', () => {
+  it('detects chain: 1 - 5 of 6 - 6 - 5 of 2 - 2 - 5 - 1', () => {
     const regions: ChordRegion[] = [
       region({
         name: '1 major',
@@ -340,17 +340,17 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
     ];
     const result = analyzeHarmony(regions, cMajor);
 
-    expect(result[0].isDiatonic).toBe(true); // I
-    expect(result[1].modalInterchange!.type).toBe('secondary-dominant'); // V7/vi
-    expect(result[2].isDiatonic).toBe(true); // vi
-    expect(result[3].modalInterchange!.type).toBe('secondary-dominant'); // V7/ii
-    expect(result[4].isDiatonic).toBe(true); // ii
-    expect(result[5].isDiatonic).toBe(true); // V7 (regular dominant)
-    expect(result[6].isDiatonic).toBe(true); // I
+    expect(result[0].isDiatonic).toBe(true); // 1
+    expect(result[1].modalInterchange!.type).toBe('secondary-dominant'); // 5 of 6
+    expect(result[2].isDiatonic).toBe(true); // 6
+    expect(result[3].modalInterchange!.type).toBe('secondary-dominant'); // 5 of 2
+    expect(result[4].isDiatonic).toBe(true); // 2
+    expect(result[5].isDiatonic).toBe(true); // 5 dom7 (regular dominant)
+    expect(result[6].isDiatonic).toBe(true); // 1
   });
 
   // ── Secondary leading-tone ─────────────────────────────────────────────
-  it('detects G#dim7 → Am as secondary leading-tone (viidim7/vi)', () => {
+  it('detects G#dim7 → Am as secondary leading-tone (7 of 6)', () => {
     const regions: ChordRegion[] = [
       region({
         name: '#5 diminished7',
@@ -371,12 +371,12 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
 
     expect(result[0].isDiatonic).toBe(false);
     expect(result[0].modalInterchange!.type).toBe('secondary-leading-tone');
-    expect(result[0].modalInterchange!.secondaryTarget).toBe('viidim7/vi');
+    expect(result[0].modalInterchange!.secondaryTarget).toBe('7 of 6');
   });
 
   // ── Borrowed chord in minor key ────────────────────────────────────────
-  it('detects V major as borrowed from harmonic minor in A aeolian', () => {
-    // In A aeolian, v = Em. E major is from A harmonic minor.
+  it('detects 5 maj as borrowed from harmonic minor in A aeolian', () => {
+    // In A aeolian, the 5 chord is Em. E major is from A harmonic minor.
     const regions: ChordRegion[] = [
       region({
         name: '1 minor',
@@ -437,12 +437,11 @@ describe('Modal Interchange Integration — analyzeHarmony Pass 2', () => {
   });
 
   // ── Existing test regression: preserves base fields ────────────────────
-  it('still produces correct romanNumeral, hybridName, degree', () => {
+  it('still produces correct hybridName, degree', () => {
     const regions: ChordRegion[] = [
       region({ name: '1 major', noteName: 'C', degreeKey: '1 major' }),
     ];
     const result = analyzeHarmony(regions, cMajor);
-    expect(result[0].romanNumeral).toBe('I');
     expect(result[0].hybridName).toBe('1 major');
     expect(result[0].degree).toBe('1');
     expect(result[0].quality).toBe('major');

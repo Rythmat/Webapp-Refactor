@@ -1,7 +1,9 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { DRUM_PADS } from '@/daw/instruments/DrumMachineEngine';
+import { auditionNote } from '@/daw/audio/auditionNote';
 import { PianoRoll } from './PianoRoll';
 import type { MidiNoteEvent } from '@prism/engine';
 
@@ -18,6 +20,16 @@ export function PianoRollModal() {
 
   const isOpen = editingClipId !== null && editingClipTrackId !== null;
 
+  // The editor's loop is a tool inside the editor, never the project loop:
+  // each session starts with no loop, and it's dropped on close so playback
+  // goes back to the project loop.
+  const setEditorLoop = useStore((s) => s.setEditorLoop);
+  useEffect(() => {
+    if (!isOpen) return;
+    setEditorLoop({ enabled: false, start: 0, end: 0 });
+    return () => setEditorLoop(null);
+  }, [isOpen, setEditorLoop]);
+
   // Find the clip + track
   const track = tracks.find((t) => t.id === editingClipTrackId);
   const clip = track?.midiClips.find((c) => c.id === editingClipId);
@@ -33,6 +45,43 @@ export function PianoRollModal() {
       }
     },
     [editingClipTrackId, editingClipId, updateMidiClipEvents],
+  );
+
+  // Notes picked with the Select tool can be sent to Insight: they become the
+  // main editor's note selection, get analyzed, and the editor closes so the
+  // result is in view.
+  const [selectedNoteIndices, setSelectedNoteIndices] = useState<number[]>([]);
+  const setSelectedNotes = useStore((s) => s.setSelectedNotes);
+  const analyzeNoteSelection = useStore((s) => s.analyzeNoteSelection);
+  const handleAnalyzeSelection = useCallback(() => {
+    if (!editingClipTrackId || !editingClipId) return;
+    if (selectedNoteIndices.length === 0) return;
+    const selection = [
+      {
+        trackId: editingClipTrackId,
+        clipId: editingClipId,
+        noteIndices: selectedNoteIndices,
+      },
+    ];
+    setSelectedNotes(selection);
+    analyzeNoteSelection(selection);
+    const { libraryOpen, toggleLibrary } = useStore.getState();
+    if (!libraryOpen) toggleLibrary();
+    handleClose();
+  }, [
+    editingClipTrackId,
+    editingClipId,
+    selectedNoteIndices,
+    setSelectedNotes,
+    analyzeNoteSelection,
+    handleClose,
+  ]);
+
+  const handleAuditionNote = useCallback(
+    (note: number, velocity: number) => {
+      if (editingClipTrackId) auditionNote(editingClipTrackId, note, velocity);
+    },
+    [editingClipTrackId],
   );
 
   // Events are clip-relative; after a front-trim the clip sits at a non-zero
@@ -99,15 +148,39 @@ export function PianoRollModal() {
             <Dialog.Description className="sr-only">
               Edit MIDI notes in this clip.
             </Dialog.Description>
-            <Dialog.Close asChild>
+            <div className="flex items-center gap-2">
               <button
-                className="flex size-7 items-center justify-center rounded-full transition-colors hover:bg-white/10"
-                style={{ color: 'var(--color-text-dim)' }}
-                aria-label="Close"
+                type="button"
+                onClick={handleAnalyzeSelection}
+                disabled={selectedNoteIndices.length === 0}
+                title={
+                  selectedNoteIndices.length === 0
+                    ? 'Select notes with the Select tool to analyze them'
+                    : undefined
+                }
+                className="flex h-7 items-center gap-1 rounded-full px-3 text-xs font-medium transition-colors enabled:hover:bg-white/10 disabled:cursor-default disabled:opacity-40"
+                style={{
+                  color: 'var(--color-accent)',
+                  border: '1px solid rgba(126, 207, 207, 0.4)',
+                }}
               >
-                &#x2715;
+                <Sparkles size={12} strokeWidth={2} />
+                {selectedNoteIndices.length === 0
+                  ? 'Analyze in Insight'
+                  : `Analyze ${selectedNoteIndices.length} note${
+                      selectedNoteIndices.length === 1 ? '' : 's'
+                    } in Insight`}
               </button>
-            </Dialog.Close>
+              <Dialog.Close asChild>
+                <button
+                  className="flex size-7 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+                  style={{ color: 'var(--color-text-dim)' }}
+                  aria-label="Close"
+                >
+                  &#x2715;
+                </button>
+              </Dialog.Close>
+            </div>
           </div>
 
           {/* Piano Roll */}
@@ -116,9 +189,13 @@ export function PianoRollModal() {
               <PianoRoll
                 events={clip.events}
                 clipStartTick={pianoRollStartTick}
+                timelineStartTick={clip.startTick}
+                loopScope="editor"
                 clipColor={track.color}
                 onChange={handleChange}
                 noteLabels={noteLabels}
+                onAuditionNote={handleAuditionNote}
+                onSelectionChange={setSelectedNoteIndices}
               />
             ) : (
               <div

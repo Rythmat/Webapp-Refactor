@@ -120,7 +120,6 @@ export interface UnisonChordRegion {
   noteName: string;
   degree: string;
   hybridName: string;
-  romanNumeral: string;
   color: [number, number, number];
   inversion: number;
   bassNote?: number;

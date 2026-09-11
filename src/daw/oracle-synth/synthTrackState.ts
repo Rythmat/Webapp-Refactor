@@ -2,6 +2,8 @@ import type { SynthEngine } from '@/daw/oracle-synth/audio/SynthEngine';
 import { scaleMask } from '@/daw/oracle-synth/audio/ScaleQuantizer';
 import { migrateModRoute } from '@/daw/oracle-synth/audio/modMath';
 import { useSynthStore } from '@/daw/oracle-synth/store';
+import type { PresetData } from '@/daw/oracle-synth/store/presets/PresetData';
+import { applyPresetData } from '@/daw/oracle-synth/store/slices/presetSlice';
 import { defaultMacros } from '@/daw/oracle-synth/store/slices/macroSlice';
 import { DEFAULT_KEYSCALE } from '@/daw/oracle-synth/store/slices/keyScaleSlice';
 import type { SynthStore } from '@/daw/oracle-synth/store/storeTypes';
@@ -83,6 +85,29 @@ export function captureSynthState(): SynthTrackState {
       typeof val === 'object' && val !== null ? structuredClone(val) : val;
   }
   return snap as SynthTrackState;
+}
+
+/** The synth store's default pitch-bend range in semitones (globalSlice). */
+const DEFAULT_PITCH_BEND_RANGE = 2;
+
+/**
+ * A track patch built from a preset — what picking it in the synth panel would
+ * leave in the store, through the same migrations (applyPresetData). Presets
+ * don't carry a pitch-bend range or tempo, so those take the store default and
+ * the project's `bpm` (which tempo-synced LFOs and the arp follow).
+ */
+export function synthTrackStateFromPreset(
+  preset: PresetData,
+  bpm: number,
+): SynthTrackState {
+  const applied = applyPresetData(preset) as unknown as Record<string, unknown>;
+  const snap = {} as Record<string, unknown>;
+  for (const key of SYNTH_STATE_KEYS) snap[key] = applied[key];
+  return {
+    ...(snap as SynthTrackState),
+    pitchBendRange: DEFAULT_PITCH_BEND_RANGE,
+    bpm,
+  };
 }
 
 /**

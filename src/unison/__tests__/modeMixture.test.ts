@@ -20,7 +20,6 @@ function chord(
     noteName,
     degree: '1',
     hybridName: `1 ${quality}`,
-    romanNumeral: 'I',
     color: [100, 100, 100] as [number, number, number],
     inversion: 0,
     confidence: 1.0,
@@ -128,20 +127,20 @@ describe('detectMixturePatterns', () => {
   });
 
   // ── Deceptive Resolution ───────────────────────────────────────────────
-  it('detects deceptive cadence: G → Am (V → vi)', () => {
+  it('detects deceptive cadence: G → Am (5 → 6)', () => {
     const chords = [chord(7, 'major', 'G'), chord(9, 'minor', 'A')];
     const patterns = detectMixturePatterns(chords, cMajor);
     const dr = patterns.find((p) => p.type === 'deceptive-resolution');
     expect(dr).toBeDefined();
-    expect(dr!.label).toContain('V → vi');
+    expect(dr!.label).toContain('5 → 6');
   });
 
-  it('detects chromatic deceptive: G → Ab major (V → bVI)', () => {
+  it('detects chromatic deceptive: G → Ab major (5 → ♭6)', () => {
     const chords = [chord(7, 'dominant7', 'G'), chord(8, 'major', 'Ab')];
     const patterns = detectMixturePatterns(chords, cMajor);
     const dr = patterns.find((p) => p.type === 'deceptive-resolution');
     expect(dr).toBeDefined();
-    expect(dr!.label).toContain('V → bVI');
+    expect(dr!.label).toContain('5 → ♭6');
   });
 
   // ── Chromatic Mediant ──────────────────────────────────────────────────
@@ -167,7 +166,7 @@ describe('detectMixturePatterns', () => {
   });
 
   // ── No patterns in simple diatonic progression ─────────────────────────
-  it('finds no minor plagal, Picardy, backdoor, or tritone sub in I-IV-V-I', () => {
+  it('finds no minor plagal, Picardy, backdoor, or tritone sub in 1-4-5-1', () => {
     const chords = [
       chord(0, 'major', 'C'),
       chord(5, 'major', 'F'),

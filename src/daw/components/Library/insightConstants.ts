@@ -129,6 +129,8 @@ export function intervalsToString(intervals: number[]): string {
     16: '10',
     17: '11',
     18: '#11',
+    20: 'b13',
+    21: '13',
   };
   return intervals
     .map((i) => {
@@ -369,7 +371,6 @@ export interface ChordInsight {
   description: string;
   alternatives: ChordInterpretation[];
   // UNISON enrichments (available after Analyze)
-  romanNumeral?: string;
   isDiatonic?: boolean;
   modalInterchange?: ModalInterchangeAnnotation | null;
   sourceMode?: string;
@@ -430,9 +431,9 @@ export function getEnrichedDescription(chord: ChordInsight): string {
       case 'borrowed':
         return `Borrowed from ${chord.modalInterchange.sourceModeDisplay ?? chord.sourceMode ?? 'parallel mode'}`;
       case 'secondary-dominant':
-        return `Secondary dominant — resolves to ${chord.modalInterchange.secondaryTarget ?? 'target'}`;
+        return `Secondary dominant${chord.modalInterchange.secondaryTarget ? `: ${chord.modalInterchange.secondaryTarget}` : ''}`;
       case 'secondary-leading-tone':
-        return `Secondary leading tone — resolves to ${chord.modalInterchange.secondaryTarget ?? 'target'}`;
+        return `Secondary leading tone${chord.modalInterchange.secondaryTarget ? `: ${chord.modalInterchange.secondaryTarget}` : ''}`;
       case 'mode-mixture':
         return 'Mode mixture — blending parallel tonalities';
     }

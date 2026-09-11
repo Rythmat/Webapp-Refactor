@@ -9,6 +9,35 @@ import {
   audioToUnison,
   type AudioToUnisonOptions,
 } from '@/unison/converters/audioToUnison';
+import {
+  chordSelectionKey,
+  chordSelectionSnapshot,
+  noteSelectionKey,
+  noteSelectionSnapshot,
+  type ClipNoteSelection,
+} from '@/daw/utils/insightSelection';
+import {
+  analyzeChordSymbols,
+  hasHarmonyNotes,
+  type ChordAnalysis,
+} from '@/daw/utils/chordAnalysis';
+
+/** The store update for analyzing a selection: its document, or the error. */
+function selectionAnalysisUpdate(
+  key: string,
+  buildSnapshot: () => SessionSnapshot,
+): Pick<UnisonSlice, 'selectionAnalysis'> & Partial<UnisonSlice> {
+  try {
+    return {
+      selectionAnalysis: { key, doc: sessionToUnison(buildSnapshot()) },
+    };
+  } catch (err) {
+    return {
+      selectionAnalysis: null,
+      unisonError: err instanceof Error ? err.message : 'Analysis failed',
+    };
+  }
+}
 
 // ── UNISON Slice ──────────────────────────────────────────────────────────
 // Stores the UNISON analysis document and manages the analysis lifecycle.
@@ -17,8 +46,29 @@ export interface UnisonSlice {
   unisonDoc: UnisonDocument | null;
   unisonLoading: boolean;
   unisonError: string | null;
+  // Insight's analysis of a chord or note selection, and the selection key
+  // (insightSelection) it was made for — stale once that key changes.
+  selectionAnalysis: { key: string; doc: UnisonDocument } | null;
 
   analyzeSession: () => void;
+  analyzeChordSelection: (chordIds: string[]) => void;
+  analyzeNoteSelection: (selection: ClipNoteSelection[]) => void;
+  clearSelectionAnalysis: () => void;
+  // Chord symbols proposed by analyzing the music (chordAnalysis). The chord
+  // lane only takes them through applyChordSymbols — the user's "Use Chord
+  // Symbols" — so it always holds chords the user accepted.
+  chordAnalysis: ChordAnalysis | null;
+  // A just-opened project has notes but no chord symbols: ask whether to
+  // analyze them (ChordAnalysisPrompt).
+  chordAnalysisPromptOpen: boolean;
+  /** Analyze these tracks (null: every track, by role) and keep the proposal. */
+  analyzeChords: (trackIds?: string[] | null) => ChordAnalysis;
+  proposeChordSymbols: (analysis: ChordAnalysis) => void;
+  /** Put the proposed chord symbols in the chord lane. */
+  applyChordSymbols: () => void;
+  /** Open the prompt when the project has chord notes but no chord symbols. */
+  offerChordAnalysis: () => void;
+  closeChordAnalysisPrompt: () => void;
   analyzeAudio: (
     audioBuffer: AudioBuffer,
     options?: AudioToUnisonOptions,
@@ -37,6 +87,68 @@ export const createUnisonSlice: StateCreator<
   unisonDoc: null,
   unisonLoading: false,
   unisonError: null,
+  selectionAnalysis: null,
+
+  // The same theory engine as analyzeSession, run on just the selected chords
+  // (with the notes sounding during them) or just the selected notes.
+  analyzeChordSelection: (chordIds) =>
+    set(
+      chordIds.length === 0
+        ? { selectionAnalysis: null }
+        : selectionAnalysisUpdate(chordSelectionKey(chordIds), () =>
+            chordSelectionSnapshot(get(), chordIds),
+          ),
+    ),
+
+  analyzeNoteSelection: (selection) =>
+    set(
+      selection.length === 0
+        ? { selectionAnalysis: null }
+        : selectionAnalysisUpdate(
+            noteSelectionKey(get().tracks, selection),
+            () => noteSelectionSnapshot(get(), selection),
+          ),
+    ),
+
+  clearSelectionAnalysis: () => set({ selectionAnalysis: null }),
+
+  chordAnalysis: null,
+  chordAnalysisPromptOpen: false,
+
+  analyzeChords: (trackIds = null) => {
+    const { tracks, rootNote, mode, unisonDoc } = get();
+    const analysis = analyzeChordSymbols(tracks, {
+      rootNote,
+      mode,
+      trackIds,
+      melody: unisonDoc?.melody,
+    });
+    set({ chordAnalysis: analysis });
+    return analysis;
+  },
+
+  proposeChordSymbols: (analysis) => set({ chordAnalysis: analysis }),
+
+  applyChordSymbols: () => {
+    const { chordAnalysis, rootNote, setRootNote, setMode, setChordRegions } =
+      get();
+    if (!chordAnalysis || chordAnalysis.regions.length === 0) return;
+    // Chords read in a detected key: adopt it, so they're named in that key.
+    if (rootNote === null && chordAnalysis.keyDetected) {
+      setRootNote(chordAnalysis.rootNote);
+      setMode(chordAnalysis.mode);
+    }
+    setChordRegions(chordAnalysis.regions, true);
+  },
+
+  offerChordAnalysis: () => {
+    const { chordRegions, tracks } = get();
+    if (chordRegions.length === 0 && hasHarmonyNotes(tracks)) {
+      set({ chordAnalysisPromptOpen: true });
+    }
+  },
+
+  closeChordAnalysisPrompt: () => set({ chordAnalysisPromptOpen: false }),
 
   analyzeSession: () => {
     set({ unisonLoading: true, unisonError: null });
@@ -104,12 +216,6 @@ export const createUnisonSlice: StateCreator<
           key.confidence,
           'unison-offline',
         );
-      }
-
-      // Phase 8: If UNISON identified a melody track, refine chord regions
-      // by excluding that track's notes from harmony detection.
-      if (doc.melody) {
-        get().refineWithMelody(doc.melody.trackId, doc.melody.pitchRange);
       }
     } catch (err) {
       set({

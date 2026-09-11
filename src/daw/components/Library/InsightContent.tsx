@@ -10,26 +10,18 @@ import {
   NOTES,
   CHORDS,
   MODES,
-  unstepChord,
-  degreeMidi,
-  generateChord,
   noteNameLetter,
   noteNameInKey,
-  chordToneNames,
   chordToneNamesInKey,
-  respellLeadingChords,
   detectChordWithInversion,
   KEY_COLORS,
   CHORD_COLORS,
   getChordColor,
-  getModeOffset,
-  ionianToModeLabel,
 } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { getChordTheory } from './chordTheoryMap';
-import type { UnisonChordRegion } from '@/unison/types/schema';
 import {
   PARENT_SCALE_INFO,
   FAMILY_INTERVALS,
@@ -38,15 +30,16 @@ import {
   MODE_TO_SLUG,
   ROOT_TO_KEY_INDEX,
   formatQuality,
-  degreeToHybrid,
   intervalsToString,
   rgbString,
   findAllInterpretations,
-  type ChordInsight,
   type ChordInterpretation,
 } from './insightConstants';
+import { buildChordInsights, unisonChordLookup } from './buildChordInsights';
 import { ChordCard } from './ChordCard';
 import { KeySection } from './KeySection';
+import { ChordSymbolsSection } from './ChordSymbolsSection';
+import { SelectionAnalysis } from './SelectionAnalysis';
 import { UnisonSections } from './UnisonSections';
 
 // ── Component ────────────────────────────────────────────────────────────
@@ -93,16 +86,10 @@ export function InsightContent() {
 
   // ── UNISON chord lookup map ──
 
-  const unisonChordMap = useMemo(() => {
-    if (!unisonDoc) return new Map<string, UnisonChordRegion>();
-    const map = new Map<string, UnisonChordRegion>();
-    for (const region of unisonDoc.analysis.chordTimeline) {
-      if (!map.has(region.hybridName)) {
-        map.set(region.hybridName, region);
-      }
-    }
-    return map;
-  }, [unisonDoc]);
+  const unisonChordMap = useMemo(
+    () => unisonChordLookup(unisonDoc),
+    [unisonDoc],
+  );
 
   // ── Live chord detection (audio or MIDI) ──
 
@@ -265,107 +252,7 @@ export function InsightContent() {
 
     if (source.length === 0) return [];
 
-    const rootMidi = rootNote + 48;
-    // Leading diminished chords are named by where they resolve (Priority 1).
-    const parentRootMidi = rootMidi - getModeOffset(mode);
-    const leadingRoots = new Map<string, string>();
-    respellLeadingChords(
-      source.map((degree) => {
-        const root = noteNameInKey(
-          degreeMidi(parentRootMidi, degree) % 12,
-          rootNote,
-          mode,
-        );
-        return `${root} ${unstepChord(degree).replace(/^diminished/, 'dim')}`;
-      }),
-    ).forEach((name, i) => {
-      if (!leadingRoots.has(source[i])) {
-        leadingRoots.set(source[i], name.split(' ')[0]);
-      }
-    });
-    const seen = new Set<string>();
-    const results: ChordInsight[] = [];
-
-    for (const degreeName of source) {
-      if (seen.has(degreeName)) continue;
-      seen.add(degreeName);
-
-      const quality = unstepChord(degreeName);
-      const parentRoot = rootMidi - getModeOffset(mode);
-      const bassMidi = degreeMidi(parentRoot, degreeName);
-      const pitchedNotes = generateChord(bassMidi, quality);
-      const chordRoot =
-        leadingRoots.get(degreeName) ??
-        noteNameInKey(bassMidi % 12, rootNote, mode);
-      const chordTones = chordToneNames(chordRoot, CHORDS[quality] ?? []);
-      const noteNames = pitchedNotes.map((n) =>
-        displayAccidentals(
-          chordTones.get(n % 12) ?? noteNameInKey(n % 12, rootNote, mode),
-        ),
-      );
-      const rootLetter = displayAccidentals(chordRoot);
-      const intervals = CHORDS[quality];
-
-      const [r, g, b] = getChordColor(degreeName, parentRoot);
-
-      const chordRootPc = bassMidi % 12;
-      const chordRootMode = getChordTheory(quality).mode;
-
-      const chordModeInfo = PARENT_SCALE_INFO[chordRootMode];
-      const chordParentFamily = chordModeInfo?.family ?? 'Ionian';
-      const chordParentRootPc = chordModeInfo
-        ? (chordRootPc + chordModeInfo.offset) % 12
-        : chordRootPc;
-
-      const sessionInterval = (rootNote - chordParentRootPc + 12) % 12;
-      const chordFamilyIntervals = FAMILY_INTERVALS[chordParentFamily];
-      const sessionDegIdx =
-        chordFamilyIntervals?.indexOf(sessionInterval) ?? -1;
-      const sessionMode =
-        sessionDegIdx >= 0
-          ? (FAMILY_MODES[chordParentFamily]?.[sessionDegIdx] ?? null)
-          : null;
-
-      const isChordParent = !chordModeInfo || chordModeInfo.offset === 0;
-      const isSessionParent = isChordParent || chordParentRootPc === rootNote;
-      const parentKeyLetter = displayAccidentals(
-        noteNameInKey(chordParentRootPc, rootNote, mode),
-      );
-      const parentMode = FAMILY_MODES[chordParentFamily]?.[0] ?? chordRootMode;
-
-      const allInterps = findAllInterpretations(degreeName);
-      const alternatives = allInterps.filter(
-        (i) => i.chordRootMode !== chordRootMode,
-      );
-
-      // UNISON enrichment lookup
-      const unisonRegion = unisonChordMap.get(degreeName);
-
-      results.push({
-        degreeName: ionianToModeLabel(degreeName, mode),
-        hybrid: degreeToHybrid(ionianToModeLabel(degreeName, mode)),
-        quality,
-        chordLabel: `${rootLetter} ${formatQuality(quality)}`,
-        rootLetter,
-        noteNames,
-        intervals: intervals ? intervalsToString(intervals) : '',
-        color: rgbString(r, g, b),
-        sessionMode,
-        chordRootMode,
-        parentKeyLetter,
-        parentMode,
-        isSessionParent,
-        description: getChordTheory(quality).description,
-        alternatives,
-        // UNISON fields
-        romanNumeral: unisonRegion?.romanNumeral,
-        isDiatonic: unisonRegion?.isDiatonic,
-        modalInterchange: unisonRegion?.modalInterchange,
-        sourceMode: unisonRegion?.sourceMode,
-      });
-    }
-
-    return results;
+    return buildChordInsights(source, rootNote, mode, unisonChordMap);
   }, [stringSeq, chordRegions, rootNote, mode, unisonChordMap]);
 
   const hasProgression =
@@ -620,6 +507,12 @@ export function InsightContent() {
           </div>
         )}
       </div>
+
+      {/* The project's chord symbols: analyze, re-analyze, use */}
+      <ChordSymbolsSection />
+
+      {/* Chords selected in the timeline's chord lane */}
+      <SelectionAnalysis />
 
       {/* Unified Key Section + Analyze Button */}
       {hasProgression ? (

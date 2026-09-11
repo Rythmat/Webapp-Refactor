@@ -31,6 +31,7 @@ import {
   KEY_COLORS,
   ALL_MODES,
   noteNameInKey,
+  CHORDS,
   detectChordWithInversion,
   getModeOffset,
   ionianToModeLabel,
@@ -262,6 +263,9 @@ const UNABBREV: Record<string, string> = {
   dom9: 'dominant9',
   maj9: 'major9',
   min9: 'minor9',
+  dom13: 'dominant13',
+  maj13: 'major13',
+  min13: 'minor13',
   'min7(b5)': 'minor7b5',
   'min(maj7)': 'minormajor7',
   'maj7(#5)': 'major7#5',
@@ -1206,9 +1210,48 @@ export function deriveChordRegionsFromSession(
 // ── Phase 7C: Bass note enrichment ──────────────────────────────────────
 
 /**
+ * The chord quality these pitch classes spell with `bassPc` as the root, or
+ * null. Tries an exact match first, then one without the perfect fifth —
+ * rootless voicings usually leave it out. Only chords of five or more notes
+ * can match that way here, since voicing + bass is always at least four.
+ */
+function qualityFromBassRoot(
+  bassPc: number,
+  voicingPcs: Set<number>,
+): string | null {
+  const intervals = new Set([
+    0,
+    ...[...voicingPcs].map((pc) => (pc - bassPc + 12) % 12),
+  ]);
+  const spells = (tones: Set<number>) =>
+    tones.size === intervals.size && [...tones].every((t) => intervals.has(t));
+  const qualities = Object.entries(CHORDS)
+    .filter(([quality]) => !quality.includes('/')) // voicing variants
+    .map(
+      ([quality, def]) =>
+        [quality, new Set(def.map((v) => ((v % 12) + 12) % 12))] as const,
+    );
+
+  for (const [quality, tones] of qualities) {
+    if (spells(tones)) return quality;
+  }
+  if (!intervals.has(7)) {
+    for (const [quality, tones] of qualities) {
+      if (!tones.has(7)) continue;
+      const withoutFifth = new Set(tones);
+      withoutFifth.delete(7);
+      if (spells(withoutFifth)) return quality;
+    }
+  }
+  return null;
+}
+
+/**
  * Enrich chord regions with bass note information. If the bass plays a
- * different pitch class than the chord root, the chord becomes a slash
- * chord (e.g., C maj → C maj/E for first inversion).
+ * different pitch class than the chord root, the chord becomes a slash chord
+ * (e.g., C maj → C maj/E for first inversion) — unless the bass isn't in the
+ * voicing at all and names a chord from below, as it does under a rootless /
+ * upper-structure voicing: F-A-C-E over D is D min9, not F maj7/D.
  */
 function enrichWithBass(
   regions: ChordRegion[],
@@ -1234,6 +1277,27 @@ function enrichWithBass(
     // Parse the current chord to check if bass matches the root
     const parsed = parseNoteNameChord(region.noteName);
     if (!parsed || parsed.rootPc === bassPc) return region;
+
+    // Bass outside the voicing: name the chord from the bass when it spells one
+    const voicingPcs = new Set((region.midis ?? []).map((m) => m % 12));
+    if (voicingPcs.size > 0 && !voicingPcs.has(bassPc)) {
+      const quality = qualityFromBassRoot(bassPc, voicingPcs);
+      if (quality) {
+        const degreeKey = resolveDegreeKey(bassPc, quality, keyPc);
+        const noteName = abbreviateSequence(
+          `${noteNameInKey(bassPc, keyPc, mode)} ${quality}`,
+        );
+        return {
+          ...region,
+          noteName,
+          name: degreeKey ? abbreviateSequence(degreeKey) : noteName,
+          degreeKey,
+          color: degreeKey
+            ? getChordColor(degreeKey, rootMidi, mode)
+            : region.color,
+        };
+      }
+    }
 
     // Bass differs from chord root → slash chord
     const bassLetter = noteNameInKey(bassPc, keyPc, mode);

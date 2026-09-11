@@ -27,6 +27,21 @@ import {
   tickToTimePrecise,
 } from '@/daw/utils/timelineScale';
 import { PresenceCursors } from '@/daw/collab/ui/PresenceCursors';
+import {
+  LOOP_STRIP_H,
+  PLAYHEAD_COLOR,
+  PLAYHEAD_HANDLE_H,
+  PLAYHEAD_HANDLE_W,
+  dragLoopRange,
+  drawLoopRegion,
+  rulerPressTarget,
+  type RulerTarget,
+} from '@/daw/utils/rulerLoop';
+import {
+  nextChordSelection,
+  notesInMarquee,
+  type DrawnNote,
+} from '@/daw/utils/insightSelection';
 import { ALL_GRID_VALUES, TRIPLET_GRID_VALUES } from '@/daw/utils/quantize';
 import type { MidiNoteEvent } from '@prism/engine';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -35,7 +50,7 @@ import { AnimatedBlobs } from '@/components/ui/blobs';
 
 // ── Constants ───────────────────────────────────────────────────────────
 const TRACK_HEIGHT = 80; // px per track lane
-const RULER_HEIGHT = 28; // px for bar-number ruler at top
+const RULER_HEIGHT = 42; // px for top ruler: loop strip (LOOP_STRIP_H) + bar numbers
 const CHORD_RULER_HEIGHT = 20; // px for chord name ruler
 const RULERS_HEIGHT = RULER_HEIGHT + CHORD_RULER_HEIGHT; // total header height
 const TIME_RULER_HEIGHT = 22; // px for time ruler at bottom
@@ -106,6 +121,9 @@ function hexToRgb(hex: string): [number, number, number] {
   ];
 }
 
+/** Where a clip note's bar was drawn (canvas coords), by its event index. */
+type NoteBar = { index: number; x: number; y: number; w: number; h: number };
+
 function drawPianoRoll(
   ctx: CanvasRenderingContext2D,
   events: {
@@ -123,8 +141,11 @@ function drawPianoRoll(
   color: string,
   chordRegions?: ChordRegion[],
   usePrismColors?: boolean,
-) {
-  if (events.length === 0 || clipDuration === 0) return;
+  /** Indices of notes selected for Insight: outlined, with the clip's other
+   *  notes dimmed. */
+  selectedIndices?: ReadonlySet<number>,
+): NoteBar[] {
+  if (events.length === 0 || clipDuration === 0) return [];
 
   let minNote = 127,
     maxNote = 0;
@@ -144,7 +165,11 @@ function drawPianoRoll(
   const drawHeight = clipHeight - paddingTop - paddingBottom;
   const noteBarH = Math.max(2, Math.min(4, (drawHeight / noteRange) * 0.8));
 
-  for (const ev of events) {
+  const hasSelection =
+    selectedIndices !== undefined && selectedIndices.size > 0;
+  const bars: NoteBar[] = [];
+
+  for (const [i, ev] of events.entries()) {
     const x =
       clipX + ((ev.startTick - clipStartTick) / clipDuration) * clipWidth;
     const w = Math.max(2, (ev.durationTicks / clipDuration) * clipWidth);
@@ -168,11 +193,23 @@ function drawPianoRoll(
       }
     }
 
-    ctx.fillStyle = `rgba(${nr}, ${ng}, ${nb}, ${alpha})`;
+    const isSelected = hasSelection && selectedIndices.has(i);
+    const dimmed = hasSelection && !isSelected;
+
+    ctx.fillStyle = `rgba(${nr}, ${ng}, ${nb}, ${dimmed ? alpha * 0.35 : alpha})`;
     ctx.beginPath();
     ctx.roundRect(x, ny, w, noteBarH, 1);
     ctx.fill();
+    bars.push({ index: i, x, y: ny, w, h: noteBarH });
+    if (isSelected) {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(x - 0.5, ny - 0.5, w + 1, noteBarH + 1, 1.5);
+      ctx.stroke();
+    }
   }
+  return bars;
 }
 
 function drawSmoothWaveform(
@@ -302,17 +339,53 @@ export function Timeline() {
   const dragTickRef = useRef<number>(0);
   const dragEndTickRef = useRef<number>(0);
   const dragTrackRef = useRef<number>(0);
-  const loopDragRef = useRef<'start' | 'end' | null>(null);
   const markerDragRef = useRef<string | null>(null);
-  // Active vertical drag-to-zoom on the bar-number ruler. `seekTick` is applied
-  // on release if the press never crossed the drag threshold (i.e. a plain
-  // click), preserving the ruler's click-to-seek behavior.
-  const rulerZoomRef = useRef<{
+  // Active press on the top ruler — the same gestures as the piano roll's (see
+  // rulerPressTarget): undecided until it moves past RULER_ZOOM_DRAG_THRESHOLD,
+  // then a playhead drag, a vertical drag-to-zoom or a horizontal loop drag.
+  // A press that never moves is a click: on the loop it toggles looping,
+  // anywhere else it seeks to `seekTick`.
+  const rulerPressRef = useRef<{
+    target: RulerTarget;
+    mode: 'playhead' | 'zoom' | 'loop' | null;
+    startX: number;
     startY: number;
     lastY: number;
-    moved: boolean;
+    pressTick: number;
     seekTick: number;
+    original: { start: number; end: number };
   } | null>(null);
+  // The playhead's grab triangle. The rulers are drawn at the scroll offset
+  // (sticky) while the playhead lives in the scrolling content, so the handle
+  // is re-pinned to the foot of the bar ruler whenever the view scrolls.
+  const playheadHandleRef = useRef<HTMLDivElement | null>(null);
+  // Chord-lane selection anchor: the last chord clicked without Shift, so a
+  // Shift-click selects the run from it (nextChordSelection).
+  const chordAnchorRef = useRef<string | null>(null);
+  // ⌘/Ctrl-drag in the track area: a marquee selecting, for Insight, every
+  // note it touches in the clips it crosses. Canvas coords.
+  const noteMarqueeRef = useRef<{
+    x0: number;
+    y0: number;
+    x1: number;
+    y1: number;
+  } | null>(null);
+  // Clip notes as last drawn — what the marquee hits — and, while it's being
+  // dragged, the notes it touches per clip, lit up live.
+  const drawnNotesRef = useRef<DrawnNote[]>([]);
+  const marqueeHitsRef = useRef<Map<string, Set<number>> | null>(null);
+  const extendNoteMarquee = useCallback((x: number, y: number) => {
+    const marquee = noteMarqueeRef.current;
+    if (!marquee) return;
+    marquee.x1 = x;
+    marquee.y1 = y;
+    marqueeHitsRef.current = new Map(
+      notesInMarquee(drawnNotesRef.current, marquee).map((s) => [
+        s.clipId,
+        new Set(s.noteIndices),
+      ]),
+    );
+  }, []);
   // Active hand/grab pan started on empty timeline space. `seekTick` is applied
   // on release if the press never crossed the drag threshold (a plain click).
   const panDragRef = useRef<{
@@ -338,6 +411,8 @@ export function Timeline() {
   const position = useStore((s) => s.position);
   const bpm = useStore((s) => s.bpm);
   const selectedClipId = useStore((s) => s.selectedClipId);
+  const selectedChordIds = useStore((s) => s.selectedChordIds);
+  const selectedNotes = useStore((s) => s.selectedNotes);
   const loopEnabled = useStore((s) => s.loopEnabled);
   const loopStart = useStore((s) => s.loopStart);
   const loopEnd = useStore((s) => s.loopEnd);
@@ -427,6 +502,7 @@ export function Timeline() {
     const currentScrollLeft = state.timelineScrollLeft;
     const currentPpb = pixelsPerBeat(currentZoom);
     const newClipRects: ClipRect[] = [];
+    const newDrawnNotes: DrawnNote[] = [];
 
     // Theme-aware canvas colors (read from CSS variables once per frame).
     // Read from the canvas itself: the DAW tokens live on `.daw-root`, not
@@ -654,7 +730,13 @@ export function Timeline() {
           ctx.clip();
 
           if (clip.events.length > 0) {
-            drawPianoRoll(
+            // A marquee being dragged lights up the notes it touches;
+            // otherwise the note selection shows.
+            const marqueeHits = marqueeHitsRef.current;
+            const noteSelection = state.selectedNotes.find(
+              (s) => s.clipId === clip.id,
+            );
+            const bars = drawPianoRoll(
               ctx,
               clip.events,
               noteX,
@@ -666,7 +748,24 @@ export function Timeline() {
               track.color,
               state.chordRegions,
               state.clipColorMode === 'prism',
+              marqueeHits
+                ? marqueeHits.get(clip.id)
+                : noteSelection && new Set(noteSelection.noteIndices),
             );
+            // Only notes showing inside the clip box can be hit.
+            const boxTop = effectiveY + 2;
+            const boxBottom = boxTop + TRACK_HEIGHT - 4;
+            for (const b of bars) {
+              if (
+                b.x > clipX + clipWidth ||
+                b.x + b.w < clipX ||
+                b.y > boxBottom ||
+                b.y + b.h < boxTop
+              ) {
+                continue;
+              }
+              newDrawnNotes.push({ trackId: track.id, clipId: clip.id, ...b });
+            }
           }
 
           ctx.restore();
@@ -970,6 +1069,22 @@ export function Timeline() {
       // (Marker flags drawn below with sticky top ruler)
     }
 
+    // ── Note marquee (⌘-drag) ──────────────────────────────────────────
+    const marquee = noteMarqueeRef.current;
+    if (marquee) {
+      const mx = Math.min(marquee.x0, marquee.x1);
+      const my = Math.min(marquee.y0, marquee.y1);
+      const mw = Math.abs(marquee.x1 - marquee.x0);
+      const mh = Math.abs(marquee.y1 - marquee.y0);
+      ctx.fillStyle = 'rgba(126, 207, 207, 0.12)';
+      ctx.fillRect(mx, my, mw, mh);
+      ctx.strokeStyle = 'rgba(126, 207, 207, 0.8)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 3]);
+      ctx.strokeRect(mx + 0.5, my + 0.5, mw, mh);
+      ctx.setLineDash([]);
+    }
+
     // ── Sticky rulers (drawn last so they overlay content) ────────────
 
     // Scroll-offset positions so rulers stay pinned during vertical scroll
@@ -988,30 +1103,22 @@ export function Timeline() {
     ctx.fillStyle = `rgba(${colorGridRgb}, 0.03)`;
     ctx.fillRect(0, rulerY, cw, RULER_HEIGHT);
 
-    // Loop region band + handles on ruler
-    if (state.loopEnabled) {
-      const lx1r = tickToPixel(state.loopStart, currentZoom, currentScrollLeft);
-      const lx2r = tickToPixel(state.loopEnd, currentZoom, currentScrollLeft);
-      const lwr = lx2r - lx1r;
-
-      ctx.fillStyle = `rgba(${colorSelRgb}, 0.25)`;
-      ctx.fillRect(lx1r, rulerY, lwr, RULER_HEIGHT);
-
-      ctx.fillStyle = `rgb(${colorSelRgb})`;
-      ctx.beginPath();
-      ctx.moveTo(lx1r, rulerY);
-      ctx.lineTo(lx1r + 8, rulerY);
-      ctx.lineTo(lx1r, rulerY + RULER_HEIGHT);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(lx2r, rulerY);
-      ctx.lineTo(lx2r - 8, rulerY);
-      ctx.lineTo(lx2r, rulerY + RULER_HEIGHT);
-      ctx.closePath();
-      ctx.fill();
-    }
+    // Loop strip along the top of the ruler — the same loop as the piano roll
+    // draws: light blue while looping, gray (still in place) while off.
+    drawLoopRegion(
+      ctx,
+      tickToPixel(state.loopStart, currentZoom, currentScrollLeft),
+      tickToPixel(state.loopEnd, currentZoom, currentScrollLeft),
+      rulerY,
+      colorSelRgb,
+      state.loopEnabled,
+    );
+    ctx.strokeStyle = `rgba(${colorGridRgb}, 0.06)`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, rulerY + LOOP_STRIP_H - 0.5);
+    ctx.lineTo(cw, rulerY + LOOP_STRIP_H - 0.5);
+    ctx.stroke();
 
     // Bottom border
     ctx.strokeStyle = colorBorder;
@@ -1040,7 +1147,11 @@ export function Timeline() {
           continue;
         const x = tickToPixel(tick, currentZoom, currentScrollLeft);
         if (x < -50 || x > cw + 50) continue;
-        ctx.fillText(level.format(tick), x + 4, rulerY + RULER_HEIGHT / 2);
+        ctx.fillText(
+          level.format(tick),
+          x + 4,
+          rulerY + LOOP_STRIP_H + (RULER_HEIGHT - LOOP_STRIP_H) / 2,
+        );
       }
     }
 
@@ -1068,25 +1179,26 @@ export function Timeline() {
       }
     }
 
-    // Marker flags (on top ruler)
+    // Marker flags (top of the bar-number lane, under the loop strip)
+    const flagY = rulerY + LOOP_STRIP_H;
     for (const marker of currentMarkers) {
       const mx = tickToPixel(marker.tick, currentZoom, currentScrollLeft);
       if (mx < -60 || mx > cw + 10) continue;
 
       ctx.fillStyle = marker.color;
       ctx.beginPath();
-      ctx.moveTo(mx, rulerY + 2);
-      ctx.lineTo(mx + 7, rulerY + 2);
-      ctx.lineTo(mx + 7, rulerY + 12);
-      ctx.lineTo(mx + 3.5, rulerY + 16);
-      ctx.lineTo(mx, rulerY + 12);
+      ctx.moveTo(mx, flagY + 2);
+      ctx.lineTo(mx + 7, flagY + 2);
+      ctx.lineTo(mx + 7, flagY + 12);
+      ctx.lineTo(mx + 3.5, flagY + 16);
+      ctx.lineTo(mx, flagY + 12);
       ctx.closePath();
       ctx.fill();
 
       ctx.fillStyle = marker.color + 'cc';
       ctx.font = '9px Inter, sans-serif';
       ctx.textBaseline = 'middle';
-      ctx.fillText(marker.name, mx + 10, rulerY + 10);
+      ctx.fillText(marker.name, mx + 10, flagY + 10);
     }
 
     // ── Chord name ruler ────────────────────────────────────────────────
@@ -1111,13 +1223,28 @@ export function Timeline() {
       const x2 = tickToPixel(region.endTick, currentZoom, currentScrollLeft);
       if (x2 < 0 || x1 > cw) continue;
 
-      // Colored region fill (matches Prism harmonic colors)
+      // Colored region fill (matches Prism harmonic colors); selected chords
+      // (for Insight) get a stronger fill and an outline in their colour.
       const [cr, cg, cb] = region.color;
-      ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, 0.15)`;
+      const isSelected = state.selectedChordIds.includes(region.id);
+      ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${isSelected ? 0.4 : 0.15})`;
       ctx.fillRect(x1, chordRulerY, x2 - x1, CHORD_RULER_HEIGHT);
+      if (isSelected) {
+        ctx.strokeStyle = `rgb(${cr}, ${cg}, ${cb})`;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(
+          x1 + 0.75,
+          chordRulerY + 0.75,
+          x2 - x1 - 1.5,
+          CHORD_RULER_HEIGHT - 1.5,
+        );
+        ctx.lineWidth = 1;
+      }
 
       // Chord name
-      ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, 0.85)`;
+      ctx.fillStyle = isSelected
+        ? '#f8fafc'
+        : `rgba(${cr}, ${cg}, ${cb}, 0.85)`;
       ctx.font = '10px Inter, sans-serif';
       ctx.textBaseline = 'middle';
       const label = chordRulerShowNotes ? region.name : region.noteName;
@@ -1190,6 +1317,7 @@ export function Timeline() {
     }
 
     clipRectsRef.current = newClipRects;
+    drawnNotesRef.current = newDrawnNotes;
   }, [tracks, gridSize, chordRulerShowNotes, tsNum, tsDen]);
 
   // ── Redraw triggers ───────────────────────────────────────────────
@@ -1200,6 +1328,8 @@ export function Timeline() {
     bpm,
     draw,
     selectedClipId,
+    selectedChordIds,
+    selectedNotes,
     loopEnabled,
     loopStart,
     loopEnd,
@@ -1220,6 +1350,12 @@ export function Timeline() {
     if (!el) return;
     let rafId = 0;
     const onScroll = () => {
+      // Keep the playhead's grab handle on the sticky bar ruler.
+      if (playheadHandleRef.current) {
+        playheadHandleRef.current.style.top = `${
+          el.scrollTop + RULER_HEIGHT - PLAYHEAD_HANDLE_H
+        }px`;
+      }
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(draw);
     };
@@ -1287,7 +1423,9 @@ export function Timeline() {
       const currentZoom = state.timelineZoom;
       const currentScrollLeft = state.timelineScrollLeft;
 
-      // Chord ruler click: open inline editor for the clicked chord region
+      // Chord ruler click: select chords for Insight to analyze — click one,
+      // Shift-click a run, Cmd/Ctrl-click to add or remove one; clicking an
+      // empty stretch clears the selection. Double-click renames a chord.
       const st = getScrollTop();
       if (y >= st + RULER_HEIGHT && y < st + RULERS_HEIGHT) {
         const currentState = useStore.getState();
@@ -1299,61 +1437,61 @@ export function Timeline() {
         const region = currentState.chordRegions.find(
           (r) => r.startTick <= tick && r.endTick > tick,
         );
-        if (region) {
-          const regionX = tickToPixel(
-            region.startTick,
-            currentState.timelineZoom,
-            currentState.timelineScrollLeft,
-          );
-          setEditingChord({
-            id: region.id,
-            x: regionX,
-            y: RULER_HEIGHT,
-            value: region.noteName,
-          });
+        if (!region) {
+          chordAnchorRef.current = null;
+          currentState.setSelectedChordIds([]);
+          return;
         }
+        const next = nextChordSelection(
+          currentState.chordRegions,
+          currentState.selectedChordIds,
+          chordAnchorRef.current,
+          region.id,
+          { shift: e.shiftKey, toggle: e.metaKey || e.ctrlKey },
+        );
+        chordAnchorRef.current = next.anchorId;
+        currentState.setSelectedChordIds(next.selectedIds);
         return;
       }
 
-      // Ruler click: check loop handles, then marker handles, then seek
+      // Top ruler (the chord ruler below it is handled above): marker flags
+      // first, then whatever the press lands on — the loop in the top strip,
+      // or in the bar-number lane the playhead handle or a seek/zoom/loop-draw.
       if (y >= st && y < st + RULERS_HEIGHT) {
-        if (state.loopEnabled) {
-          const lx1 = tickToPixel(
-            state.loopStart,
-            currentZoom,
-            currentScrollLeft,
-          );
-          const lx2 = tickToPixel(
-            state.loopEnd,
-            currentZoom,
-            currentScrollLeft,
-          );
-          if (Math.abs(x - lx1) < 10) {
-            loopDragRef.current = 'start';
-            return;
-          }
-          if (Math.abs(x - lx2) < 10) {
-            loopDragRef.current = 'end';
-            return;
+        const localY = y - st;
+        if (localY >= LOOP_STRIP_H && localY < LOOP_STRIP_H + 18) {
+          for (const marker of state.markers) {
+            const mx = tickToPixel(marker.tick, currentZoom, currentScrollLeft);
+            if (Math.abs(x - mx) < 10) {
+              markerDragRef.current = marker.id;
+              return;
+            }
           }
         }
-        // Check marker handles
-        for (const marker of state.markers) {
-          const mx = tickToPixel(marker.tick, currentZoom, currentScrollLeft);
-          if (Math.abs(x - mx) < 10 && y < st + 18) {
-            markerDragRef.current = marker.id;
-            return;
-          }
-        }
-        // Bar-number ruler: begin a vertical drag-to-zoom. A plain click (no
-        // vertical movement past the threshold) still seeks on release.
-        const tick = pixelToTick(x, currentZoom, currentScrollLeft);
-        rulerZoomRef.current = {
+        const pressTick = pixelToTick(x, currentZoom, currentScrollLeft);
+        rulerPressRef.current = {
+          target: rulerPressTarget(
+            x,
+            localY,
+            tickToPixel(state.loopStart, currentZoom, currentScrollLeft),
+            tickToPixel(state.loopEnd, currentZoom, currentScrollLeft),
+            LOOP_STRIP_H,
+            tickToPixel(state.position, currentZoom, currentScrollLeft),
+          ),
+          mode: null,
+          startX: x,
           startY: y,
           lastY: y,
-          moved: false,
-          seekTick: doSnap(tick),
+          pressTick,
+          seekTick: doSnap(pressTick),
+          original: { start: state.loopStart, end: state.loopEnd },
         };
+        return;
+      }
+
+      // Cursor tool, ⌘/Ctrl held: drag a marquee to select notes in clips.
+      if (activeTool === 'cursor' && (e.metaKey || e.ctrlKey)) {
+        noteMarqueeRef.current = { x0: x, y0: y, x1: x, y1: y };
         return;
       }
 
@@ -1558,6 +1696,31 @@ export function Timeline() {
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const { x, y } = getCanvasCoords(e);
       const st = getScrollTop();
+      // Chord ruler: double-click renames the chord (a single click selects it).
+      if (y >= st + RULER_HEIGHT && y < st + RULERS_HEIGHT) {
+        const state = useStore.getState();
+        const tick = pixelToTick(
+          x,
+          state.timelineZoom,
+          state.timelineScrollLeft,
+        );
+        const region = state.chordRegions.find(
+          (r) => r.startTick <= tick && r.endTick > tick,
+        );
+        if (region) {
+          setEditingChord({
+            id: region.id,
+            x: tickToPixel(
+              region.startTick,
+              state.timelineZoom,
+              state.timelineScrollLeft,
+            ),
+            y: RULER_HEIGHT,
+            value: region.noteName,
+          });
+        }
+        return;
+      }
       if (y >= st && y < st + RULER_HEIGHT) {
         const state = useStore.getState();
         const currentZoom = state.timelineZoom;
@@ -1842,6 +2005,76 @@ export function Timeline() {
 
   // ── Mouse move ─────────────────────────────────────────────────────
 
+  // Drives an active top-ruler press (rulerPressRef) to canvas position (x, y)
+  // — shared by the canvas and window move handlers so a drag carries on off
+  // the canvas. Loop and playhead drags are absolute and zoom is incremental
+  // from `lastY`, so handling the same move twice is harmless. Returns whether
+  // a ruler press is active.
+  const moveRulerPress = useCallback(
+    (x: number, y: number): boolean => {
+      const r = rulerPressRef.current;
+      const canvas = canvasRef.current;
+      if (!r || !canvas) return false;
+      const state = useStore.getState();
+
+      if (!r.mode) {
+        const movedX = x - r.startX;
+        const movedY = y - r.startY;
+        if (
+          Math.max(Math.abs(movedX), Math.abs(movedY)) <=
+          RULER_ZOOM_DRAG_THRESHOLD
+        ) {
+          return true;
+        }
+        r.mode =
+          r.target === 'playhead'
+            ? 'playhead'
+            : Math.abs(movedY) > Math.abs(movedX)
+              ? 'zoom'
+              : 'loop';
+        r.lastY = y;
+        // Drawing a fresh loop switches looping on, as in Logic.
+        if (r.mode === 'loop' && r.target === 'empty') {
+          state.setLoopEnabled(true);
+        }
+      }
+
+      const snap = state.timelineSnapEnabled
+        ? ALL_GRID_VALUES[state.timelineGridSize]
+        : TICKS_PER_BEAT;
+      const tick = pixelToTick(x, state.timelineZoom, state.timelineScrollLeft);
+      if (r.mode === 'playhead') {
+        seekTo(snapTick(tick, snap));
+        canvas.style.cursor = 'grabbing';
+      } else if (r.mode === 'loop') {
+        const range = dragLoopRange(
+          r.target,
+          r.original,
+          r.pressTick,
+          tick,
+          snap,
+        );
+        state.setLoopRange(range.start, range.end);
+        canvas.style.cursor = 'ew-resize';
+        if (!state.isPlaying) draw();
+      } else {
+        // Vertical drag → zoom (up = in), anchored at the cursor so the bar
+        // under it stays put.
+        const dy = r.lastY - y;
+        if (dy !== 0) {
+          state.zoomAtPoint(
+            dy * RULER_ZOOM_SENSITIVITY,
+            x + state.timelineScrollLeft,
+          );
+          r.lastY = y;
+        }
+        canvas.style.cursor = 'ns-resize';
+      }
+      return true;
+    },
+    [draw],
+  );
+
   const handleCanvasMouseMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const { x, y } = getCanvasCoords(e);
@@ -1865,43 +2098,16 @@ export function Timeline() {
         return;
       }
 
-      // Loop handle drag
-      if (loopDragRef.current) {
-        const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
-        const snapped = snapTick(rawTick, currentSnapTicks);
-        if (loopDragRef.current === 'start') {
-          state.setLoopRange(
-            Math.min(snapped, state.loopEnd - currentSnapTicks),
-            state.loopEnd,
-          );
-        } else {
-          state.setLoopRange(
-            state.loopStart,
-            Math.max(snapped, state.loopStart + currentSnapTicks),
-          );
-        }
-        canvas.style.cursor = 'col-resize';
+      // Note marquee in progress
+      if (noteMarqueeRef.current) {
+        extendNoteMarquee(x, y);
+        canvas.style.cursor = 'crosshair';
         if (!state.isPlaying) draw();
         return;
       }
 
-      // Bar-number ruler vertical drag → zoom (up = in, down = out), anchored
-      // at the cursor so the bar under it stays put.
-      if (rulerZoomRef.current) {
-        const r = rulerZoomRef.current;
-        if (!r.moved) {
-          if (Math.abs(y - r.startY) <= RULER_ZOOM_DRAG_THRESHOLD) return;
-          r.moved = true;
-          r.lastY = y;
-        }
-        const dy = r.lastY - y; // up (y decreases) → positive → zoom in
-        if (dy !== 0) {
-          state.zoomAtPoint(dy * RULER_ZOOM_SENSITIVITY, x + currentScrollLeft);
-          r.lastY = y;
-        }
-        canvas.style.cursor = 'ns-resize';
-        return;
-      }
+      // Top-ruler press in progress: playhead, zoom or loop drag.
+      if (moveRulerPress(x, y)) return;
 
       // Hand/grab pan over empty timeline space. Dragging the mouse left scrolls
       // toward the right of the timeline and vice-versa (content follows the
@@ -1975,40 +2181,42 @@ export function Timeline() {
       // Cursor hint — ruler area
       const st = getScrollTop();
       if (y >= st && y < st + RULERS_HEIGHT) {
+        const localY = y - st;
         // Marker handles (flag + name label area)
-        for (const marker of state.markers) {
-          const mx = tickToPixel(marker.tick, currentZoom, currentScrollLeft);
-          if (x >= mx - 5 && x <= mx + 70 && y < st + 20) {
-            canvas.style.cursor = 'grab';
-            return;
+        if (localY >= LOOP_STRIP_H && localY < LOOP_STRIP_H + 20) {
+          for (const marker of state.markers) {
+            const mx = tickToPixel(marker.tick, currentZoom, currentScrollLeft);
+            if (x >= mx - 5 && x <= mx + 70) {
+              canvas.style.cursor = 'grab';
+              return;
+            }
           }
         }
-        // Loop handles
-        if (state.loopEnabled) {
-          const lx1 = tickToPixel(
-            state.loopStart,
-            currentZoom,
-            currentScrollLeft,
+        // Top ruler: a grab hand on the playhead handle, resize arrows on a
+        // loop edge, a pointing hand everywhere else (click to seek/toggle).
+        if (localY < RULER_HEIGHT) {
+          const target = rulerPressTarget(
+            x,
+            localY,
+            tickToPixel(state.loopStart, currentZoom, currentScrollLeft),
+            tickToPixel(state.loopEnd, currentZoom, currentScrollLeft),
+            LOOP_STRIP_H,
+            tickToPixel(state.position, currentZoom, currentScrollLeft),
           );
-          const lx2 = tickToPixel(
-            state.loopEnd,
-            currentZoom,
-            currentScrollLeft,
-          );
-          if (Math.abs(x - lx1) < 10 || Math.abs(x - lx2) < 10) {
-            canvas.style.cursor = 'col-resize';
-            return;
-          }
-        }
-        // Bar-number ruler: hint the vertical drag-to-zoom.
-        if (y < st + RULER_HEIGHT) {
-          canvas.style.cursor = 'ns-resize';
+          canvas.style.cursor =
+            target === 'playhead'
+              ? 'grab'
+              : target === 'loop-start' || target === 'loop-end'
+                ? 'ew-resize'
+                : 'pointer';
           return;
         }
       }
       if (y > st + RULERS_HEIGHT) {
         const hit = hitTestClip(x, y);
-        if (state.activeTool === 'scissors' && hit) {
+        if (state.activeTool === 'cursor' && (e.metaKey || e.ctrlKey)) {
+          canvas.style.cursor = 'crosshair';
+        } else if (state.activeTool === 'scissors' && hit) {
           canvas.style.cursor = 'crosshair';
         } else if (hit && (isNearLeftEdge(x, hit) || isNearRightEdge(x, hit))) {
           canvas.style.cursor = 'col-resize';
@@ -2033,19 +2241,45 @@ export function Timeline() {
       draw,
       tracks.length,
       projectLengthTicks,
+      moveRulerPress,
+      extendNoteMarquee,
     ],
   );
 
   // ── Mouse up ───────────────────────────────────────────────────────
 
   const handleCanvasMouseUp = useCallback(() => {
-    if (rulerZoomRef.current) {
-      const r = rulerZoomRef.current;
-      rulerZoomRef.current = null;
-      // Never crossed the drag threshold → treat as a ruler click and seek.
-      if (!r.moved) {
-        seekTo(r.seekTick);
-        useStore.getState().setSelectedClip(null, null);
+    // Note marquee: select every note it touched. A ⌘-click without a drag
+    // clears the note selection.
+    if (noteMarqueeRef.current) {
+      const m = noteMarqueeRef.current;
+      noteMarqueeRef.current = null;
+      marqueeHitsRef.current = null;
+      const state = useStore.getState();
+      const dragged =
+        Math.abs(m.x1 - m.x0) >= PAN_DRAG_THRESHOLD ||
+        Math.abs(m.y1 - m.y0) >= PAN_DRAG_THRESHOLD;
+      state.setSelectedNotes(
+        dragged ? notesInMarquee(drawnNotesRef.current, m) : [],
+      );
+      if (canvasRef.current) canvasRef.current.style.cursor = 'default';
+      if (!state.isPlaying) draw();
+      return;
+    }
+    if (rulerPressRef.current) {
+      const r = rulerPressRef.current;
+      rulerPressRef.current = null;
+      // Never crossed the drag threshold → a click: on the loop it toggles
+      // looping (the range stays put); elsewhere it seeks. A click on the
+      // playhead handle leaves the playhead where it is.
+      if (!r.mode && r.target !== 'playhead') {
+        const state = useStore.getState();
+        if (r.target === 'empty') {
+          seekTo(r.seekTick);
+          state.setSelectedClip(null, null);
+        } else {
+          state.setLoopEnabled(!state.loopEnabled);
+        }
       }
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
       return;
@@ -2060,11 +2294,6 @@ export function Timeline() {
     }
     if (markerDragRef.current) {
       markerDragRef.current = null;
-      if (canvasRef.current) canvasRef.current.style.cursor = 'default';
-      return;
-    }
-    if (loopDragRef.current) {
-      loopDragRef.current = null;
       if (canvasRef.current) canvasRef.current.style.cursor = 'default';
       return;
     }
@@ -2217,24 +2446,13 @@ export function Timeline() {
   // fires second for a given event sees a zero delta.
   const handleWindowMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (rulerZoomRef.current) {
+      if (noteMarqueeRef.current) {
         const { x, y } = getCanvasCoords(e);
-        const r = rulerZoomRef.current;
-        if (!r.moved) {
-          if (Math.abs(y - r.startY) <= RULER_ZOOM_DRAG_THRESHOLD) return;
-          r.moved = true;
-          r.lastY = y;
-        }
-        const dy = r.lastY - y; // up (y decreases) → positive → zoom in
-        if (dy !== 0) {
-          const state = useStore.getState();
-          state.zoomAtPoint(
-            dy * RULER_ZOOM_SENSITIVITY,
-            x + state.timelineScrollLeft,
-          );
-          r.lastY = y;
-        }
-        if (canvasRef.current) canvasRef.current.style.cursor = 'ns-resize';
+        extendNoteMarquee(x, y);
+        if (!useStore.getState().isPlaying) draw();
+      } else if (rulerPressRef.current) {
+        const { x, y } = getCanvasCoords(e);
+        moveRulerPress(x, y);
       } else if (panDragRef.current) {
         const { x } = getCanvasCoords(e);
         const p = panDragRef.current;
@@ -2263,16 +2481,22 @@ export function Timeline() {
         if (canvasRef.current) canvasRef.current.style.cursor = 'grabbing';
       }
     },
-    [getCanvasCoords, projectLengthTicks],
+    [
+      getCanvasCoords,
+      projectLengthTicks,
+      moveRulerPress,
+      draw,
+      extendNoteMarquee,
+    ],
   );
 
   useEffect(() => {
     const handleGlobalUp = () => {
       if (
         dragRef.current ||
-        loopDragRef.current ||
-        rulerZoomRef.current ||
-        panDragRef.current
+        rulerPressRef.current ||
+        panDragRef.current ||
+        noteMarqueeRef.current
       ) {
         handleCanvasMouseUp();
       }
@@ -2625,11 +2849,31 @@ export function Timeline() {
             className="pointer-events-none absolute inset-y-0"
             style={{
               width: 2,
-              backgroundColor: '#ef4444',
+              backgroundColor: PLAYHEAD_COLOR,
               transform: `translateX(${playheadPx}px)`,
               willChange: 'transform',
             }}
-          />
+          >
+            {/* Grab handle at the foot of the bar ruler (hit-tested by the
+                canvas via rulerPressTarget; pinned on scroll above). */}
+            <div
+              ref={(node) => {
+                playheadHandleRef.current = node;
+                if (node) {
+                  node.style.top = `${
+                    getScrollTop() + RULER_HEIGHT - PLAYHEAD_HANDLE_H
+                  }px`;
+                }
+              }}
+              style={{
+                position: 'absolute',
+                left: 1 - PLAYHEAD_HANDLE_W / 2,
+                borderLeft: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
+                borderRight: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
+                borderTop: `${PLAYHEAD_HANDLE_H}px solid ${PLAYHEAD_COLOR}`,
+              }}
+            />
+          </div>
         )}
         {/* Remote collaborator cursors */}
         <PresenceCursors

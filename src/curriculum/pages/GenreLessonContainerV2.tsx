@@ -292,6 +292,11 @@ function GenreLessonContainerV2Inner({
 
   // For IT activities, offset all notes by 1 bar to create a genuine count-in
   const COUNT_IN_OFFSET = 1920; // one bar at 4/4
+  // In time, the student's bar 1 arrives two bars after transport start: the
+  // piano roll's own count-in bar (its playhead starts a bar early) plus the
+  // one-bar note offset above. Audio scheduled on the transport — the practice
+  // guide and the Play Now backing track — must start its bar 1 there.
+  const LEAD_IN_TICKS = COUNT_IN_OFFSET * 2;
 
   // Convert to PianoRoll format (with IT count-in offset)
   const pianoRollEvents = useMemo(() => {
@@ -1095,7 +1100,7 @@ function GenreLessonContainerV2Inner({
     if (targetNotes.length > 0) {
       const spt = 60 / (tempo * 480); // seconds per tick
       const noteEvents = targetNotes.map((n) => ({
-        time: (n.onset + COUNT_IN_OFFSET * 2) * spt,
+        time: (n.onset + LEAD_IN_TICKS) * spt,
         midi: n.midi,
         durationSec: n.duration * spt,
       }));
@@ -1189,6 +1194,7 @@ function GenreLessonContainerV2Inner({
         targetNotes,
         undefined, // no metronome in Play Now with backing track — drums provide the pulse
         flow.genre,
+        isIT ? LEAD_IN_TICKS : 0, // backing bar 1 = the student's bar 1
       );
 
       // Wait for Transport start offset + Web Audio latency

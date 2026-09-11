@@ -35,6 +35,7 @@ import type { GenreNoteEvent } from '../engine/genreGeneration/resolveStepConten
 import type { ActivityStepV2 } from '../types/activity.v2';
 
 const BACKING_BARS = 16;
+const BAR_TICKS = 1920;
 
 // ── Bass sampler config (public/samples/bass-electric/) ─────────────────────
 
@@ -61,7 +62,7 @@ const BASS_ELECTRIC_CONFIG = {
   },
 };
 
-interface BackingNote {
+export interface BackingNote {
   note: number;
   onset: number;
   duration: number;
@@ -1181,6 +1182,78 @@ function buildPopChordPattern(
   return removeChordStutters(notes);
 }
 
+// ── Backing note assembly ───────────────────────────────────────────────────
+
+/**
+ * Every backing note for a play-along step, in ticks from transport start.
+ *
+ * `countInTicks` is the lead-in before the student's bar 1 (in time, the piano
+ * roll's count-in bar plus the one-bar note offset). The groove, bass and chords
+ * all start there, so backing bar N lines up with target bar N — including the
+ * bass following `chordSymbols` bar by bar. The lead-in plays the groove's last
+ * bars (its fill), so the drums still count the student in.
+ */
+export function buildBackingNotes(
+  step: ActivityStepV2,
+  keyRoot: number,
+  level: number,
+  styleRef: string,
+  targetNotes: GenreNoteEvent[],
+  genre: string,
+  countInTicks = 0,
+): BackingNote[] {
+  const engineGenerates = step.backing_parts?.engine_generates ?? [];
+  const chordsByBar = deriveChordsByBar(targetNotes, keyRoot);
+
+  const notes: BackingNote[] = [];
+  let drums: BackingNote[] = [];
+  if (engineGenerates.includes('drums')) {
+    const grooveId = (step.grooveId ??
+      getGrooveForStyleRef(styleRef, genre)) as GrooveId;
+    drums = buildDrumPatternForGroove(BACKING_BARS, grooveId);
+    notes.push(...drums);
+  }
+  if (engineGenerates.includes('bass'))
+    notes.push(
+      ...buildBassPattern(
+        BACKING_BARS,
+        keyRoot,
+        level,
+        step.chordSymbols,
+        genre,
+      ),
+    );
+  if (engineGenerates.includes('chords'))
+    notes.push(
+      ...(genre === 'pop'
+        ? buildPopChordPattern(BACKING_BARS, level, keyRoot)
+        : buildChordPattern(BACKING_BARS, level, chordsByBar, keyRoot)),
+    );
+
+  // ── Ending: replay beat 1 content on the downbeat after the last bar ──
+  // Collects bass + chord notes from beat 1 of bar 1 and places a copy
+  // at the final downbeat. Drums excluded — avoids kick-run violations
+  // when the last bar has a fill pattern ending near the bar line.
+  const endingTick = BACKING_BARS * BAR_TICKS;
+  const beat1Notes = notes.filter((n) => n.onset < 120 && n.part !== 'drums');
+  beat1Notes.forEach((n) => {
+    notes.push({ ...n, onset: endingTick + Math.min(n.onset, 10) });
+  });
+
+  if (countInTicks <= 0) return notes;
+
+  // Lead-in: the groove's closing bars, ending exactly on the student's bar 1.
+  const leadInStart = endingTick - countInTicks;
+  const leadIn = drums
+    .filter((n) => n.onset >= leadInStart && n.onset < endingTick)
+    .map((n) => ({ ...n, onset: n.onset - leadInStart }));
+
+  return [
+    ...leadIn,
+    ...notes.map((n) => ({ ...n, onset: n.onset + countInTicks })),
+  ];
+}
+
 // ── Hook ────────────────────────────────────────────────────────────────────
 
 export function useBackingTrack(tempo: number) {
@@ -1427,6 +1500,7 @@ export function useBackingTrack(tempo: number) {
       targetNotes: GenreNoteEvent[] = [],
       preStartCallback?: () => Promise<void>,
       genre: string = 'funk',
+      countInTicks: number = 0,
     ) => {
       Tone.getTransport().stop();
       Tone.getTransport().cancel();
@@ -1440,47 +1514,17 @@ export function useBackingTrack(tempo: number) {
 
       const useReal = enginesReady.current;
       const useSF2 = sf2Ready.current;
-      const engineGenerates = step.backing_parts?.engine_generates ?? [];
-      const chordsByBar = deriveChordsByBar(targetNotes, keyRoot);
       const spt = 60 / (tempo * 480); // seconds per tick
 
-      const allNotes: BackingNote[] = [];
-      if (engineGenerates.includes('drums')) {
-        const grooveId = (step.grooveId ??
-          getGrooveForStyleRef(styleRef, genre)) as GrooveId;
-        allNotes.push(...buildDrumPatternForGroove(BACKING_BARS, grooveId));
-      }
-      if (engineGenerates.includes('bass'))
-        allNotes.push(
-          ...buildBassPattern(
-            BACKING_BARS,
-            keyRoot,
-            level,
-            step.chordSymbols,
-            genre,
-          ),
-        );
-      if (engineGenerates.includes('chords'))
-        allNotes.push(
-          ...(genre === 'pop'
-            ? buildPopChordPattern(BACKING_BARS, level, keyRoot)
-            : buildChordPattern(BACKING_BARS, level, chordsByBar, keyRoot)),
-        );
-
-      // ── Ending: replay beat 1 content on the downbeat after the last bar ──
-      // Collects bass + chord notes from beat 1 of bar 1 and places a copy
-      // at the final downbeat. Drums excluded — avoids kick-run violations
-      // when the last bar has a fill pattern ending near the bar line.
-      const endingTick = BACKING_BARS * 1920;
-      const beat1Notes = allNotes.filter(
-        (n) => n.onset < 120 && n.part !== 'drums',
+      const allNotes = buildBackingNotes(
+        step,
+        keyRoot,
+        level,
+        styleRef,
+        targetNotes,
+        genre,
+        countInTicks,
       );
-      beat1Notes.forEach((n) => {
-        allNotes.push({
-          ...n,
-          onset: endingTick + Math.min(n.onset, 10),
-        });
-      });
 
       // Dev verification
       if (import.meta.env.DEV) {

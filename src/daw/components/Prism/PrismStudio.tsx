@@ -1,11 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import { Scissors, Lock, Unlock } from 'lucide-react';
 import { useStore } from '@/daw/store';
+import { formatChord, useChordNotation } from '@/lib/chordNotation';
 import {
   getChordColor,
   abbreviateSequence,
   ionianToModeLabel,
   getModeOffset,
+  unstepChord,
 } from '@prism/engine';
 import { CircleOfFifths } from './CircleOfFifths';
 import { ColorSpectrum } from './ColorSpectrum';
@@ -61,6 +63,7 @@ export function PrismStudio() {
   const availableFirstChords = useStore((s) => s.availableFirstChords);
   const availableNextChords = useStore((s) => s.availableNextChords);
   const mode = useStore((s) => s.mode);
+  const notation = useChordNotation();
 
   // ── Actions ──
   const rootLocked = useStore((s) => s.rootLocked);
@@ -169,7 +172,15 @@ export function PrismStudio() {
                   key={`${name}-${i}`}
                   className="size-2.5 rounded-full"
                   style={{ backgroundColor: `rgb(${r}, ${g}, ${b})` }}
-                  title={abbreviateSequence(ionianToModeLabel(name, mode))}
+                  title={
+                    notation === 'hybrid'
+                      ? abbreviateSequence(ionianToModeLabel(name, mode))
+                      : formatChord(
+                          { degree: name, quality: unstepChord(name) },
+                          notation,
+                          { keyRootPc: rootNote ?? 0, mode },
+                        )
+                  }
                 />
               );
             })}

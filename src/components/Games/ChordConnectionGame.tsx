@@ -15,6 +15,11 @@ import {
   OCTAVE_WIDTH,
 } from '@/components/PianoKeyboard/useExpandedRange';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import {
+  formatChord,
+  useChordNotation,
+  type ChordNotation,
+} from '@/lib/chordNotation';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
 
 type ChordType = 'maj' | 'min' | 'dim' | 'aug' | '7' | 'maj7' | 'min7';
@@ -121,6 +126,24 @@ function chordName(rootPc: number, type: ChordType) {
     default:
       return `${root} ${type}`;
   }
+}
+
+/**
+ * The chord's name as the button shows it. Jazz writes a chord symbol ("C♯−"),
+ * rooted on the game's own sharp spelling. Hybrid keeps the game's name, and so
+ * does Roman: it needs a key and this game has none. Display only — matching
+ * goes by chordSignature.
+ */
+function displayChordName(
+  { rootPc, type }: ChordSpec,
+  label: string,
+  notation: ChordNotation,
+) {
+  if (notation !== 'jazz') return label;
+  return formatChord(
+    { root: PITCH_CLASS_NAMES[((rootPc % 12) + 12) % 12], quality: type },
+    'jazz',
+  );
 }
 
 function randomChordSpec(chordPool: ChordType[]): ChordSpec {
@@ -275,6 +298,7 @@ export function ChordConnectionGame({
   const initialChordKey = initialChord
     ? `${initialChord.rootPc}:${initialChord.type}`
     : 'none';
+  const notation = useChordNotation();
 
   const [round, setRound] = useState<RoundState>(() =>
     createRound({
@@ -577,7 +601,9 @@ export function ChordConnectionGame({
         }}
       >
         <span style={{ fontSize: 13, fontWeight: 600 }}>
-          {showChordNames ? item.label : 'Chord'}
+          {showChordNames
+            ? displayChordName(item.spec, item.label, notation)
+            : 'Chord'}
         </span>
         {isComplete && (
           <span

@@ -34,12 +34,22 @@ export interface ChordSpec {
   /** Root as a spelled letter ("Bb", "F♯") or a pitch class (0–11). */
   root?: string | number;
   /**
-   * Scale degree of the root as the app's degree keys write it: relative to the
-   * major scale of the key's parent ("2", "b7", "#4"). A whole key ("b7 major") is
-   * fine — only the degree is read.
+   * Scale degree of the root counted from the major scale of the key's TONIC,
+   * as every degree label shown in the app is written: "1 min7" is the tonic
+   * chord in A minor, "♭3 maj" its C major. A whole label is fine — only the
+   * degree is read. parseChord fills this for degree-style labels.
+   */
+  tonicDegree?: string;
+  /**
+   * Scale degree of the root counted from the major scale of the key's PARENT,
+   * as the engine's degree keys (Prism's stringSeq) are written: in A aeolian
+   * "1 major" is C major. Ignored when `tonicDegree` is given.
    */
   degree?: string;
-  /** Slash bass: a letter ("F#"), a pitch class, or a degree written like `degree`. */
+  /**
+   * Slash bass: a letter ("F#"), a pitch class, or a degree — counted from the
+   * parent when the chord is given by `degree`, else from the tonic.
+   */
   bass?: string | number;
 }
 
@@ -87,6 +97,29 @@ function degreePc(degree: string, parentPc: number): number {
 const modeDegree = (degree: string, mode: string) =>
   ionianToModeLabel(`${degree} major`, mode).split(' ')[0];
 
+const LETTERS = 'CDEFGAB';
+
+/**
+ * A spelled note's degree counted from the tonic's major scale, read from the
+ * letters: B in F is "#4" (not "b5"), C♭ in A♭ is "b3". Null when it would
+ * need a double accidental.
+ */
+function spelledTonicDegree(
+  name: string,
+  keyPc: number,
+  mode: string,
+): string | null {
+  const pc = noteNameToPitchClass(name);
+  if (pc === null) return null;
+  const tonic = noteNameInKey(keyPc, keyPc, mode);
+  const steps =
+    (((LETTERS.indexOf(name[0]) - LETTERS.indexOf(tonic[0])) % 7) + 7) % 7;
+  let accidental = mod12(pc - (keyPc + IONIAN[steps]));
+  if (accidental > 6) accidental -= 12;
+  if (Math.abs(accidental) > 1) return null;
+  return `${accidental === -1 ? 'b' : accidental === 1 ? '#' : ''}${steps + 1}`;
+}
+
 interface ResolvedChord {
   quality: string;
   base: string;
@@ -115,7 +148,14 @@ function resolveChord(spec: ChordSpec, context: ChordContext): ResolvedChord {
     rootName = ascii(spec.root.trim());
     rootPc = noteNameToPitchClass(rootName);
   }
-  const degree = spec.degree ? parseDegree(spec.degree.split(' ')[0]) : null;
+  const tonicDegree = spec.tonicDegree
+    ? parseDegree(spec.tonicDegree.split(' ')[0])
+    : null;
+  const degree =
+    !tonicDegree && spec.degree ? parseDegree(spec.degree.split(' ')[0]) : null;
+  if (rootPc === null && tonicDegree && keyPc !== null) {
+    rootPc = degreePc(tonicDegree, keyPc);
+  }
   if (rootPc === null && degree && parentPc !== null) {
     rootPc = degreePc(degree, parentPc);
   }
@@ -126,24 +166,33 @@ function resolveChord(spec: ChordSpec, context: ChordContext): ResolvedChord {
 
   // Degree, relative to the mode
   let resolvedDegree: string | undefined;
-  if (degree) {
+  if (tonicDegree) {
+    resolvedDegree = tonicDegree;
+  } else if (degree) {
     resolvedDegree = modeDegree(degree, mode);
-  } else if (rootPc !== null && parentPc !== null) {
-    const key = resolveDegreeKey(rootPc, base, parentPc);
+  } else if (rootName && keyPc !== null) {
+    resolvedDegree = spelledTonicDegree(rootName, keyPc, mode) ?? undefined;
+  }
+  if (!resolvedDegree && !tonicDegree && !degree && rootPc !== null) {
+    const key =
+      parentPc === null ? null : resolveDegreeKey(rootPc, base, parentPc);
     if (key) resolvedDegree = modeDegree(key.split(' ')[0], mode);
   }
 
   // Bass
   let bassPc: number | null = null;
   let bassName: string | undefined;
-  let bassDegreeInParent: string | null = null;
+  let bassDegreeText: string | null = null;
+  // A degree bass counts from the same scale as the chord's own degree.
+  const bassFromParent = degree !== null;
+  const bassScalePc = bassFromParent ? parentPc : keyPc;
   if (typeof spec.bass === 'number') {
     bassPc = mod12(spec.bass);
   } else if (typeof spec.bass === 'string' && spec.bass.trim()) {
     const text = spec.bass.trim();
-    bassDegreeInParent = parseDegree(text);
-    if (bassDegreeInParent) {
-      if (parentPc !== null) bassPc = degreePc(bassDegreeInParent, parentPc);
+    bassDegreeText = parseDegree(text);
+    if (bassDegreeText) {
+      if (bassScalePc !== null) bassPc = degreePc(bassDegreeText, bassScalePc);
     } else if (LETTER.test(text)) {
       bassName = ascii(text);
       bassPc = noteNameToPitchClass(bassName);
@@ -163,9 +212,14 @@ function resolveChord(spec: ChordSpec, context: ChordContext): ResolvedChord {
       (keyPc === null ? NOTES[bassPc] : noteNameInKey(bassPc, keyPc, mode));
   }
   let bassDegree: string | undefined;
-  if (bassDegreeInParent) {
-    bassDegree = modeDegree(bassDegreeInParent, mode);
-  } else if (bassPc !== null && parentPc !== null) {
+  if (bassDegreeText) {
+    bassDegree = bassFromParent
+      ? modeDegree(bassDegreeText, mode)
+      : bassDegreeText;
+  } else if (bassName && keyPc !== null) {
+    bassDegree = spelledTonicDegree(bassName, keyPc, mode) ?? undefined;
+  }
+  if (!bassDegree && !bassDegreeText && bassPc !== null && parentPc !== null) {
     const key = resolveDegreeKey(bassPc, 'major', parentPc);
     if (key) bassDegree = modeDegree(key.split(' ')[0], mode);
   }
@@ -268,16 +322,16 @@ function splitBass(
 }
 
 /**
- * Read a chord label the app writes: degree keys and hybrid labels ("2 minor7",
- * "♭7 maj/1") or letter names ("D min7", "Dm7", "Bb/D", "C# Minor"). Null when
- * the text isn't a chord.
+ * Read a chord label the app writes: hybrid degree labels ("2 min7", "♭7 maj/1",
+ * counted from the key's tonic — see ChordSpec.tonicDegree) or letter names
+ * ("D min7", "Dm7", "Bb/D", "C# Minor"). Null when the text isn't a chord.
  */
 export function parseChord(label: string): ChordSpec | null {
   const text = label.trim();
   const byDegree = DEGREE_LABEL.exec(text);
   if (byDegree) {
     return {
-      degree: parseDegree(byDegree[1])!,
+      tonicDegree: parseDegree(byDegree[1])!,
       ...splitBass(byDegree[2], true),
     };
   }
@@ -298,7 +352,12 @@ export function formatChordLabel(
 ): string {
   if (notation === 'hybrid') return label;
   const spec = parseChord(label);
-  return spec ? formatChord(spec, notation, context, options) : label;
+  if (!spec) return label;
+  const written = formatChord(spec, notation, context, options);
+  // A chord the notation can't write (formatChord answers in hybrid) keeps its label.
+  return written === formatChord(spec, 'hybrid', context, options)
+    ? label
+    : written;
 }
 
 /**

@@ -1,6 +1,8 @@
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
+import { useChordNotation } from '@/lib/chordNotation';
 import { seekTo } from '@/daw/hooks/useTransport';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import * as Tone from 'tone';
@@ -423,6 +425,10 @@ export function Timeline() {
   const markers = useStore((s) => s.markers);
   const chordRulerShowNotes = useStore((s) => s.chordRulerShowNotes);
   const chordRegions = useStore((s) => s.chordRegions);
+  // Chord-lane labels follow the global chord notation (hybrid = the toggle above).
+  const chordNotation = useChordNotation();
+  const keyRootPc = useStore((s) => s.rootNote);
+  const keyMode = useStore((s) => s.mode);
   const clipColorMode = useStore((s) => s.clipColorMode);
   const renameChordRegion = useStore((s) => s.renameChordRegion);
   const liveRecordingNotes = useStore((s) => s.liveRecordingNotes);
@@ -1247,9 +1253,18 @@ export function Timeline() {
         : `rgba(${cr}, ${cg}, ${cb}, 0.85)`;
       ctx.font = '10px Inter, sans-serif';
       ctx.textBaseline = 'middle';
-      const label = chordRulerShowNotes ? region.name : region.noteName;
+      const label = displayAccidentals(
+        chordRulerShowNotes ? region.name : region.noteName,
+      );
       ctx.fillText(
-        displayAccidentals(label),
+        chordNotation === 'hybrid'
+          ? label
+          : formatChordRegion(
+              region,
+              chordNotation,
+              { keyRootPc: state.rootNote, mode: state.mode },
+              label,
+            ),
         x1 + 6,
         chordRulerY + CHORD_RULER_HEIGHT / 2,
       );
@@ -1318,7 +1333,7 @@ export function Timeline() {
 
     clipRectsRef.current = newClipRects;
     drawnNotesRef.current = newDrawnNotes;
-  }, [tracks, gridSize, chordRulerShowNotes, tsNum, tsDen]);
+  }, [tracks, gridSize, chordRulerShowNotes, chordNotation, tsNum, tsDen]);
 
   // ── Redraw triggers ───────────────────────────────────────────────
   useEffect(() => {
@@ -1338,6 +1353,9 @@ export function Timeline() {
     markers,
     chordRulerShowNotes,
     chordRegions,
+    chordNotation,
+    keyRootPc,
+    keyMode,
     clipColorMode,
     liveRecordingNotes,
     liveAudioPeaks,

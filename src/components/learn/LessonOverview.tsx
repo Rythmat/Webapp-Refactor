@@ -24,6 +24,12 @@ import {
 } from '@/components/ui/dialog';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
+import {
+  formatChord,
+  useChordNotation,
+  type ChordContext,
+  type ChordNotation,
+} from '@/lib/chordNotation';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { getLocalModeSteps } from '@/lib/modeStepsFallback';
 
@@ -257,12 +263,67 @@ function ChordDetailDialog({
   );
 }
 
+/** chordScaleData qualities spelled in a way the chord formatter doesn't read. */
+const QUALITY_ALIASES: Record<string, string> = { min69: 'min6/9' };
+const MAJOR_SCALE_STEPS = [0, 2, 4, 5, 7, 9, 11];
+
+/**
+ * The chord's degree from the tonic's major scale as chordScaleData writes it
+ * ("♯4"), when it names the chord's actual root (a few entries don't). The
+ * formatter would otherwise work the degree out from the root's pitch and
+ * spell it flat (Lydian's B in F as "♭5").
+ */
+function scaleDataDegree(
+  chord: ChordInfo,
+  keyRootPc: number,
+): string | undefined {
+  const match = /^([♭♯]?)([1-7])$/.exec(chord.degree ?? '');
+  if (!match) return undefined;
+  const accidental = match[1] === '♭' ? -1 : match[1] === '♯' ? 1 : 0;
+  const pc = keyRootPc + MAJOR_SCALE_STEPS[Number(match[2]) - 1] + accidental;
+  return normalizePitchClass(pc) === normalizePitchClass(chord.midis[0])
+    ? chord.degree
+    : undefined;
+}
+
+/**
+ * A diatonic chord's label in the chosen notation. Hybrid keeps "2. D minor 7";
+ * jazz and Roman write the one symbol ("D−7", "ii7") without the "N. " prefix,
+ * and the octave copy of chord 1 adds "(8va)" to stay apart from it. A chord
+ * the notation can't write keeps its hybrid label.
+ */
+function diatonicChordLabel(
+  chord: ChordInfo,
+  notation: ChordNotation,
+  keyRootPc: number,
+): string {
+  const root = chord.noteNames[0];
+  if (notation === 'hybrid' || !chord.quality || !root) {
+    return chord.degreeLabel;
+  }
+  const spec = {
+    quality: QUALITY_ALIASES[chord.quality] ?? chord.quality,
+    // The page's own spelling; double accidentals in ASCII so they read as a letter.
+    root: root.replace(/𝄫/gu, 'bb').replace(/𝄪/gu, '##'),
+    tonicDegree: scaleDataDegree(chord, keyRootPc),
+  };
+  // Given the spelled root and its tonic degree, the mode doesn't change the
+  // symbol; without a degree the formatter counts from the tonic, as here.
+  const context: ChordContext = { keyRootPc };
+  const symbol = formatChord(spec, notation, context);
+  if (symbol === formatChord(spec, 'hybrid', context)) return chord.degreeLabel;
+  return chord.degreeNumber === 8 ? `${symbol} (8va)` : symbol;
+}
+
 function ChordCard({
   chord,
+  label,
   inversionIndex,
   activeKeyColor,
 }: {
   chord: ChordInfo;
+  /** The chord's label in the chosen notation (diatonicChordLabel). */
+  label: string;
   inversionIndex: number;
   activeKeyColor: string;
 }) {
@@ -305,7 +366,7 @@ function ChordCard({
           className="text-sm font-semibold"
           style={{ color: 'var(--color-text)' }}
         >
-          {chord.degreeLabel}
+          {label}
         </p>
         <ScaledPiano pointerEventsNone>
           <PianoKeyboard
@@ -322,7 +383,7 @@ function ChordCard({
       <ChordDetailDialog
         open={detailOpen}
         onOpenChange={setDetailOpen}
-        title={chord.degreeLabel}
+        title={label}
         midis={current.midis}
         noteNames={chord.noteNames}
         activeKeyColor={activeKeyColor}
@@ -341,12 +402,15 @@ const INVERSION_LABELS = [
 function ChordGrid({
   chords,
   activeKeyColor,
+  keyRootPc,
   title,
 }: {
   chords: ChordInfo[];
   activeKeyColor: string;
+  keyRootPc: number;
   title: string;
 }) {
+  const notation = useChordNotation();
   const maxInversions = chords[0]?.midis.length ?? 3;
   const [invIdx, setInvIdx] = useState(0);
 
@@ -391,6 +455,7 @@ function ChordGrid({
             activeKeyColor={activeKeyColor}
             chord={chord}
             inversionIndex={invIdx}
+            label={diatonicChordLabel(chord, notation, keyRootPc)}
           />
         ))}
       </div>
@@ -470,11 +535,14 @@ function InversionsTab({
   triads,
   sevenths,
   activeKeyColor,
+  keyRootPc,
 }: {
   triads: ChordInfo[];
   sevenths: ChordInfo[];
   activeKeyColor: string;
+  keyRootPc: number;
 }) {
+  const notation = useChordNotation();
   const [invType, setInvType] = useState<'triads' | 'sevenths'>('triads');
   const chords = invType === 'triads' ? triads : sevenths;
   const title =
@@ -530,7 +598,7 @@ function InversionsTab({
               className="text-sm font-semibold"
               style={{ color: 'var(--color-text)' }}
             >
-              {chord.degreeLabel}
+              {diatonicChordLabel(chord, notation, keyRootPc)}
             </p>
             <div className="grid grid-cols-2 gap-4">
               {voicings.map((v) => (
@@ -741,6 +809,7 @@ export function LessonOverview({
         <ChordGrid
           activeKeyColor={activeKeyColor}
           chords={triads}
+          keyRootPc={rootPitchClass}
           title="Triads"
         />
       )}
@@ -750,6 +819,7 @@ export function LessonOverview({
         <ChordGrid
           activeKeyColor={activeKeyColor}
           chords={sevenths}
+          keyRootPc={rootPitchClass}
           title="7th Chords"
         />
       )}
@@ -758,6 +828,7 @@ export function LessonOverview({
       {tab === 'inversions' && (
         <InversionsTab
           activeKeyColor={activeKeyColor}
+          keyRootPc={rootPitchClass}
           sevenths={sevenths}
           triads={triads}
         />

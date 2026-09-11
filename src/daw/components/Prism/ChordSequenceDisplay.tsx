@@ -1,9 +1,11 @@
 import { useStore } from '@/daw/store';
+import { formatChord, useChordNotation } from '@/lib/chordNotation';
 import {
   getChordColor,
   abbreviateSequence,
   ionianToModeLabel,
   getModeOffset,
+  unstepChord,
 } from '@prism/engine';
 
 // ── Component ────────────────────────────────────────────────────────────
@@ -12,6 +14,7 @@ export function ChordSequenceDisplay() {
   const stringSeq = useStore((s) => s.stringSeq);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
+  const notation = useChordNotation();
 
   if (stringSeq.length === 0) {
     return (
@@ -37,7 +40,15 @@ export function ChordSequenceDisplay() {
     >
       {stringSeq.map((name, i) => {
         const [r, g, b] = getChordColor(name, parentRoot);
-        const abbreviated = abbreviateSequence(ionianToModeLabel(name, mode));
+        // stringSeq holds parent-major-scale degree keys ("2 minor7").
+        const abbreviated =
+          notation === 'hybrid'
+            ? abbreviateSequence(ionianToModeLabel(name, mode))
+            : formatChord(
+                { degree: name, quality: unstepChord(name) },
+                notation,
+                { keyRootPc: rootNote ?? 0, mode },
+              );
 
         return (
           <div

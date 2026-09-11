@@ -7,7 +7,9 @@
 
 import { memo } from 'react';
 import type { SuggestionChord } from '@/daw/prism-engine/engine/suggestionEngine';
+import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { formatChord, parseChord, useChordNotation } from '@/lib/chordNotation';
 
 interface SuggestionChordPillProps {
   chord: SuggestionChord;
@@ -23,6 +25,21 @@ export const SuggestionChordPill = memo(function SuggestionChordPill({
   const [r, g, b] = chord.color;
   const bgAlpha = isPlaying ? 0.4 : 0.15;
   const borderAlpha = isPlaying ? 0.8 : 0.4;
+  const notation = useChordNotation();
+  const rootNote = useStore((s) => s.rootNote);
+  const mode = useStore((s) => s.mode);
+
+  // Name the chord from its spelled root (what's shown and played), not
+  // chord.degree: in non-Ionian modes the suggestion engine voices degrees
+  // from the mode tonic, so the degree alone would misname it.
+  const root = parseChord(chord.noteName)?.root;
+  const label =
+    notation === 'hybrid' || root === undefined
+      ? displayAccidentals(chord.noteName)
+      : formatChord({ root, quality: chord.quality }, notation, {
+          keyRootPc: rootNote ?? 0,
+          mode,
+        });
 
   return (
     <button
@@ -52,7 +69,7 @@ export const SuggestionChordPill = memo(function SuggestionChordPill({
         className="whitespace-nowrap text-[11px] font-medium"
         style={{ color: 'var(--color-text)' }}
       >
-        {displayAccidentals(chord.noteName)}
+        {label}
       </span>
     </button>
   );

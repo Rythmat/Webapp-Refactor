@@ -11,6 +11,11 @@ import { HeaderBar } from '@/components/ClassroomLayout/HeaderBar';
 import { keyLabelToUrlParam, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { formatActivityTitle } from '@/lib/activityTitle';
+import {
+  formatChord,
+  useChordNotation,
+  type ChordNotation,
+} from '@/lib/chordNotation';
 import { getLocalModeSteps } from '@/lib/modeStepsFallback';
 import { getNoteSpelling } from './noteSpellingLookup';
 import { getChordScales, type ChordScaleEntry } from './chordScaleData';
@@ -111,6 +116,28 @@ const normalizeSteps = (steps?: number[]) => {
 const buildScaleMidis = (rootMidi: number, steps?: number[]) =>
   normalizeSteps(steps).map((interval) => rootMidi + interval);
 
+/** Chord-scale qualities spelled in a way the chord formatter doesn't read. */
+const QUALITY_ALIASES: Record<string, string> = { min69: 'min6/9' };
+
+/**
+ * A chord-scale entry ("♭3", "maj7") as a Roman numeral, or null to keep the
+ * hybrid chip. Entries name a degree of the mode tonic's major scale (a tonic
+ * degree), which is all Roman needs; there's no key. Jazz needs a root letter,
+ * so it keeps the hybrid chip, as does a chord Roman can't write.
+ */
+function romanChordScale(
+  entry: ChordScaleEntry,
+  notation: ChordNotation,
+): string | null {
+  if (notation !== 'roman') return null;
+  const spec = {
+    tonicDegree: entry.degree,
+    quality: QUALITY_ALIASES[entry.quality] ?? entry.quality,
+  };
+  const numeral = formatChord(spec, 'roman');
+  return numeral === formatChord(spec, 'hybrid') ? null : numeral;
+}
+
 function ChordRow({
   label,
   entries,
@@ -122,6 +149,7 @@ function ChordRow({
   extra?: ChordScaleEntry[];
   color: string;
 }) {
+  const notation = useChordNotation();
   if (entries.length === 0 && (!extra || extra.length === 0)) return null;
   return (
     <div className="mb-3">
@@ -142,7 +170,11 @@ function ChordRow({
               color,
             }}
           >
-            <span className="opacity-60">{e.degree}</span> {e.quality}
+            {romanChordScale(e, notation) ?? (
+              <>
+                <span className="opacity-60">{e.degree}</span> {e.quality}
+              </>
+            )}
           </span>
         ))}
         {extra?.map((e, i) => (
@@ -155,7 +187,11 @@ function ChordRow({
               color,
             }}
           >
-            <span className="opacity-60">{e.degree}</span> {e.quality}
+            {romanChordScale(e, notation) ?? (
+              <>
+                <span className="opacity-60">{e.degree}</span> {e.quality}
+              </>
+            )}
           </span>
         ))}
       </div>

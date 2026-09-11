@@ -3,6 +3,8 @@ import type { ChordScaleEntry } from './chordScaleData';
 export type ChordInfo = {
   degreeNumber: number;
   degreeLabel: string;
+  /** The root's degree as chordScaleData writes it, from the tonic's major scale ("♭3", "♯4"). */
+  degree?: string;
   quality: string;
   midis: number[];
   noteNames: string[];
@@ -91,6 +93,7 @@ function buildChords(
     chords.push({
       degreeNumber: i + 1,
       degreeLabel: `${i + 1}. ${noteSpelling[i]} ${qualityDisplayName(q?.quality ?? '')}`,
+      degree: q?.degree,
       quality: q?.quality ?? '',
       midis,
       noteNames: names,

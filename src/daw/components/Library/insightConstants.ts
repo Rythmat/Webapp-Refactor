@@ -425,15 +425,22 @@ export function findAllInterpretations(
 
 // ── Enriched description helper ──────────────────────────────────────────
 
-export function getEnrichedDescription(chord: ChordInsight): string {
+/**
+ * A chord card's theory line. `formatTarget` writes a secondary-dominant label
+ * ("5 of 2") in the chosen chord notation; by default it's shown as is.
+ */
+export function getEnrichedDescription(
+  chord: ChordInsight,
+  formatTarget: (target: string) => string = (target) => target,
+): string {
   if (chord.modalInterchange) {
     switch (chord.modalInterchange.type) {
       case 'borrowed':
         return `Borrowed from ${chord.modalInterchange.sourceModeDisplay ?? chord.sourceMode ?? 'parallel mode'}`;
       case 'secondary-dominant':
-        return `Secondary dominant${chord.modalInterchange.secondaryTarget ? `: ${chord.modalInterchange.secondaryTarget}` : ''}`;
+        return `Secondary dominant${chord.modalInterchange.secondaryTarget ? `: ${formatTarget(chord.modalInterchange.secondaryTarget)}` : ''}`;
       case 'secondary-leading-tone':
-        return `Secondary leading tone${chord.modalInterchange.secondaryTarget ? `: ${chord.modalInterchange.secondaryTarget}` : ''}`;
+        return `Secondary leading tone${chord.modalInterchange.secondaryTarget ? `: ${formatTarget(chord.modalInterchange.secondaryTarget)}` : ''}`;
       case 'mode-mixture':
         return 'Mode mixture — blending parallel tonalities';
     }

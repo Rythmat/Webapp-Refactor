@@ -14,6 +14,13 @@ import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import type { CurriculumLevelId } from '@/curriculum/types/curriculum';
 import { HeaderBar } from '@/components/ClassroomLayout/HeaderBar';
 import { formatScaleDegrees } from '@/components/learn/modeHelpers';
+import {
+  formatChord,
+  parseChord,
+  useChordNotation,
+  type ChordContext,
+  type ChordNotation,
+} from '@/lib/chordNotation';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import './learn.css';
 
@@ -84,6 +91,36 @@ function formatScaleName(name: string): string {
   return name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+/** A bar count after a chord in a GCM progression: "1 maj (4)". */
+const BAR_COUNT = /\s*\(\d+\)$/;
+
+/**
+ * A GCM progression ("1 min - b7 maj", "1 dom7 (4) - 4 dom7 (2)") in the chosen
+ * notation. Its degrees count from the key tonic's major scale ("b7" in G minor
+ * is F), as parseChord reads a degree label. Bar counts aren't part of the
+ * chord (the chord parser would read "maj (4)" as add4), so they're kept as
+ * written; a chord the notation can't write keeps its hybrid label.
+ */
+function formatGcmProgression(
+  progression: string,
+  notation: ChordNotation,
+  context: ChordContext,
+): string {
+  if (notation === 'hybrid') return progression;
+  return progression
+    .split(' - ')
+    .map((part) => {
+      const barCount = BAR_COUNT.exec(part)?.[0] ?? '';
+      const spec = parseChord(part.slice(0, part.length - barCount.length));
+      if (!spec) return part;
+      const symbol = formatChord(spec, notation, context);
+      return symbol === formatChord(spec, 'hybrid', context)
+        ? part
+        : `${symbol}${barCount}`;
+    })
+    .join(' - ');
+}
+
 export function GenreOverview({ genreSlug }: GenreOverviewProps) {
   const navigate = useNavigate();
   const [noteIndex, setNoteIndex] = useState(0);
@@ -110,6 +147,7 @@ export function GenreOverview({ genreSlug }: GenreOverviewProps) {
     () => parseKeyRoot(gcmL1?.global.defaultKey ?? 'C major'),
     [gcmL1],
   );
+  const chordNotation = useChordNotation();
 
   const scaleIntervals = gcmL1?.melody.scale.intervals ?? [
     0, 2, 4, 5, 7, 9, 11,
@@ -178,6 +216,10 @@ export function GenreOverview({ genreSlug }: GenreOverviewProps) {
   }
 
   const tempoRange = gcmL1.global.tempoRange;
+  const chordContext: ChordContext = {
+    keyRootPc: keyRoot.midi % 12,
+    mode: SCALE_TO_MODE[gcmL1.melody.scale.name] ?? null,
+  };
   const keyColor = colorForKeyMode(
     keyRoot.label,
     (SCALE_TO_MODE[gcmL1.melody.scale.name] ?? 'dorian') as Parameters<
@@ -298,7 +340,11 @@ export function GenreOverview({ genreSlug }: GenreOverviewProps) {
                           color: keyColor,
                         }}
                       >
-                        {p.split('|')[0].trim()}
+                        {formatGcmProgression(
+                          p.split('|')[0].trim(),
+                          chordNotation,
+                          chordContext,
+                        )}
                       </span>
                     ))}
                   </div>

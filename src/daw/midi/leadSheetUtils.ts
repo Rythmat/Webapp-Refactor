@@ -21,6 +21,8 @@ export interface MeasureChord {
   name: string;
   /** Note-letter name (e.g., "C maj7") */
   noteName: string;
+  /** The region's long degree key (e.g., "1 major7"), when it has one */
+  degreeKey?: string;
 }
 
 export interface Measure {
@@ -91,6 +93,7 @@ export function regionToMeasures(
           regionId: r.id,
           name: r.name,
           noteName: r.noteName,
+          ...(r.degreeKey ? { degreeKey: r.degreeKey } : {}),
         });
       }
       // Chord started before this measure but is still active at beat 1
@@ -103,6 +106,7 @@ export function regionToMeasures(
             regionId: r.id,
             name: r.name,
             noteName: r.noteName,
+            ...(r.degreeKey ? { degreeKey: r.degreeKey } : {}),
           });
         }
       }

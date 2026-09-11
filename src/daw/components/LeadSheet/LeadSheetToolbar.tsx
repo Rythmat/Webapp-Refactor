@@ -16,6 +16,11 @@ import { useStore } from '@/daw/store';
 import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
 import type { LeadSheetChordFormat } from '@/daw/store/uiSlice';
 import type { ChordRecordMode } from '@/daw/store/prismSlice';
+import {
+  chordNotationLabel,
+  chordNotationLockTitle,
+} from '@/daw/utils/chordRegionNotation';
+import { useChordNotation } from '@/lib/chordNotation';
 
 interface LeadSheetToolbarProps {
   selectedMeasureIdx: number | null;
@@ -26,6 +31,9 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
 }: LeadSheetToolbarProps) {
   const chordFormat = useStore((s) => s.leadSheetChordFormat);
   const setChordFormat = useStore((s) => s.setLeadSheetChordFormat);
+  // Jazz / Roman decide the chord symbols; the format picker only applies to hybrid.
+  const chordNotation = useChordNotation();
+  const formatLocked = chordNotation !== 'hybrid';
   const chordRegions = useStore((s) => s.chordRegions);
   const bpm = useStore((s) => s.bpm);
   const rootNote = useStore((s) => s.rootNote);
@@ -130,20 +138,32 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
         backgroundColor: 'var(--color-surface-1)',
       }}
     >
-      {/* Chord format toggle */}
-      <button
-        className={btnClass}
-        style={btnStyle}
-        onClick={toggleFormat}
-        title={`Chord format: ${chordFormat === 'jazz' ? 'Spelled' : chordFormat === 'hybrid' ? 'Hybrid' : 'Numbers'}`}
-      >
-        <Type size={13} strokeWidth={2} />
-        {chordFormat === 'jazz'
-          ? 'Spelled'
-          : chordFormat === 'hybrid'
-            ? 'Hybrid'
-            : 'Numbers'}
-      </button>
+      {/* Chord format toggle (locked to the global notation in jazz / roman) */}
+      {formatLocked ? (
+        <button
+          className="flex h-7 cursor-default items-center gap-1.5 rounded-md px-2.5 text-[11px] font-medium"
+          style={{ ...btnStyle, opacity: 0.4 }}
+          aria-disabled
+          title={chordNotationLockTitle(chordNotation)}
+        >
+          <Type size={13} strokeWidth={2} />
+          {chordNotationLabel(chordNotation)}
+        </button>
+      ) : (
+        <button
+          className={btnClass}
+          style={btnStyle}
+          onClick={toggleFormat}
+          title={`Chord format: ${chordFormat === 'jazz' ? 'Spelled' : chordFormat === 'hybrid' ? 'Hybrid' : 'Numbers'}`}
+        >
+          <Type size={13} strokeWidth={2} />
+          {chordFormat === 'jazz'
+            ? 'Spelled'
+            : chordFormat === 'hybrid'
+              ? 'Hybrid'
+              : 'Numbers'}
+        </button>
+      )}
 
       {/* Repeat shorthand toggle */}
       <button

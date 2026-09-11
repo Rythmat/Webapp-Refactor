@@ -1,6 +1,8 @@
 import { memo, useCallback } from 'react';
 import { PPQ, type Measure, type ChordFormat } from '@/daw/midi/leadSheetUtils';
 import type { LeadSheetSection } from '@/daw/store/uiSlice';
+import { useStore } from '@/daw/store';
+import { useChordNotation } from '@/lib/chordNotation';
 import { ChordSymbol } from './ChordSymbol';
 import { SectionMarker } from './SectionMarker';
 
@@ -85,6 +87,10 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
   hasFermata,
 }: LeadSheetMeasureProps) {
   const width = w ?? MEASURE_WIDTH;
+  // Jazz / Roman override the lead sheet's chord format; key comes from the store.
+  const chordNotation = useChordNotation();
+  const keyRootPc = useStore((s) => s.rootNote);
+  const keyMode = useStore((s) => s.mode);
   const isMultiBarRest = restBars != null && restBars > 0;
   const staffTop = CHORD_AREA_HEIGHT;
 
@@ -142,7 +148,11 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
                 key={`${chord.regionId}-${i}`}
                 noteName={chord.noteName}
                 degreeName={chord.name}
+                degreeKey={chord.degreeKey}
                 format={chordFormat}
+                notation={chordNotation}
+                keyRootPc={keyRootPc}
+                keyMode={keyMode}
                 x={cx}
                 y={CHORD_AREA_HEIGHT - 8}
                 isSelected={selectedChordId === chord.regionId}

@@ -260,7 +260,11 @@ export function ChordAnalysisPrompt() {
                 and they’ll appear in the chord lane and lead sheet.
               </Dialog.Description>
               <div className="mt-3">
-                <ChordSymbolChips regions={result.regions} />
+                <ChordSymbolChips
+                  regions={result.regions}
+                  rootNote={result.rootNote}
+                  mode={result.mode}
+                />
               </div>
               <p className="mt-4 text-[11px]" style={dim}>
                 Not now keeps this analysis in Insight, where you can use it or

@@ -13,6 +13,8 @@ const EXTRA_INTERVALS: Record<string, number[]> = {
   minor11: [0, 3, 7, 10, 14, 17],
   add9: [0, 4, 7, 14],
   minoradd9: [0, 3, 7, 14],
+  // Altered dominant: ♭9, ♯9, ♭13 over a dominant 7th.
+  dominant7alt: [0, 4, 10, 13, 15, 20],
 };
 
 /** Intervals above the root for an engine quality key, if it's known. */
@@ -75,6 +77,7 @@ const JAZZ_SUFFIX: Record<string, string> = {
   'dominant7#9': `7${SHARP}9`,
   'dominant7#11': `7${SHARP}11`,
   'b7dominant7#11': `7${SHARP}11`,
+  dominant7alt: '7alt',
   'major7#11': `${DELTA}7${SHARP}11`,
   'major7#9': `${DELTA}7${SHARP}9`,
   'dominant7#5b9': `7${SHARP}5${FLAT}9`,
@@ -160,6 +163,13 @@ const SYMBOLS: Record<string, string> = {
   '7#5': 'dominant7#5',
   '+7': 'dominant7#5',
   '7#11': 'dominant7#11',
+  '7aug': 'dominant7#5',
+  aug7: 'dominant7#5',
+  '7alt': 'dominant7alt',
+  alt: 'dominant7alt',
+  alt7: 'dominant7alt',
+  '#5': 'augmented',
+  sus7: 'dominant7sus4',
   m7b9: 'minor7b9',
   mMaj7: 'minormajor7',
   mM7: 'minormajor7',
@@ -169,6 +179,10 @@ const SYMBOLS: Record<string, string> = {
   [`${MINUS}${DELTA}7`]: 'minormajor7',
   '6/9': 'major6add9',
   'm6/9': 'minor6add9',
+  '69': 'major6add9',
+  maj69: 'major6add9',
+  m69: 'minor6add9',
+  min69: 'minor6add9',
   madd9: 'minoradd9',
   add9: 'add9',
   add2: 'Add2',
@@ -208,7 +222,11 @@ for (const [key, display] of Object.entries(QUALITY_DISPLAY)) {
 export function normalizeQuality(raw: string): string {
   const token = raw.trim();
   if (qualityIntervals(token)) return token;
-  const symbol = SYMBOLS[token] ?? SYMBOLS[ascii(token)];
+  // Song charts parenthesize alterations: "7(♯9)", "(♯5)".
+  const symbol =
+    SYMBOLS[token] ??
+    SYMBOLS[ascii(token)] ??
+    SYMBOLS[ascii(token).replace(/[()]/g, '')];
   if (symbol) return symbol;
   return COMPACT_INDEX.get(compact(token)) ?? token;
 }

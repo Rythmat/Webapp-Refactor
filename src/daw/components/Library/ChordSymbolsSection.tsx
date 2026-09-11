@@ -9,7 +9,9 @@ import {
   sameChordSymbols,
 } from '@/daw/utils/chordAnalysis';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { useChordNotation } from '@/lib/chordNotation';
 import { MODE_DISPLAY } from './insightConstants';
+import { chordLabelSymbol, keyContext } from './insightNotation';
 
 const MAX_CHIPS = 16;
 const dim = { color: 'var(--color-text-dim)' };
@@ -30,12 +32,19 @@ export function KeyLabel({
   );
 }
 
-/** Chord symbols as chips in their chord colours. */
+/** Chord symbols as chips in their chord colours, in the chosen notation. */
 export function ChordSymbolChips({
   regions,
+  rootNote,
+  mode,
 }: {
   regions: readonly ChordRegion[];
+  /** The key the chords were read in (Roman numerals need it). */
+  rootNote: number | null;
+  mode: string;
 }) {
+  const notation = useChordNotation();
+  const context = keyContext(rootNote, mode);
   return (
     <div className="flex flex-wrap gap-1">
       {regions.slice(0, MAX_CHIPS).map((r) => {
@@ -50,7 +59,7 @@ export function ChordSymbolChips({
               color: `rgb(${cr}, ${cg}, ${cb})`,
             }}
           >
-            {displayAccidentals(r.noteName)}
+            {chordLabelSymbol(r.noteName, notation, context)}
           </span>
         );
       })}
@@ -177,7 +186,13 @@ export function ChordSymbolsSection() {
               </>
             )}
           </span>
-          {found > 0 && <ChordSymbolChips regions={chordAnalysis.regions} />}
+          {found > 0 && (
+            <ChordSymbolChips
+              regions={chordAnalysis.regions}
+              rootNote={chordAnalysis.rootNote}
+              mode={chordAnalysis.mode}
+            />
+          )}
           {notesChanged && (
             <span
               className="rounded px-1.5 py-1 text-[9px] leading-relaxed"

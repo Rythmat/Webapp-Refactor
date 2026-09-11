@@ -7,6 +7,11 @@ import { audioEngine } from '@/audio/AudioEngine';
 import { startTone } from '@/audio/core/toneBridge';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
+import {
+  formatChord,
+  useChordNotation,
+  type ChordNotation,
+} from '@/lib/chordNotation';
 import { ionianChordColor } from '@/lib/ionianChordColor';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
 
@@ -134,6 +139,24 @@ function chordName(rootPc: number, type: ChordType) {
     case 'min7':
       return `${root} Minor 7`;
   }
+}
+
+/**
+ * The chord's name as the game shows it. Jazz writes a chord symbol ("C♯−"),
+ * rooted on the game's own sharp spelling. Hybrid keeps the game's name, and so
+ * does Roman: it needs a key and this game has none. Display only — answers go
+ * by option.isCorrect.
+ */
+function displayChordName(
+  { rootPc, type }: ChordSpec,
+  label: string,
+  notation: ChordNotation,
+) {
+  if (notation !== 'jazz') return label;
+  return formatChord(
+    { root: PITCH_CLASS_NAMES[((rootPc % 12) + 12) % 12], quality: type },
+    'jazz',
+  );
 }
 
 function randomChordSpec(chordPool: ChordType[]): ChordSpec {
@@ -496,7 +519,13 @@ export function BoardChoiceGame({
   }, [gameStarted, gameOver, selectedOption, countingIn, playClick, bpm]);
 
   const selectedOptionId = selectedOption?.id ?? null;
-  const resolvedTargetLabel = round.targetLabel;
+  const notation = useChordNotation();
+  // A generated round's target is the correct option's chord; a lesson's own
+  // targetLabel has no chord spec behind it, so it's shown as given.
+  const targetSpec = round.options.find((option) => option.isCorrect)?.spec;
+  const resolvedTargetLabel = targetSpec
+    ? displayChordName(targetSpec, round.targetLabel, notation)
+    : round.targetLabel;
 
   const handleStart = useCallback(async () => {
     if (Tone.getContext().state !== 'running') {

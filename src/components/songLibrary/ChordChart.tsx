@@ -17,8 +17,16 @@ import type {
 import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
 import { useUISound } from '@/hooks/useUISound';
 import {
+  formatChord as formatChordSymbol,
+  parseChord,
+  useChordNotation,
+  type ChordContext,
+  type ChordNotation,
+} from '@/lib/chordNotation';
+import {
   ChordDiagramCard,
   chordRgbFor,
+  normalizeMode,
   type ChordRgb,
 } from './ChordDiagramCard';
 
@@ -80,8 +88,32 @@ function formatChord(hit: ChordHit, mode: DisplayMode): string {
   return mode === 'hybrid' ? hit.degree : hit.chordName;
 }
 
-function chordAriaLabel(hit: ChordHit): string {
-  return `${hit.degree} chord, beat ${hit.beat}, ${hit.duration} beat${hit.duration !== 1 ? 's' : ''}`;
+/** `symbol`: the jazz or Roman symbol when one is shown; else the degree is read. */
+function chordAriaLabel(hit: ChordHit, symbol?: string | null): string {
+  return `${symbol ?? hit.degree} chord, beat ${hit.beat}, ${hit.duration} beat${hit.duration !== 1 ? 's' : ''}`;
+}
+
+/**
+ * The chord written in jazz or Roman notation, or null in hybrid, where the
+ * chart keeps its own labels. Written from the letter name and the song's key:
+ * jazz keeps the letters ("B/D♯"), Roman numbers them ("V/7"). A name the
+ * formatter can't write in that notation shows the hit's own label of the same
+ * kind instead — the letter name for jazz, the degree for Roman.
+ */
+function chordSymbol(
+  hit: ChordHit,
+  notation: ChordNotation,
+  context: ChordContext,
+): string | null {
+  if (notation === 'hybrid') return null;
+  const fallback = notation === 'jazz' ? hit.chordName : hit.degree;
+  const spec = parseChord(hit.chordName);
+  if (!spec) return fallback;
+  const symbol = formatChordSymbol(spec, notation, context);
+  // formatChord answers in hybrid ("G♯ 7(♯9)") when it can't write the chord.
+  return symbol === formatChordSymbol(spec, 'hybrid', context)
+    ? fallback
+    : symbol;
 }
 
 /* ── SVG Staff Measure ───────────────────────────────────────────────── */
@@ -95,6 +127,10 @@ export const StaffMeasure: FC<{
   x: number;
   width: number;
   displayMode: DisplayMode;
+  /** Chord notation for the labels; unset is hybrid (the `displayMode` label). */
+  notation?: ChordNotation;
+  /** The song's key, which jazz and Roman labels are written in. */
+  chordContext?: ChordContext;
   isFirst: boolean;
   hasRepeatStart?: boolean;
   hasRepeatEnd?: boolean;
@@ -109,6 +145,8 @@ export const StaffMeasure: FC<{
   x,
   width,
   displayMode,
+  notation,
+  chordContext,
   isFirst,
   hasRepeatStart,
   hasRepeatEnd,
@@ -178,7 +216,10 @@ export const StaffMeasure: FC<{
         bar.chords.map((hit, i) => {
           const beatPos = hit.beat - 1;
           const cx = (beatPos / beatsPerBar) * width + 4;
-          const label = formatChord(hit, displayMode);
+          const symbol = notation
+            ? chordSymbol(hit, notation, chordContext ?? {})
+            : null;
+          const label = symbol ?? formatChord(hit, displayMode);
           const loc = { sectionIdx, barIdx: barIndex, chordIdx: i };
           const isSelected =
             selection != null &&
@@ -231,7 +272,7 @@ export const StaffMeasure: FC<{
               opacity={isSelected ? 1 : 0.85}
               tabIndex={0}
               role="button"
-              aria-label={chordAriaLabel(hit)}
+              aria-label={chordAriaLabel(hit, symbol)}
               style={{ cursor: editable ? 'grab' : 'pointer' }}
               {...pointerProps}
             >
@@ -478,6 +519,8 @@ const SectionStaff: FC<{
   section: SongSection;
   sectionIdx: number;
   displayMode: DisplayMode;
+  notation: ChordNotation;
+  chordContext: ChordContext;
   isLooping?: boolean;
   onChordClick?: (hit: ChordHit) => void;
   onToggleLoop?: (sectionIdx: number) => void;
@@ -488,6 +531,8 @@ const SectionStaff: FC<{
   section,
   sectionIdx,
   displayMode,
+  notation,
+  chordContext,
   isLooping,
   onChordClick,
   onToggleLoop,
@@ -646,6 +691,8 @@ const SectionStaff: FC<{
                     x={bi * MEASURE_WIDTH}
                     width={MEASURE_WIDTH}
                     displayMode={displayMode}
+                    notation={notation}
+                    chordContext={chordContext}
                     isFirst={bi === 0 && ri === 0}
                     hasRepeatStart={bi === 0 && ri === 0 && hasRepeat}
                     hasRepeatEnd={isLast && hasRepeat}
@@ -685,6 +732,15 @@ export const ChordChart: FC<ChordChartProps> = ({
   editable,
 }) => {
   const displayMode: DisplayMode = 'chordName';
+  // The back-office editor works on the raw chord data, so it keeps the chart's
+  // own labels whatever notation the user picked.
+  const pickedNotation = useChordNotation();
+  const notation: ChordNotation =
+    editable || onSelectChord ? 'hybrid' : pickedNotation;
+  const chordContext = useMemo<ChordContext>(
+    () => ({ keyRootPc: song.keyRoot, mode: normalizeMode(song.mode) }),
+    [song.keyRoot, song.mode],
+  );
   const [selectedChord, setSelectedChord] = useState<{
     hit: ChordHit;
     midi: number[];
@@ -717,6 +773,12 @@ export const ChordChart: FC<ChordChartProps> = ({
     setSelectedChord({ hit, midi, rgb });
   };
 
+  // In jazz or Roman the popup titles the chord with that one symbol; hybrid
+  // keeps the letter name over the degree.
+  const selectedSymbol = selectedChord
+    ? chordSymbol(selectedChord.hit, notation, chordContext)
+    : null;
+
   return (
     <div className="flex flex-col h-full min-w-0 max-w-full overflow-x-hidden">
       {/* ── Lead Sheet Staff ── */}
@@ -730,6 +792,8 @@ export const ChordChart: FC<ChordChartProps> = ({
             section={section}
             sectionIdx={si}
             displayMode={displayMode}
+            notation={notation}
+            chordContext={chordContext}
             isLooping={loopSection === si}
             onChordClick={handleChordClick}
             onToggleLoop={onToggleLoop}
@@ -766,14 +830,16 @@ export const ChordChart: FC<ChordChartProps> = ({
                     className="text-white font-bold text-xl"
                     style={{ fontFamily: 'serif' }}
                   >
-                    {selectedChord.hit.chordName}
+                    {selectedSymbol ?? selectedChord.hit.chordName}
                   </h3>
-                  <p
-                    className="text-white/40 text-sm"
-                    style={{ fontFamily: 'serif' }}
-                  >
-                    {selectedChord.hit.degree}
-                  </p>
+                  {selectedSymbol === null && (
+                    <p
+                      className="text-white/40 text-sm"
+                      style={{ fontFamily: 'serif' }}
+                    >
+                      {selectedChord.hit.degree}
+                    </p>
+                  )}
                 </>
               }
             />

@@ -28,6 +28,13 @@ import {
   LearnInputProvider,
   useLearnInputStable,
 } from '@/learn/context/LearnInputContext';
+import {
+  formatChord,
+  parseChord,
+  useChordNotation,
+  type ChordContext,
+  type ChordNotation,
+} from '@/lib/chordNotation';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import {
   resolveStepContent,
@@ -125,6 +132,28 @@ function parseKeyRoot(keyName: string): number {
   return KEY_MAP[keyName] ?? 60;
 }
 
+// ── Chord symbols ────────────────────────────────────────────────────────────
+
+/**
+ * A step's hand-written chord symbol ('Dm7', 'Bb/D') in the chosen notation.
+ * Hybrid shows it as written, as does a chord the notation can't write
+ * ('Afunk9'), rather than the formatter's hybrid fallback ("5 funk9").
+ */
+function chordSymbolForDisplay(
+  symbol: string,
+  notation: ChordNotation,
+  context: ChordContext,
+): string {
+  const written = formatAccidentalsForDisplay(symbol);
+  if (notation === 'hybrid') return written;
+  const spec = parseChord(symbol);
+  if (!spec) return written;
+  const formatted = formatChord(spec, notation, context);
+  return formatted === formatChord(spec, 'hybrid', context)
+    ? written
+    : formatted;
+}
+
 // ── Inner component (needs LearnInputProvider wrapper) ────────────────────────
 
 function GenreLessonContainerV2Inner({
@@ -211,6 +240,16 @@ function GenreLessonContainerV2Inner({
     const keyName = flow.params.defaultKey.split(' ')[0];
     return parseKeyRoot(keyName);
   }, [flow.params.defaultKey]);
+
+  // Chord symbols follow the chord notation setting; Roman numbers from the key.
+  const chordNotation = useChordNotation();
+  const chordContext = useMemo<ChordContext>(
+    () => ({
+      keyRootPc: keyRoot % 12,
+      mode: SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? null,
+    }),
+    [keyRoot, flow.params.defaultScaleId],
+  );
 
   // Key color from app's color system — mode-shifted to match Music Atlas key center colors
   const keyColor = useMemo(() => {
@@ -1327,7 +1366,9 @@ function GenreLessonContainerV2Inner({
                 }}
               >
                 {resolvedStep.chordSymbols
-                  .map(formatAccidentalsForDisplay)
+                  .map((symbol) =>
+                    chordSymbolForDisplay(symbol, chordNotation, chordContext),
+                  )
                   .join(' → ')}
               </div>
             )}

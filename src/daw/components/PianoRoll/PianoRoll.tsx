@@ -21,7 +21,11 @@ import {
   snapToGrid,
   type GridSize,
 } from '@/daw/utils/quantize';
-import { alternatingBarGroup } from '@/daw/utils/timelineScale';
+import {
+  PIANO_ROLL_LANE_COLORS,
+  pianoRollLabelFontSize,
+  pianoRollLaneBackground,
+} from '@/lib/pianoRollLanes';
 
 type Tool = 'select' | 'draw' | 'erase';
 
@@ -91,10 +95,6 @@ const ERASER_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/200
 // ── Note helpers ────────────────────────────────────────────────────────────
 function noteName(midi: number, keyPc: number, mode?: string): string {
   return displayAccidentals(midiNameInKey(midi, keyPc, mode));
-}
-function isBlackKey(midi: number): boolean {
-  const n = midi % 12;
-  return n === 1 || n === 3 || n === 6 || n === 8 || n === 10;
 }
 
 // ── Drag mode ───────────────────────────────────────────────────────────────
@@ -249,91 +249,42 @@ export function PianoRoll({
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, w, h);
 
+    // Labels use the page font, as Learn's lanes do (canvas otherwise falls back
+    // to a face whose ♭/♯ glyphs sit apart from the letter).
+    const labelFont = containerRef.current
+      ? getComputedStyle(containerRef.current).fontFamily
+      : 'Inter, sans-serif';
+
+    // Lanes shaded exactly like Learn's piano roll (src/lib/pianoRollLanes.ts).
     for (let i = 0; i < VIEW_RANGE; i++) {
       const midiNote = VIEW_MAX - i;
       const rowY = i * rowH;
-      const black = isBlackKey(midiNote);
-      const isC = midiNote % 12 === 0;
 
-      // White key background
-      if (!black) {
-        ctx.fillStyle = isC ? '#5a5a62' : '#505058';
-        ctx.fillRect(0, rowY, w, rowH);
-      } else {
-        // Black key
-        ctx.fillStyle = '#1e1e1e';
-        ctx.fillRect(0, rowY, w * 0.65, rowH);
-        // Right portion (gap)
-        ctx.fillStyle = '#2a2a2a';
-        ctx.fillRect(w * 0.65, rowY, w * 0.35, rowH);
-      }
+      ctx.fillStyle = pianoRollLaneBackground(midiNote);
+      ctx.fillRect(0, rowY, w, rowH);
+      ctx.fillStyle = PIANO_ROLL_LANE_COLORS.separator;
+      ctx.fillRect(0, rowY + rowH - 1, w, 1);
 
-      // Row separator
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, rowY + rowH);
-      ctx.lineTo(w, rowY + rowH);
-      ctx.stroke();
-
-      // C note octave highlight
-      if (isC) {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-        ctx.beginPath();
-        ctx.moveTo(0, rowY);
-        ctx.lineTo(w, rowY);
-        ctx.stroke();
-      }
-
-      if (noteLabels) {
-        // Drum track: label only the rows that map to a drum sound, using the
-        // same names as the drum control.
-        const label = noteLabels.get(midiNote);
-        if (label) {
-          const fontSize = Math.max(8, Math.round(9 * vZoom));
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-          ctx.font = `${fontSize}px Inter, sans-serif`;
-          ctx.textBaseline = 'middle';
-          ctx.textAlign = 'right';
-          ctx.fillText(label, w - 4, rowY + rowH / 2);
-        }
-      } else {
-        // Note labels — progressive: C always, white keys at 1.2x+, black keys at 1.7x+
-        const showAllWhite = rowH >= 14;
-        const showBlack = rowH >= 20;
-        const showLabel =
-          isC || (showAllWhite && !black) || (showBlack && black);
-
-        if (showLabel) {
-          const fontSize = Math.max(7, Math.round(8 * vZoom));
-          ctx.fillStyle = isC
-            ? 'rgba(255, 255, 255, 0.6)'
-            : black
-              ? 'rgba(255, 255, 255, 0.3)'
-              : 'rgba(255, 255, 255, 0.4)';
-          ctx.font = `${isC ? 'bold ' : ''}${fontSize}px Inter, monospace`;
-          ctx.textBaseline = 'middle';
-          ctx.textAlign = 'right';
-          ctx.fillText(
-            noteName(
+      // Drum tracks label only the rows that map to a drum sound, using the
+      // same names as the drum control. Pitched tracks label every lane once
+      // rows are tall enough to read.
+      const label = noteLabels
+        ? noteLabels.get(midiNote)
+        : rowH >= 9
+          ? noteName(
               midiNote,
               rootNote ?? 0,
               rootNote !== null ? mode : undefined,
-            ),
-            w - 4,
-            rowY + rowH / 2,
-          );
-        }
+            )
+          : undefined;
+      if (label) {
+        ctx.fillStyle = PIANO_ROLL_LANE_COLORS.label;
+        ctx.font = `${pianoRollLabelFontSize(rowH)}px ${labelFont}`;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'right';
+        ctx.fillText(label, w - 8, rowY + rowH / 2);
       }
     }
-
-    // Right edge separator
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(w - 0.5, 0);
-    ctx.lineTo(w - 0.5, h);
-    ctx.stroke();
   }, [gridH, rowH, vZoom, rootNote, mode, noteLabels]);
 
   // ── Draw Ruler ──────────────────────────────────────────────────────────
@@ -433,38 +384,14 @@ export function PianoRoll({
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, w, h);
 
-    // ── Row backgrounds + horizontal grid lines ────────────────────────
+    // ── Row backgrounds (same lane shading as Learn's piano roll) ────────
     for (let i = 0; i < VIEW_RANGE; i++) {
       const midiNote = VIEW_MAX - i;
       const rowY = i * rowH;
-      const black = isBlackKey(midiNote);
-
-      if (black) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
-        ctx.fillRect(0, rowY, w, rowH);
-      }
-
-      ctx.strokeStyle =
-        midiNote % 12 === 0
-          ? 'rgba(255, 255, 255, 0.08)'
-          : 'rgba(255, 255, 255, 0.03)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, rowY);
-      ctx.lineTo(w, rowY);
-      ctx.stroke();
-    }
-
-    // ── Alternating bar shading ─────────────────────────────────────────
-    const barGroup = alternatingBarGroup(zoom);
-    const barGroupTicks = barGroup * beatsPerBar * TICKS_PER_BEAT;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.025)';
-    const totalBarGroups = Math.ceil(totalTicks / barGroupTicks);
-    for (let g = 0; g <= totalBarGroups; g++) {
-      if (g % 2 === 0) continue;
-      const x1 = g * barGroupTicks * pixelsPerTick;
-      const x2 = (g + 1) * barGroupTicks * pixelsPerTick;
-      ctx.fillRect(x1, 0, x2 - x1, h);
+      ctx.fillStyle = pianoRollLaneBackground(midiNote);
+      ctx.fillRect(0, rowY, w, rowH);
+      ctx.fillStyle = PIANO_ROLL_LANE_COLORS.separator;
+      ctx.fillRect(0, rowY + rowH - 1, w, 1);
     }
 
     // ── Vertical grid lines (beats + bars) ─────────────────────────────
@@ -473,10 +400,12 @@ export function PianoRoll({
       const x = beat * TICKS_PER_BEAT * pixelsPerTick;
       const isBar = beat % beatsPerBar === 0;
 
-      ctx.strokeStyle = isBar
-        ? 'rgba(255, 255, 255, 0.14)'
-        : 'rgba(255, 255, 255, 0.06)';
-      ctx.lineWidth = isBar ? 1 : 0.5;
+      ctx.strokeStyle = !isBar
+        ? PIANO_ROLL_LANE_COLORS.beatLine
+        : beat === 0
+          ? PIANO_ROLL_LANE_COLORS.firstBarLine
+          : PIANO_ROLL_LANE_COLORS.barLine;
+      ctx.lineWidth = isBar ? 2 : 1;
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, h);
@@ -487,8 +416,8 @@ export function PianoRoll({
     const gridTicks = GRID_VALUES[gridSize];
     if (gridTicks < TICKS_PER_BEAT) {
       const totalGridLines = Math.ceil(totalTicks / gridTicks);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = PIANO_ROLL_LANE_COLORS.subLine;
+      ctx.lineWidth = 1;
       for (let g = 0; g <= totalGridLines; g++) {
         const tick = g * gridTicks;
         if (tick % TICKS_PER_BEAT === 0) continue;

@@ -4,6 +4,7 @@ import {
   MODES,
   getChordColor,
   noteNameInKey,
+  respellLeadingChords,
   abbreviateSequence,
 } from '@prism/engine';
 import { getGCMEntry } from '@/curriculum/data/gcmHelpers';
@@ -315,7 +316,7 @@ function buildChordRegions(
   rootMidi: number,
   mode: DiatonicMode,
 ): ChordRegion[] {
-  return barChords.map((bar) => {
+  const regions = barChords.map((bar) => {
     const midis = bar.intervals.map((offset) => rootMidi + offset);
     const chordRootLetter = noteNameInKey(
       rootMidi + bar.intervals[0],
@@ -345,6 +346,9 @@ function buildChordRegions(
       midis,
     };
   });
+  // Leading diminished chords are named by where they resolve (Priority 1).
+  const noteNames = respellLeadingChords(regions.map((r) => r.noteName));
+  return regions.map((r, i) => ({ ...r, noteName: noteNames[i] }));
 }
 
 // ── Bass line (always generated) ───────────────────────────────────────

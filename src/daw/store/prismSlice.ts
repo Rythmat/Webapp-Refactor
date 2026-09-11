@@ -36,6 +36,7 @@ import {
   ionianToModeLabel,
   resolveDegreeKey,
   orchestrate,
+  respellLeadingChords,
 } from '@prism/engine';
 
 // ── Types ────────────────────────────────────────────────────────────────
@@ -305,7 +306,7 @@ function rederiveChordRegions(
   mode: string,
 ): ChordRegion[] {
   const keyPc = rootMidi % 12;
-  return regions.map((r) => {
+  const rederived = regions.map((r) => {
     const parsed = parseNoteNameChord(r.noteName);
     if (!parsed) {
       // Can't parse — just recolor if we have a degreeKey
@@ -333,6 +334,29 @@ function rederiveChordRegions(
         : r.color,
     };
   });
+  return respellLeadingChordRegions(rederived);
+}
+
+/**
+ * Leading diminished chords take their spelling from the chord they resolve to
+ * (doc Priority 1): "Gb dim" before "G min" becomes "F# dim". Returns the same
+ * array when nothing changes.
+ */
+function respellLeadingChordRegions(regions: ChordRegion[]): ChordRegion[] {
+  const order = regions
+    .map((_, i) => i)
+    .sort((a, b) => regions[a].startTick - regions[b].startTick);
+  const names = respellLeadingChords(order.map((i) => regions[i].noteName));
+  if (order.every((idx, k) => names[k] === regions[idx].noteName)) {
+    return regions;
+  }
+  const result = [...regions];
+  order.forEach((idx, k) => {
+    if (names[k] !== regions[idx].noteName) {
+      result[idx] = { ...regions[idx], noteName: names[k] };
+    }
+  });
+  return result;
 }
 
 /** Map STUDIO_GENRES to GENRE_MAP genre names for rhythm lookup */
@@ -558,7 +582,7 @@ function deriveChordRegions(
     midis: [...currentNotes],
   });
 
-  return regions;
+  return respellLeadingChordRegions(regions);
 }
 
 // ── Shared label helpers (used by derivation and reconcile logic) ─────────
@@ -617,9 +641,9 @@ function reconcileChordRegions(
   currentMode: string,
 ): ChordRegion[] {
   // Fast path: nothing existing → all modes just accept incoming
-  if (existing.length === 0) return incoming;
+  if (existing.length === 0) return respellLeadingChordRegions(incoming);
 
-  if (mode === 'replace') return incoming;
+  if (mode === 'replace') return respellLeadingChordRegions(incoming);
 
   const keyPc = rootMidi % 12;
 
@@ -661,7 +685,9 @@ function reconcileChordRegions(
         });
       }
     }
-    return result.sort((a, b) => a.startTick - b.startTick);
+    return respellLeadingChordRegions(
+      result.sort((a, b) => a.startTick - b.startTick),
+    );
   }
 
   // mode === 'merge'
@@ -719,7 +745,9 @@ function reconcileChordRegions(
   // Add non-overlapping incoming regions (those with no overlapping existing)
   // These were already added in the loop above.
 
-  return result.sort((a, b) => a.startTick - b.startTick);
+  return respellLeadingChordRegions(
+    result.sort((a, b) => a.startTick - b.startTick),
+  );
 }
 
 // ── Phase 9: Chord confidence scoring ────────────────────────────────────
@@ -1016,7 +1044,7 @@ export function deriveChordRegionsFromNotes(
     );
   }
 
-  return cleaned;
+  return respellLeadingChordRegions(cleaned);
 }
 
 /**
@@ -1126,7 +1154,7 @@ export function deriveChordRegionsFromAudioSnapshots(
     );
   }
 
-  return cleaned;
+  return respellLeadingChordRegions(cleaned);
 }
 
 // ── Phase 7B: Multi-track chord derivation ──────────────────────────────
@@ -1170,7 +1198,9 @@ export function deriveChordRegionsFromSession(
   if (harmonyEvents.length === 0) return [];
 
   const regions = deriveChordRegionsFromNotes(harmonyEvents, rootMidi, mode);
-  return enrichWithBass(regions, bassEvents, rootMidi, mode);
+  return respellLeadingChordRegions(
+    enrichWithBass(regions, bassEvents, rootMidi, mode),
+  );
 }
 
 // ── Phase 7C: Bass note enrichment ──────────────────────────────────────
@@ -1276,7 +1306,9 @@ export function refineChordRegionsWithMelody(
   if (harmonyEvents.length === 0) return [];
 
   const regions = deriveChordRegionsFromNotes(harmonyEvents, rootMidi, mode);
-  return enrichWithBass(regions, bassEvents, rootMidi, mode);
+  return respellLeadingChordRegions(
+    enrichWithBass(regions, bassEvents, rootMidi, mode),
+  );
 }
 
 // ── Slice ────────────────────────────────────────────────────────────────
@@ -1871,7 +1903,7 @@ export const createPrismSlice: StateCreator<
           startTick: removed.startTick,
         };
       }
-      return { chordRegions: regions };
+      return { chordRegions: respellLeadingChordRegions(regions) };
     }),
 
   renameChordRegion: (id, newName, newNoteName) =>
@@ -1935,7 +1967,7 @@ export const createPrismSlice: StateCreator<
           sorted[i] = { ...sorted[i], endTick: sorted[i + 1].startTick };
         }
       }
-      return { chordRegions: sorted };
+      return { chordRegions: respellLeadingChordRegions(sorted) };
     }),
 
   insertMeasure: (measureIdx) =>
@@ -1995,7 +2027,9 @@ export const createPrismSlice: StateCreator<
       if (s.melodyOverrides.includes(regionId)) return {};
       return {
         melodyOverrides: [...s.melodyOverrides, regionId],
-        chordRegions: s.chordRegions.filter((r) => r.id !== regionId),
+        chordRegions: respellLeadingChordRegions(
+          s.chordRegions.filter((r) => r.id !== regionId),
+        ),
       };
     }),
 

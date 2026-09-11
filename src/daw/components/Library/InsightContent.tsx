@@ -15,7 +15,9 @@ import {
   generateChord,
   noteNameLetter,
   noteNameInKey,
+  chordToneNames,
   chordToneNamesInKey,
+  respellLeadingChords,
   detectChordWithInversion,
   KEY_COLORS,
   CHORD_COLORS,
@@ -264,6 +266,23 @@ export function InsightContent() {
     if (source.length === 0) return [];
 
     const rootMidi = rootNote + 48;
+    // Leading diminished chords are named by where they resolve (Priority 1).
+    const parentRootMidi = rootMidi - getModeOffset(mode);
+    const leadingRoots = new Map<string, string>();
+    respellLeadingChords(
+      source.map((degree) => {
+        const root = noteNameInKey(
+          degreeMidi(parentRootMidi, degree) % 12,
+          rootNote,
+          mode,
+        );
+        return `${root} ${unstepChord(degree).replace(/^diminished/, 'dim')}`;
+      }),
+    ).forEach((name, i) => {
+      if (!leadingRoots.has(source[i])) {
+        leadingRoots.set(source[i], name.split(' ')[0]);
+      }
+    });
     const seen = new Set<string>();
     const results: ChordInsight[] = [];
 
@@ -275,20 +294,16 @@ export function InsightContent() {
       const parentRoot = rootMidi - getModeOffset(mode);
       const bassMidi = degreeMidi(parentRoot, degreeName);
       const pitchedNotes = generateChord(bassMidi, quality);
-      const chordTones = chordToneNamesInKey(
-        bassMidi % 12,
-        CHORDS[quality] ?? [],
-        rootNote,
-        mode,
-      );
+      const chordRoot =
+        leadingRoots.get(degreeName) ??
+        noteNameInKey(bassMidi % 12, rootNote, mode);
+      const chordTones = chordToneNames(chordRoot, CHORDS[quality] ?? []);
       const noteNames = pitchedNotes.map((n) =>
         displayAccidentals(
           chordTones.get(n % 12) ?? noteNameInKey(n % 12, rootNote, mode),
         ),
       );
-      const rootLetter = displayAccidentals(
-        noteNameInKey(bassMidi % 12, rootNote, mode),
-      );
+      const rootLetter = displayAccidentals(chordRoot);
       const intervals = CHORDS[quality];
 
       const [r, g, b] = getChordColor(degreeName, parentRoot);

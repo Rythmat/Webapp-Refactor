@@ -26,3 +26,36 @@ describe('chord region note names follow the session key', () => {
     expect(names.some((n) => n.startsWith('Eb '))).toBe(true);
   });
 });
+
+describe('leading diminished chords follow their resolution', () => {
+  const names = (chords: number[][], root: number, mode: string) =>
+    deriveChordRegionsFromAudioSnapshots(snapshots(chords), root, mode).map(
+      (r) => r.noteName,
+    );
+
+  it('F# dim → G min in G minor', () => {
+    expect(
+      names(
+        [
+          [66, 69, 72],
+          [67, 70, 74],
+        ],
+        67,
+        'aeolian',
+      )[0],
+    ).toMatch(/^F# dim/);
+  });
+
+  it('Gb dim → F min in F minor', () => {
+    expect(
+      names(
+        [
+          [66, 69, 72],
+          [65, 68, 72],
+        ],
+        65,
+        'aeolian',
+      )[0],
+    ).toMatch(/^Gb dim/);
+  });
+});

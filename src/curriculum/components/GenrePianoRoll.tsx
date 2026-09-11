@@ -7,6 +7,10 @@ import {
   spellMidi,
 } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidentals';
+import {
+  PIANO_ROLL_LANE_COLORS,
+  pianoRollLaneBackground,
+} from '@/lib/pianoRollLanes';
 
 export type Midi = number; // 0..127
 
@@ -206,23 +210,6 @@ function barBeatLabels(
     }
   }
   return labels;
-}
-
-// ===== Row color helpers =====
-const BLACK_KEY_SEMITONES = new Set([1, 3, 6, 8, 10]); // Db Eb Gb Ab Bb
-
-function getRowBackground(
-  midiNote: number | null,
-  keyRoot?: number,
-  keyColor?: string,
-): string {
-  if (midiNote === null) return 'rgba(255,255,255,0.03)';
-  const semitone = midiNote % 12;
-  const isKeyCenter = keyRoot !== undefined && semitone === keyRoot % 12;
-  if (isKeyCenter && keyColor) return `${keyColor}0d`; // ~5% opacity tint
-  if (isKeyCenter) return '#1f2d1f'; // fallback green if no keyColor
-  if (BLACK_KEY_SEMITONES.has(semitone)) return '#1a1a1a';
-  return '#2a2a2a';
 }
 
 // ===== Component =====
@@ -465,7 +452,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                       width: 2,
                       background:
                         i === 0
-                          ? 'rgba(200,200,255,0.45)'
+                          ? PIANO_ROLL_LANE_COLORS.firstBarLine
                           : 'rgba(200,200,200,0.35)',
                     }}
                   >
@@ -474,7 +461,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                       style={{
                         background:
                           i === 0
-                            ? 'rgba(200,200,255,0.45)'
+                            ? PIANO_ROLL_LANE_COLORS.firstBarLine
                             : 'rgba(200,200,200,0.35)',
                       }}
                     />
@@ -491,7 +478,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
           <div className="sticky left-0 z-20" style={{ width: laneLabelWidth }}>
             {laneList.map((name, _idx) => {
               const laneMidi = pitchNameToMidi(name);
-              const baseBackground = getRowBackground(
+              const baseBackground = pianoRollLaneBackground(
                 laneMidi,
                 keyRoot,
                 keyColor,
@@ -509,7 +496,9 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                   ? `linear-gradient(90deg, ${targetLaneColor}a6, ${targetLaneColor}59)`
                   : 'linear-gradient(90deg, rgba(59,130,246,0.65), rgba(37,99,235,0.35))'
                 : baseBackground;
-              const color = isActiveLane ? '#f8fafc' : '#d4d4d8';
+              const color = isActiveLane
+                ? '#f8fafc'
+                : PIANO_ROLL_LANE_COLORS.label;
               return (
                 <div
                   key={name}
@@ -520,7 +509,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                       8,
                       Math.min(13, effectiveRowHeight * 0.65),
                     ),
-                    borderBottom: '1px solid rgba(120,120,120,0.15)',
+                    borderBottom: `1px solid ${PIANO_ROLL_LANE_COLORS.separator}`,
                     background,
                     color,
                     fontWeight: isActiveLane ? 600 : 400,
@@ -545,8 +534,12 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                     style={{
                       top: idx * effectiveRowHeight,
                       height: effectiveRowHeight,
-                      background: getRowBackground(laneMidi, keyRoot, keyColor),
-                      borderBottom: '1px solid rgba(120,120,120,0.15)',
+                      background: pianoRollLaneBackground(
+                        laneMidi,
+                        keyRoot,
+                        keyColor,
+                      ),
+                      borderBottom: `1px solid ${PIANO_ROLL_LANE_COLORS.separator}`,
                     }}
                   />
                 );
@@ -559,7 +552,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                   style={{
                     left: `${tickPercent(b)}%`,
                     width: 1,
-                    background: 'rgba(200,200,200,0.08)',
+                    background: PIANO_ROLL_LANE_COLORS.subLine,
                   }}
                 />
               ))}
@@ -571,7 +564,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                   style={{
                     left: `${tickPercent(b)}%`,
                     width: 1,
-                    background: 'rgba(200,200,200,0.16)',
+                    background: PIANO_ROLL_LANE_COLORS.beatLine,
                   }}
                 />
               ))}
@@ -585,8 +578,8 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                     width: 2,
                     background:
                       i === 0
-                        ? 'rgba(200,200,255,0.45)'
-                        : 'rgba(255,255,255,0.22)',
+                        ? PIANO_ROLL_LANE_COLORS.firstBarLine
+                        : PIANO_ROLL_LANE_COLORS.barLine,
                   }}
                 >
                   <div
@@ -594,8 +587,8 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                     style={{
                       background:
                         i === 0
-                          ? 'rgba(200,200,255,0.45)'
-                          : 'rgba(255,255,255,0.22)',
+                          ? PIANO_ROLL_LANE_COLORS.firstBarLine
+                          : PIANO_ROLL_LANE_COLORS.barLine,
                     }}
                   />
                 </div>

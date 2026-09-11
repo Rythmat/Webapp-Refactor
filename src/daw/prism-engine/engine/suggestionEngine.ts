@@ -11,7 +11,7 @@ import { getOptions, getFirstChords, graphToken } from './progression';
 import { degreeMidi, unstepChord } from './naming';
 import { generateChord, normalizeSequence } from './chordUtils';
 import { getChordColor } from './colorSystem';
-import { noteNameInKey } from '../data/notes';
+import { noteNameInKey, respellLeadingChords } from '../data/notes';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -351,10 +351,14 @@ export function generateSuggestions(
     const midiArrays = degrees.map((d) => degreeNameToChord(d, rootMidi, mode));
     const normalized = normalizeSequence(midiArrays);
 
+    // Leading diminished chords are named by where they resolve (Priority 1).
+    const noteNames = respellLeadingChords(
+      degrees.map((d) => degreeToNoteName(d, rootMidi, mode)),
+    );
     const chords: SuggestionChord[] = degrees.map((degree, j) => ({
       degree,
       quality: unstepChord(degree),
-      noteName: degreeToNoteName(degree, rootMidi, mode),
+      noteName: noteNames[j],
       midi: normalized[j],
       color: getChordColor(degree, rootMidi, mode) as RGB,
     }));

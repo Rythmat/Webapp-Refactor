@@ -5,6 +5,7 @@ import {
   chordToneNamesInKey,
   getScaleSpellings,
   noteNameInKey,
+  respellLeadingChords,
 } from '../notes';
 
 const namesInKey = (keyPc: number, mode?: string) =>
@@ -82,5 +83,56 @@ describe('chordToneNamesInKey', () => {
     expect([
       ...chordToneNamesInKey(10, [0, 4, 7], 7, 'aeolian').values(),
     ]).toEqual(['Bb', 'D', 'F']);
+  });
+});
+
+describe('respellLeadingChords (Priority 1: leading diminished chords)', () => {
+  it.each([
+    [
+      ['Gb dim', 'G min'],
+      ['F# dim', 'G min'],
+    ],
+    [
+      ['F# dim', 'F min'],
+      ['Gb dim', 'F min'],
+    ],
+    [
+      ['C dim', 'B min'],
+      ['C dim', 'B min'],
+    ],
+    [
+      ['C dim', 'Db min'],
+      ['C dim', 'Db min'],
+    ],
+    [
+      ['C dim', 'C# min'],
+      ['B# dim', 'C# min'],
+    ],
+    [
+      ['Bb dim', 'B min'],
+      ['A# dim', 'B min'],
+    ],
+    [
+      ['A# dim', 'A min'],
+      ['Bb dim', 'A min'],
+    ],
+    [
+      ['Gb dim7', 'G min7'],
+      ['F# dim7', 'G min7'],
+    ],
+  ])('%j → %j', (input, expected) => {
+    expect(respellLeadingChords(input)).toEqual(expected);
+  });
+
+  it('respells a chord-tone slash bass with the new root', () => {
+    expect(respellLeadingChords(['Gb dim7/Bbb', 'G min'])).toEqual([
+      'F# dim7/A',
+      'G min',
+    ]);
+  });
+
+  it('leaves chords that do not lead by a half step, and non-diminished chords', () => {
+    const names = ['Gb dim', 'Ab maj', 'Gb maj', 'G min', 'G min'];
+    expect(respellLeadingChords(names)).toEqual(names);
   });
 });

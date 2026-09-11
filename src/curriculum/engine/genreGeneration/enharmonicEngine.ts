@@ -337,3 +337,28 @@ export function spellChord(
     return simplestName(pitchClass, Math.sign(accidental));
   });
 }
+
+/**
+ * Doc Priority 1 (functional goal) for leading chords: a chord root that moves a
+ * half step to `goalRoot` takes the letter beside the goal's. Moving up, the
+ * letter below (F♯ → G, B♯ → C♯, C → D♭); moving down, the letter above
+ * (G♭ → F, C → B, B♭ → A). Null when the motion isn't a half step.
+ */
+export function spellLeadingRoot(
+  rootPitchClass: number,
+  goalRoot: string,
+): string | null {
+  const goal = parseNoteName(goalRoot);
+  if (!goal) return null;
+  const goalPitchClass = mod12(
+    LETTER_PITCH_CLASS[goal.letterIndex] + goal.accidental,
+  );
+  const motion = mod12(goalPitchClass - rootPitchClass);
+  if (motion !== 1 && motion !== 11) return null;
+  const letterIndex = (goal.letterIndex + (motion === 1 ? 6 : 1)) % 7;
+  const accidental =
+    mod12(rootPitchClass - LETTER_PITCH_CLASS[letterIndex] + 6) - 6;
+  return Math.abs(accidental) > 2
+    ? null
+    : formatNote({ letterIndex, accidental }, 'unicode');
+}

@@ -6,6 +6,7 @@ import {
   noteNameToPitchClass,
   pitchNameToMidi,
   spellChord,
+  spellLeadingRoot,
   spellMidi,
   spellScale,
 } from '../enharmonicEngine';
@@ -188,5 +189,24 @@ describe('spellChord (Rule 3: whole chord from its root)', () => {
     expect(spellChord('E', [0, 4, 7, 10, 15], { strict: true })).toEqual(
       'E G♯ B D F𝄪'.split(' '),
     );
+  });
+});
+
+describe('spellLeadingRoot (Priority 1: spelled by where it resolves)', () => {
+  it.each([
+    [6, 'G', 'F♯'], // F♯dim → Gmin
+    [6, 'F', 'G♭'], // G♭dim → Fmin
+    [0, 'B', 'C'], // Cdim → Bmin
+    [0, 'D♭', 'C'], // Cdim → D♭min
+    [0, 'C♯', 'B♯'], // B♯dim → C♯min
+    [10, 'B', 'A♯'], // A♯dim → Bmin
+    [10, 'A', 'B♭'], // B♭dim → Amin
+  ] as const)('pitch class %i resolving to %s is %s', (pc, goal, expected) => {
+    expect(spellLeadingRoot(pc, goal)).toBe(expected);
+  });
+
+  it('returns null when the root does not move by a half step', () => {
+    expect(spellLeadingRoot(6, 'A')).toBeNull();
+    expect(spellLeadingRoot(6, 'F♯')).toBeNull();
   });
 });

@@ -61,9 +61,12 @@ export function noteNameLetter(midi: number): string {
 import {
   buildSpellingMap,
   formatNoteName,
+  noteNameToPitchClass,
   spellChord,
+  spellLeadingRoot,
   spellScale,
 } from '../../../curriculum/engine/genreGeneration/enharmonicEngine';
+import { CHORDS } from './chords';
 import { ALL_MODES } from './modes';
 
 const mod12 = (n: number) => ((n % 12) + 12) % 12;
@@ -110,6 +113,21 @@ export function midiNameInKey(
   return `${name}${Math.floor((midi - accidental) / 12) - 1}`;
 }
 
+/** Chord tones spelled as one unit from `root` (doc Rule 3). Map<pc, ASCII name>. */
+export function chordToneNames(
+  root: string,
+  intervals: number[],
+): Map<number, string> {
+  const rootPc = noteNameToPitchClass(root) ?? 0;
+  const names = spellChord(root, intervals);
+  return new Map(
+    intervals.map((interval, i) => [
+      mod12(rootPc + interval),
+      formatNoteName(names[i], 'ascii'),
+    ]),
+  );
+}
+
 /**
  * Chord tones spelled as one unit from the chord root (doc Rule 3), the root
  * named for the key: D major in G minor → D, F#, A (not Gb). Map<pc, ASCII name>.
@@ -120,13 +138,41 @@ export function chordToneNamesInKey(
   keyPc: number,
   mode?: string,
 ): Map<number, string> {
-  const names = spellChord(noteNameInKey(rootPc, keyPc, mode), intervals);
-  return new Map(
-    intervals.map((interval, i) => [
-      mod12(rootPc + interval),
-      formatNoteName(names[i], 'ascii'),
-    ]),
-  );
+  return chordToneNames(noteNameInKey(rootPc, keyPc, mode), intervals);
+}
+
+// "F# dim", "Bb maj/D", "Ebb min7(b5)": root, quality token, optional slash bass.
+const CHORD_NAME = /^([A-G](?:bb|##|b|#)?) (\S+?)(?:\/([A-G](?:bb|##|b|#)?))?$/;
+
+/**
+ * Doc Priority 1 for leading diminished chords. In an ordered list of chord names,
+ * a diminished chord whose root moves a half step to the next chord's root is
+ * spelled by that motion: "Gb dim" → "F# dim" before "G min", "F# dim" → "Gb dim"
+ * before "F min". A slash bass that is a chord tone follows the new root. Every
+ * other name is returned unchanged.
+ */
+export function respellLeadingChords(names: readonly string[]): string[] {
+  const result = [...names];
+  // Back to front, so each goal chord is already final when its lead-in is spelled.
+  for (let i = result.length - 2; i >= 0; i--) {
+    const chord = CHORD_NAME.exec(result[i]);
+    const goal = CHORD_NAME.exec(result[i + 1]);
+    if (!chord || !goal || !chord[2].startsWith('dim')) continue;
+    const [, root, quality, bass] = chord;
+    const leading = spellLeadingRoot(noteNameToPitchClass(root)!, goal[1]);
+    if (!leading) continue;
+    const newRoot = formatNoteName(leading, 'ascii');
+    const intervals =
+      CHORDS[quality.replace(/^dim/, 'diminished').replace(/[()]/g, '')];
+    const newBass =
+      bass && intervals
+        ? (chordToneNames(newRoot, intervals).get(
+            noteNameToPitchClass(bass)!,
+          ) ?? bass)
+        : bass;
+    result[i] = `${newRoot} ${quality}${newBass ? `/${newBass}` : ''}`;
+  }
+  return result;
 }
 
 // ── Scale-aware enharmonic spelling ──────────────────────────────────────────

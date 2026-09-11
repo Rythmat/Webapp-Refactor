@@ -1,10 +1,14 @@
 /**
  * Secondary Dominant Detection.
  *
- * Identifies V7/X tonicizations based on chord sequence context.
+ * Identifies "5 of X" tonicizations based on chord sequence context.
  * A dominant-quality chord resolving down a perfect 5th to a diatonic target
  * is a secondary dominant. Also detects secondary leading-tone diminished
- * chords (viidim7/X) where the root is a semitone below the target.
+ * chords ("7 of X") where the root is a semitone below the target.
+ *
+ * Labels use hybrid numbering: "5 of 2" is the dominant of the 2 chord and
+ * "7 of 6" the leading-tone chord of the 6 chord. They say "of" rather than
+ * using a slash, because a slash names a bass note.
  *
  * Detection rules:
  *   1. Chord has dominant quality (dominant7, dominant9, dominant13, etc.)
@@ -23,8 +27,8 @@ import { getScaleDegree } from './diatonicChecker';
 
 export interface SecondaryDominantInfo {
   type: 'secondary-dominant' | 'secondary-leading-tone';
-  target: string; // e.g., "ii", "vi", "V"
-  label: string; // e.g., "V7/ii", "viidim7/V"
+  target: string; // the target's scale degree, e.g. "2", "6", "5"
+  label: string; // e.g. "5 of 2", "7 of 5"
   targetDegree: number; // 1-7
   resolved: boolean; // followed by expected target?
 }
@@ -50,20 +54,6 @@ const DOMINANT_QUALITIES = new Set([
 ]);
 
 const DIMINISHED7_QUALITIES = new Set(['diminished7', 'dim7']);
-
-const DEGREE_LABELS: Record<number, string> = {
-  1: 'I',
-  2: 'ii',
-  3: 'iii',
-  4: 'IV',
-  5: 'V',
-  6: 'vi',
-  7: 'vii',
-};
-
-function degreeLabel(degree: number): string {
-  return DEGREE_LABELS[degree] ?? `${degree}`;
-}
 
 // ── Core ─────────────────────────────────────────────────────────────────────
 
@@ -91,7 +81,12 @@ export function detectSecondaryDominant(
   if (!isDom && !isDim7) return null;
 
   if (isDom) {
-    return detectV7(chordRootPc, nextChordRootPc, keyRootPc, primaryMode);
+    return detectDominantOf(
+      chordRootPc,
+      nextChordRootPc,
+      keyRootPc,
+      primaryMode,
+    );
   }
 
   return detectLeadingTone(
@@ -102,14 +97,14 @@ export function detectSecondaryDominant(
   );
 }
 
-/** Detect V7/X — dominant chord a P5 above target. */
-function detectV7(
+/** Detect "5 of X" — a dominant chord a P5 above its target. */
+function detectDominantOf(
   chordRootPc: number,
   nextChordRootPc: number | null,
   keyRootPc: number,
   primaryMode: string,
 ): SecondaryDominantInfo | null {
-  // The chord is already V (degree 5) in the key → not a secondary dominant
+  // The chord is already the key's 5 chord → not a secondary dominant
   const chordDegree = getScaleDegree(chordRootPc, keyRootPc, primaryMode);
   if (chordDegree === 5) return null;
 
@@ -120,11 +115,11 @@ function detectV7(
   const targetDegree = getScaleDegree(expectedTargetPc, keyRootPc, primaryMode);
   if (targetDegree === null) return null;
 
-  // Don't flag V7/I — that's just the regular dominant
+  // Don't flag 5 of 1 — that's just the regular dominant
   if (targetDegree === 1) return null;
 
-  const target = degreeLabel(targetDegree);
-  const label = `V7/${target}`;
+  const target = String(targetDegree);
+  const label = `5 of ${target}`;
 
   // Check if it actually resolves to the expected target
   const resolved =
@@ -133,14 +128,14 @@ function detectV7(
   return { type: 'secondary-dominant', target, label, targetDegree, resolved };
 }
 
-/** Detect viidim7/X — diminished 7th chord a semitone below target. */
+/** Detect "7 of X" — a diminished 7th chord a semitone below its target. */
 function detectLeadingTone(
   chordRootPc: number,
   nextChordRootPc: number | null,
   keyRootPc: number,
   primaryMode: string,
 ): SecondaryDominantInfo | null {
-  // The chord is already vii (degree 7) in the key → not secondary
+  // The chord is already the key's 7 chord → not secondary
   const chordDegree = getScaleDegree(chordRootPc, keyRootPc, primaryMode);
   if (chordDegree === 7) return null;
 
@@ -150,11 +145,11 @@ function detectLeadingTone(
   const targetDegree = getScaleDegree(expectedTargetPc, keyRootPc, primaryMode);
   if (targetDegree === null) return null;
 
-  // Don't flag viidim7/I — that's just the regular leading tone
+  // Don't flag 7 of 1 — that's just the regular leading tone
   if (targetDegree === 1) return null;
 
-  const target = degreeLabel(targetDegree);
-  const label = `viidim7/${target}`;
+  const target = String(targetDegree);
+  const label = `7 of ${target}`;
 
   const resolved =
     nextChordRootPc !== null && nextChordRootPc === expectedTargetPc;

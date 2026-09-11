@@ -81,7 +81,7 @@ export const rnbStyleDna: StyleDnaLevel[] = [
       },
       {
         category: 'Progressions',
-        description: 'ii-V-I in R&B, 1 min7 - 4 dom7, gospel cadences',
+        description: '2-5-1 in R&B, 1 min7 - 4 dom7, gospel cadences',
       },
       {
         category: 'Tempo',

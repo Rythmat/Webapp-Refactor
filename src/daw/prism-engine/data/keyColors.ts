@@ -320,4 +320,7 @@ export const QUALITY_FALLBACK: Record<string, string> = {
   diminishedmajor7: 'diminished7',
   major7sus2: 'major7',
   dominant7sus2: 'dominant7sus4',
+  dominant13: 'dominant7',
+  major13: 'major7',
+  minor13: 'minor7',
 };

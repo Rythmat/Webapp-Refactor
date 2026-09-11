@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import {
   noteNameInKey,
-  getScaleSpellings,
+  midiNameInKey,
   type MidiNoteEvent,
 } from '@prism/engine';
 import { useStore } from '@/daw/store';
@@ -21,7 +21,22 @@ import {
   snapToGrid,
   type GridSize,
 } from '@/daw/utils/quantize';
-import { alternatingBarGroup } from '@/daw/utils/timelineScale';
+import {
+  PIANO_ROLL_LANE_COLORS,
+  pianoRollLabelFontSize,
+  pianoRollLaneBackground,
+} from '@/lib/pianoRollLanes';
+import { seekTo } from '@/daw/hooks/useTransport';
+import {
+  LOOP_STRIP_H,
+  PLAYHEAD_COLOR,
+  PLAYHEAD_HANDLE_H,
+  PLAYHEAD_HANDLE_W,
+  dragLoopRange,
+  drawLoopRegion,
+  rulerPressTarget,
+} from '@/daw/utils/rulerLoop';
+import type { LoopState } from '@/daw/store/transportSlice';
 
 type Tool = 'select' | 'draw' | 'erase';
 
@@ -55,17 +70,17 @@ function resolveNoteColor(
 
 // ── Constants ───────────────────────────────────────────────────────────────
 const KEYS_WIDTH = 48; // px for piano key column
-const RULER_H = 24; // px for top ruler
+const RULER_H = 36; // px for top ruler: loop strip (LOOP_STRIP_H) + bar numbers
 const TOOLBAR_H = 36; // px for toolbar
 const ROW_H = 12; // px per pitch row
 const VEL_LANE_H = 60; // px height for velocity lane
 const VEL_CIRCLE_R = 4; // px radius of draggable velocity circle
 const VEL_CIRCLE_HIT_R = 7; // px hit test radius (circle + tolerance)
 const TICKS_PER_BEAT = 480;
-// Dragging vertically on the bar-number ruler scales the piano roll (horizontal
-// zoom, up = in). Horizontal movement is ignored — the piano roll has no
-// drag-to-pan.
-const RULER_DRAG_THRESHOLD = 3; // px before a ruler press becomes a zoom drag
+// Bar-number ruler gestures (Logic-style): click to move the playhead, drag
+// sideways to draw / move / resize the loop, click the loop to switch it on or
+// off, and drag vertically to scale the piano roll (horizontal zoom, up = in).
+const RULER_DRAG_THRESHOLD = 3; // px before a ruler press becomes a drag
 const RULER_ZOOM_SENSITIVITY = 0.01; // zoom delta per px of vertical movement
 
 // Fixed view range (full keyboard C1–C7)
@@ -81,6 +96,8 @@ function getThemeColors(el: HTMLElement) {
     bg: get('--color-bg', '#101012'),
     border: get('--color-border', 'rgba(255,255,255,0.08)'),
     textDim: get('--color-text-dim', '#6b6b80'),
+    // The loop's light blue — the same token the timeline's loop uses.
+    selectionRgb: get('--color-selection-rgb', '126, 207, 207'),
   };
 }
 
@@ -89,21 +106,8 @@ const PENCIL_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/200
 const ERASER_CURSOR = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21'/><path d='M22 21H7'/><path d='m5 11 9 9'/></svg>") 2 18, pointer`;
 
 // ── Note helpers ────────────────────────────────────────────────────────────
-function noteName(
-  midi: number,
-  keyPc: number,
-  spellings: Map<number, string> | null,
-): string {
-  const pc = midi % 12;
-  const octave = Math.floor(midi / 12) - 1;
-  const raw = spellings?.has(pc)
-    ? `${spellings.get(pc)}${octave}`
-    : `${noteNameInKey(pc, keyPc)}${octave}`;
-  return displayAccidentals(raw);
-}
-function isBlackKey(midi: number): boolean {
-  const n = midi % 12;
-  return n === 1 || n === 3 || n === 6 || n === 8 || n === 10;
+function noteName(midi: number, keyPc: number, mode?: string): string {
+  return displayAccidentals(midiNameInKey(midi, keyPc, mode));
 }
 
 // ── Drag mode ───────────────────────────────────────────────────────────────
@@ -115,6 +119,7 @@ interface NoteDrag {
   anchorIndex: number;
   grabTickOffset: number; // tick offset of the cursor within the anchor note
   originals: Map<number, MidiNoteEvent>;
+  auditionPitch: number; // anchor pitch last sounded; a move re-sounds on change
 }
 
 // Marquee (rubber-band) selection rectangle, in grid-canvas content coords.
@@ -125,10 +130,85 @@ interface MarqueeRect {
   y2: number;
 }
 
+// ── Playhead ────────────────────────────────────────────────────────────────
+// Subscribes to the transport position itself, so playback's ~30fps position
+// updates repaint just this line rather than the whole editor.
+// With `handle`, it also draws the grab triangle at the bottom of the ruler
+// (purely visual — the ruler's mouse handler hit-tests it).
+function Playhead({
+  songOffset,
+  pixelsPerTick,
+  maxX,
+  height,
+  handle = false,
+}: {
+  songOffset: number;
+  pixelsPerTick: number;
+  maxX: number;
+  height: number;
+  handle?: boolean;
+}) {
+  const position = useStore((s) => s.position);
+  const x = (position - songOffset) * pixelsPerTick;
+  if (x < 0 || x > maxX) return null;
+  return (
+    <div
+      className="pointer-events-none absolute left-0 top-0"
+      style={{
+        height,
+        transform: `translateX(${x}px)`,
+        willChange: 'transform',
+      }}
+    >
+      <div style={{ width: 2, height, backgroundColor: PLAYHEAD_COLOR }} />
+      {handle && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 1 - PLAYHEAD_HANDLE_W / 2,
+            borderLeft: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
+            borderRight: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
+            borderTop: `${PLAYHEAD_HANDLE_H}px solid ${PLAYHEAD_COLOR}`,
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── Loop scope ──────────────────────────────────────────────────────────────
+// The ruler edits either the project loop or the piano roll editor's own loop
+// (see PianoRollProps.loopScope); these read and write whichever it is.
+type LoopScope = 'project' | 'editor';
+type StoreState = ReturnType<typeof useStore.getState>;
+const NO_LOOP: LoopState = { enabled: false, start: 0, end: 0 };
+
+function readLoop(s: StoreState, scope: LoopScope): LoopState {
+  return scope === 'editor'
+    ? (s.editorLoop ?? NO_LOOP)
+    : { enabled: s.loopEnabled, start: s.loopStart, end: s.loopEnd };
+}
+
+function writeLoop(scope: LoopScope, patch: Partial<LoopState>): void {
+  const s = useStore.getState();
+  if (scope === 'editor') {
+    s.updateEditorLoop(patch);
+    return;
+  }
+  if (patch.enabled !== undefined) s.setLoopEnabled(patch.enabled);
+  if (patch.start !== undefined || patch.end !== undefined) {
+    s.setLoopRange(patch.start ?? s.loopStart, patch.end ?? s.loopEnd);
+  }
+}
+
 // ── Props ───────────────────────────────────────────────────────────────────
 interface PianoRollProps {
   events: MidiNoteEvent[];
   clipStartTick: number;
+  /** The clip's start on the song timeline. Event ticks are clip-relative, so
+   *  the playhead and loop (song ticks) are placed relative to this. */
+  timelineStartTick: number;
   clipColor: string;
   onChange: (events: MidiNoteEvent[]) => void;
   /**
@@ -137,20 +217,38 @@ interface PianoRollProps {
    * matching the track's drum control. The column also widens to fit them.
    */
   noteLabels?: ReadonlyMap<number, string>;
+  /** Sound a note as editing feedback: when one is drawn, selected, or moved
+   *  to a new pitch. The host plays it on the clip's track. */
+  onAuditionNote?: (note: number, velocity: number) => void;
+  /** Which loop the ruler shows and edits: the project loop (default — for a
+   *  roll inside the main editor), or `'editor'`, the piano roll editor's own
+   *  loop that never reaches the main editor. */
+  loopScope?: LoopScope;
+  /** Called with the selected notes (indices into `events`, ascending)
+   *  whenever the selection changes — e.g. so the host can send them to
+   *  Insight. */
+  onSelectionChange?: (indices: number[]) => void;
 }
 
 export function PianoRoll({
   events,
   clipStartTick,
+  timelineStartTick,
   clipColor,
   onChange,
   noteLabels,
+  onAuditionNote,
+  loopScope = 'project',
+  onSelectionChange,
 }: PianoRollProps) {
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const chordRegions = useStore((s) => s.chordRegions);
   const clipColorMode = useStore((s) => s.clipColorMode);
+  const loopEnabled = useStore((s) => readLoop(s, loopScope).enabled);
+  const loopStart = useStore((s) => readLoop(s, loopScope).start);
+  const loopEnd = useStore((s) => readLoop(s, loopScope).end);
 
   const beatsPerBar = tsNum;
 
@@ -183,11 +281,13 @@ export function PianoRoll({
     moved: boolean;
   } | null>(null);
   const velDragRef = useRef<{ noteIndex: number } | null>(null);
-  // Active ruler scale drag (vertical → horizontal zoom).
+  // Active ruler press: undecided until it passes the drag threshold, then a
+  // playhead drag, a vertical zoom drag or a horizontal loop drag.
   const rulerDragRef = useRef<{
+    startX: number;
     startY: number;
     lastY: number;
-    moved: boolean;
+    mode: 'playhead' | 'zoom' | 'loop' | null;
   } | null>(null);
   // Live mirrors of zoom + its lower bound so the window-level ruler drag reads
   // current values without re-attaching its listeners on every zoom step.
@@ -197,6 +297,9 @@ export function PianoRoll({
   const selectSingle = useCallback((i: number | null) => {
     setSelectedIndices(i === null ? new Set() : new Set([i]));
   }, []);
+  useEffect(() => {
+    onSelectionChange?.([...selectedIndices].sort((a, b) => a - b));
+  }, [selectedIndices, onSelectionChange]);
   const eventsRef = useRef(events);
   eventsRef.current = events;
   const initialScrollDone = useRef(false);
@@ -230,6 +333,9 @@ export function PianoRoll({
   const gridW = totalTicks * pixelsPerTick;
   const rowH = ROW_H * vZoom;
   const gridH = VIEW_RANGE * rowH;
+  // Song tick at x = 0 of the ruler/grid canvases. Event ticks are relative to
+  // the clip, so it's the clip's timeline start plus the editor's origin tick.
+  const songOffset = timelineStartTick + clipStartTick;
 
   // ── Draw Piano Keys ─────────────────────────────────────────────────────
   const drawPiano = useCallback(() => {
@@ -240,7 +346,12 @@ export function PianoRoll({
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
-      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+      : {
+          bg: '#101012',
+          border: 'rgba(255,255,255,0.08)',
+          textDim: '#6b6b80',
+          selectionRgb: '126, 207, 207',
+        };
 
     const dpr = window.devicePixelRatio || 1;
     const w = KEYS_WIDTH;
@@ -258,90 +369,42 @@ export function PianoRoll({
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, w, h);
 
-    const spellings =
-      rootNote !== null ? getScaleSpellings(rootNote, mode) : null;
+    // Labels use the page font, as Learn's lanes do (canvas otherwise falls back
+    // to a face whose ♭/♯ glyphs sit apart from the letter).
+    const labelFont = containerRef.current
+      ? getComputedStyle(containerRef.current).fontFamily
+      : 'Inter, sans-serif';
 
+    // Lanes shaded exactly like Learn's piano roll (src/lib/pianoRollLanes.ts).
     for (let i = 0; i < VIEW_RANGE; i++) {
       const midiNote = VIEW_MAX - i;
       const rowY = i * rowH;
-      const black = isBlackKey(midiNote);
-      const isC = midiNote % 12 === 0;
 
-      // White key background
-      if (!black) {
-        ctx.fillStyle = isC ? '#5a5a62' : '#505058';
-        ctx.fillRect(0, rowY, w, rowH);
-      } else {
-        // Black key
-        ctx.fillStyle = '#1e1e1e';
-        ctx.fillRect(0, rowY, w * 0.65, rowH);
-        // Right portion (gap)
-        ctx.fillStyle = '#2a2a2a';
-        ctx.fillRect(w * 0.65, rowY, w * 0.35, rowH);
-      }
+      ctx.fillStyle = pianoRollLaneBackground(midiNote);
+      ctx.fillRect(0, rowY, w, rowH);
+      ctx.fillStyle = PIANO_ROLL_LANE_COLORS.separator;
+      ctx.fillRect(0, rowY + rowH - 1, w, 1);
 
-      // Row separator
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, rowY + rowH);
-      ctx.lineTo(w, rowY + rowH);
-      ctx.stroke();
-
-      // C note octave highlight
-      if (isC) {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-        ctx.beginPath();
-        ctx.moveTo(0, rowY);
-        ctx.lineTo(w, rowY);
-        ctx.stroke();
-      }
-
-      if (noteLabels) {
-        // Drum track: label only the rows that map to a drum sound, using the
-        // same names as the drum control.
-        const label = noteLabels.get(midiNote);
-        if (label) {
-          const fontSize = Math.max(8, Math.round(9 * vZoom));
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-          ctx.font = `${fontSize}px Inter, sans-serif`;
-          ctx.textBaseline = 'middle';
-          ctx.textAlign = 'right';
-          ctx.fillText(label, w - 4, rowY + rowH / 2);
-        }
-      } else {
-        // Note labels — progressive: C always, white keys at 1.2x+, black keys at 1.7x+
-        const showAllWhite = rowH >= 14;
-        const showBlack = rowH >= 20;
-        const showLabel =
-          isC || (showAllWhite && !black) || (showBlack && black);
-
-        if (showLabel) {
-          const fontSize = Math.max(7, Math.round(8 * vZoom));
-          ctx.fillStyle = isC
-            ? 'rgba(255, 255, 255, 0.6)'
-            : black
-              ? 'rgba(255, 255, 255, 0.3)'
-              : 'rgba(255, 255, 255, 0.4)';
-          ctx.font = `${isC ? 'bold ' : ''}${fontSize}px Inter, monospace`;
-          ctx.textBaseline = 'middle';
-          ctx.textAlign = 'right';
-          ctx.fillText(
-            noteName(midiNote, rootNote ?? 0, spellings),
-            w - 4,
-            rowY + rowH / 2,
-          );
-        }
+      // Drum tracks label only the rows that map to a drum sound, using the
+      // same names as the drum control. Pitched tracks label every lane once
+      // rows are tall enough to read.
+      const label = noteLabels
+        ? noteLabels.get(midiNote)
+        : rowH >= 9
+          ? noteName(
+              midiNote,
+              rootNote ?? 0,
+              rootNote !== null ? mode : undefined,
+            )
+          : undefined;
+      if (label) {
+        ctx.fillStyle = PIANO_ROLL_LANE_COLORS.label;
+        ctx.font = `${pianoRollLabelFontSize(rowH)}px ${labelFont}`;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'right';
+        ctx.fillText(label, w - 8, rowY + rowH / 2);
       }
     }
-
-    // Right edge separator
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(w - 0.5, 0);
-    ctx.lineTo(w - 0.5, h);
-    ctx.stroke();
   }, [gridH, rowH, vZoom, rootNote, mode, noteLabels]);
 
   // ── Draw Ruler ──────────────────────────────────────────────────────────
@@ -353,7 +416,12 @@ export function PianoRoll({
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
-      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+      : {
+          bg: '#101012',
+          border: 'rgba(255,255,255,0.08)',
+          textDim: '#6b6b80',
+          selectionRgb: '126, 207, 207',
+        };
 
     const dpr = window.devicePixelRatio || 1;
     const rulerContainer = rulerScrollRef.current;
@@ -377,6 +445,25 @@ export function PianoRoll({
     ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
     ctx.fillRect(0, 0, w, h);
 
+    // Loop strip along the top: the loop region lives here, apart from the
+    // bar-number lane below, where a click always moves the playhead.
+    drawLoopRegion(
+      ctx,
+      (loopStart - songOffset) * pixelsPerTick,
+      (loopEnd - songOffset) * pixelsPerTick,
+      0,
+      colors.selectionRgb,
+      loopEnabled,
+    );
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, LOOP_STRIP_H - 0.5);
+    ctx.lineTo(w, LOOP_STRIP_H - 0.5);
+    ctx.stroke();
+
+    // Bar-number lane
+    const laneH = h - LOOP_STRIP_H;
     const totalBeats = Math.ceil(totalTicks / TICKS_PER_BEAT);
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
@@ -390,7 +477,7 @@ export function PianoRoll({
         : 'rgba(255, 255, 255, 0.06)';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(x, isBar ? 0 : h * 0.5);
+      ctx.moveTo(x, isBar ? LOOP_STRIP_H : LOOP_STRIP_H + laneH * 0.5);
       ctx.lineTo(x, h);
       ctx.stroke();
 
@@ -398,7 +485,7 @@ export function PianoRoll({
         const barNum = beat / beatsPerBar + 1;
         ctx.fillStyle = colors.textDim;
         ctx.font = '10px Inter, sans-serif';
-        ctx.fillText(String(barNum), x + 4, h / 2);
+        ctx.fillText(String(barNum), x + 4, LOOP_STRIP_H + laneH / 2);
       }
     }
 
@@ -409,7 +496,15 @@ export function PianoRoll({
     ctx.moveTo(0, h - 0.5);
     ctx.lineTo(w, h - 0.5);
     ctx.stroke();
-  }, [gridW, totalTicks, pixelsPerTick]);
+  }, [
+    gridW,
+    totalTicks,
+    pixelsPerTick,
+    loopEnabled,
+    loopStart,
+    loopEnd,
+    songOffset,
+  ]);
 
   // ── Draw Grid + Notes ───────────────────────────────────────────────────
   const drawGrid = useCallback(() => {
@@ -423,7 +518,12 @@ export function PianoRoll({
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
-      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+      : {
+          bg: '#101012',
+          border: 'rgba(255,255,255,0.08)',
+          textDim: '#6b6b80',
+          selectionRgb: '126, 207, 207',
+        };
 
     const dpr = window.devicePixelRatio || 1;
     const w = Math.max(container.clientWidth, gridW);
@@ -441,38 +541,14 @@ export function PianoRoll({
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, w, h);
 
-    // ── Row backgrounds + horizontal grid lines ────────────────────────
+    // ── Row backgrounds (same lane shading as Learn's piano roll) ────────
     for (let i = 0; i < VIEW_RANGE; i++) {
       const midiNote = VIEW_MAX - i;
       const rowY = i * rowH;
-      const black = isBlackKey(midiNote);
-
-      if (black) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
-        ctx.fillRect(0, rowY, w, rowH);
-      }
-
-      ctx.strokeStyle =
-        midiNote % 12 === 0
-          ? 'rgba(255, 255, 255, 0.08)'
-          : 'rgba(255, 255, 255, 0.03)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, rowY);
-      ctx.lineTo(w, rowY);
-      ctx.stroke();
-    }
-
-    // ── Alternating bar shading ─────────────────────────────────────────
-    const barGroup = alternatingBarGroup(zoom);
-    const barGroupTicks = barGroup * beatsPerBar * TICKS_PER_BEAT;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.025)';
-    const totalBarGroups = Math.ceil(totalTicks / barGroupTicks);
-    for (let g = 0; g <= totalBarGroups; g++) {
-      if (g % 2 === 0) continue;
-      const x1 = g * barGroupTicks * pixelsPerTick;
-      const x2 = (g + 1) * barGroupTicks * pixelsPerTick;
-      ctx.fillRect(x1, 0, x2 - x1, h);
+      ctx.fillStyle = pianoRollLaneBackground(midiNote);
+      ctx.fillRect(0, rowY, w, rowH);
+      ctx.fillStyle = PIANO_ROLL_LANE_COLORS.separator;
+      ctx.fillRect(0, rowY + rowH - 1, w, 1);
     }
 
     // ── Vertical grid lines (beats + bars) ─────────────────────────────
@@ -481,10 +557,12 @@ export function PianoRoll({
       const x = beat * TICKS_PER_BEAT * pixelsPerTick;
       const isBar = beat % beatsPerBar === 0;
 
-      ctx.strokeStyle = isBar
-        ? 'rgba(255, 255, 255, 0.14)'
-        : 'rgba(255, 255, 255, 0.06)';
-      ctx.lineWidth = isBar ? 1 : 0.5;
+      ctx.strokeStyle = !isBar
+        ? PIANO_ROLL_LANE_COLORS.beatLine
+        : beat === 0
+          ? PIANO_ROLL_LANE_COLORS.firstBarLine
+          : PIANO_ROLL_LANE_COLORS.barLine;
+      ctx.lineWidth = isBar ? 2 : 1;
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, h);
@@ -495,8 +573,8 @@ export function PianoRoll({
     const gridTicks = GRID_VALUES[gridSize];
     if (gridTicks < TICKS_PER_BEAT) {
       const totalGridLines = Math.ceil(totalTicks / gridTicks);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = PIANO_ROLL_LANE_COLORS.subLine;
+      ctx.lineWidth = 1;
       for (let g = 0; g <= totalGridLines; g++) {
         const tick = g * gridTicks;
         if (tick % TICKS_PER_BEAT === 0) continue;
@@ -542,7 +620,11 @@ export function PianoRoll({
       // Show note name when zoomed in enough
       if (rowH >= 14 && noteW >= 24) {
         const noteName = displayAccidentals(
-          noteNameInKey(ev.note, rootNote ?? 0),
+          noteNameInKey(
+            ev.note,
+            rootNote ?? 0,
+            rootNote !== null ? mode : undefined,
+          ),
         );
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.font = `${Math.min(rowH - 4, 11)}px Inter, sans-serif`;
@@ -575,6 +657,7 @@ export function PianoRoll({
     chordRegions,
     clipColorMode,
     rootNote,
+    mode,
     gridSize,
     selectedIndices,
     marqueeRect,
@@ -594,7 +677,12 @@ export function PianoRoll({
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
-      : { bg: '#101012', border: 'rgba(255,255,255,0.08)', textDim: '#6b6b80' };
+      : {
+          bg: '#101012',
+          border: 'rgba(255,255,255,0.08)',
+          textDim: '#6b6b80',
+          selectionRgb: '126, 207, 207',
+        };
     const dpr = window.devicePixelRatio || 1;
     const velContainer = velScrollRef.current;
     const w = velContainer ? Math.max(velContainer.clientWidth, gridW) : gridW;
@@ -887,6 +975,10 @@ export function PianoRoll({
           if (noteIdx !== null) {
             // In draw mode, clicking an existing note selects it (for velocity editing)
             selectSingle(noteIdx);
+            onAuditionNote?.(
+              currentEvents[noteIdx].note,
+              currentEvents[noteIdx].velocity,
+            );
             return;
           }
           selectSingle(null);
@@ -907,6 +999,7 @@ export function PianoRoll({
               (a, b) => a.startTick - b.startTick,
             );
             onChange(newEvents);
+            onAuditionNote?.(pitch, velocity);
             const addedIdx = newEvents.findIndex(
               (n) =>
                 n.startTick === snappedTick &&
@@ -935,6 +1028,7 @@ export function PianoRoll({
             const noteX = relTick * pixelsPerTick;
             const noteW = Math.max(3, ev.durationTicks * pixelsPerTick);
             const nearRightEdge = x >= noteX + noteW - 6;
+            onAuditionNote?.(ev.note, ev.velocity);
 
             const originals = new Map<number, MidiNoteEvent>();
             for (const i of indices) originals.set(i, { ...currentEvents[i] });
@@ -944,6 +1038,7 @@ export function PianoRoll({
               anchorIndex: noteIdx,
               grabTickOffset: Math.round((x - noteX) / pixelsPerTick),
               originals,
+              auditionPitch: ev.note,
             };
           } else {
             // Empty space: start a marquee. Selection is cleared now so that a
@@ -977,6 +1072,7 @@ export function PianoRoll({
       onChange,
       selectSingle,
       selectedIndices,
+      onAuditionNote,
     ],
   );
 
@@ -1082,6 +1178,11 @@ export function PianoRoll({
             note: o.note + pitchDelta,
           };
         }
+        const anchorPitch = anchorOrig.note + pitchDelta;
+        if (anchorPitch !== drag.auditionPitch) {
+          drag.auditionPitch = anchorPitch;
+          onAuditionNote?.(anchorPitch, anchorOrig.velocity);
+        }
       } else if (drag.mode === 'resize') {
         // Derive the anchor's snapped duration delta, then stretch every
         // selected note by the same amount (clamped to the grid minimum).
@@ -1115,6 +1216,7 @@ export function PianoRoll({
       rowH,
       gridSize,
       onChange,
+      onAuditionNote,
     ],
   );
 
@@ -1237,31 +1339,92 @@ export function PianoRoll({
     return () => container.removeEventListener('wheel', handleWheel);
   }, [zoom, pixelsPerTick, vZoom, rowH]);
 
-  // ── Ruler scale drag: vertical → horizontal zoom ─────────────────────────
-  // Mirrors the timeline's bar-ruler scale drag. Movement is tracked at the
-  // window level so the gesture continues even when the cursor leaves the ruler
-  // (e.g. dragging up into the toolbar to keep scaling — no ceiling). The piano
-  // roll has no drag-to-pan; horizontal movement here is ignored.
+  // ── Ruler gestures: playhead, loop, scale ────────────────────────────────
+  // What a press does depends on its lane (see rulerPressTarget). Grabbing
+  // the playhead handle drags the playhead. Otherwise a press is undecided
+  // until it moves past RULER_DRAG_THRESHOLD: a mostly-vertical drag scales
+  // the piano roll (mirroring the timeline's bar-ruler scale drag) and a
+  // mostly-horizontal one draws, moves or resizes the loop. A press that never
+  // moves is a click: on the loop (top strip) it switches looping on/off, with
+  // the range kept; anywhere else it moves the playhead there. Movement is
+  // tracked at the window level so a drag continues off the ruler.
   const handleRulerMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       e.preventDefault();
+      const canvas = rulerCanvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const tickAt = (clientX: number) =>
+        songOffset + (clientX - rect.left) / pixelsPerTick;
+      const snapped = (tick: number) =>
+        Math.max(0, Math.round(tick / snap) * snap);
+      const snap = GRID_VALUES[gridSize];
+      const snapshot = useStore.getState();
+      const { start, end } = readLoop(snapshot, loopScope);
+      const { position } = snapshot;
+      const original = { start, end };
+      const target = rulerPressTarget(
+        e.clientX - rect.left,
+        e.clientY - rect.top,
+        (start - songOffset) * pixelsPerTick,
+        (end - songOffset) * pixelsPerTick,
+        LOOP_STRIP_H,
+        (position - songOffset) * pixelsPerTick,
+      );
+      const pressTick = tickAt(e.clientX);
       rulerDragRef.current = {
+        startX: e.clientX,
         startY: e.clientY,
         lastY: e.clientY,
-        moved: false,
+        mode: null,
       };
-      if (rulerCanvasRef.current)
-        rulerCanvasRef.current.style.cursor = 'ns-resize';
 
       const onMove = (me: MouseEvent) => {
         const d = rulerDragRef.current;
         const container = gridScrollRef.current;
         if (!d || !container) return;
 
-        if (!d.moved) {
-          if (Math.abs(me.clientY - d.startY) <= RULER_DRAG_THRESHOLD) return;
-          d.moved = true;
+        if (!d.mode) {
+          const movedX = me.clientX - d.startX;
+          const movedY = me.clientY - d.startY;
+          if (
+            Math.max(Math.abs(movedX), Math.abs(movedY)) <= RULER_DRAG_THRESHOLD
+          )
+            return;
+          d.mode =
+            target === 'playhead'
+              ? 'playhead'
+              : Math.abs(movedY) > Math.abs(movedX)
+                ? 'zoom'
+                : 'loop';
           d.lastY = me.clientY;
+          canvas.style.cursor =
+            d.mode === 'playhead'
+              ? 'grabbing'
+              : d.mode === 'zoom'
+                ? 'ns-resize'
+                : 'ew-resize';
+          // Drawing a fresh loop switches looping on, as in Logic.
+          if (d.mode === 'loop' && target === 'empty') {
+            writeLoop(loopScope, { enabled: true });
+          }
+        }
+
+        if (d.mode === 'playhead') {
+          seekTo(snapped(tickAt(me.clientX)));
+          return;
+        }
+
+        if (d.mode === 'loop') {
+          const range = dragLoopRange(
+            target,
+            original,
+            pressTick,
+            tickAt(me.clientX),
+            snap,
+          );
+          writeLoop(loopScope, range);
+          return;
         }
 
         const dy = d.lastY - me.clientY; // up → positive → zoom in
@@ -1290,16 +1453,53 @@ export function PianoRoll({
         });
       };
       const onUp = () => {
+        const d = rulerDragRef.current;
         rulerDragRef.current = null;
-        if (rulerCanvasRef.current)
-          rulerCanvasRef.current.style.cursor = 'ns-resize';
+        canvas.style.cursor = 'pointer';
         window.removeEventListener('mousemove', onMove);
         window.removeEventListener('mouseup', onUp);
+        // A drag already did its work; a click on the handle leaves it put.
+        if (d?.mode || target === 'playhead') return;
+        if (target === 'empty') {
+          seekTo(snapped(pressTick));
+        } else {
+          writeLoop(loopScope, {
+            enabled: !readLoop(useStore.getState(), loopScope).enabled,
+          });
+        }
       };
       window.addEventListener('mousemove', onMove);
       window.addEventListener('mouseup', onUp);
     },
-    [MAX_ZOOM],
+    [MAX_ZOOM, gridSize, pixelsPerTick, songOffset, loopScope],
+  );
+
+  // Cursor hint: a grab hand on the playhead handle, resize arrows on a loop
+  // edge, a pointing hand everywhere else.
+  const handleRulerHover = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = rulerCanvasRef.current;
+      if (!canvas || rulerDragRef.current) return;
+      const rect = canvas.getBoundingClientRect();
+      const snapshot = useStore.getState();
+      const { start, end } = readLoop(snapshot, loopScope);
+      const { position } = snapshot;
+      const target = rulerPressTarget(
+        e.clientX - rect.left,
+        e.clientY - rect.top,
+        (start - songOffset) * pixelsPerTick,
+        (end - songOffset) * pixelsPerTick,
+        LOOP_STRIP_H,
+        (position - songOffset) * pixelsPerTick,
+      );
+      canvas.style.cursor =
+        target === 'playhead'
+          ? 'grab'
+          : target === 'loop-start' || target === 'loop-end'
+            ? 'ew-resize'
+            : 'pointer';
+    },
+    [pixelsPerTick, songOffset, loopScope],
   );
 
   // ── Render ──────────────────────────────────────────────────────────────
@@ -1481,10 +1681,12 @@ export function PianoRoll({
 
           {/* Right column: ruler + grid */}
           <div className="flex flex-1 flex-col overflow-hidden">
-            {/* Ruler — syncs horizontally with grid; drag to scale/pan */}
+            {/* Ruler — syncs horizontally with grid; click to seek, drag for
+                the loop (sideways) or to scale (vertically) */}
             <div
               ref={rulerScrollRef}
               style={{
+                position: 'relative',
                 height: RULER_H,
                 flexShrink: 0,
                 overflowX: 'hidden',
@@ -1494,14 +1696,22 @@ export function PianoRoll({
               <canvas
                 ref={rulerCanvasRef}
                 className="block"
-                style={{ cursor: 'ns-resize' }}
+                style={{ cursor: 'pointer' }}
                 onMouseDown={handleRulerMouseDown}
+                onMouseMove={handleRulerHover}
+              />
+              <Playhead
+                handle
+                height={RULER_H}
+                maxX={gridW}
+                pixelsPerTick={pixelsPerTick}
+                songOffset={songOffset}
               />
             </div>
             {/* Grid — scroll master */}
             <div
               ref={gridScrollRef}
-              className="flex-1 overflow-auto"
+              className="relative flex-1 overflow-auto"
               onScroll={handleGridScroll}
               style={{ scrollbarWidth: 'thin' }}
             >
@@ -1511,6 +1721,12 @@ export function PianoRoll({
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
+              />
+              <Playhead
+                height={gridH}
+                maxX={gridW}
+                pixelsPerTick={pixelsPerTick}
+                songOffset={songOffset}
               />
             </div>
           </div>

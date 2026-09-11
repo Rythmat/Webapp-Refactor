@@ -15,7 +15,12 @@ import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
-import { NoteEvent, pitchNameToMidi } from './PianoRollPlay';
+import {
+  NoteEvent,
+  pitchNameToMidi,
+  THEORY_ACTIVITY_BPM,
+  WRONG_NOTE_KEY_COLOR,
+} from './PianoRollPlay';
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: 'e1', pitchName: 'C3', startTicks: 0, durationTicks: 1920 },
@@ -51,10 +56,21 @@ type PlayAlongProps = {
   startSignal?: number;
   startMessage?: string;
   arcade?: boolean;
+  /** Tint every target note on the keyboard (Practice mode scaffolding). */
+  showTargetKeys?: boolean;
+  /** Lesson spelling map, passed through to the piano roll's lane labels. */
+  noteSpelling?: Map<number, string>;
 };
 
 type NotePerformance = {
   startTick: number | null;
+  endTick: number | null;
+};
+
+/** A played pitch that isn't a target; endTick stays null while it's held. */
+type WrongNote = {
+  midi: number;
+  onset: number;
   endTick: number | null;
 };
 
@@ -65,6 +81,8 @@ export const PlayAlong = ({
   isActive = true,
   startSignal = 0,
   arcade = false,
+  showTargetKeys = false,
+  noteSpelling,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const maxEventEndTick = useMemo(
@@ -89,6 +107,7 @@ export const PlayAlong = ({
     Record<string, NotePerformance>
   >({});
   const [playSessionId, setPlaySessionId] = useState(0);
+  const [wrongNotes, setWrongNotes] = useState<WrongNote[]>([]);
   const lastCompletionShownRef = useRef(false);
   const lastMetronomeBeatRef = useRef<number | null>(null);
   const lastMetronomeClickAtRef = useRef<number>(-1);
@@ -152,6 +171,7 @@ export const PlayAlong = ({
 
   const resetInTimeRun = useCallback(() => {
     setNotePerformance({});
+    setWrongNotes([]);
     setCurrentTick(-COUNT_IN_TICKS);
     lastMetronomeBeatRef.current = null;
   }, []);
@@ -226,6 +246,11 @@ export const PlayAlong = ({
     return map;
   }, [activityColor, resolvedEvents]);
 
+  const targetMidiSet = useMemo(
+    () => new Set(noteColorByMidi.keys()),
+    [noteColorByMidi],
+  );
+
   const requiredBars = useMemo(() => {
     if (maxEventEndTick <= 0) return 1;
     return Math.max(1, Math.ceil(maxEventEndTick / TICKS_PER_BAR));
@@ -233,7 +258,7 @@ export const PlayAlong = ({
 
   const handleKeyboardNoteOn = useCallback(
     (midi: number) => {
-      const color = noteColorByMidi.get(midi) ?? '#60a5fa';
+      const color = noteColorByMidi.get(midi) ?? WRONG_NOTE_KEY_COLOR;
       const id = `keyboard-${midi}`;
       setKeyboardPlayingNotes((prev) => [
         ...prev.filter((event) => event.midi !== midi),
@@ -351,6 +376,16 @@ export const PlayAlong = ({
 
       handleKeyboardNoteOff(midi);
       parsePerformance(event.number, currentTickRef.current, false);
+      setWrongNotes((prev) => {
+        for (let i = prev.length - 1; i >= 0; i--) {
+          if (prev[i].midi === midi && prev[i].endTick === null) {
+            const next = [...prev];
+            next[i] = { ...prev[i], endTick: currentTickRef.current };
+            return next;
+          }
+        }
+        return prev;
+      });
     },
     [
       isActive,
@@ -384,10 +419,19 @@ export const PlayAlong = ({
       }
       handleKeyboardNoteOn(midi);
       parsePerformance(event.number, currentTickRef.current, true);
+      // Wrong pitches get drawn on the roll in gray, like on the keyboard.
+      if (isPlaying && !targetMidiSet.has(midi)) {
+        setWrongNotes((prev) => [
+          ...prev,
+          { midi, onset: currentTickRef.current, endTick: null },
+        ]);
+      }
     },
     [
       handleMidiNoteOff,
       isActive,
+      isPlaying,
+      targetMidiSet,
       triggerSynthAttack,
       handleKeyboardNoteOn,
       parsePerformance,
@@ -439,6 +483,16 @@ export const PlayAlong = ({
     });
     return meta;
   }, [notePerformance]);
+
+  const wrongUserNotes = useMemo(
+    () =>
+      wrongNotes.map((note) => ({
+        midi: note.midi,
+        onset: note.onset,
+        duration: (note.endTick ?? currentTick) - note.onset,
+      })),
+    [wrongNotes, currentTick],
+  );
 
   useEffect(() => {
     const wasShown = lastCompletionShownRef.current;
@@ -500,10 +554,14 @@ export const PlayAlong = ({
         events={resolvedEvents}
         isPlaying={isPlaying}
         performanceMeta={performanceMeta}
-        playSpeed={80}
+        playSpeed={THEORY_ACTIVITY_BPM}
         rowHeight={28 * 18}
         subdivision={1}
         keyColor={activityColor}
+        colorActiveLanesByTarget
+        targetMidiSet={targetMidiSet}
+        userNotes={wrongUserNotes}
+        noteSpelling={noteSpelling}
         onPlayingChange={setIsPlaying}
         onTickChange={setCurrentTick}
       />
@@ -515,6 +573,7 @@ export const PlayAlong = ({
             activeWhiteKeyColor={activityColor}
             className="mx-auto"
             endC={6}
+            hintNotes={showTargetKeys ? noteColorByMidi : undefined}
             playingNotes={keyboardPlayingNotes}
             startC={2}
           />

@@ -289,7 +289,7 @@ export const popStyleDna: StyleDnaLevel[] = [
       {
         name: 'Charlie Puth',
         description:
-          'Music theory-forward pop, unexpected chord substitutions, chromatic bass movement, modal interchange. "Attention," "We Don\'t Talk Anymore," "Light Switch." The pop songwriter who thinks in Roman numerals.',
+          'Music theory-forward pop, unexpected chord substitutions, chromatic bass movement, modal interchange. "Attention," "We Don\'t Talk Anymore," "Light Switch." The pop songwriter who thinks in chord numbers.',
         tags: [
           'pop:charlie_puth:chromatic_bass_movement',
           'pop',

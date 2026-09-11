@@ -27,7 +27,7 @@ export class SamplerInstrument implements InstrumentAdapter {
   constructor(private config: SamplerConfig) {}
 
   async init(_ctx: AudioContext, outputNode: AudioNode): Promise<void> {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve, reject) => {
       this.bridge = new Tone.Gain(1);
       this.bridge.connect(outputNode);
 
@@ -37,6 +37,15 @@ export class SamplerInstrument implements InstrumentAdapter {
         onload: () => {
           this.loaded = true;
           resolve();
+        },
+        // One missing sample means onload never fires — fail loudly instead
+        // of leaving the track attached to nothing and silently dropping notes.
+        onerror: (error) => {
+          reject(
+            new Error(
+              `${this.config.name} samples failed to load: ${error.message}`,
+            ),
+          );
         },
       });
 

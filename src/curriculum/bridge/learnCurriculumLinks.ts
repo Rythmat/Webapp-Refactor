@@ -43,7 +43,7 @@ const MODE_TO_GENRES: Record<string, GenreForMode[]> = {
     { genre: 'FOLK', level: 'L1', description: 'Traditional folk melodies' },
   ],
   dorian: [
-    { genre: 'JAZZ', level: 'L1', description: 'ii chord soloing and comping' },
+    { genre: 'JAZZ', level: 'L1', description: '2 chord soloing and comping' },
     {
       genre: 'FUNK',
       level: 'L2',
@@ -57,7 +57,7 @@ const MODE_TO_GENRES: Record<string, GenreForMode[]> = {
       level: 'L1',
       description: 'Dominant 7th blues progressions',
     },
-    { genre: 'JAZZ', level: 'L2', description: 'V chord approach patterns' },
+    { genre: 'JAZZ', level: 'L2', description: '5 chord approach patterns' },
     { genre: 'FUNK', level: 'L1', description: 'Dominant funk grooves' },
     { genre: 'JAM BAND', level: 'L1', description: 'Extended mixolydian jams' },
   ],
@@ -102,7 +102,11 @@ const MODE_TO_GENRES: Record<string, GenreForMode[]> = {
     { genre: 'FUNK', level: 'L2', description: 'Funky blues inflections' },
   ],
   harmonicMinor: [
-    { genre: 'JAZZ', level: 'L3', description: 'V7b9 and diminished patterns' },
+    {
+      genre: 'JAZZ',
+      level: 'L3',
+      description: '5 dom7♭9 and diminished patterns',
+    },
     {
       genre: 'LATIN',
       level: 'L3',
@@ -122,7 +126,7 @@ const GENRE_TO_MODES: Record<string, ModeForGenre[]> = {
   ],
   'POP:L2': [
     { mode: 'aeolian', usage: 'Minor pop songs' },
-    { mode: 'mixolydian', usage: 'IV-I cadence feel' },
+    { mode: 'mixolydian', usage: '4-1 cadence feel' },
   ],
   'ROCK:L1': [
     { mode: 'pentatonicMinor', usage: 'Rock riffs and solos' },
@@ -133,18 +137,18 @@ const GENRE_TO_MODES: Record<string, ModeForGenre[]> = {
     { mode: 'blues', usage: 'Blues-rock leads' },
   ],
   'JAZZ:L1': [
-    { mode: 'dorian', usage: 'ii chord soloing' },
-    { mode: 'mixolydian', usage: 'V chord patterns' },
+    { mode: 'dorian', usage: '2 chord soloing' },
+    { mode: 'mixolydian', usage: '5 chord patterns' },
   ],
   'JAZZ:L2': [
-    { mode: 'dorian', usage: 'Extended ii-V-I lines' },
+    { mode: 'dorian', usage: 'Extended 2-5-1 lines' },
     { mode: 'mixolydian', usage: 'Dominant approach' },
     { mode: 'lydian', usage: 'maj7#11 color' },
   ],
   'JAZZ:L3': [
     { mode: 'lydian', usage: 'Lydian chromatic concept' },
     { mode: 'phrygian', usage: 'Modal interchange' },
-    { mode: 'harmonicMinor', usage: 'V7b9 diminished patterns' },
+    { mode: 'harmonicMinor', usage: '5 dom7♭9 diminished patterns' },
   ],
   'BLUES:L1': [
     { mode: 'blues', usage: 'Blues scale soloing' },

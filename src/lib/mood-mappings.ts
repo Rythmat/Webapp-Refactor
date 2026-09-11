@@ -67,11 +67,11 @@ export const moodPromptBuilder = (
   switch (mood) {
     case 'Happy':
       prompt +=
-        '. Use an upbeat tempo and a major key progression like I-V-vi-IV.';
+        '. Use an upbeat tempo and a major key progression like 1-5-6-4.';
       break;
     case 'Sad':
       prompt +=
-        '. Use a slow tempo and a minor key progression like i-VI-III-VII.';
+        '. Use a slow tempo and a minor key progression like 1-♭6-♭3-♭7.';
       break;
     case 'Energetic':
       prompt +=

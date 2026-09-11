@@ -63,6 +63,7 @@ function demoTrack(params: {
   color: string;
   clips: MidiClipColumnar[];
   volume?: number;
+  settings?: CloudProjectDetail['tracks'][number]['settings'];
 }): CloudProjectDetail['tracks'][number] {
   const ordinal = trackSeq;
   trackSeq += 1;
@@ -80,6 +81,7 @@ function demoTrack(params: {
     activeEffects: [],
     midiClips: params.clips,
     audioClips: [],
+    settings: params.settings,
   };
 }
 
@@ -88,6 +90,9 @@ function demoBundle(params: {
   name: string;
   bpm: number;
   genre: string;
+  /** Key center as a pitch class (C = 0). Opening the demo derives chord
+   *  regions in this key, which is what the Insight panel analyses. */
+  rootNote: number;
   tracks: CloudProjectDetail['tracks'];
 }): CloudProjectDetail {
   const epoch = new Date(0);
@@ -97,7 +102,7 @@ function demoBundle(params: {
     composerName: 'Music Atlas',
     bpm: params.bpm,
     prism: {
-      rootNote: null,
+      rootNote: params.rootNote,
       rhythmName: 'Quarters',
       genre: params.genre,
       swing: 0,
@@ -113,25 +118,39 @@ const BASS = '#3b82f6';
 const LEAD = '#8b5cf6';
 const PIANO = '#f9c74f';
 
+/** GM program 33, Electric Bass (finger) — a real bass guitar through the
+ *  'soundfont' instrument (see gmPrograms.ts); 'oracle-synth' is a synth. */
+const ELECTRIC_BASS_FINGER = 33;
+
 export interface DemoProject {
   id: string;
   label: string;
   description: string;
   accent: string;
   bundle: CloudProjectDetail;
+  /** Grooves-library id (groovesLibrary.ts) added as a Drums track when the
+   *  demo opens, trimmed to the demo's length — see applyDemoDrums.ts. */
+  drumGrooveId?: string;
+  /** Oracle Synth factory preset name (factoryPresets.ts) per track name,
+   *  applied as that track's patch when the demo opens — see
+   *  demoSynthPresets.ts. */
+  synthPresets?: Record<string, string>;
 }
 
 export const DEMO_PROJECTS: DemoProject[] = [
   {
     id: 'demo-sunset-keys',
     label: 'Sunset Keys',
-    description: 'Warm neo-soul Rhodes & bass — a 4-bar loop to build on.',
+    description:
+      'Warm neo-soul Rhodes, bass & drums — a 4-bar loop to build on.',
     accent: RHODES,
+    drumGrooveId: 'groove-neosoul-1',
     bundle: demoBundle({
       id: 'demo-sunset-keys',
       name: 'Sunset Keys',
       bpm: 85,
       genre: 'R&B',
+      rootNote: 0, // C major
       tracks: [
         demoTrack({
           name: 'Rhodes',
@@ -150,7 +169,8 @@ export const DEMO_PROJECTS: DemoProject[] = [
         demoTrack({
           name: 'Bass',
           type: 'midi',
-          instrument: 'oracle-synth',
+          instrument: 'soundfont',
+          settings: { gmProgram: ELECTRIC_BASS_FINGER },
           color: BASS,
           clips: [midiClip('Bass', bassLine([41, 40, 38, 36]))], // F E D C
         }),
@@ -160,13 +180,16 @@ export const DEMO_PROJECTS: DemoProject[] = [
   {
     id: 'demo-midnight-groove',
     label: 'Midnight Groove',
-    description: 'A smooth ii–V–I–vi R&B progression with a hook line.',
+    description: 'A smooth 2–5–1–6 R&B progression with a synth hook & drums.',
     accent: LEAD,
+    drumGrooveId: 'groove-hiphop-1',
+    synthPresets: { Lead: 'DRIFT' },
     bundle: demoBundle({
       id: 'demo-midnight-groove',
       name: 'Midnight Groove',
       bpm: 92,
       genre: 'R&B',
+      rootNote: 0, // C major
       tracks: [
         demoTrack({
           name: 'Keys',
@@ -174,18 +197,20 @@ export const DEMO_PROJECTS: DemoProject[] = [
           instrument: 'electric-piano',
           color: RHODES,
           clips: [
+            // Voice-led upper-structure voicings — the bass carries the roots.
             midiClip('Chords', [
-              ...chordBar(0, [50, 53, 57, 60]), // Dm7
-              ...chordBar(1, [43, 47, 50, 53]), // G7
-              ...chordBar(2, [48, 52, 55, 59]), // Cmaj7
-              ...chordBar(3, [45, 48, 52, 55]), // Am7
+              ...chordBar(0, [53, 57, 60, 64]), // Dm7: F3 A3 C4 E4
+              ...chordBar(1, [53, 57, 59, 64]), // G7: F3 A3 B3 E4
+              ...chordBar(2, [52, 55, 59, 62]), // Cmaj7: E3 G3 B3 D4
+              ...chordBar(3, [52, 55, 57, 60]), // Am7: E3 G3 A3 C4
             ]),
           ],
         }),
         demoTrack({
           name: 'Bass',
           type: 'midi',
-          instrument: 'oracle-synth',
+          instrument: 'soundfont',
+          settings: { gmProgram: ELECTRIC_BASS_FINGER },
           color: BASS,
           clips: [midiClip('Bass', bassLine([38, 31, 36, 33]))], // D G C A
         }),
@@ -214,13 +239,16 @@ export const DEMO_PROJECTS: DemoProject[] = [
   {
     id: 'demo-first-light',
     label: 'First Light',
-    description: 'A bright indie-pop I–V–vi–IV piano bed, ready for vocals.',
+    description:
+      'A bright indie-pop 1–5–6–4 piano & drums bed, ready for vocals.',
     accent: PIANO,
+    drumGrooveId: 'groove-rock-2',
     bundle: demoBundle({
       id: 'demo-first-light',
       name: 'First Light',
       bpm: 110,
       genre: 'Indie',
+      rootNote: 0, // C major
       tracks: [
         demoTrack({
           name: 'Piano',
@@ -228,18 +256,21 @@ export const DEMO_PROJECTS: DemoProject[] = [
           instrument: 'piano-sampler',
           color: PIANO,
           clips: [
+            // Open pop voicings: root on the bottom, the 3rd lifted an octave
+            // over the 5th (1–5–8–10) instead of sitting muddy down low.
             midiClip('Chords', [
-              ...chordBar(0, [48, 52, 55, 60]), // C
-              ...chordBar(1, [43, 47, 50, 55]), // G
-              ...chordBar(2, [45, 48, 52, 57]), // Am
-              ...chordBar(3, [41, 45, 48, 53]), // F
+              ...chordBar(0, [48, 55, 60, 64]), // C
+              ...chordBar(1, [43, 50, 55, 59]), // G
+              ...chordBar(2, [45, 52, 57, 60]), // Am
+              ...chordBar(3, [41, 48, 53, 57]), // F
             ]),
           ],
         }),
         demoTrack({
           name: 'Bass',
           type: 'midi',
-          instrument: 'oracle-synth',
+          instrument: 'soundfont',
+          settings: { gmProgram: ELECTRIC_BASS_FINGER },
           color: BASS,
           clips: [midiClip('Bass', bassLine([36, 31, 33, 29]))], // C G A F
         }),

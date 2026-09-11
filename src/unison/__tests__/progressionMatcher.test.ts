@@ -16,7 +16,6 @@ function chord(hybridName: string, index: number): UnisonChordRegion {
     noteName: 'C',
     degree,
     hybridName,
-    romanNumeral: 'I',
     color: [0, 100, 50],
     inversion: 0,
     confidence: 1.0,

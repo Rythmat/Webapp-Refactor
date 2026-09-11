@@ -3,7 +3,8 @@ import {
   DEGREES,
   MODES,
   getChordColor,
-  noteNameLetter,
+  noteNameInKey,
+  respellLeadingChords,
   abbreviateSequence,
 } from '@prism/engine';
 import { getGCMEntry } from '@/curriculum/data/gcmHelpers';
@@ -16,8 +17,7 @@ import type {
   CurriculumLevelId,
   GenreCurriculumEntry,
 } from '@/curriculum/types/curriculum';
-import { GROOVES } from '@/daw/data/groovesLibrary';
-import { importMidiFile } from '@/daw/midi/MidiFileIO';
+import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
 import { nextChordId, type ChordRegion } from '@/daw/store/prismSlice';
 import type { MidiClip } from '@/daw/store/tracksSlice';
 
@@ -315,9 +315,13 @@ function buildChordRegions(
   rootMidi: number,
   mode: DiatonicMode,
 ): ChordRegion[] {
-  return barChords.map((bar) => {
+  const regions = barChords.map((bar) => {
     const midis = bar.intervals.map((offset) => rootMidi + offset);
-    const chordRootLetter = noteNameLetter(rootMidi + bar.intervals[0]);
+    const chordRootLetter = noteNameInKey(
+      rootMidi + bar.intervals[0],
+      rootMidi % 12,
+      mode,
+    );
     const quality = bar.degreeLabel.slice(bar.degreeLabel.indexOf(' ') + 1);
     // getChordColor expects `mode` explicitly — omitting it silently defaults
     // to Ionian coloring (a known bug elsewhere in dawBridge.ts); don't repeat that.
@@ -341,6 +345,9 @@ function buildChordRegions(
       midis,
     };
   });
+  // Leading diminished chords are named by where they resolve (Priority 1).
+  const noteNames = respellLeadingChords(regions.map((r) => r.noteName));
+  return regions.map((r, i) => ({ ...r, noteName: noteNames[i] }));
 }
 
 // ── Bass line (always generated) ───────────────────────────────────────
@@ -389,13 +396,9 @@ function buildBassClip(barChords: BarChord[], rootMidi: number): MidiClip {
 // ── Beat/drum track (always generated, mode-agnostic) ──────────────────
 
 /**
- * Fetch + parse the fixed practice-track groove through the exact same
- * pipeline Studio's own Grooves browser uses when a user manually drops a
- * groove onto a Drums track — see `doLoadGroove` in
- * `daw/components/Controls/GroovesBrowser.tsx`: `fetch` the `.mid` file,
- * parse it with `importMidiFile` (`daw/midi/MidiFileIO.ts`), then rescale
- * its ticks from the file's own PPQ to ours (480, matching `OUR_PPQ` in
- * GroovesBrowser).
+ * Fetch + parse the fixed practice-track groove with `loadGrooveEvents` — the
+ * exact pipeline Studio's own Grooves browser uses when a user manually drops
+ * a groove onto a Drums track (`doLoadGroove` in GroovesBrowser.tsx).
  *
  * This groove's source file is a real ~8-bar drum performance, not a tight
  * 1-bar loop — so, mirroring GroovesBrowser exactly, the resulting clip is
@@ -416,39 +419,21 @@ async function buildBeatClip(barCount: number): Promise<MidiClip> {
     events: [],
   };
 
-  const groove = GROOVES.find((g) => g.id === PRACTICE_TRACK_GROOVE_ID);
-  if (!groove) return fallbackClip;
+  const events = await loadGrooveEvents(PRACTICE_TRACK_GROOVE_ID);
+  if (!events || events.length === 0) return fallbackClip;
 
-  try {
-    const resp = await fetch(groove.url);
-    if (!resp.ok) return fallbackClip;
-    const buf = await resp.arrayBuffer();
-    const sequences = importMidiFile(buf);
-    if (sequences.length === 0) return fallbackClip;
+  const durationTicks = events.reduce(
+    (max, e) => Math.max(max, e.startTick + e.durationTicks),
+    0,
+  );
 
-    const seq = sequences[0];
-    const ppq = seq.ticksPerQuarterNote;
-    const events = seq.events.map((evt) => ({
-      ...evt,
-      startTick: Math.round((evt.startTick / ppq) * PPQ),
-      durationTicks: Math.round((evt.durationTicks / ppq) * PPQ),
-    }));
-    const durationTicks = events.reduce(
-      (max, e) => Math.max(max, e.startTick + e.durationTicks),
-      0,
-    );
-
-    return {
-      id: crypto.randomUUID(),
-      name: 'Drums',
-      startTick: 0,
-      durationTicks,
-      events,
-    };
-  } catch (err) {
-    console.error('Failed to load practice track groove:', err);
-    return fallbackClip;
-  }
+  return {
+    id: crypto.randomUUID(),
+    name: 'Drums',
+    startTick: 0,
+    durationTicks,
+    events,
+  };
 }
 
 // ── Melody (only when openTrack === 'chords') ──────────────────────────

@@ -79,35 +79,21 @@ describe('analyzeHarmony', () => {
     }
   });
 
-  it('generates correct roman numerals for major chords', () => {
+  it('names chords with hybrid numbers (degree + quality)', () => {
     const cases: Array<[string, string, string]> = [
-      ['1 major', 'C', 'I'],
-      ['4 major', 'F', 'IV'],
-      ['5 major', 'G', 'V'],
+      ['1 major', 'C', '1'],
+      ['6 minor', 'A', '6'],
+      ['5 dominant7', 'G', '5'],
+      ['7 minor7b5', 'B', '7'],
     ];
 
-    for (const [degreeKey, noteName, expectedRoman] of cases) {
+    for (const [degreeKey, noteName, expectedDegree] of cases) {
       const regions: ChordRegion[] = [
         region({ name: degreeKey, noteName, degreeKey }),
       ];
       const result = analyzeHarmony(regions, defaultKey);
-      expect(result[0].romanNumeral).toBe(expectedRoman);
-    }
-  });
-
-  it('generates lowercase roman numerals for minor chords', () => {
-    const cases: Array<[string, string, string]> = [
-      ['2 minor', 'D', 'iim'],
-      ['3 minor', 'E', 'iiim'],
-      ['6 minor', 'A', 'vim'],
-    ];
-
-    for (const [degreeKey, noteName, expectedRoman] of cases) {
-      const regions: ChordRegion[] = [
-        region({ name: degreeKey, noteName, degreeKey }),
-      ];
-      const result = analyzeHarmony(regions, defaultKey);
-      expect(result[0].romanNumeral).toBe(expectedRoman);
+      expect(result[0].hybridName).toBe(degreeKey);
+      expect(result[0].degree).toBe(expectedDegree);
     }
   });
 
@@ -124,8 +110,8 @@ describe('analyzeHarmony', () => {
       }),
     ];
     const result = analyzeHarmony(regions, defaultKey);
-    expect(result[0].romanNumeral).toBe('bIII');
-    expect(result[1].romanNumeral).toBe('bVII7');
+    expect(result[0].hybridName).toBe('b3 major');
+    expect(result[1].hybridName).toBe('b7 dominant7');
   });
 
   it('handles sharp degrees', () => {
@@ -137,25 +123,7 @@ describe('analyzeHarmony', () => {
       }),
     ];
     const result = analyzeHarmony(regions, defaultKey);
-    expect(result[0].romanNumeral).toBe('#ivdim');
-  });
-
-  it('handles seventh chord suffixes in roman numerals', () => {
-    const cases: Array<[string, string]> = [
-      ['1 major7', 'Imaj7'],
-      ['2 minor7', 'iim7'],
-      ['5 dominant7', 'V7'],
-      ['7 minor7b5', 'viim7b5'],
-      ['7 diminished7', 'viidim7'],
-    ];
-
-    for (const [degreeKey, expectedRoman] of cases) {
-      const regions: ChordRegion[] = [
-        region({ name: degreeKey, noteName: 'C', degreeKey }),
-      ];
-      const result = analyzeHarmony(regions, defaultKey);
-      expect(result[0].romanNumeral).toBe(expectedRoman);
-    }
+    expect(result[0].hybridName).toBe('#4 diminished');
   });
 
   it('extracts rootPc from note names correctly', () => {
@@ -201,7 +169,7 @@ describe('analyzeHarmony', () => {
     const result = analyzeHarmony(regions, defaultKey);
     expect(result[0].degree).toBe('1');
     expect(result[0].quality).toBe('major');
-    expect(result[0].romanNumeral).toBe('I');
+    expect(result[0].hybridName).toBe('1 major');
   });
 
   it('handles sus chords', () => {
@@ -217,11 +185,11 @@ describe('analyzeHarmony', () => {
       }),
     ];
     const result = analyzeHarmony(regions, defaultKey);
-    expect(result[0].romanNumeral).toBe('IVsus4');
-    expect(result[1].romanNumeral).toBe('IIsus2');
+    expect(result[0].hybridName).toBe('4 sus4');
+    expect(result[1].hybridName).toBe('2 sus2');
   });
 
-  it('processes a full I-IV-V-I progression', () => {
+  it('processes a full 1-4-5-1 progression', () => {
     const regions: ChordRegion[] = [
       region({
         id: 'r1',
@@ -258,7 +226,6 @@ describe('analyzeHarmony', () => {
     ];
     const result = analyzeHarmony(regions, defaultKey);
     expect(result).toHaveLength(4);
-    expect(result.map((r) => r.romanNumeral)).toEqual(['I', 'IV', 'V', 'I']);
     expect(result.map((r) => r.hybridName)).toEqual([
       '1 major',
       '4 major',

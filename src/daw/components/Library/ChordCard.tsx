@@ -16,6 +16,8 @@ interface ChordCardProps {
   chord: ChordInsight;
   keyLetter: string | null;
   rootNote: number | null;
+  /** Session mode (ALL_MODES key), for spelling note names. */
+  mode?: string;
   expanded: boolean;
   onToggleExpand: () => void;
 }
@@ -24,6 +26,7 @@ export function ChordCard({
   chord,
   keyLetter,
   rootNote,
+  mode,
   expanded,
   onToggleExpand,
 }: ChordCardProps) {
@@ -50,18 +53,6 @@ export function ChordCard({
         >
           {chord.chordLabel}
         </span>
-        {/* Roman numeral badge (UNISON enrichment) */}
-        {chord.romanNumeral && (
-          <span
-            className="text-[9px] font-mono px-1 py-0.5 rounded ml-auto"
-            style={{
-              backgroundColor: 'var(--color-surface-2)',
-              color: 'var(--color-text)',
-            }}
-          >
-            {chord.romanNumeral}
-          </span>
-        )}
       </div>
 
       {/* Diatonic / Borrowed indicator (UNISON enrichment) */}
@@ -266,6 +257,7 @@ export function ChordCard({
                       noteNameInKey(
                         (rootNote! - alt.parentOffset + 12) % 12,
                         rootNote!,
+                        mode,
                       ),
                     )}{' '}
                     {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ?? alt.family}

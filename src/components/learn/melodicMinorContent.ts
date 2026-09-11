@@ -217,7 +217,7 @@ export const MELODIC_MINOR_MODES: ScaleFamilyMode[] = [
       { root: 'F#', notes: ['F#', 'G', 'A', 'B♭', 'C', 'D', 'E'] },
       { root: 'C#', notes: ['C#', 'D', 'E', 'F', 'G', 'A', 'B'] },
       { root: 'G#', notes: ['G#', 'A', 'B', 'C', 'D', 'E', 'F#'] },
-      { root: 'D#', notes: ['D#', 'E', 'F#', 'G#', 'A', 'B', 'C#'] },
+      { root: 'D#', notes: ['D#', 'E', 'F#', 'G', 'A', 'B', 'C#'] },
       { root: 'A#', notes: ['A#', 'B', 'C#', 'D', 'E', 'F#', 'G#'] },
       {
         root: 'F',

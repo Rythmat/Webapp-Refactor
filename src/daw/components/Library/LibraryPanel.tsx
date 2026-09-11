@@ -1,6 +1,6 @@
 /* eslint-disable tailwindcss/classnames-order */
 /* eslint-disable tailwindcss/enforces-shorthand */
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   type LucideIcon,
@@ -72,6 +72,12 @@ export function LibraryPanel() {
   const toggleLibrary = useStore((s) => s.toggleLibrary);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<PanelTab>('insight');
+
+  // Analyzing a selection (e.g. from the piano roll) brings Insight forward.
+  const selectionAnalysis = useStore((s) => s.selectionAnalysis);
+  useEffect(() => {
+    if (selectionAnalysis) setActiveTab('insight');
+  }, [selectionAnalysis]);
 
   const filteredLibraryItems = useMemo(
     () => (searchQuery ? searchLibraryItems(searchQuery) : LIBRARY_ITEMS),

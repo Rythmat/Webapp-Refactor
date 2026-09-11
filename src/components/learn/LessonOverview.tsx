@@ -23,7 +23,6 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
-import { useNoteByMidiMap } from '@/hooks/data/notes/useNotes';
 import { usePrismMode, type PrismModeSlug } from '@/hooks/data/prism';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { getLocalModeSteps } from '@/lib/modeStepsFallback';
@@ -564,7 +563,6 @@ export function LessonOverview({
 }: LessonOverviewProps) {
   const tab = activeTab;
   const { data: modeDetail } = usePrismMode(mode);
-  const { data: noteByMidiMap } = useNoteByMidiMap();
 
   const scaleSteps =
     getLocalModeSteps(mode) ?? modeDetail?.steps ?? DEFAULT_INTERVALS;
@@ -590,13 +588,9 @@ export function LessonOverview({
     () =>
       scaleMidis.map((midi) => {
         const pc = normalizePitchClass(midi);
-        const spelled = pcSpellingMap.get(pc);
-        if (spelled) return spelled;
-        const note = noteByMidiMap?.get(midi);
-        if (note?.noteName) return note.noteName;
-        return PITCH_CLASS_NAMES[pc];
+        return pcSpellingMap.get(pc) ?? PITCH_CLASS_NAMES[pc];
       }),
-    [pcSpellingMap, noteByMidiMap, scaleMidis],
+    [pcSpellingMap, scaleMidis],
   );
 
   const noteSpelling = useMemo(
@@ -628,10 +622,15 @@ export function LessonOverview({
 
   const keySignatureDescription = useMemo(() => {
     const notes = scaleNoteLabels.slice(0, 7);
-    const sharps = notes.filter(
-      (n) => n.includes('♯') || n.includes('#'),
-    ).length;
-    const flats = notes.filter((n) => n.includes('♭')).length;
+    const countAccidentals = (weights: Record<string, number>) =>
+      notes.reduce(
+        (total, name) =>
+          total +
+          [...name].reduce((sum, char) => sum + (weights[char] ?? 0), 0),
+        0,
+      );
+    const sharps = countAccidentals({ '♯': 1, '#': 1, '𝄪': 2 });
+    const flats = countAccidentals({ '♭': 1, '𝄫': 2 });
     if (sharps === 0 && flats === 0) return 'has no sharps or flats';
     const parts: string[] = [];
     if (sharps > 0) parts.push(`${sharps} sharp${sharps > 1 ? 's' : ''}`);

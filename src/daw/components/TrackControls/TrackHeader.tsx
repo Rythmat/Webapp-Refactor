@@ -32,7 +32,6 @@ import {
 import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
-import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
 import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
 import { useTrackPresence } from '@/daw/collab/presence';
 
@@ -97,22 +96,6 @@ export const TrackHeader = memo(function TrackHeader({
       e.stopPropagation();
       const newRole = e.target.value as DawTrackRole;
       updateTrack(track.id, { trackRole: newRole });
-      // Re-derive chord regions with updated role
-      const {
-        rootNote,
-        mode,
-        setChordRegions,
-        tracks: allTracks,
-      } = useStore.getState();
-      const updated = allTracks.map((t) =>
-        t.id === track.id ? { ...t, trackRole: newRole } : t,
-      );
-      const regions = deriveChordRegionsFromSession(
-        updated,
-        (rootNote ?? 0) + 48,
-        mode,
-      );
-      setChordRegions(regions);
     },
     [track.id, updateTrack],
   );

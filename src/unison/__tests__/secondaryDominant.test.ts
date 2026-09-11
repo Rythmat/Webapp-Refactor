@@ -7,8 +7,8 @@ import {
 // Pitch classes: C=0, C#=1, D=2, Eb=3, E=4, F=5, F#=6, G=7, Ab=8, A=9, Bb=10, B=11
 
 describe('detectSecondaryDominant', () => {
-  // ── V7/ii ──────────────────────────────────────────────────────────────
-  it('detects A7 → Dm as V7/ii in C ionian (resolved)', () => {
+  // ── 5 of 2 ─────────────────────────────────────────────────────────────
+  it('detects A7 → Dm as 5 of 2 in C ionian (resolved)', () => {
     const result = detectSecondaryDominant(
       9,
       'dominant7',
@@ -19,13 +19,14 @@ describe('detectSecondaryDominant', () => {
     );
     expect(result).not.toBeNull();
     expect(result!.type).toBe('secondary-dominant');
-    expect(result!.label).toBe('V7/ii');
+    expect(result!.label).toBe('5 of 2');
+    expect(result!.target).toBe('2');
     expect(result!.targetDegree).toBe(2);
     expect(result!.resolved).toBe(true);
   });
 
-  // ── V7/iii ─────────────────────────────────────────────────────────────
-  it('detects B7 → Em as V7/iii in C ionian (resolved)', () => {
+  // ── 5 of 3 ─────────────────────────────────────────────────────────────
+  it('detects B7 → Em as 5 of 3 in C ionian (resolved)', () => {
     const result = detectSecondaryDominant(
       11,
       'dominant7',
@@ -35,17 +36,15 @@ describe('detectSecondaryDominant', () => {
       'ionian',
     );
     expect(result).not.toBeNull();
-    expect(result!.label).toBe('V7/iii');
+    expect(result!.label).toBe('5 of 3');
     expect(result!.resolved).toBe(true);
   });
 
-  // ── V7/IV ──────────────────────────────────────────────────────────────
-  it('detects C7 → F as V7/IV in C ionian', () => {
-    // C7 in C ionian — C is degree 1 but with dominant7 quality (not diatonic maj7)
-    // C is the root (degree 5 of F), target F = degree 4
-    // BUT: C is degree 1 (the V of IV), and our code skips V7/I
-    // Wait — C is degree 1, not degree 5. The expected target of C7 is F (pc=5), degree 4.
-    // chordDegree check: C (pc=0) in C ionian → degree 1, not 5 → proceeds.
+  // ── 5 of 4 ─────────────────────────────────────────────────────────────
+  it('detects C7 → F as 5 of 4 in C ionian', () => {
+    // C7 in C ionian: C is the key's 1 chord, but with dominant7 quality.
+    // Its expected target is F (pc=5), degree 4. Only a chord that is already
+    // the key's 5 chord is skipped, so this proceeds.
     const result = detectSecondaryDominant(
       0,
       'dominant7',
@@ -55,12 +54,12 @@ describe('detectSecondaryDominant', () => {
       'ionian',
     );
     expect(result).not.toBeNull();
-    expect(result!.label).toBe('V7/IV');
+    expect(result!.label).toBe('5 of 4');
     expect(result!.resolved).toBe(true);
   });
 
-  // ── V7/V ───────────────────────────────────────────────────────────────
-  it('detects D7 → G as V7/V in C ionian (resolved)', () => {
+  // ── 5 of 5 ─────────────────────────────────────────────────────────────
+  it('detects D7 → G as 5 of 5 in C ionian (resolved)', () => {
     const result = detectSecondaryDominant(
       2,
       'dominant7',
@@ -70,13 +69,13 @@ describe('detectSecondaryDominant', () => {
       'ionian',
     );
     expect(result).not.toBeNull();
-    expect(result!.label).toBe('V7/V');
+    expect(result!.label).toBe('5 of 5');
     expect(result!.targetDegree).toBe(5);
     expect(result!.resolved).toBe(true);
   });
 
-  // ── V7/vi ──────────────────────────────────────────────────────────────
-  it('detects E7 → Am as V7/vi in C ionian (resolved)', () => {
+  // ── 5 of 6 ─────────────────────────────────────────────────────────────
+  it('detects E7 → Am as 5 of 6 in C ionian (resolved)', () => {
     const result = detectSecondaryDominant(
       4,
       'dominant7',
@@ -86,13 +85,13 @@ describe('detectSecondaryDominant', () => {
       'ionian',
     );
     expect(result).not.toBeNull();
-    expect(result!.label).toBe('V7/vi');
+    expect(result!.label).toBe('5 of 6');
     expect(result!.targetDegree).toBe(6);
     expect(result!.resolved).toBe(true);
   });
 
   // ── Unresolved secondary dominant ──────────────────────────────────────
-  it('detects A7 as V7/ii even when unresolved (wrong next chord)', () => {
+  it('detects A7 as 5 of 2 even when unresolved (wrong next chord)', () => {
     const result = detectSecondaryDominant(
       9,
       'dominant7',
@@ -102,11 +101,11 @@ describe('detectSecondaryDominant', () => {
       'ionian',
     );
     expect(result).not.toBeNull();
-    expect(result!.label).toBe('V7/ii');
+    expect(result!.label).toBe('5 of 2');
     expect(result!.resolved).toBe(false);
   });
 
-  it('detects A7 as V7/ii when it is the last chord (no next)', () => {
+  it('detects A7 as 5 of 2 when it is the last chord (no next)', () => {
     const result = detectSecondaryDominant(
       9,
       'dominant7',
@@ -116,12 +115,12 @@ describe('detectSecondaryDominant', () => {
       'ionian',
     );
     expect(result).not.toBeNull();
-    expect(result!.label).toBe('V7/ii');
+    expect(result!.label).toBe('5 of 2');
     expect(result!.resolved).toBe(false);
   });
 
-  // ── Regular V7 → NOT a secondary dominant ──────────────────────────────
-  it('does not flag G7 as secondary dominant in C ionian (regular V7)', () => {
+  // ── The key's own 5 dom7 → NOT a secondary dominant ────────────────────
+  it('does not flag G7 as secondary dominant in C ionian (the regular 5 dom7)', () => {
     const result = detectSecondaryDominant(
       7,
       'dominant7',
@@ -169,7 +168,7 @@ describe('detectSecondaryDominant', () => {
       'ionian',
     );
     expect(result).not.toBeNull();
-    expect(result!.label).toBe('V7/ii');
+    expect(result!.label).toBe('5 of 2');
   });
 
   it('detects dominant13 as secondary dominant', () => {
@@ -182,11 +181,11 @@ describe('detectSecondaryDominant', () => {
       'ionian',
     );
     expect(result).not.toBeNull();
-    expect(result!.label).toBe('V7/V');
+    expect(result!.label).toBe('5 of 5');
   });
 
-  // ── Secondary leading tone (viidim7/X) ─────────────────────────────────
-  it('detects G#dim7 → Am as viidim7/vi in C ionian', () => {
+  // ── Secondary leading tone (7 of X) ────────────────────────────────────
+  it('detects G#dim7 → Am as 7 of 6 in C ionian', () => {
     const result = detectSecondaryDominant(
       8,
       'diminished7',
@@ -197,11 +196,11 @@ describe('detectSecondaryDominant', () => {
     );
     expect(result).not.toBeNull();
     expect(result!.type).toBe('secondary-leading-tone');
-    expect(result!.label).toBe('viidim7/vi');
+    expect(result!.label).toBe('7 of 6');
     expect(result!.resolved).toBe(true);
   });
 
-  it('detects C#dim7 → Dm as viidim7/ii in C ionian', () => {
+  it('detects C#dim7 → Dm as 7 of 2 in C ionian', () => {
     const result = detectSecondaryDominant(
       1,
       'diminished7',
@@ -212,11 +211,11 @@ describe('detectSecondaryDominant', () => {
     );
     expect(result).not.toBeNull();
     expect(result!.type).toBe('secondary-leading-tone');
-    expect(result!.label).toBe('viidim7/ii');
+    expect(result!.label).toBe('7 of 2');
     expect(result!.resolved).toBe(true);
   });
 
-  it('does not flag Bdim7 as secondary leading-tone in C ionian (regular viidim7)', () => {
+  it('does not flag Bdim7 as secondary leading-tone in C ionian (the regular 7 dim7)', () => {
     const result = detectSecondaryDominant(
       11,
       'diminished7',
@@ -229,7 +228,7 @@ describe('detectSecondaryDominant', () => {
   });
 
   // ── Transposed key ─────────────────────────────────────────────────────
-  it('works in G ionian: E7 → Am = V7/ii', () => {
+  it('works in G ionian: E7 → Am = 5 of 2', () => {
     const result = detectSecondaryDominant(
       4,
       'dominant7',
@@ -239,35 +238,35 @@ describe('detectSecondaryDominant', () => {
       'ionian',
     );
     expect(result).not.toBeNull();
-    expect(result!.label).toBe('V7/ii');
+    expect(result!.label).toBe('5 of 2');
     expect(result!.resolved).toBe(true);
   });
 });
 
 describe('detectSecondaryDominants (batch)', () => {
   it('analyzes a full progression with secondary dominants', () => {
-    // C major: I - V7/vi - vi - V7/ii - ii - V7 - I
+    // C major: 1 - 5 of 6 - 6 - 5 of 2 - 2 - 5 dom7 - 1
     const chords = [
-      { rootPc: 0, quality: 'major' }, // C = I
-      { rootPc: 4, quality: 'dominant7' }, // E7 = V7/vi
-      { rootPc: 9, quality: 'minor' }, // Am = vi
-      { rootPc: 9, quality: 'dominant7' }, // A7 = V7/ii
-      { rootPc: 2, quality: 'minor' }, // Dm = ii
-      { rootPc: 7, quality: 'dominant7' }, // G7 = V (regular, not secondary)
-      { rootPc: 0, quality: 'major' }, // C = I
+      { rootPc: 0, quality: 'major' }, // C = 1
+      { rootPc: 4, quality: 'dominant7' }, // E7 = 5 of 6
+      { rootPc: 9, quality: 'minor' }, // Am = 6
+      { rootPc: 9, quality: 'dominant7' }, // A7 = 5 of 2
+      { rootPc: 2, quality: 'minor' }, // Dm = 2
+      { rootPc: 7, quality: 'dominant7' }, // G7 = 5 (regular, not secondary)
+      { rootPc: 0, quality: 'major' }, // C = 1
     ];
 
     const results = detectSecondaryDominants(chords, 0, 'ionian');
 
     expect(results).toHaveLength(7);
-    expect(results[0]).toBeNull(); // I — not secondary
-    expect(results[1]!.label).toBe('V7/vi'); // E7 → Am
+    expect(results[0]).toBeNull(); // 1 — not secondary
+    expect(results[1]!.label).toBe('5 of 6'); // E7 → Am
     expect(results[1]!.resolved).toBe(true);
     expect(results[2]).toBeNull(); // Am — not dominant
-    expect(results[3]!.label).toBe('V7/ii'); // A7 → Dm
+    expect(results[3]!.label).toBe('5 of 2'); // A7 → Dm
     expect(results[3]!.resolved).toBe(true);
     expect(results[4]).toBeNull(); // Dm — not dominant
-    expect(results[5]).toBeNull(); // G7 — regular V7
+    expect(results[5]).toBeNull(); // G7 — the regular 5 dom7
     expect(results[6]).toBeNull(); // C — not dominant
   });
 
@@ -282,7 +281,7 @@ describe('detectSecondaryDominants (batch)', () => {
       'ionian',
     );
     expect(results).toHaveLength(1);
-    expect(results[0]!.label).toBe('V7/ii');
+    expect(results[0]!.label).toBe('5 of 2');
     expect(results[0]!.resolved).toBe(false);
   });
 });

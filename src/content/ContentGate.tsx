@@ -1,4 +1,4 @@
-import { Suspense, useMemo, type ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ensureAtlasContent, isAtlasContentReady } from './contentStore';
 import { ensureSongContent, isSongContentReady } from './songStore';
@@ -23,29 +23,15 @@ const LOADERS: Record<
   songs: { ensure: ensureSongContent, ready: isSongContentReady },
 };
 
-/** Suspense needs a promise surfaced through the render path. */
-const suspend = (promise: Promise<void>) => {
-  let status: 'pending' | 'done' | 'error' = 'pending';
-  let error: unknown;
-
-  const tracked = promise.then(
-    () => {
-      status = 'done';
-    },
-    (caught) => {
-      status = 'error';
-      error = caught;
-    },
-  );
-
-  return () => {
-    // The ensure* functions already fall back to bundled data on a fetch
-    // failure, so an error here is unrecoverable. Rethrow to the nearest error
-    // boundary rather than rendering a silently empty page.
-    if (status === 'error') throw error;
-    if (status === 'pending') throw tracked;
-  };
-};
+/**
+ * Hydration failures, kept at module scope. A component that suspends before
+ * it has ever mounted gets its hooks thrown away on every retry, so anything it
+ * remembered in state or a memo starts over as "pending" and it suspends
+ * forever — which is exactly how a cold deep link used to sit on the skeleton.
+ * Readiness is read straight from the stores instead; only failure needs
+ * remembering, and it has to live out here.
+ */
+const failures = new Map<ContentNeed, unknown>();
 
 const ContentSuspender = ({
   needs,
@@ -54,19 +40,27 @@ const ContentSuspender = ({
   needs: ContentNeed[];
   children: ReactNode;
 }) => {
-  const read = useMemo(
-    () =>
-      suspend(
-        Promise.all(needs.map((n) => LOADERS[n].ensure())).then(
-          () => undefined,
-        ),
+  for (const need of needs) {
+    // The ensure* functions already fall back to bundled data on a fetch
+    // failure, so an error here is unrecoverable. Rethrow to the nearest error
+    // boundary rather than rendering a silently empty page.
+    if (failures.has(need)) throw failures.get(need);
+  }
+
+  const pending = needs.filter((n) => !LOADERS[n].ready());
+  if (pending.length > 0) {
+    // Suspense needs a promise surfaced through the render path. ensure* hands
+    // back the store's one memoised hydration, so re-throwing on each retry
+    // never refetches.
+    throw Promise.all(
+      pending.map((n) =>
+        LOADERS[n].ensure().catch((error: unknown) => {
+          failures.set(n, error);
+        }),
       ),
-    // Re-suspending on a changed `needs` array would remount the subtree; the
-    // set is static per call site.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-  read();
+    );
+  }
+
   return <>{children}</>;
 };
 

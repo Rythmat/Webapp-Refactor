@@ -7,6 +7,7 @@ import {
 import type { PitchEdit } from '@/daw/store/tracksSlice';
 import { getAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import { useStore } from '@/daw/store';
+import { midiNameInKey } from '@/daw/prism-engine/data/notes';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
 // ── Constants ───────────────────────────────────────────────────────────────
@@ -21,23 +22,11 @@ const VIEW_MAX = 84; // C6
 const VIEW_RANGE = VIEW_MAX - VIEW_MIN + 1; // 49 notes
 
 // ── Note helpers ────────────────────────────────────────────────────────────
-const NOTE_NAMES = [
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'G#',
-  'A',
-  'A#',
-  'B',
-];
 function noteName(midi: number): string {
+  // Spelled for the project key (Enharmonic Interpretation Engine rules).
+  const { rootNote, mode } = useStore.getState();
   return displayAccidentals(
-    `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`,
+    midiNameInKey(midi, rootNote ?? 0, rootNote !== null ? mode : undefined),
   );
 }
 function isBlackKey(midi: number): boolean {

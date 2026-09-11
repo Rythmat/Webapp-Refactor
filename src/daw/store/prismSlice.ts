@@ -7,6 +7,7 @@ import { GROOVES, type GrooveItem } from '@/daw/data/groovesLibrary';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import { toast } from '@/hooks/use-toast';
+import { noteNameToPitchClass } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import {
   StrumMode,
   VelocityTilt,
@@ -30,12 +31,13 @@ import {
   KEY_COLORS,
   ALL_MODES,
   noteNameInKey,
+  CHORDS,
   detectChordWithInversion,
-  noteNameLetter,
   getModeOffset,
   ionianToModeLabel,
   resolveDegreeKey,
   orchestrate,
+  respellLeadingChords,
 } from '@prism/engine';
 
 // ── Types ────────────────────────────────────────────────────────────────
@@ -247,27 +249,6 @@ function getModeTrackColor(rootNote: number, mode: string): string {
   return rgbToHex(r, g, b);
 }
 
-/** Reverse lookup: note letter (with accidental) → pitch class */
-const NOTE_LETTER_TO_PC: Record<string, number> = {
-  C: 0,
-  'C#': 1,
-  Db: 1,
-  D: 2,
-  'D#': 3,
-  Eb: 3,
-  E: 4,
-  F: 5,
-  'F#': 6,
-  Gb: 6,
-  G: 7,
-  'G#': 8,
-  Ab: 8,
-  A: 9,
-  'A#': 10,
-  Bb: 10,
-  B: 11,
-};
-
 /** Un-abbreviate quality from abbreviated noteName form back to long form */
 const UNABBREV: Record<string, string> = {
   maj: 'major',
@@ -282,6 +263,9 @@ const UNABBREV: Record<string, string> = {
   dom9: 'dominant9',
   maj9: 'major9',
   min9: 'minor9',
+  dom13: 'dominant13',
+  maj13: 'major13',
+  min13: 'minor13',
   'min7(b5)': 'minor7b5',
   'min(maj7)': 'minormajor7',
   'maj7(#5)': 'major7#5',
@@ -309,8 +293,9 @@ function parseNoteNameChord(
   if (spaceIdx < 1) return null;
   const letter = noteName.slice(0, spaceIdx);
   const abbrevQuality = noteName.slice(spaceIdx + 1);
-  const pc = NOTE_LETTER_TO_PC[letter];
-  if (pc === undefined) return null;
+  // Any spelling the enharmonic engine emits (Cb, E#, Ebb …), ASCII or Unicode.
+  const pc = noteNameToPitchClass(letter);
+  if (pc === null) return null;
   const quality = UNABBREV[abbrevQuality] ?? abbrevQuality;
   return { rootPc: pc, quality };
 }
@@ -325,7 +310,7 @@ function rederiveChordRegions(
   mode: string,
 ): ChordRegion[] {
   const keyPc = rootMidi % 12;
-  return regions.map((r) => {
+  const rederived = regions.map((r) => {
     const parsed = parseNoteNameChord(r.noteName);
     if (!parsed) {
       // Can't parse — just recolor if we have a degreeKey
@@ -338,7 +323,7 @@ function rederiveChordRegions(
 
     // Rebuild noteName with new key's enharmonic spelling
     const newNoteName = abbreviateSequence(
-      `${noteNameInKey(parsed.rootPc, keyPc)} ${parsed.quality}`,
+      `${noteNameInKey(parsed.rootPc, keyPc, mode)} ${parsed.quality}`,
     );
 
     const newName = newDegreeKey ? abbreviateSequence(newDegreeKey) : r.name;
@@ -353,6 +338,29 @@ function rederiveChordRegions(
         : r.color,
     };
   });
+  return respellLeadingChordRegions(rederived);
+}
+
+/**
+ * Leading diminished chords take their spelling from the chord they resolve to
+ * (doc Priority 1): "Gb dim" before "G min" becomes "F# dim". Returns the same
+ * array when nothing changes.
+ */
+function respellLeadingChordRegions(regions: ChordRegion[]): ChordRegion[] {
+  const order = regions
+    .map((_, i) => i)
+    .sort((a, b) => regions[a].startTick - regions[b].startTick);
+  const names = respellLeadingChords(order.map((i) => regions[i].noteName));
+  if (order.every((idx, k) => names[k] === regions[idx].noteName)) {
+    return regions;
+  }
+  const result = [...regions];
+  order.forEach((idx, k) => {
+    if (names[k] !== regions[idx].noteName) {
+      result[idx] = { ...regions[idx], noteName: names[k] };
+    }
+  });
+  return result;
 }
 
 /** Map STUDIO_GENRES to GENRE_MAP genre names for rhythm lookup */
@@ -472,7 +480,7 @@ function degreeToNoteName(
   const parentRoot = rootMidi - getModeOffset(mode);
   const midi = degreeMidi(parentRoot, degreeName);
   const rootPc = rootMidi % 12; // user's root for enharmonic spelling
-  const letter = noteNameInKey(midi % 12, rootPc);
+  const letter = noteNameInKey(midi % 12, rootPc, mode);
   const quality = unstepChord(degreeName);
   return abbreviateSequence(`${letter} ${quality}`);
 }
@@ -539,10 +547,14 @@ function deriveChordRegions(
         endTick: snapToQuarter(hits[i].tick),
         name: known
           ? abbreviateSequence(ionianToModeLabel(known, mode))
-          : abbreviateSequence(chordName(currentNotes)),
+          : abbreviateSequence(
+              chordNameInKey(currentNotes, rootMidi % 12, mode),
+            ),
         noteName: known
           ? degreeToNoteName(known, rootMidi, mode)
-          : abbreviateSequence(chordName(currentNotes)),
+          : abbreviateSequence(
+              chordNameInKey(currentNotes, rootMidi % 12, mode),
+            ),
         color: known
           ? getChordColor(known, parentRoot)
           : getChordColorFromNotes(currentNotes, rootMidi, mode),
@@ -563,10 +575,10 @@ function deriveChordRegions(
     endTick: 7680,
     name: knownFinal
       ? abbreviateSequence(ionianToModeLabel(knownFinal, mode))
-      : abbreviateSequence(chordName(currentNotes)),
+      : abbreviateSequence(chordNameInKey(currentNotes, rootMidi % 12, mode)),
     noteName: knownFinal
       ? degreeToNoteName(knownFinal, rootMidi, mode)
-      : abbreviateSequence(chordName(currentNotes)),
+      : abbreviateSequence(chordNameInKey(currentNotes, rootMidi % 12, mode)),
     color: knownFinal
       ? getChordColor(knownFinal, parentRoot)
       : getChordColorFromNotes(currentNotes, rootMidi, mode),
@@ -574,23 +586,31 @@ function deriveChordRegions(
     midis: [...currentNotes],
   });
 
-  return regions;
+  return respellLeadingChordRegions(regions);
 }
 
 // ── Shared label helpers (used by derivation and reconcile logic) ─────────
 
-function noteLabelFromNotes(notes: number[], keyPc: number): string {
+/** chordName() with its root spelled for the session key: "A# minor" → "Bb minor" in F. */
+function chordNameInKey(notes: number[], keyPc: number, mode: string): string {
+  return chordName(notes).replace(
+    /^\S+/,
+    noteNameInKey(notes[0] % 12, keyPc, mode),
+  );
+}
+
+function noteLabelFromNotes(
+  notes: number[],
+  keyPc: number,
+  mode: string,
+): string {
   const match = detectChordWithInversion(notes);
   if (match) {
     return abbreviateSequence(
-      `${noteNameInKey(match.rootPc, keyPc)} ${match.quality}`,
+      `${noteNameInKey(match.rootPc, keyPc, mode)} ${match.quality}`,
     );
   }
-  const raw = chordName(notes);
-  const bassPc = notes[0] % 12;
-  const oldLetter = noteNameLetter(bassPc);
-  const newLetter = noteNameInKey(bassPc, keyPc);
-  return abbreviateSequence(raw.replace(oldLetter, newLetter));
+  return abbreviateSequence(chordNameInKey(notes, keyPc, mode));
 }
 
 function rawDegreeKeyFromNotes(
@@ -602,9 +622,13 @@ function rawDegreeKeyFromNotes(
   return resolveDegreeKey(match.rootPc, match.quality, keyPc);
 }
 
-function degreeLabelFromNotes(notes: number[], keyPc: number): string {
+function degreeLabelFromNotes(
+  notes: number[],
+  keyPc: number,
+  mode: string,
+): string {
   const raw = rawDegreeKeyFromNotes(notes, keyPc);
-  return raw ? abbreviateSequence(raw) : noteLabelFromNotes(notes, keyPc);
+  return raw ? abbreviateSequence(raw) : noteLabelFromNotes(notes, keyPc, mode);
 }
 
 // ── Reconcile chord regions (Replace / Locked / Merge) ──────────────────
@@ -621,9 +645,9 @@ function reconcileChordRegions(
   currentMode: string,
 ): ChordRegion[] {
   // Fast path: nothing existing → all modes just accept incoming
-  if (existing.length === 0) return incoming;
+  if (existing.length === 0) return respellLeadingChordRegions(incoming);
 
-  if (mode === 'replace') return incoming;
+  if (mode === 'replace') return respellLeadingChordRegions(incoming);
 
   const keyPc = rootMidi % 12;
 
@@ -665,7 +689,9 @@ function reconcileChordRegions(
         });
       }
     }
-    return result.sort((a, b) => a.startTick - b.startTick);
+    return respellLeadingChordRegions(
+      result.sort((a, b) => a.startTick - b.startTick),
+    );
   }
 
   // mode === 'merge'
@@ -691,8 +717,8 @@ function reconcileChordRegions(
         .sort((a, b) => a - b)
         .map((pc) => 60 + pc);
 
-      const noteLabel = noteLabelFromNotes(combined, keyPc);
-      const degreeLabel = degreeLabelFromNotes(combined, keyPc);
+      const noteLabel = noteLabelFromNotes(combined, keyPc, currentMode);
+      const degreeLabel = degreeLabelFromNotes(combined, keyPc, currentMode);
       const rawKey = rawDegreeKeyFromNotes(combined, keyPc);
 
       // Use the union of the two regions' time spans
@@ -723,7 +749,9 @@ function reconcileChordRegions(
   // Add non-overlapping incoming regions (those with no overlapping existing)
   // These were already added in the loop above.
 
-  return result.sort((a, b) => a.startTick - b.startTick);
+  return respellLeadingChordRegions(
+    result.sort((a, b) => a.startTick - b.startTick),
+  );
 }
 
 // ── Phase 9: Chord confidence scoring ────────────────────────────────────
@@ -931,11 +959,12 @@ export function deriveChordRegionsFromNotes(
   // Build note-letter and degree labels for each hit
   const keyPc = rootMidi % 12;
 
-  const noteLabelForHit = (notes: number[]) => noteLabelFromNotes(notes, keyPc);
+  const noteLabelForHit = (notes: number[]) =>
+    noteLabelFromNotes(notes, keyPc, mode);
   const rawDegreeKeyForHit = (notes: number[]) =>
     rawDegreeKeyFromNotes(notes, keyPc);
   const degreeLabelForHit = (notes: number[]) =>
-    degreeLabelFromNotes(notes, keyPc);
+    degreeLabelFromNotes(notes, keyPc, mode);
 
   // Build regions by merging consecutive same-chord hits
   const regions: ChordRegion[] = [];
@@ -1019,7 +1048,7 @@ export function deriveChordRegionsFromNotes(
     );
   }
 
-  return cleaned;
+  return respellLeadingChordRegions(cleaned);
 }
 
 /**
@@ -1049,11 +1078,11 @@ export function deriveChordRegionsFromAudioSnapshots(
   const keyPc = rootMidi % 12;
 
   const noteLabelForNotes = (notes: number[]) =>
-    noteLabelFromNotes(notes, keyPc);
+    noteLabelFromNotes(notes, keyPc, mode);
   const rawDegreeKeyForNotes = (notes: number[]) =>
     rawDegreeKeyFromNotes(notes, keyPc);
   const degreeLabelForNotes = (notes: number[]) =>
-    degreeLabelFromNotes(notes, keyPc);
+    degreeLabelFromNotes(notes, keyPc, mode);
 
   // Merge consecutive snapshots with same chord label into regions
   const regions: ChordRegion[] = [];
@@ -1129,7 +1158,7 @@ export function deriveChordRegionsFromAudioSnapshots(
     );
   }
 
-  return cleaned;
+  return respellLeadingChordRegions(cleaned);
 }
 
 // ── Phase 7B: Multi-track chord derivation ──────────────────────────────
@@ -1173,20 +1202,62 @@ export function deriveChordRegionsFromSession(
   if (harmonyEvents.length === 0) return [];
 
   const regions = deriveChordRegionsFromNotes(harmonyEvents, rootMidi, mode);
-  return enrichWithBass(regions, bassEvents, rootMidi);
+  return respellLeadingChordRegions(
+    enrichWithBass(regions, bassEvents, rootMidi, mode),
+  );
 }
 
 // ── Phase 7C: Bass note enrichment ──────────────────────────────────────
 
 /**
+ * The chord quality these pitch classes spell with `bassPc` as the root, or
+ * null. Tries an exact match first, then one without the perfect fifth —
+ * rootless voicings usually leave it out. Only chords of five or more notes
+ * can match that way here, since voicing + bass is always at least four.
+ */
+function qualityFromBassRoot(
+  bassPc: number,
+  voicingPcs: Set<number>,
+): string | null {
+  const intervals = new Set([
+    0,
+    ...[...voicingPcs].map((pc) => (pc - bassPc + 12) % 12),
+  ]);
+  const spells = (tones: Set<number>) =>
+    tones.size === intervals.size && [...tones].every((t) => intervals.has(t));
+  const qualities = Object.entries(CHORDS)
+    .filter(([quality]) => !quality.includes('/')) // voicing variants
+    .map(
+      ([quality, def]) =>
+        [quality, new Set(def.map((v) => ((v % 12) + 12) % 12))] as const,
+    );
+
+  for (const [quality, tones] of qualities) {
+    if (spells(tones)) return quality;
+  }
+  if (!intervals.has(7)) {
+    for (const [quality, tones] of qualities) {
+      if (!tones.has(7)) continue;
+      const withoutFifth = new Set(tones);
+      withoutFifth.delete(7);
+      if (spells(withoutFifth)) return quality;
+    }
+  }
+  return null;
+}
+
+/**
  * Enrich chord regions with bass note information. If the bass plays a
- * different pitch class than the chord root, the chord becomes a slash
- * chord (e.g., C maj → C maj/E for first inversion).
+ * different pitch class than the chord root, the chord becomes a slash chord
+ * (e.g., C maj → C maj/E for first inversion) — unless the bass isn't in the
+ * voicing at all and names a chord from below, as it does under a rootless /
+ * upper-structure voicing: F-A-C-E over D is D min9, not F maj7/D.
  */
 function enrichWithBass(
   regions: ChordRegion[],
   bassEvents: MidiNoteEvent[],
   rootMidi: number,
+  mode: string = 'ionian',
 ): ChordRegion[] {
   if (bassEvents.length === 0 || regions.length === 0) return regions;
 
@@ -1207,8 +1278,29 @@ function enrichWithBass(
     const parsed = parseNoteNameChord(region.noteName);
     if (!parsed || parsed.rootPc === bassPc) return region;
 
+    // Bass outside the voicing: name the chord from the bass when it spells one
+    const voicingPcs = new Set((region.midis ?? []).map((m) => m % 12));
+    if (voicingPcs.size > 0 && !voicingPcs.has(bassPc)) {
+      const quality = qualityFromBassRoot(bassPc, voicingPcs);
+      if (quality) {
+        const degreeKey = resolveDegreeKey(bassPc, quality, keyPc);
+        const noteName = abbreviateSequence(
+          `${noteNameInKey(bassPc, keyPc, mode)} ${quality}`,
+        );
+        return {
+          ...region,
+          noteName,
+          name: degreeKey ? abbreviateSequence(degreeKey) : noteName,
+          degreeKey,
+          color: degreeKey
+            ? getChordColor(degreeKey, rootMidi, mode)
+            : region.color,
+        };
+      }
+    }
+
     // Bass differs from chord root → slash chord
-    const bassLetter = noteNameInKey(bassPc, keyPc);
+    const bassLetter = noteNameInKey(bassPc, keyPc, mode);
     return {
       ...region,
       noteName: `${region.noteName}/${bassLetter}`,
@@ -1278,7 +1370,9 @@ export function refineChordRegionsWithMelody(
   if (harmonyEvents.length === 0) return [];
 
   const regions = deriveChordRegionsFromNotes(harmonyEvents, rootMidi, mode);
-  return enrichWithBass(regions, bassEvents, rootMidi);
+  return respellLeadingChordRegions(
+    enrichWithBass(regions, bassEvents, rootMidi, mode),
+  );
 }
 
 // ── Slice ────────────────────────────────────────────────────────────────
@@ -1873,7 +1967,7 @@ export const createPrismSlice: StateCreator<
           startTick: removed.startTick,
         };
       }
-      return { chordRegions: regions };
+      return { chordRegions: respellLeadingChordRegions(regions) };
     }),
 
   renameChordRegion: (id, newName, newNoteName) =>
@@ -1937,7 +2031,7 @@ export const createPrismSlice: StateCreator<
           sorted[i] = { ...sorted[i], endTick: sorted[i + 1].startTick };
         }
       }
-      return { chordRegions: sorted };
+      return { chordRegions: respellLeadingChordRegions(sorted) };
     }),
 
   insertMeasure: (measureIdx) =>
@@ -1997,7 +2091,9 @@ export const createPrismSlice: StateCreator<
       if (s.melodyOverrides.includes(regionId)) return {};
       return {
         melodyOverrides: [...s.melodyOverrides, regionId],
-        chordRegions: s.chordRegions.filter((r) => r.id !== regionId),
+        chordRegions: respellLeadingChordRegions(
+          s.chordRegions.filter((r) => r.id !== regionId),
+        ),
       };
     }),
 

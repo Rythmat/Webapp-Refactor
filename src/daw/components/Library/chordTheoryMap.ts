@@ -13,7 +13,7 @@ export const CHORD_THEORY: Record<
   },
   dominant7: {
     mode: 'mixolydian',
-    description: 'The V chord — creates tension wanting to resolve',
+    description: 'The 5 chord — creates tension wanting to resolve',
   },
   minor7: {
     mode: 'dorian',
@@ -41,7 +41,8 @@ export const CHORD_THEORY: Record<
   },
   minor7b5: {
     mode: 'locrian',
-    description: 'Half-diminished — common in jazz ii-V-i progressions',
+    description:
+      'Half-diminished — common in minor-key jazz 2-5-1 progressions',
   },
   diminished7: {
     mode: 'alteredDiminished',
@@ -100,6 +101,19 @@ export const CHORD_THEORY: Record<
     mode: 'dorian',
     description: 'Minor 7th with natural 9th — smooth, soulful',
   },
+  // 13th chords
+  dominant13: {
+    mode: 'mixolydian',
+    description: 'Dominant 7th with 9th and 13th — rich, soulful 5 chord',
+  },
+  major13: {
+    mode: 'ionian',
+    description: 'Major 7th with 9th and 13th — wide and luminous',
+  },
+  minor13: {
+    mode: 'dorian',
+    description: 'Minor 7th with 9th and 13th — the full Dorian sound',
+  },
   minor7b9: {
     mode: 'phrygian',
     description: 'Dark minor with \u266D9 tension — Spanish, flamenco flavor',
@@ -118,7 +132,8 @@ export const CHORD_THEORY: Record<
   },
   minor7b5b9: {
     mode: 'locrian',
-    description: 'Half-diminished with \u266D9 — dark tension for jazz ii-V-i',
+    description:
+      'Half-diminished with \u266D9 — dark tension for a minor-key jazz 2-5-1',
   },
   'major7#9': {
     mode: 'lydianSharp2',
@@ -135,7 +150,7 @@ export const CHORD_THEORY: Record<
   },
   minor9b5: {
     mode: 'locrianNat2',
-    description: 'Half-diminished 9th — expanded jazz minor ii chord',
+    description: 'Half-diminished 9th — an expanded 2 chord in minor-key jazz',
   },
   'dominant7#9': {
     mode: 'alteredDominantNat5',
@@ -166,7 +181,7 @@ export const CHORD_THEORY: Record<
   // Additional 7th chords with theory context
   dominant7b9: {
     mode: 'phrygianDominant',
-    description: 'Dominant with \u266D9 — strong V chord in harmonic minor',
+    description: 'Dominant with \u266D9 — strong 5 chord in harmonic minor',
   },
   'major7#11': {
     mode: 'lydian',

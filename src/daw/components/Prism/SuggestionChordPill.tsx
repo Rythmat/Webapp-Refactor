@@ -7,6 +7,7 @@
 
 import { memo } from 'react';
 import type { SuggestionChord } from '@/daw/prism-engine/engine/suggestionEngine';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
 interface SuggestionChordPillProps {
   chord: SuggestionChord;
@@ -51,7 +52,7 @@ export const SuggestionChordPill = memo(function SuggestionChordPill({
         className="whitespace-nowrap text-[11px] font-medium"
         style={{ color: 'var(--color-text)' }}
       >
-        {chord.noteName}
+        {displayAccidentals(chord.noteName)}
       </span>
     </button>
   );

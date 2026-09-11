@@ -6,11 +6,11 @@
  * and are recognized as idiomatic in Western music.
  *
  * Patterns detected:
- *   - Minor plagal: IV → iv → I in major key
- *   - Picardy third: ending on I major in a minor key
- *   - Backdoor dominant: bVII7 → I
- *   - Tritone substitution: bII7 → I
- *   - Deceptive resolution: V → vi or V → bVI
+ *   - Minor plagal: 4 maj → 4 min → 1 in a major key
+ *   - Picardy third: ending on 1 maj in a minor key
+ *   - Backdoor dominant: ♭7 dom7 → 1
+ *   - Tritone substitution: ♭2 dom7 → 1
+ *   - Deceptive resolution: 5 → 6 or 5 → ♭6
  *   - Chromatic mediant: two consecutive chords with roots 3-4 semitones apart
  */
 
@@ -99,7 +99,7 @@ export function detectMixturePatterns(
   const patterns: MixturePattern[] = [];
 
   for (let i = 0; i < chords.length; i++) {
-    // Minor plagal: IV → iv → I (3-chord pattern)
+    // Minor plagal: 4 maj → 4 min → 1 (3-chord pattern)
     if (i + 2 < chords.length) {
       const mp = detectMinorPlagal(chords, i, key);
       if (mp) patterns.push(mp);
@@ -130,7 +130,7 @@ export function detectMixturePatterns(
 
 // ── Individual pattern detectors ─────────────────────────────────────────────
 
-/** IV → iv → I in major key */
+/** 4 maj → 4 min → 1 maj in a major key */
 function detectMinorPlagal(
   chords: UnisonChordRegion[],
   i: number,
@@ -158,14 +158,14 @@ function detectMinorPlagal(
       type: 'minor-plagal',
       startIndex: i,
       endIndex: i + 2,
-      label: 'Minor plagal cadence (IV → iv → I)',
+      label: 'Minor plagal cadence (4 maj → 4 min → 1 maj)',
     };
   }
 
   return null;
 }
 
-/** Final chord is I major in a minor key */
+/** Final chord is 1 maj in a minor key */
 function detectPicardyThird(
   chords: UnisonChordRegion[],
   key: KeyDetection,
@@ -181,14 +181,14 @@ function detectPicardyThird(
       type: 'picardy-third',
       startIndex: chords.length - 1,
       endIndex: chords.length - 1,
-      label: 'Picardy third (minor key ending on major I)',
+      label: 'Picardy third (minor key ending on 1 maj)',
     };
   }
 
   return null;
 }
 
-/** bVII7 → I */
+/** ♭7 dom7 → 1 */
 function detectBackdoorDominant(
   chords: UnisonChordRegion[],
   i: number,
@@ -197,7 +197,7 @@ function detectBackdoorDominant(
   const c1 = chords[i];
   const c2 = chords[i + 1];
 
-  // bVII: root is 10 semitones above key root (= 2 below)
+  // ♭7: root is 10 semitones above key root (= 2 below)
   const diff1 = (((c1.rootPc - key.rootPc) % 12) + 12) % 12;
   const d2 = getScaleDegree(c2.rootPc, key.rootPc, key.mode);
 
@@ -206,14 +206,14 @@ function detectBackdoorDominant(
       type: 'backdoor-dominant',
       startIndex: i,
       endIndex: i + 1,
-      label: 'Backdoor dominant (bVII7 → I)',
+      label: 'Backdoor dominant (♭7 dom7 → 1)',
     };
   }
 
   return null;
 }
 
-/** bII7 → I (tritone substitution for V7) */
+/** ♭2 dom7 → 1 (tritone substitution for 5 dom7) */
 function detectTritoneSubstitution(
   chords: UnisonChordRegion[],
   i: number,
@@ -222,7 +222,7 @@ function detectTritoneSubstitution(
   const c1 = chords[i];
   const c2 = chords[i + 1];
 
-  // bII: root is 1 semitone above key root
+  // ♭2: root is 1 semitone above key root
   const diff1 = (((c1.rootPc - key.rootPc) % 12) + 12) % 12;
   const d2 = getScaleDegree(c2.rootPc, key.rootPc, key.mode);
 
@@ -231,14 +231,14 @@ function detectTritoneSubstitution(
       type: 'tritone-substitution',
       startIndex: i,
       endIndex: i + 1,
-      label: 'Tritone substitution (bII7 → I)',
+      label: 'Tritone substitution (♭2 dom7 → 1)',
     };
   }
 
   return null;
 }
 
-/** V → vi or V → bVI */
+/** 5 → 6 or 5 → ♭6 */
 function detectDeceptiveResolution(
   chords: UnisonChordRegion[],
   i: number,
@@ -254,24 +254,24 @@ function detectDeceptiveResolution(
 
   const d2 = getScaleDegree(c2.rootPc, key.rootPc, key.mode);
 
-  // V → vi (diatonic deceptive)
+  // 5 → 6 (diatonic deceptive)
   if (d2 === 6) {
     return {
       type: 'deceptive-resolution',
       startIndex: i,
       endIndex: i + 1,
-      label: 'Deceptive cadence (V → vi)',
+      label: 'Deceptive cadence (5 → 6)',
     };
   }
 
-  // V → bVI (chromatic deceptive)
+  // 5 → ♭6 (chromatic deceptive)
   const diff2 = (((c2.rootPc - key.rootPc) % 12) + 12) % 12;
   if (diff2 === 8 && isMajorQuality(c2.quality)) {
     return {
       type: 'deceptive-resolution',
       startIndex: i,
       endIndex: i + 1,
-      label: 'Deceptive cadence (V → bVI)',
+      label: 'Deceptive cadence (5 → ♭6)',
     };
   }
 
@@ -300,7 +300,7 @@ function detectChromaticMediant(
 
     // If both roots are diatonic, only flag if at least one chord's major
     // quality is NOT the expected diatonic quality for its scale degree.
-    // (e.g., I → iii in major: iii should be minor, so E major IS chromatic)
+    // (e.g., 1 → 3 in major: the 3 chord should be minor, so E major IS chromatic)
     if (bothDiatonicRoots) {
       const q1 = getExpectedQualities(d1!, key.mode);
       const q2 = getExpectedQualities(d2!, key.mode);

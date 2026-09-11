@@ -51,109 +51,152 @@ export function noteNameLetter(midi: number): string {
 }
 
 // ── Key-aware enharmonic spelling ──────────────────────────────────────────
+// All spelling comes from the enharmonic engine (Enharmonic Interpretation
+// Engine rules): the key center is named per Rule 1 (NOTES above), scale tones
+// get one letter per degree, other pitches follow KEY_NOTE_NAMES for the key —
+// or its parent major key for the diatonic modes. Names stay ASCII ("Bb", "F#",
+// "Ebb") because chord regions persist and re-parse them; wrap them with
+// displayAccidentals() for display.
 
-const SHARP_NAMES = [
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'G#',
-  'A',
-  'A#',
-  'B',
-];
-const FLAT_NAMES = [
-  'C',
-  'Db',
-  'D',
-  'Eb',
-  'E',
-  'F',
-  'Gb',
-  'G',
-  'Ab',
-  'A',
-  'Bb',
-  'B',
-];
+import {
+  buildSpellingMap,
+  formatNoteName,
+  noteNameToPitchClass,
+  spellChord,
+  spellLeadingRoot,
+  spellScale,
+} from '../../../curriculum/engine/genreGeneration/enharmonicEngine';
+import { CHORDS } from './chords';
+import { ALL_MODES } from './modes';
 
-// Sharp side of circle of fifths: G(7), D(2), A(9), E(4), B(11), F#(6)
-const SHARP_KEY_PCS = new Set([2, 4, 6, 7, 9, 11]);
+const mod12 = (n: number) => ((n % 12) + 12) % 12;
+
+const keySpellingCache = new Map<string, Map<number, string>>();
+
+function keySpelling(keyPc: number, mode?: string): Map<number, string> {
+  const cacheKey = `${keyPc}:${mode ?? ''}`;
+  let spelling = keySpellingCache.get(cacheKey);
+  if (!spelling) {
+    const steps = mode ? ALL_MODES[mode] : undefined;
+    spelling = new Map(
+      [...buildSpellingMap(NOTES[keyPc], steps)].map(([pc, name]) => [
+        pc,
+        formatNoteName(name, 'ascii'),
+      ]),
+    );
+    keySpellingCache.set(cacheKey, spelling);
+  }
+  return spelling;
+}
 
 /**
- * Key-aware note naming. Sharp keys use sharps, flat keys use flats,
- * key of C uses the default mixed mapping.
+ * Name pitch class `pc` in the key whose tonic is `keyPc`, optionally in `mode`
+ * (an ALL_MODES key). G minor → "Bb", "Eb"; never "A#", "D#".
  */
-export function noteNameInKey(pc: number, keyPc: number): string {
-  const idx = ((pc % 12) + 12) % 12;
-  if (keyPc === 0) return NOTES[idx];
-  return SHARP_KEY_PCS.has(keyPc) ? SHARP_NAMES[idx] : FLAT_NAMES[idx];
+export function noteNameInKey(
+  pc: number,
+  keyPc: number,
+  mode?: string,
+): string {
+  return keySpelling(mod12(keyPc), mode).get(mod12(pc))!;
+}
+
+/** MIDI → "Bb4" in the key. The octave follows the letter: "Cb5" is MIDI 71. */
+export function midiNameInKey(
+  midi: number,
+  keyPc: number,
+  mode?: string,
+): string {
+  const name = noteNameInKey(midi, keyPc, mode);
+  const accidental =
+    (name.match(/#/g)?.length ?? 0) - (name.match(/b/g)?.length ?? 0);
+  return `${name}${Math.floor((midi - accidental) / 12) - 1}`;
+}
+
+/** Chord tones spelled as one unit from `root` (doc Rule 3). Map<pc, ASCII name>. */
+export function chordToneNames(
+  root: string,
+  intervals: number[],
+): Map<number, string> {
+  const rootPc = noteNameToPitchClass(root) ?? 0;
+  const names = spellChord(root, intervals);
+  return new Map(
+    intervals.map((interval, i) => [
+      mod12(rootPc + interval),
+      formatNoteName(names[i], 'ascii'),
+    ]),
+  );
+}
+
+/**
+ * Chord tones spelled as one unit from the chord root (doc Rule 3), the root
+ * named for the key: D major in G minor → D, F#, A (not Gb). Map<pc, ASCII name>.
+ */
+export function chordToneNamesInKey(
+  rootPc: number,
+  intervals: number[],
+  keyPc: number,
+  mode?: string,
+): Map<number, string> {
+  return chordToneNames(noteNameInKey(rootPc, keyPc, mode), intervals);
+}
+
+// "F# dim", "Bb maj/D", "Ebb min7(b5)": root, quality token, optional slash bass.
+const CHORD_NAME = /^([A-G](?:bb|##|b|#)?) (\S+?)(?:\/([A-G](?:bb|##|b|#)?))?$/;
+
+/**
+ * Doc Priority 1 for leading diminished chords. In an ordered list of chord names,
+ * a diminished chord whose root moves a half step to the next chord's root is
+ * spelled by that motion: "Gb dim" → "F# dim" before "G min", "F# dim" → "Gb dim"
+ * before "F min". A slash bass that is a chord tone follows the new root. Every
+ * other name is returned unchanged.
+ */
+export function respellLeadingChords(names: readonly string[]): string[] {
+  const result = [...names];
+  // Back to front, so each goal chord is already final when its lead-in is spelled.
+  for (let i = result.length - 2; i >= 0; i--) {
+    const chord = CHORD_NAME.exec(result[i]);
+    const goal = CHORD_NAME.exec(result[i + 1]);
+    if (!chord || !goal || !chord[2].startsWith('dim')) continue;
+    const [, root, quality, bass] = chord;
+    const leading = spellLeadingRoot(noteNameToPitchClass(root)!, goal[1]);
+    if (!leading) continue;
+    const newRoot = formatNoteName(leading, 'ascii');
+    const intervals =
+      CHORDS[quality.replace(/^dim/, 'diminished').replace(/[()]/g, '')];
+    const newBass =
+      bass && intervals
+        ? (chordToneNames(newRoot, intervals).get(
+            noteNameToPitchClass(bass)!,
+          ) ?? bass)
+        : bass;
+    result[i] = `${newRoot} ${quality}${newBass ? `/${newBass}` : ''}`;
+  }
+  return result;
 }
 
 // ── Scale-aware enharmonic spelling ──────────────────────────────────────────
 
-import { KEYS } from './keyColors';
-import { ALL_MODES } from './modes';
-
-const SEMITONE_TO_COF: Record<number, number> = {
-  0: 1,
-  7: 2,
-  2: 3,
-  9: 4,
-  4: 5,
-  11: 6,
-  6: 7,
-  1: 8,
-  8: 9,
-  3: 10,
-  10: 11,
-  5: 12,
-};
-const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-const LETTER_TO_PC: Record<string, number> = {
-  C: 0,
-  D: 2,
-  E: 4,
-  F: 5,
-  G: 7,
-  A: 9,
-  B: 11,
-};
-
 /**
- * Compute correctly-spelled note names for in-scale notes.
- * Each of the 7 letter names (A-G) appears exactly once.
- * Returns Map<pitchClass, spelledName> for the 7 in-scale notes.
+ * Correctly-spelled note names for in-scale notes.
+ * Each of the 7 letter names (A-G) appears exactly once; double accidentals are
+ * kept. Returns Map<pitchClass, spelledName> (ASCII) for the 7 in-scale notes.
  */
 export function getScaleSpellings(
   rootNote: number,
   mode: string,
 ): Map<number, string> {
   const intervals = ALL_MODES[mode];
-  if (!intervals) return new Map();
-  const rootName = KEYS[SEMITONE_TO_COF[rootNote]];
-  const rootLetter = rootName[0];
-  const rootLetterIdx = LETTERS.indexOf(rootLetter);
-  const result = new Map<number, string>();
-  for (let i = 0; i < intervals.length; i++) {
-    const pc = (rootNote + intervals[i]) % 12;
-    const letter = LETTERS[(rootLetterIdx + i) % 7];
-    const letterPc = LETTER_TO_PC[letter];
-    const diff = (pc - letterPc + 12) % 12;
-    let name: string;
-    if (diff === 0) name = letter;
-    else if (diff === 1) name = letter + '#';
-    else if (diff === 11) name = letter + 'b';
-    else if (diff === 2) name = letter + '##';
-    else if (diff === 10) name = letter + 'bb';
-    else name = KEYS[SEMITONE_TO_COF[pc]];
-    result.set(pc, name);
-  }
-  return result;
+  const scale = intervals
+    ? spellScale(NOTES[mod12(rootNote)], intervals)
+    : null;
+  if (!scale) return new Map();
+  return new Map(
+    scale.map((name, i) => [
+      mod12(rootNote + intervals[i]),
+      formatNoteName(name, 'ascii'),
+    ]),
+  );
 }
 
 /** Ticks per quarter note */
